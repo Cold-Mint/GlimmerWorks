@@ -1,7 +1,7 @@
+include/
+
 #clion
 .idea/
-cmake-build-debug/
 
 #vscode
-build/
 .vscode/

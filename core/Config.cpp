@@ -28,5 +28,7 @@ bool Glimmer::Config::loadConfig(const std::string &path) {
     window.height = jsonObject["window"]["height"].get<int>();
     window.resizable = jsonObject["window"]["resizable"].get<bool>();
     window.framerate = jsonObject["window"]["framerate"].get<int>();
+    mods.dataPackPath = jsonObject["mods"]["data_pack_path"].get<std::string>();
+    mods.resourcePackPath = jsonObject["mods"]["resource_pack_path"].get<std::string>();
     return true;
 }

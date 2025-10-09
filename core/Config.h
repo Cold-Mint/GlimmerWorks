@@ -13,12 +13,22 @@ namespace Glimmer {
         int framerate = 60;
     };
 
+    struct Mods {
+        std::string dataPackPath;
+        std::string resourcePackPath;
+    };
+
 
     class Config {
         Config() = default;
 
     public:
         Window window{};
+        Mods mods{};
+
+        Config(const Config &) = delete;
+
+        Config &operator=(const Config &) = delete;
 
         bool loadConfig(const std::string &path);
 

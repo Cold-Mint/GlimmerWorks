@@ -4,5 +4,9 @@
     "height": 1080,
     "resizable": true,
     "framerate": 60
+  },
+  "mods": {
+    "data_pack_path": "mods/data_packs",
+    "resource_pack_path": "mods/resource_packs"
   }
 }

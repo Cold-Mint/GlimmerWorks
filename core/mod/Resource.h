@@ -1,0 +1,20 @@
+//
+// Created by Cold-Mint on 2025/10/9.
+//
+#ifndef RESOURCE_H
+#define RESOURCE_H
+#include <string>
+
+namespace Glimmer {
+    struct Resource {
+        std::string packId;
+        std::string key;
+    };
+
+    struct StringResource : Resource {
+        std::string value;
+    };
+}
+
+
+#endif //RESOURCE_H

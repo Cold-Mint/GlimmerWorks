@@ -25,7 +25,13 @@ add_executable(GlimmerWorks main.cpp
         core/Config.cpp
         core/Config.h
         core/App.cpp
-        core/App.h)
+        core/App.h
+        core/mod/ResourceRef.cpp
+        core/mod/ResourceRef.h
+        core/mod/dataPack/StringManager.cpp
+        core/mod/dataPack/StringManager.h
+        core/mod/Resource.cpp
+        core/mod/Resource.h)
 
 target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3)
 
@@ -43,3 +49,27 @@ add_custom_command(TARGET GlimmerWorks POST_BUILD
         $<TARGET_FILE:SDL3::SDL3>
         "${CMAKE_BINARY_DIR}/libs/libSDL3.so.0"
 )
+
+#Clone data packets and resource packets.
+#克隆数据包和资源包
+FetchContent_Declare(
+        VanillaDataPack
+        GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-data.git"
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/data_packs/vanilla"
+)
+
+FetchContent_GetProperties(VanillaDataPack)
+if(NOT VanillaDataPack_POPULATED)
+    FetchContent_Populate(VanillaDataPack)
+endif()
+
+#FetchContent_Declare(
+#        VanillaResourcePack
+#        GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-assets.git"
+#        SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/vanilla"
+#)
+#
+#FetchContent_GetProperties(VanillaResourcePack)
+#if(NOT VanillaDataPack_POPULATED)
+#    FetchContent_Populate(VanillaResourcePack)
+#endif()

@@ -23,7 +23,9 @@ add_executable(GlimmerWorks main.cpp
         core/log/LogCat.cpp
         core/log/LogCat.h
         core/Config.cpp
-        core/Config.h)
+        core/Config.h
+        core/App.cpp
+        core/App.h)
 
 target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3)
 

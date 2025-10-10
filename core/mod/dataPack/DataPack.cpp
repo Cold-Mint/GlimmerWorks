@@ -9,11 +9,9 @@
 #include "StringManager.h"
 #include "../../log/LogCat.h"
 #include "../../utils/JsonUtils.h"
-#include "../../utils/LanguageUtils.h"
 namespace fs = std::filesystem;
 
-int Glimmer::DataPack::loadStringResource() const {
-    std::string language = LanguageUtils::getInstance().getLanguage();
+int Glimmer::DataPack::loadStringResource(const std::string &language) const {
     const fs::path langDir = fs::path(path) / "langs";
     const fs::path langFile = langDir / (language + ".json");
     const fs::path defaultFile = langDir / "default.json";
@@ -81,8 +79,8 @@ bool Glimmer::DataPack::loadManifest() {
     return true;
 }
 
-bool Glimmer::DataPack::loadPack() const {
-    return loadStringResource();
+bool Glimmer::DataPack::loadPack(const std::string &language) const {
+    return loadStringResource(language);
 }
 
 const Glimmer::PackManifest &Glimmer::DataPack::getManifest() const {

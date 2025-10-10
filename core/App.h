@@ -6,8 +6,8 @@
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_render.h>
 
-#include "Config.h"
 #include "log/LogCat.h"
+#include "scene/AppContext.h"
 
 
 namespace Glimmer {
@@ -15,6 +15,7 @@ namespace Glimmer {
         SDL_Window *window;
         bool initSDLSuccess;
         SDL_Renderer *renderer;
+        AppContext &appContext;
 
     public:
         ~App() {
@@ -27,13 +28,13 @@ namespace Glimmer {
             }
         }
 
-        App() {
+        explicit App(AppContext &ac): appContext(ac) {
             window = nullptr;
             renderer = nullptr;
             initSDLSuccess = false;
         }
 
-        bool init(const Config &config);
+        bool init();
 
         void run() const;
     };

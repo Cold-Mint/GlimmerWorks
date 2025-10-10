@@ -16,7 +16,7 @@ namespace Glimmer {
 
         //Load string resources
         //加载字符串资源
-        [[nodiscard]] int loadStringResource() const;
+        [[nodiscard]] int loadStringResource(const std::string &language) const;
 
         [[nodiscard]] int loadStringResourceFromFile(const std::string &path) const;
 
@@ -26,7 +26,7 @@ namespace Glimmer {
 
         bool loadManifest();
 
-        [[nodiscard]] bool loadPack() const;
+        [[nodiscard]] bool loadPack(const std::string &language) const;
 
         [[nodiscard]] const PackManifest &getManifest() const;
     };

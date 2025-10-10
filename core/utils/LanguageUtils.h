@@ -9,24 +9,16 @@
 namespace Glimmer {
     class LanguageUtils {
     public:
-        static LanguageUtils &getInstance() {
-            static LanguageUtils instance;
-            return instance;
+        static std::string getLanguage() {
+            if (const char *langEnv = std::getenv("LANG"); langEnv != nullptr) {
+                auto language = std::string(langEnv);
+                if (language.size() >= 5) {
+                    language = language.substr(0, 5);
+                }
+                return language;
+            }
+            return "en_US";
         }
-
-
-        [[nodiscard]] std::string getLanguage() const;
-
-        LanguageUtils(const LanguageUtils &) = delete;
-
-        LanguageUtils &operator=(const LanguageUtils &) = delete;
-
-    private:
-        LanguageUtils();
-
-        ~LanguageUtils() = default;
-
-        std::string currentLanguage;
     };
 }
 

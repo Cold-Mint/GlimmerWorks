@@ -22,22 +22,10 @@ namespace Glimmer {
 
 
     class Config {
-        Config() = default;
-
     public:
         Window window{};
         Mods mods{};
-
-        Config(const Config &) = delete;
-
-        Config &operator=(const Config &) = delete;
-
         bool loadConfig(const std::string &path);
-
-        static Config &getInstance() {
-            static Config instance;
-            return instance;
-        }
     };
 }
 

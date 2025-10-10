@@ -7,7 +7,6 @@
 #include <regex>
 #include "DataPack.h"
 #include "../../log/LogCat.h"
-#include "../../Config.h"
 
 namespace Glimmer {
     class Config;
@@ -37,12 +36,13 @@ bool Glimmer::DataPackManager::isDataPackAvailable(const DataPack &pack) {
     return true;
 }
 
-bool Glimmer::DataPackManager::isDataPackEnabled(const DataPack &pack, const Config &config) {
-    const auto &enabledList = config.mods.enabledDataPack;
-    return std::ranges::find(enabledList, pack.getManifest().id) != enabledList.end();
+bool Glimmer::DataPackManager::isDataPackEnabled(const DataPack &pack,
+                                                 const std::vector<std::string> &enabledDataPack) {
+    return std::ranges::find(enabledDataPack, pack.getManifest().id) != enabledDataPack.end();
 }
 
-int Glimmer::DataPackManager::scan(std::string &path) {
+int Glimmer::DataPackManager::scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
+                                   const std::string &language) {
     try {
         if (!fs::exists(path)) {
             LogCat::e("DataPackManager: Path does not exist -> ", path);
@@ -50,8 +50,6 @@ int Glimmer::DataPackManager::scan(std::string &path) {
         }
 
         LogCat::i("Scanning data packs in: ", path);
-        const Config &config = Config::getInstance();
-
         int success = 0;
         for (const auto &entry: fs::directory_iterator(path)) {
             if (entry.is_directory()) {
@@ -63,14 +61,14 @@ int Glimmer::DataPackManager::scan(std::string &path) {
                 }
                 // Determine whether the data packet is enabled
                 // 判断数据包是否启用
-                if (!isDataPackEnabled(pack, config)) {
+                if (!isDataPackEnabled(pack, enabledDataPack)) {
                     LogCat::w("Data pack not enabled: ", pack.getManifest().id);
                     continue;
                 }
                 if (!isDataPackAvailable(pack)) {
                     continue;
                 }
-                if (pack.loadPack()) {
+                if (pack.loadPack(language)) {
                     success++;
                 }
             }

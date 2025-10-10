@@ -4,6 +4,7 @@
 #include "core/Config.h"
 #include "core/log/LogCat.h"
 #include "core/mod/dataPack/DataPackManager.h"
+#include "core/scene/AppContext.h"
 #include "core/utils/LanguageUtils.h"
 
 using namespace Glimmer;
@@ -15,29 +16,28 @@ int main() {
         std::abort();
     });
     try {
-        const LanguageUtils &languageUtils = LanguageUtils::getInstance();
-        LogCat::i("System language: ", languageUtils.getLanguage());
-        LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
-        LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
-        LogCat::i("Starting GlimmerWorks...");
-        Config &config = Config::getInstance();
+        std::string language = LanguageUtils::getLanguage();
+        DataPackManager dataPackManager;
+        Config config;
         LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
         if (!config.loadConfig(CONFIG_FILE_NAME)) {
             return EXIT_FAILURE;
         }
-        LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
-
         LogCat::i("windowHeight = ", config.window.height);
         LogCat::i("windowWidth = ", config.window.width);
         LogCat::i("dataPackPath = ", config.mods.dataPackPath);
         LogCat::i("resourcePackPath = ", config.mods.resourcePackPath);
-
-        if (DataPackManager::scan(config.mods.dataPackPath) == 0) {
+        LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
+        AppContext appContext(language, dataPackManager, config);
+        LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
+        LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
+        LogCat::i("Starting GlimmerWorks...");
+        if (dataPackManager.scan(config.mods.dataPackPath, config.mods.enabledDataPack, language) == 0) {
             return EXIT_FAILURE;
         }
         LogCat::i("Starting the app...");
-        App app;
-        if (!app.init(config)) {
+        App app(appContext);
+        if (!app.init()) {
             return EXIT_FAILURE;
         }
         app.run();

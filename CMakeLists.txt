@@ -48,7 +48,11 @@ add_executable(GlimmerWorks main.cpp
         core/utils/LanguageUtils.cpp
         core/utils/LanguageUtils.h
         core/mod/ResourceRef.cpp
-        core/mod/ResourceRef.h)
+        core/mod/ResourceRef.h
+        core/scene/Scene.cpp
+        core/scene/Scene.h
+        core/scene/AppContext.cpp
+        core/scene/AppContext.h)
 
 #Define version information
 #定义版本信息

@@ -28,10 +28,6 @@ Glimmer::StringResource *Glimmer::StringManager::find(const std::string &packId,
 
 void Glimmer::StringManager::registerResource(const StringResource &stringResource) {
     LogCat::i("Registering string resource: packId = ", stringResource.packId,
-              ", key = ", stringResource.key);
-
+              ", key = ", stringResource.key, "value = ", stringResource.value);
     stringMap[stringResource.packId][stringResource.key] = stringResource;
-
-    LogCat::d("Current number of resources in pack ", stringResource.packId, ": ",
-              stringMap[stringResource.packId].size());
 }

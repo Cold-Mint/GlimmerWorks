@@ -14,11 +14,19 @@ namespace Glimmer {
         std::string path;
         PackManifest manifest;
 
+        //Load string resources
+        //加载字符串资源
+        [[nodiscard]] int loadStringResource() const;
+
+        [[nodiscard]] int loadStringResourceFromFile(const std::string &path) const;
+
     public:
         explicit DataPack(std::string path) : path(std::move(path)), manifest() {
         }
 
         bool loadManifest();
+
+        [[nodiscard]] bool loadPack() const;
 
         [[nodiscard]] const PackManifest &getManifest() const;
     };

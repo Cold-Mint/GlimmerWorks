@@ -6,8 +6,54 @@
 #include "../../Constants.h"
 #include <nlohmann/json.hpp>
 
+#include "StringManager.h"
 #include "../../log/LogCat.h"
 #include "../../utils/JsonUtils.h"
+#include "../../utils/LanguageUtils.h"
+namespace fs = std::filesystem;
+
+int Glimmer::DataPack::loadStringResource() const {
+    std::string language = LanguageUtils::getInstance().getLanguage();
+    const fs::path langDir = fs::path(path) / "langs";
+    const fs::path langFile = langDir / (language + ".json");
+    const fs::path defaultFile = langDir / "default.json";
+    if (exists(langFile)) {
+        LogCat::d("Loading language file: ", langFile.string());
+        return loadStringResourceFromFile(langFile.string());
+    }
+    if (exists(defaultFile)) {
+        LogCat::d("Language file not found for ", language, ", using default.json");
+        return loadStringResourceFromFile(defaultFile.string());
+    }
+    LogCat::w("No language file found in ", langDir.string());
+    return 0;
+}
+
+int Glimmer::DataPack::loadStringResourceFromFile(const std::string &path) const {
+    const auto jsonOpt = JsonUtils::LoadJsonFromFile(path);
+    if (!jsonOpt) {
+        LogCat::e("Failed to load JSON file: ", path);
+        return 0;
+    }
+
+    const auto &jsonObject = *jsonOpt;
+    if (!jsonObject.is_array()) {
+        LogCat::e("Invalid language file format (expected array): ", path);
+        return 0;
+    }
+
+    int count = 0;
+    StringManager &stringManager = StringManager::getInstance();
+    for (const auto &item: jsonObject) {
+        auto stringRes = item.get<StringResource>();
+        stringRes.packId = manifest.id;
+        stringManager.registerResource(stringRes);
+        count++;
+    }
+
+    LogCat::i("Loaded ", count, " language entries from ", path);
+    return count;
+}
 
 bool Glimmer::DataPack::loadManifest() {
     const auto jsonOpt = JsonUtils::LoadJsonFromFile(path + "/" + MANIFEST_FILE_NAME);
@@ -26,8 +72,8 @@ bool Glimmer::DataPack::loadManifest() {
     }
     LogCat::d("DataPack::loadManifest - Loaded manifest for data pack: ", path);
     LogCat::d("ID: ", manifest.id);
-    LogCat::d("Name: ", manifest.name.key, " (packId: ", manifest.name.packId, ")");
-    LogCat::d("Description: ", manifest.description.key, " (packId: ", manifest.description.packId, ")");
+    LogCat::d("Name: ", manifest.name.resourceKey, " (packId: ", manifest.name.packId, ")");
+    LogCat::d("Description: ", manifest.description.resourceKey, " (packId: ", manifest.description.packId, ")");
     LogCat::d("Author: ", manifest.author);
     LogCat::d("Version: ", manifest.versionName, " (Number: ", manifest.versionNumber, ")");
     LogCat::d("Minimum Game Version: ", manifest.minGameVersion);
@@ -35,7 +81,10 @@ bool Glimmer::DataPack::loadManifest() {
     return true;
 }
 
-const Glimmer::PackManifest & Glimmer::DataPack::getManifest() const {
-    return manifest;
+bool Glimmer::DataPack::loadPack() const {
+    return loadStringResource();
 }
 
+const Glimmer::PackManifest &Glimmer::DataPack::getManifest() const {
+    return manifest;
+}

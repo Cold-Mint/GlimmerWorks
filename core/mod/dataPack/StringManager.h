@@ -9,10 +9,6 @@
 
 
 namespace Glimmer {
-    struct StringRes {
-    };
-
-
     class StringManager {
         StringManager() = default;
 

@@ -12,9 +12,7 @@ namespace Glimmer {
     };
 
     struct StringResource : Resource {
-        //If the local string cannot be found, use this field.
-        //如果找不到本地字符串，则使用此字段。
-        std::string fallback;
+        std::string value;
     };
 }
 

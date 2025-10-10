@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
 #include "../mod/Resource.h"
+#include "../mod/ResourceRef.h"
 #include "../mod/PackManifest.h"
 #include "../Config.h"
 
@@ -24,16 +25,14 @@ namespace Glimmer {
 template<>
 struct nlohmann::adl_serializer<Glimmer::StringResource> {
     static void from_json(const json &j, Glimmer::StringResource &s) {
-        s.packId = j.at("packId").get<std::string>();
         s.key = j.at("resourceKey").get<std::string>();
-        s.fallback = j.at("fallback").get<std::string>();
+        s.value = j.at("value").get<std::string>();
     }
 
     static void to_json(json &j, const Glimmer::StringResource &s) {
         j = json{
-            {"packId", s.packId},
             {"resourceKey", s.key},
-            {"fallback", s.fallback},
+            {"value", s.value},
         };
     }
 };
@@ -41,13 +40,11 @@ struct nlohmann::adl_serializer<Glimmer::StringResource> {
 template<>
 struct nlohmann::adl_serializer<Glimmer::Resource> {
     static void from_json(const json &j, Glimmer::Resource &r) {
-        r.packId = j.at("packId").get<std::string>();
         r.key = j.at("resourceKey").get<std::string>();
     }
 
     static void to_json(json &j, const Glimmer::Resource &r) {
         j = json{
-            {"packId", r.packId},
             {"resourceKey", r.key}
         };
     }
@@ -58,12 +55,14 @@ struct nlohmann::adl_serializer<Glimmer::Mods> {
     static void from_json(const json &j, Glimmer::Mods &m) {
         m.dataPackPath = j.at("dataPackPath").get<std::string>();
         m.resourcePackPath = j.at("resourcePackPath").get<std::string>();
+        m.enabledDataPack = j.at("enabledDataPack").get<std::vector<std::string> >();
     }
 
     static void to_json(json &j, const Glimmer::Mods &m) {
         j = json{
             {"dataPackPath", m.dataPackPath},
-            {"resourcePackPath", m.resourcePackPath}
+            {"resourcePackPath", m.resourcePackPath},
+            {"enabledDataPack", m.enabledDataPack}
         };
     }
 };
@@ -88,11 +87,28 @@ struct nlohmann::adl_serializer<Glimmer::Window> {
 };
 
 template<>
+struct nlohmann::adl_serializer<Glimmer::ResourceRef> {
+    static void from_json(const json &j, Glimmer::ResourceRef &resourceRef) {
+        resourceRef.packId = j.at("packId").get<std::string>();
+        resourceRef.resourceType = j.at("resourceType").get<int>();
+        resourceRef.resourceKey = j.at("resourceKey").get<std::string>();
+    }
+
+    static void to_json(json &j, const Glimmer::ResourceRef &resourceRef) {
+        j = json{
+            {"packId", resourceRef.packId},
+            {"resourceType", resourceRef.resourceType},
+            {"resourceKey", resourceRef.resourceKey}
+        };
+    }
+};
+
+template<>
 struct nlohmann::adl_serializer<Glimmer::PackManifest> {
     static void from_json(const json &j, Glimmer::PackManifest &manifest) {
         manifest.id = j.at("id").get<std::string>();
-        manifest.name = j.at("name").get<Glimmer::StringResource>();
-        manifest.description = j.at("description").get<Glimmer::StringResource>();
+        manifest.name = j.at("name").get<Glimmer::ResourceRef>();
+        manifest.description = j.at("description").get<Glimmer::ResourceRef>();
         manifest.resPack = j.at("resPack").get<bool>();
         manifest.author = j.at("author").get<std::string>();
         manifest.versionName = j.at("versionName").get<std::string>();

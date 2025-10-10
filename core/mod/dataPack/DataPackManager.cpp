@@ -4,7 +4,7 @@
 #include "DataPackManager.h"
 
 #include <filesystem>
-
+#include <regex>
 #include "DataPack.h"
 #include "../../log/LogCat.h"
 #include "../../Config.h"
@@ -16,12 +16,30 @@ namespace Glimmer {
 namespace fs = std::filesystem;
 
 bool Glimmer::DataPackManager::isDataPackAvailable(const DataPack &pack) {
-    if (PackManifest manifest = pack.getManifest(); manifest.minGameVersion > GAME_VERSION_NUMBER) {
+    const PackManifest &manifest = pack.getManifest();
+    static const std::regex uuidPattern(
+        "^[0-9a-fA-F]{8}-"
+        "[0-9a-fA-F]{4}-"
+        "[0-9a-fA-F]{4}-"
+        "[0-9a-fA-F]{4}-"
+        "[0-9a-fA-F]{12}$"
+    );
+
+    if (!std::regex_match(manifest.id, uuidPattern)) {
+        LogCat::e("Invalid DataPack id format: ", manifest.id);
+        return false;
+    }
+    if (manifest.minGameVersion > GAME_VERSION_NUMBER) {
         LogCat::e("DataPack ", manifest.id, " requires game version ",
                   manifest.minGameVersion, ", current version: ", GAME_VERSION_NUMBER);
         return false;
     }
     return true;
+}
+
+bool Glimmer::DataPackManager::isDataPackEnabled(const DataPack &pack, const Config &config) {
+    const auto &enabledList = config.mods.enabledDataPack;
+    return std::ranges::find(enabledList, pack.getManifest().id) != enabledList.end();
 }
 
 int Glimmer::DataPackManager::scan(std::string &path) {
@@ -32,7 +50,8 @@ int Glimmer::DataPackManager::scan(std::string &path) {
         }
 
         LogCat::i("Scanning data packs in: ", path);
-        Config &config = Config::getInstance();
+        const Config &config = Config::getInstance();
+
         int success = 0;
         for (const auto &entry: fs::directory_iterator(path)) {
             if (entry.is_directory()) {
@@ -42,10 +61,18 @@ int Glimmer::DataPackManager::scan(std::string &path) {
                 if (!pack.loadManifest()) {
                     continue;
                 }
+                // Determine whether the data packet is enabled
+                // 判断数据包是否启用
+                if (!isDataPackEnabled(pack, config)) {
+                    LogCat::w("Data pack not enabled: ", pack.getManifest().id);
+                    continue;
+                }
                 if (!isDataPackAvailable(pack)) {
                     continue;
                 }
-                success++;
+                if (pack.loadPack()) {
+                    success++;
+                }
             }
         }
         return success;

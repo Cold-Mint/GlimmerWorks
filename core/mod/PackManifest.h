@@ -5,14 +5,14 @@
 #define DATAPACKMANIFEST_H
 #include <string>
 
-#include "Resource.h"
+#include "ResourceRef.h"
 
 
 namespace Glimmer {
     struct PackManifest {
         std::string id;
-        StringResource name;
-        StringResource description;
+        ResourceRef name;
+        ResourceRef description;
         bool resPack;
         std::string author;
         std::string versionName;

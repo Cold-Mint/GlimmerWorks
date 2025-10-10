@@ -8,6 +8,7 @@
 // Manifest file names of data packets and resource packets
 // 数据包和资源包的清单文件名
 #define MANIFEST_FILE_NAME "manifest.json"
+#define RESOURCE_TYPE_STRING 1
 
 
 #endif //CONSTANTS_H

@@ -4,6 +4,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 #include <string>
+#include <vector>
 
 namespace Glimmer {
     struct Window {
@@ -16,6 +17,7 @@ namespace Glimmer {
     struct Mods {
         std::string dataPackPath;
         std::string resourcePackPath;
+        std::vector<std::string> enabledDataPack;
     };
 
 

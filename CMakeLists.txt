@@ -46,7 +46,9 @@ add_executable(GlimmerWorks main.cpp
         core/utils/JsonUtils.cpp
         core/utils/JsonUtils.h
         core/utils/LanguageUtils.cpp
-        core/utils/LanguageUtils.h)
+        core/utils/LanguageUtils.h
+        core/mod/ResourceRef.cpp
+        core/mod/ResourceRef.h)
 
 #Define version information
 #定义版本信息

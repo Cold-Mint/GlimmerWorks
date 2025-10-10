@@ -7,6 +7,9 @@
   },
   "mods": {
     "dataPackPath": "mods/data_packs",
-    "resourcePackPath": "mods/resource_packs"
+    "resourcePackPath": "mods/resource_packs",
+    "enabledDataPack": [
+      "45673128-fd78-4bce-93e7-0d32eec0fd90"
+    ]
   }
 }

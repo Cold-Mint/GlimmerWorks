@@ -6,7 +6,7 @@
     "framerate": 60
   },
   "mods": {
-    "data_pack_path": "mods/data_packs",
-    "resource_pack_path": "mods/resource_packs"
+    "dataPackPath": "mods/data_packs",
+    "resourcePackPath": "mods/resource_packs"
   }
 }

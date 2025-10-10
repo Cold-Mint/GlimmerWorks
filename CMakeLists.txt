@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.28)
 project(GlimmerWorks)
 
 set(CMAKE_CXX_STANDARD 26)
+set(GAME_VERSION_MAJOR 0)
+set(GAME_VERSION_MINOR 1)
+set(GAME_VERSION_PATCH 0)
+set(GAME_VERSION_STRING "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
+set(GAME_VERSION_NUMBER 1)
+set(CONFIG_FILE_NAME "config.json")
 include(FetchContent)
 FetchContent_Declare(
         nlohmann_json
@@ -26,12 +32,32 @@ add_executable(GlimmerWorks main.cpp
         core/Config.h
         core/App.cpp
         core/App.h
-        core/mod/ResourceRef.cpp
-        core/mod/ResourceRef.h
         core/mod/dataPack/StringManager.cpp
         core/mod/dataPack/StringManager.h
         core/mod/Resource.cpp
-        core/mod/Resource.h)
+        core/mod/Resource.h
+        core/mod/dataPack/DataPackManager.cpp
+        core/mod/dataPack/DataPackManager.h
+        core/mod/dataPack/DataPack.cpp
+        core/mod/dataPack/DataPack.h
+        core/mod/PackManifest.cpp
+        core/mod/PackManifest.h
+        core/Constants.h
+        core/utils/JsonUtils.cpp
+        core/utils/JsonUtils.h
+        core/utils/LanguageUtils.cpp
+        core/utils/LanguageUtils.h)
+
+#Define version information
+#定义版本信息
+target_compile_definitions(GlimmerWorks PRIVATE
+        GAME_VERSION_MAJOR=${GAME_VERSION_MAJOR}
+        GAME_VERSION_MINOR=${GAME_VERSION_MINOR}
+        GAME_VERSION_PATCH=${GAME_VERSION_PATCH}
+        GAME_VERSION_STRING="${GAME_VERSION_STRING}"
+        GAME_VERSION_NUMBER=${GAME_VERSION_NUMBER}
+        CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
+)
 
 target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3)
 
@@ -39,7 +65,7 @@ target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/json/include"
 )
 
-file(COPY "${CMAKE_SOURCE_DIR}/config.json"
+file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"
         DESTINATION "${CMAKE_BINARY_DIR}/")
 
 file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" "*")
@@ -59,9 +85,9 @@ FetchContent_Declare(
 )
 
 FetchContent_GetProperties(VanillaDataPack)
-if(NOT VanillaDataPack_POPULATED)
+if (NOT VanillaDataPack_POPULATED)
     FetchContent_Populate(VanillaDataPack)
-endif()
+endif ()
 
 #FetchContent_Declare(
 #        VanillaResourcePack

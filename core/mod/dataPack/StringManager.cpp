@@ -21,15 +21,14 @@ Glimmer::StringResource *Glimmer::StringManager::find(const std::string &packId,
         return nullptr;
     }
 
-    LogCat::i("Found string resource: packId = ", packId, ", key = ", key, ", value = ", keyIt->second.value);
+    LogCat::i("Found string resource: packId = ", packId, ", key = ", key);
     return &keyIt->second;
 }
 
 
 void Glimmer::StringManager::registerResource(const StringResource &stringResource) {
     LogCat::i("Registering string resource: packId = ", stringResource.packId,
-              ", key = ", stringResource.key,
-              ", value = ", stringResource.value);
+              ", key = ", stringResource.key);
 
     stringMap[stringResource.packId][stringResource.key] = stringResource;
 

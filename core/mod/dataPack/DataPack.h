@@ -6,11 +6,11 @@
 #include <string>
 #include <utility>
 
-#include "StringManager.h"
 #include "../PackManifest.h"
 
-
 namespace Glimmer {
+    class StringManager;
+
     class DataPack {
         std::string path;
         PackManifest manifest;

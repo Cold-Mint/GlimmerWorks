@@ -57,7 +57,8 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(imgui)
 
-add_executable(GlimmerWorks main.cpp
+add_executable(GlimmerWorks ${IMGUI_SOURCES}
+        main.cpp
         core/log/LogCat.cpp
         core/log/LogCat.h
         core/Config.cpp
@@ -85,7 +86,8 @@ add_executable(GlimmerWorks main.cpp
         core/scene/Scene.h
         core/scene/AppContext.cpp
         core/scene/AppContext.h
-        ${IMGUI_SOURCES})
+        core/scene/SplashScene.cpp
+        core/scene/SplashScene.h)
 
 #Define version information
 #定义版本信息

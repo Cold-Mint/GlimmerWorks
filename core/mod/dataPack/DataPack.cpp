@@ -9,6 +9,7 @@
 #include "StringManager.h"
 #include "../../log/LogCat.h"
 #include "../../utils/JsonUtils.h"
+#include "../../core/mod/PackManifest.h"
 namespace fs = std::filesystem;
 
 int Glimmer::DataPack::loadStringResource(const std::string &language, StringManager &stringManager) const {

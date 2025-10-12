@@ -40,7 +40,7 @@ int main() {
             return EXIT_FAILURE;
         }
         LogCat::i("Starting the app...");
-        App app(appContext);
+        App app(&appContext);
         if (!app.init()) {
             return EXIT_FAILURE;
         }

@@ -5,6 +5,7 @@
 #include <SDL3/SDL.h>
 #include "log/LogCat.h"
 #include "Config.h"
+#include "scene/SplashScene.h"
 
 bool Glimmer::App::init() {
     LogCat::i("Initializing SDL...");
@@ -18,9 +19,9 @@ bool Glimmer::App::init() {
     LogCat::i("Creating SDL window...");
     window = SDL_CreateWindow(
         "GlimmerWorks",
-        appContext.config->window.width,
-        appContext.config->window.height,
-        appContext.config->window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
+        appContext->config->window.width,
+        appContext->config->window.height,
+        appContext->config->window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
     );
     if (!window) {
         LogCat::e("SDL_CreateWindow Error: ", SDL_GetError());
@@ -40,11 +41,13 @@ bool Glimmer::App::init() {
 }
 
 void Glimmer::App::run() const {
-    const int frameDelay = 1000 / appContext.config->window.framerate;
+    const int frameDelay = 1000 / appContext->config->window.framerate;
     bool running = true;
     SDL_Event event;
     LogCat::i("Entering main loop...");
-
+    //Initialize the main scene.
+    //初始化主场景。
+    appContext->sceneManager->changeScene(new SplashScene(appContext)); //Clangd: Cannot initialize a parameter of type 'Glimmer::Scene *' with an rvalue of type 'Glimmer::SplashScene *'
     while (running) {
         const Uint64 frameStart = SDL_GetTicks();
         while (SDL_PollEvent(&event)) {
@@ -56,8 +59,7 @@ void Glimmer::App::run() const {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
-        const Uint64 frameTime = SDL_GetTicks() - frameStart;
-        if (frameDelay > frameTime) {
+        if (const Uint64 frameTime = SDL_GetTicks() - frameStart; frameDelay > frameTime) {
             SDL_Delay(frameDelay - frameTime);
         }
     }

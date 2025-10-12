@@ -9,6 +9,8 @@
 
 
 namespace Glimmer {
+    struct StringResource;
+
     class StringManager {
         std::unordered_map<std::string, std::unordered_map<std::string, StringResource> > stringMap{};
 

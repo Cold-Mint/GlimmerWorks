@@ -6,10 +6,12 @@
 #include <string>
 
 #include "SceneManager.h"
-#include "../mod/dataPack/DataPackManager.h"
 
 
 namespace Glimmer {
+    class StringManager;
+    class Config;
+    class DataPackManager;
     /**
      * @class AppContext
      * @brief 应用上下文，管理共享资源和依赖。

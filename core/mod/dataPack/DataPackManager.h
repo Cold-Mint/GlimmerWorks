@@ -6,10 +6,10 @@
 #include <string>
 #include <vector>
 
-#include "DataPack.h"
-
 
 namespace Glimmer {
+    class StringManager;
+    class DataPack;
     class Config;
 
     class DataPackManager {

@@ -8,7 +8,11 @@
 
 
 namespace Glimmer {
+    class AppContext;
+
     class Scene {
+        AppContext *appContext = nullptr;
+
         //Handle events (inputs, window messages, etc.)
         //处理事件（输入、窗口消息等）
         virtual void HandleEvent(const SDL_Event &event) = 0;
@@ -22,7 +26,10 @@ namespace Glimmer {
         virtual void Render(SDL_Window *window, SDL_Renderer *renderer) = 0;
 
     public:
-        virtual ~Scene() = 0;
+        virtual ~Scene() = default;
+
+        explicit Scene(AppContext *context) : appContext(context) {
+        }
     };
 }
 

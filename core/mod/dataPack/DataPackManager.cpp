@@ -42,7 +42,7 @@ bool Glimmer::DataPackManager::isDataPackEnabled(const DataPack &pack,
 }
 
 int Glimmer::DataPackManager::scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
-                                   const std::string &language) {
+                                   const std::string &language,  StringManager & stringManager) {
     try {
         if (!fs::exists(path)) {
             LogCat::e("DataPackManager: Path does not exist -> ", path);
@@ -68,7 +68,7 @@ int Glimmer::DataPackManager::scan(const std::string &path, const std::vector<st
                 if (!isDataPackAvailable(pack)) {
                     continue;
                 }
-                if (pack.loadPack(language)) {
+                if (pack.loadPack(language,stringManager)) {
                     success++;
                 }
             }

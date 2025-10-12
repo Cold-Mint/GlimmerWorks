@@ -10,10 +10,6 @@
 
 namespace Glimmer {
     class StringManager {
-        StringManager() = default;
-
-        ~StringManager() = default;
-
         std::unordered_map<std::string, std::unordered_map<std::string, StringResource> > stringMap{};
 
     public:
@@ -24,15 +20,6 @@ namespace Glimmer {
         //Search for string resources based on the data packet id and string key.
         //根据数据包id和字符串key查找字符串资源。
         StringResource *find(const std::string &packId, const std::string &key);
-
-        static StringManager &getInstance() {
-            static StringManager instance;
-            return instance;
-        }
-
-        StringManager(const StringManager &) = delete;
-
-        StringManager &operator=(const StringManager &) = delete;
     };
 }
 

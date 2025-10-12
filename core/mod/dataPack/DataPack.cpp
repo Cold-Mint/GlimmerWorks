@@ -11,23 +11,23 @@
 #include "../../utils/JsonUtils.h"
 namespace fs = std::filesystem;
 
-int Glimmer::DataPack::loadStringResource(const std::string &language) const {
+int Glimmer::DataPack::loadStringResource(const std::string &language, StringManager &stringManager) const {
     const fs::path langDir = fs::path(path) / "langs";
     const fs::path langFile = langDir / (language + ".json");
     const fs::path defaultFile = langDir / "default.json";
     if (exists(langFile)) {
         LogCat::d("Loading language file: ", langFile.string());
-        return loadStringResourceFromFile(langFile.string());
+        return loadStringResourceFromFile(langFile.string(), stringManager);
     }
     if (exists(defaultFile)) {
         LogCat::d("Language file not found for ", language, ", using default.json");
-        return loadStringResourceFromFile(defaultFile.string());
+        return loadStringResourceFromFile(defaultFile.string(), stringManager);
     }
     LogCat::w("No language file found in ", langDir.string());
     return 0;
 }
 
-int Glimmer::DataPack::loadStringResourceFromFile(const std::string &path) const {
+int Glimmer::DataPack::loadStringResourceFromFile(const std::string &path, StringManager &stringManager) const {
     const auto jsonOpt = JsonUtils::LoadJsonFromFile(path);
     if (!jsonOpt) {
         LogCat::e("Failed to load JSON file: ", path);
@@ -41,7 +41,6 @@ int Glimmer::DataPack::loadStringResourceFromFile(const std::string &path) const
     }
 
     int count = 0;
-    StringManager &stringManager = StringManager::getInstance();
     for (const auto &item: jsonObject) {
         auto stringRes = item.get<StringResource>();
         stringRes.packId = manifest.id;
@@ -79,8 +78,8 @@ bool Glimmer::DataPack::loadManifest() {
     return true;
 }
 
-bool Glimmer::DataPack::loadPack(const std::string &language) const {
-    return loadStringResource(language);
+bool Glimmer::DataPack::loadPack(const std::string &language, StringManager &stringManager) const {
+    return loadStringResource(language, stringManager);
 }
 
 const Glimmer::PackManifest &Glimmer::DataPack::getManifest() const {

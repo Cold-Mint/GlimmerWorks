@@ -18,9 +18,9 @@ bool Glimmer::App::init() {
     LogCat::i("Creating SDL window...");
     window = SDL_CreateWindow(
         "GlimmerWorks",
-        appContext.config.window.width,
-        appContext.config.window.height,
-        appContext.config.window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
+        appContext.config->window.width,
+        appContext.config->window.height,
+        appContext.config->window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
     );
     if (!window) {
         LogCat::e("SDL_CreateWindow Error: ", SDL_GetError());
@@ -40,7 +40,7 @@ bool Glimmer::App::init() {
 }
 
 void Glimmer::App::run() const {
-    const int frameDelay = 1000 / appContext.config.window.framerate;
+    const int frameDelay = 1000 / appContext.config->window.framerate;
     bool running = true;
     SDL_Event event;
     LogCat::i("Entering main loop...");

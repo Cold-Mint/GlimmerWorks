@@ -24,7 +24,7 @@ namespace Glimmer {
         //Scan the data packets in the specified directory(Return the number of data packets successfully loaded)
         //扫描指定目录下的数据包（返回成功加载多少个数据包）
         int scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
-                 const std::string &language);
+                 const std::string &language, StringManager &stringManager);
     };
 }
 

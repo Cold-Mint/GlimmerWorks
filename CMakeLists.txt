@@ -5,9 +5,25 @@ set(CMAKE_CXX_STANDARD 26)
 set(GAME_VERSION_MAJOR 0)
 set(GAME_VERSION_MINOR 1)
 set(GAME_VERSION_PATCH 0)
+set(IMGUI_VERSION "1.92.3")
 set(GAME_VERSION_STRING "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
 set(GAME_VERSION_NUMBER 1)
 set(CONFIG_FILE_NAME "config.json")
+# ImGui source file
+# ImGui 源文件
+set(IMGUI_SOURCES
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_widgets.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_tables.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_demo.cpp"
+        # SDL3 backend
+        # SDL3 后端
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdl3.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdlrenderer3.cpp"
+        core/scene/SceneManager.cpp
+        core/scene/SceneManager.h
+)
 include(FetchContent)
 FetchContent_Declare(
         nlohmann_json
@@ -24,6 +40,22 @@ FetchContent_Declare(
         GIT_TAG "release-3.2.22"
 )
 FetchContent_MakeAvailable(SDL)
+
+FetchContent_Declare(
+        SDL_image
+        GIT_REPOSITORY "https://github.com/libsdl-org/SDL_image.git"
+        GIT_TAG "release-3.2.4"
+)
+FetchContent_MakeAvailable(SDL_image)
+
+FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
+        GIT_TAG "v${IMGUI_VERSION}"
+        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}"
+)
+
+FetchContent_MakeAvailable(imgui)
 
 add_executable(GlimmerWorks main.cpp
         core/log/LogCat.cpp
@@ -52,7 +84,8 @@ add_executable(GlimmerWorks main.cpp
         core/scene/Scene.cpp
         core/scene/Scene.h
         core/scene/AppContext.cpp
-        core/scene/AppContext.h)
+        core/scene/AppContext.h
+        ${IMGUI_SOURCES})
 
 #Define version information
 #定义版本信息
@@ -69,6 +102,10 @@ target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3)
 
 target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/json/include"
+)
+
+target_include_directories(GlimmerWorks PRIVATE
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}"
 )
 
 file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"
@@ -92,7 +129,7 @@ FetchContent_Declare(
 
 FetchContent_GetProperties(VanillaDataPack)
 if (NOT VanillaDataPack_POPULATED)
-    FetchContent_Populate(VanillaDataPack)
+    FetchContent_MakeAvailable(VanillaDataPack)
 endif ()
 
 #FetchContent_Declare(

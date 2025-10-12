@@ -5,6 +5,7 @@
 #define APPCONTEXT_H
 #include <string>
 
+#include "SceneManager.h"
 #include "../mod/dataPack/DataPackManager.h"
 
 
@@ -19,12 +20,14 @@ namespace Glimmer {
      */
     class AppContext {
     public:
-        std::string &language;
-        DataPackManager &dataPackManager;
-        Config &config;
+        std::string *language;
+        DataPackManager *dataPackManager;
+        Config *config;
+        SceneManager *sceneManager;
+        StringManager *stringManager;
 
-        AppContext(std::string &lang, DataPackManager &dpm, Config &cfg)
-            : language(lang), dataPackManager(dpm), config(cfg) {
+        AppContext(SceneManager *sm, std::string *lang, DataPackManager *dpm, Config *cfg, StringManager *stringManager)
+            : language(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager) {
         }
     };
 }

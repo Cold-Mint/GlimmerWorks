@@ -9,7 +9,6 @@
 
 namespace Glimmer {
     class Scene {
-
         //Handle events (inputs, window messages, etc.)
         //处理事件（输入、窗口消息等）
         virtual void HandleEvent(const SDL_Event &event) = 0;
@@ -22,7 +21,8 @@ namespace Glimmer {
         // 渲染帧 - 每次循环调用
         virtual void Render(SDL_Window *window, SDL_Renderer *renderer) = 0;
 
-
+    public:
+        virtual ~Scene() = 0;
     };
 }
 

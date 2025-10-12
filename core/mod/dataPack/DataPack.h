@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 
+#include "StringManager.h"
 #include "../PackManifest.h"
 
 
@@ -16,9 +17,9 @@ namespace Glimmer {
 
         //Load string resources
         //加载字符串资源
-        [[nodiscard]] int loadStringResource(const std::string &language) const;
+        [[nodiscard]] int loadStringResource(const std::string &language, StringManager &stringManager) const;
 
-        [[nodiscard]] int loadStringResourceFromFile(const std::string &path) const;
+        [[nodiscard]] int loadStringResourceFromFile(const std::string &path, StringManager &stringManager) const;
 
     public:
         explicit DataPack(std::string path) : path(std::move(path)), manifest() {
@@ -26,7 +27,8 @@ namespace Glimmer {
 
         bool loadManifest();
 
-        [[nodiscard]] bool loadPack(const std::string &language) const;
+        [[nodiscard]] bool loadPack(const std::string &language,
+                                    StringManager &stringManager) const;
 
         [[nodiscard]] const PackManifest &getManifest() const;
     };

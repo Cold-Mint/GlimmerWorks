@@ -4,11 +4,16 @@
 
 #ifndef GLIMMERWORKS_CONSOLESCENE_H
 #define GLIMMERWORKS_CONSOLESCENE_H
+#include <string>
+#include <vector>
+
 #include "Scene.h"
 
 namespace Glimmer {
     class ConsoleScene : public Scene {
         bool show = false;
+        char inputBuffer[256] = {};
+        std::vector<std::string> messages;
 
     public:
         explicit ConsoleScene(AppContext *context)

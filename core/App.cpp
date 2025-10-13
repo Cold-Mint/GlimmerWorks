@@ -5,6 +5,9 @@
 #include <SDL3/SDL.h>
 #include "log/LogCat.h"
 #include "Config.h"
+#include "imgui.h"
+#include "backends/imgui_impl_sdl3.h"
+#include "backends/imgui_impl_sdlrenderer3.h"
 #include "scene/SplashScene.h"
 #include "scene/ConsoleScene.h"
 
@@ -38,6 +41,34 @@ bool Glimmer::App::init() {
         return false;
     }
     LogCat::i("SDL renderer created successfully.");
+    LogCat::i("Initializing ImGui context...");
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    LogCat::i("ImGui context created.");
+
+    const ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+
+    LogCat::i("Setting ImGui style to Light...");
+    ImGui::StyleColorsLight();
+
+    LogCat::i("Initializing ImGui SDL3 backend for SDLRenderer...");
+    if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer)) {
+        LogCat::e("ImGui_ImplSDL3_InitForSDLRenderer failed!");
+        return false;
+    }
+    LogCat::i("ImGui SDL3 backend initialized successfully.");
+
+    LogCat::i("Initializing ImGui SDLRenderer3 backend...");
+    if (!ImGui_ImplSDLRenderer3_Init(renderer)) {
+        LogCat::e("ImGui_ImplSDLRenderer3_Init failed!");
+        return false;
+    }
+    LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
+
+    // io.Fonts->Clear();
+    // io.Fonts->AddFontFromFileTTF(config->fonts.c_str(), 18.0f);
+
     return true;
 }
 
@@ -62,6 +93,7 @@ void Glimmer::App::run() const {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
                 running = false;
             } else {
+                ImGui_ImplSDL3_ProcessEvent(&event);
                 scene->HandleEvent(event);
                 consoleScene->HandleEvent(event);
             }

@@ -70,7 +70,7 @@ struct nlohmann::adl_serializer<Glimmer::Mods> {
 template<>
 struct nlohmann::adl_serializer<Glimmer::Window> {
     static void from_json(const json &j, Glimmer::Window &w) {
-        w.framerate = j.at("framerate").get<int>();
+        w.framerate = j.at("framerate").get<float>();
         w.height = j.at("height").get<int>();
         w.width = j.at("width").get<int>();
         w.resizable = j.at("resizable").get<bool>();

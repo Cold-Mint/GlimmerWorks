@@ -9,11 +9,16 @@
 namespace Glimmer {
     class SceneManager {
         Scene *scene = nullptr;
+        Scene *consoleScene = nullptr;
 
     public:
+        void setConsoleScene(Scene *sc);
+
         void changeScene(Scene *sc);
 
-        [[nodiscard]] const Scene *getScene() const;
+        [[nodiscard]] Scene *getConsoleScene() const;
+
+        [[nodiscard]] Scene *getScene() const;
     };
 }
 

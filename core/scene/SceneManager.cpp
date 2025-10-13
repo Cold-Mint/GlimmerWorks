@@ -4,13 +4,23 @@
 
 #include "SceneManager.h"
 
+void Glimmer::SceneManager::setConsoleScene(Scene *sc) {
+    const Scene *oldScene = consoleScene;
+    this->consoleScene = sc;
+    delete oldScene;
+}
+
 void Glimmer::SceneManager::changeScene(Scene *sc) {
     const Scene *oldScene = scene;
     this->scene = sc;
     delete oldScene;
 }
 
+Glimmer::Scene * Glimmer::SceneManager::getConsoleScene() const {
+    return consoleScene;
+}
 
-const Glimmer::Scene *Glimmer::SceneManager::getScene() const {
+
+Glimmer::Scene *Glimmer::SceneManager::getScene() const {
     return scene;
 }

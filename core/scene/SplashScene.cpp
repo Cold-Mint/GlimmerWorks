@@ -7,9 +7,8 @@
 void Glimmer::SplashScene::HandleEvent(const SDL_Event &event) {
 }
 
-void Glimmer::SplashScene::Update(SDL_Window *window, Uint64 deltaTime) {
+void Glimmer::SplashScene::Update(float delta) {
 }
 
-void Glimmer::SplashScene::Render(SDL_Window *window, SDL_Renderer *renderer) {
+void Glimmer::SplashScene::Render(SDL_Renderer *renderer) {
 }
-

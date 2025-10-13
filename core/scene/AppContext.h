@@ -27,9 +27,11 @@ namespace Glimmer {
         Config *config;
         SceneManager *sceneManager;
         StringManager *stringManager;
+        SDL_Window *window;
 
         AppContext(SceneManager *sm, std::string *lang, DataPackManager *dpm, Config *cfg, StringManager *stringManager)
-            : language(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager) {
+            : language(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager),
+              window(nullptr) {
         }
     };
 }

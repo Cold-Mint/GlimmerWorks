@@ -87,7 +87,9 @@ add_executable(GlimmerWorks ${IMGUI_SOURCES}
         core/scene/AppContext.cpp
         core/scene/AppContext.h
         core/scene/SplashScene.cpp
-        core/scene/SplashScene.h)
+        core/scene/SplashScene.h
+        core/scene/ConsoleScene.cpp
+        core/scene/ConsoleScene.h)
 
 #Define version information
 #定义版本信息

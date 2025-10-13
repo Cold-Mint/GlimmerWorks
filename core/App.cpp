@@ -6,6 +6,7 @@
 #include "log/LogCat.h"
 #include "Config.h"
 #include "scene/SplashScene.h"
+#include "scene/ConsoleScene.h"
 
 bool Glimmer::App::init() {
     LogCat::i("Initializing SDL...");
@@ -41,26 +42,43 @@ bool Glimmer::App::init() {
 }
 
 void Glimmer::App::run() const {
-    const int frameDelay = 1000 / appContext->config->window.framerate;
+    //The time interval of the target (in seconds)
+    //目标的时间间隔（以秒为单位）
+    const float targetFrameTime = 1.0f / appContext->config->window.framerate;
+    //Target frame time (in milliseconds)
+    //目标帧时间（毫秒为单位）
+    const float targetFrameTimeMs = targetFrameTime * 1000.0f;
     bool running = true;
     SDL_Event event;
     LogCat::i("Entering main loop...");
-    //Initialize the main scene.
-    //初始化主场景。
-    appContext->sceneManager->changeScene(new SplashScene(appContext)); //Clangd: Cannot initialize a parameter of type 'Glimmer::Scene *' with an rvalue of type 'Glimmer::SplashScene *'
+    appContext->sceneManager->changeScene(new SplashScene(appContext));
+    appContext->sceneManager->setConsoleScene(new ConsoleScene(appContext));
     while (running) {
         const Uint64 frameStart = SDL_GetTicks();
+        Scene *scene = appContext->sceneManager->getScene();
+        Scene *consoleScene = appContext->sceneManager->getConsoleScene();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
                 running = false;
+            } else {
+                scene->HandleEvent(event);
+                consoleScene->HandleEvent(event);
             }
         }
+        const auto frameTimeMs = static_cast<float>(SDL_GetTicks() - frameStart);
+        //Actual time interval (in seconds)
+        //实际时间间隔（秒为单位）
+        const float deltaTime = frameTimeMs / 1000.0f;
+        scene->Update(deltaTime);
+        consoleScene->Update(deltaTime);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
+        scene->Render(renderer);
+        consoleScene->Render(renderer);
         SDL_RenderPresent(renderer);
-        if (const Uint64 frameTime = SDL_GetTicks() - frameStart; frameDelay > frameTime) {
-            SDL_Delay(frameDelay - frameTime);
+        if (frameTimeMs < targetFrameTimeMs) {
+            SDL_Delay(static_cast<Uint32>(targetFrameTimeMs - frameTimeMs));
         }
     }
 }

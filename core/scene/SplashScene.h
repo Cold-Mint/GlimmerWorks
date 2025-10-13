@@ -15,9 +15,9 @@ namespace Glimmer {
 
         void HandleEvent(const SDL_Event &event) override;
 
-        void Update(SDL_Window *window, Uint64 deltaTime) override;
+        void Update(float delta) override;
 
-        void Render(SDL_Window *window, SDL_Renderer *renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         ~SplashScene() override = default;
     };

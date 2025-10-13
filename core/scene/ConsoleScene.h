@@ -1,0 +1,28 @@
+//
+// Created by coldmint on 2025/10/13.
+//
+
+#ifndef GLIMMERWORKS_CONSOLESCENE_H
+#define GLIMMERWORKS_CONSOLESCENE_H
+#include "Scene.h"
+
+namespace Glimmer {
+    class ConsoleScene : public Scene {
+        bool show = false;
+
+    public:
+        explicit ConsoleScene(AppContext *context)
+            : Scene(context) {
+        }
+
+        void HandleEvent(const SDL_Event &event) override;
+
+        void Update(float delta) override;
+
+        void Render(SDL_Renderer *renderer) override;
+
+        ~ConsoleScene() override;
+    };
+}
+
+#endif //GLIMMERWORKS_CONSOLESCENE_H

@@ -4,7 +4,9 @@
 
 #include "SplashScene.h"
 
-void Glimmer::SplashScene::HandleEvent(const SDL_Event &event) {
+
+bool Glimmer::SplashScene::HandleEvent(const SDL_Event &event) {
+    return false;
 }
 
 void Glimmer::SplashScene::Update(float delta) {

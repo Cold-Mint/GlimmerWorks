@@ -12,6 +12,7 @@
 namespace Glimmer {
     class ConsoleScene : public Scene {
         bool show = false;
+        bool focusNextFrame = false;
         char inputBuffer[256] = {};
         std::vector<std::string> messages;
 
@@ -20,7 +21,7 @@ namespace Glimmer {
             : Scene(context) {
         }
 
-        void HandleEvent(const SDL_Event &event) override;
+        bool HandleEvent(const SDL_Event &event) override;
 
         void Update(float delta) override;
 

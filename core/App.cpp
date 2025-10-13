@@ -47,7 +47,7 @@ bool Glimmer::App::init() {
     LogCat::i("ImGui context created.");
 
     const ImGuiIO &io = ImGui::GetIO();
-    (void)io;
+    (void) io;
 
     LogCat::i("Setting ImGui style to Light...");
     ImGui::StyleColorsLight();
@@ -93,17 +93,25 @@ void Glimmer::App::run() const {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
                 running = false;
             } else {
-                ImGui_ImplSDL3_ProcessEvent(&event);
-                scene->HandleEvent(event);
-                consoleScene->HandleEvent(event);
+                if (!consoleScene->HandleEvent(event)) {
+                    // LogCat::d("ConsoleScene did not handle event, forwarding to current Scene...");
+                    if (!scene->HandleEvent(event)) {
+                        // LogCat::d("Scene did not handle event, forwarding to ImGui...");
+                        ImGui_ImplSDL3_ProcessEvent(&event);
+                    } else {
+                        LogCat::w("Scene handled event, stopping propagation.");
+                    }
+                } else {
+                    LogCat::w("ConsoleScene handled event, stopping propagation.");
+                }
             }
         }
         const auto frameTimeMs = static_cast<float>(SDL_GetTicks() - frameStart);
         //Actual time interval (in seconds)
         //实际时间间隔（秒为单位）
         const float deltaTime = frameTimeMs / 1000.0f;
-        scene->Update(deltaTime);
         consoleScene->Update(deltaTime);
+        scene->Update(deltaTime);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
         scene->Render(renderer);

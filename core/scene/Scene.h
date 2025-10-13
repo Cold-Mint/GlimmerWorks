@@ -14,9 +14,9 @@ namespace Glimmer {
         AppContext *appContext = nullptr;
 
     public:
-        //Handle events (inputs, window messages, etc.)
-        //处理事件（输入、窗口消息等）
-        virtual void HandleEvent(const SDL_Event &event) = 0;
+        //Processing events (input, window messages, etc.) returns whether to intercept the event. If it is true, it will not be passed down.
+        //处理事件（输入、窗口消息等）返回是否拦截事件，如果为true则不会向下传递。
+        virtual bool HandleEvent(const SDL_Event &event) = 0;
 
         // Logical update (physical frame) - Fixed time step call
         // 逻辑更新（物理帧） - 固定时间步长调用

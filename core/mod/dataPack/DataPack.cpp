@@ -80,7 +80,7 @@ bool Glimmer::DataPack::loadManifest() {
 }
 
 bool Glimmer::DataPack::loadPack(const std::string &language, StringManager &stringManager) const {
-    return loadStringResource(language, stringManager);
+    return loadStringResource(language, stringManager) == 0;
 }
 
 const Glimmer::DataPackManifest &Glimmer::DataPack::getManifest() const {

@@ -25,7 +25,7 @@ void Glimmer::CommandExecutor::executeAsync(std::string command, CommandManager 
             result = CommandResult::EmptyArgs;
         } else {
             const CommandArgs args(cmdStr);
-            if (Command *cmd = commandManager->getCommand(args.asString(0)); !cmd) {
+            if (Command *cmd = commandManager->getCommand(args.asString(0)); cmd == nullptr) {
                 LogCat::e("Command not found: ", args.asString(0));
                 result = CommandResult::NotFound;
             } else {

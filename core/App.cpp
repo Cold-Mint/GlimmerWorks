@@ -57,7 +57,7 @@ bool Glimmer::App::init() {
 
     if (fontPathOpt.has_value()) {
         const std::string &fontPath = *fontPathOpt;
-        if (io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f)) {
+        if (io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0F)) {
             LogCat::d("Loaded font: ", fontPath);
         } else {
             LogCat::e("Failed to load font (ImGui error): ", fontPath);
@@ -86,10 +86,10 @@ bool Glimmer::App::init() {
 void Glimmer::App::run() const {
     //The time interval of the target (in seconds)
     //目标的时间间隔（以秒为单位）
-    const float targetFrameTime = 1.0f / appContext->config->window.framerate;
+    const float targetFrameTime = 1.0F / appContext->config->window.framerate;
     //Target frame time (in milliseconds)
     //目标帧时间（毫秒为单位）
-    const float targetFrameTimeMs = targetFrameTime * 1000.0f;
+    const float targetFrameTimeMs = targetFrameTime * 1000.0F;
     bool running = true;
     SDL_Event event;
     LogCat::i("Entering main loop...");
@@ -120,7 +120,7 @@ void Glimmer::App::run() const {
         const auto frameTimeMs = static_cast<float>(SDL_GetTicks() - frameStart);
         //Actual time interval (in seconds)
         //实际时间间隔（秒为单位）
-        const float deltaTime = frameTimeMs / 1000.0f;
+        const float deltaTime = frameTimeMs / 1000.0F;
         consoleScene->Update(deltaTime);
         scene->Update(deltaTime);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);

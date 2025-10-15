@@ -4,6 +4,7 @@
 
 #ifndef GLIMMERWORKS_CONSOLESCENE_H
 #define GLIMMERWORKS_CONSOLESCENE_H
+#include <array>
 #include <string>
 #include <vector>
 
@@ -13,7 +14,7 @@ namespace Glimmer {
     class ConsoleScene : public Scene {
         bool show = false;
         bool focusNextFrame = false;
-        char inputBuffer[256] = {};
+        std::array<char, 256> inputBuffer = {};
         std::vector<std::string> messages;
 
         void addMessage(const std::string &message);

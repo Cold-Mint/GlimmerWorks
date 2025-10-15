@@ -37,7 +37,7 @@ void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
 
     const ImGuiIO &io = ImGui::GetIO();
     const float windowHeight = io.DisplaySize.y;
-    constexpr float inputHeight = 25.0f;
+    constexpr float inputHeight = 25.0F;
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(io.DisplaySize);
@@ -70,20 +70,21 @@ void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
         ImGui::SetKeyboardFocusHere();
         focusNextFrame = false;
     }
-    if (ImGui::InputText("##Input", inputBuffer, sizeof(inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+    if (ImGui::InputText("##Input", inputBuffer.data(), inputBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
         if (inputBuffer[0] != '\0') {
-            addMessage(std::string("> ") + inputBuffer);
-            appContext->commandExecutor->executeAsync(inputBuffer, appContext->commandManager,
+            const std::string cmdStr(inputBuffer.data(), strnlen(inputBuffer.data(), inputBuffer.size()));
+            addMessage("> " + cmdStr);
+            appContext->commandExecutor->executeAsync(cmdStr, appContext->commandManager,
                                                       [this](const CommandResult result, const std::string &cmd) {
                                                           switch (result) {
                                                               case CommandResult::Success:
                                                                   addMessage(cmd + " executed successfully");
                                                                   break;
                                                               case CommandResult::Failure:
-                                                                  addMessage(cmd + "  execution failed");
+                                                                  addMessage(cmd + " execution failed");
                                                                   break;
                                                               case CommandResult::NotFound:
-                                                                  addMessage("Command not found:" + cmd);
+                                                                  addMessage("Command not found: " + cmd);
                                                                   break;
                                                               case CommandResult::EmptyArgs:
                                                                   addMessage("> Command is empty");
@@ -95,7 +96,7 @@ void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
                                                       });
             ImGui::SetScrollHereY(1.0f);
         }
-        inputBuffer[0] = '\0';
+        inputBuffer.fill('\0');
         focusNextFrame = true;
     }
     ImGui::PopItemWidth();

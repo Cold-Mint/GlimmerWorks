@@ -10,6 +10,9 @@
     "resourcePackPath": "mods/resource_packs",
     "enabledDataPack": [
       "45673128-fd78-4bce-93e7-0d32eec0fd90"
+    ],
+    "enabledResourcePack": [
+      "e806c839-3b44-4621-98b9-a10a4d146253"
     ]
   }
 }

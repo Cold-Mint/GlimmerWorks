@@ -19,6 +19,12 @@ namespace Glimmer {
         int versionNumber;
         int minGameVersion;
     };
+
+    struct DataPackManifest : PackManifest {
+    };
+
+    struct ResourcePackManifest : PackManifest {
+    };
 }
 
 

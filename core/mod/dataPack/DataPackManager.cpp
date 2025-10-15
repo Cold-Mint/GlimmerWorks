@@ -33,7 +33,7 @@ bool Glimmer::DataPackManager::isDataPackAvailable(const DataPack &pack) {
                   manifest.minGameVersion, ", current version: ", GAME_VERSION_NUMBER);
         return false;
     }
-    return true;
+    return !manifest.resPack;
 }
 
 bool Glimmer::DataPackManager::isDataPackEnabled(const DataPack &pack,

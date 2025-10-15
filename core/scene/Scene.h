@@ -11,6 +11,7 @@ namespace Glimmer {
     class AppContext;
 
     class Scene {
+    protected:
         AppContext *appContext = nullptr;
 
     public:

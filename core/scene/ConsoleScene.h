@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/10/13.
+// Created by Cold-Mint on 2025/10/13.
 //
 
 #ifndef GLIMMERWORKS_CONSOLESCENE_H
@@ -16,6 +16,8 @@ namespace Glimmer {
         char inputBuffer[256] = {};
         std::vector<std::string> messages;
 
+        void addMessage(const std::string &message);
+
     public:
         explicit ConsoleScene(AppContext *context)
             : Scene(context) {
@@ -24,6 +26,7 @@ namespace Glimmer {
         bool HandleEvent(const SDL_Event &event) override;
 
         void Update(float delta) override;
+
 
         void Render(SDL_Renderer *renderer) override;
 

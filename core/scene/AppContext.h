@@ -6,12 +6,16 @@
 #include <string>
 
 #include "SceneManager.h"
+#include "../console/CommandExecutor.h"
+#include "../console/CommandManager.h"
+#include "../mod/resourcePack/ResourcePackManager.h"
 
 
 namespace Glimmer {
     class StringManager;
     class Config;
     class DataPackManager;
+    class ResourcePackManager;
     /**
      * @class AppContext
      * @brief 应用上下文，管理共享资源和依赖。
@@ -27,10 +31,17 @@ namespace Glimmer {
         Config *config;
         SceneManager *sceneManager;
         StringManager *stringManager;
+        CommandManager *commandManager;
         SDL_Window *window;
+        CommandExecutor *commandExecutor;
+        ResourcePackManager *resourcePackManager;
 
-        AppContext(SceneManager *sm, std::string *lang, DataPackManager *dpm, Config *cfg, StringManager *stringManager)
+        AppContext(SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm, Config *cfg,
+                   StringManager *stringManager,
+                   CommandManager *commandManager, CommandExecutor *commandExecutor)
             : language(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager),
+              commandManager(commandManager), commandExecutor(commandExecutor),
+              resourcePackManager(rpm),
               window(nullptr) {
         }
     };

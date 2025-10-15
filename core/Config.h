@@ -18,6 +18,7 @@ namespace Glimmer {
         std::string dataPackPath;
         std::string resourcePackPath;
         std::vector<std::string> enabledDataPack;
+        std::vector<std::string> enabledResourcePack;
     };
 
 

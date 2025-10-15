@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/10/12.
+// Created by Cold-Mint on 2025/10/12.
 //
 
 #ifndef GLIMMERWORKS_SPLASHSCENE_H

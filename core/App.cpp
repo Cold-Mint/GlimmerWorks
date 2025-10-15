@@ -51,6 +51,21 @@ bool Glimmer::App::init() {
 
     LogCat::i("Setting ImGui style to Light...");
     ImGui::StyleColorsLight();
+    const auto fontPathOpt = appContext->resourcePackManager->getFontPath(
+        appContext->config->mods.enabledResourcePack,
+        *appContext->language);
+
+    if (fontPathOpt.has_value()) {
+        const std::string &fontPath = *fontPathOpt;
+        if (io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f)) {
+            LogCat::d("Loaded font: ", fontPath);
+        } else {
+            LogCat::e("Failed to load font (ImGui error): ", fontPath);
+        }
+    } else {
+        LogCat::w("No font found for language '", *appContext->language, "', skipping font load");
+    }
+
 
     LogCat::i("Initializing ImGui SDL3 backend for SDLRenderer...");
     if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer)) {
@@ -65,10 +80,6 @@ bool Glimmer::App::init() {
         return false;
     }
     LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
-
-    // io.Fonts->Clear();
-    // io.Fonts->AddFontFromFileTTF(config->fonts.c_str(), 18.0f);
-
     return true;
 }
 

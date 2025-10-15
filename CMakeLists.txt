@@ -9,21 +9,6 @@ set(IMGUI_VERSION "1.92.3")
 set(GAME_VERSION_STRING "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
 set(GAME_VERSION_NUMBER 1)
 set(CONFIG_FILE_NAME "config.json")
-# ImGui source file
-# ImGui 源文件
-set(IMGUI_SOURCES
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_widgets.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_tables.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_demo.cpp"
-        # SDL3 backend
-        # SDL3 后端
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdl3.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdlrenderer3.cpp"
-        core/scene/SceneManager.cpp
-        core/scene/SceneManager.h
-)
 include(FetchContent)
 FetchContent_Declare(
         nlohmann_json
@@ -57,7 +42,16 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(imgui)
 
-add_executable(GlimmerWorks ${IMGUI_SOURCES}
+add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_widgets.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_tables.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_demo.cpp"
+        # SDL3 backend
+        # SDL3 后端
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdl3.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdlrenderer3.cpp"
+
         main.cpp
         core/log/LogCat.cpp
         core/log/LogCat.h
@@ -89,7 +83,26 @@ add_executable(GlimmerWorks ${IMGUI_SOURCES}
         core/scene/SplashScene.cpp
         core/scene/SplashScene.h
         core/scene/ConsoleScene.cpp
-        core/scene/ConsoleScene.h)
+        core/scene/ConsoleScene.h
+        core/console/Command.cpp
+        core/console/Command.h
+        core/console/CommandExecutor.cpp
+        core/console/CommandExecutor.h
+        core/console/CommandManager.cpp
+        core/console/CommandManager.h
+        core/console/CommandArgs.cpp
+        core/console/CommandArgs.h
+        core/console/CommandResult.cpp
+        core/console/CommandResult.h
+        core/mod/resourcePack/ResourcePack.cpp
+        core/mod/resourcePack/ResourcePack.h
+        core/mod/resourcePack/ResourcePackManager.cpp
+        core/mod/resourcePack/ResourcePackManager.h
+        core/console/command/HelpCommand.cpp
+        core/console/command/HelpCommand.h
+        core/scene/SceneManager.cpp
+        core/scene/SceneManager.h
+)
 
 #Define version information
 #定义版本信息
@@ -136,13 +149,13 @@ if (NOT VanillaDataPack_POPULATED)
     FetchContent_MakeAvailable(VanillaDataPack)
 endif ()
 
-#FetchContent_Declare(
-#        VanillaResourcePack
-#        GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-assets.git"
-#        SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/vanilla"
-#)
-#
-#FetchContent_GetProperties(VanillaResourcePack)
-#if(NOT VanillaDataPack_POPULATED)
-#    FetchContent_Populate(VanillaResourcePack)
-#endif()
+FetchContent_Declare(
+        VanillaResourcePack
+        GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-assets.git"
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/vanilla"
+)
+
+FetchContent_GetProperties(VanillaResourcePack)
+if (NOT VanillaDataPack_POPULATED)
+    FetchContent_Populate(VanillaResourcePack)
+endif ()

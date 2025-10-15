@@ -10,5 +10,7 @@
 #define MANIFEST_FILE_NAME "manifest.json"
 #define RESOURCE_TYPE_STRING 1
 
+#define HELP_COMMAND_NAME  "help"
+
 
 #endif //CONSTANTS_H

@@ -13,7 +13,7 @@ namespace Glimmer {
 
     class DataPack {
         std::string path;
-        PackManifest manifest;
+        DataPackManifest manifest;
 
         //Load string resources
         //加载字符串资源
@@ -30,7 +30,7 @@ namespace Glimmer {
         [[nodiscard]] bool loadPack(const std::string &language,
                                     StringManager &stringManager) const;
 
-        [[nodiscard]] const PackManifest &getManifest() const;
+        [[nodiscard]] const DataPackManifest &getManifest() const;
     };
 }
 

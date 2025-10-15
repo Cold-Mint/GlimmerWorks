@@ -56,13 +56,15 @@ struct nlohmann::adl_serializer<Glimmer::Mods> {
         m.dataPackPath = j.at("dataPackPath").get<std::string>();
         m.resourcePackPath = j.at("resourcePackPath").get<std::string>();
         m.enabledDataPack = j.at("enabledDataPack").get<std::vector<std::string> >();
+        m.enabledResourcePack = j.at("enabledResourcePack").get<std::vector<std::string> >();
     }
 
     static void to_json(json &j, const Glimmer::Mods &m) {
         j = json{
             {"dataPackPath", m.dataPackPath},
             {"resourcePackPath", m.resourcePackPath},
-            {"enabledDataPack", m.enabledDataPack}
+            {"enabledDataPack", m.enabledDataPack},
+            {"enabledResourcePack", m.enabledResourcePack}
         };
     }
 };
@@ -104,8 +106,8 @@ struct nlohmann::adl_serializer<Glimmer::ResourceRef> {
 };
 
 template<>
-struct nlohmann::adl_serializer<Glimmer::PackManifest> {
-    static void from_json(const json &j, Glimmer::PackManifest &manifest) {
+struct nlohmann::adl_serializer<Glimmer::DataPackManifest> {
+    static void from_json(const json &j, Glimmer::DataPackManifest &manifest) {
         manifest.id = j.at("id").get<std::string>();
         manifest.name = j.at("name").get<Glimmer::ResourceRef>();
         manifest.description = j.at("description").get<Glimmer::ResourceRef>();
@@ -116,7 +118,34 @@ struct nlohmann::adl_serializer<Glimmer::PackManifest> {
         manifest.minGameVersion = j.at("minGameVersion").get<int>();
     }
 
-    static void to_json(json &j, const Glimmer::PackManifest &manifest) {
+    static void to_json(json &j, const Glimmer::DataPackManifest &manifest) {
+        j = json{
+            {"id", manifest.id},
+            {"name", manifest.name},
+            {"description", manifest.description},
+            {"resPack", manifest.resPack},
+            {"author", manifest.author},
+            {"versionName", manifest.versionName},
+            {"versionNumber", manifest.versionNumber},
+            {"minGameVersion", manifest.minGameVersion}
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<Glimmer::ResourcePackManifest> {
+    static void from_json(const json &j, Glimmer::ResourcePackManifest &manifest) {
+        manifest.id = j.at("id").get<std::string>();
+        manifest.name = j.at("name").get<Glimmer::ResourceRef>();
+        manifest.description = j.at("description").get<Glimmer::ResourceRef>();
+        manifest.resPack = j.at("resPack").get<bool>();
+        manifest.author = j.at("author").get<std::string>();
+        manifest.versionName = j.at("versionName").get<std::string>();
+        manifest.versionNumber = j.at("versionNumber").get<int>();
+        manifest.minGameVersion = j.at("minGameVersion").get<int>();
+    }
+
+    static void to_json(json &j, const Glimmer::ResourcePackManifest &manifest) {
         j = json{
             {"id", manifest.id},
             {"name", manifest.name},

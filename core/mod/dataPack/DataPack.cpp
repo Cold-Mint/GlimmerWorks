@@ -63,7 +63,7 @@ bool Glimmer::DataPack::loadManifest() {
     const auto &jsonObject = *jsonOpt;
 
     try {
-        manifest = jsonObject.get<PackManifest>();
+        manifest = jsonObject.get<DataPackManifest>();
     } catch (const std::exception &e) {
         LogCat::e("DataPack::loadManifest - Failed to parse manifest JSON: ", e.what());
         return false;
@@ -83,6 +83,6 @@ bool Glimmer::DataPack::loadPack(const std::string &language, StringManager &str
     return loadStringResource(language, stringManager);
 }
 
-const Glimmer::PackManifest &Glimmer::DataPack::getManifest() const {
+const Glimmer::DataPackManifest &Glimmer::DataPack::getManifest() const {
     return manifest;
 }

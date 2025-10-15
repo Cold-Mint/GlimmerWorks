@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/10/11.
+// Created by Cold-Mint on 2025/10/11.
 //
 
 #ifndef GLIMMERWORKS_SCENEMANAGER_H

@@ -22,8 +22,7 @@ namespace Glimmer {
                                           const std::vector<std::string> &enabledResourcePack);
 
     public:
-        int scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
-                 const std::string &language);
+        int scan(const std::string &path, const std::vector<std::string> &enabledResourcePack);
 
         std::optional<std::string> getFontPath(const std::vector<std::string> &enabledResourcePack,
                                                const std::string &language);

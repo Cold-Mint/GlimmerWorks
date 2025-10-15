@@ -38,8 +38,7 @@ bool Glimmer::ResourcePackManager::isResourcePackEnabled(const ResourcePack &pac
     return std::ranges::find(enabledResourcePack, pack.getManifest().id) != enabledResourcePack.end();
 }
 
-int Glimmer::ResourcePackManager::scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
-                                       const std::string &language) {
+int Glimmer::ResourcePackManager::scan(const std::string &path, const std::vector<std::string> &enabledResourcePack) {
     resourcePackMap.clear();
     try {
         if (!fs::exists(path)) {
@@ -80,7 +79,7 @@ std::optional<std::string> Glimmer::ResourcePackManager::getFontPath(
     const std::string &language) {
     std::optional<std::string> defaultFontPath;
 
-    for (const auto &packId : enabledResourcePack) {
+    for (const auto &packId: enabledResourcePack) {
         auto it = resourcePackMap.find(packId);
         if (it == resourcePackMap.end()) {
             LogCat::w("Resource pack not found: ", packId);

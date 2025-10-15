@@ -48,7 +48,7 @@ int main() {
         if (dataPackManager.scan(config.mods.dataPackPath, config.mods.enabledDataPack, language, stringManager) == 0) {
             return EXIT_FAILURE;
         }
-        if (resourcePackManager.scan(config.mods.resourcePackPath, config.mods.enabledResourcePack, language) == 0) {
+        if (resourcePackManager.scan(config.mods.resourcePackPath, config.mods.enabledResourcePack) == 0) {
             return EXIT_FAILURE;
         }
         LogCat::i("Starting the app...");

@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "ResourcePack.h"
+#include "SDL3/SDL_render.h"
 
 namespace Glimmer {
     class ResourcePackManager {
@@ -21,11 +22,16 @@ namespace Glimmer {
         static bool isResourcePackEnabled(const ResourcePack &pack,
                                           const std::vector<std::string> &enabledResourcePack);
 
+        std::unordered_map<std::string, SDL_Texture *> textureCache = {};
+
     public:
         int scan(const std::string &path, const std::vector<std::string> &enabledResourcePack);
 
         std::optional<std::string> getFontPath(const std::vector<std::string> &enabledResourcePack,
                                                const std::string &language);
+
+        SDL_Texture *loadTextureFromFile(const std::vector<std::string> &enabledResourcePack, SDL_Renderer &renderer,
+                                  const std::string &path);
     };
 }
 

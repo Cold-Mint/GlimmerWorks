@@ -8,6 +8,8 @@
 
 namespace Glimmer {
     class SplashScene final : public Scene {
+        SDL_Texture *splashTexture = nullptr;
+
     public:
         explicit SplashScene(AppContext *context)
             : Scene(context) {
@@ -19,7 +21,11 @@ namespace Glimmer {
 
         void Render(SDL_Renderer *renderer) override;
 
-        ~SplashScene() override = default;
+        ~SplashScene() override {
+            if (splashTexture != nullptr) {
+                SDL_DestroyTexture(splashTexture);
+            }
+        }
     };
 }
 

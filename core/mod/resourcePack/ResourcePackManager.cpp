@@ -8,6 +8,7 @@
 #include <regex>
 #include "ResourcePack.h"
 #include "../../log/LogCat.h"
+#include "SDL3_image/SDL_image.h"
 namespace fs = std::filesystem;
 
 
@@ -116,4 +117,86 @@ std::optional<std::string> Glimmer::ResourcePackManager::getFontPath(
 
     LogCat::e("No font found for language '", language, "' in any enabled resource pack");
     return std::nullopt;
+}
+
+SDL_Texture *Glimmer::ResourcePackManager::loadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
+                                                               SDL_Renderer &renderer, const std::string &path) {
+    namespace fs = std::filesystem;
+
+    if (path.empty()) {
+        LogCat::e("Invalid texture path (empty).");
+        return nullptr;
+    }
+
+    const auto cacheIt = textureCache.find(path);
+    if (cacheIt != textureCache.end()) {
+        if (cacheIt->second != nullptr) {
+            LogCat::d("Texture loaded from cache: ", path);
+            return cacheIt->second;
+        }
+        LogCat::w("Cached texture is null, reloading: ", path);
+    }
+
+    for (const auto &packId: enabledResourcePack) {
+        auto it = resourcePackMap.find(packId);
+        if (it == resourcePackMap.end()) {
+            LogCat::w("Resource pack not found: ", packId);
+            continue;
+        }
+
+        const ResourcePack *pack = it->second.get();
+        fs::path baseTexturesDir = fs::path(pack->getPath()) / "textures";
+        fs::path texturePath = baseTexturesDir / path;
+
+        fs::path canonicalBase;
+        fs::path canonicalTarget;
+
+        try {
+            canonicalBase = fs::weakly_canonical(baseTexturesDir);
+            canonicalTarget = fs::weakly_canonical(texturePath);
+        } catch (const fs::filesystem_error &e) {
+            LogCat::w("Invalid texture path in pack '", packId, "': ", e.what());
+            continue;
+        }
+
+        if (canonicalTarget.string().find(canonicalBase.string()) != 0) {
+            LogCat::w("Texture path escapes textures dir in pack '", packId,
+                      "': ", canonicalTarget.string());
+            continue;
+        }
+
+        if (!fs::exists(canonicalTarget)) {
+            // The current resource package does not have this texture. Check the next one
+            // 当前资源包无此纹理，查下一个
+            continue;
+        }
+
+
+        SDL_Surface *surface = IMG_Load(canonicalTarget.string().c_str());
+        if (surface == nullptr) {
+            LogCat::w("IMG_Load failed for ", canonicalTarget.string(), ": ", SDL_GetError());
+            continue;
+        }
+
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(&renderer, surface);
+        SDL_DestroySurface(surface);
+        if (!texture) {
+            LogCat::w("SDL_CreateTextureFromSurface failed for ", canonicalTarget.string(),
+                      ": ", SDL_GetError());
+            continue;
+        }
+
+        LogCat::d("Loaded texture from pack '", packId, "': ", canonicalTarget.string());
+
+        textureCache[path] = texture;
+
+        return texture;
+    }
+
+    //Cache null values when loading fails (to prevent repeated attempts)
+    //加载失败时缓存空值（防止重复尝试）
+    textureCache[path] = nullptr;
+
+    LogCat::e("Texture not found in any enabled resource pack: ", path);
+    return nullptr;
 }

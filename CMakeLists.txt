@@ -5,15 +5,21 @@ set(CMAKE_CXX_STANDARD 26)
 set(GAME_VERSION_MAJOR 0)
 set(GAME_VERSION_MINOR 1)
 set(GAME_VERSION_PATCH 0)
-set(IMGUI_VERSION "1.92.3")
 set(GAME_VERSION_STRING "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
 set(GAME_VERSION_NUMBER 1)
+set(IMGUI_VERSION "1.92.3")
+set(FETCHCONTENT_QUIET OFF CACHE BOOL "Show real-time git clone progress (ON=quiet, OFF=visible)" FORCE)
+set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
+        "CMake message verbosity level")
 set(CONFIG_FILE_NAME "config.json")
+set(CMAKE_BUILD_RPATH "$ORIGIN/libs")
+set(CMAKE_INSTALL_RPATH "$ORIGIN/libs")
 include(FetchContent)
 FetchContent_Declare(
         nlohmann_json
         GIT_REPOSITORY "https://github.com/nlohmann/json"
         GIT_TAG "v3.12.0"
+        GIT_PROGRESS TRUE
         SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/json"
 )
 
@@ -23,6 +29,7 @@ FetchContent_Declare(
         SDL
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL.git"
         GIT_TAG "release-3.2.22"
+        GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(SDL)
 
@@ -30,12 +37,14 @@ FetchContent_Declare(
         SDL_image
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_image.git"
         GIT_TAG "release-3.2.4"
+        GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(SDL_image)
 
 FetchContent_Declare(
         imgui
         GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
+        GIT_PROGRESS TRUE
         GIT_TAG "v${IMGUI_VERSION}"
         SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}"
 )
@@ -115,7 +124,7 @@ target_compile_definitions(GlimmerWorks PRIVATE
         CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
 )
 
-target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3)
+target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image)
 
 target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/json/include"
@@ -134,6 +143,9 @@ add_custom_command(TARGET GlimmerWorks POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3::SDL3>
         "${CMAKE_BINARY_DIR}/libs/libSDL3.so.0"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3_image::SDL3_image>
+        "${CMAKE_BINARY_DIR}/libs/libSDL3_image.so.0"
 )
 
 #Clone data packets and resource packets.
@@ -141,6 +153,7 @@ add_custom_command(TARGET GlimmerWorks POST_BUILD
 FetchContent_Declare(
         VanillaDataPack
         GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-data.git"
+        GIT_PROGRESS TRUE
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/data_packs/vanilla"
 )
 
@@ -152,6 +165,7 @@ endif ()
 FetchContent_Declare(
         VanillaResourcePack
         GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-assets.git"
+        GIT_PROGRESS TRUE
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/vanilla"
 )
 

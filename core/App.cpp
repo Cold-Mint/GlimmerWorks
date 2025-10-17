@@ -89,14 +89,15 @@ void Glimmer::App::run() const {
     const float targetFrameTime = 1.0F / appContext->config->window.framerate;
     //Target frame time (in milliseconds)
     //目标帧时间（毫秒为单位）
-    const float targetFrameTimeMs = targetFrameTime * 1000.0F;
+    const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
+    Uint64 frameStart = SDL_GetTicks();
+    float deltaTime = 0.0F;
     bool running = true;
     SDL_Event event;
     LogCat::i("Entering main loop...");
     appContext->sceneManager->changeScene(new SplashScene(appContext));
     appContext->sceneManager->setConsoleScene(new ConsoleScene(appContext));
     while (running) {
-        const Uint64 frameStart = SDL_GetTicks();
         Scene *scene = appContext->sceneManager->getScene();
         Scene *consoleScene = appContext->sceneManager->getConsoleScene();
         while (SDL_PollEvent(&event)) {
@@ -117,10 +118,6 @@ void Glimmer::App::run() const {
                 }
             }
         }
-        const auto frameTimeMs = static_cast<float>(SDL_GetTicks() - frameStart);
-        //Actual time interval (in seconds)
-        //实际时间间隔（秒为单位）
-        const float deltaTime = frameTimeMs / 1000.0F;
         consoleScene->Update(deltaTime);
         scene->Update(deltaTime);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -128,8 +125,13 @@ void Glimmer::App::run() const {
         scene->Render(renderer);
         consoleScene->Render(renderer);
         SDL_RenderPresent(renderer);
+        const auto frameTimeMs = SDL_GetTicks() - frameStart;
+        frameStart = SDL_GetTicks();
+        //Actual time interval (in seconds)
+        //实际时间间隔（秒为单位）
+        deltaTime = static_cast<float>(frameTimeMs) / 1000.0F;
         if (frameTimeMs < targetFrameTimeMs) {
-            SDL_Delay(static_cast<Uint32>(targetFrameTimeMs - frameTimeMs));
+            SDL_Delay(targetFrameTimeMs - frameTimeMs);
         }
     }
 }

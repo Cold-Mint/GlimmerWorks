@@ -8,6 +8,7 @@ set(GAME_VERSION_PATCH 0)
 set(GAME_VERSION_STRING "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
 set(GAME_VERSION_NUMBER 1)
 set(IMGUI_VERSION "1.92.3")
+set(TWEENY_VERSION "3.2.1")
 set(FETCHCONTENT_QUIET OFF CACHE BOOL "Show real-time git clone progress (ON=quiet, OFF=visible)" FORCE)
 set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
         "CMake message verbosity level")
@@ -50,6 +51,15 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(imgui)
+FetchContent_Declare(
+        tweeny
+        GIT_REPOSITORY "https://github.com/mobius3/tweeny.git"
+        GIT_PROGRESS TRUE
+        GIT_TAG "v${TWEENY_VERSION}"
+        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/tweeny-${TWEENY_VERSION}"
+)
+
+FetchContent_MakeAvailable(tweeny)
 
 add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
@@ -60,6 +70,7 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         # SDL3 后端
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdl3.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdlrenderer3.cpp"
+        "${PROJECT_SOURCE_DIR}/include/tweeny-${TWEENY_VERSION}/include/tween.h"
 
         main.cpp
         core/log/LogCat.cpp
@@ -111,6 +122,8 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/console/command/HelpCommand.h
         core/scene/SceneManager.cpp
         core/scene/SceneManager.h
+        core/scene/HomeScene.cpp
+        core/scene/HomeScene.h
 )
 
 #Define version information
@@ -132,6 +145,10 @@ target_include_directories(GlimmerWorks PRIVATE
 
 target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}"
+)
+
+target_include_directories(GlimmerWorks PRIVATE
+        "${PROJECT_SOURCE_DIR}/include/tweeny-${TWEENY_VERSION}"
 )
 
 file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"

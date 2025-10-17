@@ -3,6 +3,7 @@
 //
 #ifndef LOGCAT_H
 #define LOGCAT_H
+#include <chrono>
 #include <iostream>
 
 #define COLOR_RESET   "\033[0m"
@@ -13,11 +14,25 @@
 
 namespace Glimmer {
     class LogCat {
+        static std::string currentTime() {
+            using namespace std::chrono;
+            const auto now = system_clock::now();
+            std::time_t t = system_clock::to_time_t(now);
+            std::tm localTime{};
+            localtime_r(&t, &localTime);
+            char buffer[32];
+            std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &localTime);
+            const auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
+            std::ostringstream oss;
+            oss << buffer << '.' << std::setfill('0') << std::setw(3) << ms.count();
+            return oss.str();
+        }
+
     public:
         template<typename... Args>
         static void i(Args &&... args) {
 #if  !defined(NDEBUG)
-            std::cout << COLOR_INFO << "[INFO] ";
+            std::cout << COLOR_INFO << currentTime() << "[INFO] ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif
@@ -26,7 +41,7 @@ namespace Glimmer {
         template<typename... Args>
         static void d(Args &&... args) {
 #if  !defined(NDEBUG)
-            std::cout << COLOR_DEBUG << "[DEBUG] ";
+            std::cout << COLOR_DEBUG << currentTime() << "[DEBUG] ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif
@@ -34,14 +49,14 @@ namespace Glimmer {
 
         template<typename... Args>
         static void w(Args &&... args) {
-            std::cout << COLOR_WARN << "[WARN] ";
+            std::cout << COLOR_WARN << currentTime() << "[WARN] ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
         }
 
         template<typename... Args>
         static void e(Args &&... args) {
-            std::cout << COLOR_ERROR << "[ERROR] ";
+            std::cout << COLOR_ERROR << currentTime() << "[ERROR] ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
         }

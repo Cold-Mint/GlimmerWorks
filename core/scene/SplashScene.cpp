@@ -5,6 +5,7 @@
 #include "SplashScene.h"
 
 #include "AppContext.h"
+#include "HomeScene.h"
 #include "../Config.h"
 #include "../log/LogCat.h"
 #include "include/tweeny.h"
@@ -19,7 +20,13 @@ void Glimmer::SplashScene::Update(float delta) {
         alpha = fadeTween.peek();
     } else if (!animationFinished && fadeTween.progress() >= 1.0f) {
         animationFinished = true;
+        nextSceneTime = SDL_GetTicks() + 3000;
         LogCat::i("Splash fade-in animation completed");
+    }
+    if (!sceneJumped && SDL_GetTicks() >= nextSceneTime) {
+        sceneJumped = true;
+        LogCat::i("Open Home");
+        appContext->sceneManager->changeScene(new HomeScene(appContext));
     }
 }
 
@@ -37,9 +44,9 @@ void Glimmer::SplashScene::Render(SDL_Renderer *renderer) {
         animationFinished = false;
         LogCat::i("Splash texture loaded, starting fade-in animation");
     }
-
+    SDL_Texture *rawTex = splashTexture.get();
     float texW = 0, texH = 0;
-    if (!SDL_GetTextureSize(splashTexture, &texW, &texH)) {
+    if (!SDL_GetTextureSize(rawTex, &texW, &texH)) {
         LogCat::e("SDL_GetTextureSize Error: ", SDL_GetError());
         return;
     }
@@ -56,8 +63,8 @@ void Glimmer::SplashScene::Render(SDL_Renderer *renderer) {
         static_cast<float>(winH)
     };
 
-    SDL_SetTextureAlphaMod(splashTexture, static_cast<Uint8>(alpha * 255));
-    if (!SDL_RenderTexture(renderer, splashTexture, nullptr, &dstRect)) {
+    SDL_SetTextureAlphaMod(rawTex, static_cast<Uint8>(alpha * 255));
+    if (!SDL_RenderTexture(renderer, rawTex, nullptr, &dstRect)) {
         LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
     }
 }

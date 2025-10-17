@@ -98,7 +98,6 @@ void Glimmer::App::run() const {
     appContext->sceneManager->changeScene(new SplashScene(appContext));
     appContext->sceneManager->setConsoleScene(new ConsoleScene(appContext));
     while (running) {
-        Scene *scene = appContext->sceneManager->getScene();
         Scene *consoleScene = appContext->sceneManager->getConsoleScene();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
@@ -107,7 +106,7 @@ void Glimmer::App::run() const {
             } else {
                 if (!consoleScene->HandleEvent(event)) {
                     // LogCat::d("ConsoleScene did not handle event, forwarding to current Scene...");
-                    if (!scene->HandleEvent(event)) {
+                    if (!appContext->sceneManager->getScene()->HandleEvent(event)) {
                         // LogCat::d("Scene did not handle event, forwarding to ImGui...");
                         ImGui_ImplSDL3_ProcessEvent(&event);
                     } else {
@@ -119,10 +118,10 @@ void Glimmer::App::run() const {
             }
         }
         consoleScene->Update(deltaTime);
-        scene->Update(deltaTime);
+        appContext->sceneManager->getScene()->Update(deltaTime);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
-        scene->Render(renderer);
+        appContext->sceneManager->getScene()->Render(renderer);
         consoleScene->Render(renderer);
         SDL_RenderPresent(renderer);
         const auto frameTimeMs = SDL_GetTicks() - frameStart;

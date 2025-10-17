@@ -119,8 +119,8 @@ std::optional<std::string> Glimmer::ResourcePackManager::getFontPath(
     return std::nullopt;
 }
 
-SDL_Texture *Glimmer::ResourcePackManager::loadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
-                                                               SDL_Renderer &renderer, const std::string &path) {
+std::shared_ptr<SDL_Texture> Glimmer::ResourcePackManager::loadTextureFromFile(
+    const std::vector<std::string> &enabledResourcePack, SDL_Renderer &renderer, const std::string &path) {
     namespace fs = std::filesystem;
 
     if (path.empty()) {
@@ -130,11 +130,11 @@ SDL_Texture *Glimmer::ResourcePackManager::loadTextureFromFile(const std::vector
 
     const auto cacheIt = textureCache.find(path);
     if (cacheIt != textureCache.end()) {
-        if (cacheIt->second != nullptr) {
+        if (auto tex = cacheIt->second.lock()) {
             LogCat::d("Texture loaded from cache: ", path);
-            return cacheIt->second;
+            return tex;
         }
-        LogCat::w("Cached texture is null, reloading: ", path);
+        LogCat::w("Cached texture expired, reloading: ", path);
     }
 
     for (const auto &packId: enabledResourcePack) {
@@ -188,14 +188,20 @@ SDL_Texture *Glimmer::ResourcePackManager::loadTextureFromFile(const std::vector
 
         LogCat::d("Loaded texture from pack '", packId, "': ", canonicalTarget.string());
 
-        textureCache[path] = texture;
+        auto deleter = [path](SDL_Texture *tex) {
+            LogCat::d("Destroying texture from cache: ", path);
+            if (tex) SDL_DestroyTexture(tex);
+        };
 
-        return texture;
+        std::shared_ptr<SDL_Texture> texturePtr(texture, deleter);
+        textureCache[path] = texturePtr; // 自动转换为 weak_ptr
+        LogCat::d("add use_count=", texturePtr.use_count());
+        return texturePtr;
     }
 
     //Cache null values when loading fails (to prevent repeated attempts)
     //加载失败时缓存空值（防止重复尝试）
-    textureCache[path] = nullptr;
+    textureCache[path] = std::weak_ptr<SDL_Texture>();
 
     LogCat::e("Texture not found in any enabled resource pack: ", path);
     return nullptr;

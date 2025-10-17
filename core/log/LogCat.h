@@ -24,7 +24,7 @@ namespace Glimmer {
             std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &localTime);
             const auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
             std::ostringstream oss;
-            oss << buffer << '.' << std::setfill('0') << std::setw(3) << ms.count();
+            oss << buffer << '.' << std::setfill('0') << std::setw(3) << ms.count() << " ";
             return oss.str();
         }
 

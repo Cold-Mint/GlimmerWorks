@@ -4,14 +4,22 @@
 
 #ifndef GLIMMERWORKS_HOMESCENE_H
 #define GLIMMERWORKS_HOMESCENE_H
-#include <memory>
+#include <vector>
 
 #include "Scene.h"
 
 
 namespace Glimmer {
+    struct Star {
+        float x, y;
+        Uint8 r, g, b;
+        float size;
+    };
+
     class HomeScene : public Scene {
-        std::shared_ptr<SDL_Texture> splashTexture = nullptr;
+        std::vector<Star> stars;
+        int windowWidth = 0;
+        int windowHeight = 0;
 
     public:
         explicit HomeScene(AppContext *context)
@@ -23,6 +31,8 @@ namespace Glimmer {
         void Update(float delta) override;
 
         void Render(SDL_Renderer *renderer) override;
+
+        void generateStars();
 
         ~HomeScene() override;
     };

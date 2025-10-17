@@ -119,7 +119,6 @@ void Glimmer::App::run() const {
         }
         consoleScene->Update(deltaTime);
         appContext->sceneManager->getScene()->Update(deltaTime);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
         appContext->sceneManager->getScene()->Render(renderer);
         consoleScene->Render(renderer);

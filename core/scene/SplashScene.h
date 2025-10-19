@@ -14,7 +14,7 @@
 namespace Glimmer {
     class SplashScene final : public Scene {
         std::shared_ptr<SDL_Texture> splashTexture = nullptr;
-        float alpha = 0.0f;
+        float alpha = 0.0F;
         bool animationFinished = false;
         tweeny::tween<float> fadeTween;
         Uint64 nextSceneTime;

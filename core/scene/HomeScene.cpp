@@ -61,28 +61,28 @@ void Glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     ImGui::Text("Glimmer");
 
     // 按钮区域
-    float buttonWidth = 200.0f;
-    float buttonHeight = 40.0f;
-    float buttonSpacing = 10.0f;
+    float buttonWidth = 200.0F;
+    float buttonHeight = 40.0F;
+    float buttonSpacing = 10.0F;
     float totalHeight = 3 * buttonHeight + 2 * buttonSpacing;
-    ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5f);
-    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+    ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5F);
+    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->langs->startGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
     }
-    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->langs->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {
     }
-    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->langs->settings.c_str(), ImVec2(buttonWidth, buttonHeight))) {
     }
-    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->langs->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
         appContext->isRunning = false;
     }
 
-    ImVec4 white(1.0f, 1.0f, 1.0f, 1.0f);
-    ImGui::SetCursorPosY(windowSize.y - ImGui::GetFontSize() - 10.0f);
-    ImGui::SetCursorPosX(windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - 10.0f);
+    ImVec4 white(1.0F, 1.0F, 1.0F, 1.0F);
+    ImGui::SetCursorPosY(windowSize.y - ImGui::GetFontSize() - 10.0F);
+    ImGui::SetCursorPosX(windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - 10.0F);
     ImGui::TextColored(white, "%s", GAME_VERSION_STRING);
     ImGui::PopStyleColor();
     ImGui::End();
@@ -92,8 +92,8 @@ void Glimmer::HomeScene::generateStars() {
     stars.clear();
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution xDist(0.0f, static_cast<float>(windowWidth - 1));
-    std::uniform_real_distribution yDist(0.0f, static_cast<float>(windowHeight - 1));
+    std::uniform_real_distribution xDist(0.0F, static_cast<float>(windowWidth - 1));
+    std::uniform_real_distribution yDist(0.0F, static_cast<float>(windowHeight - 1));
     std::uniform_int_distribution colorDist(128, 255);
     std::uniform_real_distribution sizeDist(1.0F, 10.0F);
     constexpr int minStars = 50;

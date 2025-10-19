@@ -73,26 +73,28 @@ void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
             addMessage("> " + cmdStr);
             appContext->commandExecutor->executeAsync(cmdStr, appContext->commandManager,
                                                       [this](const CommandResult result, const std::string &cmd) {
+                                                          std::string message;
                                                           switch (result) {
                                                               case CommandResult::Success:
-                                                                  addMessage(fmt::format(
+                                                                  message = fmt::format(
                                                                       fmt::runtime(appContext->langs->executedSuccess),
-                                                                      cmd));
+                                                                      cmd);
                                                                   break;
                                                               case CommandResult::Failure:
-                                                                  addMessage(fmt::format(
+                                                                  message = fmt::format(
                                                                       fmt::runtime(appContext->langs->executionFailed),
-                                                                      cmd));
+                                                                      cmd);
                                                                   break;
                                                               case CommandResult::EmptyArgs:
-                                                                  addMessage(appContext->langs->commandIsEmpty);
+                                                                  message = appContext->langs->commandIsEmpty;
                                                                   break;
                                                               case CommandResult::NotFound:
-                                                                  addMessage(fmt::format(
+                                                                  message = fmt::format(
                                                                       fmt::runtime(appContext->langs->commandNotFound),
-                                                                      cmd));
+                                                                      cmd);
                                                                   break;
                                                           }
+                                                          addMessage(message);
                                                       },
                                                       [this](const std::string &text) {
                                                           addMessage(text);

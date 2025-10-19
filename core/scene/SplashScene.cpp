@@ -40,7 +40,7 @@ void Glimmer::SplashScene::Render(SDL_Renderer *renderer) {
             return;
         }
         fadeTween = tweeny::from(0.0F).to(1.0F).during(350);
-        alpha = 0.0f;
+        alpha = 0.0F;
         animationFinished = false;
         LogCat::i("Splash texture loaded, starting fade-in animation");
     }

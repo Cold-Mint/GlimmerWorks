@@ -134,6 +134,12 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/scene/HomeScene.h
         core/Langs.cpp
         core/Langs.h
+        core/scene/SavedGamesScene.cpp
+        core/scene/SavedGamesScene.h
+        core/saves/Saves.cpp
+        core/saves/Saves.h
+        core/saves/MapManifest.cpp
+        core/saves/MapManifest.h
 )
 
 #Define version information

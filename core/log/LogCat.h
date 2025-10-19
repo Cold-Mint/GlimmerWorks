@@ -21,11 +21,11 @@ namespace Glimmer {
             std::time_t t = system_clock::to_time_t(now);
             std::tm localTime{};
             localtime_r(&t, &localTime);
-            char buffer[32];
-            std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &localTime);
+            std::array<char, 32> buffer{};
+            (void) std::strftime(buffer.data(), buffer.size(), "%Y-%m-%d %H:%M:%S", &localTime);
             const auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
             std::ostringstream oss;
-            oss << buffer << '.' << std::setfill('0') << std::setw(3) << ms.count();
+            oss << buffer.data() << '.' << std::setfill('0') << std::setw(3) << ms.count();
             return oss.str();
         }
 

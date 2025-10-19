@@ -2,6 +2,7 @@
 
 #include "core/App.h"
 #include "core/Config.h"
+#include "core/Langs.h"
 #include "core/console/CommandManager.h"
 #include "core/console/command/HelpCommand.h"
 #include "core/log/LogCat.h"
@@ -10,10 +11,12 @@
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/scene/AppContext.h"
 #include "core/scene/SceneManager.h"
+#include "core/utils/JsonUtils.h"
 #include "core/utils/LanguageUtils.h"
+#include "fmt/args.h"
 
 using namespace Glimmer;
-
+namespace fs = std::filesystem;
 
 int main() {
     std::set_terminate([]() {
@@ -22,6 +25,28 @@ int main() {
     });
     try {
         std::string language = LanguageUtils::getLanguage();
+        LogCat::i("Load the built-in language file.");
+        fs::path langFile = fs::path("langs") / (language + ".json");
+        LogCat::i("Try to load language file:", langFile.c_str());
+        if (!fs::exists(langFile)) {
+            LogCat::w("Not found, fall back to default.json");
+            langFile = fs::path("langs/default.json");
+        }
+        auto jsonOpt = JsonUtils::LoadJsonFromFile(langFile.string());
+        if (!jsonOpt) {
+            LogCat::e("Failed to load any language file!");
+            return EXIT_FAILURE;
+        }
+        auto &jsonObject = *jsonOpt;
+        Langs langs;
+        langs.startGame = jsonObject["startGame"].get<std::string>();
+        langs.settings = jsonObject["settings"].get<std::string>();
+        langs.mods = jsonObject["mods"].get<std::string>();
+        langs.exitGame = jsonObject["exitGame"].get<std::string>();
+        langs.console = jsonObject["console"].get<std::string>();
+        langs.commandNotFound = jsonObject["commandNotFound"].get<std::string>();
+        langs.executionFailed = jsonObject["executionFailed"].get<std::string>();
+        langs.executedSuccess = jsonObject["executedSuccess"].get<std::string>();
         DataPackManager dataPackManager;
         ResourcePackManager resourcePackManager;
         SceneManager sceneManager;
@@ -39,9 +64,10 @@ int main() {
         LogCat::i("resourcePackPath = ", config.mods.resourcePackPath);
         LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
         commandManager.registerCommand(std::make_unique<HelpCommand>());
-        AppContext appContext(&sceneManager, &language, &dataPackManager, &resourcePackManager, &config, &stringManager,
+        AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
+                              &stringManager,
                               &commandManager,
-                              &commandExecutor);
+                              &commandExecutor, &langs);
         LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
         LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
         LogCat::i("Starting GlimmerWorks...");

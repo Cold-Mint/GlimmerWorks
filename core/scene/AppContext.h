@@ -6,6 +6,7 @@
 #include <string>
 
 #include "SceneManager.h"
+#include "../Langs.h"
 #include "../console/CommandExecutor.h"
 #include "../console/CommandManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
@@ -35,14 +36,17 @@ namespace Glimmer {
         SDL_Window *window;
         CommandExecutor *commandExecutor;
         ResourcePackManager *resourcePackManager;
+        Langs *langs;
+        bool isRunning;
 
-        AppContext(SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm, Config *cfg,
+        AppContext(bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
+                   Config *cfg,
                    StringManager *stringManager,
-                   CommandManager *commandManager, CommandExecutor *commandExecutor)
+                   CommandManager *commandManager, CommandExecutor *commandExecutor, Langs *langs)
             : language(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager),
               commandManager(commandManager), commandExecutor(commandExecutor),
               resourcePackManager(rpm),
-              window(nullptr) {
+              window(nullptr), langs(langs), isRunning(run) {
         }
     };
 }

@@ -7,6 +7,7 @@
 #include <chrono>
 
 #include "../../Constants.h"
+#include "../../log/LogCat.h"
 
 
 std::string Glimmer::HelpCommand::getName() const {
@@ -17,5 +18,6 @@ void Glimmer::HelpCommand::InitSuggest() {
 }
 
 bool Glimmer::HelpCommand::execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) {
+    LogCat::d("HelpCommand executed");
     return false;
 }

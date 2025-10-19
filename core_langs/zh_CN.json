@@ -1,0 +1,11 @@
+{
+  "startGame": "开始游戏",
+  "settings": "设置",
+  "mods": "模组",
+  "exitGame": "退出游戏",
+  "console": "终端",
+  "commandNotFound": "命令未找到：{}",
+  "executionFailed": "{}执行失败",
+  "executedSuccess": "{}执行成功",
+  "commandIsEmpty": "命令为空"
+}

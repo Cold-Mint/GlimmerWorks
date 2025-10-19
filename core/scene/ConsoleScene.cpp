@@ -5,9 +5,8 @@
 #include "ConsoleScene.h"
 
 #include "AppContext.h"
-#include "../log/LogCat.h"
-#include "backends/imgui_impl_sdl3.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
+#include "fmt/color.h"
 
 bool Glimmer::ConsoleScene::HandleEvent(const SDL_Event &event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
@@ -31,14 +30,9 @@ void Glimmer::ConsoleScene::addMessage(const std::string &message) {
 
 void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
     if (!show) return;
-    ImGui_ImplSDL3_NewFrame();
-    ImGui_ImplSDLRenderer3_NewFrame();
-    ImGui::NewFrame();
-
     const ImGuiIO &io = ImGui::GetIO();
     const float windowHeight = io.DisplaySize.y;
     constexpr float inputHeight = 25.0F;
-
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(io.DisplaySize);
     ImGui::Begin("Console",
@@ -47,7 +41,11 @@ void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
                  ImGuiWindowFlags_NoResize |
                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-    ImGui::BeginChild("Messages", ImVec2(0, windowHeight - inputHeight - 10), false,
+    ImGui::PushFont(ImGui::GetFont());
+    ImGui::TextUnformatted(appContext->langs->console.c_str());
+    ImGui::PopFont();
+    ImGui::Separator();
+    ImGui::BeginChild("Messages", ImVec2(0, windowHeight - inputHeight - 50), false,
                       ImGuiWindowFlags_HorizontalScrollbar);
     ImGuiListClipper clipper;
     clipper.Begin(static_cast<int>(messages.size()));
@@ -57,7 +55,6 @@ void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
         }
     }
     clipper.End();
-
     if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
         ImGui::SetScrollHereY(1.0f);
     }
@@ -78,16 +75,22 @@ void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
                                                       [this](const CommandResult result, const std::string &cmd) {
                                                           switch (result) {
                                                               case CommandResult::Success:
-                                                                  addMessage(cmd + " executed successfully");
+                                                                  addMessage(fmt::format(
+                                                                      fmt::runtime(appContext->langs->executedSuccess),
+                                                                      cmd));
                                                                   break;
                                                               case CommandResult::Failure:
-                                                                  addMessage(cmd + " execution failed");
-                                                                  break;
-                                                              case CommandResult::NotFound:
-                                                                  addMessage("Command not found: " + cmd);
+                                                                  addMessage(fmt::format(
+                                                                      fmt::runtime(appContext->langs->executionFailed),
+                                                                      cmd));
                                                                   break;
                                                               case CommandResult::EmptyArgs:
-                                                                  addMessage("> Command is empty");
+                                                                  addMessage(appContext->langs->commandIsEmpty);
+                                                                  break;
+                                                              case CommandResult::NotFound:
+                                                                  addMessage(fmt::format(
+                                                                      fmt::runtime(appContext->langs->commandNotFound),
+                                                                      cmd));
                                                                   break;
                                                           }
                                                       },
@@ -100,11 +103,7 @@ void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
         focusNextFrame = true;
     }
     ImGui::PopItemWidth();
-
     ImGui::End();
-
-    ImGui::Render();
-    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 }
 
 

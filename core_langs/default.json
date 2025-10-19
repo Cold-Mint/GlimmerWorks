@@ -1,0 +1,11 @@
+{
+  "startGame": "Start Game",
+  "settings": "Settings",
+  "mods": "Mods",
+  "exitGame": "Exit",
+  "console": "Console",
+  "commandNotFound": "Command Not Found：{}",
+  "executionFailed": "{} execution failure",
+  "executedSuccess": "{} successful execution",
+  "commandIsEmpty": "The command is empty"
+}

@@ -7,6 +7,7 @@
 #include <random>
 
 #include "AppContext.h"
+#include "imgui.h"
 #include "../log/LogCat.h"
 
 
@@ -44,6 +45,47 @@ void Glimmer::HomeScene::Render(SDL_Renderer *renderer) {
         SDL_RenderFillRect(renderer, &rect);
     }
     SDL_SetRenderDrawColor(renderer, 10, 10, 30, 255);
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+    ImGui::Begin("Home",
+                 nullptr,
+                 ImGuiWindowFlags_NoTitleBar |
+                 ImGuiWindowFlags_NoResize |
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    // 获取窗口大小
+    const ImVec2 windowSize(static_cast<float>(winW), static_cast<float>(winH));
+
+    // 设置标题字体（需提前加载，见下方说明）
+    const ImVec2 titleSize = ImGui::CalcTextSize("Glimmer");
+    ImGui::SetCursorPosX((windowSize.x - titleSize.x) * 0.5f);
+    ImGui::Text("Glimmer");
+
+    // 按钮区域
+    float buttonWidth = 200.0f;
+    float buttonHeight = 40.0f;
+    float buttonSpacing = 10.0f;
+    float totalHeight = 3 * buttonHeight + 2 * buttonSpacing;
+    ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5f);
+    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+    if (ImGui::Button(appContext->langs->startGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    }
+    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+    if (ImGui::Button(appContext->langs->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    }
+    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+    if (ImGui::Button(appContext->langs->settings.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    }
+    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+    if (ImGui::Button(appContext->langs->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+        appContext->isRunning = false;
+    }
+
+    ImVec4 white(1.0f, 1.0f, 1.0f, 1.0f);
+    ImGui::SetCursorPosY(windowSize.y - ImGui::GetFontSize() - 10.0f);
+    ImGui::SetCursorPosX(windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - 10.0f);
+    ImGui::TextColored(white, "%s", GAME_VERSION_STRING);
+    ImGui::PopStyleColor();
+    ImGui::End();
 }
 
 void Glimmer::HomeScene::generateStars() {

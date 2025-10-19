@@ -61,6 +61,14 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(tweeny)
 
+FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
+        GIT_PROGRESS TRUE
+        GIT_TAG "12.0.0"
+)
+FetchContent_MakeAvailable(fmt)
+
 add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_widgets.cpp"
@@ -124,6 +132,8 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/scene/SceneManager.h
         core/scene/HomeScene.cpp
         core/scene/HomeScene.h
+        core/Langs.cpp
+        core/Langs.h
 )
 
 #Define version information
@@ -137,7 +147,7 @@ target_compile_definitions(GlimmerWorks PRIVATE
         CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
 )
 
-target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image)
+target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt)
 
 target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/json/include"
@@ -153,6 +163,9 @@ target_include_directories(GlimmerWorks PRIVATE
 
 file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"
         DESTINATION "${CMAKE_BINARY_DIR}/")
+
+file(COPY "${CMAKE_SOURCE_DIR}/core_langs/"
+        DESTINATION "${CMAKE_BINARY_DIR}/langs/")
 
 file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" "*")
 

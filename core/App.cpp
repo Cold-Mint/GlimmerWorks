@@ -92,17 +92,16 @@ void Glimmer::App::run() const {
     const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
     Uint64 frameStart = SDL_GetTicks();
     float deltaTime = 0.0F;
-    bool running = true;
     SDL_Event event;
     LogCat::i("Entering main loop...");
     appContext->sceneManager->changeScene(new SplashScene(appContext));
     appContext->sceneManager->setConsoleScene(new ConsoleScene(appContext));
-    while (running) {
+    while (appContext->isRunning) {
         Scene *consoleScene = appContext->sceneManager->getConsoleScene();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
-                running = false;
+                appContext->isRunning = false;
             } else {
                 if (!consoleScene->HandleEvent(event)) {
                     // LogCat::d("ConsoleScene did not handle event, forwarding to current Scene...");
@@ -117,11 +116,16 @@ void Glimmer::App::run() const {
                 }
             }
         }
+        ImGui_ImplSDL3_NewFrame();
+        ImGui_ImplSDLRenderer3_NewFrame();
+        ImGui::NewFrame();
         consoleScene->Update(deltaTime);
         appContext->sceneManager->getScene()->Update(deltaTime);
         SDL_RenderClear(renderer);
         appContext->sceneManager->getScene()->Render(renderer);
         consoleScene->Render(renderer);
+        ImGui::Render();
+        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
         SDL_RenderPresent(renderer);
         const auto frameTimeMs = SDL_GetTicks() - frameStart;
         frameStart = SDL_GetTicks();

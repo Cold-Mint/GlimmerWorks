@@ -97,6 +97,7 @@ void Glimmer::App::run() const {
     appContext->sceneManager->changeScene(new SplashScene(appContext));
     appContext->sceneManager->setConsoleScene(new ConsoleScene(appContext));
     while (appContext->isRunning) {
+        appContext->sceneManager->applyPendingScene();
         Scene *consoleScene = appContext->sceneManager->getConsoleScene();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
@@ -104,9 +105,7 @@ void Glimmer::App::run() const {
                 appContext->isRunning = false;
             } else {
                 if (!consoleScene->HandleEvent(event)) {
-                    // LogCat::d("ConsoleScene did not handle event, forwarding to current Scene...");
                     if (!appContext->sceneManager->getScene()->HandleEvent(event)) {
-                        // LogCat::d("Scene did not handle event, forwarding to ImGui...");
                         ImGui_ImplSDL3_ProcessEvent(&event);
                     } else {
                         LogCat::w("Scene handled event, stopping propagation.");

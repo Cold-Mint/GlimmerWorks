@@ -8,7 +8,7 @@
 
 
 namespace Glimmer {
-    class SavedGamesScene : Scene {
+    class SavedGamesScene : public Scene {
     public:
         explicit SavedGamesScene(AppContext *context)
             : Scene(context) {

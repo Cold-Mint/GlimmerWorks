@@ -11,12 +11,20 @@ void Glimmer::SceneManager::setConsoleScene(Scene *sc) {
 }
 
 void Glimmer::SceneManager::changeScene(Scene *sc) {
-    const Scene *oldScene = scene;
-    this->scene = sc;
-    delete oldScene;
+    pendingScene = sc;
+    hasPending = true;
 }
 
-Glimmer::Scene * Glimmer::SceneManager::getConsoleScene() const {
+void Glimmer::SceneManager::applyPendingScene() {
+    if (hasPending) {
+        delete scene;
+        scene = pendingScene;
+        pendingScene = nullptr;
+        hasPending = false;
+    }
+}
+
+Glimmer::Scene *Glimmer::SceneManager::getConsoleScene() const {
     return consoleScene;
 }
 

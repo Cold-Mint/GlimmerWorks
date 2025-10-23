@@ -9,7 +9,6 @@
 #include "Scene.h"
 #include "../log/LogCat.h"
 #include "include/tween.h"
-#include "SDL3/SDL_timer.h"
 
 namespace Glimmer {
     class SplashScene final : public Scene {

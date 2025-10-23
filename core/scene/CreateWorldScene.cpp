@@ -8,6 +8,8 @@
 #include <random>
 #include <fstream>
 
+#include "AppContext.h"
+#include "HomeScene.h"
 #include "imgui.h"
 #include "nlohmann/json.hpp"
 #include "SDL3/SDL_log.h"
@@ -64,15 +66,16 @@ void Glimmer::CreateWorldScene::Update(float delta) {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(),
                             ImGuiCond_Once, ImVec2(0.5f, 0.5f));
 
-    ImGui::Begin("创建世界", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+    ImGui::Begin(appContext->langs->createWorld.c_str(), nullptr,
+                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-    ImGui::Text("世界名称：");
+    ImGui::TextUnformatted(appContext->langs->worldName.c_str());
     ImGui::InputText("##WorldName", world_name, IM_ARRAYSIZE(world_name));
 
-    ImGui::Text("世界种子：");
+    ImGui::TextUnformatted(appContext->langs->seed.c_str());
     ImGui::InputText("##Seed", seed_str, IM_ARRAYSIZE(seed_str));
     ImGui::SameLine();
-    if (ImGui::Button("随机")) {
+    if (ImGui::Button(appContext->langs->random.c_str())) {
         int new_seed = RandomSeed();
         snprintf(seed_str, sizeof(seed_str), "%d", new_seed);
     }
@@ -81,12 +84,11 @@ void Glimmer::CreateWorldScene::Update(float delta) {
     ImGui::Separator();
     ImGui::Spacing();
 
-    if (ImGui::Button("取消", ImVec2(120, 0))) {
-        // TODO: 切换回主菜单 Scene
-        // SDL_Log("用户取消创建世界。");
+    if (ImGui::Button(appContext->langs->cancel.c_str(), ImVec2(120, 0))) {
+        appContext->sceneManager->changeScene(new HomeScene(appContext));
     }
     ImGui::SameLine();
-    if (ImGui::Button("创建", ImVec2(120, 0))) {
+    if (ImGui::Button(appContext->langs->createWorld.c_str(), ImVec2(120, 0))) {
         CreateWorld();
     }
 

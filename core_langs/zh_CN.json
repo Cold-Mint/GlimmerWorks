@@ -7,5 +7,10 @@
   "commandNotFound": "命令未找到：{}",
   "executionFailed": "{}执行失败",
   "executedSuccess": "{}执行成功",
-  "commandIsEmpty": "命令为空"
+  "commandIsEmpty": "命令为空",
+  "createWorld": "创建世界",
+  "cancel": "取消",
+  "worldName": "世界名称",
+  "seed": "种子",
+  "random": "随机"
 }

@@ -17,6 +17,11 @@ namespace Glimmer {
         std::string executionFailed;
         std::string executedSuccess;
         std::string commandIsEmpty;
+        std::string createWorld;
+        std::string cancel;
+        std::string worldName;
+        std::string seed;
+        std::string random;
     };
 }
 

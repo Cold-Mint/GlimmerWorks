@@ -47,6 +47,12 @@ int main() {
         langs.commandNotFound = jsonObject["commandNotFound"].get<std::string>();
         langs.executionFailed = jsonObject["executionFailed"].get<std::string>();
         langs.executedSuccess = jsonObject["executedSuccess"].get<std::string>();
+        langs.commandIsEmpty = jsonObject["commandIsEmpty"].get<std::string>();
+        langs.createWorld = jsonObject["createWorld"].get<std::string>();
+        langs.cancel = jsonObject["cancel"].get<std::string>();
+        langs.worldName = jsonObject["worldName"].get<std::string>();
+        langs.seed = jsonObject["seed"].get<std::string>();
+        langs.random = jsonObject["random"].get<std::string>();
         DataPackManager dataPackManager;
         ResourcePackManager resourcePackManager;
         SceneManager sceneManager;

@@ -9,6 +9,7 @@
 #include "../Config.h"
 #include "../log/LogCat.h"
 #include "include/tweeny.h"
+#include "SDL3/SDL_timer.h"
 
 bool Glimmer::SplashScene::HandleEvent(const SDL_Event &event) {
     return false;

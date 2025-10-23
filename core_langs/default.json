@@ -7,5 +7,10 @@
   "commandNotFound": "Command Not Found：{}",
   "executionFailed": "{} execution failure",
   "executedSuccess": "{} successful execution",
-  "commandIsEmpty": "The command is empty"
+  "commandIsEmpty": "The command is empty",
+  "createWorld": "Create World",
+  "cancel": "Cancel",
+  "worldName": "World Name",
+  "seed": "Seed",
+  "random": "Random"
 }

@@ -4,11 +4,39 @@
 
 #ifndef GLIMMERWORKS_SAVES_H
 #define GLIMMERWORKS_SAVES_H
-#include <string>
+#include <filesystem>
+#include <utility>
+
+#include "MapManifest.h"
 
 namespace Glimmer {
     class Saves {
-        std::string path;
+        std::filesystem::path path;
+
+    public:
+        explicit Saves(std::filesystem::path path) : path(std::move(path)) {
+        }
+
+        /**
+         * Does the archive exist?
+         * 存档是否存在
+         * @return exist 存档是否存在
+         */
+        [[nodiscard]] bool exist() const;
+
+        /**
+         * Get the path of the archive
+         * 获取存档路径
+         * @return path 存档路径
+         */
+        [[nodiscard]] std::filesystem::path getPath() const;
+
+        /**
+         * Create a saves
+         * 创建存档
+         * @param manifest manifest 清单文件
+         */
+        void create(MapManifest &manifest) const;
     };
 }
 

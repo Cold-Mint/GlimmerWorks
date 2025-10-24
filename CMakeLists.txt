@@ -142,6 +142,19 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/saves/MapManifest.h
         core/scene/CreateWorldScene.cpp
         core/scene/CreateWorldScene.h
+        core/world/WorldGenerator.cpp
+        core/world/WorldGenerator.h
+        core/world/WorldGeneratorTask.cpp
+        core/world/WorldGeneratorTask.h
+        core/world/Chunk.cpp
+        core/world/Chunk.h
+        core/world/WorldContext.cpp
+        core/world/WorldContext.h
+        core/math/Vector2D.cpp
+        core/math/Vector2D.h
+        core/math/FastNoiseLite.h
+        core/world/GenerateChunkTask.cpp
+        core/world/GenerateChunkTask.h
 )
 
 #Define version information

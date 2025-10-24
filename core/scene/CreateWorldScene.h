@@ -16,7 +16,7 @@ namespace Glimmer {
             : Scene(context), world_name{}, seed_str{} {
         }
 
-        void CreateWorld();
+        void CreateWorld() const;
 
         static int RandomSeed();
 

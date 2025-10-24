@@ -4,15 +4,18 @@
 #ifndef JSONUTILS_H
 #define JSONUTILS_H
 #include <optional>
-#include <nlohmann/json.hpp>
-#include <nlohmann/json_fwd.hpp>
 #include "../mod/Resource.h"
 #include "../mod/ResourceRef.h"
 #include "../mod/PackManifest.h"
 #include "../Config.h"
+#include "../math/Vector2D.h"
+#include "../saves/MapManifest.h"
+#include "nlohmann/json.hpp"
+#include "nlohmann/json_fwd.hpp"
 
 
 namespace Glimmer {
+    struct Chunk;
     struct StringResource;
 
     class JsonUtils {
@@ -128,6 +131,40 @@ struct nlohmann::adl_serializer<Glimmer::DataPackManifest> {
             {"versionName", manifest.versionName},
             {"versionNumber", manifest.versionNumber},
             {"minGameVersion", manifest.minGameVersion}
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<Glimmer::MapManifest> {
+    static void from_json(const json &j, Glimmer::MapManifest &manifest) {
+        manifest.name = j.at("name").get<std::string>();
+        manifest.gameVersionName = j.at("gameVersionName").get<std::string>();
+        manifest.gameVersionNumber = j.at("gameVersionNumber").get<int>();
+        manifest.seed = j.at("seed").get<int>();
+    }
+
+    static void to_json(json &j, const Glimmer::MapManifest &manifest) {
+        j = json{
+            {"name", manifest.name},
+            {"gameVersionName", manifest.gameVersionName},
+            {"gameVersionNumber", manifest.gameVersionNumber},
+            {"seed", manifest.seed}
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<Glimmer::Vector2D> {
+    static void from_json(const json &j, Glimmer::Vector2D &vector_2d) {
+        vector_2d.x = j.at("x").get<int>();
+        vector_2d.y = j.at("y").get<int>();
+    }
+
+    static void to_json(json &j, const Glimmer::Vector2D &vector_2d) {
+        j = json{
+            {"x", vector_2d.x},
+            {"y", vector_2d.y},
         };
     }
 };

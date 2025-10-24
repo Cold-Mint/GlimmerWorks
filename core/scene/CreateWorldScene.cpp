@@ -11,45 +11,42 @@
 #include "AppContext.h"
 #include "HomeScene.h"
 #include "imgui.h"
+#include "../log/LogCat.h"
+#include "../world/WorldGenerator.h"
+#include "../saves/Saves.h"
+#include "fmt/base.h"
 #include "nlohmann/json.hpp"
 #include "SDL3/SDL_log.h"
 namespace fs = std::filesystem;
 
-void Glimmer::CreateWorldScene::CreateWorld() {
+void Glimmer::CreateWorldScene::CreateWorld() const {
     std::string name = world_name;
     if (name.empty()) {
-        SDL_Log("世界名称不能为空！");
+        SDL_Log("The name of the world cannot be empty!");
         return;
     }
-
-    std::string seed_input = seed_str;
-    long long seed_value = 0;
-
+    const std::string seed_input = seed_str;
+    int seed_value = 0;
     try {
-        seed_value = std::stoll(seed_input);
+        seed_value = std::stoi(seed_input);
     } catch (...) {
-        // 如果不是整数，取字符串 hash 值
         std::hash<std::string> hasher;
-        seed_value = static_cast<long long>(hasher(seed_input));
+        seed_value = static_cast<int>(hasher(seed_input));
     }
-
-    SDL_Log("创建世界：%s, 种子：%lld", name.c_str(), seed_value);
-
-    // 创建路径：/saved/[世界名称]/
-    fs::path dir = fs::path("saved") / name;
-    fs::create_directories(dir);
-
-    // 写入 map.json
-    nlohmann::json world_data = {
-        {"name", name},
-        {"seed", std::to_string(seed_value)}
-    };
-
-    std::ofstream file(dir / "map.json"); //Type std::ofstream is incomplete
-    file << world_data.dump(4);
-    file.close();
-
-    SDL_Log("世界文件已保存到 %s", (dir / "map.json").string().c_str());
+    LogCat::d("Create a world: ", name, ", seed: ", seed_value);
+    Saves saves(fs::path("saved") / name);
+    if (saves.exist()) {
+        LogCat::e("The world already exists!");
+        return;
+    }
+    MapManifest manifest;
+    manifest.seed = seed_value;
+    manifest.name = name;
+    manifest.gameVersionName = GAME_VERSION_STRING;
+    manifest.gameVersionNumber = GAME_VERSION_NUMBER;
+    saves.create(manifest);
+    const WorldGenerator worldGenerator(new WorldContext(seed_value, Vector2D(0, 0), &saves), appContext);
+    worldGenerator.generate(Vector2D(0, 0));
 }
 
 int Glimmer::CreateWorldScene::RandomSeed() {

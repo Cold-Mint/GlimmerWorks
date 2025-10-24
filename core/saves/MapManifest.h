@@ -11,6 +11,7 @@ namespace Glimmer {
         std::string name;
         std::string gameVersionName;
         int gameVersionNumber;
+        int seed;
     };
 }
 

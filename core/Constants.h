@@ -14,9 +14,9 @@
 #define HELP_COMMAND_NAME  "help"
 
 // 单位区块的尺寸
-static constexpr int CHUNK_SIZE = 8;
+static constexpr int CHUNK_SIZE = 256;
 //世界高度
-static constexpr int WORLD_HEIGHT = 8;
+static constexpr int WORLD_HEIGHT = 256;
 static constexpr int TILE_SIZE = 8;
 
 /**

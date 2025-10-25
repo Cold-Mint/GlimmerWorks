@@ -10,6 +10,7 @@
 #include "../console/CommandExecutor.h"
 #include "../console/CommandManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
+#include "SDL3_ttf/SDL_ttf.h"
 
 
 namespace Glimmer {
@@ -33,6 +34,7 @@ namespace Glimmer {
         SceneManager *sceneManager;
         StringManager *stringManager;
         CommandManager *commandManager;
+        TTF_Font *ttfFont;
         SDL_Window *window;
         CommandExecutor *commandExecutor;
         ResourcePackManager *resourcePackManager;
@@ -42,14 +44,14 @@ namespace Glimmer {
          * Whether to draw screen coordinates
          * 是否绘制屏幕坐标
          */
-        bool debugScreenCoords = false;
+        bool debugScreenCoords = true;
 
         AppContext(bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
                    Config *cfg,
                    StringManager *stringManager,
                    CommandManager *commandManager, CommandExecutor *commandExecutor, Langs *langs)
             : language(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager),
-              commandManager(commandManager), commandExecutor(commandExecutor),
+              commandManager(commandManager), ttfFont(nullptr), commandExecutor(commandExecutor),
               resourcePackManager(rpm),
               window(nullptr), langs(langs), isRunning(run) {
         }

@@ -2,13 +2,13 @@
 // Created by Cold-Mint on 2025/10/13.
 //
 
-#include "ConsoleScene.h"
+#include "ConsoleOverlay.h"
 
 #include "AppContext.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "fmt/color.h"
 
-bool Glimmer::ConsoleScene::HandleEvent(const SDL_Event &event) {
+bool Glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         if (event.key.scancode == SDL_SCANCODE_GRAVE) {
             show = !show;
@@ -21,14 +21,14 @@ bool Glimmer::ConsoleScene::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
-void Glimmer::ConsoleScene::Update(float delta) {
+void Glimmer::ConsoleOverlay::Update(float delta) {
 }
 
-void Glimmer::ConsoleScene::addMessage(const std::string &message) {
+void Glimmer::ConsoleOverlay::addMessage(const std::string &message) {
     messages.push_back(message);
 }
 
-void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
+void Glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     if (!show) return;
     const ImGuiIO &io = ImGui::GetIO();
     const float windowHeight = io.DisplaySize.y;
@@ -109,4 +109,4 @@ void Glimmer::ConsoleScene::Render(SDL_Renderer *renderer) {
 }
 
 
-Glimmer::ConsoleScene::~ConsoleScene() = default;
+Glimmer::ConsoleOverlay::~ConsoleOverlay() = default;

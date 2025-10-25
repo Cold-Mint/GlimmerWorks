@@ -118,8 +118,8 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/scene/AppContext.h
         core/scene/SplashScene.cpp
         core/scene/SplashScene.h
-        core/scene/ConsoleScene.cpp
-        core/scene/ConsoleScene.h
+        core/scene/ConsoleOverlay.cpp
+        core/scene/ConsoleOverlay.h
         core/console/Command.cpp
         core/console/Command.h
         core/console/CommandExecutor.cpp
@@ -165,6 +165,8 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/world/GenerateChunkTask.h
         core/scene/WorldScene.cpp
         core/scene/WorldScene.h
+        core/scene/DebugOverlay.cpp
+        core/scene/DebugOverlay.h
 )
 
 #Define version information

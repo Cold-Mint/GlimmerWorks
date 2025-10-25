@@ -11,7 +11,12 @@
 #include "Scene.h"
 
 namespace Glimmer {
-    class ConsoleScene : public Scene {
+    /**
+     * ConsoleOverlay
+     * 控制台叠加层
+     *
+     */
+    class ConsoleOverlay : public Scene {
         bool show = false;
         bool focusNextFrame = false;
         std::array<char, 256> inputBuffer = {};
@@ -20,7 +25,7 @@ namespace Glimmer {
         void addMessage(const std::string &message);
 
     public:
-        explicit ConsoleScene(AppContext *context)
+        explicit ConsoleOverlay(AppContext *context)
             : Scene(context) {
         }
 
@@ -31,7 +36,7 @@ namespace Glimmer {
 
         void Render(SDL_Renderer *renderer) override;
 
-        ~ConsoleScene() override;
+        ~ConsoleOverlay() override;
     };
 }
 

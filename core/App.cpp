@@ -3,13 +3,16 @@
 //
 #include "App.h"
 #include <SDL3/SDL.h>
+
+#include <ranges>
 #include "log/LogCat.h"
 #include "Config.h"
 #include "imgui.h"
 #include "backends/imgui_impl_sdl3.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "scene/SplashScene.h"
-#include "scene/ConsoleScene.h"
+#include "scene/ConsoleOverlay.h"
+#include "scene/DebugOverlay.h"
 #include "SDL3_ttf/SDL_ttf.h"
 
 bool Glimmer::App::init() {
@@ -34,12 +37,12 @@ bool Glimmer::App::init() {
         appContext->config->window.height,
         appContext->config->window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
     );
-    if (!window) {
+    if (window == nullptr) {
         LogCat::e("SDL_CreateWindow Error: ", SDL_GetError());
         return false;
     }
     LogCat::i("SDL window created successfully.");
-
+    appContext->window = window;
     LogCat::i("Creating SDL renderer...");
     renderer =
             SDL_CreateRenderer(window, nullptr);
@@ -69,10 +72,11 @@ bool Glimmer::App::init() {
         } else {
             LogCat::e("Failed to load font (ImGui error): ", fontPath);
         }
-        if (const TTF_Font *sdlFont = TTF_OpenFont(fontPath.c_str(), 16); !sdlFont) {
+        if (TTF_Font *sdlFont = TTF_OpenFont(fontPath.c_str(), 16); !sdlFont) {
             LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
         } else {
             LogCat::d("SDL_ttf font loaded: ", fontPath);
+            appContext->ttfFont = sdlFont;
         }
     } else {
         LogCat::w("No font found for language '", *appContext->language, "', skipping font load");
@@ -107,34 +111,45 @@ void Glimmer::App::run() const {
     SDL_Event event;
     LogCat::i("Entering main loop...");
     appContext->sceneManager->changeScene(new SplashScene(appContext));
-    appContext->sceneManager->setConsoleScene(new ConsoleScene(appContext));
+    appContext->sceneManager->addOverlayScene(new ConsoleOverlay(appContext));
+    appContext->sceneManager->addOverlayScene(new DebugOverlay(appContext));
+    auto &overlayScenes = appContext->sceneManager->getOverlayScenes();
     while (appContext->isRunning) {
         appContext->sceneManager->applyPendingScene();
-        Scene *consoleScene = appContext->sceneManager->getConsoleScene();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
                 appContext->isRunning = false;
             } else {
-                if (!consoleScene->HandleEvent(event)) {
-                    if (!appContext->sceneManager->getScene()->HandleEvent(event)) {
-                        ImGui_ImplSDL3_ProcessEvent(&event);
-                    } else {
-                        LogCat::w("Scene handled event, stopping propagation.");
+                bool handled = false;
+                for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
+                    if (overlayScene->HandleEvent(event)) {
+                        handled = true;
+                        LogCat::w("OverlayScene handled event, stopping propagation.");
+                        break;
                     }
-                } else {
-                    LogCat::w("ConsoleScene handled event, stopping propagation.");
+                }
+                if (!handled && appContext->sceneManager->getScene()->HandleEvent(event)) {
+                    handled = true;
+                    LogCat::w("Main scene handled event, stopping propagation.");
+                }
+                if (!handled) {
+                    ImGui_ImplSDL3_ProcessEvent(&event);
                 }
             }
         }
         ImGui_ImplSDL3_NewFrame();
         ImGui_ImplSDLRenderer3_NewFrame();
         ImGui::NewFrame();
-        consoleScene->Update(deltaTime);
+        for (const auto overlay: overlayScenes) {
+            overlay->Update(deltaTime);
+        }
         appContext->sceneManager->getScene()->Update(deltaTime);
         SDL_RenderClear(renderer);
         appContext->sceneManager->getScene()->Render(renderer);
-        consoleScene->Render(renderer);
+        for (const auto overlay: overlayScenes) {
+            overlay->Render(renderer);
+        }
         ImGui::Render();
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
         SDL_RenderPresent(renderer);

@@ -4,10 +4,30 @@
 
 #include "SceneManager.h"
 
-void Glimmer::SceneManager::setConsoleScene(Scene *sc) {
-    const Scene *oldScene = consoleScene;
-    this->consoleScene = sc;
-    delete oldScene;
+#include <algorithm>
+
+
+void Glimmer::SceneManager::addOverlayScene(Scene *overlay) {
+    if (overlay == nullptr) {
+        return;
+    }
+    if (std::ranges::find(overlayScenes, overlay) == overlayScenes.end()) {
+        overlayScenes.push_back(overlay);
+    }
+}
+
+void Glimmer::SceneManager::removeOverlayScene(Scene *overlay) {
+    if (overlay == nullptr) {
+        return;
+    }
+    overlayScenes.erase(
+        std::ranges::remove(overlayScenes, overlay).begin(),
+        overlayScenes.end()
+    );
+}
+
+const std::vector<Glimmer::Scene *> &Glimmer::SceneManager::getOverlayScenes() const {
+    return overlayScenes;
 }
 
 void Glimmer::SceneManager::changeScene(Scene *sc) {
@@ -22,10 +42,6 @@ void Glimmer::SceneManager::applyPendingScene() {
         pendingScene = nullptr;
         hasPending = false;
     }
-}
-
-Glimmer::Scene *Glimmer::SceneManager::getConsoleScene() const {
-    return consoleScene;
 }
 
 

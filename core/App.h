@@ -8,12 +8,14 @@
 
 #include "log/LogCat.h"
 #include "scene/AppContext.h"
+#include "SDL3_ttf/SDL_ttf.h"
 
 
 namespace Glimmer {
     class App {
         SDL_Window *window;
         bool initSDLSuccess;
+        bool initSDLTtfSuccess;
         SDL_Renderer *renderer;
         AppContext *appContext;
 
@@ -22,6 +24,9 @@ namespace Glimmer {
             LogCat::i("Destroy the app");
             if (window != nullptr) {
                 SDL_DestroyWindow(window);
+            }
+            if (initSDLTtfSuccess) {
+                TTF_Quit();
             }
             if (initSDLSuccess) {
                 SDL_Quit();
@@ -32,6 +37,7 @@ namespace Glimmer {
             window = nullptr;
             renderer = nullptr;
             initSDLSuccess = false;
+            initSDLTtfSuccess = false;
         }
 
         bool init();

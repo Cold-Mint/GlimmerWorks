@@ -42,6 +42,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(SDL_image)
 
+
+FetchContent_Declare(
+        SDL_ttf
+        GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf.git"
+        GIT_TAG "release-3.2.2"
+)
+FetchContent_MakeAvailable(SDL_ttf)
+
 FetchContent_Declare(
         imgui
         GIT_REPOSITORY "https://github.com/ocornut/imgui.git"
@@ -155,6 +163,8 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/math/FastNoiseLite.h
         core/world/GenerateChunkTask.cpp
         core/world/GenerateChunkTask.h
+        core/scene/WorldScene.cpp
+        core/scene/WorldScene.h
 )
 
 #Define version information
@@ -168,7 +178,7 @@ target_compile_definitions(GlimmerWorks PRIVATE
         CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
 )
 
-target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt)
+target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf)
 
 target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/json/include"
@@ -190,6 +200,20 @@ file(COPY "${CMAKE_SOURCE_DIR}/core_langs/"
 
 file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" "*")
 
+# Generate build.sh in the build directory
+# 在构建目录生成 build.sh
+set(BUILD_SCRIPT "${CMAKE_BINARY_DIR}/build.sh")
+file(WRITE "${BUILD_SCRIPT}" "#!/bin/bash\n")
+file(APPEND "${BUILD_SCRIPT}" "set -e\n")
+file(APPEND "${BUILD_SCRIPT}" "GAME_VERSION=\"${GAME_VERSION_STRING}\"\n")
+file(APPEND "${BUILD_SCRIPT}" "OUTPUT_FILE=\"GlimmerWorks_\${GAME_VERSION}_linux.zip\"\n")
+file(APPEND "${BUILD_SCRIPT}" "echo \"Packing files into \${OUTPUT_FILE}...\"\n")
+# Exclude all hidden files and folders
+# 排除所有隐藏文件和文件夹
+file(APPEND "${BUILD_SCRIPT}" "zip -r \${OUTPUT_FILE} config.json GlimmerWorks langs libs mods -x '*/.*'\n")
+file(APPEND "${BUILD_SCRIPT}" "echo \"Done!\"\n")
+
+
 add_custom_command(TARGET GlimmerWorks POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3::SDL3>
@@ -197,6 +221,12 @@ add_custom_command(TARGET GlimmerWorks POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:SDL3_image::SDL3_image>
         "${CMAKE_BINARY_DIR}/libs/libSDL3_image.so.0"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
+        "${CMAKE_BINARY_DIR}/libs/libSDL3_ttf.so.0"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:fmt::fmt>
+        "${CMAKE_BINARY_DIR}/libs/libfmtd.so.12"
 )
 
 #Clone data packets and resource packets.

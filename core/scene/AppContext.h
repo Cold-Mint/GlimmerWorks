@@ -38,6 +38,11 @@ namespace Glimmer {
         ResourcePackManager *resourcePackManager;
         Langs *langs;
         bool isRunning;
+        /**
+         * Whether to draw screen coordinates
+         * 是否绘制屏幕坐标
+         */
+        bool debugScreenCoords = false;
 
         AppContext(bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
                    Config *cfg,

@@ -5,15 +5,16 @@
 #ifndef GLIMMERWORKS_WORLDCONTEXT_H
 #define GLIMMERWORKS_WORLDCONTEXT_H
 
+#include <memory>
+#include <unordered_map>
 #include <vector>
 
-#include "../Constants.h"
+#include "Chunk.h"
 #include "../math/FastNoiseLite.h"
 #include "../math/Vector2D.h"
 
 namespace Glimmer {
     class Saves;
-    struct Chunk;
 
     class WorldContext {
     public:
@@ -30,10 +31,27 @@ namespace Glimmer {
         Vector2D playerPosition;
 
         /**
-         * Height map
-         * 高度图
+         * All loaded blocks
+         * 所有已加载的区块
          */
-        std::vector<float> heightmap;
+        std::vector<std::shared_ptr<Chunk> > chunks;
+
+        /**
+         * Height map(Divided by blocks)
+         * 高度图（按区块划分）
+         * key：The x-coordinate of the block's starting point 区块起点X坐标
+         * value：The height array of this block (length = CHUNK_SIZE)
+         */
+        std::unordered_map<int, std::vector<int> > heightMap;
+
+
+        /**
+         * get Height Map
+         * 获取高度图
+         * @param x Starting point x coordinate 起点x坐标
+         * @return The height array of this block (length = CHUNK_SIZE)
+         */
+        std::vector<int> getHeightMap(int x);
 
         /**
          * Game saves
@@ -48,7 +66,6 @@ namespace Glimmer {
 
         explicit WorldContext(int seed, Vector2D playerPosition, Saves *saves) : seed(seed),
             playerPosition(playerPosition), saves(saves) {
-            heightmap.resize(CHUNK_SIZE);
             heightMapNoise = new FastNoiseLite();
             heightMapNoise->SetSeed(seed);
             heightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);

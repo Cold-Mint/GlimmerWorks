@@ -10,6 +10,7 @@
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "scene/SplashScene.h"
 #include "scene/ConsoleScene.h"
+#include "SDL3_ttf/SDL_ttf.h"
 
 bool Glimmer::App::init() {
     LogCat::i("Initializing SDL...");
@@ -18,6 +19,12 @@ bool Glimmer::App::init() {
         return false;
     }
     initSDLSuccess = true;
+    LogCat::i("Initializing SDL_ttf...");
+    if (!TTF_Init()) {
+        LogCat::e("TTF_Init Error: ", SDL_GetError());
+        return false;
+    }
+    initSDLTtfSuccess = true;
     LogCat::i("SDL initialized successfully.");
 
     LogCat::i("Creating SDL window...");
@@ -61,6 +68,11 @@ bool Glimmer::App::init() {
             LogCat::d("Loaded font: ", fontPath);
         } else {
             LogCat::e("Failed to load font (ImGui error): ", fontPath);
+        }
+        if (const TTF_Font *sdlFont = TTF_OpenFont(fontPath.c_str(), 16); !sdlFont) {
+            LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
+        } else {
+            LogCat::d("SDL_ttf font loaded: ", fontPath);
         }
     } else {
         LogCat::w("No font found for language '", *appContext->language, "', skipping font load");

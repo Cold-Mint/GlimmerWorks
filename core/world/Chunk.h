@@ -8,10 +8,11 @@
 #include <string>
 #include <vector>
 
-#include "WorldContext.h"
+#include "../Constants.h"
 #include "../math/Vector2D.h"
 
 namespace Glimmer {
+    class WorldContext;
     /**
      * Chunk
      * 区块

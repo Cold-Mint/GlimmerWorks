@@ -10,7 +10,7 @@
 #include "WorldGeneratorTask.h"
 #include "../scene/AppContext.h"
 
-namespace Glimmer {
+namespace glimmer {
     /**
      * World Generator
      * 世界生成器

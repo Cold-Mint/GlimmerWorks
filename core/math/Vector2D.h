@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_VECTOR2D_H
 
 
-namespace Glimmer {
+namespace glimmer {
     struct Vector2D {
         int x;
         int y;

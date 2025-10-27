@@ -10,14 +10,14 @@
 
 #include "Command.h"
 
-namespace Glimmer {
+namespace glimmer {
     class CommandManager {
         std::unordered_map<std::string, std::unique_ptr<Command> > commandMap{};
 
     public:
-        void registerCommand(std::unique_ptr<Command> command);
+        void RegisterCommand(std::unique_ptr<Command> command);
 
-        Command *getCommand(const std::string &name);
+        Command *GetCommand(const std::string &name);
     };
 }
 

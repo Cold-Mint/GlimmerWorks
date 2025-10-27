@@ -6,7 +6,7 @@
 #include "../../log/LogCat.h"
 
 
-Glimmer::StringResource *Glimmer::StringManager::find(const std::string &packId, const std::string &key) {
+glimmer::StringResource *glimmer::StringManager::Find(const std::string &packId, const std::string &key) {
     LogCat::d("Searching for string resource: packId = ", packId, ", key = ", key);
     const auto packIt = stringMap.find(packId);
     if (packIt == stringMap.end()) {
@@ -26,7 +26,7 @@ Glimmer::StringResource *Glimmer::StringManager::find(const std::string &packId,
 }
 
 
-void Glimmer::StringManager::registerResource(const StringResource &stringResource) {
+void glimmer::StringManager::RegisterResource(const StringResource &stringResource) {
     LogCat::i("Registering string resource: packId = ", stringResource.packId,
               ", key = ", stringResource.key, "value = ", stringResource.value);
     stringMap[stringResource.packId][stringResource.key] = stringResource;

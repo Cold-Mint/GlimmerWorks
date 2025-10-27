@@ -12,7 +12,7 @@
 namespace fs = std::filesystem;
 
 
-bool Glimmer::ResourcePackManager::isResourcePackAvailable(const ResourcePack &pack) {
+bool glimmer::ResourcePackManager::isResourcePackAvailable(const ResourcePack &pack) {
     const PackManifest &manifest = pack.getManifest();
     static const std::regex uuidPattern(
         "^[0-9a-fA-F]{8}-"
@@ -34,12 +34,12 @@ bool Glimmer::ResourcePackManager::isResourcePackAvailable(const ResourcePack &p
     return manifest.resPack;
 }
 
-bool Glimmer::ResourcePackManager::isResourcePackEnabled(const ResourcePack &pack,
+bool glimmer::ResourcePackManager::isResourcePackEnabled(const ResourcePack &pack,
                                                          const std::vector<std::string> &enabledResourcePack) {
     return std::ranges::find(enabledResourcePack, pack.getManifest().id) != enabledResourcePack.end();
 }
 
-int Glimmer::ResourcePackManager::scan(const std::string &path, const std::vector<std::string> &enabledResourcePack) {
+int glimmer::ResourcePackManager::scan(const std::string &path, const std::vector<std::string> &enabledResourcePack) {
     resourcePackMap.clear();
     try {
         if (!fs::exists(path)) {
@@ -75,7 +75,7 @@ int Glimmer::ResourcePackManager::scan(const std::string &path, const std::vecto
     }
 }
 
-std::optional<std::string> Glimmer::ResourcePackManager::getFontPath(
+std::optional<std::string> glimmer::ResourcePackManager::getFontPath(
     const std::vector<std::string> &enabledResourcePack,
     const std::string &language) {
     std::optional<std::string> defaultFontPath;
@@ -119,7 +119,7 @@ std::optional<std::string> Glimmer::ResourcePackManager::getFontPath(
     return std::nullopt;
 }
 
-std::shared_ptr<SDL_Texture> Glimmer::ResourcePackManager::loadTextureFromFile(
+std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::loadTextureFromFile(
     const std::vector<std::string> &enabledResourcePack, SDL_Renderer &renderer, const std::string &path) {
     namespace fs = std::filesystem;
 

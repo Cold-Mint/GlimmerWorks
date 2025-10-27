@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace Glimmer {
+namespace glimmer {
     struct Window {
         int width = 1920;
         int height = 1080;

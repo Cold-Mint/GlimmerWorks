@@ -5,7 +5,7 @@
 #define RESOURCEREF_H
 #include <string>
 
-namespace Glimmer {
+namespace glimmer {
     struct ResourceRef {
         std::string packId;
         int resourceType;

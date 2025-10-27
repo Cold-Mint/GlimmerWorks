@@ -10,7 +10,7 @@
 #include "../log/LogCat.h"
 #include "include/tween.h"
 
-namespace Glimmer {
+namespace glimmer {
     class SplashScene final : public Scene {
         std::shared_ptr<SDL_Texture> splashTexture = nullptr;
         float alpha = 0.0F;

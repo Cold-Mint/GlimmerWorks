@@ -9,7 +9,7 @@
 #include "WorldContext.h"
 #include "../scene/AppContext.h"
 
-namespace Glimmer {
+namespace glimmer {
     /**
      * WorldGeneratorTask
      * 世界生成器内的一个任务

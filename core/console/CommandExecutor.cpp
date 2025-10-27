@@ -8,7 +8,7 @@
 
 #include "../log/LogCat.h"
 
-void Glimmer::CommandExecutor::executeAsync(std::string command, CommandManager *commandManager,
+void glimmer::CommandExecutor::ExecuteAsync(std::string command, CommandManager *commandManager,
                                             const std::function<void(CommandResult result, const std::string &command)>
                                             &
                                             onFinished,
@@ -25,12 +25,12 @@ void Glimmer::CommandExecutor::executeAsync(std::string command, CommandManager 
             result = CommandResult::EmptyArgs;
         } else {
             const CommandArgs args(cmdStr);
-            if (Command *cmd = commandManager->getCommand(args.asString(0)); cmd == nullptr) {
-                LogCat::e("Command not found: ", args.asString(0));
+            if (Command *cmd = commandManager->GetCommand(args.AsString(0)); cmd == nullptr) {
+                LogCat::e("Command not found: ", args.AsString(0));
                 result = CommandResult::NotFound;
             } else {
                 try {
-                    const bool execResult = cmd->execute(args, onOutput);
+                    const bool execResult = cmd->Execute(args, onOutput);
                     result = execResult ? CommandResult::Success : CommandResult::Failure;
                 } catch (const std::exception &e) {
                     LogCat::e("Command execution exception: ", e.what());

@@ -7,7 +7,7 @@
 #include "Scene.h"
 
 
-namespace Glimmer {
+namespace glimmer {
     class SavedGamesScene : public Scene {
     public:
         explicit SavedGamesScene(AppContext *context)

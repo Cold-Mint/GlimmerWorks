@@ -52,7 +52,7 @@
 
 #include <cmath>
 
-namespace Glimmer {
+namespace glimmer {
     class FastNoiseLite {
     public:
         enum NoiseType {

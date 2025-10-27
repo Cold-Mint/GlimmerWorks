@@ -167,6 +167,12 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/scene/WorldScene.h
         core/scene/DebugOverlay.cpp
         core/scene/DebugOverlay.h
+        core/ecs/GameEntity.cpp
+        core/ecs/GameEntity.h
+        core/ecs/GameComponent.cpp
+        core/ecs/GameComponent.h
+        core/ecs/GameSystem.cpp
+        core/ecs/GameSystem.h
 )
 
 #Define version information
@@ -208,11 +214,17 @@ set(BUILD_SCRIPT "${CMAKE_BINARY_DIR}/build.sh")
 file(WRITE "${BUILD_SCRIPT}" "#!/bin/bash\n")
 file(APPEND "${BUILD_SCRIPT}" "set -e\n")
 file(APPEND "${BUILD_SCRIPT}" "GAME_VERSION=\"${GAME_VERSION_STRING}\"\n")
-file(APPEND "${BUILD_SCRIPT}" "OUTPUT_FILE=\"GlimmerWorks_\${GAME_VERSION}_linux.zip\"\n")
+# If not specified, Release is the default
+# 如果没有指定，则默认 Release
+file(APPEND "${BUILD_SCRIPT}" "BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"\n")
+file(APPEND "${BUILD_SCRIPT}" "if [ -z \"\$BUILD_TYPE\" ]; then BUILD_TYPE=\"Release\"; fi\n")
+# The output file name contains the version number and build type
+# 输出文件名中包含版本号和构建类型
+file(APPEND "${BUILD_SCRIPT}" "OUTPUT_FILE=\"GlimmerWorks_\${GAME_VERSION}_\${BUILD_TYPE}_linux.tar.xz\"\n")
 file(APPEND "${BUILD_SCRIPT}" "echo \"Packing files into \${OUTPUT_FILE}...\"\n")
-# Exclude all hidden files and folders
 # 排除所有隐藏文件和文件夹
-file(APPEND "${BUILD_SCRIPT}" "zip -r \${OUTPUT_FILE} config.json GlimmerWorks langs libs mods -x '*/.*'\n")
+# Exclude all hidden files and folders
+file(APPEND "${BUILD_SCRIPT}" "tar --exclude='.*' -cJf \${OUTPUT_FILE} config.json GlimmerWorks langs libs mods\n")
 file(APPEND "${BUILD_SCRIPT}" "echo \"Done!\"\n")
 
 

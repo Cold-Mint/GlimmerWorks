@@ -13,7 +13,7 @@
 #include "ResourcePack.h"
 #include "SDL3/SDL_render.h"
 
-namespace Glimmer {
+namespace glimmer {
     class ResourcePackManager {
         std::unordered_map<std::string, std::unique_ptr<ResourcePack> > resourcePackMap;
 

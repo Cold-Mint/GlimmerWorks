@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_COMMANDRESULT_H
 
 
-namespace Glimmer {
+namespace glimmer {
     enum class CommandResult {
         EmptyArgs,
         NotFound,

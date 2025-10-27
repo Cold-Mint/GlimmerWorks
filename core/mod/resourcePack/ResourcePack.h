@@ -9,7 +9,7 @@
 #include "../PackManifest.h"
 
 
-namespace Glimmer {
+namespace glimmer {
     class ResourcePack {
         std::string path;
         ResourcePackManifest manifest;

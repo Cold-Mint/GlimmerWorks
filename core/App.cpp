@@ -15,7 +15,7 @@
 #include "scene/DebugOverlay.h"
 #include "SDL3_ttf/SDL_ttf.h"
 
-bool Glimmer::App::init() {
+bool glimmer::App::init() {
     LogCat::i("Initializing SDL...");
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         LogCat::e("SDL_Init Error: ", SDL_GetError());
@@ -99,7 +99,7 @@ bool Glimmer::App::init() {
     return true;
 }
 
-void Glimmer::App::run() const {
+void glimmer::App::run() const {
     //The time interval of the target (in seconds)
     //目标的时间间隔（以秒为单位）
     const float targetFrameTime = 1.0F / appContext->config->window.framerate;

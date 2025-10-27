@@ -8,7 +8,7 @@
 
 #include "Scene.h"
 
-namespace Glimmer {
+namespace glimmer {
     /**
      * Scene Manager
      * 场景管理器

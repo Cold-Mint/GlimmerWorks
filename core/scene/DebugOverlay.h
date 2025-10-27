@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_DEBUGSCENE_H
 #include "Scene.h"
 
-namespace Glimmer {
+namespace glimmer {
     /**
      * Debug the overlay layer
      * 调试叠加层

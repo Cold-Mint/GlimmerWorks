@@ -8,7 +8,7 @@
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "fmt/color.h"
 
-bool Glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
+bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         if (event.key.scancode == SDL_SCANCODE_GRAVE) {
             show = !show;
@@ -21,14 +21,14 @@ bool Glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
-void Glimmer::ConsoleOverlay::Update(float delta) {
+void glimmer::ConsoleOverlay::Update(float delta) {
 }
 
-void Glimmer::ConsoleOverlay::addMessage(const std::string &message) {
+void glimmer::ConsoleOverlay::addMessage(const std::string &message) {
     messages.push_back(message);
 }
 
-void Glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
+void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     if (!show) return;
     const ImGuiIO &io = ImGui::GetIO();
     const float windowHeight = io.DisplaySize.y;
@@ -71,7 +71,7 @@ void Glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         if (inputBuffer[0] != '\0') {
             const std::string cmdStr(inputBuffer.data(), strnlen(inputBuffer.data(), inputBuffer.size()));
             addMessage("> " + cmdStr);
-            appContext->commandExecutor->executeAsync(cmdStr, appContext->commandManager,
+            appContext->commandExecutor->ExecuteAsync(cmdStr, appContext->commandManager,
                                                       [this](const CommandResult result, const std::string &cmd) {
                                                           std::string message;
                                                           switch (result) {
@@ -109,4 +109,4 @@ void Glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
 }
 
 
-Glimmer::ConsoleOverlay::~ConsoleOverlay() = default;
+glimmer::ConsoleOverlay::~ConsoleOverlay() = default;

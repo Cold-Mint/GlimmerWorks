@@ -12,11 +12,11 @@
 #include "../log/LogCat.h"
 
 
-bool Glimmer::HomeScene::HandleEvent(const SDL_Event &event) {
+bool glimmer::HomeScene::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
-void Glimmer::HomeScene::Update(float delta) {
+void glimmer::HomeScene::Update(float delta) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     static std::uniform_int_distribution dist(-3, 3);
@@ -29,7 +29,7 @@ void Glimmer::HomeScene::Update(float delta) {
     }
 }
 
-void Glimmer::HomeScene::Render(SDL_Renderer *renderer) {
+void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     int winW = 0, winH = 0;
     if (!SDL_GetRenderOutputSize(renderer, &winW, &winH)) {
         return;
@@ -90,7 +90,7 @@ void Glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     ImGui::End();
 }
 
-void Glimmer::HomeScene::generateStars() {
+void glimmer::HomeScene::generateStars() {
     stars.clear();
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -119,4 +119,4 @@ void Glimmer::HomeScene::generateStars() {
 }
 
 
-Glimmer::HomeScene::~HomeScene() = default;
+glimmer::HomeScene::~HomeScene() = default;

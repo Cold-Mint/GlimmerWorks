@@ -9,7 +9,7 @@
 #include "Scene.h"
 
 
-namespace Glimmer {
+namespace glimmer {
     struct Star {
         float x, y;
         Uint8 r, g, b;

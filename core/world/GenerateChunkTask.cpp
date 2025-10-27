@@ -7,11 +7,11 @@
 #include "Chunk.h"
 #include "../Constants.h"
 
-std::string Glimmer::GenerateChunkTask::getName() {
+std::string glimmer::GenerateChunkTask::getName() {
     return "GenerateChunkTask";
 }
 
-bool Glimmer::GenerateChunkTask::execute(Vector2D startPoint, AppContext *appContext, WorldContext *worldContext) {
+bool glimmer::GenerateChunkTask::execute(Vector2D startPoint, AppContext *appContext, WorldContext *worldContext) {
     auto chunkPtr = std::make_shared<Chunk>(startPoint, worldContext);
     const std::vector<int> heights = worldContext->getHeightMap(startPoint.x);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {

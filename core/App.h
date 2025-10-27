@@ -11,7 +11,7 @@
 #include "SDL3_ttf/SDL_ttf.h"
 
 
-namespace Glimmer {
+namespace glimmer {
     class App {
         SDL_Window *window;
         bool initSDLSuccess;

@@ -8,14 +8,14 @@
 #include "DataPack.h"
 #include "../../log/LogCat.h"
 
-namespace Glimmer {
+namespace glimmer {
     class Config;
 }
 
 namespace fs = std::filesystem;
 
-bool Glimmer::DataPackManager::isDataPackAvailable(const DataPack &pack) {
-    const PackManifest &manifest = pack.getManifest();
+bool glimmer::DataPackManager::IsDataPackAvailable(const DataPack &pack) {
+    const PackManifest &manifest = pack.GetManifest();
     static const std::regex uuidPattern(
         "^[0-9a-fA-F]{8}-"
         "[0-9a-fA-F]{4}-"
@@ -36,12 +36,12 @@ bool Glimmer::DataPackManager::isDataPackAvailable(const DataPack &pack) {
     return !manifest.resPack;
 }
 
-bool Glimmer::DataPackManager::isDataPackEnabled(const DataPack &pack,
+bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
                                                  const std::vector<std::string> &enabledDataPack) {
-    return std::ranges::find(enabledDataPack, pack.getManifest().id) != enabledDataPack.end();
+    return std::ranges::find(enabledDataPack, pack.GetManifest().id) != enabledDataPack.end();
 }
 
-int Glimmer::DataPackManager::scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
+int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
                                    const std::string &language,  StringManager & stringManager) {
     try {
         if (!fs::exists(path)) {
@@ -56,19 +56,19 @@ int Glimmer::DataPackManager::scan(const std::string &path, const std::vector<st
                 const std::string folderPath = entry.path().string();
                 LogCat::d("Found data pack folder: ", folderPath);
                 DataPack pack(folderPath);
-                if (!pack.loadManifest()) {
+                if (!pack.LoadManifest()) {
                     continue;
                 }
                 // Determine whether the data packet is enabled
                 // 判断数据包是否启用
-                if (!isDataPackEnabled(pack, enabledDataPack)) {
-                    LogCat::w("Data pack not enabled: ", pack.getManifest().id);
+                if (!IsDataPackEnabled(pack, enabledDataPack)) {
+                    LogCat::w("Data pack not enabled: ", pack.GetManifest().id);
                     continue;
                 }
-                if (!isDataPackAvailable(pack)) {
+                if (!IsDataPackAvailable(pack)) {
                     continue;
                 }
-                if (pack.loadPack(language,stringManager)) {
+                if (pack.LoadPack(language,stringManager)) {
                     success++;
                 }
             }

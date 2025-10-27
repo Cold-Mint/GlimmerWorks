@@ -13,9 +13,9 @@
 #define COLOR_WARN    "\033[33m"  // Yellow 黄色
 #define COLOR_ERROR   "\033[31m"  // Red 红色
 
-namespace Glimmer {
+namespace glimmer {
     class LogCat {
-        static std::string currentTime() {
+        static std::string CurrentTime() {
             using namespace std::chrono;
             const auto now = system_clock::now();
             std::time_t t = system_clock::to_time_t(now);
@@ -29,7 +29,7 @@ namespace Glimmer {
             return oss.str();
         }
 
-        static std::string threadTag() {
+        static std::string ThreadTag() {
             std::ostringstream oss;
             oss << std::this_thread::get_id() << "| ";
             return oss.str();
@@ -39,7 +39,7 @@ namespace Glimmer {
         template<typename... Args>
         static void i(Args &&... args) {
 #if  !defined(NDEBUG)
-            std::cout << COLOR_INFO << currentTime() << " | INFO |" << threadTag();
+            std::cout << COLOR_INFO << CurrentTime() << " | INFO |" << ThreadTag();
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif
@@ -48,7 +48,7 @@ namespace Glimmer {
         template<typename... Args>
         static void d(Args &&... args) {
 #if  !defined(NDEBUG)
-            std::cout << COLOR_DEBUG << currentTime() << " | DEBUG |" << threadTag();
+            std::cout << COLOR_DEBUG << CurrentTime() << " | DEBUG |" << ThreadTag();
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif
@@ -56,14 +56,14 @@ namespace Glimmer {
 
         template<typename... Args>
         static void w(Args &&... args) {
-            std::cout << COLOR_WARN << currentTime() << " | WARN |" << threadTag();
+            std::cout << COLOR_WARN << CurrentTime() << " | WARN |" << ThreadTag();
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
         }
 
         template<typename... Args>
         static void e(Args &&... args) {
-            std::cout << COLOR_ERROR << currentTime() << " | ERROR |" << threadTag();
+            std::cout << COLOR_ERROR << CurrentTime() << " | ERROR |" << ThreadTag();
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
         }

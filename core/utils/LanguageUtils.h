@@ -6,7 +6,7 @@
 #include <string>
 
 
-namespace Glimmer {
+namespace glimmer {
     class LanguageUtils {
     public:
         static std::string getLanguage() {

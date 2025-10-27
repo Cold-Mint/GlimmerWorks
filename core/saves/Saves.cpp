@@ -11,15 +11,15 @@
 #include "../utils/JsonUtils.h"
 #include "nlohmann/json.hpp"
 
-bool Glimmer::Saves::exist() const {
+bool glimmer::Saves::Exist() const {
     return std::filesystem::exists(path);
 }
 
-std::filesystem::path Glimmer::Saves::getPath() const {
+std::filesystem::path glimmer::Saves::GetPath() const {
     return path;
 }
 
-void Glimmer::Saves::create(MapManifest &manifest) const {
+void glimmer::Saves::Create(MapManifest &manifest) const {
     if (!std::filesystem::exists(path)) {
         std::filesystem::create_directories(path);
     }

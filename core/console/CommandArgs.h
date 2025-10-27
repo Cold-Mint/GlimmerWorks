@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace Glimmer {
+namespace glimmer {
     class CommandArgs {
         std::vector<std::string> tokens;
 
@@ -21,15 +21,15 @@ namespace Glimmer {
             }
         }
 
-        [[nodiscard]] bool asBool(int index) const;
+        [[nodiscard]] bool AsBool(int index) const;
 
-        [[nodiscard]] int asInt(int index) const;
+        [[nodiscard]] int AsInt(int index) const;
 
-        [[nodiscard]] float asFloat(int index) const;
+        [[nodiscard]] float AsFloat(int index) const;
 
-        [[nodiscard]] double asDouble(int index) const;
+        [[nodiscard]] double AsDouble(int index) const;
 
-        [[nodiscard]] std::string asString(int index) const;
+        [[nodiscard]] std::string AsString(int index) const;
     };
 }
 

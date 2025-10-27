@@ -9,7 +9,7 @@
 #include "../Constants.h"
 #include "../log/LogCat.h"
 
-void Glimmer::WorldGenerator::generate(Vector2D startPoint) const {
+void glimmer::WorldGenerator::generate(Vector2D startPoint) const {
     if (startPoint.x % CHUNK_SIZE != 0) {
         LogCat::e(
             "The starting point(X) must be the upper left corner of the chunk.It is divisible by .It is divisible by ",

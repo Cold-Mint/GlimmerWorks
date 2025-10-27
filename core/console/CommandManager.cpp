@@ -6,13 +6,13 @@
 
 #include "../log/LogCat.h"
 
-void Glimmer::CommandManager::registerCommand(std::unique_ptr<Command> command) {
-    const std::string name = command->getName();
+void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command) {
+    const std::string name = command->GetName();
     commandMap[name] = std::move(command);
     LogCat::i("Command registered successfully: ", name);
 }
 
-Glimmer::Command *Glimmer::CommandManager::getCommand(const std::string &name) {
+glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) {
     if (const auto it = commandMap.find(name); it != commandMap.end()) {
         return it->second.get();
     }

@@ -11,11 +11,11 @@
 #include "include/tweeny.h"
 #include "SDL3/SDL_timer.h"
 
-bool Glimmer::SplashScene::HandleEvent(const SDL_Event &event) {
+bool glimmer::SplashScene::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
-void Glimmer::SplashScene::Update(float delta) {
+void glimmer::SplashScene::Update(float delta) {
     if (!animationFinished && fadeTween.progress() < 1.0f) {
         fadeTween.step(static_cast<int>(delta * 1000));
         alpha = fadeTween.peek();
@@ -31,7 +31,7 @@ void Glimmer::SplashScene::Update(float delta) {
     }
 }
 
-void Glimmer::SplashScene::Render(SDL_Renderer *renderer) {
+void glimmer::SplashScene::Render(SDL_Renderer *renderer) {
     if (!renderer) return;
     if (!splashTexture) {
         splashTexture = appContext->resourcePackManager->loadTextureFromFile(

@@ -8,7 +8,7 @@
 #include "../Resource.h"
 
 
-namespace Glimmer {
+namespace glimmer {
     struct StringResource;
 
     class StringManager {
@@ -17,11 +17,11 @@ namespace Glimmer {
     public:
         //Register the string resource to the manager
         //注册字符串资源到管理器
-        void registerResource(const StringResource &stringResource);
+        void RegisterResource(const StringResource &stringResource);
 
         //Search for string resources based on the data packet id and string key.
         //根据数据包id和字符串key查找字符串资源。
-        StringResource *find(const std::string &packId, const std::string &key);
+        StringResource *Find(const std::string &packId, const std::string &key);
     };
 }
 

@@ -6,7 +6,7 @@
 
 #include <stdexcept>
 
-bool Glimmer::CommandArgs::asBool(const int index) const {
+bool glimmer::CommandArgs::AsBool(const int index) const {
     if (index < 0 || index >= static_cast<int>(tokens.size())) {
         throw std::out_of_range("CommandArgs::asBool index out of range");
     }
@@ -16,28 +16,28 @@ bool Glimmer::CommandArgs::asBool(const int index) const {
     throw std::invalid_argument("Cannot convert to bool: " + val);
 }
 
-int Glimmer::CommandArgs::asInt(const int index) const {
+int glimmer::CommandArgs::AsInt(const int index) const {
     if (index < 0 || index >= static_cast<int>(tokens.size())) {
         throw std::out_of_range("CommandArgs::asInt index out of range");
     }
     return std::stoi(tokens[index]);
 }
 
-float Glimmer::CommandArgs::asFloat(const int index) const {
+float glimmer::CommandArgs::AsFloat(const int index) const {
     if (index < 0 || index >= static_cast<int>(tokens.size())) {
         throw std::out_of_range("CommandArgs::asFloat index out of range");
     }
     return std::stof(tokens[index]);
 }
 
-double Glimmer::CommandArgs::asDouble(const int index) const {
+double glimmer::CommandArgs::AsDouble(const int index) const {
     if (index < 0 || index >= static_cast<int>(tokens.size())) {
         throw std::out_of_range("CommandArgs::asDouble index out of range");
     }
     return std::stod(tokens[index]);
 }
 
-std::string Glimmer::CommandArgs::asString(const int index) const {
+std::string glimmer::CommandArgs::AsString(const int index) const {
     if (index < 0 || index >= static_cast<int>(tokens.size())) {
         throw std::out_of_range("CommandArgs::asString index out of range");
     }

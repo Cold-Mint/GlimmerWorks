@@ -7,7 +7,7 @@
 #include <SDL3/SDL_render.h>
 
 
-namespace Glimmer {
+namespace glimmer {
     class AppContext;
 
     class Scene {

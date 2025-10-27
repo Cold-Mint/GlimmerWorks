@@ -12,8 +12,12 @@
 #include "Chunk.h"
 #include "../math/FastNoiseLite.h"
 #include "../math/Vector2D.h"
+#include "../ecs/GameEntity.h"
+#include "../ecs/GameSystem.h"
 
-namespace Glimmer {
+namespace glimmer {
+    class GameSystem;
+    class GameEntity;
     class Saves;
 
     class WorldContext {
@@ -64,6 +68,12 @@ namespace Glimmer {
          */
         FastNoiseLite *heightMapNoise;
 
+        std::vector<std::unique_ptr<GameEntity> > entities;
+        std::vector<std::unique_ptr<GameSystem> > systems;
+
+
+        void update(float delta);
+
         explicit WorldContext(int seed, Vector2D playerPosition, Saves *saves) : seed(seed),
             playerPosition(playerPosition), saves(saves) {
             heightMapNoise = new FastNoiseLite();
@@ -71,6 +81,7 @@ namespace Glimmer {
             heightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             heightMapNoise->SetFrequency(0.05f);
         }
+
     };
 }
 

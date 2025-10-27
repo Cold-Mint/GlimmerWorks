@@ -13,7 +13,7 @@
 #include "SDL3_ttf/SDL_ttf.h"
 
 
-namespace Glimmer {
+namespace glimmer {
     class StringManager;
     class Config;
     class DataPackManager;

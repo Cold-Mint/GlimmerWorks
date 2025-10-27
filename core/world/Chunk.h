@@ -11,7 +11,7 @@
 #include "../Constants.h"
 #include "../math/Vector2D.h"
 
-namespace Glimmer {
+namespace glimmer {
     class WorldContext;
     /**
      * Chunk

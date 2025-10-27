@@ -8,7 +8,7 @@
 #include "../log/LogCat.h"
 #include "../saves/Saves.h"
 
-std::vector<int> Glimmer::WorldContext::getHeightMap(int x) {
+std::vector<int> glimmer::WorldContext::getHeightMap(int x) {
     const int chunkX = (x / CHUNK_SIZE) * CHUNK_SIZE;
     LogCat::d("getHeightMap called for x=", x, " aligned to chunkX=", chunkX);
 
@@ -30,4 +30,8 @@ std::vector<int> Glimmer::WorldContext::getHeightMap(int x) {
     heightMap[chunkX] = heights;
     LogCat::d("Generated and cached heights for chunkX=", chunkX);
     return heights;
+}
+
+void glimmer::WorldContext::update(float delta) {
+
 }

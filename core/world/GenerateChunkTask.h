@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_GENERATECHUNKTASK_H
 #include "WorldGeneratorTask.h"
 
-namespace Glimmer {
+namespace glimmer {
     /**
      * GenerateChunkTask
      * 生成区块任务

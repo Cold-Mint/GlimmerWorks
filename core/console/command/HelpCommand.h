@@ -7,16 +7,16 @@
 #include "../Command.h"
 
 
-namespace Glimmer {
+namespace glimmer {
     class HelpCommand final : public Command {
     public:
         ~HelpCommand() override = default;
 
-        [[nodiscard]] std::string getName() const override;
+        [[nodiscard]] std::string GetName() const override;
 
         void InitSuggest() override;
 
-        bool execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) override;
+        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) override;
     };
 }
 

@@ -5,7 +5,7 @@
 #define RESOURCE_H
 #include <string>
 
-namespace Glimmer {
+namespace glimmer {
     struct Resource {
         std::string packId;
         std::string key;

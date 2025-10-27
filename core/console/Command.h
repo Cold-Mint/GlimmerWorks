@@ -9,16 +9,16 @@
 
 #include "CommandArgs.h"
 
-namespace Glimmer {
+namespace glimmer {
     class Command {
     public:
         virtual ~Command() = default;
 
-        [[nodiscard]] virtual std::string getName() const = 0;
+        [[nodiscard]] virtual std::string GetName() const = 0;
 
         virtual void InitSuggest() = 0;
 
-        virtual bool execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) = 0;
+        virtual bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) = 0;
     };
 }
 

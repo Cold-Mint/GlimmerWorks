@@ -10,7 +10,7 @@
 
 #include "Scene.h"
 
-namespace Glimmer {
+namespace glimmer {
     /**
      * ConsoleOverlay
      * 控制台叠加层

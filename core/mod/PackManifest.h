@@ -8,7 +8,7 @@
 #include "ResourceRef.h"
 
 
-namespace Glimmer {
+namespace glimmer {
     struct PackManifest {
         std::string id;
         ResourceRef name;

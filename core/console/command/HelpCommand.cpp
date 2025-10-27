@@ -10,14 +10,14 @@
 #include "../../log/LogCat.h"
 
 
-std::string Glimmer::HelpCommand::getName() const {
+std::string glimmer::HelpCommand::GetName() const {
     return HELP_COMMAND_NAME;
 }
 
-void Glimmer::HelpCommand::InitSuggest() {
+void glimmer::HelpCommand::InitSuggest() {
 }
 
-bool Glimmer::HelpCommand::execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) {
+bool glimmer::HelpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) {
     LogCat::d("HelpCommand executed");
     return false;
 }

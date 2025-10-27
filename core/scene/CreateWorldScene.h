@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_CREATEWORLDSCENE_H
 #include "Scene.h"
 
-namespace Glimmer {
+namespace glimmer {
     class CreateWorldScene : public Scene {
     public:
         char world_name[128];

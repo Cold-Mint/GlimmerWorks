@@ -10,7 +10,7 @@
 
 #include <optional>
 
-std::optional<nlohmann::json> Glimmer::JsonUtils::LoadJsonFromFile(const std::string &path) {
+std::optional<nlohmann::json> glimmer::JsonUtils::LoadJsonFromFile(const std::string &path) {
     // Open file input stream. The ifstream will automatically close the file
     // when it goes out of scope (RAII ensures resource safety).
     // 打开文件输入流（ifstream 会在作用域结束时自动关闭文件，确保资源安全）

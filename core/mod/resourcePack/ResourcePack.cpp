@@ -8,7 +8,7 @@
 #include "../../log/LogCat.h"
 #include "../../utils/JsonUtils.h"
 
-bool Glimmer::ResourcePack::loadManifest() {
+bool glimmer::ResourcePack::loadManifest() {
     const auto jsonOpt = JsonUtils::LoadJsonFromFile(path + "/" + MANIFEST_FILE_NAME);
     if (!jsonOpt) {
         LogCat::e("ResourcePack::loadManifest - Failed to load manifest: ", path + "/" + MANIFEST_FILE_NAME);
@@ -35,10 +35,10 @@ bool Glimmer::ResourcePack::loadManifest() {
 }
 
 
-const Glimmer::ResourcePackManifest &Glimmer::ResourcePack::getManifest() const {
+const glimmer::ResourcePackManifest &glimmer::ResourcePack::getManifest() const {
     return manifest;
 }
 
-std::string_view Glimmer::ResourcePack::getPath() const {
+std::string_view glimmer::ResourcePack::getPath() const {
     return path;
 }

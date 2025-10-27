@@ -15,7 +15,7 @@
 #include "core/utils/LanguageUtils.h"
 #include "fmt/args.h"
 
-using namespace Glimmer;
+using namespace glimmer;
 namespace fs = std::filesystem;
 
 int main() {
@@ -69,7 +69,7 @@ int main() {
         LogCat::i("dataPackPath = ", config.mods.dataPackPath);
         LogCat::i("resourcePackPath = ", config.mods.resourcePackPath);
         LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
-        commandManager.registerCommand(std::make_unique<HelpCommand>());
+        commandManager.RegisterCommand(std::make_unique<HelpCommand>());
         AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                               &stringManager,
                               &commandManager,
@@ -77,7 +77,7 @@ int main() {
         LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
         LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
         LogCat::i("Starting GlimmerWorks...");
-        if (dataPackManager.scan(config.mods.dataPackPath, config.mods.enabledDataPack, language, stringManager) == 0) {
+        if (dataPackManager.Scan(config.mods.dataPackPath, config.mods.enabledDataPack, language, stringManager) == 0) {
             return EXIT_FAILURE;
         }
         if (resourcePackManager.scan(config.mods.resourcePackPath, config.mods.enabledResourcePack) == 0) {

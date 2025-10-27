@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_MAPMANIFEST_H
 #include <string>
 
-namespace Glimmer {
+namespace glimmer {
     struct MapManifest {
         std::string name;
         std::string gameVersionName;

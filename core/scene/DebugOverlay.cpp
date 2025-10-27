@@ -9,7 +9,7 @@
 #include "AppContext.h"
 
 
-bool Glimmer::DebugOverlay::HandleEvent(const SDL_Event &event) {
+bool glimmer::DebugOverlay::HandleEvent(const SDL_Event &event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         if (event.key.scancode == SDL_SCANCODE_F1) {
             show = !show;
@@ -19,10 +19,10 @@ bool Glimmer::DebugOverlay::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
-void Glimmer::DebugOverlay::Update(float delta) {
+void glimmer::DebugOverlay::Update(float delta) {
 }
 
-void Glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
+void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
     if (!show) {
         return;
     }
@@ -87,5 +87,37 @@ void Glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             SDL_DestroySurface(surface);
             SDL_DestroyTexture(texture);
         }
+    }
+    // 绘制右下角文本
+    if (appContext->ttfFont) {
+        char text[128];
+        snprintf(text, sizeof(text),
+                 "Window: %dx%d",
+                 w, h);
+
+        SDL_Color color = {255, 255, 180, 255};
+        SDL_Surface *surface = TTF_RenderText_Blended(appContext->ttfFont, text, strlen(text), color);
+        if (!surface) {
+            LogCat::w("TTF_RenderText_Blended failed: %s", SDL_GetError());
+            return;
+        }
+
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (!texture) {
+            LogCat::w("SDL_CreateTextureFromSurface failed: %s", SDL_GetError());
+            SDL_DestroySurface(surface);
+            return;
+        }
+
+        SDL_FRect dst = {
+            static_cast<float>(w - surface->w - 4),
+            static_cast<float>(h - surface->h - 4),
+            static_cast<float>(surface->w),
+            static_cast<float>(surface->h)
+        };
+
+        SDL_RenderTexture(renderer, texture, nullptr, &dst);
+        SDL_DestroySurface(surface);
+        SDL_DestroyTexture(texture);
     }
 }

@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_LANGS_H
 #include <string>
 
-namespace Glimmer {
+namespace glimmer {
     struct Langs {
         std::string startGame;
         std::string settings;

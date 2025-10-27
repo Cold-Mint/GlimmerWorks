@@ -9,7 +9,7 @@
 #include "../world/WorldGenerator.h"
 #include "../world/WorldContext.h"
 
-namespace Glimmer {
+namespace glimmer {
     class WorldScene : public Scene {
         WorldContext *worldContext;
         WorldGenerator *worldGenerator;

@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "Chunk.h"
-#include "../math/FastNoiseLite.h"
+#include "FastNoiseLite.h"
 #include "../math/Vector2D.h"
 #include "../ecs/GameEntity.h"
 #include "../ecs/GameSystem.h"

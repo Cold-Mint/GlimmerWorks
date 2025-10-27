@@ -18,7 +18,7 @@ set(CMAKE_INSTALL_RPATH "$ORIGIN/libs")
 include(FetchContent)
 FetchContent_Declare(
         nlohmann_json
-        GIT_REPOSITORY "https://github.com/nlohmann/json"
+        GIT_REPOSITORY "https://github.com/nlohmann/json.git"
         GIT_TAG "v3.12.0"
         GIT_PROGRESS TRUE
         SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/json"
@@ -47,6 +47,7 @@ FetchContent_Declare(
         SDL_ttf
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf.git"
         GIT_TAG "release-3.2.2"
+        GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(SDL_ttf)
 
@@ -76,6 +77,15 @@ FetchContent_Declare(
         GIT_TAG "12.0.0"
 )
 FetchContent_MakeAvailable(fmt)
+
+FetchContent_Declare(
+        fastNoiseLite
+        GIT_REPOSITORY "https://github.com/Auburn/FastNoiseLite.git"
+        GIT_PROGRESS TRUE
+        GIT_TAG "v1.1.1"
+        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/fastNoiseLite"
+)
+FetchContent_MakeAvailable(fastNoiseLite)
 
 add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
@@ -160,7 +170,6 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/world/WorldContext.h
         core/math/Vector2D.cpp
         core/math/Vector2D.h
-        core/math/FastNoiseLite.h
         core/world/GenerateChunkTask.cpp
         core/world/GenerateChunkTask.h
         core/scene/WorldScene.cpp
@@ -190,6 +199,10 @@ target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt
 
 target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/json/include"
+)
+
+target_include_directories(GlimmerWorks PRIVATE
+        "${PROJECT_SOURCE_DIR}/include/fastNoiseLite/Cpp"
 )
 
 target_include_directories(GlimmerWorks PRIVATE

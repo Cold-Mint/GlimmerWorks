@@ -21,6 +21,7 @@ GlimmerWorks uses the following libraries:
 - [Tweeny](https://github.com/mobius3/tweeny) – for smooth animations and transitions
 - [fmt](https://github.com/fmtlib/fmt) – for safe and efficient string formatting
 - [nlohmann/json](https://github.com/nlohmann/json) – for configuration and data serialization
+- [FastNoiseLite](https://github.com/Auburn/FastNoiseLite) – for procedural terrain and noise generation
 
 ## Building from Source (Linux)
 

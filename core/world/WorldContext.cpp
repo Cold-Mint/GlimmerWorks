@@ -5,8 +5,35 @@
 #include "WorldContext.h"
 
 #include "../Constants.h"
+#include "../ecs/system/GameStartSystem.h"
+#include "../ecs/system/WorldPositionSystem.h"
 #include "../log/LogCat.h"
 #include "../saves/Saves.h"
+
+void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
+    const auto type = std::type_index(typeid(*comp));
+    //Reduce componentCount
+    // 减少 componentCount
+    if (componentCount[type] > 0) --componentCount[type];
+
+    //Check if the system is disabled
+    // 检查系统是否停用
+    if (componentCount[type] == 0) {
+        for (auto &sys: activeSystems) {
+            if (sys && sys->SupportsComponentType(type)) {
+                sys->CheckActivation();
+            }
+        }
+    }
+
+    // Remove from entityComponents
+    // 从 entityComponents 删除
+    auto &components = entityComponents[id];
+    std::erase_if(components,
+                  [comp](const std::unique_ptr<GameComponent> &c) {
+                      return c.get() == comp;
+                  });
+}
 
 const std::vector<std::shared_ptr<glimmer::Chunk> > &glimmer::WorldContext::GetChunks() const {
     return chunks;
@@ -124,44 +151,34 @@ void glimmer::WorldContext::OnFrameStart() {
 
 void glimmer::WorldContext::InitSystem() {
     allowRegisterSystem = true;
+    RegisterSystem(std::make_unique<GameStartSystem>(this));
+    RegisterSystem(std::make_unique<WorldPositionSystem>(this));
     allowRegisterSystem = false;
 }
 
 
 void glimmer::WorldContext::RegisterSystem(std::unique_ptr<GameSystem> system) {
     if (allowRegisterSystem) {
+        LogCat::i("Registered system: ", system->GetName());
         inactiveSystems.push_back(std::move(system));
     } else {
         LogCat::e("WorldContext is not allowed to register system");
     }
 }
 
-void glimmer::WorldContext::OnSystemActivationChanged(GameSystem *sys, const bool active) {
-    if (active) {
-        const auto it = std::ranges::find_if(inactiveSystems,
-                                             [sys](const auto &s) { return s.get() == sys; });
-        if (it != inactiveSystems.end()) {
-            activeSystems.push_back(std::move(*it));
-            inactiveSystems.erase(it);
-            LogCat::i("Activated system: ", typeid(sys).name());
-        }
-    } else {
-        const auto it = std::ranges::find_if(activeSystems,
-                                             [sys](const auto &s) { return s.get() == sys; });
-        if (it != activeSystems.end()) {
-            inactiveSystems.push_back(std::move(*it));
-            activeSystems.erase(it);
-            LogCat::i("Deactivated system: ", typeid(sys).name());
-        }
-    }
-}
-
 
 glimmer::GameEntity *glimmer::WorldContext::CreateEntity() {
-    auto entity = std::make_unique<GameEntity>(entities.size());
+    const auto newId = static_cast<GameEntity::ID>(entities.size());
+    auto entity = std::make_unique<GameEntity>(newId);
+
+    LogCat::d("Creating new entity, ID = ", newId);
+
     entities.push_back(std::move(entity));
-    entityMap[entity->GetID()] = entities.back().get();
-    return GetEntity(entities.back()->GetID());
+    entityMap[newId] = entities.back().get();
+
+    LogCat::i("Entity registered successfully, total entities = ", entities.size());
+
+    return entities.back().get();
 }
 
 
@@ -171,9 +188,35 @@ glimmer::GameEntity *glimmer::WorldContext::GetEntity(const GameEntity::ID id) {
 }
 
 void glimmer::WorldContext::RemoveEntity(GameEntity::ID id) {
-    if (const auto it = entityMap.find(id); it != entityMap.end()) {
-        std::erase_if(entities,
-                      [id](const std::unique_ptr<GameEntity> &e) { return e->GetID() == id; });
-        entityMap.erase(it);
+    LogCat::d("Attempting to remove entity ID = ", id);
+    auto entityIt = entityMap.find(id);
+    if (entityIt == entityMap.end()) {
+        LogCat::w("Entity ID ", id, " not found, skipping removal.");
+        return;
     }
+
+    auto compIt = entityComponents.find(id);
+    if (compIt != entityComponents.end()) {
+        auto &components = compIt->second;
+
+        for (auto &comp: components) {
+            RemoveComponentInternal(id, comp.get());
+        }
+
+        entityComponents.erase(compIt);
+        LogCat::d("All components of Entity ID = ", id, " have been removed.");
+    }
+
+    // Remove the entity record
+    // 移除实体记录
+    entityMap.erase(id);
+
+    auto it = std::ranges::find_if(entities, [id](auto &ent) {
+        return ent && ent->GetID() == id;
+    });
+    if (it != entities.end()) {
+        entities.erase(it);
+    }
+
+    LogCat::i("Entity ID ", id, " successfully removed. Remaining entities = ", entities.size());
 }

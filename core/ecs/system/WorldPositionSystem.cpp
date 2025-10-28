@@ -10,3 +10,7 @@ void glimmer::WorldPositionSystem::Update(float delta) {
     //     entity->worldPosition = entity->localPosition + worldContext->playerPosition;
     // }
 }
+
+std::string glimmer::WorldPositionSystem::GetName() {
+    return "glimmer.WorldPositionSystem";
+}

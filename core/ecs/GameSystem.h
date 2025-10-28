@@ -29,13 +29,14 @@ namespace glimmer {
 
         std::unordered_set<std::type_index> requiredComponents;
 
+
+        virtual void OnActivationChanged(bool activeStatus);
+
+    protected:
         template<typename TComponent>
         void RequireComponent() {
             requiredComponents.insert(std::type_index(typeid(TComponent)));
         }
-
-
-        virtual void OnActivationChanged(bool activeStatus);
 
         WorldContext *worldContext;
 
@@ -44,6 +45,8 @@ namespace glimmer {
 
         explicit GameSystem(WorldContext *worldContext) : worldContext(worldContext) {
         }
+
+        virtual std::string GetName() = 0;
 
         /**
          * Check if activation is needed. (Detection per frame
@@ -60,6 +63,9 @@ namespace glimmer {
         [[nodiscard]] bool IsActive() const;
 
         bool SupportsComponentType(const std::type_index &type) const {
+            if (requiredComponents.empty()) {
+                return false;
+            }
             return requiredComponents.contains(type);
         }
 

@@ -5,11 +5,19 @@
 #ifndef GLIMMERWORKS_WORLDPOSITIONSYSTEM_H
 #define GLIMMERWORKS_WORLDPOSITIONSYSTEM_H
 #include "../GameSystem.h"
+#include "../component/WorldPositionComponent.h"
 
 namespace glimmer {
-    class WorldPositionSystem : public GameSystem {
+    class WorldPositionSystem final : public GameSystem {
     public:
+        explicit WorldPositionSystem(WorldContext *worldContext)
+            : GameSystem(worldContext) {
+            RequireComponent<WorldPositionComponent>();
+        }
+
         void Update(float delta) override;
+
+        std::string GetName() override;
     };
 }
 

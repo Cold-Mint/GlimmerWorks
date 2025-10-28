@@ -29,8 +29,6 @@ namespace glimmer {
     class WorldContext {
         void RegisterSystem(std::unique_ptr<GameSystem> system);
 
-        void OnSystemActivationChanged(GameSystem *sys, bool active);
-
         /**
          * World Seed
          * 世界种子
@@ -95,6 +93,8 @@ namespace glimmer {
         std::vector<std::unique_ptr<GameEntity> > entities;
         std::unordered_map<GameEntity::ID, GameEntity *> entityMap;
 
+        void RemoveComponentInternal(GameEntity::ID id, GameComponent *comp);
+
     public:
         const std::vector<std::shared_ptr<Chunk> > &GetChunks() const;
 
@@ -104,6 +104,10 @@ namespace glimmer {
 
         template<typename TComponent, typename... Args>
         TComponent *AddComponent(GameEntity *entity, Args &&... args);
+
+
+        template<typename TComponent>
+        void RemoveComponent(GameEntity::ID id);
 
 
         template<typename TComponent>
@@ -173,24 +177,52 @@ namespace glimmer {
 
     template<typename TComponent, typename... Args>
     TComponent *WorldContext::AddComponent(GameEntity *entity, Args &&... args) {
+        const auto type = std::type_index(typeid(TComponent));
+        const auto entityId = entity->GetID();
+
+        LogCat::d("Adding component ", type.name(), " to Entity ID = ", entityId);
+
+        // 创建组件实例
         auto comp = std::make_unique<TComponent>(std::forward<Args>(args)...);
         TComponent *ptr = comp.get();
-        entityComponents[entity->GetID()].push_back(std::move(comp));
+        entityComponents[entityId].push_back(std::move(comp));
 
-        const auto type = std::type_index(typeid(TComponent));
+        // 记录组件类型数量
         ++componentCount[type];
+        LogCat::i("Component ", type.name(), " count = ", componentCount[type]);
 
-        //Notify all systems that may rely on this component
-        // 通知所有可能依赖该组件的系统
+        // 通知可能依赖该组件的系统
         if (componentCount[type] == 1) {
+            LogCat::d("First instance of component ", type.name(),
+                      " detected, checking inactive systems for activation...");
+
             for (auto &sys: inactiveSystems) {
                 if (sys && sys->SupportsComponentType(type)) {
+                    LogCat::d("System ", sys->GetName(),
+                              " supports ", type.name(), ", checking activation...");
                     sys->CheckActivation();
                 }
             }
         }
+
+        LogCat::d("Component ", type.name(), " successfully added to Entity ID = ", entityId);
         return ptr;
     }
+
+    template<typename TComponent>
+    void WorldContext::RemoveComponent(GameEntity::ID id) {
+        auto it = entityComponents.find(id);
+        if (it == entityComponents.end()) return;
+
+        auto &components = it->second;
+        for (auto &c: components) {
+            if (auto ptr = dynamic_cast<TComponent *>(c.get())) {
+                RemoveComponentInternal(id, ptr);
+                break; // 删除第一个匹配的
+            }
+        }
+    }
+
 
     template<typename TComponent>
     bool WorldContext::HasComponent(const GameEntity::ID id) {

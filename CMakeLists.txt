@@ -184,6 +184,10 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/ecs/GameSystem.h
         core/ecs/system/WorldPositionSystem.cpp
         core/ecs/system/WorldPositionSystem.h
+        core/ecs/component/WorldPositionComponent.cpp
+        core/ecs/component/WorldPositionComponent.h
+        core/ecs/system/GameStartSystem.cpp
+        core/ecs/system/GameStartSystem.h
 )
 
 #Define version information

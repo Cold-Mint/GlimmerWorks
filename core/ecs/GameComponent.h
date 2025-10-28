@@ -7,6 +7,7 @@
 
 namespace glimmer {
     struct GameComponent {
+        virtual ~GameComponent() = default;
     };
 }
 

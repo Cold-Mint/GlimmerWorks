@@ -15,9 +15,9 @@ namespace glimmer {
     public:
         ~GenerateChunkTask() override = default;
 
-        std::string getName() override;
+        std::string GetName() override;
 
-        bool execute(Vector2D startPoint, AppContext *appContext, WorldContext *worldContext) override;
+        bool Execute(Vector2D startPoint, AppContext *appContext, WorldContext *worldContext) override;
     };
 }
 

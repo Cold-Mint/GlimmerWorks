@@ -8,33 +8,19 @@
 #include "../log/LogCat.h"
 #include "../world/WorldGenerator.h"
 #include "../world/WorldContext.h"
-
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_render.h>
 namespace glimmer {
     class WorldScene : public Scene {
         WorldContext *worldContext;
-        WorldGenerator *worldGenerator;
 
     public:
         explicit WorldScene(AppContext *context, WorldContext *wc, WorldGenerator *wg)
             : Scene(context) {
             worldContext = wc;
-            worldGenerator = wg;
-            LogCat::i("WorldScene created");
-            LogCat::i("chunks size: ", worldContext->chunks.size());
-            for (size_t i = 0; i < worldContext->chunks.size(); ++i) {
-                const auto &chunkPtr = worldContext->chunks[i];
-                LogCat::i("chunks[", i, "] use_count: ", chunkPtr.use_count());
-                const std::vector<int> heights = worldContext->getHeightMap(chunkPtr->origin.x);
-                std::ostringstream oss;
-                oss << "heights: [";
-                for (size_t j = 0; j < heights.size(); ++j) {
-                    oss << heights[j];
-                    if (j + 1 < heights.size()) oss << ", ";
-                }
-                oss << "]";
-                LogCat::i(oss.str());
-            }
         }
+
+        void OnFrameStart() override;
 
         bool HandleEvent(const SDL_Event &event) override;
 
@@ -44,7 +30,6 @@ namespace glimmer {
 
         ~WorldScene() override {
             delete worldContext;
-            delete worldGenerator;
         };
     };
 }

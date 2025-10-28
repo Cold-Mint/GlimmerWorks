@@ -69,7 +69,7 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5F);
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->langs->startGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-        appContext->sceneManager->changeScene(new CreateWorldScene(appContext));
+        appContext->sceneManager->ChangeScene(new CreateWorldScene(appContext));
     }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->langs->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {

@@ -7,7 +7,7 @@
 #include <algorithm>
 
 
-void glimmer::SceneManager::addOverlayScene(Scene *overlay) {
+void glimmer::SceneManager::AddOverlayScene(Scene *overlay) {
     if (overlay == nullptr) {
         return;
     }
@@ -16,7 +16,7 @@ void glimmer::SceneManager::addOverlayScene(Scene *overlay) {
     }
 }
 
-void glimmer::SceneManager::removeOverlayScene(Scene *overlay) {
+void glimmer::SceneManager::RemoveOverlayScene(Scene *overlay) {
     if (overlay == nullptr) {
         return;
     }
@@ -26,16 +26,16 @@ void glimmer::SceneManager::removeOverlayScene(Scene *overlay) {
     );
 }
 
-const std::vector<glimmer::Scene *> &glimmer::SceneManager::getOverlayScenes() const {
+const std::vector<glimmer::Scene *> &glimmer::SceneManager::GetOverlayScenes() const {
     return overlayScenes;
 }
 
-void glimmer::SceneManager::changeScene(Scene *sc) {
+void glimmer::SceneManager::ChangeScene(Scene *sc) {
     pendingScene = sc;
     hasPending = true;
 }
 
-void glimmer::SceneManager::applyPendingScene() {
+void glimmer::SceneManager::ApplyPendingScene() {
     if (hasPending) {
         delete scene;
         scene = pendingScene;

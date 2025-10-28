@@ -21,13 +21,13 @@ void glimmer::SplashScene::Update(float delta) {
         alpha = fadeTween.peek();
     } else if (!animationFinished && fadeTween.progress() >= 1.0f) {
         animationFinished = true;
-        nextSceneTime = SDL_GetTicks() + 3000;
+        nextSceneTime = SDL_GetTicks() + 200;
         LogCat::i("Splash fade-in animation completed");
     }
     if (!sceneJumped && SDL_GetTicks() >= nextSceneTime) {
         sceneJumped = true;
         LogCat::i("Open Home");
-        appContext->sceneManager->changeScene(new HomeScene(appContext));
+        appContext->sceneManager->ChangeScene(new HomeScene(appContext));
     }
 }
 

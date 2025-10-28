@@ -13,17 +13,17 @@
 #include "nlohmann/json_fwd.hpp"
 #include "../utils/JsonUtils.h"
 
-void glimmer::Chunk::place(const Vector2D position, const std::string &tileId) {
+void glimmer::Chunk::Place(const Vector2D position, const std::string &tileId) {
     tileIDs[position.x][position.y] = tileId;
 }
 
-void glimmer::Chunk::save() {
+void glimmer::Chunk::Save() {
 #if defined(NDEBUG)
     //todo:实现保存函数(保存二进制)
 #else
     namespace fs = std::filesystem;
 
-    fs::path chunksDir = worldContext->saves->GetPath() / "chunks";
+    fs::path chunksDir = worldContext->GetSaves()->GetPath() / "chunks";
     if (!fs::exists(chunksDir)) {
         fs::create_directories(chunksDir);
     }
@@ -46,5 +46,5 @@ void glimmer::Chunk::save() {
 #endif
 }
 
-void glimmer::Chunk::load() {
+void glimmer::Chunk::Load() {
 }

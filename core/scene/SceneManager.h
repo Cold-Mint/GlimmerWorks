@@ -29,14 +29,14 @@ namespace glimmer {
          * 添加叠加层
          * @param overlay 场景 scene
          */
-        void addOverlayScene(Scene *overlay);
+        void AddOverlayScene(Scene *overlay);
 
         /**
          * remove overlay scene
          * 移除叠加层
          * @param overlay 场景 scene
          */
-        void removeOverlayScene(Scene *overlay);
+        void RemoveOverlayScene(Scene *overlay);
 
 
         /**
@@ -44,7 +44,7 @@ namespace glimmer {
          * 获取叠加层
          * @return overlayScenes 所有叠加层
          */
-        [[nodiscard]] const std::vector<Scene *> &getOverlayScenes() const;
+        [[nodiscard]] const std::vector<Scene *> &GetOverlayScenes() const;
 
         /**
          * Change the scene.
@@ -53,13 +53,13 @@ namespace glimmer {
          * 设置的场景会进入待挂载状态。会在下一帧自动挂载。
          * @param sc New scene 新场景
          */
-        void changeScene(Scene *sc);
+        void ChangeScene(Scene *sc);
 
         /**
          * Apply the pending scene.
          * 应用待挂场景。
          */
-        void applyPendingScene();
+        void ApplyPendingScene();
 
 
         /**

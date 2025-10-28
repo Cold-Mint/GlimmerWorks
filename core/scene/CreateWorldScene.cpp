@@ -49,12 +49,8 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     saves.Create(manifest);
     auto world_context = new WorldContext(seed_value, Vector2D(0, 0), &saves);
     auto worldGenerator = new WorldGenerator(world_context, appContext);
-    worldGenerator->generate(Vector2D(0, 0));
-    // worldGenerator->generate(Vector2D(CHUNK_SIZE, CHUNK_SIZE));
-    // worldGenerator->generate(Vector2D(-CHUNK_SIZE, -CHUNK_SIZE));
-    // worldGenerator->generate(Vector2D(-CHUNK_SIZE, CHUNK_SIZE));
-    // worldGenerator->generate(Vector2D(CHUNK_SIZE, -CHUNK_SIZE));
-    appContext->sceneManager->changeScene(new WorldScene(appContext, world_context, worldGenerator));
+    worldGenerator->Generate(Vector2D(0, 0));
+    appContext->sceneManager->ChangeScene(new WorldScene(appContext, world_context, worldGenerator));
 }
 
 int glimmer::CreateWorldScene::RandomSeed() {
@@ -90,7 +86,7 @@ void glimmer::CreateWorldScene::Update(float delta) {
     ImGui::Spacing();
 
     if (ImGui::Button(appContext->langs->cancel.c_str(), ImVec2(120, 0))) {
-        appContext->sceneManager->changeScene(new HomeScene(appContext));
+        appContext->sceneManager->ChangeScene(new HomeScene(appContext));
     }
     ImGui::SameLine();
     if (ImGui::Button(appContext->langs->createWorld.c_str(), ImVec2(120, 0))) {

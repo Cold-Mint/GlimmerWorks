@@ -28,6 +28,12 @@ namespace glimmer {
         virtual void Render(SDL_Renderer *renderer) = 0;
 
 
+        /**
+         * 当帧开始时调用
+         */
+        virtual void OnFrameStart();
+
+
         virtual ~Scene() = default;
 
         explicit Scene(AppContext *context) : appContext(context) {

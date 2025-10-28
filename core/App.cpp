@@ -110,12 +110,16 @@ void glimmer::App::run() const {
     float deltaTime = 0.0F;
     SDL_Event event;
     LogCat::i("Entering main loop...");
-    appContext->sceneManager->changeScene(new SplashScene(appContext));
-    appContext->sceneManager->addOverlayScene(new ConsoleOverlay(appContext));
-    appContext->sceneManager->addOverlayScene(new DebugOverlay(appContext));
-    auto &overlayScenes = appContext->sceneManager->getOverlayScenes();
+    appContext->sceneManager->ChangeScene(new SplashScene(appContext));
+    appContext->sceneManager->AddOverlayScene(new ConsoleOverlay(appContext));
+    appContext->sceneManager->AddOverlayScene(new DebugOverlay(appContext));
+    auto &overlayScenes = appContext->sceneManager->GetOverlayScenes();
     while (appContext->isRunning) {
-        appContext->sceneManager->applyPendingScene();
+        appContext->sceneManager->ApplyPendingScene();
+        for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
+            overlayScene->OnFrameStart();
+        }
+        appContext->sceneManager->getScene()->OnFrameStart();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");

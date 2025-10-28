@@ -45,7 +45,7 @@ namespace glimmer {
          * 生成世界
          * @param startPoint Starting point coordinate 起点坐标
          */
-        void generate(Vector2D startPoint) const;
+        void Generate(Vector2D startPoint) const;
 
         ~WorldGenerator() {
             delete worldContext;

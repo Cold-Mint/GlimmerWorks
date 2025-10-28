@@ -25,7 +25,7 @@ namespace glimmer {
          * 这个名称会显示在页面上。
          * @return
          */
-        virtual std::string getName() = 0;
+        virtual std::string GetName() = 0;
 
         /**
          * execute the task
@@ -35,7 +35,7 @@ namespace glimmer {
          * @param worldContext 世界上下文
          * @return Whether the execution was successful 是否执行成功
          */
-        virtual bool execute(Vector2D startPoint, AppContext *appContext, WorldContext *worldContext) = 0;
+        virtual bool Execute(Vector2D startPoint, AppContext *appContext, WorldContext *worldContext) = 0;
     };
 }
 

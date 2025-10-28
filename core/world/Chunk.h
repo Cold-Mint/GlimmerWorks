@@ -33,20 +33,20 @@ namespace glimmer {
          * @param position position((Relative to the origin of the block) 位置（相对于区块的原点）
          * @param tileId tileId 瓦片id
          */
-        void place(Vector2D position, const std::string &tileId);
+        void Place(Vector2D position, const std::string &tileId);
 
         /**
          * Write the chunk data to the file
          * 将区块数据写入文件
          */
-        void save();
+        void Save();
 
 
         /**
          * Load chunk (load from file)
          * 加载区块（从文件加载）
          */
-        void load();
+        void Load();
     };
 }
 

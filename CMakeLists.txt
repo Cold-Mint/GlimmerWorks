@@ -182,6 +182,8 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/ecs/GameComponent.h
         core/ecs/GameSystem.cpp
         core/ecs/GameSystem.h
+        core/ecs/system/WorldPositionSystem.cpp
+        core/ecs/system/WorldPositionSystem.h
 )
 
 #Define version information
@@ -253,7 +255,7 @@ add_custom_command(TARGET GlimmerWorks POST_BUILD
         "${CMAKE_BINARY_DIR}/libs/libSDL3_ttf.so.0"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:fmt::fmt>
-        "${CMAKE_BINARY_DIR}/libs/libfmtd.so.12"
+        "${CMAKE_BINARY_DIR}/libs/$<IF:$<CONFIG:Debug>,libfmtd.so.12,libfmt.so.12>"
 )
 
 #Clone data packets and resource packets.

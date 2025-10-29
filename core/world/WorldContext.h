@@ -21,12 +21,14 @@
 
 #include "../ecs/GameComponent.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class GameSystem;
     class GameEntity;
     class Saves;
 
-    class WorldContext {
+    class WorldContext
+    {
         void RegisterSystem(std::unique_ptr<GameSystem> system);
 
         /**
@@ -45,7 +47,7 @@ namespace glimmer {
          * Entity to component list
          * 实体到组件列表
          */
-        std::unordered_map<GameEntity::ID, std::vector<std::unique_ptr<GameComponent> > > entityComponents;
+        std::unordered_map<GameEntity::ID, std::vector<std::unique_ptr<GameComponent>>> entityComponents;
 
         /**
          * Components to quantity
@@ -67,51 +69,60 @@ namespace glimmer {
          * key：The x-coordinate of the block's starting point 区块起点X坐标
          * value：The height array of this block (length = CHUNK_SIZE)
          */
-        std::unordered_map<int, std::vector<int> > heightMap;
+        std::unordered_map<int, std::vector<int>> heightMap;
 
 
         /**
          * 用于生成高度的噪声生成器
          */
-        FastNoiseLite *heightMapNoise;
+        FastNoiseLite* heightMapNoise;
 
-        std::vector<std::unique_ptr<GameSystem> > activeSystems;
-        std::vector<std::unique_ptr<GameSystem> > inactiveSystems;
+        std::vector<std::unique_ptr<GameSystem>> activeSystems;
+        std::vector<std::unique_ptr<GameSystem>> inactiveSystems;
         /**
         * Game saves
         * 游戏存档
         */
-        Saves *saves;
+        Saves* saves;
 
         /**
         * All loaded blocks
         * 所有已加载的区块
         */
-        std::vector<std::shared_ptr<Chunk> > chunks;
+        std::vector<std::shared_ptr<Chunk>> chunks;
 
 
-        std::vector<std::unique_ptr<GameEntity> > entities;
-        std::unordered_map<GameEntity::ID, GameEntity *> entityMap;
+        std::vector<std::unique_ptr<GameEntity>> entities;
+        std::unordered_map<GameEntity::ID, GameEntity*> entityMap;
 
-        void RemoveComponentInternal(GameEntity::ID id, GameComponent *comp);
+        void RemoveComponentInternal(GameEntity::ID id, GameComponent* comp);
 
     public:
-        const std::vector<std::shared_ptr<Chunk> > &GetChunks() const;
+        const std::vector<std::shared_ptr<Chunk>>& GetChunks() const;
 
-        void RegisterChunk(const std::shared_ptr<Chunk> &chunk);
+        void RegisterChunk(const std::shared_ptr<Chunk>& chunk);
 
-        Saves *GetSaves() const;
+        Saves* GetSaves() const;
 
-        template<typename TComponent, typename... Args>
-        TComponent *AddComponent(GameEntity *entity, Args &&... args);
+        template <typename TComponent, typename... Args>
+        TComponent* AddComponent(GameEntity* entity, Args&&... args);
 
 
-        template<typename TComponent>
+        template <typename TComponent>
         void RemoveComponent(GameEntity::ID id);
 
 
-        template<typename TComponent>
+        template <typename TComponent>
         bool HasComponent(GameEntity::ID id);
+
+        /**
+         * 获取实体的指定类型组件
+         * @tparam TComponent 组件类型
+         * @param id 实体ID
+         * @return 组件指针，如果不存在则返回nullptr
+         */
+        template <typename TComponent>
+        TComponent* GetComponent(GameEntity::ID id);
 
         /**
          * Is there a component of the specified type
@@ -119,7 +130,7 @@ namespace glimmer {
          * @param type 类型
          * @return
          */
-        bool HasComponentType(const std::type_index &type) const;
+        bool HasComponentType(const std::type_index& type) const;
 
 
         /**
@@ -131,11 +142,11 @@ namespace glimmer {
         std::vector<int> GetHeightMap(int x);
 
 
-        bool HandleEvent(const SDL_Event &event) const;
+        bool HandleEvent(const SDL_Event& event) const;
 
         void Update(float delta) const;
 
-        void Render(SDL_Renderer *renderer) const;
+        void Render(SDL_Renderer* renderer) const;
 
         void OnFrameStart();
 
@@ -147,7 +158,7 @@ namespace glimmer {
          * 创建一个实体
          * @return
          */
-        GameEntity *CreateEntity();
+        GameEntity* CreateEntity();
 
         /**
          * Search for entities based on their ids
@@ -155,7 +166,7 @@ namespace glimmer {
          * @param id
          * @return
          */
-        GameEntity *GetEntity(GameEntity::ID id);
+        GameEntity* GetEntity(GameEntity::ID id);
 
         /**
          * Remove Entity
@@ -164,9 +175,19 @@ namespace glimmer {
          */
         void RemoveEntity(GameEntity::ID id);
 
+        /**
+         * 获取具有指定组件类型的所有实体
+         * @tparam T 组件类型
+         * @tparam Ts 其他组件类型
+         * @return 具有所有指定组件类型的实体列表
+         */
+        template <typename T, typename... Ts>
+        std::vector<GameEntity*> GetEntitiesWithComponents();
 
-        explicit WorldContext(const int seed, Vector2D playerPosition, Saves *saves) : seed(seed),
-            playerPosition(playerPosition), saves(saves) {
+
+        explicit WorldContext(const int seed, Vector2D playerPosition, Saves* saves) : seed(seed),
+            playerPosition(playerPosition), saves(saves)
+        {
             heightMapNoise = new FastNoiseLite();
             heightMapNoise->SetSeed(seed);
             heightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -175,8 +196,46 @@ namespace glimmer {
         }
     };
 
-    template<typename TComponent, typename... Args>
-    TComponent *WorldContext::AddComponent(GameEntity *entity, Args &&... args) {
+    namespace detail
+    {
+        // 基本情况：只有一个组件类型
+        template <typename T>
+        bool HasAllComponents(WorldContext* world, GameEntity::ID id)
+        {
+            return world->HasComponent<T>(id);
+        }
+
+        // 递归情况：多个组件类型
+        template <typename T, typename U, typename... Ts>
+        bool HasAllComponents(WorldContext* world, GameEntity::ID id)
+        {
+            return world->HasComponent<T>(id) && HasAllComponents<U, Ts...>(world, id);
+        }
+    }
+
+    template <typename T, typename... Ts>
+    std::vector<GameEntity*> WorldContext::GetEntitiesWithComponents()
+    {
+        std::vector<GameEntity*> result;
+
+        // Traverse all entities
+        // 遍历所有实体
+        for (auto& entity : entities)
+        {
+            // Check if the entity has all specified component types
+            // 检查实体是否有所有指定类型的组件
+            if (detail::HasAllComponents<T, Ts...>(this, entity->GetID()))
+            {
+                result.push_back(entity.get());
+            }
+        }
+
+        return result;
+    }
+
+    template <typename TComponent, typename... Args>
+    TComponent* WorldContext::AddComponent(GameEntity* entity, Args&&... args)
+    {
         const auto type = std::type_index(typeid(TComponent));
         const auto entityId = entity->GetID();
 
@@ -184,7 +243,7 @@ namespace glimmer {
 
         // 创建组件实例
         auto comp = std::make_unique<TComponent>(std::forward<Args>(args)...);
-        TComponent *ptr = comp.get();
+        TComponent* ptr = comp.get();
         entityComponents[entityId].push_back(std::move(comp));
 
         // 记录组件类型数量
@@ -192,12 +251,15 @@ namespace glimmer {
         LogCat::i("Component ", type.name(), " count = ", componentCount[type]);
 
         // 通知可能依赖该组件的系统
-        if (componentCount[type] == 1) {
+        if (componentCount[type] == 1)
+        {
             LogCat::d("First instance of component ", type.name(),
                       " detected, checking inactive systems for activation...");
 
-            for (auto &sys: inactiveSystems) {
-                if (sys && sys->SupportsComponentType(type)) {
+            for (auto& sys : inactiveSystems)
+            {
+                if (sys && sys->SupportsComponentType(type))
+                {
                     LogCat::d("System ", sys->GetName(),
                               " supports ", type.name(), ", checking activation...");
                     sys->CheckActivation();
@@ -209,14 +271,17 @@ namespace glimmer {
         return ptr;
     }
 
-    template<typename TComponent>
-    void WorldContext::RemoveComponent(GameEntity::ID id) {
+    template <typename TComponent>
+    void WorldContext::RemoveComponent(GameEntity::ID id)
+    {
         auto it = entityComponents.find(id);
         if (it == entityComponents.end()) return;
 
-        auto &components = it->second;
-        for (auto &c: components) {
-            if (auto ptr = dynamic_cast<TComponent *>(c.get())) {
+        auto& components = it->second;
+        for (auto& c : components)
+        {
+            if (auto ptr = dynamic_cast<TComponent*>(c.get()))
+            {
                 RemoveComponentInternal(id, ptr);
                 break; // 删除第一个匹配的
             }
@@ -224,16 +289,35 @@ namespace glimmer {
     }
 
 
-    template<typename TComponent>
-    bool WorldContext::HasComponent(const GameEntity::ID id) {
+    template <typename TComponent>
+    bool WorldContext::HasComponent(const GameEntity::ID id)
+    {
         const auto it = entityComponents.find(id);
         if (it == entityComponents.end()) return false;
 
-        for (auto &c: it->second) {
-            if (dynamic_cast<TComponent *>(c.get())) return true;
+        for (auto& c : it->second)
+        {
+            if (dynamic_cast<TComponent*>(c.get())) return true;
         }
 
         return false;
+    }
+
+    template <typename TComponent>
+    TComponent* WorldContext::GetComponent(GameEntity::ID id)
+    {
+        const auto it = entityComponents.find(id);
+        if (it == entityComponents.end()) return nullptr;
+
+        for (auto& c : it->second)
+        {
+            if (auto* component = dynamic_cast<TComponent*>(c.get()))
+            {
+                return component;
+            }
+        }
+
+        return nullptr;
     }
 }
 

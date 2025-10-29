@@ -7,15 +7,16 @@
 #include "../GameSystem.h"
 #include "../component/WorldPositionComponent.h"
 
-namespace glimmer {
-    class WorldPositionSystem final : public GameSystem {
+namespace glimmer
+{
+    class WorldPositionSystem final : public GameSystem
+    {
     public:
-        explicit WorldPositionSystem(WorldContext *worldContext)
-            : GameSystem(worldContext) {
+        explicit WorldPositionSystem(WorldContext* worldContext)
+            : GameSystem(worldContext)
+        {
             RequireComponent<WorldPositionComponent>();
         }
-
-        void Update(float delta) override;
 
         std::string GetName() override;
     };

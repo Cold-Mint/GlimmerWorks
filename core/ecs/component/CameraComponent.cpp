@@ -3,10 +3,17 @@
 //
 #include "CameraComponent.h"
 
-SDL_FRect glimmer::CameraComponent::GetViewport(const Vector2D worldPosition) const
+SDL_FRect glimmer::CameraComponent::GetViewportRect(const Vector2D cameraPosition) const
 {
-    return {worldPosition.x, worldPosition.y, size_.x, size_.y};
+    return {cameraPosition.x - size_.x / 2, cameraPosition.y - size_.y / 2, size_.x, size_.y};
 }
+
+glimmer::Vector2D glimmer::CameraComponent::GetViewPortPosition(const Vector2D cameraPosition,
+                                                                const Vector2D worldPosition) const
+{
+    return {worldPosition.x - cameraPosition.x - size_.x / 2, worldPosition.y - cameraPosition.y - size_.y / 2};
+}
+
 
 void glimmer::CameraComponent::SetSpeed(const float speed)
 {

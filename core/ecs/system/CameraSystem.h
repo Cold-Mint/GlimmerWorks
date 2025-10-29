@@ -7,7 +7,6 @@
 #include "../GameSystem.h"
 #include "../component/CameraComponent.h"
 #include "../component/WorldPositionComponent.h"
-#include <SDL3/SDL_events.h>
 
 namespace glimmer
 {

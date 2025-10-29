@@ -3,7 +3,6 @@
 //
 
 #include "CameraSystem.h"
-#include "../../log/LogCat.h"
 
 std::string glimmer::CameraSystem::GetName()
 {

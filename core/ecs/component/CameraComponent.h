@@ -37,7 +37,18 @@ namespace glimmer
          * 获取相机的视口矩形（像素坐标）
          * @return SDL_FRect Viewport rectangle 视口矩形
          */
-        [[nodiscard]] SDL_FRect GetViewport(Vector2D worldPosition) const;
+        [[nodiscard]] SDL_FRect GetViewportRect(Vector2D cameraPosition) const;
+
+
+        /**
+         * Get the camera viewport position (in pixel coordinates)
+         * 获取相机的视口位置（像素坐标）
+         * @param cameraPosition The camera position (in pixel coordinates) 相机位置（像素坐标）
+         * @param worldPosition The world position (in pixel coordinates) 世界位置（像素坐标）
+         * @return The camera viewport position (in pixel coordinates) 相机视口位置（像素坐标）
+         */
+        [[nodiscard]] Vector2D GetViewPortPosition(Vector2D cameraPosition, Vector2D worldPosition) const;
+
 
 
         /**

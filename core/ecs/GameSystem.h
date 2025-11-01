@@ -8,12 +8,15 @@
 #include <typeindex>
 #include <unordered_set>
 
+#include "../scene/AppContext.h"
 #include "../world/WorldContext.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_render.h"
 
-namespace glimmer {
-    class GameSystem {
+namespace glimmer
+{
+    class GameSystem
+    {
         /**
          * Is the system in an activated state
          * 系统是否处于激活状态
@@ -33,17 +36,21 @@ namespace glimmer {
         virtual void OnActivationChanged(bool activeStatus);
 
     protected:
-        template<typename TComponent>
-        void RequireComponent() {
+        template <typename TComponent>
+        void RequireComponent()
+        {
             requiredComponents.insert(std::type_index(typeid(TComponent)));
         }
 
-        WorldContext *worldContext;
+        WorldContext* worldContext_;
+        AppContext* appContext_;
 
     public:
         virtual ~GameSystem() = default;
 
-        explicit GameSystem(WorldContext *worldContext) : worldContext(worldContext) {
+        explicit GameSystem(AppContext* appContext, WorldContext* worldContext) : appContext_(appContext),
+            worldContext_(worldContext)
+        {
         }
 
         virtual std::string GetName() = 0;
@@ -62,18 +69,20 @@ namespace glimmer {
          */
         [[nodiscard]] bool IsActive() const;
 
-        bool SupportsComponentType(const std::type_index &type) const {
-            if (requiredComponents.empty()) {
+        bool SupportsComponentType(const std::type_index& type) const
+        {
+            if (requiredComponents.empty())
+            {
                 return false;
             }
             return requiredComponents.contains(type);
         }
 
-        virtual bool HandleEvent(const SDL_Event &event);
+        virtual bool HandleEvent(const SDL_Event& event);
 
         virtual void Update(float delta);
 
-        virtual void Render(SDL_Renderer *renderer);
+        virtual void Render(SDL_Renderer* renderer);
     };
 }
 

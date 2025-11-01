@@ -6,13 +6,16 @@
 #define GLIMMERWORKS_GAMESTARTSYSTEM_H
 #include "../GameSystem.h"
 
-namespace glimmer {
-    class GameStartSystem : public GameSystem {
+namespace glimmer
+{
+    class GameStartSystem : public GameSystem
+    {
         bool shouldStart = true;
 
     public:
-        explicit GameStartSystem(WorldContext *worldContext)
-            : GameSystem(worldContext) {
+        explicit GameStartSystem(AppContext* appContext, WorldContext* worldContext)
+            : GameSystem(appContext, worldContext)
+        {
         }
 
         void Update(float delta) override;

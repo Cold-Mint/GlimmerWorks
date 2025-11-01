@@ -4,6 +4,8 @@
 
 #include "WorldContext.h"
 
+#include <utility>
+
 #include "../Constants.h"
 #include "../ecs/component/DebugDrawComponent.h"
 #include "../ecs/system/GameStartSystem.h"
@@ -184,16 +186,36 @@ void glimmer::WorldContext::OnFrameStart()
     }
 }
 
-void glimmer::WorldContext::InitSystem()
+void glimmer::WorldContext::InitSystem(AppContext* appContext)
 {
     allowRegisterSystem = true;
-    RegisterSystem(std::make_unique<GameStartSystem>(this));
-    RegisterSystem(std::make_unique<WorldPositionSystem>(this));
-    RegisterSystem(std::make_unique<GridSystem>(this));
-    RegisterSystem(std::make_unique<CameraSystem>(this));
-    RegisterSystem(std::make_unique<PlayerControlSystem>(this));
-    RegisterSystem(std::make_unique<DebugDrawSystem>(this));
+    RegisterSystem(std::make_unique<GameStartSystem>(appContext, this));
+    RegisterSystem(std::make_unique<WorldPositionSystem>(appContext, this));
+    RegisterSystem(std::make_unique<GridSystem>(appContext, this));
+    RegisterSystem(std::make_unique<CameraSystem>(appContext, this));
+    RegisterSystem(std::make_unique<PlayerControlSystem>(appContext, this));
+    RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
     allowRegisterSystem = false;
+}
+
+void glimmer::WorldContext::SetCameraPosition(WorldPositionComponent* worldPositionComponent)
+{
+    cameraPosComponent_ = worldPositionComponent;
+}
+
+void glimmer::WorldContext::SetCameraComponent(CameraComponent* cameraComponent)
+{
+    cameraComponent_ = cameraComponent;
+}
+
+glimmer::CameraComponent* glimmer::WorldContext::GetCameraComponent() const
+{
+    return cameraComponent_;
+}
+
+glimmer::WorldPositionComponent* glimmer::WorldContext::GetCameraPosition() const
+{
+    return cameraPosComponent_;
 }
 
 

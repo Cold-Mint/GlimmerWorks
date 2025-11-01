@@ -12,21 +12,25 @@
 namespace glimmer
 {
     /**
+     * Camera component, used to control the game view
      * 相机组件，用于控制游戏视图
      */
     class CameraComponent : public GameComponent
     {
         /**
+         * Size: Camera size (pixel coordinates)
          * Size 相机尺寸（像素坐标）
          */
         Vector2D size_ = {800.0f, 600.0f};
 
         /**
+        * speed camera speed (unit: pixels per second)
         * speed 相机速度（单位：像素/秒）
         */
         float speed_ = 100.0f;
 
         /**
+         * zoom camera zoom ratio
          * zoom 相机缩放比例
          */
         float zoom_ = 1.0f;
@@ -37,7 +41,7 @@ namespace glimmer
          * 获取相机的视口矩形（像素坐标）
          * @return SDL_FRect Viewport rectangle 视口矩形
          */
-        [[nodiscard]] SDL_FRect GetViewportRect(Vector2D cameraPosition) const;
+        [[nodiscard]] SDL_FRect GetViewportRect(WorldVector2D cameraPosition) const;
 
 
         /**
@@ -47,8 +51,17 @@ namespace glimmer
          * @param worldPosition The world position (in pixel coordinates) 世界位置（像素坐标）
          * @return The camera viewport position (in pixel coordinates) 相机视口位置（像素坐标）
          */
-        [[nodiscard]] Vector2D GetViewPortPosition(Vector2D cameraPosition, Vector2D worldPosition) const;
+        [[nodiscard]] CameraVector2D GetViewPortPosition(WorldVector2D cameraPosition,
+                                                         WorldVector2D worldPosition) const;
 
+
+        /**
+         * Is point in viewport
+         * 判断世界坐标是否在相机视口内
+         * @param worldPos worldPos 世界坐标
+         * @return 是否在相机视口内
+         */
+        [[nodiscard]] bool IsPointInViewport(WorldVector2D cameraPosition, WorldVector2D worldPos) const;
 
 
         /**
@@ -57,6 +70,20 @@ namespace glimmer
          * @param speed The camera speed (units: pixels/second) 相机速度（单位：像素/秒）
          */
         void SetSpeed(float speed);
+
+        /**
+         * SetSize
+         * 设置尺寸
+         * @param size Size 尺寸
+         */
+        void SetSize(Vector2D size);
+
+        /**
+         * Get Size
+         * 获取相机尺寸
+         * @return
+         */
+        [[nodiscard]] Vector2D GetSize() const;
 
 
         /**

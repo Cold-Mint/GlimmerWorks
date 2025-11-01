@@ -17,13 +17,14 @@ namespace glimmer
     class CameraSystem final : public GameSystem
     {
     public:
-        explicit CameraSystem(WorldContext* worldContext)
-            : GameSystem(worldContext)
+        explicit CameraSystem(AppContext* appContext, WorldContext* worldContext)
+            : GameSystem(appContext, worldContext)
         {
             RequireComponent<CameraComponent>();
             RequireComponent<WorldPositionComponent>();
         }
 
+        void Render(SDL_Renderer* renderer) override;
 
 
         std::string GetName() override;

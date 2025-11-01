@@ -13,7 +13,8 @@
 #include "SDL3_ttf/SDL_ttf.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     class StringManager;
     class Config;
     class DataPackManager;
@@ -26,19 +27,21 @@ namespace glimmer {
      * and dependencies to different modules.
      *
      */
-    class AppContext {
+    class AppContext
+    {
+        SDL_Window* window_;
+        std::string* language_;
+
     public:
-        std::string *language;
-        DataPackManager *dataPackManager;
-        Config *config;
-        SceneManager *sceneManager;
-        StringManager *stringManager;
-        CommandManager *commandManager;
-        TTF_Font *ttfFont;
-        SDL_Window *window;
-        CommandExecutor *commandExecutor;
-        ResourcePackManager *resourcePackManager;
-        Langs *langs;
+        DataPackManager* dataPackManager;
+        Config* config;
+        SceneManager* sceneManager;
+        StringManager* stringManager;
+        CommandManager* commandManager;
+        TTF_Font* ttfFont;
+        CommandExecutor* commandExecutor;
+        ResourcePackManager* resourcePackManager;
+        Langs* langs;
         bool isRunning;
         /**
          * Whether to draw screen coordinates
@@ -46,15 +49,22 @@ namespace glimmer {
          */
         bool debugScreenCoords = true;
 
-        AppContext(bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
-                   Config *cfg,
-                   StringManager *stringManager,
-                   CommandManager *commandManager, CommandExecutor *commandExecutor, Langs *langs)
-            : language(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager),
+        AppContext(bool run, SceneManager* sm, std::string* lang, DataPackManager* dpm, ResourcePackManager* rpm,
+                   Config* cfg,
+                   StringManager* stringManager,
+                   CommandManager* commandManager, CommandExecutor* commandExecutor, Langs* langs)
+            : language_(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager),
               commandManager(commandManager), ttfFont(nullptr), commandExecutor(commandExecutor),
               resourcePackManager(rpm),
-              window(nullptr), langs(langs), isRunning(run) {
+              window_(nullptr), langs(langs), isRunning(run)
+        {
         }
+
+        [[nodiscard]] std::string* GetLanguage() const;
+
+        void SetWindow(SDL_Window* window);
+
+        [[nodiscard]] SDL_Window* GetWindow() const;
     };
 }
 

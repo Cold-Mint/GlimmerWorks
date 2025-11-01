@@ -18,11 +18,11 @@ namespace glimmer {
      * 区块
      */
     struct Chunk {
-        Vector2D origin;
+        WorldVector2D origin;
         WorldContext *worldContext;
         std::vector<std::vector<std::string> > tileIDs;
 
-        explicit Chunk(const Vector2D origin, WorldContext *worldContext) : origin(origin), worldContext(worldContext) {
+        explicit Chunk(const WorldVector2D origin, WorldContext *worldContext) : origin(origin), worldContext(worldContext) {
             tileIDs = std::vector(
                 CHUNK_SIZE, std::vector(CHUNK_SIZE, TILE_ID_AIR));
         }
@@ -33,7 +33,7 @@ namespace glimmer {
          * @param position position((Relative to the origin of the block) 位置（相对于区块的原点）
          * @param tileId tileId 瓦片id
          */
-        void Place(Vector2D position, const std::string &tileId);
+        void Place(WorldVector2D position, const std::string &tileId);
 
         /**
          * Write the chunk data to the file

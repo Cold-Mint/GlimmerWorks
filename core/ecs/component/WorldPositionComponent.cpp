@@ -4,17 +4,17 @@
 
 #include "WorldPositionComponent.h"
 
-void glimmer::WorldPositionComponent::SetPosition(Vector2D newPosition)
+void glimmer::WorldPositionComponent::SetPosition(WorldVector2D newPosition)
 {
     position_ = newPosition;
 }
 
-void glimmer::WorldPositionComponent::Translate(const Vector2D deltaPosition)
+void glimmer::WorldPositionComponent::Translate(const WorldVector2D deltaPosition)
 {
     position_ += deltaPosition;
 }
 
-glimmer::Vector2D glimmer::WorldPositionComponent::GetPosition() const
+glimmer::WorldVector2D glimmer::WorldPositionComponent::GetPosition() const
 {
     return position_;
 }

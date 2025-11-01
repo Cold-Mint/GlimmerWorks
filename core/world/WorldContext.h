@@ -23,6 +23,8 @@
 
 namespace glimmer
 {
+    class WorldPositionComponent;
+    class CameraComponent;
     class GameSystem;
     class GameEntity;
     class Saves;
@@ -60,8 +62,19 @@ namespace glimmer
          * The player's position
          * 玩家的位置
          */
-        Vector2D playerPosition;
+        WorldVector2D playerPosition;
 
+        /**
+         * camera Component
+         * 相机组件
+         */
+        CameraComponent* cameraComponent_;
+
+        /**
+         * Camera coordinate component
+         * 相机坐标组件
+         */
+        WorldPositionComponent* cameraPosComponent_;
 
         /**
          * Height map(Divided by blocks)
@@ -150,8 +163,28 @@ namespace glimmer
 
         void OnFrameStart();
 
-        void InitSystem();
+        void InitSystem(AppContext* appContext);
 
+        /**
+         * Set Camera Position
+         * 设置相机位置组件
+         * @param worldPositionComponent
+         */
+        void SetCameraPosition(WorldPositionComponent* worldPositionComponent);
+
+
+        /**
+         * Set Camera Component
+         * 设置相机的组件
+         * @param cameraComponent
+         */
+        void SetCameraComponent(CameraComponent* cameraComponent);
+
+
+        CameraComponent* GetCameraComponent() const;
+
+
+        WorldPositionComponent* GetCameraPosition() const;
 
         /**
          * Create an entity。
@@ -185,14 +218,15 @@ namespace glimmer
         std::vector<GameEntity*> GetEntitiesWithComponents();
 
 
-        explicit WorldContext(const int seed, Vector2D playerPosition, Saves* saves) : seed(seed),
+        explicit WorldContext(AppContext* appContext, const int seed, Vector2D playerPosition, Saves* saves) :
+            seed(seed),
             playerPosition(playerPosition), saves(saves)
         {
             heightMapNoise = new FastNoiseLite();
             heightMapNoise->SetSeed(seed);
             heightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             heightMapNoise->SetFrequency(0.05f);
-            InitSystem();
+            InitSystem(appContext);
         }
     };
 

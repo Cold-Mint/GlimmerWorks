@@ -15,12 +15,12 @@ namespace glimmer
      */
     class WorldPositionComponent final : public GameComponent
     {
-        Vector2D position_;
+        WorldVector2D position_;
 
     public:
         WorldPositionComponent() = default;
 
-        explicit WorldPositionComponent(const Vector2D position) : position_(position)
+        explicit WorldPositionComponent(const WorldVector2D position) : position_(position)
         {
         }
 
@@ -28,20 +28,20 @@ namespace glimmer
          * SetPosition 设置世界坐标
          * @param newPosition newPosition 新的坐标
          */
-        void SetPosition(Vector2D newPosition);
+        void SetPosition(WorldVector2D newPosition);
 
         /**
          * Translate
          * 移动坐标
          * @param deltaPosition deltaPosition 移动量
          */
-        void Translate(Vector2D deltaPosition);
+        void Translate(WorldVector2D deltaPosition);
 
         /**
          * GetPosition 获取世界坐标
          * @return 世界坐标
          */
-        [[nodiscard]] Vector2D GetPosition() const;
+        [[nodiscard]] WorldVector2D GetPosition() const;
     };
 }
 

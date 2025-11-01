@@ -176,6 +176,19 @@ namespace glimmer
     };
 
     /**
+     * Two-dimensional vector of world coordinates
+     * 世界坐标二维向量
+     */
+    typedef Vector2D WorldVector2D;
+
+
+    /**
+     * Two-dimensional vector of camera coordinates
+     * 相机坐标二维向量
+     */
+    typedef Vector2D CameraVector2D;
+
+    /**
      * Scalar multiplication (commutative) 标量与向量相乘（交换律）
      * @param scalar Scalar value 标量值
      * @param v Vector 向量

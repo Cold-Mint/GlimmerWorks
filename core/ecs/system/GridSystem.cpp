@@ -4,6 +4,7 @@
 
 #include "GridSystem.h"
 #include "../../log/LogCat.h"
+#include "../component/WorldPositionComponent.h"
 
 void glimmer::GridSystem::Update(float delta)
 {
@@ -12,43 +13,91 @@ void glimmer::GridSystem::Update(float delta)
 
 void glimmer::GridSystem::Render(SDL_Renderer* renderer)
 {
-    // 保存当前渲染器的颜色设置
+    auto cameraComponent = worldContext_->GetCameraComponent();
+    auto cameraPos = worldContext_->GetCameraPosition();
+    auto appContext = appContext_; // 用于访问字体 TTF_Font*
+    if (cameraComponent == nullptr || cameraPos == nullptr)
+        return;
+
+    // 保存当前颜色
     Uint8 currentR, currentG, currentB, currentA;
     SDL_GetRenderDrawColor(renderer, &currentR, &currentG, &currentB, &currentA);
-    // 按照用户要求：网格大小50*50像素，颜色为蓝色1px，起点在0,0，单元格数量为100*100
-    const int startX = 0;
-    const int startY = 0;
-    const int width = 100; // 单元格数量
-    const int height = 100; // 单元格数量
-    const int gridSizeX = 50; // 每个单元格的像素宽度
-    const int gridSizeY = 50; // 每个单元格的像素高度
 
-    // 设置蓝色
+    const int gridSize = 50;
+    const int width = 100;
+    const int height = 100;
+
+    // 世界相机位置
+    const float camX = cameraPos->GetPosition().x;
+    const float camY = cameraPos->GetPosition().y;
+
+    // 计算网格的起始位置（与相机对齐）
+    const int startX = -static_cast<int>(fmod(camX, gridSize));
+    const int startY = -static_cast<int>(fmod(camY, gridSize));
+
+    // 屏幕绘制区域大小
+    const int pixelWidth = width * gridSize;
+    const int pixelHeight = height * gridSize;
+
+    // 画网格
     SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-
-    // 设置线宽
-    // SDL3中设置线宽的API可能不同，这里使用1px宽度
-
-    // 计算实际像素范围
-    const int pixelWidth = width * gridSizeX;
-    const int pixelHeight = height * gridSizeY;
-
-    // 绘制垂直线
-    for (int x = startX; x <= pixelWidth; x += gridSizeX)
-    {
+    for (int x = startX; x <= pixelWidth; x += gridSize)
         SDL_RenderLine(renderer, x, startY, x, startY + pixelHeight);
-    }
-
-    // 绘制水平线
-    for (int y = startY; y <= pixelHeight; y += gridSizeY)
-    {
+    for (int y = startY; y <= pixelHeight; y += gridSize)
         SDL_RenderLine(renderer, startX, y, startX + pixelWidth, y);
+
+    // 绘制文字
+    SDL_Color textColor = {255, 255, 255, 255};
+
+    for (int gx = 0; gx < width; ++gx)
+    {
+        for (int gy = 0; gy < height; ++gy)
+        {
+            // 世界坐标（格子中心）
+            float worldX = (gx * gridSize) - camX;
+            float worldY = (gy * gridSize) - camY;
+
+            // 屏幕坐标（格子中心）
+            int screenX = startX + gx * gridSize + gridSize / 2;
+            int screenY = startY + gy * gridSize + gridSize / 2;
+
+            // 格子中心文字
+            char text[64];
+            snprintf(text, sizeof(text), "(%d,%d)", (int)(worldX / gridSize), (int)(worldY / gridSize));
+
+            SDL_Surface* surface = TTF_RenderText_Blended(appContext->ttfFont, text, strlen(text), textColor);
+            if (!surface)
+            {
+                LogCat::w("TTF_RenderText_Blended failed at (%d,%d): %s", gx, gy, SDL_GetError());
+                continue;
+            }
+
+            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+            if (!texture)
+            {
+                LogCat::w("SDL_CreateTextureFromSurface failed at (%d,%d): %s", gx, gy, SDL_GetError());
+                SDL_DestroySurface(surface);
+                continue;
+            }
+
+            SDL_FRect dst = {
+                static_cast<float>(screenX - surface->w / 2),
+                static_cast<float>(screenY - surface->h / 2),
+                static_cast<float>(surface->w),
+                static_cast<float>(surface->h)
+            };
+
+            SDL_RenderTexture(renderer, texture, nullptr, &dst);
+
+            SDL_DestroySurface(surface);
+            SDL_DestroyTexture(texture);
+        }
     }
 
-
-    // 恢复之前的渲染颜色
+    // 还原颜色
     SDL_SetRenderDrawColor(renderer, currentR, currentG, currentB, currentA);
 }
+
 
 std::string glimmer::GridSystem::GetName()
 {
@@ -58,5 +107,5 @@ std::string glimmer::GridSystem::GetName()
 bool glimmer::GridSystem::ShouldActivate()
 {
     // 当有GridComponent组件时激活系统
-    return worldContext->HasComponentType(std::type_index(typeid(GridComponent)));
+    return worldContext_->HasComponentType(std::type_index(typeid(GridComponent)));
 }

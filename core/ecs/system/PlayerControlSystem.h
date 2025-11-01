@@ -19,8 +19,8 @@ namespace glimmer
     class PlayerControlSystem final : public GameSystem
     {
     public:
-        explicit PlayerControlSystem(WorldContext* worldContext)
-            : GameSystem(worldContext)
+        explicit PlayerControlSystem(AppContext* appContext, WorldContext* worldContext)
+            : GameSystem(appContext, worldContext)
         {
             RequireComponent<PlayerControlComponent>();
             RequireComponent<WorldPositionComponent>();

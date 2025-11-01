@@ -14,8 +14,8 @@ namespace glimmer
     class DebugDrawSystem : public GameSystem
     {
     public:
-        explicit DebugDrawSystem(WorldContext* worldContext)
-            : GameSystem(worldContext)
+        explicit DebugDrawSystem(AppContext* appContext, WorldContext* worldContext)
+            : GameSystem(appContext, worldContext)
         {
             RequireComponent<DebugDrawComponent>();
             RequireComponent<WorldPositionComponent>();

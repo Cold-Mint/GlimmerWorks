@@ -7,23 +7,26 @@
 #include "../GameSystem.h"
 #include "../component/GridComponent.h"
 
-namespace glimmer {
-    class GridSystem final : public GameSystem {
+namespace glimmer
+{
+    class GridSystem final : public GameSystem
+    {
     public:
-        explicit GridSystem(WorldContext *worldContext) 
-            : GameSystem(worldContext) {
+        explicit GridSystem(AppContext* appContext, WorldContext* worldContext)
+            : GameSystem(appContext, worldContext)
+        {
             RequireComponent<GridComponent>();
         }
-        
+
         void Update(float delta) override;
-        
-        void Render(SDL_Renderer *renderer) override;
-        
+
+        void Render(SDL_Renderer* renderer) override;
+
         std::string GetName() override;
-    
+
     private:
         [[nodiscard]] bool ShouldActivate() override;
     };
-} 
+}
 
 #endif //GLIMMERWORKS_GRIDSYSTEM_H

@@ -188,10 +188,6 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/ecs/component/WorldPositionComponent.h
         core/ecs/system/GameStartSystem.cpp
         core/ecs/system/GameStartSystem.h
-        core/ecs/system/GridSystem.cpp
-        core/ecs/system/GridSystem.h
-        core/ecs/component/GridComponent.cpp
-        core/ecs/component/GridComponent.h
         core/ecs/system/CameraSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
         core/ecs/component/CameraComponent.cpp

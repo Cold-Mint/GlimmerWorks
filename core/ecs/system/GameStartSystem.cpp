@@ -6,7 +6,6 @@
 
 #include "../component/CameraComponent.h"
 #include "../component/WorldPositionComponent.h"
-#include "../component/GridComponent.h"
 #include "../component/DebugDrawComponent.h"
 #include "../component/PlayerControlComponent.h"
 
@@ -19,30 +18,7 @@ namespace glimmer
 void glimmer::GameStartSystem::Update(float delta)
 {
     LogCat::d("Game Start System init");
-    // 创建一个实体用于展示网格
-    auto gridEntity = worldContext_->CreateEntity();
-    // 添加网格组件
-    auto gridComponent = worldContext_->AddComponent<GridComponent>(gridEntity);
-    // 配置网格属性
-    gridComponent->startPoint = Vector2D(0, 0);
-    gridComponent->width = 100;
-    gridComponent->height = 100;
-    gridComponent->gridSizeX = 50;
-    gridComponent->gridSizeY = 50;
-    gridComponent->r = 0;
-    gridComponent->g = 0;
-    gridComponent->b = 255;
-    gridComponent->a = 255;
-    gridComponent->lineWidth = 1;
-
     LogCat::i("Grid entity created with GridComponent");
-
-    // // 创建相机实体
-    // auto cameraEntity = worldContext->CreateEntity();
-    // // 添加相机组件
-    // auto cameraComponent = worldContext->AddComponent<CameraComponent>(cameraEntity);
-    // cameraComponent->SetSpeed(200.0f); // 相机移动速度
-    // cameraComponent->SetZoom(1.0f); // 默认缩放比例
     auto playerEntity = worldContext_->CreateEntity();
     // 添加玩家控制组件
     auto playerControl = worldContext_->AddComponent<PlayerControlComponent>(playerEntity);
@@ -56,7 +32,14 @@ void glimmer::GameStartSystem::Update(float delta)
     cameraComponent->SetSpeed(1.0F);
     worldContext_->SetCameraComponent(cameraComponent);
     worldContext_->SetCameraPosition(worldPositionComponent);
-    // cameraComponent
+
+    //在世界坐标15,5,放置一个蓝色debugDraw实体，尺寸是100*100
+    auto blue = worldContext_->CreateEntity();
+    auto bluedebug = worldContext_->AddComponent<DebugDrawComponent>(blue);
+    bluedebug->SetColor(SDL_Color{0, 0, 255, 255});
+    bluedebug->SetSize(Vector2D(100.0f, 100.0f));
+    auto t = worldContext_->AddComponent<WorldPositionComponent>(blue);
+    t->SetPosition(Vector2D(15, 5));
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

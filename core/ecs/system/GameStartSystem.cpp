@@ -48,7 +48,7 @@ void glimmer::GameStartSystem::Update(float delta)
     auto playerControl = worldContext_->AddComponent<PlayerControlComponent>(playerEntity);
     playerControl->enableWASD = true;
     auto worldPositionComponent = worldContext_->AddComponent<WorldPositionComponent>(playerEntity);
-    worldPositionComponent->SetPosition(Vector2D(200, 150));
+    worldPositionComponent->SetPosition(Vector2D(0, 0));
     auto debugDrawComponent = worldContext_->AddComponent<DebugDrawComponent>(playerEntity);
     debugDrawComponent->SetSize(Vector2D(100.0f, 100.0f));
     debugDrawComponent->SetColor(SDL_Color{255, 0, 0, 255});

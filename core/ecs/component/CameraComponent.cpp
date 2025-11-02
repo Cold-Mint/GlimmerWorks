@@ -11,7 +11,10 @@ SDL_FRect glimmer::CameraComponent::GetViewportRect(const WorldVector2D cameraPo
 glimmer::CameraVector2D glimmer::CameraComponent::GetViewPortPosition(const WorldVector2D cameraPosition,
                                                                       const WorldVector2D worldPosition) const
 {
-    return {worldPosition.x - cameraPosition.x - size_.x / 2, worldPosition.y - cameraPosition.y - size_.y / 2};
+    return {
+        worldPosition.x - (cameraPosition.x - size_.x / 2),
+        worldPosition.y - (cameraPosition.y - size_.y / 2)
+    };
 }
 
 bool glimmer::CameraComponent::IsPointInViewport(const WorldVector2D cameraPosition, const WorldVector2D worldPos) const

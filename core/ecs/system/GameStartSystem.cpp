@@ -29,26 +29,18 @@ void glimmer::GameStartSystem::Update(float delta)
     auto worldPositionComponent = worldContext_->AddComponent<WorldPositionComponent>(playerEntity);
     worldPositionComponent->SetPosition(Vector2D(0, 0));
     auto debugDrawComponent = worldContext_->AddComponent<DebugDrawComponent>(playerEntity);
-    debugDrawComponent->SetSize(Vector2D(100.0f, 100.0f));
+    debugDrawComponent->SetSize(Vector2D(static_cast<float>(TILE_SIZE), static_cast<float>(TILE_SIZE)));
     debugDrawComponent->SetColor(SDL_Color{255, 0, 0, 255});
     auto cameraComponent = worldContext_->AddComponent<CameraComponent>(playerEntity);
     cameraComponent->SetSpeed(1.0F);
     worldContext_->SetCameraComponent(cameraComponent);
     worldContext_->SetCameraPosition(worldPositionComponent);
 
-    //在世界坐标15,5,放置一个蓝色debugDraw实体，尺寸是100*100
-    auto blue = worldContext_->CreateEntity();
-    auto bluedebug = worldContext_->AddComponent<DebugDrawComponent>(blue);
-    bluedebug->SetColor(SDL_Color{0, 0, 255, 255});
-    bluedebug->SetSize(Vector2D(100.0f, 100.0f));
-    auto t = worldContext_->AddComponent<WorldPositionComponent>(blue);
-    t->SetPosition(Vector2D(15, 5));
-
     auto tileLayer = worldContext_->CreateEntity();
     auto t1 = worldContext_->AddComponent<WorldPositionComponent>(tileLayer);
     t1->SetPosition(Vector2D(0, 0));
     auto tileLayerComponent = worldContext_->AddComponent<TileLayerComponent>(tileLayer);
-    const int MAP_WIDTH  = 1000;
+    const int MAP_WIDTH = 1000;
     const int MAP_HEIGHT = 1000;
 
     // 随机数生成器

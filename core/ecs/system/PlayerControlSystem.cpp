@@ -4,6 +4,7 @@
 
 #include "PlayerControlSystem.h"
 #include "../../log/LogCat.h"
+#include "../component/CameraComponent.h"
 
 
 void glimmer::PlayerControlSystem::Update(const float delta)
@@ -45,6 +46,20 @@ std::string glimmer::PlayerControlSystem::GetName()
 
 bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
 {
+    auto camera = worldContext_->GetCameraComponent();
+    if (event.type == SDL_EVENT_MOUSE_WHEEL && camera)
+    {
+        float zoom = camera->GetZoom();
+        constexpr float zoomStep = 0.1F;
+        if (event.wheel.y > 0)
+            zoom += zoomStep;
+        else if (event.wheel.y < 0)
+            zoom -= zoomStep;
+
+        camera->SetZoom(zoom);
+        LogCat::i("Camera zoom set to ", zoom);
+        return true;
+    }
     const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
     if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)
     {
@@ -52,42 +67,24 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
         switch (event.key.key)
         {
         case SDLK_W:
-            for (auto& entity : entities)
-            {
-                auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-                if (control && control->enableWASD)
-                {
-                    control->moveUp = isPressed;
-                }
-            }
-            return true;
         case SDLK_S:
-            for (auto& entity : entities)
-            {
-                auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-                if (control && control->enableWASD)
-                {
-                    control->moveDown = isPressed;
-                }
-            }
-            return true;
         case SDLK_A:
-            for (auto& entity : entities)
-            {
-                auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-                if (control && control->enableWASD)
-                {
-                    control->moveLeft = isPressed;
-                }
-            }
-            return true;
         case SDLK_D:
             for (auto& entity : entities)
             {
                 auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-                if (control && control->enableWASD)
+                if (!control || !control->enableWASD) continue;
+
+                switch (event.key.key)
                 {
-                    control->moveRight = isPressed;
+                case SDLK_W: control->moveUp = isPressed;
+                    break;
+                case SDLK_S: control->moveDown = isPressed;
+                    break;
+                case SDLK_A: control->moveLeft = isPressed;
+                    break;
+                case SDLK_D: control->moveRight = isPressed;
+                    break;
                 }
             }
             return true;
@@ -95,5 +92,6 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
             break;
         }
     }
+
     return false;
 }

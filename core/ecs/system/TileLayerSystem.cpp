@@ -47,6 +47,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
                         cameraPos->GetPosition(), worldTilePos);
 
                     SDL_FRect renderQuad;
+                    //经过测试，发现瓦片尺寸是正确的，目前就是因为放置的位置不对
                     renderQuad.w = TILE_SIZE * zoom;
                     renderQuad.h = TILE_SIZE * zoom;
 

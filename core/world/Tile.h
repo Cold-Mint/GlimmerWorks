@@ -11,7 +11,6 @@ namespace glimmer
 {
     struct  Tile
     {
-        TileVector2D position;
         SDL_Color color = {255, 255, 255, 255};
     };
 }

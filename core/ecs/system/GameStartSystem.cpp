@@ -47,12 +47,16 @@ void glimmer::GameStartSystem::Update(float delta)
     std::mt19937 rng(std::random_device{}());
     std::uniform_int_distribution<int> colorDist(0, 2); // 0=石头, 1=泥土, 2=草地
 
+    Tile tile;
+    tile.color = {100, 100, 100, 255};
+    tileLayerComponent->SetTile({-2, -2}, tile);
+
+
     for (int y = 0; y < MAP_HEIGHT; ++y)
     {
         for (int x = 0; x < MAP_WIDTH; ++x)
         {
             Tile tile;
-            tile.position = {x, y};
 
             // 随机选择颜色类型
             switch (colorDist(rng))

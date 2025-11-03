@@ -1,33 +1,33 @@
 //
-// Created by Cold-Mint on 2025/10/29.
+// Created by Cold-Mint on 2025/11/2.
 //
 
-#ifndef GLIMMERWORKS_DEBUGDRAWSYSTEM_H
-#define GLIMMERWORKS_DEBUGDRAWSYSTEM_H
+#ifndef GLIMMERWORKS_TILELAYERSYSTEM_H
+#define GLIMMERWORKS_TILELAYERSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/DebugDrawComponent.h"
+#include "../component/TileLayerComponent.h"
 #include "../component/WorldPositionComponent.h"
-
 
 namespace glimmer
 {
-    class DebugDrawSystem : public GameSystem
+    class TileLayerSystem final : public GameSystem
     {
     public:
-        explicit DebugDrawSystem(AppContext* appContext, WorldContext* worldContext)
+        TileLayerSystem(AppContext* appContext, WorldContext* worldContext)
             : GameSystem(appContext, worldContext)
         {
-            RequireComponent<DebugDrawComponent>();
             RequireComponent<WorldPositionComponent>();
+            RequireComponent<TileLayerComponent>();
         }
 
         void Render(SDL_Renderer* renderer) override;
 
         uint8_t GetRenderOrder() override;
 
+
         std::string GetName() override;
     };
 }
 
 
-#endif //GLIMMERWORKS_DEBUGDRAWSYSTEM_H
+#endif //GLIMMERWORKS_TILELAYERSYSTEM_H

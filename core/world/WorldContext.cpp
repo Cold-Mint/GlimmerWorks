@@ -13,6 +13,7 @@
 #include "../ecs/system/CameraSystem.h"
 #include "../ecs/system/DebugDrawSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
+#include "../ecs/system/TileLayerSystem.h"
 #include "../log/LogCat.h"
 #include "../saves/Saves.h"
 
@@ -120,12 +121,26 @@ void glimmer::WorldContext::Update(const float delta) const
 
 void glimmer::WorldContext::Render(SDL_Renderer* renderer) const
 {
-    for (auto& system : activeSystems)
+    std::vector<GameSystem*> systemsToRender;
+    systemsToRender.reserve(activeSystems.size());
+
+    for (const auto& system : activeSystems)
     {
         if (system)
-        {
-            system->Render(renderer);
-        }
+            systemsToRender.push_back(system.get());
+    }
+
+    //Sort by rendering order (lower layers at the bottom, upper layers at the top)
+    //按渲染顺序排序（低层在底，高层在上）
+    std::sort(systemsToRender.begin(), systemsToRender.end(),
+              [](GameSystem* a, GameSystem* b)
+              {
+                  return a->GetRenderOrder() < b->GetRenderOrder();
+              });
+
+    for (GameSystem* system : systemsToRender)
+    {
+        system->Render(renderer);
     }
 }
 
@@ -192,6 +207,7 @@ void glimmer::WorldContext::InitSystem(AppContext* appContext)
     RegisterSystem(std::make_unique<WorldPositionSystem>(appContext, this));
     RegisterSystem(std::make_unique<CameraSystem>(appContext, this));
     RegisterSystem(std::make_unique<PlayerControlSystem>(appContext, this));
+    RegisterSystem(std::make_unique<TileLayerSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
     allowRegisterSystem = false;
 }

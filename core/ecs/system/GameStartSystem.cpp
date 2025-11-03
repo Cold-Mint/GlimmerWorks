@@ -8,6 +8,7 @@
 #include "../component/WorldPositionComponent.h"
 #include "../component/DebugDrawComponent.h"
 #include "../component/PlayerControlComponent.h"
+#include "../component/TileLayerComponent.h"
 
 
 namespace glimmer
@@ -40,6 +41,38 @@ void glimmer::GameStartSystem::Update(float delta)
     bluedebug->SetSize(Vector2D(100.0f, 100.0f));
     auto t = worldContext_->AddComponent<WorldPositionComponent>(blue);
     t->SetPosition(Vector2D(15, 5));
+
+    auto tileLayer = worldContext_->CreateEntity();
+    auto t1 = worldContext_->AddComponent<WorldPositionComponent>(tileLayer);
+    t1->SetPosition(Vector2D(0, 0));
+    auto tileLayerComponent = worldContext_->AddComponent<TileLayerComponent>(tileLayer);
+    // 生成一些瓦片
+    for (int y = 0; y < 100; ++y)
+    {
+        for (int x = 0; x < 200; ++x)
+        {
+            Tile tile;
+            tile.position = {x, y};
+
+            // 上面几层石头（灰）
+            if (y < 4)
+            {
+                tile.color = {100, 100, 100, 255}; // 石头
+            }
+            // 中间几层泥土（棕色）
+            else if (y < 8)
+            {
+                tile.color = {139, 69, 19, 255}; // 泥土
+            }
+            // 最下面加点草地（绿色）
+            else
+            {
+                tile.color = {34, 139, 34, 255}; // 草地
+            }
+
+            tileLayerComponent->SetTile({x, y}, tile);
+        }
+    }
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

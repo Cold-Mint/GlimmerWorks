@@ -2,6 +2,7 @@
 // Created by Cold-Mint on 2025/10/10.
 //
 #include <string>
+#include <cstdint>
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
@@ -20,7 +21,10 @@
 static constexpr int CHUNK_SIZE = 64;
 //世界高度
 static constexpr int WORLD_HEIGHT = 256;
-static constexpr int TILE_SIZE = 8;
+static constexpr int TILE_SIZE = 32;
+
+static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
+static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 2;
 
 /**
  * Special tile Id: Air

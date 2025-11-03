@@ -196,6 +196,14 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/ecs/component/DebugDrawComponent.h
         core/ecs/system/DebugDrawSystem.cpp
         core/ecs/system/DebugDrawSystem.h
+        core/ecs/component/TileLayerComponent.cpp
+        core/ecs/component/TileLayerComponent.h
+        core/ecs/system/TileLayerSystem.cpp
+        core/ecs/system/TileLayerSystem.h
+        core/world/Tile.cpp
+        core/world/Tile.h
+        core/math/Vector2DI.cpp
+        core/math/Vector2DI.h
 )
 
 #Define version information

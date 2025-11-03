@@ -4,11 +4,11 @@
 
 #ifndef GLIMMERWORKS_VECTOR2D_H
 #define GLIMMERWORKS_VECTOR2D_H
-#include <cmath>
-
 
 namespace glimmer
 {
+
+    struct Vector2DI;
     struct Vector2D
     {
         float x;
@@ -46,21 +46,14 @@ namespace glimmer
          * @param rhs Right-hand side vector 右侧向量
          * @return A new vector that is the sum of this and rhs 加法结果向量
          */
-        Vector2D operator+(const Vector2D& rhs) const
-        {
-            return {x + rhs.x, y + rhs.y};
-        }
-
+        Vector2D operator+(const Vector2D& rhs) const;
         /**
          * Vector subtraction
          * 向量减法
          * @param rhs Right-hand side vector 右侧向量
          * @return A new vector that is the difference of this and rhs 减法结果向量
          */
-        Vector2D operator-(const Vector2D& rhs) const
-        {
-            return {x - rhs.x, y - rhs.y};
-        }
+        Vector2D operator-(const Vector2D& rhs) const;
 
         /**
          * Scalar multiplication
@@ -68,10 +61,7 @@ namespace glimmer
          * @param scalar Scalar value 标量值
          * @return A new vector scaled by the given scalar 乘以标量后的新向量
          */
-        Vector2D operator*(const float scalar) const
-        {
-            return {x * scalar, y * scalar};
-        }
+        Vector2D operator*(float scalar) const;
 
         /**
          * Scalar division
@@ -79,10 +69,7 @@ namespace glimmer
          * @param scalar Scalar value 标量值
          * @return A new vector divided by the given scalar 除以标量后的新向量
          */
-        Vector2D operator/(const float scalar) const
-        {
-            return {x / scalar, y / scalar};
-        }
+        Vector2D operator/(float scalar) const;
 
         /**
          * Add another vector to this one
@@ -90,12 +77,7 @@ namespace glimmer
          * @param rhs Right-hand side vector 右侧向量
          * @return Reference to this vector after addition 加法后的自身引用
          */
-        Vector2D& operator+=(const Vector2D& rhs)
-        {
-            x += rhs.x;
-            y += rhs.y;
-            return *this;
-        }
+        Vector2D& operator+=(const Vector2D& rhs);
 
         /**
          * Subtract another vector from this one
@@ -103,12 +85,7 @@ namespace glimmer
          * @param rhs Right-hand side vector 右侧向量
          * @return Reference to this vector after subtraction 减法后的自身引用
          */
-        Vector2D& operator-=(const Vector2D& rhs)
-        {
-            x -= rhs.x;
-            y -= rhs.y;
-            return *this;
-        }
+        Vector2D& operator-=(const Vector2D& rhs);
 
         /**
          * Compute the dot product of two vectors
@@ -116,63 +93,45 @@ namespace glimmer
          * @param rhs Right-hand side vector 右侧向量
          * @return The dot product result 点积结果
          */
-        [[nodiscard]] float dot(const Vector2D& rhs) const
-        {
-            return x * rhs.x + y * rhs.y;
-        }
-
+        [[nodiscard]] float dot(const Vector2D& rhs) const;
         /**
          * Compute the length (magnitude) of the vector  计算向量的长度（模）
          * @return The vector length 向量的长度
          */
-        [[nodiscard]] float length() const
-        {
-            return std::sqrt(x * x + y * y);
-        }
+        [[nodiscard]] float length() const;
 
         /**
         * Compute the squared length of the vector (faster, no sqrt)  计算向量长度的平方（更高性能，无需开方）
         * @return The squared vector length  向量长度的平方
         */
-        [[nodiscard]] float LengthSquared() const
-        {
-            return x * x + y * y;
-        }
+        [[nodiscard]] float LengthSquared() const;
 
         /**
          * Compute the distance to another vector 计算到另一个向量的距离
          * @param rhs Target vector 目标向量
          * @return The distance between the two vectors 两个向量之间的距离
          */
-        [[nodiscard]] float Distance(const Vector2D& rhs) const
-        {
-            const float dx = x - rhs.x;
-            const float dy = y - rhs.y;
-            return std::sqrt(dx * dx + dy * dy);
-        }
+        [[nodiscard]] float Distance(const Vector2D& rhs) const;
 
         /**
          * Compute the squared distance to another vector (faster, no sqrt)   计算到另一个向量的距离平方（更高性能，无需开方）
          * @param rhs Target vector  目标向量
          * @return The squared distance between the two vectors  两个向量之间的距离平方
          */
-        [[nodiscard]] float DistanceSquared(const Vector2D& rhs) const
-        {
-            const float dx = x - rhs.x;
-            const float dy = y - rhs.y;
-            return dx * dx + dy * dy;
-        }
+        [[nodiscard]] float DistanceSquared(const Vector2D& rhs) const;
 
 
         /**
          * Normalize the vector 归一化向量
          * @return A new normalized vector (length = 1) 单位化后的新向量（长度为1）
          */
-        [[nodiscard]] Vector2D Normalized() const
-        {
-            const float len = length();
-            return len > 0.0f ? *this / len : Vector2D();
-        }
+        [[nodiscard]] Vector2D Normalized() const;
+
+        /**
+       * Convert to floating vector
+       * 转换为浮点向量
+       */
+        [[nodiscard]] Vector2DI ToInt() const;
     };
 
     /**

@@ -82,6 +82,8 @@ namespace glimmer
 
         virtual void Update(float delta);
 
+        virtual uint8_t GetRenderOrder();
+
         virtual void Render(SDL_Renderer* renderer);
     };
 }

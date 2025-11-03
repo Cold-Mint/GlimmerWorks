@@ -63,6 +63,11 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
     }
 }
 
+uint8_t glimmer::DebugDrawSystem::GetRenderOrder()
+{
+    return RENDER_ORDER_DEBUG_DRAW;
+}
+
 std::string glimmer::DebugDrawSystem::GetName()
 {
     return "glimmer.DebugDrawSystem";

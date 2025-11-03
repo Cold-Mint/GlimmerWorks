@@ -34,9 +34,11 @@ std::vector<std::pair<glimmer::TileVector2D, glimmer::Tile>> glimmer::TileLayerC
     const WorldVector2D& tileLayerPos, const SDL_FRect& worldViewport) const
 {
     const TileVector2D topLeft = WorldToTile(tileLayerPos, {worldViewport.x, worldViewport.y});
+    //The purpose of adding "TILE_SIZE" in the lower right corner is to prevent blank areas from appearing.
+    //右下角加TILE_SIZE的目的是，防止出现空白区域。
     const TileVector2D bottomRight = WorldToTile(tileLayerPos, {
-                                                     worldViewport.x + worldViewport.w,
-                                                     worldViewport.y + worldViewport.h
+                                                     worldViewport.x + worldViewport.w + TILE_SIZE,
+                                                     worldViewport.y + worldViewport.h + TILE_SIZE
                                                  });
     std::vector<std::pair<TileVector2D, Tile>> visibleTiles;
     for (int y = topLeft.y; y <= bottomRight.y; ++y)

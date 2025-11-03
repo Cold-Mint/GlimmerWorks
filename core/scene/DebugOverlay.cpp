@@ -15,7 +15,7 @@ bool glimmer::DebugOverlay::HandleEvent(const SDL_Event& event)
     {
         if (event.key.scancode == SDL_SCANCODE_F1)
         {
-            show = !show;
+            show_ = !show_;
             return true;
         }
     }
@@ -24,11 +24,27 @@ bool glimmer::DebugOverlay::HandleEvent(const SDL_Event& event)
 
 void glimmer::DebugOverlay::Update(float delta)
 {
+    if (!show_)
+    {
+        return;
+    }
+    if (delta <= 0.0F) return;
+    fpsAccumTime_ += delta;
+    fpsFrameCount_ += 1;
+    constexpr float kFpsUpdateInterval = 1.0F;
+    if (fpsAccumTime_ >= kFpsUpdateInterval)
+    {
+        fps_ = static_cast<float>(fpsFrameCount_) / fpsAccumTime_;
+        frameTimeMs_ = (fpsAccumTime_ / static_cast<float>(fpsFrameCount_)) * 1000.0F;
+        // Average time consumption per frame (ms) 平均每帧耗时(ms)
+        fpsFrameCount_ = 0;
+        fpsAccumTime_ = 0.0F;
+    }
 }
 
 void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
 {
-    if (!show)
+    if (!show_)
     {
         return;
     }
@@ -102,39 +118,72 @@ void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
             SDL_DestroyTexture(texture);
         }
     }
-    // 绘制右下角文本
+    // Draw the fps information (top) and window information (bottom)
+    // 绘制 fps 信息（在上）和窗口信息（在下）
     if (appContext->ttfFont)
     {
-        char text[128];
-        snprintf(text, sizeof(text),
-                 "Window: %dx%d",
-                 w, h);
-
         SDL_Color color = {255, 255, 180, 255};
-        SDL_Surface* surface = TTF_RenderText_Blended(appContext->ttfFont, text, strlen(text), color);
-        if (!surface)
+
+        // FPS text
+        // FPS 文本
+        char fpsText[64];
+        snprintf(fpsText, sizeof(fpsText), "FPS: %.1f (%.2f ms)", fps_, frameTimeMs_);
+        SDL_Surface* fpsSurface = TTF_RenderText_Blended(appContext->ttfFont, fpsText, strlen(fpsText), color);
+        if (!fpsSurface)
         {
-            LogCat::w("TTF_RenderText_Blended failed: %s", SDL_GetError());
-            return;
+            LogCat::w("TTF_RenderText_Blended failed (fps): %s", SDL_GetError());
         }
-
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        if (!texture)
+        else
         {
-            LogCat::w("SDL_CreateTextureFromSurface failed: %s", SDL_GetError());
-            SDL_DestroySurface(surface);
-            return;
+            SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
+            if (!fpsTexture)
+            {
+                LogCat::w("SDL_CreateTextureFromSurface failed (fps): %s", SDL_GetError());
+            }
+
+            char winText[64];
+            snprintf(winText, sizeof(winText), "Window: %dx%d", w, h);
+            SDL_Surface* winSurface = TTF_RenderText_Blended(appContext->ttfFont, winText, strlen(winText), color);
+            if (!winSurface)
+            {
+                LogCat::w("TTF_RenderText_Blended failed (win): %s", SDL_GetError());
+            }
+            else
+            {
+                SDL_Texture* winTexture = SDL_CreateTextureFromSurface(renderer, winSurface);
+                if (!winTexture)
+                {
+                    LogCat::w("SDL_CreateTextureFromSurface failed (win): %s", SDL_GetError());
+                }
+                else
+                {
+                    constexpr float padding = 4.0f;
+
+                    SDL_FRect winRect = {
+                        (static_cast<float>(w) - static_cast<float>(winSurface->w) - padding),
+                        (static_cast<float>(h) - static_cast<float>(winSurface->h) - padding),
+                        static_cast<float>(winSurface->w),
+                        static_cast<float>(winSurface->h)
+                    };
+
+                    SDL_FRect fpsRect = {
+                        (static_cast<float>(w) - static_cast<float>(fpsSurface->w) - padding),
+                        (static_cast<float>(h) - static_cast<float>(winSurface->h) - static_cast<float>(fpsSurface->h) -
+                            padding * 2.0f),
+                        static_cast<float>(fpsSurface->w),
+                        static_cast<float>(fpsSurface->h)
+                    };
+
+                    SDL_RenderTexture(renderer, fpsTexture, nullptr, &fpsRect);
+                    SDL_RenderTexture(renderer, winTexture, nullptr, &winRect);
+
+                    SDL_DestroyTexture(winTexture);
+                }
+                SDL_DestroySurface(winSurface);
+            }
+
+            if (fpsTexture) SDL_DestroyTexture(fpsTexture);
+            SDL_DestroySurface(fpsSurface);
         }
-
-        SDL_FRect dst = {
-            static_cast<float>(w - surface->w - 4),
-            static_cast<float>(h - surface->h - 4),
-            static_cast<float>(surface->w),
-            static_cast<float>(surface->h)
-        };
-
-        SDL_RenderTexture(renderer, texture, nullptr, &dst);
-        SDL_DestroySurface(surface);
-        SDL_DestroyTexture(texture);
     }
 }

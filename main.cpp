@@ -68,6 +68,7 @@ int main() {
         LogCat::i("windowWidth = ", config.window.width);
         LogCat::i("dataPackPath = ", config.mods.dataPackPath);
         LogCat::i("resourcePackPath = ", config.mods.resourcePackPath);
+        LogCat::i("framerate = ", config.window.framerate);
         LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
         commandManager.RegisterCommand(std::make_unique<HelpCommand>());
         AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,

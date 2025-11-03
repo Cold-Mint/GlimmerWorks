@@ -4,6 +4,8 @@
 
 #include "GameStartSystem.h"
 
+#include <random>
+
 #include "../component/CameraComponent.h"
 #include "../component/WorldPositionComponent.h"
 #include "../component/DebugDrawComponent.h"
@@ -46,28 +48,32 @@ void glimmer::GameStartSystem::Update(float delta)
     auto t1 = worldContext_->AddComponent<WorldPositionComponent>(tileLayer);
     t1->SetPosition(Vector2D(0, 0));
     auto tileLayerComponent = worldContext_->AddComponent<TileLayerComponent>(tileLayer);
-    // 生成一些瓦片
-    for (int y = 0; y < 100; ++y)
+    const int MAP_WIDTH  = 1000;
+    const int MAP_HEIGHT = 1000;
+
+    // 随机数生成器
+    std::mt19937 rng(std::random_device{}());
+    std::uniform_int_distribution<int> colorDist(0, 2); // 0=石头, 1=泥土, 2=草地
+
+    for (int y = 0; y < MAP_HEIGHT; ++y)
     {
-        for (int x = 0; x < 200; ++x)
+        for (int x = 0; x < MAP_WIDTH; ++x)
         {
             Tile tile;
             tile.position = {x, y};
 
-            // 上面几层石头（灰）
-            if (y < 4)
+            // 随机选择颜色类型
+            switch (colorDist(rng))
             {
-                tile.color = {100, 100, 100, 255}; // 石头
-            }
-            // 中间几层泥土（棕色）
-            else if (y < 8)
-            {
-                tile.color = {139, 69, 19, 255}; // 泥土
-            }
-            // 最下面加点草地（绿色）
-            else
-            {
-                tile.color = {34, 139, 34, 255}; // 草地
+            case 0: // 石头（灰）
+                tile.color = {100, 100, 100, 255};
+                break;
+            case 1: // 泥土（棕）
+                tile.color = {139, 69, 19, 255};
+                break;
+            case 2: // 草地（绿）
+                tile.color = {34, 139, 34, 255};
+                break;
             }
 
             tileLayerComponent->SetTile({x, y}, tile);

@@ -186,14 +186,14 @@ void glimmer::App::run() const
         ImGui::Render();
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
         SDL_RenderPresent(renderer);
-        const auto frameTimeMs = SDL_GetTicks() - frameStart;
-        frameStart = SDL_GetTicks();
-        //Actual time interval (in seconds)
-        //实际时间间隔（秒为单位）
-        deltaTime = static_cast<float>(frameTimeMs) / 1000.0F;
+        const auto frameEnd = SDL_GetTicks();
+        const auto frameTimeMs = frameEnd - frameStart;
         if (frameTimeMs < targetFrameTimeMs)
         {
             SDL_Delay(targetFrameTimeMs - frameTimeMs);
         }
+        const auto actualFrameEnd = SDL_GetTicks();
+        deltaTime = static_cast<float>(actualFrameEnd - frameStart) / 1000.0F;
+        frameStart = actualFrameEnd;
     }
 }

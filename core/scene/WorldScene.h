@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_WORLDSCENE_H
 #define GLIMMERWORKS_WORLDSCENE_H
 #include "Scene.h"
-#include "../log/LogCat.h"
 #include "../world/WorldGenerator.h"
 #include "../world/WorldContext.h"
 #include <SDL3/SDL_events.h>

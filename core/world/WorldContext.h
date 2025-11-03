@@ -68,13 +68,13 @@ namespace glimmer
          * camera Component
          * 相机组件
          */
-        CameraComponent* cameraComponent_;
+        CameraComponent* cameraComponent_{};
 
         /**
          * Camera coordinate component
          * 相机坐标组件
          */
-        WorldPositionComponent* cameraPosComponent_;
+        WorldPositionComponent* cameraPosComponent_{};
 
         /**
          * Height map(Divided by blocks)

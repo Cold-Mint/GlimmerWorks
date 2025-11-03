@@ -25,6 +25,7 @@ static constexpr int TILE_SIZE = 32;
 
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
 static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 2;
+static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 3;
 
 /**
  * Special tile Id: Air

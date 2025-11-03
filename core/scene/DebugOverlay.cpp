@@ -16,13 +16,14 @@ bool glimmer::DebugOverlay::HandleEvent(const SDL_Event& event)
         if (event.key.scancode == SDL_SCANCODE_F1)
         {
             show_ = !show_;
+            appContext->SetDebugMode(show_);
             return true;
         }
     }
     return false;
 }
 
-void glimmer::DebugOverlay::Update(float delta)
+void glimmer::DebugOverlay::Update(const float delta)
 {
     if (!show_)
     {
@@ -35,7 +36,7 @@ void glimmer::DebugOverlay::Update(float delta)
     if (fpsAccumTime_ >= kFpsUpdateInterval)
     {
         fps_ = static_cast<float>(fpsFrameCount_) / fpsAccumTime_;
-        frameTimeMs_ = (fpsAccumTime_ / static_cast<float>(fpsFrameCount_)) * 1000.0F;
+        frameTimeMs_ = fpsAccumTime_ / static_cast<float>(fpsFrameCount_) * 1000.0F;
         // Average time consumption per frame (ms) 平均每帧耗时(ms)
         fpsFrameCount_ = 0;
         fpsAccumTime_ = 0.0F;

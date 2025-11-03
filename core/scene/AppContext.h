@@ -31,6 +31,7 @@ namespace glimmer
     {
         SDL_Window* window_;
         std::string* language_;
+        bool debugMode_ = false;
 
     public:
         DataPackManager* dataPackManager;
@@ -59,6 +60,10 @@ namespace glimmer
               window_(nullptr), langs(langs), isRunning(run)
         {
         }
+
+        void SetDebugMode(bool isDebug);
+
+        [[nodiscard]] bool isDebugMode() const;
 
         [[nodiscard]] std::string* GetLanguage() const;
 

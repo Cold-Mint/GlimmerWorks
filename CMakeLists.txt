@@ -204,6 +204,8 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/world/Tile.h
         core/math/Vector2DI.cpp
         core/math/Vector2DI.h
+        core/ecs/system/DebugPanelSystem.cpp
+        core/ecs/system/DebugPanelSystem.h
 )
 
 #Define version information

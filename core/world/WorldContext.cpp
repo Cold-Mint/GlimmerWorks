@@ -12,6 +12,7 @@
 #include "../ecs/system/WorldPositionSystem.h"
 #include "../ecs/system/CameraSystem.h"
 #include "../ecs/system/DebugDrawSystem.h"
+#include "../ecs/system/DebugPanelSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
 #include "../ecs/system/TileLayerSystem.h"
 #include "../log/LogCat.h"
@@ -209,6 +210,7 @@ void glimmer::WorldContext::InitSystem(AppContext* appContext)
     RegisterSystem(std::make_unique<PlayerControlSystem>(appContext, this));
     RegisterSystem(std::make_unique<TileLayerSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
+    RegisterSystem(std::make_unique<DebugPanelSystem>(appContext, this));
     allowRegisterSystem = false;
 }
 

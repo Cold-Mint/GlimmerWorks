@@ -3,6 +3,18 @@
 //
 #include "AppContext.h"
 
+#include "../log/LogCat.h"
+
+void glimmer::AppContext::SetDebugMode(const bool isDebug)
+{
+    debugMode_ = isDebug;
+}
+
+bool glimmer::AppContext::isDebugMode() const
+{
+    return debugMode_;
+}
+
 std::string* glimmer::AppContext::GetLanguage() const
 {
     return language_;

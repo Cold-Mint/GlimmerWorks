@@ -35,23 +35,24 @@ void glimmer::ChunkSystem::Update(float delta)
         }
 
         // 视口左上角和右下角对应的tile坐标
-        TileVector2D topLeftCorner = tileLayer->WorldToTile(
+        TileVector2D topLeftCorner = TileLayerComponent::WorldToTile(
             worldPosition->GetPosition(),
-            WorldVector2D(viewportRect.x, viewportRect.y));
+            WorldVector2D(viewportRect.x, viewportRect.y)); //Clang-Tidy: Static member accessed through instance
 
-        TileVector2D lowerRightCorner = tileLayer->WorldToTile(
+        TileVector2D lowerRightCorner = TileLayerComponent::WorldToTile(
             worldPosition->GetPosition(),
             WorldVector2D(viewportRect.x + viewportRect.w, viewportRect.y + viewportRect.h));
 
         // 计算可见区块范围（左上角对齐CHUNK_SIZE）
-        auto tileToChunk = [](int tileCoord) {
+        auto tileToChunk = [](const int tileCoord)
+        {
             return (tileCoord >= 0 ? tileCoord / CHUNK_SIZE : (tileCoord - CHUNK_SIZE + 1) / CHUNK_SIZE) * CHUNK_SIZE;
         };
 
-        int startChunkX = tileToChunk(topLeftCorner.x);
-        int startChunkY = tileToChunk(topLeftCorner.y);
-        int endChunkX = tileToChunk(lowerRightCorner.x);
-        int endChunkY = tileToChunk(lowerRightCorner.y);
+        const int startChunkX = tileToChunk(topLeftCorner.x);
+        const int startChunkY = tileToChunk(topLeftCorner.y);
+        const int endChunkX = tileToChunk(lowerRightCorner.x);
+        const int endChunkY = tileToChunk(lowerRightCorner.y);
 
         // 加载可见区块
         for (int cy = startChunkY; cy <= endChunkY; cy += CHUNK_SIZE)
@@ -81,11 +82,6 @@ void glimmer::ChunkSystem::Update(float delta)
         {
             worldContext_->UnloadChunkAt(tileLayer, pos);
         }
-    }
-    for (const auto& kv : worldContext_->GetAllChunks())
-    {
-        const TileVector2D& chunkPos = kv.first;
-        std::cout << "Chunk key: x=" << chunkPos.x << " y=" << chunkPos.y << std::endl;
     }
 }
 

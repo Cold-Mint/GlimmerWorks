@@ -63,7 +63,15 @@ bool glimmer::WorldContext::HasComponentType(const std::type_index& type) const
 
 std::vector<int> glimmer::WorldContext::GetHeightMap(int x)
 {
-    const int chunkX = (x / CHUNK_SIZE) * CHUNK_SIZE;
+    auto tileToChunkStart = [](const int tileCoord) -> int
+    {
+        if (tileCoord >= 0)
+            return (tileCoord / CHUNK_SIZE) * CHUNK_SIZE;
+        // 对负数向下对齐，例如 CHUNK_SIZE=16:
+        // tileCoord = -1 -> chunkStart = -16
+        return (tileCoord - (CHUNK_SIZE - 1)) / CHUNK_SIZE * CHUNK_SIZE;
+    };
+    const int chunkX = tileToChunkStart(x);
     LogCat::d("getHeightMap called for x=", x, " aligned to chunkX=", chunkX);
 
     const auto it = heightMap.find(chunkX);
@@ -77,8 +85,8 @@ std::vector<int> glimmer::WorldContext::GetHeightMap(int x)
     std::vector<int> heights(CHUNK_SIZE);
     for (int i = 0; i < CHUNK_SIZE; ++i)
     {
-        const auto worldX = static_cast<float>(chunkX + i);
-        const float noiseValue = heightMapNoise->GetNoise(worldX, 0.0f);
+        const auto sampleX = static_cast<float>(chunkX + i);
+        const float noiseValue = heightMapNoise->GetNoise(sampleX, 0.0f);
         const int height = static_cast<int>((noiseValue + 1.0f) * 0.5f * (WORLD_HEIGHT - 1));
         heights[i] = height;
     }
@@ -95,53 +103,47 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent* tileLayerComponent, 
 
     Chunk newChunk(position);
 
-    // 世界高度上限
-    constexpr int WORLD_HEIGHT = 255;
+    // 获取该区块（以 position.x 对齐）的高度数组（长度 CHUNK_SIZE）
+    // position.x 是区块左上角的 world tile x（已对齐到 CHUNK_SIZE）
+    std::vector<int> heights = GetHeightMap(position.x);
 
-    for (int y = 0; y < CHUNK_SIZE; ++y)
+    for (int localY = 0; localY < CHUNK_SIZE; ++localY)
     {
-        for (int x = 0; x < CHUNK_SIZE; ++x)
+        for (int localX = 0; localX < CHUNK_SIZE; ++localX)
         {
-            // 区块内坐标
-            TileVector2D tileVector2D(x, y);
-
-            // 转为世界瓦片坐标（tileLayer 的坐标系统）
-            TileVector2D tilePos = position * CHUNK_SIZE + tileVector2D;
+            TileVector2D localTile(localX, localY);
+            TileVector2D worldTilePos = position + localTile; // world 坐标
 
             Tile tile;
 
-            // 🟦 根据高度生成不同颜色
-            if (tilePos.y < 0 || tilePos.y > WORLD_HEIGHT)
+            // 从 heights 中获取该列（world X 对应的高度）
+            // heights 下标 localX 对应 worldTilePos.x == position.x + localX
+            int height = heights[localX];
+
+            int worldY = worldTilePos.y; // 世界 Y 坐标
+
+            // 根据高度决定颜色（可以按需替换颜色值）
+            if (worldY > height)
             {
-                // 超出世界边界
-                tile.color = {255, 0, 0, 255}; // 红色
-            }
-            else if (tilePos.y < WORLD_HEIGHT * 0.3f)
-            {
-                // 天空
-                tile.color = {135, 206, 235, 255}; // 天空蓝 (SkyBlue)
-            }
-            else if (tilePos.y < WORLD_HEIGHT * 0.6f)
-            {
-                // 泥土
-                tile.color = {139, 69, 19, 255}; // 棕色 (SaddleBrown)
+                // 在地面之下或水下（y 比地面大） -> 蓝色
+                tile.color = {139, 69, 19, 255};
+
             }
             else
             {
-                // 石头层
-                tile.color = {105, 105, 105, 255}; // 深灰 (DimGray)
+                // 在或高于地面 -> 棕色
+                tile.color = {0, 128, 255, 255};
+
             }
 
-            // 写入区块数据
-            newChunk.SetTile(tileVector2D, tile);
-
-            // 更新渲染层
-            tileLayerComponent->SetTile(tilePos, tile);
+            newChunk.SetTile(localTile, tile);
+            tileLayerComponent->SetTile(worldTilePos, tile);
         }
     }
 
     chunks_.insert({position, newChunk});
 }
+
 
 void glimmer::WorldContext::UnloadChunkAt(TileLayerComponent* tileLayerComponent, TileVector2D position)
 {

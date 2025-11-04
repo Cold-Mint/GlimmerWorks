@@ -60,9 +60,8 @@ void glimmer::TileLayerComponent::SetTile(const TileVector2D& tilePos, const Til
 
 void glimmer::TileLayerComponent::ClearTile(const TileVector2D& tilePos)
 {
-    Tile tile;
-    tile.color = {0, 255, 0, 255};
-    tileMap_[EncodeTileKey(tilePos.x, tilePos.y)] = tile;
+    const auto key = EncodeTileKey(tilePos.x, tilePos.y);
+    tileMap_.erase(key);
 }
 
 

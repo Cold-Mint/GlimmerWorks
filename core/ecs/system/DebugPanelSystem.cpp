@@ -95,6 +95,49 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
             yOffset += lineSpacing;
         }
     }
+
+    SDL_Color oldColor;
+    SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+
+    // 绿色
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+
+    const float cx = static_cast<float>(windowW) * 0.5f;
+    const float cy = static_cast<float>(windowH) * 0.5f;
+
+    // 线宽 3px（用填充矩形实现以保证宽度）
+    constexpr float lineWidth = 3.0f;
+
+    // 垂直线（满高）
+    SDL_FRect vert = {
+        cx - lineWidth * 0.5f, // x
+        0.0f, // y
+        lineWidth, // w
+        static_cast<float>(windowH) // h
+    };
+    SDL_RenderFillRect(renderer, &vert);
+
+    // 水平线（满宽）
+    SDL_FRect horz = {
+        0.0f, // x
+        cy - lineWidth * 0.5f, // y
+        static_cast<float>(windowW), // w
+        lineWidth // h
+    };
+    SDL_RenderFillRect(renderer, &horz);
+
+    // 中心绿色点（稍大些以便可见）
+    const float pointSize = 6.0f;
+    SDL_FRect point = {
+        cx - pointSize * 0.5f,
+        cy - pointSize * 0.5f,
+        pointSize,
+        pointSize
+    };
+    SDL_RenderFillRect(renderer, &point);
+
+    // 恢复原始颜色
+    SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
 }
 
 uint8_t glimmer::DebugPanelSystem::GetRenderOrder()

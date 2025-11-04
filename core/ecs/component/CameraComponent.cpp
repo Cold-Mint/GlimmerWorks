@@ -7,15 +7,25 @@
 
 SDL_FRect glimmer::CameraComponent::GetViewportRect(const WorldVector2D cameraPosition) const
 {
-    return {cameraPosition.x - size_.x / 2, cameraPosition.y - size_.y / 2, size_.x, size_.y};
+    const float scaledWidth = size_.x / zoom_;
+    const float scaledHeight = size_.y / zoom_;
+    return {
+        cameraPosition.x - scaledWidth * 0.5f,
+        cameraPosition.y - scaledHeight * 0.5f,
+        scaledWidth,
+        scaledHeight
+    };
 }
+
 
 glimmer::CameraVector2D glimmer::CameraComponent::GetViewPortPosition(const WorldVector2D cameraPosition,
                                                                       const WorldVector2D worldPosition) const
 {
+    const float offsetX = (worldPosition.x - cameraPosition.x) * zoom_;
+    const float offsetY = (worldPosition.y - cameraPosition.y) * zoom_;
     return {
-        worldPosition.x - (cameraPosition.x - size_.x / 2),
-        worldPosition.y - (cameraPosition.y - size_.y / 2)
+        size_.x * 0.5f + offsetX,
+        size_.y * 0.5f + offsetY
     };
 }
 

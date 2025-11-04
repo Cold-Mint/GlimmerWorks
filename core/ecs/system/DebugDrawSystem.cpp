@@ -40,21 +40,13 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
                 SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
                 const auto color = debugDrawComponent->GetColor();
                 SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-                const float zoom = cameraComponent->GetZoom();
-                const auto objSize = debugDrawComponent->GetSize();
-                const float scaledW = objSize.x * zoom;
-                const float scaledH = objSize.y * zoom;
-                const auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
-                SDL_FPoint screenCenter = {viewportRect.w * 0.5f, viewportRect.h * 0.5f};
-                SDL_FPoint objCenter = {cameraVector2d.x, cameraVector2d.y};
-                SDL_FPoint centeredOffset = {objCenter.x - screenCenter.x, objCenter.y - screenCenter.y};
-                SDL_FPoint scaledOffset = {centeredOffset.x * zoom, centeredOffset.y * zoom};
-                SDL_FPoint adjustedCenter = {screenCenter.x + scaledOffset.x, screenCenter.y + scaledOffset.y};
                 SDL_FRect renderQuad;
-                renderQuad.w = scaledW;
-                renderQuad.h = scaledH;
-                renderQuad.x = adjustedCenter.x - scaledW * 0.5f;
-                renderQuad.y = adjustedCenter.y - scaledH * 0.5f;
+                float w = debugDrawComponent->GetSize().x * cameraComponent->GetZoom();
+                float h = debugDrawComponent->GetSize().y * cameraComponent->GetZoom();
+                renderQuad.w = w;
+                renderQuad.h = h;
+                renderQuad.x = cameraVector2d.x - w * 0.5f;
+                renderQuad.y = cameraVector2d.y - h * 0.5f;
                 SDL_RenderFillRect(renderer, &renderQuad);
                 // 恢复原先颜色
                 SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);

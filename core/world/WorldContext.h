@@ -18,11 +18,15 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
+#include "Chunk.h"
 #include "../ecs/GameComponent.h"
+#include "../math/Vector2DI.h"
 #include "../scene/AppContext.h"
+#include "../utils/JsonUtils.h"
 
 namespace glimmer
 {
+    class TileLayerComponent;
     class WorldPositionComponent;
     class CameraComponent;
     class GameSystem;
@@ -44,6 +48,8 @@ namespace glimmer
          * 是否允许注册系统
          */
         bool allowRegisterSystem = false;
+
+        std::unordered_map<TileVector2D, Chunk, TileVector2DHash> chunks_;
 
         /**
          * Entity to component list
@@ -105,7 +111,6 @@ namespace glimmer
         void RemoveComponentInternal(GameEntity::ID id, GameComponent* comp);
 
     public:
-
         Saves* GetSaves() const;
 
         template <typename TComponent, typename... Args>
@@ -144,6 +149,38 @@ namespace glimmer
          * @return The height array of this block (length = CHUNK_SIZE)
          */
         std::vector<int> GetHeightMap(int x);
+
+        /**
+        * Load Chunk
+        * 加载区块
+         * @param tileLayerComponent tileLayerComponent 瓦片图层
+        * @param position position 位置
+        */
+        void LoadChunkAt(TileLayerComponent* tileLayerComponent, TileVector2D position);
+
+        /**
+         * Unload Chunk
+         * 卸载区块
+         * @param tileLayerComponent tileLayerComponent 瓦片图层
+         * @param position position 位置
+         */
+        void UnloadChunkAt(TileLayerComponent* tileLayerComponent, TileVector2D position);
+
+        /**
+         * Determine whether a block at a certain position has been loaded
+         * 判断某个位置的区块是否被加载
+         * @param position
+         * @return
+         */
+        bool HasChunk(TileVector2D position) const;
+
+
+        /**
+         * GetAllChunks
+         * 获取所有区块
+         * @return
+         */
+        const std::unordered_map<TileVector2D, Chunk, TileVector2DHash>& GetAllChunks();
 
 
         bool HandleEvent(const SDL_Event& event) const;

@@ -200,8 +200,8 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/ecs/system/DebugPanelSystem.h
         core/ecs/system/ChunkSystem.cpp
         core/ecs/system/ChunkSystem.h
-        core/ecs/system/ChunkDebugSystem.cpp
-        core/ecs/system/ChunkDebugSystem.h
+        core/world/Chunk.cpp
+        core/world/Chunk.h
 )
 
 #Define version information

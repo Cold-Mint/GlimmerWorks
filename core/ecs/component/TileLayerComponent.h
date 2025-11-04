@@ -56,6 +56,13 @@ namespace glimmer
         void SetTile(const TileVector2D& tilePos, const Tile& tile);
 
         /**
+         * Clear Tile
+         * 清除指定位置的区块
+         * @param tilePos
+         */
+        void ClearTile(const TileVector2D& tilePos);
+
+        /**
          * GetTile
          * 获取瓦片
          * @param tilePos 瓦片坐标

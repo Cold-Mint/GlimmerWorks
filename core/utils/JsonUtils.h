@@ -15,7 +15,6 @@
 
 
 namespace glimmer {
-    struct Chunk;
     struct StringResource;
 
     class JsonUtils {

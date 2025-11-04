@@ -133,6 +133,7 @@ void glimmer::App::run() const
     auto& overlayScenes = appContext->sceneManager->GetOverlayScenes();
     while (appContext->isRunning)
     {
+        LogCat::i("--Frame begins--");
         appContext->sceneManager->ApplyPendingScene();
         for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
         {
@@ -195,5 +196,6 @@ void glimmer::App::run() const
         const auto actualFrameEnd = SDL_GetTicks();
         deltaTime = static_cast<float>(actualFrameEnd - frameStart) / 1000.0F;
         frameStart = actualFrameEnd;
+        LogCat::i("--Frame end--");
     }
 }

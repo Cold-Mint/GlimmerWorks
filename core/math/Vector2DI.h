@@ -5,6 +5,7 @@
 #ifndef GLIMMERWORKS_VECTOR2DI_H
 #define GLIMMERWORKS_VECTOR2DI_H
 #include <cmath>
+#include <functional>
 
 #include "Vector2D.h"
 
@@ -120,6 +121,26 @@ namespace glimmer
     {
         return v * scalar;
     }
+
+    /**
+     * @brief 哈希函数结构体，用于 TileVector2D 作为 unordered_map / unordered_set 的 key
+     *
+     * unordered_map/unordered_set 需要 key 可以生成哈希值。
+     * TileVector2DHash 提供了一个自定义哈希算法，将 TileVector2D 的 x 和 y 坐标映射为一个 size_t 值。
+     */
+    struct TileVector2DHash
+    {
+        std::size_t operator()(const TileVector2D& v) const noexcept
+        {
+            // Use a simple hash combination formula
+            // 使用简单的哈希组合公式
+            const std::size_t hx = std::hash<int>()(v.x);
+            const std::size_t hy = std::hash<int>()(v.y);
+            // Classic hash mixture formula, avoiding conflicts
+            // 经典哈希混合公式，避免冲突
+            return hx ^ hy + 0x9e3779b9 + (hx << 6) + (hx >> 2);
+        }
+    };
 }
 
 #endif //GLIMMERWORKS_VECTOR2DI_H

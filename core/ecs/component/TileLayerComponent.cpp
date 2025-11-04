@@ -58,6 +58,14 @@ void glimmer::TileLayerComponent::SetTile(const TileVector2D& tilePos, const Til
     tileMap_[EncodeTileKey(tilePos.x, tilePos.y)] = tile;
 }
 
+void glimmer::TileLayerComponent::ClearTile(const TileVector2D& tilePos)
+{
+    Tile tile;
+    tile.color = {0, 255, 0, 255};
+    tileMap_[EncodeTileKey(tilePos.x, tilePos.y)] = tile;
+}
+
+
 std::optional<glimmer::Tile> glimmer::TileLayerComponent::GetTile(const TileVector2D& tilePos) const
 {
     long long key = EncodeTileKey(tilePos.x, tilePos.y);

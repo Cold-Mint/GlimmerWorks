@@ -11,6 +11,7 @@
 #include "../ecs/system/GameStartSystem.h"
 #include "../ecs/system/WorldPositionSystem.h"
 #include "../ecs/system/CameraSystem.h"
+#include "../ecs/system/ChunkSystem.h"
 #include "../ecs/system/DebugDrawSystem.h"
 #include "../ecs/system/DebugPanelSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
@@ -85,6 +86,94 @@ std::vector<int> glimmer::WorldContext::GetHeightMap(int x)
     heightMap[chunkX] = heights;
     LogCat::d("Generated and cached heights for chunkX=", chunkX);
     return heights;
+}
+
+void glimmer::WorldContext::LoadChunkAt(TileLayerComponent* tileLayerComponent, TileVector2D position)
+{
+    if (chunks_.contains(position))
+        return;
+
+    Chunk newChunk(position);
+
+    // 世界高度上限
+    constexpr int WORLD_HEIGHT = 255;
+
+    for (int y = 0; y < CHUNK_SIZE; ++y)
+    {
+        for (int x = 0; x < CHUNK_SIZE; ++x)
+        {
+            // 区块内坐标
+            TileVector2D tileVector2D(x, y);
+
+            // 转为世界瓦片坐标（tileLayer 的坐标系统）
+            TileVector2D tilePos = position * CHUNK_SIZE + tileVector2D;
+
+            Tile tile;
+
+            // 🟦 根据高度生成不同颜色
+            if (tilePos.y < 0 || tilePos.y > WORLD_HEIGHT)
+            {
+                // 超出世界边界
+                tile.color = {255, 0, 0, 255}; // 红色
+            }
+            else if (tilePos.y < WORLD_HEIGHT * 0.3f)
+            {
+                // 天空
+                tile.color = {135, 206, 235, 255}; // 天空蓝 (SkyBlue)
+            }
+            else if (tilePos.y < WORLD_HEIGHT * 0.6f)
+            {
+                // 泥土
+                tile.color = {139, 69, 19, 255}; // 棕色 (SaddleBrown)
+            }
+            else
+            {
+                // 石头层
+                tile.color = {105, 105, 105, 255}; // 深灰 (DimGray)
+            }
+
+            // 写入区块数据
+            newChunk.SetTile(tileVector2D, tile);
+
+            // 更新渲染层
+            tileLayerComponent->SetTile(tilePos, tile);
+        }
+    }
+
+    chunks_.insert({position, newChunk});
+}
+
+void glimmer::WorldContext::UnloadChunkAt(TileLayerComponent* tileLayerComponent, TileVector2D position)
+{
+    // 查找要卸载的区块
+    auto it = chunks_.find(position);
+    if (it == chunks_.end())
+        return; // 不存在则直接返回
+
+    if (tileLayerComponent)
+    {
+        for (int y = 0; y < CHUNK_SIZE; ++y)
+        {
+            for (int x = 0; x < CHUNK_SIZE; ++x)
+            {
+                TileVector2D tilePos = position + TileVector2D(x, y);
+                tileLayerComponent->ClearTile(tilePos);
+            }
+        }
+    }
+    chunks_.erase(it);
+    LogCat::d("Unloaded chunk at position=", position.x, "y =", position.y);
+}
+
+bool glimmer::WorldContext::HasChunk(const TileVector2D position) const
+{
+    return chunks_.contains(position);
+}
+
+const std::unordered_map<glimmer::TileVector2D, glimmer::Chunk, glimmer::TileVector2DHash>& glimmer::WorldContext::
+GetAllChunks()
+{
+    return chunks_;
 }
 
 bool glimmer::WorldContext::HandleEvent(const SDL_Event& event) const
@@ -202,6 +291,7 @@ void glimmer::WorldContext::InitSystem(AppContext* appContext)
     RegisterSystem(std::make_unique<TileLayerSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugPanelSystem>(appContext, this));
+    RegisterSystem(std::make_unique<ChunkSystem>(appContext, this));
     allowRegisterSystem = false;
 }
 

@@ -6,11 +6,14 @@
 
 #include <random>
 
+#include "../../Constants.h"
+#include "../../log/LogCat.h"
 #include "../component/CameraComponent.h"
 #include "../component/WorldPositionComponent.h"
 #include "../component/DebugDrawComponent.h"
 #include "../component/PlayerControlComponent.h"
 #include "../component/TileLayerComponent.h"
+#include "../../world/WorldContext.h"
 
 
 namespace glimmer

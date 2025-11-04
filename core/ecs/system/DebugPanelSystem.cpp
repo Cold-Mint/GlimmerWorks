@@ -4,9 +4,11 @@
 
 #include "DebugPanelSystem.h"
 
+#include "../../Constants.h"
 #include "../component/PlayerControlComponent.h"
 #include "../component/WorldPositionComponent.h"
 #include "../component/TileLayerComponent.h"
+#include "../../world/WorldContext.h"
 
 
 bool glimmer::DebugPanelSystem::ShouldActivate()

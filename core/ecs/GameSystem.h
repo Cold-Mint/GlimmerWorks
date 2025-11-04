@@ -9,12 +9,13 @@
 #include <unordered_set>
 
 #include "../scene/AppContext.h"
-#include "../world/WorldContext.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_render.h"
 
 namespace glimmer
 {
+    class WorldContext;
+
     class GameSystem
     {
         /**

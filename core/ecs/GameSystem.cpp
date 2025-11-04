@@ -3,7 +3,7 @@
 //
 
 #include "GameSystem.h"
-
+#include "../world/WorldContext.h"
 
 bool glimmer::GameSystem::ShouldActivate()
 {

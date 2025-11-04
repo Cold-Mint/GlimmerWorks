@@ -4,9 +4,11 @@
 
 #include "TileLayerSystem.h"
 
+#include "../../Constants.h"
 #include "../component/CameraComponent.h"
 #include "../component/TileLayerComponent.h"
 #include "../component/WorldPositionComponent.h"
+#include "../../world/WorldContext.h"
 
 void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
 {
@@ -35,7 +37,6 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
 
                 std::vector<std::pair<TileVector2D, Tile>> visibleTiles =
                     tileLayerComponent->GetTilesInViewport(layerWorldPos, viewportRect);
-
                 SDL_Color oldColor;
                 SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
 
@@ -47,7 +48,6 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
                         cameraPos->GetPosition(), worldTilePos);
 
                     SDL_FRect renderQuad;
-                    //经过测试，发现瓦片尺寸是正确的，目前就是因为放置的位置不对
                     renderQuad.w = TILE_SIZE * zoom;
                     renderQuad.h = TILE_SIZE * zoom;
 

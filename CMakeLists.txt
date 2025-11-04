@@ -160,18 +160,10 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/saves/MapManifest.h
         core/scene/CreateWorldScene.cpp
         core/scene/CreateWorldScene.h
-        core/world/WorldGenerator.cpp
-        core/world/WorldGenerator.h
-        core/world/WorldGeneratorTask.cpp
-        core/world/WorldGeneratorTask.h
-        core/world/Chunk.cpp
-        core/world/Chunk.h
         core/world/WorldContext.cpp
         core/world/WorldContext.h
         core/math/Vector2D.cpp
         core/math/Vector2D.h
-        core/world/GenerateChunkTask.cpp
-        core/world/GenerateChunkTask.h
         core/scene/WorldScene.cpp
         core/scene/WorldScene.h
         core/scene/DebugOverlay.cpp
@@ -206,6 +198,10 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/math/Vector2DI.h
         core/ecs/system/DebugPanelSystem.cpp
         core/ecs/system/DebugPanelSystem.h
+        core/ecs/system/ChunkSystem.cpp
+        core/ecs/system/ChunkSystem.h
+        core/ecs/system/ChunkDebugSystem.cpp
+        core/ecs/system/ChunkDebugSystem.h
 )
 
 #Define version information

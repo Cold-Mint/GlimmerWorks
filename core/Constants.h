@@ -18,7 +18,7 @@
  * Unit chunk size
  * 单位区块的尺寸
  */
-static constexpr int CHUNK_SIZE = 64;
+static constexpr int CHUNK_SIZE = 16;
 //世界高度
 static constexpr int WORLD_HEIGHT = 256;
 static constexpr int TILE_SIZE = 32;

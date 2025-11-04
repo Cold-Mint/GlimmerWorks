@@ -3,6 +3,7 @@
 //
 
 #include "CameraSystem.h"
+#include "../../world/WorldContext.h"
 
 
 void glimmer::CameraSystem::Render(SDL_Renderer* renderer)

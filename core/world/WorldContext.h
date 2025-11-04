@@ -10,7 +10,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Chunk.h"
 #include "FastNoiseLite.h"
 #include "../math/Vector2D.h"
 #include "../ecs/GameEntity.h"
@@ -20,6 +19,7 @@
 #include <SDL3/SDL_render.h>
 
 #include "../ecs/GameComponent.h"
+#include "../scene/AppContext.h"
 
 namespace glimmer
 {
@@ -98,12 +98,6 @@ namespace glimmer
         */
         Saves* saves;
 
-        /**
-        * All loaded blocks
-        * 所有已加载的区块
-        */
-        std::vector<std::shared_ptr<Chunk>> chunks;
-
 
         std::vector<std::unique_ptr<GameEntity>> entities;
         std::unordered_map<GameEntity::ID, GameEntity*> entityMap;
@@ -111,9 +105,6 @@ namespace glimmer
         void RemoveComponentInternal(GameEntity::ID id, GameComponent* comp);
 
     public:
-        const std::vector<std::shared_ptr<Chunk>>& GetChunks() const;
-
-        void RegisterChunk(const std::shared_ptr<Chunk>& chunk);
 
         Saves* GetSaves() const;
 

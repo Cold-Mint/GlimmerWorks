@@ -48,15 +48,6 @@ void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameCompo
                   });
 }
 
-const std::vector<std::shared_ptr<glimmer::Chunk>>& glimmer::WorldContext::GetChunks() const
-{
-    return chunks;
-}
-
-void glimmer::WorldContext::RegisterChunk(const std::shared_ptr<Chunk>& chunk)
-{
-    chunks.push_back(chunk);
-}
 
 glimmer::Saves* glimmer::WorldContext::GetSaves() const
 {

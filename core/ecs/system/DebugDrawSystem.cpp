@@ -4,8 +4,10 @@
 
 #include "DebugDrawSystem.h"
 
+#include "../../Constants.h"
 #include "../component/CameraComponent.h"
 #include "../component/DebugDrawComponent.h"
+#include "../../world/WorldContext.h"
 
 
 void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)

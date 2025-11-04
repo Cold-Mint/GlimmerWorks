@@ -4,7 +4,8 @@
 
 #include "PlayerControlSystem.h"
 #include "../../log/LogCat.h"
-#include "../component/CameraComponent.h"
+#include "../../world/WorldContext.h"
+#include "../../ecs/component/CameraComponent.h"
 
 
 void glimmer::PlayerControlSystem::Update(const float delta)

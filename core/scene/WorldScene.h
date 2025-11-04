@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_WORLDSCENE_H
 #define GLIMMERWORKS_WORLDSCENE_H
 #include "Scene.h"
-#include "../world/WorldGenerator.h"
 #include "../world/WorldContext.h"
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
@@ -14,7 +13,7 @@ namespace glimmer {
         WorldContext *worldContext;
 
     public:
-        explicit WorldScene(AppContext *context, WorldContext *wc, WorldGenerator *wg)
+        explicit WorldScene(AppContext *context, WorldContext *wc)
             : Scene(context) {
             worldContext = wc;
         }

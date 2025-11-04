@@ -14,7 +14,6 @@
 #include "WorldScene.h"
 #include "../Constants.h"
 #include "../log/LogCat.h"
-#include "../world/WorldGenerator.h"
 #include "../saves/Saves.h"
 #include "fmt/base.h"
 #include "nlohmann/json.hpp"
@@ -54,9 +53,7 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.gameVersionNumber = GAME_VERSION_NUMBER;
     saves.Create(manifest);
     auto world_context = new WorldContext(appContext, seed_value, Vector2D(0, 0), &saves);
-    auto worldGenerator = new WorldGenerator(world_context, appContext);
-    worldGenerator->Generate(Vector2D(0, 0));
-    appContext->sceneManager->ChangeScene(new WorldScene(appContext, world_context, worldGenerator));
+    appContext->sceneManager->ChangeScene(new WorldScene(appContext, world_context));
 }
 
 int glimmer::CreateWorldScene::RandomSeed()

@@ -22,29 +22,12 @@ GlimmerWorks uses the following libraries:
 - [fmt](https://github.com/fmtlib/fmt) – for safe and efficient string formatting
 - [nlohmann/json](https://github.com/nlohmann/json) – for configuration and data serialization
 - [FastNoiseLite](https://github.com/Auburn/FastNoiseLite) – for procedural terrain and noise generation
+- [box2d](https://github.com/erincatto/box2d) – for 2D physics simulation, including rigid bodies, collisions, and
+  joints
 
-## Building from Source (Linux)
+## Building from Source
 
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/Cold-Mint/GlimmerWorks.git
-cd GlimmerWorks
-````
-
-### 2. Create a Release build with Ninja
-
-```bash
-mkdir -p build_release
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -S . -B build_release
-cmake --build build_release
-```
-
-### 3. Run the game
-
-```bash
-./build_release/GlimmerWorks
-```
+See [Build-Guide](https://github.com/Cold-Mint/GlimmerWorks/wiki/Build-Guide)
 
 ## Contributing
 

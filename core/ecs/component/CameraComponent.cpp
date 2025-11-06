@@ -25,7 +25,7 @@ glimmer::CameraVector2D glimmer::CameraComponent::GetViewPortPosition(const Worl
     const float offsetY = (worldPosition.y - cameraPosition.y) * zoom_;
     return {
         size_.x * 0.5f + offsetX,
-        size_.y * 0.5f + offsetY
+        size_.y * 0.5f - offsetY
     };
 }
 

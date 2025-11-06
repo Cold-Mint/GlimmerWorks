@@ -87,7 +87,7 @@ std::vector<int> glimmer::WorldContext::GetHeightMap(int x)
     {
         const auto sampleX = static_cast<float>(chunkX + i);
         const float noiseValue = heightMapNoise->GetNoise(sampleX, 0.0f);
-        const int height = static_cast<int>((noiseValue + 1.0f) * 0.5f * (WORLD_HEIGHT - 1));
+        const int height = static_cast<int>((noiseValue + 1.0f) * 0.5f * (WORLD_MAX_Y - WORLD_MIN_Y)) + WORLD_MIN_Y;
         heights[i] = height;
     }
 
@@ -126,14 +126,12 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent* tileLayerComponent, 
             if (worldY > height)
             {
                 // 在地面之下或水下（y 比地面大） -> 蓝色
-                tile.color = {139, 69, 19, 255};
-
+                tile.color = {0, 128, 255, 255};
             }
             else
             {
                 // 在或高于地面 -> 棕色
-                tile.color = {0, 128, 255, 255};
-
+                tile.color = {139, 69, 19, 255};
             }
 
             newChunk.SetTile(localTile, tile);
@@ -170,6 +168,17 @@ void glimmer::WorldContext::UnloadChunkAt(TileLayerComponent* tileLayerComponent
 bool glimmer::WorldContext::HasChunk(const TileVector2D position) const
 {
     return chunks_.contains(position);
+}
+
+bool glimmer::WorldContext::ChunkIsOutOfBounds(TileVector2D position)
+{
+    if (position.y >= WORLD_MAX_Y ||
+        position.y < WORLD_MIN_Y)
+    {
+        LogCat::w("Chunk position out of world bounds: x=", position.x, "y =", position.y);
+        return true;
+    }
+    return false;
 }
 
 const std::unordered_map<glimmer::TileVector2D, glimmer::Chunk, glimmer::TileVector2DHash>& glimmer::WorldContext::

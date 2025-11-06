@@ -176,6 +176,15 @@ namespace glimmer
 
 
         /**
+         * Check whether the block exceeds the boundary
+         * 检查区块是否超出边界
+         * @param position 区块位置 position
+         * @return Whether it exceeds the boundary 是否超出边界
+         */
+        static bool ChunkIsOutOfBounds(TileVector2D position);
+
+
+        /**
          * GetAllChunks
          * 获取所有区块
          * @return
@@ -253,7 +262,6 @@ namespace glimmer
             heightMapNoise = new FastNoiseLite();
             heightMapNoise->SetSeed(seed);
             heightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-            heightMapNoise->SetFrequency(0.05f);
             InitSystem(appContext);
         }
     };

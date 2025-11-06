@@ -20,7 +20,8 @@
  */
 static constexpr int CHUNK_SIZE = 16;
 //世界高度
-static constexpr int WORLD_HEIGHT = 256;
+static constexpr int WORLD_MAX_Y = 256;
+static constexpr int WORLD_MIN_Y = 0;
 static constexpr int TILE_SIZE = 32;
 
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;

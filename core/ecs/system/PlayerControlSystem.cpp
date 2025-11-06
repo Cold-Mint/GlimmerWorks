@@ -20,11 +20,11 @@ void glimmer::PlayerControlSystem::Update(const float delta)
                 auto positionVec = position->GetPosition();
                 if (control->moveUp)
                 {
-                    positionVec.y -= delta * 50;
+                    positionVec.y += delta * 50;
                 }
                 if (control->moveDown)
                 {
-                    positionVec.y += delta * 50;
+                    positionVec.y -= delta * 50;
                 }
                 if (control->moveLeft)
                 {

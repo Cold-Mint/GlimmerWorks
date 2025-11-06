@@ -14,6 +14,7 @@ bool glimmer::DebugDrawBox2dSystem::ShouldActivate()
 
 void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus)
 {
+    LogCat::d("[DebugDrawBox2dSystem] Activation changed: ", activeStatus);
     if (activeStatus)
     {
         b2DebugDraw debugDraw = b2DefaultDebugDraw();
@@ -28,12 +29,14 @@ void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus)
         debugDraw.DrawStringFcn = b2DrawStringFcn;
         debugDraw.context = this;
         b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
+        LogCat::d("[DebugDrawBox2dSystem] DebugDraw attached to world.");
     }
     else
     {
         renderer_ = nullptr;
         b2DebugDraw debugDraw = b2DebugDraw();
         b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
+        LogCat::d("[DebugDrawBox2dSystem] DebugDraw detached from world.");
     }
 }
 
@@ -64,9 +67,10 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
     const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
 {
     if (!renderer_) return;
-    SetSDLColor(renderer_, color);
 
-    // Draw polygon outline only
+    SetSDLColor(renderer_, color);
+    LogCat::d("[DrawPolygon] vertexCount=", vertexCount);
+
     for (int i = 0; i < vertexCount; ++i)
     {
         const b2Vec2& v1 = vertices[i];
@@ -74,6 +78,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
         SDL_RenderLine(renderer_,
                        static_cast<int>(v1.x * kScale), static_cast<int>(-v1.y * kScale),
                        static_cast<int>(v2.x * kScale), static_cast<int>(-v2.y * kScale));
+
+        LogCat::d("  Edge ", i, ": (", v1.x, ",", v1.y, ") -> (", v2.x, ",", v2.y, ")");
     }
 }
 
@@ -92,9 +98,10 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     float radius, b2HexColor color, void* context)
 {
     if (!renderer_) return;
-    SetSDLColor(renderer_, color, 150); // 半透明效果
+    SetSDLColor(renderer_, color, 150);
 
-    // Draw polygon filled (approximate with triangles)
+    LogCat::d("[DrawSolidPolygon] vertexCount=", vertexCount, " radius=", radius);
+
     for (int i = 1; i < vertexCount - 1; ++i)
     {
         const b2Vec2& v0 = vertices[0];
@@ -107,6 +114,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
         SDL_RenderLine(renderer_,
                        static_cast<int>(v1.x * kScale), static_cast<int>(-v1.y * kScale),
                        static_cast<int>(v2.x * kScale), static_cast<int>(-v2.y * kScale));
+
+        LogCat::d("  Triangle: (", v0.x, ",", v0.y, ") -> (", v1.x, ",", v1.y, ") -> (", v2.x, ",", v2.y, ")");
     }
 }
 
@@ -123,6 +132,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
 {
     if (!renderer_) return;
     SetSDLColor(renderer_, color);
+    LogCat::d("[DrawCircle] center=(", center.x, ",", center.y, ") radius=", radius);
 
     constexpr float step = 2.0f * kPi / kCircleSegments;
     for (int i = 0; i < kCircleSegments; ++i)
@@ -151,11 +161,11 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
     b2Transform transform, float radius, b2HexColor color, void* context)
 {
     if (!renderer_) return;
-    SetSDLColor(renderer_, color);
-
+    SetSDLColor(renderer_, color, 150);
     const b2Vec2 center = transform.p;
-    constexpr float step = 2.0f * kPi / kCircleSegments;
+    LogCat::d("[DrawSolidCircle] center=(", center.x, ",", center.y, ") radius=", radius);
 
+    constexpr float step = 2.0f * kPi / kCircleSegments;
     for (int i = 0; i < kCircleSegments; ++i)
     {
         const float a1 = i * step;
@@ -184,13 +194,12 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
 {
     if (!renderer_) return;
     SetSDLColor(renderer_, color);
+    LogCat::d("[DrawSolidCapsule] p1=(", p1.x, ",", p1.y, ") p2=(", p2.x, ",", p2.y, ") radius=", radius);
 
-    // Draw main line
     SDL_RenderLine(renderer_,
                    static_cast<int>(p1.x * kScale), static_cast<int>(-p1.y * kScale),
                    static_cast<int>(p2.x * kScale), static_cast<int>(-p2.y * kScale));
 
-    // Draw circular ends
     constexpr float step = 2.0f * kPi / kCircleSegments;
     for (int j = 0; j < 2; ++j)
     {
@@ -226,6 +235,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
     SDL_RenderLine(renderer_,
                    static_cast<int>(p1.x * kScale), static_cast<int>(-p1.y * kScale),
                    static_cast<int>(p2.x * kScale), static_cast<int>(-p2.y * kScale));
+    LogCat::d("[DrawSegment] p1=(", p1.x, ",", p1.y, ") p2=(", p2.x, ",", p2.y, ")");
 }
 
 /**
@@ -239,22 +249,21 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
     if (!renderer_) return;
 
     const b2Vec2& p = transform.p;
-
-    // Box2D v3: transform.q.c = cos(θ), transform.q.s = sin(θ)
     b2Vec2 xAxis = {p.x + 0.4f * transform.q.c, p.y + 0.4f * transform.q.s};
     b2Vec2 yAxis = {p.x - 0.4f * transform.q.s, p.y + 0.4f * transform.q.c};
 
-    // 绘制X轴（红色）
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderLine(renderer_,
                    static_cast<int>(p.x * kScale), static_cast<int>(-p.y * kScale),
                    static_cast<int>(xAxis.x * kScale), static_cast<int>(-xAxis.y * kScale));
 
-    // 绘制Y轴（绿色）
     SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 255);
     SDL_RenderLine(renderer_,
                    static_cast<int>(p.x * kScale), static_cast<int>(-p.y * kScale),
                    static_cast<int>(yAxis.x * kScale), static_cast<int>(-yAxis.y * kScale));
+
+    LogCat::d("[DrawTransform] origin=(", p.x, ",", p.y, ") xAxis=(", xAxis.x, ",", xAxis.y, ") yAxis=(", yAxis.x, ",",
+              yAxis.y, ")");
 }
 
 /**
@@ -272,8 +281,9 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
     SetSDLColor(renderer_, color);
     const int px = static_cast<int>(p.x * kScale);
     const int py = static_cast<int>(-p.y * kScale);
-    const SDL_FRect rect = {(float)(px - size / 2), (float)(py - size / 2), size, size};
+    const SDL_FRect rect = {(px - size / 2), (py - size / 2), size, size};
     SDL_RenderRect(renderer_, &rect);
+    LogCat::d("[DrawPoint] pos=(", p.x, ",", p.y, ") size=", size);
 }
 
 /**

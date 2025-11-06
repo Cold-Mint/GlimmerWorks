@@ -10,34 +10,34 @@
 
 void glimmer::PlayerControlSystem::Update(const float delta)
 {
-    const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
-    for (auto& entity : entities)
-    {
-        if (auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID()))
-        {
-            if (auto position = worldContext_->GetComponent<WorldPositionComponent>(entity->GetID()))
-            {
-                auto positionVec = position->GetPosition();
-                if (control->moveUp)
-                {
-                    positionVec.y += delta * 50;
-                }
-                if (control->moveDown)
-                {
-                    positionVec.y -= delta * 50;
-                }
-                if (control->moveLeft)
-                {
-                    positionVec.x -= delta * 50;
-                }
-                if (control->moveRight)
-                {
-                    positionVec.x += delta * 50;
-                }
-                position->SetPosition(positionVec);
-            }
-        }
-    }
+    // const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
+    // for (auto& entity : entities)
+    // {
+    //     if (auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID()))
+    //     {
+    //         if (auto position = worldContext_->GetComponent<Transform2DComponent>(entity->GetID()))
+    //         {
+    //             auto positionVec = position->GetPosition();
+    //             if (control->moveUp)
+    //             {
+    //                 positionVec.y += delta * 50;
+    //             }
+    //             if (control->moveDown)
+    //             {
+    //                 positionVec.y -= delta * 50;
+    //             }
+    //             if (control->moveLeft)
+    //             {
+    //                 positionVec.x -= delta * 50;
+    //             }
+    //             if (control->moveRight)
+    //             {
+    //                 positionVec.x += delta * 50;
+    //             }
+    //             position->SetPosition(positionVec);
+    //         }
+    //     }
+    // }
 }
 
 std::string glimmer::PlayerControlSystem::GetName()

@@ -27,7 +27,7 @@
 namespace glimmer
 {
     class TileLayerComponent;
-    class WorldPositionComponent;
+    class Transform2DComponent;
     class CameraComponent;
     class GameSystem;
     class GameEntity;
@@ -80,7 +80,7 @@ namespace glimmer
          * Camera coordinate component
          * 相机坐标组件
          */
-        WorldPositionComponent* cameraPosComponent_{};
+        Transform2DComponent* cameraPosComponent_{};
 
         /**
          * Height map(Divided by blocks)
@@ -111,6 +111,12 @@ namespace glimmer
         void RemoveComponentInternal(GameEntity::ID id, GameComponent* comp);
 
     public:
+        ~WorldContext()
+        {
+            delete heightMapNoise;
+            heightMapNoise = nullptr;
+        }
+
         Saves* GetSaves() const;
 
         template <typename TComponent, typename... Args>
@@ -207,7 +213,7 @@ namespace glimmer
          * 设置相机位置组件
          * @param worldPositionComponent
          */
-        void SetCameraPosition(WorldPositionComponent* worldPositionComponent);
+        void SetCameraPosition(Transform2DComponent* worldPositionComponent);
 
 
         /**
@@ -221,7 +227,7 @@ namespace glimmer
         CameraComponent* GetCameraComponent() const;
 
 
-        WorldPositionComponent* GetCameraPosition() const;
+        Transform2DComponent* GetCameraPosition() const;
 
         /**
          * Create an entity。

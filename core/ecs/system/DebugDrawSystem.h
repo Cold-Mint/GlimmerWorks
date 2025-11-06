@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_DEBUGDRAWSYSTEM_H
 #include "../GameSystem.h"
 #include "../component/DebugDrawComponent.h"
-#include "../component/WorldPositionComponent.h"
+#include "../component/Transform2DComponent.h"
 
 
 namespace glimmer
@@ -18,7 +18,7 @@ namespace glimmer
             : GameSystem(appContext, worldContext)
         {
             RequireComponent<DebugDrawComponent>();
-            RequireComponent<WorldPositionComponent>();
+            RequireComponent<Transform2DComponent>();
         }
 
         void Render(SDL_Renderer* renderer) override;

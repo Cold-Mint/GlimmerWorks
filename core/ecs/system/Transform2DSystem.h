@@ -5,17 +5,17 @@
 #ifndef GLIMMERWORKS_WORLDPOSITIONSYSTEM_H
 #define GLIMMERWORKS_WORLDPOSITIONSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/WorldPositionComponent.h"
+#include "../component/Transform2DComponent.h"
 
 namespace glimmer
 {
-    class WorldPositionSystem final : public GameSystem
+    class Transform2DSystem final : public GameSystem
     {
     public:
-        explicit WorldPositionSystem(AppContext* appContext, WorldContext* worldContext)
+        explicit Transform2DSystem(AppContext* appContext, WorldContext* worldContext)
             : GameSystem(appContext, worldContext)
         {
-            RequireComponent<WorldPositionComponent>();
+            RequireComponent<Transform2DComponent>();
         }
 
         std::string GetName() override;

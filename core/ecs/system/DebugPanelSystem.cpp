@@ -6,7 +6,7 @@
 
 #include "../../Constants.h"
 #include "../component/PlayerControlComponent.h"
-#include "../component/WorldPositionComponent.h"
+#include "../component/Transform2DComponent.h"
 #include "../component/TileLayerComponent.h"
 #include "../../world/WorldContext.h"
 
@@ -30,13 +30,13 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         constexpr float lineSpacing = 20.0f;
         SDL_Color color = {255, 255, 180, 255};
         auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-        auto position = worldContext_->GetComponent<WorldPositionComponent>(entity->GetID());
+        auto position = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
         if (!control || !position) continue;
 
         const WorldVector2D playerPos = position->GetPosition();
 
         // 先统计总行数（玩家 + 所有 TileLayer）
-        auto tileLayers = worldContext_->GetEntitiesWithComponents<TileLayerComponent, WorldPositionComponent>();
+        auto tileLayers = worldContext_->GetEntitiesWithComponents<TileLayerComponent, Transform2DComponent>();
         float totalLines = 1.0F + static_cast<float>(tileLayers.size());
         float totalTextHeight = totalLines * lineSpacing;
 
@@ -70,7 +70,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         for (auto& tileEntity : tileLayers)
         {
             auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(tileEntity->GetID());
-            auto layerPos = worldContext_->GetComponent<WorldPositionComponent>(tileEntity->GetID());
+            auto layerPos = worldContext_->GetComponent<Transform2DComponent>(tileEntity->GetID());
             if (!tileLayer || !layerPos) continue;
 
             TileVector2D tileCoord = tileLayer->WorldToTile(layerPos->GetPosition(), playerPos);

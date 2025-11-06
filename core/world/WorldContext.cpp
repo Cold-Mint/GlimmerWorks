@@ -9,11 +9,12 @@
 #include "../Constants.h"
 #include "../ecs/component/DebugDrawComponent.h"
 #include "../ecs/system/GameStartSystem.h"
-#include "../ecs/system/WorldPositionSystem.h"
+#include "../ecs/system/Transform2DSystem.h"
 #include "../ecs/system/CameraSystem.h"
 #include "../ecs/system/ChunkSystem.h"
 #include "../ecs/system/DebugDrawSystem.h"
 #include "../ecs/system/DebugPanelSystem.h"
+#include "../ecs/system/PhysicsSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
 #include "../ecs/system/TileLayerSystem.h"
 #include "../log/LogCat.h"
@@ -296,17 +297,18 @@ void glimmer::WorldContext::InitSystem(AppContext* appContext)
 {
     allowRegisterSystem = true;
     RegisterSystem(std::make_unique<GameStartSystem>(appContext, this));
-    RegisterSystem(std::make_unique<WorldPositionSystem>(appContext, this));
+    RegisterSystem(std::make_unique<Transform2DSystem>(appContext, this));
     RegisterSystem(std::make_unique<CameraSystem>(appContext, this));
     RegisterSystem(std::make_unique<PlayerControlSystem>(appContext, this));
     RegisterSystem(std::make_unique<TileLayerSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugPanelSystem>(appContext, this));
     RegisterSystem(std::make_unique<ChunkSystem>(appContext, this));
+    RegisterSystem(std::make_unique<PhysicsSystem>(appContext, this));
     allowRegisterSystem = false;
 }
 
-void glimmer::WorldContext::SetCameraPosition(WorldPositionComponent* worldPositionComponent)
+void glimmer::WorldContext::SetCameraPosition(Transform2DComponent* worldPositionComponent)
 {
     cameraPosComponent_ = worldPositionComponent;
 }
@@ -321,7 +323,7 @@ glimmer::CameraComponent* glimmer::WorldContext::GetCameraComponent() const
     return cameraComponent_;
 }
 
-glimmer::WorldPositionComponent* glimmer::WorldContext::GetCameraPosition() const
+glimmer::Transform2DComponent* glimmer::WorldContext::GetCameraPosition() const
 {
     return cameraPosComponent_;
 }

@@ -23,12 +23,12 @@ void glimmer::ChunkSystem::Update(float delta)
     viewportRect.w += preloadMargin_ * 2 * chunkWorldSize;
     viewportRect.h += preloadMargin_ * 2 * chunkWorldSize;
     const auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<
-        WorldPositionComponent, TileLayerComponent>();
+        Transform2DComponent, TileLayerComponent>();
 
     for (auto layerEntity : tileLayerEntities)
     {
         auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(layerEntity->GetID());
-        auto worldPosition = worldContext_->GetComponent<WorldPositionComponent>(layerEntity->GetID());
+        auto worldPosition = worldContext_->GetComponent<Transform2DComponent>(layerEntity->GetID());
         if (tileLayer == nullptr || worldPosition == nullptr)
         {
             continue;

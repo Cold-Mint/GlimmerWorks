@@ -13,14 +13,14 @@ namespace glimmer
      * The world coordinate component is used to record the absolute position of objects in the 2D game world
      * 世界坐标组件，用于记录物体在2D游戏世界中的绝对位置
      */
-    class WorldPositionComponent final : public GameComponent
+    class Transform2DComponent final : public GameComponent
     {
         WorldVector2D position_;
 
     public:
-        WorldPositionComponent() = default;
+        Transform2DComponent() = default;
 
-        explicit WorldPositionComponent(const WorldVector2D position) : position_(position)
+        explicit Transform2DComponent(const WorldVector2D position) : position_(position)
         {
         }
 

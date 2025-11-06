@@ -22,13 +22,13 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    auto entitys = worldContext_->GetEntitiesWithComponents<DebugDrawComponent, WorldPositionComponent>();
+    auto entitys = worldContext_->GetEntitiesWithComponents<DebugDrawComponent, Transform2DComponent>();
     for (auto entity : entitys)
     {
         auto debugDrawComponent = worldContext_->GetComponent<DebugDrawComponent>(entity->GetID());
         if (debugDrawComponent != nullptr)
         {
-            auto worldPositionComponent = worldContext_->GetComponent<WorldPositionComponent>(entity->GetID());
+            auto worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
             if (worldPositionComponent != nullptr)
             {
                 auto cameraVector2d = cameraComponent->GetViewPortPosition(

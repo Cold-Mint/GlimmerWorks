@@ -8,7 +8,7 @@
 #include "../component/CameraComponent.h"
 #include "../component/PlayerControlComponent.h"
 #include "../component/TileLayerComponent.h"
-#include "../component/WorldPositionComponent.h"
+#include "../component/Transform2DComponent.h"
 
 namespace glimmer
 {
@@ -21,7 +21,7 @@ namespace glimmer
         ChunkSystem(AppContext* appContext, WorldContext* worldContext)
             : GameSystem(appContext, worldContext)
         {
-            RequireComponent<WorldPositionComponent>();
+            RequireComponent<Transform2DComponent>();
             RequireComponent<TileLayerComponent>();
             RequireComponent<CameraComponent>();
             RequireComponent<PlayerControlComponent>();

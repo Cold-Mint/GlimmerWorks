@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_CAMERASYSTEM_H
 #include "../GameSystem.h"
 #include "../component/CameraComponent.h"
-#include "../component/WorldPositionComponent.h"
+#include "../component/Transform2DComponent.h"
 
 namespace glimmer
 {
@@ -21,7 +21,7 @@ namespace glimmer
             : GameSystem(appContext, worldContext)
         {
             RequireComponent<CameraComponent>();
-            RequireComponent<WorldPositionComponent>();
+            RequireComponent<Transform2DComponent>();
         }
 
         void Render(SDL_Renderer* renderer) override;

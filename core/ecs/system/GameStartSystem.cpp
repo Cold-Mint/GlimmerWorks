@@ -9,17 +9,14 @@
 #include "../../Constants.h"
 #include "../../log/LogCat.h"
 #include "../component/CameraComponent.h"
-#include "../component/WorldPositionComponent.h"
+#include "../component/Transform2DComponent.h"
 #include "../component/DebugDrawComponent.h"
 #include "../component/PlayerControlComponent.h"
 #include "../component/TileLayerComponent.h"
+#include "../component/RigidBody2DComponent.h"
 #include "../../world/WorldContext.h"
 
 
-namespace glimmer
-{
-    class DebugDrawComponent;
-}
 
 void glimmer::GameStartSystem::Update(float delta)
 {
@@ -29,7 +26,7 @@ void glimmer::GameStartSystem::Update(float delta)
     // 添加玩家控制组件
     auto playerControl = worldContext_->AddComponent<PlayerControlComponent>(playerEntity);
     playerControl->enableWASD = true;
-    auto worldPositionComponent = worldContext_->AddComponent<WorldPositionComponent>(playerEntity);
+    auto worldPositionComponent = worldContext_->AddComponent<Transform2DComponent>(playerEntity);
     worldPositionComponent->SetPosition(Vector2D(0, 256 * CHUNK_SIZE));
     auto debugDrawComponent = worldContext_->AddComponent<DebugDrawComponent>(playerEntity);
     debugDrawComponent->SetSize(Vector2D(static_cast<float>(TILE_SIZE), static_cast<float>(TILE_SIZE)));
@@ -38,9 +35,10 @@ void glimmer::GameStartSystem::Update(float delta)
     cameraComponent->SetSpeed(1.0F);
     worldContext_->SetCameraComponent(cameraComponent);
     worldContext_->SetCameraPosition(worldPositionComponent);
+    auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);
 
     auto tileLayer = worldContext_->CreateEntity();
-    auto t1 = worldContext_->AddComponent<WorldPositionComponent>(tileLayer);
+    auto t1 = worldContext_->AddComponent<Transform2DComponent>(tileLayer);
     t1->SetPosition(Vector2D(0, 0));
     worldContext_->AddComponent<TileLayerComponent>(tileLayer);
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");

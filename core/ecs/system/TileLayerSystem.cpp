@@ -7,7 +7,7 @@
 #include "../../Constants.h"
 #include "../component/CameraComponent.h"
 #include "../component/TileLayerComponent.h"
-#include "../component/WorldPositionComponent.h"
+#include "../component/Transform2DComponent.h"
 #include "../../world/WorldContext.h"
 
 void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
@@ -22,13 +22,13 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    auto entitys = worldContext_->GetEntitiesWithComponents<TileLayerComponent, WorldPositionComponent>();
+    auto entitys = worldContext_->GetEntitiesWithComponents<TileLayerComponent, Transform2DComponent>();
     for (auto entity : entitys)
     {
         auto tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
         if (tileLayerComponent != nullptr)
         {
-            auto worldPositionComponent = worldContext_->GetComponent<WorldPositionComponent>(entity->GetID());
+            auto worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
             if (worldPositionComponent != nullptr)
             {
                 auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());

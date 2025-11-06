@@ -8,7 +8,7 @@
 #include "../component/PlayerControlComponent.h"
 #include <SDL3/SDL_events.h>
 
-#include "../component/WorldPositionComponent.h"
+#include "../component/Transform2DComponent.h"
 
 namespace glimmer
 {
@@ -23,7 +23,7 @@ namespace glimmer
             : GameSystem(appContext, worldContext)
         {
             RequireComponent<PlayerControlComponent>();
-            RequireComponent<WorldPositionComponent>();
+            RequireComponent<Transform2DComponent>();
         }
 
         void Update(float delta) override;

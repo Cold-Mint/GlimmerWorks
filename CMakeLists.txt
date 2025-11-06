@@ -87,6 +87,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fastNoiseLite)
 
+FetchContent_Declare(
+        box2d
+        GIT_REPOSITORY "https://github.com/erincatto/box2d.git"
+        GIT_TAG "v3.1.1"
+        GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(box2d)
+
 add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_widgets.cpp"
@@ -174,10 +182,10 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/ecs/GameComponent.h
         core/ecs/GameSystem.cpp
         core/ecs/GameSystem.h
-        core/ecs/system/WorldPositionSystem.cpp
-        core/ecs/system/WorldPositionSystem.h
-        core/ecs/component/WorldPositionComponent.cpp
-        core/ecs/component/WorldPositionComponent.h
+        core/ecs/system/Transform2DSystem.cpp
+        core/ecs/system/Transform2DSystem.h
+        core/ecs/component/Transform2DComponent.cpp
+        core/ecs/component/Transform2DComponent.h
         core/ecs/system/GameStartSystem.cpp
         core/ecs/system/GameStartSystem.h
         core/ecs/system/CameraSystem.cpp
@@ -202,6 +210,10 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/ecs/system/ChunkSystem.h
         core/world/Chunk.cpp
         core/world/Chunk.h
+        core/ecs/component/RigidBody2DComponent.cpp
+        core/ecs/component/RigidBody2DComponent.h
+        core/ecs/system/PhysicsSystem.cpp
+        core/ecs/system/PhysicsSystem.h
 )
 
 #Define version information
@@ -215,7 +227,7 @@ target_compile_definitions(GlimmerWorks PRIVATE
         CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
 )
 
-target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf)
+target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d)
 
 target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/json/include"

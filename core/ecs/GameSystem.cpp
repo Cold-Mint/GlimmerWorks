@@ -63,7 +63,7 @@ void glimmer::GameSystem::Update(float delta)
 
 uint8_t glimmer::GameSystem::GetRenderOrder()
 {
-    return 0;
+    return RENDER_ORDER_DEBUG_BOX2D;
 }
 
 void glimmer::GameSystem::Render(SDL_Renderer* renderer)

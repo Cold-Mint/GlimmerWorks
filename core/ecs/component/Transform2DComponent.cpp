@@ -9,6 +9,16 @@ void glimmer::Transform2DComponent::SetPosition(WorldVector2D newPosition)
     position_ = newPosition;
 }
 
+void glimmer::Transform2DComponent::SetRotation(const float newRotation)
+{
+    rotation_ = newRotation;
+}
+
+float glimmer::Transform2DComponent::GetRotation() const
+{
+    return rotation_;
+}
+
 void glimmer::Transform2DComponent::Translate(const WorldVector2D deltaPosition)
 {
     position_ += deltaPosition;

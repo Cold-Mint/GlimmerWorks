@@ -4,7 +4,6 @@
 
 #ifndef GLIMMERWORKS_TILE_H
 #define GLIMMERWORKS_TILE_H
-#include "../math/Vector2DI.h"
 #include "SDL3/SDL_pixels.h"
 
 namespace glimmer

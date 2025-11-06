@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "FastNoiseLite.h"
-#include "../math/Vector2D.h"
 #include "../ecs/GameEntity.h"
 #include "../ecs/GameSystem.h"
 #include "../log/LogCat.h"
@@ -23,6 +22,8 @@
 #include "../math/Vector2DI.h"
 #include "../scene/AppContext.h"
 #include "../utils/JsonUtils.h"
+#include "box2d/box2d.h"
+#include "box2d/id.h"
 
 namespace glimmer
 {
@@ -65,12 +66,6 @@ namespace glimmer
 
 
         /**
-         * The player's position
-         * 玩家的位置
-         */
-        WorldVector2D playerPosition;
-
-        /**
          * camera Component
          * 相机组件
          */
@@ -104,7 +99,7 @@ namespace glimmer
         */
         Saves* saves;
 
-
+        b2WorldId worldId_ = b2_nullWorldId;
         std::vector<std::unique_ptr<GameEntity>> entities;
         std::unordered_map<GameEntity::ID, GameEntity*> entityMap;
 
@@ -115,6 +110,8 @@ namespace glimmer
         {
             delete heightMapNoise;
             heightMapNoise = nullptr;
+            b2DestroyWorld(worldId_);
+            worldId_ = b2_nullWorldId;
         }
 
         Saves* GetSaves() const;
@@ -261,16 +258,24 @@ namespace glimmer
         std::vector<GameEntity*> GetEntitiesWithComponents();
 
 
-        explicit WorldContext(AppContext* appContext, const int seed, Vector2D playerPosition, Saves* saves) :
+        explicit WorldContext(AppContext* appContext, const int seed, Saves* saves) :
             seed(seed),
-            playerPosition(playerPosition), saves(saves)
+            saves(saves)
         {
             heightMapNoise = new FastNoiseLite();
             heightMapNoise->SetSeed(seed);
             heightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            b2WorldDef worldDef = b2DefaultWorldDef();
+            worldDef.gravity = b2Vec2(0.0F, -10.0F);
+            worldId_ = b2CreateWorld(&worldDef);
             InitSystem(appContext);
+            //todo：绘制出Box2d的轮廓和碰撞体
+
         }
+
+        [[nodiscard]] b2WorldId GetWorldId() const;
     };
+
 
     namespace detail
     {

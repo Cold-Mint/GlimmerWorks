@@ -214,6 +214,8 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/ecs/component/RigidBody2DComponent.h
         core/ecs/system/PhysicsSystem.cpp
         core/ecs/system/PhysicsSystem.h
+        core/ecs/system/DebugDrawBox2dSystem.cpp
+        core/ecs/system/DebugDrawBox2dSystem.h
 )
 
 #Define version information

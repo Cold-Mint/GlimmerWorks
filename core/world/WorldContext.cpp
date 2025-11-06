@@ -12,13 +12,13 @@
 #include "../ecs/system/Transform2DSystem.h"
 #include "../ecs/system/CameraSystem.h"
 #include "../ecs/system/ChunkSystem.h"
+#include "../ecs/system/DebugDrawBox2dSystem.h"
 #include "../ecs/system/DebugDrawSystem.h"
 #include "../ecs/system/DebugPanelSystem.h"
 #include "../ecs/system/PhysicsSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
 #include "../ecs/system/TileLayerSystem.h"
 #include "../log/LogCat.h"
-#include "../saves/Saves.h"
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent* comp)
 {
@@ -106,7 +106,7 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent* tileLayerComponent, 
 
     // 获取该区块（以 position.x 对齐）的高度数组（长度 CHUNK_SIZE）
     // position.x 是区块左上角的 world tile x（已对齐到 CHUNK_SIZE）
-    std::vector<int> heights = GetHeightMap(position.x);
+    const std::vector<int> heights = GetHeightMap(position.x);
 
     for (int localY = 0; localY < CHUNK_SIZE; ++localY)
     {
@@ -119,7 +119,7 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent* tileLayerComponent, 
 
             // 从 heights 中获取该列（world X 对应的高度）
             // heights 下标 localX 对应 worldTilePos.x == position.x + localX
-            int height = heights[localX];
+            const int height = heights[localX];
 
             int worldY = worldTilePos.y; // 世界 Y 坐标
 
@@ -225,17 +225,18 @@ void glimmer::WorldContext::Render(SDL_Renderer* renderer) const
 
     //Sort by rendering order (lower layers at the bottom, upper layers at the top)
     //按渲染顺序排序（低层在底，高层在上）
-    std::sort(systemsToRender.begin(), systemsToRender.end(),
-              [](GameSystem* a, GameSystem* b)
-              {
-                  return a->GetRenderOrder() < b->GetRenderOrder();
-              });
+    std::ranges::sort(systemsToRender,
+                      [](GameSystem* a, GameSystem* b)
+                      {
+                          return a->GetRenderOrder() < b->GetRenderOrder();
+                      });
 
     for (GameSystem* system : systemsToRender)
     {
         system->Render(renderer);
     }
 }
+
 
 void glimmer::WorldContext::OnFrameStart()
 {
@@ -301,10 +302,13 @@ void glimmer::WorldContext::InitSystem(AppContext* appContext)
     RegisterSystem(std::make_unique<CameraSystem>(appContext, this));
     RegisterSystem(std::make_unique<PlayerControlSystem>(appContext, this));
     RegisterSystem(std::make_unique<TileLayerSystem>(appContext, this));
-    RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
-    RegisterSystem(std::make_unique<DebugPanelSystem>(appContext, this));
     RegisterSystem(std::make_unique<ChunkSystem>(appContext, this));
     RegisterSystem(std::make_unique<PhysicsSystem>(appContext, this));
+#if  !defined(NDEBUG)
+    RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
+    RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(appContext, this));
+    RegisterSystem(std::make_unique<DebugPanelSystem>(appContext, this));
+#endif
     allowRegisterSystem = false;
 }
 
@@ -403,4 +407,9 @@ void glimmer::WorldContext::RemoveEntity(GameEntity::ID id)
     }
 
     LogCat::i("Entity ID ", id, " successfully removed. Remaining entities = ", entities.size());
+}
+
+b2WorldId glimmer::WorldContext::GetWorldId() const
+{
+    return worldId_;
 }

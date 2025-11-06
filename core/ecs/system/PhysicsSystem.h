@@ -13,8 +13,8 @@ namespace glimmer
 {
     class PhysicsSystem : public GameSystem
     {
-        b2WorldId worldId_ = b2_nullWorldId;
-        void OnActivationChanged(bool activeStatus) override;
+        const float fixedTimeStep_ = 0.016F;
+        float accumulator_ = 0.0F;
 
     public:
         PhysicsSystem(AppContext* appContext, WorldContext* worldContext)

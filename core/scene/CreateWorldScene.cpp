@@ -52,8 +52,8 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.gameVersionName = GAME_VERSION_STRING;
     manifest.gameVersionNumber = GAME_VERSION_NUMBER;
     saves.Create(manifest);
-    auto world_context = new WorldContext(appContext, seed_value, Vector2D(0, 0), &saves);
-    appContext->sceneManager->ChangeScene(new WorldScene(appContext, world_context));
+    const auto worldContext = new WorldContext(appContext, seed_value, &saves);
+    appContext->sceneManager->ChangeScene(new WorldScene(appContext, worldContext));
 }
 
 int glimmer::CreateWorldScene::RandomSeed()

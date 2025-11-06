@@ -57,6 +57,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
         LogCat::e("Invalid window size: w=", w, ", h=", h);
         return;
     }
+#if  !defined(NDEBUG)
     if (appContext->debugScreenCoords)
     {
         //Draw the SDL screen coordinates
@@ -119,6 +120,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
             SDL_DestroyTexture(texture);
         }
     }
+#endif
     // Draw the fps information (top) and window information (bottom)
     // 绘制 fps 信息（在上）和窗口信息（在下）
     if (appContext->ttfFont)

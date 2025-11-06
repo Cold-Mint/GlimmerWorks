@@ -17,7 +17,6 @@
 #include "../../world/WorldContext.h"
 
 
-
 void glimmer::GameStartSystem::Update(float delta)
 {
     LogCat::d("Game Start System init");
@@ -35,8 +34,10 @@ void glimmer::GameStartSystem::Update(float delta)
     cameraComponent->SetSpeed(1.0F);
     worldContext_->SetCameraComponent(cameraComponent);
     worldContext_->SetCameraPosition(worldPositionComponent);
-    auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);
-
+    const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);
+    rigidBody2DComponent->SetBodyType(b2_dynamicBody);
+    rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(), {0, 256 * CHUNK_SIZE},
+                                     b2MakeBox(TILE_SIZE, TILE_SIZE));
     auto tileLayer = worldContext_->CreateEntity();
     auto t1 = worldContext_->AddComponent<Transform2DComponent>(tileLayer);
     t1->SetPosition(Vector2D(0, 0));

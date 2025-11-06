@@ -13,7 +13,8 @@ namespace glimmer
     class RigidBody2DComponent : public GameComponent
     {
         b2BodyId bodyId_ = b2_nullBodyId;
-        bool init = false;
+        bool ready_ = false;
+        b2BodyType bodyType_ = b2_staticBody;
 
     public:
         /**
@@ -22,13 +23,54 @@ namespace glimmer
          * @param worldId worldId 世界ID
          * @param worldVector2d worldVector2d 刚体位置
          */
-        void CreateBody(b2WorldId worldId, WorldVector2D worldVector2d);
+        void CreateBody(b2WorldId worldId, WorldVector2D worldVector2d, const b2Polygon& bodyPolygon);
         /**
          * GetBodyId
          * 获取刚体ID
          * @return 刚体ID
          */
         [[nodiscard]] b2BodyId GetBodyId() const;
+
+        /**
+         * Is the body ready
+         * 刚体是否就绪
+         * @return
+         */
+        [[nodiscard]] bool IsReady() const;
+
+        /**
+         * SetBodyType
+         * 设置刚体类型
+         * @param bodyType 刚体类型
+         */
+        void SetBodyType(b2BodyType bodyType);
+
+        /**
+         * Check if the body is a dynamic body.
+         * 动态刚体可以被物理力影响，位置会根据力自动更新。
+         * Dynamic bodies are affected by forces and their positions are automatically updated by the physics engine.
+         * 动态物体受到力的影响，它们的位置由物理引擎自动更新。
+         * @return true if the body is dynamic
+         */
+        [[nodiscard]] bool IsDynamicBody() const;
+
+        /**
+         * Check if the body is a kinematic body.
+         * 运动学刚体不受力影响，但可以通过设置速度或位置移动。
+         * Kinematic bodies are not affected by forces but can be moved by setting velocity or position.
+         * 运动体不受力的影响，但可以通过设定速度或位置来移动。
+         * @return true if the body is kinematic
+         */
+        [[nodiscard]] bool IsKinematicBody() const;
+
+        /**
+         * Check if the body is a static body.
+         * 静态刚体不受力影响，位置只能手动设置，通常用于地面或墙壁。
+         * Static bodies are unaffected by forces and can only be moved manually, typically used for ground or walls.
+         * 静态物体不受外力影响，只能手动移动，通常用于地面或墙壁。
+         * @return true if the body is static
+         */
+        [[nodiscard]] bool IsStaticBody() const;
     };
 }
 

@@ -16,6 +16,7 @@ namespace glimmer
     class Transform2DComponent final : public GameComponent
     {
         WorldVector2D position_;
+        float rotation_ = 0.0F;
 
     public:
         Transform2DComponent() = default;
@@ -29,6 +30,18 @@ namespace glimmer
          * @param newPosition newPosition 新的坐标
          */
         void SetPosition(WorldVector2D newPosition);
+
+        /**
+         * SetRotation 设置旋转角度
+         * @param newRotation newRotation 新的旋转角度
+         */
+        void SetRotation(float newRotation);
+
+        /**
+         * GetRotation 获取旋转角度
+         * @return 旋转角度
+         */
+        [[nodiscard]] float GetRotation() const;
 
         /**
          * Translate

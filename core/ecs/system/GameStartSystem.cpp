@@ -22,12 +22,21 @@ void glimmer::GameStartSystem::Update(float delta)
 {
     LogCat::d("Game Start System init");
     LogCat::i("Grid entity created with GridComponent");
+
+
+    auto tileLayerEntity = worldContext_->CreateEntity();
+    auto transform2DComponent = worldContext_->AddComponent<Transform2DComponent>(tileLayerEntity);
+    transform2DComponent->SetPosition(Vector2D(0, 0));
+    worldContext_->AddComponent<TileLayerComponent>(tileLayerEntity);
+
+
     auto playerEntity = worldContext_->CreateEntity();
     // 添加玩家控制组件
     auto playerControl = worldContext_->AddComponent<PlayerControlComponent>(playerEntity);
     playerControl->enableWASD = true;
     auto worldPositionComponent = worldContext_->AddComponent<Transform2DComponent>(playerEntity);
-    worldPositionComponent->SetPosition(Vector2D(0, 256 * CHUNK_SIZE));
+    worldPositionComponent->SetPosition(
+        TileLayerComponent::TileToWorld(transform2DComponent->GetPosition(), TileVector2D(0, 100)));
     auto debugDrawComponent = worldContext_->AddComponent<DebugDrawComponent>(playerEntity);
     debugDrawComponent->SetSize(Vector2D(static_cast<float>(TILE_SIZE), static_cast<float>(TILE_SIZE)));
     debugDrawComponent->SetColor(SDL_Color{255, 0, 0, 255});
@@ -37,12 +46,10 @@ void glimmer::GameStartSystem::Update(float delta)
     worldContext_->SetCameraPosition(worldPositionComponent);
     const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);
     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
-    rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(), {0, 256 * CHUNK_SIZE},
+
+    rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
+                                     Box2DUtils::ToMeters(worldPositionComponent->GetPosition()),
                                      b2MakeBox(Box2DUtils::ToMeters(TILE_SIZE), Box2DUtils::ToMeters(TILE_SIZE)));
-    auto tileLayer = worldContext_->CreateEntity();
-    auto t1 = worldContext_->AddComponent<Transform2DComponent>(tileLayer);
-    t1->SetPosition(Vector2D(0, 0));
-    worldContext_->AddComponent<TileLayerComponent>(tileLayer);
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

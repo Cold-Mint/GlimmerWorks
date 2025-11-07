@@ -75,7 +75,7 @@ namespace glimmer
          * Camera coordinate component
          * 相机坐标组件
          */
-        Transform2DComponent* cameraPosComponent_{};
+        Transform2DComponent* cameraTransform2D_{};
 
         /**
          * Height map(Divided by blocks)
@@ -224,7 +224,7 @@ namespace glimmer
         CameraComponent* GetCameraComponent() const;
 
 
-        Transform2DComponent* GetCameraPosition() const;
+        Transform2DComponent* GetCameraTransform2D() const;
 
         /**
          * Create an entity。

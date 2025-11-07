@@ -314,7 +314,7 @@ void glimmer::WorldContext::InitSystem(AppContext* appContext)
 
 void glimmer::WorldContext::SetCameraPosition(Transform2DComponent* worldPositionComponent)
 {
-    cameraPosComponent_ = worldPositionComponent;
+    cameraTransform2D_ = worldPositionComponent;
 }
 
 void glimmer::WorldContext::SetCameraComponent(CameraComponent* cameraComponent)
@@ -327,9 +327,9 @@ glimmer::CameraComponent* glimmer::WorldContext::GetCameraComponent() const
     return cameraComponent_;
 }
 
-glimmer::Transform2DComponent* glimmer::WorldContext::GetCameraPosition() const
+glimmer::Transform2DComponent* glimmer::WorldContext::GetCameraTransform2D() const
 {
-    return cameraPosComponent_;
+    return cameraTransform2D_;
 }
 
 

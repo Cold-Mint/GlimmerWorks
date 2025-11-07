@@ -86,49 +86,56 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     b2Transform transform, const b2Vec2* vertices, int vertexCount,
     float radius, b2HexColor color, void* context)
 {
-    if (!renderer_) return;
-    SetSDLColor(renderer_, color, 150);
-
-    auto worldContext = static_cast<WorldContext*>(context);
-    if (worldContext == nullptr)
+    if (context == nullptr)
     {
+        LogCat::w("DrawSolidPolygonFcn context= nullptr");
         return;
     }
-    const auto cameraPosition = worldContext->GetCameraPosition();
-    if (cameraPosition == nullptr)
+    auto* worldContext = static_cast<WorldContext*>(context);
+    Transform2DComponent* cameraTransform2D = worldContext->GetCameraTransform2D();
+    CameraComponent* cameraComponent = worldContext->GetCameraComponent();
+    if (cameraTransform2D == nullptr || cameraComponent == nullptr)
     {
+        LogCat::w("DrawSolidPolygonFcn cameraPosition or cameraComponent is nullptr");
         return;
     }
-
-    const auto cameraComponent = worldContext->GetCameraComponent();
-    if (cameraComponent == nullptr)
+    if (vertexCount != 4)
     {
+        LogCat::w("It's not a solid rectangle");
         return;
     }
-
-    for (int i = 1; i < vertexCount - 1; ++i)
+    if (renderer_ == nullptr)
     {
-        const b2Vec2& v0 = vertices[0];
-        const WorldVector2D WorldVector1 = cameraComponent->GetViewPortPosition(
-            cameraPosition->GetPosition(), Box2DUtils::ToPixels(v0 + transform.p));
-        const b2Vec2& v1 = vertices[i];
-        const WorldVector2D WorldVector2 = cameraComponent->GetViewPortPosition(
-            cameraPosition->GetPosition(), Box2DUtils::ToPixels(v1 + transform.p));
-        const b2Vec2& v2 = vertices[i + 1];
-        const WorldVector2D WorldVector3 = cameraComponent->GetViewPortPosition(
-            cameraPosition->GetPosition(), Box2DUtils::ToPixels(v2 + transform.p));
-
-        SDL_RenderLine(renderer_,
-                       WorldVector1.x, -WorldVector1.y,
-                       WorldVector2.x, -WorldVector2.y);
-        SDL_RenderLine(renderer_,
-                       WorldVector2.x, -WorldVector2.y,
-                       WorldVector3.x, -WorldVector3.y);
-        SDL_RenderLine(renderer_,
-                       WorldVector3.x, -WorldVector3.y,
-                       WorldVector1.x, -WorldVector1.y);
+        LogCat::w("DrawSolidPolygonFcn renderer_=nullptr");
+        return;
     }
+    for (int i = 0; i < vertexCount; ++i)
+    {
+        LogCat::d("  Vertex ", i, ": (", vertices[i].x, ",", vertices[i].y, ")");
+    }
+    //Convert meters to pixels
+    //将米转换为像素
+    const WorldVector2D upperLeftVector1 = Box2DUtils::ToPixels(transform.p + vertices[0]);
+    const WorldVector2D lowerRightVector4 = Box2DUtils::ToPixels(transform.p + vertices[2]);
+    //转换为视口坐标
+    //Convert to viewport coordinates
+    const WorldVector2D upperLeftViewportVector1 = cameraComponent->GetViewPortPosition(
+        cameraTransform2D->GetPosition(), upperLeftVector1);
+    const WorldVector2D lowerRightViewportVector4 = cameraComponent->GetViewPortPosition(
+        cameraTransform2D->GetPosition(), lowerRightVector4);
+    SDL_Color oldColor = {255, 255, 255, 255};
+    SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+    SDL_Color blue = {0, 0, 255, 255};
+    SDL_SetRenderDrawColor(renderer_, blue.r, blue.g, blue.b, blue.a);
+    SDL_FRect renderQuad;
+    renderQuad.w = lowerRightViewportVector4.x - upperLeftViewportVector1.x;
+    renderQuad.h = lowerRightViewportVector4.y - upperLeftViewportVector1.y;
+    renderQuad.x = upperLeftViewportVector1.x;
+    renderQuad.y = upperLeftViewportVector1.y;
+    SDL_RenderFillRect(renderer_, &renderQuad);
+    SDL_SetRenderDrawColor(renderer_, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
 }
+
 
 /**
  * Draw a Circle

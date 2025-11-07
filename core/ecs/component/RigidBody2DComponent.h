@@ -21,9 +21,10 @@ namespace glimmer
          * Create Body
          * 创建刚体
          * @param worldId worldId 世界ID
-         * @param worldVector2d worldVector2d 刚体位置
+         * @param b2Vec2 b2Vec2 刚体位置(单位：米)
+         * @param bodyPolygon bodyPolygon 刚体形状
          */
-        void CreateBody(b2WorldId worldId, WorldVector2D worldVector2d, const b2Polygon& bodyPolygon);
+        void CreateBody(b2WorldId worldId, b2Vec2 b2Vec2, const b2Polygon& bodyPolygon);
         /**
          * GetBodyId
          * 获取刚体ID

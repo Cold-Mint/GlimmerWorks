@@ -3,6 +3,8 @@
 //
 
 #include "PhysicsSystem.h"
+
+#include "../../utils/Box2DUtils.h"
 #include "../../world/WorldContext.h"
 #include "box2d/box2d.h"
 
@@ -26,9 +28,9 @@ void glimmer::PhysicsSystem::Update(const float delta)
         {
             continue;
         }
-        Transform2DComponent* transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
-        b2Vec2 position = b2Body_GetPosition(body->GetBodyId());
-        transform->SetPosition({position.x, position.y});
+        auto* transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
+        const b2Vec2 position = b2Body_GetPosition(body->GetBodyId());
+        transform->SetPosition(Box2DUtils::ToPixels(position));
         transform->SetRotation(b2Rot_GetAngle(b2Body_GetRotation(body->GetBodyId())));
     }
 }

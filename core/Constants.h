@@ -24,6 +24,28 @@ static constexpr int WORLD_MAX_Y = 256;
 static constexpr int WORLD_MIN_Y = 0;
 static constexpr int TILE_SIZE = 32;
 
+/**
+ * @brief Box2D 世界坐标到像素坐标的缩放因子
+ *
+ * Box2D 使用米作为单位，而屏幕渲染使用像素单位。
+ * KSCALE 定义了 1 米对应多少像素，例如：
+ *   - KSCALE = 32.0f 表示 1 米 = 32 像素
+ *
+ * 用法示例：
+ *   float pixelX = meterX * KSCALE;
+ */
+static constexpr float KSCALE = TILE_SIZE;
+
+/**
+ * @brief 像素坐标到 Box2D 世界坐标（米）的缩放因子
+ *
+ * 等价于 1 / KSCALE，用于将像素坐标转换回米单位：
+ *   meterX = pixelX * KINV_SCALE;
+ */
+static constexpr float KINV_SCALE = 1.0f / KSCALE;
+
+
+
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
 static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 2;
 static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 3;

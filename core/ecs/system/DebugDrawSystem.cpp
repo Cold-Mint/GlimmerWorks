@@ -13,7 +13,7 @@
 void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
 {
     auto cameraComponent = worldContext_->GetCameraComponent();
-    auto cameraPos = worldContext_->GetCameraPosition();
+    auto cameraPos = worldContext_->GetCameraTransform2D();
     if (cameraComponent == nullptr)
     {
         return;

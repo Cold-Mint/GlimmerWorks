@@ -8,7 +8,7 @@
 #include "box2d/box2d.h"
 
 
-void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const WorldVector2D worldVector2d, const b2Polygon& bodyPolygon)
+void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2Vec2 b2Vec2, const b2Polygon& bodyPolygon)
 {
     if (ready_)
     {
@@ -16,7 +16,7 @@ void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const Wo
     }
     b2BodyDef bodyDef_ = b2DefaultBodyDef();
     bodyDef_.type = bodyType_;
-    bodyDef_.position = b2Vec2(worldVector2d.x, worldVector2d.y);
+    bodyDef_.position = b2Vec2;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0f;

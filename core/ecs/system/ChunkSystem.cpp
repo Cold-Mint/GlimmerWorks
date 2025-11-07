@@ -11,7 +11,7 @@
 void glimmer::ChunkSystem::Update(float delta)
 {
     const auto camera = worldContext_->GetCameraComponent();
-    const auto cameraPos = worldContext_->GetCameraPosition();
+    const auto cameraPos = worldContext_->GetCameraTransform2D();
     if (camera == nullptr || cameraPos == nullptr)
     {
         return;

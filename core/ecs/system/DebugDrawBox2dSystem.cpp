@@ -4,7 +4,10 @@
 
 #include "DebugDrawBox2dSystem.h"
 
+#include "../../utils/Box2DUtils.h"
 #include "../../world/WorldContext.h"
+#include "../component/CameraComponent.h"
+#include "../component/Transform2DComponent.h"
 
 
 bool glimmer::DebugDrawBox2dSystem::ShouldActivate()
@@ -17,25 +20,11 @@ void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus)
     LogCat::d("[DebugDrawBox2dSystem] Activation changed: ", activeStatus);
     if (activeStatus)
     {
-        b2DebugDraw debugDraw = b2DefaultDebugDraw();
-        debugDraw.DrawPolygonFcn = b2DrawPolygonFcn;
-        debugDraw.DrawSolidPolygonFcn = b2DrawSolidPolygonFcn;
-        debugDraw.DrawCircleFcn = b2DrawCircleFcn;
-        debugDraw.DrawSolidCircleFcn = b2DrawSolidCircleFcn;
-        debugDraw.DrawSolidCapsuleFcn = b2DrawSolidCapsuleFcn;
-        debugDraw.DrawSegmentFcn = b2DrawSegmentFcn;
-        debugDraw.DrawTransformFcn = b2DrawTransformFcn;
-        debugDraw.DrawPointFcn = b2DrawPointFcn;
-        debugDraw.DrawStringFcn = b2DrawStringFcn;
-        debugDraw.context = this;
-        b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
         LogCat::d("[DebugDrawBox2dSystem] DebugDraw attached to world.");
     }
     else
     {
         renderer_ = nullptr;
-        b2DebugDraw debugDraw = b2DebugDraw();
-        b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
         LogCat::d("[DebugDrawBox2dSystem] DebugDraw detached from world.");
     }
 }
@@ -100,22 +89,44 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     if (!renderer_) return;
     SetSDLColor(renderer_, color, 150);
 
-    LogCat::d("[DrawSolidPolygon] vertexCount=", vertexCount, " radius=", radius);
+    auto worldContext = static_cast<WorldContext*>(context);
+    if (worldContext == nullptr)
+    {
+        return;
+    }
+    const auto cameraPosition = worldContext->GetCameraPosition();
+    if (cameraPosition == nullptr)
+    {
+        return;
+    }
+
+    const auto cameraComponent = worldContext->GetCameraComponent();
+    if (cameraComponent == nullptr)
+    {
+        return;
+    }
 
     for (int i = 1; i < vertexCount - 1; ++i)
     {
         const b2Vec2& v0 = vertices[0];
+        const WorldVector2D WorldVector1 = cameraComponent->GetViewPortPosition(
+            cameraPosition->GetPosition(), Box2DUtils::ToPixels(v0 + transform.p));
         const b2Vec2& v1 = vertices[i];
+        const WorldVector2D WorldVector2 = cameraComponent->GetViewPortPosition(
+            cameraPosition->GetPosition(), Box2DUtils::ToPixels(v1 + transform.p));
         const b2Vec2& v2 = vertices[i + 1];
+        const WorldVector2D WorldVector3 = cameraComponent->GetViewPortPosition(
+            cameraPosition->GetPosition(), Box2DUtils::ToPixels(v2 + transform.p));
 
         SDL_RenderLine(renderer_,
-                       static_cast<int>(v0.x * kScale), static_cast<int>(-v0.y * kScale),
-                       static_cast<int>(v1.x * kScale), static_cast<int>(-v1.y * kScale));
+                       WorldVector1.x, -WorldVector1.y,
+                       WorldVector2.x, -WorldVector2.y);
         SDL_RenderLine(renderer_,
-                       static_cast<int>(v1.x * kScale), static_cast<int>(-v1.y * kScale),
-                       static_cast<int>(v2.x * kScale), static_cast<int>(-v2.y * kScale));
-
-        LogCat::d("  Triangle: (", v0.x, ",", v0.y, ") -> (", v1.x, ",", v1.y, ") -> (", v2.x, ",", v2.y, ")");
+                       WorldVector2.x, -WorldVector2.y,
+                       WorldVector3.x, -WorldVector3.y);
+        SDL_RenderLine(renderer_,
+                       WorldVector3.x, -WorldVector3.y,
+                       WorldVector1.x, -WorldVector1.y);
     }
 }
 
@@ -303,6 +314,19 @@ void glimmer::DebugDrawBox2dSystem::b2DrawStringFcn(
 void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
 {
     renderer_ = renderer;
+    b2DebugDraw debugDraw = b2DefaultDebugDraw();
+    debugDraw.DrawPolygonFcn = b2DrawPolygonFcn;
+    debugDraw.DrawSolidPolygonFcn = b2DrawSolidPolygonFcn;
+    debugDraw.DrawCircleFcn = b2DrawCircleFcn;
+    debugDraw.DrawSolidCircleFcn = b2DrawSolidCircleFcn;
+    debugDraw.DrawSolidCapsuleFcn = b2DrawSolidCapsuleFcn;
+    debugDraw.DrawSegmentFcn = b2DrawSegmentFcn;
+    debugDraw.DrawTransformFcn = b2DrawTransformFcn;
+    debugDraw.DrawPointFcn = b2DrawPointFcn;
+    debugDraw.DrawStringFcn = b2DrawStringFcn;
+    debugDraw.context = worldContext_;
+    debugDraw.drawShapes = true;
+    b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
 }
 
 uint8_t glimmer::DebugDrawBox2dSystem::GetRenderOrder()

@@ -8,6 +8,7 @@
 
 #include "../../Constants.h"
 #include "../../log/LogCat.h"
+#include "../../utils/Box2DUtils.h"
 #include "../component/CameraComponent.h"
 #include "../component/Transform2DComponent.h"
 #include "../component/DebugDrawComponent.h"
@@ -37,7 +38,7 @@ void glimmer::GameStartSystem::Update(float delta)
     const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);
     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
     rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(), {0, 256 * CHUNK_SIZE},
-                                     b2MakeBox(TILE_SIZE, TILE_SIZE));
+                                     b2MakeBox(Box2DUtils::ToMeters(TILE_SIZE), Box2DUtils::ToMeters(TILE_SIZE)));
     auto tileLayer = worldContext_->CreateEntity();
     auto t1 = worldContext_->AddComponent<Transform2DComponent>(tileLayer);
     t1->SetPosition(Vector2D(0, 0));

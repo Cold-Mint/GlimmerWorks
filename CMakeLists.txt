@@ -95,7 +95,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(box2d)
 
-add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
+set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_widgets.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_tables.cpp"
@@ -217,8 +217,15 @@ add_executable(GlimmerWorks "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION
         core/ecs/system/DebugDrawBox2dSystem.cpp
         core/ecs/system/DebugDrawBox2dSystem.h
         core/utils/Box2DUtils.cpp
-        core/utils/Box2DUtils.h
-)
+        core/utils/Box2DUtils.h)
+
+if (ANDROID)
+    message(STATUS "Building for Android → Shared Library (.so)")
+    add_library(GlimmerWorks SHARED ${GLIMMERWORKS_SOURCES})
+else ()
+    message(STATUS "Building for Desktop → Executable")
+    add_executable(GlimmerWorks ${GLIMMERWORKS_SOURCES})
+endif ()
 
 #Define version information
 #定义版本信息

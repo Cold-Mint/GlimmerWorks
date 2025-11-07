@@ -6,6 +6,7 @@
 
 #include <filesystem>
 #include <regex>
+#include <algorithm>
 #include "ResourcePack.h"
 #include "../../log/LogCat.h"
 #include "SDL3_image/SDL_image.h"

@@ -109,10 +109,6 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
         LogCat::w("DrawSolidPolygonFcn renderer_=nullptr");
         return;
     }
-    for (int i = 0; i < vertexCount; ++i)
-    {
-        LogCat::d("  Vertex ", i, ": (", vertices[i].x, ",", vertices[i].y, ")");
-    }
     //Convert meters to pixels
     //将米转换为像素
     const WorldVector2D upperLeftVector1 = Box2DUtils::ToPixels(transform.p + vertices[0]);

@@ -4,13 +4,13 @@
 #ifndef LANGUAGEUTILS_H
 #define LANGUAGEUTILS_H
 #include <string>
-
+#include <iomanip>
 
 namespace glimmer {
     class LanguageUtils {
     public:
         static std::string getLanguage() {
-            if (const char *langEnv = std::getenv("LANG"); langEnv != nullptr) {
+            if (const char *langEnv = getenv("LANG"); langEnv != nullptr) {
                 auto language = std::string(langEnv);
                 if (language.size() >= 5) {
                     language = language.substr(0, 5);

@@ -55,6 +55,11 @@ bool glimmer::App::init()
         LogCat::e("SDL_CreateRenderer Error: ", SDL_GetError());
         return false;
     }
+    // Enable alpha blending rendering
+    // 启用按 alpha 混合渲染
+    // This will allow us to use transparency during rendering
+    // 这将允许我们在渲染时使用透明度
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     LogCat::i("SDL renderer created successfully.");
     LogCat::i("Initializing ImGui context...");
     IMGUI_CHECKVERSION();

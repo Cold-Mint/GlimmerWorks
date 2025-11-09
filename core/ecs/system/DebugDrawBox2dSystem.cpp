@@ -119,16 +119,32 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
         cameraTransform2D->GetPosition(), upperLeftVector1);
     const WorldVector2D lowerRightViewportVector4 = cameraComponent->GetViewPortPosition(
         cameraTransform2D->GetPosition(), lowerRightVector4);
-    SDL_Color oldColor = {255, 255, 255, 255};
+    SDL_Color oldColor;
     SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-    SDL_Color blue = {0, 0, 255, 255};
-    SDL_SetRenderDrawColor(renderer_, blue.r, blue.g, blue.b, blue.a);
+    const SDL_Color lightBlue = {100, 149, 237, 128}; // 浅蓝 (CornflowerBlue)
+    const SDL_Color blue = {0, 0, 255, 255}; // 深蓝边框
     SDL_FRect renderQuad;
-    renderQuad.w = lowerRightViewportVector4.x - upperLeftViewportVector1.x;
-    renderQuad.h = lowerRightViewportVector4.y - upperLeftViewportVector1.y;
     renderQuad.x = upperLeftViewportVector1.x;
     renderQuad.y = upperLeftViewportVector1.y;
+    renderQuad.w = lowerRightViewportVector4.x - upperLeftViewportVector1.x;
+    renderQuad.h = lowerRightViewportVector4.y - upperLeftViewportVector1.y;
+
+    SDL_SetRenderDrawColor(renderer_, lightBlue.r, lightBlue.g, lightBlue.b, lightBlue.a);
     SDL_RenderFillRect(renderer_, &renderQuad);
+
+    SDL_SetRenderDrawColor(renderer_, blue.r, blue.g, blue.b, blue.a);
+    for (int i = 0; i < 3; ++i)
+    {
+        SDL_FRect border = {
+            renderQuad.x - static_cast<float>(i),
+            renderQuad.y - static_cast<float>(i),
+            renderQuad.w + static_cast<float>(i * 2),
+            renderQuad.h + static_cast<float>(i * 2)
+        };
+        SDL_RenderRect(renderer_, &border);
+    }
+
+    // 恢复原绘制颜色
     SDL_SetRenderDrawColor(renderer_, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
 }
 

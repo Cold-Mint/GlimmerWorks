@@ -15,29 +15,35 @@
 #include "core/utils/LanguageUtils.h"
 #include "fmt/args.h"
 
+
 using namespace glimmer;
 namespace fs = std::filesystem;
 
-int main() {
-    std::set_terminate([]() {
+int main()
+{
+    std::set_terminate([]()
+    {
         LogCat::e("Fatal error: unhandled exception!");
         std::abort();
     });
-    try {
+    try
+    {
         std::string language = LanguageUtils::getLanguage();
         LogCat::i("Load the built-in language file.");
         fs::path langFile = fs::path("langs") / (language + ".json");
         LogCat::i("Try to load language file:", langFile.c_str());
-        if (!fs::exists(langFile)) {
+        if (!fs::exists(langFile))
+        {
             LogCat::w("Not found, fall back to default.json");
             langFile = fs::path("langs/default.json");
         }
         auto jsonOpt = JsonUtils::LoadJsonFromFile(langFile.string());
-        if (!jsonOpt) {
+        if (!jsonOpt)
+        {
             LogCat::e("Failed to load any language file!");
             return EXIT_FAILURE;
         }
-        auto &jsonObject = *jsonOpt;
+        auto& jsonObject = *jsonOpt;
         Langs langs;
         langs.startGame = jsonObject["startGame"].get<std::string>();
         langs.settings = jsonObject["settings"].get<std::string>();
@@ -61,7 +67,8 @@ int main() {
         CommandExecutor commandExecutor;
         Config config;
         LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
-        if (!config.loadConfig(CONFIG_FILE_NAME)) {
+        if (!config.loadConfig(CONFIG_FILE_NAME))
+        {
             return EXIT_FAILURE;
         }
         LogCat::i("windowHeight = ", config.window.height);
@@ -78,23 +85,41 @@ int main() {
         LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
         LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
         LogCat::i("Starting GlimmerWorks...");
-        if (dataPackManager.Scan(config.mods.dataPackPath, config.mods.enabledDataPack, language, stringManager) == 0) {
+        if (dataPackManager.Scan(config.mods.dataPackPath, config.mods.enabledDataPack, language, stringManager) == 0)
+        {
             return EXIT_FAILURE;
         }
-        if (resourcePackManager.scan(config.mods.resourcePackPath, config.mods.enabledResourcePack) == 0) {
+        if (resourcePackManager.scan(config.mods.resourcePackPath, config.mods.enabledResourcePack) == 0)
+        {
             return EXIT_FAILURE;
         }
         LogCat::i("Starting the app...");
         App app(&appContext);
-        if (!app.init()) {
+        if (!app.init())
+        {
             return EXIT_FAILURE;
         }
         app.run();
         return EXIT_SUCCESS;
-    } catch (const std::exception &e) {
+    }
+    catch (const std::exception& e)
+    {
         LogCat::e("Unhandled exception: ", e.what());
-    } catch (...) {
+    }
+    catch (...)
+    {
         LogCat::e("Unhandled unknown exception");
     }
     return EXIT_FAILURE;
 }
+
+
+#ifdef __ANDROID__
+extern "C" int SDL_main(int argc, char* argv[])
+{
+    LogCat::i("SDL_main() called — entering main()");
+    int result = main();
+    LogCat::i("SDL_main() finished, result = ", result);
+    return result;
+}
+#endif

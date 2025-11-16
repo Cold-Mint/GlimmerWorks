@@ -22,6 +22,8 @@ namespace glimmer
 
         void SetTile(TileVector2D pos, const Tile& tile);
 
+        [[nodiscard]] TileVector2D GetPosition() const { return position; }
+
         [[nodiscard]] const Tile& GetTile(const int x, const int y) const { return tiles_[x][y]; }
 
         Tile& GetTile(const int x, const int y) { return tiles_[x][y]; }

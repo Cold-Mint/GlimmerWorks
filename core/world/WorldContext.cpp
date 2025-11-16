@@ -97,7 +97,8 @@ std::vector<int> glimmer::WorldContext::GetHeightMap(int x)
     return heights;
 }
 
-void glimmer::WorldContext::LoadChunkAt(TileLayerComponent* tileLayerComponent, TileVector2D position)
+void glimmer::WorldContext::LoadChunkAt(TileLayerComponent* tileLayerComponent, const WorldVector2D& tileLayerPos,
+                                        const TileVector2D position)
 {
     if (chunks_.contains(position))
         return;
@@ -126,11 +127,13 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent* tileLayerComponent, 
             // 根据高度决定颜色（可以按需替换颜色值）
             if (worldY > height)
             {
+                tile.physicsType = TilePhysicsType::None;
                 // 在地面之下或水下（y 比地面大） -> 蓝色
                 tile.color = {0, 128, 255, 255};
             }
             else
             {
+                tile.physicsType = TilePhysicsType::Static;
                 // 在或高于地面 -> 棕色
                 tile.color = {139, 69, 19, 255};
             }
@@ -139,18 +142,20 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent* tileLayerComponent, 
             tileLayerComponent->SetTile(worldTilePos, tile);
         }
     }
-
+    chunkPhysicsHelper_->AttachPhysicsBodyToChunk(worldId_, tileLayerPos,
+                                                  &newChunk);
     chunks_.insert({position, newChunk});
 }
 
 
 void glimmer::WorldContext::UnloadChunkAt(TileLayerComponent* tileLayerComponent, TileVector2D position)
 {
-    // 查找要卸载的区块
     auto it = chunks_.find(position);
     if (it == chunks_.end())
-        return; // 不存在则直接返回
-
+    {
+        return;
+    }
+    chunkPhysicsHelper_->DetachPhysicsBodyToChunk(&it->second);
     if (tileLayerComponent)
     {
         for (int y = 0; y < CHUNK_SIZE; ++y)

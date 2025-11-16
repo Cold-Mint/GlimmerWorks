@@ -18,6 +18,7 @@
 #include <SDL3/SDL_render.h>
 
 #include "Chunk.h"
+#include "ChunkPhysicsHelper.h"
 #include "../ecs/GameComponent.h"
 #include "../math/Vector2DI.h"
 #include "../scene/AppContext.h"
@@ -102,6 +103,7 @@ namespace glimmer
         b2WorldId worldId_ = b2_nullWorldId;
         std::vector<std::unique_ptr<GameEntity>> entities;
         std::unordered_map<GameEntity::ID, GameEntity*> entityMap;
+        ChunkPhysicsHelper* chunkPhysicsHelper_;
 
         void RemoveComponentInternal(GameEntity::ID id, GameComponent* comp);
 
@@ -112,6 +114,8 @@ namespace glimmer
             heightMapNoise = nullptr;
             b2DestroyWorld(worldId_);
             worldId_ = b2_nullWorldId;
+            delete chunkPhysicsHelper_;
+            chunkPhysicsHelper_ = nullptr;
         }
 
         Saves* GetSaves() const;
@@ -157,9 +161,10 @@ namespace glimmer
         * Load Chunk
         * 加载区块
          * @param tileLayerComponent tileLayerComponent 瓦片图层
+        * @param tileLayerPos tileLayerPos 瓦片层的对象位置
         * @param position position 位置
         */
-        void LoadChunkAt(TileLayerComponent* tileLayerComponent, TileVector2D position);
+        void LoadChunkAt(TileLayerComponent* tileLayerComponent, const WorldVector2D& tileLayerPos, TileVector2D position);
 
         /**
          * Unload Chunk
@@ -269,8 +274,7 @@ namespace glimmer
             worldDef.gravity = b2Vec2(0.0F, -10.0F);
             worldId_ = b2CreateWorld(&worldDef);
             InitSystem(appContext);
-            //todo：绘制出Box2d的轮廓和碰撞体
-
+            chunkPhysicsHelper_ = new ChunkPhysicsHelper();
         }
 
         [[nodiscard]] b2WorldId GetWorldId() const;

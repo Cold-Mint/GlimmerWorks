@@ -45,31 +45,48 @@ static void SetSDLColor(SDL_Renderer* renderer, b2HexColor color, Uint8 alpha = 
 }
 
 /**
- * Draw a Polygon
- * 绘制多边形（Polygon）
- * @param vertices Polygon vertices 多边形顶点
- * @param vertexCount Number of vertices 顶点数量
- * @param color Polygon color 多边形颜色
+ * Draw a Segment
+ * 绘制线段（Segment）
+ * @param p1 Start point of the segment 线段的起始点
+ * @param p2 End point of the segment 线段的结束点
+ * @param color Color of the segment 线段的颜色
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
-void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
-    const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
+void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
+    b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context)
 {
     if (!renderer_) return;
 
-    SetSDLColor(renderer_, color);
-    LogCat::d("[DrawPolygon] vertexCount=", vertexCount);
-
-    for (int i = 0; i < vertexCount; ++i)
+    if (context == nullptr)
     {
-        const b2Vec2& v1 = vertices[i];
-        const b2Vec2& v2 = vertices[(i + 1) % vertexCount];
-        SDL_RenderLine(renderer_,
-                       static_cast<int>(v1.x * kScale), static_cast<int>(-v1.y * kScale),
-                       static_cast<int>(v2.x * kScale), static_cast<int>(-v2.y * kScale));
-
-        LogCat::d("  Edge ", i, ": (", v1.x, ",", v1.y, ") -> (", v2.x, ",", v2.y, ")");
+        LogCat::w("[DrawSegment] context is nullptr");
+        return;
     }
+
+    auto* worldContext = static_cast<WorldContext*>(context);
+    Transform2DComponent* cameraTransform2D = worldContext->GetCameraTransform2D();
+    CameraComponent* cameraComponent = worldContext->GetCameraComponent();
+    if (!cameraTransform2D || !cameraComponent)
+    {
+        LogCat::w("[DrawSegment] cameraTransform2D or cameraComponent is nullptr");
+        return;
+    }
+
+    const WorldVector2D p1Pixels = Box2DUtils::ToPixels(p1);
+    const WorldVector2D p2Pixels = Box2DUtils::ToPixels(p2);
+
+    const WorldVector2D p1Viewport = cameraComponent->GetViewPortPosition(cameraTransform2D->GetPosition(), p1Pixels);
+    const WorldVector2D p2Viewport = cameraComponent->GetViewPortPosition(cameraTransform2D->GetPosition(), p2Pixels);
+
+    SetSDLColor(renderer_, color);
+
+    SDL_RenderLine(renderer_,
+                   p1Viewport.x,
+                   p1Viewport.y,
+                   p2Viewport.x,
+                   p2Viewport.y);
+
+    LogCat::d("[DrawSegment] p1=(", p1.x, ",", p1.y, ") -> p2=(", p2.x, ",", p2.y, ")");
 }
 
 /**

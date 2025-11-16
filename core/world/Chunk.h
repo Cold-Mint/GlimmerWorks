@@ -7,6 +7,7 @@
 #include "Tile.h"
 #include "../Constants.h"
 #include "../math/Vector2DI.h"
+#include "box2d/id.h"
 
 namespace glimmer
 {
@@ -14,11 +15,21 @@ namespace glimmer
     {
         TileVector2D position;
         std::array<std::array<Tile, CHUNK_SIZE>, CHUNK_SIZE> tiles_;
+        std::vector<b2BodyId> attachedBodies_;
 
     public:
         explicit Chunk(const TileVector2D& pos) : position(pos)
         {
         }
+
+
+        void AddBodyId(b2BodyId bodyId) { attachedBodies_.emplace_back(bodyId); }
+
+
+        [[nodiscard]] const std::vector<b2BodyId>& GetAttachedBodies() const { return attachedBodies_; }
+
+        void ClearAttachedBodies() { attachedBodies_.clear(); }
+
 
         void SetTile(TileVector2D pos, const Tile& tile);
 

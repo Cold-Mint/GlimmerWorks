@@ -22,6 +22,8 @@ namespace glimmer {
         std::string worldName;
         std::string seed;
         std::string random;
+        std::string commandInfo;
+        std::string awakeBodyCount;
     };
 }
 

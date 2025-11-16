@@ -14,7 +14,6 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
                                                            Chunk* chunk)
 {
     std::vector<TileVector2D> dynamicTiles;
-    bool visited[CHUNK_SIZE][CHUNK_SIZE] = {false};
     TileVector2D chunkPos = chunk->GetPosition();
 
     for (int x = 0; x < CHUNK_SIZE; x++)
@@ -37,11 +36,12 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
             if (tile.physicsType != TilePhysicsType::Static)
                 continue;
             TileVector2D tilePos(chunkPos.x + x, chunkPos.y + y);
-            WorldVector2D worldPos =
+            const WorldVector2D worldPos =
                 TileLayerComponent::TileToWorld(tileLayerPos, tilePos);
-            CreateStaticBody(worldId,
-                             worldPos,
-                             {1, 1});
+            auto b2BodyId = CreateStaticBody(worldId,
+                                             worldPos,
+                                             {1, 1});
+            chunk->AddBodyId(b2BodyId);
         }
     }
 
@@ -51,8 +51,8 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
     }
 }
 
-void glimmer::ChunkPhysicsHelper::CreateStaticBody(b2WorldId worldId, WorldVector2D pos,
-                                                   Vector2DI size)
+b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(b2WorldId worldId, WorldVector2D pos,
+                                                       Vector2DI size)
 {
     auto bodyDef_ = b2DefaultBodyDef();
     bodyDef_.type = b2_staticBody;
@@ -64,6 +64,7 @@ void glimmer::ChunkPhysicsHelper::CreateStaticBody(b2WorldId worldId, WorldVecto
     const b2Polygon bodyPolygon = b2MakeBox(Box2DUtils::ToMeters(static_cast<float>(size.x * TILE_SIZE) / 2),
                                             Box2DUtils::ToMeters(static_cast<float>(size.y * TILE_SIZE) / 2));
     b2CreatePolygonShape(bodyId_, &shapeDef, &bodyPolygon);
+    return bodyId_;
 }
 
 
@@ -73,4 +74,14 @@ void glimmer::ChunkPhysicsHelper::CreateDynamicTileBody(Chunk* chunk, TileVector
 
 void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(Chunk* chunk)
 {
+    if (!chunk) return;
+
+    for (b2BodyId bodyId : chunk->GetAttachedBodies())
+    {
+        if (b2Body_IsValid(bodyId))
+        {
+            b2DestroyBody(bodyId);
+        }
+    }
+    chunk->ClearAttachedBodies();
 }

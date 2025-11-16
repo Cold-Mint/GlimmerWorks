@@ -4,3 +4,17 @@
 
 #include "Command.h"
 
+bool glimmer::Command::RequiresWorldContext() const
+{
+    return false;
+}
+
+void glimmer::Command::BindWorldContext(WorldContext* worldContext)
+{
+    worldContext_ = worldContext;
+}
+
+void glimmer::Command::UnBindWorldContext()
+{
+    worldContext_ = nullptr;
+}

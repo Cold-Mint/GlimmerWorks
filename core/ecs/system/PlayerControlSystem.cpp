@@ -6,44 +6,52 @@
 #include "../../log/LogCat.h"
 #include "../../world/WorldContext.h"
 #include "../../ecs/component/CameraComponent.h"
+#include "../component/RigidBody2DComponent.h"
 
 
 void glimmer::PlayerControlSystem::Update(const float delta)
 {
-    // const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
-    // for (auto& entity : entities)
-    // {
-    //     if (auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID()))
-    //     {
-    //         if (auto position = worldContext_->GetComponent<Transform2DComponent>(entity->GetID()))
-    //         {
-    //             auto positionVec = position->GetPosition();
-    //             if (control->moveUp)
-    //             {
-    //                 positionVec.y += delta * 50;
-    //             }
-    //             if (control->moveDown)
-    //             {
-    //                 positionVec.y -= delta * 50;
-    //             }
-    //             if (control->moveLeft)
-    //             {
-    //                 positionVec.x -= delta * 50;
-    //             }
-    //             if (control->moveRight)
-    //             {
-    //                 positionVec.x += delta * 50;
-    //             }
-    //             position->SetPosition(positionVec);
-    //         }
-    //     }
-    // }
+    const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent, RigidBody2DComponent>();
+    for (auto& entity : entities)
+    {
+        const auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
+        const auto rigid = worldContext_->GetComponent<RigidBody2DComponent>(entity->GetID());
+        if (control == nullptr || rigid == nullptr || !rigid->IsReady())
+        {
+            continue;
+        }
+
+        const b2BodyId bodyId = rigid->GetBodyId();
+        const b2Vec2 vel = b2Body_GetLinearVelocity(bodyId);
+        float vx = 0.0F;
+        if (control->moveLeft)
+        {
+            vx -= PLAYER_MOVE_SPEED;
+        }
+        if (control->moveRight)
+        {
+            vx += PLAYER_MOVE_SPEED;
+        }
+        float vy = vel.y;
+        if (control->jump)
+        {
+            bool onGround = fabsf(vel.y) < 0.01f;
+            if (onGround)
+            {
+                vy = 10.0F;
+            }
+            control->jump = false;
+        }
+
+        b2Body_SetLinearVelocity(bodyId, {vx, vy});
+    }
 }
 
 std::string glimmer::PlayerControlSystem::GetName()
 {
     return "glimmer.PlayerControlSystem";
 }
+
 
 bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
 {
@@ -52,45 +60,37 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
     {
         float zoom = camera->GetZoom();
         constexpr float zoomStep = 0.1F;
-        if (event.wheel.y > 0)
-            zoom += zoomStep;
-        else if (event.wheel.y < 0)
-            zoom -= zoomStep;
+        zoom += (event.wheel.y > 0 ? zoomStep : -zoomStep);
 
         camera->SetZoom(zoom);
         LogCat::i("Camera zoom set to ", zoom);
         return true;
     }
+
     const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
     if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)
     {
-        const bool isPressed = event.type == SDL_EVENT_KEY_DOWN;
-        switch (event.key.key)
+        bool pressed = event.type == SDL_EVENT_KEY_DOWN;
+        for (auto& entity : entities)
         {
-        case SDLK_W:
-        case SDLK_S:
-        case SDLK_A:
-        case SDLK_D:
-            for (auto& entity : entities)
+            auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
+            if (!control) continue;
+            switch (event.key.key)
             {
-                auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-                if (!control || !control->enableWASD) continue;
-
-                switch (event.key.key)
+            case SDLK_A: control->moveLeft = pressed;
+                return true;
+            case SDLK_D: control->moveRight = pressed;
+                return true;
+            case SDLK_SPACE:
+                if (pressed)
                 {
-                case SDLK_W: control->moveUp = isPressed;
-                    break;
-                case SDLK_S: control->moveDown = isPressed;
-                    break;
-                case SDLK_A: control->moveLeft = isPressed;
-                    break;
-                case SDLK_D: control->moveRight = isPressed;
-                    break;
+                    control->jump = true;
                 }
+                return true;
+
+            default:
+                return false;
             }
-            return true;
-        default:
-            break;
         }
     }
 

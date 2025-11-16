@@ -12,5 +12,7 @@
   "cancel": "Cancel",
   "worldName": "World Name",
   "seed": "Seed",
-  "random": "Random"
+  "random": "Random",
+  "commandInfo": "A total of {} commands have been registered: ",
+  "awakeBodyCount": "Awake Body Count: {}"
 }

@@ -13,6 +13,8 @@
 #define RESOURCE_TYPE_STRING 1
 
 #define HELP_COMMAND_NAME  "help"
+#define TP_COMMAND_NAME  "tp"
+#define BOX2D_COMMAND_NAME  "box2d"
 
 /**
  * Unit chunk size
@@ -42,9 +44,12 @@ static constexpr float KSCALE = TILE_SIZE;
  * 等价于 1 / KSCALE，用于将像素坐标转换回米单位：
  *   meterX = pixelX * KINV_SCALE;
  */
-static constexpr float KINV_SCALE = 1.0f / KSCALE;
+static constexpr float KINV_SCALE = 1.0F / KSCALE;
 
-
+/**
+ * 玩家移动速度，单位：米/秒
+ */
+static constexpr float PLAYER_MOVE_SPEED = 6.0F;
 
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
 static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 2;

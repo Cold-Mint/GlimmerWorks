@@ -21,6 +21,8 @@ namespace glimmer {
             }
         }
 
+        [[nodiscard]] int GetSize() const;
+
         [[nodiscard]] bool AsBool(int index) const;
 
         [[nodiscard]] int AsInt(int index) const;

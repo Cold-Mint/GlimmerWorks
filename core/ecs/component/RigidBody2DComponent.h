@@ -14,6 +14,7 @@ namespace glimmer
         b2BodyId bodyId_ = b2_nullBodyId;
         bool ready_ = false;
         b2BodyType bodyType_ = b2_staticBody;
+        bool enableSleep_ = true;
 
     public:
         /**
@@ -44,6 +45,20 @@ namespace glimmer
          * @param bodyType 刚体类型
          */
         void SetBodyType(b2BodyType bodyType);
+
+        /**
+         * SetEnableSleep
+         * 设置是否启用休眠
+         * @param enable 是否启用休眠
+         */
+        void SetEnableSleep(bool enable);
+
+        /**
+         * GetEnableSleep
+         * 获取是否启用休眠
+         * @return 是否启用休眠
+         */
+        [[nodiscard]] bool GetEnableSleep() const;
 
         /**
          * Check if the body is a dynamic body.

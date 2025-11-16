@@ -104,6 +104,7 @@ namespace glimmer
         std::vector<std::unique_ptr<GameEntity>> entities;
         std::unordered_map<GameEntity::ID, GameEntity*> entityMap;
         ChunkPhysicsHelper* chunkPhysicsHelper_;
+        AppContext* appContext_;
 
         void RemoveComponentInternal(GameEntity::ID id, GameComponent* comp);
 
@@ -116,6 +117,13 @@ namespace glimmer
             worldId_ = b2_nullWorldId;
             delete chunkPhysicsHelper_;
             chunkPhysicsHelper_ = nullptr;
+            for (const auto& command : appContext_->commandManager->GetCommands() | std::views::values)
+            {
+                if (command->RequiresWorldContext())
+                {
+                    command->BindWorldContext(this);
+                }
+            }
         }
 
         Saves* GetSaves() const;
@@ -275,6 +283,14 @@ namespace glimmer
             worldId_ = b2CreateWorld(&worldDef);
             InitSystem(appContext);
             chunkPhysicsHelper_ = new ChunkPhysicsHelper();
+            appContext_ = appContext;
+            for (const auto& command : appContext_->commandManager->GetCommands() | std::views::values)
+            {
+                if (command->RequiresWorldContext())
+                {
+                    command->BindWorldContext(this);
+                }
+            }
         }
 
         [[nodiscard]] b2WorldId GetWorldId() const;

@@ -19,7 +19,7 @@ namespace glimmer
          */
         void AttachPhysicsBodyToChunk(b2WorldId worldId, const WorldVector2D& tileLayerPos, Chunk* chunk);
 
-        void CreateStaticBody(b2WorldId worldId, WorldVector2D pos, Vector2DI size);
+        b2BodyId CreateStaticBody(b2WorldId worldId, WorldVector2D pos, Vector2DI size);
 
         void CreateDynamicTileBody(Chunk* chunk, TileVector2D pos);
 

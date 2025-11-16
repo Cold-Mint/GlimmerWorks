@@ -17,6 +17,7 @@ void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2
     b2BodyDef bodyDef_ = b2DefaultBodyDef();
     bodyDef_.type = bodyType_;
     bodyDef_.position = b2Vec2;
+    bodyDef_.enableSleep = false;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0f;
@@ -43,6 +44,21 @@ void glimmer::RigidBody2DComponent::SetBodyType(const b2BodyType bodyType)
         return;
     }
     bodyType_ = bodyType;
+}
+
+void glimmer::RigidBody2DComponent::SetEnableSleep(bool enable)
+{
+    if (ready_)
+    {
+        LogCat::d("Cannot enableSleep after creation.");
+        return;
+    }
+    enableSleep_ = enable;
+}
+
+bool glimmer::RigidBody2DComponent::GetEnableSleep() const
+{
+    return enableSleep_;
 }
 
 bool glimmer::RigidBody2DComponent::IsDynamicBody() const

@@ -31,9 +31,7 @@ void glimmer::GameStartSystem::Update(float delta)
 
 
     auto playerEntity = worldContext_->CreateEntity();
-    // 添加玩家控制组件
-    auto playerControl = worldContext_->AddComponent<PlayerControlComponent>(playerEntity);
-    playerControl->enableWASD = true;
+    worldContext_->AddComponent<PlayerControlComponent>(playerEntity);
     auto worldPositionComponent = worldContext_->AddComponent<Transform2DComponent>(playerEntity);
     worldPositionComponent->SetPosition(
         TileLayerComponent::TileToWorld(transform2DComponent->GetPosition(), TileVector2D(0, 100)));
@@ -46,10 +44,11 @@ void glimmer::GameStartSystem::Update(float delta)
     worldContext_->SetCameraPosition(worldPositionComponent);
     const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);
     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
-
+    rigidBody2DComponent->SetEnableSleep(false);
     rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
                                      Box2DUtils::ToMeters(worldPositionComponent->GetPosition()),
-                                     b2MakeBox(Box2DUtils::ToMeters(TILE_SIZE), Box2DUtils::ToMeters(TILE_SIZE)));
+                                     b2MakeBox(Box2DUtils::ToMeters(0.625F * TILE_SIZE),
+                                               Box2DUtils::ToMeters(1.3F * TILE_SIZE)));
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

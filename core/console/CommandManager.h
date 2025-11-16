@@ -18,6 +18,12 @@ namespace glimmer {
         void RegisterCommand(std::unique_ptr<Command> command);
 
         Command *GetCommand(const std::string &name);
+
+        using CommandMap = std::unordered_map<std::string, std::unique_ptr<Command>>;
+
+        [[nodiscard]] const CommandMap& GetCommands() const {
+            return commandMap;
+        }
     };
 }
 

@@ -233,7 +233,11 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/utils/Box2DUtils.cpp
         core/utils/Box2DUtils.h
         core/world/ChunkPhysicsHelper.cpp
-        core/world/ChunkPhysicsHelper.h)
+        core/world/ChunkPhysicsHelper.h
+        core/console/command/TpCommand.cpp
+        core/console/command/TpCommand.h
+        core/console/command/Box2DCommand.cpp
+        core/console/command/Box2DCommand.h)
 
 if (ANDROID)
     message(STATUS "Building for Android → Shared Library (.so)")

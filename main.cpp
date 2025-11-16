@@ -4,7 +4,9 @@
 #include "core/Config.h"
 #include "core/Langs.h"
 #include "core/console/CommandManager.h"
+#include "core/console/command/Box2DCommand.h"
 #include "core/console/command/HelpCommand.h"
+#include "core/console/command/TpCommand.h"
 #include "core/log/LogCat.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/dataPack/StringManager.h"
@@ -59,6 +61,8 @@ int main()
         langs.worldName = jsonObject["worldName"].get<std::string>();
         langs.seed = jsonObject["seed"].get<std::string>();
         langs.random = jsonObject["random"].get<std::string>();
+        langs.commandInfo = jsonObject["commandInfo"].get<std::string>();
+        langs.awakeBodyCount = jsonObject["awakeBodyCount"].get<std::string>();
         DataPackManager dataPackManager;
         ResourcePackManager resourcePackManager;
         SceneManager sceneManager;
@@ -77,11 +81,13 @@ int main()
         LogCat::i("resourcePackPath = ", config.mods.resourcePackPath);
         LogCat::i("framerate = ", config.window.framerate);
         LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
-        commandManager.RegisterCommand(std::make_unique<HelpCommand>());
         AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                               &stringManager,
                               &commandManager,
                               &commandExecutor, &langs);
+        commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
+        commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
+        commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));
         LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
         LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
         LogCat::i("Starting GlimmerWorks...");

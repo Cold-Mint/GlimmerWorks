@@ -12,5 +12,7 @@
   "cancel": "取消",
   "worldName": "世界名称",
   "seed": "种子",
-  "random": "随机"
+  "random": "随机",
+  "commandInfo": "共{}个命令已注册：",
+  "awakeBodyCount": "活跃的物理碰撞体数量：{}"
 }

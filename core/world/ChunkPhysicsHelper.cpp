@@ -29,65 +29,19 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
         }
     }
 
-    //Merge static tiles (Greedy maximum rectangle)
-    //合并静态 tile（贪心最大矩形）
-    for (int startX = 0; startX < CHUNK_SIZE; startX++)
+    for (int x = 0; x < CHUNK_SIZE; x++)
     {
-        for (int startY = 0; startY < CHUNK_SIZE; startY++)
+        for (int y = 0; y < CHUNK_SIZE; y++)
         {
-            if (visited[startX][startY])
-            {
-                continue;
-            }
-
-            auto tile = chunk->GetTile(startX, startY);
+            auto tile = chunk->GetTile(x, y);
             if (tile.physicsType != TilePhysicsType::Static)
-            {
                 continue;
-            }
-
-            int maxWidth = 0;
-            int maxHeight = 0;
-
-            while (startX + maxWidth < CHUNK_SIZE)
-            {
-                auto t = chunk->GetTile(startX + maxWidth, startY);
-                if (t.physicsType == TilePhysicsType::Static)
-                    maxWidth++;
-                else
-                    break;
-            }
-
-            bool canExtend = true;
-            while (startY + maxHeight < CHUNK_SIZE && canExtend)
-            {
-                for (int w = 0; w < maxWidth; w++)
-                {
-                    auto t = chunk->GetTile(startX + w, startY + maxHeight);
-                    if (t.physicsType != TilePhysicsType::Static)
-                    {
-                        canExtend = false;
-                        break;
-                    }
-                }
-                if (canExtend)
-                {
-                    maxHeight++;
-                }
-            }
-
-            for (int x = 0; x < maxWidth; x++)
-            {
-                for (int y = 0; y < maxHeight; y++)
-                {
-                    visited[startX + x][startY + y] = true;
-                }
-            }
-
-            auto tilePos = TileVector2D{chunkPos.x + startX, chunkPos.y + startY};
+            TileVector2D tilePos(chunkPos.x + x, chunkPos.y + y);
+            WorldVector2D worldPos =
+                TileLayerComponent::TileToWorld(tileLayerPos, tilePos);
             CreateStaticBody(worldId,
-                             {TileLayerComponent::TileToWorld(tileLayerPos, tilePos),},
-                             {maxWidth, maxHeight});
+                             worldPos,
+                             {1, 1});
         }
     }
 

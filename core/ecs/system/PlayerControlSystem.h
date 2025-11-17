@@ -12,6 +12,7 @@
 
 namespace glimmer
 {
+    class RigidBody2DComponent;
     /**
      * The player control system processes the player's input control and realizes the WASD mobile camera function
      * 玩家控制系统，处理玩家的输入控制，实现WASD移动相机功能
@@ -27,6 +28,13 @@ namespace glimmer
         }
 
         void Update(float delta) override;
+
+        /**
+         * Check if the player is on the ground
+         * 检查玩家是否在地面上
+         * @return If the player is on the ground, return true; otherwise, return false 如果玩家在地面上则返回true，否则返回false
+         */
+        bool onGround(const RigidBody2DComponent* rigid) const;
 
         std::string GetName() override;
 

@@ -5,10 +5,11 @@
 #include "RigidBody2DComponent.h"
 
 #include "../../log/LogCat.h"
+#include "../../utils/Box2DUtils.h"
 #include "box2d/box2d.h"
 
 
-void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2Vec2 b2Vec2, const b2Polygon& bodyPolygon)
+void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2Vec2 position)
 {
     if (ready_)
     {
@@ -16,19 +17,54 @@ void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2
     }
     b2BodyDef bodyDef_ = b2DefaultBodyDef();
     bodyDef_.type = bodyType_;
-    bodyDef_.position = b2Vec2;
+    bodyDef_.position = position;
     bodyDef_.enableSleep = false;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0f;
     shapeDef.material.friction = 0.3f;
-    b2CreatePolygonShape(bodyId_, &shapeDef, &bodyPolygon);
+    const b2Polygon shape = b2MakeBox(
+        Box2DUtils::ToMeters(width_ * 0.5f),
+        Box2DUtils::ToMeters(height_ * 0.5f)
+    );
+
+    b2CreatePolygonShape(bodyId_, &shapeDef, &shape);
     ready_ = true;
 }
 
 b2BodyId glimmer::RigidBody2DComponent::GetBodyId() const
 {
     return bodyId_;
+}
+
+void glimmer::RigidBody2DComponent::SetWidth(const float width)
+{
+    if (ready_)
+    {
+        LogCat::d("Cannot change width after creation.");
+        return;
+    }
+    width_ = width;
+}
+
+void glimmer::RigidBody2DComponent::SetHeight(const float height)
+{
+    if (ready_)
+    {
+        LogCat::d("Cannot change height after creation.");
+        return;
+    }
+    height_ = height;
+}
+
+float glimmer::RigidBody2DComponent::GetWidth() const
+{
+    return width_;
+}
+
+float glimmer::RigidBody2DComponent::GetHeight() const
+{
+    return height_;
 }
 
 bool glimmer::RigidBody2DComponent::IsReady() const

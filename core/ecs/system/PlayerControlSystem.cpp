@@ -6,6 +6,7 @@
 #include "../../log/LogCat.h"
 #include "../../world/WorldContext.h"
 #include "../../ecs/component/CameraComponent.h"
+#include "../../utils/Box2DUtils.h"
 #include "../component/RigidBody2DComponent.h"
 
 
@@ -35,8 +36,8 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         float vy = vel.y;
         if (control->jump)
         {
-            bool onGround = fabsf(vel.y) < 0.01f;
-            if (onGround)
+            bool ground = onGround(rigid);
+            if (ground)
             {
                 vy = 10.0F;
             }
@@ -46,6 +47,37 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         b2Body_SetLinearVelocity(bodyId, {vx, vy});
     }
 }
+
+
+bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent* rigid) const
+{
+    b2Vec2 position = b2Body_GetPosition(rigid->GetBodyId());
+    float width = Box2DUtils::ToMeters(rigid->GetWidth());
+    float height = Box2DUtils::ToMeters(rigid->GetHeight());
+    const b2Vec2 leftBottom = {position.x - width * 0.5F, position.y - height * 0.5F};
+    const b2Vec2 rightBottom = {position.x + width * 0.5F, position.y - height * 0.5F};
+    constexpr float rayLength = 0.1F;
+    b2Vec2 translation = {0.0F, -rayLength};
+    b2QueryFilter filter{};
+    filter.categoryBits = 0xFFFF;
+    filter.maskBits = 0xFFFF;
+    struct RayContext
+    {
+        bool hit = false;
+    };
+    auto rayCallback = [](b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* ctx) -> float
+    {
+        auto* context = static_cast<RayContext*>(ctx);
+        context->hit = true;
+        return 0.0f;
+    };
+
+    RayContext leftCtx, rightCtx;
+    b2World_CastRay(worldContext_->GetWorldId(), leftBottom, translation, filter, rayCallback, &leftCtx);
+    b2World_CastRay(worldContext_->GetWorldId(), rightBottom, translation, filter, rayCallback, &rightCtx);
+    return leftCtx.hit || rightCtx.hit;
+}
+
 
 std::string glimmer::PlayerControlSystem::GetName()
 {
@@ -60,7 +92,7 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
     {
         float zoom = camera->GetZoom();
         constexpr float zoomStep = 0.1F;
-        zoom += (event.wheel.y > 0 ? zoomStep : -zoomStep);
+        zoom += event.wheel.y > 0 ? zoomStep : -zoomStep;
 
         camera->SetZoom(zoom);
         LogCat::i("Camera zoom set to ", zoom);
@@ -74,7 +106,10 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
         for (auto& entity : entities)
         {
             auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-            if (!control) continue;
+            if (control == nullptr)
+            {
+                continue;
+            }
             switch (event.key.key)
             {
             case SDLK_A: control->moveLeft = pressed;

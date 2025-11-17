@@ -24,31 +24,33 @@ void glimmer::GameStartSystem::Update(float delta)
     LogCat::i("Grid entity created with GridComponent");
 
 
-    auto tileLayerEntity = worldContext_->CreateEntity();
-    auto transform2DComponent = worldContext_->AddComponent<Transform2DComponent>(tileLayerEntity);
+    const auto tileLayerEntity = worldContext_->CreateEntity();
+    const auto transform2DComponent = worldContext_->AddComponent<Transform2DComponent>(tileLayerEntity);
     transform2DComponent->SetPosition(Vector2D(0, 0));
     worldContext_->AddComponent<TileLayerComponent>(tileLayerEntity);
 
 
-    auto playerEntity = worldContext_->CreateEntity();
+    const auto playerEntity = worldContext_->CreateEntity();
     worldContext_->AddComponent<PlayerControlComponent>(playerEntity);
-    auto worldPositionComponent = worldContext_->AddComponent<Transform2DComponent>(playerEntity);
-    worldPositionComponent->SetPosition(
-        TileLayerComponent::TileToWorld(transform2DComponent->GetPosition(), TileVector2D(0, 100)));
-    auto debugDrawComponent = worldContext_->AddComponent<DebugDrawComponent>(playerEntity);
+    const auto transform2DComponentInPlayer = worldContext_->AddComponent<Transform2DComponent>(playerEntity);
+    const auto heightMap = worldContext_->GetHeightMap(0);
+    transform2DComponentInPlayer->SetPosition(
+        TileLayerComponent::TileToWorld(transform2DComponentInPlayer->GetPosition(),
+                                        TileVector2D(0, heightMap[0] + 3)));
+    const auto debugDrawComponent = worldContext_->AddComponent<DebugDrawComponent>(playerEntity);
     debugDrawComponent->SetSize(Vector2D(static_cast<float>(TILE_SIZE), static_cast<float>(TILE_SIZE)));
     debugDrawComponent->SetColor(SDL_Color{255, 0, 0, 255});
-    auto cameraComponent = worldContext_->AddComponent<CameraComponent>(playerEntity);
+    const auto cameraComponent = worldContext_->AddComponent<CameraComponent>(playerEntity);
     cameraComponent->SetSpeed(1.0F);
     worldContext_->SetCameraComponent(cameraComponent);
-    worldContext_->SetCameraPosition(worldPositionComponent);
+    worldContext_->SetCameraPosition(transform2DComponentInPlayer);
     const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);
     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
     rigidBody2DComponent->SetEnableSleep(false);
+    rigidBody2DComponent->SetWidth(1.25F * TILE_SIZE);
+    rigidBody2DComponent->SetHeight(2.6F * TILE_SIZE);
     rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
-                                     Box2DUtils::ToMeters(worldPositionComponent->GetPosition()),
-                                     b2MakeBox(Box2DUtils::ToMeters(0.625F * TILE_SIZE),
-                                               Box2DUtils::ToMeters(1.3F * TILE_SIZE)));
+                                     Box2DUtils::ToMeters(transform2DComponentInPlayer->GetPosition()));
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

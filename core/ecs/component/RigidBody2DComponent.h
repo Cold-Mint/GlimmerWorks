@@ -15,6 +15,8 @@ namespace glimmer
         bool ready_ = false;
         b2BodyType bodyType_ = b2_staticBody;
         bool enableSleep_ = true;
+        float width_ = 0;
+        float height_ = 0;
 
     public:
         /**
@@ -22,15 +24,40 @@ namespace glimmer
          * 创建刚体
          * @param worldId worldId 世界ID
          * @param b2Vec2 b2Vec2 刚体位置(单位：米)
-         * @param bodyPolygon bodyPolygon 刚体形状
          */
-        void CreateBody(b2WorldId worldId, b2Vec2 b2Vec2, const b2Polygon& bodyPolygon);
+        void CreateBody(b2WorldId worldId, b2Vec2 b2Vec2);
         /**
          * GetBodyId
          * 获取刚体ID
          * @return 刚体ID
          */
         [[nodiscard]] b2BodyId GetBodyId() const;
+
+
+        /**
+         * SetWidth
+         * 设置刚体宽度
+         * @param width Rigid body width (unit: pixels) 刚体宽度(单位：像素)
+         */
+        void SetWidth(float width);
+        /**
+         * SetHeight
+         * 设置刚体高度
+         * @param height Rigid body height (unit: pixels) 刚体高度(单位：像素)
+         */
+        void SetHeight(float height);
+        /**
+         * GetWidth
+         * 获取刚体宽度
+         * @return Rigid body width (unit: pixels) 刚体宽度(单位：像素)
+         */
+        [[nodiscard]] float GetWidth() const;
+        /**
+         * GetHeight
+         * 获取刚体高度
+         * @return Rigid body height (unit: pixels) 刚体高度(单位：像素)
+         */
+        [[nodiscard]] float GetHeight() const;
 
         /**
          * Is the body ready

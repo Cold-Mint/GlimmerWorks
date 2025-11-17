@@ -39,7 +39,9 @@ bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(con
         auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(entity->GetID());
         if (rigidBody2DComponent && rigidBody2DComponent->IsReady())
         {
-            b2Vec2 newPos = Box2DUtils::ToMeters({commandArgs.AsFloat(1), commandArgs.AsFloat(2)});
+            b2Vec2 newPos = Box2DUtils::ToMeters({
+                commandArgs.AsFloat(1) * TILE_SIZE, commandArgs.AsFloat(2) * TILE_SIZE
+            });
             b2Rot currentRot = b2Body_GetRotation(rigidBody2DComponent->GetBodyId());
             b2Body_SetTransform(rigidBody2DComponent->GetBodyId(), newPos, currentRot);
         }

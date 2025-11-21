@@ -63,6 +63,7 @@ FetchContent_Declare(
         GIT_TAG "release-3.2.2"
         GIT_PROGRESS TRUE
 )
+set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(SDL_ttf)
 
 FetchContent_Declare(

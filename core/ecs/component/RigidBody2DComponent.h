@@ -17,6 +17,7 @@ namespace glimmer
         bool enableSleep_ = true;
         float width_ = 0;
         float height_ = 0;
+        bool fixedRotation_ = false;
 
     public:
         /**
@@ -86,6 +87,20 @@ namespace glimmer
          * @return 是否启用休眠
          */
         [[nodiscard]] bool GetEnableSleep() const;
+
+        /**
+         * SetFixedRotation
+         * 设置是否固定旋转
+         * @param fixedRotation 是否固定旋转
+         */
+        void SetFixedRotation(bool fixedRotation);
+
+        /**
+         * GetFixedRotation
+         * 获取是否固定旋转
+         * @return 是否固定旋转
+         */
+        [[nodiscard]] bool GetFixedRotation() const;
 
         /**
          * Check if the body is a dynamic body.

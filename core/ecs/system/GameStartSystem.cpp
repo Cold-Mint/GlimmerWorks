@@ -47,6 +47,7 @@ void glimmer::GameStartSystem::Update(float delta)
     const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);
     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
     rigidBody2DComponent->SetEnableSleep(false);
+    rigidBody2DComponent->SetFixedRotation(true);
     rigidBody2DComponent->SetWidth(1.25F * TILE_SIZE);
     rigidBody2DComponent->SetHeight(2.6F * TILE_SIZE);
     rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),

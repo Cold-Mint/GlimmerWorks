@@ -19,6 +19,7 @@ void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2
     bodyDef_.type = bodyType_;
     bodyDef_.position = position;
     bodyDef_.enableSleep = false;
+    bodyDef_.fixedRotation = fixedRotation_;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0f;
@@ -95,6 +96,21 @@ void glimmer::RigidBody2DComponent::SetEnableSleep(bool enable)
 bool glimmer::RigidBody2DComponent::GetEnableSleep() const
 {
     return enableSleep_;
+}
+
+void glimmer::RigidBody2DComponent::SetFixedRotation(bool fixedRotation)
+{
+    if (ready_)
+    {
+        LogCat::d("Cannot change fixedRotation after creation.");
+        return;
+    }
+    fixedRotation_ = fixedRotation;
+}
+
+bool glimmer::RigidBody2DComponent::GetFixedRotation() const
+{
+    return fixedRotation_;
 }
 
 bool glimmer::RigidBody2DComponent::IsDynamicBody() const

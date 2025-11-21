@@ -3,6 +3,7 @@
 //
 
 #include "DebugPanelSystem.h"
+#include <cmath>
 
 #include "../../Constants.h"
 #include "../component/PlayerControlComponent.h"
@@ -137,6 +138,76 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         pointSize
     };
     SDL_RenderFillRect(renderer, &point);
+
+    // Draw Chunk Grid in Bottom-Left
+    // 在左下角绘制区块网格
+    const auto& chunks = worldContext_->GetAllChunks();
+    if (!entities.empty())
+    {
+        auto firstPlayerEntity = entities[0];
+        auto position = worldContext_->GetComponent<Transform2DComponent>(firstPlayerEntity->GetID());
+        if (position)
+        {
+            WorldVector2D playerPos = position->GetPosition();
+            int playerTileX = static_cast<int>(std::floor(playerPos.x / TILE_SIZE));
+            int playerTileY = static_cast<int>(std::floor(playerPos.y / TILE_SIZE));
+            
+            auto getChunkIndex = [](int tileCoord) {
+                return static_cast<int>(std::floor(static_cast<float>(tileCoord) / CHUNK_SIZE));
+            };
+
+            int playerChunkX = getChunkIndex(playerTileX);
+            int playerChunkY = getChunkIndex(playerTileY);
+
+            float cellSize = 10.0f;
+            float gridCenterX = 100.0f;
+            float gridCenterY = static_cast<float>(windowH) - 100.0f;
+
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+            // Draw Loaded Chunks (Blue)
+            // 绘制已加载的区块（蓝色）
+            SDL_SetRenderDrawColor(renderer, 100, 149, 237, 128); 
+            
+            for (const auto& [pos, chunk] : chunks)
+            {
+                int chunkIndexX = pos.x / CHUNK_SIZE;
+                int chunkIndexY = pos.y / CHUNK_SIZE;
+
+                float drawX = gridCenterX + (chunkIndexX - playerChunkX) * cellSize;
+                float drawY = gridCenterY + (chunkIndexY - playerChunkY) * cellSize;
+
+                SDL_FRect rect = {drawX, drawY, cellSize - 1.0f, cellSize - 1.0f};
+                SDL_RenderFillRect(renderer, &rect);
+            }
+
+            // Draw Current Chunk (Red)
+            // 绘制当前区块（红色）
+            SDL_SetRenderDrawColor(renderer, 255, 69, 0, 200);
+            SDL_FRect playerRect = {gridCenterX, gridCenterY, cellSize - 1.0f, cellSize - 1.0f};
+            SDL_RenderFillRect(renderer, &playerRect);
+            
+            // Draw Chunk Info Text
+            // 绘制区块信息文本
+            char chunkText[64];
+            snprintf(chunkText, sizeof(chunkText), "Chunk: (%d, %d)", playerChunkX, playerChunkY);
+            SDL_Surface* s = TTF_RenderText_Blended(appContext_->ttfFont, chunkText, strlen(chunkText), {255, 255, 255, 255});
+            if (s) {
+                SDL_Texture* t = SDL_CreateTextureFromSurface(renderer, s);
+                if (t) {
+                    SDL_FRect dst = {
+                        gridCenterX - s->w / 2.0f,
+                        gridCenterY + cellSize * 2.0f + 5.0f,
+                        static_cast<float>(s->w),
+                        static_cast<float>(s->h)
+                    };
+                    SDL_RenderTexture(renderer, t, nullptr, &dst);
+                    SDL_DestroyTexture(t);
+                }
+                SDL_DestroySurface(s);
+            }
+        }
+    }
 
     // 恢复原始颜色
     SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);

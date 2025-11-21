@@ -8,6 +8,7 @@
 #include "../../ecs/component/CameraComponent.h"
 #include "../../utils/Box2DUtils.h"
 #include "../component/RigidBody2DComponent.h"
+#include "box2d/box2d.h"
 
 
 void glimmer::PlayerControlSystem::Update(const float delta)
@@ -23,6 +24,15 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         }
 
         const b2BodyId bodyId = rigid->GetBodyId();
+        
+        // Fix: Set friction to 0 to prevent sticking to walls when moving against them
+        // 修复：将摩擦力设置为0，以防止移动时贴在墙上
+        b2ShapeId shapeId;
+        if (b2Body_GetShapes(bodyId, &shapeId, 1) > 0)
+        {
+            b2Shape_SetFriction(shapeId, 0.0f);
+        }
+
         const b2Vec2 vel = b2Body_GetLinearVelocity(bodyId);
         float vx = 0.0F;
         if (control->moveLeft)

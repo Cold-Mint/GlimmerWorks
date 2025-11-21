@@ -28,19 +28,74 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
         }
     }
 
+    // Greedy meshing for static tiles
+    bool visited[CHUNK_SIZE][CHUNK_SIZE] = {false};
+
     for (int x = 0; x < CHUNK_SIZE; x++)
     {
         for (int y = 0; y < CHUNK_SIZE; y++)
         {
+            if (visited[x][y]) continue;
+
             auto tile = chunk->GetTile(x, y);
-            if (tile.physicsType != TilePhysicsType::Static)
-                continue;
-            TileVector2D tilePos(chunkPos.x + x, chunkPos.y + y);
-            const WorldVector2D worldPos =
-                TileLayerComponent::TileToWorld(tileLayerPos, tilePos);
-            auto b2BodyId = CreateStaticBody(worldId,
-                                             worldPos,
-                                             {1, 1});
+            if (tile.physicsType != TilePhysicsType::Static) continue;
+
+            // Start a new rectangle
+            int w = 1;
+            int h = 1;
+
+            // Expand width
+            while (x + w < CHUNK_SIZE)
+            {
+                if (visited[x + w][y]) break;
+                auto nextTile = chunk->GetTile(x + w, y);
+                if (nextTile.physicsType != TilePhysicsType::Static) break;
+                w++;
+            }
+
+            // Expand height
+            bool canExpandHeight = true;
+            while (y + h < CHUNK_SIZE)
+            {
+                for (int k = 0; k < w; k++)
+                {
+                    if (visited[x + k][y + h])
+                    {
+                        canExpandHeight = false;
+                        break;
+                    }
+                    auto nextTile = chunk->GetTile(x + k, y + h);
+                    if (nextTile.physicsType != TilePhysicsType::Static)
+                    {
+                        canExpandHeight = false;
+                        break;
+                    }
+                }
+                if (!canExpandHeight) break;
+                h++;
+            }
+
+            // Mark visited
+            for (int i = 0; i < w; i++)
+            {
+                for (int j = 0; j < h; j++)
+                {
+                    visited[x + i][y + j] = true;
+                }
+            }
+
+            // Create body
+            // Center in local chunk coords (float)
+            float localCenterX = x + (w - 1) * 0.5f;
+            float localCenterY = y + (h - 1) * 0.5f;
+
+            // Convert to world coords
+            float worldX = (chunkPos.x + localCenterX) * TILE_SIZE + tileLayerPos.x;
+            float worldY = (chunkPos.y + localCenterY) * TILE_SIZE + tileLayerPos.y;
+
+            WorldVector2D worldPos = {worldX, worldY};
+
+            auto b2BodyId = CreateStaticBody(worldId, worldPos, {w, h});
             chunk->AddBodyId(b2BodyId);
         }
     }

@@ -13,7 +13,7 @@
 namespace fs = std::filesystem;
 
 
-bool glimmer::ResourcePackManager::isResourcePackAvailable(const ResourcePack &pack) {
+bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &pack) {
     const PackManifest &manifest = pack.getManifest();
     static const std::regex uuidPattern(
         "^[0-9a-fA-F]{8}-"
@@ -35,12 +35,12 @@ bool glimmer::ResourcePackManager::isResourcePackAvailable(const ResourcePack &p
     return manifest.resPack;
 }
 
-bool glimmer::ResourcePackManager::isResourcePackEnabled(const ResourcePack &pack,
+bool glimmer::ResourcePackManager::IsResourcePackEnabled(const ResourcePack &pack,
                                                          const std::vector<std::string> &enabledResourcePack) {
     return std::ranges::find(enabledResourcePack, pack.getManifest().id) != enabledResourcePack.end();
 }
 
-int glimmer::ResourcePackManager::scan(const std::string &path, const std::vector<std::string> &enabledResourcePack) {
+int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack) {
     resourcePackMap.clear();
     try {
         if (!fs::exists(path)) {
@@ -58,11 +58,11 @@ int glimmer::ResourcePackManager::scan(const std::string &path, const std::vecto
                 if (!packPtr->loadManifest()) {
                     continue;
                 }
-                if (!isResourcePackEnabled(*packPtr, enabledResourcePack)) {
+                if (!IsResourcePackEnabled(*packPtr, enabledResourcePack)) {
                     LogCat::w("Resource pack not enabled: ", packPtr->getManifest().id);
                     continue;
                 }
-                if (!isResourcePackAvailable(*packPtr)) {
+                if (!IsResourcePackAvailable(*packPtr)) {
                     continue;
                 }
                 resourcePackMap[packPtr->getManifest().id] = std::move(packPtr);
@@ -76,7 +76,7 @@ int glimmer::ResourcePackManager::scan(const std::string &path, const std::vecto
     }
 }
 
-std::optional<std::string> glimmer::ResourcePackManager::getFontPath(
+std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
     const std::vector<std::string> &enabledResourcePack,
     const std::string &language) {
     std::optional<std::string> defaultFontPath;
@@ -120,7 +120,7 @@ std::optional<std::string> glimmer::ResourcePackManager::getFontPath(
     return std::nullopt;
 }
 
-std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::loadTextureFromFile(
+std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(
     const std::vector<std::string> &enabledResourcePack, SDL_Renderer &renderer, const std::string &path) {
     namespace fs = std::filesystem;
 

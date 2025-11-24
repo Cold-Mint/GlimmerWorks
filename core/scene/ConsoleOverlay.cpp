@@ -5,6 +5,7 @@
 #include "ConsoleOverlay.h"
 
 #include "AppContext.h"
+#include "../log/LogCat.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "fmt/color.h"
 
@@ -68,6 +69,8 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         focusNextFrame = false;
     }
     if (ImGui::InputText("##Input", inputBuffer.data(), inputBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+        //It is executed when the player presses the Enter key.
+        //当玩家按下Enter键后执行。
         if (inputBuffer[0] != '\0') {
             const std::string cmdStr(inputBuffer.data(), strnlen(inputBuffer.data(), inputBuffer.size()));
             addMessage("> " + cmdStr);
@@ -103,6 +106,10 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         }
         inputBuffer.fill('\0');
         focusNextFrame = true;
+    }
+    if (ImGui::IsItemEdited()) {
+        //onTextChange
+        appContext->commandManager->GetSuggestions(inputBuffer.data());
     }
     ImGui::PopItemWidth();
     ImGui::End();

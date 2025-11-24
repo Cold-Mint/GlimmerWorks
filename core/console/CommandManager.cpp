@@ -18,3 +18,7 @@ glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) {
     }
     return nullptr;
 }
+
+std::vector<std::string> glimmer::CommandManager::GetSuggestions(const std::string &input) {
+
+}

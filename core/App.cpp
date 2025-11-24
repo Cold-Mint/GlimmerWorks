@@ -71,7 +71,7 @@ bool glimmer::App::init()
 
     LogCat::i("Setting ImGui style to Light...");
     ImGui::StyleColorsLight();
-    const auto fontPathOpt = appContext->resourcePackManager->getFontPath(
+    const auto fontPathOpt = appContext->resourcePackManager->GetFontPath(
         appContext->config->mods.enabledResourcePack,
         *appContext->GetLanguage());
 

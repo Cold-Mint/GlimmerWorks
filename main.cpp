@@ -95,7 +95,7 @@ int main()
         {
             return EXIT_FAILURE;
         }
-        if (resourcePackManager.scan(config.mods.resourcePackPath, config.mods.enabledResourcePack) == 0)
+        if (resourcePackManager.Scan(config.mods.resourcePackPath, config.mods.enabledResourcePack) == 0)
         {
             return EXIT_FAILURE;
         }

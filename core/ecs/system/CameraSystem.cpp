@@ -11,9 +11,10 @@ void glimmer::CameraSystem::Render(SDL_Renderer *renderer) {
     if (camera == nullptr) {
         return;
     }
-    int w, h;
-    SDL_GetWindowSize(appContext_->GetWindow(), &w, &h);
-    camera->SetSize(Vector2D(w, h));
+    int winW = 0;
+    int winH = 0;
+    SDL_GetWindowSize(appContext_->GetWindow(), &winW, &winH);
+    camera->SetSize(Vector2D(winW, winH));
 }
 
 std::string glimmer::CameraSystem::GetName() {

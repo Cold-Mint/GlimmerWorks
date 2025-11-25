@@ -71,7 +71,8 @@ bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent *rigid) c
         return 0.0F;
     };
 
-    RayContext leftCtx, rightCtx;
+    RayContext leftCtx;
+    RayContext rightCtx;
     b2World_CastRay(worldContext_->GetWorldId(), leftBottom, translation, filter, rayCallback, &leftCtx);
     b2World_CastRay(worldContext_->GetWorldId(), rightBottom, translation, filter, rayCallback, &rightCtx);
     return leftCtx.hit || rightCtx.hit;

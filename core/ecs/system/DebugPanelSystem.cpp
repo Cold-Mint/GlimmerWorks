@@ -19,7 +19,8 @@ bool glimmer::DebugPanelSystem::ShouldActivate() {
 
 void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
-    int windowW = 0, windowH = 0;
+    int windowW = 0;
+    int windowH = 0;
     SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
     if (windowW <= 0 || windowH <= 0) return;
 

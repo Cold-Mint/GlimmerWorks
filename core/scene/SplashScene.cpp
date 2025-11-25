@@ -46,12 +46,14 @@ void glimmer::SplashScene::Render(SDL_Renderer *renderer) {
         LogCat::i("Splash texture loaded, starting fade-in animation");
     }
     SDL_Texture *rawTex = splashTexture.get();
-    float texW = 0, texH = 0;
+    float texW = 0;
+    float texH = 0;
     if (!SDL_GetTextureSize(rawTex, &texW, &texH)) {
         LogCat::e("SDL_GetTextureSize Error: ", SDL_GetError());
         return;
     }
-    int winW = 0, winH = 0;
+    int winW = 0;
+    int winH = 0;
     if (!SDL_GetRenderOutputSize(renderer, &winW, &winH)) {
         LogCat::e("SDL_GetRenderOutputSize Error: ", SDL_GetError());
         return;

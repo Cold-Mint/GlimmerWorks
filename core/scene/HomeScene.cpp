@@ -30,7 +30,8 @@ void glimmer::HomeScene::Update(float delta) {
 }
 
 void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
-    int winW = 0, winH = 0;
+    int winW = 0;
+    int winH = 0;
     if (!SDL_GetRenderOutputSize(renderer, &winW, &winH)) {
         return;
     }

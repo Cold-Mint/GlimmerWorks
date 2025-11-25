@@ -26,7 +26,7 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         // 修复：将摩擦力设置为0，以防止移动时贴在墙上
         b2ShapeId shapeId;
         if (b2Body_GetShapes(bodyId, &shapeId, 1) > 0) {
-            b2Shape_SetFriction(shapeId, 0.0f);
+            b2Shape_SetFriction(shapeId, 0.0F);
         }
 
         const b2Vec2 vel = b2Body_GetLinearVelocity(bodyId);
@@ -68,7 +68,7 @@ bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent *rigid) c
     auto rayCallback = [](b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *ctx) -> float {
         auto *context = static_cast<RayContext *>(ctx);
         context->hit = true;
-        return 0.0f;
+        return 0.0F;
     };
 
     RayContext leftCtx, rightCtx;

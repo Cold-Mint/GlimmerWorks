@@ -76,8 +76,8 @@ std::vector<int> glimmer::WorldContext::GetHeightMap(int x) {
     std::vector<int> heights(CHUNK_SIZE);
     for (int i = 0; i < CHUNK_SIZE; ++i) {
         const auto sampleX = static_cast<float>(chunkX + i);
-        const float noiseValue = heightMapNoise->GetNoise(sampleX, 0.0f);
-        const int height = static_cast<int>((noiseValue + 1.0f) * 0.5f * (WORLD_MAX_Y - WORLD_MIN_Y)) + WORLD_MIN_Y;
+        const float noiseValue = heightMapNoise->GetNoise(sampleX, 0.0F);
+        const int height = static_cast<int>((noiseValue + 1.0F) * 0.5F * (WORLD_MAX_Y - WORLD_MIN_Y)) + WORLD_MIN_Y;
         heights[i] = height;
     }
 

@@ -40,7 +40,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         float totalTextHeight = totalLines * lineSpacing;
 
         // 起始 y 坐标垂直居中
-        yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0f;
+        yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;
 
         char buffer[64];
         snprintf(buffer, sizeof(buffer), "Player World: (%.1f, %.1f)", playerPos.x, playerPos.y);
@@ -69,7 +69,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             auto layerPos = worldContext_->GetComponent<Transform2DComponent>(tileEntity->GetID());
             if (!tileLayer || !layerPos) continue;
 
-            TileVector2D tileCoord = tileLayer->WorldToTile(layerPos->GetPosition(), playerPos);
+            TileVector2D tileCoord = TileLayerComponent::WorldToTile(layerPos->GetPosition(), playerPos);
             snprintf(buffer, sizeof(buffer), "Tile Coord: (%d, %d)", tileCoord.x, tileCoord.y);
 
             SDL_Surface *s = TTF_RenderText_Blended(appContext_->ttfFont, buffer, strlen(buffer), color);
@@ -98,15 +98,15 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     // 绿色
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 
-    const float cx = static_cast<float>(windowW) * 0.5f;
-    const float cy = static_cast<float>(windowH) * 0.5f;
+    const float centerX = static_cast<float>(windowW) * 0.5F;
+    const float centerY = static_cast<float>(windowH) * 0.5F;
 
     // 线宽 3px（用填充矩形实现以保证宽度）
-    constexpr float lineWidth = 3.0f;
+    constexpr float lineWidth = 3.0F;
 
     // 垂直线（满高）
     SDL_FRect vert = {
-        cx - lineWidth * 0.5f, // x
+        centerX - lineWidth * 0.5F, // x
         0.0f, // y
         lineWidth, // w
         static_cast<float>(windowH) // h
@@ -115,18 +115,18 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
     // 水平线（满宽）
     SDL_FRect horz = {
-        0.0f, // x
-        cy - lineWidth * 0.5f, // y
+        0.0F, // x
+        centerY - lineWidth * 0.5F, // y
         static_cast<float>(windowW), // w
         lineWidth // h
     };
     SDL_RenderFillRect(renderer, &horz);
 
     // 中心绿色点（稍大些以便可见）
-    const float pointSize = 6.0f;
+    constexpr float pointSize = 6.0F;
     SDL_FRect point = {
-        cx - pointSize * 0.5f,
-        cy - pointSize * 0.5f,
+        centerX - pointSize * 0.5F,
+        centerY - pointSize * 0.5F,
         pointSize,
         pointSize
     };
@@ -150,9 +150,9 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             int playerChunkX = getChunkIndex(playerTileX);
             int playerChunkY = getChunkIndex(playerTileY);
 
-            float cellSize = 10.0f;
-            float gridCenterX = 100.0f;
-            float gridCenterY = static_cast<float>(windowH) - 100.0f;
+            float cellSize = 10.0F;
+            float gridCenterX = 100.0F;
+            float gridCenterY = static_cast<float>(windowH) - 100.0F;
 
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -164,17 +164,17 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
                 int chunkIndexX = pos.x / CHUNK_SIZE;
                 int chunkIndexY = pos.y / CHUNK_SIZE;
 
-                float drawX = gridCenterX + (chunkIndexX - playerChunkX) * cellSize;
-                float drawY = gridCenterY + (chunkIndexY - playerChunkY) * cellSize;
+                float drawX = gridCenterX + static_cast<float>(chunkIndexX - playerChunkX) * cellSize;
+                float drawY = gridCenterY + static_cast<float>(chunkIndexY - playerChunkY) * cellSize;
 
-                SDL_FRect rect = {drawX, drawY, cellSize - 1.0f, cellSize - 1.0f};
+                SDL_FRect rect = {drawX, drawY, cellSize - 1.0F, cellSize - 1.0F};
                 SDL_RenderFillRect(renderer, &rect);
             }
 
             // Draw Current Chunk (Red)
             // 绘制当前区块（红色）
             SDL_SetRenderDrawColor(renderer, 255, 69, 0, 200);
-            SDL_FRect playerRect = {gridCenterX, gridCenterY, cellSize - 1.0f, cellSize - 1.0f};
+            SDL_FRect playerRect = {gridCenterX, gridCenterY, cellSize - 1.0F, cellSize - 1.0F};
             SDL_RenderFillRect(renderer, &playerRect);
 
             // Draw Visible Chunks (Orange)
@@ -198,17 +198,17 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
                 for (int cy = startChunkY; cy <= endChunkY; ++cy) {
                     for (int cx = startChunkX; cx <= endChunkX; ++cx) {
-                        float drawX = gridCenterX + (cx - playerChunkX) * cellSize;
-                        float drawY = gridCenterY + (cy - playerChunkY) * cellSize;
+                        float drawX = gridCenterX + static_cast<float>(cx - playerChunkX) * cellSize;
+                        float drawY = gridCenterY + static_cast<float>(cy - playerChunkY) * cellSize;
 
 
-                        SDL_FRect top = {drawX, drawY, cellSize, 1.0f};
+                        SDL_FRect top = {drawX, drawY, cellSize, 1.0F};
                         SDL_RenderFillRect(renderer, &top);
-                        SDL_FRect bottom = {drawX, drawY + cellSize - 1.0f, cellSize, 1.0f};
+                        SDL_FRect bottom = {drawX, drawY + cellSize - 1.0F, cellSize, 1.0F};
                         SDL_RenderFillRect(renderer, &bottom);
-                        SDL_FRect left = {drawX, drawY, 1.0f, cellSize};
+                        SDL_FRect left = {drawX, drawY, 1.0F, cellSize};
                         SDL_RenderFillRect(renderer, &left);
-                        SDL_FRect right = {drawX + cellSize - 1.0f, drawY, 1.0f, cellSize};
+                        SDL_FRect right = {drawX + cellSize - 1.0F, drawY, 1.0F, cellSize};
                         SDL_RenderFillRect(renderer, &right);
                     }
                 }

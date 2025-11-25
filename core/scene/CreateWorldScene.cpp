@@ -74,8 +74,8 @@ void glimmer::CreateWorldScene::Update(float delta) {
     ImGui::InputText("##Seed", seed_str, IM_ARRAYSIZE(seed_str));
     ImGui::SameLine();
     if (ImGui::Button(appContext->langs->random.c_str())) {
-        int new_seed = RandomSeed();
-        snprintf(seed_str, sizeof(seed_str), "%d", new_seed);
+        const int newSeed = RandomSeed();
+        (void) snprintf(seed_str, sizeof(seed_str), "%d", newSeed);
     }
 
     ImGui::Spacing();

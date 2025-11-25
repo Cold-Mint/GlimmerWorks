@@ -10,20 +10,15 @@
 #include "../component/Transform2DComponent.h"
 
 
-bool glimmer::DebugDrawBox2dSystem::ShouldActivate()
-{
+bool glimmer::DebugDrawBox2dSystem::ShouldActivate() {
     return appContext_->isDebugMode();
 }
 
-void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus)
-{
+void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus) {
     LogCat::d("[DebugDrawBox2dSystem] Activation changed: ", activeStatus);
-    if (activeStatus)
-    {
+    if (activeStatus) {
         LogCat::d("[DebugDrawBox2dSystem] DebugDraw attached to world.");
-    }
-    else
-    {
+    } else {
         renderer_ = nullptr;
         LogCat::d("[DebugDrawBox2dSystem] DebugDraw detached from world.");
     }
@@ -36,8 +31,7 @@ void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus)
  * @param color b2HexColor color 颜色（b2HexColor 格式）
  * @param alpha Alpha value (default: 255) 透明度（默认：255）
  */
-static void SetSDLColor(SDL_Renderer* renderer, b2HexColor color, Uint8 alpha = 255)
-{
+static void SetSDLColor(SDL_Renderer *renderer, b2HexColor color, Uint8 alpha = 255) {
     Uint8 r = color >> 16 & 0xFF;
     Uint8 g = color >> 8 & 0xFF;
     Uint8 b = color & 0xFF;
@@ -53,20 +47,18 @@ static void SetSDLColor(SDL_Renderer* renderer, b2HexColor color, Uint8 alpha = 
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
-    const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
-{
+    const b2Vec2 *vertices, int vertexCount, b2HexColor color, void *context) {
     if (!renderer_) return;
 
     SetSDLColor(renderer_, color);
     LogCat::d("[DrawPolygon] vertexCount=", vertexCount);
 
-    for (int i = 0; i < vertexCount; ++i)
-    {
-        const b2Vec2& v1 = vertices[i];
-        const b2Vec2& v2 = vertices[(i + 1) % vertexCount];
+    for (int i = 0; i < vertexCount; ++i) {
+        const b2Vec2 &v1 = vertices[i];
+        const b2Vec2 &v2 = vertices[(i + 1) % vertexCount];
         SDL_RenderLine(renderer_,
-                       static_cast<int>(v1.x * kScale), static_cast<int>(-v1.y * kScale),
-                       static_cast<int>(v2.x * kScale), static_cast<int>(-v2.y * kScale));
+                       v1.x * kScale, -v1.y * kScale,
+                       v2.x * kScale, -v2.y * kScale);
 
         LogCat::d("  Edge ", i, ": (", v1.x, ",", v1.y, ") -> (", v2.x, ",", v2.y, ")");
     }
@@ -83,29 +75,24 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
-    b2Transform transform, const b2Vec2* vertices, int vertexCount,
-    float radius, b2HexColor color, void* context)
-{
-    if (context == nullptr)
-    {
+    b2Transform transform, const b2Vec2 *vertices, int vertexCount,
+    float radius, b2HexColor color, void *context) {
+    if (context == nullptr) {
         LogCat::w("DrawSolidPolygonFcn context= nullptr");
         return;
     }
-    auto* worldContext = static_cast<WorldContext*>(context);
-    Transform2DComponent* cameraTransform2D = worldContext->GetCameraTransform2D();
-    CameraComponent* cameraComponent = worldContext->GetCameraComponent();
-    if (cameraTransform2D == nullptr || cameraComponent == nullptr)
-    {
+    auto *worldContext = static_cast<WorldContext *>(context);
+    Transform2DComponent *cameraTransform2D = worldContext->GetCameraTransform2D();
+    CameraComponent *cameraComponent = worldContext->GetCameraComponent();
+    if (cameraTransform2D == nullptr || cameraComponent == nullptr) {
         LogCat::w("DrawSolidPolygonFcn cameraPosition or cameraComponent is nullptr");
         return;
     }
-    if (vertexCount != 4)
-    {
+    if (vertexCount != 4) {
         LogCat::w("It's not a solid rectangle");
         return;
     }
-    if (renderer_ == nullptr)
-    {
+    if (renderer_ == nullptr) {
         LogCat::w("DrawSolidPolygonFcn renderer_=nullptr");
         return;
     }
@@ -121,8 +108,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
         cameraTransform2D->GetPosition(), lowerRightVector4);
     SDL_Color oldColor;
     SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-    const SDL_Color lightBlue = {100, 149, 237, 128}; // 浅蓝 (CornflowerBlue)
-    const SDL_Color blue = {0, 0, 255, 255}; // 深蓝边框
+    constexpr SDL_Color lightBlue = {100, 149, 237, 128}; // 浅蓝 (CornflowerBlue)
+    constexpr SDL_Color blue = {0, 0, 255, 255}; // 深蓝边框
     SDL_FRect renderQuad;
     renderQuad.x = upperLeftViewportVector1.x;
     renderQuad.y = upperLeftViewportVector1.y;
@@ -133,8 +120,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     SDL_RenderFillRect(renderer_, &renderQuad);
 
     SDL_SetRenderDrawColor(renderer_, blue.r, blue.g, blue.b, blue.a);
-    for (int i = 0; i < 3; ++i)
-    {
+    for (int i = 0; i < 3; ++i) {
         SDL_FRect border = {
             renderQuad.x - static_cast<float>(i),
             renderQuad.y - static_cast<float>(i),
@@ -158,24 +144,22 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
-    b2Vec2 center, float radius, b2HexColor color, void* context)
-{
+    b2Vec2 center, float radius, b2HexColor color, void *context) {
     if (!renderer_) return;
     SetSDLColor(renderer_, color);
     LogCat::d("[DrawCircle] center=(", center.x, ",", center.y, ") radius=", radius);
 
-    constexpr float step = 2.0f * kPi / kCircleSegments;
-    for (int i = 0; i < kCircleSegments; ++i)
-    {
-        const float a1 = i * step;
-        const float a2 = (i + 1) * step;
+    constexpr float step = 2.0F * kPi / kCircleSegments;
+    for (int i = 0; i < kCircleSegments; ++i) {
+        const float a1 = static_cast<float>(i) * step;
+        const float a2 = static_cast<float>(i + 1) * step;
         const float x1 = center.x + radius * cosf(a1);
         const float y1 = center.y + radius * sinf(a1);
         const float x2 = center.x + radius * cosf(a2);
         const float y2 = center.y + radius * sinf(a2);
         SDL_RenderLine(renderer_,
-                       static_cast<int>(x1 * kScale), static_cast<int>(-y1 * kScale),
-                       static_cast<int>(x2 * kScale), static_cast<int>(-y2 * kScale));
+                       x1 * kScale, -y1 * kScale,
+                       x2 * kScale, -y2 * kScale);
     }
 }
 
@@ -188,25 +172,23 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
-    b2Transform transform, float radius, b2HexColor color, void* context)
-{
+    b2Transform transform, float radius, b2HexColor color, void *context) {
     if (!renderer_) return;
     SetSDLColor(renderer_, color, 150);
     const b2Vec2 center = transform.p;
     LogCat::d("[DrawSolidCircle] center=(", center.x, ",", center.y, ") radius=", radius);
 
     constexpr float step = 2.0f * kPi / kCircleSegments;
-    for (int i = 0; i < kCircleSegments; ++i)
-    {
-        const float a1 = i * step;
-        const float a2 = (i + 1) * step;
+    for (int i = 0; i < kCircleSegments; ++i) {
+        const float a1 = static_cast<float>(i) * step;
+        const float a2 = static_cast<float>(i + 1) * step;
         const float x1 = center.x + radius * cosf(a1);
         const float y1 = center.y + radius * sinf(a1);
         const float x2 = center.x + radius * cosf(a2);
         const float y2 = center.y + radius * sinf(a2);
         SDL_RenderLine(renderer_,
-                       static_cast<int>(x1 * kScale), static_cast<int>(-y1 * kScale),
-                       static_cast<int>(x2 * kScale), static_cast<int>(-y2 * kScale));
+                       x1 * kScale, -y1 * kScale,
+                       x2 * kScale, -y2 * kScale);
     }
 }
 
@@ -220,31 +202,28 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
-    b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context)
-{
+    b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void *context) {
     if (!renderer_) return;
     SetSDLColor(renderer_, color);
     LogCat::d("[DrawSolidCapsule] p1=(", p1.x, ",", p1.y, ") p2=(", p2.x, ",", p2.y, ") radius=", radius);
 
     SDL_RenderLine(renderer_,
-                   static_cast<int>(p1.x * kScale), static_cast<int>(-p1.y * kScale),
-                   static_cast<int>(p2.x * kScale), static_cast<int>(-p2.y * kScale));
+                   p1.x * kScale, -p1.y * kScale,
+                   p2.x * kScale, -p2.y * kScale);
 
     constexpr float step = 2.0f * kPi / kCircleSegments;
-    for (int j = 0; j < 2; ++j)
-    {
+    for (int j = 0; j < 2; ++j) {
         b2Vec2 c = (j == 0 ? p1 : p2);
-        for (int i = 0; i < kCircleSegments; ++i)
-        {
-            const float a1 = i * step;
-            const float a2 = (i + 1) * step;
+        for (int i = 0; i < kCircleSegments; ++i) {
+            const float a1 = static_cast<float>(i) * step;
+            const float a2 = static_cast<float>(i + 1) * step;
             const float x1 = c.x + radius * cosf(a1);
             const float y1 = c.y + radius * sinf(a1);
             const float x2 = c.x + radius * cosf(a2);
             const float y2 = c.y + radius * sinf(a2);
             SDL_RenderLine(renderer_,
-                           static_cast<int>(x1 * kScale), static_cast<int>(-y1 * kScale),
-                           static_cast<int>(x2 * kScale), static_cast<int>(-y2 * kScale));
+                           x1 * kScale, -y1 * kScale,
+                           x2 * kScale, -y2 * kScale);
         }
     }
 }
@@ -258,13 +237,12 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
-    b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context)
-{
+    b2Vec2 p1, b2Vec2 p2, b2HexColor color, void *context) {
     if (!renderer_) return;
     SetSDLColor(renderer_, color);
     SDL_RenderLine(renderer_,
-                   static_cast<int>(p1.x * kScale), static_cast<int>(-p1.y * kScale),
-                   static_cast<int>(p2.x * kScale), static_cast<int>(-p2.y * kScale));
+                   p1.x * kScale, -p1.y * kScale,
+                   p2.x * kScale, -p2.y * kScale);
     LogCat::d("[DrawSegment] p1=(", p1.x, ",", p1.y, ") p2=(", p2.x, ",", p2.y, ")");
 }
 
@@ -274,23 +252,22 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
  * @param transform Transform to draw 要绘制的变换
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
-void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, void* context)
-{
+void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, void *context) {
     if (!renderer_) return;
 
-    const b2Vec2& p = transform.p;
+    const b2Vec2 &p = transform.p;
     b2Vec2 xAxis = {p.x + 0.4f * transform.q.c, p.y + 0.4f * transform.q.s};
     b2Vec2 yAxis = {p.x - 0.4f * transform.q.s, p.y + 0.4f * transform.q.c};
 
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
     SDL_RenderLine(renderer_,
-                   static_cast<int>(p.x * kScale), static_cast<int>(-p.y * kScale),
-                   static_cast<int>(xAxis.x * kScale), static_cast<int>(-xAxis.y * kScale));
+                   p.x * kScale, -p.y * kScale,
+                   xAxis.x * kScale, -xAxis.y * kScale);
 
     SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 255);
     SDL_RenderLine(renderer_,
-                   static_cast<int>(p.x * kScale), static_cast<int>(-p.y * kScale),
-                   static_cast<int>(yAxis.x * kScale), static_cast<int>(-yAxis.y * kScale));
+                   p.x * kScale, -p.y * kScale,
+                   yAxis.x * kScale, -yAxis.y * kScale);
 
     LogCat::d("[DrawTransform] origin=(", p.x, ",", p.y, ") xAxis=(", xAxis.x, ",", xAxis.y, ") yAxis=(", yAxis.x, ",",
               yAxis.y, ")");
@@ -305,12 +282,11 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
-    b2Vec2 p, float size, b2HexColor color, void* context)
-{
+    b2Vec2 p, float size, b2HexColor color, void *context) {
     if (!renderer_) return;
     SetSDLColor(renderer_, color);
-    const int px = static_cast<int>(p.x * kScale);
-    const int py = static_cast<int>(-p.y * kScale);
+    const float px = p.x * kScale;
+    const float py = -p.y * kScale;
     const SDL_FRect rect = {(px - size / 2), (py - size / 2), size, size};
     SDL_RenderRect(renderer_, &rect);
     LogCat::d("[DrawPoint] pos=(", p.x, ",", p.y, ") size=", size);
@@ -325,13 +301,11 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawStringFcn(
-    b2Vec2 p, const char* s, b2HexColor color, void* context)
-{
+    b2Vec2 p, const char *s, b2HexColor color, void *context) {
     LogCat::d("Box2D Debug String (", p.x, ", ", p.y, "): ", s);
 }
 
-void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
-{
+void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
     renderer_ = renderer;
     b2DebugDraw debugDraw = b2DefaultDebugDraw();
     debugDraw.DrawPolygonFcn = b2DrawPolygonFcn;
@@ -348,12 +322,10 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
     b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
 }
 
-uint8_t glimmer::DebugDrawBox2dSystem::GetRenderOrder()
-{
+uint8_t glimmer::DebugDrawBox2dSystem::GetRenderOrder() {
     return GameSystem::GetRenderOrder();
 }
 
-std::string glimmer::DebugDrawBox2dSystem::GetName()
-{
+std::string glimmer::DebugDrawBox2dSystem::GetName() {
     return "glimmer.DebugDrawBox2dSystem";
 }

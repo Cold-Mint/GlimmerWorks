@@ -22,11 +22,11 @@ void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2
     bodyDef_.fixedRotation = fixedRotation_;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
-    shapeDef.density = 1.0f;
-    shapeDef.material.friction = 0.3f;
+    shapeDef.density = 1.0F;
+    shapeDef.material.friction = 0.3F;
     const b2Polygon shape = b2MakeBox(
-        Box2DUtils::ToMeters(width_ * 0.5f),
-        Box2DUtils::ToMeters(height_ * 0.5f)
+        Box2DUtils::ToMeters(width_ * 0.5F),
+        Box2DUtils::ToMeters(height_ * 0.5F)
     );
 
     b2CreatePolygonShape(bodyId_, &shapeDef, &shape);

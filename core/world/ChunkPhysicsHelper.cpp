@@ -86,16 +86,16 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
 
             // Create body
             // Center in local chunk coords (float)
-            float localCenterX = x + (w - 1) * 0.5f;
-            float localCenterY = y + (h - 1) * 0.5f;
+            float localCenterX = static_cast<float>(x) + static_cast<float>(w - 1) * 0.5F;
+            float localCenterY = static_cast<float>(y) + static_cast<float>(h - 1) * 0.5F;
 
             // Convert to world coords
-            float worldX = (chunkPos.x + localCenterX) * TILE_SIZE + tileLayerPos.x;
-            float worldY = (chunkPos.y + localCenterY) * TILE_SIZE + tileLayerPos.y;
+            const float worldX = (static_cast<float>(chunkPos.x) + localCenterX) * TILE_SIZE + tileLayerPos.x;
+            const float worldY = (static_cast<float>(chunkPos.y) + localCenterY) * TILE_SIZE + tileLayerPos.y;
 
-            WorldVector2D worldPos = {worldX, worldY};
+            const WorldVector2D worldPos = {worldX, worldY};
 
-            auto b2BodyId = CreateStaticBody(worldId, worldPos, {w, h});
+            const auto b2BodyId = CreateStaticBody(worldId, worldPos, {w, h});
             chunk->AddBodyId(b2BodyId);
         }
     }
@@ -131,7 +131,7 @@ void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(Chunk* chunk)
 {
     if (!chunk) return;
 
-    for (b2BodyId bodyId : chunk->GetAttachedBodies())
+    for (const b2BodyId bodyId : chunk->GetAttachedBodies())
     {
         if (b2Body_IsValid(bodyId))
         {

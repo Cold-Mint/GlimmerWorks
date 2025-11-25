@@ -5,12 +5,10 @@
 #ifndef GLIMMERWORKS_VECTOR2D_H
 #define GLIMMERWORKS_VECTOR2D_H
 
-namespace glimmer
-{
-
+namespace glimmer {
     struct Vector2DI;
-    struct Vector2D
-    {
+
+    struct Vector2D {
         float x;
         float y;
 
@@ -20,8 +18,7 @@ namespace glimmer
          * Initializes x and y to 0.0f
          * 初始化 x 和 y 为 0.0f
          */
-        Vector2D() : x(0.0f), y(0.0f)
-        {
+        Vector2D() : x(0.0F), y(0.0F) {
         }
 
         /**
@@ -32,12 +29,10 @@ namespace glimmer
          * @param x X 分量
          * @param y Y 分量
          */
-        Vector2D(const float x, const float y) : x(x), y(y)
-        {
+        Vector2D(const float x, const float y) : x(x), y(y) {
         }
 
-        Vector2D(const int x, const int y) : x(static_cast<float>(x)), y(static_cast<float>(y))
-        {
+        Vector2D(const int x, const int y) : x(static_cast<float>(x)), y(static_cast<float>(y)) {
         }
 
         /**
@@ -46,14 +41,15 @@ namespace glimmer
          * @param rhs Right-hand side vector 右侧向量
          * @return A new vector that is the sum of this and rhs 加法结果向量
          */
-        Vector2D operator+(const Vector2D& rhs) const;
+        Vector2D operator+(const Vector2D &rhs) const;
+
         /**
          * Vector subtraction
          * 向量减法
          * @param rhs Right-hand side vector 右侧向量
          * @return A new vector that is the difference of this and rhs 减法结果向量
          */
-        Vector2D operator-(const Vector2D& rhs) const;
+        Vector2D operator-(const Vector2D &rhs) const;
 
         /**
          * Scalar multiplication
@@ -77,7 +73,7 @@ namespace glimmer
          * @param rhs Right-hand side vector 右侧向量
          * @return Reference to this vector after addition 加法后的自身引用
          */
-        Vector2D& operator+=(const Vector2D& rhs);
+        Vector2D &operator+=(const Vector2D &rhs);
 
         /**
          * Subtract another vector from this one
@@ -85,7 +81,7 @@ namespace glimmer
          * @param rhs Right-hand side vector 右侧向量
          * @return Reference to this vector after subtraction 减法后的自身引用
          */
-        Vector2D& operator-=(const Vector2D& rhs);
+        Vector2D &operator-=(const Vector2D &rhs);
 
         /**
          * Compute the dot product of two vectors
@@ -93,7 +89,8 @@ namespace glimmer
          * @param rhs Right-hand side vector 右侧向量
          * @return The dot product result 点积结果
          */
-        [[nodiscard]] float dot(const Vector2D& rhs) const;
+        [[nodiscard]] float dot(const Vector2D &rhs) const;
+
         /**
          * Compute the length (magnitude) of the vector  计算向量的长度（模）
          * @return The vector length 向量的长度
@@ -111,14 +108,14 @@ namespace glimmer
          * @param rhs Target vector 目标向量
          * @return The distance between the two vectors 两个向量之间的距离
          */
-        [[nodiscard]] float Distance(const Vector2D& rhs) const;
+        [[nodiscard]] float Distance(const Vector2D &rhs) const;
 
         /**
          * Compute the squared distance to another vector (faster, no sqrt)   计算到另一个向量的距离平方（更高性能，无需开方）
          * @param rhs Target vector  目标向量
          * @return The squared distance between the two vectors  两个向量之间的距离平方
          */
-        [[nodiscard]] float DistanceSquared(const Vector2D& rhs) const;
+        [[nodiscard]] float DistanceSquared(const Vector2D &rhs) const;
 
 
         /**
@@ -153,8 +150,7 @@ namespace glimmer
      * @param v Vector 向量
      * @return A new vector scaled by the given scalar 乘以标量后的新向量
      */
-    inline Vector2D operator*(const float scalar, const Vector2D& v)
-    {
+    inline Vector2D operator*(const float scalar, const Vector2D &v) {
         return v * scalar;
     }
 }

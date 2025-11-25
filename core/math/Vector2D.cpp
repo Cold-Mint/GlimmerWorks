@@ -73,7 +73,7 @@ float glimmer::Vector2D::DistanceSquared(const Vector2D& rhs) const
 glimmer::Vector2D glimmer::Vector2D::Normalized() const
 {
     const float len = length();
-    return len > 0.0f ? *this / len : Vector2D();
+    return len > 0.0F ? *this / len : Vector2D();
 }
 
 glimmer::Vector2DI glimmer::Vector2D::ToInt() const

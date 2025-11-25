@@ -23,10 +23,10 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
     if (windowW <= 0 || windowH <= 0) return;
 
-    float yOffset = 0.0f;
+    float yOffset = 0.0F;
 
     for (auto &entity: entities) {
-        constexpr float lineSpacing = 20.0f;
+        constexpr float lineSpacing = 20.0F;
         SDL_Color color = {255, 255, 180, 255};
         auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
         auto position = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());

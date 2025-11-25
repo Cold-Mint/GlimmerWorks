@@ -99,8 +99,8 @@ b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(b2WorldId worldId, WorldV
     bodyDef_.position = b2Vec2(Box2DUtils::ToMeters(pos.x), Box2DUtils::ToMeters(pos.y));
     auto bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
-    shapeDef.density = 1.0f;
-    shapeDef.material.friction = 0.3f;
+    shapeDef.density = 1.0F;
+    shapeDef.material.friction = 0.3F;
     const b2Polygon bodyPolygon = b2MakeBox(Box2DUtils::ToMeters(static_cast<float>(size.x * TILE_SIZE) / 2),
                                             Box2DUtils::ToMeters(static_cast<float>(size.y * TILE_SIZE) / 2));
     b2CreatePolygonShape(bodyId_, &shapeDef, &bodyPolygon);

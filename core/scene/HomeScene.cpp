@@ -100,7 +100,7 @@ void glimmer::HomeScene::generateStars() {
     std::uniform_real_distribution sizeDist(1.0F, 10.0F);
     constexpr int minStars = 50;
     constexpr int maxStars = 1000;
-    constexpr float densityFactor = 0.03f;
+    constexpr float densityFactor = 0.03F;
 
     float areaSqrt = std::sqrt(static_cast<float>(windowWidth * windowHeight));
     int numStars = static_cast<int>(areaSqrt * densityFactor);

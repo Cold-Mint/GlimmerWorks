@@ -31,7 +31,6 @@ namespace glimmer
     class TileLayerComponent;
     class Transform2DComponent;
     class CameraComponent;
-    class GameSystem;
     class GameEntity;
     class Saves;
 

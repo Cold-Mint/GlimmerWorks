@@ -178,7 +178,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
     const b2Vec2 center = transform.p;
     LogCat::d("[DrawSolidCircle] center=(", center.x, ",", center.y, ") radius=", radius);
 
-    constexpr float step = 2.0f * kPi / kCircleSegments;
+    constexpr float step = 2.0F * kPi / kCircleSegments;
     for (int i = 0; i < kCircleSegments; ++i) {
         const float a1 = static_cast<float>(i) * step;
         const float a2 = static_cast<float>(i + 1) * step;
@@ -211,7 +211,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
                    p1.x * kScale, -p1.y * kScale,
                    p2.x * kScale, -p2.y * kScale);
 
-    constexpr float step = 2.0f * kPi / kCircleSegments;
+    constexpr float step = 2.0F * kPi / kCircleSegments;
     for (int j = 0; j < 2; ++j) {
         b2Vec2 c = (j == 0 ? p1 : p2);
         for (int i = 0; i < kCircleSegments; ++i) {

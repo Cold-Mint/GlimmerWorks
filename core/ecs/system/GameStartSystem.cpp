@@ -40,7 +40,6 @@ void glimmer::GameStartSystem::Update(float delta) {
     debugDrawComponent->SetSize(Vector2D(static_cast<float>(TILE_SIZE), static_cast<float>(TILE_SIZE)));
     debugDrawComponent->SetColor(SDL_Color{255, 0, 0, 255});
     const auto cameraComponent = worldContext_->AddComponent<CameraComponent>(playerEntity);
-    cameraComponent->SetSpeed(1.0F);
     worldContext_->SetCameraComponent(cameraComponent);
     worldContext_->SetCameraPosition(transform2DComponentInPlayer);
     const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);

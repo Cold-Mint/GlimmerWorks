@@ -21,19 +21,13 @@ namespace glimmer
          * Size: Camera size (pixel coordinates)
          * Size 相机尺寸（像素坐标）
          */
-        Vector2D size_ = {800.0f, 600.0f};
-
-        /**
-        * speed camera speed (unit: pixels per second)
-        * speed 相机速度（单位：像素/秒）
-        */
-        float speed_ = 100.0f;
+        Vector2D size_ = {800.0F, 600.0F};
 
         /**
          * zoom camera zoom ratio
          * zoom 相机缩放比例
          */
-        float zoom_ = 1.0f;
+        float zoom_ = 1.0F;
 
     public:
         /**
@@ -65,13 +59,6 @@ namespace glimmer
 
 
         /**
-         * Set the camera speed
-         * 设置相机速度
-         * @param speed The camera speed (units: pixels/second) 相机速度（单位：像素/秒）
-         */
-        void SetSpeed(float speed);
-
-        /**
          * SetSize
          * 设置尺寸
          * @param size Size 尺寸
@@ -85,13 +72,6 @@ namespace glimmer
          */
         [[nodiscard]] Vector2D GetSize() const;
 
-
-        /**
-         * Get the camera speed
-         * 获取相机速度
-         * @return The camera speed (units: pixels/second) 相机速度（单位：像素/秒）
-         */
-        [[nodiscard]] float GetSpeed() const;
 
         /**
          * Get the camera zoom factor

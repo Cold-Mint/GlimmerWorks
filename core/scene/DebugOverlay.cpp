@@ -133,7 +133,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
                 if (!winTexture) {
                     LogCat::w("SDL_CreateTextureFromSurface failed (win): %s", SDL_GetError());
                 } else {
-                    constexpr float padding = 4.0f;
+                    constexpr float padding = 4.0F;
 
                     SDL_FRect winRect = {
                         (static_cast<float>(w) - static_cast<float>(winSurface->w) - padding),

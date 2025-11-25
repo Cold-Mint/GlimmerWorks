@@ -77,25 +77,23 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
             appContext->commandExecutor->ExecuteAsync(cmdStr, appContext->commandManager,
                                                       [this](const CommandResult result, const std::string &cmd) {
                                                           std::string message;
+                                                          std::string pattern;
                                                           switch (result) {
                                                               case CommandResult::Success:
-                                                                  message = fmt::format(
-                                                                      fmt::runtime(appContext->langs->executedSuccess),
-                                                                      cmd);
+                                                                  pattern = appContext->langs->executedSuccess;
                                                                   break;
                                                               case CommandResult::Failure:
-                                                                  message = fmt::format(
-                                                                      fmt::runtime(appContext->langs->executionFailed),
-                                                                      cmd);
+                                                                  pattern = appContext->langs->executionFailed;
                                                                   break;
                                                               case CommandResult::EmptyArgs:
                                                                   message = appContext->langs->commandIsEmpty;
                                                                   break;
                                                               case CommandResult::NotFound:
-                                                                  message = fmt::format(
-                                                                      fmt::runtime(appContext->langs->commandNotFound),
-                                                                      cmd);
+                                                                  pattern = appContext->langs->commandNotFound;
                                                                   break;
+                                                          }
+                                                          if (!pattern.empty()) {
+                                                              message = fmt::format(fmt::runtime(pattern), cmd);
                                                           }
                                                           addMessage(message);
                                                       },

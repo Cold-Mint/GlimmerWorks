@@ -10,15 +10,12 @@
 
 #include "../GameComponent.h"
 #include "../../math/Vector2D.h"
-#include "../../math/Vector2DI.h"
 #include "SDL3/SDL_rect.h"
 #include "../../world/Tile.h"
+using TileVector2D = glimmer::Vector2DI;
 
-namespace glimmer
-{
-
-    class TileLayerComponent final : public GameComponent
-    {
+namespace glimmer {
+    class TileLayerComponent final : public GameComponent {
     public:
         /**
          *Tile To World
@@ -27,7 +24,7 @@ namespace glimmer
          * @param tilePos TileVector2D 瓦片坐标
          * @return
          */
-        [[nodiscard]] static WorldVector2D TileToWorld(const WorldVector2D& tileLayerPos, const TileVector2D& tilePos);
+        [[nodiscard]] static WorldVector2D TileToWorld(const WorldVector2D &tileLayerPos, const TileVector2D &tilePos);
 
         /**
          * WorldToTile
@@ -36,7 +33,7 @@ namespace glimmer
          * @param worldPos worldPos 世界坐标
          * @return
          */
-        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D& tileLayerPos, const WorldVector2D& worldPos);
+        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D &tileLayerPos, const WorldVector2D &worldPos);
 
         /**
          * Get Tiles In Viewport
@@ -44,8 +41,8 @@ namespace glimmer
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, Tile>> GetTilesInViewport(const WorldVector2D& tileLayerPos,
-            const SDL_FRect& worldViewport) const;
+        [[nodiscard]] std::vector<std::pair<TileVector2D, Tile> > GetTilesInViewport(const WorldVector2D &tileLayerPos,
+            const SDL_FRect &worldViewport) const;
 
         /**
          * Set Tile
@@ -53,14 +50,14 @@ namespace glimmer
          * @param tilePos tilePos 瓦片坐标
          * @param tile tile 瓦片
          */
-        void SetTile(const TileVector2D& tilePos, const Tile& tile);
+        void SetTile(const TileVector2D &tilePos, const Tile &tile);
 
         /**
          * Clear Tile
          * 清除指定位置的区块
          * @param tilePos
          */
-        void ClearTile(const TileVector2D& tilePos);
+        void ClearTile(const TileVector2D &tilePos);
 
         /**
          * GetTile
@@ -68,7 +65,7 @@ namespace glimmer
          * @param tilePos 瓦片坐标
          * @return Tile 瓦片信息
          */
-        [[nodiscard]] std::optional<Tile> GetTile(const TileVector2D& tilePos) const;
+        [[nodiscard]] std::optional<Tile> GetTile(const TileVector2D &tilePos) const;
 
     private:
         /**
@@ -76,6 +73,7 @@ namespace glimmer
         * 使用unordered_map实现稀疏存储：key是瓦片坐标
          */
         std::unordered_map<long long, Tile> tileMap_;
+
         // 辅助方法：把(x,y)编码成唯一的key
         [[nodiscard]] static long long EncodeTileKey(int x, int y);
     };

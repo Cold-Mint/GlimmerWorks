@@ -6,20 +6,19 @@
 
 #include "../../Constants.h"
 #include "../../world/Tile.h"
+#include "../../math/Vector2DI.h"
 
 
-glimmer::WorldVector2D glimmer::TileLayerComponent::TileToWorld(const WorldVector2D& tileLayerPos,
-                                                                const TileVector2D& tilePos)
-{
+glimmer::WorldVector2D glimmer::TileLayerComponent::TileToWorld(const WorldVector2D &tileLayerPos,
+                                                                const TileVector2D &tilePos) {
     return {
         static_cast<float>(tilePos.x) * TILE_SIZE + tileLayerPos.x,
         static_cast<float>(tilePos.y) * TILE_SIZE + tileLayerPos.y
     };
 }
 
-glimmer::TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D& tileLayerPos,
-                                                               const WorldVector2D& worldPos)
-{
+TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D &tileLayerPos,
+                                                               const WorldVector2D &worldPos) {
     const float localX = worldPos.x - tileLayerPos.x;
     const float localY = worldPos.y - tileLayerPos.y;
 
@@ -30,9 +29,8 @@ glimmer::TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector
 }
 
 
-std::vector<std::pair<glimmer::TileVector2D, glimmer::Tile>> glimmer::TileLayerComponent::GetTilesInViewport(
-    const WorldVector2D& tileLayerPos, const SDL_FRect& worldViewport) const
-{
+std::vector<std::pair<TileVector2D, glimmer::Tile> > glimmer::TileLayerComponent::GetTilesInViewport(
+    const WorldVector2D &tileLayerPos, const SDL_FRect &worldViewport) const {
     const TileVector2D topLeft = WorldToTile(tileLayerPos, {worldViewport.x, worldViewport.y});
     //The purpose of adding "TILE_SIZE" in the lower right corner is to prevent blank areas from appearing.
     //右下角加TILE_SIZE的目的是，防止出现空白区域。
@@ -40,11 +38,9 @@ std::vector<std::pair<glimmer::TileVector2D, glimmer::Tile>> glimmer::TileLayerC
                                                      worldViewport.x + worldViewport.w + TILE_SIZE,
                                                      worldViewport.y + worldViewport.h + TILE_SIZE
                                                  });
-    std::vector<std::pair<TileVector2D, Tile>> visibleTiles;
-    for (int y = topLeft.y; y <= bottomRight.y; ++y)
-    {
-        for (int x = topLeft.x; x <= bottomRight.x; ++x)
-        {
+    std::vector<std::pair<TileVector2D, Tile> > visibleTiles;
+    for (int y = topLeft.y; y <= bottomRight.y; ++y) {
+        for (int x = topLeft.x; x <= bottomRight.x; ++x) {
             long long key = EncodeTileKey(x, y);
             auto it = tileMap_.find(key);
             if (it != tileMap_.end()) { visibleTiles.emplace_back(TileVector2D{x, y}, it->second); }
@@ -53,20 +49,17 @@ std::vector<std::pair<glimmer::TileVector2D, glimmer::Tile>> glimmer::TileLayerC
     return visibleTiles;
 }
 
-void glimmer::TileLayerComponent::SetTile(const TileVector2D& tilePos, const Tile& tile)
-{
+void glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, const Tile &tile) {
     tileMap_[EncodeTileKey(tilePos.x, tilePos.y)] = tile;
 }
 
-void glimmer::TileLayerComponent::ClearTile(const TileVector2D& tilePos)
-{
+void glimmer::TileLayerComponent::ClearTile(const TileVector2D &tilePos) {
     const auto key = EncodeTileKey(tilePos.x, tilePos.y);
     tileMap_.erase(key);
 }
 
 
-std::optional<glimmer::Tile> glimmer::TileLayerComponent::GetTile(const TileVector2D& tilePos) const
-{
+std::optional<glimmer::Tile> glimmer::TileLayerComponent::GetTile(const TileVector2D &tilePos) const {
     long long key = EncodeTileKey(tilePos.x, tilePos.y);
     auto it = tileMap_.find(key);
     if (it != tileMap_.end())
@@ -74,7 +67,6 @@ std::optional<glimmer::Tile> glimmer::TileLayerComponent::GetTile(const TileVect
     return std::nullopt;
 }
 
-long long glimmer::TileLayerComponent::EncodeTileKey(int x, int y)
-{
+long long glimmer::TileLayerComponent::EncodeTileKey(int x, int y) {
     return static_cast<long long>(x) << 32 | static_cast<unsigned int>(y);
 }

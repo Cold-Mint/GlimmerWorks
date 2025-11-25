@@ -19,6 +19,7 @@
 #include "../ecs/system/PlayerControlSystem.h"
 #include "../ecs/system/TileLayerSystem.h"
 #include "../log/LogCat.h"
+using TileVector2D = glimmer::Vector2DI;
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
     const auto type = std::type_index(typeid(*comp));
@@ -162,7 +163,7 @@ bool glimmer::WorldContext::ChunkIsOutOfBounds(TileVector2D position) {
     return false;
 }
 
-const std::unordered_map<glimmer::TileVector2D, glimmer::Chunk, glimmer::TileVector2DHash> &glimmer::WorldContext::
+const std::unordered_map<TileVector2D, glimmer::Chunk, glimmer::Vector2DIHash> &glimmer::WorldContext::
 GetAllChunks() {
     return chunks_;
 }

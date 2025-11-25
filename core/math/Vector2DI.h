@@ -111,8 +111,6 @@ namespace glimmer
         [[nodiscard]] Vector2D ToFloat() const;
     };
 
-    typedef Vector2DI TileVector2D;
-
     /**
      * Scalar multiplication (commutative)
      * 标量与向量相乘（交换律）
@@ -128,9 +126,9 @@ namespace glimmer
      * unordered_map/unordered_set 需要 key 可以生成哈希值。
      * TileVector2DHash 提供了一个自定义哈希算法，将 TileVector2D 的 x 和 y 坐标映射为一个 size_t 值。
      */
-    struct TileVector2DHash
+    struct Vector2DIHash
     {
-        std::size_t operator()(const TileVector2D& v) const noexcept
+        std::size_t operator()(const Vector2DI& v) const noexcept
         {
             // Use a simple hash combination formula
             // 使用简单的哈希组合公式

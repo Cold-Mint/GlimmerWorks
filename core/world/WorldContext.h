@@ -50,7 +50,7 @@ namespace glimmer
          */
         bool allowRegisterSystem = false;
 
-        std::unordered_map<TileVector2D, Chunk, TileVector2DHash> chunks_;
+        std::unordered_map<TileVector2D, Chunk, Vector2DIHash> chunks_;
 
         /**
          * Entity to component list
@@ -204,7 +204,7 @@ namespace glimmer
          * 获取所有区块
          * @return
          */
-        const std::unordered_map<TileVector2D, Chunk, TileVector2DHash>& GetAllChunks();
+        const std::unordered_map<TileVector2D, Chunk, Vector2DIHash>& GetAllChunks();
 
 
         bool HandleEvent(const SDL_Event& event) const;

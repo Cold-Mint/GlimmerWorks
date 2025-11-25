@@ -179,8 +179,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
             // Draw Visible Chunks (Orange)
             // 绘制可见区块（橙色）
-            auto camera = worldContext_->GetCameraComponent();
-            auto cameraTransform = worldContext_->GetCameraTransform2D();
+            auto *camera = worldContext_->GetCameraComponent();
+            auto *cameraTransform = worldContext_->GetCameraTransform2D();
             int visibleChunkCount = 0;
             if (camera && cameraTransform) {
                 SDL_FRect viewport = camera->GetViewportRect(cameraTransform->GetPosition());

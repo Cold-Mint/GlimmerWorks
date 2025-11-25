@@ -6,11 +6,9 @@
 #include "../../world/WorldContext.h"
 
 
-void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
-{
-    const auto camera = worldContext_->GetCameraComponent();
-    if (camera == nullptr)
-    {
+void glimmer::CameraSystem::Render(SDL_Renderer *renderer) {
+    auto *camera = worldContext_->GetCameraComponent();
+    if (camera == nullptr) {
         return;
     }
     int w, h;
@@ -18,7 +16,6 @@ void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
     camera->SetSize(Vector2D(w, h));
 }
 
-std::string glimmer::CameraSystem::GetName()
-{
+std::string glimmer::CameraSystem::GetName() {
     return "glimmer.CameraSystem";
 }

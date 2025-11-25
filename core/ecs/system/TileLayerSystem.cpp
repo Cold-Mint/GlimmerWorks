@@ -10,38 +10,31 @@
 #include "../component/Transform2DComponent.h"
 #include "../../world/WorldContext.h"
 
-void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
-{
-    auto cameraComponent = worldContext_->GetCameraComponent();
-    auto cameraPos = worldContext_->GetCameraTransform2D();
-    if (cameraComponent == nullptr)
-    {
+void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
+    const auto *cameraComponent = worldContext_->GetCameraComponent();
+    const auto *cameraPos = worldContext_->GetCameraTransform2D();
+    if (cameraComponent == nullptr) {
         return;
     }
-    if (cameraPos == nullptr)
-    {
+    if (cameraPos == nullptr) {
         return;
     }
-    auto entitys = worldContext_->GetEntitiesWithComponents<TileLayerComponent, Transform2DComponent>();
-    for (auto entity : entitys)
-    {
+    auto gameEntities = worldContext_->GetEntitiesWithComponents<TileLayerComponent, Transform2DComponent>();
+    for (auto entity: gameEntities) {
         auto tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
-        if (tileLayerComponent != nullptr)
-        {
-            auto worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
-            if (worldPositionComponent != nullptr)
-            {
+        if (tileLayerComponent != nullptr) {
+            const auto *worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
+            if (worldPositionComponent != nullptr) {
                 auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
                 const auto layerWorldPos = worldPositionComponent->GetPosition();
                 const float zoom = cameraComponent->GetZoom();
 
-                std::vector<std::pair<TileVector2D, Tile>> visibleTiles =
-                    tileLayerComponent->GetTilesInViewport(layerWorldPos, viewportRect);
+                std::vector<std::pair<TileVector2D, Tile> > visibleTiles =
+                        tileLayerComponent->GetTilesInViewport(layerWorldPos, viewportRect);
                 SDL_Color oldColor;
                 SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
 
-                for (const auto& [tileCoord, tile] : visibleTiles)
-                {
+                for (const auto &[tileCoord, tile]: visibleTiles) {
                     WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(layerWorldPos, tileCoord);
 
                     CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
@@ -64,12 +57,10 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
     }
 }
 
-uint8_t glimmer::TileLayerSystem::GetRenderOrder()
-{
+uint8_t glimmer::TileLayerSystem::GetRenderOrder() {
     return RENDER_ORDER_TILE_LAYER;
 }
 
-std::string glimmer::TileLayerSystem::GetName()
-{
+std::string glimmer::TileLayerSystem::GetName() {
     return "glimmer.TileLayerSystem";
 }

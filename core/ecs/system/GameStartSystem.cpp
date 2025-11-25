@@ -18,19 +18,18 @@
 #include "../../world/WorldContext.h"
 
 
-void glimmer::GameStartSystem::Update(float delta)
-{
+void glimmer::GameStartSystem::Update(float delta) {
     LogCat::d("Game Start System init");
     LogCat::i("Grid entity created with GridComponent");
 
 
-    const auto tileLayerEntity = worldContext_->CreateEntity();
+    auto *tileLayerEntity = worldContext_->CreateEntity();
     const auto transform2DComponent = worldContext_->AddComponent<Transform2DComponent>(tileLayerEntity);
     transform2DComponent->SetPosition(Vector2D(0, 0));
     worldContext_->AddComponent<TileLayerComponent>(tileLayerEntity);
 
 
-    const auto playerEntity = worldContext_->CreateEntity();
+    auto *playerEntity = worldContext_->CreateEntity();
     worldContext_->AddComponent<PlayerControlComponent>(playerEntity);
     const auto transform2DComponentInPlayer = worldContext_->AddComponent<Transform2DComponent>(playerEntity);
     const auto heightMap = worldContext_->GetHeightMap(0);
@@ -55,15 +54,12 @@ void glimmer::GameStartSystem::Update(float delta)
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 
-std::string glimmer::GameStartSystem::GetName()
-{
+std::string glimmer::GameStartSystem::GetName() {
     return "glimmer.GameStartSystem";
 }
 
-bool glimmer::GameStartSystem::ShouldActivate()
-{
-    if (shouldStart)
-    {
+bool glimmer::GameStartSystem::ShouldActivate() {
+    if (shouldStart) {
         shouldStart = false;
         return true;
     }

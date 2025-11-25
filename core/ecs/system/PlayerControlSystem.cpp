@@ -11,44 +11,36 @@
 #include "box2d/box2d.h"
 
 
-void glimmer::PlayerControlSystem::Update(const float delta)
-{
+void glimmer::PlayerControlSystem::Update(const float delta) {
     const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent, RigidBody2DComponent>();
-    for (auto& entity : entities)
-    {
+    for (auto &entity: entities) {
         const auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
         const auto rigid = worldContext_->GetComponent<RigidBody2DComponent>(entity->GetID());
-        if (control == nullptr || rigid == nullptr || !rigid->IsReady())
-        {
+        if (control == nullptr || rigid == nullptr || !rigid->IsReady()) {
             continue;
         }
 
         const b2BodyId bodyId = rigid->GetBodyId();
-        
+
         // Fix: Set friction to 0 to prevent sticking to walls when moving against them
         // 修复：将摩擦力设置为0，以防止移动时贴在墙上
         b2ShapeId shapeId;
-        if (b2Body_GetShapes(bodyId, &shapeId, 1) > 0)
-        {
+        if (b2Body_GetShapes(bodyId, &shapeId, 1) > 0) {
             b2Shape_SetFriction(shapeId, 0.0f);
         }
 
         const b2Vec2 vel = b2Body_GetLinearVelocity(bodyId);
         float vx = 0.0F;
-        if (control->moveLeft)
-        {
+        if (control->moveLeft) {
             vx -= PLAYER_MOVE_SPEED;
         }
-        if (control->moveRight)
-        {
+        if (control->moveRight) {
             vx += PLAYER_MOVE_SPEED;
         }
         float vy = vel.y;
-        if (control->jump)
-        {
+        if (control->jump) {
             bool ground = onGround(rigid);
-            if (ground)
-            {
+            if (ground) {
                 vy = 10.0F;
             }
             control->jump = false;
@@ -59,8 +51,7 @@ void glimmer::PlayerControlSystem::Update(const float delta)
 }
 
 
-bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent* rigid) const
-{
+bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent *rigid) const {
     b2Vec2 position = b2Body_GetPosition(rigid->GetBodyId());
     float width = Box2DUtils::ToMeters(rigid->GetWidth());
     float height = Box2DUtils::ToMeters(rigid->GetHeight());
@@ -71,13 +62,11 @@ bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent* rigid) c
     b2QueryFilter filter{};
     filter.categoryBits = 0xFFFF;
     filter.maskBits = 0xFFFF;
-    struct RayContext
-    {
+    struct RayContext {
         bool hit = false;
     };
-    auto rayCallback = [](b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void* ctx) -> float
-    {
-        auto* context = static_cast<RayContext*>(ctx);
+    auto rayCallback = [](b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *ctx) -> float {
+        auto *context = static_cast<RayContext *>(ctx);
         context->hit = true;
         return 0.0f;
     };
@@ -89,17 +78,14 @@ bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent* rigid) c
 }
 
 
-std::string glimmer::PlayerControlSystem::GetName()
-{
+std::string glimmer::PlayerControlSystem::GetName() {
     return "glimmer.PlayerControlSystem";
 }
 
 
-bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
-{
-    auto camera = worldContext_->GetCameraComponent();
-    if (event.type == SDL_EVENT_MOUSE_WHEEL && camera)
-    {
+bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
+    auto *camera = worldContext_->GetCameraComponent();
+    if (event.type == SDL_EVENT_MOUSE_WHEEL && camera) {
         float zoom = camera->GetZoom();
         constexpr float zoomStep = 0.1F;
         zoom += event.wheel.y > 0 ? zoomStep : -zoomStep;
@@ -110,31 +96,26 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
     }
 
     const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
-    if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)
-    {
+    if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
         bool pressed = event.type == SDL_EVENT_KEY_DOWN;
-        for (auto& entity : entities)
-        {
+        for (auto &entity: entities) {
             auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-            if (control == nullptr)
-            {
+            if (control == nullptr) {
                 continue;
             }
-            switch (event.key.key)
-            {
-            case SDLK_A: control->moveLeft = pressed;
-                return true;
-            case SDLK_D: control->moveRight = pressed;
-                return true;
-            case SDLK_SPACE:
-                if (pressed)
-                {
-                    control->jump = true;
-                }
-                return true;
+            switch (event.key.key) {
+                case SDLK_A: control->moveLeft = pressed;
+                    return true;
+                case SDLK_D: control->moveRight = pressed;
+                    return true;
+                case SDLK_SPACE:
+                    if (pressed) {
+                        control->jump = true;
+                    }
+                    return true;
 
-            default:
-                return false;
+                default:
+                    return false;
             }
         }
     }

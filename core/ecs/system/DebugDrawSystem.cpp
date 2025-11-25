@@ -10,32 +10,25 @@
 #include "../../world/WorldContext.h"
 
 
-void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
-{
-    auto cameraComponent = worldContext_->GetCameraComponent();
-    auto cameraPos = worldContext_->GetCameraTransform2D();
-    if (cameraComponent == nullptr)
-    {
+void glimmer::DebugDrawSystem::Render(SDL_Renderer *renderer) {
+    const auto *cameraComponent = worldContext_->GetCameraComponent();
+    const auto *cameraPos = worldContext_->GetCameraTransform2D();
+    if (cameraComponent == nullptr) {
         return;
     }
-    if (cameraPos == nullptr)
-    {
+    if (cameraPos == nullptr) {
         return;
     }
-    auto entitys = worldContext_->GetEntitiesWithComponents<DebugDrawComponent, Transform2DComponent>();
-    for (auto entity : entitys)
-    {
+    auto gameEntities = worldContext_->GetEntitiesWithComponents<DebugDrawComponent, Transform2DComponent>();
+    for (auto entity: gameEntities) {
         auto debugDrawComponent = worldContext_->GetComponent<DebugDrawComponent>(entity->GetID());
-        if (debugDrawComponent != nullptr)
-        {
+        if (debugDrawComponent != nullptr) {
             auto worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
-            if (worldPositionComponent != nullptr)
-            {
+            if (worldPositionComponent != nullptr) {
                 auto cameraVector2d = cameraComponent->GetViewPortPosition(
                     cameraPos->GetPosition(), worldPositionComponent->GetPosition());
                 if (!cameraComponent->
-                    IsPointInViewport(cameraPos->GetPosition(), worldPositionComponent->GetPosition()))
-                {
+                    IsPointInViewport(cameraPos->GetPosition(), worldPositionComponent->GetPosition())) {
                     continue;
                 }
                 SDL_Color oldColor = {255, 255, 255, 255};
@@ -57,12 +50,10 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
     }
 }
 
-uint8_t glimmer::DebugDrawSystem::GetRenderOrder()
-{
+uint8_t glimmer::DebugDrawSystem::GetRenderOrder() {
     return RENDER_ORDER_DEBUG_DRAW;
 }
 
-std::string glimmer::DebugDrawSystem::GetName()
-{
+std::string glimmer::DebugDrawSystem::GetName() {
     return "glimmer.DebugDrawSystem";
 }

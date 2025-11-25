@@ -136,8 +136,8 @@ void glimmer::WorldContext::UnloadChunkAt(TileLayerComponent *tileLayerComponent
     if (it == chunks_.end()) {
         return;
     }
-    chunkPhysicsHelper_->DetachPhysicsBodyToChunk(&it->second);
-    if (tileLayerComponent) {
+    ChunkPhysicsHelper::DetachPhysicsBodyToChunk(&it->second);
+    if (tileLayerComponent != nullptr) {
         for (int y = 0; y < CHUNK_SIZE; ++y) {
             for (int x = 0; x < CHUNK_SIZE; ++x) {
                 TileVector2D tilePos = position + TileVector2D(x, y);

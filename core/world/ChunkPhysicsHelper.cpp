@@ -10,19 +10,15 @@
 #include "box2d/types.h"
 
 
-void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId worldId, const WorldVector2D& tileLayerPos,
-                                                           Chunk* chunk)
-{
+void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId worldId, const WorldVector2D &tileLayerPos,
+                                                           Chunk *chunk) {
     std::vector<TileVector2D> dynamicTiles;
     TileVector2D chunkPos = chunk->GetPosition();
 
-    for (int x = 0; x < CHUNK_SIZE; x++)
-    {
-        for (int y = 0; y < CHUNK_SIZE; y++)
-        {
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        for (int y = 0; y < CHUNK_SIZE; y++) {
             auto tile = chunk->GetTile(x, y);
-            if (tile.physicsType == TilePhysicsType::Dynamic)
-            {
+            if (tile.physicsType == TilePhysicsType::Dynamic) {
                 dynamicTiles.emplace_back(chunkPos.x + x, chunkPos.y + y);
             }
         }
@@ -31,10 +27,8 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
     // Greedy meshing for static tiles
     bool visited[CHUNK_SIZE][CHUNK_SIZE] = {false};
 
-    for (int x = 0; x < CHUNK_SIZE; x++)
-    {
-        for (int y = 0; y < CHUNK_SIZE; y++)
-        {
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        for (int y = 0; y < CHUNK_SIZE; y++) {
             if (visited[x][y]) continue;
 
             auto tile = chunk->GetTile(x, y);
@@ -45,8 +39,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
             int h = 1;
 
             // Expand width
-            while (x + w < CHUNK_SIZE)
-            {
+            while (x + w < CHUNK_SIZE) {
                 if (visited[x + w][y]) break;
                 auto nextTile = chunk->GetTile(x + w, y);
                 if (nextTile.physicsType != TilePhysicsType::Static) break;
@@ -55,18 +48,14 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
 
             // Expand height
             bool canExpandHeight = true;
-            while (y + h < CHUNK_SIZE)
-            {
-                for (int k = 0; k < w; k++)
-                {
-                    if (visited[x + k][y + h])
-                    {
+            while (y + h < CHUNK_SIZE) {
+                for (int k = 0; k < w; k++) {
+                    if (visited[x + k][y + h]) {
                         canExpandHeight = false;
                         break;
                     }
                     auto nextTile = chunk->GetTile(x + k, y + h);
-                    if (nextTile.physicsType != TilePhysicsType::Static)
-                    {
+                    if (nextTile.physicsType != TilePhysicsType::Static) {
                         canExpandHeight = false;
                         break;
                     }
@@ -76,10 +65,8 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
             }
 
             // Mark visited
-            for (int i = 0; i < w; i++)
-            {
-                for (int j = 0; j < h; j++)
-                {
+            for (int i = 0; i < w; i++) {
+                for (int j = 0; j < h; j++) {
                     visited[x + i][y + j] = true;
                 }
             }
@@ -100,15 +87,13 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
         }
     }
 
-    for (auto& pos : dynamicTiles)
-    {
+    for (auto &pos: dynamicTiles) {
         CreateDynamicTileBody(chunk, pos);
     }
 }
 
 b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(b2WorldId worldId, WorldVector2D pos,
-                                                       Vector2DI size)
-{
+                                                       Vector2DI size) {
     auto bodyDef_ = b2DefaultBodyDef();
     bodyDef_.type = b2_staticBody;
     bodyDef_.position = b2Vec2(Box2DUtils::ToMeters(pos.x), Box2DUtils::ToMeters(pos.y));
@@ -123,18 +108,16 @@ b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(b2WorldId worldId, WorldV
 }
 
 
-void glimmer::ChunkPhysicsHelper::CreateDynamicTileBody(Chunk* chunk, TileVector2D pos)
-{
+void glimmer::ChunkPhysicsHelper::CreateDynamicTileBody(Chunk *chunk, TileVector2D pos) {
 }
 
-void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(Chunk* chunk)
-{
-    if (!chunk) return;
+void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(Chunk *chunk) {
+    if (chunk == nullptr) {
+        return;
+    }
 
-    for (const b2BodyId bodyId : chunk->GetAttachedBodies())
-    {
-        if (b2Body_IsValid(bodyId))
-        {
+    for (const b2BodyId bodyId: chunk->GetAttachedBodies()) {
+        if (b2Body_IsValid(bodyId)) {
             b2DestroyBody(bodyId);
         }
     }

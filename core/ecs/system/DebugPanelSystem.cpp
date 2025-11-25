@@ -182,7 +182,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             auto *camera = worldContext_->GetCameraComponent();
             auto *cameraTransform = worldContext_->GetCameraTransform2D();
             int visibleChunkCount = 0;
-            if (camera && cameraTransform) {
+            if (camera != nullptr && cameraTransform != nullptr) {
                 SDL_FRect viewport = camera->GetViewportRect(cameraTransform->GetPosition());
 
                 // Calculate visible chunk range

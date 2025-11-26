@@ -19,6 +19,38 @@ glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) {
     return nullptr;
 }
 
-std::vector<std::string> glimmer::CommandManager::GetSuggestions(const std::string &input) {
+std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandArgs &commandArgs) const {
+    int size = commandArgs.GetSize();
+    if (size == 0) {
+        return {};
+    }
+    std::vector<std::string> results;
 
+    if (size == 1) {
+        std::string keyWord = commandArgs.AsString(0);
+        for (const auto &pair: commandMap) {
+            const std::string &cmd = pair.first;
+
+            if (cmd.find(keyWord) != std::string::npos) {
+                results.push_back(cmd);
+            }
+        }
+
+        std::sort(results.begin(), results.end(),
+                  [&](const std::string &a, const std::string &b) {
+                      bool aStarts = a.rfind(keyWord, 0) == 0;
+                      bool bStarts = b.rfind(keyWord, 0) == 0;
+
+                      if (aStarts != bStarts)
+                          return aStarts > bStarts; // 开头匹配排前
+
+                      return a < b; // 字典序
+                  });
+
+        return results;
+    }
+
+    // TODO: 以后做参数提示
+
+    return {};
 }

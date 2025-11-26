@@ -19,7 +19,7 @@ namespace glimmer {
 
         Command *GetCommand(const std::string &name);
 
-        std::vector<std::string> GetSuggestions(const std::string& input);
+        std::vector<std::string> GetSuggestions(const CommandArgs& commandArgs) const;
 
         using CommandMap = std::unordered_map<std::string, std::unique_ptr<Command>>;
 

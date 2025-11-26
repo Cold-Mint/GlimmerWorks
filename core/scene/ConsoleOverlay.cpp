@@ -5,7 +5,6 @@
 #include "ConsoleOverlay.h"
 
 #include "AppContext.h"
-#include "../log/LogCat.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "fmt/color.h"
 
@@ -107,7 +106,8 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     }
     if (ImGui::IsItemEdited()) {
         //onTextChange
-        appContext->commandManager->GetSuggestions(inputBuffer.data());
+        const std::string cmdStr(inputBuffer.data(), strnlen(inputBuffer.data(), inputBuffer.size()));
+        appContext->commandManager->GetSuggestions(CommandArgs(cmdStr));
     }
     ImGui::PopItemWidth();
     ImGui::End();

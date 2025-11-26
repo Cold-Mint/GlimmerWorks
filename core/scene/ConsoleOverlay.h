@@ -40,6 +40,8 @@ namespace glimmer {
 
         static int InputCallback(const ImGuiInputTextCallbackData *data);
 
+        void ClikAutoCompleteItem(const std::string& suggestion);
+
     public:
         explicit ConsoleOverlay(AppContext *context)
             : Scene(context) {

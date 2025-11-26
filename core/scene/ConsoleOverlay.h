@@ -25,6 +25,7 @@ namespace glimmer {
         std::vector<std::string> commandSuggestions_;
         std::string keyword_;
         int lastCursorPos_ = 0;
+        int nextCursorPos_ = -1;
         /**
          * Code structure
          * 命令结构
@@ -38,9 +39,9 @@ namespace glimmer {
 
         void addMessage(const std::string &message);
 
-        static int InputCallback(const ImGuiInputTextCallbackData *data);
+        static int InputCallback(ImGuiInputTextCallbackData *data);
 
-        void ClikAutoCompleteItem(const std::string& suggestion);
+        void ClikAutoCompleteItem(const std::string &suggestion);
 
     public:
         explicit ConsoleOverlay(AppContext *context)
@@ -56,7 +57,7 @@ namespace glimmer {
          * 设置搜索时的关键字
          * @param keyword keyword 关键字
          */
-        void SetKeyword(std::string &keyword);
+        void SetKeyword(const std::string &keyword);
 
         void SetCommandStructureHighlightIndex(int commandStructureHighlightIndex);
 

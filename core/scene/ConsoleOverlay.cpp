@@ -18,7 +18,7 @@ void glimmer::ConsoleOverlay::SetCommandStructure(const std::vector<std::string>
     commandStructure_ = commandStructure;
 }
 
-void glimmer::ConsoleOverlay::SetKeyword(std::string &keyword) {
+void glimmer::ConsoleOverlay::SetKeyword(const std::string &keyword) {
     keyword_ = keyword;
 }
 
@@ -54,22 +54,31 @@ void glimmer::ConsoleOverlay::addMessage(const std::string &message) {
     messages_.push_back(message);
 }
 
-int glimmer::ConsoleOverlay::InputCallback(const ImGuiInputTextCallbackData *data) {
+int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
     //When the text changes
     //当文本改变时
     auto *overlay = static_cast<ConsoleOverlay *>(data->UserData);
-    int cursorPos = data->CursorPos;
+    const int cursorPos = data->CursorPos;
     if (cursorPos != overlay->GetLastCursorPos()) {
         const std::string cmdStr(data->Buf, data->BufTextLen);
         overlay->SetLastCursorPos(cursorPos);
 
         std::string currentText(data->Buf, data->BufTextLen);
         const auto commandArgs = CommandArgs(cmdStr);
-        auto keyword = commandArgs.GetKeywordAtCursor(cursorPos);
+        const auto keyword = commandArgs.GetKeywordAtCursor(cursorPos);
         overlay->SetKeyword(keyword);
         overlay->SetCommandSuggestions(overlay->appContext->commandManager->GetSuggestions(commandArgs, cursorPos));
         overlay->SetCommandStructure(CommandManager::GetCommandStructure(commandArgs));
         overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
+    }
+    if (overlay->nextCursorPos_ != -1) {
+        data->CursorPos = overlay->nextCursorPos_;
+        data->SelectionStart = overlay->nextCursorPos_;
+        data->SelectionEnd = overlay->nextCursorPos_;
+        overlay->nextCursorPos_ = -1;
+        //Set it to -1 to update the command structure and the list of command suggestions
+        //设置为-1，以便更新命令结构和命令建议列表
+        overlay->SetLastCursorPos(-1);
     }
     return 0;
 }
@@ -117,6 +126,7 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
         std::ranges::fill(inputBuffer_, '\0');
         std::ranges::copy(newText, inputBuffer_.begin());
         lastCursorPos_ = static_cast<int>(beforeCursor.size()) + static_cast<int>(suggestion.length());
+        nextCursorPos_ = lastCursorPos_;
     }
 
     // Clear suggestions
@@ -229,8 +239,8 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
             if (!keyword_.empty()) {
                 std::string lowerSuggestion = suggestion;
                 std::string lowerKeyword = keyword_;
-                std::transform(lowerSuggestion.begin(), lowerSuggestion.end(), lowerSuggestion.begin(), ::tolower);
-                std::transform(lowerKeyword.begin(), lowerKeyword.end(), lowerKeyword.begin(), ::tolower);
+                std::ranges::transform(lowerSuggestion, lowerSuggestion.begin(), ::tolower);
+                std::ranges::transform(lowerKeyword, lowerKeyword.begin(), ::tolower);
                 keywordPos = lowerSuggestion.find(lowerKeyword);
             }
 
@@ -320,7 +330,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     }
     if (ImGui::InputText("##Input", inputBuffer_.data(), inputBuffer_.size(), ImGuiInputTextFlags_EnterReturnsTrue |
                                                                               ImGuiInputTextFlags_CallbackAlways,
-                         reinterpret_cast<ImGuiInputTextCallback>(&ConsoleOverlay::InputCallback), this)) {
+                         &ConsoleOverlay::InputCallback, this)) {
         //It is executed when the player presses the Enter key.
         //当玩家按下Enter键后执行。
         if (inputBuffer_[0] != '\0') {

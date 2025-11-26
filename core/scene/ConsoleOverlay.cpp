@@ -21,6 +21,10 @@ void glimmer::ConsoleOverlay::SetCommandStructureHighlightIndex(int commandStruc
     commandStructureHighlightIndex_ = commandStructureHighlightIndex;
 }
 
+void glimmer::ConsoleOverlay::SetCommandSuggestions(const std::vector<std::string> &commandSuggestions) {
+    commandSuggestions_ = commandSuggestions;
+}
+
 int glimmer::ConsoleOverlay::GetLastCursorPos() const {
     return lastCursorPos_;
 }
@@ -56,7 +60,7 @@ int glimmer::ConsoleOverlay::InputCallback(const ImGuiInputTextCallbackData *dat
 
         std::string currentText(data->Buf, data->BufTextLen);
         const auto commandArgs = CommandArgs(cmdStr);
-        // overlay->appContext->commandManager->GetSuggestions(commandArgs, cursorPos);
+        overlay->SetCommandSuggestions(overlay->appContext->commandManager->GetSuggestions(commandArgs, cursorPos));
         overlay->SetCommandStructure(CommandManager::GetCommandStructure(commandArgs));
         overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
     }
@@ -94,23 +98,22 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         ImGui::SetScrollHereY(1.0f);
     }
     ImGui::EndChild();
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255)); // 默认黑色
-
+    //Command Suggestion Label
+    //命令建议标签
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255));
     for (int i = 0; i < commandStructure_.size(); i++) {
-        // 高亮该 token？
         if (i == commandStructureHighlightIndex_) {
-            ImGui::PopStyleColor(); // 先移除黑色
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(50, 120, 255, 255)); // 蓝色高亮
+            ImGui::PopStyleColor();
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(50, 120, 255, 255));
             ImGui::TextUnformatted(commandStructure_[i].c_str());
-            ImGui::PopStyleColor(); // 移除蓝色
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255)); // 恢复黑色
+            ImGui::PopStyleColor();
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255));
         } else {
             ImGui::TextUnformatted(commandStructure_[i].c_str());
         }
-
-        // 下一段文本在同一行
-        if (i < commandStructure_.size() - 1)
+        if (i < commandStructure_.size() - 1) {
             ImGui::SameLine();
+        }
     }
 
     ImGui::PopStyleColor();

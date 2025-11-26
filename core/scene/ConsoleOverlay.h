@@ -22,6 +22,7 @@ namespace glimmer {
         bool focusNextFrame_ = false;
         std::array<char, 256> inputBuffer_ = {};
         std::vector<std::string> messages_;
+        std::vector<std::string> commandSuggestions_;
         int lastCursorPos_ = 0;
         /**
          * Code structure
@@ -48,6 +49,8 @@ namespace glimmer {
         void SetCommandStructure(const std::vector<std::string> &commandStructure);
 
         void SetCommandStructureHighlightIndex(int commandStructureHighlightIndex);
+
+        void SetCommandSuggestions(const std::vector<std::string> &commandSuggestions);
 
         [[nodiscard]] int GetLastCursorPos() const;
 

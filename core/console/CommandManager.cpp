@@ -19,7 +19,8 @@ glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) {
     return nullptr;
 }
 
-std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandArgs &commandArgs) const {
+std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandArgs &commandArgs,
+                                                                 const int cursorPos) const {
     int size = commandArgs.GetSize();
     if (size == 0) {
         return {};

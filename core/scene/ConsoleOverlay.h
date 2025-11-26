@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "imgui.h"
 #include "Scene.h"
 
 namespace glimmer {
@@ -17,17 +18,24 @@ namespace glimmer {
      *
      */
     class ConsoleOverlay : public Scene {
-        bool show = false;
-        bool focusNextFrame = false;
-        std::array<char, 256> inputBuffer = {};
-        std::vector<std::string> messages;
+        bool show_ = false;
+        bool focusNextFrame_ = false;
+        std::array<char, 256> inputBuffer_ = {};
+        std::vector<std::string> messages_;
+        int lastCursorPos_ = 0;
 
         void addMessage(const std::string &message);
+
+        static int InputCallback(const ImGuiInputTextCallbackData *data);
 
     public:
         explicit ConsoleOverlay(AppContext *context)
             : Scene(context) {
         }
+
+        void SetLastCursorPos(int cursorPos);
+
+        [[nodiscard]] int GetLastCursorPos() const;
 
         bool HandleEvent(const SDL_Event &event) override;
 

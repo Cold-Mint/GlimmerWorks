@@ -5,15 +5,24 @@
 #include "ConsoleOverlay.h"
 
 #include "AppContext.h"
+#include "../log/LogCat.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "fmt/color.h"
+
+void glimmer::ConsoleOverlay::SetLastCursorPos(const int cursorPos) {
+    this->lastCursorPos_ = cursorPos;
+}
+
+int glimmer::ConsoleOverlay::GetLastCursorPos() const {
+    return lastCursorPos_;
+}
 
 bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         if (event.key.scancode == SDL_SCANCODE_GRAVE) {
-            show = !show;
-            if (show) {
-                focusNextFrame = true;
+            show_ = !show_;
+            if (show_) {
+                focusNextFrame_ = true;
             }
             return true;
         }
@@ -25,11 +34,28 @@ void glimmer::ConsoleOverlay::Update(float delta) {
 }
 
 void glimmer::ConsoleOverlay::addMessage(const std::string &message) {
-    messages.push_back(message);
+    messages_.push_back(message);
+}
+
+int glimmer::ConsoleOverlay::InputCallback(const ImGuiInputTextCallbackData *data) {
+    //When the text changes
+    //当文本改变时
+    auto *overlay = static_cast<ConsoleOverlay *>(data->UserData);
+    int cursorPos = data->CursorPos;
+    if (cursorPos != overlay->GetLastCursorPos()) {
+        const std::string cmdStr(data->Buf, data->BufTextLen);
+        overlay->SetLastCursorPos(cursorPos);
+
+        std::string currentText(data->Buf, data->BufTextLen);
+        LogCat::i("Cursor moved! New pos = ", cursorPos, ", text = "
+                  , currentText.c_str());
+        overlay->appContext->commandManager->GetSuggestions(CommandArgs(cmdStr), cursorPos);
+    }
+    return 0;
 }
 
 void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
-    if (!show) return;
+    if (!show_) return;
     const ImGuiIO &io = ImGui::GetIO();
     const float windowHeight = io.DisplaySize.y;
     constexpr float inputHeight = 25.0F;
@@ -48,10 +74,10 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     ImGui::BeginChild("Messages", ImVec2(0, windowHeight - inputHeight - 50), false,
                       ImGuiWindowFlags_HorizontalScrollbar);
     ImGuiListClipper clipper;
-    clipper.Begin(static_cast<int>(messages.size()));
+    clipper.Begin(static_cast<int>(messages_.size()));
     while (clipper.Step()) {
         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-            ImGui::TextUnformatted(messages[i].c_str());
+            ImGui::TextUnformatted(messages_[i].c_str());
         }
     }
     clipper.End();
@@ -63,51 +89,48 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     ImGui::Separator();
 
     ImGui::PushItemWidth(-1);
-    if (focusNextFrame) {
+    if (focusNextFrame_) {
         ImGui::SetKeyboardFocusHere();
-        focusNextFrame = false;
+        focusNextFrame_ = false;
     }
-    if (ImGui::InputText("##Input", inputBuffer.data(), inputBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+    if (ImGui::InputText("##Input", inputBuffer_.data(), inputBuffer_.size(), ImGuiInputTextFlags_EnterReturnsTrue |
+                                                                              ImGuiInputTextFlags_CallbackAlways,
+                         reinterpret_cast<ImGuiInputTextCallback>(&ConsoleOverlay::InputCallback), this)) {
         //It is executed when the player presses the Enter key.
         //当玩家按下Enter键后执行。
-        if (inputBuffer[0] != '\0') {
-            const std::string cmdStr(inputBuffer.data(), strnlen(inputBuffer.data(), inputBuffer.size()));
+        if (inputBuffer_[0] != '\0') {
+            const std::string cmdStr(inputBuffer_.data(), strnlen(inputBuffer_.data(), inputBuffer_.size()));
             addMessage("> " + cmdStr);
             CommandExecutor::ExecuteAsync(cmdStr, appContext->commandManager,
-                                                      [this](const CommandResult result, const std::string &cmd) {
-                                                          std::string message;
-                                                          std::string pattern;
-                                                          switch (result) {
-                                                              case CommandResult::Success:
-                                                                  pattern = appContext->langs->executedSuccess;
-                                                                  break;
-                                                              case CommandResult::Failure:
-                                                                  pattern = appContext->langs->executionFailed;
-                                                                  break;
-                                                              case CommandResult::EmptyArgs:
-                                                                  message = appContext->langs->commandIsEmpty;
-                                                                  break;
-                                                              case CommandResult::NotFound:
-                                                                  pattern = appContext->langs->commandNotFound;
-                                                                  break;
-                                                          }
-                                                          if (!pattern.empty()) {
-                                                              message = fmt::format(fmt::runtime(pattern), cmd);
-                                                          }
-                                                          addMessage(message);
-                                                      },
-                                                      [this](const std::string &text) {
-                                                          addMessage(text);
-                                                      });
+                                          [this](const CommandResult result, const std::string &cmd) {
+                                              std::string message;
+                                              std::string pattern;
+                                              switch (result) {
+                                                  case CommandResult::Success:
+                                                      pattern = appContext->langs->executedSuccess;
+                                                      break;
+                                                  case CommandResult::Failure:
+                                                      pattern = appContext->langs->executionFailed;
+                                                      break;
+                                                  case CommandResult::EmptyArgs:
+                                                      message = appContext->langs->commandIsEmpty;
+                                                      break;
+                                                  case CommandResult::NotFound:
+                                                      pattern = appContext->langs->commandNotFound;
+                                                      break;
+                                              }
+                                              if (!pattern.empty()) {
+                                                  message = fmt::format(fmt::runtime(pattern), cmd);
+                                              }
+                                              addMessage(message);
+                                          },
+                                          [this](const std::string &text) {
+                                              addMessage(text);
+                                          });
             ImGui::SetScrollHereY(1.0f);
         }
-        inputBuffer.fill('\0');
-        focusNextFrame = true;
-    }
-    if (ImGui::IsItemEdited()) {
-        //onTextChange
-        const std::string cmdStr(inputBuffer.data(), strnlen(inputBuffer.data(), inputBuffer.size()));
-        appContext->commandManager->GetSuggestions(CommandArgs(cmdStr));
+        inputBuffer_.fill('\0');
+        focusNextFrame_ = true;
     }
     ImGui::PopItemWidth();
     ImGui::End();

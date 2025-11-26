@@ -75,6 +75,7 @@ void glimmer::CreateWorldScene::Update(float delta) {
     ImGui::SameLine();
     if (ImGui::Button(appContext->langs->random.c_str())) {
         const int newSeed = RandomSeed();
+        //skipcq: CXX-C1000
         (void) snprintf(seed_str, sizeof(seed_str), "%d", newSeed);
     }
 

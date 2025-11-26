@@ -57,6 +57,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
         constexpr SDL_Color textColor = {180, 180, 255, 255};
         for (int x = 0; x <= w; x += labelSpacing) {
             char text[32];
+            //skipcq: CXX-C1000
             (void) snprintf(text, sizeof(text), "x%d", x);
             SDL_Surface *surface = TTF_RenderText_Blended(appContext->ttfFont, text, strlen(text), textColor);
             if (!surface) {
@@ -81,6 +82,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
         }
         for (int y = 0; y <= h; y += labelSpacing) {
             char text[32];
+            //skipcq: CXX-C1000
             (void) snprintf(text, sizeof(text), "y%d", y);
 
             SDL_Surface *surface = TTF_RenderText_Blended(appContext->ttfFont, text, strlen(text), textColor);
@@ -113,6 +115,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
         // FPS text
         // FPS 文本
         char fpsText[64];
+        //skipcq: CXX-C1000
         (void) snprintf(fpsText, sizeof(fpsText), "FPS: %.1f (%.2f ms)", fps_, frameTimeMs_);
         SDL_Surface *fpsSurface = TTF_RenderText_Blended(appContext->ttfFont, fpsText, strlen(fpsText), color);
         if (!fpsSurface) {
@@ -124,6 +127,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             }
 
             char winText[64];
+            //skipcq: CXX-C1000
             (void) snprintf(winText, sizeof(winText), "Window: %dx%d", w, h);
             SDL_Surface *winSurface = TTF_RenderText_Blended(appContext->ttfFont, winText, strlen(winText), color);
             if (!winSurface) {

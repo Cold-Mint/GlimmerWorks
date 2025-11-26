@@ -19,7 +19,7 @@ namespace glimmer
          * @param tileLayerPos The coordinates of the tile layer 瓦片图层的坐标
          * @param chunk  The chunk to add physical bodies to 要添加物理的区块
          */
-        void AttachPhysicsBodyToChunk(b2WorldId worldId, const WorldVector2D& tileLayerPos, Chunk* chunk);
+        static void AttachPhysicsBodyToChunk(b2WorldId worldId, const WorldVector2D& tileLayerPos, Chunk* chunk);
 
         static b2BodyId CreateStaticBody(b2WorldId worldId, WorldVector2D pos, Vector2DI size);
 

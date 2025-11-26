@@ -74,7 +74,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         if (inputBuffer[0] != '\0') {
             const std::string cmdStr(inputBuffer.data(), strnlen(inputBuffer.data(), inputBuffer.size()));
             addMessage("> " + cmdStr);
-            appContext->commandExecutor->ExecuteAsync(cmdStr, appContext->commandManager,
+            CommandExecutor::ExecuteAsync(cmdStr, appContext->commandManager,
                                                       [this](const CommandResult result, const std::string &cmd) {
                                                           std::string message;
                                                           std::string pattern;

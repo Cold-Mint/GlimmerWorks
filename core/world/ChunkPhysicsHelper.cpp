@@ -23,10 +23,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
             }
         }
     }
-
-    // Greedy meshing for static tiles
-    bool visited[CHUNK_SIZE][CHUNK_SIZE] = {false};
-
+    std::array<std::array<bool, CHUNK_SIZE>, CHUNK_SIZE> visited{};
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
             if (visited[x][y]) continue;

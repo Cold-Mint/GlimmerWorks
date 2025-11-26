@@ -125,7 +125,7 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent, 
             tileLayerComponent->SetTile(worldTilePos, tile);
         }
     }
-    chunkPhysicsHelper_->AttachPhysicsBodyToChunk(worldId_, tileLayerPos,
+    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos,
                                                   &newChunk);
     chunks_.insert({position, newChunk});
 }

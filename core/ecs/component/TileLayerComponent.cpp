@@ -9,7 +9,7 @@
 #include "../../math/Vector2DI.h"
 
 
-glimmer::WorldVector2D glimmer::TileLayerComponent::TileToWorld(const WorldVector2D &tileLayerPos,
+WorldVector2D glimmer::TileLayerComponent::TileToWorld(const WorldVector2D &tileLayerPos,
                                                                 const TileVector2D &tilePos) {
     return {
         static_cast<float>(tilePos.x) * TILE_SIZE + tileLayerPos.x,

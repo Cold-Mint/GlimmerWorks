@@ -24,7 +24,7 @@ void glimmer::Transform2DComponent::Translate(const WorldVector2D deltaPosition)
     position_ += deltaPosition;
 }
 
-glimmer::WorldVector2D glimmer::Transform2DComponent::GetPosition() const
+WorldVector2D glimmer::Transform2DComponent::GetPosition() const
 {
     return position_;
 }

@@ -8,7 +8,6 @@
 #include "../Constants.h"
 #include "../math/Vector2DI.h"
 #include "box2d/id.h"
-using TileVector2D = glimmer::Vector2DI;
 
 namespace glimmer {
     class Chunk {

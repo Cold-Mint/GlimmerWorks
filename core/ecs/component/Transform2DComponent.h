@@ -7,22 +7,19 @@
 #include "../GameComponent.h"
 #include "../../math/Vector2D.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * The world coordinate component is used to record the absolute position of objects in the 2D game world
      * 世界坐标组件，用于记录物体在2D游戏世界中的绝对位置
      */
-    class Transform2DComponent final : public GameComponent
-    {
+    class Transform2DComponent final : public GameComponent {
         WorldVector2D position_;
         float rotation_ = 0.0F;
 
     public:
         Transform2DComponent() = default;
 
-        explicit Transform2DComponent(const WorldVector2D position) : position_(position)
-        {
+        explicit Transform2DComponent(const WorldVector2D position) : position_(position) {
         }
 
         /**

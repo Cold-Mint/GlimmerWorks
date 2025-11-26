@@ -17,7 +17,7 @@ SDL_FRect glimmer::CameraComponent::GetViewportRect(const WorldVector2D cameraPo
 }
 
 
-glimmer::CameraVector2D glimmer::CameraComponent::GetViewPortPosition(const WorldVector2D cameraPosition,
+CameraVector2D glimmer::CameraComponent::GetViewPortPosition(const WorldVector2D cameraPosition,
                                                                       const WorldVector2D worldPosition) const {
     const float offsetX = (worldPosition.x - cameraPosition.x) * zoom_;
     const float offsetY = (worldPosition.y - cameraPosition.y) * zoom_;

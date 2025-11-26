@@ -9,10 +9,8 @@
 
 #include "Vector2D.h"
 
-namespace glimmer
-{
-    struct Vector2DI
-    {
+namespace glimmer {
+    struct Vector2DI {
         int x;
         int y;
 
@@ -22,8 +20,7 @@ namespace glimmer
          * Initializes x and y to 0
          * 初始化 x 和 y 为 0
          */
-        Vector2DI() : x(0), y(0)
-        {
+        Vector2DI() : x(0), y(0) {
         }
 
         /**
@@ -32,36 +29,36 @@ namespace glimmer
          * @param x X component X分量
          * @param y Y component Y分量
          */
-        Vector2DI(const int x, const int y) : x(x), y(y)
-        {
+        Vector2DI(const int x, const int y) : x(x), y(y) {
         }
 
         /**
          * Construct from floating vector (round down)
          * 从浮点向量构造（向下取整）
          */
-        explicit Vector2DI(const Vector2D& v)
+        explicit Vector2DI(const Vector2D &v)
             : x(static_cast<int>(std::floor(v.x))),
-              y(static_cast<int>(std::floor(v.y)))
-        {
+              y(static_cast<int>(std::floor(v.y))) {
         }
 
         /**
          * Vector addition
          * 向量加法
          */
-        [[nodiscard]] Vector2DI operator+(const Vector2DI& rhs) const;
+        [[nodiscard]] Vector2DI operator+(const Vector2DI &rhs) const;
+
         /**
          * Vector subtraction
          * 向量减法
          */
-        [[nodiscard]] Vector2DI operator-(const Vector2DI& rhs) const;
+        [[nodiscard]] Vector2DI operator-(const Vector2DI &rhs) const;
 
         /**
          * Scalar multiplication
          * 向量与标量相乘
          */
         [[nodiscard]] Vector2DI operator*(int scalar) const;
+
         /**
          * Scalar division
          * 向量除以标量
@@ -72,25 +69,25 @@ namespace glimmer
          * Compound addition assignment
          * 自加
          */
-        Vector2DI& operator+=(const Vector2DI& rhs);
+        Vector2DI &operator+=(const Vector2DI &rhs);
 
         /**
          * Compound subtraction assignment
          * 自减
          */
-        Vector2DI& operator-=(const Vector2DI& rhs);
+        Vector2DI &operator-=(const Vector2DI &rhs);
 
         /**
          * Equality comparison
          * 相等比较
          */
-        [[nodiscard]] bool operator==(const Vector2DI& rhs) const;
+        [[nodiscard]] bool operator==(const Vector2DI &rhs) const;
 
         /**
          * Inequality comparison
          * 不相等比较
          */
-        [[nodiscard]] bool operator!=(const Vector2DI& rhs) const;
+        [[nodiscard]] bool operator!=(const Vector2DI &rhs) const;
 
         /**
          * Compute squared length (no sqrt)
@@ -102,7 +99,7 @@ namespace glimmer
          * Compute distance squared to another vector
          * 计算到另一个向量的距离平方
          */
-        [[nodiscard]] int DistanceSquared(const Vector2DI& rhs) const;
+        [[nodiscard]] int DistanceSquared(const Vector2DI &rhs) const;
 
         /**
          * Convert to floating vector
@@ -115,8 +112,7 @@ namespace glimmer
      * Scalar multiplication (commutative)
      * 标量与向量相乘（交换律）
      */
-    inline Vector2DI operator*(const int scalar, const Vector2DI& v)
-    {
+    inline Vector2DI operator*(const int scalar, const Vector2DI &v) {
         return v * scalar;
     }
 
@@ -126,10 +122,8 @@ namespace glimmer
      * unordered_map/unordered_set 需要 key 可以生成哈希值。
      * TileVector2DHash 提供了一个自定义哈希算法，将 TileVector2D 的 x 和 y 坐标映射为一个 size_t 值。
      */
-    struct Vector2DIHash
-    {
-        std::size_t operator()(const Vector2DI& v) const noexcept
-        {
+    struct Vector2DIHash {
+        std::size_t operator()(const Vector2DI &v) const noexcept {
             // Use a simple hash combination formula
             // 使用简单的哈希组合公式
             const std::size_t hx = std::hash<int>()(v.x);
@@ -141,4 +135,5 @@ namespace glimmer
     };
 }
 
+using TileVector2D = glimmer::Vector2DI;
 #endif //GLIMMERWORKS_VECTOR2DI_H

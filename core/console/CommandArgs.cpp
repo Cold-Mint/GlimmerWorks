@@ -20,14 +20,11 @@ int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const {
     for (int i = 0; i < cursorPos; ++i) {
         const char c = command_[i];
         if (c == ' ') {
-            // Encountering a space indicates that the token has ended
-            // 遇到空格，说明 token 结束
             if (inToken) {
-                //如果不是末尾的空格
-                if (i < maxIndex) {
+                if (i < maxIndex && command_[i + 1] != ' ') {
                     tokenIndex++;
+                    inToken = false;
                 }
-                inToken = false;
             }
         } else {
             if (!inToken) {
@@ -35,16 +32,6 @@ int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const {
             }
         }
     }
-
-    // If the cursor stops in the middle of the token, it belongs to the current token.
-    // If it stops after the space at the end of the token, it is not counted as a new token
-    // 若光标停在 token 中间，则属于当前这个 token，若停在 token 尾部空格之后，不计入新的 token
-    if (inToken) {
-        return tokenIndex;
-    }
-
-    // If the cursor is after the space, it should return "Next token index".
-    // 光标在空格后，则应该返回 “下一个 token index”
     return tokenIndex;
 }
 

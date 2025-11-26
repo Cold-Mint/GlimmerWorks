@@ -9,8 +9,6 @@
 
 namespace glimmer
 {
-    static SDL_Renderer* renderer_ = nullptr;
-
     constexpr float kScale = 30.0F; // 1 meter = 30 pixels （游戏单位缩放）
     constexpr int kCircleSegments = 24; // 圆形分段数
     constexpr float kPi = 3.14159265358979323846F;

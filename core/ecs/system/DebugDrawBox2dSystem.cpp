@@ -9,6 +9,23 @@
 #include "../component/CameraComponent.h"
 #include "../component/Transform2DComponent.h"
 
+class Box2dSystemContext {
+    glimmer::WorldContext *worldContext_ = nullptr;
+    SDL_Renderer *renderer_ = nullptr;
+
+public:
+    Box2dSystemContext(glimmer::WorldContext *worldContext, SDL_Renderer *renderer) : worldContext_(worldContext),
+        renderer_(renderer) {
+    }
+
+    [[nodiscard]] glimmer::WorldContext *GetWorldContext() const {
+        return worldContext_;
+    }
+
+    [[nodiscard]] SDL_Renderer *GetRenderer() const {
+        return renderer_;
+    }
+};
 
 bool glimmer::DebugDrawBox2dSystem::ShouldActivate() {
     return appContext_->isDebugMode();
@@ -19,7 +36,6 @@ void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus) {
     if (activeStatus) {
         LogCat::d("[DebugDrawBox2dSystem] DebugDraw attached to world.");
     } else {
-        renderer_ = nullptr;
         LogCat::d("[DebugDrawBox2dSystem] DebugDraw detached from world.");
     }
 }
@@ -48,15 +64,18 @@ static void SetSDLColor(SDL_Renderer *renderer, b2HexColor color, Uint8 alpha = 
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
     const b2Vec2 *vertices, int vertexCount, b2HexColor color, void *context) {
-    if (!renderer_) return;
-
-    SetSDLColor(renderer_, color);
+    if (context == nullptr) {
+        return;
+    }
+    const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    SetSDLColor(sdlRenderer, color);
     LogCat::d("[DrawPolygon] vertexCount=", vertexCount);
 
     for (int i = 0; i < vertexCount; ++i) {
         const b2Vec2 &v1 = vertices[i];
         const b2Vec2 &v2 = vertices[(i + 1) % vertexCount];
-        SDL_RenderLine(renderer_,
+        SDL_RenderLine(sdlRenderer,
                        v1.x * kScale, -v1.y * kScale,
                        v2.x * kScale, -v2.y * kScale);
 
@@ -81,7 +100,9 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
         LogCat::w("DrawSolidPolygonFcn context= nullptr");
         return;
     }
-    auto *worldContext = static_cast<WorldContext *>(context);
+    const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
     Transform2DComponent *cameraTransform2D = worldContext->GetCameraTransform2D();
     CameraComponent *cameraComponent = worldContext->GetCameraComponent();
     if (cameraTransform2D == nullptr || cameraComponent == nullptr) {
@@ -90,10 +111,6 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     }
     if (vertexCount != 4) {
         LogCat::w("It's not a solid rectangle");
-        return;
-    }
-    if (renderer_ == nullptr) {
-        LogCat::w("DrawSolidPolygonFcn renderer_=nullptr");
         return;
     }
     //Convert meters to pixels
@@ -107,7 +124,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     const WorldVector2D lowerRightViewportVector4 = cameraComponent->GetViewPortPosition(
         cameraTransform2D->GetPosition(), lowerRightVector4);
     SDL_Color oldColor;
-    SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+    SDL_GetRenderDrawColor(box2dSystemContext->GetRenderer(), &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
     constexpr SDL_Color lightBlue = {100, 149, 237, 128}; // 浅蓝 (CornflowerBlue)
     constexpr SDL_Color blue = {0, 0, 255, 255}; // 深蓝边框
     SDL_FRect renderQuad;
@@ -116,10 +133,10 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     renderQuad.w = lowerRightViewportVector4.x - upperLeftViewportVector1.x;
     renderQuad.h = lowerRightViewportVector4.y - upperLeftViewportVector1.y;
 
-    SDL_SetRenderDrawColor(renderer_, lightBlue.r, lightBlue.g, lightBlue.b, lightBlue.a);
-    SDL_RenderFillRect(renderer_, &renderQuad);
+    SDL_SetRenderDrawColor(sdlRenderer, lightBlue.r, lightBlue.g, lightBlue.b, lightBlue.a);
+    SDL_RenderFillRect(sdlRenderer, &renderQuad);
 
-    SDL_SetRenderDrawColor(renderer_, blue.r, blue.g, blue.b, blue.a);
+    SDL_SetRenderDrawColor(sdlRenderer, blue.r, blue.g, blue.b, blue.a);
     for (int i = 0; i < 3; ++i) {
         SDL_FRect border = {
             renderQuad.x - static_cast<float>(i),
@@ -127,11 +144,11 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
             renderQuad.w + static_cast<float>(i * 2),
             renderQuad.h + static_cast<float>(i * 2)
         };
-        SDL_RenderRect(renderer_, &border);
+        SDL_RenderRect(sdlRenderer, &border);
     }
 
     // 恢复原绘制颜色
-    SDL_SetRenderDrawColor(renderer_, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
+    SDL_SetRenderDrawColor(sdlRenderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
 }
 
 
@@ -145,9 +162,13 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
     b2Vec2 center, float radius, b2HexColor color, void *context) {
-    if (!renderer_) return;
-    SetSDLColor(renderer_, color);
-    LogCat::d("[DrawCircle] center=(", center.x, ",", center.y, ") radius=", radius);
+    if (context == nullptr) {
+        LogCat::w("b2DrawCircleFcn context= nullptr");
+        return;
+    }
+    const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    SetSDLColor(sdlRenderer, color);
 
     constexpr float step = 2.0F * kPi / kCircleSegments;
     for (int i = 0; i < kCircleSegments; ++i) {
@@ -157,7 +178,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
         const float y1 = center.y + radius * sinf(a1);
         const float x2 = center.x + radius * cosf(a2);
         const float y2 = center.y + radius * sinf(a2);
-        SDL_RenderLine(renderer_,
+        SDL_RenderLine(sdlRenderer,
                        x1 * kScale, -y1 * kScale,
                        x2 * kScale, -y2 * kScale);
     }
@@ -173,8 +194,13 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
     b2Transform transform, float radius, b2HexColor color, void *context) {
-    if (!renderer_) return;
-    SetSDLColor(renderer_, color, 150);
+    if (context == nullptr) {
+        LogCat::w("b2DrawSolidCircleFcn context= nullptr");
+        return;
+    }
+    const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    SetSDLColor(sdlRenderer, color, 150);
     const b2Vec2 center = transform.p;
     LogCat::d("[DrawSolidCircle] center=(", center.x, ",", center.y, ") radius=", radius);
 
@@ -186,7 +212,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
         const float y1 = center.y + radius * sinf(a1);
         const float x2 = center.x + radius * cosf(a2);
         const float y2 = center.y + radius * sinf(a2);
-        SDL_RenderLine(renderer_,
+        SDL_RenderLine(sdlRenderer,
                        x1 * kScale, -y1 * kScale,
                        x2 * kScale, -y2 * kScale);
     }
@@ -203,11 +229,16 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
     b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void *context) {
-    if (!renderer_) return;
-    SetSDLColor(renderer_, color);
+    if (context == nullptr) {
+        LogCat::w("b2DrawSolidCircleFcn context= nullptr");
+        return;
+    }
+    const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    SetSDLColor(sdlRenderer, color);
     LogCat::d("[DrawSolidCapsule] p1=(", p1.x, ",", p1.y, ") p2=(", p2.x, ",", p2.y, ") radius=", radius);
 
-    SDL_RenderLine(renderer_,
+    SDL_RenderLine(sdlRenderer,
                    p1.x * kScale, -p1.y * kScale,
                    p2.x * kScale, -p2.y * kScale);
 
@@ -221,7 +252,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
             const float y1 = c.y + radius * sinf(a1);
             const float x2 = c.x + radius * cosf(a2);
             const float y2 = c.y + radius * sinf(a2);
-            SDL_RenderLine(renderer_,
+            SDL_RenderLine(sdlRenderer,
                            x1 * kScale, -y1 * kScale,
                            x2 * kScale, -y2 * kScale);
         }
@@ -238,9 +269,14 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
     b2Vec2 p1, b2Vec2 p2, b2HexColor color, void *context) {
-    if (!renderer_) return;
-    SetSDLColor(renderer_, color);
-    SDL_RenderLine(renderer_,
+    if (context == nullptr) {
+        LogCat::w("b2DrawSegmentFcn context= nullptr");
+        return;
+    }
+    const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    SetSDLColor(sdlRenderer, color);
+    SDL_RenderLine(sdlRenderer,
                    p1.x * kScale, -p1.y * kScale,
                    p2.x * kScale, -p2.y * kScale);
     LogCat::d("[DrawSegment] p1=(", p1.x, ",", p1.y, ") p2=(", p2.x, ",", p2.y, ")");
@@ -253,19 +289,23 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
  * @param context Context pointer (unused) 上下文指针（未使用）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, void *context) {
-    if (!renderer_) return;
-
+    if (context == nullptr) {
+        LogCat::w("b2DrawTransformFcn context= nullptr");
+        return;
+    }
+    const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
     const b2Vec2 &p = transform.p;
     b2Vec2 xAxis = {p.x + 0.4f * transform.q.c, p.y + 0.4f * transform.q.s};
     b2Vec2 yAxis = {p.x - 0.4f * transform.q.s, p.y + 0.4f * transform.q.c};
 
-    SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
-    SDL_RenderLine(renderer_,
+    SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
+    SDL_RenderLine(sdlRenderer,
                    p.x * kScale, -p.y * kScale,
                    xAxis.x * kScale, -xAxis.y * kScale);
 
-    SDL_SetRenderDrawColor(renderer_, 0, 255, 0, 255);
-    SDL_RenderLine(renderer_,
+    SDL_SetRenderDrawColor(sdlRenderer, 0, 255, 0, 255);
+    SDL_RenderLine(sdlRenderer,
                    p.x * kScale, -p.y * kScale,
                    yAxis.x * kScale, -yAxis.y * kScale);
 
@@ -283,12 +323,17 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
     b2Vec2 p, float size, b2HexColor color, void *context) {
-    if (!renderer_) return;
-    SetSDLColor(renderer_, color);
+    if (context == nullptr) {
+        LogCat::w("b2DrawTransformFcn context= nullptr");
+        return;
+    }
+    const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    SetSDLColor(sdlRenderer, color);
     const float px = p.x * kScale;
     const float py = -p.y * kScale;
     const SDL_FRect rect = {(px - size / 2), (py - size / 2), size, size};
-    SDL_RenderRect(renderer_, &rect);
+    SDL_RenderRect(sdlRenderer, &rect);
     LogCat::d("[DrawPoint] pos=(", p.x, ",", p.y, ") size=", size);
 }
 
@@ -306,7 +351,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawStringFcn(
 }
 
 void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
-    renderer_ = renderer;
+    auto box2dSystemContext = Box2dSystemContext(worldContext_, renderer);
     b2DebugDraw debugDraw = b2DefaultDebugDraw();
     debugDraw.DrawPolygonFcn = b2DrawPolygonFcn;
     debugDraw.DrawSolidPolygonFcn = b2DrawSolidPolygonFcn;
@@ -317,7 +362,7 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
     debugDraw.DrawTransformFcn = b2DrawTransformFcn;
     debugDraw.DrawPointFcn = b2DrawPointFcn;
     debugDraw.DrawStringFcn = b2DrawStringFcn;
-    debugDraw.context = worldContext_;
+    debugDraw.context = &box2dSystemContext;
     debugDraw.drawShapes = true;
     b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
 }

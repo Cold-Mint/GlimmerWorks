@@ -10,7 +10,15 @@
 #include "fmt/color.h"
 
 void glimmer::ConsoleOverlay::SetLastCursorPos(const int cursorPos) {
-    this->lastCursorPos_ = cursorPos;
+    lastCursorPos_ = cursorPos;
+}
+
+void glimmer::ConsoleOverlay::SetCommandStructure(const std::vector<std::string> &commandStructure) {
+    commandStructure_ = commandStructure;
+}
+
+void glimmer::ConsoleOverlay::SetCommandStructureHighlightIndex(int commandStructureHighlightIndex) {
+    commandStructureHighlightIndex_ = commandStructureHighlightIndex;
 }
 
 int glimmer::ConsoleOverlay::GetLastCursorPos() const {
@@ -47,9 +55,10 @@ int glimmer::ConsoleOverlay::InputCallback(const ImGuiInputTextCallbackData *dat
         overlay->SetLastCursorPos(cursorPos);
 
         std::string currentText(data->Buf, data->BufTextLen);
-        LogCat::i("Cursor moved! New pos = ", cursorPos, ", text = "
-                  , currentText.c_str());
-        overlay->appContext->commandManager->GetSuggestions(CommandArgs(cmdStr), cursorPos);
+        const auto commandArgs = CommandArgs(cmdStr);
+        // overlay->appContext->commandManager->GetSuggestions(commandArgs, cursorPos);
+        overlay->SetCommandStructure(CommandManager::GetCommandStructure(commandArgs));
+        overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
     }
     return 0;
 }
@@ -71,7 +80,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     ImGui::TextUnformatted(appContext->langs->console.c_str());
     ImGui::PopFont();
     ImGui::Separator();
-    ImGui::BeginChild("Messages", ImVec2(0, windowHeight - inputHeight - 50), false,
+    ImGui::BeginChild("Messages", ImVec2(0, windowHeight - inputHeight - 70), false,
                       ImGuiWindowFlags_HorizontalScrollbar);
     ImGuiListClipper clipper;
     clipper.Begin(static_cast<int>(messages_.size()));
@@ -85,9 +94,27 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         ImGui::SetScrollHereY(1.0f);
     }
     ImGui::EndChild();
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255)); // 默认黑色
 
+    for (int i = 0; i < commandStructure_.size(); i++) {
+        // 高亮该 token？
+        if (i == commandStructureHighlightIndex_) {
+            ImGui::PopStyleColor(); // 先移除黑色
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(50, 120, 255, 255)); // 蓝色高亮
+            ImGui::TextUnformatted(commandStructure_[i].c_str());
+            ImGui::PopStyleColor(); // 移除蓝色
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255)); // 恢复黑色
+        } else {
+            ImGui::TextUnformatted(commandStructure_[i].c_str());
+        }
+
+        // 下一段文本在同一行
+        if (i < commandStructure_.size() - 1)
+            ImGui::SameLine();
+    }
+
+    ImGui::PopStyleColor();
     ImGui::Separator();
-
     ImGui::PushItemWidth(-1);
     if (focusNextFrame_) {
         ImGui::SetKeyboardFocusHere();

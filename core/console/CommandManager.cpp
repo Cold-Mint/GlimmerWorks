@@ -55,3 +55,17 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandAr
 
     return {};
 }
+
+std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const CommandArgs &commandArgs) {
+    const int size = commandArgs.GetSize();
+    if (size == 0 || size == 1) {
+        return {"[command name]"};
+    }
+    std::vector<std::string> results;
+    results.emplace_back("[command name]");
+    for (int i = 1; i < size; i++) {
+        std::string keyWord = commandArgs.AsString(i);
+        results.push_back(keyWord);
+    }
+    return results;
+}

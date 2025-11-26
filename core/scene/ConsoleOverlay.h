@@ -23,6 +23,16 @@ namespace glimmer {
         std::array<char, 256> inputBuffer_ = {};
         std::vector<std::string> messages_;
         int lastCursorPos_ = 0;
+        /**
+         * Code structure
+         * 命令结构
+         */
+        std::vector<std::string> commandStructure_ = {"[command name]"};
+        /**
+         * The command structure requires a highlighted index position
+         * 命令结构需要高亮的索引位置
+         */
+        int commandStructureHighlightIndex_ = 0;
 
         void addMessage(const std::string &message);
 
@@ -34,6 +44,10 @@ namespace glimmer {
         }
 
         void SetLastCursorPos(int cursorPos);
+
+        void SetCommandStructure(const std::vector<std::string> &commandStructure);
+
+        void SetCommandStructureHighlightIndex(int commandStructureHighlightIndex);
 
         [[nodiscard]] int GetLastCursorPos() const;
 

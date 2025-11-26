@@ -21,6 +21,14 @@ namespace glimmer {
 
         std::vector<std::string> GetSuggestions(const CommandArgs &commandArgs, int cursorPos) const;
 
+        /**
+         * Get Command Structure
+         * 获取命令结构
+         * @param commandArgs commandArgs 命令参数
+         * @return
+         */
+        static std::vector<std::string> GetCommandStructure(const CommandArgs &commandArgs);
+
         using CommandMap = std::unordered_map<std::string, std::unique_ptr<Command> >;
 
         [[nodiscard]] const CommandMap &GetCommands() const {

@@ -24,7 +24,6 @@ void glimmer::HelpCommand::InitSuggest()
 bool glimmer::HelpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string& text)> onOutput)
 {
     auto& commands = appContext_->commandManager->GetCommands();
-    LogCat::d("HelpCommand::Execute: commands.size() = {}", commands.size(), "data=", appContext_->langs->commandInfo);
     onOutput(fmt::format(
         fmt::runtime(appContext_->langs->commandInfo),
         commands.size()));

@@ -25,9 +25,9 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandAr
     if (size == 0) {
         return {};
     }
-    std::vector<std::string> results;
 
     if (size == 1) {
+        std::vector<std::string> results;
         const std::string keyWord = commandArgs.AsString(0);
         for (const auto &pair: commandMap) {
             const std::string &cmd = pair.first;

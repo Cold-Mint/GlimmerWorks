@@ -37,7 +37,7 @@ int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const {
 
 std::string glimmer::CommandArgs::GetKeywordAtCursor(const int cursorPos) const {
     const int index = GetTokenIndexAtCursor(cursorPos);
-    if (index < 0) {
+    if (index < 0 || index >= tokens_.size()) {
         return "";
     }
     return tokens_[index];

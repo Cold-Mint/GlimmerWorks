@@ -13,12 +13,10 @@ void glimmer::PhysicsSystem::Update(const float delta)
 {
     const b2WorldId worldId_ = worldContext_->GetWorldId();
     accumulator_ += delta;
-    //Simulate 4 steps in 0.016 seconds
-    //0.016s模拟4步
-    while (accumulator_ >= fixedTimeStep_)
+    while (accumulator_ >= FIXED_TIME_STEP)
     {
-        b2World_Step(worldId_, fixedTimeStep_, 4);
-        accumulator_ -= fixedTimeStep_;
+        b2World_Step(worldId_, FIXED_TIME_STEP, 4);
+        accumulator_ -= FIXED_TIME_STEP;
     }
     for (const auto entities = worldContext_->GetEntitiesWithComponents<RigidBody2DComponent, Transform2DComponent>();
          auto& entity : entities)

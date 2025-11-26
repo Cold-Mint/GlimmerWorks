@@ -92,12 +92,17 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     ImGui::PopFont();
     ImGui::Separator();
     
-    // Calculate autocomplete suggestions height
-    // 计算自动完成建议的高度
-    const float maxSuggestionsHeight = 100.0F;
-    const float suggestionsHeight = !commandSuggestions_.empty() 
-        ? std::min(maxSuggestionsHeight, ImGui::GetTextLineHeightWithSpacing() * 3) 
-        : 0.0F;
+    // Calculate autocomplete suggestions height dynamically
+    // 动态计算自动完成建议的高度
+    float suggestionsHeight = 0.0F;
+    if (!commandSuggestions_.empty()) {
+        // Calculate height based on number of suggestions
+        // 根据建议数量计算高度
+        const float lineHeight = ImGui::GetTextLineHeightWithSpacing();
+        const float desiredHeight = lineHeight * static_cast<float>(commandSuggestions_.size());
+        const float maxSuggestionsHeight = windowHeight * 0.4F;  // 40% of screen height
+        suggestionsHeight = std::min(desiredHeight, maxSuggestionsHeight);
+    }
     
     // Adjust Messages child window height to account for suggestions
     // 调整消息子窗口高度以考虑建议
@@ -120,8 +125,10 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     //Autocomplete Suggestions
     //自动完成建议
     if (!commandSuggestions_.empty()) {
+        // Enable vertical scrollbar when content overflows
+        // 当内容溢出时启用垂直滚动条
         ImGui::BeginChild("AutocompleteSuggestions", ImVec2(0, suggestionsHeight), false, 
-                          ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+                          ImGuiWindowFlags_AlwaysVerticalScrollbar);
         
         // Style buttons to look like plain text
         // 将按钮样式设置为类似普通文本
@@ -153,7 +160,9 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
             const ImVec2 buttonSize = ImGui::CalcTextSize(suggestion.c_str());
             const ImVec2 padding = ImGui::GetStyle().FramePadding;
             
-            if (ImGui::Button("", ImVec2(buttonSize.x + padding.x * 2, 0))) {
+            // Button fills full width (-1 means fill available width)
+            // 按钮填充整个宽度（-1 表示填充可用宽度）
+            if (ImGui::Button("", ImVec2(-1, 0))) {
                 // Insert suggestion at cursor position
                 const int cursorPos = lastCursorPos_;
                 const std::string currentText(inputBuffer_.data(), strnlen(inputBuffer_.data(), inputBuffer_.size()));
@@ -207,9 +216,9 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
             }
             
             ImGui::PopID();
-            ImGui::SameLine();
+            // Removed ImGui::SameLine() to display suggestions vertically
+            // 移除 ImGui::SameLine() 以垂直显示建议
         }
-        ImGui::NewLine();
 
         ImGui::PopStyleVar(2);  // Pop FrameBorderSize and FrameRounding
         ImGui::PopStyleColor(3);  // Pop Button, ButtonHovered, ButtonActive

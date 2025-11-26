@@ -53,7 +53,11 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandAr
 
     // TODO: 以后做参数提示
 
-    return {"Test1","Test2"};
+    return {
+        "uud1","uud2","uud3","uud4","uud5","uud6","uud7","uud8","uud9","uud10",
+        "uud11","uud12","uud13","uud14","uud15","uud16","uud17","uud18","uud19","uud20",
+        "uud21","uud22","uud23","uud24","uud25","uud26","uud27","uud28","uud29","uud30"
+    };
 }
 
 std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const CommandArgs &commandArgs) {

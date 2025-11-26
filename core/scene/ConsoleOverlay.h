@@ -63,6 +63,8 @@ namespace glimmer {
 
         void SetCommandSuggestions(const std::vector<std::string> &commandSuggestions);
 
+        static int ComputeScore(const std::string &cmd, const std::string &keyword);
+
         [[nodiscard]] int GetLastCursorPos() const;
 
         bool HandleEvent(const SDL_Event &event) override;

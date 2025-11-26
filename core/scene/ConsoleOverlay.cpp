@@ -22,12 +22,49 @@ void glimmer::ConsoleOverlay::SetKeyword(const std::string &keyword) {
     keyword_ = keyword;
 }
 
-void glimmer::ConsoleOverlay::SetCommandStructureHighlightIndex(int commandStructureHighlightIndex) {
+void glimmer::ConsoleOverlay::SetCommandStructureHighlightIndex(const int commandStructureHighlightIndex) {
     commandStructureHighlightIndex_ = commandStructureHighlightIndex;
 }
 
 void glimmer::ConsoleOverlay::SetCommandSuggestions(const std::vector<std::string> &commandSuggestions) {
-    commandSuggestions_ = commandSuggestions;
+    commandSuggestions_.clear();
+    const std::string &keyword = keyword_;
+
+    struct ScoredCommand {
+        std::string cmd;
+        int score;
+    };
+
+    std::vector<ScoredCommand> scored;
+
+    for (const auto &cmd: commandSuggestions) {
+        const int score = ComputeScore(cmd, keyword);
+        scored.push_back({cmd, score});
+    }
+
+    std::ranges::sort(scored,
+                      [](auto &a, auto &b) { return a.score > b.score; });
+
+    commandSuggestions_.reserve(scored.size());
+    for (auto &s: scored) {
+        commandSuggestions_.push_back(std::move(s.cmd));
+    }
+}
+
+int glimmer::ConsoleOverlay::ComputeScore(const std::string &cmd, const std::string &keyword) {
+    int score = 0;
+
+    if (cmd == keyword) score += 200;
+    if (cmd.starts_with(keyword)) score += 100;
+
+    if (auto pos = cmd.find(keyword); pos != std::string::npos) {
+        score += 10;
+        score += 50 - static_cast<int>(pos);
+    }
+
+    score -= static_cast<int>(cmd.length());
+
+    return score;
 }
 
 int glimmer::ConsoleOverlay::GetLastCursorPos() const {

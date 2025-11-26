@@ -81,14 +81,36 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     constexpr float inputHeight = 25.0F;
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(io.DisplaySize);
+    
+    // Apply dark console theme
+    // 应用深色控制台主题
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 240));  // Black background with slight transparency
+    ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(60, 60, 60, 255));  // Dark gray border
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255));  // White text
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));  // Slightly lighter black for child windows
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(30, 30, 30, 255));  // Dark gray for input background
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(40, 40, 40, 255));  // Lighter on hover
+    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(50, 50, 50, 255));  // Even lighter when active
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, IM_COL32(20, 20, 20, 255));  // Dark scrollbar background
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrab, IM_COL32(80, 80, 80, 255));  // Gray scrollbar grab
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabHovered, IM_COL32(100, 100, 100, 255));  // Lighter on hover
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabActive, IM_COL32(120, 120, 120, 255));  // Even lighter when active
+    ImGui::PushStyleColor(ImGuiCol_TextSelectedBg, IM_COL32(60, 60, 60, 255));  // Dark gray for text selection
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 2.0F);  // Window border
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0F);  // Child window border
+    
     ImGui::Begin("Console",
                  nullptr,
                  ImGuiWindowFlags_NoTitleBar |
                  ImGuiWindowFlags_NoResize |
                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
+    // Console title with cyan color
+    // 控制台标题使用青色
     ImGui::PushFont(ImGui::GetFont());
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255));  // Cyan for title
     ImGui::TextUnformatted(appContext->langs->console.c_str());
+    ImGui::PopStyleColor();
     ImGui::PopFont();
     ImGui::Separator();
     
@@ -101,14 +123,21 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         const float lineHeight = ImGui::GetTextLineHeightWithSpacing();
         const float desiredHeight = lineHeight * static_cast<float>(commandSuggestions_.size());
         const float maxSuggestionsHeight = windowHeight * 0.4F;  // 40% of screen height
-        suggestionsHeight = std::min(desiredHeight, maxSuggestionsHeight);
+        
+        // Add padding for borders, frame padding, and scrollbar
+        // 为边框、框架内边距和滚动条添加额外空间
+        const float extraPadding = ImGui::GetStyle().FramePadding.y * 2 + 
+                                   ImGui::GetStyle().ItemSpacing.y * 2 + 
+                                   ImGui::GetStyle().ScrollbarSize;
+        
+        suggestionsHeight = std::min(desiredHeight + extraPadding, maxSuggestionsHeight);
     }
     
     // Adjust Messages child window height to account for suggestions
     // 调整消息子窗口高度以考虑建议
     const float messagesHeight = windowHeight - inputHeight - 70 - suggestionsHeight;
     
-    ImGui::BeginChild("Messages", ImVec2(0, messagesHeight), false,
+    ImGui::BeginChild("Messages", ImVec2(0, messagesHeight), true,  // true = show border
                       ImGuiWindowFlags_HorizontalScrollbar);
     ImGuiListClipper clipper;
     clipper.Begin(static_cast<int>(messages_.size()));
@@ -127,14 +156,14 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     if (!commandSuggestions_.empty()) {
         // Enable vertical scrollbar when content overflows
         // 当内容溢出时启用垂直滚动条
-        ImGui::BeginChild("AutocompleteSuggestions", ImVec2(0, suggestionsHeight), false, 
+        ImGui::BeginChild("AutocompleteSuggestions", ImVec2(0, suggestionsHeight), true,  // true = show border
                           ImGuiWindowFlags_AlwaysVerticalScrollbar);
         
         // Style buttons to look like plain text
         // 将按钮样式设置为类似普通文本
         ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 0, 0, 0));  // Transparent background
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(100, 100, 100, 50));  // Subtle gray on hover
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(150, 150, 150, 80));  // Slightly darker when clicked
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(40, 40, 40, 150));  // Dark gray on hover
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(60, 60, 60, 200));  // Lighter gray when clicked
         ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0F);  // No border
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0F);  // Slight rounding for hover effect
 
@@ -196,23 +225,23 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                 
                 ImVec2 currentPos = textPos;
                 
-                // Before keyword - black
+                // Before keyword - white
                 if (!beforeKeyword.empty()) {
-                    drawList->AddText(currentPos, IM_COL32(0, 0, 0, 255), beforeKeyword.c_str());
+                    drawList->AddText(currentPos, IM_COL32(255, 255, 255, 255), beforeKeyword.c_str());
                     currentPos.x += ImGui::CalcTextSize(beforeKeyword.c_str()).x;
                 }
                 
-                // Keyword - blue highlight
-                drawList->AddText(currentPos, IM_COL32(50, 120, 255, 255), keyword.c_str());
+                // Keyword - cyan highlight
+                drawList->AddText(currentPos, IM_COL32(0, 255, 255, 255), keyword.c_str());
                 currentPos.x += ImGui::CalcTextSize(keyword.c_str()).x;
                 
-                // After keyword - black
+                // After keyword - white
                 if (!afterKeyword.empty()) {
-                    drawList->AddText(currentPos, IM_COL32(0, 0, 0, 255), afterKeyword.c_str());
+                    drawList->AddText(currentPos, IM_COL32(255, 255, 255, 255), afterKeyword.c_str());
                 }
             } else {
-                // No keyword to highlight, draw entire text in black
-                drawList->AddText(textPos, IM_COL32(0, 0, 0, 255), suggestion.c_str());
+                // No keyword to highlight, draw entire text in white
+                drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), suggestion.c_str());
             }
             
             ImGui::PopID();
@@ -227,14 +256,14 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
 
     //Command Suggestion Label
     //命令建议标签
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255));
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(180, 180, 180, 255));  // Light gray for normal text
     for (int i = 0; i < commandStructure_.size(); i++) {
         if (i == commandStructureHighlightIndex_) {
             ImGui::PopStyleColor();
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(50, 120, 255, 255));
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255));  // Cyan for highlighted
             ImGui::TextUnformatted(commandStructure_[i].c_str());
             ImGui::PopStyleColor();
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255));
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(180, 180, 180, 255));  // Back to light gray
         } else {
             ImGui::TextUnformatted(commandStructure_[i].c_str());
         }
@@ -245,6 +274,12 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
 
     ImGui::PopStyleColor();
     ImGui::Separator();
+    
+    // Set white text color and cursor for input field
+    // 为输入框设置白色文本颜色和光标
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255));
+    ImGui::PushStyleColor(ImGuiCol_InputTextCursor, IM_COL32(255, 255, 255, 255));  // White cursor
+    
     ImGui::PushItemWidth(-1);
     if (focusNextFrame_) {
         ImGui::SetKeyboardFocusHere();
@@ -289,8 +324,14 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         inputBuffer_.fill('\0');
         focusNextFrame_ = true;
     }
+    ImGui::PopStyleColor(2);  // Pop input text color and cursor color
     ImGui::PopItemWidth();
     ImGui::End();
+    
+    // Pop all style colors and vars
+    // 弹出所有样式颜色和变量
+    ImGui::PopStyleVar(2);  // WindowBorderSize, ChildBorderSize
+    ImGui::PopStyleColor(12);  // All color styles
 }
 
 

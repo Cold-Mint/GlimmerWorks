@@ -23,6 +23,7 @@ namespace glimmer {
         std::array<char, 256> inputBuffer_ = {};
         std::vector<std::string> messages_;
         std::vector<std::string> commandSuggestions_;
+        std::string keyword_;
         int lastCursorPos_ = 0;
         /**
          * Code structure
@@ -47,6 +48,13 @@ namespace glimmer {
         void SetLastCursorPos(int cursorPos);
 
         void SetCommandStructure(const std::vector<std::string> &commandStructure);
+
+        /**
+         * Set the keywords when searching
+         * 设置搜索时的关键字
+         * @param keyword keyword 关键字
+         */
+        void SetKeyword(std::string &keyword);
 
         void SetCommandStructureHighlightIndex(int commandStructureHighlightIndex);
 

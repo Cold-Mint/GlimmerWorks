@@ -4,6 +4,7 @@
 
 #include "ConsoleOverlay.h"
 
+#include <algorithm>
 #include "AppContext.h"
 #include "../log/LogCat.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
@@ -15,6 +16,10 @@ void glimmer::ConsoleOverlay::SetLastCursorPos(const int cursorPos) {
 
 void glimmer::ConsoleOverlay::SetCommandStructure(const std::vector<std::string> &commandStructure) {
     commandStructure_ = commandStructure;
+}
+
+void glimmer::ConsoleOverlay::SetKeyword(std::string &keyword) {
+    keyword_ = keyword;
 }
 
 void glimmer::ConsoleOverlay::SetCommandStructureHighlightIndex(int commandStructureHighlightIndex) {
@@ -60,6 +65,8 @@ int glimmer::ConsoleOverlay::InputCallback(const ImGuiInputTextCallbackData *dat
 
         std::string currentText(data->Buf, data->BufTextLen);
         const auto commandArgs = CommandArgs(cmdStr);
+        auto keyword = commandArgs.GetKeywordAtCursor(cursorPos);
+        overlay->SetKeyword(keyword);
         overlay->SetCommandSuggestions(overlay->appContext->commandManager->GetSuggestions(commandArgs, cursorPos));
         overlay->SetCommandStructure(CommandManager::GetCommandStructure(commandArgs));
         overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
@@ -84,7 +91,19 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     ImGui::TextUnformatted(appContext->langs->console.c_str());
     ImGui::PopFont();
     ImGui::Separator();
-    ImGui::BeginChild("Messages", ImVec2(0, windowHeight - inputHeight - 70), false,
+    
+    // Calculate autocomplete suggestions height
+    // 计算自动完成建议的高度
+    const float maxSuggestionsHeight = 100.0F;
+    const float suggestionsHeight = !commandSuggestions_.empty() 
+        ? std::min(maxSuggestionsHeight, ImGui::GetTextLineHeightWithSpacing() * 3) 
+        : 0.0F;
+    
+    // Adjust Messages child window height to account for suggestions
+    // 调整消息子窗口高度以考虑建议
+    const float messagesHeight = windowHeight - inputHeight - 70 - suggestionsHeight;
+    
+    ImGui::BeginChild("Messages", ImVec2(0, messagesHeight), false,
                       ImGuiWindowFlags_HorizontalScrollbar);
     ImGuiListClipper clipper;
     clipper.Begin(static_cast<int>(messages_.size()));
@@ -98,6 +117,105 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         ImGui::SetScrollHereY(1.0f);
     }
     ImGui::EndChild();
+    //Autocomplete Suggestions
+    //自动完成建议
+    if (!commandSuggestions_.empty()) {
+        ImGui::BeginChild("AutocompleteSuggestions", ImVec2(0, suggestionsHeight), false, 
+                          ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        
+        // Style buttons to look like plain text
+        // 将按钮样式设置为类似普通文本
+        ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 0, 0, 0));  // Transparent background
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(100, 100, 100, 50));  // Subtle gray on hover
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(150, 150, 150, 80));  // Slightly darker when clicked
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0F);  // No border
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0F);  // Slight rounding for hover effect
+
+
+        for (const auto &suggestion: commandSuggestions_) {
+            // Create button with highlighted keyword
+            // 创建带有高亮关键字的按钮
+            ImGui::PushID(suggestion.c_str());
+            
+            // Find keyword position in suggestion (case-insensitive)
+            // 在建议中查找关键字位置（不区分大小写）
+            size_t keywordPos = std::string::npos;
+            if (!keyword_.empty()) {
+                std::string lowerSuggestion = suggestion;
+                std::string lowerKeyword = keyword_;
+                std::transform(lowerSuggestion.begin(), lowerSuggestion.end(), lowerSuggestion.begin(), ::tolower);
+                std::transform(lowerKeyword.begin(), lowerKeyword.end(), lowerKeyword.begin(), ::tolower);
+                keywordPos = lowerSuggestion.find(lowerKeyword);
+            }
+            
+            // Draw button with custom text rendering for highlighting
+            // 绘制带有自定义文本渲染的按钮以实现高亮
+            const ImVec2 buttonSize = ImGui::CalcTextSize(suggestion.c_str());
+            const ImVec2 padding = ImGui::GetStyle().FramePadding;
+            
+            if (ImGui::Button("", ImVec2(buttonSize.x + padding.x * 2, 0))) {
+                // Insert suggestion at cursor position
+                const int cursorPos = lastCursorPos_;
+                const std::string currentText(inputBuffer_.data(), strnlen(inputBuffer_.data(), inputBuffer_.size()));
+                const std::string beforeCursor = currentText.substr(0, cursorPos);
+                const std::string afterCursor = currentText.substr(cursorPos);
+                const std::string newText = beforeCursor + suggestion + afterCursor;
+
+                // Update input buffer
+                if (newText.length() < inputBuffer_.size()) {
+                    std::fill(inputBuffer_.begin(), inputBuffer_.end(), '\0');
+                    std::copy(newText.begin(), newText.end(), inputBuffer_.begin());
+                    lastCursorPos_ = cursorPos + static_cast<int>(suggestion.length());
+                }
+
+                // Clear suggestions
+                commandSuggestions_.clear();
+                focusNextFrame_ = true;
+            }
+            
+            // Render text with highlighted keyword on top of button
+            // 在按钮上方渲染带有高亮关键字的文本
+            const ImVec2 textPos = ImVec2(ImGui::GetItemRectMin().x + padding.x, ImGui::GetItemRectMin().y + padding.y);
+            ImDrawList* drawList = ImGui::GetWindowDrawList();
+            
+            if (keywordPos != std::string::npos && !keyword_.empty()) {
+                // Draw text in three parts: before keyword, keyword (highlighted), after keyword
+                // 分三部分绘制文本：关键字前、关键字（高亮）、关键字后
+                const std::string beforeKeyword = suggestion.substr(0, keywordPos);
+                const std::string keyword = suggestion.substr(keywordPos, keyword_.length());
+                const std::string afterKeyword = suggestion.substr(keywordPos + keyword_.length());
+                
+                ImVec2 currentPos = textPos;
+                
+                // Before keyword - black
+                if (!beforeKeyword.empty()) {
+                    drawList->AddText(currentPos, IM_COL32(0, 0, 0, 255), beforeKeyword.c_str());
+                    currentPos.x += ImGui::CalcTextSize(beforeKeyword.c_str()).x;
+                }
+                
+                // Keyword - blue highlight
+                drawList->AddText(currentPos, IM_COL32(50, 120, 255, 255), keyword.c_str());
+                currentPos.x += ImGui::CalcTextSize(keyword.c_str()).x;
+                
+                // After keyword - black
+                if (!afterKeyword.empty()) {
+                    drawList->AddText(currentPos, IM_COL32(0, 0, 0, 255), afterKeyword.c_str());
+                }
+            } else {
+                // No keyword to highlight, draw entire text in black
+                drawList->AddText(textPos, IM_COL32(0, 0, 0, 255), suggestion.c_str());
+            }
+            
+            ImGui::PopID();
+            ImGui::SameLine();
+        }
+        ImGui::NewLine();
+
+        ImGui::PopStyleVar(2);  // Pop FrameBorderSize and FrameRounding
+        ImGui::PopStyleColor(3);  // Pop Button, ButtonHovered, ButtonActive
+        ImGui::EndChild();
+    }
+
     //Command Suggestion Label
     //命令建议标签
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 0, 255));

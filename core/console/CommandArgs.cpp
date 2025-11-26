@@ -10,20 +10,23 @@
 
 int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const {
     const int commandLen = static_cast<int>(command_.size());
-    if (cursorPos < 0 || cursorPos > commandLen) {
+    if (commandLen == 0 || cursorPos < 0 || cursorPos > commandLen) {
         return -1;
     }
 
     int tokenIndex = 0;
     bool inToken = false;
-
+    int maxIndex = commandLen - 1;
     for (int i = 0; i < cursorPos; ++i) {
         const char c = command_[i];
         if (c == ' ') {
             // Encountering a space indicates that the token has ended
             // 遇到空格，说明 token 结束
             if (inToken) {
-                tokenIndex++;
+                //如果不是末尾的空格
+                if (i < maxIndex) {
+                    tokenIndex++;
+                }
                 inToken = false;
             }
         } else {
@@ -44,6 +47,15 @@ int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const {
     // 光标在空格后，则应该返回 “下一个 token index”
     return tokenIndex;
 }
+
+std::string glimmer::CommandArgs::GetKeywordAtCursor(const int cursorPos) const {
+    const int index = GetTokenIndexAtCursor(cursorPos);
+    if (index < 0) {
+        return "";
+    }
+    return tokens_[index];
+}
+
 
 int glimmer::CommandArgs::GetSize() const {
     return static_cast<int>(tokens_.size());

@@ -32,6 +32,14 @@ namespace glimmer {
          */
         [[nodiscard]] int GetTokenIndexAtCursor(int cursorPos) const;
 
+        /**
+         * Get the keyword corresponding to the cursor position
+         * 获取光标位置对应的关键字
+         * @param cursorPos cursorPos 光标位置
+         * @return
+         */
+        [[nodiscard]] std::string GetKeywordAtCursor(int cursorPos) const;
+
         [[nodiscard]] int GetSize() const;
 
         [[nodiscard]] bool AsBool(int index) const;

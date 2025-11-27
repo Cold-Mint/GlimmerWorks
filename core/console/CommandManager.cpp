@@ -73,7 +73,7 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
                 //是否展开了动态建议
                 bool unfold = false;
                 if (child.starts_with('@')) {
-                    if (std::ranges::find(unfoldList, child) != unfoldList.end()) {
+                    if (std::find(unfoldList.begin(), unfoldList.end(), child) != unfoldList.end()) {
                         LogCat::e("Repeated dynamic suggestions:", child);
 #if  defined(NDEBUG)
                         continue;

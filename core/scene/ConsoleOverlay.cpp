@@ -105,7 +105,7 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
         const auto keyword = commandArgs.GetKeywordAtCursor(cursorPos);
         overlay->SetKeyword(keyword);
         overlay->SetCommandSuggestions(overlay->appContext->commandManager->GetSuggestions(commandArgs, cursorPos));
-        overlay->SetCommandStructure(CommandManager::GetCommandStructure(commandArgs));
+        overlay->SetCommandStructure(overlay->appContext->commandManager->GetCommandStructure(commandArgs));
         overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
     }
     if (overlay->nextCursorPos_ != -1) {

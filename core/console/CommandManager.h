@@ -17,7 +17,7 @@ namespace glimmer {
     public:
         void RegisterCommand(std::unique_ptr<Command> command);
 
-        Command *GetCommand(const std::string &name);
+        Command *GetCommand(const std::string &name) const;
 
         std::vector<std::string> GetSuggestions(const CommandArgs &commandArgs, int cursorPos) const;
 
@@ -27,7 +27,7 @@ namespace glimmer {
          * @param commandArgs commandArgs 命令参数
          * @return
          */
-        static std::vector<std::string> GetCommandStructure(const CommandArgs &commandArgs);
+        std::vector<std::string> GetCommandStructure(const CommandArgs &commandArgs) const;
 
         using CommandMap = std::unordered_map<std::string, std::unique_ptr<Command> >;
 

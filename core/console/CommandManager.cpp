@@ -8,11 +8,12 @@
 
 void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command) {
     const std::string name = command->GetName();
+    command->Initialize();
     commandMap[name] = std::move(command);
     LogCat::i("Command registered successfully: ", name);
 }
 
-glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) {
+glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) const {
     if (const auto it = commandMap.find(name); it != commandMap.end()) {
         return it->second.get();
     }
@@ -21,44 +22,71 @@ glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) {
 
 std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandArgs &commandArgs,
                                                                  const int cursorPos) const {
-    int size = commandArgs.GetSize();
+    const int size = commandArgs.GetSize();
     if (size == 0) {
         return {};
     }
 
-    if (size == 1) {
+    int tokenIndex = commandArgs.GetTokenIndexAtCursor(cursorPos);
+    if (tokenIndex == -1) {
+        return {};
+    }
+    if (tokenIndex == 0) {
         std::vector<std::string> results;
         const std::string keyWord = commandArgs.AsString(0);
         for (const auto &pair: commandMap) {
             const std::string &cmd = pair.first;
-
+            if (cmd == keyWord) {
+                continue;
+            }
             if (cmd.find(keyWord) != std::string::npos) {
                 results.push_back(cmd);
             }
         }
         return results;
     }
-
-    // TODO: 以后做参数提示
-
-    return {
-        "help","hello","hey","halt","heal","heap","hear","heart","heat","height",
-        "run","jump","walk","open","close","start","stop","reset","remove","rename",
-        "begin","end","finish","find","insert","include","increase","info","input","inspect"
-    };
-
+    std::string commandName = commandArgs.AsString(0);
+    Command *command = GetCommand(commandName);
+    if (command == nullptr) {
+        return {};
+    }
+    NodeTree<std::string> nodeTree = command->GetSuggestionsTree();
+    std::vector<std::string> results;
+    NodeTree<std::string> *nextNodeTree = &nodeTree;
+    for (int index = 1; index <= tokenIndex; index++) {
+        std::string keyWord = commandArgs.AsString(index);
+        if (index == tokenIndex) {
+            std::vector<std::string> children = nextNodeTree->GetAllChildren();
+            for (const auto &child: children) {
+                if (child == keyWord) {
+                    continue;
+                }
+                if (child.find(keyWord) != std::string::npos) {
+                    results.push_back(child);
+                }
+            }
+        } else {
+            nextNodeTree = nodeTree.GetChildByValue(keyWord);
+            if (nextNodeTree == nullptr) {
+                return {};
+            }
+        }
+    }
+    return results;
 }
 
-std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const CommandArgs &commandArgs) {
+std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const CommandArgs &commandArgs) const {
     const int size = commandArgs.GetSize();
-    if (size == 0 || size == 1) {
-        return {"[command name]"};
+    if (size == 0) {
+        return {"[command name:string]"};
+    }
+    std::string commandName = commandArgs.AsString(0);
+    Command *command = GetCommand(commandName);
+    if (command == nullptr) {
+        return {commandName};
     }
     std::vector<std::string> results;
-    results.emplace_back("[command name]");
-    for (int i = 1; i < size; i++) {
-        std::string keyWord = commandArgs.AsString(i);
-        results.push_back(keyWord);
-    }
+    results.emplace_back(commandName);
+    command->PutCommandStructure(commandArgs, results);
     return results;
 }

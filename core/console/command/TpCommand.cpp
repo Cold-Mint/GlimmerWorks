@@ -11,13 +11,12 @@
 #include "../../utils/Box2DUtils.h"
 #include "../../world/WorldContext.h"
 
+void glimmer::TpCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
+}
+
 std::string glimmer::TpCommand::GetName() const
 {
     return TP_COMMAND_NAME;
-}
-
-void glimmer::TpCommand::InitSuggest()
-{
 }
 
 bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string& text)> onOutput)
@@ -51,6 +50,11 @@ bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(con
     }
 
     return true;
+}
+
+void glimmer::TpCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string>& strings) {
+    strings.emplace_back("[x:int]");
+    strings.emplace_back("[y:int]");
 }
 
 bool glimmer::TpCommand::RequiresWorldContext() const

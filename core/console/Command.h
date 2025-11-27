@@ -8,23 +8,34 @@
 #include <string>
 
 #include "CommandArgs.h"
+#include "../utils/NodeTree.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
     class AppContext;
 
-    class Command
-    {
+    class Command {
     protected:
-        AppContext* appContext_ = nullptr;
-        WorldContext* worldContext_ = nullptr;
+        AppContext *appContext_ = nullptr;
+        WorldContext *worldContext_ = nullptr;
+        /**
+         * A tree applicable to command suggestions
+         * 适用于命令建议的树
+         */
+        NodeTree<std::string> suggestionsTree_ = NodeTree<std::string>();
+
+        /**
+        * Initialize the suggestion tree
+        * 初始化建议树
+        * @param suggestionsTree
+        */
+        virtual void InitSuggestions(NodeTree<std::string> &suggestionsTree) = 0;
 
     public:
         virtual ~Command() = default;
 
-        explicit Command(AppContext* ctx) : appContext_(ctx)
-        {
+
+        explicit Command(AppContext *ctx) : appContext_(ctx) {
         }
 
         [[nodiscard]] virtual std::string GetName() const = 0;
@@ -35,12 +46,14 @@ namespace glimmer
          * @return 是否需要世界上下文
          */
         [[nodiscard]] virtual bool RequiresWorldContext() const;
+
         /**
          * Bind the world context
          * 绑定世界上下文
          * @param worldContext 世界上下文
          */
-        void BindWorldContext(WorldContext* worldContext);
+        void BindWorldContext(WorldContext *worldContext);
+
         /**
          * UnBind the world context
          * 解绑世界上下文
@@ -48,9 +61,25 @@ namespace glimmer
         void UnBindWorldContext();
 
 
-        virtual void InitSuggest() = 0;
+        /**
+         * Add command structure
+         * 添加命令结构
+         * @param commandArgs commandArgs 命令参数
+         * @param strings Command structure array
+         */
+        virtual void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) = 0;
 
-        virtual bool Execute(CommandArgs commandArgs, std::function<void(const std::string& text)> onOutput) = 0;
+        /**
+         * Initialize
+         * 初始化
+         */
+        void Initialize() {
+            InitSuggestions(suggestionsTree_);
+        }
+
+        [[nodiscard]] NodeTree<std::string> GetSuggestionsTree() const;
+
+        virtual bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) = 0;
     };
 }
 

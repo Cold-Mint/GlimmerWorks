@@ -4,17 +4,18 @@
 
 #include "Command.h"
 
-bool glimmer::Command::RequiresWorldContext() const
-{
+bool glimmer::Command::RequiresWorldContext() const {
     return false;
 }
 
-void glimmer::Command::BindWorldContext(WorldContext* worldContext)
-{
+void glimmer::Command::BindWorldContext(WorldContext *worldContext) {
     worldContext_ = worldContext;
 }
 
-void glimmer::Command::UnBindWorldContext()
-{
+void glimmer::Command::UnBindWorldContext() {
     worldContext_ = nullptr;
+}
+
+glimmer::NodeTree<std::string> glimmer::Command::GetSuggestionsTree() const {
+    return suggestionsTree_;
 }

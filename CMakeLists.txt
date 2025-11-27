@@ -238,7 +238,9 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/console/command/TpCommand.cpp
         core/console/command/TpCommand.h
         core/console/command/Box2DCommand.cpp
-        core/console/command/Box2DCommand.h)
+        core/console/command/Box2DCommand.h
+        core/utils/NodeTree.cpp
+        core/utils/NodeTree.h)
 
 if (ANDROID)
     message(STATUS "Building for Android → Shared Library (.so)")

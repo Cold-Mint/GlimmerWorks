@@ -240,7 +240,15 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/console/command/Box2DCommand.cpp
         core/console/command/Box2DCommand.h
         core/utils/NodeTree.cpp
-        core/utils/NodeTree.h)
+        core/utils/NodeTree.h
+        core/console/command/AssetViewerCommand.cpp
+        core/console/command/AssetViewerCommand.h
+        core/console/suggestion/DynamicSuggestionsManager.cpp
+        core/console/suggestion/DynamicSuggestionsManager.h
+        core/console/suggestion/DynamicSuggestions.cpp
+        core/console/suggestion/DynamicSuggestions.h
+        core/console/suggestion/BoolDynamicSuggestions.cpp
+        core/console/suggestion/BoolDynamicSuggestions.h)
 
 if (ANDROID)
     message(STATUS "Building for Android → Shared Library (.so)")

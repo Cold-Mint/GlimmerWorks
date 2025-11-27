@@ -9,17 +9,19 @@
 #include <unordered_map>
 
 #include "Command.h"
+#include "suggestion/DynamicSuggestionsManager.h"
 
 namespace glimmer {
     class CommandManager {
-        std::unordered_map<std::string, std::unique_ptr<Command> > commandMap{};
+        std::unordered_map<std::string, std::unique_ptr<Command> > commandMap_{};
 
     public:
         void RegisterCommand(std::unique_ptr<Command> command);
 
         Command *GetCommand(const std::string &name) const;
 
-        std::vector<std::string> GetSuggestions(const CommandArgs &commandArgs, int cursorPos) const;
+        std::vector<std::string> GetSuggestions(const DynamicSuggestionsManager *dynamicSuggestionsManager,
+                                                const CommandArgs &commandArgs, int cursorPos) const;
 
         /**
          * Get Command Structure
@@ -32,7 +34,7 @@ namespace glimmer {
         using CommandMap = std::unordered_map<std::string, std::unique_ptr<Command> >;
 
         [[nodiscard]] const CommandMap &GetCommands() const {
-            return commandMap;
+            return commandMap_;
         }
     };
 }

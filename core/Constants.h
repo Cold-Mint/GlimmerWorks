@@ -14,6 +14,8 @@
 #define HELP_COMMAND_NAME  "help"
 #define TP_COMMAND_NAME  "tp"
 #define BOX2D_COMMAND_NAME  "box2d"
+#define ASSET_VIEWER_COMMAND_NAME  "assetViewer"
+#define BOOL_DYNAMIC_SUGGESTIONS_NAME  "@bool"
 
 /**
  * Unit chunk size

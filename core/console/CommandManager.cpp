@@ -4,24 +4,28 @@
 
 #include "CommandManager.h"
 
+#include <assert.h>
+
 #include "../log/LogCat.h"
+#include "suggestion/DynamicSuggestionsManager.h"
 
 void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command) {
     const std::string name = command->GetName();
     command->Initialize();
-    commandMap[name] = std::move(command);
+    commandMap_[name] = std::move(command);
     LogCat::i("Command registered successfully: ", name);
 }
 
 glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) const {
-    if (const auto it = commandMap.find(name); it != commandMap.end()) {
+    if (const auto it = commandMap_.find(name); it != commandMap_.end()) {
         return it->second.get();
     }
     return nullptr;
 }
 
-std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandArgs &commandArgs,
-                                                                 const int cursorPos) const {
+std::vector<std::string> glimmer::CommandManager::GetSuggestions(
+    const DynamicSuggestionsManager *dynamicSuggestionsManager, const CommandArgs &commandArgs,
+    const int cursorPos) const {
     const int size = commandArgs.GetSize();
     if (size == 0) {
         return {};
@@ -34,7 +38,7 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandAr
     if (tokenIndex == 0) {
         std::vector<std::string> results;
         const std::string keyWord = commandArgs.AsString(0);
-        for (const auto &pair: commandMap) {
+        for (const auto &pair: commandMap_) {
             const std::string &cmd = pair.first;
             if (cmd == keyWord) {
                 continue;
@@ -57,11 +61,37 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(const CommandAr
         std::string keyWord = commandArgs.AsString(index);
         if (index == tokenIndex) {
             std::vector<std::string> children = nextNodeTree->GetAllChildren();
-            for (const auto &child: children) {
+            //Expanded dynamic suggestions.
+            //展开过的动态建议。
+            std::vector<std::string> unfoldList = {};
+            for (size_t i = 0; i < children.size(); ++i) {
+                const auto &child = children[i];
                 if (child == keyWord) {
                     continue;
                 }
-                if (child.find(keyWord) != std::string::npos) {
+                //Has dynamic suggestion been carried out
+                //是否展开了动态建议
+                bool unfold = false;
+                if (child.starts_with('@')) {
+                    if (std::ranges::find(unfoldList, child) != unfoldList.end()) {
+                        LogCat::e("Repeated dynamic suggestions:", child);
+#if  defined(NDEBUG)
+                        continue;
+#else
+                        assert(false && "Repeated dynamic suggestions");
+#endif
+                    }
+                    //If the suggestion starts with @, then it is a dynamic suggestion. Here we try to expand on it.
+                    //如果建议以@开头，那么他是一个动态建议，我们在这里尝试展开他。
+                    DynamicSuggestions *dynamicSuggestions = dynamicSuggestionsManager->GetSuggestions(child);
+                    if (dynamicSuggestions != nullptr) {
+                        unfold = true;
+                        unfoldList.push_back(child);
+                        std::vector<std::string> dynList = dynamicSuggestions->GetSuggestions();
+                        children.insert(children.end(), dynList.begin(), dynList.end());
+                    }
+                }
+                if (!unfold && child.find(keyWord) != std::string::npos) {
                     results.push_back(child);
                 }
             }

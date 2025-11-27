@@ -207,3 +207,31 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(
     LogCat::e("Texture not found in any enabled resource pack: ", path);
     return nullptr;
 }
+
+std::string glimmer::ResourcePackManager::ListTextureCache(const bool includeExpired) const {
+    std::string result;
+
+    for (const auto &pair: textureCache) {
+        const auto &path = pair.first;
+        const auto &weakTex = pair.second;
+
+
+        if (auto shared = weakTex.lock()) {
+            result += path;
+            result += " -> ";
+            result += "alive (use_count=";
+            result += std::to_string(shared.use_count());
+            result += ")";
+        } else {
+            if (includeExpired) {
+                result += path;
+                result += " -> ";
+                result += "expired";
+            }
+        }
+
+        result += "\n";
+    }
+
+    return result;
+}

@@ -13,8 +13,8 @@
 #include "SDL3_ttf/SDL_ttf.h"
 
 
-namespace glimmer
-{
+namespace glimmer {
+    class DynamicSuggestionsManager;
     class StringManager;
     class Config;
     class DataPackManager;
@@ -27,22 +27,22 @@ namespace glimmer
      * and dependencies to different modules.
      *
      */
-    class AppContext
-    {
-        SDL_Window* window_;
-        std::string* language_;
+    class AppContext {
+        SDL_Window *window_;
+        std::string *language_;
         bool debugMode_ = false;
 
     public:
-        DataPackManager* dataPackManager;
-        Config* config;
-        SceneManager* sceneManager;
-        StringManager* stringManager;
-        CommandManager* commandManager;
-        TTF_Font* ttfFont;
-        CommandExecutor* commandExecutor;
-        ResourcePackManager* resourcePackManager;
-        Langs* langs;
+        DataPackManager *dataPackManager;
+        Config *config;
+        SceneManager *sceneManager;
+        StringManager *stringManager;
+        CommandManager *commandManager;
+        TTF_Font *ttfFont;
+        CommandExecutor *commandExecutor;
+        ResourcePackManager *resourcePackManager;
+        Langs *langs;
+        DynamicSuggestionsManager *dynamicSuggestionsManager;
         bool isRunning;
         /**
          * Whether to draw screen coordinates
@@ -50,26 +50,26 @@ namespace glimmer
          */
         bool debugScreenCoords = true;
 
-        AppContext(bool run, SceneManager* sm, std::string* lang, DataPackManager* dpm, ResourcePackManager* rpm,
-                   Config* cfg,
-                   StringManager* stringManager,
-                   CommandManager* commandManager, CommandExecutor* commandExecutor, Langs* langs)
+        AppContext(bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
+                   Config *cfg,
+                   StringManager *stringManager,
+                   CommandManager *commandManager, CommandExecutor *commandExecutor, Langs *langs,
+                   DynamicSuggestionsManager *dynamicSuggestionsManager)
             : language_(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager),
               commandManager(commandManager), ttfFont(nullptr), commandExecutor(commandExecutor),
               resourcePackManager(rpm),
-              window_(nullptr), langs(langs), isRunning(run)
-        {
+              window_(nullptr), langs(langs), isRunning(run), dynamicSuggestionsManager(dynamicSuggestionsManager) {
         }
 
         void SetDebugMode(bool isDebug);
 
         [[nodiscard]] bool isDebugMode() const;
 
-        [[nodiscard]] std::string* GetLanguage() const;
+        [[nodiscard]] std::string *GetLanguage() const;
 
-        void SetWindow(SDL_Window* window);
+        void SetWindow(SDL_Window *window);
 
-        [[nodiscard]] SDL_Window* GetWindow() const;
+        [[nodiscard]] SDL_Window *GetWindow() const;
     };
 }
 

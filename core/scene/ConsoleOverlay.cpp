@@ -106,7 +106,7 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
         overlay->SetKeyword(keyword);
         overlay->SetCommandSuggestions(
             overlay->appContext->commandManager_->GetSuggestions(overlay->appContext->dynamicSuggestionsManager_,
-                                                                commandArgs, cursorPos));
+                                                                 commandArgs, cursorPos));
         overlay->SetCommandStructure(overlay->appContext->commandManager_->GetCommandStructure(commandArgs));
         overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
     }
@@ -237,7 +237,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     const float messagesHeight = windowHeight - inputHeight - 70 - suggestionsHeight;
 
     ImGui::BeginChild("Messages", ImVec2(0, messagesHeight), true, // true = show border
-                      ImGuiWindowFlags_HorizontalScrollbar);
+                      ImGuiWindowFlags_AlwaysVerticalScrollbar);
     ImGuiListClipper clipper;
     clipper.Begin(static_cast<int>(messages_.size()));
     while (clipper.Step()) {
@@ -246,9 +246,6 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         }
     }
     clipper.End();
-    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) {
-        ImGui::SetScrollHereY(1.0f);
-    }
     ImGui::EndChild();
     //Autocomplete Suggestions
     //自动完成建议
@@ -401,7 +398,6 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                                           [this](const std::string &text) {
                                               addMessage(text);
                                           });
-            ImGui::SetScrollHereY(1.0f);
         }
         inputBuffer_.fill('\0');
         focusNextFrame_ = true;

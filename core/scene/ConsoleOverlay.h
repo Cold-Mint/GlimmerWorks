@@ -6,6 +6,7 @@
 #define GLIMMERWORKS_CONSOLESCENE_H
 #include <array>
 #include <string>
+#include <mutex>
 #include <vector>
 
 #include "imgui.h"
@@ -21,11 +22,13 @@ namespace glimmer {
         bool show_ = false;
         bool focusNextFrame_ = false;
         std::array<char, 256> inputBuffer_ = {};
+        std::mutex messagesMutex_;
         std::vector<std::string> messages_;
         std::vector<std::string> commandSuggestions_;
         std::string keyword_;
         int lastCursorPos_ = 0;
         int nextCursorPos_ = -1;
+        bool scrollToBottom_ = false;
         /**
          * Code structure
          * 命令结构

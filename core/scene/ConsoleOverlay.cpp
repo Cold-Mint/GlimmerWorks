@@ -88,7 +88,9 @@ void glimmer::ConsoleOverlay::Update(float delta) {
 }
 
 void glimmer::ConsoleOverlay::addMessage(const std::string &message) {
+    std::lock_guard lock(messagesMutex_);
     messages_.push_back(message);
+    scrollToBottom_ = true;
 }
 
 int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
@@ -238,14 +240,27 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
 
     ImGui::BeginChild("Messages", ImVec2(0, messagesHeight), true, // true = show border
                       ImGuiWindowFlags_AlwaysVerticalScrollbar);
-    ImGuiListClipper clipper;
-    clipper.Begin(static_cast<int>(messages_.size()));
-    while (clipper.Step()) {
-        for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-            ImGui::TextUnformatted(messages_[i].c_str());
+    //使用标准循环代替ImGuiListClipper，以避免可变高度项目的滚动跳跃
+    //同时使用互斥锁保护线程安全
+    // Use a standard loop instead of ImGuiListClipper to avoid scroll jumping with variable height items
+    // Also protect with mutex for thread safety
+    {
+        std::lock_guard lock(messagesMutex_);
+        for (const auto &msg: messages_) {
+            ImGui::TextUnformatted(msg.c_str());
         }
     }
-    clipper.End();
+
+    if (scrollToBottom_) {
+        const float scrollY = ImGui::GetScrollY();
+        const float scrollMaxY = ImGui::GetScrollMaxY();
+        // If the distance from the bottom is less than a certain threshold (for example, 5 pixels), it is considered that "the user is at the bottom".
+        // 如果距离底部小于一定阈值（比如 5 像素），则认为“用户在底部”
+        if (scrollMaxY - scrollY < 5.0F) {
+            ImGui::SetScrollHereY(1.0F);
+        }
+        scrollToBottom_ = false;
+    }
     ImGui::EndChild();
     //Autocomplete Suggestions
     //自动完成建议

@@ -10,24 +10,23 @@
 
 #include <optional>
 
-std::optional<nlohmann::json> glimmer::JsonUtils::LoadJsonFromFile(const std::string &path) {
-    // Open file input stream. The ifstream will automatically close the file
-    // when it goes out of scope (RAII ensures resource safety).
-    // 打开文件输入流（ifstream 会在作用域结束时自动关闭文件，确保资源安全）
-    std::ifstream jsonFile(path);
-    if (!jsonFile.is_open()) {
+std::optional<nlohmann::json> glimmer::JsonUtils::LoadJsonFromFile(const VirtualFileSystem *virtualFileSystem,
+                                                                   const std::string &path) {
+    std::optional<std::unique_ptr<std::ifstream> > ifstream = virtualFileSystem->ReadStream(path);
+    if (!ifstream.has_value()) {
+        return std::nullopt;
+    }
+    std::ifstream *ifs = ifstream->get();
+    if (!ifs->is_open()) {
         LogCat::e("Failed to open JSON file: ", path);
         return std::nullopt;
     }
     try {
         nlohmann::json jsonObject;
-        jsonFile >> jsonObject;
+        *ifs >> jsonObject;
         return jsonObject;
     } catch (const std::exception &e) {
         LogCat::e("Failed to parse JSON file: ", path, " Error: ", e.what());
         return std::nullopt;
     }
 }
-
-
-

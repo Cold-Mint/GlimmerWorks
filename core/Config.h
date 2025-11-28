@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "vfs/VirtualFileSystem.h"
+
 namespace glimmer {
     struct Window {
         int width = 1920;
@@ -26,7 +28,8 @@ namespace glimmer {
     public:
         Window window{};
         Mods mods{};
-        bool loadConfig(const std::string &path);
+
+        bool loadConfig(const VirtualFileSystem *virtualFileSystem, const std::string &path);
     };
 }
 

@@ -15,18 +15,15 @@
 #include "scene/DebugOverlay.h"
 #include "SDL3_ttf/SDL_ttf.h"
 
-bool glimmer::App::init()
-{
+bool glimmer::App::init() {
     LogCat::i("Initializing SDL...");
-    if (!SDL_Init(SDL_INIT_VIDEO))
-    {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         LogCat::e("SDL_Init Error: ", SDL_GetError());
         return false;
     }
     initSDLSuccess = true;
     LogCat::i("Initializing SDL_ttf...");
-    if (!TTF_Init())
-    {
+    if (!TTF_Init()) {
         LogCat::e("TTF_Init Error: ", SDL_GetError());
         return false;
     }
@@ -36,12 +33,11 @@ bool glimmer::App::init()
     LogCat::i("Creating SDL window...");
     window = SDL_CreateWindow(
         "GlimmerWorks",
-        appContext->config->window.width,
-        appContext->config->window.height,
-        appContext->config->window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
+        appContext->config_->window.width,
+        appContext->config_->window.height,
+        appContext->config_->window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
     );
-    if (window == nullptr)
-    {
+    if (window == nullptr) {
         LogCat::e("SDL_CreateWindow Error: ", SDL_GetError());
         return false;
     }
@@ -49,9 +45,8 @@ bool glimmer::App::init()
     appContext->SetWindow(window);
     LogCat::i("Creating SDL renderer...");
     renderer =
-        SDL_CreateRenderer(window, nullptr);
-    if (!renderer)
-    {
+            SDL_CreateRenderer(window, nullptr);
+    if (!renderer) {
         LogCat::e("SDL_CreateRenderer Error: ", SDL_GetError());
         return false;
     }
@@ -66,53 +61,47 @@ bool glimmer::App::init()
     ImGui::CreateContext();
     LogCat::i("ImGui context created.");
 
-    const ImGuiIO& io = ImGui::GetIO();
-    (void)io;
+    const ImGuiIO &io = ImGui::GetIO();
+    (void) io;
 
     LogCat::i("Setting ImGui style to Light...");
     ImGui::StyleColorsLight();
-    const auto fontPathOpt = appContext->resourcePackManager->GetFontPath(
-        appContext->config->mods.enabledResourcePack,
+    const auto fontPathOpt = appContext->resourcePackManager_->GetFontPath(
+        appContext->config_->mods.enabledResourcePack,
         *appContext->GetLanguage());
 
-    if (fontPathOpt.has_value())
-    {
-        const std::string& fontPath = *fontPathOpt;
-        if (io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0F))
-        {
-            LogCat::d("Loaded font: ", fontPath);
+    if (fontPathOpt.has_value()) {
+        const std::string& fontPath = fontPathOpt.value();
+        auto actualPath = appContext->virtualFileSystem_->GetActualPath(fontPath);
+        if (!actualPath.has_value()) {
+            LogCat::e("An error occurred when converting to the actual font path.");
+            return false;
         }
-        else
-        {
+        if (io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F)) {
+            LogCat::d("Loaded font: ", fontPath);
+        } else {
             LogCat::e("Failed to load font (ImGui error): ", fontPath);
         }
-        if (TTF_Font* sdlFont = TTF_OpenFont(fontPath.c_str(), 16); !sdlFont)
-        {
+        if (TTF_Font *sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16); !sdlFont) {
             LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
-        }
-        else
-        {
+        } else {
             LogCat::d("SDL_ttf font loaded: ", fontPath);
-            appContext->ttfFont = sdlFont;
+            appContext->ttfFont_ = sdlFont;
         }
-    }
-    else
-    {
+    } else {
         LogCat::w("No font found for language '", *appContext->GetLanguage(), "', skipping font load");
     }
 
 
     LogCat::i("Initializing ImGui SDL3 backend for SDLRenderer...");
-    if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer))
-    {
+    if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer)) {
         LogCat::e("ImGui_ImplSDL3_InitForSDLRenderer failed!");
         return false;
     }
     LogCat::i("ImGui SDL3 backend initialized successfully.");
 
     LogCat::i("Initializing ImGui SDLRenderer3 backend...");
-    if (!ImGui_ImplSDLRenderer3_Init(renderer))
-    {
+    if (!ImGui_ImplSDLRenderer3_Init(renderer)) {
         LogCat::e("ImGui_ImplSDLRenderer3_Init failed!");
         return false;
     }
@@ -120,11 +109,10 @@ bool glimmer::App::init()
     return true;
 }
 
-void glimmer::App::run() const
-{
+void glimmer::App::run() const {
     //The time interval of the target (in seconds)
     //目标的时间间隔（以秒为单位）
-    const float targetFrameTime = 1.0F / appContext->config->window.framerate;
+    const float targetFrameTime = 1.0F / appContext->config_->window.framerate;
     //Target frame time (in milliseconds)
     //目标帧时间（毫秒为单位）
     const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
@@ -132,44 +120,34 @@ void glimmer::App::run() const
     float deltaTime = 0.0F;
     SDL_Event event;
     LogCat::i("Entering main loop...");
-    appContext->sceneManager->ChangeScene(new SplashScene(appContext));
-    appContext->sceneManager->AddOverlayScene(new ConsoleOverlay(appContext));
-    appContext->sceneManager->AddOverlayScene(new DebugOverlay(appContext));
-    auto& overlayScenes = appContext->sceneManager->GetOverlayScenes();
-    while (appContext->isRunning)
-    {
-        appContext->sceneManager->ApplyPendingScene();
-        for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-        {
+    appContext->sceneManager_->ChangeScene(new SplashScene(appContext));
+    appContext->sceneManager_->AddOverlayScene(new ConsoleOverlay(appContext));
+    appContext->sceneManager_->AddOverlayScene(new DebugOverlay(appContext));
+    auto &overlayScenes = appContext->sceneManager_->GetOverlayScenes();
+    while (appContext->isRunning) {
+        appContext->sceneManager_->ApplyPendingScene();
+        for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
             overlayScene->OnFrameStart();
         }
-        appContext->sceneManager->getScene()->OnFrameStart();
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_EVENT_QUIT)
-            {
+        appContext->sceneManager_->getScene()->OnFrameStart();
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
                 appContext->isRunning = false;
-            }
-            else
-            {
+            } else {
                 bool handled = false;
-                for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-                {
-                    if (overlayScene->HandleEvent(event))
-                    {
+                for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
+                    if (overlayScene->HandleEvent(event)) {
                         handled = true;
                         LogCat::w("OverlayScene handled event, stopping propagation.");
                         break;
                     }
                 }
-                if (!handled && appContext->sceneManager->getScene()->HandleEvent(event))
-                {
+                if (!handled && appContext->sceneManager_->getScene()->HandleEvent(event)) {
                     handled = true;
                     LogCat::w("Main scene handled event, stopping propagation.");
                 }
-                if (!handled)
-                {
+                if (!handled) {
                     ImGui_ImplSDL3_ProcessEvent(&event);
                 }
             }
@@ -177,15 +155,13 @@ void glimmer::App::run() const
         ImGui_ImplSDL3_NewFrame();
         ImGui_ImplSDLRenderer3_NewFrame();
         ImGui::NewFrame();
-        for (const auto overlay : overlayScenes)
-        {
+        for (const auto overlay: overlayScenes) {
             overlay->Update(deltaTime);
         }
-        appContext->sceneManager->getScene()->Update(deltaTime);
+        appContext->sceneManager_->getScene()->Update(deltaTime);
         SDL_RenderClear(renderer);
-        appContext->sceneManager->getScene()->Render(renderer);
-        for (const auto overlay : overlayScenes)
-        {
+        appContext->sceneManager_->getScene()->Render(renderer);
+        for (const auto overlay: overlayScenes) {
             overlay->Render(renderer);
         }
         ImGui::Render();
@@ -193,8 +169,7 @@ void glimmer::App::run() const
         SDL_RenderPresent(renderer);
         const auto frameEnd = SDL_GetTicks();
         const auto frameTimeMs = frameEnd - frameStart;
-        if (frameTimeMs < targetFrameTimeMs)
-        {
+        if (frameTimeMs < targetFrameTimeMs) {
             SDL_Delay(targetFrameTimeMs - frameTimeMs);
         }
         const auto actualFrameEnd = SDL_GetTicks();

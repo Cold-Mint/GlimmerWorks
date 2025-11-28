@@ -7,8 +7,8 @@
 
 #include "utils/JsonUtils.h"
 
-bool glimmer::Config::loadConfig(const std::string &path) {
-    auto jsonOpt = JsonUtils::LoadJsonFromFile(path);
+bool glimmer::Config::loadConfig(const VirtualFileSystem *virtualFileSystem, const std::string &path) {
+    auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem, path);
     if (!jsonOpt) {
         return false;
     }

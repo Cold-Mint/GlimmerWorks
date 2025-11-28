@@ -7,22 +7,25 @@
 #include <string>
 
 #include "../PackManifest.h"
+#include "../../vfs/VirtualFileSystem.h"
 
 
 namespace glimmer {
     class ResourcePack {
-        std::string path;
+        std::string path_;
         ResourcePackManifest manifest;
+        const VirtualFileSystem *virtualFileSystem_;
 
     public:
-        explicit ResourcePack(std::string path) : path(std::move(path)), manifest() {
+        explicit ResourcePack(std::string path, const VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
+            virtualFileSystem_(virtualFileSystem), manifest() {
         }
 
         bool loadManifest();
 
         [[nodiscard]] const ResourcePackManifest &getManifest() const;
 
-        [[nodiscard]] std::string_view getPath() const;
+        [[nodiscard]] std::string getPath() const;
     };
 }
 

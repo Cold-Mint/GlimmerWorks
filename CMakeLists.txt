@@ -27,9 +27,6 @@ else ()
     set(PLATFORM_NAME "unknown")
 endif ()
 include(FetchContent)
-
-set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.cache/cmake")
-set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 FetchContent_Declare(
         nlohmann_json
         GIT_REPOSITORY "https://github.com/nlohmann/json"
@@ -248,7 +245,13 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/console/suggestion/DynamicSuggestions.cpp
         core/console/suggestion/DynamicSuggestions.h
         core/console/suggestion/BoolDynamicSuggestions.cpp
-        core/console/suggestion/BoolDynamicSuggestions.h)
+        core/console/suggestion/BoolDynamicSuggestions.h
+        core/vfs/VirtualFileSystem.cpp
+        core/vfs/VirtualFileSystem.h
+        core/vfs/FileProvider.cpp
+        core/vfs/FileProvider.h
+        core/vfs/StdFileProvider.cpp
+        core/vfs/StdFileProvider.h)
 
 if (ANDROID)
     message(STATUS "Building for Android → Shared Library (.so)")
@@ -381,7 +384,7 @@ done
     file(APPEND "${INSTALL_SCRIPT}" "    public static boolean IsDebug() {\n")
     file(APPEND "${INSTALL_SCRIPT}" "        return \"Debug\".equals(BUILD_TYPE);\n")
     file(APPEND "${INSTALL_SCRIPT}" "       }\n")
-    
+
     file(APPEND "${INSTALL_SCRIPT}" "}\n")
     file(APPEND "${INSTALL_SCRIPT}" "EOF\n\n")
     file(APPEND "${INSTALL_SCRIPT}" "echo \"✅ Install completed! You can now compile and run the project in Android Studio.\"\n")

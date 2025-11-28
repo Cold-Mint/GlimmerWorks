@@ -59,7 +59,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             char text[32];
             //skipcq: CXX-C1000
             (void) snprintf(text, sizeof(text), "x%d", x);
-            SDL_Surface *surface = TTF_RenderText_Blended(appContext->ttfFont, text, strlen(text), textColor);
+            SDL_Surface *surface = TTF_RenderText_Blended(appContext->ttfFont_, text, strlen(text), textColor);
             if (!surface) {
                 LogCat::w("TTF_RenderText_Blended failed at x=%d: %s", x, SDL_GetError());
                 continue;
@@ -85,7 +85,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             //skipcq: CXX-C1000
             (void) snprintf(text, sizeof(text), "y%d", y);
 
-            SDL_Surface *surface = TTF_RenderText_Blended(appContext->ttfFont, text, strlen(text), textColor);
+            SDL_Surface *surface = TTF_RenderText_Blended(appContext->ttfFont_, text, strlen(text), textColor);
             if (!surface) {
                 LogCat::w("TTF_RenderText_Blended failed at y=%d: %s", y, SDL_GetError());
                 continue;
@@ -109,7 +109,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
 #endif
     // Draw the fps information (top) and window information (bottom)
     // 绘制 fps 信息（在上）和窗口信息（在下）
-    if (appContext->ttfFont) {
+    if (appContext->ttfFont_) {
         SDL_Color color = {255, 255, 180, 255};
 
         // FPS text
@@ -117,7 +117,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
         char fpsText[64];
         //skipcq: CXX-C1000
         (void) snprintf(fpsText, sizeof(fpsText), "FPS: %.1f (%.2f ms)", fps_, frameTimeMs_);
-        SDL_Surface *fpsSurface = TTF_RenderText_Blended(appContext->ttfFont, fpsText, strlen(fpsText), color);
+        SDL_Surface *fpsSurface = TTF_RenderText_Blended(appContext->ttfFont_, fpsText, strlen(fpsText), color);
         if (!fpsSurface) {
             LogCat::w("TTF_RenderText_Blended failed (fps): %s", SDL_GetError());
         } else {
@@ -129,7 +129,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             char winText[64];
             //skipcq: CXX-C1000
             (void) snprintf(winText, sizeof(winText), "Window: %dx%d", w, h);
-            SDL_Surface *winSurface = TTF_RenderText_Blended(appContext->ttfFont, winText, strlen(winText), color);
+            SDL_Surface *winSurface = TTF_RenderText_Blended(appContext->ttfFont_, winText, strlen(winText), color);
             if (!winSurface) {
                 LogCat::w("TTF_RenderText_Blended failed (win): %s", SDL_GetError());
             } else {

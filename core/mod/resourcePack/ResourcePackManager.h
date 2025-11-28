@@ -11,10 +11,12 @@
 #include <vector>
 
 #include "ResourcePack.h"
+#include "../../vfs/VirtualFileSystem.h"
 #include "SDL3/SDL_render.h"
 
 namespace glimmer {
     class ResourcePackManager {
+        VirtualFileSystem *virtualFileSystem_;
         std::unordered_map<std::string, std::unique_ptr<ResourcePack> > resourcePackMap;
 
         static bool IsResourcePackAvailable(const ResourcePack &pack);
@@ -25,6 +27,10 @@ namespace glimmer {
         std::unordered_map<std::string, std::weak_ptr<SDL_Texture> > textureCache;
 
     public:
+        explicit
+        ResourcePackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(virtualFilesystem) {
+        }
+
         int Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack);
 
         std::optional<std::string> GetFontPath(const std::vector<std::string> &enabledResourcePack,

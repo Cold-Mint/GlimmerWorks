@@ -33,16 +33,17 @@ namespace glimmer {
         bool debugMode_ = false;
 
     public:
-        DataPackManager *dataPackManager;
-        Config *config;
-        SceneManager *sceneManager;
-        StringManager *stringManager;
-        CommandManager *commandManager;
-        TTF_Font *ttfFont;
-        CommandExecutor *commandExecutor;
-        ResourcePackManager *resourcePackManager;
-        Langs *langs;
-        DynamicSuggestionsManager *dynamicSuggestionsManager;
+        DataPackManager *dataPackManager_;
+        Config *config_;
+        SceneManager *sceneManager_;
+        StringManager *stringManager_;
+        CommandManager *commandManager_;
+        TTF_Font *ttfFont_;
+        CommandExecutor *commandExecutor_;
+        ResourcePackManager *resourcePackManager_;
+        Langs *langs_;
+        DynamicSuggestionsManager *dynamicSuggestionsManager_;
+        VirtualFileSystem *virtualFileSystem_;
         bool isRunning;
         /**
          * Whether to draw screen coordinates
@@ -54,11 +55,12 @@ namespace glimmer {
                    Config *cfg,
                    StringManager *stringManager,
                    CommandManager *commandManager, CommandExecutor *commandExecutor, Langs *langs,
-                   DynamicSuggestionsManager *dynamicSuggestionsManager)
-            : language_(lang), dataPackManager(dpm), config(cfg), sceneManager(sm), stringManager(stringManager),
-              commandManager(commandManager), ttfFont(nullptr), commandExecutor(commandExecutor),
-              resourcePackManager(rpm),
-              window_(nullptr), langs(langs), isRunning(run), dynamicSuggestionsManager(dynamicSuggestionsManager) {
+                   DynamicSuggestionsManager *dynamicSuggestionsManager, VirtualFileSystem *virtualFileSystem)
+            : language_(lang), dataPackManager_(dpm), config_(cfg), sceneManager_(sm), stringManager_(stringManager),
+              commandManager_(commandManager), ttfFont_(nullptr), commandExecutor_(commandExecutor),
+              resourcePackManager_(rpm),
+              window_(nullptr), langs_(langs), isRunning(run), dynamicSuggestionsManager_(dynamicSuggestionsManager),
+              virtualFileSystem_(virtualFileSystem) {
         }
 
         void SetDebugMode(bool isDebug);

@@ -18,6 +18,8 @@
 #include "core/scene/SceneManager.h"
 #include "core/utils/JsonUtils.h"
 #include "core/utils/LanguageUtils.h"
+#include "core/vfs/StdFileProvider.h"
+#include "core/vfs/VirtualFileSystem.h"
 #include "fmt/args.h"
 
 
@@ -30,17 +32,25 @@ int main() {
         std::abort();
     });
     try {
+        VirtualFileSystem virtualFileSystem;
+#ifdef __ANDROID__
+        virtualFileSystem.Mount(
+            std::make_unique<StdFileProvider>("."));
+#else
+        virtualFileSystem.Mount(
+            std::make_unique<StdFileProvider>("."));
+#endif
         std::string language = LanguageUtils::getLanguage();
         LogCat::i("Load the built-in language file.");
-        fs::path langFile = fs::path("langs") / (language + ".json");
-        LogCat::i("Try to load language file:", langFile.c_str());
-        if (!fs::exists(langFile)) {
+        std::string langFile = "langs/" + language + ".json";
+        LogCat::i("Try to load language file:", langFile);
+        if (!virtualFileSystem.Exists(langFile)) {
             LogCat::w("Not found, fall back to default.json");
-            langFile = fs::path("langs/default.json");
+            langFile = "langs/default.json";
         }
-        auto jsonOpt = JsonUtils::LoadJsonFromFile(langFile.string());
+        auto jsonOpt = JsonUtils::LoadJsonFromFile(&virtualFileSystem, langFile);
         if (!jsonOpt) {
-            LogCat::e("Failed to load any language file!");
+            LogCat::e("Failed to load language file!");
             return EXIT_FAILURE;
         }
         auto &jsonObject = *jsonOpt;
@@ -63,15 +73,16 @@ int main() {
         langs.awakeBodyCount = jsonObject["awakeBodyCount"].get<std::string>();
         DynamicSuggestionsManager dynamicSuggestionsManager;
         dynamicSuggestionsManager.RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
-        DataPackManager dataPackManager;
-        ResourcePackManager resourcePackManager;
+        DataPackManager dataPackManager(&virtualFileSystem);
+        ResourcePackManager resourcePackManager(&virtualFileSystem);
         SceneManager sceneManager;
         StringManager stringManager;
         CommandManager commandManager;
         CommandExecutor commandExecutor;
         Config config;
         LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
-        if (!config.loadConfig(CONFIG_FILE_NAME)) {
+        if (!config.loadConfig(&virtualFileSystem,CONFIG_FILE_NAME)) {
+            LogCat::e("Failed to load ",CONFIG_FILE_NAME, " file!");
             return EXIT_FAILURE;
         }
         LogCat::i("windowHeight = ", config.window.height);
@@ -83,7 +94,7 @@ int main() {
         AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                               &stringManager,
                               &commandManager,
-                              &commandExecutor, &langs, &dynamicSuggestionsManager);
+                              &commandExecutor, &langs, &dynamicSuggestionsManager, &virtualFileSystem);
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));
@@ -91,15 +102,19 @@ int main() {
         LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
         LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
         LogCat::i("Starting GlimmerWorks...");
-        if (dataPackManager.Scan(config.mods.dataPackPath, config.mods.enabledDataPack, language, stringManager) == 0) {
+        if (dataPackManager.Scan(config.mods.dataPackPath, config.mods.enabledDataPack, language,
+                                 stringManager) == 0) {
+            LogCat::e("Failed to load dataPack");
             return EXIT_FAILURE;
         }
         if (resourcePackManager.Scan(config.mods.resourcePackPath, config.mods.enabledResourcePack) == 0) {
+            LogCat::e("Failed to load resourcePack");
             return EXIT_FAILURE;
         }
         LogCat::i("Starting the app...");
         App app(&appContext);
         if (!app.init()) {
+            LogCat::e("Failed to init app");
             return EXIT_FAILURE;
         }
         app.run();

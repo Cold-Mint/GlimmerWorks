@@ -105,9 +105,9 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
         const auto keyword = commandArgs.GetKeywordAtCursor(cursorPos);
         overlay->SetKeyword(keyword);
         overlay->SetCommandSuggestions(
-            overlay->appContext->commandManager->GetSuggestions(overlay->appContext->dynamicSuggestionsManager,
+            overlay->appContext->commandManager_->GetSuggestions(overlay->appContext->dynamicSuggestionsManager_,
                                                                 commandArgs, cursorPos));
-        overlay->SetCommandStructure(overlay->appContext->commandManager->GetCommandStructure(commandArgs));
+        overlay->SetCommandStructure(overlay->appContext->commandManager_->GetCommandStructure(commandArgs));
         overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
     }
     if (overlay->nextCursorPos_ != -1) {
@@ -208,7 +208,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     // 控制台标题使用青色
     ImGui::PushFont(ImGui::GetFont());
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255)); // Cyan for title
-    ImGui::TextUnformatted(appContext->langs->console.c_str());
+    ImGui::TextUnformatted(appContext->langs_->console.c_str());
     ImGui::PopStyleColor();
     ImGui::PopFont();
     ImGui::Separator();
@@ -375,22 +375,22 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         if (inputBuffer_[0] != '\0') {
             const std::string cmdStr(inputBuffer_.data(), strnlen(inputBuffer_.data(), inputBuffer_.size()));
             addMessage("> " + cmdStr);
-            CommandExecutor::ExecuteAsync(cmdStr, appContext->commandManager,
+            CommandExecutor::ExecuteAsync(cmdStr, appContext->commandManager_,
                                           [this](const CommandResult result, const std::string &cmd) {
                                               std::string message;
                                               std::string pattern;
                                               switch (result) {
                                                   case CommandResult::Success:
-                                                      pattern = appContext->langs->executedSuccess;
+                                                      pattern = appContext->langs_->executedSuccess;
                                                       break;
                                                   case CommandResult::Failure:
-                                                      pattern = appContext->langs->executionFailed;
+                                                      pattern = appContext->langs_->executionFailed;
                                                       break;
                                                   case CommandResult::EmptyArgs:
-                                                      message = appContext->langs->commandIsEmpty;
+                                                      message = appContext->langs_->commandIsEmpty;
                                                       break;
                                                   case CommandResult::NotFound:
-                                                      pattern = appContext->langs->commandNotFound;
+                                                      pattern = appContext->langs_->commandNotFound;
                                                       break;
                                               }
                                               if (!pattern.empty()) {

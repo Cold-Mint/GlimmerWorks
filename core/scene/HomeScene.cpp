@@ -69,17 +69,17 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     float totalHeight = 3 * buttonHeight + 2 * buttonSpacing;
     ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5F);
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->langs->startGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-        appContext->sceneManager->ChangeScene(new CreateWorldScene(appContext));
+    if (ImGui::Button(appContext->langs_->startGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+        appContext->sceneManager_->ChangeScene(new CreateWorldScene(appContext));
     }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->langs->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    if (ImGui::Button(appContext->langs_->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {
     }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->langs->settings.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    if (ImGui::Button(appContext->langs_->settings.c_str(), ImVec2(buttonWidth, buttonHeight))) {
     }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->langs->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    if (ImGui::Button(appContext->langs_->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
         appContext->isRunning = false;
     }
 

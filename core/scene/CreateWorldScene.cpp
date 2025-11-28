@@ -46,7 +46,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     manifest.gameVersionNumber = GAME_VERSION_NUMBER;
     saves.Create(manifest);
     auto *worldContext = new WorldContext(appContext, seed_value, &saves);
-    appContext->sceneManager->ChangeScene(new WorldScene(appContext, worldContext));
+    appContext->sceneManager_->ChangeScene(new WorldScene(appContext, worldContext));
 }
 
 int glimmer::CreateWorldScene::RandomSeed() {
@@ -63,16 +63,16 @@ void glimmer::CreateWorldScene::Update(float delta) {
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(),
                             ImGuiCond_Once, ImVec2(0.5f, 0.5f));
 
-    ImGui::Begin(appContext->langs->createWorld.c_str(), nullptr,
+    ImGui::Begin(appContext->langs_->createWorld.c_str(), nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-    ImGui::TextUnformatted(appContext->langs->worldName.c_str());
+    ImGui::TextUnformatted(appContext->langs_->worldName.c_str());
     ImGui::InputText("##WorldName", world_name, IM_ARRAYSIZE(world_name));
 
-    ImGui::TextUnformatted(appContext->langs->seed.c_str());
+    ImGui::TextUnformatted(appContext->langs_->seed.c_str());
     ImGui::InputText("##Seed", seed_str, IM_ARRAYSIZE(seed_str));
     ImGui::SameLine();
-    if (ImGui::Button(appContext->langs->random.c_str())) {
+    if (ImGui::Button(appContext->langs_->random.c_str())) {
         const int newSeed = RandomSeed();
         //skipcq: CXX-C1000
         (void) snprintf(seed_str, sizeof(seed_str), "%d", newSeed);
@@ -82,11 +82,11 @@ void glimmer::CreateWorldScene::Update(float delta) {
     ImGui::Separator();
     ImGui::Spacing();
 
-    if (ImGui::Button(appContext->langs->cancel.c_str(), ImVec2(120, 0))) {
-        appContext->sceneManager->ChangeScene(new HomeScene(appContext));
+    if (ImGui::Button(appContext->langs_->cancel.c_str(), ImVec2(120, 0))) {
+        appContext->sceneManager_->ChangeScene(new HomeScene(appContext));
     }
     ImGui::SameLine();
-    if (ImGui::Button(appContext->langs->createWorld.c_str(), ImVec2(120, 0))) {
+    if (ImGui::Button(appContext->langs_->createWorld.c_str(), ImVec2(120, 0))) {
         CreateWorld();
     }
 

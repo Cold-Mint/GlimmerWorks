@@ -8,10 +8,11 @@
 #include "../../log/LogCat.h"
 #include "../../utils/JsonUtils.h"
 
+
 bool glimmer::ResourcePack::loadManifest() {
-    const auto jsonOpt = JsonUtils::LoadJsonFromFile(path + "/" + MANIFEST_FILE_NAME);
+    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path_ + "/" + MANIFEST_FILE_NAME);
     if (!jsonOpt) {
-        LogCat::e("ResourcePack::loadManifest - Failed to load manifest: ", path + "/" + MANIFEST_FILE_NAME);
+        LogCat::e("ResourcePack::loadManifest - Failed to load manifest: ", path_ + "/" + MANIFEST_FILE_NAME);
         return false;
     }
 
@@ -23,7 +24,7 @@ bool glimmer::ResourcePack::loadManifest() {
         LogCat::e("ResourcePack::loadManifest - Failed to parse manifest JSON: ", e.what());
         return false;
     }
-    LogCat::d("ResourcePack::loadManifest - Loaded manifest for data pack: ", path);
+    LogCat::d("ResourcePack::loadManifest - Loaded manifest for data pack: ", path_);
     LogCat::d("ID: ", manifest.id);
     LogCat::d("Name: ", manifest.name.resourceKey, " (packId: ", manifest.name.packId, ")");
     LogCat::d("Description: ", manifest.description.resourceKey, " (packId: ", manifest.description.packId, ")");
@@ -34,11 +35,10 @@ bool glimmer::ResourcePack::loadManifest() {
     return true;
 }
 
-
 const glimmer::ResourcePackManifest &glimmer::ResourcePack::getManifest() const {
     return manifest;
 }
 
-std::string_view glimmer::ResourcePack::getPath() const {
-    return path;
+std::string glimmer::ResourcePack::getPath() const {
+    return path_;
 }

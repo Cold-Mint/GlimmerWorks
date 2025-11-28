@@ -10,8 +10,6 @@
 #include "ResourcePack.h"
 #include "../../log/LogCat.h"
 #include "SDL3_image/SDL_image.h"
-namespace fs = std::filesystem;
-
 
 bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &pack) {
     const PackManifest &manifest = pack.getManifest();
@@ -43,18 +41,18 @@ bool glimmer::ResourcePackManager::IsResourcePackEnabled(const ResourcePack &pac
 int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack) {
     resourcePackMap.clear();
     try {
-        if (!fs::exists(path)) {
+        if (!virtualFileSystem_->Exists(path)) {
             LogCat::e("ResourcePackManager: Path does not exist -> ", path);
             return 0;
         }
 
         LogCat::i("Scanning resources packs in: ", path);
         int success = 0;
-        for (const auto &entry: fs::directory_iterator(path)) {
-            if (entry.is_directory()) {
-                const std::string folderPath = entry.path().string();
-                LogCat::d("Found resource pack folder: ", folderPath);
-                auto packPtr = std::make_unique<ResourcePack>(folderPath);
+        std::vector<std::string> files = virtualFileSystem_->ListFile(path);
+        for (const auto &entry: files) {
+            if (!virtualFileSystem_->IsFile(entry)) {
+                LogCat::d("Found resource pack folder: ", entry);
+                auto packPtr = std::make_unique<ResourcePack>(entry, virtualFileSystem_);
                 if (!packPtr->loadManifest()) {
                     continue;
                 }
@@ -89,24 +87,25 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
         }
 
         const ResourcePack *pack = it->second.get();
-        fs::path fontsDir = fs::path(pack->getPath().data()) / "fonts";
+
+        std::string fontsDir = pack->getPath() + "/fonts/";
 
         // First, check language.ttf
         // 优先查 language.ttf
-        fs::path langFont = fontsDir / (language + ".ttf");
-        if (fs::exists(langFont)) {
+        std::string langFont = fontsDir + language + ".ttf";
+        if (virtualFileSystem_->Exists(langFont)) {
             LogCat::d("Found font for language '", language, "' in pack '", packId,
-                      "': ", langFont.string());
-            return langFont.string();
+                      "': ", langFont);
+            return langFont;
         }
 
         // Record the first default.ttf (for deferred use)
         // 记录第一个 default.ttf（延后使用）
         if (!defaultFontPath.has_value()) {
-            fs::path defaultFont = fontsDir / "default.ttf";
-            if (fs::exists(defaultFont)) {
-                LogCat::d("Found default font in pack '", packId, "': ", defaultFont.string());
-                defaultFontPath = defaultFont.string();
+            std::string defaultFont = fontsDir + "default.ttf";
+            if (virtualFileSystem_->Exists(defaultFont)) {
+                LogCat::d("Found default font in pack '", packId, "': ", defaultFont);
+                defaultFontPath = defaultFont;
             }
         }
     }
@@ -122,8 +121,6 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(
     const std::vector<std::string> &enabledResourcePack, SDL_Renderer &renderer, const std::string &path) {
-    namespace fs = std::filesystem;
-
     if (path.empty()) {
         LogCat::e("Invalid texture path (empty).");
         return nullptr;
@@ -146,48 +143,28 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(
         }
 
         const ResourcePack *pack = it->second.get();
-        fs::path baseTexturesDir = fs::path(pack->getPath()) / "textures";
-        fs::path texturePath = baseTexturesDir / path;
+        std::string texturePath = pack->getPath() + "/textures/" + path;
 
-        fs::path canonicalBase;
-        fs::path canonicalTarget;
-
-        try {
-            canonicalBase = fs::weakly_canonical(baseTexturesDir);
-            canonicalTarget = fs::weakly_canonical(texturePath);
-        } catch (const fs::filesystem_error &e) {
-            LogCat::w("Invalid texture path in pack '", packId, "': ", e.what());
+        auto actualTexturePath = virtualFileSystem_->GetActualPath(texturePath);
+        if (!actualTexturePath.has_value()) {
             continue;
         }
 
-        if (canonicalTarget.string().find(canonicalBase.string()) != 0) {
-            LogCat::w("Texture path escapes textures dir in pack '", packId,
-                      "': ", canonicalTarget.string());
-            continue;
-        }
-
-        if (!fs::exists(canonicalTarget)) {
-            // The current resource package does not have this texture. Check the next one
-            // 当前资源包无此纹理，查下一个
-            continue;
-        }
-
-
-        SDL_Surface *surface = IMG_Load(canonicalTarget.string().c_str());
+        SDL_Surface *surface = IMG_Load(actualTexturePath.value().c_str());
         if (surface == nullptr) {
-            LogCat::w("IMG_Load failed for ", canonicalTarget.string(), ": ", SDL_GetError());
+            LogCat::w("IMG_Load failed for ", texturePath, ": ", SDL_GetError());
             continue;
         }
 
         SDL_Texture *texture = SDL_CreateTextureFromSurface(&renderer, surface);
         SDL_DestroySurface(surface);
         if (!texture) {
-            LogCat::w("SDL_CreateTextureFromSurface failed for ", canonicalTarget.string(),
+            LogCat::w("SDL_CreateTextureFromSurface failed for ", texturePath,
                       ": ", SDL_GetError());
             continue;
         }
 
-        LogCat::d("Loaded texture from pack '", packId, "': ", canonicalTarget.string());
+        LogCat::d("Loaded texture from pack '", packId, "': ", texturePath);
 
         auto deleter = [path](SDL_Texture *tex) {
             LogCat::d("Destroying texture from cache: ", path);

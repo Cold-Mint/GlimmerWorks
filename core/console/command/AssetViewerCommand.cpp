@@ -35,9 +35,9 @@ bool glimmer::AssetViewerCommand::Execute(CommandArgs commandArgs,
                                           std::function<void(const std::string &text)> onOutput) {
     const auto type = commandArgs.AsString(1);
     if (type == "string") {
-        onOutput(appContext_->stringManager->ListStrings());
+        onOutput(appContext_->stringManager_->ListStrings());
     } else if (type == "texture") {
-        onOutput(appContext_->resourcePackManager->ListTextureCache(commandArgs.AsBool(2)));
+        onOutput(appContext_->resourcePackManager_->ListTextureCache(commandArgs.AsBool(2)));
     }
     return true;
 }

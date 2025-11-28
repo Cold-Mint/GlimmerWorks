@@ -13,13 +13,15 @@
 #include "nlohmann/json.hpp"
 #include "nlohmann/json_fwd.hpp"
 
-
 namespace glimmer {
     struct StringResource;
+    class VirtualFileSystem;
+
 
     class JsonUtils {
     public:
-        static std::optional<nlohmann::json> LoadJsonFromFile(const std::string &path);
+        static std::optional<nlohmann::json> LoadJsonFromFile(const VirtualFileSystem *virtualFileSystem,
+                                                              const std::string &path);
     };
 }
 

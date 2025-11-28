@@ -7,13 +7,15 @@
 #include <utility>
 
 #include "../PackManifest.h"
+#include "../../vfs/VirtualFileSystem.h"
 
 namespace glimmer {
     class StringManager;
 
     class DataPack {
-        std::string path;
-        DataPackManifest manifest;
+        std::string path_;
+        DataPackManifest manifest_;
+        const VirtualFileSystem *virtualFileSystem_;
 
         //Load string resources
         //加载字符串资源
@@ -22,7 +24,8 @@ namespace glimmer {
         [[nodiscard]] int LoadStringResourceFromFile(const std::string &path, StringManager &stringManager) const;
 
     public:
-        explicit DataPack(std::string path) : path(std::move(path)), manifest() {
+        explicit DataPack(std::string path, const VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
+            virtualFileSystem_(virtualFileSystem), manifest_() {
         }
 
         bool LoadManifest();

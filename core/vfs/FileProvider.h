@@ -73,7 +73,7 @@ namespace glimmer {
 
         [[nodiscard]] virtual std::optional<std::string> GetActualPath(const std::string &path) const = 0;
 
-        virtual bool CreateFolder(std::string &path) = 0;
+        virtual bool CreateFolder(const std::string &path) = 0;
     };
 }
 

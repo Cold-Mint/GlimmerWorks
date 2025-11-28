@@ -12,20 +12,24 @@
 #include "nlohmann/json.hpp"
 
 bool glimmer::Saves::Exist() const {
-    return std::filesystem::exists(path);
+    return virtualFileSystem_->Exists(path_);
 }
 
-std::filesystem::path glimmer::Saves::GetPath() const {
-    return path;
+std::string glimmer::Saves::GetPath() const {
+    return path_;
 }
 
 void glimmer::Saves::Create(MapManifest &manifest) const {
-    if (!std::filesystem::exists(path)) {
-        std::filesystem::create_directories(path);
+    if (!virtualFileSystem_->Exists(path_)) {
+        bool createFolder = virtualFileSystem_->CreateFolder(path_);
+        if (!createFolder) {
+            LogCat::e("Directories cannot be created: ", path_);
+            return;
+        }
     }
-    LogCat::d("Created directory: ", path.string());
     const nlohmann::json world_data = manifest;
-    std::ofstream file(path / "map.json");
-    file << world_data.dump(4);
-    file.close();
+    bool createFile = virtualFileSystem_->WriteFile(path_ + "/map.json", world_data.dump(4));
+    if (!createFile) {
+        LogCat::e("Error writing to file: ", path_);
+    }
 }

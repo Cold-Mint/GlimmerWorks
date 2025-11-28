@@ -8,13 +8,16 @@
 #include <utility>
 
 #include "MapManifest.h"
+#include "../vfs/VirtualFileSystem.h"
 
 namespace glimmer {
     class Saves {
-        std::filesystem::path path;
+        std::string path_;
+        VirtualFileSystem *virtualFileSystem_;
 
     public:
-        explicit Saves(std::filesystem::path path) : path(std::move(path)) {
+        explicit Saves(std::string path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
+            virtualFileSystem_(virtualFileSystem) {
         }
 
         /**
@@ -29,7 +32,7 @@ namespace glimmer {
          * 获取存档路径
          * @return path 存档路径
          */
-        [[nodiscard]] std::filesystem::path GetPath() const;
+        [[nodiscard]] std::string GetPath() const;
 
         /**
          * Create a saves

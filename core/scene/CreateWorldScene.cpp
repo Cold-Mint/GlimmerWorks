@@ -34,7 +34,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
         seed_value = static_cast<int>(hasher(seed_input));
     }
     LogCat::d("Create a world: ", name, ", seed: ", seed_value);
-    Saves saves(fs::path("saved") / name);
+    Saves saves("saved/" + name, appContext->virtualFileSystem_);
     if (saves.Exist()) {
         LogCat::e("The world already exists!");
         return;

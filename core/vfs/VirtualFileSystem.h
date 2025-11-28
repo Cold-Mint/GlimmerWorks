@@ -14,6 +14,8 @@ namespace glimmer {
         std::vector<std::unique_ptr<FileProvider> > fileProviders_;
 
     public:
+        virtual ~VirtualFileSystem() = default;
+
         /**
          * Mount file provider
          * 挂载文件提供者
@@ -25,7 +27,10 @@ namespace glimmer {
 
         [[nodiscard]] bool Exists(const std::string &path) const;
 
+        [[nodiscard]] bool CreateFolder(const std::string &path) const;
+
         [[nodiscard]] bool IsFile(const std::string &path) const;
+
 
         [[nodiscard]] bool WriteFile(const std::string &path, const std::string &content) const;
 
@@ -39,7 +44,7 @@ namespace glimmer {
          * @param path Virtual path 虚拟路径
          * @return
          */
-        std::optional<std::string> GetActualPath(const std::string &path) const;
+        [[nodiscard]] std::optional<std::string> GetActualPath(const std::string &path) const;
     };
 }
 

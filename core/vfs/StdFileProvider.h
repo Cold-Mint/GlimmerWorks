@@ -17,7 +17,7 @@ namespace glimmer {
         std::string root_;
 
     public:
-        ~StdFileProvider() override;
+        ~StdFileProvider() override = default;
 
         explicit StdFileProvider(std::string rootPath)
             : root_(std::move(rootPath)) {
@@ -37,7 +37,7 @@ namespace glimmer {
 
         [[nodiscard]] bool WriteFile(const std::string &path, const std::string &content) override;
 
-        [[nodiscard]] bool CreateFolder(std::string &path) override;
+        [[nodiscard]] bool CreateFolder(const std::string &path) override;
 
         [[nodiscard]] std::optional<std::string> GetActualPath(const std::string &path) const override;
     };

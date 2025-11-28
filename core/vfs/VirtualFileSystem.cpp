@@ -31,6 +31,14 @@ bool glimmer::VirtualFileSystem::Exists(const std::string &path) const {
     return false;
 }
 
+bool glimmer::VirtualFileSystem::CreateFolder(const std::string &path) const {
+    LogCat::i("VirtualFileSystem CreateFolder =", path);
+    for (auto &provider: fileProviders_)
+        if (provider->CreateFolder(path))
+            return true;
+    return false;
+}
+
 bool glimmer::VirtualFileSystem::IsFile(const std::string &path) const {
     LogCat::i("VirtualFileSystem IsFile =", path);
     for (auto &provider: fileProviders_)

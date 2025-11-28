@@ -9,8 +9,6 @@
 
 #include "../log/LogCat.h"
 
-glimmer::StdFileProvider::~StdFileProvider() {
-}
 
 std::vector<std::string> glimmer::StdFileProvider::ListFile(const std::string &path) {
     std::vector<std::string> result;
@@ -77,7 +75,7 @@ bool glimmer::StdFileProvider::WriteFile(const std::string &path, const std::str
     return file.good();
 }
 
-bool glimmer::StdFileProvider::CreateFolder(std::string &path) {
+bool glimmer::StdFileProvider::CreateFolder(const std::string &path) {
     const std::filesystem::path fullPath = root_ + "/" + path;
     try {
         return std::filesystem::create_directories(fullPath);

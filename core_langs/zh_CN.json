@@ -14,5 +14,6 @@
   "seed": "种子",
   "random": "随机",
   "commandInfo": "共{}个命令已注册：",
-  "awakeBodyCount": "活跃的物理碰撞体数量：{}"
+  "awakeBodyCount": "活跃的物理碰撞体数量：{}",
+  "getActualPathError": "获取真实路径失败。"
 }

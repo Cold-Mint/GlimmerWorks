@@ -25,7 +25,7 @@ std::vector<std::string> glimmer::StdFileProvider::ListFile(const std::string &p
 
 
 std::string glimmer::StdFileProvider::GetFileProviderName() const {
-    return "SDLFileProvider(" + root_ + ")";
+    return "StdFileProvider(" + root_ + ")";
 }
 
 std::optional<std::string> glimmer::StdFileProvider::ReadFile(const std::string &path) {

@@ -77,7 +77,7 @@ namespace glimmer {
             InitSuggestions(suggestionsTree_);
         }
 
-        [[nodiscard]] NodeTree<std::string> GetSuggestionsTree() const;
+        [[nodiscard]] virtual NodeTree<std::string> GetSuggestionsTree(const CommandArgs &commandArgs);
 
         virtual bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) = 0;
     };

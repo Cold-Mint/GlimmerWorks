@@ -24,6 +24,7 @@ namespace glimmer {
         std::string random;
         std::string commandInfo;
         std::string awakeBodyCount;
+        std::string getActualPathError;
     };
 }
 

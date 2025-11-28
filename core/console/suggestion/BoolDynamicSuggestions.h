@@ -11,7 +11,7 @@ namespace glimmer {
     public:
         [[nodiscard]] std::string GetId() const override;
 
-        std::vector<std::string> GetSuggestions() override;
+        std::vector<std::string> GetSuggestions(std::string param) override;
     };
 }
 

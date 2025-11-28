@@ -8,8 +8,10 @@
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/HelpCommand.h"
 #include "core/console/command/TpCommand.h"
+#include "core/console/command/VFSCommand.h"
 #include "core/console/suggestion/BoolDynamicSuggestions.h"
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
+#include "core/console/suggestion/VFSDynamicSuggestions.h"
 #include "core/log/LogCat.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/dataPack/StringManager.h"
@@ -71,8 +73,11 @@ int main() {
         langs.random = jsonObject["random"].get<std::string>();
         langs.commandInfo = jsonObject["commandInfo"].get<std::string>();
         langs.awakeBodyCount = jsonObject["awakeBodyCount"].get<std::string>();
+        langs.awakeBodyCount = jsonObject["getActualPathError"].get<std::string>();
         DynamicSuggestionsManager dynamicSuggestionsManager;
         dynamicSuggestionsManager.RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
+        dynamicSuggestionsManager.RegisterDynamicSuggestions(
+            std::make_unique<VFSDynamicSuggestions>(&virtualFileSystem));
         DataPackManager dataPackManager(&virtualFileSystem);
         ResourcePackManager resourcePackManager(&virtualFileSystem);
         SceneManager sceneManager;
@@ -99,6 +104,7 @@ int main() {
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<AssetViewerCommand>(&appContext));
+        commandManager.RegisterCommand(std::make_unique<VFSCommand>(&appContext, &virtualFileSystem));
         LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
         LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
         LogCat::i("Starting GlimmerWorks...");

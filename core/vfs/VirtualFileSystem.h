@@ -23,6 +23,8 @@ namespace glimmer {
          */
         void Mount(std::unique_ptr<FileProvider> provider);
 
+        [[nodiscard]] std::string ListMounts() const;
+
         [[nodiscard]] std::optional<std::string> ReadFile(const std::string &path) const;
 
         [[nodiscard]] bool Exists(const std::string &path) const;

@@ -14,5 +14,6 @@
   "seed": "Seed",
   "random": "Random",
   "commandInfo": "A total of {} commands have been registered: ",
-  "awakeBodyCount": "Awake Body Count: {}"
+  "awakeBodyCount": "Awake Body Count: {}",
+  "getActualPathError": "Failed to obtain the real path."
 }

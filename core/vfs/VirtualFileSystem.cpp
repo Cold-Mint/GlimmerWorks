@@ -8,8 +8,23 @@
 #include "../log/LogCat.h"
 
 void glimmer::VirtualFileSystem::Mount(std::unique_ptr<FileProvider> provider) {
-    LogCat::i("VirtualFileSystem Mount FileProvider =", provider.get()->GetFileProviderName());
+    LogCat::i("VirtualFileSystem Mount FileProvider =", provider->GetFileProviderName());
     fileProviders_.push_back(std::move(provider));
+}
+
+std::string glimmer::VirtualFileSystem::ListMounts() const {
+    LogCat::i("VirtualFileSystem ListMounts");
+
+    std::string result;
+
+    for (const auto &provider: fileProviders_) {
+        if (!result.empty()) {
+            result += "\n"; // 每个 provider 一行
+        }
+        result += provider->GetFileProviderName();
+    }
+
+    return result;
 }
 
 std::optional<std::string> glimmer::VirtualFileSystem::ReadFile(const std::string &path) const {

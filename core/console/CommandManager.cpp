@@ -54,7 +54,7 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
     if (command == nullptr) {
         return {};
     }
-    NodeTree<std::string> nodeTree = command->GetSuggestionsTree();
+    NodeTree<std::string> nodeTree = command->GetSuggestionsTree(commandArgs);
     std::vector<std::string> results;
     NodeTree<std::string> *nextNodeTree = &nodeTree;
     for (int index = 1; index <= tokenIndex; index++) {
@@ -83,11 +83,16 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
                     }
                     //If the suggestion starts with @, then it is a dynamic suggestion. Here we try to expand on it.
                     //如果建议以@开头，那么他是一个动态建议，我们在这里尝试展开他。
-                    DynamicSuggestions *dynamicSuggestions = dynamicSuggestionsManager->GetSuggestions(child);
+                    //Extract parameters
+                    //提取参数
+                    auto pos = child.find(':');
+                    std::string dynName = child.substr(0, pos); // "@biome"
+                    DynamicSuggestions *dynamicSuggestions = dynamicSuggestionsManager->GetSuggestions(dynName);
                     if (dynamicSuggestions != nullptr) {
                         unfold = true;
                         unfoldList.push_back(child);
-                        std::vector<std::string> dynList = dynamicSuggestions->GetSuggestions();
+                        const std::string param = pos == std::string::npos ? "" : child.substr(pos + 1); // "forest"
+                        std::vector<std::string> dynList = dynamicSuggestions->GetSuggestions(param);
                         children.insert(children.end(), dynList.begin(), dynList.end());
                     }
                 }

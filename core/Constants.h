@@ -13,9 +13,11 @@
 
 #define HELP_COMMAND_NAME  "help"
 #define TP_COMMAND_NAME  "tp"
+#define VFS_COMMAND_NAME  "vfs"
 #define BOX2D_COMMAND_NAME  "box2d"
 #define ASSET_VIEWER_COMMAND_NAME  "assetViewer"
 #define BOOL_DYNAMIC_SUGGESTIONS_NAME  "@bool"
+#define VFS_DYNAMIC_SUGGESTIONS_NAME  "@vfs"
 
 /**
  * Unit chunk size

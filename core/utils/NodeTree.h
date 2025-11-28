@@ -123,6 +123,24 @@ namespace glimmer {
             return nullptr;
         }
 
+
+        /**
+         * Clear the connections of child nodes
+         * 清理子节点的连接
+         */
+        void ClearChildren() {
+            children_.clear();
+        }
+
+        /**
+         * Obtain the length of the child node
+         * 获取子节点的长度
+         * @return
+         */
+        [[nodiscard]] int GetSize() const {
+            return children_.size();
+        }
+
     private:
         std::optional<T> data_;
         std::list<NodeTree> children_;

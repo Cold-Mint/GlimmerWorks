@@ -71,11 +71,11 @@ bool glimmer::VirtualFileSystem::WriteFile(const std::string &path, const std::s
     return false;
 }
 
-std::optional<std::unique_ptr<std::ifstream> > glimmer::VirtualFileSystem::ReadStream(const std::string &path) const {
+std::optional<std::unique_ptr<std::istream> > glimmer::VirtualFileSystem::ReadStream(const std::string &path) const {
     LogCat::i("VirtualFileSystem ReadStream =", path);
     for (auto &provider: fileProviders_) {
         if (provider->Exists(path) && provider->IsFile(path)) {
-            if (std::optional<std::unique_ptr<std::ifstream> > stream = provider->ReadStream(path); stream.
+            if (std::optional<std::unique_ptr<std::istream> > stream = provider->ReadStream(path); stream.
                 has_value()) {
                 return stream;
             }

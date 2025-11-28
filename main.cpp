@@ -24,6 +24,12 @@
 #include "core/vfs/VirtualFileSystem.h"
 #include "fmt/args.h"
 
+#ifdef __ANDROID__
+#include <jni.h> 
+#include <android/asset_manager_jni.h>
+#include <SDL3/SDL_system.h>
+#include "core/vfs/AndroidAssetsFileProvider.h"
+#endif
 
 using namespace glimmer;
 namespace fs = std::filesystem;
@@ -36,8 +42,16 @@ int main() {
     try {
         VirtualFileSystem virtualFileSystem;
 #ifdef __ANDROID__
-        virtualFileSystem.Mount(
-            std::make_unique<StdFileProvider>("."));
+        JNIEnv *env = (JNIEnv *)SDL_GetAndroidJNIEnv();
+        jobject activity = (jobject)SDL_GetAndroidActivity();
+        jclass activityClass = env->GetObjectClass(activity);
+        jmethodID getAssetsMethod = env->GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
+        jobject assetManagerJava = env->CallObjectMethod(activity, getAssetsMethod);
+        AAssetManager *assetManager = AAssetManager_fromJava(env, assetManagerJava);
+        
+        virtualFileSystem.Mount(std::make_unique<AndroidAssetsFileProvider>(assetManager, ""));
+        // Also mount internal storage for read/write if needed, but for now just assets
+        // virtualFileSystem.Mount(std::make_unique<StdFileProvider>(SDL_GetAndroidInternalStoragePath())); 
 #else
         virtualFileSystem.Mount(
             std::make_unique<StdFileProvider>("."));
@@ -135,10 +149,23 @@ int main() {
 
 
 #ifdef __ANDROID__
-extern "C" int SDL_main(int argc, char *argv[]) {
+extern "C" {
+int SDL_main(int argc, char *argv[]) {
     LogCat::i("SDL_main() called — entering main()");
     int result = main();
     LogCat::i("SDL_main() finished, result = ", result);
     return result;
 }
+
+//Set whether to allow the Activity to be recreated
+//设置是否允许Activity被重新创建
+JNIEXPORT jboolean JNICALL
+Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv*, jclass)
+{
+    return JNI_FALSE;
+}
+
+}
+
+
 #endif

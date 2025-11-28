@@ -44,7 +44,7 @@ std::optional<std::string> glimmer::StdFileProvider::ReadFile(const std::string 
     return content;
 }
 
-std::optional<std::unique_ptr<std::ifstream> > glimmer::StdFileProvider::ReadStream(const std::string &path) {
+std::optional<std::unique_ptr<std::istream> > glimmer::StdFileProvider::ReadStream(const std::string &path) {
     std::filesystem::path fullPath = root_ + "/" + path;
     if (!std::filesystem::exists(fullPath) || !std::filesystem::is_regular_file(fullPath)) {
         return std::nullopt;

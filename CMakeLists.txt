@@ -252,6 +252,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/vfs/FileProvider.h
         core/vfs/StdFileProvider.cpp
         core/vfs/StdFileProvider.h
+        core/vfs/AndroidAssetsFileProvider.cpp
+        core/vfs/AndroidAssetsFileProvider.h
         core/console/command/VFSCommand.cpp
         core/console/command/VFSCommand.h
         core/console/suggestion/VFSDynamicSuggestions.cpp
@@ -277,7 +279,7 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d log)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d log android)
 else ()
     target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d)
 endif ()

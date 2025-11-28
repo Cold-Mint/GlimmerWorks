@@ -40,7 +40,7 @@ namespace glimmer {
          * @param path  path 文件路径
          * @return stream 文件流
          */
-        [[nodiscard]] virtual std::optional<std::unique_ptr<std::ifstream> > ReadStream(const std::string &path) = 0;
+        [[nodiscard]] virtual std::optional<std::unique_ptr<std::istream> > ReadStream(const std::string &path) = 0;
 
 
         /**

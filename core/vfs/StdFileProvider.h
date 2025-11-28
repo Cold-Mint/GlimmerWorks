@@ -29,7 +29,7 @@ namespace glimmer {
 
         [[nodiscard]] std::optional<std::string> ReadFile(const std::string &path) override;
 
-        std::optional<std::unique_ptr<std::ifstream> > ReadStream(const std::string &path) override;
+        std::optional<std::unique_ptr<std::istream> > ReadStream(const std::string &path) override;
 
         [[nodiscard]] bool Exists(const std::string &path) override;
 

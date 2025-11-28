@@ -36,7 +36,7 @@ namespace glimmer {
 
         [[nodiscard]] bool WriteFile(const std::string &path, const std::string &content) const;
 
-        [[nodiscard]] std::optional<std::unique_ptr<std::ifstream> > ReadStream(const std::string &path) const;
+        [[nodiscard]] std::optional<std::unique_ptr<std::istream> > ReadStream(const std::string &path) const;
 
         [[nodiscard]] virtual std::vector<std::string> ListFile(const std::string &path) const;
 

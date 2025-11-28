@@ -7,6 +7,9 @@
 #include <iostream>
 #include <thread>
 #include <iomanip>
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 
 #define COLOR_RESET   "\033[0m"
 #define COLOR_INFO    "\033[32m"  // Green 绿色
@@ -40,33 +43,57 @@ namespace glimmer {
         template<typename... Args>
         static void i(Args &&... args) {
 #if  !defined(NDEBUG)
+#ifdef __ANDROID__
+            std::ostringstream oss;
+            (oss << ... << args);
+            __android_log_print(ANDROID_LOG_INFO, "GlimmerWorks", "%s", oss.str().c_str());
+#else
             std::cout << COLOR_INFO << CurrentTime() << " | INFO |" << ThreadTag();
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
+#endif
 #endif
         }
 
         template<typename... Args>
         static void d(Args &&... args) {
 #if  !defined(NDEBUG)
+#ifdef __ANDROID__
+            std::ostringstream oss;
+            (oss << ... << args);
+            __android_log_print(ANDROID_LOG_DEBUG, "GlimmerWorks", "%s", oss.str().c_str());
+#else
             std::cout << COLOR_DEBUG << CurrentTime() << " | DEBUG |" << ThreadTag();
+            (std::cout << ... << args);
+            std::cout << COLOR_RESET << std::endl;
+#endif
+#endif
+        }
+
+        template<typename... Args>
+        static void w(Args &&... args) {
+#ifdef __ANDROID__
+            std::ostringstream oss;
+            (oss << ... << args);
+            __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", oss.str().c_str());
+#else
+            std::cout << COLOR_WARN << CurrentTime() << " | WARN |" << ThreadTag();
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif
         }
 
         template<typename... Args>
-        static void w(Args &&... args) {
-            std::cout << COLOR_WARN << CurrentTime() << " | WARN |" << ThreadTag();
-            (std::cout << ... << args);
-            std::cout << COLOR_RESET << std::endl;
-        }
-
-        template<typename... Args>
         static void e(Args &&... args) {
+#ifdef __ANDROID__
+            std::ostringstream oss;
+            (oss << ... << args);
+            __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
+#else
             std::cout << COLOR_ERROR << CurrentTime() << " | ERROR |" << ThreadTag();
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
+#endif
         }
     };
 }

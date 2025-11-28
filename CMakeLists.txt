@@ -269,7 +269,12 @@ target_compile_definitions(GlimmerWorks PRIVATE
         CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
 )
 
-target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d)
+if (ANDROID)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d log)
+else ()
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d)
+endif ()
+
 
 target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/json/include"

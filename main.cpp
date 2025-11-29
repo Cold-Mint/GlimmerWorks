@@ -25,7 +25,7 @@
 #include "fmt/args.h"
 
 #ifdef __ANDROID__
-#include <jni.h> 
+#include <jni.h>
 #include <android/asset_manager_jni.h>
 #include <SDL3/SDL_system.h>
 #include "core/vfs/AndroidAssetsFileProvider.h"
@@ -42,14 +42,26 @@ int main() {
     try {
         VirtualFileSystem virtualFileSystem;
 #ifdef __ANDROID__
-        JNIEnv *env = (JNIEnv *)SDL_GetAndroidJNIEnv();
-        jobject activity = (jobject)SDL_GetAndroidActivity();
+        JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
+        jobject activity = (jobject) SDL_GetAndroidActivity();
         jclass activityClass = env->GetObjectClass(activity);
-        jmethodID getAssetsMethod = env->GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
+        jmethodID getAssetsMethod = env->
+                GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
         jobject assetManagerJava = env->CallObjectMethod(activity, getAssetsMethod);
         AAssetManager *assetManager = AAssetManager_fromJava(env, assetManagerJava);
-        
-        virtualFileSystem.Mount(std::make_unique<AndroidAssetsFileProvider>(assetManager, ""));
+        std::unique_ptr<AndroidAssetsFileProvider> assetsProvider = std::make_unique<AndroidAssetsFileProvider>(
+            assetManager);
+        auto indexJsonOpt = JsonUtils::LoadJsonFromFile(&virtualFileSystem, "index.json");
+        if (!indexJsonOpt.has_value()) {
+            LogCat::e("indexJsonOpt file!");
+            return EXIT_FAILURE;
+        }
+        bool setIndex = assetsProvider->SetIndex(indexJsonOpt.value());
+        if (!setIndex) {
+            LogCat::e("setIndex error");
+            return EXIT_FAILURE;
+        }
+        virtualFileSystem.Mount(assetsProvider);
         // Also mount internal storage for read/write if needed, but for now just assets
         // virtualFileSystem.Mount(std::make_unique<StdFileProvider>(SDL_GetAndroidInternalStoragePath())); 
 #else
@@ -65,7 +77,7 @@ int main() {
             langFile = "langs/default.json";
         }
         auto jsonOpt = JsonUtils::LoadJsonFromFile(&virtualFileSystem, langFile);
-        if (!jsonOpt) {
+        if (!jsonOpt.has_value()) {
             LogCat::e("Failed to load language file!");
             return EXIT_FAILURE;
         }
@@ -159,12 +171,12 @@ int SDL_main(int argc, char *argv[]) {
 
 //Set whether to allow the Activity to be recreated
 //设置是否允许Activity被重新创建
-JNIEXPORT jboolean JNICALL
-Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv*, jclass)
-{
+JNIEXPORT jboolean
+
+JNICALL
+Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv *, jclass) {
     return JNI_FALSE;
 }
-
 }
 
 

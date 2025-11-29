@@ -9,19 +9,31 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
+#include "nlohmann/json_fwd.hpp"
+
 namespace glimmer {
+    struct AssetIndex {
+        std::string path;
+        bool isFile;
+    };
+
     class AndroidAssetsFileProvider : public FileProvider {
         AAssetManager *assetManager_;
-        std::string root_;
+
+        std::vector<AssetIndex> assetIndexData = {};
 
     public:
-        AndroidAssetsFileProvider(AAssetManager *assetManager, std::string root);
+        explicit AndroidAssetsFileProvider(AAssetManager *assetManager);
+
+
+        [[nodiscard]] bool SetIndex(nlohmann::json json);
 
         [[nodiscard]] std::string GetFileProviderName() const override;
 
         [[nodiscard]] std::optional<std::string> ReadFile(const std::string &path) override;
 
-        [[nodiscard]] std::optional<std::unique_ptr<std::istream> > ReadStream(const std::string &path) override;
+        [[nodiscard]] std::optional<std::unique_ptr<std::istream> >
+        ReadStream(const std::string &path) override;
 
         [[nodiscard]] bool Exists(const std::string &path) override;
 
@@ -31,7 +43,8 @@ namespace glimmer {
 
         [[nodiscard]] std::vector<std::string> ListFile(const std::string &path) override;
 
-        [[nodiscard]] std::optional<std::string> GetActualPath(const std::string &path) const override;
+        [[nodiscard]] std::optional<std::string>
+        GetActualPath(const std::string &path) const override;
 
         bool CreateFolder(const std::string &path) override;
     };

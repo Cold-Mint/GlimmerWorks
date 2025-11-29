@@ -5,6 +5,7 @@
 #include "AndroidAssetsFileProvider.h"
 #include "../log/LogCat.h"
 #include <istream>
+#include <set>
 
 #include "AAssetStream.h"
 #include "AAssetStreamBuf.h"
@@ -63,28 +64,39 @@ namespace glimmer {
         return false;
     }
 
-    std::vector<std::string> AndroidAssetsFileProvider::ListFile(const std::string &path) {
-        std::vector<std::string> result = {};
-        bool find = false;
-        for (const auto &item: assetIndexData) {
-            if (item.path == path) {
-                find = true;
-                continue;
-            }
-            // 判断前缀
-            if (item.path.size() >= path.size() && item.path.compare(0, path.size(), path) == 0) {
-                // 确保下一个字符是 '/'，避免 "mods" 匹配 "mods2"
-                if (item.path.size() > path.size() &&
-                    (item.path[path.size()] == '/' || item.path[path.size()] == '\\')) {
-                    result.push_back(item.path);
-                }
-            }
-        }
-        if (find) {
-            return result;
-        }
-        return {};
+std::vector<std::string> AndroidAssetsFileProvider::ListFile(const std::string &path) {
+    std::set<std::string> resultSet;
+    bool find = false;
+    std::string prefix = path;
+    if (!prefix.empty() && prefix.back() != '/') {
+        prefix += '/';
     }
+
+    for (const auto &item : assetIndexData) {
+        if (item.path == path) {
+            find = true;
+            continue;
+        }
+
+        if (item.path.rfind(prefix, 0) != 0) {
+            continue;
+        }
+
+        std::string remainder = item.path.substr(prefix.size());
+        size_t pos = remainder.find('/');
+        std::string firstLevel = (pos == std::string::npos) ? remainder : remainder.substr(0, pos);
+
+        if (!firstLevel.empty()) {
+            resultSet.insert(prefix + firstLevel);
+        }
+    }
+
+    if (find) {
+        return std::vector<std::string>(resultSet.begin(), resultSet.end());
+    }
+
+    return {};
+}
 
     std::optional<std::string>
     AndroidAssetsFileProvider::GetActualPath(const std::string &path) const {

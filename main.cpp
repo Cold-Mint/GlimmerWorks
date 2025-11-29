@@ -61,6 +61,21 @@ int main() {
             LogCat::e("setIndex error");
             return EXIT_FAILURE;
         }
+        // 获取 getFilesDir 方法
+        jmethodID getDataDirMethod = env->GetMethodID(activityClass, "getFilesDir", "()Ljava/io/File;");
+        jobject dataDirFile = env->CallObjectMethod(activity, getDataDirMethod);
+
+        // 获取 getAbsolutePath 方法
+        jclass fileClass = env->GetObjectClass(dataDirFile);
+        jmethodID getAbsolutePathMethod = env->GetMethodID(fileClass, "getAbsolutePath", "()Ljava/lang/String;");
+        jstring absolutePathJStr = (jstring) env->CallObjectMethod(dataDirFile, getAbsolutePathMethod);
+
+        // 转换为 std::string
+        const char* absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
+        std::string dataDirPath(absolutePathCStr);
+        env->ReleaseStringUTFChars(absolutePathJStr, absolutePathCStr);
+        virtualFileSystem.Mount(
+            std::make_unique<StdFileProvider>(dataDirPath+"/assets"));
         virtualFileSystem.Mount(std::unique_ptr<FileProvider>(std::move(assetsProvider)));
 #else
         virtualFileSystem.Mount(

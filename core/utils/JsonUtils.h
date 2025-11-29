@@ -22,6 +22,9 @@ namespace glimmer {
     public:
         static std::optional<nlohmann::json> LoadJsonFromFile(const VirtualFileSystem *virtualFileSystem,
                                                               const std::string &path);
+
+        static std::optional<nlohmann::json> LoadJsonFromFile(FileProvider *fileProvider,
+                                                              const std::string &path);
     };
 }
 

@@ -51,7 +51,7 @@ int main() {
         AAssetManager *assetManager = AAssetManager_fromJava(env, assetManagerJava);
         std::unique_ptr<AndroidAssetsFileProvider> assetsProvider = std::make_unique<AndroidAssetsFileProvider>(
             assetManager);
-        auto indexJsonOpt = JsonUtils::LoadJsonFromFile(&virtualFileSystem, "index.json");
+        auto indexJsonOpt = JsonUtils::LoadJsonFromFile(assetsProvider.get(), "index.json");
         if (!indexJsonOpt.has_value()) {
             LogCat::e("indexJsonOpt file!");
             return EXIT_FAILURE;
@@ -61,9 +61,7 @@ int main() {
             LogCat::e("setIndex error");
             return EXIT_FAILURE;
         }
-        virtualFileSystem.Mount(assetsProvider);
-        // Also mount internal storage for read/write if needed, but for now just assets
-        // virtualFileSystem.Mount(std::make_unique<StdFileProvider>(SDL_GetAndroidInternalStoragePath())); 
+        virtualFileSystem.Mount(std::unique_ptr<FileProvider>(std::move(assetsProvider)));
 #else
         virtualFileSystem.Mount(
             std::make_unique<StdFileProvider>("."));

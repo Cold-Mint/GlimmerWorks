@@ -17,6 +17,10 @@
 
 bool glimmer::App::init() {
     LogCat::i("Initializing SDL...");
+    #ifdef __ANDROID__
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+    SDL_SetHint("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
+    #endif
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         LogCat::e("SDL_Init Error: ", SDL_GetError());
         return false;
@@ -131,6 +135,12 @@ void glimmer::App::run() const {
         }
         appContext->sceneManager_->getScene()->OnFrameStart();
         while (SDL_PollEvent(&event)) {
+            #ifdef __ANDROID__  
+            if(event.type == SDL_EVENT_KEY_DOWN &&
+   event.key.key == SDLK_AC_BACK){
+                        LogCat::i("onBackPressed");
+    }
+            #endif
             if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
                 appContext->isRunning = false;

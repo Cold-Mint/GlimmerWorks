@@ -418,7 +418,11 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                                           });
         }
         inputBuffer_.fill('\0');
+        #ifdef __ANDROID__
+        focusNextFrame_ = false;
+        #else
         focusNextFrame_ = true;
+        #endif
     }
     ImGui::PopStyleColor(2); // Pop input text color and cursor color
     ImGui::PopItemWidth();

@@ -188,7 +188,7 @@ JNIEXPORT jboolean
 
 JNICALL
 Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv *, jclass) {
-    return JNI_FALSE;
+    return JNI_TRUE;
 }
 }
 

@@ -10,7 +10,7 @@
 #include "CreateWorldScene.h"
 #include "imgui.h"
 #include "../log/LogCat.h"
-
+#include "../Config.h"
 
 bool glimmer::HomeScene::HandleEvent(const SDL_Event &event) {
     return false;
@@ -63,9 +63,11 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     ImGui::Text("Glimmer");
 
     // 按钮区域
-    float buttonWidth = 200.0F;
-    float buttonHeight = 40.0F;
-    float buttonSpacing = 10.0F;
+    const float uiScale = appContext->config_->window.uiScale;
+    ImGui::GetIO().FontGlobalScale = uiScale;
+    float buttonWidth = 200.0F * uiScale;
+    float buttonHeight = 40.0F * uiScale;
+    float buttonSpacing = 10.0F * uiScale;
     float totalHeight = 3 * buttonHeight + 2 * buttonSpacing;
     ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5F);
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);

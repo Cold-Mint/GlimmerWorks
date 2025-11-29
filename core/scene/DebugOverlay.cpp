@@ -7,6 +7,7 @@
 #include "../log/LogCat.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "AppContext.h"
+#include "../Config.h"
 
 
 bool glimmer::DebugOverlay::HandleEvent(const SDL_Event &event) {
@@ -52,8 +53,8 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
     if (appContext->debugScreenCoords) {
         //Draw the SDL screen coordinates
         //绘制SDL屏幕坐标
-
-        constexpr int labelSpacing = 50;
+        const float uiScale = appContext->config_->window.uiScale;
+        const int labelSpacing = static_cast<int>(50 * uiScale);
         constexpr SDL_Color textColor = {180, 180, 255, 255};
         for (int x = 0; x <= w; x += labelSpacing) {
             char text[32];
@@ -73,7 +74,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             }
 
             SDL_FRect dst = {
-                static_cast<float>(x) + 2.0f, 2.0f, static_cast<float>(surface->w), static_cast<float>(surface->h)
+                static_cast<float>(x) + 2.0f * uiScale, 2.0f * uiScale, static_cast<float>(surface->w) * uiScale, static_cast<float>(surface->h) * uiScale
             };
             SDL_RenderTexture(renderer, texture, nullptr, &dst);
 
@@ -99,7 +100,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             }
 
             SDL_FRect dst = {
-                2.0f, static_cast<float>(y) + 2.0f, static_cast<float>(surface->w), static_cast<float>(surface->h)
+                2.0f * uiScale, static_cast<float>(y) + 2.0f * uiScale, static_cast<float>(surface->w) * uiScale, static_cast<float>(surface->h) * uiScale
             };
             SDL_RenderTexture(renderer, texture, nullptr, &dst);
             SDL_DestroySurface(surface);
@@ -137,21 +138,22 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
                 if (!winTexture) {
                     LogCat::w("SDL_CreateTextureFromSurface failed (win): %s", SDL_GetError());
                 } else {
-                    constexpr float padding = 4.0F;
+                    const float uiScale = appContext->config_->window.uiScale;
+                    const float padding = 4.0F * uiScale;
 
                     SDL_FRect winRect = {
-                        (static_cast<float>(w) - static_cast<float>(winSurface->w) - padding),
-                        (static_cast<float>(h) - static_cast<float>(winSurface->h) - padding),
-                        static_cast<float>(winSurface->w),
-                        static_cast<float>(winSurface->h)
+                        (static_cast<float>(w) - static_cast<float>(winSurface->w) * uiScale - padding),
+                        (static_cast<float>(h) - static_cast<float>(winSurface->h) * uiScale - padding),
+                        static_cast<float>(winSurface->w) * uiScale,
+                        static_cast<float>(winSurface->h) * uiScale
                     };
 
                     SDL_FRect fpsRect = {
-                        (static_cast<float>(w) - static_cast<float>(fpsSurface->w) - padding),
-                        (static_cast<float>(h) - static_cast<float>(winSurface->h) - static_cast<float>(fpsSurface->h) -
+                        (static_cast<float>(w) - static_cast<float>(fpsSurface->w) * uiScale - padding),
+                        (static_cast<float>(h) - static_cast<float>(winSurface->h) * uiScale - static_cast<float>(fpsSurface->h) * uiScale -
                          padding * 2.0f),
-                        static_cast<float>(fpsSurface->w),
-                        static_cast<float>(fpsSurface->h)
+                        static_cast<float>(fpsSurface->w) * uiScale,
+                        static_cast<float>(fpsSurface->h) * uiScale
                     };
 
                     SDL_RenderTexture(renderer, fpsTexture, nullptr, &fpsRect);

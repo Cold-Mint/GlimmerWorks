@@ -3,7 +3,8 @@
     "width": 1920,
     "height": 1080,
     "resizable": true,
-    "framerate": 60
+    "framerate": 60,
+    "uiScale": 1.0
   },
   "mods": {
     "dataPackPath": "mods/data_packs",

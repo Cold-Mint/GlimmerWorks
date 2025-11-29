@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "AppContext.h"
 #include "../log/LogCat.h"
+#include "../Config.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "fmt/color.h"
 
@@ -177,9 +178,11 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
 
 void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     if (!show_) return;
+    const float uiScale = appContext->config_->window.uiScale;
+    ImGui::GetIO().FontGlobalScale = uiScale;
     const ImGuiIO &io = ImGui::GetIO();
     const float windowHeight = io.DisplaySize.y;
-    constexpr float inputHeight = 25.0F;
+    const float inputHeight = 25.0F * uiScale;
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(io.DisplaySize);
 
@@ -197,8 +200,8 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabHovered, IM_COL32(100, 100, 100, 255)); // Lighter on hover
     ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabActive, IM_COL32(120, 120, 120, 255)); // Even lighter when active
     ImGui::PushStyleColor(ImGuiCol_TextSelectedBg, IM_COL32(60, 60, 60, 255)); // Dark gray for text selection
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 2.0F); // Window border
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0F); // Child window border
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 2.0F * uiScale); // Window border
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0F * uiScale); // Child window border
 
     ImGui::Begin("Console",
                  nullptr,
@@ -276,7 +279,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(40, 40, 40, 150)); // Dark gray on hover
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(60, 60, 60, 200)); // Lighter gray when clicked
         ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0F); // No border
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0F); // Slight rounding for hover effect
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0F * appContext->config_->window.uiScale); // Slight rounding for hover effect
 
 
         for (const auto &suggestion: commandSuggestions_) {

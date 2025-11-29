@@ -8,6 +8,7 @@
 #include <random>
 #include <fstream>
 
+#include "../Config.h"
 #include "AppContext.h"
 #include "HomeScene.h"
 #include "imgui.h"
@@ -59,7 +60,9 @@ bool glimmer::CreateWorldScene::HandleEvent(const SDL_Event &event) {
 }
 
 void glimmer::CreateWorldScene::Update(float delta) {
-    ImGui::SetNextWindowSize(ImVec2(400, 250), ImGuiCond_Once);
+    const float uiScale = appContext->config_->window.uiScale;
+    ImGui::GetIO().FontGlobalScale = uiScale;
+    ImGui::SetNextWindowSize(ImVec2(400 * uiScale, 250 * uiScale), ImGuiCond_Once);
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(),
                             ImGuiCond_Once, ImVec2(0.5f, 0.5f));
 
@@ -82,11 +85,11 @@ void glimmer::CreateWorldScene::Update(float delta) {
     ImGui::Separator();
     ImGui::Spacing();
 
-    if (ImGui::Button(appContext->langs_->cancel.c_str(), ImVec2(120, 0))) {
+    if (ImGui::Button(appContext->langs_->cancel.c_str(), ImVec2(120 * uiScale, 0))) {
         appContext->sceneManager_->ChangeScene(new HomeScene(appContext));
     }
     ImGui::SameLine();
-    if (ImGui::Button(appContext->langs_->createWorld.c_str(), ImVec2(120, 0))) {
+    if (ImGui::Button(appContext->langs_->createWorld.c_str(), ImVec2(120 * uiScale, 0))) {
         CreateWorld();
     }
 

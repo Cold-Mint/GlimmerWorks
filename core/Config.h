@@ -14,6 +14,8 @@ namespace glimmer {
         int height = 1080;
         bool resizable = true;
         float framerate = 60;
+        //ui缩放
+        float uiScale = 1.0F;
     };
 
     struct Mods {

@@ -83,6 +83,7 @@ struct nlohmann::adl_serializer<glimmer::Window> {
         w.height = j.at("height").get<int>();
         w.width = j.at("width").get<int>();
         w.resizable = j.at("resizable").get<bool>();
+        w.uiScale = j.at("uiScale").get<float>();
     }
 
     static void to_json(json &j, const glimmer::Window &w) {
@@ -90,7 +91,8 @@ struct nlohmann::adl_serializer<glimmer::Window> {
             {"framerate", w.framerate},
             {"height", w.height},
             {"width", w.width},
-            {"resizable", w.resizable}
+            {"resizable", w.resizable},
+            {"uiScale", w.uiScale}
         };
     }
 };

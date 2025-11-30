@@ -5,6 +5,7 @@
 #ifndef ASSETSCPP_AASSETSTREAMBUF_H
 #define ASSETSCPP_AASSETSTREAMBUF_H
 
+#ifdef __ANDROID__
 #include <streambuf>
 
 #include <android/asset_manager.h>
@@ -153,4 +154,5 @@ namespace glimmer {
         }
     };
 }
+#endif
 #endif //ASSETSCPP_AASSETSTREAMBUF_H

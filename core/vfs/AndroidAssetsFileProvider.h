@@ -5,6 +5,7 @@
 #ifndef GLIMMERWORKS_ANDROIDASSETSFILEPROVIDER_H
 #define GLIMMERWORKS_ANDROIDASSETSFILEPROVIDER_H
 
+#ifdef __ANDROID__
 #include "FileProvider.h"
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
@@ -18,7 +19,7 @@ namespace glimmer {
     };
 
     class AndroidAssetsFileProvider : public FileProvider {
-        AAssetManager *assetManager_;
+        AAssetManager *assetManager_{};
 
         std::vector<AssetIndex> assetIndexData = {};
 
@@ -49,5 +50,5 @@ namespace glimmer {
         bool CreateFolder(const std::string &path) override;
     };
 }
-
+#endif
 #endif //GLIMMERWORKS_ANDROIDASSETSFILEPROVIDER_H

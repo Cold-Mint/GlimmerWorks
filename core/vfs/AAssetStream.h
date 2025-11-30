@@ -4,7 +4,7 @@
 
 #ifndef ASSETSCPP_AASSETSTREAM_H
 #define ASSETSCPP_AASSETSTREAM_H
-
+#ifdef __ANDROID__
 #include <streambuf>
 #include "AAssetStreamBuf.h"
 #include <istream>
@@ -22,5 +22,5 @@ namespace glimmer {
         }
     };
 }
-
+#endif
 #endif //ASSETSCPP_AASSETSTREAM_H

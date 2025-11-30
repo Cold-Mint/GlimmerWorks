@@ -2,6 +2,7 @@
 // Created by coldmint on 2025/11/28.
 //
 
+#ifdef __ANDROID__
 #include "AndroidAssetsFileProvider.h"
 #include "../log/LogCat.h"
 #include <istream>
@@ -136,3 +137,4 @@ std::vector<std::string> AndroidAssetsFileProvider::ListFile(const std::string &
         return true;
     }
 }
+#endif

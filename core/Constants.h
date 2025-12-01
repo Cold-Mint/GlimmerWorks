@@ -59,6 +59,7 @@ static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 2;
 static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 3;
 static constexpr uint8_t RENDER_ORDER_DEBUG_CHUNK = 4;
 static constexpr uint8_t RENDER_ORDER_DEBUG_BOX2D = 5;
+static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 6;
 
 
 /**

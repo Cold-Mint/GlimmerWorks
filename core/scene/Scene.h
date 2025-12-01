@@ -29,6 +29,7 @@ namespace glimmer {
 
 
         /**
+         * Called when the frame begins
          * 当帧开始时调用
          */
         virtual void OnFrameStart();

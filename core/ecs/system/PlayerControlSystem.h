@@ -6,9 +6,8 @@
 #define GLIMMERWORKS_PLAYERCONTROLSYSTEM_H
 #include "../GameSystem.h"
 #include "../component/PlayerControlComponent.h"
-#include <SDL3/SDL_events.h>
-
 #include "../component/Transform2DComponent.h"
+#include <SDL3/SDL_events.h>
 
 namespace glimmer
 {

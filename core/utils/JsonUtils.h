@@ -23,8 +23,10 @@ namespace glimmer {
         static std::optional<nlohmann::json> LoadJsonFromFile(const VirtualFileSystem *virtualFileSystem,
                                                               const std::string &path);
 
+        #ifdef __ANDROID__
         static std::optional<nlohmann::json> LoadJsonFromFile(FileProvider *fileProvider,
-                                                              const std::string &path);
+                                                                  const std::string &path);
+        #endif
     };
 }
 

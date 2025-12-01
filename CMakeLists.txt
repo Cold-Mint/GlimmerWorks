@@ -260,6 +260,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/vfs/AAssetStreamBuf.cpp
         core/console/command/VFSCommand.cpp
         core/console/command/VFSCommand.h
+        core/ecs/system/AndroidControlSystem.cpp
+        core/ecs/system/AndroidControlSystem.h
         core/console/suggestion/VFSDynamicSuggestions.cpp
         core/console/suggestion/VFSDynamicSuggestions.h)
 

@@ -7,12 +7,13 @@
 
 #include "utils/JsonUtils.h"
 
-bool glimmer::Config::loadConfig(const VirtualFileSystem *virtualFileSystem, const std::string &path) {
+bool glimmer::Config::LoadConfig(const VirtualFileSystem *virtualFileSystem, const std::string &path) {
     auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem, path);
     if (!jsonOpt) {
         return false;
     }
     auto &jsonObject = *jsonOpt;
+    configVersion = jsonObject["configVersion"].get<int>();
     window = jsonObject["window"].get<Window>();
     mods = jsonObject["mods"].get<Mods>();
     return true;

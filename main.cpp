@@ -125,7 +125,7 @@ int main() {
         CommandExecutor commandExecutor;
         Config config;
         LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
-        if (!config.loadConfig(&virtualFileSystem,CONFIG_FILE_NAME)) {
+        if (!config.LoadConfig(&virtualFileSystem,CONFIG_FILE_NAME)) {
             LogCat::e("Failed to load ",CONFIG_FILE_NAME, " file!");
             return EXIT_FAILURE;
         }

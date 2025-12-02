@@ -398,34 +398,42 @@ done
     file(APPEND "${INSTALL_SCRIPT}" "}\n")
     file(APPEND "${INSTALL_SCRIPT}" "EOF\n\n")
 
-    # Generate assets index.json
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"Generating assets/index.json ...\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "INDEX_JSON_PATH=\"\$ASSETS_PATH/index.json\"\n")
+# Generate assets index.json
+file(APPEND "${INSTALL_SCRIPT}" "echo \"Generating assets/index.json ...\"\n")
+file(APPEND "${INSTALL_SCRIPT}" "INDEX_JSON_PATH=\"\$ASSETS_PATH/index.json\"\n")
 
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"{\" > \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"  \\\"assets\\\": [\" >> \"\$INDEX_JSON_PATH\"\n")
+file(APPEND "${INSTALL_SCRIPT}" "echo \"{\" > \"\$INDEX_JSON_PATH\"\n")
+file(APPEND "${INSTALL_SCRIPT}" "echo \"  \\\"assets\\\": [\" >> \"\$INDEX_JSON_PATH\"\n")
 
-    file(APPEND "${INSTALL_SCRIPT}" "FIRST_ITEM=true\n")
+file(APPEND "${INSTALL_SCRIPT}" "FIRST_ITEM=true\n")
 
-    file(APPEND "${INSTALL_SCRIPT}" "while IFS= read -r item; do\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    rel_path=\${item#\"\$ASSETS_PATH/\"}\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    if [ -f \"\$item\" ]; then\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        isFile=true\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    else\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        isFile=false\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    fi\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    if [ \"\$FIRST_ITEM\" = false ]; then\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        echo \",\" >> \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    else\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        FIRST_ITEM=false\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    fi\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    echo -n \"    { \\\"path\\\": \\\"\$rel_path\\\", \\\"isFile\\\": \$isFile }\" >> \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "done < <(find \"\$ASSETS_PATH\" -mindepth 1 -printf \"%p\n\")\n")
+file(APPEND "${INSTALL_SCRIPT}" "while IFS= read -r item; do\n")
+file(APPEND "${INSTALL_SCRIPT}" "    rel_path=\${item#\"\$ASSETS_PATH/\"}\n")
 
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"\" >> \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"  ]\" >> \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"}\" >> \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"index.json generated at \$INDEX_JSON_PATH\"\n\n")
+# 判断是否文件
+file(APPEND "${INSTALL_SCRIPT}" "    if [ -f \"\$item\" ]; then\n")
+file(APPEND "${INSTALL_SCRIPT}" "        isFile=true\n")
+file(APPEND "${INSTALL_SCRIPT}" "        sha512=\\\"$(sha512sum \"\$item\" | awk '{print \$1}')\\\"\n")
+file(APPEND "${INSTALL_SCRIPT}" "    else\n")
+file(APPEND "${INSTALL_SCRIPT}" "        isFile=false\n")
+file(APPEND "${INSTALL_SCRIPT}" "        sha512=null\n")
+file(APPEND "${INSTALL_SCRIPT}" "    fi\n")
+
+file(APPEND "${INSTALL_SCRIPT}" "    if [ \"\$FIRST_ITEM\" = false ]; then\n")
+file(APPEND "${INSTALL_SCRIPT}" "        echo \",\" >> \"\$INDEX_JSON_PATH\"\n")
+file(APPEND "${INSTALL_SCRIPT}" "    else\n")
+file(APPEND "${INSTALL_SCRIPT}" "        FIRST_ITEM=false\n")
+file(APPEND "${INSTALL_SCRIPT}" "    fi\n")
+
+# 写入 JSON 行
+file(APPEND "${INSTALL_SCRIPT}" "    echo -n \"    { \\\"path\\\": \\\"\$rel_path\\\", \\\"isFile\\\": \$isFile, \\\"sha512\\\": \$sha512 }\" >> \"\$INDEX_JSON_PATH\"\n")
+
+file(APPEND "${INSTALL_SCRIPT}" "done < <(find \"\$ASSETS_PATH\" -mindepth 1 -printf \"%p\n\")\n")
+
+file(APPEND "${INSTALL_SCRIPT}" "echo \"\" >> \"\$INDEX_JSON_PATH\"\n")
+file(APPEND "${INSTALL_SCRIPT}" "echo \"  ]\" >> \"\$INDEX_JSON_PATH\"\n")
+file(APPEND "${INSTALL_SCRIPT}" "echo \"}\" >> \"\$INDEX_JSON_PATH\"\n")
+file(APPEND "${INSTALL_SCRIPT}" "echo \"index.json generated at \$INDEX_JSON_PATH\"\n\n")
 
 
     file(APPEND "${INSTALL_SCRIPT}" "echo \"✅ Install completed! You can now compile and run the project in Android Studio.\"\n")

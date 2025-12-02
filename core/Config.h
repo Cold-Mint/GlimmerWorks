@@ -30,8 +30,9 @@ namespace glimmer {
     public:
         Window window{};
         Mods mods{};
+        int configVersion = 1;
 
-        bool loadConfig(const VirtualFileSystem *virtualFileSystem, const std::string &path);
+        bool LoadConfig(const VirtualFileSystem *virtualFileSystem, const std::string &path);
     };
 }
 

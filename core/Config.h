@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "nlohmann/json_fwd.hpp"
 #include "vfs/VirtualFileSystem.h"
 
 namespace glimmer {
@@ -25,14 +26,21 @@ namespace glimmer {
         std::vector<std::string> enabledResourcePack;
     };
 
+    struct Debug {
+        bool onlyDrawHumidity;
+        bool displayDebugPanel;
+        bool displayBox2dShape;
+    };
+
 
     class Config {
     public:
         Window window{};
         Mods mods{};
+        Debug debug{};
         int configVersion = 1;
 
-        bool LoadConfig(const VirtualFileSystem *virtualFileSystem, const std::string &path);
+        bool LoadConfig(const nlohmann::json& json);
     };
 }
 

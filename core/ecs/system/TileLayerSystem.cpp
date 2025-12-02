@@ -47,6 +47,9 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                     renderQuad.x = screenPos.x - renderQuad.w * 0.5f;
                     renderQuad.y = screenPos.y - renderQuad.h * 0.5f;
 
+
+                    // tile.humidity
+
                     SDL_SetRenderDrawColor(renderer, tile.color.r, tile.color.g, tile.color.b, tile.color.a);
                     SDL_RenderFillRect(renderer, &renderQuad);
                 }

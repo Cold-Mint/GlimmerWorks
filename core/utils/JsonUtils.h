@@ -23,10 +23,10 @@ namespace glimmer {
         static std::optional<nlohmann::json> LoadJsonFromFile(const VirtualFileSystem *virtualFileSystem,
                                                               const std::string &path);
 
-        #ifdef __ANDROID__
+#ifdef __ANDROID__
         static std::optional<nlohmann::json> LoadJsonFromFile(FileProvider *fileProvider,
-                                                                  const std::string &path);
-        #endif
+                                                              const std::string &path);
+#endif
     };
 }
 
@@ -74,6 +74,23 @@ struct nlohmann::adl_serializer<glimmer::Mods> {
             {"resourcePackPath", m.resourcePackPath},
             {"enabledDataPack", m.enabledDataPack},
             {"enabledResourcePack", m.enabledResourcePack}
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<glimmer::Debug> {
+    static void from_json(const json &j, glimmer::Debug &m) {
+        m.displayDebugPanel = j.at("displayDebugPanel").get<bool>();
+        m.onlyDrawHumidity = j.at("onlyDrawHumidity").get<bool>();
+        m.displayBox2dShape = j.at("displayBox2dShape").get<bool>();
+    }
+
+    static void to_json(json &j, const glimmer::Debug &debug) {
+        j = json{
+            {"displayDebugPanel", debug.displayDebugPanel},
+            {"onlyDrawHumidity", debug.onlyDrawHumidity},
+            {"displayBox2dShape", debug.displayBox2dShape}
         };
     }
 };

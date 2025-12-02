@@ -14,7 +14,7 @@
 
 
 bool glimmer::DebugPanelSystem::ShouldActivate() {
-    return appContext_->isDebugMode();
+    return appContext_->config_->debug.displayDebugPanel;
 }
 
 void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {

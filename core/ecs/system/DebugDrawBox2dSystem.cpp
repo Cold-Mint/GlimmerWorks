@@ -28,7 +28,7 @@ public:
 };
 
 bool glimmer::DebugDrawBox2dSystem::ShouldActivate() {
-    return appContext_->isDebugMode();
+    return appContext_->config_->debug.displayBox2dShape;
 }
 
 void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus) {

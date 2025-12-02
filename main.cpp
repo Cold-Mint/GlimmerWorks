@@ -6,10 +6,12 @@
 #include "core/console/CommandManager.h"
 #include "core/console/command/AssetViewerCommand.h"
 #include "core/console/command/Box2DCommand.h"
+#include "core/console/command/ConfigCommand.h"
 #include "core/console/command/HelpCommand.h"
 #include "core/console/command/TpCommand.h"
 #include "core/console/command/VFSCommand.h"
 #include "core/console/suggestion/BoolDynamicSuggestions.h"
+#include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
 #include "core/console/suggestion/VFSDynamicSuggestions.h"
 #include "core/log/LogCat.h"
@@ -71,11 +73,11 @@ int main() {
         jstring absolutePathJStr = (jstring) env->CallObjectMethod(dataDirFile, getAbsolutePathMethod);
 
         // 转换为 std::string
-        const char* absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
+        const char *absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
         std::string dataDirPath(absolutePathCStr);
         env->ReleaseStringUTFChars(absolutePathJStr, absolutePathCStr);
         virtualFileSystem.Mount(
-            std::make_unique<StdFileProvider>(dataDirPath+"/assets"));
+            std::make_unique<StdFileProvider>(dataDirPath + "/assets"));
         virtualFileSystem.Mount(std::unique_ptr<FileProvider>(std::move(assetsProvider)));
 #else
         virtualFileSystem.Mount(
@@ -125,7 +127,14 @@ int main() {
         CommandExecutor commandExecutor;
         Config config;
         LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
-        if (!config.LoadConfig(&virtualFileSystem,CONFIG_FILE_NAME)) {
+        auto configJsonOpt = JsonUtils::LoadJsonFromFile(&virtualFileSystem, CONFIG_FILE_NAME);
+        if (!configJsonOpt.has_value()) {
+            return false;
+        }
+
+        dynamicSuggestionsManager.
+                RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configJsonOpt.value()));
+        if (!config.LoadConfig(configJsonOpt.value())) {
             LogCat::e("Failed to load ",CONFIG_FILE_NAME, " file!");
             return EXIT_FAILURE;
         }
@@ -142,6 +151,7 @@ int main() {
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));
+        commandManager.RegisterCommand(std::make_unique<ConfigCommand>(&appContext,configJsonOpt.value()));
         commandManager.RegisterCommand(std::make_unique<AssetViewerCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<VFSCommand>(&appContext, &virtualFileSystem));
         LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);

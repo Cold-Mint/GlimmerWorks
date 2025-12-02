@@ -81,13 +81,26 @@ namespace glimmer {
          * key：The x-coordinate of the block's starting point 区块起点X坐标
          * value：The height array of this block (length = CHUNK_SIZE)
          */
-        std::unordered_map<int, std::vector<int> > heightMap;
+        std::unordered_map<int, std::vector<int> > heightMap_;
 
+
+        /**
+         * Humidity chart
+         * 湿度图
+         * The starting x-coordinate of the block and the starting y-coordinate of the block
+         * 区块的起点X坐标和区块的起点Y坐标
+         */
+        std::unordered_map<TileVector2D, std::vector<std::vector<float>>, Vector2DIHash> humidityMap;
 
         /**
          * 用于生成高度的噪声生成器
          */
         FastNoiseLite *heightMapNoise;
+
+        /**
+         * 湿度噪声生成器
+         */
+        FastNoiseLite *humidityMapNoise;
 
         std::vector<std::unique_ptr<GameSystem> > activeSystems;
         std::vector<std::unique_ptr<GameSystem> > inactiveSystems;
@@ -109,6 +122,8 @@ namespace glimmer {
         ~WorldContext() {
             delete heightMapNoise;
             heightMapNoise = nullptr;
+            delete humidityMapNoise;
+            humidityMapNoise = nullptr;
             b2DestroyWorld(worldId_);
             worldId_ = b2_nullWorldId;
             delete chunkPhysicsHelper_;
@@ -158,6 +173,15 @@ namespace glimmer {
          * @return The height array of this block (length = CHUNK_SIZE)
          */
         std::vector<int> GetHeightMap(int x);
+
+        /**
+         * Obtain the humidity value of a certain block
+         * 获取某个区块的湿度值
+         * @param x x坐标
+         * @param y y坐标
+         * @return 湿度0-1
+         */
+        std::vector<std::vector<float>> GetHumidity(int x, int y);
 
         /**
         * Load Chunk
@@ -271,6 +295,9 @@ namespace glimmer {
             heightMapNoise = new FastNoiseLite();
             heightMapNoise->SetSeed(seed);
             heightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            humidityMapNoise = new FastNoiseLite();
+            humidityMapNoise->SetSeed(seed);
+            humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             b2WorldDef worldDef = b2DefaultWorldDef();
             worldDef.gravity = b2Vec2(0.0F, -10.0F);
             worldId_ = b2CreateWorld(&worldDef);

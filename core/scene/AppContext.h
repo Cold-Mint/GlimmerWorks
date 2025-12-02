@@ -30,7 +30,6 @@ namespace glimmer {
     class AppContext {
         SDL_Window *window_;
         std::string *language_;
-        bool debugMode_ = false;
 
     public:
         DataPackManager *dataPackManager_;
@@ -51,7 +50,7 @@ namespace glimmer {
          */
         bool debugScreenCoords = true;
 
-        AppContext(bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
+        AppContext(const bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
                    Config *cfg,
                    StringManager *stringManager,
                    CommandManager *commandManager, CommandExecutor *commandExecutor, Langs *langs,
@@ -62,10 +61,6 @@ namespace glimmer {
               window_(nullptr), langs_(langs), isRunning(run), dynamicSuggestionsManager_(dynamicSuggestionsManager),
               virtualFileSystem_(virtualFileSystem) {
         }
-
-        void SetDebugMode(bool isDebug);
-
-        [[nodiscard]] bool isDebugMode() const;
 
         [[nodiscard]] std::string *GetLanguage() const;
 

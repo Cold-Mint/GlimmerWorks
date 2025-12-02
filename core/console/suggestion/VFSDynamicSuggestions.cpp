@@ -48,3 +48,7 @@ std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(std::str
 
     return result;
 }
+
+bool glimmer::VFSDynamicSuggestions::Match(std::string keyword, std::string param) {
+    return virtualFileSystem_->Exists(keyword);
+}

@@ -12,11 +12,13 @@
 #define RESOURCE_TYPE_STRING 1
 
 #define HELP_COMMAND_NAME  "help"
+#define CONFIG_COMMAND_NAME  "config"
 #define TP_COMMAND_NAME  "tp"
 #define VFS_COMMAND_NAME  "vfs"
 #define BOX2D_COMMAND_NAME  "box2d"
 #define ASSET_VIEWER_COMMAND_NAME  "assetViewer"
 #define BOOL_DYNAMIC_SUGGESTIONS_NAME  "@bool"
+#define CONFIG_DYNAMIC_SUGGESTIONS_NAME  "@config"
 #define VFS_DYNAMIC_SUGGESTIONS_NAME  "@vfs"
 
 /**

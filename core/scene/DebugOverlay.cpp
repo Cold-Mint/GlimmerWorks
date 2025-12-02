@@ -13,8 +13,7 @@
 bool glimmer::DebugOverlay::HandleEvent(const SDL_Event &event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         if (event.key.scancode == SDL_SCANCODE_F1) {
-            show_ = !show_;
-            appContext->SetDebugMode(show_);
+            appContext->config_->debug.displayDebugPanel = !appContext->config_->debug.displayDebugPanel;
             return true;
         }
     }
@@ -22,7 +21,7 @@ bool glimmer::DebugOverlay::HandleEvent(const SDL_Event &event) {
 }
 
 void glimmer::DebugOverlay::Update(const float delta) {
-    if (!show_) {
+    if (!appContext->config_->debug.displayDebugPanel) {
         return;
     }
     if (delta <= 0.0F) return;
@@ -39,7 +38,7 @@ void glimmer::DebugOverlay::Update(const float delta) {
 }
 
 void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
-    if (!show_) {
+    if (!appContext->config_->debug.displayDebugPanel) {
         return;
     }
     int w = 0;
@@ -74,7 +73,8 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             }
 
             SDL_FRect dst = {
-                static_cast<float>(x) + 2.0f * uiScale, 2.0f * uiScale, static_cast<float>(surface->w) * uiScale, static_cast<float>(surface->h) * uiScale
+                static_cast<float>(x) + 2.0f * uiScale, 2.0f * uiScale, static_cast<float>(surface->w) * uiScale,
+                static_cast<float>(surface->h) * uiScale
             };
             SDL_RenderTexture(renderer, texture, nullptr, &dst);
 
@@ -100,7 +100,8 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             }
 
             SDL_FRect dst = {
-                2.0f * uiScale, static_cast<float>(y) + 2.0f * uiScale, static_cast<float>(surface->w) * uiScale, static_cast<float>(surface->h) * uiScale
+                2.0f * uiScale, static_cast<float>(y) + 2.0f * uiScale, static_cast<float>(surface->w) * uiScale,
+                static_cast<float>(surface->h) * uiScale
             };
             SDL_RenderTexture(renderer, texture, nullptr, &dst);
             SDL_DestroySurface(surface);
@@ -150,7 +151,8 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
 
                     SDL_FRect fpsRect = {
                         (static_cast<float>(w) - static_cast<float>(fpsSurface->w) * uiScale - padding),
-                        (static_cast<float>(h) - static_cast<float>(winSurface->h) * uiScale - static_cast<float>(fpsSurface->h) * uiScale -
+                        (static_cast<float>(h) - static_cast<float>(winSurface->h) * uiScale - static_cast<float>(
+                             fpsSurface->h) * uiScale -
                          padding * 2.0f),
                         static_cast<float>(fpsSurface->w) * uiScale,
                         static_cast<float>(fpsSurface->h) * uiScale

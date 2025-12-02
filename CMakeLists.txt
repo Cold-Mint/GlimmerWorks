@@ -263,7 +263,11 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/ecs/system/AndroidControlSystem.cpp
         core/ecs/system/AndroidControlSystem.h
         core/console/suggestion/VFSDynamicSuggestions.cpp
-        core/console/suggestion/VFSDynamicSuggestions.h)
+        core/console/suggestion/VFSDynamicSuggestions.h
+        core/console/command/ConfigCommand.cpp
+        core/console/command/ConfigCommand.h
+        core/console/suggestion/ConfigSuggestions.cpp
+        core/console/suggestion/ConfigSuggestions.h)
 
 if (ANDROID)
     message(STATUS "Building for Android → Shared Library (.so)")

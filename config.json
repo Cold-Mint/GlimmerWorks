@@ -16,5 +16,10 @@
     "enabledResourcePack": [
       "e806c839-3b44-4621-98b9-a10a4d146253"
     ]
+  },
+  "debug": {
+    "onlyDrawHumidity": true,
+    "displayDebugPanel": true,
+    "displayBox2dShape": true
   }
 }

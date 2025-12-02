@@ -10,7 +10,7 @@
 
 namespace glimmer {
     bool IsPointInRect(float x, float y, const SDL_FRect& r) {
-        return (x >= r.x) && (x < (r.x + r.w)) && (y >= r.y) && (y < (r.y + r.h));
+        return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
     }
 
     std::string AndroidControlSystem::GetName() {
@@ -46,7 +46,7 @@ namespace glimmer {
                 else if (IsPointInRect(x, y, jumpRect)){newType = ButtonType::Jump;} 
 
                 ButtonType currentType = ButtonType::None;
-                if (activeTouches.count(fingerId)) {
+                if (activeTouches.contains(fingerId)) {
                     currentType = activeTouches[fingerId];
                 }
 
@@ -84,7 +84,7 @@ namespace glimmer {
             }
             case SDL_EVENT_FINGER_UP: {
                 SDL_FingerID fingerId = event.tfinger.fingerID;
-                if (activeTouches.count(fingerId)) {
+                if (activeTouches.contains(fingerId)) {
                     ButtonType type = activeTouches[fingerId];
                     if (type == ButtonType::Left) {
                         LogCat::i("Button Left Released");
@@ -127,8 +127,8 @@ namespace glimmer {
         int windowH = 0;
         SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
 
-        float winW = (float)windowW;
-        float winH = (float)windowH;
+        const auto winW = static_cast<float>(windowW);
+        const auto winH = static_cast<float>(windowH);
 
         float btnSize = 180.0F * uiScale;
         float padding = 30.0F * uiScale;

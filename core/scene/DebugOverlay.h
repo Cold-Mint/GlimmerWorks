@@ -16,7 +16,6 @@ namespace glimmer
      */
     class DebugOverlay : public Scene
     {
-        bool show_ = false;
         float fps_ = 0.0F;
         float frameTimeMs_ = 0.0F;
         float fpsAccumTime_ = 0.0F;

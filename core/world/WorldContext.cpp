@@ -67,8 +67,8 @@ std::vector<int> glimmer::WorldContext::GetHeightMap(int x) {
     const int chunkX = tileToChunkStart(x);
     LogCat::d("getHeightMap called for x=", x, " aligned to chunkX=", chunkX);
 
-    const auto it = heightMap.find(chunkX);
-    if (it != heightMap.end()) {
+    const auto it = heightMap_.find(chunkX);
+    if (it != heightMap_.end()) {
         LogCat::d("HeightMap cache hit for chunkX=", chunkX);
         return it->second;
     }
@@ -82,10 +82,49 @@ std::vector<int> glimmer::WorldContext::GetHeightMap(int x) {
         heights[i] = height;
     }
 
-    heightMap[chunkX] = heights;
+    heightMap_[chunkX] = heights;
     LogCat::d("Generated and cached heights for chunkX=", chunkX);
     return heights;
 }
+
+std::vector<std::vector<float> > glimmer::WorldContext::GetHumidity(const int x, const int y) {
+    // 对齐到区块左上角
+    auto tileToChunkStart = [](int coord) -> int {
+        if (coord >= 0)
+            return (coord / CHUNK_SIZE) * CHUNK_SIZE;
+        return (coord - (CHUNK_SIZE - 1)) / CHUNK_SIZE * CHUNK_SIZE;
+    };
+
+    int chunkX = tileToChunkStart(x);
+    int chunkY = tileToChunkStart(y);
+    TileVector2D chunkPos(chunkX, chunkY);
+
+    // 检查缓存
+    auto it = humidityMap.find(chunkPos);
+    if (it != humidityMap.end()) {
+        LogCat::d("Humidity cache hit for chunk (", chunkX, ",", chunkY, ")");
+        return it->second;
+    }
+
+    LogCat::d("Humidity cache miss, generating new chunk at (", chunkX, ",", chunkY, ")");
+    // 生成 CHUNK_SIZE x CHUNK_SIZE 湿度数组
+    std::vector chunkHumidity(CHUNK_SIZE, std::vector<float>(CHUNK_SIZE));
+
+    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+            auto sampleX = static_cast<float>(chunkX + localX);
+            auto sampleY = static_cast<float>(chunkY + localY);
+            auto humidity = (humidityMapNoise->GetNoise(sampleX, sampleY) + 1.0F) * 0.5F;
+            chunkHumidity[localY][localX] = humidity;
+        }
+    }
+
+    // 缓存区块
+    humidityMap[chunkPos] = chunkHumidity;
+    LogCat::d("Humidity End");
+    return chunkHumidity;
+}
+
 
 void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent, const WorldVector2D &tileLayerPos,
                                         const TileVector2D position) {
@@ -94,10 +133,9 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent, 
 
     Chunk newChunk(position);
 
-    // 获取该区块（以 position.x 对齐）的高度数组（长度 CHUNK_SIZE）
-    // position.x 是区块左上角的 world tile x（已对齐到 CHUNK_SIZE）
     const std::vector<int> heights = GetHeightMap(position.x);
 
+    const auto humidityChunk = GetHumidity(position.x, position.y);
     for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
         for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
             TileVector2D localTile(localX, localY);
@@ -105,29 +143,24 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent, 
 
             Tile tile;
 
-            // 从 heights 中获取该列（world X 对应的高度）
-            // heights 下标 localX 对应 worldTilePos.x == position.x + localX
             const int height = heights[localX];
+            const int worldY = worldTilePos.y;
 
-            int worldY = worldTilePos.y; // 世界 Y 坐标
-
-            // 根据高度决定颜色（可以按需替换颜色值）
+            // 根据高度决定物理类型和基础颜色
             if (worldY > height) {
                 tile.physicsType = TilePhysicsType::None;
-                // 在地面之下或水下（y 比地面大） -> 蓝色
-                tile.color = {0, 128, 255, 255};
+                tile.color = {0, 128, 255, 255}; // 蓝色水面或空气
             } else {
                 tile.physicsType = TilePhysicsType::Static;
-                // 在或高于地面 -> 棕色
-                tile.color = {139, 69, 19, 255};
+                tile.color = {139, 69, 19, 255}; // 棕色地面
             }
-
+            tile.humidity = humidityChunk[localY][localX];
             newChunk.SetTile(localTile, tile);
             tileLayerComponent->SetTile(worldTilePos, tile);
         }
     }
-    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos,
-                                                  &newChunk);
+
+    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos, &newChunk);
     chunks_.insert({position, newChunk});
 }
 
@@ -264,9 +297,9 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<TileLayerSystem>(appContext, this));
     RegisterSystem(std::make_unique<ChunkSystem>(appContext, this));
     RegisterSystem(std::make_unique<PhysicsSystem>(appContext, this));
-    #ifdef __ANDROID__
-        RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
-    #endif
+#ifdef __ANDROID__
+    RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
+#endif
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(appContext, this));

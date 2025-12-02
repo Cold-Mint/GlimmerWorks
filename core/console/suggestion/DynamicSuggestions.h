@@ -15,6 +15,8 @@ namespace glimmer {
         [[nodiscard]] virtual std::string GetId() const = 0;
 
         virtual std::vector<std::string> GetSuggestions(std::string param) = 0;
+
+        virtual bool Match(std::string keyword, std::string param) = 0;
     };
 }
 

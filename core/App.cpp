@@ -17,10 +17,10 @@
 
 bool glimmer::App::init() {
     LogCat::i("Initializing SDL...");
-    #ifdef __ANDROID__
+#ifdef __ANDROID__
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     SDL_SetHint("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
-    #endif
+#endif
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         LogCat::e("SDL_Init Error: ", SDL_GetError());
         return false;
@@ -75,7 +75,7 @@ bool glimmer::App::init() {
         *appContext->GetLanguage());
 
     if (fontPathOpt.has_value()) {
-        const std::string& fontPath = fontPathOpt.value();
+        const std::string &fontPath = fontPathOpt.value();
         auto actualPath = appContext->virtualFileSystem_->GetActualPath(fontPath);
         if (!actualPath.has_value()) {
             LogCat::e("An error occurred when converting to the actual font path.");
@@ -114,12 +114,6 @@ bool glimmer::App::init() {
 }
 
 void glimmer::App::run() const {
-    //The time interval of the target (in seconds)
-    //目标的时间间隔（以秒为单位）
-    const float targetFrameTime = 1.0F / appContext->config_->window.framerate;
-    //Target frame time (in milliseconds)
-    //目标帧时间（毫秒为单位）
-    const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
     Uint64 frameStart = SDL_GetTicks();
     float deltaTime = 0.0F;
     SDL_Event event;
@@ -129,18 +123,24 @@ void glimmer::App::run() const {
     appContext->sceneManager_->AddOverlayScene(new DebugOverlay(appContext));
     auto &overlayScenes = appContext->sceneManager_->GetOverlayScenes();
     while (appContext->isRunning) {
+        //The time interval of the target (in seconds)
+        //目标的时间间隔（以秒为单位）
+        const float targetFrameTime = 1.0F / appContext->config_->window.framerate;
+        //Target frame time (in milliseconds)
+        //目标帧时间（毫秒为单位）
+        const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
         appContext->sceneManager_->ApplyPendingScene();
         for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
             overlayScene->OnFrameStart();
         }
         appContext->sceneManager_->getScene()->OnFrameStart();
         while (SDL_PollEvent(&event)) {
-            #ifdef __ANDROID__  
-            if(event.type == SDL_EVENT_KEY_DOWN &&
-   event.key.key == SDLK_AC_BACK){
-                        LogCat::i("onBackPressed");
-    }
-            #endif
+#ifdef __ANDROID__
+            if (event.type == SDL_EVENT_KEY_DOWN &&
+                event.key.key == SDLK_AC_BACK) {
+                LogCat::i("onBackPressed");
+            }
+#endif
             if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
                 appContext->isRunning = false;

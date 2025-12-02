@@ -35,6 +35,7 @@ namespace glimmer
     struct Tile
     {
         SDL_Color color = {255, 255, 255, 255};
+        float humidity = 0.0F;
         TilePhysicsType physicsType = TilePhysicsType::None;
     };
 }

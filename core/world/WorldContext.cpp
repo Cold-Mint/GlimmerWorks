@@ -77,8 +77,31 @@ std::vector<int> glimmer::WorldContext::GetHeightMap(int x) {
     std::vector<int> heights(CHUNK_SIZE);
     for (int i = 0; i < CHUNK_SIZE; ++i) {
         const auto sampleX = static_cast<float>(chunkX + i);
-        const float noiseValue = heightMapNoise->GetNoise(sampleX, 0.0F);
-        const int height = static_cast<int>((noiseValue + 1.0F) * 0.5F * (WORLD_MAX_Y - WORLD_MIN_Y)) + WORLD_MIN_Y;
+        float t = (terrainTypeNoise->GetNoise(sampleX, 0.0f) + 1.0f) * 0.5f; // 0~1
+        float weightHills = 1.0f - t; // 小 t -> 丘陵 Little t -> Hills
+        float weightMountain = t; // 大 t -> 山地 Big t -> Mountainous area
+        float weightContinent = 1.0f - fabs(t - 0.5f) * 2.0f; // 中间高 Middle height
+
+        weightContinent = std::max(0.0f, weightContinent);
+
+        // Normalized weight (keeping the sum =1)
+        // 归一化权重（保持总和=1）
+        float sum = weightHills + weightContinent + weightMountain;
+        weightHills /= sum;
+        weightContinent /= sum;
+        weightMountain /= sum;
+
+        LogCat::d("GetHeightMap weightHills=", weightHills, ",weightContinent=", weightContinent, ",weightMountain=",
+                  weightMountain);
+
+        // Triple noise mixing
+        // 三重噪声混合
+        float noiseValue =
+                continentHeightMapNoise->GetNoise(sampleX, 0.0F) * weightContinent +
+                mountainHeightMapNoise->GetNoise(sampleX, 0.0F) * weightMountain +
+                hillsNoiseHeightMapNoise->GetNoise(sampleX, 0.0F) * weightHills;
+        const int height = static_cast<int>((noiseValue + 1.0F) * 0.5F * (WORLD_MAX_Y - SKY_HEIGHT - WORLD_MIN_Y)) +
+                           WORLD_MIN_Y;
         heights[i] = height;
     }
 

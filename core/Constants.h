@@ -27,7 +27,8 @@
  */
 static constexpr int CHUNK_SIZE = 16;
 //世界高度
-static constexpr int WORLD_MAX_Y = 256;
+static constexpr int WORLD_MAX_Y = 512;
+static constexpr int SKY_HEIGHT = 64;
 static constexpr int WORLD_MIN_Y = 0;
 static constexpr int TILE_SIZE = 32;
 
@@ -54,7 +55,7 @@ static constexpr float KINV_SCALE = 1.0F / KSCALE;
 /**
  * 玩家移动速度，单位：米/秒
  */
-static constexpr float PLAYER_MOVE_SPEED = 6.0F;
+static constexpr float PLAYER_MOVE_SPEED = 60.0F;
 
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
 static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 2;

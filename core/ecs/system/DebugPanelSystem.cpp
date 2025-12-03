@@ -71,7 +71,12 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             if (!tileLayer || !layerPos) continue;
 
             TileVector2D tileCoord = TileLayerComponent::WorldToTile(layerPos->GetPosition(), playerPos);
-            snprintf(buffer, sizeof(buffer), "Tile Coord: (%d, %d)", tileCoord.x, tileCoord.y);
+            std::optional<Tile> tileObj = tileLayer->GetTile(tileCoord);
+            if (tileObj.has_value()) {
+                snprintf(buffer, sizeof(buffer), "Tile Coord: (%d, %d) humidity %f", tileCoord.x, tileCoord.y,tileObj.value().humidity);
+            }else {
+                snprintf(buffer, sizeof(buffer), "Tile Coord: (%d, %d)", tileCoord.x, tileCoord.y);
+            }
 
             SDL_Surface *s = TTF_RenderText_Blended(appContext_->ttfFont_, buffer, strlen(buffer), color);
             if (s) {

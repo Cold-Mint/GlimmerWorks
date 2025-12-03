@@ -48,5 +48,5 @@ float glimmer::CameraComponent::GetZoom() const {
 }
 
 void glimmer::CameraComponent::SetZoom(const float zoom) {
-    this->zoom_ = std::clamp(zoom, 0.5F, 4.0F);
+    this->zoom_ = std::clamp(zoom, 0.2F, 4.0F);
 }

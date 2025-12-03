@@ -90,12 +90,24 @@ namespace glimmer {
          * The starting x-coordinate of the block and the starting y-coordinate of the block
          * 区块的起点X坐标和区块的起点Y坐标
          */
-        std::unordered_map<TileVector2D, std::vector<std::vector<float>>, Vector2DIHash> humidityMap;
+        std::unordered_map<TileVector2D, std::vector<std::vector<float> >, Vector2DIHash> humidityMap;
 
         /**
-         * 用于生成高度的噪声生成器
+         * 用于生成大陆的噪声生成器
          */
-        FastNoiseLite *heightMapNoise;
+        FastNoiseLite *continentHeightMapNoise;
+        /**
+         * 用于生成山脉的噪声生成器
+         */
+        FastNoiseLite *mountainHeightMapNoise;
+        /**
+         * 用于丘陵的噪声生成器
+         */
+        FastNoiseLite *hillsNoiseHeightMapNoise;
+        /**
+         * 地形类型噪声
+         */
+        FastNoiseLite *terrainTypeNoise;
 
         /**
          * 湿度噪声生成器
@@ -120,8 +132,14 @@ namespace glimmer {
 
     public:
         ~WorldContext() {
-            delete heightMapNoise;
-            heightMapNoise = nullptr;
+            delete continentHeightMapNoise;
+            continentHeightMapNoise = nullptr;
+            delete mountainHeightMapNoise;
+            mountainHeightMapNoise = nullptr;
+            delete hillsNoiseHeightMapNoise;
+            hillsNoiseHeightMapNoise = nullptr;
+            delete terrainTypeNoise;
+            terrainTypeNoise = nullptr;
             delete humidityMapNoise;
             humidityMapNoise = nullptr;
             b2DestroyWorld(worldId_);
@@ -181,7 +199,7 @@ namespace glimmer {
          * @param y y坐标
          * @return 湿度0-1
          */
-        std::vector<std::vector<float>> GetHumidity(int x, int y);
+        std::vector<std::vector<float> > GetHumidity(int x, int y);
 
         /**
         * Load Chunk
@@ -292,9 +310,22 @@ namespace glimmer {
 
         explicit WorldContext(AppContext *appContext, const int seed, Saves *saves) : seed(seed),
             saves(saves) {
-            heightMapNoise = new FastNoiseLite();
-            heightMapNoise->SetSeed(seed);
-            heightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            continentHeightMapNoise = new FastNoiseLite();
+            continentHeightMapNoise->SetSeed(seed);
+            continentHeightMapNoise->SetFrequency(0.01F / 100.0F);
+            continentHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
+            mountainHeightMapNoise = new FastNoiseLite();
+            mountainHeightMapNoise->SetSeed(seed);
+            mountainHeightMapNoise->SetFrequency(0.01F);
+            mountainHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            hillsNoiseHeightMapNoise = new FastNoiseLite();
+            hillsNoiseHeightMapNoise->SetSeed(seed);
+            hillsNoiseHeightMapNoise->SetFrequency(0.01F / 50.0F);
+            hillsNoiseHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            terrainTypeNoise = new FastNoiseLite();
+            terrainTypeNoise->SetSeed(seed);
+            terrainTypeNoise->SetFrequency(0.01F);
+            terrainTypeNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
             humidityMapNoise = new FastNoiseLite();
             humidityMapNoise->SetSeed(seed);
             humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);

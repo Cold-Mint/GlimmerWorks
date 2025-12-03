@@ -46,11 +46,17 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
 
                     renderQuad.x = screenPos.x - renderQuad.w * 0.5f;
                     renderQuad.y = screenPos.y - renderQuad.h * 0.5f;
+                    if (appContext_->config_->debug.onlyDrawHumidity) {
+                        SDL_Color newColor;
+                        newColor.r = 0;
+                        newColor.g = static_cast<uint8_t>(255 * tile.humidity);
+                        newColor.b = 0;
+                        newColor.a = 255;
+                        SDL_SetRenderDrawColor(renderer, newColor.r, newColor.g, newColor.b, newColor.a);
+                    } else {
+                        SDL_SetRenderDrawColor(renderer, tile.color.r, tile.color.g, tile.color.b, tile.color.a);
+                    }
 
-
-                    // tile.humidity
-
-                    SDL_SetRenderDrawColor(renderer, tile.color.r, tile.color.g, tile.color.b, tile.color.a);
                     SDL_RenderFillRect(renderer, &renderQuad);
                 }
 

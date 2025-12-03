@@ -9,6 +9,7 @@
 #include "../Langs.h"
 #include "../console/CommandExecutor.h"
 #include "../console/CommandManager.h"
+#include "../mod/dataPack/TileManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
 #include "SDL3_ttf/SDL_ttf.h"
 
@@ -36,6 +37,7 @@ namespace glimmer {
         Config *config_;
         SceneManager *sceneManager_;
         StringManager *stringManager_;
+        TileManager *tileManager_;
         CommandManager *commandManager_;
         TTF_Font *ttfFont_;
         CommandExecutor *commandExecutor_;
@@ -54,12 +56,13 @@ namespace glimmer {
                    Config *cfg,
                    StringManager *stringManager,
                    CommandManager *commandManager, CommandExecutor *commandExecutor, Langs *langs,
-                   DynamicSuggestionsManager *dynamicSuggestionsManager, VirtualFileSystem *virtualFileSystem)
+                   DynamicSuggestionsManager *dynamicSuggestionsManager, VirtualFileSystem *virtualFileSystem,
+                   TileManager *tileManager)
             : language_(lang), dataPackManager_(dpm), config_(cfg), sceneManager_(sm), stringManager_(stringManager),
               commandManager_(commandManager), ttfFont_(nullptr), commandExecutor_(commandExecutor),
               resourcePackManager_(rpm),
               window_(nullptr), langs_(langs), isRunning(run), dynamicSuggestionsManager_(dynamicSuggestionsManager),
-              virtualFileSystem_(virtualFileSystem) {
+              virtualFileSystem_(virtualFileSystem), tileManager_(tileManager) {
         }
 
         [[nodiscard]] std::string *GetLanguage() const;

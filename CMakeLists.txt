@@ -267,7 +267,10 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/console/command/ConfigCommand.cpp
         core/console/command/ConfigCommand.h
         core/console/suggestion/ConfigSuggestions.cpp
-        core/console/suggestion/ConfigSuggestions.h)
+        core/console/suggestion/ConfigSuggestions.h
+        core/mod/dataPack/TileManager.cpp
+        core/mod/dataPack/TileManager.h
+)
 
 if (ANDROID)
     message(STATUS "Building for Android → Shared Library (.so)")

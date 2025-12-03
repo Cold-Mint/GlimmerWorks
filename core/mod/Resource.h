@@ -14,6 +14,10 @@ namespace glimmer {
     struct StringResource : Resource {
         std::string value;
     };
+
+    struct TileResource : Resource {
+        std::string texture;
+    };
 }
 
 

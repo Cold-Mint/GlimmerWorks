@@ -123,6 +123,7 @@ int main() {
         ResourcePackManager resourcePackManager(&virtualFileSystem);
         SceneManager sceneManager;
         StringManager stringManager;
+        TileManager tileManager;
         CommandManager commandManager;
         CommandExecutor commandExecutor;
         Config config;
@@ -147,11 +148,11 @@ int main() {
         AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                               &stringManager,
                               &commandManager,
-                              &commandExecutor, &langs, &dynamicSuggestionsManager, &virtualFileSystem);
+                              &commandExecutor, &langs, &dynamicSuggestionsManager, &virtualFileSystem, &tileManager);
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));
-        commandManager.RegisterCommand(std::make_unique<ConfigCommand>(&appContext,configJsonOpt.value()));
+        commandManager.RegisterCommand(std::make_unique<ConfigCommand>(&appContext, configJsonOpt.value()));
         commandManager.RegisterCommand(std::make_unique<AssetViewerCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<VFSCommand>(&appContext, &virtualFileSystem));
         LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);

@@ -12,6 +12,7 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggest
     suggestionsTree.AddChild("string");
     auto texture = suggestionsTree.AddChild("texture");
     texture->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree.AddChild("tile");
 }
 
 std::string glimmer::AssetViewerCommand::GetName() const {
@@ -38,6 +39,8 @@ bool glimmer::AssetViewerCommand::Execute(CommandArgs commandArgs,
         onOutput(appContext_->stringManager_->ListStrings());
     } else if (type == "texture") {
         onOutput(appContext_->resourcePackManager_->ListTextureCache(commandArgs.AsBool(2)));
+    }else if (type == "tile") {
+        onOutput(appContext_->tileManager_->ListTiles());
     }
     return true;
 }

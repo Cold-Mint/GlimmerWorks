@@ -46,6 +46,22 @@ struct nlohmann::adl_serializer<glimmer::StringResource> {
     }
 };
 
+
+template<>
+struct nlohmann::adl_serializer<glimmer::TileResource> {
+    static void from_json(const json &j, glimmer::TileResource &s) {
+        s.key = j.at("resourceKey").get<std::string>();
+        s.texture = j.at("texture").get<std::string>();
+    }
+
+    static void to_json(json &j, const glimmer::TileResource &s) {
+        j = json{
+            {"resourceKey", s.key},
+            {"texture", s.texture},
+        };
+    }
+};
+
 template<>
 struct nlohmann::adl_serializer<glimmer::Resource> {
     static void from_json(const json &j, glimmer::Resource &r) {

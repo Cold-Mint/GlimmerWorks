@@ -270,6 +270,10 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/console/suggestion/ConfigSuggestions.h
         core/mod/dataPack/TileManager.cpp
         core/mod/dataPack/TileManager.h
+        core/world/TilePhysicsType.cpp
+        core/world/TilePhysicsType.h
+        core/mod/dataPack/BiomesManager.cpp
+        core/mod/dataPack/BiomesManager.h
 )
 
 if (ANDROID)

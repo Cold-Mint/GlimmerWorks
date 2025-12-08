@@ -48,9 +48,10 @@ bool glimmer::App::init() {
     LogCat::i("SDL window created successfully.");
     appContext->SetWindow(window);
     LogCat::i("Creating SDL renderer...");
-    renderer =
+    renderer_ =
             SDL_CreateRenderer(window, nullptr);
-    if (!renderer) {
+    appContext->resourcePackManager_->SetRenderer(renderer_);
+    if (!renderer_) {
         LogCat::e("SDL_CreateRenderer Error: ", SDL_GetError());
         return false;
     }
@@ -58,7 +59,7 @@ bool glimmer::App::init() {
     // 启用按 alpha 混合渲染
     // This will allow us to use transparency during rendering
     // 这将允许我们在渲染时使用透明度
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
     LogCat::i("SDL renderer created successfully.");
     LogCat::i("Initializing ImGui context...");
     IMGUI_CHECKVERSION();
@@ -98,14 +99,14 @@ bool glimmer::App::init() {
 
 
     LogCat::i("Initializing ImGui SDL3 backend for SDLRenderer...");
-    if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer)) {
+    if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer_)) {
         LogCat::e("ImGui_ImplSDL3_InitForSDLRenderer failed!");
         return false;
     }
     LogCat::i("ImGui SDL3 backend initialized successfully.");
 
     LogCat::i("Initializing ImGui SDLRenderer3 backend...");
-    if (!ImGui_ImplSDLRenderer3_Init(renderer)) {
+    if (!ImGui_ImplSDLRenderer3_Init(renderer_)) {
         LogCat::e("ImGui_ImplSDLRenderer3_Init failed!");
         return false;
     }
@@ -169,14 +170,14 @@ void glimmer::App::run() const {
             overlay->Update(deltaTime);
         }
         appContext->sceneManager_->getScene()->Update(deltaTime);
-        SDL_RenderClear(renderer);
-        appContext->sceneManager_->getScene()->Render(renderer);
+        SDL_RenderClear(renderer_);
+        appContext->sceneManager_->getScene()->Render(renderer_);
         for (const auto overlay: overlayScenes) {
-            overlay->Render(renderer);
+            overlay->Render(renderer_);
         }
         ImGui::Render();
-        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
-        SDL_RenderPresent(renderer);
+        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
+        SDL_RenderPresent(renderer_);
         const auto frameEnd = SDL_GetTicks();
         const auto frameTimeMs = frameEnd - frameStart;
         if (frameTimeMs < targetFrameTimeMs) {

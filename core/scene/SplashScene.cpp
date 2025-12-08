@@ -35,7 +35,7 @@ void glimmer::SplashScene::Render(SDL_Renderer *renderer) {
     if (!renderer) return;
     if (!splashTexture) {
         splashTexture = appContext->resourcePackManager_->LoadTextureFromFile(
-            appContext->config_->mods.enabledResourcePack, *renderer, "gui/splash.png");
+            appContext->config_->mods.enabledResourcePack, "gui/splash.png");
         if (!splashTexture) {
             LogCat::e("Failed to load splash.png");
             return;

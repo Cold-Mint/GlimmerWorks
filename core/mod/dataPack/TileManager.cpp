@@ -27,7 +27,7 @@ glimmer::TileResource *glimmer::TileManager::Find(const std::string &packId, con
         return nullptr;
     }
 
-    LogCat::i("Found string resource: packId = ", packId, ", key = ", key);
+    LogCat::i("Found tile resource: packId = ", packId, ", key = ", key);
     return &keyIt->second;
 }
 
@@ -44,7 +44,7 @@ std::string glimmer::TileManager::ListTiles() const {
             result += packId;
             result += ":";
             result += key;
-            result += "=";
+            result += " texture=";
             result += res.texture;
             result += "\n";
         }

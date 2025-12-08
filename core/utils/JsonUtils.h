@@ -198,14 +198,105 @@ struct nlohmann::adl_serializer<glimmer::MapManifest> {
 template<>
 struct nlohmann::adl_serializer<glimmer::Vector2D> {
     static void from_json(const json &j, glimmer::Vector2D &vector_2d) {
-        vector_2d.x = j.at("x").get<int>();
-        vector_2d.y = j.at("y").get<int>();
+        vector_2d.x = j.at("x").get<float>();
+        vector_2d.y = j.at("y").get<float>();
     }
 
     static void to_json(json &j, const glimmer::Vector2D &vector_2d) {
         j = json{
             {"x", vector_2d.x},
             {"y", vector_2d.y},
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<glimmer::Scope> {
+    static void from_json(const json &j, glimmer::Scope &scope) {
+        scope.min = j.at("min").get<float>();
+        scope.max = j.at("max").get<float>();
+    }
+
+    static void to_json(json &j, const glimmer::Scope &scope) {
+        j = json{
+            {"min", scope.min},
+            {"max", scope.max},
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<glimmer::Climate> {
+    static void from_json(const json &j, glimmer::Climate &climate) {
+        climate.humidity = j.at("humidity").get<glimmer::Scope>();
+        climate.temperature = j.at("temperature").get<glimmer::Scope>();
+    }
+
+    static void to_json(json &j, const glimmer::Climate &climate) {
+        j = json{
+            {"humidity", climate.humidity},
+            {"temperature", climate.temperature},
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<glimmer::Condition> {
+    static void from_json(const json &j, glimmer::Condition &condition) {
+        condition.condition = j.at("condition").get<std::string>();
+        condition.resourceKeys = j.at("resourceKeys").get<std::vector<std::string> >();
+    }
+
+    static void to_json(json &j, const glimmer::Condition &condition) {
+        j = json{
+            {"condition", condition.condition},
+            {"resourceKeys", condition.resourceKeys},
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<glimmer::TileRules> {
+    static void from_json(const json &j, glimmer::TileRules &tileRules) {
+        if (j.contains("down")) {
+            tileRules.down = j.at("down").get<glimmer::Condition>();
+        }
+        if (j.contains("up")) {
+            tileRules.up = j.at("up").get<glimmer::Condition>();
+        }
+        if (j.contains("left")) {
+            tileRules.left = j.at("left").get<glimmer::Condition>();
+        }
+        if (j.contains("right")) {
+            tileRules.right = j.at("right").get<glimmer::Condition>();
+        }
+        tileRules.resourceKey = j.at("resourceKey").get<std::string>();
+    }
+
+    static void to_json(json &j, const glimmer::TileRules &tileRules) {
+        j = json{
+            {"down", tileRules.down},
+            {"up", tileRules.up},
+            {"left", tileRules.left},
+            {"right", tileRules.right},
+            {"resourceKey", tileRules.resourceKey},
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<glimmer::BiomeResource> {
+    static void from_json(const json &j, glimmer::BiomeResource &biomeResource) {
+        biomeResource.key = j.at("resourceKey").get<std::string>();
+        biomeResource.tileRules = j.at("tileRules").get<std::vector<glimmer::TileRules> >();
+        biomeResource.climate = j.at("climate").get<glimmer::Climate>();
+    }
+
+    static void to_json(json &j, const glimmer::BiomeResource &biomeResource) {
+        j = json{
+            {"tileRules", biomeResource.tileRules},
+            {"climate", biomeResource.climate},
+            {"resourceKey", biomeResource.key},
         };
     }
 };

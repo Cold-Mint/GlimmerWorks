@@ -17,6 +17,7 @@
 namespace glimmer {
     class ResourcePackManager {
         VirtualFileSystem *virtualFileSystem_;
+        SDL_Renderer *renderer_;
         std::unordered_map<std::string, std::unique_ptr<ResourcePack> > resourcePackMap;
 
         static bool IsResourcePackAvailable(const ResourcePack &pack);
@@ -28,8 +29,11 @@ namespace glimmer {
 
     public:
         explicit
-        ResourcePackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(virtualFilesystem) {
+        ResourcePackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(
+                                                                        virtualFilesystem), renderer_(nullptr) {
         }
+
+        void SetRenderer(SDL_Renderer *renderer);
 
         int Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack);
 
@@ -37,7 +41,6 @@ namespace glimmer {
                                                const std::string &language);
 
         std::shared_ptr<SDL_Texture> LoadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
-                                                         SDL_Renderer &renderer,
                                                          const std::string &path);
 
         /**

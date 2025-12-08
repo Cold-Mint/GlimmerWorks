@@ -9,7 +9,7 @@
 #include "../../Constants.h"
 
 namespace glimmer {
-    bool IsPointInRect(float x, float y, const SDL_FRect& r) {
+    bool IsPointInRect(float x, float y, const SDL_FRect &r) {
         return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
     }
 
@@ -29,6 +29,7 @@ namespace glimmer {
         event.key.repeat = false;
         SDL_PushEvent(&event);
     }
+
     bool AndroidControlSystem::HandleEvent(const SDL_Event &event) {
         switch (event.type) {
             case SDL_EVENT_FINGER_DOWN:
@@ -36,14 +37,14 @@ namespace glimmer {
                 int windowW = 0;
                 int windowH = 0;
                 SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
-                float x = event.tfinger.x * (float)windowW;
-                float y = event.tfinger.y * (float)windowH;
+                float x = event.tfinger.x * static_cast<float>(windowW);
+                float y = event.tfinger.y * static_cast<float>(windowH);
                 SDL_FingerID fingerId = event.tfinger.fingerID;
 
                 ButtonType newType = ButtonType::None;
-                if (IsPointInRect(x, y, leftRect)){newType = ButtonType::Left;}
-                else if (IsPointInRect(x, y, rightRect)){newType = ButtonType::Right;}
-                else if (IsPointInRect(x, y, jumpRect)){newType = ButtonType::Jump;} 
+                if (IsPointInRect(x, y, leftRect)) { newType = ButtonType::Left; } else if (
+                    IsPointInRect(x, y, rightRect)) { newType = ButtonType::Right; } else if (
+                    IsPointInRect(x, y, jumpRect)) { newType = ButtonType::Jump; }
 
                 ButtonType currentType = ButtonType::None;
                 if (activeTouches.contains(fingerId)) {
@@ -112,7 +113,7 @@ namespace glimmer {
         if (!leftTexture) {
             auto load = [&](const char *path) {
                 return appContext_->resourcePackManager_->LoadTextureFromFile(
-                    appContext_->config_->mods.enabledResourcePack, *renderer, path);
+                    appContext_->config_->mods.enabledResourcePack, path);
             };
             leftTexture = load("gui/left.png");
             rightTexture = load("gui/right.png");
@@ -141,20 +142,23 @@ namespace glimmer {
         bool rightActive = false;
         bool jumpActive = false;
 
-        for (auto const& [fingerId, type] : activeTouches) {
+        for (auto const &[fingerId, type]: activeTouches) {
             if (type == ButtonType::Left) leftActive = true;
             if (type == ButtonType::Right) rightActive = true;
             if (type == ButtonType::Jump) jumpActive = true;
         }
 
-        SDL_RenderTexture(renderer, leftActive && leftPressedTexture ? leftPressedTexture.get() : leftTexture.get(), nullptr, &leftRect);
-        SDL_RenderTexture(renderer, rightActive && rightPressedTexture ? rightPressedTexture.get() : rightTexture.get(), nullptr, &rightRect);
-        SDL_RenderTexture(renderer, jumpActive && jumpPressedTexture ? jumpPressedTexture.get() : jumpTexture.get(), nullptr, &jumpRect);
-        #if  !defined(NDEBUG)
+        SDL_RenderTexture(renderer, leftActive && leftPressedTexture ? leftPressedTexture.get() : leftTexture.get(),
+                          nullptr, &leftRect);
+        SDL_RenderTexture(renderer, rightActive && rightPressedTexture ? rightPressedTexture.get() : rightTexture.get(),
+                          nullptr, &rightRect);
+        SDL_RenderTexture(renderer, jumpActive && jumpPressedTexture ? jumpPressedTexture.get() : jumpTexture.get(),
+                          nullptr, &jumpRect);
+#if  !defined(NDEBUG)
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_RenderRect(renderer, &leftRect);
         SDL_RenderRect(renderer, &rightRect);
         SDL_RenderRect(renderer, &jumpRect);
-        #endif
+#endif
     }
 }

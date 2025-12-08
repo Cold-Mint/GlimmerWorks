@@ -38,6 +38,10 @@ bool glimmer::ResourcePackManager::IsResourcePackEnabled(const ResourcePack &pac
     return std::ranges::find(enabledResourcePack, pack.getManifest().id) != enabledResourcePack.end();
 }
 
+void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer) {
+    renderer_ = renderer;
+}
+
 int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack) {
     resourcePackMap.clear();
     try {
@@ -120,7 +124,10 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 }
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(
-    const std::vector<std::string> &enabledResourcePack, SDL_Renderer &renderer, const std::string &path) {
+    const std::vector<std::string> &enabledResourcePack, const std::string &path) {
+    if (renderer_ == nullptr) {
+        return nullptr;
+    }
     if (path.empty()) {
         LogCat::e("Invalid texture path (empty).");
         return nullptr;
@@ -156,7 +163,7 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(
             continue;
         }
 
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(&renderer, surface);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer_, surface);
         SDL_DestroySurface(surface);
         if (!texture) {
             LogCat::w("SDL_CreateTextureFromSurface failed for ", texturePath,
@@ -184,6 +191,7 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(
     LogCat::e("Texture not found in any enabled resource pack: ", path);
     return nullptr;
 }
+
 
 std::string glimmer::ResourcePackManager::ListTextureCache(const bool includeExpired) const {
     std::string result;

@@ -93,6 +93,12 @@ namespace glimmer {
         std::unordered_map<TileVector2D, std::vector<std::vector<float> >, Vector2DIHash> humidityMap;
 
         /**
+         * temperature chart
+         * 温度图
+         */
+        std::unordered_map<TileVector2D, std::vector<std::vector<float> >, Vector2DIHash> temperatureMap;
+
+        /**
          * 用于生成大陆的噪声生成器
          */
         FastNoiseLite *continentHeightMapNoise;
@@ -113,6 +119,11 @@ namespace glimmer {
          * 湿度噪声生成器
          */
         FastNoiseLite *humidityMapNoise;
+
+        /**
+         * 温度噪声生成器
+         */
+        FastNoiseLite *temperatureMapNoise;
 
         std::vector<std::unique_ptr<GameSystem> > activeSystems;
         std::vector<std::unique_ptr<GameSystem> > inactiveSystems;
@@ -142,6 +153,8 @@ namespace glimmer {
             terrainTypeNoise = nullptr;
             delete humidityMapNoise;
             humidityMapNoise = nullptr;
+            delete temperatureMapNoise;
+            temperatureMapNoise = nullptr;
             b2DestroyWorld(worldId_);
             worldId_ = b2_nullWorldId;
             delete chunkPhysicsHelper_;
@@ -202,13 +215,23 @@ namespace glimmer {
         std::vector<std::vector<float> > GetHumidity(int x, int y);
 
         /**
+         * Obtain the temperature value of the block
+         * 获取区块的温度值
+        * @param x x坐标
+         * @param y y坐标
+         * @return 温度0-1
+         */
+        std::vector<std::vector<float> > GetTemperature(int x, int y);
+
+        /**
         * Load Chunk
         * 加载区块
+         * @param biomesManager biomesManager 生物群系管理器
          * @param tileLayerComponent tileLayerComponent 瓦片图层
         * @param tileLayerPos tileLayerPos 瓦片层的对象位置
         * @param position position 位置
         */
-        void LoadChunkAt(TileLayerComponent *tileLayerComponent, const WorldVector2D &tileLayerPos,
+        void LoadChunkAt(BiomesManager biomesManager,TileLayerComponent *tileLayerComponent, const WorldVector2D &tileLayerPos,
                          TileVector2D position);
 
         /**
@@ -329,6 +352,10 @@ namespace glimmer {
             humidityMapNoise = new FastNoiseLite();
             humidityMapNoise->SetSeed(seed);
             humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            temperatureMapNoise = new FastNoiseLite();
+            temperatureMapNoise->SetSeed(seed);
+            temperatureMapNoise->SetFrequency(0.01F);
+            temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             b2WorldDef worldDef = b2DefaultWorldDef();
             worldDef.gravity = b2Vec2(0.0F, -10.0F);
             worldId_ = b2CreateWorld(&worldDef);

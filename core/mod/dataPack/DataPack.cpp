@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "StringManager.h"
+#include "TileManager.h"
 #include "../../log/LogCat.h"
 #include "../../utils/JsonUtils.h"
 #include "../../core/mod/PackManifest.h"
@@ -26,6 +27,48 @@ int glimmer::DataPack::LoadStringResource(const std::string &language, StringMan
     }
     LogCat::w("No language file found in ", langDir);
     return 0;
+}
+
+int glimmer::DataPack::LoadTileResource(TileManager &tileManager) const {
+    const std::string tilesDir = path_ + "/tiles";
+    if (!virtualFileSystem_->Exists(tilesDir)) {
+        LogCat::w("No tiles directory found in ", tilesDir);
+        return 0;
+    }
+    std::vector<std::string> files = virtualFileSystem_->ListFile(tilesDir);
+    if (files.empty()) {
+        LogCat::w("No tiles files found in ", tilesDir);
+        return 0;
+    }
+    int tileCount = 0;
+    for (const auto &file: files) {
+        LogCat::d("Loading tile file: ", file);
+        if (LoadTileResourceFromFile(file, tileManager)) {
+            tileCount++;
+        }
+    }
+    return tileCount;
+}
+
+int glimmer::DataPack::LoadBiomeResource(BiomesManager &biomesManager) const {
+    const std::string biomesDir = path_ + "/biomes";
+    if (!virtualFileSystem_->Exists(biomesDir)) {
+        LogCat::w("No biomes directory found in ", biomesDir);
+        return 0;
+    }
+    std::vector<std::string> files = virtualFileSystem_->ListFile(biomesDir);
+    if (files.empty()) {
+        LogCat::w("No biomes files found in ", biomesDir);
+        return 0;
+    }
+    int biomeCount = 0;
+    for (const auto &file: files) {
+        LogCat::d("Loading biomes file: ", file);
+        if (LoadBiomeResourceFromFile(file, biomesManager)) {
+            biomeCount++;
+        }
+    }
+    return biomeCount;
 }
 
 int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, StringManager &stringManager) const {
@@ -51,6 +94,34 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, Strin
 
     LogCat::i("Loaded ", count, " language entries from ", path);
     return count;
+}
+
+bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileManager &tileManager) const {
+    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
+    if (!jsonOpt) {
+        LogCat::e("Failed to load JSON file: ", path);
+        return false;
+    }
+
+    const auto &jsonObject = *jsonOpt;
+    TileResource tileResource = jsonObject.get<TileResource>();
+    tileResource.packId = manifest_.id;
+    tileManager.RegisterResource(tileResource);
+    return true;
+}
+
+bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, BiomesManager &biomesManager) const {
+    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
+    if (!jsonOpt) {
+        LogCat::e("Failed to load JSON file: ", path);
+        return false;
+    }
+
+    const auto &jsonObject = *jsonOpt;
+    BiomeResource biomeResource = jsonObject.get<BiomeResource>();
+    biomeResource.packId = manifest_.id;
+    biomesManager.RegisterResource(biomeResource);
+    return true;
 }
 
 bool glimmer::DataPack::LoadManifest() {
@@ -79,9 +150,15 @@ bool glimmer::DataPack::LoadManifest() {
     return true;
 }
 
-bool glimmer::DataPack::LoadPack(const std::string &language, StringManager &stringManager) const {
-    return LoadStringResource(language, stringManager) != 0;
+bool glimmer::DataPack::LoadPack(const std::string &language, StringManager &stringManager, TileManager &tileManager,
+                                 BiomesManager &biomesManager) const {
+    int total = 0;
+    total += LoadStringResource(language, stringManager);
+    total += LoadTileResource(tileManager);
+    total += LoadBiomeResource(biomesManager);
+    return total != 0;
 }
+
 
 const glimmer::DataPackManifest &glimmer::DataPack::GetManifest() const {
     return manifest_;

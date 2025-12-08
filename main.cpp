@@ -15,6 +15,7 @@
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
 #include "core/console/suggestion/VFSDynamicSuggestions.h"
 #include "core/log/LogCat.h"
+#include "core/mod/dataPack/BiomesManager.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/dataPack/StringManager.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
@@ -123,6 +124,7 @@ int main() {
         ResourcePackManager resourcePackManager(&virtualFileSystem);
         SceneManager sceneManager;
         StringManager stringManager;
+        BiomesManager biomesManager;
         TileManager tileManager;
         CommandManager commandManager;
         CommandExecutor commandExecutor;
@@ -148,7 +150,8 @@ int main() {
         AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                               &stringManager,
                               &commandManager,
-                              &commandExecutor, &langs, &dynamicSuggestionsManager, &virtualFileSystem, &tileManager);
+                              &commandExecutor, &langs, &dynamicSuggestionsManager, &virtualFileSystem, &tileManager,
+                              &biomesManager);
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));
@@ -159,7 +162,7 @@ int main() {
         LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
         LogCat::i("Starting GlimmerWorks...");
         if (dataPackManager.Scan(config.mods.dataPackPath, config.mods.enabledDataPack, language,
-                                 stringManager) == 0) {
+                                 stringManager, tileManager, biomesManager) == 0) {
             LogCat::e("Failed to load dataPack");
             return EXIT_FAILURE;
         }

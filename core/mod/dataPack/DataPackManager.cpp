@@ -42,9 +42,9 @@ bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
     return std::ranges::find(enabledDataPack, pack.GetManifest().id) != enabledDataPack.end();
 }
 
-int glimmer::DataPackManager::Scan(const std::string &path,
-                                   const std::vector<std::string> &enabledDataPack, const std::string &language,
-                                   StringManager &stringManager) const {
+int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
+                                   const std::string &language, StringManager &stringManager,
+                                   TileManager &tileManager, BiomesManager &biomesManager) const {
     try {
         if (!virtualFileSystem_->Exists(path)) {
             LogCat::e("DataPackManager: Path does not exist -> ", path);
@@ -70,7 +70,7 @@ int glimmer::DataPackManager::Scan(const std::string &path,
                 if (!IsDataPackAvailable(pack)) {
                     continue;
                 }
-                if (pack.LoadPack(language, stringManager)) {
+                if (pack.LoadPack(language, stringManager, tileManager, biomesManager)) {
                     success++;
                 }
             }

@@ -148,9 +148,46 @@ std::vector<std::vector<float> > glimmer::WorldContext::GetHumidity(const int x,
     return chunkHumidity;
 }
 
+std::vector<std::vector<float> > glimmer::WorldContext::GetTemperature(int x, int y) {
+    // 对齐到区块左上角
+    auto tileToChunkStart = [](int coord) -> int {
+        if (coord >= 0)
+            return (coord / CHUNK_SIZE) * CHUNK_SIZE;
+        return (coord - (CHUNK_SIZE - 1)) / CHUNK_SIZE * CHUNK_SIZE;
+    };
 
-void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent, const WorldVector2D &tileLayerPos,
-                                        const TileVector2D position) {
+    int chunkX = tileToChunkStart(x);
+    int chunkY = tileToChunkStart(y);
+    TileVector2D chunkPos(chunkX, chunkY);
+
+    // 检查缓存
+    auto it = temperatureMap.find(chunkPos);
+    if (it != temperatureMap.end()) {
+        LogCat::d("Temperature cache hit for chunk (", chunkX, ",", chunkY, ")");
+        return it->second;
+    }
+
+    LogCat::d("Temperature cache miss, generating new chunk at (", chunkX, ",", chunkY, ")");
+    // 生成 CHUNK_SIZE x CHUNK_SIZE 湿度数组
+    std::vector chunkHumidity(CHUNK_SIZE, std::vector<float>(CHUNK_SIZE));
+
+    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+            auto sampleX = static_cast<float>(chunkX + localX);
+            auto sampleY = static_cast<float>(chunkY + localY);
+            auto humidity = (temperatureMapNoise->GetNoise(sampleX, sampleY) + 1.0F) * 0.5F;
+            chunkHumidity[localY][localX] = humidity;
+        }
+    }
+
+    // 缓存区块
+    temperatureMap[chunkPos] = chunkHumidity;
+    LogCat::d("Temperature End");
+    return chunkHumidity;
+}
+
+void glimmer::WorldContext::LoadChunkAt(BiomesManager biomesManager, TileLayerComponent *tileLayerComponent,
+                                        const WorldVector2D &tileLayerPos, TileVector2D position) {
     if (chunks_.contains(position))
         return;
 
@@ -159,25 +196,15 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent, 
     const std::vector<int> heights = GetHeightMap(position.x);
 
     const auto humidityChunk = GetHumidity(position.x, position.y);
+    const auto temperatureChunk = GetTemperature(position.x, position.y);
     for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
         for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
             TileVector2D localTile(localX, localY);
-            TileVector2D worldTilePos = position + localTile; // world 坐标
-
+            TileVector2D worldTilePos = position + localTile;
+            float humidity = humidityChunk[localY][localX];
+            float temperature = temperatureChunk[localY][localX];
             Tile tile;
-
-            const int height = heights[localX];
-            const int worldY = worldTilePos.y;
-
-            // 根据高度决定物理类型和基础颜色
-            if (worldY > height) {
-                tile.physicsType = TilePhysicsType::None;
-                tile.color = {0, 128, 255, 255}; // 蓝色水面或空气
-            } else {
-                tile.physicsType = TilePhysicsType::Static;
-                tile.color = {139, 69, 19, 255}; // 棕色地面
-            }
-            tile.humidity = humidityChunk[localY][localX];
+            biomesManager.Search(worldTilePos, worldTilePos.y / WORLD_MAX_Y, humidity);
             newChunk.SetTile(localTile, tile);
             tileLayerComponent->SetTile(worldTilePos, tile);
         }

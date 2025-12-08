@@ -16,7 +16,7 @@ namespace glimmer {
         SDL_Window *window;
         bool initSDLSuccess;
         bool initSDLTtfSuccess;
-        SDL_Renderer *renderer;
+        SDL_Renderer *renderer_;
         AppContext *appContext;
 
     public:
@@ -35,7 +35,7 @@ namespace glimmer {
 
         explicit App(AppContext *ac) : appContext(ac) {
             window = nullptr;
-            renderer = nullptr;
+            renderer_ = nullptr;
             initSDLSuccess = false;
             initSDLTtfSuccess = false;
         }

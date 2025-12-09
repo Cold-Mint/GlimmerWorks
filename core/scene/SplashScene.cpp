@@ -27,15 +27,15 @@ void glimmer::SplashScene::Update(float delta) {
     if (!sceneJumped && SDL_GetTicks() >= nextSceneTime) {
         sceneJumped = true;
         LogCat::i("Open Home");
-        appContext->sceneManager_->ChangeScene(new HomeScene(appContext));
+        appContext->GetSceneManager()->ChangeScene(new HomeScene(appContext));
     }
 }
 
 void glimmer::SplashScene::Render(SDL_Renderer *renderer) {
     if (!renderer) return;
     if (!splashTexture) {
-        splashTexture = appContext->resourcePackManager_->LoadTextureFromFile(
-            appContext->config_->mods.enabledResourcePack, "gui/splash.png");
+        splashTexture = appContext->GetResourcePackManager()->LoadTextureFromFile(
+            appContext->GetConfig()->mods.enabledResourcePack, "gui/splash.png");
         if (!splashTexture) {
             LogCat::e("Failed to load splash.png");
             return;

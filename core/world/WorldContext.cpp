@@ -167,9 +167,9 @@ void glimmer::WorldContext::LoadChunkAt(const AppContext *appContext, TileLayerC
             if (worldTilePos.x > height) {
                 //sky
                 //天空
-                TileResource air = appContext->tileManager_->GetAir();
-                tile.texture = appContext->resourcePackManager_->LoadTextureFromFile(
-                    appContext->config_->mods.enabledResourcePack, air.texture);
+                TileResource air = appContext->GetTileManager()->GetAir();
+                tile.texture = appContext->GetResourcePackManager()->LoadTextureFromFile(
+                    appContext->GetConfig()->mods.enabledResourcePack, air.texture);
                 continue;
             }
             newChunk.SetTile(localTile, tile);
@@ -178,7 +178,7 @@ void glimmer::WorldContext::LoadChunkAt(const AppContext *appContext, TileLayerC
             const auto weirdness = GetWeirdness(worldTilePos);
             const auto erosion = GetErosion(worldTilePos);
             const float elevation = static_cast<float>(height) / WORLD_MAX_Y - SKY_HEIGHT;
-            BiomeResource *biomeResource = appContext->biomesManager_->FindBestBiome(
+            BiomeResource *biomeResource = appContext->GetBiomesManager()->FindBestBiome(
                 humidity, temperature, weirdness, erosion,
                 elevation);
             if (biomeResource == nullptr) {

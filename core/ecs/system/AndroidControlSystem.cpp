@@ -112,8 +112,8 @@ namespace glimmer {
         if (!renderer) return;
         if (!leftTexture) {
             auto load = [&](const char *path) {
-                return appContext_->resourcePackManager_->LoadTextureFromFile(
-                    appContext_->config_->mods.enabledResourcePack, path);
+                return appContext_->GetResourcePackManager()->LoadTextureFromFile(
+                    appContext_->GetConfig()->mods.enabledResourcePack, path);
             };
             leftTexture = load("gui/left.png");
             rightTexture = load("gui/right.png");
@@ -123,7 +123,7 @@ namespace glimmer {
             jumpPressedTexture = load("gui/jump_pressed.png");
         }
 
-        float uiScale = appContext_->config_->window.uiScale;
+        float uiScale = appContext_->GetConfig()->window.uiScale;
         int windowW = 0;
         int windowH = 0;
         SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);

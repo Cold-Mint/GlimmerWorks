@@ -33,8 +33,6 @@ namespace glimmer {
     class AppContext {
         SDL_Window *window_;
         std::string *language_;
-
-    public:
         DataPackManager *dataPackManager_;
         Config *config_;
         SceneManager *sceneManager_;
@@ -45,16 +43,17 @@ namespace glimmer {
         TTF_Font *ttfFont_;
         CommandExecutor *commandExecutor_;
         ResourcePackManager *resourcePackManager_;
-        Langs *langs_;
+        LangsResources *langs_;
         DynamicSuggestionsManager *dynamicSuggestionsManager_;
         VirtualFileSystem *virtualFileSystem_;
         TilePlacerManager *tilePlacerManager_;
         bool isRunning;
 
+    public:
         AppContext(const bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
                    Config *cfg,
                    StringManager *stringManager,
-                   CommandManager *commandManager, CommandExecutor *commandExecutor, Langs *langs,
+                   CommandManager *commandManager, CommandExecutor *commandExecutor, LangsResources *langs,
                    DynamicSuggestionsManager *dynamicSuggestionsManager, VirtualFileSystem *virtualFileSystem,
                    TileManager *tileManager, BiomesManager *biomesManager, TilePlacerManager *tilePlacerManager)
             : language_(lang), dataPackManager_(dpm), config_(cfg), sceneManager_(sm), stringManager_(stringManager),
@@ -64,9 +63,38 @@ namespace glimmer {
               virtualFileSystem_(virtualFileSystem), tileManager_(tileManager), biomesManager_(biomesManager) {
         }
 
-        [[nodiscard]] std::string *GetLanguage() const;
 
         void SetWindow(SDL_Window *window);
+
+        void SetFont(TTF_Font *font);
+
+        [[nodiscard]] bool Running() const;
+
+        void ExitApp();
+
+        [[nodiscard]] Config *GetConfig() const;
+
+        [[nodiscard]] TTF_Font *GetFont() const;
+
+        [[nodiscard]] CommandManager *GetCommandManager() const;
+
+        [[nodiscard]] StringManager *GetStringManager() const;
+
+        [[nodiscard]] DynamicSuggestionsManager *GetDynamicSuggestionsManager() const;
+
+        [[nodiscard]] std::string *GetLanguage() const;
+
+        [[nodiscard]] LangsResources *GetLangsResources() const;
+
+        [[nodiscard]] ResourcePackManager *GetResourcePackManager() const;
+
+        [[nodiscard]] TileManager *GetTileManager() const;
+
+        [[nodiscard]] BiomesManager *GetBiomesManager() const;
+
+        [[nodiscard]] VirtualFileSystem *GetVirtualFileSystem() const;
+
+        [[nodiscard]] SceneManager *GetSceneManager() const;
 
         [[nodiscard]] SDL_Window *GetWindow() const;
     };

@@ -35,7 +35,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
         seed_value = static_cast<int>(hasher(seed_input));
     }
     LogCat::d("Create a world: ", name, ", seed: ", seed_value);
-    Saves saves("saved/" + name, appContext->virtualFileSystem_);
+    Saves saves("saved/" + name, appContext->GetVirtualFileSystem());
     if (saves.Exist()) {
         LogCat::e("The world already exists!");
         return;
@@ -47,7 +47,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     manifest.gameVersionNumber = GAME_VERSION_NUMBER;
     saves.Create(manifest);
     auto *worldContext = new WorldContext(appContext, seed_value, &saves);
-    appContext->sceneManager_->ChangeScene(new WorldScene(appContext, worldContext));
+    appContext->GetSceneManager()->ChangeScene(new WorldScene(appContext, worldContext));
 }
 
 int glimmer::CreateWorldScene::RandomSeed() {
@@ -60,22 +60,23 @@ bool glimmer::CreateWorldScene::HandleEvent(const SDL_Event &event) {
 }
 
 void glimmer::CreateWorldScene::Update(float delta) {
-    const float uiScale = appContext->config_->window.uiScale;
+    const float uiScale = appContext->GetConfig()->window.uiScale;
     ImGui::GetIO().FontGlobalScale = uiScale;
     ImGui::SetNextWindowSize(ImVec2(400 * uiScale, 250 * uiScale), ImGuiCond_Once);
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(),
                             ImGuiCond_Once, ImVec2(0.5f, 0.5f));
 
-    ImGui::Begin(appContext->langs_->createWorld.c_str(), nullptr,
+    LangsResources *langsResources = appContext->GetLangsResources();
+    ImGui::Begin(langsResources->createWorld.c_str(), nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
-    ImGui::TextUnformatted(appContext->langs_->worldName.c_str());
+    ImGui::TextUnformatted(langsResources->worldName.c_str());
     ImGui::InputText("##WorldName", world_name, IM_ARRAYSIZE(world_name));
 
-    ImGui::TextUnformatted(appContext->langs_->seed.c_str());
+    ImGui::TextUnformatted(langsResources->seed.c_str());
     ImGui::InputText("##Seed", seed_str, IM_ARRAYSIZE(seed_str));
     ImGui::SameLine();
-    if (ImGui::Button(appContext->langs_->random.c_str())) {
+    if (ImGui::Button(langsResources->random.c_str())) {
         const int newSeed = RandomSeed();
         //skipcq: CXX-C1000
         (void) snprintf(seed_str, sizeof(seed_str), "%d", newSeed);
@@ -85,11 +86,11 @@ void glimmer::CreateWorldScene::Update(float delta) {
     ImGui::Separator();
     ImGui::Spacing();
 
-    if (ImGui::Button(appContext->langs_->cancel.c_str(), ImVec2(120 * uiScale, 0))) {
-        appContext->sceneManager_->ChangeScene(new HomeScene(appContext));
+    if (ImGui::Button(langsResources->cancel.c_str(), ImVec2(120 * uiScale, 0))) {
+        appContext->GetSceneManager()->ChangeScene(new HomeScene(appContext));
     }
     ImGui::SameLine();
-    if (ImGui::Button(appContext->langs_->createWorld.c_str(), ImVec2(120 * uiScale, 0))) {
+    if (ImGui::Button(langsResources->createWorld.c_str(), ImVec2(120 * uiScale, 0))) {
         CreateWorld();
     }
 

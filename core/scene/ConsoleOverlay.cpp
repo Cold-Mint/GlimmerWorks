@@ -108,9 +108,10 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
         const auto keyword = commandArgs.GetKeywordAtCursor(cursorPos);
         overlay->SetKeyword(keyword);
         overlay->SetCommandSuggestions(
-            overlay->appContext->commandManager_->GetSuggestions(overlay->appContext->dynamicSuggestionsManager_,
-                                                                 commandArgs, cursorPos));
-        overlay->SetCommandStructure(overlay->appContext->commandManager_->GetCommandStructure(commandArgs));
+            overlay->appContext->GetCommandManager()->GetSuggestions(
+                overlay->appContext->GetDynamicSuggestionsManager(),
+                commandArgs, cursorPos));
+        overlay->SetCommandStructure(overlay->appContext->GetCommandManager()->GetCommandStructure(commandArgs));
         overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
     }
     if (overlay->nextCursorPos_ != -1) {
@@ -178,7 +179,7 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
 
 void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     if (!show_) return;
-    const float uiScale = appContext->config_->window.uiScale;
+    const float uiScale = appContext->GetConfig()->window.uiScale;
     ImGui::GetIO().FontGlobalScale = uiScale;
     const ImGuiIO &io = ImGui::GetIO();
     const float windowHeight = io.DisplaySize.y;
@@ -213,7 +214,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     // 控制台标题使用青色
     ImGui::PushFont(ImGui::GetFont());
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255)); // Cyan for title
-    ImGui::TextUnformatted(appContext->langs_->console.c_str());
+    ImGui::TextUnformatted(appContext->GetLangsResources()->console.c_str());
     ImGui::PopStyleColor();
     ImGui::PopFont();
     ImGui::Separator();
@@ -279,7 +280,8 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(40, 40, 40, 150)); // Dark gray on hover
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(60, 60, 60, 200)); // Lighter gray when clicked
         ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0F); // No border
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0F * appContext->config_->window.uiScale); // Slight rounding for hover effect
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0F * appContext->GetConfig()->window.uiScale);
+        // Slight rounding for hover effect
 
 
         for (const auto &suggestion: commandSuggestions_) {
@@ -390,22 +392,22 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         if (inputBuffer_[0] != '\0') {
             const std::string cmdStr(inputBuffer_.data(), strnlen(inputBuffer_.data(), inputBuffer_.size()));
             addMessage("> " + cmdStr);
-            CommandExecutor::ExecuteAsync(cmdStr, appContext->commandManager_,
+            CommandExecutor::ExecuteAsync(cmdStr, appContext->GetCommandManager(),
                                           [this](const CommandResult result, const std::string &cmd) {
                                               std::string message;
                                               std::string pattern;
                                               switch (result) {
                                                   case CommandResult::Success:
-                                                      pattern = appContext->langs_->executedSuccess;
+                                                      pattern = appContext->GetLangsResources()->executedSuccess;
                                                       break;
                                                   case CommandResult::Failure:
-                                                      pattern = appContext->langs_->executionFailed;
+                                                      pattern = appContext->GetLangsResources()->executionFailed;
                                                       break;
                                                   case CommandResult::EmptyArgs:
-                                                      message = appContext->langs_->commandIsEmpty;
+                                                      message = appContext->GetLangsResources()->commandIsEmpty;
                                                       break;
                                                   case CommandResult::NotFound:
-                                                      pattern = appContext->langs_->commandNotFound;
+                                                      pattern = appContext->GetLangsResources()->commandNotFound;
                                                       break;
                                               }
                                               if (!pattern.empty()) {
@@ -418,11 +420,11 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                                           });
         }
         inputBuffer_.fill('\0');
-        #ifdef __ANDROID__
+#ifdef __ANDROID__
         focusNextFrame_ = false;
-        #else
+#else
         focusNextFrame_ = true;
-        #endif
+#endif
     }
     ImGui::PopStyleColor(2); // Pop input text color and cursor color
     ImGui::PopItemWidth();

@@ -175,7 +175,7 @@ namespace glimmer {
             worldId_ = b2_nullWorldId;
             delete chunkPhysicsHelper_;
             chunkPhysicsHelper_ = nullptr;
-            for (const auto &command: appContext_->commandManager_->GetCommands() | std::views::values) {
+            for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
                 if (command->RequiresWorldContext()) {
                     command->BindWorldContext(this);
                 }
@@ -398,7 +398,7 @@ namespace glimmer {
             InitSystem(appContext);
             chunkPhysicsHelper_ = new ChunkPhysicsHelper();
             appContext_ = appContext;
-            for (const auto &command: appContext_->commandManager_->GetCommands() | std::views::values) {
+            for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
                 if (command->RequiresWorldContext()) {
                     command->BindWorldContext(this);
                 }

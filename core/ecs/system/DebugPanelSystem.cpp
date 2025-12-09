@@ -14,7 +14,7 @@
 
 
 bool glimmer::DebugPanelSystem::ShouldActivate() {
-    return appContext_->config_->debug.displayDebugPanel;
+    return appContext_->GetConfig()->debug.displayDebugPanel;
 }
 
 void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
@@ -46,7 +46,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         char buffer[64];
         snprintf(buffer, sizeof(buffer), "Player World: (%.1f, %.1f)", playerPos.x, playerPos.y);
 
-        SDL_Surface *surface = TTF_RenderText_Blended(appContext_->ttfFont_, buffer, strlen(buffer), color);
+        SDL_Surface *surface = TTF_RenderText_Blended(appContext_->GetFont(), buffer, strlen(buffer), color);
         if (surface) {
             SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
@@ -78,7 +78,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
                 snprintf(buffer, sizeof(buffer), "Tile Coord: (%d, %d)", tileCoord.x, tileCoord.y);
             }
 
-            SDL_Surface *s = TTF_RenderText_Blended(appContext_->ttfFont_, buffer, strlen(buffer), color);
+            SDL_Surface *s = TTF_RenderText_Blended(appContext_->GetFont(), buffer, strlen(buffer), color);
             if (s) {
                 SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
                 if (t) {
@@ -225,7 +225,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             char chunkText[128];
             snprintf(chunkText, sizeof(chunkText), "Chunk: (%d, %d) | Vis: %d | Total: %zu",
                      playerChunkX, playerChunkY, visibleChunkCount, chunks.size());
-            SDL_Surface *s = TTF_RenderText_Blended(appContext_->ttfFont_, chunkText, strlen(chunkText),
+            SDL_Surface *s = TTF_RenderText_Blended(appContext_->GetFont(), chunkText, strlen(chunkText),
                                                     {255, 255, 255, 255});
             if (s) {
                 SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);

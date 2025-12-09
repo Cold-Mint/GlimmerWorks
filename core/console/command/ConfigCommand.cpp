@@ -166,7 +166,7 @@ bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
         }
 
         // 自动推断类型
-        if (appContext_->dynamicSuggestionsManager_->GetSuggestions(BOOL_DYNAMIC_SUGGESTIONS_NAME)->Match(value, "")) {
+        if (appContext_->GetDynamicSuggestionsManager()->GetSuggestions(BOOL_DYNAMIC_SUGGESTIONS_NAME)->Match(value, "")) {
             (*targetObject)[lastKey] = value == "true" || value == "yes" || value == "1" || value == "y";
         } else if (std::isdigit(value[0]) || value[0] == '-' || value[0] == '+') {
             try {
@@ -180,9 +180,9 @@ bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
 
         onOutput("Set " + parameterName + " = " + value);
         std::string data = json_.dump();
-        bool update = appContext_->virtualFileSystem_->WriteFile(CONFIG_FILE_NAME, data);
+        bool update = appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, data);
         if (update) {
-            appContext_->config_->LoadConfig(json_);
+            appContext_->GetConfig()->LoadConfig(json_);
         }
         return update;
     }

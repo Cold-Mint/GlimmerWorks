@@ -7,7 +7,7 @@
 #include <string>
 
 namespace glimmer {
-    struct Langs {
+    struct LangsResources {
         std::string startGame;
         std::string settings;
         std::string mods;

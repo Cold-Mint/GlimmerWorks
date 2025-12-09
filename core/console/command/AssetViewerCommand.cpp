@@ -37,13 +37,13 @@ bool glimmer::AssetViewerCommand::Execute(CommandArgs commandArgs,
                                           std::function<void(const std::string &text)> onOutput) {
     const auto type = commandArgs.AsString(1);
     if (type == "string") {
-        onOutput(appContext_->stringManager_->ListStrings());
+        onOutput(appContext_->GetStringManager()->ListStrings());
     } else if (type == "texture") {
-        onOutput(appContext_->resourcePackManager_->ListTextureCache(commandArgs.AsBool(2)));
+        onOutput(appContext_->GetResourcePackManager()->ListTextureCache(commandArgs.AsBool(2)));
     } else if (type == "tile") {
-        onOutput(appContext_->tileManager_->ListTiles());
+        onOutput(appContext_->GetTileManager()->ListTiles());
     } else if (type == "biomes") {
-        onOutput(appContext_->biomesManager_->ListTiles());
+        onOutput(appContext_->GetBiomesManager()->ListTiles());
     }
     return true;
 }

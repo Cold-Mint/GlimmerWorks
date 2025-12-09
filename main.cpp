@@ -99,24 +99,24 @@ int main() {
             return EXIT_FAILURE;
         }
         auto &jsonObject = *jsonOpt;
-        Langs langs;
-        langs.startGame = jsonObject["startGame"].get<std::string>();
-        langs.settings = jsonObject["settings"].get<std::string>();
-        langs.mods = jsonObject["mods"].get<std::string>();
-        langs.exitGame = jsonObject["exitGame"].get<std::string>();
-        langs.console = jsonObject["console"].get<std::string>();
-        langs.commandNotFound = jsonObject["commandNotFound"].get<std::string>();
-        langs.executionFailed = jsonObject["executionFailed"].get<std::string>();
-        langs.executedSuccess = jsonObject["executedSuccess"].get<std::string>();
-        langs.commandIsEmpty = jsonObject["commandIsEmpty"].get<std::string>();
-        langs.createWorld = jsonObject["createWorld"].get<std::string>();
-        langs.cancel = jsonObject["cancel"].get<std::string>();
-        langs.worldName = jsonObject["worldName"].get<std::string>();
-        langs.seed = jsonObject["seed"].get<std::string>();
-        langs.random = jsonObject["random"].get<std::string>();
-        langs.commandInfo = jsonObject["commandInfo"].get<std::string>();
-        langs.awakeBodyCount = jsonObject["awakeBodyCount"].get<std::string>();
-        langs.awakeBodyCount = jsonObject["getActualPathError"].get<std::string>();
+        LangsResources langsResources;
+        langsResources.startGame = jsonObject["startGame"].get<std::string>();
+        langsResources.settings = jsonObject["settings"].get<std::string>();
+        langsResources.mods = jsonObject["mods"].get<std::string>();
+        langsResources.exitGame = jsonObject["exitGame"].get<std::string>();
+        langsResources.console = jsonObject["console"].get<std::string>();
+        langsResources.commandNotFound = jsonObject["commandNotFound"].get<std::string>();
+        langsResources.executionFailed = jsonObject["executionFailed"].get<std::string>();
+        langsResources.executedSuccess = jsonObject["executedSuccess"].get<std::string>();
+        langsResources.commandIsEmpty = jsonObject["commandIsEmpty"].get<std::string>();
+        langsResources.createWorld = jsonObject["createWorld"].get<std::string>();
+        langsResources.cancel = jsonObject["cancel"].get<std::string>();
+        langsResources.worldName = jsonObject["worldName"].get<std::string>();
+        langsResources.seed = jsonObject["seed"].get<std::string>();
+        langsResources.random = jsonObject["random"].get<std::string>();
+        langsResources.commandInfo = jsonObject["commandInfo"].get<std::string>();
+        langsResources.awakeBodyCount = jsonObject["awakeBodyCount"].get<std::string>();
+        langsResources.awakeBodyCount = jsonObject["getActualPathError"].get<std::string>();
         DynamicSuggestionsManager dynamicSuggestionsManager;
         dynamicSuggestionsManager.RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
         dynamicSuggestionsManager.RegisterDynamicSuggestions(
@@ -153,7 +153,7 @@ int main() {
         AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                               &stringManager,
                               &commandManager,
-                              &commandExecutor, &langs, &dynamicSuggestionsManager, &virtualFileSystem, &tileManager,
+                              &commandExecutor, &langsResources, &dynamicSuggestionsManager, &virtualFileSystem, &tileManager,
                               &biomesManager, &tilePlacerManager);
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));

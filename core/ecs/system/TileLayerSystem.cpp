@@ -46,7 +46,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
 
                     renderQuad.x = screenPos.x - renderQuad.w * 0.5f;
                     renderQuad.y = screenPos.y - renderQuad.h * 0.5f;
-                    if (appContext_->config_->debug.onlyDrawHumidity) {
+                    if (appContext_->GetConfig()->debug.onlyDrawHumidity) {
                         // draw humidity color
                         SDL_Color newColor;
                         newColor.r = 0;

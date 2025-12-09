@@ -39,7 +39,7 @@ bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(co
         if (actualPath.has_value()) {
             onOutput(actualPath.value());
         } else {
-            onOutput(appContext_->langs_->getActualPathError);
+            onOutput(appContext_->GetLangsResources()->getActualPathError);
         }
         return true;
     }

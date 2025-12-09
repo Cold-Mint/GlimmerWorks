@@ -35,11 +35,12 @@ bool glimmer::App::init() {
     LogCat::i("SDL initialized successfully.");
 
     LogCat::i("Creating SDL window...");
+    Config* config = appContext->GetConfig();
     window = SDL_CreateWindow(
         "GlimmerWorks",
-        appContext->config_->window.width,
-        appContext->config_->window.height,
-        appContext->config_->window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
+        config->window.width,
+        config->window.height,
+        config->window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
     );
     if (window == nullptr) {
         LogCat::e("SDL_CreateWindow Error: ", SDL_GetError());
@@ -50,7 +51,7 @@ bool glimmer::App::init() {
     LogCat::i("Creating SDL renderer...");
     renderer_ =
             SDL_CreateRenderer(window, nullptr);
-    appContext->resourcePackManager_->SetRenderer(renderer_);
+    appContext->GetResourcePackManager()->SetRenderer(renderer_);
     if (!renderer_) {
         LogCat::e("SDL_CreateRenderer Error: ", SDL_GetError());
         return false;
@@ -71,13 +72,13 @@ bool glimmer::App::init() {
 
     LogCat::i("Setting ImGui style to Light...");
     ImGui::StyleColorsLight();
-    const auto fontPathOpt = appContext->resourcePackManager_->GetFontPath(
-        appContext->config_->mods.enabledResourcePack,
+    const auto fontPathOpt = appContext->GetResourcePackManager()->GetFontPath(
+        config->mods.enabledResourcePack,
         *appContext->GetLanguage());
 
     if (fontPathOpt.has_value()) {
         const std::string &fontPath = fontPathOpt.value();
-        auto actualPath = appContext->virtualFileSystem_->GetActualPath(fontPath);
+        auto actualPath = appContext->GetVirtualFileSystem()->GetActualPath(fontPath);
         if (!actualPath.has_value()) {
             LogCat::e("An error occurred when converting to the actual font path.");
             return false;
@@ -91,7 +92,7 @@ bool glimmer::App::init() {
             LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
         } else {
             LogCat::d("SDL_ttf font loaded: ", fontPath);
-            appContext->ttfFont_ = sdlFont;
+            appContext->SetFont(sdlFont);
         }
     } else {
         LogCat::w("No font found for language '", *appContext->GetLanguage(), "', skipping font load");
@@ -119,22 +120,24 @@ void glimmer::App::run() const {
     float deltaTime = 0.0F;
     SDL_Event event;
     LogCat::i("Entering main loop...");
-    appContext->sceneManager_->ChangeScene(new SplashScene(appContext));
-    appContext->sceneManager_->AddOverlayScene(new ConsoleOverlay(appContext));
-    appContext->sceneManager_->AddOverlayScene(new DebugOverlay(appContext));
-    auto &overlayScenes = appContext->sceneManager_->GetOverlayScenes();
-    while (appContext->isRunning) {
+    auto sceneManager = appContext->GetSceneManager();
+    auto config = appContext->GetConfig();
+    sceneManager->ChangeScene(new SplashScene(appContext));
+    sceneManager->AddOverlayScene(new ConsoleOverlay(appContext));
+    sceneManager->AddOverlayScene(new DebugOverlay(appContext));
+    auto &overlayScenes = sceneManager->GetOverlayScenes();
+    while (appContext->Running()) {
         //The time interval of the target (in seconds)
         //目标的时间间隔（以秒为单位）
-        const float targetFrameTime = 1.0F / appContext->config_->window.framerate;
+        const float targetFrameTime = 1.0F / config->window.framerate;
         //Target frame time (in milliseconds)
         //目标帧时间（毫秒为单位）
         const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
-        appContext->sceneManager_->ApplyPendingScene();
+        sceneManager->ApplyPendingScene();
         for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
             overlayScene->OnFrameStart();
         }
-        appContext->sceneManager_->getScene()->OnFrameStart();
+        sceneManager->getScene()->OnFrameStart();
         while (SDL_PollEvent(&event)) {
 #ifdef __ANDROID__
             if (event.type == SDL_EVENT_KEY_DOWN &&
@@ -144,7 +147,7 @@ void glimmer::App::run() const {
 #endif
             if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
-                appContext->isRunning = false;
+                appContext->ExitApp();
             } else {
                 bool handled = false;
                 for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
@@ -154,7 +157,7 @@ void glimmer::App::run() const {
                         break;
                     }
                 }
-                if (!handled && appContext->sceneManager_->getScene()->HandleEvent(event)) {
+                if (!handled && sceneManager->getScene()->HandleEvent(event)) {
                     handled = true;
                     LogCat::w("Main scene handled event, stopping propagation.");
                 }
@@ -169,9 +172,9 @@ void glimmer::App::run() const {
         for (const auto overlay: overlayScenes) {
             overlay->Update(deltaTime);
         }
-        appContext->sceneManager_->getScene()->Update(deltaTime);
+        sceneManager->getScene()->Update(deltaTime);
         SDL_RenderClear(renderer_);
-        appContext->sceneManager_->getScene()->Render(renderer_);
+        sceneManager->getScene()->Render(renderer_);
         for (const auto overlay: overlayScenes) {
             overlay->Render(renderer_);
         }

@@ -32,7 +32,7 @@ bool glimmer::Box2DCommand::Execute(CommandArgs commandArgs, std::function<void(
         //获取活跃的刚体数量
         const auto bodyCount = b2World_GetAwakeBodyCount(worldContext_->GetWorldId());
         onOutput(fmt::format(
-            fmt::runtime(appContext_->langs_->awakeBodyCount),
+            fmt::runtime(appContext_->GetLangsResources()->awakeBodyCount),
             bodyCount));
     }
     return true;

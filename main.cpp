@@ -9,6 +9,7 @@
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/command/HelpCommand.h"
+#include "core/console/command/LicenseCommand.h"
 #include "core/console/command/TpCommand.h"
 #include "core/console/command/VFSCommand.h"
 #include "core/console/suggestion/BoolDynamicSuggestions.h"
@@ -153,7 +154,8 @@ int main() {
         AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                               &stringManager,
                               &commandManager,
-                              &commandExecutor, &langsResources, &dynamicSuggestionsManager, &virtualFileSystem, &tileManager,
+                              &commandExecutor, &langsResources, &dynamicSuggestionsManager, &virtualFileSystem,
+                              &tileManager,
                               &biomesManager, &tilePlacerManager);
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
@@ -161,6 +163,7 @@ int main() {
         commandManager.RegisterCommand(std::make_unique<ConfigCommand>(&appContext, configJsonOpt.value()));
         commandManager.RegisterCommand(std::make_unique<AssetViewerCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<VFSCommand>(&appContext, &virtualFileSystem));
+        commandManager.RegisterCommand(std::make_unique<LicenseCommand>(&appContext, &virtualFileSystem));
         LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
         LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
         LogCat::i("Starting GlimmerWorks...");

@@ -12,6 +12,7 @@
 #define RESOURCE_TYPE_STRING 1
 
 #define HELP_COMMAND_NAME  "help"
+#define LICENSE_COMMAND_NAME  "license"
 #define CONFIG_COMMAND_NAME  "config"
 #define TP_COMMAND_NAME  "tp"
 #define VFS_COMMAND_NAME  "vfs"

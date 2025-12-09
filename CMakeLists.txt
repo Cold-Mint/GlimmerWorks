@@ -278,6 +278,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/world/TilePlacer.h
         core/world/TilePlacerManager.cpp
         core/world/TilePlacerManager.h
+        core/console/command/LicenseCommand.cpp
+        core/console/command/LicenseCommand.h
 )
 
 if (ANDROID)
@@ -327,6 +329,8 @@ file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"
 
 file(COPY "${CMAKE_SOURCE_DIR}/core_langs/"
         DESTINATION "${CMAKE_BINARY_DIR}/langs/")
+file(COPY "${CMAKE_SOURCE_DIR}/LICENSE"
+        DESTINATION "${CMAKE_BINARY_DIR}/")
 
 file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" "*")
 
@@ -357,7 +361,7 @@ file(APPEND "${BUILD_SCRIPT}" "OUTPUT_FILE=\"GlimmerWorks_\${GAME_VERSION}_\${BU
 file(APPEND "${BUILD_SCRIPT}" "echo \"Packing files into \${OUTPUT_FILE}...\"\n")
 # 排除所有隐藏文件和文件夹
 # Exclude all hidden files and folders
-file(APPEND "${BUILD_SCRIPT}" "tar --exclude='.*' -cJf \${OUTPUT_FILE} config.json ${MAIN_FILE_NAME} langs libs mods\n")
+file(APPEND "${BUILD_SCRIPT}" "tar --exclude='.*' -cJf \${OUTPUT_FILE} config.json LICENSE ${MAIN_FILE_NAME} langs libs mods\n")
 file(APPEND "${BUILD_SCRIPT}" "echo \"Done!\"\n")
 
 if (ANDROID)
@@ -382,6 +386,7 @@ if (ANDROID)
     file(APPEND "${INSTALL_SCRIPT}" "cp -v \"${CMAKE_BINARY_DIR}/libGlimmerWorks.so\" \"\$JNI_LIBS_PATH/\"\n\n")
     file(APPEND "${INSTALL_SCRIPT}" "echo \"Copying assets ...\"\n")
     file(APPEND "${INSTALL_SCRIPT}" "cp -vr \"${CMAKE_BINARY_DIR}/config.json\" \"\$ASSETS_PATH/\"\n")
+    file(APPEND "${INSTALL_SCRIPT}" "cp -vr \"${CMAKE_BINARY_DIR}/LICENSE\" \"\$ASSETS_PATH/\"\n")
     file(APPEND "${INSTALL_SCRIPT}" "cp -vr \"${CMAKE_BINARY_DIR}/langs\" \"\$ASSETS_PATH/\"\n")
     file(APPEND "${INSTALL_SCRIPT}" "
 mkdir -p \"\$JNI_LIBS_PATH\"
@@ -487,6 +492,7 @@ file(APPEND "${INSTALL_SCRIPT}" "echo \"index.json generated at \$INDEX_JSON_PAT
     file(APPEND "${UNINSTALL_SCRIPT}" "if [ -d \"\$ASSETS_PATH\" ]; then\n")
     file(APPEND "${UNINSTALL_SCRIPT}" "  echo \"Removing assets...\"\n")
     file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ASSETS_PATH/config.json\"\n")
+    file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ASSETS_PATH/LICENSE\"\n")
     file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ASSETS_PATH/langs\"\n")
     file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ASSETS_PATH/libs\"\n")
     file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ANDROID_PROJECT_PATH/app/src/main/java/com/coldmint/glimmerworks/CppConfig.java\"\n")

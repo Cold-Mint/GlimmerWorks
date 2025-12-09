@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/8.
+// Created by Cold-Mint on 2025/12/8.
 //
 
 #include "BiomesManager.h"
@@ -11,6 +11,7 @@ void glimmer::BiomesManager::RegisterResource(BiomeResource &biomeResource) {
     LogCat::i("Registering biome resource: packId = ", biomeResource.packId,
               ", key = ", biomeResource.key);
     biomeMap_[biomeResource.packId][biomeResource.key] = biomeResource;
+    biomeVector_.push_back(biomeResource);
 }
 
 glimmer::BiomeResource *glimmer::BiomesManager::Find(const std::string &packId, const std::string &key) {
@@ -33,9 +34,34 @@ glimmer::BiomeResource *glimmer::BiomesManager::Find(const std::string &packId, 
 }
 
 
-glimmer::TileResource * glimmer::BiomesManager::GetTileResource(TileVector2D tileVector2d, float height, float humidity,
-    float temperature) {
+glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
+    const float humidity,
+    const float temperature,
+    const float weirdness,
+    const float erosion,
+    const float elevation) {
+    if (biomeVector_.empty()) {
+        return nullptr;
+    }
 
+    BiomeResource *bestBiome = nullptr;
+    float bestDistance = std::numeric_limits<float>::max();
+
+    for (auto &biome: biomeVector_) {
+        const float dh = biome.humidity - humidity;
+        const float dt = biome.temperature - temperature;
+        const float dw = biome.weirdness - weirdness;
+        const float de = biome.erosion - erosion;
+        const float dE = biome.elevation - elevation;
+
+        const float distance = dh * dh + dt * dt + dw * dw + de * de + dE * dE;
+        if (distance < bestDistance) {
+            bestDistance = distance;
+            bestBiome = &biome;
+        }
+    }
+
+    return bestBiome;
 }
 
 

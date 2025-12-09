@@ -3,6 +3,7 @@
 #include "core/App.h"
 #include "core/Config.h"
 #include "core/Langs.h"
+#include "core/world/TilePlacerManager.h"
 #include "core/console/CommandManager.h"
 #include "core/console/command/AssetViewerCommand.h"
 #include "core/console/command/Box2DCommand.h"
@@ -126,13 +127,15 @@ int main() {
         StringManager stringManager;
         BiomesManager biomesManager;
         TileManager tileManager;
+        tileManager.InitBuiltinTiles();
         CommandManager commandManager;
         CommandExecutor commandExecutor;
+        TilePlacerManager tilePlacerManager;
         Config config;
         LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
         auto configJsonOpt = JsonUtils::LoadJsonFromFile(&virtualFileSystem, CONFIG_FILE_NAME);
         if (!configJsonOpt.has_value()) {
-            return false;
+            return EXIT_FAILURE;
         }
 
         dynamicSuggestionsManager.
@@ -151,7 +154,7 @@ int main() {
                               &stringManager,
                               &commandManager,
                               &commandExecutor, &langs, &dynamicSuggestionsManager, &virtualFileSystem, &tileManager,
-                              &biomesManager);
+                              &biomesManager, &tilePlacerManager);
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));

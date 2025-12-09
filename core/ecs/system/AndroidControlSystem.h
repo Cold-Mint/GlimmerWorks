@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/1.
+// Created by Cold-Mint on 2025/12/1.
 //
 
 #ifndef GLIMMERWORKS_ANDROIDCONTROLSYSTEM_H

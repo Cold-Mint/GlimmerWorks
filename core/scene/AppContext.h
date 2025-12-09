@@ -12,6 +12,7 @@
 #include "../mod/dataPack/BiomesManager.h"
 #include "../mod/dataPack/TileManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
+#include "../world/TilePlacerManager.h"
 #include "SDL3_ttf/SDL_ttf.h"
 
 
@@ -47,22 +48,18 @@ namespace glimmer {
         Langs *langs_;
         DynamicSuggestionsManager *dynamicSuggestionsManager_;
         VirtualFileSystem *virtualFileSystem_;
+        TilePlacerManager *tilePlacerManager_;
         bool isRunning;
-        /**
-         * Whether to draw screen coordinates
-         * 是否绘制屏幕坐标
-         */
-        bool debugScreenCoords = true;
 
         AppContext(const bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
                    Config *cfg,
                    StringManager *stringManager,
                    CommandManager *commandManager, CommandExecutor *commandExecutor, Langs *langs,
                    DynamicSuggestionsManager *dynamicSuggestionsManager, VirtualFileSystem *virtualFileSystem,
-                   TileManager *tileManager, BiomesManager *biomesManager)
+                   TileManager *tileManager, BiomesManager *biomesManager, TilePlacerManager *tilePlacerManager)
             : language_(lang), dataPackManager_(dpm), config_(cfg), sceneManager_(sm), stringManager_(stringManager),
               commandManager_(commandManager), ttfFont_(nullptr), commandExecutor_(commandExecutor),
-              resourcePackManager_(rpm),
+              resourcePackManager_(rpm), tilePlacerManager_(tilePlacerManager),
               window_(nullptr), langs_(langs), isRunning(run), dynamicSuggestionsManager_(dynamicSuggestionsManager),
               virtualFileSystem_(virtualFileSystem), tileManager_(tileManager), biomesManager_(biomesManager) {
         }

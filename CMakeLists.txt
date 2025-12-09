@@ -274,6 +274,10 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/world/TilePhysicsType.h
         core/mod/dataPack/BiomesManager.cpp
         core/mod/dataPack/BiomesManager.h
+        core/world/TilePlacer.cpp
+        core/world/TilePlacer.h
+        core/world/TilePlacerManager.cpp
+        core/world/TilePlacerManager.h
 )
 
 if (ANDROID)

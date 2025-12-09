@@ -226,21 +226,6 @@ struct nlohmann::adl_serializer<glimmer::Scope> {
 };
 
 template<>
-struct nlohmann::adl_serializer<glimmer::Climate> {
-    static void from_json(const json &j, glimmer::Climate &climate) {
-        climate.humidity = j.at("humidity").get<glimmer::Scope>();
-        climate.temperature = j.at("temperature").get<glimmer::Scope>();
-    }
-
-    static void to_json(json &j, const glimmer::Climate &climate) {
-        j = json{
-            {"humidity", climate.humidity},
-            {"temperature", climate.temperature},
-        };
-    }
-};
-
-template<>
 struct nlohmann::adl_serializer<glimmer::Condition> {
     static void from_json(const json &j, glimmer::Condition &condition) {
         condition.condition = j.at("condition").get<std::string>();
@@ -289,13 +274,21 @@ struct nlohmann::adl_serializer<glimmer::BiomeResource> {
     static void from_json(const json &j, glimmer::BiomeResource &biomeResource) {
         biomeResource.key = j.at("resourceKey").get<std::string>();
         biomeResource.tileRules = j.at("tileRules").get<std::vector<glimmer::TileRules> >();
-        biomeResource.climate = j.at("climate").get<glimmer::Climate>();
+        biomeResource.humidity = j.at("humidity").get<float>();
+        biomeResource.temperature = j.at("temperature").get<float>();
+        biomeResource.weirdness = j.at("weirdness").get<float>();
+        biomeResource.erosion = j.at("erosion").get<float>();
+        biomeResource.elevation = j.at("elevation").get<float>();
     }
 
     static void to_json(json &j, const glimmer::BiomeResource &biomeResource) {
         j = json{
             {"tileRules", biomeResource.tileRules},
-            {"climate", biomeResource.climate},
+            {"humidity", biomeResource.humidity},
+            {"temperature", biomeResource.temperature},
+            {"weirdness", biomeResource.weirdness},
+            {"erosion", biomeResource.erosion},
+            {"elevation", biomeResource.elevation},
             {"resourceKey", biomeResource.key},
         };
     }

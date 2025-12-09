@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/3.
+// Created by Cold-Mint on 2025/12/3.
 //
 
 #ifndef GLIMMERWORKS_TILEPHYSICSTYPE_H

@@ -1,10 +1,22 @@
 //
-// Created by coldmint on 2025/12/3.
+// Created by Cold-Mint on 2025/12/3.
 //
 
 #include "TileManager.h"
 
+#include "../../Constants.h"
 #include "../../log/LogCat.h"
+
+
+void glimmer::TileManager::InitBuiltinTiles() {
+    air = TileResource();
+    air.texture = "tiles/air.png";
+    air.key = TILE_ID_AIR;
+}
+
+glimmer::TileResource glimmer::TileManager::GetAir() {
+    return air;
+}
 
 void glimmer::TileManager::RegisterResource(TileResource &tileResource) {
     LogCat::i("Registering tile resource: packId = ", tileResource.packId,

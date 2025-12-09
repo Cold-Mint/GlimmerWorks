@@ -90,14 +90,14 @@ namespace glimmer {
          * The starting x-coordinate of the block and the starting y-coordinate of the block
          * 区块的起点X坐标和区块的起点Y坐标
          */
-        std::unordered_map<TileVector2D, std::vector<std::vector<float> >, Vector2DIHash> humidityMap;
-
+        std::unordered_map<TileVector2D, float, Vector2DIHash> humidityMap;
         /**
          * temperature chart
          * 温度图
          */
-        std::unordered_map<TileVector2D, std::vector<std::vector<float> >, Vector2DIHash> temperatureMap;
-
+        std::unordered_map<TileVector2D, float, Vector2DIHash> temperatureMap;
+        std::unordered_map<TileVector2D, float, Vector2DIHash> weirdnessMap;
+        std::unordered_map<TileVector2D, float, Vector2DIHash> erosionMap;
         /**
          * 用于生成大陆的噪声生成器
          */
@@ -119,6 +119,18 @@ namespace glimmer {
          * 湿度噪声生成器
          */
         FastNoiseLite *humidityMapNoise;
+
+        /**
+         * Odd value noise generator
+         * 怪异值噪声生成器
+         */
+        FastNoiseLite *weirdnessMapNoise;
+
+        /**
+         * Erosion noise generator
+         * 侵蚀噪声生成器
+         */
+        FastNoiseLite *erosionMapNoise;
 
         /**
          * 温度噪声生成器
@@ -143,6 +155,10 @@ namespace glimmer {
 
     public:
         ~WorldContext() {
+            delete weirdnessMapNoise;
+            weirdnessMapNoise = nullptr;
+            delete erosionMapNoise;
+            erosionMapNoise = nullptr;
             delete continentHeightMapNoise;
             continentHeightMapNoise = nullptr;
             delete mountainHeightMapNoise;
@@ -206,32 +222,48 @@ namespace glimmer {
         std::vector<int> GetHeightMap(int x);
 
         /**
-         * Obtain the humidity value of a certain block
-         * 获取某个区块的湿度值
-         * @param x x坐标
-         * @param y y坐标
+         * Obtain the humidity value of a certain coordinate
+         * 获取某个坐标的湿度值
+         * @param tileVector2d tileVector2d 瓦片坐标
          * @return 湿度0-1
          */
-        std::vector<std::vector<float> > GetHumidity(int x, int y);
+        float GetHumidity(TileVector2D tileVector2d);
 
         /**
-         * Obtain the temperature value of the block
-         * 获取区块的温度值
-        * @param x x坐标
-         * @param y y坐标
+         * Obtain the temperature value of a certain coordinate
+         * 获取某个坐标的温度值
+         * @param tileVector2d tileVector2d 瓦片坐标
          * @return 温度0-1
          */
-        std::vector<std::vector<float> > GetTemperature(int x, int y);
+        float GetTemperature(TileVector2D tileVector2d);
+
+        /**
+         * Obtain the strange value of a certain coordinate
+         * 获取某个坐标的怪异值
+         * @param tileVector2d tileVector2d 瓦片坐标
+         * @return 怪异0-1
+         */
+        float GetWeirdness(TileVector2D tileVector2d);
+
+
+        /**
+         *Obtain the degree of erosion at a certain coordinate
+         * 获取某个坐标的侵蚀度
+         * @param tileVector2d tileVector2d 瓦片坐标
+         * @return 侵蚀0-1
+         */
+        float GetErosion(TileVector2D tileVector2d);
 
         /**
         * Load Chunk
         * 加载区块
-         * @param biomesManager biomesManager 生物群系管理器
+         * @param appContext appContext 应用上下文
          * @param tileLayerComponent tileLayerComponent 瓦片图层
         * @param tileLayerPos tileLayerPos 瓦片层的对象位置
         * @param position position 位置
         */
-        void LoadChunkAt(BiomesManager biomesManager,TileLayerComponent *tileLayerComponent, const WorldVector2D &tileLayerPos,
+        void LoadChunkAt(const AppContext *appContext, TileLayerComponent *tileLayerComponent,
+                         const WorldVector2D &tileLayerPos,
                          TileVector2D position);
 
         /**
@@ -352,6 +384,10 @@ namespace glimmer {
             humidityMapNoise = new FastNoiseLite();
             humidityMapNoise->SetSeed(seed);
             humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            temperatureMapNoise = new FastNoiseLite();
+            temperatureMapNoise->SetSeed(seed);
+            temperatureMapNoise->SetFrequency(0.01F);
+            temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             temperatureMapNoise = new FastNoiseLite();
             temperatureMapNoise->SetSeed(seed);
             temperatureMapNoise->SetFrequency(0.01F);

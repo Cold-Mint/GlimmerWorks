@@ -49,7 +49,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
         return;
     }
 #if  !defined(NDEBUG)
-    if (appContext->debugScreenCoords) {
+    if (appContext->config_->debug.displayDebugPanel) {
         //Draw the SDL screen coordinates
         //绘制SDL屏幕坐标
         const float uiScale = appContext->config_->window.uiScale;

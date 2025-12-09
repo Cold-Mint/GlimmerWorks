@@ -110,83 +110,47 @@ std::vector<int> glimmer::WorldContext::GetHeightMap(int x) {
     return heights;
 }
 
-std::vector<std::vector<float> > glimmer::WorldContext::GetHumidity(const int x, const int y) {
-    // 对齐到区块左上角
-    auto tileToChunkStart = [](int coord) -> int {
-        if (coord >= 0)
-            return (coord / CHUNK_SIZE) * CHUNK_SIZE;
-        return (coord - (CHUNK_SIZE - 1)) / CHUNK_SIZE * CHUNK_SIZE;
-    };
-
-    int chunkX = tileToChunkStart(x);
-    int chunkY = tileToChunkStart(y);
-    TileVector2D chunkPos(chunkX, chunkY);
-
-    // 检查缓存
-    auto it = humidityMap.find(chunkPos);
+float glimmer::WorldContext::GetHumidity(const TileVector2D tileVector2d) {
+    const auto it = humidityMap.find(tileVector2d);
     if (it != humidityMap.end()) {
-        LogCat::d("Humidity cache hit for chunk (", chunkX, ",", chunkY, ")");
         return it->second;
     }
-
-    LogCat::d("Humidity cache miss, generating new chunk at (", chunkX, ",", chunkY, ")");
-    // 生成 CHUNK_SIZE x CHUNK_SIZE 湿度数组
-    std::vector chunkHumidity(CHUNK_SIZE, std::vector<float>(CHUNK_SIZE));
-
-    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-            auto sampleX = static_cast<float>(chunkX + localX);
-            auto sampleY = static_cast<float>(chunkY + localY);
-            auto humidity = (humidityMapNoise->GetNoise(sampleX, sampleY) + 1.0F) * 0.5F;
-            chunkHumidity[localY][localX] = humidity;
-        }
-    }
-
-    // 缓存区块
-    humidityMap[chunkPos] = chunkHumidity;
-    LogCat::d("Humidity End");
-    return chunkHumidity;
+    humidityMap[tileVector2d] = (humidityMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
+                                                            static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
+    return humidityMap[tileVector2d];
 }
 
-std::vector<std::vector<float> > glimmer::WorldContext::GetTemperature(int x, int y) {
-    // 对齐到区块左上角
-    auto tileToChunkStart = [](int coord) -> int {
-        if (coord >= 0)
-            return (coord / CHUNK_SIZE) * CHUNK_SIZE;
-        return (coord - (CHUNK_SIZE - 1)) / CHUNK_SIZE * CHUNK_SIZE;
-    };
-
-    int chunkX = tileToChunkStart(x);
-    int chunkY = tileToChunkStart(y);
-    TileVector2D chunkPos(chunkX, chunkY);
-
-    // 检查缓存
-    auto it = temperatureMap.find(chunkPos);
+float glimmer::WorldContext::GetTemperature(const TileVector2D tileVector2d) {
+    const auto it = temperatureMap.find(tileVector2d);
     if (it != temperatureMap.end()) {
-        LogCat::d("Temperature cache hit for chunk (", chunkX, ",", chunkY, ")");
         return it->second;
     }
-
-    LogCat::d("Temperature cache miss, generating new chunk at (", chunkX, ",", chunkY, ")");
-    // 生成 CHUNK_SIZE x CHUNK_SIZE 湿度数组
-    std::vector chunkHumidity(CHUNK_SIZE, std::vector<float>(CHUNK_SIZE));
-
-    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-            auto sampleX = static_cast<float>(chunkX + localX);
-            auto sampleY = static_cast<float>(chunkY + localY);
-            auto humidity = (temperatureMapNoise->GetNoise(sampleX, sampleY) + 1.0F) * 0.5F;
-            chunkHumidity[localY][localX] = humidity;
-        }
-    }
-
-    // 缓存区块
-    temperatureMap[chunkPos] = chunkHumidity;
-    LogCat::d("Temperature End");
-    return chunkHumidity;
+    temperatureMap[tileVector2d] = (temperatureMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
+                                                                  static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
+    return temperatureMap[tileVector2d];
 }
 
-void glimmer::WorldContext::LoadChunkAt(BiomesManager biomesManager, TileLayerComponent *tileLayerComponent,
+float glimmer::WorldContext::GetWeirdness(const TileVector2D tileVector2d) {
+    const auto it = weirdnessMap.find(tileVector2d);
+    if (it != weirdnessMap.end()) {
+        return it->second;
+    }
+    weirdnessMap[tileVector2d] = (weirdnessMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
+                                                              static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
+    return weirdnessMap[tileVector2d];
+}
+
+float glimmer::WorldContext::GetErosion(const TileVector2D tileVector2d) {
+    const auto it = erosionMap.find(tileVector2d);
+    if (it != erosionMap.end()) {
+        return it->second;
+    }
+    erosionMap[tileVector2d] = (erosionMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
+                                                          static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
+    return erosionMap[tileVector2d];
+}
+
+void glimmer::WorldContext::LoadChunkAt(const AppContext *appContext, TileLayerComponent *tileLayerComponent,
                                         const WorldVector2D &tileLayerPos, TileVector2D position) {
     if (chunks_.contains(position))
         return;
@@ -194,21 +158,60 @@ void glimmer::WorldContext::LoadChunkAt(BiomesManager biomesManager, TileLayerCo
     Chunk newChunk(position);
 
     const std::vector<int> heights = GetHeightMap(position.x);
-
-    const auto humidityChunk = GetHumidity(position.x, position.y);
-    const auto temperatureChunk = GetTemperature(position.x, position.y);
-    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+        const int height = heights[localX];
+        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
             TileVector2D worldTilePos = position + localTile;
-            float humidity = humidityChunk[localY][localX];
-            float temperature = temperatureChunk[localY][localX];
             Tile tile;
-            biomesManager.Search(worldTilePos, worldTilePos.y / WORLD_MAX_Y, humidity);
+            if (worldTilePos.x > height) {
+                //sky
+                //天空
+                TileResource air = appContext->tileManager_->GetAir();
+                tile.texture = appContext->resourcePackManager_->LoadTextureFromFile(
+                    appContext->config_->mods.enabledResourcePack, air.texture);
+                continue;
+            }
+            newChunk.SetTile(localTile, tile);
+            const auto humidity = GetHumidity(worldTilePos);
+            const auto temperature = GetTemperature(worldTilePos);
+            const auto weirdness = GetWeirdness(worldTilePos);
+            const auto erosion = GetErosion(worldTilePos);
+            const float elevation = static_cast<float>(height) / WORLD_MAX_Y - SKY_HEIGHT;
+            BiomeResource *biomeResource = appContext->biomesManager_->FindBestBiome(
+                humidity, temperature, weirdness, erosion,
+                elevation);
+            if (biomeResource == nullptr) {
+                return;
+            }
+//这里已经知道了用什么生物群系，但是分配什么瓦片无法确定！！！
+            /*  "tileRules": [
+    {
+      "resourceKey": "grass",
+      "logic": "and",
+      "up": {
+        "condition": "equal",
+        "resourceKeys": [
+          "air"
+        ]
+      }
+    },
+    {
+      "resourceKey": "dirt",
+      "logic": "and",
+      "up": {
+        "condition": "unequal",
+        "resourceKeys": [
+          "air"
+        ]
+      }
+    }
+  ],我们可能无法确定右侧和底部的瓦片，因为尚未被放置*/
             newChunk.SetTile(localTile, tile);
             tileLayerComponent->SetTile(worldTilePos, tile);
         }
     }
+
 
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos, &newChunk);
     chunks_.insert({position, newChunk});

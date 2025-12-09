@@ -56,29 +56,16 @@ namespace glimmer {
     };
 
     /**
-     * Climate
-     * 气候
-     */
-    struct Climate {
-        /**
-         * temperature
-         * 温度
-         */
-        Scope temperature;
-        /**
-         * humidity
-         * 湿度
-         */
-        Scope humidity;
-    };
-
-    /**
      * BiomeResource
      * 生物群系
      */
     struct BiomeResource : Resource {
         std::vector<TileRules> tileRules;
-        Climate climate;
+        float humidity = 0.0F;
+        float temperature = 0.0F;
+        float weirdness = 0.0F;
+        float erosion = 0.0F;
+        float elevation = 0.0F;
     };
 
     /**

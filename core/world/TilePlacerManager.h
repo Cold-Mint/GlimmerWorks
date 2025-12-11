@@ -6,14 +6,12 @@
 #define GLIMMERWORKS_TILEPLACERMANAGER_H
 #include <memory>
 #include <string>
-#include <unordered_map>
-
-#include "TilePlacer.h"
 
 namespace glimmer {
-    class TilePlacerManager {
-        std::unordered_map<std::string, std::unique_ptr<TilePlacer> > _tilePlacerMap;
+    class TilePlacer;
 
+
+    class TilePlacerManager {
     public:
         void RegisterTilePlacer(std::unique_ptr<TilePlacer> tilePlacer);
 

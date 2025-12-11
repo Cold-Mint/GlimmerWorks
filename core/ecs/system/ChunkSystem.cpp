@@ -54,7 +54,7 @@ void glimmer::ChunkSystem::Update(float delta) {
             for (int cx = startChunkX; cx <= endChunkX; cx += CHUNK_SIZE) {
                 TileVector2D chunkPos(cx, cy);
                 if (!WorldContext::ChunkIsOutOfBounds(chunkPos) && !worldContext_->HasChunk(chunkPos)) {
-                    worldContext_->LoadChunkAt(appContext_, tileLayer, worldPosition->GetPosition(), chunkPos);
+                    worldContext_->LoadChunkAt(tileLayer, worldPosition->GetPosition(), chunkPos);
                 }
             }
         }

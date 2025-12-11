@@ -280,6 +280,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/world/TilePlacerManager.h
         core/console/command/LicenseCommand.cpp
         core/console/command/LicenseCommand.h
+        core/world/FillTilePlacer.cpp
+        core/world/FillTilePlacer.h
 )
 
 if (ANDROID)

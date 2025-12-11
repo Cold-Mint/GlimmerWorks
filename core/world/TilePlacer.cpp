@@ -3,3 +3,6 @@
 //
 
 #include "TilePlacer.h"
+
+glimmer::TilePlacer::~TilePlacer() = default;
+

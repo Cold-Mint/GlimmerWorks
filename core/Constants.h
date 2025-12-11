@@ -18,6 +18,7 @@
 #define VFS_COMMAND_NAME  "vfs"
 #define BOX2D_COMMAND_NAME  "box2d"
 #define ASSET_VIEWER_COMMAND_NAME  "assetViewer"
+#define FULL_TILE_PLACER_ID "FillTilePlacer"
 #define BOOL_DYNAMIC_SUGGESTIONS_NAME  "@bool"
 #define CONFIG_DYNAMIC_SUGGESTIONS_NAME  "@config"
 #define VFS_DYNAMIC_SUGGESTIONS_NAME  "@vfs"

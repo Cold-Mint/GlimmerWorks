@@ -41,6 +41,10 @@ glimmer::TileManager *glimmer::AppContext::GetTileManager() const {
     return tileManager_;
 }
 
+glimmer::TilePlacerManager *glimmer::AppContext::GetTilePlacerManager() const {
+    return tilePlacerManager_;
+}
+
 glimmer::BiomesManager *glimmer::AppContext::GetBiomesManager() const {
     return biomesManager_;
 }

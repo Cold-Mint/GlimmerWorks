@@ -56,11 +56,22 @@ namespace glimmer {
     };
 
     /**
+     * TilePlacerRef
+     * 瓦片放置器引用
+     */
+    struct TilePlacerRef {
+        std::string id;
+        std::vector<std::string> tiles;
+        std::string config;
+    };
+
+
+    /**
      * BiomeResource
      * 生物群系
      */
     struct BiomeResource : Resource {
-        std::vector<TileRules> tileRules;
+        std::vector<TilePlacerRef> tilePlacerRefs;
         float humidity = 0.0F;
         float temperature = 0.0F;
         float weirdness = 0.0F;
@@ -78,18 +89,6 @@ namespace glimmer {
     };
 
 
-    /**
-     * TileRules
-     * 瓦片规则
-     */
-    struct TileRules {
-        std::string resourceKey;
-        std::string logic;
-        Condition up;
-        Condition down;
-        Condition left;
-        Condition right;
-    };
 }
 
 

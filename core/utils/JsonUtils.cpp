@@ -30,7 +30,19 @@ std::optional<nlohmann::json> glimmer::JsonUtils::LoadJsonFromFile(const Virtual
         return std::nullopt;
     }
 }
-        #ifdef __ANDROID__
+
+std::optional<nlohmann::json> glimmer::JsonUtils::LoadJsonFromString(const std::string &jsonData) {
+    try {
+        auto jsonObject = nlohmann::json::parse(jsonData);
+        return jsonObject;
+    } catch (const std::exception &e) {
+        LogCat::e("Failed to parse JSON string: ", e.what());
+        return std::nullopt;
+    }
+}
+
+
+#ifdef __ANDROID__
 std::optional<nlohmann::json> glimmer::JsonUtils::LoadJsonFromFile(FileProvider *fileProvider,
                                                                    const std::string &path) {
     std::optional<std::unique_ptr<std::istream> > ifstream = fileProvider->ReadStream(path);

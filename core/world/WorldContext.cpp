@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "TilePlacer.h"
 #include "../Constants.h"
 #include "../ecs/component/DebugDrawComponent.h"
 #include "../ecs/system/GameStartSystem.h"
@@ -150,7 +151,7 @@ float glimmer::WorldContext::GetErosion(const TileVector2D tileVector2d) {
     return erosionMap[tileVector2d];
 }
 
-void glimmer::WorldContext::LoadChunkAt(const AppContext *appContext, TileLayerComponent *tileLayerComponent,
+void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
                                         const WorldVector2D &tileLayerPos, TileVector2D position) {
     if (chunks_.contains(position))
         return;
@@ -158,6 +159,8 @@ void glimmer::WorldContext::LoadChunkAt(const AppContext *appContext, TileLayerC
     Chunk newChunk(position);
 
     const std::vector<int> heights = GetHeightMap(position.x);
+    std::map<std::string, std::vector<TileVector2D> > biomeMap = {};
+    std::map<std::string, BiomeResource *> biomeResourceMap = {};
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int height = heights[localX];
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
@@ -167,52 +170,46 @@ void glimmer::WorldContext::LoadChunkAt(const AppContext *appContext, TileLayerC
             if (worldTilePos.x > height) {
                 //sky
                 //天空
-                TileResource air = appContext->GetTileManager()->GetAir();
-                tile.texture = appContext->GetResourcePackManager()->LoadTextureFromFile(
-                    appContext->GetConfig()->mods.enabledResourcePack, air.texture);
+                TileResource air = appContext_->GetTileManager()->GetAir();
+                tile.texture = appContext_->GetResourcePackManager()->LoadTextureFromFile(
+                    appContext_->GetConfig()->mods.enabledResourcePack, air.texture);
+                newChunk.SetTile(localTile, tile);
                 continue;
             }
-            newChunk.SetTile(localTile, tile);
             const auto humidity = GetHumidity(worldTilePos);
             const auto temperature = GetTemperature(worldTilePos);
             const auto weirdness = GetWeirdness(worldTilePos);
             const auto erosion = GetErosion(worldTilePos);
             const float elevation = static_cast<float>(height) / WORLD_MAX_Y - SKY_HEIGHT;
-            BiomeResource *biomeResource = appContext->GetBiomesManager()->FindBestBiome(
+            BiomeResource *biomeResource = appContext_->GetBiomesManager()->FindBestBiome(
                 humidity, temperature, weirdness, erosion,
                 elevation);
             if (biomeResource == nullptr) {
+                LogCat::e("Failed to search for the biome.");
                 return;
             }
-//这里已经知道了用什么生物群系，但是分配什么瓦片无法确定！！！
-            /*  "tileRules": [
-    {
-      "resourceKey": "grass",
-      "logic": "and",
-      "up": {
-        "condition": "equal",
-        "resourceKeys": [
-          "air"
-        ]
-      }
-    },
-    {
-      "resourceKey": "dirt",
-      "logic": "and",
-      "up": {
-        "condition": "unequal",
-        "resourceKeys": [
-          "air"
-        ]
-      }
-    }
-  ],我们可能无法确定右侧和底部的瓦片，因为尚未被放置*/
-            newChunk.SetTile(localTile, tile);
-            tileLayerComponent->SetTile(worldTilePos, tile);
+            biomeMap[biomeResource->key].push_back(worldTilePos);
+            if (!biomeResourceMap.contains(biomeResource->key)) {
+                biomeResourceMap[biomeResource->key] = biomeResource;
+            }
         }
     }
-
-
+    for (auto &[biomeKey, tilePositions]: biomeMap) {
+        BiomeResource *biomeResource = biomeResourceMap[biomeKey];
+        for (const auto &tilePlacerRef: biomeResource->tilePlacerRefs) {
+            std::string id = tilePlacerRef.id;
+            TilePlacer *tilePlacer = appContext_->GetTilePlacerManager()->GetTilePlacer(id);
+            if (tilePlacer == nullptr) {
+                LogCat::w("Tile placer ", id, " does not exist.");
+                continue;
+            }
+            if (!tilePlacer->Place(appContext_, tileLayerComponent, tilePlacerRef.tiles, tilePositions,
+                                   JsonUtils::LoadJsonFromString(tilePlacerRef.config))) {
+                LogCat::e("Placement ", id, " failed to execute. Block coordinates: x:", position.x, ",y:", position.y,
+                          ".");
+            }
+        }
+    }
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos, &newChunk);
     chunks_.insert({position, newChunk});
 }

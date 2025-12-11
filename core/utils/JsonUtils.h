@@ -23,6 +23,9 @@ namespace glimmer {
         static std::optional<nlohmann::json> LoadJsonFromFile(const VirtualFileSystem *virtualFileSystem,
                                                               const std::string &path);
 
+
+        static std::optional<nlohmann::json> LoadJsonFromString(const std::string &jsonData);
+
 #ifdef __ANDROID__
         static std::optional<nlohmann::json> LoadJsonFromFile(FileProvider *fileProvider,
                                                               const std::string &path);
@@ -225,46 +228,20 @@ struct nlohmann::adl_serializer<glimmer::Scope> {
     }
 };
 
-template<>
-struct nlohmann::adl_serializer<glimmer::Condition> {
-    static void from_json(const json &j, glimmer::Condition &condition) {
-        condition.condition = j.at("condition").get<std::string>();
-        condition.resourceKeys = j.at("resourceKeys").get<std::vector<std::string> >();
-    }
-
-    static void to_json(json &j, const glimmer::Condition &condition) {
-        j = json{
-            {"condition", condition.condition},
-            {"resourceKeys", condition.resourceKeys},
-        };
-    }
-};
 
 template<>
-struct nlohmann::adl_serializer<glimmer::TileRules> {
-    static void from_json(const json &j, glimmer::TileRules &tileRules) {
-        if (j.contains("down")) {
-            tileRules.down = j.at("down").get<glimmer::Condition>();
-        }
-        if (j.contains("up")) {
-            tileRules.up = j.at("up").get<glimmer::Condition>();
-        }
-        if (j.contains("left")) {
-            tileRules.left = j.at("left").get<glimmer::Condition>();
-        }
-        if (j.contains("right")) {
-            tileRules.right = j.at("right").get<glimmer::Condition>();
-        }
-        tileRules.resourceKey = j.at("resourceKey").get<std::string>();
+struct nlohmann::adl_serializer<glimmer::TilePlacerRef> {
+    static void from_json(const json &j, glimmer::TilePlacerRef &tilePlacerRef) {
+        tilePlacerRef.id = j.at("id").get<std::string>();
+        tilePlacerRef.tiles = j.at("tiles").get<std::vector<std::string> >();
+        tilePlacerRef.config = j.at("config").get<std::string>();
     }
 
-    static void to_json(json &j, const glimmer::TileRules &tileRules) {
+    static void to_json(json &j, const glimmer::TilePlacerRef &tilePlacerRef) {
         j = json{
-            {"down", tileRules.down},
-            {"up", tileRules.up},
-            {"left", tileRules.left},
-            {"right", tileRules.right},
-            {"resourceKey", tileRules.resourceKey},
+            {"id", tilePlacerRef.id},
+            {"tiles", tilePlacerRef.tiles},
+            {"config", tilePlacerRef.config},
         };
     }
 };
@@ -273,7 +250,7 @@ template<>
 struct nlohmann::adl_serializer<glimmer::BiomeResource> {
     static void from_json(const json &j, glimmer::BiomeResource &biomeResource) {
         biomeResource.key = j.at("resourceKey").get<std::string>();
-        biomeResource.tileRules = j.at("tileRules").get<std::vector<glimmer::TileRules> >();
+        biomeResource.tilePlacerRefs = j.at("tilePlacerRefs").get<std::vector<glimmer::TilePlacerRef> >();
         biomeResource.humidity = j.at("humidity").get<float>();
         biomeResource.temperature = j.at("temperature").get<float>();
         biomeResource.weirdness = j.at("weirdness").get<float>();
@@ -283,7 +260,7 @@ struct nlohmann::adl_serializer<glimmer::BiomeResource> {
 
     static void to_json(json &j, const glimmer::BiomeResource &biomeResource) {
         j = json{
-            {"tileRules", biomeResource.tileRules},
+            {"tilePlacerRefs", biomeResource.tilePlacerRefs},
             {"humidity", biomeResource.humidity},
             {"temperature", biomeResource.temperature},
             {"weirdness", biomeResource.weirdness},

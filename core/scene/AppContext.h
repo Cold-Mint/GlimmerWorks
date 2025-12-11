@@ -90,6 +90,8 @@ namespace glimmer {
 
         [[nodiscard]] TileManager *GetTileManager() const;
 
+        [[nodiscard]] TilePlacerManager *GetTilePlacerManager() const;
+
         [[nodiscard]] BiomesManager *GetBiomesManager() const;
 
         [[nodiscard]] VirtualFileSystem *GetVirtualFileSystem() const;

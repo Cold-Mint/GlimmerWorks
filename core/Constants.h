@@ -9,7 +9,7 @@
 // Manifest file names of data packets and resource packets
 // 数据包和资源包的清单文件名
 #define MANIFEST_FILE_NAME "manifest.json"
-#define RESOURCE_TYPE_STRING 1
+
 
 #define HELP_COMMAND_NAME  "help"
 #define LICENSE_COMMAND_NAME  "license"
@@ -22,6 +22,16 @@
 #define BOOL_DYNAMIC_SUGGESTIONS_NAME  "@bool"
 #define CONFIG_DYNAMIC_SUGGESTIONS_NAME  "@config"
 #define VFS_DYNAMIC_SUGGESTIONS_NAME  "@vfs"
+
+/**
+ * Resource ref
+ * 资源引用
+ */
+static constexpr int RESOURCE_TYPE_NONE = 0;
+static constexpr int RESOURCE_TYPE_STRING = 1;
+static constexpr int RESOURCE_TYPE_TILE = 2;
+static constexpr std::string RESOURCE_REF_SELF = "@self";
+static constexpr std::string RESOURCE_REF_CORE = "@core";
 
 /**
  * Unit chunk size

@@ -4,6 +4,7 @@
 
 #ifndef GLIMMERWORKS_TILEMANAGER_H
 #define GLIMMERWORKS_TILEMANAGER_H
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -18,7 +19,7 @@ namespace glimmer {
          * Air
          * 空气
          */
-        TileResource air;
+        std::unique_ptr<TileResource> air = nullptr;
 
     public:
         /**
@@ -32,11 +33,11 @@ namespace glimmer {
          * 获取空气瓦片
          * @return
          */
-        TileResource GetAir();
+        [[nodiscard]] TileResource *GetAir() const;
 
         void RegisterResource(TileResource &tileResource);
 
-        TileResource *Find(const std::string &packId, const std::string &key);
+        [[nodiscard]] TileResource *Find(const std::string &packId, const std::string &key);
 
         std::string ListTiles() const;
     };

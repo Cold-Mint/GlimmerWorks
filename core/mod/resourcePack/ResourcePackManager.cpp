@@ -30,6 +30,7 @@ bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &p
                   manifest.minGameVersion, ", current version: ", GAME_VERSION_NUMBER);
         return false;
     }
+
     return manifest.resPack;
 }
 

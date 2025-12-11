@@ -391,6 +391,14 @@ namespace glimmer {
             temperatureMapNoise->SetSeed(seed);
             temperatureMapNoise->SetFrequency(0.01F);
             temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            weirdnessMapNoise = new FastNoiseLite();
+            weirdnessMapNoise->SetSeed(seed);
+            weirdnessMapNoise->SetFrequency(0.01F);
+            weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            erosionMapNoise = new FastNoiseLite();
+            erosionMapNoise->SetSeed(seed);
+            erosionMapNoise->SetFrequency(0.01F);
+            erosionMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             b2WorldDef worldDef = b2DefaultWorldDef();
             worldDef.gravity = b2Vec2(0.0F, -10.0F);
             worldId_ = b2CreateWorld(&worldDef);

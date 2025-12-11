@@ -55,12 +55,14 @@ struct nlohmann::adl_serializer<glimmer::TileResource> {
     static void from_json(const json &j, glimmer::TileResource &s) {
         s.key = j.at("resourceKey").get<std::string>();
         s.texture = j.at("texture").get<std::string>();
+        s.physicsType = j.at("physicsType").get<uint8_t>();
     }
 
     static void to_json(json &j, const glimmer::TileResource &s) {
         j = json{
             {"resourceKey", s.key},
             {"texture", s.texture},
+            {"physicsType", s.physicsType},
         };
     }
 };
@@ -101,14 +103,12 @@ template<>
 struct nlohmann::adl_serializer<glimmer::Debug> {
     static void from_json(const json &j, glimmer::Debug &m) {
         m.displayDebugPanel = j.at("displayDebugPanel").get<bool>();
-        m.onlyDrawHumidity = j.at("onlyDrawHumidity").get<bool>();
         m.displayBox2dShape = j.at("displayBox2dShape").get<bool>();
     }
 
     static void to_json(json &j, const glimmer::Debug &debug) {
         j = json{
             {"displayDebugPanel", debug.displayDebugPanel},
-            {"onlyDrawHumidity", debug.onlyDrawHumidity},
             {"displayBox2dShape", debug.displayBox2dShape}
         };
     }
@@ -138,16 +138,16 @@ struct nlohmann::adl_serializer<glimmer::Window> {
 template<>
 struct nlohmann::adl_serializer<glimmer::ResourceRef> {
     static void from_json(const json &j, glimmer::ResourceRef &resourceRef) {
-        resourceRef.packId = j.at("packId").get<std::string>();
-        resourceRef.resourceType = j.at("resourceType").get<int>();
-        resourceRef.resourceKey = j.at("resourceKey").get<std::string>();
+        resourceRef.SetPackageId(j.at("packId").get<std::string>());
+        resourceRef.SetResourceType(j.at("resourceType").get<int>());
+        resourceRef.SetResourceKey(j.at("resourceKey").get<std::string>());
     }
 
     static void to_json(json &j, const glimmer::ResourceRef &resourceRef) {
         j = json{
-            {"packId", resourceRef.packId},
-            {"resourceType", resourceRef.resourceType},
-            {"resourceKey", resourceRef.resourceKey}
+            {"packId", resourceRef.GetPackageId()},
+            {"resourceType", resourceRef.GetResourceType()},
+            {"resourceKey", resourceRef.GetResourceKey()}
         };
     }
 };
@@ -213,27 +213,12 @@ struct nlohmann::adl_serializer<glimmer::Vector2D> {
     }
 };
 
-template<>
-struct nlohmann::adl_serializer<glimmer::Scope> {
-    static void from_json(const json &j, glimmer::Scope &scope) {
-        scope.min = j.at("min").get<float>();
-        scope.max = j.at("max").get<float>();
-    }
-
-    static void to_json(json &j, const glimmer::Scope &scope) {
-        j = json{
-            {"min", scope.min},
-            {"max", scope.max},
-        };
-    }
-};
-
 
 template<>
 struct nlohmann::adl_serializer<glimmer::TilePlacerRef> {
     static void from_json(const json &j, glimmer::TilePlacerRef &tilePlacerRef) {
         tilePlacerRef.id = j.at("id").get<std::string>();
-        tilePlacerRef.tiles = j.at("tiles").get<std::vector<std::string> >();
+        tilePlacerRef.tiles = j.at("tiles").get<std::vector<glimmer::ResourceRef> >();
         tilePlacerRef.config = j.at("config").get<std::string>();
     }
 

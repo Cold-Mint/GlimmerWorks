@@ -17,6 +17,7 @@
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
 #include "core/console/suggestion/VFSDynamicSuggestions.h"
 #include "core/log/LogCat.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/BiomesManager.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/dataPack/StringManager.h"
@@ -27,6 +28,7 @@
 #include "core/utils/LanguageUtils.h"
 #include "core/vfs/StdFileProvider.h"
 #include "core/vfs/VirtualFileSystem.h"
+#include "core/world/FillTilePlacer.h"
 #include "fmt/args.h"
 
 #ifdef __ANDROID__
@@ -124,6 +126,7 @@ int main() {
             std::make_unique<VFSDynamicSuggestions>(&virtualFileSystem));
         DataPackManager dataPackManager(&virtualFileSystem);
         ResourcePackManager resourcePackManager(&virtualFileSystem);
+        ResourceLocator resourceLocator;
         SceneManager sceneManager;
         StringManager stringManager;
         BiomesManager biomesManager;
@@ -132,6 +135,7 @@ int main() {
         CommandManager commandManager;
         CommandExecutor commandExecutor;
         TilePlacerManager tilePlacerManager;
+        tilePlacerManager.RegisterTilePlacer(std::make_unique<FillTilePlacer>());
         Config config;
         LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
         auto configJsonOpt = JsonUtils::LoadJsonFromFile(&virtualFileSystem, CONFIG_FILE_NAME);
@@ -156,7 +160,8 @@ int main() {
                               &commandManager,
                               &commandExecutor, &langsResources, &dynamicSuggestionsManager, &virtualFileSystem,
                               &tileManager,
-                              &biomesManager, &tilePlacerManager);
+                              &biomesManager, &tilePlacerManager, &resourceLocator);
+        resourceLocator.SetAppContext(&appContext);
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));

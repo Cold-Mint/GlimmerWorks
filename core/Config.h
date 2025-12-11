@@ -27,7 +27,6 @@ namespace glimmer {
     };
 
     struct Debug {
-        bool onlyDrawHumidity;
         bool displayDebugPanel;
         bool displayBox2dShape;
     };

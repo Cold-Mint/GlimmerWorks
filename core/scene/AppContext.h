@@ -17,6 +17,7 @@
 
 
 namespace glimmer {
+    class ResourceLocator;
     class DynamicSuggestionsManager;
     class StringManager;
     class Config;
@@ -47,6 +48,7 @@ namespace glimmer {
         DynamicSuggestionsManager *dynamicSuggestionsManager_;
         VirtualFileSystem *virtualFileSystem_;
         TilePlacerManager *tilePlacerManager_;
+        ResourceLocator *resourceLocator_;
         bool isRunning;
 
     public:
@@ -55,12 +57,14 @@ namespace glimmer {
                    StringManager *stringManager,
                    CommandManager *commandManager, CommandExecutor *commandExecutor, LangsResources *langs,
                    DynamicSuggestionsManager *dynamicSuggestionsManager, VirtualFileSystem *virtualFileSystem,
-                   TileManager *tileManager, BiomesManager *biomesManager, TilePlacerManager *tilePlacerManager)
+                   TileManager *tileManager, BiomesManager *biomesManager, TilePlacerManager *tilePlacerManager,
+                   ResourceLocator *resourceLocator)
             : language_(lang), dataPackManager_(dpm), config_(cfg), sceneManager_(sm), stringManager_(stringManager),
               commandManager_(commandManager), ttfFont_(nullptr), commandExecutor_(commandExecutor),
               resourcePackManager_(rpm), tilePlacerManager_(tilePlacerManager),
               window_(nullptr), langs_(langs), isRunning(run), dynamicSuggestionsManager_(dynamicSuggestionsManager),
-              virtualFileSystem_(virtualFileSystem), tileManager_(tileManager), biomesManager_(biomesManager) {
+              virtualFileSystem_(virtualFileSystem), tileManager_(tileManager), biomesManager_(biomesManager),
+              resourceLocator_(resourceLocator) {
         }
 
 
@@ -93,6 +97,8 @@ namespace glimmer {
         [[nodiscard]] TilePlacerManager *GetTilePlacerManager() const;
 
         [[nodiscard]] BiomesManager *GetBiomesManager() const;
+
+        [[nodiscard]] ResourceLocator *GetResourceLocator() const;
 
         [[nodiscard]] VirtualFileSystem *GetVirtualFileSystem() const;
 

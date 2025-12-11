@@ -104,7 +104,7 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
     }
 
     const auto &jsonObject = *jsonOpt;
-    TileResource tileResource = jsonObject.get<TileResource>();
+    auto tileResource = jsonObject.get<TileResource>();
     tileResource.packId = manifest_.id;
     tileManager.RegisterResource(tileResource);
     return true;
@@ -118,8 +118,13 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
     }
 
     const auto &jsonObject = *jsonOpt;
-    BiomeResource biomeResource = jsonObject.get<BiomeResource>();
+    auto biomeResource = jsonObject.get<BiomeResource>();
     biomeResource.packId = manifest_.id;
+    for (auto &tilePlacerRef: biomeResource.tilePlacerRefs) {
+        for (auto &tile: tilePlacerRef.tiles) {
+            tile.SetSelfPackageId(manifest_.id);
+        }
+    }
     biomesManager.RegisterResource(biomeResource);
     return true;
 }
@@ -139,10 +144,13 @@ bool glimmer::DataPack::LoadManifest() {
         LogCat::e("DataPack::loadManifest - Failed to parse manifest JSON: ", e.what());
         return false;
     }
+    manifest_.name.SetSelfPackageId(manifest_.id);
+    manifest_.description.SetSelfPackageId(manifest_.id);
     LogCat::d("DataPack::loadManifest - Loaded manifest for data pack: ", path_);
     LogCat::d("ID: ", manifest_.id);
-    LogCat::d("Name: ", manifest_.name.resourceKey, " (packId: ", manifest_.name.packId, ")");
-    LogCat::d("Description: ", manifest_.description.resourceKey, " (packId: ", manifest_.description.packId, ")");
+    LogCat::d("Name: ", manifest_.name.GetResourceKey(), " (packId: ", manifest_.name.GetPackageId(), ")");
+    LogCat::d("Description: ", manifest_.description.GetResourceKey(), " (packId: ",
+              manifest_.description.GetPackageId(), ")");
     LogCat::d("Author: ", manifest_.author);
     LogCat::d("Version: ", manifest_.versionName, " (Number: ", manifest_.versionNumber, ")");
     LogCat::d("Minimum Game Version: ", manifest_.minGameVersion);

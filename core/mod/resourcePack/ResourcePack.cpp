@@ -24,10 +24,13 @@ bool glimmer::ResourcePack::loadManifest() {
         LogCat::e("ResourcePack::loadManifest - Failed to parse manifest JSON: ", e.what());
         return false;
     }
+    manifest.name.SetSelfPackageId(manifest.id);
+    manifest.description.SetSelfPackageId(manifest.id);
     LogCat::d("ResourcePack::loadManifest - Loaded manifest for data pack: ", path_);
     LogCat::d("ID: ", manifest.id);
-    LogCat::d("Name: ", manifest.name.resourceKey, " (packId: ", manifest.name.packId, ")");
-    LogCat::d("Description: ", manifest.description.resourceKey, " (packId: ", manifest.description.packId, ")");
+    LogCat::d("Name: ", manifest.name.GetResourceKey(), " (packId: ", manifest.name.GetPackageId(), ")");
+    LogCat::d("Description: ", manifest.description.GetResourceKey(), " (packId: ", manifest.description.GetPackageId(),
+              ")");
     LogCat::d("Author: ", manifest.author);
     LogCat::d("Version: ", manifest.versionName, " (Number: ", manifest.versionNumber, ")");
     LogCat::d("Minimum Game Version: ", manifest.minGameVersion);

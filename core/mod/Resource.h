@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "ResourceRef.h"
+
 namespace glimmer {
     struct TileRules;
 
@@ -34,26 +36,9 @@ namespace glimmer {
      */
     struct TileResource : Resource {
         std::string texture;
+        uint8_t physicsType = 0;
     };
 
-    /**
-     * Scope
-     * 范围
-     */
-    struct Scope {
-        float min;
-        float max;
-
-        /**
-         * Whether the given value is within the range
-         * 给定的数值是否在范围内
-         * @param value value 数值
-         * @return In Scope 是否在范围内
-         */
-        bool InScope(const float value) const {
-            return value >= min && value <= max;
-        }
-    };
 
     /**
      * TilePlacerRef
@@ -61,7 +46,7 @@ namespace glimmer {
      */
     struct TilePlacerRef {
         std::string id;
-        std::vector<std::string> tiles;
+        std::vector<ResourceRef> tiles;
         std::string config;
     };
 
@@ -78,17 +63,6 @@ namespace glimmer {
         float erosion = 0.0F;
         float elevation = 0.0F;
     };
-
-    /**
-     * Condition
-     * 条件
-     */
-    struct Condition {
-        std::string condition;
-        std::vector<std::string> resourceKeys;
-    };
-
-
 }
 
 

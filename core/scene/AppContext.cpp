@@ -49,6 +49,10 @@ glimmer::BiomesManager *glimmer::AppContext::GetBiomesManager() const {
     return biomesManager_;
 }
 
+glimmer::ResourceLocator *glimmer::AppContext::GetResourceLocator() const {
+    return resourceLocator_;
+}
+
 glimmer::VirtualFileSystem *glimmer::AppContext::GetVirtualFileSystem() const {
     return virtualFileSystem_;
 }

@@ -11,8 +11,11 @@ namespace glimmer {
     public:
         ~FillTilePlacer() override;
 
-        [[nodiscard]] bool Place(AppContext *appContext, TileLayerComponent *tileLayerComponent,
-            std::vector<std::string> tileSet, std::vector<TileVector2D> coordinateArray, nlohmann::json json) override;
+        [[nodiscard]] bool PlaceTileId(AppContext *appContext,
+                                       std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef,
+                                       std::vector<ResourceRef> &tileSet,
+                                       std::vector<TileVector2D> &coordinateArray,
+                                       std::optional<nlohmann::json> configData) override;
 
         std::string GetId() override;
     };

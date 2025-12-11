@@ -10,8 +10,8 @@
 
 namespace glimmer {
     struct Tile {
+        std::string id;
         std::shared_ptr<SDL_Texture> texture;
-        float humidity = 0.0F;
         TilePhysicsType physicsType = TilePhysicsType::None;
     };
 }

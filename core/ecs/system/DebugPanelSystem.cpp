@@ -43,7 +43,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         // 起始 y 坐标垂直居中
         yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;
 
-        char buffer[64];
+        char buffer[128];
         snprintf(buffer, sizeof(buffer), "Player World: (%.1f, %.1f)", playerPos.x, playerPos.y);
 
         SDL_Surface *surface = TTF_RenderText_Blended(appContext_->GetFont(), buffer, strlen(buffer), color);
@@ -72,7 +72,13 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
             TileVector2D tileCoord = TileLayerComponent::WorldToTile(layerPos->GetPosition(), playerPos);
             std::optional<Tile> tileObj = tileLayer->GetTile(tileCoord);
-            snprintf(buffer, sizeof(buffer), "Tile Coord: (%d, %d)", tileCoord.x, tileCoord.y);
+            float elevation = WorldContext::GetElevation(tileCoord.y);
+            snprintf(buffer, sizeof(buffer),
+                     "Tile Coord:(%d, %d) humidity:%f temperature：%f weirdness:%f erosion:%f elevation:%f",
+                     tileCoord.x, tileCoord.y,
+                     worldContext_->GetHumidity(tileCoord), worldContext_->GetTemperature(tileCoord, elevation),
+                     worldContext_->GetWeirdness(tileCoord), worldContext_->GetErosion(tileCoord),
+                     elevation);
 
             SDL_Surface *s = TTF_RenderText_Blended(appContext_->GetFont(), buffer, strlen(buffer), color);
             if (s) {

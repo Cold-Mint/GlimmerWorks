@@ -122,13 +122,19 @@ float glimmer::WorldContext::GetHumidity(const TileVector2D tileVector2d) {
     return humidityMap[tileVector2d];
 }
 
-float glimmer::WorldContext::GetTemperature(const TileVector2D tileVector2d) {
+float glimmer::WorldContext::GetTemperature(TileVector2D tileVector2d, float elevation) {
     const auto it = temperatureMap.find(tileVector2d);
     if (it != temperatureMap.end()) {
         return it->second;
     }
-    temperatureMap[tileVector2d] = (temperatureMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
-                                                                  static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
+    const float noiseTemp = (temperatureMapNoise->GetNoise(
+                           static_cast<float>(tileVector2d.x),
+                           static_cast<float>(tileVector2d.y)
+                       ) + 1.0F) * 0.5F;
+    const float altitudePenalty = std::pow(1.0f - elevation, 1.5f);
+    const float temperature = noiseTemp * altitudePenalty;
+
+    temperatureMap[tileVector2d] = temperature;
     return temperatureMap[tileVector2d];
 }
 
@@ -152,6 +158,10 @@ float glimmer::WorldContext::GetErosion(const TileVector2D tileVector2d) {
     return erosionMap[tileVector2d];
 }
 
+float glimmer::WorldContext::GetElevation(const int height) {
+    return static_cast<float>(height) / (WORLD_MAX_Y - SKY_HEIGHT + WORLD_MIN_Y);
+}
+
 void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
                                         const WorldVector2D &tileLayerPos, TileVector2D position) {
     if (chunks_.contains(position))
@@ -172,17 +182,17 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
             TileVector2D worldTilePos = position + localTile;
-            if (worldTilePos.x > height) {
+            if (worldTilePos.y > height) {
                 //sky
                 //天空
                 tilesRef[localX][localY] = airTileRef;
                 continue;
             }
+            const float elevation = GetElevation(worldTilePos.y);
             const auto humidity = GetHumidity(worldTilePos);
-            const auto temperature = GetTemperature(worldTilePos);
+            const auto temperature = GetTemperature(worldTilePos, elevation);
             const auto weirdness = GetWeirdness(worldTilePos);
             const auto erosion = GetErosion(worldTilePos);
-            const float elevation = static_cast<float>(height) / WORLD_MAX_Y - SKY_HEIGHT;
             BiomeResource *biomeResource = appContext_->GetBiomesManager()->FindBestBiome(
                 humidity, temperature, weirdness, erosion,
                 elevation);

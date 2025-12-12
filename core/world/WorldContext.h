@@ -233,9 +233,10 @@ namespace glimmer {
          * Obtain the temperature value of a certain coordinate
          * 获取某个坐标的温度值
          * @param tileVector2d tileVector2d 瓦片坐标
+         * @param elevation elevation 海拔
          * @return 温度0-1
          */
-        float GetTemperature(TileVector2D tileVector2d);
+        float GetTemperature(TileVector2D tileVector2d, float elevation);
 
         /**
          * Obtain the strange value of a certain coordinate
@@ -253,6 +254,14 @@ namespace glimmer {
          * @return 侵蚀0-1
          */
         float GetErosion(TileVector2D tileVector2d);
+
+        /**
+         * GetElevation
+         * 获取海拔
+         * @param height 高度
+         * @return
+         */
+        [[nodiscard]] static float GetElevation(int height);
 
         /**
         * Load Chunk
@@ -381,23 +390,20 @@ namespace glimmer {
             terrainTypeNoise->SetFrequency(0.01F);
             terrainTypeNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
             humidityMapNoise = new FastNoiseLite();
-            humidityMapNoise->SetSeed(seed);
+            humidityMapNoise->SetSeed(seed + 100);
+            humidityMapNoise->SetFrequency(0.005F);
             humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             temperatureMapNoise = new FastNoiseLite();
-            temperatureMapNoise->SetSeed(seed);
-            temperatureMapNoise->SetFrequency(0.01F);
-            temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-            temperatureMapNoise = new FastNoiseLite();
-            temperatureMapNoise->SetSeed(seed);
+            temperatureMapNoise->SetSeed(seed + 200);
             temperatureMapNoise->SetFrequency(0.01F);
             temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             weirdnessMapNoise = new FastNoiseLite();
-            weirdnessMapNoise->SetSeed(seed);
-            weirdnessMapNoise->SetFrequency(0.01F);
-            weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            weirdnessMapNoise->SetSeed(seed + 300);
+            weirdnessMapNoise->SetFrequency(0.02F);
+            weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
             erosionMapNoise = new FastNoiseLite();
-            erosionMapNoise->SetSeed(seed);
-            erosionMapNoise->SetFrequency(0.01F);
+            erosionMapNoise->SetSeed(seed + 400);
+            erosionMapNoise->SetFrequency(0.003F);
             erosionMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             b2WorldDef worldDef = b2DefaultWorldDef();
             worldDef.gravity = b2Vec2(0.0F, -10.0F);

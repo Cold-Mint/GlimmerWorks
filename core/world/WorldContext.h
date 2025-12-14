@@ -76,12 +76,10 @@ namespace glimmer {
         Transform2DComponent *cameraTransform2D_{};
 
         /**
-         * Height map(Divided by blocks)
-         * 高度图（按区块划分）
-         * key：The x-coordinate of the block's starting point 区块起点X坐标
-         * value：The height array of this block (length = CHUNK_SIZE)
+         * Height map
+         * 高度图
          */
-        std::unordered_map<int, std::vector<int> > heightMap_;
+        std::unordered_map<int, int> heightMap_;
 
 
         /**
@@ -219,7 +217,7 @@ namespace glimmer {
          * @param x Starting point x coordinate 起点x坐标
          * @return The height array of this block (length = CHUNK_SIZE)
          */
-        std::vector<int> GetHeightMap(int x);
+        int GetHeightMap(int x);
 
         /**
          * Obtain the humidity value of a certain coordinate

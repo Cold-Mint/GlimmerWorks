@@ -37,17 +37,6 @@ namespace glimmer {
         BiomeResource *FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
                                      float elevation);
 
-        /**
-         * Obtain tile resources
-         * 获取瓦片资源
-         * @param tileVector2d coordinates 瓦片坐标
-         * @param height Height percentage（占世界最大高度的百分百比0-1）
-         * @param humidity humidity 湿度
-         * @param temperature temperature 温度
-         * @return
-         */
-        TileResource *GetTileResource(TileVector2D tileVector2d, float height, float humidity, float temperature);
-
         std::string ListTiles() const;
     };
 }

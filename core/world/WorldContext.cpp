@@ -58,58 +58,45 @@ bool glimmer::WorldContext::HasComponentType(const std::type_index &type) const 
     return it != componentCount.end() && it->second > 0;
 }
 
-std::vector<int> glimmer::WorldContext::GetHeightMap(int x) {
-    auto tileToChunkStart = [](const int tileCoord) -> int {
-        if (tileCoord >= 0)
-            return (tileCoord / CHUNK_SIZE) * CHUNK_SIZE;
-        // 对负数向下对齐，例如 CHUNK_SIZE=16:
-        // tileCoord = -1 -> chunkStart = -16
-        return (tileCoord - (CHUNK_SIZE - 1)) / CHUNK_SIZE * CHUNK_SIZE;
-    };
-    const int chunkX = tileToChunkStart(x);
-    LogCat::d("getHeightMap called for x=", x, " aligned to chunkX=", chunkX);
-
-    const auto it = heightMap_.find(chunkX);
+int glimmer::WorldContext::GetHeightMap(int x) {
+    const auto it = heightMap_.find(x);
     if (it != heightMap_.end()) {
-        LogCat::d("HeightMap cache hit for chunkX=", chunkX);
+        LogCat::d("HeightMap cache hit for chunkX=", x);
         return it->second;
     }
 
-    LogCat::d("HeightMap cache miss, generating new chunk at chunkX=", chunkX);
-    std::vector<int> heights(CHUNK_SIZE);
-    for (int i = 0; i < CHUNK_SIZE; ++i) {
-        const auto sampleX = static_cast<float>(chunkX + i);
-        float t = (terrainTypeNoise->GetNoise(sampleX, 0.0f) + 1.0f) * 0.5f; // 0~1
-        float weightHills = 1.0f - t; // 小 t -> 丘陵 Little t -> Hills
-        float weightMountain = t; // 大 t -> 山地 Big t -> Mountainous area
-        float weightContinent = 1.0f - fabs(t - 0.5f) * 2.0f; // 中间高 Middle height
+    LogCat::d("HeightMap cache miss, generating new chunk at chunkX=", x);
+    int height = 0;
+    const auto sampleX = static_cast<float>(x);
+    float t = (terrainTypeNoise->GetNoise(sampleX, 0.0f) + 1.0f) * 0.5f; // 0~1
+    float weightHills = 1.0f - t; // 小 t -> 丘陵 Little t -> Hills
+    float weightMountain = t; // 大 t -> 山地 Big t -> Mountainous area
+    float weightContinent = 1.0f - fabs(t - 0.5f) * 2.0f; // 中间高 Middle height
 
-        weightContinent = std::max(0.0f, weightContinent);
+    weightContinent = std::max(0.0f, weightContinent);
 
-        // Normalized weight (keeping the sum =1)
-        // 归一化权重（保持总和=1）
-        float sum = weightHills + weightContinent + weightMountain;
-        weightHills /= sum;
-        weightContinent /= sum;
-        weightMountain /= sum;
+    // Normalized weight (keeping the sum =1)
+    // 归一化权重（保持总和=1）
+    float sum = weightHills + weightContinent + weightMountain;
+    weightHills /= sum;
+    weightContinent /= sum;
+    weightMountain /= sum;
 
-        LogCat::d("GetHeightMap weightHills=", weightHills, ",weightContinent=", weightContinent, ",weightMountain=",
-                  weightMountain);
+    LogCat::d("GetHeightMap weightHills=", weightHills, ",weightContinent=", weightContinent, ",weightMountain=",
+              weightMountain);
 
-        // Triple noise mixing
-        // 三重噪声混合
-        float noiseValue =
-                continentHeightMapNoise->GetNoise(sampleX, 0.0F) * weightContinent +
-                mountainHeightMapNoise->GetNoise(sampleX, 0.0F) * weightMountain +
-                hillsNoiseHeightMapNoise->GetNoise(sampleX, 0.0F) * weightHills;
-        const int height = static_cast<int>((noiseValue + 1.0F) * 0.5F * (WORLD_MAX_Y - SKY_HEIGHT - WORLD_MIN_Y)) +
-                           WORLD_MIN_Y;
-        heights[i] = height;
-    }
+    // Triple noise mixing
+    // 三重噪声混合
+    float noiseValue =
+            continentHeightMapNoise->GetNoise(sampleX, 0.0F) * weightContinent +
+            mountainHeightMapNoise->GetNoise(sampleX, 0.0F) * weightMountain +
+            hillsNoiseHeightMapNoise->GetNoise(sampleX, 0.0F) * weightHills;
+    height = static_cast<int>((noiseValue + 1.0F) * 0.5F * (WORLD_MAX_Y - SKY_HEIGHT - WORLD_MIN_Y)) +
+             WORLD_MIN_Y;
 
-    heightMap_[chunkX] = heights;
-    LogCat::d("Generated and cached heights for chunkX=", chunkX);
-    return heights;
+    heightMap_[x] = height;
+    LogCat::d("Generated and cached heights for chunkX=", x);
+    return height;
 }
 
 float glimmer::WorldContext::GetHumidity(const TileVector2D tileVector2d) {
@@ -128,9 +115,9 @@ float glimmer::WorldContext::GetTemperature(TileVector2D tileVector2d, float ele
         return it->second;
     }
     const float noiseTemp = (temperatureMapNoise->GetNoise(
-                           static_cast<float>(tileVector2d.x),
-                           static_cast<float>(tileVector2d.y)
-                       ) + 1.0F) * 0.5F;
+                                 static_cast<float>(tileVector2d.x),
+                                 static_cast<float>(tileVector2d.y)
+                             ) + 1.0F) * 0.5F;
     const float altitudePenalty = std::pow(1.0f - elevation, 1.5f);
     const float temperature = noiseTemp * altitudePenalty;
 
@@ -174,11 +161,10 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
     airTileRef.SetPackageId(RESOURCE_REF_CORE);
     airTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
     airTileRef.SetResourceKey(TILE_ID_AIR);
-    const std::vector<int> heights = GetHeightMap(position.x);
     std::map<std::string, std::vector<TileVector2D> > biomeMap = {};
     std::map<std::string, BiomeResource *> biomeResourceMap = {};
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        const int height = heights[localX];
+        const int height = GetHeightMap(position.x + localX);
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
             TileVector2D worldTilePos = position + localTile;

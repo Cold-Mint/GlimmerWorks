@@ -108,10 +108,6 @@ namespace glimmer {
          * 用于丘陵的噪声生成器
          */
         FastNoiseLite *hillsNoiseHeightMapNoise;
-        /**
-         * 地形类型噪声
-         */
-        FastNoiseLite *terrainTypeNoise;
 
         /**
          * 湿度噪声生成器
@@ -163,8 +159,6 @@ namespace glimmer {
             mountainHeightMapNoise = nullptr;
             delete hillsNoiseHeightMapNoise;
             hillsNoiseHeightMapNoise = nullptr;
-            delete terrainTypeNoise;
-            terrainTypeNoise = nullptr;
             delete humidityMapNoise;
             humidityMapNoise = nullptr;
             delete temperatureMapNoise;
@@ -212,12 +206,12 @@ namespace glimmer {
 
 
         /**
-         * get Height Map
-         * 获取高度图
+         * get Height
+         * 获取高度
          * @param x Starting point x coordinate 起点x坐标
          * @return The height array of this block (length = CHUNK_SIZE)
          */
-        int GetHeightMap(int x);
+        int GetHeight(int x);
 
         /**
          * Obtain the humidity value of a certain coordinate
@@ -368,25 +362,31 @@ namespace glimmer {
         template<typename T, typename... Ts>
         std::vector<GameEntity *> GetEntitiesWithComponents();
 
+        /**
+         * GetSeed
+         * 获取种子号
+         * @return int 种子号
+         */
+        [[nodiscard]] int GetSeed() const;
+
 
         explicit WorldContext(AppContext *appContext, const int seed, Saves *saves) : seed(seed),
             saves(saves) {
+            // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
             continentHeightMapNoise = new FastNoiseLite();
             continentHeightMapNoise->SetSeed(seed);
-            continentHeightMapNoise->SetFrequency(0.01F / 100.0F);
+            continentHeightMapNoise->SetFrequency(0.005F); // 极低频，用于大型板块
             continentHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
+            // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
             mountainHeightMapNoise = new FastNoiseLite();
-            mountainHeightMapNoise->SetSeed(seed);
-            mountainHeightMapNoise->SetFrequency(0.01F);
+            mountainHeightMapNoise->SetSeed(seed + 1); // 不同的种子
+            mountainHeightMapNoise->SetFrequency(0.01F); // 低频，用于主要地形
             mountainHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+            // 3. 丘陵/细节噪声 (中频) - 控制平原和丘陵的细节
             hillsNoiseHeightMapNoise = new FastNoiseLite();
-            hillsNoiseHeightMapNoise->SetSeed(seed);
-            hillsNoiseHeightMapNoise->SetFrequency(0.01F / 50.0F);
+            hillsNoiseHeightMapNoise->SetSeed(seed + 2); // 不同的种子
+            hillsNoiseHeightMapNoise->SetFrequency(0.02F); // 中频，用于细节
             hillsNoiseHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-            terrainTypeNoise = new FastNoiseLite();
-            terrainTypeNoise->SetSeed(seed);
-            terrainTypeNoise->SetFrequency(0.01F);
-            terrainTypeNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
             humidityMapNoise = new FastNoiseLite();
             humidityMapNoise->SetSeed(seed + 100);
             humidityMapNoise->SetFrequency(0.005F);

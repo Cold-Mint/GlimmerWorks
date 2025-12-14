@@ -14,6 +14,7 @@
 #define HELP_COMMAND_NAME  "help"
 #define LICENSE_COMMAND_NAME  "license"
 #define CONFIG_COMMAND_NAME  "config"
+#define HEIGHT_MAP_COMMAND_NAME  "heightMap"
 #define TP_COMMAND_NAME  "tp"
 #define VFS_COMMAND_NAME  "vfs"
 #define BOX2D_COMMAND_NAME  "box2d"
@@ -42,6 +43,22 @@ static constexpr int CHUNK_SIZE = 16;
 static constexpr int WORLD_MAX_Y = 512;
 static constexpr int SKY_HEIGHT = 64;
 static constexpr int WORLD_MIN_Y = 0;
+/**
+ * 地形变化的总范围
+ */
+constexpr int TERRAIN_HEIGHT_RANGE = WORLD_MAX_Y - WORLD_MIN_Y - SKY_HEIGHT;
+constexpr int BASE_HEIGHT_OFFSET = 32; // 基础高度偏移
+constexpr int SEA_LEVEL_HEIGHT = BASE_HEIGHT_OFFSET + 64; // 绝对海平面 Y 坐标
+constexpr int MAX_LAND_HEIGHT = WORLD_MIN_Y +TERRAIN_HEIGHT_RANGE; // 陆地最大高度
+
+// 噪声权重
+constexpr float MOUNTAIN_WEIGHT = 0.70F; // 山脉噪声在陆地起伏中的权重
+constexpr float HILLS_WEIGHT = 0.30F; // 丘陵噪声在陆地起伏中的权重
+
+// 高原/山脉的额外抬升参数
+constexpr float PEAK_LIFT_THRESHOLD = 0.60F; // 陆地起伏噪声高于此值时开始抬升
+constexpr float MAX_PEAK_LIFT = 0.30F; // 山峰额外抬升的最大噪声比例 (例如，1.0 + 0.3 = 1.3 倍的幅度)
+
 static constexpr int TILE_SIZE = 32;
 
 /**

@@ -8,6 +8,7 @@
 #include "core/console/command/AssetViewerCommand.h"
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/ConfigCommand.h"
+#include "core/console/command/HeightMapCommand.h"
 #include "core/console/command/HelpCommand.h"
 #include "core/console/command/LicenseCommand.h"
 #include "core/console/command/TpCommand.h"
@@ -164,6 +165,7 @@ int main() {
         resourceLocator.SetAppContext(&appContext);
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
+        commandManager.RegisterCommand(std::make_unique<HeightMapCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<ConfigCommand>(&appContext, configJsonOpt.value()));
         commandManager.RegisterCommand(std::make_unique<AssetViewerCommand>(&appContext));

@@ -32,7 +32,7 @@ void glimmer::GameStartSystem::Update(float delta) {
     auto *playerEntity = worldContext_->CreateEntity();
     worldContext_->AddComponent<PlayerControlComponent>(playerEntity);
     const auto transform2DComponentInPlayer = worldContext_->AddComponent<Transform2DComponent>(playerEntity);
-    const auto height = worldContext_->GetHeightMap(0);
+    const auto height = worldContext_->GetHeight(0);
     transform2DComponentInPlayer->SetPosition(
         TileLayerComponent::TileToWorld(transform2DComponentInPlayer->GetPosition(),
                                         TileVector2D(0, height + 3)));

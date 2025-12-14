@@ -284,6 +284,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/world/FillTilePlacer.h
         core/mod/ResourceLocator.cpp
         core/mod/ResourceLocator.h
+        core/console/command/HeightMapCommand.cpp
+        core/console/command/HeightMapCommand.h
 )
 
 if (ANDROID)

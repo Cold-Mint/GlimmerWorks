@@ -100,5 +100,6 @@ static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 6;
  * 特殊的瓦片Id：空气
  */
 static constexpr std::string TILE_ID_AIR = "air";
+static constexpr std::string TILE_ID_WATER = "water";
 
 #endif //CONSTANTS_H

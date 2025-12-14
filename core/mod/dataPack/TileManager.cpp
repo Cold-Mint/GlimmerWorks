@@ -13,10 +13,18 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air->texture = "tiles/air.png";
     air->key = TILE_ID_AIR;
     air->physicsType = 0;
+    water = std::make_unique<TileResource>();
+    water->texture = "tiles/water.png";
+    water->key = TILE_ID_WATER;
+    water->physicsType = 0;
 }
 
 glimmer::TileResource *glimmer::TileManager::GetAir() const {
     return air.get();
+}
+
+glimmer::TileResource *glimmer::TileManager::GetWater() const {
+    return water.get();
 }
 
 void glimmer::TileManager::RegisterResource(TileResource &tileResource) {

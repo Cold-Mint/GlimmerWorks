@@ -114,12 +114,6 @@ int glimmer::WorldContext::GetHeight(int x) {
                  static_cast<int>(combinedNoise * TERRAIN_HEIGHT_RANGE / (1.0F + MAX_PEAK_LIFT));
 
 
-    // 4. 强制应用海平面 (海洋)
-    if (height < SEA_LEVEL_HEIGHT) {
-        // 海洋: 低于海平面的部分，最低高度设置为 SEA_LEVEL_HEIGHT (水面/海底平面)
-        height = SEA_LEVEL_HEIGHT;
-    }
-
     // 5. 确保不超过世界最大高度
     height = std::min(height, MAX_LAND_HEIGHT);
 
@@ -191,6 +185,11 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
     airTileRef.SetPackageId(RESOURCE_REF_CORE);
     airTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
     airTileRef.SetResourceKey(TILE_ID_AIR);
+    ResourceRef waterTileRef;
+    waterTileRef.SetResourceType(RESOURCE_TYPE_TILE);
+    waterTileRef.SetPackageId(RESOURCE_REF_CORE);
+    waterTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    waterTileRef.SetResourceKey(TILE_ID_WATER);
     std::map<std::string, std::vector<TileVector2D> > biomeMap = {};
     std::map<std::string, BiomeResource *> biomeResourceMap = {};
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
@@ -199,9 +198,15 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
             TileVector2D localTile(localX, localY);
             TileVector2D worldTilePos = position + localTile;
             if (worldTilePos.y > height) {
-                //sky
-                //天空
-                tilesRef[localX][localY] = airTileRef;
+                if (worldTilePos.y < SEA_LEVEL_HEIGHT) {
+                    //water
+                    //水
+                    tilesRef[localX][localY] = waterTileRef;
+                } else {
+                    //sky
+                    //天空
+                    tilesRef[localX][localY] = airTileRef;
+                }
                 continue;
             }
             const float elevation = GetElevation(worldTilePos.y);

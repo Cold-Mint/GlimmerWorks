@@ -27,6 +27,9 @@ std::optional<glimmer::TileResource *> glimmer::ResourceLocator::FindTile(const 
         if (resourceRef.GetResourceKey() == TILE_ID_AIR) {
             return appContext_->GetTileManager()->GetAir();
         }
+        if (resourceRef.GetResourceKey() == TILE_ID_WATER) {
+            return appContext_->GetTileManager()->GetWater();
+        }
         return std::nullopt;
     }
     return appContext_->GetTileManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());

@@ -5,15 +5,18 @@
 #ifndef GLIMMERWORKS_HEIGHTMAPCOMMAND_H
 #define GLIMMERWORKS_HEIGHTMAPCOMMAND_H
 #include "../Command.h"
+#include "../../vfs/VirtualFileSystem.h"
 
 namespace glimmer {
     class HeightMapCommand : public Command {
+        VirtualFileSystem *virtualFileSystem_;
+
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit HeightMapCommand(AppContext *ctx)
-            : Command(ctx) {
+        explicit HeightMapCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem)
+            : Command(ctx), virtualFileSystem_(virtualFileSystem) {
         }
 
         ~HeightMapCommand() override = default;

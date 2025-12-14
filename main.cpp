@@ -165,7 +165,7 @@ int main() {
         resourceLocator.SetAppContext(&appContext);
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
-        commandManager.RegisterCommand(std::make_unique<HeightMapCommand>(&appContext));
+        commandManager.RegisterCommand(std::make_unique<HeightMapCommand>(&appContext, &virtualFileSystem));
         commandManager.RegisterCommand(std::make_unique<Box2DCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<ConfigCommand>(&appContext, configJsonOpt.value()));
         commandManager.RegisterCommand(std::make_unique<AssetViewerCommand>(&appContext));

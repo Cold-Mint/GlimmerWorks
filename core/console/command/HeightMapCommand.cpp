@@ -21,6 +21,7 @@ bool glimmer::HeightMapCommand::RequiresWorldContext() const {
 void glimmer::HeightMapCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
     strings.emplace_back("[minX:int]");
     strings.emplace_back("[maxX:int]");
+    strings.emplace_back("[fileName:string]");
 }
 
 glimmer::NodeTree<std::string> glimmer::HeightMapCommand::GetSuggestionsTree(const CommandArgs &commandArgs) {
@@ -65,5 +66,22 @@ bool glimmer::HeightMapCommand::Execute(CommandArgs commandArgs,
     ss << "}\n";
     onOutput(ss.str());
     LogCat::d(ss.str());
+    if (commandArgs.GetSize() >= 4) {
+        const std::string fileName = commandArgs.AsString(3);
+        if (!virtualFileSystem_->Exists(DEBUG_FOLDER_NAME)) {
+            bool createFolder = virtualFileSystem_->CreateFolder(DEBUG_FOLDER_NAME);
+            if (!createFolder) {
+                LogCat::e("Directories cannot be created: ", DEBUG_FOLDER_NAME);
+                return false;
+            }
+        }
+        bool write = virtualFileSystem_->WriteFile(
+            DEBUG_FOLDER_NAME + "/heightMap_" + std::to_string(worldContext_->GetSeed()) + "_" + fileName + ".json",
+            ss.str());
+        if (!write) {
+            LogCat::w("Failed to write the file.");
+            return false;
+        }
+    }
     return true;
 }

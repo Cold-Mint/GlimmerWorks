@@ -259,6 +259,20 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
             }
             Tile tile;
             tile.id = resourceRef.GetPackageId() + ":" + resourceRef.GetResourceKey();
+            std::optional<StringResource *> nameStringResource = appContext_->GetResourceLocator()->FindString(
+                tileResourceValue->name);
+            if (nameStringResource.has_value()) {
+                tile.name = nameStringResource.value()->value;
+            } else {
+                tile.name = tile.id;
+            }
+            std::optional<StringResource *> stringResource = appContext_->GetResourceLocator()->FindString(
+                tileResourceValue->name);
+            if (stringResource.has_value()) {
+                tile.name = stringResource.value()->value;
+            } else {
+                tile.name = tile.id;
+            }
             tile.physicsType = static_cast<TilePhysicsType>(tileResourceValue->physicsType);
             auto texture = appContext_->GetResourcePackManager()->LoadTextureFromFile(
                 appContext_->GetConfig()->mods.enabledResourcePack, tileResourceValue->texture);

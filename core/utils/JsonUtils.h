@@ -51,23 +51,6 @@ struct nlohmann::adl_serializer<glimmer::StringResource> {
 
 
 template<>
-struct nlohmann::adl_serializer<glimmer::TileResource> {
-    static void from_json(const json &j, glimmer::TileResource &s) {
-        s.key = j.at("resourceKey").get<std::string>();
-        s.texture = j.at("texture").get<std::string>();
-        s.physicsType = j.at("physicsType").get<uint8_t>();
-    }
-
-    static void to_json(json &j, const glimmer::TileResource &s) {
-        j = json{
-            {"resourceKey", s.key},
-            {"texture", s.texture},
-            {"physicsType", s.physicsType},
-        };
-    }
-};
-
-template<>
 struct nlohmann::adl_serializer<glimmer::Resource> {
     static void from_json(const json &j, glimmer::Resource &r) {
         r.key = j.at("resourceKey").get<std::string>();
@@ -148,6 +131,27 @@ struct nlohmann::adl_serializer<glimmer::ResourceRef> {
             {"packId", resourceRef.GetPackageId()},
             {"resourceType", resourceRef.GetResourceType()},
             {"resourceKey", resourceRef.GetResourceKey()}
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<glimmer::TileResource> {
+    static void from_json(const json &j, glimmer::TileResource &s) {
+        s.key = j.at("resourceKey").get<std::string>();
+        s.texture = j.at("texture").get<std::string>();
+        s.name = j.at("name").get<glimmer::ResourceRef>();
+        s.description = j.at("description").get<glimmer::ResourceRef>();
+        s.physicsType = j.at("physicsType").get<uint8_t>();
+    }
+
+    static void to_json(json &j, const glimmer::TileResource &s) {
+        j = json{
+            {"resourceKey", s.key},
+            {"texture", s.texture},
+            {"name", s.name},
+            {"description", s.description},
+            {"physicsType", s.physicsType},
         };
     }
 };

@@ -1,5 +1,7 @@
 # GlimmerWorks
 
+[Discord](https://discord.gg/CfppC9WHw8) | [QQ Channel](https://pd.qq.com/s/cntb09fr1?b=9)
+
 **GlimmerWorks** is a 2D pixel sandbox game built with C++ and modern libraries, offering a customizable and open-ended
 gameplay experience.
 

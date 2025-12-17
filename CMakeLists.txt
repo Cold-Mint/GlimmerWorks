@@ -286,6 +286,12 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/mod/ResourceLocator.h
         core/console/command/HeightMapCommand.cpp
         core/console/command/HeightMapCommand.h
+        core/inventory/Item.cpp
+        core/inventory/Item.h
+        core/inventory/TileItem.cpp
+        core/inventory/TileItem.h
+        core/inventory/ItemContainer.cpp
+        core/inventory/ItemContainer.h
 )
 
 if (ANDROID)

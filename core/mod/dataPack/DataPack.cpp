@@ -106,6 +106,8 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
     const auto &jsonObject = *jsonOpt;
     auto tileResource = jsonObject.get<TileResource>();
     tileResource.packId = manifest_.id;
+    tileResource.name.SetPackageId(manifest_.id);
+    tileResource.description.SetPackageId(manifest_.id);
     tileManager.RegisterResource(tileResource);
     return true;
 }

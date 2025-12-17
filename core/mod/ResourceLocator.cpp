@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/11.
+// Created by Cold-Mint on 2025/12/11.
 //
 
 #include "ResourceLocator.h"

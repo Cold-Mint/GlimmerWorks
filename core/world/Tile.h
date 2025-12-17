@@ -11,6 +11,8 @@
 namespace glimmer {
     struct Tile {
         std::string id;
+        std::string name;
+        std::string description;
         std::shared_ptr<SDL_Texture> texture;
         TilePhysicsType physicsType = TilePhysicsType::None;
     };

@@ -35,6 +35,8 @@ namespace glimmer {
      * 瓦片资源
      */
     struct TileResource : Resource {
+        ResourceRef name;
+        ResourceRef description;
         std::string texture;
         uint8_t physicsType = 0;
     };

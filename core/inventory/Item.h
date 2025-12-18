@@ -14,12 +14,15 @@ namespace glimmer {
      * 物品类
      */
     class Item {
+    protected:
         size_t amount_ = 1;
 
         size_t maxStack_ = 1;
 
     public:
         virtual ~Item() = default;
+
+        [[nodiscard]] virtual std::unique_ptr<Item> Clone() const = 0;
 
         /**
           * GetId

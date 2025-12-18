@@ -12,7 +12,6 @@ namespace glimmer {
     public:
         ~TileItem() override = default;
 
-    private:
         Tile tile_;
 
         [[nodiscard]] std::string GetId() const override;
@@ -20,6 +19,8 @@ namespace glimmer {
         [[nodiscard]] std::string GetName() const override;
 
         [[nodiscard]] std::string GetDescription() const override;
+
+        [[nodiscard]] std::unique_ptr<Item> Clone() const override;
 
         void OnUse() override;
 

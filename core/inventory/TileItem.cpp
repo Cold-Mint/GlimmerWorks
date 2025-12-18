@@ -16,6 +16,10 @@ std::string glimmer::TileItem::GetDescription() const {
     return tile_.description;
 }
 
+std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const {
+    return std::make_unique<TileItem>(*this);
+}
+
 void glimmer::TileItem::OnUse() {
 }
 

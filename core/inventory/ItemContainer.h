@@ -35,7 +35,16 @@ namespace glimmer {
          * @param item item 物品
          * @return
          */
-        bool AddItem(Item *item) const;
+        [[nodiscard]] size_t AddItem(Item &item);
+
+        /**
+         * Remove Item
+         * 移除物品
+        * @param id id 物品
+         * @param amount amount 数量
+         * @return
+         */
+        [[nodiscard]] size_t RemoveItem(const std::string &id, size_t amount);
 
 
         /**

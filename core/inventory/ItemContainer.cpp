@@ -7,34 +7,61 @@
 #include "../log/LogCat.h"
 
 
-bool glimmer::ItemContainer::AddItem(Item *item) const {
-    for (const auto &i: items_) {
+size_t glimmer::ItemContainer::AddItem(Item &item) {
+    size_t count = 0;
+    for (auto &i: items_) {
         Item *itemPtr = i.get();
         if (itemPtr == nullptr) {
-            //todo:设置新物品到i位置。
+            i = item.Clone();
+            count += item.GetAmount();
+            return count;
+        }
+        if (bool canStackMore = itemPtr->CanStackMore(&item); !canStackMore) {
             continue;
         }
-        if (bool canStackMore = itemPtr->CanStackMore(item); !canStackMore) {
-            continue;
-        }
-        const size_t stackedAmount = itemPtr->AddAmount(item->GetAmount());
+        const size_t stackedAmount = itemPtr->AddAmount(item.GetAmount());
         if (stackedAmount == 0) {
             continue;
         }
-        if (const size_t removeAmount = item->RemoveAmount(stackedAmount); removeAmount == 0) {
+        if (const size_t removeAmount = item.RemoveAmount(stackedAmount); removeAmount == 0) {
             LogCat::w("The removal quantity failed.");
             if (itemPtr->RemoveAmount(stackedAmount) == 0) {
                 LogCat::w("Failed to remove from the item container.");
             }
         }
-        if (item->GetAmount() == 0) {
-            //All the items have been fully distributed.
-            //所有的物品已被分配完成
+        count += stackedAmount;
+        if (item.GetAmount() == 0) {
             break;
         }
     }
-    return true;
+    return count;
 }
+
+size_t glimmer::ItemContainer::RemoveItem(const std::string &id, const size_t amount) {
+    int unallocatedCount = static_cast<int>(amount);
+    for (auto &i: items_) {
+        Item *itemPtr = i.get();
+        if (itemPtr == nullptr) {
+            continue;
+        }
+        if (itemPtr->GetId() == id) {
+            const size_t actualAmount = itemPtr->RemoveAmount(unallocatedCount);
+            if (actualAmount == 0) {
+                LogCat::w("Failed to remove item from item container.");
+                continue;
+            }
+            if (itemPtr->GetAmount() == 0) {
+                i.reset();
+            }
+            unallocatedCount -= static_cast<int>(actualAmount);
+            if (unallocatedCount == 0) {
+                break;
+            }
+        }
+    }
+    return amount - unallocatedCount;
+}
+
 
 size_t glimmer::ItemContainer::GetUsedCapacity() const {
     size_t count = 0;

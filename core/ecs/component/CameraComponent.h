@@ -9,14 +9,12 @@
 
 #include "../../math/Vector2D.h"
 
-namespace glimmer
-{
+namespace glimmer {
     /**
      * Camera component, used to control the game view
      * 相机组件，用于控制游戏视图
      */
-    class CameraComponent : public GameComponent
-    {
+    class CameraComponent : public GameComponent {
         /**
          * Size: Camera size (pixel coordinates)
          * Size 相机尺寸（像素坐标）
@@ -48,10 +46,20 @@ namespace glimmer
         [[nodiscard]] CameraVector2D GetViewPortPosition(WorldVector2D cameraPosition,
                                                          WorldVector2D worldPosition) const;
 
+        /**
+         * Convert the viewport position to world coordinates
+         * 视口位置转世界坐标
+         * @param cameraPosition 相机位置
+         * @param viewPortPosition
+         * @return
+         */
+        [[nodiscard]] WorldVector2D GetWorldPosition(WorldVector2D cameraPosition, CameraVector2D viewPortPosition) const;
+
 
         /**
          * Is point in viewport
          * 判断世界坐标是否在相机视口内
+         * @param cameraPosition cameraPosition 相机坐标
          * @param worldPos worldPos 世界坐标
          * @return 是否在相机视口内
          */

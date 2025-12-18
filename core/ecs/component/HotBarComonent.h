@@ -4,14 +4,17 @@
 
 #ifndef GLIMMERWORKS_HOTBARCOMONENT_H
 #define GLIMMERWORKS_HOTBARCOMONENT_H
+#include "../GameComponent.h"
 #include "../../math/Vector2D.h"
 
 namespace glimmer {
-    class HotBarComponent {
+    class HotBarComponent : public GameComponent {
         Vector2D position_;
+        int selectedSlot_ = 0;
+        int maxSlot_ = 0;
 
     public:
-        HotBarComponent(Vector2D position) : position_(position) {
+        explicit HotBarComponent(const Vector2D position, const int maxSlot) : position_(position), maxSlot_(maxSlot) {
         }
 
         /**
@@ -21,7 +24,13 @@ namespace glimmer {
          */
         [[nodiscard]] Vector2D GetPosition() const;
 
-        void SetPosition(Vector2D position) ;
+        void SetPosition(Vector2D position);
+
+        [[nodiscard]] int GetSelectedSlot() const;
+
+        void SetSelectedSlot(int selectedSlot);
+
+        [[nodiscard]] int GetMaxSlot() const;
     };
 }
 

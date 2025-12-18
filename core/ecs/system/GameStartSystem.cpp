@@ -16,6 +16,8 @@
 #include "../component/TileLayerComponent.h"
 #include "../component/RigidBody2DComponent.h"
 #include "../../world/WorldContext.h"
+#include "../component/HotBarComonent.h"
+#include "../component/ItemContainerComonent.h"
 
 
 void glimmer::GameStartSystem::Update(float delta) {
@@ -50,6 +52,10 @@ void glimmer::GameStartSystem::Update(float delta) {
     rigidBody2DComponent->SetHeight(2.6F * TILE_SIZE);
     rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
                                      Box2DUtils::ToMeters(transform2DComponentInPlayer->GetPosition()));
+
+    worldContext_->AddComponent<ItemContainerComponent>(playerEntity, 9);
+    const auto hotBarComponent = worldContext_->AddComponent<HotBarComponent>(playerEntity, Vector2D(), 9);
+    worldContext_->SetHotBarComponent(hotBarComponent);
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

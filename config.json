@@ -18,8 +18,7 @@
     ]
   },
   "debug": {
-    "onlyDrawHumidity": true,
-    "displayDebugPanel": true,
-    "displayBox2dShape": true
+    "displayDebugPanel": false,
+    "displayBox2dShape": false
   }
 }

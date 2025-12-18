@@ -20,6 +20,7 @@
 #include "Chunk.h"
 #include "ChunkPhysicsHelper.h"
 #include "../ecs/GameComponent.h"
+#include "../ecs/component/HotBarComonent.h"
 #include "../math/Vector2DI.h"
 #include "../scene/AppContext.h"
 #include "../utils/JsonUtils.h"
@@ -74,6 +75,12 @@ namespace glimmer {
          * 相机坐标组件
          */
         Transform2DComponent *cameraTransform2D_{};
+
+        /**
+         * HotBar Component
+         * 快捷栏组件
+         */
+        HotBarComponent *hotBarComponent_{};
 
         /**
          * Height map
@@ -319,6 +326,14 @@ namespace glimmer {
 
 
         /**
+         * Set HotBar Component
+         * 设置相机组件
+         * @param hotbarComponent
+         */
+        void SetHotBarComponent(HotBarComponent *hotbarComponent);
+
+
+        /**
          * Set Camera Component
          * 设置相机的组件
          * @param cameraComponent
@@ -330,6 +345,9 @@ namespace glimmer {
 
 
         Transform2DComponent *GetCameraTransform2D() const;
+
+
+        HotBarComponent *GetHotBarComponent() const;
 
         /**
          * Create an entity。

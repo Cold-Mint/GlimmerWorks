@@ -17,6 +17,7 @@
 #include "../ecs/system/DebugDrawSystem.h"
 #include "../ecs/system/DebugPanelSystem.h"
 #include "../ecs/system/AndroidControlSystem.h"
+#include "../ecs/system/HotBarSystem.h"
 #include "../ecs/system/PhysicsSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
 #include "../ecs/system/TileLayerSystem.h"
@@ -418,6 +419,7 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<TileLayerSystem>(appContext, this));
     RegisterSystem(std::make_unique<ChunkSystem>(appContext, this));
     RegisterSystem(std::make_unique<PhysicsSystem>(appContext, this));
+    RegisterSystem(std::make_unique<HotBarSystem>(appContext, this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
 #endif
@@ -433,6 +435,10 @@ void glimmer::WorldContext::SetCameraPosition(Transform2DComponent *worldPositio
     cameraTransform2D_ = worldPositionComponent;
 }
 
+void glimmer::WorldContext::SetHotBarComponent(HotBarComponent *hotbarComponent) {
+    hotBarComponent_ = hotbarComponent;
+}
+
 void glimmer::WorldContext::SetCameraComponent(CameraComponent *cameraComponent) {
     cameraComponent_ = cameraComponent;
 }
@@ -443,6 +449,10 @@ glimmer::CameraComponent *glimmer::WorldContext::GetCameraComponent() const {
 
 glimmer::Transform2DComponent *glimmer::WorldContext::GetCameraTransform2D() const {
     return cameraTransform2D_;
+}
+
+glimmer::HotBarComponent *glimmer::WorldContext::GetHotBarComponent() const {
+    return hotBarComponent_;
 }
 
 

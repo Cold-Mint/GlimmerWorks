@@ -9,6 +9,9 @@
 #include "../../utils/Box2DUtils.h"
 #include "../component/RigidBody2DComponent.h"
 #include "box2d/box2d.h"
+#include "../component/HotBarComonent.h"
+#include "../component/ItemContainerComonent.h"
+#include "../../Constants.h"
 
 
 void glimmer::PlayerControlSystem::Update(const float delta) {
@@ -65,7 +68,7 @@ bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent *rigid) c
     struct RayContext {
         bool hit = false;
     };
-    auto rayCallback = [](b2ShapeId shapeId, b2Vec2 point, b2Vec2 normal, float fraction, void *ctx) -> float {
+    auto rayCallback = [](b2ShapeId, b2Vec2, b2Vec2, float, void *ctx) -> float {
         auto *context = static_cast<RayContext *>(ctx);
         context->hit = true;
         return 0.0F;
@@ -86,14 +89,84 @@ std::string glimmer::PlayerControlSystem::GetName() {
 
 bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
     auto *camera = worldContext_->GetCameraComponent();
-    if (event.type == SDL_EVENT_MOUSE_WHEEL && camera) {
-        float zoom = camera->GetZoom();
-        constexpr float zoomStep = 0.1F;
-        zoom += event.wheel.y > 0 ? zoomStep : -zoomStep;
+    auto *cameraTransform = worldContext_->GetCameraTransform2D();
 
-        camera->SetZoom(zoom);
-        LogCat::i("Camera zoom set to ", zoom);
+    // HotBar Switch
+    if (event.type == SDL_EVENT_MOUSE_WHEEL) {
+        const auto entities = worldContext_->GetEntitiesWithComponents<
+            PlayerControlComponent, HotBarComponent>();
+        for (auto &entity: entities) {
+            if (const auto hotBar = worldContext_->GetComponent<HotBarComponent>(entity->GetID())) {
+                int current = hotBar->GetSelectedSlot();
+                if (event.wheel.y > 0) {
+                    current--;
+                } else if (event.wheel.y < 0) {
+                    current++;
+                }
+                hotBar->SetSelectedSlot(current);
+            }
+        }
         return true;
+    }
+
+    // Mining and Placing
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && camera && cameraTransform) {
+        if (event.button.button == SDL_BUTTON_LEFT || event.button.button == SDL_BUTTON_RIGHT) {
+            const auto entities = worldContext_->GetEntitiesWithComponents<
+                PlayerControlComponent, HotBarComponent, ItemContainerComponent>();
+            if (entities.empty()) {
+                return false;
+            }
+
+            auto entity = entities[0];
+            auto hotBar = worldContext_->GetHotBarComponent();
+            auto itemContainerComp = worldContext_->GetComponent<ItemContainerComponent>(entity->GetID());
+            if (hotBar == nullptr || itemContainerComp == nullptr) {
+                return false;
+            }
+
+            int windowW, windowH;
+            SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
+
+            // float mouseX = event.button.x;
+            // float mouseY = event.button.y;
+            // WorldVector2D worldVector2D = camera->GetWorldPosition(cameraTransform->GetPosition(),
+            //                                                        CameraVector2D(mouseX, mouseY));
+            // if (event.button.button == SDL_BUTTON_LEFT) {
+            //     std::vector<GameEntity *> tileLayerEntitys = worldContext_->GetEntitiesWithComponents<
+            //         TileLayerComponent>();
+            //     for (auto &entity : tileLayerEntitys) {
+            //
+            //     }
+            //     // // Dig
+            //     // const Tile *target = worldContext_->GetTile(tileX, tileY);
+            //     // if (target && target->id != TILE_ID_AIR) {
+            //     //     Tile air;
+            //     //     air.id = TILE_ID_AIR;
+            //     //     air.name = "Air";
+            //     //     worldContext_->SetTile(tileX, tileY, air);
+            //     //
+            //     //     // Note: Not implementing item drops for now as per minimal requirements to "implement mining".
+            //     //     // Usually we would drop item entity or add to inventory.
+            //     // }
+            // } else if (event.button.button == SDL_BUTTON_RIGHT) {
+            //     // Place
+            //     ItemContainer *container = itemContainerComp->GetItemContainer();
+            //     int slot = hotBar->GetSelectedSlot();
+            //     Item *item = container->GetItem(slot);
+            //     if (item) {
+            //         if (auto *tileItem = dynamic_cast<TileItem *>(item)) {
+            //             const Tile *target = worldContext_->GetTile(tileX, tileY);
+            //             if (target && target->id == TILE_ID_AIR) {
+            //                 worldContext_->SetTile(tileX, tileY, tileItem->tile_);
+            //                 container->RemoveItemAt(slot, 1);
+            //             }
+            //         }
+            //         item->OnUse();
+            //     }
+            // }
+            return true;
+        }
     }
 
     const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();

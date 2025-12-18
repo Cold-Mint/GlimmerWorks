@@ -4,17 +4,18 @@
 
 #ifndef GLIMMERWORKS_ITEMCONTAINERCOMONENT_H
 #define GLIMMERWORKS_ITEMCONTAINERCOMONENT_H
+#include "../GameComponent.h"
 #include "../../inventory/ItemContainer.h"
 
 namespace glimmer {
     /**
      * 物品容器组建
      */
-    class ItemContainerComponent {
+    class ItemContainerComponent : public GameComponent {
         std::unique_ptr<ItemContainer> itemContainer_;
 
     public:
-        ItemContainerComponent(const size_t capacity) {
+        explicit ItemContainerComponent(const size_t capacity) {
             itemContainer_ = std::make_unique<ItemContainer>(capacity);
         }
 

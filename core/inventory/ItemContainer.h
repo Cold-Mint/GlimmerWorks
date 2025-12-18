@@ -56,6 +56,23 @@ namespace glimmer {
 
 
         /**
+         * Remove Item At Index
+         * 移除指定位置的物品
+         * @param index
+         * @param amount
+         * @return
+         */
+        size_t RemoveItemAt(size_t index, size_t amount);
+
+        /**
+         * GetItem
+         * 获取物品
+         * @param index
+         * @return
+         */
+        [[nodiscard]] Item *GetItem(size_t index) const;
+
+        /**
          * GetCapacity
          * 获取容量
          * @return

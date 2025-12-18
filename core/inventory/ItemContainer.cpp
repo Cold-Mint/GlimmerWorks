@@ -76,3 +76,22 @@ size_t glimmer::ItemContainer::GetUsedCapacity() const {
 size_t glimmer::ItemContainer::GetCapacity() const {
     return items_.size();
 }
+
+glimmer::Item *glimmer::ItemContainer::GetItem(size_t index) const {
+    if (index >= items_.size()) {
+        return nullptr;
+    }
+    return items_[index].get();
+}
+
+size_t glimmer::ItemContainer::RemoveItemAt(const size_t index, const size_t amount) {
+    if (index >= items_.size() || items_[index] == nullptr) {
+        return 0;
+    }
+    Item *item = items_[index].get();
+    size_t removed = item->RemoveAmount(amount);
+    if (item->GetAmount() == 0) {
+        items_[index].reset();
+    }
+    return removed;
+}

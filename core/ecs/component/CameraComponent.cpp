@@ -27,6 +27,14 @@ CameraVector2D glimmer::CameraComponent::GetViewPortPosition(const WorldVector2D
     };
 }
 
+WorldVector2D glimmer::CameraComponent::GetWorldPosition(const WorldVector2D cameraPosition,
+                                                         const CameraVector2D viewPortPosition) const {
+    return {
+        cameraPosition.x + (viewPortPosition.x - size_.x * 0.5F) / zoom_,
+        cameraPosition.y + (size_.y * 0.5F - viewPortPosition.y) / zoom_
+    };
+}
+
 bool glimmer::CameraComponent::IsPointInViewport(const WorldVector2D cameraPosition,
                                                  const WorldVector2D worldPos) const {
     const auto viewportRect = GetViewportRect(cameraPosition);

@@ -142,8 +142,9 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
     // Draw Chunk Grid in Bottom-Left
     // 在左下角绘制区块网格
-    const auto &chunks = worldContext_->GetAllChunks();
-    if (!entities.empty()) {
+    const auto chunksPtr = worldContext_->GetAllChunks();
+    if (chunksPtr != nullptr && !entities.empty()) {
+        const auto chunks = *chunksPtr;
         auto firstPlayerEntity = entities[0];
         auto position = worldContext_->GetComponent<Transform2DComponent>(firstPlayerEntity->GetID());
         if (position) {

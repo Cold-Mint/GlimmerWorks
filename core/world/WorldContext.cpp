@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "ChunkPhysicsHelper.h"
 #include "TilePlacer.h"
 #include "../Constants.h"
 #include "../ecs/component/DebugDrawComponent.h"
@@ -124,6 +125,11 @@ int glimmer::WorldContext::GetHeight(int x) {
     return height;
 }
 
+std::unordered_map<TileVector2D, glimmer::Chunk, glimmer::Vector2DIHash> *glimmer::WorldContext::GetAllChunks() {
+    return &chunks_;
+}
+
+
 float glimmer::WorldContext::GetHumidity(const TileVector2D tileVector2d) {
     const auto it = humidityMap.find(tileVector2d);
     if (it != humidityMap.end()) {
@@ -174,11 +180,15 @@ float glimmer::WorldContext::GetElevation(const int height) {
     return static_cast<float>(height) / (WORLD_MAX_Y - WORLD_MIN_Y + WORLD_MIN_Y);
 }
 
-void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
-                                        const WorldVector2D &tileLayerPos, TileVector2D position) {
-    if (chunks_.contains(position))
+void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileVector2D position) {
+    TileVector2D relativeCoordinates = Chunk::TileCoordinatesToChunkRelativeCoordinates(position);
+    if (relativeCoordinates.x != 0 || relativeCoordinates.y != 0) {
+        LogCat::e("The loaded coordinates are not vertex coordinates.");
+        assert(false);
+    }
+    if (chunks_.contains(position)) {
         return;
-
+    }
     Chunk newChunk(position);
     std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> tilesRef;
     ResourceRef airTileRef;
@@ -247,7 +257,6 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
-            TileVector2D worldTilePos = position + localTile;
             ResourceRef resourceRef = tilesRef[localX][localY];
             std::optional<TileResource *> tileResource = appContext_->GetResourceLocator()->FindTile(resourceRef);
             TileResource *tileResourceValue = nullptr;
@@ -274,11 +283,11 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
             } else {
                 tile.name = tile.id;
             }
+            tile.layerType = static_cast<TileLayerType>(tileResourceValue->layerType);
             tile.physicsType = static_cast<TilePhysicsType>(tileResourceValue->physicsType);
             auto texture = appContext_->GetResourcePackManager()->LoadTextureFromFile(
                 appContext_->GetConfig()->mods.enabledResourcePack, tileResourceValue->texture);
             tile.texture = texture;
-            tileLayerComponent->SetTile(worldTilePos, tile);
             newChunk.SetTile(localTile, tile);
         }
     }
@@ -287,20 +296,12 @@ void glimmer::WorldContext::LoadChunkAt(TileLayerComponent *tileLayerComponent,
 }
 
 
-void glimmer::WorldContext::UnloadChunkAt(TileLayerComponent *tileLayerComponent, TileVector2D position) {
+void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
     auto it = chunks_.find(position);
     if (it == chunks_.end()) {
         return;
     }
     ChunkPhysicsHelper::DetachPhysicsBodyToChunk(&it->second);
-    if (tileLayerComponent != nullptr) {
-        for (int y = 0; y < CHUNK_SIZE; ++y) {
-            for (int x = 0; x < CHUNK_SIZE; ++x) {
-                TileVector2D tilePos = position + TileVector2D(x, y);
-                tileLayerComponent->ClearTile(tilePos);
-            }
-        }
-    }
     chunks_.erase(it);
     LogCat::d("Unloaded chunk at position=", position.x, "y =", position.y);
 }
@@ -318,10 +319,6 @@ bool glimmer::WorldContext::ChunkIsOutOfBounds(TileVector2D position) {
     return false;
 }
 
-const std::unordered_map<TileVector2D, glimmer::Chunk, glimmer::Vector2DIHash> &glimmer::WorldContext::
-GetAllChunks() {
-    return chunks_;
-}
 
 bool glimmer::WorldContext::HandleEvent(const SDL_Event &event) const {
     bool handled = false;

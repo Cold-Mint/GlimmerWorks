@@ -6,6 +6,8 @@
 #define GLIMMERWORKS_TILE_H
 #include <memory>
 #include <SDL3/SDL.h>
+
+#include "TileLayerType.h"
 #include "TilePhysicsType.h"
 
 namespace glimmer {
@@ -15,6 +17,7 @@ namespace glimmer {
         std::string description;
         std::shared_ptr<SDL_Texture> texture;
         TilePhysicsType physicsType = TilePhysicsType::None;
+        TileLayerType layerType = TileLayerType::Main;
     };
 }
 

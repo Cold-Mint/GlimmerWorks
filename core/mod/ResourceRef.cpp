@@ -22,7 +22,7 @@ void glimmer::ResourceRef::SetPackageId(const std::string &packId) {
 std::string glimmer::ResourceRef::GetPackageId() const {
     if (!bindPackage_) {
         LogCat::e("Unbound packages may return placeholders.");
-        assert(true);
+        assert(false);
     }
     return packId_;
 }

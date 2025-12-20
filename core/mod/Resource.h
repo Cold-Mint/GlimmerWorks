@@ -39,6 +39,7 @@ namespace glimmer {
         ResourceRef description;
         std::string texture;
         uint8_t physicsType = 0;
+        uint8_t layerType = 0;
     };
 
 

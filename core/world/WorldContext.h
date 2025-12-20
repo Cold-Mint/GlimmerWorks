@@ -18,7 +18,6 @@
 #include <SDL3/SDL_render.h>
 
 #include "Chunk.h"
-#include "ChunkPhysicsHelper.h"
 #include "../ecs/GameComponent.h"
 #include "../ecs/component/HotBarComonent.h"
 #include "../math/Vector2DI.h"
@@ -149,7 +148,6 @@ namespace glimmer {
         b2WorldId worldId_ = b2_nullWorldId;
         std::vector<std::unique_ptr<GameEntity> > entities;
         std::unordered_map<GameEntity::ID, GameEntity *> entityMap;
-        ChunkPhysicsHelper *chunkPhysicsHelper_;
         AppContext *appContext_;
 
         void RemoveComponentInternal(GameEntity::ID id, GameComponent *comp);
@@ -172,8 +170,6 @@ namespace glimmer {
             temperatureMapNoise = nullptr;
             b2DestroyWorld(worldId_);
             worldId_ = b2_nullWorldId;
-            delete chunkPhysicsHelper_;
-            chunkPhysicsHelper_ = nullptr;
             for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
                 if (command->RequiresWorldContext()) {
                     command->BindWorldContext(this);
@@ -221,6 +217,13 @@ namespace glimmer {
         int GetHeight(int x);
 
         /**
+         * GetChunks
+         * 获取区块
+         * @return
+         */
+        std::unordered_map<TileVector2D, Chunk, Vector2DIHash> *GetAllChunks();
+
+        /**
          * Obtain the humidity value of a certain coordinate
          * 获取某个坐标的湿度值
          * @param tileVector2d tileVector2d 瓦片坐标
@@ -265,21 +268,18 @@ namespace glimmer {
         /**
         * Load Chunk
         * 加载区块
-         * @param tileLayerComponent tileLayerComponent 瓦片图层
         * @param tileLayerPos tileLayerPos 瓦片层的对象位置
         * @param position position 位置
         */
-        void LoadChunkAt(TileLayerComponent *tileLayerComponent,
-                         const WorldVector2D &tileLayerPos,
+        void LoadChunkAt(const WorldVector2D &tileLayerPos,
                          TileVector2D position);
 
         /**
          * Unload Chunk
          * 卸载区块
-         * @param tileLayerComponent tileLayerComponent 瓦片图层
          * @param position position 位置
          */
-        void UnloadChunkAt(TileLayerComponent *tileLayerComponent, TileVector2D position);
+        void UnloadChunkAt(TileVector2D position);
 
         /**
          * Determine whether a block at a certain position has been loaded
@@ -297,15 +297,6 @@ namespace glimmer {
          * @return Whether it exceeds the boundary 是否超出边界
          */
         static bool ChunkIsOutOfBounds(TileVector2D position);
-
-
-        /**
-         * GetAllChunks
-         * 获取所有区块
-         * @return
-         */
-        const std::unordered_map<TileVector2D, Chunk, Vector2DIHash> &GetAllChunks();
-
 
         bool HandleEvent(const SDL_Event &event) const;
 
@@ -425,7 +416,6 @@ namespace glimmer {
             worldDef.gravity = b2Vec2(0.0F, -10.0F);
             worldId_ = b2CreateWorld(&worldDef);
             InitSystem(appContext);
-            chunkPhysicsHelper_ = new ChunkPhysicsHelper();
             appContext_ = appContext;
             for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
                 if (command->RequiresWorldContext()) {

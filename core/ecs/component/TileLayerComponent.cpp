@@ -4,13 +4,17 @@
 
 #include "TileLayerComponent.h"
 
+#include <assert.h>
+
 #include "../../Constants.h"
+#include "../../log/LogCat.h"
 #include "../../world/Tile.h"
 #include "../../math/Vector2DI.h"
+#include "../../world/Chunk.h"
 
 
 WorldVector2D glimmer::TileLayerComponent::TileToWorld(const WorldVector2D &tileLayerPos,
-                                                                const TileVector2D &tilePos) {
+                                                       const TileVector2D &tilePos) {
     return {
         static_cast<float>(tilePos.x) * TILE_SIZE + tileLayerPos.x,
         static_cast<float>(tilePos.y) * TILE_SIZE + tileLayerPos.y
@@ -18,7 +22,7 @@ WorldVector2D glimmer::TileLayerComponent::TileToWorld(const WorldVector2D &tile
 }
 
 TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D &tileLayerPos,
-                                                               const WorldVector2D &worldPos) {
+                                                      const WorldVector2D &worldPos) {
     const float localX = worldPos.x - tileLayerPos.x;
     const float localY = worldPos.y - tileLayerPos.y;
 
@@ -41,32 +45,41 @@ std::vector<std::pair<TileVector2D, glimmer::Tile> > glimmer::TileLayerComponent
     std::vector<std::pair<TileVector2D, Tile> > visibleTiles;
     for (int y = topLeft.y; y <= bottomRight.y; ++y) {
         for (int x = topLeft.x; x <= bottomRight.x; ++x) {
-            long long key = EncodeTileKey(x, y);
-            auto it = tileMap_.find(key);
-            if (it != tileMap_.end()) { visibleTiles.emplace_back(TileVector2D{x, y}, it->second); }
+            TileVector2D tileVector2D = TileVector2D(x, y);
+            std::optional<Tile> tile = GetTile(tileVector2D);
+            if (tile.has_value()) {
+                visibleTiles.emplace_back(tileVector2D, tile.value());
+            }
         }
     }
     return visibleTiles;
 }
 
-void glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, const Tile &tile) {
-    tileMap_[EncodeTileKey(tilePos.x, tilePos.y)] = tile;
-}
-
-void glimmer::TileLayerComponent::ClearTile(const TileVector2D &tilePos) {
-    const auto key = EncodeTileKey(tilePos.x, tilePos.y);
-    tileMap_.erase(key);
+bool glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, const Tile &tile) const {
+    TileVector2D vertexCoordinate = Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos);
+    auto it = chunks_->find(vertexCoordinate);
+    if (it == chunks_->end()) {
+        LogCat::w("An attempt was made to place a tile in x=", tilePos.x, ",y=", tilePos.y,
+                  " but the block it belongs to has not yet been loaded.");
+        return false;
+    }
+    Chunk &chunk = it->second;
+    chunk.SetTile(Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos), tile);
+    return true;
 }
 
 
 std::optional<glimmer::Tile> glimmer::TileLayerComponent::GetTile(const TileVector2D &tilePos) const {
-    long long key = EncodeTileKey(tilePos.x, tilePos.y);
-    auto it = tileMap_.find(key);
-    if (it != tileMap_.end())
-        return it->second;
-    return std::nullopt;
+    TileVector2D vertexCoordinate = Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos);
+    auto it = chunks_->find(vertexCoordinate);
+    if (it == chunks_->end()) {
+        return std::nullopt;
+    }
+    Chunk &chunk = it->second;
+    Tile tile = chunk.GetTile(GetTileLayerType(), Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos));
+    return tile;
 }
 
-long long glimmer::TileLayerComponent::EncodeTileKey(int x, int y) {
-    return static_cast<long long>(x) << 32 | static_cast<unsigned int>(y);
+glimmer::TileLayerType glimmer::TileLayerComponent::GetTileLayerType() const {
+    return tileLayerType_;
 }

@@ -33,43 +33,39 @@ void glimmer::ChunkSystem::Update(float delta) {
         // 视口左上角和右下角对应的tile坐标
         TileVector2D topLeftCorner = TileLayerComponent::WorldToTile(
             worldPosition->GetPosition(),
-            WorldVector2D(viewportRect.x, viewportRect.y)); //Clang-Tidy: Static member accessed through instance
+            WorldVector2D(viewportRect.x, viewportRect.y));
 
         TileVector2D lowerRightCorner = TileLayerComponent::WorldToTile(
             worldPosition->GetPosition(),
             WorldVector2D(viewportRect.x + viewportRect.w, viewportRect.y + viewportRect.h));
-
-        // 计算可见区块范围（左上角对齐CHUNK_SIZE）
-        auto tileToChunk = [](const int tileCoord) {
-            return (tileCoord >= 0 ? tileCoord / CHUNK_SIZE : (tileCoord - CHUNK_SIZE + 1) / CHUNK_SIZE) * CHUNK_SIZE;
-        };
-
-        const int startChunkX = tileToChunk(topLeftCorner.x);
-        const int startChunkY = tileToChunk(topLeftCorner.y);
-        const int endChunkX = tileToChunk(lowerRightCorner.x);
-        const int endChunkY = tileToChunk(lowerRightCorner.y);
+        const TileVector2D startChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftCorner);
+        const TileVector2D endChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightCorner);
 
         // 加载可见区块
-        for (int cy = startChunkY; cy <= endChunkY; cy += CHUNK_SIZE) {
-            for (int cx = startChunkX; cx <= endChunkX; cx += CHUNK_SIZE) {
+        for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE) {
+            for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
                 TileVector2D chunkPos(cx, cy);
                 if (!WorldContext::ChunkIsOutOfBounds(chunkPos) && !worldContext_->HasChunk(chunkPos)) {
-                    worldContext_->LoadChunkAt(tileLayer, worldPosition->GetPosition(), chunkPos);
+                    worldContext_->LoadChunkAt(worldPosition->GetPosition(), chunkPos);
                 }
             }
         }
 
         // 卸载不可见区块
         std::vector<TileVector2D> chunksToUnload;
-        for (const auto &loadedPos: worldContext_->GetAllChunks() | std::views::keys) {
-            if (loadedPos.x < startChunkX || loadedPos.x > endChunkX ||
-                loadedPos.y < startChunkY || loadedPos.y > endChunkY) {
+        for (std::unordered_map<TileVector2D, Chunk, Vector2DIHash> allChunks = *worldContext_->GetAllChunks(); const
+             auto &loadedPos: allChunks | std::views::keys) {
+            if (loadedPos.x < startChunk.x || loadedPos.x >
+                endChunk.x ||
+                loadedPos.y < startChunk.y || loadedPos.y >
+                endChunk.y
+            ) {
                 chunksToUnload.push_back(loadedPos);
             }
         }
 
         for (const auto &pos: chunksToUnload) {
-            worldContext_->UnloadChunkAt(tileLayer, pos);
+            worldContext_->UnloadChunkAt(pos);
         }
     }
 }

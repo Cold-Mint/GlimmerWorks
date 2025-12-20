@@ -17,7 +17,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
 
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
-            auto tile = chunk->GetTile(x, y);
+            auto tile = chunk->GetTile(TileLayerType::Main, x, y);
             if (tile.physicsType == TilePhysicsType::Dynamic) {
                 dynamicTiles.emplace_back(chunkPos.x + x, chunkPos.y + y);
             }
@@ -28,7 +28,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
         for (int y = 0; y < CHUNK_SIZE; y++) {
             if (visited[x][y]) continue;
 
-            auto tile = chunk->GetTile(x, y);
+            auto tile = chunk->GetTile(TileLayerType::Main, x, y);
             if (tile.physicsType != TilePhysicsType::Static) continue;
 
             // Start a new rectangle
@@ -38,7 +38,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
             // Expand width
             while (x + w < CHUNK_SIZE) {
                 if (visited[x + w][y]) break;
-                auto nextTile = chunk->GetTile(x + w, y);
+                auto nextTile = chunk->GetTile(TileLayerType::Main, x + w, y);
                 if (nextTile.physicsType != TilePhysicsType::Static) break;
                 w++;
             }
@@ -51,7 +51,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
                         canExpandHeight = false;
                         break;
                     }
-                    auto nextTile = chunk->GetTile(x + k, y + h);
+                    auto nextTile = chunk->GetTile(TileLayerType::Main, x + k, y + h);
                     if (nextTile.physicsType != TilePhysicsType::Static) {
                         canExpandHeight = false;
                         break;

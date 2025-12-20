@@ -143,6 +143,7 @@ struct nlohmann::adl_serializer<glimmer::TileResource> {
         s.name = j.at("name").get<glimmer::ResourceRef>();
         s.description = j.at("description").get<glimmer::ResourceRef>();
         s.physicsType = j.at("physicsType").get<uint8_t>();
+        s.layerType = j.at("layerType").get<uint8_t>();
     }
 
     static void to_json(json &j, const glimmer::TileResource &s) {
@@ -152,6 +153,7 @@ struct nlohmann::adl_serializer<glimmer::TileResource> {
             {"name", s.name},
             {"description", s.description},
             {"physicsType", s.physicsType},
+            {"layerType", s.layerType},
         };
     }
 };

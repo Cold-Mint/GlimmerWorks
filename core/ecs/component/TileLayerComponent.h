@@ -15,6 +15,9 @@
 using TileVector2D = glimmer::Vector2DI;
 
 namespace glimmer {
+    class Chunk;
+    struct Vector2DIHash;
+
     class TileLayerComponent final : public GameComponent {
     public:
         /**
@@ -38,6 +41,7 @@ namespace glimmer {
         /**
          * Get Tiles In Viewport
          * 获取视口矩形内的所有瓦片数据
+         * @param tileLayerPos
          * @param worldViewport
          * @return
          */
@@ -49,15 +53,9 @@ namespace glimmer {
          * 设置瓦片
          * @param tilePos tilePos 瓦片坐标
          * @param tile tile 瓦片
+         * @return If the block to which the tile belongs has not yet been loaded, return false 如果放置瓦片所属区块尚未加载，则返回false
          */
-        void SetTile(const TileVector2D &tilePos, const Tile &tile);
-
-        /**
-         * Clear Tile
-         * 清除指定位置的区块
-         * @param tilePos
-         */
-        void ClearTile(const TileVector2D &tilePos);
+        [[nodiscard]] bool SetTile(const TileVector2D &tilePos, const Tile &tile) const;
 
         /**
          * GetTile
@@ -67,15 +65,18 @@ namespace glimmer {
          */
         [[nodiscard]] std::optional<Tile> GetTile(const TileVector2D &tilePos) const;
 
-    private:
-        /**
-        * Implement sparse storage using unordered_map: The key is the tile coordinate
-        * 使用unordered_map实现稀疏存储：key是瓦片坐标
-         */
-        std::unordered_map<long long, Tile> tileMap_;
 
-        // 辅助方法：把(x,y)编码成唯一的key
-        [[nodiscard]] static long long EncodeTileKey(int x, int y);
+        [[nodiscard]] TileLayerType GetTileLayerType() const;
+
+        explicit TileLayerComponent(const TileLayerType tileLayerType,
+                                    std::unordered_map<TileVector2D, Chunk, Vector2DIHash> *chunks) : chunks_(chunks),
+            tileLayerType_(tileLayerType) {
+        }
+
+    private:
+        std::unordered_map<TileVector2D, Chunk, Vector2DIHash> *chunks_;
+
+        TileLayerType tileLayerType_;
     };
 }
 

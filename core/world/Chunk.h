@@ -12,35 +12,49 @@
 namespace glimmer {
     class Chunk {
         TileVector2D position;
-        std::array<std::array<Tile, CHUNK_SIZE>, CHUNK_SIZE> tiles_;
+        std::pmr::unordered_map<TileLayerType, std::array<std::array<Tile, CHUNK_SIZE>, CHUNK_SIZE> > tiles_;
         std::vector<b2BodyId> attachedBodies_;
+
+        static int TileToChunk(int tileCoord);
 
     public:
         explicit Chunk(const TileVector2D &pos) : position(pos) {
         }
 
 
-        void AddBodyId(b2BodyId bodyId) { attachedBodies_.emplace_back(bodyId); }
+        void AddBodyId(b2BodyId bodyId);
 
 
-        [[nodiscard]] const std::vector<b2BodyId> &GetAttachedBodies() const { return attachedBodies_; }
+        [[nodiscard]] const std::vector<b2BodyId> &GetAttachedBodies();
 
-        void ClearAttachedBodies() { attachedBodies_.clear(); }
+        void ClearAttachedBodies();
+
+        /**
+         * TileCoordinatesToChunkCoordinates
+         * 瓦片坐标转区块顶点坐标
+         * @param tileVector2d
+         * @return
+         */
+        [[nodiscard]] static TileVector2D TileCoordinatesToChunkVertexCoordinates(TileVector2D tileVector2d);
+
+
+        /**
+         * TileCoordinatesToChunkRelativeCoordinates
+         * 瓦片坐标转区块相对坐标
+         * @param tileVector2d
+         * @return
+         */
+        [[nodiscard]] static TileVector2D TileCoordinatesToChunkRelativeCoordinates(TileVector2D tileVector2d);
 
 
         void SetTile(TileVector2D pos, const Tile &tile);
 
-        [[nodiscard]] TileVector2D GetPosition() const { return position; }
+        [[nodiscard]] TileVector2D GetPosition() const;
 
-        [[nodiscard]] const Tile &GetTile(const int x, const int y) const { return tiles_[x][y]; }
+        [[nodiscard]] const Tile &GetTile(TileLayerType layerType, int x, int y);
 
-        Tile &GetTile(const int x, const int y) { return tiles_[x][y]; }
 
-        [[nodiscard]] const Tile &GetTile(TileVector2D tileVector2d) const {
-            return tiles_[tileVector2d.x][tileVector2d.y];
-        }
-
-        Tile &GetTile(const TileVector2D tileVector2d) { return tiles_[tileVector2d.x][tileVector2d.y]; }
+        [[nodiscard]] const Tile &GetTile(TileLayerType layerType, TileVector2D tileVector2d);
     };
 }
 

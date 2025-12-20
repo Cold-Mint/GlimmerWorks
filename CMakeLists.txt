@@ -298,6 +298,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/ecs/system/HotBarSystem.h
         core/ecs/component/HotBarComonent.cpp
         core/ecs/component/HotBarComonent.h
+        core/world/TileLayerType.cpp
+        core/world/TileLayerType.h
 )
 
 if (ANDROID)

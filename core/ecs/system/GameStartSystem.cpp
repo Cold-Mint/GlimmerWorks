@@ -28,7 +28,7 @@ void glimmer::GameStartSystem::Update(float delta) {
     auto *tileLayerEntity = worldContext_->CreateEntity();
     const auto transform2DComponent = worldContext_->AddComponent<Transform2DComponent>(tileLayerEntity);
     transform2DComponent->SetPosition(Vector2D(0, 0));
-    worldContext_->AddComponent<TileLayerComponent>(tileLayerEntity);
+    worldContext_->AddComponent<TileLayerComponent>(tileLayerEntity, TileLayerType::Main,worldContext_->GetAllChunks());
 
 
     auto *playerEntity = worldContext_->CreateEntity();

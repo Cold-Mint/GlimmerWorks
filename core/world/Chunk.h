@@ -14,7 +14,8 @@
 namespace glimmer {
     class Chunk {
         TileVector2D position;
-        std::pmr::unordered_map<TileLayerType, std::array<std::array<Tile, CHUNK_SIZE>, CHUNK_SIZE> > tiles_;
+        std::pmr::unordered_map<TileLayerType, std::array<std::array<std::unique_ptr<Tile>, CHUNK_SIZE>, CHUNK_SIZE> >
+        tiles_;
         std::vector<b2BodyId> attachedBodies_;
 
         static int TileToChunk(int tileCoord);
@@ -46,8 +47,8 @@ namespace glimmer {
          * @param tileVector2d tileVector2d 坐标
          * @return
          */
-        static std::optional<Chunk> GetChunkByTileVector2D(
-            std::unordered_map<TileVector2D, Chunk, Vector2DIHash> *chunks,
+        static Chunk *GetChunkByTileVector2D(
+            std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *chunks,
             TileVector2D tileVector2d);
 
         /**
@@ -58,15 +59,13 @@ namespace glimmer {
          */
         [[nodiscard]] static TileVector2D TileCoordinatesToChunkRelativeCoordinates(TileVector2D tileVector2d);
 
-
-        void SetTile(TileVector2D pos, const Tile &tile);
+        void SetTile(TileVector2D pos, std::unique_ptr<Tile> tile);
 
         [[nodiscard]] TileVector2D GetPosition() const;
 
-        [[nodiscard]] const Tile &GetTile(TileLayerType layerType, int x, int y);
+        [[nodiscard]] Tile *GetTile(TileLayerType layerType, int x, int y);
 
-
-        [[nodiscard]] const Tile &GetTile(TileLayerType layerType, TileVector2D tileVector2d);
+        [[nodiscard]] Tile *GetTile(TileLayerType layerType, TileVector2D tileVector2d);
     };
 }
 

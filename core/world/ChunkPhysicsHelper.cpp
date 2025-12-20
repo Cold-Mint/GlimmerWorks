@@ -18,7 +18,10 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
             auto tile = chunk->GetTile(TileLayerType::Main, x, y);
-            if (tile.physicsType == TilePhysicsType::Dynamic) {
+            if (tile == nullptr) {
+                continue;
+            }
+            if (tile->physicsType == TilePhysicsType::Dynamic) {
                 dynamicTiles.emplace_back(chunkPos.x + x, chunkPos.y + y);
             }
         }
@@ -26,10 +29,17 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
     std::array<std::array<bool, CHUNK_SIZE>, CHUNK_SIZE> visited{};
     for (int x = 0; x < CHUNK_SIZE; x++) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
-            if (visited[x][y]) continue;
+            if (visited[x][y]) {
+                continue;
+            }
 
             auto tile = chunk->GetTile(TileLayerType::Main, x, y);
-            if (tile.physicsType != TilePhysicsType::Static) continue;
+            if (tile == nullptr) {
+                continue;
+            }
+            if (tile->physicsType != TilePhysicsType::Static) {
+                continue;
+            }
 
             // Start a new rectangle
             int w = 1;
@@ -39,7 +49,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
             while (x + w < CHUNK_SIZE) {
                 if (visited[x + w][y]) break;
                 auto nextTile = chunk->GetTile(TileLayerType::Main, x + w, y);
-                if (nextTile.physicsType != TilePhysicsType::Static) break;
+                if (nextTile->physicsType != TilePhysicsType::Static) break;
                 w++;
             }
 
@@ -52,7 +62,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
                         break;
                     }
                     auto nextTile = chunk->GetTile(TileLayerType::Main, x + k, y + h);
-                    if (nextTile.physicsType != TilePhysicsType::Static) {
+                    if (nextTile->physicsType != TilePhysicsType::Static) {
                         canExpandHeight = false;
                         break;
                     }

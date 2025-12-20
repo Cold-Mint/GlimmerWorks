@@ -29,7 +29,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                 const auto layerWorldPos = worldPositionComponent->GetPosition();
                 const float zoom = cameraComponent->GetZoom();
 
-                std::vector<std::pair<TileVector2D, Tile> > visibleTiles =
+                std::vector<std::pair<TileVector2D, Tile *> > visibleTiles =
                         tileLayerComponent->GetTilesInViewport(layerWorldPos, viewportRect);
                 SDL_Color oldColor;
                 SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
@@ -47,7 +47,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                     renderQuad.x = screenPos.x - renderQuad.w * 0.5f;
                     renderQuad.y = screenPos.y - renderQuad.h * 0.5f;
                     SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
-                    if (!SDL_RenderTexture(renderer, tile.texture.get(), nullptr, &dstRect)) {
+                    if (!SDL_RenderTexture(renderer, tile->texture.get(), nullptr, &dstRect)) {
                         LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
                     }
                 }

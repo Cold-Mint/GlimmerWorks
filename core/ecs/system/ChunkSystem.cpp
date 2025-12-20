@@ -53,7 +53,9 @@ void glimmer::ChunkSystem::Update(float delta) {
 
         // 卸载不可见区块
         std::vector<TileVector2D> chunksToUnload;
-        for (std::unordered_map<TileVector2D, Chunk, Vector2DIHash> allChunks = *worldContext_->GetAllChunks(); const
+        std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> allChunks = *worldContext_->
+                GetAllChunks();
+        for (const
              auto &loadedPos: allChunks | std::views::keys) {
             if (loadedPos.x < startChunk.x || loadedPos.x >
                 endChunk.x ||

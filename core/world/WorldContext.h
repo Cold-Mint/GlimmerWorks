@@ -36,6 +36,9 @@ namespace glimmer {
     class WorldContext {
         void RegisterSystem(std::unique_ptr<GameSystem> system);
 
+        uint32_t chunksVersion_ = 0;
+        uint32_t lastChunksVersion_ = UINT32_MAX;
+
         /**
          * World Seed
          * 世界种子
@@ -48,7 +51,8 @@ namespace glimmer {
          */
         bool allowRegisterSystem = false;
 
-        std::unordered_map<TileVector2D, Chunk, Vector2DIHash> chunks_;
+        std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> chunks_;
+        std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunksCache_;
 
         /**
          * Entity to component list
@@ -237,7 +241,7 @@ namespace glimmer {
          * 获取区块
          * @return
          */
-        std::unordered_map<TileVector2D, Chunk, Vector2DIHash> *GetAllChunks();
+        std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *GetAllChunks();
 
         /**
          * Obtain the humidity value of a certain coordinate

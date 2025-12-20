@@ -134,8 +134,17 @@ int glimmer::WorldContext::GetHeight(int x) {
     return height;
 }
 
-std::unordered_map<TileVector2D, glimmer::Chunk, glimmer::Vector2DIHash> *glimmer::WorldContext::GetAllChunks() {
-    return &chunks_;
+std::unordered_map<TileVector2D, glimmer::Chunk *, glimmer::Vector2DIHash> *glimmer::WorldContext::GetAllChunks() {
+    if (lastChunksVersion_ != chunksVersion_) {
+        chunksCache_.clear();
+        chunksCache_.reserve(chunks_.size());
+
+        for (auto &[pos, chunkPtr]: chunks_) {
+            chunksCache_[pos] = chunkPtr.get();
+        }
+        lastChunksVersion_ = chunksVersion_;
+    }
+    return &chunksCache_;
 }
 
 
@@ -198,7 +207,7 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
     if (chunks_.contains(position)) {
         return;
     }
-    Chunk newChunk(position);
+    auto chunk = std::make_unique<Chunk>(position);
     std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> tilesRef;
     ResourceRef airTileRef;
     airTileRef.SetResourceType(RESOURCE_TYPE_TILE);
@@ -276,11 +285,12 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
                           " does not exist.");
                 tileResourceValue = appContext_->GetTileManager()->GetAir();
             }
-            newChunk.SetTile(localTile, Tile::FromResourceRef(appContext_, tileResourceValue));
+            chunk->SetTile(localTile, Tile::FromResourceRef(appContext_, tileResourceValue));
         }
     }
-    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos, &newChunk);
-    chunks_.insert({position, newChunk});
+    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos, chunk.get());
+    chunks_.insert({position, std::move(chunk)});
+    chunksVersion_++;
 }
 
 
@@ -289,8 +299,9 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
     if (it == chunks_.end()) {
         return;
     }
-    ChunkPhysicsHelper::DetachPhysicsBodyToChunk(&it->second);
+    ChunkPhysicsHelper::DetachPhysicsBodyToChunk(it->second.get());
     chunks_.erase(it);
+    chunksVersion_++;
     LogCat::d("Unloaded chunk at position=", position.x, "y =", position.y);
 }
 

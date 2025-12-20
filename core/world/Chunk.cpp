@@ -22,12 +22,12 @@ TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileV
     };
 }
 
-std::optional<glimmer::Chunk> glimmer::Chunk::GetChunkByTileVector2D(
-    std::unordered_map<TileVector2D, Chunk, Vector2DIHash> *chunks, const TileVector2D tileVector2d) {
+glimmer::Chunk *glimmer::Chunk::GetChunkByTileVector2D(
+    std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *chunks, TileVector2D tileVector2d) {
     const TileVector2D vertexCoordinate = TileCoordinatesToChunkVertexCoordinates(tileVector2d);
     const auto it = chunks->find(vertexCoordinate);
     if (it == chunks->end()) {
-        return std::nullopt;
+        return nullptr;
     }
     return it->second;
 }
@@ -50,18 +50,18 @@ int glimmer::Chunk::TileToChunk(const int tileCoord) {
     return (tileCoord - CHUNK_SIZE + 1) / CHUNK_SIZE * CHUNK_SIZE;
 }
 
-void glimmer::Chunk::SetTile(const TileVector2D pos, const Tile &tile) {
-    tiles_[tile.layerType][pos.x][pos.y] = tile;
+void glimmer::Chunk::SetTile(const TileVector2D pos, std::unique_ptr<Tile> tile) {
+    tiles_[tile->layerType][pos.x][pos.y] = std::move(tile);
 }
 
 TileVector2D glimmer::Chunk::GetPosition() const {
     return position;
 }
 
-const glimmer::Tile &glimmer::Chunk::GetTile(const TileLayerType layerType, const int x, const int y) {
-    return tiles_[layerType][x][y];
+glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const int x, const int y) {
+    return tiles_[layerType][x][y].get();
 }
 
-const glimmer::Tile &glimmer::Chunk::GetTile(const TileLayerType layerType, const TileVector2D tileVector2d) {
-    return tiles_[layerType][tileVector2d.x][tileVector2d.y];
+glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const TileVector2D tileVector2d) {
+    return tiles_[layerType][tileVector2d.x][tileVector2d.y].get();
 }

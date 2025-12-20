@@ -29,7 +29,7 @@ namespace glimmer {
          * @param tileResource tileResource 瓦片资源
          * @return
          */
-        static Tile FromResourceRef(const AppContext *appContext, const TileResource *tileResource);
+        static std::unique_ptr<Tile> FromResourceRef(const AppContext *appContext, const TileResource *tileResource);
     };
 }
 

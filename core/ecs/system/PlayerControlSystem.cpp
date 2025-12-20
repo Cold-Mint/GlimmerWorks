@@ -148,9 +148,9 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                     if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
                         TileVector2D tileVector2D = TileLayerComponent::WorldToTile(
                             tileLayerTransform2D->GetPosition(), worldVector2D);
-                        auto tileOptional = tileLayerComponent->GetTile(
+                        Tile *tileOptional = tileLayerComponent->GetTile(
                             tileVector2D);
-                        if (!tileOptional.has_value()) {
+                        if (tileOptional != nullptr) {
                             continue;
                         }
                         bool cleanTile = tileLayerComponent->SetTile(tileVector2D,
@@ -175,7 +175,7 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                             // ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(),
                             //                                              tileLayerTransform2D->GetPosition(),
                             //                                              &chunk.value());
-                        }else {
+                        } else {
                             LogCat::w("The tile cleaning failed.");
                         }
                     }

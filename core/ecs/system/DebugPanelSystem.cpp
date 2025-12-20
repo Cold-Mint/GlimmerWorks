@@ -71,7 +71,6 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             if (!tileLayer || !layerPos) continue;
 
             TileVector2D tileCoord = TileLayerComponent::WorldToTile(layerPos->GetPosition(), playerPos);
-            std::optional<Tile> tileObj = tileLayer->GetTile(tileCoord);
             float elevation = WorldContext::GetElevation(tileCoord.y);
             snprintf(buffer, sizeof(buffer),
                      "Tile Coord:(%d, %d) humidity:%f temperature：%f weirdness:%f erosion:%f elevation:%f",
@@ -142,9 +141,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
     // Draw Chunk Grid in Bottom-Left
     // 在左下角绘制区块网格
-    const auto chunksPtr = worldContext_->GetAllChunks();
-    if (chunksPtr != nullptr && !entities.empty()) {
-        const auto chunks = *chunksPtr;
+    const auto chunksPtr = *worldContext_->GetAllChunks();
+    if (!entities.empty()) {
         auto firstPlayerEntity = entities[0];
         auto position = worldContext_->GetComponent<Transform2DComponent>(firstPlayerEntity->GetID());
         if (position) {
@@ -169,7 +167,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             // 绘制已加载的区块（蓝色）
             SDL_SetRenderDrawColor(renderer, 100, 149, 237, 128);
 
-            for (const auto &[pos, chunk]: chunks) {
+            for (const auto &[pos, chunk]: chunksPtr) {
                 int chunkIndexX = pos.x / CHUNK_SIZE;
                 int chunkIndexY = pos.y / CHUNK_SIZE;
 
@@ -227,7 +225,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             // 绘制区块信息文本
             char chunkText[128];
             snprintf(chunkText, sizeof(chunkText), "Chunk: (%d, %d) | Vis: %d | Total: %zu",
-                     playerChunkX, playerChunkY, visibleChunkCount, chunks.size());
+                     playerChunkX, playerChunkY, visibleChunkCount, chunksPtr.size());
             SDL_Surface *s = TTF_RenderText_Blended(appContext_->GetFont(), chunkText, strlen(chunkText),
                                                     {255, 255, 255, 255});
             if (s) {

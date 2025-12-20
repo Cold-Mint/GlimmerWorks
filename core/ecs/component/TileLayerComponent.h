@@ -4,19 +4,18 @@
 
 #ifndef GLIMMERWORKS_TILELAYERCOMPONENT_H
 #define GLIMMERWORKS_TILELAYERCOMPONENT_H
-#include <optional>
 #include <unordered_map>
 #include <vector>
 
 #include "../GameComponent.h"
 #include "../../math/Vector2D.h"
+#include "../../math/Vector2DI.h"
 #include "SDL3/SDL_rect.h"
 #include "../../world/Tile.h"
 using TileVector2D = glimmer::Vector2DI;
 
 namespace glimmer {
     class Chunk;
-    struct Vector2DIHash;
 
     class TileLayerComponent final : public GameComponent {
     public:
@@ -45,7 +44,8 @@ namespace glimmer {
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, Tile> > GetTilesInViewport(const WorldVector2D &tileLayerPos,
+        [[nodiscard]] std::vector<std::pair<TileVector2D, Tile *> > GetTilesInViewport(
+            const WorldVector2D &tileLayerPos,
             const SDL_FRect &worldViewport) const;
 
         /**
@@ -55,7 +55,7 @@ namespace glimmer {
          * @param tile tile 瓦片
          * @return If the block to which the tile belongs has not yet been loaded, return false 如果放置瓦片所属区块尚未加载，则返回false
          */
-        [[nodiscard]] bool SetTile(const TileVector2D &tilePos, const Tile &tile) const;
+        [[nodiscard]] bool SetTile(const TileVector2D &tilePos, std::unique_ptr<Tile> tile) const;
 
         /**
          * GetTile
@@ -63,18 +63,19 @@ namespace glimmer {
          * @param tilePos 瓦片坐标
          * @return Tile 瓦片信息
          */
-        [[nodiscard]] std::optional<Tile> GetTile(const TileVector2D &tilePos) const;
+        [[nodiscard]] Tile *GetTile(const TileVector2D &tilePos) const;
 
 
         [[nodiscard]] TileLayerType GetTileLayerType() const;
 
         explicit TileLayerComponent(const TileLayerType tileLayerType,
-                                    std::unordered_map<TileVector2D, Chunk, Vector2DIHash> *chunks) : chunks_(chunks),
-            tileLayerType_(tileLayerType) {
+                                    std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *
+                                    chunks) : chunks_(chunks),
+                                              tileLayerType_(tileLayerType) {
         }
 
     private:
-        std::unordered_map<TileVector2D, Chunk, Vector2DIHash> *chunks_;
+        std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *chunks_;
 
         TileLayerType tileLayerType_;
     };

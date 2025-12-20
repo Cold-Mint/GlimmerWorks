@@ -4,6 +4,8 @@
 
 #ifndef GLIMMERWORKS_CHUNK_H
 #define GLIMMERWORKS_CHUNK_H
+#include <optional>
+
 #include "Tile.h"
 #include "../Constants.h"
 #include "../math/Vector2DI.h"
@@ -30,13 +32,23 @@ namespace glimmer {
         void ClearAttachedBodies();
 
         /**
-         * TileCoordinatesToChunkCoordinates
-         * 瓦片坐标转区块顶点坐标
-         * @param tileVector2d
-         * @return
-         */
+     * TileCoordinatesToChunkCoordinates
+     * 瓦片坐标转区块顶点坐标
+     * @param tileVector2d
+     * @return
+     */
         [[nodiscard]] static TileVector2D TileCoordinatesToChunkVertexCoordinates(TileVector2D tileVector2d);
 
+        /**
+         * Return the block where it is located based on the given coordinates
+         * 根据给定的坐标返回其所在区块
+         * @param chunks All the block information 所有的区块信息
+         * @param tileVector2d tileVector2d 坐标
+         * @return
+         */
+        static std::optional<Chunk> GetChunkByTileVector2D(
+            std::unordered_map<TileVector2D, Chunk, Vector2DIHash> *chunks,
+            TileVector2D tileVector2d);
 
         /**
          * TileCoordinatesToChunkRelativeCoordinates

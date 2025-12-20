@@ -9,8 +9,11 @@
 
 #include "TileLayerType.h"
 #include "TilePhysicsType.h"
+#include "../mod/Resource.h"
 
 namespace glimmer {
+    class AppContext;
+
     struct Tile {
         std::string id;
         std::string name;
@@ -18,6 +21,15 @@ namespace glimmer {
         std::shared_ptr<SDL_Texture> texture;
         TilePhysicsType physicsType = TilePhysicsType::None;
         TileLayerType layerType = TileLayerType::Main;
+
+        /**
+         * From Resource Ref
+         * 从资源引用创建瓦片
+         * @param appContext appContext 应用上下文
+         * @param tileResource tileResource 瓦片资源
+         * @return
+         */
+        static Tile FromResourceRef(const AppContext *appContext, const TileResource *tileResource);
     };
 }
 

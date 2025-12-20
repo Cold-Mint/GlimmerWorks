@@ -300,6 +300,10 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/ecs/component/HotBarComonent.h
         core/world/TileLayerType.cpp
         core/world/TileLayerType.h
+        core/ecs/component/DroppedItemComponent.cpp
+        core/ecs/component/DroppedItemComponent.h
+        core/ecs/system/DroppedItemSystem.cpp
+        core/ecs/system/DroppedItemSystem.h
 )
 
 if (ANDROID)

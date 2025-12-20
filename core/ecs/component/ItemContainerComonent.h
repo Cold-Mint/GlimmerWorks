@@ -9,7 +9,10 @@
 
 namespace glimmer {
     /**
-     * 物品容器组建
+     * Item container component
+     * 物品容器组件
+     * Add it to a game object to give the game object the ability to hold items.
+     * 将其添加到一个游戏对象上，使游戏对象拥有持有物品的能力。
      */
     class ItemContainerComponent : public GameComponent {
         std::unique_ptr<ItemContainer> itemContainer_;

@@ -56,28 +56,21 @@ std::vector<std::pair<TileVector2D, glimmer::Tile> > glimmer::TileLayerComponent
 }
 
 bool glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, const Tile &tile) const {
-    TileVector2D vertexCoordinate = Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos);
-    auto it = chunks_->find(vertexCoordinate);
-    if (it == chunks_->end()) {
-        LogCat::w("An attempt was made to place a tile in x=", tilePos.x, ",y=", tilePos.y,
-                  " but the block it belongs to has not yet been loaded.");
+    auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
+    if (!chunk.has_value()) {
         return false;
     }
-    Chunk &chunk = it->second;
-    chunk.SetTile(Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos), tile);
+    chunk.value().SetTile(Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos), tile);
     return true;
 }
 
 
 std::optional<glimmer::Tile> glimmer::TileLayerComponent::GetTile(const TileVector2D &tilePos) const {
-    TileVector2D vertexCoordinate = Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos);
-    auto it = chunks_->find(vertexCoordinate);
-    if (it == chunks_->end()) {
+    auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
+    if (!chunk.has_value()) {
         return std::nullopt;
     }
-    Chunk &chunk = it->second;
-    Tile tile = chunk.GetTile(GetTileLayerType(), Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos));
-    return tile;
+    return chunk.value().GetTile(GetTileLayerType(), Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos));
 }
 
 glimmer::TileLayerType glimmer::TileLayerComponent::GetTileLayerType() const {

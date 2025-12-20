@@ -12,6 +12,8 @@
 #include "../component/HotBarComonent.h"
 #include "../component/ItemContainerComonent.h"
 #include "../../Constants.h"
+#include "../../inventory/TileItem.h"
+#include "../../world/ChunkPhysicsHelper.h"
 
 
 void glimmer::PlayerControlSystem::Update(const float delta) {
@@ -106,7 +108,7 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                 hotBar->SetSelectedSlot(current);
             }
         }
-        return true;
+        return false;
     }
 
     // Mining and Placing
@@ -128,44 +130,58 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
             int windowW, windowH;
             SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
 
-            // float mouseX = event.button.x;
-            // float mouseY = event.button.y;
-            // WorldVector2D worldVector2D = camera->GetWorldPosition(cameraTransform->GetPosition(),
-            //                                                        CameraVector2D(mouseX, mouseY));
-            // if (event.button.button == SDL_BUTTON_LEFT) {
-            //     std::vector<GameEntity *> tileLayerEntitys = worldContext_->GetEntitiesWithComponents<
-            //         TileLayerComponent>();
-            //     for (auto &entity : tileLayerEntitys) {
-            //
-            //     }
-            //     // // Dig
-            //     // const Tile *target = worldContext_->GetTile(tileX, tileY);
-            //     // if (target && target->id != TILE_ID_AIR) {
-            //     //     Tile air;
-            //     //     air.id = TILE_ID_AIR;
-            //     //     air.name = "Air";
-            //     //     worldContext_->SetTile(tileX, tileY, air);
-            //     //
-            //     //     // Note: Not implementing item drops for now as per minimal requirements to "implement mining".
-            //     //     // Usually we would drop item entity or add to inventory.
-            //     // }
-            // } else if (event.button.button == SDL_BUTTON_RIGHT) {
-            //     // Place
-            //     ItemContainer *container = itemContainerComp->GetItemContainer();
-            //     int slot = hotBar->GetSelectedSlot();
-            //     Item *item = container->GetItem(slot);
-            //     if (item) {
-            //         if (auto *tileItem = dynamic_cast<TileItem *>(item)) {
-            //             const Tile *target = worldContext_->GetTile(tileX, tileY);
-            //             if (target && target->id == TILE_ID_AIR) {
-            //                 worldContext_->SetTile(tileX, tileY, tileItem->tile_);
-            //                 container->RemoveItemAt(slot, 1);
-            //             }
-            //         }
-            //         item->OnUse();
-            //     }
-            // }
-            return true;
+            float mouseX = event.button.x;
+            float mouseY = event.button.y;
+            WorldVector2D worldVector2D = camera->GetWorldPosition(cameraTransform->GetPosition(),
+                                                                   CameraVector2D(mouseX, mouseY));
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                std::vector<GameEntity *> tileLayerEntitys = worldContext_->GetEntitiesWithComponents<
+                    TileLayerComponent, Transform2DComponent>();
+                for (auto &gameEntity: tileLayerEntitys) {
+                    auto *tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(
+                        gameEntity->GetID());
+                    auto *tileLayerTransform2D = worldContext_->GetComponent<Transform2DComponent>(
+                        gameEntity->GetID());
+                    if (tileLayerComponent == nullptr || tileLayerTransform2D == nullptr) {
+                        continue;
+                    }
+                    if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
+                        TileVector2D tileVector2D = TileLayerComponent::WorldToTile(
+                            tileLayerTransform2D->GetPosition(), worldVector2D);
+                        auto tileOptional = tileLayerComponent->GetTile(
+                            tileVector2D);
+                        if (!tileOptional.has_value()) {
+                            continue;
+                        }
+                        bool cleanTile = tileLayerComponent->SetTile(tileVector2D,
+                                                                     Tile::FromResourceRef(
+                                                                         appContext_,
+                                                                         appContext_->GetTileManager()->GetAir()));
+                        if (cleanTile) {
+                            // const auto& tile = tileOptional.value();
+                            // auto tileItem = TileItem(tile);
+                            // GameEntity *droppedEntity = worldContext_->CreateEntity();
+                            // auto *transform2dComponent = worldContext_->AddComponent<
+                            //     Transform2DComponent>(droppedEntity);
+                            // transform2dComponent->SetPosition(
+                            //     TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
+                            // worldContext_->AddComponent<DroppedItemComponent>(
+                            //     droppedEntity, tileItem.Clone());
+                            // auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
+                            // if (!chunk.has_value()) {
+                            //     continue;
+                            // }
+                            // ChunkPhysicsHelper::DetachPhysicsBodyToChunk(&chunk.value());
+                            // ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(),
+                            //                                              tileLayerTransform2D->GetPosition(),
+                            //                                              &chunk.value());
+                        }else {
+                            LogCat::w("The tile cleaning failed.");
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 

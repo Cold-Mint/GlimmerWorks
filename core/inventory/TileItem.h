@@ -5,6 +5,8 @@
 #ifndef GLIMMERWORKS_TILEITEM_H
 #define GLIMMERWORKS_TILEITEM_H
 #include "Item.h"
+
+#include <utility>
 #include "../world/Tile.h"
 
 namespace glimmer {
@@ -13,6 +15,9 @@ namespace glimmer {
         ~TileItem() override = default;
 
         Tile tile_;
+
+        explicit TileItem(Tile tile) : tile_(std::move(tile)) {
+        }
 
         [[nodiscard]] std::string GetId() const override;
 

@@ -5,6 +5,7 @@
 #ifndef GLIMMERWORKS_HOTBARSYSTEM_H
 #define GLIMMERWORKS_HOTBARSYSTEM_H
 #include "../GameSystem.h"
+#include "../component/HotBarComonent.h"
 #include "../component/ItemContainerComonent.h"
 #include "../component/PlayerControlComponent.h"
 
@@ -19,6 +20,7 @@ namespace glimmer {
             : GameSystem(appContext, worldContext) {
             RequireComponent<PlayerControlComponent>();
             RequireComponent<ItemContainerComponent>();
+            RequireComponent<HotBarComponent>();
         }
 
         void Render(SDL_Renderer *renderer) override;

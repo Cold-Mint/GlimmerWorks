@@ -150,6 +150,8 @@ namespace glimmer {
         std::unordered_map<GameEntity::ID, GameEntity *> entityMap;
         AppContext *appContext_;
 
+        GameEntity *player_ = nullptr;
+
         void RemoveComponentInternal(GameEntity::ID id, GameComponent *comp);
 
     public:
@@ -207,6 +209,20 @@ namespace glimmer {
          */
         bool HasComponentType(const std::type_index &type) const;
 
+
+        /**
+         * Set player entity
+         * 设置玩家实体
+         * @param player
+         */
+        void SetPlayerEntity(GameEntity *player);
+
+        /**
+         * GetPlayerEntity
+         * 获取玩家实体
+         * @return
+         */
+        [[nodiscard]] GameEntity *GetPlayerEntity() const;
 
         /**
          * get Height

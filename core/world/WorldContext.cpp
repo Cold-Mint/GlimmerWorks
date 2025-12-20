@@ -18,6 +18,7 @@
 #include "../ecs/system/DebugDrawSystem.h"
 #include "../ecs/system/DebugPanelSystem.h"
 #include "../ecs/system/AndroidControlSystem.h"
+#include "../ecs/system/DroppedItemSystem.h"
 #include "../ecs/system/HotBarSystem.h"
 #include "../ecs/system/PhysicsSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
@@ -58,6 +59,14 @@ glimmer::Saves *glimmer::WorldContext::GetSaves() const {
 bool glimmer::WorldContext::HasComponentType(const std::type_index &type) const {
     const auto it = componentCount.find(type);
     return it != componentCount.end() && it->second > 0;
+}
+
+void glimmer::WorldContext::SetPlayerEntity(GameEntity *player) {
+    player_ = player;
+}
+
+glimmer::GameEntity *glimmer::WorldContext::GetPlayerEntity() const {
+    return player_;
 }
 
 int glimmer::WorldContext::GetHeight(int x) {
@@ -258,7 +267,7 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
             ResourceRef resourceRef = tilesRef[localX][localY];
-            std::optional<TileResource *> tileResource = appContext_->GetResourceLocator()->FindTile(resourceRef);
+            const std::optional<TileResource *> tileResource = appContext_->GetResourceLocator()->FindTile(resourceRef);
             TileResource *tileResourceValue = nullptr;
             if (tileResource.has_value()) {
                 tileResourceValue = tileResource.value();
@@ -267,28 +276,7 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
                           " does not exist.");
                 tileResourceValue = appContext_->GetTileManager()->GetAir();
             }
-            Tile tile;
-            tile.id = resourceRef.GetPackageId() + ":" + resourceRef.GetResourceKey();
-            std::optional<StringResource *> nameStringResource = appContext_->GetResourceLocator()->FindString(
-                tileResourceValue->name);
-            if (nameStringResource.has_value()) {
-                tile.name = nameStringResource.value()->value;
-            } else {
-                tile.name = tile.id;
-            }
-            std::optional<StringResource *> stringResource = appContext_->GetResourceLocator()->FindString(
-                tileResourceValue->name);
-            if (stringResource.has_value()) {
-                tile.name = stringResource.value()->value;
-            } else {
-                tile.name = tile.id;
-            }
-            tile.layerType = static_cast<TileLayerType>(tileResourceValue->layerType);
-            tile.physicsType = static_cast<TilePhysicsType>(tileResourceValue->physicsType);
-            auto texture = appContext_->GetResourcePackManager()->LoadTextureFromFile(
-                appContext_->GetConfig()->mods.enabledResourcePack, tileResourceValue->texture);
-            tile.texture = texture;
-            newChunk.SetTile(localTile, tile);
+            newChunk.SetTile(localTile, Tile::FromResourceRef(appContext_, tileResourceValue));
         }
     }
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos, &newChunk);
@@ -417,6 +405,7 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<ChunkSystem>(appContext, this));
     RegisterSystem(std::make_unique<PhysicsSystem>(appContext, this));
     RegisterSystem(std::make_unique<HotBarSystem>(appContext, this));
+    RegisterSystem(std::make_unique<DroppedItemSystem>(appContext, this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
 #endif

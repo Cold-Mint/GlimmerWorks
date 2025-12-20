@@ -50,7 +50,7 @@ static constexpr int WORLD_MIN_Y = 0;
 constexpr int TERRAIN_HEIGHT_RANGE = WORLD_MAX_Y - WORLD_MIN_Y - SKY_HEIGHT;
 constexpr int BASE_HEIGHT_OFFSET = 32; // 基础高度偏移
 constexpr int SEA_LEVEL_HEIGHT = BASE_HEIGHT_OFFSET + 64; // 绝对海平面 Y 坐标
-constexpr int MAX_LAND_HEIGHT = WORLD_MIN_Y +TERRAIN_HEIGHT_RANGE; // 陆地最大高度
+constexpr int MAX_LAND_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE; // 陆地最大高度
 
 // 噪声权重
 constexpr float MOUNTAIN_WEIGHT = 0.70F; // 山脉噪声在陆地起伏中的权重
@@ -61,6 +61,8 @@ constexpr float PEAK_LIFT_THRESHOLD = 0.60F; // 陆地起伏噪声高于此值�
 constexpr float MAX_PEAK_LIFT = 0.30F; // 山峰额外抬升的最大噪声比例 (例如，1.0 + 0.3 = 1.3 倍的幅度)
 
 static constexpr int TILE_SIZE = 32;
+
+static constexpr int DROPPED_ITEM_SIZE = TILE_SIZE * 0.8F;
 
 /**
  * @brief Box2D 世界坐标到像素坐标的缩放因子

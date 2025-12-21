@@ -149,37 +149,35 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                     if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
                         TileVector2D tileVector2D = TileLayerComponent::WorldToTile(
                             tileLayerTransform2D->GetPosition(), worldVector2D);
-                        Tile *tile = tileLayerComponent->GetTile(
+                        const Tile *tile = tileLayerComponent->GetTile(
                             tileVector2D);
                         if (tile == nullptr) {
                             continue;
                         }
-                        bool cleanTile = tileLayerComponent->SetTile(tileVector2D,
-                                                                     Tile::FromResourceRef(
-                                                                         appContext_,
-                                                                         appContext_->GetTileManager()->GetAir()));
-                        if (cleanTile) {
-                            auto tileItem = TileItem(tile);
-                            GameEntity *droppedEntity = worldContext_->CreateEntity();
-                            auto *transform2dComponent = worldContext_->AddComponent<
-                                Transform2DComponent>(droppedEntity);
-                            transform2dComponent->SetPosition(
-                                TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
-                            auto droppedItemComponent = worldContext_->AddComponent<DroppedItemComponent>(
-                                droppedEntity,
-                                tileItem.Clone());
-                            droppedItemComponent->SetRemainingTime(1);
-                            auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
-                            if (chunk == nullptr) {
-                                continue;
-                            }
-                            ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
-                            ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(),
-                                                                         tileLayerTransform2D->GetPosition(),
-                                                                         chunk);
-                        } else {
-                            LogCat::w("The tile cleaning failed.");
+                        if (!tile->breakable) {
+                            continue;
                         }
+                        auto oldTile = tileLayerComponent->ReplaceTile(tileVector2D,
+                                                                       Tile::FromResourceRef(
+                                                                           appContext_,
+                                                                           appContext_->GetTileManager()->GetAir()));
+                        GameEntity *droppedEntity = worldContext_->CreateEntity();
+                        auto *transform2dComponent = worldContext_->AddComponent<
+                            Transform2DComponent>(droppedEntity);
+                        transform2dComponent->SetPosition(
+                            TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
+                        auto droppedItemComponent = worldContext_->AddComponent<DroppedItemComponent>(
+                            droppedEntity, std::make_unique<TileItem>(std::move(oldTile))
+                        );
+                        droppedItemComponent->SetRemainingTime(1);
+                        auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
+                        if (chunk == nullptr) {
+                            continue;
+                        }
+                        ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
+                        ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(),
+                                                                     tileLayerTransform2D->GetPosition(),
+                                                                     chunk);
                     }
                 }
             }

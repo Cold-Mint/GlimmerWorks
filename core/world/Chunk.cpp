@@ -4,6 +4,8 @@
 
 #include "Chunk.h"
 
+#include "../log/LogCat.h"
+
 
 void glimmer::Chunk::AddBodyId(b2BodyId bodyId) { attachedBodies_.emplace_back(bodyId); }
 
@@ -62,6 +64,14 @@ glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const int 
     return tiles_[layerType][x][y].get();
 }
 
-glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const TileVector2D tileVector2d) {
-    return tiles_[layerType][tileVector2d.x][tileVector2d.y].get();
+glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const TileVector2D &tileVector2d) {
+    return GetTile(layerType, tileVector2d.x, tileVector2d.y);
+}
+
+std::unique_ptr<glimmer::Tile> glimmer::Chunk::ReplaceTile(const TileLayerType layerType,
+                                                           const TileVector2D &tileVector2d,
+                                                           std::unique_ptr<Tile> newTile) {
+    std::unique_ptr<Tile> extracted = std::move(tiles_[layerType][tileVector2d.x][tileVector2d.y]);
+    tiles_[layerType][tileVector2d.x][tileVector2d.y] = std::move(newTile);
+    return extracted;
 }

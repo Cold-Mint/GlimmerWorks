@@ -65,6 +65,9 @@ namespace glimmer {
          */
         [[nodiscard]] Tile *GetTile(const TileVector2D &tilePos) const;
 
+        [[nodiscard]] std::unique_ptr<Tile> ReplaceTile(const TileVector2D& tileVector2d,
+                                                        std::unique_ptr<Tile> newTile) const;
+
 
         [[nodiscard]] TileLayerType GetTileLayerType() const;
 

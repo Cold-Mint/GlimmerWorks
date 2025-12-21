@@ -142,6 +142,8 @@ struct nlohmann::adl_serializer<glimmer::TileResource> {
         s.texture = j.at("texture").get<std::string>();
         s.name = j.at("name").get<glimmer::ResourceRef>();
         s.description = j.at("description").get<glimmer::ResourceRef>();
+        s.hardness = j.at("hardness").get<float>();
+        s.breakable = j.at("breakable").get<bool>();
         s.physicsType = j.at("physicsType").get<uint8_t>();
         s.layerType = j.at("layerType").get<uint8_t>();
     }
@@ -152,6 +154,8 @@ struct nlohmann::adl_serializer<glimmer::TileResource> {
             {"texture", s.texture},
             {"name", s.name},
             {"description", s.description},
+            {"hardness", s.hardness},
+            {"breakable", s.breakable},
             {"physicsType", s.physicsType},
             {"layerType", s.layerType},
         };

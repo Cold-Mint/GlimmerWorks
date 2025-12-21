@@ -38,6 +38,8 @@ namespace glimmer {
         ResourceRef name;
         ResourceRef description;
         std::string texture;
+        float hardness = 1.0F;
+        bool breakable = true;
         uint8_t physicsType = 0;
         uint8_t layerType = 0;
     };

@@ -72,6 +72,16 @@ glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileVector2D &tilePos)
     return chunk->GetTile(GetTileLayerType(), Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos));
 }
 
+std::unique_ptr<glimmer::Tile> glimmer::TileLayerComponent::ReplaceTile(const TileVector2D &tileVector2d,
+                                                                        std::unique_ptr<Tile> newTile) const {
+    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tileVector2d);
+    if (chunk == nullptr) {
+        return nullptr;
+    }
+    return chunk->ReplaceTile(GetTileLayerType(), Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2d),
+                              std::move(newTile));
+}
+
 glimmer::TileLayerType glimmer::TileLayerComponent::GetTileLayerType() const {
     return tileLayerType_;
 }

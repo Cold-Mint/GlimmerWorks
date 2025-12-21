@@ -10,12 +10,13 @@
 
 namespace glimmer {
     class TileItem : public Item {
-        Tile *tile_;
+        std::unique_ptr<Tile> tile_;
+
     public:
         ~TileItem() override = default;
 
 
-        explicit TileItem(Tile *tile) : tile_(tile) {
+        explicit TileItem(std::unique_ptr<Tile> tile) : tile_(std::move(tile)) {
         }
 
         [[nodiscard]] std::string GetId() const override;
@@ -23,8 +24,6 @@ namespace glimmer {
         [[nodiscard]] std::string GetName() const override;
 
         [[nodiscard]] std::string GetDescription() const override;
-
-        [[nodiscard]] std::unique_ptr<Item> Clone() const override;
 
         void OnUse() override;
 

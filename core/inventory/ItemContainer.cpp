@@ -7,30 +7,30 @@
 #include "../log/LogCat.h"
 
 
-size_t glimmer::ItemContainer::AddItem(Item &item) {
+size_t glimmer::ItemContainer::AddItem(std::unique_ptr<Item> item) {
     size_t count = 0;
     for (auto &i: items_) {
         Item *itemPtr = i.get();
         if (itemPtr == nullptr) {
-            i = item.Clone();
-            count += item.GetAmount();
+            i = std::move(item);
+            count += item->GetAmount();
             return count;
         }
-        if (bool canStackMore = itemPtr->CanStackMore(&item); !canStackMore) {
+        if (bool canStackMore = itemPtr->CanStackMore(item.get()); !canStackMore) {
             continue;
         }
-        const size_t stackedAmount = itemPtr->AddAmount(item.GetAmount());
+        const size_t stackedAmount = itemPtr->AddAmount(item->GetAmount());
         if (stackedAmount == 0) {
             continue;
         }
-        if (const size_t removeAmount = item.RemoveAmount(stackedAmount); removeAmount == 0) {
+        if (const size_t removeAmount = item->RemoveAmount(stackedAmount); removeAmount == 0) {
             LogCat::w("The removal quantity failed.");
             if (itemPtr->RemoveAmount(stackedAmount) == 0) {
                 LogCat::w("Failed to remove from the item container.");
             }
         }
         count += stackedAmount;
-        if (item.GetAmount() == 0) {
+        if (item->GetAmount() == 0) {
             break;
         }
     }

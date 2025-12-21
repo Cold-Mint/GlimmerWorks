@@ -35,7 +35,7 @@ namespace glimmer {
          * @param item item 物品
          * @return
          */
-        [[nodiscard]] size_t AddItem(Item &item);
+        [[nodiscard]] size_t AddItem(std::unique_ptr<Item> item);
 
         /**
          * Remove Item

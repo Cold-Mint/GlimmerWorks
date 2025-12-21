@@ -22,7 +22,6 @@ namespace glimmer {
     public:
         virtual ~Item() = default;
 
-        [[nodiscard]] virtual std::unique_ptr<Item> Clone() const = 0;
 
         /**
           * GetId

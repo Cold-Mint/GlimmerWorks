@@ -5,15 +5,15 @@
 #include "TileItem.h"
 
 std::string glimmer::TileItem::GetId() const {
-    return tile_.id;
+    return tile_->id;
 }
 
 std::string glimmer::TileItem::GetName() const {
-    return tile_.name;
+    return tile_->name;
 }
 
 std::string glimmer::TileItem::GetDescription() const {
-    return tile_.description;
+    return tile_->description;
 }
 
 std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const {
@@ -24,7 +24,7 @@ void glimmer::TileItem::OnUse() {
 }
 
 std::shared_ptr<SDL_Texture> glimmer::TileItem::GetIcon() const {
-    return tile_.texture;
+    return tile_->texture;
 }
 
 

@@ -6,17 +6,16 @@
 #define GLIMMERWORKS_TILEITEM_H
 #include "Item.h"
 
-#include <utility>
 #include "../world/Tile.h"
 
 namespace glimmer {
     class TileItem : public Item {
+        Tile *tile_;
     public:
         ~TileItem() override = default;
 
-        Tile tile_;
 
-        explicit TileItem(Tile tile) : tile_(std::move(tile)) {
+        explicit TileItem(Tile *tile) : tile_(tile) {
         }
 
         [[nodiscard]] std::string GetId() const override;

@@ -11,6 +11,7 @@
 #include "box2d/box2d.h"
 #include "../component/HotBarComonent.h"
 #include "../component/ItemContainerComonent.h"
+#include "../component/DroppedItemComponent.h"
 #include "../../Constants.h"
 #include "../../inventory/TileItem.h"
 #include "../../world/ChunkPhysicsHelper.h"
@@ -148,9 +149,9 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                     if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
                         TileVector2D tileVector2D = TileLayerComponent::WorldToTile(
                             tileLayerTransform2D->GetPosition(), worldVector2D);
-                        Tile *tileOptional = tileLayerComponent->GetTile(
+                        Tile *tile = tileLayerComponent->GetTile(
                             tileVector2D);
-                        if (tileOptional != nullptr) {
+                        if (tile == nullptr) {
                             continue;
                         }
                         bool cleanTile = tileLayerComponent->SetTile(tileVector2D,
@@ -158,23 +159,24 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                                                                          appContext_,
                                                                          appContext_->GetTileManager()->GetAir()));
                         if (cleanTile) {
-                            // const auto& tile = tileOptional.value();
-                            // auto tileItem = TileItem(tile);
-                            // GameEntity *droppedEntity = worldContext_->CreateEntity();
-                            // auto *transform2dComponent = worldContext_->AddComponent<
-                            //     Transform2DComponent>(droppedEntity);
-                            // transform2dComponent->SetPosition(
-                            //     TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
-                            // worldContext_->AddComponent<DroppedItemComponent>(
-                            //     droppedEntity, tileItem.Clone());
-                            // auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
-                            // if (!chunk.has_value()) {
-                            //     continue;
-                            // }
-                            // ChunkPhysicsHelper::DetachPhysicsBodyToChunk(&chunk.value());
-                            // ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(),
-                            //                                              tileLayerTransform2D->GetPosition(),
-                            //                                              &chunk.value());
+                            auto tileItem = TileItem(tile);
+                            GameEntity *droppedEntity = worldContext_->CreateEntity();
+                            auto *transform2dComponent = worldContext_->AddComponent<
+                                Transform2DComponent>(droppedEntity);
+                            transform2dComponent->SetPosition(
+                                TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
+                            auto droppedItemComponent = worldContext_->AddComponent<DroppedItemComponent>(
+                                droppedEntity,
+                                tileItem.Clone());
+                            droppedItemComponent->SetRemainingTime(1);
+                            auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
+                            if (chunk == nullptr) {
+                                continue;
+                            }
+                            ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
+                            ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(),
+                                                                         tileLayerTransform2D->GetPosition(),
+                                                                         chunk);
                         } else {
                             LogCat::w("The tile cleaning failed.");
                         }

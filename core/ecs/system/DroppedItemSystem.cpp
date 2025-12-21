@@ -18,7 +18,7 @@ void glimmer::DroppedItemSystem::Update(float delta) {
         }
         if (droppedItemComponent->IsExpired()) {
             worldContext_->RemoveEntity(gameEntity->GetID());
-            return;
+            continue;
         }
         float remaining = droppedItemComponent->GetRemainingTime();
         remaining -= delta;

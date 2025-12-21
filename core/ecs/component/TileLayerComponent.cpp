@@ -55,7 +55,7 @@ std::vector<std::pair<TileVector2D, glimmer::Tile *> > glimmer::TileLayerCompone
 }
 
 bool glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, std::unique_ptr<Tile> tile) const {
-    auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
+    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
     if (chunk == nullptr) {
         return false;
     }
@@ -65,7 +65,7 @@ bool glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, std::uniq
 
 
 glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileVector2D &tilePos) const {
-    auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
+    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
     if (chunk == nullptr) {
         return nullptr;
     }

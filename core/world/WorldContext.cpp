@@ -312,7 +312,6 @@ bool glimmer::WorldContext::HasChunk(const TileVector2D position) const {
 bool glimmer::WorldContext::ChunkIsOutOfBounds(TileVector2D position) {
     if (position.y >= WORLD_MAX_Y ||
         position.y < WORLD_MIN_Y) {
-        LogCat::w("Chunk position out of world bounds: x=", position.x, "y =", position.y);
         return true;
     }
     return false;
@@ -495,8 +494,18 @@ void glimmer::WorldContext::RemoveEntity(GameEntity::ID id) {
     if (compIt != entityComponents.end()) {
         auto &components = compIt->second;
 
-        for (auto &comp: components) {
-            RemoveComponentInternal(id, comp.get());
+        // Make a copy of raw pointers to avoid iterator invalidation during removal
+        // 为了避免在删除过程中迭代器失效
+        std::vector<GameComponent *> componentsToRemove;
+        componentsToRemove.reserve(components.size());
+        for (const auto &comp: components) {
+            componentsToRemove.push_back(comp.get());
+        }
+
+        for (auto *comp: componentsToRemove) {
+            LogCat::d("Perform component removal =", id, " components = ", comp);
+            RemoveComponentInternal(id, comp);
+            LogCat::d("Perform component removal =", id, " components = ", comp, " success");
         }
 
         entityComponents.erase(compIt);

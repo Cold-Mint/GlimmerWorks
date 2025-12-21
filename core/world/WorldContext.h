@@ -509,7 +509,7 @@ namespace glimmer {
             }
         }
 
-        LogCat::d("Component ", type.name(), " successfully added to Entity ID = ", entityId);
+        LogCat::d("Component ", type.name(), " ptr=", ptr, " successfully added to Entity ID = ", entityId);
         return ptr;
     }
 

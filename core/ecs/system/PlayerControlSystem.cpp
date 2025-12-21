@@ -166,11 +166,18 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                             Transform2DComponent>(droppedEntity);
                         transform2dComponent->SetPosition(
                             TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
-                        auto droppedItemComponent = worldContext_->AddComponent<DroppedItemComponent>(
+                        worldContext_->AddComponent<DroppedItemComponent>(
                             droppedEntity, std::make_unique<TileItem>(std::move(oldTile))
                         );
-                        droppedItemComponent->SetRemainingTime(1);
-                        auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
+                        const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(
+                            droppedEntity);
+                        rigidBody2DComponent->SetBodyType(b2_dynamicBody);
+                        rigidBody2DComponent->SetWidth(DROPPED_ITEM_SIZE);
+                        rigidBody2DComponent->SetHeight(DROPPED_ITEM_SIZE);
+                        rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
+                                                         Box2DUtils::ToMeters(
+                                                             transform2dComponent->GetPosition()));
+                        const auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
                         if (chunk == nullptr) {
                             continue;
                         }

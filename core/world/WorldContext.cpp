@@ -472,14 +472,14 @@ void glimmer::WorldContext::RegisterSystem(std::unique_ptr<GameSystem> system) {
 
 
 glimmer::GameEntity *glimmer::WorldContext::CreateEntity() {
-    const auto newId = static_cast<GameEntity::ID>(entities.size());
-    auto entity = std::make_unique<GameEntity>(newId);
+    entityId_++;
+    const auto id = entityId_;
+    auto entity = std::make_unique<GameEntity>(id);
 
-    LogCat::d("Creating new entity, ID = ", newId);
+    LogCat::d("Creating new entity, ID = ", id);
 
     entities.push_back(std::move(entity));
-    entityMap[newId] = entities.back().get();
-
+    entityMap[id] = entities.back().get();
     LogCat::i("Entity registered successfully, total entities = ", entities.size());
 
     return entities.back().get();

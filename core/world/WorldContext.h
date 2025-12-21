@@ -53,6 +53,7 @@ namespace glimmer {
 
         std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> chunks_;
         std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunksCache_;
+        GameEntity::ID entityId_ = 0;
 
         /**
          * Entity to component list

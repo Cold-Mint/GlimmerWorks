@@ -5,12 +5,11 @@
 #ifndef GLIMMERWORKS_RIGIDBODY2DCOMPONENT_H
 #define GLIMMERWORKS_RIGIDBODY2DCOMPONENT_H
 #include "../GameComponent.h"
+#include "box2d/box2d.h"
 #include "box2d/types.h"
 
-namespace glimmer
-{
-    class RigidBody2DComponent : public GameComponent
-    {
+namespace glimmer {
+    class RigidBody2DComponent : public GameComponent {
         b2BodyId bodyId_ = b2_nullBodyId;
         bool ready_ = false;
         b2BodyType bodyType_ = b2_staticBody;
@@ -20,6 +19,12 @@ namespace glimmer
         bool fixedRotation_ = false;
 
     public:
+        ~RigidBody2DComponent() override {
+            if (ready_) {
+                b2DestroyBody(bodyId_);
+            }
+        }
+
         /**
          * Create Body
          * 创建刚体
@@ -27,6 +32,7 @@ namespace glimmer
          * @param b2Vec2 b2Vec2 刚体位置(单位：米)
          */
         void CreateBody(b2WorldId worldId, b2Vec2 b2Vec2);
+
         /**
          * GetBodyId
          * 获取刚体ID
@@ -41,18 +47,21 @@ namespace glimmer
          * @param width Rigid body width (unit: pixels) 刚体宽度(单位：像素)
          */
         void SetWidth(float width);
+
         /**
          * SetHeight
          * 设置刚体高度
          * @param height Rigid body height (unit: pixels) 刚体高度(单位：像素)
          */
         void SetHeight(float height);
+
         /**
          * GetWidth
          * 获取刚体宽度
          * @return Rigid body width (unit: pixels) 刚体宽度(单位：像素)
          */
         [[nodiscard]] float GetWidth() const;
+
         /**
          * GetHeight
          * 获取刚体高度

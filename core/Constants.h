@@ -104,5 +104,6 @@ static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 7;
  */
 static constexpr std::string TILE_ID_AIR = "air";
 static constexpr std::string TILE_ID_WATER = "water";
+static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 
 #endif //CONSTANTS_H

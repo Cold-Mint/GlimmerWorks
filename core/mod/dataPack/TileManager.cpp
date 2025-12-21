@@ -6,21 +6,32 @@
 
 #include "../../Constants.h"
 #include "../../log/LogCat.h"
+#include "../../world/TileLayerType.h"
+#include "../../world/TilePhysicsType.h"
 
 
 void glimmer::TileManager::InitBuiltinTiles() {
     air = std::make_unique<TileResource>();
     air->texture = "tiles/air.png";
     air->key = TILE_ID_AIR;
-    air->physicsType = 0;
+    air->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
+    air->layerType = static_cast<uint8_t>(TileLayerType::Main);
     air->breakable = false;
     air->hardness = 0;
     water = std::make_unique<TileResource>();
     water->texture = "tiles/water.png";
     water->key = TILE_ID_WATER;
-    water->physicsType = 0;
+    water->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
+    water->layerType = static_cast<uint8_t>(TileLayerType::Main);
     water->breakable = false;
     water->hardness = 0;
+    bedrock = std::make_unique<TileResource>();
+    bedrock->texture = "tiles/bedrock.png";
+    bedrock->key = TILE_ID_BEDROCK;
+    bedrock->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
+    bedrock->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    bedrock->breakable = false;
+    bedrock->hardness = 0;
 }
 
 glimmer::TileResource *glimmer::TileManager::GetAir() const {
@@ -29,6 +40,10 @@ glimmer::TileResource *glimmer::TileManager::GetAir() const {
 
 glimmer::TileResource *glimmer::TileManager::GetWater() const {
     return water.get();
+}
+
+glimmer::TileResource *glimmer::TileManager::GetBedrock() const {
+    return bedrock.get();
 }
 
 void glimmer::TileManager::RegisterResource(TileResource &tileResource) {

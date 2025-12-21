@@ -30,6 +30,9 @@ std::optional<glimmer::TileResource *> glimmer::ResourceLocator::FindTile(const 
         if (resourceRef.GetResourceKey() == TILE_ID_WATER) {
             return appContext_->GetTileManager()->GetWater();
         }
+        if (resourceRef.GetResourceKey() == TILE_ID_BEDROCK) {
+            return appContext_->GetTileManager()->GetBedrock();
+        }
         return std::nullopt;
     }
     return appContext_->GetTileManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());

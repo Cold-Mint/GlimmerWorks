@@ -26,6 +26,12 @@ namespace glimmer {
          */
         std::unique_ptr<TileResource> water = nullptr;
 
+        /**
+         * TileResource
+         * 基岩
+         */
+        std::unique_ptr<TileResource> bedrock = nullptr;
+
     public:
         /**
          * Initialize the built-in tiles
@@ -41,6 +47,8 @@ namespace glimmer {
         [[nodiscard]] TileResource *GetAir() const;
 
         [[nodiscard]] TileResource *GetWater() const;
+
+        [[nodiscard]] TileResource *GetBedrock() const;
 
         void RegisterResource(TileResource &tileResource);
 

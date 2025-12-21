@@ -219,6 +219,11 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
     waterTileRef.SetPackageId(RESOURCE_REF_CORE);
     waterTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
     waterTileRef.SetResourceKey(TILE_ID_WATER);
+    ResourceRef bedrockTileRef;
+    bedrockTileRef.SetResourceType(RESOURCE_TYPE_TILE);
+    bedrockTileRef.SetPackageId(RESOURCE_REF_CORE);
+    bedrockTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    bedrockTileRef.SetResourceKey(TILE_ID_BEDROCK);
     std::map<std::string, std::vector<TileVector2D> > biomeMap = {};
     std::map<std::string, BiomeResource *> biomeResourceMap = {};
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
@@ -226,6 +231,10 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
             TileVector2D worldTilePos = position + localTile;
+            if (worldTilePos.y == WORLD_MIN_Y) {
+                tilesRef[localX][localY] = bedrockTileRef;
+                continue;
+            }
             if (worldTilePos.y > height) {
                 if (worldTilePos.y < SEA_LEVEL_HEIGHT) {
                     //water

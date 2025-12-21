@@ -7,7 +7,7 @@ set(GAME_VERSION_MINOR 1)
 set(GAME_VERSION_PATCH 0)
 set(GAME_VERSION_STRING "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
 set(GAME_VERSION_NUMBER 1)
-set(IMGUI_VERSION "1.92.3")
+set(IMGUI_VERSION "1.92.5")
 set(TWEENY_VERSION "3.2.1")
 set(FETCHCONTENT_QUIET OFF CACHE BOOL "Show real-time git clone progress (ON=quiet, OFF=visible)" FORCE)
 set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
@@ -40,7 +40,7 @@ FetchContent_MakeAvailable(nlohmann_json)
 FetchContent_Declare(
         SDL
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL"
-        GIT_TAG "release-3.2.26"
+        GIT_TAG "release-3.2.28"
         GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(SDL)
@@ -86,7 +86,7 @@ FetchContent_Declare(
         fmt
         GIT_REPOSITORY "https://github.com/fmtlib/fmt"
         GIT_PROGRESS TRUE
-        GIT_TAG "12.0.0"
+        GIT_TAG "12.1.0"
 )
 FetchContent_MakeAvailable(fmt)
 

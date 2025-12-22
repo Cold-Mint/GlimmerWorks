@@ -9,10 +9,16 @@
 #include "box2d/box2d.h"
 
 
-void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2Vec2 position)
-{
-    if (ready_)
-    {
+void glimmer::RigidBody2DComponent::SetCategoryBits(const uint64_t categoryBits) {
+    categoryBits_ = categoryBits;
+}
+
+void glimmer::RigidBody2DComponent::SetMaskBits(const uint64_t maskBits) {
+    maskBits_ = maskBits;
+}
+
+void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2Vec2 position) {
+    if (ready_) {
         return;
     }
     b2BodyDef bodyDef_ = b2DefaultBodyDef();
@@ -22,6 +28,10 @@ void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2
     bodyDef_.fixedRotation = fixedRotation_;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
+    b2Filter filter{};
+    filter.categoryBits = categoryBits_;
+    filter.maskBits = maskBits_;
+    shapeDef.filter = filter;
     shapeDef.density = 1.0F;
     shapeDef.material.friction = 0.3F;
     const b2Polygon shape = b2MakeBox(
@@ -33,97 +43,78 @@ void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2
     ready_ = true;
 }
 
-b2BodyId glimmer::RigidBody2DComponent::GetBodyId() const
-{
+b2BodyId glimmer::RigidBody2DComponent::GetBodyId() const {
     return bodyId_;
 }
 
-void glimmer::RigidBody2DComponent::SetWidth(const float width)
-{
-    if (ready_)
-    {
+void glimmer::RigidBody2DComponent::SetWidth(const float width) {
+    if (ready_) {
         LogCat::d("Cannot change width after creation.");
         return;
     }
     width_ = width;
 }
 
-void glimmer::RigidBody2DComponent::SetHeight(const float height)
-{
-    if (ready_)
-    {
+void glimmer::RigidBody2DComponent::SetHeight(const float height) {
+    if (ready_) {
         LogCat::d("Cannot change height after creation.");
         return;
     }
     height_ = height;
 }
 
-float glimmer::RigidBody2DComponent::GetWidth() const
-{
+float glimmer::RigidBody2DComponent::GetWidth() const {
     return width_;
 }
 
-float glimmer::RigidBody2DComponent::GetHeight() const
-{
+float glimmer::RigidBody2DComponent::GetHeight() const {
     return height_;
 }
 
-bool glimmer::RigidBody2DComponent::IsReady() const
-{
+bool glimmer::RigidBody2DComponent::IsReady() const {
     return ready_;
 }
 
-void glimmer::RigidBody2DComponent::SetBodyType(const b2BodyType bodyType)
-{
-    if (ready_)
-    {
+void glimmer::RigidBody2DComponent::SetBodyType(const b2BodyType bodyType) {
+    if (ready_) {
         LogCat::d("Cannot change body type after creation.");
         return;
     }
     bodyType_ = bodyType;
 }
 
-void glimmer::RigidBody2DComponent::SetEnableSleep(bool enable)
-{
-    if (ready_)
-    {
+void glimmer::RigidBody2DComponent::SetEnableSleep(bool enable) {
+    if (ready_) {
         LogCat::d("Cannot enableSleep after creation.");
         return;
     }
     enableSleep_ = enable;
 }
 
-bool glimmer::RigidBody2DComponent::GetEnableSleep() const
-{
+bool glimmer::RigidBody2DComponent::GetEnableSleep() const {
     return enableSleep_;
 }
 
-void glimmer::RigidBody2DComponent::SetFixedRotation(bool fixedRotation)
-{
-    if (ready_)
-    {
+void glimmer::RigidBody2DComponent::SetFixedRotation(bool fixedRotation) {
+    if (ready_) {
         LogCat::d("Cannot change fixedRotation after creation.");
         return;
     }
     fixedRotation_ = fixedRotation;
 }
 
-bool glimmer::RigidBody2DComponent::GetFixedRotation() const
-{
+bool glimmer::RigidBody2DComponent::GetFixedRotation() const {
     return fixedRotation_;
 }
 
-bool glimmer::RigidBody2DComponent::IsDynamicBody() const
-{
+bool glimmer::RigidBody2DComponent::IsDynamicBody() const {
     return bodyType_ == b2_dynamicBody;
 }
 
-bool glimmer::RigidBody2DComponent::IsKinematicBody() const
-{
+bool glimmer::RigidBody2DComponent::IsKinematicBody() const {
     return bodyType_ == b2_kinematicBody;
 }
 
-bool glimmer::RigidBody2DComponent::IsStaticBody() const
-{
+bool glimmer::RigidBody2DComponent::IsStaticBody() const {
     return bodyType_ == b2_staticBody;
 }

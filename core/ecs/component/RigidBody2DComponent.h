@@ -11,6 +11,8 @@
 namespace glimmer {
     class RigidBody2DComponent : public GameComponent {
         b2BodyId bodyId_ = b2_nullBodyId;
+        uint64_t categoryBits_ = 0;
+        uint64_t maskBits_ = 0;
         bool ready_ = false;
         b2BodyType bodyType_ = b2_staticBody;
         bool enableSleep_ = true;
@@ -24,6 +26,20 @@ namespace glimmer {
                 b2DestroyBody(bodyId_);
             }
         }
+
+        /**
+         * SetCategoryBits
+         * 设置自身碰撞
+         * @param categoryBits
+         */
+        void SetCategoryBits(uint64_t categoryBits);
+
+        /**
+         * SetMaskBits
+         * 设置能够碰撞谁
+         * @param maskBits
+         */
+        void SetMaskBits(uint64_t maskBits);
 
         /**
          * Create Body

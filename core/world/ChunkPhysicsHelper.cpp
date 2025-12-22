@@ -108,8 +108,13 @@ b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(b2WorldId worldId, WorldV
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.density = 1.0F;
     shapeDef.material.friction = 0.3F;
+    b2Filter filter{};
+    filter.categoryBits = BOX2D_CATEGORY_TILE;
+    filter.maskBits = BOX2D_CATEGORY_PLAYER | BOX2D_CATEGORY_ITEM;
+    shapeDef.filter = filter;
     const b2Polygon bodyPolygon = b2MakeBox(Box2DUtils::ToMeters(static_cast<float>(size.x * TILE_SIZE) / 2),
                                             Box2DUtils::ToMeters(static_cast<float>(size.y * TILE_SIZE) / 2));
+
     b2CreatePolygonShape(bodyId_, &shapeDef, &bodyPolygon);
     return bodyId_;
 }

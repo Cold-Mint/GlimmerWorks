@@ -50,6 +50,8 @@ void glimmer::GameStartSystem::Update(float delta) {
     rigidBody2DComponent->SetFixedRotation(true);
     rigidBody2DComponent->SetWidth(1.25F * TILE_SIZE);
     rigidBody2DComponent->SetHeight(2.6F * TILE_SIZE);
+    rigidBody2DComponent->SetCategoryBits(BOX2D_CATEGORY_PLAYER);
+    rigidBody2DComponent->SetMaskBits(BOX2D_CATEGORY_TILE);
     rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
                                      Box2DUtils::ToMeters(transform2DComponentInPlayer->GetPosition()));
 

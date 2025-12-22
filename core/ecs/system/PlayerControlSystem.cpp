@@ -89,6 +89,8 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
                 );
                 const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(
                     droppedEntity);
+                rigidBody2DComponent->SetCategoryBits(BOX2D_CATEGORY_ITEM);
+                rigidBody2DComponent->SetMaskBits(BOX2D_CATEGORY_TILE);
                 rigidBody2DComponent->SetBodyType(b2_dynamicBody);
                 rigidBody2DComponent->SetWidth(DROPPED_ITEM_SIZE);
                 rigidBody2DComponent->SetHeight(DROPPED_ITEM_SIZE);

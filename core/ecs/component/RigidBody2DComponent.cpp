@@ -13,6 +13,18 @@ void glimmer::RigidBody2DComponent::SetCategoryBits(const uint64_t categoryBits)
     categoryBits_ = categoryBits;
 }
 
+void glimmer::RigidBody2DComponent::Disable() {
+    enabled_ = false;
+}
+
+bool glimmer::RigidBody2DComponent::IsEnabled() const {
+    return enabled_;
+}
+
+void glimmer::RigidBody2DComponent::Enable() {
+    enabled_ = true;
+}
+
 void glimmer::RigidBody2DComponent::SetMaskBits(const uint64_t maskBits) {
     maskBits_ = maskBits;
 }

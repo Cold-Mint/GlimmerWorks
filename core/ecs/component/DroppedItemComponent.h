@@ -39,6 +39,10 @@ namespace glimmer {
          */
         [[nodiscard]] bool IsExpired() const;
 
+        void SetItem(std::unique_ptr<Item> item);
+
+        [[nodiscard]] std::unique_ptr<Item> ExtractItem();
+
         [[nodiscard]] Item *GetItem() const;
     };
 }

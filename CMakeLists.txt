@@ -304,6 +304,16 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/ecs/component/DroppedItemComponent.h
         core/ecs/system/DroppedItemSystem.cpp
         core/ecs/system/DroppedItemSystem.h
+        core/ecs/component/MagnetComponent.cpp
+        core/ecs/component/MagnetComponent.h
+        core/ecs/component/MagneticComponent.cpp
+        core/ecs/component/MagneticComponent.h
+        core/ecs/system/MagnetSystem.cpp
+        core/ecs/system/MagnetSystem.h
+        core/ecs/system/AutoPickSystem.cpp
+        core/ecs/system/AutoPickSystem.h
+        core/ecs/component/AutoPickComponent.cpp
+        core/ecs/component/AutoPickComponent.h
 )
 
 if (ANDROID)

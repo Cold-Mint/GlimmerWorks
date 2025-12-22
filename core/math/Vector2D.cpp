@@ -46,7 +46,7 @@ float glimmer::Vector2D::dot(const Vector2D& rhs) const
     return x * rhs.x + y * rhs.y;
 }
 
-float glimmer::Vector2D::length() const
+float glimmer::Vector2D::Length() const
 {
     return std::sqrt(x * x + y * y);
 }
@@ -72,7 +72,7 @@ float glimmer::Vector2D::DistanceSquared(const Vector2D& rhs) const
 
 glimmer::Vector2D glimmer::Vector2D::Normalized() const
 {
-    const float len = length();
+    const float len = Length();
     return len > 0.0F ? *this / len : Vector2D();
 }
 

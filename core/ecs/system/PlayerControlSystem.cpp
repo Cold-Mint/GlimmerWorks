@@ -8,6 +8,7 @@
 #include "../../ecs/component/CameraComponent.h"
 #include "../../utils/Box2DUtils.h"
 #include "../component/RigidBody2DComponent.h"
+#include "../component/MagneticComponent.h"
 #include "box2d/box2d.h"
 #include "../component/HotBarComonent.h"
 #include "../component/DroppedItemComponent.h"
@@ -97,6 +98,8 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
                 rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
                                                  Box2DUtils::ToMeters(
                                                      transform2dComponent->GetPosition()));
+                auto *magnetic = worldContext_->AddComponent<MagneticComponent>(droppedEntity);
+                magnetic->SetType(MAGNETIC_TYPE_ITEM);
                 const auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
                 if (chunk == nullptr) {
                     continue;

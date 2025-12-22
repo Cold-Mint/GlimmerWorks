@@ -16,6 +16,14 @@ bool glimmer::DroppedItemComponent::IsExpired() const {
     return remainingTime_ <= 0.0F;
 }
 
-glimmer::Item * glimmer::DroppedItemComponent::GetItem() const {
+void glimmer::DroppedItemComponent::SetItem(std::unique_ptr<Item> item) {
+    item_ = std::move(item);
+}
+
+std::unique_ptr<glimmer::Item> glimmer::DroppedItemComponent::ExtractItem() {
+    return std::move(item_);
+}
+
+glimmer::Item *glimmer::DroppedItemComponent::GetItem() const {
     return item_.get();
 }

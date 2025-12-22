@@ -18,6 +18,8 @@
 #include "../../world/WorldContext.h"
 #include "../component/HotBarComonent.h"
 #include "../component/ItemContainerComonent.h"
+#include "../component/MagnetComponent.h"
+#include "../component/AutoPickComponent.h"
 
 
 void glimmer::GameStartSystem::Update(float delta) {
@@ -54,8 +56,10 @@ void glimmer::GameStartSystem::Update(float delta) {
     rigidBody2DComponent->SetMaskBits(BOX2D_CATEGORY_TILE);
     rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
                                      Box2DUtils::ToMeters(transform2DComponentInPlayer->GetPosition()));
-
+    auto *magnetComponent = worldContext_->AddComponent<MagnetComponent>(playerEntity);
+    magnetComponent->SetType(MAGNETIC_TYPE_ITEM);
     worldContext_->AddComponent<ItemContainerComponent>(playerEntity, 9);
+    worldContext_->AddComponent<AutoPickComponent>(playerEntity);
     const auto hotBarComponent = worldContext_->AddComponent<HotBarComponent>(playerEntity, Vector2D(), 9);
     worldContext_->SetHotBarComponent(hotBarComponent);
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");

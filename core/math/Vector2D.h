@@ -95,7 +95,7 @@ namespace glimmer {
          * Compute the length (magnitude) of the vector  计算向量的长度（模）
          * @return The vector length 向量的长度
          */
-        [[nodiscard]] float length() const;
+        [[nodiscard]] float Length() const;
 
         /**
         * Compute the squared length of the vector (faster, no sqrt)  计算向量长度的平方（更高性能，无需开方）

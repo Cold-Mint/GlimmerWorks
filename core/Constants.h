@@ -38,6 +38,12 @@ static constexpr std::string DEBUG_FOLDER_NAME = "debug";
 constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
 constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
+
+/**
+ *Type of adsorbate
+ * 被吸附物类型
+ */
+constexpr uint16_t MAGNETIC_TYPE_ITEM = 0x0001;
 /**
  * Unit chunk size
  * 单位区块的尺寸

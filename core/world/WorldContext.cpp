@@ -18,8 +18,10 @@
 #include "../ecs/system/DebugDrawSystem.h"
 #include "../ecs/system/DebugPanelSystem.h"
 #include "../ecs/system/AndroidControlSystem.h"
+#include "../ecs/system/AutoPickSystem.h"
 #include "../ecs/system/DroppedItemSystem.h"
 #include "../ecs/system/HotBarSystem.h"
+#include "../ecs/system/MagnetSystem.h"
 #include "../ecs/system/PhysicsSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
 #include "../ecs/system/TileLayerSystem.h"
@@ -424,7 +426,9 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<ChunkSystem>(appContext, this));
     RegisterSystem(std::make_unique<PhysicsSystem>(appContext, this));
     RegisterSystem(std::make_unique<HotBarSystem>(appContext, this));
+    RegisterSystem(std::make_unique<MagnetSystem>(appContext, this));
     RegisterSystem(std::make_unique<DroppedItemSystem>(appContext, this));
+    RegisterSystem(std::make_unique<AutoPickSystem>(appContext, this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
 #endif

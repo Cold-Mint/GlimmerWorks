@@ -19,6 +19,7 @@ namespace glimmer {
         float width_ = 0;
         float height_ = 0;
         bool fixedRotation_ = false;
+        bool enabled_ = true;
 
     public:
         ~RigidBody2DComponent() override {
@@ -33,6 +34,12 @@ namespace glimmer {
          * @param categoryBits
          */
         void SetCategoryBits(uint64_t categoryBits);
+
+        void Enable();
+
+        void Disable();
+
+        [[nodiscard]] bool IsEnabled() const;
 
         /**
          * SetMaskBits

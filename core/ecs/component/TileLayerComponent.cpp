@@ -25,10 +25,10 @@ TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D &tileL
                                                       const WorldVector2D &worldPos) {
     const float localX = worldPos.x - tileLayerPos.x;
     const float localY = worldPos.y - tileLayerPos.y;
-
+    constexpr float half = TILE_SIZE * 0.5F;
     return {
-        static_cast<int>(std::floor(localX / TILE_SIZE)),
-        static_cast<int>(std::floor(localY / TILE_SIZE))
+        static_cast<int>(std::floor((localX + half) / TILE_SIZE)),
+        static_cast<int>(std::floor((localY + half) / TILE_SIZE))
     };
 }
 
@@ -84,4 +84,12 @@ std::unique_ptr<glimmer::Tile> glimmer::TileLayerComponent::ReplaceTile(const Ti
 
 glimmer::TileLayerType glimmer::TileLayerComponent::GetTileLayerType() const {
     return tileLayerType_;
+}
+
+void glimmer::TileLayerComponent::SetFocusPosition(const TileVector2D focusPosition) {
+    focusPosition_ = focusPosition;
+}
+
+const TileVector2D &glimmer::TileLayerComponent::GetFocusPosition() const {
+    return focusPosition_;
 }

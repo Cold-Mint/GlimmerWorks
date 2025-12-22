@@ -65,11 +65,25 @@ namespace glimmer {
          */
         [[nodiscard]] Tile *GetTile(const TileVector2D &tilePos) const;
 
-        [[nodiscard]] std::unique_ptr<Tile> ReplaceTile(const TileVector2D& tileVector2d,
+        [[nodiscard]] std::unique_ptr<Tile> ReplaceTile(const TileVector2D &tileVector2d,
                                                         std::unique_ptr<Tile> newTile) const;
 
 
         [[nodiscard]] TileLayerType GetTileLayerType() const;
+
+        /**
+         * Set Focus Position
+         * 设置焦点位置
+         * @param focusPosition
+         */
+        void SetFocusPosition(TileVector2D focusPosition);
+
+        /**
+         * Get the focus position
+         * 获取焦点位置
+         * @return
+         */
+        [[nodiscard]] const TileVector2D &GetFocusPosition() const;
 
         explicit TileLayerComponent(const TileLayerType tileLayerType,
                                     std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *
@@ -81,6 +95,7 @@ namespace glimmer {
         std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *chunks_;
 
         TileLayerType tileLayerType_;
+        TileVector2D focusPosition_ = TileVector2D{};
     };
 }
 

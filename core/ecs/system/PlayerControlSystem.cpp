@@ -112,6 +112,34 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
         return false;
     }
 
+    if (event.type == SDL_EVENT_MOUSE_MOTION && camera && cameraTransform) {
+        //Set the tile for the current mouse focus.
+        //设置当前位于鼠标焦点的瓦片。
+        float mouseX = event.motion.x;
+        float mouseY = event.motion.y;
+
+        WorldVector2D worldPos = camera->GetWorldPosition(
+            cameraTransform->GetPosition(),
+            CameraVector2D(mouseX, mouseY)
+        );
+
+        auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<
+            TileLayerComponent, Transform2DComponent>();
+
+        for (auto &entity: tileLayerEntities) {
+            auto *layer = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
+            auto *transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
+            if (!layer || !transform) continue;
+
+            if (layer->GetTileLayerType() != TileLayerType::Main) continue;
+            layer->SetFocusPosition(TileLayerComponent::WorldToTile(
+                transform->GetPosition(),
+                worldPos
+            ));
+        }
+    }
+
+
     // Mining and Placing
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && camera && cameraTransform) {
         if (event.button.button == SDL_BUTTON_LEFT || event.button.button == SDL_BUTTON_RIGHT) {

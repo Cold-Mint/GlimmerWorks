@@ -33,7 +33,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                         tileLayerComponent->GetTilesInViewport(layerWorldPos, viewportRect);
                 SDL_Color oldColor;
                 SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-
+                TileVector2D focusPosition = tileLayerComponent->GetFocusPosition();
                 for (const auto &[tileCoord, tile]: visibleTiles) {
                     WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(layerWorldPos, tileCoord);
 
@@ -49,6 +49,10 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                     SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
                     if (!SDL_RenderTexture(renderer, tile->texture.get(), nullptr, &dstRect)) {
                         LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
+                    }
+                    if (tileCoord == focusPosition) {
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
+                        SDL_RenderRect(renderer, &dstRect);
                     }
                 }
 

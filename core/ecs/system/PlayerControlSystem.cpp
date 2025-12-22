@@ -10,7 +10,6 @@
 #include "../component/RigidBody2DComponent.h"
 #include "box2d/box2d.h"
 #include "../component/HotBarComonent.h"
-#include "../component/ItemContainerComonent.h"
 #include "../component/DroppedItemComponent.h"
 #include "../../Constants.h"
 #include "../../inventory/TileItem.h"
@@ -53,6 +52,59 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         }
 
         b2Body_SetLinearVelocity(bodyId, {vx, vy});
+        if (!control->mouseLeftDown) {
+            continue;
+        }
+        auto tileLayerEntitys = worldContext_->GetEntitiesWithComponents<
+            TileLayerComponent, Transform2DComponent>();
+        for (auto &gameEntity: tileLayerEntitys) {
+            auto *tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(
+                gameEntity->GetID());
+            auto *tileLayerTransform2D = worldContext_->GetComponent<Transform2DComponent>(
+                gameEntity->GetID());
+            if (tileLayerComponent == nullptr || tileLayerTransform2D == nullptr) {
+                continue;
+            }
+            if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
+                TileVector2D tileVector2D = tileLayerComponent->GetFocusPosition();
+                const Tile *tile = tileLayerComponent->GetTile(
+                    tileVector2D);
+                if (tile == nullptr) {
+                    continue;
+                }
+                if (!tile->breakable) {
+                    continue;
+                }
+                auto oldTile = tileLayerComponent->ReplaceTile(tileVector2D,
+                                                               Tile::FromResourceRef(
+                                                                   appContext_,
+                                                                   appContext_->GetTileManager()->GetAir()));
+                GameEntity *droppedEntity = worldContext_->CreateEntity();
+                auto *transform2dComponent = worldContext_->AddComponent<
+                    Transform2DComponent>(droppedEntity);
+                transform2dComponent->SetPosition(
+                    TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
+                worldContext_->AddComponent<DroppedItemComponent>(
+                    droppedEntity, std::make_unique<TileItem>(std::move(oldTile))
+                );
+                const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(
+                    droppedEntity);
+                rigidBody2DComponent->SetBodyType(b2_dynamicBody);
+                rigidBody2DComponent->SetWidth(DROPPED_ITEM_SIZE);
+                rigidBody2DComponent->SetHeight(DROPPED_ITEM_SIZE);
+                rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
+                                                 Box2DUtils::ToMeters(
+                                                     transform2dComponent->GetPosition()));
+                const auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
+                if (chunk == nullptr) {
+                    continue;
+                }
+                ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
+                ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(),
+                                                             tileLayerTransform2D->GetPosition(),
+                                                             chunk);
+            }
+        }
     }
 }
 
@@ -140,84 +192,31 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
     }
 
 
-    // Mining and Placing
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && camera && cameraTransform) {
-        if (event.button.button == SDL_BUTTON_LEFT || event.button.button == SDL_BUTTON_RIGHT) {
-            const auto entities = worldContext_->GetEntitiesWithComponents<
-                PlayerControlComponent, HotBarComponent, ItemContainerComponent>();
-            if (entities.empty()) {
-                return false;
-            }
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
+        const auto entities =
+                worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
 
-            auto entity = entities[0];
-            auto hotBar = worldContext_->GetHotBarComponent();
-            auto itemContainerComp = worldContext_->GetComponent<ItemContainerComponent>(entity->GetID());
-            if (hotBar == nullptr || itemContainerComp == nullptr) {
-                return false;
+        for (auto &entity: entities) {
+            if (auto *control =
+                    worldContext_->GetComponent<PlayerControlComponent>(entity->GetID())) {
+                control->mouseLeftDown = true;
             }
-
-            int windowW, windowH;
-            SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
-
-            float mouseX = event.button.x;
-            float mouseY = event.button.y;
-            WorldVector2D worldVector2D = camera->GetWorldPosition(cameraTransform->GetPosition(),
-                                                                   CameraVector2D(mouseX, mouseY));
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                std::vector<GameEntity *> tileLayerEntitys = worldContext_->GetEntitiesWithComponents<
-                    TileLayerComponent, Transform2DComponent>();
-                for (auto &gameEntity: tileLayerEntitys) {
-                    auto *tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(
-                        gameEntity->GetID());
-                    auto *tileLayerTransform2D = worldContext_->GetComponent<Transform2DComponent>(
-                        gameEntity->GetID());
-                    if (tileLayerComponent == nullptr || tileLayerTransform2D == nullptr) {
-                        continue;
-                    }
-                    if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
-                        TileVector2D tileVector2D = TileLayerComponent::WorldToTile(
-                            tileLayerTransform2D->GetPosition(), worldVector2D);
-                        const Tile *tile = tileLayerComponent->GetTile(
-                            tileVector2D);
-                        if (tile == nullptr) {
-                            continue;
-                        }
-                        if (!tile->breakable) {
-                            continue;
-                        }
-                        auto oldTile = tileLayerComponent->ReplaceTile(tileVector2D,
-                                                                       Tile::FromResourceRef(
-                                                                           appContext_,
-                                                                           appContext_->GetTileManager()->GetAir()));
-                        GameEntity *droppedEntity = worldContext_->CreateEntity();
-                        auto *transform2dComponent = worldContext_->AddComponent<
-                            Transform2DComponent>(droppedEntity);
-                        transform2dComponent->SetPosition(
-                            TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
-                        worldContext_->AddComponent<DroppedItemComponent>(
-                            droppedEntity, std::make_unique<TileItem>(std::move(oldTile))
-                        );
-                        const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(
-                            droppedEntity);
-                        rigidBody2DComponent->SetBodyType(b2_dynamicBody);
-                        rigidBody2DComponent->SetWidth(DROPPED_ITEM_SIZE);
-                        rigidBody2DComponent->SetHeight(DROPPED_ITEM_SIZE);
-                        rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
-                                                         Box2DUtils::ToMeters(
-                                                             transform2dComponent->GetPosition()));
-                        const auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
-                        if (chunk == nullptr) {
-                            continue;
-                        }
-                        ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
-                        ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(),
-                                                                     tileLayerTransform2D->GetPosition(),
-                                                                     chunk);
-                    }
-                }
-            }
-            return false;
         }
+        return false;
+    }
+
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_UP &&
+        event.button.button == SDL_BUTTON_LEFT) {
+        const auto entities =
+                worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
+
+        for (auto &entity: entities) {
+            if (auto *control =
+                    worldContext_->GetComponent<PlayerControlComponent>(entity->GetID())) {
+                control->mouseLeftDown = false;
+            }
+        }
+        return false;
     }
 
     const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();

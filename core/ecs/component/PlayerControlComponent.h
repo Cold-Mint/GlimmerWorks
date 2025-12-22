@@ -15,7 +15,8 @@ namespace glimmer {
         bool moveLeft = false;
         bool moveRight = false;
         bool jump = false;
+        bool mouseLeftDown = false;
     };
-} 
+}
 
 #endif //GLIMMERWORKS_PLAYERCONTROLCOMPONENT_H

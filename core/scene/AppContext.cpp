@@ -57,6 +57,10 @@ glimmer::VirtualFileSystem *glimmer::AppContext::GetVirtualFileSystem() const {
     return virtualFileSystem_;
 }
 
+glimmer::ItemManager *glimmer::AppContext::GetItemManager() const {
+    return itemManager_;
+}
+
 void glimmer::AppContext::SetWindow(SDL_Window *window) {
     this->window_ = window;
 }

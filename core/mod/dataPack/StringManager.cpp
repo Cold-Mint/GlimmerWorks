@@ -35,10 +35,8 @@ std::string glimmer::StringManager::ListStrings() const {
             const auto &key = keyPair.first;
             const auto &res = keyPair.second; // StringResource
 
-            result += packId;
-            result += ":";
-            result += key;
-            result += "=";
+            result += Resource::GenerateId(packId, key);
+            result += " =";
             result += res.value;
             result += "\n";
         }

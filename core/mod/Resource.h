@@ -3,6 +3,8 @@
 //
 #ifndef RESOURCE_H
 #define RESOURCE_H
+#include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -20,6 +22,32 @@ namespace glimmer {
     struct Resource {
         std::string packId;
         std::string key;
+
+        [[nodiscard]] static std::string GenerateId(const std::string &packId, const std::string &key) {
+            return packId + ":" + key;
+        }
+
+        [[nodiscard]] static std::string GenerateId(const Resource &resource) {
+            return GenerateId(resource.packId, resource.key);
+        }
+
+        [[nodiscard]] static std::optional<ResourceRef> ParseFromId(const std::string &id, const int resourceType) {
+            auto pos = id.find(':');
+            if (pos == std::string::npos) {
+                return std::nullopt;
+            }
+            ResourceRef ref;
+            ref.SetPackageId(id.substr(0, pos));
+            if (ref.GetPackageId().empty()) {
+                return std::nullopt;
+            }
+            ref.SetResourceKey(id.substr(pos + 1));
+            if (ref.GetResourceKey().empty()) {
+                return std::nullopt;
+            }
+            ref.SetResourceType(resourceType);
+            return ref;
+        }
     };
 
     /**
@@ -28,6 +56,16 @@ namespace glimmer {
      */
     struct StringResource : Resource {
         std::string value;
+    };
+
+    /**
+     * ItemResource
+     * 物品资源
+     */
+    struct ItemResource : Resource {
+        ResourceRef name;
+        ResourceRef description;
+        std::string texture;
     };
 
     /**

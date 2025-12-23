@@ -71,6 +71,28 @@ int glimmer::DataPack::LoadBiomeResource(BiomesManager &biomesManager) const {
     return biomeCount;
 }
 
+int glimmer::DataPack::LoadItemResource(ItemManager &itemManager) const {
+    const std::string itemsDir = path_ + "/items";
+    if (!virtualFileSystem_->Exists(itemsDir)) {
+        LogCat::w("No items directory found in ", itemsDir);
+        return 0;
+    }
+    std::vector<std::string> files = virtualFileSystem_->ListFile(itemsDir);
+    if (files.empty()) {
+        LogCat::w("No items files found in ", itemsDir);
+        return 0;
+    }
+    int tileCount = 0;
+    for (const auto &file: files) {
+        LogCat::d("Loading item file: ", file);
+        if (LoadItemResourceFromFile(file, itemManager)) {
+            tileCount++;
+        }
+    }
+    return tileCount;
+}
+
+
 int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, StringManager &stringManager) const {
     const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
     if (!jsonOpt) {
@@ -131,6 +153,20 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
     return true;
 }
 
+bool glimmer::DataPack::LoadItemResourceFromFile(const std::string &path, ItemManager &itemManager) const {
+    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
+    if (!jsonOpt) {
+        LogCat::e("Failed to load JSON file: ", path);
+        return false;
+    }
+
+    const auto &jsonObject = *jsonOpt;
+    auto itemResource = jsonObject.get<ItemResource>();
+    itemResource.packId = manifest_.id;
+    itemManager.RegisterResource(itemResource);
+    return true;
+}
+
 bool glimmer::DataPack::LoadManifest() {
     const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path_ + "/" + MANIFEST_FILE_NAME);
     if (!jsonOpt) {
@@ -161,11 +197,12 @@ bool glimmer::DataPack::LoadManifest() {
 }
 
 bool glimmer::DataPack::LoadPack(const std::string &language, StringManager &stringManager, TileManager &tileManager,
-                                 BiomesManager &biomesManager) const {
+                                 BiomesManager &biomesManager, ItemManager &itemManager) const {
     int total = 0;
     total += LoadStringResource(language, stringManager);
     total += LoadTileResource(tileManager);
     total += LoadBiomeResource(biomesManager);
+    total += LoadItemResource(itemManager);
     return total != 0;
 }
 

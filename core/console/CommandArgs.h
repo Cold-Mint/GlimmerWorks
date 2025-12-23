@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "../mod/ResourceRef.h"
+
 namespace glimmer {
     class CommandArgs {
         std::vector<std::string> tokens_;
@@ -51,6 +53,8 @@ namespace glimmer {
         [[nodiscard]] double AsDouble(int index) const;
 
         [[nodiscard]] std::string AsString(int index) const;
+
+        [[nodiscard]] std::optional<ResourceRef> AsResourceRef(int index,int resourceType) const;
     };
 }
 

@@ -314,6 +314,18 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/ecs/system/AutoPickSystem.h
         core/ecs/component/AutoPickComponent.cpp
         core/ecs/component/AutoPickComponent.h
+        core/inventory/ComposableItem.cpp
+        core/inventory/ComposableItem.h
+        core/inventory/ItemFunctionMod.cpp
+        core/inventory/ItemFunctionMod.h
+        core/mod/dataPack/ItemManager.cpp
+        core/mod/dataPack/ItemManager.h
+        core/console/command/GiveCommand.cpp
+        core/console/command/GiveCommand.h
+        core/console/suggestion/ComposableItemDynamicSuggestions.cpp
+        core/console/suggestion/ComposableItemDynamicSuggestions.h
+        core/console/suggestion/TileDynamicSuggestions.cpp
+        core/console/suggestion/TileDynamicSuggestions.h
 )
 
 if (ANDROID)

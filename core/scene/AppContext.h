@@ -10,6 +10,7 @@
 #include "../console/CommandExecutor.h"
 #include "../console/CommandManager.h"
 #include "../mod/dataPack/BiomesManager.h"
+#include "../mod/dataPack/ItemManager.h"
 #include "../mod/dataPack/TileManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
 #include "../world/TilePlacerManager.h"
@@ -49,6 +50,7 @@ namespace glimmer {
         VirtualFileSystem *virtualFileSystem_;
         TilePlacerManager *tilePlacerManager_;
         ResourceLocator *resourceLocator_;
+        ItemManager *itemManager_;
         bool isRunning;
 
     public:
@@ -58,13 +60,13 @@ namespace glimmer {
                    CommandManager *commandManager, CommandExecutor *commandExecutor, LangsResources *langs,
                    DynamicSuggestionsManager *dynamicSuggestionsManager, VirtualFileSystem *virtualFileSystem,
                    TileManager *tileManager, BiomesManager *biomesManager, TilePlacerManager *tilePlacerManager,
-                   ResourceLocator *resourceLocator)
+                   ResourceLocator *resourceLocator, ItemManager *itemManager)
             : language_(lang), dataPackManager_(dpm), config_(cfg), sceneManager_(sm), stringManager_(stringManager),
               commandManager_(commandManager), ttfFont_(nullptr), commandExecutor_(commandExecutor),
               resourcePackManager_(rpm), tilePlacerManager_(tilePlacerManager),
               window_(nullptr), langs_(langs), isRunning(run), dynamicSuggestionsManager_(dynamicSuggestionsManager),
               virtualFileSystem_(virtualFileSystem), tileManager_(tileManager), biomesManager_(biomesManager),
-              resourceLocator_(resourceLocator) {
+              resourceLocator_(resourceLocator), itemManager_(itemManager) {
         }
 
 
@@ -101,6 +103,8 @@ namespace glimmer {
         [[nodiscard]] ResourceLocator *GetResourceLocator() const;
 
         [[nodiscard]] VirtualFileSystem *GetVirtualFileSystem() const;
+
+        [[nodiscard]] ItemManager *GetItemManager() const;
 
         [[nodiscard]] SceneManager *GetSceneManager() const;
 

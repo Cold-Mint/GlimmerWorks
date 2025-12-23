@@ -4,7 +4,8 @@
 
 #include "CommandArgs.h"
 
-#include "../log/LogCat.h"
+#include "../mod/Resource.h"
+#include "../mod/ResourceRef.h"
 
 int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const {
     const int commandLen = static_cast<int>(command_.size());
@@ -91,4 +92,8 @@ std::string glimmer::CommandArgs::AsString(const int index) const {
         return "";
     }
     return tokens_[index];
+}
+
+std::optional<glimmer::ResourceRef> glimmer::CommandArgs::AsResourceRef(const int index, const int resourceType) const {
+    return Resource::ParseFromId(AsString(index), resourceType);
 }

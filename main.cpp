@@ -8,19 +8,23 @@
 #include "core/console/command/AssetViewerCommand.h"
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/ConfigCommand.h"
+#include "core/console/command/GiveCommand.h"
 #include "core/console/command/HeightMapCommand.h"
 #include "core/console/command/HelpCommand.h"
 #include "core/console/command/LicenseCommand.h"
 #include "core/console/command/TpCommand.h"
 #include "core/console/command/VFSCommand.h"
 #include "core/console/suggestion/BoolDynamicSuggestions.h"
+#include "core/console/suggestion/ComposableItemDynamicSuggestions.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
+#include "core/console/suggestion/TileDynamicSuggestions.h"
 #include "core/console/suggestion/VFSDynamicSuggestions.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/BiomesManager.h"
 #include "core/mod/dataPack/DataPackManager.h"
+#include "core/mod/dataPack/ItemManager.h"
 #include "core/mod/dataPack/StringManager.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/scene/AppContext.h"
@@ -133,9 +137,14 @@ int main() {
         BiomesManager biomesManager;
         TileManager tileManager;
         tileManager.InitBuiltinTiles();
+        dynamicSuggestionsManager.RegisterDynamicSuggestions(
+            std::make_unique<TileDynamicSuggestions>(&tileManager));
         CommandManager commandManager;
         CommandExecutor commandExecutor;
         TilePlacerManager tilePlacerManager;
+        ItemManager itemManager;
+        dynamicSuggestionsManager.RegisterDynamicSuggestions(
+            std::make_unique<ComposableItemDynamicSuggestions>(&itemManager));
         tilePlacerManager.RegisterTilePlacer(std::make_unique<FillTilePlacer>());
         Config config;
         LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
@@ -161,8 +170,9 @@ int main() {
                               &commandManager,
                               &commandExecutor, &langsResources, &dynamicSuggestionsManager, &virtualFileSystem,
                               &tileManager,
-                              &biomesManager, &tilePlacerManager, &resourceLocator);
+                              &biomesManager, &tilePlacerManager, &resourceLocator, &itemManager);
         resourceLocator.SetAppContext(&appContext);
+        commandManager.RegisterCommand(std::make_unique<GiveCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
         commandManager.RegisterCommand(std::make_unique<HeightMapCommand>(&appContext, &virtualFileSystem));
@@ -175,7 +185,7 @@ int main() {
         LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
         LogCat::i("Starting GlimmerWorks...");
         if (dataPackManager.Scan(config.mods.dataPackPath, config.mods.enabledDataPack, language,
-                                 stringManager, tileManager, biomesManager) == 0) {
+                                 stringManager, tileManager, biomesManager, itemManager) == 0) {
             LogCat::e("Failed to load dataPack");
             return EXIT_FAILURE;
         }

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "BiomesManager.h"
+#include "ItemManager.h"
 #include "../../vfs/VirtualFileSystem.h"
 
 namespace glimmer {
@@ -34,7 +35,8 @@ namespace glimmer {
         //Scan the data packets in the specified directory(Return the number of data packets successfully loaded)
         //扫描指定目录下的数据包（返回成功加载多少个数据包）
         int Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
-                 const std::string &language, StringManager &stringManager, TileManager &tileManager,BiomesManager &biomesManager) const;
+                 const std::string &language, StringManager &stringManager, TileManager &tileManager,
+                 BiomesManager &biomesManager, ItemManager &itemManager) const;
     };
 }
 

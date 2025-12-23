@@ -37,7 +37,7 @@ namespace glimmer {
         BiomeResource *FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
                                      float elevation);
 
-        std::string ListTiles() const;
+        std::string ListBiomes() const;
     };
 }
 

@@ -14,6 +14,7 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggest
     texture->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
     suggestionsTree.AddChild("tile");
     suggestionsTree.AddChild("biomes");
+    suggestionsTree.AddChild("items");
 }
 
 std::string glimmer::AssetViewerCommand::GetName() const {
@@ -43,7 +44,9 @@ bool glimmer::AssetViewerCommand::Execute(CommandArgs commandArgs,
     } else if (type == "tile") {
         onOutput(appContext_->GetTileManager()->ListTiles());
     } else if (type == "biomes") {
-        onOutput(appContext_->GetBiomesManager()->ListTiles());
+        onOutput(appContext_->GetBiomesManager()->ListBiomes());
+    } else if (type == "items") {
+        onOutput(appContext_->GetItemManager()->ListItems());
     }
     return true;
 }

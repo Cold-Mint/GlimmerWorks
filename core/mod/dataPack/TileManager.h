@@ -54,6 +54,8 @@ namespace glimmer {
 
         [[nodiscard]] TileResource *Find(const std::string &packId, const std::string &key);
 
+        [[nodiscard]] std::vector<std::string> GetTileIDList();
+
         std::string ListTiles() const;
     };
 }

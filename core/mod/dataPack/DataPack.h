@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "BiomesManager.h"
+#include "ItemManager.h"
 #include "../PackManifest.h"
 #include "../../vfs/VirtualFileSystem.h"
 
@@ -27,11 +28,15 @@ namespace glimmer {
 
         [[nodiscard]] int LoadBiomeResource(BiomesManager &biomesManager) const;
 
+        [[nodiscard]] int LoadItemResource(ItemManager &itemManager) const;
+
         [[nodiscard]] int LoadStringResourceFromFile(const std::string &path, StringManager &stringManager) const;
 
         [[nodiscard]] bool LoadTileResourceFromFile(const std::string &path, TileManager &tileManager) const;
 
         [[nodiscard]] bool LoadBiomeResourceFromFile(const std::string &path, BiomesManager &biomesManager) const;
+
+        [[nodiscard]] bool LoadItemResourceFromFile(const std::string &path, ItemManager &itemManager) const;
 
     public:
         explicit DataPack(std::string path, const VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
@@ -41,7 +46,8 @@ namespace glimmer {
         bool LoadManifest();
 
         [[nodiscard]] bool LoadPack(const std::string &language,
-                                    StringManager &stringManager, TileManager &tileManager,BiomesManager &biomesManager) const;
+                                    StringManager &stringManager, TileManager &tileManager,
+                                    BiomesManager &biomesManager, ItemManager &itemManager) const;
 
         [[nodiscard]] const DataPackManifest &GetManifest() const;
     };

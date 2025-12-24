@@ -15,7 +15,7 @@ void glimmer::AutoPickSystem::Update(float delta) {
         auto *containerComponent = worldContext_->GetComponent<ItemContainerComponent>(
             entity->GetID());
         for (unsigned int entity1: magnetComponent->GetEntities()) {
-            DroppedItemComponent *droppedItemComponent = worldContext_->GetComponent<DroppedItemComponent>(entity1);
+            auto *droppedItemComponent = worldContext_->GetComponent<DroppedItemComponent>(entity1);
             if (droppedItemComponent == nullptr) {
                 continue;
             }

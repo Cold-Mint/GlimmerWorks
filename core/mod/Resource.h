@@ -37,7 +37,7 @@ namespace glimmer {
                 return std::nullopt;
             }
             ResourceRef ref;
-            ref.SetPackageId(id.substr(0, pos));
+            ref.SetSelfPackageId(id.substr(0, pos));
             if (ref.GetPackageId().empty()) {
                 return std::nullopt;
             }

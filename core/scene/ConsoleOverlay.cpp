@@ -306,7 +306,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
 
             // Button fills full width (-1 means fill available width)
             // 按钮填充整个宽度（-1 表示填充可用宽度）
-            if (ImGui::Button("", ImVec2(-1, 0))) {
+            if (ImGui::Button(("##" + suggestion).c_str(), ImVec2(-1, 0))) {
                 ClikAutoCompleteItem(suggestion);
             }
 

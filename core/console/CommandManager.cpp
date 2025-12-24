@@ -95,9 +95,9 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
                     perfectMatch = true;
                     break;
                 }
-                if (dataValue.starts_with('@')) {
+                if (dataValue.starts_with('&')) {
                     auto pos = dataValue.find(':');
-                    std::string dynName = dataValue.substr(0, pos); // "@biome"
+                    std::string dynName = dataValue.substr(0, pos); // "&biome"
                     DynamicSuggestions *dynamicSuggestions = dynamicSuggestionsManager->GetSuggestions(dynName);
                     if (dynamicSuggestions != nullptr) {
                         const std::string param = pos == std::string::npos ? "" : dataValue.substr(pos + 1); // "forest"
@@ -148,7 +148,7 @@ std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
         //Has dynamic suggestion been carried out
         //是否展开了动态建议
         bool unfold = false;
-        if (child.starts_with('@')) {
+        if (child.starts_with('&')) {
             if (std::find(unfoldList.begin(), unfoldList.end(), child) != unfoldList.end()) {
                 LogCat::e("Repeated dynamic suggestions:", child);
 #if  defined(NDEBUG)
@@ -157,8 +157,8 @@ std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
                 assert(false && "Repeated dynamic suggestions");
 #endif
             }
-            //If the suggestion starts with @, then it is a dynamic suggestion. Here we try to expand on it.
-            //如果建议以@开头，那么他是一个动态建议，我们在这里尝试展开他。
+            //If the suggestion starts with &, then it is a dynamic suggestion. Here we try to expand on it.
+            //如果建议以&开头，那么他是一个动态建议，我们在这里尝试展开他。
             //Extract parameters
             //提取参数
             auto pos = child.find(':');

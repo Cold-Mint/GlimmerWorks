@@ -37,8 +37,6 @@ void glimmer::MagnetSystem::Update(const float delta) {
             const float distance = (magnetPos - magneticPos).Length();
 
             if (distance > magnet->GetDetectionRadius()) {
-                LogCat::d("magnetic principle magnet remove :", magnetEntity->GetID(), " ,distance=", distance,
-                          ",detectionRadius=", magnet->GetDetectionRadius());
                 auto *rigidBody2DComponent =
                         worldContext_->GetComponent<RigidBody2DComponent>(magneticEntity->GetID());
                 if (rigidBody2DComponent != nullptr) {

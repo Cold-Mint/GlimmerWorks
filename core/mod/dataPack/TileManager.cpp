@@ -14,7 +14,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air = std::make_unique<TileResource>();
     air->texture = "tiles/air.png";
     air->key = TILE_ID_AIR;
-    air->packId = CORE_PACKAGENAME;
+    air->packId = RESOURCE_REF_CORE;
     air->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     air->layerType = static_cast<uint8_t>(TileLayerType::Main);
     air->breakable = false;
@@ -22,7 +22,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     water = std::make_unique<TileResource>();
     water->texture = "tiles/water.png";
     water->key = TILE_ID_WATER;
-    water->packId = CORE_PACKAGENAME;
+    water->packId = RESOURCE_REF_CORE;
     water->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     water->layerType = static_cast<uint8_t>(TileLayerType::Main);
     water->breakable = false;
@@ -30,7 +30,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     bedrock = std::make_unique<TileResource>();
     bedrock->texture = "tiles/bedrock.png";
     bedrock->key = TILE_ID_BEDROCK;
-    bedrock->packId = CORE_PACKAGENAME;
+    bedrock->packId = RESOURCE_REF_CORE;
     bedrock->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
     bedrock->layerType = static_cast<uint8_t>(TileLayerType::Main);
     bedrock->breakable = false;

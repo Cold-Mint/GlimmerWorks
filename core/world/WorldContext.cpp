@@ -27,6 +27,7 @@
 #include "../ecs/system/TileLayerSystem.h"
 #include "../log/LogCat.h"
 #include "../mod/ResourceLocator.h"
+#include "../utils/Box2DUtils.h"
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
     const auto type = std::type_index(typeid(*comp));
@@ -487,6 +488,30 @@ glimmer::GameEntity *glimmer::WorldContext::CreateEntity() {
     LogCat::i("Entity registered successfully, total entities = ", entities.size());
 
     return entities.back().get();
+}
+
+glimmer::GameEntity *
+glimmer::WorldContext::CreateDroppedItemEntity(std::unique_ptr<Item> item, const WorldVector2D position) {
+    GameEntity *droppedEntity = CreateEntity();
+    auto *transform2dComponent = AddComponent<
+        Transform2DComponent>(droppedEntity);
+    transform2dComponent->SetPosition(position);
+    AddComponent<DroppedItemComponent>(
+        droppedEntity, std::move(item)
+    );
+    const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(
+        droppedEntity);
+    rigidBody2DComponent->SetCategoryBits(BOX2D_CATEGORY_ITEM);
+    rigidBody2DComponent->SetMaskBits(BOX2D_CATEGORY_TILE);
+    rigidBody2DComponent->SetBodyType(b2_dynamicBody);
+    rigidBody2DComponent->SetWidth(DROPPED_ITEM_SIZE);
+    rigidBody2DComponent->SetHeight(DROPPED_ITEM_SIZE);
+    rigidBody2DComponent->CreateBody(GetWorldId(),
+                                     Box2DUtils::ToMeters(
+                                         transform2dComponent->GetPosition()));
+    auto *magnetic = AddComponent<MagneticComponent>(droppedEntity);
+    magnetic->SetType(MAGNETIC_TYPE_ITEM);
+    return droppedEntity;
 }
 
 

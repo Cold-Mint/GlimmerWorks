@@ -40,6 +40,14 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] std::optional<TileResource *> FindTile(const ResourceRef &resourceRef) const;
+
+        /**
+         * FindItem
+         * 获取物品资源
+         * @param resourceRef resourceRef 物品引用
+         * @return
+         */
+        [[nodiscard]] std::optional<ItemResource *> FindItem(const ResourceRef &resourceRef) const;
     };
 }
 

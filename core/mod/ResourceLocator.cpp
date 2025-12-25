@@ -37,3 +37,10 @@ std::optional<glimmer::TileResource *> glimmer::ResourceLocator::FindTile(const 
     }
     return appContext_->GetTileManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }
+
+std::optional<glimmer::ItemResource *> glimmer::ResourceLocator::FindItem(const ResourceRef &resourceRef) const {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_ITEM) {
+        return std::nullopt;
+    }
+    return appContext_->GetItemManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
+}

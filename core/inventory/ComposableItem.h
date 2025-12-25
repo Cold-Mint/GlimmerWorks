@@ -4,10 +4,15 @@
 
 #ifndef GLIMMERWORKS_COMPOSABLEITEM_H
 #define GLIMMERWORKS_COMPOSABLEITEM_H
+#include <utility>
 #include <vector>
 
 #include "Item.h"
 #include "ItemFunctionMod.h"
+#include "../log/LogCat.h"
+#include "../mod/Resource.h"
+#include "../mod/ResourceLocator.h"
+#include "../scene/AppContext.h"
 
 namespace glimmer {
     /**
@@ -16,8 +21,19 @@ namespace glimmer {
      */
     class ComposableItem : public Item {
         std::pmr::vector<std::unique_ptr<ItemFunctionMod> > itemFunctionMods_;
+        std::string _id;
+        std::string _name;
+        std::string _description;
+        std::shared_ptr<SDL_Texture> _icon;
 
     public:
+        explicit ComposableItem(std::string id, std::string name, std::string description,
+                                std::shared_ptr<SDL_Texture> icon) : _id(std::move(id)),
+                                                                     _name(std::move(name)),
+                                                                     _description(std::move(description)),
+                                                                     _icon(std::move(icon)) {
+        }
+
         [[nodiscard]] std::string GetId() const override;
 
         [[nodiscard]] std::string GetName() const override;
@@ -33,6 +49,26 @@ namespace glimmer {
         void OnUse() override;
 
         void OnDrop() override;
+
+        static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext, ItemResource *itemResource) {
+            auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
+            if (!nameRes.has_value()) {
+                LogCat::e("An error occurred when constructing composable items, and the name is empty.");
+                return nullptr;
+            }
+            auto descriptionRes = appContext->GetResourceLocator()->FindString(itemResource->description);
+            if (!descriptionRes.has_value()) {
+                LogCat::e("An error occurred when constructing composable items, and the description is empty.");
+                return nullptr;
+            }
+            auto texture = appContext->GetResourcePackManager()->LoadTextureFromFile(appContext, itemResource->texture);
+            if (texture == nullptr) {
+                LogCat::e("An error occurred when constructing composable items, and the texture is empty.");
+                return nullptr;
+            }
+            return std::make_unique<ComposableItem>(
+                Resource::GenerateId(*itemResource), nameRes.value()->value, descriptionRes.value()->value, texture);
+        }
     };
 }
 

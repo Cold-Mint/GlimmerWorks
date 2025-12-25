@@ -6,6 +6,7 @@
 
 #include "../../Constants.h"
 #include "../../ecs/component/ItemContainerComonent.h"
+#include "../../inventory/ComposableItem.h"
 #include "../../inventory/ItemContainer.h"
 #include "../../inventory/TileItem.h"
 #include "../../mod/Resource.h"
@@ -55,9 +56,40 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
                 std::move(tileItem));
             return item == nullptr;
         }
-        // if (itemType == "composableItem") {
+        if (itemType == "composableItem") {
+            auto itemId = commandArgs.AsResourceRef(2, RESOURCE_TYPE_ITEM);
+            if (!itemId.has_value()) {
+                return false;
+            }
+            ResourceRef &resourceRef = itemId.value();
+            auto itemResourceOptional = appContext_->GetResourceLocator()->FindItem(resourceRef);
+            if (!itemResourceOptional.has_value()) {
+                return false;
+            }
+            auto itemResource = itemResourceOptional.value();
+            if (itemResource == nullptr) {
+                return false;
+            }
+            auto playerId = worldContext_->GetPlayerEntity()->GetID();
+            auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
+            if (item_container == nullptr) {
+                return false;
+            }
 
-        // }
+            auto composableItem = ComposableItem::FromItemResource(appContext_, itemResource);
+            if (composableItem == nullptr) {
+                return false;
+            }
+            if (commandArgs.GetSize() >= 4) {
+                const int number = commandArgs.AsInt(3);
+                if (number > 1) {
+                    (void) composableItem->AddAmount(number - 1);
+                }
+            }
+            std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
+                std::move(composableItem));
+            return item == nullptr;
+        }
     }
     return false;
 }

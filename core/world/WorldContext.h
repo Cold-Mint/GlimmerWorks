@@ -20,6 +20,7 @@
 #include "Chunk.h"
 #include "../ecs/GameComponent.h"
 #include "../ecs/component/HotBarComonent.h"
+#include "../inventory/Item.h"
 #include "../math/Vector2DI.h"
 #include "../scene/AppContext.h"
 #include "../utils/JsonUtils.h"
@@ -367,6 +368,15 @@ namespace glimmer {
          * @return
          */
         GameEntity *CreateEntity();
+
+        /**
+         * Create a dropping object entity
+         * 创建一个掉落物实体
+         * @param item
+         * @param position
+         * @return
+         */
+        GameEntity *CreateDroppedItemEntity(std::unique_ptr<Item> item, WorldVector2D position);
 
         /**
          * Search for entities based on their ids

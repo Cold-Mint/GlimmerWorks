@@ -163,6 +163,8 @@ bool glimmer::DataPack::LoadItemResourceFromFile(const std::string &path, ItemMa
     const auto &jsonObject = *jsonOpt;
     auto itemResource = jsonObject.get<ItemResource>();
     itemResource.packId = manifest_.id;
+    itemResource.name.SetSelfPackageId(manifest_.id);
+    itemResource.description.SetSelfPackageId(manifest_.id);
     itemManager.RegisterResource(itemResource);
     return true;
 }

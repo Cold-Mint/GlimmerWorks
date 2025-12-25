@@ -80,26 +80,10 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
                                                                Tile::FromResourceRef(
                                                                    appContext_,
                                                                    appContext_->GetTileManager()->GetAir()));
-                GameEntity *droppedEntity = worldContext_->CreateEntity();
-                auto *transform2dComponent = worldContext_->AddComponent<
-                    Transform2DComponent>(droppedEntity);
-                transform2dComponent->SetPosition(
-                    TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
-                worldContext_->AddComponent<DroppedItemComponent>(
-                    droppedEntity, std::make_unique<TileItem>(std::move(oldTile))
-                );
-                const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(
-                    droppedEntity);
-                rigidBody2DComponent->SetCategoryBits(BOX2D_CATEGORY_ITEM);
-                rigidBody2DComponent->SetMaskBits(BOX2D_CATEGORY_TILE);
-                rigidBody2DComponent->SetBodyType(b2_dynamicBody);
-                rigidBody2DComponent->SetWidth(DROPPED_ITEM_SIZE);
-                rigidBody2DComponent->SetHeight(DROPPED_ITEM_SIZE);
-                rigidBody2DComponent->CreateBody(worldContext_->GetWorldId(),
-                                                 Box2DUtils::ToMeters(
-                                                     transform2dComponent->GetPosition()));
-                auto *magnetic = worldContext_->AddComponent<MagneticComponent>(droppedEntity);
-                magnetic->SetType(MAGNETIC_TYPE_ITEM);
+
+                worldContext_->CreateDroppedItemEntity(std::make_unique<TileItem>(std::move(oldTile)),
+                                                       TileLayerComponent::TileToWorld(
+                                                           tileLayerTransform2D->GetPosition(), tileVector2D));
                 const auto chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tileVector2D);
                 if (chunk == nullptr) {
                     continue;

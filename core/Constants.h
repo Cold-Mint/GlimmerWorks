@@ -34,6 +34,7 @@
 static constexpr int RESOURCE_TYPE_NONE = 0;
 static constexpr int RESOURCE_TYPE_STRING = 1;
 static constexpr int RESOURCE_TYPE_TILE = 2;
+static constexpr int RESOURCE_TYPE_ITEM = 3;
 static constexpr std::string RESOURCE_REF_SELF = "@self";
 static constexpr std::string RESOURCE_REF_CORE = "@core";
 static constexpr std::string DEBUG_FOLDER_NAME = "debug";

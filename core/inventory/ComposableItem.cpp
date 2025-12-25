@@ -5,15 +5,19 @@
 #include "ComposableItem.h"
 
 std::string glimmer::ComposableItem::GetId() const {
+    return _id;
 }
 
 std::string glimmer::ComposableItem::GetName() const {
+    return _name;
 }
 
 std::string glimmer::ComposableItem::GetDescription() const {
+    return _description;
 }
 
 std::shared_ptr<SDL_Texture> glimmer::ComposableItem::GetIcon() const {
+    return _icon;
 }
 
 void glimmer::ComposableItem::AddFunctionMod(std::unique_ptr<ItemFunctionMod> itemFunctionMod) {

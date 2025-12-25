@@ -16,7 +16,7 @@ std::string glimmer::TileItem::GetDescription() const {
     return tile_->description;
 }
 
-void glimmer::TileItem::OnUse() {
+void glimmer::TileItem::OnUse(AppContext* appContext, WorldContext* worldContext, GameEntity* user) {
 }
 
 std::shared_ptr<SDL_Texture> glimmer::TileItem::GetIcon() const {

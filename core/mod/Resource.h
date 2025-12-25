@@ -66,6 +66,7 @@ namespace glimmer {
         ResourceRef name;
         ResourceRef description;
         std::string texture;
+        size_t slotSize;
     };
 
     /**

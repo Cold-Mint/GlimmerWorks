@@ -22,6 +22,7 @@
 #include "../ecs/system/DroppedItemSystem.h"
 #include "../ecs/system/HotBarSystem.h"
 #include "../ecs/system/ItemSlotSystem.h"
+#include "../ecs/system/ItemModEditorSystem.h"
 #include "../ecs/system/MagnetSystem.h"
 #include "../ecs/system/PhysicsSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
@@ -439,6 +440,7 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugPanelSystem>(appContext, this));
+    RegisterSystem(std::make_unique<ItemModEditorSystem>(appContext, this));
 #endif
     allowRegisterSystem = false;
 }

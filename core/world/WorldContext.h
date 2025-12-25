@@ -33,6 +33,7 @@ namespace glimmer {
     class CameraComponent;
     class GameEntity;
     class Saves;
+    class Item;
 
     class WorldContext {
         void RegisterSystem(std::unique_ptr<GameSystem> system);

@@ -169,6 +169,7 @@ struct nlohmann::adl_serializer<glimmer::ItemResource> {
         s.texture = j.at("texture").get<std::string>();
         s.name = j.at("name").get<glimmer::ResourceRef>();
         s.description = j.at("description").get<glimmer::ResourceRef>();
+        s.slotSize = j.at("slotSize").get<size_t>();
     }
 
     static void to_json(json &j, const glimmer::ItemResource &s) {
@@ -176,7 +177,8 @@ struct nlohmann::adl_serializer<glimmer::ItemResource> {
             {"resourceKey", s.key},
             {"texture", s.texture},
             {"name", s.name},
-            {"description", s.description}
+            {"description", s.description},
+            {"slotSize", s.slotSize}
         };
     }
 };

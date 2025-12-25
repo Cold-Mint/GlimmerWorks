@@ -3,3 +3,11 @@
 //
 
 #include "ItemFunctionMod.h"
+
+std::string glimmer::ItemFunctionMod::GetName() {
+    return name_;
+}
+
+std::string glimmer::ItemFunctionMod::GetDescription() {
+    return description_;
+}

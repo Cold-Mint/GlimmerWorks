@@ -8,6 +8,8 @@
 #include <string>
 
 #include "SDL3/SDL_render.h"
+#include "../scene/AppContext.h"
+#include "../../core/ecs/GameEntity.h"
 
 namespace glimmer {
     /**
@@ -98,7 +100,8 @@ namespace glimmer {
          */
         [[nodiscard]] virtual std::shared_ptr<SDL_Texture> GetIcon() const = 0;
 
-        virtual void OnUse() = 0;
+
+        virtual void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) = 0;
 
 
         virtual void OnDrop() = 0;

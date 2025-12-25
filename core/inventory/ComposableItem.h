@@ -11,8 +11,8 @@
 #include "ItemFunctionMod.h"
 #include "../log/LogCat.h"
 #include "../mod/Resource.h"
-#include "../mod/ResourceLocator.h"
 #include "../scene/AppContext.h"
+#include "../../core/mod/ResourceLocator.h"
 
 namespace glimmer {
     /**
@@ -21,17 +21,18 @@ namespace glimmer {
      */
     class ComposableItem : public Item {
         std::pmr::vector<std::unique_ptr<ItemFunctionMod> > itemFunctionMods_;
-        std::string _id;
-        std::string _name;
-        std::string _description;
-        std::shared_ptr<SDL_Texture> _icon;
+        std::string id_;
+        std::string name_;
+        std::string description_;
+        std::shared_ptr<SDL_Texture> icon_;
+        size_t maxSlotSize_;
 
     public:
         explicit ComposableItem(std::string id, std::string name, std::string description,
-                                std::shared_ptr<SDL_Texture> icon) : _id(std::move(id)),
-                                                                     _name(std::move(name)),
-                                                                     _description(std::move(description)),
-                                                                     _icon(std::move(icon)) {
+                                std::shared_ptr<SDL_Texture> icon, size_t maxSize) : id_(std::move(id)),
+            name_(std::move(name)),
+            description_(std::move(description)),
+            icon_(std::move(icon)), maxSlotSize_(maxSize) {
         }
 
         [[nodiscard]] std::string GetId() const override;
@@ -46,12 +47,13 @@ namespace glimmer {
 
         void RemoveFunctionMod(const ItemFunctionMod *mod);
 
-        void OnUse() override;
+        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
 
         void OnDrop() override;
 
-        static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext, ItemResource *itemResource) {
-            auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
+        static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext,
+                                                                const ItemResource *itemResource) {
+            const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
             if (!nameRes.has_value()) {
                 LogCat::e("An error occurred when constructing composable items, and the name is empty.");
                 return nullptr;
@@ -66,9 +68,13 @@ namespace glimmer {
                 LogCat::e("An error occurred when constructing composable items, and the texture is empty.");
                 return nullptr;
             }
-            return std::make_unique<ComposableItem>(
-                Resource::GenerateId(*itemResource), nameRes.value()->value, descriptionRes.value()->value, texture);
+            return std::make_unique<ComposableItem>(Resource::GenerateId(*itemResource), nameRes.value()->value,
+                                                    descriptionRes.value()->value, texture, itemResource->slotSize);
         }
+
+        [[nodiscard]] size_t GetMaxSlotSize() const;
+
+        [[nodiscard]] const std::pmr::vector<std::unique_ptr<ItemFunctionMod> > &GetModules() const;
     };
 }
 

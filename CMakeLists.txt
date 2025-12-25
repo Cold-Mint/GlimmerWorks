@@ -330,6 +330,10 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/ecs/component/ItemSlotComponent.h
         core/ecs/system/ItemSlotSystem.cpp
         core/ecs/system/ItemSlotSystem.h
+        core/inventory/itemFunctions/DigBlockFunctionMod.cpp
+        core/inventory/itemFunctions/DigBlockFunctionMod.h
+        core/ecs/system/ItemModEditorSystem.cpp
+        core/ecs/system/ItemModEditorSystem.h
 )
 
 if (ANDROID)

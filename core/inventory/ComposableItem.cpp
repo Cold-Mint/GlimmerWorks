@@ -5,19 +5,19 @@
 #include "ComposableItem.h"
 
 std::string glimmer::ComposableItem::GetId() const {
-    return _id;
+    return id_;
 }
 
 std::string glimmer::ComposableItem::GetName() const {
-    return _name;
+    return name_;
 }
 
 std::string glimmer::ComposableItem::GetDescription() const {
-    return _description;
+    return description_;
 }
 
 std::shared_ptr<SDL_Texture> glimmer::ComposableItem::GetIcon() const {
-    return _icon;
+    return icon_;
 }
 
 void glimmer::ComposableItem::AddFunctionMod(std::unique_ptr<ItemFunctionMod> itemFunctionMod) {
@@ -36,8 +36,19 @@ void glimmer::ComposableItem::RemoveFunctionMod(const ItemFunctionMod *mod) {
     itemFunctionMods_.erase(it, itemFunctionMods_.end());
 }
 
-void glimmer::ComposableItem::OnUse() {
+void glimmer::ComposableItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
+    for (const auto &mod: itemFunctionMods_) {
+        mod->OnUse(appContext, worldContext, user);
+    }
 }
 
 void glimmer::ComposableItem::OnDrop() {
+}
+
+size_t glimmer::ComposableItem::GetMaxSlotSize() const {
+    return maxSlotSize_;
+}
+
+const std::pmr::vector<std::unique_ptr<glimmer::ItemFunctionMod> > &glimmer::ComposableItem::GetModules() const {
+    return itemFunctionMods_;
 }

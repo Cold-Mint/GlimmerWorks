@@ -8,7 +8,9 @@
 #include <regex>
 #include <algorithm>
 #include "ResourcePack.h"
+#include "../../Config.h"
 #include "../../log/LogCat.h"
+#include "../../scene/AppContext.h"
 #include "SDL3_image/SDL_image.h"
 
 bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &pack) {
@@ -37,6 +39,75 @@ bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &p
 bool glimmer::ResourcePackManager::IsResourcePackEnabled(const ResourcePack &pack,
                                                          const std::vector<std::string> &enabledResourcePack) {
     return std::ranges::find(enabledResourcePack, pack.getManifest().id) != enabledResourcePack.end();
+}
+
+std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFile(
+    const std::vector<std::string> &enabledResourcePack, const std::string &path) {
+    if (renderer_ == nullptr) {
+        return nullptr;
+    }
+    if (path.empty()) {
+        LogCat::e("Invalid texture path (empty).");
+        return nullptr;
+    }
+
+    const auto cacheIt = textureCache.find(path);
+    if (cacheIt != textureCache.end()) {
+        if (auto tex = cacheIt->second.lock()) {
+            LogCat::d("Texture loaded from cache: ", path);
+            return tex;
+        }
+        LogCat::w("Cached texture expired, reloading: ", path);
+    }
+
+    for (const auto &packId: enabledResourcePack) {
+        auto it = resourcePackMap.find(packId);
+        if (it == resourcePackMap.end()) {
+            LogCat::w("Resource pack not found: ", packId);
+            continue;
+        }
+
+        const ResourcePack *pack = it->second.get();
+        std::string texturePath = pack->getPath() + "/textures/" + path;
+
+        auto actualTexturePath = virtualFileSystem_->GetActualPath(texturePath);
+        if (!actualTexturePath.has_value()) {
+            continue;
+        }
+
+        SDL_Surface *surface = IMG_Load(actualTexturePath.value().c_str());
+        if (surface == nullptr) {
+            LogCat::w("IMG_Load failed for ", texturePath, ": ", SDL_GetError());
+            continue;
+        }
+
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer_, surface);
+        SDL_DestroySurface(surface);
+        if (!texture) {
+            LogCat::w("SDL_CreateTextureFromSurface failed for ", texturePath,
+                      ": ", SDL_GetError());
+            continue;
+        }
+
+        LogCat::d("Loaded texture from pack '", packId, "': ", texturePath);
+
+        auto deleter = [path](SDL_Texture *tex) {
+            LogCat::d("Destroying texture from cache: ", path);
+            if (tex) SDL_DestroyTexture(tex);
+        };
+
+        std::shared_ptr<SDL_Texture> texturePtr(texture, deleter);
+        textureCache[path] = texturePtr; // 自动转换为 weak_ptr
+        LogCat::d("add use_count=", texturePtr.use_count());
+        return texturePtr;
+    }
+
+    //Cache null values when loading fails (to prevent repeated attempts)
+    //加载失败时缓存空值（防止重复尝试）
+    textureCache[path] = std::weak_ptr<SDL_Texture>();
+
+    LogCat::e("Texture not found in any enabled resource pack: ", path);
+    return nullptr;
 }
 
 void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer) {
@@ -124,73 +195,13 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
     return std::nullopt;
 }
 
-std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(
-    const std::vector<std::string> &enabledResourcePack, const std::string &path) {
-    if (renderer_ == nullptr) {
-        return nullptr;
-    }
-    if (path.empty()) {
-        LogCat::e("Invalid texture path (empty).");
-        return nullptr;
-    }
-
-    const auto cacheIt = textureCache.find(path);
-    if (cacheIt != textureCache.end()) {
-        if (auto tex = cacheIt->second.lock()) {
-            LogCat::d("Texture loaded from cache: ", path);
-            return tex;
+std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(AppContext *appContext,
+                                                                               const std::string &path) {
+    return appContext->AddMainThreadTaskAwait(
+        [this,appContext, path] {
+            return ImplLoadTextureFromFile(appContext->GetConfig()->mods.enabledResourcePack, path);
         }
-        LogCat::w("Cached texture expired, reloading: ", path);
-    }
-
-    for (const auto &packId: enabledResourcePack) {
-        auto it = resourcePackMap.find(packId);
-        if (it == resourcePackMap.end()) {
-            LogCat::w("Resource pack not found: ", packId);
-            continue;
-        }
-
-        const ResourcePack *pack = it->second.get();
-        std::string texturePath = pack->getPath() + "/textures/" + path;
-
-        auto actualTexturePath = virtualFileSystem_->GetActualPath(texturePath);
-        if (!actualTexturePath.has_value()) {
-            continue;
-        }
-
-        SDL_Surface *surface = IMG_Load(actualTexturePath.value().c_str());
-        if (surface == nullptr) {
-            LogCat::w("IMG_Load failed for ", texturePath, ": ", SDL_GetError());
-            continue;
-        }
-
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer_, surface);
-        SDL_DestroySurface(surface);
-        if (!texture) {
-            LogCat::w("SDL_CreateTextureFromSurface failed for ", texturePath,
-                      ": ", SDL_GetError());
-            continue;
-        }
-
-        LogCat::d("Loaded texture from pack '", packId, "': ", texturePath);
-
-        auto deleter = [path](SDL_Texture *tex) {
-            LogCat::d("Destroying texture from cache: ", path);
-            if (tex) SDL_DestroyTexture(tex);
-        };
-
-        std::shared_ptr<SDL_Texture> texturePtr(texture, deleter);
-        textureCache[path] = texturePtr; // 自动转换为 weak_ptr
-        LogCat::d("add use_count=", texturePtr.use_count());
-        return texturePtr;
-    }
-
-    //Cache null values when loading fails (to prevent repeated attempts)
-    //加载失败时缓存空值（防止重复尝试）
-    textureCache[path] = std::weak_ptr<SDL_Texture>();
-
-    LogCat::e("Texture not found in any enabled resource pack: ", path);
-    return nullptr;
+    ).get();
 }
 
 

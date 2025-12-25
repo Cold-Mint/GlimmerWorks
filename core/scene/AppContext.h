@@ -3,6 +3,8 @@
 //
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
+#include <future>
+#include <queue>
 #include <string>
 
 #include "SceneManager.h"
@@ -51,7 +53,10 @@ namespace glimmer {
         TilePlacerManager *tilePlacerManager_;
         ResourceLocator *resourceLocator_;
         ItemManager *itemManager_;
+        std::mutex mainThreadMutex_;
+        std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning;
+        std::thread::id mainThreadId_;
 
     public:
         AppContext(const bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
@@ -67,6 +72,7 @@ namespace glimmer {
               window_(nullptr), langs_(langs), isRunning(run), dynamicSuggestionsManager_(dynamicSuggestionsManager),
               virtualFileSystem_(virtualFileSystem), tileManager_(tileManager), biomesManager_(biomesManager),
               resourceLocator_(resourceLocator), itemManager_(itemManager) {
+            mainThreadId_ = std::this_thread::get_id();
         }
 
 
@@ -109,6 +115,61 @@ namespace glimmer {
         [[nodiscard]] SceneManager *GetSceneManager() const;
 
         [[nodiscard]] SDL_Window *GetWindow() const;
+
+        [[nodiscard]] bool IsMainThread() const;
+
+        void ProcessMainThreadTasks();
+
+        /**
+         * Execute a function on the main thread. For example: Loading textures must be done in the main thread.
+         * 在主线程上执行一个函数。例如：加载纹理，必须在主线程。
+         * @tparam Func
+         * @param func
+         * @return
+         */
+        template<typename Func>
+        auto AddMainThreadTaskAwait(Func &&func)
+            -> std::future<std::invoke_result_t<Func> > {
+            using Result = std::invoke_result_t<Func>;
+            if (IsMainThread()) {
+                std::promise<Result> p;
+                try {
+                    if constexpr (std::is_void_v<Result>) {
+                        func();
+                        p.set_value();
+                    } else {
+                        p.set_value(func());
+                    }
+                } catch (...) {
+                    p.set_exception(std::current_exception());
+                }
+                return p.get_future();
+            }
+            auto promise = std::make_shared<std::promise<Result> >();
+            auto future = promise->get_future();
+            {
+                std::lock_guard lock(mainThreadMutex_);
+                mainThreadTasks_.push(
+                    [func = std::forward<Func>(func), promise]() mutable {
+                        try {
+                            if constexpr (std::is_void_v<Result>) {
+                                func();
+                                promise->set_value();
+                            } else {
+                                promise->set_value(func());
+                            }
+                        } catch (...) {
+                            promise->set_exception(std::current_exception());
+                        }
+                    }
+                );
+            }
+
+            return future;
+        }
+
+
+        void AddMainThreadTask(std::function<void()> task);
     };
 }
 

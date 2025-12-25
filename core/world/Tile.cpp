@@ -12,7 +12,7 @@
 #include "../Config.h"
 
 
-std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(const AppContext *appContext,
+std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(AppContext *appContext,
                                                               const TileResource *tileResource) {
     auto tile = std::make_unique<Tile>();
     tile->id = tileResource->packId + ":" + tileResource->key;
@@ -35,6 +35,6 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(const AppContext *
     tile->hardness = tileResource->hardness;
     tile->breakable = tileResource->breakable;
     tile->texture = appContext->GetResourcePackManager()->LoadTextureFromFile(
-        appContext->GetConfig()->mods.enabledResourcePack, tileResource->texture);
+        appContext, tileResource->texture);
     return tile;
 }

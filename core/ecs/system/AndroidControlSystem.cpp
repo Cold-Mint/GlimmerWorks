@@ -113,7 +113,7 @@ namespace glimmer {
         if (!leftTexture) {
             auto load = [&](const char *path) {
                 return appContext_->GetResourcePackManager()->LoadTextureFromFile(
-                    appContext_->GetConfig()->mods.enabledResourcePack, path);
+                    appContext_, path);
             };
             leftTexture = load("gui/left.png");
             rightTexture = load("gui/right.png");

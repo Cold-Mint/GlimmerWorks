@@ -15,6 +15,8 @@
 #include "SDL3/SDL_render.h"
 
 namespace glimmer {
+    class AppContext;
+
     class ResourcePackManager {
         VirtualFileSystem *virtualFileSystem_;
         SDL_Renderer *renderer_;
@@ -26,6 +28,10 @@ namespace glimmer {
                                           const std::vector<std::string> &enabledResourcePack);
 
         std::unordered_map<std::string, std::weak_ptr<SDL_Texture> > textureCache;
+
+
+        std::shared_ptr<SDL_Texture> ImplLoadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
+                                                         const std::string &path);
 
     public:
         explicit
@@ -40,8 +46,7 @@ namespace glimmer {
         std::optional<std::string> GetFontPath(const std::vector<std::string> &enabledResourcePack,
                                                const std::string &language);
 
-        std::shared_ptr<SDL_Texture> LoadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
-                                                         const std::string &path);
+        std::shared_ptr<SDL_Texture> LoadTextureFromFile(AppContext *appContext, const std::string &path);
 
         /**
          * ListTextureCache

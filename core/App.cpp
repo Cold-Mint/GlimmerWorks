@@ -35,7 +35,7 @@ bool glimmer::App::init() {
     LogCat::i("SDL initialized successfully.");
 
     LogCat::i("Creating SDL window...");
-    Config* config = appContext->GetConfig();
+    Config *config = appContext->GetConfig();
     window = SDL_CreateWindow(
         "GlimmerWorks",
         config->window.width,
@@ -137,6 +137,7 @@ void glimmer::App::run() const {
         for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
             overlayScene->OnFrameStart();
         }
+        appContext->ProcessMainThreadTasks();
         sceneManager->getScene()->OnFrameStart();
         while (SDL_PollEvent(&event)) {
 #ifdef __ANDROID__

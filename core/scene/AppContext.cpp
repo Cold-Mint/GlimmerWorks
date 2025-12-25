@@ -84,3 +84,29 @@ glimmer::SceneManager *glimmer::AppContext::GetSceneManager() const {
 SDL_Window *glimmer::AppContext::GetWindow() const {
     return window_;
 }
+
+bool glimmer::AppContext::IsMainThread() const {
+    return std::this_thread::get_id() == mainThreadId_;
+}
+
+void glimmer::AppContext::ProcessMainThreadTasks() {
+    std::queue<std::function<void()> > tasks;
+    {
+        std::lock_guard lock(mainThreadMutex_);
+        std::swap(tasks, mainThreadTasks_);
+    }
+
+    while (!tasks.empty()) {
+        tasks.front()();
+        tasks.pop();
+    }
+}
+
+void glimmer::AppContext::AddMainThreadTask(std::function<void()> task) {
+    if (IsMainThread()) {
+        task();
+        return;
+    }
+    std::lock_guard lock(mainThreadMutex_);
+    mainThreadTasks_.push(std::move(task));
+}

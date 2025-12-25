@@ -23,7 +23,7 @@ namespace glimmer {
             RequireComponent<HotBarComponent>();
         }
 
-        void Render(SDL_Renderer *renderer) override;
+        void Update(float delta) override;
 
         uint8_t GetRenderOrder() override;
 

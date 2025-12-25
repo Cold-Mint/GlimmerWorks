@@ -20,6 +20,7 @@
 #include "../component/ItemContainerComonent.h"
 #include "../component/MagnetComponent.h"
 #include "../component/AutoPickComponent.h"
+#include "../component/ItemSlotComponent.h"
 
 
 void glimmer::GameStartSystem::Update(float delta) {
@@ -62,6 +63,13 @@ void glimmer::GameStartSystem::Update(float delta) {
     worldContext_->AddComponent<AutoPickComponent>(playerEntity);
     const auto hotBarComponent = worldContext_->AddComponent<HotBarComponent>(playerEntity, Vector2D(), 9);
     worldContext_->SetHotBarComponent(hotBarComponent);
+    
+    for (int i = 0; i < 9; ++i) {
+        auto *slotEntity = worldContext_->CreateEntity();
+        worldContext_->AddComponent<ItemSlotComponent>(slotEntity, playerEntity, i);
+        worldContext_->AddComponent<Transform2DComponent>(slotEntity); // Position managed by HotBarSystem
+        hotBarComponent->AddSlotEntity(slotEntity);
+    }
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

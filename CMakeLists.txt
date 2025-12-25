@@ -326,6 +326,10 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/console/suggestion/ComposableItemDynamicSuggestions.h
         core/console/suggestion/TileDynamicSuggestions.cpp
         core/console/suggestion/TileDynamicSuggestions.h
+        core/ecs/component/ItemSlotComponent.cpp
+        core/ecs/component/ItemSlotComponent.h
+        core/ecs/system/ItemSlotSystem.cpp
+        core/ecs/system/ItemSlotSystem.h
 )
 
 if (ANDROID)

@@ -16,7 +16,7 @@ namespace glimmer {
             : Command(ctx) {
         }
 
-        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) override;
+        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
 
         void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) override;
 

@@ -29,9 +29,9 @@ glimmer::NodeTree<std::string> glimmer::HeightMapCommand::GetSuggestionsTree(con
 }
 
 bool glimmer::HeightMapCommand::Execute(CommandArgs commandArgs,
-                                        std::function<void(const std::string &text)> onOutput) {
+                                        std::function<void(const std::string &text)> onMessage) {
     if (worldContext_ == nullptr) {
-        onOutput("WorldContext is nullptr");
+        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
     if (commandArgs.GetSize() < 3) {
@@ -40,7 +40,7 @@ bool glimmer::HeightMapCommand::Execute(CommandArgs commandArgs,
     int minX = commandArgs.AsInt(1);
     int maxX = commandArgs.AsInt(2);
     if (minX > maxX) {
-        onOutput("X is greater than maxX");
+        onMessage("X is greater than maxX");
         return false;
     }
     std::ostringstream ss;
@@ -64,7 +64,7 @@ bool glimmer::HeightMapCommand::Execute(CommandArgs commandArgs,
     }
     ss << "  ]\n";
     ss << "}\n";
-    onOutput(ss.str());
+    onMessage(ss.str());
     LogCat::d(ss.str());
     if (commandArgs.GetSize() >= 4) {
         const std::string fileName = commandArgs.AsString(3);

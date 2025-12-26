@@ -12,9 +12,9 @@ void glimmer::CommandExecutor::ExecuteAsync(std::string command, CommandManager 
                                             const std::function<void(CommandResult result, const std::string &command)>
                                             &
                                             onFinished,
-                                            const std::function<void(const std::string &text)> &onOutput) {
+                                            const std::function<void(const std::string &text)> &onMessage) {
     std::string cmdStr = std::move(command);
-    std::thread([cmdStr, commandManager,onOutput, onFinished]() mutable {
+    std::thread([cmdStr, commandManager,onMessage, onFinished]() mutable {
         cmdStr.erase(0, cmdStr.find_first_not_of(" \t\n\r"));
         cmdStr.erase(cmdStr.find_last_not_of(" \t\n\r") + 1);
 
@@ -30,7 +30,7 @@ void glimmer::CommandExecutor::ExecuteAsync(std::string command, CommandManager 
                 result = CommandResult::NotFound;
             } else {
                 try {
-                    const bool execResult = cmd->Execute(args, onOutput);
+                    const bool execResult = cmd->Execute(args, onMessage);
                     result = execResult ? CommandResult::Success : CommandResult::Failure;
                 } catch (const std::exception &e) {
                     LogCat::e("Command execution exception: ", e.what());

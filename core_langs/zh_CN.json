@@ -15,5 +15,9 @@
   "random": "随机",
   "commandInfo": "共{}个命令已注册：",
   "awakeBodyCount": "活跃的物理碰撞体数量：{}",
-  "getActualPathError": "获取真实路径失败。"
+  "getActualPathError": "获取真实路径失败。",
+  "unknownAssetType": "未知的资产类型。",
+  "unknownCommandParameters": "未知的命令参数。",
+  "worldContextIsNull": "尚未绑定到世界上下文。",
+  "insufficientParameterLength": "参数长度不足，至少为{}，实际为{}。"
 }

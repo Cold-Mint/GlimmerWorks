@@ -19,18 +19,18 @@ std::string glimmer::TpCommand::GetName() const
     return TP_COMMAND_NAME;
 }
 
-bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string& text)> onOutput)
+bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string& text)> onMessage)
 {
     if (worldContext_ == nullptr)
     {
-        onOutput("WorldContext is nullptr");
+        onMessage("WorldContext is nullptr");
         return false;
     }
     auto entities = worldContext_->GetEntitiesWithComponents<
         PlayerControlComponent, RigidBody2DComponent>();
     if (entities.empty())
     {
-        onOutput("No entity with RigidBody2DComponent and PlayerControlComponent");
+        onMessage("No entity with RigidBody2DComponent and PlayerControlComponent");
         return false;
     }
     for (auto entity : entities)
@@ -44,7 +44,7 @@ bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(con
             b2Rot currentRot = b2Body_GetRotation(rigidBody2DComponent->GetBodyId());
             b2Body_SetTransform(rigidBody2DComponent->GetBodyId(), newPos, currentRot);
         }
-        onOutput(
+        onMessage(
             "Teleported entity " + std::to_string(entity->GetID()) + " to x=" + commandArgs.AsString(1) + ",y=" +
             commandArgs.AsString(2));
     }

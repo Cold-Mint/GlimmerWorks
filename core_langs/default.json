@@ -15,5 +15,9 @@
   "random": "Random",
   "commandInfo": "A total of {} commands have been registered: ",
   "awakeBodyCount": "Awake Body Count: {}",
-  "getActualPathError": "Failed to obtain the real path."
+  "getActualPathError": "Failed to obtain the real path.",
+  "unknownAssetType": "Unknown asset type.",
+  "unknownCommandParameters": "Unknown command parameters.",
+  "worldContextIsNull": "Not yet bound to the world context.",
+  "insufficientParameterLength": "The parameter length is insufficient. It is at least {}, but in reality, it is {}."
 }

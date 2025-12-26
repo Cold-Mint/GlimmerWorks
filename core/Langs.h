@@ -25,6 +25,10 @@ namespace glimmer {
         std::string commandInfo;
         std::string awakeBodyCount;
         std::string getActualPathError;
+        std::string unknownAssetType;
+        std::string unknownCommandParameters;
+        std::string worldContextIsNull;
+        std::string insufficientParameterLength;
     };
 }
 

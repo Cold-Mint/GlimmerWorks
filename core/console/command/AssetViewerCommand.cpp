@@ -10,8 +10,7 @@
 
 void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     suggestionsTree.AddChild("string");
-    auto texture = suggestionsTree.AddChild("texture");
-    texture->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree.AddChild("texture")->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
     suggestionsTree.AddChild("tile");
     suggestionsTree.AddChild("biomes");
     suggestionsTree.AddChild("items");
@@ -28,25 +27,33 @@ bool glimmer::AssetViewerCommand::RequiresWorldContext() const {
 void glimmer::AssetViewerCommand::
 PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
     strings.emplace_back("[asset type:string]");
-    const auto type = commandArgs.AsString(1);
-    if (type == "texture") {
+    if (commandArgs.AsString(1) == "texture") {
         strings.emplace_back("[include expired:bool]");
     }
 }
 
-bool glimmer::AssetViewerCommand::Execute(CommandArgs commandArgs,
-                                          std::function<void(const std::string &text)> onOutput) {
+bool glimmer::AssetViewerCommand::Execute(const CommandArgs commandArgs,
+                                          const std::function<void(const std::string &text)> onMessage) {
     const auto type = commandArgs.AsString(1);
+    bool result = false;
     if (type == "string") {
-        onOutput(appContext_->GetStringManager()->ListStrings());
+        onMessage(appContext_->GetStringManager()->ListStrings());
+        result = true;
     } else if (type == "texture") {
-        onOutput(appContext_->GetResourcePackManager()->ListTextureCache(commandArgs.AsBool(2)));
+        onMessage(appContext_->GetResourcePackManager()->ListTextureCache(commandArgs.AsBool(2)));
+        result = true;
     } else if (type == "tile") {
-        onOutput(appContext_->GetTileManager()->ListTiles());
+        onMessage(appContext_->GetTileManager()->ListTiles());
+        result = true;
     } else if (type == "biomes") {
-        onOutput(appContext_->GetBiomesManager()->ListBiomes());
+        onMessage(appContext_->GetBiomesManager()->ListBiomes());
+        result = true;
     } else if (type == "items") {
-        onOutput(appContext_->GetItemManager()->ListItems());
+        onMessage(appContext_->GetItemManager()->ListItems());
+        result = true;
+    } else {
+        onMessage(appContext_->GetLangsResources()->unknownAssetType);
+        result = false;
     }
-    return true;
+    return result;
 }

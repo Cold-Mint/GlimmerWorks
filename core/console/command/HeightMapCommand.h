@@ -29,7 +29,7 @@ namespace glimmer {
 
         [[nodiscard]] NodeTree<std::string> GetSuggestionsTree(const CommandArgs &commandArgs) override;
 
-        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) override;
+        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
     };
 }
 

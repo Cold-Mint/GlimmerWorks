@@ -19,9 +19,9 @@ void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string> &suggestionsTre
     suggestionsTree.AddChild("composableItem")->AddChild(COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) {
+bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
     if (worldContext_ == nullptr) {
-        onOutput("WorldContext is nullptr");
+        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
     if (commandArgs.GetSize() >= 3) {

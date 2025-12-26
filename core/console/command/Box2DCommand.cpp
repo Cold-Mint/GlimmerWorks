@@ -21,21 +21,23 @@ bool glimmer::Box2DCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::Box2DCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) {
+bool glimmer::Box2DCommand::Execute(const CommandArgs commandArgs,
+                                    const std::function<void(const std::string &text)> onMessage) {
     if (worldContext_ == nullptr) {
-        onOutput("WorldContext is nullptr");
+        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const auto type = commandArgs.AsString(1);
-    if (type == "count") {
+    if (commandArgs.AsString(1) == "count") {
         //Obtain the number of active rigid bodies
         //获取活跃的刚体数量
         const auto bodyCount = b2World_GetAwakeBodyCount(worldContext_->GetWorldId());
-        onOutput(fmt::format(
+        onMessage(fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->awakeBodyCount),
             bodyCount));
+        return true;
     }
-    return true;
+    onMessage(appContext_->GetLangsResources()->unknownCommandParameters);
+    return false;
 }
 
 void glimmer::Box2DCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {

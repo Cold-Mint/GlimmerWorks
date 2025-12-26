@@ -7,6 +7,7 @@
 #include "../../Config.h"
 #include "../../Constants.h"
 #include "../../scene/AppContext.h"
+#include "fmt/color.h"
 
 
 void glimmer::ConfigCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
@@ -22,11 +23,8 @@ void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs &commandArgs,
     strings.emplace_back("[operation type:string]");
     strings.emplace_back("[parameter name:string]");
     if (commandArgs.GetSize() > 2) {
-        std::string operation = commandArgs.AsString(1);
-        if (operation == "set") {
-            std::string parameterName = commandArgs.AsString(2);
-            ConfigType configType = GetParameterType(parameterName);
-            if (configType == Boolean) {
+        if (commandArgs.AsString(1) == "set") {
+            if (const ConfigType configType = GetParameterType(commandArgs.AsString(2)); configType == Boolean) {
                 strings.emplace_back("[value:bool]");
             } else if (configType == Number) {
                 strings.emplace_back("[value:number]");
@@ -41,47 +39,37 @@ void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs &commandArgs,
     }
 }
 
-glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string &parameterName) const {
-    std::vector<std::string> parts;
-    std::istringstream ss(parameterName);
-    std::string token;
-    while (std::getline(ss, token, '.')) {
-        parts.push_back(token);
-    }
+glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string &parameterPath) const {
+    std::vector<std::string> pathSegments;
+    std::istringstream pathStream(parameterPath);
+    std::string segment;
 
-    nlohmann::json current = json_;
-    for (size_t i = 0; i < parts.size(); ++i) {
-        const std::string &part = parts[i];
-        if (current.is_object()) {
-            auto it = current.find(part); // 严格匹配
-            if (it != current.end()) {
-                if (i == parts.size() - 1) {
-                    // 最后一级，输出类型
-                    if (it->is_string()) {
-                        return String;
-                    }
-                    if (it->is_number()) {
-                        return Number;
-                    }
-                    if (it->is_boolean()) {
-                        return Boolean;
-                    }
-                    if (it->is_object()) {
-                        return Object;
-                    }
-                    if (it->is_array()) {
-                        return Array;
-                    }
-                } else {
-                    current = *it; // 进入下一层
-                }
-            } else {
-                return String;
-            }
-        } else {
-            // 到非对象层，直接提示 string
+    while (std::getline(pathStream, segment, '.')) {
+        pathSegments.push_back(segment);
+    }
+    nlohmann::json currentNode = json_;
+
+    for (size_t index = 0; index < pathSegments.size(); ++index) {
+        const std::string &key = pathSegments[index];
+        if (!currentNode.is_object()) {
             return String;
         }
+
+        auto it = currentNode.find(key);
+        if (it == currentNode.end()) {
+            return String;
+        }
+        if (index == pathSegments.size() - 1) {
+            if (it->is_string()) return String;
+            if (it->is_number()) return Number;
+            if (it->is_boolean()) return Boolean;
+            if (it->is_object()) return Object;
+            if (it->is_array()) return Array;
+
+            return String;
+        }
+
+        currentNode = *it;
     }
 
     return String;
@@ -98,11 +86,9 @@ bool FindOrCreateJsonNode(const std::string &path,
         if (!token.empty()) parts.push_back(token);
     }
 
-    if (parts.empty()) return false;
+    if (parts.empty()) { return false; }
 
     nlohmann::json *current = &root;
-
-    // 遍历到倒数第二级
     for (size_t i = 0; i < parts.size() - 1; ++i) {
         auto &key = parts[i];
 
@@ -142,15 +128,21 @@ bool FindJsonNode(const std::string &path,
 
 
 bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
-                                     std::function<void(const std::string &text)> onOutput) {
-    if (commandArgs.GetSize() < 3) {
+                                     std::function<void(const std::string &text)> onMessage) {
+    int size = commandArgs.GetSize();
+    if (size < 3) {
+        onMessage(fmt::format(
+            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            3, size));
         return false;
     }
 
-    std::string operation = commandArgs.AsString(1);
+    const std::string operation = commandArgs.AsString(1);
     if (operation == "set") {
-        if (commandArgs.GetSize() < 4) {
-            onOutput("Missing value for set");
+        if (size < 4) {
+            onMessage(fmt::format(
+                fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+                4, size));
             return false;
         }
 
@@ -161,12 +153,13 @@ bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
         std::string lastKey;
 
         if (!FindOrCreateJsonNode(parameterName, json_, targetObject, lastKey)) {
-            onOutput("Invalid parameter path: " + parameterName);
+            onMessage("Invalid parameter path: " + parameterName);
             return false;
         }
 
         // 自动推断类型
-        if (appContext_->GetDynamicSuggestionsManager()->GetSuggestions(BOOL_DYNAMIC_SUGGESTIONS_NAME)->Match(value, "")) {
+        if (appContext_->GetDynamicSuggestionsManager()->GetSuggestions(BOOL_DYNAMIC_SUGGESTIONS_NAME)->
+            Match(value, "")) {
             (*targetObject)[lastKey] = value == "true" || value == "yes" || value == "1" || value == "y";
         } else if (std::isdigit(value[0]) || value[0] == '-' || value[0] == '+') {
             try {
@@ -178,7 +171,7 @@ bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
             (*targetObject)[lastKey] = value;
         }
 
-        onOutput("Set " + parameterName + " = " + value);
+        onMessage("Set " + parameterName + " = " + value);
         std::string data = json_.dump();
         bool update = appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, data);
         if (update) {
@@ -192,29 +185,26 @@ bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
 
         const nlohmann::json *found;
         if (!FindJsonNode(parameterName, json_, found)) {
-            onOutput("Config key not found: " + parameterName);
+            onMessage("Config key not found: " + parameterName);
             return false;
         }
 
-        onOutput(found->dump());
+        onMessage(found->dump());
         return true;
     }
 
-    onOutput("Unknown operation: " + operation);
+    onMessage("Unknown operation: " + operation);
     return false;
 }
 
 
 glimmer::NodeTree<std::string> glimmer::ConfigCommand::GetSuggestionsTree(const CommandArgs &commandArgs) {
     if (commandArgs.GetSize() > 2) {
-        std::string operation = commandArgs.AsString(1);
-        if (operation == "set") {
-            std::string parameterName = commandArgs.AsString(2);
-            ConfigType configType = GetParameterType(parameterName);
-            const auto obj = suggestionsTree_.GetChildByValue("set")->GetChildByValue(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
-            if (obj != nullptr) {
+        if (commandArgs.AsString(1) == "set") {
+            if (const auto obj = suggestionsTree_.GetChildByValue("set")->GetChildByValue(
+                CONFIG_DYNAMIC_SUGGESTIONS_NAME); obj != nullptr) {
                 obj->ClearChildren();
-                if (configType == Boolean) {
+                if (GetParameterType(commandArgs.AsString(2)) == Boolean) {
                     obj->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
                 }
             }

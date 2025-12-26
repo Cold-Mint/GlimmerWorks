@@ -23,13 +23,13 @@ void glimmer::HelpCommand::PutCommandStructure(const CommandArgs &commandArgs, s
 }
 
 
-bool glimmer::HelpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) {
+bool glimmer::HelpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
     auto &commands = appContext_->GetCommandManager()->GetCommands();
-    onOutput(fmt::format(
+    onMessage(fmt::format(
         fmt::runtime(appContext_->GetLangsResources()->commandInfo),
         commands.size()));
     for (const auto &[name, command]: commands) {
-        onOutput(name + ": RequiresWorldContext=" + (command->RequiresWorldContext() ? "true" : "false"));
+        onMessage(name + ": RequiresWorldContext=" + (command->RequiresWorldContext() ? "true" : "false"));
     }
 
     return true;

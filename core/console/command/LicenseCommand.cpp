@@ -6,12 +6,12 @@
 
 #include "../../Constants.h"
 
-bool glimmer::LicenseCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) {
+bool glimmer::LicenseCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
     auto text = virtualFileSystem_->ReadFile("LICENSE");
     if (text.has_value()) {
-        onOutput(text.value());
+        onMessage(text.value());
     } else {
-        onOutput(
+        onMessage(
             "Failed to load the local LICENSE file.\nThis file should be included with every distribution of this program.\nIf it is missing, please check your installation or view the license online at:\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE");
     }
     return true;

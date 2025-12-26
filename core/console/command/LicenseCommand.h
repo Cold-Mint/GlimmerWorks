@@ -16,7 +16,7 @@ namespace glimmer {
             : Command(ctx), virtualFileSystem_(virtualFileSystem) {
         }
 
-        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onOutput) override;
+        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
 
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 

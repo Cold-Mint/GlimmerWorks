@@ -125,6 +125,10 @@ int main() {
         langsResources.commandInfo = jsonObject["commandInfo"].get<std::string>();
         langsResources.awakeBodyCount = jsonObject["awakeBodyCount"].get<std::string>();
         langsResources.awakeBodyCount = jsonObject["getActualPathError"].get<std::string>();
+        langsResources.unknownAssetType = jsonObject["unknownAssetType"].get<std::string>();
+        langsResources.unknownCommandParameters = jsonObject["unknownCommandParameters"].get<std::string>();
+        langsResources.worldContextIsNull = jsonObject["worldContextIsNull"].get<std::string>();
+        langsResources.insufficientParameterLength = jsonObject["insufficientParameterLength"].get<std::string>();
         DynamicSuggestionsManager dynamicSuggestionsManager;
         dynamicSuggestionsManager.RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
         dynamicSuggestionsManager.RegisterDynamicSuggestions(

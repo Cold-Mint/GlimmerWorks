@@ -124,7 +124,7 @@ int main() {
         langsResources.random = jsonObject["random"].get<std::string>();
         langsResources.commandInfo = jsonObject["commandInfo"].get<std::string>();
         langsResources.awakeBodyCount = jsonObject["awakeBodyCount"].get<std::string>();
-        langsResources.awakeBodyCount = jsonObject["getActualPathError"].get<std::string>();
+        langsResources.getActualPathError = jsonObject["getActualPathError"].get<std::string>();
         langsResources.unknownAssetType = jsonObject["unknownAssetType"].get<std::string>();
         langsResources.unknownCommandParameters = jsonObject["unknownCommandParameters"].get<std::string>();
         langsResources.worldContextIsNull = jsonObject["worldContextIsNull"].get<std::string>();

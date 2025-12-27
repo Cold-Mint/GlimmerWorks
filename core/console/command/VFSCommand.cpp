@@ -6,6 +6,7 @@
 
 #include "../../Constants.h"
 #include "../../scene/AppContext.h"
+#include "fmt/color.h"
 
 void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     //List all the mount points
@@ -34,6 +35,9 @@ void glimmer::VFSCommand::PutCommandStructure(const CommandArgs &commandArgs, st
 bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
     const int size = commandArgs.GetSize();
     if (size < 2) {
+        onMessage(fmt::format(
+            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            2, size));
         return false;
     }
     const auto type = commandArgs.AsString(1);

@@ -51,11 +51,11 @@ bool glimmer::App::init() {
     LogCat::i("Creating SDL renderer...");
     renderer_ =
             SDL_CreateRenderer(window, nullptr);
-    appContext->GetResourcePackManager()->SetRenderer(renderer_);
-    if (!renderer_) {
+    if (renderer_ == nullptr) {
         LogCat::e("SDL_CreateRenderer Error: ", SDL_GetError());
         return false;
     }
+    appContext->GetResourcePackManager()->SetRenderer(renderer_);
     // Enable alpha blending rendering
     // 启用按 alpha 混合渲染
     // This will allow us to use transparency during rendering

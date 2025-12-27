@@ -64,7 +64,7 @@ namespace glimmer {
 
         [[nodiscard]] Tile *GetTile(TileLayerType layerType, int x, int y);
 
-        [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D& tileVector2d);
+        [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D &tileVector2d);
 
         /**
          * Replace tile
@@ -74,7 +74,7 @@ namespace glimmer {
          * @param newTile newTile 新瓦片
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Tile> ReplaceTile(TileLayerType layerType, const TileVector2D& tileVector2d,
+        [[nodiscard]] std::unique_ptr<Tile> ReplaceTile(TileLayerType layerType, const TileVector2D &tileVector2d,
                                                         std::unique_ptr<Tile> newTile);
     };
 }

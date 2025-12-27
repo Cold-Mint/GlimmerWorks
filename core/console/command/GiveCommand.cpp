@@ -13,6 +13,7 @@
 #include "../../mod/ResourceLocator.h"
 #include "../../scene/AppContext.h"
 #include "../../world/WorldContext.h"
+#include "fmt/color.h"
 
 void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     suggestionsTree.AddChild("tileItem")->AddChild(TILE_DYNAMIC_SUGGESTIONS_NAME);
@@ -24,73 +25,86 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    if (commandArgs.GetSize() >= 3) {
-        const std::string itemType = commandArgs.AsString(1);
-        if (itemType == "tileItem") {
-            auto itemId = commandArgs.AsResourceRef(2, RESOURCE_TYPE_TILE);
-            if (!itemId.has_value()) {
-                return false;
-            }
-            ResourceRef &resourceRef = itemId.value();
-            auto tileResourceOptional = appContext_->GetResourceLocator()->FindTile(resourceRef);
-            if (!tileResourceOptional.has_value()) {
-                return false;
-            }
-            auto tileId = tileResourceOptional.value();
-            if (tileId == nullptr) {
-                return false;
-            }
-            auto playerId = worldContext_->GetPlayerEntity()->GetID();
-            auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
-            if (item_container == nullptr) {
-                return false;
-            }
-            auto tileItem = std::make_unique<TileItem>(Tile::FromResourceRef(appContext_, tileId));
-            if (commandArgs.GetSize() >= 4) {
-                const int number = commandArgs.AsInt(3);
-                if (number > 1) {
-                    (void) tileItem->AddAmount(number - 1);
-                }
-            }
-            std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
-                std::move(tileItem));
-            return item == nullptr;
-        }
-        if (itemType == "composableItem") {
-            auto itemId = commandArgs.AsResourceRef(2, RESOURCE_TYPE_ITEM);
-            if (!itemId.has_value()) {
-                return false;
-            }
-            ResourceRef &resourceRef = itemId.value();
-            auto itemResourceOptional = appContext_->GetResourceLocator()->FindItem(resourceRef);
-            if (!itemResourceOptional.has_value()) {
-                return false;
-            }
-            auto itemResource = itemResourceOptional.value();
-            if (itemResource == nullptr) {
-                return false;
-            }
-            auto playerId = worldContext_->GetPlayerEntity()->GetID();
-            auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
-            if (item_container == nullptr) {
-                return false;
-            }
-
-            auto composableItem = ComposableItem::FromItemResource(appContext_, itemResource);
-            if (composableItem == nullptr) {
-                return false;
-            }
-            if (commandArgs.GetSize() >= 4) {
-                const int number = commandArgs.AsInt(3);
-                if (number > 1) {
-                    (void) composableItem->AddAmount(number - 1);
-                }
-            }
-            std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
-                std::move(composableItem));
-            return item == nullptr;
-        }
+    const size_t size = commandArgs.GetSize();
+    if (size < 3) {
+        onMessage(fmt::format(
+            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            3, size));
+        return false;
     }
+    const std::string itemType = commandArgs.AsString(1);
+    if (itemType == "tileItem") {
+        auto itemId = commandArgs.AsResourceRef(2, RESOURCE_TYPE_TILE);
+        if (!itemId.has_value()) {
+            onMessage(appContext_->GetLangsResources()->itemIdNotFound);
+            return false;
+        }
+        ResourceRef &resourceRef = itemId.value();
+        auto tileResourceOptional = appContext_->GetResourceLocator()->FindTile(resourceRef);
+        if (!tileResourceOptional.has_value()) {
+            onMessage(appContext_->GetLangsResources()->tileResourceNotFound);
+            return false;
+        }
+        auto tileId = tileResourceOptional.value();
+        if (tileId == nullptr) {
+            onMessage(appContext_->GetLangsResources()->tileResourceIsNull);
+            return false;
+        }
+        auto playerId = worldContext_->GetPlayerEntity()->GetID();
+        auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
+        if (item_container == nullptr) {
+            onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
+            return false;
+        }
+        auto tileItem = std::make_unique<TileItem>(Tile::FromResourceRef(appContext_, tileId));
+        if (size >= 4) {
+            if (const int number = commandArgs.AsInt(3); number > 1) {
+                (void) tileItem->AddAmount(number - 1);
+            }
+        }
+        std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
+            std::move(tileItem));
+        return item == nullptr;
+    }
+    if (itemType == "composableItem") {
+        auto itemId = commandArgs.AsResourceRef(2, RESOURCE_TYPE_ITEM);
+        if (!itemId.has_value()) {
+            onMessage(appContext_->GetLangsResources()->itemIdNotFound);
+            return false;
+        }
+        ResourceRef &resourceRef = itemId.value();
+        auto itemResourceOptional = appContext_->GetResourceLocator()->FindItem(resourceRef);
+        if (!itemResourceOptional.has_value()) {
+            onMessage(appContext_->GetLangsResources()->itemResourceNotFound);
+            return false;
+        }
+        auto itemResource = itemResourceOptional.value();
+        if (itemResource == nullptr) {
+            onMessage(appContext_->GetLangsResources()->itemResourceIsNull);
+            return false;
+        }
+        auto playerId = worldContext_->GetPlayerEntity()->GetID();
+        auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
+        if (item_container == nullptr) {
+            onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
+            return false;
+        }
+
+        auto composableItem = ComposableItem::FromItemResource(appContext_, itemResource);
+        if (composableItem == nullptr) {
+            onMessage(appContext_->GetLangsResources()->composableItemIsNull);
+            return false;
+        }
+        if (size >= 4) {
+            if (const int number = commandArgs.AsInt(3); number > 1) {
+                (void) composableItem->AddAmount(number - 1);
+            }
+        }
+        std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
+            std::move(composableItem));
+        return item == nullptr;
+    }
+    onMessage(appContext_->GetLangsResources()->unknownCommandParameters);
     return false;
 }
 

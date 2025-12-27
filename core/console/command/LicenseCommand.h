@@ -21,7 +21,8 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
         void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) override;
- [[nodiscard]] std::string GetName() const override;
+
+        [[nodiscard]] std::string GetName() const override;
     };
 }
 

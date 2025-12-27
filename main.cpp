@@ -129,8 +129,22 @@ int main() {
         langsResources.unknownCommandParameters = jsonObject["unknownCommandParameters"].get<std::string>();
         langsResources.worldContextIsNull = jsonObject["worldContextIsNull"].get<std::string>();
         langsResources.insufficientParameterLength = jsonObject["insufficientParameterLength"].get<std::string>();
-        langsResources.entryCannotFoundInConfigurationFile = jsonObject["entryCannotFoundInConfigurationFile"].get<std::string>();
+        langsResources.entryCannotFoundInConfigurationFile = jsonObject["entryCannotFoundInConfigurationFile"].get<
+            std::string>();
         langsResources.configurationUpdate = jsonObject["configurationUpdate"].get<std::string>();
+        langsResources.itemIdNotFound = jsonObject["itemIdNotFound"].get<std::string>();
+        langsResources.tileResourceNotFound = jsonObject["tileResourceNotFound"].get<std::string>();
+        langsResources.itemContainerIsNull = jsonObject["itemContainerIsNull"].get<std::string>();
+        langsResources.composableItemIsNull = jsonObject["composableItemIsNull"].get<std::string>();
+        langsResources.itemResourceNotFound = jsonObject["itemResourceNotFound"].get<std::string>();
+        langsResources.itemResourceIsNull = jsonObject["itemResourceIsNull"].get<std::string>();
+        langsResources.tileResourceIsNull = jsonObject["tileResourceIsNull"].get<std::string>();
+        langsResources.minXIsGreaterThanMaxX = jsonObject["minXIsGreaterThanMaxX"].get<std::string>();
+        langsResources.folderCreationFailed = jsonObject["folderCreationFailed"].get<std::string>();
+        langsResources.fileWritingFailed = jsonObject["fileWritingFailed"].get<std::string>();
+        langsResources.failedToLoadLicense = jsonObject["failedToLoadLicense"].get<std::string>();
+        langsResources.cantFindObject = jsonObject["cantFindObject"].get<std::string>();
+        langsResources.teleportEntity = jsonObject["teleportEntity"].get<std::string>();
         DynamicSuggestionsManager dynamicSuggestionsManager;
         dynamicSuggestionsManager.RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
         dynamicSuggestionsManager.RegisterDynamicSuggestions(

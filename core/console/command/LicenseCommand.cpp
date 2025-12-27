@@ -5,16 +5,16 @@
 #include "LicenseCommand.h"
 
 #include "../../Constants.h"
+#include "../../scene/AppContext.h"
 
 bool glimmer::LicenseCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
-    auto text = virtualFileSystem_->ReadFile("LICENSE");
-    if (text.has_value()) {
+    if (const auto text = virtualFileSystem_->ReadFile("LICENSE"); text.has_value()) {
         onMessage(text.value());
-    } else {
-        onMessage(
-            "Failed to load the local LICENSE file.\nThis file should be included with every distribution of this program.\nIf it is missing, please check your installation or view the license online at:\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE");
+        return true;
     }
-    return true;
+    onMessage(
+        appContext_->GetLangsResources()->failedToLoadLicense);
+    return false;
 }
 
 void glimmer::LicenseCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {

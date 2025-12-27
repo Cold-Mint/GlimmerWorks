@@ -31,6 +31,19 @@ namespace glimmer {
         std::string insufficientParameterLength;
         std::string entryCannotFoundInConfigurationFile;
         std::string configurationUpdate;
+        std::string itemIdNotFound;
+        std::string tileResourceNotFound;
+        std::string itemContainerIsNull;
+        std::string composableItemIsNull;
+        std::string itemResourceNotFound;
+        std::string tileResourceIsNull;
+        std::string itemResourceIsNull;
+        std::string minXIsGreaterThanMaxX;
+        std::string folderCreationFailed;
+        std::string fileWritingFailed;
+        std::string failedToLoadLicense;
+        std::string cantFindObject;
+        std::string teleportEntity;
     };
 }
 

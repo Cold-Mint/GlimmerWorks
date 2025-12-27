@@ -21,5 +21,18 @@
   "worldContextIsNull": "Not yet bound to the world context.",
   "insufficientParameterLength": "The parameter length is insufficient. It is at least {}, but in reality, it is {}.",
   "entryCannotFoundInConfigurationFile": "The entry {} cannot be found in the configuration file.",
-  "configurationUpdate": "The configuration {} has been changed to {}."
+  "configurationUpdate": "The configuration {} has been changed to {}.",
+  "itemIdNotFound": "The item Id was not found.",
+  "tileResourceNotFound": "The tile resource not found.",
+  "itemContainerIsNull": "Item container is null.",
+  "composableItemIsNull": "Composable item is null.",
+  "itemResourceNotFound": "The item resource not found.",
+  "itemResourceIsNull": "itemResource is null.",
+  "tileResourceIsNull": "tileResource is null.",
+  "minXIsGreaterThanMaxX": "min X cannot be greater than max X.",
+  "folderCreationFailed": "The folder {} failed to be created.",
+  "fileWritingFailed": "The file {} failed to be written.",
+  "failedToLoadLicense": "Failed to load the local LICENSE file.\nThis file should be included with every distribution of this program.\nIf it is missing, please check your installation or view the license online at:\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE",
+  "cantFindObject": "The game object can't be found.",
+  "teleportEntity": "The entity with Id {} has been sent to x={},y={}."
 }

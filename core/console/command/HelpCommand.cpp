@@ -7,7 +7,6 @@
 #include <chrono>
 
 #include "../../Constants.h"
-#include "../../log/LogCat.h"
 #include "../../scene/AppContext.h"
 #include "fmt/color.h"
 
@@ -31,6 +30,5 @@ bool glimmer::HelpCommand::Execute(CommandArgs commandArgs, std::function<void(c
     for (const auto &[name, command]: commands) {
         onMessage(name + ": RequiresWorldContext=" + (command->RequiresWorldContext() ? "true" : "false"));
     }
-
     return true;
 }

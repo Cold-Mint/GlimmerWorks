@@ -21,5 +21,18 @@
   "worldContextIsNull": "尚未绑定到世界上下文。",
   "insufficientParameterLength": "参数长度不足，至少为{}，实际为{}。",
   "entryCannotFoundInConfigurationFile": "在配置文件内找不到条目{}。",
-  "configurationUpdate": "配置{}已被更改为{}。"
+  "configurationUpdate": "配置{}已被更改为{}。",
+  "itemIdNotFound": "物品Id没有找到。",
+  "tileResourceNotFound": "没有找到tileResource。",
+  "itemContainerIsNull": "物品容器是空的。",
+  "composableItemIsNull": "可组合物品是空的。",
+  "itemResourceNotFound": "没有找到itemResource。",
+  "itemResourceIsNull": "itemResource是空的。",
+  "tileResourceIsNull": "tileResource是空的。",
+  "minXIsGreaterThanMaxX": "min X不能大于max X。",
+  "folderCreationFailed": "文件夹{}创建失败。",
+  "fileWritingFailed": "文件{}写入失败。",
+  "failedToLoadLicense": "加载本地LICENSE文件失败。\n这个文件应该包含在这个程序的每个发行版中。\n如果缺少，请检查您的安装或在线查看许可证：\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE",
+  "cantFindObject": "找不到游戏对象。",
+  "teleportEntity": "已将Id为{}的实体，传送至x={},y={}。"
 }

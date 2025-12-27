@@ -143,7 +143,6 @@ void glimmer::App::run() const {
 #ifdef __ANDROID__
             if (event.type == SDL_EVENT_KEY_DOWN &&
                 event.key.key == SDLK_AC_BACK) {
-                LogCat::i("onBackPressed");
             }
 #endif
             if (event.type == SDL_EVENT_QUIT) {

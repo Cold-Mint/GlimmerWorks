@@ -19,5 +19,7 @@
   "unknownAssetType": "未知的资产类型。",
   "unknownCommandParameters": "未知的命令参数。",
   "worldContextIsNull": "尚未绑定到世界上下文。",
-  "insufficientParameterLength": "参数长度不足，至少为{}，实际为{}。"
+  "insufficientParameterLength": "参数长度不足，至少为{}，实际为{}。",
+  "entryCannotFoundInConfigurationFile": "在配置文件内找不到条目{}。",
+  "configurationUpdate": "配置{}已被更改为{}。"
 }

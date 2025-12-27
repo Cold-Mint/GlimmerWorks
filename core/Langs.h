@@ -29,6 +29,8 @@ namespace glimmer {
         std::string unknownCommandParameters;
         std::string worldContextIsNull;
         std::string insufficientParameterLength;
+        std::string entryCannotFoundInConfigurationFile;
+        std::string configurationUpdate;
     };
 }
 

@@ -75,32 +75,54 @@ glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string &
     return String;
 }
 
-bool FindOrCreateJsonNode(const std::string &path,
-                          nlohmann::json &root,
-                          nlohmann::json *&outObject,
-                          std::string &finalKey) {
+/**
+ * FindJsonNodeStrict
+ * 查找Json节点
+ * @param path path 路径
+ * @param root Root json 根json
+ * @param outObject outObject 目标对象
+ * @param finalKey json键 jsonKey
+ * @return
+ */
+bool FindJsonNodeStrict(const std::string &path,
+                        nlohmann::json &root,
+                        nlohmann::json *&outObject,
+                        std::string &finalKey) {
     std::vector<std::string> parts;
     std::stringstream ss(path);
     std::string token;
     while (std::getline(ss, token, '.')) {
-        if (!token.empty()) parts.push_back(token);
+        if (token.empty()) {
+            continue;
+        }
+        parts.push_back(token);
     }
 
-    if (parts.empty()) { return false; }
+    if (parts.empty()) {
+        return false;
+    }
 
     nlohmann::json *current = &root;
     for (size_t i = 0; i < parts.size() - 1; ++i) {
         auto &key = parts[i];
-
-        if (!(*current)[key].is_object()) {
-            (*current)[key] = nlohmann::json::object();
+        if (!current->is_object()) {
+            return false;
         }
-        current = &(*current)[key];
+        auto it = current->find(key);
+        if (it == current->end()) {
+            return false;
+        }
+        if (!it->is_object()) {
+            return false;
+        }
+        current = &*it;
     }
-
-    finalKey = parts.back();
-    outObject = current;
-    return true;
+    if (const std::string &back = parts.back(); current->contains(back)) {
+        finalKey = back;
+        outObject = current;
+        return true;
+    }
+    return false;
 }
 
 bool FindJsonNode(const std::string &path,
@@ -152,8 +174,9 @@ bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
         nlohmann::json *targetObject;
         std::string lastKey;
 
-        if (!FindOrCreateJsonNode(parameterName, json_, targetObject, lastKey)) {
-            onMessage("Invalid parameter path: " + parameterName);
+        if (!FindJsonNodeStrict(parameterName, json_, targetObject, lastKey)) {
+            onMessage(fmt::format(fmt::runtime(appContext_->GetLangsResources()->entryCannotFoundInConfigurationFile),
+                                  parameterName));
             return false;
         }
 
@@ -171,9 +194,9 @@ bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
             (*targetObject)[lastKey] = value;
         }
 
-        onMessage("Set " + parameterName + " = " + value);
-        std::string data = json_.dump();
-        bool update = appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, data);
+        onMessage(fmt::format(fmt::runtime(appContext_->GetLangsResources()->configurationUpdate),
+                              parameterName, value));
+        const bool update = appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, json_.dump());
         if (update) {
             appContext_->GetConfig()->LoadConfig(json_);
         }
@@ -185,15 +208,15 @@ bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
 
         const nlohmann::json *found;
         if (!FindJsonNode(parameterName, json_, found)) {
-            onMessage("Config key not found: " + parameterName);
+            onMessage(fmt::format(fmt::runtime(appContext_->GetLangsResources()->entryCannotFoundInConfigurationFile),
+                                  parameterName));
             return false;
         }
 
         onMessage(found->dump());
         return true;
     }
-
-    onMessage("Unknown operation: " + operation);
+    onMessage(appContext_->GetLangsResources()->unknownCommandParameters);
     return false;
 }
 

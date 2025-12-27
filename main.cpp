@@ -129,6 +129,8 @@ int main() {
         langsResources.unknownCommandParameters = jsonObject["unknownCommandParameters"].get<std::string>();
         langsResources.worldContextIsNull = jsonObject["worldContextIsNull"].get<std::string>();
         langsResources.insufficientParameterLength = jsonObject["insufficientParameterLength"].get<std::string>();
+        langsResources.entryCannotFoundInConfigurationFile = jsonObject["entryCannotFoundInConfigurationFile"].get<std::string>();
+        langsResources.configurationUpdate = jsonObject["configurationUpdate"].get<std::string>();
         DynamicSuggestionsManager dynamicSuggestionsManager;
         dynamicSuggestionsManager.RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
         dynamicSuggestionsManager.RegisterDynamicSuggestions(

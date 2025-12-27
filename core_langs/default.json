@@ -19,5 +19,7 @@
   "unknownAssetType": "Unknown asset type.",
   "unknownCommandParameters": "Unknown command parameters.",
   "worldContextIsNull": "Not yet bound to the world context.",
-  "insufficientParameterLength": "The parameter length is insufficient. It is at least {}, but in reality, it is {}."
+  "insufficientParameterLength": "The parameter length is insufficient. It is at least {}, but in reality, it is {}.",
+  "entryCannotFoundInConfigurationFile": "The entry {} cannot be found in the configuration file.",
+  "configurationUpdate": "The configuration {} has been changed to {}."
 }

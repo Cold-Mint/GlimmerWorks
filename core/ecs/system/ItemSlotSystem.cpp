@@ -6,6 +6,7 @@
 #include "../../inventory/Item.h"
 #include "../../world/WorldContext.h"
 #include "../../ecs/component/ItemContainerComonent.h"
+#include "../../inventory/DragAndDrop.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include <SDL3/SDL.h>
 #include <string>
@@ -23,60 +24,65 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
         const auto transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
 
         const Vector2D pos = transform->GetPosition();
-        SDL_FRect rect = {pos.x, pos.y, slotSize, slotSize};
-
-        // Draw Slot Frame
-        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-        SDL_RenderRect(renderer, &rect);
-
-        // Get Item
+        
         GameEntity *containerEnt = slotComp->GetContainerEntity();
-        if (containerEnt == nullptr) {
-            continue;
-        }
-
+        if (!containerEnt) continue;
+        
         auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(containerEnt->GetID());
-        if (containerComp == nullptr) {
-            continue;
-        }
-
+        if (!containerComp) continue;
+        
         auto itemContainer = containerComp->GetItemContainer();
-        if (itemContainer == nullptr) {
-            continue;
-        }
+        if (!itemContainer) continue;
 
-        const Item *item = itemContainer->GetItem(slotComp->GetSlotIndex());
+        int slotIndex = slotComp->GetSlotIndex();
+        Item *item = itemContainer->GetItem(slotIndex);
 
-        if (item) {
-            // Draw Icon
-            auto texture = item->GetIcon();
-            if (texture) {
-                SDL_RenderTexture(renderer, texture.get(), nullptr, &rect);
-            }
-
-            // Draw Quantity if > 1
-            if (item->GetAmount() > 1) {
-                RenderQuantity(renderer, rect, static_cast<int>(item->GetAmount()));
-            }
-        }
-
-        // Draw Selection
-        if (slotComp->IsSelected()) {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Yellow
-            SDL_FRect selRect = {rect.x - 2, rect.y - 2, rect.w + 4, rect.h + 4};
-            SDL_RenderRect(renderer, &selRect);
-        }
-
+        // Calculate Rect for hover check
+        SDL_FRect rect = {pos.x, pos.y, slotSize, slotSize};
+        float mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
                          mouseY >= rect.y && mouseY <= rect.y + rect.h;
-
         slotComp->SetHovered(isHovered);
         if (isHovered && item) {
             hoveredItem = item;
         }
+
+        DragAndDrop::DrawSlot(appContext_, renderer, pos.x, pos.y, slotSize, item, slotComp->IsSelected(),
+            [&](const DragState& state) {
+                // On Drop
+                if (state.sourceType == DragSourceType::INVENTORY && state.sourceContainer) {
+                     // Swap or Move
+                     auto sourceContainerComp = worldContext_->GetComponent<ItemContainerComponent>(state.sourceContainer->GetID());
+                     if (sourceContainerComp && sourceContainerComp->GetItemContainer()) {
+                         auto sourceContainer = sourceContainerComp->GetItemContainer();
+                         // Perform Swap
+                         itemContainer->SwapItem(slotIndex, sourceContainer, state.sourceIndex);
+                     }
+                }
+            },
+            [&]() {
+                // On Drag Start
+                DragAndDrop::BeginDrag(DragSourceType::INVENTORY, containerEnt, slotIndex, item);
+            },
+            [&]() {
+                // On Click: Select
+                auto hotBar = worldContext_->GetHotBarComponent();
+                if (hotBar) {
+                    hotBar->SetSelectedSlot(slotIndex); 
+                    // Note: HotBarComponent usually maps slots 0-8. 
+                    // ItemSlotSystem renders ANY slot. The mapping depends on logic.
+                    // If this slot corresponds to hotbar...
+                }
+            }
+        );
     }
 
-    if (hoveredItem) {
+    if (DragAndDrop::IsDragging()) {
+        DragAndDrop::RenderCombined(renderer);
+    }
+
+    if (hoveredItem && !DragAndDrop::IsDragging()) {
         RenderTooltip(renderer, hoveredItem);
     }
 }

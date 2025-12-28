@@ -92,3 +92,41 @@ size_t glimmer::ItemContainer::RemoveItemAt(const size_t index, const size_t amo
     }
     return removed;
 }
+
+std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(size_t index) {
+    if (index >= items_.size()) {
+        return nullptr;
+    }
+    return std::move(items_[index]);
+}
+
+std::unique_ptr<glimmer::Item> glimmer::ItemContainer::SetItem(size_t index, std::unique_ptr<Item> item) {
+    if (index >= items_.size()) {
+        return item; // Return back if invalid index
+    }
+    auto old = std::move(items_[index]);
+    items_[index] = std::move(item);
+    return old;
+}
+
+bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) {
+    if (!otherContainer) return false;
+    if (index >= items_.size() || otherIndex >= otherContainer->items_.size()) return false;
+
+    // Swap unique_ptrs
+    // If same container
+    if (this == otherContainer) {
+        if (index == otherIndex) return true;
+        std::swap(items_[index], items_[otherIndex]);
+        return true;
+    }
+
+    // Different containers
+    auto itemThis = std::move(items_[index]);
+    auto itemOther = std::move(otherContainer->items_[otherIndex]);
+
+    items_[index] = std::move(itemOther);
+    otherContainer->items_[otherIndex] = std::move(itemThis);
+    
+    return true;
+}

@@ -25,9 +25,9 @@ namespace glimmer {
 
         [[nodiscard]] virtual std::string GetId() const = 0;
 
-        [[nodiscard]] std::string GetName();
+        [[nodiscard]] std::string GetName() const;
 
-        [[nodiscard]] std::string GetDescription();
+        [[nodiscard]] std::string GetDescription() const;
 
         virtual void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) = 0;
     };

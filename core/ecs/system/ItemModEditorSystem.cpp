@@ -8,6 +8,9 @@
 #include "../component/ItemContainerComonent.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include <string>
+#include "../../inventory/DragAndDrop.h"
+#include "../../inventory/AbilityItem.h"
+#include "../../inventory/ability/DigBlockFunctionMod.h"
 
 void glimmer::ItemModEditorSystem::ToggleEditor() {
     isVisible_ = !isVisible_;
@@ -88,35 +91,80 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
         SDL_DestroySurface(sTitle);
     }
     const auto maxSlotSize = editingItem_->GetMaxSlotSize();
-    const auto actualSize = editingItem_->GetAbilityList().size();
     const auto &mods = editingItem_->GetAbilityList();
     float startY = bgRect.y + 50;
 
     for (int i = 0; i < maxSlotSize; i++) {
-        if (i >= actualSize) {
-            continue;
-        }
-        auto mod = mods[i].get();
-        if (mod == nullptr) {
-            continue;
-        }
-        std::string modName = mod->GetName();
-        SDL_FRect modRect = {bgRect.x + 20, startY, bgRect.w - 40, 30};
-        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-        SDL_RenderFillRect(renderer, &modRect);
-        SDL_Surface *sMod = TTF_RenderText_Blended(appContext_->GetFont(), modName.c_str(), modName.length(), color);
-        if (sMod) {
-            SDL_Texture *tMod = SDL_CreateTextureFromSurface(renderer, sMod);
-            if (tMod) {
-                SDL_FRect dst = {
-                    modRect.x + 5, modRect.y + 5, static_cast<float>(sMod->w), static_cast<float>(sMod->h)
-                };
-                SDL_RenderTexture(renderer, tMod, nullptr, &dst);
-                SDL_DestroyTexture(tMod);
+        const ItemAbility* mod = (i < mods.size()) ? mods[i].get() : nullptr;
+
+        
+        float slotSize = 40.0f; // Assuming standard size
+        float x = bgRect.x + 20;
+        float y = startY;
+        
+        // We use DrawSlot to handle the background and input events.
+        DragAndDrop::DrawSlot(appContext_, renderer, x, y, slotSize, nullptr, false,
+            [&, i](const DragState& state) {
+                // On Drop
+                if (state.sourceType == DragSourceType::INVENTORY && state.dragedItem) {
+                     LogCat::i("Dropped item in editor. ID: ", state.dragedItem->GetId());
+                     // Check if it is AbilityItem
+                     const auto abilityItem = dynamic_cast<const AbilityItem*>(state.dragedItem);
+                     if (abilityItem) {
+                         // Add ability to ComposableItem
+                         // Hardcoded mapping for now
+                         if (abilityItem->GetId().find("dig") != std::string::npos) { // Broader ID check
+                             LogCat::i("Adding DigBlockFunctionMod to item.");
+                             editingItem_->AddItemAbility(std::make_unique<DigBlockFunctionMod>());
+                             
+                             // Consume the item from source
+                             GameEntity* srcEntity = state.sourceContainer;
+                             if (srcEntity) {
+                                 auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(srcEntity->GetID());
+                                 if (containerComp) {
+                                     auto container = containerComp->GetItemContainer();
+                                     if (container) {
+                                         container->RemoveItemAt(state.sourceIndex, 1);
+                                     }
+                                 }
+                             }
+                         } else {
+                             // Generic fallback or logging
+                             LogCat::w("Unknown ability item dropped: ", abilityItem->GetId(), " Name: ", abilityItem->GetName());
+                         }
+                     } else {
+                         LogCat::w("Dropped item is not an AbilityItem.");
+                     }
+                }
+            },
+            nullptr, // Cannot drag out yet
+            nullptr  // No click action
+        );
+        
+        // Manually Draw Mod Info if it exists (since DrawSlot only draws Item icons)
+        if (mod) {
+            std::string modName = mod->GetName();
+            SDL_Color color = {255, 255, 255, 255};
+            SDL_Surface *sMod = TTF_RenderText_Blended(appContext_->GetFont(), modName.c_str(), modName.length(), color);
+            if (sMod) {
+                SDL_Texture *tMod = SDL_CreateTextureFromSurface(renderer, sMod);
+                if (tMod) {
+                    SDL_FRect dst = {
+                        x + slotSize + 5, y + 5, static_cast<float>(sMod->w), static_cast<float>(sMod->h)
+                    };
+                    SDL_RenderTexture(renderer, tMod, nullptr, &dst);
+                    SDL_DestroyTexture(tMod);
+                }
+                SDL_DestroySurface(sMod);
             }
-            SDL_DestroySurface(sMod);
         }
-        startY += 40;
+        
+        startY += slotSize + 5;
+    }
+    
+    // Ensure we render the dragged item on top if we are dragging inside this system
+    if (DragAndDrop::IsDragging()) {
+         DragAndDrop::RenderCombined(renderer);
     }
 }
 

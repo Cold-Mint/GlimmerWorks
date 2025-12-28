@@ -78,6 +78,32 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] size_t GetCapacity() const;
+        /**
+         * Take Item At Index (Moves ownership out of container)
+         * 取出指定位置的物品（所有权转移）
+         * @param index
+         * @return
+         */
+        [[nodiscard]] std::unique_ptr<Item> TakeItem(size_t index);
+
+        /**
+         * Swap Item
+         * 交换物品
+         * @param index Source index in this container
+         * @param otherContainer Target container (can be same)
+         * @param otherIndex Target index in other container
+         * @return true if successful
+         */
+        bool SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex);
+
+        /**
+         * Set Item At Index
+         * 设置指定位置的物品
+         * @param index
+         * @param item
+         * @return Old item at that index (if any)
+         */
+        std::unique_ptr<Item> SetItem(size_t index, std::unique_ptr<Item> item);
     };
 }
 

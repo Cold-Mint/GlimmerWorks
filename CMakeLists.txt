@@ -318,6 +318,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/inventory/ComposableItem.h
         core/inventory/ability/ItemAbility.cpp
         core/inventory/ability/ItemAbility.h
+        core/inventory/DragAndDrop.cpp
+        core/inventory/DragAndDrop.h
         core/mod/dataPack/ItemManager.cpp
         core/mod/dataPack/ItemManager.h
         core/console/command/GiveCommand.cpp
@@ -338,6 +340,10 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/inventory/AbilityItem.h
         core/console/suggestion/AbilityItemDynamicSuggestions.cpp
         core/console/suggestion/AbilityItemDynamicSuggestions.h
+        core/inventory/DragState.cpp
+        core/inventory/DragState.h
+        core/inventory/DragSourceType.cpp
+        core/inventory/DragSourceType.h
 )
 
 if (ANDROID)

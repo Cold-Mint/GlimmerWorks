@@ -20,12 +20,13 @@
 #define BOX2D_COMMAND_NAME  "box2d"
 #define GIVE_COMMAND_NAME  "give"
 #define ASSET_VIEWER_COMMAND_NAME  "assetViewer"
-#define FULL_TILE_PLACER_ID "FillTilePlacer"
+#define FULL_TILE_PLACER_ID "fillTilePlacer"
 #define BOOL_DYNAMIC_SUGGESTIONS_NAME  "&bool"
 #define CONFIG_DYNAMIC_SUGGESTIONS_NAME  "&config"
 #define VFS_DYNAMIC_SUGGESTIONS_NAME  "&vfs"
 #define TILE_DYNAMIC_SUGGESTIONS_NAME  "&tile"
 #define COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME  "&composeable_item"
+#define ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME  "&ability_item"
 
 /**
  * Resource ref
@@ -34,7 +35,8 @@
 static constexpr int RESOURCE_TYPE_NONE = 0;
 static constexpr int RESOURCE_TYPE_STRING = 1;
 static constexpr int RESOURCE_TYPE_TILE = 2;
-static constexpr int RESOURCE_TYPE_ITEM = 3;
+static constexpr int RESOURCE_TYPE_COMPOSABLE_ITEM = 3;
+static constexpr int RESOURCE_TYPE_ABILITY_ITEM = 4;
 static constexpr std::string RESOURCE_REF_SELF = "@self";
 static constexpr std::string RESOURCE_REF_CORE = "@core";
 static constexpr std::string DEBUG_FOLDER_NAME = "debug";

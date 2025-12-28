@@ -11,17 +11,31 @@
 
 namespace glimmer {
     class ItemManager {
-        std::pmr::unordered_map<std::string, std::unordered_map<std::string, ItemResource> > itemMap_{};
+        std::pmr::unordered_map<std::string, std::unordered_map<std::string, ComposableItemResource> >
+        composableItemMap_{};
+
+        std::pmr::unordered_map<std::string, std::unordered_map<std::string, AbilityItemResource> >
+        abilityItemMap_{};
 
     public:
-        void RegisterResource(ItemResource &itemResource);
+        void RegisterComposableResource(ComposableItemResource &itemResource);
 
-        [[nodiscard]] ItemResource *Find(const std::string &packId, const std::string &key);
+        void RegisterAbilityItemResource(AbilityItemResource &itemResource);
+
+        [[nodiscard]] ComposableItemResource *FindComposableItemResource(
+            const std::string &packId, const std::string &key);
+
+        [[nodiscard]] AbilityItemResource *FindAbilityItemResource(
+            const std::string &packId, const std::string &key);
 
 
-        [[nodiscard]] std::vector<std::string> GetItemIDList();
+        [[nodiscard]] std::vector<std::string> GetComposableItemIDList();
 
-        std::string ListItems() const;
+        [[nodiscard]] std::vector<std::string> GetAbilityItemIDList();
+
+        std::string ListComposableItems() const;
+
+        std::string ListAbilityItems() const;
     };
 }
 

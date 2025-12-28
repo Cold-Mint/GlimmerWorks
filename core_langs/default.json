@@ -26,6 +26,7 @@
   "tileResourceNotFound": "The tile resource not found.",
   "itemContainerIsNull": "Item container is null.",
   "composableItemIsNull": "Composable item is null.",
+  "abilityItemIsNull": "Ability item is null.",
   "itemResourceNotFound": "The item resource not found.",
   "itemResourceIsNull": "itemResource is null.",
   "tileResourceIsNull": "tileResource is null.",

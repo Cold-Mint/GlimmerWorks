@@ -12,16 +12,16 @@ namespace glimmer {
     class GameEntity;
 
     /**
-     * Item Function module
-     * 物品的功能模块
+     * Item Ability
+     * 物品能力
      */
-    class ItemFunctionMod {
+    class ItemAbility {
     protected:
         std::string name_;
         std::string description_;
 
     public:
-        virtual ~ItemFunctionMod() = default;
+        virtual ~ItemAbility() = default;
 
         [[nodiscard]] virtual std::string GetId() const = 0;
 

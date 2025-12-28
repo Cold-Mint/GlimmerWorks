@@ -8,11 +8,11 @@
 #include <vector>
 
 #include "Item.h"
-#include "ItemFunctionMod.h"
 #include "../log/LogCat.h"
 #include "../mod/Resource.h"
 #include "../scene/AppContext.h"
 #include "../../core/mod/ResourceLocator.h"
+#include "ability/ItemAbility.h"
 
 namespace glimmer {
     /**
@@ -20,7 +20,7 @@ namespace glimmer {
      * 可组合的物品
      */
     class ComposableItem : public Item {
-        std::pmr::vector<std::unique_ptr<ItemFunctionMod> > itemFunctionMods_;
+        std::pmr::vector<std::unique_ptr<ItemAbility> > itemAbilityList_;
         std::string id_;
         std::string name_;
         std::string description_;
@@ -43,16 +43,16 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 
-        void AddFunctionMod(std::unique_ptr<ItemFunctionMod> itemFunctionMod);
+        void AddItemAbility(std::unique_ptr<ItemAbility> ability);
 
-        void RemoveFunctionMod(const ItemFunctionMod *mod);
+        void RemoveItemAbility(const ItemAbility *ability);
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
 
         void OnDrop() override;
 
         static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext,
-                                                                const ItemResource *itemResource) {
+                                                                const ComposableItemResource *itemResource) {
             const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
             if (!nameRes.has_value()) {
                 LogCat::e("An error occurred when constructing composable items, and the name is empty.");
@@ -74,7 +74,7 @@ namespace glimmer {
 
         [[nodiscard]] size_t GetMaxSlotSize() const;
 
-        [[nodiscard]] const std::pmr::vector<std::unique_ptr<ItemFunctionMod> > &GetModules() const;
+        [[nodiscard]] const std::pmr::vector<std::unique_ptr<ItemAbility> > &GetAbilityList() const;
     };
 }
 

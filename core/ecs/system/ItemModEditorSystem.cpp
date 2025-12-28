@@ -88,8 +88,8 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
         SDL_DestroySurface(sTitle);
     }
     const auto maxSlotSize = editingItem_->GetMaxSlotSize();
-    const auto actualSize = editingItem_->GetModules().size();
-    const auto &mods = editingItem_->GetModules();
+    const auto actualSize = editingItem_->GetAbilityList().size();
+    const auto &mods = editingItem_->GetAbilityList();
     float startY = bgRect.y + 50;
 
     for (int i = 0; i < maxSlotSize; i++) {

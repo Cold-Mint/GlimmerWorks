@@ -14,6 +14,7 @@
 #include "core/console/command/LicenseCommand.h"
 #include "core/console/command/TpCommand.h"
 #include "core/console/command/VFSCommand.h"
+#include "core/console/suggestion/AbilityItemDynamicSuggestions.h"
 #include "core/console/suggestion/BoolDynamicSuggestions.h"
 #include "core/console/suggestion/ComposableItemDynamicSuggestions.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
@@ -136,6 +137,7 @@ int main() {
         langsResources.tileResourceNotFound = jsonObject["tileResourceNotFound"].get<std::string>();
         langsResources.itemContainerIsNull = jsonObject["itemContainerIsNull"].get<std::string>();
         langsResources.composableItemIsNull = jsonObject["composableItemIsNull"].get<std::string>();
+        langsResources.abilityItemIsNull = jsonObject["abilityItemIsNull"].get<std::string>();
         langsResources.itemResourceNotFound = jsonObject["itemResourceNotFound"].get<std::string>();
         langsResources.itemResourceIsNull = jsonObject["itemResourceIsNull"].get<std::string>();
         langsResources.tileResourceIsNull = jsonObject["tileResourceIsNull"].get<std::string>();
@@ -165,6 +167,8 @@ int main() {
         ItemManager itemManager;
         dynamicSuggestionsManager.RegisterDynamicSuggestions(
             std::make_unique<ComposableItemDynamicSuggestions>(&itemManager));
+        dynamicSuggestionsManager.RegisterDynamicSuggestions(
+            std::make_unique<AbilityItemDynamicSuggestions>(&itemManager));
         tilePlacerManager.RegisterTilePlacer(std::make_unique<FillTilePlacer>());
         Config config;
         LogCat::i("Loading ",CONFIG_FILE_NAME, "...");

@@ -42,12 +42,20 @@ namespace glimmer {
         [[nodiscard]] std::optional<TileResource *> FindTile(const ResourceRef &resourceRef) const;
 
         /**
-         * FindItem
-         * 获取物品资源
+         * FindComposableItem
+         * 获取可组合的物品资源
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] std::optional<ItemResource *> FindItem(const ResourceRef &resourceRef) const;
+        [[nodiscard]] std::optional<ComposableItemResource *> FindComposableItem(const ResourceRef &resourceRef) const;
+
+        /**
+         * FindAbilityItem
+         * 获取Ability的物品资源
+         * @param resourceRef resourceRef 物品引用
+         * @return
+         */
+        [[nodiscard]] std::optional<AbilityItemResource *> FindAbilityItem(const ResourceRef &resourceRef) const;
     };
 }
 

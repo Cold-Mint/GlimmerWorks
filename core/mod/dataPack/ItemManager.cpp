@@ -6,16 +6,23 @@
 
 #include "../../log/LogCat.h"
 
-void glimmer::ItemManager::RegisterResource(ItemResource &itemResource) {
-    LogCat::i("Registering item resource: packId = ", itemResource.packId,
+void glimmer::ItemManager::RegisterComposableResource(ComposableItemResource &itemResource) {
+    LogCat::i("Registering composable item resource: packId = ", itemResource.packId,
               ", key = ", itemResource.key, "texture = ", itemResource.texture);
-    itemMap_[itemResource.packId][itemResource.key] = itemResource;
+    composableItemMap_[itemResource.packId][itemResource.key] = itemResource;
 }
 
-glimmer::ItemResource *glimmer::ItemManager::Find(const std::string &packId, const std::string &key) {
+void glimmer::ItemManager::RegisterAbilityItemResource(AbilityItemResource &itemResource) {
+    LogCat::i("Registering ability item resource: packId = ", itemResource.packId,
+              ", key = ", itemResource.key, "texture = ", itemResource.texture);
+    abilityItemMap_[itemResource.packId][itemResource.key] = itemResource;
+}
+
+glimmer::ComposableItemResource *glimmer::ItemManager::FindComposableItemResource(
+    const std::string &packId, const std::string &key) {
     LogCat::d("Searching for item resource: packId = ", packId, ", key = ", key);
-    const auto packIt = itemMap_.find(packId);
-    if (packIt == itemMap_.end()) {
+    const auto packIt = composableItemMap_.find(packId);
+    if (packIt == composableItemMap_.end()) {
         LogCat::w("Pack not found: ", packId);
         return nullptr;
     }
@@ -31,21 +38,66 @@ glimmer::ItemResource *glimmer::ItemManager::Find(const std::string &packId, con
     return &keyIt->second;
 }
 
-std::vector<std::string> glimmer::ItemManager::GetItemIDList() {
+glimmer::AbilityItemResource *glimmer::ItemManager::FindAbilityItemResource(const std::string &packId,
+                                                                            const std::string &key) {
+    LogCat::d("Searching for item resource: packId = ", packId, ", key = ", key);
+    const auto packIt = abilityItemMap_.find(packId);
+    if (packIt == abilityItemMap_.end()) {
+        LogCat::w("Pack not found: ", packId);
+        return nullptr;
+    }
+
+    auto &keyMap = packIt->second;
+    const auto keyIt = keyMap.find(key);
+    if (keyIt == keyMap.end()) {
+        LogCat::w("Key not found in pack ", packId, ": ", key);
+        return nullptr;
+    }
+
+    LogCat::i("Found item resource: packId = ", packId, ", key = ", key);
+    return &keyIt->second;
+}
+
+std::vector<std::string> glimmer::ItemManager::GetComposableItemIDList() {
     std::vector<std::string> result;
-    for (const auto &[packId, keyMap]: itemMap_) {
+    for (const auto &[packId, keyMap]: composableItemMap_) {
         for (const auto &[key, resource]: keyMap) {
             result.emplace_back(Resource::GenerateId(packId, key));
+        }
+    }
+    return result;
+}
+
+std::vector<std::string> glimmer::ItemManager::GetAbilityItemIDList() {
+    std::vector<std::string> result;
+    for (const auto &[packId, keyMap]: abilityItemMap_) {
+        for (const auto &[key, resource]: keyMap) {
+            result.emplace_back(Resource::GenerateId(packId, key));
+        }
+    }
+    return result;
+}
+
+std::string glimmer::ItemManager::ListComposableItems() const {
+    std::string result;
+    for (const auto &packPair: composableItemMap_) {
+        const auto &packId = packPair.first;
+        const auto &keyMap = packPair.second;
+
+        for (const auto &keyPair: keyMap) {
+            const auto &key = keyPair.first;
+
+            result += Resource::GenerateId(packId, key);
+            result += '\n';
         }
     }
 
     return result;
 }
 
-
-std::string glimmer::ItemManager::ListItems() const {
+std::string glimmer::ItemManager::ListAbilityItems() const {
     std::string result;
-    for (const auto &packPair: itemMap_) {
+    for (const auto &packPair: abilityItemMap_) {
         const auto &packId = packPair.first;
         const auto &keyMap = packPair.second;
 

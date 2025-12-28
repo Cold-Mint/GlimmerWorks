@@ -6,6 +6,7 @@
 
 #include "../../Constants.h"
 #include "../../ecs/component/ItemContainerComonent.h"
+#include "../../inventory/AbilityItem.h"
 #include "../../inventory/ComposableItem.h"
 #include "../../inventory/ItemContainer.h"
 #include "../../inventory/TileItem.h"
@@ -18,6 +19,7 @@
 void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     suggestionsTree.AddChild("tileItem")->AddChild(TILE_DYNAMIC_SUGGESTIONS_NAME);
     suggestionsTree.AddChild("composableItem")->AddChild(COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree.AddChild("abilityItem")->AddChild(ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME);
 }
 
 bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
@@ -67,13 +69,13 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
         return item == nullptr;
     }
     if (itemType == "composableItem") {
-        auto itemId = commandArgs.AsResourceRef(2, RESOURCE_TYPE_ITEM);
+        auto itemId = commandArgs.AsResourceRef(2, RESOURCE_TYPE_COMPOSABLE_ITEM);
         if (!itemId.has_value()) {
             onMessage(appContext_->GetLangsResources()->itemIdNotFound);
             return false;
         }
         ResourceRef &resourceRef = itemId.value();
-        auto itemResourceOptional = appContext_->GetResourceLocator()->FindItem(resourceRef);
+        auto itemResourceOptional = appContext_->GetResourceLocator()->FindComposableItem(resourceRef);
         if (!itemResourceOptional.has_value()) {
             onMessage(appContext_->GetLangsResources()->itemResourceNotFound);
             return false;
@@ -102,6 +104,44 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
         }
         std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
             std::move(composableItem));
+        return item == nullptr;
+    }
+    if (itemType == "abilityItem") {
+        auto itemId = commandArgs.AsResourceRef(2, RESOURCE_TYPE_ABILITY_ITEM);
+        if (!itemId.has_value()) {
+            onMessage(appContext_->GetLangsResources()->itemIdNotFound);
+            return false;
+        }
+        ResourceRef &resourceRef = itemId.value();
+        auto itemResourceOptional = appContext_->GetResourceLocator()->FindAbilityItem(resourceRef);
+        if (!itemResourceOptional.has_value()) {
+            onMessage(appContext_->GetLangsResources()->itemResourceNotFound);
+            return false;
+        }
+        auto itemResource = itemResourceOptional.value();
+        if (itemResource == nullptr) {
+            onMessage(appContext_->GetLangsResources()->itemResourceIsNull);
+            return false;
+        }
+        auto playerId = worldContext_->GetPlayerEntity()->GetID();
+        auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
+        if (item_container == nullptr) {
+            onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
+            return false;
+        }
+
+        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource);
+        if (abilityItem == nullptr) {
+            onMessage(appContext_->GetLangsResources()->composableItemIsNull);
+            return false;
+        }
+        if (size >= 4) {
+            if (const int number = commandArgs.AsInt(3); number > 1) {
+                (void) abilityItem->AddAmount(number - 1);
+            }
+        }
+        std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
+            std::move(abilityItem));
         return item == nullptr;
     }
     onMessage(appContext_->GetLangsResources()->unknownCommandParameters);

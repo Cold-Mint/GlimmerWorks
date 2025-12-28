@@ -5,10 +5,10 @@
 #ifndef GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
 #define GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
 
-#include "../ItemFunctionMod.h"
+#include "ItemAbility.h"
 
 namespace glimmer {
-    class DigBlockFunctionMod : public ItemFunctionMod {
+    class DigBlockFunctionMod : public ItemAbility {
 
     public:
         DigBlockFunctionMod() {

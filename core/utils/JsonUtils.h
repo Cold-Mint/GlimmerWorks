@@ -163,8 +163,27 @@ struct nlohmann::adl_serializer<glimmer::TileResource> {
 };
 
 template<>
-struct nlohmann::adl_serializer<glimmer::ItemResource> {
-    static void from_json(const json &j, glimmer::ItemResource &s) {
+struct nlohmann::adl_serializer<glimmer::AbilityItemResource> {
+    static void from_json(const json &j, glimmer::AbilityItemResource &s) {
+        s.key = j.at("resourceKey").get<std::string>();
+        s.texture = j.at("texture").get<std::string>();
+        s.name = j.at("name").get<glimmer::ResourceRef>();
+        s.description = j.at("description").get<glimmer::ResourceRef>();
+    }
+
+    static void to_json(json &j, const glimmer::AbilityItemResource &s) {
+        j = json{
+            {"resourceKey", s.key},
+            {"texture", s.texture},
+            {"name", s.name},
+            {"description", s.description},
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<glimmer::ComposableItemResource> {
+    static void from_json(const json &j, glimmer::ComposableItemResource &s) {
         s.key = j.at("resourceKey").get<std::string>();
         s.texture = j.at("texture").get<std::string>();
         s.name = j.at("name").get<glimmer::ResourceRef>();
@@ -172,7 +191,7 @@ struct nlohmann::adl_serializer<glimmer::ItemResource> {
         s.slotSize = j.at("slotSize").get<size_t>();
     }
 
-    static void to_json(json &j, const glimmer::ItemResource &s) {
+    static void to_json(json &j, const glimmer::ComposableItemResource &s) {
         j = json{
             {"resourceKey", s.key},
             {"texture", s.texture},

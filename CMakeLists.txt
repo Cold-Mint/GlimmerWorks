@@ -316,8 +316,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/ecs/component/AutoPickComponent.h
         core/inventory/ComposableItem.cpp
         core/inventory/ComposableItem.h
-        core/inventory/ItemFunctionMod.cpp
-        core/inventory/ItemFunctionMod.h
+        core/inventory/ability/ItemAbility.cpp
+        core/inventory/ability/ItemAbility.h
         core/mod/dataPack/ItemManager.cpp
         core/mod/dataPack/ItemManager.h
         core/console/command/GiveCommand.cpp
@@ -330,10 +330,14 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/ecs/component/ItemSlotComponent.h
         core/ecs/system/ItemSlotSystem.cpp
         core/ecs/system/ItemSlotSystem.h
-        core/inventory/itemFunctions/DigBlockFunctionMod.cpp
-        core/inventory/itemFunctions/DigBlockFunctionMod.h
+        core/inventory/ability/DigBlockFunctionMod.cpp
+        core/inventory/ability/DigBlockFunctionMod.h
         core/ecs/system/ItemModEditorSystem.cpp
         core/ecs/system/ItemModEditorSystem.h
+        core/inventory/AbilityItem.cpp
+        core/inventory/AbilityItem.h
+        core/console/suggestion/AbilityItemDynamicSuggestions.cpp
+        core/console/suggestion/AbilityItemDynamicSuggestions.h
 )
 
 if (ANDROID)

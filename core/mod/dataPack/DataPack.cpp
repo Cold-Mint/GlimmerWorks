@@ -71,8 +71,8 @@ int glimmer::DataPack::LoadBiomeResource(BiomesManager &biomesManager) const {
     return biomeCount;
 }
 
-int glimmer::DataPack::LoadItemResource(ItemManager &itemManager) const {
-    const std::string itemsDir = path_ + "/items";
+int glimmer::DataPack::LoadComposableItemResource(ItemManager &itemManager) const {
+    const std::string itemsDir = path_ + "/composableItems";
     if (!virtualFileSystem_->Exists(itemsDir)) {
         LogCat::w("No items directory found in ", itemsDir);
         return 0;
@@ -82,14 +82,35 @@ int glimmer::DataPack::LoadItemResource(ItemManager &itemManager) const {
         LogCat::w("No items files found in ", itemsDir);
         return 0;
     }
-    int tileCount = 0;
+    int itemCount = 0;
     for (const auto &file: files) {
-        LogCat::d("Loading item file: ", file);
-        if (LoadItemResourceFromFile(file, itemManager)) {
-            tileCount++;
+        LogCat::d("Loading composableItem file: ", file);
+        if (LoadComposableItemResourceFromFile(file, itemManager)) {
+            itemCount++;
         }
     }
-    return tileCount;
+    return itemCount;
+}
+
+int glimmer::DataPack::LoadAbilityItemResource(ItemManager &itemManager) const {
+    const std::string itemsDir = path_ + "/abilityItems";
+    if (!virtualFileSystem_->Exists(itemsDir)) {
+        LogCat::w("No items directory found in ", itemsDir);
+        return 0;
+    }
+    std::vector<std::string> files = virtualFileSystem_->ListFile(itemsDir);
+    if (files.empty()) {
+        LogCat::w("No items files found in ", itemsDir);
+        return 0;
+    }
+    int itemCount = 0;
+    for (const auto &file: files) {
+        LogCat::d("Loading abilityItem file: ", file);
+        if (LoadAbilityItemResourceFromFile(file, itemManager)) {
+            itemCount++;
+        }
+    }
+    return itemCount;
 }
 
 
@@ -153,7 +174,7 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
     return true;
 }
 
-bool glimmer::DataPack::LoadItemResourceFromFile(const std::string &path, ItemManager &itemManager) const {
+bool glimmer::DataPack::LoadComposableItemResourceFromFile(const std::string &path, ItemManager &itemManager) const {
     const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
     if (!jsonOpt) {
         LogCat::e("Failed to load JSON file: ", path);
@@ -161,11 +182,27 @@ bool glimmer::DataPack::LoadItemResourceFromFile(const std::string &path, ItemMa
     }
 
     const auto &jsonObject = *jsonOpt;
-    auto itemResource = jsonObject.get<ItemResource>();
+    auto itemResource = jsonObject.get<ComposableItemResource>();
     itemResource.packId = manifest_.id;
     itemResource.name.SetSelfPackageId(manifest_.id);
     itemResource.description.SetSelfPackageId(manifest_.id);
-    itemManager.RegisterResource(itemResource);
+    itemManager.RegisterComposableResource(itemResource);
+    return true;
+}
+
+bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path, ItemManager &itemManager) const {
+    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
+    if (!jsonOpt) {
+        LogCat::e("Failed to load JSON file: ", path);
+        return false;
+    }
+
+    const auto &jsonObject = *jsonOpt;
+    auto itemResource = jsonObject.get<AbilityItemResource>();
+    itemResource.packId = manifest_.id;
+    itemResource.name.SetSelfPackageId(manifest_.id);
+    itemResource.description.SetSelfPackageId(manifest_.id);
+    itemManager.RegisterAbilityItemResource(itemResource);
     return true;
 }
 
@@ -204,7 +241,8 @@ bool glimmer::DataPack::LoadPack(const std::string &language, StringManager &str
     total += LoadStringResource(language, stringManager);
     total += LoadTileResource(tileManager);
     total += LoadBiomeResource(biomesManager);
-    total += LoadItemResource(itemManager);
+    total += LoadComposableItemResource(itemManager);
+    total += LoadAbilityItemResource(itemManager);
     return total != 0;
 }
 

@@ -11,11 +11,11 @@ std::string glimmer::ComposableItemDynamicSuggestions::GetId() const {
 }
 
 std::vector<std::string> glimmer::ComposableItemDynamicSuggestions::GetSuggestions(const std::string param) {
-    return itemManager_->GetItemIDList();
+    return itemManager_->GetAbilityItemIDList();
 }
 
 bool glimmer::ComposableItemDynamicSuggestions::Match(const std::string keyword, std::string param) {
-    for (const auto &itemId: itemManager_->GetItemIDList()) {
+    for (const auto &itemId: itemManager_->GetComposableItemIDList()) {
         if (itemId == keyword) {
             return true;
         }

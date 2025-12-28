@@ -59,14 +59,24 @@ namespace glimmer {
     };
 
     /**
-     * ItemResource
-     * 物品资源
+     * ComposableItemResource
+     * 可组合的物品资源
      */
-    struct ItemResource : Resource {
+    struct ComposableItemResource : Resource {
         ResourceRef name;
         ResourceRef description;
         std::string texture;
         size_t slotSize;
+    };
+
+    /**
+     * AbilityItem
+     * 能力物品
+     */
+    struct AbilityItemResource : Resource {
+        ResourceRef name;
+        ResourceRef description;
+        std::string texture;
     };
 
     /**

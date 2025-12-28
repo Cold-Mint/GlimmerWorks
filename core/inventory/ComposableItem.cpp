@@ -20,24 +20,24 @@ std::shared_ptr<SDL_Texture> glimmer::ComposableItem::GetIcon() const {
     return icon_;
 }
 
-void glimmer::ComposableItem::AddFunctionMod(std::unique_ptr<ItemFunctionMod> itemFunctionMod) {
-    itemFunctionMods_.emplace_back(std::move(itemFunctionMod));
+void glimmer::ComposableItem::AddItemAbility(std::unique_ptr<ItemAbility> ability) {
+    itemAbilityList_.emplace_back(std::move(ability));
 }
 
-void glimmer::ComposableItem::RemoveFunctionMod(const ItemFunctionMod *mod) {
+void glimmer::ComposableItem::RemoveItemAbility(const ItemAbility *ability) {
     const auto it = std::remove_if(
-        itemFunctionMods_.begin(),
-        itemFunctionMods_.end(),
-        [&](const std::unique_ptr<ItemFunctionMod> &ptr) {
-            return ptr.get() == mod;
+        itemAbilityList_.begin(),
+        itemAbilityList_.end(),
+        [&](const std::unique_ptr<ItemAbility> &ptr) {
+            return ptr.get() == ability;
         }
     );
 
-    itemFunctionMods_.erase(it, itemFunctionMods_.end());
+    itemAbilityList_.erase(it, itemAbilityList_.end());
 }
 
 void glimmer::ComposableItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
-    for (const auto &mod: itemFunctionMods_) {
+    for (const auto &mod: itemAbilityList_) {
         mod->OnUse(appContext, worldContext, user);
     }
 }
@@ -49,6 +49,6 @@ size_t glimmer::ComposableItem::GetMaxSlotSize() const {
     return maxSlotSize_;
 }
 
-const std::pmr::vector<std::unique_ptr<glimmer::ItemFunctionMod> > &glimmer::ComposableItem::GetModules() const {
-    return itemFunctionMods_;
+const std::pmr::vector<std::unique_ptr<glimmer::ItemAbility> > &glimmer::ComposableItem::GetAbilityList() const {
+    return itemAbilityList_;
 }

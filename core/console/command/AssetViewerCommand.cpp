@@ -13,7 +13,8 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggest
     suggestionsTree.AddChild("texture")->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
     suggestionsTree.AddChild("tile");
     suggestionsTree.AddChild("biomes");
-    suggestionsTree.AddChild("items");
+    suggestionsTree.AddChild("composableItems");
+    suggestionsTree.AddChild("abilityItems");
 }
 
 std::string glimmer::AssetViewerCommand::GetName() const {
@@ -48,8 +49,11 @@ bool glimmer::AssetViewerCommand::Execute(const CommandArgs commandArgs,
     } else if (type == "biomes") {
         onMessage(appContext_->GetBiomesManager()->ListBiomes());
         result = true;
-    } else if (type == "items") {
-        onMessage(appContext_->GetItemManager()->ListItems());
+    } else if (type == "composableItems") {
+        onMessage(appContext_->GetItemManager()->ListComposableItems());
+        result = true;
+    } else if (type == "abilityItems") {
+        onMessage(appContext_->GetItemManager()->ListAbilityItems());
         result = true;
     } else {
         onMessage(appContext_->GetLangsResources()->unknownAssetType);

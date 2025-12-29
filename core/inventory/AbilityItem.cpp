@@ -26,6 +26,9 @@ glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
 
 
 void glimmer::AbilityItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
+    if (canUseAlone_) {
+        itemAbility_->OnUse(appContext, worldContext, user);
+    }
 }
 
 void glimmer::AbilityItem::OnDrop() {

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Item.h"
+#include "../log/LogCat.h"
 
 namespace glimmer {
     class ItemContainer {
@@ -40,7 +41,7 @@ namespace glimmer {
         /**
          * Remove Item
          * 移除物品
-        * @param id id 物品
+         * @param id id 物品
          * @param amount amount 数量
          * @return
          */

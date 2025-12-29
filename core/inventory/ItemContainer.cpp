@@ -74,7 +74,7 @@ size_t glimmer::ItemContainer::GetCapacity() const {
     return items_.size();
 }
 
-glimmer::Item *glimmer::ItemContainer::GetItem(size_t index) const {
+glimmer::Item *glimmer::ItemContainer::GetItem(const size_t index) const {
     if (index >= items_.size()) {
         return nullptr;
     }

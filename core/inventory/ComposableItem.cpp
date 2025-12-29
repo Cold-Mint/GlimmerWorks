@@ -4,6 +4,8 @@
 
 #include "ComposableItem.h"
 
+#include "AbilityItem.h"
+
 std::string glimmer::ComposableItem::GetId() const {
     return id_;
 }
@@ -20,25 +22,33 @@ std::shared_ptr<SDL_Texture> glimmer::ComposableItem::GetIcon() const {
     return icon_;
 }
 
-void glimmer::ComposableItem::AddItemAbility(ItemAbility *ability) {
-    itemAbilityList_.push_back(ability);
+void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) const {
+    itemContainer->SwapItem(index, otherContainer, otherIndex);
 }
 
-void glimmer::ComposableItem::RemoveItemAbility(const ItemAbility *ability) {
-    auto it = std::remove_if(
-        itemAbilityList_.begin(),
-        itemAbilityList_.end(),
-        [&](ItemAbility *ptr) {
-            return ptr == ability;
-        }
-    );
-
-    itemAbilityList_.erase(it, itemAbilityList_.end());
+size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, size_t amount) const {
+    return itemContainer->RemoveItem(id, amount);
 }
+
 
 void glimmer::ComposableItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
-    for (const auto &mod: itemAbilityList_) {
-        mod->OnUse(appContext, worldContext, user);
+    const size_t max = itemContainer->GetCapacity();
+    for (size_t index = 0; index < max; index++) {
+        Item *item = itemContainer->GetItem(index);
+        if (item == nullptr) {
+            continue;
+        }
+        auto *abilityItem = dynamic_cast<AbilityItem *>(item);
+        if (abilityItem == nullptr) {
+            LogCat::e("The combinable items include items of non-abilityItem type.");
+            continue;
+        }
+        ItemAbility *itemAbility = abilityItem->GetItemAbility();
+        if (itemAbility == nullptr) {
+            LogCat::e("The combinable items include space capacity.");
+            continue;
+        }
+        itemAbility->OnUse(appContext, worldContext, user);
     }
 }
 
@@ -49,6 +59,20 @@ size_t glimmer::ComposableItem::GetMaxSlotSize() const {
     return maxSlotSize_;
 }
 
-const std::vector<glimmer::ItemAbility *> &glimmer::ComposableItem::GetAbilityList() const {
-    return itemAbilityList_;
+std::vector<glimmer::AbilityItem *> glimmer::ComposableItem::GetAbilityList() const {
+    std::vector<AbilityItem *> items;
+    items.reserve(itemContainer->GetCapacity());
+
+    const size_t max = itemContainer->GetCapacity();
+    for (size_t index = 0; index < max; index++) {
+        Item *item = itemContainer->GetItem(index);
+        if (item == nullptr) {
+            continue;
+        }
+        auto *abilityItem = dynamic_cast<AbilityItem *>(item);
+        if (abilityItem != nullptr) {
+            items.push_back(abilityItem);
+        }
+    }
+    return items;
 }

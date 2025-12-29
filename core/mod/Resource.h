@@ -77,6 +77,7 @@ namespace glimmer {
         ResourceRef description;
         std::string texture;
         std::string ability;
+        bool canUseAlone;
     };
 
     /**

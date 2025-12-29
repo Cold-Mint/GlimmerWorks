@@ -8,19 +8,20 @@
 #include <vector>
 
 #include "Item.h"
+#include "ItemContainer.h"
 #include "../log/LogCat.h"
 #include "../mod/Resource.h"
 #include "../scene/AppContext.h"
 #include "../../core/mod/ResourceLocator.h"
-#include "ability/ItemAbility.h"
 
 namespace glimmer {
+    class AbilityItem;
     /**
      * ComposableItem
      * 可组合的物品
      */
     class ComposableItem : public Item {
-        std::vector<ItemAbility *> itemAbilityList_;
+        std::unique_ptr<ItemContainer> itemContainer;
         std::string id_;
         std::string name_;
         std::string description_;
@@ -32,7 +33,7 @@ namespace glimmer {
                                 std::shared_ptr<SDL_Texture> icon, size_t maxSize) : id_(std::move(id)),
             name_(std::move(name)),
             description_(std::move(description)),
-            icon_(std::move(icon)), maxSlotSize_(maxSize) {
+            icon_(std::move(icon)), maxSlotSize_(maxSize), itemContainer(std::make_unique<ItemContainer>(maxSize)) {
         }
 
         [[nodiscard]] std::string GetId() const override;
@@ -43,9 +44,11 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 
-        void AddItemAbility(ItemAbility * ability);
+        void SwapItem(size_t index,
+                      ItemContainer *otherContainer,
+                      size_t otherIndex) const;
 
-        void RemoveItemAbility(const ItemAbility *ability);
+        [[nodiscard]] size_t RemoveItemAbility(const std::string &id, size_t amount) const;
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
 
@@ -74,7 +77,7 @@ namespace glimmer {
 
         [[nodiscard]] size_t GetMaxSlotSize() const;
 
-        [[nodiscard]] const std::vector<ItemAbility *> &GetAbilityList() const;
+        [[nodiscard]] std::vector<AbilityItem *> GetAbilityList() const;
     };
 }
 

@@ -58,7 +58,7 @@ namespace glimmer {
             }
             // Quantity
             if (item->GetAmount() > 1) {
-                std::string text = std::to_string((int) item->GetAmount());
+                std::string text = std::to_string(static_cast<int>(item->GetAmount()));
                 SDL_Color color = {255, 255, 255, 255};
                 SDL_Surface *surface =
                         TTF_RenderText_Blended(appContext->GetFont(), text.c_str(), text.length(), color);

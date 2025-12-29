@@ -10,6 +10,8 @@
 
 #include "ComposableItem.h"
 #include "ItemAbilityFactory.h"
+#include "../mod/ResourceLocator.h"
+#include "../log/LogCat.h"
 
 namespace glimmer {
     class AbilityItem : public Item {
@@ -18,14 +20,16 @@ namespace glimmer {
         std::string description_;
         std::shared_ptr<SDL_Texture> icon_;
         std::unique_ptr<ItemAbility> itemAbility_;
+        bool canUseAlone_ = false;
 
     public:
         explicit AbilityItem(std::string id, std::string name, std::string description,
                              std::shared_ptr<SDL_Texture> icon,
-                             std::unique_ptr<ItemAbility> itemAbility) : id_(std::move(id)), name_(std::move(name)),
-                                                                         description_(std::move(description)),
-                                                                         icon_(std::move(icon)),
-                                                                         itemAbility_(std::move(itemAbility)) {
+                             std::unique_ptr<ItemAbility> itemAbility, const bool canUseAlone) : id_(std::move(id)),
+            name_(std::move(name)),
+            description_(std::move(description)),
+            icon_(std::move(icon)),
+            itemAbility_(std::move(itemAbility)), canUseAlone_(canUseAlone) {
         }
 
         [[nodiscard]] std::string GetId() const override;
@@ -61,7 +65,8 @@ namespace glimmer {
                 return nullptr;
             }
             return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), nameRes.value()->value,
-                                                 descriptionRes.value()->value, texture, std::move(itemAbility));
+                                                 descriptionRes.value()->value, texture, std::move(itemAbility),
+                                                 itemResource->canUseAlone);
         }
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;

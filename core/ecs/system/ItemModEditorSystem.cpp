@@ -10,7 +10,6 @@
 #include <string>
 #include "../../inventory/DragAndDrop.h"
 #include "../../inventory/AbilityItem.h"
-#include "../../inventory/ability/DigAbility.h"
 
 void glimmer::ItemModEditorSystem::ToggleEditor() {
     isVisible_ = !isVisible_;
@@ -88,7 +87,7 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
     float startY = bgRect.y + 50;
 
     for (int i = 0; i < maxSlotSize; i++) {
-        const ItemAbility *ability = i < abilityList.size() ? abilityList[i] : nullptr;
+        const AbilityItem *ability = i < abilityList.size() ? abilityList[i] : nullptr;
 
 
         float slotSize = 40.0F; // Assuming standard size
@@ -101,43 +100,24 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
                                   // On Drop
                                   if (state.sourceType == DragSourceType::INVENTORY && state.dragedItem) {
                                       LogCat::i("Dropped item in editor. ID: ", state.dragedItem->GetId());
-                                      // const auto abilityItem = state.dragedItem;
-                                      // if (abilityItem == nullptr) {
-                                      //     LogCat::w("Dropped item is not an AbilityItem.");
-                                      //     return;
-                                      // }
-                                      // auto itemAbility = abilityItem->GetItemAbility();
-                                      // if (itemAbility == nullptr) {
-                                      //     LogCat::w("Dropped item ability is empty.");
-                                      //     return;
-                                      // }
-                                      // editingItem_->AddItemAbility(itemAbility);
-
-                                      // abilityItem->GetId()
-                                      //  // Add ability to ComposableItem
-                                      // // Hardcoded mapping for now
-                                      // if (abilityItem->GetId().find("dig") != std::string::npos) {
-                                      //     // Broader ID check
-                                      //     LogCat::i("Adding DigBlockFunctionMod to item.");
-                                      //     // editingItem_->AddItemAbility(std::make_unique<DigBlockFunctionMod>());
-                                      //
-                                      //     // Consume the item from source
-                                      //     GameEntity *srcEntity = state.sourceContainer;
-                                      //     if (srcEntity) {
-                                      //         auto containerComp = worldContext_->GetComponent<
-                                      //             ItemContainerComponent>(srcEntity->GetID());
-                                      //         if (containerComp) {
-                                      //             auto container = containerComp->GetItemContainer();
-                                      //             if (container) {
-                                      //                 container->RemoveItemAt(state.sourceIndex, 1);
-                                      //             }
-                                      //         }
-                                      //     }
-                                      // } else {
-                                      //     // Generic fallback or logging
-                                      //     LogCat::w("Unknown ability item dropped: ", abilityItem->GetId(),
-                                      //               " Name: ", abilityItem->GetName());
-                                      // }
+                                      auto abilityItem = dynamic_cast<AbilityItem *>(state.dragedItem);
+                                      if (abilityItem == nullptr) {
+                                          LogCat::w("Dropped item is not an AbilityItem.");
+                                          return;
+                                      }
+                                      GameEntity *sourceContainer = state.sourceContainer;
+                                      if (sourceContainer == nullptr) {
+                                          LogCat::w("Source container is null.");
+                                          return;
+                                      }
+                                      auto *itemContainerComponent = worldContext_->GetComponent<
+                                          ItemContainerComponent>(sourceContainer->GetID());
+                                      if (itemContainerComponent == nullptr) {
+                                          LogCat::w("Item container component is null.");
+                                          return;
+                                      }
+                                      editingItem_->SwapItem(i, itemContainerComponent->GetItemContainer(),
+                                                             state.sourceIndex);
                                   }
                               },
                               nullptr, // Cannot drag out yet
@@ -146,7 +126,7 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
 
         // Manually Draw Mod Info if it exists (since DrawSlot only draws Item icons)
         if (ability != nullptr) {
-            std::string modName = ability->GetId();
+            std::string modName = ability->GetName();
             SDL_Color color = {255, 255, 255, 255};
             SDL_Surface *sMod =
                     TTF_RenderText_Blended(appContext_->GetFont(), modName.c_str(), modName.length(), color);

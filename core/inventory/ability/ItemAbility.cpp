@@ -3,11 +3,3 @@
 //
 
 #include "ItemAbility.h"
-
-std::string glimmer::ItemAbility::GetName() const {
-    return name_;
-}
-
-std::string glimmer::ItemAbility::GetDescription() const {
-    return description_;
-}

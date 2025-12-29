@@ -100,15 +100,6 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(size_t index) {
     return std::move(items_[index]);
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ItemContainer::SetItem(size_t index, std::unique_ptr<Item> item) {
-    if (index >= items_.size()) {
-        return item; // Return back if invalid index
-    }
-    auto old = std::move(items_[index]);
-    items_[index] = std::move(item);
-    return old;
-}
-
 bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) {
     if (!otherContainer) return false;
     if (index >= items_.size() || otherIndex >= otherContainer->items_.size()) return false;
@@ -127,6 +118,6 @@ bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContaine
 
     items_[index] = std::move(itemOther);
     otherContainer->items_[otherIndex] = std::move(itemThis);
-    
+
     return true;
 }

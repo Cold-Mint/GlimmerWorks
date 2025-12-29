@@ -2,18 +2,18 @@
 // Created by coldmint on 2025/12/25.
 //
 
-#include "DigBlockFunctionMod.h"
+#include "DigAbility.h"
 #include "../../world/WorldContext.h"
 #include "../../ecs/component/TileLayerComponent.h"
 #include "../../ecs/component/Transform2DComponent.h"
 #include "../../inventory/TileItem.h"
 #include "../../world/ChunkPhysicsHelper.h"
 
-std::string glimmer::DigBlockFunctionMod::GetId() const {
-    return "glimmer.DigBlockFunctionMod";
+std::string glimmer::DigAbility::GetId() const {
+    return ABILITY_ID_DIG;
 }
 
-void glimmer::DigBlockFunctionMod::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
+void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
     auto tileLayerEntitys = worldContext->GetEntitiesWithComponents<
         TileLayerComponent, Transform2DComponent>();
     for (auto &gameEntity: tileLayerEntitys) {
@@ -40,8 +40,8 @@ void glimmer::DigBlockFunctionMod::OnUse(AppContext *appContext, WorldContext *w
                                                                appContext->GetTileManager()->GetAir()));
 
             worldContext->CreateDroppedItemEntity(std::make_unique<TileItem>(std::move(oldTile)),
-                                                   TileLayerComponent::TileToWorld(
-                                                       tileLayerTransform2D->GetPosition(), tileVector2D));
+                                                  TileLayerComponent::TileToWorld(
+                                                      tileLayerTransform2D->GetPosition(), tileVector2D));
             const auto chunk = Chunk::GetChunkByTileVector2D(worldContext->GetAllChunks(), tileVector2D);
             if (chunk == nullptr) {
                 continue;

@@ -10,7 +10,7 @@
 #include <string>
 #include "../../inventory/DragAndDrop.h"
 #include "../../inventory/AbilityItem.h"
-#include "../../inventory/ability/DigBlockFunctionMod.h"
+#include "../../inventory/ability/DigAbility.h"
 
 void glimmer::ItemModEditorSystem::ToggleEditor() {
     isVisible_ = !isVisible_;
@@ -18,26 +18,25 @@ void glimmer::ItemModEditorSystem::ToggleEditor() {
         editingItem_ = nullptr;
         return;
     }
-
-    // Try to get the item in hand
     const auto player = worldContext_->GetPlayerEntity();
     if (player == nullptr) { return; }
-
     auto hotBar = worldContext_->GetHotBarComponent();
+    if (hotBar == nullptr) {
+        return;
+    }
     auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(player->GetID());
-
-    if (hotBar && containerComp) {
-        if (auto itemContainer = containerComp->GetItemContainer()) {
-            Item *item = itemContainer->GetItem(hotBar->GetSelectedSlot());
-            // Check if it is composable
-            if (auto composable = dynamic_cast<ComposableItem *>(item)) {
-                editingItem_ = composable;
-            } else {
-                // If not composable, maybe we shouldn't open editor or open empty one?
-                // For now, only open if composable
-                isVisible_ = false;
-            }
-        }
+    if (containerComp == nullptr) {
+        return;
+    }
+    auto itemContainer = containerComp->GetItemContainer();
+    if (itemContainer == nullptr) {
+        return;
+    }
+    Item *item = itemContainer->GetItem(hotBar->GetSelectedSlot());
+    if (auto composable = dynamic_cast<ComposableItem *>(item)) {
+        editingItem_ = composable;
+    } else {
+        isVisible_ = false;
     }
 }
 
@@ -49,10 +48,6 @@ bool glimmer::ItemModEditorSystem::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
-bool glimmer::ItemModEditorSystem::ShouldActivate() {
-    return true;
-}
-
 void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
     if (!isVisible_) {
         return;
@@ -60,12 +55,10 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
     if (!editingItem_) {
         return;
     }
-
-    // Draw centralized background
     int w, h;
     SDL_GetWindowSize(appContext_->GetWindow(), &w, &h);
 
-    SDL_FRect bgRect = {
+    const SDL_FRect bgRect = {
         static_cast<float>(w) * 0.2F, static_cast<float>(h) * 0.2F, static_cast<float>(w) * 0.6F,
         static_cast<float>(h) * 0.6F
     };
@@ -91,61 +84,72 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
         SDL_DestroySurface(sTitle);
     }
     const auto maxSlotSize = editingItem_->GetMaxSlotSize();
-    const auto &mods = editingItem_->GetAbilityList();
+    const auto &abilityList = editingItem_->GetAbilityList();
     float startY = bgRect.y + 50;
 
     for (int i = 0; i < maxSlotSize; i++) {
-        const ItemAbility* mod = (i < mods.size()) ? mods[i].get() : nullptr;
+        const ItemAbility *ability = i < abilityList.size() ? abilityList[i] : nullptr;
 
-        
-        float slotSize = 40.0f; // Assuming standard size
+
+        float slotSize = 40.0F; // Assuming standard size
         float x = bgRect.x + 20;
         float y = startY;
-        
+
         // We use DrawSlot to handle the background and input events.
         DragAndDrop::DrawSlot(appContext_, renderer, x, y, slotSize, nullptr, false,
-            [&, i](const DragState& state) {
-                // On Drop
-                if (state.sourceType == DragSourceType::INVENTORY && state.dragedItem) {
-                     LogCat::i("Dropped item in editor. ID: ", state.dragedItem->GetId());
-                     // Check if it is AbilityItem
-                     const auto abilityItem = dynamic_cast<const AbilityItem*>(state.dragedItem);
-                     if (abilityItem) {
-                         // Add ability to ComposableItem
-                         // Hardcoded mapping for now
-                         if (abilityItem->GetId().find("dig") != std::string::npos) { // Broader ID check
-                             LogCat::i("Adding DigBlockFunctionMod to item.");
-                             editingItem_->AddItemAbility(std::make_unique<DigBlockFunctionMod>());
-                             
-                             // Consume the item from source
-                             GameEntity* srcEntity = state.sourceContainer;
-                             if (srcEntity) {
-                                 auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(srcEntity->GetID());
-                                 if (containerComp) {
-                                     auto container = containerComp->GetItemContainer();
-                                     if (container) {
-                                         container->RemoveItemAt(state.sourceIndex, 1);
-                                     }
-                                 }
-                             }
-                         } else {
-                             // Generic fallback or logging
-                             LogCat::w("Unknown ability item dropped: ", abilityItem->GetId(), " Name: ", abilityItem->GetName());
-                         }
-                     } else {
-                         LogCat::w("Dropped item is not an AbilityItem.");
-                     }
-                }
-            },
-            nullptr, // Cannot drag out yet
-            nullptr  // No click action
+                              [&, i](const DragState &state) {
+                                  // On Drop
+                                  if (state.sourceType == DragSourceType::INVENTORY && state.dragedItem) {
+                                      LogCat::i("Dropped item in editor. ID: ", state.dragedItem->GetId());
+                                      // const auto abilityItem = state.dragedItem;
+                                      // if (abilityItem == nullptr) {
+                                      //     LogCat::w("Dropped item is not an AbilityItem.");
+                                      //     return;
+                                      // }
+                                      // auto itemAbility = abilityItem->GetItemAbility();
+                                      // if (itemAbility == nullptr) {
+                                      //     LogCat::w("Dropped item ability is empty.");
+                                      //     return;
+                                      // }
+                                      // editingItem_->AddItemAbility(itemAbility);
+
+                                      // abilityItem->GetId()
+                                      //  // Add ability to ComposableItem
+                                      // // Hardcoded mapping for now
+                                      // if (abilityItem->GetId().find("dig") != std::string::npos) {
+                                      //     // Broader ID check
+                                      //     LogCat::i("Adding DigBlockFunctionMod to item.");
+                                      //     // editingItem_->AddItemAbility(std::make_unique<DigBlockFunctionMod>());
+                                      //
+                                      //     // Consume the item from source
+                                      //     GameEntity *srcEntity = state.sourceContainer;
+                                      //     if (srcEntity) {
+                                      //         auto containerComp = worldContext_->GetComponent<
+                                      //             ItemContainerComponent>(srcEntity->GetID());
+                                      //         if (containerComp) {
+                                      //             auto container = containerComp->GetItemContainer();
+                                      //             if (container) {
+                                      //                 container->RemoveItemAt(state.sourceIndex, 1);
+                                      //             }
+                                      //         }
+                                      //     }
+                                      // } else {
+                                      //     // Generic fallback or logging
+                                      //     LogCat::w("Unknown ability item dropped: ", abilityItem->GetId(),
+                                      //               " Name: ", abilityItem->GetName());
+                                      // }
+                                  }
+                              },
+                              nullptr, // Cannot drag out yet
+                              nullptr // No click action
         );
-        
+
         // Manually Draw Mod Info if it exists (since DrawSlot only draws Item icons)
-        if (mod) {
-            std::string modName = mod->GetName();
+        if (ability != nullptr) {
+            std::string modName = ability->GetId();
             SDL_Color color = {255, 255, 255, 255};
-            SDL_Surface *sMod = TTF_RenderText_Blended(appContext_->GetFont(), modName.c_str(), modName.length(), color);
+            SDL_Surface *sMod =
+                    TTF_RenderText_Blended(appContext_->GetFont(), modName.c_str(), modName.length(), color);
             if (sMod) {
                 SDL_Texture *tMod = SDL_CreateTextureFromSurface(renderer, sMod);
                 if (tMod) {
@@ -158,13 +162,11 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
                 SDL_DestroySurface(sMod);
             }
         }
-        
+
         startY += slotSize + 5;
     }
-    
-    // Ensure we render the dragged item on top if we are dragging inside this system
     if (DragAndDrop::IsDragging()) {
-         DragAndDrop::RenderCombined(renderer);
+        DragAndDrop::RenderCombined(renderer);
     }
 }
 

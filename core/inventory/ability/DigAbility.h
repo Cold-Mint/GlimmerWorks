@@ -8,13 +8,10 @@
 #include "ItemAbility.h"
 
 namespace glimmer {
-    class DigBlockFunctionMod : public ItemAbility {
-
+    class DigAbility : public ItemAbility {
     public:
-        DigBlockFunctionMod() {
-            name_ = "Dig Block";
-            description_ = "Digs blocks in front of the player.";
-        }
+        ~DigAbility() override = default;
+
         [[nodiscard]] std::string GetId() const override;
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;

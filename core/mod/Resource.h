@@ -4,7 +4,6 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 #include <optional>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -77,6 +76,7 @@ namespace glimmer {
         ResourceRef name;
         ResourceRef description;
         std::string texture;
+        std::string ability;
     };
 
     /**

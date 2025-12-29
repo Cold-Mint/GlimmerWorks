@@ -18,63 +18,58 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
     SDL_GetMouseState(&mouseX, &mouseY);
     const float slotSize = 40.0F * appContext_->GetConfig()->window.uiScale;
     const Item *hoveredItem = nullptr;
-
     for (auto &entity: entities) {
         const auto slotComp = worldContext_->GetComponent<ItemSlotComponent>(entity->GetID());
         const auto transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
 
         const Vector2D pos = transform->GetPosition();
-        
+
         GameEntity *containerEnt = slotComp->GetContainerEntity();
         if (!containerEnt) continue;
-        
+
         auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(containerEnt->GetID());
         if (!containerComp) continue;
-        
+
         auto itemContainer = containerComp->GetItemContainer();
         if (!itemContainer) continue;
 
         int slotIndex = slotComp->GetSlotIndex();
         Item *item = itemContainer->GetItem(slotIndex);
-
-        // Calculate Rect for hover check
-        SDL_FRect rect = {pos.x, pos.y, slotSize, slotSize};
+        const SDL_FRect rect = {pos.x, pos.y, slotSize, slotSize};
         float mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
                          mouseY >= rect.y && mouseY <= rect.y + rect.h;
         slotComp->SetHovered(isHovered);
-        if (isHovered && item) {
+        if (isHovered && item != nullptr) {
             hoveredItem = item;
         }
 
         DragAndDrop::DrawSlot(appContext_, renderer, pos.x, pos.y, slotSize, item, slotComp->IsSelected(),
-            [&](const DragState& state) {
-                // On Drop
-                if (state.sourceType == DragSourceType::INVENTORY && state.sourceContainer) {
-                     // Swap or Move
-                     auto sourceContainerComp = worldContext_->GetComponent<ItemContainerComponent>(state.sourceContainer->GetID());
-                     if (sourceContainerComp && sourceContainerComp->GetItemContainer()) {
-                         auto sourceContainer = sourceContainerComp->GetItemContainer();
-                         // Perform Swap
-                         itemContainer->SwapItem(slotIndex, sourceContainer, state.sourceIndex);
-                     }
-                }
-            },
-            [&]() {
-                // On Drag Start
-                DragAndDrop::BeginDrag(DragSourceType::INVENTORY, containerEnt, slotIndex, item);
-            },
-            [&]() {
-                // On Click: Select
-                auto hotBar = worldContext_->GetHotBarComponent();
-                if (hotBar) {
-                    hotBar->SetSelectedSlot(slotIndex); 
-                    // Note: HotBarComponent usually maps slots 0-8. 
-                    // ItemSlotSystem renders ANY slot. The mapping depends on logic.
-                    // If this slot corresponds to hotbar...
-                }
-            }
+                              [&](const DragState &state) {
+                                  if (state.sourceType != DragSourceType::INVENTORY || state.sourceContainer ==
+                                      nullptr) {
+                                      return;
+                                  }
+                                  auto sourceContainerComp = worldContext_->GetComponent<ItemContainerComponent>(
+                                      state.sourceContainer->GetID());
+                                  if (sourceContainerComp != nullptr && sourceContainerComp->GetItemContainer() !=
+                                      nullptr) {
+                                      auto sourceContainer = sourceContainerComp->GetItemContainer();
+                                      itemContainer->SwapItem(slotIndex, sourceContainer, state.sourceIndex);
+                                  }
+                              },
+                              [&] {
+                                  DragAndDrop::BeginDrag(DragSourceType::INVENTORY, containerEnt, slotIndex,
+                                                         item);
+                              },
+                              [&] {
+                                  auto hotBar = worldContext_->GetHotBarComponent();
+                                  if (hotBar == nullptr) {
+                                      return;
+                                  }
+                                  hotBar->SetSelectedSlot(slotIndex);
+                              }
         );
     }
 

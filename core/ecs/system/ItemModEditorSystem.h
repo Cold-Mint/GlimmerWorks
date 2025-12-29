@@ -7,17 +7,17 @@
 
 #include "../GameSystem.h"
 #include "../../inventory/ComposableItem.h"
+#include "../component/HotBarComonent.h"
 
 namespace glimmer {
     class ItemModEditorSystem : public GameSystem {
         bool isVisible_ = false;
         ComposableItem *editingItem_ = nullptr;
 
-        [[nodiscard]] bool ShouldActivate() override;
-
     public:
         ItemModEditorSystem(AppContext *appContext, WorldContext *worldContext)
             : GameSystem(appContext, worldContext) {
+            RequireComponent<HotBarComponent>();
         }
 
         void Render(SDL_Renderer *renderer) override;

@@ -16,18 +16,10 @@ namespace glimmer {
      * 物品能力
      */
     class ItemAbility {
-    protected:
-        std::string name_;
-        std::string description_;
-
     public:
         virtual ~ItemAbility() = default;
 
         [[nodiscard]] virtual std::string GetId() const = 0;
-
-        [[nodiscard]] std::string GetName() const;
-
-        [[nodiscard]] std::string GetDescription() const;
 
         virtual void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) = 0;
     };

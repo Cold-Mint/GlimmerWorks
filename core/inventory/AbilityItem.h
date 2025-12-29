@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "ComposableItem.h"
+#include "ItemAbilityFactory.h"
 
 namespace glimmer {
     class AbilityItem : public Item {
@@ -16,12 +17,15 @@ namespace glimmer {
         std::string name_;
         std::string description_;
         std::shared_ptr<SDL_Texture> icon_;
+        std::unique_ptr<ItemAbility> itemAbility_;
 
     public:
         explicit AbilityItem(std::string id, std::string name, std::string description,
-                             std::shared_ptr<SDL_Texture> icon) : id_(std::move(id)), name_(std::move(name)),
-                                                                  description_(std::move(description)),
-                                                                  icon_(std::move(icon)) {
+                             std::shared_ptr<SDL_Texture> icon,
+                             std::unique_ptr<ItemAbility> itemAbility) : id_(std::move(id)), name_(std::move(name)),
+                                                                         description_(std::move(description)),
+                                                                         icon_(std::move(icon)),
+                                                                         itemAbility_(std::move(itemAbility)) {
         }
 
         [[nodiscard]] std::string GetId() const override;
@@ -31,6 +35,8 @@ namespace glimmer {
         [[nodiscard]] std::string GetDescription() const override;
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
+
+        [[nodiscard]] ItemAbility *GetItemAbility() const;
 
         static std::unique_ptr<AbilityItem> FromItemResource(AppContext *appContext,
                                                              const AbilityItemResource *itemResource) {
@@ -49,8 +55,13 @@ namespace glimmer {
                 LogCat::e("An error occurred when constructing ability items, and the texture is empty.");
                 return nullptr;
             }
+            auto itemAbility = ItemAbilityFactory::CreateItemAbility(itemResource->ability);
+            if (itemAbility == nullptr) {
+                LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
+                return nullptr;
+            }
             return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), nameRes.value()->value,
-                                                 descriptionRes.value()->value, texture);
+                                                 descriptionRes.value()->value, texture, std::move(itemAbility));
         }
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;

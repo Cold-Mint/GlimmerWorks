@@ -172,7 +172,7 @@ float glimmer::WorldContext::GetTemperature(TileVector2D tileVector2d, float ele
                                  static_cast<float>(tileVector2d.x),
                                  static_cast<float>(tileVector2d.y)
                              ) + 1.0F) * 0.5F;
-    const float altitudePenalty = std::pow(1.0f - elevation, 1.5f);
+    const float altitudePenalty = std::pow(1.0F - elevation, 1.5F);
     const float temperature = noiseTemp * altitudePenalty;
 
     temperatureMap[tileVector2d] = temperature;

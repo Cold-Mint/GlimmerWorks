@@ -20,16 +20,16 @@ std::shared_ptr<SDL_Texture> glimmer::ComposableItem::GetIcon() const {
     return icon_;
 }
 
-void glimmer::ComposableItem::AddItemAbility(std::unique_ptr<ItemAbility> ability) {
-    itemAbilityList_.emplace_back(std::move(ability));
+void glimmer::ComposableItem::AddItemAbility(ItemAbility *ability) {
+    itemAbilityList_.push_back(ability);
 }
 
 void glimmer::ComposableItem::RemoveItemAbility(const ItemAbility *ability) {
-    const auto it = std::remove_if(
+    auto it = std::remove_if(
         itemAbilityList_.begin(),
         itemAbilityList_.end(),
-        [&](const std::unique_ptr<ItemAbility> &ptr) {
-            return ptr.get() == ability;
+        [&](ItemAbility *ptr) {
+            return ptr == ability;
         }
     );
 
@@ -49,6 +49,6 @@ size_t glimmer::ComposableItem::GetMaxSlotSize() const {
     return maxSlotSize_;
 }
 
-const std::pmr::vector<std::unique_ptr<glimmer::ItemAbility> > &glimmer::ComposableItem::GetAbilityList() const {
+const std::vector<glimmer::ItemAbility *> &glimmer::ComposableItem::GetAbilityList() const {
     return itemAbilityList_;
 }

@@ -4,6 +4,8 @@
 
 #ifndef GLIMMERWORKS_DRAGSTATE_H
 #define GLIMMERWORKS_DRAGSTATE_H
+#include <memory>
+
 #include "DragSourceType.h"
 
 namespace glimmer {
@@ -12,14 +14,9 @@ namespace glimmer {
 
     struct DragState {
         DragSourceType sourceType = DragSourceType::NONE;
-        GameEntity *sourceContainer = nullptr; // For Inventory
+        GameEntity *sourceContainer = nullptr;
         int sourceIndex = -1;
-
-        // Payload
-        const Item *dragedItem = nullptr;
-        // For Editor dragging (if we support dragging abilities out)
-        // For now, let's focus on Item dragging, and maybe Ability dragging if needed later
-        // But the prompt implies dragging generic items into slots.
+        Item *dragedItem = nullptr;
     };
 }
 

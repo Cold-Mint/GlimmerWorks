@@ -20,7 +20,7 @@ namespace glimmer {
      * 可组合的物品
      */
     class ComposableItem : public Item {
-        std::pmr::vector<std::unique_ptr<ItemAbility> > itemAbilityList_;
+        std::vector<ItemAbility *> itemAbilityList_;
         std::string id_;
         std::string name_;
         std::string description_;
@@ -43,7 +43,7 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 
-        void AddItemAbility(std::unique_ptr<ItemAbility> ability);
+        void AddItemAbility(ItemAbility * ability);
 
         void RemoveItemAbility(const ItemAbility *ability);
 
@@ -74,7 +74,7 @@ namespace glimmer {
 
         [[nodiscard]] size_t GetMaxSlotSize() const;
 
-        [[nodiscard]] const std::pmr::vector<std::unique_ptr<ItemAbility> > &GetAbilityList() const;
+        [[nodiscard]] const std::vector<ItemAbility *> &GetAbilityList() const;
     };
 }
 

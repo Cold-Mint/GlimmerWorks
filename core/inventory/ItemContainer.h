@@ -95,15 +95,6 @@ namespace glimmer {
          * @return true if successful
          */
         bool SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex);
-
-        /**
-         * Set Item At Index
-         * 设置指定位置的物品
-         * @param index
-         * @param item
-         * @return Old item at that index (if any)
-         */
-        std::unique_ptr<Item> SetItem(size_t index, std::unique_ptr<Item> item);
     };
 }
 

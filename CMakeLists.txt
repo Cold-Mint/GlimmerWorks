@@ -332,8 +332,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/ecs/component/ItemSlotComponent.h
         core/ecs/system/ItemSlotSystem.cpp
         core/ecs/system/ItemSlotSystem.h
-        core/inventory/ability/DigBlockFunctionMod.cpp
-        core/inventory/ability/DigBlockFunctionMod.h
+        core/inventory/ability/DigAbility.cpp
+        core/inventory/ability/DigAbility.h
         core/ecs/system/ItemModEditorSystem.cpp
         core/ecs/system/ItemModEditorSystem.h
         core/inventory/AbilityItem.cpp
@@ -344,6 +344,8 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/inventory/DragState.h
         core/inventory/DragSourceType.cpp
         core/inventory/DragSourceType.h
+        core/inventory/ItemAbilityFactory.cpp
+        core/inventory/ItemAbilityFactory.h
 )
 
 if (ANDROID)

@@ -13,7 +13,7 @@
 namespace glimmer {
     DragState DragAndDrop::state_{};
 
-    void DragAndDrop::BeginDrag(DragSourceType type, GameEntity *container, int index, const Item *item) {
+    void DragAndDrop::BeginDrag(DragSourceType type, GameEntity *container, int index, Item *item) {
         state_.sourceType = type;
         state_.sourceContainer = container;
         state_.sourceIndex = index;
@@ -32,45 +32,44 @@ namespace glimmer {
         return state_.sourceType != DragSourceType::NONE;
     }
 
-    void DragAndDrop::DrawSlot(AppContext *appContext, SDL_Renderer *renderer, float x, float y, float size,
-                               const Item *item, bool isSelected, std::function<void(const DragState &)> onDrop,
-                               std::function<void()> onDragStart, std::function<void()> onClick) {
-        SDL_FRect rect = {x, y, size, size};
-
-        // Input Handling
+    void DragAndDrop::DrawSlot(const AppContext *appContext, SDL_Renderer *renderer, float x, float y, float size,
+                               const Item *item, bool isSelected, const std::function<void(const DragState &)> &onDrop,
+                               const std::function<void()> &onDragStart, const std::function<void()> &onClick) {
+        const SDL_FRect rect = {x, y, size, size};
         float mouseX, mouseY;
         auto mouseState = SDL_GetMouseState(&mouseX, &mouseY);
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
                          mouseY >= rect.y && mouseY <= rect.y + rect.h;
 
         bool isMouseDown = (mouseState & SDL_BUTTON_LMASK) != 0;
-
-        // Draw Slot Background
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
         SDL_RenderRect(renderer, &rect);
 
         // Draw Item
-        if (item) {
-             // If this is the item being dragged, draw it semi-transparent
+        if (item != nullptr) {
+            // If this is the item being dragged, draw it semi-transparent
             if (IsDragging() && state_.dragedItem == item) {
-                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
             }
 
             auto texture = item->GetIcon();
             if (texture) {
                 SDL_RenderTexture(renderer, texture.get(), nullptr, &rect);
             }
-             // Quantity
+            // Quantity
             if (item->GetAmount() > 1) {
-                std::string text = std::to_string((int)item->GetAmount());
+                std::string text = std::to_string((int) item->GetAmount());
                 SDL_Color color = {255, 255, 255, 255};
-                SDL_Surface *surface = TTF_RenderText_Blended(appContext->GetFont(), text.c_str(), text.length(), color);
+                SDL_Surface *surface =
+                        TTF_RenderText_Blended(appContext->GetFont(), text.c_str(), text.length(), color);
                 if (surface) {
                     SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, surface);
                     if (t) {
-                         SDL_FRect dst = {x + size - surface->w - 2, y + size - surface->h - 2, (float)surface->w, (float)surface->h};
-                         SDL_RenderTexture(renderer, t, nullptr, &dst);
-                         SDL_DestroyTexture(t);
+                        SDL_FRect dst = {
+                            x + size - surface->w - 2, y + size - surface->h - 2, (float) surface->w, (float) surface->h
+                        };
+                        SDL_RenderTexture(renderer, t, nullptr, &dst);
+                        SDL_DestroyTexture(t);
                     }
                     SDL_DestroySurface(surface);
                 }
@@ -85,24 +84,24 @@ namespace glimmer {
 
         // Logic
         if (isHovered) {
-             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 50);
-             SDL_RenderFillRect(renderer, &rect);
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 50);
+            SDL_RenderFillRect(renderer, &rect);
 
-             if (!isMouseDown) {
-                 if (IsDragging()) {
-                     // Drop
-                     if (onDrop) onDrop(state_);
-                     EndDrag();
-                 } else {
-                     // Click
-                     if (onClick) onClick();
-                 }
-             } else {
-                 if (!IsDragging() && item && onDragStart) {
-                     // Start Drag
-                     onDragStart();
-                 }
-             }
+            if (!isMouseDown) {
+                if (IsDragging()) {
+                    // Drop
+                    if (onDrop) onDrop(state_);
+                    EndDrag();
+                } else {
+                    // Click
+                    if (onClick) onClick();
+                }
+            } else {
+                if (!IsDragging() && item && onDragStart) {
+                    // Start Drag
+                    onDragStart();
+                }
+            }
         }
     }
 
@@ -113,11 +112,11 @@ namespace glimmer {
         SDL_GetMouseState(&x, &y);
 
         // Draw centered on mouse
-        float size = 40.0f; // Default size, maybe scale?
-        SDL_FRect rect = {x - size/2, y - size/2, size, size};
+        float size = 40.0F; // Default size, maybe scale?
+        SDL_FRect rect = {x - size / 2, y - size / 2, size, size};
 
         auto texture = state_.dragedItem->GetIcon();
-         if (texture) {
+        if (texture) {
             SDL_RenderTexture(renderer, texture.get(), nullptr, &rect);
         }
     }

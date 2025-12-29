@@ -20,6 +20,11 @@ std::shared_ptr<SDL_Texture> glimmer::AbilityItem::GetIcon() const {
     return icon_;
 }
 
+glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
+    return itemAbility_.get();
+}
+
+
 void glimmer::AbilityItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
 }
 

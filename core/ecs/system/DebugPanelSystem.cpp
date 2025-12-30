@@ -253,6 +253,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         CameraVector2D screenPos = camera->GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
         RenderCrosshairToEdge(renderer, screenPos.x, screenPos.y);
     }
+    appContext_->RestoreColorRenderer(renderer);
 }
 
 bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {

@@ -91,6 +91,7 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     ImGui::TextColored(white, "%s", GAME_VERSION_STRING);
     ImGui::PopStyleColor();
     ImGui::End();
+    appContext->RestoreColorRenderer(renderer);
 }
 
 void glimmer::HomeScene::generateStars() {

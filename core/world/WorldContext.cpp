@@ -368,7 +368,20 @@ void glimmer::WorldContext::Render(SDL_Renderer *renderer) const {
                       });
 
     for (GameSystem *system: systemsToRender) {
+#if  defined(NDEBUG)
         system->Render(renderer);
+#else
+        SDL_Color oldColor;
+        SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+        system->Render(renderer);
+        SDL_Color newColor;
+        SDL_GetRenderDrawColor(renderer, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
+        if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
+            b) {
+            LogCat::e("The color of the renderer has been changed by the game system.", system->GetName());
+            assert(false);
+        }
+#endif
     }
 }
 

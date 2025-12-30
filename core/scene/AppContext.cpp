@@ -102,6 +102,12 @@ void glimmer::AppContext::ProcessMainThreadTasks() {
     }
 }
 
+void glimmer::AppContext::RestoreColorRenderer(SDL_Renderer *sdlRenderer) {
+    //Set the default renderer color to black.
+    //设置默认渲染器颜色为黑色。
+    SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 255);
+}
+
 void glimmer::AppContext::AddMainThreadTask(std::function<void()> task) {
     if (IsMainThread()) {
         task();

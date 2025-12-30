@@ -67,7 +67,7 @@ namespace glimmer {
          * 获取当前的场景
          * @return Scene 场景
          */
-        [[nodiscard]] Scene *getScene() const;
+        [[nodiscard]] Scene *GetScene() const;
     };
 }
 

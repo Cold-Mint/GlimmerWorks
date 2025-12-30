@@ -112,6 +112,7 @@ bool glimmer::App::init() {
         return false;
     }
     LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
+    appContext->RestoreColorRenderer(renderer_);
     return true;
 }
 
@@ -138,7 +139,7 @@ void glimmer::App::run() const {
             overlayScene->OnFrameStart();
         }
         appContext->ProcessMainThreadTasks();
-        sceneManager->getScene()->OnFrameStart();
+        sceneManager->GetScene()->OnFrameStart();
         while (SDL_PollEvent(&event)) {
 #ifdef __ANDROID__
             if (event.type == SDL_EVENT_KEY_DOWN &&
@@ -157,7 +158,7 @@ void glimmer::App::run() const {
                         break;
                     }
                 }
-                if (!handled && sceneManager->getScene()->HandleEvent(event)) {
+                if (!handled && sceneManager->GetScene()->HandleEvent(event)) {
                     handled = true;
                     LogCat::w("Main scene handled event, stopping propagation.");
                 }
@@ -172,12 +173,39 @@ void glimmer::App::run() const {
         for (const auto overlay: overlayScenes) {
             overlay->Update(deltaTime);
         }
-        sceneManager->getScene()->Update(deltaTime);
+        sceneManager->GetScene()->Update(deltaTime);
         SDL_RenderClear(renderer_);
-        sceneManager->getScene()->Render(renderer_);
+#if  defined(NDEBUG)
+        sceneManager->GetScene()->Render(renderer_);
         for (const auto overlay: overlayScenes) {
             overlay->Render(renderer_);
         }
+#else
+        SDL_Color oldColor;
+        SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+        sceneManager->GetScene()->Render(renderer_);
+        SDL_Color newColor;
+        SDL_GetRenderDrawColor(renderer_, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
+        if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
+            b) {
+            LogCat::e("The color of the renderer has been changed by the scene.");
+            assert(false);
+        }
+        for (const auto overlay: overlayScenes) {
+            SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+            overlay->Render(renderer_);
+            SDL_Color overlayColor;
+            SDL_GetRenderDrawColor(renderer_, &overlayColor.r, &overlayColor.g, &overlayColor.b, &overlayColor.a);
+            if (oldColor.a != overlayColor.a || oldColor.r != overlayColor.r || oldColor.g != overlayColor.g || oldColor
+                .b !=
+                overlayColor.b) {
+                LogCat::e("The color of the renderer has been changed by the overlay scene.");
+                assert(false);
+            }
+        }
+
+
+#endif
         ImGui::Render();
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
         SDL_RenderPresent(renderer_);

@@ -80,6 +80,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
     if (hoveredItem && !DragAndDrop::IsDragging()) {
         RenderTooltip(renderer, hoveredItem);
     }
+    appContext_->RestoreColorRenderer(renderer);
 }
 
 void glimmer::ItemSlotSystem::RenderQuantity(SDL_Renderer *renderer, const SDL_FRect &slotDest, int amount) const {

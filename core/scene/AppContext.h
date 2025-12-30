@@ -168,6 +168,12 @@ namespace glimmer {
             return future;
         }
 
+        /**
+         * Restore the color of the renderer.
+         * 恢复渲染器的颜色。
+         */
+        static void RestoreColorRenderer(SDL_Renderer* sdlRenderer);
+
 
         void AddMainThreadTask(std::function<void()> task);
     };

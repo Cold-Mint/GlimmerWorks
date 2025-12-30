@@ -45,6 +45,6 @@ void glimmer::SceneManager::ApplyPendingScene() {
 }
 
 
-glimmer::Scene *glimmer::SceneManager::getScene() const {
+glimmer::Scene *glimmer::SceneManager::GetScene() const {
     return scene;
 }

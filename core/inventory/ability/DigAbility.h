@@ -5,6 +5,8 @@
 #ifndef GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
 #define GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
 
+#include <vector>
+
 #include "ItemAbility.h"
 
 namespace glimmer {
@@ -16,6 +18,16 @@ namespace glimmer {
         float efficiency_ = 1.0F;
 
     public:
+        explicit DigAbility(
+            const std::vector<AbilityData> &abilityData) : ItemAbility(
+            abilityData) {
+            for (auto data: abilityData) {
+                if (data.key == "efficiency") {
+                    efficiency_ = data.AsFloat();
+                }
+            }
+        }
+
         ~DigAbility() override = default;
 
         [[nodiscard]] std::string GetId() const override;

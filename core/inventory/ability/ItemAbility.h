@@ -6,6 +6,8 @@
 #define GLIMMERWORKS_ITEMFUNCTIONMOD_H
 #include <string>
 
+#include "../../mod/Resource.h"
+
 namespace glimmer {
     class AppContext;
     class WorldContext;
@@ -17,6 +19,10 @@ namespace glimmer {
      */
     class ItemAbility {
     public:
+        explicit ItemAbility(
+            const std::vector<AbilityData> &abilityData) {
+        }
+
         virtual ~ItemAbility() = default;
 
         [[nodiscard]] virtual std::string GetId() const = 0;

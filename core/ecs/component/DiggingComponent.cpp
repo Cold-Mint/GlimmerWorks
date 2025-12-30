@@ -4,8 +4,6 @@
 
 #include "DiggingComponent.h"
 
-#include "../../log/LogCat.h"
-
 bool glimmer::DiggingComponent::IsEnable() const {
     return enable_;
 }
@@ -26,6 +24,36 @@ float glimmer::DiggingComponent::GetProgress() const {
     return progress_;
 }
 
+void glimmer::DiggingComponent::SetLayerType(TileLayerType tileLayerType) {
+    layerType_ = tileLayerType;
+}
+
+glimmer::TileLayerType glimmer::DiggingComponent::GetLayerType() const {
+    return layerType_;
+}
+
 void glimmer::DiggingComponent::SetProgress(const float progress) {
     progress_ = progress;
+}
+
+void glimmer::DiggingComponent::AddProgress(float progress) {
+    progress_ += progress;
+}
+
+void glimmer::DiggingComponent::SetEfficiency(float efficiency) {
+    efficiency_ = efficiency;
+}
+
+float glimmer::DiggingComponent::GetEfficiency() const {
+    return efficiency_;
+}
+
+void glimmer::DiggingComponent::MarkActive() {
+    activeSignal_ = true;
+}
+
+bool glimmer::DiggingComponent::CheckAndResetActive() {
+    const bool active = activeSignal_;
+    activeSignal_ = false;
+    return active;
 }

@@ -163,6 +163,23 @@ struct nlohmann::adl_serializer<glimmer::TileResource> {
 };
 
 template<>
+struct nlohmann::adl_serializer<glimmer::AbilityData> {
+    static void from_json(const json &j, glimmer::AbilityData &s) {
+        s.key = j.at("key").get<std::string>();
+        s.type = j.at("type").get<glimmer::AbilityDataType>();
+        s.value = j.at("value").get<std::string>();
+    }
+
+    static void to_json(json &j, const glimmer::AbilityData &s) {
+        j = json{
+            {"key", s.key},
+            {"type", s.type},
+            {"value", s.value}
+        };
+    }
+};
+
+template<>
 struct nlohmann::adl_serializer<glimmer::AbilityItemResource> {
     static void from_json(const json &j, glimmer::AbilityItemResource &s) {
         s.key = j.at("resourceKey").get<std::string>();
@@ -170,6 +187,7 @@ struct nlohmann::adl_serializer<glimmer::AbilityItemResource> {
         s.name = j.at("name").get<glimmer::ResourceRef>();
         s.description = j.at("description").get<glimmer::ResourceRef>();
         s.ability = j.at("ability").get<std::string>();
+        s.abilityData = j.at("abilityData").get<std::vector<glimmer::AbilityData> >();
         s.canUseAlone = j.at("canUseAlone").get<bool>();
     }
 
@@ -181,6 +199,7 @@ struct nlohmann::adl_serializer<glimmer::AbilityItemResource> {
             {"description", s.description},
             {"ability", s.ability},
             {"canUseAlone", s.canUseAlone},
+            {"abilityData", s.abilityData},
         };
     }
 };

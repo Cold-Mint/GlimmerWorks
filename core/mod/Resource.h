@@ -68,6 +68,54 @@ namespace glimmer {
         size_t slotSize;
     };
 
+    enum AbilityDataType:u_int8_t {
+        INT = 0,
+        FLOAT,
+        BOOL,
+        STRING
+    };
+
+    struct AbilityData {
+        std::string key;
+        AbilityDataType type = STRING;
+        std::string value;
+
+
+        int AsInt() const {
+            if (type != INT) {
+                return 0;
+            }
+            return std::stoi(value);
+        }
+
+        float AsFloat() const {
+            if (type != FLOAT) {
+                return 0.0F;
+            }
+            return std::stof(value);
+        }
+
+        bool AsBool() const {
+            if (type != BOOL) {
+                return false;
+            }
+            if (value == "1" || value == "true" || value == "yes" || value == "y") {
+                return true;
+            }
+            if (value == "0" || value == "false" || value == "no" || value == "n") {
+                return false;
+            }
+            return false;
+        }
+
+        std::string AsString() {
+            if (type != STRING) {
+                return "";
+            }
+            return value;
+        }
+    };
+
     /**
      * AbilityItem
      * 能力物品
@@ -77,6 +125,7 @@ namespace glimmer {
         ResourceRef description;
         std::string texture;
         std::string ability;
+        std::vector<AbilityData> abilityData;
         bool canUseAlone = false;
     };
 

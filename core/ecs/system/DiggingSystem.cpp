@@ -7,28 +7,72 @@
 #include "../../world/WorldContext.h"
 #include "../component/CameraComponent.h"
 #include "../component/Transform2DComponent.h"
+#include "../component/TileLayerComponent.h"
+#include "../../inventory/TileItem.h"
+#include "../../world/ChunkPhysicsHelper.h"
+#include "../../world/Chunk.h"
 
 void glimmer::DiggingSystem::Update(float delta) {
-    // auto diggings = worldContext_->GetEntitiesWithComponents<DiggingComponent>();
-    // if (diggings.empty()) {
-    //     return;
-    // }
-    // for (auto digging: diggings) {
-    //     auto *diggingComponent = worldContext_->GetComponent<DiggingComponent>(digging->GetID());
-    //     if (diggingComponent == nullptr) {
-    //         continue;
-    //     }
-    //     if (!diggingComponent->IsEnable()) {
-    //         continue;
-    //     }
-    //     float digSpeed = 1.0f; // 以后可以来自工具
-    //     diggingComponent->SetProgress((digSpeed / dig.hardness) * deltaTime);
-    //
-    //     if (dig.progress >= 1.0f) {
-    //         BreakTile(dig.tilePos);
-    //         digComp->currentDig.reset();
-    //     }
-    // }
+    auto diggingComponent = worldContext_->GetDiggingComponent();
+    if (!diggingComponent->CheckAndResetActive()) {
+        diggingComponent->SetEnable(false);
+        diggingComponent->SetProgress(0.0F);
+        return;
+    }
+    diggingComponent->SetEnable(true);
+
+    const auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<TileLayerComponent, Transform2DComponent>();
+    for (auto &entity: tileLayerEntities) {
+        auto *tileLayer = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
+        auto *transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
+
+        if (tileLayer->GetTileLayerType() != diggingComponent->GetLayerType()) {
+            continue;
+        }
+
+        TileVector2D tilePos = TileLayerComponent::WorldToTile(transform->GetPosition(),
+                                                               diggingComponent->GetPosition());
+        Tile *tile = tileLayer->GetTile(tilePos);
+        if (tile == nullptr) {
+            continue;
+        }
+        if (!tile->breakable) {
+            continue;
+        }
+        // Accumulate progress
+        // 积累进度
+        diggingComponent->AddProgress(diggingComponent->GetEfficiency() / tile->hardness * delta);
+        LogCat::d("efficiency=", diggingComponent->GetEfficiency(), " ,hardness=", tile->hardness,
+                  " ,progress=", diggingComponent->GetProgress());
+
+        if (diggingComponent->GetProgress() >= 1.0F) {
+            // Break the tile
+            auto oldTile = tileLayer->ReplaceTile(
+                tilePos, Tile::FromResourceRef(appContext_, appContext_->GetTileManager()->GetAir()));
+
+            if (oldTile) {
+                worldContext_->CreateDroppedItemEntity(
+                    std::make_unique<TileItem>(std::move(oldTile)),
+                    TileLayerComponent::TileToWorld(transform->GetPosition(), tilePos)
+                );
+            }
+
+            // Update physics
+            // 更新物理
+            Chunk *chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tilePos);
+            if (chunk) {
+                ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
+                ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(), transform->GetPosition(),
+                                                             chunk);
+            }
+
+            // Reset digging after break
+            // 破坏方块重置挖掘
+            diggingComponent->SetProgress(0.0F);
+            diggingComponent->SetEnable(false);
+        }
+        break;
+    }
 }
 
 void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {

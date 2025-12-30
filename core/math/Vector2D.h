@@ -129,6 +129,8 @@ namespace glimmer {
        * 转换为浮点向量
        */
         [[nodiscard]] Vector2DI ToInt() const;
+
+        bool operator==(const Vector2D & vector_2d) const = default;
     };
 
 

@@ -6,7 +6,9 @@
 #define GLIMMERWORKS_ITEMABILITYFACTORY_H
 #include <memory>
 #include <string>
+#include <vector>
 
+#include "../mod/Resource.h"
 #include "ability/ItemAbility.h"
 
 namespace glimmer {
@@ -16,9 +18,11 @@ namespace glimmer {
          * CreateItemAbility
          * 创建物品能力
          * @param id id
+         * @param abilityData abilityData
          * @return Return the item's ability, which may be empty 返回物品能力，可能为空
          */
-        static std::unique_ptr<ItemAbility> CreateItemAbility(const std::string &id);
+        static std::unique_ptr<ItemAbility> CreateItemAbility(const std::string &id,
+                                                              const std::vector<AbilityData> &abilityData);
     };
 }
 

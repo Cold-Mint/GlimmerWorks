@@ -15,12 +15,10 @@ void glimmer::DiggingComponent::SetEnable(const bool enable) {
 }
 
 glimmer::Vector2D glimmer::DiggingComponent::GetPosition() const {
-    LogCat::d("get diggingComponent ",position_.x," ",position_.y);
     return position_;
 }
 
 void glimmer::DiggingComponent::SetPosition(const Vector2D &position) {
-    LogCat::d("set diggingComponent ",position.x," ",position.y);
     position_ = position;
 }
 

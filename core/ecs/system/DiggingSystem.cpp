@@ -50,7 +50,6 @@ void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {
     if (!diggingComponent->IsEnable()) {
         return;
     }
-    LogCat::w("DiggingSystem::Enable");
     auto cameraTransform2D = worldContext_->GetCameraTransform2D();
     auto cameraComponent = worldContext_->GetCameraComponent();
 
@@ -64,14 +63,9 @@ void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {
 
     const auto maxIndex = static_cast<float>(textureList.size() - 1);
     uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent->GetProgress() * maxIndex, maxIndex));
-    SDL_FRect dstRect = {cameraVector2d.x, cameraVector2d.y, size, size};
-
+    SDL_FRect dstRect = {cameraVector2d.x - size / 2, cameraVector2d.y - size / 2, size, size};
     auto &crackTexture = textureList[crackIndex];
-    LogCat::w("DiggingSystem::dstRect");
     if (crackTexture) {
-        // 先画调试矩形（红色）
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderRect(renderer, &dstRect);
         SDL_RenderTexture(renderer, crackTexture.get(), nullptr, &dstRect);
     }
 }

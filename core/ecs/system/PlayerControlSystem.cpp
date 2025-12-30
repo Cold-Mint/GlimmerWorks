@@ -56,13 +56,13 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         }
         const auto *hotBar = worldContext_->GetHotBarComponent();
         const auto *containerComp = worldContext_->GetComponent<ItemContainerComponent>(entity->GetID());
-        
+
         if (hotBar && containerComp) {
             auto itemContainer = containerComp->GetItemContainer();
             if (itemContainer) {
                 Item *item = itemContainer->GetItem(hotBar->GetSelectedSlot());
                 if (item) {
-                     item->OnUse(appContext_, worldContext_, entity);
+                    item->OnUse(appContext_, worldContext_, entity);
                 }
             }
         }
@@ -124,16 +124,12 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
         }
         return false;
     }
-
     if (event.type == SDL_EVENT_MOUSE_MOTION && camera && cameraTransform) {
         //Set the tile for the current mouse focus.
         //设置当前位于鼠标焦点的瓦片。
-        float mouseX = event.motion.x;
-        float mouseY = event.motion.y;
-
         WorldVector2D worldPos = camera->GetWorldPosition(
             cameraTransform->GetPosition(),
-            CameraVector2D(mouseX, mouseY)
+            CameraVector2D(event.motion.x, event.motion.y)
         );
 
         auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<

@@ -27,8 +27,8 @@ TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D &tileL
     const float localY = worldPos.y - tileLayerPos.y;
 
     return {
-        static_cast<int>(std::floor(localX / TILE_SIZE)),
-        static_cast<int>(std::floor(localY / TILE_SIZE))
+        static_cast<int>(std::floor(localX / TILE_SIZE + 0.5F)),
+        static_cast<int>(std::floor(localY / TILE_SIZE + 0.5F))
     };
 }
 

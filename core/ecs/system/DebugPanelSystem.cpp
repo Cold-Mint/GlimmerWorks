@@ -38,6 +38,23 @@ void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer *renderer, int wind
     SDL_DestroySurface(s);
 }
 
+void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) {
+    int windowW = 0;
+    int windowH = 0;
+    SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
+    if (windowW <= 0 || windowH <= 0) return;
+
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 200);
+
+    SDL_FRect hLine = {0.0f, screenY, static_cast<float>(windowW), 1.0f};
+    SDL_RenderFillRect(renderer, &hLine);
+
+    SDL_FRect vLine = {screenX, 0.0f, 1.0f, static_cast<float>(windowH)};
+    SDL_RenderFillRect(renderer, &vLine);
+}
+
+
 void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
     int windowW = 0;
@@ -45,6 +62,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
     if (windowW <= 0 || windowH <= 0) return;
     float yOffset = 0.0F;
+    auto camera = worldContext_->GetCameraComponent();
+    auto cameraTransform = worldContext_->GetCameraTransform2D();
 
     for (auto &entity: entities) {
         constexpr float lineSpacing = 20.0F;
@@ -230,14 +249,20 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             SDL_DestroySurface(s);
         }
     }
+    if (camera != nullptr && cameraTransform != nullptr) {
+        CameraVector2D screenPos = camera->GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
+        RenderCrosshairToEdge(renderer, screenPos.x, screenPos.y);
+    }
 }
 
 bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {
-    mousePosition_ = worldContext_->GetCameraComponent()->GetWorldPosition(
-        worldContext_->GetCameraTransform2D()->GetPosition(),
-        CameraVector2D{
-            event.motion.x, event.motion.y
-        });
+    if (event.type == SDL_EVENT_MOUSE_MOTION) {
+        mousePosition_ = worldContext_->GetCameraComponent()->GetWorldPosition(
+            worldContext_->GetCameraTransform2D()->GetPosition(),
+            CameraVector2D{
+                event.motion.x, event.motion.y
+            });
+    }
     return false;
 }
 

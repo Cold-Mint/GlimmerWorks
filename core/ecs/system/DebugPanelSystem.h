@@ -14,6 +14,8 @@ namespace glimmer {
 
         void RenderDebugText(SDL_Renderer *renderer, int windowW, const char *text, float y) const;
 
+        void RenderCrosshairToEdge(SDL_Renderer* renderer, float screenX, float screenY);
+
     public:
         DebugPanelSystem(AppContext *appContext, WorldContext *worldContext)
             : GameSystem(appContext, worldContext) {

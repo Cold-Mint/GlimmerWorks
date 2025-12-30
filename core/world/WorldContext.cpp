@@ -280,8 +280,7 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
                 LogCat::w("Tile placer ", id, " does not exist.");
                 continue;
             }
-            if (!tilePlacer->PlaceTileId(appContext_, tilesRef, tilePlacerRef.tiles, tilePositions,
-                                         JsonUtils::LoadJsonFromString(tilePlacerRef.config))) {
+            if (!tilePlacer->PlaceTileId(appContext_, tilesRef, tilePlacerRef.tiles, tilePositions, tilePlacerRef.config)) {
                 LogCat::e("Placement ", id, " failed to execute. Block coordinates: x:", position.x, ",y:", position.y,
                           ".");
             }

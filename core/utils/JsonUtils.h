@@ -163,18 +163,31 @@ struct nlohmann::adl_serializer<glimmer::TileResource> {
 };
 
 template<>
-struct nlohmann::adl_serializer<glimmer::AbilityData> {
-    static void from_json(const json &j, glimmer::AbilityData &s) {
+struct nlohmann::adl_serializer<glimmer::VariableDefinition> {
+    static void from_json(const json &j, glimmer::VariableDefinition &s) {
         s.key = j.at("key").get<std::string>();
-        s.type = j.at("type").get<glimmer::AbilityDataType>();
+        s.type = j.at("type").get<glimmer::VariableDefinitionType>();
         s.value = j.at("value").get<std::string>();
     }
 
-    static void to_json(json &j, const glimmer::AbilityData &s) {
+    static void to_json(json &j, const glimmer::VariableDefinition &s) {
         j = json{
             {"key", s.key},
             {"type", s.type},
             {"value", s.value}
+        };
+    }
+};
+
+template<>
+struct nlohmann::adl_serializer<glimmer::VariableConfig> {
+    static void from_json(const json &j, glimmer::VariableConfig &s) {
+        s.definition = j.at("definition").get<std::vector<glimmer::VariableDefinition> >();
+    }
+
+    static void to_json(json &j, const glimmer::VariableConfig &s) {
+        j = json{
+            {"definition", s.definition}
         };
     }
 };
@@ -187,7 +200,7 @@ struct nlohmann::adl_serializer<glimmer::AbilityItemResource> {
         s.name = j.at("name").get<glimmer::ResourceRef>();
         s.description = j.at("description").get<glimmer::ResourceRef>();
         s.ability = j.at("ability").get<std::string>();
-        s.abilityData = j.at("abilityData").get<std::vector<glimmer::AbilityData> >();
+        s.abilityConfig = j.at("abilityConfig").get<glimmer::VariableConfig>();
         s.canUseAlone = j.at("canUseAlone").get<bool>();
     }
 
@@ -199,7 +212,7 @@ struct nlohmann::adl_serializer<glimmer::AbilityItemResource> {
             {"description", s.description},
             {"ability", s.ability},
             {"canUseAlone", s.canUseAlone},
-            {"abilityData", s.abilityData},
+            {"abilityConfig", s.abilityConfig},
         };
     }
 };
@@ -292,7 +305,7 @@ struct nlohmann::adl_serializer<glimmer::TilePlacerRef> {
     static void from_json(const json &j, glimmer::TilePlacerRef &tilePlacerRef) {
         tilePlacerRef.id = j.at("id").get<std::string>();
         tilePlacerRef.tiles = j.at("tiles").get<std::vector<glimmer::ResourceRef> >();
-        tilePlacerRef.config = j.at("config").get<std::string>();
+        tilePlacerRef.config = j.at("config").get<glimmer::VariableConfig>();
     }
 
     static void to_json(json &j, const glimmer::TilePlacerRef &tilePlacerRef) {

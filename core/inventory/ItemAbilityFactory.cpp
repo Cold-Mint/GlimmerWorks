@@ -10,7 +10,7 @@
 
 
 std::unique_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(
-    const std::string &id, const std::vector<AbilityData> &abilityData) {
+    const std::string &id, const VariableConfig &abilityData) {
     if (id == ABILITY_ID_DIG) {
         return std::make_unique<DigAbility>(abilityData);
     }

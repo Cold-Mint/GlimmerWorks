@@ -14,8 +14,7 @@ glimmer::FillTilePlacer::~FillTilePlacer() = default;
 bool glimmer::FillTilePlacer::PlaceTileId(AppContext *appContext,
                                           std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef,
                                           std::vector<ResourceRef> &tileSet,
-                                          std::vector<TileVector2D> &coordinateArray,
-                                          std::optional<nlohmann::json> configData) {
+                                          std::vector<TileVector2D> &coordinateArray, VariableConfig configData) {
     if (tileSet.empty()) {
         return false;
     }
@@ -23,7 +22,7 @@ bool glimmer::FillTilePlacer::PlaceTileId(AppContext *appContext,
     for (const auto coordinate: coordinateArray) {
         tilesRef[coordinate.x][coordinate.y] = tileRefObj;
     }
-    return false;
+    return true;
 }
 
 std::string glimmer::FillTilePlacer::GetId() {

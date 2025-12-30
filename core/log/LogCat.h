@@ -85,6 +85,13 @@ namespace glimmer {
 
         template<typename... Args>
         static void e(Args &&... args) {
+#if defined(__linux__) && !defined(NDEBUG)
+            std::ostringstream oss;
+            (oss << ... << args);
+            std::string cmd =
+                    "notify-send 'GlimmerWorks' '[" + CurrentTime() + "]" + oss.str() + "'";
+            std::system(cmd.c_str());
+#endif
 #ifdef __ANDROID__
             std::ostringstream oss;
             (oss << ... << args);

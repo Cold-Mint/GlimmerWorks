@@ -68,16 +68,16 @@ namespace glimmer {
         size_t slotSize;
     };
 
-    enum AbilityDataType:u_int8_t {
+    enum VariableDefinitionType:u_int8_t {
         INT = 0,
         FLOAT,
         BOOL,
         STRING
     };
 
-    struct AbilityData {
+    struct VariableDefinition {
         std::string key;
-        AbilityDataType type = STRING;
+        VariableDefinitionType type = STRING;
         std::string value;
 
 
@@ -116,6 +116,19 @@ namespace glimmer {
         }
     };
 
+    struct VariableConfig {
+        std::vector<VariableDefinition> definition;
+
+        const VariableDefinition *FindVariable(const std::string &name) const {
+            for (auto &data: definition) {
+                if (data.key == name) {
+                    return &data;
+                }
+            }
+            return nullptr;
+        }
+    };
+
     /**
      * AbilityItem
      * 能力物品
@@ -125,7 +138,7 @@ namespace glimmer {
         ResourceRef description;
         std::string texture;
         std::string ability;
-        std::vector<AbilityData> abilityData;
+        VariableConfig abilityConfig;
         bool canUseAlone = false;
     };
 
@@ -151,7 +164,7 @@ namespace glimmer {
     struct TilePlacerRef {
         std::string id;
         std::vector<ResourceRef> tiles;
-        std::string config;
+        VariableConfig config;
     };
 
 

@@ -38,7 +38,7 @@ namespace glimmer {
                                                std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef,
                                                std::vector<ResourceRef> &tileSet,
                                                std::vector<TileVector2D> &coordinateArray,
-                                               std::optional<nlohmann::json> configData) = 0;
+                                               VariableConfig configData) = 0;
 
         /**
          * Get the id of the tile placement device

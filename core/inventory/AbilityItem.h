@@ -59,7 +59,7 @@ namespace glimmer {
                 LogCat::e("An error occurred when constructing ability items, and the texture is empty.");
                 return nullptr;
             }
-            auto itemAbility = ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityData);
+            auto itemAbility = ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
             if (itemAbility == nullptr) {
                 LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
                 return nullptr;

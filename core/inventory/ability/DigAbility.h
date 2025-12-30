@@ -19,12 +19,11 @@ namespace glimmer {
 
     public:
         explicit DigAbility(
-            const std::vector<AbilityData> &abilityData) : ItemAbility(
+            const VariableConfig &abilityData) : ItemAbility(
             abilityData) {
-            for (auto data: abilityData) {
-                if (data.key == "efficiency") {
-                    efficiency_ = data.AsFloat();
-                }
+            auto efficiencyVariable = abilityData.FindVariable("efficiency");
+            if (efficiencyVariable != nullptr) {
+                efficiency_ = efficiencyVariable->AsFloat();
             }
         }
 

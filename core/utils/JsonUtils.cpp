@@ -33,8 +33,7 @@ std::optional<nlohmann::json> glimmer::JsonUtils::LoadJsonFromFile(const Virtual
 
 std::optional<nlohmann::json> glimmer::JsonUtils::LoadJsonFromString(const std::string &jsonData) {
     try {
-        auto jsonObject = nlohmann::json::parse(jsonData);
-        return jsonObject;
+        return nlohmann::json::parse(jsonData);
     } catch (const std::exception &e) {
         LogCat::e("Failed to parse JSON string: ", e.what());
         return std::nullopt;

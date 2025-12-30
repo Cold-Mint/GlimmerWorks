@@ -9,6 +9,12 @@
 
 namespace glimmer {
     class DigAbility : public ItemAbility {
+        /**
+         * efficiency
+         * 工具效率
+         */
+        float efficiency_ = 1.0F;
+
     public:
         ~DigAbility() override = default;
 

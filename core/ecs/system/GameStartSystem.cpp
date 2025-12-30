@@ -46,6 +46,8 @@ void glimmer::GameStartSystem::Update(float delta) {
     debugDrawComponent->SetColor(SDL_Color{255, 0, 0, 255});
     const auto cameraComponent = worldContext_->AddComponent<CameraComponent>(playerEntity);
     worldContext_->SetCameraComponent(cameraComponent);
+    const auto diggingComponent = worldContext_->AddComponent<DiggingComponent>(playerEntity);
+    worldContext_->SetDiggingComponent(diggingComponent);
     worldContext_->SetCameraPosition(transform2DComponentInPlayer);
     const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(playerEntity);
     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
@@ -63,7 +65,7 @@ void glimmer::GameStartSystem::Update(float delta) {
     worldContext_->AddComponent<AutoPickComponent>(playerEntity);
     const auto hotBarComponent = worldContext_->AddComponent<HotBarComponent>(playerEntity, Vector2D(), 9);
     worldContext_->SetHotBarComponent(hotBarComponent);
-    
+
     for (int i = 0; i < 9; ++i) {
         auto *slotEntity = worldContext_->CreateEntity();
         worldContext_->AddComponent<ItemSlotComponent>(slotEntity, playerEntity, i);

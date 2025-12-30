@@ -34,22 +34,26 @@ void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldConte
             if (!tile->breakable) {
                 continue;
             }
-            auto oldTile = tileLayerComponent->ReplaceTile(tileVector2D,
-                                                           Tile::FromResourceRef(
-                                                               appContext,
-                                                               appContext->GetTileManager()->GetAir()));
-
-            worldContext->CreateDroppedItemEntity(std::make_unique<TileItem>(std::move(oldTile)),
-                                                  TileLayerComponent::TileToWorld(
-                                                      tileLayerTransform2D->GetPosition(), tileVector2D));
-            const auto chunk = Chunk::GetChunkByTileVector2D(worldContext->GetAllChunks(), tileVector2D);
-            if (chunk == nullptr) {
-                continue;
-            }
-            ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
-            ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext->GetWorldId(),
-                                                         tileLayerTransform2D->GetPosition(),
-                                                         chunk);
+            worldContext->GetDiggingComponent()->SetEnable(true);
+            worldContext->GetDiggingComponent()->SetPosition(
+                TileLayerComponent::TileToWorld(tileLayerTransform2D->GetPosition(), tileVector2D));
+            worldContext->GetDiggingComponent()->SetProgress(0.5F);
+            // auto oldTile = tileLayerComponent->ReplaceTile(tileVector2D,
+            //                                                Tile::FromResourceRef(
+            //                                                    appContext,
+            //                                                    appContext->GetTileManager()->GetAir()));
+            //
+            // worldContext->CreateDroppedItemEntity(std::make_unique<TileItem>(std::move(oldTile)),
+            //                                       TileLayerComponent::TileToWorld(
+            //                                           tileLayerTransform2D->GetPosition(), tileVector2D));
+            // const auto chunk = Chunk::GetChunkByTileVector2D(worldContext->GetAllChunks(), tileVector2D);
+            // if (chunk == nullptr) {
+            //     continue;
+            // }
+            // ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
+            // ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext->GetWorldId(),
+            //                                              tileLayerTransform2D->GetPosition(),
+            //                                              chunk);
         }
     }
 }

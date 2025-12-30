@@ -19,6 +19,7 @@
 #include "../ecs/system/DebugPanelSystem.h"
 #include "../ecs/system/AndroidControlSystem.h"
 #include "../ecs/system/AutoPickSystem.h"
+#include "../ecs/system/DiggingSystem.h"
 #include "../ecs/system/DroppedItemSystem.h"
 #include "../ecs/system/HotBarSystem.h"
 #include "../ecs/system/ItemSlotSystem.h"
@@ -433,6 +434,7 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<MagnetSystem>(appContext, this));
     RegisterSystem(std::make_unique<DroppedItemSystem>(appContext, this));
     RegisterSystem(std::make_unique<AutoPickSystem>(appContext, this));
+    RegisterSystem(std::make_unique<DiggingSystem>(appContext, this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
 #endif
@@ -453,8 +455,16 @@ void glimmer::WorldContext::SetHotBarComponent(HotBarComponent *hotbarComponent)
     hotBarComponent_ = hotbarComponent;
 }
 
+void glimmer::WorldContext::SetDiggingComponent(DiggingComponent *diggingComponent) {
+    diggingComponent_ = diggingComponent;
+}
+
 void glimmer::WorldContext::SetCameraComponent(CameraComponent *cameraComponent) {
     cameraComponent_ = cameraComponent;
+}
+
+glimmer::DiggingComponent *glimmer::WorldContext::GetDiggingComponent() const {
+    return diggingComponent_;
 }
 
 glimmer::CameraComponent *glimmer::WorldContext::GetCameraComponent() const {

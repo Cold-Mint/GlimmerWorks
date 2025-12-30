@@ -19,6 +19,7 @@
 
 #include "Chunk.h"
 #include "../ecs/GameComponent.h"
+#include "../ecs/component/DiggingComponent.h"
 #include "../ecs/component/HotBarComonent.h"
 #include "../inventory/Item.h"
 #include "../math/Vector2DI.h"
@@ -87,6 +88,12 @@ namespace glimmer {
          * 快捷栏组件
          */
         HotBarComponent *hotBarComponent_{};
+
+        /**
+         * digging Component
+         * 正在挖掘组件
+         */
+        DiggingComponent *diggingComponent_{};
 
         /**
          * Height map
@@ -346,6 +353,13 @@ namespace glimmer {
          */
         void SetHotBarComponent(HotBarComponent *hotbarComponent);
 
+        /**
+         * SetDiggingComponent
+         * 设置正在挖掘组件
+         * @param diggingComponent
+         */
+        void SetDiggingComponent(DiggingComponent *diggingComponent);
+
 
         /**
          * Set Camera Component
@@ -354,6 +368,8 @@ namespace glimmer {
          */
         void SetCameraComponent(CameraComponent *cameraComponent);
 
+
+        DiggingComponent* GetDiggingComponent() const;
 
         CameraComponent *GetCameraComponent() const;
 

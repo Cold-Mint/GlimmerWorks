@@ -346,6 +346,10 @@ set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/i
         core/inventory/DragSourceType.h
         core/inventory/ItemAbilityFactory.cpp
         core/inventory/ItemAbilityFactory.h
+        core/ecs/component/DiggingComponent.cpp
+        core/ecs/component/DiggingComponent.h
+        core/ecs/system/DiggingSystem.cpp
+        core/ecs/system/DiggingSystem.h
 )
 
 if (ANDROID)

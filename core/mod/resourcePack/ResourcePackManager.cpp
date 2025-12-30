@@ -116,38 +116,33 @@ void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer) {
 
 int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack) {
     resourcePackMap.clear();
-    try {
-        if (!virtualFileSystem_->Exists(path)) {
-            LogCat::e("ResourcePackManager: Path does not exist -> ", path);
-            return 0;
-        }
-
-        LogCat::i("Scanning resources packs in: ", path);
-        int success = 0;
-        std::vector<std::string> files = virtualFileSystem_->ListFile(path);
-        for (const auto &entry: files) {
-            if (!virtualFileSystem_->IsFile(entry)) {
-                LogCat::d("Found resource pack folder: ", entry);
-                auto packPtr = std::make_unique<ResourcePack>(entry, virtualFileSystem_);
-                if (!packPtr->loadManifest()) {
-                    continue;
-                }
-                if (!IsResourcePackEnabled(*packPtr, enabledResourcePack)) {
-                    LogCat::w("Resource pack not enabled: ", packPtr->getManifest().id);
-                    continue;
-                }
-                if (!IsResourcePackAvailable(*packPtr)) {
-                    continue;
-                }
-                resourcePackMap[packPtr->getManifest().id] = std::move(packPtr);
-                success++;
-            }
-        }
-        return success;
-    } catch (const std::exception &e) {
-        LogCat::e("ResourcePackManager::scan failed: ", e.what());
+    if (!virtualFileSystem_->Exists(path)) {
+        LogCat::e("ResourcePackManager: Path does not exist -> ", path);
         return 0;
     }
+
+    LogCat::i("Scanning resources packs in: ", path);
+    int success = 0;
+    std::vector<std::string> files = virtualFileSystem_->ListFile(path);
+    for (const auto &entry: files) {
+        if (!virtualFileSystem_->IsFile(entry)) {
+            LogCat::d("Found resource pack folder: ", entry);
+            auto packPtr = std::make_unique<ResourcePack>(entry, virtualFileSystem_);
+            if (!packPtr->loadManifest()) {
+                continue;
+            }
+            if (!IsResourcePackEnabled(*packPtr, enabledResourcePack)) {
+                LogCat::w("Resource pack not enabled: ", packPtr->getManifest().id);
+                continue;
+            }
+            if (!IsResourcePackAvailable(*packPtr)) {
+                continue;
+            }
+            resourcePackMap[packPtr->getManifest().id] = std::move(packPtr);
+            success++;
+        }
+    }
+    return success;
 }
 
 std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(

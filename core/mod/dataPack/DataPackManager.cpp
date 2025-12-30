@@ -46,39 +46,34 @@ int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<st
                                    const std::string &language, StringManager &stringManager, TileManager &tileManager,
                                    BiomesManager &biomesManager,
                                    ItemManager &itemManager) const {
-    try {
-        if (!virtualFileSystem_->Exists(path)) {
-            LogCat::e("DataPackManager: Path does not exist -> ", path);
-            return 0;
-        }
-
-        LogCat::i("Scanning data packs in: ", path);
-        int success = 0;
-        std::vector<std::string> files = virtualFileSystem_->ListFile(path);
-        for (const auto &entry: files) {
-            if (!virtualFileSystem_->IsFile(entry)) {
-                LogCat::d("Found data pack folder: ", entry);
-                DataPack pack(entry, virtualFileSystem_);
-                if (!pack.LoadManifest()) {
-                    continue;
-                }
-                // Determine whether the data packet is enabled
-                // 判断数据包是否启用
-                if (!IsDataPackEnabled(pack, enabledDataPack)) {
-                    LogCat::w("Data pack not enabled: ", pack.GetManifest().id);
-                    continue;
-                }
-                if (!IsDataPackAvailable(pack)) {
-                    continue;
-                }
-                if (pack.LoadPack(language, stringManager, tileManager, biomesManager, itemManager)) {
-                    success++;
-                }
-            }
-        }
-        return success;
-    } catch (const std::exception &e) {
-        LogCat::e("DataPackManager::scan failed: ", e.what());
+    if (!virtualFileSystem_->Exists(path)) {
+        LogCat::e("DataPackManager: Path does not exist -> ", path);
         return 0;
     }
+
+    LogCat::i("Scanning data packs in: ", path);
+    int success = 0;
+    std::vector<std::string> files = virtualFileSystem_->ListFile(path);
+    for (const auto &entry: files) {
+        if (!virtualFileSystem_->IsFile(entry)) {
+            LogCat::d("Found data pack folder: ", entry);
+            DataPack pack(entry, virtualFileSystem_);
+            if (!pack.LoadManifest()) {
+                continue;
+            }
+            // Determine whether the data packet is enabled
+            // 判断数据包是否启用
+            if (!IsDataPackEnabled(pack, enabledDataPack)) {
+                LogCat::w("Data pack not enabled: ", pack.GetManifest().id);
+                continue;
+            }
+            if (!IsDataPackAvailable(pack)) {
+                continue;
+            }
+            if (pack.LoadPack(language, stringManager, tileManager, biomesManager, itemManager)) {
+                success++;
+            }
+        }
+    }
+    return success;
 }

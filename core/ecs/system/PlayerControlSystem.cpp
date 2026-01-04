@@ -194,6 +194,21 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                         control->jump = true;
                     }
                     return true;
+                case SDLK_Q:
+                    if (pressed) {
+                        const auto hotBar = worldContext_->GetComponent<HotBarComponent>(entity->GetID());
+                        const auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(entity->GetID());
+                        if (hotBar && containerComp) {
+                            auto itemContainer = containerComp->GetItemContainer();
+                            if (itemContainer != nullptr) {
+                                worldContext_->CreateDroppedItemEntity(
+                                    std::move(itemContainer->TakeItem(hotBar->GetSelectedSlot(), 1)),
+                                    worldContext_->GetCameraTransform2D()->GetPosition(),
+                                    2);
+                            }
+                        }
+                    }
+                    return true;
 
                 default:
                     return false;

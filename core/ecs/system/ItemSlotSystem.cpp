@@ -74,7 +74,37 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
     }
 
     if (DragAndDrop::IsDragging()) {
+        // float mouseX, mouseY;
+        // auto mask = SDL_GetMouseState(&mouseX, &mouseY);
+        // if (!(mask & SDL_BUTTON_LMASK)) {
+        //     // Mouse released, but not handled by any slot -> Drop on world
+        //     const DragState &state = DragAndDrop::GetState();
+        //     if (state.sourceContainer) {
+        //         auto containerComp = worldContext_->GetComponent<
+        //             ItemContainerComponent>(state.sourceContainer->GetID());
+        //         if (containerComp) {
+        //             auto container = containerComp->GetItemContainer();
+        //             if (container) {
+        //                 auto item = container->TakeAllItem(state.sourceIndex);
+        //                 if (item) {
+        //                     // Use player position or mouse position? User request says "drop dragged items".
+        //                     // Usually drops near player.
+        //                     auto player = worldContext_->GetPlayerEntity();
+        //                     if (player) {
+        //                         auto transform = worldContext_->GetComponent<Transform2DComponent>(player->GetID());
+        //                         if (transform) {
+        //                             worldContext_->CreateDroppedItemEntity(
+        //                                 std::move(item), transform->GetPosition(), 2.0F);
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     DragAndDrop::EndDrag();
+        // } else {
         DragAndDrop::RenderCombined(renderer);
+        // }
     }
 
     if (hoveredItem && !DragAndDrop::IsDragging()) {

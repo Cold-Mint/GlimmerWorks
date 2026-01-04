@@ -23,6 +23,12 @@ void glimmer::DroppedItemSystem::Update(float delta) {
         float remaining = droppedItemComponent->GetRemainingTime();
         remaining -= delta;
         droppedItemComponent->SetRemainingTime(remaining);
+
+        float cooldown = droppedItemComponent->GetPickupCooldown();
+        if (cooldown > 0.0F) {
+            cooldown -= delta;
+            droppedItemComponent->SetPickupCooldown(cooldown);
+        }
     }
 }
 

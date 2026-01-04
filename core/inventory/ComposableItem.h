@@ -78,6 +78,8 @@ namespace glimmer {
         [[nodiscard]] size_t GetMaxSlotSize() const;
 
         [[nodiscard]] std::vector<AbilityItem *> GetAbilityList() const;
+
+        [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };
 }
 

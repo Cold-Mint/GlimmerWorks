@@ -5,7 +5,7 @@
 #ifndef GLIMMERWORKS_ITEMFUNCTIONMOD_H
 #define GLIMMERWORKS_ITEMFUNCTIONMOD_H
 #include <string>
-
+#include <memory>
 #include "../../mod/Resource.h"
 
 namespace glimmer {
@@ -28,6 +28,8 @@ namespace glimmer {
         [[nodiscard]] virtual std::string GetId() const = 0;
 
         virtual void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) = 0;
+
+        [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;
     };
 }
 

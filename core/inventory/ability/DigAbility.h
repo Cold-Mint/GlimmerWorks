@@ -5,8 +5,6 @@
 #ifndef GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
 #define GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
 
-#include <vector>
-
 #include "ItemAbility.h"
 
 namespace glimmer {
@@ -32,6 +30,10 @@ namespace glimmer {
         [[nodiscard]] std::string GetId() const override;
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
+
+        [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override {
+            return std::make_unique<DigAbility>(*this);
+        }
     };
 }
 

@@ -13,6 +13,7 @@ namespace glimmer {
         //How long will it be before it disappears
         //还剩多久会消失(秒)
         float remainingTime_ = 60.0F;
+        float pickupCooldown_ = 0.0F;
 
     public:
         explicit DroppedItemComponent(std::unique_ptr<Item> item) : item_(std::move(item)) {
@@ -41,9 +42,35 @@ namespace glimmer {
 
         void SetItem(std::unique_ptr<Item> item);
 
+        /**
+         * ExtractItem
+         * 提取物品
+         * @return
+         */
         [[nodiscard]] std::unique_ptr<Item> ExtractItem();
 
         [[nodiscard]] Item *GetItem() const;
+
+        /**
+         * Set Pickup Cooldown
+         * 设置拾取冷却
+         * @param cooldown
+         */
+        void SetPickupCooldown(float cooldown);
+
+        /**
+         * Get Pickup Cooldown
+         * 获取拾取冷却
+         * @return
+         */
+        [[nodiscard]] float GetPickupCooldown() const;
+
+        /**
+         * Can Be Picked Up
+         * 是否可以被拾取
+         * @return
+         */
+        [[nodiscard]] bool CanBePickedUp() const;
     };
 }
 

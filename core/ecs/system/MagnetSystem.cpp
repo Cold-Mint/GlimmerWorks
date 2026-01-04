@@ -6,6 +6,7 @@
 
 #include "../../world/WorldContext.h"
 #include "../component/RigidBody2DComponent.h"
+#include "../component/DroppedItemComponent.h"
 #include "include/tweeny.h"
 
 
@@ -30,6 +31,11 @@ void glimmer::MagnetSystem::Update(const float delta) {
                     worldContext_->GetComponent<Transform2DComponent>(magneticEntity->GetID());
             if ((magnet->GetType() & magnetic->GetType()) == 0) {
                 LogCat::d("The magnet and the target type are different.");
+                continue;
+            }
+
+            const auto *droppedItem = worldContext_->GetComponent<DroppedItemComponent>(magneticEntity->GetID());
+            if (droppedItem != nullptr && !droppedItem->CanBePickedUp()) {
                 continue;
             }
 

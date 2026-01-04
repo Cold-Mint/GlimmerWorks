@@ -61,7 +61,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
         auto tileItem = std::make_unique<TileItem>(Tile::FromResourceRef(appContext_, tileId));
         if (size >= 4) {
             if (const int number = commandArgs.AsInt(3); number > 1) {
-                (void) tileItem->AddAmount(number - 1);
+                tileItem->SetAmount(number);
             }
         }
         std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
@@ -99,7 +99,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
         }
         if (size >= 4) {
             if (const int number = commandArgs.AsInt(3); number > 1) {
-                (void) composableItem->AddAmount(number - 1);
+                composableItem->SetAmount(number);
             }
         }
         std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
@@ -137,7 +137,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
         }
         if (size >= 4) {
             if (const int number = commandArgs.AsInt(3); number > 1) {
-                (void) abilityItem->AddAmount(number - 1);
+                abilityItem->SetAmount(number);
             }
         }
         std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(

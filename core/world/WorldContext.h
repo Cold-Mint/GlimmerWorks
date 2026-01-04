@@ -369,7 +369,7 @@ namespace glimmer {
         void SetCameraComponent(CameraComponent *cameraComponent);
 
 
-        DiggingComponent* GetDiggingComponent() const;
+        DiggingComponent *GetDiggingComponent() const;
 
         CameraComponent *GetCameraComponent() const;
 
@@ -391,9 +391,11 @@ namespace glimmer {
          * 创建一个掉落物实体
          * @param item
          * @param position
+         * @param pickupCooldown
          * @return
          */
-        GameEntity *CreateDroppedItemEntity(std::unique_ptr<Item> item, WorldVector2D position);
+        GameEntity *CreateDroppedItemEntity(std::unique_ptr<Item> item, WorldVector2D position,
+                                            float pickupCooldown = 0.0F);
 
         /**
          * Search for entities based on their ids

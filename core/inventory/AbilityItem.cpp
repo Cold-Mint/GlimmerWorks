@@ -33,3 +33,7 @@ void glimmer::AbilityItem::OnUse(AppContext *appContext, WorldContext *worldCont
 
 void glimmer::AbilityItem::OnDrop() {
 }
+
+std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const {
+    return std::make_unique<AbilityItem>(id_, name_, description_, icon_, itemAbility_->Clone(), canUseAlone_);
+}

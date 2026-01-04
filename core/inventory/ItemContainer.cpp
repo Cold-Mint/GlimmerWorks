@@ -74,6 +74,36 @@ size_t glimmer::ItemContainer::GetCapacity() const {
     return items_.size();
 }
 
+std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeAllItem(const size_t index) {
+    if (index >= items_.size()) {
+        return nullptr;
+    }
+    return std::move(items_[index]);
+}
+
+std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const size_t index, const size_t amount) {
+    if (index >= items_.size()) {
+        return nullptr;
+    }
+    Item *item = items_[index].get();
+    if (item == nullptr) {
+        return nullptr;
+    }
+    const size_t removedAmount = item->RemoveAmount(amount);
+    if (removedAmount == 0) {
+        return nullptr;
+    }
+    if (item->GetAmount() == 0) {
+        //All the items have been taken.
+        //物品被取完了。
+        item->SetAmount(removedAmount);
+        return std::move(items_[index]);
+    }
+    std::unique_ptr<Item> newItem = item->Clone();
+    newItem->SetAmount(removedAmount);
+    return newItem;
+}
+
 glimmer::Item *glimmer::ItemContainer::GetItem(const size_t index) const {
     if (index >= items_.size()) {
         return nullptr;
@@ -91,13 +121,6 @@ size_t glimmer::ItemContainer::RemoveItemAt(const size_t index, const size_t amo
         items_[index].reset();
     }
     return removed;
-}
-
-std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(size_t index) {
-    if (index >= items_.size()) {
-        return nullptr;
-    }
-    return std::move(items_[index]);
 }
 
 bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) {
@@ -120,4 +143,14 @@ bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContaine
     otherContainer->items_[otherIndex] = std::move(itemThis);
 
     return true;
+}
+
+std::unique_ptr<glimmer::ItemContainer> glimmer::ItemContainer::Clone() const {
+    auto newContainer = std::make_unique<ItemContainer>(capacity_);
+    for (size_t i = 0; i < items_.size(); ++i) {
+        if (items_[i] != nullptr) {
+            newContainer->items_[i] = items_[i]->Clone();
+        }
+    }
+    return newContainer;
 }

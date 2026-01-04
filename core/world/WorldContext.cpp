@@ -280,7 +280,8 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
                 LogCat::w("Tile placer ", id, " does not exist.");
                 continue;
             }
-            if (!tilePlacer->PlaceTileId(appContext_, tilesRef, tilePlacerRef.tiles, tilePositions, tilePlacerRef.config)) {
+            if (!tilePlacer->PlaceTileId(appContext_, tilesRef, tilePlacerRef.tiles, tilePositions,
+                                         tilePlacerRef.config)) {
                 LogCat::e("Placement ", id, " failed to execute. Block coordinates: x:", position.x, ",y:", position.y,
                           ".");
             }
@@ -517,14 +518,16 @@ glimmer::GameEntity *glimmer::WorldContext::CreateEntity() {
 }
 
 glimmer::GameEntity *
-glimmer::WorldContext::CreateDroppedItemEntity(std::unique_ptr<Item> item, const WorldVector2D position) {
+glimmer::WorldContext::CreateDroppedItemEntity(std::unique_ptr<Item> item, const WorldVector2D position,
+                                               float pickupCooldown) {
     GameEntity *droppedEntity = CreateEntity();
     auto *transform2dComponent = AddComponent<
         Transform2DComponent>(droppedEntity);
     transform2dComponent->SetPosition(position);
-    AddComponent<DroppedItemComponent>(
+    auto *droppedItemComponent = AddComponent<DroppedItemComponent>(
         droppedEntity, std::move(item)
     );
+    droppedItemComponent->SetPickupCooldown(pickupCooldown);
     const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(
         droppedEntity);
     rigidBody2DComponent->SetCategoryBits(BOX2D_CATEGORY_ITEM);

@@ -85,7 +85,15 @@ namespace glimmer {
          * @param index
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Item> TakeItem(size_t index);
+        [[nodiscard]] std::unique_ptr<Item> TakeAllItem(size_t index);
+
+        /**
+         * 取出指定数量的物品
+         * @param index
+         * @param amount
+         * @return
+         */
+        [[nodiscard]] std::unique_ptr<Item> TakeItem(size_t index,size_t amount);
 
         /**
          * Swap Item
@@ -96,6 +104,8 @@ namespace glimmer {
          * @return true if successful
          */
         bool SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex);
+
+        [[nodiscard]] std::unique_ptr<ItemContainer> Clone() const;
     };
 }
 

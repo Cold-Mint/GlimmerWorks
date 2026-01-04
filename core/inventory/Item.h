@@ -56,6 +56,14 @@ namespace glimmer {
          */
         [[nodiscard]] bool CanStackMore(const Item *item) const;
 
+
+        /**
+         * SetAmount
+         * 设置数量
+         * @param amount
+         */
+        void SetAmount(size_t amount);
+
         /**
          * AddAmount
          * 添加数量
@@ -105,6 +113,13 @@ namespace glimmer {
 
 
         virtual void OnDrop() = 0;
+
+        /**
+         * Clone
+         * 克隆
+         * @return
+         */
+        [[nodiscard]] virtual std::unique_ptr<Item> Clone() const = 0;
     };
 }
 

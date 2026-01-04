@@ -27,3 +27,15 @@ std::unique_ptr<glimmer::Item> glimmer::DroppedItemComponent::ExtractItem() {
 glimmer::Item *glimmer::DroppedItemComponent::GetItem() const {
     return item_.get();
 }
+
+void glimmer::DroppedItemComponent::SetPickupCooldown(const float cooldown) {
+    pickupCooldown_ = cooldown;
+}
+
+float glimmer::DroppedItemComponent::GetPickupCooldown() const {
+    return pickupCooldown_;
+}
+
+bool glimmer::DroppedItemComponent::CanBePickedUp() const {
+    return pickupCooldown_ <= 0.0F;
+}

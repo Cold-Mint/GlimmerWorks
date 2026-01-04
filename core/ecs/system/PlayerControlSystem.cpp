@@ -51,13 +51,27 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         }
 
         b2Body_SetLinearVelocity(bodyId, {vx, vy});
-        if (!control->mouseLeftDown) {
-            continue;
-        }
         const auto *hotBar = worldContext_->GetHotBarComponent();
         const auto *containerComp = worldContext_->GetComponent<ItemContainerComponent>(entity->GetID());
+        control->dropTimer += delta;
+        if (control->dropPressed && control->dropTimer >= DROP_INTERVAL) {
+            control->dropTimer -= DROP_INTERVAL;
+            if (hotBar && containerComp) {
+                auto itemContainer = containerComp->GetItemContainer();
+                if (itemContainer != nullptr) {
+                    auto item = itemContainer->TakeItem(hotBar->GetSelectedSlot(), 1);
+                    if (item != nullptr) {
+                        worldContext_->CreateDroppedItemEntity(
+                            std::move(item),
+                            worldContext_->GetCameraTransform2D()->GetPosition(),
+                            2
+                        );
+                    }
+                }
+            }
+        }
 
-        if (hotBar && containerComp) {
+        if (control->mouseLeftDown && hotBar && containerComp) {
             auto itemContainer = containerComp->GetItemContainer();
             if (itemContainer) {
                 Item *item = itemContainer->GetItem(hotBar->GetSelectedSlot());
@@ -190,26 +204,11 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                 case SDLK_D: control->moveRight = pressed;
                     return true;
                 case SDLK_SPACE:
-                    if (pressed) {
-                        control->jump = true;
-                    }
+                    control->jump = pressed;
                     return true;
                 case SDLK_Q:
-                    if (pressed) {
-                        const auto hotBar = worldContext_->GetComponent<HotBarComponent>(entity->GetID());
-                        const auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(entity->GetID());
-                        if (hotBar && containerComp) {
-                            auto itemContainer = containerComp->GetItemContainer();
-                            if (itemContainer != nullptr) {
-                                worldContext_->CreateDroppedItemEntity(
-                                    std::move(itemContainer->TakeItem(hotBar->GetSelectedSlot(), 1)),
-                                    worldContext_->GetCameraTransform2D()->GetPosition(),
-                                    2);
-                            }
-                        }
-                    }
+                    control->dropPressed = pressed;
                     return true;
-
                 default:
                     return false;
             }

@@ -16,6 +16,8 @@ namespace glimmer {
         bool moveRight = false;
         bool jump = false;
         bool mouseLeftDown = false;
+        float dropTimer = 0.0F;
+        bool dropPressed = false;
     };
 }
 

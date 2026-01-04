@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <optional>
 
 #include "../mod/ResourceRef.h"
 

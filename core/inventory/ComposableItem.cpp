@@ -52,9 +52,6 @@ void glimmer::ComposableItem::OnUse(AppContext *appContext, WorldContext *worldC
     }
 }
 
-void glimmer::ComposableItem::OnDrop() {
-}
-
 std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const {
     auto newItem = std::make_unique<ComposableItem>(id_, name_, description_, icon_, maxSlotSize_);
     newItem->itemContainer = itemContainer->Clone();

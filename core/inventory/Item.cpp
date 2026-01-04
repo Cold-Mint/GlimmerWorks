@@ -21,8 +21,15 @@ bool glimmer::Item::CanStackMore(const Item *item) const {
     return amount_ <= maxStack_;
 }
 
+void glimmer::Item::SetOnAmountZero(const std::function<void()> &onAmountZero) {
+    onAmountZero_ = onAmountZero;
+}
+
 void glimmer::Item::SetAmount(const size_t amount) {
     amount_ = std::min(amount, maxStack_);
+    if (amount_ == 0) {
+        onAmountZero_();
+    }
 }
 
 size_t glimmer::Item::AddAmount(const size_t amount) {
@@ -32,10 +39,10 @@ size_t glimmer::Item::AddAmount(const size_t amount) {
     const size_t oldAmount = amount;
     const size_t count = amount + amount_;
     if (count > maxStack_) {
-        amount_ = maxStack_;
+        SetAmount(maxStack_);
         return maxStack_ - oldAmount;
     }
-    amount_ = count;
+    SetAmount(count);
     return amount;
 }
 
@@ -46,10 +53,10 @@ size_t glimmer::Item::RemoveAmount(const size_t amount) {
     const int oldAmount = static_cast<int>(amount_);
     const int newAmount = static_cast<int>(amount_) - static_cast<int>(amount);
     if (newAmount < 0) {
-        amount_ = 0;
+        SetAmount(0);
         return oldAmount;
     }
-    amount_ = newAmount;
+    SetAmount(newAmount);
     return amount;
 }
 

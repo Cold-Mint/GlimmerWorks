@@ -71,8 +71,6 @@ namespace glimmer {
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
 
-        void OnDrop() override;
-
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };
 }

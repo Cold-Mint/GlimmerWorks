@@ -12,6 +12,9 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
         Item *itemPtr = i.get();
         if (itemPtr == nullptr) {
             i = std::move(item);
+            i->SetOnAmountZero([&i]() {
+                i.reset();
+            });
             return nullptr;
         }
         if (bool canStackMore = itemPtr->CanStackMore(item.get()); !canStackMore) {
@@ -46,9 +49,6 @@ size_t glimmer::ItemContainer::RemoveItem(const std::string &id, const size_t am
             if (actualAmount == 0) {
                 LogCat::w("Failed to remove item from item container.");
                 continue;
-            }
-            if (itemPtr->GetAmount() == 0) {
-                i.reset();
             }
             unallocatedCount -= static_cast<int>(actualAmount);
             if (unallocatedCount == 0) {
@@ -116,11 +116,7 @@ size_t glimmer::ItemContainer::RemoveItemAt(const size_t index, const size_t amo
         return 0;
     }
     Item *item = items_[index].get();
-    size_t removed = item->RemoveAmount(amount);
-    if (item->GetAmount() == 0) {
-        items_[index].reset();
-    }
-    return removed;
+    return item->RemoveAmount(amount);
 }
 
 bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) {

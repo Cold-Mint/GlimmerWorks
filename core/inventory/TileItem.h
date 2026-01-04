@@ -30,8 +30,6 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 
-        void OnDrop() override;
-
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };
 }

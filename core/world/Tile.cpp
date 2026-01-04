@@ -9,13 +9,12 @@
 #include "../log/LogCat.h"
 #include "../scene/AppContext.h"
 #include "../mod/ResourceLocator.h"
-#include "../Config.h"
 
 
 std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(AppContext *appContext,
                                                               const TileResource *tileResource) {
     auto tile = std::make_unique<Tile>();
-    tile->id = tileResource->packId + ":" + tileResource->key;
+    tile->id = Resource::GenerateId(*tileResource);
     const std::optional<StringResource *> nameStringResource = appContext->GetResourceLocator()->FindString(
         tileResource->name);
     if (nameStringResource.has_value()) {

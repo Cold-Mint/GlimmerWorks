@@ -16,10 +16,12 @@ namespace glimmer {
      * 物品类
      */
     class Item {
-    protected:
         size_t amount_ = 1;
 
+    protected:
         size_t maxStack_ = 1;
+
+        std::function<void()> onAmountZero_ = nullptr;
 
     public:
         virtual ~Item() = default;
@@ -56,6 +58,13 @@ namespace glimmer {
          */
         [[nodiscard]] bool CanStackMore(const Item *item) const;
 
+
+        /**
+         * Set the callback when the quantity is 0.
+         * 设置当数量为0时的回调。
+         * @param onAmountZero
+         */
+        void SetOnAmountZero(const std::function<void()> &onAmountZero);
 
         /**
          * SetAmount
@@ -110,9 +119,6 @@ namespace glimmer {
 
 
         virtual void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) = 0;
-
-
-        virtual void OnDrop() = 0;
 
         /**
          * Clone

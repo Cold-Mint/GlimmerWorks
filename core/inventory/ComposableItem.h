@@ -52,8 +52,6 @@ namespace glimmer {
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
 
-        void OnDrop() override;
-
         static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext,
                                                                 const ComposableItemResource *itemResource) {
             const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);

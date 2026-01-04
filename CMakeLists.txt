@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.28)
 project(GlimmerWorks)
-
-set(CMAKE_CXX_STANDARD 26)
+if (ANDROID)
+    set(CMAKE_CXX_STANDARD 17)
+else ()
+    set(CMAKE_CXX_STANDARD 26)
+endif ()
 set(GAME_VERSION_MAJOR 0)
 set(GAME_VERSION_MINOR 1)
 set(GAME_VERSION_PATCH 0)

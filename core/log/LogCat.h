@@ -85,7 +85,7 @@ namespace glimmer {
 
         template<typename... Args>
         static void e(Args &&... args) {
-#if defined(__linux__) && !defined(NDEBUG)
+#if !defined(__ANDROID__) && defined(__linux__) && !defined(NDEBUG)
             std::ostringstream oss;
             (oss << ... << args);
             std::string cmd =

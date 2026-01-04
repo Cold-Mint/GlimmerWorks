@@ -6,6 +6,7 @@
 
 #include "../mod/Resource.h"
 #include "../mod/ResourceRef.h"
+#include <optional>
 
 int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const {
     const int commandLen = static_cast<int>(command_.size());

@@ -17,6 +17,7 @@ namespace glimmer {
 
 
         explicit TileItem(std::unique_ptr<Tile> tile) : tile_(std::move(tile)) {
+            maxStack_ = ITEM_MAX_STACK;
         }
 
         [[nodiscard]] std::string GetId() const override;
@@ -25,7 +26,7 @@ namespace glimmer {
 
         [[nodiscard]] std::string GetDescription() const override;
 
-        void OnUse(AppContext* appContext, WorldContext* worldContext, GameEntity* user) override;
+        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 

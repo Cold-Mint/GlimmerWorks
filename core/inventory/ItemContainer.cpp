@@ -28,7 +28,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
             }
         }
         if (item->GetAmount() == 0) {
-            break;
+            return nullptr;
         }
     }
     return item;

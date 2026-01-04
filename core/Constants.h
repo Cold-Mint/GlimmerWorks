@@ -45,6 +45,7 @@ static constexpr std::string DEBUG_FOLDER_NAME = "debug";
 constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
 constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
+constexpr size_t ITEM_MAX_STACK = 99;
 
 /**
  *Type of adsorbate

@@ -41,7 +41,7 @@ size_t glimmer::Item::RemoveAmount(const size_t amount) {
     }
     const int oldAmount = static_cast<int>(amount_);
     const int newAmount = static_cast<int>(amount_) - static_cast<int>(amount);
-    if (newAmount <= 0) {
+    if (newAmount < 0) {
         amount_ = 0;
         return oldAmount;
     }

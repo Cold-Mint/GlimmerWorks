@@ -160,5 +160,6 @@ namespace glimmer {
         SDL_RenderRect(renderer, &rightRect);
         SDL_RenderRect(renderer, &jumpRect);
 #endif
+    appContext_->RestoreColorRenderer(renderer);
     }
 }

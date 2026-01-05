@@ -5,5 +5,3 @@ include/
 
 #vscode
 .vscode/
-
-.cache/

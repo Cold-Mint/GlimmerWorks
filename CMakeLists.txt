@@ -29,10 +29,7 @@ endif ()
 set(CONFIG_FILE_NAME "config.json")
 
 
-set(IMGUI_VERSION "1.92.5")
-set(TWEENY_VERSION "3.2.1")
-
-
+include("versions.cmake")
 set(CMAKE_BUILD_RPATH "$ORIGIN/libs")
 set(CMAKE_INSTALL_RPATH "$ORIGIN/libs")
 
@@ -40,7 +37,7 @@ include(FetchContent)
 FetchContent_Declare(
         nlohmann_json
         GIT_REPOSITORY "https://github.com/nlohmann/json"
-        GIT_TAG "v3.12.0"
+        GIT_TAG ${NLOHMANN_JSON_VERSION}
         GIT_PROGRESS TRUE
         SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/json"
 )
@@ -50,7 +47,7 @@ FetchContent_MakeAvailable(nlohmann_json)
 FetchContent_Declare(
         SDL
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL"
-        GIT_TAG "release-3.2.28"
+        GIT_TAG ${LIBSDL-ORG_SDL_VERSION}
         GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(SDL)
@@ -58,7 +55,7 @@ FetchContent_MakeAvailable(SDL)
 FetchContent_Declare(
         SDL_image
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_image"
-        GIT_TAG "release-3.2.4"
+        GIT_TAG ${LIBSDL-ORG_SDL_IMAGE_VERSION}
         GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(SDL_image)
@@ -67,7 +64,7 @@ FetchContent_MakeAvailable(SDL_image)
 FetchContent_Declare(
         SDL_ttf
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf"
-        GIT_TAG "release-3.2.2"
+        GIT_TAG ${LIBSDL-ORG_SDL_TTF_VERSION}
         GIT_PROGRESS TRUE
 )
 set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
@@ -77,8 +74,8 @@ FetchContent_Declare(
         imgui
         GIT_REPOSITORY "https://github.com/ocornut/imgui"
         GIT_PROGRESS TRUE
-        GIT_TAG "v${IMGUI_VERSION}"
-        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}"
+        GIT_TAG ${OCORNUT_IMGUI_VERSION}
+        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}"
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -86,8 +83,8 @@ FetchContent_Declare(
         tweeny
         GIT_REPOSITORY "https://github.com/mobius3/tweeny"
         GIT_PROGRESS TRUE
-        GIT_TAG "v${TWEENY_VERSION}"
-        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/tweeny-${TWEENY_VERSION}"
+        GIT_TAG ${MOBIUS3_TWEENY_VERSION}
+        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/tweeny-${MOBIUS3_TWEENY_VERSION}"
 )
 
 FetchContent_MakeAvailable(tweeny)
@@ -118,16 +115,16 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(box2d)
 
 set(GLIMMERWORKS_SOURCES
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_widgets.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_tables.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_demo.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_draw.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_widgets.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_tables.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_demo.cpp"
         # SDL3 backend
         # SDL3 后端
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdl3.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/backends/imgui_impl_sdlrenderer3.cpp"
-        "${PROJECT_SOURCE_DIR}/include/tweeny-${TWEENY_VERSION}/include/tween.h"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/backends/imgui_impl_sdl3.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/backends/imgui_impl_sdlrenderer3.cpp"
+        "${PROJECT_SOURCE_DIR}/include/tweeny-${MOBIUS3_TWEENY_VERSION}/include/tween.h"
 
         main.cpp
         core/log/LogCat.cpp
@@ -398,11 +395,11 @@ target_include_directories(GlimmerWorks PRIVATE
 )
 
 target_include_directories(GlimmerWorks PRIVATE
-        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}"
 )
 
 target_include_directories(GlimmerWorks PRIVATE
-        "${PROJECT_SOURCE_DIR}/include/tweeny-${TWEENY_VERSION}"
+        "${PROJECT_SOURCE_DIR}/include/tweeny-${MOBIUS3_TWEENY_VERSION}"
 )
 
 file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"

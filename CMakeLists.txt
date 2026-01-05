@@ -1,19 +1,20 @@
 cmake_minimum_required(VERSION 3.28)
 project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
+
+#Open the build log and progress output
+#打开构建日志和进度输出
+set(FETCHCONTENT_QUIET OFF CACHE BOOL "Show real-time git clone progress (ON=quiet, OFF=visible)" FORCE)
+set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
+        "CMake message verbosity level")
+
+#Define the game version number and platform information.
+#定义游戏版本号和平台信息。
 set(GAME_VERSION_MAJOR 0)
 set(GAME_VERSION_MINOR 1)
 set(GAME_VERSION_PATCH 0)
 set(GAME_VERSION_STRING "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
 set(GAME_VERSION_NUMBER 1)
-set(IMGUI_VERSION "1.92.5")
-set(TWEENY_VERSION "3.2.1")
-set(FETCHCONTENT_QUIET OFF CACHE BOOL "Show real-time git clone progress (ON=quiet, OFF=visible)" FORCE)
-set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
-        "CMake message verbosity level")
-set(CONFIG_FILE_NAME "config.json")
-set(CMAKE_BUILD_RPATH "$ORIGIN/libs")
-set(CMAKE_INSTALL_RPATH "$ORIGIN/libs")
 if (WIN32)
     set(PLATFORM_NAME "windows")
 elseif (APPLE)
@@ -25,6 +26,16 @@ elseif (UNIX)
 else ()
     set(PLATFORM_NAME "unknown")
 endif ()
+set(CONFIG_FILE_NAME "config.json")
+
+
+set(IMGUI_VERSION "1.92.5")
+set(TWEENY_VERSION "3.2.1")
+
+
+set(CMAKE_BUILD_RPATH "$ORIGIN/libs")
+set(CMAKE_INSTALL_RPATH "$ORIGIN/libs")
+
 include(FetchContent)
 FetchContent_Declare(
         nlohmann_json
@@ -106,7 +117,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(box2d)
 
-set(GLIMMERWORKS_SOURCES "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
+set(GLIMMERWORKS_SOURCES
+        "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_draw.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_widgets.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${IMGUI_VERSION}/imgui_tables.cpp"

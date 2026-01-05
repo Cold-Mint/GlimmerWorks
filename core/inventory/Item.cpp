@@ -27,7 +27,7 @@ void glimmer::Item::SetOnAmountZero(const std::function<void()> &onAmountZero) {
 
 void glimmer::Item::SetAmount(const size_t amount) {
     amount_ = std::min(amount, maxStack_);
-    if (amount_ == 0) {
+    if (onAmountZero_ != nullptr && amount_ == 0) {
         onAmountZero_();
     }
 }

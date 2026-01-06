@@ -114,6 +114,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(box2d)
 
+FetchContent_Declare(
+        glimmerWorksProtobuf
+        GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
+        GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(glimmerWorksProtobuf)
+
 set(GLIMMERWORKS_SOURCES
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_draw.cpp"
@@ -380,9 +387,9 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d log android)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks_proto log android)
 else ()
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks_proto)
 endif ()
 
 
@@ -400,6 +407,11 @@ target_include_directories(GlimmerWorks PRIVATE
 
 target_include_directories(GlimmerWorks PRIVATE
         "${PROJECT_SOURCE_DIR}/include/tweeny-${MOBIUS3_TWEENY_VERSION}"
+)
+
+target_include_directories(GlimmerWorks
+        PRIVATE
+        ${glimmerWorksProtobuf_BINARY_DIR}/generated
 )
 
 file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"

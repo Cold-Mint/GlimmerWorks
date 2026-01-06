@@ -9,10 +9,12 @@
 // Manifest file names of data packets and resource packets
 // 数据包和资源包的清单文件名
 #define MANIFEST_FILE_NAME "manifest.json"
+#define MAP_MANIFEST_FILE_NAME "mapManifest.bin"
 
 
 #define HELP_COMMAND_NAME  "help"
 #define LICENSE_COMMAND_NAME  "license"
+#define SEED_COMMAND_NAME  "seed"
 #define CONFIG_COMMAND_NAME  "config"
 #define HEIGHT_MAP_COMMAND_NAME  "heightMap"
 #define TP_COMMAND_NAME  "tp"

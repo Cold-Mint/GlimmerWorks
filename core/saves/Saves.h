@@ -17,7 +17,7 @@ namespace glimmer {
         std::string path_;
         VirtualFileSystem *virtualFileSystem_;
 
-        std::string ToChunkPath(TileVector2D position) const;
+        [[nodiscard]] std::string ToChunkPath(TileVector2D position) const;
 
     public:
         explicit Saves(std::string path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
@@ -50,12 +50,13 @@ namespace glimmer {
 
         [[nodiscard]] bool WriteChunk(TileVector2D position, const ChunkMessage &chunkMessage) const;
 
+
         /**
-         * Create a saves
-         * 创建存档
-         * @param manifest manifest 清单文件
+         * ReadMapManifest
+         * 读取存档清单
+         * @return
          */
-        void Create(MapManifest &manifest) const;
+        [[nodiscard]] std::optional<MapManifestMessage> ReadMapManifest() const;
     };
 }
 

@@ -45,6 +45,7 @@ namespace glimmer {
         std::string failedToLoadLicense;
         std::string cantFindObject;
         std::string teleportEntity;
+        std::string mapManifestIsNull;
     };
 }
 

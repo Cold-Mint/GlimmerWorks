@@ -15,6 +15,7 @@
 #include "../mod/dataPack/ItemManager.h"
 #include "../mod/dataPack/TileManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
+#include "../saves/SavesManager.h"
 #include "../world/TilePlacerManager.h"
 #include "SDL3_ttf/SDL_ttf.h"
 
@@ -44,6 +45,7 @@ namespace glimmer {
         TileManager *tileManager_;
         BiomesManager *biomesManager_;
         CommandManager *commandManager_;
+        SavesManager *savesManager_;
         TTF_Font *ttfFont_;
         CommandExecutor *commandExecutor_;
         ResourcePackManager *resourcePackManager_;
@@ -65,13 +67,14 @@ namespace glimmer {
                    CommandManager *commandManager, CommandExecutor *commandExecutor, LangsResources *langs,
                    DynamicSuggestionsManager *dynamicSuggestionsManager, VirtualFileSystem *virtualFileSystem,
                    TileManager *tileManager, BiomesManager *biomesManager, TilePlacerManager *tilePlacerManager,
-                   ResourceLocator *resourceLocator, ItemManager *itemManager)
-            : language_(lang), dataPackManager_(dpm), config_(cfg), sceneManager_(sm), stringManager_(stringManager),
-              commandManager_(commandManager), ttfFont_(nullptr), commandExecutor_(commandExecutor),
-              resourcePackManager_(rpm), tilePlacerManager_(tilePlacerManager),
-              window_(nullptr), langs_(langs), isRunning(run), dynamicSuggestionsManager_(dynamicSuggestionsManager),
-              virtualFileSystem_(virtualFileSystem), tileManager_(tileManager), biomesManager_(biomesManager),
-              resourceLocator_(resourceLocator), itemManager_(itemManager) {
+                   ResourceLocator *resourceLocator, ItemManager *itemManager, SavesManager *savesManager)
+            : window_(nullptr), language_(lang), dataPackManager_(dpm), config_(cfg), sceneManager_(sm),
+              stringManager_(stringManager), tileManager_(tileManager), biomesManager_(biomesManager),
+              commandManager_(commandManager), savesManager_(savesManager),
+              ttfFont_(nullptr), commandExecutor_(commandExecutor), resourcePackManager_(rpm), langs_(langs),
+              dynamicSuggestionsManager_(dynamicSuggestionsManager), virtualFileSystem_(virtualFileSystem),
+              tilePlacerManager_(tilePlacerManager),
+              resourceLocator_(resourceLocator), itemManager_(itemManager), isRunning(run) {
             mainThreadId_ = std::this_thread::get_id();
         }
 
@@ -113,6 +116,8 @@ namespace glimmer {
         [[nodiscard]] ItemManager *GetItemManager() const;
 
         [[nodiscard]] SceneManager *GetSceneManager() const;
+
+        [[nodiscard]] SavesManager *GetSavesManager() const;
 
         [[nodiscard]] SDL_Window *GetWindow() const;
 
@@ -172,7 +177,7 @@ namespace glimmer {
          * Restore the color of the renderer.
          * 恢复渲染器的颜色。
          */
-        static void RestoreColorRenderer(SDL_Renderer* sdlRenderer);
+        static void RestoreColorRenderer(SDL_Renderer *sdlRenderer);
 
 
         void AddMainThreadTask(std::function<void()> task);

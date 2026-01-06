@@ -365,6 +365,10 @@ set(GLIMMERWORKS_SOURCES
         core/ecs/component/DiggingComponent.h
         core/ecs/system/DiggingSystem.cpp
         core/ecs/system/DiggingSystem.h
+        core/saves/SavesManager.cpp
+        core/saves/SavesManager.h
+        core/console/command/SeedCommand.cpp
+        core/console/command/SeedCommand.h
 )
 
 if (ANDROID)

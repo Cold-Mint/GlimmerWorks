@@ -35,5 +35,6 @@
   "fileWritingFailed": "文件{}写入失败。",
   "failedToLoadLicense": "加载本地LICENSE文件失败。\n这个文件应该包含在这个程序的每个发行版中。\n如果缺少，请检查您的安装或在线查看许可证：\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE",
   "cantFindObject": "找不到游戏对象。",
-  "teleportEntity": "已将Id为{}的实体，传送至x={},y={}。"
+  "teleportEntity": "已将Id为{}的实体，传送至x={},y={}。",
+  "mapManifestIsNull": "mapManifest读取失败。"
 }

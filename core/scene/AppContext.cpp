@@ -81,6 +81,10 @@ glimmer::SceneManager *glimmer::AppContext::GetSceneManager() const {
     return sceneManager_;
 }
 
+glimmer::SavesManager *glimmer::AppContext::GetSavesManager() const {
+    return savesManager_;
+}
+
 SDL_Window *glimmer::AppContext::GetWindow() const {
     return window_;
 }

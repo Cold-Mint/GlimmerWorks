@@ -40,6 +40,8 @@ namespace glimmer {
 
         [[nodiscard]] virtual std::vector<std::string> ListFile(const std::string &path) const;
 
+        [[nodiscard]] bool DeleteFileOrFolder(const std::string &path) const;
+
         /**
          * GetActualPath
          * 获取实际路径

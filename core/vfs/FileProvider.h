@@ -35,6 +35,13 @@ namespace glimmer {
 
 
         /**
+         *Delete File Or Folder
+         * 删除文件或者文件夹
+         * @return
+         */
+        [[nodiscard]] virtual bool DeleteFileOrFolder(const std::string &path) = 0;
+
+        /**
          * Read Stream
          * 读取文件流
          * @param path  path 文件路径

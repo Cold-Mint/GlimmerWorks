@@ -21,6 +21,7 @@ std::string glimmer::TpCommand::GetName() const {
 
 bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
     if (worldContext_ == nullptr) {
+        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
     auto entities = worldContext_->GetEntitiesWithComponents<

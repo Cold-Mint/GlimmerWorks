@@ -6,7 +6,6 @@
 
 #include <fstream>
 
-#include "MapManifest.h"
 #include "../log/LogCat.h"
 #include "../utils/JsonUtils.h"
 #include "nlohmann/json.hpp"
@@ -43,19 +42,12 @@ bool glimmer::Saves::WriteChunk(const TileVector2D position, const ChunkMessage 
     return virtualFileSystem_->WriteFile(ToChunkPath(position), chunkMessage.SerializeAsString());
 }
 
-
-void glimmer::Saves::Create(MapManifest &manifest) const {
-    if (!virtualFileSystem_->Exists(path_)) {
-        bool createFolder = virtualFileSystem_->CreateFolder(path_);
-        if (!createFolder) {
-            LogCat::e("Directories cannot be created: ", path_);
-            return;
-        }
+std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {
+    const auto stream = virtualFileSystem_->ReadStream(path_ + "/" + MAP_MANIFEST_FILE_NAME);
+    if (!stream.has_value()) {
+        return std::nullopt;
     }
-    MapManifestMessage manifestMessage;
-    manifest.ToMessage(manifestMessage);
-    bool createFile = virtualFileSystem_->WriteFile(path_ + "/mapManifest.bin", manifestMessage.SerializeAsString());
-    if (!createFile) {
-        LogCat::e("Error writing to file: ", path_);
-    }
+    MapManifestMessage mapManifestMessage;
+    mapManifestMessage.ParseFromIstream(stream->get());
+    return mapManifestMessage;
 }

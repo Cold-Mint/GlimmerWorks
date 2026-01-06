@@ -23,6 +23,8 @@ namespace glimmer {
             : root_(std::move(rootPath)) {
         }
 
+        [[nodiscard]] bool DeleteFileOrFolder(const std::string &path) override;
+
         std::vector<std::string> ListFile(const std::string &path) override;
 
         [[nodiscard]] std::string GetFileProviderName() const override;

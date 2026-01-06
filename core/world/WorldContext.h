@@ -157,7 +157,7 @@ namespace glimmer {
         * Game saves
         * 游戏存档
         */
-        std::unique_ptr<Saves> saves;
+        Saves* saves;
 
         b2WorldId worldId_ = b2_nullWorldId;
         std::vector<std::unique_ptr<GameEntity> > entities;
@@ -429,8 +429,8 @@ namespace glimmer {
         [[nodiscard]] int GetSeed() const;
 
 
-        explicit WorldContext(AppContext *appContext, const int seed, std::unique_ptr<Saves> saves) : seed(seed),
-            saves(std::move(saves)) {
+        explicit WorldContext(AppContext *appContext, const int seed, Saves* saves) : seed(seed),
+            saves(saves) {
             // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
             continentHeightMapNoise = new FastNoiseLite();
             continentHeightMapNoise->SetSeed(seed);

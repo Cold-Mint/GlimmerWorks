@@ -60,7 +60,7 @@ void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameCompo
 
 
 glimmer::Saves *glimmer::WorldContext::GetSaves() const {
-    return saves.get();
+    return saves;
 }
 
 bool glimmer::WorldContext::HasComponentType(const std::type_index &type) const {

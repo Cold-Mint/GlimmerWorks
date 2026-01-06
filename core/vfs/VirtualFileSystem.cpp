@@ -98,6 +98,16 @@ std::vector<std::string> glimmer::VirtualFileSystem::ListFile(const std::string 
     return {};
 }
 
+bool glimmer::VirtualFileSystem::DeleteFileOrFolder(const std::string &path) const {
+    LogCat::i("VirtualFileSystem DeleteFileOrFolder =", path);
+    for (auto &provider: fileProviders_) {
+        if (provider->DeleteFileOrFolder(path)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::optional<std::string> glimmer::VirtualFileSystem::GetActualPath(const std::string &path) const {
     LogCat::i("VirtualFileSystem GetActualPath =", path);
     for (auto &provider: fileProviders_) {

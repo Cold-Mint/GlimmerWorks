@@ -10,6 +10,14 @@
 #include "../log/LogCat.h"
 
 
+bool glimmer::StdFileProvider::DeleteFileOrFolder(const std::string &path) {
+    const std::filesystem::path fullPath = root_ + "/" + path;
+    if (IsFile(path)) {
+        return std::filesystem::remove(fullPath);
+    }
+    return std::filesystem::remove_all(fullPath);
+}
+
 std::vector<std::string> glimmer::StdFileProvider::ListFile(const std::string &path) {
     std::vector<std::string> result;
     std::filesystem::path rootPath = std::filesystem::path(root_);

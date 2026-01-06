@@ -12,6 +12,7 @@
 #include "core/console/command/HeightMapCommand.h"
 #include "core/console/command/HelpCommand.h"
 #include "core/console/command/LicenseCommand.h"
+#include "core/console/command/SeedCommand.h"
 #include "core/console/command/TpCommand.h"
 #include "core/console/command/VFSCommand.h"
 #include "core/console/suggestion/AbilityItemDynamicSuggestions.h"
@@ -164,6 +165,7 @@ int main() {
     langsResources.failedToLoadLicense = jsonObject["failedToLoadLicense"].get<std::string>();
     langsResources.cantFindObject = jsonObject["cantFindObject"].get<std::string>();
     langsResources.teleportEntity = jsonObject["teleportEntity"].get<std::string>();
+    langsResources.mapManifestIsNull = jsonObject["mapManifestIsNull"].get<std::string>();
     DynamicSuggestionsManager dynamicSuggestionsManager;
     dynamicSuggestionsManager.RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
     dynamicSuggestionsManager.RegisterDynamicSuggestions(
@@ -206,12 +208,14 @@ int main() {
     LogCat::i("resourcePackPath = ", config.mods.resourcePackPath);
     LogCat::i("framerate = ", config.window.framerate);
     LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
+    SavesManager savesManager(&virtualFileSystem);
+    savesManager.LoadAllSaves();
     AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                           &stringManager,
                           &commandManager,
                           &commandExecutor, &langsResources, &dynamicSuggestionsManager, &virtualFileSystem,
                           &tileManager,
-                          &biomesManager, &tilePlacerManager, &resourceLocator, &itemManager);
+                          &biomesManager, &tilePlacerManager, &resourceLocator, &itemManager, &savesManager);
     resourceLocator.SetAppContext(&appContext);
     commandManager.RegisterCommand(std::make_unique<GiveCommand>(&appContext));
     commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
@@ -222,6 +226,7 @@ int main() {
     commandManager.RegisterCommand(std::make_unique<AssetViewerCommand>(&appContext));
     commandManager.RegisterCommand(std::make_unique<VFSCommand>(&appContext, &virtualFileSystem));
     commandManager.RegisterCommand(std::make_unique<LicenseCommand>(&appContext, &virtualFileSystem));
+    commandManager.RegisterCommand(std::make_unique<SeedCommand>(&appContext));
     LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
     LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
     LogCat::i("Starting GlimmerWorks...");

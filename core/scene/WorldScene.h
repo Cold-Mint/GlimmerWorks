@@ -8,14 +8,16 @@
 #include "../world/WorldContext.h"
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
+
+
 namespace glimmer {
     class WorldScene : public Scene {
-        WorldContext *worldContext;
+        std::unique_ptr<WorldContext> worldContext_;
 
     public:
-        explicit WorldScene(AppContext *context, WorldContext *wc)
+        explicit WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext)
             : Scene(context) {
-            worldContext = wc;
+            worldContext_ = std::move(worldContext);
         }
 
         void OnFrameStart() override;
@@ -25,10 +27,6 @@ namespace glimmer {
         void Update(float delta) override;
 
         void Render(SDL_Renderer *renderer) override;
-
-        ~WorldScene() override {
-            delete worldContext;
-        };
     };
 }
 

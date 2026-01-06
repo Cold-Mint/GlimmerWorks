@@ -9,6 +9,7 @@
 #include "../Constants.h"
 #include "../math/Vector2DI.h"
 #include "box2d/id.h"
+#include "saves/chunk.pb.h"
 
 namespace glimmer {
     class Chunk {
@@ -65,6 +66,10 @@ namespace glimmer {
         [[nodiscard]] Tile *GetTile(TileLayerType layerType, int x, int y);
 
         [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D &tileVector2d);
+
+        void FromMessage(AppContext *appContext, const ChunkMessage &chunkMessage);
+
+        void ToMessage(ChunkMessage &chunkMessage);
 
         /**
          * Replace tile

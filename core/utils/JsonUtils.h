@@ -266,25 +266,6 @@ struct nlohmann::adl_serializer<glimmer::DataPackManifest> {
 };
 
 template<>
-struct nlohmann::adl_serializer<glimmer::MapManifest> {
-    static void from_json(const json &j, glimmer::MapManifest &manifest) {
-        manifest.name = j.at("name").get<std::string>();
-        manifest.gameVersionName = j.at("gameVersionName").get<std::string>();
-        manifest.gameVersionNumber = j.at("gameVersionNumber").get<int>();
-        manifest.seed = j.at("seed").get<int>();
-    }
-
-    static void to_json(json &j, const glimmer::MapManifest &manifest) {
-        j = json{
-            {"name", manifest.name},
-            {"gameVersionName", manifest.gameVersionName},
-            {"gameVersionNumber", manifest.gameVersionNumber},
-            {"seed", manifest.seed}
-        };
-    }
-};
-
-template<>
 struct nlohmann::adl_serializer<glimmer::Vector2D> {
     static void from_json(const json &j, glimmer::Vector2D &vector_2d) {
         vector_2d.x = j.at("x").get<float>();

@@ -6,6 +6,7 @@
 #include <string>
 
 #include "../Constants.h"
+#include "core/resource_ref.pb.h"
 
 namespace glimmer {
     class ResourceRef {
@@ -28,6 +29,10 @@ namespace glimmer {
          * @param packId
          */
         void SetPackageId(const std::string &packId);
+
+        void FromMessage(const ResourceRefMessage &resourceRefMessage);
+
+        void ToMessage(ResourceRefMessage &resourceRefMessage);
 
         [[nodiscard]] std::string GetPackageId() const;
 

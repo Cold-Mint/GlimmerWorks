@@ -3,64 +3,64 @@
 //
 
 #include "Vector2DI.h"
+#include "saves/vector2d.pb.h"
 
-glimmer::Vector2DI glimmer::Vector2DI::operator+(const Vector2DI& rhs) const
-{
+void glimmer::Vector2DI::FromMessage(const Vector2DIMessage &vector2di) {
+    x = vector2di.x();
+    y = vector2di.y();
+}
+
+void glimmer::Vector2DI::ToMessage(Vector2DIMessage &vector2di) const {
+    vector2di.set_x(x);
+    vector2di.set_y(y);
+}
+
+glimmer::Vector2DI glimmer::Vector2DI::operator+(const Vector2DI &rhs) const {
     return {x + rhs.x, y + rhs.y};
 }
 
-glimmer::Vector2DI glimmer::Vector2DI::operator-(const Vector2DI& rhs) const
-{
+glimmer::Vector2DI glimmer::Vector2DI::operator-(const Vector2DI &rhs) const {
     return {x - rhs.x, y - rhs.y};
 }
 
-glimmer::Vector2DI glimmer::Vector2DI::operator*(const int scalar) const
-{
+glimmer::Vector2DI glimmer::Vector2DI::operator*(const int scalar) const {
     return {x * scalar, y * scalar};
 }
 
-glimmer::Vector2DI glimmer::Vector2DI::operator/(const int scalar) const
-{
+glimmer::Vector2DI glimmer::Vector2DI::operator/(const int scalar) const {
     return {x / scalar, y / scalar};
 }
 
-glimmer::Vector2DI& glimmer::Vector2DI::operator+=(const Vector2DI& rhs)
-{
+glimmer::Vector2DI &glimmer::Vector2DI::operator+=(const Vector2DI &rhs) {
     x += rhs.x;
     y += rhs.y;
     return *this;
 }
 
-glimmer::Vector2DI& glimmer::Vector2DI::operator-=(const Vector2DI& rhs)
-{
+glimmer::Vector2DI &glimmer::Vector2DI::operator-=(const Vector2DI &rhs) {
     x -= rhs.x;
     y -= rhs.y;
     return *this;
 }
 
-bool glimmer::Vector2DI::operator==(const Vector2DI& rhs) const
-{
+bool glimmer::Vector2DI::operator==(const Vector2DI &rhs) const {
     return x == rhs.x && y == rhs.y;
 }
 
-bool glimmer::Vector2DI::operator!=(const Vector2DI& rhs) const
-{
+bool glimmer::Vector2DI::operator!=(const Vector2DI &rhs) const {
     return !(*this == rhs);
 }
 
-int glimmer::Vector2DI::LengthSquared() const
-{
+int glimmer::Vector2DI::LengthSquared() const {
     return x * x + y * y;
 }
 
-int glimmer::Vector2DI::DistanceSquared(const Vector2DI& rhs) const
-{
+int glimmer::Vector2DI::DistanceSquared(const Vector2DI &rhs) const {
     const int dx = x - rhs.x;
     const int dy = y - rhs.y;
     return dx * dx + dy * dy;
 }
 
-glimmer::Vector2D glimmer::Vector2DI::ToFloat() const
-{
+glimmer::Vector2D glimmer::Vector2DI::ToFloat() const {
     return {static_cast<float>(x), static_cast<float>(y)};
 }

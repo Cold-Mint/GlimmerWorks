@@ -30,6 +30,7 @@
 #include "../ecs/system/TileLayerSystem.h"
 #include "../log/LogCat.h"
 #include "../mod/ResourceLocator.h"
+#include "../saves/Saves.h"
 #include "../utils/Box2DUtils.h"
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
@@ -59,7 +60,7 @@ void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameCompo
 
 
 glimmer::Saves *glimmer::WorldContext::GetSaves() const {
-    return saves;
+    return saves.get();
 }
 
 bool glimmer::WorldContext::HasComponentType(const std::type_index &type) const {
@@ -213,94 +214,111 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
     if (chunks_.contains(position)) {
         return;
     }
+    auto chunkExists = saves->ChunkExists(position);
+    bool loadFromFile = false;
     auto chunk = std::make_unique<Chunk>(position);
-    std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> tilesRef;
-    ResourceRef airTileRef;
-    airTileRef.SetResourceType(RESOURCE_TYPE_TILE);
-    airTileRef.SetPackageId(RESOURCE_REF_CORE);
-    airTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    airTileRef.SetResourceKey(TILE_ID_AIR);
-    ResourceRef waterTileRef;
-    waterTileRef.SetResourceType(RESOURCE_TYPE_TILE);
-    waterTileRef.SetPackageId(RESOURCE_REF_CORE);
-    waterTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    waterTileRef.SetResourceKey(TILE_ID_WATER);
-    ResourceRef bedrockTileRef;
-    bedrockTileRef.SetResourceType(RESOURCE_TYPE_TILE);
-    bedrockTileRef.SetPackageId(RESOURCE_REF_CORE);
-    bedrockTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    bedrockTileRef.SetResourceKey(TILE_ID_BEDROCK);
-    std::map<std::string, std::vector<TileVector2D> > biomeMap = {};
-    std::map<std::string, BiomeResource *> biomeResourceMap = {};
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        const int height = GetHeight(position.x + localX);
-        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            TileVector2D localTile(localX, localY);
-            TileVector2D worldTilePos = position + localTile;
-            if (worldTilePos.y == WORLD_MIN_Y) {
-                tilesRef[localX][localY] = bedrockTileRef;
-                continue;
-            }
-            if (worldTilePos.y > height) {
-                if (worldTilePos.y < SEA_LEVEL_HEIGHT) {
-                    //water
-                    //水
-                    tilesRef[localX][localY] = waterTileRef;
-                } else {
-                    //sky
-                    //天空
-                    tilesRef[localX][localY] = airTileRef;
+    if (chunkExists) {
+        //Read the chunk file.
+        //读取区块文件。
+        auto chunkMessage = saves->ReadChunk(position);
+        if (chunkMessage.has_value()) {
+            chunk.get()->FromMessage(appContext_, chunkMessage.value());
+            loadFromFile = true;
+        }
+    }
+    if (!loadFromFile) {
+        //Failed to load the file. Creating the block instead.
+        //从文件加载失败，创建区块。
+        std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> tilesRef;
+        ResourceRef airTileRef;
+        airTileRef.SetResourceType(RESOURCE_TYPE_TILE);
+        airTileRef.SetPackageId(RESOURCE_REF_CORE);
+        airTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        airTileRef.SetResourceKey(TILE_ID_AIR);
+        ResourceRef waterTileRef;
+        waterTileRef.SetResourceType(RESOURCE_TYPE_TILE);
+        waterTileRef.SetPackageId(RESOURCE_REF_CORE);
+        waterTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        waterTileRef.SetResourceKey(TILE_ID_WATER);
+        ResourceRef bedrockTileRef;
+        bedrockTileRef.SetResourceType(RESOURCE_TYPE_TILE);
+        bedrockTileRef.SetPackageId(RESOURCE_REF_CORE);
+        bedrockTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        bedrockTileRef.SetResourceKey(TILE_ID_BEDROCK);
+        std::map<std::string, std::vector<TileVector2D> > biomeMap = {};
+        std::map<std::string, BiomeResource *> biomeResourceMap = {};
+        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+            const int height = GetHeight(position.x + localX);
+            for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+                TileVector2D localTile(localX, localY);
+                TileVector2D worldTilePos = position + localTile;
+                if (worldTilePos.y == WORLD_MIN_Y) {
+                    tilesRef[localX][localY] = bedrockTileRef;
+                    continue;
                 }
-                continue;
-            }
-            const float elevation = GetElevation(worldTilePos.y);
-            const auto humidity = GetHumidity(worldTilePos);
-            const auto temperature = GetTemperature(worldTilePos, elevation);
-            const auto weirdness = GetWeirdness(worldTilePos);
-            const auto erosion = GetErosion(worldTilePos);
-            BiomeResource *biomeResource = appContext_->GetBiomesManager()->FindBestBiome(
-                humidity, temperature, weirdness, erosion,
-                elevation);
-            if (biomeResource == nullptr) {
-                LogCat::e("Failed to search for the biome.");
-                return;
-            }
-            biomeMap[biomeResource->key].push_back(localTile);
-            if (!biomeResourceMap.contains(biomeResource->key)) {
-                biomeResourceMap[biomeResource->key] = biomeResource;
-            }
-        }
-    }
-    for (auto &[biomeKey, tilePositions]: biomeMap) {
-        BiomeResource *biomeResource = biomeResourceMap[biomeKey];
-        for (auto &tilePlacerRef: biomeResource->tilePlacerRefs) {
-            std::string id = tilePlacerRef.id;
-            TilePlacer *tilePlacer = appContext_->GetTilePlacerManager()->GetTilePlacer(id);
-            if (tilePlacer == nullptr) {
-                LogCat::w("Tile placer ", id, " does not exist.");
-                continue;
-            }
-            if (!tilePlacer->PlaceTileId(appContext_, tilesRef, tilePlacerRef.tiles, tilePositions,
-                                         tilePlacerRef.config)) {
-                LogCat::e("Placement ", id, " failed to execute. Block coordinates: x:", position.x, ",y:", position.y,
-                          ".");
+                if (worldTilePos.y > height) {
+                    if (worldTilePos.y < SEA_LEVEL_HEIGHT) {
+                        //water
+                        //水
+                        tilesRef[localX][localY] = waterTileRef;
+                    } else {
+                        //sky
+                        //天空
+                        tilesRef[localX][localY] = airTileRef;
+                    }
+                    continue;
+                }
+                const float elevation = GetElevation(worldTilePos.y);
+                const auto humidity = GetHumidity(worldTilePos);
+                const auto temperature = GetTemperature(worldTilePos, elevation);
+                const auto weirdness = GetWeirdness(worldTilePos);
+                const auto erosion = GetErosion(worldTilePos);
+                BiomeResource *biomeResource = appContext_->GetBiomesManager()->FindBestBiome(
+                    humidity, temperature, weirdness, erosion,
+                    elevation);
+                if (biomeResource == nullptr) {
+                    LogCat::e("Failed to search for the biome.");
+                    return;
+                }
+                biomeMap[biomeResource->key].push_back(localTile);
+                if (!biomeResourceMap.contains(biomeResource->key)) {
+                    biomeResourceMap[biomeResource->key] = biomeResource;
+                }
             }
         }
-    }
-    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            TileVector2D localTile(localX, localY);
-            ResourceRef resourceRef = tilesRef[localX][localY];
-            const std::optional<TileResource *> tileResource = appContext_->GetResourceLocator()->FindTile(resourceRef);
-            TileResource *tileResourceValue = nullptr;
-            if (tileResource.has_value()) {
-                tileResourceValue = tileResource.value();
-            } else {
-                LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
-                          " does not exist.");
-                tileResourceValue = appContext_->GetTileManager()->GetAir();
+        for (auto &[biomeKey, tilePositions]: biomeMap) {
+            BiomeResource *biomeResource = biomeResourceMap[biomeKey];
+            for (auto &tilePlacerRef: biomeResource->tilePlacerRefs) {
+                std::string id = tilePlacerRef.id;
+                TilePlacer *tilePlacer = appContext_->GetTilePlacerManager()->GetTilePlacer(id);
+                if (tilePlacer == nullptr) {
+                    LogCat::w("Tile placer ", id, " does not exist.");
+                    continue;
+                }
+                if (!tilePlacer->PlaceTileId(appContext_, tilesRef, tilePlacerRef.tiles, tilePositions,
+                                             tilePlacerRef.config)) {
+                    LogCat::e("Placement ", id, " failed to execute. Block coordinates: x:", position.x, ",y:",
+                              position.y,
+                              ".");
+                }
             }
-            chunk->SetTile(localTile, Tile::FromResourceRef(appContext_, tileResourceValue));
+        }
+        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+            for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+                TileVector2D localTile(localX, localY);
+                ResourceRef resourceRef = tilesRef[localX][localY];
+                const std::optional<TileResource *> tileResource = appContext_->GetResourceLocator()->FindTile(
+                    resourceRef);
+                TileResource *tileResourceValue = nullptr;
+                if (tileResource.has_value()) {
+                    tileResourceValue = tileResource.value();
+                } else {
+                    LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
+                              " does not exist.");
+                    tileResourceValue = appContext_->GetTileManager()->GetAir();
+                }
+                chunk->SetTile(localTile, Tile::FromResourceRef(appContext_, tileResourceValue));
+            }
         }
     }
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos, chunk.get());
@@ -314,6 +332,9 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
     if (it == chunks_.end()) {
         return;
     }
+    ChunkMessage chunkMessage;
+    it->second.get()->ToMessage(chunkMessage);
+    (void) saves->WriteChunk(position, chunkMessage);
     ChunkPhysicsHelper::DetachPhysicsBodyToChunk(it->second.get());
     chunks_.erase(it);
     chunksVersion_++;

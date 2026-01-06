@@ -7,6 +7,8 @@
 #include "../../Constants.h"
 #include "../../scene/AppContext.h"
 #include "fmt/color.h"
+#include "saves/chunk.pb.h"
+#include "saves/map_manifest.pb.h"
 
 void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     //List all the mount points
@@ -30,6 +32,12 @@ std::string glimmer::VFSCommand::GetName() const {
 void glimmer::VFSCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
     strings.emplace_back("[operation type:string]");
     strings.emplace_back("[path:string]");
+    if (commandArgs.GetSize() > 1) {
+        std::string type = commandArgs.AsString(1);
+        if (type == "readFile") {
+            strings.emplace_back("[message type:string]");
+        }
+    }
 }
 
 bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
@@ -69,7 +77,20 @@ bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(co
         auto path = commandArgs.AsString(2);
         auto text = virtualFileSystem_->ReadFile(path);
         if (text.has_value()) {
-            onMessage(text.value());
+            if (size > 3) {
+                auto messageType = commandArgs.AsString(3);
+                if (messageType == "chunk") {
+                    ChunkMessage chunkMessage;
+                    chunkMessage.ParseFromString(text.value());
+                    onMessage(chunkMessage.DebugString());
+                } else if (messageType == "mapManifest") {
+                    MapManifestMessage mapManifestMessage;
+                    mapManifestMessage.ParseFromString(text.value());
+                    onMessage(mapManifestMessage.DebugString());
+                }
+            } else {
+                onMessage(text.value());
+            }
         } else {
             onMessage("null");
         }
@@ -88,7 +109,12 @@ glimmer::NodeTree<std::string> glimmer::VFSCommand::GetSuggestionsTree(const Com
             for (int i = 0; i < size; i++) {
                 auto child = suggestionsTree_.GetChild(i);
                 child->ClearChildren();
-                child->AddChild(std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs.AsString(2));
+                auto childNode = child->AddChild(
+                    std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs.AsString(2));
+                if (type == "readFile") {
+                    childNode->AddChild("mapManifest");
+                    childNode->AddChild("chunk");
+                }
             }
         }
     }

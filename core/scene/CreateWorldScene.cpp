@@ -35,8 +35,8 @@ void glimmer::CreateWorldScene::CreateWorld() const {
         seed_value = static_cast<int>(hasher(seed_input));
     }
     LogCat::d("Create a world: ", name, ", seed: ", seed_value);
-    Saves saves("saved/" + name, appContext->GetVirtualFileSystem());
-    if (saves.Exist()) {
+    auto saves = std::make_unique<Saves>("saved/" + name, appContext->GetVirtualFileSystem());
+    if (saves->Exist()) {
         LogCat::e("The world already exists!");
         return;
     }
@@ -45,9 +45,10 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     manifest.name = name;
     manifest.gameVersionName = GAME_VERSION_STRING;
     manifest.gameVersionNumber = GAME_VERSION_NUMBER;
-    saves.Create(manifest);
-    auto *worldContext = new WorldContext(appContext, seed_value, &saves);
-    appContext->GetSceneManager()->ChangeScene(new WorldScene(appContext, worldContext));
+    saves->Create(manifest);
+    appContext->GetSceneManager()->
+            ChangeScene(
+                new WorldScene(appContext, std::make_unique<WorldContext>(appContext, seed_value, std::move(saves))));
 }
 
 int glimmer::CreateWorldScene::RandomSeed() {

@@ -23,6 +23,7 @@
 #include "../ecs/component/HotBarComonent.h"
 #include "../inventory/Item.h"
 #include "../math/Vector2DI.h"
+#include "../saves/Saves.h"
 #include "../scene/AppContext.h"
 #include "../utils/JsonUtils.h"
 #include "box2d/box2d.h"
@@ -33,7 +34,6 @@ namespace glimmer {
     class Transform2DComponent;
     class CameraComponent;
     class GameEntity;
-    class Saves;
     class Item;
 
     class WorldContext {
@@ -157,7 +157,7 @@ namespace glimmer {
         * Game saves
         * 游戏存档
         */
-        Saves *saves;
+        std::unique_ptr<Saves> saves;
 
         b2WorldId worldId_ = b2_nullWorldId;
         std::vector<std::unique_ptr<GameEntity> > entities;
@@ -429,8 +429,8 @@ namespace glimmer {
         [[nodiscard]] int GetSeed() const;
 
 
-        explicit WorldContext(AppContext *appContext, const int seed, Saves *saves) : seed(seed),
-            saves(saves) {
+        explicit WorldContext(AppContext *appContext, const int seed, std::unique_ptr<Saves> saves) : seed(seed),
+            saves(std::move(saves)) {
             // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
             continentHeightMapNoise = new FastNoiseLite();
             continentHeightMapNoise->SetSeed(seed);

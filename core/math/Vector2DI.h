@@ -9,6 +9,9 @@
 
 #include "Vector2D.h"
 
+
+class Vector2DIMessage;
+
 namespace glimmer {
     struct Vector2DI {
         int x;
@@ -40,6 +43,10 @@ namespace glimmer {
             : x(static_cast<int>(std::floor(v.x))),
               y(static_cast<int>(std::floor(v.y))) {
         }
+
+        void FromMessage(const Vector2DIMessage &vector2di);
+
+        void ToMessage(Vector2DIMessage &vector2di) const;
 
         /**
          * Vector addition

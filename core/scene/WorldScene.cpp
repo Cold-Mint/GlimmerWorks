@@ -5,17 +5,17 @@
 #include "WorldScene.h"
 
 void glimmer::WorldScene::OnFrameStart() {
-    worldContext->OnFrameStart();
+    worldContext_->OnFrameStart();
 }
 
 bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
-    return worldContext->HandleEvent(event);
+    return worldContext_->HandleEvent(event);
 }
 
 void glimmer::WorldScene::Update(float delta) {
-    worldContext->Update(delta);
+    worldContext_->Update(delta);
 }
 
 void glimmer::WorldScene::Render(SDL_Renderer *renderer) {
-    worldContext->Render(renderer);
+    worldContext_->Render(renderer);
 }

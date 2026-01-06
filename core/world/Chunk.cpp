@@ -5,6 +5,8 @@
 #include "Chunk.h"
 
 #include "../log/LogCat.h"
+#include "../mod/ResourceLocator.h"
+#include "../scene/AppContext.h"
 
 
 void glimmer::Chunk::AddBodyId(b2BodyId bodyId) { attachedBodies_.emplace_back(bodyId); }
@@ -66,6 +68,52 @@ glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const int 
 
 glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const TileVector2D &tileVector2d) {
     return GetTile(layerType, tileVector2d.x, tileVector2d.y);
+}
+
+void glimmer::Chunk::FromMessage(AppContext *appContext, const ChunkMessage &chunkMessage) {
+    position.FromMessage(chunkMessage.position());
+    tiles_.clear();
+    auto map = chunkMessage.tiles();
+    for (auto mapPair: map) {
+        auto key = static_cast<TileLayerType>(mapPair.first);
+        auto tileData = mapPair.second;
+        auto tileResourceRefSize = tileData.tileresourceref_size();
+        std::array<std::array<std::unique_ptr<Tile>, CHUNK_SIZE>, CHUNK_SIZE> value;
+        for (int i = 0; i < tileResourceRefSize; i++) {
+            auto tileResourceRefMessage = tileData.tileresourceref(i);
+            int x = i % CHUNK_SIZE;
+            int y = i / CHUNK_SIZE;
+            ResourceRef resourceRef;
+            resourceRef.FromMessage(tileResourceRefMessage);
+            auto tileResource = appContext->GetResourceLocator()->FindTile(resourceRef);
+            if (!tileResource.has_value()) {
+                continue;
+            }
+            value[x][y] = Tile::FromResourceRef(appContext, tileResource.value());
+        }
+        tiles_.emplace(key, std::move(value));
+    }
+}
+
+void glimmer::Chunk::ToMessage(ChunkMessage &chunkMessage) {
+    position.ToMessage(*chunkMessage.mutable_position());
+    chunkMessage.clear_tiles();
+
+    for (const auto &[layerType, tileArray]: tiles_) {
+        auto &tileData =
+                (*chunkMessage.mutable_tiles())[static_cast<int>(layerType)];
+        tileData.mutable_tileresourceref()->Reserve(
+            CHUNK_SIZE * CHUNK_SIZE
+        );
+        for (int y = 0; y < CHUNK_SIZE; y++) {
+            for (int x = 0; x < CHUNK_SIZE; x++) {
+                const auto refMessage = tileData.add_tileresourceref();
+                const Tile *tile = tileArray[x][y].get();
+                std::optional<ResourceRef> resourceRef = Resource::ParseFromId(tile->id, RESOURCE_TYPE_TILE);
+                resourceRef->ToMessage(*refMessage);
+            }
+        }
+    }
 }
 
 std::unique_ptr<glimmer::Tile> glimmer::Chunk::ReplaceTile(const TileLayerType layerType,

@@ -8,12 +8,16 @@
 #include <utility>
 
 #include "MapManifest.h"
+#include "../ecs/component/TileLayerComponent.h"
 #include "../vfs/VirtualFileSystem.h"
+#include "saves/chunk.pb.h"
 
 namespace glimmer {
     class Saves {
         std::string path_;
         VirtualFileSystem *virtualFileSystem_;
+
+        std::string ToChunkPath(TileVector2D position) const;
 
     public:
         explicit Saves(std::string path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
@@ -33,6 +37,18 @@ namespace glimmer {
          * @return path 存档路径
          */
         [[nodiscard]] std::string GetPath() const;
+
+        /**
+         * Check whether the block file at the specified location exists.
+         * 获取指定位置的区块文件是否存在。
+         * @param position
+         * @return
+         */
+        [[nodiscard]] bool ChunkExists(TileVector2D position) const;
+
+        [[nodiscard]] std::optional<ChunkMessage> ReadChunk(TileVector2D position) const;
+
+        [[nodiscard]] bool WriteChunk(TileVector2D position, const ChunkMessage &chunkMessage) const;
 
         /**
          * Create a saves

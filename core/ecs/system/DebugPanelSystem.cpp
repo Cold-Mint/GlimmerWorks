@@ -64,7 +64,15 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     float yOffset = 0.0F;
     auto camera = worldContext_->GetCameraComponent();
     auto cameraTransform = worldContext_->GetCameraTransform2D();
-
+    bool inPointInViewport = false;
+    if (camera != nullptr) {
+        inPointInViewport = camera->IsPointInViewport(cameraTransform->GetPosition(), mousePosition_);
+    }
+    if (!inPointInViewport) {
+        //Do not display the tile debugging information that is outside the screen.
+        //不要显示在屏幕之外的瓦片调试信息。
+        return;
+    }
     for (auto &entity: entities) {
         constexpr float lineSpacing = 20.0F;
         SDL_Color color = {255, 255, 180, 255};

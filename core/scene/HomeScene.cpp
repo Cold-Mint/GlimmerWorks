@@ -9,6 +9,7 @@
 #include "AppContext.h"
 #include "CreateWorldScene.h"
 #include "imgui.h"
+#include "SavedGamesScene.h"
 #include "../log/LogCat.h"
 #include "../Config.h"
 
@@ -72,7 +73,12 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5F);
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->GetLangsResources()->startGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-        appContext->GetSceneManager()->ChangeScene(new CreateWorldScene(appContext));
+        if (appContext->GetSavesManager()->GetSavesListSize() == 0) {
+            appContext->GetSceneManager()->ChangeScene(new CreateWorldScene(appContext));
+        }else {
+            appContext->GetSceneManager()->ChangeScene(new SavedGamesScene(appContext));
+        }
+
     }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->GetLangsResources()->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {

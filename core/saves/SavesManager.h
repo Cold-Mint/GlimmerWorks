@@ -59,7 +59,7 @@ namespace glimmer {
          * 获取有多少个存档。
          * @return
          */
-        [[nodiscard]] size_t GetSize() const;
+        [[nodiscard]] size_t GetSavesListSize() const;
     };
 }
 

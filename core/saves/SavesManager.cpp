@@ -37,8 +37,8 @@ bool glimmer::SavesManager::DeleteSave(const size_t index) {
         return false;
     }
     if (virtualFileSystem_->DeleteFileOrFolder(save->GetPath())) {
-        saveList_.erase(saveList_.begin() + index);
-        manifestList_.erase(manifestList_.begin() + index);
+        saveList_.erase(saveList_.begin() + static_cast<long>(index));
+        manifestList_.erase(manifestList_.begin() + static_cast<long>(index));
         return true;
     }
     return false;
@@ -72,6 +72,6 @@ void glimmer::SavesManager::LoadAllSaves() {
     }
 }
 
-size_t glimmer::SavesManager::GetSize() const {
+size_t glimmer::SavesManager::GetSavesListSize() const {
     return saveList_.size();
 }

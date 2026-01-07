@@ -10,6 +10,7 @@
   "commandIsEmpty": "命令为空",
   "createWorld": "创建世界",
   "cancel": "取消",
+  "confirm": "确认",
   "worldName": "世界名称",
   "seed": "种子",
   "random": "随机",
@@ -36,5 +37,10 @@
   "failedToLoadLicense": "加载本地LICENSE文件失败。\n这个文件应该包含在这个程序的每个发行版中。\n如果缺少，请检查您的安装或在线查看许可证：\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE",
   "cantFindObject": "找不到游戏对象。",
   "teleportEntity": "已将Id为{}的实体，传送至x={},y={}。",
-  "mapManifestIsNull": "mapManifest读取失败。"
+  "mapManifestIsNull": "mapManifest读取失败。",
+  "savedGames": "保存的游戏",
+  "loadGame": "加载游戏",
+  "deleteGame": "删除存档",
+  "wantDeleteThisSave": "您确定要删除此存档吗？",
+  "savesList": "存档列表"
 }

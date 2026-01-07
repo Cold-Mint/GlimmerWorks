@@ -46,6 +46,12 @@ namespace glimmer {
         std::string cantFindObject;
         std::string teleportEntity;
         std::string mapManifestIsNull;
+        std::string savedGames;
+        std::string loadGame;
+        std::string deleteGame;
+        std::string confirm;
+        std::string wantDeleteThisSave;
+        std::string savesList;
     };
 }
 

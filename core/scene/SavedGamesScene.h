@@ -9,6 +9,7 @@
 
 namespace glimmer {
     class SavedGamesScene : public Scene {
+        int selected_save_index = -1;
     public:
         explicit SavedGamesScene(AppContext *context)
             : Scene(context) {

@@ -93,7 +93,7 @@ namespace glimmer {
          * @param amount
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Item> TakeItem(size_t index,size_t amount);
+        [[nodiscard]] std::unique_ptr<Item> TakeItem(size_t index,size_t amount) const;
 
         /**
          * Swap Item

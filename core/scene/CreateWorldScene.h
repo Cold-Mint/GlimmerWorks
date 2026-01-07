@@ -4,21 +4,28 @@
 
 #ifndef GLIMMERWORKS_CREATEWORLDSCENE_H
 #define GLIMMERWORKS_CREATEWORLDSCENE_H
+#include <string>
+
 #include "Scene.h"
 
 namespace glimmer {
     class CreateWorldScene : public Scene {
     public:
-        char world_name[128];
-        char seed_str[64];
+        std::string worldName_;
+        std::string seedStr_;
 
         explicit CreateWorldScene(AppContext *context)
-            : Scene(context), world_name{}, seed_str{} {
+            : Scene(context) {
+            const int newSeed = RandomSeed();
+            seedStr_ = std::to_string(newSeed);
+            worldName_ = RandomName();
         }
 
         void CreateWorld() const;
 
         static int RandomSeed();
+
+        std::string RandomName() const;
 
         bool HandleEvent(const SDL_Event &event) override;
 

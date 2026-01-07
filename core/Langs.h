@@ -5,6 +5,7 @@
 #ifndef GLIMMERWORKS_LANGS_H
 #define GLIMMERWORKS_LANGS_H
 #include <string>
+#include <vector>
 
 namespace glimmer {
     struct LangsResources {
@@ -45,13 +46,14 @@ namespace glimmer {
         std::string failedToLoadLicense;
         std::string cantFindObject;
         std::string teleportEntity;
-        std::string mapManifestIsNull;
         std::string savedGames;
         std::string loadGame;
         std::string deleteGame;
         std::string confirm;
         std::string wantDeleteThisSave;
         std::string savesList;
+        std::vector<std::string> worldNamePrefix;
+        std::vector<std::string> worldNameSuffix;
     };
 }
 

@@ -126,7 +126,7 @@ set(GLIMMERWORKS_SOURCES
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_draw.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_widgets.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_tables.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_demo.cpp"
+        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/misc/cpp/imgui_stdlib.cpp"
         # SDL3 backend
         # SDL3 后端
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/backends/imgui_impl_sdl3.cpp"

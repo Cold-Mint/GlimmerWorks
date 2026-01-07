@@ -166,12 +166,13 @@ int main() {
     langsResources.failedToLoadLicense = jsonObject["failedToLoadLicense"].get<std::string>();
     langsResources.cantFindObject = jsonObject["cantFindObject"].get<std::string>();
     langsResources.teleportEntity = jsonObject["teleportEntity"].get<std::string>();
-    langsResources.mapManifestIsNull = jsonObject["mapManifestIsNull"].get<std::string>();
     langsResources.loadGame = jsonObject["loadGame"].get<std::string>();
     langsResources.deleteGame = jsonObject["deleteGame"].get<std::string>();
     langsResources.confirm = jsonObject["confirm"].get<std::string>();
     langsResources.wantDeleteThisSave = jsonObject["wantDeleteThisSave"].get<std::string>();
     langsResources.savesList = jsonObject["savesList"].get<std::string>();
+    langsResources.worldNamePrefix = jsonObject["worldNamePrefix"].get<std::vector<std::string>>();
+    langsResources.worldNameSuffix = jsonObject["worldNameSuffix"].get<std::vector<std::string>>();
     DynamicSuggestionsManager dynamicSuggestionsManager;
     dynamicSuggestionsManager.RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
     dynamicSuggestionsManager.RegisterDynamicSuggestions(

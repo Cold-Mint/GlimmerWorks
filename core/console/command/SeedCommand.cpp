@@ -14,13 +14,8 @@ bool glimmer::SeedCommand::Execute(CommandArgs commandArgs, std::function<void(c
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    auto mapManifest = worldContext_->GetSaves()->ReadMapManifest();
-    if (mapManifest.has_value()) {
-        onMessage(std::to_string(mapManifest.value().seed()));
-        return true;
-    }
-    onMessage(appContext_->GetLangsResources()->mapManifestIsNull);
-    return false;
+    onMessage(std::to_string(worldContext_->GetSeed()));
+    return true;
 }
 
 void glimmer::SeedCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {

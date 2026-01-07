@@ -6,27 +6,26 @@
 
 #include <filesystem>
 #include <random>
-#include <fstream>
 
 #include "../Config.h"
 #include "AppContext.h"
 #include "HomeScene.h"
 #include "imgui.h"
+#include "misc/cpp/imgui_stdlib.h"
 #include "WorldScene.h"
 #include "../log/LogCat.h"
 #include "../saves/Saves.h"
-#include "fmt/base.h"
 #include "nlohmann/json.hpp"
 #include "SDL3/SDL_log.h"
 namespace fs = std::filesystem;
 
 void glimmer::CreateWorldScene::CreateWorld() const {
-    std::string name = world_name;
+    std::string name = worldName_;
     if (name.empty()) {
         SDL_Log("The name of the world cannot be empty!");
         return;
     }
-    const std::string seed_input = seed_str;
+    const std::string seed_input = seedStr_;
     int seed_value = 0;
     try {
         seed_value = std::stoi(seed_input);
@@ -57,6 +56,26 @@ int glimmer::CreateWorldScene::RandomSeed() {
     return static_cast<int>(rng());
 }
 
+std::string glimmer::CreateWorldScene::RandomName() const {
+    const std::vector<std::string> &prefixList = appContext->GetLangsResources()->worldNamePrefix;
+    const std::vector<std::string> &suffixList = appContext->GetLangsResources()->worldNameSuffix;
+    if (prefixList.empty()) {
+        throw std::runtime_error("CreateWorldScene::RandomName: worldNamePrefix is empty");
+    }
+    if (suffixList.empty()) {
+        throw std::runtime_error("CreateWorldScene::RandomName: worldNameSuffix is empty");
+    }
+    std::mt19937 randomEngine(std::random_device{}());
+    std::uniform_int_distribution<size_t> prefixDist(0, prefixList.size() - 1);
+    const size_t randomPrefixIdx = prefixDist(randomEngine);
+    std::uniform_int_distribution<size_t> suffixDist(0, suffixList.size() - 1);
+    const size_t randomSuffixIdx = suffixDist(randomEngine);
+    if (appContext->GetLanguage()->compare(0, 2, "en") == 0) {
+        return prefixList[randomPrefixIdx] + " " + suffixList[randomSuffixIdx];
+    }
+    return prefixList[randomPrefixIdx] + suffixList[randomSuffixIdx];
+}
+
 bool glimmer::CreateWorldScene::HandleEvent(const SDL_Event &event) {
     return false;
 }
@@ -73,15 +92,18 @@ void glimmer::CreateWorldScene::Update(float delta) {
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
     ImGui::TextUnformatted(langsResources->worldName.c_str());
-    ImGui::InputText("##WorldName", world_name, IM_ARRAYSIZE(world_name));
+    ImGui::InputText("##WorldName", &worldName_);
+    ImGui::SameLine();
+    if (ImGui::Button((langsResources->random + "##randomWorldName").c_str())) {
+        worldName_ = RandomName();
+    }
 
     ImGui::TextUnformatted(langsResources->seed.c_str());
-    ImGui::InputText("##Seed", seed_str, IM_ARRAYSIZE(seed_str));
+    ImGui::InputText("##Seed", &seedStr_);
     ImGui::SameLine();
-    if (ImGui::Button(langsResources->random.c_str())) {
+    if (ImGui::Button((langsResources->random + "##randomSeed").c_str())) {
         const int newSeed = RandomSeed();
-        //skipcq: CXX-C1000
-        (void) snprintf(seed_str, sizeof(seed_str), "%d", newSeed);
+        seedStr_ = std::to_string(newSeed);
     }
 
     ImGui::Spacing();

@@ -81,7 +81,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeAllItem(const size_t 
     return std::move(items_[index]);
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const size_t index, const size_t amount) {
+std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const size_t index, const size_t amount) const {
     if (index >= items_.size()) {
         return nullptr;
     }
@@ -89,17 +89,11 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const size_t ind
     if (item == nullptr) {
         return nullptr;
     }
+    std::unique_ptr<Item> newItem = item->Clone();
     const size_t removedAmount = item->RemoveAmount(amount);
     if (removedAmount == 0) {
         return nullptr;
     }
-    if (item->GetAmount() == 0) {
-        //All the items have been taken.
-        //物品被取完了。
-        item->SetAmount(removedAmount);
-        return std::move(items_[index]);
-    }
-    std::unique_ptr<Item> newItem = item->Clone();
     newItem->SetAmount(removedAmount);
     return newItem;
 }

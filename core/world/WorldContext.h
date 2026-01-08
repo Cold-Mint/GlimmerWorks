@@ -126,37 +126,37 @@ namespace glimmer {
         /**
          * 用于生成大陆的噪声生成器
          */
-        FastNoiseLite *continentHeightMapNoise;
+        std::unique_ptr<FastNoiseLite> continentHeightMapNoise;
         /**
          * 用于生成山脉的噪声生成器
          */
-        FastNoiseLite *mountainHeightMapNoise;
+        std::unique_ptr<FastNoiseLite> mountainHeightMapNoise;
         /**
          * 用于丘陵的噪声生成器
          */
-        FastNoiseLite *hillsNoiseHeightMapNoise;
+        std::unique_ptr<FastNoiseLite> hillsNoiseHeightMapNoise;
 
         /**
          * 湿度噪声生成器
          */
-        FastNoiseLite *humidityMapNoise;
+        std::unique_ptr<FastNoiseLite> humidityMapNoise;
 
         /**
          * Odd value noise generator
          * 怪异值噪声生成器
          */
-        FastNoiseLite *weirdnessMapNoise;
+        std::unique_ptr<FastNoiseLite> weirdnessMapNoise;
 
         /**
          * Erosion noise generator
          * 侵蚀噪声生成器
          */
-        FastNoiseLite *erosionMapNoise;
+        std::unique_ptr<FastNoiseLite> erosionMapNoise;
 
         /**
          * 温度噪声生成器
          */
-        FastNoiseLite *temperatureMapNoise;
+        std::unique_ptr<FastNoiseLite> temperatureMapNoise;
 
         std::vector<std::unique_ptr<GameSystem> > activeSystems;
         std::vector<std::unique_ptr<GameSystem> > inactiveSystems;
@@ -183,25 +183,14 @@ namespace glimmer {
 
     public:
         ~WorldContext() {
-            delete weirdnessMapNoise;
-            weirdnessMapNoise = nullptr;
-            delete erosionMapNoise;
-            erosionMapNoise = nullptr;
-            delete continentHeightMapNoise;
-            continentHeightMapNoise = nullptr;
-            delete mountainHeightMapNoise;
-            mountainHeightMapNoise = nullptr;
-            delete hillsNoiseHeightMapNoise;
-            hillsNoiseHeightMapNoise = nullptr;
-            delete humidityMapNoise;
-            humidityMapNoise = nullptr;
-            delete temperatureMapNoise;
-            temperatureMapNoise = nullptr;
+            activeSystems.clear();
+            inactiveSystems.clear();
+            entityComponents.clear();
             b2DestroyWorld(worldId_);
             worldId_ = b2_nullWorldId;
             for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
                 if (command->RequiresWorldContext()) {
-                    command->BindWorldContext(this);
+                    command->UnBindWorldContext();
                 }
             }
         }
@@ -459,33 +448,33 @@ namespace glimmer {
         explicit WorldContext(AppContext *appContext, const int seed, Saves *saves) : seed(seed),
             saves(saves) {
             // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
-            continentHeightMapNoise = new FastNoiseLite();
+            continentHeightMapNoise = std::make_unique<FastNoiseLite>();
             continentHeightMapNoise->SetSeed(seed);
             continentHeightMapNoise->SetFrequency(0.005F); // 极低频，用于大型板块
             continentHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
             // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
-            mountainHeightMapNoise = new FastNoiseLite();
+            mountainHeightMapNoise = std::make_unique<FastNoiseLite>();
             mountainHeightMapNoise->SetSeed(seed + 1); // 不同的种子
             mountainHeightMapNoise->SetFrequency(0.01F); // 低频，用于主要地形
             mountainHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
             // 3. 丘陵/细节噪声 (中频) - 控制平原和丘陵的细节
-            hillsNoiseHeightMapNoise = new FastNoiseLite();
+            hillsNoiseHeightMapNoise = std::make_unique<FastNoiseLite>();
             hillsNoiseHeightMapNoise->SetSeed(seed + 2); // 不同的种子
             hillsNoiseHeightMapNoise->SetFrequency(0.02F); // 中频，用于细节
             hillsNoiseHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-            humidityMapNoise = new FastNoiseLite();
+            humidityMapNoise = std::make_unique<FastNoiseLite>();
             humidityMapNoise->SetSeed(seed + 100);
             humidityMapNoise->SetFrequency(0.005F);
             humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-            temperatureMapNoise = new FastNoiseLite();
+            temperatureMapNoise = std::make_unique<FastNoiseLite>();
             temperatureMapNoise->SetSeed(seed + 200);
             temperatureMapNoise->SetFrequency(0.01F);
             temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-            weirdnessMapNoise = new FastNoiseLite();
+            weirdnessMapNoise = std::make_unique<FastNoiseLite>();
             weirdnessMapNoise->SetSeed(seed + 300);
             weirdnessMapNoise->SetFrequency(0.02F);
             weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-            erosionMapNoise = new FastNoiseLite();
+            erosionMapNoise = std::make_unique<FastNoiseLite>();
             erosionMapNoise->SetSeed(seed + 400);
             erosionMapNoise->SetFrequency(0.003F);
             erosionMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
@@ -579,7 +568,7 @@ namespace glimmer {
         for (auto &c: components) {
             if (auto ptr = dynamic_cast<TComponent *>(c.get())) {
                 RemoveComponentInternal(id, ptr);
-                break; // 删除第一个匹配的
+                break;
             }
         }
     }

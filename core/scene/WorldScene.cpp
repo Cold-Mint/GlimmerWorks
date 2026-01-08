@@ -12,6 +12,10 @@ bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
     return worldContext_->HandleEvent(event);
 }
 
+bool glimmer::WorldScene::OnBackPressed() {
+    return worldContext_->OnBackPressed();
+}
+
 void glimmer::WorldScene::Update(float delta) {
     worldContext_->Update(delta);
 }

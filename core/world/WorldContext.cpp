@@ -390,6 +390,22 @@ void glimmer::WorldContext::Update(const float delta) const {
     }
 }
 
+bool glimmer::WorldContext::OnBackPressed() const {
+    bool handled = false;
+    for (auto &system: activeSystems) {
+        if (system == nullptr) {
+            continue;
+        }
+        if (!running && !system->CanRunWhilePaused()) {
+            continue;
+        }
+        if (system->OnBackPressed()) {
+            handled = true;
+        }
+    }
+    return handled;
+}
+
 void glimmer::WorldContext::Render(SDL_Renderer *renderer) const {
     std::vector<GameSystem *> systemsToRender;
     systemsToRender.reserve(activeSystems.size());

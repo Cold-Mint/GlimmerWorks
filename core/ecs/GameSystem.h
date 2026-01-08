@@ -87,6 +87,8 @@ namespace glimmer {
 
         virtual bool HandleEvent(const SDL_Event &event);
 
+        virtual bool OnBackPressed();
+
         virtual void Update(float delta);
 
         virtual uint8_t GetRenderOrder();

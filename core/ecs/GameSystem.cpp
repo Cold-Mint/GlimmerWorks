@@ -48,6 +48,10 @@ bool glimmer::GameSystem::HandleEvent(const SDL_Event &event) {
     return false;
 }
 
+bool glimmer::GameSystem::OnBackPressed() {
+    return false;
+}
+
 void glimmer::GameSystem::Update(float delta) {
 }
 

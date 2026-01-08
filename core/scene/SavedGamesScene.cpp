@@ -38,6 +38,12 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
     if (ImGui::Button(appContext->GetLangsResources()->createWorld.c_str())) {
         appContext->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext));
     }
+    ImGui::SameLine();
+    if (ImGui::Button(appContext->GetLangsResources()->cancel.c_str())) {
+        ImGui::End();
+        appContext->GetSceneManager()->PopScene();
+        return;
+    }
 
     ImGui::Separator();
 

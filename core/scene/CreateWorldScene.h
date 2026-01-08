@@ -25,7 +25,7 @@ namespace glimmer {
 
         static int RandomSeed();
 
-        std::string RandomName() const;
+        [[nodiscard]] std::string RandomName() const;
 
         bool HandleEvent(const SDL_Event &event) override;
 

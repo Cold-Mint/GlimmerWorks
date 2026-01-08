@@ -24,6 +24,8 @@ namespace glimmer {
 
         bool HandleEvent(const SDL_Event &event) override;
 
+        bool OnBackPressed() override;
+
         void Update(float delta) override;
 
         void Render(SDL_Renderer *renderer) override;

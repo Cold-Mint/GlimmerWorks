@@ -59,21 +59,16 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
         ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
 
         if (ImGui::Button(appContext_->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0))) {
-
+            appContext_->GetSceneManager()->PopScene();
         }
     }
 
     ImGui::End();
 }
 
-bool glimmer::PauseSystem::HandleEvent(const SDL_Event &event) {
-    if (event.type == SDL_EVENT_KEY_DOWN) {
-        if (event.key.key == SDLK_ESCAPE && !event.key.repeat) {
-            worldContext_->SetRuning(!worldContext_->IsRuning());
-            return true;
-        }
-    }
-    return GameSystem::HandleEvent(event);
+bool glimmer::PauseSystem::OnBackPressed() {
+    worldContext_->SetRuning(!worldContext_->IsRuning());
+    return true;
 }
 
 bool glimmer::PauseSystem::CanRunWhilePaused() const {

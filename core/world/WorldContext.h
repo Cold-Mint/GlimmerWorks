@@ -348,6 +348,8 @@ namespace glimmer {
 
         void Update(float delta) const;
 
+        bool OnBackPressed() const;
+
         void Render(SDL_Renderer *renderer) const;
 
         void OnFrameStart();

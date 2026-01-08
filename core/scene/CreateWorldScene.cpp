@@ -47,7 +47,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     manifest.totalPlayTime = 0;
     Saves *saves = appContext->GetSavesManager()->Create(manifest);
     appContext->GetSceneManager()->
-            PushScene(std::make_unique<WorldScene>(
+            ReplaceScene(std::make_unique<WorldScene>(
                 appContext, std::make_unique<WorldContext>(appContext, seed_value, saves)));
 }
 

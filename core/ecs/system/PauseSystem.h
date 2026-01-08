@@ -22,7 +22,8 @@ namespace glimmer {
 
         void Render(SDL_Renderer *renderer) override;
 
-        bool HandleEvent(const SDL_Event &event) override;
+
+        bool OnBackPressed() override;
 
         [[nodiscard]] bool CanRunWhilePaused() const override;
 

@@ -21,7 +21,7 @@ namespace glimmer {
     class ConsoleOverlay : public Scene {
         bool show_ = false;
         bool focusNextFrame_ = false;
-        std::array<char, 256> inputBuffer_ = {};
+        std::string command_;
         std::mutex messagesMutex_;
         std::vector<std::string> messages_;
         std::vector<std::string> commandSuggestions_;

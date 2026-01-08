@@ -10,6 +10,7 @@
 #include "../Config.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "fmt/color.h"
+#include "misc/cpp/imgui_stdlib.h"
 
 void glimmer::ConsoleOverlay::SetLastCursorPos(const int cursorPos) {
     lastCursorPos_ = cursorPos;
@@ -128,11 +129,10 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
 
 void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion) {
     const int cursorPos = lastCursorPos_;
-    const std::string currentText(inputBuffer_.data(), strnlen(inputBuffer_.data(), inputBuffer_.size()));
     // Find beforeCursor
     int leftSpacePos = -1;
     for (int i = cursorPos - 1; i >= 0; --i) {
-        if (currentText[i] == ' ') {
+        if (command_[i] == ' ') {
             leftSpacePos = i;
             break;
         }
@@ -140,13 +140,13 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
 
     std::string beforeCursor;
     if (leftSpacePos >= 0) {
-        beforeCursor = currentText.substr(0, leftSpacePos + 1);
+        beforeCursor = command_.substr(0, leftSpacePos + 1);
     }
 
     // Find afterCursor
     int rightSpacePos = -1;
-    for (int i = cursorPos; i < static_cast<int>(currentText.size()); ++i) {
-        if (currentText[i] == ' ') {
+    for (int i = cursorPos; i < static_cast<int>(command_.size()); ++i) {
+        if (command_[i] == ' ') {
             rightSpacePos = i;
             break;
         }
@@ -154,7 +154,7 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
 
     std::string afterCursor;
     if (rightSpacePos >= 0) {
-        afterCursor = currentText.substr(rightSpacePos);
+        afterCursor = command_.substr(rightSpacePos);
     }
 
     // Construct newText efficiently
@@ -165,9 +165,9 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
     newText.append(afterCursor);
 
     // Update input buffer
-    if (newText.length() < inputBuffer_.size()) {
-        std::ranges::fill(inputBuffer_, '\0');
-        std::ranges::copy(newText, inputBuffer_.begin());
+    if (newText.length() < command_.size()) {
+        std::ranges::fill(command_, '\0');
+        std::ranges::copy(newText, command_.begin());
         lastCursorPos_ = static_cast<int>(beforeCursor.size()) + static_cast<int>(suggestion.length());
         nextCursorPos_ = lastCursorPos_;
     }
@@ -384,15 +384,14 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         ImGui::SetKeyboardFocusHere();
         focusNextFrame_ = false;
     }
-    if (ImGui::InputText("##Input", inputBuffer_.data(), inputBuffer_.size(), ImGuiInputTextFlags_EnterReturnsTrue |
-                                                                              ImGuiInputTextFlags_CallbackAlways,
+    if (ImGui::InputText("##Input", &command_, ImGuiInputTextFlags_EnterReturnsTrue |
+                                               ImGuiInputTextFlags_CallbackAlways,
                          &ConsoleOverlay::InputCallback, this)) {
         //It is executed when the player presses the Enter key.
         //当玩家按下Enter键后执行。
-        if (inputBuffer_[0] != '\0') {
-            const std::string cmdStr(inputBuffer_.data(), strnlen(inputBuffer_.data(), inputBuffer_.size()));
-            addMessage("> " + cmdStr);
-            CommandExecutor::ExecuteAsync(cmdStr, appContext->GetCommandManager(),
+        if (command_[0] != '\0') {
+            addMessage("> " + command_);
+            CommandExecutor::ExecuteAsync(command_, appContext->GetCommandManager(),
                                           [this](const CommandResult result, const std::string &cmd) {
                                               std::string message;
                                               std::string pattern;
@@ -419,7 +418,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                                               addMessage(text);
                                           });
         }
-        inputBuffer_.fill('\0');
+        command_.clear();
 #ifdef __ANDROID__
         focusNextFrame_ = false;
 #else

@@ -8,12 +8,12 @@
 
 #include "../log/LogCat.h"
 
-void glimmer::CommandExecutor::ExecuteAsync(std::string command, CommandManager *commandManager,
+void glimmer::CommandExecutor::ExecuteAsync(const std::string &command, CommandManager *commandManager,
                                             const std::function<void(CommandResult result, const std::string &command)>
                                             &
                                             onFinished,
                                             const std::function<void(const std::string &text)> &onMessage) {
-    std::string cmdStr = std::move(command);
+    std::string cmdStr = command;
     std::thread([cmdStr, commandManager,onMessage, onFinished]() mutable {
         cmdStr.erase(0, cmdStr.find_first_not_of(" \t\n\r"));
         cmdStr.erase(cmdStr.find_last_not_of(" \t\n\r") + 1);

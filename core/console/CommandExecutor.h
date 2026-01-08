@@ -14,9 +14,10 @@
 namespace glimmer {
     class CommandExecutor {
     public:
-        static void ExecuteAsync(std::string command, CommandManager *commandManager,
-                                 const std::function<void(CommandResult result, const std::string &command)>& onFinished,
-                                 const std::function<void(const std::string &text)>& onMessage = nullptr);
+        static void ExecuteAsync(const std::string &command, CommandManager *commandManager,
+                                 const std::function<void(CommandResult result, const std::string &command)> &
+                                 onFinished,
+                                 const std::function<void(const std::string &text)> &onMessage = nullptr);
     };
 }
 

@@ -148,7 +148,7 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
     if (DragAndDrop::IsDragging()) {
         DragAndDrop::RenderCombined(renderer);
     }
-    appContext_->RestoreColorRenderer(renderer);
+    AppContext::RestoreColorRenderer(renderer);
 }
 
 uint8_t glimmer::ItemModEditorSystem::GetRenderOrder() {

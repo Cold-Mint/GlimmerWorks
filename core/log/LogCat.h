@@ -10,7 +10,9 @@
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif
-
+#if !defined(__ANDROID__) && defined(__linux__) && !defined(NDEBUG)
+#include <spawn.h>
+#endif
 #define COLOR_RESET   "\033[0m"
 #define COLOR_INFO    "\033[32m"  // Green 绿色
 #define COLOR_DEBUG   "\033[36m"  // Cyan 青色
@@ -83,14 +85,39 @@ namespace glimmer {
 #endif
         }
 
+
+#if !defined(__ANDROID__) && defined(__linux__) && !defined(NDEBUG)
+        static void NotifySend(const std::string &text) {
+            pid_t pid;
+
+            const char *argv[] = {
+                "notify-send",
+                "GlimmerWorks",
+                text.c_str(),
+                nullptr
+            };
+
+            if (posix_spawnp(
+                    &pid,
+                    "notify-send",
+                    nullptr,
+                    nullptr,
+                    const_cast<char * const*>(argv),
+                    environ
+                ) != 0) {
+                // spawn failed
+                // spawn 失败
+                return;
+            }
+        }
+#endif
+
         template<typename... Args>
         static void e(Args &&... args) {
 #if !defined(__ANDROID__) && defined(__linux__) && !defined(NDEBUG)
             std::ostringstream oss;
             (oss << ... << args);
-            std::string cmd =
-                    "notify-send 'GlimmerWorks' '[" + CurrentTime() + "]" + oss.str() + "'";
-            std::system(cmd.c_str());
+            NotifySend(oss.str());
 #endif
 #ifdef __ANDROID__
             std::ostringstream oss;

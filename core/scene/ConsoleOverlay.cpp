@@ -74,7 +74,7 @@ int glimmer::ConsoleOverlay::GetLastCursorPos() const {
 
 bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
-        if (event.key.scancode == SDL_SCANCODE_GRAVE) {
+        if (event.key.scancode == SDL_SCANCODE_GRAVE && !event.key.repeat) {
             show_ = !show_;
             if (show_) {
                 focusNextFrame_ = true;

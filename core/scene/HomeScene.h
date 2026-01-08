@@ -34,6 +34,8 @@ namespace glimmer {
 
         void generateStars();
 
+        bool OnBackPressed() override;
+
         ~HomeScene() override;
     };
 }

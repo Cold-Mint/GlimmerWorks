@@ -35,6 +35,15 @@ namespace glimmer {
         virtual void OnFrameStart();
 
 
+        /**
+         * This method is called when the back key is pressed. On Android systems, navigate up; on desktop platforms, press ESC.
+         * 当返回键被按下时调用这个方法，安卓系统向上导航，桌面平台按下ESC。
+         *
+         * @return If true is returned, inform the framework scenario that it has handled the returned event by itself. 如果返回true，告诉框架场景自行处理了返回事件。
+         */
+        virtual bool OnBackPressed();
+
+
         virtual ~Scene() = default;
 
         explicit Scene(AppContext *context) : appContext(context) {

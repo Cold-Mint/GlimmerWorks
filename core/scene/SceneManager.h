@@ -4,6 +4,8 @@
 
 #ifndef GLIMMERWORKS_SCENEMANAGER_H
 #define GLIMMERWORKS_SCENEMANAGER_H
+#include <memory>
+#include <stack>
 #include <vector>
 
 #include "Scene.h"
@@ -14,9 +16,9 @@ namespace glimmer {
      * 场景管理器
      */
     class SceneManager {
-        Scene *scene = nullptr;
-        std::vector<Scene *> overlayScenes;
-        Scene *pendingScene = nullptr;
+        std::stack<std::unique_ptr<Scene> > sceneStack_;
+        std::vector<std::unique_ptr<Scene> > overlayScenes_;
+        std::vector<Scene *> overlayScenesPtr_;
         /**
          * Are there any scenarios that need to be mounted
          * 是否有需要挂载的场景
@@ -29,14 +31,14 @@ namespace glimmer {
          * 添加叠加层
          * @param overlay 场景 scene
          */
-        void AddOverlayScene(Scene *overlay);
+        void AddOverlayScene(std::unique_ptr<Scene> overlay);
 
         /**
          * remove overlay scene
          * 移除叠加层
          * @param overlay 场景 scene
          */
-        void RemoveOverlayScene(Scene *overlay);
+        void RemoveOverlayScene(const Scene *overlay);
 
 
         /**
@@ -47,27 +49,39 @@ namespace glimmer {
         [[nodiscard]] const std::vector<Scene *> &GetOverlayScenes() const;
 
         /**
-         * Change the scene.
-         * 改变场景。
-         * The set scene will enter the pending mount state. It will be automatically mounted in the next frame.
-         * 设置的场景会进入待挂载状态。会在下一帧自动挂载。
-         * @param sc New scene 新场景
+         * PushScene
+         * 压入场景
+         * @param scene
          */
-        void ChangeScene(Scene *sc);
+        void PushScene(std::unique_ptr<Scene> scene);
 
         /**
-         * Apply the pending scene.
-         * 应用待挂场景。
+         * Replace the scene
+         * 替换场景
+         * @param scene
          */
-        void ApplyPendingScene();
-
+        void ReplaceScene(std::unique_ptr<Scene> scene);
 
         /**
-         * Get the current scene
-         * 获取当前的场景
+         * PopScene
+         * 弹出场景
+         */
+        void PopScene();
+
+        /**
+         * The scene of obtaining the top of the stack
+         * 获取栈顶的场景
          * @return Scene 场景
          */
-        [[nodiscard]] Scene *GetScene() const;
+        [[nodiscard]] Scene *GetTopScene() const;
+
+
+        /**
+         * Get how many scenes there are
+         * 获取有多少个场景
+         * @return
+         */
+        [[nodiscard]] size_t GetSceneCount() const;
     };
 }
 

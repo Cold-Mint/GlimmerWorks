@@ -5,3 +5,7 @@
 
 void glimmer::Scene::OnFrameStart() {
 }
+
+bool glimmer::Scene::OnBackPressed() {
+    return false;
+}

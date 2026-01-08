@@ -57,11 +57,11 @@ namespace glimmer {
         ItemManager *itemManager_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
-        bool isRunning;
+        bool isRunning = true;
         std::thread::id mainThreadId_;
 
     public:
-        AppContext(const bool run, SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
+        AppContext(SceneManager *sm, std::string *lang, DataPackManager *dpm, ResourcePackManager *rpm,
                    Config *cfg,
                    StringManager *stringManager,
                    CommandManager *commandManager, CommandExecutor *commandExecutor, LangsResources *langs,
@@ -74,7 +74,7 @@ namespace glimmer {
               ttfFont_(nullptr), commandExecutor_(commandExecutor), resourcePackManager_(rpm), langs_(langs),
               dynamicSuggestionsManager_(dynamicSuggestionsManager), virtualFileSystem_(virtualFileSystem),
               tilePlacerManager_(tilePlacerManager),
-              resourceLocator_(resourceLocator), itemManager_(itemManager), isRunning(run) {
+              resourceLocator_(resourceLocator), itemManager_(itemManager) {
             mainThreadId_ = std::this_thread::get_id();
         }
 

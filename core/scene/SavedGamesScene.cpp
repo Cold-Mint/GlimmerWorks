@@ -36,7 +36,7 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
 
     ImGui::TextUnformatted(appContext->GetLangsResources()->savedGames.c_str());
     if (ImGui::Button(appContext->GetLangsResources()->createWorld.c_str())) {
-        appContext->GetSceneManager()->ChangeScene(new CreateWorldScene(appContext));
+        appContext->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext));
     }
 
     ImGui::Separator();
@@ -74,8 +74,8 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
             auto saves = savesManager->GetSave(selected_save_index);
             auto manifest = savesManager->GetMapManifest(selected_save_index);
             if (saves && manifest) {
-                appContext->GetSceneManager()->ChangeScene(
-                    new WorldScene(appContext, std::make_unique<WorldContext>(appContext, manifest->seed, saves)));
+                appContext->GetSceneManager()->PushScene(std::make_unique<WorldScene>(
+                    appContext, std::make_unique<WorldContext>(appContext, manifest->seed, saves)));
             }
         }
         ImGui::SameLine();
@@ -83,7 +83,8 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
             ImGui::OpenPopup(appContext->GetLangsResources()->deleteGame.c_str());
         }
 
-        if (ImGui::BeginPopupModal(appContext->GetLangsResources()->deleteGame.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        if (ImGui::BeginPopupModal(appContext->GetLangsResources()->deleteGame.c_str(), nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize)) {
             ImGui::TextUnformatted(appContext->GetLangsResources()->wantDeleteThisSave.c_str());
             ImGui::Separator();
 

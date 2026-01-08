@@ -112,7 +112,7 @@ bool glimmer::App::init() {
         return false;
     }
     LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
-    appContext->RestoreColorRenderer(renderer_);
+    AppContext::RestoreColorRenderer(renderer_);
     return true;
 }
 
@@ -123,29 +123,48 @@ void glimmer::App::run() const {
     LogCat::i("Entering main loop...");
     auto sceneManager = appContext->GetSceneManager();
     auto config = appContext->GetConfig();
-    sceneManager->ChangeScene(new SplashScene(appContext));
-    sceneManager->AddOverlayScene(new ConsoleOverlay(appContext));
-    sceneManager->AddOverlayScene(new DebugOverlay(appContext));
+    sceneManager->PushScene(std::make_unique<SplashScene>(appContext));
+    sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext));
+    sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext));
     auto &overlayScenes = sceneManager->GetOverlayScenes();
-    while (appContext->Running()) {
+    while (appContext->Running() && sceneManager->GetSceneCount() > 0) {
         //The time interval of the target (in seconds)
         //目标的时间间隔（以秒为单位）
         const float targetFrameTime = 1.0F / config->window.framerate;
         //Target frame time (in milliseconds)
         //目标帧时间（毫秒为单位）
         const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
-        sceneManager->ApplyPendingScene();
         for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
             overlayScene->OnFrameStart();
         }
         appContext->ProcessMainThreadTasks();
-        sceneManager->GetScene()->OnFrameStart();
+        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+            topScene->OnFrameStart();
+        }
         while (SDL_PollEvent(&event)) {
 #ifdef __ANDROID__
             if (event.type == SDL_EVENT_KEY_DOWN &&
                 event.key.key == SDLK_AC_BACK) {
+                if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+                    if (!topScene->OnBackPressed()) {
+                        sceneManager->PopScene();
+                        break;
+                    }
+                }
+            }
+#else
+            if (event.type == SDL_EVENT_KEY_DOWN) {
+                if (event.key.key == SDLK_ESCAPE && !event.key.repeat) {
+                    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+                        if (!topScene->OnBackPressed()) {
+                            sceneManager->PopScene();
+                            break;
+                        }
+                    }
+                }
             }
 #endif
+
             if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
                 appContext->ExitApp();
@@ -158,9 +177,14 @@ void glimmer::App::run() const {
                         break;
                     }
                 }
-                if (!handled && sceneManager->GetScene()->HandleEvent(event)) {
-                    handled = true;
-                    LogCat::w("Main scene handled event, stopping propagation.");
+                if (!handled) {
+                    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+                        if (topScene->
+                            HandleEvent(event)) {
+                            handled = true;
+                            LogCat::w("Main scene handled event, stopping propagation.");
+                        }
+                    }
                 }
                 if (!handled) {
                     ImGui_ImplSDL3_ProcessEvent(&event);
@@ -173,17 +197,24 @@ void glimmer::App::run() const {
         for (const auto overlay: overlayScenes) {
             overlay->Update(deltaTime);
         }
-        sceneManager->GetScene()->Update(deltaTime);
+        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+            topScene->Update(deltaTime);
+        }
+
         SDL_RenderClear(renderer_);
 #if  defined(NDEBUG)
-        sceneManager->GetScene()->Render(renderer_);
+        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+            topScene->Render(renderer_);
+        }
         for (const auto overlay: overlayScenes) {
             overlay->Render(renderer_);
         }
 #else
         SDL_Color oldColor;
         SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-        sceneManager->GetScene()->Render(renderer_);
+        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+            topScene->Render(renderer_);
+        }
         SDL_Color newColor;
         SDL_GetRenderDrawColor(renderer_, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
         if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.

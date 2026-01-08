@@ -174,8 +174,8 @@ int main() {
     langsResources.pause = jsonObject["pause"].get<std::string>();
     langsResources.restore = jsonObject["restore"].get<std::string>();
     langsResources.saveAndExit = jsonObject["saveAndExit"].get<std::string>();
-    langsResources.worldNamePrefix = jsonObject["worldNamePrefix"].get<std::vector<std::string>>();
-    langsResources.worldNameSuffix = jsonObject["worldNameSuffix"].get<std::vector<std::string>>();
+    langsResources.worldNamePrefix = jsonObject["worldNamePrefix"].get<std::vector<std::string> >();
+    langsResources.worldNameSuffix = jsonObject["worldNameSuffix"].get<std::vector<std::string> >();
     DynamicSuggestionsManager dynamicSuggestionsManager;
     dynamicSuggestionsManager.RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
     dynamicSuggestionsManager.RegisterDynamicSuggestions(
@@ -220,7 +220,7 @@ int main() {
     LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
     SavesManager savesManager(&virtualFileSystem);
     savesManager.LoadAllSaves();
-    AppContext appContext(true, &sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
+    AppContext appContext(&sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                           &stringManager,
                           &commandManager,
                           &commandExecutor, &langsResources, &dynamicSuggestionsManager, &virtualFileSystem,

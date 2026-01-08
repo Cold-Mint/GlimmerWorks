@@ -47,8 +47,8 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     manifest.totalPlayTime = 0;
     Saves *saves = appContext->GetSavesManager()->Create(manifest);
     appContext->GetSceneManager()->
-            ChangeScene(
-                new WorldScene(appContext, std::make_unique<WorldContext>(appContext, seed_value, saves)));
+            PushScene(std::make_unique<WorldScene>(
+                appContext, std::make_unique<WorldContext>(appContext, seed_value, saves)));
 }
 
 int glimmer::CreateWorldScene::RandomSeed() {
@@ -111,7 +111,7 @@ void glimmer::CreateWorldScene::Update(float delta) {
     ImGui::Spacing();
 
     if (ImGui::Button(langsResources->cancel.c_str(), ImVec2(120 * uiScale, 0))) {
-        appContext->GetSceneManager()->ChangeScene(new HomeScene(appContext));
+        appContext->GetSceneManager()->PopScene();
     }
     ImGui::SameLine();
     if (ImGui::Button(langsResources->createWorld.c_str(), ImVec2(120 * uiScale, 0))) {

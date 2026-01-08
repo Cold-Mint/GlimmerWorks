@@ -74,11 +74,10 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->GetLangsResources()->startGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
         if (appContext->GetSavesManager()->GetSavesListSize() == 0) {
-            appContext->GetSceneManager()->ChangeScene(new CreateWorldScene(appContext));
-        }else {
-            appContext->GetSceneManager()->ChangeScene(new SavedGamesScene(appContext));
+            appContext->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext));
+        } else {
+            appContext->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(appContext));
         }
-
     }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->GetLangsResources()->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {
@@ -88,7 +87,7 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-        appContext->ExitApp();
+        OnBackPressed();
     }
 
     ImVec4 white(1.0F, 1.0F, 1.0F, 1.0F);
@@ -97,7 +96,7 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     ImGui::TextColored(white, "%s", GAME_VERSION_STRING);
     ImGui::PopStyleColor();
     ImGui::End();
-    appContext->RestoreColorRenderer(renderer);
+    AppContext::RestoreColorRenderer(renderer);
 }
 
 void glimmer::HomeScene::generateStars() {
@@ -126,6 +125,11 @@ void glimmer::HomeScene::generateStars() {
             static_cast<Uint8>(colorDist(gen)), sizeDist(gen)
         });
     }
+}
+
+bool glimmer::HomeScene::OnBackPressed() {
+    appContext->ExitApp();
+    return true;
 }
 
 

@@ -26,8 +26,7 @@ void glimmer::SplashScene::Update(float delta) {
     }
     if (!sceneJumped && SDL_GetTicks() >= nextSceneTime) {
         sceneJumped = true;
-        LogCat::i("Open Home");
-        appContext->GetSceneManager()->ChangeScene(new HomeScene(appContext));
+        appContext->GetSceneManager()->ReplaceScene(std::make_unique<HomeScene>(appContext));
     }
 }
 

@@ -164,13 +164,9 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
     newText.append(suggestion);
     newText.append(afterCursor);
 
-    // Update input buffer
-    if (newText.length() < command_.size()) {
-        std::ranges::fill(command_, '\0');
-        std::ranges::copy(newText, command_.begin());
-        lastCursorPos_ = static_cast<int>(beforeCursor.size()) + static_cast<int>(suggestion.length());
-        nextCursorPos_ = lastCursorPos_;
-    }
+    command_ = newText;
+    lastCursorPos_ = static_cast<int>(beforeCursor.size()) + static_cast<int>(suggestion.length());
+    nextCursorPos_ = lastCursorPos_;
 
     // Clear suggestions
     commandSuggestions_.clear();

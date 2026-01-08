@@ -653,6 +653,10 @@ int glimmer::WorldContext::GetSeed() const {
     return seed;
 }
 
+long glimmer::WorldContext::GetStartTime() const {
+    return startTime_;
+}
+
 b2WorldId glimmer::WorldContext::GetWorldId() const {
     return worldId_;
 }

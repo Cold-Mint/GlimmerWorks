@@ -59,6 +59,19 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
         ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
 
         if (ImGui::Button(appContext_->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0))) {
+            auto mapManifestMessageData = worldContext_->GetSaves()->ReadMapManifest();
+            if (!mapManifestMessageData.has_value()) {
+                LogCat::e("Error get map Manifest ");
+                return;
+            }
+            const long endTime = TimeUtils::GetCurrentTimeMs();
+            mapManifestMessageData->set_totalplaytime(
+                mapManifestMessageData->totalplaytime() + (endTime - worldContext_->GetStartTime()));
+            mapManifestMessageData->set_lastplayedtime(endTime);
+            if (!worldContext_->GetSaves()->WriteMapManifest(mapManifestMessageData.value())) {
+                LogCat::e("Error update map Manifest ");
+                return;
+            }
             appContext_->GetSceneManager()->PopScene();
         }
     }

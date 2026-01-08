@@ -16,6 +16,7 @@ namespace glimmer {
     class Saves {
         std::string path_;
         VirtualFileSystem *virtualFileSystem_;
+        std::function<void(const MapManifestMessage &)> onMapManifestChanged_;
 
         [[nodiscard]] std::string ToChunkPath(TileVector2D position) const;
 
@@ -23,6 +24,8 @@ namespace glimmer {
         explicit Saves(std::string path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
             virtualFileSystem_(virtualFileSystem) {
         }
+
+        void SetOnMapManifestChanged(const std::function<void(const MapManifestMessage &)> &onMapManifestChanged);
 
         /**
          * Does the archive exist?
@@ -57,6 +60,8 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] std::optional<MapManifestMessage> ReadMapManifest() const;
+
+        [[nodiscard]] bool WriteMapManifest(const MapManifestMessage &mapManifestMessage) const;
     };
 }
 

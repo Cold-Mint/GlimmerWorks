@@ -9,10 +9,14 @@
 #include "../log/LogCat.h"
 #include "../utils/JsonUtils.h"
 #include "nlohmann/json.hpp"
-#include "saves/map_manifest.pb.h"
 
 std::string glimmer::Saves::ToChunkPath(TileVector2D position) const {
     return path_ + "/chunks/chunk_" + std::to_string(position.x) + "_" + std::to_string(position.y) + ".bin";
+}
+
+void glimmer::Saves::SetOnMapManifestChanged(
+    const std::function<void(const MapManifestMessage &)> &onMapManifestChanged) {
+    onMapManifestChanged_ = onMapManifestChanged;
 }
 
 bool glimmer::Saves::Exist() const {
@@ -50,4 +54,11 @@ std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {
     MapManifestMessage mapManifestMessage;
     mapManifestMessage.ParseFromIstream(stream->get());
     return mapManifestMessage;
+}
+
+bool glimmer::Saves::WriteMapManifest(const MapManifestMessage &mapManifestMessage) const {
+    if (onMapManifestChanged_ != nullptr) {
+        onMapManifestChanged_(mapManifestMessage);
+    }
+    return virtualFileSystem_->WriteFile(path_ + "/" + MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
 }

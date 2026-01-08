@@ -373,6 +373,8 @@ set(GLIMMERWORKS_SOURCES
         core/ecs/system/PauseSystem.h
         core/ecs/component/PauseComponent.cpp
         core/ecs/component/PauseComponent.h
+        core/utils/TimeUtils.cpp
+        core/utils/TimeUtils.h
 )
 
 if (ANDROID)

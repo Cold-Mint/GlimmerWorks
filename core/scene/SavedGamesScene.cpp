@@ -14,6 +14,8 @@
 #include <ctime>
 #include <sstream>
 
+#include "../utils/TimeUtils.h"
+
 bool glimmer::SavedGamesScene::HandleEvent(const SDL_Event &event) {
     return false;
 }
@@ -65,7 +67,8 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
         ss << manifest->name << "\n";
         ss << "Version: " << manifest->gameVersionName << " | ";
         ss << "Played: " << timeBuffer << " | ";
-        ss << "Seed: " << manifest->seed;
+        ss << "Seed: " << manifest->seed << " | ";
+        ss << "TotalPlay: " << TimeUtils::FormatTimeMs(manifest->totalPlayTime);
 
         std::string label = ss.str();
 

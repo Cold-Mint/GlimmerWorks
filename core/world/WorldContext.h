@@ -27,6 +27,7 @@
 #include "../saves/Saves.h"
 #include "../scene/AppContext.h"
 #include "../utils/JsonUtils.h"
+#include "../utils/TimeUtils.h"
 #include "box2d/box2d.h"
 #include "box2d/id.h"
 
@@ -446,6 +447,7 @@ namespace glimmer {
          */
         [[nodiscard]] int GetSeed() const;
 
+        long startTime_ = 0;
 
         explicit WorldContext(AppContext *appContext, const int seed, Saves *saves) : seed(seed),
             saves(saves) {
@@ -490,7 +492,15 @@ namespace glimmer {
                     command->BindWorldContext(this);
                 }
             }
+            startTime_ = TimeUtils::GetCurrentTimeMs();
         }
+
+        /**
+         * The time when the world environment is constructed and completed.
+         * 世界环境构建完成的时间。
+         * @return
+         */
+        [[nodiscard]] long GetStartTime() const;
 
         [[nodiscard]] b2WorldId GetWorldId() const;
     };

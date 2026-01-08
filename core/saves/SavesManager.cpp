@@ -16,8 +16,14 @@ void glimmer::SavesManager::AddSaves(std::unique_ptr<Saves> saves) {
     }
     auto mapManifest = std::make_unique<MapManifest>();
     mapManifest->FromMessage(mapManifestMessage.value());
+    size_t index = manifestList_.size();
     manifestList_.push_back(std::move(mapManifest));
     saveList_.push_back(std::move(saves));
+    saveList_.back()->SetOnMapManifestChanged([this, index](const MapManifestMessage &msg) {
+        if (index < manifestList_.size()) {
+            manifestList_[index]->FromMessage(msg);
+        }
+    });
 }
 
 glimmer::Saves *glimmer::SavesManager::GetSave(const size_t index) const {
@@ -53,14 +59,14 @@ glimmer::Saves *glimmer::SavesManager::Create(MapManifest &manifest) {
             return nullptr;
         }
     }
+    auto save = std::make_unique<Saves>(path, virtualFileSystem_);
     MapManifestMessage manifestMessage;
     manifest.ToMessage(manifestMessage);
-    const bool createFile = virtualFileSystem_->WriteFile(path + "/" + MAP_MANIFEST_FILE_NAME,
-                                                          manifestMessage.SerializeAsString());
-    if (!createFile) {
-        LogCat::e("Error writing to file: ", path);
+    if (!save->WriteMapManifest(manifestMessage)) {
+        LogCat::e("Error writing map Manifest ");
+        return nullptr;
     }
-    AddSaves(std::make_unique<Saves>(path, virtualFileSystem_));
+    AddSaves(std::move(save));
     return GetSave(saveList_.size() - 1);
 }
 

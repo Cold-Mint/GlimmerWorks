@@ -21,6 +21,7 @@
 #include "../ecs/GameComponent.h"
 #include "../ecs/component/DiggingComponent.h"
 #include "../ecs/component/HotBarComonent.h"
+#include "../ecs/component/PauseComponent.h"
 #include "../inventory/Item.h"
 #include "../math/Vector2DI.h"
 #include "../saves/Saves.h"
@@ -82,6 +83,12 @@ namespace glimmer {
          * 相机坐标组件
          */
         Transform2DComponent *cameraTransform2D_{};
+
+        /**
+         * Pause component
+         * 暂停组件
+         */
+        PauseComponent *pauseComponent_{};
 
         /**
          * HotBar Component
@@ -157,7 +164,7 @@ namespace glimmer {
         * Game saves
         * 游戏存档
         */
-        Saves* saves;
+        Saves *saves;
 
         b2WorldId worldId_ = b2_nullWorldId;
         std::vector<std::unique_ptr<GameEntity> > entities;
@@ -165,6 +172,12 @@ namespace glimmer {
         AppContext *appContext_;
 
         GameEntity *player_ = nullptr;
+
+        /**
+         * Whether it is running or not, if false, it indicates that the game has been paused.
+         * 是否正在运行中，为false则表示游戏已被暂停。
+         */
+        bool running = true;
 
         void RemoveComponentInternal(GameEntity::ID id, GameComponent *comp);
 
@@ -192,6 +205,20 @@ namespace glimmer {
                 }
             }
         }
+
+        /**
+         * Is the game running
+         * 游戏是否正在运行中
+         * @return
+         */
+        [[nodiscard]] bool IsRuning() const;
+
+        /**
+         *Set the running
+         * 设置运行状态
+         * @param run
+         */
+        void SetRuning(bool run);
 
         Saves *GetSaves() const;
 
@@ -429,7 +456,7 @@ namespace glimmer {
         [[nodiscard]] int GetSeed() const;
 
 
-        explicit WorldContext(AppContext *appContext, const int seed, Saves* saves) : seed(seed),
+        explicit WorldContext(AppContext *appContext, const int seed, Saves *saves) : seed(seed),
             saves(saves) {
             // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
             continentHeightMapNoise = new FastNoiseLite();

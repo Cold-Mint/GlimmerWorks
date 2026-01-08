@@ -43,6 +43,9 @@
   "deleteGame": "delete Game",
   "wantDeleteThisSave": "Are you sure you want to delete this save?",
   "savesList": "Saves List",
+  "pause": "Pause",
+  "restore": "Restore",
+  "saveAndExit": "Save and Exit",
   "worldNamePrefix": [
     "Serene",
     "Mystic",

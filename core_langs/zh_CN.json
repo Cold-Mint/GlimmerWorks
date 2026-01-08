@@ -43,6 +43,9 @@
   "deleteGame": "删除存档",
   "wantDeleteThisSave": "您确定要删除此存档吗？",
   "savesList": "存档列表",
+  "pause": "暂停",
+  "restore": "恢复",
+  "saveAndExit": "保存并退出",
   "worldNamePrefix": [
     "安静",
     "神秘",

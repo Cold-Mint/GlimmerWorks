@@ -12,12 +12,10 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_render.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class WorldContext;
 
-    class GameSystem
-    {
+    class GameSystem {
         /**
          * Is the system in an activated state
          * 系统是否处于激活状态
@@ -37,21 +35,19 @@ namespace glimmer
         virtual void OnActivationChanged(bool activeStatus);
 
     protected:
-        template <typename TComponent>
-        void RequireComponent()
-        {
+        template<typename TComponent>
+        void RequireComponent() {
             requiredComponents.insert(std::type_index(typeid(TComponent)));
         }
 
-        WorldContext* worldContext_;
-        AppContext* appContext_;
+        WorldContext *worldContext_;
+        AppContext *appContext_;
 
     public:
         virtual ~GameSystem() = default;
 
-        explicit GameSystem(AppContext* appContext, WorldContext* worldContext) : appContext_(appContext),
-            worldContext_(worldContext)
-        {
+        explicit GameSystem(AppContext *appContext, WorldContext *worldContext) : appContext_(appContext),
+            worldContext_(worldContext) {
         }
 
         virtual std::string GetName() = 0;
@@ -70,22 +66,32 @@ namespace glimmer
          */
         [[nodiscard]] bool IsActive() const;
 
-        bool SupportsComponentType(const std::type_index& type) const
-        {
-            if (requiredComponents.empty())
-            {
+        bool SupportsComponentType(const std::type_index &type) const {
+            if (requiredComponents.empty()) {
                 return false;
             }
             return requiredComponents.contains(type);
         }
 
-        virtual bool HandleEvent(const SDL_Event& event);
+
+        /**
+         * Determine whether the system can continue to run when the game is paused
+         * 判断该系统是否能在游戏暂停时继续运行
+         * By default, it is false (stops running when paused), and subclasses can override this method to customize its behavior
+         * 默认为false（暂停时停止运行），子类可重写此方法自定义行为
+         * @return true= Continues running when paused, false= stops running when paused true=暂停时继续运行，false=暂停时停止运行
+         */
+        [[nodiscard]] virtual bool CanRunWhilePaused() const {
+            return false;
+        }
+
+        virtual bool HandleEvent(const SDL_Event &event);
 
         virtual void Update(float delta);
 
         virtual uint8_t GetRenderOrder();
 
-        virtual void Render(SDL_Renderer* renderer);
+        virtual void Render(SDL_Renderer *renderer);
     };
 }
 

@@ -14,7 +14,7 @@
 
 
 bool glimmer::DebugPanelSystem::ShouldActivate() {
-    return appContext_->GetConfig()->debug.displayDebugPanel;
+    return worldContext_->IsRuning() && appContext_->GetConfig()->debug.displayDebugPanel;
 }
 
 void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer *renderer, int windowW, const char *text, float y) const {
@@ -199,34 +199,32 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     // Draw Visible Chunks (Orange)
     // 绘制可见区块（橙色）【修改Y轴计算：cy - playerChunkY → playerChunkY - cy】
     int visibleChunkCount = 0;
-    if (camera != nullptr && cameraTransform != nullptr) {
-        SDL_FRect viewport = camera->GetViewportRect(cameraTransform->GetPosition());
+    SDL_FRect viewport = camera->GetViewportRect(cameraTransform->GetPosition());
 
-        // Calculate visible chunk range
-        // 计算可见区块范围
-        int startChunkX = static_cast<int>(std::floor(viewport.x / TILE_SIZE / CHUNK_SIZE));
-        int startChunkY = static_cast<int>(std::floor(viewport.y / TILE_SIZE / CHUNK_SIZE));
-        int endChunkX = static_cast<int>(std::floor((viewport.x + viewport.w) / TILE_SIZE / CHUNK_SIZE));
-        int endChunkY = static_cast<int>(std::floor((viewport.y + viewport.h) / TILE_SIZE / CHUNK_SIZE));
+    // Calculate visible chunk range
+    // 计算可见区块范围
+    int startChunkX = static_cast<int>(std::floor(viewport.x / TILE_SIZE / CHUNK_SIZE));
+    int startChunkY = static_cast<int>(std::floor(viewport.y / TILE_SIZE / CHUNK_SIZE));
+    int endChunkX = static_cast<int>(std::floor((viewport.x + viewport.w) / TILE_SIZE / CHUNK_SIZE));
+    int endChunkY = static_cast<int>(std::floor((viewport.y + viewport.h) / TILE_SIZE / CHUNK_SIZE));
 
-        visibleChunkCount = (endChunkX - startChunkX + 1) * (endChunkY - startChunkY + 1);
+    visibleChunkCount = (endChunkX - startChunkX + 1) * (endChunkY - startChunkY + 1);
 
-        SDL_SetRenderDrawColor(renderer, 255, 165, 0, 255); // Orange
+    SDL_SetRenderDrawColor(renderer, 255, 165, 0, 255); // Orange
 
-        for (int cy = startChunkY; cy <= endChunkY; ++cy) {
-            for (int cx = startChunkX; cx <= endChunkX; ++cx) {
-                float drawX = gridCenterX + static_cast<float>(cx - playerChunkX) * cellSize;
-                float drawY = gridCenterY + static_cast<float>(playerChunkY - cy) * cellSize;
+    for (int cy = startChunkY; cy <= endChunkY; ++cy) {
+        for (int cx = startChunkX; cx <= endChunkX; ++cx) {
+            float drawX = gridCenterX + static_cast<float>(cx - playerChunkX) * cellSize;
+            float drawY = gridCenterY + static_cast<float>(playerChunkY - cy) * cellSize;
 
-                SDL_FRect top = {drawX, drawY, cellSize, 1.0F};
-                SDL_RenderFillRect(renderer, &top);
-                SDL_FRect bottom = {drawX, drawY + cellSize - 1.0F, cellSize, 1.0F};
-                SDL_RenderFillRect(renderer, &bottom);
-                SDL_FRect left = {drawX, drawY, 1.0F, cellSize};
-                SDL_RenderFillRect(renderer, &left);
-                SDL_FRect right = {drawX + cellSize - 1.0F, drawY, 1.0F, cellSize};
-                SDL_RenderFillRect(renderer, &right);
-            }
+            SDL_FRect top = {drawX, drawY, cellSize, 1.0F};
+            SDL_RenderFillRect(renderer, &top);
+            SDL_FRect bottom = {drawX, drawY + cellSize - 1.0F, cellSize, 1.0F};
+            SDL_RenderFillRect(renderer, &bottom);
+            SDL_FRect left = {drawX, drawY, 1.0F, cellSize};
+            SDL_RenderFillRect(renderer, &left);
+            SDL_FRect right = {drawX + cellSize - 1.0F, drawY, 1.0F, cellSize};
+            SDL_RenderFillRect(renderer, &right);
         }
     }
 
@@ -251,11 +249,9 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         }
         SDL_DestroySurface(s);
     }
-    if (camera != nullptr && cameraTransform != nullptr) {
-        CameraVector2D screenPos = camera->GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
-        RenderCrosshairToEdge(renderer, screenPos.x, screenPos.y);
-    }
-    appContext_->RestoreColorRenderer(renderer);
+    CameraVector2D screenPos = camera->GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
+    RenderCrosshairToEdge(renderer, screenPos.x, screenPos.y);
+    AppContext::RestoreColorRenderer(renderer);
 }
 
 bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {

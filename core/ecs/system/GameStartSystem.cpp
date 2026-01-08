@@ -26,7 +26,8 @@
 void glimmer::GameStartSystem::Update(float delta) {
     LogCat::d("Game Start System init");
     LogCat::i("Grid entity created with GridComponent");
-
+    auto pause = worldContext_->CreateEntity();
+    worldContext_->AddComponent<PauseComponent>(pause);
 
     auto *tileLayerEntity = worldContext_->CreateEntity();
     const auto transform2DComponent = worldContext_->AddComponent<Transform2DComponent>(tileLayerEntity);
@@ -72,6 +73,7 @@ void glimmer::GameStartSystem::Update(float delta) {
         worldContext_->AddComponent<Transform2DComponent>(slotEntity); // Position managed by HotBarSystem
         hotBarComponent->AddSlotEntity(slotEntity);
     }
+
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

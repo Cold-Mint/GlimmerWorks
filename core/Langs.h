@@ -52,6 +52,9 @@ namespace glimmer {
         std::string confirm;
         std::string wantDeleteThisSave;
         std::string savesList;
+        std::string pause;
+        std::string restore;
+        std::string saveAndExit;
         std::vector<std::string> worldNamePrefix;
         std::vector<std::string> worldNameSuffix;
     };

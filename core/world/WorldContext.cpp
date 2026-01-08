@@ -25,6 +25,7 @@
 #include "../ecs/system/ItemSlotSystem.h"
 #include "../ecs/system/ItemModEditorSystem.h"
 #include "../ecs/system/MagnetSystem.h"
+#include "../ecs/system/PauseSystem.h"
 #include "../ecs/system/PhysicsSystem.h"
 #include "../ecs/system/PlayerControlSystem.h"
 #include "../ecs/system/TileLayerSystem.h"
@@ -58,6 +59,14 @@ void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameCompo
                   });
 }
 
+
+bool glimmer::WorldContext::IsRuning() const {
+    return running;
+}
+
+void glimmer::WorldContext::SetRuning(const bool run) {
+    running = run;
+}
 
 glimmer::Saves *glimmer::WorldContext::GetSaves() const {
     return saves;
@@ -338,7 +347,6 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
     ChunkPhysicsHelper::DetachPhysicsBodyToChunk(it->second.get());
     chunks_.erase(it);
     chunksVersion_++;
-    LogCat::d("Unloaded chunk at position=", position.x, "y =", position.y);
 }
 
 bool glimmer::WorldContext::HasChunk(const TileVector2D position) const {
@@ -357,7 +365,13 @@ bool glimmer::WorldContext::ChunkIsOutOfBounds(TileVector2D position) {
 bool glimmer::WorldContext::HandleEvent(const SDL_Event &event) const {
     bool handled = false;
     for (auto &system: activeSystems) {
-        if (system && system->HandleEvent(event)) {
+        if (system == nullptr) {
+            continue;
+        }
+        if (!running && !system->CanRunWhilePaused()) {
+            continue;
+        }
+        if (system->HandleEvent(event)) {
             handled = true;
         }
     }
@@ -366,9 +380,13 @@ bool glimmer::WorldContext::HandleEvent(const SDL_Event &event) const {
 
 void glimmer::WorldContext::Update(const float delta) const {
     for (auto &system: activeSystems) {
-        if (system) {
-            system->Update(delta);
+        if (system == nullptr) {
+            continue;
         }
+        if (!running && !system->CanRunWhilePaused()) {
+            continue;
+        }
+        system->Update(delta);
     }
 }
 
@@ -469,6 +487,7 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<DroppedItemSystem>(appContext, this));
     RegisterSystem(std::make_unique<AutoPickSystem>(appContext, this));
     RegisterSystem(std::make_unique<DiggingSystem>(appContext, this));
+    RegisterSystem(std::make_unique<PauseSystem>(appContext, this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
 #endif

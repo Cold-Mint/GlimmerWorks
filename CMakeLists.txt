@@ -369,6 +369,10 @@ set(GLIMMERWORKS_SOURCES
         core/saves/SavesManager.h
         core/console/command/SeedCommand.cpp
         core/console/command/SeedCommand.h
+        core/ecs/system/PauseSystem.cpp
+        core/ecs/system/PauseSystem.h
+        core/ecs/component/PauseComponent.cpp
+        core/ecs/component/PauseComponent.h
 )
 
 if (ANDROID)

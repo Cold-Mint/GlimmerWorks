@@ -171,6 +171,9 @@ int main() {
     langsResources.confirm = jsonObject["confirm"].get<std::string>();
     langsResources.wantDeleteThisSave = jsonObject["wantDeleteThisSave"].get<std::string>();
     langsResources.savesList = jsonObject["savesList"].get<std::string>();
+    langsResources.pause = jsonObject["pause"].get<std::string>();
+    langsResources.restore = jsonObject["restore"].get<std::string>();
+    langsResources.saveAndExit = jsonObject["saveAndExit"].get<std::string>();
     langsResources.worldNamePrefix = jsonObject["worldNamePrefix"].get<std::vector<std::string>>();
     langsResources.worldNameSuffix = jsonObject["worldNameSuffix"].get<std::vector<std::string>>();
     DynamicSuggestionsManager dynamicSuggestionsManager;

@@ -118,6 +118,7 @@ static constexpr uint8_t RENDER_ORDER_DEBUG_HOTBAR = 6;
 static constexpr uint8_t RENDER_ORDER_ITEM_MOD_EDITOR = 7;
 static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 8;
 static constexpr uint8_t RENDER_ORDER_DIGGING = 9;
+static constexpr uint8_t RENDER_ORDER_PAUSE = 10;
 
 
 /**

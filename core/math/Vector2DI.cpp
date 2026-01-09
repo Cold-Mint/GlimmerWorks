@@ -3,7 +3,7 @@
 //
 
 #include "Vector2DI.h"
-#include "saves/vector2d.pb.h"
+#include "src/saves/vector2d.pb.h"
 
 void glimmer::Vector2DI::FromMessage(const Vector2DIMessage &vector2di) {
     x = vector2di.x();

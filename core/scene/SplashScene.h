@@ -8,7 +8,7 @@
 
 #include "Scene.h"
 #include "../log/LogCat.h"
-#include "include/tween.h"
+#include "tween.h"
 
 namespace glimmer {
     class SplashScene final : public Scene {

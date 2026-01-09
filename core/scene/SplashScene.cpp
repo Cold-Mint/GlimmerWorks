@@ -6,9 +6,8 @@
 
 #include "AppContext.h"
 #include "HomeScene.h"
-#include "../Config.h"
 #include "../log/LogCat.h"
-#include "include/tweeny.h"
+#include "tweeny.h"
 #include "SDL3/SDL_timer.h"
 
 bool glimmer::SplashScene::HandleEvent(const SDL_Event &event) {

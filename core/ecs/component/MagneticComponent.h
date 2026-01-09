@@ -8,7 +8,7 @@
 
 #include "../GameComponent.h"
 #include "../../math/Vector2D.h"
-#include "include/tween.h"
+#include "tween.h"
 
 namespace glimmer {
     /**

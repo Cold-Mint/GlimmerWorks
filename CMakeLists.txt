@@ -11,6 +11,27 @@ set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
 include("versions.cmake")
 set(CMAKE_BUILD_RPATH "$ORIGIN/libs")
 set(CMAKE_INSTALL_RPATH "$ORIGIN/libs")
+set(CMAKE_PROJECT_HOMEPAGE_URL "https://github.com/Cold-Mint/GlimmerWorks")
+set(CPACK_PACKAGE_VENDOR "Cold-Mint")
+#Major version number
+#主版本号
+set(CPACK_PACKAGE_VERSION_MAJOR 0)
+#Minor version number
+#次要版本号
+set(CPACK_PACKAGE_VERSION_MINOR 0)
+#Patch version number
+#补丁版本号
+set(CPACK_PACKAGE_VERSION_PATCH 1)
+
+set(GAME_VERSION_STRING
+        "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CMAKE_BUILD_TYPE}"
+)
+math(EXPR GAME_VERSION_NUMBER
+        "${CPACK_PACKAGE_VERSION_MAJOR} * 10000
+   + ${CPACK_PACKAGE_VERSION_MINOR} * 100
+   + ${CPACK_PACKAGE_VERSION_PATCH}"
+)
+
 
 include(FetchContent)
 FetchContent_Declare(
@@ -18,7 +39,6 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/nlohmann/json"
         GIT_TAG ${NLOHMANN_JSON_VERSION}
         GIT_PROGRESS TRUE
-        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/json"
 )
 
 FetchContent_MakeAvailable(nlohmann_json)
@@ -54,7 +74,6 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/ocornut/imgui"
         GIT_PROGRESS TRUE
         GIT_TAG ${OCORNUT_IMGUI_VERSION}
-        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}"
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -63,7 +82,6 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/mobius3/tweeny"
         GIT_PROGRESS TRUE
         GIT_TAG ${MOBIUS3_TWEENY_VERSION}
-        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/tweeny-${MOBIUS3_TWEENY_VERSION}"
 )
 
 FetchContent_MakeAvailable(tweeny)
@@ -81,7 +99,6 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/Auburn/FastNoiseLite"
         GIT_PROGRESS TRUE
         GIT_TAG ${AUBURN_FASTNOISELITE_VERSION}
-        SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/fastNoiseLite"
 )
 FetchContent_MakeAvailable(fastNoiseLite)
 
@@ -110,15 +127,15 @@ endif ()
 
 target_sources(GlimmerWorks
         PRIVATE
-        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_draw.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_widgets.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_tables.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/misc/cpp/imgui_stdlib.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_draw.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_widgets.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_tables.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/imgui-src/misc/cpp/imgui_stdlib.cpp"
         # SDL3 backend
         # SDL3 后端
-        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/backends/imgui_impl_sdl3.cpp"
-        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/backends/imgui_impl_sdlrenderer3.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_sdl3.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_sdlrenderer3.cpp"
         main.cpp
         core/log/LogCat.cpp
         core/Config.cpp
@@ -244,8 +261,6 @@ target_sources(GlimmerWorks
         PUBLIC
         FILE_SET HEADERS
         FILES
-
-        "${PROJECT_SOURCE_DIR}/include/tweeny-${MOBIUS3_TWEENY_VERSION}/include/tween.h"
         core/log/LogCat.h
         core/Config.h
         core/App.h
@@ -370,8 +385,11 @@ target_sources(GlimmerWorks
 
 #Define version information
 #定义版本信息
+set(CONFIG_FILE_NAME "config.json")
 target_compile_definitions(GlimmerWorks PRIVATE
-        CONFIG_FILE_NAME="config.json"
+        CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
+        GAME_VERSION_NUMBER=${GAME_VERSION_NUMBER}
+        GAME_VERSION_STRING="${GAME_VERSION_STRING}"
 )
 
 if (ANDROID)
@@ -382,24 +400,28 @@ endif ()
 
 
 target_include_directories(GlimmerWorks PRIVATE
-        "${PROJECT_SOURCE_DIR}/include/json/include"
+        "${CMAKE_BINARY_DIR}/_deps/nlohmann_json-src/include"
 )
 
 target_include_directories(GlimmerWorks PRIVATE
-        "${PROJECT_SOURCE_DIR}/include/fastNoiseLite/Cpp"
+        "${CMAKE_BINARY_DIR}/_deps/fmt-src/include"
 )
 
 target_include_directories(GlimmerWorks PRIVATE
-        "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}"
+        "${CMAKE_BINARY_DIR}/_deps/imgui-src"
 )
 
 target_include_directories(GlimmerWorks PRIVATE
-        "${PROJECT_SOURCE_DIR}/include/tweeny-${MOBIUS3_TWEENY_VERSION}"
+        "${CMAKE_BINARY_DIR}/_deps/tweeny-src/include"
+)
+
+target_include_directories(GlimmerWorks PRIVATE
+        "${CMAKE_BINARY_DIR}/_deps/fastnoiselite-src/Cpp"
 )
 
 target_include_directories(GlimmerWorks
         PRIVATE
-        ${glimmerWorksProtobuf_BINARY_DIR}/generated
+        "${CMAKE_BINARY_DIR}/_deps/generated"
 )
 
 file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"
@@ -455,3 +477,4 @@ FetchContent_GetProperties(VanillaResourcePack)
 if (NOT VanillaDataPack_POPULATED)
     FetchContent_Populate(VanillaResourcePack)
 endif ()
+

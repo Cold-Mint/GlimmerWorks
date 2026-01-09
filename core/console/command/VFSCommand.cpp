@@ -7,8 +7,8 @@
 #include "../../Constants.h"
 #include "../../scene/AppContext.h"
 #include "fmt/color.h"
-#include "saves/chunk.pb.h"
-#include "saves/map_manifest.pb.h"
+#include "src/saves/chunk.pb.h"
+#include "src/saves/map_manifest.pb.h"
 
 void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     //List all the mount points

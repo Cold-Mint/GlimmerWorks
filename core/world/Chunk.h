@@ -9,7 +9,7 @@
 #include "../Constants.h"
 #include "../math/Vector2DI.h"
 #include "box2d/id.h"
-#include "saves/chunk.pb.h"
+#include "src/saves/chunk.pb.h"
 
 namespace glimmer {
     class Chunk {

@@ -7,7 +7,7 @@
 #include "../../world/WorldContext.h"
 #include "../component/RigidBody2DComponent.h"
 #include "../component/DroppedItemComponent.h"
-#include "include/tweeny.h"
+#include "tweeny.h"
 
 
 void glimmer::MagnetSystem::Update(const float delta) {

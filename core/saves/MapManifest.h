@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_MAPMANIFEST_H
 #include <string>
 
-#include "saves/map_manifest.pb.h"
+#include "src/saves/map_manifest.pb.h"
 
 namespace glimmer {
     struct MapManifest {

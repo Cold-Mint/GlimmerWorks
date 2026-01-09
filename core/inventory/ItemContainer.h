@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Item.h"
-#include "saves/item_container.pb.h"
+#include "src/saves/item_container.pb.h"
 
 namespace glimmer {
     class ItemContainer {

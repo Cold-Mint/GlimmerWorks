@@ -6,7 +6,7 @@
 #include <string>
 
 #include "../Constants.h"
-#include "core/resource_ref.pb.h"
+#include "src/core/resource_ref.pb.h"
 
 namespace glimmer {
     class ResourceRef {

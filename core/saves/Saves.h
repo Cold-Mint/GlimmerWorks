@@ -11,8 +11,8 @@
 #include "../ecs/GameEntity.h"
 #include "../ecs/component/TileLayerComponent.h"
 #include "../vfs/VirtualFileSystem.h"
-#include "saves/chunk.pb.h"
-#include "saves/item_container.pb.h"
+#include "src/saves/chunk.pb.h"
+#include "src/saves/item_container.pb.h"
 
 namespace glimmer {
     class Saves {

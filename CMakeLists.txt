@@ -8,27 +8,6 @@ set(FETCHCONTENT_QUIET OFF CACHE BOOL "Show real-time git clone progress (ON=qui
 set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
         "CMake message verbosity level")
 
-#Define the game version number and platform information.
-#定义游戏版本号和平台信息。
-set(GAME_VERSION_MAJOR 0)
-set(GAME_VERSION_MINOR 1)
-set(GAME_VERSION_PATCH 0)
-set(GAME_VERSION_STRING "${GAME_VERSION_MAJOR}.${GAME_VERSION_MINOR}.${GAME_VERSION_PATCH}")
-set(GAME_VERSION_NUMBER 1)
-if (WIN32)
-    set(PLATFORM_NAME "windows")
-elseif (APPLE)
-    set(PLATFORM_NAME "macos")
-elseif (ANDROID)
-    set(PLATFORM_NAME "android")
-elseif (UNIX)
-    set(PLATFORM_NAME "linux")
-else ()
-    set(PLATFORM_NAME "unknown")
-endif ()
-set(CONFIG_FILE_NAME "config.json")
-
-
 include("versions.cmake")
 set(CMAKE_BUILD_RPATH "$ORIGIN/libs")
 set(CMAKE_INSTALL_RPATH "$ORIGIN/libs")
@@ -93,7 +72,7 @@ FetchContent_Declare(
         fmt
         GIT_REPOSITORY "https://github.com/fmtlib/fmt"
         GIT_PROGRESS TRUE
-        GIT_TAG "12.1.0"
+        GIT_TAG ${FMTLIB_FMT_VERSION}
 )
 FetchContent_MakeAvailable(fmt)
 
@@ -101,7 +80,7 @@ FetchContent_Declare(
         fastNoiseLite
         GIT_REPOSITORY "https://github.com/Auburn/FastNoiseLite"
         GIT_PROGRESS TRUE
-        GIT_TAG "v1.1.1"
+        GIT_TAG ${AUBURN_FASTNOISELITE_VERSION}
         SOURCE_DIR "${PROJECT_SOURCE_DIR}/include/fastNoiseLite"
 )
 FetchContent_MakeAvailable(fastNoiseLite)
@@ -109,7 +88,7 @@ FetchContent_MakeAvailable(fastNoiseLite)
 FetchContent_Declare(
         box2d
         GIT_REPOSITORY "https://github.com/erincatto/box2d"
-        GIT_TAG "v3.1.1"
+        GIT_TAG ${ERINCATTO_BOX2D_VERSION}
         GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(box2d)
@@ -392,18 +371,13 @@ target_sources(GlimmerWorks
 #Define version information
 #定义版本信息
 target_compile_definitions(GlimmerWorks PRIVATE
-        GAME_VERSION_MAJOR=${GAME_VERSION_MAJOR}
-        GAME_VERSION_MINOR=${GAME_VERSION_MINOR}
-        GAME_VERSION_PATCH=${GAME_VERSION_PATCH}
-        GAME_VERSION_STRING="${GAME_VERSION_STRING}"
-        GAME_VERSION_NUMBER=${GAME_VERSION_NUMBER}
-        CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
+        CONFIG_FILE_NAME="config.json"
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks_proto log android)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto log android)
 else ()
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks_proto)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto)
 endif ()
 
 
@@ -437,179 +411,6 @@ file(COPY "${CMAKE_SOURCE_DIR}/LICENSE"
         DESTINATION "${CMAKE_BINARY_DIR}/")
 
 file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" "*")
-
-# Generate build.sh in the build directory
-# 在构建目录生成 build.sh
-if (WIN32)
-    set(MAIN_FILE_NAME "GlimmerWorks.exe")
-elseif (APPLE)
-    set(MAIN_FILE_NAME "GlimmerWorks.app")
-elseif (ANDROID)
-    set(MAIN_FILE_NAME "libGlimmerWorks.so")
-elseif (UNIX)
-    set(MAIN_FILE_NAME "GlimmerWorks")
-else ()
-    set(MAIN_FILE_NAME "unknown")
-endif ()
-set(BUILD_SCRIPT "${CMAKE_BINARY_DIR}/build.sh")
-file(WRITE "${BUILD_SCRIPT}" "#!/bin/bash\n")
-file(APPEND "${BUILD_SCRIPT}" "set -e\n")
-file(APPEND "${BUILD_SCRIPT}" "GAME_VERSION=\"${GAME_VERSION_STRING}\"\n")
-# If not specified, Release is the default
-# 如果没有指定，则默认 Release
-file(APPEND "${BUILD_SCRIPT}" "BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"\n")
-file(APPEND "${BUILD_SCRIPT}" "if [ -z \"\$BUILD_TYPE\" ]; then BUILD_TYPE=\"Release\"; fi\n")
-# The output file name contains the version number and build type
-# 输出文件名中包含版本号和构建类型
-file(APPEND "${BUILD_SCRIPT}" "OUTPUT_FILE=\"GlimmerWorks_\${GAME_VERSION}_\${BUILD_TYPE}_${PLATFORM_NAME}.tar.xz\"\n")
-file(APPEND "${BUILD_SCRIPT}" "echo \"Packing files into \${OUTPUT_FILE}...\"\n")
-# 排除所有隐藏文件和文件夹
-# Exclude all hidden files and folders
-file(APPEND "${BUILD_SCRIPT}" "tar --exclude='.*' -cJf \${OUTPUT_FILE} config.json LICENSE ${MAIN_FILE_NAME} langs libs mods\n")
-file(APPEND "${BUILD_SCRIPT}" "echo \"Done!\"\n")
-
-if (ANDROID)
-    # Generate the install.sh installation script
-    # 生成 install.sh 安装脚本
-    set(INSTALL_SCRIPT "${CMAKE_BINARY_DIR}/install.sh")
-    file(WRITE "${INSTALL_SCRIPT}" "#!/bin/bash\n")
-    file(APPEND "${INSTALL_SCRIPT}" "set -e\n\n")
-    file(APPEND "${INSTALL_SCRIPT}" "if [ -z \"\$1\" ]; then\n")
-    file(APPEND "${INSTALL_SCRIPT}" "  echo \"Use: ./install.sh <AndroidProjectPath>\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "  exit 1\n")
-    file(APPEND "${INSTALL_SCRIPT}" "fi\n\n")
-    file(APPEND "${BUILD_SCRIPT}" "GAME_VERSION=\"${GAME_VERSION_STRING}\"\n")
-    file(APPEND "${BUILD_SCRIPT}" "BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "ANDROID_PROJECT_PATH=\$1\n")
-    file(APPEND "${INSTALL_SCRIPT}" "JNI_LIBS_PATH=\"\$ANDROID_PROJECT_PATH/app/src/main/jniLibs/arm64-v8a\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "ASSETS_PATH=\"\$ANDROID_PROJECT_PATH/app/src/main/assets\"\n\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"Installing GlimmerWorks into: \$ANDROID_PROJECT_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "mkdir -p \"\$JNI_LIBS_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "mkdir -p \"\$ASSETS_PATH\"\n\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"Copying libGlimmerWorks.so ...\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "cp -v \"${CMAKE_BINARY_DIR}/libGlimmerWorks.so\" \"\$JNI_LIBS_PATH/\"\n\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"Copying assets ...\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "cp -vr \"${CMAKE_BINARY_DIR}/config.json\" \"\$ASSETS_PATH/\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "cp -vr \"${CMAKE_BINARY_DIR}/LICENSE\" \"\$ASSETS_PATH/\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "cp -vr \"${CMAKE_BINARY_DIR}/langs\" \"\$ASSETS_PATH/\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "
-mkdir -p \"\$JNI_LIBS_PATH\"
-cp -vr \"${CMAKE_BINARY_DIR}/libs\"/* \"\$JNI_LIBS_PATH/\"
-
-# Traverse all *.so.* files under JNI_LIBS_PATH and rename them to *.so
-# 遍历 JNI_LIBS_PATH 下的所有 *.so.* 文件，将其重命名为 *.so
-for f in \$(find \"\$JNI_LIBS_PATH\" -type f -name '*.so.*'); do
-    base=\$(echo \"\$(basename \"\$f\")\" | sed -E 's/\\.so\\..*/.so/')
-    dest=\"\$(dirname \"\$f\")/\$base\"
-    echo \"Renaming \$f -> \$dest\"
-    mv -f \"\$f\" \"\$dest\"
-done
-")
-    file(APPEND "${INSTALL_SCRIPT}" "rsync -av --exclude='*/.git/' \"${CMAKE_BINARY_DIR}/mods/\" \"\$ASSETS_PATH/mods/\"\n\n")
-
-    # Generate cppConfig.java # 生成 cppConfig.java
-    file(APPEND "${INSTALL_SCRIPT}" "JAVA_FILE_PATH=\"\$ANDROID_PROJECT_PATH/app/src/main/java/com/coldmint/glimmerworks/CppConfig.java\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"Generating \$JAVA_FILE_PATH ...\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "mkdir -p \"\$(dirname \"\$JAVA_FILE_PATH\")\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "cat <<EOF > \"\$JAVA_FILE_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "//This file is automatically generated by the program. Please do not edit it.\npackage com.coldmint.glimmerworks;\n\n")
-    file(APPEND "${INSTALL_SCRIPT}" "public class CppConfig {\n")
-    file(APPEND "${INSTALL_SCRIPT}" " public static final String BUILD_TYPE = \"${CMAKE_BUILD_TYPE}\";\n")
-    file(APPEND "${INSTALL_SCRIPT}" " public static final String GAME_VERSION = \"${GAME_VERSION_STRING}\";\n")
-    file(APPEND "${INSTALL_SCRIPT}" " public static boolean IsDebug() {\n")
-    file(APPEND "${INSTALL_SCRIPT}" " return \"Debug\".equals(BUILD_TYPE);\n")
-    file(APPEND "${INSTALL_SCRIPT}" " }\n")
-    file(APPEND "${INSTALL_SCRIPT}" "}\n")
-    file(APPEND "${INSTALL_SCRIPT}" "EOF\n\n")
-
-    # Generate assets index.json
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"Generating assets/index.json ...\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "INDEX_JSON_PATH=\"\$ASSETS_PATH/index.json\"\n")
-
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"{\" > \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"  \\\"assets\\\": [\" >> \"\$INDEX_JSON_PATH\"\n")
-
-    file(APPEND "${INSTALL_SCRIPT}" "FIRST_ITEM=true\n")
-
-    file(APPEND "${INSTALL_SCRIPT}" "while IFS= read -r item; do\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    rel_path=\${item#\"\$ASSETS_PATH/\"}\n")
-
-    # 判断是否文件
-    file(APPEND "${INSTALL_SCRIPT}" "    if [ -f \"\$item\" ]; then\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        isFile=true\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        sha512=\\\"$(sha512sum \"\$item\" | awk '{print \$1}')\\\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    else\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        isFile=false\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        sha512=null\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    fi\n")
-
-    file(APPEND "${INSTALL_SCRIPT}" "    if [ \"\$FIRST_ITEM\" = false ]; then\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        echo \",\" >> \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    else\n")
-    file(APPEND "${INSTALL_SCRIPT}" "        FIRST_ITEM=false\n")
-    file(APPEND "${INSTALL_SCRIPT}" "    fi\n")
-
-    # 写入 JSON 行
-    file(APPEND "${INSTALL_SCRIPT}" "    echo -n \"    { \\\"path\\\": \\\"\$rel_path\\\", \\\"isFile\\\": \$isFile, \\\"sha512\\\": \$sha512 }\" >> \"\$INDEX_JSON_PATH\"\n")
-
-    file(APPEND "${INSTALL_SCRIPT}" "done < <(find \"\$ASSETS_PATH\" -mindepth 1 -printf \"%p\n\")\n")
-
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"\" >> \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"  ]\" >> \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"}\" >> \"\$INDEX_JSON_PATH\"\n")
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"index.json generated at \$INDEX_JSON_PATH\"\n\n")
-
-
-    file(APPEND "${INSTALL_SCRIPT}" "echo \"✅ Install completed! You can now compile and run the project in Android Studio.\"\n")
-
-    # Set execution permissions
-    # 设置执行权限
-    file(COPY "${INSTALL_SCRIPT}" DESTINATION "${CMAKE_BINARY_DIR}" FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ)
-
-
-    # Generate uninstall.sh uninstall script
-    # 生成 uninstall.sh 卸载脚本
-    set(UNINSTALL_SCRIPT "${CMAKE_BINARY_DIR}/uninstall.sh")
-    file(WRITE "${UNINSTALL_SCRIPT}" "#!/bin/bash\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "set -e\n\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "if [ -z \"\$1\" ]; then\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  echo \"Use: ./uninstall.sh <AndroidProjectPath>\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  exit 1\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "fi\n\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "ANDROID_PROJECT_PATH=\$1\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "JNI_LIBS_PATH=\"\$ANDROID_PROJECT_PATH/app/src/main/jniLibs/arm64-v8a\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "ASSETS_PATH=\"\$ANDROID_PROJECT_PATH/app/src/main/assets\"\n\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "echo \"Uninstalling GlimmerWorks from: \$ANDROID_PROJECT_PATH\"\n")
-
-    # Delete the JNI so library
-    # 删除 JNI so 库
-    file(APPEND "${UNINSTALL_SCRIPT}" "if [ -d \"\$JNI_LIBS_PATH\" ]; then\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  echo \"Removing JNI libraries...\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  rm -fv \"\$JNI_LIBS_PATH/libGlimmerWorks.so\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  find \"\$JNI_LIBS_PATH\" -type f -name 'libSDL3*.so' -exec rm -fv {} +\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  find \"\$JNI_LIBS_PATH\" -type f -name 'libfmt*.so' -exec rm -fv {} +\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  find \"\$JNI_LIBS_PATH\" -type f -name 'libbox2d*.so' -exec rm -fv {} +\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "fi\n\n")
-
-    # Delete the assets content
-    # 删除 assets 内容
-    file(APPEND "${UNINSTALL_SCRIPT}" "if [ -d \"\$ASSETS_PATH\" ]; then\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  echo \"Removing assets...\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ASSETS_PATH/config.json\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ASSETS_PATH/LICENSE\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ASSETS_PATH/langs\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ASSETS_PATH/libs\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ANDROID_PROJECT_PATH/app/src/main/java/com/coldmint/glimmerworks/CppConfig.java\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "  rm -rfv \"\$ASSETS_PATH/mods\"\n")
-    file(APPEND "${UNINSTALL_SCRIPT}" "fi\n\n")
-
-    file(APPEND "${UNINSTALL_SCRIPT}" "echo \"✅ Uninstall completed! GlimmerWorks files removed.\"\n")
-
-    # Set execution permissions
-    file(COPY "${UNINSTALL_SCRIPT}" DESTINATION "${CMAKE_BINARY_DIR}" FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ WORLD_READ)
-
-endif ()
-
 
 add_custom_command(TARGET GlimmerWorks POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different

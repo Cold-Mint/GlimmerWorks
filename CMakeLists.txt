@@ -121,7 +121,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
 
-set(GLIMMERWORKS_SOURCES
+if (ANDROID)
+    message(STATUS "Building for Android → Shared Library (.so)")
+    add_library(GlimmerWorks SHARED)
+else ()
+    message(STATUS "Building for Desktop → Executable")
+    add_executable(GlimmerWorks)
+endif ()
+
+target_sources(GlimmerWorks
+        PRIVATE
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_draw.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/imgui_widgets.cpp"
@@ -131,259 +140,254 @@ set(GLIMMERWORKS_SOURCES
         # SDL3 后端
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/backends/imgui_impl_sdl3.cpp"
         "${PROJECT_SOURCE_DIR}/include/imgui-${OCORNUT_IMGUI_VERSION}/backends/imgui_impl_sdlrenderer3.cpp"
-        "${PROJECT_SOURCE_DIR}/include/tweeny-${MOBIUS3_TWEENY_VERSION}/include/tween.h"
-
         main.cpp
         core/log/LogCat.cpp
-        core/log/LogCat.h
         core/Config.cpp
-        core/Config.h
         core/App.cpp
-        core/App.h
         core/mod/dataPack/StringManager.cpp
-        core/mod/dataPack/StringManager.h
         core/mod/Resource.cpp
-        core/mod/Resource.h
         core/mod/dataPack/DataPackManager.cpp
-        core/mod/dataPack/DataPackManager.h
         core/mod/dataPack/DataPack.cpp
-        core/mod/dataPack/DataPack.h
         core/mod/PackManifest.cpp
-        core/mod/PackManifest.h
-        core/Constants.h
         core/utils/JsonUtils.cpp
-        core/utils/JsonUtils.h
         core/utils/LanguageUtils.cpp
-        core/utils/LanguageUtils.h
         core/mod/ResourceRef.cpp
-        core/mod/ResourceRef.h
         core/scene/Scene.cpp
-        core/scene/Scene.h
         core/scene/AppContext.cpp
-        core/scene/AppContext.h
         core/scene/SplashScene.cpp
-        core/scene/SplashScene.h
         core/scene/ConsoleOverlay.cpp
-        core/scene/ConsoleOverlay.h
         core/console/Command.cpp
-        core/console/Command.h
         core/console/CommandExecutor.cpp
-        core/console/CommandExecutor.h
         core/console/CommandManager.cpp
-        core/console/CommandManager.h
         core/console/CommandArgs.cpp
-        core/console/CommandArgs.h
         core/console/CommandResult.cpp
-        core/console/CommandResult.h
         core/mod/resourcePack/ResourcePack.cpp
-        core/mod/resourcePack/ResourcePack.h
         core/mod/resourcePack/ResourcePackManager.cpp
-        core/mod/resourcePack/ResourcePackManager.h
         core/console/command/HelpCommand.cpp
-        core/console/command/HelpCommand.h
         core/scene/SceneManager.cpp
-        core/scene/SceneManager.h
         core/scene/HomeScene.cpp
-        core/scene/HomeScene.h
         core/Langs.cpp
-        core/Langs.h
         core/scene/SavedGamesScene.cpp
-        core/scene/SavedGamesScene.h
         core/saves/Saves.cpp
-        core/saves/Saves.h
         core/saves/MapManifest.cpp
-        core/saves/MapManifest.h
         core/scene/CreateWorldScene.cpp
-        core/scene/CreateWorldScene.h
         core/world/WorldContext.cpp
-        core/world/WorldContext.h
         core/math/Vector2D.cpp
-        core/math/Vector2D.h
         core/scene/WorldScene.cpp
-        core/scene/WorldScene.h
         core/scene/DebugOverlay.cpp
-        core/scene/DebugOverlay.h
         core/ecs/GameEntity.cpp
-        core/ecs/GameEntity.h
         core/ecs/GameComponent.cpp
-        core/ecs/GameComponent.h
         core/ecs/GameSystem.cpp
-        core/ecs/GameSystem.h
         core/ecs/system/Transform2DSystem.cpp
-        core/ecs/system/Transform2DSystem.h
         core/ecs/component/Transform2DComponent.cpp
-        core/ecs/component/Transform2DComponent.h
         core/ecs/system/GameStartSystem.cpp
-        core/ecs/system/GameStartSystem.h
         core/ecs/system/CameraSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
         core/ecs/component/CameraComponent.cpp
-        core/ecs/component/CameraComponent.h
         core/ecs/component/DebugDrawComponent.cpp
-        core/ecs/component/DebugDrawComponent.h
         core/ecs/system/DebugDrawSystem.cpp
-        core/ecs/system/DebugDrawSystem.h
         core/ecs/component/TileLayerComponent.cpp
-        core/ecs/component/TileLayerComponent.h
         core/ecs/system/TileLayerSystem.cpp
-        core/ecs/system/TileLayerSystem.h
         core/world/Tile.cpp
-        core/world/Tile.h
         core/math/Vector2DI.cpp
-        core/math/Vector2DI.h
         core/ecs/system/DebugPanelSystem.cpp
-        core/ecs/system/DebugPanelSystem.h
         core/ecs/system/ChunkSystem.cpp
-        core/ecs/system/ChunkSystem.h
         core/world/Chunk.cpp
-        core/world/Chunk.h
         core/ecs/component/RigidBody2DComponent.cpp
-        core/ecs/component/RigidBody2DComponent.h
         core/ecs/system/PhysicsSystem.cpp
-        core/ecs/system/PhysicsSystem.h
         core/ecs/system/DebugDrawBox2dSystem.cpp
-        core/ecs/system/DebugDrawBox2dSystem.h
         core/utils/Box2DUtils.cpp
-        core/utils/Box2DUtils.h
         core/world/ChunkPhysicsHelper.cpp
-        core/world/ChunkPhysicsHelper.h
         core/console/command/TpCommand.cpp
-        core/console/command/TpCommand.h
         core/console/command/Box2DCommand.cpp
-        core/console/command/Box2DCommand.h
         core/utils/NodeTree.cpp
-        core/utils/NodeTree.h
         core/console/command/AssetViewerCommand.cpp
-        core/console/command/AssetViewerCommand.h
         core/console/suggestion/DynamicSuggestionsManager.cpp
-        core/console/suggestion/DynamicSuggestionsManager.h
         core/console/suggestion/DynamicSuggestions.cpp
-        core/console/suggestion/DynamicSuggestions.h
         core/console/suggestion/BoolDynamicSuggestions.cpp
-        core/console/suggestion/BoolDynamicSuggestions.h
         core/vfs/VirtualFileSystem.cpp
-        core/vfs/VirtualFileSystem.h
         core/vfs/FileProvider.cpp
-        core/vfs/FileProvider.h
         core/vfs/StdFileProvider.cpp
-        core/vfs/StdFileProvider.h
         core/vfs/AndroidAssetsFileProvider.cpp
-        core/vfs/AndroidAssetsFileProvider.h
         core/vfs/AAssetStream.cpp
-        core/vfs/AAssetStream.h
-        core/vfs/AAssetStreamBuf.h
         core/vfs/AAssetStreamBuf.cpp
         core/console/command/VFSCommand.cpp
-        core/console/command/VFSCommand.h
         core/ecs/system/AndroidControlSystem.cpp
-        core/ecs/system/AndroidControlSystem.h
         core/console/suggestion/VFSDynamicSuggestions.cpp
-        core/console/suggestion/VFSDynamicSuggestions.h
         core/console/command/ConfigCommand.cpp
-        core/console/command/ConfigCommand.h
         core/console/suggestion/ConfigSuggestions.cpp
-        core/console/suggestion/ConfigSuggestions.h
         core/mod/dataPack/TileManager.cpp
-        core/mod/dataPack/TileManager.h
         core/world/TilePhysicsType.cpp
-        core/world/TilePhysicsType.h
         core/mod/dataPack/BiomesManager.cpp
-        core/mod/dataPack/BiomesManager.h
         core/world/TilePlacer.cpp
-        core/world/TilePlacer.h
         core/world/TilePlacerManager.cpp
-        core/world/TilePlacerManager.h
         core/console/command/LicenseCommand.cpp
-        core/console/command/LicenseCommand.h
         core/world/FillTilePlacer.cpp
-        core/world/FillTilePlacer.h
         core/mod/ResourceLocator.cpp
-        core/mod/ResourceLocator.h
         core/console/command/HeightMapCommand.cpp
-        core/console/command/HeightMapCommand.h
         core/inventory/Item.cpp
-        core/inventory/Item.h
         core/inventory/TileItem.cpp
-        core/inventory/TileItem.h
         core/inventory/ItemContainer.cpp
-        core/inventory/ItemContainer.h
         core/ecs/component/ItemContainerComonent.cpp
-        core/ecs/component/ItemContainerComonent.h
         core/ecs/system/HotBarSystem.cpp
-        core/ecs/system/HotBarSystem.h
         core/ecs/component/HotBarComonent.cpp
-        core/ecs/component/HotBarComonent.h
         core/world/TileLayerType.cpp
-        core/world/TileLayerType.h
         core/ecs/component/DroppedItemComponent.cpp
-        core/ecs/component/DroppedItemComponent.h
         core/ecs/system/DroppedItemSystem.cpp
-        core/ecs/system/DroppedItemSystem.h
         core/ecs/component/MagnetComponent.cpp
-        core/ecs/component/MagnetComponent.h
         core/ecs/component/MagneticComponent.cpp
-        core/ecs/component/MagneticComponent.h
         core/ecs/system/MagnetSystem.cpp
-        core/ecs/system/MagnetSystem.h
         core/ecs/system/AutoPickSystem.cpp
-        core/ecs/system/AutoPickSystem.h
         core/ecs/component/AutoPickComponent.cpp
-        core/ecs/component/AutoPickComponent.h
         core/inventory/ComposableItem.cpp
-        core/inventory/ComposableItem.h
         core/inventory/ability/ItemAbility.cpp
-        core/inventory/ability/ItemAbility.h
         core/inventory/DragAndDrop.cpp
-        core/inventory/DragAndDrop.h
         core/mod/dataPack/ItemManager.cpp
-        core/mod/dataPack/ItemManager.h
         core/console/command/GiveCommand.cpp
-        core/console/command/GiveCommand.h
         core/console/suggestion/ComposableItemDynamicSuggestions.cpp
-        core/console/suggestion/ComposableItemDynamicSuggestions.h
         core/console/suggestion/TileDynamicSuggestions.cpp
-        core/console/suggestion/TileDynamicSuggestions.h
         core/ecs/component/ItemSlotComponent.cpp
-        core/ecs/component/ItemSlotComponent.h
         core/ecs/system/ItemSlotSystem.cpp
-        core/ecs/system/ItemSlotSystem.h
         core/inventory/ability/DigAbility.cpp
-        core/inventory/ability/DigAbility.h
         core/ecs/system/ItemModEditorSystem.cpp
-        core/ecs/system/ItemModEditorSystem.h
         core/inventory/AbilityItem.cpp
-        core/inventory/AbilityItem.h
         core/console/suggestion/AbilityItemDynamicSuggestions.cpp
-        core/console/suggestion/AbilityItemDynamicSuggestions.h
         core/inventory/DragState.cpp
-        core/inventory/DragState.h
         core/inventory/DragSourceType.cpp
-        core/inventory/DragSourceType.h
         core/inventory/ItemAbilityFactory.cpp
-        core/inventory/ItemAbilityFactory.h
         core/ecs/component/DiggingComponent.cpp
-        core/ecs/component/DiggingComponent.h
         core/ecs/system/DiggingSystem.cpp
-        core/ecs/system/DiggingSystem.h
         core/saves/SavesManager.cpp
-        core/saves/SavesManager.h
         core/console/command/SeedCommand.cpp
-        core/console/command/SeedCommand.h
         core/ecs/system/PauseSystem.cpp
-        core/ecs/system/PauseSystem.h
         core/ecs/component/PauseComponent.cpp
-        core/ecs/component/PauseComponent.h
         core/utils/TimeUtils.cpp
+        PUBLIC
+        FILE_SET HEADERS
+        FILES
+
+        "${PROJECT_SOURCE_DIR}/include/tweeny-${MOBIUS3_TWEENY_VERSION}/include/tween.h"
+        core/log/LogCat.h
+        core/Config.h
+        core/App.h
+        core/mod/dataPack/StringManager.h
+        core/mod/Resource.h
+        core/mod/dataPack/DataPackManager.h
+        core/mod/dataPack/DataPack.h
+        core/mod/PackManifest.h
+        core/Constants.h
+        core/utils/JsonUtils.h
+        core/utils/LanguageUtils.h
+        core/mod/ResourceRef.h
+        core/scene/Scene.h
+        core/scene/AppContext.h
+        core/scene/SplashScene.h
+        core/scene/ConsoleOverlay.h
+        core/console/Command.h
+        core/console/CommandExecutor.h
+        core/console/CommandManager.h
+        core/console/CommandArgs.h
+        core/console/CommandResult.h
+        core/mod/resourcePack/ResourcePack.h
+        core/mod/resourcePack/ResourcePackManager.h
+        core/console/command/HelpCommand.h
+        core/scene/SceneManager.h
+        core/scene/HomeScene.h
+        core/Langs.h
+        core/scene/SavedGamesScene.h
+        core/saves/Saves.h
+        core/saves/MapManifest.h
+        core/scene/CreateWorldScene.h
+        core/world/WorldContext.h
+        core/math/Vector2D.h
+        core/scene/WorldScene.h
+        core/scene/DebugOverlay.h
+        core/ecs/GameEntity.h
+        core/ecs/GameComponent.h
+        core/ecs/GameSystem.h
+        core/ecs/system/Transform2DSystem.h
+        core/ecs/component/Transform2DComponent.h
+        core/ecs/system/GameStartSystem.h
+        core/ecs/component/CameraComponent.h
+        core/ecs/component/DebugDrawComponent.h
+        core/ecs/system/DebugDrawSystem.h
+        core/ecs/component/TileLayerComponent.h
+        core/ecs/system/TileLayerSystem.h
+        core/world/Tile.h
+        core/math/Vector2DI.h
+        core/ecs/system/DebugPanelSystem.h
+        core/ecs/system/ChunkSystem.h
+        core/world/Chunk.h
+        core/ecs/component/RigidBody2DComponent.h
+        core/ecs/system/PhysicsSystem.h
+        core/ecs/system/DebugDrawBox2dSystem.h
+        core/utils/Box2DUtils.h
+        core/world/ChunkPhysicsHelper.h
+        core/console/command/TpCommand.h
+        core/console/command/Box2DCommand.h
+        core/utils/NodeTree.h
+        core/console/command/AssetViewerCommand.h
+        core/console/suggestion/DynamicSuggestionsManager.h
+        core/console/suggestion/DynamicSuggestions.h
+        core/console/suggestion/BoolDynamicSuggestions.h
+        core/vfs/VirtualFileSystem.h
+        core/vfs/FileProvider.h
+        core/vfs/StdFileProvider.h
+        core/vfs/AndroidAssetsFileProvider.h
+        core/vfs/AAssetStream.h
+        core/vfs/AAssetStreamBuf.h
+        core/console/command/VFSCommand.h
+        core/ecs/system/AndroidControlSystem.h
+        core/console/suggestion/VFSDynamicSuggestions.h
+        core/console/command/ConfigCommand.h
+        core/console/suggestion/ConfigSuggestions.h
+        core/mod/dataPack/TileManager.h
+        core/world/TilePhysicsType.h
+        core/mod/dataPack/BiomesManager.h
+        core/world/TilePlacer.h
+        core/world/TilePlacerManager.h
+        core/console/command/LicenseCommand.h
+        core/world/FillTilePlacer.h
+        core/mod/ResourceLocator.h
+        core/console/command/HeightMapCommand.h
+        core/inventory/Item.h
+        core/inventory/TileItem.h
+        core/inventory/ItemContainer.h
+        core/ecs/component/ItemContainerComonent.h
+        core/ecs/system/HotBarSystem.h
+        core/ecs/component/HotBarComonent.h
+        core/world/TileLayerType.h
+        core/ecs/component/DroppedItemComponent.h
+        core/ecs/system/DroppedItemSystem.h
+        core/ecs/component/MagnetComponent.h
+        core/ecs/component/MagneticComponent.h
+        core/ecs/system/MagnetSystem.h
+        core/ecs/system/AutoPickSystem.h
+        core/ecs/component/AutoPickComponent.h
+        core/inventory/ComposableItem.h
+        core/inventory/ability/ItemAbility.h
+        core/inventory/DragAndDrop.h
+        core/mod/dataPack/ItemManager.h
+        core/console/command/GiveCommand.h
+        core/console/suggestion/ComposableItemDynamicSuggestions.h
+        core/console/suggestion/TileDynamicSuggestions.h
+        core/ecs/component/ItemSlotComponent.h
+        core/ecs/system/ItemSlotSystem.h
+        core/inventory/ability/DigAbility.h
+        core/ecs/system/ItemModEditorSystem.h
+        core/inventory/AbilityItem.h
+        core/console/suggestion/AbilityItemDynamicSuggestions.h
+        core/inventory/DragState.h
+        core/inventory/DragSourceType.h
+        core/inventory/ItemAbilityFactory.h
+        core/ecs/component/DiggingComponent.h
+        core/ecs/system/DiggingSystem.h
+        core/saves/SavesManager.h
+        core/console/command/SeedCommand.h
+        core/ecs/system/PauseSystem.h
+        core/ecs/component/PauseComponent.h
         core/utils/TimeUtils.h
 )
-
-if (ANDROID)
-    message(STATUS "Building for Android → Shared Library (.so)")
-    add_library(GlimmerWorks SHARED ${GLIMMERWORKS_SOURCES})
-else ()
-    message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks ${GLIMMERWORKS_SOURCES})
-endif ()
 
 #Define version information
 #定义版本信息

@@ -24,6 +24,10 @@ glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
     return itemAbility_.get();
 }
 
+std::optional<glimmer::ResourceRef> glimmer::AbilityItem::ToResourceRef() {
+    return Resource::ParseFromId(id_, RESOURCE_TYPE_ABILITY_ITEM);
+}
+
 
 void glimmer::AbilityItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
     if (canUseAlone_) {

@@ -4,7 +4,11 @@
 
 #include "ItemContainer.h"
 
+#include "AbilityItem.h"
+#include "ComposableItem.h"
+#include "TileItem.h"
 #include "../log/LogCat.h"
+#include "../mod/ResourceLocator.h"
 
 
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<Item> item) {
@@ -37,7 +41,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
     return item;
 }
 
-size_t glimmer::ItemContainer::RemoveItem(const std::string &id, const size_t amount) {
+size_t glimmer::ItemContainer::RemoveItem(const std::string &id, const size_t amount) const {
     int unallocatedCount = static_cast<int>(amount);
     for (auto &i: items_) {
         Item *itemPtr = i.get();
@@ -105,7 +109,7 @@ glimmer::Item *glimmer::ItemContainer::GetItem(const size_t index) const {
     return items_[index].get();
 }
 
-size_t glimmer::ItemContainer::RemoveItemAt(const size_t index, const size_t amount) {
+size_t glimmer::ItemContainer::RemoveItemAt(const size_t index, const size_t amount) const {
     if (index >= items_.size() || items_[index] == nullptr) {
         return 0;
     }
@@ -133,6 +137,60 @@ bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContaine
     otherContainer->items_[otherIndex] = std::move(itemThis);
 
     return true;
+}
+
+void glimmer::ItemContainer::FromMessage(AppContext *appContext, const ItemContainerMessage &message) {
+    for (size_t i = 0; i < items_.size(); ++i) {
+        ResourceRefMessage resourceRefMessage = message.itemresourceref(i);
+        ResourceRef resourceRef;
+        resourceRef.FromMessage(resourceRefMessage);
+        const int resourceType = resourceRef.GetResourceType();
+        if (resourceType == RESOURCE_TYPE_TILE) {
+            auto tileResource = appContext->GetResourceLocator()->FindTile(resourceRef);
+            if (!tileResource.has_value()) {
+                continue;
+            }
+            items_[i] = std::move(std::make_unique<TileItem>(Tile::FromResourceRef(appContext, tileResource.value())));
+            continue;
+        }
+        if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
+            auto composableItemResource = appContext->GetResourceLocator()->FindComposableItem(resourceRef);
+            if (!composableItemResource.has_value()) {
+                continue;
+            }
+            items_[i] = std::move(ComposableItem::FromItemResource(appContext, composableItemResource.value()));
+            continue;
+        }
+        if (resourceType == RESOURCE_TYPE_ABILITY_ITEM) {
+            auto abilityItemResource = appContext->GetResourceLocator()->FindAbilityItem(resourceRef);
+            if (!abilityItemResource.has_value()) {
+                continue;
+            }
+            items_[i] = std::move(AbilityItem::FromItemResource(appContext, abilityItemResource.value()));
+            continue;
+        }
+        LogCat::e("Resource Pointers cannot be converted into items.");
+    }
+}
+
+void glimmer::ItemContainer::ToMessage(ItemContainerMessage &message) const {
+    message.mutable_itemresourceref()->Reserve(
+        items_.size()
+    );
+    for (size_t i = 0; i < items_.size(); ++i) {
+        if (items_[i] != nullptr) {
+            const auto refMessage = message.add_itemresourceref();
+            auto *item = items_[i].get();
+            if (item == nullptr) {
+                continue;
+            }
+            auto resourceRef = item->ToResourceRef();
+            if (!resourceRef.has_value()) {
+                continue;
+            }
+            resourceRef->ToMessage(*refMessage);
+        }
+    }
 }
 
 std::unique_ptr<glimmer::ItemContainer> glimmer::ItemContainer::Clone() const {

@@ -91,6 +91,14 @@ namespace glimmer {
 
 
         /**
+         * Convert to resource reference
+         * 转为资源引用
+         * @return
+         */
+        [[nodiscard]] virtual std::optional<ResourceRef> ToResourceRef() = 0;
+
+
+        /**
          *IsStackable
          * 是否可堆叠的
          * @return

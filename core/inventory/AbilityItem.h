@@ -42,6 +42,8 @@ namespace glimmer {
 
         [[nodiscard]] ItemAbility *GetItemAbility() const;
 
+        [[nodiscard]] std::optional<ResourceRef> ToResourceRef() override;
+
         static std::unique_ptr<AbilityItem> FromItemResource(AppContext *appContext,
                                                              const AbilityItemResource *itemResource) {
             const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
@@ -59,7 +61,8 @@ namespace glimmer {
                 LogCat::e("An error occurred when constructing ability items, and the texture is empty.");
                 return nullptr;
             }
-            auto itemAbility = ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
+            auto itemAbility =
+                    ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
             if (itemAbility == nullptr) {
                 LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
                 return nullptr;

@@ -58,6 +58,10 @@ std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const {
     return newItem;
 }
 
+std::optional<glimmer::ResourceRef> glimmer::ComposableItem::ToResourceRef() {
+    return Resource::ParseFromId(id_, RESOURCE_TYPE_COMPOSABLE_ITEM);
+}
+
 size_t glimmer::ComposableItem::GetMaxSlotSize() const {
     return maxSlotSize_;
 }

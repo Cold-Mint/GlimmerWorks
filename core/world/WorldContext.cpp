@@ -341,12 +341,20 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
     if (it == chunks_.end()) {
         return;
     }
-    ChunkMessage chunkMessage;
-    it->second.get()->ToMessage(chunkMessage);
-    (void) saves->WriteChunk(position, chunkMessage);
+    SaveChunk(position);
     ChunkPhysicsHelper::DetachPhysicsBodyToChunk(it->second.get());
     chunks_.erase(it);
     chunksVersion_++;
+}
+
+void glimmer::WorldContext::SaveChunk(TileVector2D position) {
+    const auto it = chunks_.find(position);
+    if (it == chunks_.end()) {
+        return;
+    }
+    ChunkMessage chunkMessage;
+    it->second->ToMessage(chunkMessage);
+    (void) saves->WriteChunk(position, chunkMessage);
 }
 
 bool glimmer::WorldContext::HasChunk(const TileVector2D position) const {

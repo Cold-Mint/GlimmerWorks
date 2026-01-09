@@ -63,6 +63,10 @@ std::shared_ptr<SDL_Texture> glimmer::TileItem::GetIcon() const {
     return tile_->texture;
 }
 
+std::optional<glimmer::ResourceRef> glimmer::TileItem::ToResourceRef() {
+    return Resource::ParseFromId(tile_->id, RESOURCE_TYPE_TILE);
+}
+
 std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const {
     return std::make_unique<TileItem>(std::make_unique<Tile>(*tile_));
 }

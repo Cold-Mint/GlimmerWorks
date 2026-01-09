@@ -8,9 +8,11 @@
 #include <utility>
 
 #include "MapManifest.h"
+#include "../ecs/GameEntity.h"
 #include "../ecs/component/TileLayerComponent.h"
 #include "../vfs/VirtualFileSystem.h"
 #include "saves/chunk.pb.h"
+#include "saves/item_container.pb.h"
 
 namespace glimmer {
     class Saves {
@@ -19,6 +21,8 @@ namespace glimmer {
         std::function<void(const MapManifestMessage &)> onMapManifestChanged_;
 
         [[nodiscard]] std::string ToChunkPath(TileVector2D position) const;
+
+        [[nodiscard]] std::string ToItemContainerPath(GameEntity::ID id) const;
 
     public:
         explicit Saves(std::string path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
@@ -53,6 +57,15 @@ namespace glimmer {
 
         [[nodiscard]] bool WriteChunk(TileVector2D position, const ChunkMessage &chunkMessage) const;
 
+
+        /**
+         * Write about item containers
+         * 写物品容器
+         * @param id
+         * @param itemContainerMessage
+         * @return
+         */
+        [[nodiscard]] bool WriteItemContainer(GameEntity::ID id, const ItemContainerMessage &itemContainerMessage) const;
 
         /**
          * ReadMapManifest

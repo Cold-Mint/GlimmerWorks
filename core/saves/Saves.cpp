@@ -14,6 +14,10 @@ std::string glimmer::Saves::ToChunkPath(TileVector2D position) const {
     return path_ + "/chunks/chunk_" + std::to_string(position.x) + "_" + std::to_string(position.y) + ".bin";
 }
 
+std::string glimmer::Saves::ToItemContainerPath(GameEntity::ID id) const {
+    return path_ + "/item_containers/item_container_" + std::to_string(id) + ".bin";
+}
+
 void glimmer::Saves::SetOnMapManifestChanged(
     const std::function<void(const MapManifestMessage &)> &onMapManifestChanged) {
     onMapManifestChanged_ = onMapManifestChanged;
@@ -44,6 +48,10 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D positio
 
 bool glimmer::Saves::WriteChunk(const TileVector2D position, const ChunkMessage &chunkMessage) const {
     return virtualFileSystem_->WriteFile(ToChunkPath(position), chunkMessage.SerializeAsString());
+}
+
+bool glimmer::Saves::WriteItemContainer(GameEntity::ID id, const ItemContainerMessage &itemContainerMessage) const {
+    return virtualFileSystem_->WriteFile(ToItemContainerPath(id), itemContainerMessage.SerializeAsString());
 }
 
 std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {

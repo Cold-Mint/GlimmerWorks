@@ -329,6 +329,13 @@ namespace glimmer {
         void UnloadChunkAt(TileVector2D position);
 
         /**
+         * SaveChunk
+         * 保存某个区块
+         * @param position
+         */
+        void SaveChunk(TileVector2D position);
+
+        /**
          * Determine whether a block at a certain position has been loaded
          * 判断某个位置的区块是否被加载
          * @param position

@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Item.h"
-#include "../log/LogCat.h"
+#include "saves/item_container.pb.h"
 
 namespace glimmer {
     class ItemContainer {
@@ -45,7 +45,7 @@ namespace glimmer {
          * @param amount amount 数量
          * @return
          */
-        [[nodiscard]] size_t RemoveItem(const std::string &id, size_t amount);
+        [[nodiscard]] size_t RemoveItem(const std::string &id, size_t amount) const;
 
 
         /**
@@ -63,7 +63,7 @@ namespace glimmer {
          * @param amount
          * @return
          */
-        size_t RemoveItemAt(size_t index, size_t amount);
+        size_t RemoveItemAt(size_t index, size_t amount) const;
 
         /**
          * GetItem
@@ -79,6 +79,7 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] size_t GetCapacity() const;
+
         /**
          * Take Item At Index (Moves ownership out of container)
          * 取出指定位置的物品（所有权转移）
@@ -93,7 +94,7 @@ namespace glimmer {
          * @param amount
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Item> TakeItem(size_t index,size_t amount) const;
+        [[nodiscard]] std::unique_ptr<Item> TakeItem(size_t index, size_t amount) const;
 
         /**
          * Swap Item
@@ -104,6 +105,11 @@ namespace glimmer {
          * @return true if successful
          */
         bool SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex);
+
+        void FromMessage(AppContext *appContext, const ItemContainerMessage &message);
+
+        void ToMessage(ItemContainerMessage &message) const;
+
 
         [[nodiscard]] std::unique_ptr<ItemContainer> Clone() const;
     };

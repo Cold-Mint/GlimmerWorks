@@ -73,6 +73,8 @@ namespace glimmer {
                                                     descriptionRes.value()->value, texture, itemResource->slotSize);
         }
 
+        [[nodiscard]] std::optional<ResourceRef> ToResourceRef() override;
+
         [[nodiscard]] size_t GetMaxSlotSize() const;
 
         [[nodiscard]] std::vector<AbilityItem *> GetAbilityList() const;

@@ -110,6 +110,9 @@ void glimmer::Chunk::ToMessage(ChunkMessage &chunkMessage) {
                 const auto refMessage = tileData.add_tileresourceref();
                 const Tile *tile = tileArray[x][y].get();
                 std::optional<ResourceRef> resourceRef = Resource::ParseFromId(tile->id, RESOURCE_TYPE_TILE);
+                if (!resourceRef.has_value()) {
+                    continue;
+                }
                 resourceRef->ToMessage(*refMessage);
             }
         }

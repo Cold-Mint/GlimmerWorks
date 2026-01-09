@@ -6,6 +6,7 @@
 
 #include "imgui.h"
 #include "../../world/WorldContext.h"
+#include "../component/ItemContainerComonent.h"
 
 
 uint8_t glimmer::PauseSystem::GetRenderOrder() {
@@ -71,6 +72,24 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
             if (!worldContext_->GetSaves()->WriteMapManifest(mapManifestMessageData.value())) {
                 LogCat::e("Error update map Manifest ");
                 return;
+            }
+            //Save all blocks.
+            //保存所有区块。
+            auto allChunks = worldContext_->GetAllChunks();
+            for (const auto &pos: *allChunks | std::views::keys) {
+                worldContext_->SaveChunk(pos);
+            }
+            //Save the inventory components.
+            //保存库存组件。
+            auto itemContainerEntities = worldContext_->GetEntitiesWithComponents<ItemContainerComponent>();
+            for (const auto &entity: itemContainerEntities) {
+                auto itemContainerComponent = worldContext_->GetComponent<ItemContainerComponent>(entity->GetID());
+                ItemContainerMessage itemContainerMessage;
+                itemContainerComponent->GetItemContainer()->ToMessage(itemContainerMessage);
+                if (!worldContext_->GetSaves()->WriteItemContainer(entity->GetID(), itemContainerMessage)) {
+                    LogCat::e("Error update item container ");
+                    continue;
+                }
             }
             appContext_->GetSceneManager()->PopScene();
         }

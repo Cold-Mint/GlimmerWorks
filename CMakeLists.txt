@@ -9,8 +9,13 @@ set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
         "CMake message verbosity level")
 
 include("versions.cmake")
-set(CMAKE_BUILD_RPATH "$ORIGIN/libs")
-set(CMAKE_INSTALL_RPATH "$ORIGIN/libs")
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(LIB_DIR "lib64")
+else ()
+    set(LIB_DIR "lib32")
+endif ()
+set(CMAKE_BUILD_RPATH "$ORIGIN/${LIB_DIR}")
+set(CMAKE_INSTALL_RPATH "$ORIGIN/${LIB_DIR}")
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://github.com/Cold-Mint/GlimmerWorks")
 set(CPACK_PACKAGE_VENDOR "Cold-Mint")
 #Major version number
@@ -464,3 +469,61 @@ set(CPACK_GENERATOR "TZST")
 set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist/${CMAKE_BUILD_TYPE}")
 include(CPack)
 install(TARGETS GlimmerWorks RUNTIME DESTINATION .)
+install(FILES "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}" DESTINATION .)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/core_langs/"
+        DESTINATION "langs")
+install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
+        DESTINATION .)
+file(GLOB SDL_IMAGE_LIBS
+        "${CMAKE_BINARY_DIR}/_deps/sdl_image-build/*so*"
+)
+install(FILES ${SDL_IMAGE_LIBS} DESTINATION ${LIB_DIR})
+file(GLOB FMT_LIBS
+        "${CMAKE_BINARY_DIR}/_deps/fmt-build/*so*"
+)
+install(FILES
+        ${FMT_LIBS}
+        DESTINATION ${LIB_DIR}
+)
+file(GLOB SDL_TTF_LIBS
+        "${CMAKE_BINARY_DIR}/_deps/sdl_ttf-build/*so*"
+)
+install(FILES
+        ${SDL_TTF_LIBS}
+        DESTINATION ${LIB_DIR}
+)
+file(GLOB PROTO_BUF_LIBS
+        "${CMAKE_BINARY_DIR}/_deps/glimmerworksprotobuf-build/*so*"
+)
+install(FILES
+        ${PROTO_BUF_LIBS}
+        DESTINATION ${LIB_DIR}
+)
+#install(CODE "
+#    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/glimmerworksprotobuf-build/*so*\")
+#    foreach(lib \${PROTO_BUF_LIBS})
+#        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
+#        file(INSTALL DESTINATION \"${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES \${lib})
+#    endforeach()
+#")
+
+
+
+
+#add_custom_command(TARGET GlimmerWorks POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#        $<TARGET_FILE:SDL3::SDL3>
+#        "${CMAKE_BINARY_DIR}/libs/libSDL3.so.0"
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#        $<TARGET_FILE:SDL3_image::SDL3_image>
+#        "${CMAKE_BINARY_DIR}/libs/libSDL3_image.so.0"
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#        $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
+#        "${CMAKE_BINARY_DIR}/libs/libSDL3_ttf.so.0"
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#        $<TARGET_FILE:fmt::fmt>
+#        "${CMAKE_BINARY_DIR}/libs/$<IF:$<CONFIG:Debug>,libfmtd.so.12,libfmt.so.12>"
+#        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#        $<TARGET_FILE:box2d::box2d>
+#        "${CMAKE_BINARY_DIR}/libs/libbox2d.so"
+#)

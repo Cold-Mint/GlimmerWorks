@@ -434,24 +434,6 @@ file(COPY "${CMAKE_SOURCE_DIR}/LICENSE"
 
 file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" "*")
 
-add_custom_command(TARGET GlimmerWorks POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:SDL3::SDL3>
-        "${CMAKE_BINARY_DIR}/libs/libSDL3.so.0"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:SDL3_image::SDL3_image>
-        "${CMAKE_BINARY_DIR}/libs/libSDL3_image.so.0"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:SDL3_ttf::SDL3_ttf>
-        "${CMAKE_BINARY_DIR}/libs/libSDL3_ttf.so.0"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:fmt::fmt>
-        "${CMAKE_BINARY_DIR}/libs/$<IF:$<CONFIG:Debug>,libfmtd.so.12,libfmt.so.12>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:box2d::box2d>
-        "${CMAKE_BINARY_DIR}/libs/libbox2d.so"
-)
-
 #Clone data packets and resource packets.
 #克隆数据包和资源包
 FetchContent_Declare(
@@ -478,3 +460,7 @@ if (NOT VanillaDataPack_POPULATED)
     FetchContent_Populate(VanillaResourcePack)
 endif ()
 
+set(CPACK_GENERATOR "TZST")
+set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist/${CMAKE_BUILD_TYPE}")
+include(CPack)
+install(TARGETS GlimmerWorks RUNTIME DESTINATION .)

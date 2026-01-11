@@ -46,6 +46,7 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
 )
 
+set(JSON_Install OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(nlohmann_json)
 
 FetchContent_Declare(
@@ -54,6 +55,8 @@ FetchContent_Declare(
         GIT_TAG ${LIBSDL-ORG_SDL_VERSION}
         GIT_PROGRESS TRUE
 )
+set(SDL_INSTALL OFF CACHE INTERNAL "")
+set(SDL3_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(SDL)
 
 FetchContent_Declare(
@@ -62,6 +65,7 @@ FetchContent_Declare(
         GIT_TAG ${LIBSDL-ORG_SDL_IMAGE_VERSION}
         GIT_PROGRESS TRUE
 )
+set(SDL_IMAGE_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(SDL_image)
 
 
@@ -71,6 +75,7 @@ FetchContent_Declare(
         GIT_TAG ${LIBSDL-ORG_SDL_TTF_VERSION}
         GIT_PROGRESS TRUE
 )
+set(SDL_TTF_INSTALL OFF CACHE INTERNAL "")
 set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(SDL_ttf)
 
@@ -89,6 +94,7 @@ FetchContent_Declare(
         GIT_TAG ${MOBIUS3_TWEENY_VERSION}
 )
 
+set(TWEENY_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(tweeny)
 
 FetchContent_Declare(
@@ -97,6 +103,7 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
         GIT_TAG ${FMTLIB_FMT_VERSION}
 )
+set(FMT_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(
@@ -105,6 +112,7 @@ FetchContent_Declare(
         GIT_PROGRESS TRUE
         GIT_TAG ${AUBURN_FASTNOISELITE_VERSION}
 )
+set(FASTNOISELITE_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(fastNoiseLite)
 
 FetchContent_Declare(
@@ -113,13 +121,18 @@ FetchContent_Declare(
         GIT_TAG ${ERINCATTO_BOX2D_VERSION}
         GIT_PROGRESS TRUE
 )
+set(BOX2D_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(box2d)
 
 FetchContent_Declare(
         glimmerWorksProtobuf
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
         GIT_PROGRESS TRUE
+        PATCH_COMMAND sed -i "s|_deps/pb-build/cmake/protobuf/protobuf-generate.cmake|_deps/pb-src/cmake/protobuf-generate.cmake|" CMakeLists.txt
 )
+set(ABSL_ENABLE_INSTALL OFF CACHE INTERNAL "")
+set(protobuf_INSTALL OFF CACHE INTERNAL "")
+set(protobuf_BUILD_PROTOC_BINARIES ON CACHE INTERNAL "")
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
 
 if (ANDROID)

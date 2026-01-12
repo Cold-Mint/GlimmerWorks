@@ -7,6 +7,10 @@
 #include "../../world/WorldContext.h"
 #include "../component/CameraComponent.h"
 
+uint8_t glimmer::DroppedItemSystem::GetRenderOrder() {
+    return RENDER_ORDER_DROPPED_ITEM;
+}
+
 void glimmer::DroppedItemSystem::Update(float delta) {
     auto entity = worldContext_->GetEntitiesWithComponents<DroppedItemComponent, Transform2DComponent>();
     for (auto gameEntity: entity) {

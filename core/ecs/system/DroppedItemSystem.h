@@ -18,6 +18,7 @@ namespace glimmer {
         }
 
 
+        uint8_t GetRenderOrder() override;
 
         void Update(float delta) override;
 

@@ -110,15 +110,16 @@ static constexpr float KINV_SCALE = 1.0F / KSCALE;
 static constexpr float PLAYER_MOVE_SPEED = 60.0F;
 
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
-static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 2;
-static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 3;
-static constexpr uint8_t RENDER_ORDER_DEBUG_CHUNK = 4;
-static constexpr uint8_t RENDER_ORDER_DEBUG_BOX2D = 5;
-static constexpr uint8_t RENDER_ORDER_DEBUG_HOTBAR = 6;
-static constexpr uint8_t RENDER_ORDER_ITEM_MOD_EDITOR = 7;
-static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 8;
-static constexpr uint8_t RENDER_ORDER_DIGGING = 9;
-static constexpr uint8_t RENDER_ORDER_PAUSE = 10;
+static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 2;
+static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 3;
+static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 4;
+static constexpr uint8_t RENDER_ORDER_DEBUG_CHUNK = 5;
+static constexpr uint8_t RENDER_ORDER_DEBUG_BOX2D = 6;
+static constexpr uint8_t RENDER_ORDER_DEBUG_HOTBAR = 7;
+static constexpr uint8_t RENDER_ORDER_ITEM_MOD_EDITOR = 8;
+static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 9;
+static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
+static constexpr uint8_t RENDER_ORDER_PAUSE = 11;
 
 
 /**

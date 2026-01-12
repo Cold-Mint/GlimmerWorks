@@ -154,8 +154,9 @@ namespace glimmer {
             auto future = promise->get_future();
             {
                 std::lock_guard lock(mainThreadMutex_);
+                std::decay_t<Func> taskFunc = std::forward<Func>(func);
                 mainThreadTasks_.push(
-                    [func = std::forward<Func>(func), promise]() mutable {
+                    [func = std::move(taskFunc), promise]() mutable {
                         try {
                             if constexpr (std::is_void_v<Result>) {
                                 func();

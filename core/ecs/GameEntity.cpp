@@ -3,3 +3,15 @@
 //
 
 #include "GameEntity.h"
+
+glimmer::GameEntity::ID glimmer::GameEntity::GetID() const {
+    return id_;
+}
+
+void glimmer::GameEntity::SetPersistable(const bool persistable) {
+    persistable_ = persistable;
+}
+
+bool glimmer::GameEntity::IsPersistable() const {
+    return persistable_;
+}

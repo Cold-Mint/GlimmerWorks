@@ -432,6 +432,13 @@ namespace glimmer {
         GameEntity *GetEntity(GameEntity::ID id);
 
         /**
+         * Obtain all game objects that need to be persisted
+         * 获取所有需要持久化的游戏对象
+         * @return
+         */
+        [[nodiscard]] std::vector<GameEntity *> GetAllPersistableEntities() const;
+
+        /**
          * Remove Entity
          * 移除实体
          * @param id

@@ -12,12 +12,17 @@ namespace glimmer {
 
     private:
         ID id_;
+        bool persistable_ = false;
 
     public:
         explicit GameEntity(const ID id) : id_(id) {
         }
 
-        [[nodiscard]] ID GetID() const { return id_; }
+        [[nodiscard]] ID GetID() const;
+
+        void SetPersistable(bool persistable);
+
+        [[nodiscard]] bool IsPersistable() const;
     };
 }
 

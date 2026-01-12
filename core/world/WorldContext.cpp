@@ -115,7 +115,7 @@ int glimmer::WorldContext::GetHeight(int x) {
 
     // B) 组合陆地起伏噪声 (主要由山脉和丘陵构成)
     // landmassNoise 范围 [0, 1]
-    float landmassNoise = (mountainNoise * MOUNTAIN_WEIGHT) + (hillsNoise * HILLS_WEIGHT);
+    float landmassNoise = mountainNoise * MOUNTAIN_WEIGHT + hillsNoise * HILLS_WEIGHT;
 
     // C) 平滑山峰抬升 (生成高原和尖锐的山脉)
     float peakLift = 0.0F;
@@ -611,6 +611,20 @@ glimmer::WorldContext::CreateDroppedItemEntity(std::unique_ptr<Item> item, const
 glimmer::GameEntity *glimmer::WorldContext::GetEntity(const GameEntity::ID id) {
     const auto it = entityMap.find(id);
     return it != entityMap.end() ? it->second : nullptr;
+}
+
+std::vector<glimmer::GameEntity *> glimmer::WorldContext::GetAllPersistableEntities() const {
+    std::vector<GameEntity *> result;
+    // Traverse all entities
+    // 遍历所有实体
+    for (auto &entity: entities) {
+        GameEntity *entityPtr = entity.get();
+        if (entityPtr == nullptr || !entityPtr->IsPersistable()) {
+            continue;
+        }
+        result.push_back(entityPtr);
+    }
+    return result;
 }
 
 void glimmer::WorldContext::RemoveEntity(GameEntity::ID id) {

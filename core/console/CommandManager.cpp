@@ -4,7 +4,7 @@
 
 #include "CommandManager.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include "../log/LogCat.h"
 #include "nlohmann/detail/input/parser.hpp"

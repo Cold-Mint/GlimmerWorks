@@ -4,7 +4,7 @@
 
 #include "TileLayerComponent.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include "../../Constants.h"
 #include "../../log/LogCat.h"

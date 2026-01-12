@@ -315,11 +315,9 @@ namespace glimmer {
         /**
         * Load Chunk
         * 加载区块
-        * @param tileLayerPos tileLayerPos 瓦片层的对象位置
         * @param position position 位置
         */
-        void LoadChunkAt(const WorldVector2D &tileLayerPos,
-                         TileVector2D position);
+        void LoadChunkAt(TileVector2D position);
 
         /**
          * Unload Chunk

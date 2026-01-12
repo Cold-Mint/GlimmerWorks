@@ -109,10 +109,11 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         // 遍历 TileLayer 并打印瓦片坐标
         for (auto &tileEntity: tileLayers) {
             auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(tileEntity->GetID());
-            auto layerPos = worldContext_->GetComponent<Transform2DComponent>(tileEntity->GetID());
-            if (!tileLayer || !layerPos) continue;
+            if (tileLayer == nullptr) {
+                continue;
+            }
 
-            TileVector2D tileCoord = TileLayerComponent::WorldToTile(layerPos->GetPosition(), mousePosition_);
+            TileVector2D tileCoord = TileLayerComponent::WorldToTile(mousePosition_);
             TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
             float elevation = WorldContext::GetElevation(tileCoord.y);
             snprintf(buffer, sizeof(buffer),

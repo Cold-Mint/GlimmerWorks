@@ -25,18 +25,15 @@ void glimmer::ChunkSystem::Update(float delta) {
 
     for (auto layerEntity: tileLayerEntities) {
         auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(layerEntity->GetID());
-        auto worldPosition = worldContext_->GetComponent<Transform2DComponent>(layerEntity->GetID());
-        if (tileLayer == nullptr || worldPosition == nullptr) {
+        if (tileLayer == nullptr) {
             continue;
         }
 
         // 视口左上角和右下角对应的tile坐标
         TileVector2D topLeftCorner = TileLayerComponent::WorldToTile(
-            worldPosition->GetPosition(),
             WorldVector2D(viewportRect.x, viewportRect.y));
 
         TileVector2D lowerRightCorner = TileLayerComponent::WorldToTile(
-            worldPosition->GetPosition(),
             WorldVector2D(viewportRect.x + viewportRect.w, viewportRect.y + viewportRect.h));
         const TileVector2D startChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftCorner);
         const TileVector2D endChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightCorner);
@@ -46,7 +43,7 @@ void glimmer::ChunkSystem::Update(float delta) {
             for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
                 TileVector2D chunkPos(cx, cy);
                 if (!WorldContext::ChunkIsOutOfBounds(chunkPos) && !worldContext_->HasChunk(chunkPos)) {
-                    worldContext_->LoadChunkAt(worldPosition->GetPosition(), chunkPos);
+                    worldContext_->LoadChunkAt(chunkPos);
                 }
             }
         }

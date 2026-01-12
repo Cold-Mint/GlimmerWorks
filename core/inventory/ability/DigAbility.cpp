@@ -15,13 +15,11 @@ std::string glimmer::DigAbility::GetId() const {
 
 void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
     auto tileLayerEntitys = worldContext->GetEntitiesWithComponents<
-        TileLayerComponent, Transform2DComponent>();
+        TileLayerComponent>();
     for (auto &gameEntity: tileLayerEntitys) {
         auto *tileLayerComponent = worldContext->GetComponent<TileLayerComponent>(
             gameEntity->GetID());
-        auto *tileLayerTransform2D = worldContext->GetComponent<Transform2DComponent>(
-            gameEntity->GetID());
-        if (tileLayerComponent == nullptr || tileLayerTransform2D == nullptr) {
+        if (tileLayerComponent == nullptr) {
             continue;
         }
         if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
@@ -35,8 +33,7 @@ void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldConte
                 continue;
             }
             DiggingComponent *diggingComponent = worldContext->GetDiggingComponent();
-            const WorldVector2D worldPos = TileLayerComponent::TileToWorld(
-                tileLayerTransform2D->GetPosition(), tileVector2D);
+            const WorldVector2D worldPos = TileLayerComponent::TileToWorld(tileVector2D);
             if (diggingComponent->GetPosition() != worldPos) {
                 diggingComponent->SetProgress(0.0F);
                 diggingComponent->SetPosition(worldPos);

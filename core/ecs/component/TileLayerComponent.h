@@ -17,36 +17,37 @@ using TileVector2D = glimmer::Vector2DI;
 namespace glimmer {
     class Chunk;
 
+    /**
+     * The TileLayer component is designed to operate only at the world origin (0,0).
+     * The position of the Transform2DComponent does not affect the coordinate transformation.
+     * TileLayer组件被设计为只能在世界原点（0,0）工作。
+     * Transform2DComponent组件的位置不会影响坐标转换。
+     */
     class TileLayerComponent final : public GameComponent {
     public:
         /**
          *Tile To World
          * 瓦片坐标转世界坐标
-         * @param tileLayerPos tileLayerPos 瓦片层的对象位置
          * @param tilePos TileVector2D 瓦片坐标
          * @return
          */
-        [[nodiscard]] static WorldVector2D TileToWorld(const WorldVector2D &tileLayerPos, const TileVector2D &tilePos);
+        [[nodiscard]] static WorldVector2D TileToWorld(const TileVector2D &tilePos);
 
         /**
          * WorldToTile
          * 世界坐标转瓦片坐标
-         * @param tileLayerPos tileLayerPos 瓦片层的对象位置
          * @param worldPos worldPos 世界坐标
          * @return
          */
-        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D &tileLayerPos, const WorldVector2D &worldPos);
+        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D &worldPos);
 
         /**
          * Get Tiles In Viewport
          * 获取视口矩形内的所有瓦片数据
-         * @param tileLayerPos
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, Tile *> > GetTilesInViewport(
-            const WorldVector2D &tileLayerPos,
-            const SDL_FRect &worldViewport) const;
+        [[nodiscard]] std::vector<std::pair<TileVector2D, Tile *> > GetTilesInViewport(const SDL_FRect &worldViewport) const;
 
         /**
          * Set Tile

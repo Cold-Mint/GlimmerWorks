@@ -23,10 +23,9 @@ std::string glimmer::TileItem::GetDescription() const {
 }
 
 void glimmer::TileItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
-    const auto entities = worldContext->GetEntitiesWithComponents<Transform2DComponent, TileLayerComponent>();
+    const auto entities = worldContext->GetEntitiesWithComponents<TileLayerComponent>();
     for (auto &entity: entities) {
         auto *tileLayer = worldContext->GetComponent<TileLayerComponent>(entity->GetID());
-        auto *tileLayerTransform2D = worldContext->GetComponent<Transform2DComponent>(entity->GetID());
         if (tileLayer->GetTileLayerType() == TileLayerType::Main) {
             auto targetPos = tileLayer->GetFocusPosition();
             auto currentTile = tileLayer->GetTile(targetPos);
@@ -47,7 +46,7 @@ void glimmer::TileItem::OnUse(AppContext *appContext, WorldContext *worldContext
                             if (chunk) {
                                 ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
                                 ChunkPhysicsHelper::AttachPhysicsBodyToChunk(
-                                    worldContext->GetWorldId(), tileLayerTransform2D->GetPosition(),
+                                    worldContext->GetWorldId(),
                                     chunk);
                             }
                         }

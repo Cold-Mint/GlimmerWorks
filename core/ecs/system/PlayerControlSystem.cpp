@@ -151,12 +151,12 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
 
         for (auto &entity: tileLayerEntities) {
             auto *layer = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
-            auto *transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
-            if (!layer || !transform) continue;
+            if (layer == nullptr) {
+                continue;
+            }
 
             if (layer->GetTileLayerType() != TileLayerType::Main) continue;
             layer->SetFocusPosition(TileLayerComponent::WorldToTile(
-                transform->GetPosition(),
                 worldPos
             ));
         }

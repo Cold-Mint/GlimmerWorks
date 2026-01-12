@@ -10,8 +10,7 @@
 #include "box2d/types.h"
 
 
-void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId worldId, const WorldVector2D &tileLayerPos,
-                                                           Chunk *chunk) {
+void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId worldId, Chunk *chunk) {
     std::vector<TileVector2D> dynamicTiles;
     TileVector2D chunkPos = chunk->GetPosition();
 
@@ -84,8 +83,8 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId world
             float localCenterY = static_cast<float>(y) + static_cast<float>(h - 1) * 0.5F;
 
             // Convert to world coords
-            const float worldX = (static_cast<float>(chunkPos.x) + localCenterX) * TILE_SIZE + tileLayerPos.x;
-            const float worldY = (static_cast<float>(chunkPos.y) + localCenterY) * TILE_SIZE + tileLayerPos.y;
+            const float worldX = (static_cast<float>(chunkPos.x) + localCenterX) * TILE_SIZE;
+            const float worldY = (static_cast<float>(chunkPos.y) + localCenterY) * TILE_SIZE;
 
             const WorldVector2D worldPos = {worldX, worldY};
 

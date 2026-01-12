@@ -21,17 +21,16 @@ void glimmer::DiggingSystem::Update(float delta) {
     }
     diggingComponent->SetEnable(true);
 
-    const auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<TileLayerComponent, Transform2DComponent>();
+    const auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<TileLayerComponent>();
     for (auto &entity: tileLayerEntities) {
         auto *tileLayer = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
-        auto *transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
 
         if (tileLayer->GetTileLayerType() != diggingComponent->GetLayerType()) {
             continue;
         }
 
-        TileVector2D tilePos = TileLayerComponent::WorldToTile(transform->GetPosition(),
-                                                               diggingComponent->GetPosition());
+        TileVector2D tilePos = TileLayerComponent::WorldToTile(
+            diggingComponent->GetPosition());
         Tile *tile = tileLayer->GetTile(tilePos);
         if (tile == nullptr) {
             continue;
@@ -53,7 +52,7 @@ void glimmer::DiggingSystem::Update(float delta) {
             if (oldTile) {
                 worldContext_->CreateDroppedItemEntity(
                     std::make_unique<TileItem>(std::move(oldTile)),
-                    TileLayerComponent::TileToWorld(transform->GetPosition(), tilePos)
+                    TileLayerComponent::TileToWorld(tilePos)
                 );
             }
 
@@ -62,8 +61,7 @@ void glimmer::DiggingSystem::Update(float delta) {
             Chunk *chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tilePos);
             if (chunk) {
                 ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
-                ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(), transform->GetPosition(),
-                                                             chunk);
+                ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(), chunk);
             }
 
             // Reset digging after break

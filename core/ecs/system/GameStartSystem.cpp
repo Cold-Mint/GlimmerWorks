@@ -40,8 +40,7 @@ void glimmer::GameStartSystem::Update(float delta) {
     const auto transform2DComponentInPlayer = worldContext_->AddComponent<Transform2DComponent>(playerEntity);
     const auto height = worldContext_->GetHeight(0);
     transform2DComponentInPlayer->SetPosition(
-        TileLayerComponent::TileToWorld(transform2DComponentInPlayer->GetPosition(),
-                                        TileVector2D(0, height + 3)));
+        TileLayerComponent::TileToWorld(TileVector2D(0, height + 3)));
     const auto debugDrawComponent = worldContext_->AddComponent<DebugDrawComponent>(playerEntity);
     debugDrawComponent->SetSize(Vector2D(static_cast<float>(TILE_SIZE), static_cast<float>(TILE_SIZE)));
     debugDrawComponent->SetColor(SDL_Color{255, 0, 0, 255});

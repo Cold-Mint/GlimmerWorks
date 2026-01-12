@@ -214,7 +214,7 @@ float glimmer::WorldContext::GetElevation(const int height) {
     return static_cast<float>(height) / (WORLD_MAX_Y - WORLD_MIN_Y + WORLD_MIN_Y);
 }
 
-void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileVector2D position) {
+void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     TileVector2D relativeCoordinates = Chunk::TileCoordinatesToChunkRelativeCoordinates(position);
     if (relativeCoordinates.x != 0 || relativeCoordinates.y != 0) {
         LogCat::e("The loaded coordinates are not vertex coordinates.");
@@ -330,7 +330,7 @@ void glimmer::WorldContext::LoadChunkAt(const WorldVector2D &tileLayerPos, TileV
             }
         }
     }
-    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, tileLayerPos, chunk.get());
+    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, chunk.get());
     chunks_.insert({position, std::move(chunk)});
     chunksVersion_++;
 }

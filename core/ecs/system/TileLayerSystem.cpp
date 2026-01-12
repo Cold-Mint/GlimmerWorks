@@ -26,17 +26,15 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
             const auto *worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
             if (worldPositionComponent != nullptr) {
                 auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
-                const auto layerWorldPos = worldPositionComponent->GetPosition();
                 const float zoom = cameraComponent->GetZoom();
 
                 std::vector<std::pair<TileVector2D, Tile *> > visibleTiles =
-                        tileLayerComponent->GetTilesInViewport(layerWorldPos, viewportRect);
+                        tileLayerComponent->GetTilesInViewport(viewportRect);
                 SDL_Color oldColor;
                 SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
                 TileVector2D focusPosition = tileLayerComponent->GetFocusPosition();
                 for (const auto &[tileCoord, tile]: visibleTiles) {
-                    WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(layerWorldPos, tileCoord);
-
+                    WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileCoord);
                     CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
                         cameraPos->GetPosition(), worldTilePos);
 

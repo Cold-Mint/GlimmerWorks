@@ -13,35 +13,31 @@
 #include "../../world/Chunk.h"
 
 
-WorldVector2D glimmer::TileLayerComponent::TileToWorld(const WorldVector2D &tileLayerPos,
-                                                       const TileVector2D &tilePos) {
+WorldVector2D glimmer::TileLayerComponent::TileToWorld(
+    const TileVector2D &tilePos) {
     return {
-        static_cast<float>(tilePos.x) * TILE_SIZE + tileLayerPos.x,
-        static_cast<float>(tilePos.y) * TILE_SIZE + tileLayerPos.y
+        static_cast<float>(tilePos.x) * TILE_SIZE,
+        static_cast<float>(tilePos.y) * TILE_SIZE
     };
 }
 
-TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D &tileLayerPos,
-                                                      const WorldVector2D &worldPos) {
-    const float localX = worldPos.x - tileLayerPos.x;
-    const float localY = worldPos.y - tileLayerPos.y;
-
+TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D &worldPos) {
     return {
-        static_cast<int>(std::floor(localX / TILE_SIZE + 0.5F)),
-        static_cast<int>(std::floor(localY / TILE_SIZE + 0.5F))
+        static_cast<int>(std::floor(worldPos.x / TILE_SIZE + 0.5F)),
+        static_cast<int>(std::floor(worldPos.y / TILE_SIZE + 0.5F))
     };
 }
 
 
 std::vector<std::pair<TileVector2D, glimmer::Tile *> > glimmer::TileLayerComponent::GetTilesInViewport(
-    const WorldVector2D &tileLayerPos, const SDL_FRect &worldViewport) const {
-    const TileVector2D topLeft = WorldToTile(tileLayerPos, {worldViewport.x, worldViewport.y});
+    const SDL_FRect &worldViewport) const {
+    const TileVector2D topLeft = WorldToTile({worldViewport.x, worldViewport.y});
     //The purpose of adding "TILE_SIZE" in the lower right corner is to prevent blank areas from appearing.
     //右下角加TILE_SIZE的目的是，防止出现空白区域。
-    const TileVector2D bottomRight = WorldToTile(tileLayerPos, {
-                                                     worldViewport.x + worldViewport.w + TILE_SIZE,
-                                                     worldViewport.y + worldViewport.h + TILE_SIZE
-                                                 });
+    const TileVector2D bottomRight = WorldToTile({
+        worldViewport.x + worldViewport.w + TILE_SIZE,
+        worldViewport.y + worldViewport.h + TILE_SIZE
+    });
     std::vector<std::pair<TileVector2D, Tile *> > visibleTiles;
     for (int y = topLeft.y; y <= bottomRight.y; ++y) {
         for (int x = topLeft.x; x <= bottomRight.x; ++x) {

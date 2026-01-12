@@ -44,9 +44,8 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/nlohmann/json"
         GIT_TAG ${NLOHMANN_JSON_VERSION}
         GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
 )
-
-set(JSON_Install OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(nlohmann_json)
 
 FetchContent_Declare(
@@ -54,9 +53,8 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL"
         GIT_TAG ${LIBSDL-ORG_SDL_VERSION}
         GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
 )
-set(SDL_INSTALL OFF CACHE INTERNAL "")
-set(SDL3_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(SDL)
 
 FetchContent_Declare(
@@ -64,8 +62,8 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_image"
         GIT_TAG ${LIBSDL-ORG_SDL_IMAGE_VERSION}
         GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
 )
-set(SDL_IMAGE_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(SDL_image)
 
 
@@ -74,9 +72,8 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf"
         GIT_TAG ${LIBSDL-ORG_SDL_TTF_VERSION}
         GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
 )
-set(SDL_TTF_INSTALL OFF CACHE INTERNAL "")
-set(SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(SDL_ttf)
 
 FetchContent_Declare(
@@ -84,6 +81,7 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/ocornut/imgui"
         GIT_PROGRESS TRUE
         GIT_TAG ${OCORNUT_IMGUI_VERSION}
+        EXCLUDE_FROM_ALL
 )
 
 FetchContent_MakeAvailable(imgui)
@@ -92,9 +90,8 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/mobius3/tweeny"
         GIT_PROGRESS TRUE
         GIT_TAG ${MOBIUS3_TWEENY_VERSION}
+        EXCLUDE_FROM_ALL
 )
-
-set(TWEENY_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(tweeny)
 
 FetchContent_Declare(
@@ -102,8 +99,8 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/fmtlib/fmt"
         GIT_PROGRESS TRUE
         GIT_TAG ${FMTLIB_FMT_VERSION}
+        EXCLUDE_FROM_ALL
 )
-set(FMT_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(
@@ -111,8 +108,8 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/Auburn/FastNoiseLite"
         GIT_PROGRESS TRUE
         GIT_TAG ${AUBURN_FASTNOISELITE_VERSION}
+        EXCLUDE_FROM_ALL
 )
-set(FASTNOISELITE_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(fastNoiseLite)
 
 FetchContent_Declare(
@@ -120,8 +117,8 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/erincatto/box2d"
         GIT_TAG ${ERINCATTO_BOX2D_VERSION}
         GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
 )
-set(BOX2D_INSTALL OFF CACHE INTERNAL "")
 FetchContent_MakeAvailable(box2d)
 
 FetchContent_Declare(
@@ -129,10 +126,8 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
         GIT_PROGRESS TRUE
         PATCH_COMMAND sed -i "s|_deps/pb-build/cmake/protobuf/protobuf-generate.cmake|_deps/pb-src/cmake/protobuf-generate.cmake|" CMakeLists.txt
+        EXCLUDE_FROM_ALL
 )
-set(ABSL_ENABLE_INSTALL OFF CACHE INTERNAL "")
-set(protobuf_INSTALL OFF CACHE INTERNAL "")
-set(protobuf_BUILD_PROTOC_BINARIES ON CACHE INTERNAL "")
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
 
 if (ANDROID)
@@ -494,7 +489,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl_image-build/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -503,7 +498,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/fmt-build/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -511,7 +506,15 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl_ttf-build/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
+    endforeach()
+")
+
+install(CODE "
+    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/*so*\")
+    foreach(lib \${PROTO_BUF_LIBS})
+        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -519,7 +522,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/log/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -527,7 +530,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/flags/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -535,7 +538,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/debugging/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -543,7 +546,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/container/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -551,7 +554,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/hash/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -559,7 +562,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/random/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -567,7 +570,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/status/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -575,7 +578,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/strings/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -583,7 +586,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/profiling/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -591,14 +594,14 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/crc/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/base/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -606,21 +609,21 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/synchronization/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/time/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/numeric/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -628,7 +631,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/pb-build/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -636,7 +639,7 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/pb-build/third_party/utf8_range/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
 
@@ -644,8 +647,6 @@ install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/glimmerworksprotobuf-build/*so*\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64\" FILES   \${lib})
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
-install(CODE "file(REMOVE_RECURSE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/include\")")
-install(CODE "file(REMOVE_RECURSE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/lib64/cmake\")")

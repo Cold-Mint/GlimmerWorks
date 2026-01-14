@@ -52,6 +52,14 @@ namespace glimmer {
          */
         [[nodiscard]] bool ChunkExists(TileVector2D position) const;
 
+        /**
+         * Check whether the specified entity file exists.
+         * 获取指定的实体文件是否存在。
+         * @param position
+         * @return
+         */
+        [[nodiscard]] bool EntityExists(TileVector2D position) const;
+
         [[nodiscard]] std::optional<ChunkMessage> ReadChunk(TileVector2D position) const;
 
         [[nodiscard]] bool WriteChunk(TileVector2D position, const ChunkMessage &chunkMessage) const;

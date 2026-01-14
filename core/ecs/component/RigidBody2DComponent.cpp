@@ -7,6 +7,7 @@
 #include "../../log/LogCat.h"
 #include "../../utils/Box2DUtils.h"
 #include "box2d/box2d.h"
+#include "src/saves/rigidbody_2d.pb.h"
 
 
 void glimmer::RigidBody2DComponent::SetCategoryBits(const uint64_t categoryBits) {
@@ -133,4 +134,58 @@ bool glimmer::RigidBody2DComponent::IsStaticBody() const {
 
 u_int32_t glimmer::RigidBody2DComponent::GetId() {
     return COMPONENT_ID_RIGID_BODY_2D;
+}
+
+bool glimmer::RigidBody2DComponent::isSerializable() {
+    return true;
+}
+
+std::string glimmer::RigidBody2DComponent::serialize() {
+    RigidBody2dMessage rigidBody2dMessage;
+    rigidBody2dMessage.set_categorybits(categoryBits_);
+    rigidBody2dMessage.set_maskbits(maskBits_);
+    switch (bodyType_) {
+        case b2_dynamicBody:
+            rigidBody2dMessage.set_type(DYNAMIC);
+            break;
+        case b2_kinematicBody:
+            rigidBody2dMessage.set_type(KINEMATIC);
+            break;
+        case b2_staticBody:
+            rigidBody2dMessage.set_type(STATIC);
+            break;
+        default:
+            break;
+    }
+    rigidBody2dMessage.set_enablesleep(enableSleep_);
+    rigidBody2dMessage.set_width(width_);
+    rigidBody2dMessage.set_height(height_);
+    rigidBody2dMessage.set_fixedrotation(fixedRotation_);
+    rigidBody2dMessage.set_enabled(enabled_);
+    return rigidBody2dMessage.SerializeAsString();
+}
+
+void glimmer::RigidBody2DComponent::deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) {
+    RigidBody2dMessage rigidBody2dMessage;
+    rigidBody2dMessage.ParseFromString(data);
+    categoryBits_ = rigidBody2dMessage.categorybits();
+    maskBits_ = rigidBody2dMessage.maskbits();
+    switch (rigidBody2dMessage.type()) {
+        case DYNAMIC:
+            bodyType_ = b2_dynamicBody;
+            break;
+        case KINEMATIC:
+            bodyType_ = b2_kinematicBody;
+            break;
+        case STATIC:
+            bodyType_ = b2_staticBody;
+            break;
+        default:
+            break;
+    }
+    enableSleep_ = rigidBody2dMessage.enablesleep();
+    width_ = rigidBody2dMessage.width();
+    height_ = rigidBody2dMessage.height();
+    fixedRotation_ = rigidBody2dMessage.fixedrotation();
+    enabled_ = rigidBody2dMessage.enabled();
 }

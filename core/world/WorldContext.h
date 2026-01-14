@@ -182,6 +182,20 @@ namespace glimmer {
 
         void RemoveComponentInternal(GameEntity::ID id, GameComponent *comp);
 
+        /**
+         * RegisterEntity
+         * 注册实体
+         * @param entity
+         */
+        GameEntity *RegisterEntity(std::unique_ptr<GameEntity> entity);
+
+        /**
+         * UnRegisterEntity
+         * 注销实体
+         * @param id
+         */
+        void UnRegisterEntity(GameEntity::ID id);
+
     public:
         ~WorldContext() {
             activeSystems.clear();
@@ -213,7 +227,7 @@ namespace glimmer {
         Saves *GetSaves() const;
 
         template<typename TComponent, typename... Args>
-        TComponent *AddComponent(GameEntity *entity, Args &&... args);
+        TComponent *AddComponent(GameEntity::ID id, Args &&... args);
 
 
         template<typename TComponent>
@@ -331,7 +345,7 @@ namespace glimmer {
          * 保存某个区块
          * @param position
          */
-        void SaveChunk(TileVector2D position);
+        [[nodiscard]] bool SaveChunk(TileVector2D position);
 
         /**
          * Determine whether a block at a certain position has been loaded
@@ -409,6 +423,23 @@ namespace glimmer {
          * @return
          */
         GameEntity *CreateEntity();
+
+        /**
+         * Recovery Entity
+         * 恢复实体
+         * @param entityItemMessage
+         * @return
+         */
+        GameEntity *RecoveryEntity(const EntityItemMessage &entityItemMessage);
+
+        /**
+         * Recovery Component
+         * 恢复组件
+         * @param id id id
+         * @param componentMessage componentMessage 组件消息
+         * @return
+         */
+        GameComponent *RecoveryComponent(GameEntity::ID id, const ComponentMessage &componentMessage);
 
         /**
          * Create a dropping object entity
@@ -550,16 +581,15 @@ namespace glimmer {
     }
 
     template<typename TComponent, typename... Args>
-    TComponent *WorldContext::AddComponent(GameEntity *entity, Args &&... args) {
+    TComponent *WorldContext::AddComponent(GameEntity::ID id, Args &&... args) {
         const auto type = std::type_index(typeid(TComponent));
-        const auto entityId = entity->GetID();
 
-        LogCat::d("Adding component ", type.name(), " to Entity ID = ", entityId);
+        LogCat::d("Adding component ", type.name(), " to Entity ID = ", id);
 
         // 创建组件实例
         auto comp = std::make_unique<TComponent>(std::forward<Args>(args)...);
         TComponent *ptr = comp.get();
-        entityComponents[entityId].push_back(std::move(comp));
+        entityComponents[id].push_back(std::move(comp));
 
         // 记录组件类型数量
         ++componentCount[type];
@@ -579,7 +609,7 @@ namespace glimmer {
             }
         }
 
-        LogCat::d("Component ", type.name(), " ptr=", ptr, " successfully added to Entity ID = ", entityId);
+        LogCat::d("Component ", type.name(), " ptr=", ptr, " successfully added to Entity ID = ", id);
         return ptr;
     }
 

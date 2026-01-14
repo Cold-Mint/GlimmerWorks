@@ -9,14 +9,14 @@
 
 namespace glimmer {
     class DroppedItemComponent : public GameComponent {
-        std::unique_ptr<Item> item_;
+        std::unique_ptr<Item> item_ = nullptr;
         //How long will it be before it disappears
         //还剩多久会消失(秒)
         float remainingTime_ = 60.0F;
         float pickupCooldown_ = 0.0F;
 
     public:
-        explicit DroppedItemComponent(std::unique_ptr<Item> item) : item_(std::move(item)) {
+        explicit DroppedItemComponent() {
         }
 
         /**

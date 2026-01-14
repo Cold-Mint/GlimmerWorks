@@ -29,6 +29,12 @@ namespace glimmer {
          */
         [[nodiscard]] ItemContainer *GetItemContainer() const;
 
+        [[nodiscard]] bool isSerializable() override;
+
+        [[nodiscard]] std::string serialize() override;
+
+        void deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) override;
+
         [[nodiscard]] u_int32_t GetId() override;
     };
 }

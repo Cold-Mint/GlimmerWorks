@@ -11,7 +11,7 @@ namespace glimmer {
     public:
         [[nodiscard]] u_int32_t GetId() override;
 
-
+        [[nodiscard]] bool isSerializable() override;
     };
 }
 

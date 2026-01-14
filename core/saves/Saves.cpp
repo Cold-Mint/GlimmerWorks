@@ -36,6 +36,11 @@ bool glimmer::Saves::ChunkExists(const TileVector2D position) const {
         ToChunkPath(position));
 }
 
+bool glimmer::Saves::EntityExists(TileVector2D position) const {
+    return virtualFileSystem_->Exists(
+        ToChunkEntityPath(position));
+}
+
 std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D position) const {
     const auto stream = virtualFileSystem_->ReadStream(ToChunkPath(position));
     if (!stream.has_value()) {
@@ -61,7 +66,7 @@ std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVect
 }
 
 bool glimmer::Saves::WriteChunkEntity(TileVector2D position, const ChunkEntityMessage &chunkEntityMessage) const {
-    return virtualFileSystem_->WriteFile(ToChunkPath(position), chunkEntityMessage.SerializeAsString());
+    return virtualFileSystem_->WriteFile(ToChunkEntityPath(position), chunkEntityMessage.SerializeAsString());
 }
 
 bool glimmer::Saves::DeleteChunkEntity(TileVector2D position) const {

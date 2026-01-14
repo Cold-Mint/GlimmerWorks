@@ -162,6 +162,12 @@ namespace glimmer {
         [[nodiscard]] bool IsStaticBody() const;
 
         [[nodiscard]] u_int32_t GetId() override;
+
+        [[nodiscard]] bool isSerializable() override;
+
+        [[nodiscard]] std::string serialize() override;
+
+        void deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) override;
     };
 }
 

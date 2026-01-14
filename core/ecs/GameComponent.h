@@ -6,9 +6,11 @@
 #define GLIMMERWORKS_COMPONENT_H
 #include <string>
 
-#include "core/world/WorldContext.h"
 
 namespace glimmer {
+    class AppContext;
+    class WorldContext;
+
     class GameComponent {
     public:
         virtual ~GameComponent() = default;

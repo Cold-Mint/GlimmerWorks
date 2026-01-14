@@ -131,14 +131,24 @@ static constexpr uint32_t COMPONENT_ID_CAMERA = 2;
 static constexpr uint32_t COMPONENT_ID_DEBUG_DRAW = 3;
 static constexpr uint32_t COMPONENT_ID_DIGGING = 4;
 static constexpr uint32_t COMPONENT_ID_DROPPED_ITEM = 5;
+// Serialization is not supported.
+// 不支持序列化。
 static constexpr uint32_t COMPONENT_ID_HOTBAR = 6;
 static constexpr uint32_t COMPONENT_ID_ITEM_CONTAINER = 7;
+// Serialization is not supported.
+// 不支持序列化。
 static constexpr uint32_t COMPONENT_ID_ITEM_SLOT = 8;
 static constexpr uint32_t COMPONENT_ID_MAGNET = 9;
 static constexpr uint32_t COMPONENT_ID_MAGNETIC = 10;
+// Serialization is not supported.
+// 不支持序列化。
 static constexpr uint32_t COMPONENT_ID_PAUSE = 11;
+// Serialization is not supported.
+// 不支持序列化。
 static constexpr uint32_t COMPONENT_ID_PLAYER_CONTROL = 12;
 static constexpr uint32_t COMPONENT_ID_RIGID_BODY_2D = 13;
+// Serialization is not supported.
+// 不支持序列化。
 static constexpr uint32_t COMPONENT_ID_TILE_LAYER = 14;
 static constexpr uint32_t COMPONENT_ID_TRANSFORM_2D = 15;
 

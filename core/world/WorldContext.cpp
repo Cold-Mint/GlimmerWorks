@@ -353,8 +353,50 @@ void glimmer::WorldContext::SaveChunk(TileVector2D position) {
         return;
     }
     ChunkMessage chunkMessage;
-    it->second->ToMessage(chunkMessage);
+    Chunk *chunk = it->second.get();
+    chunk->ToMessage(chunkMessage);
     (void) saves->WriteChunk(position, chunkMessage);
+    WorldVector2D startWorldVector2d = chunk->GetStartWorldPosition();
+    WorldVector2D endWorldVector2d = chunk->GetEndWorldPosition();
+    const float minX = std::min(startWorldVector2d.x, endWorldVector2d.x);
+    const float maxX = std::max(startWorldVector2d.x, endWorldVector2d.x);
+    const float minY = std::min(startWorldVector2d.y, endWorldVector2d.y);
+    const float maxY = std::max(startWorldVector2d.y, endWorldVector2d.y);
+    auto transform2DEntityList = GetEntitiesWithComponents<Transform2DComponent>();
+    ChunkEntityMessage chunkEntityMessage;
+    for (auto &transform2dEntity: transform2DEntityList) {
+        EntityItemMessage *entityItemMessage = chunkEntityMessage.add_entitys();
+        entityItemMessage->mutable_gameentity()->set_id(transform2dEntity->GetID());
+        auto *transform2dComponent = GetComponent<Transform2DComponent>(transform2dEntity->GetID());
+        if (transform2dComponent == nullptr) {
+            continue;
+        }
+        WorldVector2D pos = transform2dComponent->GetPosition();
+        if (pos.x < minX || pos.x >= maxX ||
+            pos.y < minY || pos.y >= maxY) {
+            continue;
+        }
+        if (transform2dComponent->isSerializable()) {
+            //Serializable
+            //可序列化
+            auto &components = entityComponents[transform2dEntity->GetID()];
+            for (auto &componentItem: components) {
+                if (!componentItem->isSerializable()) {
+                    continue;
+                }
+                ComponentMessage *componentMessage = entityItemMessage->add_components();
+                componentMessage->set_id(componentItem->GetId());
+                componentMessage->set_data(componentItem->serialize());
+            }
+        }
+    }
+    if (chunkEntityMessage.entitys_size() > 0) {
+        //Create a file and save it
+        //创建文件并保存
+        (void) saves->WriteChunkEntity(position, chunkEntityMessage);
+    } else {
+        (void) saves->DeleteChunkEntity(position);
+    }
 }
 
 bool glimmer::WorldContext::HasChunk(const TileVector2D position) const {

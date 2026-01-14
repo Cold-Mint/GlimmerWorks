@@ -271,6 +271,7 @@ target_sources(GlimmerWorks
         core/ecs/system/PauseSystem.cpp
         core/ecs/component/PauseComponent.cpp
         core/utils/TimeUtils.cpp
+        core/ecs/component/PlayerControlComponent.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES

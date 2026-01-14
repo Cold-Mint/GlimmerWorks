@@ -28,6 +28,8 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] ItemContainer *GetItemContainer() const;
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

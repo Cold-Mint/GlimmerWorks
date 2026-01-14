@@ -8,16 +8,13 @@
 #include "../../math/Vector2D.h"
 #include "SDL3/SDL_pixels.h"
 
-namespace glimmer
-{
-    class DebugDrawComponent : public GameComponent
-    {
+namespace glimmer {
+    class DebugDrawComponent : public GameComponent {
         Vector2D size_;
 
         SDL_Color color_ = {255, 255, 255, 255};
 
     public:
-
         /**
          * GetColor
          * 获取渲染的颜色
@@ -31,7 +28,7 @@ namespace glimmer
          * 设置颜色
          * @param color color 颜色
          */
-        void SetColor(const SDL_Color& color);
+        void SetColor(const SDL_Color &color);
 
         /**
          * Get Size
@@ -39,12 +36,15 @@ namespace glimmer
          * @return Size 尺寸
          */
         [[nodiscard]] Vector2D GetSize() const;
+
         /**
          *SetSize
          * 设置尺寸
          * @param size Size 尺寸
          */
-        void SetSize(const Vector2D& size);
+        void SetSize(const Vector2D &size);
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

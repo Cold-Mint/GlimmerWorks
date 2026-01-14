@@ -130,3 +130,7 @@ bool glimmer::RigidBody2DComponent::IsKinematicBody() const {
 bool glimmer::RigidBody2DComponent::IsStaticBody() const {
     return bodyType_ == b2_staticBody;
 }
+
+u_int32_t glimmer::RigidBody2DComponent::GetId() {
+    return COMPONENT_ID_RIGID_BODY_2D;
+}

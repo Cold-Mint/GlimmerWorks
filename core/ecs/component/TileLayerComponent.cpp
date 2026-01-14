@@ -89,3 +89,7 @@ void glimmer::TileLayerComponent::SetFocusPosition(const TileVector2D focusPosit
 const TileVector2D &glimmer::TileLayerComponent::GetFocusPosition() const {
     return focusPosition_;
 }
+
+u_int32_t glimmer::TileLayerComponent::GetId() {
+    return COMPONENT_ID_TILE_LAYER;
+}

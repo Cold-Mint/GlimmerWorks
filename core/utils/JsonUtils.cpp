@@ -5,7 +5,7 @@
 
 #include <fstream>
 #include <nlohmann/json.hpp>
-
+#include "../vfs/VirtualFileSystem.h"
 #include "../log/LogCat.h"
 
 #include <optional>

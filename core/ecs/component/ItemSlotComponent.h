@@ -19,17 +19,19 @@ namespace glimmer {
             : containerEntity_(containerEntity), slotIndex_(slotIndex) {
         }
 
-        [[nodiscard]] GameEntity *GetContainerEntity() const ;
+        [[nodiscard]] GameEntity *GetContainerEntity() const;
 
         [[nodiscard]] int GetSlotIndex() const;
 
-        [[nodiscard]] bool IsHovered() const ;
+        [[nodiscard]] bool IsHovered() const;
 
-        void SetHovered(bool hovered) ;
+        void SetHovered(bool hovered);
 
         [[nodiscard]] bool IsSelected() const;
 
         void SetSelected(bool selected);
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

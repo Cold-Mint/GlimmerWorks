@@ -4,22 +4,24 @@
 
 #include "DebugDrawComponent.h"
 
-SDL_Color glimmer::DebugDrawComponent::GetColor() const
-{
+#include "core/Constants.h"
+
+SDL_Color glimmer::DebugDrawComponent::GetColor() const {
     return color_;
 }
 
-void glimmer::DebugDrawComponent::SetColor(const SDL_Color& color)
-{
+void glimmer::DebugDrawComponent::SetColor(const SDL_Color &color) {
     color_ = color;
 }
 
-glimmer::Vector2D glimmer::DebugDrawComponent::GetSize() const
-{
+glimmer::Vector2D glimmer::DebugDrawComponent::GetSize() const {
     return size_;
 }
 
-void glimmer::DebugDrawComponent::SetSize(const Vector2D& size)
-{
+void glimmer::DebugDrawComponent::SetSize(const Vector2D &size) {
     size_ = size;
+}
+
+u_int32_t glimmer::DebugDrawComponent::GetId() {
+    return COMPONENT_ID_DEBUG_DRAW;
 }

@@ -43,6 +43,8 @@ namespace glimmer {
         void SetStartPos(const WorldVector2D &startPos);
 
         [[nodiscard]] uint16_t GetType() const;
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

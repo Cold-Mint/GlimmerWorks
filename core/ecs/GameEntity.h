@@ -4,11 +4,12 @@
 
 #ifndef GLIMMERWORKS_GAMEENTITY_H
 #define GLIMMERWORKS_GAMEENTITY_H
+#include <cstdint>
 
 namespace glimmer {
     class GameEntity {
     public:
-        using ID = unsigned int;
+        using ID = uint32_t;
 
     private:
         ID id_;

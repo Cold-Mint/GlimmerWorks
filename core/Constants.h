@@ -123,6 +123,27 @@ static constexpr uint8_t RENDER_ORDER_PAUSE = 11;
 
 
 /**
+ * The component IDs defined here should be auto-incremented and cannot be reused.
+ * 这里定义的组件id应该是自增的。不能重复利用。
+ */
+static constexpr uint32_t COMPONENT_ID_AUTO_PICK = 1;
+static constexpr uint32_t COMPONENT_ID_CAMERA = 2;
+static constexpr uint32_t COMPONENT_ID_DEBUG_DRAW = 3;
+static constexpr uint32_t COMPONENT_ID_DIGGING = 4;
+static constexpr uint32_t COMPONENT_ID_DROPPED_ITEM = 5;
+static constexpr uint32_t COMPONENT_ID_HOTBAR = 6;
+static constexpr uint32_t COMPONENT_ID_ITEM_CONTAINER = 7;
+static constexpr uint32_t COMPONENT_ID_ITEM_SLOT = 8;
+static constexpr uint32_t COMPONENT_ID_MAGNET = 9;
+static constexpr uint32_t COMPONENT_ID_MAGNETIC = 10;
+static constexpr uint32_t COMPONENT_ID_PAUSE = 11;
+static constexpr uint32_t COMPONENT_ID_PLAYER_CONTROL = 12;
+static constexpr uint32_t COMPONENT_ID_RIGID_BODY_2D = 13;
+static constexpr uint32_t COMPONENT_ID_TILE_LAYER = 14;
+static constexpr uint32_t COMPONENT_ID_TRANSFORM_2D = 15;
+
+
+/**
  * Special tile Id: Air
  * 特殊的瓦片Id：空气
  */

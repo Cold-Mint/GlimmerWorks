@@ -60,6 +60,8 @@ namespace glimmer {
         void AddEntity(GameEntity::ID entityId);
 
         [[nodiscard]] const std::vector<GameEntity::ID> &GetEntities() const;
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

@@ -119,6 +119,14 @@ void glimmer::Chunk::ToMessage(ChunkMessage &chunkMessage) {
     }
 }
 
+WorldVector2D glimmer::Chunk::GetStartWorldPosition() const {
+    return TileLayerComponent::TileToWorld(position);
+}
+
+WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
+    return TileLayerComponent::TileToWorld(position + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
+}
+
 std::unique_ptr<glimmer::Tile> glimmer::Chunk::ReplaceTile(const TileLayerType layerType,
                                                            const TileVector2D &tileVector2d,
                                                            std::unique_ptr<Tile> newTile) {

@@ -8,6 +8,7 @@
 
 #include "Resource.h"
 #include "ResourceRef.h"
+#include "core/inventory/Item.h"
 
 namespace glimmer {
     class AppContext;
@@ -56,6 +57,16 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] std::optional<AbilityItemResource *> FindAbilityItem(const ResourceRef &resourceRef) const;
+
+        /**
+         * FindItem
+         * 查找物品
+         * @param appContext appContext 应用上下文
+         * @param resourceRef resourceRef 物品引用
+         * @return  Item pointer 物品指针
+         */
+        [[nodiscard]] std::optional<std::unique_ptr<Item> > FindItem(AppContext *appContext,
+                                                                     const ResourceRef &resourceRef) const;
     };
 }
 

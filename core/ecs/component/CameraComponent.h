@@ -53,7 +53,8 @@ namespace glimmer {
          * @param viewPortPosition
          * @return
          */
-        [[nodiscard]] WorldVector2D GetWorldPosition(WorldVector2D cameraPosition, CameraVector2D viewPortPosition) const;
+        [[nodiscard]] WorldVector2D GetWorldPosition(WorldVector2D cameraPosition,
+                                                     CameraVector2D viewPortPosition) const;
 
 
         /**
@@ -94,6 +95,8 @@ namespace glimmer {
          * @param zoom The camera zoom factor 相机缩放比例
          */
         void SetZoom(float zoom);
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

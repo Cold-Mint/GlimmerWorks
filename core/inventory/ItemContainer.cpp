@@ -144,30 +144,9 @@ void glimmer::ItemContainer::FromMessage(AppContext *appContext, const ItemConta
         ResourceRefMessage resourceRefMessage = message.itemresourceref(i);
         ResourceRef resourceRef;
         resourceRef.FromMessage(resourceRefMessage);
-        const int resourceType = resourceRef.GetResourceType();
-        if (resourceType == RESOURCE_TYPE_TILE) {
-            auto tileResource = appContext->GetResourceLocator()->FindTile(resourceRef);
-            if (!tileResource.has_value()) {
-                continue;
-            }
-            items_[i] = std::move(std::make_unique<TileItem>(Tile::FromResourceRef(appContext, tileResource.value())));
-            continue;
-        }
-        if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
-            auto composableItemResource = appContext->GetResourceLocator()->FindComposableItem(resourceRef);
-            if (!composableItemResource.has_value()) {
-                continue;
-            }
-            items_[i] = std::move(ComposableItem::FromItemResource(appContext, composableItemResource.value()));
-            continue;
-        }
-        if (resourceType == RESOURCE_TYPE_ABILITY_ITEM) {
-            auto abilityItemResource = appContext->GetResourceLocator()->FindAbilityItem(resourceRef);
-            if (!abilityItemResource.has_value()) {
-                continue;
-            }
-            items_[i] = std::move(AbilityItem::FromItemResource(appContext, abilityItemResource.value()));
-            continue;
+        auto item = appContext->GetResourceLocator()->FindItem(appContext, resourceRef);
+        if (item.has_value()) {
+            items_[i] = std::move(item.value());
         }
         LogCat::e("Resource Pointers cannot be converted into items.");
     }

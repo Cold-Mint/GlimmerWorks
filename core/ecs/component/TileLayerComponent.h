@@ -47,7 +47,8 @@ namespace glimmer {
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, Tile *> > GetTilesInViewport(const SDL_FRect &worldViewport) const;
+        [[nodiscard]] std::vector<std::pair<TileVector2D, Tile *> > GetTilesInViewport(
+            const SDL_FRect &worldViewport) const;
 
         /**
          * Set Tile
@@ -91,6 +92,8 @@ namespace glimmer {
                                     chunks) : chunks_(chunks),
                                               tileLayerType_(tileLayerType) {
         }
+
+        [[nodiscard]] u_int32_t GetId() override;
 
     private:
         std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *chunks_;

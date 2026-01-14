@@ -4,6 +4,8 @@
 
 #include "Transform2DComponent.h"
 
+#include "core/Constants.h"
+
 void glimmer::Transform2DComponent::SetPosition(WorldVector2D newPosition)
 {
     position_ = newPosition;
@@ -27,4 +29,8 @@ void glimmer::Transform2DComponent::Translate(const WorldVector2D deltaPosition)
 WorldVector2D glimmer::Transform2DComponent::GetPosition() const
 {
     return position_;
+}
+
+u_int32_t glimmer::Transform2DComponent::GetId() {
+    return COMPONENT_ID_TRANSFORM_2D;
 }

@@ -6,6 +6,9 @@
 
 #include "../Constants.h"
 #include "../../core/scene/AppContext.h"
+#include "core/inventory/AbilityItem.h"
+#include "core/inventory/ComposableItem.h"
+#include "core/inventory/TileItem.h"
 #include "dataPack/StringManager.h"
 
 void glimmer::ResourceLocator::SetAppContext(AppContext *appContext) {
@@ -54,4 +57,29 @@ std::optional<glimmer::AbilityItemResource *> glimmer::ResourceLocator::FindAbil
     }
     return appContext_->GetItemManager()->FindAbilityItemResource(resourceRef.GetPackageId(),
                                                                   resourceRef.GetResourceKey());
+}
+
+std::optional<std::unique_ptr<glimmer::Item> > glimmer::ResourceLocator::FindItem(AppContext *appContext,
+    const ResourceRef &resourceRef) const {
+    int resourceType = resourceRef.GetResourceType();
+    if (resourceType == RESOURCE_TYPE_TILE) {
+        auto tileResource = FindTile(resourceRef);
+        if (tileResource.has_value()) {
+            return std::make_unique<TileItem>(Tile::FromResourceRef(appContext, tileResource.value()));
+        }
+    }
+    if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
+        auto composableItemResource = FindComposableItem(resourceRef);
+        if (composableItemResource.has_value()) {
+            return std::move(ComposableItem::FromItemResource(appContext, composableItemResource.value()));
+        }
+    }
+
+    if (resourceType == RESOURCE_TYPE_ABILITY_ITEM) {
+        auto abilityItemResource = FindAbilityItem(resourceRef);
+        if (abilityItemResource.has_value()) {
+            return std::move(AbilityItem::FromItemResource(appContext, abilityItemResource.value()));
+        }
+    }
+    return std::nullopt;
 }

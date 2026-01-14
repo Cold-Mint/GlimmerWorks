@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "nlohmann/json_fwd.hpp"
-#include "vfs/VirtualFileSystem.h"
 
 namespace glimmer {
     struct Window {

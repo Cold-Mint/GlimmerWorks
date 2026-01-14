@@ -42,6 +42,8 @@ namespace glimmer {
         [[nodiscard]] const std::vector<GameEntity*>& GetSlotEntities() const {
             return slotEntities_;
         }
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

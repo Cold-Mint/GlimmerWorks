@@ -46,3 +46,7 @@ void glimmer::MagnetComponent::AddEntity(GameEntity::ID entityId) {
 const std::vector<glimmer::GameEntity::ID> &glimmer::MagnetComponent::GetEntities() const {
     return entities_;
 }
+
+u_int32_t glimmer::MagnetComponent::GetId() {
+    return COMPONENT_ID_MAGNET;
+}

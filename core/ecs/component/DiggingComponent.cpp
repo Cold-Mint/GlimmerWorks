@@ -4,6 +4,8 @@
 
 #include "DiggingComponent.h"
 
+#include "core/Constants.h"
+
 bool glimmer::DiggingComponent::IsEnable() const {
     return enable_;
 }
@@ -56,4 +58,8 @@ bool glimmer::DiggingComponent::CheckAndResetActive() {
     const bool active = activeSignal_;
     activeSignal_ = false;
     return active;
+}
+
+u_int32_t glimmer::DiggingComponent::GetId() {
+    return COMPONENT_ID_DIGGING;
 }

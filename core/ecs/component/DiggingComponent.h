@@ -50,6 +50,8 @@ namespace glimmer {
         void MarkActive();
 
         [[nodiscard]] bool CheckAndResetActive();
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

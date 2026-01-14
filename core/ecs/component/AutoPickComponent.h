@@ -8,6 +8,10 @@
 
 namespace glimmer {
     class AutoPickComponent : public GameComponent {
+    public:
+        [[nodiscard]] u_int32_t GetId() override;
+
+
     };
 }
 

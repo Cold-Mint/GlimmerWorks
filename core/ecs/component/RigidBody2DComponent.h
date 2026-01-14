@@ -160,6 +160,8 @@ namespace glimmer {
          * @return true if the body is static
          */
         [[nodiscard]] bool IsStaticBody() const;
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

@@ -71,6 +71,10 @@ namespace glimmer {
 
         void ToMessage(ChunkMessage &chunkMessage);
 
+        WorldVector2D GetStartWorldPosition() const;
+
+        WorldVector2D GetEndWorldPosition() const;
+
         /**
          * Replace tile
          * 替换瓦片

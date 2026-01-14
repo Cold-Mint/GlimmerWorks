@@ -5,6 +5,8 @@
 
 #include <algorithm>
 
+#include "core/Constants.h"
+
 SDL_FRect glimmer::CameraComponent::GetViewportRect(const WorldVector2D cameraPosition) const {
     const float scaledWidth = size_.x / zoom_;
     const float scaledHeight = size_.y / zoom_;
@@ -57,4 +59,8 @@ float glimmer::CameraComponent::GetZoom() const {
 
 void glimmer::CameraComponent::SetZoom(const float zoom) {
     this->zoom_ = std::clamp(zoom, 0.2F, 4.0F);
+}
+
+u_int32_t glimmer::CameraComponent::GetId() {
+    return COMPONENT_ID_CAMERA;
 }

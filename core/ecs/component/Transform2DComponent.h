@@ -52,6 +52,9 @@ namespace glimmer {
          * @return 世界坐标
          */
         [[nodiscard]] WorldVector2D GetPosition() const;
+
+
+        [[nodiscard]] u_int32_t GetId() override;
     };
 }
 

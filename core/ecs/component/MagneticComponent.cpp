@@ -4,6 +4,8 @@
 
 #include "MagneticComponent.h"
 
+#include "core/Constants.h"
+
 void glimmer::MagneticComponent::SetType(uint16_t type) {
     type_ = type;
 }
@@ -35,4 +37,8 @@ void glimmer::MagneticComponent::SetStartPos(const WorldVector2D &startPos) {
 
 uint16_t glimmer::MagneticComponent::GetType() const {
     return type_;
+}
+
+u_int32_t glimmer::MagneticComponent::GetId() {
+    return COMPONENT_ID_MAGNETIC;
 }

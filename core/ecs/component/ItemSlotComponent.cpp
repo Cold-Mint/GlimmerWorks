@@ -4,6 +4,8 @@
 
 #include "ItemSlotComponent.h"
 
+#include "core/Constants.h"
+
 glimmer::GameEntity *glimmer::ItemSlotComponent::GetContainerEntity() const {
     return containerEntity_;
 }
@@ -26,4 +28,8 @@ bool glimmer::ItemSlotComponent::IsSelected() const {
 
 void glimmer::ItemSlotComponent::SetSelected(const bool selected) {
     isSelected_ = selected;
+}
+
+u_int32_t glimmer::ItemSlotComponent::GetId() {
+    return COMPONENT_ID_ITEM_SLOT;
 }

@@ -87,10 +87,9 @@ std::optional<std::unique_ptr<std::istream> > glimmer::VirtualFileSystem::ReadSt
 std::vector<std::string> glimmer::VirtualFileSystem::ListFile(const std::string &path) const {
     LogCat::i("VirtualFileSystem ListFile =", path);
     for (auto &provider: fileProviders_) {
-        if (provider->Exists(path) && provider->IsFile(path) == false) {
+        if (provider->Exists(path) && !provider->IsFile(path)) {
             auto content = provider->ListFile(path);
-            unsigned long count = content.size();
-            if (count > 0) {
+            if (content.size() > 0) {
                 return content;
             }
         }

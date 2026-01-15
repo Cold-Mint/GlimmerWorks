@@ -13,7 +13,7 @@ void glimmer::CommandExecutor::ExecuteAsync(const std::string &command, CommandM
                                             &
                                             onFinished,
                                             const std::function<void(const std::string &text)> &onMessage) {
-    std::string cmdStr = command;
+    std::string cmdStr = command; // skipcq: CXX-P2005
     std::thread([cmdStr = std::move(cmdStr), commandManager,onMessage, onFinished]() mutable {
         cmdStr.erase(0, cmdStr.find_first_not_of(" \t\n\r"));
         cmdStr.erase(cmdStr.find_last_not_of(" \t\n\r") + 1);

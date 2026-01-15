@@ -409,6 +409,7 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
     const float maxY = std::max(startWorldVector2d.y, endWorldVector2d.y);
     auto transform2DEntityList = GetEntitiesWithComponents<Transform2DComponent>();
     ChunkEntityMessage chunkEntityMessage;
+    std::vector<GameEntity::ID> entitiesToRemove;
     for (auto &transform2dEntity: transform2DEntityList) {
         if (transform2dEntity == player_) {
             continue;
@@ -424,27 +425,42 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
         }
         EntityItemMessage *entityItemMessage = chunkEntityMessage.add_entitys();
         entityItemMessage->mutable_gameentity()->set_id(transform2dEntity->GetID());
-        if (transform2dComponent->isSerializable()) {
+        if (transform2dEntity->IsPersistable()) {
             //Serializable
             //可序列化
             auto &components = entityComponents[transform2dEntity->GetID()];
+            auto mutableComponents = entityItemMessage->mutable_components();
             for (auto &componentItem: components) {
                 if (!componentItem->isSerializable()) {
                     continue;
                 }
-                ComponentMessage *componentMessage = entityItemMessage->add_components();
+                ComponentMessage *componentMessage = mutableComponents->Add();
                 componentMessage->set_id(componentItem->GetId());
                 componentMessage->set_data(componentItem->serialize());
             }
-            RemoveEntity(transform2dEntity->GetID());
         }
+        entitiesToRemove.push_back(transform2dEntity->GetID());
     }
     if (chunkEntityMessage.entitys_size() > 0) {
         //Create a file and save it
         //创建文件并保存
+        // for (int i = 0; i < chunkEntityMessage.entitys_size(); i++) {
+        //     const EntityItemMessage &entityItemMessage =
+        //             chunkEntityMessage.entitys(i);
+        //
+        //     LogCat::e("实体id=", entityItemMessage.gameentity().id(),
+        //               "保存，实体=",
+        //               chunkEntityMessage.entitys_size(),
+        //               "组件",
+        //               entityItemMessage.components_size()
+        //     );
+        // }
         (void) saves->WriteChunkEntity(position, chunkEntityMessage);
     } else {
         (void) saves->DeleteChunkEntity(position);
+    }
+    for (auto id: entitiesToRemove) {
+        RemoveEntity(id);
     }
     return true;
 }

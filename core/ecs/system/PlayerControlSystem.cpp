@@ -145,20 +145,18 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
             cameraTransform->GetPosition(),
             CameraVector2D(event.motion.x, event.motion.y)
         );
-
         auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<
-            TileLayerComponent, Transform2DComponent>();
-
+            TileLayerComponent>();
         for (auto &entity: tileLayerEntities) {
             auto *layer = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
             if (layer == nullptr) {
                 continue;
             }
-
-            if (layer->GetTileLayerType() != TileLayerType::Main) continue;
-            layer->SetFocusPosition(TileLayerComponent::WorldToTile(
-                worldPos
-            ));
+            if (layer->GetTileLayerType() == TileLayerType::Main) {
+                layer->SetFocusPosition(TileLayerComponent::WorldToTile(
+                    worldPos
+                ));
+            }
         }
     }
 

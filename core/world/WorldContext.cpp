@@ -72,6 +72,10 @@ void glimmer::WorldContext::UnRegisterEntity(const GameEntity::ID id) {
 }
 
 
+glimmer::GameEntity::ID glimmer::WorldContext::GetEntityIdIndex() const {
+    return entityId_;
+}
+
 bool glimmer::WorldContext::IsRuning() const {
     return running;
 }
@@ -444,17 +448,6 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
     if (chunkEntityMessage.entitys_size() > 0) {
         //Create a file and save it
         //创建文件并保存
-        // for (int i = 0; i < chunkEntityMessage.entitys_size(); i++) {
-        //     const EntityItemMessage &entityItemMessage =
-        //             chunkEntityMessage.entitys(i);
-        //
-        //     LogCat::e("实体id=", entityItemMessage.gameentity().id(),
-        //               "保存，实体=",
-        //               chunkEntityMessage.entitys_size(),
-        //               "组件",
-        //               entityItemMessage.components_size()
-        //     );
-        // }
         (void) saves->WriteChunkEntity(position, chunkEntityMessage);
     } else {
         (void) saves->DeleteChunkEntity(position);

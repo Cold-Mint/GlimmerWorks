@@ -69,6 +69,7 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
             mapManifestMessageData->set_totalplaytime(
                 mapManifestMessageData->totalplaytime() + (endTime - worldContext_->GetStartTime()));
             mapManifestMessageData->set_lastplayedtime(endTime);
+            mapManifestMessageData->set_entityidindex(worldContext_->GetEntityIdIndex());
             if (!worldContext_->GetSaves()->WriteMapManifest(mapManifestMessageData.value())) {
                 LogCat::e("Error update map Manifest ");
                 return;

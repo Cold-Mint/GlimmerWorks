@@ -210,6 +210,9 @@ namespace glimmer {
             }
         }
 
+
+        [[nodiscard]] GameEntity::ID GetEntityIdIndex() const;
+
         /**
          * Is the game running
          * 游戏是否正在运行中
@@ -512,8 +515,9 @@ namespace glimmer {
 
         long startTime_ = 0;
 
-        explicit WorldContext(AppContext *appContext, const int seed, Saves *saves) : seed(seed),
-            saves(saves) {
+        explicit WorldContext(AppContext *appContext, const int seed, Saves *saves,
+                              const GameEntity::ID entityId = 0) : seed(seed),
+                                                                   entityId_(entityId), saves(saves) {
             // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
             continentHeightMapNoise = std::make_unique<FastNoiseLite>();
             continentHeightMapNoise->SetSeed(seed);

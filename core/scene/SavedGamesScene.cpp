@@ -84,7 +84,8 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
             auto manifest = savesManager->GetMapManifest(selected_save_index);
             if (saves && manifest) {
                 appContext->GetSceneManager()->PushScene(std::make_unique<WorldScene>(
-                    appContext, std::make_unique<WorldContext>(appContext, manifest->seed, saves)));
+                    appContext, std::make_unique<WorldContext>(appContext, manifest->seed, saves,
+                                                               manifest->entityIDIndex)));
             }
         }
         ImGui::SameLine();
@@ -101,6 +102,12 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
                 savesManager->DeleteSave(selected_save_index);
                 selected_save_index = -1;
                 ImGui::CloseCurrentPopup();
+                if (savesManager->GetSavesListSize() == 0) {
+                    ImGui::EndPopup();
+                    ImGui::End();
+                    appContext->GetSceneManager()->ReplaceScene(std::make_unique<CreateWorldScene>(appContext));
+                    return;
+                }
             }
             ImGui::SetItemDefaultFocus();
             ImGui::SameLine();

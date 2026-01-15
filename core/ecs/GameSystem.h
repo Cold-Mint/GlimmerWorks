@@ -46,8 +46,8 @@ namespace glimmer {
     public:
         virtual ~GameSystem() = default;
 
-        explicit GameSystem(AppContext *appContext, WorldContext *worldContext) : appContext_(appContext),
-            worldContext_(worldContext) {
+        explicit GameSystem(AppContext *appContext, WorldContext *worldContext) : worldContext_(worldContext),
+            appContext_(appContext) {
         }
 
         virtual std::string GetName() = 0;

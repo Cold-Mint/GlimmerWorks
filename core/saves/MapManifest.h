@@ -6,6 +6,7 @@
 #define GLIMMERWORKS_MAPMANIFEST_H
 #include <string>
 
+#include "core/ecs/GameEntity.h"
 #include "src/saves/map_manifest.pb.h"
 
 namespace glimmer {
@@ -17,6 +18,7 @@ namespace glimmer {
         long createTime;
         long lastPlayedTime;
         long totalPlayTime;
+        GameEntity::ID entityIDIndex;
 
         void FromMessage(const MapManifestMessage &manifestMessage) {
             name = manifestMessage.name();
@@ -26,6 +28,7 @@ namespace glimmer {
             createTime = manifestMessage.createtime();
             lastPlayedTime = manifestMessage.lastplayedtime();
             totalPlayTime = manifestMessage.totalplaytime();
+            entityIDIndex = manifestMessage.entityidindex();
         }
 
         void ToMessage(MapManifestMessage &manifestMessage) {
@@ -36,6 +39,7 @@ namespace glimmer {
             manifestMessage.set_createtime(createTime);
             manifestMessage.set_lastplayedtime(lastPlayedTime);
             manifestMessage.set_totalplaytime(totalPlayTime);
+            manifestMessage.set_entityidindex(entityIDIndex);
         }
     };
 }

@@ -86,6 +86,7 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
     const auto &abilityList = editingItem_->GetAbilityList();
     float startY = bgRect.y + 50;
 
+    DragAndDrop *dragAndDrop = appContext_->GetDragAndDrop();
     for (int i = 0; i < maxSlotSize; i++) {
         const AbilityItem *ability = i < abilityList.size() ? abilityList[i] : nullptr;
 
@@ -95,12 +96,15 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
         float y = startY;
 
         // We use DrawSlot to handle the background and input events.
-        DragAndDrop::DrawSlot(appContext_, renderer, x, y, slotSize, nullptr, false,
+        dragAndDrop->DrawSlot(appContext_, renderer, x, y, slotSize, nullptr, false,
                               [&, i](const DragState &state) {
                                   // On Drop
-                                  if (state.sourceType == DragSourceType::INVENTORY && state.dragedItem) {
-                                      LogCat::i("Dropped item in editor. ID: ", state.dragedItem->GetId());
-                                      auto abilityItem = dynamic_cast<AbilityItem *>(state.dragedItem);
+                                  if (state.sourceType == DragSourceType::INVENTORY && state.
+                                      dragedItem) {
+                                      LogCat::i("Dropped item in editor. ID: ",
+                                                state.dragedItem->GetId());
+                                      auto abilityItem = dynamic_cast<AbilityItem *>(state.
+                                          dragedItem);
                                       if (abilityItem == nullptr) {
                                           LogCat::w("Dropped item is not an AbilityItem.");
                                           return;
@@ -116,8 +120,9 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
                                           LogCat::w("Item container component is null.");
                                           return;
                                       }
-                                      editingItem_->SwapItem(i, itemContainerComponent->GetItemContainer(),
-                                                             state.sourceIndex);
+                                      editingItem_->SwapItem(
+                                          i, itemContainerComponent->GetItemContainer(),
+                                          state.sourceIndex);
                                   }
                               },
                               nullptr, // Cannot drag out yet
@@ -145,8 +150,8 @@ void glimmer::ItemModEditorSystem::Render(SDL_Renderer *renderer) {
 
         startY += slotSize + 5;
     }
-    if (DragAndDrop::IsDragging()) {
-        DragAndDrop::RenderCombined(renderer);
+    if (dragAndDrop->IsDragging()) {
+        dragAndDrop->RenderCombined(renderer);
     }
     AppContext::RestoreColorRenderer(renderer);
 }

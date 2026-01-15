@@ -89,6 +89,10 @@ SDL_Window *glimmer::AppContext::GetWindow() const {
     return window_;
 }
 
+glimmer::DragAndDrop *glimmer::AppContext::GetDragAndDrop() const {
+    return dragAndDrop_;
+}
+
 bool glimmer::AppContext::IsMainThread() const {
     return std::this_thread::get_id() == mainThreadId_;
 }

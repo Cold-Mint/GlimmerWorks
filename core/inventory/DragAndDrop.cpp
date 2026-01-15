@@ -11,7 +11,6 @@
 #include "SDL3_ttf/SDL_ttf.h"
 
 namespace glimmer {
-    DragState DragAndDrop::state_{};
 
     void DragAndDrop::BeginDrag(DragSourceType type, GameEntity *container, int index, Item *item) {
         state_.sourceType = type;
@@ -24,11 +23,11 @@ namespace glimmer {
         state_ = DragState{};
     }
 
-    const DragState &DragAndDrop::GetState() {
+    const DragState &DragAndDrop::GetState() const {
         return state_;
     }
 
-    bool DragAndDrop::IsDragging() {
+    bool DragAndDrop::IsDragging() const {
         return state_.sourceType != DragSourceType::NONE;
     }
 
@@ -105,7 +104,7 @@ namespace glimmer {
         }
     }
 
-    void DragAndDrop::RenderCombined(SDL_Renderer *renderer) {
+    void DragAndDrop::RenderCombined(SDL_Renderer *renderer) const {
         if (!IsDragging() || !state_.dragedItem) return;
 
         float x, y;

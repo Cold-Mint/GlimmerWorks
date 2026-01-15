@@ -18,6 +18,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
     SDL_GetMouseState(&mouseX, &mouseY);
     const float slotSize = 40.0F * appContext_->GetConfig()->window.uiScale;
     const Item *hoveredItem = nullptr;
+    DragAndDrop *dragAndDrop = appContext_->GetDragAndDrop();
     for (auto &entity: entities) {
         const auto slotComp = worldContext_->GetComponent<ItemSlotComponent>(entity->GetID());
         const auto transform = worldContext_->GetComponent<GuiTransform2DComponent>(entity->GetID());
@@ -45,7 +46,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
             hoveredItem = item;
         }
 
-        DragAndDrop::DrawSlot(appContext_, renderer, pos.x, pos.y, slotSize, item, slotComp->IsSelected(),
+        dragAndDrop->DrawSlot(appContext_, renderer, pos.x, pos.y, slotSize, item, slotComp->IsSelected(),
                               [&](const DragState &state) {
                                   if (state.sourceType != DragSourceType::INVENTORY || state.sourceContainer ==
                                       nullptr) {
@@ -60,7 +61,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
                                   }
                               },
                               [&] {
-                                  DragAndDrop::BeginDrag(DragSourceType::INVENTORY, containerEnt, slotIndex,
+                                  dragAndDrop->BeginDrag(DragSourceType::INVENTORY, containerEnt, slotIndex,
                                                          item);
                               },
                               [&] {
@@ -73,7 +74,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
         );
     }
 
-    if (DragAndDrop::IsDragging()) {
+    if (dragAndDrop->IsDragging()) {
         // float mouseX, mouseY;
         // auto mask = SDL_GetMouseState(&mouseX, &mouseY);
         // if (!(mask & SDL_BUTTON_LMASK)) {
@@ -103,11 +104,11 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
         //     }
         //     DragAndDrop::EndDrag();
         // } else {
-        DragAndDrop::RenderCombined(renderer);
+        dragAndDrop->RenderCombined(renderer);
         // }
     }
 
-    if (hoveredItem && !DragAndDrop::IsDragging()) {
+    if (hoveredItem && !dragAndDrop->IsDragging()) {
         RenderTooltip(renderer, hoveredItem);
     }
     AppContext::RestoreColorRenderer(renderer);

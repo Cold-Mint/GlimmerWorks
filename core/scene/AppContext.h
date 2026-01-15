@@ -17,6 +17,7 @@
 #include "../mod/resourcePack/ResourcePackManager.h"
 #include "../saves/SavesManager.h"
 #include "../world/TilePlacerManager.h"
+#include "core/inventory/DragAndDrop.h"
 #include "SDL3_ttf/SDL_ttf.h"
 
 
@@ -55,6 +56,7 @@ namespace glimmer {
         TilePlacerManager *tilePlacerManager_;
         ResourceLocator *resourceLocator_;
         ItemManager *itemManager_;
+        DragAndDrop *dragAndDrop_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
@@ -67,14 +69,15 @@ namespace glimmer {
                    CommandManager *commandManager, CommandExecutor *commandExecutor, LangsResources *langs,
                    DynamicSuggestionsManager *dynamicSuggestionsManager, VirtualFileSystem *virtualFileSystem,
                    TileManager *tileManager, BiomesManager *biomesManager, TilePlacerManager *tilePlacerManager,
-                   ResourceLocator *resourceLocator, ItemManager *itemManager, SavesManager *savesManager)
+                   ResourceLocator *resourceLocator, ItemManager *itemManager, SavesManager *savesManager,
+                   DragAndDrop *dragAndDrop)
             : window_(nullptr), language_(lang), dataPackManager_(dpm), config_(cfg), sceneManager_(sm),
               stringManager_(stringManager), tileManager_(tileManager), biomesManager_(biomesManager),
               commandManager_(commandManager), savesManager_(savesManager),
               ttfFont_(nullptr), commandExecutor_(commandExecutor), resourcePackManager_(rpm), langs_(langs),
               dynamicSuggestionsManager_(dynamicSuggestionsManager), virtualFileSystem_(virtualFileSystem),
               tilePlacerManager_(tilePlacerManager),
-              resourceLocator_(resourceLocator), itemManager_(itemManager) {
+              resourceLocator_(resourceLocator), itemManager_(itemManager), dragAndDrop_(dragAndDrop) {
             mainThreadId_ = std::this_thread::get_id();
         }
 
@@ -121,6 +124,8 @@ namespace glimmer {
 
         [[nodiscard]] SDL_Window *GetWindow() const;
 
+        [[nodiscard]] DragAndDrop *GetDragAndDrop() const;
+
         [[nodiscard]] bool IsMainThread() const;
 
         void ProcessMainThreadTasks();
@@ -155,7 +160,8 @@ namespace glimmer {
             {
                 std::lock_guard lock(mainThreadMutex_);
                 mainThreadTasks_.push(
-                    [func = std::forward<Func>(func), promise]() mutable { //skipcq: CXX-W1247
+                    [func = std::forward<Func>(func), promise]() mutable {
+                        //skipcq: CXX-W1247
                         try {
                             if constexpr (std::is_void_v<Result>) {
                                 func();

@@ -221,12 +221,14 @@ int main() {
     LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
     SavesManager savesManager(&virtualFileSystem);
     savesManager.LoadAllSaves();
+    DragAndDrop dragAndDrop;
     AppContext appContext(&sceneManager, &language, &dataPackManager, &resourcePackManager, &config,
                           &stringManager,
                           &commandManager,
                           &commandExecutor, &langsResources, &dynamicSuggestionsManager, &virtualFileSystem,
                           &tileManager,
-                          &biomesManager, &tilePlacerManager, &resourceLocator, &itemManager, &savesManager);
+                          &biomesManager, &tilePlacerManager, &resourceLocator, &itemManager, &savesManager,
+                          &dragAndDrop);
     resourceLocator.SetAppContext(&appContext);
     commandManager.RegisterCommand(std::make_unique<GiveCommand>(&appContext));
     commandManager.RegisterCommand(std::make_unique<EcsCommand>(&appContext));

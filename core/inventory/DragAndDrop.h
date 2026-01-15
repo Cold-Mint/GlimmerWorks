@@ -37,7 +37,7 @@ namespace glimmer {
         *
         * 全局拖拽状态（一次只允许一个拖拽操作）。
         */
-        static DragState state_;
+        DragState state_;
 
     public:
         /**
@@ -54,14 +54,14 @@ namespace glimmer {
        * @param item      Item being dragged (non-owning pointer)
        *                  被拖拽的物品指针（不拥有所有权）
        */
-        static void BeginDrag(DragSourceType type, GameEntity *container, int index, Item *item);
+        void BeginDrag(DragSourceType type, GameEntity *container, int index, Item *item);
 
         /**
         * End the current drag operation.
         *
         * 结束当前的拖拽操作，清空拖拽状态。
         */
-        static void EndDrag();
+        void EndDrag();
 
 
         /**
@@ -72,7 +72,7 @@ namespace glimmer {
          * @return Reference to the current DragState
          *         当前 DragState 的常量引用
          */
-        static const DragState &GetState();
+        [[nodiscard]] const DragState &GetState() const;
 
         /**
          * Check whether an item is currently being dragged.
@@ -82,7 +82,7 @@ namespace glimmer {
          * @return true if dragging, false otherwise
          *         正在拖拽返回 true，否则返回 false
          */
-        static bool IsDragging();
+        [[nodiscard]] bool IsDragging() const;
 
         /**
     * Draw a slot and handle all related interactions.
@@ -135,19 +135,19 @@ namespace glimmer {
     *
     * 当槽位被点击但未发生拖拽时触发的回调（可选）。
     */
-        static void DrawSlot(const AppContext *appContext, SDL_Renderer *renderer,
-                             float x, float y, float size,
-                             const Item *item, bool isSelected,
-                             const std::function<void(const DragState &)> &onDrop,
-                             const std::function<void()> &onDragStart = nullptr,
-                             const std::function<void()> &onClick = nullptr);
+        void DrawSlot(const AppContext *appContext, SDL_Renderer *renderer,
+                      float x, float y, float size,
+                      const Item *item, bool isSelected,
+                      const std::function<void(const DragState &)> &onDrop,
+                      const std::function<void()> &onDragStart = nullptr,
+                      const std::function<void()> &onClick = nullptr);
 
         /**
         * Render the dragged item icon at mouse position
          * 在鼠标位置呈现拖动的项目图标
          * @param renderer renderer SDL渲染器
          */
-        static void RenderCombined(SDL_Renderer *renderer);
+        void RenderCombined(SDL_Renderer *renderer) const;
     };
 }
 

@@ -272,6 +272,8 @@ target_sources(GlimmerWorks
         core/ecs/component/PauseComponent.cpp
         core/utils/TimeUtils.cpp
         core/ecs/component/PlayerControlComponent.cpp
+        core/console/command/EcsCommand.cpp
+        core/ecs/component/GuiTransform2DComponent.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -395,6 +397,8 @@ target_sources(GlimmerWorks
         core/ecs/system/PauseSystem.h
         core/ecs/component/PauseComponent.h
         core/utils/TimeUtils.h
+        core/console/command/EcsCommand.h
+        core/ecs/component/GuiTransform2DComponent.h
 )
 
 #Define version information

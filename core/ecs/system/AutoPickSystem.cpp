@@ -30,5 +30,5 @@ void glimmer::AutoPickSystem::Update(float delta) {
 }
 
 std::string glimmer::AutoPickSystem::GetName() {
-    return "AutoPickSystem";
+    return "glimmer::AutoPickSystem";
 }

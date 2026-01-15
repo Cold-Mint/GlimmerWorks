@@ -80,7 +80,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         auto position = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
         if (!control || !position) continue;
 
-        auto tileLayers = worldContext_->GetEntitiesWithComponents<TileLayerComponent, Transform2DComponent>();
+        auto tileLayers = worldContext_->GetEntitiesWithComponents<TileLayerComponent>();
         float totalLines = 1.0F + static_cast<float>(tileLayers.size());
         float totalTextHeight = totalLines * lineSpacing;
         yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;

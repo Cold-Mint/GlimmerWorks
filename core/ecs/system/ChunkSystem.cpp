@@ -6,6 +6,7 @@
 
 #include "../../Constants.h"
 #include "../../world/WorldContext.h"
+#include "../component/Transform2DComponent.h"
 
 
 void glimmer::ChunkSystem::Update(float delta) {
@@ -21,7 +22,7 @@ void glimmer::ChunkSystem::Update(float delta) {
     viewportRect.w += preloadMargin_ * 2 * chunkWorldSize;
     viewportRect.h += preloadMargin_ * 2 * chunkWorldSize;
     const auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<
-        Transform2DComponent, TileLayerComponent>();
+        TileLayerComponent>();
 
     for (auto layerEntity: tileLayerEntities) {
         auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(layerEntity->GetID());

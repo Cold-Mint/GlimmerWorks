@@ -21,6 +21,7 @@
 #include "../component/MagnetComponent.h"
 #include "../component/AutoPickComponent.h"
 #include "../component/ItemSlotComponent.h"
+#include "core/ecs/component/GuiTransform2DComponent.h"
 
 
 void glimmer::GameStartSystem::Update(float delta) {
@@ -31,8 +32,6 @@ void glimmer::GameStartSystem::Update(float delta) {
 
     auto *tileLayerEntity = worldContext_->CreateEntity();
     auto tileId = tileLayerEntity->GetID();
-    const auto transform2DComponent = worldContext_->AddComponent<Transform2DComponent>(tileId);
-    transform2DComponent->SetPosition(Vector2D(0, 0));
     worldContext_->AddComponent<
         TileLayerComponent>(tileId, TileLayerType::Main, worldContext_->GetAllChunks());
     auto *playerEntity = worldContext_->CreateEntity();
@@ -72,7 +71,7 @@ void glimmer::GameStartSystem::Update(float delta) {
         auto *slotEntity = worldContext_->CreateEntity();
         auto slotId = slotEntity->GetID();
         worldContext_->AddComponent<ItemSlotComponent>(slotId, playerEntity, i);
-        worldContext_->AddComponent<Transform2DComponent>(slotId); // Position managed by HotBarSystem
+        worldContext_->AddComponent<GuiTransform2DComponent>(slotId);
         hotBarComponent->AddSlotEntity(slotEntity);
     }
 

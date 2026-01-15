@@ -182,7 +182,7 @@ void glimmer::App::run() const {
                         if (topScene->
                             HandleEvent(event)) {
                             handled = true;
-                            LogCat::w("Main scene handled event, stopping propagation.");
+                            LogCat::i("Main scene handled event, stopping propagation.");
                         }
                     }
                 }

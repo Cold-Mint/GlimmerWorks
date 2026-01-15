@@ -19,44 +19,42 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     if (cameraPos == nullptr) {
         return;
     }
-    auto gameEntities = worldContext_->GetEntitiesWithComponents<TileLayerComponent, Transform2DComponent>();
+    auto gameEntities = worldContext_->GetEntitiesWithComponents<TileLayerComponent>();
     for (auto entity: gameEntities) {
         auto tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
-        if (tileLayerComponent != nullptr) {
-            const auto *worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
-            if (worldPositionComponent != nullptr) {
-                auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
-                const float zoom = cameraComponent->GetZoom();
+        if (tileLayerComponent == nullptr) {
+            continue;
+        }
+        auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
+        const float zoom = cameraComponent->GetZoom();
 
-                std::vector<std::pair<TileVector2D, Tile *> > visibleTiles =
-                        tileLayerComponent->GetTilesInViewport(viewportRect);
-                SDL_Color oldColor;
-                SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-                TileVector2D focusPosition = tileLayerComponent->GetFocusPosition();
-                for (const auto &[tileCoord, tile]: visibleTiles) {
-                    WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileCoord);
-                    CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
-                        cameraPos->GetPosition(), worldTilePos);
+        std::vector<std::pair<TileVector2D, Tile *> > visibleTiles =
+                tileLayerComponent->GetTilesInViewport(viewportRect);
+        SDL_Color oldColor;
+        SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+        TileVector2D focusPosition = tileLayerComponent->GetFocusPosition();
+        for (const auto &[tileCoord, tile]: visibleTiles) {
+            WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileCoord);
+            CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
+                cameraPos->GetPosition(), worldTilePos);
 
-                    SDL_FRect renderQuad;
-                    renderQuad.w = TILE_SIZE * zoom;
-                    renderQuad.h = TILE_SIZE * zoom;
+            SDL_FRect renderQuad;
+            renderQuad.w = TILE_SIZE * zoom;
+            renderQuad.h = TILE_SIZE * zoom;
 
-                    renderQuad.x = screenPos.x - renderQuad.w * 0.5f;
-                    renderQuad.y = screenPos.y - renderQuad.h * 0.5f;
-                    SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
-                    if (!SDL_RenderTexture(renderer, tile->texture.get(), nullptr, &dstRect)) {
-                        LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
-                    }
-                    if (tileCoord == focusPosition) {
-                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
-                        SDL_RenderRect(renderer, &dstRect);
-                    }
-                }
-
-                SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
+            renderQuad.x = screenPos.x - renderQuad.w * 0.5f;
+            renderQuad.y = screenPos.y - renderQuad.h * 0.5f;
+            SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
+            if (!SDL_RenderTexture(renderer, tile->texture.get(), nullptr, &dstRect)) {
+                LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
+            }
+            if (tileCoord == focusPosition) {
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
+                SDL_RenderRect(renderer, &dstRect);
             }
         }
+
+        SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
     }
 }
 

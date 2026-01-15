@@ -22,6 +22,7 @@
 #define BOX2D_COMMAND_NAME  "box2d"
 #define GIVE_COMMAND_NAME  "give"
 #define ASSET_VIEWER_COMMAND_NAME  "assetViewer"
+#define ECS_COMMAND_NAME  "ecs"
 #define FULL_TILE_PLACER_ID "fillTilePlacer"
 #define BOOL_DYNAMIC_SUGGESTIONS_NAME  "&bool"
 #define CONFIG_DYNAMIC_SUGGESTIONS_NAME  "&config"
@@ -151,6 +152,7 @@ static constexpr uint32_t COMPONENT_ID_RIGID_BODY_2D = 13;
 // 不支持序列化。
 static constexpr uint32_t COMPONENT_ID_TILE_LAYER = 14;
 static constexpr uint32_t COMPONENT_ID_TRANSFORM_2D = 15;
+static constexpr uint32_t COMPONENT_ID_GUI_TRANSFORM_2D = 16;
 
 
 /**

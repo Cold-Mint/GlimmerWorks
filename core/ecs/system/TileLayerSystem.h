@@ -6,7 +6,6 @@
 #define GLIMMERWORKS_TILELAYERSYSTEM_H
 #include "../GameSystem.h"
 #include "../component/TileLayerComponent.h"
-#include "../component/Transform2DComponent.h"
 
 namespace glimmer
 {
@@ -16,7 +15,6 @@ namespace glimmer
         TileLayerSystem(AppContext* appContext, WorldContext* worldContext)
             : GameSystem(appContext, worldContext)
         {
-            RequireComponent<Transform2DComponent>();
             RequireComponent<TileLayerComponent>();
         }
 

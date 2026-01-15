@@ -76,6 +76,23 @@ bool glimmer::WorldContext::IsRuning() const {
     return running;
 }
 
+std::vector<glimmer::GameComponent *> glimmer::WorldContext::GetAllComponents(const GameEntity::ID id) {
+    auto &components = entityComponents[id];
+    std::vector<GameComponent *> result;
+    for (auto &gameComponent: components) {
+        result.push_back(gameComponent.get());
+    }
+    return result;
+}
+
+std::vector<glimmer::GameSystem *> glimmer::WorldContext::GetAllActiveSystem() const {
+    std::vector<GameSystem *> result;
+    for (auto &activeSystem: activeSystems) {
+        result.push_back(activeSystem.get());
+    }
+    return result;
+}
+
 void glimmer::WorldContext::SetRuning(const bool run) {
     running = run;
 }
@@ -384,8 +401,8 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
     Chunk *chunk = it->second.get();
     chunk->ToMessage(chunkMessage);
     (void) saves->WriteChunk(position, chunkMessage);
-    WorldVector2D startWorldVector2d = chunk->GetStartWorldPosition();
-    WorldVector2D endWorldVector2d = chunk->GetEndWorldPosition();
+    const WorldVector2D startWorldVector2d = chunk->GetStartWorldPosition();
+    const WorldVector2D endWorldVector2d = chunk->GetEndWorldPosition();
     const float minX = std::min(startWorldVector2d.x, endWorldVector2d.x);
     const float maxX = std::max(startWorldVector2d.x, endWorldVector2d.x);
     const float minY = std::min(startWorldVector2d.y, endWorldVector2d.y);
@@ -393,6 +410,9 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
     auto transform2DEntityList = GetEntitiesWithComponents<Transform2DComponent>();
     ChunkEntityMessage chunkEntityMessage;
     for (auto &transform2dEntity: transform2DEntityList) {
+        if (transform2dEntity == player_) {
+            continue;
+        }
         auto *transform2dComponent = GetComponent<Transform2DComponent>(transform2dEntity->GetID());
         if (transform2dComponent == nullptr) {
             continue;
@@ -416,6 +436,7 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
                 componentMessage->set_id(componentItem->GetId());
                 componentMessage->set_data(componentItem->serialize());
             }
+            RemoveEntity(transform2dEntity->GetID());
         }
     }
     if (chunkEntityMessage.entitys_size() > 0) {
@@ -651,10 +672,10 @@ glimmer::GameEntity *glimmer::WorldContext::RecoveryEntity(const EntityItemMessa
     for (int j = 0; j < componentSize; j++) {
         GameComponent *component = RecoveryComponent(id, entityItemMessage.components(j));
         if (component->GetId() == COMPONENT_ID_RIGID_BODY_2D) {
-            rigidBody2dComponent = static_cast<RigidBody2DComponent *>(component);
+            rigidBody2dComponent = dynamic_cast<RigidBody2DComponent *>(component);
         }
         if (component->GetId() == COMPONENT_ID_TRANSFORM_2D) {
-            transform2dComponent = static_cast<Transform2DComponent *>(component);
+            transform2dComponent = dynamic_cast<Transform2DComponent *>(component);
         }
     }
     if (rigidBody2dComponent != nullptr && transform2dComponent != nullptr) {
@@ -743,6 +764,14 @@ glimmer::WorldContext::CreateDroppedItemEntity(std::unique_ptr<Item> item, const
 glimmer::GameEntity *glimmer::WorldContext::GetEntity(const GameEntity::ID id) {
     const auto it = entityMap.find(id);
     return it != entityMap.end() ? it->second : nullptr;
+}
+
+std::vector<glimmer::GameEntity *> glimmer::WorldContext::GetAllGameEntities() const {
+    std::vector<GameEntity *> result;
+    for (auto &entity: entities) {
+        result.push_back(entity.get());
+    }
+    return result;
 }
 
 std::vector<glimmer::GameEntity *> glimmer::WorldContext::GetAllPersistableEntities() const {

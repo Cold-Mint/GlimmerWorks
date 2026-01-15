@@ -13,14 +13,14 @@
 #include <algorithm>
 
 void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
-    const auto entities = worldContext_->GetEntitiesWithComponents<ItemSlotComponent, Transform2DComponent>();
+    const auto entities = worldContext_->GetEntitiesWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     const float slotSize = 40.0F * appContext_->GetConfig()->window.uiScale;
     const Item *hoveredItem = nullptr;
     for (auto &entity: entities) {
         const auto slotComp = worldContext_->GetComponent<ItemSlotComponent>(entity->GetID());
-        const auto transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
+        const auto transform = worldContext_->GetComponent<GuiTransform2DComponent>(entity->GetID());
 
         const Vector2D pos = transform->GetPosition();
 

@@ -8,6 +8,7 @@
 #include "core/console/command/AssetViewerCommand.h"
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/ConfigCommand.h"
+#include "core/console/command/EcsCommand.h"
 #include "core/console/command/GiveCommand.h"
 #include "core/console/command/HeightMapCommand.h"
 #include "core/console/command/HelpCommand.h"
@@ -228,6 +229,7 @@ int main() {
                           &biomesManager, &tilePlacerManager, &resourceLocator, &itemManager, &savesManager);
     resourceLocator.SetAppContext(&appContext);
     commandManager.RegisterCommand(std::make_unique<GiveCommand>(&appContext));
+    commandManager.RegisterCommand(std::make_unique<EcsCommand>(&appContext));
     commandManager.RegisterCommand(std::make_unique<HelpCommand>(&appContext));
     commandManager.RegisterCommand(std::make_unique<TpCommand>(&appContext));
     commandManager.RegisterCommand(std::make_unique<HeightMapCommand>(&appContext, &virtualFileSystem));

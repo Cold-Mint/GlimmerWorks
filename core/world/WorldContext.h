@@ -217,6 +217,17 @@ namespace glimmer {
          */
         [[nodiscard]] bool IsRuning() const;
 
+
+        /**
+         * Retrieve all the components that are mounted on a certain entity.
+         * 获取某个实体上挂载的全部组件。
+         * @param id id 实体id
+         * @return
+         */
+        [[nodiscard]] std::vector<GameComponent *> GetAllComponents(GameEntity::ID id);
+
+        [[nodiscard]] std::vector<GameSystem *> GetAllActiveSystem() const;
+
         /**
          *Set the running
          * 设置运行状态
@@ -459,6 +470,15 @@ namespace glimmer {
          * @return
          */
         GameEntity *GetEntity(GameEntity::ID id);
+
+
+        /**
+         * GetAllGameEntities
+         * 获取所有游戏实体
+         * @return
+         */
+        [[nodiscard]] std::vector<GameEntity *> GetAllGameEntities() const;
+
 
         /**
          * Obtain all game objects that need to be persisted

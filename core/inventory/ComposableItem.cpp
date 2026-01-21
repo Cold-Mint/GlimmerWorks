@@ -26,11 +26,11 @@ void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContain
     itemContainer->SwapItem(index, otherContainer, otherIndex);
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(size_t index, std::unique_ptr<Item> item) const {
+std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const size_t index, std::unique_ptr<Item> item) const {
     return itemContainer->ReplaceItem(index, std::move(item));
 }
 
-size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, size_t amount) const {
+size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const size_t amount) const {
     return itemContainer->RemoveItem(id, amount);
 }
 
@@ -63,7 +63,22 @@ std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const {
 }
 
 std::optional<glimmer::ResourceRef> glimmer::ComposableItem::ToResourceRef() {
-    return Resource::ParseFromId(id_, RESOURCE_TYPE_COMPOSABLE_ITEM);
+    std::optional<ResourceRef> resourceRef = Resource::ParseFromId(id_, RESOURCE_TYPE_COMPOSABLE_ITEM);
+    size_t size = itemContainer->GetCapacity();
+    for (int i = 0; i < size; i++) {
+        Item *item = itemContainer->GetItem(i);
+        if (item == nullptr) {
+            continue;
+        }
+        auto ref = item->ToResourceRef();
+        if (ref.has_value()) {
+            ResourceRefArg refArg;
+            refArg.SetName("item_" + std::to_string(i));
+            refArg.SetDataFromResourceRef(ref.value());
+            resourceRef->AddArg(refArg);
+        }
+    }
+    return resourceRef;
 }
 
 size_t glimmer::ComposableItem::GetMaxSlotSize() const {

@@ -66,7 +66,7 @@ namespace glimmer {
         ResourceRef description;
         std::string texture;
         size_t slotSize;
-        std::vector<ResourceRef> abilityItems;
+        std::vector<ResourceRef> defaultAbilityList;
     };
 
     enum VariableDefinitionType:u_int8_t {

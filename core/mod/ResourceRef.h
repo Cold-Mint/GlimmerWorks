@@ -9,12 +9,16 @@
 #include "src/core/resource_ref.pb.h"
 
 namespace glimmer {
+    class ResourceRef;
+
     class ResourceRefArg {
         std::string name_;
-        uint32_t argType_ = RESOURCE_REF_ARG_TYPE_STRING;
+        uint32_t argType_ = RESOURCE_REF_ARG_TYPE_NONE;
         std::string data_;
 
     public:
+        const std::string &GetName();
+
         void SetName(const std::string &name);
 
         /**
@@ -45,14 +49,23 @@ namespace glimmer {
          */
         void SetDataFromString(const std::string &data);
 
+        /**
+         * Set data from the resource reference.
+         * 从资源引用内设置数据
+         * @param data
+         */
+        void SetDataFromResourceRef(ResourceRef &data);
+
 
         [[nodiscard]] int AsInt() const;
 
         [[nodiscard]] bool AsBool() const;
 
-        [[nodiscard]] const std::string &AsString();
+        [[nodiscard]] std::string AsString() const;
 
         [[nodiscard]] float AsFloat() const;
+
+        [[nodiscard]] std::optional<ResourceRef> AsResourceRef() const;
 
         /**
          * Obtain parameter type
@@ -80,6 +93,20 @@ namespace glimmer {
          * @param selfPackageId selfPackageId 自身的包Id
          */
         void SetSelfPackageId(const std::string &selfPackageId);
+
+        void AddArg(const ResourceRefArg &arg);
+
+        [[nodiscard]] size_t GetArgCount() const;
+
+        /**
+         * Obtain the parameters at the specified location
+         * 获取指定位置的参数
+         * @param index
+         * @return
+         */
+        [[nodiscard]] std::optional<ResourceRefArg> GetArg(int index) const;
+
+        bool RemoveArg(int index);
 
         /**
          *The package Id for serialization from the json file might be set to @self

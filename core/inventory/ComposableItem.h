@@ -54,8 +54,37 @@ namespace glimmer {
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
 
+        /**
+         * TryParseItemIndex
+         * 尝试从名称内解析下标
+         * @param name
+         * @return If the result is -1, it indicates that the parsing has failed. 如果返回-1,那么表示解析失败。
+         */
+        static int TryParseItemIndex(const std::string &name) {
+            constexpr std::string_view prefix = "item_";
+            if (!name.starts_with(prefix)) {
+                return -1;
+            }
+            std::string_view numberPart{name};
+            numberPart.remove_prefix(prefix.size());
+            if (numberPart.empty()) {
+                return -1;
+            }
+            int value = -1;
+            auto [ptr, ec] = std::from_chars(
+                numberPart.data(),
+                numberPart.data() + numberPart.size(),
+                value
+            );
+            if (ec != std::errc{} || ptr != numberPart.data() + numberPart.size()) {
+                return -1;
+            }
+            return value;
+        }
+
         static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext,
-                                                                const ComposableItemResource *itemResource) {
+                                                                const ComposableItemResource *itemResource,
+                                                                const ResourceRef *resourceRef) {
             const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
             if (!nameRes.has_value()) {
                 LogCat::e("An error occurred when constructing composable items, and the name is empty.");
@@ -71,8 +100,44 @@ namespace glimmer {
                 LogCat::e("An error occurred when constructing composable items, and the texture is empty.");
                 return nullptr;
             }
-            return std::make_unique<ComposableItem>(Resource::GenerateId(*itemResource), nameRes.value()->value,
-                                                    descriptionRes.value()->value, texture, itemResource->slotSize);
+            std::unique_ptr<ComposableItem> result = std::make_unique<ComposableItem>(
+                Resource::GenerateId(*itemResource), nameRes.value()->value,
+                descriptionRes.value()->value, texture, itemResource->slotSize);
+            //Filling ability.
+            //填充能力。
+            size_t argCount = resourceRef->GetArgCount();
+            if (argCount == 0) {
+                //If the capability is not specified within the resource reference, then the default capability will be loaded.
+                //如果没有在资源引用内指定能力，那么加载默认能力。
+                size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
+                for (int i = 0; i < defaultAbilitySize; i++) {
+                    auto itemObj = appContext->GetResourceLocator()->FindItem(
+                        appContext, itemResource->defaultAbilityList[i]);
+                    if (itemObj.has_value()) {
+                        (void) result->ReplaceItem(static_cast<size_t>(i), std::move(itemObj.value()));
+                    }
+                }
+            } else {
+                for (int i = 0; i < argCount; i++) {
+                    auto refArg = resourceRef->GetArg(i);
+                    if (refArg.has_value()) {
+                        ResourceRefArg arg = refArg.value();
+                        int index = TryParseItemIndex(arg.GetName());
+                        if (index < 0) {
+                            continue;
+                        }
+                        auto itemRef = arg.AsResourceRef();
+                        if (!itemRef.has_value()) {
+                            continue;
+                        }
+                        auto itemObj = appContext->GetResourceLocator()->FindItem(appContext, itemRef.value());
+                        if (itemObj.has_value()) {
+                            (void) result->ReplaceItem(static_cast<size_t>(index), std::move(itemObj.value()));
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
         [[nodiscard]] std::optional<ResourceRef> ToResourceRef() override;

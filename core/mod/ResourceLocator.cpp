@@ -71,7 +71,7 @@ std::optional<std::unique_ptr<glimmer::Item> > glimmer::ResourceLocator::FindIte
     if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
         auto composableItemResource = FindComposableItem(resourceRef);
         if (composableItemResource.has_value()) {
-            return std::move(ComposableItem::FromItemResource(appContext, composableItemResource.value()));
+            return std::move(ComposableItem::FromItemResource(appContext, composableItemResource.value(), &resourceRef));
         }
     }
 

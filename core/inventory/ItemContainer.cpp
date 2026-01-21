@@ -11,12 +11,18 @@
 
 
 void glimmer::ItemContainer::BindItemEvent(std::unique_ptr<Item> &item) {
+    if (item == nullptr) {
+        return;
+    }
     item->SetOnAmountZero([&item]() {
         item.reset();
     });
 }
 
 void glimmer::ItemContainer::UnBindItemEvent(const std::unique_ptr<Item> &item) {
+    if (item == nullptr) {
+        return;
+    }
     item->SetOnAmountZero(nullptr);
 }
 

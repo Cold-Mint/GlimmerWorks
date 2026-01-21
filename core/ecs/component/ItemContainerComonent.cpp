@@ -10,18 +10,18 @@ glimmer::ItemContainer *glimmer::ItemContainerComponent::GetItemContainer() cons
     return itemContainer_.get();
 }
 
-bool glimmer::ItemContainerComponent::isSerializable() {
+bool glimmer::ItemContainerComponent::IsSerializable() {
     return true;
 }
 
-std::string glimmer::ItemContainerComponent::serialize() {
+std::string glimmer::ItemContainerComponent::Serialize() {
     ItemContainerMessage itemContainerMessage;
     itemContainer_->ToMessage(itemContainerMessage);
     return itemContainerMessage.SerializeAsString();
 }
 
 void glimmer::ItemContainerComponent::
-deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) {
+Deserialize(AppContext *appContext, WorldContext *worldContext, const std::string &data) {
     ItemContainerMessage itemContainerMessage;
     itemContainerMessage.ParseFromString(data);
     itemContainer_->FromMessage(appContext, itemContainerMessage);

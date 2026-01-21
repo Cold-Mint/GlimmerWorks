@@ -20,14 +20,14 @@ namespace glimmer {
          * 组件是否支持序列化。
          * @return
          */
-        [[nodiscard]] virtual bool isSerializable();
+        [[nodiscard]] virtual bool IsSerializable();
 
         /**
          * serialize
          * 系列化组件
          * @return data 数据
          */
-        [[nodiscard]] virtual std::string serialize();
+        [[nodiscard]] virtual std::string Serialize();
 
         /**
          * deserialize
@@ -36,7 +36,7 @@ namespace glimmer {
          * @param worldContext worldContext 世界上下文
          * @param data data 数据
          */
-        virtual void deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data);
+        virtual void Deserialize(AppContext *appContext, WorldContext *worldContext, const std::string &data);
 
         [[nodiscard]] virtual u_int32_t GetId();
     };

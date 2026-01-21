@@ -61,11 +61,11 @@ namespace glimmer {
 
         [[nodiscard]] const std::vector<GameEntity::ID> &GetEntities() const;
 
-        [[nodiscard]] bool isSerializable() override;
+        [[nodiscard]] bool IsSerializable() override;
 
-        [[nodiscard]] std::string serialize() override;
+        [[nodiscard]] std::string Serialize() override;
 
-        void deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) override;
+        void Deserialize(AppContext *appContext, WorldContext *worldContext, const std::string &data) override;
 
         [[nodiscard]] u_int32_t GetId() override;
     };

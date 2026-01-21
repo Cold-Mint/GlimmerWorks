@@ -10,6 +10,7 @@
 #include "MapManifest.h"
 #include "../ecs/component/TileLayerComponent.h"
 #include "../vfs/VirtualFileSystem.h"
+#include "src/core/player.pb.h"
 #include "src/saves/chunk.pb.h"
 #include "src/saves/chunk_entity.pb.h"
 
@@ -22,6 +23,8 @@ namespace glimmer {
         [[nodiscard]] std::string ToChunkPath(TileVector2D position) const;
 
         [[nodiscard]] std::string ToChunkEntityPath(TileVector2D position) const;
+
+        [[nodiscard]] std::string ToPlayerPath() const;
 
     public:
         explicit Saves(std::string path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
@@ -69,6 +72,12 @@ namespace glimmer {
         [[nodiscard]] bool WriteChunkEntity(TileVector2D position, const ChunkEntityMessage &chunkEntityMessage) const;
 
         [[nodiscard]] bool DeleteChunkEntity(TileVector2D position) const;
+
+        [[nodiscard]] bool WritePlayer(const PlayerMessage &playerMessage) const;
+
+        [[nodiscard]] std::optional<PlayerMessage> ReadPlayer() const;
+
+        [[nodiscard]] bool PlayerExists() const;
 
         /**
          * ReadMapManifest

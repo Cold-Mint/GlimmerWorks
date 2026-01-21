@@ -26,7 +26,7 @@ namespace glimmer {
         }
 
         ItemContainer()
-            : ItemContainer(10) {
+            : ItemContainer(0) {
         }
 
 

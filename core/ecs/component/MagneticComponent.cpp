@@ -44,17 +44,18 @@ u_int32_t glimmer::MagneticComponent::GetId() {
     return COMPONENT_ID_MAGNETIC;
 }
 
-bool glimmer::MagneticComponent::isSerializable() {
+bool glimmer::MagneticComponent::IsSerializable() {
     return true;
 }
 
-std::string glimmer::MagneticComponent::serialize() {
+std::string glimmer::MagneticComponent::Serialize() {
     MagneticMessage magneticMessage;
     magneticMessage.set_type(type_);
     return magneticMessage.SerializeAsString();
 }
 
-void glimmer::MagneticComponent::deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) {
+void glimmer::MagneticComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,
+                                             const std::string &data) {
     MagneticMessage magneticMessage;
     magneticMessage.ParseFromString(data);
     type_ = magneticMessage.type();

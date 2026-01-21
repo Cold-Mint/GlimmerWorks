@@ -28,11 +28,11 @@ WorldVector2D glimmer::Transform2DComponent::GetPosition() const {
     return position_;
 }
 
-bool glimmer::Transform2DComponent::isSerializable() {
+bool glimmer::Transform2DComponent::IsSerializable() {
     return true;
 }
 
-std::string glimmer::Transform2DComponent::serialize() {
+std::string glimmer::Transform2DComponent::Serialize() {
     Transform2dMessage transform2DMessage;
     auto *pos = transform2DMessage.mutable_position();
     pos->set_x(position_.x);
@@ -41,7 +41,7 @@ std::string glimmer::Transform2DComponent::serialize() {
     return transform2DMessage.SerializeAsString();
 }
 
-void glimmer::Transform2DComponent::deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) {
+void glimmer::Transform2DComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,const std::string &data) {
     Transform2dMessage transform2DMessage;
     transform2DMessage.ParseFromString(data);
     position_.x = transform2DMessage.position().x();

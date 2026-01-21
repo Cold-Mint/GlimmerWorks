@@ -136,11 +136,11 @@ u_int32_t glimmer::RigidBody2DComponent::GetId() {
     return COMPONENT_ID_RIGID_BODY_2D;
 }
 
-bool glimmer::RigidBody2DComponent::isSerializable() {
+bool glimmer::RigidBody2DComponent::IsSerializable() {
     return true;
 }
 
-std::string glimmer::RigidBody2DComponent::serialize() {
+std::string glimmer::RigidBody2DComponent::Serialize() {
     RigidBody2dMessage rigidBody2dMessage;
     rigidBody2dMessage.set_categorybits(categoryBits_);
     rigidBody2dMessage.set_maskbits(maskBits_);
@@ -165,7 +165,8 @@ std::string glimmer::RigidBody2DComponent::serialize() {
     return rigidBody2dMessage.SerializeAsString();
 }
 
-void glimmer::RigidBody2DComponent::deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) {
+void glimmer::RigidBody2DComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,
+                                                const std::string &data) {
     RigidBody2dMessage rigidBody2dMessage;
     rigidBody2dMessage.ParseFromString(data);
     categoryBits_ = rigidBody2dMessage.categorybits();

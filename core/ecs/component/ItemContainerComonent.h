@@ -18,8 +18,12 @@ namespace glimmer {
         std::unique_ptr<ItemContainer> itemContainer_;
 
     public:
-        explicit ItemContainerComponent(const size_t capacity) {
-            itemContainer_ = std::make_unique<ItemContainer>(capacity);
+        explicit ItemContainerComponent(size_t capacity)
+            : itemContainer_(std::make_unique<ItemContainer>(capacity)) {
+        }
+
+        ItemContainerComponent()
+            : ItemContainerComponent(0) {
         }
 
         /**
@@ -29,11 +33,11 @@ namespace glimmer {
          */
         [[nodiscard]] ItemContainer *GetItemContainer() const;
 
-        [[nodiscard]] bool isSerializable() override;
+        [[nodiscard]] bool IsSerializable() override;
 
-        [[nodiscard]] std::string serialize() override;
+        [[nodiscard]] std::string Serialize() override;
 
-        void deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) override;
+        void Deserialize(AppContext *appContext, WorldContext *worldContext, const std::string &data) override;
 
         [[nodiscard]] u_int32_t GetId() override;
     };

@@ -74,6 +74,13 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
                 LogCat::e("Error update map Manifest ");
                 return;
             }
+            //保存玩家
+            if (worldContext_->GetPlayerEntity()->IsPersistable()) {
+                PlayerMessage playerMessage;
+                (void) worldContext_->SaveEntity(playerMessage.mutable_entity(), worldContext_->GetPlayerEntity());
+                (void) worldContext_->GetSaves()->WritePlayer(playerMessage);
+            }
+
             //Save all blocks.
             //保存所有区块。
             auto allChunks = worldContext_->GetAllChunks();

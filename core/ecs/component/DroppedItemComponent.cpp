@@ -6,7 +6,6 @@
 
 #include "core/inventory/AbilityItem.h"
 #include "core/inventory/ComposableItem.h"
-#include "core/inventory/TileItem.h"
 #include "core/mod/ResourceLocator.h"
 #include "src/saves/dropped_item.pb.h"
 
@@ -50,11 +49,11 @@ u_int32_t glimmer::DroppedItemComponent::GetId() {
     return COMPONENT_ID_DROPPED_ITEM;
 }
 
-bool glimmer::DroppedItemComponent::isSerializable() {
+bool glimmer::DroppedItemComponent::IsSerializable() {
     return true;
 }
 
-std::string glimmer::DroppedItemComponent::serialize() {
+std::string glimmer::DroppedItemComponent::Serialize() {
     DroppedItemMessage droppedItemMessage;
     auto resourceRef = item_->ToResourceRef();
     if (resourceRef.has_value()) {
@@ -65,7 +64,7 @@ std::string glimmer::DroppedItemComponent::serialize() {
     return droppedItemMessage.SerializeAsString();
 }
 
-void glimmer::DroppedItemComponent::deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) {
+void glimmer::DroppedItemComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,const std::string &data) {
     DroppedItemMessage droppedItemMessage;
     droppedItemMessage.ParseFromString(data);
     ResourceRef resourceRef;

@@ -270,11 +270,13 @@ namespace glimmer {
 
 
         /**
-         * Set player entity
-         * 设置玩家实体
-         * @param player
+         * Initialize the player
+         * 初始化玩家
+         * This method will load the player data from the disk and then supplement the player's components after the loading process.
+         * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
          */
-        void SetPlayerEntity(GameEntity *player);
+        void InitPlayer();
+
 
         /**
          * GetPlayerEntity
@@ -360,6 +362,15 @@ namespace glimmer {
          * @param position
          */
         [[nodiscard]] bool SaveChunk(TileVector2D position);
+
+        /**
+         * SaveEntity
+         * 保存实体
+         * @param entityItemMessage
+         * @param gameEntity
+         * @return
+         */
+        [[nodiscard]] bool SaveEntity(EntityItemMessage *entityItemMessage, const GameEntity *gameEntity);
 
         /**
          * Determine whether a block at a certain position has been loaded

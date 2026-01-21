@@ -18,6 +18,10 @@ std::string glimmer::Saves::ToChunkEntityPath(TileVector2D position) const {
     return path_ + "/entitys/entity_" + std::to_string(position.x) + "_" + std::to_string(position.y) + ".bin";
 }
 
+std::string glimmer::Saves::ToPlayerPath() const {
+    return path_ + "/" + PLAYER_FILE_NAME;
+}
+
 void glimmer::Saves::SetOnMapManifestChanged(
     const std::function<void(const MapManifestMessage &)> &onMapManifestChanged) {
     onMapManifestChanged_ = onMapManifestChanged;
@@ -71,6 +75,24 @@ bool glimmer::Saves::WriteChunkEntity(TileVector2D position, const ChunkEntityMe
 
 bool glimmer::Saves::DeleteChunkEntity(TileVector2D position) const {
     return virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(position));
+}
+
+bool glimmer::Saves::WritePlayer(const PlayerMessage &playerMessage) const {
+    return virtualFileSystem_->WriteFile(ToPlayerPath(), playerMessage.SerializeAsString());
+}
+
+std::optional<PlayerMessage> glimmer::Saves::ReadPlayer() const {
+    const auto stream = virtualFileSystem_->ReadStream(ToPlayerPath());
+    if (!stream.has_value()) {
+        return std::nullopt;
+    }
+    PlayerMessage playerMessage;
+    playerMessage.ParseFromIstream(stream->get());
+    return playerMessage;
+}
+
+bool glimmer::Saves::PlayerExists() const {
+    return virtualFileSystem_->Exists(ToPlayerPath());
 }
 
 std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {

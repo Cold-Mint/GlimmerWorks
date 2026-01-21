@@ -4,15 +4,15 @@
 
 #include "GameComponent.h"
 
-bool glimmer::GameComponent::isSerializable() {
+bool glimmer::GameComponent::IsSerializable() {
     return false;
 }
 
-std::string glimmer::GameComponent::serialize() {
+std::string glimmer::GameComponent::Serialize() {
     return "";
 }
 
-void glimmer::GameComponent::deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) {
+void glimmer::GameComponent::Deserialize(AppContext *appContext, WorldContext *worldContext, const std::string &data) {
 }
 
 u_int32_t glimmer::GameComponent::GetId() {

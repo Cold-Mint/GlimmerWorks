@@ -49,11 +49,11 @@ const std::vector<glimmer::GameEntity::ID> &glimmer::MagnetComponent::GetEntitie
     return entities_;
 }
 
-bool glimmer::MagnetComponent::isSerializable() {
+bool glimmer::MagnetComponent::IsSerializable() {
     return true;
 }
 
-std::string glimmer::MagnetComponent::serialize() {
+std::string glimmer::MagnetComponent::Serialize() {
     MagnetMessage magnetMessage;
     magnetMessage.set_type(type_);
     magnetMessage.set_detectionradius(detectionRadius_);
@@ -61,7 +61,8 @@ std::string glimmer::MagnetComponent::serialize() {
     return magnetMessage.SerializeAsString();
 }
 
-void glimmer::MagnetComponent::deserialize(AppContext *appContext, WorldContext *worldContext, std::string &data) {
+void glimmer::MagnetComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,
+                                           const std::string &data) {
     MagnetMessage magnetMessage;
     magnetMessage.ParseFromString(data);
     type_ = magnetMessage.type();

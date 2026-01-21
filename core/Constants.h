@@ -10,6 +10,7 @@
 // 数据包和资源包的清单文件名
 #define MANIFEST_FILE_NAME "manifest.json"
 #define MAP_MANIFEST_FILE_NAME "mapManifest.bin"
+#define PLAYER_FILE_NAME "player.bin"
 
 
 #define HELP_COMMAND_NAME  "help"
@@ -49,6 +50,7 @@ constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
 constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
 constexpr size_t ITEM_MAX_STACK = 64;
+constexpr size_t HOT_BAR_SIZE = 9;
 constexpr float DROP_INTERVAL = 1.0f / ITEM_MAX_STACK;
 
 /**

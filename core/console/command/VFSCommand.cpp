@@ -91,6 +91,10 @@ bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(co
                     ChunkEntityMessage chunkEntityMessage;
                     chunkEntityMessage.ParseFromString(text.value());
                     onMessage(chunkEntityMessage.DebugString());
+                }else if (messageType == "player") {
+                    PlayerMessage playerMessage;
+                    playerMessage.ParseFromString(text.value());
+                    onMessage(playerMessage.DebugString());
                 }
             } else {
                 onMessage(text.value());
@@ -119,6 +123,7 @@ glimmer::NodeTree<std::string> glimmer::VFSCommand::GetSuggestionsTree(const Com
                     childNode->AddChild("mapManifest");
                     childNode->AddChild("chunk");
                     childNode->AddChild("entity");
+                    childNode->AddChild("player");
                 }
             }
         }

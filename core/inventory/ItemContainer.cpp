@@ -6,7 +6,6 @@
 
 #include "AbilityItem.h"
 #include "ComposableItem.h"
-#include "TileItem.h"
 #include "../log/LogCat.h"
 #include "../mod/ResourceLocator.h"
 
@@ -140,7 +139,9 @@ bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContaine
 }
 
 void glimmer::ItemContainer::FromMessage(AppContext *appContext, const ItemContainerMessage &message) {
-    for (size_t i = 0; i < items_.size(); ++i) {
+    const size_t messageSize = message.itemresourceref_size();
+    items_.resize(messageSize);
+    for (size_t i = 0; i < messageSize; ++i) {
         ResourceRefMessage resourceRefMessage = message.itemresourceref(i);
         ResourceRef resourceRef;
         resourceRef.FromMessage(resourceRefMessage);
@@ -148,7 +149,6 @@ void glimmer::ItemContainer::FromMessage(AppContext *appContext, const ItemConta
         if (item.has_value()) {
             items_[i] = std::move(item.value());
         }
-        LogCat::e("Resource Pointers cannot be converted into items.");
     }
 }
 
@@ -157,24 +157,24 @@ void glimmer::ItemContainer::ToMessage(ItemContainerMessage &message) const {
         items_.size()
     );
     for (size_t i = 0; i < items_.size(); ++i) {
-        if (items_[i] != nullptr) {
-            const auto refMessage = message.add_itemresourceref();
-            auto *item = items_[i].get();
-            if (item == nullptr) {
-                continue;
-            }
-            auto resourceRef = item->ToResourceRef();
-            if (!resourceRef.has_value()) {
-                continue;
-            }
+        //Even if the slot is empty, we create an empty object and put it into the serializer.
+        //即使槽位为空，我们创建空对象，放到系列化器内。
+        const auto refMessage = message.add_itemresourceref();
+        auto *item = items_[i].get();
+        if (item == nullptr) {
+            continue;
+        }
+        auto resourceRef = item->ToResourceRef();
+        if (resourceRef.has_value()) {
             resourceRef->ToMessage(*refMessage);
         }
     }
 }
 
 std::unique_ptr<glimmer::ItemContainer> glimmer::ItemContainer::Clone() const {
-    auto newContainer = std::make_unique<ItemContainer>(capacity_);
-    for (size_t i = 0; i < items_.size(); ++i) {
+    const size_t size = items_.size();
+    auto newContainer = std::make_unique<ItemContainer>(size);
+    for (size_t i = 0; i < size; ++i) {
         if (items_[i] != nullptr) {
             newContainer->items_[i] = items_[i]->Clone();
         }

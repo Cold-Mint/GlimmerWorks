@@ -74,7 +74,7 @@ bool glimmer::App::init() {
     ImGui::StyleColorsLight();
     const auto fontPathOpt = appContext->GetResourcePackManager()->GetFontPath(
         config->mods.enabledResourcePack,
-        *appContext->GetLanguage());
+        appContext->GetLanguage());
 
     if (fontPathOpt.has_value()) {
         const std::string &fontPath = fontPathOpt.value();
@@ -95,7 +95,7 @@ bool glimmer::App::init() {
             appContext->SetFont(sdlFont);
         }
     } else {
-        LogCat::w("No font found for language '", *appContext->GetLanguage(), "', skipping font load");
+        LogCat::w("No font found for language '", appContext->GetLanguage(), "', skipping font load");
     }
 
 

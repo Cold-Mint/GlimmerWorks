@@ -38,7 +38,7 @@ namespace glimmer {
         Debug debug{};
         int configVersion = 1;
 
-        bool LoadConfig(const nlohmann::json& json);
+        bool LoadConfig(const nlohmann::json *json);
     };
 }
 

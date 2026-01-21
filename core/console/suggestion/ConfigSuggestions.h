@@ -12,11 +12,12 @@
 
 namespace glimmer {
     class ConfigSuggestions final : public DynamicSuggestions {
-        nlohmann::json json_;
+        nlohmann::json *json_;
 
-        static void CollectKeys(const nlohmann::json &j, const std::string &prefix, std::vector<std::string> &out);
+        static void CollectKeys(const nlohmann::json* json, const std::string &prefix, std::vector<std::string> &out);
+
     public:
-        explicit ConfigSuggestions(nlohmann::json json) : json_(std::move(json)) {
+        explicit ConfigSuggestions(nlohmann::json *json) : json_(json) {
         }
 
         bool Match(std::string keyword, std::string param) override;

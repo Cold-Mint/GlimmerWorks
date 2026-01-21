@@ -11,10 +11,6 @@
 #include "core/inventory/TileItem.h"
 #include "dataPack/StringManager.h"
 
-void glimmer::ResourceLocator::SetAppContext(AppContext *appContext) {
-    appContext_ = appContext;
-}
-
 std::optional<glimmer::StringResource *> glimmer::ResourceLocator::FindString(const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_STRING) {
         return std::nullopt;
@@ -71,7 +67,8 @@ std::optional<std::unique_ptr<glimmer::Item> > glimmer::ResourceLocator::FindIte
     if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
         auto composableItemResource = FindComposableItem(resourceRef);
         if (composableItemResource.has_value()) {
-            return std::move(ComposableItem::FromItemResource(appContext, composableItemResource.value(), &resourceRef));
+            return std::move(
+                ComposableItem::FromItemResource(appContext, composableItemResource.value(), &resourceRef));
         }
     }
 

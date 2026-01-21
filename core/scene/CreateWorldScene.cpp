@@ -71,7 +71,7 @@ std::string glimmer::CreateWorldScene::RandomName() const {
     const size_t randomPrefixIdx = prefixDist(randomEngine);
     std::uniform_int_distribution<size_t> suffixDist(0, suffixList.size() - 1);
     const size_t randomSuffixIdx = suffixDist(randomEngine);
-    if (appContext->GetLanguage()->compare(0, 2, "en") == 0) {
+    if (appContext->GetLanguage().compare(0, 2, "en") == 0) {
         return prefixList[randomPrefixIdx] + " " + suffixList[randomSuffixIdx];
     }
     return prefixList[randomPrefixIdx] + suffixList[randomSuffixIdx];

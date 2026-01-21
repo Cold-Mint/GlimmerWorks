@@ -26,6 +26,8 @@ namespace glimmer {
         bool hasPending = false;
 
     public:
+        void ClearScenes();
+
         /**
          * add overlay scene
          * 添加叠加层

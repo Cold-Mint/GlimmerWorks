@@ -7,6 +7,13 @@
 #include <algorithm>
 
 
+void glimmer::SceneManager::ClearScenes() {
+    while (!sceneStack_.empty()) {
+        sceneStack_.pop();
+    }
+    overlayScenesPtr_.clear();
+}
+
 void glimmer::SceneManager::AddOverlayScene(std::unique_ptr<Scene> overlay) {
     if (overlay == nullptr) {
         return;

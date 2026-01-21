@@ -20,10 +20,8 @@ namespace glimmer {
         AppContext *appContext_;
 
     public:
-        ResourceLocator() : appContext_(nullptr) {
+        explicit ResourceLocator(AppContext *appContext_) : appContext_(appContext_) {
         }
-
-        void SetAppContext(AppContext *appContext);
 
         /**
          * FindString

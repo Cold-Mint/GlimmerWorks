@@ -47,7 +47,7 @@ glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string &
     while (std::getline(pathStream, segment, '.')) {
         pathSegments.push_back(segment);
     }
-    nlohmann::json currentNode = json_;
+    nlohmann::json currentNode = *json_;
 
     for (size_t index = 0; index < pathSegments.size(); ++index) {
         const std::string &key = pathSegments[index];
@@ -85,7 +85,7 @@ glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string &
  * @return
  */
 bool FindJsonNodeStrict(const std::string &path,
-                        nlohmann::json &root,
+                        nlohmann::json *root,
                         nlohmann::json *&outObject,
                         std::string &finalKey) {
     std::vector<std::string> parts;
@@ -102,7 +102,7 @@ bool FindJsonNodeStrict(const std::string &path,
         return false;
     }
 
-    nlohmann::json *current = &root;
+    nlohmann::json *current = root;
     for (size_t i = 0; i < parts.size() - 1; ++i) {
         auto &key = parts[i];
         if (!current->is_object()) {
@@ -126,7 +126,7 @@ bool FindJsonNodeStrict(const std::string &path,
 }
 
 bool FindJsonNode(const std::string &path,
-                  const nlohmann::json &root,
+                  const nlohmann::json *root,
                   const nlohmann::json *&out) {
     std::vector<std::string> parts;
     std::stringstream ss(path);
@@ -137,7 +137,7 @@ bool FindJsonNode(const std::string &path,
 
     if (parts.empty()) return false;
 
-    const nlohmann::json *current = &root;
+    const nlohmann::json *current = root;
     for (const auto &p: parts) {
         if (!current->is_object()) return false;
         if (!current->contains(p)) return false;
@@ -196,7 +196,7 @@ bool glimmer::ConfigCommand::Execute(CommandArgs commandArgs,
 
         onMessage(fmt::format(fmt::runtime(appContext_->GetLangsResources()->configurationUpdate),
                               parameterName, value));
-        const bool update = appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, json_.dump());
+        const bool update = appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, json_->dump());
         if (update) {
             appContext_->GetConfig()->LoadConfig(json_);
         }

@@ -7,8 +7,8 @@
 
 #include "utils/JsonUtils.h"
 
-bool glimmer::Config::LoadConfig(const nlohmann::json &json) {
-    auto jsonObject = json;
+bool glimmer::Config::LoadConfig(const nlohmann::json *json) {
+    auto &jsonObject = *json;
     configVersion = jsonObject["configVersion"].get<int>();
     window = jsonObject["window"].get<Window>();
     mods = jsonObject["mods"].get<Mods>();

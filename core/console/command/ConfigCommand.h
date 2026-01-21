@@ -20,10 +20,10 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        nlohmann::json json_;
+        nlohmann::json *json_;
 
-        explicit ConfigCommand(AppContext *ctx, nlohmann::json json)
-            : Command(ctx), json_(std::move(json)) {
+        explicit ConfigCommand(AppContext *ctx, nlohmann::json *json)
+            : Command(ctx), json_(json) {
         }
 
         ~ConfigCommand() override = default;

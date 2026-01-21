@@ -26,6 +26,10 @@ void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContain
     itemContainer->SwapItem(index, otherContainer, otherIndex);
 }
 
+std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(size_t index, std::unique_ptr<Item> item) const {
+    return itemContainer->ReplaceItem(index, std::move(item));
+}
+
 size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, size_t amount) const {
     return itemContainer->RemoveItem(id, amount);
 }

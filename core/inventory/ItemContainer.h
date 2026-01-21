@@ -19,6 +19,20 @@ namespace glimmer {
          */
         size_t capacity_ = 0;
 
+        /**
+         * Binding Item Event
+         * 绑定物品事件
+         * @param item
+         */
+        static void BindItemEvent(std::unique_ptr<Item>& item);
+
+        /**
+         * Unbinding Item Incident
+         * 解绑物品事件
+         * @param item
+         */
+        static void UnBindItemEvent(const std::unique_ptr<Item>& item);
+
     public:
         explicit ItemContainer(const size_t capacity) {
             capacity_ = capacity;
@@ -37,6 +51,15 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] std::unique_ptr<Item> AddItem(std::unique_ptr<Item> item);
+
+        /**
+         * ReplaceItem
+         * 替换物品
+         * @param index index 位置
+         * @param item item 物品
+         * @return The replaced item 被替换的物品
+         */
+        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(size_t index, std::unique_ptr<Item> item);
 
         /**
          * Remove Item

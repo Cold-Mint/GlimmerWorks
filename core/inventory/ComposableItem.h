@@ -48,6 +48,8 @@ namespace glimmer {
                       ItemContainer *otherContainer,
                       size_t otherIndex) const;
 
+        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(size_t index, std::unique_ptr<Item> item) const;
+
         [[nodiscard]] size_t RemoveItemAbility(const std::string &id, size_t amount) const;
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;

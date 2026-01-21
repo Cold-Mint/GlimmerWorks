@@ -37,11 +37,15 @@ static constexpr std::string ABILITY_ID_DIG = "dig";
  * Resource ref
  * 资源引用
  */
-static constexpr int RESOURCE_TYPE_NONE = 0;
-static constexpr int RESOURCE_TYPE_STRING = 1;
-static constexpr int RESOURCE_TYPE_TILE = 2;
-static constexpr int RESOURCE_TYPE_COMPOSABLE_ITEM = 3;
-static constexpr int RESOURCE_TYPE_ABILITY_ITEM = 4;
+static constexpr uint32_t RESOURCE_TYPE_NONE = 0;
+static constexpr uint32_t RESOURCE_TYPE_STRING = 1;
+static constexpr uint32_t RESOURCE_TYPE_TILE = 2;
+static constexpr uint32_t RESOURCE_TYPE_COMPOSABLE_ITEM = 3;
+static constexpr uint32_t RESOURCE_TYPE_ABILITY_ITEM = 4;
+static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 0;
+static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 1;
+static constexpr uint32_t RESOURCE_REF_ARG_TYPE_FLOAT = 2;
+static constexpr uint32_t RESOURCE_REF_ARG_TYPE_BOOL = 3;
 static constexpr std::string RESOURCE_REF_SELF = "@self";
 static constexpr std::string RESOURCE_REF_CORE = "@core";
 static constexpr std::string DEBUG_FOLDER_NAME = "debug";

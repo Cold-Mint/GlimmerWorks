@@ -8,6 +8,79 @@
 #include "../log/LogCat.h"
 
 
+void glimmer::ResourceRefArg::SetName(const std::string &name) {
+    name_ = name;
+}
+
+void glimmer::ResourceRefArg::SetDataFromInt(const int data) {
+    data_ = std::to_string(data);
+    argType_ = RESOURCE_REF_ARG_TYPE_INT;
+}
+
+void glimmer::ResourceRefArg::SetDataFromFloat(const float data) {
+    data_ = std::to_string(data);
+    argType_ = RESOURCE_REF_ARG_TYPE_FLOAT;
+}
+
+void glimmer::ResourceRefArg::SetDataFromBool(const bool data) {
+    data_ = std::to_string(data);
+    argType_ = RESOURCE_REF_ARG_TYPE_BOOL;
+}
+
+void glimmer::ResourceRefArg::SetDataFromString(const std::string &data) {
+    data_ = data;
+    argType_ = RESOURCE_REF_ARG_TYPE_STRING;
+}
+
+int glimmer::ResourceRefArg::AsInt() const {
+    if (argType_ != RESOURCE_REF_ARG_TYPE_INT) {
+        return 0;
+    }
+    try {
+        return std::stoi(data_);
+    } catch (const std::exception &) {
+        return 0;
+    }
+}
+
+bool glimmer::ResourceRefArg::AsBool() const {
+    if (argType_ != RESOURCE_REF_ARG_TYPE_BOOL) {
+        return false;
+    }
+    return data_ == "1" || data_ == "true";
+}
+
+const std::string &glimmer::ResourceRefArg::AsString() {
+    return data_;
+}
+
+float glimmer::ResourceRefArg::AsFloat() const {
+    if (argType_ != RESOURCE_REF_ARG_TYPE_FLOAT) {
+        return 0;
+    }
+    try {
+        return std::stof(data_);
+    } catch (const std::exception &) {
+        return 0;
+    }
+}
+
+uint32_t glimmer::ResourceRefArg::GetArgType() const {
+    return argType_;
+}
+
+void glimmer::ResourceRefArg::FromMessage(const ResourceRefArgMessage &resourceRefArgMessage) {
+    name_ = resourceRefArgMessage.name();
+    argType_ = resourceRefArgMessage.argtype();
+    data_ = resourceRefArgMessage.data();
+}
+
+void glimmer::ResourceRefArg::ToMessage(ResourceRefArgMessage &resourceRefArgMessage) {
+    resourceRefArgMessage.set_name(name_);
+    resourceRefArgMessage.set_argtype(argType_);
+    resourceRefArgMessage.set_data(data_);
+}
+
 void glimmer::ResourceRef::SetSelfPackageId(const std::string &selfPackageId) {
     if (packId_ == RESOURCE_REF_SELF) {
         packId_ = selfPackageId;
@@ -23,6 +96,15 @@ void glimmer::ResourceRef::FromMessage(const ResourceRefMessage &resourceRefMess
     packId_ = resourceRefMessage.packid();
     resourceType_ = resourceRefMessage.resourcetype();
     resourceKey_ = resourceRefMessage.resourcekey();
+    const size_t size = resourceRefMessage.args_size();
+    args_.resize(size);
+    args_.clear();
+    for (int i = 0; i < size; ++i) {
+        auto &resourceRefArgMessage = resourceRefMessage.args(i);
+        ResourceRefArg resourceRefArg;
+        resourceRefArg.FromMessage(resourceRefArgMessage);
+        args_.push_back(std::move(resourceRefArg));
+    }
     bindPackage_ = true;
 }
 
@@ -30,6 +112,11 @@ void glimmer::ResourceRef::ToMessage(ResourceRefMessage &resourceRefMessage) {
     resourceRefMessage.set_packid(packId_);
     resourceRefMessage.set_resourcetype(resourceType_);
     resourceRefMessage.set_resourcekey(resourceKey_);
+    const size_t size = args_.size();
+    for (int i = 0; i < size; ++i) {
+        ResourceRefArg &arg = args_[i];
+        arg.ToMessage(*resourceRefMessage.add_args());
+    }
 }
 
 std::string glimmer::ResourceRef::GetPackageId() const {
@@ -40,11 +127,11 @@ std::string glimmer::ResourceRef::GetPackageId() const {
     return packId_;
 }
 
-void glimmer::ResourceRef::SetResourceType(const int resourceType) {
+void glimmer::ResourceRef::SetResourceType(const uint32_t resourceType) {
     resourceType_ = resourceType;
 }
 
-int glimmer::ResourceRef::GetResourceType() const {
+uint32_t glimmer::ResourceRef::GetResourceType() const {
     return resourceType_;
 }
 

@@ -9,10 +9,68 @@
 #include "src/core/resource_ref.pb.h"
 
 namespace glimmer {
+    class ResourceRefArg {
+        std::string name_;
+        uint32_t argType_ = RESOURCE_REF_ARG_TYPE_STRING;
+        std::string data_;
+
+    public:
+        void SetName(const std::string &name);
+
+        /**
+         * Setting from int data
+         * 从int数据设置
+         * @param data
+         */
+        void SetDataFromInt(int data);
+
+        /**
+         * Setting from float data
+         * 从float数据设置
+         * @param data
+         */
+        void SetDataFromFloat(float data);
+
+        /**
+        * Setting from bool data
+        * 从bool数据设置
+        * @param data
+        */
+        void SetDataFromBool(bool data);
+
+        /**
+         * From string data settings
+         * 从字符串数据设置
+         * @param data
+         */
+        void SetDataFromString(const std::string &data);
+
+
+        [[nodiscard]] int AsInt() const;
+
+        [[nodiscard]] bool AsBool() const;
+
+        [[nodiscard]] const std::string &AsString();
+
+        [[nodiscard]] float AsFloat() const;
+
+        /**
+         * Obtain parameter type
+         * 获取参数类型
+         * @return
+         */
+        [[nodiscard]] uint32_t GetArgType() const;
+
+        void FromMessage(const ResourceRefArgMessage &resourceRefArgMessage);
+
+        void ToMessage(ResourceRefArgMessage &resourceRefArgMessage);
+    };
+
     class ResourceRef {
         std::string packId_ = RESOURCE_REF_SELF;
-        int resourceType_ = RESOURCE_TYPE_NONE;
+        uint32_t resourceType_ = RESOURCE_TYPE_NONE;
         std::string resourceKey_;
+        std::vector<ResourceRefArg> args_;
         bool bindPackage_ = false;
 
     public:
@@ -34,11 +92,12 @@ namespace glimmer {
 
         void ToMessage(ResourceRefMessage &resourceRefMessage);
 
+
         [[nodiscard]] std::string GetPackageId() const;
 
-        void SetResourceType(int resourceType);
+        void SetResourceType(uint32_t resourceType);
 
-        [[nodiscard]] int GetResourceType() const;
+        [[nodiscard]] uint32_t GetResourceType() const;
 
         void SetResourceKey(const std::string &resourceKey);
 

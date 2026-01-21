@@ -10,14 +10,22 @@
 #include "../mod/ResourceLocator.h"
 
 
+void glimmer::ItemContainer::BindItemEvent(std::unique_ptr<Item> &item) {
+    item->SetOnAmountZero([&item]() {
+        item.reset();
+    });
+}
+
+void glimmer::ItemContainer::UnBindItemEvent(const std::unique_ptr<Item> &item) {
+    item->SetOnAmountZero(nullptr);
+}
+
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<Item> item) {
     for (auto &i: items_) {
         Item *itemPtr = i.get();
         if (itemPtr == nullptr) {
             i = std::move(item);
-            i->SetOnAmountZero([&i]() {
-                i.reset();
-            });
+            BindItemEvent(i);
             return nullptr;
         }
         if (bool canStackMore = itemPtr->CanStackMore(item.get()); !canStackMore) {
@@ -38,6 +46,17 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
         }
     }
     return item;
+}
+
+std::unique_ptr<glimmer::Item> glimmer::ItemContainer::ReplaceItem(const size_t index, std::unique_ptr<Item> item) {
+    if (index >= items_.size()) {
+        return nullptr;
+    }
+    std::unique_ptr<Item> oldItem = std::move(items_[index]);
+    UnBindItemEvent(oldItem);
+    items_[index] = std::move(item);
+    BindItemEvent(items_[index]);
+    return oldItem;
 }
 
 size_t glimmer::ItemContainer::RemoveItem(const std::string &id, const size_t amount) const {
@@ -81,7 +100,9 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeAllItem(const size_t 
     if (index >= items_.size()) {
         return nullptr;
     }
-    return std::move(items_[index]);
+    std::unique_ptr<Item> item = std::move(items_[index]);
+    UnBindItemEvent(item);
+    return item;
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const size_t index, const size_t amount) const {
@@ -117,24 +138,23 @@ size_t glimmer::ItemContainer::RemoveItemAt(const size_t index, const size_t amo
 }
 
 bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) {
-    if (!otherContainer) return false;
-    if (index >= items_.size() || otherIndex >= otherContainer->items_.size()) return false;
-
-    // Swap unique_ptrs
-    // If same container
+    if (otherContainer == nullptr) {
+        return false;
+    }
+    if (index >= items_.size() || otherIndex >= otherContainer->items_.size()) {
+        return false;
+    }
     if (this == otherContainer) {
-        if (index == otherIndex) return true;
+        if (index == otherIndex) {
+            return true;
+        }
+        //Exchange items in the same container.
+        //在相同容器内交换物品。
         std::swap(items_[index], items_[otherIndex]);
         return true;
     }
-
-    // Different containers
-    auto itemThis = std::move(items_[index]);
-    auto itemOther = std::move(otherContainer->items_[otherIndex]);
-
-    items_[index] = std::move(itemOther);
-    otherContainer->items_[otherIndex] = std::move(itemThis);
-
+    auto itemThis = ReplaceItem(index, otherContainer->TakeAllItem(otherIndex));
+    (void) otherContainer->ReplaceItem(otherIndex, std::move(itemThis));
     return true;
 }
 
@@ -148,6 +168,7 @@ void glimmer::ItemContainer::FromMessage(AppContext *appContext, const ItemConta
         auto item = appContext->GetResourceLocator()->FindItem(appContext, resourceRef);
         if (item.has_value()) {
             items_[i] = std::move(item.value());
+            BindItemEvent(items_[i]);
         }
     }
 }

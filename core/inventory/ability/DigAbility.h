@@ -16,6 +16,12 @@ namespace glimmer {
          */
         float efficiency_ = 1.0F;
 
+        /**
+         * dig Range(Unit: Number of Tile Squares)
+         * 挖掘距离（单位：瓦片格数）
+         */
+        int digRange_ = 3;
+
     public:
         explicit DigAbility(
             const VariableConfig &abilityData) : ItemAbility(
@@ -23,6 +29,11 @@ namespace glimmer {
             auto efficiencyVariable = abilityData.FindVariable("efficiency");
             if (efficiencyVariable != nullptr) {
                 efficiency_ = efficiencyVariable->AsFloat();
+            }
+
+            auto digRange = abilityData.FindVariable("digRange");
+            if (digRange != nullptr) {
+                digRange_ = digRange->AsInt();
             }
         }
 

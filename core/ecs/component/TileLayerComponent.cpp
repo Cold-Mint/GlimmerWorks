@@ -21,6 +21,13 @@ WorldVector2D glimmer::TileLayerComponent::TileToWorld(
     };
 }
 
+WorldVector2D glimmer::TileLayerComponent::TileToWorldCenter(const TileVector2D &tilePos) {
+    return {
+        (static_cast<float>(tilePos.x) + 0.5F) * TILE_SIZE,
+        (static_cast<float>(tilePos.y) + 0.5F) * TILE_SIZE
+    };
+}
+
 TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D &worldPos) {
     return {
         static_cast<int>(std::floor(worldPos.x / TILE_SIZE + 0.5F)),

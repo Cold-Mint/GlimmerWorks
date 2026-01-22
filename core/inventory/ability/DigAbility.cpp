@@ -15,6 +15,15 @@ std::string glimmer::DigAbility::GetId() const {
 void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) {
     auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
         TileLayerComponent>();
+    auto playerEntity = worldContext->GetPlayerEntity();
+    if (WorldContext::IsEmptyEntityId(playerEntity)) {
+        return;
+    }
+    auto playerTransform = worldContext->GetComponent<Transform2DComponent>(playerEntity);
+    if (playerTransform == nullptr) {
+        return;
+    }
+    const WorldVector2D playerWorldPos = playerTransform->GetPosition();
     for (const auto &gameEntity: tileLayerEntityList) {
         auto *tileLayerComponent = worldContext->GetComponent<TileLayerComponent>(
             gameEntity);
@@ -31,11 +40,17 @@ void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldConte
             if (!tile->breakable) {
                 continue;
             }
+            //Distance (unit: number of tile grids)
+            //距离（单位：瓦片格子数）
+            if (TileLayerComponent::TileToWorldCenter(tileVector2D).Distance(playerWorldPos) / TILE_SIZE > static_cast
+                <float>(digRange_)) {
+                continue;
+            }
             DiggingComponent *diggingComponent = worldContext->GetDiggingComponent();
-            const WorldVector2D worldPos = TileLayerComponent::TileToWorld(tileVector2D);
-            if (diggingComponent->GetPosition() != worldPos) {
+            const WorldVector2D tileWorldPos = TileLayerComponent::TileToWorld(tileVector2D);
+            if (diggingComponent->GetPosition() != tileWorldPos) {
                 diggingComponent->SetProgress(0.0F);
-                diggingComponent->SetPosition(worldPos);
+                diggingComponent->SetPosition(tileWorldPos);
             }
             diggingComponent->SetEfficiency(efficiency_);
             diggingComponent->MarkActive();

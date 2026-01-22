@@ -75,10 +75,8 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         }
 
         if (control->mouseLeftDown && hotBarComp && containerComp) {
-            auto itemContainer = containerComp->GetItemContainer();
-            if (itemContainer) {
-                Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot());
-                if (item) {
+            if (const auto itemContainer = containerComp->GetItemContainer()) {
+                if (Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot())) {
                     item->OnUse(appContext_, worldContext_, entity);
                 }
             }

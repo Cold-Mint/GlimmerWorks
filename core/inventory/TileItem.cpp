@@ -21,10 +21,10 @@ std::string glimmer::TileItem::GetDescription() const {
     return tile_->description;
 }
 
-void glimmer::TileItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
-    const auto entities = worldContext->GetEntitiesWithComponents<TileLayerComponent>();
+void glimmer::TileItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) {
+    const auto entities = worldContext->GetEntityIDWithComponents<TileLayerComponent>();
     for (auto &entity: entities) {
-        auto *tileLayer = worldContext->GetComponent<TileLayerComponent>(entity->GetID());
+        auto *tileLayer = worldContext->GetComponent<TileLayerComponent>(entity);
         if (tileLayer->GetTileLayerType() == TileLayerType::Main) {
             auto targetPos = tileLayer->GetFocusPosition();
             auto currentTile = tileLayer->GetTile(targetPos);

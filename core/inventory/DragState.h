@@ -4,17 +4,15 @@
 
 #ifndef GLIMMERWORKS_DRAGSTATE_H
 #define GLIMMERWORKS_DRAGSTATE_H
-#include <memory>
-
+#include <cstdint>
 #include "DragSourceType.h"
 
 namespace glimmer {
     class Item;
-    class GameEntity;
 
     struct DragState {
         DragSourceType sourceType = DragSourceType::NONE;
-        GameEntity *sourceContainer = nullptr;
+        uint32_t sourceContainer = 0;
         int sourceIndex = -1;
         Item *dragedItem = nullptr;
     };

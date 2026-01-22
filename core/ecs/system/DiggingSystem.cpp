@@ -21,9 +21,9 @@ void glimmer::DiggingSystem::Update(float delta) {
     }
     diggingComponent->SetEnable(true);
 
-    const auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<TileLayerComponent>();
+    const auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
     for (auto &entity: tileLayerEntities) {
-        auto *tileLayer = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
+        const auto *tileLayer = worldContext_->GetComponent<TileLayerComponent>(entity);
 
         if (tileLayer->GetTileLayerType() != diggingComponent->GetLayerType()) {
             continue;

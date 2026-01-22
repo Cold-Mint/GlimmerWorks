@@ -13,22 +13,19 @@
 #include <algorithm>
 
 void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
-    const auto entities = worldContext_->GetEntitiesWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
+    const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     const float slotSize = 40.0F * appContext_->GetConfig()->window.uiScale;
     const Item *hoveredItem = nullptr;
     DragAndDrop *dragAndDrop = appContext_->GetDragAndDrop();
     for (auto &entity: entities) {
-        const auto slotComp = worldContext_->GetComponent<ItemSlotComponent>(entity->GetID());
-        const auto transform = worldContext_->GetComponent<GuiTransform2DComponent>(entity->GetID());
+        const auto slotComp = worldContext_->GetComponent<ItemSlotComponent>(entity);
+        const auto transform = worldContext_->GetComponent<GuiTransform2DComponent>(entity);
 
         const Vector2D pos = transform->GetPosition();
-
-        GameEntity *containerEnt = slotComp->GetContainerEntity();
-        if (!containerEnt) continue;
-
-        auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(containerEnt->GetID());
+        auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(
+            slotComp->GetContainerEntity());
         if (!containerComp) continue;
 
         auto itemContainer = containerComp->GetItemContainer();
@@ -48,12 +45,12 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
 
         dragAndDrop->DrawSlot(appContext_, renderer, pos.x, pos.y, slotSize, item, slotComp->IsSelected(),
                               [&](const DragState &state) {
-                                  if (state.sourceType != DragSourceType::INVENTORY || state.sourceContainer ==
-                                      nullptr) {
+                                  if (state.sourceType != DragSourceType::INVENTORY || WorldContext::IsEmptyEntityId(
+                                          state.sourceContainer)) {
                                       return;
                                   }
                                   auto sourceContainerComp = worldContext_->GetComponent<ItemContainerComponent>(
-                                      state.sourceContainer->GetID());
+                                      state.sourceContainer);
                                   if (sourceContainerComp != nullptr && sourceContainerComp->GetItemContainer() !=
                                       nullptr) {
                                       auto sourceContainer = sourceContainerComp->GetItemContainer();
@@ -61,7 +58,8 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
                                   }
                               },
                               [&] {
-                                  dragAndDrop->BeginDrag(DragSourceType::INVENTORY, containerEnt, slotIndex,
+                                  dragAndDrop->BeginDrag(DragSourceType::INVENTORY,
+                                                         slotComp->GetContainerEntity(), slotIndex,
                                                          item);
                               },
                               [&] {
@@ -82,7 +80,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
         //     const DragState &state = DragAndDrop::GetState();
         //     if (state.sourceContainer) {
         //         auto containerComp = worldContext_->GetComponent<
-        //             ItemContainerComponent>(state.sourceContainer->GetID());
+        //             ItemContainerComponent>(state.sourceContainer);
         //         if (containerComp) {
         //             auto container = containerComp->GetItemContainer();
         //             if (container) {
@@ -92,7 +90,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
         //                     // Usually drops near player.
         //                     auto player = worldContext_->GetPlayerEntity();
         //                     if (player) {
-        //                         auto transform = worldContext_->GetComponent<Transform2DComponent>(player->GetID());
+        //                         auto transform = worldContext_->GetComponent<Transform2DComponent>(player);
         //                         if (transform) {
         //                             worldContext_->CreateDroppedItemEntity(
         //                                 std::move(item), transform->GetPosition(), 2.0F);

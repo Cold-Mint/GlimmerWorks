@@ -12,16 +12,16 @@ uint8_t glimmer::DroppedItemSystem::GetRenderOrder() {
 }
 
 void glimmer::DroppedItemSystem::Update(float delta) {
-    auto entity = worldContext_->GetEntitiesWithComponents<DroppedItemComponent, Transform2DComponent>();
-    for (auto gameEntity: entity) {
+    auto entity = worldContext_->GetEntityIDWithComponents<DroppedItemComponent, Transform2DComponent>();
+    for (const auto &gameEntity: entity) {
         auto *droppedItemComponent = worldContext_->GetComponent<DroppedItemComponent>(
-            gameEntity->GetID());
-        auto *transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(gameEntity->GetID());
+            gameEntity);
+        auto *transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(gameEntity);
         if (droppedItemComponent == nullptr || transform2DComponent == nullptr) {
             continue;
         }
         if (droppedItemComponent->IsExpired()) {
-            worldContext_->RemoveEntity(gameEntity->GetID());
+            worldContext_->RemoveEntity(gameEntity);
             continue;
         }
         float remaining = droppedItemComponent->GetRemainingTime();
@@ -37,15 +37,15 @@ void glimmer::DroppedItemSystem::Update(float delta) {
 }
 
 void glimmer::DroppedItemSystem::Render(SDL_Renderer *renderer) {
-    auto entity = worldContext_->GetEntitiesWithComponents<DroppedItemComponent, Transform2DComponent>();
+    auto entity = worldContext_->GetEntityIDWithComponents<DroppedItemComponent, Transform2DComponent>();
     auto cameraComponent = worldContext_->GetCameraComponent();
     auto cameraTransform2D = worldContext_->GetCameraTransform2D();
     float size = DROPPED_ITEM_SIZE * cameraComponent->GetZoom();
 
     for (auto gameEntity: entity) {
         auto *droppedItemComponent = worldContext_->GetComponent<DroppedItemComponent>(
-            gameEntity->GetID());
-        auto *transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(gameEntity->GetID());
+            gameEntity);
+        auto *transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(gameEntity);
         if (droppedItemComponent == nullptr || transform2DComponent == nullptr) {
             continue;
         }

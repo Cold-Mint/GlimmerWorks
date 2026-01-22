@@ -16,13 +16,13 @@ void glimmer::PhysicsSystem::Update(const float delta) {
         b2World_Step(worldId_, FIXED_TIME_STEP, 4);
         accumulator_ -= FIXED_TIME_STEP;
     }
-    for (const auto entities = worldContext_->GetEntitiesWithComponents<RigidBody2DComponent, Transform2DComponent>();
+    for (const auto entities = worldContext_->GetEntityIDWithComponents<RigidBody2DComponent, Transform2DComponent>();
          auto &entity: entities) {
-        const RigidBody2DComponent *body = worldContext_->GetComponent<RigidBody2DComponent>(entity->GetID());
+        const RigidBody2DComponent *body = worldContext_->GetComponent<RigidBody2DComponent>(entity);
         if (!body->IsReady() || !body->IsEnabled()) {
             continue;
         }
-        auto *transform = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
+        auto *transform = worldContext_->GetComponent<Transform2DComponent>(entity);
         const b2Vec2 position = b2Body_GetPosition(body->GetBodyId());
         transform->SetPosition(Box2DUtils::ToPixels(position));
         transform->SetRotation(b2Rot_GetAngle(b2Body_GetRotation(body->GetBodyId())));

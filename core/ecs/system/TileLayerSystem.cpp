@@ -19,9 +19,9 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     if (cameraPos == nullptr) {
         return;
     }
-    auto gameEntities = worldContext_->GetEntitiesWithComponents<TileLayerComponent>();
+    auto gameEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
     for (auto entity: gameEntities) {
-        auto tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
+        auto tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(entity);
         if (tileLayerComponent == nullptr) {
             continue;
         }

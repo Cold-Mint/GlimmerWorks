@@ -10,6 +10,7 @@
 
 #include "DragSourceType.h"
 #include "DragState.h"
+#include "core/ecs/GameEntity.h"
 
 namespace glimmer {
     class Item;
@@ -54,7 +55,7 @@ namespace glimmer {
        * @param item      Item being dragged (non-owning pointer)
        *                  被拖拽的物品指针（不拥有所有权）
        */
-        void BeginDrag(DragSourceType type, GameEntity *container, int index, Item *item);
+        void BeginDrag(DragSourceType type, GameEntity::ID container, int index, Item *item);
 
         /**
         * End the current drag operation.

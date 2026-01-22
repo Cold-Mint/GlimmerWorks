@@ -56,7 +56,7 @@ void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, fl
 
 
 void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
-    const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
+    const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
     int windowW = 0;
     int windowH = 0;
     SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
@@ -76,11 +76,11 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     for (auto &entity: entities) {
         constexpr float lineSpacing = 20.0F;
         SDL_Color color = {255, 255, 180, 255};
-        auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-        auto position = worldContext_->GetComponent<Transform2DComponent>(entity->GetID());
+        auto control = worldContext_->GetComponent<PlayerControlComponent>(entity);
+        auto position = worldContext_->GetComponent<Transform2DComponent>(entity);
         if (!control || !position) continue;
 
-        auto tileLayers = worldContext_->GetEntitiesWithComponents<TileLayerComponent>();
+        auto tileLayers = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
         float totalLines = 1.0F + static_cast<float>(tileLayers.size());
         float totalTextHeight = totalLines * lineSpacing;
         yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;
@@ -108,7 +108,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
         // 遍历 TileLayer 并打印瓦片坐标
         for (auto &tileEntity: tileLayers) {
-            auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(tileEntity->GetID());
+            auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(tileEntity);
             if (tileLayer == nullptr) {
                 continue;
             }

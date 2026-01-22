@@ -20,7 +20,7 @@ namespace glimmer {
         std::string description_;
         std::shared_ptr<SDL_Texture> icon_;
         std::unique_ptr<ItemAbility> itemAbility_;
-        bool canUseAlone_ = false;
+        bool canUseAlone_;
 
         [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
 
@@ -74,7 +74,7 @@ namespace glimmer {
                                                  itemResource->canUseAlone);
         }
 
-        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
+        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

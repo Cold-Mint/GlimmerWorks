@@ -7,18 +7,17 @@
 #include "../../ecs/component/TileLayerComponent.h"
 #include "../../ecs/component/Transform2DComponent.h"
 #include "../../inventory/TileItem.h"
-#include "../../world/ChunkPhysicsHelper.h"
 
 std::string glimmer::DigAbility::GetId() const {
     return ABILITY_ID_DIG;
 }
 
-void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
-    auto tileLayerEntitys = worldContext->GetEntitiesWithComponents<
+void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) {
+    auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
         TileLayerComponent>();
-    for (auto &gameEntity: tileLayerEntitys) {
+    for (const auto &gameEntity: tileLayerEntityList) {
         auto *tileLayerComponent = worldContext->GetComponent<TileLayerComponent>(
-            gameEntity->GetID());
+            gameEntity);
         if (tileLayerComponent == nullptr) {
             continue;
         }

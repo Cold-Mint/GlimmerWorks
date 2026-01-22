@@ -75,7 +75,7 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
                 return;
             }
             //保存玩家
-            if (worldContext_->GetPlayerEntity()->IsPersistable()) {
+            if (worldContext_->IsPersistable(worldContext_->GetPlayerEntity())) {
                 PlayerMessage playerMessage;
                 (void) worldContext_->SaveEntity(playerMessage.mutable_entity(), worldContext_->GetPlayerEntity());
                 (void) worldContext_->GetSaves()->WritePlayer(playerMessage);

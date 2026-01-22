@@ -9,8 +9,8 @@
 #include "../../scene/AppContext.h"
 #include "../../scene/WorldScene.h"
 
-std::string glimmer::EcsCommand::EntityToString(const GameEntity *gameEntity) const {
-    const std::vector<GameComponent *> components = worldContext_->GetAllComponents(gameEntity->GetID());
+std::string glimmer::EcsCommand::EntityToString(const GameEntity::ID gameEntityId) const {
+    const std::vector<GameComponent *> components = worldContext_->GetAllComponents(gameEntityId);
     std::string data;
     for (auto &component: components) {
         std::string name = std::to_string(component->GetId());
@@ -66,7 +66,8 @@ std::string glimmer::EcsCommand::EntityToString(const GameEntity *gameEntity) co
         }
         data += fmt::format("{}\n", name);
     }
-    return fmt::format("id={} isPersistable={} \ncomponents={}\n", gameEntity->GetID(), gameEntity->IsPersistable(),
+    return fmt::format("id={} isPersistable={} \ncomponents={}\n", gameEntityId,
+                       worldContext_->IsPersistable(gameEntityId),
                        data);
 }
 
@@ -101,8 +102,7 @@ bool glimmer::EcsCommand::Execute(CommandArgs commandArgs, std::function<void(co
     }
     std::string arg = commandArgs.AsString(1);
     if (arg == "showEntityList") {
-        std::vector<GameEntity *> allGameEntities = worldContext_->GetAllGameEntities();
-        for (auto &e: allGameEntities) {
+        for (const std::vector<GameEntity::ID> allGameEntities = worldContext_->GetAllGameEntityId(); const auto &e: allGameEntities) {
             onMessage(EntityToString(e));
         }
         return true;
@@ -114,13 +114,12 @@ bool glimmer::EcsCommand::Execute(CommandArgs commandArgs, std::function<void(co
                 3, size));
             return false;
         }
-        GameEntity::ID id = commandArgs.AsInt(2);
-        GameEntity *gameEntity = worldContext_->GetEntity(id);
-        if (gameEntity == nullptr) {
+        const GameEntity::ID id = commandArgs.AsInt(2);
+        if (WorldContext::IsEmptyEntityId(id)) {
             onMessage(appContext_->GetLangsResources()->cantFindObject);
             return false;
         }
-        onMessage(EntityToString(gameEntity));
+        onMessage(EntityToString(id));
         return true;
     }
     if (arg == "activeSystems") {

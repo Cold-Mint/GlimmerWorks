@@ -7,6 +7,7 @@
 #include <string>
 #include <memory>
 #include "../../mod/Resource.h"
+#include "core/ecs/GameEntity.h"
 
 namespace glimmer {
     class AppContext;
@@ -27,7 +28,7 @@ namespace glimmer {
 
         [[nodiscard]] virtual std::string GetId() const = 0;
 
-        virtual void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) = 0;
+        virtual void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) = 0;
 
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;
     };

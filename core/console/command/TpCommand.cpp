@@ -24,14 +24,14 @@ bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(con
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    auto entities = worldContext_->GetEntitiesWithComponents<
+    auto entities = worldContext_->GetEntityIDWithComponents<
         PlayerControlComponent, RigidBody2DComponent>();
     if (entities.empty()) {
         onMessage(appContext_->GetLangsResources()->cantFindObject);
         return false;
     }
     for (auto entity: entities) {
-        auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(entity->GetID());
+        auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(entity);
         if (rigidBody2DComponent && rigidBody2DComponent->IsReady()) {
             b2Vec2 newPos = Box2DUtils::ToMeters({
                 commandArgs.AsFloat(1) * TILE_SIZE, commandArgs.AsFloat(2) * TILE_SIZE
@@ -41,7 +41,7 @@ bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(con
         }
         onMessage(fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->teleportEntity),
-            entity->GetID(), commandArgs.AsString(1), commandArgs.AsString(2)));
+            entity, commandArgs.AsString(1), commandArgs.AsString(2)));
     }
 
     return true;

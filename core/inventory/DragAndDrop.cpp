@@ -11,8 +11,7 @@
 #include "SDL3_ttf/SDL_ttf.h"
 
 namespace glimmer {
-
-    void DragAndDrop::BeginDrag(DragSourceType type, GameEntity *container, int index, Item *item) {
+    void DragAndDrop::BeginDrag(DragSourceType type, const GameEntity::ID container, const int index, Item *item) {
         state_.sourceType = type;
         state_.sourceContainer = container;
         state_.sourceIndex = index;

@@ -6,6 +6,7 @@
 #define GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
 
 #include "ItemAbility.h"
+#include "core/ecs/GameEntity.h"
 
 namespace glimmer {
     class DigAbility : public ItemAbility {
@@ -29,7 +30,7 @@ namespace glimmer {
 
         [[nodiscard]] std::string GetId() const override;
 
-        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
+        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override {
             return std::make_unique<DigAbility>(*this);

@@ -54,7 +54,7 @@ namespace glimmer {
 
         [[nodiscard]] size_t RemoveItemAbility(const std::string &id, size_t amount) const;
 
-        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
+        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) override;
 
         /**
          * TryParseItemIndex

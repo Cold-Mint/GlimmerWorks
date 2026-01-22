@@ -59,11 +59,11 @@ void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameCompo
                   });
 }
 
-glimmer::GameEntity *glimmer::WorldContext::RegisterEntity(std::unique_ptr<GameEntity> entity) {
+glimmer::GameEntity::ID glimmer::WorldContext::RegisterEntity(std::unique_ptr<GameEntity> entity) {
     entities.push_back(std::move(entity));
     GameEntity *lastEntity = entities.back().get();
     entityMap[lastEntity->GetID()] = lastEntity;
-    return lastEntity;
+    return lastEntity->GetID();
 }
 
 
@@ -102,7 +102,7 @@ void glimmer::WorldContext::SetRuning(const bool run) {
 }
 
 glimmer::Saves *glimmer::WorldContext::GetSaves() const {
-    return saves;
+    return saves_;
 }
 
 bool glimmer::WorldContext::HasComponentType(const std::type_index &type) const {
@@ -111,47 +111,45 @@ bool glimmer::WorldContext::HasComponentType(const std::type_index &type) const 
 }
 
 void glimmer::WorldContext::InitPlayer() {
-    if (player_ != nullptr) {
+    if (!IsEmptyEntityId(player_)) {
         return;
     }
-    const Saves *saves = GetSaves();
-    GameEntity *playerEntity = nullptr;
-    if (saves->PlayerExists()) {
-        auto playerMessage = saves->ReadPlayer();
+    GameEntity::ID playerEntity = 0;
+    if (saves_->PlayerExists()) {
+        auto playerMessage = saves_->ReadPlayer();
         if (playerMessage.has_value()) {
             playerEntity = RecoveryEntity(playerMessage->entity());
         }
     }
-    if (playerEntity == nullptr) {
+    if (IsEmptyEntityId(playerEntity)) {
         playerEntity = CreateEntity();
     }
-    playerEntity->SetPersistable(true);
-    auto playerId = playerEntity->GetID();
-    if (!HasComponent<PlayerControlComponent>(playerId)) {
-        AddComponent<PlayerControlComponent>(playerId);
+    SetPersistable(playerEntity, true);
+    if (!HasComponent<PlayerControlComponent>(playerEntity)) {
+        AddComponent<PlayerControlComponent>(playerEntity);
     }
-    if (!HasComponent<Transform2DComponent>(playerId)) {
-        const auto transform2DComponentInPlayer = AddComponent<Transform2DComponent>(playerId);
+    if (!HasComponent<Transform2DComponent>(playerEntity)) {
+        const auto transform2DComponentInPlayer = AddComponent<Transform2DComponent>(playerEntity);
         const auto height = GetHeight(0);
         transform2DComponentInPlayer->SetPosition(
             TileLayerComponent::TileToWorld(TileVector2D(0, height + 3)));
     }
-    SetCameraPosition(GetComponent<Transform2DComponent>(playerId));
-    if (!HasComponent<DebugDrawComponent>(playerId)) {
-        const auto debugDrawComponent = AddComponent<DebugDrawComponent>(playerId);
+    SetCameraPosition(GetComponent<Transform2DComponent>(playerEntity));
+    if (!HasComponent<DebugDrawComponent>(playerEntity)) {
+        const auto debugDrawComponent = AddComponent<DebugDrawComponent>(playerEntity);
         debugDrawComponent->SetSize(Vector2D(static_cast<float>(TILE_SIZE), static_cast<float>(TILE_SIZE)));
         debugDrawComponent->SetColor(SDL_Color{255, 0, 0, 255});
     }
-    if (!HasComponent<CameraComponent>(playerId)) {
-        AddComponent<CameraComponent>(playerId);
+    if (!HasComponent<CameraComponent>(playerEntity)) {
+        AddComponent<CameraComponent>(playerEntity);
     }
-    SetCameraComponent(GetComponent<CameraComponent>(playerId));
-    if (!HasComponent<DiggingComponent>(playerId)) {
-        AddComponent<DiggingComponent>(playerId);
+    SetCameraComponent(GetComponent<CameraComponent>(playerEntity));
+    if (!HasComponent<DiggingComponent>(playerEntity)) {
+        AddComponent<DiggingComponent>(playerEntity);
     }
-    SetDiggingComponent(GetComponent<DiggingComponent>(playerId));
-    if (!HasComponent<RigidBody2DComponent>(playerId)) {
-        const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(playerId);
+    SetDiggingComponent(GetComponent<DiggingComponent>(playerEntity));
+    if (!HasComponent<RigidBody2DComponent>(playerEntity)) {
+        const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(playerEntity);
         rigidBody2DComponent->SetBodyType(b2_dynamicBody);
         rigidBody2DComponent->SetEnableSleep(false);
         rigidBody2DComponent->SetFixedRotation(true);
@@ -161,35 +159,35 @@ void glimmer::WorldContext::InitPlayer() {
         rigidBody2DComponent->SetMaskBits(BOX2D_CATEGORY_TILE);
         rigidBody2DComponent->CreateBody(GetWorldId(),
                                          Box2DUtils::ToMeters(
-                                             GetComponent<Transform2DComponent>(playerId)->GetPosition()));
+                                             GetComponent<Transform2DComponent>(playerEntity)->GetPosition()));
     }
-    if (!HasComponent<MagnetComponent>(playerId)) {
-        auto *magnetComponent = AddComponent<MagnetComponent>(playerId);
+    if (!HasComponent<MagnetComponent>(playerEntity)) {
+        auto *magnetComponent = AddComponent<MagnetComponent>(playerEntity);
         magnetComponent->SetType(MAGNETIC_TYPE_ITEM);
     }
 
-    if (!HasComponent<ItemContainerComponent>(playerId)) {
-        AddComponent<ItemContainerComponent>(playerId, HOT_BAR_SIZE);
+    if (!HasComponent<ItemContainerComponent>(playerEntity)) {
+        AddComponent<ItemContainerComponent>(playerEntity, HOT_BAR_SIZE);
     }
-    if (!HasComponent<AutoPickComponent>(playerId)) {
-        AddComponent<AutoPickComponent>(playerId);
-    }
-    if (!HasComponent<HotBarComponent>(playerId)) {
-        AddComponent<HotBarComponent>(playerId, Vector2D(), HOT_BAR_SIZE);
-    }
-    HotBarComponent *hotBarComponent = GetComponent<HotBarComponent>(playerId);
-    SetHotBarComponent(hotBarComponent);
-    for (int i = 0; i < HOT_BAR_SIZE; ++i) {
-        auto *slotEntity = CreateEntity();
-        auto slotId = slotEntity->GetID();
-        AddComponent<ItemSlotComponent>(slotId, playerEntity, i);
-        AddComponent<GuiTransform2DComponent>(slotId);
-        hotBarComponent->AddSlotEntity(slotEntity);
+    if (!HasComponent<AutoPickComponent>(playerEntity)) {
+        AddComponent<AutoPickComponent>(playerEntity);
     }
     player_ = playerEntity;
 }
 
-glimmer::GameEntity *glimmer::WorldContext::GetPlayerEntity() const {
+void glimmer::WorldContext::InitHotbar(const GameEntity::ID containerEntity) {
+    auto hotBar = CreateEntity();
+    auto *hotBarComponent = AddComponent<HotBarComponent>(hotBar, Vector2D(), HOT_BAR_SIZE);
+    hotBarComponent_ = hotBarComponent;
+    for (int i = 0; i < HOT_BAR_SIZE; ++i) {
+        auto slotEntity = CreateEntity();
+        AddComponent<ItemSlotComponent>(slotEntity, containerEntity, i);
+        AddComponent<GuiTransform2DComponent>(slotEntity);
+        hotBarComponent->AddSlotEntity(slotEntity);
+    }
+}
+
+glimmer::GameEntity::ID glimmer::WorldContext::GetPlayerEntity() const {
     return player_;
 }
 
@@ -331,10 +329,10 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     if (chunks_.contains(position)) {
         return;
     }
-    if (saves->EntityExists(position)) {
+    if (saves_->EntityExists(position)) {
         //Read and load the entity file.
         //读取并加载实体文件。
-        auto chunkEntityMessageOptional = saves->ReadChunkEntity(position);
+        auto chunkEntityMessageOptional = saves_->ReadChunkEntity(position);
         if (chunkEntityMessageOptional.has_value()) {
             ChunkEntityMessage &chunkEntityMessage = chunkEntityMessageOptional.value();
             int entitySize = chunkEntityMessage.entitys_size();
@@ -344,13 +342,13 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
         }
     }
 
-    auto chunkExists = saves->ChunkExists(position);
+    auto chunkExists = saves_->ChunkExists(position);
     bool loadFromFile = false;
     auto chunk = std::make_unique<Chunk>(position);
     if (chunkExists) {
         //Read the chunk file.
         //读取区块文件。
-        auto chunkMessage = saves->ReadChunk(position);
+        auto chunkMessage = saves_->ReadChunk(position);
         if (chunkMessage.has_value()) {
             chunk.get()->FromMessage(appContext_, chunkMessage.value());
             loadFromFile = true;
@@ -479,21 +477,21 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
     ChunkMessage chunkMessage;
     Chunk *chunk = it->second.get();
     chunk->ToMessage(chunkMessage);
-    (void) saves->WriteChunk(position, chunkMessage);
+    (void) saves_->WriteChunk(position, chunkMessage);
     const WorldVector2D startWorldVector2d = chunk->GetStartWorldPosition();
     const WorldVector2D endWorldVector2d = chunk->GetEndWorldPosition();
     const float minX = std::min(startWorldVector2d.x, endWorldVector2d.x);
     const float maxX = std::max(startWorldVector2d.x, endWorldVector2d.x);
     const float minY = std::min(startWorldVector2d.y, endWorldVector2d.y);
     const float maxY = std::max(startWorldVector2d.y, endWorldVector2d.y);
-    auto transform2DEntityList = GetEntitiesWithComponents<Transform2DComponent>();
+    auto transform2DEntityList = GetEntityIDWithComponents<Transform2DComponent>();
     ChunkEntityMessage chunkEntityMessage;
     std::vector<GameEntity::ID> entitiesToRemove;
     for (auto &transform2dEntity: transform2DEntityList) {
         if (transform2dEntity == player_) {
             continue;
         }
-        auto *transform2dComponent = GetComponent<Transform2DComponent>(transform2dEntity->GetID());
+        auto *transform2dComponent = GetComponent<Transform2DComponent>(transform2dEntity);
         if (transform2dComponent == nullptr) {
             continue;
         }
@@ -505,14 +503,14 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
         (void) SaveEntity(chunkEntityMessage.add_entitys(), transform2dEntity);
         //Whether this entity is successfully saved or not, it will disappear due to the block unloading.
         //无论这个实体是否成功保存，它都会因为区块卸载而消失。
-        entitiesToRemove.push_back(transform2dEntity->GetID());
+        entitiesToRemove.push_back(transform2dEntity);
     }
     if (chunkEntityMessage.entitys_size() > 0) {
         //Create a file and save it
         //创建文件并保存
-        (void) saves->WriteChunkEntity(position, chunkEntityMessage);
+        (void) saves_->WriteChunkEntity(position, chunkEntityMessage);
     } else {
-        (void) saves->DeleteChunkEntity(position);
+        (void) saves_->DeleteChunkEntity(position);
     }
     for (auto id: entitiesToRemove) {
         RemoveEntity(id);
@@ -520,12 +518,12 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
     return true;
 }
 
-bool glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, const GameEntity *gameEntity) {
-    if (!gameEntity->IsPersistable()) {
+bool glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, const GameEntity::ID entityId) {
+    if (!IsPersistable(entityId)) {
         return false;
     }
-    entityItemMessage->mutable_gameentity()->set_id(gameEntity->GetID());
-    auto &components = entityComponents[gameEntity->GetID()];
+    entityItemMessage->mutable_gameentity()->set_id(entityId);
+    auto &components = entityComponents[entityId];
     auto mutableComponents = entityItemMessage->mutable_components();
     for (auto &componentItem: components) {
         if (!componentItem->IsSerializable()) {
@@ -689,6 +687,7 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<AutoPickSystem>(appContext, this));
     RegisterSystem(std::make_unique<DiggingSystem>(appContext, this));
     RegisterSystem(std::make_unique<PauseSystem>(appContext, this));
+    RegisterSystem(std::make_unique<ItemModEditorSystem>(appContext, this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
 #endif
@@ -696,17 +695,12 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(appContext, this));
     RegisterSystem(std::make_unique<DebugPanelSystem>(appContext, this));
-    RegisterSystem(std::make_unique<ItemModEditorSystem>(appContext, this));
 #endif
     allowRegisterSystem = false;
 }
 
 void glimmer::WorldContext::SetCameraPosition(Transform2DComponent *worldPositionComponent) {
     cameraTransform2D_ = worldPositionComponent;
-}
-
-void glimmer::WorldContext::SetHotBarComponent(HotBarComponent *hotbarComponent) {
-    hotBarComponent_ = hotbarComponent;
 }
 
 void glimmer::WorldContext::SetDiggingComponent(DiggingComponent *diggingComponent) {
@@ -744,11 +738,11 @@ void glimmer::WorldContext::RegisterSystem(std::unique_ptr<GameSystem> system) {
 }
 
 
-glimmer::GameEntity *glimmer::WorldContext::CreateEntity() {
+glimmer::GameEntity::ID glimmer::WorldContext::CreateEntity() {
     return RegisterEntity(std::make_unique<GameEntity>(++entityId_));
 }
 
-glimmer::GameEntity *glimmer::WorldContext::RecoveryEntity(const EntityItemMessage &entityItemMessage) {
+glimmer::GameEntity::ID glimmer::WorldContext::RecoveryEntity(const EntityItemMessage &entityItemMessage) {
     const auto id = entityItemMessage.gameentity().id();
     auto entity = std::make_unique<GameEntity>(id);
     const int componentSize = entityItemMessage.components_size();
@@ -816,22 +810,21 @@ glimmer::GameComponent *glimmer::WorldContext::RecoveryComponent(const GameEntit
 }
 
 
-glimmer::GameEntity *
+glimmer::GameEntity::ID
 glimmer::WorldContext::CreateDroppedItemEntity(std::unique_ptr<Item> item, const WorldVector2D position,
                                                const float pickupCooldown) {
-    GameEntity *droppedEntity = CreateEntity();
-    const GameEntity::ID id = droppedEntity->GetID();
-    droppedEntity->SetPersistable(true);
+    const GameEntity::ID droppedEntity = CreateEntity();
+    SetPersistable(droppedEntity, true);
     auto *transform2dComponent = AddComponent<
-        Transform2DComponent>(id);
+        Transform2DComponent>(droppedEntity);
     transform2dComponent->SetPosition(position);
     auto *droppedItemComponent = AddComponent<DroppedItemComponent>(
-        id
+        droppedEntity
     );
     droppedItemComponent->SetItem(std::move(item));
     droppedItemComponent->SetPickupCooldown(pickupCooldown);
     const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(
-        id);
+        droppedEntity);
     rigidBody2DComponent->SetCategoryBits(BOX2D_CATEGORY_ITEM);
     rigidBody2DComponent->SetMaskBits(BOX2D_CATEGORY_TILE);
     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
@@ -840,35 +833,47 @@ glimmer::WorldContext::CreateDroppedItemEntity(std::unique_ptr<Item> item, const
     rigidBody2DComponent->CreateBody(GetWorldId(),
                                      Box2DUtils::ToMeters(
                                          transform2dComponent->GetPosition()));
-    auto *magnetic = AddComponent<MagneticComponent>(id);
+    auto *magnetic = AddComponent<MagneticComponent>(droppedEntity);
     magnetic->SetType(MAGNETIC_TYPE_ITEM);
     return droppedEntity;
 }
 
-
-glimmer::GameEntity *glimmer::WorldContext::GetEntity(const GameEntity::ID id) {
+bool glimmer::WorldContext::SetPersistable(const GameEntity::ID id, const bool persistable) {
     const auto it = entityMap.find(id);
-    return it != entityMap.end() ? it->second : nullptr;
+    if (it == entityMap.end()) {
+        return false;
+    }
+    it->second->SetPersistable(persistable);
+    return true;
 }
 
-std::vector<glimmer::GameEntity *> glimmer::WorldContext::GetAllGameEntities() const {
-    std::vector<GameEntity *> result;
+bool glimmer::WorldContext::IsPersistable(const GameEntity::ID id) {
+    const auto it = entityMap.find(id);
+    if (it == entityMap.end()) {
+        return false;
+    }
+    return it->second->IsPersistable();
+}
+
+std::vector<glimmer::GameEntity::ID> glimmer::WorldContext::GetAllGameEntityId() const {
+    std::vector<GameEntity::ID> result;
     for (auto &entity: entities) {
-        result.push_back(entity.get());
+        result.push_back(entity->GetID());
     }
     return result;
 }
 
-std::vector<glimmer::GameEntity *> glimmer::WorldContext::GetAllPersistableEntities() const {
-    std::vector<GameEntity *> result;
+
+std::vector<glimmer::GameEntity::ID> glimmer::WorldContext::GetAllPersistableEntityId() const {
+    std::vector<GameEntity::ID> result;
     // Traverse all entities
     // 遍历所有实体
     for (auto &entity: entities) {
-        GameEntity *entityPtr = entity.get();
+        const GameEntity *entityPtr = entity.get();
         if (entityPtr == nullptr || !entityPtr->IsPersistable()) {
             continue;
         }
-        result.push_back(entityPtr);
+        result.push_back(entityPtr->GetID());
     }
     return result;
 }
@@ -914,6 +919,10 @@ void glimmer::WorldContext::RemoveEntity(GameEntity::ID id) {
     }
 
     LogCat::i("Entity ID ", id, " successfully removed. Remaining entities = ", entities.size());
+}
+
+bool glimmer::WorldContext::IsEmptyEntityId(const GameEntity::ID id) {
+    return id <= 0;
 }
 
 int glimmer::WorldContext::GetSeed() const {

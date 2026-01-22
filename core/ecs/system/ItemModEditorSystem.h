@@ -27,9 +27,6 @@ namespace glimmer {
         uint8_t GetRenderOrder() override;
 
         std::string GetName() override;
-
-    private:
-        void ToggleEditor();
     };
 }
 

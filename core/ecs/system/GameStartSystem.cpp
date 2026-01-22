@@ -15,13 +15,13 @@ void glimmer::GameStartSystem::Update(float delta) {
     LogCat::d("Game Start System init");
     LogCat::i("Grid entity created with GridComponent");
     auto pause = worldContext_->CreateEntity();
-    worldContext_->AddComponent<PauseComponent>(pause->GetID());
+    worldContext_->AddComponent<PauseComponent>(pause);
 
-    auto *tileLayerEntity = worldContext_->CreateEntity();
-    auto tileId = tileLayerEntity->GetID();
+    auto tileLayerEntity = worldContext_->CreateEntity();
     worldContext_->AddComponent<
-        TileLayerComponent>(tileId, TileLayerType::Main, worldContext_->GetAllChunks());
+        TileLayerComponent>(tileLayerEntity, TileLayerType::Main, worldContext_->GetAllChunks());
     worldContext_->InitPlayer();
+    worldContext_->InitHotbar(worldContext_->GetPlayerEntity());
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

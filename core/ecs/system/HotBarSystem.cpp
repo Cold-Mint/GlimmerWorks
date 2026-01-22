@@ -24,11 +24,10 @@ void glimmer::HotBarSystem::Update(float delta) {
     int selectedSlot = hotBar->GetSelectedSlot();
 
     for (size_t i = 0; i < slots.size(); ++i) {
-        auto *ent = slots[i];
-        if (!ent) continue;
-
-        auto *trans = worldContext_->GetComponent<Transform2DComponent>(ent->GetID());
-        auto *slotComp = worldContext_->GetComponent<ItemSlotComponent>(ent->GetID());
+        const auto ent = slots[i];
+        if (WorldContext::IsEmptyEntityId(ent)) continue;
+        auto *trans = worldContext_->GetComponent<Transform2DComponent>(ent);
+        auto *slotComp = worldContext_->GetComponent<ItemSlotComponent>(ent);
 
         if (trans) {
             trans->SetPosition({startX + static_cast<float>(i) * (slotSize + padding), startY});

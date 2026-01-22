@@ -130,7 +130,7 @@ namespace glimmer {
         [[nodiscard]] virtual std::shared_ptr<SDL_Texture> GetIcon() const = 0;
 
 
-        virtual void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) = 0;
+        virtual void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) = 0;
 
         /**
          * Clone

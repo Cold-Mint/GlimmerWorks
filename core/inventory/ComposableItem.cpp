@@ -26,7 +26,8 @@ void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContain
     itemContainer->SwapItem(index, otherContainer, otherIndex);
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const size_t index, std::unique_ptr<Item> item) const {
+std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const size_t index,
+                                                                    std::unique_ptr<Item> item) const {
     return itemContainer->ReplaceItem(index, std::move(item));
 }
 
@@ -34,8 +35,7 @@ size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const s
     return itemContainer->RemoveItem(id, amount);
 }
 
-
-void glimmer::ComposableItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) {
+void glimmer::ComposableItem::OnUse(AppContext *appContext, WorldContext *worldContext, const GameEntity::ID user) {
     const size_t max = itemContainer->GetCapacity();
     for (size_t index = 0; index < max; index++) {
         Item *item = itemContainer->GetItem(index);

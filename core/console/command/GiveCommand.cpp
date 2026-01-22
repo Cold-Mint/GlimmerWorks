@@ -52,7 +52,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             onMessage(appContext_->GetLangsResources()->tileResourceIsNull);
             return false;
         }
-        auto playerId = worldContext_->GetPlayerEntity()->GetID();
+        auto playerId = worldContext_->GetPlayerEntity();
         auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
         if (item_container == nullptr) {
             onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
@@ -85,7 +85,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             onMessage(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;
         }
-        auto playerId = worldContext_->GetPlayerEntity()->GetID();
+        auto playerId = worldContext_->GetPlayerEntity();
         auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
         if (item_container == nullptr) {
             onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
@@ -123,7 +123,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             onMessage(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;
         }
-        auto playerId = worldContext_->GetPlayerEntity()->GetID();
+        auto playerId = worldContext_->GetPlayerEntity();
         auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
         if (item_container == nullptr) {
             onMessage(appContext_->GetLangsResources()->itemContainerIsNull);

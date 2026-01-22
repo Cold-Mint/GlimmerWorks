@@ -8,13 +8,16 @@
 #include "../../math/Vector2D.h"
 #include <vector>
 
+#include "core/ecs/GameEntity.h"
+
 namespace glimmer {
     class GameEntity;
+
     class HotBarComponent : public GameComponent {
         Vector2D position_;
         int selectedSlot_ = 0;
         int maxSlot_ = 0;
-        std::vector<GameEntity*> slotEntities_;
+        std::vector<GameEntity::ID> slotEntities_;
 
     public:
         explicit HotBarComponent(const Vector2D position, const int maxSlot) : position_(position), maxSlot_(maxSlot) {
@@ -35,11 +38,11 @@ namespace glimmer {
 
         [[nodiscard]] int GetMaxSlot() const;
 
-        void AddSlotEntity(GameEntity* entity) {
+        void AddSlotEntity(const GameEntity::ID entity) {
             slotEntities_.push_back(entity);
         }
 
-        [[nodiscard]] const std::vector<GameEntity*>& GetSlotEntities() const {
+        [[nodiscard]] const std::vector<GameEntity::ID> &GetSlotEntities() const {
             return slotEntities_;
         }
 

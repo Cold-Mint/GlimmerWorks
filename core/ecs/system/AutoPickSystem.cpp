@@ -8,20 +8,20 @@
 #include "../component/DroppedItemComponent.h"
 
 void glimmer::AutoPickSystem::Update(float delta) {
-    auto entityList = worldContext_->GetEntitiesWithComponents<AutoPickComponent, MagnetComponent,
+    auto entityList = worldContext_->GetEntityIDWithComponents<AutoPickComponent, MagnetComponent,
         ItemContainerComponent>();
     for (auto entity: entityList) {
-        auto *magnetComponent = worldContext_->GetComponent<MagnetComponent>(entity->GetID());
+        auto *magnetComponent = worldContext_->GetComponent<MagnetComponent>(entity);
         auto *containerComponent = worldContext_->GetComponent<ItemContainerComponent>(
-            entity->GetID());
-        for (unsigned int entity1: magnetComponent->GetEntities()) {
-            auto *droppedItemComponent = worldContext_->GetComponent<DroppedItemComponent>(entity1);
+            entity);
+        for (GameEntity::ID entityId: magnetComponent->GetEntities()) {
+            auto *droppedItemComponent = worldContext_->GetComponent<DroppedItemComponent>(entityId);
             if (droppedItemComponent == nullptr) {
                 continue;
             }
             auto item = containerComponent->GetItemContainer()->AddItem(droppedItemComponent->ExtractItem());
             if (item == nullptr) {
-                worldContext_->RemoveEntity(entity1);
+                worldContext_->RemoveEntity(entityId);
             } else {
                 droppedItemComponent->SetItem(std::move(item));
             }

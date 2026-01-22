@@ -26,7 +26,7 @@ namespace glimmer {
 
         [[nodiscard]] std::string GetDescription() const override;
 
-        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity *user) override;
+        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) override;
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 

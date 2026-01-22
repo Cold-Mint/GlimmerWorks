@@ -9,17 +9,17 @@
 
 namespace glimmer {
     class ItemSlotComponent : public GameComponent {
-        GameEntity *containerEntity_;
+        GameEntity::ID containerEntity_;
         int slotIndex_;
         bool isHovered_ = false;
         bool isSelected_ = false;
 
     public:
-        explicit ItemSlotComponent(GameEntity *containerEntity, const int slotIndex)
+        explicit ItemSlotComponent(const GameEntity::ID containerEntity, const int slotIndex)
             : containerEntity_(containerEntity), slotIndex_(slotIndex) {
         }
 
-        [[nodiscard]] GameEntity *GetContainerEntity() const;
+        [[nodiscard]] GameEntity::ID GetContainerEntity() const;
 
         [[nodiscard]] int GetSlotIndex() const;
 

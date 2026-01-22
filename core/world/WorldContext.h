@@ -26,7 +26,6 @@
 #include "../math/Vector2DI.h"
 #include "../saves/Saves.h"
 #include "../scene/AppContext.h"
-#include "../utils/JsonUtils.h"
 #include "../utils/TimeUtils.h"
 #include "box2d/box2d.h"
 #include "box2d/id.h"
@@ -38,6 +37,10 @@ namespace glimmer {
     class GameEntity;
     class Item;
 
+    /**
+     * GameEntity has been restricted to be accessed directly only within the WorldContext. GameEntity::ID is provided externally.
+     * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供GameEntity::ID。
+     */
     class WorldContext {
         void RegisterSystem(std::unique_ptr<GameSystem> system);
 
@@ -165,14 +168,14 @@ namespace glimmer {
         * Game saves
         * 游戏存档
         */
-        Saves *saves;
+        Saves *saves_;
 
         b2WorldId worldId_ = b2_nullWorldId;
         std::vector<std::unique_ptr<GameEntity> > entities;
         std::unordered_map<GameEntity::ID, GameEntity *> entityMap;
         AppContext *appContext_;
 
-        GameEntity *player_ = nullptr;
+        GameEntity::ID player_ = 0;
 
         /**
          * Whether it is running or not, if false, it indicates that the game has been paused.
@@ -187,7 +190,7 @@ namespace glimmer {
          * 注册实体
          * @param entity
          */
-        GameEntity *RegisterEntity(std::unique_ptr<GameEntity> entity);
+        GameEntity::ID RegisterEntity(std::unique_ptr<GameEntity> entity);
 
         /**
          * UnRegisterEntity
@@ -277,13 +280,19 @@ namespace glimmer {
          */
         void InitPlayer();
 
+        /**
+         * Initialize the hotbar
+         * 初始化快捷栏
+         */
+        void InitHotbar(GameEntity::ID containerEntity);
+
 
         /**
          * GetPlayerEntity
          * 获取玩家实体
          * @return
          */
-        [[nodiscard]] GameEntity *GetPlayerEntity() const;
+        [[nodiscard]] GameEntity::ID GetPlayerEntity() const;
 
         /**
          * get Height
@@ -367,10 +376,10 @@ namespace glimmer {
          * SaveEntity
          * 保存实体
          * @param entityItemMessage
-         * @param gameEntity
+         * @param entityId
          * @return
          */
-        [[nodiscard]] bool SaveEntity(EntityItemMessage *entityItemMessage, const GameEntity *gameEntity);
+        [[nodiscard]] bool SaveEntity(EntityItemMessage *entityItemMessage, GameEntity::ID entityId);
 
         /**
          * Determine whether a block at a certain position has been loaded
@@ -410,13 +419,6 @@ namespace glimmer {
 
 
         /**
-         * Set HotBar Component
-         * 设置相机组件
-         * @param hotbarComponent
-         */
-        void SetHotBarComponent(HotBarComponent *hotbarComponent);
-
-        /**
          * SetDiggingComponent
          * 设置正在挖掘组件
          * @param diggingComponent
@@ -447,7 +449,7 @@ namespace glimmer {
          * 创建一个实体
          * @return
          */
-        GameEntity *CreateEntity();
+        GameEntity::ID CreateEntity();
 
         /**
          * Recovery Entity
@@ -455,7 +457,7 @@ namespace glimmer {
          * @param entityItemMessage
          * @return
          */
-        GameEntity *RecoveryEntity(const EntityItemMessage &entityItemMessage);
+        GameEntity::ID RecoveryEntity(const EntityItemMessage &entityItemMessage);
 
         /**
          * Recovery Component
@@ -474,24 +476,34 @@ namespace glimmer {
          * @param pickupCooldown
          * @return
          */
-        GameEntity *CreateDroppedItemEntity(std::unique_ptr<Item> item, WorldVector2D position,
-                                            float pickupCooldown = 0.0F);
+        GameEntity::ID CreateDroppedItemEntity(std::unique_ptr<Item> item, WorldVector2D position,
+                                               float pickupCooldown = 0.0F);
+
 
         /**
-         * Search for entities based on their ids
-         * 根据 ID 查找实体
+         * Set up the persistence of game entities
+         * 设置游戏实体持久化
+         * @param id
+         * @param persistable
+         * @return
+         */
+        bool SetPersistable(GameEntity::ID id, bool persistable);
+
+        /**
+         * Is the game entity persistent?
+         * 游戏实体是否为持久化的
          * @param id
          * @return
          */
-        GameEntity *GetEntity(GameEntity::ID id);
+        bool IsPersistable(GameEntity::ID id);
 
 
         /**
-         * GetAllGameEntities
-         * 获取所有游戏实体
+         * GetAllGameEntitiesId
+         * 获取所有游戏实体Id
          * @return
          */
-        [[nodiscard]] std::vector<GameEntity *> GetAllGameEntities() const;
+        [[nodiscard]] std::vector<GameEntity::ID> GetAllGameEntityId() const;
 
 
         /**
@@ -499,7 +511,7 @@ namespace glimmer {
          * 获取所有需要持久化的游戏对象
          * @return
          */
-        [[nodiscard]] std::vector<GameEntity *> GetAllPersistableEntities() const;
+        [[nodiscard]] std::vector<GameEntity::ID> GetAllPersistableEntityId() const;
 
         /**
          * Remove Entity
@@ -515,7 +527,15 @@ namespace glimmer {
          * @return 具有所有指定组件类型的实体列表
          */
         template<typename T, typename... Ts>
-        std::vector<GameEntity *> GetEntitiesWithComponents();
+        std::vector<GameEntity::ID> GetEntityIDWithComponents();
+
+        /**
+         * Does the entity ID point to a blank entity?
+         * 实体id是否指向空白实体
+         * @param id
+         * @return
+         */
+        [[nodiscard]] static bool IsEmptyEntityId(GameEntity::ID id);
 
         /**
          * GetSeed
@@ -528,7 +548,7 @@ namespace glimmer {
 
         explicit WorldContext(AppContext *appContext, const int seed, Saves *saves,
                               const GameEntity::ID entityId = 0) : seed(seed),
-                                                                   entityId_(entityId), saves(saves) {
+                                                                   entityId_(entityId), saves_(saves) {
             // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
             continentHeightMapNoise = std::make_unique<FastNoiseLite>();
             continentHeightMapNoise->SetSeed(seed);
@@ -599,8 +619,8 @@ namespace glimmer {
     }
 
     template<typename T, typename... Ts>
-    std::vector<GameEntity *> WorldContext::GetEntitiesWithComponents() {
-        std::vector<GameEntity *> result;
+    std::vector<GameEntity::ID> WorldContext::GetEntityIDWithComponents() {
+        std::vector<GameEntity::ID> result;
 
         // Traverse all entities
         // 遍历所有实体
@@ -608,7 +628,7 @@ namespace glimmer {
             // Check if the entity has all specified component types
             // 检查实体是否有所有指定类型的组件
             if (detail::HasAllComponents<T, Ts...>(this, entity->GetID())) {
-                result.push_back(entity.get());
+                result.push_back(entity->GetID());
             }
         }
 
@@ -676,7 +696,7 @@ namespace glimmer {
     }
 
     template<typename TComponent>
-    TComponent *WorldContext::GetComponent(GameEntity::ID id) {
+    TComponent *WorldContext::GetComponent(const GameEntity::ID id) {
         const auto it = entityComponents.find(id);
         if (it == entityComponents.end()) return nullptr;
 

@@ -6,7 +6,7 @@
 
 #include "core/Constants.h"
 
-glimmer::GameEntity *glimmer::ItemSlotComponent::GetContainerEntity() const {
+glimmer::GameEntity::ID glimmer::ItemSlotComponent::GetContainerEntity() const {
     return containerEntity_;
 }
 

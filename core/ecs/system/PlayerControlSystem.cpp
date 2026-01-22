@@ -16,10 +16,10 @@
 
 
 void glimmer::PlayerControlSystem::Update(const float delta) {
-    const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent, RigidBody2DComponent>();
+    const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent, RigidBody2DComponent>();
     for (auto &entity: entities) {
-        const auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
-        const auto rigid = worldContext_->GetComponent<RigidBody2DComponent>(entity->GetID());
+        const auto control = worldContext_->GetComponent<PlayerControlComponent>(entity);
+        const auto rigid = worldContext_->GetComponent<RigidBody2DComponent>(entity);
         if (control == nullptr || rigid == nullptr || !rigid->IsReady()) {
             continue;
         }
@@ -52,7 +52,7 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
 
         b2Body_SetLinearVelocity(bodyId, {vx, vy});
         const auto *hotBar = worldContext_->GetHotBarComponent();
-        const auto *containerComp = worldContext_->GetComponent<ItemContainerComponent>(entity->GetID());
+        const auto *containerComp = worldContext_->GetComponent<ItemContainerComponent>(entity);
         control->dropTimer += delta;
         if (control->dropPressed && control->dropTimer >= DROP_INTERVAL) {
             control->dropTimer -= DROP_INTERVAL;
@@ -123,10 +123,10 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
 
     // HotBar Switch
     if (event.type == SDL_EVENT_MOUSE_WHEEL) {
-        const auto entities = worldContext_->GetEntitiesWithComponents<
+        const auto entities = worldContext_->GetEntityIDWithComponents<
             PlayerControlComponent, HotBarComponent>();
         for (auto &entity: entities) {
-            if (const auto hotBar = worldContext_->GetComponent<HotBarComponent>(entity->GetID())) {
+            if (const auto hotBar = worldContext_->GetComponent<HotBarComponent>(entity)) {
                 int current = hotBar->GetSelectedSlot();
                 if (event.wheel.y > 0) {
                     current--;
@@ -145,10 +145,10 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
             cameraTransform->GetPosition(),
             CameraVector2D(event.motion.x, event.motion.y)
         );
-        auto tileLayerEntities = worldContext_->GetEntitiesWithComponents<
+        auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<
             TileLayerComponent>();
         for (auto &entity: tileLayerEntities) {
-            auto *layer = worldContext_->GetComponent<TileLayerComponent>(entity->GetID());
+            auto *layer = worldContext_->GetComponent<TileLayerComponent>(entity);
             if (layer == nullptr) {
                 continue;
             }
@@ -163,11 +163,11 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
 
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
         const auto entities =
-                worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
+                worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
 
         for (auto &entity: entities) {
             if (auto *control =
-                    worldContext_->GetComponent<PlayerControlComponent>(entity->GetID())) {
+                    worldContext_->GetComponent<PlayerControlComponent>(entity)) {
                 control->mouseLeftDown = true;
             }
         }
@@ -177,22 +177,22 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
     if (event.type == SDL_EVENT_MOUSE_BUTTON_UP &&
         event.button.button == SDL_BUTTON_LEFT) {
         const auto entities =
-                worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
+                worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
 
         for (auto &entity: entities) {
             if (auto *control =
-                    worldContext_->GetComponent<PlayerControlComponent>(entity->GetID())) {
+                    worldContext_->GetComponent<PlayerControlComponent>(entity)) {
                 control->mouseLeftDown = false;
             }
         }
         return false;
     }
 
-    const auto entities = worldContext_->GetEntitiesWithComponents<PlayerControlComponent>();
+    const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
     if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
         bool pressed = event.type == SDL_EVENT_KEY_DOWN;
         for (auto &entity: entities) {
-            auto control = worldContext_->GetComponent<PlayerControlComponent>(entity->GetID());
+            auto control = worldContext_->GetComponent<PlayerControlComponent>(entity);
             if (control == nullptr) {
                 continue;
             }

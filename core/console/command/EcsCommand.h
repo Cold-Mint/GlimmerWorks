@@ -14,7 +14,7 @@ namespace glimmer {
             : Command(ctx) {
         }
 
-        std::string EntityToString(const GameEntity *gameEntity) const;
+        [[nodiscard]] std::string EntityToString(GameEntity::ID gameEntityId) const;
 
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;

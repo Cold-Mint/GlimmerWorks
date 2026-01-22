@@ -16,7 +16,6 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
     const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
-    const float slotSize = 40.0F * appContext_->GetConfig()->window.uiScale;
     const Item *hoveredItem = nullptr;
     DragAndDrop *dragAndDrop = appContext_->GetDragAndDrop();
     for (auto &entity: entities) {
@@ -24,18 +23,21 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
         const auto transform = worldContext_->GetComponent<GuiTransform2DComponent>(entity);
 
         const Vector2D pos = transform->GetPosition();
+        const Vector2D size = transform->GetSize();
         auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(
             slotComp->GetContainerEntity());
-        if (!containerComp) continue;
+        if (containerComp == nullptr) {
+            continue;
+        }
 
         auto itemContainer = containerComp->GetItemContainer();
-        if (!itemContainer) continue;
+        if (itemContainer == nullptr) {
+            continue;
+        }
 
         int slotIndex = slotComp->GetSlotIndex();
         Item *item = itemContainer->GetItem(slotIndex);
-        const SDL_FRect rect = {pos.x, pos.y, slotSize, slotSize};
-        float mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
+        const SDL_FRect rect = {pos.x, pos.y, size.x, size.y};
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
                          mouseY >= rect.y && mouseY <= rect.y + rect.h;
         slotComp->SetHovered(isHovered);
@@ -43,7 +45,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
             hoveredItem = item;
         }
 
-        dragAndDrop->DrawSlot(appContext_, renderer, pos.x, pos.y, slotSize, item, slotComp->IsSelected(),
+        dragAndDrop->DrawSlot(appContext_, renderer, pos, size, item, slotComp->IsSelected(),
                               [&](const DragState &state) {
                                   if (state.sourceType != DragSourceType::INVENTORY || WorldContext::IsEmptyEntityId(
                                           state.sourceContainer)) {
@@ -62,13 +64,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
                                                          slotComp->GetContainerEntity(), slotIndex,
                                                          item);
                               },
-                              [&] {
-                                  auto hotBar = worldContext_->GetHotBarComponent();
-                                  if (hotBar == nullptr) {
-                                      return;
-                                  }
-                                  hotBar->SetSelectedSlot(slotIndex);
-                              }
+                              nullptr
         );
     }
 
@@ -204,7 +200,7 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
 }
 
 uint8_t glimmer::ItemSlotSystem::GetRenderOrder() {
-    return RENDER_ORDER_DEBUG_HOTBAR; // Or slightly above
+    return RENDER_ORDER_DEBUG_HOTBAR;
 }
 
 std::string glimmer::ItemSlotSystem::GetName() {

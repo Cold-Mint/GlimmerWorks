@@ -98,7 +98,7 @@ namespace glimmer {
          * HotBar Component
          * 快捷栏组件
          */
-        HotBarComponent *hotBarComponent_{};
+        GameEntity::ID hotBarEntity = 0;
 
         /**
          * digging Component
@@ -442,7 +442,7 @@ namespace glimmer {
         Transform2DComponent *GetCameraTransform2D() const;
 
 
-        HotBarComponent *GetHotBarComponent() const;
+        [[nodiscard]] GameEntity::ID GetHotBarEntity() const;
 
         /**
          * Create an entity。

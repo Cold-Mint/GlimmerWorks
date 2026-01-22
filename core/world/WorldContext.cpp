@@ -177,12 +177,20 @@ void glimmer::WorldContext::InitPlayer() {
 
 void glimmer::WorldContext::InitHotbar(const GameEntity::ID containerEntity) {
     auto hotBar = CreateEntity();
-    auto *hotBarComponent = AddComponent<HotBarComponent>(hotBar, Vector2D(), HOT_BAR_SIZE);
-    hotBarComponent_ = hotBarComponent;
+    auto *hotBarComponent = AddComponent<HotBarComponent>(hotBar, HOT_BAR_SIZE);
+    hotBarEntity = hotBar;
+    auto uiScale = appContext_->GetConfig()->window.uiScale;
+    constexpr float slotStep = ITEM_SLOT_SIZE + ITEM_SLOT_PADDING;
     for (int i = 0; i < HOT_BAR_SIZE; ++i) {
-        auto slotEntity = CreateEntity();
+        const auto slotEntity = CreateEntity();
         AddComponent<ItemSlotComponent>(slotEntity, containerEntity, i);
-        AddComponent<GuiTransform2DComponent>(slotEntity);
+        auto *guiTransform2DComponent = AddComponent<GuiTransform2DComponent>(slotEntity);
+        guiTransform2DComponent->SetSize(CameraVector2D(ITEM_SLOT_SIZE * uiScale, ITEM_SLOT_SIZE * uiScale));
+        guiTransform2DComponent->SetPosition(CameraVector2D(
+            (ITEM_SLOT_PADDING + slotStep * static_cast<float>(i)) * uiScale,
+            ITEM_SLOT_PADDING * uiScale
+        ));
+
         hotBarComponent->AddSlotEntity(slotEntity);
     }
 }
@@ -723,8 +731,8 @@ glimmer::Transform2DComponent *glimmer::WorldContext::GetCameraTransform2D() con
     return cameraTransform2D_;
 }
 
-glimmer::HotBarComponent *glimmer::WorldContext::GetHotBarComponent() const {
-    return hotBarComponent_;
+glimmer::GameEntity::ID glimmer::WorldContext::GetHotBarEntity() const {
+    return hotBarEntity;
 }
 
 

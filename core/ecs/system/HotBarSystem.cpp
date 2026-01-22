@@ -6,36 +6,23 @@
 #include "../component/HotBarComonent.h"
 #include "../../world/WorldContext.h"
 #include "../component/ItemSlotComponent.h"
-#include "../component/Transform2DComponent.h"
 
 
 void glimmer::HotBarSystem::Update(float delta) {
-    const auto *hotBar = worldContext_->GetHotBarComponent();
-    if (!hotBar) return;
-
-    Vector2D pos = hotBar->GetPosition();
-    const float slotSize = 40.0F * appContext_->GetConfig()->window.uiScale;
-    float padding = 8.0F * appContext_->GetConfig()->window.uiScale;
-
-    float startX = pos.x;
-    float startY = pos.y;
-
-    const auto &slots = hotBar->GetSlotEntities();
-    int selectedSlot = hotBar->GetSelectedSlot();
-
-    for (size_t i = 0; i < slots.size(); ++i) {
-        const auto ent = slots[i];
-        if (WorldContext::IsEmptyEntityId(ent)) continue;
-        auto *trans = worldContext_->GetComponent<Transform2DComponent>(ent);
-        auto *slotComp = worldContext_->GetComponent<ItemSlotComponent>(ent);
-
-        if (trans) {
-            trans->SetPosition({startX + static_cast<float>(i) * (slotSize + padding), startY});
+    const auto hotBarEntity = worldContext_->GetHotBarEntity();
+    if (WorldContext::IsEmptyEntityId(hotBarEntity)) {
+        return;
+    }
+    auto *hotbarComponent = worldContext_->GetComponent<HotBarComponent>(hotBarEntity);
+    auto SlotEntityList = hotbarComponent->GetSlotEntities();
+    int selectedSlot = hotbarComponent->GetSelectedSlot();
+    for (int i = 0; i < SlotEntityList.size(); ++i) {
+        const auto entityId = SlotEntityList[i];
+        if (WorldContext::IsEmptyEntityId(entityId)) {
+            continue;
         }
-
-        if (slotComp) {
-            slotComp->SetSelected(static_cast<int>(i) == selectedSlot);
-        }
+        auto *slotComp = worldContext_->GetComponent<ItemSlotComponent>(entityId);
+        slotComp->SetSelected(i == selectedSlot);
     }
 }
 

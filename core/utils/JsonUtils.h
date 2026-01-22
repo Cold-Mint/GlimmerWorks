@@ -225,6 +225,7 @@ struct nlohmann::adl_serializer<glimmer::ComposableItemResource> {
         s.name = j.at("name").get<glimmer::ResourceRef>();
         s.description = j.at("description").get<glimmer::ResourceRef>();
         s.slotSize = j.at("slotSize").get<size_t>();
+        s.defaultAbilityList = j.at("defaultAbilityList").get<std::vector<glimmer::ResourceRef>>();
     }
 
     static void to_json(json &j, const glimmer::ComposableItemResource &s) {
@@ -233,7 +234,8 @@ struct nlohmann::adl_serializer<glimmer::ComposableItemResource> {
             {"texture", s.texture},
             {"name", s.name},
             {"description", s.description},
-            {"slotSize", s.slotSize}
+            {"slotSize", s.slotSize},
+            {"defaultAbilityList", s.defaultAbilityList},
         };
     }
 };

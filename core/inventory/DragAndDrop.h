@@ -11,6 +11,7 @@
 #include "DragSourceType.h"
 #include "DragState.h"
 #include "core/ecs/GameEntity.h"
+#include "core/math/Vector2D.h"
 
 namespace glimmer {
     class Item;
@@ -108,10 +109,7 @@ namespace glimmer {
     *                   应用上下文（输入、UI 状态等）
     * @param renderer   SDL renderer
     *                   SDL 渲染器
-    * @param x          X position of the slot
-    *                   槽位左上角 X 坐标
-    * @param y          Y position of the slot
-    *                   槽位左上角 Y 坐标
+    * @param position position 位置
     * @param size       Slot size (square)
     *                   槽位尺寸（正方形）
     * @param item       Item contained in this slot (nullable)
@@ -136,12 +134,10 @@ namespace glimmer {
     *
     * 当槽位被点击但未发生拖拽时触发的回调（可选）。
     */
-        void DrawSlot(const AppContext *appContext, SDL_Renderer *renderer,
-                      float x, float y, float size,
-                      const Item *item, bool isSelected,
-                      const std::function<void(const DragState &)> &onDrop,
-                      const std::function<void()> &onDragStart = nullptr,
-                      const std::function<void()> &onClick = nullptr);
+        void DrawSlot(const AppContext *appContext, SDL_Renderer *renderer, const CameraVector2D &position,
+                      const CameraVector2D &size,
+                      const Item *item, bool isSelected, const std::function<void(const DragState &)> &onDrop,
+                      const std::function<void()> &onDragStart, const std::function<void()> &onClick);
 
         /**
         * Render the dragged item icon at mouse position

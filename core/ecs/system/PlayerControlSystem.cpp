@@ -11,7 +11,6 @@
 #include "box2d/box2d.h"
 #include "../component/HotBarComonent.h"
 #include "../../Constants.h"
-#include "../../inventory/TileItem.h"
 #include "../component/ItemContainerComonent.h"
 
 
@@ -51,15 +50,19 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         }
 
         b2Body_SetLinearVelocity(bodyId, {vx, vy});
-        const auto *hotBar = worldContext_->GetHotBarComponent();
+        const auto hotBarEntity = worldContext_->GetHotBarEntity();
+        if (WorldContext::IsEmptyEntityId(hotBarEntity)) {
+            return;
+        }
+        auto hotBarComp = worldContext_->GetComponent<HotBarComponent>(hotBarEntity);
         const auto *containerComp = worldContext_->GetComponent<ItemContainerComponent>(entity);
         control->dropTimer += delta;
         if (control->dropPressed && control->dropTimer >= DROP_INTERVAL) {
             control->dropTimer -= DROP_INTERVAL;
-            if (hotBar && containerComp) {
+            if (hotBarComp && containerComp) {
                 auto itemContainer = containerComp->GetItemContainer();
                 if (itemContainer != nullptr) {
-                    auto item = itemContainer->TakeItem(hotBar->GetSelectedSlot(), 1);
+                    auto item = itemContainer->TakeItem(hotBarComp->GetSelectedSlot(), 1);
                     if (item != nullptr) {
                         worldContext_->CreateDroppedItemEntity(
                             std::move(item),
@@ -71,10 +74,10 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
             }
         }
 
-        if (control->mouseLeftDown && hotBar && containerComp) {
+        if (control->mouseLeftDown && hotBarComp && containerComp) {
             auto itemContainer = containerComp->GetItemContainer();
             if (itemContainer) {
-                Item *item = itemContainer->GetItem(hotBar->GetSelectedSlot());
+                Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot());
                 if (item) {
                     item->OnUse(appContext_, worldContext_, entity);
                 }
@@ -121,21 +124,15 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
     auto *camera = worldContext_->GetCameraComponent();
     auto *cameraTransform = worldContext_->GetCameraTransform2D();
 
-    // HotBar Switch
     if (event.type == SDL_EVENT_MOUSE_WHEEL) {
-        const auto entities = worldContext_->GetEntityIDWithComponents<
-            PlayerControlComponent, HotBarComponent>();
-        for (auto &entity: entities) {
-            if (const auto hotBar = worldContext_->GetComponent<HotBarComponent>(entity)) {
-                int current = hotBar->GetSelectedSlot();
-                if (event.wheel.y > 0) {
-                    current--;
-                } else if (event.wheel.y < 0) {
-                    current++;
-                }
-                hotBar->SetSelectedSlot(current);
-            }
+        const auto hotBarComponent = worldContext_->GetComponent<HotBarComponent>(worldContext_->GetHotBarEntity());
+        int current = hotBarComponent->GetSelectedSlot();
+        if (event.wheel.y > 0) {
+            current--;
+        } else if (event.wheel.y < 0) {
+            current++;
         }
+        hotBarComponent->SetSelectedSlot(current);
         return false;
     }
     if (event.type == SDL_EVENT_MOUSE_MOTION && camera && cameraTransform) {

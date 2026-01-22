@@ -57,7 +57,9 @@ constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
 constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
 constexpr size_t ITEM_MAX_STACK = 64;
 constexpr size_t HOT_BAR_SIZE = 9;
-constexpr float DROP_INTERVAL = 1.0f / ITEM_MAX_STACK;
+constexpr float ITEM_SLOT_SIZE = 40.0F;
+constexpr float ITEM_SLOT_PADDING = 8.0F;
+constexpr float DROP_INTERVAL = 1.0F / ITEM_MAX_STACK;
 
 /**
  *Type of adsorbate

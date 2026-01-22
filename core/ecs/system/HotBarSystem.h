@@ -8,6 +8,7 @@
 #include "../component/HotBarComonent.h"
 #include "../component/ItemContainerComonent.h"
 #include "../component/PlayerControlComponent.h"
+#include "core/ecs/component/GuiTransform2DComponent.h"
 
 namespace glimmer {
     /**
@@ -21,6 +22,7 @@ namespace glimmer {
             RequireComponent<PlayerControlComponent>();
             RequireComponent<ItemContainerComponent>();
             RequireComponent<HotBarComponent>();
+            RequireComponent<GuiTransform2DComponent>();
         }
 
         void Update(float delta) override;

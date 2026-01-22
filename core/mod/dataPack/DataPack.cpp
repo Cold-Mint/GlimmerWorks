@@ -186,6 +186,9 @@ bool glimmer::DataPack::LoadComposableItemResourceFromFile(const std::string &pa
     itemResource.packId = manifest_.id;
     itemResource.name.SetSelfPackageId(manifest_.id);
     itemResource.description.SetSelfPackageId(manifest_.id);
+    for (auto &defaultAbility: itemResource.defaultAbilityList) {
+        defaultAbility.SetSelfPackageId(manifest_.id);
+    }
     itemManager->RegisterComposableResource(itemResource);
     return true;
 }

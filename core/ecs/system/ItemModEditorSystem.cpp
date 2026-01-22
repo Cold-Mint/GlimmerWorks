@@ -6,16 +6,15 @@
 #include "../../world/WorldContext.h"
 #include "../component/HotBarComonent.h"
 #include "../component/ItemContainerComonent.h"
-#include "SDL3_ttf/SDL_ttf.h"
 #include <string>
-#include "../../inventory/DragAndDrop.h"
 #include "../../inventory/AbilityItem.h"
 
 bool glimmer::ItemModEditorSystem::HandleEvent(const SDL_Event &event) {
-    auto hotBar = worldContext_->GetHotBarComponent();
-    if (hotBar == nullptr) {
+    auto hotBar = worldContext_->GetHotBarEntity();
+    if (WorldContext::IsEmptyEntityId(hotBar)) {
         return false;
     }
+    auto hotBarComp = worldContext_->GetComponent<HotBarComponent>(hotBar);
     const auto player = worldContext_->GetPlayerEntity();
     if (WorldContext::IsEmptyEntityId(player)) {
         return false;
@@ -29,7 +28,7 @@ bool glimmer::ItemModEditorSystem::HandleEvent(const SDL_Event &event) {
     if (itemContainer == nullptr) {
         return false;
     }
-    const auto selectedSlot = hotBar->GetSelectedSlot();
+    const auto selectedSlot = hotBarComp->GetSelectedSlot();
     Item *item = itemContainer->GetItem(selectedSlot);
     if (auto composable = dynamic_cast<ComposableItem *>(item)) {
         editingItem_ = composable;

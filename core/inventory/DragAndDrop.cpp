@@ -30,10 +30,11 @@ namespace glimmer {
         return state_.sourceType != DragSourceType::NONE;
     }
 
-    void DragAndDrop::DrawSlot(const AppContext *appContext, SDL_Renderer *renderer, float x, float y, float size,
+    void DragAndDrop::DrawSlot(const AppContext *appContext, SDL_Renderer *renderer, const CameraVector2D &position,
+                               const CameraVector2D &size,
                                const Item *item, bool isSelected, const std::function<void(const DragState &)> &onDrop,
                                const std::function<void()> &onDragStart, const std::function<void()> &onClick) {
-        const SDL_FRect rect = {x, y, size, size};
+        const SDL_FRect rect = {position.x, position.y, size.x, size.y};
         float mouseX, mouseY;
         auto mouseState = SDL_GetMouseState(&mouseX, &mouseY);
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
@@ -64,7 +65,9 @@ namespace glimmer {
                     SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, surface);
                     if (t) {
                         SDL_FRect dst = {
-                            x + size - surface->w - 2, y + size - surface->h - 2, (float) surface->w, (float) surface->h
+                            position.x + size.x - surface->w - 2, position.y + size.y - surface->h - 2,
+                            static_cast<float>(surface->w),
+                            static_cast<float>(surface->h)
                         };
                         SDL_RenderTexture(renderer, t, nullptr, &dst);
                         SDL_DestroyTexture(t);
@@ -76,7 +79,7 @@ namespace glimmer {
 
         if (isSelected) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-            SDL_FRect selRect = {x - 2, y - 2, size + 4, size + 4};
+            SDL_FRect selRect = {position.x - 2, position.y - 2, size.x + 4, size.y + 4};
             SDL_RenderRect(renderer, &selRect);
         }
 

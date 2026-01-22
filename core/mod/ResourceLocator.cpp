@@ -57,7 +57,7 @@ std::optional<glimmer::AbilityItemResource *> glimmer::ResourceLocator::FindAbil
 
 std::optional<std::unique_ptr<glimmer::Item> > glimmer::ResourceLocator::FindItem(AppContext *appContext,
     const ResourceRef &resourceRef) const {
-    int resourceType = resourceRef.GetResourceType();
+    uint32_t resourceType = resourceRef.GetResourceType();
     std::unique_ptr<Item> result = nullptr;
     if (resourceType == RESOURCE_TYPE_TILE) {
         auto tileResource = FindTile(resourceRef);

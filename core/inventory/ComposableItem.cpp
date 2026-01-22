@@ -62,7 +62,7 @@ std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const {
     return newItem;
 }
 
-std::optional<glimmer::ResourceRef> glimmer::ComposableItem::ToResourceRef() {
+std::optional<glimmer::ResourceRef> glimmer::ComposableItem::ActualToResourceRef() {
     std::optional<ResourceRef> resourceRef = Resource::ParseFromId(id_, RESOURCE_TYPE_COMPOSABLE_ITEM);
     size_t size = itemContainer->GetCapacity();
     for (int i = 0; i < size; i++) {

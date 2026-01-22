@@ -4,6 +4,7 @@
 
 #include "AbilityItem.h"
 
+
 std::string glimmer::AbilityItem::GetId() const {
     return id_;
 }
@@ -24,7 +25,7 @@ glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
     return itemAbility_.get();
 }
 
-std::optional<glimmer::ResourceRef> glimmer::AbilityItem::ToResourceRef() {
+std::optional<glimmer::ResourceRef> glimmer::AbilityItem::ActualToResourceRef() {
     return Resource::ParseFromId(id_, RESOURCE_TYPE_ABILITY_ITEM);
 }
 

@@ -58,25 +58,30 @@ std::optional<glimmer::AbilityItemResource *> glimmer::ResourceLocator::FindAbil
 std::optional<std::unique_ptr<glimmer::Item> > glimmer::ResourceLocator::FindItem(AppContext *appContext,
     const ResourceRef &resourceRef) const {
     int resourceType = resourceRef.GetResourceType();
+    std::unique_ptr<Item> result = nullptr;
     if (resourceType == RESOURCE_TYPE_TILE) {
         auto tileResource = FindTile(resourceRef);
         if (tileResource.has_value()) {
-            return std::make_unique<TileItem>(Tile::FromResourceRef(appContext, tileResource.value()));
+            result = std::make_unique<TileItem>(Tile::FromResourceRef(appContext, tileResource.value()));
         }
     }
     if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
         auto composableItemResource = FindComposableItem(resourceRef);
         if (composableItemResource.has_value()) {
-            return std::move(
-                ComposableItem::FromItemResource(appContext, composableItemResource.value(), &resourceRef));
+            result = std::move(
+                ComposableItem::FromItemResource(appContext, composableItemResource.value(), resourceRef));
         }
     }
 
     if (resourceType == RESOURCE_TYPE_ABILITY_ITEM) {
         auto abilityItemResource = FindAbilityItem(resourceRef);
         if (abilityItemResource.has_value()) {
-            return std::move(AbilityItem::FromItemResource(appContext, abilityItemResource.value()));
+            result = std::move(AbilityItem::FromItemResource(appContext, abilityItemResource.value(), resourceRef));
         }
+    }
+    if (result != nullptr) {
+        result->ApplyResourceRefArgs(resourceRef);
+        return result;
     }
     return std::nullopt;
 }

@@ -18,6 +18,8 @@ namespace glimmer {
     class Item {
         size_t amount_ = 1;
 
+        [[nodiscard]] virtual std::optional<ResourceRef> ActualToResourceRef() = 0;
+
     protected:
         size_t maxStack_ = 1;
 
@@ -95,7 +97,9 @@ namespace glimmer {
          * 转为资源引用
          * @return
          */
-        [[nodiscard]] virtual std::optional<ResourceRef> ToResourceRef() = 0;
+        [[nodiscard]] std::optional<ResourceRef> ToResourceRef();
+
+        void ApplyResourceRefArgs(const ResourceRef &resourceRef);
 
 
         /**

@@ -30,7 +30,7 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 
-        [[nodiscard]] std::optional<ResourceRef> ToResourceRef() override;
+        [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

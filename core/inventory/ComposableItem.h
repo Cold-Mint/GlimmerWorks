@@ -28,6 +28,8 @@ namespace glimmer {
         std::shared_ptr<SDL_Texture> icon_;
         size_t maxSlotSize_;
 
+        [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
+
     public:
         explicit ComposableItem(std::string id, std::string name, std::string description,
                                 std::shared_ptr<SDL_Texture> icon, size_t maxSize) : id_(std::move(id)),
@@ -84,7 +86,7 @@ namespace glimmer {
 
         static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext,
                                                                 const ComposableItemResource *itemResource,
-                                                                const ResourceRef *resourceRef) {
+                                                                const ResourceRef &resourceRef) {
             const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
             if (!nameRes.has_value()) {
                 LogCat::e("An error occurred when constructing composable items, and the name is empty.");
@@ -105,7 +107,7 @@ namespace glimmer {
                 descriptionRes.value()->value, texture, itemResource->slotSize);
             //Filling ability.
             //填充能力。
-            size_t argCount = resourceRef->GetArgCount();
+            size_t argCount = resourceRef.GetArgCount();
             if (argCount == 0) {
                 //If the capability is not specified within the resource reference, then the default capability will be loaded.
                 //如果没有在资源引用内指定能力，那么加载默认能力。
@@ -119,7 +121,7 @@ namespace glimmer {
                 }
             } else {
                 for (int i = 0; i < argCount; i++) {
-                    auto refArg = resourceRef->GetArg(i);
+                    auto refArg = resourceRef.GetArg(i);
                     if (refArg.has_value()) {
                         ResourceRefArg arg = refArg.value();
                         int index = TryParseItemIndex(arg.GetName());
@@ -140,7 +142,6 @@ namespace glimmer {
             return result;
         }
 
-        [[nodiscard]] std::optional<ResourceRef> ToResourceRef() override;
 
         [[nodiscard]] size_t GetMaxSlotSize() const;
 

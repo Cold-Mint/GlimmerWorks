@@ -60,6 +60,29 @@ size_t glimmer::Item::RemoveAmount(const size_t amount) {
     return amount;
 }
 
+std::optional<glimmer::ResourceRef> glimmer::Item::ToResourceRef() {
+    auto resourceRef = ActualToResourceRef();
+    if (resourceRef.has_value()) {
+        ResourceRefArg refArg;
+        refArg.SetName("amount");
+        refArg.SetDataFromInt(amount_);
+        resourceRef.value().AddArg(refArg);
+    }
+    return resourceRef;
+}
+
+void glimmer::Item::ApplyResourceRefArgs(const ResourceRef &resourceRef) {
+    int count = resourceRef.GetArgCount();
+    for (int i = 0; i < count; i++) {
+        auto arg = resourceRef.GetArg(i);
+        if (arg.has_value()) {
+            if (arg->GetName() == "amount") {
+                amount_ = arg->AsInt();
+                break;
+            }
+        }
+    }
+}
 
 bool glimmer::Item::IsStackable() const {
     return maxStack_ > 1;

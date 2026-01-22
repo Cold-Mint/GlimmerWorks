@@ -22,6 +22,8 @@ namespace glimmer {
         std::unique_ptr<ItemAbility> itemAbility_;
         bool canUseAlone_ = false;
 
+        [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
+
     public:
         explicit AbilityItem(std::string id, std::string name, std::string description,
                              std::shared_ptr<SDL_Texture> icon,
@@ -42,10 +44,10 @@ namespace glimmer {
 
         [[nodiscard]] ItemAbility *GetItemAbility() const;
 
-        [[nodiscard]] std::optional<ResourceRef> ToResourceRef() override;
 
         static std::unique_ptr<AbilityItem> FromItemResource(AppContext *appContext,
-                                                             const AbilityItemResource *itemResource) {
+                                                             const AbilityItemResource *itemResource,
+                                                             const ResourceRef &resourceRef) {
             const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
             if (!nameRes.has_value()) {
                 LogCat::e("An error occurred when constructing ability items, and the name is empty.");

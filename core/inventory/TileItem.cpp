@@ -4,7 +4,6 @@
 
 #include "TileItem.h"
 #include "../ecs/component/TileLayerComponent.h"
-#include "../ecs/component/Transform2DComponent.h"
 #include "../Constants.h"
 #include "../mod/ResourceLocator.h"
 #include "../world/ChunkPhysicsHelper.h"
@@ -62,7 +61,7 @@ std::shared_ptr<SDL_Texture> glimmer::TileItem::GetIcon() const {
     return tile_->texture;
 }
 
-std::optional<glimmer::ResourceRef> glimmer::TileItem::ToResourceRef() {
+std::optional<glimmer::ResourceRef> glimmer::TileItem::ActualToResourceRef() {
     return Resource::ParseFromId(tile_->id, RESOURCE_TYPE_TILE);
 }
 

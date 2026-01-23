@@ -9,6 +9,7 @@
 #include "../../log/LogCat.h"
 #include "../component/TileLayerComponent.h"
 #include "../../world/WorldContext.h"
+#include "core/ecs/component/ItemContainerComonent.h"
 
 
 void glimmer::GameStartSystem::Update(float delta) {
@@ -21,7 +22,8 @@ void glimmer::GameStartSystem::Update(float delta) {
     worldContext_->AddComponent<
         TileLayerComponent>(tileLayerEntity, TileLayerType::Main, worldContext_->GetAllChunks());
     worldContext_->InitPlayer();
-    worldContext_->InitHotbar(worldContext_->GetPlayerEntity());
+    worldContext_->InitHotbar(
+        worldContext_->GetComponent<ItemContainerComponent>(worldContext_->GetPlayerEntity())->GetItemContainer());
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

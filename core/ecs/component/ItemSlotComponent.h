@@ -4,22 +4,22 @@
 
 #ifndef GLIMMERWORKS_ITEMSLOTCOMPONENT_H
 #define GLIMMERWORKS_ITEMSLOTCOMPONENT_H
+#include "ItemContainerComonent.h"
 #include "../GameComponent.h"
-#include "../GameEntity.h"
 
 namespace glimmer {
     class ItemSlotComponent : public GameComponent {
-        GameEntity::ID containerEntity_;
+        ItemContainer *itemContainer_;
         int slotIndex_;
         bool isHovered_ = false;
         bool isSelected_ = false;
 
     public:
-        explicit ItemSlotComponent(const GameEntity::ID containerEntity, const int slotIndex)
-            : containerEntity_(containerEntity), slotIndex_(slotIndex) {
+        explicit ItemSlotComponent(ItemContainer *itemContainer, const int slotIndex)
+            : itemContainer_(itemContainer), slotIndex_(slotIndex) {
         }
 
-        [[nodiscard]] GameEntity::ID GetContainerEntity() const;
+        [[nodiscard]] ItemContainer *GetItemContainer() const;
 
         [[nodiscard]] int GetSlotIndex() const;
 

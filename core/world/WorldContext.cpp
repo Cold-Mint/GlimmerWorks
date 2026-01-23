@@ -23,7 +23,6 @@
 #include "../ecs/system/DroppedItemSystem.h"
 #include "../ecs/system/HotBarSystem.h"
 #include "../ecs/system/ItemSlotSystem.h"
-#include "../ecs/system/ItemModEditorSystem.h"
 #include "../ecs/system/MagnetSystem.h"
 #include "../ecs/system/PauseSystem.h"
 #include "../ecs/system/PhysicsSystem.h"
@@ -33,6 +32,9 @@
 #include "../mod/ResourceLocator.h"
 #include "../saves/Saves.h"
 #include "../utils/Box2DUtils.h"
+#include "core/ecs/component/ItemEditorComponent.h"
+#include "core/ecs/system/ItemEditorSystem.h"
+#include "core/inventory/ComposableItem.h"
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
     const auto type = std::type_index(typeid(*comp));
@@ -175,7 +177,7 @@ void glimmer::WorldContext::InitPlayer() {
     player_ = playerEntity;
 }
 
-void glimmer::WorldContext::InitHotbar(const GameEntity::ID containerEntity) {
+void glimmer::WorldContext::InitHotbar(ItemContainer *itemContainer) {
     auto hotBar = CreateEntity();
     auto *hotBarComponent = AddComponent<HotBarComponent>(hotBar, HOT_BAR_SIZE);
     hotBarEntity = hotBar;
@@ -183,7 +185,7 @@ void glimmer::WorldContext::InitHotbar(const GameEntity::ID containerEntity) {
     constexpr float slotStep = ITEM_SLOT_SIZE + ITEM_SLOT_PADDING;
     for (int i = 0; i < HOT_BAR_SIZE; ++i) {
         const auto slotEntity = CreateEntity();
-        AddComponent<ItemSlotComponent>(slotEntity, containerEntity, i);
+        AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i);
         auto *guiTransform2DComponent = AddComponent<GuiTransform2DComponent>(slotEntity);
         guiTransform2DComponent->SetSize(CameraVector2D(ITEM_SLOT_SIZE * uiScale, ITEM_SLOT_SIZE * uiScale));
         guiTransform2DComponent->SetPosition(CameraVector2D(
@@ -193,6 +195,15 @@ void glimmer::WorldContext::InitHotbar(const GameEntity::ID containerEntity) {
 
         hotBarComponent->AddSlotEntity(slotEntity);
     }
+}
+
+void glimmer::WorldContext::InitItemEditor() {
+    const auto itemEditorEntity = CreateEntity();
+    itemEditorComponent_ = AddComponent<ItemEditorComponent>(itemEditorEntity);
+}
+
+glimmer::ItemEditorComponent *glimmer::WorldContext::GetItemEditorComponent() const {
+    return itemEditorComponent_;
 }
 
 glimmer::GameEntity::ID glimmer::WorldContext::GetPlayerEntity() const {
@@ -695,7 +706,7 @@ void glimmer::WorldContext::InitSystem(AppContext *appContext) {
     RegisterSystem(std::make_unique<AutoPickSystem>(appContext, this));
     RegisterSystem(std::make_unique<DiggingSystem>(appContext, this));
     RegisterSystem(std::make_unique<PauseSystem>(appContext, this));
-    RegisterSystem(std::make_unique<ItemModEditorSystem>(appContext, this));
+    RegisterSystem(std::make_unique<ItemEditorSystem>(appContext, this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
 #endif
@@ -771,6 +782,49 @@ glimmer::GameEntity::ID glimmer::WorldContext::RecoveryEntity(const EntityItemMe
                                              transform2dComponent->GetPosition()));
     }
     return RegisterEntity(std::move(entity));
+}
+
+void glimmer::WorldContext::ShowItemEditorPanel(const ComposableItem *composableItem) {
+    if (!IsEmptyEntityId(itemEditorPanel_)) {
+        LogCat::e("Please close the previous panel first.");
+        assert(false);
+    }
+    const auto entityId = CreateEntity();
+    auto *itemEditorComponent = AddComponent<ItemEditorComponent>(entityId);
+    ItemContainer *itemContainer = composableItem->GetItemContainer();
+    const size_t capacity = itemContainer->GetCapacity();
+    itemEditorComponent->Reserve(capacity);
+    auto uiScale = appContext_->GetConfig()->window.uiScale;
+    constexpr float slotStep = ITEM_SLOT_SIZE + ITEM_SLOT_PADDING;
+    for (int i = 0; i < capacity; i++) {
+        const auto slotEntity = CreateEntity();
+        AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i);
+        auto *guiTransform2DComponent = AddComponent<GuiTransform2DComponent>(slotEntity);
+        guiTransform2DComponent->SetSize(CameraVector2D(ITEM_SLOT_SIZE * uiScale, ITEM_SLOT_SIZE * uiScale));
+        guiTransform2DComponent->SetPosition(CameraVector2D(
+            (ITEM_SLOT_PADDING + slotStep * static_cast<float>(i)) * uiScale,
+            (ITEM_SLOT_PADDING + slotStep) * uiScale
+        ));
+        itemEditorComponent->AddSlotEntity(slotEntity);
+    }
+    itemEditorPanel_ = entityId;
+}
+
+bool glimmer::WorldContext::IsItemEditorPanelVisible() const {
+    return !IsEmptyEntityId(itemEditorPanel_);
+}
+
+void glimmer::WorldContext::HideItemEditorPanel() {
+    if (!IsEmptyEntityId(itemEditorPanel_)) {
+        if (auto *itemEditorComponent = GetComponent<ItemEditorComponent>(itemEditorPanel_);
+            itemEditorComponent != nullptr) {
+            for (const GameEntity::ID &slotEntity: itemEditorComponent->GetSlotEntities()) {
+                RemoveEntity(slotEntity);
+            }
+        }
+        RemoveEntity(itemEditorPanel_);
+        itemEditorPanel_ = 0;
+    }
 }
 
 glimmer::GameComponent *glimmer::WorldContext::RecoveryComponent(const GameEntity::ID id,

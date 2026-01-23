@@ -258,7 +258,6 @@ target_sources(GlimmerWorks
         core/ecs/component/ItemSlotComponent.cpp
         core/ecs/system/ItemSlotSystem.cpp
         core/inventory/ability/DigAbility.cpp
-        core/ecs/system/ItemModEditorSystem.cpp
         core/inventory/AbilityItem.cpp
         core/console/suggestion/AbilityItemDynamicSuggestions.cpp
         core/inventory/DragState.cpp
@@ -274,6 +273,8 @@ target_sources(GlimmerWorks
         core/ecs/component/PlayerControlComponent.cpp
         core/console/command/EcsCommand.cpp
         core/ecs/component/GuiTransform2DComponent.cpp
+        core/ecs/component/ItemEditorComponent.cpp
+        core/ecs/system/ItemEditorSystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -384,7 +385,6 @@ target_sources(GlimmerWorks
         core/ecs/component/ItemSlotComponent.h
         core/ecs/system/ItemSlotSystem.h
         core/inventory/ability/DigAbility.h
-        core/ecs/system/ItemModEditorSystem.h
         core/inventory/AbilityItem.h
         core/console/suggestion/AbilityItemDynamicSuggestions.h
         core/inventory/DragState.h
@@ -399,6 +399,8 @@ target_sources(GlimmerWorks
         core/utils/TimeUtils.h
         core/console/command/EcsCommand.h
         core/ecs/component/GuiTransform2DComponent.h
+        core/ecs/component/ItemEditorComponent.h
+        core/ecs/system/ItemEditorSystem.h
 )
 
 #Define version information

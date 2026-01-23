@@ -21,7 +21,7 @@ namespace glimmer {
      * 可组合的物品
      */
     class ComposableItem : public Item {
-        std::unique_ptr<ItemContainer> itemContainer;
+        std::unique_ptr<ItemContainer> itemContainer_;
         std::string id_;
         std::string name_;
         std::string description_;
@@ -32,10 +32,11 @@ namespace glimmer {
 
     public:
         explicit ComposableItem(std::string id, std::string name, std::string description,
-                                std::shared_ptr<SDL_Texture> icon, size_t maxSize) : id_(std::move(id)),
+                                std::shared_ptr<SDL_Texture> icon, size_t maxSize) : itemContainer_(
+                std::make_unique<ItemContainer>(maxSize)),
+            id_(std::move(id)),
             name_(std::move(name)),
-            description_(std::move(description)),
-            icon_(std::move(icon)), maxSlotSize_(maxSize), itemContainer(std::make_unique<ItemContainer>(maxSize)) {
+            description_(std::move(description)), icon_(std::move(icon)), maxSlotSize_(maxSize) {
         }
 
         [[nodiscard]] std::string GetId() const override;
@@ -142,10 +143,7 @@ namespace glimmer {
             return result;
         }
 
-
-        [[nodiscard]] size_t GetMaxSlotSize() const;
-
-        [[nodiscard]] std::vector<AbilityItem *> GetAbilityList() const;
+        [[nodiscard]] ItemContainer *GetItemContainer() const;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

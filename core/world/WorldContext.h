@@ -20,7 +20,6 @@
 #include "Chunk.h"
 #include "../ecs/GameComponent.h"
 #include "../ecs/component/DiggingComponent.h"
-#include "../ecs/component/HotBarComonent.h"
 #include "../ecs/component/PauseComponent.h"
 #include "../inventory/Item.h"
 #include "../math/Vector2DI.h"
@@ -29,8 +28,10 @@
 #include "../utils/TimeUtils.h"
 #include "box2d/box2d.h"
 #include "box2d/id.h"
+#include "core/ecs/component/ItemEditorComponent.h"
 
 namespace glimmer {
+    class ComposableItem;
     class TileLayerComponent;
     class Transform2DComponent;
     class CameraComponent;
@@ -81,6 +82,8 @@ namespace glimmer {
          * 相机组件
          */
         CameraComponent *cameraComponent_{};
+
+        ItemEditorComponent *itemEditorComponent_{};
 
         /**
          * Camera coordinate component
@@ -176,6 +179,7 @@ namespace glimmer {
         AppContext *appContext_;
 
         GameEntity::ID player_ = 0;
+        GameEntity::ID itemEditorPanel_ = 0;
 
         /**
          * Whether it is running or not, if false, it indicates that the game has been paused.
@@ -284,7 +288,12 @@ namespace glimmer {
          * Initialize the hotbar
          * 初始化快捷栏
          */
-        void InitHotbar(GameEntity::ID containerEntity);
+        void InitHotbar(ItemContainer *itemContainer);
+
+
+        void InitItemEditor();
+
+        [[nodiscard]] ItemEditorComponent *GetItemEditorComponent() const;
 
 
         /**
@@ -458,6 +467,26 @@ namespace glimmer {
          * @return
          */
         GameEntity::ID RecoveryEntity(const EntityItemMessage &entityItemMessage);
+
+        /**
+         * Display the item editing panel
+         * 显示物品编辑面板
+         * @param composableItem
+         */
+        void ShowItemEditorPanel(const ComposableItem *composableItem);
+
+        /**
+         * Is the item editing panel currently displayed?
+         * 物品编辑面板是否在显示中。
+         * @return
+         */
+        bool IsItemEditorPanelVisible() const;
+
+        /**
+         * Hidden Items Editing Panel
+         * 隐藏物品编辑面板
+         */
+        void HideItemEditorPanel();
 
         /**
          * Recovery Component

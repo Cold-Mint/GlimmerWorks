@@ -5,7 +5,6 @@
 #include "ItemSlotSystem.h"
 #include "../../inventory/Item.h"
 #include "../../world/WorldContext.h"
-#include "../../ecs/component/ItemContainerComonent.h"
 #include "../../inventory/DragAndDrop.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include <SDL3/SDL.h>
@@ -24,13 +23,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
 
         const Vector2D pos = transform->GetPosition();
         const Vector2D size = transform->GetSize();
-        auto containerComp = worldContext_->GetComponent<ItemContainerComponent>(
-            slotComp->GetContainerEntity());
-        if (containerComp == nullptr) {
-            continue;
-        }
-
-        auto itemContainer = containerComp->GetItemContainer();
+        const auto itemContainer = slotComp->GetItemContainer();
         if (itemContainer == nullptr) {
             continue;
         }
@@ -47,21 +40,16 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
 
         dragAndDrop->DrawSlot(appContext_, renderer, pos, size, item, slotComp->IsSelected(),
                               [&](const DragState &state) {
-                                  if (state.sourceType != DragSourceType::INVENTORY || WorldContext::IsEmptyEntityId(
-                                          state.sourceContainer)) {
+                                  if (state.sourceType != DragSourceType::INVENTORY) {
                                       return;
                                   }
-                                  auto sourceContainerComp = worldContext_->GetComponent<ItemContainerComponent>(
-                                      state.sourceContainer);
-                                  if (sourceContainerComp != nullptr && sourceContainerComp->GetItemContainer() !=
-                                      nullptr) {
-                                      auto sourceContainer = sourceContainerComp->GetItemContainer();
-                                      itemContainer->SwapItem(slotIndex, sourceContainer, state.sourceIndex);
+                                  if (state.sourceContainer != nullptr) {
+                                      itemContainer->SwapItem(slotIndex, state.sourceContainer, state.sourceIndex);
                                   }
                               },
                               [&] {
                                   dragAndDrop->BeginDrag(DragSourceType::INVENTORY,
-                                                         slotComp->GetContainerEntity(), slotIndex,
+                                                         itemContainer, slotIndex,
                                                          item);
                               },
                               nullptr
@@ -69,37 +57,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
     }
 
     if (dragAndDrop->IsDragging()) {
-        // float mouseX, mouseY;
-        // auto mask = SDL_GetMouseState(&mouseX, &mouseY);
-        // if (!(mask & SDL_BUTTON_LMASK)) {
-        //     // Mouse released, but not handled by any slot -> Drop on world
-        //     const DragState &state = DragAndDrop::GetState();
-        //     if (state.sourceContainer) {
-        //         auto containerComp = worldContext_->GetComponent<
-        //             ItemContainerComponent>(state.sourceContainer);
-        //         if (containerComp) {
-        //             auto container = containerComp->GetItemContainer();
-        //             if (container) {
-        //                 auto item = container->TakeAllItem(state.sourceIndex);
-        //                 if (item) {
-        //                     // Use player position or mouse position? User request says "drop dragged items".
-        //                     // Usually drops near player.
-        //                     auto player = worldContext_->GetPlayerEntity();
-        //                     if (player) {
-        //                         auto transform = worldContext_->GetComponent<Transform2DComponent>(player);
-        //                         if (transform) {
-        //                             worldContext_->CreateDroppedItemEntity(
-        //                                 std::move(item), transform->GetPosition(), 2.0F);
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        //     DragAndDrop::EndDrag();
-        // } else {
-        dragAndDrop->RenderCombined(renderer);
-        // }
+        dragAndDrop->RenderCombined(renderer, mouseX, mouseY, appContext_->GetConfig()->window.uiScale);
     }
 
     if (hoveredItem && !dragAndDrop->IsDragging()) {

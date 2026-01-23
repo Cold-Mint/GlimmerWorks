@@ -10,7 +10,6 @@
 
 #include "DragSourceType.h"
 #include "DragState.h"
-#include "core/ecs/GameEntity.h"
 #include "core/math/Vector2D.h"
 
 namespace glimmer {
@@ -56,7 +55,7 @@ namespace glimmer {
        * @param item      Item being dragged (non-owning pointer)
        *                  被拖拽的物品指针（不拥有所有权）
        */
-        void BeginDrag(DragSourceType type, GameEntity::ID container, int index, Item *item);
+        void BeginDrag(DragSourceType type, ItemContainer *container, int index, Item *item);
 
         /**
         * End the current drag operation.
@@ -143,8 +142,11 @@ namespace glimmer {
         * Render the dragged item icon at mouse position
          * 在鼠标位置呈现拖动的项目图标
          * @param renderer renderer SDL渲染器
+         * @param mouseX
+         * @param mouseY
+         * @param uiScale
          */
-        void RenderCombined(SDL_Renderer *renderer) const;
+        void RenderCombined(SDL_Renderer *renderer, float mouseX, float mouseY, float uiScale) const;
     };
 }
 

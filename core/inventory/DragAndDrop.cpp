@@ -11,7 +11,7 @@
 #include "SDL3_ttf/SDL_ttf.h"
 
 namespace glimmer {
-    void DragAndDrop::BeginDrag(DragSourceType type, const GameEntity::ID container, const int index, Item *item) {
+    void DragAndDrop::BeginDrag(DragSourceType type, ItemContainer *container, const int index, Item *item) {
         state_.sourceType = type;
         state_.sourceContainer = container;
         state_.sourceIndex = index;
@@ -106,17 +106,22 @@ namespace glimmer {
         }
     }
 
-    void DragAndDrop::RenderCombined(SDL_Renderer *renderer) const {
-        if (!IsDragging() || !state_.dragedItem) return;
-
-        float x, y;
-        SDL_GetMouseState(&x, &y);
-
-        // Draw centered on mouse
-        float size = 40.0F; // Default size, maybe scale?
-        SDL_FRect rect = {x - size / 2, y - size / 2, size, size};
-
-        auto texture = state_.dragedItem->GetIcon();
+    void DragAndDrop::RenderCombined(SDL_Renderer *renderer, const float mouseX, const float mouseY,
+                                     const float uiScale) const {
+        if (!IsDragging()) {
+            return;
+        }
+        if (state_.dragedItem == nullptr) {
+            return;
+        }
+        const float size = ITEM_SLOT_SIZE * uiScale;
+        const SDL_FRect rect = {
+            mouseX - size * 0.5f,
+            mouseY - size * 0.5f,
+            size,
+            size
+        };
+        const auto texture = state_.dragedItem->GetIcon();
         if (texture) {
             SDL_RenderTexture(renderer, texture.get(), nullptr, &rect);
         }

@@ -5,11 +5,12 @@
 #ifndef GLIMMERWORKS_ITEMCONTAINER_H
 #define GLIMMERWORKS_ITEMCONTAINER_H
 #include <vector>
-
+#include <memory>
 #include "Item.h"
 #include "src/saves/item_container.pb.h"
 
 namespace glimmer {
+    class Item;
     class ItemContainer {
         std::vector<std::unique_ptr<Item> > items_;
 

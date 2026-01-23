@@ -48,6 +48,24 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
+option(X11_SUPPORT "Enable X11 support" OFF)
+#CAMERA
+#相机
+set(SDL_CAMERA OFF)
+#TRAY
+#系统托盘
+set(SDL_TRAY OFF)
+set(SDL_X11 ${X11_SUPPORT})
+set(SDL_X11_SHARED ${X11_SUPPORT})
+set(SDL_X11_XCURSOR ${X11_SUPPORT})
+set(SDL_X11_XDBE ${X11_SUPPORT})
+set(SDL_X11_XFIXES ${X11_SUPPORT})
+set(SDL_X11_XINPUT ${X11_SUPPORT})
+set(SDL_X11_XRANDR ${X11_SUPPORT})
+set(SDL_X11_XSCRNSAVER ${X11_SUPPORT})
+set(SDL_X11_XSHAPE ${X11_SUPPORT})
+set(SDL_X11_XSYNC ${X11_SUPPORT})
+set(SDL_X11_XTEST ${X11_SUPPORT})
 FetchContent_Declare(
         SDL
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL"

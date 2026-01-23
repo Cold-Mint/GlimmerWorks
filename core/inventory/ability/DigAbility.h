@@ -20,7 +20,7 @@ namespace glimmer {
          * dig Range(Unit: Number of Tile Squares)
          * 挖掘距离（单位：瓦片格数）
          */
-        int digRange_ = 3;
+        int digRange_ = 5;
 
     public:
         explicit DigAbility(

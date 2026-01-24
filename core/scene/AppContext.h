@@ -18,7 +18,6 @@
 #include "../world/TilePlacerManager.h"
 #include "core/console/command/AssetViewerCommand.h"
 #include "core/console/command/Box2DCommand.h"
-#include "core/console/command/ConfigCommand.h"
 #include "core/console/command/EcsCommand.h"
 #include "core/console/command/GiveCommand.h"
 #include "core/console/command/HeightMapCommand.h"
@@ -30,7 +29,6 @@
 #include "core/console/suggestion/AbilityItemDynamicSuggestions.h"
 #include "core/console/suggestion/BoolDynamicSuggestions.h"
 #include "core/console/suggestion/ComposableItemDynamicSuggestions.h"
-#include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/TileDynamicSuggestions.h"
 #include "core/console/suggestion/VFSDynamicSuggestions.h"
 #include "core/inventory/DragAndDrop.h"
@@ -43,6 +41,9 @@
 #include "core/vfs/StdFileProvider.h"
 #include "core/world/FillTilePlacer.h"
 #include "SDL3_ttf/SDL_ttf.h"
+#include "cmake-build-debug/_deps/toml11-src/include/toml.hpp"
+#include "core/console/command/ConfigCommand.h"
+#include "core/console/suggestion/ConfigSuggestions.h"
 
 
 namespace glimmer {
@@ -64,6 +65,7 @@ namespace glimmer {
         std::string language_;
         std::unique_ptr<DataPackManager> dataPackManager_;
         std::unique_ptr<Config> config_;
+        std::unique_ptr<toml::value> configValue;
         std::unique_ptr<SceneManager> sceneManager_;
         std::unique_ptr<StringManager> stringManager_;
         std::unique_ptr<TileManager> tileManager_;
@@ -84,6 +86,7 @@ namespace glimmer {
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
         std::thread::id mainThreadId_;
+        toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
 
         void LoadLanguage(const nlohmann::json &json) const;
 
@@ -184,20 +187,16 @@ namespace glimmer {
             tilePlacerManager_->RegisterTilePlacer(std::make_unique<FillTilePlacer>());
             config_ = std::make_unique<Config>();
             LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
-            auto configJsonOpt = JsonUtils::LoadJsonFromFile(vfs, CONFIG_FILE_NAME);
-            if (!configJsonOpt.has_value()) {
-                return;
+            std::optional<std::string> configData = vfs->ReadFile(CONFIG_FILE_NAME);
+            if (!configData.has_value()) {
+                LogCat::e("Failed to read ",CONFIG_FILE_NAME, " file!");
             }
-            nlohmann::json &configJson = configJsonOpt.value();
-
-            commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(this, &configJson));
-
+            configValue = std::make_unique<toml::value>(toml::parse_str(configData.value(), tomlVersion_));
+            toml::value *configValuePtr = configValue.get();
+            config_->LoadConfig(*configValuePtr);
+            commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(this, configValuePtr));
             dynamicSuggestionsManager_->
-                    RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(&configJson));
-            if (!config_->LoadConfig(&configJson)) {
-                LogCat::e("Failed to load ",CONFIG_FILE_NAME, " file!");
-                return;
-            }
+                    RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValuePtr));
             LogCat::i("windowHeight = ", config_->window.height);
             LogCat::i("windowWidth = ", config_->window.width);
             LogCat::i("dataPackPath = ", config_->mods.dataPackPath);
@@ -224,6 +223,7 @@ namespace glimmer {
             LogCat::i("Starting the app...");
         }
 
+        [[nodiscard]] const toml::spec &GetTomlVersion() const;
 
         ~AppContext() {
             sceneManager_->ClearScenes();

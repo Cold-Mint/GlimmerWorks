@@ -140,6 +140,15 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(box2d)
 
 FetchContent_Declare(
+        toml11
+        GIT_REPOSITORY "https://github.com/ToruNiina/toml11"
+        GIT_TAG ${TORUNIINA_TOML11_VERSION}
+        GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(toml11)
+
+FetchContent_Declare(
         glimmerWorksProtobuf
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
         GIT_PROGRESS TRUE
@@ -423,7 +432,7 @@ target_sources(GlimmerWorks
 
 #Define version information
 #定义版本信息
-set(CONFIG_FILE_NAME "config.json")
+set(CONFIG_FILE_NAME "config.toml")
 target_compile_definitions(GlimmerWorks PRIVATE
         CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
         GAME_VERSION_NUMBER=${GAME_VERSION_NUMBER}
@@ -431,9 +440,9 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto log android)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 log android)
 else ()
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
 endif ()
 
 

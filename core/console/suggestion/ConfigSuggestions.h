@@ -4,20 +4,20 @@
 
 #ifndef GLIMMERWORKS_CONFIGSUGGESTION_H
 #define GLIMMERWORKS_CONFIGSUGGESTION_H
-#include <utility>
 
 #include "DynamicSuggestions.h"
-#include "nlohmann/json.hpp"
-#include "nlohmann/json_fwd.hpp"
+#include "cmake-build-debug/_deps/toml11-src/include/toml11/types.hpp"
 
 namespace glimmer {
     class ConfigSuggestions final : public DynamicSuggestions {
-        nlohmann::json *json_;
+        toml::value *configValue_;
 
-        static void CollectKeys(const nlohmann::json* json, const std::string &prefix, std::vector<std::string> &out);
+        static void ParseTable(const toml::value::table_type &table,
+                               std::vector<std::string> &fields,
+                               const std::string &prefix = "");
 
     public:
-        explicit ConfigSuggestions(nlohmann::json *json) : json_(json) {
+        explicit ConfigSuggestions(toml::value *configValue) : configValue_(configValue) {
         }
 
         bool Match(std::string keyword, std::string param) override;

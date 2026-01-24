@@ -3,7 +3,77 @@
 //
 #include "AppContext.h"
 
-#include "../log/LogCat.h"
+void glimmer::AppContext::LoadLanguage(const nlohmann::json &json) const {
+    langs_->startGame = json["startGame"].get<std::string>();
+    langs_->settings = json["settings"].get<std::string>();
+    langs_->mods = json["mods"].get<std::string>();
+    langs_->exitGame = json["exitGame"].get<std::string>();
+    langs_->console = json["console"].get<std::string>();
+    langs_->commandNotFound = json["commandNotFound"].get<std::string>();
+    langs_->executionFailed = json["executionFailed"].get<std::string>();
+    langs_->executedSuccess = json["executedSuccess"].get<std::string>();
+    langs_->commandIsEmpty = json["commandIsEmpty"].get<std::string>();
+    langs_->createWorld = json["createWorld"].get<std::string>();
+    langs_->savedGames = json["savedGames"].get<std::string>();
+    langs_->cancel = json["cancel"].get<std::string>();
+    langs_->worldName = json["worldName"].get<std::string>();
+    langs_->seed = json["seed"].get<std::string>();
+    langs_->random = json["random"].get<std::string>();
+    langs_->commandInfo = json["commandInfo"].get<std::string>();
+    langs_->awakeBodyCount = json["awakeBodyCount"].get<std::string>();
+    langs_->getActualPathError = json["getActualPathError"].get<std::string>();
+    langs_->unknownAssetType = json["unknownAssetType"].get<std::string>();
+    langs_->unknownCommandParameters = json["unknownCommandParameters"].get<std::string>();
+    langs_->worldContextIsNull = json["worldContextIsNull"].get<std::string>();
+    langs_->insufficientParameterLength = json["insufficientParameterLength"].get<std::string>();
+    langs_->entryCannotFoundInConfigurationFile = json["entryCannotFoundInConfigurationFile"].get<
+        std::string>();
+    langs_->configurationUpdate = json["configurationUpdate"].get<std::string>();
+    langs_->itemIdNotFound = json["itemIdNotFound"].get<std::string>();
+    langs_->tileResourceNotFound = json["tileResourceNotFound"].get<std::string>();
+    langs_->itemContainerIsNull = json["itemContainerIsNull"].get<std::string>();
+    langs_->composableItemIsNull = json["composableItemIsNull"].get<std::string>();
+    langs_->abilityItemIsNull = json["abilityItemIsNull"].get<std::string>();
+    langs_->itemResourceNotFound = json["itemResourceNotFound"].get<std::string>();
+    langs_->itemResourceIsNull = json["itemResourceIsNull"].get<std::string>();
+    langs_->tileResourceIsNull = json["tileResourceIsNull"].get<std::string>();
+    langs_->minXIsGreaterThanMaxX = json["minXIsGreaterThanMaxX"].get<std::string>();
+    langs_->folderCreationFailed = json["folderCreationFailed"].get<std::string>();
+    langs_->fileWritingFailed = json["fileWritingFailed"].get<std::string>();
+    langs_->failedToLoadLicense = json["failedToLoadLicense"].get<std::string>();
+    langs_->cantFindObject = json["cantFindObject"].get<std::string>();
+    langs_->teleportEntity = json["teleportEntity"].get<std::string>();
+    langs_->loadGame = json["loadGame"].get<std::string>();
+    langs_->deleteGame = json["deleteGame"].get<std::string>();
+    langs_->confirm = json["confirm"].get<std::string>();
+    langs_->wantDeleteThisSave = json["wantDeleteThisSave"].get<std::string>();
+    langs_->savesList = json["savesList"].get<std::string>();
+    langs_->pause = json["pause"].get<std::string>();
+    langs_->restore = json["restore"].get<std::string>();
+    langs_->saveAndExit = json["saveAndExit"].get<std::string>();
+    langs_->worldNamePrefix = json["worldNamePrefix"].get<std::vector<std::string> >();
+    langs_->worldNameSuffix = json["worldNameSuffix"].get<std::vector<std::string> >();
+}
+
+const toml::spec &glimmer::AppContext::GetTomlVersion() const {
+    return tomlVersion_;
+}
+
+void glimmer::AppContext::SetWindow(SDL_Window *window) {
+    this->window_ = window;
+}
+
+void glimmer::AppContext::SetFont(TTF_Font *font) {
+    this->ttfFont_ = font;
+}
+
+bool glimmer::AppContext::Running() const {
+    return isRunning;
+}
+
+void glimmer::AppContext::ExitApp() {
+    isRunning = false;
+}
 
 glimmer::Config *glimmer::AppContext::GetConfig() const {
     return config_.get();
@@ -59,74 +129,6 @@ glimmer::VirtualFileSystem *glimmer::AppContext::GetVirtualFileSystem() const {
 
 glimmer::ItemManager *glimmer::AppContext::GetItemManager() const {
     return itemManager_.get();
-}
-
-void glimmer::AppContext::LoadLanguage(const nlohmann::json &json) const {
-    langs_->startGame = json["startGame"].get<std::string>();
-    langs_->settings = json["settings"].get<std::string>();
-    langs_->mods = json["mods"].get<std::string>();
-    langs_->exitGame = json["exitGame"].get<std::string>();
-    langs_->console = json["console"].get<std::string>();
-    langs_->commandNotFound = json["commandNotFound"].get<std::string>();
-    langs_->executionFailed = json["executionFailed"].get<std::string>();
-    langs_->executedSuccess = json["executedSuccess"].get<std::string>();
-    langs_->commandIsEmpty = json["commandIsEmpty"].get<std::string>();
-    langs_->createWorld = json["createWorld"].get<std::string>();
-    langs_->savedGames = json["savedGames"].get<std::string>();
-    langs_->cancel = json["cancel"].get<std::string>();
-    langs_->worldName = json["worldName"].get<std::string>();
-    langs_->seed = json["seed"].get<std::string>();
-    langs_->random = json["random"].get<std::string>();
-    langs_->commandInfo = json["commandInfo"].get<std::string>();
-    langs_->awakeBodyCount = json["awakeBodyCount"].get<std::string>();
-    langs_->getActualPathError = json["getActualPathError"].get<std::string>();
-    langs_->unknownAssetType = json["unknownAssetType"].get<std::string>();
-    langs_->unknownCommandParameters = json["unknownCommandParameters"].get<std::string>();
-    langs_->worldContextIsNull = json["worldContextIsNull"].get<std::string>();
-    langs_->insufficientParameterLength = json["insufficientParameterLength"].get<std::string>();
-    langs_->entryCannotFoundInConfigurationFile = json["entryCannotFoundInConfigurationFile"].get<
-        std::string>();
-    langs_->configurationUpdate = json["configurationUpdate"].get<std::string>();
-    langs_->itemIdNotFound = json["itemIdNotFound"].get<std::string>();
-    langs_->tileResourceNotFound = json["tileResourceNotFound"].get<std::string>();
-    langs_->itemContainerIsNull = json["itemContainerIsNull"].get<std::string>();
-    langs_->composableItemIsNull = json["composableItemIsNull"].get<std::string>();
-    langs_->abilityItemIsNull = json["abilityItemIsNull"].get<std::string>();
-    langs_->itemResourceNotFound = json["itemResourceNotFound"].get<std::string>();
-    langs_->itemResourceIsNull = json["itemResourceIsNull"].get<std::string>();
-    langs_->tileResourceIsNull = json["tileResourceIsNull"].get<std::string>();
-    langs_->minXIsGreaterThanMaxX = json["minXIsGreaterThanMaxX"].get<std::string>();
-    langs_->folderCreationFailed = json["folderCreationFailed"].get<std::string>();
-    langs_->fileWritingFailed = json["fileWritingFailed"].get<std::string>();
-    langs_->failedToLoadLicense = json["failedToLoadLicense"].get<std::string>();
-    langs_->cantFindObject = json["cantFindObject"].get<std::string>();
-    langs_->teleportEntity = json["teleportEntity"].get<std::string>();
-    langs_->loadGame = json["loadGame"].get<std::string>();
-    langs_->deleteGame = json["deleteGame"].get<std::string>();
-    langs_->confirm = json["confirm"].get<std::string>();
-    langs_->wantDeleteThisSave = json["wantDeleteThisSave"].get<std::string>();
-    langs_->savesList = json["savesList"].get<std::string>();
-    langs_->pause = json["pause"].get<std::string>();
-    langs_->restore = json["restore"].get<std::string>();
-    langs_->saveAndExit = json["saveAndExit"].get<std::string>();
-    langs_->worldNamePrefix = json["worldNamePrefix"].get<std::vector<std::string> >();
-    langs_->worldNameSuffix = json["worldNameSuffix"].get<std::vector<std::string> >();
-}
-
-void glimmer::AppContext::SetWindow(SDL_Window *window) {
-    this->window_ = window;
-}
-
-void glimmer::AppContext::SetFont(TTF_Font *font) {
-    this->ttfFont_ = font;
-}
-
-bool glimmer::AppContext::Running() const {
-    return isRunning;
-}
-
-void glimmer::AppContext::ExitApp() {
-    isRunning = false;
 }
 
 glimmer::SceneManager *glimmer::AppContext::GetSceneManager() const {

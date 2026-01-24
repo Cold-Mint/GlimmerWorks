@@ -6,7 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "nlohmann/json_fwd.hpp"
+#include "cmake-build-debug/_deps/toml11-src/include/toml11/types.hpp"
+
 
 namespace glimmer {
     struct Window {
@@ -38,7 +39,7 @@ namespace glimmer {
         Debug debug{};
         int configVersion = 1;
 
-        bool LoadConfig(const nlohmann::json *json);
+        void LoadConfig(const toml::value &configValue);
     };
 }
 

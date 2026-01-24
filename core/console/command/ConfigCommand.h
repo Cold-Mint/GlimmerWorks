@@ -4,26 +4,24 @@
 
 #ifndef GLIMMERWORKS_CONFIGCOMMAND_H
 #define GLIMMERWORKS_CONFIGCOMMAND_H
-#include <utility>
 
 #include "../Command.h"
-#include "nlohmann/json.hpp"
-#include "nlohmann/json_fwd.hpp"
+#include "cmake-build-debug/_deps/toml11-src/include/toml.hpp"
 
 namespace glimmer {
-    enum ConfigType {
-        Number, String, Array, Object, Boolean
+    enum class ConfigType {
+        STRING, ARRAY, TABLE, FLOAT, INT, BOOLEAN
     };
 
     class ConfigCommand final : public Command {
+        toml::value *configValue_;
+
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        nlohmann::json *json_;
-
-        explicit ConfigCommand(AppContext *ctx, nlohmann::json *json)
-            : Command(ctx), json_(json) {
+        explicit ConfigCommand(AppContext *ctx, toml::value *value)
+            : Command(ctx), configValue_(value) {
         }
 
         ~ConfigCommand() override = default;
@@ -33,6 +31,10 @@ namespace glimmer {
         void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) override;
 
         [[nodiscard]] ConfigType GetParameterType(const std::string &parameterName) const;
+
+        [[nodiscard]] std::string GetValue(const std::string &parameterName) const;
+
+        [[nodiscard]] bool SetValue(const std::string &parameterName, const std::string &value) const;
 
         bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
 

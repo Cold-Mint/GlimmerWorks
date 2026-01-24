@@ -6,27 +6,29 @@
 
 #include "../../Constants.h"
 
-void glimmer::ConfigSuggestions::CollectKeys(const nlohmann::json *json, const std::string &prefix,
-                                             std::vector<std::string> &out) {
-    if (!json->is_object()) return;
-
-    for (auto it = json->begin(); it != json->end(); ++it) {
-        std::string fullKey = prefix.empty() ? it.key() : prefix + "." + it.key();
-        // If it is a nested object, it is recursively decomposed
-        // 如果是嵌套对象，递归拆解
-        if (it->is_object()) {
-            CollectKeys(&*it, fullKey, out);
+void glimmer::ConfigSuggestions::ParseTable(const toml::value::table_type &table, std::vector<std::string> &fields,
+                                            const std::string &prefix) {
+    for (const auto &[key, val]: table) {
+        std::string fullKey;
+        if (prefix.empty()) {
+            fullKey = key;
         } else {
-            out.push_back(fullKey);
+            fullKey.reserve(prefix.size() + 1 + key.size());
+            fullKey = prefix;
+            fullKey.push_back('.');
+            fullKey += key;
+        }
+        if (val.is_table()) {
+            ParseTable(val.as_table(), fields, fullKey);
+        } else {
+            fields.push_back(fullKey);
         }
     }
 }
 
 bool glimmer::ConfigSuggestions::Match(const std::string keyword, std::string param) {
     std::vector<std::string> fields;
-    if (json_->is_object()) {
-        CollectKeys(json_, "", fields);
-    }
+    ParseTable(configValue_->as_table(), fields);
     return std::find(fields.begin(), fields.end(), keyword) != fields.end();
 }
 
@@ -36,8 +38,6 @@ std::string glimmer::ConfigSuggestions::GetId() const {
 
 std::vector<std::string> glimmer::ConfigSuggestions::GetSuggestions(std::string param) {
     std::vector<std::string> fields;
-    if (json_->is_object()) {
-        CollectKeys(json_, "", fields);
-    }
+    ParseTable(configValue_->as_table(), fields);
     return fields;
 }

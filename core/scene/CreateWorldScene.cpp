@@ -15,7 +15,6 @@
 #include "WorldScene.h"
 #include "../log/LogCat.h"
 #include "../saves/Saves.h"
-#include "nlohmann/json.hpp"
 #include "SDL3/SDL_log.h"
 namespace fs = std::filesystem;
 

@@ -114,7 +114,8 @@ void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer) {
     renderer_ = renderer;
 }
 
-int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack) {
+int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
+                                       const toml::spec &tomlVersion) {
     resourcePackMap.clear();
     if (!virtualFileSystem_->Exists(path)) {
         LogCat::e("ResourcePackManager: Path does not exist -> ", path);
@@ -127,7 +128,7 @@ int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vecto
     for (const auto &entry: files) {
         if (!virtualFileSystem_->IsFile(entry)) {
             LogCat::d("Found resource pack folder: ", entry);
-            auto packPtr = std::make_unique<ResourcePack>(entry, virtualFileSystem_);
+            auto packPtr = std::make_unique<ResourcePack>(entry, virtualFileSystem_, tomlVersion);
             if (!packPtr->loadManifest()) {
                 continue;
             }

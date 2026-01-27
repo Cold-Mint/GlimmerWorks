@@ -8,7 +8,7 @@
 
 // Manifest file names of data packets and resource packets
 // 数据包和资源包的清单文件名
-#define MANIFEST_FILE_NAME "manifest.json"
+#define MANIFEST_FILE_NAME "manifest.toml"
 #define MAP_MANIFEST_FILE_NAME "mapManifest.bin"
 #define PLAYER_FILE_NAME "player.bin"
 

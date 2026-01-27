@@ -7,7 +7,6 @@
 #include <cassert>
 
 #include "../log/LogCat.h"
-#include "nlohmann/detail/input/parser.hpp"
 #include "suggestion/DynamicSuggestionsManager.h"
 
 void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command) {

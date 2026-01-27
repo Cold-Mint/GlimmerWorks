@@ -1,7 +1,6 @@
 #Variable definitions are generated through GlimmerWorksBuilder. Please do not edit them.
 #The dependencies of the repository can be defined through comments.
 #ocornut/imgui@latest
-#nlohmann/json@latest
 #libsdl-org/SDL@latest
 #libsdl-org/SDL_image@latest
 #libsdl-org/SDL_ttf@latest
@@ -11,7 +10,6 @@
 #erincatto/box2d@latest
 #ToruNiina/toml11@latest
 set(OCORNUT_IMGUI_VERSION "v1.92.5")
-set(NLOHMANN_JSON_VERSION "v3.12.0")
 set(LIBSDL-ORG_SDL_VERSION "release-3.4.0")
 set(LIBSDL-ORG_SDL_IMAGE_VERSION "release-3.2.6")
 set(LIBSDL-ORG_SDL_TTF_VERSION "release-3.2.2")

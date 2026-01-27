@@ -36,12 +36,12 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/dataPack/StringManager.h"
-#include "core/utils/JsonUtils.h"
 #include "core/utils/LanguageUtils.h"
 #include "core/vfs/StdFileProvider.h"
 #include "core/world/FillTilePlacer.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "cmake-build-debug/_deps/toml11-src/include/toml.hpp"
+#include "core/Config.h"
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 
@@ -88,7 +88,7 @@ namespace glimmer {
         std::thread::id mainThreadId_;
         toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
 
-        void LoadLanguage(const nlohmann::json &json) const;
+        void LoadLanguage(const std::string &data) const;
 
     public:
         AppContext() {
@@ -136,20 +136,20 @@ namespace glimmer {
 #endif
             language_ = LanguageUtils::getLanguage();
             LogCat::i("Load the built-in language file.");
-            std::string langFile = "langs/" + language_ + ".json";
+            std::string langFile = "langs/" + language_ + ".toml";
             LogCat::i("Try to load language file:", langFile);
             if (!virtualFileSystem_->Exists(langFile)) {
-                LogCat::w("Not found, fall back to default.json");
-                langFile = "langs/default.json";
+                LogCat::w("Not found, fall back to default.toml");
+                langFile = "langs/default.toml";
             }
             VirtualFileSystem *vfs = virtualFileSystem_.get();
-            const auto jsonOpt = JsonUtils::LoadJsonFromFile(vfs, langFile);
-            if (!jsonOpt.has_value()) {
+            const auto langData = virtualFileSystem_->ReadFile(langFile);
+            if (!langData.has_value()) {
                 LogCat::e("Failed to load language file!");
                 return;
             }
             langs_ = std::make_unique<LangsResources>();
-            LoadLanguage(jsonOpt.value());
+            LoadLanguage(langData.value());
             dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
             dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
             dynamicSuggestionsManager_->RegisterDynamicSuggestions(
@@ -212,11 +212,12 @@ namespace glimmer {
             LogCat::i("Starting GlimmerWorks...");
             if (dataPackManager_->Scan(config_->mods.dataPackPath, config_->mods.enabledDataPack, language_,
                                        stringManager_.get(), tileManager_.get(), biomesManager_.get(),
-                                       itemManager_.get()) == 0) {
+                                       itemManager_.get(), tomlVersion_) == 0) {
                 LogCat::e("Failed to load dataPack");
                 return;
             }
-            if (resourcePackManager_->Scan(config_->mods.resourcePackPath, config_->mods.enabledResourcePack) == 0) {
+            if (resourcePackManager_->Scan(config_->mods.resourcePackPath, config_->mods.enabledResourcePack,
+                                           tomlVersion_) == 0) {
                 LogCat::e("Failed to load resourcePack");
                 return;
             }

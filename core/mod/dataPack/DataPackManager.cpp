@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "DataPack.h"
 #include "../../log/LogCat.h"
+#include "toml11/spec.hpp"
 
 namespace glimmer {
     class Config;
@@ -44,7 +45,8 @@ bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
 
 int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
                                    const std::string &language, StringManager *stringManager, TileManager *tileManager,
-                                   BiomesManager *biomesManager, ItemManager *itemManager) const {
+                                   BiomesManager *biomesManager, ItemManager *itemManager,
+                                   const toml::spec &tomlVersion) const {
     if (!virtualFileSystem_->Exists(path)) {
         LogCat::e("DataPackManager: Path does not exist -> ", path);
         return 0;
@@ -56,7 +58,7 @@ int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<st
     for (const auto &entry: files) {
         if (!virtualFileSystem_->IsFile(entry)) {
             LogCat::d("Found data pack folder: ", entry);
-            DataPack pack(entry, virtualFileSystem_);
+            DataPack pack(entry, virtualFileSystem_, tomlVersion);
             if (!pack.LoadManifest()) {
                 continue;
             }

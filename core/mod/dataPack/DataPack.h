@@ -10,6 +10,7 @@
 #include "ItemManager.h"
 #include "../PackManifest.h"
 #include "../../vfs/VirtualFileSystem.h"
+#include "toml11/spec.hpp"
 
 namespace glimmer {
     class TileManager;
@@ -18,6 +19,7 @@ namespace glimmer {
     class DataPack {
         std::string path_;
         DataPackManifest manifest_;
+        toml::spec tomlVersion_;
         const VirtualFileSystem *virtualFileSystem_;
 
         //Load string resources
@@ -43,8 +45,10 @@ namespace glimmer {
         [[nodiscard]] bool LoadAbilityItemResourceFromFile(const std::string &path, ItemManager *itemManager) const;
 
     public:
-        explicit DataPack(std::string path, const VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
-            virtualFileSystem_(virtualFileSystem), manifest_() {
+        explicit DataPack(std::string path, const VirtualFileSystem *virtualFileSystem,
+                          const toml::spec &tomlVersion) : path_(std::move(path)),
+                                                    virtualFileSystem_(virtualFileSystem), manifest_(),
+                                                    tomlVersion_(tomlVersion) {
         }
 
         bool LoadManifest();

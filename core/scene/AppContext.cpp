@@ -3,56 +3,56 @@
 //
 #include "AppContext.h"
 
-void glimmer::AppContext::LoadLanguage(const nlohmann::json &json) const {
-    langs_->startGame = json["startGame"].get<std::string>();
-    langs_->settings = json["settings"].get<std::string>();
-    langs_->mods = json["mods"].get<std::string>();
-    langs_->exitGame = json["exitGame"].get<std::string>();
-    langs_->console = json["console"].get<std::string>();
-    langs_->commandNotFound = json["commandNotFound"].get<std::string>();
-    langs_->executionFailed = json["executionFailed"].get<std::string>();
-    langs_->executedSuccess = json["executedSuccess"].get<std::string>();
-    langs_->commandIsEmpty = json["commandIsEmpty"].get<std::string>();
-    langs_->createWorld = json["createWorld"].get<std::string>();
-    langs_->savedGames = json["savedGames"].get<std::string>();
-    langs_->cancel = json["cancel"].get<std::string>();
-    langs_->worldName = json["worldName"].get<std::string>();
-    langs_->seed = json["seed"].get<std::string>();
-    langs_->random = json["random"].get<std::string>();
-    langs_->commandInfo = json["commandInfo"].get<std::string>();
-    langs_->awakeBodyCount = json["awakeBodyCount"].get<std::string>();
-    langs_->getActualPathError = json["getActualPathError"].get<std::string>();
-    langs_->unknownAssetType = json["unknownAssetType"].get<std::string>();
-    langs_->unknownCommandParameters = json["unknownCommandParameters"].get<std::string>();
-    langs_->worldContextIsNull = json["worldContextIsNull"].get<std::string>();
-    langs_->insufficientParameterLength = json["insufficientParameterLength"].get<std::string>();
-    langs_->entryCannotFoundInConfigurationFile = json["entryCannotFoundInConfigurationFile"].get<
-        std::string>();
-    langs_->configurationUpdate = json["configurationUpdate"].get<std::string>();
-    langs_->itemIdNotFound = json["itemIdNotFound"].get<std::string>();
-    langs_->tileResourceNotFound = json["tileResourceNotFound"].get<std::string>();
-    langs_->itemContainerIsNull = json["itemContainerIsNull"].get<std::string>();
-    langs_->composableItemIsNull = json["composableItemIsNull"].get<std::string>();
-    langs_->abilityItemIsNull = json["abilityItemIsNull"].get<std::string>();
-    langs_->itemResourceNotFound = json["itemResourceNotFound"].get<std::string>();
-    langs_->itemResourceIsNull = json["itemResourceIsNull"].get<std::string>();
-    langs_->tileResourceIsNull = json["tileResourceIsNull"].get<std::string>();
-    langs_->minXIsGreaterThanMaxX = json["minXIsGreaterThanMaxX"].get<std::string>();
-    langs_->folderCreationFailed = json["folderCreationFailed"].get<std::string>();
-    langs_->fileWritingFailed = json["fileWritingFailed"].get<std::string>();
-    langs_->failedToLoadLicense = json["failedToLoadLicense"].get<std::string>();
-    langs_->cantFindObject = json["cantFindObject"].get<std::string>();
-    langs_->teleportEntity = json["teleportEntity"].get<std::string>();
-    langs_->loadGame = json["loadGame"].get<std::string>();
-    langs_->deleteGame = json["deleteGame"].get<std::string>();
-    langs_->confirm = json["confirm"].get<std::string>();
-    langs_->wantDeleteThisSave = json["wantDeleteThisSave"].get<std::string>();
-    langs_->savesList = json["savesList"].get<std::string>();
-    langs_->pause = json["pause"].get<std::string>();
-    langs_->restore = json["restore"].get<std::string>();
-    langs_->saveAndExit = json["saveAndExit"].get<std::string>();
-    langs_->worldNamePrefix = json["worldNamePrefix"].get<std::vector<std::string> >();
-    langs_->worldNameSuffix = json["worldNameSuffix"].get<std::vector<std::string> >();
+void glimmer::AppContext::LoadLanguage(const std::string &data) const {
+    toml::value value = toml::parse_str(data, tomlVersion_);
+    langs_->startGame = find<std::string>(value, "startGame");
+    langs_->settings = find<std::string>(value, "settings");
+    langs_->mods = find<std::string>(value, "mods");
+    langs_->exitGame = find<std::string>(value, "exitGame");
+    langs_->console = find<std::string>(value, "console");
+    langs_->commandNotFound = find<std::string>(value, "commandNotFound");
+    langs_->executionFailed = find<std::string>(value, "executionFailed");
+    langs_->executedSuccess = find<std::string>(value, "executedSuccess");
+    langs_->commandIsEmpty = find<std::string>(value, "commandIsEmpty");
+    langs_->createWorld = find<std::string>(value, "createWorld");
+    langs_->savedGames = find<std::string>(value, "savedGames");
+    langs_->cancel = find<std::string>(value, "cancel");
+    langs_->worldName = find<std::string>(value, "worldName");
+    langs_->seed = find<std::string>(value, "seed");
+    langs_->random = find<std::string>(value, "random");
+    langs_->commandInfo = find<std::string>(value, "commandInfo");
+    langs_->awakeBodyCount = find<std::string>(value, "awakeBodyCount");
+    langs_->getActualPathError = find<std::string>(value, "getActualPathError");
+    langs_->unknownAssetType = find<std::string>(value, "unknownAssetType");
+    langs_->unknownCommandParameters = find<std::string>(value, "unknownCommandParameters");
+    langs_->worldContextIsNull = find<std::string>(value, "worldContextIsNull");
+    langs_->insufficientParameterLength = find<std::string>(value, "insufficientParameterLength");
+    langs_->entryCannotFoundInConfigurationFile = find<std::string>(value, "entryCannotFoundInConfigurationFile");
+    langs_->configurationUpdate = find<std::string>(value, "configurationUpdate");
+    langs_->itemIdNotFound = find<std::string>(value, "itemIdNotFound");
+    langs_->tileResourceNotFound = find<std::string>(value, "tileResourceNotFound");
+    langs_->itemContainerIsNull = find<std::string>(value, "itemContainerIsNull");
+    langs_->composableItemIsNull = find<std::string>(value, "composableItemIsNull");
+    langs_->abilityItemIsNull = find<std::string>(value, "abilityItemIsNull");
+    langs_->itemResourceNotFound = find<std::string>(value, "itemResourceNotFound");
+    langs_->itemResourceIsNull = find<std::string>(value, "itemResourceIsNull");
+    langs_->tileResourceIsNull = find<std::string>(value, "tileResourceIsNull");
+    langs_->minXIsGreaterThanMaxX = find<std::string>(value, "minXIsGreaterThanMaxX");
+    langs_->folderCreationFailed = find<std::string>(value, "folderCreationFailed");
+    langs_->fileWritingFailed = find<std::string>(value, "fileWritingFailed");
+    langs_->failedToLoadLicense = find<std::string>(value, "failedToLoadLicense");
+    langs_->cantFindObject = find<std::string>(value, "cantFindObject");
+    langs_->teleportEntity = find<std::string>(value, "teleportEntity");
+    langs_->loadGame = find<std::string>(value, "loadGame");
+    langs_->deleteGame = find<std::string>(value, "deleteGame");
+    langs_->confirm = find<std::string>(value, "confirm");
+    langs_->wantDeleteThisSave = find<std::string>(value, "wantDeleteThisSave");
+    langs_->savesList = find<std::string>(value, "savesList");
+    langs_->pause = find<std::string>(value, "pause");
+    langs_->restore = find<std::string>(value, "restore");
+    langs_->saveAndExit = find<std::string>(value, "saveAndExit");
+    langs_->worldNamePrefix = find<std::vector<std::string> >(value, "worldNamePrefix");
+    langs_->worldNameSuffix = find<std::vector<std::string> >(value, "worldNameSuffix");
 }
 
 const toml::spec &glimmer::AppContext::GetTomlVersion() const {

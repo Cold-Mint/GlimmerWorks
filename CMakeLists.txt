@@ -39,14 +39,6 @@ math(EXPR GAME_VERSION_NUMBER
 
 
 include(FetchContent)
-FetchContent_Declare(
-        nlohmann_json
-        GIT_REPOSITORY "https://github.com/nlohmann/json"
-        GIT_TAG ${NLOHMANN_JSON_VERSION}
-        GIT_PROGRESS TRUE
-        EXCLUDE_FROM_ALL
-)
-FetchContent_MakeAvailable(nlohmann_json)
 
 option(X11_SUPPORT "Enable X11 support" OFF)
 #CAMERA
@@ -185,7 +177,6 @@ target_sources(GlimmerWorks
         core/mod/dataPack/DataPackManager.cpp
         core/mod/dataPack/DataPack.cpp
         core/mod/PackManifest.cpp
-        core/utils/JsonUtils.cpp
         core/utils/LanguageUtils.cpp
         core/mod/ResourceRef.cpp
         core/scene/Scene.cpp
@@ -302,6 +293,7 @@ target_sources(GlimmerWorks
         core/ecs/component/GuiTransform2DComponent.cpp
         core/ecs/component/ItemEditorComponent.cpp
         core/ecs/system/ItemEditorSystem.cpp
+        core/utils/TomlUtils.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -314,7 +306,6 @@ target_sources(GlimmerWorks
         core/mod/dataPack/DataPack.h
         core/mod/PackManifest.h
         core/Constants.h
-        core/utils/JsonUtils.h
         core/utils/LanguageUtils.h
         core/mod/ResourceRef.h
         core/scene/Scene.h
@@ -428,6 +419,7 @@ target_sources(GlimmerWorks
         core/ecs/component/GuiTransform2DComponent.h
         core/ecs/component/ItemEditorComponent.h
         core/ecs/system/ItemEditorSystem.h
+        core/utils/TomlUtils.h
 )
 
 #Define version information
@@ -445,10 +437,6 @@ else ()
     target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
 endif ()
 
-
-target_include_directories(GlimmerWorks PRIVATE
-        "${CMAKE_BINARY_DIR}/_deps/nlohmann_json-src/include"
-)
 
 target_include_directories(GlimmerWorks PRIVATE
         "${CMAKE_BINARY_DIR}/_deps/fmt-src/include"

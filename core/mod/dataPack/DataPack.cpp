@@ -4,25 +4,25 @@
 #include "DataPack.h"
 
 #include "../../Constants.h"
-#include <nlohmann/json.hpp>
 
 #include "StringManager.h"
 #include "TileManager.h"
 #include "../../log/LogCat.h"
-#include "../../utils/JsonUtils.h"
+#include "../../utils/TomlUtils.h"
 #include "../../core/mod/PackManifest.h"
+#include "toml11/parser.hpp"
 
 int glimmer::DataPack::LoadStringResource(const std::string &language, StringManager *stringManager) const {
     const std::string langDir = path_ + "/langs";
-    const std::string langFile = langDir + "/" + language + ".json";
-    const std::string defaultFile = langDir + "/default.json";
+    const std::string langFile = langDir + "/" + language + ".toml";
+    const std::string defaultFile = langDir + "/default.toml";
 
     if (virtualFileSystem_->Exists(langFile)) {
         LogCat::d("Loading language file: ", langFile);
         return LoadStringResourceFromFile(langFile, stringManager);
     }
     if (virtualFileSystem_->Exists(defaultFile)) {
-        LogCat::d("Language file not found for ", language, ", using default.json");
+        LogCat::d("Language file not found for ", language, ", using default.toml");
         return LoadStringResourceFromFile(defaultFile, stringManager);
     }
     LogCat::w("No language file found in ", langDir);
@@ -115,39 +115,38 @@ int glimmer::DataPack::LoadAbilityItemResource(ItemManager *itemManager) const {
 
 
 int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, StringManager *stringManager) const {
-    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
-    if (!jsonOpt) {
-        LogCat::e("Failed to load JSON file: ", path);
-        return 0;
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
     }
-
-    const auto &jsonObject = *jsonOpt;
-    if (!jsonObject.is_array()) {
-        LogCat::e("Invalid language file format (expected array): ", path);
-        return 0;
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    try {
+        int count = 0;
+        auto array = toml::find<std::vector<StringResource> >(value, "string");
+        for (auto &stringRes: array) {
+            stringRes.packId = manifest_.id;
+            stringManager->RegisterResource(stringRes);
+            count++;
+        }
+        LogCat::i("Loaded ", count, " language entries from ", path);
+        return count;
+    } catch (const std::exception &e) {
+        LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
+        return false;
     }
-
-    int count = 0;
-    for (const auto &item: jsonObject) {
-        auto stringRes = item.get<StringResource>();
-        stringRes.packId = manifest_.id;
-        stringManager->RegisterResource(stringRes);
-        count++;
-    }
-
-    LogCat::i("Loaded ", count, " language entries from ", path);
-    return count;
 }
 
 bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileManager *tileManager) const {
-    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
-    if (!jsonOpt) {
-        LogCat::e("Failed to load JSON file: ", path);
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-
-    const auto &jsonObject = *jsonOpt;
-    auto tileResource = jsonObject.get<TileResource>();
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    auto tileResource = toml::get<TileResource>(value);
     tileResource.packId = manifest_.id;
     tileResource.name.SetSelfPackageId(manifest_.id);
     tileResource.description.SetSelfPackageId(manifest_.id);
@@ -156,14 +155,14 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
 }
 
 bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, BiomesManager *biomesManager) const {
-    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
-    if (!jsonOpt) {
-        LogCat::e("Failed to load JSON file: ", path);
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-
-    const auto &jsonObject = *jsonOpt;
-    auto biomeResource = jsonObject.get<BiomeResource>();
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    auto biomeResource = toml::get<BiomeResource>(value);
     biomeResource.packId = manifest_.id;
     for (auto &tilePlacerRef: biomeResource.tilePlacerRefs) {
         for (auto &tile: tilePlacerRef.tiles) {
@@ -175,14 +174,14 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
 }
 
 bool glimmer::DataPack::LoadComposableItemResourceFromFile(const std::string &path, ItemManager *itemManager) const {
-    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
-    if (!jsonOpt) {
-        LogCat::e("Failed to load JSON file: ", path);
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-
-    const auto &jsonObject = *jsonOpt;
-    auto itemResource = jsonObject.get<ComposableItemResource>();
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    auto itemResource = toml::get<ComposableItemResource>(value);
     itemResource.packId = manifest_.id;
     itemResource.name.SetSelfPackageId(manifest_.id);
     itemResource.description.SetSelfPackageId(manifest_.id);
@@ -194,14 +193,14 @@ bool glimmer::DataPack::LoadComposableItemResourceFromFile(const std::string &pa
 }
 
 bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path, ItemManager *itemManager) const {
-    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path);
-    if (!jsonOpt) {
-        LogCat::e("Failed to load JSON file: ", path);
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-
-    const auto &jsonObject = *jsonOpt;
-    auto itemResource = jsonObject.get<AbilityItemResource>();
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    auto itemResource = toml::get<AbilityItemResource>(value);
     itemResource.packId = manifest_.id;
     itemResource.name.SetSelfPackageId(manifest_.id);
     itemResource.description.SetSelfPackageId(manifest_.id);
@@ -210,18 +209,17 @@ bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path,
 }
 
 bool glimmer::DataPack::LoadManifest() {
-    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path_ + "/" + MANIFEST_FILE_NAME);
-    if (!jsonOpt) {
+    auto data =
+            virtualFileSystem_->ReadFile(path_ + "/" + MANIFEST_FILE_NAME);
+    if (!data.has_value()) {
         LogCat::e("DataPack::loadManifest - Failed to load manifest: ", path_ + "/" + MANIFEST_FILE_NAME);
         return false;
     }
-
-    const auto &jsonObject = *jsonOpt;
-
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
     try {
-        manifest_ = jsonObject.get<DataPackManifest>();
+        manifest_ = toml::get<DataPackManifest>(value);
     } catch (const std::exception &e) {
-        LogCat::e("DataPack::loadManifest - Failed to parse manifest JSON: ", e.what());
+        LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
         return false;
     }
     manifest_.name.SetSelfPackageId(manifest_.id);

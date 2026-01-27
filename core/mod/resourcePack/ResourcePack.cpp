@@ -6,40 +6,40 @@
 
 #include "../../Constants.h"
 #include "../../log/LogCat.h"
-#include "../../utils/JsonUtils.h"
+#include "../../utils/TomlUtils.h"
+#include "toml11/parser.hpp"
 
 
 bool glimmer::ResourcePack::loadManifest() {
-    const auto jsonOpt = JsonUtils::LoadJsonFromFile(virtualFileSystem_, path_ + "/" + MANIFEST_FILE_NAME);
-    if (!jsonOpt) {
-        LogCat::e("ResourcePack::loadManifest - Failed to load manifest: ", path_ + "/" + MANIFEST_FILE_NAME);
+    auto data =
+        virtualFileSystem_->ReadFile(path_ + "/" + MANIFEST_FILE_NAME);
+    if (!data.has_value()) {
+        LogCat::e("DataPack::loadManifest - Failed to load manifest: ", path_ + "/" + MANIFEST_FILE_NAME);
         return false;
     }
-
-    const auto &jsonObject = *jsonOpt;
-
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
     try {
-        manifest = jsonObject.get<ResourcePackManifest>();
+        manifest_ = toml::get<ResourcePackManifest>(value);
     } catch (const std::exception &e) {
-        LogCat::e("ResourcePack::loadManifest - Failed to parse manifest JSON: ", e.what());
+        LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
         return false;
     }
-    manifest.name.SetSelfPackageId(manifest.id);
-    manifest.description.SetSelfPackageId(manifest.id);
+    manifest_.name.SetSelfPackageId(manifest_.id);
+    manifest_.description.SetSelfPackageId(manifest_.id);
     LogCat::d("ResourcePack::loadManifest - Loaded manifest for data pack: ", path_);
-    LogCat::d("ID: ", manifest.id);
-    LogCat::d("Name: ", manifest.name.GetResourceKey(), " (packId: ", manifest.name.GetPackageId(), ")");
-    LogCat::d("Description: ", manifest.description.GetResourceKey(), " (packId: ", manifest.description.GetPackageId(),
+    LogCat::d("ID: ", manifest_.id);
+    LogCat::d("Name: ", manifest_.name.GetResourceKey(), " (packId: ", manifest_.name.GetPackageId(), ")");
+    LogCat::d("Description: ", manifest_.description.GetResourceKey(), " (packId: ", manifest_.description.GetPackageId(),
               ")");
-    LogCat::d("Author: ", manifest.author);
-    LogCat::d("Version: ", manifest.versionName, " (Number: ", manifest.versionNumber, ")");
-    LogCat::d("Minimum Game Version: ", manifest.minGameVersion);
-    LogCat::d("Is Resource Pack: ", manifest.resPack ? "true" : "false");
+    LogCat::d("Author: ", manifest_.author);
+    LogCat::d("Version: ", manifest_.versionName, " (Number: ", manifest_.versionNumber, ")");
+    LogCat::d("Minimum Game Version: ", manifest_.minGameVersion);
+    LogCat::d("Is Resource Pack: ", manifest_.resPack ? "true" : "false");
     return true;
 }
 
 const glimmer::ResourcePackManifest &glimmer::ResourcePack::getManifest() const {
-    return manifest;
+    return manifest_;
 }
 
 std::string glimmer::ResourcePack::getPath() const {

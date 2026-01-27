@@ -7,7 +7,6 @@
 #include "../Constants.h"
 #include "../mod/ResourceLocator.h"
 #include "../scene/AppContext.h"
-#include "nlohmann/json.hpp"
 
 glimmer::FillTilePlacer::~FillTilePlacer() = default;
 

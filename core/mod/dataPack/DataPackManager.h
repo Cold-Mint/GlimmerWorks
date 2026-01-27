@@ -9,6 +9,7 @@
 #include "BiomesManager.h"
 #include "ItemManager.h"
 #include "../../vfs/VirtualFileSystem.h"
+#include "toml11/spec.hpp"
 
 namespace glimmer {
     class TileManager;
@@ -36,7 +37,7 @@ namespace glimmer {
         //扫描指定目录下的数据包（返回成功加载多少个数据包）
         int Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
                  const std::string &language, StringManager *stringManager, TileManager *tileManager,
-                 BiomesManager *biomesManager, ItemManager *itemManager) const;
+                 BiomesManager *biomesManager, ItemManager *itemManager, const toml::spec &tomlVersion) const;
     };
 }
 

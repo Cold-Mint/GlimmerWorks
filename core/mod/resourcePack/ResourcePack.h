@@ -8,17 +8,20 @@
 
 #include "../PackManifest.h"
 #include "../../vfs/VirtualFileSystem.h"
+#include "toml11/spec.hpp"
 
 
 namespace glimmer {
     class ResourcePack {
         std::string path_;
-        ResourcePackManifest manifest;
+        ResourcePackManifest manifest_;
         const VirtualFileSystem *virtualFileSystem_;
+        toml::spec tomlVersion_;
 
     public:
-        explicit ResourcePack(std::string path, const VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
-            virtualFileSystem_(virtualFileSystem), manifest() {
+        explicit ResourcePack(std::string path, const VirtualFileSystem *virtualFileSystem,
+                              const toml::spec &tomlVersion) : path_(std::move(path)),
+                                                               virtualFileSystem_(virtualFileSystem), manifest_() ,tomlVersion_(tomlVersion){
         }
 
         bool loadManifest();

@@ -13,6 +13,7 @@
 #include "ResourcePack.h"
 #include "../../vfs/VirtualFileSystem.h"
 #include "SDL3/SDL_render.h"
+#include "toml11/spec.hpp"
 
 namespace glimmer {
     class AppContext;
@@ -31,7 +32,7 @@ namespace glimmer {
 
 
         std::shared_ptr<SDL_Texture> ImplLoadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
-                                                         const std::string &path);
+                                                             const std::string &path);
 
     public:
         explicit
@@ -41,7 +42,8 @@ namespace glimmer {
 
         void SetRenderer(SDL_Renderer *renderer);
 
-        int Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack);
+        int Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
+                 const toml::spec &tomlVersion);
 
         std::optional<std::string> GetFontPath(const std::vector<std::string> &enabledResourcePack,
                                                const std::string &language);

@@ -16,19 +16,13 @@ namespace glimmer {
 
 namespace fs = std::filesystem;
 
-bool glimmer::DataPackManager::IsDataPackAvailable(const DataPack &pack) {
+bool glimmer::DataPackManager::IsDataPackAvailable(const DataPack &pack) const {
     const PackManifest &manifest = pack.GetManifest();
-    static const std::regex uuidPattern(
-        "^[0-9a-fA-F]{8}-"
-        "[0-9a-fA-F]{4}-"
-        "[0-9a-fA-F]{4}-"
-        "[0-9a-fA-F]{4}-"
-        "[0-9a-fA-F]{12}$"
-    );
-
-    if (!std::regex_match(manifest.id, uuidPattern)) {
-        LogCat::e("Invalid DataPack id format: ", manifest.id);
-        return false;
+    for (const auto &packId: packIdVector_) {
+        if (packId == manifest.id) {
+            LogCat::i("Duplicate package ID: ", packId);
+            return false;
+        }
     }
     if (manifest.minGameVersion > GAME_VERSION_NUMBER) {
         LogCat::e("DataPack ", manifest.id, " requires game version ",
@@ -46,12 +40,12 @@ bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
 int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
                                    const std::string &language, StringManager *stringManager, TileManager *tileManager,
                                    BiomesManager *biomesManager, ItemManager *itemManager,
-                                   const toml::spec &tomlVersion) const {
+                                   const toml::spec &tomlVersion) {
     if (!virtualFileSystem_->Exists(path)) {
         LogCat::e("DataPackManager: Path does not exist -> ", path);
         return 0;
     }
-
+    packIdVector_.clear();
     LogCat::i("Scanning data packs in: ", path);
     int success = 0;
     std::vector<std::string> files = virtualFileSystem_->ListFile(path);
@@ -73,6 +67,7 @@ int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<st
             }
             if (pack.LoadPack(language, stringManager, tileManager, biomesManager, itemManager)) {
                 success++;
+                packIdVector_.push_back(pack.GetManifest().id);
             }
         }
     }

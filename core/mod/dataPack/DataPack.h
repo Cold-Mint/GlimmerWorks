@@ -47,8 +47,8 @@ namespace glimmer {
     public:
         explicit DataPack(std::string path, const VirtualFileSystem *virtualFileSystem,
                           const toml::spec &tomlVersion) : path_(std::move(path)),
-                                                    virtualFileSystem_(virtualFileSystem), manifest_(),
-                                                    tomlVersion_(tomlVersion) {
+                                                    manifest_(), tomlVersion_(tomlVersion),
+                                                    virtualFileSystem_(virtualFileSystem) {
         }
 
         bool LoadManifest();

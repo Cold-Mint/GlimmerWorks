@@ -11,42 +11,54 @@
 
 
 void glimmer::TileManager::InitBuiltinTiles() {
-    air = std::make_unique<TileResource>();
-    air->texture = "tiles/air.png";
-    air->key = TILE_ID_AIR;
-    air->packId = RESOURCE_REF_CORE;
-    air->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
-    air->layerType = static_cast<uint8_t>(TileLayerType::Main);
-    air->breakable = false;
-    air->hardness = 0;
-    water = std::make_unique<TileResource>();
-    water->texture = "tiles/water.png";
-    water->key = TILE_ID_WATER;
-    water->packId = RESOURCE_REF_CORE;
-    water->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
-    water->layerType = static_cast<uint8_t>(TileLayerType::Main);
-    water->breakable = false;
-    water->hardness = 0;
-    bedrock = std::make_unique<TileResource>();
-    bedrock->texture = "tiles/bedrock.png";
-    bedrock->key = TILE_ID_BEDROCK;
-    bedrock->packId = RESOURCE_REF_CORE;
-    bedrock->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
-    bedrock->layerType = static_cast<uint8_t>(TileLayerType::Main);
-    bedrock->breakable = false;
-    bedrock->hardness = 0;
+    air_ = std::make_unique<TileResource>();
+    air_->texture = "tiles/air.png";
+    air_->key = TILE_ID_AIR;
+    air_->packId = RESOURCE_REF_CORE;
+    air_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
+    air_->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    air_->breakable = false;
+    air_->hardness = 0;
+    water_ = std::make_unique<TileResource>();
+    water_->texture = "tiles/water.png";
+    water_->key = TILE_ID_WATER;
+    water_->packId = RESOURCE_REF_CORE;
+    water_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
+    water_->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    water_->breakable = false;
+    water_->hardness = 0;
+    bedrock_ = std::make_unique<TileResource>();
+    bedrock_->texture = "tiles/bedrock.png";
+    bedrock_->key = TILE_ID_BEDROCK;
+    bedrock_->packId = RESOURCE_REF_CORE;
+    bedrock_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
+    bedrock_->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    bedrock_->breakable = false;
+    bedrock_->hardness = 0;
+    error_ = std::make_unique<TileResource>();
+    error_->texture = "error.png";
+    error_->key = TILE_ID_ERROR;
+    error_->packId = RESOURCE_REF_CORE;
+    error_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
+    error_->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    error_->breakable = true;
+    error_->hardness = 0.1F;
 }
 
 glimmer::TileResource *glimmer::TileManager::GetAir() const {
-    return air.get();
+    return air_.get();
 }
 
 glimmer::TileResource *glimmer::TileManager::GetWater() const {
-    return water.get();
+    return water_.get();
 }
 
 glimmer::TileResource *glimmer::TileManager::GetBedrock() const {
-    return bedrock.get();
+    return bedrock_.get();
+}
+
+glimmer::TileResource *glimmer::TileManager::GetError() const {
+    return error_.get();
 }
 
 void glimmer::TileManager::RegisterResource(TileResource &tileResource) {
@@ -60,14 +72,14 @@ glimmer::TileResource *glimmer::TileManager::Find(const std::string &packId, con
     const auto packIt = tileMap_.find(packId);
     if (packIt == tileMap_.end()) {
         LogCat::w("Pack not found: ", packId);
-        return nullptr;
+        return GetError();
     }
 
     auto &keyMap = packIt->second;
     const auto keyIt = keyMap.find(key);
     if (keyIt == keyMap.end()) {
         LogCat::w("Key not found in pack ", packId, ": ", key);
-        return nullptr;
+        return GetError();
     }
 
     LogCat::i("Found tile resource: packId = ", packId, ", key = ", key);
@@ -76,9 +88,9 @@ glimmer::TileResource *glimmer::TileManager::Find(const std::string &packId, con
 
 std::vector<std::string> glimmer::TileManager::GetTileIDList() {
     std::vector<std::string> result;
-    result.emplace_back(Resource::GenerateId(air->packId, air->key));
-    result.emplace_back(Resource::GenerateId(water->packId, water->key));
-    result.emplace_back(Resource::GenerateId(bedrock->packId, bedrock->key));
+    result.emplace_back(Resource::GenerateId(air_->packId, air_->key));
+    result.emplace_back(Resource::GenerateId(water_->packId, water_->key));
+    result.emplace_back(Resource::GenerateId(bedrock_->packId, bedrock_->key));
     for (const auto &[packId, keyMap]: tileMap_) {
         for (const auto &[key, resource]: keyMap) {
             result.emplace_back(Resource::GenerateId(packId, key));
@@ -104,15 +116,21 @@ std::string glimmer::TileManager::ListTiles() const {
         }
     }
 
-    result += Resource::GenerateId(*air);
+    result += Resource::GenerateId(*error_);
     result += " texture=";
-    result += Resource::GenerateId(*water);
-    result += " texture=";
-    result += water->texture;
+    result += error_->texture;
     result += "\n";
-    result += Resource::GenerateId(*bedrock);
+    result += Resource::GenerateId(*air_);
     result += " texture=";
-    result += bedrock->texture;
+    result += air_->texture;
+    result += "\n";
+    result += Resource::GenerateId(*water_);
+    result += " texture=";
+    result += water_->texture;
+    result += "\n";
+    result += Resource::GenerateId(*bedrock_);
+    result += " texture=";
+    result += bedrock_->texture;
     result += "\n";
     return result;
 }

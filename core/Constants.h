@@ -177,5 +177,6 @@ static constexpr uint32_t COMPONENT_ID_GUI_TRANSFORM_2D = 16;
 static constexpr std::string TILE_ID_AIR = "air";
 static constexpr std::string TILE_ID_WATER = "water";
 static constexpr std::string TILE_ID_BEDROCK = "bedrock";
+static constexpr std::string TILE_ID_ERROR = "error";
 
 #endif //CONSTANTS_H

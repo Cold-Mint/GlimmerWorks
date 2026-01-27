@@ -32,6 +32,9 @@ std::optional<glimmer::TileResource *> glimmer::ResourceLocator::FindTile(const 
         if (resourceRef.GetResourceKey() == TILE_ID_BEDROCK) {
             return appContext_->GetTileManager()->GetBedrock();
         }
+        if (resourceRef.GetResourceKey() == TILE_ID_ERROR) {
+            return appContext_->GetTileManager()->GetError();
+        }
         return std::nullopt;
     }
     return appContext_->GetTileManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());

@@ -19,18 +19,19 @@ namespace glimmer {
          * Air
          * 空气
          */
-        std::unique_ptr<TileResource> air = nullptr;
+        std::unique_ptr<TileResource> air_ = nullptr;
         /**
          * Water
          * 水
          */
-        std::unique_ptr<TileResource> water = nullptr;
+        std::unique_ptr<TileResource> water_ = nullptr;
 
         /**
          * TileResource
          * 基岩
          */
-        std::unique_ptr<TileResource> bedrock = nullptr;
+        std::unique_ptr<TileResource> bedrock_ = nullptr;
+        std::unique_ptr<TileResource> error_ = nullptr;
 
     public:
         /**
@@ -49,6 +50,8 @@ namespace glimmer {
         [[nodiscard]] TileResource *GetWater() const;
 
         [[nodiscard]] TileResource *GetBedrock() const;
+
+        [[nodiscard]] TileResource *GetError() const;
 
         void RegisterResource(TileResource &tileResource);
 

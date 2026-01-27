@@ -4,12 +4,10 @@
 
 #ifndef GLIMMERWORKS_TILEPLACER_H
 #define GLIMMERWORKS_TILEPLACER_H
-#include <optional>
 #include <string>
 #include <vector>
 
 #include "Chunk.h"
-#include "../ecs/component/TileLayerComponent.h"
 #include "../mod/ResourceRef.h"
 
 namespace glimmer {

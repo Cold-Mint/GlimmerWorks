@@ -21,9 +21,10 @@ namespace glimmer {
     class ResourcePackManager {
         VirtualFileSystem *virtualFileSystem_;
         SDL_Renderer *renderer_;
+        std::vector<std::string> packIdVector_;
         std::unordered_map<std::string, std::unique_ptr<ResourcePack> > resourcePackMap;
 
-        static bool IsResourcePackAvailable(const ResourcePack &pack);
+         bool IsResourcePackAvailable(const ResourcePack &pack) const;
 
         static bool IsResourcePackEnabled(const ResourcePack &pack,
                                           const std::vector<std::string> &enabledResourcePack);

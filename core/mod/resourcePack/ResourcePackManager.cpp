@@ -13,18 +13,10 @@
 #include "../../scene/AppContext.h"
 #include "SDL3_image/SDL_image.h"
 
-bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &pack) {
+bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &pack) const {
     const PackManifest &manifest = pack.getManifest();
-    static const std::regex uuidPattern(
-        "^[0-9a-fA-F]{8}-"
-        "[0-9a-fA-F]{4}-"
-        "[0-9a-fA-F]{4}-"
-        "[0-9a-fA-F]{4}-"
-        "[0-9a-fA-F]{12}$"
-    );
-
-    if (!std::regex_match(manifest.id, uuidPattern)) {
-        LogCat::e("Invalid ResourcePack id format: ", manifest.id);
+    if (resourcePackMap.contains(manifest.id)) {
+        LogCat::i("Duplicate package ID: ", manifest.id);
         return false;
     }
     if (manifest.minGameVersion > GAME_VERSION_NUMBER) {

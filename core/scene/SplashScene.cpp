@@ -34,10 +34,6 @@ void glimmer::SplashScene::Render(SDL_Renderer *renderer) {
     if (!splashTexture) {
         splashTexture = appContext->GetResourcePackManager()->LoadTextureFromFile(
             appContext, "gui/splash.png");
-        if (!splashTexture) {
-            LogCat::e("Failed to load splash.png");
-            return;
-        }
         fadeTween = tweeny::from(0.0F).to(1.0F).during(350);
         alpha = 0.0F;
         animationFinished = false;

@@ -23,8 +23,13 @@ namespace glimmer {
         SDL_Renderer *renderer_;
         std::vector<std::string> packIdVector_;
         std::unordered_map<std::string, std::unique_ptr<ResourcePack> > resourcePackMap;
+        /**
+         * Placeholder texture Path Set
+         * 用于存储加载失败的纹理路径
+         */
+        std::unordered_set<std::string> errorTexturePathSet_;
 
-         bool IsResourcePackAvailable(const ResourcePack &pack) const;
+        bool IsResourcePackAvailable(const ResourcePack &pack) const;
 
         static bool IsResourcePackEnabled(const ResourcePack &pack,
                                           const std::vector<std::string> &enabledResourcePack);
@@ -34,6 +39,10 @@ namespace glimmer {
 
         std::shared_ptr<SDL_Texture> ImplLoadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
                                                              const std::string &path);
+
+        std::shared_ptr<SDL_Texture> CreateErrorTexture() const;
+
+        std::shared_ptr<SDL_Texture> errorTexture_;
 
     public:
         explicit

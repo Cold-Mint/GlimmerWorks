@@ -93,17 +93,54 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFi
         LogCat::d("add use_count=", texturePtr.use_count());
         return texturePtr;
     }
-
-    //Cache null values when loading fails (to prevent repeated attempts)
-    //加载失败时缓存空值（防止重复尝试）
-    textureCache[path] = std::weak_ptr<SDL_Texture>();
-
-    LogCat::e("Texture not found in any enabled resource pack: ", path);
+    LogCat::w("Texture not found in any enabled resource pack: ", path);
     return nullptr;
+}
+
+std::shared_ptr<SDL_Texture>
+glimmer::ResourcePackManager::CreateErrorTexture() const {
+    if (renderer_ == nullptr) {
+        return nullptr;
+    }
+
+    SDL_Surface *surface =
+            SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
+    if (!surface) {
+        LogCat::e("SDL_CreateSurface failed: ", SDL_GetError());
+        return nullptr;
+    }
+
+    Uint32 purple = SDL_MapSurfaceRGBA(surface, 255, 0, 255, 255);
+    Uint32 black = SDL_MapSurfaceRGBA(surface, 0, 0, 0, 255);
+
+    for (int y = 0; y < TILE_SIZE; ++y) {
+        for (int x = 0; x < TILE_SIZE; ++x) {
+            const bool isPurple =
+                    (x < TILE_SIZE / 2 && y < TILE_SIZE / 2) ||
+                    (x >= TILE_SIZE / 2 && y >= TILE_SIZE / 2);
+            const Uint32 color = isPurple ? purple : black;
+            Uint8 *pixel =
+                    static_cast<Uint8 *>(surface->pixels)
+                    + y * surface->pitch
+                    + x * 4;
+            *reinterpret_cast<Uint32 *>(pixel) = color;
+        }
+    }
+    SDL_Texture *texture =
+            SDL_CreateTextureFromSurface(renderer_, surface);
+    auto deleter = [](SDL_Texture *tex) {
+        LogCat::d("Destroying error texture");
+        if (tex == nullptr) {
+            SDL_DestroyTexture(tex);
+        }
+    };
+    SDL_DestroySurface(surface);
+    return std::shared_ptr<SDL_Texture>(texture, deleter);
 }
 
 void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer) {
     renderer_ = renderer;
+    errorTexture_ = CreateErrorTexture();
 }
 
 int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
@@ -185,9 +222,18 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(AppContext *appContext,
                                                                                const std::string &path) {
+    if (path == ERROR_TEXTURE_PATH) {
+        return errorTexture_;
+    }
     return appContext->AddMainThreadTaskAwait(
         [this,appContext, path] {
-            return ImplLoadTextureFromFile(appContext->GetConfig()->mods.enabledResourcePack, path);
+            auto result = ImplLoadTextureFromFile(appContext->GetConfig()->mods.enabledResourcePack, path);
+            if (result == nullptr) {
+                result = errorTexture_;
+                errorTexturePathSet_.insert(path);
+                textureCache[path] = errorTexture_;
+            }
+            return result;
         }
     ).get();
 }
@@ -207,6 +253,9 @@ std::string glimmer::ResourcePackManager::ListTextureCache(const bool includeExp
             result += "alive (use_count=";
             result += std::to_string(shared.use_count());
             result += ")";
+            if (errorTexturePathSet_.contains(path)) {
+                result += " (error texture)";
+            }
         } else {
             if (includeExpired) {
                 result += path;

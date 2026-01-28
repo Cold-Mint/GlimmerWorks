@@ -146,11 +146,12 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
         return false;
     }
     toml::value value = toml::parse_str(data.value(), tomlVersion_);
-    auto tileResource = toml::get<TileResource>(value);
-    tileResource.packId = manifest_.id;
-    tileResource.name.SetSelfPackageId(manifest_.id);
-    tileResource.description.SetSelfPackageId(manifest_.id);
-    tileManager->RegisterResource(tileResource);
+    auto tileResource = std::make_unique<TileResource>(toml::get<TileResource>(value));
+    tileResource->packId = manifest_.id;
+    tileResource->name.SetSelfPackageId(manifest_.id);
+    tileResource->description.SetSelfPackageId(manifest_.id);
+    tileResource->errorPlaceholder = false;
+    tileManager->AddResource(std::move(tileResource));
     return true;
 }
 

@@ -76,14 +76,9 @@ void glimmer::DiggingSystem::Update(float delta) {
 void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {
     if (!cacheTexture) {
         for (uint8_t i = 0; i < 10; i++) {
-            std::shared_ptr<SDL_Texture> texture = appContext_->GetResourcePackManager()->LoadTextureFromFile(
+            textureList.push_back(appContext_->GetResourcePackManager()->LoadTextureFromFile(
                 appContext_,
-                "cracks/cracks_" + std::to_string(i) + ".png");
-            if (texture == nullptr) {
-                LogCat::e("Failed to load cracks texture: " + std::to_string(i));
-                continue;
-            }
-            textureList.push_back(texture);
+                "cracks/cracks_" + std::to_string(i) + ".png"));
         }
         cacheTexture = true;
         return;

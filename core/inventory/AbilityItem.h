@@ -58,11 +58,6 @@ namespace glimmer {
                 LogCat::e("An error occurred when constructing ability items, and the description is empty.");
                 return nullptr;
             }
-            auto texture = appContext->GetResourcePackManager()->LoadTextureFromFile(appContext, itemResource->texture);
-            if (texture == nullptr) {
-                LogCat::e("An error occurred when constructing ability items, and the texture is empty.");
-                return nullptr;
-            }
             auto itemAbility =
                     ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
             if (itemAbility == nullptr) {
@@ -70,7 +65,9 @@ namespace glimmer {
                 return nullptr;
             }
             return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), nameRes.value()->value,
-                                                 descriptionRes.value()->value, texture, std::move(itemAbility),
+                                                 descriptionRes.value()->value,
+                                                 appContext->GetResourcePackManager()->LoadTextureFromFile(
+                                                     appContext, itemResource->texture), std::move(itemAbility),
                                                  itemResource->canUseAlone);
         }
 

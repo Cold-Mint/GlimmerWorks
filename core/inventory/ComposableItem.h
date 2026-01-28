@@ -98,14 +98,11 @@ namespace glimmer {
                 LogCat::e("An error occurred when constructing composable items, and the description is empty.");
                 return nullptr;
             }
-            auto texture = appContext->GetResourcePackManager()->LoadTextureFromFile(appContext, itemResource->texture);
-            if (texture == nullptr) {
-                LogCat::e("An error occurred when constructing composable items, and the texture is empty.");
-                return nullptr;
-            }
-            std::unique_ptr<ComposableItem> result = std::make_unique<ComposableItem>(
+            auto result = std::make_unique<ComposableItem>(
                 Resource::GenerateId(*itemResource), nameRes.value()->value,
-                descriptionRes.value()->value, texture, itemResource->slotSize);
+                descriptionRes.value()->value,
+                appContext->GetResourcePackManager()->LoadTextureFromFile(appContext, itemResource->texture),
+                itemResource->slotSize);
             //Filling ability.
             //填充能力。
             size_t argCount = resourceRef.GetArgCount();

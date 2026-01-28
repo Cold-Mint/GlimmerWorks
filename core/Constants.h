@@ -92,6 +92,7 @@ constexpr float PEAK_LIFT_THRESHOLD = 0.60F; // 陆地起伏噪声高于此值�
 constexpr float MAX_PEAK_LIFT = 0.30F; // 山峰额外抬升的最大噪声比例 (例如，1.0 + 0.3 = 1.3 倍的幅度)
 
 static constexpr int TILE_SIZE = 32;
+static constexpr std::string ERROR_TEXTURE_PATH = "@error";
 /**
  * The placement distance of the tiles(Unit: Number of Tile Squares)
  * 瓦片的放置距离（单位：瓦片格数）

@@ -155,6 +155,11 @@ namespace glimmer {
         bool breakable = true;
         uint8_t physicsType = 0;
         uint8_t layerType = 0;
+        /**
+         * Is it an incorrect placeholder?
+         * 是否为错误占位符
+         */
+        bool errorPlaceholder = false;
     };
 
 

@@ -6,7 +6,6 @@
 
 #include <optional>
 
-#include "../log/LogCat.h"
 #include "../scene/AppContext.h"
 #include "../mod/ResourceLocator.h"
 

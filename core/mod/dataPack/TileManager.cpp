@@ -19,7 +19,6 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air_->layerType = static_cast<uint8_t>(TileLayerType::Main);
     air_->breakable = false;
     air_->hardness = 0;
-    air_->errorPlaceholder = false;
     water_ = std::make_unique<TileResource>();
     water_->texture = "tiles/water.png";
     water_->key = TILE_ID_WATER;
@@ -28,7 +27,6 @@ void glimmer::TileManager::InitBuiltinTiles() {
     water_->layerType = static_cast<uint8_t>(TileLayerType::Main);
     water_->breakable = false;
     water_->hardness = 0;
-    water_->errorPlaceholder = false;
     bedrock_ = std::make_unique<TileResource>();
     bedrock_->texture = "tiles/bedrock.png";
     bedrock_->key = TILE_ID_BEDROCK;
@@ -37,7 +35,6 @@ void glimmer::TileManager::InitBuiltinTiles() {
     bedrock_->layerType = static_cast<uint8_t>(TileLayerType::Main);
     bedrock_->breakable = false;
     bedrock_->hardness = 0;
-    bedrock_->errorPlaceholder = false;
     error_ = std::make_unique<TileResource>();
     error_->texture = ERROR_TEXTURE_PATH;
     error_->key = TILE_ID_ERROR;
@@ -46,7 +43,6 @@ void glimmer::TileManager::InitBuiltinTiles() {
     error_->layerType = static_cast<uint8_t>(TileLayerType::Main);
     error_->breakable = true;
     error_->hardness = 0.1F;
-    error_->errorPlaceholder = false;
 }
 
 glimmer::TileResource *glimmer::TileManager::GetAir() const {
@@ -83,7 +79,7 @@ std::unique_ptr<glimmer::TileResource> glimmer::TileManager::GenerateErrorPlaceH
     errorPlaceholder->layerType = static_cast<uint8_t>(TileLayerType::Main);
     errorPlaceholder->breakable = true;
     errorPlaceholder->hardness = 0.1F;
-    errorPlaceholder->errorPlaceholder = true;
+    errorPlaceholder->missing = true;
     return errorPlaceholder;
 }
 

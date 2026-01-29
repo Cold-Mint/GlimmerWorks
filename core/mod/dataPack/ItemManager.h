@@ -11,16 +11,26 @@
 
 namespace glimmer {
     class ItemManager {
-        std::pmr::unordered_map<std::string, std::unordered_map<std::string, ComposableItemResource> >
+        std::pmr::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ComposableItemResource> > >
         composableItemMap_{};
 
-        std::pmr::unordered_map<std::string, std::unordered_map<std::string, AbilityItemResource> >
+        std::pmr::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<AbilityItemResource> > >
         abilityItemMap_{};
 
-    public:
-        void RegisterComposableResource(ComposableItemResource &itemResource);
+        static std::unique_ptr<ComposableItemResource> CreatePlaceholderComposableItemResource(
+            const std::string &packId,
+            const std::string &key);
 
-        void RegisterAbilityItemResource(AbilityItemResource &itemResource);
+
+        static std::unique_ptr<AbilityItemResource> CreateAbilityItemResource(
+            const std::string &packId,
+            const std::string &key);
+
+    public:
+        ComposableItemResource *AddComposableResource(std::unique_ptr<ComposableItemResource> itemResource);
+
+
+        AbilityItemResource *AddAbilityItemResource(std::unique_ptr<AbilityItemResource> itemResource);
 
         [[nodiscard]] ComposableItemResource *FindComposableItemResource(
             const std::string &packId, const std::string &key);

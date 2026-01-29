@@ -88,21 +88,37 @@ namespace glimmer {
         static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext,
                                                                 const ComposableItemResource *itemResource,
                                                                 const ResourceRef &resourceRef) {
+            std::string name = Resource::GenerateId(itemResource->packId, itemResource->key);
             const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
-            if (!nameRes.has_value()) {
-                LogCat::e("An error occurred when constructing composable items, and the name is empty.");
-                return nullptr;
+            if (nameRes.has_value()) {
+                name = nameRes.value()->value;
             }
+            std::string description = Resource::GenerateId(itemResource->packId, itemResource->key);
             auto descriptionRes = appContext->GetResourceLocator()->FindString(itemResource->description);
-            if (!descriptionRes.has_value()) {
-                LogCat::e("An error occurred when constructing composable items, and the description is empty.");
-                return nullptr;
+            if (descriptionRes.has_value()) {
+                description = descriptionRes.value()->value;
+            }
+            size_t slotSize = itemResource->slotSize;
+            if (itemResource->missing) {
+                size_t count = resourceRef.GetArgCount();
+                slotSize = 0;
+                for (int i = 0; i < count; i++) {
+                    auto refArg = resourceRef.GetArg(i);
+                    if (refArg.has_value()) {
+                        ResourceRefArg &arg = refArg.value();
+                        int index = TryParseItemIndex(arg.GetName());
+                        if (index < 0) {
+                            continue;
+                        }
+                        slotSize = std::ranges::max(slotSize, static_cast<size_t>(index + 1));
+                    }
+                }
             }
             auto result = std::make_unique<ComposableItem>(
-                Resource::GenerateId(*itemResource), nameRes.value()->value,
-                descriptionRes.value()->value,
+                Resource::GenerateId(*itemResource), name,
+                description,
                 appContext->GetResourcePackManager()->LoadTextureFromFile(appContext, itemResource->texture),
-                itemResource->slotSize);
+                slotSize);
             //Filling ability.
             //填充能力。
             size_t argCount = resourceRef.GetArgCount();
@@ -121,7 +137,7 @@ namespace glimmer {
                 for (int i = 0; i < argCount; i++) {
                     auto refArg = resourceRef.GetArg(i);
                     if (refArg.has_value()) {
-                        ResourceRefArg arg = refArg.value();
+                        ResourceRefArg &arg = refArg.value();
                         int index = TryParseItemIndex(arg.GetName());
                         if (index < 0) {
                             continue;

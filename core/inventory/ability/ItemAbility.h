@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_ITEMFUNCTIONMOD_H
 #define GLIMMERWORKS_ITEMFUNCTIONMOD_H
 #include <string>
-#include <memory>
 #include "../../mod/Resource.h"
 #include "core/ecs/GameEntity.h"
 

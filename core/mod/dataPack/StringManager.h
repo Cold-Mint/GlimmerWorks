@@ -12,12 +12,13 @@ namespace glimmer {
     struct StringResource;
 
     class StringManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, StringResource> > stringMap_{};
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<StringResource> > > stringMap_
+                {};
 
     public:
         //Register the string resource to the manager
         //注册字符串资源到管理器
-        void RegisterResource(const StringResource &stringResource);
+        StringResource* AddResource( std::unique_ptr<StringResource> stringResource);
 
         //Search for string resources based on the data packet id and string key.
         //根据数据包id和字符串key查找字符串资源。

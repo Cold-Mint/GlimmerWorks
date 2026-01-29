@@ -127,7 +127,9 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, Strin
         auto array = toml::find<std::vector<StringResource> >(value, "string");
         for (auto &stringRes: array) {
             stringRes.packId = manifest_.id;
-            stringManager->RegisterResource(stringRes);
+            stringManager->AddResource(
+                std::make_unique<StringResource>(std::move(stringRes))
+            );
             count++;
         }
         LogCat::i("Loaded ", count, " language entries from ", path);
@@ -150,7 +152,6 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
     tileResource->packId = manifest_.id;
     tileResource->name.SetSelfPackageId(manifest_.id);
     tileResource->description.SetSelfPackageId(manifest_.id);
-    tileResource->errorPlaceholder = false;
     tileManager->AddResource(std::move(tileResource));
     return true;
 }
@@ -181,15 +182,15 @@ bool glimmer::DataPack::LoadComposableItemResourceFromFile(const std::string &pa
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
-    auto itemResource = toml::get<ComposableItemResource>(value);
-    itemResource.packId = manifest_.id;
-    itemResource.name.SetSelfPackageId(manifest_.id);
-    itemResource.description.SetSelfPackageId(manifest_.id);
-    for (auto &defaultAbility: itemResource.defaultAbilityList) {
+    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    auto itemResource = std::make_unique<ComposableItemResource>(toml::get<ComposableItemResource>(value));
+    itemResource->packId = manifest_.id;
+    itemResource->name.SetSelfPackageId(manifest_.id);
+    itemResource->description.SetSelfPackageId(manifest_.id);
+    for (auto &defaultAbility: itemResource->defaultAbilityList) {
         defaultAbility.SetSelfPackageId(manifest_.id);
     }
-    itemManager->RegisterComposableResource(itemResource);
+    itemManager->AddComposableResource(std::move(itemResource));
     return true;
 }
 
@@ -201,11 +202,11 @@ bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path,
         return false;
     }
     toml::value value = toml::parse_str(data.value(), tomlVersion_);
-    auto itemResource = toml::get<AbilityItemResource>(value);
-    itemResource.packId = manifest_.id;
-    itemResource.name.SetSelfPackageId(manifest_.id);
-    itemResource.description.SetSelfPackageId(manifest_.id);
-    itemManager->RegisterAbilityItemResource(itemResource);
+    auto itemResource = std::make_unique<AbilityItemResource>(toml::get<AbilityItemResource>(value));
+    itemResource->packId = manifest_.id;
+    itemResource->name.SetSelfPackageId(manifest_.id);
+    itemResource->description.SetSelfPackageId(manifest_.id);
+    itemManager->AddAbilityItemResource(std::move(itemResource));
     return true;
 }
 

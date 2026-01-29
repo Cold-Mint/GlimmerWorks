@@ -6,6 +6,15 @@
 #include "../../log/LogCat.h"
 
 
+glimmer::StringResource *glimmer::StringManager::AddResource(std::unique_ptr<StringResource> stringResource) {
+    LogCat::i("Registering string resource: packId = ", stringResource->packId,
+              ", key = ", stringResource->key, "value = ", stringResource->value);
+    auto &slot =
+            stringMap_[stringResource->packId][stringResource->key];
+    slot = std::move(stringResource);
+    return slot.get();
+}
+
 glimmer::StringResource *glimmer::StringManager::Find(const std::string &packId, const std::string &key) {
     LogCat::d("Searching for string resource: packId = ", packId, ", key = ", key);
     const auto packIt = stringMap_.find(packId);
@@ -22,7 +31,7 @@ glimmer::StringResource *glimmer::StringManager::Find(const std::string &packId,
     }
 
     LogCat::i("Found string resource: packId = ", packId, ", key = ", key);
-    return &keyIt->second;
+    return keyIt->second.get();
 }
 
 std::string glimmer::StringManager::ListStrings() const {
@@ -37,17 +46,10 @@ std::string glimmer::StringManager::ListStrings() const {
 
             result += Resource::GenerateId(packId, key);
             result += " =";
-            result += res.value;
+            result += res->value;
             result += "\n";
         }
     }
 
     return result;
-}
-
-
-void glimmer::StringManager::RegisterResource(const StringResource &stringResource) {
-    LogCat::i("Registering string resource: packId = ", stringResource.packId,
-              ", key = ", stringResource.key, "value = ", stringResource.value);
-    stringMap_[stringResource.packId][stringResource.key] = stringResource;
 }

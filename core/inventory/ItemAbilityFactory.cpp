@@ -7,10 +7,14 @@
 #include "../Constants.h"
 #include "../mod/Resource.h"
 #include "ability/DigAbility.h"
+#include "ability/NoneAbility.h"
 
 
 std::unique_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(
     const std::string &id, const VariableConfig &abilityData) {
+    if (id == ABILITY_ID_NONE) {
+        return std::make_unique<NoneAbility>(abilityData);
+    }
     if (id == ABILITY_ID_DIG) {
         return std::make_unique<DigAbility>(abilityData);
     }

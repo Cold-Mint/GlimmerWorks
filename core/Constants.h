@@ -32,6 +32,7 @@
 #define COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME  "&composeable_item"
 #define ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME  "&ability_item"
 
+static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_DIG = "dig";
 /**
  * Resource ref

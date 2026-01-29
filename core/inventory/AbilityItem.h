@@ -48,15 +48,15 @@ namespace glimmer {
         static std::unique_ptr<AbilityItem> FromItemResource(AppContext *appContext,
                                                              const AbilityItemResource *itemResource,
                                                              const ResourceRef &resourceRef) {
+            std::string name = Resource::GenerateId(itemResource->packId, itemResource->key);
             const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
-            if (!nameRes.has_value()) {
-                LogCat::e("An error occurred when constructing ability items, and the name is empty.");
-                return nullptr;
+            if (nameRes.has_value()) {
+                name = nameRes.value()->value;
             }
+            std::string description = Resource::GenerateId(itemResource->packId, itemResource->key);;
             auto descriptionRes = appContext->GetResourceLocator()->FindString(itemResource->description);
-            if (!descriptionRes.has_value()) {
-                LogCat::e("An error occurred when constructing ability items, and the description is empty.");
-                return nullptr;
+            if (descriptionRes.has_value()) {
+                description = descriptionRes.value()->value;
             }
             auto itemAbility =
                     ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
@@ -64,8 +64,8 @@ namespace glimmer {
                 LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
                 return nullptr;
             }
-            return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), nameRes.value()->value,
-                                                 descriptionRes.value()->value,
+            return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), name,
+                                                 description,
                                                  appContext->GetResourcePackManager()->LoadTextureFromFile(
                                                      appContext, itemResource->texture), std::move(itemAbility),
                                                  itemResource->canUseAlone);

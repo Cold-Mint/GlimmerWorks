@@ -22,6 +22,12 @@ namespace glimmer {
         std::string packId;
         std::string key;
 
+        /**
+         * Was not found
+         * 是否未找到
+         */
+        bool missing = false;
+
         [[nodiscard]] static std::string GenerateId(const std::string &packId, const std::string &key) {
             return packId + ":" + key;
         }
@@ -155,11 +161,6 @@ namespace glimmer {
         bool breakable = true;
         uint8_t physicsType = 0;
         uint8_t layerType = 0;
-        /**
-         * Is it an incorrect placeholder?
-         * 是否为错误占位符
-         */
-        bool errorPlaceholder = false;
     };
 
 

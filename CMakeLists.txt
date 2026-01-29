@@ -294,6 +294,7 @@ target_sources(GlimmerWorks
         core/ecs/component/ItemEditorComponent.cpp
         core/ecs/system/ItemEditorSystem.cpp
         core/utils/TomlUtils.cpp
+        core/inventory/ability/NoneAbility.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -420,6 +421,7 @@ target_sources(GlimmerWorks
         core/ecs/component/ItemEditorComponent.h
         core/ecs/system/ItemEditorSystem.h
         core/utils/TomlUtils.h
+        core/inventory/ability/NoneAbility.h
 )
 
 #Define version information

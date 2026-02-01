@@ -19,6 +19,8 @@ namespace glimmer {
         std::string name;
         std::string description;
         std::shared_ptr<SDL_Texture> texture;
+        bool customLootTable = false;
+        ResourceRef lootTable;
         float hardness = 1.0F;
         bool breakable = true;
         TilePhysicsType physicsType = TilePhysicsType::None;

@@ -33,6 +33,7 @@ namespace glimmer {
         std::string entryCannotFoundInConfigurationFile;
         std::string configurationUpdate;
         std::string itemIdNotFound;
+        std::string lootTableNotFound;
         std::string tileResourceNotFound;
         std::string itemContainerIsNull;
         std::string composableItemIsNull;

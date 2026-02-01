@@ -11,6 +11,7 @@
 
 namespace glimmer {
     class Item;
+
     class ItemContainer {
         std::vector<std::unique_ptr<Item> > items_;
 
@@ -25,14 +26,14 @@ namespace glimmer {
          * 绑定物品事件
          * @param item
          */
-        static void BindItemEvent(std::unique_ptr<Item>& item);
+        static void BindItemEvent(std::unique_ptr<Item> &item);
 
         /**
          * Unbinding Item Incident
          * 解绑物品事件
          * @param item
          */
-        static void UnBindItemEvent(const std::unique_ptr<Item>& item);
+        static void UnBindItemEvent(const std::unique_ptr<Item> &item);
 
     public:
         explicit ItemContainer(const size_t capacity) {
@@ -134,6 +135,7 @@ namespace glimmer {
 
         void ToMessage(ItemContainerMessage &message) const;
 
+        void Clear();
 
         [[nodiscard]] std::unique_ptr<ItemContainer> Clone() const;
     };

@@ -3,7 +3,6 @@
 //
 #include "DataPackManager.h"
 
-#include <filesystem>
 #include <regex>
 #include <algorithm>
 #include "DataPack.h"
@@ -39,7 +38,8 @@ bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
 
 int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
                                    const std::string &language, StringManager *stringManager, TileManager *tileManager,
-                                   BiomesManager *biomesManager, ItemManager *itemManager,
+                                   BiomesManager *biomesManager,
+                                   ItemManager *itemManager, LootTableManager *lootTableManager,
                                    const toml::spec &tomlVersion) {
     if (!virtualFileSystem_->Exists(path)) {
         LogCat::e("DataPackManager: Path does not exist -> ", path);
@@ -65,7 +65,7 @@ int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<st
             if (!IsDataPackAvailable(pack)) {
                 continue;
             }
-            if (pack.LoadPack(language, stringManager, tileManager, biomesManager, itemManager)) {
+            if (pack.LoadPack(language, stringManager, tileManager, biomesManager, itemManager, lootTableManager)) {
                 success++;
                 packIdVector_.push_back(pack.GetManifest().id);
             }

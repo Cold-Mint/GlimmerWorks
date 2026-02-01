@@ -15,11 +15,11 @@ namespace glimmer {
 
     class BiomesManager {
     protected:
-        std::unordered_map<std::string, std::unordered_map<std::string, BiomeResource> > biomeMap_{};
-        std::vector<BiomeResource> biomeVector_{};
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<BiomeResource> > > biomeMap_{};
+        std::vector<BiomeResource *> biomeVector_{};
 
     public:
-        void RegisterResource(BiomeResource &biomeResource);
+        BiomeResource *AddResource(std::unique_ptr<BiomeResource> biomeResource);
 
         BiomeResource *Find(const std::string &packId, const std::string &key);
 
@@ -35,7 +35,7 @@ namespace glimmer {
          * @return
          */
         BiomeResource *FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
-                                     float elevation);
+                                     float elevation) const;
 
         std::string ListBiomes() const;
     };

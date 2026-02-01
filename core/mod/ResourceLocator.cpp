@@ -58,8 +58,16 @@ std::optional<glimmer::AbilityItemResource *> glimmer::ResourceLocator::FindAbil
                                                                   resourceRef.GetResourceKey());
 }
 
+std::optional<glimmer::LootResource *> glimmer::ResourceLocator::FindLoot(const ResourceRef &resourceRef) const {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_LOOT_TABLE) {
+        return std::nullopt;
+    }
+    return appContext_->GetLootTableManager()->Find(resourceRef.GetPackageId(),
+                                                                  resourceRef.GetResourceKey());
+}
+
 std::optional<std::unique_ptr<glimmer::Item> > glimmer::ResourceLocator::FindItem(AppContext *appContext,
-    const ResourceRef &resourceRef) const {
+                                                                                  const ResourceRef &resourceRef) const {
     uint32_t resourceType = resourceRef.GetResourceType();
     std::unique_ptr<Item> result = nullptr;
     if (resourceType == RESOURCE_TYPE_TILE) {

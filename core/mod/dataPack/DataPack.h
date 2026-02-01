@@ -10,6 +10,7 @@
 #include "ItemManager.h"
 #include "../PackManifest.h"
 #include "../../vfs/VirtualFileSystem.h"
+#include "core/lootTable/LootTableManager.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {
@@ -34,7 +35,12 @@ namespace glimmer {
 
         [[nodiscard]] int LoadAbilityItemResource(ItemManager *itemManager) const;
 
+        [[nodiscard]] int LoadLootTableResource(LootTableManager *itemManager) const;
+
         [[nodiscard]] int LoadStringResourceFromFile(const std::string &path, StringManager *stringManager) const;
+
+        [[nodiscard]] bool LoadLootTableResourceFromFile(const std::string &path,
+                                                        LootTableManager *lootTableManager) const;
 
         [[nodiscard]] bool LoadTileResourceFromFile(const std::string &path, TileManager *tileManager) const;
 
@@ -47,15 +53,16 @@ namespace glimmer {
     public:
         explicit DataPack(std::string path, const VirtualFileSystem *virtualFileSystem,
                           const toml::spec &tomlVersion) : path_(std::move(path)),
-                                                    manifest_(), tomlVersion_(tomlVersion),
-                                                    virtualFileSystem_(virtualFileSystem) {
+                                                           manifest_(), tomlVersion_(tomlVersion),
+                                                           virtualFileSystem_(virtualFileSystem) {
         }
 
         bool LoadManifest();
 
         [[nodiscard]] bool LoadPack(const std::string &language,
                                     StringManager *stringManager, TileManager *tileManager,
-                                    BiomesManager *biomesManager, ItemManager *itemManager) const;
+                                    BiomesManager *biomesManager, ItemManager *itemManager,
+                                    LootTableManager *lootTableManager) const;
 
         [[nodiscard]] const DataPackManifest &GetManifest() const;
     };

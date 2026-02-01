@@ -198,6 +198,10 @@ void glimmer::ItemContainer::ToMessage(ItemContainerMessage &message) const {
     }
 }
 
+void glimmer::ItemContainer::Clear() {
+    items_.clear();
+}
+
 std::unique_ptr<glimmer::ItemContainer> glimmer::ItemContainer::Clone() const {
     const size_t size = items_.size();
     auto newContainer = std::make_unique<ItemContainer>(size);

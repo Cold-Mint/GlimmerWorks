@@ -15,6 +15,7 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggest
     suggestionsTree.AddChild("biomes");
     suggestionsTree.AddChild("composableItems");
     suggestionsTree.AddChild("abilityItems");
+    suggestionsTree.AddChild("lootTables");
 }
 
 std::string glimmer::AssetViewerCommand::GetName() const {
@@ -54,6 +55,9 @@ bool glimmer::AssetViewerCommand::Execute(const CommandArgs commandArgs,
         result = true;
     } else if (type == "abilityItems") {
         onMessage(appContext_->GetItemManager()->ListAbilityItems());
+        result = true;
+    } else if (type == "lootTables") {
+        onMessage(appContext_->GetLootTableManager()->ListLootTables());
         result = true;
     } else {
         onMessage(appContext_->GetLangsResources()->unknownAssetType);

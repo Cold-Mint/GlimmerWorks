@@ -23,6 +23,7 @@ insufficientParameterLength = "參數長度不足，至少為{}，實際為{}。
 entryCannotFoundInConfigurationFile = "在設定檔內找不到項目{}。"
 configurationUpdate = "設定{}已被更改為{}。"
 itemIdNotFound = "物品ID未找到。"
+lootTableNotFound = "戰利品表Id未找到。"
 tileResourceNotFound = "未找到tileResource。"
 itemContainerIsNull = "物品容器為空。"
 composableItemIsNull = "可組合物品為空。"

@@ -50,10 +50,27 @@ void glimmer::DiggingSystem::Update(float delta) {
                 tilePos, Tile::FromResourceRef(appContext_, appContext_->GetTileManager()->GetAir()));
 
             if (oldTile) {
-                worldContext_->CreateDroppedItemEntity(
-                    std::make_unique<TileItem>(std::move(oldTile)),
-                    TileLayerComponent::TileToWorld(tilePos)
-                );
+                if (oldTile->customLootTable) {
+                    const auto lootResource = appContext_->GetResourceLocator()->FindLoot(oldTile->lootTable);
+                    if (lootResource.has_value()) {
+                        std::vector<ResourceRef> lootList = LootResource::GetLootItems(lootResource.value());
+                        for (auto &loot: lootList) {
+                            auto itemPtr = appContext_->GetResourceLocator()->FindItem(appContext_, loot);
+                            if (itemPtr == nullptr) {
+                                continue;
+                            }
+                            worldContext_->CreateDroppedItemEntity(
+                                std::move(itemPtr.value()),
+                                TileLayerComponent::TileToWorld(tilePos)
+                            );
+                        }
+                    }
+                } else {
+                    worldContext_->CreateDroppedItemEntity(
+                        std::make_unique<TileItem>(std::move(oldTile)),
+                        TileLayerComponent::TileToWorld(tilePos)
+                    );
+                }
             }
 
             // Update physics

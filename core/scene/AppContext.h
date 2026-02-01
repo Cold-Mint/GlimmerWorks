@@ -42,8 +42,12 @@
 #include "SDL3_ttf/SDL_ttf.h"
 #include "cmake-build-debug/_deps/toml11-src/include/toml.hpp"
 #include "core/Config.h"
+#include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
+#include "core/console/command/LootCommand.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
+#include "core/console/suggestion/LootSuggestions.h"
+#include "core/lootTable/LootTableManager.h"
 
 
 namespace glimmer {
@@ -79,6 +83,7 @@ namespace glimmer {
         std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_;
         std::unique_ptr<VirtualFileSystem> virtualFileSystem_;
         std::unique_ptr<TilePlacerManager> tilePlacerManager_;
+        std::unique_ptr<LootTableManager> lootTableManager_;
         std::unique_ptr<ResourceLocator> resourceLocator_;
         std::unique_ptr<ItemManager> itemManager_;
         std::unique_ptr<DragAndDrop> dragAndDrop_;
@@ -172,6 +177,8 @@ namespace glimmer {
             commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this, vfs));
             commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(this));
             commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(this));
+            commandManager_->RegisterCommand(std::make_unique<ClearCommand>(this));
+            commandManager_->RegisterCommand(std::make_unique<LootCommand>(this));
             commandManager_->RegisterCommand(std::make_unique<VFSCommand>(this, vfs));
             commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(this, vfs));
             commandManager_->RegisterCommand(std::make_unique<SeedCommand>(this));
@@ -206,13 +213,15 @@ namespace glimmer {
             savesManager_ = std::make_unique<SavesManager>(vfs);
             savesManager_->LoadAllSaves();
             dragAndDrop_ = std::make_unique<DragAndDrop>();
-
+            lootTableManager_ = std::make_unique<LootTableManager>();
+            dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+                std::make_unique<LootSuggestions>(lootTableManager_.get()));
             LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
             LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
             LogCat::i("Starting GlimmerWorks...");
             if (dataPackManager_->Scan(config_->mods.dataPackPath, config_->mods.enabledDataPack, language_,
                                        stringManager_.get(), tileManager_.get(), biomesManager_.get(),
-                                       itemManager_.get(), tomlVersion_) == 0) {
+                                       itemManager_.get(), lootTableManager_.get(), tomlVersion_) == 0) {
                 LogCat::e("Failed to load dataPack");
                 return;
             }
@@ -255,6 +264,8 @@ namespace glimmer {
         [[nodiscard]] ResourcePackManager *GetResourcePackManager() const;
 
         [[nodiscard]] TileManager *GetTileManager() const;
+
+        [[nodiscard]] LootTableManager *GetLootTableManager() const;
 
         [[nodiscard]] TilePlacerManager *GetTilePlacerManager() const;
 

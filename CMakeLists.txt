@@ -295,6 +295,11 @@ target_sources(GlimmerWorks
         core/ecs/system/ItemEditorSystem.cpp
         core/utils/TomlUtils.cpp
         core/inventory/ability/NoneAbility.cpp
+        core/lootTable/LootEntry.cpp
+        core/console/command/ClearCommand.cpp
+        core/lootTable/LootTableManager.cpp
+        core/console/command/LootCommand.cpp
+        core/console/suggestion/LootSuggestions.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -422,6 +427,11 @@ target_sources(GlimmerWorks
         core/ecs/system/ItemEditorSystem.h
         core/utils/TomlUtils.h
         core/inventory/ability/NoneAbility.h
+        core/lootTable/LootEntry.h
+        core/lootTable/LootTableManager.h
+        core/console/command/ClearCommand.h
+        core/console/command/LootCommand.h
+        core/console/suggestion/LootSuggestions.h
 )
 
 #Define version information

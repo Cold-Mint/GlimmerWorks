@@ -30,6 +30,7 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->entryCannotFoundInConfigurationFile = find<std::string>(value, "entryCannotFoundInConfigurationFile");
     langs_->configurationUpdate = find<std::string>(value, "configurationUpdate");
     langs_->itemIdNotFound = find<std::string>(value, "itemIdNotFound");
+    langs_->lootTableNotFound = find<std::string>(value, "lootTableNotFound");
     langs_->tileResourceNotFound = find<std::string>(value, "tileResourceNotFound");
     langs_->itemContainerIsNull = find<std::string>(value, "itemContainerIsNull");
     langs_->composableItemIsNull = find<std::string>(value, "composableItemIsNull");
@@ -109,6 +110,10 @@ glimmer::ResourcePackManager *glimmer::AppContext::GetResourcePackManager() cons
 
 glimmer::TileManager *glimmer::AppContext::GetTileManager() const {
     return tileManager_.get();
+}
+
+glimmer::LootTableManager *glimmer::AppContext::GetLootTableManager() const {
+    return lootTableManager_.get();
 }
 
 glimmer::TilePlacerManager *glimmer::AppContext::GetTilePlacerManager() const {

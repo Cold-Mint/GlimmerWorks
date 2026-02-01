@@ -57,6 +57,14 @@ namespace glimmer {
         [[nodiscard]] std::optional<AbilityItemResource *> FindAbilityItem(const ResourceRef &resourceRef) const;
 
         /**
+         * FindLoot
+         * 获取lootTable的物品资源
+         * @param resourceRef resourceRef 物品引用
+         * @return
+         */
+        [[nodiscard]] std::optional<LootResource *> FindLoot(const ResourceRef &resourceRef) const;
+
+        /**
          * FindItem
          * 查找物品
          * @param appContext appContext 应用上下文

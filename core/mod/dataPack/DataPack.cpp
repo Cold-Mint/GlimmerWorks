@@ -10,6 +10,7 @@
 #include "../../log/LogCat.h"
 #include "../../utils/TomlUtils.h"
 #include "../../core/mod/PackManifest.h"
+#include "core/lootTable/LootTableManager.h"
 #include "toml11/parser.hpp"
 
 int glimmer::DataPack::LoadStringResource(const std::string &language, StringManager *stringManager) const {
@@ -113,6 +114,27 @@ int glimmer::DataPack::LoadAbilityItemResource(ItemManager *itemManager) const {
     return itemCount;
 }
 
+int glimmer::DataPack::LoadLootTableResource(LootTableManager *lootTableManager) const {
+    const std::string itemsDir = path_ + "/lootTables";
+    if (!virtualFileSystem_->Exists(itemsDir)) {
+        LogCat::w("No items directory found in ", itemsDir);
+        return 0;
+    }
+    std::vector<std::string> files = virtualFileSystem_->ListFile(itemsDir);
+    if (files.empty()) {
+        LogCat::w("No items files found in ", itemsDir);
+        return 0;
+    }
+    int itemCount = 0;
+    for (const auto &file: files) {
+        LogCat::d("Loading lootTable file: ", file);
+        if (LoadLootTableResourceFromFile(file, lootTableManager)) {
+            itemCount++;
+        }
+    }
+    return itemCount;
+}
+
 
 int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, StringManager *stringManager) const {
     auto data =
@@ -140,6 +162,30 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, Strin
     }
 }
 
+bool glimmer::DataPack::
+LoadLootTableResourceFromFile(const std::string &path, LootTableManager *lootTableManager) const {
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
+    }
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    auto lootResource = std::make_unique<LootResource>(toml::get<LootResource>(value));
+    lootResource->packId = manifest_.id;
+    for (auto &mandatory: lootResource->mandatory) {
+        mandatory.item.SetSelfPackageId(manifest_.id);
+        mandatory.mandatory = true;
+    }
+    for (auto &pool: lootResource->pool) {
+        pool.item.SetSelfPackageId(manifest_.id);
+        pool.mandatory = false;
+    }
+    lootTableManager->AddResource(std::move(lootResource));
+    return true;
+}
+
+
 bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileManager *tileManager) const {
     auto data =
             virtualFileSystem_->ReadFile(path);
@@ -152,6 +198,9 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
     tileResource->packId = manifest_.id;
     tileResource->name.SetSelfPackageId(manifest_.id);
     tileResource->description.SetSelfPackageId(manifest_.id);
+    if (tileResource->customLootTable) {
+        tileResource->lootTable.SetSelfPackageId(manifest_.id);
+    }
     tileManager->AddResource(std::move(tileResource));
     return true;
 }
@@ -164,14 +213,14 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
         return false;
     }
     toml::value value = toml::parse_str(data.value(), tomlVersion_);
-    auto biomeResource = toml::get<BiomeResource>(value);
-    biomeResource.packId = manifest_.id;
-    for (auto &tilePlacerRef: biomeResource.tilePlacerRefs) {
+    auto biomeResource = std::make_unique<BiomeResource>(toml::get<BiomeResource>(value));
+    biomeResource->packId = manifest_.id;
+    for (auto &tilePlacerRef: biomeResource->tilePlacerRefs) {
         for (auto &tile: tilePlacerRef.tiles) {
             tile.SetSelfPackageId(manifest_.id);
         }
     }
-    biomesManager->RegisterResource(biomeResource);
+    biomesManager->AddResource(std::move(biomeResource));
     return true;
 }
 
@@ -240,13 +289,15 @@ bool glimmer::DataPack::LoadManifest() {
 
 bool glimmer::DataPack::LoadPack(const std::string &language,
                                  StringManager *stringManager, TileManager *tileManager,
-                                 BiomesManager *biomesManager, ItemManager *itemManager) const {
+                                 BiomesManager *biomesManager, ItemManager *itemManager,
+                                 LootTableManager *lootTableManager) const {
     int total = 0;
     total += LoadStringResource(language, stringManager);
     total += LoadTileResource(tileManager);
     total += LoadBiomeResource(biomesManager);
     total += LoadComposableItemResource(itemManager);
     total += LoadAbilityItemResource(itemManager);
+    total += LoadLootTableResource(lootTableManager);
     return total != 0;
 }
 

@@ -23,6 +23,7 @@ insufficientParameterLength = "The parameter length is insufficient. It is at le
 entryCannotFoundInConfigurationFile = "The entry {} cannot be found in the configuration file."
 configurationUpdate = "The configuration {} has been changed to {}."
 itemIdNotFound = "The item Id was not found."
+lootTableNotFound = "The loot table ID was not found."
 tileResourceNotFound = "The tile resource not found."
 itemContainerIsNull = "Item container is null."
 composableItemIsNull = "Composable item is null."

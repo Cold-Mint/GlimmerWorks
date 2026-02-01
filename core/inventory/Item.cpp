@@ -65,7 +65,7 @@ std::optional<glimmer::ResourceRef> glimmer::Item::ToResourceRef() {
     if (resourceRef.has_value()) {
         ResourceRefArg refArg;
         refArg.SetName("amount");
-        refArg.SetDataFromInt(amount_);
+        refArg.SetDataFromInt(static_cast<int>(amount_));
         resourceRef.value().AddArg(refArg);
     }
     return resourceRef;

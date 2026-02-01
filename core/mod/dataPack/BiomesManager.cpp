@@ -5,13 +5,14 @@
 #include "BiomesManager.h"
 
 #include "../../log/LogCat.h"
-#include "../../math/Vector2DI.h"
 
-void glimmer::BiomesManager::RegisterResource(BiomeResource &biomeResource) {
-    LogCat::i("Registering biome resource: packId = ", biomeResource.packId,
-              ", key = ", biomeResource.key);
-    biomeMap_[biomeResource.packId][biomeResource.key] = biomeResource;
-    biomeVector_.push_back(biomeResource);
+glimmer::BiomeResource *glimmer::BiomesManager::AddResource(std::unique_ptr<BiomeResource> biomeResource) {
+    LogCat::i("Registering biome resource: packId = ", biomeResource->packId,
+              ", key = ", biomeResource->key);
+    auto &slot = biomeMap_[biomeResource->packId][biomeResource->key];
+    slot = std::move(biomeResource);
+    biomeVector_.push_back(slot.get());
+    return slot.get();
 }
 
 glimmer::BiomeResource *glimmer::BiomesManager::Find(const std::string &packId, const std::string &key) {
@@ -30,7 +31,7 @@ glimmer::BiomeResource *glimmer::BiomesManager::Find(const std::string &packId, 
     }
 
     LogCat::i("Found biome resource: packId = ", packId, ", key = ", key);
-    return &keyIt->second;
+    return keyIt->second.get();
 }
 
 
@@ -39,7 +40,7 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
     const float temperature,
     const float weirdness,
     const float erosion,
-    const float elevation) {
+    const float elevation) const {
     if (biomeVector_.empty()) {
         return nullptr;
     }
@@ -48,16 +49,16 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
     float bestDistance = std::numeric_limits<float>::max();
 
     for (auto &biome: biomeVector_) {
-        const float dh = biome.humidity - humidity;
-        const float dt = biome.temperature - temperature;
-        const float dw = biome.weirdness - weirdness;
-        const float de = biome.erosion - erosion;
-        const float dE = biome.elevation - elevation;
+        const float dh = biome->humidity - humidity;
+        const float dt = biome->temperature - temperature;
+        const float dw = biome->weirdness - weirdness;
+        const float de = biome->erosion - erosion;
+        const float dE = biome->elevation - elevation;
 
         const float distance = dh * dh + dt * dt + dw * dw + de * de + dE * dE;
         if (distance < bestDistance) {
             bestDistance = distance;
-            bestBiome = &biome;
+            bestBiome = biome;
         }
     }
 

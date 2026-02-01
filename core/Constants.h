@@ -23,6 +23,8 @@
 #define BOX2D_COMMAND_NAME  "box2d"
 #define GIVE_COMMAND_NAME  "give"
 #define ASSET_VIEWER_COMMAND_NAME  "assetViewer"
+#define CLEAR_COMMAND_NAME  "clear"
+#define LOOT_COMMAND_NAME  "loot"
 #define ECS_COMMAND_NAME  "ecs"
 #define FULL_TILE_PLACER_ID "fillTilePlacer"
 #define BOOL_DYNAMIC_SUGGESTIONS_NAME  "&bool"
@@ -31,6 +33,7 @@
 #define TILE_DYNAMIC_SUGGESTIONS_NAME  "&tile"
 #define COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME  "&composeable_item"
 #define ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME  "&ability_item"
+#define LOOT_DYNAMIC_SUGGESTIONS_NAME  "&loot"
 
 static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_DIG = "dig";
@@ -43,6 +46,7 @@ static constexpr uint32_t RESOURCE_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_TYPE_TILE = 2;
 static constexpr uint32_t RESOURCE_TYPE_COMPOSABLE_ITEM = 3;
 static constexpr uint32_t RESOURCE_TYPE_ABILITY_ITEM = 4;
+static constexpr uint32_t RESOURCE_TYPE_LOOT_TABLE = 5;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;

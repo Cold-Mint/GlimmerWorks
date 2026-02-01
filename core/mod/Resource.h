@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "ResourceRef.h"
+#include "core/lootTable/LootEntry.h"
 
 namespace glimmer {
     struct TileRules;
@@ -88,21 +89,21 @@ namespace glimmer {
         std::string value;
 
 
-        int AsInt() const {
+        [[nodiscard]] int AsInt() const {
             if (type != INT) {
                 return 0;
             }
             return std::stoi(value);
         }
 
-        float AsFloat() const {
+        [[nodiscard]] float AsFloat() const {
             if (type != FLOAT) {
                 return 0.0F;
             }
             return std::stof(value);
         }
 
-        bool AsBool() const {
+        [[nodiscard]] bool AsBool() const {
             if (type != BOOL) {
                 return false;
             }
@@ -115,7 +116,7 @@ namespace glimmer {
             return false;
         }
 
-        std::string AsString() {
+        [[nodiscard]] std::string AsString() const {
             if (type != STRING) {
                 return "";
             }
@@ -126,7 +127,7 @@ namespace glimmer {
     struct VariableConfig {
         std::vector<VariableDefinition> definition;
 
-        const VariableDefinition *FindVariable(const std::string &name) const {
+        [[nodiscard]] const VariableDefinition *FindVariable(const std::string &name) const {
             for (auto &data: definition) {
                 if (data.key == name) {
                     return &data;
@@ -156,6 +157,8 @@ namespace glimmer {
     struct TileResource : Resource {
         ResourceRef name;
         ResourceRef description;
+        bool customLootTable;
+        ResourceRef lootTable;
         std::string texture;
         float hardness = 1.0F;
         bool breakable = true;
@@ -186,6 +189,33 @@ namespace glimmer {
         float weirdness = 0.0F;
         float erosion = 0.0F;
         float elevation = 0.0F;
+    };
+
+
+    struct LootResource : Resource {
+        /**
+         * mandatory
+         * 必然掉落
+         */
+        std::vector<LootEntry> mandatory;
+
+        /**
+         * empty weight
+         * 空白权重
+         */
+        uint32_t empty_weight;
+        /**
+         * Take out the pool several times
+         * 抽取几次池子
+         */
+        uint32_t rolls = 1;
+        /**
+         * pool
+         * 战利品池
+         */
+        std::vector<LootEntry> pool;
+
+        static std::vector<ResourceRef> GetLootItems(const LootResource *lootResource);
     };
 }
 

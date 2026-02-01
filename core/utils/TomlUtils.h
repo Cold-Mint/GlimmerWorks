@@ -160,6 +160,8 @@ namespace toml {
             glimmer::TileResource r;
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.description = toml::find<glimmer::ResourceRef>(v, "description");
+            r.customLootTable = toml::find_or<bool>(v, "customLootTable",false);
+            r.lootTable = toml::find_or_default<glimmer::ResourceRef>(v, "lootTable");
             r.key = toml::find<std::string>(v, "resourceKey");
             r.texture = toml::find<std::string>(v, "texture");
             r.physicsType = toml::find<uint8_t>(v, "physicsType");
@@ -182,6 +184,31 @@ namespace toml {
             r.versionName = toml::find<std::string>(v, "versionName");
             r.versionNumber = toml::find<int>(v, "versionNumber");
             r.minGameVersion = toml::find<int>(v, "minGameVersion");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::LootEntry> {
+        static glimmer::LootEntry from_toml(const value &v) {
+            glimmer::LootEntry r;
+            r.item = toml::find<glimmer::ResourceRef>(v, "item");
+            r.weight = toml::find_or<uint32_t>(v, "weight", 1);
+            r.max = toml::find_or<uint32_t>(v, "max", 1);
+            r.min = toml::find_or<uint32_t>(v, "min", 1);
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::LootResource> {
+        static glimmer::LootResource from_toml(const value &v) {
+            glimmer::LootResource r;
+            r.key = toml::find<std::string>(v, "resourceKey");
+            r.mandatory = toml::find_or_default<std::vector<glimmer::LootEntry> >(v, "mandatory");
+            r.empty_weight = toml::find_or<uint32_t>(v, "empty_weight", 0);
+            r.rolls = toml::find_or<uint32_t>(v, "rolls", 1);
+            r.pool = toml::find_or_default<std::vector<glimmer::LootEntry> >(v, "pool");
             return r;
         }
     };

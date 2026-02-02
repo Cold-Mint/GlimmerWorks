@@ -26,6 +26,7 @@
 #include "core/console/command/LootCommand.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
+#include "core/world/SurfaceTilePlacer.h"
 #include "core/world/TreeTilePlacer.h"
 
 void glimmer::AppContext::LoadLanguage(const std::string &data) const {
@@ -178,6 +179,7 @@ glimmer::AppContext::AppContext() {
         std::make_unique<AbilityItemDynamicSuggestions>(im));
     tilePlacerManager_->RegisterTilePlacer(std::make_unique<FillTilePlacer>());
     tilePlacerManager_->RegisterTilePlacer(std::make_unique<TreeTilePlacer>());
+    tilePlacerManager_->RegisterTilePlacer(std::make_unique<SurfaceTilePlacer>());
     config_ = std::make_unique<Config>();
     LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
     std::optional<std::string> configData = vfs->ReadFile(CONFIG_FILE_NAME);

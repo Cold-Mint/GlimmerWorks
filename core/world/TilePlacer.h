@@ -21,7 +21,7 @@ namespace glimmer {
         virtual ~TilePlacer();
 
 
-        virtual void SetSeed(uint64_t seed);
+        virtual void SetSeed(int seed);
 
         /**
          * Place

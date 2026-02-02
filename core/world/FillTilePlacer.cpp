@@ -16,7 +16,11 @@ bool glimmer::FillTilePlacer::PlaceTileId(AppContext *appContext,
                                           VariableConfig configData) {
     const auto &tileRefObj = tileSet.at(0);
     for (const auto coordinate: coordinateArray) {
-        tilesRef[coordinate.x][coordinate.y] = tileRefObj;
+        if (ResourceRef &oldTile = tilesRef[coordinate.x][coordinate.y]; oldTile.GetPackageId() == RESOURCE_REF_CORE && oldTile.GetResourceKey() == TILE_ID_AIR) {
+            //Only filled in the air.
+            //只在空气处填充。
+            tilesRef[coordinate.x][coordinate.y] = tileRefObj;
+        }
     }
     return true;
 }

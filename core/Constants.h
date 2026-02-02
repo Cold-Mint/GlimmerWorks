@@ -27,6 +27,7 @@
 #define LOOT_COMMAND_NAME  "loot"
 #define ECS_COMMAND_NAME  "ecs"
 #define FULL_TILE_PLACER_ID "fillTilePlacer"
+#define SURFACE_PLACER_ID "surfaceTilePlacer"
 #define TREE_TILE_PLACER_ID "treeTilePlacer"
 #define BOOL_DYNAMIC_SUGGESTIONS_NAME  "&bool"
 #define CONFIG_DYNAMIC_SUGGESTIONS_NAME  "&config"

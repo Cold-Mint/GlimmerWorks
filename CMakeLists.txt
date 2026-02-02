@@ -302,6 +302,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/LootSuggestions.cpp
         core/world/TreeTilePlacer.cpp
         core/ecs/system/Box2dSystemContext.cpp
+        core/world/SurfaceTilePlacer.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -436,6 +437,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/LootSuggestions.h
         core/world/TreeTilePlacer.h
         core/ecs/system/Box2dSystemContext.h
+        core/world/SurfaceTilePlacer.h
 )
 
 #Define version information

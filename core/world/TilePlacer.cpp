@@ -6,6 +6,5 @@
 
 glimmer::TilePlacer::~TilePlacer() = default;
 
-void glimmer::TilePlacer::SetSeed(uint64_t seed) {
+void glimmer::TilePlacer::SetSeed(int seed) {
 }
-

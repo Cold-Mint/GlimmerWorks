@@ -62,6 +62,9 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
         }
     }
 
+    if (bestBiome != nullptr) {
+        LogCat::d("return bestBiome = ", Resource::GenerateId(bestBiome->packId, bestBiome->key));
+    }
     return bestBiome;
 }
 

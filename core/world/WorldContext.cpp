@@ -453,6 +453,7 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
                     LogCat::e("Failed to search for the biome.");
                     return;
                 }
+                tilesRef[localX][localY] = airTileRef;
                 biomeMap[biomeResource->key].push_back(localTile);
                 if (!biomeResourceMap.contains(biomeResource->key)) {
                     biomeResourceMap[biomeResource->key] = biomeResource;
@@ -462,6 +463,7 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
         for (auto &[biomeKey, tilePositions]: biomeMap) {
             BiomeResource *biomeResource = biomeResourceMap[biomeKey];
             for (auto &tilePlacerRef: biomeResource->tilePlacerRefs) {
+                LogCat::d(biomeKey, " tilePlacerRefs size=", biomeResource->tilePlacerRefs.size());
                 std::string id = tilePlacerRef.id;
                 TilePlacer *tilePlacer = appContext_->GetTilePlacerManager()->GetTilePlacer(id);
                 if (tilePlacer == nullptr) {
@@ -470,6 +472,7 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
                 }
                 //As long as this part is called, it indicates that the current block is not completely empty.
                 //只要调用了这里就表示当前区块，并非全部为空气。
+                LogCat::d("Placement ", id, " execute.");
                 if (!tilePlacer->PlaceTileId(appContext_, tilesRef, tilePlacerRef.tiles, tilePositions,
                                              includeSky,
                                              tilePlacerRef.config)) {

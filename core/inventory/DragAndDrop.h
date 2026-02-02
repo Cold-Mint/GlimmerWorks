@@ -6,17 +6,14 @@
 #define GLIMMERWORKS_DRAGANDDROP_H
 
 #include <functional>
-#include <SDL3/SDL.h>
 
 #include "DragSourceType.h"
 #include "DragState.h"
 #include "core/math/Vector2D.h"
+#include "core/scene/AppContext.h"
+#include "SDL3/SDL_render.h"
 
 namespace glimmer {
-    class Item;
-    class ItemAbility;
-    class AppContext;
-
     /**
      * DragAndDrop
      * A static utility class responsible for item drag-and-drop logic and rendering.

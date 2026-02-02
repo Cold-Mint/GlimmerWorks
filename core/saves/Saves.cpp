@@ -19,6 +19,10 @@ std::string glimmer::Saves::ToPlayerPath() const {
     return path_ + "/" + PLAYER_FILE_NAME;
 }
 
+glimmer::Saves::Saves(std::string path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
+    virtualFileSystem_(virtualFileSystem) {
+}
+
 void glimmer::Saves::SetOnMapManifestChanged(
     const std::function<void(const MapManifestMessage &)> &onMapManifestChanged) {
     onMapManifestChanged_ = onMapManifestChanged;

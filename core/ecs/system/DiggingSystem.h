@@ -4,6 +4,9 @@
 
 #ifndef GLIMMERWORKS_DIGGINGSYSTEM_H
 #define GLIMMERWORKS_DIGGINGSYSTEM_H
+#include <memory>
+#include <vector>
+
 #include "../GameSystem.h"
 #include "../component/DiggingComponent.h"
 
@@ -13,10 +16,7 @@ namespace glimmer {
         std::vector<std::shared_ptr<SDL_Texture> > textureList = {};
 
     public:
-        DiggingSystem(AppContext *appContext, WorldContext *worldContext)
-            : GameSystem(appContext, worldContext) {
-            RequireComponent<DiggingComponent>();
-        }
+        DiggingSystem(AppContext *appContext, WorldContext *worldContext);
 
         void Update(float delta) override;
 

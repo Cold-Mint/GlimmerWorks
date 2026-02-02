@@ -13,6 +13,10 @@
 #include "../log/LogCat.h"
 #include "../Config.h"
 
+glimmer::HomeScene::HomeScene(AppContext *context)
+    : Scene(context) {
+}
+
 bool glimmer::HomeScene::HandleEvent(const SDL_Event &event) {
     return false;
 }

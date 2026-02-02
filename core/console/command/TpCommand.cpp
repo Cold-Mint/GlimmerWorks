@@ -15,6 +15,9 @@
 void glimmer::TpCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
 }
 
+glimmer::TpCommand::TpCommand(AppContext *ctx) : Command(ctx) {
+}
+
 std::string glimmer::TpCommand::GetName() const {
     return TP_COMMAND_NAME;
 }

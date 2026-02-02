@@ -9,3 +9,6 @@ void glimmer::Scene::OnFrameStart() {
 bool glimmer::Scene::OnBackPressed() {
     return false;
 }
+
+glimmer::Scene::Scene(AppContext *context) : appContext(context) {
+}

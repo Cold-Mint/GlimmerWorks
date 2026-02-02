@@ -8,6 +8,15 @@
 #include "../mod/ResourceRef.h"
 #include <optional>
 
+glimmer::CommandArgs::CommandArgs(const std::string &command) {
+    command_ = command;
+    std::istringstream iss(command);
+    std::string token;
+    while (iss >> token) {
+        tokens_.push_back(token);
+    }
+}
+
 int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const {
     const int commandLen = static_cast<int>(command_.size());
     if (commandLen == 0 || cursorPos < 0 || cursorPos > commandLen) {

@@ -5,17 +5,13 @@
 #ifndef GLIMMERWORKS_PAUSESYSTEM_H
 #define GLIMMERWORKS_PAUSESYSTEM_H
 #include "../GameSystem.h"
-#include "../component/PauseComponent.h"
 
 namespace glimmer {
     class PauseComponent;
 
     class PauseSystem : public GameSystem {
     public:
-        PauseSystem(AppContext *appContext, WorldContext *worldContext)
-            : GameSystem(appContext, worldContext) {
-            RequireComponent<PauseComponent>();
-        }
+        PauseSystem(AppContext *appContext, WorldContext *worldContext);
 
 
         uint8_t GetRenderOrder() override;

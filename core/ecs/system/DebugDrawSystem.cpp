@@ -10,6 +10,12 @@
 #include "../../world/WorldContext.h"
 
 
+glimmer::DebugDrawSystem::DebugDrawSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<DebugDrawComponent>();
+    RequireComponent<Transform2DComponent>();
+}
+
 void glimmer::DebugDrawSystem::Render(SDL_Renderer *renderer) {
     const auto *cameraComponent = worldContext_->GetCameraComponent();
     const auto *cameraPos = worldContext_->GetCameraTransform2D();

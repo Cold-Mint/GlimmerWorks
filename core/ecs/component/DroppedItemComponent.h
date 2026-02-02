@@ -16,8 +16,7 @@ namespace glimmer {
         float pickupCooldown_ = 0.0F;
 
     public:
-        explicit DroppedItemComponent() {
-        }
+        explicit DroppedItemComponent();
 
         /**
          * Get Remaining Time
@@ -78,7 +77,7 @@ namespace glimmer {
 
         [[nodiscard]] std::string Serialize() override;
 
-        void Deserialize(AppContext *appContext, WorldContext *worldContext,const std::string &data) override;
+        void Deserialize(AppContext *appContext, WorldContext *worldContext, const std::string &data) override;
     };
 }
 

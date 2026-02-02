@@ -6,6 +6,15 @@
 
 #include "../../world/WorldContext.h"
 #include "../component/DroppedItemComponent.h"
+#include "core/ecs/component/AutoPickComponent.h"
+#include "core/ecs/component/MagnetComponent.h"
+
+glimmer::AutoPickSystem::AutoPickSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<AutoPickComponent>();
+    RequireComponent<MagnetComponent>();
+    RequireComponent<ItemContainerComponent>();
+}
 
 void glimmer::AutoPickSystem::Update(float delta) {
     auto entityList = worldContext_->GetEntityIDWithComponents<AutoPickComponent, MagnetComponent,

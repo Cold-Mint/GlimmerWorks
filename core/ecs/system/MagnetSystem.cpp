@@ -7,8 +7,18 @@
 #include "../../world/WorldContext.h"
 #include "../component/RigidBody2DComponent.h"
 #include "../component/DroppedItemComponent.h"
+#include "../component/MagnetComponent.h"
+#include "../component/MagneticComponent.h"
+#include "../component/Transform2DComponent.h"
 #include "tweeny.h"
 
+
+glimmer::MagnetSystem::MagnetSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<Transform2DComponent>();
+    RequireComponent<MagnetComponent>();
+    RequireComponent<MagneticComponent>();
+}
 
 void glimmer::MagnetSystem::Update(const float delta) {
     auto magnets =

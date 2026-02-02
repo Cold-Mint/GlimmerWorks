@@ -26,6 +26,9 @@ void glimmer::ConfigSuggestions::ParseTable(const toml::value::table_type &table
     }
 }
 
+glimmer::ConfigSuggestions::ConfigSuggestions(toml::value *configValue) : configValue_(configValue) {
+}
+
 bool glimmer::ConfigSuggestions::Match(const std::string keyword, std::string param) {
     std::vector<std::string> fields;
     ParseTable(configValue_->as_table(), fields);

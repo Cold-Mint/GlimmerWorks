@@ -10,6 +10,10 @@
 #include "../Config.h"
 
 
+glimmer::DebugOverlay::DebugOverlay(AppContext *context)
+    : Scene(context) {
+}
+
 bool glimmer::DebugOverlay::HandleEvent(const SDL_Event &event) {
     if (event.type == SDL_EVENT_KEY_DOWN) {
         if (event.key.scancode == SDL_SCANCODE_F1) {

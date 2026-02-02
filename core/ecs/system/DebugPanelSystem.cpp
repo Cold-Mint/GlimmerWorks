@@ -54,6 +54,10 @@ void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, fl
     SDL_RenderFillRect(renderer, &vLine);
 }
 
+glimmer::DebugPanelSystem::DebugPanelSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+}
+
 
 void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();

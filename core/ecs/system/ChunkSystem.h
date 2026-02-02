@@ -5,25 +5,13 @@
 #ifndef GLIMMERWORKS_CHUNKSYSTEM_H
 #define GLIMMERWORKS_CHUNKSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/CameraComponent.h"
-#include "../component/PlayerControlComponent.h"
-#include "../component/TileLayerComponent.h"
 
-namespace glimmer
-{
-    class ChunkSystem final : public GameSystem
-    {
+namespace glimmer {
+    class ChunkSystem final : public GameSystem {
         float preloadMargin_ = 1.0F;
 
-
     public:
-        ChunkSystem(AppContext* appContext, WorldContext* worldContext)
-            : GameSystem(appContext, worldContext)
-        {
-            RequireComponent<TileLayerComponent>();
-            RequireComponent<CameraComponent>();
-            RequireComponent<PlayerControlComponent>();
-        }
+        ChunkSystem(AppContext *appContext, WorldContext *worldContext);
 
         void Update(float delta) override;
 

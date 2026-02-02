@@ -54,6 +54,9 @@ int glimmer::Chunk::TileToChunk(const int tileCoord) {
     return (tileCoord - CHUNK_SIZE + 1) / CHUNK_SIZE * CHUNK_SIZE;
 }
 
+glimmer::Chunk::Chunk(const TileVector2D &pos) : position(pos) {
+}
+
 void glimmer::Chunk::SetTile(const TileVector2D pos, std::unique_ptr<Tile> tile) {
     tiles_[tile->layerType][pos.x][pos.y] = std::move(tile);
 }

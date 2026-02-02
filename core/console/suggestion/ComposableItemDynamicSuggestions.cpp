@@ -6,6 +6,10 @@
 
 #include "../../Constants.h"
 
+glimmer::ComposableItemDynamicSuggestions::ComposableItemDynamicSuggestions(ItemManager *itemManager) {
+    itemManager_ = itemManager;
+}
+
 std::string glimmer::ComposableItemDynamicSuggestions::GetId() const {
     return COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }

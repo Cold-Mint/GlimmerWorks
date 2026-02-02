@@ -9,9 +9,7 @@
 namespace glimmer {
     class SeedCommand : public Command {
     public:
-        explicit SeedCommand(AppContext *ctx)
-            : Command(ctx) {
-        }
+        explicit SeedCommand(AppContext *ctx);
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 

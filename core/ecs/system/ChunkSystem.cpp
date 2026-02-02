@@ -7,7 +7,16 @@
 #include "../../Constants.h"
 #include "../../world/WorldContext.h"
 #include "../component/Transform2DComponent.h"
+#include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/component/CameraComponent.h"
 
+
+glimmer::ChunkSystem::ChunkSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<TileLayerComponent>();
+    RequireComponent<CameraComponent>();
+    RequireComponent<PlayerControlComponent>();
+}
 
 void glimmer::ChunkSystem::Update(float delta) {
     const auto *camera = worldContext_->GetCameraComponent();

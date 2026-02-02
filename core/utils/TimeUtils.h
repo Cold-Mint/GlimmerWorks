@@ -5,9 +5,8 @@
 #ifndef GLIMMERWORKS_TIMEUTILS_H
 #define GLIMMERWORKS_TIMEUTILS_H
 
+#include <cstdint>
 #include <string>
-#include <sstream>
-#include <iomanip>
 
 namespace glimmer {
     class TimeUtils {

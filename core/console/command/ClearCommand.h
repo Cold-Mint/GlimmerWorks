@@ -4,7 +4,7 @@
 
 #ifndef GLIMMERWORKS_CLEARCOMMAND_H
 #define GLIMMERWORKS_CLEARCOMMAND_H
-#include "core/console/Command.h"
+#include "../Command.h"
 
 namespace glimmer {
     class ClearCommand final : public Command {
@@ -12,9 +12,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit ClearCommand(AppContext *ctx)
-            : Command(ctx) {
-        }
+        explicit ClearCommand(AppContext *ctx);
 
         [[nodiscard]] std::string GetName() const override;
 

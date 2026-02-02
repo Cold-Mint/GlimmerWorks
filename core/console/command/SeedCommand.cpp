@@ -5,6 +5,10 @@
 #include "SeedCommand.h"
 #include "../../world/WorldContext.h"
 
+glimmer::SeedCommand::SeedCommand(AppContext *ctx)
+    : Command(ctx) {
+}
+
 bool glimmer::SeedCommand::RequiresWorldContext() const {
     return true;
 }

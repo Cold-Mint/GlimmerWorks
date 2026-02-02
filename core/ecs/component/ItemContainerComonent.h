@@ -18,13 +18,9 @@ namespace glimmer {
         std::unique_ptr<ItemContainer> itemContainer_;
 
     public:
-        explicit ItemContainerComponent(size_t capacity)
-            : itemContainer_(std::make_unique<ItemContainer>(capacity)) {
-        }
+        explicit ItemContainerComponent(size_t capacity);
 
-        ItemContainerComponent()
-            : ItemContainerComponent(0) {
-        }
+        ItemContainerComponent();
 
         /**
          * GetItemContainer

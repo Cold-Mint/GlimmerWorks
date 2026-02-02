@@ -11,6 +11,8 @@
 #include <string>
 #include <algorithm>
 
+#include "core/ecs/component/GuiTransform2DComponent.h"
+
 void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
     const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
     float mouseX, mouseY;
@@ -156,6 +158,13 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     drawSurf(sAmount);
     drawSurf(sDesc);
 }
+
+glimmer::ItemSlotSystem::ItemSlotSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<ItemSlotComponent>();
+    RequireComponent<GuiTransform2DComponent>();
+}
+
 
 uint8_t glimmer::ItemSlotSystem::GetRenderOrder() {
     return RENDER_ORDER_DEBUG_HOTBAR;

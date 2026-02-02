@@ -16,3 +16,9 @@ glimmer::TilePlacer *glimmer::TilePlacerManager::GetTilePlacer(const std::string
     }
     return it->second.get();
 }
+
+void glimmer::TilePlacerManager::SetSeed(const uint64_t seed) const {
+    for (const auto &it: tilePlacerMap_) {
+        it.second->SetSeed(seed);
+    }
+}

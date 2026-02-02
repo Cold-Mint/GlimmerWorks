@@ -29,31 +29,11 @@ namespace glimmer {
          */
         bool missing = false;
 
-        [[nodiscard]] static std::string GenerateId(const std::string &packId, const std::string &key) {
-            return packId + ":" + key;
-        }
+        [[nodiscard]] static std::string GenerateId(const std::string &packId, const std::string &key);
 
-        [[nodiscard]] static std::string GenerateId(const Resource &resource) {
-            return GenerateId(resource.packId, resource.key);
-        }
+        [[nodiscard]] static std::string GenerateId(const Resource &resource);
 
-        [[nodiscard]] static std::optional<ResourceRef> ParseFromId(const std::string &id, const int resourceType) {
-            auto pos = id.find(':');
-            if (pos == std::string::npos) {
-                return std::nullopt;
-            }
-            ResourceRef ref;
-            ref.SetSelfPackageId(id.substr(0, pos));
-            if (ref.GetPackageId().empty()) {
-                return std::nullopt;
-            }
-            ref.SetResourceKey(id.substr(pos + 1));
-            if (ref.GetResourceKey().empty()) {
-                return std::nullopt;
-            }
-            ref.SetResourceType(resourceType);
-            return ref;
-        }
+        [[nodiscard]] static std::optional<ResourceRef> ParseFromId(const std::string &id, int resourceType);
     };
 
     /**
@@ -89,52 +69,19 @@ namespace glimmer {
         std::string value;
 
 
-        [[nodiscard]] int AsInt() const {
-            if (type != INT) {
-                return 0;
-            }
-            return std::stoi(value);
-        }
+        [[nodiscard]] int AsInt() const;
 
-        [[nodiscard]] float AsFloat() const {
-            if (type != FLOAT) {
-                return 0.0F;
-            }
-            return std::stof(value);
-        }
+        [[nodiscard]] float AsFloat() const;
 
-        [[nodiscard]] bool AsBool() const {
-            if (type != BOOL) {
-                return false;
-            }
-            if (value == "1" || value == "true" || value == "yes" || value == "y") {
-                return true;
-            }
-            if (value == "0" || value == "false" || value == "no" || value == "n") {
-                return false;
-            }
-            return false;
-        }
+        [[nodiscard]] bool AsBool() const;
 
-        [[nodiscard]] std::string AsString() const {
-            if (type != STRING) {
-                return "";
-            }
-            return value;
-        }
+        [[nodiscard]] std::string AsString() const;
     };
 
     struct VariableConfig {
         std::vector<VariableDefinition> definition;
 
-        [[nodiscard]] const VariableDefinition *FindVariable(const std::string &name) const {
-            for (auto &data: definition) {
-                if (data.key == name) {
-                    return &data;
-                }
-            }
-            return nullptr;
-        }
+        [[nodiscard]] const VariableDefinition *FindVariable(const std::string &name) const;
     };
 
     /**

@@ -12,9 +12,7 @@ namespace glimmer {
         TileManager *tileManager_;
 
     public:
-        explicit TileDynamicSuggestions(TileManager *tileManager) {
-            tileManager_ = tileManager;
-        }
+        explicit TileDynamicSuggestions(TileManager *tileManager);
 
         [[nodiscard]] std::string GetId() const override;
 

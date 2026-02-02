@@ -9,6 +9,9 @@
 #include "core/mod/ResourceLocator.h"
 #include "src/saves/dropped_item.pb.h"
 
+glimmer::DroppedItemComponent::DroppedItemComponent() {
+}
+
 float glimmer::DroppedItemComponent::GetRemainingTime() const {
     return remainingTime_;
 }

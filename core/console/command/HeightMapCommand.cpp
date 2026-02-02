@@ -11,6 +11,10 @@
 void glimmer::HeightMapCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
 }
 
+glimmer::HeightMapCommand::HeightMapCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem) : Command(ctx),
+    virtualFileSystem_(virtualFileSystem) {
+}
+
 std::string glimmer::HeightMapCommand::GetName() const {
     return HEIGHT_MAP_COMMAND_NAME;
 }

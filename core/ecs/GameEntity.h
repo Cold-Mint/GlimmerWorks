@@ -16,8 +16,7 @@ namespace glimmer {
         bool persistable_ = false;
 
     public:
-        explicit GameEntity(const ID id) : id_(id) {
-        }
+        explicit GameEntity(ID id);
 
         [[nodiscard]] ID GetID() const;
 

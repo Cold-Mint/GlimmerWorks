@@ -22,11 +22,7 @@ namespace glimmer {
         bool enabled_ = true;
 
     public:
-        ~RigidBody2DComponent() override {
-            if (ready_) {
-                b2DestroyBody(bodyId_);
-            }
-        }
+        ~RigidBody2DComponent() override;
 
         /**
          * SetCategoryBits

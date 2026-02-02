@@ -3,6 +3,12 @@
 //
 
 #include "Transform2DSystem.h"
+#include "../component/Transform2DComponent.h"
+
+glimmer::Transform2DSystem::Transform2DSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<Transform2DComponent>();
+}
 
 std::string glimmer::Transform2DSystem::GetName() {
     return "glimmer.Transform2DSystem";

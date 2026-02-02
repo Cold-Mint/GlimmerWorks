@@ -6,6 +6,12 @@
 #include "../../world/WorldContext.h"
 
 
+glimmer::CameraSystem::CameraSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<CameraComponent>();
+    RequireComponent<Transform2DComponent>();
+}
+
 void glimmer::CameraSystem::Render(SDL_Renderer *renderer) {
     auto *camera = worldContext_->GetCameraComponent();
     if (camera == nullptr) {

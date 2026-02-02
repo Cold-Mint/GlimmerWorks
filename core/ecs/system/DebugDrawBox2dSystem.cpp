@@ -4,28 +4,12 @@
 
 #include "DebugDrawBox2dSystem.h"
 
+#include "Box2dSystemContext.h"
 #include "../../utils/Box2DUtils.h"
 #include "../../world/WorldContext.h"
 #include "../component/CameraComponent.h"
 #include "../component/Transform2DComponent.h"
-
-class Box2dSystemContext {
-    glimmer::WorldContext *worldContext_ = nullptr;
-    SDL_Renderer *renderer_ = nullptr;
-
-public:
-    Box2dSystemContext(glimmer::WorldContext *worldContext, SDL_Renderer *renderer) : worldContext_(worldContext),
-        renderer_(renderer) {
-    }
-
-    [[nodiscard]] glimmer::WorldContext *GetWorldContext() const {
-        return worldContext_;
-    }
-
-    [[nodiscard]] SDL_Renderer *GetRenderer() const {
-        return renderer_;
-    }
-};
+#include "box2d/box2d.h"
 
 bool glimmer::DebugDrawBox2dSystem::ShouldActivate() {
     return appContext_->GetConfig()->debug.displayBox2dShape;
@@ -38,6 +22,10 @@ void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus) {
     } else {
         LogCat::d("[DebugDrawBox2dSystem] DebugDraw detached from world.");
     }
+}
+
+glimmer::DebugDrawBox2dSystem::DebugDrawBox2dSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
 }
 
 /**

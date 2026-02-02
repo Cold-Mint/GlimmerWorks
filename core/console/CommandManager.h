@@ -39,13 +39,11 @@ namespace glimmer {
          * @return The expanded list of suggestions 展开后的建议列表
          */
         static std::vector<std::string> ExtendSuggestions(const DynamicSuggestionsManager *dynamicSuggestionsManager,
-                                                   NodeTree<std::string> *nextNodeTree);
+                                                          NodeTree<std::string> *nextNodeTree);
 
         using CommandMap = std::unordered_map<std::string, std::unique_ptr<Command> >;
 
-        [[nodiscard]] const CommandMap &GetCommands() const {
-            return commandMap_;
-        }
+        [[nodiscard]] const CommandMap &GetCommands();
     };
 }
 

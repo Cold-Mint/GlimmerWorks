@@ -20,6 +20,9 @@ namespace glimmer {
     public:
         virtual ~TilePlacer();
 
+
+        virtual void SetSeed(uint64_t seed);
+
         /**
          * Place
          * 放置瓦片
@@ -29,12 +32,14 @@ namespace glimmer {
          * @param tilesRef chunkTilesRef 区块瓦片引用
          * @param tileSet tileSet 可放置的瓦片
          * @param coordinateArray coordinateArray 坐标数组
+         * @param includeSky
          * @param configData json 配置数据
          */
         [[nodiscard]] virtual bool PlaceTileId(AppContext *appContext,
                                                std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef,
                                                std::vector<ResourceRef> &tileSet,
                                                std::vector<TileVector2D> &coordinateArray,
+                                               bool includeSky,
                                                VariableConfig configData) = 0;
 
         /**

@@ -19,8 +19,7 @@ namespace glimmer {
     public:
         Transform2DComponent() = default;
 
-        explicit Transform2DComponent(const WorldVector2D position) : position_(position) {
-        }
+        explicit Transform2DComponent(WorldVector2D position);
 
         /**
          * SetPosition 设置世界坐标

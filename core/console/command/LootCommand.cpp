@@ -12,6 +12,10 @@ void glimmer::LootCommand::InitSuggestions(NodeTree<std::string> &suggestionsTre
     suggestionsTree.AddChild("get")->AddChild(LOOT_DYNAMIC_SUGGESTIONS_NAME);
 }
 
+glimmer::LootCommand::LootCommand(AppContext *ctx)
+    : Command(ctx) {
+}
+
 std::string glimmer::LootCommand::GetName() const {
     return LOOT_COMMAND_NAME;
 }

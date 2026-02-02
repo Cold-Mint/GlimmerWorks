@@ -20,10 +20,7 @@ namespace glimmer {
         bool sceneJumped = false;
 
     public:
-        explicit SplashScene(AppContext *context)
-            : Scene(context) {
-            nextSceneTime = std::numeric_limits<Uint64>::max();
-        }
+        explicit SplashScene(AppContext *context);
 
         bool HandleEvent(const SDL_Event &event) override;
 
@@ -31,9 +28,7 @@ namespace glimmer {
 
         void Render(SDL_Renderer *renderer) override;
 
-        ~SplashScene() override  {
-            LogCat::i("SplashScene destroyed");
-        };
+        ~SplashScene() override = default;
     };
 }
 

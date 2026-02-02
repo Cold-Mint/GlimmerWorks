@@ -24,18 +24,7 @@ namespace glimmer {
 
     public:
         explicit DigAbility(
-            const VariableConfig &abilityData) : ItemAbility(
-            abilityData) {
-            auto efficiencyVariable = abilityData.FindVariable("efficiency");
-            if (efficiencyVariable != nullptr) {
-                efficiency_ = efficiencyVariable->AsFloat();
-            }
-
-            auto digRange = abilityData.FindVariable("digRange");
-            if (digRange != nullptr) {
-                digRange_ = digRange->AsInt();
-            }
-        }
+            const VariableConfig &abilityData);
 
         ~DigAbility() override = default;
 
@@ -43,9 +32,7 @@ namespace glimmer {
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) override;
 
-        [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override {
-            return std::make_unique<DigAbility>(*this);
-        }
+        [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };
 }
 

@@ -8,6 +8,19 @@
 #include "../../ecs/component/Transform2DComponent.h"
 #include "../../inventory/TileItem.h"
 
+glimmer::DigAbility::DigAbility(const VariableConfig &abilityData) : ItemAbility(
+    abilityData) {
+    auto efficiencyVariable = abilityData.FindVariable("efficiency");
+    if (efficiencyVariable != nullptr) {
+        efficiency_ = efficiencyVariable->AsFloat();
+    }
+
+    auto digRange = abilityData.FindVariable("digRange");
+    if (digRange != nullptr) {
+        digRange_ = digRange->AsInt();
+    }
+}
+
 std::string glimmer::DigAbility::GetId() const {
     return ABILITY_ID_DIG;
 }
@@ -56,4 +69,8 @@ void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldConte
             diggingComponent->MarkActive();
         }
     }
+}
+
+std::unique_ptr<glimmer::ItemAbility> glimmer::DigAbility::Clone() const {
+    return std::make_unique<DigAbility>(*this);
 }

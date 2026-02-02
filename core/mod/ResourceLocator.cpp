@@ -11,6 +11,9 @@
 #include "core/inventory/TileItem.h"
 #include "dataPack/StringManager.h"
 
+glimmer::ResourceLocator::ResourceLocator(AppContext *appContext_) : appContext_(appContext_) {
+}
+
 std::optional<glimmer::StringResource *> glimmer::ResourceLocator::FindString(const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_STRING) {
         return std::nullopt;
@@ -63,11 +66,11 @@ std::optional<glimmer::LootResource *> glimmer::ResourceLocator::FindLoot(const 
         return std::nullopt;
     }
     return appContext_->GetLootTableManager()->Find(resourceRef.GetPackageId(),
-                                                                  resourceRef.GetResourceKey());
+                                                    resourceRef.GetResourceKey());
 }
 
 std::optional<std::unique_ptr<glimmer::Item> > glimmer::ResourceLocator::FindItem(AppContext *appContext,
-                                                                                  const ResourceRef &resourceRef) const {
+    const ResourceRef &resourceRef) const {
     uint32_t resourceType = resourceRef.GetResourceType();
     std::unique_ptr<Item> result = nullptr;
     if (resourceType == RESOURCE_TYPE_TILE) {
@@ -87,7 +90,7 @@ std::optional<std::unique_ptr<glimmer::Item> > glimmer::ResourceLocator::FindIte
     if (resourceType == RESOURCE_TYPE_ABILITY_ITEM) {
         auto abilityItemResource = FindAbilityItem(resourceRef);
         if (abilityItemResource.has_value()) {
-            result = std::move(AbilityItem::FromItemResource(appContext, abilityItemResource.value(), resourceRef));
+            result = std::move(AbilityItem::FromItemResource(appContext, abilityItemResource.value(), resourceRef)); //为什么Clangd: In template: invalid application of 'sizeof' to an incomplete type 'glimmer::ItemAbility'
         }
     }
     if (result != nullptr) {

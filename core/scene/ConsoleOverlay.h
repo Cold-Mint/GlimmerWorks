@@ -4,7 +4,6 @@
 
 #ifndef GLIMMERWORKS_CONSOLESCENE_H
 #define GLIMMERWORKS_CONSOLESCENE_H
-#include <array>
 #include <string>
 #include <mutex>
 #include <vector>
@@ -47,9 +46,7 @@ namespace glimmer {
         void ClikAutoCompleteItem(const std::string &suggestion);
 
     public:
-        explicit ConsoleOverlay(AppContext *context)
-            : Scene(context) {
-        }
+        explicit ConsoleOverlay(AppContext *context);
 
         void SetLastCursorPos(int cursorPos);
 

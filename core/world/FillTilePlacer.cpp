@@ -5,7 +5,6 @@
 #include "FillTilePlacer.h"
 
 #include "../Constants.h"
-#include "../mod/ResourceLocator.h"
 #include "../scene/AppContext.h"
 
 glimmer::FillTilePlacer::~FillTilePlacer() = default;
@@ -13,10 +12,8 @@ glimmer::FillTilePlacer::~FillTilePlacer() = default;
 bool glimmer::FillTilePlacer::PlaceTileId(AppContext *appContext,
                                           std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef,
                                           std::vector<ResourceRef> &tileSet,
-                                          std::vector<TileVector2D> &coordinateArray, VariableConfig configData) {
-    if (tileSet.empty()) {
-        return false;
-    }
+                                          std::vector<TileVector2D> &coordinateArray, bool includeSky,
+                                          VariableConfig configData) {
     const auto &tileRefObj = tileSet.at(0);
     for (const auto coordinate: coordinateArray) {
         tilesRef[coordinate.x][coordinate.y] = tileRefObj;

@@ -15,8 +15,15 @@
 #include "WorldScene.h"
 #include "../log/LogCat.h"
 #include "../saves/Saves.h"
+#include "core/utils/TimeUtils.h"
 #include "SDL3/SDL_log.h"
 namespace fs = std::filesystem;
+
+glimmer::CreateWorldScene::CreateWorldScene(AppContext *context) : Scene(context) {
+    const int newSeed = RandomSeed();
+    seedStr_ = std::to_string(newSeed);
+    worldName_ = RandomName();
+}
 
 void glimmer::CreateWorldScene::CreateWorld() const {
     std::string name = worldName_;

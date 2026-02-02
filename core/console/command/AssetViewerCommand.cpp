@@ -8,6 +8,10 @@
 #include "../../mod/dataPack/StringManager.h"
 #include "../../scene/AppContext.h"
 
+glimmer::AssetViewerCommand::AssetViewerCommand(AppContext *ctx)
+    : Command(ctx) {
+}
+
 void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     suggestionsTree.AddChild("string");
     suggestionsTree.AddChild("texture")->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);

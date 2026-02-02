@@ -5,6 +5,17 @@
 #include "Vector2DI.h"
 #include "src/core/vector2di.pb.h"
 
+glimmer::Vector2DI::Vector2DI() : x(0), y(0) {
+}
+
+glimmer::Vector2DI::Vector2DI(const int x, const int y) : x(x), y(y) {
+}
+
+glimmer::Vector2DI::Vector2DI(const Vector2D &v)
+    : x(static_cast<int>(std::floor(v.x))),
+      y(static_cast<int>(std::floor(v.y))) {
+}
+
 void glimmer::Vector2DI::FromMessage(const Vector2DIMessage &vector2di) {
     x = vector2di.x();
     y = vector2di.y();

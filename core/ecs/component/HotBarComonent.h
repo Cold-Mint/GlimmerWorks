@@ -18,8 +18,7 @@ namespace glimmer {
         std::vector<GameEntity::ID> slotEntities_;
 
     public:
-        explicit HotBarComponent(const int maxSlot) : maxSlot_(maxSlot) {
-        }
+        explicit HotBarComponent(int maxSlot);
 
         [[nodiscard]] int GetSelectedSlot() const;
 
@@ -27,13 +26,9 @@ namespace glimmer {
 
         [[nodiscard]] int GetMaxSlot() const;
 
-        void AddSlotEntity(const GameEntity::ID entity) {
-            slotEntities_.push_back(entity);
-        }
+        void AddSlotEntity(GameEntity::ID entity);
 
-        [[nodiscard]] const std::vector<GameEntity::ID> &GetSlotEntities() const {
-            return slotEntities_;
-        }
+        [[nodiscard]] const std::vector<GameEntity::ID> &GetSlotEntities() const;
 
         [[nodiscard]] u_int32_t GetId() override;
     };

@@ -25,6 +25,10 @@ void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree
     suggestionsTree.AddChild("readFile");
 }
 
+glimmer::VFSCommand::VFSCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem)
+    : Command(ctx), virtualFileSystem_(virtualFileSystem) {
+}
+
 std::string glimmer::VFSCommand::GetName() const {
     return VFS_COMMAND_NAME;
 }
@@ -87,11 +91,11 @@ bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(co
                     MapManifestMessage mapManifestMessage;
                     mapManifestMessage.ParseFromString(text.value());
                     onMessage(mapManifestMessage.DebugString());
-                }else if (messageType == "entity") {
+                } else if (messageType == "entity") {
                     ChunkEntityMessage chunkEntityMessage;
                     chunkEntityMessage.ParseFromString(text.value());
                     onMessage(chunkEntityMessage.DebugString());
-                }else if (messageType == "player") {
+                } else if (messageType == "player") {
                     PlayerMessage playerMessage;
                     playerMessage.ParseFromString(text.value());
                     onMessage(playerMessage.DebugString());

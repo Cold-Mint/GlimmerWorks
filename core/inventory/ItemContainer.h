@@ -36,14 +36,9 @@ namespace glimmer {
         static void UnBindItemEvent(const std::unique_ptr<Item> &item);
 
     public:
-        explicit ItemContainer(const size_t capacity) {
-            capacity_ = capacity;
-            items_ = std::vector<std::unique_ptr<Item> >(capacity);
-        }
+        explicit ItemContainer(size_t capacity);
 
-        ItemContainer()
-            : ItemContainer(0) {
-        }
+        ItemContainer();
 
 
         /**

@@ -259,6 +259,12 @@ bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path,
     return true;
 }
 
+glimmer::DataPack::DataPack(std::string path, const VirtualFileSystem *virtualFileSystem,
+                            const toml::spec &tomlVersion) : path_(std::move(path)),
+                                                             manifest_(), tomlVersion_(tomlVersion),
+                                                             virtualFileSystem_(virtualFileSystem) {
+}
+
 bool glimmer::DataPack::LoadManifest() {
     auto data =
             virtualFileSystem_->ReadFile(path_ + "/" + MANIFEST_FILE_NAME);

@@ -14,12 +14,7 @@ namespace glimmer {
         std::string worldName_;
         std::string seedStr_;
 
-        explicit CreateWorldScene(AppContext *context)
-            : Scene(context) {
-            const int newSeed = RandomSeed();
-            seedStr_ = std::to_string(newSeed);
-            worldName_ = RandomName();
-        }
+        explicit CreateWorldScene(AppContext *context);
 
         void CreateWorld() const;
 

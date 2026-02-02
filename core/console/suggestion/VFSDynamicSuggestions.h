@@ -12,8 +12,7 @@ namespace glimmer {
         VirtualFileSystem *virtualFileSystem_;
 
     public:
-        explicit VFSDynamicSuggestions(VirtualFileSystem *virtualFileSystem) : virtualFileSystem_(virtualFileSystem) {
-        }
+        explicit VFSDynamicSuggestions(VirtualFileSystem *virtualFileSystem);
 
         [[nodiscard]] std::string GetId() const override;
 

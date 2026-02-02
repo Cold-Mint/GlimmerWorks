@@ -14,6 +14,10 @@ bool glimmer::ItemEditorSystem::ShouldActivate() {
     return true;
 }
 
+glimmer::ItemEditorSystem::ItemEditorSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+}
+
 bool glimmer::ItemEditorSystem::HandleEvent(const SDL_Event &event) {
     auto hotBar = worldContext_->GetHotBarEntity();
     if (WorldContext::IsEmptyEntityId(hotBar)) {

@@ -6,6 +6,10 @@
 
 #include "core/Constants.h"
 
+glimmer::LootSuggestions::LootSuggestions(LootTableManager *loot_table_manager)
+    : lootTableManager_(loot_table_manager) {
+}
+
 std::string glimmer::LootSuggestions::GetId() const {
     return LOOT_DYNAMIC_SUGGESTIONS_NAME;
 }

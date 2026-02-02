@@ -1,12 +1,14 @@
 //
 // Created by Cold-Mint on 2025/12/1.
 //
-
+#ifdef __ANDROID__
 #include "AndroidControlSystem.h"
 #include "../../scene/AppContext.h"
 #include "../../Config.h"
 #include "../../log/LogCat.h"
 #include "../../Constants.h"
+#include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
 
 namespace glimmer {
     bool IsPointInRect(float x, float y, const SDL_FRect &r) {
@@ -28,6 +30,12 @@ namespace glimmer {
         event.key.down = down;
         event.key.repeat = false;
         SDL_PushEvent(&event);
+    }
+
+    AndroidControlSystem::AndroidControlSystem(AppContext *appContext, WorldContext *worldContext)
+        : GameSystem(appContext, worldContext) {
+        RequireComponent<PlayerControlComponent>();
+        RequireComponent<Transform2DComponent>();
     }
 
     bool AndroidControlSystem::HandleEvent(const SDL_Event &event) {
@@ -155,11 +163,12 @@ namespace glimmer {
         SDL_RenderTexture(renderer, jumpActive && jumpPressedTexture ? jumpPressedTexture.get() : jumpTexture.get(),
                           nullptr, &jumpRect);
 #if  !defined(NDEBUG)
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderRect(renderer, &leftRect);
-        SDL_RenderRect(renderer, &rightRect);
-        SDL_RenderRect(renderer, &jumpRect);
+SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+SDL_RenderRect(renderer, &leftRect);
+SDL_RenderRect(renderer, &rightRect);
+SDL_RenderRect(renderer, &jumpRect);
 #endif
-    AppContext::RestoreColorRenderer(renderer);
+AppContext::RestoreColorRenderer (renderer);
     }
 }
+#endif

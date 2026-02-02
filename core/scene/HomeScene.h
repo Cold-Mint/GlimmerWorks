@@ -5,9 +5,7 @@
 #ifndef GLIMMERWORKS_HOMESCENE_H
 #define GLIMMERWORKS_HOMESCENE_H
 #include <vector>
-
 #include "Scene.h"
-
 
 namespace glimmer {
     struct Star {
@@ -22,9 +20,7 @@ namespace glimmer {
         int windowHeight = 0;
 
     public:
-        explicit HomeScene(AppContext *context)
-            : Scene(context) {
-        }
+        explicit HomeScene(AppContext *context);
 
         bool HandleEvent(const SDL_Event &event) override;
 

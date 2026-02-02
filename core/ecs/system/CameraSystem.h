@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_CAMERASYSTEM_H
 #define GLIMMERWORKS_CAMERASYSTEM_H
 #include "../GameSystem.h"
-#include "../component/CameraComponent.h"
 #include "../component/Transform2DComponent.h"
 
 namespace glimmer
@@ -17,12 +16,7 @@ namespace glimmer
     class CameraSystem final : public GameSystem
     {
     public:
-        explicit CameraSystem(AppContext* appContext, WorldContext* worldContext)
-            : GameSystem(appContext, worldContext)
-        {
-            RequireComponent<CameraComponent>();
-            RequireComponent<Transform2DComponent>();
-        }
+        explicit CameraSystem(AppContext* appContext, WorldContext* worldContext);
 
         void Render(SDL_Renderer* renderer) override;
 

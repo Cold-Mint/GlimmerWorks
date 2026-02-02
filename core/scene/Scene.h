@@ -46,8 +46,7 @@ namespace glimmer {
 
         virtual ~Scene() = default;
 
-        explicit Scene(AppContext *context) : appContext(context) {
-        }
+        explicit Scene(AppContext *context);
     };
 }
 

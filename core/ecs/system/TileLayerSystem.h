@@ -5,20 +5,13 @@
 #ifndef GLIMMERWORKS_TILELAYERSYSTEM_H
 #define GLIMMERWORKS_TILELAYERSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/TileLayerComponent.h"
 
-namespace glimmer
-{
-    class TileLayerSystem final : public GameSystem
-    {
+namespace glimmer {
+    class TileLayerSystem final : public GameSystem {
     public:
-        TileLayerSystem(AppContext* appContext, WorldContext* worldContext)
-            : GameSystem(appContext, worldContext)
-        {
-            RequireComponent<TileLayerComponent>();
-        }
+        TileLayerSystem(AppContext *appContext, WorldContext *worldContext);
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         uint8_t GetRenderOrder() override;
 

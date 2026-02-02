@@ -5,10 +5,7 @@
 #ifndef GLIMMERWORKS_HOTBARSYSTEM_H
 #define GLIMMERWORKS_HOTBARSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/HotBarComonent.h"
 #include "../component/ItemContainerComonent.h"
-#include "../component/PlayerControlComponent.h"
-#include "core/ecs/component/GuiTransform2DComponent.h"
 
 namespace glimmer {
     /**
@@ -17,13 +14,7 @@ namespace glimmer {
      */
     class HotBarSystem : public GameSystem {
     public:
-        HotBarSystem(AppContext *appContext, WorldContext *worldContext)
-            : GameSystem(appContext, worldContext) {
-            RequireComponent<PlayerControlComponent>();
-            RequireComponent<ItemContainerComponent>();
-            RequireComponent<HotBarComponent>();
-            RequireComponent<GuiTransform2DComponent>();
-        }
+        HotBarSystem(AppContext *appContext, WorldContext *worldContext);
 
         void Update(float delta) override;
 

@@ -23,8 +23,7 @@ namespace glimmer {
          * Initializes x and y to 0
          * 初始化 x 和 y 为 0
          */
-        Vector2DI() : x(0), y(0) {
-        }
+        Vector2DI();
 
         /**
          * Construct a vector with given components
@@ -32,17 +31,13 @@ namespace glimmer {
          * @param x X component X分量
          * @param y Y component Y分量
          */
-        Vector2DI(const int x, const int y) : x(x), y(y) {
-        }
+        Vector2DI(int x, int y);
 
         /**
          * Construct from floating vector (round down)
          * 从浮点向量构造（向下取整）
          */
-        explicit Vector2DI(const Vector2D &v)
-            : x(static_cast<int>(std::floor(v.x))),
-              y(static_cast<int>(std::floor(v.y))) {
-        }
+        explicit Vector2DI(const Vector2D &v);
 
         void FromMessage(const Vector2DIMessage &vector2di);
 

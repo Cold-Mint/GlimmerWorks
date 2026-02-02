@@ -26,6 +26,10 @@ void glimmer::SavesManager::AddSaves(std::unique_ptr<Saves> saves) {
     });
 }
 
+glimmer::SavesManager::SavesManager(VirtualFileSystem *virtualFileSystem) {
+    virtualFileSystem_ = virtualFileSystem;
+}
+
 glimmer::Saves *glimmer::SavesManager::GetSave(const size_t index) const {
     return saveList_[index].get();
 }

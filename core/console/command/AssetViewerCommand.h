@@ -9,9 +9,7 @@
 namespace glimmer {
     class AssetViewerCommand final : public Command {
     public:
-        explicit AssetViewerCommand(AppContext *ctx)
-            : Command(ctx) {
-        }
+        explicit AssetViewerCommand(AppContext *ctx);
 
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;

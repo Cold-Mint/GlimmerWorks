@@ -12,8 +12,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit TpCommand(AppContext *ctx) : Command(ctx) {
-        }
+        explicit TpCommand(AppContext *ctx);
 
         ~TpCommand() override = default;
 

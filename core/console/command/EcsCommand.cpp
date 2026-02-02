@@ -9,6 +9,9 @@
 #include "../../scene/AppContext.h"
 #include "../../scene/WorldScene.h"
 
+glimmer::EcsCommand::EcsCommand(AppContext *ctx) : Command(ctx) {
+}
+
 std::string glimmer::EcsCommand::EntityToString(const GameEntity::ID gameEntityId) const {
     const std::vector<GameComponent *> components = worldContext_->GetAllComponents(gameEntityId);
     std::string data;
@@ -102,7 +105,8 @@ bool glimmer::EcsCommand::Execute(CommandArgs commandArgs, std::function<void(co
     }
     std::string arg = commandArgs.AsString(1);
     if (arg == "showEntityList") {
-        for (const std::vector<GameEntity::ID> allGameEntities = worldContext_->GetAllGameEntityId(); const auto &e: allGameEntities) {
+        for (const std::vector<GameEntity::ID> allGameEntities = worldContext_->GetAllGameEntityId(); const auto &e:
+             allGameEntities) {
             onMessage(EntityToString(e));
         }
         return true;

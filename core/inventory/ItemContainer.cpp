@@ -26,6 +26,15 @@ void glimmer::ItemContainer::UnBindItemEvent(const std::unique_ptr<Item> &item) 
     item->SetOnAmountZero(nullptr);
 }
 
+glimmer::ItemContainer::ItemContainer(const size_t capacity) {
+    capacity_ = capacity;
+    items_ = std::vector<std::unique_ptr<Item> >(capacity);
+}
+
+glimmer::ItemContainer::ItemContainer()
+    : ItemContainer(0) {
+}
+
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<Item> item) {
     for (auto &i: items_) {
         Item *itemPtr = i.get();

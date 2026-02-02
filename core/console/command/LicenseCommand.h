@@ -12,9 +12,7 @@ namespace glimmer {
         VirtualFileSystem *virtualFileSystem_;
 
     public:
-        explicit LicenseCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem)
-            : Command(ctx), virtualFileSystem_(virtualFileSystem) {
-        }
+        explicit LicenseCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem);
 
         bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
 

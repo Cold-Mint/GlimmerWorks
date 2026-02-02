@@ -17,8 +17,7 @@ namespace glimmer {
                                const std::string &prefix = "");
 
     public:
-        explicit ConfigSuggestions(toml::value *configValue) : configValue_(configValue) {
-        }
+        explicit ConfigSuggestions(toml::value *configValue);
 
         bool Match(std::string keyword, std::string param) override;
 

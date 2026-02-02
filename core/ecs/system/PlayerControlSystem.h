@@ -5,9 +5,6 @@
 #ifndef GLIMMERWORKS_PLAYERCONTROLSYSTEM_H
 #define GLIMMERWORKS_PLAYERCONTROLSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/PlayerControlComponent.h"
-#include "../component/Transform2DComponent.h"
-#include <SDL3/SDL_events.h>
 
 namespace glimmer {
     class RigidBody2DComponent;
@@ -16,13 +13,8 @@ namespace glimmer {
      * 玩家控制系统，处理玩家的输入控制，实现WASD移动相机功能
      */
     class PlayerControlSystem final : public GameSystem {
-
     public:
-        explicit PlayerControlSystem(AppContext *appContext, WorldContext *worldContext)
-            : GameSystem(appContext, worldContext) {
-            RequireComponent<PlayerControlComponent>();
-            RequireComponent<Transform2DComponent>();
-        }
+        explicit PlayerControlSystem(AppContext *appContext, WorldContext *worldContext);
 
         void Update(float delta) override;
 

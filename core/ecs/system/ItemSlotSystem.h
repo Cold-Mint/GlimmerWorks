@@ -7,7 +7,6 @@
 
 #include "../GameSystem.h"
 #include "../component/ItemSlotComponent.h"
-#include "core/ecs/component/GuiTransform2DComponent.h"
 
 namespace glimmer {
     class Item;
@@ -18,11 +17,7 @@ namespace glimmer {
         void RenderTooltip(SDL_Renderer *renderer, const Item *item) const;
 
     public:
-        ItemSlotSystem(AppContext *appContext, WorldContext *worldContext)
-            : GameSystem(appContext, worldContext) {
-            RequireComponent<ItemSlotComponent>();
-            RequireComponent<GuiTransform2DComponent>();
-        }
+        ItemSlotSystem(AppContext *appContext, WorldContext *worldContext);
 
         void Render(SDL_Renderer *renderer) override;
 

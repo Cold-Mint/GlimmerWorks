@@ -7,8 +7,15 @@
 #include "../../log/LogCat.h"
 #include "../../utils/Box2DUtils.h"
 #include "box2d/box2d.h"
+#include "core/Constants.h"
 #include "src/saves/rigidbody_2d.pb.h"
 
+
+glimmer::RigidBody2DComponent::~RigidBody2DComponent() {
+    if (ready_) {
+        b2DestroyBody(bodyId_);
+    }
+}
 
 void glimmer::RigidBody2DComponent::SetCategoryBits(const uint64_t categoryBits) {
     categoryBits_ = categoryBits;

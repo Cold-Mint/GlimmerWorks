@@ -15,9 +15,7 @@ namespace glimmer {
         bool isSelected_ = false;
 
     public:
-        explicit ItemSlotComponent(ItemContainer *itemContainer, const int slotIndex)
-            : itemContainer_(itemContainer), slotIndex_(slotIndex) {
-        }
+        explicit ItemSlotComponent(ItemContainer *itemContainer, int slotIndex);
 
         [[nodiscard]] ItemContainer *GetItemContainer() const;
 

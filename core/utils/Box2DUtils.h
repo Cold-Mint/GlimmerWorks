@@ -4,14 +4,11 @@
 
 #ifndef GLIMMERWORKS_BOX2DUTILS_H
 #define GLIMMERWORKS_BOX2DUTILS_H
-#include "../Constants.h"
-#include "../math/Vector2D.h"
 #include "box2d/math_functions.h"
+#include "core/math/Vector2D.h"
 
-namespace glimmer
-{
-    class Box2DUtils
-    {
+namespace glimmer {
+    class Box2DUtils {
     public:
         /**
          * Convert meters to pixels
@@ -19,14 +16,15 @@ namespace glimmer
          * @param meters meters 米
          * @return Pixel 像素
          */
-        static float ToPixels(const float meters) { return meters * KSCALE; }
+        static float ToPixels(float meters);
+
         /**
          * Convert pixels to meters
          * 将像素转换为米
          * @param pixels pixels 像素
          * @return Meter 米
          */
-        static float ToMeters(const float pixels) { return pixels * KINV_SCALE; }
+        static float ToMeters(float pixels);
 
 
         /**
@@ -35,10 +33,7 @@ namespace glimmer
          * @param vec2 vec2 Box2D Vec2
          * @return Vector2D Vector2D
          */
-        static Vector2D ToPixels(const b2Vec2 vec2)
-        {
-            return {ToPixels(vec2.x), ToPixels(vec2.y)};
-        }
+        static Vector2D ToPixels(b2Vec2 vec2);
 
         /**
          * Convert Vector2D to Box2D Vec2
@@ -46,10 +41,7 @@ namespace glimmer
          * @param vector2D vector2D Vector2D
          * @return b2Vec2 b2Vec2
          */
-        static b2Vec2 ToMeters(const Vector2D vector2D)
-        {
-            return {ToMeters(vector2D.x), ToMeters(vector2D.y)};
-        }
+        static b2Vec2 ToMeters(Vector2D vector2D);
     };
 }
 

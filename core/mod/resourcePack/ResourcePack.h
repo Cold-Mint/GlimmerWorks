@@ -20,9 +20,7 @@ namespace glimmer {
 
     public:
         explicit ResourcePack(std::string path, const VirtualFileSystem *virtualFileSystem,
-                              const toml::spec &tomlVersion) : path_(std::move(path)),
-                                                               virtualFileSystem_(virtualFileSystem), manifest_() ,tomlVersion_(tomlVersion){
-        }
+                              const toml::spec &tomlVersion);
 
         bool loadManifest();
 

@@ -14,12 +14,7 @@ namespace glimmer
     class DebugDrawSystem : public GameSystem
     {
     public:
-        explicit DebugDrawSystem(AppContext* appContext, WorldContext* worldContext)
-            : GameSystem(appContext, worldContext)
-        {
-            RequireComponent<DebugDrawComponent>();
-            RequireComponent<Transform2DComponent>();
-        }
+        explicit DebugDrawSystem(AppContext* appContext, WorldContext* worldContext);
 
         void Render(SDL_Renderer* renderer) override;
 

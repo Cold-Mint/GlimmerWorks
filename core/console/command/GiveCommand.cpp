@@ -22,6 +22,10 @@ void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string> &suggestionsTre
     suggestionsTree.AddChild("abilityItem")->AddChild(ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME);
 }
 
+glimmer::GiveCommand::GiveCommand(AppContext *ctx)
+    : Command(ctx) {
+}
+
 bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
     if (worldContext_ == nullptr) {
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
@@ -130,7 +134,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
 
-        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource,resourceRef);
+        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource, resourceRef);
         if (abilityItem == nullptr) {
             onMessage(appContext_->GetLangsResources()->composableItemIsNull);
             return false;

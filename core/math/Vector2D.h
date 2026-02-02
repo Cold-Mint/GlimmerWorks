@@ -18,8 +18,7 @@ namespace glimmer {
          * Initializes x and y to 0.0f
          * 初始化 x 和 y 为 0.0f
          */
-        Vector2D() : x(0.0F), y(0.0F) {
-        }
+        Vector2D();
 
         /**
          * Construct a vector with given components
@@ -29,11 +28,9 @@ namespace glimmer {
          * @param x X 分量
          * @param y Y 分量
          */
-        Vector2D(const float x, const float y) : x(x), y(y) {
-        }
+        Vector2D(float x, float y);
 
-        Vector2D(const int x, const int y) : x(static_cast<float>(x)), y(static_cast<float>(y)) {
-        }
+        Vector2D(int x, int y);
 
         /**
          * Vector addition
@@ -130,7 +127,7 @@ namespace glimmer {
        */
         [[nodiscard]] Vector2DI ToInt() const;
 
-        bool operator==(const Vector2D & vector_2d) const = default;
+        bool operator==(const Vector2D &vector_2d) const = default;
     };
 
 

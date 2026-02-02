@@ -7,7 +7,13 @@
 #include "imgui.h"
 #include "../../world/WorldContext.h"
 #include "../component/ItemContainerComonent.h"
+#include "core/utils/TimeUtils.h"
 
+
+glimmer::PauseSystem::PauseSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<PauseComponent>();
+}
 
 uint8_t glimmer::PauseSystem::GetRenderOrder() {
     return RENDER_ORDER_PAUSE;

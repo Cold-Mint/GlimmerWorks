@@ -7,7 +7,15 @@
 #include "../../utils/Box2DUtils.h"
 #include "../../world/WorldContext.h"
 #include "box2d/box2d.h"
+#include "core/ecs/component/RigidBody2DComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
 
+
+glimmer::PhysicsSystem::PhysicsSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<Transform2DComponent>();
+    RequireComponent<RigidBody2DComponent>();
+}
 
 void glimmer::PhysicsSystem::Update(const float delta) {
     const b2WorldId worldId_ = worldContext_->GetWorldId();

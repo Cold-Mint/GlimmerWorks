@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_PHYSICSSYSTEM_H
 #define GLIMMERWORKS_PHYSICSSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/RigidBody2DComponent.h"
 #include "../component/Transform2DComponent.h"
 
 
@@ -29,11 +28,7 @@ namespace glimmer {
         float accumulator_ = 0.0F;
 
     public:
-        PhysicsSystem(AppContext *appContext, WorldContext *worldContext)
-            : GameSystem(appContext, worldContext) {
-            RequireComponent<Transform2DComponent>();
-            RequireComponent<RigidBody2DComponent>();
-        }
+        PhysicsSystem(AppContext *appContext, WorldContext *worldContext);
 
 
         void Update(float delta) override;

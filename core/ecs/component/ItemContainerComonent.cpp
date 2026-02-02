@@ -6,6 +6,14 @@
 
 #include "core/log/LogCat.h"
 
+glimmer::ItemContainerComponent::ItemContainerComponent(size_t capacity)
+    : itemContainer_(std::make_unique<ItemContainer>(capacity)) {
+}
+
+glimmer::ItemContainerComponent::ItemContainerComponent()
+    : ItemContainerComponent(0) {
+}
+
 glimmer::ItemContainer *glimmer::ItemContainerComponent::GetItemContainer() const {
     return itemContainer_.get();
 }

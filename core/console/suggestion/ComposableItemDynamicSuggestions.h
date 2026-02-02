@@ -12,9 +12,7 @@ namespace glimmer {
         ItemManager *itemManager_;
 
     public:
-        explicit ComposableItemDynamicSuggestions(ItemManager *itemManager) {
-            itemManager_ = itemManager;
-        }
+        explicit ComposableItemDynamicSuggestions(ItemManager *itemManager);
 
         [[nodiscard]] std::string GetId() const override;
 

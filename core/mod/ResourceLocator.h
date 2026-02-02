@@ -11,7 +11,6 @@
 #include "core/inventory/Item.h"
 
 namespace glimmer {
-    class AppContext;
     /**
      * ResourceLocator，Used to interpret references and return the corresponding resources.
      * 资源定位器，用于解释引用并返回对应的资源。
@@ -20,8 +19,7 @@ namespace glimmer {
         AppContext *appContext_;
 
     public:
-        explicit ResourceLocator(AppContext *appContext_) : appContext_(appContext_) {
-        }
+        explicit ResourceLocator(AppContext *appContext_);
 
         /**
          * FindString

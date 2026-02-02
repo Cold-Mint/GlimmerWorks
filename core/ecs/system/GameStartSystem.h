@@ -13,10 +13,7 @@ namespace glimmer
         bool shouldStart = true;
 
     public:
-        explicit GameStartSystem(AppContext* appContext, WorldContext* worldContext)
-            : GameSystem(appContext, worldContext)
-        {
-        }
+        explicit GameStartSystem(AppContext* appContext, WorldContext* worldContext);
 
         void Update(float delta) override;
 

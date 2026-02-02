@@ -31,8 +31,7 @@ namespace glimmer {
                                       const std::vector<std::string> &enabledDataPack);
 
     public:
-        explicit DataPackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(virtualFilesystem) {
-        }
+        explicit DataPackManager(VirtualFileSystem *virtualFilesystem);
 
         //Scan the data packets in the specified directory(Return the number of data packets successfully loaded)
         //扫描指定目录下的数据包（返回成功加载多少个数据包）

@@ -10,6 +10,11 @@
 #include "../component/Transform2DComponent.h"
 #include "../../world/WorldContext.h"
 
+glimmer::TileLayerSystem::TileLayerSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<TileLayerComponent>();
+}
+
 void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     const auto *cameraComponent = worldContext_->GetCameraComponent();
     const auto *cameraPos = worldContext_->GetCameraTransform2D();

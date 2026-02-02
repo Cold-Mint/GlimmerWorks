@@ -15,10 +15,7 @@ namespace glimmer {
         std::unique_ptr<WorldContext> worldContext_;
 
     public:
-        explicit WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext)
-            : Scene(context) {
-            worldContext_ = std::move(worldContext);
-        }
+        explicit WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext);
 
         void OnFrameStart() override;
 

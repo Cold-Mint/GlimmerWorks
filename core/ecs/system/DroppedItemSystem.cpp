@@ -6,6 +6,14 @@
 
 #include "../../world/WorldContext.h"
 #include "../component/CameraComponent.h"
+#include "../component/DroppedItemComponent.h"
+#include "../component/Transform2DComponent.h"
+
+glimmer::DroppedItemSystem::DroppedItemSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<Transform2DComponent>();
+    RequireComponent<DroppedItemComponent>();
+}
 
 uint8_t glimmer::DroppedItemSystem::GetRenderOrder() {
     return RENDER_ORDER_DROPPED_ITEM;

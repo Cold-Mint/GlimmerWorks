@@ -4,6 +4,11 @@
 
 #include "WorldScene.h"
 
+glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext)
+    : Scene(context) {
+    worldContext_ = std::move(worldContext);
+}
+
 void glimmer::WorldScene::OnFrameStart() {
     worldContext_->OnFrameStart();
 }

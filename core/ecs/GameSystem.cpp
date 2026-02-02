@@ -26,6 +26,10 @@ void glimmer::GameSystem::OnActivationChanged(const bool activeStatus) {
 }
 
 
+glimmer::GameSystem::GameSystem(AppContext *appContext, WorldContext *worldContext) : worldContext_(worldContext),
+    appContext_(appContext) {
+}
+
 bool glimmer::GameSystem::CheckActivation() {
     const bool shouldActivate = ShouldActivate();
     if (!active && shouldActivate) {
@@ -42,6 +46,17 @@ bool glimmer::GameSystem::CheckActivation() {
 
 bool glimmer::GameSystem::IsActive() const {
     return active;
+}
+
+bool glimmer::GameSystem::SupportsComponentType(const std::type_index &type) const {
+    if (requiredComponents.empty()) {
+        return false;
+    }
+    return requiredComponents.contains(type);
+}
+
+bool glimmer::GameSystem::CanRunWhilePaused() const {
+    return false;
 }
 
 bool glimmer::GameSystem::HandleEvent(const SDL_Event &event) {

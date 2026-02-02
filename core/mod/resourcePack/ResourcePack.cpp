@@ -10,9 +10,15 @@
 #include "toml11/parser.hpp"
 
 
+glimmer::ResourcePack::ResourcePack(std::string path, const VirtualFileSystem *virtualFileSystem,
+                                    const toml::spec &tomlVersion) : path_(std::move(path)),
+                                                                     virtualFileSystem_(virtualFileSystem), manifest_(),
+                                                                     tomlVersion_(tomlVersion) {
+}
+
 bool glimmer::ResourcePack::loadManifest() {
     auto data =
-        virtualFileSystem_->ReadFile(path_ + "/" + MANIFEST_FILE_NAME);
+            virtualFileSystem_->ReadFile(path_ + "/" + MANIFEST_FILE_NAME);
     if (!data.has_value()) {
         LogCat::e("DataPack::loadManifest - Failed to load manifest: ", path_ + "/" + MANIFEST_FILE_NAME);
         return false;
@@ -29,7 +35,8 @@ bool glimmer::ResourcePack::loadManifest() {
     LogCat::d("ResourcePack::loadManifest - Loaded manifest for data pack: ", path_);
     LogCat::d("ID: ", manifest_.id);
     LogCat::d("Name: ", manifest_.name.GetResourceKey(), " (packId: ", manifest_.name.GetPackageId(), ")");
-    LogCat::d("Description: ", manifest_.description.GetResourceKey(), " (packId: ", manifest_.description.GetPackageId(),
+    LogCat::d("Description: ", manifest_.description.GetResourceKey(), " (packId: ",
+              manifest_.description.GetPackageId(),
               ")");
     LogCat::d("Author: ", manifest_.author);
     LogCat::d("Version: ", manifest_.versionName, " (Number: ", manifest_.versionNumber, ")");

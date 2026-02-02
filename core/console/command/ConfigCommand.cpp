@@ -15,6 +15,9 @@ void glimmer::ConfigCommand::InitSuggestions(NodeTree<std::string> &suggestionsT
     suggestionsTree.AddChild("set")->AddChild(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
 }
 
+glimmer::ConfigCommand::ConfigCommand(AppContext *ctx, toml::value *value) : Command(ctx), configValue_(value) {
+}
+
 std::string glimmer::ConfigCommand::GetName() const {
     return CONFIG_COMMAND_NAME;
 }

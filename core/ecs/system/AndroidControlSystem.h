@@ -4,11 +4,10 @@
 
 #ifndef GLIMMERWORKS_ANDROIDCONTROLSYSTEM_H
 #define GLIMMERWORKS_ANDROIDCONTROLSYSTEM_H
-
+#ifdef __ANDROID__
 #include "../GameSystem.h"
-#include "../component/PlayerControlComponent.h"
-#include "../component/Transform2DComponent.h"
 #include <map>
+#include <memory>
 
 namespace glimmer {
     class AndroidControlSystem : public GameSystem {
@@ -33,11 +32,7 @@ namespace glimmer {
         std::map<SDL_FingerID, ButtonType> activeTouches;
 
     public:
-        AndroidControlSystem(AppContext *appContext, WorldContext *worldContext)
-            : GameSystem(appContext, worldContext) {
-            RequireComponent<PlayerControlComponent>();
-            RequireComponent<Transform2DComponent>();
-        }
+        AndroidControlSystem(AppContext *appContext, WorldContext *worldContext);
 
         bool HandleEvent(const SDL_Event &event) override;
 
@@ -50,5 +45,5 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
+#endif
 #endif //GLIMMERWORKS_ANDROIDCONTROLSYSTEM_H

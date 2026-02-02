@@ -46,9 +46,7 @@ namespace glimmer {
 
     public:
         explicit
-        ResourcePackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(
-                                                                        virtualFilesystem), renderer_(nullptr) {
-        }
+        ResourcePackManager(VirtualFileSystem *virtualFilesystem);
 
         void SetRenderer(SDL_Renderer *renderer);
 

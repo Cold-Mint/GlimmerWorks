@@ -6,7 +6,6 @@
 #define GLIMMERWORKS_ITEMABILITYFACTORY_H
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "../mod/Resource.h"
 #include "ability/ItemAbility.h"

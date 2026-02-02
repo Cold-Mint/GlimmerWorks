@@ -4,6 +4,8 @@
 
 #include "GameEntity.h"
 
+glimmer::GameEntity::GameEntity(const ID id) : id_(id) {
+}
 glimmer::GameEntity::ID glimmer::GameEntity::GetID() const {
     return id_;
 }

@@ -3,3 +3,6 @@
 //
 
 #include "ItemAbility.h"
+
+glimmer::ItemAbility::ItemAbility(const VariableConfig &abilityData) {
+}

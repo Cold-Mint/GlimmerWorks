@@ -13,6 +13,10 @@ void glimmer::Box2DCommand::InitSuggestions(NodeTree<std::string> &suggestionsTr
     suggestionsTree.AddChild("count");
 }
 
+glimmer::Box2DCommand::Box2DCommand(AppContext *ctx)
+    : Command(ctx) {
+}
+
 std::string glimmer::Box2DCommand::GetName() const {
     return BOX2D_COMMAND_NAME;
 }

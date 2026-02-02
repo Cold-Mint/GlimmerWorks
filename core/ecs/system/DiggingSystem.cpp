@@ -12,6 +12,11 @@
 #include "../../world/ChunkPhysicsHelper.h"
 #include "../../world/Chunk.h"
 
+glimmer::DiggingSystem::DiggingSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<DiggingComponent>();
+}
+
 void glimmer::DiggingSystem::Update(float delta) {
     auto diggingComponent = worldContext_->GetDiggingComponent();
     if (!diggingComponent->CheckAndResetActive()) {

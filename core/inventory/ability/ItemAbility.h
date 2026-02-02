@@ -20,8 +20,7 @@ namespace glimmer {
     class ItemAbility {
     public:
         explicit ItemAbility(
-            const VariableConfig &abilityData) {
-        }
+            const VariableConfig &abilityData);
 
         virtual ~ItemAbility() = default;
 

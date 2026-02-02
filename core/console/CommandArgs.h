@@ -4,7 +4,6 @@
 
 #ifndef GLIMMERWORKS_COMMANDARGS_H
 #define GLIMMERWORKS_COMMANDARGS_H
-#include <sstream>
 #include <string>
 #include <vector>
 #include <optional>
@@ -17,15 +16,7 @@ namespace glimmer {
         std::string command_;
 
     public:
-        explicit CommandArgs(const std::string &command) {
-            command_ = command;
-            std::istringstream iss(command);
-            std::string token;
-            while (iss >> token) {
-                tokens_.push_back(token);
-            }
-        }
-
+        explicit CommandArgs(const std::string &command);
 
         /**
          * Obtain the Token position corresponding to the cursor position
@@ -55,7 +46,7 @@ namespace glimmer {
 
         [[nodiscard]] std::string AsString(int index) const;
 
-        [[nodiscard]] std::optional<ResourceRef> AsResourceRef(int index,int resourceType) const;
+        [[nodiscard]] std::optional<ResourceRef> AsResourceRef(int index, int resourceType) const;
     };
 }
 

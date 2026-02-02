@@ -10,6 +10,10 @@
 #include "../world/ChunkPhysicsHelper.h"
 #include "../world/WorldContext.h"
 
+glimmer::TileItem::TileItem(std::unique_ptr<Tile> tile) : tile_(std::move(tile)) {
+    maxStack_ = ITEM_MAX_STACK;
+}
+
 std::string glimmer::TileItem::GetId() const {
     return tile_->id;
 }

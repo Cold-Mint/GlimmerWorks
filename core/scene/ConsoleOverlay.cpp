@@ -173,6 +173,10 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
     focusNextFrame_ = true;
 }
 
+glimmer::ConsoleOverlay::ConsoleOverlay(AppContext *context)
+    : Scene(context) {
+}
+
 void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     if (!show_) return;
     const float uiScale = appContext->GetConfig()->window.uiScale;

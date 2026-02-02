@@ -6,6 +6,10 @@
 
 #include "../../Constants.h"
 
+glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(ItemManager *itemManager) {
+    itemManager_ = itemManager;
+}
+
 std::string glimmer::AbilityItemDynamicSuggestions::GetId() const {
     return ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }

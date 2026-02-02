@@ -4,6 +4,9 @@
 
 #include "Command.h"
 
+glimmer::Command::Command(AppContext *ctx) : appContext_(ctx) {
+}
+
 bool glimmer::Command::RequiresWorldContext() const {
     return false;
 }

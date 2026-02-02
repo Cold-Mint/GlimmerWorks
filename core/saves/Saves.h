@@ -4,7 +4,6 @@
 
 #ifndef GLIMMERWORKS_SAVES_H
 #define GLIMMERWORKS_SAVES_H
-#include <filesystem>
 #include <utility>
 
 #include "MapManifest.h"
@@ -27,9 +26,7 @@ namespace glimmer {
         [[nodiscard]] std::string ToPlayerPath() const;
 
     public:
-        explicit Saves(std::string path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
-            virtualFileSystem_(virtualFileSystem) {
-        }
+        explicit Saves(std::string path, VirtualFileSystem *virtualFileSystem);
 
         void SetOnMapManifestChanged(const std::function<void(const MapManifestMessage &)> &onMapManifestChanged);
 

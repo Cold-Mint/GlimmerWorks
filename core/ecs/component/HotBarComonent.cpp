@@ -7,6 +7,9 @@
 #include "core/Constants.h"
 
 
+glimmer::HotBarComponent::HotBarComponent(const int maxSlot) : maxSlot_(maxSlot) {
+}
+
 int glimmer::HotBarComponent::GetSelectedSlot() const {
     return selectedSlot_;
 }
@@ -22,6 +25,14 @@ void glimmer::HotBarComponent::SetSelectedSlot(int selectedSlot) {
 
 int glimmer::HotBarComponent::GetMaxSlot() const {
     return maxSlot_;
+}
+
+void glimmer::HotBarComponent::AddSlotEntity(const GameEntity::ID entity) {
+    slotEntities_.push_back(entity);
+}
+
+const std::vector<glimmer::GameEntity::ID> &glimmer::HotBarComponent::GetSlotEntities() const {
+    return slotEntities_;
 }
 
 u_int32_t glimmer::HotBarComponent::GetId() {

@@ -6,7 +6,17 @@
 #include "../component/HotBarComonent.h"
 #include "../../world/WorldContext.h"
 #include "../component/ItemSlotComponent.h"
+#include "core/ecs/component/GuiTransform2DComponent.h"
+#include "core/ecs/component/PlayerControlComponent.h"
 
+
+glimmer::HotBarSystem::HotBarSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<PlayerControlComponent>();
+    RequireComponent<ItemContainerComponent>();
+    RequireComponent<HotBarComponent>();
+    RequireComponent<GuiTransform2DComponent>();
+}
 
 void glimmer::HotBarSystem::Update(float delta) {
     const auto hotBarEntity = worldContext_->GetHotBarEntity();

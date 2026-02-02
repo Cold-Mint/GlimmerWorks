@@ -12,7 +12,14 @@
 #include "../component/HotBarComonent.h"
 #include "../../Constants.h"
 #include "../component/ItemContainerComonent.h"
+#include "core/ecs/component/PlayerControlComponent.h"
 
+
+glimmer::PlayerControlSystem::PlayerControlSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+    RequireComponent<PlayerControlComponent>();
+    RequireComponent<Transform2DComponent>();
+}
 
 void glimmer::PlayerControlSystem::Update(const float delta) {
     const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent, RigidBody2DComponent>();

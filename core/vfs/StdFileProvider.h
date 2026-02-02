@@ -19,9 +19,7 @@ namespace glimmer {
     public:
         ~StdFileProvider() override = default;
 
-        explicit StdFileProvider(std::string rootPath)
-            : root_(std::move(rootPath)) {
-        }
+        explicit StdFileProvider(std::string rootPath);
 
         [[nodiscard]] bool DeleteFileOrFolder(const std::string &path) override;
 

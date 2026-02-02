@@ -12,6 +12,10 @@
 #include "core/ecs/component/ItemContainerComonent.h"
 
 
+glimmer::GameStartSystem::GameStartSystem(AppContext *appContext, WorldContext *worldContext)
+    : GameSystem(appContext, worldContext) {
+}
+
 void glimmer::GameStartSystem::Update(float delta) {
     LogCat::d("Game Start System init");
     LogCat::i("Grid entity created with GridComponent");

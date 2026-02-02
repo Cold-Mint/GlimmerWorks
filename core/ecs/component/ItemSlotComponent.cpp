@@ -7,6 +7,10 @@
 #include "core/Constants.h"
 
 
+glimmer::ItemSlotComponent::ItemSlotComponent(ItemContainer *itemContainer, const int slotIndex)
+    : itemContainer_(itemContainer), slotIndex_(slotIndex) {
+}
+
 glimmer::ItemContainer *glimmer::ItemSlotComponent::GetItemContainer() const {
     return itemContainer_;
 }

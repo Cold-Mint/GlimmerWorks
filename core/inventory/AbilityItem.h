@@ -5,13 +5,7 @@
 #ifndef GLIMMERWORKS_ABILITYITEM_H
 #define GLIMMERWORKS_ABILITYITEM_H
 #include "Item.h"
-
-#include <utility>
-
-#include "ComposableItem.h"
-#include "ItemAbilityFactory.h"
-#include "../mod/ResourceLocator.h"
-#include "../log/LogCat.h"
+#include "ability/ItemAbility.h"
 
 namespace glimmer {
     class AbilityItem : public Item {
@@ -27,12 +21,7 @@ namespace glimmer {
     public:
         explicit AbilityItem(std::string id, std::string name, std::string description,
                              std::shared_ptr<SDL_Texture> icon,
-                             std::unique_ptr<ItemAbility> itemAbility, const bool canUseAlone) : id_(std::move(id)),
-            name_(std::move(name)),
-            description_(std::move(description)),
-            icon_(std::move(icon)),
-            itemAbility_(std::move(itemAbility)), canUseAlone_(canUseAlone) {
-        }
+                             std::unique_ptr<ItemAbility> itemAbility, bool canUseAlone);
 
         [[nodiscard]] std::string GetId() const override;
 
@@ -44,32 +33,9 @@ namespace glimmer {
 
         [[nodiscard]] ItemAbility *GetItemAbility() const;
 
-
         static std::unique_ptr<AbilityItem> FromItemResource(AppContext *appContext,
                                                              const AbilityItemResource *itemResource,
-                                                             const ResourceRef &resourceRef) {
-            std::string name = Resource::GenerateId(itemResource->packId, itemResource->key);
-            const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
-            if (nameRes.has_value()) {
-                name = nameRes.value()->value;
-            }
-            std::string description = Resource::GenerateId(itemResource->packId, itemResource->key);;
-            auto descriptionRes = appContext->GetResourceLocator()->FindString(itemResource->description);
-            if (descriptionRes.has_value()) {
-                description = descriptionRes.value()->value;
-            }
-            auto itemAbility =
-                    ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
-            if (itemAbility == nullptr) {
-                LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
-                return nullptr;
-            }
-            return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), name,
-                                                 description,
-                                                 appContext->GetResourcePackManager()->LoadTextureFromFile(
-                                                     appContext, itemResource->texture), std::move(itemAbility),
-                                                 itemResource->canUseAlone);
-        }
+                                                             const ResourceRef &resourceRef);
 
         void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) override;
 

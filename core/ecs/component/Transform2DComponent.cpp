@@ -8,6 +8,9 @@
 #include "src/core/vector2di.pb.h"
 #include "src/saves/transform2d.pb.h"
 
+glimmer::Transform2DComponent::Transform2DComponent(WorldVector2D position) : position_(position) {
+}
+
 void glimmer::Transform2DComponent::SetPosition(WorldVector2D newPosition) {
     position_ = newPosition;
 }
@@ -41,7 +44,8 @@ std::string glimmer::Transform2DComponent::Serialize() {
     return transform2DMessage.SerializeAsString();
 }
 
-void glimmer::Transform2DComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,const std::string &data) {
+void glimmer::Transform2DComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,
+                                                const std::string &data) {
     Transform2dMessage transform2DMessage;
     transform2DMessage.ParseFromString(data);
     position_.x = transform2DMessage.position().x();

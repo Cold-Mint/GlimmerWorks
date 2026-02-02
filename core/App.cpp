@@ -14,6 +14,27 @@
 #include "scene/ConsoleOverlay.h"
 #include "scene/DebugOverlay.h"
 #include "SDL3_ttf/SDL_ttf.h"
+#include <SDL3/SDL_init.h>
+
+glimmer::App::~App() {
+    LogCat::i("Destroy the app");
+    if (window != nullptr) {
+        SDL_DestroyWindow(window);
+    }
+    if (initSDLTtfSuccess) {
+        TTF_Quit();
+    }
+    if (initSDLSuccess) {
+        SDL_Quit();
+    }
+}
+
+glimmer::App::App(AppContext *ac) : appContext(ac) {
+    window = nullptr;
+    renderer_ = nullptr;
+    initSDLSuccess = false;
+    initSDLTtfSuccess = false;
+}
 
 bool glimmer::App::init() {
     LogCat::i("Initializing SDL...");

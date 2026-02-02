@@ -177,3 +177,7 @@ std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
     }
     return result;
 }
+
+const glimmer::CommandManager::CommandMap &glimmer::CommandManager::GetCommands() {
+    return commandMap_;
+}

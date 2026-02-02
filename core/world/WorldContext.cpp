@@ -32,9 +32,18 @@
 #include "../mod/ResourceLocator.h"
 #include "../saves/Saves.h"
 #include "../utils/Box2DUtils.h"
+#include "box2d/box2d.h"
+#include "core/ecs/component/AutoPickComponent.h"
+#include "core/ecs/component/DroppedItemComponent.h"
+#include "core/ecs/component/GuiTransform2DComponent.h"
+#include "core/ecs/component/RigidBody2DComponent.h"
+#include "core/ecs/component/HotBarComonent.h"
 #include "core/ecs/component/ItemEditorComponent.h"
+#include "core/ecs/component/MagnetComponent.h"
+#include "core/ecs/component/MagneticComponent.h"
+#include "core/ecs/component/PlayerControlComponent.h"
 #include "core/ecs/system/ItemEditorSystem.h"
-#include "core/inventory/ComposableItem.h"
+#include "core/utils/TimeUtils.h"
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
     const auto type = std::type_index(typeid(*comp));
@@ -71,6 +80,19 @@ glimmer::GameEntity::ID glimmer::WorldContext::RegisterEntity(std::unique_ptr<Ga
 
 void glimmer::WorldContext::UnRegisterEntity(const GameEntity::ID id) {
     entityMap.erase(id);
+}
+
+glimmer::WorldContext::~WorldContext() {
+    activeSystems.clear();
+    inactiveSystems.clear();
+    entityComponents.clear();
+    b2DestroyWorld(worldId_);
+    worldId_ = b2_nullWorldId;
+    for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
+        if (command->RequiresWorldContext()) {
+            command->UnBindWorldContext();
+        }
+    }
 }
 
 
@@ -394,6 +416,9 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
         bedrockTileRef.SetResourceKey(TILE_ID_BEDROCK);
         std::map<std::string, std::vector<TileVector2D> > biomeMap = {};
         std::map<std::string, BiomeResource *> biomeResourceMap = {};
+        //Does the current block contain the sky? (Air block)
+        //当前区块内是否包含天空。（空气方块）
+        bool includeSky = false;
         for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
             const int height = GetHeight(position.x + localX);
             for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
@@ -412,6 +437,7 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
                         //sky
                         //天空
                         tilesRef[localX][localY] = airTileRef;
+                        includeSky = true;
                     }
                     continue;
                 }
@@ -442,9 +468,12 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
                     LogCat::w("Tile placer ", id, " does not exist.");
                     continue;
                 }
+                //As long as this part is called, it indicates that the current block is not completely empty.
+                //只要调用了这里就表示当前区块，并非全部为空气。
                 if (!tilePlacer->PlaceTileId(appContext_, tilesRef, tilePlacerRef.tiles, tilePositions,
+                                             includeSky,
                                              tilePlacerRef.config)) {
-                    LogCat::e("Placement ", id, " failed to execute. Block coordinates: x:", position.x, ",y:",
+                    LogCat::w("Placement ", id, " failed to execute. Block coordinates: x:", position.x, ",y:",
                               position.y,
                               ".");
                 }
@@ -989,6 +1018,54 @@ bool glimmer::WorldContext::IsEmptyEntityId(const GameEntity::ID id) {
 
 int glimmer::WorldContext::GetSeed() const {
     return seed;
+}
+
+glimmer::WorldContext::WorldContext(AppContext *appContext, const int seed, Saves *saves,
+                                    const GameEntity::ID entityId) : seed(seed),
+                                                                     entityId_(entityId), saves_(saves) {
+    // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
+    continentHeightMapNoise = std::make_unique<FastNoiseLite>();
+    continentHeightMapNoise->SetSeed(seed);
+    continentHeightMapNoise->SetFrequency(0.005F); // 极低频，用于大型板块
+    continentHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
+    // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
+    mountainHeightMapNoise = std::make_unique<FastNoiseLite>();
+    mountainHeightMapNoise->SetSeed(seed + 1); // 不同的种子
+    mountainHeightMapNoise->SetFrequency(0.01F); // 低频，用于主要地形
+    mountainHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    // 3. 丘陵/细节噪声 (中频) - 控制平原和丘陵的细节
+    hillsNoiseHeightMapNoise = std::make_unique<FastNoiseLite>();
+    hillsNoiseHeightMapNoise->SetSeed(seed + 2); // 不同的种子
+    hillsNoiseHeightMapNoise->SetFrequency(0.02F); // 中频，用于细节
+    hillsNoiseHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    humidityMapNoise = std::make_unique<FastNoiseLite>();
+    humidityMapNoise->SetSeed(seed + 100);
+    humidityMapNoise->SetFrequency(0.005F);
+    humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    temperatureMapNoise = std::make_unique<FastNoiseLite>();
+    temperatureMapNoise->SetSeed(seed + 200);
+    temperatureMapNoise->SetFrequency(0.01F);
+    temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    weirdnessMapNoise = std::make_unique<FastNoiseLite>();
+    weirdnessMapNoise->SetSeed(seed + 300);
+    weirdnessMapNoise->SetFrequency(0.02F);
+    weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+    erosionMapNoise = std::make_unique<FastNoiseLite>();
+    erosionMapNoise->SetSeed(seed + 400);
+    erosionMapNoise->SetFrequency(0.003F);
+    erosionMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    b2WorldDef worldDef = b2DefaultWorldDef();
+    worldDef.gravity = b2Vec2(0.0F, -10.0F);
+    worldId_ = b2CreateWorld(&worldDef);
+    InitSystem(appContext);
+    appContext_ = appContext;
+    for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
+        if (command->RequiresWorldContext()) {
+            command->BindWorldContext(this);
+        }
+    }
+    appContext_->GetTilePlacerManager()->SetSeed(seed);
+    startTime_ = TimeUtils::GetCurrentTimeMs();
 }
 
 long glimmer::WorldContext::GetStartTime() const {

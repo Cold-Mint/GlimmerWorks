@@ -5,14 +5,15 @@
 #ifndef GLIMMERWORKS_GAMESYSTEM_H
 #define GLIMMERWORKS_GAMESYSTEM_H
 
+#include <string>
 #include <typeindex>
 #include <unordered_set>
 
-#include "../scene/AppContext.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_render.h"
 
 namespace glimmer {
+    class AppContext;
     class WorldContext;
 
     class GameSystem {
@@ -46,9 +47,7 @@ namespace glimmer {
     public:
         virtual ~GameSystem() = default;
 
-        explicit GameSystem(AppContext *appContext, WorldContext *worldContext) : worldContext_(worldContext),
-            appContext_(appContext) {
-        }
+        explicit GameSystem(AppContext *appContext, WorldContext *worldContext);
 
         virtual std::string GetName() = 0;
 
@@ -66,12 +65,7 @@ namespace glimmer {
          */
         [[nodiscard]] bool IsActive() const;
 
-        bool SupportsComponentType(const std::type_index &type) const {
-            if (requiredComponents.empty()) {
-                return false;
-            }
-            return requiredComponents.contains(type);
-        }
+        bool SupportsComponentType(const std::type_index &type) const;
 
 
         /**
@@ -81,9 +75,7 @@ namespace glimmer {
          * 默认为false（暂停时停止运行），子类可重写此方法自定义行为
          * @return true= Continues running when paused, false= stops running when paused true=暂停时继续运行，false=暂停时停止运行
          */
-        [[nodiscard]] virtual bool CanRunWhilePaused() const {
-            return false;
-        }
+        [[nodiscard]] virtual bool CanRunWhilePaused() const;
 
         virtual bool HandleEvent(const SDL_Event &event);
 

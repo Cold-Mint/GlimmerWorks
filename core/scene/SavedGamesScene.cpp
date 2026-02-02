@@ -16,6 +16,10 @@
 
 #include "../utils/TimeUtils.h"
 
+glimmer::SavedGamesScene::SavedGamesScene(AppContext *context)
+    : Scene(context) {
+}
+
 bool glimmer::SavedGamesScene::HandleEvent(const SDL_Event &event) {
     return false;
 }

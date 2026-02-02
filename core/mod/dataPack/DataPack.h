@@ -40,7 +40,7 @@ namespace glimmer {
         [[nodiscard]] int LoadStringResourceFromFile(const std::string &path, StringManager *stringManager) const;
 
         [[nodiscard]] bool LoadLootTableResourceFromFile(const std::string &path,
-                                                        LootTableManager *lootTableManager) const;
+                                                         LootTableManager *lootTableManager) const;
 
         [[nodiscard]] bool LoadTileResourceFromFile(const std::string &path, TileManager *tileManager) const;
 
@@ -52,10 +52,7 @@ namespace glimmer {
 
     public:
         explicit DataPack(std::string path, const VirtualFileSystem *virtualFileSystem,
-                          const toml::spec &tomlVersion) : path_(std::move(path)),
-                                                           manifest_(), tomlVersion_(tomlVersion),
-                                                           virtualFileSystem_(virtualFileSystem) {
-        }
+                          const toml::spec &tomlVersion);
 
         bool LoadManifest();
 

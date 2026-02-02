@@ -21,8 +21,7 @@ namespace glimmer {
         static int TileToChunk(int tileCoord);
 
     public:
-        explicit Chunk(const TileVector2D &pos) : position(pos) {
-        }
+        explicit Chunk(const TileVector2D &pos);
 
 
         void AddBodyId(b2BodyId bodyId);

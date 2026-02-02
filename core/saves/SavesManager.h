@@ -17,9 +17,7 @@ namespace glimmer {
         void AddSaves(std::unique_ptr<Saves> saves);
 
     public:
-        explicit SavesManager(VirtualFileSystem *virtualFileSystem) {
-            virtualFileSystem_ = virtualFileSystem;
-        }
+        explicit SavesManager(VirtualFileSystem *virtualFileSystem);
 
         /**
          * Retrieve the archive at the specified location.

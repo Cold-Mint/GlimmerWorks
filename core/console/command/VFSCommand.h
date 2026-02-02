@@ -15,9 +15,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit VFSCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem)
-            : Command(ctx), virtualFileSystem_(virtualFileSystem) {
-        }
+        explicit VFSCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem);
 
         [[nodiscard]] std::string GetName() const override;
 

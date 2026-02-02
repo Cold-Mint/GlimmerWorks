@@ -36,6 +36,10 @@ bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
     return std::ranges::find(enabledDataPack, pack.GetManifest().id) != enabledDataPack.end();
 }
 
+glimmer::DataPackManager::DataPackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(
+    virtualFilesystem) {
+}
+
 int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
                                    const std::string &language, StringManager *stringManager, TileManager *tileManager,
                                    BiomesManager *biomesManager,

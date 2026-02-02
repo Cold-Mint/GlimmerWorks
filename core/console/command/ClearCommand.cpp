@@ -9,6 +9,9 @@
 void glimmer::ClearCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
 }
 
+glimmer::ClearCommand::ClearCommand(AppContext *ctx) : Command(ctx) {
+}
+
 std::string glimmer::ClearCommand::GetName() const {
     return CLEAR_COMMAND_NAME;
 }

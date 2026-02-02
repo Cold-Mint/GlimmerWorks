@@ -6,6 +6,10 @@
 
 #include "../../Constants.h"
 
+glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileManager *tileManager) {
+    tileManager_ = tileManager;
+}
+
 std::string glimmer::TileDynamicSuggestions::GetId() const {
     return TILE_DYNAMIC_SUGGESTIONS_NAME;
 }

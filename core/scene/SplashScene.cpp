@@ -10,6 +10,11 @@
 #include "tweeny.h"
 #include "SDL3/SDL_timer.h"
 
+glimmer::SplashScene::SplashScene(AppContext *context)
+    : Scene(context) {
+    nextSceneTime = std::numeric_limits<Uint64>::max();
+}
+
 bool glimmer::SplashScene::HandleEvent(const SDL_Event &event) {
     return false;
 }

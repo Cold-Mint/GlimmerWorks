@@ -138,6 +138,10 @@ glimmer::ResourcePackManager::CreateErrorTexture() const {
     return std::shared_ptr<SDL_Texture>(texture, deleter);
 }
 
+glimmer::ResourcePackManager::ResourcePackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(
+        virtualFilesystem), renderer_(nullptr) {
+}
+
 void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer) {
     renderer_ = renderer;
     errorTexture_ = CreateErrorTexture();

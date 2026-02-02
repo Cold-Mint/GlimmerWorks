@@ -7,6 +7,10 @@
 #include "../../Constants.h"
 #include "../../log/LogCat.h"
 
+glimmer::VFSDynamicSuggestions::VFSDynamicSuggestions(VirtualFileSystem *virtualFileSystem) : virtualFileSystem_(
+    virtualFileSystem) {
+}
+
 std::string glimmer::VFSDynamicSuggestions::GetId() const {
     return VFS_DYNAMIC_SUGGESTIONS_NAME;
 }

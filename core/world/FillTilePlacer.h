@@ -12,10 +12,8 @@ namespace glimmer {
         ~FillTilePlacer() override;
 
         [[nodiscard]] bool PlaceTileId(AppContext *appContext,
-                                       std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef,
-                                       std::vector<ResourceRef> &tileSet,
-                                       std::vector<TileVector2D> &coordinateArray,
-                                       VariableConfig configData) override;
+            std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef, std::vector<ResourceRef> &tileSet,
+            std::vector<TileVector2D> &coordinateArray, bool includeSky, VariableConfig configData) override;
 
         std::string GetId() override;
     };

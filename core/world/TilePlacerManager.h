@@ -19,6 +19,8 @@ namespace glimmer {
         void RegisterTilePlacer(std::unique_ptr<TilePlacer> tilePlacer);
 
         TilePlacer *GetTilePlacer(const std::string &id);
+
+        void SetSeed(uint64_t seed) const;
     };
 }
 

@@ -28,7 +28,7 @@ namespace glimmer {
         float accumulator_ = 0.0F;
 
     public:
-        PhysicsSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit PhysicsSystem(WorldContext *worldContext);
 
 
         void Update(float delta) override;

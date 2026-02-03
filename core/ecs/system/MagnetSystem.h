@@ -10,7 +10,7 @@
 namespace glimmer {
     class MagnetSystem : public GameSystem {
     public:
-        MagnetSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit MagnetSystem(WorldContext *worldContext);
 
         void Update(float delta) override;
 

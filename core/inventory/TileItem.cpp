@@ -26,7 +26,7 @@ std::string glimmer::TileItem::GetDescription() const {
     return tile_->description;
 }
 
-void glimmer::TileItem::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) {
+void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user) {
     auto playerEntity = worldContext->GetPlayerEntity();
     if (WorldContext::IsEmptyEntityId(playerEntity)) {
         return;
@@ -56,10 +56,11 @@ void glimmer::TileItem::OnUse(AppContext *appContext, WorldContext *worldContext
                 if (GetAmount() > 0) {
                     auto resourceRef = Resource::ParseFromId(tile_->id, RESOURCE_TYPE_TILE);
                     if (resourceRef.has_value()) {
-                        auto tileResource = appContext->GetResourceLocator()->FindTile(resourceRef.value());
+                        auto tileResource = worldContext->GetAppContext()->GetResourceLocator()->FindTile(
+                            resourceRef.value());
                         if (tileResource.has_value()) {
                             (void) tileLayer->SetTile(
-                                targetPos, Tile::FromResourceRef(appContext, tileResource.value()));
+                                targetPos, Tile::FromResourceRef(worldContext->GetAppContext(), tileResource.value()));
                             Chunk *chunk = Chunk::GetChunkByTileVector2D(worldContext->GetAllChunks(), targetPos);
                             if (chunk) {
                                 ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);

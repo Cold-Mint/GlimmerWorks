@@ -16,13 +16,13 @@
 
 
 bool glimmer::DebugPanelSystem::ShouldActivate() {
-    return worldContext_->IsRuning() && appContext_->GetConfig()->debug.displayDebugPanel;
+    return worldContext_->IsRuning() && worldContext_->GetAppContext()->GetConfig()->debug.displayDebugPanel;
 }
 
 void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer *renderer, int windowW, const char *text, float y) const {
     SDL_Color color = {255, 255, 180, 255};
     SDL_Surface *s = TTF_RenderText_Blended(
-        appContext_->GetFont(), text, strlen(text), color
+        worldContext_->GetAppContext()->GetFont(), text, strlen(text), color
     );
     if (!s) return;
 
@@ -40,10 +40,10 @@ void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer *renderer, int wind
     SDL_DestroySurface(s);
 }
 
-void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) {
+void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const {
     int windowW = 0;
     int windowH = 0;
-    SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
+    SDL_GetWindowSize(worldContext_->GetAppContext()->GetWindow(), &windowW, &windowH);
     if (windowW <= 0 || windowH <= 0) return;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -56,8 +56,7 @@ void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, fl
     SDL_RenderFillRect(renderer, &vLine);
 }
 
-glimmer::DebugPanelSystem::DebugPanelSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GameSystem(worldContext) {
 }
 
 
@@ -65,7 +64,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
     int windowW = 0;
     int windowH = 0;
-    SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
+    SDL_GetWindowSize(worldContext_->GetAppContext()->GetWindow(), &windowW, &windowH);
     if (windowW <= 0 || windowH <= 0) return;
     float yOffset = 0.0F;
     auto camera = worldContext_->GetCameraComponent();
@@ -94,7 +93,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         char buffer[128];
         snprintf(buffer, sizeof(buffer), "mouse Position: (%.1f, %.1f)", mousePosition_.x, mousePosition_.y);
 
-        SDL_Surface *surface = TTF_RenderText_Blended(appContext_->GetFont(), buffer, strlen(buffer), color);
+        SDL_Surface *surface = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), buffer, strlen(buffer),
+                                                      color);
         if (surface) {
             SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
@@ -129,7 +129,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
                      worldContext_->GetWeirdness(tileCoord), worldContext_->GetErosion(tileCoord),
                      elevation);
 
-            SDL_Surface *s = TTF_RenderText_Blended(appContext_->GetFont(), buffer, strlen(buffer), color);
+            SDL_Surface *s = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), buffer, strlen(buffer),
+                                                    color);
             if (s) {
                 SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
                 if (t) {
@@ -240,7 +241,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     char chunkText[128];
     snprintf(chunkText, sizeof(chunkText), "Chunk: (%d, %d) | Vis: %d | Total: %zu",
              playerChunkX, playerChunkY, visibleChunkCount, chunksPtr.size());
-    SDL_Surface *s = TTF_RenderText_Blended(appContext_->GetFont(), chunkText, strlen(chunkText),
+    SDL_Surface *s = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), chunkText, strlen(chunkText),
                                             {255, 255, 255, 255});
     if (s) {
         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, s);

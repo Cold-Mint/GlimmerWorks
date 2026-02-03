@@ -7,6 +7,7 @@
 #include "core/inventory/AbilityItem.h"
 #include "core/inventory/ComposableItem.h"
 #include "core/mod/ResourceLocator.h"
+#include "core/world/WorldContext.h"
 #include "src/saves/dropped_item.pb.h"
 
 glimmer::DroppedItemComponent::DroppedItemComponent() {
@@ -67,7 +68,9 @@ std::string glimmer::DroppedItemComponent::Serialize() {
     return droppedItemMessage.SerializeAsString();
 }
 
-void glimmer::DroppedItemComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,const std::string &data) {
+void glimmer::DroppedItemComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
+    AppContext *appContext = worldContext->GetAppContext();
+    GameComponent::Deserialize(worldContext, data);
     DroppedItemMessage droppedItemMessage;
     droppedItemMessage.ParseFromString(data);
     ResourceRef resourceRef;

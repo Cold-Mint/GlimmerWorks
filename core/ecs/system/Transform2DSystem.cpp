@@ -5,8 +5,7 @@
 #include "Transform2DSystem.h"
 #include "../component/Transform2DComponent.h"
 
-glimmer::Transform2DSystem::Transform2DSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::Transform2DSystem::Transform2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<Transform2DComponent>();
 }
 

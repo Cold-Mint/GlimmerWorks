@@ -10,7 +10,7 @@
 namespace glimmer {
     class DroppedItemSystem : public GameSystem {
     public:
-        DroppedItemSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit DroppedItemSystem(WorldContext *worldContext);
 
         uint8_t GetRenderOrder() override;
 

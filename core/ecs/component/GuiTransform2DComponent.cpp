@@ -38,8 +38,7 @@ std::string glimmer::GuiTransform2DComponent::Serialize() {
     return guiTransform2dMessage.SerializeAsString();
 }
 
-void glimmer::GuiTransform2DComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,
-                                                   const std::string &data) {
+void glimmer::GuiTransform2DComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     GuiTransform2dMessage guiTransform2dMessage;
     guiTransform2dMessage.ParseFromString(data);
     position_.x = guiTransform2dMessage.position().x();

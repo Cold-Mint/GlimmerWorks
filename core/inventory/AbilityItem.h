@@ -37,7 +37,7 @@ namespace glimmer {
                                                              const AbilityItemResource *itemResource,
                                                              const ResourceRef &resourceRef);
 
-        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) override;
+        void OnUse(WorldContext *worldContext, GameEntity::ID user) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

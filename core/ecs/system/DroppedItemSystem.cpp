@@ -9,8 +9,8 @@
 #include "../component/DroppedItemComponent.h"
 #include "../component/Transform2DComponent.h"
 
-glimmer::DroppedItemSystem::DroppedItemSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+
+glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<Transform2DComponent>();
     RequireComponent<DroppedItemComponent>();
 }

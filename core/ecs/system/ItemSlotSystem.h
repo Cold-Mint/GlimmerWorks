@@ -17,7 +17,7 @@ namespace glimmer {
         void RenderTooltip(SDL_Renderer *renderer, const Item *item) const;
 
     public:
-        ItemSlotSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit ItemSlotSystem(WorldContext *worldContext);
 
         void Render(SDL_Renderer *renderer) override;
 

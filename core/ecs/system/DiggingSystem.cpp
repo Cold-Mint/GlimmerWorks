@@ -12,8 +12,8 @@
 #include "../../world/generator/ChunkPhysicsHelper.h"
 #include "../../world/generator/Chunk.h"
 
-glimmer::DiggingSystem::DiggingSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+
+glimmer::DiggingSystem::DiggingSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<DiggingComponent>();
 }
 
@@ -25,7 +25,7 @@ void glimmer::DiggingSystem::Update(float delta) {
         return;
     }
     diggingComponent->SetEnable(true);
-
+    AppContext *appContext = worldContext_->GetAppContext();
     const auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
     for (auto &entity: tileLayerEntities) {
         const auto *tileLayer = worldContext_->GetComponent<TileLayerComponent>(entity);
@@ -52,15 +52,15 @@ void glimmer::DiggingSystem::Update(float delta) {
         if (diggingComponent->GetProgress() >= 1.0F) {
             // Break the tile
             auto oldTile = tileLayer->ReplaceTile(
-                tilePos, Tile::FromResourceRef(appContext_, appContext_->GetTileManager()->GetAir()));
+                tilePos, Tile::FromResourceRef(appContext, appContext->GetTileManager()->GetAir()));
 
             if (oldTile) {
                 if (oldTile->customLootTable) {
-                    const auto lootResource = appContext_->GetResourceLocator()->FindLoot(oldTile->lootTable);
+                    const auto lootResource = appContext->GetResourceLocator()->FindLoot(oldTile->lootTable);
                     if (lootResource.has_value()) {
                         std::vector<ResourceRef> lootList = LootResource::GetLootItems(lootResource.value());
                         for (auto &loot: lootList) {
-                            auto itemPtr = appContext_->GetResourceLocator()->FindItem(appContext_, loot);
+                            auto itemPtr = appContext->GetResourceLocator()->FindItem(appContext, loot);
                             if (itemPtr == nullptr) {
                                 continue;
                             }
@@ -96,10 +96,11 @@ void glimmer::DiggingSystem::Update(float delta) {
 }
 
 void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {
+    AppContext *appContext = worldContext_->GetAppContext();
     if (!cacheTexture) {
         for (uint8_t i = 0; i < 10; i++) {
-            textureList.push_back(appContext_->GetResourcePackManager()->LoadTextureFromFile(
-                appContext_,
+            textureList.push_back(appContext->GetResourcePackManager()->LoadTextureFromFile(
+                appContext,
                 "cracks/cracks_" + std::to_string(i) + ".png"));
         }
         cacheTexture = true;

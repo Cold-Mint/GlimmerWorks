@@ -16,7 +16,7 @@ namespace glimmer {
         std::vector<std::shared_ptr<SDL_Texture> > textureList = {};
 
     public:
-        DiggingSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit DiggingSystem(WorldContext *worldContext);
 
         void Update(float delta) override;
 

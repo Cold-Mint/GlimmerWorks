@@ -15,10 +15,10 @@ namespace glimmer {
 
         void RenderDebugText(SDL_Renderer *renderer, int windowW, const char *text, float y) const;
 
-        void RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY);
+        void RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const;
 
     public:
-        DebugPanelSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit DebugPanelSystem(WorldContext *worldContext);
 
         void Render(SDL_Renderer *renderer) override;
 

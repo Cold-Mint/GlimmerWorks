@@ -12,7 +12,7 @@
 #include "box2d/box2d.h"
 
 bool glimmer::DebugDrawBox2dSystem::ShouldActivate() {
-    return appContext_->GetConfig()->debug.displayBox2dShape;
+    return worldContext_->GetAppContext()->GetConfig()->debug.displayBox2dShape;
 }
 
 void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus) {
@@ -24,8 +24,7 @@ void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus) {
     }
 }
 
-glimmer::DebugDrawBox2dSystem::DebugDrawBox2dSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::DebugDrawBox2dSystem::DebugDrawBox2dSystem(WorldContext *worldContext) : GameSystem(worldContext) {
 }
 
 /**

@@ -32,8 +32,8 @@ namespace glimmer {
         SDL_PushEvent(&event);
     }
 
-    AndroidControlSystem::AndroidControlSystem(AppContext *appContext, WorldContext *worldContext)
-        : GameSystem(appContext, worldContext) {
+    AndroidControlSystem::AndroidControlSystem(WorldContext *worldContext)
+        : GameSystem(worldContext) {
         RequireComponent<PlayerControlComponent>();
         RequireComponent<Transform2DComponent>();
     }

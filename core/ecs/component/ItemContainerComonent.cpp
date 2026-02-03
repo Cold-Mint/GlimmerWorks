@@ -5,6 +5,7 @@
 #include "ItemContainerComonent.h"
 
 #include "core/log/LogCat.h"
+#include "core/world/WorldContext.h"
 
 glimmer::ItemContainerComponent::ItemContainerComponent(size_t capacity)
     : itemContainer_(std::make_unique<ItemContainer>(capacity)) {
@@ -28,11 +29,10 @@ std::string glimmer::ItemContainerComponent::Serialize() {
     return itemContainerMessage.SerializeAsString();
 }
 
-void glimmer::ItemContainerComponent::
-Deserialize(AppContext *appContext, WorldContext *worldContext, const std::string &data) {
+void glimmer::ItemContainerComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     ItemContainerMessage itemContainerMessage;
     itemContainerMessage.ParseFromString(data);
-    itemContainer_->FromMessage(appContext, itemContainerMessage);
+    itemContainer_->FromMessage(worldContext->GetAppContext(), itemContainerMessage);
 }
 
 u_int32_t glimmer::ItemContainerComponent::GetId() {

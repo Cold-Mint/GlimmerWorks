@@ -13,8 +13,7 @@
 #include "tweeny.h"
 
 
-glimmer::MagnetSystem::MagnetSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::MagnetSystem::MagnetSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<Transform2DComponent>();
     RequireComponent<MagnetComponent>();
     RequireComponent<MagneticComponent>();

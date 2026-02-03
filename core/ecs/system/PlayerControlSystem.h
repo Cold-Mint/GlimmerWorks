@@ -14,7 +14,7 @@ namespace glimmer {
      */
     class PlayerControlSystem final : public GameSystem {
     public:
-        explicit PlayerControlSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit PlayerControlSystem(WorldContext *worldContext);
 
         void Update(float delta) override;
 

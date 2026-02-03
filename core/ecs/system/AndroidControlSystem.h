@@ -32,7 +32,7 @@ namespace glimmer {
         std::map<SDL_FingerID, ButtonType> activeTouches;
 
     public:
-        AndroidControlSystem(AppContext *appContext, WorldContext *worldContext);
+        AndroidControlSystem(WorldContext *worldContext);
 
         bool HandleEvent(const SDL_Event &event) override;
 

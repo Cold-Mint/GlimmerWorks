@@ -9,7 +9,7 @@
 namespace glimmer {
     class TileLayerSystem final : public GameSystem {
     public:
-        TileLayerSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit TileLayerSystem(WorldContext *worldContext);
 
         void Render(SDL_Renderer *renderer) override;
 

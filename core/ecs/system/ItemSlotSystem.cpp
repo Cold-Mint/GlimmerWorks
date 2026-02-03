@@ -14,11 +14,12 @@
 #include "core/ecs/component/GuiTransform2DComponent.h"
 
 void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
+    AppContext *appContext = worldContext_->GetAppContext();
     const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     const Item *hoveredItem = nullptr;
-    DragAndDrop *dragAndDrop = appContext_->GetDragAndDrop();
+    DragAndDrop *dragAndDrop = appContext->GetDragAndDrop();
     for (auto &entity: entities) {
         const auto slotComp = worldContext_->GetComponent<ItemSlotComponent>(entity);
         const auto transform = worldContext_->GetComponent<GuiTransform2DComponent>(entity);
@@ -40,7 +41,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
             hoveredItem = item;
         }
 
-        dragAndDrop->DrawSlot(appContext_, renderer, pos, size, item, slotComp->IsSelected(),
+        dragAndDrop->DrawSlot(appContext, renderer, pos, size, item, slotComp->IsSelected(),
                               [&](const DragState &state) {
                                   if (state.sourceType != DragSourceType::INVENTORY) {
                                       return;
@@ -59,7 +60,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
     }
 
     if (dragAndDrop->IsDragging()) {
-        dragAndDrop->RenderCombined(renderer, mouseX, mouseY, appContext_->GetConfig()->window.uiScale);
+        dragAndDrop->RenderCombined(renderer, mouseX, mouseY, appContext->GetConfig()->window.uiScale);
     }
 
     if (hoveredItem && !dragAndDrop->IsDragging()) {
@@ -71,8 +72,8 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
 void glimmer::ItemSlotSystem::RenderQuantity(SDL_Renderer *renderer, const SDL_FRect &slotDest, int amount) const {
     const std::string text = std::to_string(amount);
     const SDL_Color color = {255, 255, 255, 255};
-
-    SDL_Surface *surface = TTF_RenderText_Blended(appContext_->GetFont(), text.c_str(), text.length(), color);
+    AppContext *appContext = worldContext_->GetAppContext();
+    SDL_Surface *surface = TTF_RenderText_Blended(appContext->GetFont(), text.c_str(), text.length(), color);
     if (surface) {
         if (SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface)) {
             auto textW = static_cast<float>(surface->w);
@@ -104,11 +105,12 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     SDL_Color nameColor = {200, 200, 200, 255};
     SDL_Color textColor = {200, 200, 200, 255};
 
-    SDL_Surface *sName = TTF_RenderText_Blended(appContext_->GetFont(), nameInfo.c_str(), nameInfo.length(), nameColor);
-    SDL_Surface *sAmount = TTF_RenderText_Blended(appContext_->GetFont(), amountInfo.c_str(), amountInfo.length(),
+    AppContext *appContext = worldContext_->GetAppContext();
+    SDL_Surface *sName = TTF_RenderText_Blended(appContext->GetFont(), nameInfo.c_str(), nameInfo.length(), nameColor);
+    SDL_Surface *sAmount = TTF_RenderText_Blended(appContext->GetFont(), amountInfo.c_str(), amountInfo.length(),
                                                   textColor);
     // Description might be multiline? Basic implementation for now.
-    SDL_Surface *sDesc = TTF_RenderText_Blended(appContext_->GetFont(), descInfo.c_str(), descInfo.length(), textColor);
+    SDL_Surface *sDesc = TTF_RenderText_Blended(appContext->GetFont(), descInfo.c_str(), descInfo.length(), textColor);
 
     float maxWidth = 0;
     float totalHeight = 0;
@@ -159,8 +161,8 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     drawSurf(sDesc);
 }
 
-glimmer::ItemSlotSystem::ItemSlotSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext *worldContext)
+    : GameSystem(worldContext) {
     RequireComponent<ItemSlotComponent>();
     RequireComponent<GuiTransform2DComponent>();
 }

@@ -29,6 +29,7 @@
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/inventory/ComposableItem.h"
+#include "generator/ChunkLoader.h"
 
 namespace glimmer {
     /**
@@ -36,7 +37,7 @@ namespace glimmer {
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供GameEntity::ID。
      */
     class WorldContext {
-        void RegisterSystem(std::unique_ptr<GameSystem> system); //错误：‘GameSystem’在此作用域中尚未声明
+        void RegisterSystem(std::unique_ptr<GameSystem> system);
 
         uint32_t chunksVersion_ = 0;
         uint32_t lastChunksVersion_ = UINT32_MAX;
@@ -173,6 +174,7 @@ namespace glimmer {
 
         GameEntity::ID player_ = 0;
         GameEntity::ID itemEditorPanel_ = 0;
+        std::unique_ptr<ChunkLoader> chunkLoader_;
 
         /**
          * Whether it is running or not, if false, it indicates that the game has been paused.
@@ -349,19 +351,6 @@ namespace glimmer {
         */
         void LoadChunkAt(TileVector2D position);
 
-        /**
-         * GenerateChunkTerrain
-         * 生成区块地形
-         * @param position
-         */
-        void GenerateChunkTerrain(TileVector2D position);
-
-        /**
-         * GenerateChunkDecoration
-         * 生成区块装饰
-         * @param position
-         */
-        void GenerateChunkDecoration(TileVector2D position);
 
         /**
          * Unload Chunk
@@ -413,7 +402,7 @@ namespace glimmer {
 
         void OnFrameStart();
 
-        void InitSystem(AppContext *appContext);
+        void InitSystem();
 
         /**
          * Set Camera Position
@@ -456,13 +445,6 @@ namespace glimmer {
          */
         GameEntity::ID CreateEntity();
 
-        /**
-         * Recovery Entity
-         * 恢复实体
-         * @param entityItemMessage
-         * @return
-         */
-        GameEntity::ID RecoveryEntity(const EntityItemMessage &entityItemMessage);
 
         /**
          * Display the item editing panel
@@ -483,15 +465,6 @@ namespace glimmer {
          * 隐藏物品编辑面板
          */
         void HideItemEditorPanel();
-
-        /**
-         * Recovery Component
-         * 恢复组件
-         * @param id id id
-         * @param componentMessage componentMessage 组件消息
-         * @return
-         */
-        GameComponent *RecoveryComponent(GameEntity::ID id, const ComponentMessage &componentMessage);
 
         /**
          * Create a dropping object entity
@@ -580,6 +553,8 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] long GetStartTime() const;
+
+        [[nodiscard]] AppContext *GetAppContext() const;
 
         [[nodiscard]] b2WorldId GetWorldId() const;
     };

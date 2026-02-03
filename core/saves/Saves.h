@@ -4,7 +4,6 @@
 
 #ifndef GLIMMERWORKS_SAVES_H
 #define GLIMMERWORKS_SAVES_H
-#include <utility>
 
 #include "MapManifest.h"
 #include "../ecs/component/TileLayerComponent.h"

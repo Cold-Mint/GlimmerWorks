@@ -55,6 +55,12 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(App
                                          itemResource->canUseAlone);
 }
 
+void glimmer::AbilityItem::OnUse(WorldContext *worldContext, const GameEntity::ID user) {
+    if (canUseAlone_) {
+        itemAbility_->OnUse(worldContext, user);
+    }
+}
+
 std::optional<glimmer::ResourceRef> glimmer::AbilityItem::ActualToResourceRef() {
     return Resource::ParseFromId(id_, RESOURCE_TYPE_ABILITY_ITEM);
 }
@@ -67,12 +73,6 @@ glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::string 
                                                             icon_(std::move(icon)),
                                                             itemAbility_(std::move(itemAbility)),
                                                             canUseAlone_(canUseAlone) {
-}
-
-void glimmer::AbilityItem::OnUse(AppContext *appContext, WorldContext *worldContext, const GameEntity::ID user) {
-    if (canUseAlone_) {
-        itemAbility_->OnUse(appContext, worldContext, user);
-    }
 }
 
 std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const {

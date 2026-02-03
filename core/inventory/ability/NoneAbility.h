@@ -13,7 +13,7 @@ namespace glimmer {
 
         [[nodiscard]] std::string GetId() const override;
 
-        void OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) override;
+        void OnUse(WorldContext *worldContext, GameEntity::ID user) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };

@@ -10,6 +10,7 @@
 #include "box2d/id.h"
 #include "../../ecs/component/TileLayerComponent.h"
 #include "core/Constants.h"
+#include "core/world/Tile.h"
 
 
 namespace glimmer {

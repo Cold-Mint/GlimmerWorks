@@ -15,8 +15,7 @@
 #include "core/ecs/component/PlayerControlComponent.h"
 
 
-glimmer::PlayerControlSystem::PlayerControlSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<PlayerControlComponent>();
     RequireComponent<Transform2DComponent>();
 }
@@ -27,6 +26,7 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         const auto control = worldContext_->GetComponent<PlayerControlComponent>(entity);
         const auto rigid = worldContext_->GetComponent<RigidBody2DComponent>(entity);
         if (control == nullptr || rigid == nullptr || !rigid->IsReady()) {
+            LogCat::d("PlayerControlSystem update null");
             continue;
         }
 
@@ -59,6 +59,7 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         b2Body_SetLinearVelocity(bodyId, {vx, vy});
         const auto hotBarEntity = worldContext_->GetHotBarEntity();
         if (WorldContext::IsEmptyEntityId(hotBarEntity)) {
+            LogCat::d("PlayerControlSystem hotBarEntity null");
             return;
         }
         auto hotBarComp = worldContext_->GetComponent<HotBarComponent>(hotBarEntity);
@@ -84,7 +85,7 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         if (control->mouseLeftDown && hotBarComp && containerComp) {
             if (const auto itemContainer = containerComp->GetItemContainer()) {
                 if (Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot())) {
-                    item->OnUse(appContext_, worldContext_, entity);
+                    item->OnUse(worldContext_, entity);
                 }
             }
         }
@@ -200,14 +201,18 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
             }
             switch (event.key.key) {
                 case SDLK_A: control->moveLeft = pressed;
+                    LogCat::d("pressed A");
                     return true;
                 case SDLK_D: control->moveRight = pressed;
+                    LogCat::d("pressed D");
                     return true;
                 case SDLK_SPACE:
                     control->jump = pressed;
+                    LogCat::d("pressed SPACE");
                     return true;
                 case SDLK_Q:
                     control->dropPressed = pressed;
+                    LogCat::d("pressed Q");
                     return true;
                 default:
                     return false;

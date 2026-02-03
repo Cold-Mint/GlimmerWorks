@@ -14,8 +14,8 @@ bool glimmer::ItemEditorSystem::ShouldActivate() {
     return true;
 }
 
-glimmer::ItemEditorSystem::ItemEditorSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::ItemEditorSystem::ItemEditorSystem(WorldContext *worldContext)
+    : GameSystem(worldContext) {
 }
 
 bool glimmer::ItemEditorSystem::HandleEvent(const SDL_Event &event) {

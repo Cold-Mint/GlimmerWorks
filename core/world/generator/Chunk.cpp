@@ -4,8 +4,6 @@
 
 #include "Chunk.h"
 
-#include "core/world/Tile.h"
-
 void glimmer::Chunk::AddBodyId(b2BodyId bodyId) { attachedBodies_.emplace_back(bodyId); }
 
 const std::vector<b2BodyId> &glimmer::Chunk::GetAttachedBodies() {

@@ -11,8 +11,8 @@
 #include "../../world/WorldContext.h"
 #include "core/world/Tile.h"
 
-glimmer::TileLayerSystem::TileLayerSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)
+    : GameSystem(worldContext) {
     RequireComponent<TileLayerComponent>();
 }
 

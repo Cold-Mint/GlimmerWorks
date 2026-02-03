@@ -11,7 +11,7 @@ namespace glimmer {
         [[nodiscard]] bool ShouldActivate() override;
 
     public:
-        ItemEditorSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit ItemEditorSystem(WorldContext *worldContext);
 
         bool HandleEvent(const SDL_Event &event) override;
 

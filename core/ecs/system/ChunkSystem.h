@@ -11,7 +11,7 @@ namespace glimmer {
         float preloadMargin_ = 1.0F;
 
     public:
-        ChunkSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit ChunkSystem(WorldContext *worldContext);
 
         void Update(float delta) override;
 

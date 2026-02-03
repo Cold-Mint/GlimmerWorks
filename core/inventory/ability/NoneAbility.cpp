@@ -12,7 +12,7 @@ std::string glimmer::NoneAbility::GetId() const {
     return ABILITY_ID_NONE;
 }
 
-void glimmer::NoneAbility::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) {
+void glimmer::NoneAbility::OnUse(WorldContext *worldContext, GameEntity::ID user) {
 }
 
 std::unique_ptr<glimmer::ItemAbility> glimmer::NoneAbility::Clone() const {

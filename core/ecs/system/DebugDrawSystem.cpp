@@ -10,8 +10,7 @@
 #include "../../world/WorldContext.h"
 
 
-glimmer::DebugDrawSystem::DebugDrawSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<DebugDrawComponent>();
     RequireComponent<Transform2DComponent>();
 }

@@ -11,10 +11,7 @@
 #include "core/ecs/component/Transform2DComponent.h"
 
 
-glimmer::PhysicsSystem::PhysicsSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
-    RequireComponent<Transform2DComponent>();
-    RequireComponent<RigidBody2DComponent>();
+glimmer::PhysicsSystem::PhysicsSystem(WorldContext *worldContext) : GameSystem(worldContext) {
 }
 
 void glimmer::PhysicsSystem::Update(const float delta) {

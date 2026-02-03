@@ -9,8 +9,8 @@
 #include "core/ecs/component/AutoPickComponent.h"
 #include "core/ecs/component/MagnetComponent.h"
 
-glimmer::AutoPickSystem::AutoPickSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+
+glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<AutoPickComponent>();
     RequireComponent<MagnetComponent>();
     RequireComponent<ItemContainerComponent>();
@@ -39,5 +39,5 @@ void glimmer::AutoPickSystem::Update(float delta) {
 }
 
 std::string glimmer::AutoPickSystem::GetName() {
-    return "glimmer::AutoPickSystem";
+    return "glimmer.AutoPickSystem";
 }

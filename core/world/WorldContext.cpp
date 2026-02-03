@@ -144,7 +144,7 @@ void glimmer::WorldContext::InitPlayer() {
     if (saves_->PlayerExists()) {
         auto playerMessage = saves_->ReadPlayer();
         if (playerMessage.has_value()) {
-            playerEntity = RecoveryEntity(playerMessage->entity());
+            playerEntity = chunkLoader_->RecoveryEntity(playerMessage->entity());
         }
     }
     if (IsEmptyEntityId(playerEntity)) {
@@ -364,40 +364,12 @@ float glimmer::WorldContext::GetElevation(const int height) {
 }
 
 void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
-    TileVector2D relativeCoordinates = Chunk::TileCoordinatesToChunkRelativeCoordinates(position);
-    if (relativeCoordinates.x != 0 || relativeCoordinates.y != 0) {
-        LogCat::e("The loaded coordinates are not vertex coordinates.");
-        assert(false);
-    }
     if (chunks_.contains(position)) {
         return;
     }
-    if (saves_->EntityExists(position)) {
-        //Read and load the entity file.
-        //读取并加载实体文件。
-        auto chunkEntityMessageOptional = saves_->ReadChunkEntity(position);
-        if (chunkEntityMessageOptional.has_value()) {
-            ChunkEntityMessage &chunkEntityMessage = chunkEntityMessageOptional.value();
-            int entitySize = chunkEntityMessage.entitys_size();
-            for (int i = 0; i < entitySize; i++) {
-                RecoveryEntity(chunkEntityMessage.entitys(i));
-            }
-        }
-    }
-
-    auto chunkExists = saves_->ChunkExists(position);
-    bool loadFromFile = false;
-    auto chunk = std::make_unique<Chunk>(position);
-    if (chunkExists) {
-        //Read the chunk file.
-        //读取区块文件。
-        auto chunkMessage = saves_->ReadChunk(position);
-        if (chunkMessage.has_value()) {
-            chunk.get()->FromMessage(appContext_, chunkMessage.value());
-            loadFromFile = true;
-        }
-    }
-    if (!loadFromFile) {
+    std::unique_ptr<Chunk> chunk = chunkLoader_->LoadChunkFromSaves(position);
+    if (chunk == nullptr) {
+        chunk = std::make_unique<Chunk>(position);
         //Failed to load the file. Creating the block instead.
         //从文件加载失败，创建区块。
         std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> tilesRef;
@@ -505,12 +477,6 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, chunk.get());
     chunks_.insert({position, std::move(chunk)});
     chunksVersion_++;
-}
-
-void glimmer::WorldContext::GenerateChunkTerrain(TileVector2D position) {
-}
-
-void glimmer::WorldContext::GenerateChunkDecoration(TileVector2D position) {
 }
 
 
@@ -730,30 +696,30 @@ void glimmer::WorldContext::OnFrameStart() {
     }
 }
 
-void glimmer::WorldContext::InitSystem(AppContext *appContext) {
+void glimmer::WorldContext::InitSystem() {
     allowRegisterSystem = true;
-    RegisterSystem(std::make_unique<GameStartSystem>(appContext, this));
-    RegisterSystem(std::make_unique<Transform2DSystem>(appContext, this));
-    RegisterSystem(std::make_unique<CameraSystem>(appContext, this));
-    RegisterSystem(std::make_unique<PlayerControlSystem>(appContext, this));
-    RegisterSystem(std::make_unique<TileLayerSystem>(appContext, this));
-    RegisterSystem(std::make_unique<ChunkSystem>(appContext, this));
-    RegisterSystem(std::make_unique<PhysicsSystem>(appContext, this));
-    RegisterSystem(std::make_unique<HotBarSystem>(appContext, this));
-    RegisterSystem(std::make_unique<ItemSlotSystem>(appContext, this));
-    RegisterSystem(std::make_unique<MagnetSystem>(appContext, this));
-    RegisterSystem(std::make_unique<DroppedItemSystem>(appContext, this));
-    RegisterSystem(std::make_unique<AutoPickSystem>(appContext, this));
-    RegisterSystem(std::make_unique<DiggingSystem>(appContext, this));
-    RegisterSystem(std::make_unique<PauseSystem>(appContext, this));
-    RegisterSystem(std::make_unique<ItemEditorSystem>(appContext, this));
+    RegisterSystem(std::make_unique<GameStartSystem>(this));
+    RegisterSystem(std::make_unique<Transform2DSystem>(this));
+    RegisterSystem(std::make_unique<CameraSystem>(this));
+    RegisterSystem(std::make_unique<PlayerControlSystem>(this));
+    RegisterSystem(std::make_unique<TileLayerSystem>(this));
+    RegisterSystem(std::make_unique<ChunkSystem>(this));
+    RegisterSystem(std::make_unique<PhysicsSystem>(this));
+    RegisterSystem(std::make_unique<HotBarSystem>(this));
+    RegisterSystem(std::make_unique<ItemSlotSystem>(this));
+    RegisterSystem(std::make_unique<MagnetSystem>(this));
+    RegisterSystem(std::make_unique<DroppedItemSystem>(this));
+    RegisterSystem(std::make_unique<AutoPickSystem>(this));
+    RegisterSystem(std::make_unique<DiggingSystem>(this));
+    RegisterSystem(std::make_unique<PauseSystem>(this));
+    RegisterSystem(std::make_unique<ItemEditorSystem>(this));
 #ifdef __ANDROID__
-    RegisterSystem(std::make_unique<AndroidControlSystem>(appContext, this));
+    RegisterSystem(std::make_unique<AndroidControlSystem>(this));
 #endif
 #if  !defined(NDEBUG)
-    RegisterSystem(std::make_unique<DebugDrawSystem>(appContext, this));
-    RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(appContext, this));
-    RegisterSystem(std::make_unique<DebugPanelSystem>(appContext, this));
+    RegisterSystem(std::make_unique<DebugDrawSystem>(this));
+    RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));
+    RegisterSystem(std::make_unique<DebugPanelSystem>(this));
 #endif
     allowRegisterSystem = false;
 }
@@ -801,28 +767,6 @@ glimmer::GameEntity::ID glimmer::WorldContext::CreateEntity() {
     return RegisterEntity(std::make_unique<GameEntity>(++entityId_));
 }
 
-glimmer::GameEntity::ID glimmer::WorldContext::RecoveryEntity(const EntityItemMessage &entityItemMessage) {
-    const auto id = entityItemMessage.gameentity().id();
-    auto entity = std::make_unique<GameEntity>(id);
-    const int componentSize = entityItemMessage.components_size();
-    RigidBody2DComponent *rigidBody2dComponent = nullptr;
-    Transform2DComponent *transform2dComponent = nullptr;
-    for (int j = 0; j < componentSize; j++) {
-        GameComponent *component = RecoveryComponent(id, entityItemMessage.components(j));
-        if (component->GetId() == COMPONENT_ID_RIGID_BODY_2D) {
-            rigidBody2dComponent = dynamic_cast<RigidBody2DComponent *>(component);
-        }
-        if (component->GetId() == COMPONENT_ID_TRANSFORM_2D) {
-            transform2dComponent = dynamic_cast<Transform2DComponent *>(component);
-        }
-    }
-    if (rigidBody2dComponent != nullptr && transform2dComponent != nullptr) {
-        rigidBody2dComponent->CreateBody(worldId_,
-                                         Box2DUtils::ToMeters(
-                                             transform2dComponent->GetPosition()));
-    }
-    return RegisterEntity(std::move(entity));
-}
 
 void glimmer::WorldContext::ShowItemEditorPanel(const ComposableItem *composableItem) {
     if (!IsEmptyEntityId(itemEditorPanel_)) {
@@ -865,50 +809,6 @@ void glimmer::WorldContext::HideItemEditorPanel() {
         RemoveEntity(itemEditorPanel_);
         itemEditorPanel_ = 0;
     }
-}
-
-glimmer::GameComponent *glimmer::WorldContext::RecoveryComponent(const GameEntity::ID id,
-                                                                 const ComponentMessage &componentMessage) {
-    uint32_t componentId = componentMessage.id();
-    GameComponent *gameComponent = nullptr;
-    switch (componentId) {
-        case COMPONENT_ID_AUTO_PICK:
-            gameComponent = AddComponent<AutoPickComponent>(id);
-            break;
-        case COMPONENT_ID_CAMERA:
-            gameComponent = AddComponent<CameraComponent>(id);
-            break;
-        case COMPONENT_ID_DEBUG_DRAW:
-            gameComponent = AddComponent<DebugDrawComponent>(id);
-            break;
-        case COMPONENT_ID_DIGGING:
-            gameComponent = AddComponent<DiggingComponent>(id);
-            break;
-        case COMPONENT_ID_DROPPED_ITEM:
-            gameComponent = AddComponent<DroppedItemComponent>(id);
-            break;
-        case COMPONENT_ID_ITEM_CONTAINER:
-            gameComponent = AddComponent<ItemContainerComponent>(id);
-            break;
-        case COMPONENT_ID_MAGNET:
-            gameComponent = AddComponent<MagnetComponent>(id);
-            break;
-        case COMPONENT_ID_MAGNETIC:
-            gameComponent = AddComponent<MagneticComponent>(id);
-            break;
-        case COMPONENT_ID_RIGID_BODY_2D:
-            gameComponent = AddComponent<RigidBody2DComponent>(id);
-            break;
-        case COMPONENT_ID_TRANSFORM_2D:
-            gameComponent = AddComponent<Transform2DComponent>(id);
-            break;
-        default:
-            LogCat::w("The game components do not support serialization.");
-            return nullptr;
-    }
-    //Non-const lvalue reference to type std::string cannot bind to lvalue of type const std::string
-    gameComponent->Deserialize(appContext_, this, componentMessage.data());
-    return gameComponent;
 }
 
 
@@ -1068,7 +968,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, const int seed, Save
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldId_ = b2CreateWorld(&worldDef);
-    InitSystem(appContext);
+    InitSystem();
     appContext_ = appContext;
     for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
         if (command->RequiresWorldContext()) {
@@ -1076,11 +976,18 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, const int seed, Save
         }
     }
     appContext_->GetTilePlacerManager()->SetSeed(seed);
+    chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {
+        return this->RegisterEntity(std::move(entity));
+    });
     startTime_ = TimeUtils::GetCurrentTimeMs();
 }
 
 long glimmer::WorldContext::GetStartTime() const {
     return startTime_;
+}
+
+glimmer::AppContext *glimmer::WorldContext::GetAppContext() const {
+    return appContext_;
 }
 
 b2WorldId glimmer::WorldContext::GetWorldId() const {

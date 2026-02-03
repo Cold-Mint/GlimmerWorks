@@ -172,8 +172,7 @@ std::string glimmer::RigidBody2DComponent::Serialize() {
     return rigidBody2dMessage.SerializeAsString();
 }
 
-void glimmer::RigidBody2DComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,
-                                                const std::string &data) {
+void glimmer::RigidBody2DComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     RigidBody2dMessage rigidBody2dMessage;
     rigidBody2dMessage.ParseFromString(data);
     categoryBits_ = rigidBody2dMessage.categorybits();

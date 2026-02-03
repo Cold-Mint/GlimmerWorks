@@ -12,8 +12,8 @@
 #include "core/world/generator/Chunk.h"
 
 
-glimmer::ChunkSystem::ChunkSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::ChunkSystem::ChunkSystem(WorldContext *worldContext)
+    : GameSystem(worldContext) {
     RequireComponent<TileLayerComponent>();
     RequireComponent<CameraComponent>();
     RequireComponent<PlayerControlComponent>();

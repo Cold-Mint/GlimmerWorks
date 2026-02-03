@@ -25,7 +25,7 @@ std::string glimmer::DigAbility::GetId() const {
     return ABILITY_ID_DIG;
 }
 
-void glimmer::DigAbility::OnUse(AppContext *appContext, WorldContext *worldContext, GameEntity::ID user) {
+void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user) {
     auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
         TileLayerComponent>();
     auto playerEntity = worldContext->GetPlayerEntity();

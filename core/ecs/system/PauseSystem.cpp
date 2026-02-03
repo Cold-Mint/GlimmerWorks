@@ -10,8 +10,7 @@
 #include "core/utils/TimeUtils.h"
 
 
-glimmer::PauseSystem::PauseSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::PauseSystem::PauseSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<PauseComponent>();
 }
 
@@ -42,9 +41,10 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
             ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoTitleBar;
 
+    AppContext *appContext = worldContext_->GetAppContext();
     if (ImGui::Begin("PauseMenu", nullptr, flags)) {
         // 居中标题
-        const char *title = appContext_->GetLangsResources()->pause.c_str();
+        const char *title = appContext->GetLangsResources()->pause.c_str();
         ImVec2 textSize = ImGui::CalcTextSize(title);
         ImGui::SetCursorPosX((windowSize.x - textSize.x) * 0.5f);
         ImGui::TextUnformatted(title);
@@ -58,14 +58,14 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
         float buttonWidth = 200.0f;
         ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
 
-        if (ImGui::Button(appContext_->GetLangsResources()->restore.c_str(), ImVec2(buttonWidth, 0))) {
+        if (ImGui::Button(appContext->GetLangsResources()->restore.c_str(), ImVec2(buttonWidth, 0))) {
             worldContext_->SetRuning(true);
         }
 
         ImGui::Spacing();
         ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
 
-        if (ImGui::Button(appContext_->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0))) {
+        if (ImGui::Button(appContext->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0))) {
             auto mapManifestMessageData = worldContext_->GetSaves()->ReadMapManifest();
             if (!mapManifestMessageData.has_value()) {
                 LogCat::e("Error get map Manifest ");
@@ -93,7 +93,7 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
             for (const auto &pos: *allChunks | std::views::keys) {
                 worldContext_->SaveChunk(pos);
             }
-            appContext_->GetSceneManager()->PopScene();
+            appContext->GetSceneManager()->PopScene();
         }
     }
 

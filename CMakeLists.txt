@@ -303,7 +303,7 @@ target_sources(GlimmerWorks
         core/world/generator/TreeTilePlacer.cpp
         core/ecs/system/Box2dSystemContext.cpp
         core/world/generator/SurfaceTilePlacer.cpp
-        core/world/generator/WorldGenerator.cpp
+        core/world/generator/ChunkLoader.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -439,7 +439,7 @@ target_sources(GlimmerWorks
         core/world/generator/TreeTilePlacer.h
         core/ecs/system/Box2dSystemContext.h
         core/world/generator/SurfaceTilePlacer.h
-        core/world/generator/WorldGenerator.h
+        core/world/generator/ChunkLoader.h
 )
 
 #Define version information

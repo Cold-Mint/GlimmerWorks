@@ -13,7 +13,6 @@
 #include "SDL3/SDL_render.h"
 
 namespace glimmer {
-    class AppContext;
     class WorldContext;
 
     class GameSystem {
@@ -42,12 +41,11 @@ namespace glimmer {
         }
 
         WorldContext *worldContext_;
-        AppContext *appContext_;
 
     public:
         virtual ~GameSystem() = default;
 
-        explicit GameSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit GameSystem(WorldContext *worldContext);
 
         virtual std::string GetName() = 0;
 

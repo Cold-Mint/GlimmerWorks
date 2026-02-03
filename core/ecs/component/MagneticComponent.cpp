@@ -54,8 +54,7 @@ std::string glimmer::MagneticComponent::Serialize() {
     return magneticMessage.SerializeAsString();
 }
 
-void glimmer::MagneticComponent::Deserialize(AppContext *appContext, WorldContext *worldContext,
-                                             const std::string &data) {
+void glimmer::MagneticComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     MagneticMessage magneticMessage;
     magneticMessage.ParseFromString(data);
     type_ = magneticMessage.type();

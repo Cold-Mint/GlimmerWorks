@@ -43,7 +43,7 @@ size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const s
     return itemContainer_->RemoveItem(id, amount);
 }
 
-void glimmer::ComposableItem::OnUse(AppContext *appContext, WorldContext *worldContext, const GameEntity::ID user) {
+void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID user) {
     const size_t max = itemContainer_->GetCapacity();
     for (size_t index = 0; index < max; index++) {
         Item *item = itemContainer_->GetItem(index);
@@ -72,7 +72,7 @@ void glimmer::ComposableItem::OnUse(AppContext *appContext, WorldContext *worldC
             );
             continue;
         }
-        itemAbility->OnUse(appContext, worldContext, user);
+        itemAbility->OnUse(worldContext, user);
     }
 }
 

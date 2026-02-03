@@ -10,8 +10,8 @@
 #include "core/ecs/component/PlayerControlComponent.h"
 
 
-glimmer::HotBarSystem::HotBarSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::HotBarSystem::HotBarSystem(WorldContext *worldContext)
+    : GameSystem(worldContext) {
     RequireComponent<PlayerControlComponent>();
     RequireComponent<ItemContainerComponent>();
     RequireComponent<HotBarComponent>();

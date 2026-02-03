@@ -14,7 +14,7 @@ namespace glimmer {
      */
     class HotBarSystem : public GameSystem {
     public:
-        HotBarSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit HotBarSystem(WorldContext *worldContext);
 
         void Update(float delta) override;
 

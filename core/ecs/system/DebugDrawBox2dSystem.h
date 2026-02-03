@@ -18,7 +18,7 @@ namespace glimmer {
         void OnActivationChanged(bool activeStatus) override;
 
     public:
-        DebugDrawBox2dSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit DebugDrawBox2dSystem(WorldContext *worldContext);
 
         static void b2DrawPolygonFcn(const b2Vec2 *b2_vec2, int i, b2HexColor b2_hex_color, void *p);
 

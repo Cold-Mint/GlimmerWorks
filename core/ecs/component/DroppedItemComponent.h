@@ -77,7 +77,7 @@ namespace glimmer {
 
         [[nodiscard]] std::string Serialize() override;
 
-        void Deserialize(AppContext *appContext, WorldContext *worldContext, const std::string &data) override;
+        void Deserialize(WorldContext *worldContext, const std::string &data) override;
     };
 }
 

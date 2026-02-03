@@ -6,8 +6,8 @@
 #include "../../world/WorldContext.h"
 
 
-glimmer::CameraSystem::CameraSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::CameraSystem::CameraSystem(WorldContext *worldContext)
+    : GameSystem(worldContext) {
     RequireComponent<CameraComponent>();
     RequireComponent<Transform2DComponent>();
 }
@@ -19,7 +19,7 @@ void glimmer::CameraSystem::Render(SDL_Renderer *renderer) {
     }
     int winW = 0;
     int winH = 0;
-    SDL_GetWindowSize(appContext_->GetWindow(), &winW, &winH);
+    SDL_GetWindowSize(worldContext_->GetAppContext()->GetWindow(), &winW, &winH);
     camera->SetSize(Vector2D(winW, winH));
 }
 

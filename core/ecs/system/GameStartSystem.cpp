@@ -12,8 +12,7 @@
 #include "core/ecs/component/ItemContainerComonent.h"
 
 
-glimmer::GameStartSystem::GameStartSystem(AppContext *appContext, WorldContext *worldContext)
-    : GameSystem(appContext, worldContext) {
+glimmer::GameStartSystem::GameStartSystem(WorldContext *worldContext) : GameSystem(worldContext) {
 }
 
 void glimmer::GameStartSystem::Update(float delta) {

@@ -10,7 +10,7 @@
 namespace glimmer {
     class AutoPickSystem : public GameSystem {
     public:
-        AutoPickSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit AutoPickSystem(WorldContext *worldContext);
 
         void Update(float delta) override;
 

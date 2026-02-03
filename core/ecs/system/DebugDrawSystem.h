@@ -5,18 +5,15 @@
 #ifndef GLIMMERWORKS_DEBUGDRAWSYSTEM_H
 #define GLIMMERWORKS_DEBUGDRAWSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/DebugDrawComponent.h"
 #include "../component/Transform2DComponent.h"
 
 
-namespace glimmer
-{
-    class DebugDrawSystem : public GameSystem
-    {
+namespace glimmer {
+    class DebugDrawSystem : public GameSystem {
     public:
-        explicit DebugDrawSystem(AppContext* appContext, WorldContext* worldContext);
+        explicit DebugDrawSystem(WorldContext *worldContext);
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         uint8_t GetRenderOrder() override;
 

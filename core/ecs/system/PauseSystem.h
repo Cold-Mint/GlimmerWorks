@@ -11,7 +11,7 @@ namespace glimmer {
 
     class PauseSystem : public GameSystem {
     public:
-        PauseSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit PauseSystem(WorldContext *worldContext);
 
 
         uint8_t GetRenderOrder() override;

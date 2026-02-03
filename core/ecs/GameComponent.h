@@ -32,11 +32,10 @@ namespace glimmer {
         /**
          * deserialize
          * 反系列化
-         * @param appContext appContext 应用上下文
          * @param worldContext worldContext 世界上下文
          * @param data data 数据
          */
-        virtual void Deserialize(AppContext *appContext, WorldContext *worldContext, const std::string &data);
+        virtual void Deserialize(WorldContext *worldContext, const std::string &data);
 
         [[nodiscard]] virtual u_int32_t GetId();
     };

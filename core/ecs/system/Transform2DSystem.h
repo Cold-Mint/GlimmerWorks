@@ -9,7 +9,7 @@
 namespace glimmer {
     class Transform2DSystem final : public GameSystem {
     public:
-        explicit Transform2DSystem(AppContext *appContext, WorldContext *worldContext);
+        explicit Transform2DSystem(WorldContext *worldContext);
 
         std::string GetName() override;
     };

@@ -25,9 +25,7 @@ bool glimmer::GameSystem::ShouldActivate() {
 void glimmer::GameSystem::OnActivationChanged(const bool activeStatus) {
 }
 
-
-glimmer::GameSystem::GameSystem(AppContext *appContext, WorldContext *worldContext) : worldContext_(worldContext),
-    appContext_(appContext) {
+glimmer::GameSystem::GameSystem(WorldContext *worldContext) : worldContext_(worldContext) {
 }
 
 bool glimmer::GameSystem::CheckActivation() {

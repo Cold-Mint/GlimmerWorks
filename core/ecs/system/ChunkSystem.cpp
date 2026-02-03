@@ -9,6 +9,7 @@
 #include "../component/Transform2DComponent.h"
 #include "core/ecs/component/PlayerControlComponent.h"
 #include "core/ecs/component/CameraComponent.h"
+#include "core/world/generator/Chunk.h"
 
 
 glimmer::ChunkSystem::ChunkSystem(AppContext *appContext, WorldContext *worldContext)

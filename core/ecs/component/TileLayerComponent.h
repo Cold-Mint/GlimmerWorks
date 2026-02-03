@@ -4,19 +4,20 @@
 
 #ifndef GLIMMERWORKS_TILELAYERCOMPONENT_H
 #define GLIMMERWORKS_TILELAYERCOMPONENT_H
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
 #include "../GameComponent.h"
 #include "../../math/Vector2D.h"
 #include "../../math/Vector2DI.h"
+#include "core/world/generator/TileLayerType.h"
 #include "SDL3/SDL_rect.h"
-#include "../../world/Tile.h"
 using TileVector2D = glimmer::Vector2DI;
 
 namespace glimmer {
     class Chunk;
-
+    class Tile;
     /**
      * The TileLayer component is designed to operate only at the world origin (0,0).
      * The position of the Transform2DComponent does not affect the coordinate transformation.

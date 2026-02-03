@@ -10,7 +10,7 @@
 #include "../../log/LogCat.h"
 #include "../../world/Tile.h"
 #include "../../math/Vector2DI.h"
-#include "../../world/Chunk.h"
+#include "../../world/generator/Chunk.h"
 
 
 WorldVector2D glimmer::TileLayerComponent::TileToWorld(

@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_CHUNKPHYSICSHELPER_H
 #define GLIMMERWORKS_CHUNKPHYSICSHELPER_H
 #include "Chunk.h"
-#include "box2d/id.h"
 
 namespace glimmer {
     class ChunkPhysicsHelper {

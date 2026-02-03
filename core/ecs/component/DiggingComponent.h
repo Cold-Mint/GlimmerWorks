@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_DIGGINGCOMPONENT_H
 #include "../GameComponent.h"
 #include "../../math/Vector2D.h"
-#include "../../world/TileLayerType.h"
+#include "core/world/generator/TileLayerType.h"
 
 namespace glimmer {
     /**

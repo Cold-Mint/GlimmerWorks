@@ -6,13 +6,13 @@
 #include <string>
 #include <vector>
 
-#include "BiomesManager.h"
 #include "ItemManager.h"
 #include "../../vfs/VirtualFileSystem.h"
 #include "core/lootTable/LootTableManager.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {
+    class BiomesManager;
     class TileManager;
     class StringManager;
     class DataPack;

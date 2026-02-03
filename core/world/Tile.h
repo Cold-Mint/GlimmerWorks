@@ -5,14 +5,15 @@
 #ifndef GLIMMERWORKS_TILE_H
 #define GLIMMERWORKS_TILE_H
 #include <memory>
-#include <SDL3/SDL.h>
 
-#include "TileLayerType.h"
-#include "TilePhysicsType.h"
-#include "../mod/Resource.h"
+#include "core/mod/ResourceRef.h"
+#include "core/scene/AppContext.h"
+#include "generator/TileLayerType.h"
+#include "generator/TilePhysicsType.h"
+#include "SDL3/SDL_render.h"
+
 
 namespace glimmer {
-    class AppContext;
 
     struct Tile {
         std::string id;

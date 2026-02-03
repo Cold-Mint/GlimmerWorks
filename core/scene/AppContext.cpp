@@ -20,14 +20,15 @@
 #include "core/log/LogCat.h"
 #include "core/utils/LanguageUtils.h"
 #include "core/vfs/StdFileProvider.h"
-#include "core/world/FillTilePlacer.h"
+#include "core/world/generator/FillTilePlacer.h"
 #include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
-#include "core/world/SurfaceTilePlacer.h"
-#include "core/world/TreeTilePlacer.h"
+#include "core/saves/SavesManager.h"
+#include "core/world/generator/SurfaceTilePlacer.h"
+#include "core/world/generator/TreeTilePlacer.h"
 
 void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     toml::value value = toml::parse_str(data, tomlVersion_);

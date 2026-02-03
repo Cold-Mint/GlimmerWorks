@@ -4,10 +4,7 @@
 
 #include "Chunk.h"
 
-#include "../log/LogCat.h"
-#include "../mod/ResourceLocator.h"
-#include "../scene/AppContext.h"
-
+#include "core/world/Tile.h"
 
 void glimmer::Chunk::AddBodyId(b2BodyId bodyId) { attachedBodies_.emplace_back(bodyId); }
 

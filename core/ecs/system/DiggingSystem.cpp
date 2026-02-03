@@ -9,8 +9,8 @@
 #include "../component/Transform2DComponent.h"
 #include "../component/TileLayerComponent.h"
 #include "../../inventory/TileItem.h"
-#include "../../world/ChunkPhysicsHelper.h"
-#include "../../world/Chunk.h"
+#include "../../world/generator/ChunkPhysicsHelper.h"
+#include "../../world/generator/Chunk.h"
 
 glimmer::DiggingSystem::DiggingSystem(AppContext *appContext, WorldContext *worldContext)
     : GameSystem(appContext, worldContext) {

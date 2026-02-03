@@ -9,6 +9,7 @@
 #include "../component/TileLayerComponent.h"
 #include "../component/Transform2DComponent.h"
 #include "../../world/WorldContext.h"
+#include "core/world/Tile.h"
 
 glimmer::TileLayerSystem::TileLayerSystem(AppContext *appContext, WorldContext *worldContext)
     : GameSystem(appContext, worldContext) {

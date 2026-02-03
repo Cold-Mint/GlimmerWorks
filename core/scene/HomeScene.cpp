@@ -12,6 +12,7 @@
 #include "SavedGamesScene.h"
 #include "../log/LogCat.h"
 #include "../Config.h"
+#include "core/saves/SavesManager.h"
 
 glimmer::HomeScene::HomeScene(AppContext *context)
     : Scene(context) {

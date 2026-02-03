@@ -4,10 +4,11 @@
 
 #include "ChunkPhysicsHelper.h"
 
-#include "../ecs/component/TileLayerComponent.h"
-#include "../utils/Box2DUtils.h"
-#include "box2d/box2d.h"
-#include "box2d/types.h"
+#include "TilePhysicsType.h"
+#include "../../../cmake-build-debug/_deps/box2d-src/include/box2d/box2d.h"
+#include "../../../cmake-build-debug/_deps/box2d-src/include/box2d/types.h"
+#include "../../utils/Box2DUtils.h"
+#include "core/world/Tile.h"
 
 
 void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId worldId, Chunk *chunk) {

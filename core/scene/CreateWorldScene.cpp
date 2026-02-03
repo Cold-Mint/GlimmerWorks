@@ -15,6 +15,7 @@
 #include "WorldScene.h"
 #include "../log/LogCat.h"
 #include "../saves/Saves.h"
+#include "core/saves/SavesManager.h"
 #include "core/utils/TimeUtils.h"
 #include "SDL3/SDL_log.h"
 namespace fs = std::filesystem;

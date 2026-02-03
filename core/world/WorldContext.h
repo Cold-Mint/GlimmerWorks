@@ -16,7 +16,6 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
-#include "Chunk.h"
 #include "../ecs/GameComponent.h"
 #include "../ecs/component/DiggingComponent.h"
 #include "../ecs/component/PauseComponent.h"
@@ -349,6 +348,20 @@ namespace glimmer {
         * @param position position 位置
         */
         void LoadChunkAt(TileVector2D position);
+
+        /**
+         * GenerateChunkTerrain
+         * 生成区块地形
+         * @param position
+         */
+        void GenerateChunkTerrain(TileVector2D position);
+
+        /**
+         * GenerateChunkDecoration
+         * 生成区块装饰
+         * @param position
+         */
+        void GenerateChunkDecoration(TileVector2D position);
 
         /**
          * Unload Chunk

@@ -11,6 +11,8 @@
 #include "../component/TileLayerComponent.h"
 #include "../../world/WorldContext.h"
 #include "../component/CameraComponent.h"
+#include "core/world/Tile.h"
+#include "core/world/generator/Chunk.h"
 
 
 bool glimmer::DebugPanelSystem::ShouldActivate() {

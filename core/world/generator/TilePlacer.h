@@ -8,10 +8,11 @@
 #include <vector>
 
 #include "Chunk.h"
-#include "../mod/ResourceRef.h"
+#include "../../Constants.h"
+#include "../../mod/Resource.h"
+#include "../../mod/ResourceRef.h"
 
 namespace glimmer {
-    class AppContext;
     /**
      * TilePlacer
      * 瓦片放置器

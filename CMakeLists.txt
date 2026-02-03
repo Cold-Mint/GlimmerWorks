@@ -219,12 +219,12 @@ target_sources(GlimmerWorks
         core/math/Vector2DI.cpp
         core/ecs/system/DebugPanelSystem.cpp
         core/ecs/system/ChunkSystem.cpp
-        core/world/Chunk.cpp
+        core/world/generator/Chunk.cpp
         core/ecs/component/RigidBody2DComponent.cpp
         core/ecs/system/PhysicsSystem.cpp
         core/ecs/system/DebugDrawBox2dSystem.cpp
         core/utils/Box2DUtils.cpp
-        core/world/ChunkPhysicsHelper.cpp
+        core/world/generator/ChunkPhysicsHelper.cpp
         core/console/command/TpCommand.cpp
         core/console/command/Box2DCommand.cpp
         core/utils/NodeTree.cpp
@@ -244,12 +244,12 @@ target_sources(GlimmerWorks
         core/console/command/ConfigCommand.cpp
         core/console/suggestion/ConfigSuggestions.cpp
         core/mod/dataPack/TileManager.cpp
-        core/world/TilePhysicsType.cpp
+        core/world/generator/TilePhysicsType.cpp
         core/mod/dataPack/BiomesManager.cpp
-        core/world/TilePlacer.cpp
-        core/world/TilePlacerManager.cpp
+        core/world/generator/TilePlacer.cpp
+        core/world/generator/TilePlacerManager.cpp
         core/console/command/LicenseCommand.cpp
-        core/world/FillTilePlacer.cpp
+        core/world/generator/FillTilePlacer.cpp
         core/mod/ResourceLocator.cpp
         core/console/command/HeightMapCommand.cpp
         core/inventory/Item.cpp
@@ -258,7 +258,7 @@ target_sources(GlimmerWorks
         core/ecs/component/ItemContainerComonent.cpp
         core/ecs/system/HotBarSystem.cpp
         core/ecs/component/HotBarComonent.cpp
-        core/world/TileLayerType.cpp
+        core/world/generator/TileLayerType.cpp
         core/ecs/component/DroppedItemComponent.cpp
         core/ecs/system/DroppedItemSystem.cpp
         core/ecs/component/MagnetComponent.cpp
@@ -300,9 +300,10 @@ target_sources(GlimmerWorks
         core/lootTable/LootTableManager.cpp
         core/console/command/LootCommand.cpp
         core/console/suggestion/LootSuggestions.cpp
-        core/world/TreeTilePlacer.cpp
+        core/world/generator/TreeTilePlacer.cpp
         core/ecs/system/Box2dSystemContext.cpp
-        core/world/SurfaceTilePlacer.cpp
+        core/world/generator/SurfaceTilePlacer.cpp
+        core/world/generator/WorldGenerator.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -355,12 +356,12 @@ target_sources(GlimmerWorks
         core/math/Vector2DI.h
         core/ecs/system/DebugPanelSystem.h
         core/ecs/system/ChunkSystem.h
-        core/world/Chunk.h
+        core/world/generator/Chunk.h
         core/ecs/component/RigidBody2DComponent.h
         core/ecs/system/PhysicsSystem.h
         core/ecs/system/DebugDrawBox2dSystem.h
         core/utils/Box2DUtils.h
-        core/world/ChunkPhysicsHelper.h
+        core/world/generator/ChunkPhysicsHelper.h
         core/console/command/TpCommand.h
         core/console/command/Box2DCommand.h
         core/utils/NodeTree.h
@@ -380,12 +381,12 @@ target_sources(GlimmerWorks
         core/console/command/ConfigCommand.h
         core/console/suggestion/ConfigSuggestions.h
         core/mod/dataPack/TileManager.h
-        core/world/TilePhysicsType.h
+        core/world/generator/TilePhysicsType.h
         core/mod/dataPack/BiomesManager.h
-        core/world/TilePlacer.h
-        core/world/TilePlacerManager.h
+        core/world/generator/TilePlacer.h
+        core/world/generator/TilePlacerManager.h
         core/console/command/LicenseCommand.h
-        core/world/FillTilePlacer.h
+        core/world/generator/FillTilePlacer.h
         core/mod/ResourceLocator.h
         core/console/command/HeightMapCommand.h
         core/inventory/Item.h
@@ -394,7 +395,7 @@ target_sources(GlimmerWorks
         core/ecs/component/ItemContainerComonent.h
         core/ecs/system/HotBarSystem.h
         core/ecs/component/HotBarComonent.h
-        core/world/TileLayerType.h
+        core/world/generator/TileLayerType.h
         core/ecs/component/DroppedItemComponent.h
         core/ecs/system/DroppedItemSystem.h
         core/ecs/component/MagnetComponent.h
@@ -435,9 +436,10 @@ target_sources(GlimmerWorks
         core/console/command/ClearCommand.h
         core/console/command/LootCommand.h
         core/console/suggestion/LootSuggestions.h
-        core/world/TreeTilePlacer.h
+        core/world/generator/TreeTilePlacer.h
         core/ecs/system/Box2dSystemContext.h
-        core/world/SurfaceTilePlacer.h
+        core/world/generator/SurfaceTilePlacer.h
+        core/world/generator/WorldGenerator.h
 )
 
 #Define version information

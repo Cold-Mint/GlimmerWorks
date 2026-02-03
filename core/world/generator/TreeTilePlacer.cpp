@@ -3,8 +3,7 @@
 //
 
 #include "TreeTilePlacer.h"
-#include "../Constants.h"
-#include "core/log/LogCat.h"
+
 
 void glimmer::TreeTilePlacer::SetSeed(const int seed) {
     if (treeNoise == nullptr) {

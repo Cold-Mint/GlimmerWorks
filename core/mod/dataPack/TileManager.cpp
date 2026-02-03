@@ -6,8 +6,8 @@
 
 #include "../../Constants.h"
 #include "../../log/LogCat.h"
-#include "../../world/TileLayerType.h"
-#include "../../world/TilePhysicsType.h"
+#include "core/world/generator/TileLayerType.h"
+#include "core/world/generator/TilePhysicsType.h"
 
 
 void glimmer::TileManager::InitBuiltinTiles() {

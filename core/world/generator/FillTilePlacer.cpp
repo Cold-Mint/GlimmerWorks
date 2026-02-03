@@ -4,8 +4,6 @@
 
 #include "FillTilePlacer.h"
 
-#include "../Constants.h"
-#include "../scene/AppContext.h"
 
 glimmer::FillTilePlacer::~FillTilePlacer() = default;
 

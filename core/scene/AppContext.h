@@ -14,8 +14,6 @@
 #include "../mod/dataPack/ItemManager.h"
 #include "../mod/dataPack/TileManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
-#include "../saves/SavesManager.h"
-#include "../world/TilePlacerManager.h"
 #include "core/inventory/DragAndDrop.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/DataPackManager.h"
@@ -24,9 +22,11 @@
 #include "cmake-build-debug/_deps/toml11-src/include/toml.hpp"
 #include "core/Config.h"
 #include "core/lootTable/LootTableManager.h"
+#include "core/world/generator/TilePlacerManager.h"
 
 
 namespace glimmer {
+    class SavesManager;
     class ResourceLocator;
     class DynamicSuggestionsManager;
     class StringManager;

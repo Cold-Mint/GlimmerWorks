@@ -4,17 +4,18 @@
 
 #ifndef GLIMMERWORKS_CHUNK_H
 #define GLIMMERWORKS_CHUNK_H
+#include <unordered_map>
 
-#include "Tile.h"
-#include "../Constants.h"
-#include "../math/Vector2DI.h"
-#include "box2d/id.h"
-#include "src/saves/chunk.pb.h"
+#include "../../../cmake-build-debug/generated/src/saves/chunk.pb.h"
+#include "../../../cmake-build-debug/_deps/box2d-src/include/box2d/id.h"
+#include "../../ecs/component/TileLayerComponent.h"
+#include "core/Constants.h"
+
 
 namespace glimmer {
     class Chunk {
         TileVector2D position;
-        std::pmr::unordered_map<TileLayerType, std::array<std::array<std::unique_ptr<Tile>, CHUNK_SIZE>, CHUNK_SIZE> >
+        std::unordered_map<TileLayerType, std::array<std::array<std::unique_ptr<Tile>, CHUNK_SIZE>, CHUNK_SIZE> >
         tiles_;
         std::vector<b2BodyId> attachedBodies_;
 

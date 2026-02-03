@@ -6,8 +6,8 @@
 
 #include <utility>
 
-#include "ChunkPhysicsHelper.h"
-#include "TilePlacer.h"
+
+#include "Tile.h"
 #include "../Constants.h"
 #include "../ecs/component/DebugDrawComponent.h"
 #include "../ecs/system/GameStartSystem.h"
@@ -17,7 +17,6 @@
 #include "../ecs/system/DebugDrawBox2dSystem.h"
 #include "../ecs/system/DebugDrawSystem.h"
 #include "../ecs/system/DebugPanelSystem.h"
-#include "../ecs/system/AndroidControlSystem.h"
 #include "../ecs/system/AutoPickSystem.h"
 #include "../ecs/system/DiggingSystem.h"
 #include "../ecs/system/DroppedItemSystem.h"
@@ -44,6 +43,9 @@
 #include "core/ecs/component/PlayerControlComponent.h"
 #include "core/ecs/system/ItemEditorSystem.h"
 #include "core/utils/TimeUtils.h"
+#include "generator/Chunk.h"
+#include "generator/ChunkPhysicsHelper.h"
+#include "generator/TilePlacer.h"
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
     const auto type = std::type_index(typeid(*comp));
@@ -503,6 +505,12 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, chunk.get());
     chunks_.insert({position, std::move(chunk)});
     chunksVersion_++;
+}
+
+void glimmer::WorldContext::GenerateChunkTerrain(TileVector2D position) {
+}
+
+void glimmer::WorldContext::GenerateChunkDecoration(TileVector2D position) {
 }
 
 

@@ -7,7 +7,9 @@
 #include "../../Constants.h"
 #include "../../scene/AppContext.h"
 #include "fmt/color.h"
+#include "src/core/player.pb.h"
 #include "src/saves/chunk.pb.h"
+#include "src/saves/chunk_entity.pb.h"
 #include "src/saves/map_manifest.pb.h"
 
 void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {

@@ -19,7 +19,6 @@
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/dataPack/StringManager.h"
 #include "SDL3_ttf/SDL_ttf.h"
-#include "cmake-build-debug/_deps/toml11-src/include/toml.hpp"
 #include "core/Config.h"
 #include "core/lootTable/LootTableManager.h"
 #include "core/world/generator/TilePlacerManager.h"

@@ -4,10 +4,10 @@
 
 #include "ChunkPhysicsHelper.h"
 
+#include "box2d/box2d.h"
 #include "TilePhysicsType.h"
-#include "../../../cmake-build-debug/_deps/box2d-src/include/box2d/box2d.h"
-#include "../../../cmake-build-debug/_deps/box2d-src/include/box2d/types.h"
 #include "../../utils/Box2DUtils.h"
+#include "box2d/types.h"
 #include "core/world/Tile.h"
 
 

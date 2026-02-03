@@ -8,7 +8,7 @@
 #include "../../Constants.h"
 #include "../../scene/AppContext.h"
 #include "fmt/color.h"
-
+#include "toml.hpp"
 
 void glimmer::ConfigCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     suggestionsTree.AddChild("get")->AddChild(CONFIG_DYNAMIC_SUGGESTIONS_NAME);

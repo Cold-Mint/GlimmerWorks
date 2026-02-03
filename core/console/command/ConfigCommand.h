@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_CONFIGCOMMAND_H
 
 #include "../Command.h"
-#include "cmake-build-debug/_deps/toml11-src/include/toml.hpp"
+#include "toml11/types.hpp"
 
 namespace glimmer {
     enum class ConfigType {

@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_CONFIGSUGGESTION_H
 
 #include "DynamicSuggestions.h"
-#include "cmake-build-debug/_deps/toml11-src/include/toml11/types.hpp"
+#include "toml11/types.hpp"
 
 namespace glimmer {
     class ConfigSuggestions final : public DynamicSuggestions {

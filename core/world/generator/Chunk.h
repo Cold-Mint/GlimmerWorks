@@ -6,8 +6,8 @@
 #define GLIMMERWORKS_CHUNK_H
 #include <unordered_map>
 
-#include "../../../cmake-build-debug/generated/src/saves/chunk.pb.h"
-#include "../../../cmake-build-debug/_deps/box2d-src/include/box2d/id.h"
+#include "src/saves/chunk.pb.h"
+#include "box2d/id.h"
 #include "../../ecs/component/TileLayerComponent.h"
 #include "core/Constants.h"
 

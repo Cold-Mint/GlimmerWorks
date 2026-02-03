@@ -467,6 +467,14 @@ target_include_directories(GlimmerWorks PRIVATE
 )
 
 target_include_directories(GlimmerWorks PRIVATE
+        "${CMAKE_BINARY_DIR}/_deps/box2d-src/include"
+)
+
+target_include_directories(GlimmerWorks PRIVATE
+        "${CMAKE_BINARY_DIR}/_deps/toml11-src/include"
+)
+
+target_include_directories(GlimmerWorks PRIVATE
         "${CMAKE_BINARY_DIR}/_deps/tweeny-src/include"
 )
 

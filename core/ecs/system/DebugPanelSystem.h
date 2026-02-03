@@ -4,7 +4,7 @@
 
 #ifndef GLIMMERWORKS_DEBUGPANELSYSTEM_H
 #define GLIMMERWORKS_DEBUGPANELSYSTEM_H
-#include "../GameSystem.h"
+#include "core/ecs/GameSystem.h"
 #include "core/math/Vector2D.h"
 
 namespace glimmer {

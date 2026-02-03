@@ -3,7 +3,8 @@
 //
 #include "Config.h"
 
-#include "cmake-build-debug/_deps/toml11-src/include/toml11/find.hpp"
+#include "toml11/find.hpp"
+
 
 void glimmer::Config::LoadConfig(const toml::value &configValue) {
     configVersion = toml::find<int>(configValue, "configVersion");

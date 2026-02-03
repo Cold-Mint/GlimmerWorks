@@ -29,6 +29,8 @@
 #include "core/saves/SavesManager.h"
 #include "core/world/generator/SurfaceTilePlacer.h"
 #include "core/world/generator/TreeTilePlacer.h"
+#include "toml11/find.hpp"
+#include "toml11/parser.hpp"
 
 void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     toml::value value = toml::parse_str(data, tomlVersion_);

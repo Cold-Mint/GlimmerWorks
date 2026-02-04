@@ -304,6 +304,10 @@ target_sources(GlimmerWorks
         core/ecs/system/Box2dSystemContext.cpp
         core/world/generator/SurfaceTilePlacer.cpp
         core/world/generator/ChunkLoader.cpp
+        core/world/generator/ChunkGenerator.cpp
+        core/world/generator/TerrainTileResult.cpp
+        core/world/generator/TerrainResult.cpp
+        core/world/generator/TerrainResultType.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -440,6 +444,10 @@ target_sources(GlimmerWorks
         core/ecs/system/Box2dSystemContext.h
         core/world/generator/SurfaceTilePlacer.h
         core/world/generator/ChunkLoader.h
+        core/world/generator/ChunkGenerator.h
+        core/world/generator/TerrainResult.h
+        core/world/generator/TerrainResultType.h
+        core/world/generator/TerrainTileResult.h
 )
 
 #Define version information

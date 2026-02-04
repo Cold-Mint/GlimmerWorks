@@ -7,7 +7,6 @@
 #include <utility>
 
 
-#include "Tile.h"
 #include "../Constants.h"
 #include "../ecs/component/DebugDrawComponent.h"
 #include "../ecs/system/GameStartSystem.h"
@@ -28,7 +27,6 @@
 #include "../ecs/system/PlayerControlSystem.h"
 #include "../ecs/system/TileLayerSystem.h"
 #include "../log/LogCat.h"
-#include "../mod/ResourceLocator.h"
 #include "../saves/Saves.h"
 #include "../utils/Box2DUtils.h"
 #include "box2d/box2d.h"
@@ -45,7 +43,6 @@
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
 #include "generator/ChunkPhysicsHelper.h"
-#include "generator/TilePlacer.h"
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
     const auto type = std::type_index(typeid(*comp));
@@ -156,7 +153,7 @@ void glimmer::WorldContext::InitPlayer() {
     }
     if (!HasComponent<Transform2DComponent>(playerEntity)) {
         const auto transform2DComponentInPlayer = AddComponent<Transform2DComponent>(playerEntity);
-        const auto height = GetHeight(0);
+        const auto height = chunkGenerator_->GetHeight(0);
         transform2DComponentInPlayer->SetPosition(
             TileLayerComponent::TileToWorld(TileVector2D(0, height + 3)));
     }
@@ -234,70 +231,6 @@ glimmer::GameEntity::ID glimmer::WorldContext::GetPlayerEntity() const {
     return player_;
 }
 
-int glimmer::WorldContext::GetHeight(int x) {
-    const auto it = heightMap_.find(x);
-    if (it != heightMap_.end()) {
-        LogCat::d("HeightMap cache hit for chunkX=", x);
-        return it->second;
-    }
-
-    LogCat::d("HeightMap cache miss, generating new chunk at chunkX=", x);
-    const float sampleX = static_cast<float>(x);
-
-    // 1. 获取三层归一化噪声 (0.0 到 1.0)
-
-    // a) 极低频: 大陆/大型岛屿掩码。
-    const float continentNoise = (continentHeightMapNoise->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-
-    // b) 低频: 宏观地形 (山脉/高原)。
-    const float mountainNoise = (mountainHeightMapNoise->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-
-    // c) 中频: 细节地形 (丘陵/平原起伏)。
-    const float hillsNoise = (hillsNoiseHeightMapNoise->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-
-
-    // 2. 核心：创建大陆掩码和陆地起伏
-
-    // A) 大陆掩码 (控制海洋和大陆板块)：使用 3 次方夸大低值，创建清晰的海洋边界。
-    // 这层噪声确保了大陆/岛屿（大型陆地板块）的孤立性。
-    const float continentMask = std::pow(continentNoise, 3.0F);
-
-    // B) 组合陆地起伏噪声 (主要由山脉和丘陵构成)
-    // landmassNoise 范围 [0, 1]
-    float landmassNoise = mountainNoise * MOUNTAIN_WEIGHT + hillsNoise * HILLS_WEIGHT;
-
-    // C) 平滑山峰抬升 (生成高原和尖锐的山脉)
-    float peakLift = 0.0F;
-    if (landmassNoise > PEAK_LIFT_THRESHOLD) {
-        // 只有在陆地噪声较高时，才计算额外的线性抬升，避免山峰顶部平坦。
-        // liftFactor 范围 [0, 1]
-        float liftFactor = (landmassNoise - PEAK_LIFT_THRESHOLD) / (1.0F - PEAK_LIFT_THRESHOLD);
-        peakLift = liftFactor * MAX_PEAK_LIFT;
-    }
-
-    // D) 最终陆地噪声：基础起伏 + 额外山峰抬升
-    float totalLandNoise = landmassNoise + peakLift;
-    // 确保总噪声不会超出我们预设的最大抬升比例
-    totalLandNoise = std::min(totalLandNoise, 1.0F + MAX_PEAK_LIFT);
-
-    // E) 应用大陆掩码：只有大陆区域，陆地噪声才能抬升地形
-    float combinedNoise = continentMask * totalLandNoise;
-
-
-    // 3. 将总噪声映射到最终的世界高度
-    // combinedNoise 的范围现在约为 [0, 1.3]，我们使用 TERRAIN_HEIGHT_RANGE 进行映射
-    int height = WORLD_MIN_Y + BASE_HEIGHT_OFFSET +
-                 static_cast<int>(combinedNoise * TERRAIN_HEIGHT_RANGE / (1.0F + MAX_PEAK_LIFT));
-
-
-    // 5. 确保不超过世界最大高度
-    height = std::min(height, MAX_LAND_HEIGHT);
-
-    // 缓存并返回高度
-    heightMap_[x] = height;
-    LogCat::d("Generated and cached heights for chunkX=", x);
-    return height;
-}
 
 std::unordered_map<TileVector2D, glimmer::Chunk *, glimmer::Vector2DIHash> *glimmer::WorldContext::GetAllChunks() {
     if (lastChunksVersion_ != chunksVersion_) {
@@ -312,171 +245,21 @@ std::unordered_map<TileVector2D, glimmer::Chunk *, glimmer::Vector2DIHash> *glim
     return &chunksCache_;
 }
 
-
-float glimmer::WorldContext::GetHumidity(const TileVector2D tileVector2d) {
-    const auto it = humidityMap.find(tileVector2d);
-    if (it != humidityMap.end()) {
-        return it->second;
-    }
-    humidityMap[tileVector2d] = (humidityMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
-                                                            static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
-    return humidityMap[tileVector2d];
-}
-
-float glimmer::WorldContext::GetTemperature(TileVector2D tileVector2d, float elevation) {
-    const auto it = temperatureMap.find(tileVector2d);
-    if (it != temperatureMap.end()) {
-        return it->second;
-    }
-    const float noiseTemp = (temperatureMapNoise->GetNoise(
-                                 static_cast<float>(tileVector2d.x),
-                                 static_cast<float>(tileVector2d.y)
-                             ) + 1.0F) * 0.5F;
-    const float altitudePenalty = std::pow(1.0F - elevation, 1.5F);
-    const float temperature = noiseTemp * altitudePenalty;
-
-    temperatureMap[tileVector2d] = temperature;
-    return temperatureMap[tileVector2d];
-}
-
-float glimmer::WorldContext::GetWeirdness(const TileVector2D tileVector2d) {
-    const auto it = weirdnessMap.find(tileVector2d);
-    if (it != weirdnessMap.end()) {
-        return it->second;
-    }
-    weirdnessMap[tileVector2d] = (weirdnessMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
-                                                              static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
-    return weirdnessMap[tileVector2d];
-}
-
-float glimmer::WorldContext::GetErosion(const TileVector2D tileVector2d) {
-    const auto it = erosionMap.find(tileVector2d);
-    if (it != erosionMap.end()) {
-        return it->second;
-    }
-    erosionMap[tileVector2d] = (erosionMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
-                                                          static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
-    return erosionMap[tileVector2d];
-}
-
-float glimmer::WorldContext::GetElevation(const int height) {
-    return static_cast<float>(height) / (WORLD_MAX_Y - WORLD_MIN_Y + WORLD_MIN_Y);
-}
-
 void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     if (chunks_.contains(position)) {
         return;
     }
     std::unique_ptr<Chunk> chunk = chunkLoader_->LoadChunkFromSaves(position);
     if (chunk == nullptr) {
-        chunk = std::make_unique<Chunk>(position);
-        //Failed to load the file. Creating the block instead.
-        //从文件加载失败，创建区块。
-        std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> tilesRef;
-        ResourceRef airTileRef;
-        airTileRef.SetResourceType(RESOURCE_TYPE_TILE);
-        airTileRef.SetPackageId(RESOURCE_REF_CORE);
-        airTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        airTileRef.SetResourceKey(TILE_ID_AIR);
-        ResourceRef waterTileRef;
-        waterTileRef.SetResourceType(RESOURCE_TYPE_TILE);
-        waterTileRef.SetPackageId(RESOURCE_REF_CORE);
-        waterTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        waterTileRef.SetResourceKey(TILE_ID_WATER);
-        ResourceRef bedrockTileRef;
-        bedrockTileRef.SetResourceType(RESOURCE_TYPE_TILE);
-        bedrockTileRef.SetPackageId(RESOURCE_REF_CORE);
-        bedrockTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        bedrockTileRef.SetResourceKey(TILE_ID_BEDROCK);
-        std::map<std::string, std::vector<TileVector2D> > biomeMap = {};
-        std::map<std::string, BiomeResource *> biomeResourceMap = {};
-        //Does the current block contain the sky? (Air block)
-        //当前区块内是否包含天空。（空气方块）
-        bool includeSky = false;
-        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-            const int height = GetHeight(position.x + localX);
-            for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-                TileVector2D localTile(localX, localY);
-                TileVector2D worldTilePos = position + localTile;
-                if (worldTilePos.y == WORLD_MIN_Y) {
-                    tilesRef[localX][localY] = bedrockTileRef;
-                    continue;
-                }
-                if (worldTilePos.y > height) {
-                    if (worldTilePos.y < SEA_LEVEL_HEIGHT) {
-                        //water
-                        //水
-                        tilesRef[localX][localY] = waterTileRef;
-                    } else {
-                        //sky
-                        //天空
-                        tilesRef[localX][localY] = airTileRef;
-                        includeSky = true;
-                    }
-                    continue;
-                }
-                const float elevation = GetElevation(worldTilePos.y);
-                const auto humidity = GetHumidity(worldTilePos);
-                const auto temperature = GetTemperature(worldTilePos, elevation);
-                const auto weirdness = GetWeirdness(worldTilePos);
-                const auto erosion = GetErosion(worldTilePos);
-                BiomeResource *biomeResource = appContext_->GetBiomesManager()->FindBestBiome(
-                    humidity, temperature, weirdness, erosion,
-                    elevation);
-                if (biomeResource == nullptr) {
-                    LogCat::e("Failed to search for the biome.");
-                    return;
-                }
-                tilesRef[localX][localY] = airTileRef;
-                biomeMap[biomeResource->key].push_back(localTile);
-                if (!biomeResourceMap.contains(biomeResource->key)) {
-                    biomeResourceMap[biomeResource->key] = biomeResource;
-                }
-            }
-        }
-        for (auto &[biomeKey, tilePositions]: biomeMap) {
-            BiomeResource *biomeResource = biomeResourceMap[biomeKey];
-            for (auto &tilePlacerRef: biomeResource->tilePlacerRefs) {
-                LogCat::d(biomeKey, " tilePlacerRefs size=", biomeResource->tilePlacerRefs.size());
-                std::string id = tilePlacerRef.id;
-                TilePlacer *tilePlacer = appContext_->GetTilePlacerManager()->GetTilePlacer(id);
-                if (tilePlacer == nullptr) {
-                    LogCat::w("Tile placer ", id, " does not exist.");
-                    continue;
-                }
-                //As long as this part is called, it indicates that the current block is not completely empty.
-                //只要调用了这里就表示当前区块，并非全部为空气。
-                LogCat::d("Placement ", id, " execute.");
-                if (!tilePlacer->PlaceTileId(appContext_, tilesRef, tilePlacerRef.tiles, tilePositions,
-                                             includeSky,
-                                             tilePlacerRef.config)) {
-                    LogCat::w("Placement ", id, " failed to execute. Block coordinates: x:", position.x, ",y:",
-                              position.y,
-                              ".");
-                }
-            }
-        }
-        for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-            for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-                TileVector2D localTile(localX, localY);
-                ResourceRef resourceRef = tilesRef[localX][localY];
-                const std::optional<TileResource *> tileResource = appContext_->GetResourceLocator()->FindTile(
-                    resourceRef);
-                TileResource *tileResourceValue = nullptr;
-                if (tileResource.has_value()) {
-                    tileResourceValue = tileResource.value();
-                } else {
-                    LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
-                              " does not exist.");
-                    tileResourceValue = appContext_->GetTileManager()->GetAir();
-                }
-                chunk->SetTile(localTile, Tile::FromResourceRef(appContext_, tileResourceValue));
-            }
-        }
+        chunk = chunkGenerator_->GenerateChunkAt(position);
     }
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, chunk.get());
     chunks_.insert({position, std::move(chunk)});
     chunksVersion_++;
+}
+
+glimmer::ChunkGenerator *glimmer::WorldContext::GetChunkGenerator() const {
+    return chunkGenerator_.get();
 }
 
 
@@ -934,37 +717,6 @@ int glimmer::WorldContext::GetSeed() const {
 glimmer::WorldContext::WorldContext(AppContext *appContext, const int seed, Saves *saves,
                                     const GameEntity::ID entityId) : seed(seed),
                                                                      entityId_(entityId), saves_(saves) {
-    // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
-    continentHeightMapNoise = std::make_unique<FastNoiseLite>();
-    continentHeightMapNoise->SetSeed(seed);
-    continentHeightMapNoise->SetFrequency(0.005F); // 极低频，用于大型板块
-    continentHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
-    // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
-    mountainHeightMapNoise = std::make_unique<FastNoiseLite>();
-    mountainHeightMapNoise->SetSeed(seed + 1); // 不同的种子
-    mountainHeightMapNoise->SetFrequency(0.01F); // 低频，用于主要地形
-    mountainHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    // 3. 丘陵/细节噪声 (中频) - 控制平原和丘陵的细节
-    hillsNoiseHeightMapNoise = std::make_unique<FastNoiseLite>();
-    hillsNoiseHeightMapNoise->SetSeed(seed + 2); // 不同的种子
-    hillsNoiseHeightMapNoise->SetFrequency(0.02F); // 中频，用于细节
-    hillsNoiseHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    humidityMapNoise = std::make_unique<FastNoiseLite>();
-    humidityMapNoise->SetSeed(seed + 100);
-    humidityMapNoise->SetFrequency(0.005F);
-    humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    temperatureMapNoise = std::make_unique<FastNoiseLite>();
-    temperatureMapNoise->SetSeed(seed + 200);
-    temperatureMapNoise->SetFrequency(0.01F);
-    temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    weirdnessMapNoise = std::make_unique<FastNoiseLite>();
-    weirdnessMapNoise->SetSeed(seed + 300);
-    weirdnessMapNoise->SetFrequency(0.02F);
-    weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-    erosionMapNoise = std::make_unique<FastNoiseLite>();
-    erosionMapNoise->SetSeed(seed + 400);
-    erosionMapNoise->SetFrequency(0.003F);
-    erosionMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldId_ = b2CreateWorld(&worldDef);
@@ -979,6 +731,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, const int seed, Save
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {
         return this->RegisterEntity(std::move(entity));
     });
+    chunkGenerator_ = std::make_unique<ChunkGenerator>(appContext, seed);
     startTime_ = TimeUtils::GetCurrentTimeMs();
 }
 

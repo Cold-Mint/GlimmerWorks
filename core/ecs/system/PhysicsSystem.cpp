@@ -12,6 +12,8 @@
 
 
 glimmer::PhysicsSystem::PhysicsSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+    RequireComponent<Transform2DComponent>();
+    RequireComponent<RigidBody2DComponent>();
 }
 
 void glimmer::PhysicsSystem::Update(const float delta) {

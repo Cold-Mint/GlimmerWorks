@@ -78,6 +78,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         //不要显示在屏幕之外的瓦片调试信息。
         return;
     }
+    ChunkGenerator *chunkGenerator = worldContext_->GetChunkGenerator();
     for (auto &entity: entities) {
         constexpr float lineSpacing = 20.0F;
         SDL_Color color = {255, 255, 180, 255};
@@ -121,12 +122,14 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
             TileVector2D tileCoord = TileLayerComponent::WorldToTile(mousePosition_);
             TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
-            float elevation = WorldContext::GetElevation(tileCoord.y);
+            float elevation = ChunkGenerator::GetElevation(tileCoord.y);
             snprintf(buffer, sizeof(buffer),
                      "Tile Coord:(%d, %d) chunk(%d,%d)  humidity:%f temperature：%f weirdness:%f erosion:%f elevation:%f",
                      tileCoord.x, tileCoord.y, chunkRelative.x, chunkRelative.y,
-                     worldContext_->GetHumidity(tileCoord), worldContext_->GetTemperature(tileCoord, elevation),
-                     worldContext_->GetWeirdness(tileCoord), worldContext_->GetErosion(tileCoord),
+                     chunkGenerator->GetHumidity(tileCoord),
+                     chunkGenerator->GetTemperature(tileCoord, elevation),
+                     chunkGenerator->GetWeirdness(tileCoord),
+                     chunkGenerator->GetErosion(tileCoord),
                      elevation);
 
             SDL_Surface *s = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), buffer, strlen(buffer),

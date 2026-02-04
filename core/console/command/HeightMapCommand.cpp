@@ -59,8 +59,7 @@ bool glimmer::HeightMapCommand::Execute(CommandArgs commandArgs,
     ss << "  \"heightMap\": [\n";
 
     for (int x = minX; x <= maxX; ++x) {
-        const int height = worldContext_->GetHeight(x);
-
+        const int height = worldContext_->GetChunkGenerator()->GetHeight(x);
         ss << "    { \"x\": " << x
                 << ", \"height\": " << height << " }";
 

@@ -215,11 +215,7 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
     toml::value value = toml::parse_str(data.value(), tomlVersion_);
     auto biomeResource = std::make_unique<BiomeResource>(toml::get<BiomeResource>(value));
     biomeResource->packId = manifest_.id;
-    for (auto &tilePlacerRef: biomeResource->tilePlacerRefs) {
-        for (auto &tile: tilePlacerRef.tiles) {
-            tile.SetSelfPackageId(manifest_.id);
-        }
-    }
+    biomeResource->baseTileRef.SetSelfPackageId(manifest_.id);
     biomesManager->AddResource(std::move(biomeResource));
     return true;
 }

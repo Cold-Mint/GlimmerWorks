@@ -130,7 +130,7 @@ namespace glimmer {
      * 生物群系
      */
     struct BiomeResource : Resource {
-        std::vector<TilePlacerRef> tilePlacerRefs;
+        ResourceRef baseTileRef;
         float humidity = 0.0F;
         float temperature = 0.0F;
         float weirdness = 0.0F;

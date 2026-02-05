@@ -122,9 +122,9 @@ namespace toml {
 
 
     template<>
-    struct from<glimmer::TilePlacerRef> {
-        static glimmer::TilePlacerRef from_toml(const value &v) {
-            glimmer::TilePlacerRef r;
+    struct from<glimmer::BiomeDecoratorResource> {
+        static glimmer::BiomeDecoratorResource from_toml(const value &v) {
+            glimmer::BiomeDecoratorResource r;
             r.id = toml::find<std::string>(v, "id");
             r.tiles = toml::find<std::vector<glimmer::ResourceRef> >(v, "tiles");
             r.config = toml::find_or<glimmer::VariableConfig>(
@@ -143,7 +143,7 @@ namespace toml {
         static glimmer::BiomeResource from_toml(const value &v) {
             glimmer::BiomeResource r;
             r.key = toml::find<std::string>(v, "resourceKey");
-            r.baseTileRef = toml::find<glimmer::ResourceRef>(v, "baseTileRef");
+            r.decorator = toml::find_or_default<std::vector<glimmer::BiomeDecoratorResource> >(v, "decorator");
             r.humidity = toml::find<float>(v, "humidity");
             r.temperature = toml::find<float>(v, "temperature");
             r.weirdness = toml::find<float>(v, "weirdness");

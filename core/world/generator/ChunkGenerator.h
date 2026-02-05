@@ -13,7 +13,7 @@
 
 namespace glimmer {
     class ChunkGenerator {
-        AppContext *appContext_;
+        WorldContext *worldContext_;
         /**
         * Height map
         * 高度图
@@ -74,7 +74,7 @@ namespace glimmer {
         std::unique_ptr<FastNoiseLite> temperatureMapNoise;
 
     public:
-        explicit ChunkGenerator(AppContext *appContext, int seed);
+        explicit ChunkGenerator(WorldContext *worldContext, int seed);
 
         /**
         * get Height
@@ -93,6 +93,8 @@ namespace glimmer {
          * @return
          */
         std::unique_ptr<TerrainResult> GenerateTerrain(TileVector2D position);
+
+        TerrainTileResult GetTerrainTileResult(TileVector2D world, int height);
 
         std::unique_ptr<Chunk> GenerateChunkAt(TileVector2D position);
 

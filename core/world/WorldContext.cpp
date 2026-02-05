@@ -727,11 +727,11 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, const int seed, Save
             command->BindWorldContext(this);
         }
     }
-    appContext_->GetTilePlacerManager()->SetSeed(seed);
+    appContext_->GetBiomeDecoratorManager()->SetSeed(seed);
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {
         return this->RegisterEntity(std::move(entity));
     });
-    chunkGenerator_ = std::make_unique<ChunkGenerator>(appContext, seed);
+    chunkGenerator_ = std::make_unique<ChunkGenerator>(this, seed);
     startTime_ = TimeUtils::GetCurrentTimeMs();
 }
 

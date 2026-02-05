@@ -20,15 +20,15 @@
 #include "core/log/LogCat.h"
 #include "core/utils/LanguageUtils.h"
 #include "core/vfs/StdFileProvider.h"
-#include "core/world/generator/FillTilePlacer.h"
 #include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
 #include "core/saves/SavesManager.h"
-#include "core/world/generator/SurfaceTilePlacer.h"
-#include "core/world/generator/TreeTilePlacer.h"
+#include "core/world/generator/FillBiomeDecorator.h"
+#include "core/world/generator/SurfaceBiomeDecorator.h"
+#include "core/world/generator/TreeBiomeDecorator.h"
 #include "toml11/find.hpp"
 #include "toml11/parser.hpp"
 
@@ -173,16 +173,16 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(this));
 
     commandExecutor_ = std::make_unique<CommandExecutor>();
-    tilePlacerManager_ = std::make_unique<TilePlacerManager>();
+    biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
     itemManager_ = std::make_unique<ItemManager>();
     ItemManager *im = itemManager_.get();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<ComposableItemDynamicSuggestions>(im));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<AbilityItemDynamicSuggestions>(im));
-    tilePlacerManager_->RegisterTilePlacer(std::make_unique<FillTilePlacer>());
-    tilePlacerManager_->RegisterTilePlacer(std::make_unique<TreeTilePlacer>());
-    tilePlacerManager_->RegisterTilePlacer(std::make_unique<SurfaceTilePlacer>());
+    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<TreeBiomeDecorator>());
+    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
+    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<SurfaceBiomeDecorator>());
     config_ = std::make_unique<Config>();
     LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
     std::optional<std::string> configData = vfs->ReadFile(CONFIG_FILE_NAME);
@@ -288,8 +288,8 @@ glimmer::LootTableManager *glimmer::AppContext::GetLootTableManager() const {
     return lootTableManager_.get();
 }
 
-glimmer::TilePlacerManager *glimmer::AppContext::GetTilePlacerManager() const {
-    return tilePlacerManager_.get();
+glimmer::BiomeDecoratorManager *glimmer::AppContext::GetBiomeDecoratorManager() const {
+    return biomeDecoratorManager_.get();
 }
 
 glimmer::BiomesManager *glimmer::AppContext::GetBiomesManager() const {

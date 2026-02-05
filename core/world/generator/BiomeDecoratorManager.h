@@ -9,16 +9,15 @@
 #include <unordered_map>
 
 namespace glimmer {
-    class TilePlacer;
+    class BiomeDecorator;
 
-
-    class TilePlacerManager {
-        std::unordered_map<std::string, std::unique_ptr<TilePlacer> > tilePlacerMap_;
+    class BiomeDecoratorManager {
+        std::unordered_map<std::string, std::unique_ptr<BiomeDecorator> > biomeDecoratorMap_;
 
     public:
-        void RegisterTilePlacer(std::unique_ptr<TilePlacer> tilePlacer);
+        void RegisterBiomeDecorator(std::unique_ptr<BiomeDecorator> biomeDecorator);
 
-        TilePlacer *GetTilePlacer(const std::string &id);
+        BiomeDecorator *GetBiomeDecorator(const std::string &id);
 
         void SetSeed(uint64_t seed) const;
     };

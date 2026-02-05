@@ -5,11 +5,46 @@
 #include "ChunkGenerator.h"
 
 #include "TerrainResultType.h"
-#include "TilePlacer.h"
+#include "BiomeDecorator.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
+#include "core/world/WorldContext.h"
 
+
+glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, int seed) : worldContext_(worldContext) {
+    // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
+    continentHeightMapNoise = std::make_unique<FastNoiseLite>();
+    continentHeightMapNoise->SetSeed(seed);
+    continentHeightMapNoise->SetFrequency(0.005F); // 极低频，用于大型板块
+    continentHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
+    // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
+    mountainHeightMapNoise = std::make_unique<FastNoiseLite>();
+    mountainHeightMapNoise->SetSeed(seed + 1); // 不同的种子
+    mountainHeightMapNoise->SetFrequency(0.01F); // 低频，用于主要地形
+    mountainHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    // 3. 丘陵/细节噪声 (中频) - 控制平原和丘陵的细节
+    hillsNoiseHeightMapNoise = std::make_unique<FastNoiseLite>();
+    hillsNoiseHeightMapNoise->SetSeed(seed + 2); // 不同的种子
+    hillsNoiseHeightMapNoise->SetFrequency(0.02F); // 中频，用于细节
+    hillsNoiseHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    humidityMapNoise = std::make_unique<FastNoiseLite>();
+    humidityMapNoise->SetSeed(seed + 100);
+    humidityMapNoise->SetFrequency(0.005F);
+    humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    temperatureMapNoise = std::make_unique<FastNoiseLite>();
+    temperatureMapNoise->SetSeed(seed + 200);
+    temperatureMapNoise->SetFrequency(0.01F);
+    temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    weirdnessMapNoise = std::make_unique<FastNoiseLite>();
+    weirdnessMapNoise->SetSeed(seed + 300);
+    weirdnessMapNoise->SetFrequency(0.02F);
+    weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+    erosionMapNoise = std::make_unique<FastNoiseLite>();
+    erosionMapNoise->SetSeed(seed + 400);
+    erosionMapNoise->SetFrequency(0.003F);
+    erosionMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+}
 
 int glimmer::ChunkGenerator::GetHeight(int x) {
     const auto it = heightMap_.find(x);
@@ -81,44 +116,91 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int height = GetHeight(position.x + localX);
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            TileVector2D localTile(localX, localY);
-            TileVector2D worldTilePos = position + localTile;
-            if (worldTilePos.y == WORLD_MIN_Y) {
-                TerrainTileResult terrainTileResult;
-                terrainTileResult.terrainType = BEDROCK;
-                terrainResult->AddTile(localTile, terrainTileResult);
-                continue;
-            }
-            if (worldTilePos.y > height) {
-                if (worldTilePos.y < SEA_LEVEL_HEIGHT) {
-                    //water
-                    //水
-                    TerrainTileResult terrainTileResult;
-                    terrainTileResult.terrainType = WATER;
-                    terrainResult->AddTile(localTile, terrainTileResult);
-                } else {
-                    //sky
-                    //天空
-                    TerrainTileResult terrainTileResult;
-                    terrainTileResult.terrainType = AIR;
-                    terrainResult->AddTile(localTile, terrainTileResult);
-                }
-                continue;
-            }
-            const float elevation = GetElevation(worldTilePos.y);
-            const auto humidity = GetHumidity(worldTilePos);
-            const auto temperature = GetTemperature(worldTilePos, elevation);
-            const auto weirdness = GetWeirdness(worldTilePos);
-            const auto erosion = GetErosion(worldTilePos);
-            TerrainTileResult terrainTileResult;
-            terrainTileResult.terrainType = SOLID;
-            terrainTileResult.biomeResource = appContext_->GetBiomesManager()->FindBestBiome(
-                humidity, temperature, weirdness, erosion,
-                elevation);
-            terrainResult->AddTile(localTile, terrainTileResult);
+            terrainResult->SetTerrainTileResult(localX, localY,
+                                                GetTerrainTileResult(position + TileVector2D(localX, localY), height));
         }
     }
+    const int leftWorldX = position.x - 1;
+
+    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+        const int worldY = position.y + localY;
+        const int height = GetHeight(leftWorldX);
+
+        terrainResult->SetLeftTerrainTileResult(
+            localY,
+            GetTerrainTileResult({leftWorldX, worldY}, height)
+        );
+    }
+
+
+    const int rightWorldX = position.x + CHUNK_SIZE;
+
+    for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+        const int worldY = position.y + localY;
+        const int height = GetHeight(rightWorldX);
+
+        terrainResult->SetRightTerrainTileResult(
+            localY,
+            GetTerrainTileResult({rightWorldX, worldY}, height)
+        );
+    }
+
+
+    const int downWorldY = position.y - 1;
+
+    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+        const int worldX = position.x + localX;
+        const int height = GetHeight(worldX);
+
+        terrainResult->SetDownTerrainTileResult(
+            localX,
+            GetTerrainTileResult({worldX, downWorldY}, height)
+        );
+    }
+
+    const int upWorldY = position.y + CHUNK_SIZE;
+
+    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+        const int worldX = position.x + localX;
+        const int height = GetHeight(worldX);
+
+        terrainResult->SetUpTerrainTileResult(
+            localX,
+            GetTerrainTileResult({worldX, upWorldY}, height)
+        );
+    }
+
     return terrainResult;
+}
+
+TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector2D world, const int height) {
+    TerrainTileResult terrainTileResult;
+    if (world.y <= WORLD_MIN_Y) {
+        terrainTileResult.terrainType = BEDROCK;
+        return terrainTileResult;
+    }
+    if (world.y > height) {
+        if (world.y < SEA_LEVEL_HEIGHT) {
+            //water
+            //水
+            terrainTileResult.terrainType = WATER;
+            return terrainTileResult;
+        }
+        //sky
+        //天空
+        terrainTileResult.terrainType = AIR;
+        return terrainTileResult;
+    }
+    const float elevation = GetElevation(world.y);
+    const auto humidity = GetHumidity(world);
+    const auto temperature = GetTemperature(world, elevation);
+    const auto weirdness = GetWeirdness(world);
+    const auto erosion = GetErosion(world);
+    terrainTileResult.terrainType = SOLID;
+    terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetBiomesManager()->FindBestBiome(
+        humidity, temperature, weirdness, erosion,
+        elevation);
+    return terrainTileResult;
 }
 
 float glimmer::ChunkGenerator::GetElevation(const int height) {
@@ -171,41 +253,8 @@ float glimmer::ChunkGenerator::GetErosion(TileVector2D tileVector2d) {
     return erosionMap[tileVector2d];
 }
 
-glimmer::ChunkGenerator::ChunkGenerator(AppContext *appContext, const int seed) : appContext_(appContext) {
-    // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
-    continentHeightMapNoise = std::make_unique<FastNoiseLite>();
-    continentHeightMapNoise->SetSeed(seed);
-    continentHeightMapNoise->SetFrequency(0.005F); // 极低频，用于大型板块
-    continentHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
-    // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
-    mountainHeightMapNoise = std::make_unique<FastNoiseLite>();
-    mountainHeightMapNoise->SetSeed(seed + 1); // 不同的种子
-    mountainHeightMapNoise->SetFrequency(0.01F); // 低频，用于主要地形
-    mountainHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    // 3. 丘陵/细节噪声 (中频) - 控制平原和丘陵的细节
-    hillsNoiseHeightMapNoise = std::make_unique<FastNoiseLite>();
-    hillsNoiseHeightMapNoise->SetSeed(seed + 2); // 不同的种子
-    hillsNoiseHeightMapNoise->SetFrequency(0.02F); // 中频，用于细节
-    hillsNoiseHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    humidityMapNoise = std::make_unique<FastNoiseLite>();
-    humidityMapNoise->SetSeed(seed + 100);
-    humidityMapNoise->SetFrequency(0.005F);
-    humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    temperatureMapNoise = std::make_unique<FastNoiseLite>();
-    temperatureMapNoise->SetSeed(seed + 200);
-    temperatureMapNoise->SetFrequency(0.01F);
-    temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    weirdnessMapNoise = std::make_unique<FastNoiseLite>();
-    weirdnessMapNoise->SetSeed(seed + 300);
-    weirdnessMapNoise->SetFrequency(0.02F);
-    weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-    erosionMapNoise = std::make_unique<FastNoiseLite>();
-    erosionMapNoise->SetSeed(seed + 400);
-    erosionMapNoise->SetFrequency(0.003F);
-    erosionMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-}
-
 std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVector2D position) {
+    AppContext *appContext = worldContext_->GetAppContext();
     auto chunk = std::make_unique<Chunk>(position);
     std::unique_ptr<TerrainResult> terrainResult = GenerateTerrain(position);
     ResourceRef airTileRef;
@@ -224,33 +273,51 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     bedrockTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
     bedrockTileRef.SetResourceKey(TILE_ID_BEDROCK);
     std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> tilesRef;
-    for (auto result: terrainResult->GetResult()) {
-        auto terrainType = result.second.terrainType;
-        if (terrainType == AIR) {
-            tilesRef[result.first.x][result.first.y] = airTileRef;
-            continue;
-        }
-        if (terrainType == WATER) {
-            tilesRef[result.first.x][result.first.y] = waterTileRef;
-            continue;
-        }
-        if (terrainType == BEDROCK) {
-            tilesRef[result.first.x][result.first.y] = bedrockTileRef;
-            continue;
-        }
-        if (terrainType == SOLID) {
-            if (result.second.biomeResource == nullptr) {
-                tilesRef[result.first.x][result.first.y] = airTileRef;
-            } else {
-                tilesRef[result.first.x][result.first.y] = result.second.biomeResource->baseTileRef;
+    std::unordered_set<BiomeResource *> biomeResourcesSet;
+    for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
+        for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+            auto terrainTileResult = terrainResult->QueryTerrain(localX, localY);
+            auto terrainType = terrainTileResult.terrainType;
+            LogCat::d("Chunk x=", position.x + localX, ",y=", position.y + localY, ",terrainType=", terrainType);
+            if (terrainType == AIR) {
+                tilesRef[localX][localY] = airTileRef;
+                continue;
+            }
+            if (terrainType == WATER) {
+                tilesRef[localX][localY] = waterTileRef;
+                continue;
+            }
+            if (terrainType == BEDROCK) {
+                tilesRef[localX][localY] = bedrockTileRef;
+                continue;
+            }
+            if (terrainType == SOLID) {
+                tilesRef[localX][localY] = airTileRef;
+                if (terrainTileResult.biomeResource != nullptr && !biomeResourcesSet.contains(
+                        terrainTileResult.biomeResource)) {
+                    biomeResourcesSet.insert(terrainTileResult.biomeResource);
+                }
             }
         }
     }
+    for (auto biomeResources: biomeResourcesSet) {
+        if (auto &decorator = biomeResources->decorator; decorator.empty()) {
+            continue;
+        }
+        for (auto &dec: biomeResources->decorator) {
+            BiomeDecorator *biomeDecorator = appContext->GetBiomeDecoratorManager()->
+                    GetBiomeDecorator(dec.id);
+            if (biomeDecorator != nullptr) {
+                biomeDecorator->Decoration(worldContext_, terrainResult.get(), &dec, biomeResources, tilesRef);
+            }
+        }
+    }
+
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
-            ResourceRef resourceRef = tilesRef[localX][localY];
-            const std::optional<TileResource *> tileResource = appContext_->GetResourceLocator()->FindTile(
+            ResourceRef &resourceRef = tilesRef[localX][localY];
+            const std::optional<TileResource *> tileResource = appContext->GetResourceLocator()->FindTile(
                 resourceRef);
             TileResource *tileResourceValue = nullptr;
             if (tileResource.has_value()) {
@@ -258,9 +325,9 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             } else {
                 LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
                           " does not exist.");
-                tileResourceValue = appContext_->GetTileManager()->GetAir();
+                tileResourceValue = appContext->GetTileManager()->GetAir();
             }
-            chunk->SetTile(localTile, Tile::FromResourceRef(appContext_, tileResourceValue));
+            chunk->SetTile(localTile, Tile::FromResourceRef(appContext, tileResourceValue));
         }
     }
     return chunk;

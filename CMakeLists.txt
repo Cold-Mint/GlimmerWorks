@@ -246,10 +246,10 @@ target_sources(GlimmerWorks
         core/mod/dataPack/TileManager.cpp
         core/world/generator/TilePhysicsType.cpp
         core/mod/dataPack/BiomesManager.cpp
-        core/world/generator/TilePlacer.cpp
-        core/world/generator/TilePlacerManager.cpp
+        core/world/generator/BiomeDecorator.cpp
+        core/world/generator/BiomeDecoratorManager.cpp
+        core/world/generator/FillBiomeDecorator.cpp
         core/console/command/LicenseCommand.cpp
-        core/world/generator/FillTilePlacer.cpp
         core/mod/ResourceLocator.cpp
         core/console/command/HeightMapCommand.cpp
         core/inventory/Item.cpp
@@ -300,9 +300,9 @@ target_sources(GlimmerWorks
         core/lootTable/LootTableManager.cpp
         core/console/command/LootCommand.cpp
         core/console/suggestion/LootSuggestions.cpp
-        core/world/generator/TreeTilePlacer.cpp
+        core/world/generator/TreeBiomeDecorator.cpp
         core/ecs/system/Box2dSystemContext.cpp
-        core/world/generator/SurfaceTilePlacer.cpp
+        core/world/generator/SurfaceBiomeDecorator.cpp
         core/world/generator/ChunkLoader.cpp
         core/world/generator/ChunkGenerator.cpp
         core/world/generator/TerrainTileResult.cpp
@@ -387,10 +387,10 @@ target_sources(GlimmerWorks
         core/mod/dataPack/TileManager.h
         core/world/generator/TilePhysicsType.h
         core/mod/dataPack/BiomesManager.h
-        core/world/generator/TilePlacer.h
-        core/world/generator/TilePlacerManager.h
+        core/world/generator/BiomeDecorator.h
+        core/world/generator/FillBiomeDecorator.h
+        core/world/generator/BiomeDecoratorManager.h
         core/console/command/LicenseCommand.h
-        core/world/generator/FillTilePlacer.h
         core/mod/ResourceLocator.h
         core/console/command/HeightMapCommand.h
         core/inventory/Item.h
@@ -440,9 +440,9 @@ target_sources(GlimmerWorks
         core/console/command/ClearCommand.h
         core/console/command/LootCommand.h
         core/console/suggestion/LootSuggestions.h
-        core/world/generator/TreeTilePlacer.h
+        core/world/generator/TreeBiomeDecorator.h
         core/ecs/system/Box2dSystemContext.h
-        core/world/generator/SurfaceTilePlacer.h
+        core/world/generator/SurfaceBiomeDecorator.h
         core/world/generator/ChunkLoader.h
         core/world/generator/ChunkGenerator.h
         core/world/generator/TerrainResult.h

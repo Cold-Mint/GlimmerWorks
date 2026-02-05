@@ -115,10 +115,10 @@ namespace glimmer {
 
 
     /**
-     * TilePlacerRef
-     * 瓦片放置器引用
+     * BiomeDecoratorResource
+     * 生物群系装饰器
      */
-    struct TilePlacerRef {
+    struct BiomeDecoratorResource {
         std::string id;
         std::vector<ResourceRef> tiles;
         VariableConfig config;
@@ -130,7 +130,7 @@ namespace glimmer {
      * 生物群系
      */
     struct BiomeResource : Resource {
-        ResourceRef baseTileRef;
+        std::vector<BiomeDecoratorResource> decorator;
         float humidity = 0.0F;
         float temperature = 0.0F;
         float weirdness = 0.0F;

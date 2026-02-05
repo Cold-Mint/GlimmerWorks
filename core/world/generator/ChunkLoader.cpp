@@ -4,6 +4,8 @@
 
 #include "ChunkLoader.h"
 
+#include <utility>
+
 #include "Chunk.h"
 #include "core/ecs/component/AutoPickComponent.h"
 #include "core/ecs/component/CameraComponent.h"
@@ -76,6 +78,12 @@ void glimmer::ChunkLoader::LoadEntityFromSaves(TileVector2D position) const {
     }
 }
 
+glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves,
+                                  std::function<GameEntity::ID(std::unique_ptr<GameEntity> entity)>
+                                  registerEntity) : saves_(saves), worldContext_(worldContext),
+                                                    registerEntity_(std::move(registerEntity)) {
+}
+
 glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entityItemMessage) const {
     const auto id = entityItemMessage.gameentity().id();
     auto entity = std::make_unique<GameEntity>(id);
@@ -99,11 +107,6 @@ glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMes
     return registerEntity_(std::move(entity));
 }
 
-glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves,
-                                  const std::function<bool(std::unique_ptr<GameEntity> entity)>
-                                  &registerEntity) : saves_(saves), worldContext_(worldContext),
-                                                     registerEntity_(registerEntity) {
-}
 
 std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVector2D position) const {
     if (saves_->ChunkExists(position)) {

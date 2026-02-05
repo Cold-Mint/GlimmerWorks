@@ -12,7 +12,7 @@ namespace glimmer {
         Saves *saves_;
         WorldContext *worldContext_;
 
-        std::function<bool(std::unique_ptr<GameEntity> entity)> registerEntity_;
+        std::function<GameEntity::ID(std::unique_ptr<GameEntity> entity)> registerEntity_;
 
         /**
         * Recovery Component
@@ -33,7 +33,7 @@ namespace glimmer {
 
     public:
         ChunkLoader(WorldContext *worldContext, Saves *saves,
-                    const std::function<bool(std::unique_ptr<GameEntity> entity)> &registerEntity);
+                    std::function<GameEntity::ID(std::unique_ptr<GameEntity> entity)> registerEntity);
 
         /**
          * Load block from saves

@@ -70,10 +70,11 @@ void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameCompo
 }
 
 glimmer::GameEntity::ID glimmer::WorldContext::RegisterEntity(std::unique_ptr<GameEntity> entity) {
+    GameEntity *raw = entity.get();
+    const auto id = raw->GetID();
     entities.push_back(std::move(entity));
-    GameEntity *lastEntity = entities.back().get();
-    entityMap[lastEntity->GetID()] = lastEntity;
-    return lastEntity->GetID();
+    entityMap.emplace(id, raw);
+    return id;
 }
 
 

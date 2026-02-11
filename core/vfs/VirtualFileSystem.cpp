@@ -62,6 +62,16 @@ bool glimmer::VirtualFileSystem::IsFile(const std::string &path) const {
     return false;
 }
 
+std::optional<std::string> glimmer::VirtualFileSystem::GetFileOrFolderName(const std::string &path) const {
+    LogCat::i("VirtualFileSystem GetFileName =", path);
+    for (auto &provider: fileProviders_) {
+        if (auto fileName = provider->GetFileOrFolderName(path); fileName.has_value()) {
+            return fileName;
+        }
+    }
+    return std::nullopt;
+}
+
 bool glimmer::VirtualFileSystem::WriteFile(const std::string &path, const std::string &content) const {
     LogCat::i("VirtualFileSystem WriteFile =", path);
     for (auto &provider: fileProviders_) {
@@ -84,12 +94,11 @@ std::optional<std::unique_ptr<std::istream> > glimmer::VirtualFileSystem::ReadSt
     return std::nullopt;
 }
 
-std::vector<std::string> glimmer::VirtualFileSystem::ListFile(const std::string &path) const {
+std::vector<std::string> glimmer::VirtualFileSystem::ListFile(const std::string &path, bool recursive) const {
     LogCat::i("VirtualFileSystem ListFile =", path);
     for (auto &provider: fileProviders_) {
         if (provider->Exists(path) && !provider->IsFile(path)) {
-            auto content = provider->ListFile(path);
-            if (content.size() > 0) {
+            if (auto content = provider->ListFile(path, recursive); !content.empty()) {
                 return content;
             }
         }

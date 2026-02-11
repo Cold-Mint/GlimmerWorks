@@ -33,12 +33,14 @@ namespace glimmer {
 
         [[nodiscard]] bool IsFile(const std::string &path) const;
 
+        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::string &path) const;
+
 
         [[nodiscard]] bool WriteFile(const std::string &path, const std::string &content) const;
 
         [[nodiscard]] std::optional<std::unique_ptr<std::istream> > ReadStream(const std::string &path) const;
 
-        [[nodiscard]] virtual std::vector<std::string> ListFile(const std::string &path) const;
+        [[nodiscard]] virtual std::vector<std::string> ListFile(const std::string &path, bool recursive) const;
 
         [[nodiscard]] bool DeleteFileOrFolder(const std::string &path) const;
 

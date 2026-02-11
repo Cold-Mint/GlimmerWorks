@@ -58,6 +58,12 @@ static constexpr uint32_t RESOURCE_REF_ARG_TYPE_REF = 5;
 static constexpr std::string RESOURCE_REF_SELF = "@self";
 static constexpr std::string RESOURCE_REF_CORE = "@core";
 static constexpr std::string DEBUG_FOLDER_NAME = "debug";
+static constexpr std::string DATA_FILE_TYPE_STRINGS = "strings";
+static constexpr std::string DATA_FILE_TYPE_TILE = "tile";
+static constexpr std::string DATA_FILE_TYPE_BIOME = "biome";
+static constexpr std::string DATA_FILE_TYPE_COMPOSABLE_ITEM = "composableItem";
+static constexpr std::string DATA_FILE_TYPE_ABILITY_ITEM = "abilityItem";
+static constexpr std::string DATA_FILE_TYPE_LOOT_TABLE = "lootTable";
 
 constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;

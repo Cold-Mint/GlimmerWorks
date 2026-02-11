@@ -40,7 +40,7 @@ std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(std::str
     }
 
     // 列出目录下所有文件
-    auto files = virtualFileSystem_->ListFile(directory);
+    auto files = virtualFileSystem_->ListFile(directory, false);
     std::vector<std::string> result;
 
     // 根据关键字过滤（关键字为空则全部返回）

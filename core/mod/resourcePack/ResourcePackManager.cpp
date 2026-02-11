@@ -157,7 +157,7 @@ int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vecto
 
     LogCat::i("Scanning resources packs in: ", path);
     int success = 0;
-    std::vector<std::string> files = virtualFileSystem_->ListFile(path);
+    std::vector<std::string> files = virtualFileSystem_->ListFile(path, false);
     for (const auto &entry: files) {
         if (!virtualFileSystem_->IsFile(entry)) {
             LogCat::d("Found resource pack folder: ", entry);

@@ -25,6 +25,15 @@ namespace glimmer {
          */
         [[nodiscard]] virtual std::string GetFileProviderName() const = 0;
 
+
+        /**
+         * Get File Or Folder Name
+         * 获取文件或文件夹名称
+         * @param path path 路径
+         * @return
+         */
+        [[nodiscard]] virtual std::optional<std::string> GetFileOrFolderName(const std::string &path) const = 0;
+
         /**
          * Read the file
          * 读取文件
@@ -76,7 +85,14 @@ namespace glimmer {
          */
         [[nodiscard]] virtual bool WriteFile(const std::string &path, const std::string &content) = 0;
 
-        [[nodiscard]] virtual std::vector<std::string> ListFile(const std::string &path) = 0;
+        /**
+         * List the files in the folder
+         * 列出文件夹下的文件
+         * @param path path 路径
+         * @param recursive recursive Is it recursive? 是否递归
+         * @return
+         */
+        [[nodiscard]] virtual std::vector<std::string> ListFile(const std::string &path, bool recursive) = 0;
 
         [[nodiscard]] virtual std::optional<std::string> GetActualPath(const std::string &path) const = 0;
 

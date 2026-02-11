@@ -76,7 +76,7 @@ glimmer::Saves *glimmer::SavesManager::Create(MapManifest &manifest) {
 
 void glimmer::SavesManager::LoadAllSaves() {
     saveList_.clear();
-    const std::vector<std::string> array = virtualFileSystem_->ListFile("saved/");
+    const std::vector<std::string> array = virtualFileSystem_->ListFile("saved/",false);
     for (const auto &item: array) {
         AddSaves(std::make_unique<Saves>(item, virtualFileSystem_));
     }

@@ -4,6 +4,7 @@
 
 #ifndef GLIMMERWORKS_SDLFILEPROVIDER_H
 #define GLIMMERWORKS_SDLFILEPROVIDER_H
+#include <filesystem>
 #include <memory>
 
 #include "FileProvider.h"
@@ -14,7 +15,7 @@ namespace glimmer {
      * 基于标准库实现的文件提供者
      */
     class StdFileProvider : public FileProvider {
-        std::string root_;
+        std::filesystem::path root_;
 
     public:
         ~StdFileProvider() override = default;
@@ -23,11 +24,13 @@ namespace glimmer {
 
         [[nodiscard]] bool DeleteFileOrFolder(const std::string &path) override;
 
-        std::vector<std::string> ListFile(const std::string &path) override;
+        [[nodiscard]] std::vector<std::string> ListFile(const std::string &path, bool recursive) override;
 
         [[nodiscard]] std::string GetFileProviderName() const override;
 
         [[nodiscard]] std::optional<std::string> ReadFile(const std::string &path) override;
+
+        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::string &path) const override;
 
         std::optional<std::unique_ptr<std::istream> > ReadStream(const std::string &path) override;
 

@@ -52,7 +52,7 @@ int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<st
     packIdVector_.clear();
     LogCat::i("Scanning data packs in: ", path);
     int success = 0;
-    std::vector<std::string> files = virtualFileSystem_->ListFile(path);
+    std::vector<std::string> files = virtualFileSystem_->ListFile(path, false);
     for (const auto &entry: files) {
         if (!virtualFileSystem_->IsFile(entry)) {
             LogCat::d("Found data pack folder: ", entry);

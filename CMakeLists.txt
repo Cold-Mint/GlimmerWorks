@@ -58,6 +58,12 @@ set(SDL_X11_XSCRNSAVER ${X11_SUPPORT})
 set(SDL_X11_XSHAPE ${X11_SUPPORT})
 set(SDL_X11_XSYNC ${X11_SUPPORT})
 set(SDL_X11_XTEST ${X11_SUPPORT})
+if (X11_SUPPORT)
+    set(SDL_WAYLAND OFF)
+    set(SDL_WAYLAND_LIBDECOR OFF)
+    set(SDL_WAYLAND_SHARED OFF)
+    message(STATUS "Window backend: X11 (Wayland disabled)")
+endif ()
 FetchContent_Declare(
         SDL
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL"
@@ -531,7 +537,17 @@ if (NOT VanillaDataPack_POPULATED)
     FetchContent_Populate(VanillaResourcePack)
 endif ()
 
-set(CPACK_GENERATOR "TZST")
+if(UNIX AND NOT APPLE)
+    if(X11_SUPPORT)
+        set(WINDOW_BACKEND_NAME "x11")
+    else()
+        set(WINDOW_BACKEND_NAME "wayland")
+    endif()
+
+    set(CPACK_PACKAGE_FILE_NAME
+            "${PROJECT_NAME}-${GAME_VERSION_STRING}-Linux-${WINDOW_BACKEND_NAME}")
+    set(CPACK_GENERATOR "TZST")
+endif()
 set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist/${CMAKE_BUILD_TYPE}")
 include(CPack)
 install(TARGETS GlimmerWorks RUNTIME DESTINATION .)

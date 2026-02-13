@@ -46,7 +46,7 @@ namespace glimmer {
          * World Seed
          * 世界种子
          */
-        int seed;
+        int worldSeed_;
 
         /**
          * Whether the registration system is allowed
@@ -435,16 +435,15 @@ namespace glimmer {
         [[nodiscard]] static bool IsEmptyEntityId(GameEntity::ID id);
 
         /**
-         * GetSeed
-         * 获取种子号
+         * Get World Seed
+         * 获取世界种子号
          * @return int 种子号
          */
-        [[nodiscard]] int GetSeed() const;
+        [[nodiscard]] int GetWorldSeed() const;
 
         long startTime_ = 0;
 
-        explicit WorldContext(AppContext *appContext, int seed, Saves *saves,
-                              GameEntity::ID entityId = 0);
+        explicit WorldContext(AppContext *appContext, int worldSeed, Saves *saves, GameEntity::ID entityId = 0);
 
         /**
          * The time when the world environment is constructed and completed.

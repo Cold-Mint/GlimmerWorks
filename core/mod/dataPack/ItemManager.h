@@ -11,10 +11,10 @@
 
 namespace glimmer {
     class ItemManager {
-        std::pmr::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ComposableItemResource> > >
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ComposableItemResource> > >
         composableItemMap_{};
 
-        std::pmr::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<AbilityItemResource> > >
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<AbilityItemResource> > >
         abilityItemMap_{};
 
         static std::unique_ptr<ComposableItemResource> CreatePlaceholderComposableItemResource(

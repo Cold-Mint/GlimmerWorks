@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 4.1.2)
 project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
 
@@ -314,6 +314,14 @@ target_sources(GlimmerWorks
         core/world/generator/TerrainTileResult.cpp
         core/world/generator/TerrainResult.cpp
         core/world/generator/TerrainResultType.cpp
+        core/world/structure/StaticStructureGenerator.cpp
+        core/world/structure/IStructureGenerator.cpp
+        core/world/structure/StructureInfo.cpp
+        core/world/structure/TreeStructureGenerator.cpp
+        core/mod/dataPack/StructureManager.cpp
+        core/console/suggestion/StructureDynamicSuggestions.cpp
+        core/console/command/StructureCommand.cpp
+        core/world/structure/StructureGeneratorManager.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -454,6 +462,14 @@ target_sources(GlimmerWorks
         core/world/generator/TerrainResult.h
         core/world/generator/TerrainResultType.h
         core/world/generator/TerrainTileResult.h
+        core/world/structure/IStructureGenerator.h
+        core/world/structure/StructureInfo.h
+        core/world/structure/TreeStructureGenerator.h
+        core/world/structure/StaticStructureGenerator.h
+        core/mod/dataPack/StructureManager.h
+        core/console/suggestion/StructureDynamicSuggestions.h
+        core/console/command/StructureCommand.h
+        core/world/structure/StructureGeneratorManager.h
 )
 
 #Define version information
@@ -534,20 +550,20 @@ FetchContent_Declare(
 
 FetchContent_GetProperties(VanillaResourcePack)
 if (NOT VanillaDataPack_POPULATED)
-    FetchContent_Populate(VanillaResourcePack)
+    FetchContent_MakeAvailable(VanillaResourcePack)
 endif ()
 
-if(UNIX AND NOT APPLE)
-    if(X11_SUPPORT)
+if (UNIX AND NOT APPLE)
+    if (X11_SUPPORT)
         set(WINDOW_BACKEND_NAME "x11")
-    else()
+    else ()
         set(WINDOW_BACKEND_NAME "wayland")
-    endif()
+    endif ()
 
     set(CPACK_PACKAGE_FILE_NAME
             "${PROJECT_NAME}-${GAME_VERSION_STRING}-Linux-${WINDOW_BACKEND_NAME}")
     set(CPACK_GENERATOR "TZST")
-endif()
+endif ()
 set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist/${CMAKE_BUILD_TYPE}")
 include(CPack)
 install(TARGETS GlimmerWorks RUNTIME DESTINATION .)

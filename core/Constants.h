@@ -8,35 +8,39 @@
 
 // Manifest file names of data packets and resource packets
 // 数据包和资源包的清单文件名
-#define MANIFEST_FILE_NAME "manifest.toml"
-#define MAP_MANIFEST_FILE_NAME "mapManifest.bin"
-#define PLAYER_FILE_NAME "player.bin"
+static constexpr std::string MANIFEST_FILE_NAME = "manifest.toml";
+static constexpr std::string MAP_MANIFEST_FILE_NAME = "mapManifest.bin";
+static constexpr std::string PLAYER_FILE_NAME = "player.bin";
 
 
-#define HELP_COMMAND_NAME  "help"
-#define LICENSE_COMMAND_NAME  "license"
-#define SEED_COMMAND_NAME  "seed"
-#define CONFIG_COMMAND_NAME  "config"
-#define HEIGHT_MAP_COMMAND_NAME  "heightMap"
-#define TP_COMMAND_NAME  "tp"
-#define VFS_COMMAND_NAME  "vfs"
-#define BOX2D_COMMAND_NAME  "box2d"
-#define GIVE_COMMAND_NAME  "give"
-#define ASSET_VIEWER_COMMAND_NAME  "assetViewer"
-#define CLEAR_COMMAND_NAME  "clear"
-#define LOOT_COMMAND_NAME  "loot"
-#define ECS_COMMAND_NAME  "ecs"
-#define FULL_BIOME_DECORATOR "fill"
-#define SURFACE_BIOME_DECORATOR  "surface"
-#define TREE_TILE_PLACER_ID "treeTilePlacer"
-#define BOOL_DYNAMIC_SUGGESTIONS_NAME  "&bool"
-#define CONFIG_DYNAMIC_SUGGESTIONS_NAME  "&config"
-#define VFS_DYNAMIC_SUGGESTIONS_NAME  "&vfs"
-#define TILE_DYNAMIC_SUGGESTIONS_NAME  "&tile"
-#define COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME  "&composeable_item"
-#define ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME  "&ability_item"
-#define LOOT_DYNAMIC_SUGGESTIONS_NAME  "&loot"
+static constexpr std::string HELP_COMMAND_NAME = "help";
+static constexpr std::string LICENSE_COMMAND_NAME = "license";
+static constexpr std::string SEED_COMMAND_NAME = "seed";
+static constexpr std::string CONFIG_COMMAND_NAME = "config";
+static constexpr std::string HEIGHT_MAP_COMMAND_NAME = "heightMap";
+static constexpr std::string TP_COMMAND_NAME = "tp";
+static constexpr std::string VFS_COMMAND_NAME = "vfs";
+static constexpr std::string BOX2D_COMMAND_NAME = "box2d";
+static constexpr std::string GIVE_COMMAND_NAME = "give";
+static constexpr std::string ASSET_VIEWER_COMMAND_NAME = "assetViewer";
+static constexpr std::string CLEAR_COMMAND_NAME = "clear";
+static constexpr std::string LOOT_COMMAND_NAME = "loot";
+static constexpr std::string STRUCTURE_COMMAND_NAME = "structure";
+static constexpr std::string ECS_COMMAND_NAME = "ecs";
+static constexpr std::string FULL_BIOME_DECORATOR = "fill";
+static constexpr std::string SURFACE_BIOME_DECORATOR = "surface";
+static constexpr std::string TREE_BIOME_DECORATOR = "tree";
+static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
+static constexpr std::string CONFIG_DYNAMIC_SUGGESTIONS_NAME = "&config";
+static constexpr std::string VFS_DYNAMIC_SUGGESTIONS_NAME = "&vfs";
+static constexpr std::string TILE_DYNAMIC_SUGGESTIONS_NAME = "&tile";
+static constexpr std::string STRUCTURE_DYNAMIC_SUGGESTIONS_NAME = "&structure";
+static constexpr std::string COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME = "&composeable";
+static constexpr std::string ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME = "&ability_item";
+static constexpr std::string LOOT_DYNAMIC_SUGGESTIONS_NAME = "&loot";
 
+static constexpr std::string STRUCTURE_GENERATOR_ID_TREE = "tree";
+static constexpr std::string STRUCTURE_GENERATOR_ID_STATIC = "static";
 static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_DIG = "dig";
 /**
@@ -49,6 +53,7 @@ static constexpr uint32_t RESOURCE_TYPE_TILE = 2;
 static constexpr uint32_t RESOURCE_TYPE_COMPOSABLE_ITEM = 3;
 static constexpr uint32_t RESOURCE_TYPE_ABILITY_ITEM = 4;
 static constexpr uint32_t RESOURCE_TYPE_LOOT_TABLE = 5;
+static constexpr uint32_t RESOURCE_TYPE_STRUCTURE = 6;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;
@@ -61,9 +66,10 @@ static constexpr std::string DEBUG_FOLDER_NAME = "debug";
 static constexpr std::string DATA_FILE_TYPE_STRINGS = "strings";
 static constexpr std::string DATA_FILE_TYPE_TILE = "tile";
 static constexpr std::string DATA_FILE_TYPE_BIOME = "biome";
-static constexpr std::string DATA_FILE_TYPE_COMPOSABLE_ITEM = "composableItem";
-static constexpr std::string DATA_FILE_TYPE_ABILITY_ITEM = "abilityItem";
-static constexpr std::string DATA_FILE_TYPE_LOOT_TABLE = "lootTable";
+static constexpr std::string DATA_FILE_TYPE_COMPOSABLE_ITEM = "composable";
+static constexpr std::string DATA_FILE_TYPE_ABILITY_ITEM = "ability";
+static constexpr std::string DATA_FILE_TYPE_LOOT_TABLE = "loot";
+static constexpr std::string DATA_FILE_TYPE_STRUCTURE = "structure";
 
 constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;

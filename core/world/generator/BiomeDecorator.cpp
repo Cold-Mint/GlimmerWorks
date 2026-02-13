@@ -6,5 +6,5 @@
 
 glimmer::BiomeDecorator::~BiomeDecorator() = default;
 
-void glimmer::BiomeDecorator::SetSeed(int seed) {
+void glimmer::BiomeDecorator::SetWorldSeed(int seed) {
 }

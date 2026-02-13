@@ -11,8 +11,7 @@
 void glimmer::HeightMapCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
 }
 
-glimmer::HeightMapCommand::HeightMapCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem) : Command(ctx),
-    virtualFileSystem_(virtualFileSystem) {
+glimmer::HeightMapCommand::HeightMapCommand(AppContext *ctx) : Command(ctx) {
 }
 
 std::string glimmer::HeightMapCommand::GetName() const {
@@ -53,7 +52,7 @@ bool glimmer::HeightMapCommand::Execute(CommandArgs commandArgs,
     }
     std::ostringstream ss;
     ss << "{\n";
-    ss << "  \"seed\": " << worldContext_->GetSeed() << ",\n";
+    ss << "  \"seed\": " << worldContext_->GetWorldSeed() << ",\n";
     ss << R"(  "range": { "minX": )" << minX
             << ", \"maxX\": " << maxX << " },\n";
     ss << "  \"heightMap\": [\n";
@@ -73,18 +72,20 @@ bool glimmer::HeightMapCommand::Execute(CommandArgs commandArgs,
     onMessage(ss.str());
     LogCat::d(ss.str());
     if (commandArgs.GetSize() >= 4) {
+        const VirtualFileSystem *virtualFileSystem = appContext_->GetVirtualFileSystem();
         const std::string fileName = commandArgs.AsString(3);
-        if (!virtualFileSystem_->Exists(DEBUG_FOLDER_NAME)) {
-            if (!virtualFileSystem_->CreateFolder(DEBUG_FOLDER_NAME)) {
+        if (!virtualFileSystem->Exists(DEBUG_FOLDER_NAME)) {
+            if (!virtualFileSystem->CreateFolder(DEBUG_FOLDER_NAME)) {
                 onMessage(fmt::format(
                     fmt::runtime(appContext_->GetLangsResources()->folderCreationFailed),
                     DEBUG_FOLDER_NAME));
                 return false;
             }
         }
-        std::string path = DEBUG_FOLDER_NAME + "/heightMap_" + std::to_string(worldContext_->GetSeed()) + "_" + fileName
+        std::string path = DEBUG_FOLDER_NAME + "/heightMap_" + std::to_string(worldContext_->GetWorldSeed()) + "_" +
+                           fileName
                            + ".json";
-        const bool write = virtualFileSystem_->WriteFile(
+        const bool write = virtualFileSystem->WriteFile(
             path,
             ss.str());
         if (!write) {

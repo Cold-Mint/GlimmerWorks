@@ -20,7 +20,7 @@ namespace glimmer {
     public:
         ~TreeBiomeDecorator() override = default;
 
-        void SetSeed(int seed) override;
+        void SetWorldSeed(int seed) override;
 
        void Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
             BiomeDecoratorResource *biomeDecoratorResource, BiomeResource *biomeResource,

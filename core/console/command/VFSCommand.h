@@ -9,13 +9,11 @@
 
 namespace glimmer {
     class VFSCommand final : public Command {
-        VirtualFileSystem *virtualFileSystem_;
-
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit VFSCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem);
+        explicit VFSCommand(AppContext *ctx);
 
         [[nodiscard]] std::string GetName() const override;
 

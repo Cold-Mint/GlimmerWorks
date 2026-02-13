@@ -22,7 +22,7 @@ namespace glimmer {
         virtual ~BiomeDecorator();
 
 
-        virtual void SetSeed(int seed);
+        virtual void SetWorldSeed(int seed);
 
         virtual void Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
                                 BiomeDecoratorResource *biomeDecoratorResource,

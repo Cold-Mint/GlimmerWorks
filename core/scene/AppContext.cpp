@@ -23,12 +23,16 @@
 #include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/command/LootCommand.h"
+#include "core/console/command/StructureCommand.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
+#include "core/console/suggestion/StructureDynamicSuggestions.h"
 #include "core/saves/SavesManager.h"
 #include "core/world/generator/FillBiomeDecorator.h"
 #include "core/world/generator/SurfaceBiomeDecorator.h"
 #include "core/world/generator/TreeBiomeDecorator.h"
+#include "core/world/structure/StaticStructureGenerator.h"
+#include "core/world/structure/TreeStructureGenerator.h"
 #include "toml11/find.hpp"
 #include "toml11/parser.hpp"
 
@@ -163,13 +167,14 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HelpCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TpCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this, vfs));
+    commandManager_->RegisterCommand(std::make_unique<StructureCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ClearCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LootCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<VFSCommand>(this, vfs));
-    commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(this, vfs));
+    commandManager_->RegisterCommand(std::make_unique<VFSCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(this));
 
     commandExecutor_ = std::make_unique<CommandExecutor>();
@@ -205,14 +210,18 @@ glimmer::AppContext::AppContext() {
     savesManager_->LoadAllSaves();
     dragAndDrop_ = std::make_unique<DragAndDrop>();
     lootTableManager_ = std::make_unique<LootTableManager>();
+    structureGeneratorManager_ = std::make_unique<StructureGeneratorManager>();
+    structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<StaticStructureGenerator>());
+    structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<TreeStructureGenerator>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<LootSuggestions>(lootTableManager_.get()));
+    structureManager_ = std::make_unique<StructureManager>();
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<StructureDynamicSuggestions>(structureManager_.get()));
     LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
     LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
     LogCat::i("Starting GlimmerWorks...");
-    if (dataPackManager_->Scan(config_->mods.dataPackPath, config_->mods.enabledDataPack, language_,
-                               stringManager_.get(), tileManager_.get(), biomesManager_.get(),
-                               itemManager_.get(), lootTableManager_.get(), tomlVersion_) == 0) {
+    if (dataPackManager_->Scan(this, tomlVersion_) == 0) {
         LogCat::e("Failed to load dataPack");
         return;
     }
@@ -286,6 +295,14 @@ glimmer::TileManager *glimmer::AppContext::GetTileManager() const {
 
 glimmer::LootTableManager *glimmer::AppContext::GetLootTableManager() const {
     return lootTableManager_.get();
+}
+
+glimmer::StructureManager *glimmer::AppContext::GetStructureManager() const {
+    return structureManager_.get();
+}
+
+glimmer::StructureGeneratorManager *glimmer::AppContext::GetStructureGeneratorManager() const {
+    return structureGeneratorManager_.get();
 }
 
 glimmer::BiomeDecoratorManager *glimmer::AppContext::GetBiomeDecoratorManager() const {

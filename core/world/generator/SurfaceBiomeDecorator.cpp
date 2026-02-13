@@ -10,7 +10,7 @@ void glimmer::SurfaceBiomeDecorator::Decoration(WorldContext *worldContext, Terr
                                                 BiomeDecoratorResource *biomeDecoratorResource,
                                                 BiomeResource *biomeResource,
                                                 std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef) {
-    const ResourceRef &resourceRef = biomeDecoratorResource->tiles[0];
+    const ResourceRef &resourceRef = biomeDecoratorResource->data[0];
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             TerrainTileResult self = terrainResult->QueryTerrain(localX, localY);

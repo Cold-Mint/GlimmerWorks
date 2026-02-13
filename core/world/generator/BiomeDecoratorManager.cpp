@@ -18,8 +18,8 @@ glimmer::BiomeDecorator *glimmer::BiomeDecoratorManager::GetBiomeDecorator(const
     return it->second.get();
 }
 
-void glimmer::BiomeDecoratorManager::SetSeed(const uint64_t seed) const {
+void glimmer::BiomeDecoratorManager::SetWorldSeed(const int worldSeed) const {
     for (const auto &it: biomeDecoratorMap_) {
-        it.second->SetSeed(seed);
+        it.second->SetWorldSeed(worldSeed);
     }
 }

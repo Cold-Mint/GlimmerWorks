@@ -74,7 +74,7 @@ namespace glimmer {
         std::unique_ptr<FastNoiseLite> temperatureMapNoise;
 
     public:
-        explicit ChunkGenerator(WorldContext *worldContext, int seed);
+        explicit ChunkGenerator(WorldContext *worldContext, int worldSeed);
 
         /**
         * get Height

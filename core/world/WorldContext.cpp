@@ -711,12 +711,12 @@ bool glimmer::WorldContext::IsEmptyEntityId(const GameEntity::ID id) {
     return id <= 0;
 }
 
-int glimmer::WorldContext::GetSeed() const {
-    return seed;
+int glimmer::WorldContext::GetWorldSeed() const {
+    return worldSeed_;
 }
 
-glimmer::WorldContext::WorldContext(AppContext *appContext, const int seed, Saves *saves,
-                                    const GameEntity::ID entityId) : seed(seed),
+glimmer::WorldContext::WorldContext(AppContext *appContext, int worldSeed, Saves *saves,
+                                    const GameEntity::ID entityId) : worldSeed_(worldSeed),
                                                                      entityId_(entityId), saves_(saves) {
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
@@ -728,11 +728,11 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, const int seed, Save
             command->BindWorldContext(this);
         }
     }
-    appContext_->GetBiomeDecoratorManager()->SetSeed(seed);
+    appContext_->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed);
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {
         return this->RegisterEntity(std::move(entity));
     });
-    chunkGenerator_ = std::make_unique<ChunkGenerator>(this, seed);
+    chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed);
     startTime_ = TimeUtils::GetCurrentTimeMs();
 }
 

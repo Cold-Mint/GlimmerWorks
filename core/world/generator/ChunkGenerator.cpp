@@ -12,36 +12,36 @@
 #include "core/world/WorldContext.h"
 
 
-glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, int seed) : worldContext_(worldContext) {
+glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int worldSeed) : worldContext_(worldContext) {
     // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
     continentHeightMapNoise = std::make_unique<FastNoiseLite>();
-    continentHeightMapNoise->SetSeed(seed);
+    continentHeightMapNoise->SetSeed(worldSeed);
     continentHeightMapNoise->SetFrequency(0.005F); // 极低频，用于大型板块
     continentHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
     // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
     mountainHeightMapNoise = std::make_unique<FastNoiseLite>();
-    mountainHeightMapNoise->SetSeed(seed + 1); // 不同的种子
+    mountainHeightMapNoise->SetSeed(worldSeed + 1); // 不同的种子
     mountainHeightMapNoise->SetFrequency(0.01F); // 低频，用于主要地形
     mountainHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     // 3. 丘陵/细节噪声 (中频) - 控制平原和丘陵的细节
     hillsNoiseHeightMapNoise = std::make_unique<FastNoiseLite>();
-    hillsNoiseHeightMapNoise->SetSeed(seed + 2); // 不同的种子
+    hillsNoiseHeightMapNoise->SetSeed(worldSeed + 2); // 不同的种子
     hillsNoiseHeightMapNoise->SetFrequency(0.02F); // 中频，用于细节
     hillsNoiseHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     humidityMapNoise = std::make_unique<FastNoiseLite>();
-    humidityMapNoise->SetSeed(seed + 100);
+    humidityMapNoise->SetSeed(worldSeed + 100);
     humidityMapNoise->SetFrequency(0.005F);
     humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     temperatureMapNoise = std::make_unique<FastNoiseLite>();
-    temperatureMapNoise->SetSeed(seed + 200);
+    temperatureMapNoise->SetSeed(worldSeed + 200);
     temperatureMapNoise->SetFrequency(0.01F);
     temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     weirdnessMapNoise = std::make_unique<FastNoiseLite>();
-    weirdnessMapNoise->SetSeed(seed + 300);
+    weirdnessMapNoise->SetSeed(worldSeed + 300);
     weirdnessMapNoise->SetFrequency(0.02F);
     weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
     erosionMapNoise = std::make_unique<FastNoiseLite>();
-    erosionMapNoise->SetSeed(seed + 400);
+    erosionMapNoise->SetSeed(worldSeed + 400);
     erosionMapNoise->SetFrequency(0.003F);
     erosionMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
 }
@@ -196,6 +196,7 @@ TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector
     const auto temperature = GetTemperature(world, elevation);
     const auto weirdness = GetWeirdness(world);
     const auto erosion = GetErosion(world);
+    terrainTileResult.world = world;
     terrainTileResult.terrainType = SOLID;
     terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetBiomesManager()->FindBestBiome(
         humidity, temperature, weirdness, erosion,

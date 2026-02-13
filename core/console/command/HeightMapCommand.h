@@ -9,13 +9,11 @@
 
 namespace glimmer {
     class HeightMapCommand : public Command {
-        VirtualFileSystem *virtualFileSystem_;
-
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit HeightMapCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem);
+        explicit HeightMapCommand(AppContext *ctx);
 
         ~HeightMapCommand() override = default;
 

@@ -11,6 +11,7 @@
 #include "../../utils/TomlUtils.h"
 #include "../../core/mod/PackManifest.h"
 #include "core/lootTable/LootTableManager.h"
+#include "core/scene/AppContext.h"
 #include "toml11/parser.hpp"
 
 std::optional<std::string> glimmer::DataPack::GetDataType(const std::string &path) const {
@@ -86,6 +87,23 @@ LoadLootTableResourceFromFile(const std::string &path, LootTableManager *lootTab
     return true;
 }
 
+bool glimmer::DataPack::
+LoadStructureResourceFromFile(const std::string &path, StructureManager *structureManager) const {
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
+    }
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    auto structureResource = std::make_unique<StructureResource>(toml::get<StructureResource>(value));
+    structureResource->packId = manifest_.id;
+    for (auto &ref: structureResource->data) {
+        ref.SetSelfPackageId(manifest_.id);
+    }
+    structureManager->AddResource(std::move(structureResource));
+    return true;
+}
 
 bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileManager *tileManager) const {
     auto data =
@@ -117,7 +135,7 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
     auto biomeResource = std::make_unique<BiomeResource>(toml::get<BiomeResource>(value));
     biomeResource->packId = manifest_.id;
     for (auto &decorator: biomeResource->decorator) {
-        for (auto &tile: decorator.tiles) {
+        for (auto &tile: decorator.data) {
             tile.SetSelfPackageId(manifest_.id);
         }
     }
@@ -208,10 +226,7 @@ bool glimmer::DataPack::LoadManifest() {
     return true;
 }
 
-bool glimmer::DataPack::LoadPack(const std::string &language,
-                                 StringManager *stringManager, TileManager *tileManager,
-                                 BiomesManager *biomesManager, ItemManager *itemManager,
-                                 LootTableManager *lootTableManager) const {
+bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
     int total = 0;
     std::vector<std::string> files = virtualFileSystem_->ListFile(path_, true);
     if (files.empty()) {
@@ -236,7 +251,7 @@ bool glimmer::DataPack::LoadPack(const std::string &language,
                 continue;
 
             const auto &fileLang = langOptional.value();
-            if (fileLang == language) {
+            if (fileLang == appContext->GetLanguage()) {
                 targetLanguageFiles.push_back(file);
             } else if (fileLang == "default") {
                 defaultLanguageFiles.push_back(file);
@@ -245,14 +260,14 @@ bool glimmer::DataPack::LoadPack(const std::string &language,
         }
         if (dataType == DATA_FILE_TYPE_TILE) {
             LogCat::d("Loading tile file: ", file);
-            if (LoadTileResourceFromFile(file, tileManager)) {
+            if (LoadTileResourceFromFile(file, appContext->GetTileManager())) {
                 total++;
             }
             continue;
         }
         if (dataType == DATA_FILE_TYPE_BIOME) {
             LogCat::d("Loading biomes file: ", file);
-            if (LoadBiomeResourceFromFile(file, biomesManager)) {
+            if (LoadBiomeResourceFromFile(file, appContext->GetBiomesManager())) {
                 total++;
             }
             continue;
@@ -260,7 +275,7 @@ bool glimmer::DataPack::LoadPack(const std::string &language,
 
         if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM) {
             LogCat::d("Loading composableItem file: ", file);
-            if (LoadComposableItemResourceFromFile(file, itemManager)) {
+            if (LoadComposableItemResourceFromFile(file, appContext->GetItemManager())) {
                 total++;
             }
             continue;
@@ -268,25 +283,31 @@ bool glimmer::DataPack::LoadPack(const std::string &language,
 
         if (dataType == DATA_FILE_TYPE_ABILITY_ITEM) {
             LogCat::d("Loading abilityItem file: ", file);
-            if (LoadAbilityItemResourceFromFile(file, itemManager)) {
+            if (LoadAbilityItemResourceFromFile(file, appContext->GetItemManager())) {
                 total++;
             }
             continue;
         }
         if (dataType == DATA_FILE_TYPE_LOOT_TABLE) {
             LogCat::d("Loading lootTable file: ", file);
-            if (LoadLootTableResourceFromFile(file, lootTableManager)) {
+            if (LoadLootTableResourceFromFile(file, appContext->GetLootTableManager())) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_STRUCTURE) {
+            LogCat::d("Loading structure file: ", file);
+            if (LoadStructureResourceFromFile(file, appContext->GetStructureManager())) {
                 total++;
             }
         }
     }
     if (targetLanguageFiles.empty()) {
         for (auto &f: defaultLanguageFiles) {
-            total += LoadStringResourceFromFile(f, stringManager);
+            total += LoadStringResourceFromFile(f, appContext->GetStringManager());
         }
     } else {
         for (auto &f: targetLanguageFiles) {
-            total += LoadStringResourceFromFile(f, stringManager);
+            total += LoadStringResourceFromFile(f, appContext->GetStringManager());
         }
     }
 

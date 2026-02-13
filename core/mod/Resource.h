@@ -63,6 +63,7 @@ namespace glimmer {
         STRING
     };
 
+
     struct VariableDefinition {
         std::string key;
         VariableDefinitionType type = STRING;
@@ -82,6 +83,21 @@ namespace glimmer {
         std::vector<VariableDefinition> definition;
 
         [[nodiscard]] const VariableDefinition *FindVariable(const std::string &name) const;
+    };
+
+    struct StructureResource : Resource {
+        /**
+        * Generator ID
+         * 生成器Id
+         */
+        std::string generatorId;
+        VariableConfig generatorConfig;
+        /**
+         * Only valid for static generators. Define the width of the structure.
+         * 只对静态生成器有效，定义结构的宽度。
+         */
+        int width;
+        std::vector<ResourceRef> data;
     };
 
     /**
@@ -120,7 +136,7 @@ namespace glimmer {
      */
     struct BiomeDecoratorResource {
         std::string id;
-        std::vector<ResourceRef> tiles;
+        std::vector<ResourceRef> data;
         VariableConfig config;
     };
 

@@ -4,10 +4,10 @@
 #ifndef DATAPACK_H
 #define DATAPACK_H
 #include <string>
-#include <utility>
 
 #include "BiomesManager.h"
 #include "ItemManager.h"
+#include "StructureManager.h"
 #include "../PackManifest.h"
 #include "../../vfs/VirtualFileSystem.h"
 #include "core/lootTable/LootTableManager.h"
@@ -38,6 +38,10 @@ namespace glimmer {
         [[nodiscard]] bool LoadLootTableResourceFromFile(const std::string &path,
                                                          LootTableManager *lootTableManager) const;
 
+
+        [[nodiscard]] bool LoadStructureResourceFromFile(const std::string &path,
+                                                         StructureManager *structureManager) const;
+
         [[nodiscard]] bool LoadTileResourceFromFile(const std::string &path, TileManager *tileManager) const;
 
         [[nodiscard]] bool LoadBiomeResourceFromFile(const std::string &path, BiomesManager *biomesManager) const;
@@ -54,10 +58,7 @@ namespace glimmer {
 
         bool LoadManifest();
 
-        [[nodiscard]] bool LoadPack(const std::string &language,
-                                    StringManager *stringManager, TileManager *tileManager,
-                                    BiomesManager *biomesManager, ItemManager *itemManager,
-                                    LootTableManager *lootTableManager) const;
+        [[nodiscard]] bool LoadPack(AppContext *appContext) const;
 
         [[nodiscard]] const DataPackManifest &GetManifest() const;
     };

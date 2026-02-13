@@ -12,6 +12,7 @@
 #include "toml11/spec.hpp"
 
 namespace glimmer {
+    class AppContext;
     class BiomesManager;
     class TileManager;
     class StringManager;
@@ -35,9 +36,7 @@ namespace glimmer {
 
         //Scan the data packets in the specified directory(Return the number of data packets successfully loaded)
         //扫描指定目录下的数据包（返回成功加载多少个数据包）
-        int Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
-                 const std::string &language, StringManager *stringManager, TileManager *tileManager,
-                 BiomesManager *biomesManager, ItemManager *itemManager, LootTableManager *lootTableManager,
+        int Scan(AppContext *appContext,
                  const toml::spec &tomlVersion);
     };
 }

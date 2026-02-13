@@ -18,7 +18,7 @@ bool glimmer::SeedCommand::Execute(CommandArgs commandArgs, std::function<void(c
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    onMessage(std::to_string(worldContext_->GetSeed()));
+    onMessage(std::to_string(worldContext_->GetWorldSeed()));
     return true;
 }
 

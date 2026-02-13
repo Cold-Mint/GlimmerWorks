@@ -21,7 +21,9 @@
 #include "SDL3_ttf/SDL_ttf.h"
 #include "core/Config.h"
 #include "core/lootTable/LootTableManager.h"
+#include "core/mod/dataPack/StructureManager.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
+#include "core/world/structure/StructureGeneratorManager.h"
 
 
 namespace glimmer {
@@ -61,6 +63,8 @@ namespace glimmer {
         std::unique_ptr<VirtualFileSystem> virtualFileSystem_;
         std::unique_ptr<BiomeDecoratorManager> biomeDecoratorManager_;
         std::unique_ptr<LootTableManager> lootTableManager_;
+        std::unique_ptr<StructureGeneratorManager> structureGeneratorManager_;
+        std::unique_ptr<StructureManager> structureManager_;
         std::unique_ptr<ResourceLocator> resourceLocator_;
         std::unique_ptr<ItemManager> itemManager_;
         std::unique_ptr<DragAndDrop> dragAndDrop_;
@@ -106,6 +110,10 @@ namespace glimmer {
         [[nodiscard]] TileManager *GetTileManager() const;
 
         [[nodiscard]] LootTableManager *GetLootTableManager() const;
+
+        [[nodiscard]] StructureManager *GetStructureManager() const;
+
+        [[nodiscard]] StructureGeneratorManager *GetStructureGeneratorManager() const;
 
         [[nodiscard]] BiomeDecoratorManager *GetBiomeDecoratorManager() const;
 

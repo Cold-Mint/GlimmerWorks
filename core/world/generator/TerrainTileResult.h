@@ -6,6 +6,7 @@
 #define GLIMMERWORKS_TERRAINTILERESULT_H
 #include "TerrainResultType.h"
 #include "core/mod/Resource.h"
+#include "core/math/Vector2DI.h"
 
 
 /**
@@ -13,6 +14,7 @@
  * 瓦片地形结果
  */
 struct TerrainTileResult {
+    TileVector2D world;
     glimmer::TerrainResultType terrainType = glimmer::AIR;
     glimmer::BiomeResource *biomeResource = nullptr;
 };

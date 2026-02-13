@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "DataPack.h"
 #include "../../log/LogCat.h"
+#include "core/scene/AppContext.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {
@@ -40,11 +41,8 @@ glimmer::DataPackManager::DataPackManager(VirtualFileSystem *virtualFilesystem) 
     virtualFilesystem) {
 }
 
-int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<std::string> &enabledDataPack,
-                                   const std::string &language, StringManager *stringManager, TileManager *tileManager,
-                                   BiomesManager *biomesManager,
-                                   ItemManager *itemManager, LootTableManager *lootTableManager,
-                                   const toml::spec &tomlVersion) {
+int glimmer::DataPackManager::Scan(AppContext *appContext, const toml::spec &tomlVersion) {
+    const std::string &path = appContext->GetConfig()->mods.dataPackPath;
     if (!virtualFileSystem_->Exists(path)) {
         LogCat::e("DataPackManager: Path does not exist -> ", path);
         return 0;
@@ -62,14 +60,14 @@ int glimmer::DataPackManager::Scan(const std::string &path, const std::vector<st
             }
             // Determine whether the data packet is enabled
             // 判断数据包是否启用
-            if (!IsDataPackEnabled(pack, enabledDataPack)) {
+            if (!IsDataPackEnabled(pack, appContext->GetConfig()->mods.enabledDataPack)) {
                 LogCat::w("Data pack not enabled: ", pack.GetManifest().id);
                 continue;
             }
             if (!IsDataPackAvailable(pack)) {
                 continue;
             }
-            if (pack.LoadPack(language, stringManager, tileManager, biomesManager, itemManager, lootTableManager)) {
+            if (pack.LoadPack(appContext)) {
                 success++;
                 packIdVector_.push_back(pack.GetManifest().id);
             }

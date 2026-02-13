@@ -126,7 +126,7 @@ namespace toml {
         static glimmer::BiomeDecoratorResource from_toml(const value &v) {
             glimmer::BiomeDecoratorResource r;
             r.id = toml::find<std::string>(v, "id");
-            r.tiles = toml::find<std::vector<glimmer::ResourceRef> >(v, "tiles");
+            r.data = toml::find<std::vector<glimmer::ResourceRef> >(v, "data");
             r.config = toml::find_or<glimmer::VariableConfig>(
                 v,
                 "config",
@@ -168,6 +168,19 @@ namespace toml {
             r.hardness = toml::find<float>(v, "hardness");
             r.breakable = toml::find<bool>(v, "breakable");
             r.layerType = toml::find<uint8_t>(v, "layerType");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::StructureResource> {
+        static glimmer::StructureResource from_toml(const value &v) {
+            glimmer::StructureResource r;
+            r.key = toml::find<std::string>(v, "resourceKey");
+            r.generatorId = toml::find<std::string>(v, "generatorId");
+            r.generatorConfig = toml::find_or_default<glimmer::VariableConfig>(v, "generatorConfig");
+            r.width = toml::find_or_default<int>(v, "width");
+            r.data = toml::find_or_default<std::vector<glimmer::ResourceRef> >(v, "data");
             return r;
         }
     };

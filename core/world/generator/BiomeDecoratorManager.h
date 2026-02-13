@@ -19,7 +19,7 @@ namespace glimmer {
 
         BiomeDecorator *GetBiomeDecorator(const std::string &id);
 
-        void SetSeed(uint64_t seed) const;
+        void SetWorldSeed(int worldSeed) const;
     };
 }
 

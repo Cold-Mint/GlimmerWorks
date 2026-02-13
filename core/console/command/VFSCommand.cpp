@@ -27,8 +27,8 @@ void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree
     suggestionsTree.AddChild("readFile");
 }
 
-glimmer::VFSCommand::VFSCommand(AppContext *ctx, VirtualFileSystem *virtualFileSystem)
-    : Command(ctx), virtualFileSystem_(virtualFileSystem) {
+glimmer::VFSCommand::VFSCommand(AppContext *ctx)
+    : Command(ctx) {
 }
 
 std::string glimmer::VFSCommand::GetName() const {
@@ -54,14 +54,15 @@ bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(co
             2, size));
         return false;
     }
+    VirtualFileSystem *virtualFileSystem = appContext_->GetVirtualFileSystem();
     const auto type = commandArgs.AsString(1);
     if (type == "listMount") {
-        onMessage(virtualFileSystem_->ListMounts());
+        onMessage(virtualFileSystem->ListMounts());
         return true;
     }
     if (size > 2 && type == "actualPath") {
         auto path = commandArgs.AsString(2);
-        auto actualPath = virtualFileSystem_->GetActualPath(path);
+        auto actualPath = virtualFileSystem->GetActualPath(path);
         if (actualPath.has_value()) {
             onMessage(actualPath.value());
         } else {
@@ -71,7 +72,7 @@ bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(co
     }
     if (size > 2 && type == "exists") {
         auto path = commandArgs.AsString(2);
-        auto exists = virtualFileSystem_->Exists(path);
+        auto exists = virtualFileSystem->Exists(path);
         if (exists) {
             onMessage("true");
         } else {
@@ -81,7 +82,7 @@ bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(co
     }
     if (size > 2 && type == "readFile") {
         auto path = commandArgs.AsString(2);
-        auto text = virtualFileSystem_->ReadFile(path);
+        auto text = virtualFileSystem->ReadFile(path);
         if (text.has_value()) {
             if (size > 3) {
                 auto messageType = commandArgs.AsString(3);

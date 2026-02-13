@@ -8,6 +8,8 @@
 
 namespace glimmer {
     class SeedCommand : public Command {
+        void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
+
     public:
         explicit SeedCommand(AppContext *ctx);
 
@@ -15,7 +17,6 @@ namespace glimmer {
 
         bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
 
-        void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
         [[nodiscard]] std::string GetName() const override;
 

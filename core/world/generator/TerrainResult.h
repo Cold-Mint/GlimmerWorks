@@ -19,9 +19,15 @@ namespace glimmer {
         std::array<TerrainTileResult, CHUNK_SIZE> rightTerrainTileResult_;
         std::array<TerrainTileResult, CHUNK_SIZE> upTerrainTileResult_;
         std::array<TerrainTileResult, CHUNK_SIZE> downTerrainTileResult_;
+        TileVector2D position_;
 
     public:
-        void SetTerrainTileResult(int x, int y, TerrainTileResult result);
+        void SetTerrainTileResult(int x, int y, const TerrainTileResult &result);
+
+
+        void SetPosition(const TileVector2D &position);
+
+        [[nodiscard]] TileVector2D GetPosition() const;
 
         [[nodiscard]] const TerrainTileResult &QueryTerrain(int x, int y) const;
 

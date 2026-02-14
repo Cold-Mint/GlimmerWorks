@@ -4,8 +4,16 @@
 
 #include "TerrainResult.h"
 
-void glimmer::TerrainResult::SetTerrainTileResult(const int x, const int y, const TerrainTileResult result) {
+void glimmer::TerrainResult::SetTerrainTileResult(const int x, const int y, const TerrainTileResult &result) {
     terrainTileResult_[x][y] = result;
+}
+
+void glimmer::TerrainResult::SetPosition(const TileVector2D &position) {
+    position_ = position;
+}
+
+TileVector2D glimmer::TerrainResult::GetPosition() const {
+    return position_;
 }
 
 const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const int x, const int y) const {

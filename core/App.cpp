@@ -88,7 +88,8 @@ bool glimmer::App::init() {
     ImGui::CreateContext();
     LogCat::i("ImGui context created.");
 
-    const ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO &io = ImGui::GetIO();
+    io.IniFilename = nullptr;
     (void) io;
 
     LogCat::i("Setting ImGui style to Light...");

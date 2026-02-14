@@ -113,6 +113,7 @@ int glimmer::ChunkGenerator::GetHeight(int x) {
 
 std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain(TileVector2D position) {
     auto terrainResult = std::make_unique<TerrainResult>();
+    terrainResult->SetPosition(position);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int height = GetHeight(position.x + localX);
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {

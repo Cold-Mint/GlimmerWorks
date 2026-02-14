@@ -48,8 +48,16 @@ namespace toml {
         static glimmer::VariableDefinition from_toml(const value &v) {
             glimmer::VariableDefinition r;
             r.key = toml::find<std::string>(v, "key");
-            r.value = toml::find<std::string>(v, "value");
             r.type = static_cast<glimmer::VariableDefinitionType>(toml::find<uint8_t>(v, "type"));
+             if (r.type == glimmer::VariableDefinitionType::INT) {
+                r.value = std::to_string(toml::find<int>(v, "value"));
+            } else if (r.type == glimmer::VariableDefinitionType::FLOAT) {
+                r.value = std::to_string(toml::find<float>(v, "value"));
+            } else if (r.type == glimmer::VariableDefinitionType::BOOL) {
+                r.value = std::to_string(toml::find<bool>(v, "value"));
+            }else {
+                r.value = toml::find<std::string>(v, "value");
+            }
             return r;
         }
     };
@@ -179,7 +187,7 @@ namespace toml {
             r.key = toml::find<std::string>(v, "resourceKey");
             r.generatorId = toml::find<std::string>(v, "generatorId");
             r.generatorConfig = toml::find_or_default<glimmer::VariableConfig>(v, "generatorConfig");
-            r.width = toml::find_or<uint32_t>(v, "width",1);
+            r.width = toml::find_or<uint32_t>(v, "width", 1);
             r.data = toml::find_or_default<std::vector<glimmer::ResourceRef> >(v, "data");
             return r;
         }

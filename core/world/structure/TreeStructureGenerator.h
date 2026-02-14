@@ -43,7 +43,8 @@ namespace glimmer {
         bool hasLeaves = true;
 
     public:
-        StructureInfo Generate(TileVector2D startPosition) override;
+        StructureInfo Generate(TileVector2D startPosition, StructureResource *structureResource) override;
+
 
         std::string GetStructureGeneratorId() override;
     };

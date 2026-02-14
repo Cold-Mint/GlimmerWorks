@@ -179,7 +179,7 @@ namespace toml {
             r.key = toml::find<std::string>(v, "resourceKey");
             r.generatorId = toml::find<std::string>(v, "generatorId");
             r.generatorConfig = toml::find_or_default<glimmer::VariableConfig>(v, "generatorConfig");
-            r.width = toml::find_or_default<int>(v, "width");
+            r.width = toml::find_or<uint32_t>(v, "width",1);
             r.data = toml::find_or_default<std::vector<glimmer::ResourceRef> >(v, "data");
             return r;
         }

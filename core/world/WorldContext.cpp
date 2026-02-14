@@ -254,7 +254,7 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     if (chunk == nullptr) {
         chunk = chunkGenerator_->GenerateChunkAt(position);
     }
-    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldId_, chunk.get());
+    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext_, worldId_, chunk.get());
     chunks_.insert({position, std::move(chunk)});
     chunksVersion_++;
 }
@@ -270,7 +270,7 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
         return;
     }
     if (SaveChunk(position)) {
-        ChunkPhysicsHelper::DetachPhysicsBodyToChunk(it->second.get());
+        ChunkPhysicsHelper::DetachPhysicsBodyToChunk(appContext_, it->second.get());
         chunks_.erase(it);
         chunksVersion_++;
     } else {

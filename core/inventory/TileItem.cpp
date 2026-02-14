@@ -62,11 +62,8 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user) {
                             (void) tileLayer->SetTile(
                                 targetPos, Tile::FromResourceRef(worldContext->GetAppContext(), tileResource.value()));
                             Chunk *chunk = Chunk::GetChunkByTileVector2D(worldContext->GetAllChunks(), targetPos);
-                            if (chunk) {
-                                ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
-                                ChunkPhysicsHelper::AttachPhysicsBodyToChunk(
-                                    worldContext->GetWorldId(),
-                                    chunk);
+                            if (chunk != nullptr) {
+                                ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext, chunk);
                             }
                         }
                     }

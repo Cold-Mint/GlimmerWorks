@@ -7,12 +7,12 @@
 #include "core/console/Command.h"
 
 namespace glimmer {
-    class StructureCommand : public Command {
+    class PlaceCommand : public Command {
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit StructureCommand(AppContext *ctx);
+        explicit PlaceCommand(AppContext *ctx);
 
 
         [[nodiscard]] std::string GetName() const override;

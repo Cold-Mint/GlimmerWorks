@@ -4,16 +4,9 @@
 
 #include "StaticStructureGenerator.h"
 
-void glimmer::StaticStructureGenerator::SetWidth(const uint32_t width) {
-    width_ = width;
-}
-
-void glimmer::StaticStructureGenerator::SetTileData(const std::vector<ResourceRef> &tileData) {
-    tileData_ = tileData;
-}
-
-glimmer::StructureInfo glimmer::StaticStructureGenerator::Generate(const TileVector2D startPosition) {
-    return StructureInfo(width_, tileData_, startPosition);
+glimmer::StructureInfo glimmer::StaticStructureGenerator::Generate(TileVector2D startPosition,
+    StructureResource *structureResource) {
+    return StructureInfo(structureResource->width, &structureResource->data, startPosition);
 }
 
 std::string glimmer::StaticStructureGenerator::GetStructureGeneratorId() {

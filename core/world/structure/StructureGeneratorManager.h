@@ -15,7 +15,7 @@ namespace glimmer {
     public:
         void RegisterStructureGenerator(std::unique_ptr<IStructureGenerator> structureGenerator);
 
-        std::optional<StructureInfo> Generate(StructureResource structureResource);
+        std::optional<StructureInfo> Generate(TileVector2D startPosition, StructureResource *structureResource);
     };
 }
 

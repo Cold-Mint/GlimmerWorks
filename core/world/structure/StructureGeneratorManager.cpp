@@ -9,3 +9,12 @@ void glimmer::StructureGeneratorManager::RegisterStructureGenerator(
     const std::string id = structureGenerator->GetStructureGeneratorId();
     structureGeneratorMap_.emplace(id, std::move(structureGenerator));
 }
+
+std::optional<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(TileVector2D startPosition,
+    StructureResource *structureResource) {
+    const std::string &generatorId = structureResource->generatorId;
+    if (!structureGeneratorMap_.contains(generatorId)) {
+        return std::nullopt;
+    }
+    return structureGeneratorMap_[generatorId]->Generate(startPosition, structureResource);
+}

@@ -320,7 +320,7 @@ target_sources(GlimmerWorks
         core/world/structure/TreeStructureGenerator.cpp
         core/mod/dataPack/StructureManager.cpp
         core/console/suggestion/StructureDynamicSuggestions.cpp
-        core/console/command/StructureCommand.cpp
+        core/console/command/PlaceCommand.cpp
         core/world/structure/StructureGeneratorManager.cpp
         PUBLIC
         FILE_SET HEADERS
@@ -468,7 +468,7 @@ target_sources(GlimmerWorks
         core/world/structure/StaticStructureGenerator.h
         core/mod/dataPack/StructureManager.h
         core/console/suggestion/StructureDynamicSuggestions.h
-        core/console/command/StructureCommand.h
+        core/console/command/PlaceCommand.h
         core/world/structure/StructureGeneratorManager.h
 )
 

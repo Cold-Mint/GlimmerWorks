@@ -4,8 +4,10 @@
 
 #include "TreeStructureGenerator.h"
 
-glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D startPosition) {
-    return StructureInfo(1, {}, startPosition);
+
+glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D startPosition,
+                                                                 StructureResource *structureResource) {
+    return StructureInfo(structureResource->width, &structureResource->data, startPosition);
 }
 
 std::string glimmer::TreeStructureGenerator::GetStructureGeneratorId() {

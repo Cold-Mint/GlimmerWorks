@@ -96,7 +96,7 @@ namespace glimmer {
          * Only valid for static generators. Define the width of the structure.
          * 只对静态生成器有效，定义结构的宽度。
          */
-        int width;
+        uint32_t width;
         std::vector<ResourceRef> data;
     };
 

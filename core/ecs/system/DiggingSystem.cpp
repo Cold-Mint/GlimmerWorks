@@ -81,9 +81,8 @@ void glimmer::DiggingSystem::Update(float delta) {
             // Update physics
             // 更新物理
             Chunk *chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tilePos);
-            if (chunk) {
-                ChunkPhysicsHelper::DetachPhysicsBodyToChunk(chunk);
-                ChunkPhysicsHelper::AttachPhysicsBodyToChunk(worldContext_->GetWorldId(), chunk);
+            if (chunk != nullptr) {
+                ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
             }
 
             // Reset digging after break

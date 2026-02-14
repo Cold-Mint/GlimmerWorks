@@ -23,7 +23,7 @@
 #include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/command/LootCommand.h"
-#include "core/console/command/StructureCommand.h"
+#include "core/console/command/PlaceCommand.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
 #include "core/console/suggestion/StructureDynamicSuggestions.h"
@@ -167,7 +167,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HelpCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TpCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<StructureCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(this));

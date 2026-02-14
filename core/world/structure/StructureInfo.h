@@ -13,14 +13,16 @@ namespace glimmer {
         uint32_t width_ = 0;
         uint32_t height_ = 0;
         TileVector2D startPosition_;
-        std::vector<ResourceRef> tileData_;
+        std::vector<ResourceRef> *tileData_;
 
     public:
-        StructureInfo(uint32_t width, std::vector<ResourceRef> tileData, TileVector2D startPosition);
+        StructureInfo(uint32_t width, std::vector<ResourceRef> *tileData, TileVector2D startPosition);
 
         [[nodiscard]] uint32_t GetWidth() const;
 
         [[nodiscard]] uint32_t GetHeight() const;
+
+        [[nodiscard]] ResourceRef *GetResourceRef(uint32_t x, uint32_t y) const;
 
         [[nodiscard]] TileVector2D GetStartPosition() const;
     };

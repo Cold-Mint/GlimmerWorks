@@ -12,10 +12,11 @@ namespace glimmer {
         /**
          * Add physical bodies to the tiles within the block
          * 为区块内的瓦片添加物理体
+         * @param appContext appContext
          * @param worldId Box2dWorldid Box2d世界id
          * @param chunk  The chunk to add physical bodies to 要添加物理的区块
          */
-        static void AttachPhysicsBodyToChunk(b2WorldId worldId, Chunk *chunk);
+        static void AttachPhysicsBodyToChunk(AppContext *appContext,b2WorldId worldId, Chunk *chunk);
 
         static b2BodyId CreateStaticBody(b2WorldId worldId, WorldVector2D pos, Vector2DI size);
 
@@ -24,9 +25,18 @@ namespace glimmer {
         /**
          * Remove physical bodies from the tiles within the block
          * 从区块内的瓦片移除物理体
+         * @param appContext appContext
          * @param chunk The chunk to remove physical bodies from
          */
-        static void DetachPhysicsBodyToChunk(Chunk *chunk);
+        static void DetachPhysicsBodyToChunk(AppContext *appContext, Chunk *chunk);
+
+        /**
+         * Update the physical collision of the block.
+         * 更新区块的物理碰撞。
+         * @param worldContext
+         * @param chunk
+         */
+        static void UpdatePhysicsBodyToChunk(const WorldContext *worldContext, Chunk *chunk);
     };
 }
 

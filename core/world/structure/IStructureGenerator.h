@@ -5,7 +5,7 @@
 #ifndef GLIMMERWORKS_ISTRUCTUREGENERATOR_H
 #define GLIMMERWORKS_ISTRUCTUREGENERATOR_H
 #include "StructureInfo.h"
-#include "core/ecs/component/TileLayerComponent.h"
+#include "core/mod/Resource.h"
 
 namespace glimmer {
     class IStructureGenerator {
@@ -16,9 +16,11 @@ namespace glimmer {
          *
          * 生成结构
          * @param startPosition
+         * @param structureResource
          * @return
          */
-        virtual StructureInfo Generate(TileVector2D startPosition) = 0;
+        virtual StructureInfo Generate(TileVector2D startPosition,
+                                       StructureResource *structureResource) = 0;
 
         /**
          * Get the structure generator ID

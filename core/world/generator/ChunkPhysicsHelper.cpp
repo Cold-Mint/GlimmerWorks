@@ -9,94 +9,97 @@
 #include "../../utils/Box2DUtils.h"
 #include "box2d/types.h"
 #include "core/world/Tile.h"
+#include "core/world/WorldContext.h"
 
 
-void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(const b2WorldId worldId, Chunk *chunk) {
-    std::vector<TileVector2D> dynamicTiles;
-    TileVector2D chunkPos = chunk->GetPosition();
+void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext *appContext, b2WorldId worldId, Chunk *chunk) {
+    appContext->AddMainThreadTask([worldId,chunk] {
+        std::vector<TileVector2D> dynamicTiles;
+        TileVector2D chunkPos = chunk->GetPosition();
 
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int y = 0; y < CHUNK_SIZE; y++) {
-            auto tile = chunk->GetTile(TileLayerType::Main, x, y);
-            if (tile == nullptr) {
-                continue;
-            }
-            if (tile->physicsType == TilePhysicsType::Dynamic) {
-                dynamicTiles.emplace_back(chunkPos.x + x, chunkPos.y + y);
-            }
-        }
-    }
-    std::array<std::array<bool, CHUNK_SIZE>, CHUNK_SIZE> visited{};
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int y = 0; y < CHUNK_SIZE; y++) {
-            if (visited[x][y]) {
-                continue;
-            }
-
-            auto tile = chunk->GetTile(TileLayerType::Main, x, y);
-            if (tile == nullptr) {
-                continue;
-            }
-            if (tile->physicsType != TilePhysicsType::Static) {
-                continue;
-            }
-
-            // Start a new rectangle
-            int w = 1;
-            int h = 1;
-
-            // Expand width
-            while (x + w < CHUNK_SIZE) {
-                if (visited[x + w][y]) break;
-                auto nextTile = chunk->GetTile(TileLayerType::Main, x + w, y);
-                if (nextTile->physicsType != TilePhysicsType::Static) break;
-                w++;
-            }
-
-            // Expand height
-            bool canExpandHeight = true;
-            while (y + h < CHUNK_SIZE) {
-                for (int k = 0; k < w; k++) {
-                    if (visited[x + k][y + h]) {
-                        canExpandHeight = false;
-                        break;
-                    }
-                    auto nextTile = chunk->GetTile(TileLayerType::Main, x + k, y + h);
-                    if (nextTile->physicsType != TilePhysicsType::Static) {
-                        canExpandHeight = false;
-                        break;
-                    }
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                auto tile = chunk->GetTile(TileLayerType::Main, x, y);
+                if (tile == nullptr) {
+                    continue;
                 }
-                if (!canExpandHeight) break;
-                h++;
-            }
-
-            // Mark visited
-            for (int i = 0; i < w; i++) {
-                for (int j = 0; j < h; j++) {
-                    visited[x + i][y + j] = true;
+                if (tile->physicsType == TilePhysicsType::Dynamic) {
+                    dynamicTiles.emplace_back(chunkPos.x + x, chunkPos.y + y);
                 }
             }
-
-            // Create body
-            // Center in local chunk coords (float)
-            float localCenterX = static_cast<float>(x) + static_cast<float>(w - 1) * 0.5F;
-            float localCenterY = static_cast<float>(y) + static_cast<float>(h - 1) * 0.5F;
-
-            // Convert to world coords
-            const float worldX = (static_cast<float>(chunkPos.x) + localCenterX) * TILE_SIZE;
-            const float worldY = (static_cast<float>(chunkPos.y) + localCenterY) * TILE_SIZE;
-
-            const WorldVector2D worldPos = {worldX, worldY};
-
-            const auto b2BodyId = CreateStaticBody(worldId, worldPos, {w, h});
-            chunk->AddBodyId(b2BodyId);
         }
-    }
+        std::array<std::array<bool, CHUNK_SIZE>, CHUNK_SIZE> visited{};
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                if (visited[x][y]) {
+                    continue;
+                }
 
-    for (auto &pos: dynamicTiles) {
-        CreateDynamicTileBody(chunk, pos);
-    }
+                auto tile = chunk->GetTile(TileLayerType::Main, x, y);
+                if (tile == nullptr) {
+                    continue;
+                }
+                if (tile->physicsType != TilePhysicsType::Static) {
+                    continue;
+                }
+
+                // Start a new rectangle
+                int w = 1;
+                int h = 1;
+
+                // Expand width
+                while (x + w < CHUNK_SIZE) {
+                    if (visited[x + w][y]) break;
+                    auto nextTile = chunk->GetTile(TileLayerType::Main, x + w, y);
+                    if (nextTile->physicsType != TilePhysicsType::Static) break;
+                    w++;
+                }
+
+                // Expand height
+                bool canExpandHeight = true;
+                while (y + h < CHUNK_SIZE) {
+                    for (int k = 0; k < w; k++) {
+                        if (visited[x + k][y + h]) {
+                            canExpandHeight = false;
+                            break;
+                        }
+                        auto nextTile = chunk->GetTile(TileLayerType::Main, x + k, y + h);
+                        if (nextTile->physicsType != TilePhysicsType::Static) {
+                            canExpandHeight = false;
+                            break;
+                        }
+                    }
+                    if (!canExpandHeight) break;
+                    h++;
+                }
+
+                // Mark visited
+                for (int i = 0; i < w; i++) {
+                    for (int j = 0; j < h; j++) {
+                        visited[x + i][y + j] = true;
+                    }
+                }
+
+                // Create body
+                // Center in local chunk coords (float)
+                float localCenterX = static_cast<float>(x) + static_cast<float>(w - 1) * 0.5F;
+                float localCenterY = static_cast<float>(y) + static_cast<float>(h - 1) * 0.5F;
+
+                // Convert to world coords
+                const float worldX = (static_cast<float>(chunkPos.x) + localCenterX) * TILE_SIZE;
+                const float worldY = (static_cast<float>(chunkPos.y) + localCenterY) * TILE_SIZE;
+
+                const WorldVector2D worldPos = {worldX, worldY};
+
+                const auto b2BodyId = CreateStaticBody(worldId, worldPos, {w, h});
+                chunk->AddBodyId(b2BodyId);
+            }
+        }
+
+        for (auto &pos: dynamicTiles) {
+            CreateDynamicTileBody(chunk, pos);
+        }
+    });
 }
 
 b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(b2WorldId worldId, WorldVector2D pos,
@@ -123,15 +126,22 @@ b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(b2WorldId worldId, WorldV
 void glimmer::ChunkPhysicsHelper::CreateDynamicTileBody(Chunk *chunk, TileVector2D pos) {
 }
 
-void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(Chunk *chunk) {
+void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(AppContext *appContext, Chunk *chunk) {
     if (chunk == nullptr) {
         return;
     }
-
-    for (const b2BodyId bodyId: chunk->GetAttachedBodies()) {
-        if (b2Body_IsValid(bodyId)) {
-            b2DestroyBody(bodyId);
+    appContext->AddMainThreadTask([chunk] {
+        for (const b2BodyId bodyId: chunk->GetAttachedBodies()) {
+            if (b2Body_IsValid(bodyId)) {
+                b2DestroyBody(bodyId);
+            }
         }
-    }
-    chunk->ClearAttachedBodies();
+        chunk->ClearAttachedBodies();
+    });
+}
+
+void glimmer::ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(const WorldContext *worldContext, Chunk *chunk) {
+    AppContext *appContext = worldContext->GetAppContext();
+    DetachPhysicsBodyToChunk(appContext, chunk);
+    AttachPhysicsBodyToChunk(appContext, worldContext->GetWorldId(), chunk);
 }

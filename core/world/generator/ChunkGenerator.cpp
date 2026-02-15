@@ -14,36 +14,51 @@
 
 glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int worldSeed) : worldContext_(worldContext) {
     // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
-    continentHeightMapNoise = std::make_unique<FastNoiseLite>();
-    continentHeightMapNoise->SetSeed(worldSeed);
-    continentHeightMapNoise->SetFrequency(0.005F); // 极低频，用于大型板块
-    continentHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
+    continentHeightMapNoise_ = std::make_unique<FastNoiseLite>();
+    continentHeightMapNoise_->SetSeed(worldSeed);
+    continentHeightMapNoise_->SetFrequency(0.005F); // 极低频，用于大型板块
+    continentHeightMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
     // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
-    mountainHeightMapNoise = std::make_unique<FastNoiseLite>();
-    mountainHeightMapNoise->SetSeed(worldSeed + 1); // 不同的种子
-    mountainHeightMapNoise->SetFrequency(0.01F); // 低频，用于主要地形
-    mountainHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    mountainHeightMapNoise_ = std::make_unique<FastNoiseLite>();
+    mountainHeightMapNoise_->SetSeed(worldSeed + 1); // 不同的种子
+    mountainHeightMapNoise_->SetFrequency(0.01F); // 低频，用于主要地形
+    mountainHeightMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     // 3. 丘陵/细节噪声 (中频) - 控制平原和丘陵的细节
-    hillsNoiseHeightMapNoise = std::make_unique<FastNoiseLite>();
-    hillsNoiseHeightMapNoise->SetSeed(worldSeed + 2); // 不同的种子
-    hillsNoiseHeightMapNoise->SetFrequency(0.02F); // 中频，用于细节
-    hillsNoiseHeightMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    humidityMapNoise = std::make_unique<FastNoiseLite>();
-    humidityMapNoise->SetSeed(worldSeed + 100);
-    humidityMapNoise->SetFrequency(0.005F);
-    humidityMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    temperatureMapNoise = std::make_unique<FastNoiseLite>();
-    temperatureMapNoise->SetSeed(worldSeed + 200);
-    temperatureMapNoise->SetFrequency(0.01F);
-    temperatureMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    weirdnessMapNoise = std::make_unique<FastNoiseLite>();
-    weirdnessMapNoise->SetSeed(worldSeed + 300);
-    weirdnessMapNoise->SetFrequency(0.02F);
-    weirdnessMapNoise->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-    erosionMapNoise = std::make_unique<FastNoiseLite>();
-    erosionMapNoise->SetSeed(worldSeed + 400);
-    erosionMapNoise->SetFrequency(0.003F);
-    erosionMapNoise->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    hillsNoiseHeightMapNoise_ = std::make_unique<FastNoiseLite>();
+    hillsNoiseHeightMapNoise_->SetSeed(worldSeed + 2); // 不同的种子
+    hillsNoiseHeightMapNoise_->SetFrequency(0.02F); // 中频，用于细节
+    hillsNoiseHeightMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    humidityMapNoise_ = std::make_unique<FastNoiseLite>();
+    humidityMapNoise_->SetSeed(worldSeed + 100);
+    humidityMapNoise_->SetFrequency(0.005F);
+    humidityMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    temperatureMapNoise_ = std::make_unique<FastNoiseLite>();
+    temperatureMapNoise_->SetSeed(worldSeed + 200);
+    temperatureMapNoise_->SetFrequency(0.01F);
+    temperatureMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    weirdnessMapNoise_ = std::make_unique<FastNoiseLite>();
+    weirdnessMapNoise_->SetSeed(worldSeed + 300);
+    weirdnessMapNoise_->SetFrequency(0.02F);
+    weirdnessMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+    erosionMapNoise_ = std::make_unique<FastNoiseLite>();
+    erosionMapNoise_->SetSeed(worldSeed + 400);
+    erosionMapNoise_->SetFrequency(0.003F);
+    erosionMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+    airTileRef_ = ResourceRef();
+    airTileRef_.SetResourceType(RESOURCE_TYPE_TILE);
+    airTileRef_.SetPackageId(RESOURCE_REF_CORE);
+    airTileRef_.SetSelfPackageId(RESOURCE_REF_CORE);
+    airTileRef_.SetResourceKey(TILE_ID_AIR);
+    waterTileRef_ = ResourceRef();
+    waterTileRef_.SetResourceType(RESOURCE_TYPE_TILE);
+    waterTileRef_.SetPackageId(RESOURCE_REF_CORE);
+    waterTileRef_.SetSelfPackageId(RESOURCE_REF_CORE);
+    waterTileRef_.SetResourceKey(TILE_ID_WATER);
+    bedrockTileRef_ = ResourceRef();
+    bedrockTileRef_.SetResourceType(RESOURCE_TYPE_TILE);
+    bedrockTileRef_.SetPackageId(RESOURCE_REF_CORE);
+    bedrockTileRef_.SetSelfPackageId(RESOURCE_REF_CORE);
+    bedrockTileRef_.SetResourceKey(TILE_ID_BEDROCK);
 }
 
 int glimmer::ChunkGenerator::GetHeight(int x) {
@@ -59,13 +74,13 @@ int glimmer::ChunkGenerator::GetHeight(int x) {
     // 1. 获取三层归一化噪声 (0.0 到 1.0)
 
     // a) 极低频: 大陆/大型岛屿掩码。
-    const float continentNoise = (continentHeightMapNoise->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
+    const float continentNoise = (continentHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
 
     // b) 低频: 宏观地形 (山脉/高原)。
-    const float mountainNoise = (mountainHeightMapNoise->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
+    const float mountainNoise = (mountainHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
 
     // c) 中频: 细节地形 (丘陵/平原起伏)。
-    const float hillsNoise = (hillsNoiseHeightMapNoise->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
+    const float hillsNoise = (hillsNoiseHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
 
 
     // 2. 核心：创建大陆掩码和陆地起伏
@@ -210,70 +225,55 @@ float glimmer::ChunkGenerator::GetElevation(const int height) {
 }
 
 float glimmer::ChunkGenerator::GetHumidity(TileVector2D tileVector2d) {
-    const auto it = humidityMap.find(tileVector2d);
-    if (it != humidityMap.end()) {
+    const auto it = humidityMap_.find(tileVector2d);
+    if (it != humidityMap_.end()) {
         return it->second;
     }
-    humidityMap[tileVector2d] = (humidityMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
-                                                            static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
-    return humidityMap[tileVector2d];
+    humidityMap_[tileVector2d] = (humidityMapNoise_->GetNoise(static_cast<float>(tileVector2d.x),
+                                                              static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
+    return humidityMap_[tileVector2d];
 }
 
 float glimmer::ChunkGenerator::GetTemperature(TileVector2D tileVector2d, float elevation) {
-    const auto it = temperatureMap.find(tileVector2d);
-    if (it != temperatureMap.end()) {
+    const auto it = temperatureMap_.find(tileVector2d);
+    if (it != temperatureMap_.end()) {
         return it->second;
     }
-    const float noiseTemp = (temperatureMapNoise->GetNoise(
+    const float noiseTemp = (temperatureMapNoise_->GetNoise(
                                  static_cast<float>(tileVector2d.x),
                                  static_cast<float>(tileVector2d.y)
                              ) + 1.0F) * 0.5F;
     const float altitudePenalty = std::pow(1.0F - elevation, 1.5F);
     const float temperature = noiseTemp * altitudePenalty;
 
-    temperatureMap[tileVector2d] = temperature;
-    return temperatureMap[tileVector2d];
+    temperatureMap_[tileVector2d] = temperature;
+    return temperatureMap_[tileVector2d];
 }
 
 float glimmer::ChunkGenerator::GetWeirdness(TileVector2D tileVector2d) {
-    const auto it = weirdnessMap.find(tileVector2d);
-    if (it != weirdnessMap.end()) {
+    const auto it = weirdnessMap_.find(tileVector2d);
+    if (it != weirdnessMap_.end()) {
         return it->second;
     }
-    weirdnessMap[tileVector2d] = (weirdnessMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
-                                                              static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
-    return weirdnessMap[tileVector2d];
+    weirdnessMap_[tileVector2d] = (weirdnessMapNoise_->GetNoise(static_cast<float>(tileVector2d.x),
+                                                                static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
+    return weirdnessMap_[tileVector2d];
 }
 
 float glimmer::ChunkGenerator::GetErosion(TileVector2D tileVector2d) {
-    const auto it = erosionMap.find(tileVector2d);
-    if (it != erosionMap.end()) {
+    const auto it = erosionMap_.find(tileVector2d);
+    if (it != erosionMap_.end()) {
         return it->second;
     }
-    erosionMap[tileVector2d] = (erosionMapNoise->GetNoise(static_cast<float>(tileVector2d.x),
-                                                          static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
-    return erosionMap[tileVector2d];
+    erosionMap_[tileVector2d] = (erosionMapNoise_->GetNoise(static_cast<float>(tileVector2d.x),
+                                                            static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
+    return erosionMap_[tileVector2d];
 }
 
 std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVector2D position) {
     AppContext *appContext = worldContext_->GetAppContext();
     auto chunk = std::make_unique<Chunk>(position);
     std::unique_ptr<TerrainResult> terrainResult = GenerateTerrain(position);
-    ResourceRef airTileRef;
-    airTileRef.SetResourceType(RESOURCE_TYPE_TILE);
-    airTileRef.SetPackageId(RESOURCE_REF_CORE);
-    airTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    airTileRef.SetResourceKey(TILE_ID_AIR);
-    ResourceRef waterTileRef;
-    waterTileRef.SetResourceType(RESOURCE_TYPE_TILE);
-    waterTileRef.SetPackageId(RESOURCE_REF_CORE);
-    waterTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    waterTileRef.SetResourceKey(TILE_ID_WATER);
-    ResourceRef bedrockTileRef;
-    bedrockTileRef.SetResourceType(RESOURCE_TYPE_TILE);
-    bedrockTileRef.SetPackageId(RESOURCE_REF_CORE);
-    bedrockTileRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    bedrockTileRef.SetResourceKey(TILE_ID_BEDROCK);
     std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> tilesRef;
     std::unordered_set<BiomeResource *> biomeResourcesSet;
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
@@ -282,19 +282,19 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             auto terrainType = terrainTileResult.terrainType;
             LogCat::d("Chunk x=", position.x + localX, ",y=", position.y + localY, ",terrainType=", terrainType);
             if (terrainType == AIR) {
-                tilesRef[localX][localY] = airTileRef;
+                tilesRef[localX][localY] = airTileRef_;
                 continue;
             }
             if (terrainType == WATER) {
-                tilesRef[localX][localY] = waterTileRef;
+                tilesRef[localX][localY] = waterTileRef_;
                 continue;
             }
             if (terrainType == BEDROCK) {
-                tilesRef[localX][localY] = bedrockTileRef;
+                tilesRef[localX][localY] = bedrockTileRef_;
                 continue;
             }
             if (terrainType == SOLID) {
-                tilesRef[localX][localY] = airTileRef;
+                tilesRef[localX][localY] = airTileRef_;
                 if (terrainTileResult.biomeResource != nullptr && !biomeResourcesSet.contains(
                         terrainTileResult.biomeResource)) {
                     biomeResourcesSet.insert(terrainTileResult.biomeResource);

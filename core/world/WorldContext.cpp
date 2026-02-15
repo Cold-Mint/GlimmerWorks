@@ -729,6 +729,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, int worldSeed, Saves
         }
     }
     appContext_->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed);
+    appContext->GetStructureGeneratorManager()->SetWorldSeed(worldSeed);
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {
         return this->RegisterEntity(std::move(entity));
     });

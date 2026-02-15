@@ -24,17 +24,22 @@ namespace glimmer {
         * A noise generator used for generating noise on the continent
         * 用于生成大陆的噪声生成器
         */
-        std::unique_ptr<FastNoiseLite> continentHeightMapNoise;
+        std::unique_ptr<FastNoiseLite> continentHeightMapNoise_;
+
+        ResourceRef airTileRef_;
+        ResourceRef waterTileRef_;
+        ResourceRef bedrockTileRef_;
+
         /**
          * A noise generator used for generating mountains
          * 用于生成山脉的噪声生成器
          */
-        std::unique_ptr<FastNoiseLite> mountainHeightMapNoise;
+        std::unique_ptr<FastNoiseLite> mountainHeightMapNoise_;
         /**
          * Noise generator for hills
          * 用于丘陵的噪声生成器
          */
-        std::unique_ptr<FastNoiseLite> hillsNoiseHeightMapNoise;
+        std::unique_ptr<FastNoiseLite> hillsNoiseHeightMapNoise_;
 
         /**
         * Humidity chart
@@ -42,36 +47,36 @@ namespace glimmer {
         * The starting x-coordinate of the block and the starting y-coordinate of the block
         * 区块的起点X坐标和区块的起点Y坐标
         */
-        std::unordered_map<TileVector2D, float, Vector2DIHash> humidityMap;
+        std::unordered_map<TileVector2D, float, Vector2DIHash> humidityMap_;
         /**
          * temperature chart
          * 温度图
          */
-        std::unordered_map<TileVector2D, float, Vector2DIHash> temperatureMap;
-        std::unordered_map<TileVector2D, float, Vector2DIHash> weirdnessMap;
-        std::unordered_map<TileVector2D, float, Vector2DIHash> erosionMap;
+        std::unordered_map<TileVector2D, float, Vector2DIHash> temperatureMap_;
+        std::unordered_map<TileVector2D, float, Vector2DIHash> weirdnessMap_;
+        std::unordered_map<TileVector2D, float, Vector2DIHash> erosionMap_;
 
         /**
         * 湿度噪声生成器
         */
-        std::unique_ptr<FastNoiseLite> humidityMapNoise;
+        std::unique_ptr<FastNoiseLite> humidityMapNoise_;
 
         /**
          * Odd value noise generator
          * 怪异值噪声生成器
          */
-        std::unique_ptr<FastNoiseLite> weirdnessMapNoise;
+        std::unique_ptr<FastNoiseLite> weirdnessMapNoise_;
 
         /**
          * Erosion noise generator
          * 侵蚀噪声生成器
          */
-        std::unique_ptr<FastNoiseLite> erosionMapNoise;
+        std::unique_ptr<FastNoiseLite> erosionMapNoise_;
 
         /**
         * 温度噪声生成器
         */
-        std::unique_ptr<FastNoiseLite> temperatureMapNoise;
+        std::unique_ptr<FastNoiseLite> temperatureMapNoise_;
 
     public:
         explicit ChunkGenerator(WorldContext *worldContext, int worldSeed);

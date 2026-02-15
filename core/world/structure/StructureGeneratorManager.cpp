@@ -4,6 +4,12 @@
 
 #include "StructureGeneratorManager.h"
 
+void glimmer::StructureGeneratorManager::SetWorldSeed(const int worldSeed) {
+    for (auto &structureGenerator: structureGeneratorMap_) {
+        structureGenerator.second->SetWorldSeed(worldSeed);
+    }
+}
+
 void glimmer::StructureGeneratorManager::RegisterStructureGenerator(
     std::unique_ptr<IStructureGenerator> structureGenerator) {
     const std::string id = structureGenerator->GetStructureGeneratorId();

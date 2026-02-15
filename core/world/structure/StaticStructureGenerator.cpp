@@ -6,7 +6,9 @@
 
 glimmer::StructureInfo glimmer::StaticStructureGenerator::Generate(TileVector2D startPosition,
     StructureResource *structureResource) {
-    return StructureInfo(structureResource->width, &structureResource->data, startPosition);
+    auto structureInfo = StructureInfo(startPosition);
+    structureInfo.SetTileData(structureResource->width, structureResource->data);
+    return structureInfo;
 }
 
 std::string glimmer::StaticStructureGenerator::GetStructureGeneratorId() {

@@ -9,8 +9,13 @@
 
 namespace glimmer {
     class IStructureGenerator {
+    protected:
+        int worldSeed_ = 0;
+
     public:
         virtual ~IStructureGenerator() = default;
+
+        virtual void SetWorldSeed(int worldSeed);
 
         /**
          *

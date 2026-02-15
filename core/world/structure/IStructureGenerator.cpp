@@ -3,3 +3,7 @@
 //
 
 #include "IStructureGenerator.h"
+
+void glimmer::IStructureGenerator::SetWorldSeed(const int worldSeed) {
+    worldSeed_ = worldSeed;
+}

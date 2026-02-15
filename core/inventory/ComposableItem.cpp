@@ -129,7 +129,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     auto result = std::make_unique<ComposableItem>(
         Resource::GenerateId(*itemResource), name,
         description,
-        appContext->GetResourcePackManager()->LoadTextureFromFile(appContext, itemResource->texture),
+        appContext->GetResourceLocator()->FindTexture(itemResource->texture),
         slotSize);
     //Filling ability.
     //填充能力。
@@ -140,7 +140,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
         size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
         for (int i = 0; i < defaultAbilitySize; i++) {
             auto itemObj = appContext->GetResourceLocator()->FindItem(
-                appContext, itemResource->defaultAbilityList[i]);
+                itemResource->defaultAbilityList[i]);
             if (itemObj.has_value()) {
                 (void) result->ReplaceItem(static_cast<size_t>(i), std::move(itemObj.value()));
             }
@@ -158,7 +158,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
                 if (!itemRef.has_value()) {
                     continue;
                 }
-                auto itemObj = appContext->GetResourceLocator()->FindItem(appContext, itemRef.value());
+                auto itemObj = appContext->GetResourceLocator()->FindItem(itemRef.value());
                 if (itemObj.has_value()) {
                     (void) result->ReplaceItem(static_cast<size_t>(index), std::move(itemObj.value()));
                 }

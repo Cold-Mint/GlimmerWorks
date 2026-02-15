@@ -84,10 +84,10 @@ void glimmer::Chunk::FromMessage(AppContext *appContext, const ChunkMessage &chu
             ResourceRef resourceRef;
             resourceRef.FromMessage(tileResourceRefMessage);
             auto tileResource = appContext->GetResourceLocator()->FindTile(resourceRef);
-            if (!tileResource.has_value()) {
+            if (tileResource == nullptr) {
                 continue;
             }
-            value[x][y] = Tile::FromResourceRef(appContext, tileResource.value());
+            value[x][y] = Tile::FromResourceRef(appContext, tileResource);
         }
         tiles_.emplace(key, std::move(value));
     }

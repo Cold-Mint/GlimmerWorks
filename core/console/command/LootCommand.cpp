@@ -64,7 +64,7 @@ bool glimmer::LootCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
         for (auto &resourceRefItem: resourceRefList) {
-            auto itemRes = appContext_->GetResourceLocator()->FindItem(appContext_, resourceRefItem);
+            auto itemRes = appContext_->GetResourceLocator()->FindItem(resourceRefItem);
             if (itemRes.has_value()) {
                 std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
                     std::move(itemRes.value()));

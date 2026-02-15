@@ -10,7 +10,7 @@
 glimmer::ComposableItemResource *glimmer::ItemManager::AddComposableResource(
     std::unique_ptr<ComposableItemResource> itemResource) {
     LogCat::i("Registering composable item resource: packId = ", itemResource->packId,
-              ", key = ", itemResource->key, "texture = ", itemResource->texture);
+              ", key = ", itemResource->key);
     auto &slot =
             composableItemMap_[itemResource->packId][itemResource->key];
     slot = std::move(itemResource);
@@ -22,7 +22,11 @@ std::unique_ptr<glimmer::ComposableItemResource> glimmer::ItemManager::CreatePla
     auto composableItemResource = std::make_unique<ComposableItemResource>();
     composableItemResource->packId = packId;
     composableItemResource->key = key;
-    composableItemResource->texture = ERROR_TEXTURE_PATH;
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
+    composableItemResource->texture = resourceRef;
     composableItemResource->defaultAbilityList = {};
     composableItemResource->slotSize = 0;
     composableItemResource->missing = true;
@@ -34,7 +38,11 @@ std::unique_ptr<glimmer::AbilityItemResource> glimmer::ItemManager::CreateAbilit
     auto abilityItemResource = std::make_unique<AbilityItemResource>();
     abilityItemResource->packId = packId;
     abilityItemResource->key = key;
-    abilityItemResource->texture = ERROR_TEXTURE_PATH;
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
+    abilityItemResource->texture = resourceRef;
     abilityItemResource->ability = ABILITY_ID_NONE;
     abilityItemResource->missing = true;
     return abilityItemResource;
@@ -44,7 +52,7 @@ std::unique_ptr<glimmer::AbilityItemResource> glimmer::ItemManager::CreateAbilit
 glimmer::AbilityItemResource *glimmer::ItemManager::AddAbilityItemResource(
     std::unique_ptr<AbilityItemResource> itemResource) {
     LogCat::i("Registering ability item resource: packId = ", itemResource->packId,
-              ", key = ", itemResource->key, "texture = ", itemResource->texture);
+              ", key = ", itemResource->key);
     auto &slot =
             abilityItemMap_[itemResource->packId][itemResource->key];
     slot = std::move(itemResource);

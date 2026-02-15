@@ -322,6 +322,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/StructureDynamicSuggestions.cpp
         core/console/command/PlaceCommand.cpp
         core/world/structure/StructureGeneratorManager.cpp
+        core/mod/dataPack/PackDependence.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -470,6 +471,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/StructureDynamicSuggestions.h
         core/console/command/PlaceCommand.h
         core/world/structure/StructureGeneratorManager.h
+        core/mod/dataPack/PackDependence.h
 )
 
 #Define version information

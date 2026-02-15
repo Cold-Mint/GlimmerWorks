@@ -8,9 +8,10 @@
 
 #include "Resource.h"
 #include "ResourceRef.h"
-#include "core/inventory/Item.h"
+#include "core/scene/AppContext.h"
 
 namespace glimmer {
+    class Item;
     /**
      * ResourceLocator，Used to interpret references and return the corresponding resources.
      * 资源定位器，用于解释引用并返回对应的资源。
@@ -18,8 +19,25 @@ namespace glimmer {
     class ResourceLocator {
         AppContext *appContext_;
 
+        /**
+     * ValidateAccessPermission
+     * Verify whether the current resource reference has the permission to access the package where the target resource is located.
+     * 校验当前资源引用是否有权限访问目标资源所在的包。
+     *
+     * Check the package to which the resourceRef belongs (GetSelfPackageId())
+     * 检查 resourceRef 所属包（GetSelfPackageId()）
+     * Is access permitted to the target package (GetPackageId())?
+     * 是否被允许访问目标包（GetPackageId()）。
+     *
+     * @param resourceRef resourceRef 资源引用
+     * @return If access is permitted, return true; otherwise, return false. 若允许访问则返回 true，否则返回 false
+     */
+        [[nodiscard]] static bool ValidateAccessPermission(const ResourceRef &resourceRef);
+
     public:
         explicit ResourceLocator(AppContext *appContext_);
+
+        [[nodiscard]] std::shared_ptr<SDL_Texture> FindTexture(const ResourceRef &resourceRef) const;
 
         /**
          * FindString
@@ -36,7 +54,7 @@ namespace glimmer {
          * @param resourceRef  resourceRef 瓦片引用
          * @return
          */
-        [[nodiscard]] std::optional<TileResource *> FindTile(const ResourceRef &resourceRef) const;
+        [[nodiscard]] TileResource *FindTile(const ResourceRef &resourceRef) const;
 
         /**
          * FindComposableItem
@@ -65,12 +83,11 @@ namespace glimmer {
         /**
          * FindItem
          * 查找物品
-         * @param appContext appContext 应用上下文
          * @param resourceRef resourceRef 物品引用
          * @return  Item pointer 物品指针
          */
-        [[nodiscard]] std::optional<std::unique_ptr<Item> > FindItem(AppContext *appContext,
-                                                                     const ResourceRef &resourceRef) const;
+        [[nodiscard]] std::optional<std::unique_ptr<Item> > FindItem(
+            const ResourceRef &resourceRef) const;
     };
 }
 

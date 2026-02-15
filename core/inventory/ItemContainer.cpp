@@ -180,7 +180,7 @@ void glimmer::ItemContainer::FromMessage(AppContext *appContext, const ItemConta
         ResourceRefMessage resourceRefMessage = message.itemresourceref(i);
         ResourceRef resourceRef;
         resourceRef.FromMessage(resourceRefMessage);
-        auto item = appContext->GetResourceLocator()->FindItem(appContext, resourceRef);
+        auto item = appContext->GetResourceLocator()->FindItem(resourceRef);
         if (item.has_value()) {
             items_[i] = std::move(item.value());
             BindItemEvent(items_[i]);

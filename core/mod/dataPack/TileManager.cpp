@@ -12,7 +12,11 @@
 
 void glimmer::TileManager::InitBuiltinTiles() {
     air_ = std::make_unique<TileResource>();
-    air_->texture = "tiles/air.png";
+    ResourceRef airResource;
+    airResource.SetSelfPackageId(RESOURCE_REF_CORE);
+    airResource.SetResourceKey("tiles/air.png");
+    airResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    air_->texture = airResource;
     air_->key = TILE_ID_AIR;
     air_->packId = RESOURCE_REF_CORE;
     air_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
@@ -20,7 +24,11 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air_->breakable = false;
     air_->hardness = 0;
     water_ = std::make_unique<TileResource>();
-    water_->texture = "tiles/water.png";
+    ResourceRef waterResource;
+    waterResource.SetSelfPackageId(RESOURCE_REF_CORE);
+    waterResource.SetResourceKey("tiles/water.png");
+    waterResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    water_->texture = waterResource;
     water_->key = TILE_ID_WATER;
     water_->packId = RESOURCE_REF_CORE;
     water_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
@@ -28,7 +36,11 @@ void glimmer::TileManager::InitBuiltinTiles() {
     water_->breakable = false;
     water_->hardness = 0;
     bedrock_ = std::make_unique<TileResource>();
-    bedrock_->texture = "tiles/bedrock.png";
+    ResourceRef bedrockResource;
+    bedrockResource.SetSelfPackageId(RESOURCE_REF_CORE);
+    bedrockResource.SetResourceKey("tiles/bedrock.png");
+    bedrockResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    bedrock_->texture = bedrockResource;
     bedrock_->key = TILE_ID_BEDROCK;
     bedrock_->packId = RESOURCE_REF_CORE;
     bedrock_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
@@ -36,7 +48,11 @@ void glimmer::TileManager::InitBuiltinTiles() {
     bedrock_->breakable = false;
     bedrock_->hardness = 0;
     error_ = std::make_unique<TileResource>();
-    error_->texture = ERROR_TEXTURE_PATH;
+    ResourceRef errorResource;
+    errorResource.SetSelfPackageId(RESOURCE_REF_CORE);
+    errorResource.SetResourceKey(ERROR_TEXTURE_KEY);
+    errorResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    error_->texture = errorResource;
     error_->key = TILE_ID_ERROR;
     error_->packId = RESOURCE_REF_CORE;
     error_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
@@ -63,7 +79,7 @@ glimmer::TileResource *glimmer::TileManager::GetError() const {
 
 glimmer::TileResource *glimmer::TileManager::AddResource(std::unique_ptr<TileResource> tileResource) {
     LogCat::i("Registering tile resource: packId = ", tileResource->packId,
-              ", key = ", tileResource->key, "texture = ", tileResource->texture);
+              ", key = ", tileResource->key);
     auto &slot = tileMap_[tileResource->packId][tileResource->key];
     slot = std::move(tileResource);
     return slot.get();
@@ -72,7 +88,11 @@ glimmer::TileResource *glimmer::TileManager::AddResource(std::unique_ptr<TileRes
 std::unique_ptr<glimmer::TileResource> glimmer::TileManager::GenerateErrorPlaceHolder(const std::string &packId,
     const std::string &key) {
     auto errorPlaceholder = std::make_unique<TileResource>();
-    errorPlaceholder->texture = ERROR_TEXTURE_PATH;
+    ResourceRef errorResource;
+    errorResource.SetSelfPackageId(RESOURCE_REF_CORE);
+    errorResource.SetResourceKey(ERROR_TEXTURE_KEY);
+    errorResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    errorPlaceholder->texture = errorResource;
     errorPlaceholder->key = key;
     errorPlaceholder->packId = packId;
     errorPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
@@ -125,29 +145,18 @@ std::string glimmer::TileManager::ListTiles() const {
 
         for (const auto &keyPair: keyMap) {
             const auto &key = keyPair.first;
-            const auto &res = keyPair.second;
             result += Resource::GenerateId(packId, key);
-            result += " texture=";
-            result += res->texture;
             result += "\n";
         }
     }
 
     result += Resource::GenerateId(*error_);
-    result += " texture=";
-    result += error_->texture;
     result += "\n";
     result += Resource::GenerateId(*air_);
-    result += " texture=";
-    result += air_->texture;
     result += "\n";
     result += Resource::GenerateId(*water_);
-    result += " texture=";
-    result += water_->texture;
     result += "\n";
     result += Resource::GenerateId(*bedrock_);
-    result += " texture=";
-    result += bedrock_->texture;
     result += "\n";
     return result;
 }

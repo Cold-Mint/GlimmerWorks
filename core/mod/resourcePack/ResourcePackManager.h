@@ -12,6 +12,7 @@
 
 #include "ResourcePack.h"
 #include "../../vfs/VirtualFileSystem.h"
+#include "core/mod/ResourceLocator.h"
 #include "SDL3/SDL_render.h"
 #include "toml11/spec.hpp"
 
@@ -19,6 +20,7 @@ namespace glimmer {
     class AppContext;
 
     class ResourcePackManager {
+        friend class ResourceLocator;
         VirtualFileSystem *virtualFileSystem_;
         SDL_Renderer *renderer_;
         std::vector<std::string> packIdVector_;
@@ -40,13 +42,14 @@ namespace glimmer {
         std::shared_ptr<SDL_Texture> ImplLoadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
                                                              const std::string &path);
 
+        std::shared_ptr<SDL_Texture> LoadTextureFromFile(AppContext *appContext, const ResourceRef &resourceRef);
+
         std::shared_ptr<SDL_Texture> CreateErrorTexture() const;
 
         std::shared_ptr<SDL_Texture> errorTexture_;
 
     public:
-        explicit
-        ResourcePackManager(VirtualFileSystem *virtualFilesystem);
+        explicit ResourcePackManager(VirtualFileSystem *virtualFilesystem);
 
         void SetRenderer(SDL_Renderer *renderer);
 
@@ -55,8 +58,6 @@ namespace glimmer {
 
         std::optional<std::string> GetFontPath(const std::vector<std::string> &enabledResourcePack,
                                                const std::string &language);
-
-        std::shared_ptr<SDL_Texture> LoadTextureFromFile(AppContext *appContext, const std::string &path);
 
         /**
          * ListTextureCache

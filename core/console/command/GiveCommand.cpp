@@ -46,13 +46,8 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
         ResourceRef &resourceRef = itemId.value();
-        auto tileResourceOptional = appContext_->GetResourceLocator()->FindTile(resourceRef);
-        if (!tileResourceOptional.has_value()) {
-            onMessage(appContext_->GetLangsResources()->tileResourceNotFound);
-            return false;
-        }
-        auto tileId = tileResourceOptional.value();
-        if (tileId == nullptr) {
+        auto tileResource = appContext_->GetResourceLocator()->FindTile(resourceRef);
+        if (tileResource == nullptr) {
             onMessage(appContext_->GetLangsResources()->tileResourceIsNull);
             return false;
         }
@@ -62,7 +57,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
         }
-        auto tileItem = std::make_unique<TileItem>(Tile::FromResourceRef(appContext_, tileId));
+        auto tileItem = std::make_unique<TileItem>(Tile::FromResourceRef(appContext_, tileResource));
         if (size >= 4) {
             if (const int number = commandArgs.AsInt(3); number > 1) {
                 tileItem->SetAmount(number);

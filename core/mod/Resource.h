@@ -51,7 +51,7 @@ namespace glimmer {
     struct ComposableItemResource : Resource {
         ResourceRef name;
         ResourceRef description;
-        std::string texture;
+        ResourceRef texture;
         size_t slotSize;
         std::vector<ResourceRef> defaultAbilityList;
     };
@@ -107,7 +107,7 @@ namespace glimmer {
     struct AbilityItemResource : Resource {
         ResourceRef name;
         ResourceRef description;
-        std::string texture;
+        ResourceRef texture;
         std::string ability;
         VariableConfig abilityConfig;
         bool canUseAlone = false;
@@ -122,7 +122,7 @@ namespace glimmer {
         ResourceRef description;
         bool customLootTable;
         ResourceRef lootTable;
-        std::string texture;
+        ResourceRef texture;
         float hardness = 1.0F;
         bool breakable = true;
         uint8_t physicsType = 0;

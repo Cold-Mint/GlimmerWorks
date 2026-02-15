@@ -60,7 +60,7 @@ void glimmer::DiggingSystem::Update(float delta) {
                     if (lootResource.has_value()) {
                         std::vector<ResourceRef> lootList = LootResource::GetLootItems(lootResource.value());
                         for (auto &loot: lootList) {
-                            auto itemPtr = appContext->GetResourceLocator()->FindItem(appContext, loot);
+                            auto itemPtr = appContext->GetResourceLocator()->FindItem(loot);
                             if (itemPtr == nullptr) {
                                 continue;
                             }
@@ -98,9 +98,13 @@ void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {
     AppContext *appContext = worldContext_->GetAppContext();
     if (!cacheTexture) {
         for (uint8_t i = 0; i < 10; i++) {
-            textureList.push_back(appContext->GetResourcePackManager()->LoadTextureFromFile(
-                appContext,
-                "cracks/cracks_" + std::to_string(i) + ".png"));
+            ResourceRef resourceRef;
+            resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+            resourceRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
+            resourceRef.SetResourceKey("cracks/cracks_" + std::to_string(i) + ".png");
+            textureList.push_back(appContext->GetResourceLocator()->FindTexture(
+                resourceRef
+            ));
         }
         cacheTexture = true;
         return;

@@ -6,6 +6,7 @@
 #include <string>
 
 #include "ResourceRef.h"
+#include "dataPack/PackDependence.h"
 
 
 namespace glimmer {
@@ -16,11 +17,12 @@ namespace glimmer {
         bool resPack;
         std::string author;
         std::string versionName;
-        int versionNumber;
-        int minGameVersion;
+        uint32_t versionNumber;
+        uint32_t minGameVersion;
     };
 
     struct DataPackManifest : PackManifest {
+        std::vector<PackDependence> packDependencies;
     };
 
     struct ResourcePackManifest : PackManifest {

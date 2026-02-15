@@ -50,8 +50,8 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(App
     }
     return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), name,
                                          description,
-                                         appContext->GetResourcePackManager()->LoadTextureFromFile(
-                                             appContext, itemResource->texture), std::move(itemAbility),
+                                         appContext->GetResourceLocator()->FindTexture(
+                                             itemResource->texture), std::move(itemAbility),
                                          itemResource->canUseAlone);
 }
 

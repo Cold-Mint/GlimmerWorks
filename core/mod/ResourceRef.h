@@ -83,6 +83,7 @@ namespace glimmer {
         std::string packId_ = RESOURCE_REF_SELF;
         uint32_t resourceType_ = RESOURCE_TYPE_NONE;
         std::string resourceKey_;
+        std::string selfPackageId_;
         std::vector<ResourceRefArg> args_;
         bool bindPackage_ = false;
 
@@ -93,6 +94,8 @@ namespace glimmer {
          * @param selfPackageId selfPackageId 自身的包Id
          */
         void SetSelfPackageId(const std::string &selfPackageId);
+
+        [[nodiscard]] const std::string &GetSelfPackageId() const;
 
         void AddArg(const ResourceRefArg &arg);
 

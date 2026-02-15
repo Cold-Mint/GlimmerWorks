@@ -76,12 +76,12 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
                     continue;
                 }
                 auto tileResource = appContext_->GetResourceLocator()->FindTile(*resourceRef);
-                if (!tileResource.has_value()) {
+                if (tileResource == nullptr) {
                     continue;
                 }
                 chunk->SetTile(
                     Chunk::TileCoordinatesToChunkRelativeCoordinates(position),
-                    Tile::FromResourceRef(appContext_, tileResource.value()));
+                    Tile::FromResourceRef(appContext_, tileResource));
                 dirtyChunks.insert(chunk);
             }
         }

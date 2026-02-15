@@ -117,6 +117,7 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
     tileResource->packId = manifest_.id;
     tileResource->name.SetSelfPackageId(manifest_.id);
     tileResource->description.SetSelfPackageId(manifest_.id);
+    tileResource->texture.SetSelfPackageId(manifest_.id);
     if (tileResource->customLootTable) {
         tileResource->lootTable.SetSelfPackageId(manifest_.id);
     }
@@ -155,6 +156,7 @@ bool glimmer::DataPack::LoadComposableItemResourceFromFile(const std::string &pa
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
     itemResource->description.SetSelfPackageId(manifest_.id);
+    itemResource->texture.SetSelfPackageId(manifest_.id);
     for (auto &defaultAbility: itemResource->defaultAbilityList) {
         defaultAbility.SetSelfPackageId(manifest_.id);
     }
@@ -174,6 +176,7 @@ bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path,
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
     itemResource->description.SetSelfPackageId(manifest_.id);
+    itemResource->texture.SetSelfPackageId(manifest_.id);
     itemManager->AddAbilityItemResource(std::move(itemResource));
     return true;
 }

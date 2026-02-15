@@ -111,8 +111,14 @@ void glimmer::ResourceRef::SetSelfPackageId(const std::string &selfPackageId) {
     if (packId_ == RESOURCE_REF_SELF) {
         packId_ = selfPackageId;
     }
+    selfPackageId_ = selfPackageId;
     bindPackage_ = true;
 }
+
+const std::string &glimmer::ResourceRef::GetSelfPackageId() const {
+    return selfPackageId_;
+}
+
 
 void glimmer::ResourceRef::AddArg(const ResourceRefArg &arg) {
     args_.push_back(arg);

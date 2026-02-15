@@ -64,7 +64,6 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->configurationUpdate = find<std::string>(value, "configurationUpdate");
     langs_->itemIdNotFound = find<std::string>(value, "itemIdNotFound");
     langs_->lootTableNotFound = find<std::string>(value, "lootTableNotFound");
-    langs_->tileResourceNotFound = find<std::string>(value, "tileResourceNotFound");
     langs_->itemContainerIsNull = find<std::string>(value, "itemContainerIsNull");
     langs_->composableItemIsNull = find<std::string>(value, "composableItemIsNull");
     langs_->abilityItemIsNull = find<std::string>(value, "abilityItemIsNull");

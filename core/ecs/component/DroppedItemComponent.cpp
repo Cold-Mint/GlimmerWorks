@@ -5,13 +5,11 @@
 #include "DroppedItemComponent.h"
 
 #include "core/inventory/AbilityItem.h"
-#include "core/inventory/ComposableItem.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/world/WorldContext.h"
 #include "src/saves/dropped_item.pb.h"
 
-glimmer::DroppedItemComponent::DroppedItemComponent() {
-}
+glimmer::DroppedItemComponent::DroppedItemComponent() = default;
 
 float glimmer::DroppedItemComponent::GetRemainingTime() const {
     return remainingTime_;
@@ -75,7 +73,7 @@ void glimmer::DroppedItemComponent::Deserialize(WorldContext *worldContext, cons
     droppedItemMessage.ParseFromString(data);
     ResourceRef resourceRef;
     resourceRef.FromMessage(droppedItemMessage.item());
-    auto item = appContext->GetResourceLocator()->FindItem(appContext, resourceRef);
+    auto item = appContext->GetResourceLocator()->FindItem(resourceRef);
     if (item.has_value()) {
         item_ = std::move(item.value());
     }

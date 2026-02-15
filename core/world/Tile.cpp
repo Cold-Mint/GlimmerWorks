@@ -34,7 +34,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(AppContext *appCon
     tile->physicsType = static_cast<TilePhysicsType>(tileResource->physicsType);
     tile->hardness = tileResource->hardness;
     tile->breakable = tileResource->breakable;
-    tile->texture = appContext->GetResourcePackManager()->LoadTextureFromFile(
-        appContext, tileResource->texture);
+    tile->texture = appContext->GetResourceLocator()->FindTexture(
+        tileResource->texture);
     return tile;
 }

@@ -49,13 +49,13 @@ namespace toml {
             glimmer::VariableDefinition r;
             r.key = toml::find<std::string>(v, "key");
             r.type = static_cast<glimmer::VariableDefinitionType>(toml::find<uint8_t>(v, "type"));
-             if (r.type == glimmer::VariableDefinitionType::INT) {
+            if (r.type == glimmer::VariableDefinitionType::INT) {
                 r.value = std::to_string(toml::find<int>(v, "value"));
             } else if (r.type == glimmer::VariableDefinitionType::FLOAT) {
                 r.value = std::to_string(toml::find<float>(v, "value"));
             } else if (r.type == glimmer::VariableDefinitionType::BOOL) {
                 r.value = std::to_string(toml::find<bool>(v, "value"));
-            }else {
+            } else {
                 r.value = toml::find<std::string>(v, "value");
             }
             return r;
@@ -76,7 +76,7 @@ namespace toml {
         static glimmer::AbilityItemResource from_toml(const value &v) {
             glimmer::AbilityItemResource r;
             r.key = toml::find<std::string>(v, "resourceKey");
-            r.texture = toml::find<std::string>(v, "texture");
+            r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.description = toml::find<glimmer::ResourceRef>(v, "description");
             r.ability = toml::find<std::string>(v, "ability");
@@ -92,11 +92,21 @@ namespace toml {
         static glimmer::ComposableItemResource from_toml(const value &v) {
             glimmer::ComposableItemResource r;
             r.key = toml::find<std::string>(v, "resourceKey");
-            r.texture = toml::find<std::string>(v, "texture");
+            r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.description = toml::find<glimmer::ResourceRef>(v, "description");
             r.slotSize = toml::find<size_t>(v, "slotSize");
             r.defaultAbilityList = toml::find_or_default<std::vector<glimmer::ResourceRef> >(v, "defaultAbilityList");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::PackDependence> {
+        static glimmer::PackDependence from_toml(const value &v) {
+            glimmer::PackDependence r;
+            r.packId = toml::find<std::string>(v, "packId");
+            r.minVersion = toml::find<uint32_t>(v, "minVersion");
             return r;
         }
     };
@@ -111,8 +121,9 @@ namespace toml {
             r.resPack = toml::find<bool>(v, "resPack");
             r.author = toml::find<std::string>(v, "author");
             r.versionName = toml::find<std::string>(v, "versionName");
-            r.versionNumber = toml::find<int>(v, "versionNumber");
-            r.minGameVersion = toml::find<int>(v, "minGameVersion");
+            r.versionNumber = toml::find<uint32_t>(v, "versionNumber");
+            r.minGameVersion = toml::find<uint32_t>(v, "minGameVersion");
+            r.packDependencies = toml::find_or_default<std::vector<glimmer::PackDependence> >(v, "packDependencies");
             return r;
         }
     };
@@ -171,7 +182,7 @@ namespace toml {
             r.customLootTable = toml::find_or<bool>(v, "customLootTable", false);
             r.lootTable = toml::find_or_default<glimmer::ResourceRef>(v, "lootTable");
             r.key = toml::find<std::string>(v, "resourceKey");
-            r.texture = toml::find<std::string>(v, "texture");
+            r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             r.physicsType = toml::find<uint8_t>(v, "physicsType");
             r.hardness = toml::find<float>(v, "hardness");
             r.breakable = toml::find<bool>(v, "breakable");
@@ -203,8 +214,8 @@ namespace toml {
             r.resPack = toml::find<bool>(v, "resPack");
             r.author = toml::find<std::string>(v, "author");
             r.versionName = toml::find<std::string>(v, "versionName");
-            r.versionNumber = toml::find<int>(v, "versionNumber");
-            r.minGameVersion = toml::find<int>(v, "minGameVersion");
+            r.versionNumber = toml::find<uint32_t>(v, "versionNumber");
+            r.minGameVersion = toml::find<uint32_t>(v, "minGameVersion");
             return r;
         }
     };

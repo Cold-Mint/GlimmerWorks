@@ -225,10 +225,11 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 }
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(AppContext *appContext,
-                                                                               const std::string &path) {
-    if (path == ERROR_TEXTURE_PATH) {
+                                                                               const ResourceRef &resourceRef) {
+    if (resourceRef.GetPackageId() == RESOURCE_REF_CORE && resourceRef.GetResourceKey() == ERROR_TEXTURE_KEY) {
         return errorTexture_;
     }
+    std::string path = resourceRef.GetPackageId() + "/" + resourceRef.GetResourceKey();
     return appContext->AddMainThreadTaskAwait(
         [this,appContext, path] {
             auto result = ImplLoadTextureFromFile(appContext->GetConfig()->mods.enabledResourcePack, path);
@@ -241,7 +242,6 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(A
         }
     ).get();
 }
-
 
 std::string glimmer::ResourcePackManager::ListTextureCache(const bool includeExpired) const {
     std::string result;

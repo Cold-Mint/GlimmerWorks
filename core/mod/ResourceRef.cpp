@@ -153,6 +153,7 @@ void glimmer::ResourceRef::FromMessage(const ResourceRefMessage &resourceRefMess
     packId_ = resourceRefMessage.packid();
     resourceType_ = resourceRefMessage.resourcetype();
     resourceKey_ = resourceRefMessage.resourcekey();
+    selfPackageId_ = resourceRefMessage.selfpackageid();
     const size_t size = resourceRefMessage.args_size();
     args_.resize(size);
     args_.clear();
@@ -169,6 +170,7 @@ void glimmer::ResourceRef::ToMessage(ResourceRefMessage &resourceRefMessage) {
     resourceRefMessage.set_packid(packId_);
     resourceRefMessage.set_resourcetype(resourceType_);
     resourceRefMessage.set_resourcekey(resourceKey_);
+    resourceRefMessage.set_selfpackageid(selfPackageId_);
     const size_t size = args_.size();
     for (int i = 0; i < size; ++i) {
         ResourceRefArg &arg = args_[i];

@@ -4,10 +4,11 @@
 
 #include "TreeStructureGenerator.h"
 
+#include <random>
+
 
 void glimmer::TreeStructureGenerator::SetWorldSeed(int worldSeed) {
     IStructureGenerator::SetWorldSeed(worldSeed);
-
 }
 
 glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D startPosition,
@@ -58,7 +59,7 @@ glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D st
     if (leafVerticalSpacingDefinition != nullptr) {
         leafVerticalSpacing = leafVerticalSpacingDefinition->AsInt();
     }
-    int trunkWidth = 2;
+    int trunkWidth = 1;
     const VariableDefinition *trunkWidthDefinition = structureResource->generatorConfig.FindVariable("trunkWidth");
     if (trunkWidthDefinition != nullptr) {
         trunkWidth = trunkWidthDefinition->AsInt();
@@ -66,12 +67,37 @@ glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D st
     ResourceRef &trunkRef = structureResource->data.at(trunkDataIndex);
     ResourceRef &leafRef = structureResource->data.at(leafDataIndex);
     auto structureInfo = StructureInfo(startPosition);
-    //TODO：放置树木
+    std::mt19937 rng(worldSeed_ ^
+                     startPosition.x * 73428767 ^
+                     startPosition.y * 912931);
 
-    //设置树干
-    structureInfo.SetTile(0,0,trunkRef);
-    //设置树叶
-    structureInfo.SetTile(1,1,leafRef);
+    std::uniform_int_distribution heightDist(trunkHeightMin, trunkHeightMax);
+    int trunkHeight = heightDist(rng);
+
+    // 树干
+    for (int y = 0; y < trunkHeight; ++y) {
+        for (int x = 0; x < trunkWidth; ++x) {
+            structureInfo.SetTile(x, -y, trunkRef);
+        }
+    }
+    if (hasLeaves) {
+        // 树叶
+        for (int i = 0; i < leafClusterCount; ++i) {
+            int clusterY = -trunkHeight - i * leafVerticalSpacing;
+
+            for (int x = -leafRadius; x <= leafRadius; ++x) {
+                for (int y = -leafRadius; y <= leafRadius; ++y) {
+                    if (x * x + y * y <= leafRadius * leafRadius && y >= 0) {
+                        structureInfo.SetTile(
+                            x + trunkWidth / 2,
+                            clusterY - y,
+                            leafRef
+                        );
+                    }
+                }
+            }
+        }
+    }
     return structureInfo;
 }
 

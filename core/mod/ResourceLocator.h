@@ -32,7 +32,7 @@ namespace glimmer {
      * @param resourceRef resourceRef 资源引用
      * @return If access is permitted, return true; otherwise, return false. 若允许访问则返回 true，否则返回 false
      */
-        [[nodiscard]] static bool ValidateAccessPermission(const ResourceRef &resourceRef);
+        [[nodiscard]] bool ValidateAccessPermission(const ResourceRef &resourceRef) const;
 
     public:
         explicit ResourceLocator(AppContext *appContext_);

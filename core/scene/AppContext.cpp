@@ -292,6 +292,10 @@ glimmer::TileManager *glimmer::AppContext::GetTileManager() const {
     return tileManager_.get();
 }
 
+glimmer::DataPackManager *glimmer::AppContext::GetDataPackManager() const {
+    return dataPackManager_.get();
+}
+
 glimmer::LootTableManager *glimmer::AppContext::GetLootTableManager() const {
     return lootTableManager_.get();
 }

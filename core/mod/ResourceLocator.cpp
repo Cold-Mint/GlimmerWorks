@@ -12,15 +12,20 @@
 #include "core/log/LogCat.h"
 #include "dataPack/StringManager.h"
 
-bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef &resourceRef) {
+bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef &resourceRef) const {
     if (resourceRef.GetSelfPackageId() == resourceRef.GetPackageId()) {
         //Allow access to one's own package.
         //允许访问自身包。
         return true;
     }
-    LogCat::w("Prevented access to resources. Source Package ID: ", resourceRef.GetSelfPackageId(),
-              ", Target Package ID: ", resourceRef.GetPackageId(), ".");
-    return false;
+
+    bool result = appContext_->GetDataPackManager()->IsDependencySatisfied(
+        resourceRef.GetSelfPackageId(), resourceRef.GetPackageId());;
+    if (!result) {
+        LogCat::w("Prevented access to resources. Source Package ID: ", resourceRef.GetSelfPackageId(),
+                  ", Target Package ID: ", resourceRef.GetPackageId(), ".");
+    }
+    return result;
 }
 
 glimmer::ResourceLocator::ResourceLocator(AppContext *appContext_) : appContext_(appContext_) {

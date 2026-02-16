@@ -6,6 +6,7 @@
 #define GLIMMERWORKS_HOMESCENE_H
 #include <vector>
 #include "Scene.h"
+#include "core/Hyperlink.h"
 
 namespace glimmer {
     struct Star {
@@ -18,6 +19,10 @@ namespace glimmer {
         std::vector<Star> stars;
         int windowWidth = 0;
         int windowHeight = 0;
+        std::vector<Hyperlink> hyperlinks;
+        std::string copyright;
+
+        static std::string GetCopyrightString();
 
     public:
         explicit HomeScene(AppContext *context);

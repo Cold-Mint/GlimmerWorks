@@ -15,6 +15,9 @@
 
 bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &pack) const {
     const PackManifest &manifest = pack.getManifest();
+    if (manifest.id == RESOURCE_REF_CORE || manifest.id == RESOURCE_REF_SELF) {
+        return false;
+    }
     if (resourcePackMap.contains(manifest.id)) {
         LogCat::i("Duplicate package ID: ", manifest.id);
         return false;

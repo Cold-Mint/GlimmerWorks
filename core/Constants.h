@@ -63,6 +63,7 @@ static constexpr uint32_t RESOURCE_REF_ARG_TYPE_BOOL = 4;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_REF = 5;
 static constexpr std::string RESOURCE_REF_SELF = "@self";
 static constexpr std::string RESOURCE_REF_CORE = "@core";
+static constexpr std::uint32_t CORE_DATA_PACK_VERSION_NUMBER = 1;
 static constexpr std::string DEBUG_FOLDER_NAME = "debug";
 static constexpr std::string DATA_FILE_TYPE_STRINGS = "strings";
 static constexpr std::string DATA_FILE_TYPE_TILE = "tile";

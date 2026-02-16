@@ -10,12 +10,31 @@
 #include "CreateWorldScene.h"
 #include "imgui.h"
 #include "SavedGamesScene.h"
-#include "../log/LogCat.h"
 #include "../Config.h"
 #include "core/saves/SavesManager.h"
 
+std::string glimmer::HomeScene::GetCopyrightString() {
+    constexpr int startYear = 2025;
+    std::time_t t = std::time(nullptr);
+    std::tm *now = std::localtime(&t);
+    int currentYear = now->tm_year + 1900;
+
+    if (currentYear <= startYear) {
+        return "Copyright (C) " + std::to_string(startYear) + " Cold-Mint";
+    }
+    return "Copyright (C) " +
+           std::to_string(startYear) + "–" +
+           std::to_string(currentYear) +
+           " Cold-Mint";
+}
+
 glimmer::HomeScene::HomeScene(AppContext *context)
     : Scene(context) {
+    hyperlinks = std::vector<Hyperlink>{};
+    hyperlinks.push_back(Hyperlink("Github", "https://github.com/Cold-Mint/GlimmerWorks"));
+    hyperlinks.push_back(Hyperlink("Discord", "https://discord.com/invite/CfppC9WHw8"));
+    hyperlinks.push_back(Hyperlink("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"));
+    copyright = GetCopyrightString();
 }
 
 bool glimmer::HomeScene::HandleEvent(const SDL_Event &event) {
@@ -95,10 +114,60 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
         OnBackPressed();
     }
 
-    ImVec4 white(1.0F, 1.0F, 1.0F, 1.0F);
-    ImGui::SetCursorPosY(windowSize.y - ImGui::GetFontSize() - 10.0F);
-    ImGui::SetCursorPosX(windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - 10.0F);
+    float margin = 10.0f;
+    float spacing = 4.0f;
+
+    float lineHeight = ImGui::GetFontSize();
+
+    // ===== 计算版本号位置 =====
+    float versionPosY = windowSize.y - lineHeight - margin;
+    float versionPosX =
+            windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - margin;
+
+    // ===== 从版本号往上排列链接 =====
+    float currentY = versionPosY - spacing;
+
+    // 反向遍历（让 vector 顺序从上到下）
+    for (int i = static_cast<int>(hyperlinks.size()) - 1; i >= 0; --i) {
+        const auto &link = hyperlinks[i];
+
+        currentY -= lineHeight;
+
+        float textWidth = ImGui::CalcTextSize(link.displayText.c_str()).x;
+        float posX = windowSize.x - textWidth - margin;
+
+        ImGui::SetCursorPos(ImVec2(posX, currentY));
+
+        ImVec4 linkColor(0.2f, 0.6f, 1.0f, 1.0f);
+        ImGui::TextColored(linkColor, "%s", link.displayText.c_str());
+
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
+
+        if (ImGui::IsItemClicked()) {
+#ifdef _WIN32
+            std::string cmd = "start " + link.link;
+#elif __APPLE__
+            std::string cmd = "open " + link.link;
+#else
+            std::string cmd = "xdg-open " + link.link;
+#endif
+            system(cmd.c_str());
+        }
+
+        currentY -= spacing;
+    }
+
+    // ===== 绘制版本号 =====
+    ImGui::SetCursorPos(ImVec2(versionPosX, versionPosY));
+    ImVec4 white(1.f, 1.f, 1.f, 1.f);
     ImGui::TextColored(white, "%s", GAME_VERSION_STRING);
+
+
+    ImVec4 textColor(0.7f, 0.7f, 0.7f, 1.0f);
+    ImGui::SetCursorPos(ImVec2(margin, versionPosY));
+    ImGui::TextColored(textColor, "%s", copyright.c_str());
     ImGui::PopStyleColor();
     ImGui::End();
     AppContext::RestoreColorRenderer(renderer);

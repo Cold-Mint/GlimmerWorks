@@ -109,6 +109,8 @@ namespace glimmer {
 
         [[nodiscard]] TileManager *GetTileManager() const;
 
+        [[nodiscard]] DataPackManager *GetDataPackManager() const;
+
         [[nodiscard]] LootTableManager *GetLootTableManager() const;
 
         [[nodiscard]] StructureManager *GetStructureManager() const;

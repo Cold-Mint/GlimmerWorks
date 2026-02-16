@@ -28,13 +28,14 @@ set(CPACK_PACKAGE_VERSION_MINOR 0)
 #补丁版本号
 set(CPACK_PACKAGE_VERSION_PATCH 1)
 
-set(GAME_VERSION_STRING
-        "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CMAKE_BUILD_TYPE}"
-)
 math(EXPR GAME_VERSION_NUMBER
         "${CPACK_PACKAGE_VERSION_MAJOR} * 10000
    + ${CPACK_PACKAGE_VERSION_MINOR} * 100
    + ${CPACK_PACKAGE_VERSION_PATCH}"
+)
+
+set(GAME_VERSION_STRING
+        "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CMAKE_BUILD_TYPE}(${GAME_VERSION_NUMBER})"
 )
 
 
@@ -323,6 +324,7 @@ target_sources(GlimmerWorks
         core/console/command/PlaceCommand.cpp
         core/world/structure/StructureGeneratorManager.cpp
         core/mod/dataPack/PackDependence.cpp
+        core/Hyperlink.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -472,6 +474,7 @@ target_sources(GlimmerWorks
         core/console/command/PlaceCommand.h
         core/world/structure/StructureGeneratorManager.h
         core/mod/dataPack/PackDependence.h
+        core/Hyperlink.h
 )
 
 #Define version information

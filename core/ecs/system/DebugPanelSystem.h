@@ -5,6 +5,7 @@
 #ifndef GLIMMERWORKS_DEBUGPANELSYSTEM_H
 #define GLIMMERWORKS_DEBUGPANELSYSTEM_H
 #include "core/ecs/GameSystem.h"
+#include "core/ecs/component/CameraComponent.h"
 #include "core/math/Vector2D.h"
 
 namespace glimmer {
@@ -16,6 +17,13 @@ namespace glimmer {
         void RenderDebugText(SDL_Renderer *renderer, int windowW, const char *text, float y) const;
 
         void RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const;
+
+        /**
+         * RenderChunkBounds
+         * 渲染区块边界
+         */
+        static void RenderChunkBounds(SDL_Renderer *renderer, const CameraComponent *cameraComponent,
+                                      WorldVector2D cameraPosition);
 
     public:
         explicit DebugPanelSystem(WorldContext *worldContext);

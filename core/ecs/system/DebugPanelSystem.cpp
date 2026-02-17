@@ -47,13 +47,55 @@ void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, fl
     if (windowW <= 0 || windowH <= 0) return;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 200);
+    SDL_SetRenderDrawColor(renderer, 255, 230, 0, 200);
 
     SDL_FRect hLine = {0.0f, screenY, static_cast<float>(windowW), 1.0f};
     SDL_RenderFillRect(renderer, &hLine);
 
     SDL_FRect vLine = {screenX, 0.0f, 1.0f, static_cast<float>(windowH)};
     SDL_RenderFillRect(renderer, &vLine);
+}
+
+void glimmer::DebugPanelSystem::RenderChunkBounds(SDL_Renderer *renderer, const CameraComponent *cameraComponent,
+                                                  const WorldVector2D cameraPosition) {
+    //Calculate the size of each block(World Coordinates)
+    //计算每个区块的尺寸（世界坐标）
+    auto viewportRect = cameraComponent->GetViewportRect(cameraPosition);
+    float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
+    float halfTile = TILE_SIZE * 0.5f;
+    int minChunkX = static_cast<int>(floorf(viewportRect.x / chunkWorldSize));
+    int minChunkY = static_cast<int>(floorf(viewportRect.y / chunkWorldSize));
+    int maxChunkX = static_cast<int>(floorf((viewportRect.x + viewportRect.w) / chunkWorldSize));
+    int maxChunkY = static_cast<int>(floorf((viewportRect.y + viewportRect.h) / chunkWorldSize));
+    for (int cx = minChunkX; cx <= maxChunkX; ++cx) {
+        for (int cy = minChunkY; cy <= maxChunkY; ++cy) {
+            WorldVector2D chunkWorldPos{
+                static_cast<float>(cx) * chunkWorldSize - halfTile,
+                static_cast<float>(cy) * chunkWorldSize - halfTile
+            };
+            CameraVector2D screenPos =
+                    cameraComponent->GetViewPortPosition(
+                        cameraPosition,
+                        chunkWorldPos
+                    );
+            float pixelSize = chunkWorldSize * cameraComponent->GetZoom();
+            SDL_SetRenderDrawColor(renderer, 0, 255, 255, 180);
+            SDL_FRect rect{
+                screenPos.x,
+                screenPos.y - pixelSize,
+                pixelSize,
+                pixelSize
+            };
+
+            SDL_FRect outline{
+                rect.x,
+                rect.y,
+                rect.w,
+                rect.h
+            };
+            SDL_RenderRect(renderer, &outline);
+        }
+    }
 }
 
 glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GameSystem(worldContext) {
@@ -67,11 +109,11 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     SDL_GetWindowSize(worldContext_->GetAppContext()->GetWindow(), &windowW, &windowH);
     if (windowW <= 0 || windowH <= 0) return;
     float yOffset = 0.0F;
-    auto camera = worldContext_->GetCameraComponent();
+    auto cameraComponent = worldContext_->GetCameraComponent();
     auto cameraTransform = worldContext_->GetCameraTransform2D();
     bool inPointInViewport = false;
-    if (camera != nullptr) {
-        inPointInViewport = camera->IsPointInViewport(cameraTransform->GetPosition(), mousePosition_);
+    if (cameraComponent != nullptr) {
+        inPointInViewport = cameraComponent->IsPointInViewport(cameraTransform->GetPosition(), mousePosition_);
     }
     if (!inPointInViewport) {
         //Do not display the tile debugging information that is outside the screen.
@@ -210,7 +252,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     // Draw Visible Chunks (Orange)
     // 绘制可见区块（橙色）【修改Y轴计算：cy - playerChunkY → playerChunkY - cy】
     int visibleChunkCount = 0;
-    SDL_FRect viewport = camera->GetViewportRect(cameraTransform->GetPosition());
+    SDL_FRect viewport = cameraComponent->GetViewportRect(cameraTransform->GetPosition());
 
     // Calculate visible chunk range
     // 计算可见区块范围
@@ -260,8 +302,9 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         }
         SDL_DestroySurface(s);
     }
-    CameraVector2D screenPos = camera->GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
+    CameraVector2D screenPos = cameraComponent->GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
     RenderCrosshairToEdge(renderer, screenPos.x, screenPos.y);
+    RenderChunkBounds(renderer, cameraComponent, cameraTransform->GetPosition());
     AppContext::RestoreColorRenderer(renderer);
 }
 

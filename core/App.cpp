@@ -76,6 +76,7 @@ bool glimmer::App::init() {
         LogCat::e("SDL_CreateRenderer Error: ", SDL_GetError());
         return false;
     }
+    SDL_SetRenderVSync(renderer_, config->window.vSync);
     appContext->GetResourcePackManager()->SetRenderer(renderer_);
     // Enable alpha blending rendering
     // 启用按 alpha 混合渲染

@@ -12,6 +12,7 @@
 #include "SavedGamesScene.h"
 #include "../Config.h"
 #include "core/saves/SavesManager.h"
+#include "core/utils/BrowserInvoker.h"
 
 std::string glimmer::HomeScene::GetCopyrightString() {
     constexpr int startYear = 2025;
@@ -146,14 +147,7 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
         }
 
         if (ImGui::IsItemClicked()) {
-#ifdef _WIN32
-            std::string cmd = "start " + link.link;
-#elif __APPLE__
-            std::string cmd = "open " + link.link;
-#else
-            std::string cmd = "xdg-open " + link.link;
-#endif
-            system(cmd.c_str());
+            BrowserInvoker::OpenUrl(link.link);
         }
 
         currentY -= spacing;

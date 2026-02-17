@@ -17,6 +17,7 @@ namespace glimmer {
         float framerate = 60;
         //ui缩放
         float uiScale = 1.0F;
+        bool vSync = true;
     };
 
     struct Mods {

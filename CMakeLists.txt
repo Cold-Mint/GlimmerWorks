@@ -325,6 +325,7 @@ target_sources(GlimmerWorks
         core/world/structure/StructureGeneratorManager.cpp
         core/mod/dataPack/PackDependence.cpp
         core/Hyperlink.cpp
+        core/utils/BrowserInvoker.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -475,6 +476,7 @@ target_sources(GlimmerWorks
         core/world/structure/StructureGeneratorManager.h
         core/mod/dataPack/PackDependence.h
         core/Hyperlink.h
+        core/utils/BrowserInvoker.h
 )
 
 #Define version information

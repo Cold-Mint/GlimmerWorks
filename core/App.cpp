@@ -16,6 +16,111 @@
 #include "SDL3_ttf/SDL_ttf.h"
 #include <SDL3/SDL_init.h>
 
+void glimmer::App::RendererUiMessage() {
+    auto &uiMessages = appContext_->GetGameUIMessages();
+    uint64_t now = SDL_GetTicks();
+    int32_t delta = now - lastTime_;
+    lastTime_ = now;
+    //Delete expired messages
+    //删除过期的消息
+    std::erase_if(uiMessages,
+                  [now](const GameUIMessage &msg) {
+                      return msg.expireTime <= now;
+                  });
+
+    //Get window size
+    //获取窗口尺寸
+    int windowW = 0;
+    int windowH = 0;
+    SDL_GetRenderOutputSize(renderer_, &windowW, &windowH);
+
+    constexpr float padding = 16.0f;
+    constexpr float spacing = 6.0f;
+
+    //First round: Update tween + Calculate total height
+    //第一遍：更新 tween + 计算总高度
+    float totalHeight = 0.0f;
+
+    for (auto &msg: uiMessages) {
+        msg.tween.step(delta);
+        msg.alpha = msg.tween.peek();
+
+        if (msg.alpha <= 0.01f) {
+            continue;
+        }
+
+        SDL_Surface *surface = TTF_RenderText_Blended(
+            appContext_->GetFont(),
+            msg.text.c_str(),
+            msg.text.length(),
+            {255, 255, 255, 255}
+        );
+
+        if (!surface) {
+            continue;
+        }
+
+        totalHeight += static_cast<float>(surface->h) + spacing;
+
+        SDL_DestroySurface(surface);
+    }
+
+    if (!uiMessages.empty()) {
+        totalHeight -= spacing;
+    }
+
+    float startY = windowH - totalHeight - padding;
+
+    // Second round: Actual drawing
+    // 第二遍：真正绘制
+    for (auto &msg: uiMessages) {
+        if (msg.alpha <= 0.01f)
+            continue;
+
+        SDL_Surface *surface = TTF_RenderText_Blended(
+            appContext_->GetFont(),
+            msg.text.c_str(),
+            msg.text.length(),
+            {255, 255, 255, 255}
+        );
+
+        if (!surface)
+            continue;
+
+        // ⭐ 先保存宽高（避免 use-after-free）
+        float w = static_cast<float>(surface->w);
+        float h = static_cast<float>(surface->h);
+
+        SDL_Texture *texture =
+                SDL_CreateTextureFromSurface(renderer_, surface);
+
+        SDL_DestroySurface(surface);
+
+        if (!texture)
+            continue;
+
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+
+        Uint8 alpha =
+                static_cast<Uint8>(msg.alpha * 255.0f);
+
+        SDL_SetTextureAlphaMod(texture, alpha);
+
+        SDL_FRect dst = {
+            padding,
+            startY,
+            w,
+            h
+        };
+
+        SDL_RenderTexture(renderer_, texture, nullptr, &dst);
+
+        startY += h + spacing;
+
+        SDL_DestroyTexture(texture);
+    }
+}
+
 glimmer::App::~App() {
     LogCat::i("Destroy the app");
     if (window != nullptr) {
@@ -29,14 +134,14 @@ glimmer::App::~App() {
     }
 }
 
-glimmer::App::App(AppContext *ac) : appContext(ac) {
+glimmer::App::App(AppContext *ac) : appContext_(ac) {
     window = nullptr;
     renderer_ = nullptr;
     initSDLSuccess = false;
     initSDLTtfSuccess = false;
 }
 
-bool glimmer::App::init() {
+bool glimmer::App::Init() {
     LogCat::i("Initializing SDL...");
 #ifdef __ANDROID__
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
@@ -56,7 +161,7 @@ bool glimmer::App::init() {
     LogCat::i("SDL initialized successfully.");
 
     LogCat::i("Creating SDL window...");
-    Config *config = appContext->GetConfig();
+    Config *config = appContext_->GetConfig();
     window = SDL_CreateWindow(
         "GlimmerWorks",
         config->window.width,
@@ -68,7 +173,7 @@ bool glimmer::App::init() {
         return false;
     }
     LogCat::i("SDL window created successfully.");
-    appContext->SetWindow(window);
+    appContext_->SetWindow(window);
     LogCat::i("Creating SDL renderer...");
     renderer_ =
             SDL_CreateRenderer(window, nullptr);
@@ -77,7 +182,8 @@ bool glimmer::App::init() {
         return false;
     }
     SDL_SetRenderVSync(renderer_, config->window.vSync);
-    appContext->GetResourcePackManager()->SetRenderer(renderer_);
+    appContext_->SetRenderer(renderer_);
+    appContext_->GetResourcePackManager()->SetRenderer(renderer_);
     // Enable alpha blending rendering
     // 启用按 alpha 混合渲染
     // This will allow us to use transparency during rendering
@@ -95,13 +201,16 @@ bool glimmer::App::init() {
 
     LogCat::i("Setting ImGui style to Light...");
     ImGui::StyleColorsLight();
-    const auto fontPathOpt = appContext->GetResourcePackManager()->GetFontPath(
+    const auto fontPathOpt = appContext_->GetResourcePackManager()->GetFontPath(
         config->mods.enabledResourcePack,
-        appContext->GetLanguage());
+        appContext_->GetLanguage());
 
     if (fontPathOpt.has_value()) {
         const std::string &fontPath = fontPathOpt.value();
-        auto actualPath = appContext->GetVirtualFileSystem()->GetActualPath(fontPath);
+        if (!appContext_->GetVirtualFileSystem()->Exists(fontPath)) {
+            return false;
+        }
+        auto actualPath = appContext_->GetVirtualFileSystem()->GetActualPath(fontPath);
         if (!actualPath.has_value()) {
             LogCat::e("An error occurred when converting to the actual font path.");
             return false;
@@ -115,10 +224,10 @@ bool glimmer::App::init() {
             LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
         } else {
             LogCat::d("SDL_ttf font loaded: ", fontPath);
-            appContext->SetFont(sdlFont);
+            appContext_->SetFont(sdlFont);
         }
     } else {
-        LogCat::w("No font found for language '", appContext->GetLanguage(), "', skipping font load");
+        LogCat::w("No font found for language '", appContext_->GetLanguage(), "', skipping font load");
     }
 
 
@@ -139,18 +248,18 @@ bool glimmer::App::init() {
     return true;
 }
 
-void glimmer::App::run() const {
+void glimmer::App::Run()  {
     Uint64 frameStart = SDL_GetTicks();
     float deltaTime = 0.0F;
     SDL_Event event;
     LogCat::i("Entering main loop...");
-    auto sceneManager = appContext->GetSceneManager();
-    auto config = appContext->GetConfig();
-    sceneManager->PushScene(std::make_unique<SplashScene>(appContext));
-    sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext));
-    sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext));
+    auto sceneManager = appContext_->GetSceneManager();
+    auto config = appContext_->GetConfig();
+    sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
+    sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
+    sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
     auto &overlayScenes = sceneManager->GetOverlayScenes();
-    while (appContext->Running() && sceneManager->GetSceneCount() > 0) {
+    while (appContext_->Running() && sceneManager->GetSceneCount() > 0) {
         //The time interval of the target (in seconds)
         //目标的时间间隔（以秒为单位）
         const float targetFrameTime = 1.0F / config->window.framerate;
@@ -160,7 +269,7 @@ void glimmer::App::run() const {
         for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
             overlayScene->OnFrameStart();
         }
-        appContext->ProcessMainThreadTasks();
+        appContext_->ProcessMainThreadTasks();
         if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
             topScene->OnFrameStart();
         }
@@ -185,12 +294,15 @@ void glimmer::App::run() const {
                         }
                     }
                 }
+                if (event.key.key == SDLK_F2 && !event.key.repeat) {
+                    appContext_->CreateScreenshot();
+                }
             }
 #endif
 
             if (event.type == SDL_EVENT_QUIT) {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
-                appContext->ExitApp();
+                appContext_->ExitApp();
             } else {
                 bool handled = false;
                 for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
@@ -262,6 +374,7 @@ void glimmer::App::run() const {
 #endif
         ImGui::Render();
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
+        RendererUiMessage();
         SDL_RenderPresent(renderer_);
         const auto frameEnd = SDL_GetTicks();
         const auto frameTimeMs = frameEnd - frameStart;

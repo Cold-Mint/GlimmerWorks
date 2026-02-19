@@ -302,7 +302,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             }
         }
     }
-    for (auto biomeResources: biomeResourcesSet) {
+    for (auto *biomeResources: biomeResourcesSet) {
         if (auto &decorator = biomeResources->decorator; decorator.empty()) {
             continue;
         }
@@ -319,7 +319,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
             ResourceRef &resourceRef = tilesRef[localX][localY];
-            const std::optional<TileResource *> tileResource = appContext->GetResourceLocator()->FindTile(
+            const std::optional tileResource = appContext->GetResourceLocator()->FindTile(
                 resourceRef);
             TileResource *tileResourceValue = nullptr;
             if (tileResource.has_value()) {

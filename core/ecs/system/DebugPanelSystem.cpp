@@ -115,9 +115,11 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     if (cameraComponent != nullptr) {
         inPointInViewport = cameraComponent->IsPointInViewport(cameraTransform->GetPosition(), mousePosition_);
     }
+    RenderChunkBounds(renderer, cameraComponent, cameraTransform->GetPosition());
     if (!inPointInViewport) {
         //Do not display the tile debugging information that is outside the screen.
         //不要显示在屏幕之外的瓦片调试信息。
+        AppContext::RestoreColorRenderer(renderer);
         return;
     }
     ChunkGenerator *chunkGenerator = worldContext_->GetChunkGenerator();
@@ -304,7 +306,6 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     }
     CameraVector2D screenPos = cameraComponent->GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
     RenderCrosshairToEdge(renderer, screenPos.x, screenPos.y);
-    RenderChunkBounds(renderer, cameraComponent, cameraTransform->GetPosition());
     AppContext::RestoreColorRenderer(renderer);
 }
 

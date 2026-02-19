@@ -33,6 +33,8 @@
 #include "core/world/generator/TreeBiomeDecorator.h"
 #include "core/world/structure/StaticStructureGenerator.h"
 #include "core/world/structure/TreeStructureGenerator.h"
+#include "fmt/xchar.h"
+#include "SDL3_image/SDL_image.h"
 #include "toml11/find.hpp"
 #include "toml11/parser.hpp"
 
@@ -84,8 +86,27 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->pause = find<std::string>(value, "pause");
     langs_->restore = find<std::string>(value, "restore");
     langs_->saveAndExit = find<std::string>(value, "saveAndExit");
+    langs_->screenshotSavedSuccess = find<std::string>(value, "screenshotSavedSuccess");
+    langs_->screenshotSavedFailed = find<std::string>(value, "screenshotSavedFailed");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "worldNamePrefix");
     langs_->worldNameSuffix = find<std::vector<std::string> >(value, "worldNameSuffix");
+}
+
+std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
+    auto now = std::chrono::system_clock::now();
+    auto t = std::chrono::system_clock::to_time_t(now);
+    std::tm tm;
+#if defined(_WIN32)
+    localtime_s(&tm, &t); // Windows 安全函数
+#else
+    localtime_r(&t, &tm); // Linux/macOS
+#endif
+    std::ostringstream oss;
+    oss << prefix << "_"
+            << std::put_time(&tm, "%Y%m%d_%H%M%S")
+            << ext;
+
+    return oss.str();
 }
 
 glimmer::AppContext::AppContext() {
@@ -129,7 +150,7 @@ glimmer::AppContext::AppContext() {
     virtualFileSystem_->Mount(std::unique_ptr<FileProvider>(std::move(assetsProvider)));
 #else
     virtualFileSystem_->Mount(
-        std::make_unique<StdFileProvider>("."));
+        std::make_unique<StdFileProvider>(std::filesystem::current_path().string()));
 #endif
     language_ = LanguageUtils::getLanguage();
     LogCat::i("Load the built-in language file.");
@@ -244,12 +265,80 @@ void glimmer::AppContext::SetWindow(SDL_Window *window) {
     this->window_ = window;
 }
 
+void glimmer::AppContext::SetRenderer(SDL_Renderer *renderer) {
+    this->renderer_ = renderer;
+}
+
+void glimmer::AppContext::CreateScreenshot() {
+    if (!renderer_) {
+        AddUIMessage(fmt::format(
+            fmt::runtime(GetLangsResources()->screenshotSavedFailed),
+            "renderer is null failed"));
+        return;
+    }
+    if (!virtualFileSystem_->Exists("screenshots")) {
+        if (!virtualFileSystem_->CreateFolder("screenshots")) {
+            AddUIMessage(fmt::format(
+                fmt::runtime(GetLangsResources()->screenshotSavedFailed),
+                "CreateFolder failed"));
+            return;
+        }
+    }
+    const auto actualPath = virtualFileSystem_->GetActualPath("screenshots/" + GetTimeFileName());
+    if (!actualPath.has_value()) {
+        AddUIMessage(fmt::format(
+            fmt::runtime(GetLangsResources()->screenshotSavedFailed),
+            "GetActualPath failed"));
+        return;
+    }
+    int width, height;
+    if (!SDL_GetRenderOutputSize(renderer_, &width, &height)) {
+        AddUIMessage(fmt::format(
+            fmt::runtime(GetLangsResources()->screenshotSavedFailed),
+            "SDL_GetRenderOutputSize failed"));
+        return;
+    }
+    auto sdlRect = SDL_Rect();
+    sdlRect.x = 0;
+    sdlRect.y = 0;
+    sdlRect.w = width;
+    sdlRect.h = height;
+    SDL_Surface *surface = SDL_RenderReadPixels(
+        renderer_, &sdlRect);
+    if (surface == nullptr) {
+        SDL_DestroySurface(surface);
+        AddUIMessage(fmt::format(
+            fmt::runtime(GetLangsResources()->screenshotSavedFailed),
+            "SDL_RenderReadPixels failed"));
+        return;
+    }
+    const bool result = IMG_SavePNG(surface, actualPath.value().c_str());
+    SDL_DestroySurface(surface);
+    if (result) {
+        AddUIMessage(fmt::format(
+            fmt::runtime(GetLangsResources()->screenshotSavedSuccess),
+            actualPath.value()));
+    } else {
+        AddUIMessage(fmt::format(
+            fmt::runtime(GetLangsResources()->screenshotSavedFailed),
+            "IMG_SavePNG Failed"));
+    }
+}
+
 void glimmer::AppContext::SetFont(TTF_Font *font) {
     this->ttfFont_ = font;
 }
 
 bool glimmer::AppContext::Running() const {
     return isRunning;
+}
+
+void glimmer::AppContext::AddUIMessage(const std::string &string) {
+    gameUIMessages_.emplace_back(GameUIMessage(string, SDL_GetTicks()));
+}
+
+std::vector<glimmer::GameUIMessage> &glimmer::AppContext::GetGameUIMessages() {
+    return gameUIMessages_;
 }
 
 void glimmer::AppContext::ExitApp() {

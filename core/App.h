@@ -13,16 +13,19 @@ namespace glimmer {
         bool initSDLSuccess;
         bool initSDLTtfSuccess;
         SDL_Renderer *renderer_;
-        AppContext *appContext;
+        AppContext *appContext_;
+        uint64_t lastTime_ = 0;
+
+        void RendererUiMessage();
 
     public:
         ~App();
 
         explicit App(AppContext *ac);
 
-        bool init();
+        bool Init();
 
-        void run() const;
+        void Run();
     };
 }
 

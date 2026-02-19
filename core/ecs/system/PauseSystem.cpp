@@ -3,10 +3,8 @@
 //
 
 #include "PauseSystem.h"
-
 #include "imgui.h"
 #include "../../world/WorldContext.h"
-#include "../component/ItemContainerComonent.h"
 #include "core/utils/TimeUtils.h"
 
 
@@ -91,7 +89,7 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
             //保存所有区块。
             auto allChunks = worldContext_->GetAllChunks();
             for (const auto &pos: *allChunks | std::views::keys) {
-                worldContext_->SaveChunk(pos);
+                (void) worldContext_->SaveChunk(pos);
             }
             appContext->GetSceneManager()->PopScene();
         }

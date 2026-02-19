@@ -115,9 +115,9 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVec
         if (const auto chunkMessage = saves_->ReadChunk(position); chunkMessage.has_value()) {
             auto chunk = std::make_unique<Chunk>(position);
             chunk.get()->FromMessage(worldContext_->GetAppContext(), chunkMessage.value());
+            LoadEntityFromSaves(position);
             return chunk;
         }
     }
-    LoadEntityFromSaves(position);
     return nullptr;
 }

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.1.2)
+cmake_minimum_required(VERSION 4.2.3)
 project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
 
@@ -326,6 +326,7 @@ target_sources(GlimmerWorks
         core/mod/dataPack/PackDependence.cpp
         core/Hyperlink.cpp
         core/utils/BrowserInvoker.cpp
+        core/GameUIMessage.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -477,6 +478,7 @@ target_sources(GlimmerWorks
         core/mod/dataPack/PackDependence.h
         core/Hyperlink.h
         core/utils/BrowserInvoker.h
+        core/GameUIMessage.h
 )
 
 #Define version information

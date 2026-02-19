@@ -20,6 +20,7 @@
 #include "core/mod/dataPack/StringManager.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "core/Config.h"
+#include "core/GameUIMessage.h"
 #include "core/lootTable/LootTableManager.h"
 #include "core/mod/dataPack/StructureManager.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
@@ -45,6 +46,7 @@ namespace glimmer {
      */
     class AppContext {
         SDL_Window *window_ = nullptr;
+        SDL_Renderer *renderer_ = nullptr;
         std::string language_;
         std::unique_ptr<DataPackManager> dataPackManager_;
         std::unique_ptr<Config> config_;
@@ -73,8 +75,11 @@ namespace glimmer {
         bool isRunning = true;
         std::thread::id mainThreadId_;
         toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
+        std::vector<GameUIMessage> gameUIMessages_;
 
         void LoadLanguage(const std::string &data) const;
+
+        static std::string GetTimeFileName(const std::string &prefix = "screenshot", const std::string &ext = ".png");
 
     public:
         AppContext();
@@ -85,9 +90,18 @@ namespace glimmer {
 
         void SetWindow(SDL_Window *window);
 
+        void SetRenderer(SDL_Renderer *renderer);
+
+        void CreateScreenshot();
+
         void SetFont(TTF_Font *font);
 
         [[nodiscard]] bool Running() const;
+
+
+        void AddUIMessage(const std::string &string);
+
+        std::vector<GameUIMessage> &GetGameUIMessages();
 
         void ExitApp();
 

@@ -355,7 +355,7 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
 }
 
 uint8_t glimmer::DebugDrawBox2dSystem::GetRenderOrder() {
-    return GameSystem::GetRenderOrder();
+    return RENDER_ORDER_DEBUG_BOX2D;
 }
 
 std::string glimmer::DebugDrawBox2dSystem::GetName() {

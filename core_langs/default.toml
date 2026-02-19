@@ -45,6 +45,8 @@ savesList = "Saves List"
 pause = "Pause"
 restore = "Restore"
 saveAndExit = "Save and Exit"
+screenshotSavedFailed = "Screenshot saving failed {}."
+screenshotSavedSuccess = "The screenshot has been saved to {}."
 worldNamePrefix = [
   "Serene",
   "Mystic",

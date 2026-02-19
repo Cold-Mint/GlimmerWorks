@@ -45,11 +45,11 @@ int main() {
 
     AppContext appContext;
     App app(&appContext);
-    if (!app.init()) {
+    if (!app.Init()) {
         LogCat::e("Failed to init app");
         return EXIT_FAILURE;
     }
-    app.run();
+    app.Run();
     return EXIT_SUCCESS;
 }
 

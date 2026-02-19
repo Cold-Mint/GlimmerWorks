@@ -47,10 +47,13 @@ bool glimmer::VirtualFileSystem::Exists(const std::string &path) const {
 }
 
 bool glimmer::VirtualFileSystem::CreateFolder(const std::string &path) const {
-    LogCat::i("VirtualFileSystem CreateFolder =", path);
-    for (auto &provider: fileProviders_)
-        if (provider->CreateFolder(path))
+    for (auto &provider: fileProviders_) {
+        if (provider->CreateFolder(path)) {
+            LogCat::i("VirtualFileSystem CreateFolder =", path,",return = true");
             return true;
+        }
+    }
+    LogCat::i("VirtualFileSystem CreateFolder =", path,",return = false");
     return false;
 }
 
@@ -117,12 +120,13 @@ bool glimmer::VirtualFileSystem::DeleteFileOrFolder(const std::string &path) con
 }
 
 std::optional<std::string> glimmer::VirtualFileSystem::GetActualPath(const std::string &path) const {
-    LogCat::i("VirtualFileSystem GetActualPath =", path);
     for (auto &provider: fileProviders_) {
         auto actualPath = provider->GetActualPath(path);
         if (actualPath.has_value()) {
+            LogCat::i("VirtualFileSystem GetActualPath =", path, ",return = ", actualPath.value());
             return actualPath;
         }
     }
+    LogCat::i("VirtualFileSystem GetActualPath =", path, ",return null");
     return std::nullopt;
 }

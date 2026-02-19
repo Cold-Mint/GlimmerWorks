@@ -65,6 +65,10 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFi
         const ResourcePack *pack = it->second.get();
         std::string texturePath = pack->getPath() + "/textures/" + path;
 
+        if (!virtualFileSystem_->Exists(texturePath)) {
+            continue;
+        }
+
         auto actualTexturePath = virtualFileSystem_->GetActualPath(texturePath);
         if (!actualTexturePath.has_value()) {
             continue;

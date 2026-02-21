@@ -60,7 +60,8 @@ static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_FLOAT = 3;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_BOOL = 4;
-static constexpr uint32_t RESOURCE_REF_ARG_TYPE_REF = 5;
+static constexpr uint32_t RESOURCE_REF_ARG_TYPE_REF_PB = 5;
+static constexpr uint32_t RESOURCE_REF_ARG_TYPE_REF_TOML = 6;
 static constexpr std::string RESOURCE_REF_SELF = "@self";
 static constexpr std::string RESOURCE_REF_CORE = "@core";
 static constexpr std::uint32_t CORE_DATA_PACK_VERSION_NUMBER = 1;
@@ -72,6 +73,7 @@ static constexpr std::string DATA_FILE_TYPE_COMPOSABLE_ITEM = "composable";
 static constexpr std::string DATA_FILE_TYPE_ABILITY_ITEM = "ability";
 static constexpr std::string DATA_FILE_TYPE_LOOT_TABLE = "loot";
 static constexpr std::string DATA_FILE_TYPE_STRUCTURE = "structure";
+static constexpr std::string DATA_FILE_TYPE_INITIAL_INVENTORY = "startinv";
 
 constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;

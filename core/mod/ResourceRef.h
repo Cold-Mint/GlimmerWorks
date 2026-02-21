@@ -7,6 +7,7 @@
 
 #include "../Constants.h"
 #include "src/core/resource_ref.pb.h"
+#include "toml11/spec.hpp"
 
 namespace glimmer {
     class ResourceRef;
@@ -16,8 +17,20 @@ namespace glimmer {
         uint32_t argType_ = RESOURCE_REF_ARG_TYPE_NONE;
         std::string data_;
 
+        inline static const std::unordered_map<std::string, uint32_t> resourceArgTypeMap_{
+            {"none", RESOURCE_REF_ARG_TYPE_NONE},
+            {"string", RESOURCE_REF_ARG_TYPE_STRING},
+            {"int", RESOURCE_REF_ARG_TYPE_INT},
+            {"float", RESOURCE_REF_ARG_TYPE_FLOAT},
+            {"bool", RESOURCE_REF_ARG_TYPE_BOOL},
+            {"pb", RESOURCE_REF_ARG_TYPE_REF_PB},
+            {"ref", RESOURCE_REF_ARG_TYPE_REF_TOML},
+        };
+
     public:
         const std::string &GetName();
+
+        static uint32_t ResolveResourceRefArgType(const std::string &typeName);
 
         void SetName(const std::string &name);
 
@@ -65,7 +78,7 @@ namespace glimmer {
 
         [[nodiscard]] float AsFloat() const;
 
-        [[nodiscard]] std::optional<ResourceRef> AsResourceRef() const;
+        [[nodiscard]] std::optional<ResourceRef> AsResourceRef(const toml::spec &tomlVersion) const;
 
         /**
          * Obtain parameter type
@@ -87,7 +100,20 @@ namespace glimmer {
         std::vector<ResourceRefArg> args_;
         bool bindPackage_ = false;
 
+        inline static const std::unordered_map<std::string, uint32_t> resourceTypeMap_{
+            {"none", RESOURCE_TYPE_NONE},
+            {"string", RESOURCE_TYPE_STRING},
+            {"tile", RESOURCE_TYPE_TILE},
+            {"composable", RESOURCE_TYPE_COMPOSABLE_ITEM},
+            {"ability", RESOURCE_TYPE_ABILITY_ITEM},
+            {"loot", RESOURCE_TYPE_LOOT_TABLE},
+            {"structure", RESOURCE_TYPE_STRUCTURE},
+            {"texture", RESOURCE_TYPE_TEXTURES},
+        };
+
     public:
+        void UpdateArgs(const toml::spec &tomlVersion);
+
         /**
          * SetSelfPackageId
          * 设置自身的包ID
@@ -96,6 +122,8 @@ namespace glimmer {
         void SetSelfPackageId(const std::string &selfPackageId);
 
         [[nodiscard]] const std::string &GetSelfPackageId() const;
+
+        static uint32_t ResolveResourceType(const std::string &typeName);
 
         void AddArg(const ResourceRefArg &arg);
 

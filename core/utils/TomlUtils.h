@@ -21,13 +21,43 @@ namespace toml {
         }
     };
 
+
     template<>
     struct from<glimmer::ResourceRef> {
         static glimmer::ResourceRef from_toml(const value &v) {
             glimmer::ResourceRef r;
             r.SetPackageId(toml::find<std::string>(v, "packId"));
-            r.SetResourceType(toml::find<int>(v, "resourceType"));
+            r.SetResourceType(glimmer::ResourceRef::ResolveResourceType(toml::find<std::string>(v, "resourceType")));
             r.SetResourceKey(toml::find<std::string>(v, "resourceKey"));
+            auto arg = toml::find_or_default<std::vector<glimmer::ResourceRefArg> >(
+                v, "args");
+            for (auto &resourceRefArg: arg) {
+                r.AddArg(resourceRefArg);
+            }
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::ResourceRefArg> {
+        static glimmer::ResourceRefArg from_toml(const value &v) {
+            glimmer::ResourceRefArg r;
+            r.SetName(toml::find<std::string>(v, "name"));
+
+            uint32_t argType =
+                    glimmer::ResourceRefArg::ResolveResourceRefArgType(toml::find<std::string>(v, "type"));
+            if (argType == RESOURCE_REF_ARG_TYPE_INT) {
+                r.SetDataFromInt(toml::find<int>(v, "data"));
+            } else if (argType == RESOURCE_REF_ARG_TYPE_FLOAT) {
+                r.SetDataFromFloat(toml::find<float>(v, "data"));
+            } else if (argType == RESOURCE_REF_ARG_TYPE_BOOL) {
+                r.SetDataFromBool(toml::find<bool>(v, "data"));
+            } else if (argType == RESOURCE_REF_ARG_TYPE_STRING) {
+                r.SetDataFromString(toml::find<std::string>(v, "data"));
+            } else if (argType == RESOURCE_REF_ARG_TYPE_REF_TOML) {
+                glimmer::ResourceRef resource = toml::find<glimmer::ResourceRef>(v, "data");
+                r.SetDataFromResourceRef(resource);
+            }
             return r;
         }
     };
@@ -241,6 +271,16 @@ namespace toml {
             r.empty_weight = toml::find_or<uint32_t>(v, "empty_weight", 0);
             r.rolls = toml::find_or<uint32_t>(v, "rolls", 1);
             r.pool = toml::find_or_default<std::vector<glimmer::LootEntry> >(v, "pool");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::InitialInventoryResource> {
+        static glimmer::InitialInventoryResource from_toml(const value &v) {
+            glimmer::InitialInventoryResource r;
+            r.key = toml::find<std::string>(v, "resourceKey");
+            r.addItems = toml::find_or_default<std::vector<glimmer::ResourceRef> >(v, "addItems");
             return r;
         }
     };

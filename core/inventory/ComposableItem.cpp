@@ -154,7 +154,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
                 if (index < 0) {
                     continue;
                 }
-                auto itemRef = arg.AsResourceRef();
+                auto itemRef = arg.AsResourceRef(appContext->GetTomlVersion());
                 if (!itemRef.has_value()) {
                     continue;
                 }

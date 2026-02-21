@@ -10,6 +10,7 @@
 #include "StructureManager.h"
 #include "../PackManifest.h"
 #include "../../vfs/VirtualFileSystem.h"
+#include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
 #include "toml11/spec.hpp"
 
@@ -37,6 +38,10 @@ namespace glimmer {
 
         [[nodiscard]] bool LoadLootTableResourceFromFile(const std::string &path,
                                                          LootTableManager *lootTableManager) const;
+
+
+        [[nodiscard]] bool LoadInitialInventoryResourceFromFile(const std::string &path,
+                                                         InitialInventoryManager *lootTableManager) const;
 
 
         [[nodiscard]] bool LoadStructureResourceFromFile(const std::string &path,

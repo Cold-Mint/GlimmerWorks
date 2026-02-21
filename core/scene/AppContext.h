@@ -21,6 +21,7 @@
 #include "SDL3_ttf/SDL_ttf.h"
 #include "core/Config.h"
 #include "core/GameUIMessage.h"
+#include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
 #include "core/mod/dataPack/StructureManager.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
@@ -70,6 +71,7 @@ namespace glimmer {
         std::unique_ptr<ResourceLocator> resourceLocator_;
         std::unique_ptr<ItemManager> itemManager_;
         std::unique_ptr<DragAndDrop> dragAndDrop_;
+        std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
@@ -108,6 +110,8 @@ namespace glimmer {
         [[nodiscard]] Config *GetConfig() const;
 
         [[nodiscard]] TTF_Font *GetFont() const;
+
+        [[nodiscard]] InitialInventoryManager *GetInitialInventoryManager() const;
 
         [[nodiscard]] CommandManager *GetCommandManager() const;
 

@@ -179,6 +179,7 @@ glimmer::AppContext::AppContext() {
     stringManager_ = std::make_unique<StringManager>();
     biomesManager_ = std::make_unique<BiomesManager>();
     tileManager_ = std::make_unique<TileManager>();
+    initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
     tileManager_->InitBuiltinTiles();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<TileDynamicSuggestions>(tileManager_.get()));
@@ -351,6 +352,10 @@ glimmer::Config *glimmer::AppContext::GetConfig() const {
 
 TTF_Font *glimmer::AppContext::GetFont() const {
     return ttfFont_;
+}
+
+glimmer::InitialInventoryManager *glimmer::AppContext::GetInitialInventoryManager() const {
+    return initialInventoryManager_.get();
 }
 
 glimmer::CommandManager *glimmer::AppContext::GetCommandManager() const {

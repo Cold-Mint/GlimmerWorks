@@ -180,6 +180,11 @@ namespace glimmer {
 
         static std::vector<ResourceRef> GetLootItems(const LootResource *lootResource);
     };
+
+
+    struct InitialInventoryResource : Resource {
+        std::vector<ResourceRef> addItems;
+    };
 }
 
 

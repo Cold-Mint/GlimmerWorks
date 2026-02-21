@@ -191,7 +191,23 @@ void glimmer::WorldContext::InitPlayer() {
     }
 
     if (!HasComponent<ItemContainerComponent>(playerEntity)) {
-        AddComponent<ItemContainerComponent>(playerEntity, HOT_BAR_SIZE);
+        ItemContainerComponent *itemContainerComponent = AddComponent<ItemContainerComponent>(
+            playerEntity, HOT_BAR_SIZE);
+        //Add initial items.
+        //添加初始物品。
+        auto &allInitialInventory = appContext_->GetInitialInventoryManager()->GetAllInitialInventory();
+        for (auto &initialInventory: allInitialInventory) {
+            for (auto &addItem: initialInventory->addItems) {
+                auto item = appContext_->GetResourceLocator()->FindItem(addItem);
+                if (!item.has_value()) {
+                    continue;
+                }
+                if (itemContainerComponent->GetItemContainer()->AddItem(std::move(item.value()))) {
+                    CreateDroppedItemEntity(std::move(item.value()),
+                                            GetComponent<Transform2DComponent>(playerEntity)->GetPosition());
+                }
+            }
+        }
     }
     if (!HasComponent<AutoPickComponent>(playerEntity)) {
         AddComponent<AutoPickComponent>(playerEntity);

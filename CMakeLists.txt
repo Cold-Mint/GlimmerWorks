@@ -327,6 +327,7 @@ target_sources(GlimmerWorks
         core/Hyperlink.cpp
         core/utils/BrowserInvoker.cpp
         core/GameUIMessage.cpp
+        core/inventory/InitialInventoryManager.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -479,6 +480,7 @@ target_sources(GlimmerWorks
         core/Hyperlink.h
         core/utils/BrowserInvoker.h
         core/GameUIMessage.h
+        core/inventory/InitialInventoryManager.h
 )
 
 #Define version information

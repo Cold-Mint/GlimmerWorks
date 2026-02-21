@@ -7,9 +7,16 @@
 
 #include "../log/LogCat.h"
 
+#include "../utils/TomlUtils.h"
+#include "toml11/parser.hpp"
 
 const std::string &glimmer::ResourceRefArg::GetName() {
     return name_;
+}
+
+uint32_t glimmer::ResourceRefArg::ResolveResourceRefArgType(const std::string &typeName) {
+    const auto it = resourceArgTypeMap_.find(typeName);
+    return it == resourceArgTypeMap_.end() ? RESOURCE_REF_ARG_TYPE_NONE : it->second;
 }
 
 void glimmer::ResourceRefArg::SetName(const std::string &name) {
@@ -40,7 +47,7 @@ void glimmer::ResourceRefArg::SetDataFromResourceRef(ResourceRef &data) {
     ResourceRefMessage resourceRefMessage;
     data.ToMessage(resourceRefMessage);
     data_ = resourceRefMessage.SerializeAsString();
-    argType_ = RESOURCE_REF_ARG_TYPE_REF;
+    argType_ = RESOURCE_REF_ARG_TYPE_REF_PB;
 }
 
 
@@ -80,15 +87,19 @@ float glimmer::ResourceRefArg::AsFloat() const {
     }
 }
 
-std::optional<glimmer::ResourceRef> glimmer::ResourceRefArg::AsResourceRef() const {
-    if (argType_ != RESOURCE_REF_ARG_TYPE_REF) {
-        return std::nullopt;
+std::optional<glimmer::ResourceRef> glimmer::ResourceRefArg::AsResourceRef(const toml::spec &tomlVersion) const {
+    if (argType_ == RESOURCE_REF_ARG_TYPE_REF_PB) {
+        ResourceRefMessage resourceRefMessage;
+        resourceRefMessage.ParseFromString(data_);
+        ResourceRef resourceRef;
+        resourceRef.FromMessage(resourceRefMessage);
+        return resourceRef;
     }
-    ResourceRefMessage resourceRefMessage;
-    resourceRefMessage.ParseFromString(data_);
-    ResourceRef resourceRef;
-    resourceRef.FromMessage(resourceRefMessage);
-    return resourceRef;
+    if (argType_ == RESOURCE_REF_ARG_TYPE_REF_TOML) {
+        toml::value value = toml::parse_str(data_, tomlVersion);
+        return toml::get<ResourceRef>(value);
+    }
+    return std::nullopt;
 }
 
 uint32_t glimmer::ResourceRefArg::GetArgType() const {
@@ -107,6 +118,23 @@ void glimmer::ResourceRefArg::ToMessage(ResourceRefArgMessage &resourceRefArgMes
     resourceRefArgMessage.set_data(data_);
 }
 
+void glimmer::ResourceRef::UpdateArgs(const toml::spec &tomlVersion) {
+    if (!bindPackage_) {
+        return;
+    }
+    for (auto &arg: args_) {
+        if (arg.GetArgType() == RESOURCE_REF_ARG_TYPE_REF_PB || arg.GetArgType() == RESOURCE_REF_ARG_TYPE_REF_TOML) {
+            auto resourceOptional = arg.AsResourceRef(tomlVersion);
+            if (resourceOptional.has_value()) {
+                auto &resourceRefArg = resourceOptional.value();
+                resourceRefArg.SetSelfPackageId(packId_);
+                resourceRefArg.UpdateArgs(tomlVersion);
+                arg.SetDataFromResourceRef(resourceRefArg);
+            }
+        }
+    }
+}
+
 void glimmer::ResourceRef::SetSelfPackageId(const std::string &selfPackageId) {
     if (packId_ == RESOURCE_REF_SELF) {
         packId_ = selfPackageId;
@@ -117,6 +145,11 @@ void glimmer::ResourceRef::SetSelfPackageId(const std::string &selfPackageId) {
 
 const std::string &glimmer::ResourceRef::GetSelfPackageId() const {
     return selfPackageId_;
+}
+
+uint32_t glimmer::ResourceRef::ResolveResourceType(const std::string &typeName) {
+    const auto it = resourceTypeMap_.find(typeName);
+    return it == resourceTypeMap_.end() ? RESOURCE_TYPE_NONE : it->second;
 }
 
 

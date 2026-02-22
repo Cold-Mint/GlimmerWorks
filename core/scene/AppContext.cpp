@@ -31,7 +31,10 @@
 #include "core/world/generator/FillBiomeDecorator.h"
 #include "core/world/generator/SurfaceBiomeDecorator.h"
 #include "core/world/generator/TreeBiomeDecorator.h"
+#include "core/world/structure/BiomeStructureConditionProcessor.h"
+#include "core/world/structure/HeightStructureConditionProcessor.h"
 #include "core/world/structure/StaticStructureGenerator.h"
+#include "core/world/structure/SurfaceStructureConditionProcessor.h"
 #include "core/world/structure/TreeStructureGenerator.h"
 #include "fmt/xchar.h"
 #include "SDL3_image/SDL_image.h"
@@ -179,6 +182,10 @@ glimmer::AppContext::AppContext() {
     stringManager_ = std::make_unique<StringManager>();
     biomesManager_ = std::make_unique<BiomesManager>();
     tileManager_ = std::make_unique<TileManager>();
+    structurePlacementConditionsManager_ = std::make_unique<StructurePlacementConditionsManager>();
+    structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<SurfaceStructureConditionProcessor>());
+    structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<HeightStructureConditionProcessor>());
+    structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<BiomeStructureConditionProcessor>());
     initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
     tileManager_->InitBuiltinTiles();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
@@ -380,6 +387,10 @@ glimmer::LangsResources *glimmer::AppContext::GetLangsResources() const {
 
 glimmer::ResourcePackManager *glimmer::AppContext::GetResourcePackManager() const {
     return resourcePackManager_.get();
+}
+
+glimmer::StructurePlacementConditionsManager *glimmer::AppContext::GetStructurePlacementConditionsManager() const {
+    return structurePlacementConditionsManager_.get();
 }
 
 glimmer::TileManager *glimmer::AppContext::GetTileManager() const {

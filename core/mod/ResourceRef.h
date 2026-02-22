@@ -109,6 +109,7 @@ namespace glimmer {
             {"loot", RESOURCE_TYPE_LOOT_TABLE},
             {"structure", RESOURCE_TYPE_STRUCTURE},
             {"texture", RESOURCE_TYPE_TEXTURES},
+            {"biome", RESOURCE_TYPE_BIOME},
         };
 
     public:

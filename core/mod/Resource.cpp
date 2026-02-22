@@ -31,6 +31,20 @@ std::optional<glimmer::ResourceRef> glimmer::Resource::ParseFromId(const std::st
     return ref;
 }
 
+glimmer::VariableDefinitionType glimmer::VariableDefinition::ResolveVariableType(const std::string &typeName) {
+    const auto it = variableDefinitionTypeMap_.find(typeName);
+    return it == variableDefinitionTypeMap_.end() ? INT : it->second;
+}
+
+void glimmer::VariableDefinition::AsResourceRef(ResourceRef &resourceRef) const {
+    if (type != REF) {
+        return;
+    }
+    ResourceRefMessage refMessage;
+    refMessage.ParseFromString(value);
+    resourceRef.FromMessage(refMessage);
+}
+
 int glimmer::VariableDefinition::AsInt() const {
     if (type != INT) {
         return 0;
@@ -72,6 +86,20 @@ const glimmer::VariableDefinition *glimmer::VariableConfig::FindVariable(const s
         }
     }
     return nullptr;
+}
+
+void glimmer::VariableConfig::UpdateArgs(const toml::spec &tomlVersion, const std::string &selfPackId) {
+    for (auto &data: definition) {
+        if (data.type == REF) {
+            ResourceRef resourceRef;
+            data.AsResourceRef(resourceRef);
+            resourceRef.SetSelfPackageId(selfPackId);
+            resourceRef.UpdateArgs(tomlVersion);
+            ResourceRefMessage refMessage;
+            resourceRef.ToMessage(refMessage);
+            data.value = refMessage.SerializeAsString();
+        }
+    }
 }
 
 std::vector<glimmer::ResourceRef> glimmer::LootResource::GetLootItems(const LootResource *lootResource) {

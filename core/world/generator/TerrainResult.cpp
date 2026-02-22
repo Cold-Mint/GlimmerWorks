@@ -5,7 +5,8 @@
 #include "TerrainResult.h"
 
 void glimmer::TerrainResult::SetTerrainTileResult(const int x, const int y, const TerrainTileResult &result) {
-    terrainTileResult_[x][y] = result;
+    const int idx = y * CHUNK_SIZE + x;
+    terrainTileResult_[idx] = result;
 }
 
 void glimmer::TerrainResult::SetPosition(const TileVector2D &position) {
@@ -17,6 +18,7 @@ TileVector2D glimmer::TerrainResult::GetPosition() const {
 }
 
 const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const int x, const int y) const {
+    const int idx = y * CHUNK_SIZE + x;
     // up
     // 上
     if (y == CHUNK_SIZE && x >= 0 && x < CHUNK_SIZE) {
@@ -42,21 +44,34 @@ const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const int x, const
     }
     // within the chunk
     // 在 chunk 内
-    return terrainTileResult_[x][y];
+    return terrainTileResult_[idx];
 }
 
-void glimmer::TerrainResult::SetLeftTerrainTileResult(const int y, const TerrainTileResult result) {
+void glimmer::TerrainResult::MarkStructure(const int index) {
+    if (index >= 0 && index < CHUNK_SIZE) {
+        terrainTileResult_[index].terrainType = STRUCTURE;
+    }
+}
+
+void glimmer::TerrainResult::MarkStructureSource(const int index) {
+    if (index >= 0 && index < CHUNK_SIZE) {
+        terrainTileResult_[index].terrainType = STRUCTURE_SOURCE;
+    }
+}
+
+
+void glimmer::TerrainResult::SetLeftTerrainTileResult(const int y, const TerrainTileResult &result) {
     leftTerrainTileResult_[y] = result;
 }
 
-void glimmer::TerrainResult::SetRightTerrainTileResult(const int y, const TerrainTileResult result) {
+void glimmer::TerrainResult::SetRightTerrainTileResult(const int y, const TerrainTileResult &result) {
     rightTerrainTileResult_[y] = result;
 }
 
-void glimmer::TerrainResult::SetUpTerrainTileResult(const int x, const TerrainTileResult result) {
+void glimmer::TerrainResult::SetUpTerrainTileResult(const int x, const TerrainTileResult &result) {
     upTerrainTileResult_[x] = result;
 }
 
-void glimmer::TerrainResult::SetDownTerrainTileResult(const int x, const TerrainTileResult result) {
+void glimmer::TerrainResult::SetDownTerrainTileResult(const int x, const TerrainTileResult &result) {
     downTerrainTileResult_[x] = result;
 }

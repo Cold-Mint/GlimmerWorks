@@ -274,27 +274,70 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     AppContext *appContext = worldContext_->GetAppContext();
     auto chunk = std::make_unique<Chunk>(position);
     std::unique_ptr<TerrainResult> terrainResult = GenerateTerrain(position);
-    std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> tilesRef;
+    std::array<ResourceRef, CHUNK_AREA> tilesRef;
+    //计算结构信息
+    for (auto structureResource: appContext->GetStructureManager()->GetAll()) {
+        std::bitset<CHUNK_AREA> totalBitset;
+        bool hasAnyConditionMatched = false;
+        for (auto &condition: structureResource->condition) {
+            IStructureConditionProcessor *structureConditionProcessor = appContext->
+                    GetStructurePlacementConditionsManager()->FindConditionProcessors(condition.processorId);
+            std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(
+                terrainResult.get(), condition.config);
+            if (bitset.none()) {
+                //The current conditions have no matching points, so they are skipped directly.
+                //当前条件没有任何匹配点，直接跳过
+                break;
+            }
+            if (!hasAnyConditionMatched) {
+                //The first valid condition: Serve directly as the initial candidate set
+                // 第一条有效条件：直接作为初始候选集
+                totalBitset = bitset;
+                hasAnyConditionMatched = true;
+            } else {
+                //Subsequent condition: Bitwise AND, reducing the candidate set
+                //后续条件：按位与，缩小候选集
+                totalBitset &= bitset;
+            }
+
+            //If there are no more candidates left, you can exit the program now.
+            //如果已经没有任何候选点了，可以提前退出
+            if (totalBitset.none()) {
+                break;
+            }
+        }
+        if (hasAnyConditionMatched && totalBitset.any()) {
+            //Find one or more placement points for the structure.
+            //找到一个或多个结构放置点。
+            for (int i = 0; i < CHUNK_AREA; i++) {
+                auto bit = totalBitset.test(i);
+                if (bit) {
+                     terrainResult.get()->MarkStructureSource(bit);
+                }
+            }
+        }
+    }
     std::unordered_set<BiomeResource *> biomeResourcesSet;
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+            const int idx = localY * CHUNK_SIZE + localX;
             auto terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             auto terrainType = terrainTileResult.terrainType;
             LogCat::d("Chunk x=", position.x + localX, ",y=", position.y + localY, ",terrainType=", terrainType);
             if (terrainType == AIR) {
-                tilesRef[localX][localY] = airTileRef_;
+                tilesRef[idx] = airTileRef_;
                 continue;
             }
             if (terrainType == WATER) {
-                tilesRef[localX][localY] = waterTileRef_;
+                tilesRef[idx] = waterTileRef_;
                 continue;
             }
             if (terrainType == BEDROCK) {
-                tilesRef[localX][localY] = bedrockTileRef_;
+                tilesRef[idx] = bedrockTileRef_;
                 continue;
             }
             if (terrainType == SOLID) {
-                tilesRef[localX][localY] = airTileRef_;
+                tilesRef[idx] = airTileRef_;
                 if (terrainTileResult.biomeResource != nullptr && !biomeResourcesSet.contains(
                         terrainTileResult.biomeResource)) {
                     biomeResourcesSet.insert(terrainTileResult.biomeResource);
@@ -318,7 +361,8 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
-            ResourceRef &resourceRef = tilesRef[localX][localY];
+            const int idx = localY * CHUNK_SIZE + localX;
+            ResourceRef &resourceRef = tilesRef[idx];
             const std::optional tileResource = appContext->GetResourceLocator()->FindTile(
                 resourceRef);
             TileResource *tileResourceValue = nullptr;

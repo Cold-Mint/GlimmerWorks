@@ -6,7 +6,6 @@
 #define GLIMMERWORKS_TERRAINRESULT_H
 
 #include "TerrainTileResult.h"
-#include "core/ecs/component/TileLayerComponent.h"
 
 namespace glimmer {
     /**
@@ -14,7 +13,7 @@ namespace glimmer {
      * 地形生成结果
      */
     class TerrainResult {
-        std::array<std::array<TerrainTileResult, CHUNK_SIZE>, CHUNK_SIZE> terrainTileResult_;
+        std::array<TerrainTileResult, CHUNK_AREA> terrainTileResult_;
         std::array<TerrainTileResult, CHUNK_SIZE> leftTerrainTileResult_;
         std::array<TerrainTileResult, CHUNK_SIZE> rightTerrainTileResult_;
         std::array<TerrainTileResult, CHUNK_SIZE> upTerrainTileResult_;
@@ -32,12 +31,27 @@ namespace glimmer {
         [[nodiscard]] const TerrainTileResult &QueryTerrain(int x, int y) const;
 
         /**
+         * Mark a certain coordinate as a structure.
+         * 将某个坐标标记为结构。
+         * @param index
+         */
+        void MarkStructure(int index);
+
+        /**
+         * Mark a certain position as the source of the structure
+         * 将某个位置标记为结构源
+         * @param index
+         */
+        void MarkStructureSource(int index);
+
+
+        /**
          * Set the terrain data of the last column on the left side of the block.
          * 设置左侧区块的最右侧的一列的地形数据
          * @param y
          * @param result
          */
-        void SetLeftTerrainTileResult(int y, TerrainTileResult result);
+        void SetLeftTerrainTileResult(int y, const TerrainTileResult &result);
 
         /**
          *Set the terrain data of the leftmost column of the right-side block
@@ -45,7 +59,7 @@ namespace glimmer {
          * @param y
          * @param result
          */
-        void SetRightTerrainTileResult(int y, TerrainTileResult result);
+        void SetRightTerrainTileResult(int y, const TerrainTileResult &result);
 
         /**
          *Set the terrain data of the bottom row of the top block
@@ -53,7 +67,7 @@ namespace glimmer {
          * @param x
          * @param result
          */
-        void SetUpTerrainTileResult(int x, TerrainTileResult result);
+        void SetUpTerrainTileResult(int x, const TerrainTileResult &result);
 
         /***
          *Set the terrain data of the top row of the bottom block
@@ -61,7 +75,7 @@ namespace glimmer {
          * @param x
          * @param result
          */
-        void SetDownTerrainTileResult(int x, TerrainTileResult result);
+        void SetDownTerrainTileResult(int x, const TerrainTileResult &result);
     };
 }
 

@@ -43,6 +43,11 @@ static constexpr std::string STRUCTURE_GENERATOR_ID_TREE = "tree";
 static constexpr std::string STRUCTURE_GENERATOR_ID_STATIC = "static";
 static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_DIG = "dig";
+
+static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_BIOME = "biome";
+static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_SURFACE = "surface";
+static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HEIGHT = "height";
+
 /**
  * Resource ref
  * 资源引用
@@ -55,6 +60,7 @@ static constexpr uint32_t RESOURCE_TYPE_ABILITY_ITEM = 4;
 static constexpr uint32_t RESOURCE_TYPE_LOOT_TABLE = 5;
 static constexpr uint32_t RESOURCE_TYPE_STRUCTURE = 6;
 static constexpr uint32_t RESOURCE_TYPE_TEXTURES = 7;
+static constexpr uint32_t RESOURCE_TYPE_BIOME = 8;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;
@@ -94,6 +100,7 @@ constexpr uint16_t MAGNETIC_TYPE_ITEM = 0x0001;
  * 单位区块的尺寸
  */
 static constexpr int CHUNK_SIZE = 16;
+static constexpr int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
 //世界高度
 static constexpr int WORLD_MAX_Y = 512;
 static constexpr int SKY_HEIGHT = 64;

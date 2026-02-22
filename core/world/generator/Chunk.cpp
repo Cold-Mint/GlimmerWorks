@@ -44,9 +44,9 @@ TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const Til
 
 int glimmer::Chunk::TileToChunk(const int tileCoord) {
     if (tileCoord >= 0) {
-        return tileCoord / CHUNK_SIZE * CHUNK_SIZE;
+        return tileCoord / CHUNK_AREA;
     }
-    return (tileCoord - CHUNK_SIZE + 1) / CHUNK_SIZE * CHUNK_SIZE;
+    return (tileCoord - CHUNK_SIZE + 1) / CHUNK_AREA;
 }
 
 glimmer::Chunk::Chunk(const TileVector2D &pos) : position(pos) {
@@ -78,7 +78,7 @@ void glimmer::Chunk::FromMessage(AppContext *appContext, const ChunkMessage &chu
         auto tileResourceRefSize = tileData.tileresourceref_size();
         std::array<std::array<std::unique_ptr<Tile>, CHUNK_SIZE>, CHUNK_SIZE> value;
         for (int i = 0; i < tileResourceRefSize; i++) {
-            auto tileResourceRefMessage = tileData.tileresourceref(i);
+            auto &tileResourceRefMessage = tileData.tileresourceref(i);
             int x = i % CHUNK_SIZE;
             int y = i / CHUNK_SIZE;
             ResourceRef resourceRef;
@@ -101,7 +101,7 @@ void glimmer::Chunk::ToMessage(ChunkMessage &chunkMessage) {
         auto &tileData =
                 (*chunkMessage.mutable_tiles())[static_cast<int>(layerType)];
         tileData.mutable_tileresourceref()->Reserve(
-            CHUNK_SIZE * CHUNK_SIZE
+            CHUNK_AREA
         );
         for (int y = 0; y < CHUNK_SIZE; y++) {
             for (int x = 0; x < CHUNK_SIZE; x++) {

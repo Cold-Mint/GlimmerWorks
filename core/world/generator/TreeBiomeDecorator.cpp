@@ -12,12 +12,10 @@ void glimmer::TreeBiomeDecorator::SetWorldSeed(const int seed) {
     treeNoise->SetSeed(seed);
 }
 
-void glimmer::TreeBiomeDecorator::Decoration(
-    WorldContext *worldContext,
-    TerrainResult *terrainResult,
-    BiomeDecoratorResource *biomeDecoratorResource,
-    BiomeResource *biomeResource,
-    std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef) {
+void glimmer::TreeBiomeDecorator::Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
+                                             BiomeDecoratorResource *biomeDecoratorResource,
+                                             BiomeResource *biomeResource,
+                                             std::array<ResourceRef, CHUNK_AREA> &tilesRef) {
     if (treeNoise == nullptr) {
         return;
     }
@@ -38,6 +36,7 @@ void glimmer::TreeBiomeDecorator::Decoration(
     const ResourceRef &resourceRef = biomeDecoratorResource->data[0];
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
+            const int idx = localY * CHUNK_SIZE + localX;
             TerrainTileResult self = terrainResult->QueryTerrain(localX, localY);
             if (self.terrainType != SOLID) {
                 //Not solid tiles.
@@ -85,7 +84,7 @@ void glimmer::TreeBiomeDecorator::Decoration(
                 continue;
             }
 
-            tilesRef[localX][localY] = resourceRef;
+            tilesRef[idx] = resourceRef;
         }
     }
 }

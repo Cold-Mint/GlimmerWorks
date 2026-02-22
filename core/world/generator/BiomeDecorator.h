@@ -27,7 +27,7 @@ namespace glimmer {
         virtual void Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
                                 BiomeDecoratorResource *biomeDecoratorResource,
                                 BiomeResource *biomeResource,
-                                std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef) = 0;
+                                std::array<ResourceRef, CHUNK_AREA> &tilesRef) = 0;
 
         /**
          * Get the id of the tile placement device

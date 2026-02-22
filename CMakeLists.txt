@@ -35,7 +35,7 @@ math(EXPR GAME_VERSION_NUMBER
 )
 
 set(GAME_VERSION_STRING
-        "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CMAKE_BUILD_TYPE}(${GAME_VERSION_NUMBER})"
+        "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CMAKE_BUILD_TYPE}"
 )
 
 
@@ -328,6 +328,11 @@ target_sources(GlimmerWorks
         core/utils/BrowserInvoker.cpp
         core/GameUIMessage.cpp
         core/inventory/InitialInventoryManager.cpp
+        core/world/structure/IStructureConditionProcessor.cpp
+        core/world/structure/BiomeStructureConditionProcessor.cpp
+        core/world/structure/SurfaceStructureConditionProcessor.cpp
+        core/world/structure/HeightStructureConditionProcessor.cpp
+        core/mod/StructurePlacementConditionsManager.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -481,6 +486,11 @@ target_sources(GlimmerWorks
         core/utils/BrowserInvoker.h
         core/GameUIMessage.h
         core/inventory/InitialInventoryManager.h
+        core/world/structure/IStructureConditionProcessor.h
+        core/world/structure/HeightStructureConditionProcessor.h
+        core/world/structure/SurfaceStructureConditionProcessor.h
+        core/world/structure/BiomeStructureConditionProcessor.h
+        core/mod/StructurePlacementConditionsManager.h
 )
 
 #Define version information

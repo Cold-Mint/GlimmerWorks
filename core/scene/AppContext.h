@@ -23,6 +23,7 @@
 #include "core/GameUIMessage.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
+#include "core/mod/StructurePlacementConditionsManager.h"
 #include "core/mod/dataPack/StructureManager.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
 #include "core/world/structure/StructureGeneratorManager.h"
@@ -72,6 +73,7 @@ namespace glimmer {
         std::unique_ptr<ItemManager> itemManager_;
         std::unique_ptr<DragAndDrop> dragAndDrop_;
         std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
+        std::unique_ptr<StructurePlacementConditionsManager> structurePlacementConditionsManager_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
@@ -124,6 +126,8 @@ namespace glimmer {
         [[nodiscard]] LangsResources *GetLangsResources() const;
 
         [[nodiscard]] ResourcePackManager *GetResourcePackManager() const;
+
+        [[nodiscard]] StructurePlacementConditionsManager* GetStructurePlacementConditionsManager() const;
 
         [[nodiscard]] TileManager *GetTileManager() const;
 

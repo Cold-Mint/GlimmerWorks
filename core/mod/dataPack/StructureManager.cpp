@@ -12,6 +12,7 @@ glimmer::StructureResource *glimmer::StructureManager::AddResource(
               ", key = ", structureResource->key);
     auto &slot = structureMap_[structureResource->packId][structureResource->key];
     slot = std::move(structureResource);
+    structureVector_.push_back(slot.get());
     return slot.get();
 }
 
@@ -34,28 +35,23 @@ glimmer::StructureResource *glimmer::StructureManager::Find(const std::string &p
     return keyIt->second.get();
 }
 
-std::vector<std::string> glimmer::StructureManager::GetStructureIDList() {
-    std::vector<std::string> result;
-    for (const auto &[packId, keyMap]: structureMap_) {
-        for (const auto &[key, resource]: keyMap) {
-            result.emplace_back(Resource::GenerateId(packId, key));
-        }
-    }
+const std::vector<glimmer::StructureResource *> &glimmer::StructureManager::GetAll() const {
+    return structureVector_;
+}
 
+std::vector<std::string> glimmer::StructureManager::GetStructureIDList() const {
+    std::vector<std::string> result;
+    for (const auto structureVector: structureVector_) {
+        result.emplace_back(Resource::GenerateId(structureVector->packId, structureVector->key));
+    }
     return result;
 }
 
-std::string glimmer::StructureManager::ListStructures() {
+std::string glimmer::StructureManager::ListStructures() const {
     std::string result;
-    for (const auto &packPair: structureMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair.first;
-            result += Resource::GenerateId(packId, key);
-            result += "\n";
-        }
+    for (auto structureVector: structureVector_) {
+        result += Resource::GenerateId(structureVector->packId, structureVector->key);
+        result += "\n";
     }
     return result;
 }

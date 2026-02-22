@@ -11,7 +11,7 @@ namespace glimmer {
     public:
         void Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
                         BiomeDecoratorResource *biomeDecoratorResource, BiomeResource *biomeResource,
-                        std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef) override;
+                        std::array<ResourceRef, CHUNK_AREA> &tilesRef) override;
 
 
         std::string GetId() override;

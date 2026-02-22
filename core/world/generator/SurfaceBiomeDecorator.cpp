@@ -6,13 +6,15 @@
 
 #include "core/world/WorldContext.h"
 
+
 void glimmer::SurfaceBiomeDecorator::Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
                                                 BiomeDecoratorResource *biomeDecoratorResource,
                                                 BiomeResource *biomeResource,
-                                                std::array<std::array<ResourceRef, CHUNK_SIZE>, CHUNK_SIZE> &tilesRef) {
+                                                std::array<ResourceRef, CHUNK_AREA> &tilesRef) {
     const ResourceRef &resourceRef = biomeDecoratorResource->data[0];
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
+            const int idx = localY * CHUNK_SIZE + localX;
             TerrainTileResult self = terrainResult->QueryTerrain(localX, localY);
             if (self.terrainType != SOLID) {
                 //Not solid tiles.
@@ -30,7 +32,7 @@ void glimmer::SurfaceBiomeDecorator::Decoration(WorldContext *worldContext, Terr
                 //上方的瓦片不是空气。
                 continue;
             }
-            tilesRef[localX][localY] = resourceRef;
+            tilesRef[idx] = resourceRef;
         }
     }
 }

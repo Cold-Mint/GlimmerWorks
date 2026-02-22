@@ -11,15 +11,18 @@ namespace glimmer {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<StructureResource> > >
         structureMap_
                 {};
+        std::vector<StructureResource *> structureVector_ = {};
 
     public:
         StructureResource *AddResource(std::unique_ptr<StructureResource> structureResource);
 
         [[nodiscard]] StructureResource *Find(const std::string &packId, const std::string &key);
 
-        [[nodiscard]] std::vector<std::string> GetStructureIDList();
+        [[nodiscard]] const std::vector<StructureResource *> &GetAll() const;
 
-        std::string ListStructures();
+        [[nodiscard]] std::vector<std::string> GetStructureIDList() const;
+
+        std::string ListStructures() const;
     };
 }
 

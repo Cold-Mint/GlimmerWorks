@@ -60,7 +60,8 @@ namespace glimmer {
         INT = 0,
         FLOAT,
         BOOL,
-        STRING
+        STRING,
+        REF
     };
 
 
@@ -68,7 +69,18 @@ namespace glimmer {
         std::string key;
         VariableDefinitionType type = STRING;
         std::string value;
+        inline static const std::unordered_map<std::string, VariableDefinitionType> variableDefinitionTypeMap_{
+            {"int", INT},
+            {"float", FLOAT},
+            {"bool", BOOL},
+            {"string", STRING},
+            {"ref", REF}
+        };
 
+
+        static VariableDefinitionType ResolveVariableType(const std::string &typeName);
+
+        void AsResourceRef(ResourceRef &resourceRef) const;
 
         [[nodiscard]] int AsInt() const;
 
@@ -83,6 +95,14 @@ namespace glimmer {
         std::vector<VariableDefinition> definition;
 
         [[nodiscard]] const VariableDefinition *FindVariable(const std::string &name) const;
+
+
+        void UpdateArgs(const toml::spec &tomlVersion, const std::string &selfPackId);
+    };
+
+    struct StructurePlacementConditions {
+        std::string processorId;
+        VariableConfig config;
     };
 
     struct StructureResource : Resource {
@@ -97,6 +117,7 @@ namespace glimmer {
          * 只对静态生成器有效，定义结构的宽度。
          */
         uint32_t width;
+        std::vector<StructurePlacementConditions> condition;
         std::vector<ResourceRef> data;
     };
 

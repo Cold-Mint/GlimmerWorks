@@ -120,9 +120,13 @@ LoadStructureResourceFromFile(const std::string &path, StructureManager *structu
     toml::value value = toml::parse_str(data.value(), tomlVersion_);
     auto structureResource = std::make_unique<StructureResource>(toml::get<StructureResource>(value));
     structureResource->packId = manifest_.id;
+    structureResource->generatorConfig.UpdateArgs(tomlVersion_, manifest_.id);
     for (auto &ref: structureResource->data) {
         ref.SetSelfPackageId(manifest_.id);
         ref.UpdateArgs(tomlVersion_);
+    }
+    for (auto &condition: structureResource->condition) {
+        condition.config.UpdateArgs(tomlVersion_, manifest_.id);
     }
     structureManager->AddResource(std::move(structureResource));
     return true;
@@ -167,6 +171,7 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
             tile.SetSelfPackageId(manifest_.id);
             tile.UpdateArgs(tomlVersion_);
         }
+        decorator.config.UpdateArgs(tomlVersion_, manifest_.id);
     }
     biomesManager->AddResource(std::move(biomeResource));
     return true;
@@ -212,6 +217,7 @@ bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path,
     itemResource->description.UpdateArgs(tomlVersion_);
     itemResource->texture.SetSelfPackageId(manifest_.id);
     itemResource->texture.UpdateArgs(tomlVersion_);
+    itemResource->abilityConfig.UpdateArgs(tomlVersion_, manifest_.id);
     itemManager->AddAbilityItemResource(std::move(itemResource));
     return true;
 }

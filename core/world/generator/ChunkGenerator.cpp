@@ -278,43 +278,89 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     //计算结构信息
     for (auto structureResource: appContext->GetStructureManager()->GetAll()) {
         std::bitset<CHUNK_AREA> totalBitset;
+        size_t totalConditions = structureResource->condition.size();
+        std::string resId = Resource::GenerateId(*structureResource);
+        LogCat::d("StructurePlacement", "Start processing structure resource. Total conditions:",
+                  totalConditions, ",resId :", resId);
+        if (totalConditions == 0) {
+            continue;
+        }
         bool hasAnyConditionMatched = false;
-        for (auto &condition: structureResource->condition) {
+        bool finsh = false;
+        int endIndex = static_cast<int>(totalConditions) - 1;
+        for (int i = 0; i <= endIndex; i++) {
+            auto &condition = structureResource->condition[i];
+            const std::string &processorId = condition.processorId;
+            LogCat::d("StructurePlacement", "Processing condition (", i, " / ",
+                      totalConditions, "), processorId:", processorId, ",resId :", resId
+            );
+
             IStructureConditionProcessor *structureConditionProcessor = appContext->
-                    GetStructurePlacementConditionsManager()->FindConditionProcessors(condition.processorId);
+                    GetStructurePlacementConditionsManager()->FindConditionProcessors(processorId);
+
+            if (structureConditionProcessor == nullptr) {
+                LogCat::e("StructurePlacement", "Condition ", i, " processor not found, processorId:",
+                          processorId, ",resId :", resId);
+                continue;
+            }
             std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(
                 terrainResult.get(), condition.config);
+
+            size_t matchedCount = bitset.count();
+            LogCat::d("StructurePlacement",
+                      "Condition ", i, " matched. processorId: ", processorId, ", matched points: ",
+                      matchedCount, ", is empty:", bitset.none() ? "true" : "false", ",resId :", resId);
+
             if (bitset.none()) {
-                //The current conditions have no matching points, so they are skipped directly.
-                //当前条件没有任何匹配点，直接跳过
+                LogCat::w("StructurePlacement",
+                          "Condition ", i, " has no matched points, skip remaining conditions. processorId:",
+                          processorId, ",resId :", resId);
                 break;
-            }
-            if (!hasAnyConditionMatched) {
-                //The first valid condition: Serve directly as the initial candidate set
-                // 第一条有效条件：直接作为初始候选集
-                totalBitset = bitset;
-                hasAnyConditionMatched = true;
-            } else {
-                //Subsequent condition: Bitwise AND, reducing the candidate set
-                //后续条件：按位与，缩小候选集
-                totalBitset &= bitset;
             }
 
-            //If there are no more candidates left, you can exit the program now.
-            //如果已经没有任何候选点了，可以提前退出
+            if (!hasAnyConditionMatched) {
+                totalBitset = bitset;
+                hasAnyConditionMatched = true;
+                LogCat::d("StructurePlacement",
+                          "Init candidate set with first valid condition. Initial matched points: ",
+                          totalBitset.count(), ",resId :", resId);
+            } else {
+                size_t prevCount = totalBitset.count();
+                totalBitset &= bitset;
+                size_t currCount = totalBitset.count();
+                LogCat::d("StructurePlacement",
+                          "Reduce candidate set by bitwise AND. Previous points: ", prevCount, ", current points: ",
+                          currCount, ", reduced by: ", prevCount - currCount, ",resId :", resId);
+            }
+
             if (totalBitset.none()) {
+                LogCat::w("StructurePlacement",
+                          "No candidate points left, exit condition loop early. Current condition index:",
+                          i, ",resId :", resId);
                 break;
             }
+            if (i == endIndex) {
+                finsh = true;
+            }
         }
-        if (hasAnyConditionMatched && totalBitset.any()) {
-            //Find one or more placement points for the structure.
-            //找到一个或多个结构放置点。
+        size_t finalMatchedCount = totalBitset.count();
+        LogCat::d("StructurePlacement",
+                  "Finish processing structure resource. Has valid condition matched: ",
+                  hasAnyConditionMatched ? "true" : "false", ", final matched points:",
+                  finalMatchedCount, ",finsh:", finsh);
+
+        if (finsh && hasAnyConditionMatched && totalBitset.any()) {
+            int markedCount = 0;
             for (int i = 0; i < CHUNK_AREA; i++) {
                 auto bit = totalBitset.test(i);
                 if (bit) {
-                     terrainResult.get()->MarkStructureSource(bit);
+                    terrainResult->MarkStructureSource(i);
+                    markedCount++;
                 }
             }
+            LogCat::i("StructurePlacement", "Marked structure placement points. Total marked points:", markedCount);
+        } else {
+            LogCat::d("StructurePlacement", "No valid placement points for structure, skip marking");
         }
     }
     std::unordered_set<BiomeResource *> biomeResourcesSet;
@@ -333,6 +379,10 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                 continue;
             }
             if (terrainType == BEDROCK) {
+                tilesRef[idx] = bedrockTileRef_;
+                continue;
+            }
+            if (terrainType == STRUCTURE_SOURCE) {
                 tilesRef[idx] = bedrockTileRef_;
                 continue;
             }

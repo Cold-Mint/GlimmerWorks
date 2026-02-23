@@ -44,9 +44,9 @@ TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const Til
 
 int glimmer::Chunk::TileToChunk(const int tileCoord) {
     if (tileCoord >= 0) {
-        return tileCoord / CHUNK_AREA;
+        return tileCoord / CHUNK_SIZE * CHUNK_SIZE;
     }
-    return (tileCoord - CHUNK_SIZE + 1) / CHUNK_AREA;
+    return (tileCoord - CHUNK_SIZE + 1) / CHUNK_SIZE * CHUNK_SIZE;
 }
 
 glimmer::Chunk::Chunk(const TileVector2D &pos) : position(pos) {

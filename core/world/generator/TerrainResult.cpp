@@ -48,13 +48,13 @@ const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const int x, const
 }
 
 void glimmer::TerrainResult::MarkStructure(const int index) {
-    if (index >= 0 && index < CHUNK_SIZE) {
+    if (index >= 0 && index < CHUNK_AREA) {
         terrainTileResult_[index].terrainType = STRUCTURE;
     }
 }
 
 void glimmer::TerrainResult::MarkStructureSource(const int index) {
-    if (index >= 0 && index < CHUNK_SIZE) {
+    if (index >= 0 && index < CHUNK_AREA) {
         terrainTileResult_[index].terrainType = STRUCTURE_SOURCE;
     }
 }

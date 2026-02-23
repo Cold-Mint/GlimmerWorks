@@ -33,6 +33,7 @@
 #include "core/world/generator/TreeBiomeDecorator.h"
 #include "core/world/structure/BiomeStructureConditionProcessor.h"
 #include "core/world/structure/HeightStructureConditionProcessor.h"
+#include "core/world/structure/HorizontalSpacingStructureConditionProcessor.h"
 #include "core/world/structure/StaticStructureGenerator.h"
 #include "core/world/structure/SurfaceStructureConditionProcessor.h"
 #include "core/world/structure/TreeStructureGenerator.h"
@@ -185,6 +186,7 @@ glimmer::AppContext::AppContext() {
     structurePlacementConditionsManager_ = std::make_unique<StructurePlacementConditionsManager>();
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<SurfaceStructureConditionProcessor>());
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<HeightStructureConditionProcessor>());
+    structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<HorizontalSpacingStructureConditionProcessor>());
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<BiomeStructureConditionProcessor>());
     initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
     tileManager_->InitBuiltinTiles();

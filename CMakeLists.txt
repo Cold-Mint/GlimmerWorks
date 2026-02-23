@@ -333,6 +333,7 @@ target_sources(GlimmerWorks
         core/world/structure/SurfaceStructureConditionProcessor.cpp
         core/world/structure/HeightStructureConditionProcessor.cpp
         core/mod/StructurePlacementConditionsManager.cpp
+        core/world/structure/HorizontalSpacingStructureConditionProcessor.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -491,6 +492,7 @@ target_sources(GlimmerWorks
         core/world/structure/SurfaceStructureConditionProcessor.h
         core/world/structure/BiomeStructureConditionProcessor.h
         core/mod/StructurePlacementConditionsManager.h
+        core/world/structure/HorizontalSpacingStructureConditionProcessor.h
 )
 
 #Define version information

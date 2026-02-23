@@ -47,6 +47,7 @@ static constexpr std::string ABILITY_ID_DIG = "dig";
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_BIOME = "biome";
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_SURFACE = "surface";
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HEIGHT = "height";
+static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HORIZONTAL_SPACING = "hSpacing";
 
 /**
  * Resource ref

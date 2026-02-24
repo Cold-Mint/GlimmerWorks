@@ -5,6 +5,7 @@
 #ifndef GLIMMERWORKS_ISTRUCTURECONDITIONPROCESSOR_H
 #define GLIMMERWORKS_ISTRUCTURECONDITIONPROCESSOR_H
 #include <string>
+#include <bitset>
 
 #include "core/world/generator/TerrainResult.h"
 

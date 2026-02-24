@@ -157,7 +157,7 @@ namespace glimmer {
          */
         [[nodiscard]] bool IsStaticBody() const;
 
-        [[nodiscard]] u_int32_t GetId() override;
+        [[nodiscard]] uint32_t GetId() override;
 
         [[nodiscard]] bool IsSerializable() override;
 

@@ -61,6 +61,6 @@ void glimmer::CameraComponent::SetZoom(const float zoom) {
     this->zoom_ = std::clamp(zoom, 0.2F, 4.0F);
 }
 
-u_int32_t glimmer::CameraComponent::GetId() {
+uint32_t glimmer::CameraComponent::GetId() {
     return COMPONENT_ID_CAMERA;
 }

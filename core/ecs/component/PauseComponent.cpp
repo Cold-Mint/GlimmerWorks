@@ -6,6 +6,6 @@
 
 #include "core/Constants.h"
 
-u_int32_t glimmer::PauseComponent::GetId() {
+uint32_t glimmer::PauseComponent::GetId() {
     return COMPONENT_ID_PAUSE;
 }

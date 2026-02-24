@@ -102,7 +102,7 @@ namespace glimmer {
                                               tileLayerType_(tileLayerType) {
         }
 
-        [[nodiscard]] u_int32_t GetId() override;
+        [[nodiscard]] uint32_t GetId() override;
 
     private:
         std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *chunks_;

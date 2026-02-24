@@ -5,6 +5,9 @@
 #include "BrowserInvoker.h"
 
 #include <unistd.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 void glimmer::BrowserInvoker::OpenUrl(const std::string &url) {
 #ifdef _WIN32

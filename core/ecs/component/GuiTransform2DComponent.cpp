@@ -47,6 +47,6 @@ void glimmer::GuiTransform2DComponent::Deserialize(WorldContext *worldContext, c
     size_.y = guiTransform2dMessage.position().y();
 }
 
-u_int32_t glimmer::GuiTransform2DComponent::GetId() {
+uint32_t glimmer::GuiTransform2DComponent::GetId() {
     return COMPONENT_ID_GUI_TRANSFORM_2D;
 }

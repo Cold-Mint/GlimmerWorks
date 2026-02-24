@@ -69,6 +69,6 @@ void glimmer::MagnetComponent::Deserialize(WorldContext *worldContext, const std
     adsorptionRadius_ = magnetMessage.adsorptionradius();
 }
 
-u_int32_t glimmer::MagnetComponent::GetId() {
+uint32_t glimmer::MagnetComponent::GetId() {
     return COMPONENT_ID_MAGNET;
 }

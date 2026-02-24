@@ -2,6 +2,6 @@
 
 #include "core/Constants.h"
 
-u_int32_t glimmer::PlayerControlComponent::GetId() {
+uint32_t glimmer::PlayerControlComponent::GetId() {
     return COMPONENT_ID_PLAYER_CONTROL;
 }

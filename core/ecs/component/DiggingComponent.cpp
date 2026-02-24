@@ -60,6 +60,6 @@ bool glimmer::DiggingComponent::CheckAndResetActive() {
     return active;
 }
 
-u_int32_t glimmer::DiggingComponent::GetId() {
+uint32_t glimmer::DiggingComponent::GetId() {
     return COMPONENT_ID_DIGGING;
 }

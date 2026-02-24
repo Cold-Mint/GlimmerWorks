@@ -35,6 +35,6 @@ void glimmer::ItemContainerComponent::Deserialize(WorldContext *worldContext, co
     itemContainer_->FromMessage(worldContext->GetAppContext(), itemContainerMessage);
 }
 
-u_int32_t glimmer::ItemContainerComponent::GetId() {
+uint32_t glimmer::ItemContainerComponent::GetId() {
     return COMPONENT_ID_ITEM_CONTAINER;
 }

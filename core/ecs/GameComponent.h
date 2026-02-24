@@ -5,7 +5,7 @@
 #ifndef GLIMMERWORKS_COMPONENT_H
 #define GLIMMERWORKS_COMPONENT_H
 #include <string>
-
+#include <cstdint>
 
 namespace glimmer {
     class AppContext;
@@ -37,7 +37,7 @@ namespace glimmer {
          */
         virtual void Deserialize(WorldContext *worldContext, const std::string &data);
 
-        [[nodiscard]] virtual u_int32_t GetId();
+        [[nodiscard]] virtual uint32_t GetId();
     };
 }
 

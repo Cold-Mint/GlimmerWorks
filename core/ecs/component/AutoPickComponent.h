@@ -9,7 +9,7 @@
 namespace glimmer {
     class AutoPickComponent : public GameComponent {
     public:
-        [[nodiscard]] u_int32_t GetId() override;
+        [[nodiscard]] uint32_t GetId() override;
 
         [[nodiscard]] bool IsSerializable() override;
     };

@@ -10,8 +10,10 @@ set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
 
 include("versions.cmake")
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(ARCH_BIT "64")
     set(LIB_DIR "lib64")
 else ()
+    set(ARCH_BIT "32")
     set(LIB_DIR "lib32")
 endif ()
 set(CMAKE_BUILD_RPATH "$ORIGIN/${LIB_DIR}")
@@ -151,7 +153,6 @@ FetchContent_Declare(
         glimmerWorksProtobuf
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
         GIT_PROGRESS TRUE
-        PATCH_COMMAND sed -i "s|_deps/pb-build/cmake/protobuf/protobuf-generate.cmake|_deps/pb-src/cmake/protobuf-generate.cmake|" CMakeLists.txt
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
@@ -584,9 +585,18 @@ if (UNIX AND NOT APPLE)
     endif ()
 
     set(CPACK_PACKAGE_FILE_NAME
-            "${PROJECT_NAME}-${GAME_VERSION_STRING}-Linux-${WINDOW_BACKEND_NAME}")
+            "${PROJECT_NAME}-${GAME_VERSION_STRING}-Linux-${WINDOW_BACKEND_NAME}-x${ARCH_BIT}")
     set(CPACK_GENERATOR "TZST")
 endif ()
+if (WIN32)
+    set(LIB_SUFFIX "dll")
+    set(CPACK_PACKAGE_FILE_NAME
+            "${PROJECT_NAME}-${GAME_VERSION_STRING}-Windows-x${ARCH_BIT}")
+    set(CPACK_GENERATOR "ZIP")
+else ()
+    set(LIB_SUFFIX "so*")
+endif ()
+
 set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist/${CMAKE_BUILD_TYPE}")
 include(CPack)
 install(TARGETS GlimmerWorks RUNTIME DESTINATION .)
@@ -598,8 +608,18 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/mods/"
 install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
         DESTINATION .)
 
+if(WIN32)
 install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl_image-build/*so*\")
+    file(GLOB PROTO_BUF_LIBS \"/usr/x86_64-w64-mingw32/sys-root/mingw/bin/*${LIB_SUFFIX}\")
+    foreach(lib \${PROTO_BUF_LIBS})
+        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
+    endforeach()
+")
+endif ()
+
+install(CODE "
+    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl_image-build/*${LIB_SUFFIX}\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
@@ -608,7 +628,7 @@ install(CODE "
 
 
 install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/fmt-build/*so*\")
+    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/fmt-build/*${LIB_SUFFIX}\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
@@ -616,7 +636,7 @@ install(CODE "
 ")
 
 install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl_ttf-build/*so*\")
+    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl_ttf-build/*${LIB_SUFFIX}\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
@@ -624,7 +644,7 @@ install(CODE "
 ")
 
 install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/*so*\")
+    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/*${LIB_SUFFIX}\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
@@ -632,132 +652,7 @@ install(CODE "
 ")
 
 install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/log/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/flags/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/debugging/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/container/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/hash/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/random/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/status/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/strings/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/profiling/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/crc/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/base/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/synchronization/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/time/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/absl-build/absl/numeric/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/pb-build/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/pb-build/third_party/utf8_range/*so*\")
-    foreach(lib \${PROTO_BUF_LIBS})
-        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
-        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
-    endforeach()
-")
-
-install(CODE "
-    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/glimmerworksprotobuf-build/*so*\")
+    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/glimmerworksprotobuf-build/*${LIB_SUFFIX}\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})

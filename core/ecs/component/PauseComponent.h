@@ -9,7 +9,7 @@
 namespace glimmer {
     class PauseComponent : public GameComponent {
     public:
-        [[nodiscard]] u_int32_t GetId() override;
+        [[nodiscard]] uint32_t GetId() override;
     };
 }
 

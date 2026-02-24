@@ -40,7 +40,7 @@ uint16_t glimmer::MagneticComponent::GetType() const {
     return type_;
 }
 
-u_int32_t glimmer::MagneticComponent::GetId() {
+uint32_t glimmer::MagneticComponent::GetId() {
     return COMPONENT_ID_MAGNETIC;
 }
 

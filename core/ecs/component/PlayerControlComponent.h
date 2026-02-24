@@ -19,7 +19,7 @@ namespace glimmer {
         float dropTimer = 0.0F;
         bool dropPressed = false;
 
-        [[nodiscard]] u_int32_t GetId() override;
+        [[nodiscard]] uint32_t GetId() override;
     };
 }
 

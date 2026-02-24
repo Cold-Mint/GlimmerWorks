@@ -96,7 +96,7 @@ namespace glimmer {
          */
         void SetZoom(float zoom);
 
-        [[nodiscard]] u_int32_t GetId() override;
+        [[nodiscard]] uint32_t GetId() override;
     };
 }
 

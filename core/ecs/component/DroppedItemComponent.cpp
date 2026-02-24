@@ -47,7 +47,7 @@ bool glimmer::DroppedItemComponent::CanBePickedUp() const {
     return pickupCooldown_ <= 0.0F;
 }
 
-u_int32_t glimmer::DroppedItemComponent::GetId() {
+uint32_t glimmer::DroppedItemComponent::GetId() {
     return COMPONENT_ID_DROPPED_ITEM;
 }
 

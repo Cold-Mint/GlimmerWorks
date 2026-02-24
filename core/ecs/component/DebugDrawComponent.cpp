@@ -22,6 +22,6 @@ void glimmer::DebugDrawComponent::SetSize(const Vector2D &size) {
     size_ = size;
 }
 
-u_int32_t glimmer::DebugDrawComponent::GetId() {
+uint32_t glimmer::DebugDrawComponent::GetId() {
     return COMPONENT_ID_DEBUG_DRAW;
 }

@@ -132,5 +132,6 @@ bool glimmer::StdFileProvider::CreateFolder(const std::string &path) {
 }
 
 std::optional<std::string> glimmer::StdFileProvider::GetActualPath(const std::string &path) const {
-    return std::filesystem::path(root_) / path;
+    std::filesystem::path fullPath = std::filesystem::path(root_) / path;
+    return std::make_optional(fullPath.string());
 }

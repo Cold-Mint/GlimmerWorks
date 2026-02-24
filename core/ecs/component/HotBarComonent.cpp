@@ -35,6 +35,6 @@ const std::vector<glimmer::GameEntity::ID> &glimmer::HotBarComponent::GetSlotEnt
     return slotEntities_;
 }
 
-u_int32_t glimmer::HotBarComponent::GetId() {
+uint32_t glimmer::HotBarComponent::GetId() {
     return COMPONENT_ID_HOTBAR;
 }

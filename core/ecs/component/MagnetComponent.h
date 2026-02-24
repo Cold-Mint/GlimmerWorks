@@ -67,7 +67,7 @@ namespace glimmer {
 
         void Deserialize(WorldContext *worldContext, const std::string &data) override;
 
-        [[nodiscard]] u_int32_t GetId() override;
+        [[nodiscard]] uint32_t GetId() override;
     };
 }
 

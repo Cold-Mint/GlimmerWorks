@@ -35,6 +35,6 @@ void glimmer::ItemSlotComponent::SetSelected(const bool selected) {
     isSelected_ = selected;
 }
 
-u_int32_t glimmer::ItemSlotComponent::GetId() {
+uint32_t glimmer::ItemSlotComponent::GetId() {
     return COMPONENT_ID_ITEM_SLOT;
 }

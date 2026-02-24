@@ -56,8 +56,8 @@ namespace glimmer {
         std::vector<ResourceRef> defaultAbilityList;
     };
 
-    enum VariableDefinitionType:u_int8_t {
-        INT = 0,
+    enum VariableDefinitionType {
+        INT,
         FLOAT,
         BOOL,
         STRING,

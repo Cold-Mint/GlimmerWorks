@@ -8,8 +8,6 @@
 
 namespace glimmer {
     class ChunkSystem final : public GameSystem {
-        float preloadMargin_ = 1.0F;
-
     public:
         explicit ChunkSystem(WorldContext *worldContext);
 

@@ -17,6 +17,7 @@ struct TerrainTileResult {
     TileVector2D world;
     glimmer::TerrainResultType terrainType = glimmer::AIR;
     glimmer::BiomeResource *biomeResource = nullptr;
+    glimmer::ResourceRef resRef;
 };
 
 

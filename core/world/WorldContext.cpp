@@ -48,11 +48,11 @@ void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameCompo
     const auto type = std::type_index(typeid(*comp));
     //Reduce componentCount
     // 减少 componentCount
-    if (componentCount[type] > 0) --componentCount[type];
+    if (componentCount_[type] > 0) --componentCount_[type];
 
     //Check if the system is disabled
     // 检查系统是否停用
-    if (componentCount[type] == 0) {
+    if (componentCount_[type] == 0) {
         for (auto &sys: activeSystems) {
             if (sys && sys->SupportsComponentType(type)) {
                 sys->CheckActivation();
@@ -86,6 +86,14 @@ glimmer::WorldContext::~WorldContext() {
     activeSystems.clear();
     inactiveSystems.clear();
     entityComponents.clear();
+    entities.clear();
+    entityMap.clear();
+    chunks_.clear();
+    terrainResults_.clear();
+    terrain_.clear();
+    chunksCache_.clear();
+    terrainResultsCache_.clear();
+    componentCount_.clear();
     b2DestroyWorld(worldId_);
     worldId_ = b2_nullWorldId;
     for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
@@ -98,6 +106,42 @@ glimmer::WorldContext::~WorldContext() {
 
 glimmer::GameEntity::ID glimmer::WorldContext::GetEntityIdIndex() const {
     return entityId_;
+}
+
+glimmer::TerrainResult *glimmer::WorldContext::GetTerrainData(TileVector2D position) {
+    LogCat::d("GetTerrainData called - position x: ", position.x, ", y: ", position.y);
+    if (auto it = terrainResults_.find(position); it != terrainResults_.end()) {
+        LogCat::d("Terrain data found in cache - position x: ", position.x, ", y: ", position.y,
+                  ". Return cached pointer");
+        return it->second.get();
+    }
+    LogCat::d("Terrain data NOT found in cache - position x: ", position.x, ", y: ", position.y, ". Return nullptr");
+    return nullptr;
+}
+
+glimmer::TerrainResult *glimmer::WorldContext::GetOrCreateTerrainData(TileVector2D position) {
+    LogCat::d("GetOrCreateTerrainData called for position - x: ", position.x, ", y: ", position.y);
+    if (auto it = terrainResults_.find(position); it != terrainResults_.end()) {
+        LogCat::d("Terrain data found in cache - position x: ", position.x, ", y: ", position.y,
+                  ". Return cached pointer");
+        return it->second.get();
+    }
+
+    LogCat::d("Terrain data NOT found in cache - position x: ", position.x, ", y: ", position.y,
+              ". Generating new terrain");
+
+    auto terrainResult = chunkGenerator_->GenerateTerrain(position);
+    if (terrainResult == nullptr) {
+        LogCat::d("Failed to generate terrain data - position x: ", position.x, ", y: ", position.y,
+                  ". Return nullptr");
+        return nullptr;
+    }
+    auto *terrainPtr = terrainResult.get();
+    terrainResults_.emplace(position, std::move(terrainResult));
+    terrainResultsCache_.emplace(position, terrainPtr);
+    LogCat::d("New terrain data generated and cached - position x: ", position.x, ", y: ", position.y,
+              ". Return new pointer");
+    return terrainPtr;
 }
 
 bool glimmer::WorldContext::IsRuning() const {
@@ -130,8 +174,8 @@ glimmer::Saves *glimmer::WorldContext::GetSaves() const {
 }
 
 bool glimmer::WorldContext::HasComponentType(const std::type_index &type) const {
-    const auto it = componentCount.find(type);
-    return it != componentCount.end() && it->second > 0;
+    const auto it = componentCount_.find(type);
+    return it != componentCount_.end() && it->second > 0;
 }
 
 void glimmer::WorldContext::InitPlayer() {
@@ -260,6 +304,28 @@ std::unordered_map<TileVector2D, glimmer::Chunk *, glimmer::Vector2DIHash> *glim
         lastChunksVersion_ = chunksVersion_;
     }
     return &chunksCache_;
+}
+
+std::unordered_map<TileVector2D, glimmer::TerrainResult *, glimmer::Vector2DIHash> *glimmer::WorldContext::
+GetTerrainResults() {
+    return &terrainResultsCache_;
+}
+
+void glimmer::WorldContext::LoadTerrainAt(TileVector2D position) {
+    if (terrain_.contains(position)) {
+        return;
+    }
+    chunkGenerator_->GenerateStructure(position);
+    terrain_.emplace(position);
+}
+
+void glimmer::WorldContext::UnloadTerrainAt(TileVector2D position) {
+    if (!terrain_.contains(position)) {
+        return;
+    }
+    terrain_.erase(position);
+    terrainResultsCache_.erase(position);
+    terrainResults_.erase(position);
 }
 
 void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {

@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <string>
 
-#include "../cmake-build-debug/_deps/tweeny-src/include/tweeny.h"
+#include "tweeny.h"
 
 namespace glimmer {
     struct GameUIMessage {

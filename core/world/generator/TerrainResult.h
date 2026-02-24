@@ -33,17 +33,12 @@ namespace glimmer {
         /**
          * Mark a certain coordinate as a structure.
          * 将某个坐标标记为结构。
-         * @param index
+         * @param tileIndex
+         * @param structureResource
          */
-        void MarkStructure(int index);
-
-        /**
-         * Mark a certain position as the source of the structure
-         * 将某个位置标记为结构源
-         * @param index
-         */
-        void MarkStructureSource(int index);
-
+        void SetTerrainTileStructure(
+            int tileIndex,
+            const ResourceRef *structureResource);
 
         /**
          * Set the terrain data of the last column on the left side of the block.

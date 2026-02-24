@@ -202,13 +202,10 @@ static constexpr uint32_t COMPONENT_ID_TRANSFORM_2D = 15;
 static constexpr uint32_t COMPONENT_ID_GUI_TRANSFORM_2D = 16;
 
 
-/**
- * Special tile Id: Air
- * 特殊的瓦片Id：空气
- */
 static constexpr std::string TILE_ID_AIR = "air";
 static constexpr std::string TILE_ID_WATER = "water";
 static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
+static constexpr std::string TILE_ID_STRUCTURE_MASK = "structure_mask";
 
 #endif //CONSTANTS_H

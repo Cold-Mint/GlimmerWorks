@@ -55,7 +55,14 @@ namespace glimmer {
         bool allowRegisterSystem = false;
 
         std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> chunks_;
+        //Save all the terrain result data.
+        //保存所有的地形结果数据。
+        std::unordered_map<TileVector2D, std::unique_ptr<TerrainResult>, Vector2DIHash> terrainResults_;
+        //Mark the terrain coordinates that have been scanned and structured.(The coordinates are the vertices of the block.)When loading block A, block A can request and create the terrain data for block B, so as to write the structure information. Therefore, using this variable to determine whether the terrain of the block has been manually generated is completely correct.
+        //标记已扫描过结构的地形坐标。（坐标为区块顶点。）当加载区块A时，区块A可以申请，创建区块B的地形数据，以便写入结构信息。所以使用这个变量判断区块的地形是否手动生成过是完全正确的。
+        std::unordered_set<TileVector2D, Vector2DIHash> terrain_;
         std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunksCache_;
+        std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> terrainResultsCache_;
         GameEntity::ID entityId_ = 0;
 
         /**
@@ -68,7 +75,7 @@ namespace glimmer {
          * Components to quantity
          * 组件到数量
          */
-        std::unordered_map<std::type_index, size_t> componentCount;
+        std::unordered_map<std::type_index, size_t> componentCount_;
 
 
         /**
@@ -148,6 +155,18 @@ namespace glimmer {
 
 
         [[nodiscard]] GameEntity::ID GetEntityIdIndex() const;
+
+        [[nodiscard]] TerrainResult *GetTerrainData(TileVector2D position);
+
+        /**
+* GetOrCreateTerrainData
+* 创建或查找地形数据。
+* If the terrain already exists, then return the terrain data; if the terrain does not exist, then create a blank set of data.
+* 如果地形已存在，那么返回地形数据，如果地形不存在，那么创建一份空白数据。
+* @return
+*/
+        [[nodiscard]] TerrainResult *GetOrCreateTerrainData(TileVector2D position);
+
 
         /**
          * Is the game running
@@ -240,6 +259,18 @@ namespace glimmer {
          */
         std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *GetAllChunks();
 
+
+
+        std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> *GetTerrainResults();
+
+        /**
+         * LoadTerrainAt
+         * 加载地形
+         * @param position position 位置
+         */
+        void LoadTerrainAt(TileVector2D position);
+
+        void UnloadTerrainAt(TileVector2D position);
 
         /**
         * Load Chunk
@@ -501,11 +532,11 @@ namespace glimmer {
         entityComponents[id].push_back(std::move(comp));
 
         // 记录组件类型数量
-        ++componentCount[type];
-        LogCat::i("Component ", type.name(), " count = ", componentCount[type]);
+        ++componentCount_[type];
+        LogCat::i("Component ", type.name(), " count = ", componentCount_[type]);
 
         // 通知可能依赖该组件的系统
-        if (componentCount[type] == 1) {
+        if (componentCount_[type] == 1) {
             LogCat::d("First instance of component ", type.name(),
                       " detected, checking inactive systems for activation...");
             //错误：Type GameSystem is incomplete

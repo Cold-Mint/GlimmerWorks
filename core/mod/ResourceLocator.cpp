@@ -62,6 +62,9 @@ glimmer::TileResource *glimmer::ResourceLocator::FindTile(const ResourceRef &res
         if (resourceRef.GetResourceKey() == TILE_ID_ERROR) {
             return appContext_->GetTileManager()->GetError();
         }
+        if (resourceRef.GetResourceKey() == TILE_ID_STRUCTURE_MASK) {
+            return appContext_->GetTileManager()->GetMask();
+        }
     }
     return appContext_->GetTileManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }

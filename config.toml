@@ -1,19 +1,53 @@
 configVersion = 1
 
 [window]
+# Window width (pixels)
+# 窗口宽度（像素）
 width = 1920
+# Window height (pixels)
+# 窗口高度（像素）
 height = 1080
+# Allow window resizing
+# 允许窗口调整大小
 resizable = true
+# Target framerate (FPS)
+# 目标帧率（帧/秒）
 framerate = 60.0
+# UI scaling factor
+# UI界面缩放比例
 uiScale = 1.0
+# Enable vertical sync (VSync)
+# 启用垂直同步
 vSync = true
 
+[world]
+# Preload config for off-screen chunks (view range expansion)
+# 屏幕外区块预加载配置（视野范围扩展）
+# Preload chunk outer radius (view range expansion)
+# 区块预加载外扩范围（视野范围扩展）
+preloadChunkRadius = 1.0
+# Preload structure radius (terrain/structure data pre-calc)
+# 结构预加载范围（地形/结构数据预计算）
+preloadStructureRadius = 5.0
+
 [mods]
+# Data pack storage path
+# 数据包存储路径
 dataPackPath = "mods/data_packs"
+# Resource pack storage path
+# 资源包存储路径
 resourcePackPath = "mods/resource_packs"
+# Enabled data packs (list of pack IDs)
+# 启用的数据包（包ID列表）
 enabledDataPack = ["glimmerworks"]
+# Enabled resource packs (list of pack IDs)
+# 启用的资源包（包ID列表）
 enabledResourcePack = ["glimmerworks_res"]
 
 [debug]
+# Show debug panel in game
+# 游戏内显示调试面板
 displayDebugPanel = false
+# Render Box2D collision shapes
+# 渲染Box2D物理碰撞形状
 displayBox2dShape = false

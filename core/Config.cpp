@@ -18,6 +18,8 @@ void glimmer::Config::LoadConfig(const toml::value &configValue) {
     mods.resourcePackPath = toml::find<std::string>(configValue, "mods", "resourcePackPath");
     mods.enabledDataPack = toml::find<std::vector<std::string> >(configValue, "mods", "enabledDataPack");
     mods.enabledResourcePack = toml::find<std::vector<std::string> >(configValue, "mods", "enabledResourcePack");
+    world.preloadChunkRadius = toml::find<float>(configValue, "world", "preloadChunkRadius");
+    world.preloadStructureRadius = toml::find<float>(configValue, "world", "preloadStructureRadius");
     debug.displayDebugPanel = toml::find<bool>(configValue, "debug", "displayDebugPanel");
     debug.displayBox2dShape = toml::find<bool>(configValue, "debug", "displayBox2dShape");
 }

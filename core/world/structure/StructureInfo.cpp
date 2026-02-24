@@ -5,10 +5,10 @@
 #include "StructureInfo.h"
 
 
-glimmer::StructureInfo::StructureInfo(TileVector2D startPosition) : startPosition_(startPosition) {
-    airRef_.SetSelfPackageId(RESOURCE_REF_CORE);
-    airRef_.SetResourceType(RESOURCE_TYPE_TILE);
-    airRef_.SetResourceKey(TILE_ID_AIR);
+glimmer::StructureInfo::StructureInfo() {
+    maskRef_.SetSelfPackageId(RESOURCE_REF_CORE);
+    maskRef_.SetResourceType(RESOURCE_TYPE_TILE);
+    maskRef_.SetResourceKey(TILE_ID_STRUCTURE_MASK);
 }
 
 uint32_t glimmer::StructureInfo::GetWidth() const {
@@ -47,15 +47,15 @@ void glimmer::StructureInfo::SetTile(int x, int y, const ResourceRef &resourceRe
     if (newWidth != width_ || newHeight != height_ || minX != originX_ || minY != originY_) {
         std::vector newData(
             newWidth * newHeight,
-            airRef_);
+            maskRef_);
 
         for (uint32_t oldY = 0; oldY < height_; ++oldY) {
             for (uint32_t oldX = 0; oldX < width_; ++oldX) {
-                int worldX = originX_ + oldX;
-                int worldY = originY_ + oldY;
+                const int worldX = originX_ + oldX;
+                const int worldY = originY_ + oldY;
 
-                uint32_t newLocalX = worldX - minX;
-                uint32_t newLocalY = worldY - minY;
+                const uint32_t newLocalX = worldX - minX;
+                const uint32_t newLocalY = worldY - minY;
 
                 newData[newLocalY * newWidth + newLocalX] =
                         tileData_[oldY * width_ + oldX];
@@ -80,8 +80,4 @@ const glimmer::ResourceRef *glimmer::StructureInfo::GetResourceRef(uint32_t x, u
         return nullptr;
     }
     return &tileData_[x + y * width_];
-}
-
-TileVector2D glimmer::StructureInfo::GetStartPosition() const {
-    return startPosition_;
 }

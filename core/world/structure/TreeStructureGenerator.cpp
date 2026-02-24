@@ -11,7 +11,7 @@ void glimmer::TreeStructureGenerator::SetWorldSeed(int worldSeed) {
     IStructureGenerator::SetWorldSeed(worldSeed);
 }
 
-glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D startPosition,
+glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D structuralOrigin,
                                                                  StructureResource *structureResource) {
     int leafDataIndex = 0;
     const VariableDefinition *leafDataIndexDefinition = structureResource->generatorConfig.
@@ -66,10 +66,10 @@ glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D st
     }
     ResourceRef &trunkRef = structureResource->data.at(trunkDataIndex);
     ResourceRef &leafRef = structureResource->data.at(leafDataIndex);
-    auto structureInfo = StructureInfo(startPosition);
+    auto structureInfo = StructureInfo();
     std::mt19937 rng(worldSeed_ ^
-                     startPosition.x * 73428767 ^
-                     startPosition.y * 912931);
+                     structuralOrigin.x * 73428767 ^
+                     structuralOrigin.y * 912931);
 
     std::uniform_int_distribution heightDist(trunkHeightMin, trunkHeightMax);
     int trunkHeight = heightDist(rng);

@@ -556,7 +556,7 @@ FetchContent_Declare(
         VanillaDataPack
         GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-data"
         GIT_PROGRESS TRUE
-        SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/data_packs/vanilla"
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/data_packs/glimmerworks"
 )
 
 FetchContent_GetProperties(VanillaDataPack)
@@ -568,7 +568,7 @@ FetchContent_Declare(
         VanillaResourcePack
         GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-assets"
         GIT_PROGRESS TRUE
-        SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/vanilla"
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/glimmerworks_res"
 )
 
 FetchContent_GetProperties(VanillaResourcePack)

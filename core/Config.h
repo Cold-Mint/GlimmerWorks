@@ -15,6 +15,7 @@ namespace glimmer {
         int height = 1080;
         bool resizable = true;
         float framerate = 60;
+        //uiScale
         //ui缩放
         float uiScale = 1.0F;
         bool vSync = true;
@@ -32,11 +33,17 @@ namespace glimmer {
         bool displayBox2dShape;
     };
 
+    struct World {
+        float preloadChunkRadius;
+        float preloadStructureRadius;
+    };
+
 
     class Config {
     public:
         Window window{};
         Mods mods{};
+        World world{};
         Debug debug{};
         int configVersion = 1;
 

@@ -99,9 +99,11 @@ namespace glimmer {
          */
         std::unique_ptr<TerrainResult> GenerateTerrain(TileVector2D position);
 
+        void GenerateStructure(TileVector2D position) const;
+
         TerrainTileResult GetTerrainTileResult(TileVector2D world, int height);
 
-        std::unique_ptr<Chunk> GenerateChunkAt(TileVector2D position);
+        std::unique_ptr<Chunk> GenerateChunkAt(TileVector2D position) const;
 
 
         /**

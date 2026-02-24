@@ -189,6 +189,154 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
     return terrainResult;
 }
 
+void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const {
+    const AppContext *appContext = worldContext_->GetAppContext();
+    const std::vector<StructureResource *> &all = appContext->GetStructureManager()->GetAll();
+    if (all.empty()) {
+        return;
+    }
+    TerrainResult *terrainResult = worldContext_->GetOrCreateTerrainData(position);
+    for (auto structureResource: all) {
+        std::bitset<CHUNK_AREA> totalBitset;
+        size_t totalConditions = structureResource->condition.size();
+        std::string resId = Resource::GenerateId(*structureResource);
+        LogCat::d("StructurePlacement", "Start processing structure resource. Total conditions:",
+                  totalConditions, ",resId :", resId);
+        if (totalConditions == 0) {
+            continue;
+        }
+        bool hasAnyConditionMatched = false;
+        bool finsh = false;
+        int endIndex = static_cast<int>(totalConditions) - 1;
+        for (int i = 0; i <= endIndex; i++) {
+            auto &condition = structureResource->condition[i];
+            const std::string &processorId = condition.processorId;
+            LogCat::d("StructurePlacement", "Processing condition (", i, " / ",
+                      totalConditions, "), processorId:", processorId, ",resId :", resId
+            );
+
+            IStructureConditionProcessor *structureConditionProcessor = appContext->
+                    GetStructurePlacementConditionsManager()->FindConditionProcessors(processorId);
+
+            if (structureConditionProcessor == nullptr) {
+                LogCat::e("StructurePlacement", "Condition ", i, " processor not found, processorId:",
+                          processorId, ",resId :", resId);
+                continue;
+            }
+            std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(
+                terrainResult, condition.config);
+
+            size_t matchedCount = bitset.count();
+            LogCat::d("StructurePlacement",
+                      "Condition ", i, " matched. processorId: ", processorId, ", matched points: ",
+                      matchedCount, ", is empty:", bitset.none() ? "true" : "false", ",resId :", resId);
+
+            if (bitset.none()) {
+                LogCat::w("StructurePlacement",
+                          "Condition ", i, " has no matched points, skip remaining conditions. processorId:",
+                          processorId, ",resId :", resId);
+                break;
+            }
+
+            if (!hasAnyConditionMatched) {
+                totalBitset = bitset;
+                hasAnyConditionMatched = true;
+                LogCat::d("StructurePlacement",
+                          "Init candidate set with first valid condition. Initial matched points: ",
+                          totalBitset.count(), ",resId :", resId);
+            } else {
+                size_t prevCount = totalBitset.count();
+                totalBitset &= bitset;
+                size_t currCount = totalBitset.count();
+                LogCat::d("StructurePlacement",
+                          "Reduce candidate set by bitwise AND. Previous points: ", prevCount, ", current points: ",
+                          currCount, ", reduced by: ", prevCount - currCount, ",resId :", resId);
+            }
+
+            if (totalBitset.none()) {
+                LogCat::w("StructurePlacement",
+                          "No candidate points left, exit condition loop early. Current condition index:",
+                          i, ",resId :", resId);
+                break;
+            }
+            if (i == endIndex) {
+                finsh = true;
+            }
+        }
+        size_t finalMatchedCount = totalBitset.count();
+        LogCat::d("StructurePlacement",
+                  "Finish processing structure resource. Has valid condition matched: ",
+                  hasAnyConditionMatched ? "true" : "false", ", final matched points:",
+                  finalMatchedCount, ",finsh:", finsh);
+
+        if (finsh && hasAnyConditionMatched && totalBitset.any()) {
+            LogCat::i("StructurePlacement", "Start placing structure - Total candidate points: ", totalBitset.count());
+
+            int markedCount = 0;
+            for (int i = 0; i < CHUNK_AREA; i++) {
+                auto bit = totalBitset.test(i);
+                if (bit) {
+                    const int localX = i % CHUNK_SIZE;
+                    const int localY = i / CHUNK_SIZE;
+                    LogCat::d("StructurePlacement", "Processing candidate point - Index: ", i, ", localX: ", localX,
+                              ", localY: ", localY);
+
+                    Vector2DI structuralOrigin{localX, localY};
+                    Vector2DI globalOrigin = position + structuralOrigin;
+
+                    LogCat::d("StructurePlacement", "Generating structure at global origin - x: ", globalOrigin.x,
+                              ", y: ", globalOrigin.y);
+
+                    std::optional<StructureInfo> structureInfoOptional = appContext->GetStructureGeneratorManager()->
+                            Generate(globalOrigin, structureResource);
+
+                    if (structureInfoOptional.has_value()) {
+                        StructureInfo &structureInfo = structureInfoOptional.value();
+                        LogCat::d("StructurePlacement", "Structure generated successfully - Width: ",
+                                  structureInfo.GetWidth(), ", Height: ", structureInfo.GetHeight());
+
+                        for (int x = 0; x < structureInfo.GetWidth(); x++) {
+                            for (int y = 0; y < structureInfo.GetHeight(); y++) {
+                                const ResourceRef *tileResource = structureInfo.GetResourceRef(x, y);
+                                if (!tileResource) continue;
+
+                                if (tileResource->GetPackageId() == RESOURCE_REF_CORE &&
+                                    tileResource->GetResourceKey() == TILE_ID_STRUCTURE_MASK) {
+                                    continue;
+                                }
+
+                                int flippedY = static_cast<int>(structureInfo.GetHeight()) - 1 - y;
+                                auto structureVector2d = Vector2DI{x, flippedY};
+
+                                auto vector = position + structuralOrigin + structureVector2d;
+
+                                auto chunkCoord = Chunk::TileCoordinatesToChunkVertexCoordinates(vector);
+                                TerrainResult *tt = worldContext_->GetOrCreateTerrainData(chunkCoord);
+                                if (!tt) continue;
+
+                                auto v = Chunk::TileCoordinatesToChunkRelativeCoordinates(vector);
+                                int index = v.y * CHUNK_SIZE + v.x;
+
+                                tt->SetTerrainTileStructure(index, tileResource);
+                            }
+                        }
+                    } else {
+                        LogCat::w("StructurePlacement", "Failed to generate structure at global origin - x: ",
+                                  globalOrigin.x, ", y: ", globalOrigin.y);
+                    }
+                    markedCount++;
+                    LogCat::d("StructurePlacement", "Finish processing candidate point - Index: ", i,
+                              ", Total marked points so far: ", markedCount);
+                }
+            }
+            LogCat::i("StructurePlacement", "Marked structure placement points. Total marked points:", markedCount);
+        } else {
+            LogCat::d("StructurePlacement", "No valid placement points for structure, skip marking");
+        }
+    }
+}
+
+
 TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector2D world, const int height) {
     TerrainTileResult terrainTileResult;
     if (world.y <= WORLD_MIN_Y) {
@@ -270,104 +418,16 @@ float glimmer::ChunkGenerator::GetErosion(TileVector2D tileVector2d) {
     return erosionMap_[tileVector2d];
 }
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVector2D position) {
+std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVector2D position) const {
     AppContext *appContext = worldContext_->GetAppContext();
     auto chunk = std::make_unique<Chunk>(position);
-    std::unique_ptr<TerrainResult> terrainResult = GenerateTerrain(position);
+    TerrainResult *terrainResult = worldContext_->GetTerrainData(position);
     std::array<ResourceRef, CHUNK_AREA> tilesRef;
-    //计算结构信息
-    for (auto structureResource: appContext->GetStructureManager()->GetAll()) {
-        std::bitset<CHUNK_AREA> totalBitset;
-        size_t totalConditions = structureResource->condition.size();
-        std::string resId = Resource::GenerateId(*structureResource);
-        LogCat::d("StructurePlacement", "Start processing structure resource. Total conditions:",
-                  totalConditions, ",resId :", resId);
-        if (totalConditions == 0) {
-            continue;
-        }
-        bool hasAnyConditionMatched = false;
-        bool finsh = false;
-        int endIndex = static_cast<int>(totalConditions) - 1;
-        for (int i = 0; i <= endIndex; i++) {
-            auto &condition = structureResource->condition[i];
-            const std::string &processorId = condition.processorId;
-            LogCat::d("StructurePlacement", "Processing condition (", i, " / ",
-                      totalConditions, "), processorId:", processorId, ",resId :", resId
-            );
-
-            IStructureConditionProcessor *structureConditionProcessor = appContext->
-                    GetStructurePlacementConditionsManager()->FindConditionProcessors(processorId);
-
-            if (structureConditionProcessor == nullptr) {
-                LogCat::e("StructurePlacement", "Condition ", i, " processor not found, processorId:",
-                          processorId, ",resId :", resId);
-                continue;
-            }
-            std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(
-                terrainResult.get(), condition.config);
-
-            size_t matchedCount = bitset.count();
-            LogCat::d("StructurePlacement",
-                      "Condition ", i, " matched. processorId: ", processorId, ", matched points: ",
-                      matchedCount, ", is empty:", bitset.none() ? "true" : "false", ",resId :", resId);
-
-            if (bitset.none()) {
-                LogCat::w("StructurePlacement",
-                          "Condition ", i, " has no matched points, skip remaining conditions. processorId:",
-                          processorId, ",resId :", resId);
-                break;
-            }
-
-            if (!hasAnyConditionMatched) {
-                totalBitset = bitset;
-                hasAnyConditionMatched = true;
-                LogCat::d("StructurePlacement",
-                          "Init candidate set with first valid condition. Initial matched points: ",
-                          totalBitset.count(), ",resId :", resId);
-            } else {
-                size_t prevCount = totalBitset.count();
-                totalBitset &= bitset;
-                size_t currCount = totalBitset.count();
-                LogCat::d("StructurePlacement",
-                          "Reduce candidate set by bitwise AND. Previous points: ", prevCount, ", current points: ",
-                          currCount, ", reduced by: ", prevCount - currCount, ",resId :", resId);
-            }
-
-            if (totalBitset.none()) {
-                LogCat::w("StructurePlacement",
-                          "No candidate points left, exit condition loop early. Current condition index:",
-                          i, ",resId :", resId);
-                break;
-            }
-            if (i == endIndex) {
-                finsh = true;
-            }
-        }
-        size_t finalMatchedCount = totalBitset.count();
-        LogCat::d("StructurePlacement",
-                  "Finish processing structure resource. Has valid condition matched: ",
-                  hasAnyConditionMatched ? "true" : "false", ", final matched points:",
-                  finalMatchedCount, ",finsh:", finsh);
-
-        if (finsh && hasAnyConditionMatched && totalBitset.any()) {
-            int markedCount = 0;
-            for (int i = 0; i < CHUNK_AREA; i++) {
-                auto bit = totalBitset.test(i);
-                if (bit) {
-                    terrainResult->MarkStructureSource(i);
-                    markedCount++;
-                }
-            }
-            LogCat::i("StructurePlacement", "Marked structure placement points. Total marked points:", markedCount);
-        } else {
-            LogCat::d("StructurePlacement", "No valid placement points for structure, skip marking");
-        }
-    }
     std::unordered_set<BiomeResource *> biomeResourcesSet;
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             const int idx = localY * CHUNK_SIZE + localX;
-            auto terrainTileResult = terrainResult->QueryTerrain(localX, localY);
+            auto &terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             auto terrainType = terrainTileResult.terrainType;
             LogCat::d("Chunk x=", position.x + localX, ",y=", position.y + localY, ",terrainType=", terrainType);
             if (terrainType == AIR) {
@@ -382,8 +442,8 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                 tilesRef[idx] = bedrockTileRef_;
                 continue;
             }
-            if (terrainType == STRUCTURE_SOURCE) {
-                tilesRef[idx] = bedrockTileRef_;
+            if (terrainType == STRUCTURE) {
+                tilesRef[idx] = terrainTileResult.resRef;
                 continue;
             }
             if (terrainType == SOLID) {
@@ -403,7 +463,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             BiomeDecorator *biomeDecorator = appContext->GetBiomeDecoratorManager()->
                     GetBiomeDecorator(dec.id);
             if (biomeDecorator != nullptr) {
-                biomeDecorator->Decoration(worldContext_, terrainResult.get(), &dec, biomeResources, tilesRef);
+                biomeDecorator->Decoration(worldContext_, terrainResult, &dec, biomeResources, tilesRef);
             }
         }
     }

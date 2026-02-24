@@ -11,7 +11,6 @@ namespace glimmer {
         WATER,
         SOLID,
         STRUCTURE,
-        STRUCTURE_SOURCE,
         BEDROCK,
     };
 }

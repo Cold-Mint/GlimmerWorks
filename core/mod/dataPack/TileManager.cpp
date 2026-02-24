@@ -59,10 +59,26 @@ void glimmer::TileManager::InitBuiltinTiles() {
     error_->layerType = static_cast<uint8_t>(TileLayerType::Main);
     error_->breakable = true;
     error_->hardness = 0.1F;
+    mask_ = std::make_unique<TileResource>();
+    ResourceRef maskResource;
+    maskResource.SetSelfPackageId(RESOURCE_REF_CORE);
+    maskResource.SetResourceKey(ERROR_TEXTURE_KEY);
+    maskResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    mask_->texture = maskResource;
+    mask_->key = TILE_ID_STRUCTURE_MASK;
+    mask_->packId = RESOURCE_REF_CORE;
+    mask_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
+    mask_->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    mask_->breakable = false;
+    mask_->hardness = 0.1F;
 }
 
 glimmer::TileResource *glimmer::TileManager::GetAir() const {
     return air_.get();
+}
+
+glimmer::TileResource *glimmer::TileManager::GetMask() const {
+    return mask_.get();
 }
 
 glimmer::TileResource *glimmer::TileManager::GetWater() const {

@@ -4,9 +4,9 @@
 
 #include "StaticStructureGenerator.h"
 
-glimmer::StructureInfo glimmer::StaticStructureGenerator::Generate(TileVector2D startPosition,
-    StructureResource *structureResource) {
-    auto structureInfo = StructureInfo(startPosition);
+glimmer::StructureInfo glimmer::StaticStructureGenerator::Generate(TileVector2D structuralOrigin,
+                                                                   StructureResource *structureResource) {
+    auto structureInfo = StructureInfo();
     structureInfo.SetTileData(structureResource->width, structureResource->data);
     return structureInfo;
 }

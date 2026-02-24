@@ -47,18 +47,13 @@ const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const int x, const
     return terrainTileResult_[idx];
 }
 
-void glimmer::TerrainResult::MarkStructure(const int index) {
-    if (index >= 0 && index < CHUNK_AREA) {
-        terrainTileResult_[index].terrainType = STRUCTURE;
+void glimmer::TerrainResult::SetTerrainTileStructure(int tileIndex, const ResourceRef *structureResource) {
+    if (tileIndex >= 0 && tileIndex < CHUNK_AREA) {
+        TerrainTileResult &terrainTileResult = terrainTileResult_[tileIndex];
+        terrainTileResult.terrainType = STRUCTURE;
+        terrainTileResult.resRef = *structureResource;
     }
 }
-
-void glimmer::TerrainResult::MarkStructureSource(const int index) {
-    if (index >= 0 && index < CHUNK_AREA) {
-        terrainTileResult_[index].terrainType = STRUCTURE_SOURCE;
-    }
-}
-
 
 void glimmer::TerrainResult::SetLeftTerrainTileResult(const int y, const TerrainTileResult &result) {
     leftTerrainTileResult_[y] = result;

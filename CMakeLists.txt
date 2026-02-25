@@ -16,6 +16,11 @@ else ()
     set(ARCH_BIT "32")
     set(LIB_DIR "lib32")
 endif ()
+if(WIN32)
+    #Place the dll and exe files in the same directory.
+    #把dll和exe放到同级目录。
+    set(LIB_DIR "")
+endif()
 set(CMAKE_BUILD_RPATH "$ORIGIN/${LIB_DIR}")
 set(CMAKE_INSTALL_RPATH "$ORIGIN/${LIB_DIR}")
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://github.com/Cold-Mint/GlimmerWorks")
@@ -604,13 +609,29 @@ install(FILES "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}" DESTINATION .)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/core_langs/"
         DESTINATION "langs")
 install(DIRECTORY "${CMAKE_BINARY_DIR}/mods/"
-        DESTINATION "mods")
+        DESTINATION "mods"
+        PATTERN ".git" EXCLUDE)
 install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
         DESTINATION .)
 
 if(WIN32)
 install(CODE "
     file(GLOB PROTO_BUF_LIBS \"/usr/x86_64-w64-mingw32/sys-root/mingw/bin/*${LIB_SUFFIX}\")
+    foreach(lib \${PROTO_BUF_LIBS})
+        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
+    endforeach()
+")
+
+install(CODE "
+    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl-build/*${LIB_SUFFIX}\")
+    foreach(lib \${PROTO_BUF_LIBS})
+        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
+    endforeach()
+")
+install(CODE "
+    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/fmt-build/bin/*${LIB_SUFFIX}\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})

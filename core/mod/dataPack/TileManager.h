@@ -35,7 +35,7 @@ namespace glimmer {
          */
         std::unique_ptr<TileResource> bedrock_ = nullptr;
         std::unique_ptr<TileResource> error_ = nullptr;
-        std::unique_ptr<TileResource> mask_ = nullptr;
+
     public:
         /**
          * Initialize the built-in tiles
@@ -49,8 +49,6 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] TileResource *GetAir() const;
-
-        [[nodiscard]] TileResource *GetMask() const;
 
         [[nodiscard]] TileResource *GetWater() const;
 

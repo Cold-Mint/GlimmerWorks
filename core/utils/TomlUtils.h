@@ -238,14 +238,25 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::TileInfo> {
+        static glimmer::TileInfo from_toml(const value &v) {
+            glimmer::TileInfo r;
+            r.x = toml::find<int>(v, "x");
+            r.y = toml::find<int>(v, "y");
+            r.tile = toml::find<glimmer::ResourceRef>(v, "tile");
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::StructureResource> {
         static glimmer::StructureResource from_toml(const value &v) {
             glimmer::StructureResource r;
             r.key = toml::find<std::string>(v, "resourceKey");
             r.generatorId = toml::find<std::string>(v, "generatorId");
             r.generatorConfig = toml::find_or_default<glimmer::VariableConfig>(v, "generatorConfig");
-            r.width = toml::find_or<uint32_t>(v, "width", 1);
             r.data = toml::find_or_default<std::vector<glimmer::ResourceRef> >(v, "data");
+            r.tileInfo = toml::find_or_default<std::vector<glimmer::TileInfo> >(v, "tileInfo");
             r.condition = toml::find_or_default<std::vector<glimmer::StructurePlacementConditions> >(v, "condition");
             return r;
         }

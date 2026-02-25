@@ -105,6 +105,12 @@ namespace glimmer {
         VariableConfig config;
     };
 
+    struct TileInfo {
+        int x;
+        int y;
+        ResourceRef tile;
+    };
+
     struct StructureResource : Resource {
         /**
         * Generator ID
@@ -112,12 +118,8 @@ namespace glimmer {
          */
         std::string generatorId;
         VariableConfig generatorConfig;
-        /**
-         * Only valid for static generators. Define the width of the structure.
-         * 只对静态生成器有效，定义结构的宽度。
-         */
-        uint32_t width;
         std::vector<StructurePlacementConditions> condition;
+        std::vector<TileInfo> tileInfo;
         std::vector<ResourceRef> data;
     };
 

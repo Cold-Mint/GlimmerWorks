@@ -74,23 +74,22 @@ glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D st
     std::uniform_int_distribution heightDist(trunkHeightMin, trunkHeightMax);
     int trunkHeight = heightDist(rng);
 
-    // 树干
     for (int y = 0; y < trunkHeight; ++y) {
         for (int x = 0; x < trunkWidth; ++x) {
-            structureInfo.SetTile(x, -y, trunkRef);
+            structureInfo.SetTile(TileVector2D(x, y), trunkRef);
         }
     }
     if (hasLeaves) {
-        // 树叶
         for (int i = 0; i < leafClusterCount; ++i) {
-            int clusterY = -trunkHeight - i * leafVerticalSpacing;
-
+            int clusterY = trunkHeight - i * leafVerticalSpacing;
             for (int x = -leafRadius; x <= leafRadius; ++x) {
                 for (int y = -leafRadius; y <= leafRadius; ++y) {
                     if (x * x + y * y <= leafRadius * leafRadius && y >= 0) {
                         structureInfo.SetTile(
-                            x + trunkWidth / 2,
-                            clusterY - y,
+                            TileVector2D{
+                                x + trunkWidth / 2,
+                                clusterY + y
+                            },
                             leafRef
                         );
                     }

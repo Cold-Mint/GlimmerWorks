@@ -4,80 +4,43 @@
 
 #include "StructureInfo.h"
 
+#include <utility>
 
-glimmer::StructureInfo::StructureInfo() {
-    maskRef_.SetSelfPackageId(RESOURCE_REF_CORE);
-    maskRef_.SetResourceType(RESOURCE_TYPE_TILE);
-    maskRef_.SetResourceKey(TILE_ID_STRUCTURE_MASK);
+void glimmer::StructureInfo::SetTile(const TileVector2D position, ResourceRef resourceRef) {
+    structureMap_[position] = std::move(resourceRef);
+    if (first_) {
+        minPosition_ = position;
+        maxPosition_ = position;
+        first_ = false;
+        return;
+    }
+    if (position.x < minPosition_.x) {
+        minPosition_.x = position.x;
+    }
+    if (position.y < minPosition_.y) {
+        minPosition_.y = position.y;
+    }
+    if (position.x > maxPosition_.x) {
+        maxPosition_.x = position.x;
+    }
+    if (position.y > maxPosition_.y) {
+        maxPosition_.y = position.y;
+    }
+}
+
+const std::unordered_map<TileVector2D, glimmer::ResourceRef, glimmer::Vector2DIHash> &glimmer::StructureInfo::
+GetStructureMap() const {
+    return structureMap_;
+}
+
+const TileVector2D &glimmer::StructureInfo::GetMinPosition() const {
+    return minPosition_;
 }
 
 uint32_t glimmer::StructureInfo::GetWidth() const {
-    return width_;
+    return maxPosition_.x - minPosition_.x + 1;
 }
 
 uint32_t glimmer::StructureInfo::GetHeight() const {
-    return height_;
-}
-
-void glimmer::StructureInfo::SetTileData(uint32_t width, const std::vector<ResourceRef> &tileData) {
-    tileData_ = tileData;
-    width_ = width;
-    height_ = tileData.size() / width;
-}
-
-void glimmer::StructureInfo::SetTile(int x, int y, const ResourceRef &resourceRef) {
-    int minX = originX_;
-    int minY = originY_;
-    int maxX = originX_ + static_cast<int>(width_) - 1;
-    int maxY = originY_ + static_cast<int>(height_) - 1;
-
-    if (width_ == 0 || height_ == 0) {
-        minX = maxX = x;
-        minY = maxY = y;
-    } else {
-        if (x < minX) minX = x;
-        if (y < minY) minY = y;
-        if (x > maxX) maxX = x;
-        if (y > maxY) maxY = y;
-    }
-
-    uint32_t newWidth = maxX - minX + 1;
-    uint32_t newHeight = maxY - minY + 1;
-
-    if (newWidth != width_ || newHeight != height_ || minX != originX_ || minY != originY_) {
-        std::vector newData(
-            newWidth * newHeight,
-            maskRef_);
-
-        for (uint32_t oldY = 0; oldY < height_; ++oldY) {
-            for (uint32_t oldX = 0; oldX < width_; ++oldX) {
-                const int worldX = originX_ + oldX;
-                const int worldY = originY_ + oldY;
-
-                const uint32_t newLocalX = worldX - minX;
-                const uint32_t newLocalY = worldY - minY;
-
-                newData[newLocalY * newWidth + newLocalX] =
-                        tileData_[oldY * width_ + oldX];
-            }
-        }
-
-        tileData_ = std::move(newData);
-        width_ = newWidth;
-        height_ = newHeight;
-        originX_ = minX;
-        originY_ = minY;
-    }
-
-    uint32_t localX = x - originX_;
-    uint32_t localY = y - originY_;
-    tileData_[localY * width_ + localX] = resourceRef;
-}
-
-
-const glimmer::ResourceRef *glimmer::StructureInfo::GetResourceRef(uint32_t x, uint32_t y) const {
-    if (x >= width_ || y >= height_) {
-        return nullptr;
-    }
-    return &tileData_[x + y * width_];
+    return maxPosition_.y - minPosition_.y + 1;
 }

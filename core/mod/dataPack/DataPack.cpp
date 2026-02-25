@@ -128,6 +128,9 @@ LoadStructureResourceFromFile(const std::string &path, StructureManager *structu
     for (auto &condition: structureResource->condition) {
         condition.config.UpdateArgs(tomlVersion_, manifest_.id);
     }
+    for (auto &tile_info: structureResource->tileInfo) {
+        tile_info.tile.SetSelfPackageId(manifest_.id);
+    }
     structureManager->AddResource(std::move(structureResource));
     return true;
 }

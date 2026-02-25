@@ -61,29 +61,31 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
         if (!structureInfoOptional.has_value()) {
             return false;
         }
-        StructureInfo structureInfo = structureInfoOptional.value();
+        StructureInfo &structureInfo = structureInfoOptional.value();
         std::unordered_set<Chunk *> dirtyChunks;
-        int height = static_cast<int>(structureInfo.GetHeight());
-        for (int x = 0; x < structureInfo.GetWidth(); ++x) {
-            for (int y = 0; y < structureInfo.GetHeight(); ++y) {
-                TileVector2D position = tilePosition + TileVector2D(x, height - 1 - y);
-                Chunk *chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), position);
-                if (chunk == nullptr) {
-                    continue;
-                }
-                auto resourceRef = structureInfo.GetResourceRef(x, y);
-                if (resourceRef == nullptr) {
-                    continue;
-                }
-                auto tileResource = appContext_->GetResourceLocator()->FindTile(*resourceRef);
-                if (tileResource == nullptr) {
-                    continue;
-                }
-                chunk->SetTile(
-                    Chunk::TileCoordinatesToChunkRelativeCoordinates(position),
-                    Tile::FromResourceRef(appContext_, tileResource));
-                dirtyChunks.insert(chunk);
+        TileVector2D minPos = structureInfo.GetMinPosition();
+        for (auto &[coord, resourceRef]: structureInfo.GetStructureMap()) {
+            int localX = coord.x - minPos.x;
+            int localY = coord.y - minPos.y;
+            TileVector2D position =
+                    tilePosition + TileVector2D(localX, localY);
+            Chunk *chunk =
+                    Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), position);
+            if (chunk == nullptr) {
+                continue;
             }
+            auto tileResource =
+                    appContext_->GetResourceLocator()->FindTile(resourceRef);
+
+            if (tileResource == nullptr) {
+                continue;
+            }
+
+            chunk->SetTile(
+                Chunk::TileCoordinatesToChunkRelativeCoordinates(position),
+                Tile::FromResourceRef(appContext_, tileResource));
+
+            dirtyChunks.insert(chunk);
         }
         for (Chunk *dirtyChunk: dirtyChunks) {
             ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, dirtyChunk);

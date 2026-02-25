@@ -10,39 +10,21 @@
 
 namespace glimmer {
     class StructureInfo {
-        uint32_t width_ = 0;
-        uint32_t height_ = 0;
-        int32_t originX_ = 0;
-        int32_t originY_ = 0;
-        std::vector<ResourceRef> tileData_;
-        ResourceRef maskRef_;
+        std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash> structureMap_;
+        bool first_ = true;
+        TileVector2D minPosition_ = TileVector2D(0, 0);
+        TileVector2D maxPosition_ = TileVector2D(0, 0);
 
     public:
+        void SetTile(TileVector2D position, ResourceRef resourceRef);
 
-        StructureInfo();
+        const std::unordered_map<TileVector2D, ResourceRef, Vector2DIHash> &GetStructureMap() const;
+
+        const TileVector2D &GetMinPosition() const;
 
         [[nodiscard]] uint32_t GetWidth() const;
 
         [[nodiscard]] uint32_t GetHeight() const;
-
-        /**
-         * Set resource reference data (static data)
-         * 设置资源引用数据（静态数据）
-         * @param width
-         * @param tileData
-         */
-        void SetTileData(uint32_t width, const std::vector<ResourceRef> &tileData);
-
-        /**
-         * Set resource reference (dynamically set width and height)
-         * 设置资源引用（动态设置宽高）
-         * @param x
-         * @param y
-         * @param resourceRef
-         */
-        void SetTile(int x, int y, const ResourceRef &resourceRef);
-
-        [[nodiscard]] const ResourceRef *GetResourceRef(uint32_t x, uint32_t y) const;
     };
 }
 

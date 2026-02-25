@@ -250,6 +250,5 @@ static constexpr std::string TILE_ID_AIR = "air";
 static constexpr std::string TILE_ID_WATER = "water";
 static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
-static constexpr std::string TILE_ID_STRUCTURE_MASK = "structure_mask";
 
 #endif //CONSTANTS_H

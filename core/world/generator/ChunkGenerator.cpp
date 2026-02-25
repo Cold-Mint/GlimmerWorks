@@ -295,7 +295,6 @@ void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const {
                         StructureInfo &structureInfo = structureInfoOptional.value();
                         const int width = static_cast<int>(structureInfo.GetWidth());
                         const int height = static_cast<int>(structureInfo.GetHeight());
-                        int flippedYBase = height - 1;
                         const int baseX = globalOrigin.x;
                         const int baseY = globalOrigin.y;
 
@@ -303,44 +302,31 @@ void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const {
                         Vector2DI currentChunk = {INT_MIN, INT_MIN};
                         LogCat::d("StructurePlacement", "Structure generated successfully - Width: ",
                                   width, ", Height: ", height);
-
-                        for (int x = 0; x < width; ++x) {
-                            const int worldX = baseX + x;
-
+                        for (auto &[coord,tileResource]: structureInfo.GetStructureMap()) {
+                            const int worldX = baseX + coord.x;
+                            const int worldY = baseY + coord.y;
                             const int chunkX = worldX & ~CHUNK_MASK;
+                            const int chunkY = worldY & ~CHUNK_MASK;
                             const int relativeX = worldX & CHUNK_MASK;
-
-                            for (int y = 0; y < height; ++y) {
-                                const ResourceRef *tileResource = structureInfo.GetResourceRef(x, y);
-                                if (!tileResource) continue;
-
-                                if (tileResource->GetPackageId() == RESOURCE_REF_CORE &&
-                                    tileResource->GetResourceKey() == TILE_ID_STRUCTURE_MASK)
-                                    continue;
-
-                                const int worldY = baseY + (flippedYBase - y);
-
-                                const int chunkY = worldY & ~CHUNK_MASK;
-                                const int relativeY = worldY & CHUNK_MASK;
-
-                                Vector2DI chunkCoord{chunkX, chunkY};
-                                if (chunkCoord != currentChunk) {
-                                    currentChunk = chunkCoord;
-                                    currentTerrain = worldContext_->GetOrCreateTerrainData(chunkCoord);
-                                }
-
-                                if (!currentTerrain) {
-                                    continue;
-                                }
-
-                                const int index = relativeY << CHUNK_SHIFT | relativeX;
-                                currentTerrain->SetTerrainTileStructure(index, tileResource);
+                            const int relativeY = worldY & CHUNK_MASK;
+                            Vector2DI chunkCoord{chunkX, chunkY};
+                            if (chunkCoord != currentChunk) {
+                                currentChunk = chunkCoord;
+                                currentTerrain = worldContext_->GetOrCreateTerrainData(chunkCoord);
                             }
+                            if (currentTerrain == nullptr) {
+                                continue;
+                            }
+                            const int index = relativeY << CHUNK_SHIFT | relativeX;
+                            currentTerrain->SetTerrainTileStructure(index, &tileResource);
                         }
                     } else {
                         LogCat::w("StructurePlacement", "Failed to generate structure at global origin - x: ",
                                   globalOrigin.x, ", y: ", globalOrigin.y);
                     }
+                    //This is a test procedure. Place a bedrock at the structural origin point.
+                    //测试用，在结构原点处放置一块基岩。
+                    // terrainResult->SetTerrainTileStructure(i, &bedrockTileRef_);
                     markedCount++;
                     LogCat::d("StructurePlacement", "Finish processing candidate point - Index: ", i,
                               ", Total marked points so far: ", markedCount);

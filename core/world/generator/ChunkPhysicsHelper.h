@@ -16,11 +16,9 @@ namespace glimmer {
          * @param worldId Box2dWorldid Box2d世界id
          * @param chunk  The chunk to add physical bodies to 要添加物理的区块
          */
-        static void AttachPhysicsBodyToChunk(AppContext *appContext,b2WorldId worldId, Chunk *chunk);
+        static void AttachPhysicsBodyToChunk(AppContext *appContext, b2WorldId worldId, Chunk *chunk);
 
         static b2BodyId CreateStaticBody(b2WorldId worldId, WorldVector2D pos, Vector2DI size);
-
-        static void CreateDynamicTileBody(Chunk *chunk, TileVector2D pos);
 
         /**
          * Remove physical bodies from the tiles within the block

@@ -16,8 +16,8 @@ void glimmer::Chunk::ClearAttachedBodies() {
 
 TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileVector2D tileVector2d) {
     return {
-        TileToChunk(tileVector2d.x),
-        TileToChunk(tileVector2d.y)
+        tileVector2d.x & CHUNK_ALIGN,
+        tileVector2d.y & CHUNK_ALIGN
     };
 }
 
@@ -33,27 +33,18 @@ glimmer::Chunk *glimmer::Chunk::GetChunkByTileVector2D(
 
 
 TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const TileVector2D tileVector2d) {
-    const int chunkX = TileToChunk(tileVector2d.x);
-    const int chunkY = TileToChunk(tileVector2d.y);
-
     return {
-        tileVector2d.x - chunkX,
-        tileVector2d.y - chunkY
+        tileVector2d.x & CHUNK_MASK,
+        tileVector2d.y & CHUNK_MASK
     };
-}
-
-int glimmer::Chunk::TileToChunk(const int tileCoord) {
-    if (tileCoord >= 0) {
-        return tileCoord / CHUNK_SIZE * CHUNK_SIZE;
-    }
-    return (tileCoord - CHUNK_SIZE + 1) / CHUNK_SIZE * CHUNK_SIZE;
 }
 
 glimmer::Chunk::Chunk(const TileVector2D &pos) : position(pos) {
 }
 
 void glimmer::Chunk::SetTile(const TileVector2D pos, std::unique_ptr<Tile> tile) {
-    tiles_[tile->layerType][pos.x][pos.y] = std::move(tile);
+    const int index = pos.y << CHUNK_SHIFT | pos.x;
+    tiles_[tile->layerType][index] = std::move(tile);
 }
 
 TileVector2D glimmer::Chunk::GetPosition() const {
@@ -61,33 +52,35 @@ TileVector2D glimmer::Chunk::GetPosition() const {
 }
 
 glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const int x, const int y) {
-    return tiles_[layerType][x][y].get();
+    return GetTile(layerType, y << CHUNK_SHIFT | x);
+}
+
+glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const int index) {
+    return tiles_[layerType][index].get();
 }
 
 glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const TileVector2D &tileVector2d) {
-    return GetTile(layerType, tileVector2d.x, tileVector2d.y);
+    return GetTile(layerType, tileVector2d.y << CHUNK_SHIFT | tileVector2d.x);
 }
 
 void glimmer::Chunk::FromMessage(AppContext *appContext, const ChunkMessage &chunkMessage) {
     position.FromMessage(chunkMessage.position());
     tiles_.clear();
-    auto map = chunkMessage.tiles();
-    for (auto mapPair: map) {
+    auto &map = chunkMessage.tiles();
+    for (const auto &mapPair: map) {
         auto key = static_cast<TileLayerType>(mapPair.first);
         auto tileData = mapPair.second;
         auto tileResourceRefSize = tileData.tileresourceref_size();
-        std::array<std::array<std::unique_ptr<Tile>, CHUNK_SIZE>, CHUNK_SIZE> value;
+        std::array<std::unique_ptr<Tile>, CHUNK_AREA> value;
         for (int i = 0; i < tileResourceRefSize; i++) {
             auto &tileResourceRefMessage = tileData.tileresourceref(i);
-            int x = i % CHUNK_SIZE;
-            int y = i / CHUNK_SIZE;
             ResourceRef resourceRef;
             resourceRef.FromMessage(tileResourceRefMessage);
             auto tileResource = appContext->GetResourceLocator()->FindTile(resourceRef);
             if (tileResource == nullptr) {
                 continue;
             }
-            value[x][y] = Tile::FromResourceRef(appContext, tileResource);
+            value[i] = Tile::FromResourceRef(appContext, tileResource);
         }
         tiles_.emplace(key, std::move(value));
     }
@@ -106,7 +99,8 @@ void glimmer::Chunk::ToMessage(ChunkMessage &chunkMessage) {
         for (int y = 0; y < CHUNK_SIZE; y++) {
             for (int x = 0; x < CHUNK_SIZE; x++) {
                 const auto refMessage = tileData.add_tileresourceref();
-                const Tile *tile = tileArray[x][y].get();
+                const int index = y << CHUNK_SHIFT | x;
+                const Tile *tile = tileArray[index].get();
                 std::optional<ResourceRef> resourceRef = Resource::ParseFromId(tile->id, RESOURCE_TYPE_TILE);
                 if (!resourceRef.has_value()) {
                     continue;
@@ -128,7 +122,8 @@ WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
 std::unique_ptr<glimmer::Tile> glimmer::Chunk::ReplaceTile(const TileLayerType layerType,
                                                            const TileVector2D &tileVector2d,
                                                            std::unique_ptr<Tile> newTile) {
-    std::unique_ptr<Tile> extracted = std::move(tiles_[layerType][tileVector2d.x][tileVector2d.y]);
-    tiles_[layerType][tileVector2d.x][tileVector2d.y] = std::move(newTile);
+    const int index = tileVector2d.y << CHUNK_SHIFT | tileVector2d.x;
+    std::unique_ptr<Tile> extracted = std::move(tiles_[layerType][index]);
+    tiles_[layerType][index] = std::move(newTile);
     return extracted;
 }

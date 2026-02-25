@@ -16,11 +16,9 @@
 namespace glimmer {
     class Chunk {
         TileVector2D position;
-        std::unordered_map<TileLayerType, std::array<std::array<std::unique_ptr<Tile>, CHUNK_SIZE>, CHUNK_SIZE> >
+        std::unordered_map<TileLayerType, std::array<std::unique_ptr<Tile>, CHUNK_AREA> >
         tiles_;
         std::vector<b2BodyId> attachedBodies_;
-
-        static int TileToChunk(int tileCoord);
 
     public:
         explicit Chunk(const TileVector2D &pos);
@@ -65,6 +63,8 @@ namespace glimmer {
         [[nodiscard]] TileVector2D GetPosition() const;
 
         [[nodiscard]] Tile *GetTile(TileLayerType layerType, int x, int y);
+
+        [[nodiscard]] Tile *GetTile(TileLayerType layerType, int index);
 
         [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D &tileVector2d);
 

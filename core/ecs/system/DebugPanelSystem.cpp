@@ -235,8 +235,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     SDL_SetRenderDrawColor(renderer, 100, 149, 237, 128);
 
     for (const auto &[pos, chunk]: chunksPtr) {
-        int chunkIndexX = pos.x / CHUNK_SIZE;
-        int chunkIndexY = pos.y / CHUNK_SIZE;
+        int chunkIndexX = pos.x >> CHUNK_SHIFT;
+        int chunkIndexY = pos.y >> CHUNK_SHIFT;
 
         float drawX = gridCenterX + static_cast<float>(chunkIndexX - playerChunkX) * cellSize;
         float drawY = gridCenterY + static_cast<float>(playerChunkY - chunkIndexY) * cellSize;

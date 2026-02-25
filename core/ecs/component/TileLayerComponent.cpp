@@ -7,7 +7,6 @@
 #include <cassert>
 
 #include "../../Constants.h"
-#include "../../log/LogCat.h"
 #include "../../world/Tile.h"
 #include "../../math/Vector2DI.h"
 #include "../../world/generator/Chunk.h"

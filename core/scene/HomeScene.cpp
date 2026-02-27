@@ -12,7 +12,6 @@
 #include "SavedGamesScene.h"
 #include "../Config.h"
 #include "core/saves/SavesManager.h"
-#include "core/utils/BrowserInvoker.h"
 
 std::string glimmer::HomeScene::GetCopyrightString() {
     constexpr int startYear = 2025;
@@ -66,7 +65,6 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
         windowHeight = winH;
         generateStars();
     }
-
     for (const auto &star: stars) {
         SDL_SetRenderDrawColor(renderer, star.r, star.g, star.b, 255);
         SDL_FRect rect{star.x, star.y, star.size, star.size};
@@ -124,11 +122,7 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     float versionPosY = windowSize.y - lineHeight - margin;
     float versionPosX =
             windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - margin;
-
-    // ===== 从版本号往上排列链接 =====
     float currentY = versionPosY - spacing;
-
-    // 反向遍历（让 vector 顺序从上到下）
     for (int i = static_cast<int>(hyperlinks.size()) - 1; i >= 0; --i) {
         const auto &link = hyperlinks[i];
 
@@ -139,15 +133,10 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
 
         ImGui::SetCursorPos(ImVec2(posX, currentY));
 
-        ImVec4 linkColor(0.2f, 0.6f, 1.0f, 1.0f);
-        ImGui::TextColored(linkColor, "%s", link.displayText.c_str());
+        ImGui::TextLinkOpenURL(link.displayText.c_str(), link.link.c_str());
 
         if (ImGui::IsItemHovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        if (ImGui::IsItemClicked()) {
-            BrowserInvoker::OpenUrl(link.link);
         }
 
         currentY -= spacing;
@@ -155,13 +144,11 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
 
     // ===== 绘制版本号 =====
     ImGui::SetCursorPos(ImVec2(versionPosX, versionPosY));
-    ImVec4 white(1.f, 1.f, 1.f, 1.f);
-    ImGui::TextColored(white, "%s", GAME_VERSION_STRING);
+    ImGui::Text("%s", GAME_VERSION_STRING);
 
 
-    ImVec4 textColor(0.7f, 0.7f, 0.7f, 1.0f);
     ImGui::SetCursorPos(ImVec2(margin, versionPosY));
-    ImGui::TextColored(textColor, "%s", copyright.c_str());
+    ImGui::Text("%s", copyright.c_str());
     ImGui::PopStyleColor();
     ImGui::End();
     AppContext::RestoreColorRenderer(renderer);

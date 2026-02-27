@@ -71,9 +71,9 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
 
 void glimmer::ItemSlotSystem::RenderQuantity(SDL_Renderer *renderer, const SDL_FRect &slotDest, int amount) const {
     const std::string text = std::to_string(amount);
-    const SDL_Color color = {255, 255, 255, 255};
     AppContext *appContext = worldContext_->GetAppContext();
-    SDL_Surface *surface = TTF_RenderText_Blended(appContext->GetFont(), text.c_str(), text.length(), color);
+    SDL_Surface *surface = TTF_RenderText_Blended(appContext->GetFont(), text.c_str(), text.length(),
+                                                  appContext->GetPreloadColors()->textColor);
     if (surface) {
         if (SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface)) {
             auto textW = static_cast<float>(surface->w);
@@ -97,20 +97,14 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
-    // Prepare Text
-    const std::string nameInfo = "Name: " + item->GetName();
-    const std::string amountInfo = "Amount: " + std::to_string(item->GetAmount());
+    const std::string nameInfo = item->GetName();
     const std::string descInfo = item->GetDescription();
 
-    SDL_Color nameColor = {200, 200, 200, 255};
-    SDL_Color textColor = {200, 200, 200, 255};
-
     AppContext *appContext = worldContext_->GetAppContext();
-    SDL_Surface *sName = TTF_RenderText_Blended(appContext->GetFont(), nameInfo.c_str(), nameInfo.length(), nameColor);
-    SDL_Surface *sAmount = TTF_RenderText_Blended(appContext->GetFont(), amountInfo.c_str(), amountInfo.length(),
-                                                  textColor);
-    // Description might be multiline? Basic implementation for now.
-    SDL_Surface *sDesc = TTF_RenderText_Blended(appContext->GetFont(), descInfo.c_str(), descInfo.length(), textColor);
+    SDL_Surface *sName = TTF_RenderText_Blended(appContext->GetFont(), nameInfo.c_str(), nameInfo.length(),
+                                                appContext->GetPreloadColors()->textColor);
+    SDL_Surface *sDesc = TTF_RenderText_Blended(appContext->GetFont(), descInfo.c_str(), descInfo.length(),
+                                                appContext->GetPreloadColors()->textColor);
 
     float maxWidth = 0;
     float totalHeight = 0;
@@ -120,10 +114,6 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     if (sName) {
         maxWidth = std::max(maxWidth, static_cast<float>(sName->w));
         totalHeight += static_cast<float>(sName->h) + lineSpacing;
-    }
-    if (sAmount) {
-        maxWidth = std::max(maxWidth, static_cast<float>(sAmount->w));
-        totalHeight += static_cast<float>(sAmount->h) + lineSpacing;
     }
     if (sDesc) {
         maxWidth = std::max(maxWidth, static_cast<float>(sDesc->w));
@@ -135,9 +125,13 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     float bgY = mouseY + 10;
     SDL_FRect bgRect = {bgX, bgY, maxWidth + padding * 2, totalHeight + padding * 2};
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+    SDL_SetRenderDrawColor(renderer, appContext->GetPreloadColors()->backgroundColor.r,
+                           appContext->GetPreloadColors()->backgroundColor.g, appContext->GetPreloadColors()->
+                           backgroundColor.b, appContext->GetPreloadColors()->backgroundColor.a);
     SDL_RenderFillRect(renderer, &bgRect);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 50);
+    SDL_SetRenderDrawColor(renderer, appContext->GetPreloadColors()->borderColor.r,
+                           appContext->GetPreloadColors()->borderColor.g, appContext->GetPreloadColors()->
+                           borderColor.b, appContext->GetPreloadColors()->borderColor.a);
     SDL_RenderRect(renderer, &bgRect);
 
     float currentY = bgY + padding;
@@ -157,7 +151,6 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     };
 
     drawSurf(sName);
-    drawSurf(sAmount);
     drawSurf(sDesc);
 }
 

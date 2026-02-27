@@ -331,7 +331,6 @@ target_sources(GlimmerWorks
         core/world/structure/StructureGeneratorManager.cpp
         core/mod/dataPack/PackDependence.cpp
         core/Hyperlink.cpp
-        core/utils/BrowserInvoker.cpp
         core/GameUIMessage.cpp
         core/inventory/InitialInventoryManager.cpp
         core/world/structure/IStructureConditionProcessor.cpp
@@ -494,7 +493,6 @@ target_sources(GlimmerWorks
         core/world/structure/StructureGeneratorManager.h
         core/mod/dataPack/PackDependence.h
         core/Hyperlink.h
-        core/utils/BrowserInvoker.h
         core/GameUIMessage.h
         core/inventory/InitialInventoryManager.h
         core/world/structure/IStructureConditionProcessor.h

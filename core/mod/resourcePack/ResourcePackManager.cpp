@@ -12,13 +12,18 @@
 #include "../../log/LogCat.h"
 #include "../../scene/AppContext.h"
 #include "SDL3_image/SDL_image.h"
+#include "toml11/get.hpp"
+#include "toml11/parser.hpp"
+#include "toml11/spec.hpp"
+#include "../../core/utils/TomlUtils.h"
+
 
 bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &pack) const {
     const PackManifest &manifest = pack.getManifest();
     if (manifest.id == RESOURCE_REF_CORE || manifest.id == RESOURCE_REF_SELF) {
         return false;
     }
-    if (resourcePackMap.contains(manifest.id)) {
+    if (resourcePackMap_.contains(manifest.id)) {
         LogCat::i("Duplicate package ID: ", manifest.id);
         return false;
     }
@@ -56,8 +61,8 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFi
     }
 
     for (const auto &packId: enabledResourcePack) {
-        auto it = resourcePackMap.find(packId);
-        if (it == resourcePackMap.end()) {
+        auto it = resourcePackMap_.find(packId);
+        if (it == resourcePackMap_.end()) {
             LogCat::w("Resource pack not found: ", packId);
             continue;
         }
@@ -96,7 +101,7 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFi
         };
 
         std::shared_ptr<SDL_Texture> texturePtr(texture, deleter);
-        textureCache[path] = texturePtr; // 自动转换为 weak_ptr
+        textureCache[path] = texturePtr;
         LogCat::d("add use_count=", texturePtr.use_count());
         return texturePtr;
     }
@@ -147,6 +152,11 @@ glimmer::ResourcePackManager::CreateErrorTexture() const {
 
 glimmer::ResourcePackManager::ResourcePackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(
         virtualFilesystem), renderer_(nullptr) {
+    defaultColor_ = std::make_unique<ColorResource>();
+    defaultColor_->a = 255;
+    defaultColor_->b = 0;
+    defaultColor_->g = 0;
+    defaultColor_->r = 0;
 }
 
 void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer) {
@@ -156,7 +166,7 @@ void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer) {
 
 int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
                                        const toml::spec &tomlVersion) {
-    resourcePackMap.clear();
+    resourcePackMap_.clear();
     if (!virtualFileSystem_->Exists(path)) {
         LogCat::e("ResourcePackManager: Path does not exist -> ", path);
         return 0;
@@ -179,7 +189,7 @@ int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vecto
             if (!IsResourcePackAvailable(*packPtr)) {
                 continue;
             }
-            resourcePackMap[packPtr->getManifest().id] = std::move(packPtr);
+            resourcePackMap_[packPtr->getManifest().id] = std::move(packPtr);
             success++;
         }
     }
@@ -192,8 +202,8 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
     std::optional<std::string> defaultFontPath;
 
     for (const auto &packId: enabledResourcePack) {
-        auto it = resourcePackMap.find(packId);
-        if (it == resourcePackMap.end()) {
+        auto it = resourcePackMap_.find(packId);
+        if (it == resourcePackMap_.end()) {
             LogCat::w("Resource pack not found: ", packId);
             continue;
         }
@@ -248,6 +258,44 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(A
             return result;
         }
     ).get();
+}
+
+glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const AppContext *appContext,
+                                                                           const ResourceRef &resourceRef) {
+    std::string path = resourceRef.GetPackageId() + "/" + resourceRef.GetResourceKey();
+    const auto cacheIt = colorCache_.find(path);
+    if (cacheIt != colorCache_.end()) {
+        return cacheIt->second.get();
+    }
+    for (const auto &packId: appContext->GetConfig()->mods.enabledResourcePack) {
+        auto it = resourcePackMap_.find(packId);
+        if (it == resourcePackMap_.end()) {
+            LogCat::w("Resource pack not found: ", packId);
+            continue;
+        }
+
+        const ResourcePack *pack = it->second.get();
+        std::string colorPath = pack->getPath() + "/colors/" + path + "." + DATA_FILE_TYPE_COLOR + ".toml";
+
+        if (!virtualFileSystem_->Exists(colorPath)) {
+            continue;
+        }
+        auto data =
+                virtualFileSystem_->ReadFile(colorPath);
+        if (!data.has_value()) {
+            LogCat::e("Failed to load toml file: ", colorPath);
+            continue;
+        }
+
+        const toml::value value = toml::parse_str(data.value(), appContext->GetTomlVersion());
+        auto colorResource = std::make_unique<ColorResource>(
+            toml::get<ColorResource>(value)
+        );
+        auto *ptr = colorResource.get();
+        colorCache_[path] = std::move(colorResource);
+        return ptr;
+    }
+    return defaultColor_.get();
 }
 
 std::string glimmer::ResourcePackManager::ListTextureCache(const bool includeExpired) const {

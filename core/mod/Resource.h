@@ -9,6 +9,7 @@
 
 #include "ResourceRef.h"
 #include "core/lootTable/LootEntry.h"
+#include "SDL3/SDL_pixels.h"
 
 namespace glimmer {
     struct TileRules;
@@ -134,6 +135,20 @@ namespace glimmer {
         std::string ability;
         VariableConfig abilityConfig;
         bool canUseAlone = false;
+    };
+
+    /**
+     * ColorResource
+     * 颜色资源
+     */
+    struct ColorResource {
+        uint8_t a = 255;
+        uint8_t r = 0;
+        uint8_t g = 0;
+        uint8_t b = 0;
+
+
+        SDL_Color ToSDLColor() const;
     };
 
     /**

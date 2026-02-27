@@ -110,6 +110,7 @@ namespace glimmer {
             {"structure", RESOURCE_TYPE_STRUCTURE},
             {"texture", RESOURCE_TYPE_TEXTURES},
             {"biome", RESOURCE_TYPE_BIOME},
+            {"color", RESOURCE_TYPE_COLOR},
         };
 
     public:

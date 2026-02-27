@@ -16,11 +16,11 @@ else ()
     set(ARCH_BIT "32")
     set(LIB_DIR "lib32")
 endif ()
-if(WIN32)
+if (WIN32)
     #Place the dll and exe files in the same directory.
     #把dll和exe放到同级目录。
     set(LIB_DIR "")
-endif()
+endif ()
 set(CMAKE_BUILD_RPATH "$ORIGIN/${LIB_DIR}")
 set(CMAKE_INSTALL_RPATH "$ORIGIN/${LIB_DIR}")
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://github.com/Cold-Mint/GlimmerWorks")
@@ -340,6 +340,10 @@ target_sources(GlimmerWorks
         core/world/structure/HeightStructureConditionProcessor.cpp
         core/mod/StructurePlacementConditionsManager.cpp
         core/world/structure/HorizontalSpacingStructureConditionProcessor.cpp
+        core/inventory/ability/AreaMarkerAbility.cpp
+        core/ecs/system/AreaMarkerSystem.cpp
+        core/ecs/component/AreaMarkerComponent.cpp
+        core/world/PreloadColors.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -499,6 +503,10 @@ target_sources(GlimmerWorks
         core/world/structure/BiomeStructureConditionProcessor.h
         core/mod/StructurePlacementConditionsManager.h
         core/world/structure/HorizontalSpacingStructureConditionProcessor.h
+        core/inventory/ability/AreaMarkerAbility.h
+        core/ecs/component/AreaMarkerComponent.h
+        core/ecs/system/AreaMarkerSystem.h
+        core/world/PreloadColors.h
 )
 
 #Define version information
@@ -614,15 +622,27 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/mods/"
 install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
         DESTINATION .)
 
-if(WIN32)
-install(CODE "
+if (WIN32)
+    install(CODE "
     file(GLOB PROTO_BUF_LIBS \"/usr/x86_64-w64-mingw32/sys-root/mingw/bin/*${LIB_SUFFIX}\")
     foreach(lib \${PROTO_BUF_LIBS})
         message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
+endif ()
 
+if (UNIX AND NOT APPLE)
+    install(CODE "
+    file(GLOB PROTO_BUF_LIBS \"/usr/lib64/libprotobuf.*${LIB_SUFFIX}\")
+    foreach(lib \${PROTO_BUF_LIBS})
+        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
+    endforeach()
+")
+endif ()
+#Ubuntu and Windows lack SDL and Fmt.
+#ubuntu和Windows缺SDL和Fmt。
 install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl-build/*${LIB_SUFFIX}\")
     foreach(lib \${PROTO_BUF_LIBS})
@@ -630,6 +650,7 @@ install(CODE "
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
+
 install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/fmt-build/bin/*${LIB_SUFFIX}\")
     foreach(lib \${PROTO_BUF_LIBS})
@@ -637,7 +658,6 @@ install(CODE "
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
-endif ()
 
 install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl_image-build/*${LIB_SUFFIX}\")

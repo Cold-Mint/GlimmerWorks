@@ -8,8 +8,8 @@
 #include "../../ecs/component/Transform2DComponent.h"
 #include "../../inventory/TileItem.h"
 
-glimmer::DigAbility::DigAbility(const VariableConfig &abilityData) : ItemAbility(
-    abilityData) {
+glimmer::DigAbility::DigAbility(const AppContext *appContext, const VariableConfig &abilityData) : ItemAbility(
+    appContext, abilityData) {
     auto efficiencyVariable = abilityData.FindVariable("efficiency");
     if (efficiencyVariable != nullptr) {
         efficiency_ = efficiencyVariable->AsFloat();

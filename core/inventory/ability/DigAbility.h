@@ -24,6 +24,7 @@ namespace glimmer {
 
     public:
         explicit DigAbility(
+            const AppContext *appContext,
             const VariableConfig &abilityData);
 
         ~DigAbility() override = default;

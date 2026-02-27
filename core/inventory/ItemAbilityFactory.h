@@ -16,11 +16,12 @@ namespace glimmer {
         /**
          * CreateItemAbility
          * 创建物品能力
+         * @param appContext appContext
          * @param id id
          * @param abilityData abilityData
          * @return Return the item's ability, which may be empty 返回物品能力，可能为空
          */
-        static std::unique_ptr<ItemAbility> CreateItemAbility(const std::string &id,
+        static std::unique_ptr<ItemAbility> CreateItemAbility(const AppContext *appContext, const std::string &id,
                                                               const VariableConfig &abilityData);
     };
 }

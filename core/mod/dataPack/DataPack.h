@@ -41,7 +41,7 @@ namespace glimmer {
 
 
         [[nodiscard]] bool LoadInitialInventoryResourceFromFile(const std::string &path,
-                                                         InitialInventoryManager *lootTableManager) const;
+                                                                InitialInventoryManager *lootTableManager) const;
 
 
         [[nodiscard]] bool LoadStructureResourceFromFile(const std::string &path,

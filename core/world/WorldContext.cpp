@@ -39,6 +39,7 @@
 #include "core/ecs/component/MagnetComponent.h"
 #include "core/ecs/component/MagneticComponent.h"
 #include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/ItemEditorSystem.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
@@ -576,6 +577,7 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<MagnetSystem>(this));
     RegisterSystem(std::make_unique<DroppedItemSystem>(this));
     RegisterSystem(std::make_unique<AutoPickSystem>(this));
+    RegisterSystem(std::make_unique<AreaMarkerSystem>(this));
     RegisterSystem(std::make_unique<DiggingSystem>(this));
     RegisterSystem(std::make_unique<PauseSystem>(this));
     RegisterSystem(std::make_unique<ItemEditorSystem>(this));

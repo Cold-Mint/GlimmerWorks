@@ -39,6 +39,8 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> FindTexture(const ResourceRef &resourceRef) const;
 
+        [[nodiscard]] ColorResource *FindColorResource(const ResourceRef &resourceRef) const;
+
         /**
          * FindString
          * 查找字符串资源

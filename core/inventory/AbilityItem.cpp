@@ -29,7 +29,7 @@ glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
     return itemAbility_.get();
 }
 
-std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(AppContext *appContext,
+std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext *appContext,
                                                                              const AbilityItemResource *itemResource,
                                                                              const ResourceRef &resourceRef) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->key);
@@ -43,7 +43,7 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(App
         description = descriptionRes.value()->value;
     }
     auto itemAbility =
-            ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
+            ItemAbilityFactory::CreateItemAbility(appContext, itemResource->ability, itemResource->abilityConfig);
     if (itemAbility == nullptr) {
         LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
         return nullptr;

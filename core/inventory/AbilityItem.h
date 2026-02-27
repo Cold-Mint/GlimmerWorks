@@ -33,7 +33,7 @@ namespace glimmer {
 
         [[nodiscard]] ItemAbility *GetItemAbility() const;
 
-        static std::unique_ptr<AbilityItem> FromItemResource(AppContext *appContext,
+        static std::unique_ptr<AbilityItem> FromItemResource(const AppContext *appContext,
                                                              const AbilityItemResource *itemResource,
                                                              const ResourceRef &resourceRef);
 

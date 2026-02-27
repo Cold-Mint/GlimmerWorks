@@ -57,6 +57,7 @@ namespace glimmer {
         std::string saveAndExit;
         std::string screenshotSavedFailed;
         std::string screenshotSavedSuccess;
+        std::string areaMarkerTip;
         std::vector<std::string> worldNamePrefix;
         std::vector<std::string> worldNameSuffix;
     };

@@ -9,6 +9,7 @@
 #include "../../log/LogCat.h"
 #include "../component/TileLayerComponent.h"
 #include "../../world/WorldContext.h"
+#include "core/ecs/component/AreaMarkerComponent.h"
 #include "core/ecs/component/ItemContainerComonent.h"
 
 
@@ -24,6 +25,7 @@ void glimmer::GameStartSystem::Update(float delta) {
     auto tileLayerEntity = worldContext_->CreateEntity();
     worldContext_->AddComponent<
         TileLayerComponent>(tileLayerEntity, TileLayerType::Main, worldContext_->GetAllChunks());
+    worldContext_->AddComponent<AreaMarkerComponent>(tileLayerEntity);
     worldContext_->InitPlayer();
     worldContext_->InitHotbar(
         worldContext_->GetComponent<ItemContainerComponent>(worldContext_->GetPlayerEntity())->GetItemContainer());

@@ -4,8 +4,8 @@
 
 #include "NoneAbility.h"
 
-glimmer::NoneAbility::NoneAbility(const VariableConfig &abilityData)
-    : ItemAbility(abilityData) {
+glimmer::NoneAbility::NoneAbility(const AppContext *appContext, const VariableConfig &abilityData) : ItemAbility(
+    appContext, abilityData) {
 }
 
 std::string glimmer::NoneAbility::GetId() const {

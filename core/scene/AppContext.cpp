@@ -92,6 +92,7 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->saveAndExit = find<std::string>(value, "saveAndExit");
     langs_->screenshotSavedSuccess = find<std::string>(value, "screenshotSavedSuccess");
     langs_->screenshotSavedFailed = find<std::string>(value, "screenshotSavedFailed");
+    langs_->areaMarkerTip = find<std::string>(value, "areaMarkerTip");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "worldNamePrefix");
     langs_->worldNameSuffix = find<std::vector<std::string> >(value, "worldNameSuffix");
 }
@@ -186,7 +187,8 @@ glimmer::AppContext::AppContext() {
     structurePlacementConditionsManager_ = std::make_unique<StructurePlacementConditionsManager>();
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<SurfaceStructureConditionProcessor>());
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<HeightStructureConditionProcessor>());
-    structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<HorizontalSpacingStructureConditionProcessor>());
+    structurePlacementConditionsManager_->AddConditionProcessor(
+        std::make_unique<HorizontalSpacingStructureConditionProcessor>());
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<BiomeStructureConditionProcessor>());
     initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
     tileManager_->InitBuiltinTiles();
@@ -260,6 +262,8 @@ glimmer::AppContext::AppContext() {
         LogCat::e("Failed to load resourcePack");
         return;
     }
+    preloadColors_ = std::make_unique<PreloadColors>();
+    preloadColors_->LoadAllColors(resourceLocator_.get());
     LogCat::i("Starting the app...");
 }
 
@@ -353,6 +357,10 @@ std::vector<glimmer::GameUIMessage> &glimmer::AppContext::GetGameUIMessages() {
 
 void glimmer::AppContext::ExitApp() {
     isRunning = false;
+}
+
+glimmer::PreloadColors *glimmer::AppContext::GetPreloadColors() const {
+    return preloadColors_.get();
 }
 
 glimmer::Config *glimmer::AppContext::GetConfig() const {

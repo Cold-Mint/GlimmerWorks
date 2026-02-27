@@ -43,7 +43,7 @@ void glimmer::SplashScene::Render(SDL_Renderer *renderer) {
         splashTextureRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
         splashTexture = appContext->GetResourceLocator()->FindTexture(
             splashTextureRef);
-        fadeTween = tweeny::from(0.0F).to(1.0F).during(350);
+        fadeTween = tweeny::from(0.0F).to(1.0F).during(1000);
         alpha = 0.0F;
         animationFinished = false;
         LogCat::i("Splash texture loaded, starting fade-in animation");

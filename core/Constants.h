@@ -43,6 +43,7 @@ static constexpr std::string STRUCTURE_GENERATOR_ID_TREE = "tree";
 static constexpr std::string STRUCTURE_GENERATOR_ID_STATIC = "static";
 static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_DIG = "dig";
+static constexpr std::string ABILITY_ID_AREA_MARKER = "areaMarker";
 
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_BIOME = "biome";
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_SURFACE = "surface";
@@ -62,6 +63,7 @@ static constexpr uint32_t RESOURCE_TYPE_LOOT_TABLE = 5;
 static constexpr uint32_t RESOURCE_TYPE_STRUCTURE = 6;
 static constexpr uint32_t RESOURCE_TYPE_TEXTURES = 7;
 static constexpr uint32_t RESOURCE_TYPE_BIOME = 8;
+static constexpr uint32_t RESOURCE_TYPE_COLOR = 9;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;
@@ -81,6 +83,7 @@ static constexpr std::string DATA_FILE_TYPE_ABILITY_ITEM = "ability";
 static constexpr std::string DATA_FILE_TYPE_LOOT_TABLE = "loot";
 static constexpr std::string DATA_FILE_TYPE_STRUCTURE = "structure";
 static constexpr std::string DATA_FILE_TYPE_INITIAL_INVENTORY = "startinv";
+static constexpr std::string DATA_FILE_TYPE_COLOR = "color";
 
 constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
@@ -211,7 +214,8 @@ static constexpr uint8_t RENDER_ORDER_DEBUG_HOTBAR = 7;
 static constexpr uint8_t RENDER_ORDER_ITEM_EDITOR = 8;
 static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 9;
 static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
-static constexpr uint8_t RENDER_ORDER_PAUSE = 11;
+static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
+static constexpr uint8_t RENDER_ORDER_PAUSE = 100;
 
 
 /**
@@ -244,6 +248,7 @@ static constexpr uint32_t COMPONENT_ID_RIGID_BODY_2D = 13;
 static constexpr uint32_t COMPONENT_ID_TILE_LAYER = 14;
 static constexpr uint32_t COMPONENT_ID_TRANSFORM_2D = 15;
 static constexpr uint32_t COMPONENT_ID_GUI_TRANSFORM_2D = 16;
+static constexpr uint32_t COMPONENT_ID_AREA_MARKER = 17;
 
 
 static constexpr std::string TILE_ID_AIR = "air";

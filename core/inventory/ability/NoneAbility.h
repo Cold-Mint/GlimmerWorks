@@ -9,7 +9,7 @@
 namespace glimmer {
     class NoneAbility : public ItemAbility {
     public:
-        explicit NoneAbility(const VariableConfig &abilityData);
+        explicit NoneAbility(const AppContext *appContext,const VariableConfig &abilityData);
 
         [[nodiscard]] std::string GetId() const override;
 

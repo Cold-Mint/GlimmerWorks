@@ -126,8 +126,20 @@ namespace toml {
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.description = toml::find<glimmer::ResourceRef>(v, "description");
             r.ability = toml::find<std::string>(v, "ability");
-            r.abilityConfig = toml::find<glimmer::VariableConfig>(v, "abilityConfig");
+            r.abilityConfig = toml::find_or_default<glimmer::VariableConfig>(v, "abilityConfig");
             r.canUseAlone = toml::find<bool>(v, "canUseAlone");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::ColorResource> {
+        static glimmer::ColorResource from_toml(const value &v) {
+            glimmer::ColorResource r;
+            r.a = toml::find<uint8_t>(v, "a");
+            r.r = toml::find<uint8_t>(v, "r");
+            r.g = toml::find<uint8_t>(v, "g");
+            r.b = toml::find<uint8_t>(v, "b");
             return r;
         }
     };

@@ -8,6 +8,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "ResourcePack.h"
@@ -24,12 +25,14 @@ namespace glimmer {
         VirtualFileSystem *virtualFileSystem_;
         SDL_Renderer *renderer_;
         std::vector<std::string> packIdVector_;
-        std::unordered_map<std::string, std::unique_ptr<ResourcePack> > resourcePackMap;
+        std::unordered_map<std::string, std::unique_ptr<ResourcePack> > resourcePackMap_;
         /**
          * Placeholder texture Path Set
          * 用于存储加载失败的纹理路径
          */
-        std::unordered_set<std::string> errorTexturePathSet_;
+        std::unordered_set<std::string> errorTexturePathSet_{};
+
+        std::unique_ptr<ColorResource> defaultColor_ = nullptr;
 
         bool IsResourcePackAvailable(const ResourcePack &pack) const;
 
@@ -38,11 +41,15 @@ namespace glimmer {
 
         std::unordered_map<std::string, std::weak_ptr<SDL_Texture> > textureCache;
 
+        std::unordered_map<std::string, std::unique_ptr<ColorResource> > colorCache_;
+
 
         std::shared_ptr<SDL_Texture> ImplLoadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
                                                              const std::string &path);
 
         std::shared_ptr<SDL_Texture> LoadTextureFromFile(AppContext *appContext, const ResourceRef &resourceRef);
+
+        ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef &resourceRef);
 
         std::shared_ptr<SDL_Texture> CreateErrorTexture() const;
 

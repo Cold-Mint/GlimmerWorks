@@ -180,6 +180,7 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext *context)
 void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
     if (!show_) return;
     const float uiScale = appContext->GetConfig()->window.uiScale;
+    const PreloadColors *preloadColors = appContext->GetPreloadColors();
     ImGui::GetIO().FontGlobalScale = uiScale;
     const ImGuiIO &io = ImGui::GetIO();
     const float windowHeight = io.DisplaySize.y;
@@ -189,11 +190,22 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
 
     // Apply dark console theme
     // 应用深色控制台主题
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 240)); // Black background with slight transparency
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(preloadColors->console.backgroundColor.r,
+                                                      preloadColors->console.backgroundColor.g,
+                                                      preloadColors->console.backgroundColor.b,
+                                                      preloadColors->console.backgroundColor.a));
     ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(60, 60, 60, 255)); // Dark gray border
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255)); // White text
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255)); // Slightly lighter black for child windows
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(30, 30, 30, 255)); // Dark gray for input background
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(preloadColors->console.backgroundColor.r,
+                                                     preloadColors->console.backgroundColor.g,
+                                                     preloadColors->console.backgroundColor.b,
+                                                     preloadColors->console.backgroundColor.a));
+    // Slightly lighter black for child windows
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(preloadColors->console.backgroundColor.r,
+                                                     preloadColors->console.backgroundColor.g,
+                                                     preloadColors->console.backgroundColor.b,
+                                                     preloadColors->console.backgroundColor.a));
+    // Dark gray for input background
     ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(40, 40, 40, 255)); // Lighter on hover
     ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(50, 50, 50, 255)); // Even lighter when active
     ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, IM_COL32(20, 20, 20, 255)); // Dark scrollbar background
@@ -210,10 +222,13 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                  ImGuiWindowFlags_NoResize |
                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-    // Console title with cyan color
-    // 控制台标题使用青色
+    // Console title
+    // 控制台标题
     ImGui::PushFont(ImGui::GetFont());
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255)); // Cyan for title
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(preloadColors->console.keywordColor.r,
+                                                  preloadColors->console.keywordColor.g,
+                                                  preloadColors->console.keywordColor.b,
+                                                  preloadColors->console.keywordColor.a)); // Cyan for title
     ImGui::TextUnformatted(appContext->GetLangsResources()->console.c_str());
     ImGui::PopStyleColor();
     ImGui::PopFont();
@@ -326,26 +341,37 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
 
                 // Before keyword - white
                 if (!beforeKeyword.empty()) {
-                    drawList->AddText(currentPos, IM_COL32(255, 255, 255, 255), beforeKeyword.c_str());
+                    drawList->AddText(currentPos, IM_COL32(preloadColors->console.textColor.r,
+                                                           preloadColors->console.textColor.g,
+                                                           preloadColors->console.textColor.b,
+                                                           preloadColors->console.textColor.a), beforeKeyword.c_str());
                     currentPos.x += ImGui::CalcTextSize(beforeKeyword.c_str()).x;
                 }
 
-                // Keyword - cyan highlight
-                drawList->AddText(currentPos, IM_COL32(0, 255, 255, 255), keyword.c_str());
+                //Key word color
+                //关键字颜色。
+                drawList->AddText(currentPos, IM_COL32(preloadColors->console.keywordColor.r,
+                                                       preloadColors->console.keywordColor.g,
+                                                       preloadColors->console.keywordColor.b,
+                                                       preloadColors->console.keywordColor.a), keyword.c_str());
                 currentPos.x += ImGui::CalcTextSize(keyword.c_str()).x;
 
                 // After keyword - white
                 if (!afterKeyword.empty()) {
-                    drawList->AddText(currentPos, IM_COL32(255, 255, 255, 255), afterKeyword.c_str());
+                    drawList->AddText(currentPos, IM_COL32(preloadColors->console.textColor.r,
+                                                           preloadColors->console.textColor.g,
+                                                           preloadColors->console.textColor.b,
+                                                           preloadColors->console.textColor.a), afterKeyword.c_str());
                 }
             } else {
                 // No keyword to highlight, draw entire text in white
-                drawList->AddText(textPos, IM_COL32(255, 255, 255, 255), suggestion.c_str());
+                drawList->AddText(textPos, IM_COL32(preloadColors->console.textColor.r,
+                                                    preloadColors->console.textColor.g,
+                                                    preloadColors->console.textColor.b,
+                                                    preloadColors->console.textColor.a), suggestion.c_str());
             }
 
             ImGui::PopID();
-            // Removed ImGui::SameLine() to display suggestions vertically
-            // 移除 ImGui::SameLine() 以垂直显示建议
         }
 
         ImGui::PopStyleVar(2); // Pop FrameBorderSize and FrameRounding
@@ -355,14 +381,23 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
 
     //Command Suggestion Label
     //命令建议标签
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(180, 180, 180, 255)); // Light gray for normal text
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(preloadColors->console.textColor.r,
+                                                  preloadColors->console.textColor.g,
+                                                  preloadColors->console.textColor.b,
+                                                  preloadColors->console.textColor.a)); // Light gray for normal text
     for (int i = 0; i < commandStructure_.size(); i++) {
         if (i == commandStructureHighlightIndex_) {
             ImGui::PopStyleColor();
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 255, 255)); // Cyan for highlighted
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(preloadColors->console.keywordColor.r,
+                                                          preloadColors->console.keywordColor.g,
+                                                          preloadColors->console.keywordColor.b,
+                                                          preloadColors->console.keywordColor.a));
             ImGui::TextUnformatted(commandStructure_[i].c_str());
             ImGui::PopStyleColor();
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(180, 180, 180, 255)); // Back to light gray
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(preloadColors->console.textColor.r,
+                                                          preloadColors->console.textColor.g,
+                                                          preloadColors->console.textColor.b,
+                                                          preloadColors->console.textColor.a));
         } else {
             ImGui::TextUnformatted(commandStructure_[i].c_str());
         }

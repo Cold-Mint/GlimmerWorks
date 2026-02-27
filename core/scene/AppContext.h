@@ -25,6 +25,7 @@
 #include "core/lootTable/LootTableManager.h"
 #include "core/mod/StructurePlacementConditionsManager.h"
 #include "core/mod/dataPack/StructureManager.h"
+#include "core/world/PreloadColors.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
 #include "core/world/structure/StructureGeneratorManager.h"
 
@@ -74,6 +75,7 @@ namespace glimmer {
         std::unique_ptr<DragAndDrop> dragAndDrop_;
         std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
         std::unique_ptr<StructurePlacementConditionsManager> structurePlacementConditionsManager_;
+        std::unique_ptr<PreloadColors> preloadColors_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
@@ -109,6 +111,9 @@ namespace glimmer {
 
         void ExitApp();
 
+
+        [[nodiscard]] PreloadColors *GetPreloadColors() const;
+
         [[nodiscard]] Config *GetConfig() const;
 
         [[nodiscard]] TTF_Font *GetFont() const;
@@ -127,7 +132,7 @@ namespace glimmer {
 
         [[nodiscard]] ResourcePackManager *GetResourcePackManager() const;
 
-        [[nodiscard]] StructurePlacementConditionsManager* GetStructurePlacementConditionsManager() const;
+        [[nodiscard]] StructurePlacementConditionsManager *GetStructurePlacementConditionsManager() const;
 
         [[nodiscard]] TileManager *GetTileManager() const;
 

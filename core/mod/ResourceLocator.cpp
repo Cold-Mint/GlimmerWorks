@@ -38,6 +38,13 @@ std::shared_ptr<SDL_Texture> glimmer::ResourceLocator::FindTexture(const Resourc
     return appContext_->GetResourcePackManager()->LoadTextureFromFile(appContext_, resourceRef);
 }
 
+glimmer::ColorResource *glimmer::ResourceLocator::FindColorResource(const ResourceRef &resourceRef) const {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_COLOR || !ValidateAccessPermission(resourceRef)) {
+        return appContext_->GetResourcePackManager()->defaultColor_.get();
+    }
+    return appContext_->GetResourcePackManager()->LoadColorResFromFile(appContext_, resourceRef);
+}
+
 std::optional<glimmer::StringResource *> glimmer::ResourceLocator::FindString(const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_STRING || !ValidateAccessPermission(resourceRef)) {
         return std::nullopt;

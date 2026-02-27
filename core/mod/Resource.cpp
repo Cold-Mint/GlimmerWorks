@@ -102,6 +102,10 @@ void glimmer::VariableConfig::UpdateArgs(const toml::spec &tomlVersion, const st
     }
 }
 
+SDL_Color glimmer::ColorResource::ToSDLColor() const {
+    return SDL_Color{r, g, b, a};
+}
+
 std::vector<glimmer::ResourceRef> glimmer::LootResource::GetLootItems(const LootResource *lootResource) {
     std::random_device rd;
     std::mt19937 gen(rd());

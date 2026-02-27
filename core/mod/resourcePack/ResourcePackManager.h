@@ -32,7 +32,7 @@ namespace glimmer {
          */
         std::unordered_set<std::string> errorTexturePathSet_{};
 
-        std::unique_ptr<ColorResource> defaultColor_ = nullptr;
+        std::unique_ptr<ColorResource> globalDefaultColor_ = nullptr;
 
         bool IsResourcePackAvailable(const ResourcePack &pack) const;
 
@@ -49,16 +49,26 @@ namespace glimmer {
 
         std::shared_ptr<SDL_Texture> LoadTextureFromFile(AppContext *appContext, const ResourceRef &resourceRef);
 
-        ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef &resourceRef);
+        ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef &resourceRef,
+                                            ColorResource *defaultColor);
 
-        std::shared_ptr<SDL_Texture> CreateErrorTexture() const;
+        /**
+         * CreateErrorTexture
+         * 创建错误纹理
+         * @param accent accent color (purple) 强调色（原紫色）
+         * @param base base color (black) 基础色（原黑色）
+         * @return
+         */
+        std::shared_ptr<SDL_Texture> CreateErrorTexture(SDL_Color accent,
+                                                        SDL_Color base) const;
 
         std::shared_ptr<SDL_Texture> errorTexture_;
 
     public:
         explicit ResourcePackManager(VirtualFileSystem *virtualFilesystem);
 
-        void SetRenderer(SDL_Renderer *renderer);
+        void SetRenderer(SDL_Renderer *renderer, SDL_Color accent,
+                         SDL_Color base);
 
         int Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
                  const toml::spec &tomlVersion);

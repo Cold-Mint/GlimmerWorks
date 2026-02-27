@@ -39,7 +39,8 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> FindTexture(const ResourceRef &resourceRef) const;
 
-        [[nodiscard]] ColorResource *FindColorResource(const ResourceRef &resourceRef) const;
+        [[nodiscard]] ColorResource *FindColorResource(const ResourceRef &resourceRef,
+                                                       ColorResource *defaultColor = nullptr) const;
 
         /**
          * FindString

@@ -25,6 +25,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     if (cameraPos == nullptr) {
         return;
     }
+    AppContext *appContext = worldContext_->GetAppContext();
     auto gameEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
     for (auto entity: gameEntities) {
         auto tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(entity);
@@ -53,7 +54,10 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                 LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
             }
             if (tileCoord == focusPosition) {
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 200);
+                SDL_SetRenderDrawColor(renderer, appContext->GetPreloadColors()->game.focusTileBorderColor.r,
+                                       appContext->GetPreloadColors()->game.focusTileBorderColor.g,
+                                       appContext->GetPreloadColors()->game.focusTileBorderColor.b,
+                                       appContext->GetPreloadColors()->game.focusTileBorderColor.a);
                 SDL_RenderRect(renderer, &dstRect);
             }
         }

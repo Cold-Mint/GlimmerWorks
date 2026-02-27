@@ -109,59 +109,19 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFi
     return nullptr;
 }
 
-std::shared_ptr<SDL_Texture>
-glimmer::ResourcePackManager::CreateErrorTexture() const {
-    if (renderer_ == nullptr) {
-        return nullptr;
-    }
-
-    SDL_Surface *surface =
-            SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
-    if (!surface) {
-        LogCat::e("SDL_CreateSurface failed: ", SDL_GetError());
-        return nullptr;
-    }
-
-    Uint32 purple = SDL_MapSurfaceRGBA(surface, 255, 0, 255, 255);
-    Uint32 black = SDL_MapSurfaceRGBA(surface, 0, 0, 0, 255);
-
-    for (int y = 0; y < TILE_SIZE; ++y) {
-        for (int x = 0; x < TILE_SIZE; ++x) {
-            const bool isPurple =
-                    (x < TILE_SIZE / 2 && y < TILE_SIZE / 2) ||
-                    (x >= TILE_SIZE / 2 && y >= TILE_SIZE / 2);
-            const Uint32 color = isPurple ? purple : black;
-            Uint8 *pixel =
-                    static_cast<Uint8 *>(surface->pixels)
-                    + y * surface->pitch
-                    + x * 4;
-            *reinterpret_cast<Uint32 *>(pixel) = color;
-        }
-    }
-    SDL_Texture *texture =
-            SDL_CreateTextureFromSurface(renderer_, surface);
-    auto deleter = [](SDL_Texture *tex) {
-        LogCat::d("Destroying error texture");
-        if (tex == nullptr) {
-            SDL_DestroyTexture(tex);
-        }
-    };
-    SDL_DestroySurface(surface);
-    return std::shared_ptr<SDL_Texture>(texture, deleter);
-}
-
 glimmer::ResourcePackManager::ResourcePackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(
         virtualFilesystem), renderer_(nullptr) {
-    defaultColor_ = std::make_unique<ColorResource>();
-    defaultColor_->a = 255;
-    defaultColor_->b = 0;
-    defaultColor_->g = 0;
-    defaultColor_->r = 0;
+    globalDefaultColor_ = std::make_unique<ColorResource>();
+    globalDefaultColor_->a = 255;
+    globalDefaultColor_->b = 0;
+    globalDefaultColor_->g = 0;
+    globalDefaultColor_->r = 0;
 }
 
-void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer) {
+void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer, const SDL_Color accent,
+                                               const SDL_Color base) {
     renderer_ = renderer;
-    errorTexture_ = CreateErrorTexture();
+    errorTexture_ = CreateErrorTexture(accent, base);
 }
 
 int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
@@ -261,7 +221,8 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(A
 }
 
 glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const AppContext *appContext,
-                                                                           const ResourceRef &resourceRef) {
+                                                                           const ResourceRef &resourceRef,
+                                                                           ColorResource *defaultColor) {
     std::string path = resourceRef.GetPackageId() + "/" + resourceRef.GetResourceKey();
     const auto cacheIt = colorCache_.find(path);
     if (cacheIt != colorCache_.end()) {
@@ -295,7 +256,50 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
         colorCache_[path] = std::move(colorResource);
         return ptr;
     }
-    return defaultColor_.get();
+    if (defaultColor == nullptr) {
+        return globalDefaultColor_.get();
+    }
+    return defaultColor;
+}
+
+std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(const SDL_Color accent, const SDL_Color base) const {
+    if (renderer_ == nullptr) {
+        return nullptr;
+    }
+
+    SDL_Surface *surface =
+            SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
+    if (!surface) {
+        LogCat::e("SDL_CreateSurface failed: ", SDL_GetError());
+        return nullptr;
+    }
+
+    const Uint32 accentValue = SDL_MapSurfaceRGBA(surface, accent.r, accent.g, accent.b, accent.a);
+    const Uint32 baseValue = SDL_MapSurfaceRGBA(surface, base.r, base.g, base.b, base.a);
+
+    for (int y = 0; y < TILE_SIZE; ++y) {
+        for (int x = 0; x < TILE_SIZE; ++x) {
+            const bool isAccentColor =
+                    (x < TILE_SIZE / 2 && y < TILE_SIZE / 2) ||
+                    (x >= TILE_SIZE / 2 && y >= TILE_SIZE / 2);
+            const Uint32 color = isAccentColor ? accentValue : baseValue;
+            Uint8 *pixel =
+                    static_cast<Uint8 *>(surface->pixels)
+                    + y * surface->pitch
+                    + x * 4;
+            *reinterpret_cast<Uint32 *>(pixel) = color;
+        }
+    }
+    SDL_Texture *texture =
+            SDL_CreateTextureFromSurface(renderer_, surface);
+    auto deleter = [](SDL_Texture *tex) {
+        LogCat::d("Destroying error texture");
+        if (tex == nullptr) {
+            SDL_DestroyTexture(tex);
+        }
+    };
+    SDL_DestroySurface(surface);
+    return std::shared_ptr<SDL_Texture>(texture, deleter);
 }
 
 std::string glimmer::ResourcePackManager::ListTextureCache(const bool includeExpired) const {

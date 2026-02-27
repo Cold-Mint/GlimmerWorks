@@ -89,7 +89,7 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
             SDL_Surface *ttfSurface = TTF_RenderText_Blended_Wrapped(appContext->GetFont(),
                                                                      text.c_str(), text.length(),
                                                                      appContext->GetPreloadColors()
-                                                                     ->defaultTextColor, 0);
+                                                                     ->textColor, 0);
             if (ttfSurface != nullptr) {
                 SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, ttfSurface);
                 if (texture) {

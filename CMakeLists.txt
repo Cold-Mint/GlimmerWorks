@@ -343,6 +343,9 @@ target_sources(GlimmerWorks
         core/ecs/system/AreaMarkerSystem.cpp
         core/ecs/component/AreaMarkerComponent.cpp
         core/world/PreloadColors.cpp
+        core/inventory/ContainerChangeType.cpp
+        contributor/Contributor.cpp
+        contributor/ContributorManager.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -505,6 +508,9 @@ target_sources(GlimmerWorks
         core/ecs/component/AreaMarkerComponent.h
         core/ecs/system/AreaMarkerSystem.h
         core/world/PreloadColors.h
+        core/inventory/ContainerChangeType.h
+        contributor/ContributorManager.h
+        contributor/Contributor.h
 )
 
 #Define version information
@@ -517,7 +523,7 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 log android)
+    target_link_libraries(GlimmerWorks PRIVATE log android SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
 else ()
     target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
 endif ()

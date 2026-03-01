@@ -25,8 +25,16 @@ void glimmer::Item::SetOnAmountZero(const std::function<void()> &onAmountZero) {
     onAmountZero_ = onAmountZero;
 }
 
+void glimmer::Item::SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)> &onAmountChanged) {
+    onAmountChanged_ = onAmountChanged;
+}
+
 void glimmer::Item::SetAmount(const size_t amount) {
+    const bool add = amount >= amount_;
     amount_ = std::min(amount, maxStack_);
+    if (onAmountChanged_ != nullptr) {
+        onAmountChanged_(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
+    }
     if (onAmountZero_ != nullptr && amount_ == 0) {
         onAmountZero_();
     }
@@ -86,4 +94,8 @@ void glimmer::Item::ApplyResourceRefArgs(const ResourceRef &resourceRef) {
 
 bool glimmer::Item::IsStackable() const {
     return maxStack_ > 1;
+}
+
+const glimmer::VariableConfig &glimmer::Item::GetVariableConfig() const {
+    return variableConfig_;
 }

@@ -93,6 +93,7 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->screenshotSavedSuccess = find<std::string>(value, "screenshotSavedSuccess");
     langs_->screenshotSavedFailed = find<std::string>(value, "screenshotSavedFailed");
     langs_->areaMarkerTip = find<std::string>(value, "areaMarkerTip");
+    langs_->efficiencyTip = find<std::string>(value, "efficiencyTip");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "worldNamePrefix");
     langs_->worldNameSuffix = find<std::vector<std::string> >(value, "worldNameSuffix");
 }
@@ -172,6 +173,7 @@ glimmer::AppContext::AppContext() {
         return;
     }
     langs_ = std::make_unique<LangsResources>();
+    contributorManager_ = std::make_unique<ContributorManager>();
     LoadLanguage(langData.value());
     dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
@@ -413,6 +415,10 @@ glimmer::DataPackManager *glimmer::AppContext::GetDataPackManager() const {
 
 glimmer::LootTableManager *glimmer::AppContext::GetLootTableManager() const {
     return lootTableManager_.get();
+}
+
+glimmer::ContributorManager *glimmer::AppContext::GetContributorManager() const {
+    return contributorManager_.get();
 }
 
 glimmer::StructureManager *glimmer::AppContext::GetStructureManager() const {

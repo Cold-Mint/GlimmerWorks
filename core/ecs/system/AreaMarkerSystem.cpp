@@ -49,8 +49,10 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
         if (!areaMarker->CanDraw()) {
             continue;
         }
-        const SDL_Color &areaMarkerFullColor = areaMarker->GetAreaMarkerFullColor();
-        const SDL_Color &areaMarkerBorderColor = areaMarker->GetAreaMarkerBorderColor();
+        const SDL_Color &areaMarkerFullColor = worldContext_->GetAppContext()->GetPreloadColors()->
+                areaMarkerColor;
+        const SDL_Color &areaMarkerBorderColor = worldContext_->GetAppContext()->GetPreloadColors()->
+                areaMarkerBorderColor;
         WorldVector2D startPoint = TileLayerComponent::TileToWorld(areaMarker->GetStartPoint());
         WorldVector2D endPoint = TileLayerComponent::TileToWorld(areaMarker->GetEndPoint());
         int tileWidth = std::abs(areaMarker->GetEndPoint().x - areaMarker->GetStartPoint().x) + 1;

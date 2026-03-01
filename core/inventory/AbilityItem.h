@@ -11,7 +11,7 @@ namespace glimmer {
     class AbilityItem : public Item {
         std::string id_;
         std::string name_;
-        std::string description_;
+        std::optional<std::string> description_;
         std::shared_ptr<SDL_Texture> icon_;
         std::unique_ptr<ItemAbility> itemAbility_;
         bool canUseAlone_;
@@ -19,7 +19,7 @@ namespace glimmer {
         [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
 
     public:
-        explicit AbilityItem(std::string id, std::string name, std::string description,
+        explicit AbilityItem(std::string id, std::string name, std::optional<std::string> description,
                              std::shared_ptr<SDL_Texture> icon,
                              std::unique_ptr<ItemAbility> itemAbility, bool canUseAlone);
 
@@ -27,7 +27,7 @@ namespace glimmer {
 
         [[nodiscard]] std::string GetName() const override;
 
-        [[nodiscard]] std::string GetDescription() const override;
+        [[nodiscard]] std::optional<std::string> GetDescription() const override;
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 
@@ -37,7 +37,8 @@ namespace glimmer {
                                                              const AbilityItemResource *itemResource,
                                                              const ResourceRef &resourceRef);
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user) override;
+        void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+                   std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

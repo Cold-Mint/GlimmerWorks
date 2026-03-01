@@ -6,6 +6,8 @@
 #define GLIMMERWORKS_ITEMCONTAINER_H
 #include <vector>
 #include <memory>
+#include <functional>
+#include "ContainerChangeType.h"
 #include "Item.h"
 #include "src/saves/item_container.pb.h"
 
@@ -21,24 +23,28 @@ namespace glimmer {
          */
         size_t capacity_ = 0;
 
+        std::function<void(ContainerChangeType)> onContentChanged_ = nullptr;
+
         /**
          * Binding Item Event
          * 绑定物品事件
          * @param item
          */
-        static void BindItemEvent(std::unique_ptr<Item> &item);
+        void BindItemEvent(std::unique_ptr<Item> &item) const;
 
         /**
          * Unbinding Item Incident
          * 解绑物品事件
          * @param item
          */
-        static void UnBindItemEvent(const std::unique_ptr<Item> &item);
+        void UnBindItemEvent(const std::unique_ptr<Item> &item) const;
 
     public:
         explicit ItemContainer(size_t capacity);
 
         ItemContainer();
+
+        void SetOnContentChanged(const std::function<void(ContainerChangeType)> &onContentChanged);
 
 
         /**
@@ -126,7 +132,7 @@ namespace glimmer {
          */
         bool SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex);
 
-        void FromMessage(AppContext *appContext, const ItemContainerMessage &message);
+        void FromMessage(const AppContext *appContext, const ItemContainerMessage &message);
 
         void ToMessage(ItemContainerMessage &message) const;
 

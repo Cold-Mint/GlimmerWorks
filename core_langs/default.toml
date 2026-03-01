@@ -52,6 +52,7 @@ Width: {}
 Height: {}
 Area: {}
 '''
+efficiencyTip = "{}% excavation efficiency"
 worldNamePrefix = [
     "Serene",
     "Mystic",

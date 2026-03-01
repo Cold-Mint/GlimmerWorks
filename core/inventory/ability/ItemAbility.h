@@ -18,6 +18,8 @@ namespace glimmer {
      * 物品能力
      */
     class ItemAbility {
+        VariableConfig variableConfig;
+
     public:
         explicit ItemAbility(
             const AppContext *appContext, const VariableConfig &abilityData);
@@ -26,7 +28,10 @@ namespace glimmer {
 
         [[nodiscard]] virtual std::string GetId() const = 0;
 
-        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user) = 0;
+        [[nodiscard]] const VariableConfig &GetVariableConfig() const;
+
+        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+                           std::unordered_set<std::string> &popupAbility) = 0;
 
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;
     };

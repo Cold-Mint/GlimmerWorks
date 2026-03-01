@@ -10,6 +10,7 @@
 #include "StructureManager.h"
 #include "../PackManifest.h"
 #include "../../vfs/VirtualFileSystem.h"
+#include "contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
 #include "toml11/spec.hpp"
@@ -54,6 +55,9 @@ namespace glimmer {
         [[nodiscard]] bool LoadComposableItemResourceFromFile(const std::string &path, ItemManager *itemManager) const;
 
         [[nodiscard]] bool LoadAbilityItemResourceFromFile(const std::string &path, ItemManager *itemManager) const;
+
+        [[nodiscard]] bool LoadContributorResourceFromFile(const std::string &path,
+                                                           ContributorManager *contributorManager) const;
 
         [[nodiscard]] static std::optional<std::string> ExtractLanguageFromFileName(const std::string &fileName);
 

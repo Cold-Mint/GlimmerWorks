@@ -22,9 +22,10 @@ std::string glimmer::ComposableItem::GetName() const {
     return name_;
 }
 
-std::string glimmer::ComposableItem::GetDescription() const {
+std::optional<std::string> glimmer::ComposableItem::GetDescription() const {
     return description_;
 }
+
 
 std::shared_ptr<SDL_Texture> glimmer::ComposableItem::GetIcon() const {
     return icon_;
@@ -32,6 +33,35 @@ std::shared_ptr<SDL_Texture> glimmer::ComposableItem::GetIcon() const {
 
 void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) const {
     itemContainer_->SwapItem(index, otherContainer, otherIndex);
+}
+
+void glimmer::ComposableItem::RefreshAttributes() {
+    variableConfig_.definition.clear();
+    const size_t max = itemContainer_->GetCapacity();
+    for (size_t index = 0; index < max; index++) {
+        Item *item = itemContainer_->GetItem(index);
+        if (item == nullptr) {
+            continue;
+        }
+        auto *abilityItem = dynamic_cast<AbilityItem *>(item);
+        if (abilityItem == nullptr) {
+            continue;
+        }
+        const VariableConfig &itemVariableConfig = item->GetVariableConfig();
+        for (auto &definition: itemVariableConfig.definition) {
+            VariableDefinition *globalDefinition = variableConfig_.FindVariableModifiable(definition.key);
+            if (globalDefinition == nullptr) {
+                variableConfig_.definition.push_back(definition);
+            } else {
+                if (definition.type == INT) {
+                    globalDefinition->value = std::to_string(globalDefinition->AsInt() + definition.AsInt());
+                }
+                if (definition.type == FLOAT) {
+                    globalDefinition->value = std::to_string(globalDefinition->AsFloat() + definition.AsFloat());
+                }
+            }
+        }
+    }
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const size_t index,
@@ -43,8 +73,11 @@ size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const s
     return itemContainer_->RemoveItem(id, amount);
 }
 
-void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID user) {
+void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+                                    std::unordered_set<std::string> &popupAbility) {
     const size_t max = itemContainer_->GetCapacity();
+    //The ability to pop up
+    //需要弹出的能力
     for (size_t index = 0; index < max; index++) {
         Item *item = itemContainer_->GetItem(index);
         if (item == nullptr) {
@@ -72,7 +105,18 @@ void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID u
             );
             continue;
         }
-        itemAbility->OnUse(worldContext, user);
+
+        if (popupAbility.contains(itemAbility->GetId())) {
+            //Mutual exclusivity
+            //互斥
+            worldContext->CreateDroppedItemEntity(
+                itemContainer_->TakeAllItem(index),
+                worldContext->GetCameraTransform2D()->GetPosition(),
+                2
+            );
+            continue;
+        }
+        itemAbility->OnUse(worldContext, user, variableConfig_, popupAbility);
     }
 }
 
@@ -105,7 +149,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     if (nameRes.has_value()) {
         name = nameRes.value()->value;
     }
-    std::string description = Resource::GenerateId(itemResource->packId, itemResource->key);
+    std::optional<std::string> description;
     auto descriptionRes = appContext->GetResourceLocator()->FindString(itemResource->description);
     if (descriptionRes.has_value()) {
         description = descriptionRes.value()->value;
@@ -197,10 +241,18 @@ std::optional<glimmer::ResourceRef> glimmer::ComposableItem::ActualToResourceRef
     return resourceRef;
 }
 
-glimmer::ComposableItem::ComposableItem(std::string id, std::string name, std::string description,
+glimmer::ComposableItem::ComposableItem(std::string id, std::string name, std::optional<std::string> description,
                                         std::shared_ptr<SDL_Texture> icon, size_t maxSize) : itemContainer_(
         std::make_unique<ItemContainer>(maxSize)),
     id_(std::move(id)),
     name_(std::move(name)),
     description_(std::move(description)), icon_(std::move(icon)), maxSlotSize_(maxSize) {
+    itemContainer_->SetOnContentChanged([this](ContainerChangeType changeType) {
+        if (changeType == ContainerChangeType::ADD) {
+            RefreshAttributes();
+        }
+        if (changeType == ContainerChangeType::REMOVE) {
+            RefreshAttributes();
+        }
+    });
 }

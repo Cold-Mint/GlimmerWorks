@@ -581,13 +581,11 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<DiggingSystem>(this));
     RegisterSystem(std::make_unique<PauseSystem>(this));
     RegisterSystem(std::make_unique<ItemEditorSystem>(this));
-#ifdef __ANDROID__
-    RegisterSystem(std::make_unique<AndroidControlSystem>(this));
-#endif
-#if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));
     RegisterSystem(std::make_unique<DebugPanelSystem>(this));
+#ifdef __ANDROID__
+    RegisterSystem(std::make_unique<AndroidControlSystem>(this));
 #endif
     allowRegisterSystem = false;
 }

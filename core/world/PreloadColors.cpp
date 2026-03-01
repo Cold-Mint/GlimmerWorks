@@ -160,6 +160,21 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     headerActive.b = 75;
     headerActive.a = 255;
     headerActiveColor = LoadColor(resourceLocator, "header_active", &headerActive)->ToSDLColor();
+
+    ColorResource areaMarkerBorder;
+    areaMarkerBorder.r = 45;
+    areaMarkerBorder.g = 65;
+    areaMarkerBorder.b = 120;
+    areaMarkerBorder.a = 255;
+    areaMarkerBorderColor = LoadColor(resourceLocator, "area_marker_border", &areaMarkerBorder)->ToSDLColor();
+
+    ColorResource areaMarker;
+    areaMarker.r = 45;
+    areaMarker.g = 65;
+    areaMarker.b = 120;
+    areaMarker.a = 180;
+    areaMarkerColor = LoadColor(resourceLocator, "area_marker", &areaMarker)->ToSDLColor();
+
     ColorResource consoleBackgroundColor;
     consoleBackgroundColor.r = 20;
     consoleBackgroundColor.g = 25;
@@ -203,6 +218,18 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     focusTileBorderColor.a = 255;
     game.focusTileBorderColor = LoadColor(resourceLocator, "game/focus_tile_border", &focusTileBorderColor)->
             ToSDLColor();
+    ColorResource positiveAttrColor;
+    positiveAttrColor.r = 46;
+    positiveAttrColor.g = 184;
+    positiveAttrColor.b = 91;
+    positiveAttrColor.a = 255;
+    game.positiveAttributeColor = LoadColor(resourceLocator, "game/positive_attribute", &positiveAttrColor)->ToSDLColor();
+    ColorResource negativeAttrColor;
+    negativeAttrColor.r = 190;
+    negativeAttrColor.g = 45;
+    negativeAttrColor.b = 45;
+    negativeAttrColor.a = 255;
+    game.negativeAttributeColor = LoadColor(resourceLocator, "game/negative_attribute", &negativeAttrColor)->ToSDLColor();
 }
 
 glimmer::ColorResource *glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator,

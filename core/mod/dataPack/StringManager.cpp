@@ -6,6 +6,15 @@
 #include "../../log/LogCat.h"
 
 
+glimmer::StringManager::StringManager() {
+    auto coldMintResource = std::make_unique<StringResource>();
+    coldMintResource->missing = false;
+    coldMintResource->value = DEV_NAME_COLO_MINT;
+    coldMintResource->key = DEV_DISPLAY_NAME_KEY_COLD_MINT;
+    coldMintResource->packId = RESOURCE_REF_CORE;
+    AddResource(std::move(coldMintResource));
+}
+
 glimmer::StringResource *glimmer::StringManager::AddResource(std::unique_ptr<StringResource> stringResource) {
     LogCat::i("Registering string resource: packId = ", stringResource->packId,
               ", key = ", stringResource->key, "value = ", stringResource->value);

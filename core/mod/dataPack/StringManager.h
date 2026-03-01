@@ -16,6 +16,8 @@ namespace glimmer {
                 {};
 
     public:
+        StringManager();
+
         //Register the string resource to the manager
         //注册字符串资源到管理器
         StringResource* AddResource( std::unique_ptr<StringResource> stringResource);

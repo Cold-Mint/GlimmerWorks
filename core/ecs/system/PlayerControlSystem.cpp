@@ -85,7 +85,8 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         if (control->mouseLeftDown && hotBarComp && containerComp) {
             if (const auto itemContainer = containerComp->GetItemContainer()) {
                 if (Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot())) {
-                    item->OnUse(worldContext_, entity);
+                    std::unordered_set<std::string> popupAbility;
+                    item->OnUse(worldContext_, entity, item->GetVariableConfig(), popupAbility);
                 }
             }
         }

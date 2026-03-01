@@ -10,22 +10,15 @@
 
 glimmer::DigAbility::DigAbility(const AppContext *appContext, const VariableConfig &abilityData) : ItemAbility(
     appContext, abilityData) {
-    auto efficiencyVariable = abilityData.FindVariable("efficiency");
-    if (efficiencyVariable != nullptr) {
-        efficiency_ = efficiencyVariable->AsFloat();
-    }
-
-    auto digRange = abilityData.FindVariable("digRange");
-    if (digRange != nullptr) {
-        digRange_ = digRange->AsInt();
-    }
 }
 
 std::string glimmer::DigAbility::GetId() const {
     return ABILITY_ID_DIG;
 }
 
-void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user) {
+void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+                                std::unordered_set<std::string> &popupAbility) {
+    popupAbility.emplace(GetId());
     auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
         TileLayerComponent>();
     auto playerEntity = worldContext->GetPlayerEntity();
@@ -53,10 +46,18 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user)
             if (!tile->breakable) {
                 continue;
             }
-            //Distance (unit: number of tile grids)
-            //距离（单位：瓦片格子数）
+            //dig Range(Unit: Number of Tile Squares)
+            //挖掘距离（单位：瓦片格数）
+            auto digRangeVariable = abilityData.FindVariable("digRange");
+            int digRange = 5;
+            if (digRangeVariable != nullptr) {
+                digRange = digRangeVariable->AsInt();
+                if (digRange < 0) {
+                    digRange = 0;
+                }
+            }
             if (TileLayerComponent::TileToWorldCenter(tileVector2D).Distance(playerWorldPos) / TILE_SIZE > static_cast
-                <float>(digRange_)) {
+                <float>(digRange)) {
                 continue;
             }
             DiggingComponent *diggingComponent = worldContext->GetDiggingComponent();
@@ -65,7 +66,17 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user)
                 diggingComponent->SetProgress(0.0F);
                 diggingComponent->SetPosition(tileWorldPos);
             }
-            diggingComponent->SetEfficiency(efficiency_);
+            //efficiency
+            //工具效率
+            auto efficiencyVariable = abilityData.FindVariable("efficiency");
+            float efficiency = 1.0F;
+            if (efficiencyVariable != nullptr) {
+                efficiency = efficiencyVariable->AsFloat();
+                if (efficiency < 0.0F) {
+                    efficiency = 0.0F;
+                }
+            }
+            diggingComponent->SetEfficiency(efficiency);
             diggingComponent->MarkActive();
         }
     }

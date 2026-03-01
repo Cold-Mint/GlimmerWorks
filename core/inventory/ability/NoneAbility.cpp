@@ -12,7 +12,8 @@ std::string glimmer::NoneAbility::GetId() const {
     return ABILITY_ID_NONE;
 }
 
-void glimmer::NoneAbility::OnUse(WorldContext *worldContext, GameEntity::ID user) {
+void glimmer::NoneAbility::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+                                 std::unordered_set<std::string> &popupAbility) {
 }
 
 std::unique_ptr<glimmer::ItemAbility> glimmer::NoneAbility::Clone() const {

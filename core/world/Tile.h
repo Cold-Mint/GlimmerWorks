@@ -14,11 +14,10 @@
 
 
 namespace glimmer {
-
     struct Tile {
         std::string id;
         std::string name;
-        std::string description;
+        std::optional<std::string> description;
         std::shared_ptr<SDL_Texture> texture;
         bool customLootTable = false;
         ResourceRef lootTable;
@@ -26,6 +25,7 @@ namespace glimmer {
         bool breakable = true;
         TilePhysicsType physicsType = TilePhysicsType::None;
         TileLayerType layerType = TileLayerType::Main;
+        std::vector<std::string> contributors;
 
         /**
          * From Resource Ref
@@ -34,7 +34,7 @@ namespace glimmer {
          * @param tileResource tileResource 瓦片资源
          * @return
          */
-        static std::unique_ptr<Tile> FromResourceRef(AppContext *appContext, const TileResource *tileResource);
+        static std::unique_ptr<Tile> FromResourceRef(const AppContext *appContext, const TileResource *tileResource);
     };
 }
 

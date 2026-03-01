@@ -88,6 +88,15 @@ const glimmer::VariableDefinition *glimmer::VariableConfig::FindVariable(const s
     return nullptr;
 }
 
+glimmer::VariableDefinition *glimmer::VariableConfig::FindVariableModifiable(const std::string &name)  {
+    for (auto &data: definition) {
+        if (data.key == name) {
+            return &data;
+        }
+    }
+    return nullptr;
+}
+
 void glimmer::VariableConfig::UpdateArgs(const toml::spec &tomlVersion, const std::string &selfPackId) {
     for (auto &data: definition) {
         if (data.type == REF) {

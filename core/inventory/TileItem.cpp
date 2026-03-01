@@ -22,11 +22,12 @@ std::string glimmer::TileItem::GetName() const {
     return tile_->name;
 }
 
-std::string glimmer::TileItem::GetDescription() const {
+std::optional<std::string> glimmer::TileItem::GetDescription() const {
     return tile_->description;
 }
 
-void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user) {
+void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+                              std::unordered_set<std::string> &popupAbility) {
     auto playerEntity = worldContext->GetPlayerEntity();
     if (WorldContext::IsEmptyEntityId(playerEntity)) {
         return;

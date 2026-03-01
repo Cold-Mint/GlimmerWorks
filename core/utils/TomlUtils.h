@@ -4,6 +4,7 @@
 
 #ifndef GLIMMERWORKS_TOMLUTILS_H
 #define GLIMMERWORKS_TOMLUTILS_H
+#include "contributor/Contributor.h"
 #include "core/math/Vector2D.h"
 #include "core/mod/PackManifest.h"
 #include "core/mod/Resource.h"
@@ -34,6 +35,18 @@ namespace toml {
             for (auto &resourceRefArg: arg) {
                 r.AddArg(resourceRefArg);
             }
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::Contributor> {
+        static glimmer::Contributor from_toml(const value &v) {
+            glimmer::Contributor r;
+            r.displayName = toml::find<glimmer::ResourceRef>(v, "displayName");
+            r.uuid = toml::find<std::string>(v, "uuid");
+            r.country = toml::find<std::string>(v, "country");
+            r.name = toml::find<std::string>(v, "name");
             return r;
         }
     };
@@ -124,7 +137,7 @@ namespace toml {
             r.key = toml::find<std::string>(v, "resourceKey");
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
-            r.description = toml::find<glimmer::ResourceRef>(v, "description");
+            r.description = toml::find_or_default<glimmer::ResourceRef>(v, "description");
             r.ability = toml::find<std::string>(v, "ability");
             r.abilityConfig = toml::find_or_default<glimmer::VariableConfig>(v, "abilityConfig");
             r.canUseAlone = toml::find<bool>(v, "canUseAlone");
@@ -152,7 +165,7 @@ namespace toml {
             r.key = toml::find<std::string>(v, "resourceKey");
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
-            r.description = toml::find<glimmer::ResourceRef>(v, "description");
+            r.description = toml::find_or_default<glimmer::ResourceRef>(v, "description");
             r.slotSize = toml::find<size_t>(v, "slotSize");
             r.defaultAbilityList = toml::find_or_default<std::vector<glimmer::ResourceRef> >(v, "defaultAbilityList");
             return r;
@@ -236,7 +249,7 @@ namespace toml {
         static glimmer::TileResource from_toml(const value &v) {
             glimmer::TileResource r;
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
-            r.description = toml::find<glimmer::ResourceRef>(v, "description");
+            r.description = toml::find_or_default<glimmer::ResourceRef>(v, "description");
             r.customLootTable = toml::find_or<bool>(v, "customLootTable", false);
             r.lootTable = toml::find_or_default<glimmer::ResourceRef>(v, "lootTable");
             r.key = toml::find<std::string>(v, "resourceKey");

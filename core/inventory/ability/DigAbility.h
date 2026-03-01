@@ -10,18 +10,6 @@
 
 namespace glimmer {
     class DigAbility : public ItemAbility {
-        /**
-         * efficiency
-         * 工具效率
-         */
-        float efficiency_ = 1.0F;
-
-        /**
-         * dig Range(Unit: Number of Tile Squares)
-         * 挖掘距离（单位：瓦片格数）
-         */
-        int digRange_ = 5;
-
     public:
         explicit DigAbility(
             const AppContext *appContext,
@@ -31,7 +19,8 @@ namespace glimmer {
 
         [[nodiscard]] std::string GetId() const override;
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user) override;
+        void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+                   std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };

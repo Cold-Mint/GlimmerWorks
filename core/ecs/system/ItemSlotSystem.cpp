@@ -10,6 +10,7 @@
 #include <SDL3/SDL.h>
 #include <string>
 #include <algorithm>
+#include "fmt/format.h"
 
 #include "core/ecs/component/GuiTransform2DComponent.h"
 
@@ -98,60 +99,132 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     SDL_GetMouseState(&mouseX, &mouseY);
 
     const std::string nameInfo = item->GetName();
-    const std::string descInfo = item->GetDescription();
+    const std::optional<std::string> descInfo = item->GetDescription();
 
     AppContext *appContext = worldContext_->GetAppContext();
+    LangsResources *langsResources = appContext->GetLangsResources();
+    std::vector<SDL_Surface *> surfacesToDraw;
     SDL_Surface *sName = TTF_RenderText_Blended(appContext->GetFont(), nameInfo.c_str(), nameInfo.length(),
                                                 appContext->GetPreloadColors()->textColor);
-    SDL_Surface *sDesc = TTF_RenderText_Blended(appContext->GetFont(), descInfo.c_str(), descInfo.length(),
-                                                appContext->GetPreloadColors()->textColor);
+    if (sName) {
+        surfacesToDraw.push_back(sName);
+    }
+    if (descInfo.has_value()) {
+        const std::string &description = descInfo.value();
+        SDL_Surface *sDesc = TTF_RenderText_Blended_Wrapped(appContext->GetFont(), description.c_str(),
+                                                            description.length(),
+                                                            appContext->GetPreloadColors()->textColor, 0);
+        if (sDesc) {
+            surfacesToDraw.push_back(sDesc);
+        }
+    }
 
-    float maxWidth = 0;
-    float totalHeight = 0;
+    const VariableConfig &config = item->GetVariableConfig();
+    for (auto &definition: config.definition) {
+        std::string varText = HumanReadableDisplay(langsResources, &definition);
+        bool positiveAttribute = PositiveAttribute(&definition);
+        SDL_Surface *sVar = TTF_RenderText_Blended(
+            appContext->GetFont(),
+            varText.c_str(),
+            varText.length(),
+            positiveAttribute
+                ? appContext->GetPreloadColors()->game.positiveAttributeColor
+                : appContext->GetPreloadColors()->game.negativeAttributeColor
+        );
+        if (sVar) {
+            surfacesToDraw.push_back(sVar);
+        }
+    }
     const float padding = 5.0f;
     const float lineSpacing = 2.0f;
+    float maxWidth = 0.0f;
+    float totalHeight = 0.0f;
 
-    if (sName) {
-        maxWidth = std::max(maxWidth, static_cast<float>(sName->w));
-        totalHeight += static_cast<float>(sName->h) + lineSpacing;
+    for (auto *surf: surfacesToDraw) {
+        if (surf) {
+            maxWidth = std::max(maxWidth, static_cast<float>(surf->w));
+            totalHeight += static_cast<float>(surf->h) + lineSpacing;
+        }
     }
-    if (sDesc) {
-        maxWidth = std::max(maxWidth, static_cast<float>(sDesc->w));
-        totalHeight += static_cast<float>(sDesc->h) + lineSpacing;
+
+    // 移除最后一行多余的行间距
+    if (!surfacesToDraw.empty()) {
+        totalHeight -= lineSpacing;
     }
+    // 绘制背景框
+    float bgX = mouseX + 10.0f;
+    float bgY = mouseY + 10.0f;
+    SDL_FRect bgRect = {
+        bgX,
+        bgY,
+        maxWidth + padding * 2,
+        totalHeight + padding * 2
+    };
+    PreloadColors *preloadColors = appContext->GetPreloadColors();
 
-    // Draw Key Background
-    float bgX = mouseX + 10;
-    float bgY = mouseY + 10;
-    SDL_FRect bgRect = {bgX, bgY, maxWidth + padding * 2, totalHeight + padding * 2};
-
-    SDL_SetRenderDrawColor(renderer, appContext->GetPreloadColors()->backgroundColor.r,
-                           appContext->GetPreloadColors()->backgroundColor.g, appContext->GetPreloadColors()->
-                           backgroundColor.b, appContext->GetPreloadColors()->backgroundColor.a);
+    // 绘制背景填充
+    SDL_SetRenderDrawColor(
+        renderer,
+        preloadColors->backgroundColor.r,
+        preloadColors->backgroundColor.g,
+        preloadColors->backgroundColor.b,
+        preloadColors->backgroundColor.a
+    );
     SDL_RenderFillRect(renderer, &bgRect);
-    SDL_SetRenderDrawColor(renderer, appContext->GetPreloadColors()->borderColor.r,
-                           appContext->GetPreloadColors()->borderColor.g, appContext->GetPreloadColors()->
-                           borderColor.b, appContext->GetPreloadColors()->borderColor.a);
+
+    // 绘制边框
+    SDL_SetRenderDrawColor(
+        renderer,
+        preloadColors->borderColor.r,
+        preloadColors->borderColor.g,
+        preloadColors->borderColor.b,
+        preloadColors->borderColor.a
+    );
     SDL_RenderRect(renderer, &bgRect);
 
+    // 绘制所有文本表面
     float currentY = bgY + padding;
     float currentX = bgX + padding;
-
-    auto drawSurf = [&](SDL_Surface *s) {
-        if (s) {
-            SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
+    for (auto *surf: surfacesToDraw) {
+        if (surf) {
+            // 创建纹理并绘制
+            SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, surf);
             if (t) {
-                SDL_FRect dst = {currentX, currentY, static_cast<float>(s->w), static_cast<float>(s->h)};
+                SDL_FRect dst = {
+                    currentX,
+                    currentY,
+                    static_cast<float>(surf->w),
+                    static_cast<float>(surf->h)
+                };
                 SDL_RenderTexture(renderer, t, nullptr, &dst);
-                SDL_DestroyTexture(t);
+                SDL_DestroyTexture(t); // 用完立即销毁纹理
             }
-            currentY += static_cast<float>(s->h) + lineSpacing;
-            SDL_DestroySurface(s);
-        }
-    };
 
-    drawSurf(sName);
-    drawSurf(sDesc);
+            // 更新Y坐标
+            currentY += static_cast<float>(surf->h) + lineSpacing;
+
+            // 销毁表面
+            SDL_DestroySurface(surf);
+        }
+    }
+}
+
+std::string glimmer::ItemSlotSystem::HumanReadableDisplay(const LangsResources *langsResources,
+                                                          const VariableDefinition *variableDefinition) {
+    if (variableDefinition->key == "efficiency") {
+        const float value = variableDefinition->AsFloat();
+        return fmt::format(
+            fmt::runtime(langsResources->efficiencyTip),
+            (value > 0 ? "+" : "") + std::to_string(variableDefinition->AsFloat() * 100));
+    }
+    return variableDefinition->key + ": " + variableDefinition->AsString();
+}
+
+bool glimmer::ItemSlotSystem::PositiveAttribute(const VariableDefinition *variableDefinition) {
+    if (variableDefinition->key == "efficiency") {
+        return variableDefinition->AsFloat() > 0;
+    }
+    return true;
 }
 
 glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext *worldContext)

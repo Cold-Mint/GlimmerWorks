@@ -22,9 +22,10 @@ namespace glimmer {
 
         [[nodiscard]] std::string GetName() const override;
 
-        [[nodiscard]] std::string GetDescription() const override;
+        [[nodiscard]] std::optional<std::string> GetDescription() const override;
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user) override;
+        void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+                   std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 

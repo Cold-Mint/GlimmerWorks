@@ -97,6 +97,8 @@ namespace glimmer {
 
         [[nodiscard]] const VariableDefinition *FindVariable(const std::string &name) const;
 
+        [[nodiscard]] VariableDefinition *FindVariableModifiable(const std::string &name);
+
 
         void UpdateArgs(const toml::spec &tomlVersion, const std::string &selfPackId);
     };

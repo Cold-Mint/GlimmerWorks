@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 
+#include "ContainerChangeType.h"
 #include "SDL3/SDL_render.h"
 #include "../scene/AppContext.h"
 #include "../../core/ecs/GameEntity.h"
@@ -24,6 +25,10 @@ namespace glimmer {
         size_t maxStack_ = 1;
 
         std::function<void()> onAmountZero_ = nullptr;
+
+        std::function<void(ContainerChangeType, size_t)> onAmountChanged_ = nullptr;
+
+        VariableConfig variableConfig_;
 
     public:
         virtual ~Item() = default;
@@ -67,6 +72,8 @@ namespace glimmer {
          * @param onAmountZero
          */
         void SetOnAmountZero(const std::function<void()> &onAmountZero);
+
+        void SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)> &onAmountChanged);
 
         /**
          * SetAmount
@@ -121,7 +128,14 @@ namespace glimmer {
          * 获取描述
          * @return
          */
-        [[nodiscard]] virtual std::string GetDescription() const = 0;
+        [[nodiscard]] virtual std::optional<std::string> GetDescription() const = 0;
+
+        /**
+         * Variable configuration for obtaining items
+         * 获取物品的变量配置
+         * @return
+         */
+        [[nodiscard]] const VariableConfig &GetVariableConfig() const;
 
         /**
          * 获取图标
@@ -130,7 +144,8 @@ namespace glimmer {
         [[nodiscard]] virtual std::shared_ptr<SDL_Texture> GetIcon() const = 0;
 
 
-        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user) = 0;
+        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+                           std::unordered_set<std::string> &popupAbility) = 0;
 
         /**
          * Clone

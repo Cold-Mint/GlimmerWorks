@@ -14,6 +14,7 @@
 #include "../mod/dataPack/ItemManager.h"
 #include "../mod/dataPack/TileManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
+#include "contributor/ContributorManager.h"
 #include "core/inventory/DragAndDrop.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/DataPackManager.h"
@@ -76,6 +77,7 @@ namespace glimmer {
         std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
         std::unique_ptr<StructurePlacementConditionsManager> structurePlacementConditionsManager_;
         std::unique_ptr<PreloadColors> preloadColors_;
+        std::unique_ptr<ContributorManager> contributorManager_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
@@ -139,6 +141,8 @@ namespace glimmer {
         [[nodiscard]] DataPackManager *GetDataPackManager() const;
 
         [[nodiscard]] LootTableManager *GetLootTableManager() const;
+
+        [[nodiscard]] ContributorManager *GetContributorManager() const;
 
         [[nodiscard]] StructureManager *GetStructureManager() const;
 

@@ -9,11 +9,12 @@
 namespace glimmer {
     class NoneAbility : public ItemAbility {
     public:
-        explicit NoneAbility(const AppContext *appContext,const VariableConfig &abilityData);
+        explicit NoneAbility(const AppContext *appContext, const VariableConfig &abilityData);
 
         [[nodiscard]] std::string GetId() const override;
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user) override;
+      void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+            std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };

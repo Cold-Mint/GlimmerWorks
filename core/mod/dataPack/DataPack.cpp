@@ -225,6 +225,21 @@ bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path,
     return true;
 }
 
+bool glimmer::DataPack::LoadContributorResourceFromFile(const std::string &path,
+                                                        ContributorManager *contributorManager) const {
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
+    }
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    auto contributorResource = std::make_unique<Contributor>(toml::get<Contributor>(value));
+    contributorResource->displayName.SetSelfPackageId(manifest_.id);
+    contributorManager->Register(std::move(contributorResource));
+    return true;
+}
+
 std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(const std::string &fileName) {
     constexpr std::string_view suffix = ".strings.toml";
     if (!fileName.ends_with(suffix)) {
@@ -352,6 +367,12 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
         if (dataType == DATA_FILE_TYPE_INITIAL_INVENTORY) {
             LogCat::d("Loading startinv file:", file);
             if (LoadInitialInventoryResourceFromFile(file, appContext->GetInitialInventoryManager())) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_CONTRIBUTOR) {
+            LogCat::d("Loading contributor file:", file);
+            if (LoadContributorResourceFromFile(file, appContext->GetContributorManager())) {
                 total++;
             }
         }

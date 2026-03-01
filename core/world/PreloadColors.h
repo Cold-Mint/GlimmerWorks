@@ -34,6 +34,15 @@ namespace glimmer {
 
         struct GameColors {
             SDL_Color focusTileBorderColor;
+
+            //Positive/gain attribute color
+            //正向/增益属性色
+            SDL_Color positiveAttributeColor;
+
+            //Negative/curse attribute color
+            //负面/诅咒属性色
+            SDL_Color negativeAttributeColor;
+
         };
 
         /**
@@ -163,6 +172,10 @@ namespace glimmer {
          * 点击 / 展开上述头部控件时的背景色
          */
         SDL_Color headerActiveColor;
+
+        SDL_Color areaMarkerBorderColor;
+        SDL_Color areaMarkerColor;
+
 
         ConsoleColors console;
         ErrorTextureColors error;

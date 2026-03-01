@@ -26,22 +26,6 @@ bool glimmer::AreaMarkerComponent::IsExpired() const {
     return remainingTime_ <= 0.0F;
 }
 
-const SDL_Color &glimmer::AreaMarkerComponent::GetAreaMarkerBorderColor() const {
-    return areaMarkerBorder_;
-}
-
-const SDL_Color &glimmer::AreaMarkerComponent::GetAreaMarkerFullColor() const {
-    return areaMarkerFull_;
-}
-
-void glimmer::AreaMarkerComponent::SetAreaMarkerBorderColor(const SDL_Color &color) {
-    areaMarkerBorder_ = color;
-}
-
-void glimmer::AreaMarkerComponent::SetAreaMarkerFullColor(const SDL_Color &color) {
-    areaMarkerFull_ = color;
-}
-
 bool glimmer::AreaMarkerComponent::CanDraw() const {
     return !first_;
 }

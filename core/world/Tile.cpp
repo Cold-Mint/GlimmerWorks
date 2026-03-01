@@ -10,7 +10,7 @@
 #include "../mod/ResourceLocator.h"
 
 
-std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(AppContext *appContext,
+std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(const AppContext *appContext,
                                                               const TileResource *tileResource) {
     auto tile = std::make_unique<Tile>();
     tile->id = Resource::GenerateId(*tileResource);
@@ -24,9 +24,10 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(AppContext *appCon
     const std::optional<StringResource *> descriptionStringResource = appContext->GetResourceLocator()->FindString(
         tileResource->description);
     if (descriptionStringResource.has_value()) {
-        tile->description = descriptionStringResource.value()->value;
-    } else {
-        tile->description = tile->id;
+        StringResource *stringResource = descriptionStringResource.value();
+        if (stringResource != nullptr) {
+            tile->description = stringResource->value;
+        }
     }
     tile->customLootTable = tileResource->customLootTable;
     tile->lootTable = tileResource->lootTable;

@@ -12,26 +12,15 @@
 glimmer::AreaMarkerAbility::AreaMarkerAbility(const AppContext *appContext,
                                               const VariableConfig &abilityData) : ItemAbility(
     appContext, abilityData) {
-    auto areaMarkerBorderVariable = abilityData.FindVariable("areaMarkerBorder");
-    if (areaMarkerBorderVariable != nullptr) {
-        ResourceRef resourceRef;
-        areaMarkerBorderVariable->AsResourceRef(resourceRef);
-        areaMarkerBorderColor_ = appContext->GetResourceLocator()->FindColorResource(resourceRef)->ToSDLColor();
-    }
-
-    auto areaMarkerFullVariable = abilityData.FindVariable("areaMarkerFull");
-    if (areaMarkerFullVariable != nullptr) {
-        ResourceRef resourceRef;
-        areaMarkerFullVariable->AsResourceRef(resourceRef);
-        areaMarkerFullColor_ = appContext->GetResourceLocator()->FindColorResource(resourceRef)->ToSDLColor();
-    }
 }
 
 std::string glimmer::AreaMarkerAbility::GetId() const {
     return ABILITY_ID_AREA_MARKER;
 }
 
-void glimmer::AreaMarkerAbility::OnUse(WorldContext *worldContext, GameEntity::ID user) {
+void glimmer::AreaMarkerAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
+                                       const VariableConfig &abilityData,
+                                       std::unordered_set<std::string> &popupAbility) {
     auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
         TileLayerComponent, AreaMarkerComponent>();
     for (const auto &gameEntity: tileLayerEntityList) {
@@ -41,8 +30,6 @@ void glimmer::AreaMarkerAbility::OnUse(WorldContext *worldContext, GameEntity::I
         if (tileLayerComponent == nullptr || areaMarkerComponent == nullptr) {
             continue;
         }
-        areaMarkerComponent->SetAreaMarkerBorderColor(areaMarkerBorderColor_);
-        areaMarkerComponent->SetAreaMarkerFullColor(areaMarkerFullColor_);
         if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
             areaMarkerComponent->SetPoint(tileLayerComponent->GetFocusPosition());
         }

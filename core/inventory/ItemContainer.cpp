@@ -5,23 +5,33 @@
 #include "ItemContainer.h"
 
 #include "AbilityItem.h"
-#include "ComposableItem.h"
 #include "../log/LogCat.h"
 #include "../mod/ResourceLocator.h"
 
 
-void glimmer::ItemContainer::BindItemEvent(std::unique_ptr<Item> &item) {
+void glimmer::ItemContainer::BindItemEvent(std::unique_ptr<Item> &item) const {
     if (item == nullptr) {
         return;
+    }
+    if (onContentChanged_ != nullptr) {
+        onContentChanged_(ContainerChangeType::ADD);
     }
     item->SetOnAmountZero([&item]() {
         item.reset();
     });
+    item->SetOnAmountChanged([this](const ContainerChangeType changeType, size_t amount) {
+        if (onContentChanged_ != nullptr) {
+            onContentChanged_(changeType);
+        }
+    });
 }
 
-void glimmer::ItemContainer::UnBindItemEvent(const std::unique_ptr<Item> &item) {
+void glimmer::ItemContainer::UnBindItemEvent(const std::unique_ptr<Item> &item) const {
     if (item == nullptr) {
         return;
+    }
+    if (onContentChanged_ != nullptr) {
+        onContentChanged_(ContainerChangeType::REMOVE);
     }
     item->SetOnAmountZero(nullptr);
 }
@@ -33,6 +43,10 @@ glimmer::ItemContainer::ItemContainer(const size_t capacity) {
 
 glimmer::ItemContainer::ItemContainer()
     : ItemContainer(0) {
+}
+
+void glimmer::ItemContainer::SetOnContentChanged(const std::function<void(ContainerChangeType)> &onContentChanged) {
+    onContentChanged_ = onContentChanged;
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<Item> item) {
@@ -173,11 +187,11 @@ bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContaine
     return true;
 }
 
-void glimmer::ItemContainer::FromMessage(AppContext *appContext, const ItemContainerMessage &message) {
+void glimmer::ItemContainer::FromMessage(const AppContext *appContext, const ItemContainerMessage &message) {
     const size_t messageSize = message.itemresourceref_size();
     items_.resize(messageSize);
-    for (size_t i = 0; i < messageSize; ++i) {
-        ResourceRefMessage resourceRefMessage = message.itemresourceref(i);
+    for (int i = 0; i < messageSize; ++i) {
+        const ResourceRefMessage &resourceRefMessage = message.itemresourceref(i);
         ResourceRef resourceRef;
         resourceRef.FromMessage(resourceRefMessage);
         auto item = appContext->GetResourceLocator()->FindItem(resourceRef);

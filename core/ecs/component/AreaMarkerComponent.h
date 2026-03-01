@@ -6,7 +6,6 @@
 #define GLIMMERWORKS_AREAMARKERCOMPONENT_H
 #include "TileLayerComponent.h"
 #include "core/ecs/GameComponent.h"
-#include "SDL3/SDL_pixels.h"
 
 namespace glimmer {
     class AreaMarkerComponent : public GameComponent {
@@ -15,8 +14,6 @@ namespace glimmer {
         TileVector2D endPoint_;
         float remainingTime_ = 0;
         float MAX_REMAINING_TIME = 0.05F;
-        SDL_Color areaMarkerBorder_ = {};
-        SDL_Color areaMarkerFull_ = {};
 
     public:
         [[nodiscard]] uint32_t GetId() override;
@@ -26,14 +23,6 @@ namespace glimmer {
         void SetRemainingTime(float remainingTime);
 
         [[nodiscard]] bool IsExpired() const;
-
-        [[nodiscard]] const SDL_Color &GetAreaMarkerBorderColor() const;
-
-        [[nodiscard]] const SDL_Color &GetAreaMarkerFullColor() const;
-
-        void SetAreaMarkerBorderColor(const SDL_Color &color);
-
-        void SetAreaMarkerFullColor(const SDL_Color &color);
 
         /**
          * Is it necessary to draw on the page?

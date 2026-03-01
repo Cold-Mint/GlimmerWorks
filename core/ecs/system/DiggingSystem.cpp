@@ -55,7 +55,7 @@ void glimmer::DiggingSystem::Update(float delta) {
                 tilePos, Tile::FromResourceRef(appContext, appContext->GetTileManager()->GetAir()));
 
             if (oldTile) {
-                if (oldTile->customLootTable) {
+                if (!diggingComponent->IsPrecisionMining() && oldTile->customLootTable) {
                     const auto lootResource = appContext->GetResourceLocator()->FindLoot(oldTile->lootTable);
                     if (lootResource.has_value()) {
                         std::vector<ResourceRef> lootList = LootResource::GetLootItems(lootResource.value());

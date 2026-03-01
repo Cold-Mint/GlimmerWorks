@@ -23,6 +23,9 @@ namespace glimmer {
         float progress_ = 0.0F;
         TileLayerType layerType_ = TileLayerType::Main;
         float efficiency_ = 1.0F;
+        //precisionMining
+        //精准采集
+        bool precisionMining_ = false;
 
     public:
         [[nodiscard]] bool IsEnable() const;
@@ -40,6 +43,10 @@ namespace glimmer {
         [[nodiscard]] TileLayerType GetLayerType() const;
 
         void SetProgress(float progress);
+
+        void SetPrecisionMining(bool precisionMining);
+
+        [[nodiscard]] bool IsPrecisionMining() const;
 
         void AddProgress(float progress);
 

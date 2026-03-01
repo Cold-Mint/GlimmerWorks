@@ -61,6 +61,12 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
                 continue;
             }
             DiggingComponent *diggingComponent = worldContext->GetDiggingComponent();
+            auto precisionMiningVariable = abilityData.FindVariable("precisionMining");
+            bool precisionMining = false;
+            if (precisionMiningVariable != nullptr) {
+                precisionMining = precisionMiningVariable->AsBool();
+            }
+            diggingComponent->SetPrecisionMining(precisionMining);
             const WorldVector2D tileWorldPos = TileLayerComponent::TileToWorld(tileVector2D);
             if (diggingComponent->GetPosition() != tileWorldPos) {
                 diggingComponent->SetProgress(0.0F);

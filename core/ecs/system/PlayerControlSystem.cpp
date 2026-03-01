@@ -3,6 +3,9 @@
 //
 
 #include "PlayerControlSystem.h"
+
+#include <random>
+
 #include "../../log/LogCat.h"
 #include "../../world/WorldContext.h"
 #include "../../ecs/component/CameraComponent.h"
@@ -85,8 +88,36 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         if (control->mouseLeftDown && hotBarComp && containerComp) {
             if (const auto itemContainer = containerComp->GetItemContainer()) {
                 if (Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot())) {
+                    slipTimer += delta;
                     std::unordered_set<std::string> popupAbility;
-                    item->OnUse(worldContext_, entity, item->GetVariableConfig(), popupAbility);
+                    const VariableConfig &variableConfig = item->GetVariableConfig();
+                    if (slipTimer > 1.0F) {
+                        slipTimer -= 1.0F;
+                        std::random_device rd;
+                        std::mt19937 rng(rd());
+                        auto fumbleChanceVariable = variableConfig.FindVariable("fumbleChance");
+                        if (fumbleChanceVariable != nullptr) {
+                            //With a hand-slipping effect
+                            //带有手滑效果
+                            float fumbleChance = fumbleChanceVariable->AsFloat();
+                            fumbleChance = std::clamp(fumbleChance, 0.0F, 1.0F);
+                            if (fumbleChance > 0.0F) {
+                                std::uniform_real_distribution dist(0.0F, 1.0F);
+                                float randomValue = dist(rng);
+                                if (randomValue <= fumbleChance) {
+                                    //Triggered hand slip
+                                    //触发手滑
+                                    worldContext_->CreateDroppedItemEntity(
+                                        std::move(itemContainer->TakeAllItem(hotBarComp->GetSelectedSlot())),
+                                        worldContext_->GetCameraTransform2D()->GetPosition(),
+                                        2
+                                    );
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    item->OnUse(worldContext_, entity, variableConfig, popupAbility);
                 }
             }
         }

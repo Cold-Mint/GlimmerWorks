@@ -53,6 +53,8 @@ Height: {}
 Area: {}
 '''
 efficiencyTip = "{}% excavation efficiency"
+precisionMiningTip = "Precision mining"
+fumbleTip = "{}％Fumble"
 worldNamePrefix = [
     "Serene",
     "Mystic",

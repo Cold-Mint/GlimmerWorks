@@ -121,8 +121,12 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
 
     const VariableConfig &config = item->GetVariableConfig();
     for (auto &definition: config.definition) {
-        std::string varText = HumanReadableDisplay(langsResources, &definition);
-        bool positiveAttribute = PositiveAttribute(&definition);
+        auto varTextOptional = HumanReadableDisplay(langsResources, &definition);
+        if (!varTextOptional.has_value()) {
+            continue;
+        }
+        const std::string &varText = varTextOptional.value();
+        const bool positiveAttribute = PositiveAttribute(&definition);
         SDL_Surface *sVar = TTF_RenderText_Blended(
             appContext->GetFont(),
             varText.c_str(),
@@ -209,20 +213,36 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     }
 }
 
-std::string glimmer::ItemSlotSystem::HumanReadableDisplay(const LangsResources *langsResources,
-                                                          const VariableDefinition *variableDefinition) {
+std::optional<std::string> glimmer::ItemSlotSystem::HumanReadableDisplay(const LangsResources *langsResources,
+                                                                         const VariableDefinition *variableDefinition) {
     if (variableDefinition->key == "efficiency") {
         const float value = variableDefinition->AsFloat();
         return fmt::format(
             fmt::runtime(langsResources->efficiencyTip),
             (value > 0 ? "+" : "") + std::to_string(variableDefinition->AsFloat() * 100));
     }
-    return variableDefinition->key + ": " + variableDefinition->AsString();
+    if (variableDefinition->key == "precisionMining" && variableDefinition->AsBool()) {
+        return langsResources->precisionMiningTip;
+    }
+    if (variableDefinition->key == "fumbleChance") {
+        const float value = variableDefinition->AsFloat();
+        return fmt::format(
+            fmt::runtime(langsResources->fumbleTip),
+            (value > 0 ? "+" : "") + std::to_string(variableDefinition->AsFloat() * 100));
+    }
+    return std::nullopt;
 }
+
 
 bool glimmer::ItemSlotSystem::PositiveAttribute(const VariableDefinition *variableDefinition) {
     if (variableDefinition->key == "efficiency") {
         return variableDefinition->AsFloat() > 0;
+    }
+    if (variableDefinition->key == "precisionMining") {
+        return variableDefinition->AsBool();
+    }
+    if (variableDefinition->key == "fumbleChance") {
+        return variableDefinition->AsFloat() <= 0;
     }
     return true;
 }

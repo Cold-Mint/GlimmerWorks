@@ -38,6 +38,14 @@ void glimmer::DiggingComponent::SetProgress(const float progress) {
     progress_ = progress;
 }
 
+void glimmer::DiggingComponent::SetPrecisionMining(bool precisionMining) {
+    precisionMining_ = precisionMining;
+}
+
+bool glimmer::DiggingComponent::IsPrecisionMining() const {
+    return precisionMining_;
+}
+
 void glimmer::DiggingComponent::AddProgress(float progress) {
     progress_ += progress;
 }

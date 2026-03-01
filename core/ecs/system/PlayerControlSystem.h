@@ -13,6 +13,10 @@ namespace glimmer {
      * 玩家控制系统，处理玩家的输入控制，实现WASD移动相机功能
      */
     class PlayerControlSystem final : public GameSystem {
+        //Hand slip determination interval.
+        //手滑判定间隔。
+        float slipTimer = 0.0F;
+
     public:
         explicit PlayerControlSystem(WorldContext *worldContext);
 

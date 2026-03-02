@@ -4,8 +4,10 @@
 
 #ifndef GLIMMERWORKS_DIGGINGCOMPONENT_H
 #define GLIMMERWORKS_DIGGINGCOMPONENT_H
+
 #include "../GameComponent.h"
 #include "../../math/Vector2D.h"
+#include "core/inventory/ability/MiningRangeData.h"
 #include "core/world/generator/TileLayerType.h"
 
 namespace glimmer {
@@ -19,28 +21,43 @@ namespace glimmer {
     class DiggingComponent : public GameComponent {
         bool enable_ = false;
         bool activeSignal_ = false;
-        WorldVector2D position_;
+
+        MiningRangeData *miningRangeData_ = nullptr;
+        //Explore the origin.
+        //挖掘原点。
+        WorldVector2D startPosition_;
         float progress_ = 0.0F;
         TileLayerType layerType_ = TileLayerType::Main;
         float efficiency_ = 1.0F;
         //precisionMining
         //精准采集
         bool precisionMining_ = false;
+        //Chain collection radius
+        //连锁采集半径
+        int chainMiningRadius_ = 0;
 
     public:
         [[nodiscard]] bool IsEnable() const;
 
         void SetEnable(bool enable);
 
-        [[nodiscard]] WorldVector2D GetPosition() const;
+        void SetMiningRangeData(MiningRangeData *miningRangeData);
 
-        void SetPosition(const WorldVector2D &position);
+        [[nodiscard]] const MiningRangeData *GetMiningRangeData() const;
+
+        void SetStartPosition(WorldVector2D startPosition);
+
+        [[nodiscard]] const WorldVector2D &GetStartPosition() const;
 
         [[nodiscard]] float GetProgress() const;
 
         void SetLayerType(TileLayerType tileLayerType);
 
         [[nodiscard]] TileLayerType GetLayerType() const;
+
+        void SetChainMiningRadius(int chainMiningRadius);
+
+        [[nodiscard]] int GetChainMiningRadius() const;
 
         void SetProgress(float progress);
 

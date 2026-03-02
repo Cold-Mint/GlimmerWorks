@@ -60,8 +60,11 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
                         auto tileResource = worldContext->GetAppContext()->GetResourceLocator()->FindTile(
                             resourceRef.value());
                         if (tileResource != nullptr) {
+                            std::unique_ptr<Tile> tile = Tile::FromResourceRef(
+                                worldContext->GetAppContext(), tileResource, &resourceRef.value());
+                            tile->isPlayerPlaced = true;
                             (void) tileLayer->SetTile(
-                                targetPos, Tile::FromResourceRef(worldContext->GetAppContext(), tileResource));
+                                targetPos, std::move(tile));
                             Chunk *chunk = Chunk::GetChunkByTileVector2D(worldContext->GetAllChunks(), targetPos);
                             if (chunk != nullptr) {
                                 ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext, chunk);

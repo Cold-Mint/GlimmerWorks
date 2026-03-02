@@ -61,6 +61,7 @@ namespace glimmer {
         std::string efficiencyTip;
         std::string precisionMiningTip;
         std::string fumbleTip;
+        std::string chainMiningTip;
         std::vector<std::string> worldNamePrefix;
         std::vector<std::string> worldNameSuffix;
     };

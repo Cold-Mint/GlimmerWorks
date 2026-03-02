@@ -57,7 +57,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
         }
-        auto tileItem = std::make_unique<TileItem>(Tile::FromResourceRef(appContext_, tileResource));
+        auto tileItem = std::make_unique<TileItem>(Tile::FromResourceRef(appContext_, tileResource, &resourceRef));
         if (size >= 4) {
             if (const int number = commandArgs.AsInt(3); number > 1) {
                 tileItem->SetAmount(number);

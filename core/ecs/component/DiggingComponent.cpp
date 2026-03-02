@@ -14,12 +14,20 @@ void glimmer::DiggingComponent::SetEnable(const bool enable) {
     enable_ = enable;
 }
 
-glimmer::Vector2D glimmer::DiggingComponent::GetPosition() const {
-    return position_;
+void glimmer::DiggingComponent::SetMiningRangeData(MiningRangeData *miningRangeData) {
+    miningRangeData_ = miningRangeData;
 }
 
-void glimmer::DiggingComponent::SetPosition(const Vector2D &position) {
-    position_ = position;
+const glimmer::MiningRangeData * glimmer::DiggingComponent::GetMiningRangeData() const {
+    return miningRangeData_;
+}
+
+void glimmer::DiggingComponent::SetStartPosition(WorldVector2D startPosition) {
+    startPosition_ = startPosition;
+}
+
+const WorldVector2D &glimmer::DiggingComponent::GetStartPosition() const {
+    return startPosition_;
 }
 
 float glimmer::DiggingComponent::GetProgress() const {
@@ -32,6 +40,14 @@ void glimmer::DiggingComponent::SetLayerType(TileLayerType tileLayerType) {
 
 glimmer::TileLayerType glimmer::DiggingComponent::GetLayerType() const {
     return layerType_;
+}
+
+void glimmer::DiggingComponent::SetChainMiningRadius(const int chainMiningRadius) {
+    chainMiningRadius_ = chainMiningRadius;
+}
+
+int glimmer::DiggingComponent::GetChainMiningRadius() const {
+    return chainMiningRadius_;
 }
 
 void glimmer::DiggingComponent::SetProgress(const float progress) {

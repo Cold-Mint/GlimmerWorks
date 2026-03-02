@@ -256,7 +256,8 @@ namespace toml {
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             r.physicsType = toml::find<uint8_t>(v, "physicsType");
             r.hardness = toml::find<float>(v, "hardness");
-            r.breakable = toml::find<bool>(v, "breakable");
+            r.breakable = toml::find_or<bool>(v, "breakable", true);
+            r.allowChainMining = toml::find_or<bool>(v, "allowChainMining", false);
             r.layerType = toml::find<uint8_t>(v, "layerType");
             return r;
         }

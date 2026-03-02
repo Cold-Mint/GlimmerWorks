@@ -230,6 +230,11 @@ std::optional<std::string> glimmer::ItemSlotSystem::HumanReadableDisplay(const L
             fmt::runtime(langsResources->fumbleTip),
             (value > 0 ? "+" : "") + std::to_string(variableDefinition->AsFloat() * 100));
     }
+    if (variableDefinition->key == "chainMiningRadius") {
+        const int value = variableDefinition->AsInt();
+        return fmt::format(fmt::runtime(langsResources->chainMiningTip),
+                           (value > 0 ? "+" : "") + std::to_string(variableDefinition->AsInt()));
+    }
     return std::nullopt;
 }
 
@@ -243,6 +248,9 @@ bool glimmer::ItemSlotSystem::PositiveAttribute(const VariableDefinition *variab
     }
     if (variableDefinition->key == "fumbleChance") {
         return variableDefinition->AsFloat() <= 0;
+    }
+    if (variableDefinition->key == "chainMiningRadius") {
+        return variableDefinition->AsInt() > 0;
     }
     return true;
 }

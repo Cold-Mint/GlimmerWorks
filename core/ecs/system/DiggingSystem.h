@@ -8,12 +8,18 @@
 #include <vector>
 
 #include "../GameSystem.h"
-#include "../component/DiggingComponent.h"
+#include "core/ecs/component/TileLayerComponent.h"
+
 
 namespace glimmer {
+    class DiggingComponent;
+
     class DiggingSystem : public GameSystem {
         bool cacheTexture = false;
         std::vector<std::shared_ptr<SDL_Texture> > textureList = {};
+
+        void BreakTile(TileVector2D tilePosition, const AppContext *appContext, const DiggingComponent *diggingComponent,
+                       const TileLayerComponent *tileLayerComponent) const;
 
     public:
         explicit DiggingSystem(WorldContext *worldContext);

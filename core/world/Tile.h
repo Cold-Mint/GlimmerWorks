@@ -23,6 +23,8 @@ namespace glimmer {
         ResourceRef lootTable;
         float hardness = 1.0F;
         bool breakable = true;
+        bool allowChainMining = false;
+        bool isPlayerPlaced = false;
         TilePhysicsType physicsType = TilePhysicsType::None;
         TileLayerType layerType = TileLayerType::Main;
         std::vector<std::string> contributors;
@@ -32,9 +34,13 @@ namespace glimmer {
          * 从资源引用创建瓦片
          * @param appContext appContext 应用上下文
          * @param tileResource tileResource 瓦片资源
+         * @param resourceRef resourceRef 资源引用
          * @return
          */
-        static std::unique_ptr<Tile> FromResourceRef(const AppContext *appContext, const TileResource *tileResource);
+        static std::unique_ptr<Tile> FromResourceRef(const AppContext *appContext, const TileResource *tileResource,
+                                                     const ResourceRef *resourceRef);
+
+        [[nodiscard]] std::optional<ResourceRef> ToResourceRef() const;
     };
 }
 

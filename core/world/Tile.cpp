@@ -11,7 +11,8 @@
 
 
 std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(const AppContext *appContext,
-                                                              const TileResource *tileResource) {
+                                                              const TileResource *tileResource,
+                                                              const ResourceRef *resourceRef) {
     auto tile = std::make_unique<Tile>();
     tile->id = Resource::GenerateId(*tileResource);
     const std::optional<StringResource *> nameStringResource = appContext->GetResourceLocator()->FindString(
@@ -35,7 +36,30 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(const AppContext *
     tile->physicsType = static_cast<TilePhysicsType>(tileResource->physicsType);
     tile->hardness = tileResource->hardness;
     tile->breakable = tileResource->breakable;
+    tile->allowChainMining = tileResource->allowChainMining;
     tile->texture = appContext->GetResourceLocator()->FindTexture(
         tileResource->texture);
+    if (resourceRef != nullptr) {
+        for (int i = 0; i < resourceRef->GetArgCount(); i++) {
+            std::optional<ResourceRefArg> argOptional = resourceRef->GetArg(i);
+            if (argOptional.has_value()) {
+                ResourceRefArg &arg = argOptional.value();
+                if (arg.GetName() == "isPlayerPlaced") {
+                    tile->isPlayerPlaced = resourceRef->GetArg(i)->AsBool();
+                }
+            }
+        }
+    }
     return tile;
+}
+
+std::optional<glimmer::ResourceRef> glimmer::Tile::ToResourceRef() const {
+    auto resourceRef = Resource::ParseFromId(id, RESOURCE_TYPE_TILE);
+    if (resourceRef.has_value()) {
+        ResourceRefArg arg;
+        arg.SetName("isPlayerPlaced");
+        arg.SetDataFromBool(isPlayerPlaced);
+        resourceRef->AddArg(arg);
+    }
+    return resourceRef;
 }

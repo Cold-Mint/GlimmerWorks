@@ -3,6 +3,8 @@
 //
 
 #include "DigAbility.h"
+
+#include "MiningRangeData.h"
 #include "../../world/WorldContext.h"
 #include "../../ecs/component/TileLayerComponent.h"
 #include "../../ecs/component/Transform2DComponent.h"
@@ -61,16 +63,32 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
                 continue;
             }
             DiggingComponent *diggingComponent = worldContext->GetDiggingComponent();
-            auto precisionMiningVariable = abilityData.FindVariable("precisionMining");
-            bool precisionMining = false;
-            if (precisionMiningVariable != nullptr) {
-                precisionMining = precisionMiningVariable->AsBool();
-            }
-            diggingComponent->SetPrecisionMining(precisionMining);
             const WorldVector2D tileWorldPos = TileLayerComponent::TileToWorld(tileVector2D);
-            if (diggingComponent->GetPosition() != tileWorldPos) {
+            if (diggingComponent->GetStartPosition() != tileWorldPos) {
+                //Change the starting point of the excavation and recalculate the progress.
+                //挖掘起点改变，重新计算进度。
+                miningRangeData_.Reset();
+                auto chainMiningRadiusVariable = abilityData.FindVariable("chainMiningRadius");
+                int chainMiningRadius = 0;
+                if (chainMiningRadiusVariable != nullptr) {
+                    chainMiningRadius = chainMiningRadiusVariable->AsInt();
+                }
+                diggingComponent->SetChainMiningRadius(chainMiningRadius);
+                miningRangeData_.CalculateChainMining(tileWorldPos, tileLayerComponent, chainMiningRadius);
+                auto precisionMiningVariable = abilityData.FindVariable("precisionMining");
+                bool precisionMining = false;
+                if (precisionMiningVariable != nullptr) {
+                    precisionMining = precisionMiningVariable->AsBool();
+                }
+                diggingComponent->SetPrecisionMining(precisionMining);
+                if (miningRangeData_.GetPoints().empty()) {
+                    //If no exploitable tiles are found, then calculate the default excavation range.
+                    //如果没有发现可挖掘的瓦片，那么计算默认的挖掘范围。
+                    miningRangeData_.CalculateMining(tileWorldPos, tileLayerComponent);
+                }
+                diggingComponent->SetMiningRangeData(&miningRangeData_);
                 diggingComponent->SetProgress(0.0F);
-                diggingComponent->SetPosition(tileWorldPos);
+                diggingComponent->SetStartPosition(tileWorldPos);
             }
             //efficiency
             //工具效率
@@ -83,7 +101,11 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
                 }
             }
             diggingComponent->SetEfficiency(efficiency);
-            diggingComponent->MarkActive();
+            if (!miningRangeData_.GetPoints().empty()) {
+                //If there are any exploitable tiles, then activate the mining module.
+                //如果有可挖掘的瓦片，那么激活挖掘组建。
+                diggingComponent->MarkActive();
+            }
         }
     }
 }

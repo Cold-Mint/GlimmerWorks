@@ -83,7 +83,7 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
 
             chunk->SetTile(
                 Chunk::TileCoordinatesToChunkRelativeCoordinates(position),
-                Tile::FromResourceRef(appContext_, tileResource));
+                Tile::FromResourceRef(appContext_, tileResource, &resourceRef));
 
             dirtyChunks.insert(chunk);
         }

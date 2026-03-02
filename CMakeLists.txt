@@ -346,6 +346,7 @@ target_sources(GlimmerWorks
         core/inventory/ContainerChangeType.cpp
         contributor/Contributor.cpp
         contributor/ContributorManager.cpp
+        core/inventory/ability/MiningRangeData.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -511,6 +512,7 @@ target_sources(GlimmerWorks
         core/inventory/ContainerChangeType.h
         contributor/ContributorManager.h
         contributor/Contributor.h
+        core/inventory/ability/MiningRangeData.h
 )
 
 #Define version information

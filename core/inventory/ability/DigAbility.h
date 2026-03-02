@@ -6,10 +6,13 @@
 #define GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
 
 #include "ItemAbility.h"
+#include "MiningRangeData.h"
 #include "core/ecs/GameEntity.h"
 
 namespace glimmer {
     class DigAbility : public ItemAbility {
+        MiningRangeData miningRangeData_;
+
     public:
         explicit DigAbility(
             const AppContext *appContext,

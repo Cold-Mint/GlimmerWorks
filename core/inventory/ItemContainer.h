@@ -23,7 +23,7 @@ namespace glimmer {
          */
         size_t capacity_ = 0;
 
-        std::function<void(ContainerChangeType)> onContentChanged_ = nullptr;
+        std::vector<std::shared_ptr<std::function<void(ContainerChangeType)> > > onContentChanged_;
 
         /**
          * Binding Item Event
@@ -39,12 +39,19 @@ namespace glimmer {
          */
         void UnBindItemEvent(const std::unique_ptr<Item> &item) const;
 
+        void InvokeOnContentChanged(ContainerChangeType containerChange) const;
+
     public:
         explicit ItemContainer(size_t capacity);
 
         ItemContainer();
 
-        void SetOnContentChanged(const std::function<void(ContainerChangeType)> &onContentChanged);
+        ~ItemContainer();
+
+        std::shared_ptr<std::function<void(ContainerChangeType)> > AddOnContentChanged(
+            const std::function<void(ContainerChangeType)> &onContentChanged);
+
+        void RemoveOnContentChanged(const std::shared_ptr<std::function<void(ContainerChangeType)> > &onContentChanged);
 
 
         /**

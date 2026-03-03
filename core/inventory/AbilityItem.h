@@ -13,7 +13,7 @@ namespace glimmer {
         std::string name_;
         std::optional<std::string> description_;
         std::shared_ptr<SDL_Texture> icon_;
-        std::unique_ptr<ItemAbility> itemAbility_;
+        std::shared_ptr<ItemAbility> itemAbility_;
         bool canUseAlone_;
 
         [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
@@ -21,7 +21,7 @@ namespace glimmer {
     public:
         explicit AbilityItem(std::string id, std::string name, std::optional<std::string> description,
                              std::shared_ptr<SDL_Texture> icon,
-                             std::unique_ptr<ItemAbility> itemAbility, bool canUseAlone);
+                             std::shared_ptr<ItemAbility> itemAbility, bool canUseAlone);
 
         [[nodiscard]] std::string GetId() const override;
 
@@ -36,6 +36,8 @@ namespace glimmer {
         static std::unique_ptr<AbilityItem> FromItemResource(const AppContext *appContext,
                                                              const AbilityItemResource *itemResource,
                                                              const ResourceRef &resourceRef);
+
+        [[nodiscard]] const VariableConfig &GetVariableConfig() const override;
 
         void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
                    std::unordered_set<std::string> &popupAbility) override;

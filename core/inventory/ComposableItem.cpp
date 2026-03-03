@@ -36,6 +36,7 @@ void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContain
 }
 
 void glimmer::ComposableItem::RefreshAttributes() {
+    LogCat::d("ComposableItem RefreshAttributes");
     variableConfig_.definition.clear();
     const size_t max = itemContainer_->GetCapacity();
     for (size_t index = 0; index < max; index++) {
@@ -212,14 +213,19 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     return result;
 }
 
+const glimmer::VariableConfig &glimmer::ComposableItem::GetVariableConfig() const {
+    return variableConfig_;
+}
+
 glimmer::ItemContainer *glimmer::ComposableItem::GetItemContainer() const {
     return itemContainer_.get();
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const {
-    auto newItem = std::make_unique<ComposableItem>(id_, name_, description_, icon_, maxSlotSize_);
-    newItem->itemContainer_ = itemContainer_->Clone();
-    return newItem;
+    LogCat::d("ComposableItem Clone");
+    auto composableItem = std::make_unique<ComposableItem>(*this);
+    composableItem->AddCallback();
+    return composableItem;
 }
 
 std::optional<glimmer::ResourceRef> glimmer::ComposableItem::ActualToResourceRef() {
@@ -241,18 +247,35 @@ std::optional<glimmer::ResourceRef> glimmer::ComposableItem::ActualToResourceRef
     return resourceRef;
 }
 
+void glimmer::ComposableItem::AddCallback() {
+    LogCat::d("ComposableItem AddCallback");
+    callback_ = itemContainer_->AddOnContentChanged([this](ContainerChangeType changeType) {
+        switch (changeType) {
+            case ContainerChangeType::ADD:
+                LogCat::d("ComposableItem changeType add");
+                RefreshAttributes();
+                break;
+            case ContainerChangeType::REMOVE:
+                LogCat::d("ComposableItem changeType remove");
+                RefreshAttributes();
+                break;
+            default:
+                LogCat::d("ComposableItem changeType default");
+        }
+    });
+}
+
 glimmer::ComposableItem::ComposableItem(std::string id, std::string name, std::optional<std::string> description,
                                         std::shared_ptr<SDL_Texture> icon, size_t maxSize) : itemContainer_(
-        std::make_unique<ItemContainer>(maxSize)),
+        std::make_shared<ItemContainer>(maxSize)),
     id_(std::move(id)),
     name_(std::move(name)),
     description_(std::move(description)), icon_(std::move(icon)), maxSlotSize_(maxSize) {
-    itemContainer_->SetOnContentChanged([this](ContainerChangeType changeType) {
-        if (changeType == ContainerChangeType::ADD) {
-            RefreshAttributes();
-        }
-        if (changeType == ContainerChangeType::REMOVE) {
-            RefreshAttributes();
-        }
-    });
+    AddCallback();
+    LogCat::d("ComposableItem Constructor");
+}
+
+glimmer::ComposableItem::~ComposableItem() {
+    itemContainer_->RemoveOnContentChanged(callback_);
+    LogCat::d("ComposableItem Destroy");
 }

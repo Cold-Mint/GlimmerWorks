@@ -11,6 +11,7 @@
 namespace glimmer {
     class TileItem : public Item {
         std::unique_ptr<Tile> tile_;
+        VariableConfig variableConfig_;
 
     public:
         ~TileItem() override = default;
@@ -30,6 +31,8 @@ namespace glimmer {
         [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
 
         [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
+
+        [[nodiscard]] const VariableConfig &GetVariableConfig() const override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

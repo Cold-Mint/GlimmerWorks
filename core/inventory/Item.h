@@ -28,8 +28,6 @@ namespace glimmer {
 
         std::function<void(ContainerChangeType, size_t)> onAmountChanged_ = nullptr;
 
-        VariableConfig variableConfig_;
-
     public:
         virtual ~Item() = default;
 
@@ -135,7 +133,7 @@ namespace glimmer {
          * 获取物品的变量配置
          * @return
          */
-        [[nodiscard]] const VariableConfig &GetVariableConfig() const;
+        [[nodiscard]] virtual const VariableConfig &GetVariableConfig() const = 0;
 
         /**
          * 获取图标

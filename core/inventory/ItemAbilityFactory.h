@@ -21,7 +21,7 @@ namespace glimmer {
          * @param abilityData abilityData
          * @return Return the item's ability, which may be empty 返回物品能力，可能为空
          */
-        static std::unique_ptr<ItemAbility> CreateItemAbility(const AppContext *appContext, const std::string &id,
+        static std::shared_ptr<ItemAbility> CreateItemAbility(const AppContext *appContext, const std::string &id,
                                                               const VariableConfig &abilityData);
     };
 }

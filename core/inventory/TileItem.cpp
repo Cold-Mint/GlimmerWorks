@@ -86,6 +86,10 @@ std::optional<glimmer::ResourceRef> glimmer::TileItem::ActualToResourceRef() {
     return Resource::ParseFromId(tile_->id, RESOURCE_TYPE_TILE);
 }
 
+const glimmer::VariableConfig &glimmer::TileItem::GetVariableConfig() const {
+    return variableConfig_;
+}
+
 std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const {
     return std::make_unique<TileItem>(std::make_unique<Tile>(*tile_));
 }

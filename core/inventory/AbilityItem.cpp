@@ -56,6 +56,10 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
                                          itemResource->canUseAlone);
 }
 
+const glimmer::VariableConfig &glimmer::AbilityItem::GetVariableConfig() const {
+    return itemAbility_->GetVariableConfig();
+}
+
 void glimmer::AbilityItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
                                  std::unordered_set<std::string> &popupAbility) {
     if (canUseAlone_) {
@@ -68,16 +72,15 @@ std::optional<glimmer::ResourceRef> glimmer::AbilityItem::ActualToResourceRef() 
 }
 
 glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optional<std::string> description,
-                                  std::shared_ptr<SDL_Texture> icon, std::unique_ptr<ItemAbility> itemAbility,
-                                  bool canUseAlone) : id_(std::move(id)),
+                                  std::shared_ptr<SDL_Texture> icon, std::shared_ptr<ItemAbility> itemAbility,
+                                  const bool canUseAlone) : id_(std::move(id)),
                                                       name_(std::move(name)),
                                                       description_(std::move(description)),
                                                       icon_(std::move(icon)),
                                                       itemAbility_(std::move(itemAbility)),
                                                       canUseAlone_(canUseAlone) {
-    variableConfig_ = itemAbility_->GetVariableConfig();
 }
 
 std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const {
-    return std::make_unique<AbilityItem>(id_, name_, description_, icon_, itemAbility_->Clone(), canUseAlone_);
+    return std::make_unique<AbilityItem>(*this);
 }

@@ -95,7 +95,3 @@ void glimmer::Item::ApplyResourceRefArgs(const ResourceRef &resourceRef) {
 bool glimmer::Item::IsStackable() const {
     return maxStack_ > 1;
 }
-
-const glimmer::VariableConfig &glimmer::Item::GetVariableConfig() const {
-    return variableConfig_;
-}

@@ -15,18 +15,24 @@ namespace glimmer {
      * 可组合的物品
      */
     class ComposableItem : public Item {
-        std::unique_ptr<ItemContainer> itemContainer_;
+        std::shared_ptr<ItemContainer> itemContainer_;
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
         std::shared_ptr<SDL_Texture> icon_;
+        VariableConfig variableConfig_;
         size_t maxSlotSize_;
+        std::shared_ptr<std::function<void(ContainerChangeType)>> callback_;
 
         [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
+
+        void AddCallback();
 
     public:
         explicit ComposableItem(std::string id, std::string name, std::optional<std::string> description,
                                 std::shared_ptr<SDL_Texture> icon, size_t maxSize);
+
+        ~ComposableItem() override;
 
         [[nodiscard]] std::string GetId() const override;
 
@@ -60,6 +66,8 @@ namespace glimmer {
         static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext,
                                                                 const ComposableItemResource *itemResource,
                                                                 const ResourceRef &resourceRef);
+
+        [[nodiscard]] const VariableConfig &GetVariableConfig() const override;
 
         [[nodiscard]] ItemContainer *GetItemContainer() const;
 

@@ -13,16 +13,12 @@ void glimmer::ItemContainer::BindItemEvent(std::unique_ptr<Item> &item) const {
     if (item == nullptr) {
         return;
     }
-    if (onContentChanged_ != nullptr) {
-        onContentChanged_(ContainerChangeType::ADD);
-    }
+    InvokeOnContentChanged(ContainerChangeType::ADD);
     item->SetOnAmountZero([&item]() {
         item.reset();
     });
     item->SetOnAmountChanged([this](const ContainerChangeType changeType, size_t amount) {
-        if (onContentChanged_ != nullptr) {
-            onContentChanged_(changeType);
-        }
+        InvokeOnContentChanged(changeType);
     });
 }
 
@@ -30,10 +26,18 @@ void glimmer::ItemContainer::UnBindItemEvent(const std::unique_ptr<Item> &item) 
     if (item == nullptr) {
         return;
     }
-    if (onContentChanged_ != nullptr) {
-        onContentChanged_(ContainerChangeType::REMOVE);
-    }
+    InvokeOnContentChanged(ContainerChangeType::REMOVE);
     item->SetOnAmountZero(nullptr);
+}
+
+void glimmer::ItemContainer::InvokeOnContentChanged(ContainerChangeType containerChange) const {
+    LogCat::d("ComposableItem ItemContainer InvokeOnContentChanged" + std::to_string(onContentChanged_.size()));
+    if (onContentChanged_.empty()) {
+        return;
+    }
+    for (auto &onChanged: onContentChanged_) {
+        (*onChanged)(containerChange);
+    }
 }
 
 glimmer::ItemContainer::ItemContainer(const size_t capacity) {
@@ -45,9 +49,29 @@ glimmer::ItemContainer::ItemContainer()
     : ItemContainer(0) {
 }
 
-void glimmer::ItemContainer::SetOnContentChanged(const std::function<void(ContainerChangeType)> &onContentChanged) {
-    onContentChanged_ = onContentChanged;
+glimmer::ItemContainer::~ItemContainer() {
+    LogCat::w("ComposableItem ItemContainer::~ItemContainer");
 }
+
+std::shared_ptr<std::function<void(glimmer::ContainerChangeType)> > glimmer::ItemContainer::AddOnContentChanged(
+    const std::function<void(ContainerChangeType)> &onContentChanged) {
+    auto ptr = std::make_shared<std::function<void(ContainerChangeType)> >(onContentChanged);
+    onContentChanged_.emplace_back(ptr);
+    return ptr; //Return the pointer. The user needs to save this pointer for removal purposes.返回指针，用户需要保存这个指针用于移除
+}
+
+void glimmer::ItemContainer::RemoveOnContentChanged(
+    const std::shared_ptr<std::function<void(ContainerChangeType)> > &onContentChanged) {
+    auto it = std::remove_if(
+        onContentChanged_.begin(),
+        onContentChanged_.end(),
+        [&](const std::shared_ptr<std::function<void(ContainerChangeType)> > &ptr) {
+            return ptr == onContentChanged; // Direct comparison of shared_ptr addresses 直接比较shared_ptr地址
+        }
+    );
+    onContentChanged_.erase(it, onContentChanged_.end());
+}
+
 
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<Item> item) {
     for (auto &i: items_) {
@@ -121,6 +145,21 @@ size_t glimmer::ItemContainer::GetUsedCapacity() const {
     return count;
 }
 
+size_t glimmer::ItemContainer::RemoveItemAt(const size_t index, const size_t amount) const {
+    if (index >= items_.size() || items_[index] == nullptr) {
+        return 0;
+    }
+    Item *item = items_[index].get();
+    return item->RemoveAmount(amount);
+}
+
+glimmer::Item *glimmer::ItemContainer::GetItem(const size_t index) const {
+    if (index >= items_.size()) {
+        return nullptr;
+    }
+    return items_[index].get();
+}
+
 size_t glimmer::ItemContainer::GetCapacity() const {
     return items_.size();
 }
@@ -149,21 +188,6 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const size_t ind
     }
     newItem->SetAmount(removedAmount);
     return newItem;
-}
-
-glimmer::Item *glimmer::ItemContainer::GetItem(const size_t index) const {
-    if (index >= items_.size()) {
-        return nullptr;
-    }
-    return items_[index].get();
-}
-
-size_t glimmer::ItemContainer::RemoveItemAt(const size_t index, const size_t amount) const {
-    if (index >= items_.size() || items_[index] == nullptr) {
-        return 0;
-    }
-    Item *item = items_[index].get();
-    return item->RemoveAmount(amount);
 }
 
 bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) {

@@ -95,6 +95,7 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->areaMarkerTip = find<std::string>(value, "areaMarkerTip");
     langs_->efficiencyTip = find<std::string>(value, "efficiencyTip");
     langs_->precisionMiningTip = find<std::string>(value, "precisionMiningTip");
+    langs_->canMineBlockTip = find<std::string>(value, "canMineBlockTip");
     langs_->fumbleTip = find<std::string>(value, "fumbleTip");
     langs_->chainMiningTip = find<std::string>(value, "chainMiningTip");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "worldNamePrefix");

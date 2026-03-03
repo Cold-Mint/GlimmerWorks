@@ -55,6 +55,7 @@ Area: {}
 efficiencyTip = "{}% excavation efficiency"
 precisionMiningTip = "Precision mining"
 fumbleTip = "{}％Fumble"
+canMineBlockTip = "Can Mine Block"
 chainMiningTip = "{}Chain Mining Radius"
 worldNamePrefix = [
     "Serene",

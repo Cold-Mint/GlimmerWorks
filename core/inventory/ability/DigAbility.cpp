@@ -21,6 +21,14 @@ std::string glimmer::DigAbility::GetId() const {
 void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
                                 std::unordered_set<std::string> &popupAbility) {
     popupAbility.emplace(GetId());
+    auto canMineBlockVariable = abilityData.FindVariable("canMineBlock");
+    int canMineBlock = false;
+    if (canMineBlockVariable != nullptr) {
+        canMineBlock = canMineBlockVariable->AsBool();
+    }
+    if (!canMineBlock) {
+        return;
+    }
     auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
         TileLayerComponent>();
     auto playerEntity = worldContext->GetPlayerEntity();

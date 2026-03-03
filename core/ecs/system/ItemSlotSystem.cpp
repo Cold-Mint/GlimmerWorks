@@ -224,6 +224,9 @@ std::optional<std::string> glimmer::ItemSlotSystem::HumanReadableDisplay(const L
     if (variableDefinition->key == "precisionMining" && variableDefinition->AsBool()) {
         return langsResources->precisionMiningTip;
     }
+    if (variableDefinition->key == "canMineBlock" && variableDefinition->AsBool()) {
+        return langsResources->canMineBlockTip;
+    }
     if (variableDefinition->key == "fumbleChance") {
         const float value = variableDefinition->AsFloat();
         return fmt::format(
@@ -244,6 +247,9 @@ bool glimmer::ItemSlotSystem::PositiveAttribute(const VariableDefinition *variab
         return variableDefinition->AsFloat() > 0;
     }
     if (variableDefinition->key == "precisionMining") {
+        return variableDefinition->AsBool();
+    }
+    if (variableDefinition->key == "canMineBlock") {
         return variableDefinition->AsBool();
     }
     if (variableDefinition->key == "fumbleChance") {

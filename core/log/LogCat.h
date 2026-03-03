@@ -58,6 +58,7 @@ namespace glimmer {
 
         template<typename... Args>
         static void w(Args &&... args) {
+#if  !defined(NDEBUG)
 #ifdef __ANDROID__
             std::ostringstream oss;
             (oss << ... << args);
@@ -66,6 +67,7 @@ namespace glimmer {
             std::cout << COLOR_WARN << CurrentTime() << " | WARN |" << ThreadTag();
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
+#endif
 #endif
         }
 

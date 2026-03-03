@@ -66,6 +66,15 @@ namespace glimmer {
          */
         [[nodiscard]] bool IsPointInViewport(WorldVector2D cameraPosition, WorldVector2D worldPos) const;
 
+        /**
+         * Is rect in viewport
+         * 判断矩形是否在相机视口内
+         * @param cameraPosition
+         * @param rect
+         * @return
+         */
+        [[nodiscard]] bool IsRectInViewport(WorldVector2D cameraPosition, const SDL_FRect* rect) const;
+
 
         /**
          * SetSize

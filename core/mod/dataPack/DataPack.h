@@ -7,10 +7,11 @@
 
 #include "BiomesManager.h"
 #include "ItemManager.h"
+#include "MobManager.h"
 #include "StructureManager.h"
 #include "../PackManifest.h"
 #include "../../vfs/VirtualFileSystem.h"
-#include "contributor/ContributorManager.h"
+#include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
 #include "toml11/spec.hpp"
@@ -58,6 +59,8 @@ namespace glimmer {
 
         [[nodiscard]] bool LoadContributorResourceFromFile(const std::string &path,
                                                            ContributorManager *contributorManager) const;
+
+        [[nodiscard]] bool LoadMobResourceFromFile(const std::string &path, MobManager *mobManager) const;
 
         [[nodiscard]] static std::optional<std::string> ExtractLanguageFromFileName(const std::string &fileName);
 

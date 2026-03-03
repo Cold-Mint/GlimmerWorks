@@ -40,8 +40,13 @@ WorldVector2D glimmer::CameraComponent::GetWorldPosition(const WorldVector2D cam
 bool glimmer::CameraComponent::IsPointInViewport(const WorldVector2D cameraPosition,
                                                  const WorldVector2D worldPos) const {
     const auto viewportRect = GetViewportRect(cameraPosition);
-    return worldPos.x >= viewportRect.x && worldPos.x <= viewportRect.x + viewportRect.w && worldPos.y >= viewportRect.y
-           && worldPos.y <= viewportRect.y + viewportRect.h;
+    const SDL_FPoint point = SDL_FPoint(worldPos.x, worldPos.y);
+    return SDL_PointInRectFloat(&point, &viewportRect);
+}
+
+bool glimmer::CameraComponent::IsRectInViewport(const WorldVector2D cameraPosition, const SDL_FRect *rect) const {
+    const auto viewportRect = GetViewportRect(cameraPosition);
+    return SDL_HasRectIntersectionFloat(&viewportRect, rect);
 }
 
 void glimmer::CameraComponent::SetSize(const Vector2D size) {

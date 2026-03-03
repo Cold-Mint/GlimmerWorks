@@ -10,7 +10,8 @@
 
 
 void glimmer::PlaceCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
-    suggestionsTree.AddChild("structure")->AddChild(STRUCTURE_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree.AddChild("structure")->AddChild(STRUCTURE_DYNAMIC_SUGGESTIONS_NAME)->
+            AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
 glimmer::PlaceCommand::PlaceCommand(AppContext *ctx) : Command(ctx) {
@@ -23,6 +24,8 @@ std::string glimmer::PlaceCommand::GetName() const {
 void glimmer::PlaceCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
     strings.emplace_back("[structure:string]");
     strings.emplace_back("[structureId:string]");
+    strings.emplace_back("[x:int]");
+    strings.emplace_back("[y:int]");
 }
 
 bool glimmer::PlaceCommand::RequiresWorldContext() const {
@@ -36,10 +39,10 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
         return false;
     }
     const size_t size = commandArgs.GetSize();
-    if (size < 3) {
+    if (size < 5) {
         onMessage(fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
-            3, size));
+            5, size));
         return false;
     }
     std::string type = commandArgs.AsString(1);
@@ -55,7 +58,11 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
         if (transform2dComponent == nullptr) {
             return false;
         }
-        auto tilePosition = TileLayerComponent::WorldToTile(transform2dComponent->GetPosition());
+        auto tilePosition = TileLayerComponent::WorldToTile(
+            {
+                commandArgs.AsCoordinate(3, transform2dComponent->GetPosition().x),
+                commandArgs.AsCoordinate(4, transform2dComponent->GetPosition().y)
+            });
         std::optional<StructureInfo> structureInfoOptional = appContext_->GetStructureGeneratorManager()->Generate(
             tilePosition, structureResource);
         if (!structureInfoOptional.has_value()) {
@@ -74,9 +81,8 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
             if (chunk == nullptr) {
                 continue;
             }
-            auto tileResource =
+            auto* tileResource =
                     appContext_->GetResourceLocator()->FindTile(resourceRef);
-
             if (tileResource == nullptr) {
                 continue;
             }

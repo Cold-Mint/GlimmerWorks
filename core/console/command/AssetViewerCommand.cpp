@@ -22,6 +22,7 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggest
     suggestionsTree.AddChild("lootTables");
     suggestionsTree.AddChild("structures");
     suggestionsTree.AddChild("startinv");
+    suggestionsTree.AddChild("mobs");
 }
 
 std::string glimmer::AssetViewerCommand::GetName() const {
@@ -70,6 +71,9 @@ bool glimmer::AssetViewerCommand::Execute(const CommandArgs commandArgs,
         result = true;
     } else if (type == "structures") {
         onMessage(appContext_->GetStructureManager()->ListStructures());
+        result = true;
+    } else if (type == "mobs") {
+        onMessage(appContext_->GetMobManager()->ListMobs());
         result = true;
     } else {
         onMessage(appContext_->GetLangsResources()->unknownAssetType);

@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_CONTRIBUTOR_H
 #include <string>
 
-#include "core/mod/ResourceRef.h"
+#include "../mod/ResourceRef.h"
 
 namespace glimmer {
     struct Contributor {

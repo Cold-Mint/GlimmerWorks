@@ -4,7 +4,7 @@
 
 #ifndef GLIMMERWORKS_TOMLUTILS_H
 #define GLIMMERWORKS_TOMLUTILS_H
-#include "contributor/Contributor.h"
+#include "core/contributor/Contributor.h"
 #include "core/math/Vector2D.h"
 #include "core/mod/PackManifest.h"
 #include "core/mod/Resource.h"
@@ -35,6 +35,45 @@ namespace toml {
             for (auto &resourceRefArg: arg) {
                 r.AddArg(resourceRefArg);
             }
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::MobAppearanceResource> {
+        static glimmer::MobAppearanceResource from_toml(const value &v) {
+            glimmer::MobAppearanceResource r;
+            r.id = toml::find<std::string>(v, "id");
+            r.physicId = toml::find<std::string>(v, "physicId");
+            r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
+            r.x = toml::find<float>(v, "x");
+            r.y = toml::find<float>(v, "y");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::MobPhysicResource> {
+        static glimmer::MobPhysicResource from_toml(const value &v) {
+            glimmer::MobPhysicResource r;
+            r.id = toml::find<std::string>(v, "id");
+            r.x = toml::find<float>(v, "x");
+            r.y = toml::find<float>(v, "y");
+            r.friction = toml::find<float>(v, "friction");
+            r.shape = toml::find<std::string>(v, "shape");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::MobResource> {
+        static glimmer::MobResource from_toml(const value &v) {
+            glimmer::MobResource r;
+            r.isPlayer = toml::find<bool>(v, "isPlayer");
+            r.moveSpeed = toml::find<int>(v, "moveSpeed");
+            r.appearance = toml::find<std::vector<glimmer::MobAppearanceResource> >(v, "appearance");
+            r.physics = toml::find<std::vector<glimmer::MobPhysicResource> >(v, "physics");
+            r.key = toml::find<std::string>(v, "resourceKey");
             return r;
         }
     };

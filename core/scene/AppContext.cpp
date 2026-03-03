@@ -24,8 +24,11 @@
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/command/PlaceCommand.h"
+#include "core/console/command/SummonCommand.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
+#include "core/console/suggestion/CoordinateDynamicSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
+#include "core/console/suggestion/MobDynamicSuggestions.h"
 #include "core/console/suggestion/StructureDynamicSuggestions.h"
 #include "core/saves/SavesManager.h"
 #include "core/world/generator/FillBiomeDecorator.h"
@@ -73,7 +76,6 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->itemContainerIsNull = find<std::string>(value, "itemContainerIsNull");
     langs_->composableItemIsNull = find<std::string>(value, "composableItemIsNull");
     langs_->abilityItemIsNull = find<std::string>(value, "abilityItemIsNull");
-    langs_->itemResourceNotFound = find<std::string>(value, "itemResourceNotFound");
     langs_->itemResourceIsNull = find<std::string>(value, "itemResourceIsNull");
     langs_->tileResourceIsNull = find<std::string>(value, "tileResourceIsNull");
     langs_->minXIsGreaterThanMaxX = find<std::string>(value, "minXIsGreaterThanMaxX");
@@ -178,8 +180,15 @@ glimmer::AppContext::AppContext() {
     }
     langs_ = std::make_unique<LangsResources>();
     contributorManager_ = std::make_unique<ContributorManager>();
+    mobManager_ = std::make_unique<MobManager>();
     LoadLanguage(langData.value());
     dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<CoordinateDynamicSuggestions>(Y_DYNAMIC_SUGGESTIONS_NAME));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<CoordinateDynamicSuggestions>(X_DYNAMIC_SUGGESTIONS_NAME));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<MobDynamicSuggestions>(mobManager_.get()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<VFSDynamicSuggestions>(vfs));
@@ -205,6 +214,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HelpCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TpCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<SummonCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(this));
@@ -467,6 +477,10 @@ SDL_Window *glimmer::AppContext::GetWindow() const {
 
 glimmer::DragAndDrop *glimmer::AppContext::GetDragAndDrop() const {
     return dragAndDrop_.get();
+}
+
+glimmer::MobManager *glimmer::AppContext::GetMobManager() const {
+    return mobManager_.get();
 }
 
 bool glimmer::AppContext::IsMainThread() const {

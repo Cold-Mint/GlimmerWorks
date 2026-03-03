@@ -240,6 +240,23 @@ bool glimmer::DataPack::LoadContributorResourceFromFile(const std::string &path,
     return true;
 }
 
+bool glimmer::DataPack::LoadMobResourceFromFile(const std::string &path, MobManager *mobManager) const {
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
+    }
+    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    auto mobResource = std::make_unique<MobResource>(toml::get<MobResource>(value));
+    mobResource->packId = manifest_.id;
+    for (auto &appearance: mobResource->appearance) {
+        appearance.texture.SetSelfPackageId(manifest_.id);
+    }
+    mobManager->AddResource(std::move(mobResource));
+    return true;
+}
+
 std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(const std::string &fileName) {
     constexpr std::string_view suffix = ".strings.toml";
     if (!fileName.ends_with(suffix)) {
@@ -373,6 +390,12 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
         if (dataType == DATA_FILE_TYPE_CONTRIBUTOR) {
             LogCat::d("Loading contributor file:", file);
             if (LoadContributorResourceFromFile(file, appContext->GetContributorManager())) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_MOB) {
+            LogCat::d("Loading mob file:", file);
+            if (LoadMobResourceFromFile(file, appContext->GetMobManager())) {
                 total++;
             }
         }

@@ -74,8 +74,8 @@ void glimmer::DroppedItemComponent::Deserialize(WorldContext *worldContext, cons
     ResourceRef resourceRef;
     resourceRef.FromMessage(droppedItemMessage.item());
     auto item = appContext->GetResourceLocator()->FindItem(resourceRef);
-    if (item.has_value()) {
-        item_ = std::move(item.value());
+    if (item != nullptr) {
+        item_ = std::move(item);
     }
     pickupCooldown_ = droppedItemMessage.pickupcooldown();
     remainingTime_ = droppedItemMessage.remainingtime();

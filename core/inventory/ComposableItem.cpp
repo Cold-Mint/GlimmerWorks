@@ -147,13 +147,13 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     const ComposableItemResource *itemResource, const ResourceRef &resourceRef) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->key);
     const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
-    if (nameRes.has_value()) {
-        name = nameRes.value()->value;
+    if (nameRes != nullptr) {
+        name = nameRes->value;
     }
     std::optional<std::string> description;
     auto descriptionRes = appContext->GetResourceLocator()->FindString(itemResource->description);
-    if (descriptionRes.has_value()) {
-        description = descriptionRes.value()->value;
+    if (descriptionRes != nullptr) {
+        description = descriptionRes->value;
     }
     size_t slotSize = itemResource->slotSize;
     if (itemResource->missing) {
@@ -186,8 +186,8 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
         for (int i = 0; i < defaultAbilitySize; i++) {
             auto itemObj = appContext->GetResourceLocator()->FindItem(
                 itemResource->defaultAbilityList[i]);
-            if (itemObj.has_value()) {
-                (void) result->ReplaceItem(static_cast<size_t>(i), std::move(itemObj.value()));
+            if (itemObj != nullptr) {
+                (void) result->ReplaceItem(static_cast<size_t>(i), std::move(itemObj));
             }
         }
     } else {
@@ -204,8 +204,8 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
                     continue;
                 }
                 auto itemObj = appContext->GetResourceLocator()->FindItem(itemRef.value());
-                if (itemObj.has_value()) {
-                    (void) result->ReplaceItem(static_cast<size_t>(index), std::move(itemObj.value()));
+                if (itemObj != nullptr) {
+                    (void) result->ReplaceItem(static_cast<size_t>(index), std::move(itemObj));
                 }
             }
         }

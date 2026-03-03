@@ -5,14 +5,14 @@
 #include "TpCommand.h"
 
 #include "../../Constants.h"
-#include "../../ecs/component/PlayerControlComponent.h"
 #include "../../ecs/component/RigidBody2DComponent.h"
-#include "../../log/LogCat.h"
 #include "../../utils/Box2DUtils.h"
 #include "../../world/WorldContext.h"
+#include "box2d/box2d.h"
 #include "fmt/color.h"
 
 void glimmer::TpCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
+    suggestionsTree.AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
 glimmer::TpCommand::TpCommand(AppContext *ctx) : Command(ctx) {
@@ -27,25 +27,31 @@ bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(con
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    auto entities = worldContext_->GetEntityIDWithComponents<
-        PlayerControlComponent, RigidBody2DComponent>();
-    if (entities.empty()) {
+    const size_t size = commandArgs.GetSize();
+    if (size < 2) {
+        onMessage(fmt::format(
+            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            2, size));
+        return false;
+    }
+    auto playerEntity = worldContext_->GetPlayerEntity();
+    if (WorldContext::IsEmptyEntityId(playerEntity)) {
         onMessage(appContext_->GetLangsResources()->cantFindObject);
         return false;
     }
-    for (auto entity: entities) {
-        auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(entity);
-        if (rigidBody2DComponent && rigidBody2DComponent->IsReady()) {
-            b2Vec2 newPos = Box2DUtils::ToMeters({
-                commandArgs.AsFloat(1) * TILE_SIZE, commandArgs.AsFloat(2) * TILE_SIZE
-            });
-            b2Rot currentRot = b2Body_GetRotation(rigidBody2DComponent->GetBodyId());
-            b2Body_SetTransform(rigidBody2DComponent->GetBodyId(), newPos, currentRot);
-        }
-        onMessage(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->teleportEntity),
-            entity, commandArgs.AsString(1), commandArgs.AsString(2)));
+    auto transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
+    auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(playerEntity);
+    if (rigidBody2DComponent && rigidBody2DComponent->IsReady()) {
+        b2Vec2 newPos = Box2DUtils::ToMeters({
+            commandArgs.AsCoordinate(1, transform2DComponent->GetPosition().x),
+            commandArgs.AsCoordinate(2, transform2DComponent->GetPosition().y)
+        });
+        b2Rot currentRot = b2Body_GetRotation(rigidBody2DComponent->GetBodyId());
+        b2Body_SetTransform(rigidBody2DComponent->GetBodyId(), newPos, currentRot);
     }
+    onMessage(fmt::format(
+        fmt::runtime(appContext_->GetLangsResources()->teleportEntity),
+        playerEntity, commandArgs.AsString(1), commandArgs.AsString(2)));
 
     return true;
 }

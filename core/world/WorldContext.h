@@ -377,6 +377,16 @@ namespace glimmer {
 
 
         /**
+         * CreateMob
+         * 创建生物。
+         * @param vector2d
+         * @param mobResource
+         * @return
+         */
+        GameEntity::ID CreateMob(WorldVector2D vector2d,MobResource* mobResource);
+
+
+        /**
          * Display the item editing panel
          * 显示物品编辑面板
          * @param composableItem

@@ -40,6 +40,15 @@ namespace glimmer {
 
         [[nodiscard]] int AsInt(int index) const;
 
+        /**
+         * Convert to coordinates
+         * 转换为坐标
+         * @param index index 位置
+         * @param origin origin(Used to replace the tilde symbol ~) 原点坐标(用于替代~号)
+         * @return  Return to world coordinates 返回世界坐标
+         */
+        [[nodiscard]] float AsCoordinate(int index, float origin) const;
+
         [[nodiscard]] float AsFloat(int index) const;
 
         [[nodiscard]] double AsDouble(int index) const;

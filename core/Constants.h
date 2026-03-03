@@ -16,6 +16,7 @@ static constexpr std::string PLAYER_FILE_NAME = "player.bin";
 static constexpr std::string HELP_COMMAND_NAME = "help";
 static constexpr std::string LICENSE_COMMAND_NAME = "license";
 static constexpr std::string SEED_COMMAND_NAME = "seed";
+static constexpr std::string SUMMON_COMMAND_NAME = "summon";
 static constexpr std::string CONFIG_COMMAND_NAME = "config";
 static constexpr std::string HEIGHT_MAP_COMMAND_NAME = "heightMap";
 static constexpr std::string TP_COMMAND_NAME = "tp";
@@ -31,6 +32,9 @@ static constexpr std::string FULL_BIOME_DECORATOR = "fill";
 static constexpr std::string SURFACE_BIOME_DECORATOR = "surface";
 static constexpr std::string TREE_BIOME_DECORATOR = "tree";
 static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
+static constexpr std::string X_DYNAMIC_SUGGESTIONS_NAME = "&x";
+static constexpr std::string Y_DYNAMIC_SUGGESTIONS_NAME = "&y";
+static constexpr std::string MOB_DYNAMIC_SUGGESTIONS_NAME = "&mob";
 static constexpr std::string CONFIG_DYNAMIC_SUGGESTIONS_NAME = "&config";
 static constexpr std::string VFS_DYNAMIC_SUGGESTIONS_NAME = "&vfs";
 static constexpr std::string TILE_DYNAMIC_SUGGESTIONS_NAME = "&tile";
@@ -64,6 +68,7 @@ static constexpr uint32_t RESOURCE_TYPE_STRUCTURE = 6;
 static constexpr uint32_t RESOURCE_TYPE_TEXTURES = 7;
 static constexpr uint32_t RESOURCE_TYPE_BIOME = 8;
 static constexpr uint32_t RESOURCE_TYPE_COLOR = 9;
+static constexpr uint32_t RESOURCE_TYPE_MOB = 10;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;
@@ -89,6 +94,7 @@ static constexpr std::string DATA_FILE_TYPE_STRUCTURE = "structure";
 static constexpr std::string DATA_FILE_TYPE_INITIAL_INVENTORY = "startinv";
 static constexpr std::string DATA_FILE_TYPE_CONTRIBUTOR = "contributor";
 static constexpr std::string DATA_FILE_TYPE_COLOR = "color";
+static constexpr std::string DATA_FILE_TYPE_MOB = "mob";
 
 constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
@@ -220,6 +226,7 @@ static constexpr uint8_t RENDER_ORDER_ITEM_EDITOR = 8;
 static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 9;
 static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
 static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
+static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;
 static constexpr uint8_t RENDER_ORDER_PAUSE = 100;
 
 
@@ -254,6 +261,8 @@ static constexpr uint32_t COMPONENT_ID_TILE_LAYER = 14;
 static constexpr uint32_t COMPONENT_ID_TRANSFORM_2D = 15;
 static constexpr uint32_t COMPONENT_ID_GUI_TRANSFORM_2D = 16;
 static constexpr uint32_t COMPONENT_ID_AREA_MARKER = 17;
+static constexpr uint32_t COMPONENT_ID_SPIRIT_RENDERER = 18;
+static constexpr uint32_t COMPONENT_ID_ITEM_EDITOR = 19;
 
 
 static constexpr std::string TILE_ID_AIR = "air";

@@ -15,20 +15,17 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(const AppContext *
                                                               const ResourceRef *resourceRef) {
     auto tile = std::make_unique<Tile>();
     tile->id = Resource::GenerateId(*tileResource);
-    const std::optional<StringResource *> nameStringResource = appContext->GetResourceLocator()->FindString(
+    const StringResource *nameStringResource = appContext->GetResourceLocator()->FindString(
         tileResource->name);
-    if (nameStringResource.has_value()) {
-        tile->name = nameStringResource.value()->value;
-    } else {
+    if (nameStringResource == nullptr) {
         tile->name = tile->id;
+    } else {
+        tile->name = nameStringResource->value;
     }
-    const std::optional<StringResource *> descriptionStringResource = appContext->GetResourceLocator()->FindString(
+    const StringResource *descriptionStringResource = appContext->GetResourceLocator()->FindString(
         tileResource->description);
-    if (descriptionStringResource.has_value()) {
-        StringResource *stringResource = descriptionStringResource.value();
-        if (stringResource != nullptr) {
-            tile->description = stringResource->value;
-        }
+    if (descriptionStringResource != nullptr) {
+        tile->description = descriptionStringResource->value;
     }
     tile->customLootTable = tileResource->customLootTable;
     tile->lootTable = tileResource->lootTable;

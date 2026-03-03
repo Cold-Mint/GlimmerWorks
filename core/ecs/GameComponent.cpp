@@ -14,7 +14,3 @@ std::string glimmer::GameComponent::Serialize() {
 
 void glimmer::GameComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
 }
-
-uint32_t glimmer::GameComponent::GetId() {
-    return 0;
-}

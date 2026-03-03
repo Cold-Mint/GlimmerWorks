@@ -49,9 +49,9 @@ glimmer::ColorResource *glimmer::ResourceLocator::FindColorResource(const Resour
     return appContext_->GetResourcePackManager()->LoadColorResFromFile(appContext_, resourceRef, defaultColor);
 }
 
-std::optional<glimmer::StringResource *> glimmer::ResourceLocator::FindString(const ResourceRef &resourceRef) const {
+glimmer::StringResource * glimmer::ResourceLocator::FindString(const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_STRING || !ValidateAccessPermission(resourceRef)) {
-        return std::nullopt;
+        return nullptr;
     }
     return appContext_->GetStringManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }
@@ -77,37 +77,45 @@ glimmer::TileResource *glimmer::ResourceLocator::FindTile(const ResourceRef &res
     return appContext_->GetTileManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }
 
-std::optional<glimmer::ComposableItemResource *> glimmer::ResourceLocator::FindComposableItem(
+glimmer::MobResource *glimmer::ResourceLocator::FindMob(const ResourceRef &resourceRef) const {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_MOB || !ValidateAccessPermission(resourceRef)) {
+        return nullptr;
+    }
+    return appContext_->GetMobManager()->FindMobResource(resourceRef.GetPackageId(),
+                                                         resourceRef.GetResourceKey());
+}
+
+glimmer::ComposableItemResource *glimmer::ResourceLocator::FindComposableItem(
     const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_COMPOSABLE_ITEM || !ValidateAccessPermission(resourceRef)) {
-        return std::nullopt;
+        return nullptr;
     }
     return appContext_->GetItemManager()->FindComposableItemResource(resourceRef.GetPackageId(),
                                                                      resourceRef.GetResourceKey());
 }
 
-std::optional<glimmer::AbilityItemResource *> glimmer::ResourceLocator::FindAbilityItem(
+glimmer::AbilityItemResource *glimmer::ResourceLocator::FindAbilityItem(
     const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_ABILITY_ITEM || !ValidateAccessPermission(resourceRef)) {
-        return std::nullopt;
+        return nullptr;
     }
     return appContext_->GetItemManager()->FindAbilityItemResource(resourceRef.GetPackageId(),
                                                                   resourceRef.GetResourceKey());
 }
 
-std::optional<glimmer::LootResource *> glimmer::ResourceLocator::FindLoot(const ResourceRef &resourceRef) const {
+glimmer::LootResource *glimmer::ResourceLocator::FindLoot(const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_LOOT_TABLE || !ValidateAccessPermission(resourceRef)) {
-        return std::nullopt;
+        return nullptr;
     }
     return appContext_->GetLootTableManager()->Find(resourceRef.GetPackageId(),
                                                     resourceRef.GetResourceKey());
 }
 
-std::optional<std::unique_ptr<glimmer::Item> >
+std::unique_ptr<glimmer::Item>
 glimmer::ResourceLocator::FindItem(const ResourceRef &resourceRef) const {
     uint32_t resourceType = resourceRef.GetResourceType();
     if (resourceType == RESOURCE_TYPE_NONE || !ValidateAccessPermission(resourceRef)) {
-        return std::nullopt;
+        return nullptr;
     }
     std::unique_ptr<Item> result = nullptr;
     if (resourceType == RESOURCE_TYPE_TILE) {
@@ -118,21 +126,21 @@ glimmer::ResourceLocator::FindItem(const ResourceRef &resourceRef) const {
     }
     if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
         auto composableItemResource = FindComposableItem(resourceRef);
-        if (composableItemResource.has_value()) {
+        if (composableItemResource != nullptr) {
             result = std::move(
-                ComposableItem::FromItemResource(appContext_, composableItemResource.value(), resourceRef));
+                ComposableItem::FromItemResource(appContext_, composableItemResource, resourceRef));
         }
     }
 
     if (resourceType == RESOURCE_TYPE_ABILITY_ITEM) {
         auto abilityItemResource = FindAbilityItem(resourceRef);
-        if (abilityItemResource.has_value()) {
-            result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource.value(), resourceRef));
+        if (abilityItemResource != nullptr) {
+            result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource, resourceRef));
         }
     }
     if (result != nullptr) {
         result->ApplyResourceRefArgs(resourceRef);
         return result;
     }
-    return std::nullopt;
+    return nullptr;
 }

@@ -16,58 +16,7 @@ std::string glimmer::EcsCommand::EntityToString(const GameEntity::ID gameEntityI
     const std::vector<GameComponent *> components = worldContext_->GetAllComponents(gameEntityId);
     std::string data;
     for (auto &component: components) {
-        std::string name = std::to_string(component->GetId());
-        switch (component->GetId()) {
-            case COMPONENT_ID_AUTO_PICK:
-                name = "AutoPick";
-                break;
-            case COMPONENT_ID_CAMERA:
-                name = "Camera";
-                break;
-            case COMPONENT_ID_DEBUG_DRAW:
-                name = "DebugDraw";
-                break;
-            case COMPONENT_ID_DIGGING:
-                name = "digging";
-                break;
-            case COMPONENT_ID_DROPPED_ITEM:
-                name = "droppedItem";
-                break;
-            case COMPONENT_ID_HOTBAR:
-                name = "hotbar";
-                break;
-            case COMPONENT_ID_ITEM_CONTAINER:
-                name = "itemContainer";
-                break;
-            case COMPONENT_ID_ITEM_SLOT:
-                name = "itemSlot";
-                break;
-            case COMPONENT_ID_MAGNET:
-                name = "magnet";
-                break;
-            case COMPONENT_ID_MAGNETIC:
-                name = "magnetic";
-                break;
-            case COMPONENT_ID_PAUSE:
-                name = "pause";
-                break;
-            case COMPONENT_ID_PLAYER_CONTROL:
-                name = "playerControl";
-                break;
-            case COMPONENT_ID_RIGID_BODY_2D:
-                name = "rigidBody2D";
-                break;
-            case COMPONENT_ID_TILE_LAYER:
-                name = "titleLayer";
-                break;
-            case COMPONENT_ID_TRANSFORM_2D:
-                name = "transform2D";
-                break;
-            case COMPONENT_ID_GUI_TRANSFORM_2D:
-                name = "guiTransform2D";
-                break;
-        }
-        data += fmt::format("{}\n", name);
+        data += fmt::format("componentId = {} name = {}\n", component->GetId(), typeid(component).name());
     }
     return fmt::format("id={} isPersistable={} \ncomponents={}\n", gameEntityId,
                        worldContext_->IsPersistable(gameEntityId),

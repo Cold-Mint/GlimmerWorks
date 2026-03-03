@@ -39,8 +39,10 @@
 #include "core/ecs/component/MagnetComponent.h"
 #include "core/ecs/component/MagneticComponent.h"
 #include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/ItemEditorSystem.h"
+#include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
 #include "generator/ChunkPhysicsHelper.h"
@@ -244,11 +246,12 @@ void glimmer::WorldContext::InitPlayer() {
         for (auto &initialInventory: allInitialInventory) {
             for (auto &addItem: initialInventory->addItems) {
                 auto item = appContext_->GetResourceLocator()->FindItem(addItem);
-                if (!item.has_value()) {
+                if (item == nullptr) {
                     continue;
                 }
-                if (itemContainerComponent->GetItemContainer()->AddItem(std::move(item.value()))) {
-                    CreateDroppedItemEntity(std::move(item.value()),
+                std::unique_ptr<Item> returnItem = itemContainerComponent->GetItemContainer()->AddItem(std::move(item));
+                if (returnItem != nullptr) {
+                    CreateDroppedItemEntity(std::move(returnItem),
                                             GetComponent<Transform2DComponent>(playerEntity)->GetPosition());
                 }
             }
@@ -579,6 +582,7 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<AutoPickSystem>(this));
     RegisterSystem(std::make_unique<AreaMarkerSystem>(this));
     RegisterSystem(std::make_unique<DiggingSystem>(this));
+    RegisterSystem(std::make_unique<SpiritRendererSystem>(this));
     RegisterSystem(std::make_unique<PauseSystem>(this));
     RegisterSystem(std::make_unique<ItemEditorSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
@@ -631,6 +635,18 @@ void glimmer::WorldContext::RegisterSystem(std::unique_ptr<GameSystem> system) {
 
 glimmer::GameEntity::ID glimmer::WorldContext::CreateEntity() {
     return RegisterEntity(std::make_unique<GameEntity>(++entityId_));
+}
+
+glimmer::GameEntity::ID glimmer::WorldContext::CreateMob(WorldVector2D vector2d, MobResource *mobResource) {
+    for (auto &appearance: mobResource->appearance) {
+        GameEntity::ID entityId = CreateEntity();
+        auto transform2DComponent = AddComponent<Transform2DComponent>(entityId);
+        transform2DComponent->SetPosition(vector2d);
+        auto *spiritRendererComponent = AddComponent<SpiritRendererComponent>(entityId);
+        spiritRendererComponent->SetPosition({appearance.x, appearance.y});
+        spiritRendererComponent->SetTextureRef(appearance.texture);
+    }
+    return 0;
 }
 
 

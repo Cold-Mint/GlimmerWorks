@@ -4,7 +4,6 @@
 
 #ifndef GLIMMERWORKS_RESOURCELOCATOR_H
 #define GLIMMERWORKS_RESOURCELOCATOR_H
-#include <optional>
 
 #include "Resource.h"
 #include "ResourceRef.h"
@@ -48,7 +47,7 @@ namespace glimmer {
          * @param resourceRef resourceRef 字符串引用
          * @return
          */
-        [[nodiscard]] std::optional<StringResource *> FindString(const ResourceRef &resourceRef) const;
+        [[nodiscard]] StringResource * FindString(const ResourceRef &resourceRef) const;
 
 
         /**
@@ -59,13 +58,15 @@ namespace glimmer {
          */
         [[nodiscard]] TileResource *FindTile(const ResourceRef &resourceRef) const;
 
+        [[nodiscard]] MobResource *FindMob(const ResourceRef &resourceRef) const;
+
         /**
          * FindComposableItem
          * 获取可组合的物品资源
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] std::optional<ComposableItemResource *> FindComposableItem(const ResourceRef &resourceRef) const;
+        [[nodiscard]] ComposableItemResource *FindComposableItem(const ResourceRef &resourceRef) const;
 
         /**
          * FindAbilityItem
@@ -73,7 +74,7 @@ namespace glimmer {
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] std::optional<AbilityItemResource *> FindAbilityItem(const ResourceRef &resourceRef) const;
+        [[nodiscard]] AbilityItemResource *FindAbilityItem(const ResourceRef &resourceRef) const;
 
         /**
          * FindLoot
@@ -81,7 +82,7 @@ namespace glimmer {
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] std::optional<LootResource *> FindLoot(const ResourceRef &resourceRef) const;
+        [[nodiscard]] LootResource *FindLoot(const ResourceRef &resourceRef) const;
 
         /**
          * FindItem
@@ -89,7 +90,7 @@ namespace glimmer {
          * @param resourceRef resourceRef 物品引用
          * @return  Item pointer 物品指针
          */
-        [[nodiscard]] std::optional<std::unique_ptr<Item> > FindItem(
+        [[nodiscard]] std::unique_ptr<Item> FindItem(
             const ResourceRef &resourceRef) const;
     };
 }

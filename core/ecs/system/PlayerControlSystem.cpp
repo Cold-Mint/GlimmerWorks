@@ -24,101 +24,98 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : 
 }
 
 void glimmer::PlayerControlSystem::Update(const float delta) {
-    const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent, RigidBody2DComponent>();
-    for (auto &entity: entities) {
-        const auto control = worldContext_->GetComponent<PlayerControlComponent>(entity);
-        const auto rigid = worldContext_->GetComponent<RigidBody2DComponent>(entity);
-        if (control == nullptr || rigid == nullptr || !rigid->IsReady()) {
-            LogCat::d("PlayerControlSystem update null");
-            continue;
-        }
+    auto player = worldContext_->GetPlayerEntity();
+    const auto control = worldContext_->GetComponent<PlayerControlComponent>(player);
+    const auto rigid = worldContext_->GetComponent<RigidBody2DComponent>(player);
+    if (control == nullptr || rigid == nullptr || !rigid->IsReady()) {
+        LogCat::d("PlayerControlSystem update null");
+        return;
+    }
 
-        const b2BodyId bodyId = rigid->GetBodyId();
+    const b2BodyId bodyId = rigid->GetBodyId();
+    int shapeCount = b2Body_GetShapeCount(bodyId);
+    b2ShapeId shapeIds[shapeCount];
+    int shapeCountActual = b2Body_GetShapes(bodyId, shapeIds, shapeCount);
+    for (int i = 0; i < shapeCountActual; i++) {
+        b2Shape_SetFriction(shapeIds[i], 0);
+    }
 
-        // Fix: Set friction to 0 to prevent sticking to walls when moving against them
-        // 修复：将摩擦力设置为0，以防止移动时贴在墙上
-        b2ShapeId shapeId;
-        if (b2Body_GetShapes(bodyId, &shapeId, 1) > 0) {
-            b2Shape_SetFriction(shapeId, 0.0F);
+    const b2Vec2 vel = b2Body_GetLinearVelocity(bodyId);
+    float vx = 0.0F;
+    if (control->moveLeft) {
+        vx -= PLAYER_MOVE_SPEED;
+    }
+    if (control->moveRight) {
+        vx += PLAYER_MOVE_SPEED;
+    }
+    float vy = vel.y;
+    if (control->jump) {
+        bool ground = onGround(rigid);
+        if (ground) {
+            vy = 10.0F;
         }
+        control->jump = false;
+    }
 
-        const b2Vec2 vel = b2Body_GetLinearVelocity(bodyId);
-        float vx = 0.0F;
-        if (control->moveLeft) {
-            vx -= PLAYER_MOVE_SPEED;
-        }
-        if (control->moveRight) {
-            vx += PLAYER_MOVE_SPEED;
-        }
-        float vy = vel.y;
-        if (control->jump) {
-            bool ground = onGround(rigid);
-            if (ground) {
-                vy = 10.0F;
-            }
-            control->jump = false;
-        }
-
-        b2Body_SetLinearVelocity(bodyId, {vx, vy});
-        const auto hotBarEntity = worldContext_->GetHotBarEntity();
-        if (WorldContext::IsEmptyEntityId(hotBarEntity)) {
-            LogCat::d("PlayerControlSystem hotBarEntity null");
-            return;
-        }
-        auto hotBarComp = worldContext_->GetComponent<HotBarComponent>(hotBarEntity);
-        const auto *containerComp = worldContext_->GetComponent<ItemContainerComponent>(entity);
-        control->dropTimer += delta;
-        if (control->dropPressed && control->dropTimer >= DROP_INTERVAL) {
-            control->dropTimer -= DROP_INTERVAL;
-            if (hotBarComp && containerComp) {
-                auto itemContainer = containerComp->GetItemContainer();
-                if (itemContainer != nullptr) {
-                    auto item = itemContainer->TakeItem(hotBarComp->GetSelectedSlot(), 1);
-                    if (item != nullptr) {
-                        worldContext_->CreateDroppedItemEntity(
-                            std::move(item),
-                            worldContext_->GetCameraTransform2D()->GetPosition(),
-                            2
-                        );
-                    }
+    b2Body_SetLinearVelocity(bodyId, {vx, vy});
+    const auto hotBarEntity = worldContext_->GetHotBarEntity();
+    if (WorldContext::IsEmptyEntityId(hotBarEntity)) {
+        LogCat::d("PlayerControlSystem hotBarEntity null");
+        return;
+    }
+    auto hotBarComp = worldContext_->GetComponent<HotBarComponent>(hotBarEntity);
+    const auto *containerComp = worldContext_->GetComponent<ItemContainerComponent>(player);
+    control->dropTimer += delta;
+    if (control->dropPressed && control->dropTimer >= DROP_INTERVAL) {
+        control->dropTimer -= DROP_INTERVAL;
+        if (hotBarComp && containerComp) {
+            auto itemContainer = containerComp->GetItemContainer();
+            if (itemContainer != nullptr) {
+                auto item = itemContainer->TakeItem(hotBarComp->GetSelectedSlot(), 1);
+                if (item != nullptr) {
+                    worldContext_->CreateDroppedItemEntity(
+                        std::move(item),
+                        worldContext_->GetCameraTransform2D()->GetPosition(),
+                        2
+                    );
                 }
             }
         }
+    }
 
-        if (control->mouseLeftDown && hotBarComp && containerComp) {
-            if (const auto itemContainer = containerComp->GetItemContainer()) {
-                if (Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot())) {
-                    slipTimer += delta;
-                    std::unordered_set<std::string> popupAbility;
-                    const VariableConfig &variableConfig = item->GetVariableConfig();
-                    if (slipTimer > 1.0F) {
-                        slipTimer -= 1.0F;
-                        std::random_device rd;
-                        std::mt19937 rng(rd());
-                        auto fumbleChanceVariable = variableConfig.FindVariable("fumbleChance");
-                        if (fumbleChanceVariable != nullptr) {
-                            //With a hand-slipping effect
-                            //带有手滑效果
-                            float fumbleChance = fumbleChanceVariable->AsFloat();
-                            fumbleChance = std::clamp(fumbleChance, 0.0F, 1.0F);
-                            if (fumbleChance > 0.0F) {
-                                std::uniform_real_distribution dist(0.0F, 1.0F);
-                                float randomValue = dist(rng);
-                                if (randomValue <= fumbleChance) {
-                                    //Triggered hand slip
-                                    //触发手滑
-                                    worldContext_->CreateDroppedItemEntity(
-                                        std::move(itemContainer->TakeAllItem(hotBarComp->GetSelectedSlot())),
-                                        worldContext_->GetCameraTransform2D()->GetPosition(),
-                                        2
-                                    );
-                                    return;
-                                }
+    if (control->mouseLeftDown && hotBarComp && containerComp) {
+        if (const auto itemContainer = containerComp->GetItemContainer()) {
+            if (Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot())) {
+                slipTimer += delta;
+                std::unordered_set<std::string> popupAbility;
+                const VariableConfig &variableConfig = item->GetVariableConfig();
+                if (slipTimer > 1.0F) {
+                    slipTimer -= 1.0F;
+                    std::random_device rd;
+                    std::mt19937 rng(rd());
+                    auto fumbleChanceVariable = variableConfig.FindVariable("fumbleChance");
+                    if (fumbleChanceVariable != nullptr) {
+                        //With a hand-slipping effect
+                        //带有手滑效果
+                        float fumbleChance = fumbleChanceVariable->AsFloat();
+                        fumbleChance = std::clamp(fumbleChance, 0.0F, 1.0F);
+                        if (fumbleChance > 0.0F) {
+                            std::uniform_real_distribution dist(0.0F, 1.0F);
+                            float randomValue = dist(rng);
+                            if (randomValue <= fumbleChance) {
+                                //Triggered hand slip
+                                //触发手滑
+                                worldContext_->CreateDroppedItemEntity(
+                                    std::move(itemContainer->TakeAllItem(hotBarComp->GetSelectedSlot())),
+                                    worldContext_->GetCameraTransform2D()->GetPosition(),
+                                    2
+                                );
+                                return;
                             }
                         }
                     }
-                    item->OnUse(worldContext_, entity, variableConfig, popupAbility);
                 }
+                item->OnUse(worldContext_, player, variableConfig, popupAbility);
             }
         }
     }

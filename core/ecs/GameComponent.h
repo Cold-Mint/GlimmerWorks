@@ -37,7 +37,7 @@ namespace glimmer {
          */
         virtual void Deserialize(WorldContext *worldContext, const std::string &data);
 
-        [[nodiscard]] virtual uint32_t GetId();
+        [[nodiscard]] virtual uint32_t GetId() = 0;
     };
 }
 

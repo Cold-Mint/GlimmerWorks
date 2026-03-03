@@ -74,12 +74,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
         ResourceRef &resourceRef = itemId.value();
-        auto itemResourceOptional = appContext_->GetResourceLocator()->FindComposableItem(resourceRef);
-        if (!itemResourceOptional.has_value()) {
-            onMessage(appContext_->GetLangsResources()->itemResourceNotFound);
-            return false;
-        }
-        auto itemResource = itemResourceOptional.value();
+        auto itemResource = appContext_->GetResourceLocator()->FindComposableItem(resourceRef);
         if (itemResource == nullptr) {
             onMessage(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;
@@ -112,12 +107,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
         ResourceRef &resourceRef = itemId.value();
-        auto itemResourceOptional = appContext_->GetResourceLocator()->FindAbilityItem(resourceRef);
-        if (!itemResourceOptional.has_value()) {
-            onMessage(appContext_->GetLangsResources()->itemResourceNotFound);
-            return false;
-        }
-        auto itemResource = itemResourceOptional.value();
+        auto itemResource = appContext_->GetResourceLocator()->FindAbilityItem(resourceRef);
         if (itemResource == nullptr) {
             onMessage(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;

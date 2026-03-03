@@ -22,15 +22,15 @@ void glimmer::DiggingSystem::BreakTile(const TileVector2D tilePosition, const Ap
     if (oldTile) {
         if (!diggingComponent->IsPrecisionMining() && oldTile->customLootTable) {
             const auto lootResource = appContext->GetResourceLocator()->FindLoot(oldTile->lootTable);
-            if (lootResource.has_value()) {
-                std::vector<ResourceRef> lootList = LootResource::GetLootItems(lootResource.value());
+            if (lootResource != nullptr) {
+                std::vector<ResourceRef> lootList = LootResource::GetLootItems(lootResource);
                 for (auto &loot: lootList) {
                     auto itemPtr = appContext->GetResourceLocator()->FindItem(loot);
                     if (itemPtr == nullptr) {
                         continue;
                     }
                     worldContext_->CreateDroppedItemEntity(
-                        std::move(itemPtr.value()),
+                        std::move(itemPtr),
                         TileLayerComponent::TileToWorld(tilePosition)
                     );
                 }

@@ -45,6 +45,39 @@ namespace glimmer {
         std::string value;
     };
 
+    struct MobAppearanceResource {
+        float x = 0;
+        float y = 0;
+        std::string id;
+        //Bound to the physical
+        //绑定到物理
+        std::string physicId;
+        ResourceRef texture;
+    };
+
+    struct MobPhysicResource {
+        float x = 0;
+        float y = 0;
+        std::string id;
+        //Shape
+        //形状
+        std::string shape;
+        //friction
+        //摩擦力
+        float friction = 0.0F;
+    };
+
+    /**
+     * Mob Resource
+     * 生物资源
+     */
+    struct MobResource : Resource {
+        bool isPlayer = false;
+        int moveSpeed = 5;
+        std::vector<MobAppearanceResource> appearance;
+        std::vector<MobPhysicResource> physics;
+    };
+
     /**
      * ComposableItemResource
      * 可组合的物品资源

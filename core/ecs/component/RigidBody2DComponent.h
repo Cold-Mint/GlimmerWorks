@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_RIGIDBODY2DCOMPONENT_H
 #define GLIMMERWORKS_RIGIDBODY2DCOMPONENT_H
 #include "../GameComponent.h"
-#include "box2d/box2d.h"
 #include "box2d/types.h"
 
 namespace glimmer {

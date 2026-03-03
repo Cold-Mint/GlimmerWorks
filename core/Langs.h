@@ -37,7 +37,6 @@ namespace glimmer {
         std::string itemContainerIsNull;
         std::string composableItemIsNull;
         std::string abilityItemIsNull;
-        std::string itemResourceNotFound;
         std::string tileResourceIsNull;
         std::string itemResourceIsNull;
         std::string minXIsGreaterThanMaxX;

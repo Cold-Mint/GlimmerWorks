@@ -344,9 +344,15 @@ target_sources(GlimmerWorks
         core/ecs/component/AreaMarkerComponent.cpp
         core/world/PreloadColors.cpp
         core/inventory/ContainerChangeType.cpp
-        contributor/Contributor.cpp
-        contributor/ContributorManager.cpp
+        core/contributor/Contributor.cpp
+        core/contributor/ContributorManager.cpp
         core/inventory/ability/MiningRangeData.cpp
+        core/mod/dataPack/MobManager.cpp
+        core/console/command/SummonCommand.cpp
+        core/console/suggestion/CoordinateDynamicSuggestions.cpp
+        core/console/suggestion/MobDynamicSuggestions.cpp
+        core/ecs/system/SpiritRendererSystem.cpp
+        core/ecs/component/SpiritRendererComponent.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -510,9 +516,15 @@ target_sources(GlimmerWorks
         core/ecs/system/AreaMarkerSystem.h
         core/world/PreloadColors.h
         core/inventory/ContainerChangeType.h
-        contributor/ContributorManager.h
-        contributor/Contributor.h
+        core/contributor/ContributorManager.h
+        core/contributor/Contributor.h
         core/inventory/ability/MiningRangeData.h
+        core/mod/dataPack/MobManager.h
+        core/console/command/SummonCommand.h
+        core/console/suggestion/CoordinateDynamicSuggestions.h
+        core/console/suggestion/MobDynamicSuggestions.h
+        core/ecs/component/SpiritRendererComponent.h
+        core/ecs/system/SpiritRendererSystem.h
 )
 
 #Define version information

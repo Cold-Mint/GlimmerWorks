@@ -20,7 +20,7 @@ GetAllInitialInventory() const {
 std::string glimmer::InitialInventoryManager::ListInitialInventory() const {
     std::string result;
     for (const auto &value: initialInventory_) {
-        result += Resource::GenerateId(value->packId, value->key);
+        result += Resource::GenerateId(value->packId, value->resourceId);
         result += "\n";
     }
     return result;

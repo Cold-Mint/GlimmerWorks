@@ -21,7 +21,7 @@ namespace glimmer {
     public:
         BiomeResource *AddResource(std::unique_ptr<BiomeResource> biomeResource);
 
-        BiomeResource *Find(const std::string &packId, const std::string &key);
+        BiomeResource *Find(const std::string &packId, const std::string &resourceId);
 
 
         /**

@@ -19,12 +19,12 @@ namespace glimmer {
 
         static std::unique_ptr<ComposableItemResource> CreatePlaceholderComposableItemResource(
             const std::string &packId,
-            const std::string &key);
+            const std::string &resourceId);
 
 
         static std::unique_ptr<AbilityItemResource> CreateAbilityItemResource(
             const std::string &packId,
-            const std::string &key);
+            const std::string &resourceId);
 
     public:
         ComposableItemResource *AddComposableResource(std::unique_ptr<ComposableItemResource> itemResource);

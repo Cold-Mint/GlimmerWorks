@@ -1,4 +1,4 @@
-//
+//@genCode
 // Created by Cold-Mint on 2025/10/10.
 //
 #ifndef RESOURCEREF_H
@@ -11,6 +11,49 @@
 
 namespace glimmer {
     class ResourceRef;
+
+    //@content(1)
+    //
+    // template<>
+    // struct from<glimmer::ResourceRef> {
+    //     static glimmer::ResourceRef from_toml(const value &v) {
+    //         glimmer::ResourceRef r;
+    //         r.SetPackageId(toml::find<std::string>(v, "packId"));
+    //         r.SetResourceType(glimmer::ResourceRef::ResolveResourceType(toml::find<std::string>(v, "resourceType")));
+    //         r.SetResourceKey(toml::find<std::string>(v, "resourceKey"));
+    //         auto arg = toml::find_or_default<std::vector<glimmer::ResourceRefArg> >(
+    //             v, "args");
+    //         for (auto &resourceRefArg: arg) {
+    //             r.AddArg(resourceRefArg);
+    //         }
+    //         return r;
+    //     }
+    // };
+    //
+    // template<>
+    // struct from<glimmer::ResourceRefArg> {
+    //     static glimmer::ResourceRefArg from_toml(const value &v) {
+    //         glimmer::ResourceRefArg r;
+    //         r.SetName(toml::find<std::string>(v, "name"));
+    //
+    //         uint32_t argType =
+    //                 glimmer::ResourceRefArg::ResolveResourceRefArgType(toml::find<std::string>(v, "type"));
+    //         if (argType == RESOURCE_REF_ARG_TYPE_INT) {
+    //             r.SetDataFromInt(toml::find<int>(v, "data"));
+    //         } else if (argType == RESOURCE_REF_ARG_TYPE_FLOAT) {
+    //             r.SetDataFromFloat(toml::find<float>(v, "data"));
+    //         } else if (argType == RESOURCE_REF_ARG_TYPE_BOOL) {
+    //             r.SetDataFromBool(toml::find<bool>(v, "data"));
+    //         } else if (argType == RESOURCE_REF_ARG_TYPE_STRING) {
+    //             r.SetDataFromString(toml::find<std::string>(v, "data"));
+    //         } else if (argType == RESOURCE_REF_ARG_TYPE_REF_TOML) {
+    //             glimmer::ResourceRef resource = toml::find<glimmer::ResourceRef>(v, "data");
+    //             r.SetDataFromResourceRef(resource);
+    //         }
+    //         return r;
+    //     }
+    // };
+    //@endContent
 
     class ResourceRefArg {
         std::string name_;
@@ -164,6 +207,5 @@ namespace glimmer {
         [[nodiscard]] std::string GetResourceKey() const;
     };
 }
-
 
 #endif //RESOURCEREF_H

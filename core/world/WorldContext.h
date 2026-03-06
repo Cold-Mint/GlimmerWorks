@@ -63,7 +63,7 @@ namespace glimmer {
         std::unordered_set<TileVector2D, Vector2DIHash> terrain_;
         std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunksCache_;
         std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> terrainResultsCache_;
-        GameEntity::ID entityId_ = 0;
+        GameEntity::ID entityId_ = GAME_ENTITY_ID_INVALID;
 
         /**
          * Entity to component list
@@ -102,7 +102,7 @@ namespace glimmer {
          * HotBar Component
          * 快捷栏组件
          */
-        GameEntity::ID hotBarEntity = 0;
+        GameEntity::ID hotBarEntity = GAME_ENTITY_ID_INVALID;
 
         /**
          * digging Component
@@ -119,12 +119,12 @@ namespace glimmer {
         Saves *saves_;
 
         b2WorldId worldId_ = b2_nullWorldId;
-        std::vector<std::unique_ptr<GameEntity> > entities;
-        std::unordered_map<GameEntity::ID, GameEntity *> entityMap;
+        std::vector<std::unique_ptr<GameEntity> > entities_;
+        std::unordered_map<GameEntity::ID, GameEntity *> entityMap_;
         AppContext *appContext_;
 
-        GameEntity::ID player_ = 0;
-        GameEntity::ID itemEditorPanel_ = 0;
+        GameEntity::ID player_ = GAME_ENTITY_ID_INVALID;
+        GameEntity::ID itemEditorPanel_ = GAME_ENTITY_ID_INVALID;
         std::unique_ptr<ChunkLoader> chunkLoader_;
         std::unique_ptr<ChunkGenerator> chunkGenerator_;
 
@@ -230,7 +230,7 @@ namespace glimmer {
          * This method will load the player data from the disk and then supplement the player's components after the loading process.
          * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
          */
-        void InitPlayer();
+        void InitPlayer(MobResource* playerResource);
 
         /**
          * Initialize the hotbar
@@ -258,7 +258,6 @@ namespace glimmer {
          * @return
          */
         std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *GetAllChunks();
-
 
 
         std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> *GetTerrainResults();
@@ -303,7 +302,7 @@ namespace glimmer {
          * @param entityId
          * @return
          */
-        [[nodiscard]] bool SaveEntity(EntityItemMessage *entityItemMessage, GameEntity::ID entityId);
+        void SaveEntity(EntityItemMessage *entityItemMessage, GameEntity::ID entityId);
 
         /**
          * Determine whether a block at a certain position has been loaded
@@ -383,7 +382,7 @@ namespace glimmer {
          * @param mobResource
          * @return
          */
-        GameEntity::ID CreateMob(WorldVector2D vector2d,MobResource* mobResource);
+        GameEntity::ID CreateMob(WorldVector2D vector2d, const MobResource *mobResource);
 
 
         /**
@@ -519,7 +518,7 @@ namespace glimmer {
 
         // Traverse all entities
         // 遍历所有实体
-        for (auto &entity: entities) {
+        for (auto &entity: entities_) {
             // Check if the entity has all specified component types
             // 检查实体是否有所有指定类型的组件
             if (detail::HasAllComponents<T, Ts...>(this, entity->GetID())) {

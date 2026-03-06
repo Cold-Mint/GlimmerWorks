@@ -10,18 +10,18 @@
 glimmer::ComposableItemResource *glimmer::ItemManager::AddComposableResource(
     std::unique_ptr<ComposableItemResource> itemResource) {
     LogCat::i("Registering composable item resource: packId = ", itemResource->packId,
-              ", key = ", itemResource->key);
+              ", key = ", itemResource->resourceId);
     auto &slot =
-            composableItemMap_[itemResource->packId][itemResource->key];
+            composableItemMap_[itemResource->packId][itemResource->resourceId];
     slot = std::move(itemResource);
     return slot.get();
 }
 
 std::unique_ptr<glimmer::ComposableItemResource> glimmer::ItemManager::CreatePlaceholderComposableItemResource(
-    const std::string &packId, const std::string &key) {
+    const std::string &packId, const std::string &resourceId) {
     auto composableItemResource = std::make_unique<ComposableItemResource>();
     composableItemResource->packId = packId;
-    composableItemResource->key = key;
+    composableItemResource->resourceId = resourceId;
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
@@ -34,10 +34,10 @@ std::unique_ptr<glimmer::ComposableItemResource> glimmer::ItemManager::CreatePla
 }
 
 std::unique_ptr<glimmer::AbilityItemResource> glimmer::ItemManager::CreateAbilityItemResource(const std::string &packId,
-    const std::string &key) {
+    const std::string &resourceId) {
     auto abilityItemResource = std::make_unique<AbilityItemResource>();
     abilityItemResource->packId = packId;
-    abilityItemResource->key = key;
+    abilityItemResource->resourceId = resourceId;
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
@@ -52,9 +52,9 @@ std::unique_ptr<glimmer::AbilityItemResource> glimmer::ItemManager::CreateAbilit
 glimmer::AbilityItemResource *glimmer::ItemManager::AddAbilityItemResource(
     std::unique_ptr<AbilityItemResource> itemResource) {
     LogCat::i("Registering ability item resource: packId = ", itemResource->packId,
-              ", key = ", itemResource->key);
+              ", key = ", itemResource->resourceId);
     auto &slot =
-            abilityItemMap_[itemResource->packId][itemResource->key];
+            abilityItemMap_[itemResource->packId][itemResource->resourceId];
     slot = std::move(itemResource);
     return slot.get();
 }

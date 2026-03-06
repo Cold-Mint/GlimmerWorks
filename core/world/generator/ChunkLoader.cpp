@@ -101,8 +101,7 @@ glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMes
     }
     if (rigidBody2dComponent != nullptr && transform2dComponent != nullptr) {
         rigidBody2dComponent->CreateBody(worldContext_->GetWorldId(),
-                                         Box2DUtils::ToMeters(
-                                             transform2dComponent->GetPosition()));
+                                         transform2dComponent->GetPosition());
     }
     return registerEntity_(std::move(entity));
 }

@@ -280,7 +280,13 @@ glimmer::AppContext::AppContext() {
     }
     preloadColors_ = std::make_unique<PreloadColors>();
     preloadColors_->LoadAllColors(resourceLocator_.get());
+    const size_t number = mobManager_->GetPlayerResourceList().size();
+    if (number == 0) {
+        LogCat::e("At least one of the mob files must have the \"isPlayer = true\" setting.");
+        return;
+    }
     LogCat::i("Starting the app...");
+    initSuccess_ = true;
 }
 
 const toml::spec &glimmer::AppContext::GetTomlVersion() const {
@@ -289,6 +295,10 @@ const toml::spec &glimmer::AppContext::GetTomlVersion() const {
 
 glimmer::AppContext::~AppContext() {
     sceneManager_->ClearScenes();
+}
+
+bool glimmer::AppContext::InitSuccess() const {
+    return initSuccess_;
 }
 
 void glimmer::AppContext::SetWindow(SDL_Window *window) {
@@ -364,7 +374,7 @@ bool glimmer::AppContext::Running() const {
 }
 
 void glimmer::AppContext::AddUIMessage(const std::string &string) {
-    gameUIMessages_.emplace_back(GameUIMessage(string, SDL_GetTicks()));
+    gameUIMessages_.emplace_back(string, SDL_GetTicks());
 }
 
 std::vector<glimmer::GameUIMessage> &glimmer::AppContext::GetGameUIMessages() {

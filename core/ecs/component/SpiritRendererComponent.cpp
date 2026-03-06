@@ -4,8 +4,7 @@
 
 #include "SpiritRendererComponent.h"
 
-glimmer::SpiritRendererComponent::SpiritRendererComponent() {
-}
+glimmer::SpiritRendererComponent::SpiritRendererComponent() = default;
 
 void glimmer::SpiritRendererComponent::SetTextureRef(const ResourceRef &resourceRef) {
     resourceRef_ = resourceRef;
@@ -30,6 +29,6 @@ uint32_t glimmer::SpiritRendererComponent::GetId() {
     return COMPONENT_ID_SPIRIT_RENDERER;
 }
 
-glimmer::Vector2D glimmer::SpiritRendererComponent::GetPosition() const {
+const glimmer::Vector2D &glimmer::SpiritRendererComponent::GetPosition() const {
     return position_;
 }

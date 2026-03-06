@@ -26,9 +26,11 @@ void glimmer::GameStartSystem::Update(float delta) {
     worldContext_->AddComponent<
         TileLayerComponent>(tileLayerEntity, TileLayerType::Main, worldContext_->GetAllChunks());
     worldContext_->AddComponent<AreaMarkerComponent>(tileLayerEntity);
-    worldContext_->InitPlayer();
+    auto appContext = worldContext_->GetAppContext();
+    worldContext_->InitPlayer(appContext->GetMobManager()->GetPlayerResourceList()[0]);
     worldContext_->InitHotbar(
-        worldContext_->GetComponent<ItemContainerComponent>(worldContext_->GetPlayerEntity())->GetItemContainer());
+        worldContext_->GetComponent<ItemContainerComponent>(worldContext_->GetPlayerEntity())->
+        GetItemContainer());
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 

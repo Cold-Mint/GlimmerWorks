@@ -12,7 +12,6 @@
 
 
 glimmer::PhysicsSystem::PhysicsSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<Transform2DComponent>();
     RequireComponent<RigidBody2DComponent>();
 }
 

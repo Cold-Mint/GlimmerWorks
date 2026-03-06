@@ -1,4 +1,4 @@
-#Variable definitions are generated through GlimmerWorksBuilder. Please do not edit them.
+#Variable definitions are generated through GlimmerWorksCli. Please do not edit them.
 #The dependencies of the repository can be defined through comments.
 #ocornut/imgui@latest
 #libsdl-org/SDL@latest
@@ -9,8 +9,8 @@
 #Auburn/FastNoiseLite@latest
 #erincatto/box2d@latest
 #ToruNiina/toml11@latest
-set(OCORNUT_IMGUI_VERSION "v1.92.5")
-set(LIBSDL-ORG_SDL_VERSION "release-3.4.0")
+set(OCORNUT_IMGUI_VERSION "v1.92.6")
+set(LIBSDL-ORG_SDL_VERSION "release-3.4.2")
 set(LIBSDL-ORG_SDL_IMAGE_VERSION "release-3.4.0")
 set(LIBSDL-ORG_SDL_TTF_VERSION "release-3.2.2")
 set(MOBIUS3_TWEENY_VERSION "v3.2.1")

@@ -215,6 +215,12 @@ static constexpr float KINV_SCALE = 1.0F / KSCALE;
  */
 static constexpr float PLAYER_MOVE_SPEED = 60.0F;
 
+/**
+ * Invalid game ID indication
+ * 表示无效的游戏ID
+ */
+static constexpr uint32_t GAME_ENTITY_ID_INVALID = 0;
+
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
 static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 2;
 static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 3;
@@ -263,6 +269,7 @@ static constexpr uint32_t COMPONENT_ID_GUI_TRANSFORM_2D = 16;
 static constexpr uint32_t COMPONENT_ID_AREA_MARKER = 17;
 static constexpr uint32_t COMPONENT_ID_SPIRIT_RENDERER = 18;
 static constexpr uint32_t COMPONENT_ID_ITEM_EDITOR = 19;
+static constexpr uint32_t COMPONENT_ID_MOB_FRAME_WORK = 20;
 
 
 static constexpr std::string TILE_ID_AIR = "air";

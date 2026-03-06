@@ -13,7 +13,7 @@
 namespace glimmer {
     class TileManager {
         [[nodiscard]] static std::unique_ptr<TileResource> GenerateErrorPlaceHolder(
-            const std::string &packId, const std::string &key);
+            const std::string &packId, const std::string &resourceId);
 
     protected:
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource> > > tileMap_{};

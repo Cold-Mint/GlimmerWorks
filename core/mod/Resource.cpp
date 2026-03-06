@@ -10,7 +10,7 @@ std::string glimmer::Resource::GenerateId(const std::string &packId, const std::
 }
 
 std::string glimmer::Resource::GenerateId(const Resource &resource) {
-    return GenerateId(resource.packId, resource.key);
+    return GenerateId(resource.packId, resource.resourceId);
 }
 
 std::optional<glimmer::ResourceRef> glimmer::Resource::ParseFromId(const std::string &id, const int resourceType) {

@@ -44,6 +44,9 @@ int main() {
     });
 
     AppContext appContext;
+    if (!appContext.InitSuccess()) {
+        return EXIT_FAILURE;
+    }
     App app(&appContext);
     if (!app.Init()) {
         LogCat::e("Failed to init app");

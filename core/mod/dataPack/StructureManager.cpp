@@ -9,8 +9,8 @@
 glimmer::StructureResource *glimmer::StructureManager::AddResource(
     std::unique_ptr<StructureResource> structureResource) {
     LogCat::i("Registering tile resource: packId = ", structureResource->packId,
-              ", key = ", structureResource->key);
-    auto &slot = structureMap_[structureResource->packId][structureResource->key];
+              ", resourceId = ", structureResource->resourceId);
+    auto &slot = structureMap_[structureResource->packId][structureResource->resourceId];
     slot = std::move(structureResource);
     structureVector_.push_back(slot.get());
     return slot.get();
@@ -42,7 +42,7 @@ const std::vector<glimmer::StructureResource *> &glimmer::StructureManager::GetA
 std::vector<std::string> glimmer::StructureManager::GetStructureIDList() const {
     std::vector<std::string> result;
     for (const auto structureVector: structureVector_) {
-        result.emplace_back(Resource::GenerateId(structureVector->packId, structureVector->key));
+        result.emplace_back(Resource::GenerateId(structureVector->packId, structureVector->resourceId));
     }
     return result;
 }
@@ -50,7 +50,7 @@ std::vector<std::string> glimmer::StructureManager::GetStructureIDList() const {
 std::string glimmer::StructureManager::ListStructures() const {
     std::string result;
     for (auto structureVector: structureVector_) {
-        result += Resource::GenerateId(structureVector->packId, structureVector->key);
+        result += Resource::GenerateId(structureVector->packId, structureVector->resourceId);
         result += "\n";
     }
     return result;

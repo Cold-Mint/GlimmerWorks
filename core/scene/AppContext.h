@@ -86,6 +86,7 @@ namespace glimmer {
         std::thread::id mainThreadId_;
         toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
         std::vector<GameUIMessage> gameUIMessages_;
+        bool initSuccess_ = false;
 
         void LoadLanguage(const std::string &data) const;
 
@@ -97,6 +98,8 @@ namespace glimmer {
         [[nodiscard]] const toml::spec &GetTomlVersion() const;
 
         ~AppContext();
+
+        [[nodiscard]] bool InitSuccess() const;
 
         void SetWindow(SDL_Window *window);
 

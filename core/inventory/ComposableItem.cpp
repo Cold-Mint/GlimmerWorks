@@ -145,7 +145,7 @@ int glimmer::ComposableItem::TryParseItemIndex(const std::string &name) {
 
 std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(AppContext *appContext,
     const ComposableItemResource *itemResource, const ResourceRef &resourceRef) {
-    std::string name = Resource::GenerateId(itemResource->packId, itemResource->key);
+    std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
     if (nameRes != nullptr) {
         name = nameRes->value;

@@ -37,14 +37,34 @@ void glimmer::RigidBody2DComponent::SetMaskBits(const uint64_t maskBits) {
     maskBits_ = maskBits;
 }
 
-void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2Vec2 position) {
+void glimmer::RigidBody2DComponent::SetDensity(const float density) {
+    density_ = density;
+}
+
+float glimmer::RigidBody2DComponent::GetDensity() const {
+    return density_;
+}
+
+void glimmer::RigidBody2DComponent::SetFriction(const float friction) {
+    friction_ = friction;
+}
+
+void glimmer::RigidBody2DComponent::SetRestitution(float restitution) {
+    restitution_ = restitution;
+}
+
+float glimmer::RigidBody2DComponent::GetFriction() const {
+    return friction_;
+}
+
+void glimmer::RigidBody2DComponent::CreateBody(b2WorldId worldId, WorldVector2D vector2d) {
     if (ready_) {
         return;
     }
     b2BodyDef bodyDef_ = b2DefaultBodyDef();
     bodyDef_.type = bodyType_;
-    bodyDef_.position = position;
-    bodyDef_.enableSleep = false;
+    bodyDef_.position = Box2DUtils::ToMeters(vector2d);
+    bodyDef_.enableSleep = allowBodySleep_;
     bodyDef_.fixedRotation = fixedRotation_;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2ShapeDef shapeDef = b2DefaultShapeDef();
@@ -53,7 +73,8 @@ void glimmer::RigidBody2DComponent::CreateBody(const b2WorldId worldId, const b2
     filter.maskBits = maskBits_;
     shapeDef.filter = filter;
     shapeDef.density = 1.0F;
-    shapeDef.material.friction = 0.3F;
+    shapeDef.material.restitution = restitution_;
+    shapeDef.material.friction = friction_;
     const b2Polygon shape = b2MakeBox(
         Box2DUtils::ToMeters(width_ * 0.5F),
         Box2DUtils::ToMeters(height_ * 0.5F)
@@ -103,16 +124,16 @@ void glimmer::RigidBody2DComponent::SetBodyType(const b2BodyType bodyType) {
     bodyType_ = bodyType;
 }
 
-void glimmer::RigidBody2DComponent::SetEnableSleep(bool enable) {
+void glimmer::RigidBody2DComponent::SetAllowBodySleep(bool enable) {
     if (ready_) {
         LogCat::d("Cannot enableSleep after creation.");
         return;
     }
-    enableSleep_ = enable;
+    allowBodySleep_ = enable;
 }
 
-bool glimmer::RigidBody2DComponent::GetEnableSleep() const {
-    return enableSleep_;
+bool glimmer::RigidBody2DComponent::AllowBodySleep() const {
+    return allowBodySleep_;
 }
 
 void glimmer::RigidBody2DComponent::SetFixedRotation(bool fixedRotation) {
@@ -164,7 +185,7 @@ std::string glimmer::RigidBody2DComponent::Serialize() {
         default:
             break;
     }
-    rigidBody2dMessage.set_enablesleep(enableSleep_);
+    rigidBody2dMessage.set_allowsleep(allowBodySleep_);
     rigidBody2dMessage.set_width(width_);
     rigidBody2dMessage.set_height(height_);
     rigidBody2dMessage.set_fixedrotation(fixedRotation_);
@@ -190,7 +211,7 @@ void glimmer::RigidBody2DComponent::Deserialize(WorldContext *worldContext, cons
         default:
             break;
     }
-    enableSleep_ = rigidBody2dMessage.enablesleep();
+    allowBodySleep_ = rigidBody2dMessage.allowsleep();
     width_ = rigidBody2dMessage.width();
     height_ = rigidBody2dMessage.height();
     fixedRotation_ = rigidBody2dMessage.fixedrotation();

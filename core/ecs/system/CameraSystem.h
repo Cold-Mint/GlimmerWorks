@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_CAMERASYSTEM_H
 #define GLIMMERWORKS_CAMERASYSTEM_H
 #include "../GameSystem.h"
-#include "../component/Transform2DComponent.h"
 
 namespace glimmer {
     /**

@@ -8,15 +8,15 @@
 
 glimmer::BiomeResource *glimmer::BiomesManager::AddResource(std::unique_ptr<BiomeResource> biomeResource) {
     LogCat::i("Registering biome resource: packId = ", biomeResource->packId,
-              ", key = ", biomeResource->key);
-    auto &slot = biomeMap_[biomeResource->packId][biomeResource->key];
+              ", resourceId = ", biomeResource->resourceId);
+    auto &slot = biomeMap_[biomeResource->packId][biomeResource->resourceId];
     slot = std::move(biomeResource);
     biomeVector_.push_back(slot.get());
     return slot.get();
 }
 
-glimmer::BiomeResource *glimmer::BiomesManager::Find(const std::string &packId, const std::string &key) {
-    LogCat::d("Searching for biome resource: packId = ", packId, ", key = ", key);
+glimmer::BiomeResource *glimmer::BiomesManager::Find(const std::string &packId, const std::string &resourceId) {
+    LogCat::d("Searching for biome resource: packId = ", packId, ", resourceId = ", resourceId);
     const auto packIt = biomeMap_.find(packId);
     if (packIt == biomeMap_.end()) {
         LogCat::w("Pack not found: ", packId);
@@ -24,13 +24,13 @@ glimmer::BiomeResource *glimmer::BiomesManager::Find(const std::string &packId, 
     }
 
     auto &keyMap = packIt->second;
-    const auto keyIt = keyMap.find(key);
+    const auto keyIt = keyMap.find(resourceId);
     if (keyIt == keyMap.end()) {
-        LogCat::w("Key not found in pack ", packId, ": ", key);
+        LogCat::w("Key not found in pack ", packId, ": ", resourceId);
         return nullptr;
     }
 
-    LogCat::i("Found biome resource: packId = ", packId, ", key = ", key);
+    LogCat::i("Found biome resource: packId = ", packId, ", resourceId = ", resourceId);
     return keyIt->second.get();
 }
 
@@ -63,7 +63,7 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
     }
 
     if (bestBiome != nullptr) {
-        LogCat::d("return bestBiome = ", Resource::GenerateId(bestBiome->packId, bestBiome->key));
+        LogCat::d("return bestBiome = ", Resource::GenerateId(bestBiome->packId, bestBiome->resourceId));
     }
     return bestBiome;
 }

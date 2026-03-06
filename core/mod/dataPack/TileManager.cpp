@@ -17,7 +17,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     airResource.SetResourceKey("tiles/air.png");
     airResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
     air_->texture = airResource;
-    air_->key = TILE_ID_AIR;
+    air_->resourceId = TILE_ID_AIR;
     air_->packId = RESOURCE_REF_CORE;
     air_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     air_->layerType = static_cast<uint8_t>(TileLayerType::Main);
@@ -29,7 +29,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     waterResource.SetResourceKey("tiles/water.png");
     waterResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
     water_->texture = waterResource;
-    water_->key = TILE_ID_WATER;
+    water_->resourceId = TILE_ID_WATER;
     water_->packId = RESOURCE_REF_CORE;
     water_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     water_->layerType = static_cast<uint8_t>(TileLayerType::Main);
@@ -41,7 +41,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     bedrockResource.SetResourceKey("tiles/bedrock.png");
     bedrockResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
     bedrock_->texture = bedrockResource;
-    bedrock_->key = TILE_ID_BEDROCK;
+    bedrock_->resourceId = TILE_ID_BEDROCK;
     bedrock_->packId = RESOURCE_REF_CORE;
     bedrock_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
     bedrock_->layerType = static_cast<uint8_t>(TileLayerType::Main);
@@ -53,7 +53,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     errorResource.SetResourceKey(ERROR_TEXTURE_KEY);
     errorResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
     error_->texture = errorResource;
-    error_->key = TILE_ID_ERROR;
+    error_->resourceId = TILE_ID_ERROR;
     error_->packId = RESOURCE_REF_CORE;
     error_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
     error_->layerType = static_cast<uint8_t>(TileLayerType::Main);
@@ -79,21 +79,21 @@ glimmer::TileResource *glimmer::TileManager::GetError() const {
 
 glimmer::TileResource *glimmer::TileManager::AddResource(std::unique_ptr<TileResource> tileResource) {
     LogCat::i("Registering tile resource: packId = ", tileResource->packId,
-              ", key = ", tileResource->key);
-    auto &slot = tileMap_[tileResource->packId][tileResource->key];
+              ", resourceId = ", tileResource->resourceId);
+    auto &slot = tileMap_[tileResource->packId][tileResource->resourceId];
     slot = std::move(tileResource);
     return slot.get();
 }
 
 std::unique_ptr<glimmer::TileResource> glimmer::TileManager::GenerateErrorPlaceHolder(const std::string &packId,
-    const std::string &key) {
+    const std::string &resourceId) {
     auto errorPlaceholder = std::make_unique<TileResource>();
     ResourceRef errorResource;
     errorResource.SetSelfPackageId(RESOURCE_REF_CORE);
     errorResource.SetResourceKey(ERROR_TEXTURE_KEY);
     errorResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
     errorPlaceholder->texture = errorResource;
-    errorPlaceholder->key = key;
+    errorPlaceholder->resourceId = resourceId;
     errorPlaceholder->packId = packId;
     errorPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
     errorPlaceholder->layerType = static_cast<uint8_t>(TileLayerType::Main);
@@ -125,9 +125,9 @@ glimmer::TileResource *glimmer::TileManager::Find(const std::string &packId, con
 
 std::vector<std::string> glimmer::TileManager::GetTileIDList() {
     std::vector<std::string> result;
-    result.emplace_back(Resource::GenerateId(air_->packId, air_->key));
-    result.emplace_back(Resource::GenerateId(water_->packId, water_->key));
-    result.emplace_back(Resource::GenerateId(bedrock_->packId, bedrock_->key));
+    result.emplace_back(Resource::GenerateId(air_->packId, air_->resourceId));
+    result.emplace_back(Resource::GenerateId(water_->packId, water_->resourceId));
+    result.emplace_back(Resource::GenerateId(bedrock_->packId, bedrock_->resourceId));
     for (const auto &[packId, keyMap]: tileMap_) {
         for (const auto &[key, resource]: keyMap) {
             result.emplace_back(Resource::GenerateId(packId, key));

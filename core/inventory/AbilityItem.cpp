@@ -33,7 +33,7 @@ glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
 std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext *appContext,
                                                                              const AbilityItemResource *itemResource,
                                                                              const ResourceRef &resourceRef) {
-    std::string name = Resource::GenerateId(itemResource->packId, itemResource->key);
+    std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
     if (nameRes != nullptr) {
         name = nameRes->value;

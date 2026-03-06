@@ -24,13 +24,13 @@ namespace glimmer {
 
         [[nodiscard]] SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
 
-        const ResourceRef &GetTextureRef() const;
+        [[nodiscard]] const ResourceRef &GetTextureRef() const;
 
         void SetPosition(Vector2D position);
 
         [[nodiscard]] uint32_t GetId() override;
 
-        Vector2D GetPosition() const;
+        [[nodiscard]] const Vector2D &GetPosition() const;
     };
 }
 

@@ -6,8 +6,11 @@
 
 glimmer::MobResource *glimmer::MobManager::AddResource(std::unique_ptr<MobResource> mobResource) {
     auto &slot =
-            mobMap_[mobResource->packId][mobResource->key];
+            mobMap_[mobResource->packId][mobResource->resourceId];
     slot = std::move(mobResource);
+    if (slot.get()->isPlayer) {
+        playerMobsResource_.push_back(slot.get());
+    }
     return slot.get();
 }
 
@@ -24,6 +27,11 @@ glimmer::MobResource *glimmer::MobManager::FindMobResource(const std::string &pa
     }
     return keyIt->second.get();
 }
+
+const std::vector<glimmer::MobResource *> &glimmer::MobManager::GetPlayerResourceList() const {
+    return playerMobsResource_;
+}
+
 
 std::vector<std::string> glimmer::MobManager::GetMobList() const {
     std::vector<std::string> result;

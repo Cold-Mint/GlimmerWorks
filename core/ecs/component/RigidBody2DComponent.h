@@ -6,6 +6,7 @@
 #define GLIMMERWORKS_RIGIDBODY2DCOMPONENT_H
 #include "../GameComponent.h"
 #include "box2d/types.h"
+#include "core/math/Vector2D.h"
 
 namespace glimmer {
     class RigidBody2DComponent : public GameComponent {
@@ -14,11 +15,16 @@ namespace glimmer {
         uint64_t maskBits_ = 0;
         bool ready_ = false;
         b2BodyType bodyType_ = b2_staticBody;
-        bool enableSleep_ = true;
+        bool allowBodySleep_ = true;
         float width_ = 0;
         float height_ = 0;
         bool fixedRotation_ = false;
         bool enabled_ = true;
+        float friction_ = 0.0F;
+        float restitution_ = 0.0F;
+        //Density
+        //密度
+        float density_ = 0.0F;
 
     public:
         ~RigidBody2DComponent() override;
@@ -43,13 +49,40 @@ namespace glimmer {
          */
         void SetMaskBits(uint64_t maskBits);
 
+        void SetDensity(float density);
+
+        [[nodiscard]] float GetDensity() const;
+
+        /**
+         * SetFriction
+         * 设置摩擦力
+         * @param friction friction 摩擦力
+         */
+        void SetFriction(float friction);
+
+        /**
+         * SetRestitution
+         * 设置摩擦返还系数
+         * @param restitution
+         */
+        void SetRestitution(float restitution);
+
+
+        /**
+         * GetFriction
+         * 获取摩擦力
+         * @return
+         */
+        [[nodiscard]] float GetFriction() const;
+
+
         /**
          * Create Body
          * 创建刚体
          * @param worldId worldId 世界ID
-         * @param b2Vec2 b2Vec2 刚体位置(单位：米)
+         * @param vector2d vector2d 位置
          */
-        void CreateBody(b2WorldId worldId, b2Vec2 b2Vec2);
+        void CreateBody(b2WorldId worldId, WorldVector2D vector2d);
 
         /**
          * GetBodyId
@@ -102,18 +135,18 @@ namespace glimmer {
         void SetBodyType(b2BodyType bodyType);
 
         /**
-         * SetEnableSleep
-         * 设置是否启用休眠
+         * Set whether to allow sleep mode
+         * 设置是否允许休眠
          * @param enable 是否启用休眠
          */
-        void SetEnableSleep(bool enable);
+        void SetAllowBodySleep(bool enable);
 
         /**
-         * GetEnableSleep
-         * 获取是否启用休眠
+         * Obtain the permission for sleep mode
+         * 获取是否允许休眠
          * @return 是否启用休眠
          */
-        [[nodiscard]] bool GetEnableSleep() const;
+        [[nodiscard]] bool AllowBodySleep() const;
 
         /**
          * SetFixedRotation

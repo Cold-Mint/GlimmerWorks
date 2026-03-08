@@ -121,35 +121,27 @@ std::vector<std::string> glimmer::ItemManager::GetAbilityItemIDList() {
 }
 
 std::string glimmer::ItemManager::ListComposableItems() const {
-    std::string result;
+    std::ostringstream oss;
     for (const auto &packPair: composableItemMap_) {
         const auto &packId = packPair.first;
         const auto &keyMap = packPair.second;
-
         for (const auto &keyPair: keyMap) {
             const auto &key = keyPair.first;
-
-            result += Resource::GenerateId(packId, key);
-            result += '\n';
+            oss << Resource::GenerateId(packId, key) << '\n';
         }
     }
-
-    return result;
+    return oss.str();
 }
 
 std::string glimmer::ItemManager::ListAbilityItems() const {
-    std::string result;
+    std::ostringstream oss;
     for (const auto &packPair: abilityItemMap_) {
         const auto &packId = packPair.first;
         const auto &keyMap = packPair.second;
-
         for (const auto &keyPair: keyMap) {
             const auto &key = keyPair.first;
-
-            result += Resource::GenerateId(packId, key);
-            result += '\n';
+            oss << Resource::GenerateId(packId, key) << '\n';
         }
     }
-
-    return result;
+    return oss.str();
 }

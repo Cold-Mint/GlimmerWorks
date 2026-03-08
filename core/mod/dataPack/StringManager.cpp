@@ -44,21 +44,18 @@ glimmer::StringResource *glimmer::StringManager::Find(const std::string &packId,
 }
 
 std::string glimmer::StringManager::ListStrings() const {
-    std::string result;
+    std::ostringstream oss;
     for (const auto &packPair: stringMap_) {
         const auto &packId = packPair.first;
         const auto &keyMap = packPair.second;
-
         for (const auto &keyPair: keyMap) {
             const auto &key = keyPair.first;
-            const auto &res = keyPair.second; // StringResource
-
-            result += Resource::GenerateId(packId, key);
-            result += " =";
-            result += res->value;
-            result += "\n";
+            const auto &res = keyPair.second;
+            oss << Resource::GenerateId(packId, key)
+                    << " ="
+                    << res->value
+                    << "\n";
         }
     }
-
-    return result;
+    return oss.str();
 }

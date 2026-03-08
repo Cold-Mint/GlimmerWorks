@@ -23,6 +23,7 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggest
     suggestionsTree.AddChild("structures");
     suggestionsTree.AddChild("startinv");
     suggestionsTree.AddChild("mobs");
+    suggestionsTree.AddChild("shapes");
 }
 
 std::string glimmer::AssetViewerCommand::GetName() const {
@@ -74,6 +75,9 @@ bool glimmer::AssetViewerCommand::Execute(const CommandArgs commandArgs,
         result = true;
     } else if (type == "mobs") {
         onMessage(appContext_->GetMobManager()->ListMobs());
+        result = true;
+    } else if (type == "shapes") {
+        onMessage(appContext_->GetShapeManager()->ListShapes());
         result = true;
     } else {
         onMessage(appContext_->GetLangsResources()->unknownAssetType);

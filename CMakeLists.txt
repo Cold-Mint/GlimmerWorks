@@ -353,6 +353,8 @@ target_sources(GlimmerWorks
         core/console/suggestion/MobDynamicSuggestions.cpp
         core/ecs/system/SpiritRendererSystem.cpp
         core/ecs/component/SpiritRendererComponent.cpp
+        core/shape/ShapeType.cpp
+        core/shape/ShapeManager.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -525,6 +527,8 @@ target_sources(GlimmerWorks
         core/console/suggestion/MobDynamicSuggestions.h
         core/ecs/component/SpiritRendererComponent.h
         core/ecs/system/SpiritRendererSystem.h
+        core/shape/ShapeType.h
+        core/shape/ShapeManager.h
 )
 
 #Define version information
@@ -586,7 +590,7 @@ file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" "*")
 #克隆数据包和资源包
 FetchContent_Declare(
         VanillaDataPack
-        GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-data"
+        GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksData"
         GIT_PROGRESS TRUE
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/data_packs/glimmerworks"
 )
@@ -598,7 +602,7 @@ endif ()
 
 FetchContent_Declare(
         VanillaResourcePack
-        GIT_REPOSITORY "https://github.com/Cold-Mint/glimmerworks-assets"
+        GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksAssets"
         GIT_PROGRESS TRUE
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/glimmerworks_res"
 )

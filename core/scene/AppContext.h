@@ -27,6 +27,7 @@
 #include "core/mod/StructurePlacementConditionsManager.h"
 #include "core/mod/dataPack/MobManager.h"
 #include "core/mod/dataPack/StructureManager.h"
+#include "core/shape/ShapeManager.h"
 #include "core/world/PreloadColors.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
 #include "core/world/structure/StructureGeneratorManager.h"
@@ -80,6 +81,7 @@ namespace glimmer {
         std::unique_ptr<PreloadColors> preloadColors_;
         std::unique_ptr<ContributorManager> contributorManager_;
         std::unique_ptr<MobManager> mobManager_;
+        std::unique_ptr<ShapeManager> shapeManager_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
@@ -156,6 +158,8 @@ namespace glimmer {
         [[nodiscard]] BiomeDecoratorManager *GetBiomeDecoratorManager() const;
 
         [[nodiscard]] BiomesManager *GetBiomesManager() const;
+
+        [[nodiscard]] ShapeManager *GetShapeManager() const;
 
         [[nodiscard]] ResourceLocator *GetResourceLocator() const;
 

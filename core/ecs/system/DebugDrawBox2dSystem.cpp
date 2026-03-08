@@ -89,9 +89,11 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     }
     const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
     const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    SDL_Color box2dBorderColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dBorderColor;
+    SDL_Color box2dFullColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dFullColor;
     SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
-    Transform2DComponent *cameraTransform2D = worldContext->GetCameraTransform2D();
-    CameraComponent *cameraComponent = worldContext->GetCameraComponent();
+    const Transform2DComponent *cameraTransform2D = worldContext->GetCameraTransform2D();
+    const CameraComponent *cameraComponent = worldContext->GetCameraComponent();
     if (cameraTransform2D == nullptr || cameraComponent == nullptr) {
         LogCat::w("DrawSolidPolygonFcn cameraPosition or cameraComponent is nullptr");
         return;
@@ -112,18 +114,16 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
         cameraTransform2D->GetPosition(), lowerRightVector4);
     SDL_Color oldColor;
     SDL_GetRenderDrawColor(box2dSystemContext->GetRenderer(), &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-    constexpr SDL_Color lightBlue = {100, 149, 237, 128}; // 浅蓝 (CornflowerBlue)
-    constexpr SDL_Color blue = {0, 0, 255, 255}; // 深蓝边框
     SDL_FRect renderQuad;
     renderQuad.x = upperLeftViewportVector1.x;
     renderQuad.y = upperLeftViewportVector1.y;
     renderQuad.w = lowerRightViewportVector4.x - upperLeftViewportVector1.x;
     renderQuad.h = lowerRightViewportVector4.y - upperLeftViewportVector1.y;
 
-    SDL_SetRenderDrawColor(sdlRenderer, lightBlue.r, lightBlue.g, lightBlue.b, lightBlue.a);
+    SDL_SetRenderDrawColor(sdlRenderer, box2dFullColor.r, box2dFullColor.g, box2dFullColor.b, box2dFullColor.a);
     SDL_RenderFillRect(sdlRenderer, &renderQuad);
 
-    SDL_SetRenderDrawColor(sdlRenderer, blue.r, blue.g, blue.b, blue.a);
+    SDL_SetRenderDrawColor(sdlRenderer, box2dBorderColor.r, box2dBorderColor.g, box2dBorderColor.b, box2dBorderColor.a);
     for (int i = 0; i < 3; ++i) {
         SDL_FRect border = {
             renderQuad.x - static_cast<float>(i),
@@ -352,6 +352,7 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
     debugDraw.context = &box2dSystemContext;
     debugDraw.drawShapes = true;
     b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
+    AppContext::RestoreColorRenderer(renderer);
 }
 
 uint8_t glimmer::DebugDrawBox2dSystem::GetRenderOrder() {

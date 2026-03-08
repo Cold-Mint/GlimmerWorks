@@ -8,6 +8,7 @@
 #include "../../utils/Box2DUtils.h"
 #include "box2d/box2d.h"
 #include "core/Constants.h"
+#include "core/shape/ShapeType.h"
 #include "src/saves/rigidbody_2d.pb.h"
 
 
@@ -19,6 +20,10 @@ glimmer::RigidBody2DComponent::~RigidBody2DComponent() {
 
 void glimmer::RigidBody2DComponent::SetCategoryBits(const uint64_t categoryBits) {
     categoryBits_ = categoryBits;
+}
+
+void glimmer::RigidBody2DComponent::SetShapeRef(const ResourceRef &shapeRef) {
+    shapeRef_ = shapeRef;
 }
 
 void glimmer::RigidBody2DComponent::Disable() {
@@ -57,7 +62,8 @@ float glimmer::RigidBody2DComponent::GetFriction() const {
     return friction_;
 }
 
-void glimmer::RigidBody2DComponent::CreateBody(b2WorldId worldId, WorldVector2D vector2d) {
+void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLocator, const b2WorldId worldId,
+                                               const WorldVector2D vector2d) {
     if (ready_) {
         return;
     }
@@ -67,49 +73,54 @@ void glimmer::RigidBody2DComponent::CreateBody(b2WorldId worldId, WorldVector2D 
     bodyDef_.enableSleep = allowBodySleep_;
     bodyDef_.fixedRotation = fixedRotation_;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
-    b2ShapeDef shapeDef = b2DefaultShapeDef();
     b2Filter filter{};
     filter.categoryBits = categoryBits_;
     filter.maskBits = maskBits_;
+    b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.filter = filter;
-    shapeDef.density = 1.0F;
+    shapeDef.density = density_;
     shapeDef.material.restitution = restitution_;
     shapeDef.material.friction = friction_;
-    const b2Polygon shape = b2MakeBox(
-        Box2DUtils::ToMeters(width_ * 0.5F),
-        Box2DUtils::ToMeters(height_ * 0.5F)
-    );
+    ShapeResource *shapeResource = resourceLocator->FindShape(shapeRef_);
+    auto shape = static_cast<ShapeType>(shapeResource->shapeType);
+    if (shape == ShapeType::RECTANGLE) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+        const RectangleShapeResource *rectangleShapeResource = static_cast<RectangleShapeResource *>(shapeResource);
+        const b2Polygon box2dShape = b2MakeBox(
+            Box2DUtils::ToMeters(rectangleShapeResource->width * TILE_SIZE * 0.5F),
+            Box2DUtils::ToMeters(rectangleShapeResource->height * TILE_SIZE * 0.5F)
+        );
+        b2CreatePolygonShape(bodyId_, &shapeDef, &box2dShape);
+    }
 
-    b2CreatePolygonShape(bodyId_, &shapeDef, &shape);
+    if (shape == ShapeType::CIRCLE) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+        const auto circularShapeResource = static_cast<CircularShapeResource *>(shapeResource);
+        b2Circle circle;
+        circle.radius = circularShapeResource->radius;
+        circle.center = {
+            Box2DUtils::ToMeters(circularShapeResource->centerX * TILE_SIZE),
+            Box2DUtils::ToMeters(circularShapeResource->centerY * TILE_SIZE)
+        };
+        b2CreateCircleShape(bodyId_, &shapeDef, &circle);
+    }
+
+    if (shape == ShapeType::ROUNDED_RECTANGLE) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+        const auto roundedRectangleShapeResource = static_cast<RoundedRectangleShapeResource *>(shapeResource);
+        const b2Polygon box2dShape = b2MakeRoundedBox(
+            Box2DUtils::ToMeters(roundedRectangleShapeResource->width * TILE_SIZE * 0.5F),
+            Box2DUtils::ToMeters(roundedRectangleShapeResource->height * TILE_SIZE * 0.5F),
+            Box2DUtils::ToMeters(roundedRectangleShapeResource->radius * TILE_SIZE)
+        );
+        b2CreatePolygonShape(bodyId_, &shapeDef, &box2dShape);
+    }
+
     ready_ = true;
 }
 
 b2BodyId glimmer::RigidBody2DComponent::GetBodyId() const {
     return bodyId_;
-}
-
-void glimmer::RigidBody2DComponent::SetWidth(const float width) {
-    if (ready_) {
-        LogCat::d("Cannot change width after creation.");
-        return;
-    }
-    width_ = width;
-}
-
-void glimmer::RigidBody2DComponent::SetHeight(const float height) {
-    if (ready_) {
-        LogCat::d("Cannot change height after creation.");
-        return;
-    }
-    height_ = height;
-}
-
-float glimmer::RigidBody2DComponent::GetWidth() const {
-    return width_;
-}
-
-float glimmer::RigidBody2DComponent::GetHeight() const {
-    return height_;
 }
 
 bool glimmer::RigidBody2DComponent::IsReady() const {
@@ -186,8 +197,6 @@ std::string glimmer::RigidBody2DComponent::Serialize() {
             break;
     }
     rigidBody2dMessage.set_allowsleep(allowBodySleep_);
-    rigidBody2dMessage.set_width(width_);
-    rigidBody2dMessage.set_height(height_);
     rigidBody2dMessage.set_fixedrotation(fixedRotation_);
     rigidBody2dMessage.set_enabled(enabled_);
     return rigidBody2dMessage.SerializeAsString();
@@ -212,8 +221,6 @@ void glimmer::RigidBody2DComponent::Deserialize(WorldContext *worldContext, cons
             break;
     }
     allowBodySleep_ = rigidBody2dMessage.allowsleep();
-    width_ = rigidBody2dMessage.width();
-    height_ = rigidBody2dMessage.height();
     fixedRotation_ = rigidBody2dMessage.fixedrotation();
     enabled_ = rigidBody2dMessage.enabled();
 }

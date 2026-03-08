@@ -250,10 +250,49 @@ bool glimmer::DataPack::LoadMobResourceFromFile(const std::string &path, MobMana
     const toml::value value = toml::parse_str(data.value(), tomlVersion_);
     auto mobResource = std::make_unique<MobResource>(toml::get<MobResource>(value));
     mobResource->packId = manifest_.id;
-    for (auto &appearance: mobResource->appearance) {
-        appearance.texture.SetSelfPackageId(manifest_.id);
+    mobResource->shape.SetSelfPackageId(manifest_.id);
+    mobResource->texture.SetSelfPackageId(manifest_.id);
+    mobManager->Register(std::move(mobResource));
+    return true;
+}
+
+bool glimmer::DataPack::LoadShapeResourceFromFile(const std::string &path, ShapeManager *shapeManager,
+                                                  const ShapeType type) const {
+    const auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
     }
-    mobManager->AddResource(std::move(mobResource));
+    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    switch (type) {
+        case ShapeType::CIRCLE: {
+            auto circularShapeResource = std::make_unique<CircularShapeResource>(
+                toml::get<CircularShapeResource>(value));
+            circularShapeResource->packId = manifest_.id;
+            circularShapeResource->shapeType = static_cast<uint8_t>(ShapeType::CIRCLE);
+            shapeManager->Register(std::move(circularShapeResource));
+            break;
+        }
+
+        case ShapeType::RECTANGLE: {
+            auto rectangleShapeResource = std::make_unique<RectangleShapeResource>(
+                toml::get<RectangleShapeResource>(value));
+            rectangleShapeResource->packId = manifest_.id;
+            rectangleShapeResource->shapeType = static_cast<uint8_t>(ShapeType::RECTANGLE);
+            shapeManager->Register(std::move(rectangleShapeResource));
+            break;
+        }
+        case ShapeType::ROUNDED_RECTANGLE: {
+            auto roundedRectangleShapeResource = std::make_unique<RoundedRectangleShapeResource>(
+                toml::get<RoundedRectangleShapeResource>(value));
+            roundedRectangleShapeResource->packId = manifest_.id;
+            roundedRectangleShapeResource->shapeType = static_cast<uint8_t>(ShapeType::ROUNDED_RECTANGLE);
+            shapeManager->Register(std::move(roundedRectangleShapeResource));
+            break;
+        }
+    }
+
     return true;
 }
 
@@ -396,6 +435,24 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
         if (dataType == DATA_FILE_TYPE_MOB) {
             LogCat::d("Loading mob file:", file);
             if (LoadMobResourceFromFile(file, appContext->GetMobManager())) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_SHAPE_CIRCLE) {
+            LogCat::d("Loading circle file:", file);
+            if (LoadShapeResourceFromFile(file, appContext->GetShapeManager(), ShapeType::CIRCLE)) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_SHAPE_RECTANGLE) {
+            LogCat::d("Loading rectangle file:", file);
+            if (LoadShapeResourceFromFile(file, appContext->GetShapeManager(), ShapeType::RECTANGLE)) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE) {
+            LogCat::d("Loading rounded rectangle file:", file);
+            if (LoadShapeResourceFromFile(file, appContext->GetShapeManager(), ShapeType::ROUNDED_RECTANGLE)) {
                 total++;
             }
         }

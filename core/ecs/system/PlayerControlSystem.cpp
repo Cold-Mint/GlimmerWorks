@@ -123,30 +123,7 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
 
 
 bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent *rigid) const {
-    b2Vec2 position = b2Body_GetPosition(rigid->GetBodyId());
-    float width = Box2DUtils::ToMeters(rigid->GetWidth());
-    float height = Box2DUtils::ToMeters(rigid->GetHeight());
-    const b2Vec2 leftBottom = {position.x - width * 0.5F, position.y - height * 0.5F};
-    const b2Vec2 rightBottom = {position.x + width * 0.5F, position.y - height * 0.5F};
-    constexpr float rayLength = 0.1F;
-    b2Vec2 translation = {0.0F, -rayLength};
-    b2QueryFilter filter{};
-    filter.categoryBits = 0xFFFF;
-    filter.maskBits = 0xFFFF;
-    struct RayContext {
-        bool hit = false;
-    };
-    auto rayCallback = [](b2ShapeId, b2Vec2, b2Vec2, float, void *ctx) -> float {
-        auto *context = static_cast<RayContext *>(ctx);
-        context->hit = true;
-        return 0.0F;
-    };
-
-    RayContext leftCtx;
-    RayContext rightCtx;
-    b2World_CastRay(worldContext_->GetWorldId(), leftBottom, translation, filter, rayCallback, &leftCtx);
-    b2World_CastRay(worldContext_->GetWorldId(), rightBottom, translation, filter, rayCallback, &rightCtx);
-    return leftCtx.hit || rightCtx.hit;
+    return false;
 }
 
 

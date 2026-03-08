@@ -154,6 +154,7 @@ namespace glimmer {
             {"texture", RESOURCE_TYPE_TEXTURES},
             {"biome", RESOURCE_TYPE_BIOME},
             {"color", RESOURCE_TYPE_COLOR},
+            {"shape", RESOURCE_TYPE_SHAPE},
         };
 
     public:

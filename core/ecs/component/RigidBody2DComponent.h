@@ -7,6 +7,8 @@
 #include "../GameComponent.h"
 #include "box2d/types.h"
 #include "core/math/Vector2D.h"
+#include "core/mod/ResourceLocator.h"
+#include "core/mod/ResourceRef.h"
 
 namespace glimmer {
     class RigidBody2DComponent : public GameComponent {
@@ -16,15 +18,14 @@ namespace glimmer {
         bool ready_ = false;
         b2BodyType bodyType_ = b2_staticBody;
         bool allowBodySleep_ = true;
-        float width_ = 0;
-        float height_ = 0;
         bool fixedRotation_ = false;
         bool enabled_ = true;
         float friction_ = 0.0F;
         float restitution_ = 0.0F;
         //Density
         //密度
-        float density_ = 0.0F;
+        float density_ = 0.01F;
+        ResourceRef shapeRef_;
 
     public:
         ~RigidBody2DComponent() override;
@@ -35,6 +36,8 @@ namespace glimmer {
          * @param categoryBits
          */
         void SetCategoryBits(uint64_t categoryBits);
+
+        void SetShapeRef(const ResourceRef &shapeRef);
 
         void Enable();
 
@@ -79,10 +82,11 @@ namespace glimmer {
         /**
          * Create Body
          * 创建刚体
+         * @param resourceLocator
          * @param worldId worldId 世界ID
          * @param vector2d vector2d 位置
          */
-        void CreateBody(b2WorldId worldId, WorldVector2D vector2d);
+        void CreateBody(const ResourceLocator *resourceLocator, b2WorldId worldId, WorldVector2D vector2d);
 
         /**
          * GetBodyId
@@ -90,35 +94,6 @@ namespace glimmer {
          * @return 刚体ID
          */
         [[nodiscard]] b2BodyId GetBodyId() const;
-
-
-        /**
-         * SetWidth
-         * 设置刚体宽度
-         * @param width Rigid body width (unit: pixels) 刚体宽度(单位：像素)
-         */
-        void SetWidth(float width);
-
-        /**
-         * SetHeight
-         * 设置刚体高度
-         * @param height Rigid body height (unit: pixels) 刚体高度(单位：像素)
-         */
-        void SetHeight(float height);
-
-        /**
-         * GetWidth
-         * 获取刚体宽度
-         * @return Rigid body width (unit: pixels) 刚体宽度(单位：像素)
-         */
-        [[nodiscard]] float GetWidth() const;
-
-        /**
-         * GetHeight
-         * 获取刚体高度
-         * @return Rigid body height (unit: pixels) 刚体高度(单位：像素)
-         */
-        [[nodiscard]] float GetHeight() const;
 
         /**
          * Is the body ready

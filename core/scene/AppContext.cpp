@@ -181,6 +181,7 @@ glimmer::AppContext::AppContext() {
     langs_ = std::make_unique<LangsResources>();
     contributorManager_ = std::make_unique<ContributorManager>();
     mobManager_ = std::make_unique<MobManager>();
+    shapeManager_ = std::make_unique<ShapeManager>();
     LoadLanguage(langData.value());
     dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
@@ -459,6 +460,10 @@ glimmer::BiomeDecoratorManager *glimmer::AppContext::GetBiomeDecoratorManager() 
 
 glimmer::BiomesManager *glimmer::AppContext::GetBiomesManager() const {
     return biomesManager_.get();
+}
+
+glimmer::ShapeManager *glimmer::AppContext::GetShapeManager() const {
+    return shapeManager_.get();
 }
 
 glimmer::ResourceLocator *glimmer::AppContext::GetResourceLocator() const {

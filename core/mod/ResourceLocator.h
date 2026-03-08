@@ -41,13 +41,15 @@ namespace glimmer {
         [[nodiscard]] ColorResource *FindColorResource(const ResourceRef &resourceRef,
                                                        ColorResource *defaultColor = nullptr) const;
 
+        [[nodiscard]] ShapeResource *FindShape(const ResourceRef &resourceRef) const;
+
         /**
          * FindString
          * 查找字符串资源
          * @param resourceRef resourceRef 字符串引用
          * @return
          */
-        [[nodiscard]] StringResource * FindString(const ResourceRef &resourceRef) const;
+        [[nodiscard]] StringResource *FindString(const ResourceRef &resourceRef) const;
 
 
         /**

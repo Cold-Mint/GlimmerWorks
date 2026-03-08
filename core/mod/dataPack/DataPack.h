@@ -14,6 +14,8 @@
 #include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
+#include "core/shape/ShapeManager.h"
+#include "core/shape/ShapeType.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {
@@ -61,6 +63,9 @@ namespace glimmer {
                                                            ContributorManager *contributorManager) const;
 
         [[nodiscard]] bool LoadMobResourceFromFile(const std::string &path, MobManager *mobManager) const;
+
+        [[nodiscard]] bool LoadShapeResourceFromFile(const std::string &path, ShapeManager *shapeManager,
+                                                     ShapeType type) const;
 
         [[nodiscard]] static std::optional<std::string> ExtractLanguageFromFileName(const std::string &fileName);
 

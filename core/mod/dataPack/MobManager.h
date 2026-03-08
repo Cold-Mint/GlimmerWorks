@@ -18,7 +18,7 @@ namespace glimmer {
         std::vector<MobResource *> playerMobsResource_;
 
     public:
-        [[nodiscard]] MobResource *AddResource(std::unique_ptr<MobResource> mobResource);
+        MobResource *Register(std::unique_ptr<MobResource> mobResource);
 
         [[nodiscard]] MobResource *FindMobResource(const std::string &packId, const std::string &key);
 

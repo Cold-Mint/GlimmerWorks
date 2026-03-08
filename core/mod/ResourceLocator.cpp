@@ -49,7 +49,14 @@ glimmer::ColorResource *glimmer::ResourceLocator::FindColorResource(const Resour
     return appContext_->GetResourcePackManager()->LoadColorResFromFile(appContext_, resourceRef, defaultColor);
 }
 
-glimmer::StringResource * glimmer::ResourceLocator::FindString(const ResourceRef &resourceRef) const {
+glimmer::ShapeResource *glimmer::ResourceLocator::FindShape(const ResourceRef &resourceRef) const {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_SHAPE || !ValidateAccessPermission(resourceRef)) {
+        return nullptr;
+    }
+    return appContext_->GetShapeManager()->FindShape(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
+}
+
+glimmer::StringResource *glimmer::ResourceLocator::FindString(const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_STRING || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }

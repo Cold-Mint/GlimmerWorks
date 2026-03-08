@@ -45,6 +45,13 @@ namespace glimmer {
 
         };
 
+        struct DebugColor {
+            SDL_Color box2dBorderColor;
+            SDL_Color box2dFullColor;
+        };
+
+        DebugColor debugColor;
+
         /**
          * Default text color
          * 默认文本颜色

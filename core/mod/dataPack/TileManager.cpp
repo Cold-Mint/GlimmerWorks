@@ -138,25 +138,27 @@ std::vector<std::string> glimmer::TileManager::GetTileIDList() {
 }
 
 std::string glimmer::TileManager::ListTiles() const {
-    std::string result;
+    std::ostringstream oss;
     for (const auto &packPair: tileMap_) {
         const auto &packId = packPair.first;
         const auto &keyMap = packPair.second;
 
         for (const auto &keyPair: keyMap) {
             const auto &key = keyPair.first;
-            result += Resource::GenerateId(packId, key);
-            result += "\n";
+            oss << Resource::GenerateId(packId, key) << "\n";
         }
     }
-
-    result += Resource::GenerateId(*error_);
-    result += "\n";
-    result += Resource::GenerateId(*air_);
-    result += "\n";
-    result += Resource::GenerateId(*water_);
-    result += "\n";
-    result += Resource::GenerateId(*bedrock_);
-    result += "\n";
-    return result;
+    if (error_) {
+        oss << Resource::GenerateId(*error_) << "\n";
+    }
+    if (air_) {
+        oss << Resource::GenerateId(*air_) << "\n";
+    }
+    if (water_) {
+        oss << Resource::GenerateId(*water_) << "\n";
+    }
+    if (bedrock_) {
+        oss << Resource::GenerateId(*bedrock_) << "\n";
+    }
+    return oss.str();
 }

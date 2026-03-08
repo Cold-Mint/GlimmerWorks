@@ -53,15 +53,59 @@ namespace glimmer {
         std::string value;
     };
 
-    //@genNextLine(MobAppearanceResource|生物外观资源类)
-    struct MobAppearanceResource {
-        //@genNextLine(x|X坐标)
-        float x = 0;
-        //@genNextLine(y|Y坐标)
-        float y = 0;
-        //@genNextLine(texture|纹理资源引用)
-        ResourceRef texture;
+    /**
+     *ShapeResource
+     * 形状资源
+     */
+    //@genNextLine(ShapeResource|形状资源)
+    struct ShapeResource : Resource {
+        //@genNextLine(shapeType|形状类型)
+        uint8_t shapeType = 0;
+
+        virtual ~ShapeResource() = default;
     };
+
+    /**
+     * Rectangular shape resource
+     * 矩形形状资源
+     */
+    //@genNextLine(RectangularShapeResource|矩形形状资源)
+    struct RectangleShapeResource : ShapeResource {
+        //@genNextLine(width|宽度)
+        float width = 1.0F;
+        //@genNextLine(height|高度)
+        float height = 1.0F;
+    };
+
+
+    /**
+     * Circular resources
+     * 圆形资源
+     */
+    //@genNextLine(CircularShapeResource|圆形资源)
+    struct CircularShapeResource : ShapeResource {
+        //@genNextLine(centerX|中心X)
+        float centerX = 0.0F;
+        //@genNextLine(centerY|中心Y)
+        float centerY = 0.0F;
+        //@genNextLine(radius|半径)
+        float radius = 1.0F;
+    };
+
+    /**
+ * Rounded Rectangle Shape resources
+ * 圆角矩形资源
+ */
+    //@genNextLine(RoundedRectangleShapeResource|圆角矩形资源)
+    struct RoundedRectangleShapeResource : ShapeResource {
+        //@genNextLine(width|宽度)
+        float width = 1.0F;
+        //@genNextLine(height|高度)
+        float height = 1.0F;
+        //@genNextLine(radius|半径)
+        float radius = 0.0F;
+    };
+
 
     /**
      * Mob Resource
@@ -74,7 +118,7 @@ namespace glimmer {
         //@genNextLine(moveSpeed|移动速度)
         int moveSpeed = 5;
         //@genNextLine(shape|碰撞形状)
-        std::string shape;
+        ResourceRef shape;
         //@genNextLine(bodyType|物理体类型)
         uint8_t bodyType;
         //@genNextLine(allowBodySleep|是否允许物理体休眠)
@@ -87,12 +131,14 @@ namespace glimmer {
         bool fixedRotation;
         //@genNextLine(friction|摩擦力)
         float friction = 0.0F;
-        //@genNextLine(width|宽度)
-        float width = 0;
-        //@genNextLine(height|高度)
-        float height = 0;
-        //@genNextLine(appearance|生物外观列表)
-        std::vector<MobAppearanceResource> appearance;
+        //@genNextLine(offsetY|纹理y方向偏移)
+        float offsetY = 0;
+        //@genNextLine(offsetX|纹理x方向偏移)
+        float offsetX = 0;
+        //@genNextLine(density|密度)
+        float density = 0.001F;
+        //@genNextLine(texture|纹理资源引用)
+        ResourceRef texture = {};
     };
 
     /**
@@ -270,7 +316,7 @@ namespace glimmer {
         //@genNextLine(name|名称资源引用)
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
-        ResourceRef description;
+        ResourceRef description = {};
         //@genNextLine(customLootTable|是否使用自定义战利品表)
         bool customLootTable = false;
         //@genNextLine(lootTable|战利品表资源引用)

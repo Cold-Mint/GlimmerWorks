@@ -262,7 +262,8 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
     return defaultColor;
 }
 
-std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(const SDL_Color accent, const SDL_Color base) const {
+std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(
+    const SDL_Color accent, const SDL_Color base) const {
     if (renderer_ == nullptr) {
         return nullptr;
     }
@@ -303,32 +304,29 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(co
 }
 
 std::string glimmer::ResourcePackManager::ListTextureCache(const bool includeExpired) const {
-    std::string result;
-
+    std::ostringstream oss;
     for (const auto &pair: textureCache) {
         const auto &path = pair.first;
         const auto &weakTex = pair.second;
-
-
         if (auto shared = weakTex.lock()) {
-            result += path;
-            result += " -> ";
-            result += "alive (use_count=";
-            result += std::to_string(shared.use_count());
-            result += ")";
+            oss << path
+                    << " -> "
+                    << "alive (use_count="
+                    << shared.use_count()
+                    << ")";
+
             if (errorTexturePathSet_.contains(path)) {
-                result += " (error texture)";
+                oss << " (error texture)";
             }
         } else {
             if (includeExpired) {
-                result += path;
-                result += " -> ";
-                result += "expired";
+                oss << path << " -> expired";
+            } else {
+                continue;
             }
         }
 
-        result += "\n";
+        oss << "\n";
     }
-
-    return result;
+    return oss.str();
 }

@@ -4,7 +4,7 @@
 
 #include "MobManager.h"
 
-glimmer::MobResource *glimmer::MobManager::AddResource(std::unique_ptr<MobResource> mobResource) {
+glimmer::MobResource *glimmer::MobManager::Register(std::unique_ptr<MobResource> mobResource) {
     auto &slot =
             mobMap_[mobResource->packId][mobResource->resourceId];
     slot = std::move(mobResource);
@@ -48,16 +48,14 @@ std::vector<std::string> glimmer::MobManager::GetMobList() const {
 }
 
 std::string glimmer::MobManager::ListMobs() const {
-    std::string result;
+    std::ostringstream oss;
     for (const auto &packPair: mobMap_) {
         const auto &packId = packPair.first;
         const auto &keyMap = packPair.second;
-
         for (const auto &keyPair: keyMap) {
             const auto &key = keyPair.first;
-            result += Resource::GenerateId(packId, key);
-            result += "\n";
+            oss << Resource::GenerateId(packId, key) << "\n";
         }
     }
-    return result;
+    return oss.str();
 }

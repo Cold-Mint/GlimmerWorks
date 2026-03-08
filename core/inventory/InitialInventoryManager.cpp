@@ -18,10 +18,12 @@ GetAllInitialInventory() const {
 
 
 std::string glimmer::InitialInventoryManager::ListInitialInventory() const {
-    std::string result;
+    std::ostringstream oss;
     for (const auto &value: initialInventory_) {
-        result += Resource::GenerateId(value->packId, value->resourceId);
-        result += "\n";
+        if (!value) {
+            continue;
+        }
+        oss << Resource::GenerateId(value->packId, value->resourceId) << "\n";
     }
-    return result;
+    return oss.str();
 }

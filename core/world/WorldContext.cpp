@@ -209,18 +209,6 @@ void glimmer::WorldContext::InitPlayer(MobResource *playerResource) {
         AddComponent<DiggingComponent>(playerEntity);
     }
     SetDiggingComponent(GetComponent<DiggingComponent>(playerEntity));
-    // if (!HasComponent<RigidBody2DComponent>(playerEntity)) {
-    //     const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(playerEntity);
-    //     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
-    //     rigidBody2DComponent->SetEnableSleep(false);
-    //     rigidBody2DComponent->SetFixedRotation(true);
-    //     rigidBody2DComponent->SetWidth(1.25F * TILE_SIZE);
-    //     rigidBody2DComponent->SetHeight(2.6F * TILE_SIZE);
-
-    //     rigidBody2DComponent->CreateBody(GetWorldId(),
-    //                                      Box2DUtils::ToMeters(
-    //                                          GetComponent<Transform2DComponent>(playerEntity)->GetPosition()));
-    // }
     if (!HasComponent<MagnetComponent>(playerEntity)) {
         auto *magnetComponent = AddComponent<MagnetComponent>(playerEntity);
         magnetComponent->SetType(MAGNETIC_TYPE_ITEM);
@@ -498,7 +486,7 @@ void glimmer::WorldContext::Render(SDL_Renderer *renderer) const {
         SDL_GetRenderDrawColor(renderer, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
         if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
             b) {
-            LogCat::e("The color of the renderer has been changed by the game system.", system->GetName());
+            LogCat::e("The color of the renderer has been changed by the game system.", system->GetName()," invoke AppContext::RestoreColorRenderer(renderer);");
             assert(false);
         }
 #endif
@@ -633,12 +621,15 @@ glimmer::GameEntity::ID glimmer::WorldContext::CreateMob(const WorldVector2D vec
     rigidBody2DComponent->SetAllowBodySleep(mobResource->allowBodySleep);
     rigidBody2DComponent->SetCategoryBits(mobResource->categoryBits);
     rigidBody2DComponent->SetMaskBits(mobResource->maskBits);
-    rigidBody2DComponent->SetHeight(TILE_SIZE * mobResource->height);
-    rigidBody2DComponent->SetWidth(TILE_SIZE * mobResource->width);
+    rigidBody2DComponent->SetDensity(mobResource->density);
     rigidBody2DComponent->SetFriction(mobResource->friction);
     rigidBody2DComponent->SetFixedRotation(mobResource->fixedRotation);
-    rigidBody2DComponent->CreateBody(worldId_,
+    rigidBody2DComponent->SetShapeRef(mobResource->shape);
+    rigidBody2DComponent->CreateBody(GetAppContext()->GetResourceLocator(), worldId_,
                                      vector2d);
+    const auto spiritRendererComponent = AddComponent<SpiritRendererComponent>(entity);
+    spiritRendererComponent->SetTextureRef(mobResource->texture);
+    spiritRendererComponent->SetPosition({TILE_SIZE * mobResource->offsetX, TILE_SIZE * mobResource->offsetY});
     return entity;
 }
 
@@ -705,9 +696,13 @@ glimmer::WorldContext::CreateDroppedItemEntity(std::unique_ptr<Item> item, const
     rigidBody2DComponent->SetCategoryBits(BOX2D_CATEGORY_ITEM);
     rigidBody2DComponent->SetMaskBits(BOX2D_CATEGORY_TILE);
     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
-    rigidBody2DComponent->SetWidth(DROPPED_ITEM_SIZE);
-    rigidBody2DComponent->SetHeight(DROPPED_ITEM_SIZE);
-    rigidBody2DComponent->CreateBody(GetWorldId(),
+    rigidBody2DComponent->SetDensity(0.005F);
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceKey(SHAPE_ID_DROPPED_ITEM);
+    resourceRef.SetResourceType(RESOURCE_TYPE_SHAPE);
+    rigidBody2DComponent->SetShapeRef(resourceRef);
+    rigidBody2DComponent->CreateBody(GetAppContext()->GetResourceLocator(), GetWorldId(),
                                      transform2dComponent->GetPosition());
     auto *magnetic = AddComponent<MagneticComponent>(droppedEntity);
     magnetic->SetType(MAGNETIC_TYPE_ITEM);

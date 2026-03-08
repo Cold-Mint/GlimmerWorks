@@ -69,6 +69,7 @@ static constexpr uint32_t RESOURCE_TYPE_TEXTURES = 7;
 static constexpr uint32_t RESOURCE_TYPE_BIOME = 8;
 static constexpr uint32_t RESOURCE_TYPE_COLOR = 9;
 static constexpr uint32_t RESOURCE_TYPE_MOB = 10;
+static constexpr uint32_t RESOURCE_TYPE_SHAPE = 11;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;
@@ -95,6 +96,9 @@ static constexpr std::string DATA_FILE_TYPE_INITIAL_INVENTORY = "startinv";
 static constexpr std::string DATA_FILE_TYPE_CONTRIBUTOR = "contributor";
 static constexpr std::string DATA_FILE_TYPE_COLOR = "color";
 static constexpr std::string DATA_FILE_TYPE_MOB = "mob";
+static constexpr std::string DATA_FILE_TYPE_SHAPE_RECTANGLE = "rect";
+static constexpr std::string DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE = "round_rect";
+static constexpr std::string DATA_FILE_TYPE_SHAPE_CIRCLE = "circle";
 
 constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
@@ -276,5 +280,6 @@ static constexpr std::string TILE_ID_AIR = "air";
 static constexpr std::string TILE_ID_WATER = "water";
 static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
+static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 
 #endif //CONSTANTS_H

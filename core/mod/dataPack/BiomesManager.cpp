@@ -69,17 +69,14 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
 }
 
 std::string glimmer::BiomesManager::ListBiomes() const {
-    std::string result;
+    std::ostringstream oss;
     for (const auto &packPair: biomeMap_) {
         const auto &packId = packPair.first;
         const auto &keyMap = packPair.second;
-
         for (const auto &keyPair: keyMap) {
             const auto &key = keyPair.first;
-            result += Resource::GenerateId(packId, key);
-            result += '\n';
+            oss << Resource::GenerateId(packId, key) << '\n';
         }
     }
-
-    return result;
+    return oss.str();
 }

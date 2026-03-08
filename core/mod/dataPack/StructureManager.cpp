@@ -48,10 +48,12 @@ std::vector<std::string> glimmer::StructureManager::GetStructureIDList() const {
 }
 
 std::string glimmer::StructureManager::ListStructures() const {
-    std::string result;
-    for (auto structureVector: structureVector_) {
-        result += Resource::GenerateId(structureVector->packId, structureVector->resourceId);
-        result += "\n";
+    std::ostringstream oss;
+    for (const auto &structurePtr: structureVector_) {
+        if (!structurePtr) {
+            continue;
+        }
+        oss << Resource::GenerateId(structurePtr->packId, structurePtr->resourceId) << "\n";
     }
-    return result;
+    return oss.str();
 }

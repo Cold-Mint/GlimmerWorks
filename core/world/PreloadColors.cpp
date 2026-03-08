@@ -223,13 +223,28 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     positiveAttrColor.g = 184;
     positiveAttrColor.b = 91;
     positiveAttrColor.a = 255;
-    game.positiveAttributeColor = LoadColor(resourceLocator, "game/positive_attribute", &positiveAttrColor)->ToSDLColor();
+    game.positiveAttributeColor = LoadColor(resourceLocator, "game/positive_attribute", &positiveAttrColor)->
+            ToSDLColor();
     ColorResource negativeAttrColor;
     negativeAttrColor.r = 190;
     negativeAttrColor.g = 45;
     negativeAttrColor.b = 45;
     negativeAttrColor.a = 255;
-    game.negativeAttributeColor = LoadColor(resourceLocator, "game/negative_attribute", &negativeAttrColor)->ToSDLColor();
+    game.negativeAttributeColor = LoadColor(resourceLocator, "game/negative_attribute", &negativeAttrColor)->
+            ToSDLColor();
+    ColorResource box2dBorderColorRes;
+    box2dBorderColorRes.r = 0;
+    box2dBorderColorRes.g = 0;
+    box2dBorderColorRes.b = 255;
+    box2dBorderColorRes.a = 255;
+    debugColor.box2dBorderColor = LoadColor(resourceLocator, "debug/box2d_border_color", &box2dBorderColorRes)->
+            ToSDLColor();
+    ColorResource box2dFullColorRes;
+    box2dFullColorRes.r = 100;
+    box2dFullColorRes.g = 149;
+    box2dFullColorRes.b = 237;
+    box2dFullColorRes.a = 128;
+    debugColor.box2dFullColor = LoadColor(resourceLocator, "debug/box2d_full_color", &box2dFullColorRes)->ToSDLColor();
 }
 
 glimmer::ColorResource *glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator,

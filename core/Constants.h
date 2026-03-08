@@ -282,4 +282,9 @@ static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
 static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 
+constexpr float PLAYER_MOVE_SPEED_OPTIMIZED = 5.0F;
+constexpr float PLAYER_JUMP_FORCE = 7.5F;
+constexpr float AIR_CONTROL_FACTOR = 0.5F; // 空中移动衰减
+constexpr float GRAVITY_SCALE = 1.8F;      // 重力缩放（优化下落手感）
+
 #endif //CONSTANTS_H

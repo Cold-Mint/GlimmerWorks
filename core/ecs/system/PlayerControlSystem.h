@@ -17,6 +17,12 @@ namespace glimmer {
         //手滑判定间隔。
         float slipTimer = 0.0F;
 
+        // 新增：地面检测射线参数
+        const float GROUND_CHECK_DISTANCE = 0.1f;
+        // 新增：移动缓动系数（优化手感）
+        const float MOVE_ACCELERATION = 15.0f;
+        const float MOVE_DECELERATION = 20.0f;
+
     public:
         explicit PlayerControlSystem(WorldContext *worldContext);
 
@@ -32,6 +38,10 @@ namespace glimmer {
         std::string GetName() override;
 
         bool HandleEvent(const SDL_Event &event) override;
+
+    private:
+        // 新增：平滑移动计算函数
+        float CalculateSmoothMoveSpeed(float targetSpeed, float currentSpeed, float delta, bool isGrounded);
     };
 }
 

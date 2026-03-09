@@ -5,6 +5,7 @@
 #ifndef GLIMMERWORKS_PLAYERCONTROLSYSTEM_H
 #define GLIMMERWORKS_PLAYERCONTROLSYSTEM_H
 #include "../GameSystem.h"
+#include "core/ecs/component/PlayerControlComponent.h"
 
 namespace glimmer {
     class RigidBody2DComponent;
@@ -33,7 +34,7 @@ namespace glimmer {
          * 检查玩家是否在地面上
          * @return If the player is on the ground, return true; otherwise, return false 如果玩家在地面上则返回true，否则返回false
          */
-        bool onGround(const RigidBody2DComponent *rigid) const;
+        bool OnGround(const PlayerControlComponent* playerControlComponent) const;
 
         std::string GetName() override;
 

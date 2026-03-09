@@ -4,7 +4,10 @@
 
 #ifndef GLIMMERWORKS_PLAYERCONTROLCOMPONENT_H
 #define GLIMMERWORKS_PLAYERCONTROLCOMPONENT_H
+#include <vector>
+
 #include "../GameComponent.h"
+#include "core/ecs/GameEntity.h"
 
 namespace glimmer {
     /**
@@ -18,6 +21,9 @@ namespace glimmer {
         bool mouseLeftDown = false;
         float dropTimer = 0.0F;
         bool dropPressed = false;
+        //The list of entities used for radiographic testing.
+        //用于射线检测的实体列表。
+        std::vector<GameEntity::ID> rayCast2DList;
 
         [[nodiscard]] uint32_t GetId() override;
     };

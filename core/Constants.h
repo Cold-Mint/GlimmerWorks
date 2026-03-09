@@ -230,7 +230,7 @@ static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 2;
 static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 3;
 static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 4;
 static constexpr uint8_t RENDER_ORDER_DEBUG_CHUNK = 5;
-static constexpr uint8_t RENDER_ORDER_DEBUG_BOX2D = 6;
+static constexpr uint8_t RENDER_ORDER_DEBUG_BOX2D = 99;
 static constexpr uint8_t RENDER_ORDER_DEBUG_HOTBAR = 7;
 static constexpr uint8_t RENDER_ORDER_ITEM_EDITOR = 8;
 static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 9;
@@ -274,6 +274,7 @@ static constexpr uint32_t COMPONENT_ID_AREA_MARKER = 17;
 static constexpr uint32_t COMPONENT_ID_SPIRIT_RENDERER = 18;
 static constexpr uint32_t COMPONENT_ID_ITEM_EDITOR = 19;
 static constexpr uint32_t COMPONENT_ID_MOB_FRAME_WORK = 20;
+static constexpr uint32_t COMPONENT_ID_RAY_CAST_2D = 21;
 
 
 static constexpr std::string TILE_ID_AIR = "air";

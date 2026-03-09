@@ -39,9 +39,11 @@
 #include "core/ecs/component/MagnetComponent.h"
 #include "core/ecs/component/MagneticComponent.h"
 #include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/component/RayCast2DComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/ItemEditorSystem.h"
+#include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
@@ -198,7 +200,15 @@ void glimmer::WorldContext::InitPlayer(MobResource *playerResource) {
     // }
     SetPersistable(playerEntity, true);
     if (!HasComponent<PlayerControlComponent>(playerEntity)) {
-        AddComponent<PlayerControlComponent>(playerEntity);
+        auto playerControlComponent = AddComponent<PlayerControlComponent>(playerEntity);
+        GameEntity::ID entity = CreateEntity();
+        auto rayCast2DComponent = AddComponent<RayCast2DComponent>(entity);
+        rayCast2DComponent->origin = WorldVector2D{0, 0};
+        rayCast2DComponent->translation = WorldVector2D{0, -TILE_SIZE};
+        rayCast2DComponent->filter.categoryBits = BOX2D_CATEGORY_PLAYER;
+        rayCast2DComponent->filter.maskBits = BOX2D_CATEGORY_TILE;
+        rayCast2DComponent->transform2DEntity = playerEntity;
+        playerControlComponent->rayCast2DList.push_back(entity);
     }
     SetCameraPosition(GetComponent<Transform2DComponent>(playerEntity));
     if (!HasComponent<CameraComponent>(playerEntity)) {
@@ -470,10 +480,10 @@ void glimmer::WorldContext::Render(SDL_Renderer *renderer) const {
 
     //Sort by rendering order (lower layers at the bottom, upper layers at the top)
     //按渲染顺序排序（低层在底，高层在上）
-    std::ranges::sort(systemsToRender,
-                      [](GameSystem *a, GameSystem *b) {
-                          return a->GetRenderOrder() < b->GetRenderOrder();
-                      });
+    std::ranges::stable_sort(systemsToRender,
+                             [](GameSystem *a, GameSystem *b) {
+                                 return a->GetRenderOrder() < b->GetRenderOrder();
+                             });
 
     for (GameSystem *system: systemsToRender) {
 #if  defined(NDEBUG)
@@ -486,7 +496,8 @@ void glimmer::WorldContext::Render(SDL_Renderer *renderer) const {
         SDL_GetRenderDrawColor(renderer, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
         if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
             b) {
-            LogCat::e("The color of the renderer has been changed by the game system.", system->GetName()," invoke AppContext::RestoreColorRenderer(renderer);");
+            LogCat::e("The color of the renderer has been changed by the game system.", system->GetName(),
+                      " invoke AppContext::RestoreColorRenderer(renderer);");
             assert(false);
         }
 #endif
@@ -563,6 +574,7 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));
     RegisterSystem(std::make_unique<DebugPanelSystem>(this));
+    RegisterSystem(std::make_unique<RayCast2DSystem>(this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(this));
 #endif
@@ -619,8 +631,7 @@ glimmer::GameEntity::ID glimmer::WorldContext::CreateMob(const WorldVector2D vec
     const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(entity);
     rigidBody2DComponent->SetBodyType(static_cast<b2BodyType>(mobResource->bodyType));
     rigidBody2DComponent->SetAllowBodySleep(mobResource->allowBodySleep);
-    rigidBody2DComponent->SetCategoryBits(mobResource->categoryBits);
-    rigidBody2DComponent->SetMaskBits(mobResource->maskBits);
+    rigidBody2DComponent->SetFilter(mobResource->box2dFilter);
     rigidBody2DComponent->SetDensity(mobResource->density);
     rigidBody2DComponent->SetFriction(mobResource->friction);
     rigidBody2DComponent->SetFixedRotation(mobResource->fixedRotation);
@@ -693,8 +704,7 @@ glimmer::WorldContext::CreateDroppedItemEntity(std::unique_ptr<Item> item, const
     droppedItemComponent->SetPickupCooldown(pickupCooldown);
     const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(
         droppedEntity);
-    rigidBody2DComponent->SetCategoryBits(BOX2D_CATEGORY_ITEM);
-    rigidBody2DComponent->SetMaskBits(BOX2D_CATEGORY_TILE);
+    rigidBody2DComponent->SetFilter({BOX2D_CATEGORY_ITEM, BOX2D_CATEGORY_TILE});
     rigidBody2DComponent->SetBodyType(b2_dynamicBody);
     rigidBody2DComponent->SetDensity(0.005F);
     ResourceRef resourceRef;

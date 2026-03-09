@@ -6,6 +6,8 @@
 #define GLIMMERWORKS_RIGIDBODY2DCOMPONENT_H
 #include "../GameComponent.h"
 #include "box2d/types.h"
+#include "core/Box2dFilter.h"
+#include "core/ecs/GameEntity.h"
 #include "core/math/Vector2D.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
@@ -13,8 +15,7 @@
 namespace glimmer {
     class RigidBody2DComponent : public GameComponent {
         b2BodyId bodyId_ = b2_nullBodyId;
-        uint64_t categoryBits_ = 0;
-        uint64_t maskBits_ = 0;
+        Box2dFilter filter_;
         bool ready_ = false;
         b2BodyType bodyType_ = b2_staticBody;
         bool allowBodySleep_ = true;
@@ -27,15 +28,16 @@ namespace glimmer {
         float density_ = 0.01F;
         ResourceRef shapeRef_;
 
+
     public:
         ~RigidBody2DComponent() override;
 
-        /**
-         * SetCategoryBits
-         * 设置自身碰撞
-         * @param categoryBits
-         */
-        void SetCategoryBits(uint64_t categoryBits);
+
+        void SetTransform2DEntity(GameEntity::ID entity);
+
+        [[nodiscard]] GameEntity::ID GetTransform2DEntity() const;
+
+        void SetFilter(Box2dFilter filter);
 
         void SetShapeRef(const ResourceRef &shapeRef);
 
@@ -44,13 +46,6 @@ namespace glimmer {
         void Disable();
 
         [[nodiscard]] bool IsEnabled() const;
-
-        /**
-         * SetMaskBits
-         * 设置能够碰撞谁
-         * @param maskBits
-         */
-        void SetMaskBits(uint64_t maskBits);
 
         void SetDensity(float density);
 

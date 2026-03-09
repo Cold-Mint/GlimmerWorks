@@ -355,6 +355,9 @@ target_sources(GlimmerWorks
         core/ecs/component/SpiritRendererComponent.cpp
         core/shape/ShapeType.cpp
         core/shape/ShapeManager.cpp
+        core/Box2dFilter.cpp
+        core/ecs/component/RayCast2DComponent.cpp
+        core/ecs/system/RayCast2DSystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -529,6 +532,9 @@ target_sources(GlimmerWorks
         core/ecs/system/SpiritRendererSystem.h
         core/shape/ShapeType.h
         core/shape/ShapeManager.h
+        core/ecs/component/RayCast2DComponent.h
+        core/ecs/system/RayCast2DSystem.h
+        core/Box2dFilter.h
 )
 
 #Define version information

@@ -10,6 +10,7 @@
 #include "../component/CameraComponent.h"
 #include "../component/Transform2DComponent.h"
 #include "box2d/box2d.h"
+#include "core/ecs/component/RayCast2DComponent.h"
 
 bool glimmer::DebugDrawBox2dSystem::ShouldActivate() {
     return worldContext_->GetAppContext()->GetConfig()->debug.displayBox2dShape;
@@ -566,6 +567,36 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
     debugDraw.context = &box2dSystemContext;
     debugDraw.drawShapes = true;
     b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
+    CameraComponent *cameraComponent = worldContext_->GetCameraComponent();
+    Transform2DComponent *cameraTransform2DComponent = worldContext_->GetCameraTransform2D();
+    const std::vector<GameEntity::ID> rayCast2dEntity =
+            worldContext_->GetEntityIDWithComponents<RayCast2DComponent>();
+    for (const GameEntity::ID entity: rayCast2dEntity) {
+        const auto rayComp =
+                worldContext_->GetComponent<RayCast2DComponent>(entity);
+        if (rayComp == nullptr) {
+            continue;
+        }
+        const auto transform2dComponent =
+                worldContext_->GetComponent<Transform2DComponent>(rayComp->transform2DEntity);
+        if (transform2dComponent == nullptr || !rayComp->enableContinuous) {
+            continue;
+        }
+        if (rayComp->hit) {
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0,
+                                   255);
+        } else {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255,
+                                   255);
+        }
+        WorldVector2D startPosition = transform2dComponent->GetPosition() + rayComp->
+                                      origin;
+        const CameraVector2D origin = cameraComponent->GetViewPortPosition(cameraTransform2DComponent->GetPosition(),
+                                                                           startPosition);
+        const CameraVector2D end = cameraComponent->GetViewPortPosition(cameraTransform2DComponent->GetPosition(),
+                                                                        startPosition + rayComp->translation);
+        SDL_RenderLine(renderer, origin.x, origin.y, end.x, end.y);
+    }
     AppContext::RestoreColorRenderer(renderer);
 }
 

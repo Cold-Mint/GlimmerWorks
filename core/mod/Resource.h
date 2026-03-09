@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "ResourceRef.h"
-#include "box2d/types.h"
+#include "core/Box2dFilter.h"
 #include "core/lootTable/LootEntry.h"
 #include "SDL3/SDL_pixels.h"
 
@@ -123,10 +123,8 @@ namespace glimmer {
         uint8_t bodyType;
         //@genNextLine(allowBodySleep|是否允许物理体休眠)
         bool allowBodySleep;
-        //@genNextLine(categoryBits|碰撞类别位)
-        uint64_t categoryBits;
-        //@genNextLine(maskBits|碰撞掩码位)
-        uint64_t maskBits;
+        //@genNextLine(box2dFilter|物理层过滤)
+        Box2dFilter box2dFilter;
         //@genNextLine(fixedRotation|是否固定旋转)
         bool fixedRotation;
         //@genNextLine(friction|摩擦力)

@@ -18,8 +18,8 @@ glimmer::RigidBody2DComponent::~RigidBody2DComponent() {
     }
 }
 
-void glimmer::RigidBody2DComponent::SetCategoryBits(const uint64_t categoryBits) {
-    categoryBits_ = categoryBits;
+void glimmer::RigidBody2DComponent::SetFilter(const Box2dFilter filter) {
+    filter_ = filter;
 }
 
 void glimmer::RigidBody2DComponent::SetShapeRef(const ResourceRef &shapeRef) {
@@ -36,10 +36,6 @@ bool glimmer::RigidBody2DComponent::IsEnabled() const {
 
 void glimmer::RigidBody2DComponent::Enable() {
     enabled_ = true;
-}
-
-void glimmer::RigidBody2DComponent::SetMaskBits(const uint64_t maskBits) {
-    maskBits_ = maskBits;
 }
 
 void glimmer::RigidBody2DComponent::SetDensity(const float density) {
@@ -74,8 +70,8 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
     bodyDef_.fixedRotation = fixedRotation_;
     bodyId_ = b2CreateBody(worldId, &bodyDef_);
     b2Filter filter{};
-    filter.categoryBits = categoryBits_;
-    filter.maskBits = maskBits_;
+    filter.categoryBits = filter_.categoryBits;
+    filter.maskBits = filter_.maskBits;
     b2ShapeDef shapeDef = b2DefaultShapeDef();
     shapeDef.filter = filter;
     shapeDef.density = density_;
@@ -181,8 +177,8 @@ bool glimmer::RigidBody2DComponent::IsSerializable() {
 
 std::string glimmer::RigidBody2DComponent::Serialize() {
     RigidBody2dMessage rigidBody2dMessage;
-    rigidBody2dMessage.set_categorybits(categoryBits_);
-    rigidBody2dMessage.set_maskbits(maskBits_);
+    rigidBody2dMessage.set_categorybits(filter_.categoryBits);
+    rigidBody2dMessage.set_maskbits(filter_.maskBits);
     switch (bodyType_) {
         case b2_dynamicBody:
             rigidBody2dMessage.set_type(DYNAMIC);
@@ -205,8 +201,8 @@ std::string glimmer::RigidBody2DComponent::Serialize() {
 void glimmer::RigidBody2DComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     RigidBody2dMessage rigidBody2dMessage;
     rigidBody2dMessage.ParseFromString(data);
-    categoryBits_ = rigidBody2dMessage.categorybits();
-    maskBits_ = rigidBody2dMessage.maskbits();
+    filter_.categoryBits = rigidBody2dMessage.categorybits();
+    filter_.maskBits = rigidBody2dMessage.maskbits();
     switch (rigidBody2dMessage.type()) {
         case DYNAMIC:
             bodyType_ = b2_dynamicBody;

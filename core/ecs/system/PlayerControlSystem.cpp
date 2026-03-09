@@ -16,6 +16,7 @@
 #include "core/ecs/component/HotBarComonent.h"
 #include "core/ecs/component/ItemContainerComonent.h"
 #include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/component/RayCast2DComponent.h"
 
 glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<PlayerControlComponent>();
@@ -33,7 +34,7 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
     }
 
     const b2BodyId bodyId = rigid->GetBodyId();
-    bool isGrounded = onGround(rigid);
+    bool isGrounded = OnGround(control);
     int shapeCount = b2Body_GetShapeCount(bodyId);
     b2ShapeId shapeIds[shapeCount];
     int shapeCountActual = b2Body_GetShapes(bodyId, shapeIds, shapeCount);
@@ -147,16 +148,25 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
     }
 }
 
-// ========== 核心修复：地面检测逻辑（原逻辑返回false导致跳不起来） ==========
-bool glimmer::PlayerControlSystem::onGround(const RigidBody2DComponent *rigid) const {
-    return true;
+bool glimmer::PlayerControlSystem::OnGround(const PlayerControlComponent *playerControlComponent) const {
+    if (playerControlComponent->rayCast2DList.empty()) {
+        return false;
+    }
+    for (uint32_t rayCast2dItem: playerControlComponent->rayCast2DList) {
+        auto rayCast2DComponent = worldContext_->GetComponent<RayCast2DComponent>(rayCast2dItem);
+        if (rayCast2DComponent == nullptr) {
+            continue;
+        }
+        if (rayCast2DComponent->hit) {
+            return true;
+        }
+    }
+    return false;
 }
 
-
-
-
 // ========== 新增：平滑移动计算（核心手感优化） ==========
-float glimmer::PlayerControlSystem::CalculateSmoothMoveSpeed(float targetSpeed, float currentSpeed, float delta, bool isGrounded) {
+float glimmer::PlayerControlSystem::CalculateSmoothMoveSpeed(float targetSpeed, float currentSpeed, float delta,
+                                                             bool isGrounded) {
     float acceleration = isGrounded ? MOVE_ACCELERATION : MOVE_ACCELERATION * AIR_CONTROL_FACTOR;
     float deceleration = isGrounded ? MOVE_DECELERATION : MOVE_DECELERATION * AIR_CONTROL_FACTOR;
 
@@ -196,7 +206,6 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
             current = (current + 1) % hotBarComponent->GetMaxSlot();
         }
         hotBarComponent->SetSelectedSlot(current);
-        return true;
     }
     if (event.type == SDL_EVENT_MOUSE_MOTION && camera && cameraTransform) {
         WorldVector2D worldPos = camera->GetWorldPosition(
@@ -210,7 +219,6 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                 layer->SetFocusPosition(TileLayerComponent::WorldToTile(worldPos));
             }
         }
-        return true;
     }
 
     // 鼠标左键（保留原有，修复重置逻辑）
@@ -222,7 +230,6 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                 slipTimer = 0.0F; // 重置手滑计时器
             }
         }
-        return true;
     }
     if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT) {
         const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
@@ -231,7 +238,6 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                 control->mouseLeftDown = false;
             }
         }
-        return true;
     }
 
     // 键盘输入（修复：移除return，防止按键覆盖）
@@ -264,7 +270,6 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                     break;
             }
         }
-        return true;
     }
     return false;
 }

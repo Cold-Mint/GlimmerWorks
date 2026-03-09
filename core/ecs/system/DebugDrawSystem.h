@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_DEBUGDRAWSYSTEM_H
 #define GLIMMERWORKS_DEBUGDRAWSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/Transform2DComponent.h"
 
 
 namespace glimmer {

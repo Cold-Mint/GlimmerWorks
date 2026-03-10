@@ -21,8 +21,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air_->packId = RESOURCE_REF_CORE;
     air_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     air_->layerType = static_cast<uint8_t>(TileLayerType::Main);
-    air_->breakable = false;
-    air_->hardness = 0;
+    air_->hardness = -1.0F;
     water_ = std::make_unique<TileResource>();
     ResourceRef waterResource;
     waterResource.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -33,8 +32,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     water_->packId = RESOURCE_REF_CORE;
     water_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     water_->layerType = static_cast<uint8_t>(TileLayerType::Main);
-    water_->breakable = false;
-    water_->hardness = 0;
+    water_->hardness = -1.0F;
     bedrock_ = std::make_unique<TileResource>();
     ResourceRef bedrockResource;
     bedrockResource.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -45,8 +43,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     bedrock_->packId = RESOURCE_REF_CORE;
     bedrock_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
     bedrock_->layerType = static_cast<uint8_t>(TileLayerType::Main);
-    bedrock_->breakable = false;
-    bedrock_->hardness = 0;
+    bedrock_->hardness = -1.0F;
     error_ = std::make_unique<TileResource>();
     ResourceRef errorResource;
     errorResource.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -57,7 +54,6 @@ void glimmer::TileManager::InitBuiltinTiles() {
     error_->packId = RESOURCE_REF_CORE;
     error_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
     error_->layerType = static_cast<uint8_t>(TileLayerType::Main);
-    error_->breakable = true;
     error_->hardness = 0.1F;
 }
 
@@ -97,7 +93,6 @@ std::unique_ptr<glimmer::TileResource> glimmer::TileManager::GenerateErrorPlaceH
     errorPlaceholder->packId = packId;
     errorPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
     errorPlaceholder->layerType = static_cast<uint8_t>(TileLayerType::Main);
-    errorPlaceholder->breakable = true;
     errorPlaceholder->hardness = 0.1F;
     errorPlaceholder->missing = true;
     return errorPlaceholder;

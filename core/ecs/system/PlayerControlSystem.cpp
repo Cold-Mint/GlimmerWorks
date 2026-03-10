@@ -15,17 +15,17 @@
 #include "../../Constants.h"
 #include "core/ecs/component/HotBarComonent.h"
 #include "core/ecs/component/ItemContainerComonent.h"
-#include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/RayCast2DComponent.h"
 
 glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<PlayerControlComponent>();
+    RequireComponent<PlayerComponent>();
     RequireComponent<Transform2DComponent>();
 }
 
 void glimmer::PlayerControlSystem::Update(const float delta) {
     auto player = worldContext_->GetPlayerEntity();
-    const auto control = worldContext_->GetComponent<PlayerControlComponent>(player);
+    const auto control = worldContext_->GetComponent<PlayerComponent>(player);
     const auto rigid = worldContext_->GetComponent<RigidBody2DComponent>(player);
 
     if (control == nullptr || rigid == nullptr || !rigid->IsReady()) {
@@ -148,11 +148,11 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
     }
 }
 
-bool glimmer::PlayerControlSystem::OnGround(const PlayerControlComponent *playerControlComponent) const {
-    if (playerControlComponent->rayCast2DList.empty()) {
+bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent *playerControlComponent) const {
+    if (playerControlComponent->groundCheckRayEntityIds.empty()) {
         return false;
     }
-    for (uint32_t rayCast2dItem: playerControlComponent->rayCast2DList) {
+    for (uint32_t rayCast2dItem: playerControlComponent->groundCheckRayEntityIds) {
         auto rayCast2DComponent = worldContext_->GetComponent<RayCast2DComponent>(rayCast2dItem);
         if (rayCast2DComponent == nullptr) {
             continue;
@@ -223,18 +223,18 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
 
     // 鼠标左键（保留原有，修复重置逻辑）
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
-        const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
+        const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
         for (auto &entity: entities) {
-            if (auto *control = worldContext_->GetComponent<PlayerControlComponent>(entity)) {
+            if (auto *control = worldContext_->GetComponent<PlayerComponent>(entity)) {
                 control->mouseLeftDown = true;
                 slipTimer = 0.0F; // 重置手滑计时器
             }
         }
     }
     if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT) {
-        const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
+        const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
         for (auto &entity: entities) {
-            if (auto *control = worldContext_->GetComponent<PlayerControlComponent>(entity)) {
+            if (auto *control = worldContext_->GetComponent<PlayerComponent>(entity)) {
                 control->mouseLeftDown = false;
             }
         }
@@ -243,9 +243,9 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
     // 键盘输入（修复：移除return，防止按键覆盖）
     if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
         bool pressed = event.type == SDL_EVENT_KEY_DOWN;
-        const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
+        const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
         for (auto &entity: entities) {
-            auto control = worldContext_->GetComponent<PlayerControlComponent>(entity);
+            auto control = worldContext_->GetComponent<PlayerComponent>(entity);
             if (control == nullptr) continue;
 
             switch (event.key.key) {

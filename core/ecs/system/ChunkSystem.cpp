@@ -7,7 +7,7 @@
 #include "../../Constants.h"
 #include "../../world/WorldContext.h"
 #include "../component/Transform2DComponent.h"
-#include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/world/generator/Chunk.h"
 
@@ -16,7 +16,7 @@ glimmer::ChunkSystem::ChunkSystem(WorldContext *worldContext)
     : GameSystem(worldContext) {
     RequireComponent<TileLayerComponent>();
     RequireComponent<CameraComponent>();
-    RequireComponent<PlayerControlComponent>();
+    RequireComponent<PlayerComponent>();
 }
 
 void glimmer::ChunkSystem::Update(float delta) {

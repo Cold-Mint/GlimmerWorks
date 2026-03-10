@@ -7,12 +7,12 @@
 #include "../../world/WorldContext.h"
 #include "../component/ItemSlotComponent.h"
 #include "core/ecs/component/GuiTransform2DComponent.h"
-#include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/component/PlayerComponent.h"
 
 
 glimmer::HotBarSystem::HotBarSystem(WorldContext *worldContext)
     : GameSystem(worldContext) {
-    RequireComponent<PlayerControlComponent>();
+    RequireComponent<PlayerComponent>();
     RequireComponent<ItemContainerComponent>();
     RequireComponent<HotBarComponent>();
     RequireComponent<GuiTransform2DComponent>();

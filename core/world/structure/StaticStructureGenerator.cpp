@@ -8,7 +8,7 @@ glimmer::StructureInfo glimmer::StaticStructureGenerator::Generate(TileVector2D 
                                                                    StructureResource *structureResource) {
     auto structureInfo = StructureInfo();
     for (auto &tile_info: structureResource->tileInfo) {
-        structureInfo.SetTile({tile_info.x, tile_info.y}, tile_info.tile);
+        structureInfo.SetTile({tile_info.position.x, tile_info.position.y}, tile_info.tile);
     }
     return structureInfo;
 }

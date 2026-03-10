@@ -19,7 +19,7 @@ namespace glimmer {
     struct RayCast2DComponent : GameComponent {
         WorldVector2D origin;
         WorldVector2D translation;
-        Box2dFilter filter;
+        b2QueryFilter filter;
         bool hit = false;
         WorldVector2D hitPoint;
         WorldVector2D hitNormal;

@@ -95,8 +95,8 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
         b2Circle circle;
         circle.radius = circularShapeResource->radius;
         circle.center = {
-            Box2DUtils::ToMeters(circularShapeResource->centerX * TILE_SIZE),
-            Box2DUtils::ToMeters(circularShapeResource->centerY * TILE_SIZE)
+            Box2DUtils::ToMeters(circularShapeResource->center.x * TILE_SIZE),
+            Box2DUtils::ToMeters(circularShapeResource->center.y * TILE_SIZE)
         };
         b2CreateCircleShape(bodyId_, &shapeDef, &circle);
     }

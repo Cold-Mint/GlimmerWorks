@@ -44,6 +44,26 @@ namespace glimmer {
     };
 
     /**
+     * Vector2DResource
+     * 向量资源
+     */
+    //@genNextLine(Vector2DIResource|向量整数资源)
+    struct Vector2DIResource {
+        //@genNextLine(x|x)
+        int x = 0;
+        //@genNextLine(y|y)
+        int y = 0;
+    };
+
+    //@genNextLine(Vector2DResource|向量资源)
+    struct Vector2DResource {
+        //@genNextLine(x|x)
+        float x = 0.0F;
+        //@genNextLine(y|y)
+        float y = 0.0F;
+    };
+
+    /**
      * StringResource
      * 字符串资源
      */
@@ -84,10 +104,8 @@ namespace glimmer {
      */
     //@genNextLine(CircularShapeResource|圆形资源)
     struct CircularShapeResource : ShapeResource {
-        //@genNextLine(centerX|中心X)
-        float centerX = 0.0F;
-        //@genNextLine(centerY|中心Y)
-        float centerY = 0.0F;
+        //@genNextLine(center|中心)
+        Vector2DResource center;
         //@genNextLine(radius|半径)
         float radius = 1.0F;
     };
@@ -106,6 +124,20 @@ namespace glimmer {
         float radius = 0.0F;
     };
 
+
+    /**
+     * RayCastResource
+     * 射线资源
+     */
+    //@genNextLine(RayCastResource|射线资源类)
+    struct RayCastResource {
+        //@genNextLine(origin|原点)
+        Vector2DResource origin;
+        //@genNextLine(translation|位移)
+        Vector2DResource translation;
+        //@genNextLine(filter|物理过滤)
+        Box2dFilter filter;
+    };
 
     /**
      * Mob Resource
@@ -129,14 +161,14 @@ namespace glimmer {
         bool fixedRotation;
         //@genNextLine(friction|摩擦力)
         float friction = 0.0F;
-        //@genNextLine(offsetY|纹理y方向偏移)
-        float offsetY = 0;
-        //@genNextLine(offsetX|纹理x方向偏移)
-        float offsetX = 0;
+        //@genNextLine(textureOffset|纹理偏移)
+        Vector2DResource textureOffset;
         //@genNextLine(density|密度)
         float density = 0.001F;
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture = {};
+        //@genNextLine(groundCheckRayCast|地面检测射线)
+        std::vector<RayCastResource> groundCheckRayCast = {};
     };
 
     /**
@@ -241,10 +273,8 @@ namespace glimmer {
 
     //@genNextLine(TileInfo|瓦片信息)
     struct TileInfo {
-        //@genNextLine(x|瓦片X坐标)
-        int x;
-        //@genNextLine(y|瓦片Y坐标)
-        int y;
+        //@genNextLine(position|位置)
+        Vector2DIResource position;
         //@genNextLine(tile|瓦片资源引用)
         ResourceRef tile;
     };
@@ -321,10 +351,8 @@ namespace glimmer {
         ResourceRef lootTable = {};
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture;
-        //@genNextLine(hardness|硬度)
+        //@genNextLine(hardness If the hardness is less than 0, then it is indestructible.|硬度 如果硬度小于0那么不可破坏。)
         float hardness = 1.0F;
-        //@genNextLine(breakable|是否可破坏)
-        bool breakable = true;
         //@genNextLine(physicsType|物理类型)
         uint8_t physicsType = 0;
         //@genNextLine(layerType|层级类型)

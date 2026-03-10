@@ -33,7 +33,7 @@ void glimmer::RayCast2DSystem::Update(float delta) {
         const b2RayResult rayResult = b2World_CastRayClosest(
             worldContext_->GetWorldId(), Box2DUtils::ToMeters(transform2dComponent->GetPosition() + rayComp->origin),
             Box2DUtils::ToMeters(rayComp->translation),
-            rayComp->filter.Tob2QueryFilter()
+            rayComp->filter
         );
         if (rayResult.hit) {
             rayComp->hit = true;

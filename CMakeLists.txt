@@ -301,7 +301,7 @@ target_sources(GlimmerWorks
         core/ecs/system/PauseSystem.cpp
         core/ecs/component/PauseComponent.cpp
         core/utils/TimeUtils.cpp
-        core/ecs/component/PlayerControlComponent.cpp
+        core/ecs/component/PlayerComponent.cpp
         core/console/command/EcsCommand.cpp
         core/ecs/component/GuiTransform2DComponent.cpp
         core/ecs/component/ItemEditorComponent.cpp
@@ -358,6 +358,7 @@ target_sources(GlimmerWorks
         core/Box2dFilter.cpp
         core/ecs/component/RayCast2DComponent.cpp
         core/ecs/system/RayCast2DSystem.cpp
+        core/ecs/component/MobComponent.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -535,6 +536,7 @@ target_sources(GlimmerWorks
         core/ecs/component/RayCast2DComponent.h
         core/ecs/system/RayCast2DSystem.h
         core/Box2dFilter.h
+        core/ecs/component/MobComponent.h
 )
 
 #Define version information

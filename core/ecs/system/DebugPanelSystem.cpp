@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include "../../Constants.h"
-#include "../component/PlayerControlComponent.h"
+#include "../component/PlayerComponent.h"
 #include "../component/Transform2DComponent.h"
 #include "../component/TileLayerComponent.h"
 #include "../../world/WorldContext.h"
@@ -103,7 +103,7 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GameSy
 
 
 void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
-    const auto entities = worldContext_->GetEntityIDWithComponents<PlayerControlComponent>();
+    const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
     int windowW = 0;
     int windowH = 0;
     SDL_GetWindowSize(worldContext_->GetAppContext()->GetWindow(), &windowW, &windowH);
@@ -126,7 +126,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     for (auto &entity: entities) {
         constexpr float lineSpacing = 20.0F;
         SDL_Color color = {255, 255, 180, 255};
-        auto control = worldContext_->GetComponent<PlayerControlComponent>(entity);
+        auto control = worldContext_->GetComponent<PlayerComponent>(entity);
         auto position = worldContext_->GetComponent<Transform2DComponent>(entity);
         if (!control || !position) continue;
 

@@ -32,7 +32,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromResourceRef(const AppContext *
     tile->layerType = static_cast<TileLayerType>(tileResource->layerType);
     tile->physicsType = static_cast<TilePhysicsType>(tileResource->physicsType);
     tile->hardness = tileResource->hardness;
-    tile->breakable = tileResource->breakable;
+    tile->breakable = tileResource->hardness >= 0;
     tile->allowChainMining = tileResource->allowChainMining;
     tile->texture = appContext->GetResourceLocator()->FindTexture(
         tileResource->texture);

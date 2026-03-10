@@ -263,7 +263,7 @@ static constexpr uint32_t COMPONENT_ID_MAGNETIC = 10;
 static constexpr uint32_t COMPONENT_ID_PAUSE = 11;
 // Serialization is not supported.
 // 不支持序列化。
-static constexpr uint32_t COMPONENT_ID_PLAYER_CONTROL = 12;
+static constexpr uint32_t COMPONENT_ID_PLAYER = 12;
 static constexpr uint32_t COMPONENT_ID_RIGID_BODY_2D = 13;
 // Serialization is not supported.
 // 不支持序列化。
@@ -273,7 +273,7 @@ static constexpr uint32_t COMPONENT_ID_GUI_TRANSFORM_2D = 16;
 static constexpr uint32_t COMPONENT_ID_AREA_MARKER = 17;
 static constexpr uint32_t COMPONENT_ID_SPIRIT_RENDERER = 18;
 static constexpr uint32_t COMPONENT_ID_ITEM_EDITOR = 19;
-static constexpr uint32_t COMPONENT_ID_MOB_FRAME_WORK = 20;
+static constexpr uint32_t COMPONENT_ID_MOB = 20;
 static constexpr uint32_t COMPONENT_ID_RAY_CAST_2D = 21;
 
 

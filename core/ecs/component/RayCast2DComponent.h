@@ -16,23 +16,66 @@ namespace glimmer {
      * RayCast2D component
      * 射线组件
      */
-    struct RayCast2DComponent : GameComponent {
-        WorldVector2D origin;
-        WorldVector2D translation;
-        b2QueryFilter filter;
-        bool hit = false;
-        WorldVector2D hitPoint;
-        WorldVector2D hitNormal;
-        b2ShapeId hitShapeId;
-        GameEntity::ID hitEntity = GAME_ENTITY_ID_INVALID;
-        //Detect once for each frame
-        //每帧检测一次
-        bool enableContinuous = true;
-        GameEntity::ID transform2DEntity = GAME_ENTITY_ID_INVALID;
+    class RayCast2DComponent : public GameComponent {
+        WorldVector2D origin_;
+        WorldVector2D translation_;
+        b2QueryFilter filter_ = {};
+        bool hit_ = false;
+        //hitPoint
+        //碰撞点
+        WorldVector2D hitPoint_;
+        //hitNormal
+        //碰撞法线
+        WorldVector2D hitNormal_;
+        //Collision Shape ID
+        //碰撞形状ID
+        b2ShapeId hitShapeId_ = b2_nullShapeId;
+        //Continuous detection mode
+        //连续检测模式
+        bool enableContinuous_ = true;
+
+        GameEntity::ID transform2DEntity_ = GAME_ENTITY_ID_INVALID;
+
+    public:
+        [[nodiscard]] const WorldVector2D &GetOrigin() const;
+
+        [[nodiscard]] const WorldVector2D &GetTranslation() const;
+
+        void SetTransform2DEntity(GameEntity::ID id);
+
+        [[nodiscard]] GameEntity::ID GetTransform2DEntity() const;
+
+        void SetTransform2D(const WorldVector2D &transform2D);
+
+        void SetOrigin(const WorldVector2D &origin);
+
+        [[nodiscard]] const b2QueryFilter &GetFilter() const;
+
+        void SetFilter(const b2QueryFilter &filter);
+
+        [[nodiscard]] bool IsContinuous() const;
+
+        void SetContinuous(bool enableContinuous);
+
+        void SetTransform(const WorldVector2D &transform);
+
+        [[nodiscard]] const WorldVector2D &GetHitPoint() const;
+
+        void SetHitPoint(const WorldVector2D &hitPoint);
+
+        [[nodiscard]] const b2ShapeId &GetHitShape() const;
+
+        void SetHitShape(const b2ShapeId &hitShapeId);
+
+        [[nodiscard]] const WorldVector2D &GetHitNormal() const;
+
+        void SetHitNormal(const WorldVector2D &hitNormal);
+
+        [[nodiscard]] bool IsHit() const;
+
+        void SetHit(bool hit);
 
         [[nodiscard]] uint32_t GetId() override;
-
-
     };
 }
 

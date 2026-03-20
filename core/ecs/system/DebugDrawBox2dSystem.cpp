@@ -578,11 +578,11 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
             continue;
         }
         const auto transform2dComponent =
-                worldContext_->GetComponent<Transform2DComponent>(rayComp->transform2DEntity);
-        if (transform2dComponent == nullptr || !rayComp->enableContinuous) {
+                worldContext_->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
+        if (transform2dComponent == nullptr || !rayComp->IsContinuous()) {
             continue;
         }
-        if (rayComp->hit) {
+        if (rayComp->IsHit()) {
             SDL_SetRenderDrawColor(renderer, 255, 0, 0,
                                    255);
         } else {
@@ -590,11 +590,11 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
                                    255);
         }
         WorldVector2D startPosition = transform2dComponent->GetPosition() + rayComp->
-                                      origin;
+                                      GetOrigin();
         const CameraVector2D origin = cameraComponent->GetViewPortPosition(cameraTransform2DComponent->GetPosition(),
                                                                            startPosition);
         const CameraVector2D end = cameraComponent->GetViewPortPosition(cameraTransform2DComponent->GetPosition(),
-                                                                        startPosition + rayComp->translation);
+                                                                        startPosition + rayComp->GetTranslation());
         SDL_RenderLine(renderer, origin.x, origin.y, end.x, end.y);
     }
     AppContext::RestoreColorRenderer(renderer);

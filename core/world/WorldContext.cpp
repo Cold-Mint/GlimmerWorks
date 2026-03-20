@@ -188,27 +188,19 @@ void glimmer::WorldContext::InitPlayer(MobResource *playerResource) {
         return;
     }
     GameEntity::ID playerEntity = 0;
-    // if (saves_->PlayerExists()) {
-    //     auto playerMessage = saves_->ReadPlayer();
-    //     if (playerMessage.has_value()) {
-    //         playerEntity = chunkLoader_->RecoveryEntity(playerMessage->entity());
-    //     }
-    // }
-    // if (IsEmptyEntityId(playerEntity)) {
-    const auto height = chunkGenerator_->GetHeight(0);
-    playerEntity = CreateMob(TileLayerComponent::TileToWorld(TileVector2D(0, height + 3)), playerResource);
-    // }
+    if (saves_->PlayerExists()) {
+        auto playerMessage = saves_->ReadPlayer();
+        if (playerMessage.has_value()) {
+            playerEntity = chunkLoader_->RecoveryEntity(playerMessage->entity());
+        }
+    }
+    if (IsEmptyEntityId(playerEntity)) {
+        const auto height = chunkGenerator_->GetHeight(0);
+        playerEntity = CreateMob(TileLayerComponent::TileToWorld(TileVector2D(0, height + 3)), playerResource);
+    }
     SetPersistable(playerEntity, true);
     if (!HasComponent<PlayerComponent>(playerEntity)) {
-        auto playerControlComponent = AddComponent<PlayerComponent>(playerEntity);
-        // GameEntity::ID entity = CreateEntity();
-        // auto rayCast2DComponent = AddComponent<RayCast2DComponent>(entity);
-        // rayCast2DComponent->origin = WorldVector2D{0, 0};
-        // rayCast2DComponent->translation = WorldVector2D{0, -TILE_SIZE};
-        // rayCast2DComponent->filter.categoryBits = BOX2D_CATEGORY_PLAYER;
-        // rayCast2DComponent->filter.maskBits = BOX2D_CATEGORY_TILE;
-        // rayCast2DComponent->transform2DEntity = playerEntity;
-        // playerControlComponent->rayCast2DList.push_back(entity);
+        AddComponent<PlayerComponent>(playerEntity);
     }
     SetCameraPosition(GetComponent<Transform2DComponent>(playerEntity));
     if (!HasComponent<CameraComponent>(playerEntity)) {
@@ -636,13 +628,15 @@ glimmer::GameEntity::ID glimmer::WorldContext::CreateMob(const WorldVector2D vec
     }
     for (auto &groundCheckRayCast: mobResource->groundCheckRayCast) {
         auto groundRayCast = CreateEntity();
-        RayCast2DComponent *rayCast2dComponent = AddComponent<RayCast2DComponent>(groundRayCast);
-        rayCast2dComponent->origin = {groundCheckRayCast.origin.x * TILE_SIZE, groundCheckRayCast.origin.y * TILE_SIZE};
-        rayCast2dComponent->translation = {groundCheckRayCast.translation.x * TILE_SIZE, groundCheckRayCast.translation.y * TILE_SIZE};
-        rayCast2dComponent->filter = groundCheckRayCast.filter.Tob2QueryFilter();
-        rayCast2dComponent->transform2DEntity = entity;
+        auto *rayCast2dComponent = AddComponent<RayCast2DComponent>(groundRayCast);
+        rayCast2dComponent->SetOrigin(
+            {groundCheckRayCast.origin.x * TILE_SIZE, groundCheckRayCast.origin.y * TILE_SIZE});
+        rayCast2dComponent->SetTransform({
+            groundCheckRayCast.translation.x * TILE_SIZE, groundCheckRayCast.translation.y * TILE_SIZE
+        });
+        rayCast2dComponent->SetFilter(groundCheckRayCast.filter.Tob2QueryFilter());
+        rayCast2dComponent->SetTransform2DEntity(entity);
         mobComponent->groundCheckRayEntityIds.push_back(groundRayCast);
-        break;
     }
     const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(entity);
     rigidBody2DComponent->SetBodyType(static_cast<b2BodyType>(mobResource->bodyType));

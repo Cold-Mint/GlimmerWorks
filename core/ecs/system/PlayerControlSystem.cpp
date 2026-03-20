@@ -157,7 +157,7 @@ bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent *playerControl
         if (rayCast2DComponent == nullptr) {
             continue;
         }
-        if (rayCast2DComponent->hit) {
+        if (rayCast2DComponent->IsHit()) {
             return true;
         }
     }

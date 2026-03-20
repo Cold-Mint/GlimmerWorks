@@ -23,23 +23,23 @@ void glimmer::RayCast2DSystem::Update(float delta) {
             continue;
         }
         const auto transform2dComponent =
-                worldContext_->GetComponent<Transform2DComponent>(rayComp->transform2DEntity);
-        if (transform2dComponent == nullptr || !rayComp->enableContinuous) {
+                worldContext_->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
+        if (transform2dComponent == nullptr || !rayComp->IsContinuous()) {
             continue;
         }
-        rayComp->hit = false;
-        rayComp->hitShapeId = b2_nullShapeId;
-        rayComp->hitEntity = 0;
+        rayComp->SetHit(false);
+        rayComp->SetHitShape(b2_nullShapeId);
         const b2RayResult rayResult = b2World_CastRayClosest(
-            worldContext_->GetWorldId(), Box2DUtils::ToMeters(transform2dComponent->GetPosition() + rayComp->origin),
-            Box2DUtils::ToMeters(rayComp->translation),
-            rayComp->filter
+            worldContext_->GetWorldId(),
+            Box2DUtils::ToMeters(transform2dComponent->GetPosition() + rayComp->GetOrigin()),
+            Box2DUtils::ToMeters(rayComp->GetTranslation()),
+            rayComp->GetFilter()
         );
         if (rayResult.hit) {
-            rayComp->hit = true;
-            rayComp->hitPoint = WorldVector2D{rayResult.point.x, rayResult.point.y};
-            rayComp->hitNormal = WorldVector2D{rayResult.normal.x, rayResult.normal.y};
-            rayComp->hitShapeId = rayResult.shapeId;
+            rayComp->SetHit(true);
+            rayComp->SetHitPoint(WorldVector2D{rayResult.point.x, rayResult.point.y});
+            rayComp->SetHitNormal(WorldVector2D{rayResult.normal.x, rayResult.normal.y});
+            rayComp->SetHitShape(rayResult.shapeId);
         }
     }
 }

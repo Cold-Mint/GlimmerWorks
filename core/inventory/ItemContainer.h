@@ -96,7 +96,7 @@ namespace glimmer {
          * @param amount
          * @return
          */
-        size_t RemoveItemAt(size_t index, size_t amount) const;
+        [[nodiscard]] size_t RemoveItemAt(size_t index, size_t amount) const;
 
         /**
          * GetItem

@@ -22,9 +22,8 @@ namespace glimmer {
         std::shared_ptr<SDL_Texture> icon_;
         VariableConfig variableConfig_;
         size_t maxSlotSize_;
-        std::shared_ptr<std::function<void(ContainerChangeType)>> callback_;
+        std::shared_ptr<std::function<void(ContainerChangeType)> > callback_;
 
-        [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
 
         void AddCallback();
 
@@ -32,15 +31,19 @@ namespace glimmer {
         explicit ComposableItem(std::string id, std::string name, std::optional<std::string> description,
                                 std::shared_ptr<SDL_Texture> icon, size_t maxSize);
 
+        void ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage) override;
+
+        void WriteItemMessage(ItemMessage &itemMessage) const override;
+
         ~ComposableItem() override;
 
-        [[nodiscard]] std::string GetId() const override;
+        [[nodiscard]] const std::string &GetId() const override;
 
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        [[nodiscard]] std::optional<std::string> GetDescription() const override;
+        [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
-        [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
+        [[nodiscard]] SDL_Texture *GetIcon() const override;
 
         void SwapItem(size_t index,
                       ItemContainer *otherContainer,
@@ -63,9 +66,8 @@ namespace glimmer {
         */
         static int TryParseItemIndex(const std::string &name);
 
-        static std::unique_ptr<ComposableItem> FromItemResource(AppContext *appContext,
-                                                                const ComposableItemResource *itemResource,
-                                                                const ResourceRef &resourceRef);
+        static std::unique_ptr<ComposableItem> FromItemResource(const AppContext *appContext,
+                                                                const ComposableItemResource *itemResource);
 
         [[nodiscard]] const VariableConfig &GetVariableConfig() const override;
 

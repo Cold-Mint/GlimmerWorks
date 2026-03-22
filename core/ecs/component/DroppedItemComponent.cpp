@@ -57,10 +57,7 @@ bool glimmer::DroppedItemComponent::IsSerializable() {
 
 std::string glimmer::DroppedItemComponent::Serialize() {
     DroppedItemMessage droppedItemMessage;
-    auto resourceRef = item_->ToResourceRef();
-    if (resourceRef.has_value()) {
-        resourceRef->ToMessage(*droppedItemMessage.mutable_item());
-    }
+    item_->WriteItemMessage(*droppedItemMessage.mutable_item());
     droppedItemMessage.set_pickupcooldown(pickupCooldown_);
     droppedItemMessage.set_remainingtime(remainingTime_);
     return droppedItemMessage.SerializeAsString();
@@ -71,11 +68,10 @@ void glimmer::DroppedItemComponent::Deserialize(WorldContext *worldContext, cons
     GameComponent::Deserialize(worldContext, data);
     DroppedItemMessage droppedItemMessage;
     droppedItemMessage.ParseFromString(data);
-    ResourceRef resourceRef;
-    resourceRef.FromMessage(droppedItemMessage.item());
-    auto item = appContext->GetResourceLocator()->FindItem(resourceRef);
+    auto item = appContext->GetResourceLocator()->FindItem(droppedItemMessage.item());
     if (item != nullptr) {
         item_ = std::move(item);
+        item_->ReadItemMessage(appContext, droppedItemMessage.item());
     }
     pickupCooldown_ = droppedItemMessage.pickupcooldown();
     remainingTime_ = droppedItemMessage.remainingtime();

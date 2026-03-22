@@ -21,19 +21,21 @@ void glimmer::MiningRangeData::Reset() {
     maxHardness_ = 0.0f;
 }
 
-void glimmer::MiningRangeData::CalculateMining(WorldVector2D startVector, TileLayerComponent *tileLayerComponent) {
+void glimmer::MiningRangeData::CalculateMining(WorldVector2D startVector,
+                                               const TileLayerComponent *tileLayerComponent) {
     const TileVector2D startPosition = TileLayerComponent::WorldToTile(startVector);
-    Tile *startTile = tileLayerComponent->GetTile(startPosition);
-    if (!startTile->breakable) {
+    const Tile *startTile = tileLayerComponent->GetTile(startPosition);
+    if (!startTile->IsBreakable()) {
         return;
     }
     points_.emplace_back(startVector);
-    maxHardness_ = startTile->hardness;
+    maxHardness_ = startTile->GetHardness();
 }
 
 
-void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector, TileLayerComponent *tileLayerComponent,
-                                                    int radius) {
+void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
+                                                    const TileLayerComponent *tileLayerComponent,
+                                                    const int radius) {
     if (radius <= 0) {
         //Invalid chain radius.
         //无效的连锁半径。
@@ -41,18 +43,18 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector, T
     }
     const TileVector2D startPosition = TileLayerComponent::WorldToTile(startVector);
     Tile *startTile = tileLayerComponent->GetTile(startPosition);
-    if (!startTile->breakable) {
+    if (!startTile->IsBreakable()) {
         return;
     }
-    if (startTile->isPlayerPlaced) {
+    if (startTile->IsPlayerPlaced()) {
         return;
     }
-    if (!startTile->allowChainMining) {
+    if (!startTile->IsAllowChainMining()) {
         //The excavated blocks do not support consecutive collection.
         //挖掘的方块不支持连锁采集。
         return;
     }
-    maxHardness_ = startTile->hardness;
+    maxHardness_ = startTile->GetHardness();
     //Add the array of excavation coordinates.
     //加入挖掘坐标数组。
     points_.emplace_back(startVector);
@@ -105,8 +107,8 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector, T
             //Check 3: Obtain the target block and verify its validity
             //检查3：获取目标方块并验证有效性
             Tile *nextTile = tileLayerComponent->GetTile(nextPos);
-            if (nextTile == nullptr || nextTile->isPlayerPlaced || !nextTile->breakable || !nextTile->
-                allowChainMining) {
+            if (nextTile == nullptr || nextTile->IsPlayerPlaced() || !nextTile->IsBreakable() || !nextTile->
+                IsAllowChainMining()) {
                 continue;
             }
 
@@ -122,8 +124,8 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector, T
 
             //Update the maximum hardness value
             //更新最大硬度值
-            if (nextTile->hardness > maxHardness_) {
-                maxHardness_ = nextTile->hardness;
+            if (nextTile->GetHardness() > maxHardness_) {
+                maxHardness_ = nextTile->GetHardness();
             }
         }
     }

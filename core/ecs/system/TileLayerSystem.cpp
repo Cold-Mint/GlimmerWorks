@@ -50,7 +50,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
             renderQuad.x = screenPos.x - renderQuad.w * 0.5f;
             renderQuad.y = screenPos.y - renderQuad.h * 0.5f;
             SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
-            if (!SDL_RenderTexture(renderer, tile->texture.get(), nullptr, &dstRect)) {
+            if (!SDL_RenderTexture(renderer, tile->GetTexture(), nullptr, &dstRect)) {
                 LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
             }
             if (tileCoord == focusPosition) {

@@ -57,7 +57,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
         }
-        auto tileItem = std::make_unique<TileItem>(Tile::FromResourceRef(appContext_, tileResource, &resourceRef));
+        auto tileItem = std::make_unique<TileItem>(Tile::FromTileResource(appContext_, tileResource));
         if (size >= 4) {
             if (const int number = commandArgs.AsInt(3); number > 1) {
                 tileItem->SetAmount(number);
@@ -86,7 +86,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
 
-        auto composableItem = ComposableItem::FromItemResource(appContext_, itemResource, resourceRef);
+        auto composableItem = ComposableItem::FromItemResource(appContext_, itemResource);
         if (composableItem == nullptr) {
             onMessage(appContext_->GetLangsResources()->composableItemIsNull);
             return false;

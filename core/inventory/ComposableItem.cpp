@@ -13,24 +13,6 @@
 #include "../../core/mod/ResourceLocator.h"
 #include "ability/ItemAbility.h"
 
-
-std::string glimmer::ComposableItem::GetId() const {
-    return id_;
-}
-
-std::string glimmer::ComposableItem::GetName() const {
-    return name_;
-}
-
-std::optional<std::string> glimmer::ComposableItem::GetDescription() const {
-    return description_;
-}
-
-
-std::shared_ptr<SDL_Texture> glimmer::ComposableItem::GetIcon() const {
-    return icon_;
-}
-
 void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) const {
     itemContainer_->SwapItem(index, otherContainer, otherIndex);
 }
@@ -143,8 +125,8 @@ int glimmer::ComposableItem::TryParseItemIndex(const std::string &name) {
     return value;
 }
 
-std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(AppContext *appContext,
-    const ComposableItemResource *itemResource, const ResourceRef &resourceRef) {
+std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(const AppContext *appContext,
+    const ComposableItemResource *itemResource) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
     if (nameRes != nullptr) {
@@ -155,58 +137,20 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     if (descriptionRes != nullptr) {
         description = descriptionRes->value;
     }
-    size_t slotSize = itemResource->slotSize;
-    if (itemResource->missing) {
-        size_t count = resourceRef.GetArgCount();
-        slotSize = 0;
-        for (int i = 0; i < count; i++) {
-            auto refArg = resourceRef.GetArg(i);
-            if (refArg.has_value()) {
-                ResourceRefArg &arg = refArg.value();
-                int index = TryParseItemIndex(arg.GetName());
-                if (index < 0) {
-                    continue;
-                }
-                slotSize = std::ranges::max(slotSize, static_cast<size_t>(index + 1));
-            }
-        }
-    }
-    auto result = std::make_unique<ComposableItem>(
+    std::unique_ptr<ComposableItem> result = std::make_unique<ComposableItem>(
         Resource::GenerateId(*itemResource), name,
         description,
         appContext->GetResourceLocator()->FindTexture(itemResource->texture),
-        slotSize);
-    //Filling ability.
-    //填充能力。
-    size_t argCount = resourceRef.GetArgCount();
-    if (argCount == 0) {
-        //If the capability is not specified within the resource reference, then the default capability will be loaded.
-        //如果没有在资源引用内指定能力，那么加载默认能力。
-        size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
+        itemResource->slotSize);
+    //If the capability is not specified within the resource reference, then the default capability will be loaded.
+    //如果没有在资源引用内指定能力，那么加载默认能力。
+    size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
+    if (defaultAbilitySize > 0) {
         for (int i = 0; i < defaultAbilitySize; i++) {
             auto itemObj = appContext->GetResourceLocator()->FindItem(
                 itemResource->defaultAbilityList[i]);
             if (itemObj != nullptr) {
                 (void) result->ReplaceItem(static_cast<size_t>(i), std::move(itemObj));
-            }
-        }
-    } else {
-        for (int i = 0; i < argCount; i++) {
-            auto refArg = resourceRef.GetArg(i);
-            if (refArg.has_value()) {
-                ResourceRefArg &arg = refArg.value();
-                int index = TryParseItemIndex(arg.GetName());
-                if (index < 0) {
-                    continue;
-                }
-                auto itemRef = arg.AsResourceRef(appContext->GetTomlVersion());
-                if (!itemRef.has_value()) {
-                    continue;
-                }
-                auto itemObj = appContext->GetResourceLocator()->FindItem(itemRef.value());
-                if (itemObj != nullptr) {
-                    (void) result->ReplaceItem(static_cast<size_t>(index), std::move(itemObj));
-                }
             }
         }
     }
@@ -226,25 +170,6 @@ std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const {
     auto composableItem = std::make_unique<ComposableItem>(*this);
     composableItem->AddCallback();
     return composableItem;
-}
-
-std::optional<glimmer::ResourceRef> glimmer::ComposableItem::ActualToResourceRef() {
-    std::optional<ResourceRef> resourceRef = Resource::ParseFromId(id_, RESOURCE_TYPE_COMPOSABLE_ITEM);
-    size_t size = itemContainer_->GetCapacity();
-    for (int i = 0; i < size; i++) {
-        Item *item = itemContainer_->GetItem(i);
-        if (item == nullptr) {
-            continue;
-        }
-        auto ref = item->ToResourceRef();
-        if (ref.has_value()) {
-            ResourceRefArg refArg;
-            refArg.SetName("item_" + std::to_string(i));
-            refArg.SetDataFromResourceRef(ref.value());
-            resourceRef->AddArg(refArg);
-        }
-    }
-    return resourceRef;
 }
 
 void glimmer::ComposableItem::AddCallback() {
@@ -275,7 +200,54 @@ glimmer::ComposableItem::ComposableItem(std::string id, std::string name, std::o
     LogCat::d("ComposableItem Constructor");
 }
 
+void glimmer::ComposableItem::ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage) {
+    Item::ReadItemMessage(context, itemMessage);
+    //Filling ability.
+    //填充能力。
+    const ResourceLocator *resourceLocator = context->GetResourceLocator();
+    auto abilityItemRefSize = itemMessage.abilityitemref_size();
+    for (int i = 0; i < maxSlotSize_; i++) {
+        if (i >= abilityItemRefSize) {
+            break;
+        }
+        const ItemMessage &abilityItemMessage = itemMessage.abilityitemref(i);
+        std::unique_ptr<Item> item = resourceLocator->FindItem(abilityItemMessage);
+        if (item != nullptr) {
+            std::unique_ptr<Item> result = ReplaceItem(static_cast<size_t>(i), std::move(item));
+        }
+    }
+}
+
+void glimmer::ComposableItem::WriteItemMessage(ItemMessage &itemMessage) const {
+    Item::WriteItemMessage(itemMessage);
+    itemMessage.clear_abilityitemref();
+    for (int i = 0; i < maxSlotSize_; i++) {
+        ItemMessage *abilityItemMessage = itemMessage.add_abilityitemref();
+        const Item *item = itemContainer_->GetItem(i);
+        if (item == nullptr) {
+            continue;
+        }
+        item->WriteItemMessage(*abilityItemMessage);
+    }
+}
+
 glimmer::ComposableItem::~ComposableItem() {
     itemContainer_->RemoveOnContentChanged(callback_);
     LogCat::d("ComposableItem Destroy");
+}
+
+const std::string &glimmer::ComposableItem::GetId() const {
+    return id_;
+}
+
+const std::string &glimmer::ComposableItem::GetName() const {
+    return name_;
+}
+
+const std::optional<std::string> &glimmer::ComposableItem::GetDescription() const {
+    return description_;
+}
+
+SDL_Texture *glimmer::ComposableItem::GetIcon() const {
+    return icon_.get();
 }

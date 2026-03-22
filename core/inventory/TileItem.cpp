@@ -14,20 +14,24 @@ glimmer::TileItem::TileItem(std::unique_ptr<Tile> tile) : tile_(std::move(tile))
     maxStack_ = ITEM_MAX_STACK;
 }
 
-std::string glimmer::TileItem::GetId() const {
-    return tile_->id;
+const std::string &glimmer::TileItem::GetId() const {
+    return tile_->GetId();
 }
 
-std::string glimmer::TileItem::GetName() const {
-    return tile_->name;
+const std::string &glimmer::TileItem::GetName() const {
+    return tile_->GetName();
 }
 
-std::optional<std::string> glimmer::TileItem::GetDescription() const {
-    return tile_->description;
+const std::optional<std::string> &glimmer::TileItem::GetDescription() const {
+    return tile_->GetDescription();
 }
+
 
 void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
                               std::unordered_set<std::string> &popupAbility) {
+    if (tile_ == nullptr) {
+        return;
+    }
     auto playerEntity = worldContext->GetPlayerEntity();
     if (WorldContext::IsEmptyEntityId(playerEntity)) {
         return;
@@ -51,25 +55,19 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
             if (currentTile == nullptr) {
                 continue;
             }
-            if (currentTile->id == Resource::GenerateId(RESOURCE_REF_CORE, TILE_ID_AIR) || currentTile->id ==
+            const std::string &currentTileId = currentTile->GetId();
+            if (currentTileId == Resource::GenerateId(RESOURCE_REF_CORE, TILE_ID_AIR) || currentTileId ==
                 Resource::GenerateId(
                     RESOURCE_REF_CORE, TILE_ID_WATER)) {
                 if (GetAmount() > 0) {
-                    auto resourceRef = Resource::ParseFromId(tile_->id, RESOURCE_TYPE_TILE);
-                    if (resourceRef.has_value()) {
-                        auto tileResource = worldContext->GetAppContext()->GetResourceLocator()->FindTile(
-                            resourceRef.value());
-                        if (tileResource != nullptr) {
-                            std::unique_ptr<Tile> tile = Tile::FromResourceRef(
-                                worldContext->GetAppContext(), tileResource, &resourceRef.value());
-                            tile->isPlayerPlaced = true;
-                            (void) tileLayer->SetTile(
-                                targetPos, std::move(tile));
-                            Chunk *chunk = Chunk::GetChunkByTileVector2D(worldContext->GetAllChunks(), targetPos);
-                            if (chunk != nullptr) {
-                                ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext, chunk);
-                            }
-                        }
+                    //这里正确克隆了新的瓦片吗？
+                    auto tile = std::make_unique<Tile>(*tile_);
+                    tile->SetPlayerPlaced(true);
+                    (void) tileLayer->SetTile(
+                        targetPos, std::move(tile));
+                    auto chunk = Chunk::GetChunkByTileVector2D(worldContext->GetAllChunks(), targetPos);
+                    if (chunk != nullptr) {
+                        ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext, chunk);
                     }
                     (void) RemoveAmount(1);
                 }
@@ -78,13 +76,10 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
     }
 }
 
-std::shared_ptr<SDL_Texture> glimmer::TileItem::GetIcon() const {
-    return tile_->texture;
+SDL_Texture *glimmer::TileItem::GetIcon() const {
+    return tile_->GetTexture();
 }
 
-std::optional<glimmer::ResourceRef> glimmer::TileItem::ActualToResourceRef() {
-    return Resource::ParseFromId(tile_->id, RESOURCE_TYPE_TILE);
-}
 
 const glimmer::VariableConfig &glimmer::TileItem::GetVariableConfig() const {
     return variableConfig_;

@@ -55,17 +55,18 @@ bool glimmer::LootCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
         ResourceRef &resourceRef = lootId.value();
-        std::optional<LootResource *> lootResource = appContext_->GetResourceLocator()->FindLoot(resourceRef);
-        if (!lootResource.has_value()) {
+        LootResource *lootResource = appContext_->GetResourceLocator()->FindLoot(resourceRef);
+        if (lootResource == nullptr) {
             return false;
         }
-        auto resourceRefList = LootResource::GetLootItems(lootResource.value());
-        if (resourceRefList.empty()) {
+        auto itemMessageList = LootResource::GetLootItems(lootResource);
+        if (itemMessageList.empty()) {
             return false;
         }
-        for (auto &resourceRefItem: resourceRefList) {
-            auto itemRes = appContext_->GetResourceLocator()->FindItem(resourceRefItem);
+        for (auto &itemMessage: itemMessageList) {
+            auto itemRes = appContext_->GetResourceLocator()->FindItem(itemMessage);
             if (itemRes != nullptr) {
+                itemRes->ReadItemMessage(appContext_, itemMessage);
                 std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
                     std::move(itemRes));
             }

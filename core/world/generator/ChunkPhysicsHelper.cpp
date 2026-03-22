@@ -18,7 +18,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext *appContex
         std::vector isStaticTile(CHUNK_AREA, false);
         for (int idx = 0; idx < CHUNK_AREA; ++idx) {
             auto tile = chunk->GetTile(TileLayerType::Main, idx);
-            if (tile && tile->physicsType == TilePhysicsType::Static) {
+            if (tile && tile->GetTilePhysicsType() == TilePhysicsType::Static) {
                 isStaticTile[idx] = true;
             }
         }

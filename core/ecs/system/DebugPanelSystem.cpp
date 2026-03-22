@@ -199,10 +199,10 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
                 snprintf(
                     buffer, sizeof(buffer),
                     "  id:%s name:%s breakable:%s hardness:%f",
-                    tile->id.c_str(),
-                    tile->name.c_str(),
-                    tile->breakable ? "true" : "false",
-                    tile->hardness
+                    tile->GetId().c_str(),
+                    tile->GetName().c_str(),
+                    tile->IsBreakable() ? "true" : "false",
+                    tile->GetHardness()
                 );
 
                 RenderDebugText(renderer, windowW, buffer, yOffset);

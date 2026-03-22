@@ -12,6 +12,7 @@
 #include "core/Box2dFilter.h"
 #include "core/lootTable/LootEntry.h"
 #include "SDL3/SDL_pixels.h"
+#include "src/saves/item.pb.h"
 
 namespace glimmer {
     struct TileRules;
@@ -171,23 +172,6 @@ namespace glimmer {
         std::vector<RayCastResource> groundCheckRayCast = {};
     };
 
-    /**
-     * ComposableItemResource
-     * 可组合的物品资源
-     */
-    //@genNextLine(ComposableItemResource|可组合的物品资源类)
-    struct ComposableItemResource : Resource {
-        //@genNextLine(name|名称资源引用)
-        ResourceRef name;
-        //@genNextLine(description|描述资源引用)
-        ResourceRef description = {};
-        //@genNextLine(texture|纹理资源引用)
-        ResourceRef texture;
-        //@genNextLine(slotSize|槽位大小)
-        size_t slotSize;
-        //@genNextLine(defaultAbilityList|默认能力列表资源引用)
-        std::vector<ResourceRef> defaultAbilityList = {};
-    };
 
     enum VariableDefinitionType {
         INT,
@@ -197,7 +181,6 @@ namespace glimmer {
         REF
     };
 
-    //他应该在下面而不是上面
     //@content(2)
     // template<>
     // struct from<glimmer::VariableDefinition> {
@@ -215,7 +198,7 @@ namespace glimmer {
     //         } else if (r.type == glimmer::VariableDefinitionType::REF) {
     //             auto resourceRef = toml::find<glimmer::ResourceRef>(v, "value");
     //             ResourceRefMessage refMessage;
-    //             resourceRef.ToMessage(refMessage);
+    //             resourceRef.WriteResourceRefMessage(refMessage);
     //             r.value = refMessage.SerializeAsString();
     //         } else {
     //             r.value = toml::find<std::string>(v, "value");
@@ -260,7 +243,7 @@ namespace glimmer {
 
         [[nodiscard]] VariableDefinition *FindVariableModifiable(const std::string &name);
 
-        void UpdateArgs(const toml::spec &tomlVersion, const std::string &selfPackId);
+        void UpdateArgs(const std::string &selfPackId);
     };
 
     //@genNextLine(StructurePlacementConditions|结构放置条件)
@@ -423,13 +406,43 @@ namespace glimmer {
         //@genNextLine(pool|战利品池列表)
         std::vector<LootEntry> pool = {};
 
-        static std::vector<ResourceRef> GetLootItems(const LootResource *lootResource);
+        static std::vector<ItemMessage> GetLootItems(const LootResource *lootResource);
+    };
+
+    //@genNextLine(ItemMessageResource|物品消息资源)
+    struct ItemMessageResource {
+        //@genNextLine(item|物品)
+        ResourceRef item;
+        //@genNextLine(amount|数量)
+        uint64_t amount = 0;
+        //If it is a combinable item, then a list of capabilities needs to be set up.
+        //如果是可组合物品，那么需要设置能力列表。
+        //@genNextLine(abilityItemRef|能力物品)
+        std::vector<ItemMessageResource> abilityItemRef = {};
+    };
+
+    /**
+ * ComposableItemResource
+ * 可组合的物品资源
+ */
+    //@genNextLine(ComposableItemResource|可组合的物品资源类)
+    struct ComposableItemResource : Resource {
+        //@genNextLine(name|名称资源引用)
+        ResourceRef name;
+        //@genNextLine(description|描述资源引用)
+        ResourceRef description = {};
+        //@genNextLine(texture|纹理资源引用)
+        ResourceRef texture;
+        //@genNextLine(slotSize|槽位大小)
+        size_t slotSize;
+        //@genNextLine(defaultAbilityList|默认能力列表资源引用)
+        std::vector<ItemMessageResource> defaultAbilityList = {};
     };
 
     //@genNextLine(InitialInventoryResource|初始化库存资源)
     struct InitialInventoryResource : Resource {
         //@genNextLine(addItems|初始添加物品列表)
-        std::vector<ResourceRef> addItems;
+        std::vector<ItemMessageResource> addItems;
     };
 }
 

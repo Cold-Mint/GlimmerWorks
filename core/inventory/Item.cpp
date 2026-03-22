@@ -5,6 +5,16 @@
 #include "Item.h"
 
 
+void glimmer::Item::ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage) {
+    amount_ = itemMessage.amount();
+    resourceRef_.ReadResourceRefMessage(itemMessage.itemresourceref());
+}
+
+void glimmer::Item::WriteItemMessage(ItemMessage &itemMessage) const {
+    itemMessage.set_amount(amount_);
+    resourceRef_.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
+}
+
 size_t glimmer::Item::GetAmount() const {
     return amount_;
 }
@@ -66,30 +76,6 @@ size_t glimmer::Item::RemoveAmount(const size_t amount) {
     }
     SetAmount(newAmount);
     return amount;
-}
-
-std::optional<glimmer::ResourceRef> glimmer::Item::ToResourceRef() {
-    auto resourceRef = ActualToResourceRef();
-    if (resourceRef.has_value()) {
-        ResourceRefArg refArg;
-        refArg.SetName("amount");
-        refArg.SetDataFromInt(static_cast<int>(amount_));
-        resourceRef.value().AddArg(refArg);
-    }
-    return resourceRef;
-}
-
-void glimmer::Item::ApplyResourceRefArgs(const ResourceRef &resourceRef) {
-    int count = resourceRef.GetArgCount();
-    for (int i = 0; i < count; i++) {
-        auto arg = resourceRef.GetArg(i);
-        if (arg.has_value()) {
-            if (arg->GetName() == "amount") {
-                amount_ = arg->AsInt();
-                break;
-            }
-        }
-    }
 }
 
 bool glimmer::Item::IsStackable() const {

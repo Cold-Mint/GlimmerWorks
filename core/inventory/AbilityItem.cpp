@@ -9,22 +9,6 @@
 #include "ItemAbilityFactory.h"
 #include "../mod/ResourceLocator.h"
 
-std::string glimmer::AbilityItem::GetId() const {
-    return id_;
-}
-
-std::string glimmer::AbilityItem::GetName() const {
-    return name_;
-}
-
-std::optional<std::string> glimmer::AbilityItem::GetDescription() const {
-    return description_;
-}
-
-
-std::shared_ptr<SDL_Texture> glimmer::AbilityItem::GetIcon() const {
-    return icon_;
-}
 
 glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
     return itemAbility_.get();
@@ -67,9 +51,6 @@ void glimmer::AbilityItem::OnUse(WorldContext *worldContext, GameEntity::ID user
     }
 }
 
-std::optional<glimmer::ResourceRef> glimmer::AbilityItem::ActualToResourceRef() {
-    return Resource::ParseFromId(id_, RESOURCE_TYPE_ABILITY_ITEM);
-}
 
 glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optional<std::string> description,
                                   std::shared_ptr<SDL_Texture> icon, std::shared_ptr<ItemAbility> itemAbility,
@@ -79,6 +60,22 @@ glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optiona
                                                             icon_(std::move(icon)),
                                                             itemAbility_(std::move(itemAbility)),
                                                             canUseAlone_(canUseAlone) {
+}
+
+const std::string &glimmer::AbilityItem::GetId() const {
+    return id_;
+}
+
+const std::string &glimmer::AbilityItem::GetName() const {
+    return name_;
+}
+
+const std::optional<std::string> &glimmer::AbilityItem::GetDescription() const {
+    return description_;
+}
+
+SDL_Texture *glimmer::AbilityItem::GetIcon() const {
+    return icon_.get();
 }
 
 std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const {

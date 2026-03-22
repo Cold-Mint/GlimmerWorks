@@ -52,8 +52,8 @@ namespace glimmer {
             }
 
             auto texture = item->GetIcon();
-            if (texture) {
-                SDL_RenderTexture(renderer, texture.get(), nullptr, &rect);
+            if (texture != nullptr) {
+                SDL_RenderTexture(renderer, texture, nullptr, &rect);
             }
             // Quantity
             if (item->GetAmount() > 1) {
@@ -122,8 +122,8 @@ namespace glimmer {
             size
         };
         const auto texture = state_.dragedItem->GetIcon();
-        if (texture) {
-            SDL_RenderTexture(renderer, texture.get(), nullptr, &rect);
+        if (texture != nullptr) {
+            SDL_RenderTexture(renderer, texture, nullptr, &rect);
         }
     }
 }

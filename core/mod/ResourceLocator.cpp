@@ -119,8 +119,10 @@ glimmer::LootResource *glimmer::ResourceLocator::FindLoot(const ResourceRef &res
 }
 
 std::unique_ptr<glimmer::Item>
-glimmer::ResourceLocator::FindItem(const ResourceRef &resourceRef) const {
-    uint32_t resourceType = resourceRef.GetResourceType();
+glimmer::ResourceLocator::FindItem(const ItemMessage &itemMessage) const {
+    ResourceRef resourceRef;
+    resourceRef.ReadResourceRefMessage(itemMessage.itemresourceref());
+    const uint32_t resourceType = resourceRef.GetResourceType();
     if (resourceType == RESOURCE_TYPE_NONE || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
@@ -128,14 +130,14 @@ glimmer::ResourceLocator::FindItem(const ResourceRef &resourceRef) const {
     if (resourceType == RESOURCE_TYPE_TILE) {
         auto tileResource = FindTile(resourceRef);
         if (tileResource != nullptr) {
-            result = std::make_unique<TileItem>(Tile::FromResourceRef(appContext_, tileResource, &resourceRef));
+            result = std::make_unique<TileItem>(Tile::FromTileResource(appContext_, tileResource));
         }
     }
     if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
         auto composableItemResource = FindComposableItem(resourceRef);
         if (composableItemResource != nullptr) {
             result = std::move(
-                ComposableItem::FromItemResource(appContext_, composableItemResource, resourceRef));
+                ComposableItem::FromItemResource(appContext_, composableItemResource));
         }
     }
 
@@ -145,9 +147,22 @@ glimmer::ResourceLocator::FindItem(const ResourceRef &resourceRef) const {
             result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource, resourceRef));
         }
     }
-    if (result != nullptr) {
-        result->ApplyResourceRefArgs(resourceRef);
-        return result;
+    if (result == nullptr) {
+        return nullptr;
     }
-    return nullptr;
+    result->ReadItemMessage(appContext_, itemMessage);
+    return result;
+}
+
+std::unique_ptr<glimmer::Item>
+glimmer::ResourceLocator::FindItem(const ItemMessageResource &itemMessageResource) const {
+    auto itemMessage = ItemMessage();
+    itemMessage.set_amount(itemMessageResource.amount);
+    itemMessageResource.item.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
+    for (auto &abilityItemResource: itemMessageResource.abilityItemRef) {
+        ItemMessage *abilityItem = itemMessage.add_abilityitemref();
+        abilityItemResource.item.WriteResourceRefMessage(*abilityItem->mutable_itemresourceref());
+        abilityItem->set_amount(abilityItemResource.amount);
+    }
+    return FindItem(itemMessage);
 }

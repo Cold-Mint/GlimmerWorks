@@ -44,7 +44,7 @@ glimmer::Chunk::Chunk(const TileVector2D &pos) : position(pos) {
 
 void glimmer::Chunk::SetTile(const TileVector2D pos, std::unique_ptr<Tile> tile) {
     const int index = pos.y << CHUNK_SHIFT | pos.x;
-    tiles_[tile->layerType][index] = std::move(tile);
+    tiles_[tile->GetLayerType()][index] = std::move(tile);
 }
 
 TileVector2D glimmer::Chunk::GetPosition() const {
@@ -69,18 +69,20 @@ void glimmer::Chunk::FromMessage(const AppContext *appContext, const ChunkMessag
     auto &map = chunkMessage.tiles();
     for (const auto &mapPair: map) {
         auto key = static_cast<TileLayerType>(mapPair.first);
-        auto &tileData = mapPair.second;
-        auto tileResourceRefSize = tileData.tileresourceref_size();
+        const TileArrayMessage &tileData = mapPair.second;
+        auto tileResourceRefSize = tileData.tilemessage_size();
         std::array<std::unique_ptr<Tile>, CHUNK_AREA> value;
         for (int i = 0; i < tileResourceRefSize; i++) {
-            auto &tileResourceRefMessage = tileData.tileresourceref(i);
+            auto &tileMessage = tileData.tilemessage(i);
             ResourceRef resourceRef;
-            resourceRef.FromMessage(tileResourceRefMessage);
+            resourceRef.ReadResourceRefMessage(tileMessage.resourceref());
             auto tileResource = appContext->GetResourceLocator()->FindTile(resourceRef);
             if (tileResource == nullptr) {
                 continue;
             }
-            value[i] = Tile::FromResourceRef(appContext, tileResource, &resourceRef);
+
+            value[i] = Tile::FromTileResource(appContext, tileResource);
+            value[i]->ReadTileMessage(tileMessage);
         }
         tiles_.emplace(key, std::move(value));
     }
@@ -93,19 +95,18 @@ void glimmer::Chunk::ToMessage(ChunkMessage &chunkMessage) {
     for (const auto &[layerType, tileArray]: tiles_) {
         auto &tileData =
                 (*chunkMessage.mutable_tiles())[static_cast<int>(layerType)];
-        tileData.mutable_tileresourceref()->Reserve(
+        tileData.mutable_tilemessage()->Reserve(
             CHUNK_AREA
         );
         for (int y = 0; y < CHUNK_SIZE; y++) {
             for (int x = 0; x < CHUNK_SIZE; x++) {
-                const auto refMessage = tileData.add_tileresourceref();
+                const auto tileMessage = tileData.add_tilemessage();
                 const int index = y << CHUNK_SHIFT | x;
                 const Tile *tile = tileArray[index].get();
-                std::optional<ResourceRef> resourceRef = tile->ToResourceRef();
-                if (!resourceRef.has_value()) {
+                if (tile == nullptr) {
                     continue;
                 }
-                resourceRef->ToMessage(*refMessage);
+                tile->WriteTileMessage(*tileMessage);
             }
         }
     }

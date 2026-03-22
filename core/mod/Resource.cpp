@@ -42,7 +42,7 @@ void glimmer::VariableDefinition::AsResourceRef(ResourceRef &resourceRef) const 
     }
     ResourceRefMessage refMessage;
     refMessage.ParseFromString(value);
-    resourceRef.FromMessage(refMessage);
+    resourceRef.ReadResourceRefMessage(refMessage);
 }
 
 int glimmer::VariableDefinition::AsInt() const {
@@ -88,7 +88,7 @@ const glimmer::VariableDefinition *glimmer::VariableConfig::FindVariable(const s
     return nullptr;
 }
 
-glimmer::VariableDefinition *glimmer::VariableConfig::FindVariableModifiable(const std::string &name)  {
+glimmer::VariableDefinition *glimmer::VariableConfig::FindVariableModifiable(const std::string &name) {
     for (auto &data: definition) {
         if (data.key == name) {
             return &data;
@@ -97,15 +97,14 @@ glimmer::VariableDefinition *glimmer::VariableConfig::FindVariableModifiable(con
     return nullptr;
 }
 
-void glimmer::VariableConfig::UpdateArgs(const toml::spec &tomlVersion, const std::string &selfPackId) {
+void glimmer::VariableConfig::UpdateArgs(const std::string &selfPackId) {
     for (auto &data: definition) {
         if (data.type == REF) {
             ResourceRef resourceRef;
             data.AsResourceRef(resourceRef);
             resourceRef.SetSelfPackageId(selfPackId);
-            resourceRef.UpdateArgs(tomlVersion);
             ResourceRefMessage refMessage;
-            resourceRef.ToMessage(refMessage);
+            resourceRef.WriteResourceRefMessage(refMessage);
             data.value = refMessage.SerializeAsString();
         }
     }
@@ -115,7 +114,7 @@ SDL_Color glimmer::ColorResource::ToSDLColor() const {
     return SDL_Color{r, g, b, a};
 }
 
-std::vector<glimmer::ResourceRef> glimmer::LootResource::GetLootItems(const LootResource *lootResource) {
+std::vector<ItemMessage> glimmer::LootResource::GetLootItems(const LootResource *lootResource) {
     std::random_device rd;
     std::mt19937 gen(rd());
     uint32_t totalWeight = lootResource->empty_weight;
@@ -124,16 +123,15 @@ std::vector<glimmer::ResourceRef> glimmer::LootResource::GetLootItems(const Loot
         totalWeight += pool.weight;
         totalPoolWeight += pool.weight;
     }
-    std::vector<ResourceRef> resourceRefs = {};
+    std::vector<ItemMessage> itemMessageList = {};
     for (auto &mandatory: lootResource->mandatory) {
-        ResourceRef ref = mandatory.item;
-        ResourceRefArg refArg;
-        refArg.SetName("amount");
+        ItemMessage itemMessage;
         std::uniform_int_distribution dist(mandatory.min, mandatory.max);
-        uint32_t randomValue = dist(gen);
-        refArg.SetDataFromInt(static_cast<int>(randomValue));
-        ref.AddArg(refArg);
-        resourceRefs.push_back(ref);
+        const uint32_t randomValue = dist(gen);
+        itemMessage.set_amount(randomValue);
+        ResourceRefMessage &resourceRefMessage = *itemMessage.mutable_itemresourceref();
+        mandatory.item.WriteResourceRefMessage(resourceRefMessage);
+        itemMessageList.push_back(itemMessage);
     }
 
     if (totalPoolWeight > 0) {
@@ -149,18 +147,17 @@ std::vector<glimmer::ResourceRef> glimmer::LootResource::GetLootItems(const Loot
             for (auto &pool: lootResource->pool) {
                 currentWeight += pool.weight;
                 if (rollsRandomValue <= currentWeight) {
-                    ResourceRef ref = pool.item;
-                    ResourceRefArg refArg;
-                    refArg.SetName("amount");
-                    std::uniform_int_distribution poolDist(pool.min, pool.max);
-                    uint32_t poolRandomValue = poolDist(gen);
-                    refArg.SetDataFromInt(static_cast<int>(poolRandomValue));
-                    ref.AddArg(refArg);
-                    resourceRefs.push_back(ref);
+                    ItemMessage itemMessage;
+                    std::uniform_int_distribution dist(pool.min, pool.max);
+                    const uint32_t randomValue = dist(gen);
+                    itemMessage.set_amount(randomValue);
+                    ResourceRefMessage &resourceRefMessage = *itemMessage.mutable_itemresourceref();
+                    pool.item.WriteResourceRefMessage(resourceRefMessage);
+                    itemMessageList.push_back(itemMessage);
                     break;
                 }
             }
         }
     }
-    return resourceRefs;
+    return itemMessageList;
 }

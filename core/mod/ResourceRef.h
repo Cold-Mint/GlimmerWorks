@@ -21,126 +21,17 @@ namespace glimmer {
     //         r.SetPackageId(toml::find<std::string>(v, "packId"));
     //         r.SetResourceType(glimmer::ResourceRef::ResolveResourceType(toml::find<std::string>(v, "resourceType")));
     //         r.SetResourceKey(toml::find<std::string>(v, "resourceKey"));
-    //         auto arg = toml::find_or_default<std::vector<glimmer::ResourceRefArg> >(
-    //             v, "args");
-    //         for (auto &resourceRefArg: arg) {
-    //             r.AddArg(resourceRefArg);
-    //         }
     //         return r;
     //     }
     // };
     //
-    // template<>
-    // struct from<glimmer::ResourceRefArg> {
-    //     static glimmer::ResourceRefArg from_toml(const value &v) {
-    //         glimmer::ResourceRefArg r;
-    //         r.SetName(toml::find<std::string>(v, "name"));
-    //
-    //         uint32_t argType =
-    //                 glimmer::ResourceRefArg::ResolveResourceRefArgType(toml::find<std::string>(v, "type"));
-    //         if (argType == RESOURCE_REF_ARG_TYPE_INT) {
-    //             r.SetDataFromInt(toml::find<int>(v, "data"));
-    //         } else if (argType == RESOURCE_REF_ARG_TYPE_FLOAT) {
-    //             r.SetDataFromFloat(toml::find<float>(v, "data"));
-    //         } else if (argType == RESOURCE_REF_ARG_TYPE_BOOL) {
-    //             r.SetDataFromBool(toml::find<bool>(v, "data"));
-    //         } else if (argType == RESOURCE_REF_ARG_TYPE_STRING) {
-    //             r.SetDataFromString(toml::find<std::string>(v, "data"));
-    //         } else if (argType == RESOURCE_REF_ARG_TYPE_REF_TOML) {
-    //             glimmer::ResourceRef resource = toml::find<glimmer::ResourceRef>(v, "data");
-    //             r.SetDataFromResourceRef(resource);
-    //         }
-    //         return r;
-    //     }
-    // };
     //@endContent
-
-    class ResourceRefArg {
-        std::string name_;
-        uint32_t argType_ = RESOURCE_REF_ARG_TYPE_NONE;
-        std::string data_;
-
-        inline static const std::unordered_map<std::string, uint32_t> resourceArgTypeMap_{
-            {"none", RESOURCE_REF_ARG_TYPE_NONE},
-            {"string", RESOURCE_REF_ARG_TYPE_STRING},
-            {"int", RESOURCE_REF_ARG_TYPE_INT},
-            {"float", RESOURCE_REF_ARG_TYPE_FLOAT},
-            {"bool", RESOURCE_REF_ARG_TYPE_BOOL},
-            {"pb", RESOURCE_REF_ARG_TYPE_REF_PB},
-            {"ref", RESOURCE_REF_ARG_TYPE_REF_TOML},
-        };
-
-    public:
-        const std::string &GetName();
-
-        static uint32_t ResolveResourceRefArgType(const std::string &typeName);
-
-        void SetName(const std::string &name);
-
-        /**
-         * Setting from int data
-         * 从int数据设置
-         * @param data
-         */
-        void SetDataFromInt(int data);
-
-        /**
-         * Setting from float data
-         * 从float数据设置
-         * @param data
-         */
-        void SetDataFromFloat(float data);
-
-        /**
-        * Setting from bool data
-        * 从bool数据设置
-        * @param data
-        */
-        void SetDataFromBool(bool data);
-
-        /**
-         * From string data settings
-         * 从字符串数据设置
-         * @param data
-         */
-        void SetDataFromString(const std::string &data);
-
-        /**
-         * Set data from the resource reference.
-         * 从资源引用内设置数据
-         * @param data
-         */
-        void SetDataFromResourceRef(ResourceRef &data);
-
-
-        [[nodiscard]] int AsInt() const;
-
-        [[nodiscard]] bool AsBool() const;
-
-        [[nodiscard]] std::string AsString() const;
-
-        [[nodiscard]] float AsFloat() const;
-
-        [[nodiscard]] std::optional<ResourceRef> AsResourceRef(const toml::spec &tomlVersion) const;
-
-        /**
-         * Obtain parameter type
-         * 获取参数类型
-         * @return
-         */
-        [[nodiscard]] uint32_t GetArgType() const;
-
-        void FromMessage(const ResourceRefArgMessage &resourceRefArgMessage);
-
-        void ToMessage(ResourceRefArgMessage &resourceRefArgMessage);
-    };
 
     class ResourceRef {
         std::string packId_ = RESOURCE_REF_SELF;
         uint32_t resourceType_ = RESOURCE_TYPE_NONE;
         std::string resourceKey_;
         std::string selfPackageId_;
-        std::vector<ResourceRefArg> args_;
         bool bindPackage_ = false;
 
         inline static const std::unordered_map<std::string, uint32_t> resourceTypeMap_{
@@ -158,8 +49,6 @@ namespace glimmer {
         };
 
     public:
-        void UpdateArgs(const toml::spec &tomlVersion);
-
         /**
          * SetSelfPackageId
          * 设置自身的包ID
@@ -171,20 +60,6 @@ namespace glimmer {
 
         static uint32_t ResolveResourceType(const std::string &typeName);
 
-        void AddArg(const ResourceRefArg &arg);
-
-        [[nodiscard]] size_t GetArgCount() const;
-
-        /**
-         * Obtain the parameters at the specified location
-         * 获取指定位置的参数
-         * @param index
-         * @return
-         */
-        [[nodiscard]] std::optional<ResourceRefArg> GetArg(int index) const;
-
-        bool RemoveArg(int index);
-
         /**
          *The package Id for serialization from the json file might be set to @self
          * 设置从json文件序列化的包Id可能为@self
@@ -192,9 +67,9 @@ namespace glimmer {
          */
         void SetPackageId(const std::string &packId);
 
-        void FromMessage(const ResourceRefMessage &resourceRefMessage);
+        void ReadResourceRefMessage(const ResourceRefMessage &resourceRefMessage);
 
-        void ToMessage(ResourceRefMessage &resourceRefMessage);
+        void WriteResourceRefMessage(ResourceRefMessage &resourceRefMessage) const;
 
 
         [[nodiscard]] std::string GetPackageId() const;

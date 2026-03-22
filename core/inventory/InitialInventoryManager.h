@@ -19,7 +19,7 @@ namespace glimmer {
 
         [[nodiscard]] const std::vector<InitialInventoryResource *> &GetAllInitialInventory() const;
 
-        std::string ListInitialInventory() const;
+        [[nodiscard]] std::string ListInitialInventory() const;
     };
 }
 

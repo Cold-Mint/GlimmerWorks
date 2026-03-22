@@ -17,18 +17,19 @@ void glimmer::DiggingSystem::BreakTile(const TileVector2D tilePosition, const Ap
                                        const DiggingComponent *diggingComponent,
                                        const TileLayerComponent *tileLayerComponent) const {
     auto oldTile = tileLayerComponent->ReplaceTile(
-        tilePosition, Tile::FromResourceRef(appContext, appContext->GetTileManager()->GetAir(), nullptr));
+        tilePosition, Tile::FromTileResource(appContext, appContext->GetTileManager()->GetAir()));
 
     if (oldTile) {
-        if (!diggingComponent->IsPrecisionMining() && oldTile->customLootTable) {
-            const auto lootResource = appContext->GetResourceLocator()->FindLoot(oldTile->lootTable);
+        if (!diggingComponent->IsPrecisionMining() && oldTile->IsCustomLootTable()) {
+            const auto lootResource = appContext->GetResourceLocator()->FindLoot(oldTile->GetLootTableRef());
             if (lootResource != nullptr) {
-                std::vector<ResourceRef> lootList = LootResource::GetLootItems(lootResource);
-                for (auto &loot: lootList) {
-                    auto itemPtr = appContext->GetResourceLocator()->FindItem(loot);
+                std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
+                for (auto &itemMessage: itemMessageList) {
+                    auto itemPtr = appContext->GetResourceLocator()->FindItem(itemMessage);
                     if (itemPtr == nullptr) {
                         continue;
                     }
+                    itemPtr->ReadItemMessage(appContext, itemMessage);
                     worldContext_->CreateDroppedItemEntity(
                         std::move(itemPtr),
                         TileLayerComponent::TileToWorld(tilePosition)

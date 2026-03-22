@@ -89,11 +89,14 @@ namespace glimmer {
         /**
          * FindItem
          * 查找物品
-         * @param resourceRef resourceRef 物品引用
+         * @param itemMessage itemMessage 物品数据
          * @return  Item pointer 物品指针
          */
         [[nodiscard]] std::unique_ptr<Item> FindItem(
-            const ResourceRef &resourceRef) const;
+            const ItemMessage &itemMessage) const;
+
+        [[nodiscard]] std::unique_ptr<Item> FindItem(
+            const ItemMessageResource &itemMessageResource) const;
     };
 }
 

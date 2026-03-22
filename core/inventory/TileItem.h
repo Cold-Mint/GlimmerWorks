@@ -19,18 +19,16 @@ namespace glimmer {
 
         explicit TileItem(std::unique_ptr<Tile> tile);
 
-        [[nodiscard]] std::string GetId() const override;
+        [[nodiscard]] const std::string &GetId() const override;
 
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string &GetName() const override;
 
-        [[nodiscard]] std::optional<std::string> GetDescription() const override;
+        [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
         void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
                    std::unordered_set<std::string> &popupAbility) override;
 
-        [[nodiscard]] std::shared_ptr<SDL_Texture> GetIcon() const override;
-
-        [[nodiscard]] std::optional<ResourceRef> ActualToResourceRef() override;
+        [[nodiscard]] SDL_Texture *GetIcon() const override;
 
         [[nodiscard]] const VariableConfig &GetVariableConfig() const override;
 

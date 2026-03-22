@@ -215,11 +215,10 @@ void glimmer::ItemContainer::FromMessage(const AppContext *appContext, const Ite
     const size_t messageSize = message.itemresourceref_size();
     items_.resize(messageSize);
     for (int i = 0; i < messageSize; ++i) {
-        const ResourceRefMessage &resourceRefMessage = message.itemresourceref(i);
-        ResourceRef resourceRef;
-        resourceRef.FromMessage(resourceRefMessage);
-        auto item = appContext->GetResourceLocator()->FindItem(resourceRef);
+        const ItemMessage &itemMessage = message.itemresourceref(i);
+        auto item = appContext->GetResourceLocator()->FindItem(itemMessage);
         if (item != nullptr) {
+            item->SetAmount(itemMessage.amount());
             items_[i] = std::move(item);
             BindItemEvent(items_[i]);
         }
@@ -233,15 +232,12 @@ void glimmer::ItemContainer::ToMessage(ItemContainerMessage &message) const {
     for (size_t i = 0; i < items_.size(); ++i) {
         //Even if the slot is empty, we create an empty object and put it into the serializer.
         //即使槽位为空，我们创建空对象，放到系列化器内。
-        const auto refMessage = message.add_itemresourceref();
-        auto *item = items_[i].get();
+        const auto itemMessage = message.add_itemresourceref();
+        const auto *item = items_[i].get();
         if (item == nullptr) {
             continue;
         }
-        auto resourceRef = item->ToResourceRef();
-        if (resourceRef.has_value()) {
-            resourceRef->ToMessage(*refMessage);
-        }
+        item->WriteItemMessage(*itemMessage);
     }
 }
 

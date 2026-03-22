@@ -53,7 +53,7 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
             if (tile == nullptr) {
                 continue;
             }
-            if (!tile->breakable) {
+            if (!tile->IsBreakable()) {
                 continue;
             }
             //dig Range(Unit: Number of Tile Squares)

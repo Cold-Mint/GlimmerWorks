@@ -41,9 +41,9 @@ namespace glimmer {
         void Reset();
 
 
-        void CalculateMining(WorldVector2D startVector, TileLayerComponent *tileLayerComponent);
+        void CalculateMining(WorldVector2D startVector, const TileLayerComponent *tileLayerComponent);
 
-        void CalculateChainMining(WorldVector2D startVector, TileLayerComponent *tileLayerComponent, int radius);
+        void CalculateChainMining(WorldVector2D startVector, const TileLayerComponent *tileLayerComponent, int radius);
     };
 }
 

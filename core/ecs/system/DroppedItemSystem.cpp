@@ -76,7 +76,7 @@ void glimmer::DroppedItemSystem::Render(SDL_Renderer *renderer) {
                 size
             };
 
-            SDL_RenderTexture(renderer, icon.get(), nullptr, &dstRect);
+            SDL_RenderTexture(renderer, icon, nullptr, &dstRect);
         }
     }
 }

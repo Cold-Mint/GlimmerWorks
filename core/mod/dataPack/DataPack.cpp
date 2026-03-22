@@ -77,12 +77,10 @@ LoadLootTableResourceFromFile(const std::string &path, LootTableManager *lootTab
     lootResource->packId = manifest_.id;
     for (auto &mandatory: lootResource->mandatory) {
         mandatory.item.SetSelfPackageId(manifest_.id);
-        mandatory.item.UpdateArgs(tomlVersion_);
         mandatory.mandatory = true;
     }
     for (auto &pool: lootResource->pool) {
         pool.item.SetSelfPackageId(manifest_.id);
-        pool.item.UpdateArgs(tomlVersion_);
         pool.mandatory = false;
     }
     lootTableManager->AddResource(std::move(lootResource));
@@ -101,9 +99,11 @@ bool glimmer::DataPack::LoadInitialInventoryResourceFromFile(const std::string &
     auto initialInventoryResource = std::make_unique<InitialInventoryResource>(
         toml::get<InitialInventoryResource>(value));
     initialInventoryResource->packId = manifest_.id;
-    for (auto &addItem: initialInventoryResource->addItems) {
-        addItem.SetSelfPackageId(manifest_.id);
-        addItem.UpdateArgs(tomlVersion_);
+    for (auto &itemMessage: initialInventoryResource->addItems) {
+        itemMessage.item.SetSelfPackageId(manifest_.id);
+        for (auto &abilityItemRef: itemMessage.abilityItemRef) {
+            abilityItemRef.item.SetSelfPackageId(manifest_.id);
+        }
     }
     lootTableManager->AddResource(std::move(initialInventoryResource));
     return true;
@@ -120,13 +120,12 @@ LoadStructureResourceFromFile(const std::string &path, StructureManager *structu
     toml::value value = toml::parse_str(data.value(), tomlVersion_);
     auto structureResource = std::make_unique<StructureResource>(toml::get<StructureResource>(value));
     structureResource->packId = manifest_.id;
-    structureResource->generatorConfig.UpdateArgs(tomlVersion_, manifest_.id);
+    structureResource->generatorConfig.UpdateArgs(manifest_.id);
     for (auto &ref: structureResource->data) {
         ref.SetSelfPackageId(manifest_.id);
-        ref.UpdateArgs(tomlVersion_);
     }
     for (auto &condition: structureResource->condition) {
-        condition.config.UpdateArgs(tomlVersion_, manifest_.id);
+        condition.config.UpdateArgs(manifest_.id);
     }
     for (auto &tile_info: structureResource->tileInfo) {
         tile_info.tile.SetSelfPackageId(manifest_.id);
@@ -146,14 +145,10 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
     auto tileResource = std::make_unique<TileResource>(toml::get<TileResource>(value));
     tileResource->packId = manifest_.id;
     tileResource->name.SetSelfPackageId(manifest_.id);
-    tileResource->name.UpdateArgs(tomlVersion_);
     tileResource->description.SetSelfPackageId(manifest_.id);
-    tileResource->description.UpdateArgs(tomlVersion_);
     tileResource->texture.SetSelfPackageId(manifest_.id);
-    tileResource->texture.UpdateArgs(tomlVersion_);
     if (tileResource->customLootTable) {
         tileResource->lootTable.SetSelfPackageId(manifest_.id);
-        tileResource->lootTable.UpdateArgs(tomlVersion_);
     }
     tileManager->AddResource(std::move(tileResource));
     return true;
@@ -172,9 +167,8 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
     for (auto &decorator: biomeResource->decorator) {
         for (auto &tile: decorator.data) {
             tile.SetSelfPackageId(manifest_.id);
-            tile.UpdateArgs(tomlVersion_);
         }
-        decorator.config.UpdateArgs(tomlVersion_, manifest_.id);
+        decorator.config.UpdateArgs(manifest_.id);
     }
     biomesManager->AddResource(std::move(biomeResource));
     return true;
@@ -191,14 +185,13 @@ bool glimmer::DataPack::LoadComposableItemResourceFromFile(const std::string &pa
     auto itemResource = std::make_unique<ComposableItemResource>(toml::get<ComposableItemResource>(value));
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
-    itemResource->name.UpdateArgs(tomlVersion_);
     itemResource->description.SetSelfPackageId(manifest_.id);
-    itemResource->description.UpdateArgs(tomlVersion_);
     itemResource->texture.SetSelfPackageId(manifest_.id);
-    itemResource->texture.UpdateArgs(tomlVersion_);
     for (auto &defaultAbility: itemResource->defaultAbilityList) {
-        defaultAbility.SetSelfPackageId(manifest_.id);
-        defaultAbility.UpdateArgs(tomlVersion_);
+        defaultAbility.item.SetSelfPackageId(manifest_.id);
+        for (auto &abilityItemRef: defaultAbility.abilityItemRef) {
+            abilityItemRef.item.SetSelfPackageId(manifest_.id);
+        }
     }
     itemManager->AddComposableResource(std::move(itemResource));
     return true;
@@ -215,12 +208,9 @@ bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path,
     auto itemResource = std::make_unique<AbilityItemResource>(toml::get<AbilityItemResource>(value));
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
-    itemResource->name.UpdateArgs(tomlVersion_);
     itemResource->description.SetSelfPackageId(manifest_.id);
-    itemResource->description.UpdateArgs(tomlVersion_);
     itemResource->texture.SetSelfPackageId(manifest_.id);
-    itemResource->texture.UpdateArgs(tomlVersion_);
-    itemResource->abilityConfig.UpdateArgs(tomlVersion_, manifest_.id);
+    itemResource->abilityConfig.UpdateArgs(manifest_.id);
     itemManager->AddAbilityItemResource(std::move(itemResource));
     return true;
 }
@@ -331,9 +321,7 @@ bool glimmer::DataPack::LoadManifest() {
         return false;
     }
     manifest_.name.SetSelfPackageId(manifest_.id);
-    manifest_.name.UpdateArgs(tomlVersion_);
     manifest_.description.SetSelfPackageId(manifest_.id);
-    manifest_.description.UpdateArgs(tomlVersion_);
     LogCat::d("DataPack::loadManifest - Loaded manifest for data pack: ", path_);
     LogCat::d("ID: ", manifest_.id);
     LogCat::d("Name: ", manifest_.name.GetResourceKey(), " (packId: ", manifest_.name.GetPackageId(), ")");

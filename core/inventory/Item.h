@@ -19,7 +19,7 @@ namespace glimmer {
     class Item {
         size_t amount_ = 1;
 
-        [[nodiscard]] virtual std::optional<ResourceRef> ActualToResourceRef() = 0;
+        ResourceRef resourceRef_ = ResourceRef();
 
     protected:
         size_t maxStack_ = 1;
@@ -31,13 +31,17 @@ namespace glimmer {
     public:
         virtual ~Item() = default;
 
+        virtual void ReadItemMessage(const AppContext* context, const ItemMessage &itemMessage);
+
+        virtual void WriteItemMessage(ItemMessage &itemMessage) const;
+
 
         /**
           * GetId
           * 获取id
           * @return
           */
-        [[nodiscard]] virtual std::string GetId() const = 0;
+        [[nodiscard]] virtual const std::string &GetId() const = 0;
 
 
         /**
@@ -98,16 +102,6 @@ namespace glimmer {
 
 
         /**
-         * Convert to resource reference
-         * 转为资源引用
-         * @return
-         */
-        [[nodiscard]] std::optional<ResourceRef> ToResourceRef();
-
-        void ApplyResourceRefArgs(const ResourceRef &resourceRef);
-
-
-        /**
          *IsStackable
          * 是否可堆叠的
          * @return
@@ -119,14 +113,14 @@ namespace glimmer {
          * 获取物品名称
          * @return
          */
-        [[nodiscard]] virtual std::string GetName() const = 0;
+        [[nodiscard]] virtual const std::string &GetName() const = 0;
 
         /**
          * GetDescription
          * 获取描述
          * @return
          */
-        [[nodiscard]] virtual std::optional<std::string> GetDescription() const = 0;
+        [[nodiscard]] virtual const std::optional<std::string> &GetDescription() const = 0;
 
         /**
          * Variable configuration for obtaining items
@@ -139,7 +133,7 @@ namespace glimmer {
          * 获取图标
          * @return
          */
-        [[nodiscard]] virtual std::shared_ptr<SDL_Texture> GetIcon() const = 0;
+        [[nodiscard]] virtual SDL_Texture *GetIcon() const = 0;
 
 
         virtual void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,

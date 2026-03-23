@@ -11,7 +11,7 @@
 namespace glimmer {
     class TileItem : public Item {
         std::unique_ptr<Tile> tile_;
-        VariableConfig variableConfig_;
+        AbilityConfig abilityConfig_;
 
     public:
         ~TileItem() override = default;
@@ -25,12 +25,12 @@ namespace glimmer {
 
         [[nodiscard]] const std::optional<std::string> &GetDescription() const override;
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+        void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
                    std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] SDL_Texture *GetIcon() const override;
 
-        [[nodiscard]] const VariableConfig &GetVariableConfig() const override;
+        [[nodiscard]] const AbilityConfig & GetAbilityConfig() const override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

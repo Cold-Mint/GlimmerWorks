@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/2/22.
+// Created by Cold-Mint on 2026/2/22.
 //
 
 #include "BiomeStructureConditionProcessor.h"
@@ -54,7 +54,7 @@ std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(Terrain
     int matchedTileCount = 0;
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
-            const TerrainTileResult self = terrainResult->QueryTerrain(localX, localY);
+            const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
             if (self.terrainType != SOLID) {
                 continue;
             }

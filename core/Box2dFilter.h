@@ -1,6 +1,6 @@
 //@genCode
 //
-// Created by coldmint on 2026/3/9.
+// Created by Cold-Mint on 2026/3/9.
 //
 
 #ifndef GLIMMERWORKS_BOX2DFILTER_H

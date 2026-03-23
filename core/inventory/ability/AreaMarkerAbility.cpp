@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/2/26.
+// Created by Cold-Mint on 2026/2/26.
 //
 
 #include "AreaMarkerAbility.h"
@@ -10,16 +10,12 @@
 
 
 glimmer::AreaMarkerAbility::AreaMarkerAbility(const AppContext *appContext,
-                                              const VariableConfig &abilityData) : ItemAbility(
-    appContext, abilityData) {
-}
-
-std::string glimmer::AreaMarkerAbility::GetId() const {
-    return ABILITY_ID_AREA_MARKER;
+                                              const AbilityConfig &abilityConfigMessage) : ItemAbility(
+    appContext, abilityConfigMessage) {
 }
 
 void glimmer::AreaMarkerAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
-                                       const VariableConfig &abilityData,
+                                       const AbilityConfig &abilityConfig,
                                        std::unordered_set<std::string> &popupAbility) {
     auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
         TileLayerComponent, AreaMarkerComponent>();
@@ -35,6 +31,11 @@ void glimmer::AreaMarkerAbility::OnUse(WorldContext *worldContext, GameEntity::I
         }
     }
 }
+
+std::string glimmer::AreaMarkerAbility::GetId() const {
+    return ABILITY_ID_AREA_MARKER;
+}
+
 
 std::unique_ptr<glimmer::ItemAbility> glimmer::AreaMarkerAbility::Clone() const {
     return std::make_unique<AreaMarkerAbility>(*this);

@@ -1,6 +1,6 @@
 //@genCode
 //
-// Created by coldmint on 2026/3/1.
+// Created by Cold-Mint on 2026/3/1.
 //
 
 #ifndef GLIMMERWORKS_CONTRIBUTOR_H

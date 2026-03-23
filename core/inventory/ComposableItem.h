@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/23.
+// Created by Cold-Mint on 2025/12/23.
 //
 
 #ifndef GLIMMERWORKS_COMPOSABLEITEM_H
@@ -20,7 +20,7 @@ namespace glimmer {
         std::string name_;
         std::optional<std::string> description_;
         std::shared_ptr<SDL_Texture> icon_;
-        VariableConfig variableConfig_;
+        AbilityConfig totalAbilityConfig_;
         size_t maxSlotSize_;
         std::shared_ptr<std::function<void(ContainerChangeType)> > callback_;
 
@@ -55,8 +55,6 @@ namespace glimmer {
 
         [[nodiscard]] size_t RemoveItemAbility(const std::string &id, size_t amount) const;
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
-                   std::unordered_set<std::string> &popupAbility) override;
 
         /**
         * TryParseItemIndex
@@ -69,7 +67,10 @@ namespace glimmer {
         static std::unique_ptr<ComposableItem> FromItemResource(const AppContext *appContext,
                                                                 const ComposableItemResource *itemResource);
 
-        [[nodiscard]] const VariableConfig &GetVariableConfig() const override;
+        [[nodiscard]] const AbilityConfig &GetAbilityConfig() const override;
+
+        void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &configMessage,
+                   std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] ItemContainer *GetItemContainer() const;
 

@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/23.
+// Created by Cold-Mint on 2025/12/23.
 //
 
 #include "ComposableItem.h"
@@ -19,8 +19,8 @@ void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContain
 
 void glimmer::ComposableItem::RefreshAttributes() {
     LogCat::d("ComposableItem RefreshAttributes");
-    variableConfig_.definition.clear();
     const size_t max = itemContainer_->GetCapacity();
+    totalAbilityConfig_.Reset();
     for (size_t index = 0; index < max; index++) {
         Item *item = itemContainer_->GetItem(index);
         if (item == nullptr) {
@@ -30,20 +30,7 @@ void glimmer::ComposableItem::RefreshAttributes() {
         if (abilityItem == nullptr) {
             continue;
         }
-        const VariableConfig &itemVariableConfig = item->GetVariableConfig();
-        for (auto &definition: itemVariableConfig.definition) {
-            VariableDefinition *globalDefinition = variableConfig_.FindVariableModifiable(definition.key);
-            if (globalDefinition == nullptr) {
-                variableConfig_.definition.push_back(definition);
-            } else {
-                if (definition.type == INT) {
-                    globalDefinition->value = std::to_string(globalDefinition->AsInt() + definition.AsInt());
-                }
-                if (definition.type == FLOAT) {
-                    globalDefinition->value = std::to_string(globalDefinition->AsFloat() + definition.AsFloat());
-                }
-            }
-        }
+        totalAbilityConfig_ += item->GetAbilityConfig();
     }
 }
 
@@ -56,52 +43,6 @@ size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const s
     return itemContainer_->RemoveItem(id, amount);
 }
 
-void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
-                                    std::unordered_set<std::string> &popupAbility) {
-    const size_t max = itemContainer_->GetCapacity();
-    //The ability to pop up
-    //需要弹出的能力
-    for (size_t index = 0; index < max; index++) {
-        Item *item = itemContainer_->GetItem(index);
-        if (item == nullptr) {
-            continue;
-        }
-        auto *abilityItem = dynamic_cast<AbilityItem *>(item);
-        if (abilityItem == nullptr) {
-            //Throwing items that are not items of ability.
-            //扔出不为能力物品的物品。
-            worldContext->CreateDroppedItemEntity(
-                itemContainer_->TakeAllItem(index),
-                worldContext->GetCameraTransform2D()->GetPosition(),
-                2
-            );
-            continue;
-        }
-        ItemAbility *itemAbility = abilityItem->GetItemAbility();
-        if (itemAbility == nullptr) {
-            //Throwing items that are not items of ability.
-            //扔出不为能力物品的物品。
-            worldContext->CreateDroppedItemEntity(
-                itemContainer_->TakeAllItem(index),
-                worldContext->GetCameraTransform2D()->GetPosition(),
-                2
-            );
-            continue;
-        }
-
-        if (popupAbility.contains(itemAbility->GetId())) {
-            //Mutual exclusivity
-            //互斥
-            worldContext->CreateDroppedItemEntity(
-                itemContainer_->TakeAllItem(index),
-                worldContext->GetCameraTransform2D()->GetPosition(),
-                2
-            );
-            continue;
-        }
-        itemAbility->OnUse(worldContext, user, variableConfig_, popupAbility);
-    }
-}
 
 int glimmer::ComposableItem::TryParseItemIndex(const std::string &name) {
     constexpr std::string_view prefix = "item_";
@@ -157,8 +98,55 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     return result;
 }
 
-const glimmer::VariableConfig &glimmer::ComposableItem::GetVariableConfig() const {
-    return variableConfig_;
+const glimmer::AbilityConfig &glimmer::ComposableItem::GetAbilityConfig() const {
+    return totalAbilityConfig_;
+}
+
+void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &configMessage,
+                                    std::unordered_set<std::string> &popupAbility) {
+    const size_t max = itemContainer_->GetCapacity();
+    //The ability to pop up
+    //需要弹出的能力
+    for (size_t index = 0; index < max; index++) {
+        Item *item = itemContainer_->GetItem(index);
+        if (item == nullptr) {
+            continue;
+        }
+        auto *abilityItem = dynamic_cast<AbilityItem *>(item);
+        if (abilityItem == nullptr) {
+            //Throwing items that are not items of ability.
+            //扔出不为能力物品的物品。
+            worldContext->CreateDroppedItemEntity(
+                itemContainer_->TakeAllItem(index),
+                worldContext->GetCameraTransform2D()->GetPosition(),
+                2
+            );
+            continue;
+        }
+        ItemAbility *itemAbility = abilityItem->GetItemAbility();
+        if (itemAbility == nullptr) {
+            //Throwing items that are not items of ability.
+            //扔出不为能力物品的物品。
+            worldContext->CreateDroppedItemEntity(
+                itemContainer_->TakeAllItem(index),
+                worldContext->GetCameraTransform2D()->GetPosition(),
+                2
+            );
+            continue;
+        }
+
+        if (popupAbility.contains(itemAbility->GetId())) {
+            //Mutual exclusivity
+            //互斥
+            worldContext->CreateDroppedItemEntity(
+                itemContainer_->TakeAllItem(index),
+                worldContext->GetCameraTransform2D()->GetPosition(),
+                2
+            );
+            continue;
+        }
+        itemAbility->OnUse(worldContext, user, configMessage, popupAbility);
+    }
 }
 
 glimmer::ItemContainer *glimmer::ComposableItem::GetItemContainer() const {

@@ -105,41 +105,33 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         control->dropPressed = false;
     }
 
-    // ========== 物品使用逻辑（保留原有，优化手滑判定） ==========
     if (control->mouseLeftDown && hotBarComp && containerComp) {
         if (const auto itemContainer = containerComp->GetItemContainer()) {
             if (Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot())) {
                 slipTimer += delta;
                 std::unordered_set<std::string> popupAbility;
-                const VariableConfig &variableConfig = item->GetVariableConfig();
+                const AbilityConfig &abilityConfig = item->GetAbilityConfig();
 
-                // 优化：手滑判定间隔缩短，更灵敏
                 if (slipTimer > 0.5F) {
-                    slipTimer = 0.0F; // 重置计时器，避免重复触发
+                    slipTimer = 0.0F;
                     std::random_device rd;
                     std::mt19937 rng(rd());
-                    auto fumbleChanceVariable = variableConfig.FindVariable("fumbleChance");
+                    float fumbleChance = std::clamp(abilityConfig.fumbleProbability, 0.0F, 1.0F);
+                    if (fumbleChance > 0.0F) {
+                        std::uniform_real_distribution dist(0.0F, 1.0F);
+                        float randomValue = dist(rng);
 
-                    if (fumbleChanceVariable != nullptr) {
-                        float fumbleChance = fumbleChanceVariable->AsFloat();
-                        fumbleChance = std::clamp(fumbleChance, 0.0F, 1.0F);
-
-                        if (fumbleChance > 0.0F) {
-                            std::uniform_real_distribution dist(0.0F, 1.0F);
-                            float randomValue = dist(rng);
-
-                            if (randomValue <= fumbleChance) {
-                                worldContext_->CreateDroppedItemEntity(
-                                    std::move(itemContainer->TakeAllItem(hotBarComp->GetSelectedSlot())),
-                                    worldContext_->GetCameraTransform2D()->GetPosition(),
-                                    2
-                                );
-                                return;
-                            }
+                        if (randomValue <= fumbleChance) {
+                            worldContext_->CreateDroppedItemEntity(
+                                std::move(itemContainer->TakeAllItem(hotBarComp->GetSelectedSlot())),
+                                worldContext_->GetCameraTransform2D()->GetPosition(),
+                                2
+                            );
+                            return;
                         }
                     }
                 }
-                item->OnUse(worldContext_, player, variableConfig, popupAbility);
+                item->OnUse(worldContext_, player, abilityConfig, popupAbility);
             }
         }
     } else {

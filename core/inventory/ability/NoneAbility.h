@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/1/29.
+// Created by Cold-Mint on 2026/1/29.
 //
 
 #ifndef GLIMMERWORKS_NONEABILITY_H
@@ -9,12 +9,13 @@
 namespace glimmer {
     class NoneAbility : public ItemAbility {
     public:
-        explicit NoneAbility(const AppContext *appContext, const VariableConfig &abilityData);
+        NoneAbility(const AppContext *appContext, const AbilityConfig &abilityConfigMessage);
+
+        void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
+                   std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] std::string GetId() const override;
 
-      void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
-            std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };

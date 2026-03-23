@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/2/3.
+// Created by Cold-Mint on 2026/2/3.
 //
 
 #ifndef GLIMMERWORKS_WORLDGENERATOR_H

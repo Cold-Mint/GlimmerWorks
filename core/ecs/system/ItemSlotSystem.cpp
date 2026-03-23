@@ -98,11 +98,11 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
-    const std::string nameInfo = item->GetName();
-    const std::optional<std::string> descInfo = item->GetDescription();
+    const std::string &nameInfo = item->GetName();
+    const std::optional<std::string> &descInfo = item->GetDescription();
 
-    AppContext *appContext = worldContext_->GetAppContext();
-    LangsResources *langsResources = appContext->GetLangsResources();
+    const AppContext *appContext = worldContext_->GetAppContext();
+    const LangsResources *langsResources = appContext->GetLangsResources();
     std::vector<SDL_Surface *> surfacesToDraw;
     SDL_Surface *sName = TTF_RenderText_Blended(appContext->GetFont(), nameInfo.c_str(), nameInfo.length(),
                                                 appContext->GetPreloadColors()->textColor);
@@ -119,19 +119,77 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
         }
     }
 
-    const VariableConfig &config = item->GetVariableConfig();
-    for (auto &definition: config.definition) {
-        auto varTextOptional = HumanReadableDisplay(langsResources, &definition);
-        if (!varTextOptional.has_value()) {
-            continue;
-        }
-        const std::string &varText = varTextOptional.value();
-        const bool positiveAttribute = PositiveAttribute(&definition);
+    const AbilityConfig &abilityConfig = item->GetAbilityConfig();
+    if (abilityConfig.allowMineBlock) {
         SDL_Surface *sVar = TTF_RenderText_Blended(
             appContext->GetFont(),
-            varText.c_str(),
-            varText.length(),
-            positiveAttribute
+            langsResources->canMineBlockTip.c_str(),
+            langsResources->canMineBlockTip.length(),
+            appContext->GetPreloadColors()->game.positiveAttributeColor
+        );
+        if (sVar) {
+            surfacesToDraw.push_back(sVar);
+        }
+    }
+
+    if (abilityConfig.enablePrecisionMining) {
+        SDL_Surface *sVar = TTF_RenderText_Blended(
+            appContext->GetFont(),
+            langsResources->precisionMiningTip.c_str(),
+            langsResources->precisionMiningTip.length(),
+            appContext->GetPreloadColors()->game.positiveAttributeColor
+        );
+        if (sVar) {
+            surfacesToDraw.push_back(sVar);
+        }
+    }
+
+    float miningEfficiency = abilityConfig.miningEfficiency;
+    if (miningEfficiency != 0.0F) {
+        std::string tip = fmt::format(
+            fmt::runtime(langsResources->efficiencyTip),
+            fmt::format("{0:+.2f}", miningEfficiency * 100)
+        );
+        SDL_Surface *sVar = TTF_RenderText_Blended(
+            appContext->GetFont(),
+            tip.c_str(),
+            tip.length(),
+            miningEfficiency > 0
+                ? appContext->GetPreloadColors()->game.positiveAttributeColor
+                : appContext->GetPreloadColors()->game.negativeAttributeColor
+        );
+        if (sVar) {
+            surfacesToDraw.push_back(sVar);
+        }
+    }
+
+    float fumbleProbability = abilityConfig.fumbleProbability;
+    if (fumbleProbability != 0.0F) {
+        std::string tip = fmt::format(
+            fmt::runtime(langsResources->fumbleTip),
+            (fumbleProbability > 0 ? "+" : "") + std::to_string(fumbleProbability * 100));
+        SDL_Surface *sVar = TTF_RenderText_Blended(
+            appContext->GetFont(),
+            tip.c_str(),
+            tip.length(),
+            fumbleProbability > 0
+                ? appContext->GetPreloadColors()->game.negativeAttributeColor
+                : appContext->GetPreloadColors()->game.positiveAttributeColor
+        );
+        if (sVar) {
+            surfacesToDraw.push_back(sVar);
+        }
+    }
+
+    int chainMiningRadius = abilityConfig.chainMiningRadius;
+    if (chainMiningRadius != 0) {
+        std::string tip = fmt::format(fmt::runtime(langsResources->chainMiningTip),
+                                      (chainMiningRadius > 0 ? "+" : "") + std::to_string(chainMiningRadius));
+        SDL_Surface *sVar = TTF_RenderText_Blended(
+            appContext->GetFont(),
+            tip.c_str(),
+            tip.length(),
+            chainMiningRadius > 0
                 ? appContext->GetPreloadColors()->game.positiveAttributeColor
                 : appContext->GetPreloadColors()->game.negativeAttributeColor
         );
@@ -211,54 +269,6 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
             SDL_DestroySurface(surf);
         }
     }
-}
-
-std::optional<std::string> glimmer::ItemSlotSystem::HumanReadableDisplay(const LangsResources *langsResources,
-                                                                         const VariableDefinition *variableDefinition) {
-    if (variableDefinition->key == "efficiency") {
-        const float value = variableDefinition->AsFloat();
-        return fmt::format(
-            fmt::runtime(langsResources->efficiencyTip),
-            (value > 0 ? "+" : "") + std::to_string(variableDefinition->AsFloat() * 100));
-    }
-    if (variableDefinition->key == "precisionMining" && variableDefinition->AsBool()) {
-        return langsResources->precisionMiningTip;
-    }
-    if (variableDefinition->key == "canMineBlock" && variableDefinition->AsBool()) {
-        return langsResources->canMineBlockTip;
-    }
-    if (variableDefinition->key == "fumbleChance") {
-        const float value = variableDefinition->AsFloat();
-        return fmt::format(
-            fmt::runtime(langsResources->fumbleTip),
-            (value > 0 ? "+" : "") + std::to_string(variableDefinition->AsFloat() * 100));
-    }
-    if (variableDefinition->key == "chainMiningRadius") {
-        const int value = variableDefinition->AsInt();
-        return fmt::format(fmt::runtime(langsResources->chainMiningTip),
-                           (value > 0 ? "+" : "") + std::to_string(variableDefinition->AsInt()));
-    }
-    return std::nullopt;
-}
-
-
-bool glimmer::ItemSlotSystem::PositiveAttribute(const VariableDefinition *variableDefinition) {
-    if (variableDefinition->key == "efficiency") {
-        return variableDefinition->AsFloat() > 0;
-    }
-    if (variableDefinition->key == "precisionMining") {
-        return variableDefinition->AsBool();
-    }
-    if (variableDefinition->key == "canMineBlock") {
-        return variableDefinition->AsBool();
-    }
-    if (variableDefinition->key == "fumbleChance") {
-        return variableDefinition->AsFloat() <= 0;
-    }
-    if (variableDefinition->key == "chainMiningRadius") {
-        return variableDefinition->AsInt() > 0;
-    }
-    return true;
 }
 
 glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext *worldContext)

@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/2/26.
+// Created by Cold-Mint on 2026/2/26.
 //
 
 #ifndef GLIMMERWORKS_PRELOADCOLORS_H

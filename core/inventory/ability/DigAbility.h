@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/25.
+// Created by Cold-Mint on 2025/12/25.
 //
 
 #ifndef GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
@@ -14,15 +14,13 @@ namespace glimmer {
         MiningRangeData miningRangeData_;
 
     public:
-        explicit DigAbility(
-            const AppContext *appContext,
-            const VariableConfig &abilityData);
+        explicit DigAbility(const AppContext *appContext, const AbilityConfig &abilityConfig);
 
         ~DigAbility() override = default;
 
         [[nodiscard]] std::string GetId() const override;
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+        void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
                    std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;

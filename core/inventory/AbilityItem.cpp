@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/28.
+// Created by Cold-Mint on 2025/12/28.
 //
 
 #include "AbilityItem.h"
@@ -15,8 +15,7 @@ glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
 }
 
 std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext *appContext,
-                                                                             const AbilityItemResource *itemResource,
-                                                                             const ResourceRef &resourceRef) {
+                                                                             const AbilityItemResource *itemResource) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
     if (nameRes != nullptr) {
@@ -27,6 +26,7 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     if (descriptionRes != nullptr) {
         description = descriptionRes->value;
     }
+
     auto itemAbility =
             ItemAbilityFactory::CreateItemAbility(appContext, itemResource->ability, itemResource->abilityConfig);
     if (itemAbility == nullptr) {
@@ -40,14 +40,14 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
                                          itemResource->canUseAlone);
 }
 
-const glimmer::VariableConfig &glimmer::AbilityItem::GetVariableConfig() const {
-    return itemAbility_->GetVariableConfig();
+const glimmer::AbilityConfig &glimmer::AbilityItem::GetAbilityConfig() const {
+    return itemAbility_->GetAbilityConfig();
 }
 
-void glimmer::AbilityItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+void glimmer::AbilityItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
                                  std::unordered_set<std::string> &popupAbility) {
     if (canUseAlone_) {
-        itemAbility_->OnUse(worldContext, user, abilityData, popupAbility);
+        itemAbility_->OnUse(worldContext, user, abilityConfig, popupAbility);
     }
 }
 

@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/2/22.
+// Created by Cold-Mint on 2026/2/22.
 //
 
 #ifndef GLIMMERWORKS_ISTRUCTURECONDITIONPROCESSOR_H

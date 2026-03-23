@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/2/19.
+// Created by Cold-Mint on 2026/2/19.
 //
 
 #ifndef GLIMMERWORKS_MESSAGE_H

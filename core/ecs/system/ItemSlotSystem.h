@@ -16,11 +16,6 @@ namespace glimmer {
 
         void RenderTooltip(SDL_Renderer *renderer, const Item *item) const;
 
-        static std::optional<std::string> HumanReadableDisplay(const LangsResources *langsResources,
-                                                               const VariableDefinition *variableDefinition);
-
-        static bool PositiveAttribute(const VariableDefinition *variableDefinition);
-
     public:
         explicit ItemSlotSystem(WorldContext *worldContext);
 

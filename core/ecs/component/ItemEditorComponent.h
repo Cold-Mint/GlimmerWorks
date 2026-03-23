@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/1/23.
+// Created by Cold-Mint on 2026/1/23.
 //
 
 #ifndef GLIMMERWORKS_ITEMEDITORCOMPONENT_H

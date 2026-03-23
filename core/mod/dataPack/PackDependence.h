@@ -1,6 +1,6 @@
 //@genCode
 //
-// Created by coldmint on 2026/2/15.
+// Created by Cold-Mint on 2026/2/15.
 //
 
 #ifndef GLIMMERWORKS_PACKDEPENDENCE_H

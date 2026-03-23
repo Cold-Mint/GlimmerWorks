@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/3/3.
+// Created by Cold-Mint on 2026/3/3.
 //
 
 #ifndef GLIMMERWORKS_COORDINATEYDYNAMICSUGGESTIONS_H

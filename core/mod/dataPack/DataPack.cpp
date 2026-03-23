@@ -210,7 +210,6 @@ bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path,
     itemResource->name.SetSelfPackageId(manifest_.id);
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
-    itemResource->abilityConfig.UpdateArgs(manifest_.id);
     itemManager->AddAbilityItemResource(std::move(itemResource));
     return true;
 }

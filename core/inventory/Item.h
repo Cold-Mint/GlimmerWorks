@@ -31,7 +31,7 @@ namespace glimmer {
     public:
         virtual ~Item() = default;
 
-        virtual void ReadItemMessage(const AppContext* context, const ItemMessage &itemMessage);
+        virtual void ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage);
 
         virtual void WriteItemMessage(ItemMessage &itemMessage) const;
 
@@ -127,7 +127,7 @@ namespace glimmer {
          * 获取物品的变量配置
          * @return
          */
-        [[nodiscard]] virtual const VariableConfig &GetVariableConfig() const = 0;
+        [[nodiscard]] virtual const AbilityConfig &GetAbilityConfig() const = 0;
 
         /**
          * 获取图标
@@ -136,7 +136,7 @@ namespace glimmer {
         [[nodiscard]] virtual SDL_Texture *GetIcon() const = 0;
 
 
-        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &configMessage,
                            std::unordered_set<std::string> &popupAbility) = 0;
 
         /**

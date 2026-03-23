@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/28.
+// Created by Cold-Mint on 2025/12/28.
 //
 
 #ifndef GLIMMERWORKS_DRAGSOURCETYPE_H

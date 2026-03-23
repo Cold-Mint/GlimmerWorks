@@ -1,12 +1,15 @@
 //
-// Created by coldmint on 2025/12/23.
+// Created by Cold-Mint on 2025/12/23.
 //
 
 #ifndef GLIMMERWORKS_ITEMFUNCTIONMOD_H
 #define GLIMMERWORKS_ITEMFUNCTIONMOD_H
+#include <memory>
 #include <string>
-#include "../../mod/Resource.h"
+#include <unordered_set>
+
 #include "core/ecs/GameEntity.h"
+#include "core/mod/Resource.h"
 
 namespace glimmer {
     class AppContext;
@@ -18,19 +21,19 @@ namespace glimmer {
      * 物品能力
      */
     class ItemAbility {
-        VariableConfig variableConfig;
+        AbilityConfig abilityConfig_;
 
     public:
         explicit ItemAbility(
-            const AppContext *appContext, const VariableConfig &abilityData);
+            const AppContext *appContext, const AbilityConfig &abilityConfig);
 
         virtual ~ItemAbility() = default;
 
         [[nodiscard]] virtual std::string GetId() const = 0;
 
-        [[nodiscard]] const VariableConfig &GetVariableConfig() const;
+        [[nodiscard]] const AbilityConfig &GetAbilityConfig() const;
 
-        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
                            std::unordered_set<std::string> &popupAbility) = 0;
 
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;

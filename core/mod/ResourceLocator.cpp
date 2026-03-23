@@ -144,7 +144,7 @@ glimmer::ResourceLocator::FindItem(const ItemMessage &itemMessage) const {
     if (resourceType == RESOURCE_TYPE_ABILITY_ITEM) {
         auto abilityItemResource = FindAbilityItem(resourceRef);
         if (abilityItemResource != nullptr) {
-            result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource, resourceRef));
+            result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource));
         }
     }
     if (result == nullptr) {

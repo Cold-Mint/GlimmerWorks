@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/28.
+// Created by Cold-Mint on 2025/12/28.
 //
 
 #ifndef GLIMMERWORKS_ABILITYITEM_H
@@ -32,12 +32,11 @@ namespace glimmer {
         [[nodiscard]] ItemAbility *GetItemAbility() const;
 
         static std::unique_ptr<AbilityItem> FromItemResource(const AppContext *appContext,
-                                                             const AbilityItemResource *itemResource,
-                                                             const ResourceRef &resourceRef);
+                                                             const AbilityItemResource *itemResource);
 
-        [[nodiscard]] const VariableConfig &GetVariableConfig() const override;
+        [[nodiscard]] const AbilityConfig &GetAbilityConfig() const override;
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+        void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
                    std::unordered_set<std::string> &popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;

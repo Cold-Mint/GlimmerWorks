@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/2/2.
+// Created by Cold-Mint on 2026/2/2.
 //
 
 #include "SurfaceBiomeDecorator.h"
@@ -15,7 +15,7 @@ void glimmer::SurfaceBiomeDecorator::Decoration(WorldContext *worldContext, Terr
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
-            TerrainTileResult self = terrainResult->QueryTerrain(localX, localY);
+            const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
             if (self.terrainType != SOLID) {
                 //Not solid tiles.
                 //不是固体瓦片。
@@ -26,7 +26,7 @@ void glimmer::SurfaceBiomeDecorator::Decoration(WorldContext *worldContext, Terr
                 //瓦片不属于当前生物群系。
                 continue;
             }
-            TerrainTileResult up = terrainResult->QueryTerrain(localX, localY + 1);
+            const TerrainTileResult &up = terrainResult->QueryTerrain(localX, localY + 1);
             if (up.terrainType != AIR) {
                 // The tiles above are not air.
                 //上方的瓦片不是空气。

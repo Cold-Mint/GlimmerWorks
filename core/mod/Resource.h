@@ -280,6 +280,41 @@ namespace glimmer {
         std::vector<ResourceRef> data = {};
     };
 
+    //@genNextLine(AbilityConfig|能力配置)
+    struct AbilityConfig {
+        //@genNextLine(canMineBlock|是否能挖掘方块)
+        bool allowMineBlock = false;
+        //@genNextLine(miningRange|挖掘范围)
+        float miningRange = 5;
+        //@genNextLine(Using the item is more likely to cause accidental dropping.|使用物品时多大概率触发手滑)
+        float fumbleProbability = 0;
+        //@genNextLine(chainMiningRadius|连锁采集半径)
+        int chainMiningRadius = 0;
+        //@genNextLine(precisionMining|是否精准采集)
+        bool enablePrecisionMining = false;
+        //@genNextLine(miningEfficiency|工具效率)
+        float miningEfficiency = 0;
+
+        void Reset() {
+            allowMineBlock = false;
+            miningRange = 5;
+            fumbleProbability = 0;
+            chainMiningRadius = 0;
+            enablePrecisionMining = false;
+            miningEfficiency = 0;
+        }
+
+        AbilityConfig &operator+=(const AbilityConfig &other) {
+            this->allowMineBlock = this->allowMineBlock || other.allowMineBlock;
+            this->enablePrecisionMining = this->enablePrecisionMining || other.enablePrecisionMining;
+            this->miningRange += other.miningRange;
+            this->fumbleProbability += other.fumbleProbability;
+            this->chainMiningRadius += other.chainMiningRadius;
+            this->miningEfficiency += other.miningEfficiency;
+            return *this;
+        }
+    };
+
     /**
      * AbilityItem
      * 能力物品
@@ -295,7 +330,7 @@ namespace glimmer {
         //@genNextLine(ability|能力标识)
         std::string ability;
         //@genNextLine(abilityConfig|能力变量配置)
-        VariableConfig abilityConfig = {};
+        AbilityConfig abilityConfig = {};
         //@genNextLine(canUseAlone|是否可单独使用)
         bool canUseAlone = false;
     };

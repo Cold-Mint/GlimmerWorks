@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/1/15.
+// Created by Cold-Mint on 2026/1/15.
 //
 
 #ifndef GLIMMERWORKS_GUITRANSFORM2DCOMPONENT_H

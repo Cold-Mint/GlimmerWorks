@@ -1,6 +1,6 @@
 //@genCode
 //
-// Created by coldmint on 2026/1/30.
+// Created by Cold-Mint on 2026/1/30.
 //
 
 #ifndef GLIMMERWORKS_LOOTENTRY_H

@@ -1,19 +1,21 @@
 //
-// Created by coldmint on 2026/1/29.
+// Created by Cold-Mint on 2026/1/29.
 //
 
 #include "NoneAbility.h"
 
-glimmer::NoneAbility::NoneAbility(const AppContext *appContext, const VariableConfig &abilityData) : ItemAbility(
-    appContext, abilityData) {
+#include "core/Constants.h"
+
+glimmer::NoneAbility::NoneAbility(const AppContext *appContext, const AbilityConfig &abilityConfigMessage)
+    : ItemAbility(appContext, abilityConfigMessage) {
+}
+
+void glimmer::NoneAbility::OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
+                                 std::unordered_set<std::string> &popupAbility) {
 }
 
 std::string glimmer::NoneAbility::GetId() const {
     return ABILITY_ID_NONE;
-}
-
-void glimmer::NoneAbility::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
-                                 std::unordered_set<std::string> &popupAbility) {
 }
 
 std::unique_ptr<glimmer::ItemAbility> glimmer::NoneAbility::Clone() const {

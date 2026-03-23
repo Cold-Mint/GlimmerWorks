@@ -6,7 +6,6 @@
 #include "../ecs/component/TileLayerComponent.h"
 #include "../ecs/component/Transform2DComponent.h"
 #include "../Constants.h"
-#include "../mod/ResourceLocator.h"
 #include "../world/generator/ChunkPhysicsHelper.h"
 #include "../world/WorldContext.h"
 
@@ -26,8 +25,7 @@ const std::optional<std::string> &glimmer::TileItem::GetDescription() const {
     return tile_->GetDescription();
 }
 
-
-void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const VariableConfig &abilityData,
+void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
                               std::unordered_set<std::string> &popupAbility) {
     if (tile_ == nullptr) {
         return;
@@ -60,7 +58,6 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
                 Resource::GenerateId(
                     RESOURCE_REF_CORE, TILE_ID_WATER)) {
                 if (GetAmount() > 0) {
-                    //这里正确克隆了新的瓦片吗？
                     auto tile = std::make_unique<Tile>(*tile_);
                     tile->SetPlayerPlaced(true);
                     (void) tileLayer->SetTile(
@@ -76,13 +73,13 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
     }
 }
 
+
 SDL_Texture *glimmer::TileItem::GetIcon() const {
     return tile_->GetTexture();
 }
 
-
-const glimmer::VariableConfig &glimmer::TileItem::GetVariableConfig() const {
-    return variableConfig_;
+const glimmer::AbilityConfig &glimmer::TileItem::GetAbilityConfig() const {
+    return abilityConfig_;
 }
 
 std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const {

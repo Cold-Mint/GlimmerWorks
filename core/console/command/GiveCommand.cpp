@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2025/12/23.
+// Created by Cold-Mint on 2025/12/23.
 //
 
 #include "GiveCommand.h"
@@ -119,7 +119,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
 
-        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource, resourceRef);
+        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource);
         if (abilityItem == nullptr) {
             onMessage(appContext_->GetLangsResources()->composableItemIsNull);
             return false;

@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/2/21.
+// Created by Cold-Mint on 2026/2/21.
 //
 
 #ifndef GLIMMERWORKS_INITIALINVENTORYMANAGER_H

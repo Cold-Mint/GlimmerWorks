@@ -6,6 +6,15 @@
 
 glimmer::GameEntity::GameEntity(const ID id) : id_(id) {
 }
+
+const glimmer::ResourceRef &glimmer::GameEntity::GetResourceRef() const {
+    return resourceRef_;
+}
+
+void glimmer::GameEntity::SetResourceRef(const ResourceRef &resourceRef) {
+    resourceRef_ = resourceRef;
+}
+
 glimmer::GameEntity::ID glimmer::GameEntity::GetID() const {
     return id_;
 }

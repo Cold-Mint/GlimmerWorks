@@ -10,6 +10,7 @@
 #include "toml11/spec.hpp"
 
 namespace glimmer {
+    struct Resource;
     class ResourceRef;
 
     //@content(1)
@@ -61,8 +62,8 @@ namespace glimmer {
         static uint32_t ResolveResourceType(const std::string &typeName);
 
         /**
-         *The package Id for serialization from the json file might be set to @self
-         * 设置从json文件序列化的包Id可能为@self
+         *The package Id for serialization from the toml file might be set to @self
+         * 设置从toml文件序列化的包Id可能为@self
          * @param packId
          */
         void SetPackageId(const std::string &packId);
@@ -71,6 +72,16 @@ namespace glimmer {
 
         void WriteResourceRefMessage(ResourceRefMessage &resourceRefMessage) const;
 
+
+        [[nodiscard]] static std::optional<ResourceRef> ParseFromId(const std::string &id, int resourceType);
+
+        /**
+         * ReadResource
+         * 从资源内读取数据
+         * @param resource resource
+         * @param resourceType resourceType
+         */
+        void ReadResource(const Resource &resource, uint32_t resourceType);
 
         [[nodiscard]] std::string GetPackageId() const;
 

@@ -47,6 +47,31 @@ void glimmer::ResourceRef::WriteResourceRefMessage(ResourceRefMessage &resourceR
     resourceRefMessage.set_selfpackageid(selfPackageId_);
 }
 
+void glimmer::ResourceRef::ReadResource(const Resource &resource, const uint32_t resourceType) {
+    packId_ = resource.packId;
+    resourceKey_ = resource.resourceId;
+    selfPackageId_ = resource.packId;
+    resourceType_ = resourceType;
+}
+
+std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(const std::string &id, const int resourceType) {
+    auto pos = id.find(':');
+    if (pos == std::string::npos) {
+        return std::nullopt;
+    }
+    ResourceRef ref;
+    ref.SetSelfPackageId(id.substr(0, pos));
+    if (ref.GetPackageId().empty()) {
+        return std::nullopt;
+    }
+    ref.SetResourceKey(id.substr(pos + 1));
+    if (ref.GetResourceKey().empty()) {
+        return std::nullopt;
+    }
+    ref.SetResourceType(resourceType);
+    return ref;
+}
+
 std::string glimmer::ResourceRef::GetPackageId() const {
     if (!bindPackage_) {
         LogCat::e("Unbound packages may return placeholders.");

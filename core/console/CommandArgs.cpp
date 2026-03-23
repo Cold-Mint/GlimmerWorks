@@ -160,5 +160,5 @@ std::string glimmer::CommandArgs::AsString(const int index) const {
 }
 
 std::optional<glimmer::ResourceRef> glimmer::CommandArgs::AsResourceRef(const int index, const int resourceType) const {
-    return Resource::ParseFromId(AsString(index), resourceType);
+    return ResourceRef::ParseFromId(AsString(index), resourceType);
 }

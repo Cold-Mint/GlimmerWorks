@@ -7,7 +7,6 @@
 #include "../GameComponent.h"
 #include "box2d/types.h"
 #include "core/Box2dFilter.h"
-#include "core/ecs/GameEntity.h"
 #include "core/math/Vector2D.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
@@ -28,14 +27,8 @@ namespace glimmer {
         float density_ = 0.01F;
         ResourceRef shapeRef_;
 
-
     public:
         ~RigidBody2DComponent() override;
-
-
-        void SetTransform2DEntity(GameEntity::ID entity);
-
-        [[nodiscard]] GameEntity::ID GetTransform2DEntity() const;
 
         void SetFilter(Box2dFilter filter);
 
@@ -162,10 +155,6 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
 
         [[nodiscard]] bool IsSerializable() override;
-
-        [[nodiscard]] std::string Serialize() override;
-
-        void Deserialize(WorldContext *worldContext, const std::string &data) override;
     };
 }
 

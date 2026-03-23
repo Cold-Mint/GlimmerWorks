@@ -4,7 +4,8 @@
 
 #ifndef GLIMMERWORKS_GAMEENTITY_H
 #define GLIMMERWORKS_GAMEENTITY_H
-#include <cstdint>
+
+#include "core/mod/ResourceRef.h"
 
 namespace glimmer {
     class GameEntity {
@@ -14,9 +15,14 @@ namespace glimmer {
     private:
         ID id_;
         bool persistable_ = false;
+        ResourceRef resourceRef_;
 
     public:
         explicit GameEntity(ID id);
+
+        [[nodiscard]] const ResourceRef &GetResourceRef() const;
+
+        void SetResourceRef(const ResourceRef &resourceRef);
 
         [[nodiscard]] ID GetID() const;
 

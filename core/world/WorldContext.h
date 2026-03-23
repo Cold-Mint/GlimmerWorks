@@ -230,7 +230,7 @@ namespace glimmer {
          * This method will load the player data from the disk and then supplement the player's components after the loading process.
          * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
          */
-        void InitPlayer(MobResource* playerResource);
+        void InitPlayer(const MobResource *playerResource);
 
         /**
          * Initialize the hotbar
@@ -376,13 +376,14 @@ namespace glimmer {
 
 
         /**
-         * CreateMob
-         * 创建生物。
-         * @param vector2d
-         * @param mobResource
-         * @return
+         * AttachMobRelatedComponents
+         * 挂载生物相关组件
+         * @param entityId entityId 实体Id
+         * @param position position 位置
+         * @param mobResource mobResource 生物资源
          */
-        GameEntity::ID CreateMob(WorldVector2D vector2d, const MobResource *mobResource);
+        void AttachMobRelatedComponents(GameEntity::ID entityId, WorldVector2D position,
+                                        const MobResource *mobResource);
 
 
         /**
@@ -405,16 +406,19 @@ namespace glimmer {
          */
         void HideItemEditorPanel();
 
+
         /**
-         * Create a dropping object entity
-         * 创建一个掉落物实体
-         * @param item
-         * @param position
-         * @param pickupCooldown
+         * AttachDroppedItemRelatedComponents
+         * 挂载掉落物相关组件
+         * @param entityId  entityId 实体Id
+         * @param item item 物品
+         * @param position position 位置
+         * @param pickupCooldown 拾起冷却时间
          * @return
          */
-        GameEntity::ID CreateDroppedItemEntity(std::unique_ptr<Item> item, WorldVector2D position,
-                                               float pickupCooldown = 0.0F);
+        void AttachDroppedItemRelatedComponents(GameEntity::ID entityId, std::unique_ptr<Item> item,
+                                                WorldVector2D position,
+                                                float pickupCooldown = 0.0F);
 
 
         /**
@@ -425,6 +429,10 @@ namespace glimmer {
          * @return
          */
         bool SetPersistable(GameEntity::ID id, bool persistable);
+
+        bool SetResourceRef(GameEntity::ID id, const ResourceRef &resourceRef);
+
+        const ResourceRef *GetResourceRef(GameEntity::ID id);
 
         /**
          * Is the game entity persistent?
@@ -441,14 +449,6 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] std::vector<GameEntity::ID> GetAllGameEntityId() const;
-
-
-        /**
-         * Obtain all game objects that need to be persisted
-         * 获取所有需要持久化的游戏对象
-         * @return
-         */
-        [[nodiscard]] std::vector<GameEntity::ID> GetAllPersistableEntityId() const;
 
         /**
          * Remove Entity
@@ -499,15 +499,17 @@ namespace glimmer {
 
 
     namespace detail {
+        // Basic situation: There is only one component type.
         // 基本情况：只有一个组件类型
         template<typename T>
-        bool HasAllComponents(WorldContext *world, GameEntity::ID id) {
+        bool HasAllComponents(WorldContext *world, const GameEntity::ID id) {
             return world->HasComponent<T>(id);
         }
 
+        // Recursive situation: Multiple component types
         // 递归情况：多个组件类型
         template<typename T, typename U, typename... Ts>
-        bool HasAllComponents(WorldContext *world, GameEntity::ID id) {
+        bool HasAllComponents(WorldContext *world, const GameEntity::ID id) {
             return world->HasComponent<T>(id) && HasAllComponents<U, Ts...>(world, id);
         }
     }
@@ -529,44 +531,80 @@ namespace glimmer {
         return result;
     }
 
+    template<typename TComponent>
+    TComponent *WorldContext::GetComponent(const GameEntity::ID id) {
+        const auto it = entityComponents.find(id);
+        if (it == entityComponents.end()) {
+            return nullptr;
+        }
+        for (auto &component: it->second) {
+            if (component == nullptr) {
+                continue;
+            }
+            GameComponent *gameComponent = component.get();
+            auto *target = dynamic_cast<TComponent *>(gameComponent);
+            if (target == nullptr) {
+                continue;
+            }
+            return target;
+        }
+
+        return nullptr;
+    }
+
+    /**
+     * Add a component to the entity. If a component of the same type already exists on the entity, then return the existing pointer.
+     * 添加组件到实体，如果同类型组件已存在于实体上，那么返回已存在的指针。
+     * @tparam TComponent
+     * @tparam Args
+     * @param id
+     * @param args
+     * @return
+     */
     template<typename TComponent, typename... Args>
     TComponent *WorldContext::AddComponent(GameEntity::ID id, Args &&... args) {
+        const auto it = entityMap_.find(id);
+        if (it == entityMap_.end()) {
+            LogCat::e("Entity ", id, " does not exist.");
+#if  !defined(NDEBUG)
+            assert(false);
+#endif
+            return nullptr;
+        }
+        const auto components = entityComponents.find(id);
+        if (components != entityComponents.end()) {
+            for (auto &component: components->second) {
+                if (component == nullptr) {
+                    continue;
+                }
+                GameComponent *gameComponent = component.get();
+                auto *target = dynamic_cast<TComponent *>(gameComponent);
+                if (target == nullptr) {
+                    continue;
+                }
+                return target;
+            }
+        }
+
         const auto type = std::type_index(typeid(TComponent));
-
-        LogCat::d("Adding component ", type.name(), " to Entity ID = ", id);
-
-        // 创建组件实例
         auto comp = std::make_unique<TComponent>(std::forward<Args>(args)...);
         TComponent *ptr = comp.get();
         entityComponents[id].push_back(std::move(comp));
-
-        // 记录组件类型数量
         ++componentCount_[type];
-        LogCat::i("Component ", type.name(), " count = ", componentCount_[type]);
-
-        // 通知可能依赖该组件的系统
         if (componentCount_[type] == 1) {
-            LogCat::d("First instance of component ", type.name(),
-                      " detected, checking inactive systems for activation...");
-            //错误：Type GameSystem is incomplete
-            for (auto &sys: inactiveSystems) {
+            for (const auto &sys: inactiveSystems) {
                 if (sys && sys->SupportsComponentType(type)) {
-                    LogCat::d("System ", sys->GetName(),
-                              " supports ", type.name(), ", checking activation...");
                     sys->CheckActivation();
                 }
             }
         }
-
-        LogCat::d("Component ", type.name(), " ptr=", ptr, " successfully added to Entity ID = ", id);
         return ptr;
     }
 
     template<typename TComponent>
     void WorldContext::RemoveComponent(GameEntity::ID id) {
-        auto it = entityComponents.find(id);
+        const auto it = entityComponents.find(id);
         if (it == entityComponents.end()) return;
-
         auto &components = it->second;
         for (auto &c: components) {
             if (auto ptr = dynamic_cast<TComponent *>(c.get())) {
@@ -580,27 +618,22 @@ namespace glimmer {
     template<typename TComponent>
     bool WorldContext::HasComponent(const GameEntity::ID id) {
         const auto it = entityComponents.find(id);
-        if (it == entityComponents.end()) return false;
+        if (it == entityComponents.end()) {
+            return false;
+        }
 
-        for (auto &c: it->second) {
-            if (dynamic_cast<TComponent *>(c.get())) return true;
+        for (auto &component: it->second) {
+            if (component == nullptr) {
+                continue;
+            }
+            GameComponent *gameComponent = component.get();
+            if (dynamic_cast<TComponent *>(gameComponent) == nullptr) {
+                continue;
+            }
+            return true;
         }
 
         return false;
-    }
-
-    template<typename TComponent>
-    TComponent *WorldContext::GetComponent(const GameEntity::ID id) {
-        const auto it = entityComponents.find(id);
-        if (it == entityComponents.end()) return nullptr;
-
-        for (auto &c: it->second) {
-            if (auto *component = dynamic_cast<TComponent *>(c.get())) {
-                return component;
-            }
-        }
-
-        return nullptr;
     }
 }
 

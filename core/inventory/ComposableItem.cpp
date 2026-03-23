@@ -116,10 +116,10 @@ void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID u
         if (abilityItem == nullptr) {
             //Throwing items that are not items of ability.
             //扔出不为能力物品的物品。
-            worldContext->CreateDroppedItemEntity(
-                itemContainer_->TakeAllItem(index),
-                worldContext->GetCameraTransform2D()->GetPosition(),
-                2
+            worldContext->AttachDroppedItemRelatedComponents(worldContext->CreateEntity(),
+                                                             itemContainer_->TakeAllItem(index),
+                                                             worldContext->GetCameraTransform2D()->GetPosition(),
+                                                             2
             );
             continue;
         }
@@ -127,10 +127,10 @@ void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID u
         if (itemAbility == nullptr) {
             //Throwing items that are not items of ability.
             //扔出不为能力物品的物品。
-            worldContext->CreateDroppedItemEntity(
-                itemContainer_->TakeAllItem(index),
-                worldContext->GetCameraTransform2D()->GetPosition(),
-                2
+            worldContext->AttachDroppedItemRelatedComponents(worldContext->CreateEntity(),
+                                                             itemContainer_->TakeAllItem(index),
+                                                             worldContext->GetCameraTransform2D()->GetPosition(),
+                                                             2
             );
             continue;
         }
@@ -138,10 +138,10 @@ void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID u
         if (popupAbility.contains(itemAbility->GetId())) {
             //Mutual exclusivity
             //互斥
-            worldContext->CreateDroppedItemEntity(
-                itemContainer_->TakeAllItem(index),
-                worldContext->GetCameraTransform2D()->GetPosition(),
-                2
+            worldContext->AttachDroppedItemRelatedComponents(worldContext->CreateEntity(),
+                                                             itemContainer_->TakeAllItem(index),
+                                                             worldContext->GetCameraTransform2D()->GetPosition(),
+                                                             2
             );
             continue;
         }

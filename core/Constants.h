@@ -70,6 +70,9 @@ static constexpr uint32_t RESOURCE_TYPE_BIOME = 8;
 static constexpr uint32_t RESOURCE_TYPE_COLOR = 9;
 static constexpr uint32_t RESOURCE_TYPE_MOB = 10;
 static constexpr uint32_t RESOURCE_TYPE_SHAPE = 11;
+//This dropped item resource type is used for serialization within the game save file. Currently, this type of resource is not supported for definition within the mod.
+//这个掉落物资源类型用作存档内序列化。模组内暂不支持定义此类型的资源。
+static constexpr uint32_t RESOURCE_TYPE_DROPPED_ITEM = 12;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;
@@ -286,6 +289,6 @@ static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 constexpr float PLAYER_MOVE_SPEED_OPTIMIZED = 5.0F;
 constexpr float PLAYER_JUMP_FORCE = 7.5F;
 constexpr float AIR_CONTROL_FACTOR = 0.5F; // 空中移动衰减
-constexpr float GRAVITY_SCALE = 1.8F;      // 重力缩放（优化下落手感）
+constexpr float GRAVITY_SCALE = 1.8F; // 重力缩放（优化下落手感）
 
 #endif //CONSTANTS_H

@@ -9,7 +9,6 @@
 #include "box2d/box2d.h"
 #include "core/Constants.h"
 #include "core/shape/ShapeType.h"
-#include "src/saves/rigidbody_2d.pb.h"
 
 
 glimmer::RigidBody2DComponent::~RigidBody2DComponent() {
@@ -77,40 +76,42 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
     shapeDef.density = density_;
     shapeDef.material.restitution = restitution_;
     shapeDef.material.friction = friction_;
-    ShapeResource *shapeResource = resourceLocator->FindShape(shapeRef_);
-    auto shape = static_cast<ShapeType>(shapeResource->shapeType);
-    if (shape == ShapeType::RECTANGLE) {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-        const RectangleShapeResource *rectangleShapeResource = static_cast<RectangleShapeResource *>(shapeResource);
-        const b2Polygon box2dShape = b2MakeBox(
-            Box2DUtils::ToMeters(rectangleShapeResource->width * TILE_SIZE * 0.5F),
-            Box2DUtils::ToMeters(rectangleShapeResource->height * TILE_SIZE * 0.5F)
-        );
-        b2CreatePolygonShape(bodyId_, &shapeDef, &box2dShape);
+    if (ShapeResource *shapeResource = resourceLocator->FindShape(shapeRef_); shapeResource != nullptr) {
+        const auto shape = static_cast<ShapeType>(shapeResource->shapeType);
+        if (shape == ShapeType::RECTANGLE) {
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+            const RectangleShapeResource *rectangleShapeResource = static_cast<RectangleShapeResource *>(shapeResource);
+            const b2Polygon box2dShape = b2MakeBox(
+                Box2DUtils::ToMeters(rectangleShapeResource->width * TILE_SIZE * 0.5F),
+                Box2DUtils::ToMeters(rectangleShapeResource->height * TILE_SIZE * 0.5F)
+            );
+            b2CreatePolygonShape(bodyId_, &shapeDef, &box2dShape);
+        }
+
+        if (shape == ShapeType::CIRCLE) {
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+            const auto circularShapeResource = static_cast<CircularShapeResource *>(shapeResource);
+            b2Circle circle;
+            circle.radius = circularShapeResource->radius;
+            circle.center = {
+                Box2DUtils::ToMeters(circularShapeResource->center.x * TILE_SIZE),
+                Box2DUtils::ToMeters(circularShapeResource->center.y * TILE_SIZE)
+            };
+            b2CreateCircleShape(bodyId_, &shapeDef, &circle);
+        }
+
+        if (shape == ShapeType::ROUNDED_RECTANGLE) {
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+            const auto roundedRectangleShapeResource = static_cast<RoundedRectangleShapeResource *>(shapeResource);
+            const b2Polygon box2dShape = b2MakeRoundedBox(
+                Box2DUtils::ToMeters(roundedRectangleShapeResource->width * TILE_SIZE * 0.5F),
+                Box2DUtils::ToMeters(roundedRectangleShapeResource->height * TILE_SIZE * 0.5F),
+                Box2DUtils::ToMeters(roundedRectangleShapeResource->radius * TILE_SIZE)
+            );
+            b2CreatePolygonShape(bodyId_, &shapeDef, &box2dShape);
+        }
     }
 
-    if (shape == ShapeType::CIRCLE) {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-        const auto circularShapeResource = static_cast<CircularShapeResource *>(shapeResource);
-        b2Circle circle;
-        circle.radius = circularShapeResource->radius;
-        circle.center = {
-            Box2DUtils::ToMeters(circularShapeResource->center.x * TILE_SIZE),
-            Box2DUtils::ToMeters(circularShapeResource->center.y * TILE_SIZE)
-        };
-        b2CreateCircleShape(bodyId_, &shapeDef, &circle);
-    }
-
-    if (shape == ShapeType::ROUNDED_RECTANGLE) {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-        const auto roundedRectangleShapeResource = static_cast<RoundedRectangleShapeResource *>(shapeResource);
-        const b2Polygon box2dShape = b2MakeRoundedBox(
-            Box2DUtils::ToMeters(roundedRectangleShapeResource->width * TILE_SIZE * 0.5F),
-            Box2DUtils::ToMeters(roundedRectangleShapeResource->height * TILE_SIZE * 0.5F),
-            Box2DUtils::ToMeters(roundedRectangleShapeResource->radius * TILE_SIZE)
-        );
-        b2CreatePolygonShape(bodyId_, &shapeDef, &box2dShape);
-    }
 
     ready_ = true;
 }
@@ -172,51 +173,5 @@ uint32_t glimmer::RigidBody2DComponent::GetId() {
 }
 
 bool glimmer::RigidBody2DComponent::IsSerializable() {
-    return true;
-}
-
-std::string glimmer::RigidBody2DComponent::Serialize() {
-    RigidBody2dMessage rigidBody2dMessage;
-    rigidBody2dMessage.set_categorybits(filter_.categoryBits);
-    rigidBody2dMessage.set_maskbits(filter_.maskBits);
-    switch (bodyType_) {
-        case b2_dynamicBody:
-            rigidBody2dMessage.set_type(DYNAMIC);
-            break;
-        case b2_kinematicBody:
-            rigidBody2dMessage.set_type(KINEMATIC);
-            break;
-        case b2_staticBody:
-            rigidBody2dMessage.set_type(STATIC);
-            break;
-        default:
-            break;
-    }
-    rigidBody2dMessage.set_allowsleep(allowBodySleep_);
-    rigidBody2dMessage.set_fixedrotation(fixedRotation_);
-    rigidBody2dMessage.set_enabled(enabled_);
-    return rigidBody2dMessage.SerializeAsString();
-}
-
-void glimmer::RigidBody2DComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
-    RigidBody2dMessage rigidBody2dMessage;
-    rigidBody2dMessage.ParseFromString(data);
-    filter_.categoryBits = rigidBody2dMessage.categorybits();
-    filter_.maskBits = rigidBody2dMessage.maskbits();
-    switch (rigidBody2dMessage.type()) {
-        case DYNAMIC:
-            bodyType_ = b2_dynamicBody;
-            break;
-        case KINEMATIC:
-            bodyType_ = b2_kinematicBody;
-            break;
-        case STATIC:
-            bodyType_ = b2_staticBody;
-            break;
-        default:
-            break;
-    }
-    allowBodySleep_ = rigidBody2dMessage.allowsleep();
-    fixedRotation_ = rigidBody2dMessage.fixedrotation();
-    enabled_ = rigidBody2dMessage.enabled();
+    return false;
 }

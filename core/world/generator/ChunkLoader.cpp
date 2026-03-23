@@ -18,11 +18,10 @@
 #include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/log/LogCat.h"
-#include "core/utils/Box2DUtils.h"
 #include "core/world/WorldContext.h"
 
 
-glimmer::GameComponent *glimmer::ChunkLoader::RecoveryComponent(GameEntity::ID id,
+glimmer::GameComponent *glimmer::ChunkLoader::RecoveryComponent(const GameEntity::ID id,
                                                                 const ComponentMessage &componentMessage) const {
     uint32_t componentId = componentMessage.id();
     GameComponent *gameComponent = nullptr;
@@ -61,7 +60,9 @@ glimmer::GameComponent *glimmer::ChunkLoader::RecoveryComponent(GameEntity::ID i
             LogCat::w("The game components do not support serialization.");
             return nullptr;
     }
-    gameComponent->Deserialize(worldContext_, componentMessage.data());
+    if (gameComponent != nullptr) {
+        gameComponent->Deserialize(worldContext_, componentMessage.data());
+    }
     return gameComponent;
 }
 
@@ -87,23 +88,28 @@ glimmer::ChunkLoader::ChunkLoader(WorldContext *worldContext, Saves *saves,
 glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage &entityItemMessage) const {
     const auto id = entityItemMessage.gameentity().id();
     auto entity = std::make_unique<GameEntity>(id);
+    registerEntity_(std::move(entity));
+    if (entityItemMessage.has_resourceref()) {
+        const ResourceRefMessage &resourceRefMessage = entityItemMessage.resourceref();
+        if (resourceRefMessage.resourcetype() == RESOURCE_TYPE_MOB) {
+            ResourceRef resourceRef;
+            resourceRef.ReadResourceRefMessage(resourceRefMessage);
+            const MobResource *mobResource = worldContext_->GetAppContext()->GetResourceLocator()->FindMob(resourceRef);
+            if (mobResource == nullptr) {
+                return GAME_ENTITY_ID_INVALID;
+            }
+
+            // worldContext_->AttachMobRelatedComponents(entity);
+        }
+        if (resourceRefMessage.resourcetype() == RESOURCE_TYPE_DROPPED_ITEM) {
+        }
+    }
+
     const int componentSize = entityItemMessage.components_size();
-    RigidBody2DComponent *rigidBody2dComponent = nullptr;
-    Transform2DComponent *transform2dComponent = nullptr;
     for (int j = 0; j < componentSize; j++) {
         GameComponent *component = RecoveryComponent(id, entityItemMessage.components(j));
-        if (component->GetId() == COMPONENT_ID_RIGID_BODY_2D) {
-            rigidBody2dComponent = dynamic_cast<RigidBody2DComponent *>(component);
-        }
-        if (component->GetId() == COMPONENT_ID_TRANSFORM_2D) {
-            transform2dComponent = dynamic_cast<Transform2DComponent *>(component);
-        }
     }
-    if (rigidBody2dComponent != nullptr && transform2dComponent != nullptr) {
-        rigidBody2dComponent->CreateBody(worldContext_->GetAppContext()->GetResourceLocator(),worldContext_->GetWorldId(),
-                                         transform2dComponent->GetPosition());
-    }
-    return registerEntity_(std::move(entity));
+    return id;
 }
 
 

@@ -4,7 +4,6 @@
 //
 #ifndef RESOURCE_H
 #define RESOURCE_H
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -40,9 +39,8 @@ namespace glimmer {
         [[nodiscard]] static std::string GenerateId(const std::string &packId, const std::string &key);
 
         [[nodiscard]] static std::string GenerateId(const Resource &resource);
-
-        [[nodiscard]] static std::optional<ResourceRef> ParseFromId(const std::string &id, int resourceType);
     };
+
 
     /**
      * Vector2DResource
@@ -144,7 +142,7 @@ namespace glimmer {
      * Mob Resource
      * 生物资源
      */
-    //@genNextLine(MobResource|生物资源类)
+    //@genNextLine(MobResource|生物资源)
     struct MobResource : Resource {
         //@genNextLine(isPlayer|是否为玩家)
         bool isPlayer = false;

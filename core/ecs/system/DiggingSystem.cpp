@@ -19,29 +19,30 @@ void glimmer::DiggingSystem::BreakTile(const TileVector2D tilePosition, const Ap
     auto oldTile = tileLayerComponent->ReplaceTile(
         tilePosition, Tile::FromTileResource(appContext, appContext->GetTileManager()->GetAir()));
 
-    if (oldTile) {
-        if (!diggingComponent->IsPrecisionMining() && oldTile->IsCustomLootTable()) {
-            const auto lootResource = appContext->GetResourceLocator()->FindLoot(oldTile->GetLootTableRef());
-            if (lootResource != nullptr) {
-                std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
-                for (auto &itemMessage: itemMessageList) {
-                    auto itemPtr = appContext->GetResourceLocator()->FindItem(itemMessage);
-                    if (itemPtr == nullptr) {
-                        continue;
-                    }
-                    itemPtr->ReadItemMessage(appContext, itemMessage);
-                    worldContext_->CreateDroppedItemEntity(
-                        std::move(itemPtr),
-                        TileLayerComponent::TileToWorld(tilePosition)
-                    );
+    if (oldTile == nullptr) {
+        return;
+    }
+    if (!diggingComponent->IsPrecisionMining() && oldTile->IsCustomLootTable()) {
+        const auto lootResource = appContext->GetResourceLocator()->FindLoot(oldTile->GetLootTableRef());
+        if (lootResource != nullptr) {
+            std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
+            for (auto &itemMessage: itemMessageList) {
+                auto itemPtr = appContext->GetResourceLocator()->FindItem(itemMessage);
+                if (itemPtr == nullptr) {
+                    continue;
                 }
+                itemPtr->ReadItemMessage(appContext, itemMessage);
+                worldContext_->AttachDroppedItemRelatedComponents(worldContext_->CreateEntity(),
+                                                                  std::move(itemPtr),
+                                                                  TileLayerComponent::TileToWorld(tilePosition)
+                );
             }
-        } else {
-            worldContext_->CreateDroppedItemEntity(
-                std::make_unique<TileItem>(std::move(oldTile)),
-                TileLayerComponent::TileToWorld(tilePosition)
-            );
         }
+    } else {
+        worldContext_->AttachDroppedItemRelatedComponents(worldContext_->CreateEntity(),
+                                                          std::make_unique<TileItem>(std::move(oldTile)),
+                                                          TileLayerComponent::TileToWorld(tilePosition)
+        );
     }
 }
 

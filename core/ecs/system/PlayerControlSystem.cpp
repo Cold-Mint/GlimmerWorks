@@ -93,10 +93,11 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
             if (itemContainer != nullptr) {
                 auto item = itemContainer->TakeItem(hotBarComp->GetSelectedSlot(), 1);
                 if (item != nullptr) {
-                    worldContext_->CreateDroppedItemEntity(
-                        std::move(item),
-                        worldContext_->GetCameraTransform2D()->GetPosition(),
-                        2
+                    worldContext_->AttachDroppedItemRelatedComponents(worldContext_->CreateEntity(),
+                                                                      std::move(item),
+                                                                      worldContext_->GetCameraTransform2D()->
+                                                                      GetPosition(),
+                                                                      2
                     );
                 }
             }
@@ -122,10 +123,12 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
                         float randomValue = dist(rng);
 
                         if (randomValue <= fumbleChance) {
-                            worldContext_->CreateDroppedItemEntity(
-                                std::move(itemContainer->TakeAllItem(hotBarComp->GetSelectedSlot())),
-                                worldContext_->GetCameraTransform2D()->GetPosition(),
-                                2
+                            worldContext_->AttachDroppedItemRelatedComponents(worldContext_->CreateEntity(),
+                                                                              std::move(itemContainer->TakeAllItem(
+                                                                                  hotBarComp->GetSelectedSlot())),
+                                                                              worldContext_->GetCameraTransform2D()->
+                                                                              GetPosition(),
+                                                                              2
                             );
                             return;
                         }

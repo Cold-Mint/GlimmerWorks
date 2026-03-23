@@ -13,24 +13,6 @@ std::string glimmer::Resource::GenerateId(const Resource &resource) {
     return GenerateId(resource.packId, resource.resourceId);
 }
 
-std::optional<glimmer::ResourceRef> glimmer::Resource::ParseFromId(const std::string &id, const int resourceType) {
-    auto pos = id.find(':');
-    if (pos == std::string::npos) {
-        return std::nullopt;
-    }
-    ResourceRef ref;
-    ref.SetSelfPackageId(id.substr(0, pos));
-    if (ref.GetPackageId().empty()) {
-        return std::nullopt;
-    }
-    ref.SetResourceKey(id.substr(pos + 1));
-    if (ref.GetResourceKey().empty()) {
-        return std::nullopt;
-    }
-    ref.SetResourceType(resourceType);
-    return ref;
-}
-
 glimmer::VariableDefinitionType glimmer::VariableDefinition::ResolveVariableType(const std::string &typeName) {
     const auto it = variableDefinitionTypeMap_.find(typeName);
     return it == variableDefinitionTypeMap_.end() ? INT : it->second;

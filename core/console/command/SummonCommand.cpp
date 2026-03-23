@@ -48,7 +48,7 @@ bool glimmer::SummonCommand::Execute(CommandArgs commandArgs, std::function<void
     auto transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
     auto worldVector2D = WorldVector2D(commandArgs.AsCoordinate(1, transform2DComponent->GetPosition().x),
                                        commandArgs.AsCoordinate(2, transform2DComponent->GetPosition().y));
-    worldContext_->CreateMob(worldVector2D, mobResource);
+    worldContext_->AttachMobRelatedComponents(worldContext_->CreateEntity(), worldVector2D, mobResource);
     return true;
 }
 

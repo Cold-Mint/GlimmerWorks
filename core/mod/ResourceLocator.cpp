@@ -130,7 +130,7 @@ glimmer::ResourceLocator::FindItem(const ItemMessage &itemMessage) const {
     if (resourceType == RESOURCE_TYPE_TILE) {
         auto tileResource = FindTile(resourceRef);
         if (tileResource != nullptr) {
-            result = std::make_unique<TileItem>(Tile::FromTileResource(appContext_, tileResource));
+            result = std::make_unique<TileItem>(Tile::FromTileResource(appContext_, tileResource, resourceRef));
         }
     }
     if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {

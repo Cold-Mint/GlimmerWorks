@@ -23,6 +23,10 @@ namespace glimmer {
          * 空气
          */
         std::unique_ptr<TileResource> air_ = nullptr;
+
+        std::unique_ptr<ResourceRef> airResourceRef_;
+
+
         /**
          * Water
          * 水
@@ -49,6 +53,8 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] TileResource *GetAir() const;
+
+        [[nodiscard]] const ResourceRef *GetAirResourceRef() const;
 
         [[nodiscard]] TileResource *GetWater() const;
 

@@ -16,12 +16,12 @@ glimmer::Vector2DI::Vector2DI(const Vector2D &v)
       y(static_cast<int>(std::floor(v.y))) {
 }
 
-void glimmer::Vector2DI::FromMessage(const Vector2DIMessage &vector2di) {
+void glimmer::Vector2DI::ReadVector2DIMessage(const Vector2DIMessage &vector2di) {
     x = vector2di.x();
     y = vector2di.y();
 }
 
-void glimmer::Vector2DI::ToMessage(Vector2DIMessage &vector2di) const {
+void glimmer::Vector2DI::WriteVector2DIMessage(Vector2DIMessage &vector2di) const {
     vector2di.set_x(x);
     vector2di.set_y(y);
 }

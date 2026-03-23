@@ -63,8 +63,8 @@ glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const Tile
     return GetTile(layerType, tileVector2d.y << CHUNK_SHIFT | tileVector2d.x);
 }
 
-void glimmer::Chunk::FromMessage(const AppContext *appContext, const ChunkMessage &chunkMessage) {
-    position.FromMessage(chunkMessage.position());
+void glimmer::Chunk::ReadChunkMessage(const AppContext *appContext, const ChunkMessage &chunkMessage) {
+    position.ReadVector2DIMessage(chunkMessage.position());
     tiles_.clear();
     auto &map = chunkMessage.tiles();
     for (const auto &mapPair: map) {
@@ -80,18 +80,20 @@ void glimmer::Chunk::FromMessage(const AppContext *appContext, const ChunkMessag
             if (tileResource == nullptr) {
                 continue;
             }
-
-            value[i] = Tile::FromTileResource(appContext, tileResource);
-            value[i]->ReadTileMessage(tileMessage);
+            std::unique_ptr<Tile> tile = Tile::FromTileResource(appContext, tileResource, resourceRef);
+            if (tile == nullptr) {
+                continue;
+            }
+            tile->ReadTileMessage(tileMessage);
+            value[i] = std::move(tile);
         }
         tiles_.emplace(key, std::move(value));
     }
 }
 
-void glimmer::Chunk::ToMessage(ChunkMessage &chunkMessage) {
-    position.ToMessage(*chunkMessage.mutable_position());
+void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
+    position.WriteVector2DIMessage(*chunkMessage.mutable_position());
     chunkMessage.clear_tiles();
-
     for (const auto &[layerType, tileArray]: tiles_) {
         auto &tileData =
                 (*chunkMessage.mutable_tiles())[static_cast<int>(layerType)];

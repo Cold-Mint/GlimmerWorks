@@ -16,6 +16,7 @@
 
 namespace glimmer {
     class Tile {
+        ResourceRef tileRef_;
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
@@ -68,7 +69,8 @@ namespace glimmer {
          * @param tileResource tileResource 瓦片资源
          * @return
          */
-        static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext, const TileResource *tileResource);
+        static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext, const TileResource *tileResource,
+                                                      const ResourceRef &resourceRef);
     };
 }
 

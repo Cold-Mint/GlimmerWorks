@@ -39,9 +39,9 @@ namespace glimmer {
          */
         explicit Vector2DI(const Vector2D &v);
 
-        void FromMessage(const Vector2DIMessage &vector2di);
+        void ReadVector2DIMessage(const Vector2DIMessage &vector2di);
 
-        void ToMessage(Vector2DIMessage &vector2di) const;
+        void WriteVector2DIMessage(Vector2DIMessage &vector2di) const;
 
         /**
          * Vector addition

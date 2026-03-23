@@ -64,16 +64,20 @@ glimmer::TileLayerType glimmer::Tile::GetLayerType() const {
 }
 
 void glimmer::Tile::ReadTileMessage(const TileMessage &tileMessage) {
+    tileRef_.ReadResourceRefMessage(tileMessage.resourceref());
     isPlayerPlaced_ = tileMessage.isplayerplaced();
 }
 
 void glimmer::Tile::WriteTileMessage(TileMessage &tileMessage) const {
+    tileRef_.WriteResourceRefMessage(*tileMessage.mutable_resourceref());
     tileMessage.set_isplayerplaced(isPlayerPlaced_);
 }
 
 std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext *appContext,
-                                                               const TileResource *tileResource) {
+                                                               const TileResource *tileResource,
+                                                               const ResourceRef &resourceRef) {
     auto tile = std::make_unique<Tile>();
+    tile->tileRef_ = resourceRef;
     tile->id_ = Resource::GenerateId(*tileResource);
     const StringResource *nameStringResource = appContext->GetResourceLocator()->FindString(
         tileResource->name);

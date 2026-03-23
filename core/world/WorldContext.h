@@ -379,10 +379,9 @@ namespace glimmer {
          * AttachMobRelatedComponents
          * 挂载生物相关组件
          * @param entityId entityId 实体Id
-         * @param position position 位置
          * @param mobResource mobResource 生物资源
          */
-        void AttachMobRelatedComponents(GameEntity::ID entityId, WorldVector2D position,
+        void AttachMobRelatedComponents(GameEntity::ID entityId,
                                         const MobResource *mobResource);
 
 

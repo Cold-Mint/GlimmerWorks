@@ -16,8 +16,10 @@
 void glimmer::DiggingSystem::BreakTile(const TileVector2D tilePosition, const AppContext *appContext,
                                        const DiggingComponent *diggingComponent,
                                        const TileLayerComponent *tileLayerComponent) const {
+    const TileManager *tileManager = appContext->GetTileManager();
     auto oldTile = tileLayerComponent->ReplaceTile(
-        tilePosition, Tile::FromTileResource(appContext, appContext->GetTileManager()->GetAir()));
+        tilePosition, Tile::FromTileResource(appContext, tileManager->GetAir(),
+                                             *tileManager->GetAirResourceRef()));
 
     if (oldTile == nullptr) {
         return;

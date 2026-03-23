@@ -89,6 +89,11 @@ glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMes
     const auto id = entityItemMessage.gameentity().id();
     auto entity = std::make_unique<GameEntity>(id);
     registerEntity_(std::move(entity));
+    const int componentSize = entityItemMessage.components_size();
+    for (int j = 0; j < componentSize; j++) {
+        (void) RecoveryComponent(id, entityItemMessage.components(j));
+    }
+
     if (entityItemMessage.has_resourceref()) {
         const ResourceRefMessage &resourceRefMessage = entityItemMessage.resourceref();
         if (resourceRefMessage.resourcetype() == RESOURCE_TYPE_MOB) {
@@ -98,17 +103,32 @@ glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMes
             if (mobResource == nullptr) {
                 return GAME_ENTITY_ID_INVALID;
             }
-
-            // worldContext_->AttachMobRelatedComponents(entity);
+            worldContext_->AttachMobRelatedComponents(id, mobResource);
+            const Transform2DComponent *transform2dComponent = worldContext_->GetComponent<Transform2DComponent>(id);
+            auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(id);
+            if (transform2dComponent != nullptr && rigidBody2DComponent != nullptr) {
+                rigidBody2DComponent->CreateBody(worldContext_->GetAppContext()->GetResourceLocator(),
+                                                 worldContext_->GetWorldId(), transform2dComponent->GetPosition());
+            }
         }
         if (resourceRefMessage.resourcetype() == RESOURCE_TYPE_DROPPED_ITEM) {
+            // worldContext_->AttachDroppedItemRelatedComponents(id, std::move(returnItem));
+            // const auto transform2dComponent = AddComponent<
+            //     Transform2DComponent>(gameEntity);
+            // if (transform2dComponent != nullptr) {
+            //     transform2dComponent->SetPosition(playerPosition);
+            // }
+            // auto rigidBody2DComponent = GetComponent<RigidBody2DComponent>(gameEntity);
+            // if (transform2dComponent != nullptr && rigidBody2DComponent != nullptr) {
+            //     rigidBody2DComponent->CreateBody(GetAppContext()->GetResourceLocator(), worldId_,
+            //                                      playerPosition);
+            // }
+
+            // worldContext_->AttachDroppedItemRelatedComponents(id, WorldVector2D(position.x(), position.y()), );
         }
     }
 
-    const int componentSize = entityItemMessage.components_size();
-    for (int j = 0; j < componentSize; j++) {
-        GameComponent *component = RecoveryComponent(id, entityItemMessage.components(j));
-    }
+
     return id;
 }
 
@@ -119,7 +139,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVec
         //读取区块文件。
         if (const auto chunkMessage = saves_->ReadChunk(position); chunkMessage.has_value()) {
             auto chunk = std::make_unique<Chunk>(position);
-            chunk.get()->FromMessage(worldContext_->GetAppContext(), chunkMessage.value());
+            chunk.get()->ReadChunkMessage(worldContext_->GetAppContext(), chunkMessage.value());
             LoadEntityFromSaves(position);
             return chunk;
         }

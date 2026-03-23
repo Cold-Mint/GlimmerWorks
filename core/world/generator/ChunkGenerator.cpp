@@ -486,7 +486,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                           " does not exist.");
                 tileResourceValue = appContext->GetTileManager()->GetAir();
             }
-            chunk->SetTile(localTile, Tile::FromTileResource(appContext, tileResourceValue));
+            chunk->SetTile(localTile, Tile::FromTileResource(appContext, tileResourceValue, resourceRef));
         }
     }
     return chunk;

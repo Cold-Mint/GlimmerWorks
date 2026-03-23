@@ -198,53 +198,50 @@ void glimmer::WorldContext::InitPlayer(const MobResource *playerResource) {
         const auto height = chunkGenerator_->GetHeight(0);
         playerEntity = CreateEntity();
         AttachMobRelatedComponents(playerEntity,
-                                   TileLayerComponent::TileToWorld(TileVector2D(0, height + 3)),
                                    playerResource);
-    }
-    if (!HasComponent<PlayerComponent>(playerEntity)) {
-        AddComponent<PlayerComponent>(playerEntity);
-    }
-    SetCameraPosition(GetComponent<Transform2DComponent>(playerEntity));
-    if (!HasComponent<CameraComponent>(playerEntity)) {
-        AddComponent<CameraComponent>(playerEntity);
-    }
-    SetCameraComponent(GetComponent<CameraComponent>(playerEntity));
-    if (!HasComponent<DiggingComponent>(playerEntity)) {
-        AddComponent<DiggingComponent>(playerEntity);
-    }
-    SetDiggingComponent(GetComponent<DiggingComponent>(playerEntity));
-    if (!HasComponent<MagnetComponent>(playerEntity)) {
-        auto *magnetComponent = AddComponent<MagnetComponent>(playerEntity);
-        if (magnetComponent != nullptr) {
-            magnetComponent->SetType(MAGNETIC_TYPE_ITEM);
+        WorldVector2D position = TileLayerComponent::TileToWorld(TileVector2D(0, height + 3));
+        auto transform2dComponent = AddComponent<Transform2DComponent>(playerEntity);
+        if (transform2dComponent != nullptr) {
+            transform2dComponent->SetPosition(position);
+        }
+        auto rigidBody2DComponent = GetComponent<RigidBody2DComponent>(playerEntity);
+        if (rigidBody2DComponent != nullptr) {
+            rigidBody2DComponent->CreateBody(GetAppContext()->GetResourceLocator(), worldId_, position);
         }
     }
 
-    if (!HasComponent<ItemContainerComponent>(playerEntity)) {
-        auto *itemContainerComponent = AddComponent<ItemContainerComponent>(
-            playerEntity, HOT_BAR_SIZE);
-        if (itemContainerComponent != nullptr) {
-            auto &allInitialInventory = appContext_->GetInitialInventoryManager()->GetAllInitialInventory();
-            for (auto &initialInventory: allInitialInventory) {
-                for (auto &addItem: initialInventory->addItems) {
-                    auto item = appContext_->GetResourceLocator()->FindItem(addItem);
-                    if (item == nullptr) {
-                        continue;
-                    }
-                    std::unique_ptr<Item> returnItem = itemContainerComponent->GetItemContainer()->AddItem(
-                        std::move(item));
-                    if (returnItem != nullptr) {
-                        AttachDroppedItemRelatedComponents(CreateEntity(), std::move(returnItem),
-                                                           GetComponent<Transform2DComponent>(playerEntity)->
-                                                           GetPosition());
-                    }
+    AddComponent<PlayerComponent>(playerEntity);
+    SetCameraPosition(GetComponent<Transform2DComponent>(playerEntity));
+    AddComponent<CameraComponent>(playerEntity);
+    SetCameraComponent(GetComponent<CameraComponent>(playerEntity));
+    AddComponent<DiggingComponent>(playerEntity);
+    SetDiggingComponent(GetComponent<DiggingComponent>(playerEntity));
+    auto *magnetComponent = AddComponent<MagnetComponent>(playerEntity);
+    if (magnetComponent != nullptr) {
+        magnetComponent->SetType(MAGNETIC_TYPE_ITEM);
+    }
+
+    auto *itemContainerComponent = AddComponent<ItemContainerComponent>(
+        playerEntity, HOT_BAR_SIZE);
+    if (itemContainerComponent != nullptr) {
+        auto &allInitialInventory = appContext_->GetInitialInventoryManager()->GetAllInitialInventory();
+        for (auto &initialInventory: allInitialInventory) {
+            for (auto &addItem: initialInventory->addItems) {
+                auto item = appContext_->GetResourceLocator()->FindItem(addItem);
+                if (item == nullptr) {
+                    continue;
+                }
+                std::unique_ptr<Item> returnItem = itemContainerComponent->GetItemContainer()->AddItem(
+                    std::move(item));
+                if (returnItem != nullptr) {
+                    AttachDroppedItemRelatedComponents(CreateEntity(), std::move(returnItem),
+                                                       GetComponent<Transform2DComponent>(playerEntity)->
+                                                       GetPosition());
                 }
             }
         }
     }
-    if (!HasComponent<AutoPickComponent>(playerEntity)) {
-        AddComponent<AutoPickComponent>(playerEntity);
-    }
+    AddComponent<AutoPickComponent>(playerEntity);
     player_ = playerEntity;
 }
 
@@ -363,7 +360,7 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
     }
     ChunkMessage chunkMessage;
     Chunk *chunk = it->second.get();
-    chunk->ToMessage(chunkMessage);
+    chunk->WriteChunkMessage(chunkMessage);
     (void) saves_->WriteChunk(position, chunkMessage);
     const WorldVector2D startWorldVector2d = chunk->GetStartWorldPosition();
     const WorldVector2D endWorldVector2d = chunk->GetEndWorldPosition();
@@ -633,18 +630,12 @@ glimmer::GameEntity::ID glimmer::WorldContext::CreateEntity() {
     return RegisterEntity(std::make_unique<GameEntity>(++entityId_));
 }
 
-void glimmer::WorldContext::AttachMobRelatedComponents(const GameEntity::ID entityId, const WorldVector2D position,
+void glimmer::WorldContext::AttachMobRelatedComponents(const GameEntity::ID entityId,
                                                        const MobResource *mobResource) {
     ResourceRef resourceRef;
     resourceRef.ReadResource(*mobResource, RESOURCE_TYPE_MOB);
     SetResourceRef(entityId, resourceRef);
     SetPersistable(entityId, true);
-    const auto transform2dComponent = AddComponent<Transform2DComponent>(entityId);
-    if (transform2dComponent == nullptr) {
-        LogCat::e("AttachMobRelatedComponents Transform2DComponent is nullptr");
-        return;
-    }
-    transform2dComponent->SetPosition(position);
     MobComponent *mobComponent;
     if (mobResource->isPlayer) {
         mobComponent = AddComponent<PlayerComponent>(entityId);
@@ -679,8 +670,6 @@ void glimmer::WorldContext::AttachMobRelatedComponents(const GameEntity::ID enti
         rigidBody2DComponent->SetFriction(mobResource->friction);
         rigidBody2DComponent->SetFixedRotation(mobResource->fixedRotation);
         rigidBody2DComponent->SetShapeRef(mobResource->shape);
-        rigidBody2DComponent->CreateBody(GetAppContext()->GetResourceLocator(), worldId_,
-                                         position);
     }
     const auto spiritRendererComponent = AddComponent<SpiritRendererComponent>(entityId);
     if (spiritRendererComponent != nullptr) {

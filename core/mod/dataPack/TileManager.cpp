@@ -22,6 +22,8 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     air_->layerType = static_cast<uint8_t>(TileLayerType::Main);
     air_->hardness = -1.0F;
+    airResourceRef_ = std::make_unique<ResourceRef>();
+    airResourceRef_->ReadResource(*air_.get(), RESOURCE_TYPE_TILE);
     water_ = std::make_unique<TileResource>();
     ResourceRef waterResource;
     waterResource.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -59,6 +61,10 @@ void glimmer::TileManager::InitBuiltinTiles() {
 
 glimmer::TileResource *glimmer::TileManager::GetAir() const {
     return air_.get();
+}
+
+const glimmer::ResourceRef *glimmer::TileManager::GetAirResourceRef() const {
+    return airResourceRef_.get();
 }
 
 glimmer::TileResource *glimmer::TileManager::GetWater() const {

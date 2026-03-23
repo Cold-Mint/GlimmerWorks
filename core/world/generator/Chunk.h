@@ -68,9 +68,9 @@ namespace glimmer {
 
         [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D &tileVector2d);
 
-        void FromMessage(const AppContext *appContext, const ChunkMessage &chunkMessage);
+        void ReadChunkMessage(const AppContext *appContext, const ChunkMessage &chunkMessage);
 
-        void ToMessage(ChunkMessage &chunkMessage);
+        void WriteChunkMessage(ChunkMessage &chunkMessage);
 
         WorldVector2D GetStartWorldPosition() const;
 

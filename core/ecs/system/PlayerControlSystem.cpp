@@ -42,28 +42,42 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
     const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
     bool isGrounded = OnGround(playerComponent);
     const b2Vec2 currentVel = b2Body_GetLinearVelocity(bodyId);
-    float targetVX = 0.0F;
-    if (playerComponent->moveLeft) {
-        targetVX -= playerComponent->movementSpeed * TILE_SIZE;
-    }
-    if (playerComponent->moveRight) {
-        targetVX += playerComponent->movementSpeed * TILE_SIZE;
-    }
+    float targetAccX = playerComponent->movementAcceleration * playerComponent->horizontalInput;
     if (!isGrounded) {
-        targetVX *= AIR_CONTROL_FACTOR;
+        targetAccX *= playerComponent->airControlFactor;
     }
-    float smoothVX = CalculateSmoothMoveSpeed(targetVX, currentVel.x, delta, isGrounded);
-    float targetVY = currentVel.y;
+    b2MassData massData = b2Body_GetMassData(bodyId);
+    float horizontalForce = massData.mass * targetAccX;
     if (playerComponent->jump && isGrounded) {
-        targetVY = PLAYER_JUMP_FORCE;
+        b2Vec2 jumpImpulse = {0, massData.mass * PLAYER_JUMP_FORCE};
+        b2Body_ApplyLinearImpulseToCenter(bodyId, jumpImpulse, true);
         playerComponent->jump = false;
     }
-    if (!isGrounded) {
-        targetVY -= GRAVITY_SCALE * delta;
+    if (playerComponent->horizontalInput == 0) {
+        // 制动力系数：地面摩擦力大，空中摩擦力小
+        const float brakeFactor = isGrounded ? 8.0F : 2.0F;
+        // 反向制动力 = -当前速度 × 质量 × 制动系数（与运动方向相反）
+        horizontalForce = -currentVel.x * massData.mass * brakeFactor;
+
+        // 可选：速度极小值时直接清零，避免无限滑
+        if (fabs(currentVel.x) < 0.1F) {
+            b2Body_SetLinearVelocity(bodyId, {0.0F, currentVel.y});
+            horizontalForce = 0.0F; // 停止施力
+        }
+    }
+    b2Body_ApplyForceToCenter(bodyId, {horizontalForce, 0.0F}, true);
+    if (std::abs(currentVel.x) > playerComponent->maxSpeed) {
+        //The horizontal speed has exceeded the maximum speed.
+        //水平方向速度，超过了最大速度。
+        if (currentVel.x > 0) {
+            b2Body_SetLinearVelocity(bodyId, {playerComponent->maxSpeed, currentVel.y});
+        } else {
+            b2Body_SetLinearVelocity(bodyId, {-playerComponent->maxSpeed, currentVel.y});
+        }
     }
 
-    b2Body_SetLinearVelocity(bodyId, {smoothVX, targetVY});
-
+    float gravityForce = massData.mass * GRAVITY_SCALE;
+    b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
     const auto hotBarEntity = worldContext_->GetHotBarEntity();
     if (WorldContext::IsEmptyEntityId(hotBarEntity)) {
         LogCat::d("PlayerControlSystem hotBarEntity null");
@@ -95,12 +109,12 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
     if (playerComponent->mouseLeftDown && hotBarComp && containerComp) {
         if (const auto itemContainer = containerComp->GetItemContainer()) {
             if (Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot())) {
-                slipTimer += delta;
+                slipTimer_ += delta;
                 std::unordered_set<std::string> popupAbility;
                 const AbilityConfig &abilityConfig = item->GetAbilityConfig();
 
-                if (slipTimer > 0.5F) {
-                    slipTimer = 0.0F;
+                if (slipTimer_ > 0.5F) {
+                    slipTimer_ = 0.0F;
                     std::random_device rd;
                     std::mt19937 rng(rd());
                     float fumbleChance = std::clamp(abilityConfig.fumbleProbability, 0.0F, 1.0F);
@@ -127,7 +141,7 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
             }
         }
     } else {
-        slipTimer = 0.0F;
+        slipTimer_ = 0.0F;
     }
 }
 
@@ -147,34 +161,44 @@ bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent *playerControl
     return false;
 }
 
-float glimmer::PlayerControlSystem::CalculateSmoothMoveSpeed(const float targetSpeed, float currentSpeed,
-                                                             const float delta,
-                                                             const bool isGrounded) const {
-    const float acceleration = isGrounded ? MOVE_ACCELERATION : MOVE_ACCELERATION * AIR_CONTROL_FACTOR;
-    const float deceleration = isGrounded ? MOVE_DECELERATION : MOVE_DECELERATION * AIR_CONTROL_FACTOR;
-
-    if (targetSpeed != 0) {
-        currentSpeed = std::lerp(currentSpeed, targetSpeed, acceleration * delta);
-    } else {
-        currentSpeed = std::lerp(currentSpeed, 0, deceleration * delta);
-        if (fabs(currentSpeed) < 0.01f) {
-            currentSpeed = 0.0f;
-        }
-    }
-    return currentSpeed;
-}
-
 std::string glimmer::PlayerControlSystem::GetName() {
     return "glimmer.PlayerControlSystem";
 }
 
 bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
-    auto *camera = worldContext_->GetCameraComponent();
-    auto *cameraTransform = worldContext_->GetCameraTransform2D();
+    if (event.type == SDL_EVENT_MOUSE_MOTION) {
+        const auto *camera = worldContext_->GetCameraComponent();
+        const auto *cameraTransform = worldContext_->GetCameraTransform2D();
+        if (camera != nullptr && cameraTransform != nullptr) {
+            WorldVector2D worldPos = camera->GetWorldPosition(
+                cameraTransform->GetPosition(),
+                CameraVector2D(event.motion.x, event.motion.y)
+            );
+            auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
+            for (auto &entity: tileLayerEntities) {
+                auto *layer = worldContext_->GetComponent<TileLayerComponent>(entity);
+                if (layer != nullptr && layer->GetTileLayerType() == TileLayerType::Main) {
+                    layer->SetFocusPosition(TileLayerComponent::WorldToTile(worldPos));
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    const GameEntity::ID playerEntity = worldContext_->GetPlayerEntity();
+    if (WorldContext::IsEmptyEntityId(playerEntity)) {
+        return false;
+    }
+    auto *playerComponent = worldContext_->GetComponent<PlayerComponent>(playerEntity);
+    if (playerComponent == nullptr) {
+        return false;
+    }
     if (event.type == SDL_EVENT_MOUSE_WHEEL) {
         const auto hotBarComponent = worldContext_->GetComponent<HotBarComponent>(worldContext_->GetHotBarEntity());
-        if (hotBarComponent == nullptr) return false;
-
+        if (hotBarComponent == nullptr) {
+            return false;
+        }
         int current = hotBarComponent->GetSelectedSlot();
         if (event.wheel.y > 0) {
             current = (current - 1 + hotBarComponent->GetMaxSlot()) % hotBarComponent->GetMaxSlot();
@@ -183,59 +207,30 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
         }
         hotBarComponent->SetSelectedSlot(current);
     }
-    if (event.type == SDL_EVENT_MOUSE_MOTION && camera && cameraTransform) {
-        WorldVector2D worldPos = camera->GetWorldPosition(
-            cameraTransform->GetPosition(),
-            CameraVector2D(event.motion.x, event.motion.y)
-        );
-        auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
-        for (auto &entity: tileLayerEntities) {
-            auto *layer = worldContext_->GetComponent<TileLayerComponent>(entity);
-            if (layer != nullptr && layer->GetTileLayerType() == TileLayerType::Main) {
-                layer->SetFocusPosition(TileLayerComponent::WorldToTile(worldPos));
-            }
-        }
-    }
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
-        const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
-        for (auto &entity: entities) {
-            if (auto *control = worldContext_->GetComponent<PlayerComponent>(entity)) {
-                control->mouseLeftDown = true;
-                slipTimer = 0.0F;
-            }
-        }
+        playerComponent->mouseLeftDown = true;
+        slipTimer_ = 0.0F;
     }
     if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT) {
-        const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
-        for (auto &entity: entities) {
-            if (auto *control = worldContext_->GetComponent<PlayerComponent>(entity)) {
-                control->mouseLeftDown = false;
-            }
-        }
+        playerComponent->mouseLeftDown = false;
     }
     if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
         bool pressed = event.type == SDL_EVENT_KEY_DOWN;
-        const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
-        for (auto &entity: entities) {
-            auto control = worldContext_->GetComponent<PlayerComponent>(entity);
-            if (control == nullptr) continue;
-
-            switch (event.key.key) {
-                case SDLK_A:
-                    control->moveLeft = pressed;
-                    break;
-                case SDLK_D:
-                    control->moveRight = pressed;
-                    break;
-                case SDLK_SPACE:
-                    if (pressed) control->jump = true;
-                    break;
-                case SDLK_Q:
-                    control->dropPressed = pressed;
-                    if (!pressed) control->dropTimer = 0.0f;
-                    break;
-                default:
-                    break;
+        float horizontalInput = 0.0F;
+        if (event.key.key == SDLK_A && pressed) {
+            horizontalInput -= 1.0F;
+        }
+        if (event.key.key == SDLK_D && pressed) {
+            horizontalInput += 1.0F;
+        }
+        playerComponent->horizontalInput = horizontalInput;
+        if (event.key.key == SDLK_SPACE) {
+            playerComponent->jump = pressed;
+        }
+        if (event.key.key == SDLK_Q) {
+            playerComponent->dropPressed = pressed;
+            if (!pressed) {
+                playerComponent->dropTimer = 0.0F;
             }
         }
     }

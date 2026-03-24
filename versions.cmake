@@ -4,6 +4,7 @@
 #libsdl-org/SDL@latest
 #libsdl-org/SDL_image@latest
 #libsdl-org/SDL_ttf@latest
+#libsdl-org/SDL_mixer@latest
 #mobius3/tweeny@latest
 #fmtlib/fmt@latest
 #Auburn/FastNoiseLite@latest
@@ -13,6 +14,7 @@ set(OCORNUT_IMGUI_VERSION "v1.92.6")
 set(LIBSDL-ORG_SDL_VERSION "release-3.4.2")
 set(LIBSDL-ORG_SDL_IMAGE_VERSION "release-3.4.0")
 set(LIBSDL-ORG_SDL_TTF_VERSION "release-3.2.2")
+set(LIBSDL-ORG_SDL_MIXER_VERSION "release-3.2.0")
 set(MOBIUS3_TWEENY_VERSION "v3.2.1")
 set(FMTLIB_FMT_VERSION "12.1.0")
 set(AUBURN_FASTNOISELITE_VERSION "v1.1.1")

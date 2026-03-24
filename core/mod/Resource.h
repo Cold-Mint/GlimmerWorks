@@ -146,8 +146,12 @@ namespace glimmer {
     struct MobResource : Resource {
         //@genNextLine(isPlayer|是否为玩家)
         bool isPlayer = false;
-        //@genNextLine(moveSpeed|移动速度)
-        float moveSpeed = 5;
+        //@genNextLine(movementAcceleration|移动加速度)
+        float movementAcceleration = 6.0F;
+        //@genNextLine(maxSpeed|最大速度)
+        float maxSpeed = 18.0F;
+        //@genNextLine(airControlFactor|空中移动衰减 如果设置为0,那么禁止空中左右移动，如果设置为1,那么不限制空中移动，如果设置为0.8那么会将加速度乘以0.8。)
+        float airControlFactor = 1.0F;
         //@genNextLine(shape|碰撞形状)
         ResourceRef shape;
         //@genNextLine(bodyType|物理体类型)

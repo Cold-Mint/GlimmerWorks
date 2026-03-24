@@ -73,7 +73,8 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const GameEntity::ID id, 
     if (mobComponent == nullptr) {
         return;
     }
-    mobComponent->movementSpeed = mobResource->moveSpeed;
+    mobComponent->movementAcceleration = mobResource->movementAcceleration;
+    mobComponent->maxSpeed = mobComponent->maxSpeed;
     for (auto &groundCheckRayCast: mobResource->groundCheckRayCast) {
         auto groundRayCast = worldContext_->CreateEntity();
         auto *rayCast2dComponent = worldContext_->AddComponent<RayCast2DComponent>(groundRayCast);

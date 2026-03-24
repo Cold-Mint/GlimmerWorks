@@ -14,8 +14,9 @@ namespace glimmer {
      */
     class PlayerComponent final : public MobComponent {
     public:
-        bool moveLeft = false;
-        bool moveRight = false;
+        //If the player does not press the left or right key, then this value is 0. Pressing A is -1, and pressing D is 1.0.
+        //如果玩家没有按下左键或右键那么此值为0,按下A为-1,按下D为1.0
+        float horizontalInput = 0.0F;
         bool jump = false;
         bool mouseLeftDown = false;
         float dropTimer = 0.0F;

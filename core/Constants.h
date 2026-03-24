@@ -288,7 +288,6 @@ static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
 
 constexpr float PLAYER_JUMP_FORCE = 7.5F;
-constexpr float AIR_CONTROL_FACTOR = 0.5F; // 空中移动衰减
 constexpr float GRAVITY_SCALE = 1.8F; // 重力缩放（优化下落手感）
 
 #endif //CONSTANTS_H

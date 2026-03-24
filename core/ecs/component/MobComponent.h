@@ -20,6 +20,10 @@ namespace glimmer {
         //用于地面检测的带有射线组件的实体ID列表
         std::vector<GameEntity::ID> groundCheckRayEntityIds;
 
+        //Movement speed, unit (tile)
+        //移动速度，单位（格数)
+        float movementSpeed = 0.5F;
+
         [[nodiscard]] uint32_t GetId() override;
     };
 }

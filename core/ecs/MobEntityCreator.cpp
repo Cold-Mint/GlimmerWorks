@@ -50,7 +50,8 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const GameEntity::ID id, 
     worldContext_->SetPersistable(id, true);
     MobComponent *mobComponent;
     if (mobResource->isPlayer) {
-        mobComponent = worldContext_->AddComponent<PlayerComponent>(id);
+        auto playerComponent = worldContext_->AddComponent<PlayerComponent>(id);
+        mobComponent = playerComponent;
         auto cameraComponent = worldContext_->AddComponent<CameraComponent>(id);
         auto transform2DComponent = worldContext_->AddComponent<Transform2DComponent>(id);
         if (cameraComponent != nullptr && transform2DComponent != nullptr) {
@@ -72,6 +73,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const GameEntity::ID id, 
     if (mobComponent == nullptr) {
         return;
     }
+    mobComponent->movementSpeed = mobResource->moveSpeed;
     for (auto &groundCheckRayCast: mobResource->groundCheckRayCast) {
         auto groundRayCast = worldContext_->CreateEntity();
         auto *rayCast2dComponent = worldContext_->AddComponent<RayCast2DComponent>(groundRayCast);

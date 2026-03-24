@@ -18,6 +18,11 @@ namespace glimmer {
 
         void RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const;
 
+        void RenderPlayerInfo(
+            SDL_Renderer *renderer,
+            int windowW, int windowH
+        ) const;
+
         /**
          * RenderChunkBounds
          * 渲染区块边界

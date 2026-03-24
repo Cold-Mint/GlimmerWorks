@@ -147,7 +147,7 @@ namespace glimmer {
         //@genNextLine(isPlayer|是否为玩家)
         bool isPlayer = false;
         //@genNextLine(moveSpeed|移动速度)
-        int moveSpeed = 5;
+        float moveSpeed = 5;
         //@genNextLine(shape|碰撞形状)
         ResourceRef shape;
         //@genNextLine(bodyType|物理体类型)

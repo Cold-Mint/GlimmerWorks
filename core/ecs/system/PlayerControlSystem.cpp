@@ -26,58 +26,44 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : 
 
 void glimmer::PlayerControlSystem::Update(const float delta) {
     auto player = worldContext_->GetPlayerEntity();
-    const auto control = worldContext_->GetComponent<PlayerComponent>(player);
-    const auto rigid = worldContext_->GetComponent<RigidBody2DComponent>(player);
-
-    if (control == nullptr || rigid == nullptr || !rigid->IsReady()) {
-        LogCat::d("PlayerControlSystem update null");
+    const auto playerComponent = worldContext_->GetComponent<PlayerComponent>(player);
+    if (playerComponent == nullptr) {
+        return;
+    }
+    const auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(player);
+    if (rigidBody2DComponent == nullptr) {
         return;
     }
 
-    const b2BodyId bodyId = rigid->GetBodyId();
-    bool isGrounded = OnGround(control);
-    int shapeCount = b2Body_GetShapeCount(bodyId);
-    b2ShapeId shapeIds[shapeCount];
-    int shapeCountActual = b2Body_GetShapes(bodyId, shapeIds, shapeCount);
-    for (int i = 0; i < shapeCountActual; i++) {
-        b2Shape_SetFriction(shapeIds[i], isGrounded ? 0.8f : 0.0f); // 地面增加摩擦，空中无摩擦
+    if (!rigidBody2DComponent->IsReady()) {
+        return;
     }
 
-    // ========== 优化：平滑移动计算 ==========
+    const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
+    bool isGrounded = OnGround(playerComponent);
     const b2Vec2 currentVel = b2Body_GetLinearVelocity(bodyId);
     float targetVX = 0.0F;
-    if (control->moveLeft) {
-        targetVX -= PLAYER_MOVE_SPEED_OPTIMIZED;
+    if (playerComponent->moveLeft) {
+        targetVX -= playerComponent->movementSpeed * TILE_SIZE;
     }
-    if (control->moveRight) {
-        targetVX += PLAYER_MOVE_SPEED_OPTIMIZED;
+    if (playerComponent->moveRight) {
+        targetVX += playerComponent->movementSpeed * TILE_SIZE;
     }
-
-    // 空中移动衰减
     if (!isGrounded) {
         targetVX *= AIR_CONTROL_FACTOR;
     }
-
-    // 平滑加速/减速（核心手感优化）
     float smoothVX = CalculateSmoothMoveSpeed(targetVX, currentVel.x, delta, isGrounded);
-
-    // ========== 修复：跳跃逻辑 ==========
     float targetVY = currentVel.y;
-    if (control->jump && isGrounded) {
+    if (playerComponent->jump && isGrounded) {
         targetVY = PLAYER_JUMP_FORCE;
-        control->jump = false; // 防止持续跳跃
-        LogCat::d("Player jump success, grounded: %d", isGrounded);
+        playerComponent->jump = false;
     }
-
-    // 重力应用（优化下落手感）
     if (!isGrounded) {
         targetVY -= GRAVITY_SCALE * delta;
     }
 
-    // 设置最终速度
     b2Body_SetLinearVelocity(bodyId, {smoothVX, targetVY});
 
-    // ========== 物品掉落逻辑（保留原有，修复输入重置） ==========
     const auto hotBarEntity = worldContext_->GetHotBarEntity();
     if (WorldContext::IsEmptyEntityId(hotBarEntity)) {
         LogCat::d("PlayerControlSystem hotBarEntity null");
@@ -86,9 +72,9 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
     auto hotBarComp = worldContext_->GetComponent<HotBarComponent>(hotBarEntity);
     const auto *containerComp = worldContext_->GetComponent<ItemContainerComponent>(player);
 
-    control->dropTimer += delta;
-    if (control->dropPressed && control->dropTimer >= DROP_INTERVAL) {
-        control->dropTimer -= DROP_INTERVAL;
+    playerComponent->dropTimer += delta;
+    if (playerComponent->dropPressed && playerComponent->dropTimer >= DROP_INTERVAL) {
+        playerComponent->dropTimer -= DROP_INTERVAL;
         if (hotBarComp && containerComp) {
             auto itemContainer = containerComp->GetItemContainer();
             if (itemContainer != nullptr) {
@@ -103,10 +89,10 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
                 }
             }
         }
-        control->dropPressed = false;
+        playerComponent->dropPressed = false;
     }
 
-    if (control->mouseLeftDown && hotBarComp && containerComp) {
+    if (playerComponent->mouseLeftDown && hotBarComp && containerComp) {
         if (const auto itemContainer = containerComp->GetItemContainer()) {
             if (Item *item = itemContainer->GetItem(hotBarComp->GetSelectedSlot())) {
                 slipTimer += delta;
@@ -141,7 +127,6 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
             }
         }
     } else {
-        // 修复：鼠标松开时重置手滑计时器
         slipTimer = 0.0F;
     }
 }
@@ -162,24 +147,20 @@ bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent *playerControl
     return false;
 }
 
-// ========== 新增：平滑移动计算（核心手感优化） ==========
-float glimmer::PlayerControlSystem::CalculateSmoothMoveSpeed(float targetSpeed, float currentSpeed, float delta,
-                                                             bool isGrounded) {
-    float acceleration = isGrounded ? MOVE_ACCELERATION : MOVE_ACCELERATION * AIR_CONTROL_FACTOR;
-    float deceleration = isGrounded ? MOVE_DECELERATION : MOVE_DECELERATION * AIR_CONTROL_FACTOR;
+float glimmer::PlayerControlSystem::CalculateSmoothMoveSpeed(const float targetSpeed, float currentSpeed,
+                                                             const float delta,
+                                                             const bool isGrounded) const {
+    const float acceleration = isGrounded ? MOVE_ACCELERATION : MOVE_ACCELERATION * AIR_CONTROL_FACTOR;
+    const float deceleration = isGrounded ? MOVE_DECELERATION : MOVE_DECELERATION * AIR_CONTROL_FACTOR;
 
     if (targetSpeed != 0) {
-        // 加速到目标速度
         currentSpeed = std::lerp(currentSpeed, targetSpeed, acceleration * delta);
     } else {
-        // 无输入时减速到0
         currentSpeed = std::lerp(currentSpeed, 0, deceleration * delta);
-        // 防止微小速度残留
         if (fabs(currentSpeed) < 0.01f) {
             currentSpeed = 0.0f;
         }
     }
-
     return currentSpeed;
 }
 
@@ -187,12 +168,9 @@ std::string glimmer::PlayerControlSystem::GetName() {
     return "glimmer.PlayerControlSystem";
 }
 
-// ========== 修复：输入处理逻辑（防止按键被覆盖、重复触发） ==========
 bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
     auto *camera = worldContext_->GetCameraComponent();
     auto *cameraTransform = worldContext_->GetCameraTransform2D();
-
-    // 滚轮切换快捷栏（保留原有）
     if (event.type == SDL_EVENT_MOUSE_WHEEL) {
         const auto hotBarComponent = worldContext_->GetComponent<HotBarComponent>(worldContext_->GetHotBarEntity());
         if (hotBarComponent == nullptr) return false;
@@ -218,14 +196,12 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
             }
         }
     }
-
-    // 鼠标左键（保留原有，修复重置逻辑）
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
         const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
         for (auto &entity: entities) {
             if (auto *control = worldContext_->GetComponent<PlayerComponent>(entity)) {
                 control->mouseLeftDown = true;
-                slipTimer = 0.0F; // 重置手滑计时器
+                slipTimer = 0.0F;
             }
         }
     }
@@ -237,8 +213,6 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
             }
         }
     }
-
-    // 键盘输入（修复：移除return，防止按键覆盖）
     if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
         bool pressed = event.type == SDL_EVENT_KEY_DOWN;
         const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
@@ -249,20 +223,16 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
             switch (event.key.key) {
                 case SDLK_A:
                     control->moveLeft = pressed;
-                    LogCat::d("pressed A: %d", pressed);
                     break;
                 case SDLK_D:
                     control->moveRight = pressed;
-                    LogCat::d("pressed D: %d", pressed);
                     break;
                 case SDLK_SPACE:
                     if (pressed) control->jump = true;
-                    LogCat::d("pressed SPACE: %d", pressed);
                     break;
                 case SDLK_Q:
                     control->dropPressed = pressed;
-                    if (!pressed) control->dropTimer = 0.0f; // 松开时重置计时器
-                    LogCat::d("pressed Q: %d", pressed);
+                    if (!pressed) control->dropTimer = 0.0f;
                     break;
                 default:
                     break;

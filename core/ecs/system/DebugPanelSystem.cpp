@@ -11,6 +11,8 @@
 #include "../component/TileLayerComponent.h"
 #include "../../world/WorldContext.h"
 #include "../component/CameraComponent.h"
+#include "box2d/box2d.h"
+#include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/world/Tile.h"
 #include "core/world/generator/Chunk.h"
 
@@ -55,6 +57,49 @@ void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, fl
     SDL_FRect vLine = {screenX, 0.0f, 1.0f, static_cast<float>(windowH)};
     SDL_RenderFillRect(renderer, &vLine);
 }
+
+
+void glimmer::DebugPanelSystem::RenderPlayerInfo(
+    SDL_Renderer *renderer,
+    const int windowW, const int windowH
+) const {
+    if (worldContext_ == nullptr || windowW <= 0 || windowH <= 0) {
+        return;
+    }
+    const GameEntity::ID player = worldContext_->GetPlayerEntity();
+    const auto rigidBody2dComponent = worldContext_->GetComponent<RigidBody2DComponent>(player);
+    if (rigidBody2dComponent == nullptr || !rigidBody2dComponent->IsReady()) {
+        return;
+    }
+    const b2Vec2 currentVel = b2Body_GetLinearVelocity(rigidBody2dComponent->GetBodyId());
+    char speedText[128];
+    snprintf(speedText, sizeof(speedText), "Player Speed: (%.1f, %.1f)", currentVel.x, currentVel.y);
+    SDL_Color color = {255, 255, 180, 255};
+    SDL_Surface *surface = TTF_RenderText_Blended(
+        worldContext_->GetAppContext()->GetFont(),
+        speedText,
+        strlen(speedText),
+        color
+    );
+    if (!surface) return;
+
+    const float bottomOffsetY = 20.0f;
+    float textX = static_cast<float>(windowW) / 2.0f - static_cast<float>(surface->w) / 2.0f;
+    float textY = static_cast<float>(windowH) - static_cast<float>(surface->h) - bottomOffsetY;
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (texture) {
+        SDL_FRect dst = {
+            textX,
+            textY,
+            static_cast<float>(surface->w),
+            static_cast<float>(surface->h)
+        };
+        SDL_RenderTexture(renderer, texture, nullptr, &dst);
+        SDL_DestroyTexture(texture);
+    }
+    SDL_DestroySurface(surface);
+}
+
 
 void glimmer::DebugPanelSystem::RenderChunkBounds(SDL_Renderer *renderer, const CameraComponent *cameraComponent,
                                                   const WorldVector2D cameraPosition) {
@@ -103,7 +148,6 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GameSy
 
 
 void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
-    const auto entities = worldContext_->GetEntityIDWithComponents<PlayerComponent>();
     int windowW = 0;
     int windowH = 0;
     SDL_GetWindowSize(worldContext_->GetAppContext()->GetWindow(), &windowW, &windowH);
@@ -116,6 +160,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         inPointInViewport = cameraComponent->IsPointInViewport(cameraTransform->GetPosition(), mousePosition_);
     }
     RenderChunkBounds(renderer, cameraComponent, cameraTransform->GetPosition());
+    RenderPlayerInfo(renderer, windowW, windowH);
+
     if (!inPointInViewport) {
         //Do not display the tile debugging information that is outside the screen.
         //不要显示在屏幕之外的瓦片调试信息。
@@ -123,91 +169,82 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         return;
     }
     ChunkGenerator *chunkGenerator = worldContext_->GetChunkGenerator();
-    for (auto &entity: entities) {
-        constexpr float lineSpacing = 20.0F;
-        SDL_Color color = {255, 255, 180, 255};
-        auto control = worldContext_->GetComponent<PlayerComponent>(entity);
-        auto position = worldContext_->GetComponent<Transform2DComponent>(entity);
-        if (!control || !position) continue;
+    constexpr float lineSpacing = 20.0F;
+    SDL_Color color = {255, 255, 180, 255};
+    auto tileLayers = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
+    float totalLines = 1.0F + static_cast<float>(tileLayers.size());
+    float totalTextHeight = totalLines * lineSpacing;
+    yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;
+    char buffer[128];
+    snprintf(buffer, sizeof(buffer), "mouse Position: (%.1f, %.1f)", mousePosition_.x, mousePosition_.y);
 
-        auto tileLayers = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
-        float totalLines = 1.0F + static_cast<float>(tileLayers.size());
-        float totalTextHeight = totalLines * lineSpacing;
-        yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;
+    SDL_Surface *surface = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), buffer, strlen(buffer),
+                                                  color);
+    if (surface) {
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (texture) {
+            SDL_FRect dst = {
+                static_cast<float>(windowW - surface->w - 4), // 右侧靠边
+                yOffset,
+                static_cast<float>(surface->w),
+                static_cast<float>(surface->h)
+            };
+            SDL_RenderTexture(renderer, texture, nullptr, &dst);
+            SDL_DestroyTexture(texture);
+        }
+        SDL_DestroySurface(surface);
+    }
 
-        char buffer[128];
-        snprintf(buffer, sizeof(buffer), "mouse Position: (%.1f, %.1f)", mousePosition_.x, mousePosition_.y);
-
-        SDL_Surface *surface = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), buffer, strlen(buffer),
-                                                      color);
-        if (surface) {
-            SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-            if (texture) {
-                SDL_FRect dst = {
-                    static_cast<float>(windowW - surface->w - 4), // 右侧靠边
-                    yOffset,
-                    static_cast<float>(surface->w),
-                    static_cast<float>(surface->h)
-                };
-                SDL_RenderTexture(renderer, texture, nullptr, &dst);
-                SDL_DestroyTexture(texture);
-            }
-            SDL_DestroySurface(surface);
+    yOffset += lineSpacing;
+    for (auto &tileEntity: tileLayers) {
+        auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(tileEntity);
+        if (tileLayer == nullptr) {
+            continue;
         }
 
+        TileVector2D tileCoord = TileLayerComponent::WorldToTile(mousePosition_);
+        TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
+        float elevation = ChunkGenerator::GetElevation(tileCoord.y);
+        snprintf(buffer, sizeof(buffer),
+                 "Tile Coord:(%d, %d) chunk(%d,%d)  humidity:%f temperature：%f weirdness:%f erosion:%f elevation:%f",
+                 tileCoord.x, tileCoord.y, chunkRelative.x, chunkRelative.y,
+                 chunkGenerator->GetHumidity(tileCoord),
+                 chunkGenerator->GetTemperature(tileCoord, elevation),
+                 chunkGenerator->GetWeirdness(tileCoord),
+                 chunkGenerator->GetErosion(tileCoord),
+                 elevation);
+
+        SDL_Surface *s = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), buffer, strlen(buffer),
+                                                color);
+        if (s) {
+            SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
+            if (t) {
+                SDL_FRect dst = {
+                    static_cast<float>(windowW - s->w - 4), // 右侧靠边
+                    yOffset,
+                    static_cast<float>(s->w),
+                    static_cast<float>(s->h)
+                };
+                SDL_RenderTexture(renderer, t, nullptr, &dst);
+                SDL_DestroyTexture(t);
+            }
+            SDL_DestroySurface(s);
+        }
+        RenderDebugText(renderer, windowW, buffer, yOffset);
         yOffset += lineSpacing;
+        auto tile = tileLayer->GetTile(tileCoord);
+        if (tile != nullptr) {
+            snprintf(
+                buffer, sizeof(buffer),
+                "  id:%s name:%s breakable:%s hardness:%f",
+                tile->GetId().c_str(),
+                tile->GetName().c_str(),
+                tile->IsBreakable() ? "true" : "false",
+                tile->GetHardness()
+            );
 
-        // 遍历 TileLayer 并打印瓦片坐标
-        for (auto &tileEntity: tileLayers) {
-            auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(tileEntity);
-            if (tileLayer == nullptr) {
-                continue;
-            }
-
-            TileVector2D tileCoord = TileLayerComponent::WorldToTile(mousePosition_);
-            TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
-            float elevation = ChunkGenerator::GetElevation(tileCoord.y);
-            snprintf(buffer, sizeof(buffer),
-                     "Tile Coord:(%d, %d) chunk(%d,%d)  humidity:%f temperature：%f weirdness:%f erosion:%f elevation:%f",
-                     tileCoord.x, tileCoord.y, chunkRelative.x, chunkRelative.y,
-                     chunkGenerator->GetHumidity(tileCoord),
-                     chunkGenerator->GetTemperature(tileCoord, elevation),
-                     chunkGenerator->GetWeirdness(tileCoord),
-                     chunkGenerator->GetErosion(tileCoord),
-                     elevation);
-
-            SDL_Surface *s = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), buffer, strlen(buffer),
-                                                    color);
-            if (s) {
-                SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
-                if (t) {
-                    SDL_FRect dst = {
-                        static_cast<float>(windowW - s->w - 4), // 右侧靠边
-                        yOffset,
-                        static_cast<float>(s->w),
-                        static_cast<float>(s->h)
-                    };
-                    SDL_RenderTexture(renderer, t, nullptr, &dst);
-                    SDL_DestroyTexture(t);
-                }
-                SDL_DestroySurface(s);
-            }
             RenderDebugText(renderer, windowW, buffer, yOffset);
             yOffset += lineSpacing;
-            auto tile = tileLayer->GetTile(tileCoord);
-            if (tile != nullptr) {
-                snprintf(
-                    buffer, sizeof(buffer),
-                    "  id:%s name:%s breakable:%s hardness:%f",
-                    tile->GetId().c_str(),
-                    tile->GetName().c_str(),
-                    tile->IsBreakable() ? "true" : "false",
-                    tile->GetHardness()
-                );
-
-                RenderDebugText(renderer, windowW, buffer, yOffset);
-                yOffset += lineSpacing;
-            }
         }
     }
 

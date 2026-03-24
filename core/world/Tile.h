@@ -34,6 +34,8 @@ namespace glimmer {
     public:
         [[nodiscard]] const ResourceRef &GetLootTableRef();
 
+        [[nodiscard]] const ResourceRef &GetResourceRef();
+
         [[nodiscard]] bool IsCustomLootTable() const;
 
         [[nodiscard]] TilePhysicsType GetTilePhysicsType() const;
@@ -67,6 +69,7 @@ namespace glimmer {
          * 从资源创建瓦片
          * @param appContext appContext 应用上下文
          * @param tileResource tileResource 瓦片资源
+         * @param resourceRef resourceRef 瓦片引用
          * @return
          */
         static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext, const TileResource *tileResource,

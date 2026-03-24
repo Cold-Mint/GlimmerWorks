@@ -27,10 +27,6 @@ namespace glimmer {
 
         [[nodiscard]] bool IsSerializable() override;
 
-        [[nodiscard]] std::string Serialize() override;
-
-        void Deserialize(WorldContext *worldContext, const std::string &data) override;
-
         [[nodiscard]] uint32_t GetId() override;
     };
 }

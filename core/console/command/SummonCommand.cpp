@@ -6,6 +6,7 @@
 #include "fmt/color.h"
 #include "../../scene/AppContext.h"
 #include "../../world/WorldContext.h"
+#include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 
 void glimmer::SummonCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
@@ -47,19 +48,15 @@ bool glimmer::SummonCommand::Execute(CommandArgs commandArgs, std::function<void
         return false;
     }
     const auto transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
-    const auto worldVector2D = WorldVector2D(commandArgs.AsCoordinate(1, transform2DComponent->GetPosition().x),
-                                             commandArgs.AsCoordinate(2, transform2DComponent->GetPosition().y));
     const GameEntity::ID modId = worldContext_->CreateEntity();
-    worldContext_->AttachMobRelatedComponents(modId, mobResource);
-    Transform2DComponent *mobTransform2dComponent = worldContext_->AddComponent<Transform2DComponent>(modId);
-    if (mobTransform2dComponent != nullptr) {
-        mobTransform2dComponent->SetPosition(worldVector2D);
-    }
-    RigidBody2DComponent *rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(playerEntity);
-    if (rigidBody2DComponent != nullptr) {
-        rigidBody2DComponent->CreateBody(worldContext_->GetAppContext()->GetResourceLocator(),
-                                         worldContext_->GetWorldId(), worldVector2D);
-    }
+    MobEntityCreator mobEntityCreator{worldContext_};
+    mobEntityCreator.LoadTemplateComponents(modId, resourceRef);
+    mobEntityCreator.MergeEntityItemMessage(modId,
+                                            MobEntityCreator::GetEntityItemMessage(
+                                                WorldVector2D(
+                                                    commandArgs.AsCoordinate(1, transform2DComponent->GetPosition().x),
+                                                    commandArgs.AsCoordinate(
+                                                        2, transform2DComponent->GetPosition().y))));
     return true;
 }
 

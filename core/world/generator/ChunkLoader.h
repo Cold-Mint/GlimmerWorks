@@ -15,16 +15,6 @@ namespace glimmer {
         std::function<GameEntity::ID(std::unique_ptr<GameEntity> entity)> registerEntity_;
 
         /**
-        * Recovery Component
-        * 恢复组件
-        * @param id id id
-        * @param componentMessage componentMessage 组件消息
-        * @return
-        */
-        [[nodiscard]] GameComponent *RecoveryComponent(GameEntity::ID id,
-                                                       const ComponentMessage &componentMessage) const;
-
-        /**
          * Load entity from saves
          * 从存档加载实体
          * @param position

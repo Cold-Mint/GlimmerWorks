@@ -230,7 +230,7 @@ namespace glimmer {
          * This method will load the player data from the disk and then supplement the player's components after the loading process.
          * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
          */
-        void InitPlayer(const MobResource *playerResource);
+        void InitPlayer(const ResourceRef &resourceRef);
 
         /**
          * Initialize the hotbar
@@ -374,16 +374,15 @@ namespace glimmer {
          */
         GameEntity::ID CreateEntity();
 
-
         /**
-         * AttachMobRelatedComponents
-         * 挂载生物相关组件
-         * @param entityId entityId 实体Id
-         * @param mobResource mobResource 生物资源
-         */
-        void AttachMobRelatedComponents(GameEntity::ID entityId,
-                                        const MobResource *mobResource);
-
+      * Recovery Component
+      * 恢复组件
+      * @param id id id
+      * @param componentMessage componentMessage 组件消息
+      * @return
+      */
+        [[nodiscard]] GameComponent *RecoveryComponent(GameEntity::ID id,
+                                                       const ComponentMessage &componentMessage);
 
         /**
          * Display the item editing panel
@@ -404,20 +403,6 @@ namespace glimmer {
          * 隐藏物品编辑面板
          */
         void HideItemEditorPanel();
-
-
-        /**
-         * AttachDroppedItemRelatedComponents
-         * 挂载掉落物相关组件
-         * @param entityId  entityId 实体Id
-         * @param item item 物品
-         * @param position position 位置
-         * @param pickupCooldown 拾起冷却时间
-         * @return
-         */
-        void AttachDroppedItemRelatedComponents(GameEntity::ID entityId, std::unique_ptr<Item> item,
-                                                WorldVector2D position,
-                                                float pickupCooldown = 0.0F);
 
 
         /**

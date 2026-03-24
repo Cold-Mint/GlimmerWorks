@@ -19,14 +19,14 @@ namespace glimmer {
     class Item {
         size_t amount_ = 1;
 
-        ResourceRef resourceRef_ = ResourceRef();
-
     protected:
         size_t maxStack_ = 1;
 
         std::function<void()> onAmountZero_ = nullptr;
 
         std::function<void(ContainerChangeType, size_t)> onAmountChanged_ = nullptr;
+
+        ResourceRef resourceRef_{};
 
     public:
         virtual ~Item() = default;

@@ -14,6 +14,10 @@ const glimmer::ResourceRef &glimmer::Tile::GetLootTableRef() {
     return lootTable_;
 }
 
+const glimmer::ResourceRef &glimmer::Tile::GetResourceRef() {
+    return tileRef_;
+}
+
 bool glimmer::Tile::IsCustomLootTable() const {
     return customLootTable_;
 }

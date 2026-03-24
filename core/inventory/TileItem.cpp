@@ -10,6 +10,7 @@
 #include "../world/WorldContext.h"
 
 glimmer::TileItem::TileItem(std::unique_ptr<Tile> tile) : tile_(std::move(tile)) {
+    resourceRef_ = tile_->GetResourceRef();
     maxStack_ = ITEM_MAX_STACK;
 }
 

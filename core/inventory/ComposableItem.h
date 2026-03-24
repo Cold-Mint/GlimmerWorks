@@ -29,7 +29,7 @@ namespace glimmer {
 
     public:
         explicit ComposableItem(std::string id, std::string name, std::optional<std::string> description,
-                                std::shared_ptr<SDL_Texture> icon, size_t maxSize);
+                                std::shared_ptr<SDL_Texture> icon, size_t maxSize, const ResourceRef &resourceRef);
 
         void ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage) override;
 
@@ -65,7 +65,8 @@ namespace glimmer {
         static int TryParseItemIndex(const std::string &name);
 
         static std::unique_ptr<ComposableItem> FromItemResource(const AppContext *appContext,
-                                                                const ComposableItemResource *itemResource);
+                                                                const ComposableItemResource *itemResource,
+                                                                const ResourceRef &resourceRef);
 
         [[nodiscard]] const AbilityConfig &GetAbilityConfig() const override;
 

@@ -27,7 +27,11 @@ void glimmer::GameStartSystem::Update(float delta) {
         TileLayerComponent>(tileLayerEntity, TileLayerType::Main, worldContext_->GetAllChunks());
     worldContext_->AddComponent<AreaMarkerComponent>(tileLayerEntity);
     auto appContext = worldContext_->GetAppContext();
-    worldContext_->InitPlayer(appContext->GetMobManager()->GetPlayerResourceList()[0]);
+    ResourceRef playerResourceRef{};
+    playerResourceRef.ReadResource(*appContext->GetMobManager()->GetPlayerResourceList()[0],
+                                   RESOURCE_TYPE_MOB);
+    worldContext_->InitPlayer(
+        playerResourceRef);
     worldContext_->InitHotbar(
         worldContext_->GetComponent<ItemContainerComponent>(worldContext_->GetPlayerEntity())->
         GetItemContainer());

@@ -15,7 +15,8 @@ glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
 }
 
 std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext *appContext,
-                                                                             const AbilityItemResource *itemResource) {
+                                                                             const AbilityItemResource *itemResource,
+                                                                             const ResourceRef &resourceRef) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
     if (nameRes != nullptr) {
@@ -37,7 +38,7 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
                                          description,
                                          appContext->GetResourceLocator()->FindTexture(
                                              itemResource->texture), std::move(itemAbility),
-                                         itemResource->canUseAlone);
+                                         itemResource->canUseAlone, resourceRef);
 }
 
 const glimmer::AbilityConfig &glimmer::AbilityItem::GetAbilityConfig() const {
@@ -51,15 +52,16 @@ void glimmer::AbilityItem::OnUse(WorldContext *worldContext, GameEntity::ID user
     }
 }
 
-
 glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optional<std::string> description,
                                   std::shared_ptr<SDL_Texture> icon, std::shared_ptr<ItemAbility> itemAbility,
-                                  const bool canUseAlone) : id_(std::move(id)),
-                                                            name_(std::move(name)),
-                                                            description_(std::move(description)),
-                                                            icon_(std::move(icon)),
-                                                            itemAbility_(std::move(itemAbility)),
-                                                            canUseAlone_(canUseAlone) {
+                                  bool canUseAlone,
+                                  const ResourceRef &resourceRef) : id_(std::move(id)),
+                                                                    name_(std::move(name)),
+                                                                    description_(std::move(description)),
+                                                                    icon_(std::move(icon)),
+                                                                    itemAbility_(std::move(itemAbility)),
+                                                                    canUseAlone_(canUseAlone) {
+    resourceRef_ = resourceRef;
 }
 
 const std::string &glimmer::AbilityItem::GetId() const {

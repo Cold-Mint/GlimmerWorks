@@ -52,6 +52,7 @@ void glimmer::ResourceRef::ReadResource(const Resource &resource, const uint32_t
     resourceKey_ = resource.resourceId;
     selfPackageId_ = resource.packId;
     resourceType_ = resourceType;
+    bindPackage_ = true;
 }
 
 std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(const std::string &id, const int resourceType) {
@@ -75,7 +76,9 @@ std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(const std:
 std::string glimmer::ResourceRef::GetPackageId() const {
     if (!bindPackage_) {
         LogCat::e("Unbound packages may return placeholders.");
+#if  !defined(NDEBUG)
         assert(false);
+#endif
     }
     return packId_;
 }

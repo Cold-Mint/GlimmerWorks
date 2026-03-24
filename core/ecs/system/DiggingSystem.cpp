@@ -10,6 +10,7 @@
 #include "../component/TileLayerComponent.h"
 #include "../../inventory/TileItem.h"
 #include "../../world/generator/Chunk.h"
+#include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/DiggingComponent.h"
 #include "core/world/generator/ChunkPhysicsHelper.h"
 
@@ -34,17 +35,23 @@ void glimmer::DiggingSystem::BreakTile(const TileVector2D tilePosition, const Ap
                     continue;
                 }
                 itemPtr->ReadItemMessage(appContext, itemMessage);
-                worldContext_->AttachDroppedItemRelatedComponents(worldContext_->CreateEntity(),
-                                                                  std::move(itemPtr),
-                                                                  TileLayerComponent::TileToWorld(tilePosition)
-                );
+                const GameEntity::ID droppedEntity = worldContext_->CreateEntity();
+                DroppedItemCreator droppedItemCreator{worldContext_};
+                droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+                droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
+                                                              TileLayerComponent::TileToWorld(tilePosition),
+                                                              std::move(itemPtr), 0));
             }
         }
     } else {
-        worldContext_->AttachDroppedItemRelatedComponents(worldContext_->CreateEntity(),
-                                                          std::make_unique<TileItem>(std::move(oldTile)),
-                                                          TileLayerComponent::TileToWorld(tilePosition)
-        );
+        const GameEntity::ID droppedEntity = worldContext_->CreateEntity();
+        DroppedItemCreator droppedItemCreator{worldContext_};
+        droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+        droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
+                                                      TileLayerComponent::TileToWorld(tilePosition),
+                                                      std::make_unique<TileItem>(
+                                                          std::move(oldTile)),
+                                                      0));
     }
 }
 

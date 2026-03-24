@@ -86,7 +86,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
 
-        auto composableItem = ComposableItem::FromItemResource(appContext_, itemResource);
+        auto composableItem = ComposableItem::FromItemResource(appContext_, itemResource, resourceRef);
         if (composableItem == nullptr) {
             onMessage(appContext_->GetLangsResources()->composableItemIsNull);
             return false;
@@ -119,7 +119,7 @@ bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(c
             return false;
         }
 
-        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource);
+        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource, resourceRef);
         if (abilityItem == nullptr) {
             onMessage(appContext_->GetLangsResources()->composableItemIsNull);
             return false;

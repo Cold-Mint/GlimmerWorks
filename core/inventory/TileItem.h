@@ -16,7 +16,6 @@ namespace glimmer {
     public:
         ~TileItem() override = default;
 
-
         explicit TileItem(std::unique_ptr<Tile> tile);
 
         [[nodiscard]] const std::string &GetId() const override;
@@ -30,7 +29,7 @@ namespace glimmer {
 
         [[nodiscard]] SDL_Texture *GetIcon() const override;
 
-        [[nodiscard]] const AbilityConfig & GetAbilityConfig() const override;
+        [[nodiscard]] const AbilityConfig &GetAbilityConfig() const override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

@@ -12,6 +12,7 @@
 #include "../log/LogCat.h"
 #include "../../core/mod/ResourceLocator.h"
 #include "ability/ItemAbility.h"
+#include "core/ecs/DroppedItemCreator.h"
 
 void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) const {
     itemContainer_->SwapItem(index, otherContainer, otherIndex);
@@ -67,7 +68,7 @@ int glimmer::ComposableItem::TryParseItemIndex(const std::string &name) {
 }
 
 std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(const AppContext *appContext,
-    const ComposableItemResource *itemResource) {
+    const ComposableItemResource *itemResource, const ResourceRef &resourceRef) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
     if (nameRes != nullptr) {
@@ -82,7 +83,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
         Resource::GenerateId(*itemResource), name,
         description,
         appContext->GetResourceLocator()->FindTexture(itemResource->texture),
-        itemResource->slotSize);
+        itemResource->slotSize, resourceRef);
     //If the capability is not specified within the resource reference, then the default capability will be loaded.
     //如果没有在资源引用内指定能力，那么加载默认能力。
     size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
@@ -97,6 +98,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     }
     return result;
 }
+
 
 const glimmer::AbilityConfig &glimmer::ComposableItem::GetAbilityConfig() const {
     return totalAbilityConfig_;
@@ -116,33 +118,36 @@ void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID u
         if (abilityItem == nullptr) {
             //Throwing items that are not items of ability.
             //扔出不为能力物品的物品。
-            worldContext->AttachDroppedItemRelatedComponents(worldContext->CreateEntity(),
-                                                             itemContainer_->TakeAllItem(index),
-                                                             worldContext->GetCameraTransform2D()->GetPosition(),
-                                                             2
-            );
+            const GameEntity::ID droppedEntity = worldContext->CreateEntity();
+            DroppedItemCreator droppedItemCreator{worldContext};
+            droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+            droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
+                                                          worldContext->GetCameraTransform2D()->
+                                                          GetPosition(), itemContainer_->TakeAllItem(index), 2));
             continue;
         }
         ItemAbility *itemAbility = abilityItem->GetItemAbility();
         if (itemAbility == nullptr) {
             //Throwing items that are not items of ability.
             //扔出不为能力物品的物品。
-            worldContext->AttachDroppedItemRelatedComponents(worldContext->CreateEntity(),
-                                                             itemContainer_->TakeAllItem(index),
-                                                             worldContext->GetCameraTransform2D()->GetPosition(),
-                                                             2
-            );
+            const GameEntity::ID droppedEntity = worldContext->CreateEntity();
+            DroppedItemCreator droppedItemCreator{worldContext};
+            droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+            droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
+                                                          worldContext->GetCameraTransform2D()->
+                                                          GetPosition(), itemContainer_->TakeAllItem(index), 2));
             continue;
         }
 
         if (popupAbility.contains(itemAbility->GetId())) {
             //Mutual exclusivity
             //互斥
-            worldContext->AttachDroppedItemRelatedComponents(worldContext->CreateEntity(),
-                                                             itemContainer_->TakeAllItem(index),
-                                                             worldContext->GetCameraTransform2D()->GetPosition(),
-                                                             2
-            );
+            const GameEntity::ID droppedEntity = worldContext->CreateEntity();
+            DroppedItemCreator droppedItemCreator{worldContext};
+            droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+            droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
+                                                          worldContext->GetCameraTransform2D()->
+                                                          GetPosition(), itemContainer_->TakeAllItem(index), 2));
             continue;
         }
         itemAbility->OnUse(worldContext, user, configMessage, popupAbility);
@@ -179,11 +184,15 @@ void glimmer::ComposableItem::AddCallback() {
 }
 
 glimmer::ComposableItem::ComposableItem(std::string id, std::string name, std::optional<std::string> description,
-                                        std::shared_ptr<SDL_Texture> icon, size_t maxSize) : itemContainer_(
-        std::make_shared<ItemContainer>(maxSize)),
-    id_(std::move(id)),
-    name_(std::move(name)),
-    description_(std::move(description)), icon_(std::move(icon)), maxSlotSize_(maxSize) {
+                                        std::shared_ptr<SDL_Texture> icon, size_t maxSize,
+                                        const ResourceRef &resourceRef) : itemContainer_(
+                                                                              std::make_shared<ItemContainer>(maxSize)),
+                                                                          id_(std::move(id)),
+                                                                          name_(std::move(name)),
+                                                                          description_(std::move(description)),
+                                                                          icon_(std::move(icon)),
+                                                                          maxSlotSize_(maxSize) {
+    resourceRef_ = resourceRef;
     AddCallback();
     LogCat::d("ComposableItem Constructor");
 }

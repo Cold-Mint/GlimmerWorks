@@ -4,6 +4,8 @@
 
 #include "Item.h"
 
+#include "core/log/LogCat.h"
+
 
 void glimmer::Item::ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage) {
     amount_ = itemMessage.amount();
@@ -11,6 +13,12 @@ void glimmer::Item::ReadItemMessage(const AppContext *context, const ItemMessage
 }
 
 void glimmer::Item::WriteItemMessage(ItemMessage &itemMessage) const {
+    if (resourceRef_.GetResourceType() == RESOURCE_TYPE_NONE) {
+        LogCat::e("Item references must be set.");
+#if  !defined(NDEBUG)
+        assert(false);
+#endif
+    }
     itemMessage.set_amount(amount_);
     resourceRef_.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
 }
@@ -25,6 +33,9 @@ size_t glimmer::Item::GetMaxStack() const {
 
 
 bool glimmer::Item::CanStackMore(const Item *item) const {
+    if (item == nullptr) {
+        return false;
+    }
     if (item->GetId() != GetId()) {
         return false;
     }

@@ -30,6 +30,8 @@
 #include "../saves/Saves.h"
 #include "../utils/Box2DUtils.h"
 #include "box2d/box2d.h"
+#include "core/ecs/DroppedItemCreator.h"
+#include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/AutoPickComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/component/GuiTransform2DComponent.h"
@@ -183,7 +185,7 @@ bool glimmer::WorldContext::HasComponentType(const std::type_index &type) const 
     return it != componentCount_.end() && it->second > 0;
 }
 
-void glimmer::WorldContext::InitPlayer(const MobResource *playerResource) {
+void glimmer::WorldContext::InitPlayer(const ResourceRef &resourceRef) {
     if (!IsEmptyEntityId(player_)) {
         return;
     }
@@ -197,51 +199,40 @@ void glimmer::WorldContext::InitPlayer(const MobResource *playerResource) {
     if (IsEmptyEntityId(playerEntity)) {
         const auto height = chunkGenerator_->GetHeight(0);
         playerEntity = CreateEntity();
-        AttachMobRelatedComponents(playerEntity,
-                                   playerResource);
-        WorldVector2D position = TileLayerComponent::TileToWorld(TileVector2D(0, height + 3));
-        auto transform2dComponent = AddComponent<Transform2DComponent>(playerEntity);
-        if (transform2dComponent != nullptr) {
-            transform2dComponent->SetPosition(position);
-        }
-        auto rigidBody2DComponent = GetComponent<RigidBody2DComponent>(playerEntity);
-        if (rigidBody2DComponent != nullptr) {
-            rigidBody2DComponent->CreateBody(GetAppContext()->GetResourceLocator(), worldId_, position);
-        }
+        MobEntityCreator mobEntityCreator{this};
+        mobEntityCreator.LoadTemplateComponents(playerEntity, resourceRef);
+        mobEntityCreator.MergeEntityItemMessage(playerEntity,
+                                                MobEntityCreator::GetEntityItemMessage(
+                                                    TileLayerComponent::TileToWorld(TileVector2D(0, height + 3))));
     }
-
-    AddComponent<PlayerComponent>(playerEntity);
-    SetCameraPosition(GetComponent<Transform2DComponent>(playerEntity));
-    AddComponent<CameraComponent>(playerEntity);
-    SetCameraComponent(GetComponent<CameraComponent>(playerEntity));
-    AddComponent<DiggingComponent>(playerEntity);
-    SetDiggingComponent(GetComponent<DiggingComponent>(playerEntity));
-    auto *magnetComponent = AddComponent<MagnetComponent>(playerEntity);
-    if (magnetComponent != nullptr) {
-        magnetComponent->SetType(MAGNETIC_TYPE_ITEM);
-    }
-
-    auto *itemContainerComponent = AddComponent<ItemContainerComponent>(
-        playerEntity, HOT_BAR_SIZE);
-    if (itemContainerComponent != nullptr) {
-        auto &allInitialInventory = appContext_->GetInitialInventoryManager()->GetAllInitialInventory();
-        for (auto &initialInventory: allInitialInventory) {
-            for (auto &addItem: initialInventory->addItems) {
-                auto item = appContext_->GetResourceLocator()->FindItem(addItem);
-                if (item == nullptr) {
-                    continue;
-                }
-                std::unique_ptr<Item> returnItem = itemContainerComponent->GetItemContainer()->AddItem(
-                    std::move(item));
-                if (returnItem != nullptr) {
-                    AttachDroppedItemRelatedComponents(CreateEntity(), std::move(returnItem),
-                                                       GetComponent<Transform2DComponent>(playerEntity)->
-                                                       GetPosition());
+    if (!HasComponent<ItemContainerComponent>(playerEntity)) {
+        const auto *itemContainerComponent = AddComponent<ItemContainerComponent>(
+            playerEntity, HOT_BAR_SIZE);
+        if (itemContainerComponent != nullptr) {
+            auto &allInitialInventory = appContext_->GetInitialInventoryManager()->GetAllInitialInventory();
+            for (auto &initialInventory: allInitialInventory) {
+                for (auto &addItem: initialInventory->addItems) {
+                    auto item = appContext_->GetResourceLocator()->FindItem(addItem);
+                    if (item == nullptr) {
+                        continue;
+                    }
+                    std::unique_ptr<Item> returnItem = itemContainerComponent->GetItemContainer()->AddItem(
+                        std::move(item));
+                    if (returnItem != nullptr) {
+                        const GameEntity::ID droppedEntity = CreateEntity();
+                        DroppedItemCreator droppedItemCreator{this};
+                        droppedItemCreator.LoadTemplateComponents(droppedEntity,
+                                                                  DroppedItemCreator::GetResourceRef());
+                        droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                                                  DroppedItemCreator::GetEntityItemMessage(
+                                                                      GetComponent<Transform2DComponent>(
+                                                                          playerEntity)->
+                                                                      GetPosition(), std::move(returnItem), 2));
+                    }
                 }
             }
         }
     }
-    AddComponent<AutoPickComponent>(playerEntity);
     player_ = playerEntity;
 }
 
@@ -630,54 +621,46 @@ glimmer::GameEntity::ID glimmer::WorldContext::CreateEntity() {
     return RegisterEntity(std::make_unique<GameEntity>(++entityId_));
 }
 
-void glimmer::WorldContext::AttachMobRelatedComponents(const GameEntity::ID entityId,
-                                                       const MobResource *mobResource) {
-    ResourceRef resourceRef;
-    resourceRef.ReadResource(*mobResource, RESOURCE_TYPE_MOB);
-    SetResourceRef(entityId, resourceRef);
-    SetPersistable(entityId, true);
-    MobComponent *mobComponent;
-    if (mobResource->isPlayer) {
-        mobComponent = AddComponent<PlayerComponent>(entityId);
-    } else {
-        mobComponent = AddComponent<MobComponent>(entityId);
+glimmer::GameComponent *glimmer::WorldContext::RecoveryComponent(GameEntity::ID id,
+                                                                 const ComponentMessage &componentMessage) {
+    uint32_t componentId = componentMessage.id();
+    GameComponent *gameComponent = nullptr;
+    switch (componentId) {
+        case COMPONENT_ID_AUTO_PICK:
+            gameComponent = AddComponent<AutoPickComponent>(id);
+            break;
+        case COMPONENT_ID_CAMERA:
+            gameComponent = AddComponent<CameraComponent>(id);
+            break;
+        case COMPONENT_ID_DEBUG_DRAW:
+            gameComponent = AddComponent<DebugDrawComponent>(id);
+            break;
+        case COMPONENT_ID_DIGGING:
+            gameComponent = AddComponent<DiggingComponent>(id);
+            break;
+        case COMPONENT_ID_DROPPED_ITEM:
+            gameComponent = AddComponent<DroppedItemComponent>(id);
+            break;
+        case COMPONENT_ID_ITEM_CONTAINER:
+            gameComponent = AddComponent<ItemContainerComponent>(id);
+            break;
+        case COMPONENT_ID_MAGNET:
+            gameComponent = AddComponent<MagnetComponent>(id);
+            break;
+        case COMPONENT_ID_MAGNETIC:
+            gameComponent = AddComponent<MagneticComponent>(id);
+            break;
+        case COMPONENT_ID_TRANSFORM_2D:
+            gameComponent = AddComponent<Transform2DComponent>(id);
+            break;
+        default:
+            LogCat::w("The game components do not support serialization.");
+            return nullptr;
     }
-    if (mobComponent == nullptr) {
-        LogCat::e("AttachMobRelatedComponents MobComponent is nullptr");
-        return;
+    if (gameComponent != nullptr) {
+        gameComponent->Deserialize(this, componentMessage.data());
     }
-    for (auto &groundCheckRayCast: mobResource->groundCheckRayCast) {
-        auto groundRayCast = CreateEntity();
-        auto *rayCast2dComponent = AddComponent<RayCast2DComponent>(groundRayCast);
-        if (rayCast2dComponent == nullptr) {
-            continue;
-        }
-        rayCast2dComponent->SetOrigin(
-            {groundCheckRayCast.origin.x * TILE_SIZE, groundCheckRayCast.origin.y * TILE_SIZE});
-        rayCast2dComponent->SetTransform({
-            groundCheckRayCast.translation.x * TILE_SIZE, groundCheckRayCast.translation.y * TILE_SIZE
-        });
-        rayCast2dComponent->SetFilter(groundCheckRayCast.filter.Tob2QueryFilter());
-        rayCast2dComponent->SetTransform2DEntity(entityId);
-        mobComponent->groundCheckRayEntityIds.push_back(groundRayCast);
-    }
-    const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(entityId);
-    if (rigidBody2DComponent != nullptr) {
-        rigidBody2DComponent->SetBodyType(static_cast<b2BodyType>(mobResource->bodyType));
-        rigidBody2DComponent->SetAllowBodySleep(mobResource->allowBodySleep);
-        rigidBody2DComponent->SetFilter(mobResource->box2dFilter);
-        rigidBody2DComponent->SetDensity(mobResource->density);
-        rigidBody2DComponent->SetFriction(mobResource->friction);
-        rigidBody2DComponent->SetFixedRotation(mobResource->fixedRotation);
-        rigidBody2DComponent->SetShapeRef(mobResource->shape);
-    }
-    const auto spiritRendererComponent = AddComponent<SpiritRendererComponent>(entityId);
-    if (spiritRendererComponent != nullptr) {
-        spiritRendererComponent->SetTextureRef(mobResource->texture);
-        spiritRendererComponent->SetPosition({
-            TILE_SIZE * mobResource->textureOffset.x, TILE_SIZE * mobResource->textureOffset.y
-        });
-    }
+    return gameComponent;
 }
 
 
@@ -730,44 +713,6 @@ void glimmer::WorldContext::HideItemEditorPanel() {
         }
         RemoveEntity(itemEditorPanel_);
         itemEditorPanel_ = 0;
-    }
-}
-
-void glimmer::WorldContext::AttachDroppedItemRelatedComponents(const GameEntity::ID entityId,
-                                                               std::unique_ptr<Item> item,
-                                                               const WorldVector2D position,
-                                                               const float pickupCooldown) {
-    SetPersistable(entityId, true);
-    auto *transform2dComponent = AddComponent<
-        Transform2DComponent>(entityId);
-    if (transform2dComponent == nullptr) {
-        return;
-    }
-    transform2dComponent->SetPosition(position);
-    auto *droppedItemComponent = AddComponent<DroppedItemComponent>(
-        entityId
-    );
-    if (droppedItemComponent != nullptr) {
-        droppedItemComponent->SetItem(std::move(item));
-        droppedItemComponent->SetPickupCooldown(pickupCooldown);
-    }
-    const auto rigidBody2DComponent = AddComponent<RigidBody2DComponent>(
-        entityId);
-    if (rigidBody2DComponent != nullptr) {
-        rigidBody2DComponent->SetFilter({BOX2D_CATEGORY_ITEM, BOX2D_CATEGORY_TILE});
-        rigidBody2DComponent->SetBodyType(b2_dynamicBody);
-        rigidBody2DComponent->SetDensity(0.005F);
-        ResourceRef resourceRef;
-        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        resourceRef.SetResourceKey(SHAPE_ID_DROPPED_ITEM);
-        resourceRef.SetResourceType(RESOURCE_TYPE_SHAPE);
-        rigidBody2DComponent->SetShapeRef(resourceRef);
-        rigidBody2DComponent->CreateBody(GetAppContext()->GetResourceLocator(), GetWorldId(),
-                                         transform2dComponent->GetPosition());
-    }
-    auto *magnetic = AddComponent<MagneticComponent>(entityId);
-    if (magnetic != nullptr) {
-        magnetic->SetType(MAGNETIC_TYPE_ITEM);
     }
 }
 

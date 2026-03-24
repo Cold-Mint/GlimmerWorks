@@ -13,6 +13,7 @@
 #include "../component/RigidBody2DComponent.h"
 #include "box2d/box2d.h"
 #include "../../Constants.h"
+#include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/HotBarComonent.h"
 #include "core/ecs/component/ItemContainerComonent.h"
 #include "core/ecs/component/PlayerComponent.h"
@@ -93,16 +94,15 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
             if (itemContainer != nullptr) {
                 auto item = itemContainer->TakeItem(hotBarComp->GetSelectedSlot(), 1);
                 if (item != nullptr) {
-                    worldContext_->AttachDroppedItemRelatedComponents(worldContext_->CreateEntity(),
-                                                                      std::move(item),
-                                                                      worldContext_->GetCameraTransform2D()->
-                                                                      GetPosition(),
-                                                                      2
-                    );
+                    const GameEntity::ID droppedEntity = worldContext_->CreateEntity();
+                    DroppedItemCreator droppedItemCreator{worldContext_};
+                    droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+                    droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
+                                                                  worldContext_->GetCameraTransform2D()->
+                                                                  GetPosition(), std::move(item), 2));
                 }
             }
         }
-        // 修复：防止重复触发
         control->dropPressed = false;
     }
 
@@ -123,13 +123,16 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
                         float randomValue = dist(rng);
 
                         if (randomValue <= fumbleChance) {
-                            worldContext_->AttachDroppedItemRelatedComponents(worldContext_->CreateEntity(),
-                                                                              std::move(itemContainer->TakeAllItem(
-                                                                                  hotBarComp->GetSelectedSlot())),
-                                                                              worldContext_->GetCameraTransform2D()->
-                                                                              GetPosition(),
-                                                                              2
-                            );
+                            const GameEntity::ID droppedEntity = worldContext_->CreateEntity();
+                            DroppedItemCreator droppedItemCreator{worldContext_};
+                            droppedItemCreator.LoadTemplateComponents(droppedEntity,
+                                                                      DroppedItemCreator::GetResourceRef());
+                            droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                                                      DroppedItemCreator::GetEntityItemMessage(
+                                                                          worldContext_->GetCameraTransform2D()->
+                                                                          GetPosition(),
+                                                                          std::move(itemContainer->TakeAllItem(
+                                                                              hotBarComp->GetSelectedSlot())), 2));
                             return;
                         }
                     }

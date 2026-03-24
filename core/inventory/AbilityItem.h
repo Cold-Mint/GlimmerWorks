@@ -19,7 +19,8 @@ namespace glimmer {
     public:
         explicit AbilityItem(std::string id, std::string name, std::optional<std::string> description,
                              std::shared_ptr<SDL_Texture> icon,
-                             std::shared_ptr<ItemAbility> itemAbility, bool canUseAlone);
+                             std::shared_ptr<ItemAbility> itemAbility, bool canUseAlone,
+                             const ResourceRef &resourceRef);
 
         [[nodiscard]] const std::string &GetId() const override;
 
@@ -32,7 +33,8 @@ namespace glimmer {
         [[nodiscard]] ItemAbility *GetItemAbility() const;
 
         static std::unique_ptr<AbilityItem> FromItemResource(const AppContext *appContext,
-                                                             const AbilityItemResource *itemResource);
+                                                             const AbilityItemResource *itemResource,
+                                                             const ResourceRef &resourceRef);
 
         [[nodiscard]] const AbilityConfig &GetAbilityConfig() const override;
 

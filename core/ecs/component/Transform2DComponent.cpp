@@ -5,7 +5,6 @@
 #include "Transform2DComponent.h"
 
 #include "core/Constants.h"
-#include "src/core/vector2di.pb.h"
 #include "src/saves/transform2d.pb.h"
 
 glimmer::Transform2DComponent::Transform2DComponent(WorldVector2D position) : position_(position) {

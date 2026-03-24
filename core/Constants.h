@@ -285,6 +285,7 @@ static constexpr std::string TILE_ID_WATER = "water";
 static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
 static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
+static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
 
 constexpr float PLAYER_MOVE_SPEED_OPTIMIZED = 5.0F;
 constexpr float PLAYER_JUMP_FORCE = 7.5F;

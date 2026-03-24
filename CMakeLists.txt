@@ -359,6 +359,9 @@ target_sources(GlimmerWorks
         core/ecs/component/RayCast2DComponent.cpp
         core/ecs/system/RayCast2DSystem.cpp
         core/ecs/component/MobComponent.cpp
+        core/ecs/IEntityCreator.cpp
+        core/ecs/MobEntityCreator.cpp
+        core/ecs/DroppedItemCreator.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -537,6 +540,9 @@ target_sources(GlimmerWorks
         core/ecs/system/RayCast2DSystem.h
         core/Box2dFilter.h
         core/ecs/component/MobComponent.h
+        core/ecs/MobEntityCreator.h
+        core/ecs/IEntityCreator.h
+        core/ecs/DroppedItemCreator.h
 )
 
 #Define version information

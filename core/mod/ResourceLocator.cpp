@@ -137,14 +137,14 @@ glimmer::ResourceLocator::FindItem(const ItemMessage &itemMessage) const {
         auto composableItemResource = FindComposableItem(resourceRef);
         if (composableItemResource != nullptr) {
             result = std::move(
-                ComposableItem::FromItemResource(appContext_, composableItemResource));
+                ComposableItem::FromItemResource(appContext_, composableItemResource, resourceRef));
         }
     }
 
     if (resourceType == RESOURCE_TYPE_ABILITY_ITEM) {
         auto abilityItemResource = FindAbilityItem(resourceRef);
         if (abilityItemResource != nullptr) {
-            result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource));
+            result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource, resourceRef));
         }
     }
     if (result == nullptr) {

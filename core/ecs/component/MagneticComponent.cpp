@@ -5,7 +5,6 @@
 #include "MagneticComponent.h"
 
 #include "core/Constants.h"
-#include "src/saves/magnetic.pb.h"
 
 void glimmer::MagneticComponent::SetType(uint16_t type) {
     type_ = type;
@@ -45,17 +44,5 @@ uint32_t glimmer::MagneticComponent::GetId() {
 }
 
 bool glimmer::MagneticComponent::IsSerializable() {
-    return true;
-}
-
-std::string glimmer::MagneticComponent::Serialize() {
-    MagneticMessage magneticMessage;
-    magneticMessage.set_type(type_);
-    return magneticMessage.SerializeAsString();
-}
-
-void glimmer::MagneticComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
-    MagneticMessage magneticMessage;
-    magneticMessage.ParseFromString(data);
-    type_ = magneticMessage.type();
+    return false;
 }

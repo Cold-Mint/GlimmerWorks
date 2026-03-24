@@ -6,8 +6,6 @@
 
 #include <algorithm>
 
-#include "src/saves/magnet.pb.h"
-
 void glimmer::MagnetComponent::SetType(const uint16_t type) {
     type_ = type;
 }
@@ -50,23 +48,7 @@ const std::vector<glimmer::GameEntity::ID> &glimmer::MagnetComponent::GetEntitie
 }
 
 bool glimmer::MagnetComponent::IsSerializable() {
-    return true;
-}
-
-std::string glimmer::MagnetComponent::Serialize() {
-    MagnetMessage magnetMessage;
-    magnetMessage.set_type(type_);
-    magnetMessage.set_detectionradius(detectionRadius_);
-    magnetMessage.set_adsorptionradius(adsorptionRadius_);
-    return magnetMessage.SerializeAsString();
-}
-
-void glimmer::MagnetComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
-    MagnetMessage magnetMessage;
-    magnetMessage.ParseFromString(data);
-    type_ = magnetMessage.type();
-    detectionRadius_ = magnetMessage.detectionradius();
-    adsorptionRadius_ = magnetMessage.adsorptionradius();
+    return false;
 }
 
 uint32_t glimmer::MagnetComponent::GetId() {

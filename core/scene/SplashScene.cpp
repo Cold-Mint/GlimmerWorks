@@ -39,7 +39,7 @@ void glimmer::SplashScene::Render(SDL_Renderer *renderer) {
     if (!splashTexture) {
         ResourceRef splashTextureRef;
         splashTextureRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        splashTextureRef.SetResourceKey("gui/splash.png");
+        splashTextureRef.SetResourceKey("gui/splash");
         splashTextureRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
         splashTexture = appContext->GetResourceLocator()->FindTexture(
             splashTextureRef);

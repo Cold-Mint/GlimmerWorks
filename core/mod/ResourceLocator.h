@@ -8,6 +8,7 @@
 #include "Resource.h"
 #include "ResourceRef.h"
 #include "core/scene/AppContext.h"
+#include "SDL3_mixer/SDL_mixer.h"
 
 namespace glimmer {
     class Item;
@@ -37,6 +38,8 @@ namespace glimmer {
         explicit ResourceLocator(AppContext *appContext_);
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> FindTexture(const ResourceRef &resourceRef) const;
+
+        [[nodiscard]] std::shared_ptr<MIX_Audio> FindAudio(const ResourceRef &resourceRef) const;
 
         [[nodiscard]] ColorResource *FindColorResource(const ResourceRef &resourceRef,
                                                        ColorResource *defaultColor = nullptr) const;

@@ -101,6 +101,15 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SDL_ttf)
 
 FetchContent_Declare(
+        SDL_mixer
+        GIT_REPOSITORY "https://github.com/libsdl-org/SDL_mixer"
+        GIT_TAG ${LIBSDL-ORG_SDL_MIXER_VERSION}
+        GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(SDL_mixer)
+
+FetchContent_Declare(
         imgui
         GIT_REPOSITORY "https://github.com/ocornut/imgui"
         GIT_PROGRESS TRUE
@@ -362,6 +371,8 @@ target_sources(GlimmerWorks
         core/ecs/IEntityCreator.cpp
         core/ecs/MobEntityCreator.cpp
         core/ecs/DroppedItemCreator.cpp
+        core/mod/resourcePack/AudioType.cpp
+        core/mod/resourcePack/AudioManager.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -543,6 +554,8 @@ target_sources(GlimmerWorks
         core/ecs/MobEntityCreator.h
         core/ecs/IEntityCreator.h
         core/ecs/DroppedItemCreator.h
+        core/mod/resourcePack/AudioType.h
+        core/mod/resourcePack/AudioManager.h
 )
 
 #Define version information
@@ -555,9 +568,9 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE log android SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
+    target_link_libraries(GlimmerWorks PRIVATE log android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
 else ()
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
 endif ()
 
 
@@ -583,6 +596,13 @@ target_include_directories(GlimmerWorks PRIVATE
 
 target_include_directories(GlimmerWorks PRIVATE
         "${CMAKE_BINARY_DIR}/_deps/fastnoiselite-src/Cpp"
+)
+
+target_include_directories(GlimmerWorks PRIVATE
+        "${CMAKE_BINARY_DIR}/_deps/sdl-src/include"
+)
+target_include_directories(GlimmerWorks PRIVATE
+        "${CMAKE_BINARY_DIR}/_deps/sdl_mixer-src/include"
 )
 
 target_include_directories(GlimmerWorks

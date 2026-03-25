@@ -38,6 +38,13 @@ std::shared_ptr<SDL_Texture> glimmer::ResourceLocator::FindTexture(const Resourc
     return appContext_->GetResourcePackManager()->LoadTextureFromFile(appContext_, resourceRef);
 }
 
+std::shared_ptr<MIX_Audio> glimmer::ResourceLocator::FindAudio(const ResourceRef &resourceRef) const {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_AUDIO || !ValidateAccessPermission(resourceRef)) {
+        return nullptr;
+    }
+    return appContext_->GetResourcePackManager()->LoadAudioFromFile(appContext_, resourceRef);
+}
+
 glimmer::ColorResource *glimmer::ResourceLocator::FindColorResource(const ResourceRef &resourceRef,
                                                                     ColorResource *defaultColor) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_COLOR || !ValidateAccessPermission(resourceRef)) {

@@ -70,6 +70,7 @@ static constexpr uint32_t RESOURCE_TYPE_BIOME = 8;
 static constexpr uint32_t RESOURCE_TYPE_COLOR = 9;
 static constexpr uint32_t RESOURCE_TYPE_MOB = 10;
 static constexpr uint32_t RESOURCE_TYPE_SHAPE = 11;
+static constexpr uint32_t RESOURCE_TYPE_AUDIO = 12;
 //This dropped item resource type is used for serialization within the game save file. Currently, this type of resource is not supported for definition within the mod.
 //这个掉落物资源类型用作存档内序列化。模组内暂不支持定义此类型的资源。
 static constexpr uint32_t RESOURCE_TYPE_DROPPED_ITEM = 12;

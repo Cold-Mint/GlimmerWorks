@@ -14,7 +14,10 @@
 #include "scene/ConsoleOverlay.h"
 #include "scene/DebugOverlay.h"
 #include "SDL3_ttf/SDL_ttf.h"
-#include <SDL3/SDL_init.h>
+#include "SDL3/SDL_init.h"
+#include "SDL3/SDL_render.h"
+#include "SDL3_mixer/SDL_mixer.h"
+
 
 void glimmer::App::RendererUiMessage() {
     auto &uiMessages = appContext_->GetGameUIMessages();
@@ -123,13 +126,16 @@ void glimmer::App::RendererUiMessage() {
 
 glimmer::App::~App() {
     LogCat::i("Destroy the app");
+    if (initSDLMixSuccess_) {
+        MIX_Quit();
+    }
     if (window != nullptr) {
         SDL_DestroyWindow(window);
     }
-    if (initSDLTtfSuccess) {
+    if (initSDLTtfSuccess_) {
         TTF_Quit();
     }
-    if (initSDLSuccess) {
+    if (initSDLSuccess_) {
         SDL_Quit();
     }
 }
@@ -137,8 +143,10 @@ glimmer::App::~App() {
 glimmer::App::App(AppContext *ac) : appContext_(ac) {
     window = nullptr;
     renderer_ = nullptr;
-    initSDLSuccess = false;
-    initSDLTtfSuccess = false;
+    initSDLSuccess_ = false;
+    initSDLTtfSuccess_ = false;
+    initSDLMixSuccess_ = false;
+    mixer_ = nullptr;
 }
 
 bool glimmer::App::Init() {
@@ -147,17 +155,22 @@ bool glimmer::App::Init() {
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     SDL_SetHint("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
 #endif
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         LogCat::e("SDL_Init Error: ", SDL_GetError());
         return false;
     }
-    initSDLSuccess = true;
+    initSDLSuccess_ = true;
+    if (!MIX_Init()) {
+        LogCat::e("MIX_Init Error: ", SDL_GetError());
+        return false;
+    }
+    initSDLMixSuccess_ = true;
     LogCat::i("Initializing SDL_ttf...");
     if (!TTF_Init()) {
         LogCat::e("TTF_Init Error: ", SDL_GetError());
         return false;
     }
-    initSDLTtfSuccess = true;
+    initSDLTtfSuccess_ = true;
     LogCat::i("SDL initialized successfully.");
 
     LogCat::i("Creating SDL window...");
@@ -395,6 +408,33 @@ bool glimmer::App::Init() {
         return false;
     }
     LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
+    SDL_AudioSpec audioSpec;
+    if (config->audio.format == "U8") {
+        audioSpec.format = SDL_AUDIO_U8;
+    } else if (config->audio.format == "S16") {
+        audioSpec.format = SDL_AUDIO_S16;
+    } else if (config->audio.format == "S32") {
+        audioSpec.format = SDL_AUDIO_S32;
+    } else {
+        audioSpec.format = SDL_AUDIO_F32;
+    }
+    audioSpec.channels = config->audio.channels;
+    audioSpec.freq = config->audio.freq;
+    mixer_ = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
+    if (mixer_ == nullptr) {
+        LogCat::e("MIX_CreateMixerDevice failed! ", SDL_GetError());
+        return false;
+    }
+    appContext_->GetResourcePackManager()->SetMixer(mixer_);
+    AudioManager *audioManager = appContext_->GetAudioManager();
+    if (audioManager == nullptr) {
+        LogCat::e("audioManager == null");
+        return false;
+    }
+    audioManager->SetMixer(mixer_);
+    for (const AudioTrack &trackConfig: config->audio.track) {
+        audioManager->CreateTracks(trackConfig.type, trackConfig.trackCount);
+    }
     AppContext::RestoreColorRenderer(renderer_);
     return true;
 }

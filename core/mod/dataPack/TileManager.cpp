@@ -14,7 +14,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air_ = std::make_unique<TileResource>();
     ResourceRef airResource;
     airResource.SetSelfPackageId(RESOURCE_REF_CORE);
-    airResource.SetResourceKey("tiles/air.png");
+    airResource.SetResourceKey("tiles/air");
     airResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
     air_->texture = airResource;
     air_->resourceId = TILE_ID_AIR;
@@ -23,11 +23,11 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air_->layerType = static_cast<uint8_t>(TileLayerType::Main);
     air_->hardness = -1.0F;
     airResourceRef_ = std::make_unique<ResourceRef>();
-    airResourceRef_->ReadResource(*air_.get(), RESOURCE_TYPE_TILE);
+    airResourceRef_->ReadResource(*air_, RESOURCE_TYPE_TILE);
     water_ = std::make_unique<TileResource>();
     ResourceRef waterResource;
     waterResource.SetSelfPackageId(RESOURCE_REF_CORE);
-    waterResource.SetResourceKey("tiles/water.png");
+    waterResource.SetResourceKey("tiles/water");
     waterResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
     water_->texture = waterResource;
     water_->resourceId = TILE_ID_WATER;
@@ -38,7 +38,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     bedrock_ = std::make_unique<TileResource>();
     ResourceRef bedrockResource;
     bedrockResource.SetSelfPackageId(RESOURCE_REF_CORE);
-    bedrockResource.SetResourceKey("tiles/bedrock.png");
+    bedrockResource.SetResourceKey("tiles/bedrock");
     bedrockResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
     bedrock_->texture = bedrockResource;
     bedrock_->resourceId = TILE_ID_BEDROCK;

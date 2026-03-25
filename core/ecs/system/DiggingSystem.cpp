@@ -111,7 +111,7 @@ void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {
             ResourceRef resourceRef;
             resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
             resourceRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
-            resourceRef.SetResourceKey("cracks/cracks_" + std::to_string(i) + ".png");
+            resourceRef.SetResourceKey("cracks/cracks_" + std::to_string(i));
             textureList.push_back(appContext->GetResourceLocator()->FindTexture(
                 resourceRef
             ));

@@ -27,6 +27,7 @@
 #include "core/mod/StructurePlacementConditionsManager.h"
 #include "core/mod/dataPack/MobManager.h"
 #include "core/mod/dataPack/StructureManager.h"
+#include "core/mod/resourcePack/AudioManager.h"
 #include "core/shape/ShapeManager.h"
 #include "core/world/PreloadColors.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
@@ -82,6 +83,7 @@ namespace glimmer {
         std::unique_ptr<ContributorManager> contributorManager_;
         std::unique_ptr<MobManager> mobManager_;
         std::unique_ptr<ShapeManager> shapeManager_;
+        std::unique_ptr<AudioManager> audioManager_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
@@ -130,6 +132,8 @@ namespace glimmer {
         [[nodiscard]] InitialInventoryManager *GetInitialInventoryManager() const;
 
         [[nodiscard]] CommandManager *GetCommandManager() const;
+
+        [[nodiscard]] AudioManager *GetAudioManager() const;
 
         [[nodiscard]] StringManager *GetStringManager() const;
 

@@ -13,8 +13,10 @@
 
 #include "ResourcePack.h"
 #include "../../vfs/VirtualFileSystem.h"
+#include "../../Config.h"
 #include "core/mod/ResourceLocator.h"
 #include "SDL3/SDL_render.h"
+#include "SDL3_mixer/SDL_mixer.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {
@@ -24,6 +26,7 @@ namespace glimmer {
         friend class ResourceLocator;
         VirtualFileSystem *virtualFileSystem_;
         SDL_Renderer *renderer_;
+        MIX_Mixer *mixer_;
         std::vector<std::string> packIdVector_;
         std::unordered_map<std::string, std::unique_ptr<ResourcePack> > resourcePackMap_;
         /**
@@ -39,15 +42,20 @@ namespace glimmer {
         static bool IsResourcePackEnabled(const ResourcePack &pack,
                                           const std::vector<std::string> &enabledResourcePack);
 
-        std::unordered_map<std::string, std::weak_ptr<SDL_Texture> > textureCache;
+        std::unordered_map<std::string, std::weak_ptr<SDL_Texture> > textureCache_;
+
+        std::unordered_map<std::string, std::weak_ptr<MIX_Audio> > audioMixCache_;
 
         std::unordered_map<std::string, std::unique_ptr<ColorResource> > colorCache_;
 
 
-        std::shared_ptr<SDL_Texture> ImplLoadTextureFromFile(const std::vector<std::string> &enabledResourcePack,
-                                                             const std::string &path);
+        std::shared_ptr<SDL_Texture> ImplLoadTextureFromFile(const std::string &path, const Mods &modConfig);
+
+        std::shared_ptr<MIX_Audio> ImplLoadAudioFromFile(const std::string &path, const Mods &modConfig);
 
         std::shared_ptr<SDL_Texture> LoadTextureFromFile(AppContext *appContext, const ResourceRef &resourceRef);
+
+        std::shared_ptr<MIX_Audio> LoadAudioFromFile(AppContext *appContext, const ResourceRef &resourceRef);
 
         ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef &resourceRef,
                                             ColorResource *defaultColor);
@@ -66,6 +74,8 @@ namespace glimmer {
 
     public:
         explicit ResourcePackManager(VirtualFileSystem *virtualFilesystem);
+
+        void SetMixer(MIX_Mixer *mixer);
 
         void SetRenderer(SDL_Renderer *renderer, SDL_Color accent,
                          SDL_Color base);

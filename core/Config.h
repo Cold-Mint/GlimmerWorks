@@ -5,7 +5,7 @@
 #define CONFIG_H
 #include <string>
 #include <vector>
-
+#include "mod/resourcePack/AudioType.h"
 #include "toml11/types.hpp"
 
 
@@ -26,6 +26,8 @@ namespace glimmer {
         std::string resourcePackPath;
         std::vector<std::string> enabledDataPack;
         std::vector<std::string> enabledResourcePack;
+        std::vector<std::string> supportedTextureFormats;
+        std::vector<std::string> supportedAudioFormats;
     };
 
     struct Debug {
@@ -38,6 +40,18 @@ namespace glimmer {
         float preloadStructureRadius;
     };
 
+    struct AudioTrack {
+        AudioType type;
+        int trackCount;
+    };
+
+    struct Audio {
+        int channels;
+        int freq;
+        std::string format = "F32";
+        std::vector<AudioTrack> track;
+    };
+
 
     class Config {
     public:
@@ -45,6 +59,7 @@ namespace glimmer {
         Mods mods{};
         World world{};
         Debug debug{};
+        Audio audio{};
         int configVersion = 1;
 
         void LoadConfig(const toml::value &configValue);

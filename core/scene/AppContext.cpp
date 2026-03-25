@@ -182,6 +182,7 @@ glimmer::AppContext::AppContext() {
     contributorManager_ = std::make_unique<ContributorManager>();
     mobManager_ = std::make_unique<MobManager>();
     shapeManager_ = std::make_unique<ShapeManager>();
+    audioManager_ = std::make_unique<AudioManager>();
     LoadLanguage(langData.value());
     dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
@@ -404,6 +405,10 @@ glimmer::InitialInventoryManager *glimmer::AppContext::GetInitialInventoryManage
 
 glimmer::CommandManager *glimmer::AppContext::GetCommandManager() const {
     return commandManager_.get();
+}
+
+glimmer::AudioManager *glimmer::AppContext::GetAudioManager() const {
+    return audioManager_.get();
 }
 
 glimmer::StringManager *glimmer::AppContext::GetStringManager() const {

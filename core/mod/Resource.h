@@ -373,6 +373,10 @@ namespace glimmer {
         ResourceRef lootTable = {};
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture;
+        //@genNextLine(breakSFX|瓦片被破坏时的音效)
+        ResourceRef breakSFX;
+        //@genNextLine(blockPlaceSFX|放置瓦片时的音效)
+        ResourceRef blockPlaceSFX;
         //@genNextLine(hardness If the hardness is less than 0, then it is indestructible.|硬度 如果硬度小于0那么不可破坏。)
         float hardness = 1.0F;
         //@genNextLine(physicsType|物理类型)

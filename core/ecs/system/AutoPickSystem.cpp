@@ -14,6 +14,14 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem
     RequireComponent<AutoPickComponent>();
     RequireComponent<MagnetComponent>();
     RequireComponent<ItemContainerComponent>();
+    ResourceRef ref{};
+    ref.SetSelfPackageId(RESOURCE_REF_CORE);
+    ref.SetResourceType(RESOURCE_TYPE_AUDIO);
+    ref.SetResourceKey("sfx/pick_item");
+    AppContext *appContext = worldContext->GetAppContext();
+    if (appContext != nullptr) {
+        pickItemSFX_ = appContext->GetResourceLocator()->FindAudio(ref);
+    }
 }
 
 void glimmer::AutoPickSystem::Update(float delta) {
@@ -30,6 +38,7 @@ void glimmer::AutoPickSystem::Update(float delta) {
             }
             auto item = containerComponent->GetItemContainer()->AddItem(droppedItemComponent->ExtractItem());
             if (item == nullptr) {
+                worldContext_->GetAppContext()->GetAudioManager()->PlayAudio(AMBIENT, pickItemSFX_.get(), 0);
                 worldContext_->RemoveEntity(entityId);
             } else {
                 droppedItemComponent->SetItem(std::move(item));

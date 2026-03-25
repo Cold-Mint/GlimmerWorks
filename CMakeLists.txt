@@ -739,6 +739,13 @@ install(CODE "
         file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
     endforeach()
 ")
+install(CODE "
+    file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/sdl_mixer-build/*${LIB_SUFFIX}\")
+    foreach(lib \${PROTO_BUF_LIBS})
+        message(STATUS \"Installing \${lib} to ${LIB_DIR}\")
+        file(INSTALL DESTINATION \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}\" FILES   \${lib})
+    endforeach()
+")
 
 install(CODE "
     file(GLOB PROTO_BUF_LIBS \"${CMAKE_BINARY_DIR}/_deps/box2d-build/bin/*${LIB_SUFFIX}\")

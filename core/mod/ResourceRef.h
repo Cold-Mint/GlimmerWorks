@@ -44,6 +44,7 @@ namespace glimmer {
             {"loot", RESOURCE_TYPE_LOOT_TABLE},
             {"structure", RESOURCE_TYPE_STRUCTURE},
             {"texture", RESOURCE_TYPE_TEXTURES},
+            {"audio", RESOURCE_TYPE_AUDIO},
             {"biome", RESOURCE_TYPE_BIOME},
             {"color", RESOURCE_TYPE_COLOR},
             {"shape", RESOURCE_TYPE_SHAPE},

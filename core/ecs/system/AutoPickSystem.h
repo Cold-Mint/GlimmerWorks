@@ -9,6 +9,8 @@
 
 namespace glimmer {
     class AutoPickSystem : public GameSystem {
+
+        std::shared_ptr<MIX_Audio> pickItemSFX_;
     public:
         explicit AutoPickSystem(WorldContext *worldContext);
 

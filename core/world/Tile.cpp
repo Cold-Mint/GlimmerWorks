@@ -38,6 +38,14 @@ SDL_Texture *glimmer::Tile::GetTexture() const {
     return texture_.get();
 }
 
+MIX_Audio *glimmer::Tile::GetBreakSFX() const {
+    return breakSFX_.get();
+}
+
+MIX_Audio *glimmer::Tile::GetBlockPlaceSFX() const {
+    return blockPlaceSFX_.get();
+}
+
 void glimmer::Tile::SetPlayerPlaced(const bool playerPlaced) {
     isPlayerPlaced_ = playerPlaced;
 }
@@ -102,7 +110,13 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->hardness_ = tileResource->hardness;
     tile->breakable = tileResource->hardness >= 0;
     tile->allowChainMining_ = tileResource->allowChainMining;
-    tile->texture_ = appContext->GetResourceLocator()->FindTexture(
-        tileResource->texture);
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator != nullptr) {
+        tile->texture_ = resourceLocator->FindTexture(
+            tileResource->texture);
+        tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSFX);
+        tile->blockPlaceSFX_ = resourceLocator->FindAudio(tileResource->blockPlaceSFX);
+    }
+
     return tile;
 }

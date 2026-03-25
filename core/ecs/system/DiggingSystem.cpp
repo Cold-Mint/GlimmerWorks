@@ -25,6 +25,10 @@ void glimmer::DiggingSystem::BreakTile(const TileVector2D tilePosition, const Ap
     if (oldTile == nullptr) {
         return;
     }
+    auto *breakSFX = oldTile->GetBreakSFX();
+    if (breakSFX != nullptr) {
+        appContext->GetAudioManager()->PlayAudio(AMBIENT, breakSFX, 0);
+    }
     if (!diggingComponent->IsPrecisionMining() && oldTile->IsCustomLootTable()) {
         const auto lootResource = appContext->GetResourceLocator()->FindLoot(oldTile->GetLootTableRef());
         if (lootResource != nullptr) {

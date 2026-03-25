@@ -818,8 +818,8 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, int worldSeed, Saves
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldId_ = b2CreateWorld(&worldDef);
-    InitSystem();
     appContext_ = appContext;
+    InitSystem();
     for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
         if (command->RequiresWorldContext()) {
             command->BindWorldContext(this);

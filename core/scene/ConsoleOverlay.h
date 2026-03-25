@@ -52,6 +52,8 @@ namespace glimmer {
 
         void SetCommandStructure(const std::vector<std::string> &commandStructure);
 
+        bool OnBackPressed() override;
+
         /**
          * Set the keywords when searching
          * 设置搜索时的关键字

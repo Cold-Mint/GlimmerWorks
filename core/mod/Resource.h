@@ -148,6 +148,8 @@ namespace glimmer {
         bool isPlayer = false;
         //@genNextLine(movementAcceleration|移动加速度)
         float movementAcceleration = 6.0F;
+        //@genNextLine(jumpForce|跳跃强度)
+        float jumpForce = 7.5F;
         //@genNextLine(maxSpeed|最大速度)
         float maxSpeed = 18.0F;
         //@genNextLine(airControlFactor|空中移动衰减 如果设置为0,那么禁止空中左右移动，如果设置为1,那么不限制空中移动，如果设置为0.8那么会将加速度乘以0.8。)

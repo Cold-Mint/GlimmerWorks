@@ -408,6 +408,7 @@ namespace toml {
             r.resourceId = toml::find<std::string>(v, "resourceId");
             r.isPlayer = toml::find_or<bool>(v, "isPlayer", false);
             r.movementAcceleration = toml::find_or<float>(v, "movementAcceleration", 6.0F);
+            r.jumpForce = toml::find_or<float>(v, "jumpForce", 7.5F);
             r.maxSpeed = toml::find_or<float>(v, "maxSpeed", 18.0F);
             r.airControlFactor = toml::find_or<float>(v, "airControlFactor", 1.0F);
             r.shape = toml::find<glimmer::ResourceRef>(v, "shape");

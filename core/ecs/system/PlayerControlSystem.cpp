@@ -18,6 +18,7 @@
 #include "core/ecs/component/ItemContainerComonent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/RayCast2DComponent.h"
+#include "core/ecs/component/SpiritRendererComponent.h"
 
 glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<PlayerComponent>();
@@ -42,30 +43,39 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
     const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
     bool isGrounded = OnGround(playerComponent);
     const b2Vec2 currentVel = b2Body_GetLinearVelocity(bodyId);
+    b2MassData massData = b2Body_GetMassData(bodyId);
     float targetAccX = playerComponent->movementAcceleration * playerComponent->horizontalInput;
     if (!isGrounded) {
         targetAccX *= playerComponent->airControlFactor;
     }
-    b2MassData massData = b2Body_GetMassData(bodyId);
     float horizontalForce = massData.mass * targetAccX;
-    if (playerComponent->jump && isGrounded) {
-        b2Vec2 jumpImpulse = {0, massData.mass * PLAYER_JUMP_FORCE};
-        b2Body_ApplyLinearImpulseToCenter(bodyId, jumpImpulse, true);
-        playerComponent->jump = false;
-    }
     if (playerComponent->horizontalInput == 0) {
-        // 制动力系数：地面摩擦力大，空中摩擦力小
         const float brakeFactor = isGrounded ? 8.0F : 2.0F;
-        // 反向制动力 = -当前速度 × 质量 × 制动系数（与运动方向相反）
         horizontalForce = -currentVel.x * massData.mass * brakeFactor;
 
-        // 可选：速度极小值时直接清零，避免无限滑
         if (fabs(currentVel.x) < 0.1F) {
             b2Body_SetLinearVelocity(bodyId, {0.0F, currentVel.y});
-            horizontalForce = 0.0F; // 停止施力
+            horizontalForce = 0.0F;
         }
     }
     b2Body_ApplyForceToCenter(bodyId, {horizontalForce, 0.0F}, true);
+    if (playerComponent->jump) {
+        playerComponent->jumpBuffer = JUMP_BUFFER_FRAMES;
+        playerComponent->jump = false;
+    }
+    if (playerComponent->jumpBuffer > 0 && isGrounded) {
+        b2Vec2 jumpImpulse = {0, massData.mass * playerComponent->jumpForce};
+        b2Body_ApplyLinearImpulseToCenter(bodyId, jumpImpulse, true);
+        // Consumption buffer
+        // 消耗缓冲
+        playerComponent->jumpBuffer = 0;
+    }
+    //Decremental buffering per frame
+    //每帧递减缓冲
+    if (playerComponent->jumpBuffer > 0) {
+        playerComponent->jumpBuffer--;
+    }
+
     if (std::abs(currentVel.x) > playerComponent->maxSpeed) {
         //The horizontal speed has exceeded the maximum speed.
         //水平方向速度，超过了最大速度。
@@ -216,16 +226,36 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
     }
     if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
         bool pressed = event.type == SDL_EVENT_KEY_DOWN;
-        float horizontalInput = 0.0F;
-        if (event.key.key == SDLK_A && pressed) {
-            horizontalInput -= 1.0F;
+        bool isAorD = false;
+        if (event.key.key == SDLK_A) {
+            playerComponent->pressedA = pressed;
+            isAorD = true;
         }
-        if (event.key.key == SDLK_D && pressed) {
-            horizontalInput += 1.0F;
+        if (event.key.key == SDLK_D) {
+            playerComponent->pressedD = pressed;
+            isAorD = true;
         }
-        playerComponent->horizontalInput = horizontalInput;
-        if (event.key.key == SDLK_SPACE) {
-            playerComponent->jump = pressed;
+        if (isAorD) {
+            playerComponent->horizontalInput = 0.0F;
+            if (playerComponent->pressedA) {
+                playerComponent->horizontalInput -= 1.0F;
+            }
+            if (playerComponent->pressedD) {
+                playerComponent->horizontalInput += 1.0F;
+            }
+            const auto spiritRendererComponent = worldContext_->GetComponent<SpiritRendererComponent>(playerEntity);
+            if (spiritRendererComponent != nullptr) {
+                if (playerComponent->horizontalInput < -0.1F) {
+                    playerComponent->facingLeft = true;
+                    spiritRendererComponent->SetFlipH(true);
+                } else if (playerComponent->horizontalInput > 0.1F) {
+                    playerComponent->facingLeft = false;
+                    spiritRendererComponent->SetFlipH(false);
+                }
+            }
+        }
+        if (event.key.key == SDLK_SPACE && pressed && !event.key.repeat) {
+            playerComponent->jump = true;
         }
         if (event.key.key == SDLK_Q) {
             playerComponent->dropPressed = pressed;

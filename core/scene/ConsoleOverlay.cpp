@@ -8,7 +8,7 @@
 #include "AppContext.h"
 #include "../log/LogCat.h"
 #include "../Config.h"
-#include "backends/imgui_impl_sdlrenderer3.h"
+#include "backends/imgui_impl_sdl3.h"
 #include "fmt/color.h"
 #include "misc/cpp/imgui_stdlib.h"
 
@@ -18,6 +18,14 @@ void glimmer::ConsoleOverlay::SetLastCursorPos(const int cursorPos) {
 
 void glimmer::ConsoleOverlay::SetCommandStructure(const std::vector<std::string> &commandStructure) {
     commandStructure_ = commandStructure;
+}
+
+bool glimmer::ConsoleOverlay::OnBackPressed() {
+    if (show_) {
+        show_ = false;
+        return true;
+    }
+    return false;
 }
 
 void glimmer::ConsoleOverlay::SetKeyword(const std::string &keyword) {
@@ -74,16 +82,15 @@ int glimmer::ConsoleOverlay::GetLastCursorPos() const {
 }
 
 bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
-    if (event.type == SDL_EVENT_KEY_DOWN) {
-        if (event.key.scancode == SDL_SCANCODE_GRAVE && !event.key.repeat) {
-            show_ = !show_;
-            if (show_) {
-                focusNextFrame_ = true;
-            }
-            return true;
+    if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_GRAVE && !event.key.repeat) {
+        show_ = !show_;
+        if (show_) {
+            focusNextFrame_ = true;
         }
+        return true;
     }
-    return false;
+    ImGui_ImplSDL3_ProcessEvent(&event);
+    return show_;
 }
 
 void glimmer::ConsoleOverlay::Update(float delta) {

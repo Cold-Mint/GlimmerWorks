@@ -30,6 +30,13 @@ namespace glimmer {
         // 如果设置为0,那么禁止空中左右移动，如果设置为1,那么不限制空中移动，如果设置为0.8那么会将加速度乘以0.8。
         float airControlFactor = 1.0F;
 
+        float jumpForce = 7.5F;
+
+        /**
+         * Is it facing to the left?
+         * 是否为面向左侧
+         */
+        bool facingLeft = false;
 
         [[nodiscard]] uint32_t GetId() override;
     };

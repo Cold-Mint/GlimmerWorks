@@ -46,7 +46,23 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
                 cameraVector2d.x, cameraVector2d.y, static_cast<float>(sdlTexture->w),
                 static_cast<float>(sdlTexture->h)
             };
-            SDL_RenderTexture(renderer, sdlTexture, nullptr, &dstrect);
+            SDL_FlipMode flip = SDL_FLIP_NONE;
+
+            if (spiritRendererComponent->IsFlipH()) {
+                flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_HORIZONTAL);
+            }
+            if (spiritRendererComponent->IsFlipV()) {
+                flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_VERTICAL);
+            }
+            SDL_RenderTextureRotated(
+                renderer,
+                sdlTexture,
+                nullptr,
+                &dstrect,
+                0.0f,
+                nullptr,
+                flip
+            );
         }
     }
 }

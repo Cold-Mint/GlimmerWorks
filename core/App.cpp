@@ -438,7 +438,15 @@ void glimmer::App::Run() {
 #else
             if (event.type == SDL_EVENT_KEY_DOWN) {
                 if (event.key.key == SDLK_ESCAPE && !event.key.repeat) {
-                    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+                    bool handled = false;
+                    for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
+                        if (overlayScene->OnBackPressed()) {
+                            handled = true;
+                            break;
+                        }
+                    }
+                    Scene *topScene = sceneManager->GetTopScene();
+                    if (!handled && topScene != nullptr) {
                         if (!topScene->OnBackPressed()) {
                             sceneManager->PopScene();
                             break;

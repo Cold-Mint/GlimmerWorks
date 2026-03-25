@@ -10,6 +10,22 @@ void glimmer::SpiritRendererComponent::SetTextureRef(const ResourceRef &resource
     resourceRef_ = resourceRef;
 }
 
+bool glimmer::SpiritRendererComponent::IsFlipH() const {
+    return flipH_;
+}
+
+bool glimmer::SpiritRendererComponent::IsFlipV() const {
+    return flipV_;
+}
+
+void glimmer::SpiritRendererComponent::SetFlipH(const bool flipH) {
+    flipH_ = flipH;
+}
+
+void glimmer::SpiritRendererComponent::SetFlipV(const bool flipV) {
+    flipV_ = flipV;
+}
+
 SDL_Texture *glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator *resourceLocator) {
     if (texture_ == nullptr) {
         texture_ = resourceLocator->FindTexture(resourceRef_);

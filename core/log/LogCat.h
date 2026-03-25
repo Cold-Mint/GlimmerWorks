@@ -72,17 +72,8 @@ namespace glimmer {
         }
 
 
-#if !defined(__ANDROID__) && defined(__linux__) && !defined(NDEBUG)
-        static void NotifySend(const std::string &text);
-#endif
-
         template<typename... Args>
         static void e(Args &&... args) {
-#if !defined(__ANDROID__) && defined(__linux__) && !defined(NDEBUG)
-            std::ostringstream oss;
-            (oss << ... << args);
-            NotifySend(oss.str());
-#endif
 #ifdef __ANDROID__
             std::ostringstream oss;
             (oss << ... << args);

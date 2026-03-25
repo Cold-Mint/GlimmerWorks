@@ -29,29 +29,3 @@ std::string glimmer::LogCat::ThreadTag() {
     oss << std::this_thread::get_id() << "| ";
     return oss.str();
 }
-
-#if !defined(__ANDROID__) && defined(__linux__) && !defined(NDEBUG)
-void glimmer::LogCat::NotifySend(const std::string &text) {
-    pid_t pid;
-
-    const char *argv[] = {
-        "notify-send",
-        "GlimmerWorks",
-        text.c_str(),
-        nullptr
-    };
-
-    if (posix_spawnp(
-            &pid,
-            "notify-send",
-            nullptr,
-            nullptr,
-            const_cast<char * const*>(argv),
-            environ
-        ) != 0) {
-        // spawn failed
-        // spawn 失败
-        return;
-    }
-}
-#endif

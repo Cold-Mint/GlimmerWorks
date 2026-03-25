@@ -16,11 +16,21 @@ namespace glimmer {
         ResourceRef resourceRef_;
         Vector2D position_;
         std::shared_ptr<SDL_Texture> texture_ = nullptr;
+        bool flipH_ = false;
+        bool flipV_ = false;
 
     public:
         SpiritRendererComponent();
 
         void SetTextureRef(const ResourceRef &resourceRef);
+
+        [[nodiscard]] bool IsFlipH() const;
+
+        [[nodiscard]] bool IsFlipV() const;
+
+        void SetFlipH(bool flipH);
+
+        void SetFlipV(bool flipV);
 
         [[nodiscard]] SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
 

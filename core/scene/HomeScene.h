@@ -4,9 +4,11 @@
 
 #ifndef GLIMMERWORKS_HOMESCENE_H
 #define GLIMMERWORKS_HOMESCENE_H
+#include <memory>
 #include <vector>
 #include "Scene.h"
 #include "core/Hyperlink.h"
+#include "SDL3_mixer/SDL_mixer.h"
 
 namespace glimmer {
     struct Star {
@@ -21,6 +23,7 @@ namespace glimmer {
         int windowHeight = 0;
         std::vector<Hyperlink> hyperlinks;
         std::string copyright;
+        std::shared_ptr<MIX_Audio> homeBGM_;
 
         static std::string GetCopyrightString();
 

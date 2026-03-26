@@ -21,6 +21,9 @@ uiScale = 1.0
 vSync = true
 
 [audio]
+# Master volume
+# 主音量
+masterVolume = 1.0
 # channels
 # 声道数
 channels = 2
@@ -59,12 +62,14 @@ type = 0
 #The number of pre-allocated orbits of this type
 #该类型预分配的轨道数量
 trackCount = 1
+volume = 1.0
 
 [[audio.track]]
 #AMBIENT
 #环境音效
 type = 1
 trackCount = 20
+volume = 1.0
 
 [world]
 # Preload config for off-screen chunks (view range expansion)

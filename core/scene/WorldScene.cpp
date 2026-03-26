@@ -4,9 +4,14 @@
 
 #include "WorldScene.h"
 
+#include "core/saves/SavesManager.h"
+
 glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext)
     : Scene(context) {
     worldContext_ = std::move(worldContext);
+    if (context != nullptr) {
+        SDL_SetWindowTitle(context->GetWindow(), (PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
+    }
 }
 
 void glimmer::WorldScene::OnFrameStart() {

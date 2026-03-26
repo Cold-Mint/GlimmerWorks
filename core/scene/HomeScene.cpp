@@ -35,6 +35,14 @@ glimmer::HomeScene::HomeScene(AppContext *context)
     hyperlinks.push_back(Hyperlink("Discord", "https://discord.com/invite/CfppC9WHw8"));
     hyperlinks.push_back(Hyperlink("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"));
     copyright = GetCopyrightString();
+    ResourceRef ref;
+    ref.SetSelfPackageId(RESOURCE_REF_CORE);
+    ref.SetResourceType(RESOURCE_TYPE_AUDIO);
+    ref.SetResourceKey("bgm/main_menu");
+    homeBGM_ = appContext->GetResourceLocator()->FindAudio(ref);
+    if (homeBGM_ != nullptr) {
+        appContext->GetAudioManager()->ForcePlayReplace(BGM, homeBGM_.get(), -1);
+    }
 }
 
 bool glimmer::HomeScene::HandleEvent(const SDL_Event &event) {

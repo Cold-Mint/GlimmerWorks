@@ -38,7 +38,7 @@ void glimmer::AutoPickSystem::Update(float delta) {
             }
             auto item = containerComponent->GetItemContainer()->AddItem(droppedItemComponent->ExtractItem());
             if (item == nullptr) {
-                worldContext_->GetAppContext()->GetAudioManager()->PlayAudio(AMBIENT, pickItemSFX_.get(), 0);
+                worldContext_->GetAppContext()->GetAudioManager()->TryPlayFree(AMBIENT, pickItemSFX_.get(), 0);
                 worldContext_->RemoveEntity(entityId);
             } else {
                 droppedItemComponent->SetItem(std::move(item));

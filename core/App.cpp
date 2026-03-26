@@ -434,7 +434,9 @@ bool glimmer::App::Init() {
     audioManager->SetMixer(mixer_);
     for (const AudioTrack &trackConfig: config->audio.track) {
         audioManager->CreateTracks(trackConfig.type, trackConfig.trackCount);
+        audioManager->SetTypeVolume(trackConfig.type, trackConfig.volume);
     }
+    audioManager->SetMasterVolume(config->audio.masterVolume);
     AppContext::RestoreColorRenderer(renderer_);
     return true;
 }

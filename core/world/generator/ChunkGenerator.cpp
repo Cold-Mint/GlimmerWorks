@@ -342,6 +342,14 @@ void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const {
 
 TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector2D world, const int height) {
     TerrainTileResult terrainTileResult;
+    const float elevation = GetElevation(world.y);
+    const auto humidity = GetHumidity(world);
+    const auto temperature = GetTemperature(world, elevation);
+    const auto weirdness = GetWeirdness(world);
+    const auto erosion = GetErosion(world);
+    terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetBiomesManager()->FindBestBiome(
+        humidity, temperature, weirdness, erosion,
+        elevation);
     if (world.y <= WORLD_MIN_Y) {
         terrainTileResult.terrainType = BEDROCK;
         return terrainTileResult;
@@ -358,16 +366,8 @@ TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector
         terrainTileResult.terrainType = AIR;
         return terrainTileResult;
     }
-    const float elevation = GetElevation(world.y);
-    const auto humidity = GetHumidity(world);
-    const auto temperature = GetTemperature(world, elevation);
-    const auto weirdness = GetWeirdness(world);
-    const auto erosion = GetErosion(world);
     terrainTileResult.world = world;
     terrainTileResult.terrainType = SOLID;
-    terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetBiomesManager()->FindBestBiome(
-        humidity, temperature, weirdness, erosion,
-        elevation);
     return terrainTileResult;
 }
 

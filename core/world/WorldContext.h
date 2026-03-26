@@ -57,12 +57,12 @@ namespace glimmer {
         std::unordered_map<TileVector2D, std::unique_ptr<Chunk>, Vector2DIHash> chunks_;
         //Save all the terrain result data.
         //保存所有的地形结果数据。
-        std::unordered_map<TileVector2D, std::unique_ptr<TerrainResult>, Vector2DIHash> terrainResults_;
+        std::unordered_map<TileVector2D, std::unique_ptr<TerrainResult>, Vector2DIHash> terrainTileData_;
         //Mark the terrain coordinates that have been scanned and structured.(The coordinates are the vertices of the block.)When loading block A, block A can request and create the terrain data for block B, so as to write the structure information. Therefore, using this variable to determine whether the terrain of the block has been manually generated is completely correct.
         //标记已扫描过结构的地形坐标。（坐标为区块顶点。）当加载区块A时，区块A可以申请，创建区块B的地形数据，以便写入结构信息。所以使用这个变量判断区块的地形是否手动生成过是完全正确的。
-        std::unordered_set<TileVector2D, Vector2DIHash> terrain_;
+        std::unordered_set<TileVector2D, Vector2DIHash> processedTerrainTiles_;
         std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunksCache_;
-        std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> terrainResultsCache_;
+        std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> terrainTileDataCache_;
         GameEntity::ID entityId_ = GAME_ENTITY_ID_INVALID;
 
         /**
@@ -119,6 +119,7 @@ namespace glimmer {
         Saves *saves_;
 
         b2WorldId worldId_ = b2_nullWorldId;
+        MapManifest *mapManifest_ = nullptr;
         std::vector<std::unique_ptr<GameEntity> > entities_;
         std::unordered_map<GameEntity::ID, GameEntity *> entityMap_;
         AppContext *appContext_;
@@ -194,6 +195,8 @@ namespace glimmer {
         void SetRuning(bool run);
 
         Saves *GetSaves() const;
+
+        MapManifest *GetMapManifest() const;
 
         template<typename TComponent, typename... Args>
         TComponent *AddComponent(GameEntity::ID id, Args &&... args);
@@ -467,7 +470,7 @@ namespace glimmer {
 
         long startTime_ = 0;
 
-        explicit WorldContext(AppContext *appContext, int worldSeed, Saves *saves, GameEntity::ID entityId = 0);
+        explicit WorldContext(AppContext *appContext, MapManifest *mapManifest, Saves *saves);
 
         /**
          * The time when the world environment is constructed and completed.

@@ -43,9 +43,11 @@ namespace glimmer {
     struct AudioTrack {
         AudioType type;
         int trackCount;
+        float volume;
     };
 
     struct Audio {
+        float masterVolume;
         int channels;
         int freq;
         std::string format = "F32";

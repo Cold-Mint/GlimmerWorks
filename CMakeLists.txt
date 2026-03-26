@@ -373,6 +373,7 @@ target_sources(GlimmerWorks
         core/ecs/DroppedItemCreator.cpp
         core/mod/resourcePack/AudioType.cpp
         core/mod/resourcePack/AudioManager.cpp
+        core/ecs/system/BiomeBGMSystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -556,6 +557,7 @@ target_sources(GlimmerWorks
         core/ecs/DroppedItemCreator.h
         core/mod/resourcePack/AudioType.h
         core/mod/resourcePack/AudioManager.h
+        core/ecs/system/BiomeBGMSystem.h
 )
 
 #Define version information

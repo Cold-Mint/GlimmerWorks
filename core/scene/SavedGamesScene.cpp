@@ -88,8 +88,7 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
             auto manifest = savesManager->GetMapManifest(selected_save_index);
             if (saves && manifest) {
                 appContext->GetSceneManager()->PushScene(std::make_unique<WorldScene>(
-                    appContext, std::make_unique<WorldContext>(appContext, manifest->seed, saves,
-                                                               manifest->entityIDIndex)));
+                    appContext, std::make_unique<WorldContext>(appContext, manifest, saves)));
             }
         }
         ImGui::SameLine();

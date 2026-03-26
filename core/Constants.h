@@ -287,6 +287,7 @@ static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
 static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
+static constexpr std::string PROJECT_NAME = "GlimmerWorks";
 
 constexpr float GRAVITY_SCALE = 1.8F; // 重力缩放（优化下落手感）
 constexpr int JUMP_BUFFER_FRAMES = 4;

@@ -91,6 +91,7 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
             for (const auto &pos: *allChunks | std::views::keys) {
                 (void) worldContext_->SaveChunk(pos);
             }
+            SDL_SetWindowTitle(appContext->GetWindow(), PROJECT_NAME.c_str());
             appContext->GetSceneManager()->PopScene();
         }
     }

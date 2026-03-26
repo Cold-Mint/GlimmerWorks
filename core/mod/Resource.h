@@ -419,6 +419,8 @@ namespace glimmer {
         float erosion = 0.0F;
         //@genNextLine(elevation|海拔高度)
         float elevation = 0.0F;
+        //@genNextLine(BGM|BGM)
+        ResourceRef bgm;
     };
 
     //@genNextLine(LootResource|战利品资源)

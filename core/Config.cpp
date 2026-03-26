@@ -11,6 +11,7 @@ struct toml::from<glimmer::AudioTrack> {
         glimmer::AudioTrack track{};
         track.trackCount = toml::find<int>(v, "trackCount");
         track.type = static_cast<glimmer::AudioType>(toml::find<int>(v, "type"));
+        track.volume = toml::find<float>(v, "volume");
         return track;
     }
 };
@@ -33,6 +34,7 @@ void glimmer::Config::LoadConfig(const toml::value &configValue) {
     world.preloadChunkRadius = toml::find<float>(configValue, "world", "preloadChunkRadius");
     world.preloadStructureRadius = toml::find<float>(configValue, "world", "preloadStructureRadius");
     audio.channels = toml::find<int>(configValue, "audio", "channels");
+    audio.masterVolume = toml::find<float>(configValue, "audio", "masterVolume");
     audio.freq = toml::find<int>(configValue, "audio", "freq");
     audio.track = toml::find<std::vector<AudioTrack> >(configValue, "audio", "track");
     audio.format = toml::find<std::string>(configValue, "audio", "format");

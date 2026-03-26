@@ -49,14 +49,19 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     manifest.createTime = TimeUtils::GetCurrentTimeMs();
     manifest.lastPlayedTime = manifest.createTime;
     manifest.totalPlayTime = 0;
-    Saves *saves = appContext->GetSavesManager()->Create(manifest);
+    SavesManager *savesManager = appContext->GetSavesManager();
+    Saves *saves =
+            savesManager->
+            Create(manifest);
     if (saves == nullptr) {
         LogCat::e("Failed to create world");
         return;
     }
     appContext->GetSceneManager()->
             ReplaceScene(std::make_unique<WorldScene>(
-                appContext, std::make_unique<WorldContext>(appContext, seed_value, saves)));
+                appContext, std::make_unique<WorldContext>(
+                    appContext, savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
+                    saves)));
 }
 
 int glimmer::CreateWorldScene::RandomSeed() {

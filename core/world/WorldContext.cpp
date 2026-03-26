@@ -44,6 +44,7 @@
 #include "core/ecs/component/RayCast2DComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
+#include "core/ecs/system/BiomeBGMSystem.h"
 #include "core/ecs/system/ItemEditorSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
@@ -96,10 +97,10 @@ glimmer::WorldContext::~WorldContext() {
     entities_.clear();
     entityMap_.clear();
     chunks_.clear();
-    terrainResults_.clear();
-    terrain_.clear();
+    terrainTileData_.clear();
+    processedTerrainTiles_.clear();
     chunksCache_.clear();
-    terrainResultsCache_.clear();
+    terrainTileDataCache_.clear();
     componentCount_.clear();
     b2DestroyWorld(worldId_);
     worldId_ = b2_nullWorldId;
@@ -117,7 +118,7 @@ glimmer::GameEntity::ID glimmer::WorldContext::GetEntityIdIndex() const {
 
 glimmer::TerrainResult *glimmer::WorldContext::GetTerrainData(TileVector2D position) {
     LogCat::d("GetTerrainData called - position x: ", position.x, ", y: ", position.y);
-    if (auto it = terrainResults_.find(position); it != terrainResults_.end()) {
+    if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
         LogCat::d("Terrain data found in cache - position x: ", position.x, ", y: ", position.y,
                   ". Return cached pointer");
         return it->second.get();
@@ -128,7 +129,7 @@ glimmer::TerrainResult *glimmer::WorldContext::GetTerrainData(TileVector2D posit
 
 glimmer::TerrainResult *glimmer::WorldContext::GetOrCreateTerrainData(TileVector2D position) {
     LogCat::d("GetOrCreateTerrainData called for position - x: ", position.x, ", y: ", position.y);
-    if (auto it = terrainResults_.find(position); it != terrainResults_.end()) {
+    if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
         LogCat::d("Terrain data found in cache - position x: ", position.x, ", y: ", position.y,
                   ". Return cached pointer");
         return it->second.get();
@@ -144,8 +145,8 @@ glimmer::TerrainResult *glimmer::WorldContext::GetOrCreateTerrainData(TileVector
         return nullptr;
     }
     auto *terrainPtr = terrainResult.get();
-    terrainResults_.emplace(position, std::move(terrainResult));
-    terrainResultsCache_.emplace(position, terrainPtr);
+    terrainTileData_.emplace(position, std::move(terrainResult));
+    terrainTileDataCache_.emplace(position, terrainPtr);
     LogCat::d("New terrain data generated and cached - position x: ", position.x, ", y: ", position.y,
               ". Return new pointer");
     return terrainPtr;
@@ -178,6 +179,10 @@ void glimmer::WorldContext::SetRuning(const bool run) {
 
 glimmer::Saves *glimmer::WorldContext::GetSaves() const {
     return saves_;
+}
+
+glimmer::MapManifest *glimmer::WorldContext::GetMapManifest() const {
+    return mapManifest_;
 }
 
 bool glimmer::WorldContext::HasComponentType(const std::type_index &type) const {
@@ -292,24 +297,24 @@ std::unordered_map<TileVector2D, glimmer::Chunk *, glimmer::Vector2DIHash> *glim
 
 std::unordered_map<TileVector2D, glimmer::TerrainResult *, glimmer::Vector2DIHash> *glimmer::WorldContext::
 GetTerrainResults() {
-    return &terrainResultsCache_;
+    return &terrainTileDataCache_;
 }
 
 void glimmer::WorldContext::LoadTerrainAt(TileVector2D position) {
-    if (terrain_.contains(position)) {
+    if (processedTerrainTiles_.contains(position)) {
         return;
     }
     chunkGenerator_->GenerateStructure(position);
-    terrain_.emplace(position);
+    processedTerrainTiles_.emplace(position);
 }
 
 void glimmer::WorldContext::UnloadTerrainAt(TileVector2D position) {
-    if (!terrain_.contains(position)) {
+    if (!processedTerrainTiles_.contains(position)) {
         return;
     }
-    terrain_.erase(position);
-    terrainResultsCache_.erase(position);
-    terrainResults_.erase(position);
+    processedTerrainTiles_.erase(position);
+    terrainTileDataCache_.erase(position);
+    terrainTileData_.erase(position);
 }
 
 void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
@@ -572,6 +577,7 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));
     RegisterSystem(std::make_unique<DebugPanelSystem>(this));
     RegisterSystem(std::make_unique<RayCast2DSystem>(this));
+    RegisterSystem(std::make_unique<BiomeBGMSystem>(this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(this));
 #endif
@@ -812,9 +818,11 @@ int glimmer::WorldContext::GetWorldSeed() const {
     return worldSeed_;
 }
 
-glimmer::WorldContext::WorldContext(AppContext *appContext, int worldSeed, Saves *saves,
-                                    const GameEntity::ID entityId) : worldSeed_(worldSeed),
-                                                                     entityId_(entityId), saves_(saves) {
+glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapManifest, Saves *saves) : saves_(
+    saves) {
+    worldSeed_ = mapManifest->seed;
+    entityId_ = mapManifest->entityIDIndex;
+    mapManifest_ = mapManifest;
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldId_ = b2CreateWorld(&worldDef);
@@ -825,12 +833,12 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, int worldSeed, Saves
             command->BindWorldContext(this);
         }
     }
-    appContext_->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed);
-    appContext->GetStructureGeneratorManager()->SetWorldSeed(worldSeed);
+    appContext_->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed_);
+    appContext->GetStructureGeneratorManager()->SetWorldSeed(worldSeed_);
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {
         return this->RegisterEntity(std::move(entity));
     });
-    chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed);
+    chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_);
     startTime_ = TimeUtils::GetCurrentTimeMs();
 }
 

@@ -4,7 +4,6 @@
 
 #ifndef GLIMMERWORKS_HOMESCENE_H
 #define GLIMMERWORKS_HOMESCENE_H
-#include <memory>
 #include <vector>
 #include "Scene.h"
 #include "core/Hyperlink.h"
@@ -18,12 +17,11 @@ namespace glimmer {
     };
 
     class HomeScene : public Scene {
-        std::vector<Star> stars;
+        std::vector<Star> stars_;
         int windowWidth = 0;
         int windowHeight = 0;
-        std::vector<Hyperlink> hyperlinks;
-        std::string copyright;
-        std::shared_ptr<MIX_Audio> homeBGM_;
+        std::vector<Hyperlink> hyperlinks_;
+        std::string copyright_;
 
         static std::string GetCopyrightString();
 

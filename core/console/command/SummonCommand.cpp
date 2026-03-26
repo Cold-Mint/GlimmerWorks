@@ -14,7 +14,7 @@ void glimmer::SummonCommand::InitSuggestions(NodeTree<std::string> &suggestionsT
         MOB_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::SummonCommand::SummonCommand(AppContext *ctx) : Command(ctx) {
+glimmer::SummonCommand::SummonCommand(AppContext *appContext) : Command(appContext) {
 }
 
 bool glimmer::SummonCommand::RequiresWorldContext() const {
@@ -22,6 +22,9 @@ bool glimmer::SummonCommand::RequiresWorldContext() const {
 }
 
 bool glimmer::SummonCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;

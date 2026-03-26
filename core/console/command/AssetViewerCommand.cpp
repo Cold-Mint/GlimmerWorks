@@ -8,13 +8,13 @@
 #include "../../mod/dataPack/StringManager.h"
 #include "../../scene/AppContext.h"
 
-glimmer::AssetViewerCommand::AssetViewerCommand(AppContext *ctx)
-    : Command(ctx) {
+glimmer::AssetViewerCommand::AssetViewerCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
 void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     suggestionsTree.AddChild("string");
-    suggestionsTree.AddChild("texture")->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree.AddChild("texture");
     suggestionsTree.AddChild("tile");
     suggestionsTree.AddChild("biomes");
     suggestionsTree.AddChild("composableItems");
@@ -37,51 +37,116 @@ bool glimmer::AssetViewerCommand::RequiresWorldContext() const {
 void glimmer::AssetViewerCommand::
 PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
     strings.emplace_back("[asset type:string]");
-    if (commandArgs.AsString(1) == "texture") {
-        strings.emplace_back("[include expired:bool]");
-    }
 }
 
 bool glimmer::AssetViewerCommand::Execute(const CommandArgs commandArgs,
                                           const std::function<void(const std::string &text)> onMessage) {
-    const auto type = commandArgs.AsString(1);
-    bool result = false;
-    if (type == "string") {
-        onMessage(appContext_->GetStringManager()->ListStrings());
-        result = true;
-    } else if (type == "texture") {
-        onMessage(appContext_->GetResourcePackManager()->ListTextureCache(commandArgs.AsBool(2)));
-        result = true;
-    } else if (type == "tile") {
-        onMessage(appContext_->GetTileManager()->ListTiles());
-        result = true;
-    } else if (type == "biomes") {
-        onMessage(appContext_->GetBiomesManager()->ListBiomes());
-        result = true;
-    } else if (type == "composableItems") {
-        onMessage(appContext_->GetItemManager()->ListComposableItems());
-        result = true;
-    } else if (type == "abilityItems") {
-        onMessage(appContext_->GetItemManager()->ListAbilityItems());
-        result = true;
-    } else if (type == "lootTables") {
-        onMessage(appContext_->GetLootTableManager()->ListLootTables());
-        result = true;
-    } else if (type == "startinv") {
-        onMessage(appContext_->GetInitialInventoryManager()->ListInitialInventory());
-        result = true;
-    } else if (type == "structures") {
-        onMessage(appContext_->GetStructureManager()->ListStructures());
-        result = true;
-    } else if (type == "mobs") {
-        onMessage(appContext_->GetMobManager()->ListMobs());
-        result = true;
-    } else if (type == "shapes") {
-        onMessage(appContext_->GetShapeManager()->ListShapes());
-        result = true;
-    } else {
-        onMessage(appContext_->GetLangsResources()->unknownAssetType);
-        result = false;
+    if (appContext_ == nullptr) {
+        return false;
     }
-    return result;
+    const auto type = commandArgs.AsString(1);
+    if (type == "string") {
+        const StringManager *stringManager = appContext_->GetStringManager();
+        if (stringManager == nullptr) {
+            return false;
+        }
+        onMessage(stringManager->ListStrings());
+        return true;
+    }
+
+    if (type == "texture") {
+        const ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
+        if (resourcePackManager == nullptr) {
+            return false;
+        }
+        onMessage(resourcePackManager->ListTextureCache());
+        return true;
+    }
+
+    if (type == "tile") {
+        const TileManager *tileManager = appContext_->GetTileManager();
+        if (tileManager == nullptr) {
+            return false;
+        }
+        onMessage(tileManager->ListTiles());
+        return true;
+    }
+
+    if (type == "biomes") {
+        const BiomesManager *biomesManager = appContext_->GetBiomesManager();
+        if (biomesManager == nullptr) {
+            return false;
+        }
+        onMessage(biomesManager->ListBiomes());
+        return true;
+    }
+
+    if (type == "composableItems") {
+        const ItemManager *itemManager = appContext_->GetItemManager();
+        if (itemManager == nullptr) {
+            return false;
+        }
+        onMessage(itemManager->ListComposableItems());
+        return true;
+    }
+
+    if (type == "abilityItems") {
+        const ItemManager *itemManager = appContext_->GetItemManager();
+        if (itemManager == nullptr) {
+            return false;
+        }
+        onMessage(itemManager->ListAbilityItems());
+        return true;
+    }
+
+    if (type == "lootTables") {
+        const LootTableManager *lootTableManager = appContext_->GetLootTableManager();
+        if (lootTableManager == nullptr) {
+            return false;
+        }
+        onMessage(lootTableManager->ListLootTables());
+        return true;
+    }
+
+    if (type == "startinv") {
+        const InitialInventoryManager *initialInventoryManager = appContext_->GetInitialInventoryManager();
+        if (initialInventoryManager == nullptr) {
+            return false;
+        }
+        onMessage(initialInventoryManager->ListInitialInventory());
+        return true;
+    }
+
+    if (type == "structures") {
+        const StructureManager *structureManager = appContext_->GetStructureManager();
+        if (structureManager == nullptr) {
+            return false;
+        }
+        onMessage(structureManager->ListStructures());
+        return true;
+    }
+
+    if (type == "mobs") {
+        const MobManager *mobManager = appContext_->GetMobManager();
+        if (mobManager == nullptr) {
+            return false;
+        }
+        onMessage(mobManager->ListMobs());
+        return true;
+    }
+
+    if (type == "shapes") {
+        const ShapeManager *shapeManager = appContext_->GetShapeManager();
+        if (shapeManager == nullptr) {
+            return false;
+        }
+        onMessage(shapeManager->ListShapes());
+        return true;
+    }
+    const LangsResources *langsResources = appContext_->GetLangsResources();
+    if (langsResources == nullptr) {
+        return false;
+    }
+    onMessage(langsResources->unknownAssetType);
+    return false;
 }

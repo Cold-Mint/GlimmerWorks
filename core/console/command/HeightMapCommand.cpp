@@ -11,7 +11,7 @@
 void glimmer::HeightMapCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
 }
 
-glimmer::HeightMapCommand::HeightMapCommand(AppContext *ctx) : Command(ctx) {
+glimmer::HeightMapCommand::HeightMapCommand(AppContext *appContext) : Command(appContext) {
 }
 
 std::string glimmer::HeightMapCommand::GetName() const {
@@ -34,6 +34,9 @@ glimmer::NodeTree<std::string> glimmer::HeightMapCommand::GetSuggestionsTree(con
 
 bool glimmer::HeightMapCommand::Execute(CommandArgs commandArgs,
                                         std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;

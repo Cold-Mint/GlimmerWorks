@@ -196,8 +196,13 @@ bool glimmer::App::Init() {
     }
     SDL_SetRenderVSync(renderer_, config->window.vSync);
     appContext_->SetRenderer(renderer_);
-    appContext_->GetResourcePackManager()->SetRenderer(renderer_, appContext_->GetPreloadColors()->error.accentColor,
-                                                       appContext_->GetPreloadColors()->error.baseColor);
+    ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
+        LogCat::e("ResourcePackManager is nullptr.");
+        return false;
+    }
+    resourcePackManager->SetRenderer(renderer_, appContext_->GetPreloadColors()->error.accentColor,
+                                     appContext_->GetPreloadColors()->error.baseColor);
     // Enable alpha blending rendering
     // 启用按 alpha 混合渲染
     // This will allow us to use transparency during rendering
@@ -365,7 +370,7 @@ bool glimmer::App::Init() {
                                             static_cast<float>(headerActiveColor.b) / 255,
                                             static_cast<float>(headerActiveColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_HeaderActive] = headerActiveImColor;
-    const auto fontPathOpt = appContext_->GetResourcePackManager()->GetFontPath(
+    const auto fontPathOpt = resourcePackManager->GetFontPath(
         config->mods.enabledResourcePack,
         appContext_->GetLanguage());
 
@@ -425,7 +430,8 @@ bool glimmer::App::Init() {
         LogCat::e("MIX_CreateMixerDevice failed! ", SDL_GetError());
         return false;
     }
-    appContext_->GetResourcePackManager()->SetMixer(mixer_);
+    resourcePackManager->SetMixer(mixer_);
+    appContext_->LoadMainMenuBGM();
     AudioManager *audioManager = appContext_->GetAudioManager();
     if (audioManager == nullptr) {
         LogCat::e("audioManager == null");

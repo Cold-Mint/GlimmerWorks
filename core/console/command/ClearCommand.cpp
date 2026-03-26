@@ -9,7 +9,7 @@
 void glimmer::ClearCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
 }
 
-glimmer::ClearCommand::ClearCommand(AppContext *ctx) : Command(ctx) {
+glimmer::ClearCommand::ClearCommand(AppContext *appContext) : Command(appContext) {
 }
 
 std::string glimmer::ClearCommand::GetName() const {
@@ -19,18 +19,30 @@ std::string glimmer::ClearCommand::GetName() const {
 void glimmer::ClearCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
 }
 
-bool glimmer::ClearCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::ClearCommand::Execute(CommandArgs commandArgs,
+                                    const std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
+    const LangsResources *langsResources = appContext_->GetLangsResources();
+    if (langsResources == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
-        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessage(langsResources->worldContextIsNull);
         return false;
     }
-    auto playerId = worldContext_->GetPlayerEntity();
-    auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
-    if (item_container == nullptr) {
-        onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
+    const auto playerEntity = worldContext_->GetPlayerEntity();
+    const auto *itemContainerComponent = worldContext_->GetComponent<ItemContainerComponent>(playerEntity);
+    if (itemContainerComponent == nullptr) {
+        onMessage(langsResources->itemContainerIsNull);
         return false;
     }
-    item_container->GetItemContainer()->Clear();
+    ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr) {
+        return false;
+    }
+    itemContainer->Clear();
     return true;
 }
 

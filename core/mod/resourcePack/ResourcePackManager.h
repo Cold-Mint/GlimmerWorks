@@ -86,13 +86,7 @@ namespace glimmer {
         std::optional<std::string> GetFontPath(const std::vector<std::string> &enabledResourcePack,
                                                const std::string &language);
 
-        /**
-         * ListTextureCache
-         * 列出纹理缓存
-         * @param includeExpired Whether to list the expired texture cache 是否列出过期的纹理缓存
-         * @return
-         */
-        std::string ListTextureCache(bool includeExpired) const;
+        std::string ListTextureCache() const;
     };
 }
 

@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_VFSCOMMAND_H
 #define GLIMMERWORKS_VFSCOMMAND_H
 #include "../Command.h"
-#include "../../vfs/VirtualFileSystem.h"
 
 namespace glimmer {
     class VFSCommand final : public Command {
@@ -13,7 +12,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit VFSCommand(AppContext *ctx);
+        explicit VFSCommand(AppContext *appContext);
 
         [[nodiscard]] std::string GetName() const override;
 

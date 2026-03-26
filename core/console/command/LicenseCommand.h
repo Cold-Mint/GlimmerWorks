@@ -10,7 +10,7 @@
 namespace glimmer {
     class LicenseCommand : public Command {
     public:
-        explicit LicenseCommand(AppContext *ctx);
+        explicit LicenseCommand(AppContext *appContext);
 
         bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
 

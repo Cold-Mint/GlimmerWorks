@@ -45,33 +45,30 @@ bool glimmer::ResourcePackManager::IsResourcePackEnabled(const ResourcePack &pac
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFile(const std::string &path,
     const Mods &modConfig) {
-    if (renderer_ == nullptr) {
+    if (renderer_ == nullptr || path.empty()) {
         return nullptr;
     }
-    if (path.empty()) {
-        LogCat::e("Invalid texture path (empty).");
-        return nullptr;
-    }
-
-    const auto cacheIt = textureCache_.find(path);
-    if (cacheIt != textureCache_.end()) {
-        if (auto tex = cacheIt->second.lock()) {
-            LogCat::d("Texture loaded from cache: ", path);
-            return tex;
+    const auto cache = textureCache_.find(path);
+    if (cache != textureCache_.end()) {
+        if (auto cacheTexture = cache->second.lock()) {
+            return cacheTexture;
         }
-        LogCat::w("Cached texture expired, reloading: ", path);
+        //Cache has expired.
+        //缓存过期。
+        textureCache_.erase(cache);
     }
 
     for (const auto &packId: modConfig.enabledResourcePack) {
-        auto it = resourcePackMap_.find(packId);
-        if (it == resourcePackMap_.end()) {
-            LogCat::w("Resource pack not found: ", packId);
+        auto resourcePackIterator = resourcePackMap_.find(packId);
+        if (resourcePackIterator == resourcePackMap_.end()) {
             continue;
         }
-
-        const ResourcePack *pack = it->second.get();
+        const ResourcePack *resourcePack = resourcePackIterator->second.get();
+        if (resourcePack == nullptr) {
+            continue;
+        }
         for (auto &supportedTextureFormat: modConfig.supportedTextureFormats) {
-            std::string texturePath = pack->getPath() + "/textures/" + path + "." + supportedTextureFormat;
+            std::string texturePath = resourcePack->getPath() + "/textures/" + path + "." + supportedTextureFormat;
 
             if (!virtualFileSystem_->Exists(texturePath)) {
                 continue;
@@ -84,50 +81,36 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFi
 
             SDL_Surface *surface = IMG_Load(actualTexturePath.value().c_str());
             if (surface == nullptr) {
-                LogCat::w("IMG_Load failed for ", texturePath, ": ", SDL_GetError());
                 continue;
             }
 
             SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer_, surface);
             SDL_DestroySurface(surface);
-            if (!texture) {
-                LogCat::w("SDL_CreateTextureFromSurface failed for ", texturePath,
-                          ": ", SDL_GetError());
+            if (texture == nullptr) {
                 continue;
             }
-
-            LogCat::d("Loaded texture from pack '", packId, "': ", texturePath);
-
-            auto deleter = [path](SDL_Texture *tex) {
-                LogCat::d("Destroying texture from cache: ", path);
-                if (tex) SDL_DestroyTexture(tex);
+            auto deleter = [this,path](SDL_Texture *sdlTexture) {
+                if (sdlTexture != nullptr) {
+                    SDL_DestroyTexture(sdlTexture);
+                }
+                textureCache_.erase(path);
             };
-
-            std::shared_ptr<SDL_Texture> texturePtr(texture, deleter);
+            std::shared_ptr<SDL_Texture> texturePtr(texture, std::move(deleter));
             textureCache_[path] = texturePtr;
-            LogCat::d("add use_count=", texturePtr.use_count());
             return texturePtr;
         }
     }
-
-    LogCat::w("Texture not found in any enabled resource pack: ", path);
     return nullptr;
 }
 
 std::shared_ptr<MIX_Audio> glimmer::ResourcePackManager::ImplLoadAudioFromFile(const std::string &path,
                                                                                const Mods &modConfig) {
-    if (mixer_ == nullptr) {
+    if (mixer_ == nullptr || path.empty()) {
         return nullptr;
     }
-    if (path.empty()) {
-        LogCat::e("Invalid audio path (empty).");
-        return nullptr;
-    }
-
     const auto cacheIt = audioMixCache_.find(path);
     if (cacheIt != audioMixCache_.end()) {
         if (auto tex = cacheIt->second.lock()) {
-            LogCat::d("Audio loaded from cache: ", path);
             return tex;
         }
         LogCat::w("Cached audio expired, reloading: ", path);
@@ -165,7 +148,6 @@ std::shared_ptr<MIX_Audio> glimmer::ResourcePackManager::ImplLoadAudioFromFile(c
 
             std::shared_ptr<MIX_Audio> audioPtr(audio, deleter);
             audioMixCache_[path] = audioPtr;
-            LogCat::d("add use_count=", audioPtr.use_count());
             return audioPtr;
         }
     }
@@ -382,7 +364,7 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(
     return std::shared_ptr<SDL_Texture>(texture, deleter);
 }
 
-std::string glimmer::ResourcePackManager::ListTextureCache(const bool includeExpired) const {
+std::string glimmer::ResourcePackManager::ListTextureCache() const {
     std::ostringstream oss;
     for (const auto &pair: textureCache_) {
         const auto &path = pair.first;
@@ -390,21 +372,13 @@ std::string glimmer::ResourcePackManager::ListTextureCache(const bool includeExp
         if (auto shared = weakTex.lock()) {
             oss << path
                     << " -> "
-                    << "alive (use_count="
-                    << shared.use_count()
-                    << ")";
+                    << "use_count="
+                    << shared.use_count() - 1;
 
             if (errorTexturePathSet_.contains(path)) {
                 oss << " (error texture)";
             }
-        } else {
-            if (includeExpired) {
-                oss << path << " -> expired";
-            } else {
-                continue;
-            }
         }
-
         oss << "\n";
     }
     return oss.str();

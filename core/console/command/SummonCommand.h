@@ -10,7 +10,7 @@ namespace glimmer {
     class SummonCommand : public Command{
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
     public:
-        explicit SummonCommand(AppContext *ctx);
+        explicit SummonCommand(AppContext *appContext);
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 

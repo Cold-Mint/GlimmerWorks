@@ -14,7 +14,7 @@ void glimmer::PlaceCommand::InitSuggestions(NodeTree<std::string> &suggestionsTr
             AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::PlaceCommand::PlaceCommand(AppContext *ctx) : Command(ctx) {
+glimmer::PlaceCommand::PlaceCommand(AppContext *appContext) : Command(appContext) {
 }
 
 std::string glimmer::PlaceCommand::GetName() const {
@@ -34,6 +34,9 @@ bool glimmer::PlaceCommand::RequiresWorldContext() const {
 
 bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
                                     std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;

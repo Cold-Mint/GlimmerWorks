@@ -30,19 +30,12 @@ std::string glimmer::HomeScene::GetCopyrightString() {
 
 glimmer::HomeScene::HomeScene(AppContext *context)
     : Scene(context) {
-    hyperlinks = std::vector<Hyperlink>{};
-    hyperlinks.push_back(Hyperlink("Github", "https://github.com/Cold-Mint/GlimmerWorks"));
-    hyperlinks.push_back(Hyperlink("Discord", "https://discord.com/invite/CfppC9WHw8"));
-    hyperlinks.push_back(Hyperlink("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"));
-    copyright = GetCopyrightString();
-    ResourceRef ref;
-    ref.SetSelfPackageId(RESOURCE_REF_CORE);
-    ref.SetResourceType(RESOURCE_TYPE_AUDIO);
-    ref.SetResourceKey("bgm/main_menu");
-    homeBGM_ = appContext->GetResourceLocator()->FindAudio(ref);
-    if (homeBGM_ != nullptr) {
-        appContext->GetAudioManager()->ForcePlayReplace(BGM, homeBGM_.get(), -1);
-    }
+    hyperlinks_ = std::vector<Hyperlink>{};
+    hyperlinks_.push_back(Hyperlink("Github", "https://github.com/Cold-Mint/GlimmerWorks"));
+    hyperlinks_.push_back(Hyperlink("Discord", "https://discord.com/invite/CfppC9WHw8"));
+    hyperlinks_.push_back(Hyperlink("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"));
+    copyright_ = GetCopyrightString();
+    appContext->PlayMainMenuBGM();
 }
 
 bool glimmer::HomeScene::HandleEvent(const SDL_Event &event) {
@@ -54,7 +47,7 @@ void glimmer::HomeScene::Update(float delta) {
     static std::mt19937 gen(rd());
     static std::uniform_int_distribution dist(-3, 3);
 
-    for (auto &star: stars) {
+    for (auto &star: stars_) {
         const int deltaTemp = dist(gen);
         star.r = std::clamp(static_cast<int>(star.r) + deltaTemp, 128, 255);
         star.g = std::clamp(static_cast<int>(star.g) + deltaTemp, 128, 255);
@@ -73,7 +66,7 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
         windowHeight = winH;
         generateStars();
     }
-    for (const auto &star: stars) {
+    for (const auto &star: stars_) {
         SDL_SetRenderDrawColor(renderer, star.r, star.g, star.b, 255);
         SDL_FRect rect{star.x, star.y, star.size, star.size};
         SDL_RenderFillRect(renderer, &rect);
@@ -131,8 +124,8 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     float versionPosX =
             windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - margin;
     float currentY = versionPosY - spacing;
-    for (int i = static_cast<int>(hyperlinks.size()) - 1; i >= 0; --i) {
-        const auto &link = hyperlinks[i];
+    for (int i = static_cast<int>(hyperlinks_.size()) - 1; i >= 0; --i) {
+        const auto &link = hyperlinks_[i];
 
         currentY -= lineHeight;
 
@@ -156,14 +149,14 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
 
 
     ImGui::SetCursorPos(ImVec2(margin, versionPosY));
-    ImGui::Text("%s", copyright.c_str());
+    ImGui::Text("%s", copyright_.c_str());
     ImGui::PopStyleColor();
     ImGui::End();
     AppContext::RestoreColorRenderer(renderer);
 }
 
 void glimmer::HomeScene::generateStars() {
-    stars.clear();
+    stars_.clear();
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution xDist(0.0F, static_cast<float>(windowWidth - 1));
@@ -180,7 +173,7 @@ void glimmer::HomeScene::generateStars() {
     numStars = std::clamp(numStars, minStars, maxStars);
 
     for (int i = 0; i < numStars; i++) {
-        stars.push_back({
+        stars_.push_back({
             xDist(gen),
             yDist(gen),
             static_cast<Uint8>(colorDist(gen)),

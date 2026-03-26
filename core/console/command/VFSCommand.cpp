@@ -27,8 +27,8 @@ void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree
     suggestionsTree.AddChild("readFile");
 }
 
-glimmer::VFSCommand::VFSCommand(AppContext *ctx)
-    : Command(ctx) {
+glimmer::VFSCommand::VFSCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
 std::string glimmer::VFSCommand::GetName() const {
@@ -47,6 +47,9 @@ void glimmer::VFSCommand::PutCommandStructure(const CommandArgs &commandArgs, st
 }
 
 bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     const int size = commandArgs.GetSize();
     if (size < 2) {
         onMessage(fmt::format(

@@ -22,11 +22,14 @@ void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string> &suggestionsTre
     suggestionsTree.AddChild("abilityItem")->AddChild(ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::GiveCommand::GiveCommand(AppContext *ctx)
-    : Command(ctx) {
+glimmer::GiveCommand::GiveCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
 bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;

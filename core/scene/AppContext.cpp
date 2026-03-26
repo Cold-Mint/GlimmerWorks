@@ -291,6 +291,21 @@ glimmer::AppContext::AppContext() {
     initSuccess_ = true;
 }
 
+void glimmer::AppContext::LoadMainMenuBGM() {
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_TYPE_AUDIO);
+    resourceRef.SetResourceKey("bgm/main_menu");
+    mainMenuBGM_ = resourceLocator_->FindAudio(resourceRef);
+}
+
+void glimmer::AppContext::PlayMainMenuBGM() const {
+    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr) {
+        return;
+    }
+    audioManager_->ForcePlayReplace(BGM, mainMenuBGM_.get(), -1);
+}
+
 const toml::spec &glimmer::AppContext::GetTomlVersion() const {
     return tomlVersion_;
 }

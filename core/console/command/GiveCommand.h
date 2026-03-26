@@ -12,7 +12,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit GiveCommand(AppContext *ctx);
+        explicit GiveCommand(AppContext *appContext);
 
         bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
 

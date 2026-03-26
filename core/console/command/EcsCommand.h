@@ -10,7 +10,7 @@
 namespace glimmer {
     class EcsCommand final : public Command {
     public:
-        explicit EcsCommand(AppContext *ctx);
+        explicit EcsCommand(AppContext *appContext);
 
         [[nodiscard]] std::string EntityToString(GameEntity::ID gameEntityId) const;
 

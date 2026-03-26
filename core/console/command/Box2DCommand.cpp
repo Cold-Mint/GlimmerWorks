@@ -13,8 +13,8 @@ void glimmer::Box2DCommand::InitSuggestions(NodeTree<std::string> &suggestionsTr
     suggestionsTree.AddChild("count");
 }
 
-glimmer::Box2DCommand::Box2DCommand(AppContext *ctx)
-    : Command(ctx) {
+glimmer::Box2DCommand::Box2DCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
 std::string glimmer::Box2DCommand::GetName() const {
@@ -27,8 +27,15 @@ bool glimmer::Box2DCommand::RequiresWorldContext() const {
 
 bool glimmer::Box2DCommand::Execute(const CommandArgs commandArgs,
                                     const std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
+    const LangsResources *langsResources = appContext_->GetLangsResources();
+    if (langsResources == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
-        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessage(langsResources->worldContextIsNull);
         return false;
     }
     if (commandArgs.AsString(1) == "count") {
@@ -36,11 +43,11 @@ bool glimmer::Box2DCommand::Execute(const CommandArgs commandArgs,
         //获取活跃的刚体数量
         const auto bodyCount = b2World_GetAwakeBodyCount(worldContext_->GetWorldId());
         onMessage(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->awakeBodyCount),
+            fmt::runtime(langsResources->awakeBodyCount),
             bodyCount));
         return true;
     }
-    onMessage(appContext_->GetLangsResources()->unknownCommandParameters);
+    onMessage(langsResources->unknownCommandParameters);
     return false;
 }
 

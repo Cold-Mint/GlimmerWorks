@@ -12,7 +12,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit Box2DCommand(AppContext *ctx);
+        explicit Box2DCommand(AppContext *appContext);
 
         ~Box2DCommand() override = default;
 

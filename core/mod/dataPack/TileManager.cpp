@@ -149,16 +149,16 @@ std::string glimmer::TileManager::ListTiles() const {
             oss << Resource::GenerateId(packId, key) << "\n";
         }
     }
-    if (error_) {
+    if (error_ != nullptr) {
         oss << Resource::GenerateId(*error_) << "\n";
     }
-    if (air_) {
+    if (air_ != nullptr) {
         oss << Resource::GenerateId(*air_) << "\n";
     }
-    if (water_) {
+    if (water_ != nullptr) {
         oss << Resource::GenerateId(*water_) << "\n";
     }
-    if (bedrock_) {
+    if (bedrock_ != nullptr) {
         oss << Resource::GenerateId(*bedrock_) << "\n";
     }
     return oss.str();

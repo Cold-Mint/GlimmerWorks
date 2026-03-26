@@ -9,7 +9,7 @@
 #include "../../scene/AppContext.h"
 #include "../../scene/WorldScene.h"
 
-glimmer::EcsCommand::EcsCommand(AppContext *ctx) : Command(ctx) {
+glimmer::EcsCommand::EcsCommand(AppContext *appContext) : Command(appContext) {
 }
 
 std::string glimmer::EcsCommand::EntityToString(const GameEntity::ID gameEntityId) const {
@@ -40,15 +40,22 @@ void glimmer::EcsCommand::PutCommandStructure(const CommandArgs &commandArgs, st
     }
 }
 
-bool glimmer::EcsCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::EcsCommand::Execute(const CommandArgs commandArgs, const std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
+    const LangsResources *langsResources = appContext_->GetLangsResources();
+    if (langsResources == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
-        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessage(langsResources->worldContextIsNull);
         return false;
     }
     int size = commandArgs.GetSize();
     if (commandArgs.GetSize() < 2) {
         onMessage(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
@@ -63,13 +70,13 @@ bool glimmer::EcsCommand::Execute(CommandArgs commandArgs, std::function<void(co
     if (arg == "displayDetailedInformation") {
         if (commandArgs.GetSize() < 3) {
             onMessage(fmt::format(
-                fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+                fmt::runtime(langsResources->insufficientParameterLength),
                 3, size));
             return false;
         }
         const GameEntity::ID id = commandArgs.AsInt(2);
         if (WorldContext::IsEmptyEntityId(id)) {
-            onMessage(appContext_->GetLangsResources()->cantFindObject);
+            onMessage(langsResources->cantFindObject);
             return false;
         }
         onMessage(EntityToString(id));

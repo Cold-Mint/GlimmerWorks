@@ -11,7 +11,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit SeedCommand(AppContext *ctx);
+        explicit SeedCommand(AppContext *appContext);
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 

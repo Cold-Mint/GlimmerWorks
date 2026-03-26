@@ -15,7 +15,7 @@ void glimmer::TpCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree)
     suggestionsTree.AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::TpCommand::TpCommand(AppContext *ctx) : Command(ctx) {
+glimmer::TpCommand::TpCommand(AppContext *appContext) : Command(appContext) {
 }
 
 std::string glimmer::TpCommand::GetName() const {
@@ -23,6 +23,9 @@ std::string glimmer::TpCommand::GetName() const {
 }
 
 bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;

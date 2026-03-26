@@ -14,7 +14,7 @@
 void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
 }
 
-glimmer::HelpCommand::HelpCommand(AppContext *ctx) : Command(ctx) {
+glimmer::HelpCommand::HelpCommand(AppContext *appContext) : Command(appContext) {
 }
 
 std::string glimmer::HelpCommand::GetName() const {
@@ -26,6 +26,9 @@ void glimmer::HelpCommand::PutCommandStructure(const CommandArgs &commandArgs, s
 
 
 bool glimmer::HelpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     auto &commands = appContext_->GetCommandManager()->GetCommands();
     onMessage(fmt::format(
         fmt::runtime(appContext_->GetLangsResources()->commandInfo),

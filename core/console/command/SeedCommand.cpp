@@ -14,6 +14,9 @@ bool glimmer::SeedCommand::RequiresWorldContext() const {
 }
 
 bool glimmer::SeedCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;

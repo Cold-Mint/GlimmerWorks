@@ -35,7 +35,7 @@ namespace glimmer {
         virtual ~Command() = default;
 
 
-        explicit Command(AppContext *ctx);
+        explicit Command(AppContext *appContext);
 
         [[nodiscard]] virtual std::string GetName() const = 0;
 

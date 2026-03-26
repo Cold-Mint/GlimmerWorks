@@ -12,8 +12,8 @@ void glimmer::LootCommand::InitSuggestions(NodeTree<std::string> &suggestionsTre
     suggestionsTree.AddChild("get")->AddChild(LOOT_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::LootCommand::LootCommand(AppContext *ctx)
-    : Command(ctx) {
+glimmer::LootCommand::LootCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
 std::string glimmer::LootCommand::GetName() const {
@@ -30,6 +30,9 @@ bool glimmer::LootCommand::RequiresWorldContext() const {
 }
 
 bool glimmer::LootCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     if (worldContext_ == nullptr) {
         onMessage(appContext_->GetLangsResources()->worldContextIsNull);
         return false;

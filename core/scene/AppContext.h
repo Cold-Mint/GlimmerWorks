@@ -84,6 +84,7 @@ namespace glimmer {
         std::unique_ptr<MobManager> mobManager_;
         std::unique_ptr<ShapeManager> shapeManager_;
         std::unique_ptr<AudioManager> audioManager_;
+        std::shared_ptr<MIX_Audio> mainMenuBGM_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
@@ -98,6 +99,10 @@ namespace glimmer {
 
     public:
         AppContext();
+
+        void LoadMainMenuBGM();
+
+        void PlayMainMenuBGM() const;
 
         [[nodiscard]] const toml::spec &GetTomlVersion() const;
 

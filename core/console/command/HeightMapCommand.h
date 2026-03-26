@@ -13,7 +13,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit HeightMapCommand(AppContext *ctx);
+        explicit HeightMapCommand(AppContext *appContext);
 
         ~HeightMapCommand() override = default;
 

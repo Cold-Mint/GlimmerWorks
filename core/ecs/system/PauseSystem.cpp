@@ -92,6 +92,7 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
                 (void) worldContext_->SaveChunk(pos);
             }
             SDL_SetWindowTitle(appContext->GetWindow(), PROJECT_NAME.c_str());
+            appContext->PlayMainMenuBGM();
             appContext->GetSceneManager()->PopScene();
         }
     }

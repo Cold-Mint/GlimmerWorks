@@ -7,10 +7,13 @@
 #include "../../Constants.h"
 #include "../../scene/AppContext.h"
 
-glimmer::LicenseCommand::LicenseCommand(AppContext *ctx) : Command(ctx) {
+glimmer::LicenseCommand::LicenseCommand(AppContext *appContext) : Command(appContext) {
 }
 
 bool glimmer::LicenseCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     if (const auto text = appContext_->GetVirtualFileSystem()->ReadFile("LICENSE"); text.has_value()) {
         onMessage(text.value());
         return true;

@@ -15,7 +15,7 @@ void glimmer::ConfigCommand::InitSuggestions(NodeTree<std::string> &suggestionsT
     suggestionsTree.AddChild("set")->AddChild(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::ConfigCommand::ConfigCommand(AppContext *ctx, toml::value *value) : Command(ctx), configValue_(value) {
+glimmer::ConfigCommand::ConfigCommand(AppContext *appContext, toml::value *value) : Command(appContext), configValue_(value) {
 }
 
 std::string glimmer::ConfigCommand::GetName() const {
@@ -205,6 +205,9 @@ bool glimmer::ConfigCommand::SetValue(
 
 bool glimmer::ConfigCommand::Execute(const CommandArgs commandArgs,
                                      std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
+        return false;
+    }
     int size = commandArgs.GetSize();
     if (size < 3) {
         onMessage(fmt::format(

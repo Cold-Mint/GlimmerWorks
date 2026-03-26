@@ -12,8 +12,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
-        explicit PlaceCommand(AppContext *ctx);
-
+        explicit PlaceCommand(AppContext *appContext);
 
         [[nodiscard]] std::string GetName() const override;
 

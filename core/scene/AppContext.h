@@ -178,6 +178,8 @@ namespace glimmer {
 
         [[nodiscard]] SceneManager *GetSceneManager() const;
 
+        void SetRandomSlogan() const;
+
         [[nodiscard]] SavesManager *GetSavesManager() const;
 
         [[nodiscard]] SDL_Window *GetWindow() const;

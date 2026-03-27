@@ -187,3 +187,16 @@ worldNameSuffix = [
     "WhisperingForest",
     "ShatteredSpire"
 ]
+slogans = ["Is saying thank you to AI a waste?",
+    "Games are not commodities!",
+    "Creation refuses to be tamed by capital.",
+    "Open world, boundless creativity.",
+    "Huh? It's all hidden in TOML files.",
+    "Have you tried opening those ordinary-looking files?",
+    "Do you really like pity rolls and gacha pools?",
+    "No one steps into the exact same world twice.",
+    "Press ~ to rewrite some rules.",
+    "give abilityItem glimmerworks:area_marker",
+    "Meow~",
+    "Ciallo～(∠・ω< )⌒☆"
+]

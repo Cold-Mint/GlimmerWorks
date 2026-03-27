@@ -1,7 +1,6 @@
 #include <fstream>
 
 #include "core/App.h"
-#include "core/Config.h"
 #include "core/console/command/ConfigCommand.h"
 #include "core/log/LogCat.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
@@ -42,7 +41,9 @@ int main() {
         }
         std::abort();
     });
-
+    SDL_SetAppMetadata(
+        PROJECT_NAME.c_str(), GAME_VERSION_STRING,
+        APP_PACKNAME);
     AppContext appContext;
     if (!appContext.InitSuccess()) {
         return EXIT_FAILURE;

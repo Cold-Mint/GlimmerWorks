@@ -2,6 +2,9 @@
 // Created by Cold-Mint on 2025/10/10.
 //
 #include "AppContext.h"
+
+#include <random>
+
 #include "core/console/command/AssetViewerCommand.h"
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/EcsCommand.h"
@@ -102,6 +105,7 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->chainMiningTip = find<std::string>(value, "chainMiningTip");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "worldNamePrefix");
     langs_->worldNameSuffix = find<std::vector<std::string> >(value, "worldNameSuffix");
+    langs_->slogans = find<std::vector<std::string> >(value, "slogans");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
@@ -500,6 +504,24 @@ glimmer::ItemManager *glimmer::AppContext::GetItemManager() const {
 
 glimmer::SceneManager *glimmer::AppContext::GetSceneManager() const {
     return sceneManager_.get();
+}
+
+void glimmer::AppContext::SetRandomSlogan() const {
+    if (window_ == nullptr || langs_ == nullptr) {
+        SDL_SetWindowTitle(window_, PROJECT_NAME.c_str());
+        return;
+    }
+    const std::vector<std::string> &slogans = langs_->slogans;
+    if (slogans.empty()) {
+        SDL_SetWindowTitle(window_, PROJECT_NAME.c_str());
+    } else {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_int_distribution dist(0, static_cast<int>(slogans.size()) - 1);
+        int idx = dist(gen);
+        const std::string &random_str = slogans[idx];
+        SDL_SetWindowTitle(window_, random_str.c_str());
+    }
 }
 
 glimmer::SavesManager *glimmer::AppContext::GetSavesManager() const {

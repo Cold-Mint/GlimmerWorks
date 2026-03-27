@@ -639,6 +639,7 @@ target_compile_definitions(GlimmerWorks PRIVATE
         CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
         GAME_VERSION_NUMBER=${GAME_VERSION_NUMBER}
         GAME_VERSION_STRING="${GAME_VERSION_STRING}"
+        APP_PACKNAME="org.glimmerworks"
 )
 
 if (ANDROID)

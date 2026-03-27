@@ -36,6 +36,7 @@ glimmer::HomeScene::HomeScene(AppContext *context)
     hyperlinks_.push_back(Hyperlink("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"));
     copyright_ = GetCopyrightString();
     appContext->PlayMainMenuBGM();
+    appContext->SetRandomSlogan();
 }
 
 bool glimmer::HomeScene::HandleEvent(const SDL_Event &event) {

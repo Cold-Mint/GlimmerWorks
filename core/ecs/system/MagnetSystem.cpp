@@ -10,98 +10,108 @@
 #include "../component/MagnetComponent.h"
 #include "../component/MagneticComponent.h"
 #include "../component/Transform2DComponent.h"
-#include "tweeny.h"
+#include "box2d/box2d.h"
+#include "core/ecs/component/RayCast2DComponent.h"
+#include "core/utils/Box2DUtils.h"
 
 
 glimmer::MagnetSystem::MagnetSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<Transform2DComponent>();
     RequireComponent<MagnetComponent>();
     RequireComponent<MagneticComponent>();
+    RequireComponent<RigidBody2DComponent>();
+    RequireComponent<RayCast2DComponent>();
 }
 
 void glimmer::MagnetSystem::Update(const float delta) {
-    auto magnets =
+    if (worldContext_ == nullptr) {
+        return;
+    }
+    //magnets
+    //磁铁
+    auto magnetEntityList =
             worldContext_->GetEntityIDWithComponents<MagnetComponent, Transform2DComponent>();
 
-    auto magnetics =
-            worldContext_->GetEntityIDWithComponents<MagneticComponent, Transform2DComponent>();
+    if (magnetEntityList.empty()) {
+        return;
+    }
 
-    for (auto magnetEntity: magnets) {
+    //magnetics
+    //磁性材料
+    auto magneticList =
+            worldContext_->GetEntityIDWithComponents<MagneticComponent, Transform2DComponent, RigidBody2DComponent,
+                RayCast2DComponent>();
+
+    if (magneticList.empty()) {
+        return;
+    }
+
+    for (auto magnetEntity: magnetEntityList) {
         auto *magnet = worldContext_->GetComponent<MagnetComponent>(magnetEntity);
+        if (magnet == nullptr) {
+            continue;
+        }
         auto *magnetTransform =
                 worldContext_->GetComponent<Transform2DComponent>(magnetEntity);
+        if (magnetTransform == nullptr) {
+            continue;
+        }
+        const WorldVector2D magnetPos = magnetTransform->GetPosition();
 
-        WorldVector2D magnetPos = magnetTransform->GetPosition();
-
-        for (auto magneticEntity: magnetics) {
-            auto *magnetic =
-                    worldContext_->GetComponent<MagneticComponent>(magneticEntity);
+        for (auto magneticEntity: magneticList) {
             auto *magneticTransform =
                     worldContext_->GetComponent<Transform2DComponent>(magneticEntity);
-            if ((magnet->GetType() & magnetic->GetType()) == 0) {
-                LogCat::d("The magnet and the target type are different.");
+            if (magneticTransform == nullptr) {
+                continue;
+            }
+            auto *magnetic =
+                    worldContext_->GetComponent<MagneticComponent>(magneticEntity);
+            if (magnetic == nullptr) {
+                continue;
+            }
+            auto *rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(magneticEntity);
+            if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady() || !rigidBody2DComponent->
+                IsEnabled()) {
                 continue;
             }
 
+            auto *rayCast2DComponent = worldContext_->GetComponent<RayCast2DComponent>(magneticEntity);
+            if (rayCast2DComponent == nullptr) {
+                continue;
+            }
+
+            if ((magnet->GetType() & magnetic->GetType()) == 0) {
+                //No overlapping attraction areas.
+                //没有重叠的吸引位。
+                continue;
+            }
             const auto *droppedItem = worldContext_->GetComponent<DroppedItemComponent>(magneticEntity);
-            if (droppedItem != nullptr && !droppedItem->CanBePickedUp()) {
+            if (droppedItem == nullptr) {
+                continue;
+            }
+            if (!droppedItem->CanBePickedUp()) {
                 continue;
             }
 
             WorldVector2D magneticPos = magneticTransform->GetPosition();
-            const float distance = (magnetPos - magneticPos).Length();
-
+            const WorldVector2D distanceVector = magnetPos - magneticPos;
+            const float distance = distanceVector.Length();
             if (distance > magnet->GetDetectionRadius()) {
-                auto *rigidBody2DComponent =
-                        worldContext_->GetComponent<RigidBody2DComponent>(magneticEntity);
-                if (rigidBody2DComponent != nullptr) {
-                    rigidBody2DComponent->Enable();
-                }
-                magnetic->SetTweening(false);
                 magnet->RemoveEntity(magneticEntity);
                 continue;
             }
-
-            if (!magnetic->IsTweening()) {
-                magnetic->SetTweening(true);
-
-                magnetic->SetStartPos(magneticPos);
-
-                magnetic->SetTween(tweeny::from(0.0F)
-                    .to(1.0F)
-                    .during(350.0F) // 毫秒
-                    .via(tweeny::easing::cubicIn)); // 吸力感核心
-            }
-
-            LogCat::d("magnet addEntity :", magnetEntity, " ,distance=", distance);
-            auto *rigidBody2DComponent =
-                    worldContext_->GetComponent<RigidBody2DComponent>(magneticEntity);
-            if (rigidBody2DComponent != nullptr) {
-                rigidBody2DComponent->Disable();
-            }
-
-            if (distance <= magnet->GetAdsorptionRadius()) {
-                LogCat::d("distance=", distance, ",AdsorptionRadius=", magnet->GetAdsorptionRadius());
-                magnet->AddEntity(magneticEntity);
+            rayCast2DComponent->SetTransform(distanceVector);
+            if (rayCast2DComponent->IsHit()) {
+                //It was blocked by an obstacle.
+                //被障碍物遮挡了。
                 continue;
             }
-
-            LogCat::d("magnet Move :", magnetEntity, " ,distance=", distance);
-            if (magnetic->IsTweening()) {
-                magnetic->GetTween().step(static_cast<int>(delta * 1000));
-
-                float t = magnetic->GetTween().peek();
-
-                const WorldVector2D pos =
-                        magnetic->GetStartPos() * (1.0F - t) +
-                        magnetPos * t;
-
-                magneticTransform->SetPosition(pos);
-
-                if (magnetic->GetTween().progress() >= 1.0F) {
-                    magneticTransform->SetPosition(magnetPos);
-                    magnetic->SetTweening(false);
-                }
+            b2MassData massData = b2Body_GetMassData(rigidBody2DComponent->GetBodyId());
+            WorldVector2D force = distanceVector.Normalized() * massData.mass * 80;
+            b2Body_ApplyForceToCenter(rigidBody2DComponent->GetBodyId(),
+                                      {force.x, force.y}, true);
+            if (distance <= magnet->GetAdsorptionRadius()) {
+                magnet->AddEntity(magneticEntity);
             }
         }
     }

@@ -30,14 +30,19 @@ float glimmer::MagnetComponent::GetAdsorptionRadius() const {
     return adsorptionRadius_;
 }
 
-void glimmer::MagnetComponent::RemoveEntity(GameEntity::ID entityId) {
+void glimmer::MagnetComponent::RemoveEntity(const GameEntity::ID entityId) {
     entities_.erase(
         std::ranges::remove(entities_, entityId).begin(),
         entities_.end()
     );
 }
 
-void glimmer::MagnetComponent::AddEntity(GameEntity::ID entityId) {
+bool glimmer::MagnetComponent::ContainEntity(const GameEntity::ID entityId) const {
+    auto iter = std::find(entities_.begin(), entities_.end(), entityId);
+    return iter != entities_.end();
+}
+
+void glimmer::MagnetComponent::AddEntity(const GameEntity::ID entityId) {
     if (std::find(entities_.begin(), entities_.end(), entityId) == entities_.end()) {
         entities_.push_back(entityId);
     }

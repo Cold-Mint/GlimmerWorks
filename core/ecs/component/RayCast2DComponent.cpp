@@ -20,14 +20,6 @@ void glimmer::RayCast2DComponent::SetFilter(const b2QueryFilter &filter) {
     filter_ = filter;
 }
 
-bool glimmer::RayCast2DComponent::IsContinuous() const {
-    return enableContinuous_;
-}
-
-void glimmer::RayCast2DComponent::SetContinuous(bool enableContinuous) {
-    enableContinuous_ = enableContinuous;
-}
-
 void glimmer::RayCast2DComponent::SetTransform(const WorldVector2D &transform) {
     translation_ = transform;
 }

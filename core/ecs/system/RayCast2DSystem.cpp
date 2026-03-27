@@ -10,6 +10,7 @@
 #include "core/world/WorldContext.h"
 
 glimmer::RayCast2DSystem::RayCast2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+    RequireComponent<Transform2DComponent>();
     RequireComponent<RayCast2DComponent>();
 }
 
@@ -24,7 +25,7 @@ void glimmer::RayCast2DSystem::Update(float delta) {
         }
         const auto transform2dComponent =
                 worldContext_->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
-        if (transform2dComponent == nullptr || !rayComp->IsContinuous()) {
+        if (transform2dComponent == nullptr) {
             continue;
         }
         rayComp->SetHit(false);

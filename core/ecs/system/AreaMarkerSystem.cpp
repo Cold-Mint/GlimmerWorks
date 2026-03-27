@@ -13,9 +13,9 @@ glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext *worldContext) : GameSy
 }
 
 
-void glimmer::AreaMarkerSystem::Update(float delta) {
+void glimmer::AreaMarkerSystem::Update(const float delta) {
     auto entityList = worldContext_->GetEntityIDWithComponents<AreaMarkerComponent>();
-    for (auto entity: entityList) {
+    for (const auto entity: entityList) {
         auto *areaMarker = worldContext_->GetComponent<AreaMarkerComponent>(entity);
         if (areaMarker == nullptr) {
             continue;
@@ -40,9 +40,9 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
     if (cameraPos == nullptr) {
         return;
     }
-    auto entityList = worldContext_->GetEntityIDWithComponents<AreaMarkerComponent>();
+    const auto entityList = worldContext_->GetEntityIDWithComponents<AreaMarkerComponent>();
     for (auto entity: entityList) {
-        auto *areaMarker = worldContext_->GetComponent<AreaMarkerComponent>(entity);
+        const auto *areaMarker = worldContext_->GetComponent<AreaMarkerComponent>(entity);
         if (areaMarker == nullptr) {
             continue;
         }
@@ -58,10 +58,10 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
         int tileWidth = std::abs(areaMarker->GetEndPoint().x - areaMarker->GetStartPoint().x) + 1;
         int tileHeight = std::abs(areaMarker->GetEndPoint().y - areaMarker->GetStartPoint().y) + 1;
         int tileArea = tileWidth * tileHeight;
-        float minWorldX = std::min(startPoint.x, endPoint.x);
-        float maxWorldX = std::max(startPoint.x, endPoint.x);
-        float minWorldY = std::min(startPoint.y, endPoint.y);
-        float maxWorldY = std::max(startPoint.y, endPoint.y);
+        const float minWorldX = std::min(startPoint.x, endPoint.x);
+        const float maxWorldX = std::max(startPoint.x, endPoint.x);
+        const float minWorldY = std::min(startPoint.y, endPoint.y);
+        const float maxWorldY = std::max(startPoint.y, endPoint.y);
         WorldVector2D rectWorldMin;
         rectWorldMin.x = minWorldX - HALF_TILE_SIZE;
         rectWorldMin.y = minWorldY - HALF_TILE_SIZE;
@@ -92,21 +92,25 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
                                                                      text.c_str(), text.length(),
                                                                      appContext->GetPreloadColors()
                                                                      ->textColor, 0);
-            if (ttfSurface != nullptr) {
-                SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-                if (texture) {
-                    float textX = rect.x + (rect.w - ttfSurface->w) / 2.0f;
-                    float textY = rect.y + (rect.h - ttfSurface->h) / 2.0f;
-                    SDL_FRect rectCenter = {
-                        textX, textY,
-                        static_cast<float>(ttfSurface->w),
-                        static_cast<float>(ttfSurface->h)
-                    };
-                    SDL_RenderTexture(renderer, texture, nullptr, &rectCenter);
-                    SDL_DestroyTexture(texture);
-                }
-                SDL_DestroySurface(ttfSurface);
+            if (ttfSurface == nullptr) {
+                continue;
             }
+            const auto ttfSurfaceWidth = static_cast<float>(ttfSurface->w);
+            const auto ttfSurfaceHeight = static_cast<float>(ttfSurface->h);
+            SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+            if (texture == nullptr) {
+                continue;
+            }
+            const float textX = rect.x + (rect.w - ttfSurfaceWidth) / 2.0F;
+            const float textY = rect.y + (rect.h - ttfSurfaceHeight) / 2.0F;
+            SDL_FRect rectCenter = {
+                textX, textY,
+                ttfSurfaceWidth,
+                ttfSurfaceHeight
+            };
+            SDL_RenderTexture(renderer, texture, nullptr, &rectCenter);
+            SDL_DestroyTexture(texture);
+            SDL_DestroySurface(ttfSurface);
         }
     }
     AppContext::RestoreColorRenderer(renderer);

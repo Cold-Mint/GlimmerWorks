@@ -10,22 +10,6 @@ void glimmer::MagneticComponent::SetType(uint16_t type) {
     type_ = type;
 }
 
-bool glimmer::MagneticComponent::IsTweening() const {
-    return tweening_;
-}
-
-void glimmer::MagneticComponent::SetTweening(bool tweening) {
-    tweening_ = tweening;
-}
-
-tweeny::tween<float> &glimmer::MagneticComponent::GetTween() {
-    return tween_;
-}
-
-void glimmer::MagneticComponent::SetTween(const tweeny::tween<float> &tween) {
-    tween_ = tween;
-}
-
 
 const WorldVector2D &glimmer::MagneticComponent::GetStartPos() const {
     return startPos_;

@@ -57,6 +57,8 @@ namespace glimmer {
 
         void RemoveEntity(GameEntity::ID entityId);
 
+        [[nodiscard]] bool ContainEntity(GameEntity::ID entityId) const;
+
         void AddEntity(GameEntity::ID entityId);
 
         [[nodiscard]] const std::vector<GameEntity::ID> &GetEntities() const;

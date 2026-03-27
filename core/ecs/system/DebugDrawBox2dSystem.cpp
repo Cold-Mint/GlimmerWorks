@@ -579,7 +579,7 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
         }
         const auto transform2dComponent =
                 worldContext_->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
-        if (transform2dComponent == nullptr || !rayComp->IsContinuous()) {
+        if (transform2dComponent == nullptr) {
             continue;
         }
         if (rayComp->IsHit()) {

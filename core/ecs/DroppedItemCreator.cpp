@@ -6,6 +6,7 @@
 
 #include "component/DroppedItemComponent.h"
 #include "component/MagneticComponent.h"
+#include "component/RayCast2DComponent.h"
 #include "component/RigidBody2DComponent.h"
 
 glimmer::DroppedItemCreator::DroppedItemCreator(WorldContext *worldContext) : IEntityCreator(worldContext) {
@@ -64,6 +65,12 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const GameEntity::ID id
         shapeResourceRef.SetResourceKey(SHAPE_ID_DROPPED_ITEM);
         shapeResourceRef.SetResourceType(RESOURCE_TYPE_SHAPE);
         rigidBody2DComponent->SetShapeRef(shapeResourceRef);
+    }
+    const auto rayCast2DComponent = worldContext_->AddComponent<RayCast2DComponent>(id);
+    if (rayCast2DComponent != nullptr) {
+        rayCast2DComponent->SetOrigin({0, 0});
+        rayCast2DComponent->SetFilter({BOX2D_CATEGORY_ITEM, BOX2D_CATEGORY_TILE});
+        rayCast2DComponent->SetTransform2DEntity(id);
     }
     auto *magnetic = worldContext_->AddComponent<MagneticComponent>(id);
     if (magnetic != nullptr) {

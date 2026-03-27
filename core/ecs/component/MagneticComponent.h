@@ -8,7 +8,6 @@
 
 #include "../GameComponent.h"
 #include "../../math/Vector2D.h"
-#include "tween.h"
 
 namespace glimmer {
     /**
@@ -22,21 +21,10 @@ namespace glimmer {
          */
         uint16_t type_ = 0;
 
-        bool tweening_ = false;
-
-        tweeny::tween<float> tween_;
         WorldVector2D startPos_;
 
     public:
         void SetType(uint16_t type);
-
-        [[nodiscard]] bool IsTweening() const;
-
-        void SetTweening(bool tweening);
-
-        [[nodiscard]] tweeny::tween<float> &GetTween();
-
-        void SetTween(const tweeny::tween<float> &tween);
 
         [[nodiscard]] const WorldVector2D &GetStartPos() const;
 

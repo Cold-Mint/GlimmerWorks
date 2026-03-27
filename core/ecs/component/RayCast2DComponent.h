@@ -30,9 +30,6 @@ namespace glimmer {
         //Collision Shape ID
         //碰撞形状ID
         b2ShapeId hitShapeId_ = b2_nullShapeId;
-        //Continuous detection mode
-        //连续检测模式
-        bool enableContinuous_ = true;
 
         GameEntity::ID transform2DEntity_ = GAME_ENTITY_ID_INVALID;
 
@@ -52,10 +49,6 @@ namespace glimmer {
         [[nodiscard]] const b2QueryFilter &GetFilter() const;
 
         void SetFilter(const b2QueryFilter &filter);
-
-        [[nodiscard]] bool IsContinuous() const;
-
-        void SetContinuous(bool enableContinuous);
 
         void SetTransform(const WorldVector2D &transform);
 

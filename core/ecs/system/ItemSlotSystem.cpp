@@ -15,7 +15,10 @@
 #include "core/ecs/component/GuiTransform2DComponent.h"
 
 void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
-    AppContext *appContext = worldContext_->GetAppContext();
+    if (worldContext_ == nullptr) {
+        return;
+    }
+    const AppContext *appContext = worldContext_->GetAppContext();
     const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);

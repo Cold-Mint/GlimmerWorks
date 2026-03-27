@@ -3,6 +3,7 @@
 //
 
 #include "BiomeStructureConditionProcessor.h"
+#include <set>
 
 #include "core/log/LogCat.h"
 

@@ -100,11 +100,15 @@ enabledResourcePack = ["glimmerworks_res"]
 # 游戏使用的SDL_mix库，虽然能够解码更多格式的音频，但是为了规范使用的音频格式，所以在这里限制了只能加载以下类型。
 # The audio that comes earlier will be loaded first. For example, if supportedAudioFormats = ["ogg", "wav"], when searching for "block_brack", it will first search for "block_brack.ogg" and then "block_brack.wav".
 # 排在前面的音频会被优先加载。例如supportedAudioFormats = ["ogg"，"wav"]，查找"block_brack"时，会优先搜索"block_brack.ogg"其次是"block_brack.wav"
+# The release build has been trimmed to support only OGG. To support additional formats, you need to modify the CMakeLists.txt and recompile the game.
+# 发行版已被裁减为仅支持ogg，支持更多格式需要修改CMakeLists.txt重新编译游戏。
 supportedAudioFormats = ["ogg"]
 # Supported texture formats
 # 支持的纹理格式
 # The textures that come earlier will be loaded first.
 # 排在前面的纹理会被优先加载。
+# The release build has been trimmed to support only PNG. To support additional formats, you need to modify the CMakeLists.txt and recompile the game.
+# 发行版已被裁减为仅支持png，支持更多格式需要修改CMakeLists.txt重新编译游戏。
 supportedTextureFormats = ["png"]
 [debug]
 # Show debug panel in game

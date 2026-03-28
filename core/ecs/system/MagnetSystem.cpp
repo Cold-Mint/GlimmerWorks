@@ -11,6 +11,7 @@
 #include "../component/MagneticComponent.h"
 #include "../component/Transform2DComponent.h"
 #include "box2d/box2d.h"
+#include "core/ecs/component/ItemContainerComonent.h"
 #include "core/ecs/component/RayCast2DComponent.h"
 #include "core/utils/Box2DUtils.h"
 
@@ -21,6 +22,7 @@ glimmer::MagnetSystem::MagnetSystem(WorldContext *worldContext) : GameSystem(wor
     RequireComponent<MagneticComponent>();
     RequireComponent<RigidBody2DComponent>();
     RequireComponent<RayCast2DComponent>();
+    RequireComponent<ItemContainerComponent>();
 }
 
 void glimmer::MagnetSystem::Update(const float delta) {
@@ -56,8 +58,15 @@ void glimmer::MagnetSystem::Update(const float delta) {
         if (magnetTransform == nullptr) {
             continue;
         }
+        auto *itemContainerComponent = worldContext_->GetComponent<ItemContainerComponent>(magnetEntity);
+        if (itemContainerComponent == nullptr) {
+            continue;
+        }
+        auto itemContainer = itemContainerComponent->GetItemContainer();
+        if (itemContainer == nullptr) {
+            continue;
+        }
         const WorldVector2D magnetPos = magnetTransform->GetPosition();
-
         for (auto magneticEntity: magneticList) {
             auto *magneticTransform =
                     worldContext_->GetComponent<Transform2DComponent>(magneticEntity);
@@ -90,6 +99,14 @@ void glimmer::MagnetSystem::Update(const float delta) {
                 continue;
             }
             if (!droppedItem->CanBePickedUp()) {
+                continue;
+            }
+
+            const auto* item = droppedItem->GetItem();
+            size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(item);
+            if (remainingItemAmount ==  item->GetAmount()) {
+                //Not a single one can be added.
+                //一个都添加不了。
                 continue;
             }
 

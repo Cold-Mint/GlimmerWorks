@@ -31,8 +31,9 @@ std::string glimmer::ItemContainerComponent::Serialize() {
 
 void glimmer::ItemContainerComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     ItemContainerMessage itemContainerMessage;
-    itemContainerMessage.ParseFromString(data);
-    itemContainer_->FromMessage(worldContext->GetAppContext(), itemContainerMessage);
+    if (itemContainerMessage.ParseFromString(data)) {
+        itemContainer_->FromMessage(worldContext->GetAppContext(), itemContainerMessage);
+    }
 }
 
 uint32_t glimmer::ItemContainerComponent::GetId() {

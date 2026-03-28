@@ -63,6 +63,14 @@ namespace glimmer {
         [[nodiscard]] std::unique_ptr<Item> AddItem(std::unique_ptr<Item> item);
 
         /**
+         * Get Remaining Item Amount After Add
+         * 获取添加后的剩余物品数量
+         * @param item  item 物品
+         * @return 返回0表示可完全添加
+         */
+        [[nodiscard]] size_t GetRemainingItemAmountAfterAdd(const Item* item) const;
+
+        /**
          * ReplaceItem
          * 替换物品
          * @param index index 位置

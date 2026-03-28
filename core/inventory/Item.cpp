@@ -31,15 +31,14 @@ size_t glimmer::Item::GetMaxStack() const {
     return maxStack_;
 }
 
-
-bool glimmer::Item::CanStackMore(const Item *item) const {
+size_t glimmer::Item::GetRemainingStackCount(const Item *item) const {
     if (item == nullptr) {
-        return false;
+        return 0;
     }
     if (item->GetId() != GetId()) {
-        return false;
+        return 0;
     }
-    return amount_ <= maxStack_;
+    return maxStack_ - amount_;
 }
 
 void glimmer::Item::SetOnAmountZero(const std::function<void()> &onAmountZero) {

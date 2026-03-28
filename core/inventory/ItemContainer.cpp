@@ -81,7 +81,8 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
             BindItemEvent(i);
             return nullptr;
         }
-        if (bool canStackMore = itemPtr->CanStackMore(item.get()); !canStackMore) {
+        const size_t stackSpace = itemPtr->GetRemainingStackCount(item.get());
+        if (stackSpace == 0) {
             continue;
         }
         const size_t stackedAmount = itemPtr->AddAmount(item->GetAmount());
@@ -99,6 +100,39 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
         }
     }
     return item;
+}
+
+size_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item *item) const {
+    if (item == nullptr) {
+        return 0;
+    }
+    size_t remainingAmount = item->GetAmount();
+    for (const auto &slot: items_) {
+        const Item *itemPtr = slot.get();
+        if (remainingAmount == 0) {
+            break;
+        }
+        if (itemPtr == nullptr) {
+            //Empty slot
+            //空槽位
+            remainingAmount = 0;
+            break;
+        }
+        const size_t stackSpace = itemPtr->GetRemainingStackCount(item);
+        if (stackSpace == 0) {
+            //Not stackable
+            //不可堆叠
+            continue;
+        }
+        if (remainingAmount <= stackSpace) {
+            //If the quantity to be placed is less than or equal to the available quantity, then remainingAmount = 0
+            //如果需要放的数量比能放的数量小或相等。那么remainingAmount = 0
+            remainingAmount = 0;
+        } else {
+            remainingAmount -= stackSpace;
+        }
+    }
+    return remainingAmount;
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::ReplaceItem(const size_t index, std::unique_ptr<Item> item) {

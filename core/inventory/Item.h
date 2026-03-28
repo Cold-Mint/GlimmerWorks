@@ -61,11 +61,11 @@ namespace glimmer {
 
 
         /**
-         * CanStackMore
-         * 是否还能堆叠更多
+         * GetRemainingStackCount
+         * 获取可堆叠的数量
          * @return
          */
-        [[nodiscard]] bool CanStackMore(const Item *item) const;
+        [[nodiscard]] size_t GetRemainingStackCount(const Item *item) const;
 
 
         /**

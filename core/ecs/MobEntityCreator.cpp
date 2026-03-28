@@ -12,7 +12,7 @@
 #include "component/RigidBody2DComponent.h"
 #include "component/SpiritRendererComponent.h"
 
-glimmer::MobEntityCreator::MobEntityCreator(WorldContext *worldContext) : IEntityCreator(worldContext) {
+glimmer::MobEntityCreator::MobEntityCreator(WorldContext *worldContext) : IPersistenceEntityCreator(worldContext) {
 }
 
 EntityItemMessage glimmer::MobEntityCreator::GetEntityItemMessage(const WorldVector2D position) {

@@ -64,7 +64,7 @@ set(SDL_HIDAPI OFF)
 set(SDL_SENSOR OFF)
 set(SDL_POWER OFF)
 set(SDL_VIRTUAL_JOYSTICK OFF)
-set(SDL_ASSERTIONS OFF) 
+set(SDL_ASSERTIONS OFF)
 set(SDL_X11 ${X11_SUPPORT})
 set(SDL_X11_SHARED ${X11_SUPPORT})
 set(SDL_X11_XCURSOR ${X11_SUPPORT})
@@ -440,12 +440,16 @@ target_sources(GlimmerWorks
         core/ecs/component/RayCast2DComponent.cpp
         core/ecs/system/RayCast2DSystem.cpp
         core/ecs/component/MobComponent.cpp
-        core/ecs/IEntityCreator.cpp
+        core/ecs/IPersistenceEntityCreator.cpp
         core/ecs/MobEntityCreator.cpp
         core/ecs/DroppedItemCreator.cpp
         core/mod/resourcePack/AudioType.cpp
         core/mod/resourcePack/AudioManager.cpp
         core/ecs/system/BiomeBGMSystem.cpp
+        core/ecs/component/FloatingTextComponent.cpp
+        core/ecs/system/FloatingTextSystem.cpp
+        core/ecs/FlowingTextCreator.cpp
+        core/ecs/IEntityCreator.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -625,11 +629,15 @@ target_sources(GlimmerWorks
         core/Box2dFilter.h
         core/ecs/component/MobComponent.h
         core/ecs/MobEntityCreator.h
-        core/ecs/IEntityCreator.h
+        core/ecs/IPersistenceEntityCreator.h
         core/ecs/DroppedItemCreator.h
         core/mod/resourcePack/AudioType.h
         core/mod/resourcePack/AudioManager.h
         core/ecs/system/BiomeBGMSystem.h
+        core/ecs/component/FloatingTextComponent.h
+        core/ecs/system/FloatingTextSystem.h
+        core/ecs/FlowingTextCreator.h
+        core/ecs/IEntityCreator.h
 )
 
 #Define version information

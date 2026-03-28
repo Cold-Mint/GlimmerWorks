@@ -67,6 +67,7 @@ void glimmer::MagnetSystem::Update(const float delta) {
             continue;
         }
         const WorldVector2D magnetPos = magnetTransform->GetPosition();
+        const float detectionRadius = magnet->GetDetectionRadius();
         for (auto magneticEntity: magneticList) {
             auto *magneticTransform =
                     worldContext_->GetComponent<Transform2DComponent>(magneticEntity);
@@ -102,9 +103,9 @@ void glimmer::MagnetSystem::Update(const float delta) {
                 continue;
             }
 
-            const auto* item = droppedItem->GetItem();
+            const auto *item = droppedItem->GetItem();
             size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(item);
-            if (remainingItemAmount ==  item->GetAmount()) {
+            if (remainingItemAmount == item->GetAmount()) {
                 //Not a single one can be added.
                 //一个都添加不了。
                 continue;
@@ -112,8 +113,8 @@ void glimmer::MagnetSystem::Update(const float delta) {
 
             WorldVector2D magneticPos = magneticTransform->GetPosition();
             const WorldVector2D distanceVector = magnetPos - magneticPos;
-            const float distance = distanceVector.Length();
-            if (distance > magnet->GetDetectionRadius()) {
+            float distance = distanceVector.Length();
+            if (distance > detectionRadius) {
                 magnet->RemoveEntity(magneticEntity);
                 continue;
             }
@@ -123,10 +124,19 @@ void glimmer::MagnetSystem::Update(const float delta) {
                 //被障碍物遮挡了。
                 continue;
             }
+            if (distance < MIN_SAFE_DISTANCE) {
+                distance = MIN_SAFE_DISTANCE;
+            }
+            // Normalized distance (0-1): 0 = attached to the magnet, 1 = maximum detection radius
+            // 归一化距离 (0~1)：0=贴在磁铁上，1=最大检测半径
+            float normalizedDistance = distance / detectionRadius;
+            float forceStrength = 1 - normalizedDistance;
             b2MassData massData = b2Body_GetMassData(rigidBody2DComponent->GetBodyId());
-            WorldVector2D force = distanceVector.Normalized() * massData.mass * 80;
-            b2Body_ApplyForceToCenter(rigidBody2DComponent->GetBodyId(),
-                                      {force.x, force.y}, true);
+            WorldVector2D force = distanceVector.Normalized()
+                                  * massData.mass
+                                  * MAX_MAGNET_FORCE
+                                  * forceStrength;
+            b2Body_ApplyForceToCenter(rigidBody2DComponent->GetBodyId(), {force.x, force.y}, true);
             if (distance <= magnet->GetAdsorptionRadius()) {
                 magnet->AddEntity(magneticEntity);
             }

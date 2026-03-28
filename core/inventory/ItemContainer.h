@@ -17,12 +17,6 @@ namespace glimmer {
     class ItemContainer {
         std::vector<std::unique_ptr<Item> > items_;
 
-        /**
-         * capacity
-         * 容器的容量
-         */
-        size_t capacity_ = 0;
-
         std::vector<std::shared_ptr<std::function<void(ContainerChangeType)> > > onContentChanged_;
 
         /**
@@ -151,7 +145,7 @@ namespace glimmer {
 
         void ToMessage(ItemContainerMessage &message) const;
 
-        void Clear();
+        void ResetItems();
 
         [[nodiscard]] std::unique_ptr<ItemContainer> Clone() const;
     };

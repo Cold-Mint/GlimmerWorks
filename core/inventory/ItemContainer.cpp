@@ -41,7 +41,6 @@ void glimmer::ItemContainer::InvokeOnContentChanged(ContainerChangeType containe
 }
 
 glimmer::ItemContainer::ItemContainer(const size_t capacity) {
-    capacity_ = capacity;
     items_ = std::vector<std::unique_ptr<Item> >(capacity);
 }
 
@@ -275,8 +274,10 @@ void glimmer::ItemContainer::ToMessage(ItemContainerMessage &message) const {
     }
 }
 
-void glimmer::ItemContainer::Clear() {
-    items_.clear();
+void glimmer::ItemContainer::ResetItems() {
+    for (size_t i = 0; i < items_.size(); ++i) {
+        items_[i] = nullptr;
+    }
 }
 
 std::unique_ptr<glimmer::ItemContainer> glimmer::ItemContainer::Clone() const {

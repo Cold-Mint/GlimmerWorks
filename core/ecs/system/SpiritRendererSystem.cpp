@@ -13,14 +13,25 @@ glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext *worldContext) 
 }
 
 void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
-    const AppContext *appContext = worldContext_->GetAppContext();
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    const CameraComponent *cameraComponent = worldContext_->GetCameraComponent();
-    const Transform2DComponent *cameraTransform2D = worldContext_->GetCameraTransform2D();
-    if (cameraComponent == nullptr || cameraTransform2D == nullptr) {
+    if (worldContext_ == nullptr) {
         return;
     }
-
+    const AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return;
+    }
+    const CameraComponent *cameraComponent = worldContext_->GetCameraComponent();
+    const Transform2DComponent *cameraTransform2D = worldContext_->GetCameraTransform2D();
+    if (cameraComponent == nullptr) {
+        return;
+    }
+    if (cameraTransform2D == nullptr) {
+        return;
+    }
     const std::vector<GameEntity::ID> spiritRendererEntity = worldContext_->GetEntityIDWithComponents<
         Transform2DComponent, SpiritRendererComponent>();
     for (const uint32_t spiritRenderer: spiritRendererEntity) {

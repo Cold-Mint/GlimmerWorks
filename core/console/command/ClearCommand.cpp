@@ -42,7 +42,7 @@ bool glimmer::ClearCommand::Execute(CommandArgs commandArgs,
     if (itemContainer == nullptr) {
         return false;
     }
-    itemContainer->Clear();
+    itemContainer->ResetItems();
     return true;
 }
 

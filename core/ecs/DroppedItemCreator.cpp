@@ -9,7 +9,7 @@
 #include "component/RayCast2DComponent.h"
 #include "component/RigidBody2DComponent.h"
 
-glimmer::DroppedItemCreator::DroppedItemCreator(WorldContext *worldContext) : IEntityCreator(worldContext) {
+glimmer::DroppedItemCreator::DroppedItemCreator(WorldContext *worldContext) : IPersistenceEntityCreator(worldContext) {
 }
 
 EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldVector2D position,

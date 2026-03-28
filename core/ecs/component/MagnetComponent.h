@@ -26,7 +26,7 @@ namespace glimmer {
          * Detection radius (the sensing range of the magnet. When adsorbable substances enter the range, they will move towards the magnet)
          * 检测半径（吸铁石的感知范围，可吸附物进入范围时会向吸铁石移动）
          */
-        float detectionRadius_ = TILE_SIZE * 3;
+        float detectionRadius_ = TILE_SIZE * 5;
 
         /**
          * Types of magnetic adsorbates that can be adsorbed(Multiple can be set.)

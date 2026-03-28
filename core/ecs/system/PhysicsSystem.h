@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_PHYSICSSYSTEM_H
 #define GLIMMERWORKS_PHYSICSSYSTEM_H
 #include "../GameSystem.h"
-#include "../component/Transform2DComponent.h"
 
 
 namespace glimmer {

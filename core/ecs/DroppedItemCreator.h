@@ -4,11 +4,11 @@
 
 #ifndef GLIMMERWORKS_DROPEDITEMCREATOR_H
 #define GLIMMERWORKS_DROPEDITEMCREATOR_H
-#include "IEntityCreator.h"
+#include "IPersistenceEntityCreator.h"
 #include "core/world/WorldContext.h"
 
 namespace glimmer {
-    class DroppedItemCreator : public IEntityCreator {
+    class DroppedItemCreator : public IPersistenceEntityCreator {
 
     public:
         explicit DroppedItemCreator(WorldContext *worldContext);

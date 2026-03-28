@@ -9,8 +9,12 @@
 
 namespace glimmer {
     class AutoPickSystem : public GameSystem {
-
         std::shared_ptr<MIX_Audio> pickItemSFX_;
+        WorldVector2D lastPosition{};
+        float remainingTime_ = MERGE_DURATION;
+
+        std::unordered_map<std::string, size_t> frameItemCounts_ = {};
+
     public:
         explicit AutoPickSystem(WorldContext *worldContext);
 

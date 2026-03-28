@@ -4,10 +4,10 @@
 
 #ifndef GLIMMERWORKS_MOBENTITYCREATOR_H
 #define GLIMMERWORKS_MOBENTITYCREATOR_H
-#include "IEntityCreator.h"
+#include "IPersistenceEntityCreator.h"
 
 namespace glimmer {
-    class MobEntityCreator : public IEntityCreator {
+    class MobEntityCreator : public IPersistenceEntityCreator {
     public:
         explicit MobEntityCreator(WorldContext *worldContext);
 

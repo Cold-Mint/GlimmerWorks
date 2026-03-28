@@ -40,11 +40,10 @@
 #include "core/ecs/component/ItemEditorComponent.h"
 #include "core/ecs/component/MagnetComponent.h"
 #include "core/ecs/component/MagneticComponent.h"
-#include "core/ecs/component/PlayerComponent.h"
-#include "core/ecs/component/RayCast2DComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
+#include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/ItemEditorSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
@@ -117,38 +116,24 @@ glimmer::GameEntity::ID glimmer::WorldContext::GetEntityIdIndex() const {
 }
 
 glimmer::TerrainResult *glimmer::WorldContext::GetTerrainData(TileVector2D position) {
-    LogCat::d("GetTerrainData called - position x: ", position.x, ", y: ", position.y);
     if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
-        LogCat::d("Terrain data found in cache - position x: ", position.x, ", y: ", position.y,
-                  ". Return cached pointer");
         return it->second.get();
     }
-    LogCat::d("Terrain data NOT found in cache - position x: ", position.x, ", y: ", position.y, ". Return nullptr");
     return nullptr;
 }
 
 glimmer::TerrainResult *glimmer::WorldContext::GetOrCreateTerrainData(TileVector2D position) {
-    LogCat::d("GetOrCreateTerrainData called for position - x: ", position.x, ", y: ", position.y);
     if (auto it = terrainTileData_.find(position); it != terrainTileData_.end()) {
-        LogCat::d("Terrain data found in cache - position x: ", position.x, ", y: ", position.y,
-                  ". Return cached pointer");
         return it->second.get();
     }
 
-    LogCat::d("Terrain data NOT found in cache - position x: ", position.x, ", y: ", position.y,
-              ". Generating new terrain");
-
     auto terrainResult = chunkGenerator_->GenerateTerrain(position);
     if (terrainResult == nullptr) {
-        LogCat::d("Failed to generate terrain data - position x: ", position.x, ", y: ", position.y,
-                  ". Return nullptr");
         return nullptr;
     }
     auto *terrainPtr = terrainResult.get();
     terrainTileData_.emplace(position, std::move(terrainResult));
     terrainTileDataCache_.emplace(position, terrainPtr);
-    LogCat::d("New terrain data generated and cached - position x: ", position.x, ", y: ", position.y,
-              ". Return new pointer");
     return terrainPtr;
 }
 
@@ -566,6 +551,7 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<HotBarSystem>(this));
     RegisterSystem(std::make_unique<ItemSlotSystem>(this));
     RegisterSystem(std::make_unique<MagnetSystem>(this));
+    RegisterSystem(std::make_unique<FloatingTextSystem>(this));
     RegisterSystem(std::make_unique<DroppedItemSystem>(this));
     RegisterSystem(std::make_unique<AutoPickSystem>(this));
     RegisterSystem(std::make_unique<AreaMarkerSystem>(this));

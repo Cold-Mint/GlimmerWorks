@@ -22,6 +22,7 @@
 void glimmer::App::RendererUiMessage() {
     auto &uiMessages = appContext_->GetGameUIMessages();
     uint64_t now = SDL_GetTicks();
+    //fixme:重复计算延迟！！！
     int32_t delta = now - lastTime_;
     lastTime_ = now;
     //Delete expired messages
@@ -48,7 +49,7 @@ void glimmer::App::RendererUiMessage() {
         msg.tween.step(delta);
         msg.alpha = msg.tween.peek();
 
-        if (msg.alpha <= 0.01f) {
+        if (msg.alpha <= 0.01F) {
             continue;
         }
 
@@ -77,7 +78,7 @@ void glimmer::App::RendererUiMessage() {
     // Second round: Actual drawing
     // 第二遍：真正绘制
     for (auto &msg: uiMessages) {
-        if (msg.alpha <= 0.01f)
+        if (msg.alpha <= 0.01F)
             continue;
 
         SDL_Surface *surface = TTF_RenderText_Blended(
@@ -99,16 +100,10 @@ void glimmer::App::RendererUiMessage() {
 
         SDL_DestroySurface(surface);
 
-        if (!texture)
+        if (texture == nullptr) {
             continue;
-
-        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-
-        Uint8 alpha =
-                static_cast<Uint8>(msg.alpha * 255.0f);
-
-        SDL_SetTextureAlphaMod(texture, alpha);
-
+        }
+        SDL_SetTextureAlphaMod(texture, static_cast<Uint8>(msg.alpha * 255));
         SDL_FRect dst = {
             padding,
             startY,

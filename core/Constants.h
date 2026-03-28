@@ -112,7 +112,10 @@ constexpr size_t HOT_BAR_SIZE = 9;
 constexpr float ITEM_SLOT_SIZE = 40.0F;
 constexpr float ITEM_SLOT_PADDING = 8.0F;
 constexpr float DROP_INTERVAL = 1.0F / ITEM_MAX_STACK;
-
+//Maximum suction (slightly larger than the original 80, compensating for attenuation)
+//最大吸力（比原80稍大，补偿衰减）
+const float MAX_MAGNET_FORCE = 120.0f;
+const float MIN_SAFE_DISTANCE = 0.1f;
 /**
  *Type of adsorbate
  * 被吸附物类型
@@ -241,6 +244,7 @@ static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 9;
 static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
 static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
 static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;
+static constexpr uint8_t RENDER_ORDER_FLOATING_TEXT = 13;
 static constexpr uint8_t RENDER_ORDER_PAUSE = 100;
 
 
@@ -279,6 +283,7 @@ static constexpr uint32_t COMPONENT_ID_SPIRIT_RENDERER = 18;
 static constexpr uint32_t COMPONENT_ID_ITEM_EDITOR = 19;
 static constexpr uint32_t COMPONENT_ID_MOB = 20;
 static constexpr uint32_t COMPONENT_ID_RAY_CAST_2D = 21;
+static constexpr uint32_t COMPONENT_ID_FLOATING_TEXT = 22;
 
 
 static constexpr std::string TILE_ID_AIR = "air";
@@ -291,5 +296,9 @@ static constexpr std::string PROJECT_NAME = "GlimmerWorks";
 
 constexpr float GRAVITY_SCALE = 1.8F; // 重力缩放（优化下落手感）
 constexpr int JUMP_BUFFER_FRAMES = 4;
+
+//How often should the information of picked-up items be accumulated and settled (unit: seconds)?
+//累积多长时间结算一次捡起的物品信息（单位：秒）
+constexpr float MERGE_DURATION = 0.35F;
 
 #endif //CONSTANTS_H

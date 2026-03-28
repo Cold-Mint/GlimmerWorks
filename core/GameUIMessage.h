@@ -16,19 +16,11 @@ namespace glimmer {
         uint64_t createTime;
         uint64_t expireTime;
 
-        float alpha = 0.0f;
+        float alpha = 0.0F;
 
         tweeny::tween<float> tween;
 
-        GameUIMessage(const std::string &t, const uint64_t now)
-            : text(t),
-              createTime(now),
-              expireTime(now + 2500),
-              tween(tweeny::from(0.0f)
-                  .to(1.0f).during(200)
-                  .to(1.0f).during(2000)
-                  .to(0.0f).during(300)) {
-        }
+        GameUIMessage(const std::string &t, uint64_t now);
     };
 }
 

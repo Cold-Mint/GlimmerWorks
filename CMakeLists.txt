@@ -450,6 +450,7 @@ target_sources(GlimmerWorks
         core/ecs/system/FloatingTextSystem.cpp
         core/ecs/FlowingTextCreator.cpp
         core/ecs/IEntityCreator.cpp
+        core/console/command/FlyCommand.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -638,6 +639,7 @@ target_sources(GlimmerWorks
         core/ecs/system/FloatingTextSystem.h
         core/ecs/FlowingTextCreator.h
         core/ecs/IEntityCreator.h
+        core/console/command/FlyCommand.h
 )
 
 #Define version information

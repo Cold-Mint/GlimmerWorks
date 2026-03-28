@@ -25,6 +25,7 @@
 #include "core/vfs/StdFileProvider.h"
 #include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
+#include "core/console/command/FlyCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/command/PlaceCommand.h"
 #include "core/console/command/SummonCommand.h"
@@ -230,6 +231,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<VFSCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<FlyCommand>(this));
 
     commandExecutor_ = std::make_unique<CommandExecutor>();
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();

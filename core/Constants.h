@@ -28,6 +28,7 @@ static constexpr std::string CLEAR_COMMAND_NAME = "clear";
 static constexpr std::string LOOT_COMMAND_NAME = "loot";
 static constexpr std::string PLACE_COMMAND_NAME = "place";
 static constexpr std::string ECS_COMMAND_NAME = "ecs";
+static constexpr std::string FLY_COMMAND_NAME = "fly";
 static constexpr std::string FULL_BIOME_DECORATOR = "fill";
 static constexpr std::string SURFACE_BIOME_DECORATOR = "surface";
 static constexpr std::string TREE_BIOME_DECORATOR = "tree";
@@ -296,6 +297,7 @@ static constexpr std::string PROJECT_NAME = "GlimmerWorks";
 
 constexpr float GRAVITY_SCALE = 1.8F; // 重力缩放（优化下落手感）
 constexpr int JUMP_BUFFER_FRAMES = 4;
+constexpr int FLY_SPEED = TILE_SIZE * 25;
 
 //How often should the information of picked-up items be accumulated and settled (unit: seconds)?
 //累积多长时间结算一次捡起的物品信息（单位：秒）

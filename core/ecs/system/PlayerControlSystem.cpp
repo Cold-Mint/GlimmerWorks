@@ -31,63 +31,74 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
     if (playerComponent == nullptr) {
         return;
     }
-    const auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(player);
-    if (rigidBody2DComponent == nullptr) {
-        return;
-    }
-
-    if (!rigidBody2DComponent->IsReady()) {
-        return;
-    }
-
-    const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
-    bool isGrounded = OnGround(playerComponent);
-    const b2Vec2 currentVel = b2Body_GetLinearVelocity(bodyId);
-    b2MassData massData = b2Body_GetMassData(bodyId);
-    float targetAccX = playerComponent->movementAcceleration * playerComponent->horizontalInput;
-    if (!isGrounded) {
-        targetAccX *= playerComponent->airControlFactor;
-    }
-    float horizontalForce = massData.mass * targetAccX;
-    if (playerComponent->horizontalInput == 0) {
-        const float brakeFactor = isGrounded ? 8.0F : 2.0F;
-        horizontalForce = -currentVel.x * massData.mass * brakeFactor;
-
-        if (fabs(currentVel.x) < 0.1F) {
-            b2Body_SetLinearVelocity(bodyId, {0.0F, currentVel.y});
-            horizontalForce = 0.0F;
+    if (playerComponent->isFlying) {
+        auto *transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(player);
+        if (transform2DComponent == nullptr) {
+            return;
         }
-    }
-    b2Body_ApplyForceToCenter(bodyId, {horizontalForce, 0.0F}, true);
-    if (playerComponent->jump) {
-        playerComponent->jumpBuffer = JUMP_BUFFER_FRAMES;
-        playerComponent->jump = false;
-    }
-    if (playerComponent->jumpBuffer > 0 && isGrounded) {
-        b2Vec2 jumpImpulse = {0, massData.mass * playerComponent->jumpForce};
-        b2Body_ApplyLinearImpulseToCenter(bodyId, jumpImpulse, true);
-        // Consumption buffer
-        // 消耗缓冲
-        playerComponent->jumpBuffer = 0;
-    }
-    //Decremental buffering per frame
-    //每帧递减缓冲
-    if (playerComponent->jumpBuffer > 0) {
-        playerComponent->jumpBuffer--;
-    }
-
-    if (std::abs(currentVel.x) > playerComponent->maxSpeed) {
-        //The horizontal speed has exceeded the maximum speed.
-        //水平方向速度，超过了最大速度。
-        if (currentVel.x > 0) {
-            b2Body_SetLinearVelocity(bodyId, {playerComponent->maxSpeed, currentVel.y});
-        } else {
-            b2Body_SetLinearVelocity(bodyId, {-playerComponent->maxSpeed, currentVel.y});
+        WorldVector2D velocity = {};
+        velocity.x = playerComponent->horizontalInput * delta * FLY_SPEED;
+        velocity.y = playerComponent->verticalInput * delta * FLY_SPEED;
+        transform2DComponent->SetPosition(transform2DComponent->GetPosition() + velocity);
+    } else {
+        const auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(player);
+        if (rigidBody2DComponent == nullptr) {
+            return;
         }
-    }
 
-    float gravityForce = massData.mass * GRAVITY_SCALE;
-    b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
+        if (!rigidBody2DComponent->IsReady()) {
+            return;
+        }
+
+        const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
+        bool isGrounded = OnGround(playerComponent);
+        const b2Vec2 currentVel = b2Body_GetLinearVelocity(bodyId);
+        b2MassData massData = b2Body_GetMassData(bodyId);
+        float targetAccX = playerComponent->movementAcceleration * playerComponent->horizontalInput;
+        if (!isGrounded) {
+            targetAccX *= playerComponent->airControlFactor;
+        }
+        float horizontalForce = massData.mass * targetAccX;
+        if (playerComponent->horizontalInput == 0) {
+            const float brakeFactor = isGrounded ? 8.0F : 2.0F;
+            horizontalForce = -currentVel.x * massData.mass * brakeFactor;
+
+            if (fabs(currentVel.x) < 0.1F) {
+                b2Body_SetLinearVelocity(bodyId, {0.0F, currentVel.y});
+                horizontalForce = 0.0F;
+            }
+        }
+        b2Body_ApplyForceToCenter(bodyId, {horizontalForce, 0.0F}, true);
+        if (playerComponent->jump) {
+            playerComponent->jumpBuffer = JUMP_BUFFER_FRAMES;
+            playerComponent->jump = false;
+        }
+        if (playerComponent->jumpBuffer > 0 && isGrounded) {
+            b2Vec2 jumpImpulse = {0, massData.mass * playerComponent->jumpForce};
+            b2Body_ApplyLinearImpulseToCenter(bodyId, jumpImpulse, true);
+            // Consumption buffer
+            // 消耗缓冲
+            playerComponent->jumpBuffer = 0;
+        }
+        //Decremental buffering per frame
+        //每帧递减缓冲
+        if (playerComponent->jumpBuffer > 0) {
+            playerComponent->jumpBuffer--;
+        }
+
+        if (std::abs(currentVel.x) > playerComponent->maxSpeed) {
+            //The horizontal speed has exceeded the maximum speed.
+            //水平方向速度，超过了最大速度。
+            if (currentVel.x > 0) {
+                b2Body_SetLinearVelocity(bodyId, {playerComponent->maxSpeed, currentVel.y});
+            } else {
+                b2Body_SetLinearVelocity(bodyId, {-playerComponent->maxSpeed, currentVel.y});
+            }
+        }
+
+        float gravityForce = massData.mass * GRAVITY_SCALE;
+        b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
+    }
     const auto hotBarEntity = worldContext_->GetHotBarEntity();
     if (WorldContext::IsEmptyEntityId(hotBarEntity)) {
         LogCat::d("PlayerControlSystem hotBarEntity null");
@@ -254,7 +265,28 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event &event) {
                 }
             }
         }
-        if (event.key.key == SDLK_SPACE && pressed && !event.key.repeat) {
+
+        bool isWorS = false;
+        if (event.key.key == SDLK_W) {
+            playerComponent->pressedW = pressed;
+            isWorS = true;
+        }
+        if (event.key.key == SDLK_S) {
+            playerComponent->pressedS = pressed;
+            isWorS = true;
+        }
+
+        if (isWorS) {
+            playerComponent->verticalInput = 0.0F;
+            if (playerComponent->pressedW) {
+                playerComponent->verticalInput += 1.0F;
+            }
+            if (playerComponent->pressedS) {
+                playerComponent->verticalInput -= 1.0F;
+            }
+        }
+
+        if (event.key.key == SDLK_W && pressed && !event.key.repeat) {
             playerComponent->jump = true;
         }
         if (event.key.key == SDLK_Q) {

@@ -1,4 +1,4 @@
-configVersion = 1
+config_version = 1
 
 [window]
 # Window width (pixels)
@@ -15,15 +15,15 @@ resizable = true
 framerate = 60.0
 # UI scaling factor
 # UI界面缩放比例
-uiScale = 1.0
+ui_scale = 1.0
 # Enable vertical sync (VSync)
 # 启用垂直同步
-vSync = true
+vsync = true
 
 [audio]
 # Master volume
 # 主音量
-masterVolume = 1.0
+master_volume = 1.0
 # channels
 # 声道数
 channels = 2
@@ -61,14 +61,14 @@ format = "F32"
 type = 0
 #The number of pre-allocated orbits of this type
 #该类型预分配的轨道数量
-trackCount = 1
+track_count = 1
 volume = 1.0
 
 [[audio.track]]
 #AMBIENT
 #环境音效
 type = 1
-trackCount = 20
+track_count = 20
 volume = 1.0
 
 [world]
@@ -76,24 +76,24 @@ volume = 1.0
 # 屏幕外区块预加载配置（视野范围扩展）
 # Preload chunk outer radius (view range expansion)
 # 区块预加载外扩范围（视野范围扩展）
-preloadChunkRadius = 1.0
+preload_chunk_radius = 1.0
 # Preload structure radius (terrain/structure data pre-calc)
 # 结构预加载范围（地形/结构数据预计算）
-preloadStructureRadius = 5.0
+preload_structure_radius = 5.0
 
 [mods]
 # Data pack storage path
 # 数据包存储路径
-dataPackPath = "mods/data_packs"
+data_pack_path = "mods/data_packs"
 # Resource pack storage path
 # 资源包存储路径
-resourcePackPath = "mods/resource_packs"
+resource_pack_path = "mods/resource_packs"
 # Enabled data packs (list of pack IDs)
 # 启用的数据包（包ID列表）
-enabledDataPack = ["glimmerworks"]
+enabled_data_pack = ["glimmerworks"]
 # Enabled resource packs (list of pack IDs)
 # 启用的资源包（包ID列表）
-enabledResourcePack = ["glimmerworks_res"]
+enabled_resource_pack = ["glimmerworks_res"]
 # Supported audio formats
 # 支持的音频格式
 # The SDL_mix library used in the game can decode more audio formats. However, in order to standardize the audio format used, it is restricted here to only load the following types.
@@ -102,18 +102,19 @@ enabledResourcePack = ["glimmerworks_res"]
 # 排在前面的音频会被优先加载。例如supportedAudioFormats = ["ogg"，"wav"]，查找"block_brack"时，会优先搜索"block_brack.ogg"其次是"block_brack.wav"
 # The release build has been trimmed to support only OGG. To support additional formats, you need to modify the CMakeLists.txt and recompile the game.
 # 发行版已被裁减为仅支持ogg，支持更多格式需要修改CMakeLists.txt重新编译游戏。
-supportedAudioFormats = ["ogg"]
+supported_audio_formats = ["ogg"]
 # Supported texture formats
 # 支持的纹理格式
 # The textures that come earlier will be loaded first.
 # 排在前面的纹理会被优先加载。
 # The release build has been trimmed to support only PNG. To support additional formats, you need to modify the CMakeLists.txt and recompile the game.
 # 发行版已被裁减为仅支持png，支持更多格式需要修改CMakeLists.txt重新编译游戏。
-supportedTextureFormats = ["png"]
+supported_texture_formats = ["png"]
+
 [debug]
 # Show debug panel in game
 # 游戏内显示调试面板
-displayDebugPanel = false
+display_debug_panel = false
 # Render Box2D collision shapes
 # 渲染Box2D物理碰撞形状
-displayBox2dShape = false
+display_box2d_shape = false

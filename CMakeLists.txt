@@ -1268,6 +1268,12 @@ else ()
 endif ()
 
 if (WIN32)
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/protobuf-build/third_party/utf8_range/libutf8_validity.${LIB_SUFFIX}" DESTINATION ${LIB_DIR})
+else ()
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/protobuf-build/third_party/utf8_range/libutf8_validity.${LIB_SUFFIX}.34.1.0" DESTINATION ${LIB_DIR})
+endif ()
+
+if (WIN32)
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl-build/libSDL3.${LIB_SUFFIX}" DESTINATION ${LIB_DIR})
 else ()
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl-build/libSDL3.${LIB_SUFFIX}.0" DESTINATION ${LIB_DIR})

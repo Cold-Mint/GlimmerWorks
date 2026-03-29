@@ -39,8 +39,6 @@ namespace glimmer {
 
     //@genNextLine(ResourcePackManifest|资源包包清单)
     struct ResourcePackManifest : PackManifest {
-        //@genNextLine(test无效果|测试字段无效果)
-        int test = 0;
     };
 }
 

@@ -60,7 +60,7 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
                     RESOURCE_REF_CORE, TILE_ID_WATER)) {
                 if (GetAmount() > 0) {
                     worldContext->GetAppContext()->GetAudioManager()->TryPlayFree(
-                        AMBIENT, tile_->GetBlockPlaceSFX(), 0);
+                        AMBIENT, tile_->GetPlaceSFX(), 0);
                     auto tile = std::make_unique<Tile>(*tile_);
                     tile->SetPlayerPlaced(true);
                     (void) tileLayer->SetTile(

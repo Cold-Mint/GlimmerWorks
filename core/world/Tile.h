@@ -22,7 +22,7 @@ namespace glimmer {
         std::optional<std::string> description_;
         std::shared_ptr<SDL_Texture> texture_;
         std::shared_ptr<MIX_Audio> breakSFX_;
-        std::shared_ptr<MIX_Audio> blockPlaceSFX_;
+        std::shared_ptr<MIX_Audio> placeSFX_;
         bool customLootTable_ = false;
         ResourceRef lootTable_;
         float hardness_ = 1.0F;
@@ -50,7 +50,7 @@ namespace glimmer {
 
         [[nodiscard]] MIX_Audio *GetBreakSFX() const;
 
-        [[nodiscard]] MIX_Audio *GetBlockPlaceSFX() const;
+        [[nodiscard]] MIX_Audio *GetPlaceSFX() const;
 
         void SetPlayerPlaced(bool playerPlaced);
 

@@ -19,9 +19,9 @@ namespace glimmer {
     // struct from<glimmer::ResourceRef> {
     //     static glimmer::ResourceRef from_toml(const value &v) {
     //         glimmer::ResourceRef r;
-    //         r.SetPackageId(toml::find<std::string>(v, "packId"));
-    //         r.SetResourceType(glimmer::ResourceRef::ResolveResourceType(toml::find<std::string>(v, "resourceType")));
-    //         r.SetResourceKey(toml::find<std::string>(v, "resourceKey"));
+    //         r.SetPackageId(toml::find<std::string>(v, "pack_id"));
+    //         r.SetResourceType(glimmer::ResourceRef::ResolveResourceType(toml::find<std::string>(v, "resource_type")));
+    //         r.SetResourceKey(toml::find<std::string>(v, "resource_key"));
     //         return r;
     //     }
     // };

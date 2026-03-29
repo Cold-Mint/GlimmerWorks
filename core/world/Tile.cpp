@@ -42,8 +42,8 @@ MIX_Audio *glimmer::Tile::GetBreakSFX() const {
     return breakSFX_.get();
 }
 
-MIX_Audio *glimmer::Tile::GetBlockPlaceSFX() const {
-    return blockPlaceSFX_.get();
+MIX_Audio *glimmer::Tile::GetPlaceSFX() const {
+    return placeSFX_.get();
 }
 
 void glimmer::Tile::SetPlayerPlaced(const bool playerPlaced) {
@@ -114,8 +114,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     if (resourceLocator != nullptr) {
         tile->texture_ = resourceLocator->FindTexture(
             tileResource->texture);
-        tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSFX);
-        tile->blockPlaceSFX_ = resourceLocator->FindAudio(tileResource->blockPlaceSFX);
+        tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);
+        tile->placeSFX_ = resourceLocator->FindAudio(tileResource->placeSfx);
     }
 
     return tile;

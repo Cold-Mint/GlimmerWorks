@@ -1,205 +1,57 @@
-start_game = "Start Game"
-settings = "Settings"
-mods = "Mods"
-exit_game = "Exit"
-console = "Console"
-command_not_found = "Command Not Found：{}"
-execution_failed = "{} execution failure"
-executed_success = "{} successful execution"
-command_is_empty = "The command is empty"
-create_world = "Create World"
-cancel = "Cancel"
-confirm = "Confirm"
-world_name = "World Name"
-seed = "Seed"
-random = "Random"
-command_info = "A total of {} commands have been registered: "
-awake_body_count = "Awake Body Count: {}"
-get_actual_path_error = "Failed to obtain the real path."
-unknown_asset_type = "Unknown asset type."
-unknown_command_parameters = "Unknown command parameters."
-world_context_is_null = "Not yet bound to the world context."
-insufficient_parameter_length = "The parameter length is insufficient. It is at least {}, but in reality, it is {}."
-entry_cannot_found_in_configuration_file = "The entry {} cannot be found in the configuration file."
-configuration_update = "The configuration {} has been changed to {}."
-item_id_not_found = "The item Id was not found."
-loot_table_not_found = "The loot table ID was not found."
-item_container_is_null = "Item container is null."
-composable_item_is_null = "Composable item is null."
 ability_item_is_null = "Ability item is null."
-item_resource_is_null = "itemResource is null."
-tile_resource_is_null = "tileResource is null."
-min_x_is_greater_than_max_x = "min X cannot be greater than max X."
-folder_creation_failed = "The folder {} failed to be created."
-file_writing_failed = "The file {} failed to be written."
-failed_to_load_license = "Failed to load the local LICENSE file.\nThis file should be included with every distribution of this program.\nIf it is missing, please check your installation or view the license online at:\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE"
-cant_find_object = "The game object can't be found."
-teleport_entity = "The entity with Id {} has been sent to x={},y={}."
-map_manifest_is_null = "The mapManifest read operation failed."
-saved_games = "saved Games"
-load_game = "load Game"
+area_marker_tip = "Width: {}\nHeight: {}\nArea: {}\n"
+awake_body_count = "Awake Body Count: {}"
+can_mine_block_tip = "Can Mine Block"
+cancel = "Cancel"
+cant_find_object = "The game object can"t be found."
+chain_mining_tip = "{}Chain Mining Radius"
+command_info = "A total of {} commands have been registered: "
+command_is_empty = "The command is empty"
+command_not_found = "Command Not Found：{}"
+composable_item_is_null = "Composable item is null."
+configuration_update = "The configuration {} has been changed to {}."
+confirm = "Confirm"
+console = "Console"
+create_world = "Create World"
 delete_game = "delete Game"
-want_delete_this_save = "Are you sure you want to delete this save?"
-saves_list = "Saves List"
+efficiency_tip = "{}% excavation efficiency"
+entry_cannot_found_in_configuration_file = "The entry {} cannot be found in the configuration file."
+executed_success = "{} successful execution"
+execution_failed = "{} execution failure"
+exit_game = "Exit"
+failed_to_load_license = "Failed to load the local LICENSE file.\nThis file should be included with every distribution of this program.\nIf it is missing, please check your installation or view the license online at:\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE"
+file_writing_failed = "The file {} failed to be written."
+folder_creation_failed = "The folder {} failed to be created."
+fumble_tip = "{}％Fumble"
+get_actual_path_error = "Failed to obtain the real path."
+insufficient_parameter_length = "The parameter length is insufficient. It is at least {}, but in reality, it is {}."
+item_container_is_null = "Item container is null."
+item_id_not_found = "The item Id was not found."
+item_resource_is_null = "itemResource is null."
+load_game = "load Game"
+loot_table_not_found = "The loot table ID was not found."
+map_manifest_is_null = "The mapManifest read operation failed."
+min_x_is_greater_than_max_x = "min X cannot be greater than max X."
+mods = "Mods"
 pause = "Pause"
+precision_mining_tip = "Precision mining"
+random = "Random"
 restore = "Restore"
 save_and_exit = "Save and Exit"
+saved_games = "saved Games"
+saves_list = "Saves List"
 screenshot_saved_failed = "Screenshot saving failed {}."
 screenshot_saved_success = "The screenshot has been saved to {}."
-area_marker_tip = '''
-Width: {}
-Height: {}
-Area: {}
-'''
-efficiency_tip = "{}% excavation efficiency"
-precision_mining_tip = "Precision mining"
-fumble_tip = "{}％Fumble"
-can_mine_block_tip = "Can Mine Block"
-chain_mining_tip = "{}Chain Mining Radius"
-world_name_prefix = [
-    "Serene",
-    "Mystic",
-    "Ancient",
-    "Barren",
-    "Verdant",
-    "Sacred",
-    "Fantastical",
-    "Slumbering",
-    "Tranquil",
-    "Silent",
-    "Glimmering",
-    "Enchanted",
-    "Wilderness",
-    "Prosperous",
-    "Twilight",
-    "Eternal",
-    "Misty",
-    "Captivating",
-    "Untamed",
-    "Whimsical",
-    "Gentle",
-    "Luminous",
-    "Gloomy",
-    "Dazzling",
-    "Dreamlike",
-    "Languid",
-    "Blazing",
-    "Crisp",
-    "Ethereal",
-    "Profound",
-    "Vibrant",
-    "Celestial",
-    "Smooth",
-    "Floating",
-    "Starfallen",
-    "Moonveiled",
-    "Windwhisper",
-    "Flameweaver",
-    "Icebound",
-    "Fluffy",
-    "Ashen",
-    "Frostkissed",
-    "Mistveiled",
-    "Stellaspiral",
-    "Dragonbone",
-    "DivineRealm",
-    "Abyssal",
-    "Spiritvein",
-    "IllusoryDay",
-    "Evernight",
-    "Meteorstrike",
-    "Soulhaunt",
-    "Myriad",
-    "Omnipresent",
-    "Firmament",
-    "Abyss",
-    "Auroral",
-    "Thunderous",
-    "Tidal",
-    "Dusty"
-]
-world_name_suffix = [
-    "Continent",
-    "Ocean",
-    "Ruins",
-    "Stars",
-    "Sanctuary",
-    "Legends",
-    "Echoes",
-    "Illusion",
-    "Garden",
-    "Forest",
-    "River",
-    "Mountains",
-    "StarrySky",
-    "Dreamscape",
-    "Firmament",
-    "Abyss",
-    "Crystal",
-    "Ceramics",
-    "Instrument",
-    "Canyon",
-    "Cavern",
-    "Glacier",
-    "Oasis",
-    "DivineRealm",
-    "DemonRealm",
-    "Tide",
-    "NightBreeze",
-    "DawnMist",
-    "Firefly",
-    "WindChime",
-    "Epic",
-    "Scroll",
-    "Ballad",
-    "Amber",
-    "LapisLazuli",
-    "Agate",
-    "Coral",
-    "SpiritRealm",
-    "Starpath",
-    "MoonGrotto",
-    "Dragon'sNest",
-    "ElvenValley",
-    "Mint",
-    "PhantomSea",
-    "WhisperingWoods",
-    "EvernightCitadel",
-    "MeteorPlatform",
-    "SoulTomb",
-    "CloudRealm",
-    "MistIsle",
-    "SpiritRuins",
-    "HolyAltar",
-    "DemonHall",
-    "Starship",
-    "FloatingIsle",
-    "SkyIsland",
-    "SpiritSpring",
-    "IllusionMirror",
-    "DivineEdict",
-    "DemonTongue",
-    "AncientTree",
-    "SecretSpring",
-    "RuneCircle",
-    "Portal",
-    "LandofForgotten",
-    "WhisperingForest",
-    "ShatteredSpire"
-]
-slogans = ["Is saying thank you to AI a waste?",
-    "Games are not commodities!",
-    "Creation refuses to be tamed by capital.",
-    "Open world, boundless creativity.",
-    "Huh? It's all hidden in TOML files.",
-    "Have you tried opening those ordinary-looking files?",
-    "Do you really like pity rolls and gacha pools?",
-    "No one steps into the exact same world twice.",
-    "Press ~ to rewrite some rules.",
-    "give abilityItem glimmerworks:area_marker",
-    "Meow~",
-    "Ciallo～(∠・ω< )⌒☆",
-    "I shall one day return to dust, yet the world of open source shall forever thrive.",
-    "Hey… shall we weave our own delusions together?",
-    "花の塔-さユり"
-]
+seed = "Seed"
+settings = "Settings"
+slogans = ["Is saying thank you to AI a waste?", "Games are not commodities!", "Creation refuses to be tamed by capital.", "Open world, boundless creativity.", "Huh? It"s all hidden in TOML files.", "Have you tried opening those ordinary-looking files?", "Do you really like pity rolls and gacha pools?", "No one steps into the exact same world twice.", "Press ~ to rewrite some rules.", "give abilityItem glimmerworks:area_marker", "Meow~", "Ciallo～(∠・ω< )⌒☆", "I shall one day return to dust, yet the world of open source shall forever thrive.", "Hey… shall we weave our own delusions together?", "花の塔-さユり"]
+start_game = "Start Game"
+teleport_entity = "The entity with Id {} has been sent to x={},y={}."
+tile_resource_is_null = "tileResource is null."
+unknown_asset_type = "Unknown asset type."
+unknown_command_parameters = "Unknown command parameters."
+want_delete_this_save = "Are you sure you want to delete this save?"
+world_context_is_null = "Not yet bound to the world context."
+world_name = "World Name"
+world_name_prefix = ["Serene", "Mystic", "Ancient", "Barren", "Verdant", "Sacred", "Fantastical", "Slumbering", "Tranquil", "Silent", "Glimmering", "Enchanted", "Wilderness", "Prosperous", "Twilight", "Eternal", "Misty", "Captivating", "Untamed", "Whimsical", "Gentle", "Luminous", "Gloomy", "Dazzling", "Dreamlike", "Languid", "Blazing", "Crisp", "Ethereal", "Profound", "Vibrant", "Celestial", "Smooth", "Floating", "Starfallen", "Moonveiled", "Windwhisper", "Flameweaver", "Icebound", "Fluffy", "Ashen", "Frostkissed", "Mistveiled", "Stellaspiral", "Dragonbone", "DivineRealm", "Abyssal", "Spiritvein", "IllusoryDay", "Evernight", "Meteorstrike", "Soulhaunt", "Myriad", "Omnipresent", "Firmament", "Abyss", "Auroral", "Thunderous", "Tidal", "Dusty"]
+world_name_suffix = ["Continent", "Ocean", "Ruins", "Stars", "Sanctuary", "Legends", "Echoes", "Illusion", "Garden", "Forest", "River", "Mountains", "StarrySky", "Dreamscape", "Firmament", "Abyss", "Crystal", "Ceramics", "Instrument", "Canyon", "Cavern", "Glacier", "Oasis", "DivineRealm", "DemonRealm", "Tide", "NightBreeze", "DawnMist", "Firefly", "WindChime", "Epic", "Scroll", "Ballad", "Amber", "LapisLazuli", "Agate", "Coral", "SpiritRealm", "Starpath", "MoonGrotto", "Dragon"sNest", "ElvenValley", "Mint", "PhantomSea", "WhisperingWoods", "EvernightCitadel", "MeteorPlatform", "SoulTomb", "CloudRealm", "MistIsle", "SpiritRuins", "HolyAltar", "DemonHall", "Starship", "FloatingIsle", "SkyIsland", "SpiritSpring", "IllusionMirror", "DivineEdict", "DemonTongue", "AncientTree", "SecretSpring", "RuneCircle", "Portal", "LandofForgotten", "WhisperingForest", "ShatteredSpire"]

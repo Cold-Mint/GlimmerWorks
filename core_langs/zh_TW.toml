@@ -1,77 +1,57 @@
-start_game = "開始遊戲"
-settings = "設定"
-mods = "模組"
-exit_game = "退出遊戲"
-console = "終端機"
-command_not_found = "命令未找到：{}"
-execution_failed = "{}執行失敗"
-executed_success = "{}執行成功"
-command_is_empty = "命令為空"
-create_world = "創建世界"
-cancel = "取消"
-confirm = "確認"
-world_name = "世界名稱"
-seed = "種子"
-random = "隨機"
-command_info = "共{}個命令已註冊："
-awake_body_count = "活躍的物理碰撞體數量：{}"
-get_actual_path_error = "取得真實路徑失敗。"
-unknown_asset_type = "未知的資產類型。"
-unknown_command_parameters = "未知的命令參數。"
-world_context_is_null = "尚未綁定到世界上下文。"
-insufficient_parameter_length = "參數長度不足，至少為{}，實際為{}。"
-entry_cannot_found_in_configuration_file = "在設定檔內找不到項目{}。"
-configuration_update = "設定{}已被更改為{}。"
-item_id_not_found = "物品ID未找到。"
-loot_table_not_found = "戰利品表Id未找到。"
-item_container_is_null = "物品容器為空。"
-composable_item_is_null = "可組合物品為空。"
 ability_item_is_null = "Ability物品為空。"
-item_resource_is_null = "itemResource為空。"
-tile_resource_is_null = "tileResource為空。"
-min_x_is_greater_than_max_x = "最小X座標不能大於最大X座標。"
-folder_creation_failed = "資料夾{}創建失敗。"
-file_writing_failed = "檔案{}寫入失敗。"
-failed_to_load_license = "載入本地LICENSE檔案失敗。\n此檔案應包含在本程式的每個發行版本中。\n若遺失，請檢查您的安裝或線上查看授權條款：\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE"
+area_marker_tip = "寬度：{}\n高度：{}\n麵積：{}\n"
+awake_body_count = "活躍的物理碰撞體數量：{}"
+can_mine_block_tip = "允許挖掘方塊"
+cancel = "取消"
 cant_find_object = "找不到遊戲物件。"
-teleport_entity = "已將ID為{}的實體，傳送至x={},y={}。"
-map_manifest_is_null = "mapManifest讀取失敗。"
-saved_games = "已儲存的遊戲"
-load_game = "載入遊戲"
+chain_mining_tip = "{}連鎖採集半徑"
+command_info = "共{}個命令已註冊："
+command_is_empty = "命令為空"
+command_not_found = "命令未找到：{}"
+composable_item_is_null = "可組合物品為空。"
+configuration_update = "設定{}已被更改為{}。"
+confirm = "確認"
+console = "終端機"
+create_world = "創建世界"
 delete_game = "刪除存檔"
-want_delete_this_save = "您確定要刪除此存檔嗎？"
-saves_list = "存檔列表"
+efficiency_tip = "{}％挖掘效率"
+entry_cannot_found_in_configuration_file = "在設定檔內找不到項目{}。"
+executed_success = "{}執行成功"
+execution_failed = "{}執行失敗"
+exit_game = "退出遊戲"
+failed_to_load_license = "載入本地LICENSE檔案失敗。\n此檔案應包含在本程式的每個發行版本中。\n若遺失，請檢查您的安裝或線上查看授權條款：\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE"
+file_writing_failed = "檔案{}寫入失敗。"
+folder_creation_failed = "資料夾{}創建失敗。"
+fumble_tip = "{}％手滑"
+get_actual_path_error = "取得真實路徑失敗。"
+insufficient_parameter_length = "參數長度不足，至少為{}，實際為{}。"
+item_container_is_null = "物品容器為空。"
+item_id_not_found = "物品ID未找到。"
+item_resource_is_null = "itemResource為空。"
+load_game = "載入遊戲"
+loot_table_not_found = "戰利品表Id未找到。"
+map_manifest_is_null = "mapManifest讀取失敗。"
+min_x_is_greater_than_max_x = "最小X座標不能大於最大X座標。"
+mods = "模組"
 pause = "暫停"
+precision_mining_tip = "精準采集"
+random = "隨機"
 restore = "恢復"
 save_and_exit = "儲存並退出"
+saved_games = "已儲存的遊戲"
+saves_list = "存檔列表"
 screenshot_saved_failed = "截圖保存失敗{}。"
 screenshot_saved_success = "截圖已保存至{}。"
-area_marker_tip = '''
-寬度：{}
-高度：{}
-麵積：{}
-'''
-efficiency_tip = "{}％挖掘效率"
-precision_mining_tip = "精準采集"
-chain_mining_tip = "{}連鎖採集半徑"
-fumble_tip = "{}％手滑"
-can_mine_block_tip = "允許挖掘方塊"
+seed = "種子"
+settings = "設定"
+slogans = ["對AI說謝謝是浪費嗎？", "遊戲不是商品！", "拒絕被資本馴服的創作。", "世界開源，創意無界。", "啊？都藏在toml裡", "你試過… 打開那些看起來很普通的檔案嗎？", "你真的喜歡保底和轉蛋池嗎？", "沒有人會踏入完全相同的世界。", "有些規則，按下～就能重新書寫。", "give abilityItem glimmerworks:area_marker", "喵～", "Ciallo～(∠・ω< )⌒☆", "我終將歸於塵埃，而開源的世界，永遠鮮活。", "吶，一起來編織謊言吧？", "花の塔-さユり"]
+start_game = "開始遊戲"
+teleport_entity = "已將ID為{}的實體，傳送至x={},y={}。"
+tile_resource_is_null = "tileResource為空。"
+unknown_asset_type = "未知的資產類型。"
+unknown_command_parameters = "未知的命令參數。"
+want_delete_this_save = "您確定要刪除此存檔嗎？"
+world_context_is_null = "尚未綁定到世界上下文。"
+world_name = "世界名稱"
 world_name_prefix = ["安靜", "神祕", "古老", "荒蕪", "蒼翠", "神聖", "幻想", "沉睡", "寧靜", "寂靜", "閃耀", "神奇", "荒野", "繁榮", "微光", "永恆", "迷霧", "迷人", "狂野", "奇幻", "溫柔", "流光", "幽暗", "璀璨", "夢幻", "慵懶", "熾烈", "清冽", "縹緲", "深邃", "斑斕", "空靈", "溫潤", "浮空", "星墜", "月落", "風吟", "火舞", "冰凝", "軟萌", "燼滅", "霜華", "霧隱", "星旋", "龍骸", "神域", "魔淵", "靈韻", "幻晝", "永夜", "隕星", "魂縈", "森羅", "萬象", "穹頂", "深淵", "極光", "雷鳴", "潮汐", "塵囂"]
 world_name_suffix = ["大陸", "海洋", "遺跡", "星辰", "秘境", "傳說", "迴響", "幻境", "花園", "森林", "河流", "山脈", "星空", "夢境", "天空", "深淵", "水晶", "陶瓷", "樂器", "峽谷", "溶洞", "冰川", "綠洲", "神域", "魔境", "潮汐", "晚風", "晨霧", "螢火", "風鈴", "詩篇", "畫卷", "歌謠", "琥珀", "琉璃", "瑪瑙", "珊瑚", "靈域", "星軌", "月窟", "龍巢", "精靈谷", "薄荷", "幻海", "迷蹤林", "永夜城", "隕星台", "魂塚", "雲境", "霧嶼", "靈墟", "聖壇", "魔殿", "星艦", "浮島", "空島", "靈泉", "幻鏡", "神諭", "魔語", "古樹", "秘泉", "符文陣", "傳送門", "遺忘之地", "低語森林", "破碎穹頂"]
-slogans = [
-    "對AI說謝謝是浪費嗎？",
-    "遊戲不是商品！",
-    "拒絕被資本馴服的創作。",
-    "世界開源，創意無界。",
-    "啊？都藏在toml裡",
-    "你試過… 打開那些看起來很普通的檔案嗎？",
-    "你真的喜歡保底和轉蛋池嗎？",
-    "沒有人會踏入完全相同的世界。",
-    "有些規則，按下～就能重新書寫。",
-    "give abilityItem glimmerworks:area_marker",
-    "喵～",
-    "Ciallo～(∠・ω< )⌒☆",
-    "我終將歸於塵埃，而開源的世界，永遠鮮活。",
-    "吶，一起來編織謊言吧？",
-    "花の塔-さユり"
-]

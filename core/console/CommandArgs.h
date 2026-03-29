@@ -9,6 +9,7 @@
 #include <optional>
 
 #include "../mod/ResourceRef.h"
+#include "core/BoolOrToggle.h"
 
 namespace glimmer {
     class CommandArgs {
@@ -37,6 +38,14 @@ namespace glimmer {
         [[nodiscard]] int GetSize() const;
 
         [[nodiscard]] bool AsBool(int index) const;
+
+        /**
+         *
+         * 转为bool值或者toggle
+         * @param index
+         * @return
+         */
+        [[nodiscard]] BoolOrToggle AsBoolOrToggle(int index) const;
 
         [[nodiscard]] int AsInt(int index) const;
 

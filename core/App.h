@@ -15,7 +15,8 @@ namespace glimmer {
         SDL_Renderer *renderer_;
         AppContext *appContext_;
         uint64_t lastTime_ = 0;
-        MIX_Mixer* mixer_;
+        MIX_Mixer *mixer_;
+        std::array<size_t, 12> commandIndexArray_ = {};
 
         void RendererUiMessage();
 
@@ -25,6 +26,8 @@ namespace glimmer {
         explicit App(AppContext *ac);
 
         bool Init();
+
+        void ExecuteHotkeyCommand(const HotkeyCommand &hotkeyCommand, int arrayIndex);
 
         void Run();
     };

@@ -433,7 +433,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         //当玩家按下Enter键后执行。
         if (command_[0] != '\0') {
             addMessage("> " + command_);
-            CommandExecutor::ExecuteAsync(command_, appContext->GetCommandManager(),
+            CommandExecutor::ExecuteAsyncSingle(command_, appContext->GetCommandManager(),
                                           [this](const CommandResult result, const std::string &cmd) {
                                               std::string message;
                                               std::string pattern;

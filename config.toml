@@ -118,3 +118,11 @@ display_debug_panel = false
 # Render Box2D collision shapes
 # 渲染Box2D物理碰撞形状
 display_box2d_shape = false
+
+[hotkey_f1]
+command_group = [
+    ["config set debug.display_debug_panel toggle", "config set debug.display_box2d_shape toggle", "config commit"],
+]
+
+[hotkey_f2]
+command_group = [["screenShot create"]]

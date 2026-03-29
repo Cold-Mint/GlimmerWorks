@@ -114,7 +114,7 @@ namespace glimmer {
 
         void SetRenderer(SDL_Renderer *renderer);
 
-        void CreateScreenshot();
+        void CreateScreenshot(std::function<void(const std::string &text)> onMessage);
 
         void SetFont(TTF_Font *font);
 

@@ -442,6 +442,38 @@ bool glimmer::App::Init() {
     return true;
 }
 
+void glimmer::App::ExecuteHotkeyCommand(const HotkeyCommand &hotkeyCommand, int arrayIndex) {
+    if (arrayIndex < 0 || arrayIndex >= HOTKEY_COUNT) {
+        return;
+    }
+    if (appContext_ == nullptr || hotkeyCommand.commandGroup.empty()) {
+        return;
+    }
+    CommandManager *commandManager = appContext_->GetCommandManager();
+    if (commandManager == nullptr) {
+        return;
+    }
+    const auto &groups = hotkeyCommand.commandGroup;
+    const size_t size = groups.size();
+    size_t index = commandIndexArray_[arrayIndex];
+    if (index < size) {
+        const auto &group = groups[index];
+        if (!group.empty()) {
+            CommandExecutor::ExecuteAsyncBatch(group, commandManager,
+                                               [](const CommandResult, const std::string &) {
+                                               },
+                                               [this](const std::string &text) {
+                                                   appContext_->AddUIMessage(text);
+                                               });
+        }
+    }
+    index++;
+    if (index >= size) {
+        index = 0;
+    }
+    commandIndexArray_[arrayIndex] = index;
+}
+
 void glimmer::App::Run() {
     Uint64 frameStart = SDL_GetTicks();
     float deltaTime = 0.0F;
@@ -453,6 +485,14 @@ void glimmer::App::Run() {
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
     auto &overlayScenes = sceneManager->GetOverlayScenes();
+    const std::vector<std::reference_wrapper<HotkeyCommand> > hotkeys = {
+        config->f1, config->f2,
+        config->f3, config->f4,
+        config->f5, config->f6,
+        config->f7, config->f8,
+        config->f9, config->f10,
+        config->f11, config->f12
+    };
     while (appContext_->Running() && sceneManager->GetSceneCount() > 0) {
         //The time interval of the target (in seconds)
         //目标的时间间隔（以秒为单位）
@@ -496,8 +536,11 @@ void glimmer::App::Run() {
                         }
                     }
                 }
-                if (event.key.key == SDLK_F2 && !event.key.repeat) {
-                    appContext_->CreateScreenshot();
+                for (int i = 0; i < HOTKEY_COUNT; ++i) {
+                    if (event.key.key == SDLK_F1 + i && !event.key.repeat) {
+                        ExecuteHotkeyCommand(hotkeys[i], i);
+                        break;
+                    }
                 }
             }
 #endif

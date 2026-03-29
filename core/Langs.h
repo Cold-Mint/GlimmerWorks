@@ -62,6 +62,10 @@ namespace glimmer {
         std::string canMineBlockTip;
         std::string fumbleTip;
         std::string chainMiningTip;
+        std::string configurationCommitSuccess;
+        std::string configurationCommitFail;
+        std::string flyEnable;
+        std::string flyDisable;
         std::vector<std::string> worldNamePrefix;
         std::vector<std::string> worldNameSuffix;
         std::vector<std::string> slogans;

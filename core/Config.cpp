@@ -16,6 +16,20 @@ struct toml::from<glimmer::AudioTrack> {
     }
 };
 
+template<>
+struct toml::from<glimmer::HotkeyCommand> {
+    static glimmer::HotkeyCommand from_toml(const value &v) {
+        glimmer::HotkeyCommand cmd{};
+        const auto &groupArray = toml::find<array>(v, "command_group");
+        for (const auto &innerArr: groupArray) {
+            auto strVec = toml::get<std::vector<std::string> >(innerArr);
+            cmd.commandGroup.emplace_back(std::move(strVec));
+        }
+        return cmd;
+    }
+};
+
+
 void glimmer::Config::LoadConfig(const toml::value &configValue) {
     configVersion = toml::find<int>(configValue, "config_version");
     window.height = toml::find<int>(configValue, "window", "height");
@@ -40,4 +54,16 @@ void glimmer::Config::LoadConfig(const toml::value &configValue) {
     audio.format = toml::find<std::string>(configValue, "audio", "format");
     debug.displayDebugPanel = toml::find<bool>(configValue, "debug", "display_debug_panel");
     debug.displayBox2dShape = toml::find<bool>(configValue, "debug", "display_box2d_shape");
+    f1 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f1");
+    f2 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f2");
+    f3 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f3");
+    f4 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f4");
+    f5 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f5");
+    f6 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f6");
+    f7 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f7");
+    f8 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f8");
+    f9 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f9");
+    f10 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f10");
+    f11 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f11");
+    f12 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f12");
 }

@@ -451,6 +451,10 @@ target_sources(GlimmerWorks
         core/ecs/FlowingTextCreator.cpp
         core/ecs/IEntityCreator.cpp
         core/console/command/FlyCommand.cpp
+        core/console/command/ScreenshotCommand.cpp
+        core/console/command/EchoCommand.cpp
+        core/console/suggestion/BooleanToggleDynamicSuggestions.cpp
+        core/BoolOrToggle.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -640,6 +644,10 @@ target_sources(GlimmerWorks
         core/ecs/FlowingTextCreator.h
         core/ecs/IEntityCreator.h
         core/console/command/FlyCommand.h
+        core/console/command/ScreenshotCommand.h
+        core/console/command/EchoCommand.h
+        core/console/suggestion/BooleanToggleDynamicSuggestions.h
+        core/BoolOrToggle.h
 )
 
 #Define version information

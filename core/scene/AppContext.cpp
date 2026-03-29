@@ -25,10 +25,13 @@
 #include "core/vfs/StdFileProvider.h"
 #include "core/console/command/ClearCommand.h"
 #include "core/console/command/ConfigCommand.h"
+#include "core/console/command/EchoCommand.h"
 #include "core/console/command/FlyCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/command/PlaceCommand.h"
+#include "core/console/command/ScreenshotCommand.h"
 #include "core/console/command/SummonCommand.h"
+#include "core/console/suggestion/BooleanToggleDynamicSuggestions.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/CoordinateDynamicSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
@@ -104,6 +107,10 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->canMineBlockTip = find<std::string>(value, "can_mine_block_tip");
     langs_->fumbleTip = find<std::string>(value, "fumble_tip");
     langs_->chainMiningTip = find<std::string>(value, "chain_mining_tip");
+    langs_->flyEnable = find<std::string>(value, "fly_enable");
+    langs_->flyDisable = find<std::string>(value, "fly_disable");
+    langs_->configurationCommitSuccess = find<std::string>(value, "configuration_commit_success");
+    langs_->configurationCommitFail = find<std::string>(value, "configuration_commit_fail");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "world_name_prefix");
     langs_->worldNameSuffix = find<std::vector<std::string> >(value, "world_name_suffix");
     langs_->slogans = find<std::vector<std::string> >(value, "slogans");
@@ -197,6 +204,7 @@ glimmer::AppContext::AppContext() {
         std::make_unique<CoordinateDynamicSuggestions>(X_DYNAMIC_SUGGESTIONS_NAME));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<MobDynamicSuggestions>(mobManager_.get()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BooleanToggleDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<VFSDynamicSuggestions>(vfs));
     dataPackManager_ = std::make_unique<DataPackManager>(vfs);
@@ -232,6 +240,8 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<EchoCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(this));
 
     commandExecutor_ = std::make_unique<CommandExecutor>();
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
@@ -332,16 +342,16 @@ void glimmer::AppContext::SetRenderer(SDL_Renderer *renderer) {
     this->renderer_ = renderer;
 }
 
-void glimmer::AppContext::CreateScreenshot() {
+void glimmer::AppContext::CreateScreenshot(std::function<void(const std::string &text)> onMessage) {
     if (!renderer_) {
-        AddUIMessage(fmt::format(
+        onMessage(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "renderer is null failed"));
         return;
     }
     if (!virtualFileSystem_->Exists("screenshots")) {
         if (!virtualFileSystem_->CreateFolder("screenshots")) {
-            AddUIMessage(fmt::format(
+            onMessage(fmt::format(
                 fmt::runtime(GetLangsResources()->screenshotSavedFailed),
                 "CreateFolder failed"));
             return;
@@ -349,14 +359,14 @@ void glimmer::AppContext::CreateScreenshot() {
     }
     const auto actualPath = virtualFileSystem_->GetActualPath("screenshots/" + GetTimeFileName());
     if (!actualPath.has_value()) {
-        AddUIMessage(fmt::format(
+        onMessage(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "GetActualPath failed"));
         return;
     }
     int width, height;
     if (!SDL_GetRenderOutputSize(renderer_, &width, &height)) {
-        AddUIMessage(fmt::format(
+        onMessage(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "SDL_GetRenderOutputSize failed"));
         return;
@@ -370,7 +380,7 @@ void glimmer::AppContext::CreateScreenshot() {
         renderer_, &sdlRect);
     if (surface == nullptr) {
         SDL_DestroySurface(surface);
-        AddUIMessage(fmt::format(
+        onMessage(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "SDL_RenderReadPixels failed"));
         return;
@@ -378,11 +388,11 @@ void glimmer::AppContext::CreateScreenshot() {
     const bool result = IMG_SavePNG(surface, actualPath.value().c_str());
     SDL_DestroySurface(surface);
     if (result) {
-        AddUIMessage(fmt::format(
+        onMessage(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedSuccess),
             actualPath.value()));
     } else {
-        AddUIMessage(fmt::format(
+        onMessage(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "IMG_SavePNG Failed"));
     }

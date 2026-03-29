@@ -29,10 +29,13 @@ static constexpr std::string LOOT_COMMAND_NAME = "loot";
 static constexpr std::string PLACE_COMMAND_NAME = "place";
 static constexpr std::string ECS_COMMAND_NAME = "ecs";
 static constexpr std::string FLY_COMMAND_NAME = "fly";
+static constexpr std::string ECHO_COMMAND_NAME = "echo";
+static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
 static constexpr std::string FULL_BIOME_DECORATOR = "fill";
 static constexpr std::string SURFACE_BIOME_DECORATOR = "surface";
 static constexpr std::string TREE_BIOME_DECORATOR = "tree";
 static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
+static constexpr std::string BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME = "&bool_toggle";
 static constexpr std::string X_DYNAMIC_SUGGESTIONS_NAME = "&x";
 static constexpr std::string Y_DYNAMIC_SUGGESTIONS_NAME = "&y";
 static constexpr std::string MOB_DYNAMIC_SUGGESTIONS_NAME = "&mob";
@@ -54,6 +57,9 @@ static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_BIOME = "biome";
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_SURFACE = "surface";
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HEIGHT = "height";
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HORIZONTAL_SPACING = "hSpacing";
+
+static constexpr std::string TOGGLE_KEY_WORD = "toggle";
+static constexpr int HOTKEY_COUNT = 12;
 
 /**
  * Resource ref

@@ -46,6 +46,10 @@ namespace glimmer {
         float volume;
     };
 
+    struct HotkeyCommand {
+        std::vector<std::vector<std::string> > commandGroup;
+    };
+
     struct Audio {
         float masterVolume;
         int channels;
@@ -63,6 +67,18 @@ namespace glimmer {
         Debug debug{};
         Audio audio{};
         int configVersion = 1;
+        HotkeyCommand f1{};
+        HotkeyCommand f2{};
+        HotkeyCommand f3{};
+        HotkeyCommand f4{};
+        HotkeyCommand f5{};
+        HotkeyCommand f6{};
+        HotkeyCommand f7{};
+        HotkeyCommand f8{};
+        HotkeyCommand f9{};
+        HotkeyCommand f10{};
+        HotkeyCommand f11{};
+        HotkeyCommand f12{};
 
         void LoadConfig(const toml::value &configValue);
     };

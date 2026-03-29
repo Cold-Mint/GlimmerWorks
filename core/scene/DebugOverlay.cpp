@@ -15,12 +15,6 @@ glimmer::DebugOverlay::DebugOverlay(AppContext *context)
 }
 
 bool glimmer::DebugOverlay::HandleEvent(const SDL_Event &event) {
-    if (event.type == SDL_EVENT_KEY_DOWN) {
-        if (event.key.scancode == SDL_SCANCODE_F1) {
-            appContext->GetConfig()->debug.displayDebugPanel = !appContext->GetConfig()->debug.displayDebugPanel;
-            return true;
-        }
-    }
     return false;
 }
 

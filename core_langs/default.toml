@@ -1,62 +1,62 @@
-startGame = "Start Game"
+start_game = "Start Game"
 settings = "Settings"
 mods = "Mods"
-exitGame = "Exit"
+exit_game = "Exit"
 console = "Console"
-commandNotFound = "Command Not Found：{}"
-executionFailed = "{} execution failure"
-executedSuccess = "{} successful execution"
-commandIsEmpty = "The command is empty"
-createWorld = "Create World"
+command_not_found = "Command Not Found：{}"
+execution_failed = "{} execution failure"
+executed_success = "{} successful execution"
+command_is_empty = "The command is empty"
+create_world = "Create World"
 cancel = "Cancel"
 confirm = "Confirm"
-worldName = "World Name"
+world_name = "World Name"
 seed = "Seed"
 random = "Random"
-commandInfo = "A total of {} commands have been registered: "
-awakeBodyCount = "Awake Body Count: {}"
-getActualPathError = "Failed to obtain the real path."
-unknownAssetType = "Unknown asset type."
-unknownCommandParameters = "Unknown command parameters."
-worldContextIsNull = "Not yet bound to the world context."
-insufficientParameterLength = "The parameter length is insufficient. It is at least {}, but in reality, it is {}."
-entryCannotFoundInConfigurationFile = "The entry {} cannot be found in the configuration file."
-configurationUpdate = "The configuration {} has been changed to {}."
-itemIdNotFound = "The item Id was not found."
-lootTableNotFound = "The loot table ID was not found."
-itemContainerIsNull = "Item container is null."
-composableItemIsNull = "Composable item is null."
-abilityItemIsNull = "Ability item is null."
-itemResourceIsNull = "itemResource is null."
-tileResourceIsNull = "tileResource is null."
-minXIsGreaterThanMaxX = "min X cannot be greater than max X."
-folderCreationFailed = "The folder {} failed to be created."
-fileWritingFailed = "The file {} failed to be written."
-failedToLoadLicense = "Failed to load the local LICENSE file.\nThis file should be included with every distribution of this program.\nIf it is missing, please check your installation or view the license online at:\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE"
-cantFindObject = "The game object can't be found."
-teleportEntity = "The entity with Id {} has been sent to x={},y={}."
-mapManifestIsNull = "The mapManifest read operation failed."
-savedGames = "saved Games"
-loadGame = "load Game"
-deleteGame = "delete Game"
-wantDeleteThisSave = "Are you sure you want to delete this save?"
-savesList = "Saves List"
+command_info = "A total of {} commands have been registered: "
+awake_body_count = "Awake Body Count: {}"
+get_actual_path_error = "Failed to obtain the real path."
+unknown_asset_type = "Unknown asset type."
+unknown_command_parameters = "Unknown command parameters."
+world_context_is_null = "Not yet bound to the world context."
+insufficient_parameter_length = "The parameter length is insufficient. It is at least {}, but in reality, it is {}."
+entry_cannot_found_in_configuration_file = "The entry {} cannot be found in the configuration file."
+configuration_update = "The configuration {} has been changed to {}."
+item_id_not_found = "The item Id was not found."
+loot_table_not_found = "The loot table ID was not found."
+item_container_is_null = "Item container is null."
+composable_item_is_null = "Composable item is null."
+ability_item_is_null = "Ability item is null."
+item_resource_is_null = "itemResource is null."
+tile_resource_is_null = "tileResource is null."
+min_x_is_greater_than_max_x = "min X cannot be greater than max X."
+folder_creation_failed = "The folder {} failed to be created."
+file_writing_failed = "The file {} failed to be written."
+failed_to_load_license = "Failed to load the local LICENSE file.\nThis file should be included with every distribution of this program.\nIf it is missing, please check your installation or view the license online at:\nhttps://github.com/Cold-Mint/GlimmerWorks/blob/master/LICENSE"
+cant_find_object = "The game object can't be found."
+teleport_entity = "The entity with Id {} has been sent to x={},y={}."
+map_manifest_is_null = "The mapManifest read operation failed."
+saved_games = "saved Games"
+load_game = "load Game"
+delete_game = "delete Game"
+want_delete_this_save = "Are you sure you want to delete this save?"
+saves_list = "Saves List"
 pause = "Pause"
 restore = "Restore"
-saveAndExit = "Save and Exit"
-screenshotSavedFailed = "Screenshot saving failed {}."
-screenshotSavedSuccess = "The screenshot has been saved to {}."
-areaMarkerTip = '''
+save_and_exit = "Save and Exit"
+screenshot_saved_failed = "Screenshot saving failed {}."
+screenshot_saved_success = "The screenshot has been saved to {}."
+area_marker_tip = '''
 Width: {}
 Height: {}
 Area: {}
 '''
-efficiencyTip = "{}% excavation efficiency"
-precisionMiningTip = "Precision mining"
-fumbleTip = "{}％Fumble"
-canMineBlockTip = "Can Mine Block"
-chainMiningTip = "{}Chain Mining Radius"
-worldNamePrefix = [
+efficiency_tip = "{}% excavation efficiency"
+precision_mining_tip = "Precision mining"
+fumble_tip = "{}％Fumble"
+can_mine_block_tip = "Can Mine Block"
+chain_mining_tip = "{}Chain Mining Radius"
+world_name_prefix = [
     "Serene",
     "Mystic",
     "Ancient",
@@ -118,7 +118,7 @@ worldNamePrefix = [
     "Tidal",
     "Dusty"
 ]
-worldNameSuffix = [
+world_name_suffix = [
     "Continent",
     "Ocean",
     "Ruins",
@@ -201,7 +201,5 @@ slogans = ["Is saying thank you to AI a waste?",
     "Ciallo～(∠・ω< )⌒☆",
     "I shall one day return to dust, yet the world of open source shall forever thrive.",
     "Hey… shall we weave our own delusions together?",
-    #ColdMint521
-    "0100001101101111011011000110010001001101011010010110111001110100001101010011001000110001",
     "花の塔-さユり"
 ]

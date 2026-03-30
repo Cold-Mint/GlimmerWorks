@@ -177,10 +177,11 @@ constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
  * 作用：x >> CHUNK_SHIFT 等价于 x / CHUNK_SIZE（仅当CHUNK_SIZE为2的幂时成立）
  */
 static constexpr int CHUNK_SHIFT = std::countr_zero(static_cast<uint32_t>(CHUNK_SIZE));
-//世界高度
-static constexpr int WORLD_MAX_Y = 512;
+static constexpr int WORLD_MAX_Y = 1200;
 static constexpr int SKY_HEIGHT = 64;
 static constexpr int WORLD_MIN_Y = 0;
+static constexpr int WORLD_MIN_X = -29984;
+static constexpr int WORLD_MAX_X = 29984;
 /**
  * 地形变化的总范围
  */

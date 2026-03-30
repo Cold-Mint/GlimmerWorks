@@ -350,7 +350,7 @@ TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector
     terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetBiomesManager()->FindBestBiome(
         humidity, temperature, weirdness, erosion,
         elevation);
-    if (world.y <= WORLD_MIN_Y) {
+    if (world.y <= WORLD_MIN_Y || world.x == WORLD_MAX_X || world.x == WORLD_MIN_X) {
         terrainTileResult.terrainType = BEDROCK;
         return terrainTileResult;
     }

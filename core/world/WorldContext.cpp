@@ -408,7 +408,8 @@ bool glimmer::WorldContext::HasChunk(const TileVector2D position) const {
 }
 
 bool glimmer::WorldContext::ChunkIsOutOfBounds(const TileVector2D position) {
-    return position.y >= WORLD_MAX_Y || position.y < WORLD_MIN_Y;
+    return position.y >= WORLD_MAX_Y || position.y < WORLD_MIN_Y || position.x >= WORLD_MAX_X || position.x <
+           WORLD_MIN_X;
 }
 
 

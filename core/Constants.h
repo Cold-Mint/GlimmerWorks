@@ -177,18 +177,26 @@ constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
  * 作用：x >> CHUNK_SHIFT 等价于 x / CHUNK_SIZE（仅当CHUNK_SIZE为2的幂时成立）
  */
 static constexpr int CHUNK_SHIFT = std::countr_zero(static_cast<uint32_t>(CHUNK_SIZE));
-static constexpr int WORLD_MAX_Y = 1200;
 static constexpr int SKY_HEIGHT = 64;
+static constexpr int WORLD_MAX_Y = 1200;
 static constexpr int WORLD_MIN_Y = 0;
 static constexpr int WORLD_MIN_X = -29984;
 static constexpr int WORLD_MAX_X = 29984;
-/**
- * 地形变化的总范围
- */
+
+//Total distributable height.
+//总的可供分配高度。
 constexpr int TERRAIN_HEIGHT_RANGE = WORLD_MAX_Y - WORLD_MIN_Y - SKY_HEIGHT;
-constexpr int BASE_HEIGHT_OFFSET = 32; // 基础高度偏移
-constexpr int SEA_LEVEL_HEIGHT = BASE_HEIGHT_OFFSET + 64; // 绝对海平面 Y 坐标
-constexpr int MAX_LAND_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE; // 陆地最大高度
+//The height of the lowest point on the ground.
+//地面最低点的高度。
+constexpr int GROUND_START_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE * 0.45F;
+//Sea level height
+//海平面高度
+constexpr int SEA_LEVEL_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE * 0.55F;
+//Continent noise, the maximum height that can be allocated.
+//大陆噪声，可分配的最大高度。
+constexpr int CONTINENT_MAX_HEIGHT = TERRAIN_HEIGHT_RANGE * 0.2F;
+
+constexpr int MAX_LAND_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE;
 
 // 噪声权重
 constexpr float MOUNTAIN_WEIGHT = 0.70F; // 山脉噪声在陆地起伏中的权重

@@ -16,8 +16,8 @@ glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int wo
     // 1. 大型陆地板块/大陆噪声 (极低频) - 控制大岛屿和大陆的生成
     continentHeightMapNoise_ = std::make_unique<FastNoiseLite>();
     continentHeightMapNoise_->SetSeed(worldSeed);
-    continentHeightMapNoise_->SetFrequency(0.005F); // 极低频，用于大型板块
-    continentHeightMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2S);
+    continentHeightMapNoise_->SetFrequency(0.001F); // 极低频，用于大型板块
+    continentHeightMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     // 2. 高原/山脉噪声 (低频) - 控制地形的宏观起伏
     mountainHeightMapNoise_ = std::make_unique<FastNoiseLite>();
     mountainHeightMapNoise_->SetSeed(worldSeed + 1); // 不同的种子
@@ -64,61 +64,45 @@ glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int wo
 int glimmer::ChunkGenerator::GetHeight(int x) {
     const auto it = heightMap_.find(x);
     if (it != heightMap_.end()) {
-        LogCat::d("HeightMap cache hit for chunkX=", x);
         return it->second;
     }
-
-    LogCat::d("HeightMap cache miss, generating new chunk at chunkX=", x);
     const float sampleX = static_cast<float>(x);
-
-    // 1. 获取三层归一化噪声 (0.0 到 1.0)
-
-    // a) 极低频: 大陆/大型岛屿掩码。
     const float continentNoise = (continentHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
+    // const float mountainNoise = (mountainHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
+    // const float hillsNoise = (hillsNoiseHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
 
-    // b) 低频: 宏观地形 (山脉/高原)。
-    const float mountainNoise = (mountainHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-
-    // c) 中频: 细节地形 (丘陵/平原起伏)。
-    const float hillsNoise = (hillsNoiseHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-
-
-    // 2. 核心：创建大陆掩码和陆地起伏
-
-    // A) 大陆掩码 (控制海洋和大陆板块)：使用 3 次方夸大低值，创建清晰的海洋边界。
-    // 这层噪声确保了大陆/岛屿（大型陆地板块）的孤立性。
-    const float continentMask = std::pow(continentNoise, 3.0F);
-
-    // B) 组合陆地起伏噪声 (主要由山脉和丘陵构成)
-    // landmassNoise 范围 [0, 1]
-    float landmassNoise = mountainNoise * MOUNTAIN_WEIGHT + hillsNoise * HILLS_WEIGHT;
-
-    // C) 平滑山峰抬升 (生成高原和尖锐的山脉)
-    float peakLift = 0.0F;
-    if (landmassNoise > PEAK_LIFT_THRESHOLD) {
-        // 只有在陆地噪声较高时，才计算额外的线性抬升，避免山峰顶部平坦。
-        // liftFactor 范围 [0, 1]
-        float liftFactor = (landmassNoise - PEAK_LIFT_THRESHOLD) / (1.0F - PEAK_LIFT_THRESHOLD);
-        peakLift = liftFactor * MAX_PEAK_LIFT;
-    }
-
-    // D) 最终陆地噪声：基础起伏 + 额外山峰抬升
-    float totalLandNoise = landmassNoise + peakLift;
-    // 确保总噪声不会超出我们预设的最大抬升比例
-    totalLandNoise = std::min(totalLandNoise, 1.0F + MAX_PEAK_LIFT);
-
-    // E) 应用大陆掩码：只有大陆区域，陆地噪声才能抬升地形
-    float combinedNoise = continentMask * totalLandNoise;
-
-
-    // 3. 将总噪声映射到最终的世界高度
-    // combinedNoise 的范围现在约为 [0, 1.3]，我们使用 TERRAIN_HEIGHT_RANGE 进行映射
-    int height = WORLD_MIN_Y + BASE_HEIGHT_OFFSET +
-                 static_cast<int>(combinedNoise * TERRAIN_HEIGHT_RANGE / (1.0F + MAX_PEAK_LIFT));
-
+    // const float continentMask = std::pow(continentNoise, 3.0F);
+    //
+    // // B) 组合陆地起伏噪声 (主要由山脉和丘陵构成)
+    // // landmassNoise 范围 [0, 1]
+    // float landmassNoise = mountainNoise * MOUNTAIN_WEIGHT + hillsNoise * HILLS_WEIGHT;
+    //
+    // // C) 平滑山峰抬升 (生成高原和尖锐的山脉)
+    // float peakLift = 0.0F;
+    // if (landmassNoise > PEAK_LIFT_THRESHOLD) {
+    //     // 只有在陆地噪声较高时，才计算额外的线性抬升，避免山峰顶部平坦。
+    //     // liftFactor 范围 [0, 1]
+    //     float liftFactor = (landmassNoise - PEAK_LIFT_THRESHOLD) / (1.0F - PEAK_LIFT_THRESHOLD);
+    //     peakLift = liftFactor * MAX_PEAK_LIFT;
+    // }
+    //
+    // // D) 最终陆地噪声：基础起伏 + 额外山峰抬升
+    // float totalLandNoise = landmassNoise + peakLift;
+    // // 确保总噪声不会超出我们预设的最大抬升比例
+    // totalLandNoise = std::min(totalLandNoise, 1.0F + MAX_PEAK_LIFT);
+    //
+    // // E) 应用大陆掩码：只有大陆区域，陆地噪声才能抬升地形
+    // float combinedNoise = continentMask * totalLandNoise;
+    //
+    //
+    // // 3. 将总噪声映射到最终的世界高度
+    // // combinedNoise 的范围现在约为 [0, 1.3]，我们使用 TERRAIN_HEIGHT_RANGE 进行映射
+    int height = GROUND_START_HEIGHT + CONTINENT_MAX_HEIGHT * continentNoise;
+    // static_cast<int>(combinedNoise * TERRAIN_HEIGHT_RANGE / (1.0F + MAX_PEAK_LIFT));
+    //
 
     // 5. 确保不超过世界最大高度
-    height = std::min(height, MAX_LAND_HEIGHT);
+    // height = std::min(height, MAX_LAND_HEIGHT);
 
     // 缓存并返回高度
     heightMap_[x] = height;

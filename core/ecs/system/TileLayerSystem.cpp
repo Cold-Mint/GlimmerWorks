@@ -17,6 +17,13 @@ glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)
 }
 
 void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
+    if (worldContext_ == nullptr) {
+        return;
+    }
+    const AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
     const auto *cameraComponent = worldContext_->GetCameraComponent();
     const auto *cameraPos = worldContext_->GetCameraTransform2D();
     if (cameraComponent == nullptr) {
@@ -25,7 +32,6 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     if (cameraPos == nullptr) {
         return;
     }
-    AppContext *appContext = worldContext_->GetAppContext();
     auto gameEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
     for (auto entity: gameEntities) {
         auto tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(entity);
@@ -39,16 +45,14 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                 tileLayerComponent->GetTilesInViewport(viewportRect);
         TileVector2D focusPosition = tileLayerComponent->GetFocusPosition();
         for (const auto &[tileCoord, tile]: visibleTiles) {
-            WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileCoord);
-            CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
+            const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileCoord);
+            const CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
                 cameraPos->GetPosition(), worldTilePos);
-
             SDL_FRect renderQuad;
             renderQuad.w = TILE_SIZE * zoom;
             renderQuad.h = TILE_SIZE * zoom;
-
-            renderQuad.x = screenPos.x - renderQuad.w * 0.5f;
-            renderQuad.y = screenPos.y - renderQuad.h * 0.5f;
+            renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
+            renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
             SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
             if (!SDL_RenderTexture(renderer, tile->GetTexture(), nullptr, &dstRect)) {
                 LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());

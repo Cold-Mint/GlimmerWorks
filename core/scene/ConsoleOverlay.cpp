@@ -113,35 +113,63 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
             }
             return true;
         }
-        if (keyCode == SDLK_UP) {
-            if (command_.empty()) {
-                // 切换历史记录（可保留原有逻辑）
+        if (show_ && keyCode == SDLK_UP) {
+            if (!commandSuggestions_.empty()) {
+                selectedSuggestionIndex_ = selectedSuggestionIndex_ <= 0
+                                               ? static_cast<int>(commandSuggestions_.size() - 1)
+                                               : selectedSuggestionIndex_ - 1;
                 return true;
             }
-            if (!commandSuggestions_.empty()) {
-                if (selectedSuggestionIndex_ <= 0) {
-                    selectedSuggestionIndex_ = static_cast<int>(commandSuggestions_.size() - 1);
-                } else {
-                    selectedSuggestionIndex_--;
-                }
+            auto &historyMgr = appContext->GetCommandHistoryManager()->GetCommandHistoryMessage();
+            const int history_size = historyMgr.history_size();
+            if (history_size <= 0) return true;
+            if (selectedCommandHistoryIndex_ == 0) {
+                tempCommand_ = command_;
+            }
+            if (selectedCommandHistoryIndex_ < history_size) {
+                selectedCommandHistoryIndex_++;
+                const std::string &new_cmd = historyMgr.history().Get(
+                    history_size - selectedCommandHistoryIndex_
+                );
+                pendingAutocomplete_ = new_cmd;
+                lastCursorPos_ = static_cast<int>(new_cmd.size());
+                nextCursorPos_ = lastCursorPos_;
+                selectedSuggestionIndex_ = 0;
+                focusNextFrame_ = true;
             }
             return true;
         }
-        if (keyCode == SDLK_DOWN) {
-            if (command_.empty()) {
-                // 切换历史记录（可保留原有逻辑）
+
+        if (show_ && keyCode == SDLK_DOWN) {
+            if (!commandSuggestions_.empty()) {
+                selectedSuggestionIndex_ = selectedSuggestionIndex_ >= static_cast<int>(commandSuggestions_.size()) - 1
+                                               ? 0
+                                               : selectedSuggestionIndex_ + 1;
                 return true;
             }
-            if (!commandSuggestions_.empty()) {
-                if (selectedSuggestionIndex_ >= static_cast<int>(commandSuggestions_.size()) - 1) {
-                    selectedSuggestionIndex_ = 0;
-                } else {
-                    selectedSuggestionIndex_++;
-                }
+
+            auto &historyMgr = appContext->GetCommandHistoryManager()->GetCommandHistoryMessage();
+            const int history_size = historyMgr.history_size();
+            if (history_size <= 0 || selectedCommandHistoryIndex_ <= 0) return true;
+
+            selectedCommandHistoryIndex_--;
+            if (selectedCommandHistoryIndex_ == 0) {
+                pendingAutocomplete_ = tempCommand_;
+                lastCursorPos_ = static_cast<int>(tempCommand_.size());
+            } else {
+                const std::string &new_cmd = historyMgr.history().Get(
+                    history_size - selectedCommandHistoryIndex_
+                );
+                pendingAutocomplete_ = new_cmd;
+                lastCursorPos_ = static_cast<int>(new_cmd.size());
             }
+
+            nextCursorPos_ = lastCursorPos_;
+            selectedSuggestionIndex_ = 0;
+            focusNextFrame_ = true;
             return true;
         }
-        if (keyCode == SDLK_RIGHT && !command_.empty() && show_) {
+        if (show_ && keyCode == SDLK_RIGHT && !command_.empty()) {
             const int cursorPos = lastCursorPos_ < 0 ? 0 : lastCursorPos_;
             if (cursorPos == static_cast<int>(command_.length())) {
                 auto suggestion = GetBestHistoryCommandSuggestion();
@@ -155,16 +183,14 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
             }
             return false;
         }
-        if (keyCode == SDLK_TAB) {
-            if (!commandSuggestions_.empty()) {
-                std::string newCommand = ClikAutoCompleteItem(commandSuggestions_[selectedSuggestionIndex_]);
-                pendingAutocomplete_ = newCommand;
-                lastCursorPos_ = static_cast<int>(newCommand.size());
-                nextCursorPos_ = lastCursorPos_;
-                commandSuggestions_.clear();
-                selectedSuggestionIndex_ = 0;
-                focusNextFrame_ = true;
-            }
+        if (show_ && keyCode == SDLK_TAB && !commandSuggestions_.empty()) {
+            std::string newCommand = ClikAutoCompleteItem(commandSuggestions_[selectedSuggestionIndex_]);
+            pendingAutocomplete_ = newCommand;
+            lastCursorPos_ = static_cast<int>(newCommand.size());
+            nextCursorPos_ = lastCursorPos_;
+            commandSuggestions_.clear();
+            selectedSuggestionIndex_ = 0;
+            focusNextFrame_ = true;
             return true;
         }
     }
@@ -539,6 +565,8 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                                                 });
         }
         command_.clear();
+        tempCommand_.clear();
+        selectedCommandHistoryIndex_ = 0;
         selectedSuggestionIndex_ = 0;
 #ifdef __ANDROID__
         focusNextFrame_ = false;

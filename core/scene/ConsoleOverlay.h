@@ -33,6 +33,10 @@ namespace glimmer {
         // Selected command suggestion item index
         // 选中的命令建议项索引
         int selectedSuggestionIndex_ = 0;
+        int selectedCommandHistoryIndex_ = 0;
+        // Temporarily save the unsubmitted input content (used when switching between the history)
+        // 临时保存未提交的输入内容（上下切换历史时用）
+        std::string tempCommand_;
         /**
          * Code structure
          * 命令结构

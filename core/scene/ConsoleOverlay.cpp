@@ -123,20 +123,27 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
             auto &historyMgr = appContext->GetCommandHistoryManager()->GetCommandHistoryMessage();
             const int history_size = historyMgr.history_size();
             if (history_size <= 0) return true;
+
             if (selectedCommandHistoryIndex_ == 0) {
                 tempCommand_ = command_;
             }
-            if (selectedCommandHistoryIndex_ < history_size) {
-                selectedCommandHistoryIndex_++;
-                const std::string &new_cmd = historyMgr.history().Get(
-                    history_size - selectedCommandHistoryIndex_
-                );
+
+            selectedCommandHistoryIndex_++;
+            if (selectedCommandHistoryIndex_ > history_size) {
+                selectedCommandHistoryIndex_ = 0;
+            }
+            if (selectedCommandHistoryIndex_ == 0) {
+                pendingAutocomplete_ = tempCommand_;
+                lastCursorPos_ = static_cast<int>(tempCommand_.size());
+            } else {
+                const std::string &new_cmd = historyMgr.history().Get(history_size - selectedCommandHistoryIndex_);
                 pendingAutocomplete_ = new_cmd;
                 lastCursorPos_ = static_cast<int>(new_cmd.size());
-                nextCursorPos_ = lastCursorPos_;
-                selectedSuggestionIndex_ = 0;
-                focusNextFrame_ = true;
             }
+
+            nextCursorPos_ = lastCursorPos_;
+            selectedSuggestionIndex_ = 0;
+            focusNextFrame_ = true;
             return true;
         }
 
@@ -150,16 +157,21 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
 
             auto &historyMgr = appContext->GetCommandHistoryManager()->GetCommandHistoryMessage();
             const int history_size = historyMgr.history_size();
-            if (history_size <= 0 || selectedCommandHistoryIndex_ <= 0) return true;
+            if (history_size <= 0) return true;
 
+            if (selectedCommandHistoryIndex_ == 0) {
+                tempCommand_ = command_;
+            }
             selectedCommandHistoryIndex_--;
+            if (selectedCommandHistoryIndex_ < 0) {
+                selectedCommandHistoryIndex_ = history_size;
+            }
+
             if (selectedCommandHistoryIndex_ == 0) {
                 pendingAutocomplete_ = tempCommand_;
                 lastCursorPos_ = static_cast<int>(tempCommand_.size());
             } else {
-                const std::string &new_cmd = historyMgr.history().Get(
-                    history_size - selectedCommandHistoryIndex_
-                );
+                const std::string &new_cmd = historyMgr.history().Get(history_size - selectedCommandHistoryIndex_);
                 pendingAutocomplete_ = new_cmd;
                 lastCursorPos_ = static_cast<int>(new_cmd.size());
             }

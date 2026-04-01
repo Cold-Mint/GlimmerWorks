@@ -35,6 +35,10 @@ namespace glimmer {
         bool displayBox2dShape;
     };
 
+    struct Console {
+        int maxHistoryEntries = 100;
+    };
+
     struct World {
         float preloadChunkRadius;
         float preloadStructureRadius;
@@ -66,6 +70,7 @@ namespace glimmer {
         World world{};
         Debug debug{};
         Audio audio{};
+        Console console{};
         int configVersion = 1;
         HotkeyCommand f1{};
         HotkeyCommand f2{};

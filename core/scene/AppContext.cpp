@@ -304,7 +304,9 @@ glimmer::AppContext::AppContext() {
         return;
     }
     commandHistoryManager_ = std::make_unique<CommandHistoryManager>(virtualFileSystem_.get());
-    commandHistoryManager_->Read();
+    if (config_->console.maxHistoryEntries > 0) {
+        commandHistoryManager_->Read();
+    }
     LogCat::i("Starting the app...");
     initSuccess_ = true;
 }
@@ -344,7 +346,7 @@ void glimmer::AppContext::SetRenderer(SDL_Renderer *renderer) {
     this->renderer_ = renderer;
 }
 
-void glimmer::AppContext::CreateScreenshot(std::function<void(const std::string &text)> onMessage) {
+void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string &text)> &onMessage) const {
     if (!renderer_) {
         onMessage(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
@@ -417,7 +419,9 @@ std::vector<glimmer::GameUIMessage> &glimmer::AppContext::GetGameUIMessages() {
 }
 
 void glimmer::AppContext::ExitApp() {
-    commandHistoryManager_->Save();
+    if (config_->console.maxHistoryEntries > 0) {
+        commandHistoryManager_->Save();
+    }
     isRunning = false;
 }
 

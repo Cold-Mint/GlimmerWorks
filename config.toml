@@ -119,6 +119,11 @@ display_debug_panel = false
 # 渲染Box2D物理碰撞形状
 display_box2d_shape = false
 
+[console]
+# Maximum number of console history entries to save (0 = disable history function)
+# 控制台历史记录最大保存条数（0 = 禁用历史记录功能）
+max_history_entries = 100
+
 [hotkey_f1]
 command_group = [
     ["config set debug.display_debug_panel true", "config set debug.display_box2d_shape false"],

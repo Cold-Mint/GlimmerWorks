@@ -405,8 +405,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                 selectedSuggestionIndex_ = 0;
                 focusNextFrame_ = true;
             }
-            if (ImGui::IsItemHovered())
-            {
+            if (ImGui::IsItemHovered()) {
                 // When the mouse hovers over the current suggestion item, the selected index will be updated directly.
                 // 鼠标悬停在当前建议项上，直接更新选中索引
                 selectedSuggestionIndex_ = static_cast<int>(i);
@@ -506,6 +505,12 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
             const auto mutableHistory = commandHistoryMessage.mutable_history();
             auto *new_command = mutableHistory->Add();
             *new_command = command_;
+            const int max_entries = appContext->GetConfig()->console.maxHistoryEntries;
+            int current_size = mutableHistory->size();
+            if (current_size > max_entries && max_entries >= 0) {
+                const int delete_num = current_size - max_entries;
+                mutableHistory->DeleteSubrange(0, delete_num);
+            }
             CommandExecutor::ExecuteAsyncSingle(command_, appContext->GetCommandManager(),
                                                 [this](const CommandResult result, const std::string &cmd) {
                                                     std::string message;

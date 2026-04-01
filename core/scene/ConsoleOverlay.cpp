@@ -81,13 +81,76 @@ int glimmer::ConsoleOverlay::GetLastCursorPos() const {
     return lastCursorPos_;
 }
 
-bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
-    if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_GRAVE && !event.key.repeat) {
-        show_ = !show_;
-        if (show_) {
-            focusNextFrame_ = true;
+std::optional<std::string> glimmer::ConsoleOverlay::GetBestHistoryCommandSuggestion() const {
+    const CommandHistoryMessage &commandHistoryMessage = appContext->GetCommandHistoryManager()->
+            GetCommandHistoryMessage();
+    const int historySize = commandHistoryMessage.history_size();
+    if (historySize == 0) {
+        return std::nullopt;
+    }
+    const google::protobuf::RepeatedPtrField<std::string> &historyList = commandHistoryMessage.history();
+    for (int i = historySize - 1; i >= 0; --i) {
+        const std::string &history = historyList.Get(i);
+        if (history.empty()) {
+            continue;
         }
-        return true;
+        if (history.starts_with(command_)) {
+            return history;
+        }
+    }
+    return std::nullopt;
+}
+
+
+bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
+    if (!event.key.repeat && event.type == SDL_EVENT_KEY_DOWN) {
+        const SDL_Keycode keyCode = event.key.key;
+        if (keyCode == SDLK_GRAVE) {
+            show_ = !show_;
+            if (show_) {
+                focusNextFrame_ = true;
+            }
+            return true;
+        }
+        if (keyCode == SDLK_UP) {
+            if (command_.empty()) {
+                //Switch the history record.
+                //切换历史记录。
+                return true;
+            }
+            //Switch the focus of the list.
+            //切换列表焦点。
+            return true;
+        }
+        if (keyCode == SDLK_DOWN) {
+            if (command_.empty()) {
+                //Switch the history record.
+                //切换历史记录。
+                return true;
+            }
+            //Switch the focus of the list.
+            //切换列表焦点。
+            return true;
+        }
+        if (keyCode == SDLK_RIGHT && !command_.empty() && show_) {
+            const int cursorPos = lastCursorPos_ < 0 ? 0 : lastCursorPos_;
+            if (cursorPos == static_cast<int>(command_.length())) {
+                auto suggestion = GetBestHistoryCommandSuggestion();
+                if (suggestion.has_value()) {
+                    pendingAutocomplete_ = suggestion.value();
+                    lastCursorPos_ = static_cast<int>(suggestion->size());
+                    nextCursorPos_ = lastCursorPos_;
+                    focusNextFrame_ = true;
+                    return true;
+                }
+            }
+            return false;
+        }
+        if (keyCode == SDLK_TAB) {
+            //Put the text of the list focus into the input box.
+            //将列表焦点的文本放到输入框内。
+            return true;
+        }
     }
     ImGui_ImplSDL3_ProcessEvent(&event);
     return show_;
@@ -107,11 +170,9 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
     //当文本改变时
     auto *overlay = static_cast<ConsoleOverlay *>(data->UserData);
     const int cursorPos = data->CursorPos;
+    const std::string cmdStr(data->Buf, data->BufTextLen);
     if (cursorPos != overlay->GetLastCursorPos()) {
-        const std::string cmdStr(data->Buf, data->BufTextLen);
         overlay->SetLastCursorPos(cursorPos);
-
-        std::string currentText(data->Buf, data->BufTextLen);
         const auto commandArgs = CommandArgs(cmdStr);
         const auto keyword = commandArgs.GetKeywordAtCursor(cursorPos);
         overlay->SetKeyword(keyword);
@@ -130,6 +191,13 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
         //Set it to -1 to update the command structure and the list of command suggestions
         //设置为-1，以便更新命令结构和命令建议列表
         overlay->SetLastCursorPos(-1);
+    }
+    if (overlay->pendingAutocomplete_.has_value()) {
+        data->DeleteChars(0, data->BufTextLen);
+        data->InsertChars(0, overlay->pendingAutocomplete_->c_str());
+        data->CursorPos = data->BufTextLen;
+        overlay->pendingAutocomplete_.reset();
+        overlay->commandSuggestions_.clear();
     }
     return 0;
 }
@@ -170,12 +238,9 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
     newText.append(beforeCursor);
     newText.append(suggestion);
     newText.append(afterCursor);
-
     command_ = newText;
     lastCursorPos_ = static_cast<int>(beforeCursor.size()) + static_cast<int>(suggestion.length());
     nextCursorPos_ = lastCursorPos_;
-
-    // Clear suggestions
     commandSuggestions_.clear();
     focusNextFrame_ = true;
 }
@@ -431,34 +496,38 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                          &ConsoleOverlay::InputCallback, this)) {
         //It is executed when the player presses the Enter key.
         //当玩家按下Enter键后执行。
-        if (command_[0] != '\0') {
+        if (!command_.empty()) {
             addMessage("> " + command_);
+            auto &commandHistoryMessage = appContext->GetCommandHistoryManager()->GetCommandHistoryMessage();
+            const auto mutableHistory = commandHistoryMessage.mutable_history();
+            auto *new_command = mutableHistory->Add();
+            *new_command = command_;
             CommandExecutor::ExecuteAsyncSingle(command_, appContext->GetCommandManager(),
-                                          [this](const CommandResult result, const std::string &cmd) {
-                                              std::string message;
-                                              std::string pattern;
-                                              switch (result) {
-                                                  case CommandResult::Success:
-                                                      pattern = appContext->GetLangsResources()->executedSuccess;
-                                                      break;
-                                                  case CommandResult::Failure:
-                                                      pattern = appContext->GetLangsResources()->executionFailed;
-                                                      break;
-                                                  case CommandResult::EmptyArgs:
-                                                      message = appContext->GetLangsResources()->commandIsEmpty;
-                                                      break;
-                                                  case CommandResult::NotFound:
-                                                      pattern = appContext->GetLangsResources()->commandNotFound;
-                                                      break;
-                                              }
-                                              if (!pattern.empty()) {
-                                                  message = fmt::format(fmt::runtime(pattern), cmd);
-                                              }
-                                              addMessage(message);
-                                          },
-                                          [this](const std::string &text) {
-                                              addMessage(text);
-                                          });
+                                                [this](const CommandResult result, const std::string &cmd) {
+                                                    std::string message;
+                                                    std::string pattern;
+                                                    switch (result) {
+                                                        case CommandResult::Success:
+                                                            pattern = appContext->GetLangsResources()->executedSuccess;
+                                                            break;
+                                                        case CommandResult::Failure:
+                                                            pattern = appContext->GetLangsResources()->executionFailed;
+                                                            break;
+                                                        case CommandResult::EmptyArgs:
+                                                            message = appContext->GetLangsResources()->commandIsEmpty;
+                                                            break;
+                                                        case CommandResult::NotFound:
+                                                            pattern = appContext->GetLangsResources()->commandNotFound;
+                                                            break;
+                                                    }
+                                                    if (!pattern.empty()) {
+                                                        message = fmt::format(fmt::runtime(pattern), cmd);
+                                                    }
+                                                    addMessage(message);
+                                                },
+                                                [this](const std::string &text) {
+                                                    addMessage(text);
+                                                });
         }
         command_.clear();
 #ifdef __ANDROID__
@@ -467,6 +536,30 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         focusNextFrame_ = true;
 #endif
     }
+
+
+    //Draw the best recommendations based on the command history.
+    //绘制最佳建议，基于命令历史。
+    if (!command_.empty()) {
+        const std::optional<std::string> commandSuggestion = GetBestHistoryCommandSuggestion();
+        if (commandSuggestion.has_value()) {
+            ImDrawList *drawList = ImGui::GetWindowDrawList();
+            const ImVec2 input_rect_min = ImGui::GetItemRectMin();
+            const ImVec2 padding = ImGui::GetStyle().FramePadding;
+            const ImVec2 text_pos = ImVec2(
+                input_rect_min.x + padding.x,
+                input_rect_min.y + padding.y
+            );
+            const ImU32 hint_color = IM_COL32(
+                preloadColors->console.textColor.r,
+                preloadColors->console.textColor.g,
+                preloadColors->console.textColor.b,
+                160
+            );
+            drawList->AddText(text_pos, hint_color, commandSuggestion.value().c_str());
+        }
+    }
+
     ImGui::PopStyleColor(2); // Pop input text color and cursor color
     ImGui::PopItemWidth();
     ImGui::End();

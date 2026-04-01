@@ -55,7 +55,7 @@ bool glimmer::SavesManager::DeleteSave(const size_t index) {
 }
 
 glimmer::Saves *glimmer::SavesManager::Create(MapManifest &manifest) {
-    std::string path = "saved/" + manifest.name;
+    std::string path = "data/saved/" + manifest.name;
     if (!virtualFileSystem_->Exists(path)) {
         bool createFolder = virtualFileSystem_->CreateFolder(path);
         if (!createFolder) {
@@ -76,7 +76,7 @@ glimmer::Saves *glimmer::SavesManager::Create(MapManifest &manifest) {
 
 void glimmer::SavesManager::LoadAllSaves() {
     saveList_.clear();
-    const std::vector<std::string> array = virtualFileSystem_->ListFile("saved/",false);
+    const std::vector<std::string> array = virtualFileSystem_->ListFile("data/saved/",false);
     for (const auto &item: array) {
         AddSaves(std::make_unique<Saves>(item, virtualFileSystem_));
     }

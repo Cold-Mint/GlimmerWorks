@@ -6,6 +6,7 @@
 #define GLIMMERWORKS_CONSOLESCENE_H
 #include <string>
 #include <mutex>
+#include <optional>
 #include <vector>
 
 #include "imgui.h"
@@ -21,6 +22,7 @@ namespace glimmer {
         bool show_ = false;
         bool focusNextFrame_ = false;
         std::string command_;
+        std::optional<std::string> pendingAutocomplete_;
         std::mutex messagesMutex_;
         std::vector<std::string> messages_;
         std::vector<std::string> commandSuggestions_;
@@ -32,7 +34,7 @@ namespace glimmer {
          * Code structure
          * 命令结构
          */
-        std::vector<std::string> commandStructure_ = {"[command name]"};
+        std::vector<std::string> commandStructure_ = {"[command name:string]"};
         /**
          * The command structure requires a highlighted index position
          * 命令结构需要高亮的索引位置
@@ -68,6 +70,8 @@ namespace glimmer {
         static int ComputeScore(const std::string &cmd, const std::string &keyword);
 
         [[nodiscard]] int GetLastCursorPos() const;
+
+        [[nodiscard]] std::optional<std::string> GetBestHistoryCommandSuggestion() const;
 
         bool HandleEvent(const SDL_Event &event) override;
 

@@ -455,6 +455,7 @@ target_sources(GlimmerWorks
         core/console/command/EchoCommand.cpp
         core/console/suggestion/BooleanToggleDynamicSuggestions.cpp
         core/BoolOrToggle.cpp
+        core/console/CommandHistoryManager.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -648,6 +649,7 @@ target_sources(GlimmerWorks
         core/console/command/EchoCommand.h
         core/console/suggestion/BooleanToggleDynamicSuggestions.h
         core/BoolOrToggle.h
+        core/console/CommandHistoryManager.h
 )
 
 #Define version information

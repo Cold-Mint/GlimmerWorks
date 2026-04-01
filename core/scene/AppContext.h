@@ -22,6 +22,7 @@
 #include "SDL3_ttf/SDL_ttf.h"
 #include "core/Config.h"
 #include "core/GameUIMessage.h"
+#include "core/console/CommandHistoryManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
 #include "core/mod/StructurePlacementConditionsManager.h"
@@ -85,6 +86,7 @@ namespace glimmer {
         std::unique_ptr<ShapeManager> shapeManager_;
         std::unique_ptr<AudioManager> audioManager_;
         std::shared_ptr<MIX_Audio> mainMenuBGM_;
+        std::shared_ptr<CommandHistoryManager> commandHistoryManager_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()> > mainThreadTasks_;
         bool isRunning = true;
@@ -145,6 +147,8 @@ namespace glimmer {
         [[nodiscard]] DynamicSuggestionsManager *GetDynamicSuggestionsManager() const;
 
         [[nodiscard]] const std::string &GetLanguage();
+
+        [[nodiscard]] CommandHistoryManager *GetCommandHistoryManager() const;
 
         [[nodiscard]] LangsResources *GetLangsResources() const;
 

@@ -303,6 +303,8 @@ glimmer::AppContext::AppContext() {
         LogCat::e("At least one of the mob files must have the \"isPlayer = true\" setting.");
         return;
     }
+    commandHistoryManager_ = std::make_unique<CommandHistoryManager>(virtualFileSystem_.get());
+    commandHistoryManager_->Read();
     LogCat::i("Starting the app...");
     initSuccess_ = true;
 }
@@ -415,6 +417,7 @@ std::vector<glimmer::GameUIMessage> &glimmer::AppContext::GetGameUIMessages() {
 }
 
 void glimmer::AppContext::ExitApp() {
+    commandHistoryManager_->Save();
     isRunning = false;
 }
 
@@ -452,6 +455,10 @@ glimmer::DynamicSuggestionsManager *glimmer::AppContext::GetDynamicSuggestionsMa
 
 const std::string &glimmer::AppContext::GetLanguage() {
     return language_;
+}
+
+glimmer::CommandHistoryManager *glimmer::AppContext::GetCommandHistoryManager() const {
+    return commandHistoryManager_.get();
 }
 
 glimmer::LangsResources *glimmer::AppContext::GetLangsResources() const {

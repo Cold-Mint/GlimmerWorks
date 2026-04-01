@@ -30,6 +30,9 @@ namespace glimmer {
         int lastCursorPos_ = 0;
         int nextCursorPos_ = -1;
         bool scrollToBottom_ = false;
+        // Selected command suggestion item index
+        // 选中的命令建议项索引
+        int selectedSuggestionIndex_ = 0;
         /**
          * Code structure
          * 命令结构
@@ -45,7 +48,7 @@ namespace glimmer {
 
         static int InputCallback(ImGuiInputTextCallbackData *data);
 
-        void ClikAutoCompleteItem(const std::string &suggestion);
+        [[nodiscard]] std::string ClikAutoCompleteItem(const std::string &suggestion) const;
 
     public:
         explicit ConsoleOverlay(AppContext *context);

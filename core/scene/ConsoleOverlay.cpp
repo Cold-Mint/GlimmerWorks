@@ -38,6 +38,7 @@ void glimmer::ConsoleOverlay::SetCommandStructureHighlightIndex(const int comman
 
 void glimmer::ConsoleOverlay::SetCommandSuggestions(const std::vector<std::string> &commandSuggestions) {
     commandSuggestions_.clear();
+    selectedSuggestionIndex_ = 0;
     const std::string &keyword = keyword_;
 
     struct ScoredCommand {
@@ -114,22 +115,30 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
         }
         if (keyCode == SDLK_UP) {
             if (command_.empty()) {
-                //Switch the history record.
-                //切换历史记录。
+                // 切换历史记录（可保留原有逻辑）
                 return true;
             }
-            //Switch the focus of the list.
-            //切换列表焦点。
+            if (!commandSuggestions_.empty()) {
+                if (selectedSuggestionIndex_ <= 0) {
+                    selectedSuggestionIndex_ = static_cast<int>(commandSuggestions_.size() - 1);
+                } else {
+                    selectedSuggestionIndex_--;
+                }
+            }
             return true;
         }
         if (keyCode == SDLK_DOWN) {
             if (command_.empty()) {
-                //Switch the history record.
-                //切换历史记录。
+                // 切换历史记录（可保留原有逻辑）
                 return true;
             }
-            //Switch the focus of the list.
-            //切换列表焦点。
+            if (!commandSuggestions_.empty()) {
+                if (selectedSuggestionIndex_ >= static_cast<int>(commandSuggestions_.size()) - 1) {
+                    selectedSuggestionIndex_ = 0;
+                } else {
+                    selectedSuggestionIndex_++;
+                }
+            }
             return true;
         }
         if (keyCode == SDLK_RIGHT && !command_.empty() && show_) {
@@ -147,8 +156,15 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
             return false;
         }
         if (keyCode == SDLK_TAB) {
-            //Put the text of the list focus into the input box.
-            //将列表焦点的文本放到输入框内。
+            if (!commandSuggestions_.empty()) {
+                std::string newCommand = ClikAutoCompleteItem(commandSuggestions_[selectedSuggestionIndex_]);
+                pendingAutocomplete_ = newCommand;
+                lastCursorPos_ = static_cast<int>(newCommand.size());
+                nextCursorPos_ = lastCursorPos_;
+                commandSuggestions_.clear();
+                selectedSuggestionIndex_ = 0;
+                focusNextFrame_ = true;
+            }
             return true;
         }
     }
@@ -202,9 +218,8 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
     return 0;
 }
 
-void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion) {
+std::string glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion) const {
     const int cursorPos = lastCursorPos_;
-    // Find beforeCursor
     int leftSpacePos = -1;
     for (int i = cursorPos - 1; i >= 0; --i) {
         if (command_[i] == ' ') {
@@ -218,7 +233,6 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
         beforeCursor = command_.substr(0, leftSpacePos + 1);
     }
 
-    // Find afterCursor
     int rightSpacePos = -1;
     for (int i = cursorPos; i < static_cast<int>(command_.size()); ++i) {
         if (command_[i] == ' ') {
@@ -232,18 +246,14 @@ void glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &suggestion
         afterCursor = command_.substr(rightSpacePos);
     }
 
-    // Construct newText efficiently
     std::string newText;
     newText.reserve(beforeCursor.size() + suggestion.size() + afterCursor.size());
     newText.append(beforeCursor);
     newText.append(suggestion);
     newText.append(afterCursor);
-    command_ = newText;
-    lastCursorPos_ = static_cast<int>(beforeCursor.size()) + static_cast<int>(suggestion.length());
-    nextCursorPos_ = lastCursorPos_;
-    commandSuggestions_.clear();
-    focusNextFrame_ = true;
+    return newText;
 }
+
 
 glimmer::ConsoleOverlay::ConsoleOverlay(AppContext *context)
     : Scene(context) {
@@ -371,13 +381,15 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         // Slight rounding for hover effect
 
 
-        for (const auto &suggestion: commandSuggestions_) {
-            // Create button with highlighted keyword
-            // 创建带有高亮关键字的按钮
+        for (size_t i = 0; i < commandSuggestions_.size(); ++i) {
+            const auto &suggestion = commandSuggestions_[i];
             ImGui::PushID(suggestion.c_str());
 
-            // Find keyword position in suggestion (case-insensitive)
-            // 在建议中查找关键字位置（不区分大小写）
+            bool isSelected = static_cast<int>(i) == selectedSuggestionIndex_;
+            if (isSelected) {
+                ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(60, 60, 60, 200));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(60, 60, 60, 200)); // hover时保持选中样式
+            }
             size_t keywordPos = std::string::npos;
             if (!keyword_.empty()) {
                 std::string lowerSuggestion = suggestion;
@@ -387,31 +399,25 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                 keywordPos = lowerSuggestion.find(lowerKeyword);
             }
 
-            // Draw button with custom text rendering for highlighting
-            // 绘制带有自定义文本渲染的按钮以实现高亮
+            // 绘制按钮
             const ImVec2 padding = ImGui::GetStyle().FramePadding;
-
-            // Button fills full width (-1 means fill available width)
-            // 按钮填充整个宽度（-1 表示填充可用宽度）
             if (ImGui::Button(("##" + suggestion).c_str(), ImVec2(-1, 0))) {
-                ClikAutoCompleteItem(suggestion);
+                std::string newCommand = ClikAutoCompleteItem(commandSuggestions_[selectedSuggestionIndex_]);
+                pendingAutocomplete_ = newCommand;
+                lastCursorPos_ = static_cast<int>(newCommand.size());
+                nextCursorPos_ = lastCursorPos_;
+                commandSuggestions_.clear();
+                selectedSuggestionIndex_ = 0;
+                focusNextFrame_ = true;
             }
-
-            // Render text with highlighted keyword on top of button
-            // 在按钮上方渲染带有高亮关键字的文本
             const ImVec2 textPos = ImVec2(ImGui::GetItemRectMin().x + padding.x, ImGui::GetItemRectMin().y + padding.y);
             ImDrawList *drawList = ImGui::GetWindowDrawList();
-
             if (keywordPos != std::string::npos && !keyword_.empty()) {
-                // Draw text in three parts: before keyword, keyword (highlighted), after keyword
-                // 分三部分绘制文本：关键字前、关键字（高亮）、关键字后
                 const std::string beforeKeyword = suggestion.substr(0, keywordPos);
                 const std::string keyword = suggestion.substr(keywordPos, keyword_.length());
                 const std::string afterKeyword = suggestion.substr(keywordPos + keyword_.length());
 
                 ImVec2 currentPos = textPos;
-
-                // Before keyword - white
                 if (!beforeKeyword.empty()) {
                     drawList->AddText(currentPos, IM_COL32(preloadColors->console.textColor.r,
                                                            preloadColors->console.textColor.g,
@@ -419,16 +425,11 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                                                            preloadColors->console.textColor.a), beforeKeyword.c_str());
                     currentPos.x += ImGui::CalcTextSize(beforeKeyword.c_str()).x;
                 }
-
-                //Key word color
-                //关键字颜色。
                 drawList->AddText(currentPos, IM_COL32(preloadColors->console.keywordColor.r,
                                                        preloadColors->console.keywordColor.g,
                                                        preloadColors->console.keywordColor.b,
                                                        preloadColors->console.keywordColor.a), keyword.c_str());
                 currentPos.x += ImGui::CalcTextSize(keyword.c_str()).x;
-
-                // After keyword - white
                 if (!afterKeyword.empty()) {
                     drawList->AddText(currentPos, IM_COL32(preloadColors->console.textColor.r,
                                                            preloadColors->console.textColor.g,
@@ -436,11 +437,13 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                                                            preloadColors->console.textColor.a), afterKeyword.c_str());
                 }
             } else {
-                // No keyword to highlight, draw entire text in white
                 drawList->AddText(textPos, IM_COL32(preloadColors->console.textColor.r,
                                                     preloadColors->console.textColor.g,
                                                     preloadColors->console.textColor.b,
                                                     preloadColors->console.textColor.a), suggestion.c_str());
+            }
+            if (isSelected) {
+                ImGui::PopStyleColor(2);
             }
 
             ImGui::PopID();
@@ -530,6 +533,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                                                 });
         }
         command_.clear();
+        selectedSuggestionIndex_ = 0;
 #ifdef __ANDROID__
         focusNextFrame_ = false;
 #else

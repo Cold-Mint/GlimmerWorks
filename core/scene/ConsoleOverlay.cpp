@@ -378,9 +378,6 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(60, 60, 60, 200)); // Lighter gray when clicked
         ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0F); // No border
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0F * appContext->GetConfig()->window.uiScale);
-        // Slight rounding for hover effect
-
-
         for (size_t i = 0; i < commandSuggestions_.size(); ++i) {
             const auto &suggestion = commandSuggestions_[i];
             ImGui::PushID(suggestion.c_str());
@@ -398,17 +395,21 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                 std::ranges::transform(lowerKeyword, lowerKeyword.begin(), ::tolower);
                 keywordPos = lowerSuggestion.find(lowerKeyword);
             }
-
-            // 绘制按钮
             const ImVec2 padding = ImGui::GetStyle().FramePadding;
             if (ImGui::Button(("##" + suggestion).c_str(), ImVec2(-1, 0))) {
-                std::string newCommand = ClikAutoCompleteItem(commandSuggestions_[selectedSuggestionIndex_]);
+                std::string newCommand = ClikAutoCompleteItem(suggestion);
                 pendingAutocomplete_ = newCommand;
                 lastCursorPos_ = static_cast<int>(newCommand.size());
                 nextCursorPos_ = lastCursorPos_;
                 commandSuggestions_.clear();
                 selectedSuggestionIndex_ = 0;
                 focusNextFrame_ = true;
+            }
+            if (ImGui::IsItemHovered())
+            {
+                // When the mouse hovers over the current suggestion item, the selected index will be updated directly.
+                // 鼠标悬停在当前建议项上，直接更新选中索引
+                selectedSuggestionIndex_ = static_cast<int>(i);
             }
             const ImVec2 textPos = ImVec2(ImGui::GetItemRectMin().x + padding.x, ImGui::GetItemRectMin().y + padding.y);
             ImDrawList *drawList = ImGui::GetWindowDrawList();

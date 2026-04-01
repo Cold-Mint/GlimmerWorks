@@ -13,10 +13,10 @@ namespace glimmer {
 
         VirtualFileSystem *virtualFileSystem_;
 
-        std::string commandHistoryPath_ = "data/command_history.bin";
+        std::string commandHistoryPath_;
 
     public:
-        explicit CommandHistoryManager(VirtualFileSystem *virtualFileSystem);
+        explicit CommandHistoryManager(const std::string &runtimePath, VirtualFileSystem *virtualFileSystem);
 
         /**
          * Save
@@ -35,7 +35,7 @@ namespace glimmer {
          * Read
          * 读取
          */
-         void Read();
+        void Read();
     };
 }
 

@@ -8,14 +8,13 @@
 
 
 namespace glimmer {
-    class ScreenshotCommand : public Command{
-    public:
-        explicit ScreenshotCommand(AppContext *appContext);
-
+    class ScreenshotCommand : public Command {
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
+        explicit ScreenshotCommand(AppContext *appContext);
+
         [[nodiscard]] std::string GetName() const override;
 
         void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) override;

@@ -9,15 +9,14 @@
 
 namespace glimmer {
     class EcsCommand final : public Command {
+    protected:
+        void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
+
     public:
         explicit EcsCommand(AppContext *appContext);
 
         [[nodiscard]] std::string EntityToString(GameEntity::ID gameEntityId) const;
 
-    protected:
-        void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
-
-    public:
         [[nodiscard]] std::string GetName() const override;
 
         void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) override;

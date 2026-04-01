@@ -9,14 +9,12 @@
 
 namespace glimmer {
     class FlyCommand final : public Command {
-
-    public:
-        explicit FlyCommand(AppContext *appContext);
-
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
+        explicit FlyCommand(AppContext *appContext);
+
         [[nodiscard]] std::string GetName() const override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;

@@ -16,13 +16,12 @@ namespace glimmer {
      * 格式为：Echo [文本内容]
      */
     class EchoCommand: public Command {
-    public:
-        explicit EchoCommand(AppContext *appContext);
-
     protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
 
     public:
+        explicit EchoCommand(AppContext *appContext);
+
         [[nodiscard]] std::string GetName() const override;
 
         void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) override;

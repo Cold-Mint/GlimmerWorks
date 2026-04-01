@@ -273,7 +273,7 @@ glimmer::AppContext::AppContext() {
     LogCat::i("framerate = ", config_->window.framerate);
     LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
     savesManager_ = std::make_unique<SavesManager>(vfs);
-    savesManager_->LoadAllSaves();
+    savesManager_->LoadAllSaves(config_->runtimePath);
     dragAndDrop_ = std::make_unique<DragAndDrop>();
     lootTableManager_ = std::make_unique<LootTableManager>();
     structureGeneratorManager_ = std::make_unique<StructureGeneratorManager>();
@@ -303,7 +303,7 @@ glimmer::AppContext::AppContext() {
         LogCat::e("At least one of the mob files must have the \"isPlayer = true\" setting.");
         return;
     }
-    commandHistoryManager_ = std::make_unique<CommandHistoryManager>(virtualFileSystem_.get());
+    commandHistoryManager_ = std::make_unique<CommandHistoryManager>(config_->runtimePath, virtualFileSystem_.get());
     if (config_->console.maxHistoryEntries > 0) {
         commandHistoryManager_->Read();
     }
@@ -353,15 +353,16 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
             "renderer is null failed"));
         return;
     }
-    if (!virtualFileSystem_->Exists("screenshots")) {
-        if (!virtualFileSystem_->CreateFolder("screenshots")) {
+    if (!virtualFileSystem_->Exists(config_->runtimePath + "/screenshots")) {
+        if (!virtualFileSystem_->CreateFolder(config_->runtimePath + "/screenshots")) {
             onMessage(fmt::format(
                 fmt::runtime(GetLangsResources()->screenshotSavedFailed),
                 "CreateFolder failed"));
             return;
         }
     }
-    const auto actualPath = virtualFileSystem_->GetActualPath("screenshots/" + GetTimeFileName());
+    const auto actualPath = virtualFileSystem_->GetActualPath(
+        config_->runtimePath + "/screenshots/" + GetTimeFileName());
     if (!actualPath.has_value()) {
         onMessage(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),

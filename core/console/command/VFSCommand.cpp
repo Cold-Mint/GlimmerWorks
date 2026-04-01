@@ -7,10 +7,6 @@
 #include "../../Constants.h"
 #include "../../scene/AppContext.h"
 #include "fmt/color.h"
-#include "src/core/player.pb.h"
-#include "src/saves/chunk.pb.h"
-#include "src/saves/chunk_entity.pb.h"
-#include "src/saves/map_manifest.pb.h"
 
 void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
     //List all the mount points
@@ -75,8 +71,7 @@ bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(co
     }
     if (size > 2 && type == "exists") {
         auto path = commandArgs.AsString(2);
-        auto exists = virtualFileSystem->Exists(path);
-        if (exists) {
+        if (virtualFileSystem->Exists(path)) {
             onMessage("true");
         } else {
             onMessage("false");
@@ -87,28 +82,7 @@ bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(co
         auto path = commandArgs.AsString(2);
         auto text = virtualFileSystem->ReadFile(path);
         if (text.has_value()) {
-            if (size > 3) {
-                auto messageType = commandArgs.AsString(3);
-                if (messageType == "chunk") {
-                    ChunkMessage chunkMessage;
-                    chunkMessage.ParseFromString(text.value());
-                    onMessage(chunkMessage.DebugString());
-                } else if (messageType == "mapManifest") {
-                    MapManifestMessage mapManifestMessage;
-                    mapManifestMessage.ParseFromString(text.value());
-                    onMessage(mapManifestMessage.DebugString());
-                } else if (messageType == "entity") {
-                    ChunkEntityMessage chunkEntityMessage;
-                    chunkEntityMessage.ParseFromString(text.value());
-                    onMessage(chunkEntityMessage.DebugString());
-                } else if (messageType == "player") {
-                    PlayerMessage playerMessage;
-                    playerMessage.ParseFromString(text.value());
-                    onMessage(playerMessage.DebugString());
-                }
-            } else {
-                onMessage(text.value());
-            }
+            onMessage(text.value());
         } else {
             onMessage("null");
         }
@@ -127,14 +101,8 @@ glimmer::NodeTree<std::string> glimmer::VFSCommand::GetSuggestionsTree(const Com
             for (int i = 0; i < size; i++) {
                 auto child = suggestionsTree_.GetChild(i);
                 child->ClearChildren();
-                auto childNode = child->AddChild(
+                child->AddChild(
                     std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs.AsString(2));
-                if (type == "readFile") {
-                    childNode->AddChild("mapManifest");
-                    childNode->AddChild("chunk");
-                    childNode->AddChild("entity");
-                    childNode->AddChild("player");
-                }
             }
         }
     }

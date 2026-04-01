@@ -55,6 +55,7 @@ void glimmer::Config::LoadConfig(const toml::value &configValue) {
     debug.displayDebugPanel = toml::find<bool>(configValue, "debug", "display_debug_panel");
     debug.displayBox2dShape = toml::find<bool>(configValue, "debug", "display_box2d_shape");
     console.maxHistoryEntries = toml::find<int>(configValue, "console", "max_history_entries");
+    runtimePath = toml::find<std::string>(configValue, "runtime_path");
     f1 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f1");
     f2 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f2");
     f3 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f3");

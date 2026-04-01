@@ -5,8 +5,10 @@
 #include "CommandHistoryManager.h"
 
 
-glimmer::CommandHistoryManager::CommandHistoryManager(VirtualFileSystem *virtualFileSystem) {
+glimmer::CommandHistoryManager::CommandHistoryManager(const std::string &runtimePath,
+                                                      VirtualFileSystem *virtualFileSystem) {
     virtualFileSystem_ = virtualFileSystem;
+    commandHistoryPath_ = runtimePath + "/command_history.bin";
 }
 
 void glimmer::CommandHistoryManager::Save() const {

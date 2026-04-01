@@ -43,14 +43,14 @@ namespace glimmer {
         * 创建存档
         * @param manifest manifest 清单文件
         */
-        Saves *Create(MapManifest &manifest);
+        Saves *Create(const std::string &runtimePath,MapManifest &manifest);
 
 
         /**
          * Load all the saved files.
          * 加载所有的存档。
          */
-        void LoadAllSaves();
+        void LoadAllSaves(const std::string &runtimePath);
 
         /**
          * Find out how many archives there are.

@@ -6,6 +6,7 @@
 
 #include "../log/LogCat.h"
 #include "../scene/AppContext.h"
+#include "core/utils/StringUtils.h"
 
 
 void glimmer::SavesManager::AddSaves(std::unique_ptr<Saves> saves) {
@@ -54,8 +55,8 @@ bool glimmer::SavesManager::DeleteSave(const size_t index) {
     return false;
 }
 
-glimmer::Saves *glimmer::SavesManager::Create(MapManifest &manifest) {
-    std::string path = "data/saved/" + manifest.name;
+glimmer::Saves *glimmer::SavesManager::Create(const std::string &runtimePath, MapManifest &manifest) {
+    std::string path = runtimePath + "/saved/" + StringUtils::ToSafeSaveName(manifest.name);
     if (!virtualFileSystem_->Exists(path)) {
         bool createFolder = virtualFileSystem_->CreateFolder(path);
         if (!createFolder) {
@@ -74,9 +75,10 @@ glimmer::Saves *glimmer::SavesManager::Create(MapManifest &manifest) {
     return GetSave(saveList_.size() - 1);
 }
 
-void glimmer::SavesManager::LoadAllSaves() {
+
+void glimmer::SavesManager::LoadAllSaves(const std::string &runtimePath) {
     saveList_.clear();
-    const std::vector<std::string> array = virtualFileSystem_->ListFile("data/saved/",false);
+    const std::vector<std::string> array = virtualFileSystem_->ListFile(runtimePath + "/saved/", false);
     for (const auto &item: array) {
         AddSaves(std::make_unique<Saves>(item, virtualFileSystem_));
     }

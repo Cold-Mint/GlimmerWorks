@@ -84,6 +84,7 @@ namespace glimmer {
         HotkeyCommand f10{};
         HotkeyCommand f11{};
         HotkeyCommand f12{};
+        std::string runtimePath;
 
         void LoadConfig(const toml::value &configValue);
     };

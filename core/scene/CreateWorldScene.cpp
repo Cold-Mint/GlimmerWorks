@@ -52,7 +52,7 @@ void glimmer::CreateWorldScene::CreateWorld() const {
     SavesManager *savesManager = appContext->GetSavesManager();
     Saves *saves =
             savesManager->
-            Create(manifest);
+            Create(appContext->GetConfig()->runtimePath, manifest);
     if (saves == nullptr) {
         LogCat::e("Failed to create world");
         return;

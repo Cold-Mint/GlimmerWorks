@@ -1,5 +1,9 @@
 config_version = 1
 
+# Runtime data storage path
+# 运行时数据存放路径
+runtime_path = "runtime"
+
 [window]
 # Window width (pixels)
 # 窗口宽度（像素）

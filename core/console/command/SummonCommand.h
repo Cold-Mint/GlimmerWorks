@@ -7,8 +7,10 @@
 #include "core/console/Command.h"
 
 namespace glimmer {
-    class SummonCommand : public Command{
+    class SummonCommand : public Command {
+    protected:
         void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
+
     public:
         explicit SummonCommand(AppContext *appContext);
 

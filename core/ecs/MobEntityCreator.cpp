@@ -11,6 +11,7 @@
 #include "component/RayCast2DComponent.h"
 #include "component/RigidBody2DComponent.h"
 #include "component/SpiritRendererComponent.h"
+#include "component/TilePlacementForbiddenZoneComponent.h"
 
 glimmer::MobEntityCreator::MobEntityCreator(WorldContext *worldContext) : IPersistenceEntityCreator(worldContext) {
 }
@@ -92,6 +93,17 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const GameEntity::ID id, 
         rayCast2dComponent->SetTransform2DEntity(id);
         mobComponent->groundCheckRayEntityIds.push_back(groundRayCast);
     }
+    const auto tilePlacementForbiddenZoneComponent = worldContext_->AddComponent<
+        TilePlacementForbiddenZoneComponent>(id);
+    if (tilePlacementForbiddenZoneComponent != nullptr) {
+        TilePlacementForbiddenZone tilePlacementForbiddenZone = mobResource->tilePlacementForbiddenZone;
+        tilePlacementForbiddenZoneComponent->SetHeight(tilePlacementForbiddenZone.height);
+        tilePlacementForbiddenZoneComponent->SetWidth(tilePlacementForbiddenZone.width);
+        tilePlacementForbiddenZoneComponent->SetOffsetX(tilePlacementForbiddenZone.offsetX);
+        tilePlacementForbiddenZoneComponent->SetOffsetY(tilePlacementForbiddenZone.offsetY);
+    }
+
+
     const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(id);
     if (rigidBody2DComponent != nullptr) {
         rigidBody2DComponent->SetBodyType(static_cast<b2BodyType>(mobResource->bodyType));

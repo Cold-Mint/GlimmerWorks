@@ -8,6 +8,8 @@
 #include "../Constants.h"
 #include "../world/generator/ChunkPhysicsHelper.h"
 #include "../world/WorldContext.h"
+#include "core/ecs/component/DebugDrawComponent.h"
+#include "core/ecs/component/TilePlacementForbiddenZoneComponent.h"
 
 glimmer::TileItem::TileItem(std::unique_ptr<Tile> tile) : tile_(std::move(tile)) {
     resourceRef_ = tile_->GetResourceRef();
@@ -58,6 +60,44 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
             if (currentTileId == Resource::GenerateId(RESOURCE_REF_CORE, TILE_ID_AIR) || currentTileId ==
                 Resource::GenerateId(
                     RESOURCE_REF_CORE, TILE_ID_WATER)) {
+                bool isPlacementForbidden = false;
+                const auto mobList = worldContext->GetEntityIDWithComponents<Transform2DComponent,
+                    TilePlacementForbiddenZoneComponent>();
+                auto targetWorldPos = TileLayerComponent::TileToWorldCenter(targetPos);
+                for (uint32_t mob: mobList) {
+                    const Transform2DComponent *transform2dComponent = worldContext->GetComponent<
+                        Transform2DComponent>(mob);
+                    if (transform2dComponent == nullptr) {
+                        continue;
+                    }
+                    const TilePlacementForbiddenZoneComponent *forbiddenZone = worldContext->GetComponent<
+                        TilePlacementForbiddenZoneComponent>(mob);
+                    if (forbiddenZone == nullptr) {
+                        continue;
+                    }
+                    //The rectangular area where tiles are prohibited from being placed.
+                    //禁止放置瓦片的矩形范围。
+                    float halfHeight = forbiddenZone->GetHeight() * HALF_TILE_SIZE;
+                    float halfWidth = forbiddenZone->GetWidth() * HALF_TILE_SIZE;
+                    WorldVector2D transform2dWorldPos = transform2dComponent->GetPosition();
+                    auto forbiddenRect = SDL_FRect{
+                        transform2dWorldPos.x - halfWidth + forbiddenZone->GetOffsetX() * TILE_SIZE,
+                        transform2dWorldPos.y - halfHeight + forbiddenZone->GetOffsetY() * TILE_SIZE,
+                        static_cast<float>(forbiddenZone->GetWidth() * TILE_SIZE),
+                        static_cast<float>(forbiddenZone->GetHeight() * TILE_SIZE)
+                    };
+                    if (targetWorldPos.x >= forbiddenRect.x &&
+                        targetWorldPos.x <= forbiddenRect.x + forbiddenRect.w &&
+                        targetWorldPos.y >= forbiddenRect.y &&
+                        targetWorldPos.y <= forbiddenRect.y + forbiddenRect.h) {
+                        isPlacementForbidden = true;
+                        break;
+                    }
+                }
+                if (isPlacementForbidden) {
+                    continue;
+                }
+
                 if (GetAmount() > 0) {
                     worldContext->GetAppContext()->GetAudioManager()->TryPlayFree(
                         AMBIENT, tile_->GetPlaceSFX(), 0);

@@ -133,14 +133,13 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
                 slipTimer_ += delta;
                 std::unordered_set<std::string> popupAbility;
                 const AbilityConfig &abilityConfig = item->GetAbilityConfig();
-
                 if (slipTimer_ > 0.5F) {
                     slipTimer_ = 0.0F;
-                    std::random_device rd;
-                    std::mt19937 rng(rd());
                     float fumbleChance = std::clamp(abilityConfig.fumbleProbability, 0.0F, 1.0F);
                     if (fumbleChance > 0.0F) {
                         std::uniform_real_distribution dist(0.0F, 1.0F);
+                        std::random_device rd;
+                        std::mt19937 rng(rd());
                         float randomValue = dist(rng);
 
                         if (randomValue <= fumbleChance) {

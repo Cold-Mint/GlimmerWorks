@@ -138,6 +138,23 @@ namespace glimmer {
         Box2dFilter filter;
     };
 
+
+    /**
+     * Prohibited area for placing tiles
+     * 瓦片放置禁止区域
+     */
+    //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
+    struct TilePlacementForbiddenZone {
+        //@genNextLine(width|宽度)
+        int width = 1;
+        //@genNextLine(height|高度)
+        int height = 1;
+        //@genNextLine(offsetX|偏移X)
+        float offsetX = 1;
+        //@genNextLine(offsetY|偏移Y)
+        float offsetY = 1;
+    };
+
     /**
      * Mob Resource
      * 生物资源
@@ -172,6 +189,8 @@ namespace glimmer {
         float density = 0.001F;
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture = {};
+        //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
+        TilePlacementForbiddenZone tilePlacementForbiddenZone = {};
         //@genNextLine(groundCheckRayCast|地面检测射线)
         std::vector<RayCastResource> groundCheckRayCast = {};
     };

@@ -300,6 +300,7 @@ static constexpr uint32_t COMPONENT_ID_ITEM_EDITOR = 19;
 static constexpr uint32_t COMPONENT_ID_MOB = 20;
 static constexpr uint32_t COMPONENT_ID_RAY_CAST_2D = 21;
 static constexpr uint32_t COMPONENT_ID_FLOATING_TEXT = 22;
+static constexpr uint32_t COMPONENT_ID_TILE_PLACEMENT_FORBIDDEN_ZONE = 23;
 
 
 static constexpr std::string TILE_ID_AIR = "air";

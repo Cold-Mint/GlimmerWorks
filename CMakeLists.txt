@@ -457,6 +457,7 @@ target_sources(GlimmerWorks
         core/BoolOrToggle.cpp
         core/console/CommandHistoryManager.cpp
         core/utils/StringUtils.cpp
+        core/ecs/component/TilePlacementForbiddenZoneComponent.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -652,6 +653,7 @@ target_sources(GlimmerWorks
         core/BoolOrToggle.h
         core/console/CommandHistoryManager.h
         core/utils/StringUtils.h
+        core/ecs/component/TilePlacementForbiddenZoneComponent.h
 )
 
 #Define version information

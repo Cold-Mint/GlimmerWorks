@@ -204,8 +204,8 @@ namespace glimmer {
          * @return
          */
         template<typename Func>
-        auto AddMainThreadTaskAwait(Func &&func)
-            -> std::future<std::invoke_result_t<Func> > {
+        std::future<std::invoke_result_t<Func> >  AddMainThreadTaskAwait(Func &&func)
+             {
             using Result = std::invoke_result_t<Func>;
             if (IsMainThread()) {
                 std::promise<Result> p;

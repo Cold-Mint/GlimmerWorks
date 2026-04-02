@@ -43,14 +43,14 @@ void glimmer::CommandExecutor::ExecuteAsyncBatch(const std::vector<std::string> 
                                                  const std::function<void(
                                                      CommandResult result, const std::string &command)> &onFinished,
                                                  const std::function<void(const std::string &text)> &onMessage) {
-    (void) std::async(std::launch::async, [=]() mutable {
+    std::thread([commandList,commandManager,onMessage,onFinished]() mutable {
         for (const auto &command: commandList) {
             const CommandResult result = Execute(command, commandManager, onMessage);
             if (onFinished) {
                 onFinished(result, command);
             }
         }
-    });
+    }).detach();
 }
 
 void glimmer::CommandExecutor::ExecuteAsyncSingle(const std::string &command, const CommandManager *commandManager,

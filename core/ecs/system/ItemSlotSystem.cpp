@@ -5,7 +5,6 @@
 #include "ItemSlotSystem.h"
 #include "../../inventory/Item.h"
 #include "../../world/WorldContext.h"
-#include "../../inventory/DragAndDrop.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include <SDL3/SDL.h>
 #include <string>
@@ -19,58 +18,117 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer *renderer) {
         return;
     }
     const AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
     const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     const Item *hoveredItem = nullptr;
-    DragAndDrop *dragAndDrop = appContext->GetDragAndDrop();
     for (auto &entity: entities) {
         const auto slotComp = worldContext_->GetComponent<ItemSlotComponent>(entity);
         const auto transform = worldContext_->GetComponent<GuiTransform2DComponent>(entity);
 
         const Vector2D pos = transform->GetPosition();
         const Vector2D size = transform->GetSize();
-        const auto itemContainer = slotComp->GetItemContainer();
-        if (itemContainer == nullptr) {
-            continue;
-        }
 
-        int slotIndex = slotComp->GetSlotIndex();
-        Item *item = itemContainer->GetItem(slotIndex);
+        const Item *item = slotComp->GetItem();
         const SDL_FRect rect = {pos.x, pos.y, size.x, size.y};
+        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+        SDL_RenderRect(renderer, &rect);
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
                          mouseY >= rect.y && mouseY <= rect.y + rect.h;
         slotComp->SetHovered(isHovered);
-        if (isHovered && item != nullptr) {
-            hoveredItem = item;
+        if (slotComp->IsSelected()) {
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+            SDL_FRect selRect = {rect.x - 2, rect.y - 2, size.x + 4, size.y + 4};
+            SDL_RenderRect(renderer, &selRect);
+        }
+        if (item == nullptr) {
+            continue;
+        }
+        auto texture = item->GetIcon();
+        if (texture != nullptr) {
+            SDL_RenderTexture(renderer, texture, nullptr, &rect);
+        }
+        if (item->GetAmount() > 1) {
+            std::string text = std::to_string(static_cast<int>(item->GetAmount()));
+            SDL_Color color = {255, 255, 255, 255};
+            SDL_Surface *surface =
+                    TTF_RenderText_Blended(appContext->GetFont(), text.c_str(), text.length(), color);
+            if (surface) {
+                SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, surface);
+                if (t) {
+                    SDL_FRect dst = {
+                        rect.x + size.x - surface->w - 2, rect.y + size.y - surface->h - 2,
+                        static_cast<float>(surface->w),
+                        static_cast<float>(surface->h)
+                    };
+                    SDL_RenderTexture(renderer, t, nullptr, &dst);
+                    SDL_DestroyTexture(t);
+                }
+                SDL_DestroySurface(surface);
+            }
         }
 
-        dragAndDrop->DrawSlot(appContext, renderer, pos, size, item, slotComp->IsSelected(),
-                              [&](const DragState &state) {
-                                  if (state.sourceType != DragSourceType::INVENTORY) {
-                                      return;
-                                  }
-                                  if (state.sourceContainer != nullptr) {
-                                      itemContainer->SwapItem(slotIndex, state.sourceContainer, state.sourceIndex);
-                                  }
-                              },
-                              [&] {
-                                  dragAndDrop->BeginDrag(DragSourceType::INVENTORY,
-                                                         itemContainer, slotIndex,
-                                                         item);
-                              },
-                              nullptr
-        );
+        if (isHovered) {
+            hoveredItem = item;
+        }
     }
-
-    if (dragAndDrop->IsDragging()) {
-        dragAndDrop->RenderCombined(renderer, mouseX, mouseY, appContext->GetConfig()->window.uiScale);
-    }
-
-    if (hoveredItem && !dragAndDrop->IsDragging()) {
+    if (hoveredItem) {
         RenderTooltip(renderer, hoveredItem);
     }
     AppContext::RestoreColorRenderer(renderer);
+}
+
+bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event &event) {
+    if (worldContext_ == nullptr) {
+        return false;
+    }
+    if (worldContext_->IsDragMode()) {
+        return false;
+    }
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
+        const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
+        if (entities.empty()) {
+            return false;
+        }
+        float mouseX = event.motion.x;
+        float mouseY = event.motion.y;
+        ItemSlotComponent *previousItemSlotComponent = nullptr;
+        ItemSlotComponent *currentlyItemSlotComponent = nullptr;
+        for (uint32_t entity: entities) {
+            GuiTransform2DComponent *guiTransform2dComponent = worldContext_->GetComponent<
+                GuiTransform2DComponent>(entity);
+            if (guiTransform2dComponent == nullptr) {
+                continue;
+            }
+            ItemSlotComponent *itemSlotComponent = worldContext_->GetComponent<ItemSlotComponent>(entity);
+            if (itemSlotComponent == nullptr) {
+                continue;
+            }
+            const CameraVector2D position = guiTransform2dComponent->GetPosition();
+            const CameraVector2D size = guiTransform2dComponent->GetSize();
+            const SDL_FRect border = {position.x, position.y, size.x, size.y};
+            if (itemSlotComponent->IsSelected()) {
+                previousItemSlotComponent = itemSlotComponent;
+            }
+            if (itemSlotComponent->AllowSelected()) {
+                bool selected = mouseX >= border.x && mouseX <= border.x + border.w &&
+                                mouseY >= border.y && mouseY <= border.y + border.h;
+                if (selected) {
+                    currentlyItemSlotComponent = itemSlotComponent;
+                }
+            }
+        }
+        if (currentlyItemSlotComponent != nullptr && previousItemSlotComponent != nullptr && previousItemSlotComponent
+            != currentlyItemSlotComponent) {
+            currentlyItemSlotComponent->SetSelected(true);
+            previousItemSlotComponent->SetSelected(false);
+        }
+    }
+
+    return false;
 }
 
 void glimmer::ItemSlotSystem::RenderQuantity(SDL_Renderer *renderer, const SDL_FRect &slotDest, int amount) const {

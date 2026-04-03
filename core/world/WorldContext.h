@@ -130,10 +130,17 @@ namespace glimmer {
         std::unique_ptr<ChunkGenerator> chunkGenerator_;
 
         /**
+         * Whether to enable the item dragging mode
+         * 是否启用物品拖拽模式
+         */
+        bool dragMode_ = false;
+
+        /**
          * Whether it is running or not, if false, it indicates that the game has been paused.
          * 是否正在运行中，为false则表示游戏已被暂停。
          */
         bool running = true;
+
 
         void RemoveComponentInternal(GameEntity::ID id, GameComponent *comp);
 
@@ -154,6 +161,9 @@ namespace glimmer {
     public:
         ~WorldContext();
 
+        [[nodiscard]] bool IsDragMode() const;
+
+        void SetDragMode(bool dragMode);
 
         [[nodiscard]] GameEntity::ID GetEntityIdIndex() const;
 

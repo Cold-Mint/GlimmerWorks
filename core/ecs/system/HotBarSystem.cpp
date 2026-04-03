@@ -18,22 +18,61 @@ glimmer::HotBarSystem::HotBarSystem(WorldContext *worldContext)
     RequireComponent<GuiTransform2DComponent>();
 }
 
-void glimmer::HotBarSystem::Update(float delta) {
-    const auto hotBarEntity = worldContext_->GetHotBarEntity();
-    if (WorldContext::IsEmptyEntityId(hotBarEntity)) {
-        return;
+bool glimmer::HotBarSystem::HandleEvent(const SDL_Event &event) {
+    if (worldContext_ == nullptr) {
+        return false;
     }
-    auto *hotbarComponent = worldContext_->GetComponent<HotBarComponent>(hotBarEntity);
-    auto SlotEntityList = hotbarComponent->GetSlotEntities();
-    int selectedSlot = hotbarComponent->GetSelectedSlot();
-    for (int i = 0; i < SlotEntityList.size(); ++i) {
-        const auto entityId = SlotEntityList[i];
-        if (WorldContext::IsEmptyEntityId(entityId)) {
-            continue;
+    if (event.type == SDL_EVENT_MOUSE_WHEEL) {
+        const auto hotBarComponent = worldContext_->GetComponent<HotBarComponent>(worldContext_->GetHotBarEntity());
+        if (hotBarComponent == nullptr) {
+            return false;
         }
-        auto *slotComp = worldContext_->GetComponent<ItemSlotComponent>(entityId);
-        slotComp->SetSelected(i == selectedSlot);
+
+        auto &slotEntityList = hotBarComponent->GetSlotEntities();
+        int total = slotEntityList.size();
+        if (total == 0) {
+            return false;
+        }
+        ItemSlotComponent *previousItemSlot = nullptr;
+        ItemSlotComponent *currentItemSlot = nullptr;
+        ItemSlotComponent *nextItemSlot = nullptr;
+        for (int i = 0; i < slotEntityList.size(); ++i) {
+            const auto entityId = slotEntityList[i];
+            if (WorldContext::IsEmptyEntityId(entityId)) {
+                continue;
+            }
+            auto *itemSlot = worldContext_->GetComponent<ItemSlotComponent>(entityId);
+            if (itemSlot == nullptr) {
+                continue;
+            }
+            if (itemSlot->IsSelected()) {
+                currentItemSlot = itemSlot;
+                int prevIdx = (i - 1 + total) % total;
+                int nextIdx = (i + 1) % total;
+                previousItemSlot = worldContext_->GetComponent<ItemSlotComponent>(slotEntityList[prevIdx]);
+                nextItemSlot = worldContext_->GetComponent<ItemSlotComponent>(slotEntityList[nextIdx]);
+                break;
+            }
+        }
+        if (event.wheel.y > 0) {
+            if (currentItemSlot != nullptr) {
+                currentItemSlot->
+                SetSelected(false);
+            }
+            if (previousItemSlot != nullptr) {
+                previousItemSlot->SetSelected(true);
+            }
+        } else if (event.wheel.y < 0) {
+            if (currentItemSlot != nullptr) {
+                currentItemSlot->SetSelected(false);
+            }
+            if (nextItemSlot != nullptr) {
+                nextItemSlot->SetSelected(true);
+            }
+        }
+        return true;
     }
+    return false;
 }
 
 

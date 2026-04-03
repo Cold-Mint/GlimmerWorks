@@ -122,6 +122,9 @@ display_debug_panel = false
 # Render Box2D collision shapes
 # 渲染Box2D物理碰撞形状
 display_box2d_shape = false
+# Draw the boundaries of the area for dragging and dropping
+# 绘制拖拽的区域边界
+display_draggable_target = false
 
 [console]
 # Maximum number of console history entries to save (0 = disable history function)

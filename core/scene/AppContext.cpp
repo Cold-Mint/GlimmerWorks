@@ -274,7 +274,6 @@ glimmer::AppContext::AppContext() {
     LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
     savesManager_ = std::make_unique<SavesManager>(vfs);
     savesManager_->LoadAllSaves(config_->runtimePath);
-    dragAndDrop_ = std::make_unique<DragAndDrop>();
     lootTableManager_ = std::make_unique<LootTableManager>();
     structureGeneratorManager_ = std::make_unique<StructureGeneratorManager>();
     structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<StaticStructureGenerator>());
@@ -554,10 +553,6 @@ glimmer::SavesManager *glimmer::AppContext::GetSavesManager() const {
 
 SDL_Window *glimmer::AppContext::GetWindow() const {
     return window_;
-}
-
-glimmer::DragAndDrop *glimmer::AppContext::GetDragAndDrop() const {
-    return dragAndDrop_.get();
 }
 
 glimmer::MobManager *glimmer::AppContext::GetMobManager() const {

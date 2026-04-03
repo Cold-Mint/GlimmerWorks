@@ -447,6 +447,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                 // When the mouse hovers over the current suggestion item, the selected index will be updated directly.
                 // 鼠标悬停在当前建议项上，直接更新选中索引
                 selectedSuggestionIndex_ = static_cast<int>(i);
+                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
             const ImVec2 textPos = ImVec2(ImGui::GetItemRectMin().x + padding.x, ImGui::GetItemRectMin().y + padding.y);
             ImDrawList *drawList = ImGui::GetWindowDrawList();

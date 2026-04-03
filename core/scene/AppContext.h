@@ -15,7 +15,6 @@
 #include "../mod/dataPack/TileManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
 #include "../../core/contributor/ContributorManager.h"
-#include "core/inventory/DragAndDrop.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/dataPack/StringManager.h"
@@ -77,7 +76,6 @@ namespace glimmer {
         std::unique_ptr<StructureManager> structureManager_;
         std::unique_ptr<ResourceLocator> resourceLocator_;
         std::unique_ptr<ItemManager> itemManager_;
-        std::unique_ptr<DragAndDrop> dragAndDrop_;
         std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
         std::unique_ptr<StructurePlacementConditionsManager> structurePlacementConditionsManager_;
         std::unique_ptr<PreloadColors> preloadColors_;
@@ -187,8 +185,6 @@ namespace glimmer {
         [[nodiscard]] SavesManager *GetSavesManager() const;
 
         [[nodiscard]] SDL_Window *GetWindow() const;
-
-        [[nodiscard]] DragAndDrop *GetDragAndDrop() const;
 
         [[nodiscard]] MobManager *GetMobManager() const;
 

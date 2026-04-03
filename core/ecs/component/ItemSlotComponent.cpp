@@ -7,16 +7,18 @@
 #include "core/Constants.h"
 
 
-glimmer::ItemSlotComponent::ItemSlotComponent(ItemContainer *itemContainer, const int slotIndex)
-    : itemContainer_(itemContainer), slotIndex_(slotIndex) {
+glimmer::ItemSlotComponent::ItemSlotComponent(ItemContainer *itemContainer, int slotIndex,
+                                              bool allowSelected) : itemContainer_(itemContainer),
+                                                                    slotIndex_(slotIndex),
+                                                                    allowSelected_(allowSelected) {
 }
 
-glimmer::ItemContainer *glimmer::ItemSlotComponent::GetItemContainer() const {
-    return itemContainer_;
+bool glimmer::ItemSlotComponent::AllowSelected() const {
+    return allowSelected_;
 }
 
-int glimmer::ItemSlotComponent::GetSlotIndex() const {
-    return slotIndex_;
+glimmer::Item *glimmer::ItemSlotComponent::GetItem() const {
+    return itemContainer_->GetItem(slotIndex_);
 }
 
 bool glimmer::ItemSlotComponent::IsHovered() const {

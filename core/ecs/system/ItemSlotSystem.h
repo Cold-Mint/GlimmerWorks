@@ -21,6 +21,8 @@ namespace glimmer {
 
         void Render(SDL_Renderer *renderer) override;
 
+        bool HandleEvent(const SDL_Event &event) override;
+
         uint8_t GetRenderOrder() override;
 
         std::string GetName() override;

@@ -362,7 +362,6 @@ target_sources(GlimmerWorks
         core/ecs/component/AutoPickComponent.cpp
         core/inventory/ComposableItem.cpp
         core/inventory/ability/ItemAbility.cpp
-        core/inventory/DragAndDrop.cpp
         core/mod/dataPack/ItemManager.cpp
         core/console/command/GiveCommand.cpp
         core/console/suggestion/ComposableItemDynamicSuggestions.cpp
@@ -372,8 +371,6 @@ target_sources(GlimmerWorks
         core/inventory/ability/DigAbility.cpp
         core/inventory/AbilityItem.cpp
         core/console/suggestion/AbilityItemDynamicSuggestions.cpp
-        core/inventory/DragState.cpp
-        core/inventory/DragSourceType.cpp
         core/inventory/ItemAbilityFactory.cpp
         core/ecs/component/DiggingComponent.cpp
         core/ecs/system/DiggingSystem.cpp
@@ -458,6 +455,9 @@ target_sources(GlimmerWorks
         core/console/CommandHistoryManager.cpp
         core/utils/StringUtils.cpp
         core/ecs/component/TilePlacementForbiddenZoneComponent.cpp
+        core/ecs/component/DraggableComponent.cpp
+        core/ecs/component/DragTargetComponent.cpp
+        core/ecs/system/DraggableSystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -559,7 +559,6 @@ target_sources(GlimmerWorks
         core/ecs/component/AutoPickComponent.h
         core/inventory/ComposableItem.h
         core/inventory/ability/ItemAbility.h
-        core/inventory/DragAndDrop.h
         core/mod/dataPack/ItemManager.h
         core/console/command/GiveCommand.h
         core/console/suggestion/ComposableItemDynamicSuggestions.h
@@ -569,8 +568,6 @@ target_sources(GlimmerWorks
         core/inventory/ability/DigAbility.h
         core/inventory/AbilityItem.h
         core/console/suggestion/AbilityItemDynamicSuggestions.h
-        core/inventory/DragState.h
-        core/inventory/DragSourceType.h
         core/inventory/ItemAbilityFactory.h
         core/ecs/component/DiggingComponent.h
         core/ecs/system/DiggingSystem.h
@@ -654,6 +651,9 @@ target_sources(GlimmerWorks
         core/console/CommandHistoryManager.h
         core/utils/StringUtils.h
         core/ecs/component/TilePlacementForbiddenZoneComponent.h
+        core/ecs/component/DragTargetComponent.h
+        core/ecs/component/DraggableComponent.h
+        core/ecs/system/DraggableSystem.h
 )
 
 #Define version information

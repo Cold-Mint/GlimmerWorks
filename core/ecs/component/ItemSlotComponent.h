@@ -13,13 +13,14 @@ namespace glimmer {
         int slotIndex_;
         bool isHovered_ = false;
         bool isSelected_ = false;
+        bool allowSelected_ = false;
 
     public:
-        explicit ItemSlotComponent(ItemContainer *itemContainer, int slotIndex);
+        explicit ItemSlotComponent(ItemContainer *itemContainer, int slotIndex, bool allowSelected);
 
-        [[nodiscard]] ItemContainer *GetItemContainer() const;
+        [[nodiscard]] bool AllowSelected() const;
 
-        [[nodiscard]] int GetSlotIndex() const;
+        [[nodiscard]] Item *GetItem() const;
 
         [[nodiscard]] bool IsHovered() const;
 

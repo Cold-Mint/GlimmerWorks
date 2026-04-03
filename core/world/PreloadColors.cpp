@@ -245,6 +245,12 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     box2dFullColorRes.b = 237;
     box2dFullColorRes.a = 128;
     debugColor.box2dFullColor = LoadColor(resourceLocator, "debug/box2d_full_color", &box2dFullColorRes)->ToSDLColor();
+    ColorResource draggableColorRes;
+    draggableColorRes.r = 0;
+    draggableColorRes.g = 0;
+    draggableColorRes.b = 255;
+    draggableColorRes.a = 255;
+    debugColor.draggableColor = LoadColor(resourceLocator, "debug/draggable_color", &draggableColorRes)->ToSDLColor();
 }
 
 glimmer::ColorResource *glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator,

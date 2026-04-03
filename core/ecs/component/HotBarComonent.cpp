@@ -10,19 +10,6 @@
 glimmer::HotBarComponent::HotBarComponent(const int maxSlot) : maxSlot_(maxSlot) {
 }
 
-int glimmer::HotBarComponent::GetSelectedSlot() const {
-    return selectedSlot_;
-}
-
-void glimmer::HotBarComponent::SetSelectedSlot(int selectedSlot) {
-    if (selectedSlot < 0) {
-        selectedSlot = maxSlot_ - 1;
-    } else if (selectedSlot >= maxSlot_) {
-        selectedSlot = 0;
-    }
-    selectedSlot_ = selectedSlot;
-}
-
 int glimmer::HotBarComponent::GetMaxSlot() const {
     return maxSlot_;
 }

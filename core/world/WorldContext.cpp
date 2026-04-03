@@ -33,6 +33,7 @@
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/AutoPickComponent.h"
+#include "core/ecs/component/DraggableComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/component/GuiTransform2DComponent.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
@@ -43,6 +44,7 @@
 #include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
+#include "core/ecs/system/DraggableSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/ItemEditorSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
@@ -50,6 +52,14 @@
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
 #include "generator/ChunkPhysicsHelper.h"
+
+bool glimmer::WorldContext::IsDragMode() const {
+    return dragMode_;
+}
+
+void glimmer::WorldContext::SetDragMode(const bool dragMode) {
+    dragMode_ = dragMode;
+}
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
     const auto type = std::type_index(typeid(*comp));
@@ -238,7 +248,11 @@ void glimmer::WorldContext::InitHotbar(ItemContainer *itemContainer) {
     constexpr float slotStep = ITEM_SLOT_SIZE + ITEM_SLOT_PADDING;
     for (int i = 0; i < HOT_BAR_SIZE; ++i) {
         const auto slotEntity = CreateEntity();
-        AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i);
+        ItemSlotComponent *itemSlotComponent = AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
+        if (itemSlotComponent == nullptr) {
+            continue;
+        }
+        itemSlotComponent->SetSelected(i == 0);
         auto *guiTransform2DComponent = AddComponent<GuiTransform2DComponent>(slotEntity);
         if (guiTransform2DComponent == nullptr) {
             continue;
@@ -248,7 +262,11 @@ void glimmer::WorldContext::InitHotbar(ItemContainer *itemContainer) {
             (ITEM_SLOT_PADDING + slotStep * static_cast<float>(i)) * uiScale,
             ITEM_SLOT_PADDING * uiScale
         ));
-
+        auto draggableComponent = AddComponent<DraggableComponent>(slotEntity);
+        if (draggableComponent == nullptr) {
+            continue;
+        }
+        draggableComponent->SetSize(guiTransform2DComponent->GetSize());
         hotBarComponent->AddSlotEntity(slotEntity);
     }
 }
@@ -557,6 +575,7 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<AutoPickSystem>(this));
     RegisterSystem(std::make_unique<AreaMarkerSystem>(this));
     RegisterSystem(std::make_unique<DiggingSystem>(this));
+    RegisterSystem(std::make_unique<DraggableSystem>(this));
     RegisterSystem(std::make_unique<SpiritRendererSystem>(this));
     RegisterSystem(std::make_unique<PauseSystem>(this));
     RegisterSystem(std::make_unique<ItemEditorSystem>(this));
@@ -677,7 +696,7 @@ void glimmer::WorldContext::ShowItemEditorPanel(const ComposableItem *composable
     constexpr float slotStep = ITEM_SLOT_SIZE + ITEM_SLOT_PADDING;
     for (int i = 0; i < capacity; i++) {
         const auto slotEntity = CreateEntity();
-        AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i);
+        AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, false);
         auto *guiTransform2DComponent = AddComponent<GuiTransform2DComponent>(slotEntity);
         if (guiTransform2DComponent == nullptr) {
             continue;

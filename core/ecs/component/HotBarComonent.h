@@ -13,16 +13,11 @@ namespace glimmer {
     class GameEntity;
 
     class HotBarComponent : public GameComponent {
-        int selectedSlot_ = 0;
         int maxSlot_;
         std::vector<GameEntity::ID> slotEntities_;
 
     public:
         explicit HotBarComponent(int maxSlot);
-
-        [[nodiscard]] int GetSelectedSlot() const;
-
-        void SetSelectedSlot(int selectedSlot);
 
         [[nodiscard]] int GetMaxSlot() const;
 

@@ -44,11 +44,17 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
     if (ImGui::Button(appContext->GetLangsResources()->createWorld.c_str())) {
         appContext->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext));
     }
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    }
     ImGui::SameLine();
     if (ImGui::Button(appContext->GetLangsResources()->cancel.c_str())) {
         ImGui::End();
         appContext->GetSceneManager()->PopScene();
         return;
+    }
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
 
     ImGui::Separator();
@@ -79,6 +85,9 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
         if (ImGui::Selectable(label.c_str(), selected_save_index == static_cast<int>(i), 0, ImVec2(0, 0))) {
             selected_save_index = static_cast<int>(i);
         }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
     }
     ImGui::EndChild();
 
@@ -91,9 +100,15 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
                     appContext, std::make_unique<WorldContext>(appContext, manifest, saves)));
             }
         }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+        }
         ImGui::SameLine();
         if (ImGui::Button(appContext->GetLangsResources()->deleteGame.c_str())) {
             ImGui::OpenPopup(appContext->GetLangsResources()->deleteGame.c_str());
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
 
         if (ImGui::BeginPopupModal(appContext->GetLangsResources()->deleteGame.c_str(), nullptr,
@@ -112,10 +127,16 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
                     return;
                 }
             }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+            }
             ImGui::SetItemDefaultFocus();
             ImGui::SameLine();
             if (ImGui::Button(appContext->GetLangsResources()->cancel.c_str(), ImVec2(120, 0))) {
                 ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
             ImGui::EndPopup();
         }

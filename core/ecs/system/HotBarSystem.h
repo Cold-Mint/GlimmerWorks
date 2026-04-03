@@ -16,7 +16,7 @@ namespace glimmer {
     public:
         explicit HotBarSystem(WorldContext *worldContext);
 
-        void Update(float delta) override;
+        bool HandleEvent(const SDL_Event &event) override;
 
         uint8_t GetRenderOrder() override;
 

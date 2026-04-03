@@ -261,6 +261,7 @@ static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
 static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
 static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;
 static constexpr uint8_t RENDER_ORDER_FLOATING_TEXT = 13;
+static constexpr uint8_t RENDER_ORDER_DRAGGABLE = 14;
 static constexpr uint8_t RENDER_ORDER_PAUSE = 100;
 
 
@@ -301,6 +302,7 @@ static constexpr uint32_t COMPONENT_ID_MOB = 20;
 static constexpr uint32_t COMPONENT_ID_RAY_CAST_2D = 21;
 static constexpr uint32_t COMPONENT_ID_FLOATING_TEXT = 22;
 static constexpr uint32_t COMPONENT_ID_TILE_PLACEMENT_FORBIDDEN_ZONE = 23;
+static constexpr uint32_t COMPONENT_ID_DRAGGABLE = 24;
 
 
 static constexpr std::string TILE_ID_AIR = "air";

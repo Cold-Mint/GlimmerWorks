@@ -48,6 +48,7 @@ namespace glimmer {
         struct DebugColor {
             SDL_Color box2dBorderColor;
             SDL_Color box2dFullColor;
+            SDL_Color draggableColor;
         };
 
         DebugColor debugColor;

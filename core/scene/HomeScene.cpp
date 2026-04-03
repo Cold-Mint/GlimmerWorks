@@ -104,15 +104,27 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
             appContext->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(appContext));
         }
     }
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->GetLangsResources()->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    }
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->GetLangsResources()->settings.c_str(), ImVec2(buttonWidth, buttonHeight))) {
     }
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
         OnBackPressed();
+    }
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
 
     float margin = 10.0f;
@@ -135,8 +147,9 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
 
         ImGui::SetCursorPos(ImVec2(posX, currentY));
 
-        ImGui::TextLinkOpenURL(link.displayText.c_str(), link.link.c_str());
-
+        if (ImGui::TextLink(link.displayText.c_str())) {
+            SDL_OpenURL(link.link.c_str());
+        }
         if (ImGui::IsItemHovered()) {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }

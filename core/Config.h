@@ -33,6 +33,7 @@ namespace glimmer {
     struct Debug {
         bool displayDebugPanel;
         bool displayBox2dShape;
+        bool displayDraggableTarget;
     };
 
     struct Console {

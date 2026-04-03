@@ -73,6 +73,35 @@ uint8_t glimmer::TileLayerSystem::GetRenderOrder() {
     return RENDER_ORDER_TILE_LAYER;
 }
 
+bool glimmer::TileLayerSystem::HandleEvent(const SDL_Event &event) {
+    if (worldContext_ == nullptr) {
+        return false;
+    }
+    if (event.type != SDL_EVENT_MOUSE_MOTION) {
+        return false;
+    }
+    const auto *camera = worldContext_->GetCameraComponent();
+    if (camera == nullptr) {
+        return false;
+    }
+    const auto *cameraTransform = worldContext_->GetCameraTransform2D();
+    if (cameraTransform == nullptr) {
+        return false;
+    }
+    const WorldVector2D worldPos = camera->GetWorldPosition(
+        cameraTransform->GetPosition(),
+        CameraVector2D(event.motion.x, event.motion.y)
+    );
+    auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
+    for (auto &entity: tileLayerEntities) {
+        auto *layer = worldContext_->GetComponent<TileLayerComponent>(entity);
+        if (layer != nullptr && layer->GetTileLayerType() == TileLayerType::Main) {
+            layer->SetFocusPosition(TileLayerComponent::WorldToTile(worldPos));
+        }
+    }
+    return true;
+}
+
 std::string glimmer::TileLayerSystem::GetName() {
     return "glimmer.TileLayerSystem";
 }

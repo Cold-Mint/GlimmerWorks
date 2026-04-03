@@ -248,7 +248,7 @@ void glimmer::WorldContext::InitHotbar(ItemContainer *itemContainer) {
     constexpr float slotStep = ITEM_SLOT_SIZE + ITEM_SLOT_PADDING;
     for (int i = 0; i < HOT_BAR_SIZE; ++i) {
         const auto slotEntity = CreateEntity();
-        ItemSlotComponent *itemSlotComponent = AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
+        auto *itemSlotComponent = AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
         if (itemSlotComponent == nullptr) {
             continue;
         }
@@ -706,9 +706,15 @@ void glimmer::WorldContext::ShowItemEditorPanel(const ComposableItem *composable
             (ITEM_SLOT_PADDING + slotStep * static_cast<float>(i)) * uiScale,
             (ITEM_SLOT_PADDING + slotStep) * uiScale
         ));
+        auto draggableComponent = AddComponent<DraggableComponent>(slotEntity);
+        if (draggableComponent == nullptr) {
+            continue;
+        }
+        draggableComponent->SetSize(guiTransform2DComponent->GetSize());
         itemEditorComponent->AddSlotEntity(slotEntity);
     }
     itemEditorPanel_ = entityId;
+    dragMode_ = true;
 }
 
 bool glimmer::WorldContext::IsItemEditorPanelVisible() const {
@@ -726,6 +732,7 @@ void glimmer::WorldContext::HideItemEditorPanel() {
         RemoveEntity(itemEditorPanel_);
         itemEditorPanel_ = 0;
     }
+    dragMode_ = false;
 }
 
 

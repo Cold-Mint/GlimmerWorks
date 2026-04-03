@@ -7,19 +7,23 @@
 #include "core/ecs/GameEntity.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
+#include "core/inventory/Item.h"
 #include "core/math/Vector2D.h"
 
 
 namespace glimmer {
     class DraggableSystem : public GameSystem {
-        float mouseX_ = 0;
-        float mouseY_ = 0;
-        SDL_Texture *texture_;
+        std::unique_ptr<Item> item_;
 
         SDL_FRect DraggableBorder(GameEntity::ID entityId, WorldVector2D cameraPosition,
                                   const CameraComponent *cameraComponent) const;
 
         [[nodiscard]] bool ShouldActivate() override;
+
+        void OnActivationChanged(bool activeStatus) override;
+
+
+        bool DropItem();
 
     public:
         explicit DraggableSystem(WorldContext *worldContext);

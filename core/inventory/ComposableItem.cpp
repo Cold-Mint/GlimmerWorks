@@ -116,26 +116,10 @@ void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID u
         }
         auto *abilityItem = dynamic_cast<AbilityItem *>(item);
         if (abilityItem == nullptr) {
-            //Throwing items that are not items of ability.
-            //扔出不为能力物品的物品。
-            const GameEntity::ID droppedEntity = worldContext->CreateEntity();
-            DroppedItemCreator droppedItemCreator{worldContext};
-            droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
-            droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
-                                                          worldContext->GetCameraTransform2D()->
-                                                          GetPosition(), itemContainer_->TakeAllItem(index), 2));
             continue;
         }
         ItemAbility *itemAbility = abilityItem->GetItemAbility();
         if (itemAbility == nullptr) {
-            //Throwing items that are not items of ability.
-            //扔出不为能力物品的物品。
-            const GameEntity::ID droppedEntity = worldContext->CreateEntity();
-            DroppedItemCreator droppedItemCreator{worldContext};
-            droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
-            droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
-                                                          worldContext->GetCameraTransform2D()->
-                                                          GetPosition(), itemContainer_->TakeAllItem(index), 2));
             continue;
         }
 

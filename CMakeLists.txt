@@ -456,7 +456,6 @@ target_sources(GlimmerWorks
         core/utils/StringUtils.cpp
         core/ecs/component/TilePlacementForbiddenZoneComponent.cpp
         core/ecs/component/DraggableComponent.cpp
-        core/ecs/component/DragTargetComponent.cpp
         core/ecs/system/DraggableSystem.cpp
         PUBLIC
         FILE_SET HEADERS
@@ -651,7 +650,6 @@ target_sources(GlimmerWorks
         core/console/CommandHistoryManager.h
         core/utils/StringUtils.h
         core/ecs/component/TilePlacementForbiddenZoneComponent.h
-        core/ecs/component/DragTargetComponent.h
         core/ecs/component/DraggableComponent.h
         core/ecs/system/DraggableSystem.h
 )

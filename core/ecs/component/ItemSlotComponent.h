@@ -22,6 +22,10 @@ namespace glimmer {
 
         [[nodiscard]] Item *GetItem() const;
 
+        [[nodiscard]] std::unique_ptr<Item> TakeAllItem() const;
+
+        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(std::unique_ptr<Item> item) const;
+
         [[nodiscard]] bool IsHovered() const;
 
         void SetHovered(bool hovered);

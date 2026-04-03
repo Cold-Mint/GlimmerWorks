@@ -10,7 +10,7 @@
 #Auburn/FastNoiseLite@latest
 #erincatto/box2d@latest
 #ToruNiina/toml11@latest
-set(OCORNUT_IMGUI_VERSION "v1.92.6")
+set(OCORNUT_IMGUI_VERSION "v1.92.7")
 set(LIBSDL-ORG_SDL_VERSION "release-3.4.2")
 set(LIBSDL-ORG_SDL_IMAGE_VERSION "release-3.4.0")
 set(LIBSDL-ORG_SDL_TTF_VERSION "release-3.2.2")

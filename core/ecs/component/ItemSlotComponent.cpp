@@ -21,6 +21,15 @@ glimmer::Item *glimmer::ItemSlotComponent::GetItem() const {
     return itemContainer_->GetItem(slotIndex_);
 }
 
+std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::TakeAllItem() const {
+    return itemContainer_->TakeAllItem(slotIndex_);
+}
+
+std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::ReplaceItem(std::unique_ptr<Item> item) const {
+    return itemContainer_->ReplaceItem(slotIndex_, std::move(item));
+}
+
+
 bool glimmer::ItemSlotComponent::IsHovered() const {
     return isHovered_;
 }

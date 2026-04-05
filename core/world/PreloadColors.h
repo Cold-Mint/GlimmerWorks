@@ -42,13 +42,41 @@ namespace glimmer {
             //Negative/curse attribute color
             //负面/诅咒属性色
             SDL_Color negativeAttributeColor;
-
         };
 
         struct DebugColor {
             SDL_Color box2dBorderColor;
             SDL_Color box2dFullColor;
             SDL_Color draggableColor;
+            SDL_Color debugPanelTextColor;
+            SDL_Color debugPanelTextBGColor;
+
+
+            // Gradient color of the elevation map
+            // 高度图渐变颜色
+            SDL_Color elevationMapFrom;
+            SDL_Color elevationMapTo;
+
+            // Temperature map with gradient color changes
+            // 温度图渐变颜色
+            SDL_Color tempMapFrom;
+            SDL_Color tempMapTo;
+
+            // Gradation of color in the humidity map
+            // 湿度图渐变颜色
+            SDL_Color humidityMapFrom;
+            SDL_Color humidityMapTo;
+
+            // Erosion map gradient colorization
+            // 侵蚀图渐变颜色
+            SDL_Color erosionMapFrom;
+            SDL_Color erosionMapTo;
+
+            // Gradation of color in the weirdness graph
+            // 怪异度图渐变颜色
+            SDL_Color weirdnessMapFrom;
+            SDL_Color weirdnessMapTo;
+
         };
 
         DebugColor debugColor;

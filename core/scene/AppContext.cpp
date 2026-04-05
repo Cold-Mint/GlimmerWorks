@@ -109,6 +109,9 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->chainMiningTip = find<std::string>(value, "chain_mining_tip");
     langs_->flyEnable = find<std::string>(value, "fly_enable");
     langs_->flyDisable = find<std::string>(value, "fly_disable");
+    langs_->tileDebugInfo = find<std::string>(value, "tile_debug_info");
+    langs_->tileResDebugInfo = find<std::string>(value, "tile_res_debug_info");
+    langs_->mousePosition = find<std::string>(value, "mouse_position");
     langs_->configurationCommitSuccess = find<std::string>(value, "configuration_commit_success");
     langs_->configurationCommitFail = find<std::string>(value, "configuration_commit_fail");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "world_name_prefix");

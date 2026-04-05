@@ -14,7 +14,8 @@ namespace glimmer {
 
         [[nodiscard]] bool ShouldActivate() override;
 
-        void RenderDebugText(SDL_Renderer *renderer, int windowW, const char *text, float y) const;
+        void RenderDebugText(SDL_Renderer *renderer, int windowW, const std::string &text, float y,
+                             SDL_Color textColor, SDL_Color textBGColor) const;
 
         void RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const;
 

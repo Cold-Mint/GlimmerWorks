@@ -250,18 +250,21 @@ static constexpr uint32_t GAME_ENTITY_ID_INVALID = 0;
 
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
 static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 2;
-static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 3;
-static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 4;
-static constexpr uint8_t RENDER_ORDER_DEBUG_CHUNK = 5;
-static constexpr uint8_t RENDER_ORDER_DEBUG_BOX2D = 99;
-static constexpr uint8_t RENDER_ORDER_DEBUG_HOTBAR = 7;
-static constexpr uint8_t RENDER_ORDER_ITEM_EDITOR = 8;
-static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 9;
+static constexpr uint8_t RENDER_ORDER_HOTBAR = 3;
+static constexpr uint8_t RENDER_ORDER_ITEM_EDITOR = 4;
 static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
 static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
 static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;
 static constexpr uint8_t RENDER_ORDER_FLOATING_TEXT = 13;
 static constexpr uint8_t RENDER_ORDER_DRAGGABLE = 14;
+
+
+static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 94;
+static constexpr uint8_t RENDER_ORDER_DEBUG_CHUNK = 95;
+static constexpr uint8_t RENDER_ORDER_DEBUG_BOX2D = 96;
+static constexpr uint8_t RENDER_ORDER_DEBUG_MAP = 97;
+static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 98;
+static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 99;
 static constexpr uint8_t RENDER_ORDER_PAUSE = 100;
 
 

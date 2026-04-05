@@ -15,32 +15,41 @@
 #include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/world/Tile.h"
 #include "core/world/generator/Chunk.h"
+#include "fmt/xchar.h"
 
 
 bool glimmer::DebugPanelSystem::ShouldActivate() {
     return worldContext_->IsRuning() && worldContext_->GetAppContext()->GetConfig()->debug.displayDebugPanel;
 }
 
-void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer *renderer, int windowW, const char *text, float y) const {
-    SDL_Color color = {255, 255, 180, 255};
-    SDL_Surface *s = TTF_RenderText_Blended(
-        worldContext_->GetAppContext()->GetFont(), text, strlen(text), color
+void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer *renderer, int windowW, const std::string &text, float y,
+                                                SDL_Color textColor, SDL_Color textBGColor) const {
+    SDL_Surface *surface = TTF_RenderText_Blended(
+        worldContext_->GetAppContext()->GetFont(), text.c_str(), text.length(), textColor
     );
-    if (!s) return;
-
-    SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
-    if (t) {
-        SDL_FRect dst{
-            static_cast<float>(windowW - s->w - 4),
-            y,
-            static_cast<float>(s->w),
-            static_cast<float>(s->h)
-        };
-        SDL_RenderTexture(renderer, t, nullptr, &dst);
-        SDL_DestroyTexture(t);
+    if (surface == nullptr) {
+        return;
     }
-    SDL_DestroySurface(s);
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (texture == nullptr) {
+        SDL_DestroySurface(surface);
+        return;
+    }
+    SDL_FRect dst{
+        static_cast<float>(windowW - surface->w - 4),
+        y,
+        static_cast<float>(surface->w),
+        static_cast<float>(surface->h)
+    };
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, textBGColor.r, textBGColor.g, textBGColor.b, textBGColor.a);
+    SDL_RenderFillRect(renderer, &dst);
+    SDL_RenderTexture(renderer, texture, nullptr, &dst);
+    SDL_DestroyTexture(texture);
+    SDL_DestroySurface(surface);
 }
+
 
 void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const {
     int windowW = 0;
@@ -148,10 +157,16 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext *worldContext) : GameSy
 
 
 void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
+    AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
     int windowW = 0;
     int windowH = 0;
-    SDL_GetWindowSize(worldContext_->GetAppContext()->GetWindow(), &windowW, &windowH);
-    if (windowW <= 0 || windowH <= 0) return;
+    SDL_GetWindowSize(appContext->GetWindow(), &windowW, &windowH);
+    if (windowW <= 0 || windowH <= 0) {
+        return;
+    }
     float yOffset = 0.0F;
     auto cameraComponent = worldContext_->GetCameraComponent();
     auto cameraTransform = worldContext_->GetCameraTransform2D();
@@ -170,31 +185,17 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     }
     ChunkGenerator *chunkGenerator = worldContext_->GetChunkGenerator();
     constexpr float lineSpacing = 20.0F;
-    SDL_Color color = {255, 255, 180, 255};
     auto tileLayers = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
     float totalLines = 1.0F + static_cast<float>(tileLayers.size());
     float totalTextHeight = totalLines * lineSpacing;
     yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;
-    char buffer[128];
-    snprintf(buffer, sizeof(buffer), "mouse Position: (%.1f, %.1f)", mousePosition_.x, mousePosition_.y);
-
-    SDL_Surface *surface = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), buffer, strlen(buffer),
-                                                  color);
-    if (surface) {
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-        if (texture) {
-            SDL_FRect dst = {
-                static_cast<float>(windowW - surface->w - 4), // 右侧靠边
-                yOffset,
-                static_cast<float>(surface->w),
-                static_cast<float>(surface->h)
-            };
-            SDL_RenderTexture(renderer, texture, nullptr, &dst);
-            SDL_DestroyTexture(texture);
-        }
-        SDL_DestroySurface(surface);
-    }
-
+    std::string mouseText = fmt::format(
+        fmt::runtime(appContext->GetLangsResources()->mousePosition),
+        mousePosition_.x, mousePosition_.y
+    );
+    RenderDebugText(renderer, windowW, mouseText, yOffset,
+                    appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
+                    appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
     yOffset += lineSpacing;
     for (auto &tileEntity: tileLayers) {
         auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(tileEntity);
@@ -205,45 +206,29 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         TileVector2D tileCoord = TileLayerComponent::WorldToTile(mousePosition_);
         TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
         float elevation = ChunkGenerator::GetElevation(tileCoord.y);
-        snprintf(buffer, sizeof(buffer),
-                 "Tile Coord:(%d, %d) chunk(%d,%d)  humidity:%f temperature：%f weirdness:%f erosion:%f elevation:%f",
-                 tileCoord.x, tileCoord.y, chunkRelative.x, chunkRelative.y,
-                 chunkGenerator->GetHumidity(tileCoord),
-                 chunkGenerator->GetTemperature(tileCoord, elevation),
-                 chunkGenerator->GetWeirdness(tileCoord),
-                 chunkGenerator->GetErosion(tileCoord),
-                 elevation);
-
-        SDL_Surface *s = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), buffer, strlen(buffer),
-                                                color);
-        if (s) {
-            SDL_Texture *t = SDL_CreateTextureFromSurface(renderer, s);
-            if (t) {
-                SDL_FRect dst = {
-                    static_cast<float>(windowW - s->w - 4), // 右侧靠边
-                    yOffset,
-                    static_cast<float>(s->w),
-                    static_cast<float>(s->h)
-                };
-                SDL_RenderTexture(renderer, t, nullptr, &dst);
-                SDL_DestroyTexture(t);
-            }
-            SDL_DestroySurface(s);
-        }
-        RenderDebugText(renderer, windowW, buffer, yOffset);
+        std::string tileDebugInfo = fmt::format(
+            fmt::runtime(appContext->GetLangsResources()->tileDebugInfo),
+            tileCoord.x, tileCoord.y,
+            chunkRelative.x, chunkRelative.y,
+            chunkGenerator->GetHumidity(tileCoord),
+            chunkGenerator->GetTemperature(tileCoord, elevation),
+            chunkGenerator->GetErosion(tileCoord),
+            elevation,
+            chunkGenerator->GetWeirdness(tileCoord)
+        );
+        RenderDebugText(renderer, windowW, tileDebugInfo, yOffset,
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
         yOffset += lineSpacing;
         auto tile = tileLayer->GetTile(tileCoord);
         if (tile != nullptr) {
-            snprintf(
-                buffer, sizeof(buffer),
-                "  id:%s name:%s breakable:%s hardness:%f",
-                tile->GetId().c_str(),
-                tile->GetName().c_str(),
-                tile->IsBreakable() ? "true" : "false",
-                tile->GetHardness()
+            std::string tileResDebugInfo = fmt::format(
+                fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
+                tile->GetId(), tile->GetHardness(), tile->GetName()
             );
-
-            RenderDebugText(renderer, windowW, buffer, yOffset);
+            RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
+                            appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
+                            appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
             yOffset += lineSpacing;
         }
     }

@@ -44,6 +44,7 @@
 #include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
+#include "core/ecs/system/DebugMultiMapSystem.h"
 #include "core/ecs/system/DraggableSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/ItemEditorSystem.h"
@@ -582,6 +583,7 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));
     RegisterSystem(std::make_unique<DebugPanelSystem>(this));
+    RegisterSystem(std::make_unique<DebugMultiMapSystem>(this));
     RegisterSystem(std::make_unique<RayCast2DSystem>(this));
     RegisterSystem(std::make_unique<BiomeBGMSystem>(this));
 #ifdef __ANDROID__

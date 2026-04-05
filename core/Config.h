@@ -34,6 +34,11 @@ namespace glimmer {
         bool displayDebugPanel;
         bool displayBox2dShape;
         bool displayDraggableTarget;
+        bool displayElevationMap;
+        bool displayTempMap;
+        bool displayHumidityMap;
+        bool displayErosionMap;
+        bool displayWeirdnessMap;
     };
 
     struct Console {

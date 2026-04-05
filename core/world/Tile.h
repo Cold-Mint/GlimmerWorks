@@ -31,7 +31,6 @@ namespace glimmer {
         bool isPlayerPlaced_ = false;
         TilePhysicsType physicsType_ = TilePhysicsType::None;
         TileLayerType layerType = TileLayerType::Main;
-        std::vector<std::string> contributors;
 
     public:
         [[nodiscard]] const ResourceRef &GetLootTableRef();

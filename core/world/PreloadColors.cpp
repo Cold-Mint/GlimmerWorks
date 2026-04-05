@@ -251,6 +251,95 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     draggableColorRes.b = 255;
     draggableColorRes.a = 255;
     debugColor.draggableColor = LoadColor(resourceLocator, "debug/draggable_color", &draggableColorRes)->ToSDLColor();
+    ColorResource debugPanelTextColorRes;
+    debugPanelTextColorRes.r = 255;
+    debugPanelTextColorRes.g = 0;
+    debugPanelTextColorRes.b = 0;
+    debugPanelTextColorRes.a = 255;
+    debugColor.debugPanelTextColor = LoadColor(resourceLocator, "debug/debug_panel_text_color", &debugPanelTextColorRes)
+            ->
+            ToSDLColor();
+    ColorResource debugPanelTextBGColorRes;
+    debugPanelTextBGColorRes.r = 30;
+    debugPanelTextBGColorRes.g = 30;
+    debugPanelTextBGColorRes.b = 30;
+    debugPanelTextBGColorRes.a = 180;
+    debugColor.debugPanelTextBGColor = LoadColor(resourceLocator, "debug/debug_panel_text_bg_color",
+                                                 &debugPanelTextBGColorRes)->
+            ToSDLColor();
+
+    float debugMapAlpha = 191;
+    ColorResource elevationMapFromRes;
+    elevationMapFromRes.r = 0;
+    elevationMapFromRes.g = 103;
+    elevationMapFromRes.b = 153;
+    elevationMapFromRes.a = debugMapAlpha;
+    debugColor.elevationMapFrom = LoadColor(resourceLocator, "debug/elevation_map_from", &elevationMapFromRes)->
+            ToSDLColor();
+
+    ColorResource elevationMapToRes;
+    elevationMapToRes.r = 255;
+    elevationMapToRes.g = 255;
+    elevationMapToRes.b = 255;
+    elevationMapToRes.a = debugMapAlpha;
+    debugColor.elevationMapTo = LoadColor(resourceLocator, "debug/elevation_map_to", &elevationMapToRes)->ToSDLColor();
+
+    ColorResource tempMapFromRes;
+    tempMapFromRes.r = 100;
+    tempMapFromRes.g = 200;
+    tempMapFromRes.b = 255;
+    tempMapFromRes.a = debugMapAlpha;
+    debugColor.tempMapFrom = LoadColor(resourceLocator, "debug/temp_map_from", &tempMapFromRes)->ToSDLColor();
+
+    ColorResource tempMapToRes;
+    tempMapToRes.r = 255;
+    tempMapToRes.g = 50;
+    tempMapToRes.b = 0;
+    tempMapToRes.a = debugMapAlpha;
+    debugColor.tempMapTo = LoadColor(resourceLocator, "debug/temp_map_to", &tempMapToRes)->ToSDLColor();
+    ColorResource humidityMapFromRes;
+    humidityMapFromRes.r = 250;
+    humidityMapFromRes.g = 210;
+    humidityMapFromRes.b = 120;
+    humidityMapFromRes.a = debugMapAlpha;
+    debugColor.humidityMapFrom = LoadColor(resourceLocator, "debug/humidity_map_from", &humidityMapFromRes)->
+            ToSDLColor();
+
+    ColorResource humidityMapToRes;
+    humidityMapToRes.r = 0;
+    humidityMapToRes.g = 150;
+    humidityMapToRes.b = 255;
+    humidityMapToRes.a = debugMapAlpha;
+    debugColor.humidityMapTo = LoadColor(resourceLocator, "debug/humidity_map_to", &humidityMapToRes)->ToSDLColor();
+
+    ColorResource erosionMapFromRes;
+    erosionMapFromRes.r = 200;
+    erosionMapFromRes.g = 150;
+    erosionMapFromRes.b = 100;
+    erosionMapFromRes.a = debugMapAlpha;
+    debugColor.erosionMapFrom = LoadColor(resourceLocator, "debug/erosion_map_from", &erosionMapFromRes)->ToSDLColor();
+
+    ColorResource erosionMapToRes;
+    erosionMapToRes.r = 50;
+    erosionMapToRes.g = 30;
+    erosionMapToRes.b = 10;
+    erosionMapToRes.a = debugMapAlpha;
+    debugColor.erosionMapTo = LoadColor(resourceLocator, "debug/erosion_map_to", &erosionMapToRes)->ToSDLColor();
+
+    ColorResource weirdnessMapFromRes;
+    weirdnessMapFromRes.r = 180;
+    weirdnessMapFromRes.g = 120;
+    weirdnessMapFromRes.b = 255;
+    weirdnessMapFromRes.a = debugMapAlpha;
+    debugColor.weirdnessMapFrom = LoadColor(resourceLocator, "debug/weirdness_map_from", &weirdnessMapFromRes)->
+            ToSDLColor();
+
+    ColorResource weirdnessMapToRes;
+    weirdnessMapToRes.r = 255;
+    weirdnessMapToRes.g = 0;
+    weirdnessMapToRes.b = 255;
+    weirdnessMapToRes.a = debugMapAlpha;
+    debugColor.weirdnessMapTo = LoadColor(resourceLocator, "debug/weirdness_map_to", &weirdnessMapToRes)->ToSDLColor();
 }
 
 glimmer::ColorResource *glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator,

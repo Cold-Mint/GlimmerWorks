@@ -66,6 +66,9 @@ namespace glimmer {
         std::string configurationCommitFail;
         std::string flyEnable;
         std::string flyDisable;
+        std::string tileDebugInfo;
+        std::string tileResDebugInfo;
+        std::string mousePosition;
         std::vector<std::string> worldNamePrefix;
         std::vector<std::string> worldNameSuffix;
         std::vector<std::string> slogans;

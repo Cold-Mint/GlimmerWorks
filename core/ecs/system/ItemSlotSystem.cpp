@@ -340,7 +340,7 @@ glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext *worldContext)
 
 
 uint8_t glimmer::ItemSlotSystem::GetRenderOrder() {
-    return RENDER_ORDER_DEBUG_HOTBAR;
+    return RENDER_ORDER_HOTBAR;
 }
 
 std::string glimmer::ItemSlotSystem::GetName() {

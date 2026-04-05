@@ -457,6 +457,8 @@ target_sources(GlimmerWorks
         core/ecs/component/TilePlacementForbiddenZoneComponent.cpp
         core/ecs/component/DraggableComponent.cpp
         core/ecs/system/DraggableSystem.cpp
+        core/utils/ColorUtils.cpp
+        core/ecs/system/DebugMultiMapSystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -652,6 +654,8 @@ target_sources(GlimmerWorks
         core/ecs/component/TilePlacementForbiddenZoneComponent.h
         core/ecs/component/DraggableComponent.h
         core/ecs/system/DraggableSystem.h
+        core/ecs/system/DebugMultiMapSystem.h
+        core/utils/ColorUtils.h
 )
 
 #Define version information

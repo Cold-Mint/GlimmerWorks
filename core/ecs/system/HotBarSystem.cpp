@@ -77,7 +77,7 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event &event) {
 
 
 uint8_t glimmer::HotBarSystem::GetRenderOrder() {
-    return RENDER_ORDER_DEBUG_HOTBAR;
+    return RENDER_ORDER_HOTBAR;
 }
 
 std::string glimmer::HotBarSystem::GetName() {

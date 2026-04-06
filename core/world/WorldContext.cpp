@@ -204,7 +204,8 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef &resourceRef) {
         mobEntityCreator.LoadTemplateComponents(playerEntity, resourceRef);
         mobEntityCreator.MergeEntityItemMessage(playerEntity,
                                                 MobEntityCreator::GetEntityItemMessage(
-                                                    TileLayerComponent::TileToWorld(TileVector2D(0, firstTileTerrainY + 3))));
+                                                    TileLayerComponent::TileToWorld(
+                                                        TileVector2D(0, firstTileTerrainY + 3))));
     }
     if (!HasComponent<ItemContainerComponent>(playerEntity)) {
         const auto *itemContainerComponent = AddComponent<ItemContainerComponent>(
@@ -328,6 +329,9 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     std::unique_ptr<Chunk> chunk = chunkLoader_->LoadChunkFromSaves(position);
     if (chunk == nullptr) {
         chunk = chunkGenerator_->GenerateChunkAt(position);
+    }
+    if (chunk == nullptr) {
+        return;
     }
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext_, worldId_, chunk.get());
     chunks_.insert({position, std::move(chunk)});

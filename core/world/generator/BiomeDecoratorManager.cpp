@@ -6,12 +6,12 @@
 #include "BiomeDecorator.h"
 
 
-void glimmer::BiomeDecoratorManager::RegisterBiomeDecorator(std::unique_ptr<BiomeDecorator> biomeDecorator) {
-    biomeDecoratorMap_[biomeDecorator->GetId()] = std::move(biomeDecorator);
+void glimmer::BiomeDecoratorManager::RegisterBiomeDecorator(std::unique_ptr<IBiomeDecorator> biomeDecorator) {
+    biomeDecoratorMap_[biomeDecorator->GetBiomeDecoratorType()] = std::move(biomeDecorator);
 }
 
-glimmer::BiomeDecorator *glimmer::BiomeDecoratorManager::GetBiomeDecorator(const std::string &id) {
-    const auto it = biomeDecoratorMap_.find(id);
+glimmer::IBiomeDecorator *glimmer::BiomeDecoratorManager::GetBiomeDecorator(BiomeDecoratorType biomeDecoratorType) {
+    const auto it = biomeDecoratorMap_.find(biomeDecoratorType);
     if (it == biomeDecoratorMap_.end()) {
         return nullptr;
     }

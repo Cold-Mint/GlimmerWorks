@@ -4,7 +4,7 @@
 
 #include "BiomeDecorator.h"
 
-glimmer::BiomeDecorator::~BiomeDecorator() = default;
 
-void glimmer::BiomeDecorator::SetWorldSeed(int seed) {
+void glimmer::IBiomeDecorator::SetWorldSeed(const int seed) {
+    worldSeed_ = seed;
 }

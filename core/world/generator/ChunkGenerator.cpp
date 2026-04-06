@@ -9,6 +9,7 @@
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceRef.h"
+#include "core/mod/dataPack/BiomeDecoratorType.h"
 #include "core/world/WorldContext.h"
 
 
@@ -409,6 +410,21 @@ float glimmer::ChunkGenerator::GetErosion(TileVector2D tileVector2d) {
 
 std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVector2D position) const {
     AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return nullptr;
+    }
+    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return nullptr;
+    }
+    TileManager *tileManager = appContext->GetTileManager();
+    if (tileManager == nullptr) {
+        return nullptr;
+    }
+    BiomeDecoratorManager *biomeDecoratorManager = appContext->GetBiomeDecoratorManager();
+    if (biomeDecoratorManager == nullptr) {
+        return nullptr;
+    }
     auto chunk = std::make_unique<Chunk>(position);
     TerrainResult *terrainResult = worldContext_->GetTerrainData(position);
     std::array<ResourceRef, CHUNK_AREA> tilesRef;
@@ -418,7 +434,6 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             const int idx = localY * CHUNK_SIZE + localX;
             auto &terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             auto terrainType = terrainTileResult.terrainType;
-            LogCat::d("Chunk x=", position.x + localX, ",y=", position.y + localY, ",terrainType=", terrainType);
             if (terrainType == AIR) {
                 tilesRef[idx] = airTileRef_;
                 continue;
@@ -444,16 +459,23 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             }
         }
     }
+
     for (auto *biomeResources: biomeResourcesSet) {
-        if (auto &decorator = biomeResources->decorator; decorator.empty()) {
+        if (auto &decorator = biomeResources->decors; decorator.empty()) {
             continue;
         }
-        for (auto &dec: biomeResources->decorator) {
-            BiomeDecorator *biomeDecorator = appContext->GetBiomeDecoratorManager()->
-                    GetBiomeDecorator(dec.id);
-            if (biomeDecorator != nullptr) {
-                biomeDecorator->Decoration(worldContext_, terrainResult, &dec, biomeResources, tilesRef);
+        for (auto &decRef: biomeResources->decors) {
+            IBiomeDecoratorResource *decoratorResource = resourceLocator->FindBiomeDecorator(decRef);
+            if (decoratorResource == nullptr) {
+                continue;
             }
+            IBiomeDecorator *biomeDecorator = biomeDecoratorManager->GetBiomeDecorator(
+                static_cast<BiomeDecoratorType>(decoratorResource->biomeDecoratorType));
+            if (biomeDecorator == nullptr) {
+                continue;
+            }
+            biomeDecorator->Decoration(
+                worldContext_, terrainResult, decoratorResource, biomeResources, tilesRef);
         }
     }
 
@@ -462,7 +484,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             TileVector2D localTile(localX, localY);
             const int idx = localY * CHUNK_SIZE + localX;
             ResourceRef &resourceRef = tilesRef[idx];
-            const std::optional tileResource = appContext->GetResourceLocator()->FindTile(
+            const std::optional tileResource = resourceLocator->FindTile(
                 resourceRef);
             TileResource *tileResourceValue = nullptr;
             if (tileResource.has_value()) {
@@ -470,7 +492,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             } else {
                 LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
                           " does not exist.");
-                tileResourceValue = appContext->GetTileManager()->GetAir();
+                tileResourceValue = tileManager->GetAir();
             }
             chunk->SetTile(localTile, Tile::FromTileResource(appContext, tileResourceValue, resourceRef));
         }

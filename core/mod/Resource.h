@@ -77,11 +77,11 @@ namespace glimmer {
      * 形状资源
      */
     //@genNextLine(ShapeResource|形状资源)
-    struct ShapeResource : Resource {
+    struct IShapeResource : Resource {
         //@genNextLine(shapeType|形状类型)
         uint8_t shapeType = 0;
 
-        virtual ~ShapeResource() = default;
+        virtual ~IShapeResource() = default;
     };
 
     /**
@@ -89,7 +89,7 @@ namespace glimmer {
      * 矩形形状资源
      */
     //@genNextLine(RectangularShapeResource|矩形形状资源)
-    struct RectangleShapeResource : ShapeResource {
+    struct RectangleShapeResource : IShapeResource {
         //@genNextLine(width|宽度)
         float width = 1.0F;
         //@genNextLine(height|高度)
@@ -102,7 +102,7 @@ namespace glimmer {
      * 圆形资源
      */
     //@genNextLine(CircularShapeResource|圆形资源)
-    struct CircularShapeResource : ShapeResource {
+    struct CircularShapeResource : IShapeResource {
         //@genNextLine(center|中心)
         Vector2DResource center;
         //@genNextLine(radius|半径)
@@ -114,7 +114,7 @@ namespace glimmer {
  * 圆角矩形资源
  */
     //@genNextLine(RoundedRectangleShapeResource|圆角矩形资源)
-    struct RoundedRectangleShapeResource : ShapeResource {
+    struct RoundedRectangleShapeResource : IShapeResource {
         //@genNextLine(width|宽度)
         float width = 1.0F;
         //@genNextLine(height|高度)
@@ -406,18 +406,34 @@ namespace glimmer {
         bool allowChainMining = false;
     };
 
-    /**
-     * BiomeDecoratorResource
-     * 生物群系装饰器
-     */
-    //@genNextLine(BiomeDecoratorResource|生物群系装饰器资源)
-    struct BiomeDecoratorResource {
-        //@genNextLine(id|装饰器ID)
-        std::string id;
-        //@genNextLine(data|数据资源引用列表)
-        std::vector<ResourceRef> data;
-        //@genNextLine(config|变量配置)
-        VariableConfig config = {};
+    //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)
+    struct IBiomeDecoratorResource : Resource {
+        //@genNextLine(biomeDecoratorType|装饰器类型)
+        uint8_t biomeDecoratorType = 0;
+
+    };
+
+
+    //@genNextLine(FillBiomeDecoratorResource|填充生物群系装饰器)
+    struct FillBiomeDecoratorResource : IBiomeDecoratorResource {
+        //@genNextLine(tile|瓦片)
+        ResourceRef tile;
+    };
+
+    //@genNextLine(MineralBiomeDecoratorResource|矿脉生物群系装饰器)
+    struct MineralBiomeDecoratorResource : IBiomeDecoratorResource {
+        //@genNextLine(tile|瓦片)
+        ResourceRef tile;
+    };
+
+    //@genNextLine(SurfaceBiomeDecoratorResource|表面生物群系装饰器)
+    struct SurfaceBiomeDecoratorResource : IBiomeDecoratorResource {
+        //@genNextLine(tile|瓦片)
+        ResourceRef tile;
+        //@genNextLine(allowAir|允许上方为空气)
+        bool allowAir = true;
+        //@genNextLine(allowWater|允许上方为液体)
+        bool allowWater = false;
     };
 
     /**
@@ -426,8 +442,8 @@ namespace glimmer {
      */
     //@genNextLine(BiomeResource|生物群系)
     struct BiomeResource : Resource {
-        //@genNextLine(decorator|生物群系装饰器列表)
-        std::vector<BiomeDecoratorResource> decorator;
+        //@genNextLine(decors|生物群系装饰器列表)
+        std::vector<ResourceRef> decors;
         //@genNextLine(humidity|湿度)
         float humidity = 0.0F;
         //@genNextLine(temperature|温度)

@@ -248,7 +248,9 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks)
+    add_executable(GlimmerWorks
+            core/mod/dataPack/BiomeDecoratorType.cpp
+            core/mod/dataPack/BiomeDecoratorType.h)
 endif ()
 
 target_sources(GlimmerWorks
@@ -391,7 +393,6 @@ target_sources(GlimmerWorks
         core/lootTable/LootTableManager.cpp
         core/console/command/LootCommand.cpp
         core/console/suggestion/LootSuggestions.cpp
-        core/world/generator/TreeBiomeDecorator.cpp
         core/ecs/system/Box2dSystemContext.cpp
         core/world/generator/SurfaceBiomeDecorator.cpp
         core/world/generator/ChunkLoader.cpp
@@ -461,6 +462,8 @@ target_sources(GlimmerWorks
         core/ecs/system/DebugMultiMapSystem.cpp
         core/console/command/LocateCommand.cpp
         core/console/suggestion/BiomeSuggestions.cpp
+        core/world/generator/MineralBiomeDecorator.cpp
+        core/mod/dataPack/BiomeDecoratorResourcesManager.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -590,7 +593,6 @@ target_sources(GlimmerWorks
         core/console/command/ClearCommand.h
         core/console/command/LootCommand.h
         core/console/suggestion/LootSuggestions.h
-        core/world/generator/TreeBiomeDecorator.h
         core/ecs/system/Box2dSystemContext.h
         core/world/generator/SurfaceBiomeDecorator.h
         core/world/generator/ChunkLoader.h
@@ -660,6 +662,8 @@ target_sources(GlimmerWorks
         core/utils/ColorUtils.h
         core/console/command/LocateCommand.h
         core/console/suggestion/BiomeSuggestions.h
+        core/world/generator/MineralBiomeDecorator.h
+        core/mod/dataPack/BiomeDecoratorResourcesManager.h
 )
 
 #Define version information
@@ -1297,14 +1301,14 @@ if (WIN32)
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl-build/libSDL3.${LIB_SUFFIX}" DESTINATION ${LIB_DIR})
 else ()
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl-build/libSDL3.${LIB_SUFFIX}.0" DESTINATION ${LIB_DIR})
-    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl-build/libSDL3.${LIB_SUFFIX}.0.4.2" DESTINATION ${LIB_DIR})
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl-build/libSDL3.${LIB_SUFFIX}.0.4.4" DESTINATION ${LIB_DIR})
 endif ()
 
 if (WIN32)
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_image-build/libSDL3_image.${LIB_SUFFIX}" DESTINATION ${LIB_DIR})
 else ()
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_image-build/libSDL3_image.${LIB_SUFFIX}.0" DESTINATION ${LIB_DIR})
-    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_image-build/libSDL3_image.${LIB_SUFFIX}.0.4.0" DESTINATION ${LIB_DIR})
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_image-build/libSDL3_image.${LIB_SUFFIX}.0.4.2" DESTINATION ${LIB_DIR})
 endif ()
 
 if (WIN32)

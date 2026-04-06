@@ -7,13 +7,13 @@
 #include "BiomeDecorator.h"
 
 namespace glimmer {
-    class SurfaceBiomeDecorator : public BiomeDecorator {
-    public:
-        void Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
-            BiomeDecoratorResource *biomeDecoratorResource, BiomeResource *biomeResource,
-            std::array<ResourceRef, CHUNK_AREA> &tilesRef) override;
+    class SurfaceBiomeDecorator : public BiomeDecorator<SurfaceBiomeDecoratorResource> {
+        void DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
+                           SurfaceBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
+                           std::array<ResourceRef, CHUNK_AREA> &tilesRef) override;
 
-        std::string GetId() override;
+    public:
+        BiomeDecoratorType GetBiomeDecoratorType() override;
     };
 }
 

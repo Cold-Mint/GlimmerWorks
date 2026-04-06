@@ -13,28 +13,36 @@
 #include "../../mod/ResourceRef.h"
 
 namespace glimmer {
-    /**
-     * BiomeDecorator
-     * 生物群系装饰器
-     */
-    class BiomeDecorator {
+    class IBiomeDecorator {
+        int worldSeed_ = 0;
+
     public:
-        virtual ~BiomeDecorator();
+        virtual ~IBiomeDecorator() = default;
 
+        void SetWorldSeed(int seed);
 
-        virtual void SetWorldSeed(int seed);
-
-        virtual void Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
-                                BiomeDecoratorResource *biomeDecoratorResource,
+        virtual void Decoration(WorldContext *worldContext,
+                                TerrainResult *terrainResult,
+                                IBiomeDecoratorResource *decoratorResource,
                                 BiomeResource *biomeResource,
                                 std::array<ResourceRef, CHUNK_AREA> &tilesRef) = 0;
 
-        /**
-         * Get the id of the tile placement device
-         * 获取瓦片放置器的Id
-         * @return
-         */
-        virtual std::string GetId() = 0;
+        virtual BiomeDecoratorType GetBiomeDecoratorType() = 0;
+    };
+
+    template<typename ResourceT>
+    class BiomeDecorator : public IBiomeDecorator {
+        virtual void DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
+                                   ResourceT *decoratorResource, BiomeResource *biomeResource,
+                                   std::array<ResourceRef, CHUNK_AREA> &tilesRef) = 0;
+
+    public:
+        void Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
+                        IBiomeDecoratorResource *decoratorResource, BiomeResource *biomeResource,
+                        std::array<ResourceRef, CHUNK_AREA> &tilesRef) override {
+            auto *concreteResource = static_cast<ResourceT *>(decoratorResource);
+            DecorationImp(worldContext, terrainResult, concreteResource, biomeResource, tilesRef);
+        }
     };
 }
 

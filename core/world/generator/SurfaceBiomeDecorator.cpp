@@ -7,11 +7,10 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::SurfaceBiomeDecorator::Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
-                                                BiomeDecoratorResource *biomeDecoratorResource,
-                                                BiomeResource *biomeResource,
-                                                std::array<ResourceRef, CHUNK_AREA> &tilesRef) {
-    const ResourceRef &resourceRef = biomeDecoratorResource->data[0];
+void glimmer::SurfaceBiomeDecorator::DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
+                                                   SurfaceBiomeDecoratorResource *decoratorResource,
+                                                   BiomeResource *biomeResource,
+                                                   std::array<ResourceRef, CHUNK_AREA> &tilesRef) {
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
@@ -27,16 +26,18 @@ void glimmer::SurfaceBiomeDecorator::Decoration(WorldContext *worldContext, Terr
                 continue;
             }
             const TerrainTileResult &up = terrainResult->QueryTerrain(localX, localY + 1);
-            if (up.terrainType != AIR) {
-                // The tiles above are not air.
-                //上方的瓦片不是空气。
+            if (decoratorResource->allowAir && up.terrainType == AIR) {
+                tilesRef[idx] = decoratorResource->tile;
                 continue;
             }
-            tilesRef[idx] = resourceRef;
+
+            if (decoratorResource->allowWater && up.terrainType == WATER) {
+                tilesRef[idx] = decoratorResource->tile;
+            }
         }
     }
 }
 
-std::string glimmer::SurfaceBiomeDecorator::GetId() {
-    return SURFACE_BIOME_DECORATOR;
+glimmer::BiomeDecoratorType glimmer::SurfaceBiomeDecorator::GetBiomeDecoratorType() {
+    return BiomeDecoratorType::SURFACE;
 }

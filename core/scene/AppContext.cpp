@@ -42,7 +42,6 @@
 #include "core/saves/SavesManager.h"
 #include "core/world/generator/FillBiomeDecorator.h"
 #include "core/world/generator/SurfaceBiomeDecorator.h"
-#include "core/world/generator/TreeBiomeDecorator.h"
 #include "core/world/structure/BiomeStructureConditionProcessor.h"
 #include "core/world/structure/HeightStructureConditionProcessor.h"
 #include "core/world/structure/HorizontalSpacingStructureConditionProcessor.h"
@@ -254,13 +253,13 @@ glimmer::AppContext::AppContext() {
 
     commandExecutor_ = std::make_unique<CommandExecutor>();
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
+    biomeDecoratorResourcesManager_ = std::make_unique<BiomeDecoratorResourcesManager>();
     itemManager_ = std::make_unique<ItemManager>();
     ItemManager *im = itemManager_.get();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<ComposableItemDynamicSuggestions>(im));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<AbilityItemDynamicSuggestions>(im));
-    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<TreeBiomeDecorator>());
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<SurfaceBiomeDecorator>());
     config_ = std::make_unique<Config>();
@@ -460,6 +459,10 @@ glimmer::AudioManager *glimmer::AppContext::GetAudioManager() const {
 
 glimmer::StringManager *glimmer::AppContext::GetStringManager() const {
     return stringManager_.get();
+}
+
+glimmer::BiomeDecoratorResourcesManager *glimmer::AppContext::GetBiomeDecoratorResourcesManager() const {
+    return biomeDecoratorResourcesManager_.get();
 }
 
 glimmer::DynamicSuggestionsManager *glimmer::AppContext::GetDynamicSuggestionsManager() const {

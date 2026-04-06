@@ -5,19 +5,21 @@
 #ifndef GLIMMERWORKS_TILEPLACERMANAGER_H
 #define GLIMMERWORKS_TILEPLACERMANAGER_H
 #include <memory>
-#include <string>
 #include <unordered_map>
 
+#include "core/mod/dataPack/BiomeDecoratorType.h"
+
+
 namespace glimmer {
-    class BiomeDecorator;
+    class IBiomeDecorator;
 
     class BiomeDecoratorManager {
-        std::unordered_map<std::string, std::unique_ptr<BiomeDecorator> > biomeDecoratorMap_;
+        std::unordered_map<BiomeDecoratorType, std::unique_ptr<IBiomeDecorator> > biomeDecoratorMap_;
 
     public:
-        void RegisterBiomeDecorator(std::unique_ptr<BiomeDecorator> biomeDecorator);
+        void RegisterBiomeDecorator(std::unique_ptr<IBiomeDecorator> biomeDecorator);
 
-        BiomeDecorator *GetBiomeDecorator(const std::string &id);
+        IBiomeDecorator *GetBiomeDecorator(BiomeDecoratorType biomeDecoratorType);
 
         void SetWorldSeed(int worldSeed) const;
     };

@@ -76,7 +76,7 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
     shapeDef.density = density_;
     shapeDef.material.restitution = restitution_;
     shapeDef.material.friction = friction_;
-    if (ShapeResource *shapeResource = resourceLocator->FindShape(shapeRef_); shapeResource != nullptr) {
+    if (IShapeResource *shapeResource = resourceLocator->FindShape(shapeRef_); shapeResource != nullptr) {
         const auto shape = static_cast<ShapeType>(shapeResource->shapeType);
         if (shape == ShapeType::RECTANGLE) {
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)

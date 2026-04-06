@@ -48,6 +48,7 @@ namespace glimmer {
             {"biome", RESOURCE_TYPE_BIOME},
             {"color", RESOURCE_TYPE_COLOR},
             {"shape", RESOURCE_TYPE_SHAPE},
+            {"decor", RESOURCE_TYPE_BIOME_DECORATOR},
         };
 
     public:

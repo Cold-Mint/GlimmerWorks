@@ -4,12 +4,11 @@
 
 #include "FillBiomeDecorator.h"
 
-
-void glimmer::FillBiomeDecorator::Decoration(WorldContext *worldContext, TerrainResult *terrainResult,
-                                             BiomeDecoratorResource *biomeDecoratorResource,
-                                             BiomeResource *biomeResource,
-                                             std::array<ResourceRef, CHUNK_AREA> &tilesRef) {
-    const ResourceRef &resourceRef = biomeDecoratorResource->data[0];
+void glimmer::FillBiomeDecorator::DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
+                                                FillBiomeDecoratorResource *decoratorResource,
+                                                BiomeResource *biomeResource,
+                                                std::array<ResourceRef, CHUNK_AREA> &tilesRef) {
+    const ResourceRef &resourceRef = decoratorResource->tile;
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
@@ -29,6 +28,6 @@ void glimmer::FillBiomeDecorator::Decoration(WorldContext *worldContext, Terrain
     }
 }
 
-std::string glimmer::FillBiomeDecorator::GetId() {
-    return FULL_BIOME_DECORATOR;
+glimmer::BiomeDecoratorType glimmer::FillBiomeDecorator::GetBiomeDecoratorType() {
+    return BiomeDecoratorType::FILL;
 }

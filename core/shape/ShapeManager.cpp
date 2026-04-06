@@ -9,7 +9,7 @@
 
 glimmer::ShapeManager::ShapeManager() {
     LogCat::d("Initializing ShapeManager");
-    std::unique_ptr<ShapeResource> droppedItemShape = std::make_unique<RectangleShapeResource>();
+    std::unique_ptr<IShapeResource> droppedItemShape = std::make_unique<RectangleShapeResource>();
     auto *droppedItemShapePtr = dynamic_cast<RectangleShapeResource *>(droppedItemShape.get());
     droppedItemShapePtr->shapeType = static_cast<uint8_t>(ShapeType::RECTANGLE);
     droppedItemShapePtr->width = 0.8F;
@@ -19,14 +19,14 @@ glimmer::ShapeManager::ShapeManager() {
     Register(std::move(droppedItemShape));
 }
 
-glimmer::ShapeResource *glimmer::ShapeManager::Register(std::unique_ptr<ShapeResource> shapeResource) {
+glimmer::IShapeResource *glimmer::ShapeManager::Register(std::unique_ptr<IShapeResource> shapeResource) {
     auto &slot =
             shapeMap_[shapeResource->packId][shapeResource->resourceId];
     slot = std::move(shapeResource);
     return slot.get();
 }
 
-glimmer::ShapeResource *glimmer::ShapeManager::FindShape(const std::string &packId, const std::string &resourceId) {
+glimmer::IShapeResource *glimmer::ShapeManager::FindShape(const std::string &packId, const std::string &resourceId) {
     LogCat::d("Searching for shape resource: packId = ", packId, ", resourceId = ", resourceId);
     const auto packIt = shapeMap_.find(packId);
     if (packIt == shapeMap_.end()) {

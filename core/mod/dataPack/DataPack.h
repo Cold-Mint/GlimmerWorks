@@ -5,6 +5,8 @@
 #define DATAPACK_H
 #include <string>
 
+#include "BiomeDecoratorResourcesManager.h"
+#include "BiomeDecoratorType.h"
 #include "BiomesManager.h"
 #include "ItemManager.h"
 #include "MobManager.h"
@@ -16,6 +18,7 @@
 #include "core/lootTable/LootTableManager.h"
 #include "core/shape/ShapeManager.h"
 #include "core/shape/ShapeType.h"
+#include "core/world/generator/BiomeDecoratorManager.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {
@@ -66,6 +69,10 @@ namespace glimmer {
 
         [[nodiscard]] bool LoadShapeResourceFromFile(const std::string &path, ShapeManager *shapeManager,
                                                      ShapeType type) const;
+
+
+        [[nodiscard]] bool LoadBiomeDecoratorResourceFromFile(const std::string &path, BiomeDecoratorResourcesManager *biomeDecoratorManager,
+                                                     BiomeDecoratorType type) const;
 
         [[nodiscard]] static std::optional<std::string> ExtractLanguageFromFileName(const std::string &fileName);
 

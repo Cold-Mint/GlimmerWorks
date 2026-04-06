@@ -167,11 +167,8 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
     auto biomeResource = std::make_unique<BiomeResource>(toml::get<BiomeResource>(value));
     biomeResource->packId = manifest_.id;
     biomeResource->bgm.SetSelfPackageId(manifest_.id);
-    for (auto &decorator: biomeResource->decorator) {
-        for (auto &tile: decorator.data) {
-            tile.SetSelfPackageId(manifest_.id);
-        }
-        decorator.config.UpdateArgs(manifest_.id);
+    for (auto &decorator: biomeResource->decors) {
+        decorator.SetSelfPackageId(manifest_.id);
     }
     biomesManager->AddResource(std::move(biomeResource));
     return true;
@@ -287,6 +284,48 @@ bool glimmer::DataPack::LoadShapeResourceFromFile(const std::string &path, Shape
 
     return true;
 }
+
+bool glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const std::string &path,
+                                                           BiomeDecoratorResourcesManager *biomeDecoratorManager,
+                                                           BiomeDecoratorType type) const {
+    const auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
+    }
+    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    switch (type) {
+        case BiomeDecoratorType::FILL: {
+            auto fillResource = std::make_unique<FillBiomeDecoratorResource>(
+                toml::get<FillBiomeDecoratorResource>(value));
+            fillResource->packId = manifest_.id;
+            fillResource->tile.SetSelfPackageId(manifest_.id);
+            fillResource->biomeDecoratorType = static_cast<uint8_t>(BiomeDecoratorType::FILL);
+            biomeDecoratorManager->Register(std::move(fillResource));
+            break;
+        }
+        case BiomeDecoratorType::MINERAL: {
+            auto mineralBiomeDecoratorResource = std::make_unique<MineralBiomeDecoratorResource>(
+                toml::get<MineralBiomeDecoratorResource>(value));
+            mineralBiomeDecoratorResource->packId = manifest_.id;
+            mineralBiomeDecoratorResource->biomeDecoratorType = static_cast<uint8_t>(BiomeDecoratorType::MINERAL);
+            biomeDecoratorManager->Register(std::move(mineralBiomeDecoratorResource));
+            break;
+        }
+        case BiomeDecoratorType::SURFACE: {
+            auto surfaceBiomeDecoratorResource = std::make_unique<SurfaceBiomeDecoratorResource>(
+                toml::get<SurfaceBiomeDecoratorResource>(value));
+            surfaceBiomeDecoratorResource->packId = manifest_.id;
+            surfaceBiomeDecoratorResource->tile.SetSelfPackageId(manifest_.id);
+            surfaceBiomeDecoratorResource->biomeDecoratorType = static_cast<uint8_t>(BiomeDecoratorType::SURFACE);
+            biomeDecoratorManager->Register(std::move(surfaceBiomeDecoratorResource));
+            break;
+        }
+    }
+    return true;
+}
+
 
 std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(const std::string &fileName) {
     constexpr std::string_view suffix = ".strings.toml";
@@ -443,6 +482,28 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
         if (dataType == DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE) {
             LogCat::d("Loading rounded rectangle file:", file);
             if (LoadShapeResourceFromFile(file, appContext->GetShapeManager(), ShapeType::ROUNDED_RECTANGLE)) {
+                total++;
+            }
+        }
+
+        if (dataType == DATA_FILE_TYPE_DECORATOR_FILL) {
+            LogCat::d("Loading decorator fill file:", file);
+            if (LoadBiomeDecoratorResourceFromFile(file, appContext->GetBiomeDecoratorResourcesManager(),
+                                                   BiomeDecoratorType::FILL)) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_DECORATOR_MINERAL) {
+            LogCat::d("Loading decorator mineral file:", file);
+            if (LoadBiomeDecoratorResourceFromFile(file, appContext->GetBiomeDecoratorResourcesManager(),
+                                                   BiomeDecoratorType::MINERAL)) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_DECORATOR_SURFACE) {
+            LogCat::d("Loading decorator surface file:", file);
+            if (LoadBiomeDecoratorResourceFromFile(file, appContext->GetBiomeDecoratorResourcesManager(),
+                                                   BiomeDecoratorType::SURFACE)) {
                 total++;
             }
         }

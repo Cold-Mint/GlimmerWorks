@@ -9,14 +9,14 @@
 
 namespace glimmer {
     class ShapeManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ShapeResource> > > shapeMap_
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IShapeResource> > > shapeMap_
                 {};
     public:
         ShapeManager();
 
-        ShapeResource *Register(std::unique_ptr<ShapeResource> shapeResource);
+        IShapeResource *Register(std::unique_ptr<IShapeResource> shapeResource);
 
-        ShapeResource* FindShape(const std::string &packId, const std::string &key);
+        IShapeResource* FindShape(const std::string &packId, const std::string &resourceId);
 
         std::string ListShapes() const;
     };

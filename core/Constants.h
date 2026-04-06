@@ -32,9 +32,6 @@ static constexpr std::string FLY_COMMAND_NAME = "fly";
 static constexpr std::string ECHO_COMMAND_NAME = "echo";
 static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
 static constexpr std::string LOCATE_COMMAND_NAME = "locate";
-static constexpr std::string FULL_BIOME_DECORATOR = "fill";
-static constexpr std::string SURFACE_BIOME_DECORATOR = "surface";
-static constexpr std::string TREE_BIOME_DECORATOR = "tree";
 static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
 static constexpr std::string BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME = "&bool_toggle";
 static constexpr std::string X_DYNAMIC_SUGGESTIONS_NAME = "&x";
@@ -82,7 +79,10 @@ static constexpr uint32_t RESOURCE_TYPE_SHAPE = 11;
 static constexpr uint32_t RESOURCE_TYPE_AUDIO = 12;
 //This dropped item resource type is used for serialization within the game save file. Currently, this type of resource is not supported for definition within the mod.
 //这个掉落物资源类型用作存档内序列化。模组内暂不支持定义此类型的资源。
-static constexpr uint32_t RESOURCE_TYPE_DROPPED_ITEM = 12;
+static constexpr uint32_t RESOURCE_TYPE_DROPPED_ITEM = 13;
+static constexpr uint32_t RESOURCE_TYPE_BIOME_DECORATOR = 14;
+
+
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;
@@ -112,24 +112,28 @@ static constexpr std::string DATA_FILE_TYPE_MOB = "mob";
 static constexpr std::string DATA_FILE_TYPE_SHAPE_RECTANGLE = "rect";
 static constexpr std::string DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE = "round_rect";
 static constexpr std::string DATA_FILE_TYPE_SHAPE_CIRCLE = "circle";
+static constexpr std::string DATA_FILE_TYPE_DECORATOR_FILL = "decor_fill";
+static constexpr std::string DATA_FILE_TYPE_DECORATOR_MINERAL = "decor_mineral";
+static constexpr std::string DATA_FILE_TYPE_DECORATOR_SURFACE = "decor_surface";
 
-constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
-constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
-constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
-constexpr size_t ITEM_MAX_STACK = 64;
-constexpr size_t HOT_BAR_SIZE = 9;
-constexpr float ITEM_SLOT_SIZE = 40.0F;
-constexpr float ITEM_SLOT_PADDING = 8.0F;
-constexpr float DROP_INTERVAL = 1.0F / ITEM_MAX_STACK;
+
+static constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
+static constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
+static constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
+static constexpr size_t ITEM_MAX_STACK = 64;
+static constexpr size_t HOT_BAR_SIZE = 9;
+static constexpr float ITEM_SLOT_SIZE = 40.0F;
+static constexpr float ITEM_SLOT_PADDING = 8.0F;
+static constexpr float DROP_INTERVAL = 1.0F / ITEM_MAX_STACK;
 //Maximum suction (slightly larger than the original 80, compensating for attenuation)
 //最大吸力（比原80稍大，补偿衰减）
-const float MAX_MAGNET_FORCE = 120.0f;
-const float MIN_SAFE_DISTANCE = 0.1f;
+static constexpr float MAX_MAGNET_FORCE = 120.0F;
+static constexpr float MIN_SAFE_DISTANCE = 0.1F;
 /**
  *Type of adsorbate
  * 被吸附物类型
  */
-constexpr uint16_t MAGNETIC_TYPE_ITEM = 0x0001;
+static constexpr uint16_t MAGNETIC_TYPE_ITEM = 0x0001;
 /**
  * Unit chunk size
  * 单位区块的尺寸（边长）
@@ -155,7 +159,7 @@ static constexpr int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
  * Function: x & CHUNK_MASK is equivalent to x % CHUNK_SIZE (this holds true only when CHUNK_SIZE is a power of 2)
  * 作用：x & CHUNK_MASK 等价于 x % CHUNK_SIZE（仅当CHUNK_SIZE为2的幂时成立）
  */
-constexpr int CHUNK_MASK = CHUNK_SIZE - 1;
+static constexpr int CHUNK_MASK = CHUNK_SIZE - 1;
 /**
  * Block alignment mask (used for quickly aligning to block boundaries)
  * 区块对齐掩码（用于快速对齐到区块边界）
@@ -168,7 +172,7 @@ constexpr int CHUNK_MASK = CHUNK_SIZE - 1;
  * 35 & 0xFFFFFFF0 = 32 (Aligned to the 16th position, which is the starting point of the next block)
  * 示例：35 & 0xFFFFFFF0 = 32（对齐到第16号位置，即下一个区块起始）
  */
-constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
+static constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
 /**
  * Block displacement bits (used for quickly calculating block indices)
  * 区块位移位数（用于快速计算区块索引）
@@ -188,26 +192,26 @@ static constexpr int WORLD_MAX_X = 29984;
 
 //Total distributable height.
 //总的可供分配高度。
-constexpr int TERRAIN_HEIGHT_RANGE = WORLD_MAX_Y - WORLD_MIN_Y - SKY_HEIGHT;
+static constexpr int TERRAIN_HEIGHT_RANGE = WORLD_MAX_Y - WORLD_MIN_Y - SKY_HEIGHT;
 //The height of the lowest point on the ground.
 //地面最低点的高度。
-constexpr int GROUND_START_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE * 0.45F;
+static constexpr int GROUND_START_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE * 0.45F;
 //Sea level height
 //海平面高度
-constexpr int SEA_LEVEL_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE * 0.55F;
+static constexpr int SEA_LEVEL_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE * 0.55F;
 //Continent noise, the maximum height that can be allocated.
 //大陆噪声，可分配的最大高度。
-constexpr int CONTINENT_MAX_HEIGHT = TERRAIN_HEIGHT_RANGE * 0.2F;
+static constexpr int CONTINENT_MAX_HEIGHT = TERRAIN_HEIGHT_RANGE * 0.2F;
 
-constexpr int MAX_LAND_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE;
+static constexpr int MAX_LAND_HEIGHT = WORLD_MIN_Y + TERRAIN_HEIGHT_RANGE;
 
 // 噪声权重
-constexpr float MOUNTAIN_WEIGHT = 0.70F; // 山脉噪声在陆地起伏中的权重
-constexpr float HILLS_WEIGHT = 0.30F; // 丘陵噪声在陆地起伏中的权重
+static constexpr float MOUNTAIN_WEIGHT = 0.70F; // 山脉噪声在陆地起伏中的权重
+static constexpr float HILLS_WEIGHT = 0.30F; // 丘陵噪声在陆地起伏中的权重
 
 // 高原/山脉的额外抬升参数
-constexpr float PEAK_LIFT_THRESHOLD = 0.60F; // 陆地起伏噪声高于此值时开始抬升
-constexpr float MAX_PEAK_LIFT = 0.30F; // 山峰额外抬升的最大噪声比例 (例如，1.0 + 0.3 = 1.3 倍的幅度)
+static constexpr float PEAK_LIFT_THRESHOLD = 0.60F; // 陆地起伏噪声高于此值时开始抬升
+static constexpr float MAX_PEAK_LIFT = 0.30F; // 山峰额外抬升的最大噪声比例 (例如，1.0 + 0.3 = 1.3 倍的幅度)
 
 static constexpr int TILE_SIZE = 32;
 static constexpr int HALF_TILE_SIZE = TILE_SIZE / 2;
@@ -319,12 +323,12 @@ static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
 static constexpr std::string PROJECT_NAME = "GlimmerWorks";
 
-constexpr float GRAVITY_SCALE = 1.8F; // 重力缩放（优化下落手感）
-constexpr int JUMP_BUFFER_FRAMES = 4;
-constexpr int FLY_SPEED = TILE_SIZE * 25;
+static constexpr float GRAVITY_SCALE = 1.8F; // 重力缩放（优化下落手感）
+static constexpr int JUMP_BUFFER_FRAMES = 4;
+static constexpr int FLY_SPEED = TILE_SIZE * 25;
 
 //How often should the information of picked-up items be accumulated and settled (unit: seconds)?
 //累积多长时间结算一次捡起的物品信息（单位：秒）
-constexpr float MERGE_DURATION = 0.35F;
+static constexpr float MERGE_DURATION = 0.35F;
 
 #endif //CONSTANTS_H

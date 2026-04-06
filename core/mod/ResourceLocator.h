@@ -44,7 +44,9 @@ namespace glimmer {
         [[nodiscard]] ColorResource *FindColorResource(const ResourceRef &resourceRef,
                                                        ColorResource *defaultColor = nullptr) const;
 
-        [[nodiscard]] ShapeResource *FindShape(const ResourceRef &resourceRef) const;
+        [[nodiscard]] IShapeResource *FindShape(const ResourceRef &resourceRef) const;
+
+        [[nodiscard]] IBiomeDecoratorResource *FindBiomeDecorator(const ResourceRef &resourceRef) const;
 
         /**
          * FindString

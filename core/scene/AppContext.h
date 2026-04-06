@@ -25,6 +25,7 @@
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
 #include "core/mod/StructurePlacementConditionsManager.h"
+#include "core/mod/dataPack/BiomeDecoratorResourcesManager.h"
 #include "core/mod/dataPack/MobManager.h"
 #include "core/mod/dataPack/StructureManager.h"
 #include "core/mod/resourcePack/AudioManager.h"
@@ -71,6 +72,7 @@ namespace glimmer {
         std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_;
         std::unique_ptr<VirtualFileSystem> virtualFileSystem_;
         std::unique_ptr<BiomeDecoratorManager> biomeDecoratorManager_;
+        std::unique_ptr<BiomeDecoratorResourcesManager> biomeDecoratorResourcesManager_;
         std::unique_ptr<LootTableManager> lootTableManager_;
         std::unique_ptr<StructureGeneratorManager> structureGeneratorManager_;
         std::unique_ptr<StructureManager> structureManager_;
@@ -142,6 +144,8 @@ namespace glimmer {
 
         [[nodiscard]] StringManager *GetStringManager() const;
 
+        [[nodiscard]] BiomeDecoratorResourcesManager *GetBiomeDecoratorResourcesManager() const;
+
         [[nodiscard]] DynamicSuggestionsManager *GetDynamicSuggestionsManager() const;
 
         [[nodiscard]] const std::string &GetLanguage();
@@ -200,8 +204,7 @@ namespace glimmer {
          * @return
          */
         template<typename Func>
-        std::future<std::invoke_result_t<Func> >  AddMainThreadTaskAwait(Func &&func)
-             {
+        std::future<std::invoke_result_t<Func> > AddMainThreadTaskAwait(Func &&func) {
             using Result = std::invoke_result_t<Func>;
             if (IsMainThread()) {
                 std::promise<Result> p;

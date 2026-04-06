@@ -38,7 +38,7 @@ glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int wo
     temperatureMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     weirdnessMapNoise_ = std::make_unique<FastNoiseLite>();
     weirdnessMapNoise_->SetSeed(worldSeed + 300);
-    weirdnessMapNoise_->SetFrequency(0.02F);
+    weirdnessMapNoise_->SetFrequency(1.0F);
     weirdnessMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
     erosionMapNoise_ = std::make_unique<FastNoiseLite>();
     erosionMapNoise_->SetSeed(worldSeed + 400);
@@ -61,7 +61,7 @@ glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int wo
     bedrockTileRef_.SetResourceKey(TILE_ID_BEDROCK);
 }
 
-int glimmer::ChunkGenerator::GetHeight(int x) {
+int glimmer::ChunkGenerator::GetFirstTileTerrainY(int x) {
     const auto it = heightMap_.find(x);
     if (it != heightMap_.end()) {
         return it->second;
@@ -110,11 +110,12 @@ int glimmer::ChunkGenerator::GetHeight(int x) {
     return height;
 }
 
+
 std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain(TileVector2D position) {
     auto terrainResult = std::make_unique<TerrainResult>();
     terrainResult->SetPosition(position);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        const int height = GetHeight(position.x + localX);
+        const int height = GetFirstTileTerrainY(position.x + localX);
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             terrainResult->SetTerrainTileResult(localX, localY,
                                                 GetTerrainTileResult(position + TileVector2D(localX, localY), height));
@@ -124,7 +125,7 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 
     for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
         const int worldY = position.y + localY;
-        const int height = GetHeight(leftWorldX);
+        const int height = GetFirstTileTerrainY(leftWorldX);
 
         terrainResult->SetLeftTerrainTileResult(
             localY,
@@ -137,7 +138,7 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 
     for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
         const int worldY = position.y + localY;
-        const int height = GetHeight(rightWorldX);
+        const int height = GetFirstTileTerrainY(rightWorldX);
 
         terrainResult->SetRightTerrainTileResult(
             localY,
@@ -150,7 +151,7 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int worldX = position.x + localX;
-        const int height = GetHeight(worldX);
+        const int height = GetFirstTileTerrainY(worldX);
 
         terrainResult->SetDownTerrainTileResult(
             localX,
@@ -162,7 +163,7 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int worldX = position.x + localX;
-        const int height = GetHeight(worldX);
+        const int height = GetFirstTileTerrainY(worldX);
 
         terrainResult->SetUpTerrainTileResult(
             localX,
@@ -355,8 +356,8 @@ TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector
     return terrainTileResult;
 }
 
-float glimmer::ChunkGenerator::GetElevation(const int height) {
-    return static_cast<float>(height) / (WORLD_MAX_Y - WORLD_MIN_Y + WORLD_MIN_Y);
+float glimmer::ChunkGenerator::GetElevation(const int y) {
+    return static_cast<float>(y) / (WORLD_MAX_Y - WORLD_MIN_Y + WORLD_MIN_Y);
 }
 
 float glimmer::ChunkGenerator::GetHumidity(TileVector2D tileVector2d) {
@@ -390,8 +391,9 @@ float glimmer::ChunkGenerator::GetWeirdness(TileVector2D tileVector2d) {
     if (it != weirdnessMap_.end()) {
         return it->second;
     }
-    weirdnessMap_[tileVector2d] = (weirdnessMapNoise_->GetNoise(static_cast<float>(tileVector2d.x),
-                                                                static_cast<float>(tileVector2d.y)) + 1) * 0.5F;
+    weirdnessMap_[tileVector2d] = (weirdnessMapNoise_->GetNoise(static_cast<float>(tileVector2d.x * 0.000285714),
+                                                                static_cast<float>(tileVector2d.y * 0.000285714)) + 1) *
+                                  0.5F;
     return weirdnessMap_[tileVector2d];
 }
 

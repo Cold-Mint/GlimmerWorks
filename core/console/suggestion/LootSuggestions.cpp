@@ -6,8 +6,8 @@
 
 #include "core/Constants.h"
 
-glimmer::LootSuggestions::LootSuggestions(LootTableManager *loot_table_manager)
-    : lootTableManager_(loot_table_manager) {
+glimmer::LootSuggestions::LootSuggestions(LootTableManager *lootTableManager)
+    : lootTableManager_(lootTableManager) {
 }
 
 std::string glimmer::LootSuggestions::GetId() const {

@@ -85,6 +85,11 @@ preload_chunk_radius = 1.0
 # 结构预加载范围（地形/结构数据预计算）
 preload_structure_radius = 5.0
 
+[command]
+# Number of chunks traversed in the positive/negative X direction when using the `locate biome` command.
+# 使用 locate biome 命令时，沿 X 轴正 / 负方向遍历的区块数量。
+locate_max_radius_search_chunks = 2048
+
 [mods]
 # Data pack storage path
 # 数据包存储路径
@@ -151,35 +156,35 @@ command_group = [["screenShot create"]]
 
 [hotkey_f12]
 command_group = [
-    ["config set debug.display_debug_panel toggle"],
+    ["config set debug.display_debug_panel toggle","config commit"],
 ]
 
 [hotkey_f11]
 command_group = [
-    ["config set debug.display_box2d_shape toggle"],
+    ["config set debug.display_box2d_shape toggle","config commit"],
 ]
 
 [hotkey_f10]
 command_group = [
-    ["config set debug.display_elevation_map toggle"],
+    ["config set debug.display_elevation_map toggle", "config commit"],
 ]
 
 [hotkey_f9]
 command_group = [
-    ["config set debug.display_temp_map toggle"],
+    ["config set debug.display_temp_map toggle", "config commit"],
 ]
 
 [hotkey_f8]
 command_group = [
-    ["config set debug.display_erosion_map toggle"],
+    ["config set debug.display_erosion_map toggle", "config commit"],
 ]
 
 [hotkey_f7]
 command_group = [
-    ["config set debug.display_weirdness_map toggle"],
+    ["config set debug.display_weirdness_map toggle", "config commit"],
 ]
 
 [hotkey_f6]
 command_group = [
-    ["config set debug.display_humidity_map toggle"],
+    ["config set debug.display_humidity_map toggle", "config commit"],
 ]

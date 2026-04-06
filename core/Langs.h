@@ -69,6 +69,8 @@ namespace glimmer {
         std::string tileDebugInfo;
         std::string tileResDebugInfo;
         std::string mousePosition;
+        std::string noBiomeWasFound;
+        std::string biomeHasFound;
         std::vector<std::string> worldNamePrefix;
         std::vector<std::string> worldNameSuffix;
         std::vector<std::string> slogans;

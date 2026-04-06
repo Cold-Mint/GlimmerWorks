@@ -438,6 +438,24 @@ namespace glimmer {
         float erosion = 0.0F;
         //@genNextLine(elevation|海拔高度)
         float elevation = 0.0F;
+        // Biome property strictness
+        // Higher = stricter requirements; small differences result in poor matching
+        // Lower = more lenient; large differences have little effect
+        // Default 1.0 = standard strictness (matches original behavior without weighting)
+        // 生物群系属性严格度
+        // 越高 = 要求越严格，差一点就不匹配
+        // 越低 = 要求越宽松，差很多也无所谓
+        // 默认 1.0 = 标准严格度（和原来无权重逻辑一致）
+        //@genNextLine(strictnessHumidity|湿度严格度)
+        float strictnessHumidity = 1.0F;
+        //@genNextLine(strictnessTemperature|温度严格度)
+        float strictnessTemperature = 1.0F;
+        //@genNextLine(strictnessWeirdness|怪异度严格度)
+        float strictnessWeirdness = 1.0F;
+        //@genNextLine(strictnessErosion|侵蚀度严格度)
+        float strictnessErosion = 1.0F;
+        //@genNextLine(strictnessElevation|海拔高度严格度)
+        float strictnessElevation = 1.0F;
         //@genNextLine(BGM|BGM)
         ResourceRef bgm;
     };

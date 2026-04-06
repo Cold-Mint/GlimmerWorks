@@ -31,6 +31,7 @@ static constexpr std::string ECS_COMMAND_NAME = "ecs";
 static constexpr std::string FLY_COMMAND_NAME = "fly";
 static constexpr std::string ECHO_COMMAND_NAME = "echo";
 static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
+static constexpr std::string LOCATE_COMMAND_NAME = "locate";
 static constexpr std::string FULL_BIOME_DECORATOR = "fill";
 static constexpr std::string SURFACE_BIOME_DECORATOR = "surface";
 static constexpr std::string TREE_BIOME_DECORATOR = "tree";
@@ -46,6 +47,7 @@ static constexpr std::string STRUCTURE_DYNAMIC_SUGGESTIONS_NAME = "&structure";
 static constexpr std::string COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME = "&composeable";
 static constexpr std::string ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME = "&ability_item";
 static constexpr std::string LOOT_DYNAMIC_SUGGESTIONS_NAME = "&loot";
+static constexpr std::string BIOME_DYNAMIC_SUGGESTIONS_NAME = "&biome";
 
 static constexpr std::string STRUCTURE_GENERATOR_ID_TREE = "tree";
 static constexpr std::string STRUCTURE_GENERATOR_ID_STATIC = "static";
@@ -135,6 +137,7 @@ constexpr uint16_t MAGNETIC_TYPE_ITEM = 0x0001;
  * 设计为2的幂次(16=2^4)，便于后续通过位运算快速计算
  */
 static constexpr int CHUNK_SIZE = 16;
+static constexpr int HALF_CHUNK_SIZE = CHUNK_SIZE * 0.5;
 
 /**
  * The area of a single block (total pixels / total elements)

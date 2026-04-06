@@ -62,6 +62,7 @@ void glimmer::Config::LoadConfig(const toml::value &configValue) {
     debug.displayWeirdnessMap = toml::find<bool>(configValue, "debug", "display_weirdness_map");
     console.maxHistoryEntries = toml::find<int>(configValue, "console", "max_history_entries");
     runtimePath = toml::find<std::string>(configValue, "runtime_path");
+    command.locateMaxRadiusSearchChunks = toml::find<int>(configValue, "command", "locate_max_radius_search_chunks");
     f1 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f1");
     f2 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f2");
     f3 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f3");

@@ -459,6 +459,8 @@ target_sources(GlimmerWorks
         core/ecs/system/DraggableSystem.cpp
         core/utils/ColorUtils.cpp
         core/ecs/system/DebugMultiMapSystem.cpp
+        core/console/command/LocateCommand.cpp
+        core/console/suggestion/BiomeSuggestions.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -656,6 +658,8 @@ target_sources(GlimmerWorks
         core/ecs/system/DraggableSystem.h
         core/ecs/system/DebugMultiMapSystem.h
         core/utils/ColorUtils.h
+        core/console/command/LocateCommand.h
+        core/console/suggestion/BiomeSuggestions.h
 )
 
 #Define version information

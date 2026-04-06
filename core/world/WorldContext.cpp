@@ -198,13 +198,13 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef &resourceRef) {
         }
     }
     if (IsEmptyEntityId(playerEntity)) {
-        const auto height = chunkGenerator_->GetHeight(0);
+        const auto firstTileTerrainY = chunkGenerator_->GetFirstTileTerrainY(0);
         playerEntity = CreateEntity();
         MobEntityCreator mobEntityCreator{this};
         mobEntityCreator.LoadTemplateComponents(playerEntity, resourceRef);
         mobEntityCreator.MergeEntityItemMessage(playerEntity,
                                                 MobEntityCreator::GetEntityItemMessage(
-                                                    TileLayerComponent::TileToWorld(TileVector2D(0, height + 3))));
+                                                    TileLayerComponent::TileToWorld(TileVector2D(0, firstTileTerrainY + 3))));
     }
     if (!HasComponent<ItemContainerComponent>(playerEntity)) {
         const auto *itemContainerComponent = AddComponent<ItemContainerComponent>(

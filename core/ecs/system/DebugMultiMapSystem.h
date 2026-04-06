@@ -12,7 +12,7 @@ namespace glimmer {
     class DebugMultiMapSystem : public GameSystem {
         [[nodiscard]] bool ShouldActivate() override;
 
-        SDL_Color GetTileDebugColor(TileVector2D tile);
+        SDL_Color GetTileDebugColor(TileVector2D tile) const;
 
     public:
         uint8_t GetRenderOrder() override;

@@ -62,3 +62,5 @@ entry_cannot_found_in_configuration_file = "Entry {} does not exist in the confi
 tile_debug_info="Tile Pos({}, {}) Chunk Local({}, {}) Humidity {:.2f} Temp {:.2f} Erosion {:.2f} Elevation {:.2f} Weirdness {:.2f}"
 tile_res_debug_info="ID: {} Hardness: {:.2f} Name: {}"
 mouse_position = "Mouse Position - World Coordinates ({:.2f},{:.2f})"
+no_biome_was_found = "No biome found: {}."
+biome_has_found = "The nearest biome {} is located at ({},{})."

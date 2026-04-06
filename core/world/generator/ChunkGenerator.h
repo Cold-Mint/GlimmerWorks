@@ -87,7 +87,7 @@ namespace glimmer {
         * @param x Starting point x coordinate 起点x坐标
         * @return The height array of this block (length = CHUNK_SIZE)
         */
-        int GetHeight(int x);
+        int GetFirstTileTerrainY(int x);
 
         /**
          * GenerateTerrain
@@ -109,10 +109,10 @@ namespace glimmer {
         /**
        * GetElevation
        * 获取海拔
-       * @param height 高度
+       * @param y y
        * @return
        */
-        [[nodiscard]] static float GetElevation(int height);
+        [[nodiscard]] static float GetElevation(int y);
 
         /**
         * Obtain the humidity value of a certain coordinate

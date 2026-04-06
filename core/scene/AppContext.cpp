@@ -27,10 +27,12 @@
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/command/EchoCommand.h"
 #include "core/console/command/FlyCommand.h"
+#include "core/console/command/LocateCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/command/PlaceCommand.h"
 #include "core/console/command/ScreenshotCommand.h"
 #include "core/console/command/SummonCommand.h"
+#include "core/console/suggestion/BiomeSuggestions.h"
 #include "core/console/suggestion/BooleanToggleDynamicSuggestions.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/CoordinateDynamicSuggestions.h"
@@ -112,6 +114,8 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->tileDebugInfo = find<std::string>(value, "tile_debug_info");
     langs_->tileResDebugInfo = find<std::string>(value, "tile_res_debug_info");
     langs_->mousePosition = find<std::string>(value, "mouse_position");
+    langs_->noBiomeWasFound = find<std::string>(value, "no_biome_was_found");
+    langs_->biomeHasFound = find<std::string>(value, "biome_has_found");
     langs_->configurationCommitSuccess = find<std::string>(value, "configuration_commit_success");
     langs_->configurationCommitFail = find<std::string>(value, "configuration_commit_fail");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "world_name_prefix");
@@ -216,6 +220,7 @@ glimmer::AppContext::AppContext() {
     sceneManager_ = std::make_unique<SceneManager>();
     stringManager_ = std::make_unique<StringManager>();
     biomesManager_ = std::make_unique<BiomesManager>();
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BiomeSuggestions>(biomesManager_.get()));
     tileManager_ = std::make_unique<TileManager>();
     structurePlacementConditionsManager_ = std::make_unique<StructurePlacementConditionsManager>();
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<SurfaceStructureConditionProcessor>());
@@ -245,6 +250,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<EchoCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<LocateCommand>(this));
 
     commandExecutor_ = std::make_unique<CommandExecutor>();
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();

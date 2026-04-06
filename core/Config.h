@@ -21,6 +21,10 @@ namespace glimmer {
         bool vSync = true;
     };
 
+    struct CommandConfig {
+        int locateMaxRadiusSearchChunks = 2048;
+    };
+
     struct Mods {
         std::string dataPackPath;
         std::string resourcePackPath;
@@ -77,6 +81,7 @@ namespace glimmer {
         Debug debug{};
         Audio audio{};
         Console console{};
+        CommandConfig command{};
         int configVersion = 1;
         HotkeyCommand f1{};
         HotkeyCommand f2{};

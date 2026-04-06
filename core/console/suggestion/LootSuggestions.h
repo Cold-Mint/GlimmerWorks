@@ -12,7 +12,7 @@ namespace glimmer {
         LootTableManager *lootTableManager_;
 
     public:
-        explicit LootSuggestions(LootTableManager *loot_table_manager);
+        explicit LootSuggestions(LootTableManager *lootTableManager);
 
         [[nodiscard]] std::string GetId() const override;
 

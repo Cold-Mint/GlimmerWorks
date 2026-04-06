@@ -268,7 +268,7 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
                                                  &debugPanelTextBGColorRes)->
             ToSDLColor();
 
-    float debugMapAlpha = 191;
+    uint8_t debugMapAlpha = 191;
     ColorResource elevationMapFromRes;
     elevationMapFromRes.r = 0;
     elevationMapFromRes.g = 103;

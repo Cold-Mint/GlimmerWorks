@@ -49,13 +49,27 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
     float bestDistance = std::numeric_limits<float>::max();
 
     for (auto &biome: biomeVector_) {
+        // Compute terrain-biome attribute difference
+        // 计算地形属性与生物群系属性的差值
         const float dh = biome->humidity - humidity;
         const float dt = biome->temperature - temperature;
         const float dw = biome->weirdness - weirdness;
         const float de = biome->erosion - erosion;
         const float dE = biome->elevation - elevation;
 
-        const float distance = dh * dh + dt * dt + dw * dw + de * de + dE * dE;
+        // Core: Strictness weighted calculation (attribute difference × corresponding strictness)
+        // Higher strictness = greater penalty for attribute mismatch, making selection less likely
+        // 核心：严格度加权计算（属性差值 × 对应严格度）
+        // 严格度越高，属性不匹配的惩罚越大，越难被选中
+        const float distance =
+                dh * dh * biome->strictnessHumidity +
+                dt * dt * biome->strictnessTemperature +
+                dw * dw * biome->strictnessWeirdness +
+                de * de * biome->strictnessErosion +
+                dE * dE * biome->strictnessElevation;
+
+        // Find the biome with the smallest matching distance
+        // 匹配距离最小的生物群系
         if (distance < bestDistance) {
             bestDistance = distance;
             bestBiome = biome;
@@ -66,6 +80,20 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
         LogCat::d("return bestBiome = ", Resource::GenerateId(bestBiome->packId, bestBiome->resourceId));
     }
     return bestBiome;
+}
+
+std::vector<std::string> glimmer::BiomesManager::GetBiomeList() const {
+    std::vector<std::string> result;
+    for (const auto &packPair: biomeMap_) {
+        const auto &packId = packPair.first;
+        const auto &keyMap = packPair.second;
+
+        for (const auto &keyPair: keyMap) {
+            const auto &key = keyPair;
+            result.emplace_back(Resource::GenerateId(packId, key.first));
+        }
+    }
+    return result;
 }
 
 std::string glimmer::BiomesManager::ListBiomes() const {

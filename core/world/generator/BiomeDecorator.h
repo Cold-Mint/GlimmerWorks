@@ -14,6 +14,7 @@
 
 namespace glimmer {
     class IBiomeDecorator {
+    protected:
         int worldSeed_ = 0;
 
     public:

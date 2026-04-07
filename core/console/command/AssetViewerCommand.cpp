@@ -24,6 +24,7 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggest
     suggestionsTree.AddChild("startinv");
     suggestionsTree.AddChild("mobs");
     suggestionsTree.AddChild("shapes");
+    suggestionsTree.AddChild("biomeDecors");
 }
 
 std::string glimmer::AssetViewerCommand::GetName() const {
@@ -141,6 +142,14 @@ bool glimmer::AssetViewerCommand::Execute(const CommandArgs commandArgs,
             return false;
         }
         onMessage(shapeManager->ListShapes());
+        return true;
+    }
+    if (type == "biomeDecors") {
+        const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext_->GetBiomeDecoratorResourcesManager();
+        if (decoratorResourcesManager == nullptr) {
+            return false;
+        }
+        onMessage(decoratorResourcesManager->ListBiomeDecorators());
         return true;
     }
     const LangsResources *langsResources = appContext_->GetLangsResources();

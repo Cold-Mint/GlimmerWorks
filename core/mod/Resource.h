@@ -4,6 +4,8 @@
 //
 #ifndef RESOURCE_H
 #define RESOURCE_H
+#include <FastNoiseLite.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -410,7 +412,6 @@ namespace glimmer {
     struct IBiomeDecoratorResource : Resource {
         //@genNextLine(biomeDecoratorType|装饰器类型)
         uint8_t biomeDecoratorType = 0;
-
     };
 
 
@@ -422,8 +423,32 @@ namespace glimmer {
 
     //@genNextLine(MineralBiomeDecoratorResource|矿脉生物群系装饰器)
     struct MineralBiomeDecoratorResource : IBiomeDecoratorResource {
-        //@genNextLine(tile|瓦片)
-        ResourceRef tile;
+    private:
+        std::unique_ptr<FastNoiseLite> fastNoiseLite_ = nullptr;
+
+    public:
+        //@genNextLine(ore|矿石)
+        ResourceRef ore;
+        //@genNextLine(noiseType|噪声类型)
+        uint8_t noiseType;
+        //@genNextLine(frequency|频率)
+        float frequency = 0.01F;
+        //@genNextLine(oreSpawnMinNoiseThreshold|矿石生成最小噪声阈值)
+        float oreSpawnMinNoiseThreshold = 0.5F;
+        //@genNextLine(oreSpawnMaxNoiseThreshold|矿石生成最大噪声阈值)
+        float oreSpawnMaxNoiseThreshold = 0.8F;
+        //@genNextLine(invertOreSpawnByDepth|是否随深度增加矿石生成概率)
+        bool invertOreSpawnByDepth = true;
+        //The formation of ores will be based on the world seed plus the offset.
+        //矿石的生成会按照世界种子加上偏移
+        //@genNextLine(seedOffset|种子偏移量)
+        int seedOffset = 1024;
+        //@genNextLine(minSpawnElevation|矿石最小生成高度(地下深处))
+        float minSpawnElevation = 0.0F;
+        //@genNextLine(maxSpawnElevation|矿石最大生成高度(地表浅层))
+        float maxSpawnElevation = 0.5F;
+
+        FastNoiseLite *GetFastNoiseLite(int seed);
     };
 
     //@genNextLine(SurfaceBiomeDecoratorResource|表面生物群系装饰器)

@@ -41,6 +41,7 @@
 #include "core/console/suggestion/StructureDynamicSuggestions.h"
 #include "core/saves/SavesManager.h"
 #include "core/world/generator/FillBiomeDecorator.h"
+#include "core/world/generator/MineralBiomeDecorator.h"
 #include "core/world/generator/SurfaceBiomeDecorator.h"
 #include "core/world/structure/BiomeStructureConditionProcessor.h"
 #include "core/world/structure/HeightStructureConditionProcessor.h"
@@ -262,6 +263,7 @@ glimmer::AppContext::AppContext() {
         std::make_unique<AbilityItemDynamicSuggestions>(im));
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<SurfaceBiomeDecorator>());
+    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
     config_ = std::make_unique<Config>();
     LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
     std::optional<std::string> configData = vfs->ReadFile(CONFIG_FILE_NAME);

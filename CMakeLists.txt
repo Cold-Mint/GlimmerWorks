@@ -248,9 +248,7 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks
-            core/mod/dataPack/BiomeDecoratorType.cpp
-            core/mod/dataPack/BiomeDecoratorType.h)
+    add_executable(GlimmerWorks)
 endif ()
 
 target_sources(GlimmerWorks
@@ -464,6 +462,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/BiomeSuggestions.cpp
         core/world/generator/MineralBiomeDecorator.cpp
         core/mod/dataPack/BiomeDecoratorResourcesManager.cpp
+        core/mod/dataPack/BiomeDecoratorType.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -664,6 +663,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/BiomeSuggestions.h
         core/world/generator/MineralBiomeDecorator.h
         core/mod/dataPack/BiomeDecoratorResourcesManager.h
+        core/mod/dataPack/BiomeDecoratorType.h
 )
 
 #Define version information

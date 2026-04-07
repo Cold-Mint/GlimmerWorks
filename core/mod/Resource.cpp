@@ -23,8 +23,9 @@ void glimmer::VariableDefinition::AsResourceRef(ResourceRef &resourceRef) const 
         return;
     }
     ResourceRefMessage refMessage;
-    refMessage.ParseFromString(value);
-    resourceRef.ReadResourceRefMessage(refMessage);
+    if (refMessage.ParseFromString(value)) {
+        resourceRef.ReadResourceRefMessage(refMessage);
+    }
 }
 
 int glimmer::VariableDefinition::AsInt() const {
@@ -94,6 +95,16 @@ void glimmer::VariableConfig::UpdateArgs(const std::string &selfPackId) {
 
 SDL_Color glimmer::ColorResource::ToSDLColor() const {
     return SDL_Color{r, g, b, a};
+}
+
+FastNoiseLite *glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const int seed) {
+    if (fastNoiseLite_ == nullptr) {
+        fastNoiseLite_ = std::make_unique<FastNoiseLite>();
+    }
+    fastNoiseLite_->SetSeed(seed + seedOffset);
+    fastNoiseLite_->SetNoiseType(static_cast<FastNoiseLite::NoiseType>(noiseType));
+    fastNoiseLite_->SetFrequency(frequency);
+    return fastNoiseLite_.get();
 }
 
 std::vector<ItemMessage> glimmer::LootResource::GetLootItems(const LootResource *lootResource) {

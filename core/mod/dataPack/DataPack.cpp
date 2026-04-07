@@ -309,6 +309,7 @@ bool glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const std::string &pa
             auto mineralBiomeDecoratorResource = std::make_unique<MineralBiomeDecoratorResource>(
                 toml::get<MineralBiomeDecoratorResource>(value));
             mineralBiomeDecoratorResource->packId = manifest_.id;
+            mineralBiomeDecoratorResource->ore.SetSelfPackageId(manifest_.id);
             mineralBiomeDecoratorResource->biomeDecoratorType = static_cast<uint8_t>(BiomeDecoratorType::MINERAL);
             biomeDecoratorManager->Register(std::move(mineralBiomeDecoratorResource));
             break;

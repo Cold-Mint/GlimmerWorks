@@ -45,28 +45,6 @@ size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const s
 }
 
 
-int glimmer::ComposableItem::TryParseItemIndex(const std::string &name) {
-    constexpr std::string_view prefix = "item_";
-    if (!name.starts_with(prefix)) {
-        return -1;
-    }
-    std::string_view numberPart{name};
-    numberPart.remove_prefix(prefix.size());
-    if (numberPart.empty()) {
-        return -1;
-    }
-    int value = -1;
-    auto [ptr, ec] = std::from_chars(
-        numberPart.data(),
-        numberPart.data() + numberPart.size(),
-        value
-    );
-    if (ec != std::errc{} || ptr != numberPart.data() + numberPart.size()) {
-        return -1;
-    }
-    return value;
-}
-
 std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(const AppContext *appContext,
     const ComposableItemResource *itemResource, const ResourceRef &resourceRef) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);

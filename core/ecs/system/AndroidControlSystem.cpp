@@ -2,8 +2,13 @@
 // Created by Cold-Mint on 2025/12/1.
 //
 #ifdef __ANDROID__
+#include "core/scene/AppContext.h"
+#include "core/scene/AppContext.h"
+#include "core/world/WorldContext.h"
+#include "core/world/WorldContext.h"
 #include "AndroidControlSystem.h"
 #include "../../scene/AppContext.h"
+#include "../../world/WorldContext.h"
 #include "../../Config.h"
 #include "../../log/LogCat.h"
 #include "../../Constants.h"
@@ -39,12 +44,16 @@ namespace glimmer {
     }
 
     bool AndroidControlSystem::HandleEvent(const SDL_Event &event) {
+        AppContext *appContext = worldContext_->GetAppContext();
+        if (appContext == nullptr) {
+            return false;
+        }
         switch (event.type) {
             case SDL_EVENT_FINGER_DOWN:
             case SDL_EVENT_FINGER_MOTION: {
                 int windowW = 0;
                 int windowH = 0;
-                SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
+                SDL_GetWindowSize(appContext->GetWindow(), &windowW, &windowH);
                 float x = event.tfinger.x * static_cast<float>(windowW);
                 float y = event.tfinger.y * static_cast<float>(windowH);
                 SDL_FingerID fingerId = event.tfinger.fingerID;
@@ -117,24 +126,30 @@ namespace glimmer {
     }
 
     void AndroidControlSystem::Render(SDL_Renderer *renderer) {
-        if (!renderer) return;
-        if (!leftTexture) {
-            auto load = [&](const char *path) {
-                return appContext_->GetResourcePackManager()->LoadTextureFromFile(
-                    appContext_, path);
+        if (renderer == nullptr) {
+            return;
+        }
+        AppContext *appContext = worldContext_->GetAppContext();
+        if (appContext == nullptr) {
+            return;
+        }
+        if (leftTexture != nullptr) {
+            /*auto load = [&](const char *path) {
+                return appContext->GetResourcePackManager()->LoadTextureFromFile(
+                    appContext, path);
             };
             leftTexture = load("gui/left.png");
             rightTexture = load("gui/right.png");
             jumpTexture = load("gui/jump.png");
             leftPressedTexture = load("gui/left_pressed.png");
             rightPressedTexture = load("gui/right_pressed.png");
-            jumpPressedTexture = load("gui/jump_pressed.png");
+            jumpPressedTexture = load("gui/jump_pressed.png");*/
         }
 
-        float uiScale = appContext_->GetConfig()->window.uiScale;
+        float uiScale = appContext->GetConfig()->window.uiScale;
         int windowW = 0;
         int windowH = 0;
-        SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
+        SDL_GetWindowSize(appContext->GetWindow(), &windowW, &windowH);
 
         const auto winW = static_cast<float>(windowW);
         const auto winH = static_cast<float>(windowH);

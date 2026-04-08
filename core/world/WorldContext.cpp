@@ -53,6 +53,9 @@
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
 #include "generator/ChunkPhysicsHelper.h"
+#ifdef __ANDROID__
+#include "core/ecs/system/AndroidControlSystem.h"
+#endif
 
 bool glimmer::WorldContext::IsDragMode() const {
     return dragMode_;

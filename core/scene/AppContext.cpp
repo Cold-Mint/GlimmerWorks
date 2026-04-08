@@ -144,7 +144,7 @@ glimmer::AppContext::AppContext() {
     mainThreadId_ = std::this_thread::get_id();
     virtualFileSystem_ = std::make_unique<VirtualFileSystem>();
 #ifdef __ANDROID__
-    JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
+    /*JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
     jobject activity = (jobject) SDL_GetAndroidActivity();
     jclass activityClass = env->GetObjectClass(activity);
     jmethodID getAssetsMethod = env->
@@ -178,7 +178,7 @@ glimmer::AppContext::AppContext() {
     env->ReleaseStringUTFChars(absolutePathJStr, absolutePathCStr);
     virtualFileSystem_->Mount(
         std::make_unique<StdFileProvider>(dataDirPath + "/assets"));
-    virtualFileSystem_->Mount(std::unique_ptr<FileProvider>(std::move(assetsProvider)));
+    virtualFileSystem_->Mount(std::unique_ptr<FileProvider>(std::move(assetsProvider)));*/
 #else
     virtualFileSystem_->Mount(
         std::make_unique<StdFileProvider>(std::filesystem::current_path().string()));

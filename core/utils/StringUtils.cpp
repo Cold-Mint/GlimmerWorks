@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <iomanip>
 #include <ios>
+#include <sstream>
 
 std::string glimmer::StringUtils::ToSafeSaveName(const std::string &utf8Str) {
     std::uint32_t hash = 0x811C9DC5;

@@ -56,13 +56,6 @@ namespace glimmer {
         [[nodiscard]] size_t RemoveItemAbility(const std::string &id, size_t amount) const;
 
 
-        /**
-        * TryParseItemIndex
-        * 尝试从名称内解析下标
-        * @param name
-        * @return If the result is -1, it indicates that the parsing has failed. 如果返回-1,那么表示解析失败。
-        */
-        static int TryParseItemIndex(const std::string &name);
 
         static std::unique_ptr<ComposableItem> FromItemResource(const AppContext *appContext,
                                                                 const ComposableItemResource *itemResource,

@@ -153,6 +153,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(SDL)
 
+if(ANDROID)
+    find_library(ANDROID_LOG_LIB log)
+    target_link_libraries(SDL3-shared PRIVATE ${ANDROID_LOG_LIB})
+endif()
+
 FetchContent_Declare(
         SDL_image
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_image"
@@ -329,7 +334,6 @@ target_sources(GlimmerWorks
         core/vfs/VirtualFileSystem.cpp
         core/vfs/FileProvider.cpp
         core/vfs/StdFileProvider.cpp
-        core/vfs/AndroidAssetsFileProvider.cpp
         core/vfs/AAssetStream.cpp
         core/vfs/AAssetStreamBuf.cpp
         core/console/command/VFSCommand.cpp
@@ -531,7 +535,6 @@ target_sources(GlimmerWorks
         core/vfs/VirtualFileSystem.h
         core/vfs/FileProvider.h
         core/vfs/StdFileProvider.h
-        core/vfs/AndroidAssetsFileProvider.h
         core/vfs/AAssetStream.h
         core/vfs/AAssetStreamBuf.h
         core/console/command/VFSCommand.h
@@ -677,7 +680,7 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE log android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
+    target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
 else ()
     target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
 endif ()

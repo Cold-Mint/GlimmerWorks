@@ -3,13 +3,13 @@
 //
 #include "DataPack.h"
 
-#include "../../Constants.h"
+#include "core/Constants.h"
 
 #include "StringManager.h"
 #include "TileManager.h"
-#include "../../log/LogCat.h"
-#include "../../utils/TomlUtils.h"
-#include "../../core/mod/PackManifest.h"
+#include "core/log/LogCat.h"
+#include "core/utils/TomlUtils.h"
+#include "core/mod/PackManifest.h"
 #include "core/lootTable/LootTableManager.h"
 #include "core/scene/AppContext.h"
 #include "toml11/parser.hpp"

@@ -7,7 +7,7 @@
 #include "../../Config.h"
 #include "../../log/LogCat.h"
 #include "../../Constants.h"
-#include "core/ecs/component/PlayerControlComponent.h"
+#include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 
 namespace glimmer {
@@ -34,7 +34,7 @@ namespace glimmer {
 
     AndroidControlSystem::AndroidControlSystem(WorldContext *worldContext)
         : GameSystem(worldContext) {
-        RequireComponent<PlayerControlComponent>();
+        RequireComponent<PlayerComponent>();
         RequireComponent<Transform2DComponent>();
     }
 

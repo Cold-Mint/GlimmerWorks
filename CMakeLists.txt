@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.3)
+cmake_minimum_required(VERSION 4.3.1)
 project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
 
@@ -716,7 +716,7 @@ target_include_directories(GlimmerWorks PRIVATE
 
 target_include_directories(GlimmerWorks
         PRIVATE
-        "${CMAKE_BINARY_DIR}/_deps/generated"
+        "${CMAKE_BINARY_DIR}/_deps/glimmerworksprotobuf-build/cpp"
 )
 
 file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"

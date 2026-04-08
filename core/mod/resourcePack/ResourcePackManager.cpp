@@ -8,14 +8,14 @@
 #include <regex>
 #include <algorithm>
 #include "ResourcePack.h"
-#include "../../Config.h"
-#include "../../log/LogCat.h"
-#include "../../scene/AppContext.h"
+#include "core/Config.h"
+#include "core/log/LogCat.h"
+#include "core/scene/AppContext.h"
 #include "SDL3_image/SDL_image.h"
 #include "toml11/get.hpp"
 #include "toml11/parser.hpp"
 #include "toml11/spec.hpp"
-#include "../../core/utils/TomlUtils.h"
+#include "core/utils/TomlUtils.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3_mixer/SDL_mixer.h"
 

@@ -10,8 +10,6 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
-#include "nlohmann/json_fwd.hpp"
-
 namespace glimmer {
     struct AssetIndex {
         std::string path;
@@ -26,8 +24,6 @@ namespace glimmer {
     public:
         explicit AndroidAssetsFileProvider(AAssetManager *assetManager);
 
-
-        [[nodiscard]] bool SetIndex(nlohmann::json json);
 
         [[nodiscard]] std::string GetFileProviderName() const override;
 

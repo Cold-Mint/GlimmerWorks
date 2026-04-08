@@ -93,11 +93,13 @@ void glimmer::DiggingSystem::Update(float delta) {
             }
             // Update physics
             // 更新物理
-            for (auto chunk: chunkSet) {
-                if (chunk == nullptr) {
-                    continue;
+            if (diggingComponent->GetLayerType() == Ground) {
+                for (auto chunk: chunkSet) {
+                    if (chunk == nullptr) {
+                        continue;
+                    }
+                    ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
                 }
-                ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
             }
             // Reset digging after break
             // 破坏方块重置挖掘

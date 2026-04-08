@@ -197,6 +197,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
                     appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
                     appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
     yOffset += lineSpacing;
+    bool firstLayer = true;
     for (auto &tileEntity: tileLayers) {
         auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(tileEntity);
         if (tileLayer == nullptr) {
@@ -205,26 +206,30 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
         TileVector2D tileCoord = TileLayerComponent::WorldToTile(mousePosition_);
         TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
-        float elevation = ChunkGenerator::GetElevation(tileCoord.y);
-        std::string tileDebugInfo = fmt::format(
-            fmt::runtime(appContext->GetLangsResources()->tileDebugInfo),
-            tileCoord.x, tileCoord.y,
-            chunkRelative.x, chunkRelative.y,
-            chunkGenerator->GetHumidity(tileCoord),
-            chunkGenerator->GetTemperature(tileCoord, elevation),
-            chunkGenerator->GetErosion(tileCoord),
-            elevation,
-            chunkGenerator->GetWeirdness(tileCoord)
-        );
-        RenderDebugText(renderer, windowW, tileDebugInfo, yOffset,
-                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
-                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
-        yOffset += lineSpacing;
-        auto tile = tileLayer->GetTile(tileCoord);
+        if (firstLayer) {
+            float elevation = ChunkGenerator::GetElevation(tileCoord.y);
+            std::string tileDebugInfo = fmt::format(
+                fmt::runtime(appContext->GetLangsResources()->tileDebugInfo),
+                tileCoord.x, tileCoord.y,
+                chunkRelative.x, chunkRelative.y,
+                chunkGenerator->GetHumidity(tileCoord),
+                chunkGenerator->GetTemperature(tileCoord, elevation),
+                chunkGenerator->GetErosion(tileCoord),
+                elevation,
+                chunkGenerator->GetWeirdness(tileCoord)
+            );
+            RenderDebugText(renderer, windowW, tileDebugInfo, yOffset,
+                            appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
+                            appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+            yOffset += lineSpacing;
+            firstLayer = false;
+        }
+
+        auto tile = tileLayer->GetSelfLayerTile(tileCoord);
         if (tile != nullptr) {
             std::string tileResDebugInfo = fmt::format(
                 fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
-                tile->GetId(), tile->GetHardness(), tile->GetName()
+                static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName()
             );
             RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
                             appContext->GetPreloadColors()->debugColor.debugPanelTextColor,

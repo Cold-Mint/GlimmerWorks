@@ -431,6 +431,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     std::unordered_set<BiomeResource *> biomeResourcesSet;
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
+            TileVector2D localTile(localX, localY);
             const int idx = localY * CHUNK_SIZE + localX;
             auto &terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             auto terrainType = terrainTileResult.terrainType;

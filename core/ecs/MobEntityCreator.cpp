@@ -96,7 +96,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const GameEntity::ID id, 
     const auto tilePlacementForbiddenZoneComponent = worldContext_->AddComponent<
         TilePlacementForbiddenZoneComponent>(id);
     if (tilePlacementForbiddenZoneComponent != nullptr) {
-        TilePlacementForbiddenZone tilePlacementForbiddenZone = mobResource->tilePlacementForbiddenZone;
+        const TilePlacementForbiddenZone tilePlacementForbiddenZone = mobResource->tilePlacementForbiddenZone;
         tilePlacementForbiddenZoneComponent->SetHeight(tilePlacementForbiddenZone.height);
         tilePlacementForbiddenZoneComponent->SetWidth(tilePlacementForbiddenZone.width);
         tilePlacementForbiddenZoneComponent->SetOffsetX(tilePlacementForbiddenZone.offsetX);

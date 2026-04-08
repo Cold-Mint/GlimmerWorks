@@ -60,6 +60,7 @@ namespace glimmer {
         std::string efficiencyTip;
         std::string precisionMiningTip;
         std::string canMineBlockTip;
+        std::string canMineWallTip;
         std::string fumbleTip;
         std::string chainMiningTip;
         std::string configurationCommitSuccess;

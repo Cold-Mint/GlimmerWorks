@@ -20,7 +20,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air_->resourceId = TILE_ID_AIR;
     air_->packId = RESOURCE_REF_CORE;
     air_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
-    air_->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    air_->layerType = static_cast<uint8_t>(Ground);
     air_->hardness = -1.0F;
     airResourceRef_ = std::make_unique<ResourceRef>();
     airResourceRef_->ReadResource(*air_, RESOURCE_TYPE_TILE);
@@ -33,7 +33,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     water_->resourceId = TILE_ID_WATER;
     water_->packId = RESOURCE_REF_CORE;
     water_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
-    water_->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    water_->layerType = static_cast<uint8_t>(Ground);
     water_->hardness = -1.0F;
     bedrock_ = std::make_unique<TileResource>();
     ResourceRef bedrockResource;
@@ -44,7 +44,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     bedrock_->resourceId = TILE_ID_BEDROCK;
     bedrock_->packId = RESOURCE_REF_CORE;
     bedrock_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
-    bedrock_->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    bedrock_->layerType = static_cast<uint8_t>(Ground);
     bedrock_->hardness = -1.0F;
     error_ = std::make_unique<TileResource>();
     ResourceRef errorResource;
@@ -55,7 +55,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
     error_->resourceId = TILE_ID_ERROR;
     error_->packId = RESOURCE_REF_CORE;
     error_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
-    error_->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    error_->layerType = static_cast<uint8_t>(Ground);
     error_->hardness = 0.1F;
 }
 
@@ -98,7 +98,7 @@ std::unique_ptr<glimmer::TileResource> glimmer::TileManager::GenerateErrorPlaceH
     errorPlaceholder->resourceId = resourceId;
     errorPlaceholder->packId = packId;
     errorPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
-    errorPlaceholder->layerType = static_cast<uint8_t>(TileLayerType::Main);
+    errorPlaceholder->layerType = static_cast<uint8_t>(Ground);
     errorPlaceholder->hardness = 0.1F;
     errorPlaceholder->missing = true;
     return errorPlaceholder;
@@ -126,7 +126,6 @@ glimmer::TileResource *glimmer::TileManager::Find(const std::string &packId, con
 
 std::vector<std::string> glimmer::TileManager::GetTileIDList() {
     std::vector<std::string> result;
-    result.emplace_back(Resource::GenerateId(air_->packId, air_->resourceId));
     result.emplace_back(Resource::GenerateId(water_->packId, water_->resourceId));
     result.emplace_back(Resource::GenerateId(bedrock_->packId, bedrock_->resourceId));
     for (const auto &[packId, keyMap]: tileMap_) {
@@ -151,9 +150,6 @@ std::string glimmer::TileManager::ListTiles() const {
     }
     if (error_ != nullptr) {
         oss << Resource::GenerateId(*error_) << "\n";
-    }
-    if (air_ != nullptr) {
-        oss << Resource::GenerateId(*air_) << "\n";
     }
     if (water_ != nullptr) {
         oss << Resource::GenerateId(*water_) << "\n";

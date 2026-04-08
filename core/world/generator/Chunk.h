@@ -68,6 +68,15 @@ namespace glimmer {
 
         [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D &tileVector2d);
 
+        /**
+         * GetTopVisibleTile
+         * 获取顶层可见的瓦片。
+         * @param layerFilter layerFilter 图层过滤
+         * @param tileVector2d tileVector2d 坐标
+         * @return
+         */
+        [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(uint8_t layerFilter, const TileVector2D &tileVector2d);
+
         void ReadChunkMessage(const AppContext *appContext, const ChunkMessage &chunkMessage);
 
         void WriteChunkMessage(ChunkMessage &chunkMessage);

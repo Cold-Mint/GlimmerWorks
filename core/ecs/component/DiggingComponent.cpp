@@ -34,7 +34,7 @@ float glimmer::DiggingComponent::GetProgress() const {
     return progress_;
 }
 
-void glimmer::DiggingComponent::SetLayerType(TileLayerType tileLayerType) {
+void glimmer::DiggingComponent::SetLayerType(const TileLayerType tileLayerType) {
     layerType_ = tileLayerType;
 }
 

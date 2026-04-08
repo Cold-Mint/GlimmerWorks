@@ -30,10 +30,20 @@ namespace glimmer {
         bool allowChainMining_ = false;
         bool isPlayerPlaced_ = false;
         TilePhysicsType physicsType_ = TilePhysicsType::None;
-        TileLayerType layerType = TileLayerType::Main;
+        TileLayerType layerType_ = Ground;
+        /**
+         * lightTransmission
+         * 透光性
+         */
+        SDL_Color lightTransmissionColor_ = {0,0,0,255};
+
 
     public:
         [[nodiscard]] const ResourceRef &GetLootTableRef();
+
+        void SetLightTransmissionColor(SDL_Color lightTransmissionColor);
+
+        [[nodiscard]] const SDL_Color& GetLightTransmissionColor() const;
 
         [[nodiscard]] const ResourceRef &GetResourceRef();
 

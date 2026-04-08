@@ -6,15 +6,15 @@
 
 #include "core/Constants.h"
 
-void glimmer::TilePlacementForbiddenZoneComponent::SetWidth(int width) {
+void glimmer::TilePlacementForbiddenZoneComponent::SetWidth(const float width) {
     width_ = width;
 }
 
-void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetX(float offsetX) {
+void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetX(const float offsetX) {
     offsetX_ = offsetX;
 }
 
-void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetY(float offsetY) {
+void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetY(const float offsetY) {
     offsetY_ = offsetY;
 }
 
@@ -30,14 +30,14 @@ float glimmer::TilePlacementForbiddenZoneComponent::GetOffsetY() const {
     return offsetY_;
 }
 
-void glimmer::TilePlacementForbiddenZoneComponent::SetHeight(int height) {
+void glimmer::TilePlacementForbiddenZoneComponent::SetHeight(const float height) {
     height_ = height;
 }
 
-int glimmer::TilePlacementForbiddenZoneComponent::GetWidth() const {
+float glimmer::TilePlacementForbiddenZoneComponent::GetWidth() const {
     return width_;
 }
 
-int glimmer::TilePlacementForbiddenZoneComponent::GetHeight() const {
+float glimmer::TilePlacementForbiddenZoneComponent::GetHeight() const {
     return height_;
 }

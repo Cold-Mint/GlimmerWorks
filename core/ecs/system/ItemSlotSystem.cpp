@@ -181,11 +181,22 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     }
 
     const AbilityConfig &abilityConfig = item->GetAbilityConfig();
-    if (abilityConfig.allowMineBlock) {
+    if (abilityConfig.mineAbleLayer & Ground) {
         SDL_Surface *sVar = TTF_RenderText_Blended(
             appContext->GetFont(),
             langsResources->canMineBlockTip.c_str(),
             langsResources->canMineBlockTip.length(),
+            appContext->GetPreloadColors()->game.positiveAttributeColor
+        );
+        if (sVar) {
+            surfacesToDraw.push_back(sVar);
+        }
+    }
+    if (abilityConfig.mineAbleLayer & BackGround) {
+        SDL_Surface *sVar = TTF_RenderText_Blended(
+            appContext->GetFont(),
+            langsResources->canMineWallTip.c_str(),
+            langsResources->canMineWallTip.length(),
             appContext->GetPreloadColors()->game.positiveAttributeColor
         );
         if (sVar) {

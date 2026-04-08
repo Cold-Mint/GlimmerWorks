@@ -63,6 +63,24 @@ glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const Tile
     return GetTile(layerType, tileVector2d.y << CHUNK_SHIFT | tileVector2d.x);
 }
 
+std::vector<glimmer::Tile *> glimmer::Chunk::GetTopVisibleTiles(const uint8_t layerFilter,
+                                                                const TileVector2D &tileVector2d) {
+    std::vector<Tile *> tiles = {};
+    for (int i = 7; i >= 0; i--) {
+        const uint8_t layer = 1 << i;
+        if (layerFilter && layer) {
+            //If the i-th position is 1.
+            //如果第i位为1。
+            Tile *tile = GetTile(static_cast<TileLayerType>(layer), tileVector2d);
+            if (tile == nullptr) {
+                continue;
+            }
+            tiles.emplace_back(tile);
+        }
+    }
+    return tiles;
+}
+
 void glimmer::Chunk::ReadChunkMessage(const AppContext *appContext, const ChunkMessage &chunkMessage) {
     position.ReadVector2DIMessage(chunkMessage.position());
     tiles_.clear();

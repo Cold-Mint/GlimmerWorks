@@ -4,29 +4,23 @@
 
 #ifndef GLIMMERWORKS_TILETYPE_H
 #define GLIMMERWORKS_TILETYPE_H
+#include <cstdint>
 
 namespace glimmer {
-    enum class TileLayerType {
+    enum TileLayerType : uint8_t {
         /**
-         * Main
-         * 主要的瓦片层
+         * Ground
+         * 地面图层
+         *
+         * The ground layer allows players to stand on it.
+         * 地面图层玩家可以站在上面。
          */
-        Main = 0,
+        Ground = 1,
         /**
-         * Wire
-         * 电线层
+         * BackGround
+         * 背景墙层
          */
-        Wire,
-        /**
-         * WaterPipe
-         * 水管
-         */
-        WaterPipe,
-        /**
-         * SignalLine
-         * 信号线
-         */
-        SignalLine
+        BackGround = 2
     };
 }
 

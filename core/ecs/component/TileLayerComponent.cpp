@@ -12,6 +12,23 @@
 #include "../../world/generator/Chunk.h"
 
 
+glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileLayerType layerType, const TileVector2D &tilePos) const {
+    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
+    if (chunk == nullptr) {
+        return nullptr;
+    }
+    return chunk->GetTile(layerType, Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos));
+}
+
+std::vector<glimmer::Tile *> glimmer::TileLayerComponent::GetTopVisibleTiles(const uint8_t layerFilter,
+                                                                             const TileVector2D &tilePos) const {
+    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
+    if (chunk == nullptr) {
+        return {};
+    }
+    return chunk->GetTopVisibleTiles(layerFilter, Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos));
+}
+
 WorldVector2D glimmer::TileLayerComponent::TileToWorld(
     const TileVector2D &tilePos) {
     return {
@@ -34,9 +51,8 @@ TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D &world
     };
 }
 
-
-std::vector<std::pair<TileVector2D, glimmer::Tile *> > glimmer::TileLayerComponent::GetTilesInViewport(
-    const SDL_FRect &worldViewport) const {
+std::vector<std::pair<TileVector2D, std::vector<glimmer::Tile *> > > glimmer::TileLayerComponent::
+GetTopVisibleTilesInViewport(uint8_t layerFilter, const SDL_FRect &worldViewport) const {
     const TileVector2D topLeft = WorldToTile({worldViewport.x, worldViewport.y});
     //The purpose of adding "TILE_SIZE" in the lower right corner is to prevent blank areas from appearing.
     //右下角加TILE_SIZE的目的是，防止出现空白区域。
@@ -44,17 +60,16 @@ std::vector<std::pair<TileVector2D, glimmer::Tile *> > glimmer::TileLayerCompone
         worldViewport.x + worldViewport.w + TILE_SIZE,
         worldViewport.y + worldViewport.h + TILE_SIZE
     });
-    std::vector<std::pair<TileVector2D, Tile *> > visibleTiles;
+    std::vector<std::pair<TileVector2D, std::vector<Tile *> > > visibleTiles;
     for (int y = topLeft.y; y <= bottomRight.y; ++y) {
         for (int x = topLeft.x; x <= bottomRight.x; ++x) {
             auto tileVector2D = TileVector2D(x, y);
-            if (Tile *tile = GetTile(tileVector2D); tile != nullptr) {
-                visibleTiles.emplace_back(tileVector2D, tile);
-            }
+            visibleTiles.emplace_back(tileVector2D, GetTopVisibleTiles(layerFilter, tileVector2D));
         }
     }
     return visibleTiles;
 }
+
 
 bool glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, std::unique_ptr<Tile> tile) const {
     const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
@@ -65,13 +80,8 @@ bool glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, std::uniq
     return true;
 }
 
-
-glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileVector2D &tilePos) const {
-    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
-    if (chunk == nullptr) {
-        return nullptr;
-    }
-    return chunk->GetTile(GetTileLayerType(), Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos));
+glimmer::Tile *glimmer::TileLayerComponent::GetSelfLayerTile(const TileVector2D &tilePos) const {
+    return GetTile(GetTileLayerType(), tilePos);
 }
 
 std::unique_ptr<glimmer::Tile> glimmer::TileLayerComponent::ReplaceTile(const TileVector2D &tileVector2d,
@@ -95,7 +105,6 @@ void glimmer::TileLayerComponent::SetFocusPosition(const TileVector2D focusPosit
 const TileVector2D &glimmer::TileLayerComponent::GetFocusPosition() const {
     return focusPosition_;
 }
-
 
 
 uint32_t glimmer::TileLayerComponent::GetId() {

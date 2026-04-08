@@ -22,10 +22,13 @@ void glimmer::GameStartSystem::Update(float delta) {
     auto pause = worldContext_->CreateEntity();
     worldContext_->AddComponent<PauseComponent>(pause);
 
-    auto tileLayerEntity = worldContext_->CreateEntity();
+    auto groundTileLayerEntity = worldContext_->CreateEntity();
     worldContext_->AddComponent<
-        TileLayerComponent>(tileLayerEntity, TileLayerType::Main, worldContext_->GetAllChunks());
-    worldContext_->AddComponent<AreaMarkerComponent>(tileLayerEntity);
+        TileLayerComponent>(groundTileLayerEntity, Ground, worldContext_->GetAllChunks());
+    worldContext_->AddComponent<AreaMarkerComponent>(groundTileLayerEntity);
+    auto backgroundTileLayerEntity = worldContext_->CreateEntity();
+    worldContext_->AddComponent<
+        TileLayerComponent>(backgroundTileLayerEntity, BackGround, worldContext_->GetAllChunks());
     auto appContext = worldContext_->GetAppContext();
     ResourceRef playerResourceRef{};
     playerResourceRef.ReadResource(*appContext->GetMobManager()->GetPlayerResourceList()[0],

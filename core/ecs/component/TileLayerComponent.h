@@ -25,6 +25,17 @@ namespace glimmer {
      * Transform2DComponent组件的位置不会影响坐标转换。
      */
     class TileLayerComponent final : public GameComponent {
+        [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D &tilePos) const;
+
+        /**
+         * GetTopVisibleTile
+         * 获取顶层可见瓦片
+         * @param layerFilter
+         * @param tilePos
+         * @return
+         */
+        [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(uint8_t layerFilter, const TileVector2D &tilePos) const;
+
     public:
         /**
          *Tile To World
@@ -51,12 +62,14 @@ namespace glimmer {
         [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D &worldPos);
 
         /**
-         * Get Tiles In Viewport
-         * 获取视口矩形内的所有瓦片数据
+         * Get Top Visible Tiles In Viewport
+         * 获取视口矩形内的所有顶层可见瓦片数据
+         * @param layerFilter The layer to be queried 要查询的图层
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, Tile *> > GetTilesInViewport(
+        [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<Tile *> > > GetTopVisibleTilesInViewport(
+            uint8_t layerFilter,
             const SDL_FRect &worldViewport) const;
 
         /**
@@ -69,12 +82,12 @@ namespace glimmer {
         [[nodiscard]] bool SetTile(const TileVector2D &tilePos, std::unique_ptr<Tile> tile) const;
 
         /**
-         * GetTile
-         * 获取瓦片
+         * GetSelfLayerTile
+         * 获取子身图层瓦片的信息
          * @param tilePos 瓦片坐标
          * @return Tile 瓦片信息
          */
-        [[nodiscard]] Tile *GetTile(const TileVector2D &tilePos) const;
+        [[nodiscard]] Tile *GetSelfLayerTile(const TileVector2D &tilePos) const;
 
         [[nodiscard]] std::unique_ptr<Tile> ReplaceTile(const TileVector2D &tileVector2d,
                                                         std::unique_ptr<Tile> newTile) const;

@@ -14,6 +14,14 @@ const glimmer::ResourceRef &glimmer::Tile::GetLootTableRef() {
     return lootTable_;
 }
 
+void glimmer::Tile::SetLightTransmissionColor(const SDL_Color lightTransmissionColor) {
+    lightTransmissionColor_ = lightTransmissionColor;
+}
+
+const SDL_Color &glimmer::Tile::GetLightTransmissionColor() const {
+    return lightTransmissionColor_;
+}
+
 const glimmer::ResourceRef &glimmer::Tile::GetResourceRef() {
     return tileRef_;
 }
@@ -72,7 +80,7 @@ const std::string &glimmer::Tile::GetName() const {
 }
 
 glimmer::TileLayerType glimmer::Tile::GetLayerType() const {
-    return layerType;
+    return layerType_;
 }
 
 void glimmer::Tile::ReadTileMessage(const TileMessage &tileMessage) {
@@ -105,7 +113,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     }
     tile->customLootTable_ = tileResource->customLootTable;
     tile->lootTable_ = tileResource->lootTable;
-    tile->layerType = static_cast<TileLayerType>(tileResource->layerType);
+    tile->layerType_ = static_cast<TileLayerType>(tileResource->layerType);
     tile->physicsType_ = static_cast<TilePhysicsType>(tileResource->physicsType);
     tile->hardness_ = tileResource->hardness;
     tile->breakable = tileResource->hardness >= 0;

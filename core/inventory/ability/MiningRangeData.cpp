@@ -24,7 +24,7 @@ void glimmer::MiningRangeData::Reset() {
 void glimmer::MiningRangeData::CalculateMining(WorldVector2D startVector,
                                                const TileLayerComponent *tileLayerComponent) {
     const TileVector2D startPosition = TileLayerComponent::WorldToTile(startVector);
-    const Tile *startTile = tileLayerComponent->GetTile(startPosition);
+    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(startPosition);
     if (!startTile->IsBreakable()) {
         return;
     }
@@ -42,7 +42,7 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
         return;
     }
     const TileVector2D startPosition = TileLayerComponent::WorldToTile(startVector);
-    Tile *startTile = tileLayerComponent->GetTile(startPosition);
+    Tile *startTile = tileLayerComponent->GetSelfLayerTile(startPosition);
     if (!startTile->IsBreakable()) {
         return;
     }
@@ -106,7 +106,7 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
 
             //Check 3: Obtain the target block and verify its validity
             //检查3：获取目标方块并验证有效性
-            Tile *nextTile = tileLayerComponent->GetTile(nextPos);
+            Tile *nextTile = tileLayerComponent->GetSelfLayerTile(nextPos);
             if (nextTile == nullptr || nextTile->IsPlayerPlaced() || !nextTile->IsBreakable() || !nextTile->
                 IsAllowChainMining()) {
                 continue;

@@ -148,9 +148,9 @@ namespace glimmer {
     //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
     struct TilePlacementForbiddenZone {
         //@genNextLine(width|宽度)
-        int width = 1;
+        float width = 1;
         //@genNextLine(height|高度)
-        int height = 1;
+        float height = 1;
         //@genNextLine(offsetX|偏移X)
         float offsetX = 1;
         //@genNextLine(offsetY|偏移Y)
@@ -307,8 +307,6 @@ namespace glimmer {
 
     //@genNextLine(AbilityConfig|能力配置)
     struct AbilityConfig {
-        //@genNextLine(canMineBlock|是否能挖掘方块)
-        bool allowMineBlock = false;
         //@genNextLine(miningRange|挖掘范围)
         float miningRange = 5;
         //@genNextLine(Using the item is more likely to cause accidental dropping.|使用物品时多大概率触发手滑)
@@ -319,23 +317,25 @@ namespace glimmer {
         bool enablePrecisionMining = false;
         //@genNextLine(miningEfficiency|工具效率)
         float miningEfficiency = 0;
+        //@genNextLine(mineAbleLayer|可挖掘的图层)
+        uint8_t mineAbleLayer = 0;
 
         void Reset() {
-            allowMineBlock = false;
             miningRange = 5;
             fumbleProbability = 0;
             chainMiningRadius = 0;
             enablePrecisionMining = false;
             miningEfficiency = 0;
+            mineAbleLayer = 0;
         }
 
         AbilityConfig &operator+=(const AbilityConfig &other) {
-            this->allowMineBlock = this->allowMineBlock || other.allowMineBlock;
             this->enablePrecisionMining = this->enablePrecisionMining || other.enablePrecisionMining;
             this->miningRange += other.miningRange;
             this->fumbleProbability += other.fumbleProbability;
             this->chainMiningRadius += other.chainMiningRadius;
             this->miningEfficiency += other.miningEfficiency;
+            this->mineAbleLayer = this->mineAbleLayer | other.mineAbleLayer;
             return *this;
         }
     };
@@ -406,6 +406,12 @@ namespace glimmer {
         uint8_t layerType = 0;
         //@genNextLine(allowChainMining|是否允许连锁挖掘)
         bool allowChainMining = false;
+        //@genNextLine(lightTransmissionColor A 255 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 255代表完全不透光 RGB 控制光线的混合)
+        ResourceRef lightTransmissionColor = {};
+        //@genNextLine(allowChainMining|是否允许连锁挖掘)
+        float emissionRadius = 0.0F;
+        //@genNextLine(emissionColor A: Indicates the intensity of light emission.|发光颜色 A表示发光强度。)
+        ResourceRef emissionColor = {};
     };
 
     //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)

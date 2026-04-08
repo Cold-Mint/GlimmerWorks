@@ -19,17 +19,17 @@ void glimmer::AreaMarkerAbility::OnUse(WorldContext *worldContext, GameEntity::I
                                        std::unordered_set<std::string> &popupAbility) {
     auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
         TileLayerComponent, AreaMarkerComponent>();
-    for (const auto &gameEntity: tileLayerEntityList) {
-        auto *tileLayerComponent = worldContext->GetComponent<TileLayerComponent>(
-            gameEntity);
-        auto *areaMarkerComponent = worldContext->GetComponent<AreaMarkerComponent>(gameEntity);
-        if (tileLayerComponent == nullptr || areaMarkerComponent == nullptr) {
-            continue;
-        }
-        if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
-            areaMarkerComponent->SetPoint(tileLayerComponent->GetFocusPosition());
-        }
+    if (tileLayerEntityList.empty()) {
+        return;
     }
+    const GameEntity::ID gameEntity = tileLayerEntityList[0];
+    const auto *tileLayerComponent = worldContext->GetComponent<TileLayerComponent>(
+        gameEntity);
+    auto *areaMarkerComponent = worldContext->GetComponent<AreaMarkerComponent>(gameEntity);
+    if (tileLayerComponent == nullptr || areaMarkerComponent == nullptr) {
+        return;
+    }
+    areaMarkerComponent->SetPoint(tileLayerComponent->GetFocusPosition());
 }
 
 std::string glimmer::AreaMarkerAbility::GetId() const {

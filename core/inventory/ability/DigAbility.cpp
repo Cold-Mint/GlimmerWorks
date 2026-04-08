@@ -22,7 +22,7 @@ std::string glimmer::DigAbility::GetId() const {
 void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
                                 std::unordered_set<std::string> &popupAbility) {
     popupAbility.emplace(GetId());
-    if (!abilityConfig.allowMineBlock) {
+    if (abilityConfig.mineAbleLayer == 0) {
         return;
     }
     auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
@@ -36,15 +36,20 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
         return;
     }
     const WorldVector2D playerWorldPos = playerTransform->GetPosition();
+    DiggingComponent *diggingComponent = worldContext->GetDiggingComponent();
+    if (diggingComponent == nullptr) {
+        return;
+    }
     for (const auto &gameEntity: tileLayerEntityList) {
         auto *tileLayerComponent = worldContext->GetComponent<TileLayerComponent>(
             gameEntity);
         if (tileLayerComponent == nullptr) {
             continue;
         }
-        if (tileLayerComponent->GetTileLayerType() == TileLayerType::Main) {
+        TileLayerType layerType = tileLayerComponent->GetTileLayerType();
+        if (abilityConfig.mineAbleLayer & layerType) {
             TileVector2D tileVector2D = tileLayerComponent->GetFocusPosition();
-            const Tile *tile = tileLayerComponent->GetTile(
+            const Tile *tile = tileLayerComponent->GetSelfLayerTile(
                 tileVector2D);
             if (tile == nullptr) {
                 continue;
@@ -56,7 +61,6 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
                 .miningRange) {
                 continue;
             }
-            DiggingComponent *diggingComponent = worldContext->GetDiggingComponent();
             const WorldVector2D tileWorldPos = TileLayerComponent::TileToWorld(tileVector2D);
             if (diggingComponent->GetStartPosition() != tileWorldPos) {
                 //Change the starting point of the excavation and recalculate the progress.
@@ -71,18 +75,26 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
                     //如果没有发现可挖掘的瓦片，那么计算默认的挖掘范围。
                     miningRangeData_.CalculateMining(tileWorldPos, tileLayerComponent);
                 }
+                diggingComponent->SetEfficiency(abilityConfig.miningEfficiency);
                 diggingComponent->SetMiningRangeData(&miningRangeData_);
                 diggingComponent->SetProgress(0.0F);
                 diggingComponent->SetStartPosition(tileWorldPos);
             }
             //efficiency
             //工具效率
-            diggingComponent->SetEfficiency(abilityConfig.miningEfficiency);
+            diggingComponent->SetLayerType(layerType);
             if (!miningRangeData_.GetPoints().empty()) {
                 //If there are any exploitable tiles, then activate the mining module.
                 //如果有可挖掘的瓦片，那么激活挖掘组建。
                 diggingComponent->MarkActive();
             }
+            // Must break the loop: tool can destroy multiple layers (e.g. mineAbleLayer = 3: ground + background).
+            // If current layerType = 1 (ground) is destroyed, stop checking next layers.
+            // Do NOT destroy ground and background simultaneously.
+            // 必须终止循环：该工具能够破坏多层（例如，mineAbleLayer = 3：地面 + 背景）。
+            // 如果当前的 layerType（即地面层，值为 1）被破坏，则停止检查后续的层。
+            // 不要同时破坏地面和背景层。
+            break;
         }
     }
 }

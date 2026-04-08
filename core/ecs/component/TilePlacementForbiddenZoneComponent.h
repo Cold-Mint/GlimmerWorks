@@ -12,13 +12,13 @@ namespace glimmer {
      * 禁止放置瓦片的区域。
      */
     class TilePlacementForbiddenZoneComponent : public GameComponent {
-        int width_ = 0;
-        int height_ = 0;
+        float width_ = 0;
+        float height_ = 0;
         float offsetX_ = 0;
         float offsetY_ = 0;
 
     public:
-        void SetWidth(int width);
+        void SetWidth(float width);
 
         void SetOffsetX(float offsetX);
 
@@ -30,11 +30,11 @@ namespace glimmer {
 
         [[nodiscard]] float GetOffsetY() const;
 
-        void SetHeight(int height);
+        void SetHeight(float height);
 
-        [[nodiscard]] int GetWidth() const;
+        [[nodiscard]] float GetWidth() const;
 
-        [[nodiscard]] int GetHeight() const;
+        [[nodiscard]] float GetHeight() const;
     };
 }
 

@@ -27,7 +27,7 @@ namespace glimmer {
         //挖掘原点。
         WorldVector2D startPosition_;
         float progress_ = 0.0F;
-        TileLayerType layerType_ = TileLayerType::Main;
+        TileLayerType layerType_ = Ground;
         float efficiency_ = 1.0F;
         //precisionMining
         //精准采集

@@ -8,6 +8,7 @@
 
 #include "../scene/AppContext.h"
 #include "../mod/ResourceLocator.h"
+#include "core/log/LogCat.h"
 
 
 const glimmer::ResourceRef &glimmer::Tile::GetLootTableRef() {
@@ -28,6 +29,28 @@ const glimmer::ResourceRef &glimmer::Tile::GetResourceRef() {
 
 bool glimmer::Tile::IsCustomLootTable() const {
     return customLootTable_;
+}
+
+bool glimmer::Tile::SetLayerType(const TileLayerType layerType) {
+    bool result = false;
+    if (layerType_ != layerType) {
+        if (allowCrossLayerPlacement_) {
+            layerType_ = layerType;
+            result = true;
+        }
+#if  !defined(NDEBUG)
+        else {
+            LogCat::e("Attempt to modify the fixed layer.");
+            assert(false);
+        }
+#endif
+    }
+    return result;
+}
+
+
+bool glimmer::Tile::IsAllowCrossLayerPlacement() const {
+    return allowCrossLayerPlacement_;
 }
 
 glimmer::TilePhysicsType glimmer::Tile::GetTilePhysicsType() const {
@@ -118,6 +141,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->hardness_ = tileResource->hardness;
     tile->breakable = tileResource->hardness >= 0;
     tile->allowChainMining_ = tileResource->allowChainMining;
+    tile->allowCrossLayerPlacement_ = tileResource->allowCrossLayerPlacement;
     const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     if (resourceLocator != nullptr) {
         tile->texture_ = resourceLocator->FindTexture(

@@ -12,7 +12,8 @@
 void glimmer::MineralBiomeDecorator::DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
                                                    MineralBiomeDecoratorResource *decoratorResource,
                                                    BiomeResource *biomeResource,
-                                                   std::array<ResourceRef, CHUNK_AREA> &tilesRef) {
+                                                   std::unordered_map<TileLayerType, std::array<ResourceRef,
+                                                       CHUNK_AREA> > *tilesRefMap) {
     const FastNoiseLite *noiseLite = decoratorResource->GetFastNoiseLite(worldSeed_);
     if (noiseLite == nullptr) {
         return;
@@ -21,7 +22,8 @@ void glimmer::MineralBiomeDecorator::DecorationImp(WorldContext *worldContext, T
     if (heightRange <= 0.0001F) {
         return;
     }
-
+    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
+        static_cast<TileLayerType>(decoratorResource->layerType));
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
@@ -59,7 +61,7 @@ void glimmer::MineralBiomeDecorator::DecorationImp(WorldContext *worldContext, T
             }
 
             if (normalizedOreNoise > currentSpawnThreshold) {
-                tilesRef[idx] = decoratorResource->ore;
+                targetLayer[idx] = decoratorResource->ore;
             }
         }
     }

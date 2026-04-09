@@ -47,6 +47,19 @@ void glimmer::Chunk::SetTile(const TileVector2D pos, std::unique_ptr<Tile> tile)
     tiles_[tile->GetLayerType()][index] = std::move(tile);
 }
 
+void glimmer::Chunk::SetTileToLayer(TileVector2D pos, std::unique_ptr<Tile> tile, TileLayerType layerType) {
+    const int index = pos.y << CHUNK_SHIFT | pos.x;
+    SetTileToLayer(index, std::move(tile), layerType);
+}
+
+void glimmer::Chunk::SetTileToLayer(int index, std::unique_ptr<Tile> tile, TileLayerType layerType) {
+    TileLayerType targetLayer = tile->GetLayerType();
+    if (tile->SetLayerType(layerType)) {
+        targetLayer = layerType;
+    }
+    tiles_[targetLayer][index] = std::move(tile);
+}
+
 TileVector2D glimmer::Chunk::GetPosition() const {
     return position;
 }
@@ -86,7 +99,7 @@ void glimmer::Chunk::ReadChunkMessage(const AppContext *appContext, const ChunkM
     tiles_.clear();
     auto &map = chunkMessage.tiles();
     for (const auto &mapPair: map) {
-        auto key = static_cast<TileLayerType>(mapPair.first);
+        auto layerType = static_cast<TileLayerType>(mapPair.first);
         const TileArrayMessage &tileData = mapPair.second;
         auto tileResourceRefSize = tileData.tilemessage_size();
         std::array<std::unique_ptr<Tile>, CHUNK_AREA> value;
@@ -103,9 +116,8 @@ void glimmer::Chunk::ReadChunkMessage(const AppContext *appContext, const ChunkM
                 continue;
             }
             tile->ReadTileMessage(tileMessage);
-            value[i] = std::move(tile);
+            SetTileToLayer(i, std::move(tile), layerType);
         }
-        tiles_.emplace(key, std::move(value));
     }
 }
 
@@ -114,7 +126,7 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
     chunkMessage.clear_tiles();
     for (const auto &[layerType, tileArray]: tiles_) {
         auto &tileData =
-                (*chunkMessage.mutable_tiles())[static_cast<int>(layerType)];
+                (*chunkMessage.mutable_tiles())[static_cast<uint8_t>(layerType)];
         tileData.mutable_tilemessage()->Reserve(
             CHUNK_AREA
         );

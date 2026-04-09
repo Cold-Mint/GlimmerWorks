@@ -4,10 +4,14 @@
 
 #include "FillBiomeDecorator.h"
 
+
 void glimmer::FillBiomeDecorator::DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
                                                 FillBiomeDecoratorResource *decoratorResource,
                                                 BiomeResource *biomeResource,
-                                                std::array<ResourceRef, CHUNK_AREA> &tilesRef) {
+                                                std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> >
+                                                *tilesRefMap) {
+    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
+        static_cast<TileLayerType>(decoratorResource->layerType));
     const ResourceRef &resourceRef = decoratorResource->tile;
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
@@ -23,7 +27,7 @@ void glimmer::FillBiomeDecorator::DecorationImp(WorldContext *worldContext, Terr
                 //瓦片不属于当前生物群系。
                 continue;
             }
-            tilesRef[idx] = resourceRef;
+            targetLayer[idx] = resourceRef;
         }
     }
 }

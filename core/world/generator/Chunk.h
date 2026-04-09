@@ -60,6 +60,10 @@ namespace glimmer {
 
         void SetTile(TileVector2D pos, std::unique_ptr<Tile> tile);
 
+        void SetTileToLayer(TileVector2D pos, std::unique_ptr<Tile> tile, TileLayerType layerType);
+
+        void SetTileToLayer(int index, std::unique_ptr<Tile> tile, TileLayerType layerType);
+
         [[nodiscard]] TileVector2D GetPosition() const;
 
         [[nodiscard]] Tile *GetTile(TileLayerType layerType, int x, int y);

@@ -406,6 +406,8 @@ namespace glimmer {
         uint8_t layerType = 0;
         //@genNextLine(allowChainMining|是否允许连锁挖掘)
         bool allowChainMining = false;
+        //@genNextLine(allowCrossLayerPlacement This attribute provides cross-layer placement functionality for the internal air and error blocks within the engine. It is not recommended to use it within data packets.|是否允许跨图层放置 这个属性为引擎内部的空气和错误方块提供跨图层放置功能，不建议数据包内使用。)
+        bool allowCrossLayerPlacement = false;
         //@genNextLine(lightTransmissionColor A 255 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 255代表完全不透光 RGB 控制光线的混合)
         ResourceRef lightTransmissionColor = {};
         //@genNextLine(allowChainMining|是否允许连锁挖掘)
@@ -418,6 +420,8 @@ namespace glimmer {
     struct IBiomeDecoratorResource : Resource {
         //@genNextLine(biomeDecoratorType|装饰器类型)
         uint8_t biomeDecoratorType = 0;
+        //@genNextLine(layerType|层级类型)
+        uint8_t layerType = 0;
     };
 
 

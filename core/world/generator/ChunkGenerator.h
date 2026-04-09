@@ -26,7 +26,6 @@ namespace glimmer {
         */
         std::unique_ptr<FastNoiseLite> continentHeightMapNoise_;
 
-        ResourceRef airTileRef_;
         ResourceRef waterTileRef_;
         ResourceRef bedrockTileRef_;
 

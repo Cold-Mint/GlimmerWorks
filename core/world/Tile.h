@@ -32,22 +32,37 @@ namespace glimmer {
         TilePhysicsType physicsType_ = TilePhysicsType::None;
         TileLayerType layerType_ = Ground;
         /**
+         * Is it allowed to disregard one's own Layer and place it onto any block layer?
+         * 是否允许无视自身 Layer，放置到任意区块图层
+         */
+        bool allowCrossLayerPlacement_ = false;
+
+        /**
          * lightTransmission
          * 透光性
          */
-        SDL_Color lightTransmissionColor_ = {0,0,0,255};
-
+        SDL_Color lightTransmissionColor_ = {0, 0, 0, 255};
 
     public:
         [[nodiscard]] const ResourceRef &GetLootTableRef();
 
         void SetLightTransmissionColor(SDL_Color lightTransmissionColor);
 
-        [[nodiscard]] const SDL_Color& GetLightTransmissionColor() const;
+        [[nodiscard]] const SDL_Color &GetLightTransmissionColor() const;
 
         [[nodiscard]] const ResourceRef &GetResourceRef();
 
         [[nodiscard]] bool IsCustomLootTable() const;
+
+        /**
+         * SetLayerType
+         * 设置图层
+         * @param layerType TileLayerType 图层
+         * @return 是否设置成功
+         */
+        [[nodiscard]] bool SetLayerType(TileLayerType layerType);
+
+        [[nodiscard]] bool IsAllowCrossLayerPlacement() const;
 
         [[nodiscard]] TilePhysicsType GetTilePhysicsType() const;
 

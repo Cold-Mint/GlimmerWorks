@@ -45,11 +45,6 @@ glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int wo
     erosionMapNoise_->SetSeed(worldSeed + 400);
     erosionMapNoise_->SetFrequency(0.003F);
     erosionMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-    airTileRef_ = ResourceRef();
-    airTileRef_.SetResourceType(RESOURCE_TYPE_TILE);
-    airTileRef_.SetPackageId(RESOURCE_REF_CORE);
-    airTileRef_.SetSelfPackageId(RESOURCE_REF_CORE);
-    airTileRef_.SetResourceKey(TILE_ID_AIR);
     waterTileRef_ = ResourceRef();
     waterTileRef_.SetResourceType(RESOURCE_TYPE_TILE);
     waterTileRef_.SetPackageId(RESOURCE_REF_CORE);
@@ -427,32 +422,37 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     }
     auto chunk = std::make_unique<Chunk>(position);
     TerrainResult *terrainResult = worldContext_->GetTerrainData(position);
-    std::array<ResourceRef, CHUNK_AREA> tilesRef;
+    std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {
+        {Ground, {}},
+        {BackGround, {}}
+    };
     std::unordered_set<BiomeResource *> biomeResourcesSet;
+    const ResourceRef *airResourceRef = tileManager->GetAirResourceRef();
+
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            TileVector2D localTile(localX, localY);
             const int idx = localY * CHUNK_SIZE + localX;
             auto &terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             auto terrainType = terrainTileResult.terrainType;
+            tilesRefMap[BackGround][idx] = *airResourceRef;
             if (terrainType == AIR) {
-                tilesRef[idx] = airTileRef_;
+                tilesRefMap[Ground][idx] = *airResourceRef;
                 continue;
             }
             if (terrainType == WATER) {
-                tilesRef[idx] = waterTileRef_;
+                tilesRefMap[Ground][idx] = waterTileRef_;
                 continue;
             }
             if (terrainType == BEDROCK) {
-                tilesRef[idx] = bedrockTileRef_;
+                tilesRefMap[Ground][idx] = bedrockTileRef_;
                 continue;
             }
             if (terrainType == STRUCTURE) {
-                tilesRef[idx] = terrainTileResult.resRef;
+                tilesRefMap[Ground][idx] = terrainTileResult.resRef;
                 continue;
             }
             if (terrainType == SOLID) {
-                tilesRef[idx] = airTileRef_;
+                tilesRefMap[Ground][idx] = *airResourceRef;
                 if (terrainTileResult.biomeResource != nullptr && !biomeResourcesSet.contains(
                         terrainTileResult.biomeResource)) {
                     biomeResourcesSet.insert(terrainTileResult.biomeResource);
@@ -476,7 +476,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                 continue;
             }
             biomeDecorator->Decoration(
-                worldContext_, terrainResult, decoratorResource, biomeResources, tilesRef);
+                worldContext_, terrainResult, decoratorResource, biomeResources, &tilesRefMap);
         }
     }
 
@@ -484,18 +484,21 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             TileVector2D localTile(localX, localY);
             const int idx = localY * CHUNK_SIZE + localX;
-            ResourceRef &resourceRef = tilesRef[idx];
-            const std::optional tileResource = resourceLocator->FindTile(
-                resourceRef);
-            TileResource *tileResourceValue = nullptr;
-            if (tileResource.has_value()) {
-                tileResourceValue = tileResource.value();
-            } else {
-                LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
-                          " does not exist.");
-                tileResourceValue = tileManager->GetAir();
+            for (auto &tileArrayPair: tilesRefMap) {
+                ResourceRef &resourceRef = tileArrayPair.second[idx];
+                const std::optional tileResource = resourceLocator->FindTile(
+                    resourceRef);
+                const TileResource *tileResourceValue = nullptr;
+                if (tileResource.has_value()) {
+                    tileResourceValue = tileResource.value();
+                } else {
+                    LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
+                              " does not exist.");
+                    tileResourceValue = tileManager->GetAir();
+                }
+                chunk->SetTileToLayer(localTile, Tile::FromTileResource(appContext, tileResourceValue, resourceRef),
+                                      tileArrayPair.first);
             }
-            chunk->SetTile(localTile, Tile::FromTileResource(appContext, tileResourceValue, resourceRef));
         }
     }
     return chunk;

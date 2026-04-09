@@ -10,7 +10,10 @@
 void glimmer::SurfaceBiomeDecorator::DecorationImp(WorldContext *worldContext, TerrainResult *terrainResult,
                                                    SurfaceBiomeDecoratorResource *decoratorResource,
                                                    BiomeResource *biomeResource,
-                                                   std::array<ResourceRef, CHUNK_AREA> &tilesRef) {
+                                                   std::unordered_map<TileLayerType, std::array<ResourceRef,
+                                                       CHUNK_AREA> > *tilesRefMap) {
+    std::array<ResourceRef, CHUNK_AREA> &targetLayer = tilesRefMap->at(
+        static_cast<TileLayerType>(decoratorResource->layerType));
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
@@ -27,12 +30,12 @@ void glimmer::SurfaceBiomeDecorator::DecorationImp(WorldContext *worldContext, T
             }
             const TerrainTileResult &up = terrainResult->QueryTerrain(localX, localY + 1);
             if (decoratorResource->allowAir && up.terrainType == AIR) {
-                tilesRef[idx] = decoratorResource->tile;
+                targetLayer[idx] = decoratorResource->tile;
                 continue;
             }
 
             if (decoratorResource->allowWater && up.terrainType == WATER) {
-                tilesRef[idx] = decoratorResource->tile;
+                targetLayer[idx] = decoratorResource->tile;
             }
         }
     }

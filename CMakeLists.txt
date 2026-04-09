@@ -21,7 +21,6 @@ if (WIN32)
     #把dll和exe放到同级目录。
     set(LIB_DIR "")
 endif ()
-set(CMAKE_BUILD_RPATH "$ORIGIN/${LIB_DIR}")
 set(CMAKE_INSTALL_RPATH "$ORIGIN/${LIB_DIR}")
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://github.com/Cold-Mint/GlimmerWorks")
 set(CPACK_PACKAGE_VENDOR "Cold-Mint")
@@ -1328,3 +1327,36 @@ else ()
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_ttf-build/libSDL3_ttf.${LIB_SUFFIX}.0.2.2" DESTINATION ${LIB_DIR})
 endif ()
 
+# ============================
+# Linux Automatic RPATH Fix (Integrated into Install/Packaging Process)
+# Linux 自动 RPATH 修复（集成到安装/打包流程中）
+# Automatically patch all .so libraries in lib64 to $ORIGIN during packaging
+# 在打包过程中，自动将 lib64 目录下的所有.so 库文件更新为与当前目录同级的路径形式。
+# ============================
+if (UNIX AND NOT APPLE)
+    # Automatically fix RPATH for all libraries after installation
+    # 安装完成后自动为所有库文件修正 RPATH 路径设置
+    install(CODE "
+        # Define paths (fully consistent with your installation directory structure)
+        # 定义路径（需与您的安装目录结构完全一致）
+        set(INSTALL_DIR \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}\")
+        set(EXE_PATH \"\${INSTALL_DIR}/GlimmerWorks\")
+        set(LIB_PATH \"\${INSTALL_DIR}/${LIB_DIR}\")
+
+        # 1. Fix main executable: point to lib64
+        # 1. 修正主可执行文件：将其指向 lib64 目录
+        execute_process(
+            COMMAND patchelf --set-rpath \\$ORIGIN/${LIB_DIR} \${EXE_PATH}
+            COMMAND_ECHO STDOUT
+        )
+
+        # 2. Fix all shared libraries in lib64: uniformly set to \\$ORIGIN
+        # 2. 将 lib64 目录下的所有共享库统一设置为 \\$ORIGIN
+        execute_process(
+            COMMAND find \${LIB_PATH} -name \"*.so*\" -exec patchelf --set-rpath \\$ORIGIN {} \\;
+            COMMAND_ECHO STDOUT
+        )
+
+        message(\"\\nRPATH auto-fix completed! All libraries are set to \\$ORIGIN\")
+    ")
+endif()

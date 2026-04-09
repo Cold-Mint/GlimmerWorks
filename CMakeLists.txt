@@ -152,10 +152,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(SDL)
 
-if(ANDROID)
+if (ANDROID)
     find_library(ANDROID_LOG_LIB log)
     target_link_libraries(SDL3-shared PRIVATE ${ANDROID_LOG_LIB})
-endif()
+endif ()
 
 FetchContent_Declare(
         SDL_image
@@ -1337,6 +1337,17 @@ if (UNIX AND NOT APPLE)
     # Automatically fix RPATH for all libraries after installation
     # 安装完成后自动为所有库文件修正 RPATH 路径设置
     install(CODE "
+        # Force-check if patchelf is installed. If not installed, immediately report an error and terminate.
+        # 强制检查 patchelf 是否安装，没装直接报错终止
+        find_program(PATCHELF_TOOL patchelf)
+        if(NOT PATCHELF_TOOL)
+            message(FATAL_ERROR \"
+FATAL ERROR: patchelf is not installed!
+patchelf is required to fix RPATH for portable package builds
+Installation command: dnf install patchelf or apt install patchelf
+Build aborted, no corrupted packages were generated
+            \")
+        endif()
         # Define paths (fully consistent with your installation directory structure)
         # 定义路径（需与您的安装目录结构完全一致）
         set(INSTALL_DIR \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}\")
@@ -1359,4 +1370,4 @@ if (UNIX AND NOT APPLE)
 
         message(\"\\nRPATH auto-fix completed! All libraries are set to \\$ORIGIN\")
     ")
-endif()
+endif ()

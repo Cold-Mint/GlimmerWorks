@@ -33,6 +33,13 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
     if (tile_ == nullptr) {
         return;
     }
+    if (worldContext == nullptr) {
+        return;
+    }
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
     auto playerEntity = worldContext->GetPlayerEntity();
     if (WorldContext::IsEmptyEntityId(playerEntity)) {
         return;
@@ -73,47 +80,53 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
         if (!canPlacement) {
             break;
         }
-        bool isPlacementForbidden = false;
-        const auto mobList = worldContext->GetEntityIDWithComponents<Transform2DComponent,
-            TilePlacementForbiddenZoneComponent>();
-        auto targetWorldPos = TileLayerComponent::TileToWorldCenter(targetPos);
-        for (uint32_t mob: mobList) {
-            const Transform2DComponent *transform2dComponent = worldContext->GetComponent<
-                Transform2DComponent>(mob);
-            if (transform2dComponent == nullptr) {
+        if (tileLayer->GetTileLayerType() == Ground) {
+            bool isPlacementForbidden = false;
+            const auto mobList = worldContext->GetEntityIDWithComponents<Transform2DComponent,
+                TilePlacementForbiddenZoneComponent>();
+            auto targetWorldPos = TileLayerComponent::TileToWorldCenter(targetPos);
+            for (uint32_t mob: mobList) {
+                const Transform2DComponent *transform2dComponent = worldContext->GetComponent<
+                    Transform2DComponent>(mob);
+                if (transform2dComponent == nullptr) {
+                    continue;
+                }
+                const TilePlacementForbiddenZoneComponent *forbiddenZone = worldContext->GetComponent<
+                    TilePlacementForbiddenZoneComponent>(mob);
+                if (forbiddenZone == nullptr) {
+                    continue;
+                }
+                //The rectangular area where tiles are prohibited from being placed.
+                //禁止放置瓦片的矩形范围。
+                WorldVector2D transform2dWorldPos = transform2dComponent->GetPosition();
+                auto forbiddenRect = SDL_FRect{
+                    transform2dWorldPos.x - forbiddenZone->GetHeight() * HALF_TILE_SIZE + forbiddenZone->GetOffsetX() *
+                    TILE_SIZE,
+                    transform2dWorldPos.y - forbiddenZone->GetWidth() * HALF_TILE_SIZE + forbiddenZone->GetOffsetY() *
+                    TILE_SIZE,
+                    forbiddenZone->GetWidth() * TILE_SIZE,
+                    forbiddenZone->GetHeight() * TILE_SIZE
+                };
+                if (targetWorldPos.x >= forbiddenRect.x &&
+                    targetWorldPos.x <= forbiddenRect.x + forbiddenRect.w &&
+                    targetWorldPos.y >= forbiddenRect.y &&
+                    targetWorldPos.y <= forbiddenRect.y + forbiddenRect.h) {
+                    isPlacementForbidden = true;
+                    break;
+                }
+            }
+            if (isPlacementForbidden) {
                 continue;
             }
-            const TilePlacementForbiddenZoneComponent *forbiddenZone = worldContext->GetComponent<
-                TilePlacementForbiddenZoneComponent>(mob);
-            if (forbiddenZone == nullptr) {
-                continue;
-            }
-            //The rectangular area where tiles are prohibited from being placed.
-            //禁止放置瓦片的矩形范围。
-            WorldVector2D transform2dWorldPos = transform2dComponent->GetPosition();
-            auto forbiddenRect = SDL_FRect{
-                transform2dWorldPos.x - forbiddenZone->GetHeight() * HALF_TILE_SIZE + forbiddenZone->GetOffsetX() *
-                TILE_SIZE,
-                transform2dWorldPos.y - forbiddenZone->GetWidth() * HALF_TILE_SIZE + forbiddenZone->GetOffsetY() *
-                TILE_SIZE,
-                forbiddenZone->GetWidth() * TILE_SIZE,
-                forbiddenZone->GetHeight() * TILE_SIZE
-            };
-            if (targetWorldPos.x >= forbiddenRect.x &&
-                targetWorldPos.x <= forbiddenRect.x + forbiddenRect.w &&
-                targetWorldPos.y >= forbiddenRect.y &&
-                targetWorldPos.y <= forbiddenRect.y + forbiddenRect.h) {
-                isPlacementForbidden = true;
-                break;
-            }
-        }
-        if (isPlacementForbidden) {
-            continue;
         }
 
         if (GetAmount() > 0) {
-            worldContext->GetAppContext()->GetAudioManager()->TryPlayFree(
-                AMBIENT, tile_->GetPlaceSFX(), 0);
+            AudioManager *audioManager = appContext->GetAudioManager();
+            if (audioManager != nullptr) {
+                audioManager->TryPlayFree(
+                    AMBIENT, tile_->GetPlaceSFX(), 0);
+            }
+
             auto tile = std::make_unique<Tile>(*tile_);
             tile->SetPlayerPlaced(true);
             (void) tileLayer->SetTile(

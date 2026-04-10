@@ -66,11 +66,11 @@ namespace glimmer {
 
         [[nodiscard]] TileVector2D GetPosition() const;
 
-        [[nodiscard]] Tile *GetTile(TileLayerType layerType, int x, int y);
+        [[nodiscard]] Tile *GetTile(TileLayerType layerType, int x, int y) const;
 
-        [[nodiscard]] Tile *GetTile(TileLayerType layerType, int index);
+        [[nodiscard]] Tile *GetTile(TileLayerType layerType, int index) const;
 
-        [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D &tileVector2d);
+        [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D &tileVector2d) const;
 
         /**
          * GetTopVisibleTile
@@ -79,7 +79,7 @@ namespace glimmer {
          * @param tileVector2d tileVector2d 坐标
          * @return
          */
-        [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(uint8_t layerFilter, const TileVector2D &tileVector2d);
+        [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(uint8_t layerFilter, const TileVector2D &tileVector2d) const;
 
         void ReadChunkMessage(const AppContext *appContext, const ChunkMessage &chunkMessage);
 

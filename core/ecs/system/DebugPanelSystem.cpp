@@ -337,9 +337,20 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 }
 
 bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {
+    if (worldContext_ == nullptr) {
+        return false;
+    }
+    const CameraComponent *cameraComponent = worldContext_->GetCameraComponent();
+    if (cameraComponent == nullptr) {
+        return false;
+    }
+    const Transform2DComponent *transform2dComponent = worldContext_->GetCameraTransform2D();
+    if (transform2dComponent == nullptr) {
+        return false;
+    }
     if (event.type == SDL_EVENT_MOUSE_MOTION) {
-        mousePosition_ = worldContext_->GetCameraComponent()->GetWorldPosition(
-            worldContext_->GetCameraTransform2D()->GetPosition(),
+        mousePosition_ = cameraComponent->GetWorldPosition(
+            transform2dComponent->GetPosition(),
             CameraVector2D{
                 event.motion.x, event.motion.y
             });

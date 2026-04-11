@@ -26,7 +26,7 @@ glimmer::TraverseAction glimmer::Light2DSystem::StepCallback(const Tile *centerT
                                                              TileVector2D next, const float distance) {
     // const float percent = distance / static_cast<float>(centerTile->GetEmissionRadius());
     const SDL_Color emissionColor = centerTile->GetEmissionColor();
-    auto currentTiles = GetTopVisibleTiles(Ground | BackGround, current);
+    auto currentTiles = GetTopVisibleTiles(Ground | BackGround, next);
 
     for (auto &tile: currentTiles) {
         tile->SetLightColor(emissionColor);

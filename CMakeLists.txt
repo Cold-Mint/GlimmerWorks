@@ -467,6 +467,8 @@ target_sources(GlimmerWorks
         core/mod/dataPack/BiomeDecoratorResourcesManager.cpp
         core/mod/dataPack/BiomeDecoratorType.cpp
         core/ecs/system/Light2DSystem.cpp
+        core/world/LightPropagationTraverser.cpp
+        core/world/TraverseAction.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -668,6 +670,8 @@ target_sources(GlimmerWorks
         core/mod/dataPack/BiomeDecoratorResourcesManager.h
         core/mod/dataPack/BiomeDecoratorType.h
         core/ecs/system/Light2DSystem.h
+        core/world/LightPropagationTraverser.h
+        core/world/TraverseAction.h
 )
 
 #Define version information

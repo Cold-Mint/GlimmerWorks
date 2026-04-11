@@ -43,7 +43,26 @@ screenshot_saved_failed = "Screenshot saving failed {}."
 screenshot_saved_success = "The screenshot has been saved to {}."
 seed = "Seed"
 settings = "Settings"
-slogans = ["Is saying thank you to AI a waste?", "Games are not commodities!", "Creation refuses to be tamed by capital.", "Open world, boundless creativity.", "Huh? It's all hidden in TOML files.", "Have you tried opening those ordinary-looking files?", "Do you really like pity rolls and gacha pools?", "No one steps into the exact same world twice.", "Press ~ to rewrite some rules.", "give abilityItem glimmerworks:area_marker", "Meow~", "Ciallo～(∠・ω< )⌒☆", "I shall one day return to dust", "yet the world of open source shall forever thrive.", "Hey… shall we weave our own delusions together?", "花の塔-さユり", "I must look like a madman to everyone...", "Short videos are stealing your focus and thought.","Gacha pools and pity systems are just legalized taxes on desire.","Break down barriers, let creativity grow freely."]
+slogans = [
+    "Is saying thank you to AI a waste?",
+    "Games are not commodities!",
+    "Creation that refuses to be tamed by capital.",
+    "An open world, boundless creativity.",
+    "Huh? It's all hidden in TOML.",
+    "Have you tried opening those ordinary-looking files?",
+    "Do you really love gacha and pity systems?",
+    "No one steps into the same world twice.",
+    "Some rules can be rewritten with just a press.",
+    "give abilityItem glimmerworks:area_marker",
+    "Meow~",
+    "Ciallo～(∠・ω< )⌒☆",
+    "I may turn to dust, but the open-source world lives on forever.",
+    "Hey, let's weave a lie together?",
+    "花の塔-さユり",
+    "Take your time. Focus is a superpower.",
+    "True joy shouldn't be defined by chance.",
+    "It's okay to be earnest in your own world."
+]
 start_game = "Start Game"
 teleport_entity = "The entity with Id {} has been sent to x={},y={}."
 tile_resource_is_null = "tileResource is null."
@@ -60,8 +79,8 @@ configuration_commit_success = "Configuration saved successfully."
 configuration_commit_fail = "Failed to save configuration."
 configuration_update = "Configuration {} updated to {}."
 entry_cannot_found_in_configuration_file = "Entry {} does not exist in the configuration file."
-tile_debug_info="Tile Pos({}, {}) Chunk Local({}, {}) Humidity {:.2f} Temp {:.2f} Erosion {:.2f} Elevation {:.2f} Weirdness {:.2f}"
-tile_res_debug_info="Layer: {} ID: {} Hardness: {:.2f} Name: {}  ARGB:({},{},{},{}) Emission Radius:{}"
+tile_debug_info = "Tile Pos({}, {}) Chunk Local({}, {}) Humidity {:.2f} Temp {:.2f} Erosion {:.2f} Elevation {:.2f} Weirdness {:.2f}"
+tile_res_debug_info = "Layer: {} ID: {} Hardness: {:.2f} Name: {}  ARGB:({},{},{},{}) Emission Radius:{}"
 mouse_position = "Mouse Position - World Coordinates ({:.2f},{:.2f})"
 no_biome_was_found = "No biome found: {}."
 biome_has_found = "The nearest biome {} is located at ({},{})."

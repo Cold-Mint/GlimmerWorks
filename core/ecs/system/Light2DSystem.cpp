@@ -5,7 +5,34 @@
 #include "Light2DSystem.h"
 
 #include "core/Constants.h"
+#include "core/utils/ColorUtils.h"
+#include "core/world/LightPropagationTraverser.h"
 #include "core/world/WorldContext.h"
+
+
+std::vector<glimmer::Tile *> glimmer::Light2DSystem::GetTopVisibleTiles(uint8_t layerFilter,
+                                                                        TileVector2D tileVector2d) const {
+    if (worldContext_ == nullptr) {
+        return {};
+    }
+    Chunk *chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d));
+    if (chunk == nullptr) {
+        return {};
+    }
+    return chunk->GetTopVisibleTiles(layerFilter, Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2d));
+}
+
+glimmer::TraverseAction glimmer::Light2DSystem::StepCallback(const Tile *centerTile, const TileVector2D current,
+                                                             TileVector2D next, const float distance) {
+    // const float percent = distance / static_cast<float>(centerTile->GetEmissionRadius());
+    const SDL_Color emissionColor = centerTile->GetEmissionColor();
+    auto currentTiles = GetTopVisibleTiles(Ground | BackGround, current);
+
+    for (auto &tile: currentTiles) {
+        tile->SetLightColor(emissionColor);
+    }
+    return TraverseAction::Continue;
+}
 
 
 glimmer::Light2DSystem::Light2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
@@ -53,7 +80,7 @@ void glimmer::Light2DSystem::Update(float delta) {
         for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
             TileVector2D chunkPos(cx, cy);
             if (!WorldContext::ChunkIsOutOfBounds(chunkPos) && worldContext_->HasChunk(chunkPos)) {
-                Chunk *chunk = worldContext_->GetChunk(chunkPos);
+                const Chunk *chunk = worldContext_->GetChunk(chunkPos);
                 if (chunk == nullptr) {
                     continue;
                 }
@@ -65,8 +92,21 @@ void glimmer::Light2DSystem::Update(float delta) {
                             continue;
                         }
                         for (auto &tile: tiles) {
-                            //Restore the color of the tiles.
-                            //恢复瓦片的颜色。
+                            const SDL_Color emissionColor = tile->GetEmissionColor();
+                            if (emissionColor.a == 0 || tile->GetEmissionRadius() <= 0) {
+                                //If the luminous intensity is 0, or the luminous radius is 0.
+                                //如果发光强度为0，或者发光半径为0。
+                                continue;
+                            }
+                            LightPropagationTraverser radial8WayClockwiseTraverser = {
+                                tile->GetEmissionRadius(),
+                                [this, tile](const TileVector2D cur,
+                                             const TileVector2D next, const float distance) {
+                                    return this->StepCallback(tile, cur, next, distance);
+                                },
+                                TileVector2D{cx + x, cy + y}
+                            };
+                            radial8WayClockwiseTraverser.Start();
                             tile->SetLightColor(tile->GetEmissionColor());
                         }
                     }

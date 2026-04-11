@@ -43,7 +43,26 @@ screenshot_saved_failed = "截图保存失败{}。"
 screenshot_saved_success = "截图已保存至{}。"
 seed = "种子"
 settings = "设置"
-slogans = ["对AI说谢谢是浪费吗？", "游戏不是商品！", "拒绝被资本驯服的创作。", "世界开源，创意无界。", "啊？都藏在toml里", "你试过… 打开那些看起来很普通的文件吗？", "你真的喜欢保底和池子吗？", "没有人会踏入完全相同的世界。", "有些规则，按下～就能重新书写。", "give abilityItem glimmerworks:area_marker", "喵～", "Ciallo～(∠・ω< )⌒☆", "我终将归于尘埃，而开源的世界，永远鲜活。", "呐，一起来编织谎言吧？", "花の塔-さユり", "我在别人眼里就是个疯子...","短视频正在偷走你的专注与思考。","池子与保底，只是合法的欲望税。","打破壁垒，让创作自由生长。"]
+slogans = [
+    "对AI说谢谢是浪费吗？",
+    "游戏不是商品！",
+    "拒绝被资本驯服的创作。",
+    "世界开源，创意无界。",
+    "啊？都藏在toml里",
+    "你试过… 打开那些看起来很普通的文件吗？",
+    "你真的喜欢保底和池子吗？",
+    "没有人会踏入完全相同的世界。",
+    "有些规则，按下～就能重新书写。",
+    "give abilityItem glimmerworks:area_marker",
+    "喵～",
+    "Ciallo～(∠・ω< )⌒☆",
+    "我终将归于尘埃，而开源的世界，永远鲜活。",
+    "呐，一起来编织谎言吧？",
+    "花の塔-さユり",
+    "慢慢来，专注本身就是一种超能力。",
+    "真正的快乐，不该被概率定义。",
+    "在自己的世界里，认真一点也没关系。"
+]
 start_game = "开始游戏"
 teleport_entity = "已将Id为{}的实体，传送至x={},y={}。"
 tile_resource_is_null = "tileResource是空的。"
@@ -60,8 +79,8 @@ configuration_commit_success = "配置保存成功。"
 configuration_commit_fail = "配置保存失败。"
 configuration_update = "配置{}已被更改为{}。"
 entry_cannot_found_in_configuration_file = "在配置文件内找不到条目{}。"
-tile_debug_info="瓦片坐标({},{})区块内坐标({},{}) 湿度{:.2f} 温度{:.2f} 侵蚀度{:.2f} 海拔{:.2f} 奇异度{:.2f}"
-tile_res_debug_info="图层{} ID{} 硬度{} 名称:{} ARGB:({},{},{},{}) 发光半径{}"
+tile_debug_info = "瓦片坐标({},{})区块内坐标({},{}) 湿度{:.2f} 温度{:.2f} 侵蚀度{:.2f} 海拔{:.2f} 奇异度{:.2f}"
+tile_res_debug_info = "图层{} ID{} 硬度{} 名称:{} ARGB:({},{},{},{}) 发光半径{}"
 mouse_position = "鼠标位置-世界坐标({:.2f},{:.2f})"
 no_biome_was_found = "没有找到生物群系{}。"
 biome_has_found = "最近的{}生物群系位于({},{})。"

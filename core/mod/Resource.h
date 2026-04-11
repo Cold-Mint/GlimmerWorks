@@ -410,8 +410,8 @@ namespace glimmer {
         bool allowCrossLayerPlacement = false;
         //@genNextLine(lightTransmissionColor A 0 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 0代表完全不透光 RGB 控制光线的混合)
         ResourceRef lightTransmissionColor = {};
-        //@genNextLine(emissionRadius|发光半径)
-        float emissionRadius = 0.0F;
+        //@genNextLine(emissionRadius The maximum value is 16, which is the length of the block.|发光半径 最大值为区块长度16)
+        int emissionRadius = 0;
         //@genNextLine(emissionColor A: Indicates the intensity of light emission.|发光颜色 A表示发光强度。)
         ResourceRef emissionColor = {};
     };

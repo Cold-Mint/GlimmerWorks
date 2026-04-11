@@ -55,7 +55,7 @@ namespace glimmer {
          */
         SDL_Color lightColor_ = {0, 0, 0, 0};
 
-        float emissionRadius_ = 0.0F;
+        int emissionRadius_ = 0.0F;
 
 
     public:
@@ -71,7 +71,7 @@ namespace glimmer {
 
         [[nodiscard]] SDL_Color GetEmissionColor() const;
 
-        [[nodiscard]] float GetEmissionRadius() const;
+        [[nodiscard]] int GetEmissionRadius() const;
 
         void SetLightColor(SDL_Color lightColor);
 

@@ -151,6 +151,9 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
     tileResource->placeSfx.SetSelfPackageId(manifest_.id);
     tileResource->emissionColor.SetSelfPackageId(manifest_.id);
     tileResource->lightTransmissionColor.SetSelfPackageId(manifest_.id);
+    if (tileResource->emissionRadius > CHUNK_SIZE) {
+        tileResource->emissionRadius = CHUNK_SIZE;
+    }
     if (tileResource->customLootTable) {
         tileResource->lootTable.SetSelfPackageId(manifest_.id);
     }

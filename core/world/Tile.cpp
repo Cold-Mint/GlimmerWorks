@@ -35,7 +35,7 @@ SDL_Color glimmer::Tile::GetEmissionColor() const {
     return emissionColor_;
 }
 
-float glimmer::Tile::GetEmissionRadius() const {
+int glimmer::Tile::GetEmissionRadius() const {
     return emissionRadius_;
 }
 

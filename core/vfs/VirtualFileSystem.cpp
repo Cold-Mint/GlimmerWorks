@@ -19,7 +19,7 @@ std::string glimmer::VirtualFileSystem::ListMounts() const {
 
     for (const auto &provider: fileProviders_) {
         if (!result.empty()) {
-            result += "\n"; // 每个 provider 一行
+            result += "\n";
         }
         result += provider->GetFileProviderName();
     }

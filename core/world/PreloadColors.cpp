@@ -340,6 +340,21 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     weirdnessMapToRes.b = 255;
     weirdnessMapToRes.a = debugMapAlpha;
     debugColor.weirdnessMapTo = LoadColor(resourceLocator, "debug/weirdness_map_to", &weirdnessMapToRes)->ToSDLColor();
+    ColorResource defaultEmissionRes;
+    defaultEmissionRes.r = 0;
+    defaultEmissionRes.g = 0;
+    defaultEmissionRes.b = 0;
+    defaultEmissionRes.a = 0;
+    light.defaultEmissionColor = LoadColor(resourceLocator, "light/default_emission_color", &defaultEmissionRes)->
+            ToSDLColor();
+    ColorResource defaultLightTransmissionRes;
+    defaultLightTransmissionRes.r = 0;
+    defaultLightTransmissionRes.g = 0;
+    defaultLightTransmissionRes.b = 0;
+    defaultLightTransmissionRes.a = 0;
+    light.defaultEmissionColor = LoadColor(resourceLocator, "light/default_light_transmission_color",
+                                           &defaultLightTransmissionRes)->
+            ToSDLColor();
 }
 
 glimmer::ColorResource *glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator,
@@ -348,5 +363,9 @@ glimmer::ColorResource *glimmer::PreloadColors::LoadColor(const ResourceLocator 
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TYPE_COLOR);
     resourceRef.SetResourceKey(key);
-    return resourceLocator->FindColorResource(resourceRef, defaultColor);
+    ColorResource *result = resourceLocator->FindColorResource(resourceRef);
+    if (result == nullptr) {
+        result = defaultColor;
+    }
+    return result;
 }

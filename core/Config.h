@@ -52,6 +52,7 @@ namespace glimmer {
     struct World {
         float preloadChunkRadius;
         float preloadStructureRadius;
+        float preloadLightingRadius;
     };
 
     struct AudioTrack {

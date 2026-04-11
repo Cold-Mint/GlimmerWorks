@@ -82,21 +82,21 @@ namespace glimmer {
          * camera Component
          * 相机组件
          */
-        CameraComponent *cameraComponent_{};
+        CameraComponent *cameraComponent_ = nullptr;
 
-        ItemEditorComponent *itemEditorComponent_{};
+        ItemEditorComponent *itemEditorComponent_ = nullptr;
 
         /**
          * Camera coordinate component
          * 相机坐标组件
          */
-        Transform2DComponent *cameraTransform2D_{};
+        Transform2DComponent *cameraTransform2D_ = nullptr;
 
         /**
          * Pause component
          * 暂停组件
          */
-        PauseComponent *pauseComponent_{};
+        PauseComponent *pauseComponent_ = nullptr;
 
         /**
          * HotBar Component
@@ -108,7 +108,7 @@ namespace glimmer {
          * digging Component
          * 正在挖掘组件
          */
-        DiggingComponent *diggingComponent_{};
+        DiggingComponent *diggingComponent_ = nullptr;
 
         std::vector<std::unique_ptr<GameSystem> > activeSystems;
         std::vector<std::unique_ptr<GameSystem> > inactiveSystems;
@@ -300,6 +300,15 @@ namespace glimmer {
          * @param position position 位置
          */
         void UnloadChunkAt(TileVector2D position);
+
+
+        /**
+         * GetChunk
+         * 获取指定位置的区块。
+         * @param chunkVertex chunkVertex 区块顶点位置
+         * @return
+         */
+        Chunk *GetChunk(TileVector2D chunkVertex);
 
         /**
          * SaveChunk

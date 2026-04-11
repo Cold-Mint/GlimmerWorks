@@ -466,6 +466,7 @@ target_sources(GlimmerWorks
         core/world/generator/MineralBiomeDecorator.cpp
         core/mod/dataPack/BiomeDecoratorResourcesManager.cpp
         core/mod/dataPack/BiomeDecoratorType.cpp
+        core/ecs/system/Light2DSystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -666,6 +667,7 @@ target_sources(GlimmerWorks
         core/world/generator/MineralBiomeDecorator.h
         core/mod/dataPack/BiomeDecoratorResourcesManager.h
         core/mod/dataPack/BiomeDecoratorType.h
+        core/ecs/system/Light2DSystem.h
 )
 
 #Define version information

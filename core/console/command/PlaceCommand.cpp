@@ -80,7 +80,7 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
             TileVector2D position =
                     tilePosition + TileVector2D(localX, localY);
             Chunk *chunk =
-                    Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), position);
+                    worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(position));
             if (chunk == nullptr) {
                 continue;
             }

@@ -229,7 +229,9 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         if (tile != nullptr) {
             std::string tileResDebugInfo = fmt::format(
                 fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
-                static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName()
+                static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
+                tile->GetLightColor().a, tile->GetLightColor().r, tile->GetLightColor().g, tile->GetLightColor().b,
+                tile->GetEmissionRadius()
             );
             RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
                             appContext->GetPreloadColors()->debugColor.debugPanelTextColor,

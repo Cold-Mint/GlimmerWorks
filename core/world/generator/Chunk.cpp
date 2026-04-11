@@ -21,15 +21,7 @@ TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileV
     };
 }
 
-glimmer::Chunk *glimmer::Chunk::GetChunkByTileVector2D(
-    std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *chunks, TileVector2D tileVector2d) {
-    const TileVector2D vertexCoordinate = TileCoordinatesToChunkVertexCoordinates(tileVector2d);
-    const auto it = chunks->find(vertexCoordinate);
-    if (it == chunks->end()) {
-        return nullptr;
-    }
-    return it->second;
-}
+
 
 
 TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const TileVector2D tileVector2d) {

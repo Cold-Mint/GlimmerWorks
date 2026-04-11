@@ -44,7 +44,20 @@ namespace glimmer {
             SDL_Color negativeAttributeColor;
         };
 
-        struct DebugColor {
+        struct Light2dColors {
+            /**
+            * Default emission color
+            * 默认发光颜色
+            */
+            SDL_Color defaultEmissionColor;
+            /**
+             * Default transparent color
+             * 默认透光颜色
+             */
+            SDL_Color defaultLightTransmissionColor;
+        };
+
+        struct DebugColors {
             SDL_Color box2dBorderColor;
             SDL_Color box2dFullColor;
             SDL_Color draggableColor;
@@ -76,10 +89,9 @@ namespace glimmer {
             // 怪异度图渐变颜色
             SDL_Color weirdnessMapFrom;
             SDL_Color weirdnessMapTo;
-
         };
 
-        DebugColor debugColor;
+        DebugColors debugColor;
 
         /**
          * Default text color
@@ -216,6 +228,7 @@ namespace glimmer {
         ConsoleColors console;
         ErrorTextureColors error;
         GameColors game;
+        Light2dColors light;
 
         void LoadAllColors(const ResourceLocator *resourceLocator);
 

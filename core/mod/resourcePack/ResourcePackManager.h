@@ -35,8 +35,6 @@ namespace glimmer {
          */
         std::unordered_set<std::string> errorTexturePathSet_{};
 
-        std::unique_ptr<ColorResource> globalDefaultColor_ = nullptr;
-
         bool IsResourcePackAvailable(const ResourcePack &pack) const;
 
         static bool IsResourcePackEnabled(const ResourcePack &pack,
@@ -57,8 +55,7 @@ namespace glimmer {
 
         std::shared_ptr<MIX_Audio> LoadAudioFromFile(AppContext *appContext, const ResourceRef &resourceRef);
 
-        ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef &resourceRef,
-                                            ColorResource *defaultColor);
+        ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef &resourceRef);
 
         /**
          * CreateErrorTexture

@@ -43,16 +43,37 @@ namespace glimmer {
          */
         SDL_Color lightTransmissionColor_ = {0, 0, 0, 255};
 
+        /**
+         * emissionColor
+         * 发光颜色
+         */
+        SDL_Color emissionColor_ = {0, 0, 0, 0};
+
+        /**
+         * Lighting color (calculated result by Light2dSystem)
+         * 光照颜色（由Light2dSystem计算完成后的结果）
+         */
+        SDL_Color lightColor_ = {0, 0, 0, 0};
+
+        float emissionRadius_ = 0.0F;
+
+
     public:
         [[nodiscard]] const ResourceRef &GetLootTableRef();
-
-        void SetLightTransmissionColor(SDL_Color lightTransmissionColor);
 
         [[nodiscard]] const SDL_Color &GetLightTransmissionColor() const;
 
         [[nodiscard]] const ResourceRef &GetResourceRef();
 
         [[nodiscard]] bool IsCustomLootTable() const;
+
+        [[nodiscard]] SDL_Color GetLightColor() const;
+
+        [[nodiscard]] SDL_Color GetEmissionColor() const;
+
+        [[nodiscard]] float GetEmissionRadius() const;
+
+        void SetLightColor(SDL_Color lightColor);
 
         /**
          * SetLayerType

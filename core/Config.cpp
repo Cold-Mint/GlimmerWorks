@@ -47,6 +47,10 @@ void glimmer::Config::LoadConfig(const toml::value &configValue) {
     mods.supportedAudioFormats = toml::find<std::vector<std::string> >(configValue, "mods", "supported_audio_formats");
     world.preloadChunkRadius = toml::find<float>(configValue, "world", "preload_chunk_radius");
     world.preloadStructureRadius = toml::find<float>(configValue, "world", "preload_structure_radius");
+    world.preloadLightingRadius = toml::find<float>(configValue, "world", "preload_lighting_radius");
+    if (world.preloadLightingRadius > world.preloadChunkRadius) {
+        world.preloadLightingRadius = world.preloadChunkRadius;
+    }
     audio.channels = toml::find<int>(configValue, "audio", "channels");
     audio.masterVolume = toml::find<float>(configValue, "audio", "master_volume");
     audio.freq = toml::find<int>(configValue, "audio", "freq");

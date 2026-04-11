@@ -10,10 +10,14 @@
 #include "../../world/Tile.h"
 #include "../../math/Vector2DI.h"
 #include "../../world/generator/Chunk.h"
+#include "core/world/WorldContext.h"
 
 
 glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileLayerType layerType, const TileVector2D &tilePos) const {
-    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
+    if (worldContext_ == nullptr) {
+        return nullptr;
+    }
+    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr) {
         return nullptr;
     }
@@ -22,7 +26,10 @@ glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileLayerType layerTyp
 
 std::vector<glimmer::Tile *> glimmer::TileLayerComponent::GetTopVisibleTiles(const uint8_t layerFilter,
                                                                              const TileVector2D &tilePos) const {
-    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
+    if (worldContext_ == nullptr) {
+        return {};
+    }
+    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr) {
         return {};
     }
@@ -72,7 +79,10 @@ GetTopVisibleTilesInViewport(uint8_t layerFilter, const SDL_FRect &worldViewport
 
 
 bool glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, std::unique_ptr<Tile> tile) const {
-    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tilePos);
+    if (worldContext_ == nullptr) {
+        return false;
+    }
+    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr) {
         return false;
     }
@@ -86,7 +96,10 @@ glimmer::Tile *glimmer::TileLayerComponent::GetSelfLayerTile(const TileVector2D 
 
 std::unique_ptr<glimmer::Tile> glimmer::TileLayerComponent::ReplaceTile(const TileVector2D &tileVector2d,
                                                                         std::unique_ptr<Tile> newTile) const {
-    const auto chunk = Chunk::GetChunkByTileVector2D(chunks_, tileVector2d);
+    if (worldContext_ == nullptr) {
+        return nullptr;
+    }
+    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d));
     if (chunk == nullptr) {
         return nullptr;
     }

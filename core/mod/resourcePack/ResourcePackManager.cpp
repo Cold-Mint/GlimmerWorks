@@ -158,11 +158,6 @@ std::shared_ptr<MIX_Audio> glimmer::ResourcePackManager::ImplLoadAudioFromFile(c
 glimmer::ResourcePackManager::ResourcePackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(
         virtualFilesystem), renderer_(nullptr),
     mixer_(nullptr) {
-    globalDefaultColor_ = std::make_unique<ColorResource>();
-    globalDefaultColor_->a = 255;
-    globalDefaultColor_->b = 0;
-    globalDefaultColor_->g = 0;
-    globalDefaultColor_->r = 0;
 }
 
 void glimmer::ResourcePackManager::SetMixer(MIX_Mixer *mixer) {
@@ -282,8 +277,7 @@ std::shared_ptr<MIX_Audio> glimmer::ResourcePackManager::LoadAudioFromFile(AppCo
 }
 
 glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const AppContext *appContext,
-                                                                           const ResourceRef &resourceRef,
-                                                                           ColorResource *defaultColor) {
+                                                                           const ResourceRef &resourceRef) {
     std::string path = resourceRef.GetPackageId() + "/" + resourceRef.GetResourceKey();
     const auto cacheIt = colorCache_.find(path);
     if (cacheIt != colorCache_.end()) {
@@ -317,10 +311,7 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
         colorCache_[path] = std::move(colorResource);
         return ptr;
     }
-    if (defaultColor == nullptr) {
-        return globalDefaultColor_.get();
-    }
-    return defaultColor;
+    return nullptr;
 }
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(

@@ -48,6 +48,7 @@
 #include "core/ecs/system/DraggableSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/ItemEditorSystem.h"
+#include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/utils/TimeUtils.h"
@@ -360,6 +361,22 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
     }
 }
 
+glimmer::Chunk *glimmer::WorldContext::GetChunk(const TileVector2D position) {
+#if  !defined(NDEBUG)
+    const TileVector2D relativeVector = Chunk::TileCoordinatesToChunkRelativeCoordinates(position);
+    if (relativeVector.x != 0 && relativeVector.y != 0) {
+        LogCat::e("The coordinates are not the vertices of the chunk.");
+        assert(false);
+    }
+#endif
+
+    const auto it = chunks_.find(position);
+    if (it == chunks_.end()) {
+        return nullptr;
+    }
+    return it->second.get();
+}
+
 bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
     const auto it = chunks_.find(position);
     if (it == chunks_.end()) {
@@ -593,6 +610,7 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<DebugMultiMapSystem>(this));
     RegisterSystem(std::make_unique<RayCast2DSystem>(this));
     RegisterSystem(std::make_unique<BiomeBGMSystem>(this));
+    RegisterSystem(std::make_unique<Light2DSystem>(this));
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(this));
 #endif

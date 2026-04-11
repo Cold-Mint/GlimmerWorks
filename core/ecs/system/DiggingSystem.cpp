@@ -64,6 +64,9 @@ glimmer::DiggingSystem::DiggingSystem(WorldContext *worldContext) : GameSystem(w
 }
 
 void glimmer::DiggingSystem::Update(float delta) {
+    if (worldContext_ == nullptr) {
+        return;
+    }
     auto diggingComponent = worldContext_->GetDiggingComponent();
     if (!diggingComponent->CheckAndResetActive()) {
         diggingComponent->SetEnable(false);
@@ -87,8 +90,10 @@ void glimmer::DiggingSystem::Update(float delta) {
             std::unordered_set<Chunk *> chunkSet;
             for (auto point: diggingComponent->GetMiningRangeData()->GetPoints()) {
                 const TileVector2D tilePosition = TileLayerComponent::WorldToTile(point);
-                Chunk *chunk = Chunk::GetChunkByTileVector2D(worldContext_->GetAllChunks(), tilePosition);
-                chunkSet.insert(chunk);
+                Chunk *chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePosition));
+                if (chunk != nullptr) {
+                    chunkSet.insert(chunk);
+                }
                 BreakTile(tilePosition, appContext, diggingComponent, tileLayer);
             }
             // Update physics

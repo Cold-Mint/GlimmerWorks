@@ -408,9 +408,9 @@ namespace glimmer {
         bool allowChainMining = false;
         //@genNextLine(allowCrossLayerPlacement This attribute provides cross-layer placement functionality for the internal air and error blocks within the engine. It is not recommended to use it within data packets.|是否允许跨图层放置 这个属性为引擎内部的空气和错误方块提供跨图层放置功能，不建议数据包内使用。)
         bool allowCrossLayerPlacement = false;
-        //@genNextLine(lightTransmissionColor A 255 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 255代表完全不透光 RGB 控制光线的混合)
+        //@genNextLine(lightTransmissionColor A 0 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 0代表完全不透光 RGB 控制光线的混合)
         ResourceRef lightTransmissionColor = {};
-        //@genNextLine(allowChainMining|是否允许连锁挖掘)
+        //@genNextLine(emissionRadius|发光半径)
         float emissionRadius = 0.0F;
         //@genNextLine(emissionColor A: Indicates the intensity of light emission.|发光颜色 A表示发光强度。)
         ResourceRef emissionColor = {};

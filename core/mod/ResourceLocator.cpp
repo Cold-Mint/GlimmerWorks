@@ -45,15 +45,11 @@ std::shared_ptr<MIX_Audio> glimmer::ResourceLocator::FindAudio(const ResourceRef
     return appContext_->GetResourcePackManager()->LoadAudioFromFile(appContext_, resourceRef);
 }
 
-glimmer::ColorResource *glimmer::ResourceLocator::FindColorResource(const ResourceRef &resourceRef,
-                                                                    ColorResource *defaultColor) const {
+glimmer::ColorResource *glimmer::ResourceLocator::FindColorResource(const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_COLOR || !ValidateAccessPermission(resourceRef)) {
-        if (defaultColor == nullptr) {
-            return appContext_->GetResourcePackManager()->globalDefaultColor_.get();
-        }
-        return defaultColor;
+        return nullptr;
     }
-    return appContext_->GetResourcePackManager()->LoadColorResFromFile(appContext_, resourceRef, defaultColor);
+    return appContext_->GetResourcePackManager()->LoadColorResFromFile(appContext_, resourceRef);
 }
 
 glimmer::IShapeResource *glimmer::ResourceLocator::FindShape(const ResourceRef &resourceRef) const {

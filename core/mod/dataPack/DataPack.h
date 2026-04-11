@@ -18,7 +18,6 @@
 #include "core/lootTable/LootTableManager.h"
 #include "core/shape/ShapeManager.h"
 #include "core/shape/ShapeType.h"
-#include "core/world/generator/BiomeDecoratorManager.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {

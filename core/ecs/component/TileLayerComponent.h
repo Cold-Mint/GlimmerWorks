@@ -109,17 +109,15 @@ namespace glimmer {
          */
         [[nodiscard]] const TileVector2D &GetFocusPosition() const;
 
-        explicit TileLayerComponent(const TileLayerType tileLayerType,
-                                    std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *
-                                    chunks) : chunks_(chunks),
-                                              tileLayerType_(tileLayerType) {
+        explicit TileLayerComponent(WorldContext *worldContext,
+                                    const TileLayerType tileLayerType) : worldContext_(worldContext), tileLayerType_(
+                                                                             tileLayerType) {
         }
 
         [[nodiscard]] uint32_t GetId() override;
 
     private:
-        std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *chunks_;
-
+        WorldContext *worldContext_;
         TileLayerType tileLayerType_;
         TileVector2D focusPosition_ = TileVector2D{};
     };

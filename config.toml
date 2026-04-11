@@ -84,6 +84,11 @@ preload_chunk_radius = 1.0
 # Preload structure radius (terrain/structure data pre-calc)
 # 结构预加载范围（地形/结构数据预计算）
 preload_structure_radius = 5.0
+# Preload lighting radius (lightmap/sky/block light pre-calc)
+# 光照预加载范围（光照贴图/天空光/方块光照预计算）
+# Constraint: Must be ≤ preload_chunk_radius. No tiles available for lighting calculation beyond the chunk range.
+# 约束：必须 ≤ preload_chunk_radius，超出区块范围无瓦片可计算光照
+preload_lighting_radius = 1.0
 
 [command]
 # Number of chunks traversed in the positive/negative X direction when using the `locate biome` command.

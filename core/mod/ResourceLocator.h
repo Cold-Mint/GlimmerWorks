@@ -41,8 +41,7 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<MIX_Audio> FindAudio(const ResourceRef &resourceRef) const;
 
-        [[nodiscard]] ColorResource *FindColorResource(const ResourceRef &resourceRef,
-                                                       ColorResource *defaultColor = nullptr) const;
+        [[nodiscard]] ColorResource *FindColorResource(const ResourceRef &resourceRef) const;
 
         [[nodiscard]] IShapeResource *FindShape(const ResourceRef &resourceRef) const;
 

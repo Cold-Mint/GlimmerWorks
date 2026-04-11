@@ -40,17 +40,6 @@ namespace glimmer {
         [[nodiscard]] static TileVector2D TileCoordinatesToChunkVertexCoordinates(TileVector2D tileVector2d);
 
         /**
-         * Return the block where it is located based on the given coordinates
-         * 根据给定的坐标返回其所在区块
-         * @param chunks All the block information 所有的区块信息
-         * @param tileVector2d tileVector2d 坐标
-         * @return
-         */
-        static Chunk *GetChunkByTileVector2D(
-            std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *chunks,
-            TileVector2D tileVector2d);
-
-        /**
          * TileCoordinatesToChunkRelativeCoordinates
          * 瓦片坐标转区块相对坐标
          * @param tileVector2d
@@ -79,7 +68,8 @@ namespace glimmer {
          * @param tileVector2d tileVector2d 坐标
          * @return
          */
-        [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(uint8_t layerFilter, const TileVector2D &tileVector2d) const;
+        [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(uint8_t layerFilter,
+                                                             const TileVector2D &tileVector2d) const;
 
         void ReadChunkMessage(const AppContext *appContext, const ChunkMessage &chunkMessage);
 

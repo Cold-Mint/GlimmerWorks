@@ -15,10 +15,6 @@ const glimmer::ResourceRef &glimmer::Tile::GetLootTableRef() {
     return lootTable_;
 }
 
-void glimmer::Tile::SetLightTransmissionColor(const SDL_Color lightTransmissionColor) {
-    lightTransmissionColor_ = lightTransmissionColor;
-}
-
 const SDL_Color &glimmer::Tile::GetLightTransmissionColor() const {
     return lightTransmissionColor_;
 }
@@ -29,6 +25,22 @@ const glimmer::ResourceRef &glimmer::Tile::GetResourceRef() {
 
 bool glimmer::Tile::IsCustomLootTable() const {
     return customLootTable_;
+}
+
+SDL_Color glimmer::Tile::GetLightColor() const {
+    return lightColor_;
+}
+
+SDL_Color glimmer::Tile::GetEmissionColor() const {
+    return emissionColor_;
+}
+
+float glimmer::Tile::GetEmissionRadius() const {
+    return emissionRadius_;
+}
+
+void glimmer::Tile::SetLightColor(const SDL_Color lightColor) {
+    lightColor_ = lightColor;
 }
 
 bool glimmer::Tile::SetLayerType(const TileLayerType layerType) {
@@ -120,16 +132,17 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
                                                                const TileResource *tileResource,
                                                                const ResourceRef &resourceRef) {
     auto tile = std::make_unique<Tile>();
+    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     tile->tileRef_ = resourceRef;
     tile->id_ = Resource::GenerateId(*tileResource);
-    const StringResource *nameStringResource = appContext->GetResourceLocator()->FindString(
+    const StringResource *nameStringResource = resourceLocator->FindString(
         tileResource->name);
     if (nameStringResource == nullptr) {
         tile->name_ = tile->id_;
     } else {
         tile->name_ = nameStringResource->value;
     }
-    const StringResource *descriptionStringResource = appContext->GetResourceLocator()->FindString(
+    const StringResource *descriptionStringResource = resourceLocator->FindString(
         tileResource->description);
     if (descriptionStringResource != nullptr) {
         tile->description_ = descriptionStringResource->value;
@@ -142,13 +155,24 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->breakable = tileResource->hardness >= 0;
     tile->allowChainMining_ = tileResource->allowChainMining;
     tile->allowCrossLayerPlacement_ = tileResource->allowCrossLayerPlacement;
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator != nullptr) {
-        tile->texture_ = resourceLocator->FindTexture(
-            tileResource->texture);
-        tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);
-        tile->placeSFX_ = resourceLocator->FindAudio(tileResource->placeSfx);
+    const ColorResource *lightTransmissionColorResource =
+            resourceLocator->FindColorResource(tileResource->lightTransmissionColor);
+    if (lightTransmissionColorResource == nullptr) {
+        tile->lightTransmissionColor_ = appContext->GetPreloadColors()->light.defaultLightTransmissionColor;
+    } else {
+        tile->lightTransmissionColor_ = lightTransmissionColorResource->ToSDLColor();
     }
+    const ColorResource *emissionColorResource = resourceLocator->FindColorResource(tileResource->emissionColor);
+    if (emissionColorResource == nullptr) {
+        tile->emissionColor_ = appContext->GetPreloadColors()->light.defaultEmissionColor;
+    } else {
+        tile->emissionColor_ = emissionColorResource->ToSDLColor();
+    }
+    tile->emissionRadius_ = tileResource->emissionRadius;
+    tile->texture_ = resourceLocator->FindTexture(
+        tileResource->texture);
+    tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);
+    tile->placeSFX_ = resourceLocator->FindAudio(tileResource->placeSfx);
 
     return tile;
 }

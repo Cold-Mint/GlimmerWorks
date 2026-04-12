@@ -24,6 +24,10 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     if (appContext == nullptr) {
         return;
     }
+    const Config *config = appContext->GetConfig();
+    if (config == nullptr) {
+        return;
+    }
     const auto *cameraComponent = worldContext_->GetCameraComponent();
     const auto *cameraPos = worldContext_->GetCameraTransform2D();
     if (cameraComponent == nullptr) {
@@ -57,7 +61,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
         SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
         for (auto tile: tileList) {
             SDL_Color lightColor = tile->GetLightColor();
-            if (lightColor.a == 0) {
+            if (config->debug.enableLighting && lightColor.a == 0) {
                 //Do not draw tiles that do not emit light at all.
                 //不绘制完全不发光的瓦片。
                 continue;
@@ -65,11 +69,6 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
             if (!SDL_RenderTexture(renderer, tile->GetTexture(), nullptr, &dstRect)) {
                 LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
             }
-            SDL_SetRenderDrawColor(renderer, lightColor.r,
-                                   lightColor.g,
-                                   lightColor.b,
-                                   lightColor.a);
-            SDL_RenderFillRect(renderer, &dstRect);
         }
         if (tileCoord == focusPosition) {
             SDL_SetRenderDrawColor(renderer, appContext->GetPreloadColors()->game.focusTileBorderColor.r,

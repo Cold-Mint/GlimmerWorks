@@ -150,6 +150,9 @@ display_erosion_map = false
 # Display weirdness map
 # 显示奇异度图
 display_weirdness_map = false
+# Enable lighting
+# 启用光照
+enable_lighting = true
 
 [console]
 # Maximum number of console history entries to save (0 = disable history function)
@@ -161,12 +164,12 @@ command_group = [["screenShot create"]]
 
 [hotkey_f12]
 command_group = [
-    ["config set debug.display_debug_panel toggle","config commit"],
+    ["config set debug.display_debug_panel toggle", "config commit"],
 ]
 
 [hotkey_f11]
 command_group = [
-    ["config set debug.display_box2d_shape toggle","config commit"],
+    ["config set debug.display_box2d_shape toggle", "config commit"],
 ]
 
 [hotkey_f10]
@@ -192,4 +195,9 @@ command_group = [
 [hotkey_f6]
 command_group = [
     ["config set debug.display_humidity_map toggle", "config commit"],
+]
+
+[hotkey_f5]
+command_group = [
+    ["config set debug.enable_lighting toggle", "config commit"],
 ]

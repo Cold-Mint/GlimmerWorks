@@ -7,6 +7,7 @@
 #include <functional>
 
 #include "TraverseAction.h"
+#include "core/Constants.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
 
@@ -32,6 +33,46 @@ namespace glimmer {
             TileVector2D{-1, 1},
             TileVector2D{-1, 0},
             TileVector2D{-1, -1}
+        };
+
+        //Use the "使用GlimmerWorksCli raycirc" command to perform the pre-computation.
+        //使用GlimmerWorksCli raycirc命令预先计算。
+        const std::array<int, CHUNK_SIZE> RAY_COUNT = {
+            4, //r=1
+            8, //r=2
+            16, //r=3
+            20, //r=4
+            32, //r=5
+            32, //r=6
+            40, //r=7
+            48, //r=8
+            58, //r=9
+            80, //r=10
+            80, //r=11
+            88, //r=12
+            88, //r=13
+            112, //r=14
+            122, //r=15
+            128 //r=16
+        };
+
+        const std::array<float, CHUNK_SIZE> ANGLE_STEPS = {
+            90.0F, //r=1
+            45.0F, //r=2
+            22.5F, //r=3
+            18.0F, //r=4
+            11.25F, //r=5
+            11.25F, //r=6
+            9.0F, //r=7
+            7.5F, //r=8
+            6.2069F, //r=9
+            4.5F, //r=10
+            4.5F, //r=11
+            4.0909F, //r=12
+            4.0909F, //r=13
+            3.2143F, //r=14
+            2.9508F, //r=15
+            2.8125F //r=16
         };
 
         /**
@@ -66,10 +107,10 @@ namespace glimmer {
 
     public:
         LightPropagationTraverser(int maxRadius,
-                                     const std::function<TraverseAction(
-                                         TileVector2D current, TileVector2D next,
-                                         float distance)> &stepCallback,
-                                     TileVector2D center);
+                                  const std::function<TraverseAction(
+                                      TileVector2D current, TileVector2D next,
+                                      float distance)> &stepCallback,
+                                  TileVector2D center);
 
 
         /**

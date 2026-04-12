@@ -11,7 +11,7 @@
 
 namespace glimmer {
     class Light2DSystem : public GameSystem {
-        [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(uint8_t layerFilter, TileVector2D tileVector2d) const;
+        [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(TileVector2D tileVector2d) const;
 
         TraverseAction StepCallback(const Tile *centerTile, TileVector2D current,
                                     TileVector2D next, float distance);
@@ -20,6 +20,10 @@ namespace glimmer {
         explicit Light2DSystem(WorldContext *worldContext);
 
         void Update(float delta) override;
+
+        uint8_t GetRenderOrder() override;
+
+        void Render(SDL_Renderer *renderer) override;
 
         std::string GetName() override;
     };

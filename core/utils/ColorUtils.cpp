@@ -73,29 +73,20 @@ SDL_Color glimmer::ColorUtils::ApplyOcclusion(const SDL_Color lightColor, const 
     return result;
 }
 
-SDL_Color glimmer::ColorUtils::DecayColor(const SDL_Color color, float decayPercent) {
-    decayPercent = std::clamp(decayPercent, 0.0f, 1.0f);
-
-    // 最终亮度 = 1 - 衰减百分比
-    const float brightness = 1.0f - decayPercent;
-
+SDL_Color glimmer::ColorUtils::DecayColor(const SDL_Color color, const float lightPercent) {
+    const float realityLightPercent = std::clamp(lightPercent, 0.0F, 1.0F);
     SDL_Color result;
-
-    // RGB 按亮度衰减
     result.r = static_cast<Uint8>(std::clamp(
-        static_cast<float>(color.r) * brightness, 0.0f, 255.0f
+        static_cast<float>(color.r) * realityLightPercent, 0.0F, 255.0F
     ));
     result.g = static_cast<Uint8>(std::clamp(
-        static_cast<float>(color.g) * brightness, 0.0f, 255.0f
+        static_cast<float>(color.g) * realityLightPercent, 0.0F, 255.0F
     ));
     result.b = static_cast<Uint8>(std::clamp(
-        static_cast<float>(color.b) * brightness, 0.0f, 255.0f
+        static_cast<float>(color.b) * realityLightPercent, 0.0F, 255.0F
     ));
-
-    // Alpha（光照强度）也一起衰减！
     result.a = static_cast<Uint8>(std::clamp(
-        static_cast<float>(color.a) * brightness, 0.0f, 255.0f
+        static_cast<float>(color.a) * realityLightPercent, 0.0F, 255.0F
     ));
-
     return result;
 }

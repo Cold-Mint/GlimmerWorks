@@ -61,7 +61,9 @@ slogans = [
     "花の塔-さユり",
     "Take your time. Focus is a superpower.",
     "True joy shouldn't be defined by chance.",
-    "It's okay to be earnest in your own world."
+    "It's okay to be earnest in your own world.",
+    "Dreams are light, life is heavy.",
+    "Where is my dinner tonight?"
 ]
 start_game = "Start Game"
 teleport_entity = "The entity with Id {} has been sent to x={},y={}."

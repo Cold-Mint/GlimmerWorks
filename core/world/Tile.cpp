@@ -15,6 +15,14 @@ const glimmer::ResourceRef &glimmer::Tile::GetLootTableRef() {
     return lootTable_;
 }
 
+float glimmer::Tile::GetMinLightBrightness() const {
+    return minLightBrightness_;
+}
+
+bool glimmer::Tile::IsLightPeakAtCenter() const {
+    return lightPeakAtCenter_;
+}
+
 const SDL_Color &glimmer::Tile::GetLightTransmissionColor() const {
     return lightTransmissionColor_;
 }
@@ -168,6 +176,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     } else {
         tile->emissionColor_ = emissionColorResource->ToSDLColor();
     }
+    tile->minLightBrightness_ = tileResource->minLightBrightness;
+    tile->lightPeakAtCenter_ = tileResource->lightPeakAtCenter;
     tile->emissionRadius_ = tileResource->emissionRadius;
     tile->texture_ = resourceLocator->FindTexture(
         tileResource->texture);

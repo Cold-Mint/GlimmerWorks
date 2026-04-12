@@ -7,8 +7,6 @@
 #include <queue>
 #include <unordered_set>
 
-#include "core/Constants.h"
-
 
 glimmer::LightPropagationTraverser::LightPropagationTraverser(
     const int maxRadius,
@@ -16,11 +14,8 @@ glimmer::LightPropagationTraverser::LightPropagationTraverser(
     const TileVector2D center)
     : maxRadius_(maxRadius), stepCallback_(stepCallback), center_(center) {
     if (maxRadius_ > 0) {
-        //Automatically calculate the ray density.
-        //自动计算射线密度。
-        const float density = 1.0F + static_cast<float>(maxRadius_) / CHUNK_SIZE;
-        rayCount_ = static_cast<int>(std::ceil(2.0 * M_PI * maxRadius_ * density));
-        rayAngleStep_ = 360.0F / static_cast<float>(rayCount_);
+        rayCount_ = RAY_COUNT[maxRadius - 1];
+        rayAngleStep_ = ANGLE_STEPS[maxRadius - 1];
     }
 }
 

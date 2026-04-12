@@ -55,11 +55,18 @@ namespace glimmer {
          */
         SDL_Color lightColor_ = {0, 0, 0, 0};
 
-        int emissionRadius_ = 0.0F;
+        int emissionRadius_ = 0;
 
+        float minLightBrightness_ = 0.02F;
+
+        bool lightPeakAtCenter_ = true;
 
     public:
         [[nodiscard]] const ResourceRef &GetLootTableRef();
+
+        [[nodiscard]] float GetMinLightBrightness() const;
+
+        [[nodiscard]] bool IsLightPeakAtCenter() const;
 
         [[nodiscard]] const SDL_Color &GetLightTransmissionColor() const;
 
@@ -72,6 +79,7 @@ namespace glimmer {
         [[nodiscard]] SDL_Color GetEmissionColor() const;
 
         [[nodiscard]] int GetEmissionRadius() const;
+
 
         void SetLightColor(SDL_Color lightColor);
 

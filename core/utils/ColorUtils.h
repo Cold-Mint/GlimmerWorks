@@ -39,13 +39,12 @@ namespace glimmer {
         static SDL_Color ApplyOcclusion(SDL_Color lightColor, SDL_Color occlusionColor);
 
         /**
- * 对颜色进行亮度衰减（光照专用）
- * @param color 原始颜色
- * @param decayPercent 衰减强度（0.0 = 不衰减，1.0 = 完全变黑）
- * @return 衰减后的颜色
- */
-        static SDL_Color DecayColor(SDL_Color color, float decayPercent);
-
+        * 对颜色进行亮度衰减（光照专用）
+        * @param color 原始颜色
+        * @param lightPercent 光照百分比（0.0 = 完全衰减，1.0 = 不衰减）
+        * @return 衰减后的颜色
+        */
+        static SDL_Color DecayColor(SDL_Color color, float lightPercent);
     };
 }
 

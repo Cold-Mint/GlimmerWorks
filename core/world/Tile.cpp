@@ -35,8 +35,8 @@ bool glimmer::Tile::IsCustomLootTable() const {
     return customLootTable_;
 }
 
-SDL_Color glimmer::Tile::GetLightColor() const {
-    return lightColor_;
+float glimmer::Tile::GetLightAttenuationPerCell() const {
+    return lightAttenuationPerCell_;
 }
 
 SDL_Color glimmer::Tile::GetEmissionColor() const {
@@ -45,10 +45,6 @@ SDL_Color glimmer::Tile::GetEmissionColor() const {
 
 int glimmer::Tile::GetEmissionRadius() const {
     return emissionRadius_;
-}
-
-void glimmer::Tile::SetLightColor(const SDL_Color lightColor) {
-    lightColor_ = lightColor;
 }
 
 bool glimmer::Tile::SetLayerType(const TileLayerType layerType) {
@@ -179,6 +175,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->minLightBrightness_ = tileResource->minLightBrightness;
     tile->lightPeakAtCenter_ = tileResource->lightPeakAtCenter;
     tile->emissionRadius_ = tileResource->emissionRadius;
+    tile->lightAttenuationPerCell_ = 1.0F / static_cast<float>(tileResource->emissionRadius);
     tile->texture_ = resourceLocator->FindTexture(
         tileResource->texture);
     tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);

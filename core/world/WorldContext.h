@@ -158,12 +158,42 @@ namespace glimmer {
          */
         void UnRegisterEntity(GameEntity::ID id);
 
+       /**
+       * @brief 全局光照数据缓存（HDR 浮点存储）
+       *
+       * 【为什么必须用 SDL_FColor(float)】
+       * 1. 物理光照需要【无上限叠加】：多光源、多次反射、染色会让亮度超过 1.0
+       * 2. SDL_Color 是 0~255 Uint8，叠加会直接截断溢出 → 强制变白（过曝）
+       * 3. float 可以存储 0.0 ~ ∞ 的亮度，保证光的能量、颜色、层次不丢失
+       * 4. 最终渲染时统一做一次 ToneMapping（色调映射）压缩回屏幕可显示范围
+       *
+       * 【核心原则】
+       * 计算层 = 浮点 HDR（线性叠加、不压缩）
+       * 显示层 = 8bit LDR（最后一步压缩）
+       */
+        std::unordered_map<TileVector2D, SDL_FColor, Vector2DIHash> lightColors_;
+
     public:
         ~WorldContext();
 
         [[nodiscard]] bool IsDragMode() const;
 
         void SetDragMode(bool dragMode);
+
+        void ClearLightColors();
+
+        [[nodiscard]] SDL_FColor &GetLightColor(TileVector2D tileVector2d);
+
+        [[nodiscard]] bool ContainsLightColor(TileVector2D tileVector2d) const;
+
+        /**
+         * 加法混合光照颜色
+         * @param tileVector2d
+         * @param color
+         */
+        void AddLightColor(TileVector2D tileVector2d, SDL_FColor color);
+
+        void RemoveLightColor(TileVector2D tileVector2d, SDL_FColor occlusionColor);
 
         [[nodiscard]] GameEntity::ID GetEntityIdIndex() const;
 

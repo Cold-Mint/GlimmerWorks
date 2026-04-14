@@ -7,6 +7,7 @@
 #include "core/mod/ResourceRef.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
+#include "core/utils/ColorUtils.h"
 
 void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocator) {
     ColorResource text;
@@ -347,13 +348,14 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     defaultEmissionRes.a = 0;
     light.defaultEmissionColor = LoadColor(resourceLocator, "light/default_emission_color", &defaultEmissionRes)->
             ToSDLColor();
+    light.defaultEmissionFColor = ColorUtils::ColorToFColor(light.defaultEmissionColor);
     ColorResource defaultLightTransmissionRes;
     defaultLightTransmissionRes.r = 0;
     defaultLightTransmissionRes.g = 0;
     defaultLightTransmissionRes.b = 0;
     defaultLightTransmissionRes.a = 0;
-    light.defaultEmissionColor = LoadColor(resourceLocator, "light/default_light_transmission_color",
-                                           &defaultLightTransmissionRes)->
+    light.defaultLightTransmissionColor = LoadColor(resourceLocator, "light/default_light_transmission_color",
+                                                    &defaultLightTransmissionRes)->
             ToSDLColor();
 }
 

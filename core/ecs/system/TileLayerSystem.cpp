@@ -9,6 +9,7 @@
 #include "../component/TileLayerComponent.h"
 #include "../component/Transform2DComponent.h"
 #include "../../world/WorldContext.h"
+#include "core/utils/ColorUtils.h"
 #include "core/world/Tile.h"
 
 glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)
@@ -60,8 +61,9 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
         renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
         SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
         for (auto tile: tileList) {
-            SDL_Color lightColor = tile->GetLightColor();
-            if (config->debug.enableLighting && lightColor.a == 0) {
+            const SDL_Color lightColor = ColorUtils::FColorToColorToneMapped(
+                worldContext_->GetLightColor(tileCoord), config->light.exposure);
+            if (config->light.enable && lightColor.a == 0) {
                 //Do not draw tiles that do not emit light at all.
                 //不绘制完全不发光的瓦片。
                 continue;

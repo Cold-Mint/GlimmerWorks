@@ -43,7 +43,11 @@ namespace glimmer {
         bool displayHumidityMap;
         bool displayErosionMap;
         bool displayWeirdnessMap;
-        bool enableLighting;
+    };
+
+    struct LightConfig {
+        bool enable;
+        float exposure;
     };
 
     struct Console {
@@ -98,6 +102,7 @@ namespace glimmer {
         HotkeyCommand f11{};
         HotkeyCommand f12{};
         std::string runtimePath;
+        LightConfig light;
 
         void LoadConfig(const toml::value &configValue);
     };

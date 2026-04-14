@@ -5,6 +5,7 @@
 #include "ColorUtils.h"
 
 #include <algorithm>
+#include <cmath>
 
 SDL_Color glimmer::ColorUtils::LerpColor(const SDL_Color from, const SDL_Color to, const float percent) {
     const float blend_ratio = std::clamp(percent, 0.0F, 1.0F);
@@ -35,58 +36,67 @@ SDL_Color glimmer::ColorUtils::AverageColors(const std::vector<SDL_Color> &color
     return {r, g, b, a};
 }
 
-SDL_Color glimmer::ColorUtils::ApplyOcclusion(const SDL_Color lightColor, const SDL_Color occlusionColor) {
-    // Blocking intensity: 0.0 = No blocking, 1.0 = Complete blocking
-    // 遮挡强度：0.0 = 不遮挡，1.0 = 完全遮挡
-    const float occlusion = static_cast<float>(occlusionColor.a) / 255.0F;
+SDL_FColor glimmer::ColorUtils::AdditiveBlend(const SDL_FColor firstColor, const SDL_FColor secondColor) {
+    const float r = std::sqrt(firstColor.r * firstColor.r + secondColor.r * secondColor.r);
+    const float g = std::sqrt(firstColor.g * firstColor.g + secondColor.g * secondColor.g);
+    const float b = std::sqrt(firstColor.b * firstColor.b + secondColor.b * secondColor.b);
+    const float a = std::sqrt(firstColor.a * firstColor.a + secondColor.a * secondColor.a);
+    return SDL_FColor{
+        std::clamp(r, 0.0F, 1.0F),
+        std::clamp(g, 0.0F, 1.0F),
+        std::clamp(b, 0.0F, 1.0F),
+        std::clamp(a, 0.0F, 1.0F)
+    };
+}
 
-    // The final light intensity = original intensity * (1 - occlusion intensity)
-    // 最终光线强度 = 原强度 * (1 - 遮挡强度)
-    // The stronger the obstruction, the less light remains.
-    // 遮挡越强，剩下的光越少
-    const float lightPower = 1.0F - occlusion;
-
-    SDL_Color result{};
-
-    // 1. Coloring: When light passes through an obstruction, it will acquire the color of the obstruction.
-    // 1. 染色：光线穿过遮挡物，会带上遮挡物的颜色
-    result.r = static_cast<Uint8>(std::clamp(
-        static_cast<float>(lightColor.r) * (static_cast<float>(occlusionColor.r) / 255.0F) * lightPower,
-        0.0F, 255.0F
-    ));
-    result.g = static_cast<Uint8>(std::clamp(
-        static_cast<float>(lightColor.g) * (static_cast<float>(occlusionColor.g) / 255.0F) * lightPower,
-        0.0F, 255.0F
-    ));
-    result.b = static_cast<Uint8>(std::clamp(
-        static_cast<float>(lightColor.b) * (static_cast<float>(occlusionColor.b) / 255.0F) * lightPower,
-        0.0F, 255.0F
-    ));
-
-    // 2. Brightness (Alpha) decreases with the intensity of occlusion.
-    // 2. 亮度（Alpha）随遮挡强度衰减
-    result.a = static_cast<Uint8>(std::clamp(
-        static_cast<float>(lightColor.a) * lightPower,
-        0.0F, 255.0F
-    ));
-
+SDL_FColor glimmer::ColorUtils::ApplyOcclusion(SDL_FColor lightColor, SDL_FColor occlusionColor) {
+    const float lightPower = 1.0F - occlusionColor.a;
+    SDL_FColor result{};
+    result.r = lightColor.r * occlusionColor.r * lightPower;
+    result.g = lightColor.g * occlusionColor.g * lightPower;
+    result.b = lightColor.b * occlusionColor.b * lightPower;
+    result.a = lightColor.a * occlusionColor.a * lightPower;
     return result;
 }
 
-SDL_Color glimmer::ColorUtils::DecayColor(const SDL_Color color, const float lightPercent) {
+SDL_FColor glimmer::ColorUtils::DecayColor(const SDL_FColor color, const float lightPercent) {
     const float realityLightPercent = std::clamp(lightPercent, 0.0F, 1.0F);
-    SDL_Color result;
-    result.r = static_cast<Uint8>(std::clamp(
-        static_cast<float>(color.r) * realityLightPercent, 0.0F, 255.0F
-    ));
-    result.g = static_cast<Uint8>(std::clamp(
-        static_cast<float>(color.g) * realityLightPercent, 0.0F, 255.0F
-    ));
-    result.b = static_cast<Uint8>(std::clamp(
-        static_cast<float>(color.b) * realityLightPercent, 0.0F, 255.0F
-    ));
-    result.a = static_cast<Uint8>(std::clamp(
-        static_cast<float>(color.a) * realityLightPercent, 0.0F, 255.0F
-    ));
+    SDL_FColor result;
+    result.r = color.r * realityLightPercent;
+    result.g = color.g * realityLightPercent;
+    result.b = color.b * realityLightPercent;
+    result.a = color.a * realityLightPercent;
     return result;
+}
+
+SDL_FColor glimmer::ColorUtils::ColorToFColor(const SDL_Color &sdlColor) {
+    return {
+        static_cast<float>(sdlColor.r) / 255.0F,
+        static_cast<float>(sdlColor.g) / 255.0F,
+        static_cast<float>(sdlColor.b) / 255.0F,
+        static_cast<float>(sdlColor.a) / 255.0F
+    };
+}
+
+SDL_Color glimmer::ColorUtils::FColorToColorRaw(const SDL_FColor &sdlFColor) {
+    return SDL_Color{
+        static_cast<Uint8>(std::clamp(sdlFColor.r, 0.0F, 1.0F) * 255),
+        static_cast<Uint8>(std::clamp(sdlFColor.g, 0.0F, 1.0F) * 255),
+        static_cast<Uint8>(std::clamp(sdlFColor.b, 0.0F, 1.0F) * 255),
+        static_cast<Uint8>(std::clamp(sdlFColor.a, 0.0F, 1.0F) * 255)
+    };
+}
+
+SDL_Color glimmer::ColorUtils::FColorToColorToneMapped(const SDL_FColor &sdlFColor, const float exposure) {
+    return SDL_Color{
+        static_cast<Uint8>(std::clamp(ToneMapReinhard(sdlFColor.r, exposure), 0.0F, 1.0F) * 255.0F),
+        static_cast<Uint8>(std::clamp(ToneMapReinhard(sdlFColor.g, exposure), 0.0F, 1.0F) * 255.0F),
+        static_cast<Uint8>(std::clamp(ToneMapReinhard(sdlFColor.b, exposure), 0.0F, 1.0F) * 255.0F),
+        static_cast<Uint8>(std::clamp(ToneMapReinhard(sdlFColor.a, exposure), 0.0F, 1.0F) * 255.0F),
+    };
+}
+
+
+float glimmer::ColorUtils::ToneMapReinhard(const float x, const float exposure) {
+    return exposure * x / (1.0F + exposure * x);
 }

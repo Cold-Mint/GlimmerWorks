@@ -41,7 +41,7 @@ namespace glimmer {
          * lightTransmission
          * 透光性
          */
-        SDL_Color lightTransmissionColor_ = {0, 0, 0, 255};
+        SDL_Color lightTransmissionColor_ = {0, 0, 0, 0};
 
         /**
          * emissionColor
@@ -50,10 +50,10 @@ namespace glimmer {
         SDL_Color emissionColor_ = {0, 0, 0, 0};
 
         /**
-         * Lighting color (calculated result by Light2dSystem)
-         * 光照颜色（由Light2dSystem计算完成后的结果）
+         * Light attenuation coefficient (how much brightness is reduced for each grid cell)
+         * 光照衰减系数(每个格子减少多少亮度)
          */
-        SDL_Color lightColor_ = {0, 0, 0, 0};
+        float lightAttenuationPerCell_ = 1.0F;
 
         int emissionRadius_ = 0;
 
@@ -74,14 +74,16 @@ namespace glimmer {
 
         [[nodiscard]] bool IsCustomLootTable() const;
 
-        [[nodiscard]] SDL_Color GetLightColor() const;
+
+        /**
+        * Light attenuation coefficient (how much brightness is reduced for each grid cell)
+        * 光照衰减系数(每个格子减少多少亮度)
+        */
+        [[nodiscard]] float GetLightAttenuationPerCell() const;
 
         [[nodiscard]] SDL_Color GetEmissionColor() const;
 
         [[nodiscard]] int GetEmissionRadius() const;
-
-
-        void SetLightColor(SDL_Color lightColor);
 
         /**
          * SetLayerType

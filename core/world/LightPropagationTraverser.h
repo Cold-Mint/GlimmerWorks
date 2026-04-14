@@ -86,8 +86,7 @@ namespace glimmer {
          *  distance The distance from the current point to the center point
          *  distance 当前点距离中心点的距离
          */
-        std::function<TraverseAction(TileVector2D current, TileVector2D next,
-                                     float distance)> stepCallback_;
+        std::function<TraverseAction(TileVector2D current, TileVector2D next)> stepCallback_;
 
         /**
          * center
@@ -108,8 +107,7 @@ namespace glimmer {
     public:
         LightPropagationTraverser(int maxRadius,
                                   const std::function<TraverseAction(
-                                      TileVector2D current, TileVector2D next,
-                                      float distance)> &stepCallback,
+                                      TileVector2D current, TileVector2D next)> &stepCallback,
                                   TileVector2D center);
 
 

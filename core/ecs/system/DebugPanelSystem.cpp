@@ -13,6 +13,7 @@
 #include "../component/CameraComponent.h"
 #include "box2d/box2d.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
+#include "core/utils/ColorUtils.h"
 #include "core/world/Tile.h"
 #include "core/world/generator/Chunk.h"
 #include "fmt/xchar.h"
@@ -227,10 +228,12 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
         auto tile = tileLayer->GetSelfLayerTile(tileCoord);
         if (tile != nullptr) {
+            const SDL_Color tileColor = ColorUtils::FColorToColorToneMapped(
+                worldContext_->GetLightColor(tileCoord), appContext->GetConfig()->light.exposure);
             std::string tileResDebugInfo = fmt::format(
                 fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
                 static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
-                tile->GetLightColor().a, tile->GetLightColor().r, tile->GetLightColor().g, tile->GetLightColor().b,
+                tileColor.a, tileColor.r, tileColor.g, tileColor.b,
                 tile->GetEmissionRadius()
             );
             RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,

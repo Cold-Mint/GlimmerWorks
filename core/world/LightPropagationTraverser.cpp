@@ -10,7 +10,7 @@
 
 glimmer::LightPropagationTraverser::LightPropagationTraverser(
     const int maxRadius,
-    const std::function<TraverseAction(TileVector2D, TileVector2D, float)> &stepCallback,
+    const std::function<TraverseAction(TileVector2D, TileVector2D)> &stepCallback,
     const TileVector2D center)
     : maxRadius_(maxRadius), stepCallback_(stepCallback), center_(center) {
     if (maxRadius_ > 0) {
@@ -52,10 +52,13 @@ void glimmer::LightPropagationTraverser::Start() const {
                 break;
             }
             if (!visited.contains(nextTile)) {
-                const float realDist = std::sqrt(static_cast<float>(distSq));
-                const TraverseAction action = stepCallback_(currentTile, nextTile, realDist);
-                if (action == TraverseAction::StopAll) return;
-                if (action == TraverseAction::SkipDirection) break;
+                const TraverseAction action = stepCallback_(currentTile, nextTile);
+                if (action == TraverseAction::StopAll) {
+                    return;
+                }
+                if (action == TraverseAction::SkipDirection) {
+                    break;
+                }
 
                 visited.insert(nextTile);
             }

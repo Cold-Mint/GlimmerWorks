@@ -22,15 +22,24 @@ std::vector<glimmer::Tile *> glimmer::Light2DSystem::GetTopVisibleTiles(TileVect
                                      Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2d));
 }
 
-glimmer::TraverseAction glimmer::Light2DSystem::StepCallback(const Tile *centerTile, const TileVector2D current,
-                                                             TileVector2D next, const float distance) {
-    const float ratio = distance / static_cast<float>(centerTile->GetEmissionRadius());
-    const float decay = centerTile->IsLightPeakAtCenter() ? 1.0F - ratio : ratio;
-    const float finalBrightness = std::max(decay, centerTile->GetMinLightBrightness());
-    const SDL_Color emissionColor = centerTile->GetEmissionColor();
-    auto nextTiles = GetTopVisibleTiles(next);
-    for (auto &tile: nextTiles) {
-        tile->SetLightColor(ColorUtils::DecayColor(emissionColor, finalBrightness));
+glimmer::TraverseAction glimmer::Light2DSystem::StepCallback(const Tile *centerTile, TileVector2D current,
+                                                             TileVector2D next) {
+    const float lightAttenuationPerCell = centerTile->GetLightAttenuationPerCell();
+    const SDL_FColor currentColor = worldContext_->GetLightColor(current);
+    worldContext_->AddLightColor(next, ColorUtils::DecayColor(currentColor,
+                                                              centerTile->IsLightPeakAtCenter()
+                                                                  ? 1.0F - lightAttenuationPerCell
+                                                                  : lightAttenuationPerCell));
+
+    auto currentTiles = GetTopVisibleTiles(current);
+    for (auto currentTile: currentTiles) {
+        SDL_Color lightTransmissionColor = currentTile->GetLightTransmissionColor();
+        if (lightTransmissionColor.a > 0) {
+            worldContext_->RemoveLightColor(next, ColorUtils::ColorToFColor(lightTransmissionColor));
+        }
+    }
+    if (worldContext_->GetLightColor(next).a <= 0) {
+        return TraverseAction::SkipDirection;
     }
     return TraverseAction::Continue;
 }
@@ -77,6 +86,7 @@ void glimmer::Light2DSystem::Update(float delta) {
                       preloadedLightingViewportRect.y + preloadedLightingViewportRect.h));
     const TileVector2D startChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftLightingCorner);
     const TileVector2D endChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightLightingCorner);
+    worldContext_->ClearLightColors();
     for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE) {
         for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
             TileVector2D chunkPos(cx, cy);
@@ -92,36 +102,31 @@ void glimmer::Light2DSystem::Update(float delta) {
                         if (tiles.empty()) {
                             continue;
                         }
-                        for (auto &tile: tiles) {
-                            tile->SetLightColor(tile->GetEmissionColor());
-                        }
-                    }
-                }
-
-                for (int y = 0; y < CHUNK_SIZE; y++) {
-                    for (int x = 0; x < CHUNK_SIZE; x++) {
-                        std::vector<Tile *> tiles = chunk->GetTopVisibleTiles(
-                            Ground | BackGround, TileVector2D{x, y});
-                        if (tiles.empty()) {
-                            continue;
-                        }
+                        const TileVector2D tileVector2d = {cx + x, cy + y};
                         for (auto &tile: tiles) {
                             const SDL_Color emissionColor = tile->GetEmissionColor();
-                            if (emissionColor.a == 0 || tile->GetEmissionRadius() <= 0) {
-                                //If the luminous intensity is 0, or the luminous radius is 0.
-                                //如果发光强度为0，或者发光半径为0。
+                            if (emissionColor.a == 0) {
+                                //If the luminous intensity is 0.
+                                //如果发光强度为0。
                                 continue;
                             }
-                            LightPropagationTraverser radial8WayClockwiseTraverser = {
-                                tile->GetEmissionRadius(),
-                                [this, tile](const TileVector2D cur,
-                                             const TileVector2D next, const float distance) {
-                                    return this->StepCallback(tile, cur, next, distance);
-                                },
-                                TileVector2D{cx + x, cy + y}
-                            };
-                            radial8WayClockwiseTraverser.Start();
-                            tile->SetLightColor(tile->GetEmissionColor());
+                            //Add self-illumination to the light source.
+                            //为光源添加自发光。【问题可能是这里】
+                            worldContext_->AddLightColor(tileVector2d,
+                                                         ColorUtils::ColorToFColor(tile->GetEmissionColor()));
+                            if (tile->GetEmissionRadius() > 0) {
+                                //If there is a luminous radius, then the light path needs to be traversed.
+                                //如果有发光半径才需要遍历光线轨道。
+                                const LightPropagationTraverser radial8WayClockwiseTraverser = {
+                                    tile->GetEmissionRadius(),
+                                    [this, tile](const TileVector2D cur,
+                                                 const TileVector2D next) {
+                                        return this->StepCallback(tile, cur, next);
+                                    },
+                                    tileVector2d
+                                };
+                                radial8WayClockwiseTraverser.Start();
+                            }
                         }
                     }
                 }
@@ -146,7 +151,7 @@ void glimmer::Light2DSystem::Render(SDL_Renderer *renderer) {
     if (config == nullptr) {
         return;
     }
-    if (!config->debug.enableLighting) {
+    if (!config->light.enable) {
         return;
     }
     const auto *cameraComponent = worldContext_->GetCameraComponent();
@@ -167,20 +172,27 @@ void glimmer::Light2DSystem::Render(SDL_Renderer *renderer) {
     }
     auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
     const float zoom = cameraComponent->GetZoom();
-    std::vector<std::pair<TileVector2D, std::vector<Tile *> > > visibleTiles =
-            tileLayerComponent->GetTopVisibleTilesInViewport(Ground | BackGround, viewportRect);
-    for (const auto &[tileCoord, tileList]: visibleTiles) {
-        const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileCoord);
-        const CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
-            cameraPos->GetPosition(), worldTilePos);
-        SDL_FRect renderQuad;
-        renderQuad.w = TILE_SIZE * zoom;
-        renderQuad.h = TILE_SIZE * zoom;
-        renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
-        renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
-        SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
-        for (auto tile: tileList) {
-            const SDL_Color lightColor = tile->GetLightColor();
+    const TileVector2D topLeft = TileLayerComponent::WorldToTile({viewportRect.x, viewportRect.y});
+    //The purpose of adding "TILE_SIZE" in the lower right corner is to prevent blank areas from appearing.
+    //右下角加TILE_SIZE的目的是，防止出现空白区域。
+    const TileVector2D bottomRight = TileLayerComponent::WorldToTile({
+        viewportRect.x + viewportRect.w + TILE_SIZE,
+        viewportRect.y + viewportRect.h + TILE_SIZE
+    });
+    for (int y = topLeft.y; y <= bottomRight.y; ++y) {
+        for (int x = topLeft.x; x <= bottomRight.x; ++x) {
+            auto tileVector2D = TileVector2D(x, y);
+            const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileVector2D);
+            const CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
+                cameraPos->GetPosition(), worldTilePos);
+            SDL_FRect renderQuad;
+            renderQuad.w = TILE_SIZE * zoom;
+            renderQuad.h = TILE_SIZE * zoom;
+            renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
+            renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
+            SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
+            const SDL_Color lightColor = ColorUtils::FColorToColorToneMapped(
+                worldContext_->GetLightColor(tileVector2D), config->light.exposure);
             if (lightColor.a == 0) {
                 continue;
             }

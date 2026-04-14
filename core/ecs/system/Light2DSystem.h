@@ -14,7 +14,7 @@ namespace glimmer {
         [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(TileVector2D tileVector2d) const;
 
         TraverseAction StepCallback(const Tile *centerTile, TileVector2D current,
-                                    TileVector2D next, float distance);
+                                    TileVector2D next);
 
     public:
         explicit Light2DSystem(WorldContext *worldContext);

@@ -95,6 +95,14 @@ preload_lighting_radius = 1.0
 # 使用 locate biome 命令时，沿 X 轴正 / 负方向遍历的区块数量。
 locate_max_radius_search_chunks = 2048
 
+[light]
+# Enable lighting
+# 启用光照
+enable = true
+# Lighting exposure (HDR tone mapping brightness parameter,Default value is 1.0)
+# 光照曝光度 (HDR 色调映射亮度参数，默认为1.0)
+exposure = 1.0
+
 [mods]
 # Data pack storage path
 # 数据包存储路径
@@ -150,9 +158,6 @@ display_erosion_map = false
 # Display weirdness map
 # 显示奇异度图
 display_weirdness_map = false
-# Enable lighting
-# 启用光照
-enable_lighting = true
 
 [console]
 # Maximum number of console history entries to save (0 = disable history function)

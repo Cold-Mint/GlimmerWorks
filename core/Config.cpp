@@ -65,7 +65,6 @@ void glimmer::Config::LoadConfig(const toml::value &configValue) {
     debug.displayErosionMap = toml::find<bool>(configValue, "debug", "display_erosion_map");
     debug.displayWeirdnessMap = toml::find<bool>(configValue, "debug", "display_weirdness_map");
     light.enable = toml::find<bool>(configValue, "light", "enable");
-    light.exposure = toml::find<float>(configValue, "light", "exposure");
     console.maxHistoryEntries = toml::find<int>(configValue, "console", "max_history_entries");
     runtimePath = toml::find<std::string>(configValue, "runtime_path");
     command.locateMaxRadiusSearchChunks = toml::find<int>(configValue, "command", "locate_max_radius_search_chunks");

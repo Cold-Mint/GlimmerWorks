@@ -336,15 +336,27 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     if (chunks_.contains(position)) {
         return;
     }
-    std::unique_ptr<Chunk> chunk = chunkLoader_->LoadChunkFromSaves(position);
-    if (chunk == nullptr) {
-        chunk = chunkGenerator_->GenerateChunkAt(position);
+    std::unique_ptr<Chunk> newlyCreatedChunk = chunkLoader_->LoadChunkFromSaves(position);
+    if (newlyCreatedChunk == nullptr) {
+        newlyCreatedChunk = chunkGenerator_->GenerateChunkAt(position);
     }
-    if (chunk == nullptr) {
+    if (newlyCreatedChunk == nullptr) {
         return;
     }
-    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext_, worldId_, chunk.get());
-    chunks_.insert({position, std::move(chunk)});
+    ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext_, worldId_, newlyCreatedChunk.get());
+    newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, TileLayerType layerType,
+                                                     const TileVector2D &,
+                                                     Tile *, Tile *) {
+        if (layerType == Ground) {
+            ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(this, chunk);
+        }
+    });
+    newlyCreatedChunk->AddSetTileCallback([this](Chunk *chunk, int, Tile *, TileLayerType layerType) {
+        if (layerType == Ground) {
+            ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(this, chunk);
+        }
+    });
+    chunks_.insert({position, std::move(newlyCreatedChunk)});
     chunksVersion_++;
 }
 

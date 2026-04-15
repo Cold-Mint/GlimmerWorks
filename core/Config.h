@@ -47,7 +47,6 @@ namespace glimmer {
 
     struct LightConfig {
         bool enable;
-        float exposure;
     };
 
     struct Console {

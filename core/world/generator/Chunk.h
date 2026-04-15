@@ -20,11 +20,16 @@ namespace glimmer {
         tiles_;
         std::vector<b2BodyId> attachedBodies_;
 
-        std::vector<std::function<void(TileVector2D pos, Tile *tile, TileLayerType layerType)> >
+        std::vector<std::function<void(Chunk *chunk, int index, Tile *tile, TileLayerType layerType)> >
         setTileCallback_;
 
-        std::vector<std::function<void(TileLayerType layerType, const TileVector2D &tileVector2d,
-                                       Tile *newTile)> > replaceTileCallback_;
+        std::vector<std::function<void(Chunk *chunk, TileLayerType layerType, const TileVector2D &tileVector2d,
+                                       Tile *oldTile, Tile *newTile)> > replaceTileCallback_;
+
+        void InvokeSetTileCallback(Chunk *chunk, int index, Tile *tile, TileLayerType layerType) const;
+
+        void InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, const TileVector2D &tileVector2d,
+                                       Tile *oldTile, Tile *newTile) const;
 
     public:
         explicit Chunk(const TileVector2D &pos);
@@ -37,12 +42,23 @@ namespace glimmer {
 
         void ClearAttachedBodies();
 
+        size_t AddSetTileCallback(
+            const std::function<void(Chunk *chunk, int index, Tile *tile, TileLayerType layerType)> &callBack);
+
+        bool RemoveSetTileCallback(long index);
+
+        size_t AddReplaceTileCallback(const std::function<void(Chunk *chunk, TileLayerType layerType,
+                                                         const TileVector2D &tileVector2d,
+                                                         Tile *oldTile, Tile *newTile)> &callBack);
+
+        bool RemoveReplaceTileCallback(long index);
+
         /**
-     * TileCoordinatesToChunkCoordinates
-     * 瓦片坐标转区块顶点坐标
-     * @param tileVector2d
-     * @return
-     */
+         * TileCoordinatesToChunkCoordinates
+         * 瓦片坐标转区块顶点坐标
+         * @param tileVector2d
+         * @return
+         */
         [[nodiscard]] static TileVector2D TileCoordinatesToChunkVertexCoordinates(TileVector2D tileVector2d);
 
         /**
@@ -55,9 +71,9 @@ namespace glimmer {
 
         void SetTile(TileVector2D pos, std::unique_ptr<Tile> tile);
 
-        void SetTileToLayer(TileVector2D pos, std::unique_ptr<Tile> tile, TileLayerType layerType);
+        void SetTileToLayer(TileVector2D pos, TileLayerType layerType, std::unique_ptr<Tile> tile);
 
-        void SetTileToLayer(int index, std::unique_ptr<Tile> tile, TileLayerType layerType);
+        void SetTileToLayer(int index, TileLayerType layerType, std::unique_ptr<Tile> tile);
 
         [[nodiscard]] TileVector2D GetPosition() const;
 

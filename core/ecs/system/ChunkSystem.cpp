@@ -71,10 +71,10 @@ void glimmer::ChunkSystem::Update(float delta) {
         }
     }
 
-    TileVector2D topLeftChunkCorner = TileLayerComponent::WorldToTile(
+    const TileVector2D topLeftChunkCorner = TileLayerComponent::WorldToTile(
         WorldVector2D(preloadedChunkViewportRect.x, preloadedChunkViewportRect.y));
 
-    TileVector2D lowerRightChunkCorner = TileLayerComponent::WorldToTile(
+    const TileVector2D lowerRightChunkCorner = TileLayerComponent::WorldToTile(
         WorldVector2D(preloadedChunkViewportRect.x + preloadedChunkViewportRect.w,
                       preloadedChunkViewportRect.y + preloadedChunkViewportRect.h));
     const TileVector2D startChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftChunkCorner);

@@ -312,7 +312,7 @@ glimmer::AppContext::AppContext() {
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
     config_ = std::make_unique<Config>();
     LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
-    std::optional<std::string> configData = vfs->ReadFile(CONFIG_FILE_NAME);
+    const std::optional<std::string> configData = vfs->ReadFile(CONFIG_FILE_NAME);
     if (!configData.has_value()) {
         LogCat::e("Failed to read ",CONFIG_FILE_NAME, " file!");
     }

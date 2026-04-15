@@ -47,21 +47,19 @@ int glimmer::Tile::GetEmissionRadius() const {
     return emissionRadius_;
 }
 
-bool glimmer::Tile::SetLayerType(const TileLayerType layerType) {
-    bool result = false;
-    if (layerType_ != layerType) {
-        if (allowCrossLayerPlacement_) {
-            layerType_ = layerType;
-            result = true;
-        }
-#if  !defined(NDEBUG)
-        else {
-            LogCat::e("Attempt to modify the fixed layer.");
-            assert(false);
-        }
-#endif
+bool glimmer::Tile::ChangeLayerTypeIfAllowed(const TileLayerType layerType) {
+    if (layerType_ == layerType) {
+        return false;
     }
-    return result;
+    if (allowCrossLayerPlacement_) {
+        layerType_ = layerType;
+        return true;
+    }
+#if  !defined(NDEBUG)
+    LogCat::e("Attempt to modify the fixed layer.");
+    assert(false);
+#endif
+    return false;
 }
 
 

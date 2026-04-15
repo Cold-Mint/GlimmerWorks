@@ -13,6 +13,10 @@
 
 
 void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext *appContext, b2WorldId worldId, Chunk *chunk) {
+    if (appContext == nullptr || chunk == nullptr) {
+        return;
+    }
+    LogCat::d("AttachPhysicsBodyToChunk");
     appContext->AddMainThreadTask([worldId,chunk] {
         const TileVector2D chunkPos = chunk->GetPosition();
         std::vector isStaticTile(CHUNK_AREA, false);
@@ -98,9 +102,10 @@ b2BodyId glimmer::ChunkPhysicsHelper::CreateStaticBody(const b2WorldId worldId, 
 }
 
 void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(AppContext *appContext, Chunk *chunk) {
-    if (chunk == nullptr) {
+    if (appContext == nullptr || chunk == nullptr) {
         return;
     }
+    LogCat::d("DetachPhysicsBodyToChunk");
     appContext->AddMainThreadTask([chunk] {
         for (const b2BodyId bodyId: chunk->GetAttachedBodies()) {
             if (b2Body_IsValid(bodyId)) {

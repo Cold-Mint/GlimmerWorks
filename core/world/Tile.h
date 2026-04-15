@@ -86,12 +86,12 @@ namespace glimmer {
         [[nodiscard]] int GetEmissionRadius() const;
 
         /**
-         * SetLayerType
-         * 设置图层
+         * ChangeLayerTypeIfAllowed
+         * 改变图层如果允许的话
          * @param layerType TileLayerType 图层
          * @return 是否设置成功
          */
-        [[nodiscard]] bool SetLayerType(TileLayerType layerType);
+        [[nodiscard]] bool ChangeLayerTypeIfAllowed(TileLayerType layerType);
 
         [[nodiscard]] bool IsAllowCrossLayerPlacement() const;
 

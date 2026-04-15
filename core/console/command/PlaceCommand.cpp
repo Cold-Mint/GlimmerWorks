@@ -72,7 +72,6 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
             return false;
         }
         StructureInfo &structureInfo = structureInfoOptional.value();
-        std::unordered_set<Chunk *> dirtyChunks;
         TileVector2D minPos = structureInfo.GetMinPosition();
         for (auto &[coord, resourceRef]: structureInfo.GetStructureMap()) {
             int localX = coord.x - minPos.x;
@@ -93,11 +92,6 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
             chunk->SetTile(
                 Chunk::TileCoordinatesToChunkRelativeCoordinates(position),
                 Tile::FromTileResource(appContext_, tileResource, resourceRef));
-
-            dirtyChunks.insert(chunk);
-        }
-        for (Chunk *dirtyChunk: dirtyChunks) {
-            ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, dirtyChunk);
         }
         return true;
     }

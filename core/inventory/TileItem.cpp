@@ -131,10 +131,6 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
             tile->SetPlayerPlaced(true);
             (void) tileLayer->SetTile(
                 targetPos, std::move(tile));
-            const auto chunk = worldContext->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(targetPos));
-            if (chunk != nullptr) {
-                ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext, chunk);
-            }
             (void) RemoveAmount(1);
         }
     }

@@ -12,7 +12,6 @@
 #include "../../world/generator/Chunk.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/DiggingComponent.h"
-#include "core/world/generator/ChunkPhysicsHelper.h"
 
 void glimmer::DiggingSystem::BreakTile(const TileVector2D tilePosition, const AppContext *appContext,
                                        const DiggingComponent *diggingComponent,
@@ -95,16 +94,6 @@ void glimmer::DiggingSystem::Update(float delta) {
                     chunkSet.insert(chunk);
                 }
                 BreakTile(tilePosition, appContext, diggingComponent, tileLayer);
-            }
-            // Update physics
-            // 更新物理
-            if (diggingComponent->GetLayerType() == Ground) {
-                for (auto chunk: chunkSet) {
-                    if (chunk == nullptr) {
-                        continue;
-                    }
-                    ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
-                }
             }
             // Reset digging after break
             // 破坏方块重置挖掘

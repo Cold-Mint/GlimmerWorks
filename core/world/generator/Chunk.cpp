@@ -14,14 +14,42 @@ void glimmer::Chunk::ClearAttachedBodies() {
     attachedBodies_.clear();
 }
 
+size_t glimmer::Chunk::AddSetTileCallback(
+    const std::function<void(Chunk *chunk, int index, Tile *tile, TileLayerType layerType)> &callBack) {
+    setTileCallback_.emplace_back(callBack);
+    return setTileCallback_.size() - 1;
+}
+
+bool glimmer::Chunk::RemoveSetTileCallback(const long index) {
+    if (setTileCallback_.size() <= index) {
+        return false;
+    }
+    setTileCallback_.erase(setTileCallback_.begin() + index);
+    return true;
+}
+
+size_t glimmer::Chunk::AddReplaceTileCallback(
+    const std::function<void(Chunk *chunk, TileLayerType layerType, const TileVector2D &tileVector2d, Tile *oldTile,
+                             Tile *
+                             newTile)> &callBack) {
+    replaceTileCallback_.emplace_back(callBack);
+    return replaceTileCallback_.size() - 1;
+}
+
+bool glimmer::Chunk::RemoveReplaceTileCallback(const long index) {
+    if (replaceTileCallback_.size() <= index) {
+        return false;
+    }
+    replaceTileCallback_.erase(replaceTileCallback_.begin() + index);
+    return true;
+}
+
 TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileVector2D tileVector2d) {
     return {
         tileVector2d.x & CHUNK_ALIGN,
         tileVector2d.y & CHUNK_ALIGN
     };
 }
-
-
 
 
 TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const TileVector2D tileVector2d) {
@@ -31,27 +59,50 @@ TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const Til
     };
 }
 
+void glimmer::Chunk::InvokeSetTileCallback(Chunk *chunk, const int index, Tile *tile,
+                                           const TileLayerType layerType) const {
+    for (auto &tileCallback: setTileCallback_) {
+        tileCallback(chunk, index, tile, layerType);
+    }
+}
+
+void glimmer::Chunk::InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, const TileVector2D &tileVector2d,
+                                               Tile *oldTile, Tile *newTile) const {
+    for (auto &replaceTileCallback: replaceTileCallback_) {
+        replaceTileCallback(chunk, layerType, tileVector2d, oldTile, newTile);
+    }
+}
+
+
 glimmer::Chunk::Chunk(const TileVector2D &pos) : position(pos) {
 }
 
 void glimmer::Chunk::SetTile(const TileVector2D pos, std::unique_ptr<Tile> tile) {
-    const int index = pos.y << CHUNK_SHIFT | pos.x;
-    auto [it, inserted] = tiles_.try_emplace(tile->GetLayerType());
-    it->second[index] = std::move(tile);
-}
-
-void glimmer::Chunk::SetTileToLayer(TileVector2D pos, std::unique_ptr<Tile> tile, TileLayerType layerType) {
-    const int index = pos.y << CHUNK_SHIFT | pos.x;
-    SetTileToLayer(index, std::move(tile), layerType);
-}
-
-void glimmer::Chunk::SetTileToLayer(int index, std::unique_ptr<Tile> tile, TileLayerType layerType) {
-    TileLayerType targetLayer = tile->GetLayerType();
-    if (tile->SetLayerType(layerType)) {
-        targetLayer = layerType;
+    if (tile == nullptr) {
+        return;
     }
-    auto [it, inserted] = tiles_.try_emplace(targetLayer);
+    const TileLayerType tileLayer = tile->GetLayerType();
+    SetTileToLayer(pos.y << CHUNK_SHIFT | pos.x, tileLayer, std::move(tile));
+}
+
+void glimmer::Chunk::SetTileToLayer(const TileVector2D pos, const TileLayerType layerType, std::unique_ptr<Tile> tile) {
+    SetTileToLayer(pos.y << CHUNK_SHIFT | pos.x, layerType, std::move(tile));
+}
+
+
+void glimmer::Chunk::SetTileToLayer(const int index, const TileLayerType layerType, std::unique_ptr<Tile> tile) {
+    if (tile == nullptr || index < 0 || index >= CHUNK_AREA) {
+        return;
+    }
+    Tile *tilePtr = tile.get();
+    TileLayerType targetLayerType = tile->GetLayerType();
+    if (tilePtr->ChangeLayerTypeIfAllowed(layerType)) {
+        targetLayerType = tile->GetLayerType();
+    }
+    auto [it, inserted] = tiles_.try_emplace(targetLayerType);
+
     it->second[index] = std::move(tile);
+    InvokeSetTileCallback(this, index, tilePtr, targetLayerType);
 }
 
 TileVector2D glimmer::Chunk::GetPosition() const {
@@ -117,7 +168,7 @@ void glimmer::Chunk::ReadChunkMessage(const AppContext *appContext, const ChunkM
                 continue;
             }
             tile->ReadTileMessage(tileMessage);
-            SetTileToLayer(i, std::move(tile), layerType);
+            SetTileToLayer(i, layerType, std::move(tile));
         }
     }
 }
@@ -156,12 +207,17 @@ WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
 std::unique_ptr<glimmer::Tile> glimmer::Chunk::ReplaceTile(const TileLayerType layerType,
                                                            const TileVector2D &tileVector2d,
                                                            std::unique_ptr<Tile> newTile) {
+    if (newTile == nullptr) {
+        return nullptr;
+    }
     const int index = tileVector2d.y << CHUNK_SHIFT | tileVector2d.x;
     const auto it = tiles_.find(layerType);
     if (it == tiles_.end() || index < 0 || index >= CHUNK_AREA) {
         return nullptr;
     }
     std::unique_ptr<Tile> extracted = std::move(it->second[index]);
+    Tile *newTilePtr = newTile.get();
     it->second[index] = std::move(newTile);
+    InvokeReplaceTileCallback(this, layerType, tileVector2d, extracted.get(), newTilePtr);
     return extracted;
 }

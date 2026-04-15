@@ -469,6 +469,8 @@ target_sources(GlimmerWorks
         core/ecs/system/Light2DSystem.cpp
         core/world/LightPropagationTraverser.cpp
         core/world/TraverseAction.cpp
+        core/world/LightingBuffer.cpp
+        core/world/LightSource.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -672,6 +674,8 @@ target_sources(GlimmerWorks
         core/ecs/system/Light2DSystem.h
         core/world/LightPropagationTraverser.h
         core/world/TraverseAction.h
+        core/world/LightingBuffer.h
+        core/world/LightSource.h
 )
 
 #Define version information

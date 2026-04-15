@@ -50,7 +50,6 @@ namespace glimmer {
             * 默认发光颜色
             */
             SDL_Color defaultEmissionColor;
-            SDL_FColor defaultEmissionFColor;
             /**
              * Default transparent color
              * 默认透光颜色

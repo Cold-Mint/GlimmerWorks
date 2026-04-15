@@ -51,7 +51,6 @@
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
-#include "core/utils/ColorUtils.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
 #include "generator/ChunkPhysicsHelper.h"
@@ -63,20 +62,15 @@ bool glimmer::WorldContext::IsDragMode() const {
     return dragMode_;
 }
 
+SDL_Color glimmer::WorldContext::GetLightColor(const TileVector2D position) const {
+    if (lightingBuffer_ == nullptr) {
+        return SDL_Color{0, 0, 0, 0};
+    }
+    return lightingBuffer_->GetLightColor(position);
+}
+
 void glimmer::WorldContext::SetDragMode(const bool dragMode) {
     dragMode_ = dragMode;
-}
-
-void glimmer::WorldContext::ClearLightColors() {
-    lightColors_.clear();
-}
-
-SDL_FColor &glimmer::WorldContext::GetLightColor(const TileVector2D tileVector2d) {
-    const auto it = lightColors_.find(tileVector2d);
-    if (it == lightColors_.end()) {
-        return appContext_->GetPreloadColors()->light.defaultEmissionFColor;
-    }
-    return it->second;
 }
 
 void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
@@ -136,28 +130,6 @@ glimmer::WorldContext::~WorldContext() {
             command->UnBindWorldContext();
         }
     }
-}
-
-
-bool glimmer::WorldContext::ContainsLightColor(const TileVector2D tileVector2d) const {
-    return lightColors_.contains(tileVector2d);
-}
-
-void glimmer::WorldContext::AddLightColor(TileVector2D tileVector2d, SDL_FColor color) {
-    const auto it = lightColors_.find(tileVector2d);
-    if (it == lightColors_.end()) {
-        lightColors_[tileVector2d] = color;
-        return;
-    }
-    lightColors_[tileVector2d] = ColorUtils::AdditiveBlend(it->second, color);
-}
-
-void glimmer::WorldContext::RemoveLightColor(TileVector2D tileVector2d, SDL_FColor occlusionColor) {
-    const auto it = lightColors_.find(tileVector2d);
-    if (it == lightColors_.end()) {
-        return;
-    }
-    lightColors_[tileVector2d] = ColorUtils::ApplyOcclusion(it->second, occlusionColor);
 }
 
 glimmer::GameEntity::ID glimmer::WorldContext::GetEntityIdIndex() const {
@@ -912,6 +884,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {
         return this->RegisterEntity(std::move(entity));
     });
+    lightingBuffer_ = std::make_unique<LightingBuffer>(this);
     chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_);
     startTime_ = TimeUtils::GetCurrentTimeMs();
 }

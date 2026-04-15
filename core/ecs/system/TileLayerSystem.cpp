@@ -61,8 +61,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
         renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
         SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
         for (auto tile: tileList) {
-            const SDL_Color lightColor = ColorUtils::FColorToColorToneMapped(
-                worldContext_->GetLightColor(tileCoord), config->light.exposure);
+            const SDL_Color lightColor = worldContext_->GetLightColor(tileCoord);
             if (config->light.enable && lightColor.a == 0) {
                 //Do not draw tiles that do not emit light at all.
                 //不绘制完全不发光的瓦片。

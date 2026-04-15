@@ -228,8 +228,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
         auto tile = tileLayer->GetSelfLayerTile(tileCoord);
         if (tile != nullptr) {
-            const SDL_Color tileColor = ColorUtils::FColorToColorToneMapped(
-                worldContext_->GetLightColor(tileCoord), appContext->GetConfig()->light.exposure);
+            const SDL_Color tileColor = worldContext_->GetLightColor(tileCoord);
             std::string tileResDebugInfo = fmt::format(
                 fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
                 static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),

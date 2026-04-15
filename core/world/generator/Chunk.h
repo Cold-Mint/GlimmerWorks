@@ -20,6 +20,12 @@ namespace glimmer {
         tiles_;
         std::vector<b2BodyId> attachedBodies_;
 
+        std::vector<std::function<void(TileVector2D pos, Tile *tile, TileLayerType layerType)> >
+        setTileCallback_;
+
+        std::vector<std::function<void(TileLayerType layerType, const TileVector2D &tileVector2d,
+                                       Tile *newTile)> > replaceTileCallback_;
+
     public:
         explicit Chunk(const TileVector2D &pos);
 

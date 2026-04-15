@@ -6,6 +6,7 @@
 #define GLIMMERWORKS_CLOCKWISEWALKER8_H
 #include <functional>
 
+#include "LightSource.h"
 #include "TraverseAction.h"
 #include "core/Constants.h"
 #include "core/ecs/component/TileLayerComponent.h"
@@ -76,23 +77,11 @@ namespace glimmer {
         };
 
         /**
-         * The movement radius means that the distance in any direction cannot exceed this radius.
-         * 游走半径，每个方向不能超过这个半径。
-         */
-        int maxRadius_ = 0;
-
-        /**
          * 游走时的回调函数，TileVector2D表示当前游走坐标，返回bool，如果返回true，则终止游走当前方向。
          *  distance The distance from the current point to the center point
          *  distance 当前点距离中心点的距离
          */
         std::function<TraverseAction(TileVector2D current, TileVector2D next)> stepCallback_;
-
-        /**
-         * center
-         * 中点
-         */
-        TileVector2D center_;
 
         /**
          * 射线数量
@@ -104,11 +93,12 @@ namespace glimmer {
          */
         float rayAngleStep_ = 0;
 
+        LightSource *lightSource_ = nullptr;
+
     public:
-        LightPropagationTraverser(int maxRadius,
+        LightPropagationTraverser(LightSource *lightSource,
                                   const std::function<TraverseAction(
-                                      TileVector2D current, TileVector2D next)> &stepCallback,
-                                  TileVector2D center);
+                                      TileVector2D current, TileVector2D next)> &stepCallback);
 
 
         /**

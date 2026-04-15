@@ -99,9 +99,6 @@ locate_max_radius_search_chunks = 2048
 # Enable lighting
 # 启用光照
 enable = true
-# Lighting exposure (HDR tone mapping brightness parameter,Default value is 1.0)
-# 光照曝光度 (HDR 色调映射亮度参数，默认为1.0)
-exposure = 1.0
 
 [mods]
 # Data pack storage path
@@ -204,5 +201,5 @@ command_group = [
 
 [hotkey_f5]
 command_group = [
-    ["config set debug.enable_lighting toggle", "config commit"],
+    ["config set light.enable toggle", "config commit"],
 ]

@@ -15,13 +15,12 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
+#include "LightingBuffer.h"
 #include "../ecs/GameComponent.h"
 #include "../ecs/component/DiggingComponent.h"
 #include "../ecs/component/PauseComponent.h"
-#include "../inventory/Item.h"
 #include "../math/Vector2DI.h"
 #include "../saves/Saves.h"
-#include "../scene/AppContext.h"
 #include "box2d/id.h"
 #include "core/ecs/component/ItemEditorComponent.h"
 #include "../ecs/GameSystem.h"
@@ -112,6 +111,7 @@ namespace glimmer {
 
         std::vector<std::unique_ptr<GameSystem> > activeSystems;
         std::vector<std::unique_ptr<GameSystem> > inactiveSystems;
+        std::unique_ptr<LightingBuffer> lightingBuffer_ = nullptr;
         /**
         * Game saves
         * 游戏存档
@@ -126,8 +126,8 @@ namespace glimmer {
 
         GameEntity::ID player_ = GAME_ENTITY_ID_INVALID;
         GameEntity::ID itemEditorPanel_ = GAME_ENTITY_ID_INVALID;
-        std::unique_ptr<ChunkLoader> chunkLoader_;
-        std::unique_ptr<ChunkGenerator> chunkGenerator_;
+        std::unique_ptr<ChunkLoader> chunkLoader_ = nullptr;
+        std::unique_ptr<ChunkGenerator> chunkGenerator_ = nullptr;
 
         /**
          * Whether to enable the item dragging mode
@@ -158,42 +158,20 @@ namespace glimmer {
          */
         void UnRegisterEntity(GameEntity::ID id);
 
-       /**
-       * @brief 全局光照数据缓存（HDR 浮点存储）
-       *
-       * 【为什么必须用 SDL_FColor(float)】
-       * 1. 物理光照需要【无上限叠加】：多光源、多次反射、染色会让亮度超过 1.0
-       * 2. SDL_Color 是 0~255 Uint8，叠加会直接截断溢出 → 强制变白（过曝）
-       * 3. float 可以存储 0.0 ~ ∞ 的亮度，保证光的能量、颜色、层次不丢失
-       * 4. 最终渲染时统一做一次 ToneMapping（色调映射）压缩回屏幕可显示范围
-       *
-       * 【核心原则】
-       * 计算层 = 浮点 HDR（线性叠加、不压缩）
-       * 显示层 = 8bit LDR（最后一步压缩）
-       */
-        std::unordered_map<TileVector2D, SDL_FColor, Vector2DIHash> lightColors_;
-
     public:
         ~WorldContext();
 
         [[nodiscard]] bool IsDragMode() const;
 
-        void SetDragMode(bool dragMode);
-
-        void ClearLightColors();
-
-        [[nodiscard]] SDL_FColor &GetLightColor(TileVector2D tileVector2d);
-
-        [[nodiscard]] bool ContainsLightColor(TileVector2D tileVector2d) const;
-
         /**
-         * 加法混合光照颜色
-         * @param tileVector2d
-         * @param color
+         * GetLightColor
+         * 获取光照颜色
+         * @param position position 位置
+         * @return
          */
-        void AddLightColor(TileVector2D tileVector2d, SDL_FColor color);
+        [[nodiscard]] SDL_Color GetLightColor(TileVector2D position) const;
 
-        void RemoveLightColor(TileVector2D tileVector2d, SDL_FColor occlusionColor);
+        void SetDragMode(bool dragMode);
 
         [[nodiscard]] GameEntity::ID GetEntityIdIndex() const;
 

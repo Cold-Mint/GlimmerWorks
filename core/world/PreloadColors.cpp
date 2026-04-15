@@ -348,7 +348,6 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     defaultEmissionRes.a = 0;
     light.defaultEmissionColor = LoadColor(resourceLocator, "light/default_emission_color", &defaultEmissionRes)->
             ToSDLColor();
-    light.defaultEmissionFColor = ColorUtils::ColorToFColor(light.defaultEmissionColor);
     ColorResource defaultLightTransmissionRes;
     defaultLightTransmissionRes.r = 0;
     defaultLightTransmissionRes.g = 0;

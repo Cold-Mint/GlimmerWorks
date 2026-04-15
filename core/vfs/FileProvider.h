@@ -14,9 +14,9 @@ namespace glimmer {
      * File provider
      * 文件提供者
      */
-    class FileProvider {
+    class IFileProvider {
     public:
-        virtual ~FileProvider() = default;
+        virtual ~IFileProvider() = default;
 
         /**
          * Get the name of the file provider

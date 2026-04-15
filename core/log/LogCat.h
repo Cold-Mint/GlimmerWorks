@@ -5,8 +5,6 @@
 #define LOGCAT_H
 #include <chrono>
 #include <iostream>
-#include <thread>
-#include <iomanip>
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif

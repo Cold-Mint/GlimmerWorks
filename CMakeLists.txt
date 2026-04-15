@@ -471,6 +471,7 @@ target_sources(GlimmerWorks
         core/world/TraverseAction.cpp
         core/world/LightingBuffer.cpp
         core/world/LightSource.cpp
+        core/vfs/AndroidAssetsFileProvider.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -676,6 +677,7 @@ target_sources(GlimmerWorks
         core/world/TraverseAction.h
         core/world/LightingBuffer.h
         core/world/LightSource.h
+        core/vfs/AndroidAssetsFileProvider.h
 )
 
 #Define version information

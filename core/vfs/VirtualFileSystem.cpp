@@ -7,7 +7,7 @@
 #include <fstream>
 #include "../log/LogCat.h"
 
-void glimmer::VirtualFileSystem::Mount(std::unique_ptr<FileProvider> provider) {
+void glimmer::VirtualFileSystem::Mount(std::unique_ptr<IFileProvider> provider) {
     LogCat::i("VirtualFileSystem Mount FileProvider =", provider->GetFileProviderName());
     fileProviders_.push_back(std::move(provider));
 }

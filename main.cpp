@@ -4,13 +4,10 @@
 #include "core/log/LogCat.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/scene/AppContext.h"
-#include "core/scene/SceneManager.h"
 #include "fmt/args.h"
 
 #ifdef __ANDROID__
 #include <jni.h>
-#include <android/asset_manager_jni.h>
-#include <SDL3/SDL_system.h>
 #endif
 
 using namespace glimmer;

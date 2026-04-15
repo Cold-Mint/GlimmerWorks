@@ -11,7 +11,7 @@
 
 namespace glimmer {
     class VirtualFileSystem {
-        std::vector<std::unique_ptr<FileProvider> > fileProviders_;
+        std::vector<std::unique_ptr<IFileProvider> > fileProviders_;
 
     public:
         virtual ~VirtualFileSystem() = default;
@@ -21,7 +21,7 @@ namespace glimmer {
          * 挂载文件提供者
          * @param provider
          */
-        void Mount(std::unique_ptr<FileProvider> provider);
+        void Mount(std::unique_ptr<IFileProvider> provider);
 
         [[nodiscard]] std::string ListMounts() const;
 

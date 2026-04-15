@@ -3,6 +3,9 @@
 //
 #include "LogCat.h"
 
+#include <iomanip>
+#include <thread>
+
 std::string glimmer::LogCat::CurrentTime() {
     using namespace std::chrono;
     const auto now = system_clock::now();

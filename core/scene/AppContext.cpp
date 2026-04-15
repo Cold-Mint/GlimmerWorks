@@ -53,7 +53,12 @@
 #include "SDL3_image/SDL_image.h"
 #include "toml11/find.hpp"
 #include "toml11/parser.hpp"
-
+#ifdef __ANDROID__
+#include <jni.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include "core/vfs/AndroidAssetsFileProvider.h"
+#endif
 void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     toml::value value = toml::parse_str(data, tomlVersion_);
     langs_->startGame = find<std::string>(value, "start_game");
@@ -145,41 +150,81 @@ glimmer::AppContext::AppContext() {
     mainThreadId_ = std::this_thread::get_id();
     virtualFileSystem_ = std::make_unique<VirtualFileSystem>();
 #ifdef __ANDROID__
-    /*JNIEnv *env = (JNIEnv *) SDL_GetAndroidJNIEnv();
-    jobject activity = (jobject) SDL_GetAndroidActivity();
+    auto *env = static_cast<JNIEnv *>(SDL_GetAndroidJNIEnv());
+    if (env == nullptr) {
+        LogCat::e("Failed to get JNIEnv!");
+        initSuccess_ = false;
+        return;
+    }
+    auto activity = static_cast<jobject>(SDL_GetAndroidActivity());
+    if (activity == nullptr) {
+        LogCat::e("Failed to get Android activity!");
+        initSuccess_ = false;
+        return;
+    }
     jclass activityClass = env->GetObjectClass(activity);
-    jmethodID getAssetsMethod = env->
-            GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
+    if (activityClass == nullptr) {
+        LogCat::e("Android: Failed to get activity class!");
+        return;
+    }
+    jmethodID getAssetsMethod = env->GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
+    if (getAssetsMethod == nullptr) {
+        LogCat::e("Android: Failed to find 'getAssets' method!");
+        return;
+    }
     jobject assetManagerJava = env->CallObjectMethod(activity, getAssetsMethod);
+    if (assetManagerJava == nullptr) {
+        LogCat::e("Android: Failed to get AssetManager instance!");
+        return;
+    }
     AAssetManager *assetManager = AAssetManager_fromJava(env, assetManagerJava);
-    std::unique_ptr<AndroidAssetsFileProvider> assetsProvider = std::make_unique<AndroidAssetsFileProvider>(
-        assetManager);
-    auto indexJsonOpt = JsonUtils::LoadJsonFromFile(assetsProvider.get(), "index.json");
-    if (!indexJsonOpt.has_value()) {
-        LogCat::e("indexJsonOpt file!");
-        return EXIT_FAILURE;
+    if (assetManager == nullptr) {
+        LogCat::e("Android: Failed to convert to native AAssetManager!");
+        return;
     }
-    bool setIndex = assetsProvider->SetIndex(indexJsonOpt.value());
-    if (!setIndex) {
-        LogCat::e("setIndex error");
-        return EXIT_FAILURE;
+    auto assetsProvider = std::make_unique<AndroidAssetsFileProvider>(assetManager);
+    std::optional<std::string> indexTomlOptional = assetsProvider->ReadFile("index.toml");
+    if (!indexTomlOptional.has_value()) {
+        LogCat::e("Android: 'index.toml' not found or could not be read!");
+        return;
     }
-    // 获取 getFilesDir 方法
+    const toml::value tomlValue = toml::parse_str(indexTomlOptional.value(), tomlVersion_);
+    auto assetsEntry = toml::get<std::vector<AndroidAssetEntry> >(tomlValue);
+    assetsProvider->SetAssetEntryData(assetsEntry);
     jmethodID getDataDirMethod = env->GetMethodID(activityClass, "getFilesDir", "()Ljava/io/File;");
+    if (getDataDirMethod == nullptr) {
+        LogCat::e("Android: Failed to find 'getFilesDir' method!");
+        return;
+    }
     jobject dataDirFile = env->CallObjectMethod(activity, getDataDirMethod);
-
-    // 获取 getAbsolutePath 方法
+    if (dataDirFile == nullptr) {
+        LogCat::e("Android: Failed to get data directory File object!");
+        return;
+    }
     jclass fileClass = env->GetObjectClass(dataDirFile);
+    if (fileClass == nullptr) {
+        LogCat::e("Android: Failed to get File class!");
+        return;
+    }
     jmethodID getAbsolutePathMethod = env->GetMethodID(fileClass, "getAbsolutePath", "()Ljava/lang/String;");
-    jstring absolutePathJStr = (jstring) env->CallObjectMethod(dataDirFile, getAbsolutePathMethod);
-
-    // 转换为 std::string
+    if (getAbsolutePathMethod == nullptr) {
+        LogCat::e("Android: Failed to find 'getAbsolutePath' method!");
+        return;
+    }
+    auto absolutePathJStr = static_cast<jstring>(env->CallObjectMethod(dataDirFile, getAbsolutePathMethod));
+    if (!absolutePathJStr) {
+        LogCat::e("Android: Failed to get absolute path string!");
+        return;
+    }
     const char *absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
+    if (!absolutePathCStr) {
+        LogCat::e("Android: Failed to convert JString to UTF-8!");
+        return;
+    }
     std::string dataDirPath(absolutePathCStr);
     env->ReleaseStringUTFChars(absolutePathJStr, absolutePathCStr);
-    virtualFileSystem_->Mount(
-        std::make_unique<StdFileProvider>(dataDirPath + "/assets"));
-    virtualFileSystem_->Mount(std::unique_ptr<FileProvider>(std::move(assetsProvider)));*/
+    virtualFileSystem_->Mount(std::make_unique<StdFileProvider>(dataDirPath + "/assets"));
+    virtualFileSystem_->Mount(std::unique_ptr<IFileProvider>(std::move(assetsProvider)));
 #else
     virtualFileSystem_->Mount(
         std::make_unique<StdFileProvider>(std::filesystem::current_path().string()));

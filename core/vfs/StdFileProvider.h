@@ -14,7 +14,7 @@ namespace glimmer {
      * File provider implemented based on the standard library
      * 基于标准库实现的文件提供者
      */
-    class StdFileProvider : public FileProvider {
+    class StdFileProvider : public IFileProvider {
         std::filesystem::path root_;
 
     public:

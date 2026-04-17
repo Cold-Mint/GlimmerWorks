@@ -42,6 +42,8 @@ namespace glimmer {
 
         [[nodiscard]] bool CreateFolder(const std::string &path) override;
 
+        [[nodiscard]] std::optional<std::string> GetParentPath(const std::string &path) const override;
+
         [[nodiscard]] std::optional<std::string> GetActualPath(const std::string &path) const override;
     };
 }

@@ -45,12 +45,27 @@ std::shared_ptr<MIX_Audio> glimmer::ResourceLocator::FindAudio(const ResourceRef
     return appContext_->GetResourcePackManager()->LoadAudioFromFile(appContext_, resourceRef);
 }
 
-glimmer::ColorResource *glimmer::ResourceLocator::FindColorResource(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_COLOR || !ValidateAccessPermission(resourceRef)) {
+std::unique_ptr<SDL_Color> glimmer::ResourceLocator::FindColor(const ResourceRef &resourceRef) const {
+    const uint32_t resourceType = resourceRef.GetResourceType();
+    if (!ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
-    return appContext_->GetResourcePackManager()->LoadColorResFromFile(appContext_, resourceRef);
+    if (resourceType == RESOURCE_TYPE_COLOR) {
+        const ColorResource *colorResource = appContext_->GetResourcePackManager()->LoadColorResFromFile(
+            appContext_, resourceRef);
+        if (colorResource == nullptr) {
+            return nullptr;
+        }
+        return std::make_unique<SDL_Color>(colorResource->ToSDLColor());
+    }
+    if (resourceType == RESOURCE_TYPE_FIXED_COLOR) {
+        return std::make_unique<SDL_Color>(appContext_->GetFixedColorManager()->FindFixedColorResource(
+            resourceRef.GetPackageId(),
+            resourceRef.GetResourceKey())->ToSDLColor());
+    }
+    return nullptr;
 }
+
 
 glimmer::IShapeResource *glimmer::ResourceLocator::FindShape(const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_SHAPE || !ValidateAccessPermission(resourceRef)) {
@@ -72,6 +87,22 @@ glimmer::StringResource *glimmer::ResourceLocator::FindString(const ResourceRef 
         return nullptr;
     }
     return appContext_->GetStringManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
+}
+
+glimmer::LightSourceResource *glimmer::ResourceLocator::FindLightSource(const ResourceRef &resourceRef) const {
+    if (resourceRef.GetResourceType() == RESOURCE_TYPE_LIGHT_SOURCE || !ValidateAccessPermission(resourceRef)) {
+        return nullptr;
+    }
+    return appContext_->GetLightSourceManager()->FindLightSourceResource(resourceRef.GetPackageId(),
+                                                                         resourceRef.GetResourceKey());
+}
+
+glimmer::LightMaskResource *glimmer::ResourceLocator::FindLightMask(const ResourceRef &resourceRef) const {
+    if (resourceRef.GetResourceType() == RESOURCE_TYPE_LIGHT_MASK || !ValidateAccessPermission(resourceRef)) {
+        return nullptr;
+    }
+    return appContext_->GetLightMaskManager()->FindLightMaskResource(resourceRef.GetPackageId(),
+                                                                     resourceRef.GetResourceKey());
 }
 
 glimmer::TileResource *glimmer::ResourceLocator::FindTile(const ResourceRef &resourceRef) const {

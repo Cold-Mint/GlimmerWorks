@@ -111,6 +111,40 @@ void glimmer::WorldContext::UnRegisterEntity(const GameEntity::ID id) {
     entityMap_.erase(id);
 }
 
+void glimmer::WorldContext::OnChunkTileChange(Chunk *chunk, Tile *tile, const TileLayerType layerType,
+                                              const int index) {
+    if (tile == nullptr) {
+        return;
+    }
+    if (layerType == Ground) {
+        ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(this, chunk);
+    }
+    // if (appContext_ == nullptr) {
+    //     return;
+    // }
+    // const ResourceLocator *resourceLocator = appContext_->GetResourceLocator();
+    // if (resourceLocator == nullptr) {
+    //     return;
+    // }
+    // const TileVector2D chunkPosition = chunk->GetPosition();
+    // const int localX = index & CHUNK_MASK;
+    // const int localY = index >> CHUNK_SHIFT;
+    //
+    // LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(tile->GetLightSourceResource());
+    // if (lightSourceResource != nullptr) {
+    //     // SDL_Color s = resourceLocator->FindColorResource(lightSourceResource->lightColor);
+    //     // lightingBuffer_->AddLightSource(std::make_unique<LightSource>(
+    //     //     TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY), lightSourceResource->lightRadius,
+    //     //     lightSourceResource->minLightBrightness, tile->GetEmissionColor()));
+    // }
+    // LightMaskResource *lightMaskResource = resourceLocator->FindLightMask(tile->GetLightMaskResource());
+    //
+    // // if (tile->GetLightTransmissionColor().a > 0) {
+    // //
+    // // }
+}
+
+
 glimmer::WorldContext::~WorldContext() {
     activeSystems.clear();
     inactiveSystems.clear();
@@ -345,16 +379,12 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     }
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext_, worldId_, newlyCreatedChunk.get());
     newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, TileLayerType layerType,
-                                                     const TileVector2D &,
-                                                     Tile *, Tile *) {
-        if (layerType == Ground) {
-            ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(this, chunk);
-        }
+                                                     int index,
+                                                     Tile *, Tile *newTile) {
+        OnChunkTileChange(chunk, newTile, layerType, index);
     });
-    newlyCreatedChunk->AddSetTileCallback([this](Chunk *chunk, int, Tile *, TileLayerType layerType) {
-        if (layerType == Ground) {
-            ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(this, chunk);
-        }
+    newlyCreatedChunk->AddSetTileCallback([this](Chunk *chunk, int index, Tile *tile, TileLayerType layerType) {
+        OnChunkTileChange(chunk, tile, layerType, index);
     });
     chunks_.insert({position, std::move(newlyCreatedChunk)});
     chunksVersion_++;

@@ -4,6 +4,7 @@
 
 #ifndef GLIMMERWORKS_PRELOADCOLORS_H
 #define GLIMMERWORKS_PRELOADCOLORS_H
+#include <memory>
 #include <string>
 
 #include "SDL3/SDL_pixels.h"
@@ -243,8 +244,8 @@ namespace glimmer {
          * @param defaultColor 默认颜色
          * @return
          */
-        static ColorResource *LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
-                                        ColorResource *defaultColor);
+        static SDL_Color LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
+                                   const SDL_Color &defaultColor);
     };
 }
 

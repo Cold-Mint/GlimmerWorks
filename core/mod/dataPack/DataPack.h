@@ -8,7 +8,10 @@
 #include "BiomeDecoratorResourcesManager.h"
 #include "BiomeDecoratorType.h"
 #include "BiomesManager.h"
+#include "FixedColorManager.h"
 #include "ItemManager.h"
+#include "LightMaskManager.h"
+#include "LightSourceManager.h"
 #include "MobManager.h"
 #include "StructureManager.h"
 #include "../PackManifest.h"
@@ -16,6 +19,7 @@
 #include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
+#include "core/mod/TomlTemplateExpander.h"
 #include "core/shape/ShapeManager.h"
 #include "core/shape/ShapeType.h"
 #include "toml11/spec.hpp"
@@ -25,11 +29,20 @@ namespace glimmer {
     class StringManager;
 
     class DataPack {
-        std::string path_;
+        std::string rootPath_;
         DataPackManifest manifest_;
         toml::spec tomlVersion_;
         const VirtualFileSystem *virtualFileSystem_;
+        const TomlTemplateExpander *tomlTemplateExpander_;
 
+
+        /**
+         * GetActuallyTemplateSearchPath
+         * 获取真实的模板搜索路径。
+         * @param path toml路径
+         * @return The expanded path 展开后的路径
+         */
+        [[nodiscard]] std::vector<std::string> GetActuallyTemplateSearchPath(const std::string &path) const;
 
         /**
          * GetDataType
@@ -69,14 +82,24 @@ namespace glimmer {
         [[nodiscard]] bool LoadShapeResourceFromFile(const std::string &path, ShapeManager *shapeManager,
                                                      ShapeType type) const;
 
+        [[nodiscard]] bool LoadFixedColorResourceFromFile(const std::string &path,
+                                                          FixedColorManager *fixedColorManager) const;
 
-        [[nodiscard]] bool LoadBiomeDecoratorResourceFromFile(const std::string &path, BiomeDecoratorResourcesManager *biomeDecoratorManager,
-                                                     BiomeDecoratorType type) const;
+        [[nodiscard]] bool LoadLightMaskResourceFromFile(const std::string &path,
+                                                         LightMaskManager *lightMaskManager) const;
+
+        [[nodiscard]] bool LoadLightSourceResourceFromFile(const std::string &path,
+                                                           LightSourceManager *lightSourceManager) const;
+
+        [[nodiscard]] bool LoadBiomeDecoratorResourceFromFile(const std::string &path,
+                                                              BiomeDecoratorResourcesManager *biomeDecoratorManager,
+                                                              BiomeDecoratorType type) const;
 
         [[nodiscard]] static std::optional<std::string> ExtractLanguageFromFileName(const std::string &fileName);
 
     public:
         explicit DataPack(std::string path, const VirtualFileSystem *virtualFileSystem,
+                          const TomlTemplateExpander *tomlTemplateExpander,
                           const toml::spec &tomlVersion);
 
         bool LoadManifest();

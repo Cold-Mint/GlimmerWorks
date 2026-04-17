@@ -12,7 +12,23 @@
 #include "core/mod/PackManifest.h"
 #include "core/lootTable/LootTableManager.h"
 #include "core/scene/AppContext.h"
+#include "core/utils/StringUtils.h"
 #include "toml11/parser.hpp"
+
+std::vector<std::string> glimmer::DataPack::GetActuallyTemplateSearchPath(const std::string &path) const {
+    std::optional<std::string> currentOptional = virtualFileSystem_->GetParentPath(path);
+    if (!currentOptional.has_value()) {
+        return {};
+    }
+    const std::string &currentDir = currentOptional.value();
+    std::vector<std::string> result;
+    for (std::string searchPath: manifest_.templateSearchPath) {
+        StringUtils::ReplaceAll(searchPath, TEMPLATE_CURRENT, currentDir);
+        StringUtils::ReplaceAll(searchPath, TEMPLATE_ROOT, rootPath_);
+        result.push_back(std::move(searchPath));
+    }
+    return result;
+}
 
 std::optional<std::string> glimmer::DataPack::GetDataType(const std::string &path) const {
     auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(path);
@@ -45,7 +61,12 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, Strin
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     try {
         int count = 0;
         auto array = toml::find<std::vector<StringResource> >(value, "string");
@@ -66,13 +87,18 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, Strin
 
 bool glimmer::DataPack::
 LoadLootTableResourceFromFile(const std::string &path, LootTableManager *lootTableManager) const {
-    auto data =
+    const auto data =
             virtualFileSystem_->ReadFile(path);
     if (!data.has_value()) {
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto lootResource = std::make_unique<LootResource>(toml::get<LootResource>(value));
     lootResource->packId = manifest_.id;
     for (auto &mandatory: lootResource->mandatory) {
@@ -95,7 +121,12 @@ bool glimmer::DataPack::LoadInitialInventoryResourceFromFile(const std::string &
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto initialInventoryResource = std::make_unique<InitialInventoryResource>(
         toml::get<InitialInventoryResource>(value));
     initialInventoryResource->packId = manifest_.id;
@@ -117,7 +148,12 @@ LoadStructureResourceFromFile(const std::string &path, StructureManager *structu
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto structureResource = std::make_unique<StructureResource>(toml::get<StructureResource>(value));
     structureResource->packId = manifest_.id;
     structureResource->generatorConfig.UpdateArgs(manifest_.id);
@@ -141,7 +177,12 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto tileResource = std::make_unique<TileResource>(toml::get<TileResource>(value));
     tileResource->packId = manifest_.id;
     tileResource->name.SetSelfPackageId(manifest_.id);
@@ -149,11 +190,8 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
     tileResource->texture.SetSelfPackageId(manifest_.id);
     tileResource->breakSfx.SetSelfPackageId(manifest_.id);
     tileResource->placeSfx.SetSelfPackageId(manifest_.id);
-    tileResource->emissionColor.SetSelfPackageId(manifest_.id);
-    tileResource->lightTransmissionColor.SetSelfPackageId(manifest_.id);
-    if (tileResource->emissionRadius > CHUNK_SIZE) {
-        tileResource->emissionRadius = CHUNK_SIZE;
-    }
+    tileResource->lightSource.SetSelfPackageId(manifest_.id);
+    tileResource->lightMask.SetSelfPackageId(manifest_.id);
     if (tileResource->customLootTable) {
         tileResource->lootTable.SetSelfPackageId(manifest_.id);
     }
@@ -168,7 +206,12 @@ bool glimmer::DataPack::LoadBiomeResourceFromFile(const std::string &path, Biome
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto biomeResource = std::make_unique<BiomeResource>(toml::get<BiomeResource>(value));
     biomeResource->packId = manifest_.id;
     biomeResource->bgm.SetSelfPackageId(manifest_.id);
@@ -186,7 +229,12 @@ bool glimmer::DataPack::LoadComposableItemResourceFromFile(const std::string &pa
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto itemResource = std::make_unique<ComposableItemResource>(toml::get<ComposableItemResource>(value));
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
@@ -209,7 +257,12 @@ bool glimmer::DataPack::LoadAbilityItemResourceFromFile(const std::string &path,
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto itemResource = std::make_unique<AbilityItemResource>(toml::get<AbilityItemResource>(value));
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
@@ -227,7 +280,12 @@ bool glimmer::DataPack::LoadContributorResourceFromFile(const std::string &path,
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto contributorResource = std::make_unique<Contributor>(toml::get<Contributor>(value));
     contributorResource->displayName.SetSelfPackageId(manifest_.id);
     contributorManager->Register(std::move(contributorResource));
@@ -241,7 +299,12 @@ bool glimmer::DataPack::LoadMobResourceFromFile(const std::string &path, MobMana
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto mobResource = std::make_unique<MobResource>(toml::get<MobResource>(value));
     mobResource->packId = manifest_.id;
     mobResource->shape.SetSelfPackageId(manifest_.id);
@@ -258,7 +321,12 @@ bool glimmer::DataPack::LoadShapeResourceFromFile(const std::string &path, Shape
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     switch (type) {
         case ShapeType::CIRCLE: {
             auto circularShapeResource = std::make_unique<CircularShapeResource>(
@@ -290,6 +358,69 @@ bool glimmer::DataPack::LoadShapeResourceFromFile(const std::string &path, Shape
     return true;
 }
 
+bool glimmer::DataPack::LoadFixedColorResourceFromFile(const std::string &path,
+                                                       FixedColorManager *fixedColorManager) const {
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
+    }
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
+    auto fixedColorResource = std::make_unique<FixedColorResource>(toml::get<FixedColorResource>(value));
+    fixedColorResource->packId = manifest_.id;
+    fixedColorManager->Register(std::move(fixedColorResource));
+    return true;
+}
+
+bool glimmer::DataPack::
+LoadLightMaskResourceFromFile(const std::string &path, LightMaskManager *lightMaskManager) const {
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
+    }
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
+    auto lightMaskResource = std::make_unique<LightMaskResource>(toml::get<LightMaskResource>(value));
+    lightMaskResource->packId = manifest_.id;
+    lightMaskManager->Register(std::move(lightMaskResource));
+    return true;
+}
+
+bool glimmer::DataPack::LoadLightSourceResourceFromFile(const std::string &path,
+                                                        LightSourceManager *lightSourceManager) const {
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
+    }
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
+    auto lightSourceResource = std::make_unique<LightSourceResource>(toml::get<LightSourceResource>(value));
+    lightSourceResource->packId = manifest_.id;
+    if (lightSourceResource->lightRadius > CHUNK_SIZE) {
+        lightSourceResource->lightRadius = CHUNK_SIZE;
+    }
+    lightSourceManager->Register(std::move(lightSourceResource));
+    return true;
+}
+
 bool glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const std::string &path,
                                                            BiomeDecoratorResourcesManager *biomeDecoratorManager,
                                                            BiomeDecoratorType type) const {
@@ -299,7 +430,12 @@ bool glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const std::string &pa
         LogCat::e("Failed to load toml file: ", path);
         return false;
     }
-    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     switch (type) {
         case BiomeDecoratorType::FILL: {
             auto fillResource = std::make_unique<FillBiomeDecoratorResource>(
@@ -348,19 +484,22 @@ std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(const 
 }
 
 glimmer::DataPack::DataPack(std::string path, const VirtualFileSystem *virtualFileSystem,
-                            const toml::spec &tomlVersion) : path_(std::move(path)),
+                            const TomlTemplateExpander *tomlTemplateExpander,
+                            const toml::spec &tomlVersion) : rootPath_(std::move(path)),
                                                              manifest_(), tomlVersion_(tomlVersion),
-                                                             virtualFileSystem_(virtualFileSystem) {
+                                                             virtualFileSystem_(virtualFileSystem),
+                                                             tomlTemplateExpander_(tomlTemplateExpander) {
 }
 
 bool glimmer::DataPack::LoadManifest() {
     auto data =
-            virtualFileSystem_->ReadFile(path_ + "/" + MANIFEST_FILE_NAME);
+            virtualFileSystem_->ReadFile(rootPath_ + "/" + MANIFEST_FILE_NAME);
     if (!data.has_value()) {
-        LogCat::e("DataPack::loadManifest - Failed to load manifest: ", path_ + "/" + MANIFEST_FILE_NAME);
+        LogCat::e("DataPack::loadManifest - Failed to load manifest: ", rootPath_ + "/" + MANIFEST_FILE_NAME);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+
+    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
     try {
         manifest_ = toml::get<DataPackManifest>(value);
     } catch (const std::exception &e) {
@@ -369,7 +508,7 @@ bool glimmer::DataPack::LoadManifest() {
     }
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);
-    LogCat::d("DataPack::loadManifest - Loaded manifest for data pack: ", path_);
+    LogCat::d("DataPack::loadManifest - Loaded manifest for data pack: ", rootPath_);
     LogCat::d("ID: ", manifest_.id);
     LogCat::d("Name: ", manifest_.name.GetResourceKey(), " (packId: ", manifest_.name.GetPackageId(), ")");
     LogCat::d("Description: ", manifest_.description.GetResourceKey(), " (packId: ",
@@ -382,8 +521,9 @@ bool glimmer::DataPack::LoadManifest() {
 }
 
 bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
+    tomlTemplateExpander_->Reset();
     int total = 0;
-    std::vector<std::string> files = virtualFileSystem_->ListFile(path_, true);
+    std::vector<std::string> files = virtualFileSystem_->ListFile(rootPath_, true);
     if (files.empty()) {
         return false;
     }
@@ -394,6 +534,7 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
         if (!dataTypeOptional.has_value()) {
             continue;
         }
+
         auto &dataType = dataTypeOptional.value();
         if (dataType == DATA_FILE_TYPE_STRINGS) {
             auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(file);
@@ -510,6 +651,24 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
             LogCat::d("Loading decorator surface file:", file);
             if (LoadBiomeDecoratorResourceFromFile(file, appContext->GetBiomeDecoratorResourcesManager(),
                                                    BiomeDecoratorType::SURFACE)) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_FIXED_COLOR) {
+            LogCat::d("Loading fixed color file:", file);
+            if (LoadFixedColorResourceFromFile(file, appContext->GetFixedColorManager())) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_LIGHT_MASK) {
+            LogCat::d("Loading mask file:", file);
+            if (LoadLightMaskResourceFromFile(file, appContext->GetLightMaskManager())) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_LIGHT_SOURCE) {
+            LogCat::d("Loading source file:", file);
+            if (LoadLightSourceResourceFromFile(file, appContext->GetLightSourceManager())) {
                 total++;
             }
         }

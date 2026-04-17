@@ -82,6 +82,9 @@ static constexpr uint32_t RESOURCE_TYPE_AUDIO = 12;
 //这个掉落物资源类型用作存档内序列化。模组内暂不支持定义此类型的资源。
 static constexpr uint32_t RESOURCE_TYPE_DROPPED_ITEM = 13;
 static constexpr uint32_t RESOURCE_TYPE_BIOME_DECORATOR = 14;
+static constexpr uint32_t RESOURCE_TYPE_FIXED_COLOR = 15;
+static constexpr uint32_t RESOURCE_TYPE_LIGHT_SOURCE = 16;
+static constexpr uint32_t RESOURCE_TYPE_LIGHT_MASK = 17;
 
 
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
@@ -110,13 +113,16 @@ static constexpr std::string DATA_FILE_TYPE_INITIAL_INVENTORY = "startinv";
 static constexpr std::string DATA_FILE_TYPE_CONTRIBUTOR = "contributor";
 static constexpr std::string DATA_FILE_TYPE_COLOR = "color";
 static constexpr std::string DATA_FILE_TYPE_MOB = "mob";
+static constexpr std::string DATA_FILE_TYPE_TEMPLATE = "template";
 static constexpr std::string DATA_FILE_TYPE_SHAPE_RECTANGLE = "rect";
 static constexpr std::string DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE = "round_rect";
 static constexpr std::string DATA_FILE_TYPE_SHAPE_CIRCLE = "circle";
 static constexpr std::string DATA_FILE_TYPE_DECORATOR_FILL = "decor_fill";
 static constexpr std::string DATA_FILE_TYPE_DECORATOR_MINERAL = "decor_mineral";
 static constexpr std::string DATA_FILE_TYPE_DECORATOR_SURFACE = "decor_surface";
-
+static constexpr std::string DATA_FILE_TYPE_FIXED_COLOR = "fixed_color";
+static constexpr std::string DATA_FILE_TYPE_LIGHT_MASK = "light_mask";
+static constexpr std::string DATA_FILE_TYPE_LIGHT_SOURCE = "light_source";
 
 static constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 static constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
@@ -322,6 +328,20 @@ static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
 static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
+// Complete occlusion (solid/transparent obstruction)
+// 完全遮照（实心/不透明遮挡）
+static constexpr std::string LIGHT_MASK_FULL = "fill";
+static constexpr std::string LIGHT_MASK_FULL_COLOR = "fill";
+
+// Transparent (without blocking light)
+// 无遮照（透明/不遮挡光线）
+static constexpr std::string LIGHT_MASK_NONE = "none";
+static constexpr std::string LIGHT_MASK_NONE_COLOR = "none";
+
+static constexpr std::string LIGHT_NONE = "none";
+static constexpr std::string LIGHT_NONE_COLOR = "none";
+static constexpr std::string TEMPLATE_CURRENT = "@current";
+static constexpr std::string TEMPLATE_ROOT = "@root";
 static constexpr std::string PROJECT_NAME = "GlimmerWorks";
 
 static constexpr float GRAVITY_SCALE = 1.8F; // 重力缩放（优化下落手感）

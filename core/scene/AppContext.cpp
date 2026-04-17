@@ -39,6 +39,9 @@
 #include "core/console/suggestion/LootSuggestions.h"
 #include "core/console/suggestion/MobDynamicSuggestions.h"
 #include "core/console/suggestion/StructureDynamicSuggestions.h"
+#include "core/mod/templateCommand/InsertTemplateCommand.h"
+#include "core/mod/templateCommand/SetTemplateCommand.h"
+#include "core/mod/templateCommand/UnSetTemplateCommand.h"
 #include "core/saves/SavesManager.h"
 #include "core/world/generator/FillBiomeDecorator.h"
 #include "core/world/generator/MineralBiomeDecorator.h"
@@ -248,6 +251,13 @@ glimmer::AppContext::AppContext() {
     mobManager_ = std::make_unique<MobManager>();
     shapeManager_ = std::make_unique<ShapeManager>();
     audioManager_ = std::make_unique<AudioManager>();
+    lightSourceManager_ = std::make_unique<LightSourceManager>();
+    lightMaskManager_ = std::make_unique<LightMaskManager>();
+    fixedColorManager_ = std::make_unique<FixedColorManager>();
+    tomlTemplateExpander_ = std::make_unique<TomlTemplateExpander>();
+    tomlTemplateExpander_->Register(std::make_unique<InsertTemplateCommand>());
+    tomlTemplateExpander_->Register(std::make_unique<SetTemplateCommand>());
+    tomlTemplateExpander_->Register(std::make_unique<UnSetTemplateCommand>());
     LoadLanguage(langData.value());
     dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
@@ -260,7 +270,7 @@ glimmer::AppContext::AppContext() {
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BooleanToggleDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<VFSDynamicSuggestions>(vfs));
-    dataPackManager_ = std::make_unique<DataPackManager>(vfs);
+    dataPackManager_ = std::make_unique<DataPackManager>(vfs, tomlTemplateExpander_.get());
     resourcePackManager_ = std::make_unique<ResourcePackManager>(vfs);
     resourceLocator_ = std::make_unique<ResourceLocator>(this);
     sceneManager_ = std::make_unique<SceneManager>();
@@ -505,12 +515,28 @@ glimmer::AudioManager *glimmer::AppContext::GetAudioManager() const {
     return audioManager_.get();
 }
 
+glimmer::LightMaskManager *glimmer::AppContext::GetLightMaskManager() const {
+    return lightMaskManager_.get();
+}
+
+glimmer::LightSourceManager *glimmer::AppContext::GetLightSourceManager() const {
+    return lightSourceManager_.get();
+}
+
+glimmer::FixedColorManager *glimmer::AppContext::GetFixedColorManager() const {
+    return fixedColorManager_.get();
+}
+
 glimmer::StringManager *glimmer::AppContext::GetStringManager() const {
     return stringManager_.get();
 }
 
 glimmer::BiomeDecoratorResourcesManager *glimmer::AppContext::GetBiomeDecoratorResourcesManager() const {
     return biomeDecoratorResourcesManager_.get();
+}
+
+glimmer::TomlTemplateExpander *glimmer::AppContext::GetTomlTemplateExpander() const {
+    return tomlTemplateExpander_.get();
 }
 
 glimmer::DynamicSuggestionsManager *glimmer::AppContext::GetDynamicSuggestionsManager() const {

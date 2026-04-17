@@ -49,11 +49,11 @@ bool glimmer::VirtualFileSystem::Exists(const std::string &path) const {
 bool glimmer::VirtualFileSystem::CreateFolder(const std::string &path) const {
     for (auto &provider: fileProviders_) {
         if (provider->CreateFolder(path)) {
-            LogCat::i("VirtualFileSystem CreateFolder =", path,",return = true");
+            LogCat::i("VirtualFileSystem CreateFolder =", path, ",return = true");
             return true;
         }
     }
-    LogCat::i("VirtualFileSystem CreateFolder =", path,",return = false");
+    LogCat::i("VirtualFileSystem CreateFolder =", path, ",return = false");
     return false;
 }
 
@@ -74,6 +74,16 @@ std::optional<std::string> glimmer::VirtualFileSystem::GetFileOrFolderName(const
     }
     return std::nullopt;
 }
+
+std::optional<std::string> glimmer::VirtualFileSystem::GetParentPath(const std::string &path) const {
+    for (auto &provider: fileProviders_) {
+        if (auto parentPath = provider->GetParentPath(path); parentPath.has_value()) {
+            return parentPath;
+        }
+    }
+    return std::nullopt;
+}
+
 
 bool glimmer::VirtualFileSystem::WriteFile(const std::string &path, const std::string &content) const {
     LogCat::i("VirtualFileSystem WriteFile =", path);

@@ -35,6 +35,8 @@ namespace glimmer {
 
         [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::string &path) const;
 
+        [[nodiscard]] std::optional<std::string> GetParentPath(const std::string &path) const;
+
 
         [[nodiscard]] bool WriteFile(const std::string &path, const std::string &content) const;
 

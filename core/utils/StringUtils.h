@@ -17,6 +17,8 @@ namespace glimmer {
          * @return
          */
         static std::string ToSafeSaveName(const std::string &utf8Str);
+
+        static void ReplaceAll(std::string &str, std::string_view from, std::string_view to);
     };
 }
 

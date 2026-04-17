@@ -40,8 +40,9 @@ bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
     return std::ranges::find(enabledDataPack, pack.GetManifest().id) != enabledDataPack.end();
 }
 
-glimmer::DataPackManager::DataPackManager(VirtualFileSystem *virtualFilesystem) : virtualFileSystem_(
-    virtualFilesystem) {
+glimmer::DataPackManager::DataPackManager(VirtualFileSystem *virtualFilesystem,
+                                          TomlTemplateExpander *tomlTemplateExpander) : virtualFileSystem_(
+        virtualFilesystem), tomlTemplateExpander_(tomlTemplateExpander) {
 }
 
 bool glimmer::DataPackManager::IsDependencySatisfied(const std::string &pack1Id, const std::string &pack2Id) {
@@ -111,7 +112,7 @@ int glimmer::DataPackManager::Scan(AppContext *appContext, const toml::spec &tom
     for (const auto &entry: files) {
         if (!virtualFileSystem_->IsFile(entry)) {
             LogCat::d("Found data pack folder: ", entry);
-            DataPack pack(entry, virtualFileSystem_, tomlVersion);
+            DataPack pack(entry, virtualFileSystem_, tomlTemplateExpander_, tomlVersion);
             if (!pack.LoadManifest()) {
                 continue;
             }

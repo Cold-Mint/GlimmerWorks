@@ -29,7 +29,7 @@ bool glimmer::Chunk::RemoveSetTileCallback(const long index) {
 }
 
 size_t glimmer::Chunk::AddReplaceTileCallback(
-    const std::function<void(Chunk *chunk, TileLayerType layerType, const TileVector2D &tileVector2d, Tile *oldTile,
+    const std::function<void(Chunk *chunk, TileLayerType layerType, int index, Tile *oldTile,
                              Tile *
                              newTile)> &callBack) {
     replaceTileCallback_.emplace_back(callBack);
@@ -66,10 +66,10 @@ void glimmer::Chunk::InvokeSetTileCallback(Chunk *chunk, const int index, Tile *
     }
 }
 
-void glimmer::Chunk::InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, const TileVector2D &tileVector2d,
-                                               Tile *oldTile, Tile *newTile) const {
+void glimmer::Chunk::InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, int index, Tile *oldTile,
+                                               Tile *newTile) const {
     for (auto &replaceTileCallback: replaceTileCallback_) {
-        replaceTileCallback(chunk, layerType, tileVector2d, oldTile, newTile);
+        replaceTileCallback(chunk, layerType, index, oldTile, newTile);
     }
 }
 
@@ -218,6 +218,6 @@ std::unique_ptr<glimmer::Tile> glimmer::Chunk::ReplaceTile(const TileLayerType l
     std::unique_ptr<Tile> extracted = std::move(it->second[index]);
     Tile *newTilePtr = newTile.get();
     it->second[index] = std::move(newTile);
-    InvokeReplaceTileCallback(this, layerType, tileVector2d, extracted.get(), newTilePtr);
+    InvokeReplaceTileCallback(this, layerType, index, extracted.get(), newTilePtr);
     return extracted;
 }

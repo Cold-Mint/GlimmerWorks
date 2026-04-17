@@ -36,54 +36,20 @@ namespace glimmer {
          * 是否允许无视自身 Layer，放置到任意区块图层
          */
         bool allowCrossLayerPlacement_ = false;
-
-        /**
-         * lightTransmission
-         * 透光性
-         */
-        SDL_Color lightTransmissionColor_ = {0, 0, 0, 0};
-
-        /**
-         * emissionColor
-         * 发光颜色
-         */
-        SDL_Color emissionColor_ = {0, 0, 0, 0};
-
-        /**
-         * Light attenuation coefficient (how much brightness is reduced for each grid cell)
-         * 光照衰减系数(每个格子减少多少亮度)
-         */
-        float lightAttenuationPerCell_ = 1.0F;
-
-        int emissionRadius_ = 0;
-
-        float minLightBrightness_ = 0.02F;
-
-        bool lightPeakAtCenter_ = true;
+        ResourceRef lightSource_;
+        ResourceRef lightMask_;
 
     public:
         [[nodiscard]] const ResourceRef &GetLootTableRef();
 
-        [[nodiscard]] float GetMinLightBrightness() const;
-
-        [[nodiscard]] bool IsLightPeakAtCenter() const;
-
-        [[nodiscard]] const SDL_Color &GetLightTransmissionColor() const;
-
         [[nodiscard]] const ResourceRef &GetResourceRef();
 
+        [[nodiscard]] const ResourceRef &GetLightSourceResource();
+
+        [[nodiscard]] const ResourceRef &GetLightMaskResource();
+
+
         [[nodiscard]] bool IsCustomLootTable() const;
-
-
-        /**
-        * Light attenuation coefficient (how much brightness is reduced for each grid cell)
-        * 光照衰减系数(每个格子减少多少亮度)
-        */
-        [[nodiscard]] float GetLightAttenuationPerCell() const;
-
-        [[nodiscard]] SDL_Color GetEmissionColor() const;
-
-        [[nodiscard]] int GetEmissionRadius() const;
 
         /**
          * ChangeLayerTypeIfAllowed

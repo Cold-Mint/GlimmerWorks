@@ -472,6 +472,15 @@ target_sources(GlimmerWorks
         core/world/LightingBuffer.cpp
         core/world/LightSource.cpp
         core/vfs/AndroidAssetsFileProvider.cpp
+        core/world/LightMask.cpp
+        core/mod/dataPack/FixedColorManager.cpp
+        core/mod/dataPack/LightSourceManager.cpp
+        core/mod/dataPack/LightMaskManager.cpp
+        core/mod/TomlTemplateExpander.cpp
+        core/mod/templateCommand/SetTemplateCommand.cpp
+        core/mod/ITemplateCommand.cpp
+        core/mod/templateCommand/InsertTemplateCommand.cpp
+        core/mod/templateCommand/UnSetTemplateCommand.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -678,6 +687,15 @@ target_sources(GlimmerWorks
         core/world/LightingBuffer.h
         core/world/LightSource.h
         core/vfs/AndroidAssetsFileProvider.h
+        core/world/LightMask.h
+        core/mod/dataPack/FixedColorManager.h
+        core/mod/dataPack/LightMaskManager.h
+        core/mod/dataPack/LightSourceManager.h
+        core/mod/TomlTemplateExpander.h
+        core/mod/ITemplateCommand.h
+        core/mod/templateCommand/SetTemplateCommand.h
+        core/mod/templateCommand/InsertTemplateCommand.h
+        core/mod/templateCommand/UnSetTemplateCommand.h
 )
 
 #Define version information

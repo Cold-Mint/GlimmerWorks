@@ -41,7 +41,7 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<MIX_Audio> FindAudio(const ResourceRef &resourceRef) const;
 
-        [[nodiscard]] ColorResource *FindColorResource(const ResourceRef &resourceRef) const;
+        [[nodiscard]] std::unique_ptr<SDL_Color> FindColor(const ResourceRef &resourceRef) const;
 
         [[nodiscard]] IShapeResource *FindShape(const ResourceRef &resourceRef) const;
 
@@ -55,6 +55,9 @@ namespace glimmer {
          */
         [[nodiscard]] StringResource *FindString(const ResourceRef &resourceRef) const;
 
+        [[nodiscard]] LightSourceResource *FindLightSource(const ResourceRef &resourceRef) const;
+
+        [[nodiscard]] LightMaskResource *FindLightMask(const ResourceRef &resourceRef) const;
 
         /**
          * FindTile

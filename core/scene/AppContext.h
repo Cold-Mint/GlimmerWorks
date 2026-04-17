@@ -25,7 +25,11 @@
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
 #include "core/mod/StructurePlacementConditionsManager.h"
+#include "core/mod/TomlTemplateExpander.h"
 #include "core/mod/dataPack/BiomeDecoratorResourcesManager.h"
+#include "core/mod/dataPack/FixedColorManager.h"
+#include "core/mod/dataPack/LightMaskManager.h"
+#include "core/mod/dataPack/LightSourceManager.h"
 #include "core/mod/dataPack/MobManager.h"
 #include "core/mod/dataPack/StructureManager.h"
 #include "core/mod/resourcePack/AudioManager.h"
@@ -85,6 +89,10 @@ namespace glimmer {
         std::unique_ptr<MobManager> mobManager_;
         std::unique_ptr<ShapeManager> shapeManager_;
         std::unique_ptr<AudioManager> audioManager_;
+        std::unique_ptr<LightMaskManager> lightMaskManager_;
+        std::unique_ptr<LightSourceManager> lightSourceManager_;
+        std::unique_ptr<FixedColorManager> fixedColorManager_;
+        std::unique_ptr<TomlTemplateExpander> tomlTemplateExpander_;
         std::shared_ptr<MIX_Audio> mainMenuBGM_;
         std::shared_ptr<CommandHistoryManager> commandHistoryManager_;
         std::mutex mainThreadMutex_;
@@ -142,9 +150,17 @@ namespace glimmer {
 
         [[nodiscard]] AudioManager *GetAudioManager() const;
 
+        [[nodiscard]] LightMaskManager *GetLightMaskManager() const;
+
+        [[nodiscard]] LightSourceManager *GetLightSourceManager() const;
+
+        [[nodiscard]] FixedColorManager *GetFixedColorManager() const;
+
         [[nodiscard]] StringManager *GetStringManager() const;
 
         [[nodiscard]] BiomeDecoratorResourcesManager *GetBiomeDecoratorResourcesManager() const;
+
+        [[nodiscard]] TomlTemplateExpander *GetTomlTemplateExpander() const;
 
         [[nodiscard]] DynamicSuggestionsManager *GetDynamicSuggestionsManager() const;
 

@@ -158,6 +158,16 @@ namespace glimmer {
          */
         void UnRegisterEntity(GameEntity::ID id);
 
+        /**
+         * OnChunkTileChange
+         * 当区块内的瓦片改变时
+         * @param chunk chunk 区块
+         * @param tile tile 瓦片
+         * @param layerType layerType 图层类型
+         * @param index index 索引
+         */
+        void OnChunkTileChange(Chunk *chunk, Tile *tile, TileLayerType layerType, int index);
+
     public:
         ~WorldContext();
 

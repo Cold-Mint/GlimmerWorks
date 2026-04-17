@@ -29,6 +29,8 @@ namespace glimmer {
         uint32_t minGameVersion;
         //@genNextLine(resPack|是否为资源包)
         bool resPack;
+        //@genNextLine(templateSearchPath|模板搜索路径)
+        std::vector<std::string> templateSearchPath = {TEMPLATE_CURRENT, TEMPLATE_ROOT};
     };
 
     //@genNextLine(DataPackManifest|数据包包清单)

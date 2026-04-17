@@ -8,6 +8,7 @@
 
 #include "../../vfs/VirtualFileSystem.h"
 #include "core/mod/PackManifest.h"
+#include "core/mod/TomlTemplateExpander.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {
@@ -21,6 +22,7 @@ namespace glimmer {
 
     class DataPackManager {
         VirtualFileSystem *virtualFileSystem_;
+        TomlTemplateExpander *tomlTemplateExpander_;
         std::vector<DataPackManifest> packManifestVector_;
 
         //Check whether the data packet is available (for example, determine whether the minimum game version declared by the data packet exceeds the game version)
@@ -31,7 +33,7 @@ namespace glimmer {
                                       const std::vector<std::string> &enabledDataPack);
 
     public:
-        explicit DataPackManager(VirtualFileSystem *virtualFilesystem);
+        explicit DataPackManager(VirtualFileSystem *virtualFilesystem, TomlTemplateExpander *tomlTemplateExpander);
 
         /**
          * Determine whether data packet 1 and data packet 2 meet the dependency conditions (whether the list of data packet 1 includes the id of data packet 2, and whether the minimum version required by the version dependency of data packet 2 is equal to or greater than the specified dependency version in data packet 1.)

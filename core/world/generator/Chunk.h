@@ -23,12 +23,12 @@ namespace glimmer {
         std::vector<std::function<void(Chunk *chunk, int index, Tile *tile, TileLayerType layerType)> >
         setTileCallback_;
 
-        std::vector<std::function<void(Chunk *chunk, TileLayerType layerType, const TileVector2D &tileVector2d,
+        std::vector<std::function<void(Chunk *chunk, TileLayerType layerType, int index,
                                        Tile *oldTile, Tile *newTile)> > replaceTileCallback_;
 
         void InvokeSetTileCallback(Chunk *chunk, int index, Tile *tile, TileLayerType layerType) const;
 
-        void InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, const TileVector2D &tileVector2d,
+        void InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, int index,
                                        Tile *oldTile, Tile *newTile) const;
 
     public:
@@ -48,8 +48,8 @@ namespace glimmer {
         bool RemoveSetTileCallback(long index);
 
         size_t AddReplaceTileCallback(const std::function<void(Chunk *chunk, TileLayerType layerType,
-                                                         const TileVector2D &tileVector2d,
-                                                         Tile *oldTile, Tile *newTile)> &callBack);
+                                                               int index,
+                                                               Tile *oldTile, Tile *newTile)> &callBack);
 
         bool RemoveReplaceTileCallback(long index);
 

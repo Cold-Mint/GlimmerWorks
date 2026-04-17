@@ -44,6 +44,38 @@ namespace glimmer {
     };
 
 
+    //@genNextLine(LightSourceResource|光源资源)
+    struct LightSourceResource : Resource {
+        //@genNextLine(lightRadius The maximum value is 16, which is the length of the block.|光照半径 最大值为区块长度16)
+        int lightRadius = 0;
+        //@genNextLine(minLightBrightness The minimum brightness percentage of the tile, 0.0 = completely dark, 1.0 = always full brightness.|瓦片最低亮度百分比 0.0为完全黑暗 1.0为始终保持最亮)
+        float minLightBrightness = 0.02F;
+        //@genNextLine(lightBrightestAtCenter If true, light is brightest at center; if false, light is brightest at edge.|亮度峰值在圆心 true=中心亮四周暗，false=中心暗四周亮)
+        bool lightBrightestAtCenter = true;
+        //@genNextLine(lightColor A: Indicates the intensity of light emission.|发光颜色 A表示发光强度。)
+        ResourceRef lightColor = {};
+    };
+
+    //@genNextLine(LightMaskResource|光源遮照资源)
+    struct LightMaskResource : Resource {
+        //@genNextLine(lightMaskColor A 0 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 0代表完全不透光 RGB 控制光线的混合)
+        ResourceRef lightMaskColor;
+    };
+
+    //@genNextLine(FixedColorResource|固定颜色资源)
+    struct FixedColorResource : Resource {
+        //@genNextLine(a|透明度)
+        uint8_t a = 255;
+        //@genNextLine(r|红色通道值)
+        uint8_t r = 0;
+        //@genNextLine(g|绿色通道值)
+        uint8_t g = 0;
+        //@genNextLine(b|蓝色通道值)
+        uint8_t b = 0;
+
+        [[nodiscard]] SDL_Color ToSDLColor() const;
+    };
+
     /**
      * Vector2DResource
      * 向量资源
@@ -408,16 +440,10 @@ namespace glimmer {
         bool allowChainMining = false;
         //@genNextLine(allowCrossLayerPlacement This attribute provides cross-layer placement functionality for the internal air and error blocks within the engine. It is not recommended to use it within data packets.|是否允许跨图层放置 这个属性为引擎内部的空气和错误方块提供跨图层放置功能，不建议数据包内使用。)
         bool allowCrossLayerPlacement = false;
-        //@genNextLine(lightTransmissionColor A 0 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 0代表完全不透光 RGB 控制光线的混合)
-        ResourceRef lightTransmissionColor = {};
-        //@genNextLine(emissionRadius The maximum value is 16, which is the length of the block.|发光半径 最大值为区块长度16)
-        int emissionRadius = 0;
-        //@genNextLine(minLightBrightness The minimum brightness percentage of the tile, 0.0 = completely dark, 1.0 = always full brightness.|瓦片最低亮度百分比 0.0为完全黑暗 1.0为始终保持最亮)
-        float minLightBrightness = 0.02F;
-        //@genNextLine(lightPeakAtCenter|If true, light is brightest at center; if false, light is brightest at edge.|亮度峰值在圆心 true=中心亮四周暗，false=中心暗四周亮)
-        bool lightPeakAtCenter = true;
-        //@genNextLine(emissionColor A: Indicates the intensity of light emission.|发光颜色 A表示发光强度。)
-        ResourceRef emissionColor = {};
+        //@genNextLine(lightSource|光源)
+        ResourceRef lightSource;
+        //@genNextLine(lightMask|光源遮罩)
+        ResourceRef lightMask;
     };
 
     //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)

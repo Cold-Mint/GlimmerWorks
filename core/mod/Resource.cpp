@@ -13,6 +13,10 @@ std::string glimmer::Resource::GenerateId(const Resource &resource) {
     return GenerateId(resource.packId, resource.resourceId);
 }
 
+SDL_Color glimmer::FixedColorResource::ToSDLColor() const {
+    return SDL_Color{r, g, b, a};
+}
+
 glimmer::VariableDefinitionType glimmer::VariableDefinition::ResolveVariableType(const std::string &typeName) {
     const auto it = variableDefinitionTypeMap_.find(typeName);
     return it == variableDefinitionTypeMap_.end() ? INT : it->second;

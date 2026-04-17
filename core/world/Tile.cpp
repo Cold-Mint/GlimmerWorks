@@ -15,36 +15,20 @@ const glimmer::ResourceRef &glimmer::Tile::GetLootTableRef() {
     return lootTable_;
 }
 
-float glimmer::Tile::GetMinLightBrightness() const {
-    return minLightBrightness_;
-}
-
-bool glimmer::Tile::IsLightPeakAtCenter() const {
-    return lightPeakAtCenter_;
-}
-
-const SDL_Color &glimmer::Tile::GetLightTransmissionColor() const {
-    return lightTransmissionColor_;
-}
-
 const glimmer::ResourceRef &glimmer::Tile::GetResourceRef() {
     return tileRef_;
 }
 
+const glimmer::ResourceRef &glimmer::Tile::GetLightSourceResource() {
+    return lightSource_;
+}
+
+const glimmer::ResourceRef &glimmer::Tile::GetLightMaskResource() {
+    return lightMask_;
+}
+
 bool glimmer::Tile::IsCustomLootTable() const {
     return customLootTable_;
-}
-
-float glimmer::Tile::GetLightAttenuationPerCell() const {
-    return lightAttenuationPerCell_;
-}
-
-SDL_Color glimmer::Tile::GetEmissionColor() const {
-    return emissionColor_;
-}
-
-int glimmer::Tile::GetEmissionRadius() const {
-    return emissionRadius_;
 }
 
 bool glimmer::Tile::ChangeLayerTypeIfAllowed(const TileLayerType layerType) {
@@ -157,23 +141,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->breakable = tileResource->hardness >= 0;
     tile->allowChainMining_ = tileResource->allowChainMining;
     tile->allowCrossLayerPlacement_ = tileResource->allowCrossLayerPlacement;
-    const ColorResource *lightTransmissionColorResource =
-            resourceLocator->FindColorResource(tileResource->lightTransmissionColor);
-    if (lightTransmissionColorResource == nullptr) {
-        tile->lightTransmissionColor_ = appContext->GetPreloadColors()->light.defaultLightTransmissionColor;
-    } else {
-        tile->lightTransmissionColor_ = lightTransmissionColorResource->ToSDLColor();
-    }
-    const ColorResource *emissionColorResource = resourceLocator->FindColorResource(tileResource->emissionColor);
-    if (emissionColorResource == nullptr) {
-        tile->emissionColor_ = appContext->GetPreloadColors()->light.defaultEmissionColor;
-    } else {
-        tile->emissionColor_ = emissionColorResource->ToSDLColor();
-    }
-    tile->minLightBrightness_ = tileResource->minLightBrightness;
-    tile->lightPeakAtCenter_ = tileResource->lightPeakAtCenter;
-    tile->emissionRadius_ = tileResource->emissionRadius;
-    tile->lightAttenuationPerCell_ = 1.0F / static_cast<float>(tileResource->emissionRadius);
+    tile->lightMask_ = tileResource->lightMask;
+    tile->lightSource_ = tileResource->lightSource;
     tile->texture_ = resourceLocator->FindTexture(
         tileResource->texture);
     tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);

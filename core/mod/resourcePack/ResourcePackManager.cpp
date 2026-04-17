@@ -304,12 +304,10 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
         }
 
         const toml::value value = toml::parse_str(data.value(), appContext->GetTomlVersion());
-        auto colorResource = std::make_unique<ColorResource>(
+        colorCache_[path] = std::make_unique<ColorResource>(
             toml::get<ColorResource>(value)
         );
-        auto *ptr = colorResource.get();
-        colorCache_[path] = std::move(colorResource);
-        return ptr;
+        return colorCache_[path].get();
     }
     return nullptr;
 }

@@ -4,8 +4,8 @@
 
 #ifndef GLIMMERWORKS_LIGHTINGBUFFER_H
 #define GLIMMERWORKS_LIGHTINGBUFFER_H
-#include <vector>
 
+#include "LightMask.h"
 #include "LightSource.h"
 #include "PreloadColors.h"
 #include "TraverseAction.h"
@@ -13,15 +13,42 @@
 
 namespace glimmer {
     class LightingBuffer {
-        std::vector<std::unique_ptr<LightSource> > lightSources_ = {};
+        std::unordered_map<TileVector2D, std::unique_ptr<LightSource>, Vector2DIHash> lightSources_ = {};
         std::unordered_map<TileVector2D, SDL_Color, Vector2DIHash> lightColors_ = {};
+        std::unordered_map<TileVector2D, std::unique_ptr<LightMask>, Vector2DIHash> lightMasks_ = {};
         WorldContext *worldContext_ = nullptr;
 
-        TraverseAction StepCallback(TileVector2D current,
-                                    TileVector2D next);
+        /**
+         * 应用光照传播（添加光源时，为瓦片设置光照）
+         * @param lightSource
+         * @param current
+         * @param next
+         * @return
+         */
+        TraverseAction ApplyLightPropagation(const LightSource *lightSource, TileVector2D current,
+                                             TileVector2D next);
+
+        /**
+         * 清除光照传播（移除光源时，清理瓦片光照）
+         * @param lightSource
+         * @param current
+         * @param next
+         * @return
+         */
+        TraverseAction ClearLightPropagation(const LightSource *lightSource, TileVector2D current,
+                                             TileVector2D next);
 
     public:
         explicit LightingBuffer(WorldContext *worldContext);
+
+        /**
+         * AddLightMask
+         * 添加光源遮照
+         * @param lightMask
+         */
+        void AddLightMask(std::unique_ptr<LightMask> lightMask);
+
+        void RemoveLightMask(const TileVector2D position);
 
         /**
          * AddLightSource

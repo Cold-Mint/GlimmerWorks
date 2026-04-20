@@ -414,6 +414,7 @@ bool glimmer::DataPack::LoadLightSourceResourceFromFile(const std::string &path,
         tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto lightSourceResource = std::make_unique<LightSourceResource>(toml::get<LightSourceResource>(value));
     lightSourceResource->packId = manifest_.id;
+    lightSourceResource->lightColor.SetSelfPackageId(manifest_.id);
     if (lightSourceResource->lightRadius > CHUNK_SIZE) {
         lightSourceResource->lightRadius = CHUNK_SIZE;
     }

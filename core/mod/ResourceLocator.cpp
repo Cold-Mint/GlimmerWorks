@@ -90,7 +90,7 @@ glimmer::StringResource *glimmer::ResourceLocator::FindString(const ResourceRef 
 }
 
 glimmer::LightSourceResource *glimmer::ResourceLocator::FindLightSource(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() == RESOURCE_TYPE_LIGHT_SOURCE || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_LIGHT_SOURCE || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetLightSourceManager()->FindLightSourceResource(resourceRef.GetPackageId(),
@@ -98,7 +98,7 @@ glimmer::LightSourceResource *glimmer::ResourceLocator::FindLightSource(const Re
 }
 
 glimmer::LightMaskResource *glimmer::ResourceLocator::FindLightMask(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() == RESOURCE_TYPE_LIGHT_MASK || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_LIGHT_MASK || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetLightMaskManager()->FindLightMaskResource(resourceRef.GetPackageId(),

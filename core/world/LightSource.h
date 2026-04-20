@@ -12,6 +12,7 @@ namespace glimmer {
     struct LightSource {
         TileVector2D center = {};
         int maxRadius = 0;
+        float minLightBrightness = 0.0F;
         float lightAttenuationPerCell = 1.0F;
         SDL_Color emissionColor = {};
     };

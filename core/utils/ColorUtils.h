@@ -44,7 +44,7 @@ namespace glimmer {
          * @param occlusionColor 遮挡块颜色（a=0不遮挡，a=255完全遮挡）
          * @return 最终穿透后的光照颜色
          */
-        static SDL_FColor ApplyOcclusion(SDL_FColor lightColor, SDL_FColor occlusionColor);
+        static SDL_Color ApplyOcclusion(SDL_Color lightColor, SDL_Color occlusionColor);
 
         /**
         * 对颜色进行亮度衰减（光照专用）

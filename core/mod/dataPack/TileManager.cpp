@@ -16,6 +16,21 @@ void glimmer::TileManager::InitBuiltinTiles() {
     airResource.SetSelfPackageId(RESOURCE_REF_CORE);
     airResource.SetResourceKey("tiles/air");
     airResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
+
+    ResourceRef lightNoneResource;
+    lightNoneResource.SetSelfPackageId(RESOURCE_REF_CORE);
+    lightNoneResource.SetResourceType(RESOURCE_TYPE_LIGHT_SOURCE);
+    lightNoneResource.SetResourceKey(LIGHT_NONE);
+
+    ResourceRef lightMaskFullResource;
+    lightMaskFullResource.SetSelfPackageId(RESOURCE_REF_CORE);
+    lightMaskFullResource.SetResourceType(RESOURCE_TYPE_LIGHT_SOURCE);
+    lightMaskFullResource.SetResourceKey(LIGHT_MASK_FULL);
+
+    ResourceRef lightMaskNoneResource;
+    lightMaskNoneResource.SetSelfPackageId(RESOURCE_REF_CORE);
+    lightMaskNoneResource.SetResourceType(RESOURCE_TYPE_LIGHT_SOURCE);
+    lightMaskNoneResource.SetResourceKey(LIGHT_MASK_NONE);
     air_->texture = airResource;
     air_->resourceId = TILE_ID_AIR;
     air_->packId = RESOURCE_REF_CORE;
@@ -23,6 +38,8 @@ void glimmer::TileManager::InitBuiltinTiles() {
     air_->layerType = static_cast<uint8_t>(Ground);
     air_->hardness = -1.0F;
     air_->allowCrossLayerPlacement = true;
+    air_->lightSource = lightNoneResource;
+    air_->lightMask = lightMaskNoneResource;
     airResourceRef_ = std::make_unique<ResourceRef>();
     airResourceRef_->SetResourceType(RESOURCE_TYPE_TILE);
     airResourceRef_->SetSelfPackageId(RESOURCE_REF_CORE);
@@ -38,6 +55,8 @@ void glimmer::TileManager::InitBuiltinTiles() {
     water_->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     water_->layerType = static_cast<uint8_t>(Ground);
     water_->hardness = -1.0F;
+    water_->lightSource = lightNoneResource;
+    water_->lightMask = lightMaskNoneResource;
     bedrock_ = std::make_unique<TileResource>();
     ResourceRef bedrockResource;
     bedrockResource.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -49,6 +68,8 @@ void glimmer::TileManager::InitBuiltinTiles() {
     bedrock_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
     bedrock_->layerType = static_cast<uint8_t>(Ground);
     bedrock_->hardness = -1.0F;
+    bedrock_->lightSource = lightNoneResource;
+    bedrock_->lightMask = lightMaskFullResource;
     error_ = std::make_unique<TileResource>();
     ResourceRef errorResource;
     errorResource.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -60,6 +81,8 @@ void glimmer::TileManager::InitBuiltinTiles() {
     error_->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
     error_->layerType = static_cast<uint8_t>(Ground);
     error_->hardness = 0.1F;
+    error_->lightSource = lightNoneResource;
+    error_->lightMask = lightMaskFullResource;
     error_->allowCrossLayerPlacement = true;
 }
 

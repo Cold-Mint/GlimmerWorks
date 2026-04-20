@@ -93,12 +93,14 @@ namespace glimmer {
          */
         float rayAngleStep_ = 0;
 
-        LightSource *lightSource_ = nullptr;
+        TileVector2D center_;
+        int maxRadius_ = 0;
 
     public:
-        LightPropagationTraverser(LightSource *lightSource,
+        LightPropagationTraverser(TileVector2D center, int maxRadius,
                                   const std::function<TraverseAction(
-                                      TileVector2D current, TileVector2D next)> &stepCallback);
+                                      TileVector2D current,
+                                      TileVector2D next)> &stepCallback);
 
 
         /**

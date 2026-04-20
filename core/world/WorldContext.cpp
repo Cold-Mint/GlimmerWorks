@@ -112,38 +112,132 @@ void glimmer::WorldContext::UnRegisterEntity(const GameEntity::ID id) {
 }
 
 void glimmer::WorldContext::OnChunkTileChange(Chunk *chunk, Tile *tile, const TileLayerType layerType,
-                                              const int index) {
-    if (tile == nullptr) {
-        return;
-    }
+                                              const int index) const {
     if (layerType == Ground) {
         ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(this, chunk);
     }
-    // if (appContext_ == nullptr) {
-    //     return;
-    // }
-    // const ResourceLocator *resourceLocator = appContext_->GetResourceLocator();
-    // if (resourceLocator == nullptr) {
-    //     return;
-    // }
-    // const TileVector2D chunkPosition = chunk->GetPosition();
-    // const int localX = index & CHUNK_MASK;
-    // const int localY = index >> CHUNK_SHIFT;
-    //
-    // LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(tile->GetLightSourceResource());
-    // if (lightSourceResource != nullptr) {
-    //     // SDL_Color s = resourceLocator->FindColorResource(lightSourceResource->lightColor);
-    //     // lightingBuffer_->AddLightSource(std::make_unique<LightSource>(
-    //     //     TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY), lightSourceResource->lightRadius,
-    //     //     lightSourceResource->minLightBrightness, tile->GetEmissionColor()));
-    // }
-    // LightMaskResource *lightMaskResource = resourceLocator->FindLightMask(tile->GetLightMaskResource());
-    //
-    // // if (tile->GetLightTransmissionColor().a > 0) {
-    // //
-    // // }
+    UpdateTileLight(chunk, layerType, index);
 }
 
+void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerType layerType, const int index) const {
+    if (chunk == nullptr) {
+        return;
+    }
+    Tile *tile = chunk->GetTile(layerType, index);
+    if (tile == nullptr) {
+        return;
+    }
+    const ResourceLocator *resourceLocator = appContext_->GetResourceLocator();
+    if (resourceLocator == nullptr) {
+        return;
+    }
+    const TileVector2D chunkPosition = chunk->GetPosition();
+    const int localX = index & CHUNK_MASK;
+    const int localY = index >> CHUNK_SHIFT;
+    auto lightSourcePosition = TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY);
+    const LightMaskResource *lightMaskResource = resourceLocator->FindLightMask(tile->GetLightMaskResource());
+    if (lightMaskResource != nullptr) {
+        const std::unique_ptr<SDL_Color> lightMaskColorPtr = resourceLocator->FindColor(
+            lightMaskResource->lightMaskColor);
+        if (lightMaskColorPtr == nullptr) {
+            return;
+        }
+        lightingBuffer_->AddLightMask(std::make_unique<LightMask>(lightSourcePosition, SDL_Color{
+                                                                      lightMaskColorPtr->r, lightMaskColorPtr->b,
+                                                                      lightMaskColorPtr->g, lightMaskColorPtr->a
+                                                                  }));
+    }
+    const LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(
+        tile->GetLightSourceResource());
+    if (lightSourceResource != nullptr) {
+        const std::unique_ptr<SDL_Color> lightColorPtr = resourceLocator->
+                FindColor(lightSourceResource->lightColor);
+        if (lightColorPtr == nullptr) {
+            return;
+        }
+        if (lightColorPtr->a == 0) {
+            lightingBuffer_->RemoveLightSource(lightSourcePosition);
+        } else {
+            lightingBuffer_->AddLightSource(std::make_unique<LightSource>(
+                lightSourcePosition, lightSourceResource->lightRadius,
+                lightSourceResource->minLightBrightness, lightSourceResource->minLightBrightness, SDL_Color{
+                    lightColorPtr->r, lightColorPtr->b, lightColorPtr->g, lightColorPtr->a
+                }));
+        }
+    }
+}
+
+
+void glimmer::WorldContext::UpdateChunkLight(const Chunk *chunk) const {
+    if (chunk == nullptr) {
+        return;
+    }
+    if (appContext_ == nullptr) {
+        return;
+    }
+
+    for (int index = 0; index < CHUNK_AREA; ++index) {
+        UpdateTileLight(chunk, Ground, index);
+    }
+}
+
+void glimmer::WorldContext::UpdateAdjacentChunksLight(const TileVector2D center) const {
+    const TileVector2D relativeCoordinates = Chunk::TileCoordinatesToChunkRelativeCoordinates(center);
+    if (relativeCoordinates.x != 0 || relativeCoordinates.y != 0) {
+        LogCat::e("The coordinates are not the vertices of the chunk.");
+#if  !defined(NDEBUG)
+        assert(false);
+#endif
+        return;
+    }
+    TileVector2D leftChunkPosition = center + Vector2DI(CHUNK_SIZE, 0);
+    auto leftChunkIterator = chunks_.find(leftChunkPosition);
+    if (leftChunkIterator != chunks_.end()) {
+        UpdateChunkLight(leftChunkIterator->second.get());
+    }
+
+    TileVector2D rightChunkPosition = center - Vector2DI(CHUNK_SIZE, 0);
+    auto rightChunkIterator = chunks_.find(rightChunkPosition);
+    if (rightChunkIterator != chunks_.end()) {
+        UpdateChunkLight(rightChunkIterator->second.get());
+    }
+
+    TileVector2D topChunkPosition = center + Vector2DI(0, CHUNK_SIZE);
+    auto topChunkIterator = chunks_.find(topChunkPosition);
+    if (topChunkIterator != chunks_.end()) {
+        UpdateChunkLight(topChunkIterator->second.get());
+    }
+
+    TileVector2D bottomChunkPosition = center - Vector2DI(0, CHUNK_SIZE);
+    auto bottomChunkIterator = chunks_.find(bottomChunkPosition);
+    if (bottomChunkIterator != chunks_.end()) {
+        UpdateChunkLight(bottomChunkIterator->second.get());
+    }
+
+    TileVector2D topLeftChunkPosition = center - Vector2DI(CHUNK_SIZE, CHUNK_SIZE);
+    auto topLeftChunkIterator = chunks_.find(topLeftChunkPosition);
+    if (topLeftChunkIterator != chunks_.end()) {
+        UpdateChunkLight(topLeftChunkIterator->second.get());
+    }
+
+    TileVector2D topRightChunkPosition = center + Vector2DI(CHUNK_SIZE, CHUNK_SIZE);
+    auto topRightChunkIterator = chunks_.find(topRightChunkPosition);
+    if (topRightChunkIterator != chunks_.end()) {
+        UpdateChunkLight(topRightChunkIterator->second.get());
+    }
+
+    TileVector2D bottomLeftChunkPosition = center - Vector2DI(CHUNK_SIZE, -CHUNK_SIZE);
+    auto bottomLeftChunkIterator = chunks_.find(bottomLeftChunkPosition);
+    if (bottomLeftChunkIterator != chunks_.end()) {
+        UpdateChunkLight(bottomLeftChunkIterator->second.get());
+    }
+
+    TileVector2D bottomRightChunkPosition = center + Vector2DI(CHUNK_SIZE, -CHUNK_SIZE);
+    auto bottomRightChunkIterator = chunks_.find(bottomRightChunkPosition);
+    if (bottomRightChunkIterator != chunks_.end()) {
+        UpdateChunkLight(bottomRightChunkIterator->second.get());
+    }
+}
 
 glimmer::WorldContext::~WorldContext() {
     activeSystems.clear();
@@ -378,6 +472,7 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
         return;
     }
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext_, worldId_, newlyCreatedChunk.get());
+    UpdateAdjacentChunksLight(position);
     newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, TileLayerType layerType,
                                                      int index,
                                                      Tile *, Tile *newTile) {
@@ -401,6 +496,16 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
         return;
     }
     if (SaveChunk(position)) {
+        //Uninstall the light sources and shadows of the current chunk.
+        //卸载当前区块的光源和遮挡。
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                auto lightPosition = TileVector2D(position.x + x, position.y + y);
+                lightingBuffer_->RemoveLightMask(lightPosition);
+                lightingBuffer_->RemoveLightSource(lightPosition);
+            }
+        }
+        UpdateAdjacentChunksLight(position);
         ChunkPhysicsHelper::DetachPhysicsBodyToChunk(appContext_, it->second.get());
         chunks_.erase(it);
         chunksVersion_++;
@@ -412,7 +517,7 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
 glimmer::Chunk *glimmer::WorldContext::GetChunk(const TileVector2D position) {
 #if  !defined(NDEBUG)
     const TileVector2D relativeVector = Chunk::TileCoordinatesToChunkRelativeCoordinates(position);
-    if (relativeVector.x != 0 && relativeVector.y != 0) {
+    if (relativeVector.x != 0 || relativeVector.y != 0) {
         LogCat::e("The coordinates are not the vertices of the chunk.");
         assert(false);
     }

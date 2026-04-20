@@ -25,6 +25,9 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggest
     suggestionsTree.AddChild("mobs");
     suggestionsTree.AddChild("shapes");
     suggestionsTree.AddChild("biomeDecors");
+    suggestionsTree.AddChild("fixedColor");
+    suggestionsTree.AddChild("lightMask");
+    suggestionsTree.AddChild("lightSource");
 }
 
 std::string glimmer::AssetViewerCommand::GetName() const {
@@ -145,13 +148,40 @@ bool glimmer::AssetViewerCommand::Execute(const CommandArgs commandArgs,
         return true;
     }
     if (type == "biomeDecors") {
-        const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext_->GetBiomeDecoratorResourcesManager();
+        const BiomeDecoratorResourcesManager *decoratorResourcesManager = appContext_->
+                GetBiomeDecoratorResourcesManager();
         if (decoratorResourcesManager == nullptr) {
             return false;
         }
         onMessage(decoratorResourcesManager->ListBiomeDecorators());
         return true;
     }
+    if (type == "fixedColor") {
+        const FixedColorManager *fixedColorManager = appContext_->GetFixedColorManager();
+        if (fixedColorManager == nullptr) {
+            return false;
+        }
+        onMessage(fixedColorManager->ListFixedColorResources());
+        return true;
+    }
+    if (type == "lightMask") {
+        const LightMaskManager *lightMaskManager = appContext_->GetLightMaskManager();
+        if (lightMaskManager == nullptr) {
+            return false;
+        }
+        onMessage(lightMaskManager->ListLightMaskResource());
+        return true;
+    }
+
+    if (type == "lightSource") {
+        const LightSourceManager *lightSourceManager = appContext_->GetLightSourceManager();
+        if (lightSourceManager == nullptr) {
+            return false;
+        }
+        onMessage(lightSourceManager->ListLightSourceResource());
+        return true;
+    }
+
     const LangsResources *langsResources = appContext_->GetLangsResources();
     if (langsResources == nullptr) {
         return false;

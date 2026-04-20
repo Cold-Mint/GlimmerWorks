@@ -49,15 +49,24 @@ SDL_FColor glimmer::ColorUtils::AdditiveBlend(const SDL_FColor firstColor, const
     };
 }
 
-SDL_FColor glimmer::ColorUtils::ApplyOcclusion(SDL_FColor lightColor, SDL_FColor occlusionColor) {
-    const float lightPower = 1.0F - occlusionColor.a;
-    SDL_FColor result{};
-    result.r = lightColor.r * occlusionColor.r * lightPower;
-    result.g = lightColor.g * occlusionColor.g * lightPower;
-    result.b = lightColor.b * occlusionColor.b * lightPower;
-    result.a = lightColor.a * occlusionColor.a * lightPower;
-    return result;
+SDL_Color glimmer::ColorUtils::ApplyOcclusion(SDL_Color lightColor, SDL_Color occlusionColor) {
+    // const float alpha = static_cast<float>(occlusionColor.a) / 255.0F;
+    // const float lightPower = 1.0f - alpha;
+    // const float r = static_cast<float>(lightColor.r) / 255.0F * (static_cast<float>(occlusionColor.r) / 255.0F) *
+    //                 lightPower;
+    // const float g = static_cast<float>(lightColor.g) / 255.0F * (static_cast<float>(occlusionColor.g) / 255.0F) *
+    //                 lightPower;
+    // const float b = static_cast<float>(lightColor.b) / 255.0F * (static_cast<float>(occlusionColor.b) / 255.0F) *
+    //                 lightPower;
+    // SDL_Color result{};
+    // result.r = static_cast<Uint8>(std::clamp(r * 255.0f, 0.0f, 255.0f));
+    // result.g = static_cast<Uint8>(std::clamp(g * 255.0f, 0.0f, 255.0f));
+    // result.b = static_cast<Uint8>(std::clamp(b * 255.0f, 0.0f, 255.0f));
+    // result.a = lightColor.a;
+    // return result;
+    return lightColor;
 }
+
 
 SDL_FColor glimmer::ColorUtils::DecayColor(const SDL_FColor color, const float lightPercent) {
     const float realityLightPercent = std::clamp(lightPercent, 0.0F, 1.0F);

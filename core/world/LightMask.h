@@ -15,7 +15,7 @@ namespace glimmer {
      */
     struct LightMask {
         TileVector2D position = {};
-        SDL_Color emissionColor = {};
+        SDL_Color lightMaskColor = {};
     };
 }
 

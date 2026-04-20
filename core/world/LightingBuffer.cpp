@@ -6,25 +6,84 @@
 
 #include "LightPropagationTraverser.h"
 #include "WorldContext.h"
+#include "core/utils/ColorUtils.h"
 
 
-glimmer::TraverseAction glimmer::LightingBuffer::StepCallback(TileVector2D current, TileVector2D next) {
-    return TraverseAction::StopAll;
+glimmer::TraverseAction glimmer::LightingBuffer::ApplyLightPropagation(const LightSource *lightSource,
+                                                                       TileVector2D current,
+                                                                       TileVector2D next) {
+    if (lightSource == nullptr) {
+        return TraverseAction::StopAll;
+    }
+    const auto centerLightSourceIterator = lightColors_.find(lightSource->center);
+    if (centerLightSourceIterator == lightColors_.end()) {
+        lightColors_[lightSource->center] = lightSource->emissionColor;
+    }
+    const auto currentLightMaskIterator = lightMasks_.find(current);
+    if (currentLightMaskIterator == lightMasks_.end()) {
+        return TraverseAction::SkipDirection;
+    }
+    auto &currentLightMask = currentLightMaskIterator->second;
+    if (currentLightMask == nullptr) {
+        return TraverseAction::SkipDirection;
+    }
+    const SDL_Color currentColor = GetLightColor(current);
+    int maxRadius = lightSource->maxRadius;
+    lightColors_[next] = SDL_Color{
+        static_cast<Uint8>(
+            currentColor.r - lightSource->emissionColor.r / maxRadius),
+        static_cast<Uint8>(
+            currentColor.g - lightSource->emissionColor.g / maxRadius),
+        static_cast<Uint8>(
+            currentColor.b - lightSource->emissionColor.b / maxRadius),
+        static_cast<Uint8>(
+            currentColor.a - lightSource->emissionColor.a / maxRadius)
+    };
+    return TraverseAction::Continue;
+}
+
+glimmer::TraverseAction glimmer::LightingBuffer::ClearLightPropagation(const LightSource *lightSource,
+                                                                       TileVector2D current,
+                                                                       const TileVector2D next) {
+    if (lightSource == nullptr) {
+        return TraverseAction::StopAll;
+    }
+    const auto it = lightColors_.find(lightSource->center);
+    if (it != lightColors_.end()) {
+        lightColors_.erase(lightSource->center);
+    }
+    lightColors_.erase(next);
+    return TraverseAction::Continue;
 }
 
 glimmer::LightingBuffer::LightingBuffer(WorldContext *worldContext) {
     worldContext_ = worldContext;
 }
 
+void glimmer::LightingBuffer::AddLightMask(std::unique_ptr<LightMask> lightMask) {
+    lightMasks_[lightMask->position] = std::move(lightMask);
+}
+
+void glimmer::LightingBuffer::RemoveLightMask(const TileVector2D position) {
+    const auto lightMaskIterator = lightMasks_.find(position);
+    if (lightMaskIterator == lightMasks_.end()) {
+        return;
+    }
+    lightMasks_.erase(lightMaskIterator);
+}
+
 void glimmer::LightingBuffer::AddLightSource(std::unique_ptr<LightSource> lightSource) {
-    lightSources_.emplace_back(std::move(lightSource));
-    //Calculate the influence range of the newly added light source.
-    //计算新增光源的影响范围。
+    auto *lightPtr = lightSource.get();
+    if (lightPtr == nullptr) {
+        return;
+    }
+    lightSources_[lightPtr->center] = std::move(lightSource);
     const LightPropagationTraverser lightPropagationTraverser = LightPropagationTraverser(
-        lightSource.get(), [this](const TileVector2D cur,
-                                  const TileVector2D next) {
-            return this->StepCallback(cur, next);
-        });
+        lightPtr->center, lightPtr->maxRadius,
+        [this, lightPtr](const TileVector2D cur, const TileVector2D next) {
+            return this->ApplyLightPropagation(lightPtr, cur, next);
+        }
+    );
     lightPropagationTraverser.Start();
 }
 
@@ -48,22 +107,18 @@ SDL_Color glimmer::LightingBuffer::GetLightColor(const TileVector2D position) {
 }
 
 void glimmer::LightingBuffer::RemoveLightSource(const TileVector2D &position) {
-    for (auto it = lightSources_.begin(); it != lightSources_.end();) {
-        const auto &lightPtr = *it;
-        // Direct deletion of null pointer
-        // 空指针直接删除
-        if (lightPtr == nullptr) {
-            it = lightSources_.erase(it);
-            continue;
-        }
-
-        // Find the target, delete it and exit.
-        // 找到目标，删除并退出
-        if (lightPtr->center == position) {
-            lightSources_.erase(it);
-            break;
-        }
-
-        ++it;
+    const auto lightSourcesIterator = lightSources_.find(position);
+    if (lightSourcesIterator == lightSources_.end()) {
+        return;
     }
+    const auto &lightUniquePtr = lightSourcesIterator->second;
+    LightSource *lightPtr = lightUniquePtr.get();
+    const LightPropagationTraverser lightPropagationTraverser = LightPropagationTraverser(
+        lightUniquePtr->center, lightUniquePtr->maxRadius,
+        [this,lightPtr](const TileVector2D cur, const TileVector2D next) {
+            return this->ClearLightPropagation(lightPtr, cur, next);
+        }
+    );
+    lightPropagationTraverser.Start();
+    lightSources_.erase(lightSourcesIterator);
 }

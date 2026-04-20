@@ -166,7 +166,25 @@ namespace glimmer {
          * @param layerType layerType 图层类型
          * @param index index 索引
          */
-        void OnChunkTileChange(Chunk *chunk, Tile *tile, TileLayerType layerType, int index);
+        void OnChunkTileChange(Chunk *chunk, Tile *tile, TileLayerType layerType, int index) const;
+
+        void UpdateTileLight(const Chunk *chunk,TileLayerType layerType, int index) const;
+
+        /**
+         * Update the lighting for the entire chunk.
+         * 更新整个区块的光照。
+         * @param chunk
+         */
+        void UpdateChunkLight(const Chunk *chunk) const;
+
+
+        /**
+         * The lighting of the 8 adjacent peripheral blocks (excluding the block itself in a 3x3 grid)
+         * 外围8个相邻区块的光照（3x3 排除自身）
+         *
+         * @param center
+         */
+        void UpdateAdjacentChunksLight(TileVector2D center) const;
 
     public:
         ~WorldContext();

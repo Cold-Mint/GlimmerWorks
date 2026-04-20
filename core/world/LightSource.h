@@ -15,6 +15,7 @@ namespace glimmer {
         float minLightBrightness = 0.0F;
         float lightAttenuationPerCell = 1.0F;
         SDL_Color emissionColor = {};
+        TileLayerType tileLayer;
     };
 }
 

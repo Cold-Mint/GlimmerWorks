@@ -13,9 +13,11 @@
 
 namespace glimmer {
     class LightingBuffer {
-        std::unordered_map<TileVector2D, std::unique_ptr<LightSource>, Vector2DIHash> lightSources_ = {};
+        std::unordered_map<TileVector2D, std::array<std::unique_ptr<LightSource>, Count>,
+            Vector2DIHash> lightSources_ = {};
         std::unordered_map<TileVector2D, SDL_Color, Vector2DIHash> lightColors_ = {};
-        std::unordered_map<TileVector2D, std::unique_ptr<LightMask>, Vector2DIHash> lightMasks_ = {};
+        std::unordered_map<TileVector2D, std::array<std::unique_ptr<LightMask>, Count>, Vector2DIHash>
+        lightMasks_ = {};
         WorldContext *worldContext_ = nullptr;
 
         /**
@@ -48,7 +50,7 @@ namespace glimmer {
          */
         void AddLightMask(std::unique_ptr<LightMask> lightMask);
 
-        void RemoveLightMask(const TileVector2D position);
+        void RemoveLightMask(TileVector2D position);
 
         /**
          * AddLightSource
@@ -68,9 +70,10 @@ namespace glimmer {
         /**
          * RemoveLightSource
          * 移除光源
+         * @param layerType layerType 图层类型
          * @param position position 位置
          */
-        void RemoveLightSource(const TileVector2D &position);
+        void RemoveLightSource(TileLayerType layerType,const TileVector2D &position);
     };
 }
 

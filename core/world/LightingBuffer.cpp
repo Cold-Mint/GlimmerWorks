@@ -23,10 +23,6 @@ glimmer::TraverseAction glimmer::LightingBuffer::ApplyLightPropagation(const Lig
     if (currentLightMaskIterator == lightMasks_.end()) {
         return TraverseAction::SkipDirection;
     }
-    auto &currentLightMask = currentLightMaskIterator->second;
-    if (currentLightMask == nullptr) {
-        return TraverseAction::SkipDirection;
-    }
     const SDL_Color currentColor = GetLightColor(current);
     int maxRadius = lightSource->maxRadius;
     lightColors_[next] = SDL_Color{
@@ -61,7 +57,7 @@ glimmer::LightingBuffer::LightingBuffer(WorldContext *worldContext) {
 }
 
 void glimmer::LightingBuffer::AddLightMask(std::unique_ptr<LightMask> lightMask) {
-    lightMasks_[lightMask->position] = std::move(lightMask);
+    lightMasks_[lightMask->position][lightMask->tileLayer] = std::move(lightMask);
 }
 
 void glimmer::LightingBuffer::RemoveLightMask(const TileVector2D position) {
@@ -73,11 +69,16 @@ void glimmer::LightingBuffer::RemoveLightMask(const TileVector2D position) {
 }
 
 void glimmer::LightingBuffer::AddLightSource(std::unique_ptr<LightSource> lightSource) {
-    auto *lightPtr = lightSource.get();
-    if (lightPtr == nullptr) {
+    const auto lightSourcesIterator = lightSources_.find(lightSource->center);
+    if (lightSourcesIterator == lightSources_.end()) {
         return;
     }
-    lightSources_[lightPtr->center] = std::move(lightSource);
+
+    if (lightSource == nullptr) {
+        return;
+    }
+    auto lightPtr = lightSource.get();
+    lightSources_[lightPtr->center][lightPtr->tileLayer] = std::move(lightSource);
     const LightPropagationTraverser lightPropagationTraverser = LightPropagationTraverser(
         lightPtr->center, lightPtr->maxRadius,
         [this, lightPtr](const TileVector2D cur, const TileVector2D next) {
@@ -106,15 +107,19 @@ SDL_Color glimmer::LightingBuffer::GetLightColor(const TileVector2D position) {
     return it->second;
 }
 
-void glimmer::LightingBuffer::RemoveLightSource(const TileVector2D &position) {
+void glimmer::LightingBuffer::RemoveLightSource(const TileLayerType layerType, const TileVector2D &position) {
     const auto lightSourcesIterator = lightSources_.find(position);
     if (lightSourcesIterator == lightSources_.end()) {
         return;
     }
-    const auto &lightUniquePtr = lightSourcesIterator->second;
-    LightSource *lightPtr = lightUniquePtr.get();
+    const auto &lightArray = lightSourcesIterator->second;
+    auto &lightUnique = lightArray[layerType];
+    if (lightUnique == nullptr) {
+        return;
+    }
+    auto lightPtr = lightUnique.get();
     const LightPropagationTraverser lightPropagationTraverser = LightPropagationTraverser(
-        lightUniquePtr->center, lightUniquePtr->maxRadius,
+        lightPtr->center, lightPtr->maxRadius,
         [this,lightPtr](const TileVector2D cur, const TileVector2D next) {
             return this->ClearLightPropagation(lightPtr, cur, next);
         }

@@ -9,18 +9,24 @@
 namespace glimmer {
     enum TileLayerType : uint8_t {
         /**
+     * BackGround
+     * 背景墙层
+     */
+        BackGround,
+        /**
          * Ground
          * 地面图层
          *
          * The ground layer allows players to stand on it.
          * 地面图层玩家可以站在上面。
          */
-        Ground = 1,
+        Ground,
+
         /**
-         * BackGround
-         * 背景墙层
+         * Total (must be placed at the last position)
+         * 总数(必须放在最后一位)
          */
-        BackGround = 2
+        Count,
     };
 }
 

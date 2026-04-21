@@ -12,7 +12,7 @@ namespace glimmer {
      * BackGround
      * 背景墙层
      */
-        BackGround,
+        BackGround = 1,
         /**
          * Ground
          * 地面图层
@@ -20,14 +20,9 @@ namespace glimmer {
          * The ground layer allows players to stand on it.
          * 地面图层玩家可以站在上面。
          */
-        Ground,
-
-        /**
-         * Total (must be placed at the last position)
-         * 总数(必须放在最后一位)
-         */
-        Count,
+        Ground = 2,
     };
+
 }
 
 #endif //GLIMMERWORKS_TILETYPE_H

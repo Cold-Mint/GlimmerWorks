@@ -131,7 +131,7 @@ glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const Tile
 std::vector<glimmer::Tile *> glimmer::Chunk::GetTopVisibleTiles(const uint8_t layerFilter,
                                                                 const TileVector2D &tileVector2d) const {
     std::vector<Tile *> tiles = {};
-    for (int i = 7; i >= 0; i--) {
+    for (int i = 0; i < TILE_LAYER_TYPE_COUNT; i++) {
         const uint8_t layer = 1 << i;
         if (layerFilter && layer) {
             //If the i-th position is 1.

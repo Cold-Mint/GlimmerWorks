@@ -49,6 +49,8 @@ void glimmer::LightPropagationTraverser::Start() const {
             const int dy = nextTile.y - center_.y;
             const int distSq = dx * dx + dy * dy;
             if (distSq > maxRadSq) {
+                //Here, the intercepted rays exceed the radius. This is necessary.
+                //这里拦截射线超过半径。必须要的。
                 break;
             }
             if (!visited.contains(nextTile)) {

@@ -481,6 +481,7 @@ target_sources(GlimmerWorks
         core/mod/ITemplateCommand.cpp
         core/mod/templateCommand/InsertTemplateCommand.cpp
         core/mod/templateCommand/UnSetTemplateCommand.cpp
+        core/utils/LightUtils.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -696,6 +697,7 @@ target_sources(GlimmerWorks
         core/mod/templateCommand/SetTemplateCommand.h
         core/mod/templateCommand/InsertTemplateCommand.h
         core/mod/templateCommand/UnSetTemplateCommand.h
+        core/utils/LightUtils.h
 )
 
 #Define version information

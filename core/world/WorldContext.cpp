@@ -161,7 +161,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
             lightingBuffer_->AddLightSource(std::make_unique<LightSource>(
                 lightSourcePosition, lightSourceResource->lightRadius,
                 lightSourceResource->minLightBrightness, lightSourceResource->minLightBrightness, SDL_Color{
-                    lightColorPtr->r, lightColorPtr->b, lightColorPtr->g, lightColorPtr->a
+                    lightColorPtr->r, lightColorPtr->g, lightColorPtr->b, lightColorPtr->a
                 }, layerType));
         }
     }
@@ -502,9 +502,7 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
             for (int y = 0; y < CHUNK_SIZE; y++) {
                 auto lightPosition = TileVector2D(position.x + x, position.y + y);
                 lightingBuffer_->RemoveLightMask(lightPosition);
-                for (uint8_t layer = 0; layer < Count; layer++) {
-                    lightingBuffer_->RemoveLightSource(static_cast<TileLayerType>(layer), lightPosition);
-                }
+                lightingBuffer_->RemoveAllLightSources(lightPosition);
             }
         }
         UpdateAdjacentChunksLight(position);

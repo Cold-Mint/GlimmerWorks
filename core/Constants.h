@@ -157,6 +157,7 @@ static constexpr int HALF_CHUNK_SIZE = CHUNK_SIZE * 0.5;
  * 由区块边长的平方计算得出：16 * 16 = 256
  */
 static constexpr int CHUNK_AREA = CHUNK_SIZE * CHUNK_SIZE;
+static constexpr int TILE_LAYER_TYPE_COUNT = 2;
 
 /**
  * Block mask (used for fast modulo operation / obtaining offset within the block)

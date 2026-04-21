@@ -13,10 +13,11 @@
 
 namespace glimmer {
     class LightingBuffer {
-        std::unordered_map<TileVector2D, std::array<std::unique_ptr<LightSource>, Count>,
+        std::unordered_map<const TileVector2D, std::unordered_map<TileLayerType, std::unique_ptr<LightSource> >,
             Vector2DIHash> lightSources_ = {};
-        std::unordered_map<TileVector2D, SDL_Color, Vector2DIHash> lightColors_ = {};
-        std::unordered_map<TileVector2D, std::array<std::unique_ptr<LightMask>, Count>, Vector2DIHash>
+        std::unordered_map<const TileVector2D, SDL_Color, Vector2DIHash> lightColors_ = {};
+        std::unordered_map<const TileVector2D, std::unordered_map<TileLayerType, std::unique_ptr<LightMask> >,
+            Vector2DIHash>
         lightMasks_ = {};
         WorldContext *worldContext_ = nullptr;
 
@@ -39,6 +40,8 @@ namespace glimmer {
          */
         TraverseAction ClearLightPropagation(const LightSource *lightSource, TileVector2D current,
                                              TileVector2D next);
+
+        std::unique_ptr<SDL_Color> ComputeLightColorAtLightPoint(TileVector2D position);
 
     public:
         explicit LightingBuffer(WorldContext *worldContext);
@@ -73,7 +76,14 @@ namespace glimmer {
          * @param layerType layerType 图层类型
          * @param position position 位置
          */
-        void RemoveLightSource(TileLayerType layerType,const TileVector2D &position);
+        void RemoveLightSource(TileLayerType layerType, const TileVector2D &position);
+
+        /**
+         * RemoveAllLightSources
+         * 移除所有光源
+         * @param position
+         */
+        void RemoveAllLightSources(const TileVector2D &position);
     };
 }
 

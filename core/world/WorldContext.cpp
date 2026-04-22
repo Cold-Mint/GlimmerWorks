@@ -62,11 +62,27 @@ bool glimmer::WorldContext::IsDragMode() const {
     return dragMode_;
 }
 
-const SDL_Color *glimmer::WorldContext::GetTotalLightColor(TileVector2D position) const {
+const SDL_Color *glimmer::WorldContext::GetTotalLightColor(const TileVector2D position) const {
     if (lightingBuffer_ == nullptr) {
         return nullptr;
     }
     return lightingBuffer_->GetTotalLightColor(position);
+}
+
+const SDL_Color *glimmer::WorldContext::GetLayerLightColor(const TileVector2D position,
+                                                           const TileLayerType layerType) const {
+    if (lightingBuffer_ == nullptr) {
+        return nullptr;
+    }
+    return lightingBuffer_->GetLayerLightColor(position, layerType);
+}
+
+const SDL_Color *glimmer::WorldContext::GetLayerMaskColor(const TileVector2D position,
+                                                          const TileLayerType layerType) const {
+    if (lightingBuffer_ == nullptr) {
+        return nullptr;
+    }
+    return lightingBuffer_->GetLayerLightMaskColor(position, layerType);
 }
 
 void glimmer::WorldContext::SetDragMode(const bool dragMode) {

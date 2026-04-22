@@ -199,6 +199,10 @@ namespace glimmer {
          */
         [[nodiscard]] const SDL_Color *GetTotalLightColor(TileVector2D position) const;
 
+        [[nodiscard]] const SDL_Color *GetLayerLightColor(TileVector2D position, TileLayerType layerType) const;
+
+        [[nodiscard]] const SDL_Color *GetLayerMaskColor(TileVector2D position, TileLayerType layerType) const;
+
         void SetDragMode(bool dragMode);
 
         [[nodiscard]] GameEntity::ID GetEntityIdIndex() const;

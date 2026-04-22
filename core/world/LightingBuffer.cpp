@@ -151,7 +151,6 @@ void glimmer::LightingBuffer::UpdateAllLightsInRadius(const TileLayerType layerT
         );
 
         lightPropagationTraverser.Start();
-        worldContext_->GetAppContext()->AddUIMessage("刷新");
     }
 }
 
@@ -312,7 +311,7 @@ void glimmer::LightingBuffer::RemoveLightSource(const TileLayerType layerType, c
     auto maxRadius = lightPtr->GetMaxRadius();
     auto tileLayerType = lightPtr->GetTileLayerType();
     const TileVector2D &center = lightPtr->GetCenter();
-    const LightPropagationTraverser lightPropagationTraverser = LightPropagationTraverser(
+    const LightPropagationTraverser lightPropagationTraverser(
         center, maxRadius,
         [this,lightPtr](const TileVector2D cur, const TileVector2D next) {
             return this->ClearLightPropagation(lightPtr, cur, next);
@@ -323,8 +322,14 @@ void glimmer::LightingBuffer::RemoveLightSource(const TileLayerType layerType, c
     if (lightSourcesMap.empty()) {
         lightSources_.erase(lightSourcesMapIterator);
     }
-    //Set the color of the light source as the origin point.
-    //设置原点的光源颜色。
+    const auto layerLightColor = layerLightColors_.find(position);
+    if (layerLightColor != layerLightColors_.end()) {
+        auto &layerLightMap = layerLightColor->second;
+        layerLightMap.erase(layerType);
+        if (layerLightMap.empty()) {
+            layerLightColors_.erase(layerLightColor);
+        }
+    }
     std::unique_ptr<SDL_Color> color = ComputeTotalLightColorFromLayers(center);
     if (color == nullptr) {
         totalLightColor_.erase(center);

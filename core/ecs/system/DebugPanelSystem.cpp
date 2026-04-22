@@ -228,12 +228,14 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
         auto tile = tileLayer->GetSelfLayerTile(tileCoord);
         if (tile != nullptr) {
-            const SDL_Color *tileColor = worldContext_->GetTotalLightColor(tileCoord);
-            if (tileColor == nullptr) {
+            const SDL_Color *layerLightColor = worldContext_->GetLayerLightColor(tileCoord, tile->GetLayerType());
+            const SDL_Color *layerMaskColor = worldContext_->GetLayerMaskColor(tileCoord, tile->GetLayerType());
+            if (layerLightColor != nullptr && layerMaskColor != nullptr) {
                 std::string tileResDebugInfo = fmt::format(
                     fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
                     static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
-                    0, 0, 0, 0
+                    layerLightColor->a, layerLightColor->r, layerLightColor->g, layerLightColor->b, layerMaskColor->a,
+                    layerMaskColor->r, layerMaskColor->g, layerMaskColor->b
                 );
                 RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
                                 appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
@@ -242,7 +244,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
                 std::string tileResDebugInfo = fmt::format(
                     fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
                     static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
-                    tileColor->a, tileColor->r, tileColor->g, tileColor->b
+                    -1, -1, -1, -1, -1, -1, -1, -1
                 );
                 RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
                                 appContext->GetPreloadColors()->debugColor.debugPanelTextColor,

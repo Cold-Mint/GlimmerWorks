@@ -69,14 +69,17 @@ void glimmer::Light2DSystem::Render(SDL_Renderer *renderer) {
             renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
             renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
             SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
-            const SDL_Color lightColor = worldContext_->GetLightColor(tileVector2D);
-            if (lightColor.a == 0) {
+            const SDL_Color *lightColor = worldContext_->GetTotalLightColor(tileVector2D);
+            if (lightColor == nullptr) {
                 continue;
             }
-            SDL_SetRenderDrawColor(renderer, lightColor.r,
-                                   lightColor.g,
-                                   lightColor.b,
-                                   lightColor.a);
+            if (lightColor->a == 0) {
+                continue;
+            }
+            SDL_SetRenderDrawColor(renderer, lightColor->r,
+                                   lightColor->g,
+                                   lightColor->b,
+                                   lightColor->a);
             SDL_RenderFillRect(renderer, &dstRect);
         }
     }

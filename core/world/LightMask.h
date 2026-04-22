@@ -13,10 +13,21 @@ namespace glimmer {
      * LightMask
      * 光线遮照
      */
-    struct LightMask {
-        TileVector2D position = {};
-        SDL_Color lightMaskColor = {};
-        TileLayerType tileLayer;
+    class LightMask {
+        TileVector2D position_ = {};
+        SDL_Color lightMaskColor_ = {};
+        TileLayerType tileLayer_ = Ground;
+
+    public:
+        explicit LightMask(const TileVector2D &position, const TileLayerType &tileLayer,
+                           const SDL_Color &lightMaskColor);
+
+
+        [[nodiscard]] const TileLayerType &GetTileLayer() const;
+
+        [[nodiscard]] const SDL_Color &GetLightMaskColor() const;
+
+        [[nodiscard]] const TileVector2D &GetPosition() const;
     };
 }
 

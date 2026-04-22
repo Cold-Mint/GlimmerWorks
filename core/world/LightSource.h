@@ -9,13 +9,23 @@
 
 
 namespace glimmer {
-    struct LightSource {
-        TileVector2D center = {};
-        int maxRadius = 0;
-        float minLightBrightness = 0.0F;
-        float lightAttenuationPerCell = 1.0F;
-        SDL_Color emissionColor = {};
-        TileLayerType tileLayer;
+    class LightSource {
+        TileVector2D center_ = {};
+        int maxRadius_ = 0;
+        SDL_Color emissionColor_ = {};
+        TileLayerType tileLayer_ = Ground;
+
+    public:
+        explicit LightSource(const TileVector2D &center, int maxRadius, const SDL_Color &emissionColor,
+                             const TileLayerType &tileLayer);
+
+        [[nodiscard]] int GetMaxRadius() const;
+
+        [[nodiscard]] const TileLayerType &GetTileLayerType() const;
+
+        [[nodiscard]] const TileVector2D &GetCenter() const;
+
+        [[nodiscard]] const SDL_Color &GetEmissionColor() const;
     };
 }
 

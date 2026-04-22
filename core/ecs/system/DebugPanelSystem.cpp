@@ -228,15 +228,26 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
 
         auto tile = tileLayer->GetSelfLayerTile(tileCoord);
         if (tile != nullptr) {
-            const SDL_Color tileColor = worldContext_->GetLightColor(tileCoord);
-            std::string tileResDebugInfo = fmt::format(
-                fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
-                static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
-                tileColor.a, tileColor.r, tileColor.g, tileColor.b
-            );
-            RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
-                            appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
-                            appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+            const SDL_Color *tileColor = worldContext_->GetTotalLightColor(tileCoord);
+            if (tileColor == nullptr) {
+                std::string tileResDebugInfo = fmt::format(
+                    fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
+                    static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
+                    0, 0, 0, 0
+                );
+                RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
+                                appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
+                                appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+            } else {
+                std::string tileResDebugInfo = fmt::format(
+                    fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
+                    static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
+                    tileColor->a, tileColor->r, tileColor->g, tileColor->b
+                );
+                RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
+                                appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
+                                appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+            }
             yOffset += lineSpacing;
         }
     }

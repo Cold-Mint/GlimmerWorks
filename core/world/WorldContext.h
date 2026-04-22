@@ -168,7 +168,7 @@ namespace glimmer {
          */
         void OnChunkTileChange(Chunk *chunk, Tile *tile, TileLayerType layerType, int index) const;
 
-        void UpdateTileLight(const Chunk *chunk,TileLayerType layerType, int index) const;
+        void UpdateTileLight(const Chunk *chunk, TileLayerType layerType, int index) const;
 
         /**
          * Update the lighting for the entire chunk.
@@ -197,7 +197,7 @@ namespace glimmer {
          * @param position position 位置
          * @return
          */
-        [[nodiscard]] SDL_Color GetLightColor(TileVector2D position) const;
+        [[nodiscard]] const SDL_Color *GetTotalLightColor(TileVector2D position) const;
 
         void SetDragMode(bool dragMode);
 

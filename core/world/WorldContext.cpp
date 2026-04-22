@@ -62,11 +62,11 @@ bool glimmer::WorldContext::IsDragMode() const {
     return dragMode_;
 }
 
-SDL_Color glimmer::WorldContext::GetLightColor(const TileVector2D position) const {
+const SDL_Color *glimmer::WorldContext::GetTotalLightColor(TileVector2D position) const {
     if (lightingBuffer_ == nullptr) {
-        return SDL_Color{0, 0, 0, 0};
+        return nullptr;
     }
-    return lightingBuffer_->GetLightColor(position);
+    return lightingBuffer_->GetTotalLightColor(position);
 }
 
 void glimmer::WorldContext::SetDragMode(const bool dragMode) {
@@ -142,9 +142,9 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
         if (lightMaskColorPtr == nullptr) {
             return;
         }
-        lightingBuffer_->AddLightMask(std::make_unique<LightMask>(lightSourcePosition, SDL_Color{
-                                                                      lightMaskColorPtr->r, lightMaskColorPtr->b,
-                                                                      lightMaskColorPtr->g, lightMaskColorPtr->a
+        lightingBuffer_->AddLightMask(std::make_unique<LightMask>(lightSourcePosition, tile->GetLayerType(), SDL_Color{
+                                                                      lightMaskColorPtr->r, lightMaskColorPtr->g,
+                                                                      lightMaskColorPtr->b, lightMaskColorPtr->a
                                                                   }));
     }
     const LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(
@@ -160,7 +160,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
         } else {
             lightingBuffer_->AddLightSource(std::make_unique<LightSource>(
                 lightSourcePosition, lightSourceResource->lightRadius,
-                lightSourceResource->minLightBrightness, lightSourceResource->minLightBrightness, SDL_Color{
+                SDL_Color{
                     lightColorPtr->r, lightColorPtr->g, lightColorPtr->b, lightColorPtr->a
                 }, layerType));
         }
@@ -177,7 +177,9 @@ void glimmer::WorldContext::UpdateChunkLight(const Chunk *chunk) const {
     }
 
     for (int index = 0; index < CHUNK_AREA; ++index) {
-        UpdateTileLight(chunk, Ground, index);
+        for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
+            UpdateTileLight(chunk, static_cast<TileLayerType>(1 << i), index);
+        }
     }
 }
 
@@ -501,7 +503,7 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < CHUNK_SIZE; y++) {
                 auto lightPosition = TileVector2D(position.x + x, position.y + y);
-                lightingBuffer_->RemoveLightMask(lightPosition);
+                lightingBuffer_->RemoveAllLightMask(lightPosition);
                 lightingBuffer_->RemoveAllLightSources(lightPosition);
             }
         }

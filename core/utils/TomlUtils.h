@@ -384,7 +384,6 @@ namespace toml {
             glimmer::LightSourceResource r;
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.lightRadius = toml::find_or<int>(v, "light_radius", 0);
-            r.minLightBrightness = toml::find_or<float>(v, "min_light_brightness", 0.02F);
             r.lightBrightestAtCenter = toml::find_or<bool>(v, "light_brightest_at_center", true);
             r.lightColor = toml::find_or<glimmer::ResourceRef>(v, "light_color", {});
             return r;

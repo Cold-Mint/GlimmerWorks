@@ -15,11 +15,14 @@ namespace glimmer {
     class LightingBuffer {
         std::unordered_map<const TileVector2D, std::unordered_map<TileLayerType, std::unique_ptr<LightSource> >,
             Vector2DIHash> lightSources_ = {};
-        std::unordered_map<const TileVector2D, SDL_Color, Vector2DIHash> lightColors_ = {};
+        std::unordered_map<const TileVector2D, std::unordered_map<TileLayerType, std::unique_ptr<SDL_Color> >,
+            Vector2DIHash> layerLightColors_ = {};
+        std::unordered_map<const TileVector2D, std::unique_ptr<SDL_Color>, Vector2DIHash> totalLightColor_ = {};
         std::unordered_map<const TileVector2D, std::unordered_map<TileLayerType, std::unique_ptr<LightMask> >,
             Vector2DIHash>
         lightMasks_ = {};
         WorldContext *worldContext_ = nullptr;
+
 
         /**
          * 应用光照传播（添加光源时，为瓦片设置光照）
@@ -41,7 +44,19 @@ namespace glimmer {
         TraverseAction ClearLightPropagation(const LightSource *lightSource, TileVector2D current,
                                              TileVector2D next);
 
-        std::unique_ptr<SDL_Color> ComputeLightColorAtLightPoint(TileVector2D position);
+        std::unique_ptr<SDL_Color> ComputeTotalLightColorFromLayers(TileVector2D position);
+
+        /**
+         * Update the light source within the specified radius around a certain position.
+         * 更新某个位置周围指定半径的光源。
+         *
+         * Trigger a recalculation.
+         * 触发重新计算。
+         * @param layerType layerType 图层类型
+         * @param center center 原点
+         * @param radius radius 半径
+         */
+        void UpdateAllLightsInRadius(TileLayerType layerType, TileVector2D center, int radius);
 
     public:
         explicit LightingBuffer(WorldContext *worldContext);
@@ -53,7 +68,9 @@ namespace glimmer {
          */
         void AddLightMask(std::unique_ptr<LightMask> lightMask);
 
-        void RemoveLightMask(TileVector2D position);
+        void RemoveLightMask(TileLayerType layerType, const TileVector2D &position);
+
+        void RemoveAllLightMask(const TileVector2D &position);
 
         /**
          * AddLightSource
@@ -62,13 +79,12 @@ namespace glimmer {
          */
         void AddLightSource(std::unique_ptr<LightSource> lightSource);
 
-        /**
-         * GetLightColor
-         * 获取光照颜色
-         * @param position
-         * @return
-         */
-        SDL_Color GetLightColor(TileVector2D position);
+        const SDL_Color *GetTotalLightColor(TileVector2D position);
+
+        const SDL_Color *GetLayerLightColor(TileVector2D position, TileLayerType layerType);
+
+        const SDL_Color *GetLayerLightMaskColor(TileVector2D position, TileLayerType layerType);
+
 
         /**
          * RemoveLightSource

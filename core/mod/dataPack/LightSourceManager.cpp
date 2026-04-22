@@ -12,7 +12,6 @@ glimmer::LightSourceManager::LightSourceManager() {
     resourceRef.SetResourceType(RESOURCE_TYPE_FIXED_COLOR);
     resourceRef.SetResourceKey(LIGHT_NONE_COLOR);
     lightSourceNoneResource_->lightColor = resourceRef;
-    lightSourceNoneResource_->minLightBrightness = 0.0F;
     lightSourceNoneResource_->lightBrightestAtCenter = true;
 }
 

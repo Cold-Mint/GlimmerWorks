@@ -48,8 +48,6 @@ namespace glimmer {
     struct LightSourceResource : Resource {
         //@genNextLine(lightRadius The maximum value is 16, which is the length of the block.|光照半径 最大值为区块长度16)
         int lightRadius = 0;
-        //@genNextLine(minLightBrightness The minimum brightness percentage of the tile, 0.0 = completely dark, 1.0 = always full brightness.|瓦片最低亮度百分比 0.0为完全黑暗 1.0为始终保持最亮)
-        float minLightBrightness = 0.02F;
         //@genNextLine(lightBrightestAtCenter If true, light is brightest at center; if false, light is brightest at edge.|亮度峰值在圆心 true=中心亮四周暗，false=中心暗四周亮)
         bool lightBrightestAtCenter = true;
         //@genNextLine(lightColor A: Indicates the intensity of light emission.|发光颜色 A表示发光强度。)

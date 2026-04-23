@@ -199,13 +199,13 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
                     appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
     yOffset += lineSpacing;
     bool firstLayer = true;
+    TileVector2D tileCoord = TileLayerComponent::WorldToTile(mousePosition_);
     for (auto &tileEntity: tileLayers) {
         auto tileLayer = worldContext_->GetComponent<TileLayerComponent>(tileEntity);
         if (tileLayer == nullptr) {
             continue;
         }
 
-        TileVector2D tileCoord = TileLayerComponent::WorldToTile(mousePosition_);
         TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileCoord);
         if (firstLayer) {
             float elevation = ChunkGenerator::GetElevation(tileCoord.y);
@@ -227,31 +227,59 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         }
 
         auto tile = tileLayer->GetSelfLayerTile(tileCoord);
-        if (tile != nullptr) {
-            const SDL_Color *layerLightColor = worldContext_->GetLayerLightColor(tileCoord, tile->GetLayerType());
-            const SDL_Color *layerMaskColor = worldContext_->GetLayerMaskColor(tileCoord, tile->GetLayerType());
-            if (layerLightColor != nullptr && layerMaskColor != nullptr) {
-                std::string tileResDebugInfo = fmt::format(
-                    fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
-                    static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
-                    layerLightColor->a, layerLightColor->r, layerLightColor->g, layerLightColor->b, layerMaskColor->a,
-                    layerMaskColor->r, layerMaskColor->g, layerMaskColor->b
-                );
-                RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
-                                appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
-                                appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
-            } else {
-                std::string tileResDebugInfo = fmt::format(
-                    fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
-                    static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
-                    -1, -1, -1, -1, -1, -1, -1, -1
-                );
-                RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
-                                appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
-                                appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
-            }
-            yOffset += lineSpacing;
+        if (tile == nullptr) {
+            continue;
         }
+        const SDL_Color *layerLightColor = worldContext_->GetLayerLightColor(tileCoord, tile->GetLayerType());
+        uint8_t layerLightColorA = 0;
+        uint8_t layerLightColorR = 0;
+        uint8_t layerLightColorG = 0;
+        uint8_t layerLightColorB = 0;
+        if (layerLightColor != nullptr) {
+            layerLightColorA = layerLightColor->a;
+            layerLightColorR = layerLightColor->r;
+            layerLightColorG = layerLightColor->g;
+            layerLightColorB = layerLightColor->b;
+        }
+        const SDL_Color *layerMaskColor = worldContext_->GetLayerMaskColor(tileCoord, tile->GetLayerType());
+        uint8_t layerMaskColorA = 0;
+        uint8_t layerMaskColorR = 0;
+        uint8_t layerMaskColorG = 0;
+        uint8_t layerMaskColorB = 0;
+        if (layerMaskColor != nullptr) {
+            layerMaskColorA = layerMaskColor->a;
+            layerMaskColorR = layerMaskColor->r;
+            layerMaskColorG = layerMaskColor->g;
+            layerMaskColorB = layerMaskColor->b;
+        }
+        std::string tileResDebugInfo = fmt::format(
+            fmt::runtime(appContext->GetLangsResources()->tileResDebugInfo),
+            static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName(),
+            layerLightColorA, layerLightColorR, layerLightColorG, layerLightColorB, layerMaskColorA,
+            layerMaskColorR, layerMaskColorG, layerMaskColorB
+        );
+        RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+        yOffset += lineSpacing;
+    }
+    const SDL_Color *totalLightColor = worldContext_->GetTotalLightColor(tileCoord);
+    if (totalLightColor == nullptr) {
+        std::string totalLight = fmt::format(
+            fmt::runtime(appContext->GetLangsResources()->totalLight),
+            -1, -1, -1, -1
+        );
+        RenderDebugText(renderer, windowW, totalLight, yOffset,
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+    } else {
+        std::string totalLight = fmt::format(
+            fmt::runtime(appContext->GetLangsResources()->totalLight),
+            totalLightColor->a, totalLightColor->r, totalLightColor->g, totalLightColor->b
+        );
+        RenderDebugText(renderer, windowW, totalLight, yOffset,
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
     }
 
     // Draw Chunk Grid in Bottom-Left

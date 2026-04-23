@@ -123,6 +123,7 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->tileDebugInfo = find<std::string>(value, "tile_debug_info");
     langs_->tileResDebugInfo = find<std::string>(value, "tile_res_debug_info");
     langs_->mousePosition = find<std::string>(value, "mouse_position");
+    langs_->totalLight = find<std::string>(value, "total_light");
     langs_->noBiomeWasFound = find<std::string>(value, "no_biome_was_found");
     langs_->biomeHasFound = find<std::string>(value, "biome_has_found");
     langs_->configurationCommitSuccess = find<std::string>(value, "configuration_commit_success");

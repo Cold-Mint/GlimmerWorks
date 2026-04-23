@@ -107,18 +107,18 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     if (ImGui::IsItemHovered()) {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
-    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->GetLangsResources()->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-    }
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-    }
-    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->GetLangsResources()->settings.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-    }
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-    }
+    // ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
+    // if (ImGui::Button(appContext->GetLangsResources()->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    // }
+    // if (ImGui::IsItemHovered()) {
+    //     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    // }
+    // ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
+    // if (ImGui::Button(appContext->GetLangsResources()->settings.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    // }
+    // if (ImGui::IsItemHovered()) {
+    //     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    // }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(appContext->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
         OnBackPressed();

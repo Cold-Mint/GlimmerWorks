@@ -23,15 +23,19 @@ glimmer::TraverseAction glimmer::LightingBuffer::ApplyLightPropagation(const Lig
     }
     int maxRadius = lightSource->GetMaxRadius();
     const SDL_Color &emissionColor = lightSource->GetEmissionColor();
-    auto nextColor = std::make_unique<SDL_Color>(
+    auto newNextColor = std::make_unique<SDL_Color>(
         static_cast<Uint8>(std::max(0, currentColor->r - emissionColor.r / maxRadius)),
         static_cast<Uint8>(std::max(0, currentColor->g - emissionColor.g / maxRadius)),
         static_cast<Uint8>(std::max(0, currentColor->b - emissionColor.b / maxRadius)),
         static_cast<Uint8>(std::max(0, currentColor->a - emissionColor.a / maxRadius)));
-    auto nextColorPtr = nextColor.get();
+    const SDL_Color *nextColor = GetLayerLightColor(next, tileLayerType);
+    if (nextColor != nullptr) {
+        newNextColor = LightUtils::MixLights(newNextColor.get(), nextColor);
+    }
+    auto nextColorPtr = newNextColor.get();
     const SDL_Color *nextColorMask = GetLayerLightMaskColor(next, tileLayerType);
     if (nextColorMask == nullptr) {
-        layerLightColors_[next][tileLayerType] = std::move(nextColor);
+        layerLightColors_[next][tileLayerType] = std::move(newNextColor);
     } else {
         layerLightColors_[next][tileLayerType] = LightUtils::ApplyLightingMask(currentColor, nextColorMask);
     }
@@ -211,12 +215,10 @@ void glimmer::LightingBuffer::AddLightSource(std::unique_ptr<LightSource> lightS
     const TileLayerType &tileLayer = lightSource->GetTileLayerType();
     const SDL_Color &emissionColor = lightSource->GetEmissionColor();
     const auto lightSourcesIterator = lightSources_.find(center);
-    std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > *tileLayerTypeMapPtr = nullptr;
-    if (lightSourcesIterator == lightSources_.end()) {
-        tileLayerTypeMapPtr = &lightSources_[center];
-    } else {
-        tileLayerTypeMapPtr = &lightSourcesIterator->second;
-        if (tileLayerTypeMapPtr->contains(tileLayer)) {
+    if (lightSourcesIterator != lightSources_.end()) {
+        std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > &tileLayerTypeMapPtr = lightSourcesIterator->
+                second;
+        if (tileLayerTypeMapPtr.contains(tileLayer)) {
             //The current position and the current layer already have a light source.
             //当前位置和当前图层，已经有一个光源了。
             LogCat::e("Try to add the light source again.");
@@ -224,8 +226,7 @@ void glimmer::LightingBuffer::AddLightSource(std::unique_ptr<LightSource> lightS
         }
     }
     auto lightPtr = lightSource.get();
-    std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > &tileLayerTypeMap = *tileLayerTypeMapPtr;
-    tileLayerTypeMap[tileLayer] = std::move(lightSource);
+    lightSources_[center][tileLayer] = std::move(lightSource);
     layerLightColors_[center][tileLayer] = std::make_unique<SDL_Color>(
         emissionColor.r, emissionColor.g, emissionColor.b, emissionColor.a);
     //Set the color of the light source as the origin point.
@@ -310,9 +311,8 @@ void glimmer::LightingBuffer::RemoveLightSource(const TileLayerType layerType, c
     auto lightPtr = lightSourceUnique.get();
     auto maxRadius = lightPtr->GetMaxRadius();
     auto tileLayerType = lightPtr->GetTileLayerType();
-    const TileVector2D &center = lightPtr->GetCenter();
     const LightPropagationTraverser lightPropagationTraverser(
-        center, maxRadius,
+        position, maxRadius,
         [this,lightPtr](const TileVector2D cur, const TileVector2D next) {
             return this->ClearLightPropagation(lightPtr, cur, next);
         }
@@ -330,13 +330,13 @@ void glimmer::LightingBuffer::RemoveLightSource(const TileLayerType layerType, c
             layerLightColors_.erase(layerLightColor);
         }
     }
-    std::unique_ptr<SDL_Color> color = ComputeTotalLightColorFromLayers(center);
+    std::unique_ptr<SDL_Color> color = ComputeTotalLightColorFromLayers(position);
     if (color == nullptr) {
-        totalLightColor_.erase(center);
+        totalLightColor_.erase(position);
     } else {
-        totalLightColor_[center] = std::make_unique<SDL_Color>(color->r, color->g, color->b, color->a);
+        totalLightColor_[position] = std::make_unique<SDL_Color>(color->r, color->g, color->b, color->a);
     }
-    UpdateAllLightsInRadius(tileLayerType, center, maxRadius);
+    UpdateAllLightsInRadius(tileLayerType, position, maxRadius);
 }
 
 void glimmer::LightingBuffer::RemoveAllLightSources(const TileVector2D &position) {

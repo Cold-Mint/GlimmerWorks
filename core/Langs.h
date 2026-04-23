@@ -69,6 +69,7 @@ namespace glimmer {
         std::string flyDisable;
         std::string tileDebugInfo;
         std::string tileResDebugInfo;
+        std::string totalLight;
         std::string mousePosition;
         std::string noBiomeWasFound;
         std::string biomeHasFound;

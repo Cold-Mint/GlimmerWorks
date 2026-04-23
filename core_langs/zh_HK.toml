@@ -58,7 +58,6 @@ slogans = [
     "Ciallo～(∠・ω< )⌒☆",
     "我終將歸於塵埃，而開源的世界，永遠鮮活。",
     "吶，一起來編織謊言吧？",
-    "花の塔-さユり",
     "慢慢來，專注本身就是一種超能力。",
     "真正的快樂，不該被概率定義。",
     "在自己的世界裡，認真一點也沒關繫。",
@@ -82,6 +81,7 @@ configuration_commit_fail = "配置保存失敗。"
 configuration_update = "配置{}已被更改爲{}。"
 entry_cannot_found_in_configuration_file = "在配置文件內找不到條目{}。"
 tile_debug_info="瓦片坐標({},{})區塊內坐標({},{}) 溼度{:.2f} 溫度{:.2f} 侵蝕度{:.2f} 海拔{:.2f} 奇異度{:.2f}"
+total_light = "總光照:(A{},R{},G{},B{})"
 mouse_position = "鼠標位置-世界坐標({:.2f},{:.2f})"
 tile_res_debug_info="圖層{} ID{} 硬度{} 名稱:{} 光源:(A{},R{},G{},B{}) 遮照:(A{},R{},G{},B{})"
 no_biome_was_found = "沒有找到生物群繫{}。"

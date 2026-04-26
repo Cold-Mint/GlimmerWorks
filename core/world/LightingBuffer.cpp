@@ -10,152 +10,125 @@
 #include "core/utils/LightUtils.h"
 
 
-glimmer::TraverseAction glimmer::LightingBuffer::ApplyLightPropagation(const LightSource *lightSource,
-                                                                       TileVector2D current,
-                                                                       TileVector2D next) {
-    if (lightSource == nullptr) {
-        return TraverseAction::StopAll;
-    }
-    const TileLayerType tileLayerType = lightSource->GetTileLayerType();
-    const SDL_Color *currentColor = GetLayerLightColor(current, tileLayerType);
-    if (currentColor == nullptr) {
-        return TraverseAction::SkipDirection;
-    }
-    int maxRadius = lightSource->GetMaxRadius();
-    const SDL_Color &emissionColor = lightSource->GetEmissionColor();
-    auto newNextColor = std::make_unique<SDL_Color>(
-        static_cast<Uint8>(std::max(0, currentColor->r - emissionColor.r / maxRadius)),
-        static_cast<Uint8>(std::max(0, currentColor->g - emissionColor.g / maxRadius)),
-        static_cast<Uint8>(std::max(0, currentColor->b - emissionColor.b / maxRadius)),
-        static_cast<Uint8>(std::max(0, currentColor->a - emissionColor.a / maxRadius)));
-    const SDL_Color *nextColor = GetLayerLightColor(next, tileLayerType);
-    if (nextColor != nullptr) {
-        newNextColor = LightUtils::MixLights(newNextColor.get(), nextColor);
-    }
-    auto nextColorPtr = newNextColor.get();
-    const SDL_Color *nextColorMask = GetLayerLightMaskColor(next, tileLayerType);
-    if (nextColorMask == nullptr) {
-        layerLightColors_[next][tileLayerType] = std::move(newNextColor);
-    } else {
-        layerLightColors_[next][tileLayerType] = LightUtils::ApplyLightingMask(currentColor, nextColorMask);
-    }
-
-    std::unique_ptr<SDL_Color> totalLightColor = ComputeTotalLightColorFromLayers(next);
-    if (totalLightColor == nullptr || totalLightColor->a == 0) {
-        totalLightColor_.erase(next);
-        return TraverseAction::Continue;
-    }
-    totalLightColor_[next] = std::move(totalLightColor);
-    if (nextColorPtr->a == 0) {
-        return TraverseAction::SkipDirection;
-    }
-    return TraverseAction::Continue;
-}
-
-glimmer::TraverseAction glimmer::LightingBuffer::ClearLightPropagation(const LightSource *lightSource,
-                                                                       TileVector2D current,
-                                                                       const TileVector2D next) {
-    if (lightSource == nullptr) {
-        return TraverseAction::StopAll;
-    }
-    auto layerLightColorIt = layerLightColors_.find(next);
-    if (layerLightColorIt == layerLightColors_.end()) {
-        return TraverseAction::Continue;
-    }
-    layerLightColorIt->second.erase(lightSource->GetTileLayerType());
-    totalLightColor_[next] = ComputeTotalLightColorFromLayers(next);
-    return TraverseAction::Continue;
-}
-
-std::unique_ptr<SDL_Color> glimmer::LightingBuffer::
-ComputeTotalLightColorFromLayers(const TileVector2D position) {
-    const auto layerLightColorIt = layerLightColors_.find(position);
-    if (layerLightColorIt == layerLightColors_.end()) {
-        return nullptr;
-    }
-    auto &layerLightColorMap = layerLightColorIt->second;
-    if (layerLightColorMap.empty()) {
-        return nullptr;
-    }
-    const auto lightMaskIterator = lightMasks_.find(position);
-    std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > *layerLightMaskMapPtr = nullptr;
-    if (lightMaskIterator != lightMasks_.end()) {
-        //Pre-locate the shading information of the current position.
-        //预先查找当前位置的遮照信息。
-        layerLightMaskMapPtr = &lightMaskIterator->second;
-    }
-    std::unique_ptr<SDL_Color> outputLightColor = nullptr;
-    bool hasFoundLightSource = false;
-    for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
-        auto currentLayerType = static_cast<TileLayerType>(1 << i);
-        if (hasFoundLightSource && layerLightMaskMapPtr != nullptr) {
-            //If a light source was found during the last cycle, then the light source needs to be blocked.
-            //如果在上次循环，找到了光源，那么需要对光源施加遮挡。
-            //For example: If a luminous wall is placed with opaque blocks in front of it, then some of the light will be blocked.
-            //例如：发光墙壁，前面放置了不透光的方块，那么会挡住一部分光线。
-            auto layerMaskIt = layerLightMaskMapPtr->find(currentLayerType);
-            if (layerMaskIt != layerLightMaskMapPtr->end()) {
-                //Found the cover.
-                //找到了遮挡。
-                std::unique_ptr<LightMask> &lightMask = layerMaskIt->second;
-                if (lightMask != nullptr) {
-                    outputLightColor =
-                            LightUtils::ApplyLightingMask(outputLightColor.get(), &lightMask->GetLightMaskColor());
+glimmer::TraverseAction glimmer::LightingBuffer::ClearLightStepCallback(const LightSource *lightSourcePtr,
+                                                                        const TileVector2D current,
+                                                                        const TileVector2D next,
+                                                                        const bool centerOfCircle,
+                                                                        const TileLayerType layerType,
+                                                                        const int rayIndex) {
+    if (centerOfCircle) {
+        auto currentTileLightIterator = tileLightData_.find(
+            current);
+        if (currentTileLightIterator != tileLightData_.end()) {
+            const std::unique_ptr<TileLightData> &
+                    currentTileLight =
+                    currentTileLightIterator->second;
+            if (currentTileLight != nullptr) {
+                TileLightData *currentTileLightPtr =
+                        currentTileLight.get();
+                if (currentTileLightPtr != nullptr) {
+                    currentTileLightPtr->ClearLightContribution(
+                        layerType, lightSourcePtr, rayIndex);
                 }
             }
         }
-        auto layerLightIt = layerLightColorMap.find(currentLayerType);
-        if (layerLightIt == layerLightColorMap.end()) {
-            continue;
-        }
-        std::unique_ptr<SDL_Color> &lightColorUniquePtr = layerLightIt->second;
-        if (lightColorUniquePtr == nullptr) {
-            continue;
-        }
-        SDL_Color *light = lightColorUniquePtr.get();
-        if (!hasFoundLightSource) {
-            //The first time I found the source of light.
-            //第一次找到光源。
-            outputLightColor = std::make_unique<SDL_Color>(light->r, light->g, light->b, light->a);
-            hasFoundLightSource = true;
-            continue;
-        }
-        //It's not the first time that color mixing has been performed.
-        //不是第一次找到，进行颜色混合。
-        outputLightColor = LightUtils::MixLights(outputLightColor.get(), light);
     }
-    if (hasFoundLightSource) {
-        return outputLightColor;
+    auto nextTileLightIterator = tileLightData_.find(next);
+    if (nextTileLightIterator != tileLightData_.end()) {
+        const std::unique_ptr<TileLightData> &
+                nextTileLight =
+                nextTileLightIterator->second;
+        if (nextTileLight != nullptr) {
+            TileLightData *nextTileLightPtr =
+                    nextTileLight.get();
+            if (nextTileLightPtr != nullptr) {
+                nextTileLightPtr->ClearLightContribution(
+                    layerType, lightSourcePtr, rayIndex);
+            }
+        }
     }
-    return nullptr;
+    return TraverseAction::Continue;
 }
 
-void glimmer::LightingBuffer::UpdateAllLightsInRadius(const TileLayerType layerType, const TileVector2D center,
-                                                      const int radius) {
-    const int squaredRadius = radius * radius;
-    for (auto &[pos, layerMap]: lightSources_) {
-        const int distSq = pos.DistanceSquared(center);
-        if (distSq > squaredRadius) {
-            continue;
-        }
-        auto layerIt = layerMap.find(layerType);
-        if (layerIt == layerMap.end()) {
-            continue;
-        }
-        auto &lightSourcePtr = layerIt->second;
-        if (lightSourcePtr == nullptr) {
-            continue;
-        }
-        LightPropagationTraverser lightPropagationTraverser(
-            lightSourcePtr->GetCenter(),
-            lightSourcePtr->GetMaxRadius(),
-            [this, lightPtr = lightSourcePtr.get()](const TileVector2D cur, const TileVector2D next) {
-                return this->ApplyLightPropagation(lightPtr, cur, next);
-            }
-        );
-
-        lightPropagationTraverser.Start();
+glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const LightSource *lightSourcePtr,
+                                                                      TileVector2D current, TileVector2D next,
+                                                                      bool centerOfCircle, TileLayerType layerType,
+                                                                      int rayIndex) {
+    const SDL_Color emissionColor = lightSourcePtr->
+            GetEmissionColor();
+    auto &currentTileLight = tileLightData_[current];
+    if (currentTileLight == nullptr) {
+        currentTileLight = std::make_unique<TileLightData>();
     }
+    if (centerOfCircle) {
+        //If it is the center point.
+        //如果是圆心
+        auto currentLightContribution = std::make_unique<
+            LightContribution>();
+        auto lightColor = std::make_unique
+                <SDL_Color>();
+        lightColor->r = emissionColor.r;
+        lightColor->g = emissionColor.g;
+        lightColor->b = emissionColor.b;
+        lightColor->a = emissionColor.a;
+        currentLightContribution->SetLightColor(
+            std::move(lightColor));
+        currentLightContribution->SetRayIndex(LIGHT_CONTRIBUTION_CENTER_RAY_INDEX);
+        currentLightContribution->
+                SetLightSource(lightSourcePtr);
+        currentTileLight->SetLightContribution(
+            layerType, std::move(currentLightContribution));
+    }
+
+    auto &nextTileLight = tileLightData_[next];
+    if (nextTileLight == nullptr) {
+        nextTileLight = std::make_unique<TileLightData>();
+    }
+    const LightContribution *currentLightContribution =
+            currentTileLight->
+            GetLightContribution(layerType, lightSourcePtr);
+    const SDL_Color *currentColor = currentLightContribution->
+            GetLightColor();
+    auto nextLightContribution = std::make_unique<
+        LightContribution>();
+    int maxRadius = lightSourcePtr->GetMaxRadius();
+    auto nextColor = std::make_unique<SDL_Color>(
+        static_cast<Uint8>(std::max(
+            0, currentColor->r -
+               emissionColor.r /
+               maxRadius)),
+        static_cast<Uint8>(std::max(
+            0, currentColor->g - emissionColor.g /
+               maxRadius)),
+        static_cast<Uint8>(std::max(
+            0, currentColor->b - emissionColor.b /
+               maxRadius)),
+        static_cast<Uint8>(std::max(
+            0, currentColor->a - emissionColor.a /
+               maxRadius)));
+
+    const LightMask *lightMask = nextTileLight->GetLightMask(
+        layerType);
+    bool applyLightMask = false;
+    if (lightMask != nullptr) {
+        const SDL_Color *lightMaskColor = lightMask->
+                GetLightMaskColor();
+        if (lightMaskColor != nullptr) {
+            nextLightContribution->SetLightColor(
+                LightUtils::ApplyLightingMask(
+                    currentColor, lightMaskColor));
+            applyLightMask = true;
+        }
+    }
+    if (!applyLightMask) {
+        nextLightContribution->SetLightColor(
+            std::move(nextColor));
+    }
+    nextLightContribution->SetLightSource(lightSourcePtr);
+    nextLightContribution->SetRayIndex(rayIndex);
+    nextTileLight->SetLightContribution(
+        layerType, std::move(nextLightContribution));
+    return TraverseAction::Continue;
 }
 
 
@@ -163,191 +136,133 @@ glimmer::LightingBuffer::LightingBuffer(WorldContext *worldContext) {
     worldContext_ = worldContext;
 }
 
-void glimmer::LightingBuffer::AddLightMask(std::unique_ptr<LightMask> lightMask) {
-    if (lightMask == nullptr) {
+void glimmer::LightingBuffer::SetLightMask(const TileVector2D position, const TileLayerType layerType,
+                                           std::unique_ptr<LightMask> lightMask) {
+    tileLightData_[position]->SetLightMask(layerType, std::move(lightMask));
+    auto tileLightDataIterator = tileLightData_.find(position);
+    if (tileLightDataIterator == tileLightData_.end()) {
         return;
     }
-    const LightMask *lightMaskPtr = lightMask.get();
-    lightMasks_[lightMask->GetPosition()][lightMask->GetTileLayer()] = std::move(lightMask);
-    UpdateAllLightsInRadius(lightMaskPtr->GetTileLayer(), lightMaskPtr->GetPosition(), CHUNK_SIZE);
-}
-
-void glimmer::LightingBuffer::RemoveLightMask(TileLayerType layerType, const TileVector2D &position) {
-    const auto lightMaskIterator = lightMasks_.find(position);
-    if (lightMaskIterator == lightMasks_.end()) {
+    const auto &tileLightDataPtr = tileLightDataIterator->second;
+    if (tileLightDataPtr == nullptr) {
         return;
     }
-    auto &layerMaskMap = lightMaskIterator->second;
-    const auto layerMaskIterator = layerMaskMap.find(layerType);
-    if (layerMaskIterator == layerMaskMap.end()) {
-        return;
-    }
-    const std::unique_ptr<LightMask> &lightMask = layerMaskIterator->second;
-    if (lightMask == nullptr) {
-        return;
-    }
-    const LightMask *lightMaskPtr = lightMask.get();
-    UpdateAllLightsInRadius(lightMaskPtr->GetTileLayer(), lightMaskPtr->GetPosition(), CHUNK_SIZE);
-    layerMaskMap.erase(layerMaskIterator);
-    if (layerMaskMap.empty()) {
-        lightMasks_.erase(lightMaskIterator);
-    }
-}
-
-void glimmer::LightingBuffer::RemoveAllLightMask(const TileVector2D &position) {
-    const auto lightMaskIterator = lightMasks_.find(position);
-    if (lightMaskIterator == lightMasks_.end()) {
-        return;
-    }
-    auto &lightMaskMap = lightMaskIterator->second;
-    if (!lightMaskMap.empty()) {
-        for (auto &lightSourcesMapPair: lightMaskMap) {
-            RemoveLightSource(lightSourcesMapPair.first, position);
+    const std::vector<const LightContribution *> lightContributionVector = tileLightDataPtr->
+            GetLightContributionVector(layerType);
+    for (auto lightContribution: lightContributionVector) {
+        if (lightContribution == nullptr) {
+            continue;
         }
+        auto lightSourcePtr = lightContribution->GetLightSource();
+        if (lightSourcePtr == nullptr) {
+            continue;
+        }
+        LightPropagationTraverser lightPropagationTraverser(lightSourcePtr->GetCenter(), lightSourcePtr->GetMaxRadius(),
+                                                            [this, layerType, lightSourcePtr](
+                                                        const TileVector2D current, const TileVector2D next,
+                                                        bool centerOfCircle,
+                                                        int rayIndex) -> TraverseAction {
+                                                                return SetLightStepCallback(
+                                                                    lightSourcePtr, current, next, centerOfCircle,
+                                                                    layerType, rayIndex);
+                                                            });
+        lightPropagationTraverser.PropagateSingleRay(lightContribution->GetRayIndex());
     }
 }
 
-void glimmer::LightingBuffer::AddLightSource(std::unique_ptr<LightSource> lightSource) {
+void glimmer::LightingBuffer::ClearLightMask(const TileVector2D &position, const TileLayerType layerType) {
+    auto tileLightDataIterator = tileLightData_.find(position);
+    if (tileLightDataIterator == tileLightData_.end()) {
+        return;
+    }
+    const auto &tileLightDataPtr = tileLightDataIterator->second;
+    if (tileLightDataPtr == nullptr) {
+        return;
+    }
+    const std::vector<const LightContribution *> lightContributionVector = tileLightDataPtr->
+            GetLightContributionVector(layerType);
+    for (auto lightContribution: lightContributionVector) {
+        if (lightContribution == nullptr) {
+            continue;
+        }
+        auto lightSourcePtr = lightContribution->GetLightSource();
+        if (lightSourcePtr == nullptr) {
+            continue;
+        }
+        LightPropagationTraverser lightPropagationTraverser(lightSourcePtr->GetCenter(), lightSourcePtr->GetMaxRadius(),
+                                                            [this, layerType, lightSourcePtr](
+                                                        const TileVector2D current, const TileVector2D next,
+                                                        bool centerOfCircle,
+                                                        int rayIndex) -> TraverseAction {
+                                                                return ClearLightStepCallback(
+                                                                    lightSourcePtr, current, next, centerOfCircle,
+                                                                    layerType, rayIndex);
+                                                            });
+        lightPropagationTraverser.PropagateSingleRay(lightContribution->GetRayIndex());
+    }
+    tileLightDataPtr->ClearLightMask(layerType);
+}
+
+void glimmer::LightingBuffer::ClearTileLightData(const TileVector2D &position) {
+    tileLightData_.erase(position);
+}
+
+void glimmer::LightingBuffer::SetLightSource(const TileVector2D position, const TileLayerType layerType,
+                                             std::unique_ptr<LightSource> lightSource) {
     if (lightSource == nullptr) {
         return;
     }
-    const TileVector2D &center = lightSource->GetCenter();
-    const TileLayerType &tileLayer = lightSource->GetTileLayerType();
-    const SDL_Color &emissionColor = lightSource->GetEmissionColor();
-    const auto lightSourcesIterator = lightSources_.find(center);
-    if (lightSourcesIterator != lightSources_.end()) {
-        std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > &tileLayerTypeMapPtr = lightSourcesIterator->
-                second;
-        if (tileLayerTypeMapPtr.contains(tileLayer)) {
-            //The current position and the current layer already have a light source.
-            //当前位置和当前图层，已经有一个光源了。
-            LogCat::e("Try to add the light source again.");
-            return;
-        }
-    }
-    auto lightPtr = lightSource.get();
-    lightSources_[center][tileLayer] = std::move(lightSource);
-    layerLightColors_[center][tileLayer] = std::make_unique<SDL_Color>(
-        emissionColor.r, emissionColor.g, emissionColor.b, emissionColor.a);
-    //Set the color of the light source as the origin point.
-    //设置原点的光源颜色。
-    const std::unique_ptr<SDL_Color> color = ComputeTotalLightColorFromLayers(center);
-    if (color == nullptr) {
-        totalLightColor_.erase(center);
-    } else {
-        totalLightColor_[center] = std::make_unique<SDL_Color>(color->r, color->g, color->b, color->a);
-    }
-    UpdateAllLightsInRadius(tileLayer, center, lightPtr->GetMaxRadius());
+    LightSource *lightSourcePtr = lightSource.get();
+    //Add the contribution of lighting centered around the light source.
+    //以光源为中心添加光照贡献。
+    LightPropagationTraverser lightPropagationTraverser(lightSourcePtr->GetCenter(), lightSourcePtr->GetMaxRadius(),
+                                                        [this, layerType, lightSourcePtr](
+                                                    const TileVector2D current, const TileVector2D next,
+                                                    bool centerOfCircle,
+                                                    int rayIndex) -> TraverseAction {
+                                                            return SetLightStepCallback(
+                                                                lightSourcePtr, current, next, centerOfCircle,
+                                                                layerType, rayIndex);
+                                                        });
+    lightPropagationTraverser.PropagateAllRays();
+    tileLightData_[position]->SetLightSource(layerType, std::move(lightSource));
 }
 
-const SDL_Color *glimmer::LightingBuffer::GetTotalLightColor(const TileVector2D position) {
-    const auto it = totalLightColor_.find(position);
-    if (it == totalLightColor_.end()) {
-        return nullptr;
-    }
-    const std::unique_ptr<SDL_Color> &sdlColor = it->second;
-    if (sdlColor == nullptr) {
-        return nullptr;
-    }
-    return sdlColor.get();
-}
-
-const SDL_Color *
-glimmer::LightingBuffer::GetLayerLightColor(const TileVector2D position, const TileLayerType layerType) {
-    const auto it = layerLightColors_.find(position);
-    if (it == layerLightColors_.end()) {
-        return nullptr;
-    }
-    const std::unordered_map<TileLayerType, std::unique_ptr<SDL_Color> > &unorderedMap = it->second;
-    if (unorderedMap.empty()) {
-        return nullptr;
-    }
-    const auto layerIt = unorderedMap.find(layerType);
-    if (layerIt == unorderedMap.end()) {
-        return nullptr;
-    }
-    const std::unique_ptr<SDL_Color> &sdlColor = layerIt->second;
-    if (sdlColor == nullptr) {
-        return nullptr;
-    }
-    return sdlColor.get();
-}
-
-const SDL_Color *glimmer::LightingBuffer::GetLayerLightMaskColor(const TileVector2D position,
-                                                                 const TileLayerType layerType) {
-    const auto it = lightMasks_.find(position);
-    if (it == lightMasks_.end()) {
-        return nullptr;
-    }
-    const std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &unorderedMap = it->second;
-    if (unorderedMap.empty()) {
-        return nullptr;
-    }
-    const auto layerIt = unorderedMap.find(layerType);
-    if (layerIt == unorderedMap.end()) {
-        return nullptr;
-    }
-    const std::unique_ptr<LightMask> &lightMask = layerIt->second;
-    if (lightMask == nullptr) {
-        return nullptr;
-    }
-    return &lightMask->GetLightMaskColor();
-}
-
-void glimmer::LightingBuffer::RemoveLightSource(const TileLayerType layerType, const TileVector2D &position) {
-    const auto lightSourcesMapIterator = lightSources_.find(position);
-    if (lightSourcesMapIterator == lightSources_.end()) {
+void glimmer::LightingBuffer::ClearLightSource(const TileVector2D position, const TileLayerType layerType) {
+    auto tileLightDataIterator = tileLightData_.find(position);
+    if (tileLightDataIterator == tileLightData_.end()) {
         return;
     }
-    auto &lightSourcesMap = lightSourcesMapIterator->second;
-    const auto lightSourcePtrIterator = lightSourcesMap.find(layerType);
-    if (lightSourcePtrIterator == lightSourcesMap.end()) {
+    const auto &tileLightDataPtr = tileLightDataIterator->second;
+    if (tileLightDataPtr == nullptr) {
         return;
     }
-    auto &lightSourceUnique = lightSourcePtrIterator->second;
-    if (lightSourceUnique == nullptr) {
+    const LightSource *lightSourcePtr = tileLightDataPtr->GetLightSource(layerType);
+    if (lightSourcePtr == nullptr) {
         return;
     }
-    auto lightPtr = lightSourceUnique.get();
-    auto maxRadius = lightPtr->GetMaxRadius();
-    auto tileLayerType = lightPtr->GetTileLayerType();
-    const LightPropagationTraverser lightPropagationTraverser(
-        position, maxRadius,
-        [this,lightPtr](const TileVector2D cur, const TileVector2D next) {
-            return this->ClearLightPropagation(lightPtr, cur, next);
-        }
-    );
-    lightPropagationTraverser.Start();
-    lightSourcesMap.erase(lightSourcePtrIterator);
-    if (lightSourcesMap.empty()) {
-        lightSources_.erase(lightSourcesMapIterator);
-    }
-    const auto layerLightColor = layerLightColors_.find(position);
-    if (layerLightColor != layerLightColors_.end()) {
-        auto &layerLightMap = layerLightColor->second;
-        layerLightMap.erase(layerType);
-        if (layerLightMap.empty()) {
-            layerLightColors_.erase(layerLightColor);
-        }
-    }
-    std::unique_ptr<SDL_Color> color = ComputeTotalLightColorFromLayers(position);
-    if (color == nullptr) {
-        totalLightColor_.erase(position);
-    } else {
-        totalLightColor_[position] = std::make_unique<SDL_Color>(color->r, color->g, color->b, color->a);
-    }
-    UpdateAllLightsInRadius(tileLayerType, position, maxRadius);
+
+    LightPropagationTraverser lightPropagationTraverser(lightSourcePtr->GetCenter(), lightSourcePtr->GetMaxRadius(),
+                                                        [this, layerType, lightSourcePtr](
+                                                    TileVector2D current, TileVector2D next,
+                                                    bool centerOfCircle,
+                                                    int rayIndex) -> TraverseAction {
+                                                            return ClearLightStepCallback(
+                                                                lightSourcePtr, current, next, centerOfCircle,
+                                                                layerType, rayIndex);
+                                                        });
+    lightPropagationTraverser.PropagateAllRays();
+    tileLightDataPtr->ClearLightSource(layerType);
 }
 
-void glimmer::LightingBuffer::RemoveAllLightSources(const TileVector2D &position) {
-    const auto lightSourcesMapIterator = lightSources_.find(position);
-    if (lightSourcesMapIterator == lightSources_.end()) {
-        return;
+const SDL_Color *glimmer::LightingBuffer::GetFinalLightColor(const TileVector2D position) {
+    const auto tileLightDataIterator = tileLightData_.find(position);
+    if (tileLightDataIterator == tileLightData_.end()) {
+        return nullptr;
     }
-    auto &lightSourcesMap = lightSourcesMapIterator->second;
-    if (!lightSourcesMap.empty()) {
-        for (auto &lightSourcesMapPair: lightSourcesMap) {
-            RemoveLightSource(lightSourcesMapPair.first, position);
-        }
+    const std::unique_ptr<TileLightData> &tileLightDataUniquePtr = tileLightDataIterator->second;
+    if (tileLightDataUniquePtr == nullptr) {
+        return nullptr;
     }
+    return tileLightDataUniquePtr->GetFinalLightColor();
 }

@@ -177,15 +177,6 @@ namespace glimmer {
          */
         void UpdateChunkLight(const Chunk *chunk) const;
 
-
-        /**
-         * The lighting of the 8 adjacent peripheral blocks (excluding the block itself in a 3x3 grid)
-         * 外围8个相邻区块的光照（3x3 排除自身）
-         *
-         * @param center
-         */
-        void UpdateAdjacentChunksLight(TileVector2D center) const;
-
     public:
         ~WorldContext();
 
@@ -197,11 +188,7 @@ namespace glimmer {
          * @param position position 位置
          * @return
          */
-        [[nodiscard]] const SDL_Color *GetTotalLightColor(TileVector2D position) const;
-
-        [[nodiscard]] const SDL_Color *GetLayerLightColor(TileVector2D position, TileLayerType layerType) const;
-
-        [[nodiscard]] const SDL_Color *GetLayerMaskColor(TileVector2D position, TileLayerType layerType) const;
+        [[nodiscard]] const SDL_Color *GetFinalLightColor(TileVector2D position) const;
 
         void SetDragMode(bool dragMode);
 

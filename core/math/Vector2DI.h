@@ -104,6 +104,14 @@ namespace glimmer {
         [[nodiscard]] int DistanceSquared(const Vector2DI &rhs) const;
 
         /**
+         * Calculate the angle between this vector and another vector.
+         * 计算到另一个向量之间的角度。
+         * @param to to
+         * @return Between 0 and 360 degrees. 0-360度之间。
+         */
+        [[nodiscard]] float ToAngle(const Vector2DI &to) const;
+
+        /**
          * Convert to floating vector
          * 转换为浮点向量
          */

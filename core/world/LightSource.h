@@ -12,16 +12,12 @@ namespace glimmer {
     class LightSource {
         TileVector2D center_ = {};
         int maxRadius_ = 0;
-        SDL_Color emissionColor_ = {};
-        TileLayerType tileLayer_ = Ground;
+         SDL_Color emissionColor_ = {};
 
     public:
-        explicit LightSource(const TileVector2D &center, int maxRadius, const SDL_Color &emissionColor,
-                             const TileLayerType &tileLayer);
+        explicit LightSource(const TileVector2D &center, int maxRadius, const SDL_Color &emissionColor);
 
         [[nodiscard]] int GetMaxRadius() const;
-
-        [[nodiscard]] const TileLayerType &GetTileLayerType() const;
 
         [[nodiscard]] const TileVector2D &GetCenter() const;
 

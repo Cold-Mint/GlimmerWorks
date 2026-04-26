@@ -8,11 +8,54 @@
 #include <unordered_set>
 
 
-glimmer::LightPropagationTraverser::LightPropagationTraverser(TileVector2D center, int maxRadius,
+void glimmer::LightPropagationTraverser::PropagateSingleRayImpl(const int rayIndex,
+                                                                std::unordered_set<TileVector2D, Vector2DIHash> &
+                                                                visited, const int maxRadSq) const {
+    const float angleRadians = static_cast<float>(rayIndex) * rayAngleStep_ * static_cast<float>(M_PI) / 180.0F;
+    const float dirX = std::cos(angleRadians);
+    const float dirY = std::sin(angleRadians);
+    auto currentX = static_cast<float>(center_.x);
+    auto currentY = static_cast<float>(center_.y);
+    TileVector2D currentTile = center_;
+    bool centerOfCircle = true;
+    for (int step = 0; step < maxRadius_; ++step) {
+        currentX += dirX;
+        currentY += dirY;
+        const int nextX = static_cast<int>(std::round(currentX));
+        const int nextY = static_cast<int>(std::round(currentY));
+        const TileVector2D nextTile = {nextX, nextY};
+        const int dx = nextTile.x - center_.x;
+        const int dy = nextTile.y - center_.y;
+        const int distSq = dx * dx + dy * dy;
+        if (distSq > maxRadSq) {
+            //Here, the intercepted rays exceed the radius. This is necessary.
+            //这里拦截射线超过半径。必须要的。
+            break;
+        }
+        if (!visited.contains(nextTile)) {
+            const TraverseAction action = stepCallback_(currentTile, nextTile, centerOfCircle, rayIndex);
+            if (action == TraverseAction::StopAll) {
+                return;
+            }
+            if (action == TraverseAction::SkipDirection) {
+                break;
+            }
+
+            visited.insert(nextTile);
+        }
+
+        currentTile = nextTile;
+        centerOfCircle = false;
+    }
+}
+
+glimmer::LightPropagationTraverser::LightPropagationTraverser(const TileVector2D center, const int maxRadius,
                                                               const std::function<TraverseAction(
-                                                                  TileVector2D current,
-                                                                  TileVector2D next)> &stepCallback) : stepCallback_(
-        stepCallback), maxRadius_(maxRadius), center_(center) {
+                                                                  TileVector2D current, TileVector2D next,
+                                                                  bool centerOfCircle, int reyIndex)> &
+                                                              stepCallback) : stepCallback_(
+                                                                                  stepCallback), maxRadius_(maxRadius),
+                                                                              center_(center) {
     if (maxRadius > 0) {
         const int index = maxRadius - 1;
         rayCount_ = RAY_COUNT[index];
@@ -20,12 +63,7 @@ glimmer::LightPropagationTraverser::LightPropagationTraverser(TileVector2D cente
     }
 }
 
-/**
- * 游走时的回调函数，TileVector2D表示当前游走坐标，返回bool，如果返回true，则终止游走当前方向。
- *  distance The distance from the current point to the center point
- *  distance 当前点距离中心点的距离
- */
-void glimmer::LightPropagationTraverser::Start() const {
+void glimmer::LightPropagationTraverser::PropagateAllRays() const {
     if (maxRadius_ <= 0 || stepCallback_ == nullptr) {
         return;
     }
@@ -33,39 +71,11 @@ void glimmer::LightPropagationTraverser::Start() const {
     std::unordered_set<TileVector2D, Vector2DIHash> visited;
     const int maxRadSq = maxRadius_ * maxRadius_;
     for (int rayIndex = 0; rayIndex < rayCount_; ++rayIndex) {
-        const float angleRadians = static_cast<float>(rayIndex) * rayAngleStep_ * static_cast<float>(M_PI) / 180.0F;
-        const float dirX = std::cos(angleRadians);
-        const float dirY = std::sin(angleRadians);
-        auto currentX = static_cast<float>(center_.x);
-        auto currentY = static_cast<float>(center_.y);
-        TileVector2D currentTile = center_;
-        for (int step = 0; step < maxRadius_; ++step) {
-            currentX += dirX;
-            currentY += dirY;
-            const int nextX = static_cast<int>(std::round(currentX));
-            const int nextY = static_cast<int>(std::round(currentY));
-            const TileVector2D nextTile = {nextX, nextY};
-            const int dx = nextTile.x - center_.x;
-            const int dy = nextTile.y - center_.y;
-            const int distSq = dx * dx + dy * dy;
-            if (distSq > maxRadSq) {
-                //Here, the intercepted rays exceed the radius. This is necessary.
-                //这里拦截射线超过半径。必须要的。
-                break;
-            }
-            if (!visited.contains(nextTile)) {
-                const TraverseAction action = stepCallback_(currentTile, nextTile);
-                if (action == TraverseAction::StopAll) {
-                    return;
-                }
-                if (action == TraverseAction::SkipDirection) {
-                    break;
-                }
-
-                visited.insert(nextTile);
-            }
-
-            currentTile = nextTile;
-        }
+        PropagateSingleRayImpl(rayIndex, visited, maxRadSq);
     }
+}
+
+void glimmer::LightPropagationTraverser::PropagateSingleRay(const int rayIndex) const {
+    std::unordered_set<TileVector2D, Vector2DIHash> visited;
+    PropagateSingleRayImpl(rayIndex, visited, maxRadius_ * maxRadius_);
 }

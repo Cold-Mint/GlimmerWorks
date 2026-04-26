@@ -72,6 +72,14 @@ int glimmer::Vector2DI::DistanceSquared(const Vector2DI &rhs) const {
     return dx * dx + dy * dy;
 }
 
+float glimmer::Vector2DI::ToAngle(const Vector2DI &to) const {
+    const auto dx = static_cast<float>(to.x - x);
+    const auto dy = static_cast<float>(to.y - y);
+    float ang = std::atan2(dy, dx) * 180.0F / static_cast<float>(M_PI);
+    return ang < 0 ? ang + 360.0F : ang;
+}
+
+
 glimmer::Vector2D glimmer::Vector2DI::ToFloat() const {
     return {static_cast<float>(x), static_cast<float>(y)};
 }

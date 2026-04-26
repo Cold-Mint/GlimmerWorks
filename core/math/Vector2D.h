@@ -121,6 +121,8 @@ namespace glimmer {
          */
         [[nodiscard]] Vector2D Normalized() const;
 
+        [[nodiscard]] float ToAngle(const Vector2D &to) const;
+
         /**
        * Convert to floating vector
        * 转换为浮点向量

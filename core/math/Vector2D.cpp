@@ -73,6 +73,13 @@ glimmer::Vector2D glimmer::Vector2D::Normalized() const {
     return len > 0.0F ? *this / len : Vector2D();
 }
 
+float glimmer::Vector2D::ToAngle(const Vector2D &to) const {
+    const float dx = to.x - x;
+    const float dy = to.y - y;
+    const float ang = std::atan2(dy, dx) * 180.0f / static_cast<float>(M_PI);
+    return ang < 0 ? ang + 360.0f : ang;
+}
+
 glimmer::Vector2DI glimmer::Vector2D::ToInt() const {
     return {static_cast<int>(x), static_cast<int>(y)};
 }

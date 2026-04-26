@@ -5,8 +5,8 @@
 #ifndef GLIMMERWORKS_CLOCKWISEWALKER8_H
 #define GLIMMERWORKS_CLOCKWISEWALKER8_H
 #include <functional>
+#include <unordered_set>
 
-#include "LightSource.h"
 #include "TraverseAction.h"
 #include "core/Constants.h"
 #include "core/ecs/component/TileLayerComponent.h"
@@ -77,11 +77,11 @@ namespace glimmer {
         };
 
         /**
+         * The callback function during movement. TileVector2D represents the current movement coordinates. It returns a boolean value. If the value returned is true, it terminates the current movement direction.
          * 游走时的回调函数，TileVector2D表示当前游走坐标，返回bool，如果返回true，则终止游走当前方向。
-         *  distance The distance from the current point to the center point
-         *  distance 当前点距离中心点的距离
          */
-        std::function<TraverseAction(TileVector2D current, TileVector2D next)> stepCallback_;
+        std::function<TraverseAction(TileVector2D current, TileVector2D next, bool centerOfCircle, int reyIndex)>
+        stepCallback_;
 
         /**
          * 射线数量
@@ -96,18 +96,30 @@ namespace glimmer {
         TileVector2D center_;
         int maxRadius_ = 0;
 
+        /**
+         * PropagateSingleRayImpl
+         * 发射一条射线内部实现
+         * @param rayIndex rayIndex 射线索引
+         * @param visited  visited 已访问坐标
+         * @param maxRadSq maxRadSq 最大半径的平方
+         */
+        void PropagateSingleRayImpl(int rayIndex, std::unordered_set<TileVector2D, Vector2DIHash> &visited,
+                                    int maxRadSq) const;
+
     public:
         LightPropagationTraverser(TileVector2D center, int maxRadius,
-                                  const std::function<TraverseAction(
-                                      TileVector2D current,
-                                      TileVector2D next)> &stepCallback);
+                                  const std::function<TraverseAction(TileVector2D current, TileVector2D next,
+                                                                     bool centerOfCircle,
+                                                                     int reyIndex)> &stepCallback);
 
 
         /**
-         * Start
-         * 开始遍历
+         * PropagateAllRays
+         * 向四周发射全部射线
          */
-        void Start() const;
+        void PropagateAllRays() const;
+
+        void PropagateSingleRay(int rayIndex) const;
     };
 }
 

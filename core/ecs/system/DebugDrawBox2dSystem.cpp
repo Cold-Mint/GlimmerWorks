@@ -249,8 +249,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     }
     const auto *box2dSystemContext = static_cast<Box2dSystemContext *>(context);
     const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
-    SDL_Color box2dBorderColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dBorderColor;
-    SDL_Color box2dFullColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dFullColor;
+    Color box2dBorderColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dBorderColor;
+    Color box2dFullColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dFullColor;
     SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
     const Transform2DComponent *cameraTransform2D = worldContext->GetCameraTransform2D();
     const CameraComponent *cameraComponent = worldContext->GetCameraComponent();

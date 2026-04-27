@@ -62,7 +62,7 @@ bool glimmer::WorldContext::IsDragMode() const {
     return dragMode_;
 }
 
-const SDL_Color *glimmer::WorldContext::GetFinalLightColor(const TileVector2D position) const {
+const glimmer::Color *glimmer::WorldContext::GetFinalLightColor(const TileVector2D position) const {
     if (lightingBuffer_ == nullptr) {
         return nullptr;
     }
@@ -137,7 +137,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
     auto lightSourcePosition = TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY);
     const LightMaskResource *lightMaskResource = resourceLocator->FindLightMask(tile->GetLightMaskResource());
     if (lightMaskResource != nullptr) {
-        const std::unique_ptr<SDL_Color> lightMaskColorPtr = resourceLocator->FindColor(
+        const std::unique_ptr<Color> lightMaskColorPtr = resourceLocator->FindColor(
             lightMaskResource->lightMaskColor);
         if (lightMaskColorPtr == nullptr) {
             return;
@@ -152,7 +152,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
     const LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(
         tile->GetLightSourceResource());
     if (lightSourceResource != nullptr) {
-        const std::unique_ptr<SDL_Color> lightColorPtr = resourceLocator->
+        const std::unique_ptr<Color> lightColorPtr = resourceLocator->
                 FindColor(lightSourceResource->lightColor);
         if (lightColorPtr == nullptr) {
             return;
@@ -973,7 +973,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {
         return this->RegisterEntity(std::move(entity));
     });
-    lightingBuffer_ = std::make_unique<LightingBuffer>(this);
+    lightingBuffer_ = std::make_unique<LightingBuffer>();
     chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_);
     startTime_ = TimeUtils::GetCurrentTimeMs();
 }

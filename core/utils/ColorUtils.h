@@ -6,7 +6,7 @@
 #define GLIMMERWORKS_COLORUTILS_H
 #include <vector>
 
-#include "SDL3/SDL_pixels.h"
+#include "core/math/Color.h"
 
 
 namespace glimmer {
@@ -20,7 +20,7 @@ namespace glimmer {
          * @param percent 输入1对应终点颜色，0对应起始颜色，其他值介于两者之间的颜色。
          * @return
          */
-        static SDL_Color LerpColor(SDL_Color from, SDL_Color to, float percent);
+        static Color LerpColor(Color from, Color to, float percent);
 
         /**
          * AverageColors
@@ -28,7 +28,7 @@ namespace glimmer {
          * @param colors
          * @return
          */
-        static SDL_Color AverageColors(const std::vector<SDL_Color> &colors);
+        static Color AverageColors(const std::vector<Color> &colors);
 
         /**
          * AdditiveBlend
@@ -37,8 +37,7 @@ namespace glimmer {
          * @param secondColor
          * @return
          */
-        static SDL_Color AdditiveBlend(SDL_Color firstColor, SDL_Color secondColor);
-
+        static Color AdditiveBlend(Color firstColor, Color secondColor);
     };
 }
 

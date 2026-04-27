@@ -47,6 +47,49 @@ set(GAME_VERSION_STRING
 
 include(FetchContent)
 
+option(UNIT_TEST "Enable unit test" ON)
+if (UNIT_TEST)
+    add_compile_definitions(UNIT_TEST_MODE)
+
+    FetchContent_Declare(
+            googletest
+            GIT_REPOSITORY "https://github.com/google/googletest"
+            GIT_TAG ${GOOGLE_GOOGLETEST_VERSION}
+            GIT_PROGRESS TRUE
+            EXCLUDE_FROM_ALL
+    )
+    FetchContent_MakeAvailable(googletest)
+    add_executable(LightTest)
+    target_sources(LightTest
+            PRIVATE
+            test/light/LightUnitTest.cpp
+            core/math/Color.cpp
+            core/world/LightContribution.cpp
+            core/world/LightMask.cpp
+            core/math/Vector2DI.cpp
+            core/math/Vector2D.cpp
+            core/world/LightingBuffer.cpp
+            core/world/TileLightData.cpp
+            core/world/LightSource.cpp
+            core/utils/LightUtils.cpp
+            core/world/LightPropagationTraverser.cpp
+            PUBLIC
+            FILE_SET HEADERS
+            FILES
+            core/math/Color.h
+            core/world/LightContribution.h
+            core/world/LightMask.h
+            core/math/Vector2D.h
+            core/math/Vector2DI.h
+            core/world/LightingBuffer.h
+            core/world/TileLightData.h
+            core/world/LightSource.h
+            core/utils/LightUtils.h
+            core/world/LightPropagationTraverser.h
+    )
+    target_link_libraries(LightTest PRIVATE gtest_main gtest)
+    return()
+endif ()
 option(X11_SUPPORT "Enable X11 support" OFF)
 set(SDL_CAMERA OFF)
 set(SDL_TRAY OFF)
@@ -484,6 +527,8 @@ target_sources(GlimmerWorks
         core/utils/LightUtils.cpp
         core/world/TileLightData.cpp
         core/world/LightContribution.cpp
+        core/math/Color.cpp
+        core/math/ColorF.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -702,6 +747,8 @@ target_sources(GlimmerWorks
         core/utils/LightUtils.h
         core/world/TileLightData.h
         core/world/LightContribution.h
+        core/math/ColorF.h
+        core/math/Color.h
 )
 
 #Define version information

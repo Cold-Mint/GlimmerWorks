@@ -3,8 +3,9 @@
 //
 
 #include "Vector2DI.h"
+#ifndef UNIT_TEST_MODE
 #include "src/core/vector2di.pb.h"
-
+#endif
 glimmer::Vector2DI::Vector2DI() : x(0), y(0) {
 }
 
@@ -17,13 +18,17 @@ glimmer::Vector2DI::Vector2DI(const Vector2D &v)
 }
 
 void glimmer::Vector2DI::ReadVector2DIMessage(const Vector2DIMessage &vector2di) {
+#ifndef UNIT_TEST_MODE
     x = vector2di.x();
     y = vector2di.y();
+#endif
 }
 
 void glimmer::Vector2DI::WriteVector2DIMessage(Vector2DIMessage &vector2di) const {
+#ifndef UNIT_TEST_MODE
     vector2di.set_x(x);
     vector2di.set_y(y);
+#endif
 }
 
 glimmer::Vector2DI glimmer::Vector2DI::operator+(const Vector2DI &rhs) const {

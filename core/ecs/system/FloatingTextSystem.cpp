@@ -98,7 +98,8 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer *renderer) {
             continue;
         }
         SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(appContext->GetFont(), text.c_str(), text.length(),
-                                                      appContext->GetPreloadColors()->textColor,0);
+                                                              appContext->GetPreloadColors()->textColor.ToSDLColor(),
+                                                              0);
         if (surface == nullptr) {
             continue;
         }

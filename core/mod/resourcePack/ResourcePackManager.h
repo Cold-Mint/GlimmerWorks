@@ -64,8 +64,8 @@ namespace glimmer {
          * @param base base color (black) 基础色（原黑色）
          * @return
          */
-        std::shared_ptr<SDL_Texture> CreateErrorTexture(SDL_Color accent,
-                                                        SDL_Color base) const;
+        std::shared_ptr<SDL_Texture> CreateErrorTexture(Color accent,
+                                                        Color base) const;
 
         std::shared_ptr<SDL_Texture> errorTexture_;
 
@@ -74,8 +74,8 @@ namespace glimmer {
 
         void SetMixer(MIX_Mixer *mixer);
 
-        void SetRenderer(SDL_Renderer *renderer, SDL_Color accent,
-                         SDL_Color base);
+        void SetRenderer(SDL_Renderer *renderer, Color accent,
+                         Color base);
 
         int Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
                  const toml::spec &tomlVersion);

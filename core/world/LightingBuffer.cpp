@@ -5,8 +5,6 @@
 #include "LightingBuffer.h"
 
 #include "LightPropagationTraverser.h"
-#include "WorldContext.h"
-#include "core/utils/ColorUtils.h"
 #include "core/utils/LightUtils.h"
 
 
@@ -54,7 +52,7 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
                                                                       TileVector2D current, TileVector2D next,
                                                                       bool centerOfCircle, TileLayerType layerType,
                                                                       int rayIndex) {
-    const SDL_Color emissionColor = lightSourcePtr->
+    const Color emissionColor = lightSourcePtr->
             GetEmissionColor();
     auto &currentTileLight = tileLightData_[current];
     if (currentTileLight == nullptr) {
@@ -66,7 +64,7 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
         auto currentLightContribution = std::make_unique<
             LightContribution>();
         auto lightColor = std::make_unique
-                <SDL_Color>();
+                <Color>();
         lightColor->r = emissionColor.r;
         lightColor->g = emissionColor.g;
         lightColor->b = emissionColor.b;
@@ -87,23 +85,23 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
     const LightContribution *currentLightContribution =
             currentTileLight->
             GetLightContribution(layerType, lightSourcePtr);
-    const SDL_Color *currentColor = currentLightContribution->
+    const Color *currentColor = currentLightContribution->
             GetLightColor();
     auto nextLightContribution = std::make_unique<
         LightContribution>();
     int maxRadius = lightSourcePtr->GetMaxRadius();
-    auto nextColor = std::make_unique<SDL_Color>(
-        static_cast<Uint8>(std::max(
+    auto nextColor = std::make_unique<Color>(
+        static_cast<uint8_t>(std::max(
             0, currentColor->r -
                emissionColor.r /
                maxRadius)),
-        static_cast<Uint8>(std::max(
+        static_cast<uint8_t>(std::max(
             0, currentColor->g - emissionColor.g /
                maxRadius)),
-        static_cast<Uint8>(std::max(
+        static_cast<uint8_t>(std::max(
             0, currentColor->b - emissionColor.b /
                maxRadius)),
-        static_cast<Uint8>(std::max(
+        static_cast<uint8_t>(std::max(
             0, currentColor->a - emissionColor.a /
                maxRadius)));
 
@@ -111,7 +109,7 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
         layerType);
     bool applyLightMask = false;
     if (lightMask != nullptr) {
-        const SDL_Color *lightMaskColor = lightMask->
+        const Color *lightMaskColor = lightMask->
                 GetLightMaskColor();
         if (lightMaskColor != nullptr) {
             nextLightContribution->SetLightColor(
@@ -131,10 +129,6 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
     return TraverseAction::Continue;
 }
 
-
-glimmer::LightingBuffer::LightingBuffer(WorldContext *worldContext) {
-    worldContext_ = worldContext;
-}
 
 void glimmer::LightingBuffer::SetLightMask(const TileVector2D position, const TileLayerType layerType,
                                            std::unique_ptr<LightMask> lightMask) {
@@ -255,7 +249,7 @@ void glimmer::LightingBuffer::ClearLightSource(const TileVector2D position, cons
     tileLightDataPtr->ClearLightSource(layerType);
 }
 
-const SDL_Color *glimmer::LightingBuffer::GetFinalLightColor(const TileVector2D position) {
+const glimmer::Color *glimmer::LightingBuffer::GetFinalLightColor(const TileVector2D position) {
     const auto tileLightDataIterator = tileLightData_.find(position);
     if (tileLightDataIterator == tileLightData_.end()) {
         return nullptr;

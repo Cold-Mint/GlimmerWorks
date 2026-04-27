@@ -4,13 +4,16 @@
 
 #ifndef GLIMMERWORKS_LIGHTCONTRIBUTION_H
 #define GLIMMERWORKS_LIGHTCONTRIBUTION_H
+#include <memory>
+
 #include "LightSource.h"
 
-
 namespace glimmer {
+    struct Color;
+
     class LightContribution {
         const LightSource *lightSource_ = nullptr;
-        std::unique_ptr<SDL_Color> lightColor_;
+        std::unique_ptr<Color> lightColor_;
         int rayIndex_ = 0;
 
     public:
@@ -22,11 +25,11 @@ namespace glimmer {
 
         [[nodiscard]] const LightSource *GetLightSource() const;
 
-        void SetLightColor(std::unique_ptr<SDL_Color> lightColor);
+        void SetLightColor(std::unique_ptr<Color> lightColor);
 
-        [[nodiscard]] std::unique_ptr<SDL_Color> TakeLightColor();
+        [[nodiscard]] std::unique_ptr<Color> TakeLightColor();
 
-        [[nodiscard]] const SDL_Color *GetLightColor() const;
+        [[nodiscard]] const Color *GetLightColor() const;
     };
 }
 

@@ -4,24 +4,24 @@
 
 #ifndef GLIMMERWORKS_LIGHTSOURCE_H
 #define GLIMMERWORKS_LIGHTSOURCE_H
-#include "core/ecs/component/TileLayerComponent.h"
-#include "SDL3/SDL_pixels.h"
+#include "core/math/Vector2DI.h"
+#include "core/math/Color.h"
 
 
 namespace glimmer {
     class LightSource {
         TileVector2D center_ = {};
         int maxRadius_ = 0;
-         SDL_Color emissionColor_ = {};
+        Color emissionColor_ = {};
 
     public:
-        explicit LightSource(const TileVector2D &center, int maxRadius, const SDL_Color &emissionColor);
+        explicit LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor);
 
         [[nodiscard]] int GetMaxRadius() const;
 
         [[nodiscard]] const TileVector2D &GetCenter() const;
 
-        [[nodiscard]] const SDL_Color &GetEmissionColor() const;
+        [[nodiscard]] const Color &GetEmissionColor() const;
     };
 }
 

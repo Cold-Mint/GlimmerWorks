@@ -195,8 +195,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         mousePosition_.x, mousePosition_.y
     );
     RenderDebugText(renderer, windowW, mouseText, yOffset,
-                    appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
-                    appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+                    appContext->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                    appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
     yOffset += lineSpacing;
     bool firstLayer = true;
     TileVector2D tileCoord = TileLayerComponent::WorldToTile(mousePosition_);
@@ -220,8 +220,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
                 chunkGenerator->GetWeirdness(tileCoord)
             );
             RenderDebugText(renderer, windowW, tileDebugInfo, yOffset,
-                            appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
-                            appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+                            appContext->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                            appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
             yOffset += lineSpacing;
             firstLayer = false;
         }
@@ -235,27 +235,27 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
             static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName()
         );
         RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
-                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
-                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
         yOffset += lineSpacing;
     }
-    const SDL_Color *finalLightColor = worldContext_->GetFinalLightColor(tileCoord);
+    const Color *finalLightColor = worldContext_->GetFinalLightColor(tileCoord);
     if (finalLightColor == nullptr) {
         std::string totalLight = fmt::format(
             fmt::runtime(appContext->GetLangsResources()->totalLight),
             -1, -1, -1, -1
         );
         RenderDebugText(renderer, windowW, totalLight, yOffset,
-                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
-                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
     } else {
         std::string totalLight = fmt::format(
             fmt::runtime(appContext->GetLangsResources()->totalLight),
             finalLightColor->a, finalLightColor->r, finalLightColor->g, finalLightColor->b
         );
         RenderDebugText(renderer, windowW, totalLight, yOffset,
-                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor,
-                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor);
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                        appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
     }
 
     // Draw Chunk Grid in Bottom-Left

@@ -7,15 +7,14 @@
 
 #include "LightMask.h"
 #include "LightSource.h"
-#include "PreloadColors.h"
 #include "TileLightData.h"
 #include "TraverseAction.h"
+#include "core/math/Color.h"
 
 
 namespace glimmer {
     class LightingBuffer {
         std::unordered_map<const TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
-        WorldContext *worldContext_ = nullptr;
 
         TraverseAction ClearLightStepCallback(const LightSource *lightSourcePtr,
                                               TileVector2D current,
@@ -27,7 +26,6 @@ namespace glimmer {
                                             int rayIndex);
 
     public:
-        explicit LightingBuffer(WorldContext *worldContext);
 
         void SetLightMask(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
 
@@ -39,7 +37,7 @@ namespace glimmer {
 
         void ClearLightSource(TileVector2D position, TileLayerType layerType);
 
-        const SDL_Color *GetFinalLightColor(TileVector2D position);
+        const Color *GetFinalLightColor(TileVector2D position);
     };
 }
 

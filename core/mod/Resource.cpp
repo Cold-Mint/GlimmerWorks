@@ -13,8 +13,8 @@ std::string glimmer::Resource::GenerateId(const Resource &resource) {
     return GenerateId(resource.packId, resource.resourceId);
 }
 
-SDL_Color glimmer::FixedColorResource::ToSDLColor() const {
-    return SDL_Color{r, g, b, a};
+glimmer::Color glimmer::FixedColorResource::ToColor() const {
+    return Color{r, g, b, a};
 }
 
 glimmer::VariableDefinitionType glimmer::VariableDefinition::ResolveVariableType(const std::string &typeName) {
@@ -97,8 +97,8 @@ void glimmer::VariableConfig::UpdateArgs(const std::string &selfPackId) {
     }
 }
 
-SDL_Color glimmer::ColorResource::ToSDLColor() const {
-    return SDL_Color{r, g, b, a};
+glimmer::Color glimmer::ColorResource::ToColor() const {
+    return Color{r, g, b, a};
 }
 
 FastNoiseLite *glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const int seed) {

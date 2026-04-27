@@ -5,8 +5,7 @@
 #ifndef GLIMMERWORKS_LIGHTUTILS_H
 #define GLIMMERWORKS_LIGHTUTILS_H
 #include <memory>
-
-#include "SDL3/SDL_pixels.h"
+#include "core/math/Color.h"
 
 
 namespace glimmer {
@@ -17,12 +16,12 @@ namespace glimmer {
         * light: 光源颜色(A=亮度)
         * mask:  遮罩颜色(RGB=滤色, A=遮挡强度 255=全挡, 0=不挡)
         */
-        static std::unique_ptr<SDL_Color> ApplyLightingMask(const SDL_Color *light, const SDL_Color *mask);
+        static std::unique_ptr<Color> ApplyLightingMask(const Color *light, const Color *mask);
 
         /**
     * 两束光照加法混合（越叠越亮）
     */
-        static std::unique_ptr<SDL_Color> MixLights(const SDL_Color *colorA, const SDL_Color *colorB);
+        static std::unique_ptr<Color> MixLights(const Color *colorA, const Color *colorB);
     };
 }
 

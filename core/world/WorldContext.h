@@ -188,7 +188,7 @@ namespace glimmer {
          * @param position position 位置
          * @return
          */
-        [[nodiscard]] const SDL_Color *GetFinalLightColor(TileVector2D position) const;
+        [[nodiscard]] const Color *GetFinalLightColor(TileVector2D position) const;
 
         void SetDragMode(bool dragMode);
 

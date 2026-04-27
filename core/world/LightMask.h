@@ -4,7 +4,7 @@
 
 #ifndef GLIMMERWORKS_LIGHTMASK_H
 #define GLIMMERWORKS_LIGHTMASK_H
-#include "SDL3/SDL_pixels.h"
+#include "core/math/Color.h"
 
 
 namespace glimmer {
@@ -13,12 +13,12 @@ namespace glimmer {
      * 光线遮照
      */
     class LightMask {
-        SDL_Color lightMaskColor_ = {};
+        Color lightMaskColor_ = {};
 
     public:
-        explicit LightMask(const SDL_Color *lightMaskColor);
+        explicit LightMask(const Color *lightMaskColor);
 
-        [[nodiscard]] const SDL_Color *GetLightMaskColor() const;
+        [[nodiscard]] const Color *GetLightMaskColor() const;
     };
 }
 

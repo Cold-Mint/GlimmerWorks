@@ -11,6 +11,7 @@
 #erincatto/box2d@latest
 #ToruNiina/toml11@latest
 #protocolbuffers/protobuf@latest
+#google/googletest@latest
 set(OCORNUT_IMGUI_VERSION "v1.92.7")
 set(LIBSDL-ORG_SDL_VERSION "release-3.4.4")
 set(LIBSDL-ORG_SDL_IMAGE_VERSION "release-3.4.2")
@@ -22,3 +23,4 @@ set(AUBURN_FASTNOISELITE_VERSION "v1.1.1")
 set(ERINCATTO_BOX2D_VERSION "v3.1.1")
 set(TORUNIINA_TOML11_VERSION "v4.4.0")
 set(PROTOCOLBUFFERS_PROTOBUF_VERSION "v34.1")
+set(GOOGLE_GOOGLETEST_VERSION "v1.17.0")

@@ -11,7 +11,7 @@
 #include "LightContribution.h"
 #include "LightMask.h"
 #include "generator/TileLayerType.h"
-#include "SDL3/SDL_pixels.h"
+#include "core/math/Color.h"
 
 
 namespace glimmer {
@@ -23,13 +23,13 @@ namespace glimmer {
         std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > lightContributions_;
         std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > lightSourceData_;
         std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > lightMaskData_;
-        std::unique_ptr<SDL_Color> finalLightColor_;
+        std::unique_ptr<Color> finalLightColor_;
 
         /**
          * ComputeFinalLightColor
          * 计算总颜色。
          */
-        [[nodiscard]] std::unique_ptr<SDL_Color> ComputeFinalLightColor();
+        [[nodiscard]] std::unique_ptr<Color> ComputeFinalLightColor();
 
     public:
         /**
@@ -97,7 +97,7 @@ namespace glimmer {
          * 获取最终的光照。
          * @return
          */
-        [[nodiscard]] const SDL_Color *GetFinalLightColor() const;
+        [[nodiscard]] const Color *GetFinalLightColor() const;
 
 
         /**

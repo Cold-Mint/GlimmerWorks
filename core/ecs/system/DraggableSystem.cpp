@@ -113,7 +113,7 @@ void glimmer::DraggableSystem::Render(SDL_Renderer *renderer) {
             return;
         }
 
-        SDL_Color draggableColor = appContext->GetPreloadColors()->debugColor.draggableColor;
+        Color draggableColor = appContext->GetPreloadColors()->debugColor.draggableColor;
         SDL_SetRenderDrawColor(renderer, draggableColor.r, draggableColor.g, draggableColor.b, draggableColor.a);
         for (uint32_t entity: draggableEntity) {
             SDL_FRect border = DraggableBorder(entity, cameraTransformComponent->GetPosition(), cameraComponent);

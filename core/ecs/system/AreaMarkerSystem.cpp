@@ -49,9 +49,9 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
         if (!areaMarker->CanDraw()) {
             continue;
         }
-        const SDL_Color &areaMarkerFullColor = worldContext_->GetAppContext()->GetPreloadColors()->
+        const auto &areaMarkerFullColor = worldContext_->GetAppContext()->GetPreloadColors()->
                 areaMarkerColor;
-        const SDL_Color &areaMarkerBorderColor = worldContext_->GetAppContext()->GetPreloadColors()->
+        const auto &areaMarkerBorderColor = worldContext_->GetAppContext()->GetPreloadColors()->
                 areaMarkerBorderColor;
         WorldVector2D startPoint = TileLayerComponent::TileToWorld(areaMarker->GetStartPoint());
         WorldVector2D endPoint = TileLayerComponent::TileToWorld(areaMarker->GetEndPoint());
@@ -91,7 +91,7 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
             SDL_Surface *ttfSurface = TTF_RenderText_Blended_Wrapped(appContext->GetFont(),
                                                                      text.c_str(), text.length(),
                                                                      appContext->GetPreloadColors()
-                                                                     ->textColor, 0);
+                                                                     ->textColor.ToSDLColor(), 0);
             if (ttfSurface == nullptr) {
                 continue;
             }

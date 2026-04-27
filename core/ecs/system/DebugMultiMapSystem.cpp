@@ -27,8 +27,8 @@ bool glimmer::DebugMultiMapSystem::ShouldActivate() {
            config->debug.displayErosionMap || config->debug.displayWeirdnessMap;
 }
 
-SDL_Color glimmer::DebugMultiMapSystem::GetTileDebugColor(TileVector2D tile) const {
-    SDL_Color color = {0, 0, 0, 0};
+glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D tile) const {
+    constexpr Color color = {0, 0, 0, 0};
     if (worldContext_ == nullptr) {
         return color;
     }
@@ -43,7 +43,7 @@ SDL_Color glimmer::DebugMultiMapSystem::GetTileDebugColor(TileVector2D tile) con
     auto debugColor = appContext->GetPreloadColors()->debugColor;
     float elevation = ChunkGenerator::GetElevation(tile.x);
     ChunkGenerator *chunkGenerator = worldContext_->GetChunkGenerator();
-    std::vector<SDL_Color> activeColors;
+    std::vector<Color> activeColors;
 
     if (config->debug.displayElevationMap) {
         activeColors.emplace_back(
@@ -119,7 +119,7 @@ void glimmer::DebugMultiMapSystem::Render(SDL_Renderer *renderer) {
             renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
             renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
             SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
-            const SDL_Color color = GetTileDebugColor(tileVector2D);
+            const Color color = GetTileDebugColor(tileVector2D);
             SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
             SDL_RenderFillRect(renderer, &dstRect);
         }

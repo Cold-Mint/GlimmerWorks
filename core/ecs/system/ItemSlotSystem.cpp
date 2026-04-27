@@ -135,7 +135,7 @@ void glimmer::ItemSlotSystem::RenderQuantity(SDL_Renderer *renderer, const SDL_F
     const std::string text = std::to_string(amount);
     AppContext *appContext = worldContext_->GetAppContext();
     SDL_Surface *surface = TTF_RenderText_Blended(appContext->GetFont(), text.c_str(), text.length(),
-                                                  appContext->GetPreloadColors()->textColor);
+                                                  appContext->GetPreloadColors()->textColor.ToSDLColor());
     if (surface) {
         if (SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface)) {
             auto textW = static_cast<float>(surface->w);
@@ -166,7 +166,7 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     const LangsResources *langsResources = appContext->GetLangsResources();
     std::vector<SDL_Surface *> surfacesToDraw;
     SDL_Surface *sName = TTF_RenderText_Blended(appContext->GetFont(), nameInfo.c_str(), nameInfo.length(),
-                                                appContext->GetPreloadColors()->textColor);
+                                                appContext->GetPreloadColors()->textColor.ToSDLColor());
     if (sName) {
         surfacesToDraw.push_back(sName);
     }
@@ -174,7 +174,7 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
         const std::string &description = descInfo.value();
         SDL_Surface *sDesc = TTF_RenderText_Blended_Wrapped(appContext->GetFont(), description.c_str(),
                                                             description.length(),
-                                                            appContext->GetPreloadColors()->textColor, 0);
+                                                            appContext->GetPreloadColors()->textColor.ToSDLColor(), 0);
         if (sDesc) {
             surfacesToDraw.push_back(sDesc);
         }
@@ -186,7 +186,7 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
             appContext->GetFont(),
             langsResources->canMineBlockTip.c_str(),
             langsResources->canMineBlockTip.length(),
-            appContext->GetPreloadColors()->game.positiveAttributeColor
+            appContext->GetPreloadColors()->game.positiveAttributeColor.ToSDLColor()
         );
         if (sVar) {
             surfacesToDraw.push_back(sVar);
@@ -197,7 +197,7 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
             appContext->GetFont(),
             langsResources->canMineWallTip.c_str(),
             langsResources->canMineWallTip.length(),
-            appContext->GetPreloadColors()->game.positiveAttributeColor
+            appContext->GetPreloadColors()->game.positiveAttributeColor.ToSDLColor()
         );
         if (sVar) {
             surfacesToDraw.push_back(sVar);
@@ -209,7 +209,7 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
             appContext->GetFont(),
             langsResources->precisionMiningTip.c_str(),
             langsResources->precisionMiningTip.length(),
-            appContext->GetPreloadColors()->game.positiveAttributeColor
+            appContext->GetPreloadColors()->game.positiveAttributeColor.ToSDLColor()
         );
         if (sVar) {
             surfacesToDraw.push_back(sVar);
@@ -227,8 +227,8 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
             tip.c_str(),
             tip.length(),
             miningEfficiency > 0
-                ? appContext->GetPreloadColors()->game.positiveAttributeColor
-                : appContext->GetPreloadColors()->game.negativeAttributeColor
+                ? appContext->GetPreloadColors()->game.positiveAttributeColor.ToSDLColor()
+                : appContext->GetPreloadColors()->game.negativeAttributeColor.ToSDLColor()
         );
         if (sVar) {
             surfacesToDraw.push_back(sVar);
@@ -245,8 +245,8 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
             tip.c_str(),
             tip.length(),
             fumbleProbability > 0
-                ? appContext->GetPreloadColors()->game.negativeAttributeColor
-                : appContext->GetPreloadColors()->game.positiveAttributeColor
+                ? appContext->GetPreloadColors()->game.negativeAttributeColor.ToSDLColor()
+                : appContext->GetPreloadColors()->game.positiveAttributeColor.ToSDLColor()
         );
         if (sVar) {
             surfacesToDraw.push_back(sVar);
@@ -262,8 +262,8 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
             tip.c_str(),
             tip.length(),
             chainMiningRadius > 0
-                ? appContext->GetPreloadColors()->game.positiveAttributeColor
-                : appContext->GetPreloadColors()->game.negativeAttributeColor
+                ? appContext->GetPreloadColors()->game.positiveAttributeColor.ToSDLColor()
+                : appContext->GetPreloadColors()->game.negativeAttributeColor.ToSDLColor()
         );
         if (sVar) {
             surfacesToDraw.push_back(sVar);

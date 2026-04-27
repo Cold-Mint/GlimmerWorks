@@ -4,13 +4,13 @@
 
 #include "LightMask.h"
 
-glimmer::LightMask::LightMask(const SDL_Color *lightMaskColor) {
+glimmer::LightMask::LightMask(const Color *lightMaskColor) {
     if (lightMaskColor == nullptr) {
         return;
     }
     lightMaskColor_ = *lightMaskColor;
 }
 
-const SDL_Color *glimmer::LightMask::GetLightMaskColor() const {
+const glimmer::Color *glimmer::LightMask::GetLightMaskColor() const {
     return &lightMaskColor_;
 }

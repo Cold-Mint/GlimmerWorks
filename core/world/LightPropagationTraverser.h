@@ -9,8 +9,7 @@
 
 #include "TraverseAction.h"
 #include "core/Constants.h"
-#include "core/ecs/component/TileLayerComponent.h"
-
+#include "core/math/Vector2DI.h"
 
 namespace glimmer {
     /**

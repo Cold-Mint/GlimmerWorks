@@ -7,6 +7,7 @@
 
 #include "Resource.h"
 #include "ResourceRef.h"
+#include "core/math/Color.h"
 #include "core/scene/AppContext.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
@@ -41,7 +42,7 @@ namespace glimmer {
 
         [[nodiscard]] std::shared_ptr<MIX_Audio> FindAudio(const ResourceRef &resourceRef) const;
 
-        [[nodiscard]] std::unique_ptr<SDL_Color> FindColor(const ResourceRef &resourceRef) const;
+        [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef &resourceRef) const;
 
         [[nodiscard]] IShapeResource *FindShape(const ResourceRef &resourceRef) const;
 

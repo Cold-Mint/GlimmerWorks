@@ -5,7 +5,7 @@
 #include "LightSource.h"
 
 
-glimmer::LightSource::LightSource(const TileVector2D &center, int maxRadius, const SDL_Color &emissionColor) {
+glimmer::LightSource::LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor) {
     this->center_ = center;
     this->maxRadius_ = maxRadius;
     this->emissionColor_ = emissionColor;
@@ -19,6 +19,6 @@ const TileVector2D &glimmer::LightSource::GetCenter() const {
     return center_;
 }
 
-const SDL_Color &glimmer::LightSource::GetEmissionColor() const {
+const glimmer::Color &glimmer::LightSource::GetEmissionColor() const {
     return emissionColor_;
 }

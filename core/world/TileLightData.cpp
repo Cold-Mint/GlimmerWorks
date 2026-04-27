@@ -8,11 +8,11 @@
 #include "core/utils/LightUtils.h"
 
 
-std::unique_ptr<SDL_Color> glimmer::TileLightData::ComputeFinalLightColor() {
+std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor() {
     if (lightContributions_.empty()) {
         return nullptr;
     }
-    auto finalLightColor = std::make_unique<SDL_Color>();
+    auto finalLightColor = std::make_unique<Color>();
     bool hasFoundLightSource = false;
     for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
         auto tileLayer = static_cast<TileLayerType>(1 << i);
@@ -27,7 +27,7 @@ std::unique_ptr<SDL_Color> glimmer::TileLightData::ComputeFinalLightColor() {
             if (lightMaskUnique == nullptr) {
                 continue;
             }
-            const SDL_Color *lightMaskColor = lightMaskUnique->GetLightMaskColor();
+            const Color *lightMaskColor = lightMaskUnique->GetLightMaskColor();
             if (lightMaskColor == nullptr) {
                 continue;
             }
@@ -46,7 +46,7 @@ std::unique_ptr<SDL_Color> glimmer::TileLightData::ComputeFinalLightColor() {
             if (lightContributionUnique == nullptr) {
                 continue;
             }
-            const SDL_Color *lightColor = lightContributionUnique->GetLightColor();
+            const Color *lightColor = lightContributionUnique->GetLightColor();
             if (lightColor == nullptr) {
                 continue;
             }
@@ -76,7 +76,7 @@ void glimmer::TileLightData::SetLightContribution(const TileLayerType layerType,
     if (targetLightSource == nullptr) {
         return;
     }
-    const SDL_Color *newLightColor = contribution->GetLightColor();
+    const Color *newLightColor = contribution->GetLightColor();
     if (newLightColor == nullptr) {
         return;
     }
@@ -104,7 +104,7 @@ void glimmer::TileLightData::SetLightContribution(const TileLayerType layerType,
 
         if (targetLightSource == lightContribution->GetLightSource()) {
             foundDuplicate = true;
-            const SDL_Color *oldLightColor = lightContributionUnique->GetLightColor();
+            const Color *oldLightColor = lightContributionUnique->GetLightColor();
             if (oldLightColor == nullptr ||
                 newLightColor->a != oldLightColor->a ||
                 newLightColor->r != oldLightColor->r ||
@@ -225,7 +225,7 @@ void glimmer::TileLightData::ClearLightSource(const TileLayerType layerType) {
     lightSourceData_.erase(layerType);
 }
 
-const SDL_Color *glimmer::TileLightData::GetFinalLightColor() const {
+const glimmer::Color *glimmer::TileLightData::GetFinalLightColor() const {
     return finalLightColor_.get();
 }
 

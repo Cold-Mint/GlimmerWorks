@@ -164,8 +164,7 @@ void glimmer::ResourcePackManager::SetMixer(MIX_Mixer *mixer) {
     mixer_ = mixer;
 }
 
-void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer, const SDL_Color accent,
-                                               const SDL_Color base) {
+void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer, Color accent, Color base) {
     renderer_ = renderer;
     errorTexture_ = CreateErrorTexture(accent, base);
 }
@@ -312,8 +311,7 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
     return nullptr;
 }
 
-std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(
-    const SDL_Color accent, const SDL_Color base) const {
+std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(const Color accent, const Color base) const {
     if (renderer_ == nullptr) {
         return nullptr;
     }

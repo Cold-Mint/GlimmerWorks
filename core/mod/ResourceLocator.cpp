@@ -45,7 +45,7 @@ std::shared_ptr<MIX_Audio> glimmer::ResourceLocator::FindAudio(const ResourceRef
     return appContext_->GetResourcePackManager()->LoadAudioFromFile(appContext_, resourceRef);
 }
 
-std::unique_ptr<SDL_Color> glimmer::ResourceLocator::FindColor(const ResourceRef &resourceRef) const {
+std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const ResourceRef &resourceRef) const {
     const uint32_t resourceType = resourceRef.GetResourceType();
     if (!ValidateAccessPermission(resourceRef)) {
         return nullptr;
@@ -56,12 +56,16 @@ std::unique_ptr<SDL_Color> glimmer::ResourceLocator::FindColor(const ResourceRef
         if (colorResource == nullptr) {
             return nullptr;
         }
-        return std::make_unique<SDL_Color>(colorResource->ToSDLColor());
+        return std::make_unique<Color>(colorResource->ToColor());
     }
     if (resourceType == RESOURCE_TYPE_FIXED_COLOR) {
-        return std::make_unique<SDL_Color>(appContext_->GetFixedColorManager()->FindFixedColorResource(
+        const FixedColorResource *fixedColorResource = appContext_->GetFixedColorManager()->FindFixedColorResource(
             resourceRef.GetPackageId(),
-            resourceRef.GetResourceKey())->ToSDLColor());
+            resourceRef.GetResourceKey());
+        if (fixedColorResource == nullptr) {
+            return nullptr;
+        }
+        return std::make_unique<Color>(fixedColorResource->ToColor());
     }
     return nullptr;
 }

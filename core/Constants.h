@@ -4,8 +4,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 #include <string>
-
-#include "ecs/component/TileLayerComponent.h"
+#include <cstdint>
 
 // Manifest file names of data packets and resource packets
 // 数据包和资源包的清单文件名

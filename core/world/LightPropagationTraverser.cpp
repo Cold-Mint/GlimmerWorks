@@ -49,6 +49,11 @@ void glimmer::LightPropagationTraverser::PropagateSingleRayImpl(const int rayInd
     }
 }
 
+void glimmer::LightPropagationTraverser::HandleRadiusIsZero() const {
+    (void) stepCallback_(center_, center_, true, LIGHT_CONTRIBUTION_CENTER_RAY_INDEX);
+}
+
+
 glimmer::LightPropagationTraverser::LightPropagationTraverser(const TileVector2D center, const int maxRadius,
                                                               const std::function<TraverseAction(
                                                                   TileVector2D current, TileVector2D next,
@@ -60,22 +65,36 @@ glimmer::LightPropagationTraverser::LightPropagationTraverser(const TileVector2D
         const int index = maxRadius - 1;
         rayCount_ = RAY_COUNT[index];
         rayAngleStep_ = ANGLE_STEPS[index];
+    } else {
+        rayCount_ = 0;
+        rayAngleStep_ = 0.0F;
     }
 }
 
 void glimmer::LightPropagationTraverser::PropagateAllRays() const {
-    if (maxRadius_ <= 0 || stepCallback_ == nullptr) {
+    if (stepCallback_ == nullptr) {
         return;
     }
 
-    std::unordered_set<TileVector2D, Vector2DIHash> visited;
-    const int maxRadSq = maxRadius_ * maxRadius_;
-    for (int rayIndex = 0; rayIndex < rayCount_; ++rayIndex) {
-        PropagateSingleRayImpl(rayIndex, visited, maxRadSq);
+    if (maxRadius_ > 0) {
+        std::unordered_set<TileVector2D, Vector2DIHash> visited;
+        const int maxRadSq = maxRadius_ * maxRadius_;
+        for (int rayIndex = 0; rayIndex < rayCount_; ++rayIndex) {
+            PropagateSingleRayImpl(rayIndex, visited, maxRadSq);
+        }
+    } else {
+        HandleRadiusIsZero();
     }
 }
 
 void glimmer::LightPropagationTraverser::PropagateSingleRay(const int rayIndex) const {
-    std::unordered_set<TileVector2D, Vector2DIHash> visited;
-    PropagateSingleRayImpl(rayIndex, visited, maxRadius_ * maxRadius_);
+    if (stepCallback_ == nullptr) {
+        return;
+    }
+    if (maxRadius_ > 0) {
+        std::unordered_set<TileVector2D, Vector2DIHash> visited;
+        PropagateSingleRayImpl(rayIndex, visited, maxRadius_ * maxRadius_);
+    } else {
+        HandleRadiusIsZero();
+    }
 }

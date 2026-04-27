@@ -77,7 +77,10 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
         currentTileLight->SetLightContribution(
             layerType, std::move(currentLightContribution));
     }
-
+    int maxRadius = lightSourcePtr->GetMaxRadius();
+    if (maxRadius == 0) {
+        return TraverseAction::Continue;
+    }
     auto &nextTileLight = tileLightData_[next];
     if (nextTileLight == nullptr) {
         nextTileLight = std::make_unique<TileLightData>();
@@ -89,7 +92,6 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
             GetLightColor();
     auto nextLightContribution = std::make_unique<
         LightContribution>();
-    int maxRadius = lightSourcePtr->GetMaxRadius();
     auto nextColor = std::make_unique<Color>(
         static_cast<uint8_t>(std::max(
             0, currentColor->r -
@@ -219,7 +221,12 @@ void glimmer::LightingBuffer::SetLightSource(const TileVector2D position, const 
                                                                 layerType, rayIndex);
                                                         });
     lightPropagationTraverser.PropagateAllRays();
-    tileLightData_[position]->SetLightSource(layerType, std::move(lightSource));
+    auto tileLightDataIt = tileLightData_.find(position);
+    if (tileLightDataIt == tileLightData_.end()) {
+        tileLightData_[position] = std::make_unique<TileLightData>();
+        tileLightDataIt = tileLightData_.find(position);
+    }
+    tileLightDataIt->second->SetLightSource(layerType, std::move(lightSource));
 }
 
 void glimmer::LightingBuffer::ClearLightSource(const TileVector2D position, const TileLayerType layerType) {

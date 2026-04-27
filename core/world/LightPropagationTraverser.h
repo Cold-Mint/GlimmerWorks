@@ -105,6 +105,12 @@ namespace glimmer {
         void PropagateSingleRayImpl(int rayIndex, std::unordered_set<TileVector2D, Vector2DIHash> &visited,
                                     int maxRadSq) const;
 
+        /**
+         * Handle the special case where the radius is 0.
+         * 处理半径为0的特殊情况。
+         */
+        void HandleRadiusIsZero() const;
+
     public:
         LightPropagationTraverser(TileVector2D center, int maxRadius,
                                   const std::function<TraverseAction(TileVector2D current, TileVector2D next,

@@ -72,6 +72,9 @@ std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor()
 
 void glimmer::TileLightData::SetLightContribution(const TileLayerType layerType,
                                                   std::unique_ptr<LightContribution> contribution) {
+    if (contribution == nullptr) {
+        return;
+    }
     const LightSource *targetLightSource = contribution->GetLightSource();
     if (targetLightSource == nullptr) {
         return;

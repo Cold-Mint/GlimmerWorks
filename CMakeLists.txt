@@ -47,7 +47,7 @@ set(GAME_VERSION_STRING
 
 include(FetchContent)
 
-option(UNIT_TEST "Enable unit test" ON)
+option(UNIT_TEST "Enable unit test" OFF)
 if (UNIT_TEST)
     add_compile_definitions(UNIT_TEST_MODE)
 

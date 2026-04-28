@@ -11,12 +11,19 @@ width = 1920
 # Window height (pixels)
 # 窗口高度（像素）
 height = 1080
-# Allow window resizing
-# 允许窗口调整大小
-resizable = true
-# Target framerate (FPS)
-# 目标帧率（帧/秒）
-framerate = 60.0
+# Is it full screen
+# 是否全屏
+fullscreen = false
+# After being idle and without any operation for a certain period of time, the frame rate will start to decrease (unit: milliseconds).
+# -1 indicates that the function is turned off.
+# 闲置无操作多久后开始降帧 (单位：毫秒)，-1为关闭功能。
+idle_delay_ms = 15000
+# The minimum rendering frame rate locked in the idle state
+# 闲置状态下锁定的最低渲染帧率
+idle_target_fps = 15.0
+# The baseline frame rate during normal gameplay
+# 正常游玩时的基准帧率（帧/秒）
+normal_target_fps = 60.0
 # UI scaling factor
 # UI界面缩放比例
 ui_scale = 1.0

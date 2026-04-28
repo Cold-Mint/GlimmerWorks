@@ -34,10 +34,12 @@ void glimmer::Config::LoadConfig(const toml::value &configValue) {
     configVersion = toml::find<int>(configValue, "config_version");
     window.height = toml::find<int>(configValue, "window", "height");
     window.width = toml::find<int>(configValue, "window", "width");
-    window.resizable = toml::find<bool>(configValue, "window", "resizable");
+    window.fullscreen = toml::find<bool>(configValue, "window", "fullscreen");
     window.uiScale = toml::find<float>(configValue, "window", "ui_scale");
     window.vSync = toml::find<bool>(configValue, "window", "vsync");
-    window.framerate = toml::find<float>(configValue, "window", "framerate");
+    window.idleDelayMs = toml::find<int>(configValue, "window", "idle_delay_ms");
+    window.idleTargetFps = toml::find<float>(configValue, "window", "idle_target_fps");
+    window.normalTargetFps = toml::find<float>(configValue, "window", "normal_target_fps");
     mods.dataPackPath = toml::find<std::string>(configValue, "mods", "data_pack_path");
     mods.resourcePackPath = toml::find<std::string>(configValue, "mods", "resource_pack_path");
     mods.enabledDataPack = toml::find<std::vector<std::string> >(configValue, "mods", "enabled_data_pack");

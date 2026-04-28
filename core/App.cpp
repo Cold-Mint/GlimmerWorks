@@ -174,7 +174,7 @@ bool glimmer::App::Init() {
         "GlimmerWorks",
         config->window.width,
         config->window.height,
-        config->window.resizable ? SDL_WINDOW_RESIZABLE : SDL_WINDOW_FULLSCREEN
+        config->window.fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE
     );
     if (window == nullptr) {
         LogCat::e("SDL_CreateWindow Error: ", SDL_GetError());
@@ -493,10 +493,24 @@ void glimmer::App::Run() {
         config->f9, config->f10,
         config->f11, config->f12
     };
+    Uint64 lastInputTime = SDL_GetTicks();
     while (appContext_->Running() && sceneManager->GetSceneCount() > 0) {
+        int idleDelayMs = config->window.idleDelayMs;
+        float targetFrameTime = 0;
+        if (idleDelayMs == -1) {
+            //Disable idle mode to reduce frame rate.
+            //禁用闲置降低帧率。
+            targetFrameTime = 1.0F / config->window.normalTargetFps;
+        } else {
+            const Uint64 duration = SDL_GetTicks() - lastInputTime;
+            if (duration < idleDelayMs) {
+                targetFrameTime = 1.0F / config->window.normalTargetFps;
+            } else {
+                targetFrameTime = 1.0F / config->window.idleTargetFps;
+            }
+        }
         //The time interval of the target (in seconds)
         //目标的时间间隔（以秒为单位）
-        const float targetFrameTime = 1.0F / config->window.framerate;
         //Target frame time (in milliseconds)
         //目标帧时间（毫秒为单位）
         const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
@@ -508,6 +522,9 @@ void glimmer::App::Run() {
             topScene->OnFrameStart();
         }
         while (SDL_PollEvent(&event)) {
+            //Update the last input time.
+            //更新最后一次输入时间。
+            lastInputTime = SDL_GetTicks();
 #ifdef __ANDROID__
             if (event.type == SDL_EVENT_KEY_DOWN &&
                 event.key.key == SDLK_AC_BACK) {

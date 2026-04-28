@@ -13,8 +13,20 @@ namespace glimmer {
     struct Window {
         int width = 1920;
         int height = 1080;
-        bool resizable = true;
-        float framerate = 60;
+        bool fullscreen = false;
+        // After being idle and without any operation for a certain period of time, the frame rate will start to decrease (unit: milliseconds).
+        // -1 indicates that the function is turned off.
+        // 闲置无操作多久后开始降帧 (单位：毫秒)，-1为关闭功能。
+        int idleDelayMs;
+
+        // The minimum rendering frame rate locked in the idle state
+        // 闲置状态下锁定的最低渲染帧率
+        float idleTargetFps;
+
+        // The baseline frame rate during normal gameplay
+        // 正常游玩时的基准帧率
+        float normalTargetFps;
+
         //uiScale
         //ui缩放
         float uiScale = 1.0F;

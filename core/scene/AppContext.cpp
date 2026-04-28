@@ -337,7 +337,7 @@ glimmer::AppContext::AppContext() {
     LogCat::i("windowWidth = ", config_->window.width);
     LogCat::i("dataPackPath = ", config_->mods.dataPackPath);
     LogCat::i("resourcePackPath = ", config_->mods.resourcePackPath);
-    LogCat::i("framerate = ", config_->window.framerate);
+    LogCat::i("framerate = ", config_->window.normalTargetFps);
     LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
     savesManager_ = std::make_unique<SavesManager>(vfs);
     savesManager_->LoadAllSaves(config_->runtimePath);

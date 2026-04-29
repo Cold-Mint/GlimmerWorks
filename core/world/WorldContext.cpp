@@ -120,6 +120,16 @@ void glimmer::WorldContext::OnChunkTileChange(Chunk *chunk, Tile *tile, const Ti
 }
 
 void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerType layerType, const int index) const {
+    if (appContext_ == nullptr) {
+        return;
+    }
+    const Config *config = appContext_->GetConfig();
+    if (config == nullptr) {
+        return;
+    }
+    if (!config->light.enable) {
+        return;
+    }
     if (chunk == nullptr) {
         return;
     }

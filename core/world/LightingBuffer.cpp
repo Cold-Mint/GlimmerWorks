@@ -49,9 +49,11 @@ glimmer::TraverseAction glimmer::LightingBuffer::ClearLightStepCallback(const Li
 }
 
 glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const LightSource *lightSourcePtr,
-                                                                      TileVector2D current, TileVector2D next,
-                                                                      bool centerOfCircle, TileLayerType layerType,
-                                                                      int rayIndex) {
+                                                                      const TileVector2D current,
+                                                                      const TileVector2D next,
+                                                                      const bool centerOfCircle,
+                                                                      const TileLayerType layerType,
+                                                                      const int rayIndex) {
     const Color emissionColor = lightSourcePtr->
             GetEmissionColor();
     auto &currentTileLight = tileLightData_[current];
@@ -92,20 +94,25 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
             GetLightColor();
     auto nextLightContribution = std::make_unique<
         LightContribution>();
+    // Fix the boundary attenuation issue by adding 1 to the denominator
+    // 分母+1修复边界衰减问题
+    // Avoiding the brightness at the maximum radius from directly reaching zero, and resolving the mathematical flaw where the radius 1 cannot spread light outward.
+    // 避免最大半径处亮度直接归零，解决半径1无法向外传播光照的数学缺陷
+    const int attenuationDivisor = maxRadius + 1;
     auto nextColor = std::make_unique<Color>(
         static_cast<uint8_t>(std::max(
             0, currentColor->r -
                emissionColor.r /
-               maxRadius)),
+               attenuationDivisor)),
         static_cast<uint8_t>(std::max(
             0, currentColor->g - emissionColor.g /
-               maxRadius)),
+               attenuationDivisor)),
         static_cast<uint8_t>(std::max(
             0, currentColor->b - emissionColor.b /
-               maxRadius)),
+               attenuationDivisor)),
         static_cast<uint8_t>(std::max(
             0, currentColor->a - emissionColor.a /
-               maxRadius)));
+               attenuationDivisor)));
 
     const LightMask *lightMask = nextTileLight->GetLightMask(
         layerType);

@@ -105,7 +105,7 @@ locate_max_radius_search_chunks = 2048
 [light]
 # Enable lighting
 # 启用光照
-enable = true
+enable = false
 
 [mods]
 # Data pack storage path

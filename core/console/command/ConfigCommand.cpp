@@ -231,7 +231,7 @@ bool glimmer::ConfigCommand::Execute(const CommandArgs commandArgs,
     const std::string operation = commandArgs.AsString(1);
     if (operation == "commit") {
         if (appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue_))) {
-            appContext_->GetConfig()->LoadConfig(*configValue_);
+            appContext_->GetConfig()->LoadConfig(appContext_->GetCommandHookManager(), *configValue_);
             onMessage(langsResources->configurationCommitSuccess);
             return true;
         }
@@ -269,7 +269,7 @@ bool glimmer::ConfigCommand::Execute(const CommandArgs commandArgs,
             }
         }
         if (SetValue(parameterName, value)) {
-            appContext_->GetConfig()->LoadConfig(*configValue_);
+            appContext_->GetConfig()->LoadConfig(appContext_->GetCommandHookManager(),*configValue_);
             onMessage(fmt::format(fmt::runtime(langsResources->configurationUpdate),
                                   parameterName, value));
         }

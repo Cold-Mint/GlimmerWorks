@@ -27,6 +27,7 @@
 #include "core/console/command/ConfigCommand.h"
 #include "core/console/command/EchoCommand.h"
 #include "core/console/command/FlyCommand.h"
+#include "core/console/command/HookCommand.h"
 #include "core/console/command/LocateCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/command/PlaceCommand.h"
@@ -34,10 +35,13 @@
 #include "core/console/command/SummonCommand.h"
 #include "core/console/suggestion/BiomeSuggestions.h"
 #include "core/console/suggestion/BooleanToggleDynamicSuggestions.h"
+#include "core/console/suggestion/CommandHookIdDynamicSuggestions.h"
+#include "core/console/suggestion/CommandHookScopeDynamicSuggestions.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/CoordinateDynamicSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
 #include "core/console/suggestion/MobDynamicSuggestions.h"
+#include "core/console/suggestion/ScanKeyDynamicSuggestions.h"
 #include "core/console/suggestion/StructureDynamicSuggestions.h"
 #include "core/mod/templateCommand/InsertTemplateCommand.h"
 #include "core/mod/templateCommand/SetTemplateCommand.h"
@@ -128,6 +132,15 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->biomeHasFound = find<std::string>(value, "biome_has_found");
     langs_->configurationCommitSuccess = find<std::string>(value, "configuration_commit_success");
     langs_->configurationCommitFail = find<std::string>(value, "configuration_commit_fail");
+    langs_->scancodeUnknown = find<std::string>(value, "scancode_unknown");
+    langs_->hookCreateDuplicate = find<std::string>(value, "hook_create_duplicate");
+    langs_->hookAddDuplicate = find<std::string>(value, "hook_add_duplicate");
+    langs_->hookAddSuccess = find<std::string>(value, "hook_add_success");
+    langs_->hookRemoveSuccess = find<std::string>(value, "hook_remove_success");
+    langs_->hookIdNotExist = find<std::string>(value, "hook_id_not_exist");
+    langs_->hookInfo = find<std::string>(value, "hook_info");
+    langs_->scancodeHookNotFound = find<std::string>(value, "scancode_hook_not_found");
+    langs_->scancodeHookFoundCount = find<std::string>(value, "scancode_hook_found_count");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "world_name_prefix");
     langs_->worldNameSuffix = find<std::vector<std::string> >(value, "world_name_suffix");
     langs_->slogans = find<std::vector<std::string> >(value, "slogans");
@@ -249,6 +262,7 @@ glimmer::AppContext::AppContext() {
     }
     langs_ = std::make_unique<LangsResources>();
     contributorManager_ = std::make_unique<ContributorManager>();
+    commandHookManager_ = std::make_unique<CommandHookManager>();
     mobManager_ = std::make_unique<MobManager>();
     shapeManager_ = std::make_unique<ShapeManager>();
     audioManager_ = std::make_unique<AudioManager>();
@@ -262,6 +276,10 @@ glimmer::AppContext::AppContext() {
     LoadLanguage(langData.value());
     dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<CommandHookScopeDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<CommandHookIdDynamicSuggestions>(commandHookManager_.get()));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<ScanKeyDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<CoordinateDynamicSuggestions>(Y_DYNAMIC_SUGGESTIONS_NAME));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
@@ -308,6 +326,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<EchoCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LocateCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<HookCommand>(this));
 
     commandExecutor_ = std::make_unique<CommandExecutor>();
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
@@ -329,7 +348,7 @@ glimmer::AppContext::AppContext() {
     }
     configValue = std::make_unique<toml::value>(toml::parse_str(configData.value(), tomlVersion_));
     toml::value *configValuePtr = configValue.get();
-    config_->LoadConfig(*configValuePtr);
+    config_->LoadConfig(commandHookManager_.get(), *configValuePtr);
     commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(this, configValuePtr));
     dynamicSuggestionsManager_->
             RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValuePtr));
@@ -530,6 +549,10 @@ glimmer::FixedColorManager *glimmer::AppContext::GetFixedColorManager() const {
 
 glimmer::StringManager *glimmer::AppContext::GetStringManager() const {
     return stringManager_.get();
+}
+
+glimmer::CommandHookManager *glimmer::AppContext::GetCommandHookManager() const {
+    return commandHookManager_.get();
 }
 
 glimmer::BiomeDecoratorResourcesManager *glimmer::AppContext::GetBiomeDecoratorResourcesManager() const {

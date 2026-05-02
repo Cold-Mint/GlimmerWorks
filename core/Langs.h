@@ -76,6 +76,15 @@ namespace glimmer {
         std::vector<std::string> worldNamePrefix;
         std::vector<std::string> worldNameSuffix;
         std::vector<std::string> slogans;
+        std::string scancodeUnknown;
+        std::string hookCreateDuplicate;
+        std::string hookAddDuplicate;
+        std::string hookAddSuccess;
+        std::string hookRemoveSuccess;
+        std::string hookIdNotExist;
+        std::string scancodeHookNotFound;
+        std::string scancodeHookFoundCount;
+        std::string hookInfo;
     };
 }
 

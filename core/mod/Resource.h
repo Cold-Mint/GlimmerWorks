@@ -13,7 +13,6 @@
 #include "core/Box2dFilter.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/math/Color.h"
-#include "SDL3/SDL_pixels.h"
 #include "src/saves/item.pb.h"
 
 namespace glimmer {

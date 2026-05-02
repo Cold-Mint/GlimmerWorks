@@ -5,8 +5,9 @@
 #include "CoordinateDynamicSuggestions.h"
 
 #include <stdexcept>
+#include <utility>
 
-glimmer::CoordinateDynamicSuggestions::CoordinateDynamicSuggestions(const std::string &id) : id_(id) {
+glimmer::CoordinateDynamicSuggestions::CoordinateDynamicSuggestions(std::string id) : id_(std::move(id)) {
 }
 
 std::string glimmer::CoordinateDynamicSuggestions::GetId() const {

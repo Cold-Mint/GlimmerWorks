@@ -32,6 +32,7 @@ static constexpr std::string FLY_COMMAND_NAME = "fly";
 static constexpr std::string ECHO_COMMAND_NAME = "echo";
 static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
 static constexpr std::string LOCATE_COMMAND_NAME = "locate";
+static constexpr std::string HOOK_COMMAND_NAME = "commandHook";
 static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
 static constexpr std::string BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME = "&bool_toggle";
 static constexpr std::string X_DYNAMIC_SUGGESTIONS_NAME = "&x";
@@ -45,6 +46,9 @@ static constexpr std::string COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME = "&compos
 static constexpr std::string ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME = "&ability_item";
 static constexpr std::string LOOT_DYNAMIC_SUGGESTIONS_NAME = "&loot";
 static constexpr std::string BIOME_DYNAMIC_SUGGESTIONS_NAME = "&biome";
+static constexpr std::string COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME = "&hook_scope";
+static constexpr std::string COMMAND_HOOK_ID_SUGGESTION_NAME = "&hook_id";
+static constexpr std::string SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME = "&scan_key";
 
 static constexpr std::string STRUCTURE_GENERATOR_ID_TREE = "tree";
 static constexpr std::string STRUCTURE_GENERATOR_ID_STATIC = "static";
@@ -58,8 +62,7 @@ static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HEIGHT = "height";
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HORIZONTAL_SPACING = "hSpacing";
 
 static constexpr std::string TOGGLE_KEY_WORD = "toggle";
-static constexpr int HOTKEY_COUNT = 12;
-
+static constexpr std::string SESSION_KEY_WORD = "session";
 /**
  * Resource ref
  * 资源引用
@@ -261,7 +264,6 @@ static constexpr float PLAYER_MOVE_SPEED = 60.0F;
  * 表示无效的游戏ID
  */
 static constexpr uint32_t GAME_ENTITY_ID_INVALID = 0;
-
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
 static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 2;
 static constexpr uint8_t RENDER_ORDER_HOTBAR = 3;

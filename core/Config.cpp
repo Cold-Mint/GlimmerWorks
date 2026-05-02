@@ -3,6 +3,7 @@
 //
 #include "Config.h"
 
+#include "CommandHookManager.h"
 #include "toml11/find.hpp"
 
 template<>
@@ -16,21 +17,20 @@ struct toml::from<glimmer::AudioTrack> {
     }
 };
 
+
 template<>
-struct toml::from<glimmer::HotkeyCommand> {
-    static glimmer::HotkeyCommand from_toml(const value &v) {
-        glimmer::HotkeyCommand cmd{};
-        const auto &groupArray = toml::find<array>(v, "command_group");
-        for (const auto &innerArr: groupArray) {
-            auto strVec = toml::get<std::vector<std::string> >(innerArr);
-            cmd.commandGroup.emplace_back(std::move(strVec));
-        }
-        return cmd;
+struct toml::from<glimmer::CommandHookResource> {
+    static glimmer::CommandHookResource from_toml(const value &v) {
+        glimmer::CommandHookResource commandHookResource{};
+        commandHookResource.hookId = toml::find<std::string>(v, "hook_id");
+        commandHookResource.command = toml::find<std::string>(v, "command");
+        commandHookResource.key = toml::find<std::string>(v, "key");
+        return commandHookResource;
     }
 };
 
 
-void glimmer::Config::LoadConfig(const toml::value &configValue) {
+void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const toml::value &configValue) {
     configVersion = toml::find<int>(configValue, "config_version");
     window.height = toml::find<int>(configValue, "window", "height");
     window.width = toml::find<int>(configValue, "window", "width");
@@ -70,16 +70,6 @@ void glimmer::Config::LoadConfig(const toml::value &configValue) {
     console.maxHistoryEntries = toml::find<int>(configValue, "console", "max_history_entries");
     runtimePath = toml::find<std::string>(configValue, "runtime_path");
     command.locateMaxRadiusSearchChunks = toml::find<int>(configValue, "command", "locate_max_radius_search_chunks");
-    f1 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f1");
-    f2 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f2");
-    f3 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f3");
-    f4 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f4");
-    f5 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f5");
-    f6 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f6");
-    f7 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f7");
-    f8 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f8");
-    f9 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f9");
-    f10 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f10");
-    f11 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f11");
-    f12 = toml::find_or_default<HotkeyCommand>(configValue, "hotkey_f12");
+    commandHooks = toml::find<std::vector<CommandHookResource> >(configValue, "command_hooks");
+    commandHookManager->LoadHookFromConfig(commandHooks);
 }

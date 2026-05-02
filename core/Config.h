@@ -5,11 +5,14 @@
 #define CONFIG_H
 #include <string>
 #include <vector>
+
 #include "mod/resourcePack/AudioType.h"
 #include "toml11/types.hpp"
 
 
 namespace glimmer {
+    class CommandHookManager;
+
     struct Window {
         int width = 1920;
         int height = 1080;
@@ -77,16 +80,18 @@ namespace glimmer {
         float volume;
     };
 
-    struct HotkeyCommand {
-        std::vector<std::vector<std::string> > commandGroup;
-    };
-
     struct Audio {
         float masterVolume;
         int channels;
         int freq;
         std::string format = "F32";
         std::vector<AudioTrack> track;
+    };
+
+    struct CommandHookResource {
+        std::string hookId;
+        std::string command;
+        std::string key;
     };
 
 
@@ -100,22 +105,11 @@ namespace glimmer {
         Console console{};
         CommandConfig command{};
         int configVersion = 1;
-        HotkeyCommand f1{};
-        HotkeyCommand f2{};
-        HotkeyCommand f3{};
-        HotkeyCommand f4{};
-        HotkeyCommand f5{};
-        HotkeyCommand f6{};
-        HotkeyCommand f7{};
-        HotkeyCommand f8{};
-        HotkeyCommand f9{};
-        HotkeyCommand f10{};
-        HotkeyCommand f11{};
-        HotkeyCommand f12{};
         std::string runtimePath;
         LightConfig light;
+        std::vector<CommandHookResource> commandHooks;
 
-        void LoadConfig(const toml::value &configValue);
+        void LoadConfig(CommandHookManager *commandHookManager, const toml::value &configValue);
     };
 }
 

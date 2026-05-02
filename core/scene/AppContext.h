@@ -15,6 +15,7 @@
 #include "../mod/dataPack/TileManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
 #include "../../core/contributor/ContributorManager.h"
+#include "core/CommandHookManager.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/dataPack/StringManager.h"
@@ -93,6 +94,7 @@ namespace glimmer {
         std::unique_ptr<LightSourceManager> lightSourceManager_;
         std::unique_ptr<FixedColorManager> fixedColorManager_;
         std::unique_ptr<TomlTemplateExpander> tomlTemplateExpander_;
+        std::unique_ptr<CommandHookManager> commandHookManager_;
         std::shared_ptr<MIX_Audio> mainMenuBGM_;
         std::shared_ptr<CommandHistoryManager> commandHistoryManager_;
         std::mutex mainThreadMutex_;
@@ -157,6 +159,8 @@ namespace glimmer {
         [[nodiscard]] FixedColorManager *GetFixedColorManager() const;
 
         [[nodiscard]] StringManager *GetStringManager() const;
+
+        [[nodiscard]] CommandHookManager *GetCommandHookManager() const;
 
         [[nodiscard]] BiomeDecoratorResourcesManager *GetBiomeDecoratorResourcesManager() const;
 

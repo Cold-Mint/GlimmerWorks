@@ -54,8 +54,10 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D positio
         return std::nullopt;
     }
     ChunkMessage chunkMessage;
-    chunkMessage.ParseFromIstream(stream->get());
-    return chunkMessage;
+    if (chunkMessage.ParseFromIstream(stream->get())) {
+        return chunkMessage;
+    }
+    return std::nullopt;
 }
 
 bool glimmer::Saves::WriteChunk(const TileVector2D position, const ChunkMessage &chunkMessage) const {
@@ -68,8 +70,10 @@ std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVect
         return std::nullopt;
     }
     ChunkEntityMessage chunkMessage;
-    chunkMessage.ParseFromIstream(stream->get());
-    return chunkMessage;
+    if (chunkMessage.ParseFromIstream(stream->get())) {
+        return chunkMessage;
+    }
+    return std::nullopt;
 }
 
 bool glimmer::Saves::WriteChunkEntity(TileVector2D position, const ChunkEntityMessage &chunkEntityMessage) const {
@@ -90,8 +94,10 @@ std::optional<PlayerMessage> glimmer::Saves::ReadPlayer() const {
         return std::nullopt;
     }
     PlayerMessage playerMessage;
-    playerMessage.ParseFromIstream(stream->get());
-    return playerMessage;
+    if (playerMessage.ParseFromIstream(stream->get())) {
+        return playerMessage;
+    }
+    return std::nullopt;
 }
 
 bool glimmer::Saves::PlayerExists() const {
@@ -104,8 +110,10 @@ std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {
         return std::nullopt;
     }
     MapManifestMessage mapManifestMessage;
-    mapManifestMessage.ParseFromIstream(stream->get());
-    return mapManifestMessage;
+    if (mapManifestMessage.ParseFromIstream(stream->get())) {
+        return mapManifestMessage;
+    }
+    return std::nullopt;
 }
 
 bool glimmer::Saves::WriteMapManifest(const MapManifestMessage &mapManifestMessage) const {

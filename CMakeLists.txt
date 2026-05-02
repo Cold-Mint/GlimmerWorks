@@ -295,7 +295,9 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks)
+    add_executable(GlimmerWorks
+            core/console/suggestion/CommandHookIdDynamicSuggestions.cpp
+            core/console/suggestion/CommandHookIdDynamicSuggestions.h)
 endif ()
 
 target_sources(GlimmerWorks
@@ -529,6 +531,13 @@ target_sources(GlimmerWorks
         core/world/LightContribution.cpp
         core/math/Color.cpp
         core/math/ColorF.cpp
+        core/console/command/HookCommand.cpp
+        core/CommandHookManager.cpp
+        core/CommandHookEntry.cpp
+        core/console/suggestion/CommandHookScopeDynamicSuggestions.cpp
+        core/utils/ScanCodeUtils.cpp
+        core/console/suggestion/ScanKeyDynamicSuggestions.cpp
+        core/utils/UUIDUtils.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -749,6 +758,14 @@ target_sources(GlimmerWorks
         core/world/LightContribution.h
         core/math/ColorF.h
         core/math/Color.h
+        core/console/command/HookCommand.h
+        core/CommandHookScope.h
+        core/CommandHookEntry.h
+        core/CommandHookManager.h
+        core/console/suggestion/CommandHookScopeDynamicSuggestions.h
+        core/console/suggestion/ScanKeyDynamicSuggestions.h
+        core/utils/ScanCodeUtils.h
+        core/utils/UUIDUtils.h
 )
 
 #Define version information

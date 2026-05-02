@@ -10,7 +10,7 @@ namespace glimmer {
     class CoordinateDynamicSuggestions final : public DynamicSuggestions {
         std::string id_;
     public:
-        explicit CoordinateDynamicSuggestions(const std::string &id);
+        explicit CoordinateDynamicSuggestions(std::string id);
 
         [[nodiscard]] std::string GetId() const override;
 

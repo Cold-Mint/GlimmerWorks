@@ -473,14 +473,17 @@ void glimmer::App::Run() {
             //Update the last input time.
             //更新最后一次输入时间。
             lastInputTime = SDL_GetTicks();
-            SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN;
+            uint16_t code = 0;
             auto type = static_cast<SDL_EventType>(event.type);
             bool isKey = false;
             if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP) {
-                scancode = event.key.scancode;
+                code = event.key.scancode;
                 isKey = true;
             }
-            const uint32_t key = CommandHookEntry::GetKey(scancode, type);
+            if (type == SDL_EVENT_MOUSE_BUTTON_DOWN || type == SDL_EVENT_MOUSE_BUTTON_UP) {
+                code = event.button.button;
+            }
+            const uint32_t key = CommandHookEntry::GetKey(type, code);
             auto commandList = std::vector<std::string>();
             const std::vector<CommandHookEntry *> &commandHookEntry = appContext_->GetCommandHookManager()->
                     GetCommandHookVector(

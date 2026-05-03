@@ -46,13 +46,13 @@ namespace glimmer {
          * 创建命令钩子
          * @param scope scope 作用域
          * @param eventType eventType 事件类型
-         * @param scancode scancode 扫描码
+         * @param code code 扫描码
          * @param command command 命令
          * @param keyRepeat keyRepeat 是否在重复输入时执行。
          * @return If the hook does not exist, then return the created hook. If it exists, return an empty value. 如果钩子不存在，那么返回创建后的钩子。存在返回空。
          */
         [[nodiscard]] std::unique_ptr<CommandHookEntry> CreateCommandHookEntry(
-            CommandHookScope scope, SDL_EventType eventType, SDL_Scancode scancode, const std::string &command,
+            CommandHookScope scope, SDL_EventType eventType, uint16_t code, const std::string &command,
             bool keyRepeat) const;
 
         void LoadHookFromConfig(const std::vector<CommandHookResource> &commandHooks);

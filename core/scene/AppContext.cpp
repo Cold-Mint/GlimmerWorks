@@ -43,6 +43,7 @@
 #include "core/console/suggestion/EventTypeDynamicSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
 #include "core/console/suggestion/MobDynamicSuggestions.h"
+#include "core/console/suggestion/MouseButtonDynamicSuggestions.h"
 #include "core/console/suggestion/ScanKeyDynamicSuggestions.h"
 #include "core/console/suggestion/StructureDynamicSuggestions.h"
 #include "core/mod/templateCommand/InsertTemplateCommand.h"
@@ -285,6 +286,7 @@ glimmer::AppContext::AppContext() {
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<CommandHookIdDynamicSuggestions>(commandHookManager_.get()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<ScanKeyDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<MouseButtonDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<EventTypeDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<CoordinateDynamicSuggestions>(Y_DYNAMIC_SUGGESTIONS_NAME));

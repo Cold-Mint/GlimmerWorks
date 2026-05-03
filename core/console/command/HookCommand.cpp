@@ -5,6 +5,7 @@
 #include "HookCommand.h"
 #include "../../scene/AppContext.h"
 #include "core/utils/EventTypeUtils.h"
+#include "core/utils/MouseButtonUtils.h"
 #include "core/utils/ScanCodeUtils.h"
 #include "fmt/color.h"
 
@@ -35,6 +36,9 @@ void glimmer::HookCommand::PutCommandStructure(const CommandArgs &commandArgs, s
                     strings.emplace_back("[scan_code:string]");
                     strings.emplace_back("[key_repeat:bool]");
                 }
+                if (eventType == SDL_EVENT_MOUSE_BUTTON_DOWN || eventType == SDL_EVENT_MOUSE_BUTTON_UP) {
+                    strings.emplace_back("[mouse_button:string]");
+                }
             }
             strings.emplace_back("[scope:string]");
             strings.emplace_back("[command:string...]");
@@ -46,6 +50,9 @@ void glimmer::HookCommand::PutCommandStructure(const CommandArgs &commandArgs, s
                 const SDL_EventType eventType = EventTypeUtils::StringToEventType(commandArgs.AsString(2));
                 if (eventType == SDL_EVENT_KEY_UP || eventType == SDL_EVENT_KEY_DOWN) {
                     strings.emplace_back("[scan_code:string]");
+                }
+                if (eventType == SDL_EVENT_MOUSE_BUTTON_DOWN || eventType == SDL_EVENT_MOUSE_BUTTON_UP) {
+                    strings.emplace_back("[mouse_button:string]");
                 }
             }
         }
@@ -81,17 +88,21 @@ bool glimmer::HookCommand::Execute(const CommandSender *commandSender, CommandAr
             return false;
         }
         const SDL_EventType eventType = EventTypeUtils::StringToEventType(commandArgs.AsString(2));
-        SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN;
+        uint16_t code = 0;
         int startIndex = 3;
         bool keyRepeat = false;
         if (eventType == SDL_EVENT_KEY_UP || eventType == SDL_EVENT_KEY_DOWN) {
-            scancode = ScanCodeUtils::StringToScanCode(commandArgs.AsString(startIndex));
+            code = static_cast<uint16_t>(ScanCodeUtils::StringToScanCode(commandArgs.AsString(startIndex)));
             startIndex++;
-            if (scancode == SDL_SCANCODE_UNKNOWN) {
+            if (code == SDL_SCANCODE_UNKNOWN) {
                 onMessage(langsResources->scancodeUnknown);
                 return false;
             }
             keyRepeat = commandArgs.AsBool(startIndex);
+            startIndex++;
+        }
+        if (eventType == SDL_EVENT_MOUSE_BUTTON_DOWN || eventType == SDL_EVENT_MOUSE_BUTTON_UP) {
+            code = static_cast<uint16_t>(MouseButtonUtils::StringToMouseButton(commandArgs.AsString(3)));
             startIndex++;
         }
         const std::string scopeStr = commandArgs.AsString(startIndex);
@@ -105,7 +116,7 @@ bool glimmer::HookCommand::Execute(const CommandSender *commandSender, CommandAr
             commandStream << commandArgs.AsString(i);
         }
         std::unique_ptr<CommandHookEntry> commandHookEntry = commandHookManager->CreateCommandHookEntry(
-            scope, eventType, scancode, commandStream.str(), keyRepeat);
+            scope, eventType, code, commandStream.str(), keyRepeat);
         if (commandHookEntry == nullptr) {
             onMessage(langsResources->hookCreateDuplicate);
             return false;
@@ -133,24 +144,27 @@ bool glimmer::HookCommand::Execute(const CommandSender *commandSender, CommandAr
     }
     if (operationType == "list") {
         const SDL_EventType eventType = EventTypeUtils::StringToEventType(commandArgs.AsString(2));
-        SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN;
+        uint16_t code = 0;
         if (eventType == SDL_EVENT_KEY_UP || eventType == SDL_EVENT_KEY_DOWN) {
-            scancode = ScanCodeUtils::StringToScanCode(commandArgs.AsString(3));
-            if (scancode == SDL_SCANCODE_UNKNOWN) {
+            code = static_cast<uint16_t>(ScanCodeUtils::StringToScanCode(commandArgs.AsString(3)));
+            if (code == SDL_SCANCODE_UNKNOWN) {
                 onMessage(langsResources->scancodeUnknown);
                 return false;
             }
         }
+        if (eventType == SDL_EVENT_MOUSE_BUTTON_DOWN || eventType == SDL_EVENT_MOUSE_BUTTON_UP) {
+            code = static_cast<uint16_t>(MouseButtonUtils::StringToMouseButton(commandArgs.AsString(3)));
+        }
         const std::vector<CommandHookEntry *> &vector = commandHookManager->GetCommandHookVector(
-            CommandHookEntry::GetKey(scancode, eventType));
+            CommandHookEntry::GetKey(eventType, code));
         if (vector.empty()) {
-            onMessage(fmt::format(fmt::runtime(langsResources->scancodeHookNotFound), static_cast<uint16_t>(scancode)));
+            onMessage(fmt::format(fmt::runtime(langsResources->scancodeHookNotFound), code));
             return false;
         }
         std::stringstream stringStream;
         stringStream << fmt::format(
             fmt::runtime(langsResources->scancodeHookFoundCount),
-            vector.size(), static_cast<uint16_t>(scancode));
+            vector.size(), code);
         for (int i = 0; i < vector.size(); ++i) {
             CommandHookEntry *commandHookEntry = vector.at(i);
             if (commandHookEntry == nullptr) {
@@ -159,7 +173,7 @@ bool glimmer::HookCommand::Execute(const CommandSender *commandSender, CommandAr
             stringStream << '\n';
             stringStream << fmt::format(fmt::runtime(langsResources->hookInfo), commandHookEntry->hookId,
                                         static_cast<uint8_t>(commandHookEntry->scope), commandHookEntry->command,
-                                        static_cast<uint16_t>(commandHookEntry->scancode));
+                                        code);
         }
         onMessage(stringStream.str());
         return true;
@@ -187,6 +201,10 @@ glimmer::NodeTree<std::string> glimmer::HookCommand::GetSuggestionsTree(const Co
                 eventTypeTree->AddChild(SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME)->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME)->
                         AddChild(
                             COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME);
+            } else if (eventType == SDL_EVENT_MOUSE_BUTTON_DOWN || eventType == SDL_EVENT_MOUSE_BUTTON_UP) {
+                eventTypeTree->AddChild(MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME)->
+                        AddChild(
+                            COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME);
             } else {
                 eventTypeTree->AddChild(
                     COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME);
@@ -205,6 +223,9 @@ glimmer::NodeTree<std::string> glimmer::HookCommand::GetSuggestionsTree(const Co
             eventTypeTree->ClearChildren();
             if (eventType == SDL_EVENT_KEY_DOWN || eventType == SDL_EVENT_KEY_UP) {
                 eventTypeTree->AddChild(SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME);
+            }
+            if (eventType == SDL_EVENT_MOUSE_BUTTON_DOWN || eventType == SDL_EVENT_MOUSE_BUTTON_UP) {
+                eventTypeTree->AddChild(MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME);
             }
         }
     }

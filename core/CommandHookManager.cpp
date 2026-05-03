@@ -41,11 +41,11 @@ std::optional<std::string> glimmer::CommandHookManager::RegisterImpl(
     }
     const CommandHookEntry *commandHookEntryPtr = commandHookEntry.get();
 
-    if (Exist(commandHookEntryPtr->scope, commandHookEntryPtr->scancode, commandHookEntryPtr->command)) {
+    if (Exist(commandHookEntryPtr->scope, commandHookEntryPtr->code, commandHookEntryPtr->command)) {
         return std::nullopt;
     }
     std::string hookId = commandHookEntryPtr->hookId;
-    const uint32_t key = CommandHookEntry::GetKey(commandHookEntry->scancode, commandHookEntry->eventType);
+    const uint32_t key = CommandHookEntry::GetKey(commandHookEntry->eventType, commandHookEntry->code);
     CommandHookEntry *rawPtr = commandHookEntry.get();
     commandHookMap[key].push_back(rawPtr);
     commandHookVector.push_back(std::move(commandHookEntry));
@@ -67,7 +67,7 @@ bool glimmer::CommandHookManager::UnregisterImpl(
         if (hookEntry->hookId == commandHookId) {
             const CommandHookEntry *rawPtr = hookEntry.get();
             const auto mapIter = commandHookMap.find(
-                CommandHookEntry::GetKey(hookEntry->scancode, hookEntry->eventType));
+                CommandHookEntry::GetKey(hookEntry->eventType, hookEntry->code));
             if (mapIter != commandHookMap.end()) {
                 auto &hookPtrVector = mapIter->second;
 
@@ -110,16 +110,14 @@ const std::vector<glimmer::CommandHookEntry *> &glimmer::CommandHookManager::Get
     return fullVector_;
 }
 
-
-std::unique_ptr<glimmer::CommandHookEntry> glimmer::CommandHookManager::CreateCommandHookEntry(
-    const CommandHookScope scope,
-    const SDL_EventType eventType, const SDL_Scancode scancode, const std::string &command, bool keyRepeat) const {
+std::unique_ptr<glimmer::CommandHookEntry> glimmer::CommandHookManager::CreateCommandHookEntry(CommandHookScope scope,
+    SDL_EventType eventType, uint16_t code, const std::string &command, bool keyRepeat) const {
     if (scope == CommandHookScope::CONFIG) {
         //Cannot create configuration scope hooks.
         //不能创建配置作用域钩子。
         return nullptr;
     }
-    if (Exist(scope, scancode, command)) {
+    if (Exist(scope, code, command)) {
         return nullptr;
     }
     auto commandHookEntry = std::make_unique<CommandHookEntry>();
@@ -128,7 +126,7 @@ std::unique_ptr<glimmer::CommandHookEntry> glimmer::CommandHookManager::CreateCo
     commandHookEntry->keyRepeat = keyRepeat;
     commandHookEntry->eventType = eventType;
     commandHookEntry->command = command;
-    commandHookEntry->scancode = scancode;
+    commandHookEntry->code = code;
     return commandHookEntry;
 }
 
@@ -144,7 +142,9 @@ void glimmer::CommandHookManager::LoadHookFromConfig(const std::vector<CommandHo
         commandHookEntry->command = commandHookRes.command;
         commandHookEntry->eventType = EventTypeUtils::StringToEventType(commandHookRes.eventType);
         commandHookEntry->keyRepeat = commandHookRes.keyRepeat;
-        commandHookEntry->scancode = ScanCodeUtils::StringToScanCode(commandHookRes.scancode);
+        if (commandHookEntry->eventType == SDL_EVENT_KEY_UP || commandHookEntry->eventType == SDL_EVENT_KEY_DOWN) {
+            commandHookEntry->code = ScanCodeUtils::StringToScanCode(commandHookRes.code);
+        }
         commandHookEntry->scope = CommandHookScope::CONFIG;
         (void) RegisterImpl(configCommandHookMap_, configCommandHookVector_, CommandHookScope::SESSION,
                             std::move(commandHookEntry));

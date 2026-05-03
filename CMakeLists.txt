@@ -541,6 +541,8 @@ target_sources(GlimmerWorks
         core/console/CommandSender.cpp
         core/utils/EventTypeUtils.cpp
         core/console/suggestion/EventTypeDynamicSuggestions.cpp
+        core/utils/MouseButtonUtils.cpp
+        core/console/suggestion/MouseButtonDynamicSuggestions.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -774,6 +776,8 @@ target_sources(GlimmerWorks
         core/console/CommandSender.h
         core/utils/EventTypeUtils.h
         core/console/suggestion/EventTypeDynamicSuggestions.h
+        core/utils/MouseButtonUtils.h
+        core/console/suggestion/MouseButtonDynamicSuggestions.h
 )
 
 #Define version information

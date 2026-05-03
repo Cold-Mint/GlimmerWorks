@@ -92,7 +92,7 @@ namespace glimmer {
         std::string hookId;
         std::string command;
         bool keyRepeat;
-        std::string scancode;
+        std::string code;
         std::string eventType;
     };
 

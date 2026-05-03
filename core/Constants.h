@@ -51,6 +51,7 @@ static constexpr std::string COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME = "&hoo
 static constexpr std::string COMMAND_HOOK_ID_SUGGESTION_NAME = "&hook_id";
 static constexpr std::string SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME = "&scan_key";
 static constexpr std::string EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME = "&event_type";
+static constexpr std::string MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME = "&mouse_button";
 
 static constexpr std::string STRUCTURE_GENERATOR_ID_TREE = "tree";
 static constexpr std::string STRUCTURE_GENERATOR_ID_STATIC = "static";

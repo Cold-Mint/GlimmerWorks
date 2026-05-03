@@ -9,7 +9,7 @@
 #include "toml11/result.hpp"
 
 
-glimmer::CommandResult glimmer::CommandExecutor::Execute(const std::string &command,
+glimmer::CommandResult glimmer::CommandExecutor::Execute(const CommandSender *commandSender, const std::string &command,
                                                          const CommandManager *commandManager,
                                                          const std::function<void(
                                                              const std::string &text)> &onMessage) {
@@ -28,7 +28,7 @@ glimmer::CommandResult glimmer::CommandExecutor::Execute(const std::string &comm
             result = CommandResult::NotFound;
         } else {
             try {
-                const bool execResult = cmd->Execute(args, onMessage);
+                const bool execResult = cmd->Execute(commandSender, args, onMessage);
                 result = execResult ? CommandResult::Success : CommandResult::Failure;
             } catch (const std::exception &_) {
                 result = CommandResult::Failure;
@@ -38,14 +38,15 @@ glimmer::CommandResult glimmer::CommandExecutor::Execute(const std::string &comm
     return result;
 }
 
-void glimmer::CommandExecutor::ExecuteAsyncBatch(const std::vector<std::string> &commandList,
+void glimmer::CommandExecutor::ExecuteAsyncBatch(const CommandSender *commandSender,
+                                                 const std::vector<std::string> &commandList,
                                                  const CommandManager *commandManager,
                                                  const std::function<void(
                                                      CommandResult result, const std::string &command)> &onFinished,
                                                  const std::function<void(const std::string &text)> &onMessage) {
-    std::thread([commandList,commandManager,onMessage,onFinished]() mutable {
+    std::thread([commandList,commandManager,onMessage,onFinished, commandSender]() mutable {
         for (const auto &command: commandList) {
-            const CommandResult result = Execute(command, commandManager, onMessage);
+            const CommandResult result = Execute(commandSender, command, commandManager, onMessage);
             if (onFinished) {
                 onFinished(result, command);
             }
@@ -53,9 +54,10 @@ void glimmer::CommandExecutor::ExecuteAsyncBatch(const std::vector<std::string> 
     }).detach();
 }
 
-void glimmer::CommandExecutor::ExecuteAsyncSingle(const std::string &command, const CommandManager *commandManager,
+void glimmer::CommandExecutor::ExecuteAsyncSingle(const CommandSender *commandSender, const std::string &command,
+                                                  const CommandManager *commandManager,
                                                   const std::function<void(
                                                       CommandResult result, const std::string &command)> &onFinished,
                                                   const std::function<void(const std::string &text)> &onMessage) {
-    ExecuteAsyncBatch(std::vector{command}, commandManager, onFinished, onMessage);
+    ExecuteAsyncBatch(commandSender, std::vector{command}, commandManager, onFinished, onMessage);
 }

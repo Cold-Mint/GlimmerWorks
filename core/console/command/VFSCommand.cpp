@@ -42,7 +42,8 @@ void glimmer::VFSCommand::PutCommandStructure(const CommandArgs &commandArgs, st
     }
 }
 
-bool glimmer::VFSCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::VFSCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+                                  std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }

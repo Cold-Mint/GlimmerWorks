@@ -28,12 +28,8 @@ void glimmer::HeightMapCommand::PutCommandStructure(const CommandArgs &commandAr
     strings.emplace_back("[fileName:string]");
 }
 
-glimmer::NodeTree<std::string> glimmer::HeightMapCommand::GetSuggestionsTree(const CommandArgs &commandArgs) {
-    return Command::GetSuggestionsTree(commandArgs);
-}
-
-bool glimmer::HeightMapCommand::Execute(CommandArgs commandArgs,
-                                        std::function<void(const std::string &text)> onMessage) {
+bool glimmer::HeightMapCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+    std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }

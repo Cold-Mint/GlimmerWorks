@@ -22,7 +22,8 @@ std::string glimmer::TpCommand::GetName() const {
     return TP_COMMAND_NAME;
 }
 
-bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::TpCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+                                 std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }
@@ -47,12 +48,12 @@ bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(con
         onMessage(langsResources->cantFindObject);
         return false;
     }
-    auto transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
+    const WorldVector2D commandSenderPosition = commandSender->GetPosition();
     auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(playerEntity);
     if (rigidBody2DComponent && rigidBody2DComponent->IsReady()) {
         b2Vec2 newPos = Box2DUtils::ToMeters({
-            commandArgs.AsCoordinate(1, transform2DComponent->GetPosition().x),
-            commandArgs.AsCoordinate(2, transform2DComponent->GetPosition().y)
+            commandArgs.AsCoordinate(1, commandSenderPosition.x),
+            commandArgs.AsCoordinate(2, commandSenderPosition.y)
         });
         b2Rot currentRot = b2Body_GetRotation(rigidBody2DComponent->GetBodyId());
         b2Body_SetTransform(rigidBody2DComponent->GetBodyId(), newPos, currentRot);

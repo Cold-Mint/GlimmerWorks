@@ -10,7 +10,8 @@
 glimmer::LicenseCommand::LicenseCommand(AppContext *appContext) : Command(appContext) {
 }
 
-bool glimmer::LicenseCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::LicenseCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+                                      const std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }

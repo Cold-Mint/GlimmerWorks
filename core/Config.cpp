@@ -24,7 +24,9 @@ struct toml::from<glimmer::CommandHookResource> {
         glimmer::CommandHookResource commandHookResource{};
         commandHookResource.hookId = toml::find<std::string>(v, "hook_id");
         commandHookResource.command = toml::find<std::string>(v, "command");
-        commandHookResource.key = toml::find<std::string>(v, "key");
+        commandHookResource.keyRepeat = toml::find_or<bool>(v, "key_repeat", false);
+        commandHookResource.scancode = toml::find<std::string>(v, "scancode");
+        commandHookResource.eventType = toml::find<std::string>(v, "event_type");
         return commandHookResource;
     }
 };

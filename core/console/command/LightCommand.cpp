@@ -8,6 +8,7 @@
 #include "fmt/xchar.h"
 #include "core/scene/AppContext.h"
 #include "../../world/WorldContext.h"
+#include "core/console/CommandSender.h"
 
 glimmer::LightCommand::LightCommand(AppContext *appContext) : Command(appContext) {
 }
@@ -27,9 +28,17 @@ std::string glimmer::LightCommand::GetName() const {
 
 void glimmer::LightCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
     strings.emplace_back("[operation：string]");
+    if (commandArgs.GetSize() >= 2) {
+        std::string operation = commandArgs.AsString(1);
+        if (operation == "info") {
+            strings.emplace_back("[x:int]");
+            strings.emplace_back("[y:int]");
+        }
+    }
 }
 
-bool glimmer::LightCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+                                    std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }
@@ -51,17 +60,19 @@ bool glimmer::LightCommand::Execute(CommandArgs commandArgs, std::function<void(
     std::string operation = commandArgs.AsString(1);
     if (operation == "inspector") {
     } else if (operation == "info") {
-        auto playerEntity = worldContext_->GetPlayerEntity();
-        if (WorldContext::IsEmptyEntityId(playerEntity)) {
-            onMessage(appContext_->GetLangsResources()->cantFindObject);
+        if (size < 4) {
+            onMessage(fmt::format(
+                fmt::runtime(langsResources->insufficientParameterLength),
+                4, size));
             return false;
         }
-        auto transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
-        TileVector2D tileVector2d = TileLayerComponent::WorldToTile({
-            commandArgs.AsCoordinate(2, transform2DComponent->GetPosition().x),
-            commandArgs.AsCoordinate(3, transform2DComponent->GetPosition().y)
-        });
-        const TileLightData *lightData = worldContext_->GetLightingBuffer()->GetTileLightData(tileVector2d);
+        const WorldVector2D commandSenderPosition = commandSender->GetPosition();
+        const TileVector2D tileVector2D = TileLayerComponent::WorldToTile(WorldVector2D(
+            commandArgs.AsCoordinate(1, commandSenderPosition.x),
+            commandArgs.AsCoordinate(
+                2, commandSenderPosition.y)));
+        const TileLightData *lightData = worldContext_->GetLightingBuffer()->GetTileLightData(
+            tileVector2D);
         if (lightData == nullptr) {
             onMessage(appContext_->GetLangsResources()->notIncludeLighting);
             return false;
@@ -89,11 +100,16 @@ bool glimmer::LightCommand::Execute(CommandArgs commandArgs, std::function<void(
                 }
             }
         }
-        std::stringstream stringStream;
         const Color *finalColor = lightData->GetFinalLightColor();
-        stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), finalColor->r, finalColor->g,
-                                    finalColor->b, finalColor->a, lightContributionStream.str());
-        onMessage(stringStream.str());
+        if (finalColor == nullptr) {
+            onMessage(lightContributionStream.str());
+        } else {
+            std::stringstream stringStream;
+            stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
+                                        finalColor->r, finalColor->g,
+                                        finalColor->b, finalColor->a, lightContributionStream.str());
+            onMessage(stringStream.str());
+        }
     }
     return true;
 }

@@ -29,7 +29,8 @@ bool glimmer::LootCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::LootCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
+                                   const std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }

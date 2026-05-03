@@ -26,7 +26,8 @@ glimmer::GiveCommand::GiveCommand(AppContext *appContext)
     : Command(appContext) {
 }
 
-bool glimmer::GiveCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+                                   std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }

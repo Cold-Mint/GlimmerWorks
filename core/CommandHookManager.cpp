@@ -4,12 +4,14 @@
 
 #include "CommandHookManager.h"
 
+#include "utils/EventTypeUtils.h"
 #include "utils/ScanCodeUtils.h"
 #include "utils/UUIDUtils.h"
 
-bool glimmer::CommandHookManager::Exist(const CommandHookScope scope,
-                                        const SDL_Scancode scancode, const std::string &command) const {
-    auto iterator = sessionCommandHookMap_.find(scancode);
+
+bool glimmer::CommandHookManager::Exist(const CommandHookScope scope, const uint32_t key,
+                                        const std::string &command) const {
+    auto iterator = sessionCommandHookMap_.find(key);
     if (iterator == sessionCommandHookMap_.end()) {
         return false;
     }
@@ -26,8 +28,8 @@ bool glimmer::CommandHookManager::Exist(const CommandHookScope scope,
 }
 
 std::optional<std::string> glimmer::CommandHookManager::RegisterImpl(
-    std::unordered_map<SDL_Scancode, std::vector<CommandHookEntry *> > &commandHookMap,
-    std::vector<std::unique_ptr<CommandHookEntry> > &commandHookVector, const CommandHookScope exclude,
+    std::unordered_map<uint32_t, std::vector<CommandHookEntry *> > &commandHookMap,
+    std::vector<std::unique_ptr<CommandHookEntry> > &commandHookVector, CommandHookScope exclude,
     std::unique_ptr<CommandHookEntry> commandHookEntry) const {
     if (commandHookEntry == nullptr) {
         return std::nullopt;
@@ -43,16 +45,16 @@ std::optional<std::string> glimmer::CommandHookManager::RegisterImpl(
         return std::nullopt;
     }
     std::string hookId = commandHookEntryPtr->hookId;
-    const SDL_Scancode scancode = commandHookEntry->scancode;
+    const uint32_t key = CommandHookEntry::GetKey(commandHookEntry->scancode, commandHookEntry->eventType);
     CommandHookEntry *rawPtr = commandHookEntry.get();
-    commandHookMap[scancode].push_back(rawPtr);
+    commandHookMap[key].push_back(rawPtr);
     commandHookVector.push_back(std::move(commandHookEntry));
     return hookId;
 }
 
 bool glimmer::CommandHookManager::UnregisterImpl(
-    std::unordered_map<SDL_Scancode, std::vector<CommandHookEntry *> > &commandHookMap,
-    std::vector<std::unique_ptr<CommandHookEntry> > &commandHookVector, const CommandHookScope exclude,
+    std::unordered_map<uint32_t, std::vector<CommandHookEntry *> > &commandHookMap,
+    std::vector<std::unique_ptr<CommandHookEntry> > &commandHookVector, CommandHookScope exclude,
     const std::string &commandHookId) {
     for (auto iter = commandHookVector.begin(); iter != commandHookVector.end(); ++iter) {
         auto &hookEntry = *iter;
@@ -64,7 +66,8 @@ bool glimmer::CommandHookManager::UnregisterImpl(
         }
         if (hookEntry->hookId == commandHookId) {
             const CommandHookEntry *rawPtr = hookEntry.get();
-            const auto mapIter = commandHookMap.find(hookEntry->scancode);
+            const auto mapIter = commandHookMap.find(
+                CommandHookEntry::GetKey(hookEntry->scancode, hookEntry->eventType));
             if (mapIter != commandHookMap.end()) {
                 auto &hookPtrVector = mapIter->second;
 
@@ -88,17 +91,16 @@ bool glimmer::CommandHookManager::UnregisterImpl(
 
 glimmer::CommandHookManager::CommandHookManager() = default;
 
-const std::vector<glimmer::CommandHookEntry *> &glimmer::CommandHookManager::GetCommandHookVector(
-    const SDL_Scancode scancode) {
+const std::vector<glimmer::CommandHookEntry *> &glimmer::CommandHookManager::GetCommandHookVector(const uint32_t key) {
     fullVector_.clear();
-    const auto configIterator = configCommandHookMap_.find(scancode);
+    const auto configIterator = configCommandHookMap_.find(key);
     if (configIterator != configCommandHookMap_.end()) {
         fullVector_.insert(fullVector_.end(),
                            configIterator->second.begin(),
                            configIterator->second.end());
     }
 
-    const auto sessionIterator = sessionCommandHookMap_.find(scancode);
+    const auto sessionIterator = sessionCommandHookMap_.find(key);
     if (sessionIterator != sessionCommandHookMap_.end()) {
         fullVector_.insert(fullVector_.end(),
                            sessionIterator->second.begin(),
@@ -108,9 +110,10 @@ const std::vector<glimmer::CommandHookEntry *> &glimmer::CommandHookManager::Get
     return fullVector_;
 }
 
+
 std::unique_ptr<glimmer::CommandHookEntry> glimmer::CommandHookManager::CreateCommandHookEntry(
     const CommandHookScope scope,
-    const SDL_Scancode scancode, const std::string &command) const {
+    const SDL_EventType eventType, const SDL_Scancode scancode, const std::string &command, bool keyRepeat) const {
     if (scope == CommandHookScope::CONFIG) {
         //Cannot create configuration scope hooks.
         //不能创建配置作用域钩子。
@@ -122,6 +125,8 @@ std::unique_ptr<glimmer::CommandHookEntry> glimmer::CommandHookManager::CreateCo
     auto commandHookEntry = std::make_unique<CommandHookEntry>();
     commandHookEntry->hookId = UUIDUtils::Generate();
     commandHookEntry->scope = scope;
+    commandHookEntry->keyRepeat = keyRepeat;
+    commandHookEntry->eventType = eventType;
     commandHookEntry->command = command;
     commandHookEntry->scancode = scancode;
     return commandHookEntry;
@@ -137,7 +142,9 @@ void glimmer::CommandHookManager::LoadHookFromConfig(const std::vector<CommandHo
         auto commandHookEntry = std::make_unique<CommandHookEntry>();
         commandHookEntry->hookId = UUIDUtils::Generate();
         commandHookEntry->command = commandHookRes.command;
-        commandHookEntry->scancode = ScanCodeUtils::StringToScanCode(commandHookRes.key);
+        commandHookEntry->eventType = EventTypeUtils::StringToEventType(commandHookRes.eventType);
+        commandHookEntry->keyRepeat = commandHookRes.keyRepeat;
+        commandHookEntry->scancode = ScanCodeUtils::StringToScanCode(commandHookRes.scancode);
         commandHookEntry->scope = CommandHookScope::CONFIG;
         (void) RegisterImpl(configCommandHookMap_, configCommandHookVector_, CommandHookScope::SESSION,
                             std::move(commandHookEntry));

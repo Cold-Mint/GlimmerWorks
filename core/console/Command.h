@@ -11,6 +11,7 @@
 #include "../utils/NodeTree.h"
 
 namespace glimmer {
+    class CommandSender;
     class WorldContext;
     class AppContext;
 
@@ -78,7 +79,8 @@ namespace glimmer {
 
         [[nodiscard]] virtual NodeTree<std::string> GetSuggestionsTree(const CommandArgs &commandArgs);
 
-        virtual bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) = 0;
+        virtual bool Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+                             std::function<void(const std::string &text)> onMessage) = 0;
     };
 }
 

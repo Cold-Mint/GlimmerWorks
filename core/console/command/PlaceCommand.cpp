@@ -32,7 +32,7 @@ bool glimmer::PlaceCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
+bool glimmer::PlaceCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
                                     std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
@@ -56,15 +56,11 @@ bool glimmer::PlaceCommand::Execute(CommandArgs commandArgs,
         if (structureResource == nullptr) {
             return false;
         }
-        auto transform2dComponent = worldContext_->GetComponent<Transform2DComponent>(
-            worldContext_->GetPlayerEntity());
-        if (transform2dComponent == nullptr) {
-            return false;
-        }
+        const WorldVector2D commandSenderPosition = commandSender->GetPosition();
         auto tilePosition = TileLayerComponent::WorldToTile(
             {
-                commandArgs.AsCoordinate(3, transform2dComponent->GetPosition().x),
-                commandArgs.AsCoordinate(4, transform2dComponent->GetPosition().y)
+                commandArgs.AsCoordinate(3, commandSenderPosition.x),
+                commandArgs.AsCoordinate(4, commandSenderPosition.y)
             });
         std::optional<StructureInfo> structureInfoOptional = appContext_->GetStructureGeneratorManager()->Generate(
             tilePosition, structureResource);

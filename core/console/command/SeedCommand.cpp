@@ -13,7 +13,8 @@ bool glimmer::SeedCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::SeedCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::SeedCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+    const std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }

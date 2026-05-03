@@ -17,8 +17,8 @@ namespace glimmer {
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
-        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
-
+        bool Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+            std::function<void(const std::string &text)> onMessage) override;
 
         [[nodiscard]] std::string GetName() const override;
 

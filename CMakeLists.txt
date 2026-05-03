@@ -538,6 +538,9 @@ target_sources(GlimmerWorks
         core/utils/UUIDUtils.cpp
         core/console/suggestion/CommandHookIdDynamicSuggestions.cpp
         core/console/command/LightCommand.cpp
+        core/console/CommandSender.cpp
+        core/utils/EventTypeUtils.cpp
+        core/console/suggestion/EventTypeDynamicSuggestions.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -768,6 +771,9 @@ target_sources(GlimmerWorks
         core/utils/UUIDUtils.h
         core/console/suggestion/CommandHookIdDynamicSuggestions.h
         core/console/command/LightCommand.h
+        core/console/CommandSender.h
+        core/utils/EventTypeUtils.h
+        core/console/suggestion/EventTypeDynamicSuggestions.h
 )
 
 #Define version information

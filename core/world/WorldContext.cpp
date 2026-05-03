@@ -201,11 +201,7 @@ glimmer::WorldContext::~WorldContext() {
     componentCount_.clear();
     b2DestroyWorld(worldId_);
     worldId_ = b2_nullWorldId;
-    for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
-        if (command->RequiresWorldContext()) {
-            command->UnBindWorldContext();
-        }
-    }
+    appContext_->GetCommandManager()->UnbindWorldContext();
 }
 
 glimmer::GameEntity::ID glimmer::WorldContext::GetEntityIdIndex() const {
@@ -970,11 +966,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
     worldId_ = b2CreateWorld(&worldDef);
     appContext_ = appContext;
     InitSystem();
-    for (const auto &command: appContext_->GetCommandManager()->GetCommands() | std::views::values) {
-        if (command->RequiresWorldContext()) {
-            command->BindWorldContext(this);
-        }
-    }
+    appContext->GetCommandManager()->BindWorldContext(this);
     appContext_->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed_);
     appContext->GetStructureGeneratorManager()->SetWorldSeed(worldSeed_);
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {

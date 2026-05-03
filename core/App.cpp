@@ -10,6 +10,7 @@
 #include "imgui.h"
 #include "backends/imgui_impl_sdl3.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
+#include "console/CommandSender.h"
 #include "scene/SplashScene.h"
 #include "scene/ConsoleOverlay.h"
 #include "scene/DebugOverlay.h"
@@ -472,24 +473,34 @@ void glimmer::App::Run() {
             //Update the last input time.
             //更新最后一次输入时间。
             lastInputTime = SDL_GetTicks();
-            if ((event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) || (
-                    event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat)) {
-                auto commandList = std::vector<std::string>();
-                const std::vector<CommandHookEntry *> &commandHookEntry = appContext_->GetCommandHookManager()->
-                        GetCommandHookVector(
-                            event.key.scancode);
-                if (!commandHookEntry.empty()) {
-                    for (const auto &commandHook: commandHookEntry) {
-                        commandList.emplace_back(commandHook->command);
-                    }
-                    CommandExecutor::ExecuteAsyncBatch(commandList, appContext_->GetCommandManager(),
-                                                       [](const CommandResult, const std::string &) {
-                                                       },
-                                                       [this](const std::string &text) {
-                                                           appContext_->AddUIMessage(text);
-                                                       });
-                }
+            SDL_Scancode scancode = SDL_SCANCODE_UNKNOWN;
+            auto type = static_cast<SDL_EventType>(event.type);
+            bool isKey = false;
+            if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP) {
+                scancode = event.key.scancode;
+                isKey = true;
             }
+            const uint32_t key = CommandHookEntry::GetKey(scancode, type);
+            auto commandList = std::vector<std::string>();
+            const std::vector<CommandHookEntry *> &commandHookEntry = appContext_->GetCommandHookManager()->
+                    GetCommandHookVector(
+                        key);
+            if (!commandHookEntry.empty()) {
+                for (const auto &commandHook: commandHookEntry) {
+                    if (isKey && commandHook->keyRepeat != event.key.repeat) {
+                        continue;
+                    }
+                    commandList.emplace_back(commandHook->command);
+                }
+                CommandExecutor::ExecuteAsyncBatch(appContext_->GetCommandManager()->GetDefaultCommandSender(),
+                                                   commandList, appContext_->GetCommandManager(),
+                                                   [](const CommandResult, const std::string &) {
+                                                   },
+                                                   [this](const std::string &text) {
+                                                       appContext_->AddUIMessage(text);
+                                                   });
+            }
+
 #ifdef __ANDROID__
             if (event.type == SDL_EVENT_KEY_DOWN &&
                 event.key.key == SDLK_AC_BACK) {

@@ -23,7 +23,8 @@ void glimmer::EchoCommand::PutCommandStructure(const CommandArgs &commandArgs, s
     strings.emplace_back("[text:string...]");
 }
 
-bool glimmer::EchoCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::EchoCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+                                   std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }

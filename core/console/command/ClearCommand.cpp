@@ -19,7 +19,7 @@ std::string glimmer::ClearCommand::GetName() const {
 void glimmer::ClearCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
 }
 
-bool glimmer::ClearCommand::Execute(CommandArgs commandArgs,
+bool glimmer::ClearCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
                                     const std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;

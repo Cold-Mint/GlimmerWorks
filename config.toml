@@ -171,85 +171,101 @@ max_history_entries = 100
 [[command_hooks]]
 hook_id = "cb2bfd40-c389-468b-ae11-032e8e2b00b7"
 command = "screenShot create"
-key = "f2"
+scancode = "f2"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "828542cb-e97d-42a1-b87d-7d0f091d4058"
 command = "config set debug.display_debug_panel toggle"
-key = "f12"
+scancode = "f12"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "71b85f83-1b00-4d8d-8cd3-e594a2757671"
 command = "config commit"
-key = "f12"
+scancode = "f12"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "fee1f88b-4c3b-43e6-84ee-8e158a1a12ff"
 command = "config set debug.display_box2d_shape toggle"
-key = "f11"
+scancode = "f11"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "8d007cc9-702a-410a-8b33-93137ff537f5"
 command = "config commit"
-key = "f11"
+scancode = "f11"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "a21709c9-f296-4b00-a7da-cd6b86da4a37"
 command = "config set debug.display_elevation_map toggle"
-key = "f10"
+scancode = "f10"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "c0416d0a-bdaf-45d1-a38e-309eca812381"
 command = "config commit"
-key = "f10"
-
+scancode = "f10"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "50afeafd-4774-4a80-a0e6-e874f3403317"
 command = "config set debug.display_temp_map toggle"
-key = "f9"
+scancode = "f9"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "36f2732e-355f-4da9-b979-80bec479fd6d"
 command = "config commit"
-key = "f9"
+scancode = "f9"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "0b7f2aca-d5a0-4d3c-8f6c-48d6926d5783"
 command = "config set debug.display_erosion_map toggle"
-key = "f8"
+scancode = "f8"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "81a797c0-674a-4f3c-ac3f-ddb2281df3ae"
 command = "config commit"
-key = "f8"
+scancode = "f8"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "3ceb425e-7e63-4f02-b5db-0752217c6773"
 command = "config set debug.display_weirdness_map toggle"
-key = "f7"
+scancode = "f7"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "f40bfac3-bb6d-455f-840e-8b68b1448743"
 command = "config commit"
-key = "f7"
+scancode = "f7"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "f4a857a2-9b82-48c5-818d-a8d726acca84"
 command = "config set debug.display_humidity_map toggle"
-key = "f6"
+scancode = "f6"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "3dca5ff9-d42d-45cb-933e-37d29bef2db8"
 command = "config commit"
-key = "f6"
+scancode = "f6"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "b47ff758-6c06-475b-927d-bbeebda7421b"
 command = "config set light.enable toggle"
-key = "f5"
+scancode = "f5"
+event_type = "key_down"
 
 [[command_hooks]]
 hook_id = "a068131c-42e2-4dc6-9771-468cf145b75e"
 command = "config commit"
-key = "f5"
+scancode = "f5"
+event_type = "key_down"

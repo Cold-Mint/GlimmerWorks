@@ -9,6 +9,7 @@
 #include "../log/LogCat.h"
 #include "../Config.h"
 #include "backends/imgui_impl_sdl3.h"
+#include "core/console/CommandSender.h"
 #include "fmt/color.h"
 #include "misc/cpp/imgui_stdlib.h"
 
@@ -550,7 +551,8 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                 const int delete_num = current_size - max_entries;
                 mutableHistory->DeleteSubrange(0, delete_num);
             }
-            CommandExecutor::ExecuteAsyncSingle(command_, appContext->GetCommandManager(),
+            CommandSender commandSender;
+            CommandExecutor::ExecuteAsyncSingle(&commandSender, command_, appContext->GetCommandManager(),
                                                 [this](const CommandResult result, const std::string &cmd) {
                                                     std::string message;
                                                     std::string pattern;

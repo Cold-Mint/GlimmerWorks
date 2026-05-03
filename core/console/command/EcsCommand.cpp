@@ -40,7 +40,8 @@ void glimmer::EcsCommand::PutCommandStructure(const CommandArgs &commandArgs, st
     }
 }
 
-bool glimmer::EcsCommand::Execute(const CommandArgs commandArgs, const std::function<void(const std::string &text)> onMessage) {
+bool glimmer::EcsCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+                                  std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }

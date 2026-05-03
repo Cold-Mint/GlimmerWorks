@@ -30,8 +30,9 @@ void glimmer::FlyCommand::PutCommandStructure(const CommandArgs &commandArgs, st
     strings.emplace_back("[enable:bool]");
 }
 
-bool glimmer::FlyCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
+bool glimmer::FlyCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
+    const std::function<void(const std::string &text)> onMessage) {
+     if (appContext_ == nullptr) {
         return false;
     }
     const LangsResources *langsResources = appContext_->GetLangsResources();

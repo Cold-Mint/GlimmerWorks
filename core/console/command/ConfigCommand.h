@@ -34,7 +34,8 @@ namespace glimmer {
 
         [[nodiscard]] bool SetValue(const std::string &parameterName, const std::string &value) const;
 
-        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
+        bool Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+            std::function<void(const std::string &text)> onMessage) override;
 
         [[nodiscard]] NodeTree<std::string> GetSuggestionsTree(const CommandArgs &commandArgs) override;
     };

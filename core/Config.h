@@ -91,7 +91,9 @@ namespace glimmer {
     struct CommandHookResource {
         std::string hookId;
         std::string command;
-        std::string key;
+        bool keyRepeat;
+        std::string scancode;
+        std::string eventType;
     };
 
 

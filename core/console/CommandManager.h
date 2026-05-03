@@ -9,16 +9,28 @@
 #include <unordered_map>
 
 #include "Command.h"
+#include "CommandSender.h"
+#include "core/Langs.h"
 #include "suggestion/DynamicSuggestionsManager.h"
 
 namespace glimmer {
     class CommandManager {
         std::unordered_map<std::string, std::unique_ptr<Command> > commandMap_{};
+        CommandSender defaultCommandSender_;
+        WorldContext *worldContext_ = nullptr;
 
     public:
         void RegisterCommand(std::unique_ptr<Command> command);
 
         Command *GetCommand(const std::string &name) const;
+
+        [[nodiscard]] CommandSender *GetDefaultCommandSender();
+
+        void BindWorldContext(WorldContext *worldContext);
+
+        void UnbindWorldContext();
+
+        [[nodiscard]] std::string GetHelpText(const LangsResources *langsResources);
 
         std::vector<std::string> GetSuggestions(const DynamicSuggestionsManager *dynamicSuggestionsManager,
                                                 const CommandArgs &commandArgs, int cursorPos) const;
@@ -40,10 +52,6 @@ namespace glimmer {
          */
         static std::vector<std::string> ExtendSuggestions(const DynamicSuggestionsManager *dynamicSuggestionsManager,
                                                           NodeTree<std::string> *nextNodeTree);
-
-        using CommandMap = std::unordered_map<std::string, std::unique_ptr<Command> >;
-
-        [[nodiscard]] const CommandMap &GetCommands();
     };
 }
 

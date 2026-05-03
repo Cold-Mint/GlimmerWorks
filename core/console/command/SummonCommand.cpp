@@ -21,7 +21,8 @@ bool glimmer::SummonCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::SummonCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::SummonCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
+                                     const std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }
@@ -36,11 +37,6 @@ bool glimmer::SummonCommand::Execute(CommandArgs commandArgs, std::function<void
             1, size));
         return false;
     }
-    auto playerEntity = worldContext_->GetPlayerEntity();
-    if (WorldContext::IsEmptyEntityId(playerEntity)) {
-        onMessage(appContext_->GetLangsResources()->cantFindObject);
-        return false;
-    }
     auto resourceRefOptional = commandArgs.AsResourceRef(3, RESOURCE_TYPE_MOB);
     if (!resourceRefOptional.has_value()) {
         return false;
@@ -50,16 +46,16 @@ bool glimmer::SummonCommand::Execute(CommandArgs commandArgs, std::function<void
     if (mobResource == nullptr) {
         return false;
     }
-    const auto transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
+    const WorldVector2D commandSenderPosition = commandSender->GetPosition();
     const GameEntity::ID modId = worldContext_->CreateEntity();
     MobEntityCreator mobEntityCreator{worldContext_};
     mobEntityCreator.LoadTemplateComponents(modId, resourceRef);
     mobEntityCreator.MergeEntityItemMessage(modId,
                                             MobEntityCreator::GetEntityItemMessage(
                                                 WorldVector2D(
-                                                    commandArgs.AsCoordinate(1, transform2DComponent->GetPosition().x),
+                                                    commandArgs.AsCoordinate(1, commandSenderPosition.x),
                                                     commandArgs.AsCoordinate(
-                                                        2, transform2DComponent->GetPosition().y))));
+                                                        2, commandSenderPosition.y))));
     return true;
 }
 

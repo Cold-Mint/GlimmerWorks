@@ -13,8 +13,8 @@ namespace glimmer {
     public:
         explicit LicenseCommand(AppContext *appContext);
 
-        bool Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) override;
-
+        bool Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+            std::function<void(const std::string &text)> onMessage) override;
 
         void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) override;
 

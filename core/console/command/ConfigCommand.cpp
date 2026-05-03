@@ -210,8 +210,7 @@ bool glimmer::ConfigCommand::SetValue(
     return true;
 }
 
-
-bool glimmer::ConfigCommand::Execute(const CommandArgs commandArgs,
+bool glimmer::ConfigCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
                                      std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
@@ -269,7 +268,7 @@ bool glimmer::ConfigCommand::Execute(const CommandArgs commandArgs,
             }
         }
         if (SetValue(parameterName, value)) {
-            appContext_->GetConfig()->LoadConfig(appContext_->GetCommandHookManager(),*configValue_);
+            appContext_->GetConfig()->LoadConfig(appContext_->GetCommandHookManager(), *configValue_);
             onMessage(fmt::format(fmt::runtime(langsResources->configurationUpdate),
                                   parameterName, value));
         }

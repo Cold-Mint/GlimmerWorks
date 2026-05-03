@@ -24,7 +24,7 @@ PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &st
     strings.emplace_back("[create:string]");
 }
 
-bool glimmer::ScreenshotCommand::Execute(CommandArgs commandArgs,
+bool glimmer::ScreenshotCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
                                          std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;

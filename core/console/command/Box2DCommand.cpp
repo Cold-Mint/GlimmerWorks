@@ -25,8 +25,8 @@ bool glimmer::Box2DCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::Box2DCommand::Execute(const CommandArgs commandArgs,
-                                    const std::function<void(const std::string &text)> onMessage) {
+bool glimmer::Box2DCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
+    const std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }

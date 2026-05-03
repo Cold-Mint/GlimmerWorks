@@ -43,7 +43,7 @@ PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &st
     strings.emplace_back("[asset type:string]");
 }
 
-bool glimmer::AssetViewerCommand::Execute(const CommandArgs commandArgs,
+bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
                                           const std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;

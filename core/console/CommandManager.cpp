@@ -7,6 +7,8 @@
 #include <cassert>
 
 #include "../log/LogCat.h"
+#include "core/world/WorldContext.h"
+#include "fmt/xchar.h"
 #include "suggestion/DynamicSuggestionsManager.h"
 
 void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command) {
@@ -21,6 +23,51 @@ glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) c
         return it->second.get();
     }
     return nullptr;
+}
+
+glimmer::CommandSender *glimmer::CommandManager::GetDefaultCommandSender() {
+    if (worldContext_ == nullptr) {
+        defaultCommandSender_.SetPosition({0, 0});
+    } else {
+        const GameEntity::ID player = worldContext_->GetPlayerEntity();
+        if (!WorldContext::IsEmptyEntityId(player)) {
+            auto transform2dComponent = worldContext_->GetComponent<Transform2DComponent>(player);
+            if (transform2dComponent != nullptr) {
+                defaultCommandSender_.SetPosition(transform2dComponent->GetPosition());
+            }
+        }
+    }
+    return &defaultCommandSender_;
+}
+
+void glimmer::CommandManager::BindWorldContext(WorldContext *worldContext) {
+    worldContext_ = worldContext;
+    for (const auto &command: commandMap_ | std::views::values) {
+        if (command->RequiresWorldContext()) {
+            command->BindWorldContext(worldContext);
+        }
+    }
+}
+
+void glimmer::CommandManager::UnbindWorldContext() {
+    worldContext_ = nullptr;
+    for (const auto &command: commandMap_ | std::views::values) {
+        if (command->RequiresWorldContext()) {
+            command->UnBindWorldContext();
+        }
+    }
+}
+
+std::string glimmer::CommandManager::GetHelpText(const LangsResources *langsResources) {
+    std::stringstream stringStream;
+    stringStream << fmt::format(
+        fmt::runtime(langsResources->commandInfo),
+        commandMap_.size());
+    for (const auto &[name, command]: commandMap_) {
+        stringStream << '\n';
+        stringStream << name;
+    }
+    return stringStream.str();
 }
 
 std::vector<std::string> glimmer::CommandManager::GetSuggestions(
@@ -176,8 +223,4 @@ std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
         }
     }
     return result;
-}
-
-const glimmer::CommandManager::CommandMap &glimmer::CommandManager::GetCommands() {
-    return commandMap_;
 }

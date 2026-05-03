@@ -4,11 +4,8 @@
 
 #include "HelpCommand.h"
 
-#include <chrono>
-
 #include "../../Constants.h"
 #include "../../scene/AppContext.h"
-#include "fmt/color.h"
 
 
 void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
@@ -24,17 +21,11 @@ std::string glimmer::HelpCommand::GetName() const {
 void glimmer::HelpCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
 }
 
-
-bool glimmer::HelpCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
+bool glimmer::HelpCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
+                                   const std::function<void(const std::string &text)> onMessage) {
     if (appContext_ == nullptr) {
         return false;
     }
-    auto &commands = appContext_->GetCommandManager()->GetCommands();
-    onMessage(fmt::format(
-        fmt::runtime(appContext_->GetLangsResources()->commandInfo),
-        commands.size()));
-    for (const auto &[name, command]: commands) {
-        onMessage(name + ": RequiresWorldContext=" + (command->RequiresWorldContext() ? "true" : "false"));
-    }
+    onMessage(appContext_->GetCommandManager()->GetHelpText(appContext_->GetLangsResources()));
     return true;
 }

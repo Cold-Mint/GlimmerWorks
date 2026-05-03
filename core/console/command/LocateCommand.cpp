@@ -59,8 +59,9 @@ void glimmer::LocateCommand::PutCommandStructure(const CommandArgs &commandArgs,
     strings.emplace_back("[biomeId:string]");
 }
 
-bool glimmer::LocateCommand::Execute(CommandArgs commandArgs, std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
+bool glimmer::LocateCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
+    const std::function<void(const std::string &text)> onMessage) {
+  if (appContext_ == nullptr) {
         return false;
     }
     if (worldContext_ == nullptr) {

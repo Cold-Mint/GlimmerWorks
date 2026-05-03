@@ -22,18 +22,13 @@
 void glimmer::App::RendererUiMessage() {
     auto &uiMessages = appContext_->GetGameUIMessages();
     uint64_t now = SDL_GetTicks();
-    //fixme:重复计算延迟！！！
     int32_t delta = now - lastTime_;
     lastTime_ = now;
-    //Delete expired messages
-    //删除过期的消息
     std::erase_if(uiMessages,
                   [now](const GameUIMessage &msg) {
                       return msg.expireTime <= now;
                   });
 
-    //Get window size
-    //获取窗口尺寸
     int windowW = 0;
     int windowH = 0;
     SDL_GetRenderOutputSize(renderer_, &windowW, &windowH);
@@ -41,8 +36,6 @@ void glimmer::App::RendererUiMessage() {
     constexpr float padding = 16.0f;
     constexpr float spacing = 6.0f;
 
-    //First round: Update tween + Calculate total height
-    //第一遍：更新 tween + 计算总高度
     float totalHeight = 0.0f;
 
     for (auto &msg: uiMessages) {
@@ -53,19 +46,18 @@ void glimmer::App::RendererUiMessage() {
             continue;
         }
 
-        SDL_Surface *surface = TTF_RenderText_Blended(
+        SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(
             appContext_->GetFont(),
             msg.text.c_str(),
             msg.text.length(),
-            {255, 255, 255, 255}
-        );
+            {255, 255, 255, 255},
+            0);
 
         if (!surface) {
             continue;
         }
 
         totalHeight += static_cast<float>(surface->h) + spacing;
-
         SDL_DestroySurface(surface);
     }
 
@@ -74,35 +66,32 @@ void glimmer::App::RendererUiMessage() {
     }
 
     float startY = windowH - totalHeight - padding;
-
-    // Second round: Actual drawing
-    // 第二遍：真正绘制
     for (auto &msg: uiMessages) {
-        if (msg.alpha <= 0.01F)
+        if (msg.alpha <= 0.01F) {
             continue;
-
-        SDL_Surface *surface = TTF_RenderText_Blended(
+        }
+        SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(
             appContext_->GetFont(),
             msg.text.c_str(),
             msg.text.length(),
-            {255, 255, 255, 255}
+            {255, 255, 255, 255},
+            0
         );
 
-        if (!surface)
+        if (!surface) {
             continue;
+        }
 
-        // ⭐ 先保存宽高（避免 use-after-free）
         float w = static_cast<float>(surface->w);
         float h = static_cast<float>(surface->h);
 
-        SDL_Texture *texture =
-                SDL_CreateTextureFromSurface(renderer_, surface);
-
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer_, surface);
         SDL_DestroySurface(surface);
 
         if (texture == nullptr) {
             continue;
         }
+
         SDL_SetTextureAlphaMod(texture, static_cast<Uint8>(msg.alpha * 255));
         SDL_FRect dst = {
             padding,
@@ -112,9 +101,7 @@ void glimmer::App::RendererUiMessage() {
         };
 
         SDL_RenderTexture(renderer_, texture, nullptr, &dst);
-
         startY += h + spacing;
-
         SDL_DestroyTexture(texture);
     }
 }

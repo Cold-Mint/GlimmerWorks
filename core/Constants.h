@@ -33,6 +33,7 @@ static constexpr std::string ECHO_COMMAND_NAME = "echo";
 static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
 static constexpr std::string LOCATE_COMMAND_NAME = "locate";
 static constexpr std::string HOOK_COMMAND_NAME = "commandHook";
+static constexpr std::string LIGHT_COMMAND_NAME = "light";
 static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
 static constexpr std::string BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME = "&bool_toggle";
 static constexpr std::string X_DYNAMIC_SUGGESTIONS_NAME = "&x";

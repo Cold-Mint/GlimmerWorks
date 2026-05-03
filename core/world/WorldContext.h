@@ -182,14 +182,6 @@ namespace glimmer {
 
         [[nodiscard]] bool IsDragMode() const;
 
-        /**
-         * GetLightColor
-         * 获取光照颜色
-         * @param position position 位置
-         * @return
-         */
-        [[nodiscard]] const Color *GetFinalLightColor(TileVector2D position) const;
-
         void SetDragMode(bool dragMode);
 
         [[nodiscard]] GameEntity::ID GetEntityIdIndex() const;
@@ -406,12 +398,13 @@ namespace glimmer {
         void SetCameraComponent(CameraComponent *cameraComponent);
 
 
-        DiggingComponent *GetDiggingComponent() const;
+        [[nodiscard]] DiggingComponent *GetDiggingComponent() const;
 
-        CameraComponent *GetCameraComponent() const;
+        [[nodiscard]] CameraComponent *GetCameraComponent() const;
 
+        [[nodiscard]] Transform2DComponent *GetCameraTransform2D() const;
 
-        Transform2DComponent *GetCameraTransform2D() const;
+        [[nodiscard]] LightingBuffer *GetLightingBuffer() const;
 
 
         [[nodiscard]] GameEntity::ID GetHotBarEntity() const;

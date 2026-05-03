@@ -210,6 +210,18 @@ void glimmer::LightingBuffer::ClearTileLightData(const TileVector2D &position) {
     tileLightData_.erase(position);
 }
 
+const glimmer::TileLightData *glimmer::LightingBuffer::GetTileLightData(const TileVector2D &position) const {
+    const auto iterator = tileLightData_.find(position);
+    if (iterator == tileLightData_.end()) {
+        return nullptr;
+    }
+    const auto &tileLight = iterator->second;
+    if (tileLight == nullptr) {
+        return nullptr;
+    }
+    return tileLight.get();
+}
+
 void glimmer::LightingBuffer::SetLightSource(const TileVector2D position, const TileLayerType layerType,
                                              std::unique_ptr<LightSource> lightSource) {
     if (lightSource == nullptr) {

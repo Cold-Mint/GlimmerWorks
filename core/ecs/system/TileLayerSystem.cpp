@@ -61,7 +61,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
         renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
         SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
         for (auto tile: tileList) {
-            const Color *finalLightColor = worldContext_->GetFinalLightColor(tileCoord);
+            const Color *finalLightColor = worldContext_->GetLightingBuffer()->GetFinalLightColor(tileCoord);
             if (config->light.enable) {
                 if (finalLightColor == nullptr) {
                     continue;

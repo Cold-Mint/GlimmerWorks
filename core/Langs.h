@@ -85,6 +85,9 @@ namespace glimmer {
         std::string scancodeHookNotFound;
         std::string scancodeHookFoundCount;
         std::string hookInfo;
+        std::string lightInfo;
+        std::string lightContributionInfo;
+        std::string notIncludeLighting;
     };
 }
 

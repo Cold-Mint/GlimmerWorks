@@ -6,6 +6,7 @@
 
 #include "core/Constants.h"
 #include "core/utils/LightUtils.h"
+#include "src/core/vector2d.pb.h"
 
 
 std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor() {
@@ -131,6 +132,11 @@ void glimmer::TileLightData::SetLightContribution(const TileLayerType layerType,
         lightContributionVector.emplace_back(std::move(contribution));
         finalLightColor_ = ComputeFinalLightColor();
     }
+}
+
+const std::unordered_map<glimmer::TileLayerType, std::vector<std::unique_ptr<glimmer::LightContribution> > > *glimmer::
+TileLightData::GetLightContributions() const {
+    return &lightContributions_;
 }
 
 const glimmer::LightContribution *glimmer::TileLightData::GetLightContribution(const TileLayerType layerType,

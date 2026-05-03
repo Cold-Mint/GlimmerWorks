@@ -40,6 +40,9 @@ namespace glimmer {
          */
         void SetLightContribution(TileLayerType layerType, std::unique_ptr<LightContribution> contribution);
 
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > *
+        GetLightContributions() const;
+
         /**
          * GetLightContribution
          * 获取某个图层下的光照贡献

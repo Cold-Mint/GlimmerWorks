@@ -62,13 +62,6 @@ bool glimmer::WorldContext::IsDragMode() const {
     return dragMode_;
 }
 
-const glimmer::Color *glimmer::WorldContext::GetFinalLightColor(const TileVector2D position) const {
-    if (lightingBuffer_ == nullptr) {
-        return nullptr;
-    }
-    return lightingBuffer_->GetFinalLightColor(position);
-}
-
 void glimmer::WorldContext::SetDragMode(const bool dragMode) {
     dragMode_ = dragMode;
 }
@@ -744,6 +737,10 @@ glimmer::CameraComponent *glimmer::WorldContext::GetCameraComponent() const {
 
 glimmer::Transform2DComponent *glimmer::WorldContext::GetCameraTransform2D() const {
     return cameraTransform2D_;
+}
+
+glimmer::LightingBuffer *glimmer::WorldContext::GetLightingBuffer() const {
+    return lightingBuffer_.get();
 }
 
 glimmer::GameEntity::ID glimmer::WorldContext::GetHotBarEntity() const {

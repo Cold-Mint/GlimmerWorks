@@ -26,20 +26,25 @@ bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(con
     if (appContext_ == nullptr) {
         return false;
     }
-    if (worldContext_ == nullptr) {
-        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
+    const LangsResources *langsResources = appContext_->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
+    if (worldContext_ == nullptr) {
+        onMessage(langsResources->worldContextIsNull);
+        return false;
+    }
+
     const size_t size = commandArgs.GetSize();
     if (size < 2) {
         onMessage(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
     auto playerEntity = worldContext_->GetPlayerEntity();
     if (WorldContext::IsEmptyEntityId(playerEntity)) {
-        onMessage(appContext_->GetLangsResources()->cantFindObject);
+        onMessage(langsResources->cantFindObject);
         return false;
     }
     auto transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
@@ -53,7 +58,7 @@ bool glimmer::TpCommand::Execute(CommandArgs commandArgs, std::function<void(con
         b2Body_SetTransform(rigidBody2DComponent->GetBodyId(), newPos, currentRot);
     }
     onMessage(fmt::format(
-        fmt::runtime(appContext_->GetLangsResources()->teleportEntity),
+        fmt::runtime(langsResources->teleportEntity),
         playerEntity, commandArgs.AsString(1), commandArgs.AsString(2)));
 
     return true;

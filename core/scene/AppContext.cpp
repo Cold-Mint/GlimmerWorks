@@ -28,6 +28,7 @@
 #include "core/console/command/EchoCommand.h"
 #include "core/console/command/FlyCommand.h"
 #include "core/console/command/HookCommand.h"
+#include "core/console/command/LightCommand.h"
 #include "core/console/command/LocateCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/command/PlaceCommand.h"
@@ -139,6 +140,9 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->hookRemoveSuccess = find<std::string>(value, "hook_remove_success");
     langs_->hookIdNotExist = find<std::string>(value, "hook_id_not_exist");
     langs_->hookInfo = find<std::string>(value, "hook_info");
+    langs_->lightInfo = find<std::string>(value, "light_info");
+    langs_->lightContributionInfo = find<std::string>(value, "light_contribution_info");
+    langs_->notIncludeLighting = find<std::string>(value, "not_include_lighting");
     langs_->scancodeHookNotFound = find<std::string>(value, "scancode_hook_not_found");
     langs_->scancodeHookFoundCount = find<std::string>(value, "scancode_hook_found_count");
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "world_name_prefix");
@@ -311,6 +315,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<GiveCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HelpCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<LightCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TpCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<SummonCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(this));

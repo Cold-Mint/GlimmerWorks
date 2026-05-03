@@ -239,7 +239,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
                         appContext->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
         yOffset += lineSpacing;
     }
-    const Color *finalLightColor = worldContext_->GetFinalLightColor(tileCoord);
+    const Color *finalLightColor = worldContext_->GetLightingBuffer()->GetFinalLightColor(tileCoord);
     if (finalLightColor == nullptr) {
         std::string totalLight = fmt::format(
             fmt::runtime(appContext->GetLangsResources()->totalLight),

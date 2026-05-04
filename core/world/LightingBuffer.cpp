@@ -182,6 +182,7 @@ void glimmer::LightingBuffer::ClearLightMask(const TileVector2D &position, const
     if (tileLightDataPtr == nullptr) {
         return;
     }
+    tileLightDataPtr->ClearLightMask(layerType);
     const std::vector<const LightContribution *> lightContributionVector = tileLightDataPtr->
             GetLightContributionVector(layerType);
     for (auto lightContribution: lightContributionVector) {
@@ -197,13 +198,12 @@ void glimmer::LightingBuffer::ClearLightMask(const TileVector2D &position, const
                                                         const TileVector2D current, const TileVector2D next,
                                                         bool centerOfCircle,
                                                         int rayIndex) -> TraverseAction {
-                                                                return ClearLightStepCallback(
+                                                                return SetLightStepCallback(
                                                                     lightSourcePtr, current, next, centerOfCircle,
                                                                     layerType, rayIndex);
                                                             });
         lightPropagationTraverser.PropagateSingleRay(lightContribution->GetRayIndex());
     }
-    tileLightDataPtr->ClearLightMask(layerType);
 }
 
 void glimmer::LightingBuffer::ClearTileLightData(const TileVector2D &position) {

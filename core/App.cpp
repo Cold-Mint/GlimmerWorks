@@ -480,8 +480,10 @@ void glimmer::App::Run() {
                 code = event.key.scancode;
                 isKey = true;
             }
+            bool useMouse = false;
             if (type == SDL_EVENT_MOUSE_BUTTON_DOWN || type == SDL_EVENT_MOUSE_BUTTON_UP) {
                 code = event.button.button;
+                useMouse = true;
             }
             const uint32_t key = CommandHookEntry::GetKey(type, code);
             auto commandList = std::vector<std::string>();
@@ -495,13 +497,23 @@ void glimmer::App::Run() {
                     }
                     commandList.emplace_back(commandHook->command);
                 }
-                CommandExecutor::ExecuteAsyncBatch(appContext_->GetCommandManager()->GetDefaultCommandSender(),
-                                                   commandList, appContext_->GetCommandManager(),
-                                                   [](const CommandResult, const std::string &) {
-                                                   },
-                                                   [this](const std::string &text) {
-                                                       appContext_->AddUIMessage(text);
-                                                   });
+                if (useMouse) {
+                    CommandExecutor::ExecuteAsyncBatch(appContext_->GetCommandManager()->GetMouseCommandSender(),
+                                                       commandList, appContext_->GetCommandManager(),
+                                                       [](const CommandResult, const std::string &) {
+                                                       },
+                                                       [this](const std::string &text) {
+                                                           appContext_->AddUIMessage(text);
+                                                       });
+                } else {
+                    CommandExecutor::ExecuteAsyncBatch(appContext_->GetCommandManager()->GetDefaultCommandSender(),
+                                                       commandList, appContext_->GetCommandManager(),
+                                                       [](const CommandResult, const std::string &) {
+                                                       },
+                                                       [this](const std::string &text) {
+                                                           appContext_->AddUIMessage(text);
+                                                       });
+                }
             }
 
 #ifdef __ANDROID__

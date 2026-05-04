@@ -40,6 +40,26 @@ glimmer::CommandSender *glimmer::CommandManager::GetDefaultCommandSender() {
     return &defaultCommandSender_;
 }
 
+glimmer::CommandSender *glimmer::CommandManager::GetMouseCommandSender() {
+    if (worldContext_ == nullptr) {
+        mouseCommandSender_.SetPosition({0, 0});
+    } else {
+        const CameraComponent *cameraComponent = worldContext_->GetCameraComponent();
+        if (cameraComponent != nullptr) {
+            const Transform2DComponent *transform2DComponent = worldContext_->GetCameraTransform2D();
+            if (transform2DComponent != nullptr) {
+                float mouseX = 0;
+                float mouseY = 0;
+                SDL_GetMouseState(&mouseX, &mouseY);
+                const WorldVector2D worldPosition = cameraComponent->GetWorldPosition(transform2DComponent->GetPosition(),
+                    {mouseX, mouseY});
+                mouseCommandSender_.SetPosition(worldPosition);
+            }
+        }
+    }
+    return &mouseCommandSender_;
+}
+
 void glimmer::CommandManager::BindWorldContext(WorldContext *worldContext) {
     worldContext_ = worldContext;
     for (const auto &command: commandMap_ | std::views::values) {

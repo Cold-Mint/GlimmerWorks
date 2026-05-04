@@ -59,7 +59,32 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandA
     }
     std::string operation = commandArgs.AsString(1);
     if (operation == "inspector") {
-    } else if (operation == "info") {
+        CommandHookManager *commandHookManager = appContext_->GetCommandHookManager();
+        if (commandHookManager == nullptr) {
+            onMessage(langsResources->cmdHookManagerNotFound);
+            return false;
+        }
+        if (commandHookManager->Contains(LIGHT_INSPECTOR_ID)) {
+            if (commandHookManager->Unregister(LIGHT_INSPECTOR_ID)) {
+                onMessage(langsResources->lightingInspectorDisable);
+                return true;
+            }
+            onMessage(langsResources->lightingInspectorDisableFail);
+        } else {
+            auto commandHookEntry = std::make_unique<CommandHookEntry>();
+            commandHookEntry->hookId = LIGHT_INSPECTOR_ID;
+            commandHookEntry->scope = CommandHookScope::SESSION;
+            commandHookEntry->code = SDL_BUTTON_LEFT;
+            commandHookEntry->command = LIGHT_COMMAND_NAME + " info ~ ~";
+            commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
+            if (commandHookManager->Register(std::move(commandHookEntry))) {
+                onMessage(langsResources->lightingInspectorEnable);
+                return true;
+            }
+            onMessage(langsResources->lightingInspectorEnableFail);
+        }
+    }
+    if (operation == "info") {
         if (size < 4) {
             onMessage(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
@@ -68,13 +93,13 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandA
         }
         const WorldVector2D commandSenderPosition = commandSender->GetPosition();
         const TileVector2D tileVector2D = TileLayerComponent::WorldToTile(WorldVector2D(
-            commandArgs.AsCoordinate(1, commandSenderPosition.x),
+            commandArgs.AsCoordinate(2, commandSenderPosition.x),
             commandArgs.AsCoordinate(
-                2, commandSenderPosition.y)));
+                3, commandSenderPosition.y)));
         const TileLightData *lightData = worldContext_->GetLightingBuffer()->GetTileLightData(
             tileVector2D);
         if (lightData == nullptr) {
-            onMessage(appContext_->GetLangsResources()->notIncludeLighting);
+            onMessage(fmt::format(fmt::runtime(langsResources->notIncludeLighting), tileVector2D.x, tileVector2D.y));
             return false;
         }
         std::stringstream lightContributionStream;
@@ -102,7 +127,7 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandA
         }
         const Color *finalColor = lightData->GetFinalLightColor();
         if (finalColor == nullptr) {
-            onMessage(lightContributionStream.str());
+            onMessage(fmt::format(fmt::runtime(langsResources->notIncludeLighting), tileVector2D.x, tileVector2D.y));
         } else {
             std::stringstream stringStream;
             stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
@@ -110,6 +135,7 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandA
                                         finalColor->b, finalColor->a, lightContributionStream.str());
             onMessage(stringStream.str());
         }
+        return true;
     }
-    return true;
+    return false;
 }

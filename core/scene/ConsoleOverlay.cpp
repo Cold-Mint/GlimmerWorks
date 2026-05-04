@@ -215,6 +215,7 @@ void glimmer::ConsoleOverlay::Update(float delta) {
 }
 
 void glimmer::ConsoleOverlay::addMessage(const std::string &message) {
+    LogCat::d(message);
     std::lock_guard lock(messagesMutex_);
     messages_.push_back(message);
     scrollToBottom_ = true;

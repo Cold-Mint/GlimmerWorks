@@ -17,6 +17,7 @@ namespace glimmer {
     class CommandManager {
         std::unordered_map<std::string, std::unique_ptr<Command> > commandMap_{};
         CommandSender defaultCommandSender_;
+        CommandSender mouseCommandSender_;
         WorldContext *worldContext_ = nullptr;
 
     public:
@@ -25,6 +26,8 @@ namespace glimmer {
         Command *GetCommand(const std::string &name) const;
 
         [[nodiscard]] CommandSender *GetDefaultCommandSender();
+
+        [[nodiscard]] CommandSender* GetMouseCommandSender();
 
         void BindWorldContext(WorldContext *worldContext);
 

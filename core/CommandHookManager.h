@@ -57,6 +57,14 @@ namespace glimmer {
 
         void LoadHookFromConfig(const std::vector<CommandHookResource> &commandHooks);
 
+        /**
+         * Contains
+         * 是否包含hookId
+         * @param hookId 钩子Id
+         * @return
+         */
+        [[nodiscard]] bool Contains(const std::string& hookId) const;
+
         [[nodiscard]] std::vector<std::string> GetCommandHookIdsWithOutConfig() const;
 
 

@@ -151,6 +151,18 @@ void glimmer::CommandHookManager::LoadHookFromConfig(const std::vector<CommandHo
     }
 }
 
+bool glimmer::CommandHookManager::Contains(const std::string& hookId) const {
+    for (auto &sessionCommandHookVector: sessionCommandHookVector_) {
+        if (sessionCommandHookVector == nullptr) {
+            continue;
+        }
+        if (sessionCommandHookVector->hookId == hookId) {
+            return true;
+        }
+    }
+    return false;
+}
+
 std::vector<std::string> glimmer::CommandHookManager::GetCommandHookIdsWithOutConfig() const {
     std::vector<std::string> result;
     for (auto &sessionCommandHookVector: sessionCommandHookVector_) {

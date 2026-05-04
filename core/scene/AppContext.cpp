@@ -150,6 +150,11 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->worldNamePrefix = find<std::vector<std::string> >(value, "world_name_prefix");
     langs_->worldNameSuffix = find<std::vector<std::string> >(value, "world_name_suffix");
     langs_->slogans = find<std::vector<std::string> >(value, "slogans");
+    langs_->cmdHookManagerNotFound = find<std::string>(value, "cmd_hook_manager_not_found");
+    langs_->lightingInspectorEnable = find<std::string>(value, "lighting_inspector_enable");
+    langs_->lightingInspectorDisable = find<std::string>(value, "lighting_inspector_disable");
+    langs_->lightingInspectorEnableFail = find<std::string>(value, "lighting_inspector_enable_fail");
+    langs_->lightingInspectorDisableFail = find<std::string>(value, "lighting_inspector_disable_fail");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
@@ -506,6 +511,7 @@ bool glimmer::AppContext::Running() const {
 }
 
 void glimmer::AppContext::AddUIMessage(const std::string &string) {
+    LogCat::d(string);
     gameUIMessages_.emplace_back(string, SDL_GetTicks());
 }
 

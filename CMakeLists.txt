@@ -68,7 +68,7 @@ if (UNIT_TEST)
             core/world/LightMask.cpp
             core/math/Vector2DI.cpp
             core/math/Vector2D.cpp
-            core/world/LightingBuffer.cpp
+            core/world/LightBuffer.cpp
             core/world/TileLightData.cpp
             core/world/LightSource.cpp
             core/utils/LightUtils.cpp
@@ -81,7 +81,7 @@ if (UNIT_TEST)
             core/world/LightMask.h
             core/math/Vector2D.h
             core/math/Vector2DI.h
-            core/world/LightingBuffer.h
+            core/world/LightBuffer.h
             core/world/TileLightData.h
             core/world/LightSource.h
             core/utils/LightUtils.h
@@ -512,7 +512,7 @@ target_sources(GlimmerWorks
         core/ecs/system/Light2DSystem.cpp
         core/world/LightPropagationTraverser.cpp
         core/world/TraverseAction.cpp
-        core/world/LightingBuffer.cpp
+        core/world/LightBuffer.cpp
         core/world/LightSource.cpp
         core/vfs/AndroidAssetsFileProvider.cpp
         core/world/LightMask.cpp
@@ -746,7 +746,7 @@ target_sources(GlimmerWorks
         core/ecs/system/Light2DSystem.h
         core/world/LightPropagationTraverser.h
         core/world/TraverseAction.h
-        core/world/LightingBuffer.h
+        core/world/LightBuffer.h
         core/world/LightSource.h
         core/vfs/AndroidAssetsFileProvider.h
         core/world/LightMask.h

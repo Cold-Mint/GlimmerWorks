@@ -146,10 +146,10 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
             return;
         }
         if (lightMaskColorPtr->a == 0) {
-            lightingBuffer_->ClearLightMask(lightSourcePosition, tile->GetLayerType());
+            lightBuffer_->ClearLightMask(lightSourcePosition, tile->GetLayerType());
         } else {
-            lightingBuffer_->SetLightMask(lightSourcePosition, layerType,
-                                          std::make_unique<LightMask>(lightMaskColorPtr.get()));
+            lightBuffer_->SetLightMask(lightSourcePosition, layerType,
+                                       std::make_unique<LightMask>(lightMaskColorPtr.get()));
         }
     }
     const LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(
@@ -161,12 +161,12 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
             return;
         }
         if (lightColorPtr->a == 0) {
-            lightingBuffer_->ClearLightSource(lightSourcePosition, layerType);
+            lightBuffer_->ClearLightSource(lightSourcePosition, layerType);
         } else {
-            lightingBuffer_->SetLightSource(lightSourcePosition, layerType,
-                                            std::make_unique<LightSource>(
-                                                lightSourcePosition, lightSourceResource->lightRadius,
-                                                *lightColorPtr));
+            lightBuffer_->SetLightSource(lightSourcePosition, layerType,
+                                         std::make_unique<LightSource>(
+                                             lightSourcePosition, lightSourceResource->lightRadius,
+                                             *lightColorPtr));
         }
     }
 }
@@ -444,7 +444,7 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < CHUNK_SIZE; y++) {
                 auto lightPosition = TileVector2D(position.x + x, position.y + y);
-                lightingBuffer_->ClearTileLightData(lightPosition);
+                lightBuffer_->ClearTileLightData(lightPosition);
             }
         }
         ChunkPhysicsHelper::DetachPhysicsBodyToChunk(appContext_, it->second.get());
@@ -735,8 +735,8 @@ glimmer::Transform2DComponent *glimmer::WorldContext::GetCameraTransform2D() con
     return cameraTransform2D_;
 }
 
-glimmer::LightingBuffer *glimmer::WorldContext::GetLightingBuffer() const {
-    return lightingBuffer_.get();
+glimmer::LightBuffer *glimmer::WorldContext::GetLightingBuffer() const {
+    return lightBuffer_.get();
 }
 
 glimmer::GameEntity::ID glimmer::WorldContext::GetHotBarEntity() const {
@@ -972,7 +972,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
     chunkLoader_ = std::make_unique<ChunkLoader>(this, saves, [this](std::unique_ptr<GameEntity> entity) {
         return this->RegisterEntity(std::move(entity));
     });
-    lightingBuffer_ = std::make_unique<LightingBuffer>();
+    lightBuffer_ = std::make_unique<LightBuffer>();
     chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_);
     startTime_ = TimeUtils::GetCurrentTimeMs();
 }

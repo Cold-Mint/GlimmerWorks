@@ -13,7 +13,7 @@
 
 
 namespace glimmer {
-    class LightingBuffer {
+    class LightBuffer {
         std::unordered_map<const TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
 
         TraverseAction ClearLightStepCallback(const LightSource *lightSourcePtr,

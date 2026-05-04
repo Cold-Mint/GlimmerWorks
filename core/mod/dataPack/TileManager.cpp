@@ -24,12 +24,12 @@ void glimmer::TileManager::InitBuiltinTiles() {
 
     ResourceRef lightMaskFullResource;
     lightMaskFullResource.SetSelfPackageId(RESOURCE_REF_CORE);
-    lightMaskFullResource.SetResourceType(RESOURCE_TYPE_LIGHT_SOURCE);
+    lightMaskFullResource.SetResourceType(RESOURCE_TYPE_LIGHT_MASK);
     lightMaskFullResource.SetResourceKey(LIGHT_MASK_FULL);
 
     ResourceRef lightMaskNoneResource;
     lightMaskNoneResource.SetSelfPackageId(RESOURCE_REF_CORE);
-    lightMaskNoneResource.SetResourceType(RESOURCE_TYPE_LIGHT_SOURCE);
+    lightMaskNoneResource.SetResourceType(RESOURCE_TYPE_LIGHT_MASK);
     lightMaskNoneResource.SetResourceKey(LIGHT_MASK_NONE);
     air_->texture = airResource;
     air_->resourceId = TILE_ID_AIR;

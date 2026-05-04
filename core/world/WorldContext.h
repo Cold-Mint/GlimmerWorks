@@ -15,7 +15,7 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
-#include "LightingBuffer.h"
+#include "LightBuffer.h"
 #include "../ecs/GameComponent.h"
 #include "../ecs/component/DiggingComponent.h"
 #include "../ecs/component/PauseComponent.h"
@@ -111,7 +111,7 @@ namespace glimmer {
 
         std::vector<std::unique_ptr<GameSystem> > activeSystems;
         std::vector<std::unique_ptr<GameSystem> > inactiveSystems;
-        std::unique_ptr<LightingBuffer> lightingBuffer_ = nullptr;
+        std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
         /**
         * Game saves
         * 游戏存档
@@ -404,7 +404,7 @@ namespace glimmer {
 
         [[nodiscard]] Transform2DComponent *GetCameraTransform2D() const;
 
-        [[nodiscard]] LightingBuffer *GetLightingBuffer() const;
+        [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 
 
         [[nodiscard]] GameEntity::ID GetHotBarEntity() const;

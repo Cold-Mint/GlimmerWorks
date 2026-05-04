@@ -2,13 +2,13 @@
 // Created by coldmint on 2026/4/15.
 //
 
-#include "LightingBuffer.h"
+#include "LightBuffer.h"
 
 #include "LightPropagationTraverser.h"
 #include "core/utils/LightUtils.h"
 
 
-glimmer::TraverseAction glimmer::LightingBuffer::ClearLightStepCallback(const LightSource *lightSourcePtr,
+glimmer::TraverseAction glimmer::LightBuffer::ClearLightStepCallback(const LightSource *lightSourcePtr,
                                                                         const TileVector2D current,
                                                                         const TileVector2D next,
                                                                         const bool centerOfCircle,
@@ -48,7 +48,7 @@ glimmer::TraverseAction glimmer::LightingBuffer::ClearLightStepCallback(const Li
     return TraverseAction::Continue;
 }
 
-glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const LightSource *lightSourcePtr,
+glimmer::TraverseAction glimmer::LightBuffer::SetLightStepCallback(const LightSource *lightSourcePtr,
                                                                       const TileVector2D current,
                                                                       const TileVector2D next,
                                                                       const bool centerOfCircle,
@@ -139,7 +139,7 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
 }
 
 
-void glimmer::LightingBuffer::SetLightMask(const TileVector2D position, const TileLayerType layerType,
+void glimmer::LightBuffer::SetLightMask(const TileVector2D position, const TileLayerType layerType,
                                            std::unique_ptr<LightMask> lightMask) {
     tileLightData_[position]->SetLightMask(layerType, std::move(lightMask));
     auto tileLightDataIterator = tileLightData_.find(position);
@@ -173,7 +173,7 @@ void glimmer::LightingBuffer::SetLightMask(const TileVector2D position, const Ti
     }
 }
 
-void glimmer::LightingBuffer::ClearLightMask(const TileVector2D &position, const TileLayerType layerType) {
+void glimmer::LightBuffer::ClearLightMask(const TileVector2D &position, const TileLayerType layerType) {
     auto tileLightDataIterator = tileLightData_.find(position);
     if (tileLightDataIterator == tileLightData_.end()) {
         return;
@@ -206,11 +206,11 @@ void glimmer::LightingBuffer::ClearLightMask(const TileVector2D &position, const
     }
 }
 
-void glimmer::LightingBuffer::ClearTileLightData(const TileVector2D &position) {
+void glimmer::LightBuffer::ClearTileLightData(const TileVector2D &position) {
     tileLightData_.erase(position);
 }
 
-const glimmer::TileLightData *glimmer::LightingBuffer::GetTileLightData(const TileVector2D &position) const {
+const glimmer::TileLightData *glimmer::LightBuffer::GetTileLightData(const TileVector2D &position) const {
     const auto iterator = tileLightData_.find(position);
     if (iterator == tileLightData_.end()) {
         return nullptr;
@@ -222,7 +222,7 @@ const glimmer::TileLightData *glimmer::LightingBuffer::GetTileLightData(const Ti
     return tileLight.get();
 }
 
-void glimmer::LightingBuffer::SetLightSource(const TileVector2D position, const TileLayerType layerType,
+void glimmer::LightBuffer::SetLightSource(const TileVector2D position, const TileLayerType layerType,
                                              std::unique_ptr<LightSource> lightSource) {
     if (lightSource == nullptr) {
         return;
@@ -248,7 +248,7 @@ void glimmer::LightingBuffer::SetLightSource(const TileVector2D position, const 
     tileLightDataIt->second->SetLightSource(layerType, std::move(lightSource));
 }
 
-void glimmer::LightingBuffer::ClearLightSource(const TileVector2D position, const TileLayerType layerType) {
+void glimmer::LightBuffer::ClearLightSource(const TileVector2D position, const TileLayerType layerType) {
     auto tileLightDataIterator = tileLightData_.find(position);
     if (tileLightDataIterator == tileLightData_.end()) {
         return;
@@ -275,7 +275,7 @@ void glimmer::LightingBuffer::ClearLightSource(const TileVector2D position, cons
     tileLightDataPtr->ClearLightSource(layerType);
 }
 
-const glimmer::Color *glimmer::LightingBuffer::GetFinalLightColor(const TileVector2D position) {
+const glimmer::Color *glimmer::LightBuffer::GetFinalLightColor(const TileVector2D position) {
     const auto tileLightDataIterator = tileLightData_.find(position);
     if (tileLightDataIterator == tileLightData_.end()) {
         return nullptr;

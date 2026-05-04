@@ -54,7 +54,7 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
                                                                       const bool centerOfCircle,
                                                                       const TileLayerType layerType,
                                                                       const int rayIndex) {
-    const Color emissionColor = lightSourcePtr->
+    const Color *emissionColor = lightSourcePtr->
             GetEmissionColor();
     auto &currentTileLight = tileLightData_[current];
     if (currentTileLight == nullptr) {
@@ -67,10 +67,10 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
             LightContribution>();
         auto lightColor = std::make_unique
                 <Color>();
-        lightColor->r = emissionColor.r;
-        lightColor->g = emissionColor.g;
-        lightColor->b = emissionColor.b;
-        lightColor->a = emissionColor.a;
+        lightColor->r = emissionColor->r;
+        lightColor->g = emissionColor->g;
+        lightColor->b = emissionColor->b;
+        lightColor->a = emissionColor->a;
         currentLightContribution->SetLightColor(
             std::move(lightColor));
         currentLightContribution->SetRayIndex(LIGHT_CONTRIBUTION_CENTER_RAY_INDEX);
@@ -102,16 +102,16 @@ glimmer::TraverseAction glimmer::LightingBuffer::SetLightStepCallback(const Ligh
     auto nextColor = std::make_unique<Color>(
         static_cast<uint8_t>(std::max(
             0, currentColor->r -
-               emissionColor.r /
+               emissionColor->r /
                attenuationDivisor)),
         static_cast<uint8_t>(std::max(
-            0, currentColor->g - emissionColor.g /
+            0, currentColor->g - emissionColor->g /
                attenuationDivisor)),
         static_cast<uint8_t>(std::max(
-            0, currentColor->b - emissionColor.b /
+            0, currentColor->b - emissionColor->b /
                attenuationDivisor)),
         static_cast<uint8_t>(std::max(
-            0, currentColor->a - emissionColor.a /
+            0, currentColor->a - emissionColor->a /
                attenuationDivisor)));
 
     const LightMask *lightMask = nextTileLight->GetLightMask(

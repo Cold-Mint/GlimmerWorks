@@ -125,14 +125,50 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandA
                 }
             }
         }
+
+        std::stringstream lightSourceStream;
+        const auto lightSources = lightData->GetLightSources();
+        if (lightSources != nullptr) {
+            for (const auto &layerPair: *lightSources) {
+                TileLayerType layerType = layerPair.first;
+                const auto &lightSource = layerPair.second;
+                lightSourceStream << '\n';
+                const Color *emissionColor = lightSource->GetEmissionColor();
+                lightSourceStream << fmt::format(fmt::runtime(langsResources->lightSourceInfo),
+                                                 static_cast<uint8_t>(layerType), lightSource->GetMaxRadius(),
+                                                 emissionColor->r, emissionColor->g, emissionColor->b, emissionColor->a,
+                                                 tileVector2D.x, tileVector2D.y);
+            }
+        }
+
+        std::stringstream lightMaskStream;
+        const auto lightMasks = lightData->GetLightMasks();
+        if (lightMasks != nullptr) {
+            for (const auto &layerPair: *lightMasks) {
+                TileLayerType layerType = layerPair.first;
+                const auto &lightMask = layerPair.second;
+                lightMaskStream << '\n';
+                const Color *lightMaskColor = lightMask->GetLightMaskColor();
+                lightMaskStream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
+                                               static_cast<uint8_t>(layerType), lightMaskColor->r, lightMaskColor->g,
+                                               lightMaskColor->b, lightMaskColor->a);
+            }
+        }
+
         const Color *finalColor = lightData->GetFinalLightColor();
         if (finalColor == nullptr) {
-            onMessage(fmt::format(fmt::runtime(langsResources->notIncludeLighting), tileVector2D.x, tileVector2D.y));
+            std::stringstream stringStream;
+            stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
+                                        -1, -1,
+                                        -1, -1, lightContributionStream.str(),
+                                        lightSourceStream.str(), lightMaskStream.str());
+            onMessage(stringStream.str());
         } else {
             std::stringstream stringStream;
             stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
                                         finalColor->r, finalColor->g,
-                                        finalColor->b, finalColor->a, lightContributionStream.str());
+                                        finalColor->b, finalColor->a, lightContributionStream.str(),
+                                        lightSourceStream.str(), lightMaskStream.str());
             onMessage(stringStream.str());
         }
         return true;

@@ -144,6 +144,8 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langs_->hookInfo = find<std::string>(value, "hook_info");
     langs_->lightInfo = find<std::string>(value, "light_info");
     langs_->lightContributionInfo = find<std::string>(value, "light_contribution_info");
+    langs_->lightSourceInfo = find<std::string>(value, "light_source_info");
+    langs_->lightMaskInfo = find<std::string>(value, "light_mask_info");
     langs_->notIncludeLighting = find<std::string>(value, "not_include_lighting");
     langs_->scancodeHookNotFound = find<std::string>(value, "scancode_hook_not_found");
     langs_->scancodeHookFoundCount = find<std::string>(value, "scancode_hook_found_count");

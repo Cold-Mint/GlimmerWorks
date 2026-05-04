@@ -19,6 +19,7 @@ const TileVector2D &glimmer::LightSource::GetCenter() const {
     return center_;
 }
 
-const glimmer::Color &glimmer::LightSource::GetEmissionColor() const {
-    return emissionColor_;
+const glimmer::Color * glimmer::LightSource::GetEmissionColor() const {
+    return &emissionColor_;
 }
+

@@ -87,6 +87,8 @@ namespace glimmer {
         std::string hookInfo;
         std::string lightInfo;
         std::string lightContributionInfo;
+        std::string lightSourceInfo;
+        std::string lightMaskInfo;
         std::string notIncludeLighting;
         std::string cmdHookManagerNotFound;
         std::string lightingInspectorEnable;

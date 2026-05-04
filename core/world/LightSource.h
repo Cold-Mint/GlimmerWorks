@@ -21,7 +21,7 @@ namespace glimmer {
 
         [[nodiscard]] const TileVector2D &GetCenter() const;
 
-        [[nodiscard]] const Color &GetEmissionColor() const;
+        [[nodiscard]] const Color *GetEmissionColor() const;
     };
 }
 

@@ -139,6 +139,16 @@ TileLightData::GetLightContributions() const {
     return &lightContributions_;
 }
 
+const std::unordered_map<glimmer::TileLayerType, std::unique_ptr<glimmer::LightSource> > *glimmer::TileLightData::
+GetLightSources() const {
+    return &lightSourceData_;
+}
+
+const std::unordered_map<glimmer::TileLayerType, std::unique_ptr<glimmer::LightMask> > *glimmer::TileLightData::
+GetLightMasks() const {
+    return &lightMaskData_;
+}
+
 const glimmer::LightContribution *glimmer::TileLightData::GetLightContribution(const TileLayerType layerType,
                                                                                const LightSource *targetLightSource) {
     if (targetLightSource == nullptr) {

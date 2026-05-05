@@ -5,22 +5,22 @@
 #include "LightUtils.h"
 
 #include <algorithm>
+#include <cmath>
 
+#include "core/log/LogCat.h"
 #include "core/math/Color.h"
 
 
-std::unique_ptr<glimmer::Color> glimmer::LightUtils::ApplyLightingMask(const Color *light, const Color *mask) {
+std::unique_ptr<glimmer::Color> glimmer::LightUtils::ApplyLightingMask(const Color *light, const Color *mask,
+                                                                       const float tintFactor) {
     auto result = std::make_unique<Color>();
     const float intensity = static_cast<float>(light->a) / 255.0F;
     const float maskStrength = static_cast<float>(mask->a) / 255.0F;
     const float pass = 1.0F - maskStrength;
     const float finalScale = intensity * pass;
-    result->r = static_cast<uint8_t>(
-        std::min(255.0F, static_cast<float>(light->r) * static_cast<float>(mask->r) / 255.0F * finalScale));
-    result->g = static_cast<uint8_t>(std::min(
-        255.0F, static_cast<float>(light->g) * static_cast<float>(mask->g) / 255.0F * finalScale));
-    result->b = static_cast<uint8_t>(std::min(
-        255.0F, static_cast<float>(light->b) * static_cast<float>(mask->b) / 255.0F * finalScale));
+    result->r = static_cast<uint8_t>(std::lerp(static_cast<float>(light->r), static_cast<float>(mask->r), tintFactor));
+    result->g = static_cast<uint8_t>(std::lerp(static_cast<float>(light->g), static_cast<float>(mask->g), tintFactor));
+    result->b = static_cast<uint8_t>(std::lerp(static_cast<float>(light->b), static_cast<float>(mask->b), tintFactor));
     result->a = static_cast<uint8_t>(finalScale * 255.0F);
     return result;
 }

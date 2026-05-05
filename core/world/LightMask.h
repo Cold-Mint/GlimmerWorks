@@ -14,9 +14,12 @@ namespace glimmer {
      */
     class LightMask {
         Color lightMaskColor_ = {};
+        float tintFactor_ = 0.0F;
 
     public:
-        explicit LightMask(const Color *lightMaskColor);
+        explicit LightMask(const Color *lightMaskColor, float tintFactor);
+
+        [[nodiscard]] float GetTintFactor() const;
 
         [[nodiscard]] const Color *GetLightMaskColor() const;
     };

@@ -394,6 +394,7 @@ LoadLightMaskResourceFromFile(const std::string &path, LightMaskManager *lightMa
         tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
     auto lightMaskResource = std::make_unique<LightMaskResource>(toml::get<LightMaskResource>(value));
     lightMaskResource->packId = manifest_.id;
+    lightMaskResource->lightMaskColor.SetSelfPackageId(manifest_.id);
     lightMaskManager->Register(std::move(lightMaskResource));
     return true;
 }

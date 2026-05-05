@@ -9,11 +9,11 @@
 
 
 glimmer::TraverseAction glimmer::LightBuffer::ClearLightStepCallback(const LightSource *lightSourcePtr,
-                                                                        const TileVector2D current,
-                                                                        const TileVector2D next,
-                                                                        const bool centerOfCircle,
-                                                                        const TileLayerType layerType,
-                                                                        const int rayIndex) {
+                                                                     const TileVector2D current,
+                                                                     const TileVector2D next,
+                                                                     const bool centerOfCircle,
+                                                                     const TileLayerType layerType,
+                                                                     const int rayIndex) {
     if (centerOfCircle) {
         auto currentTileLightIterator = tileLightData_.find(
             current);
@@ -49,11 +49,11 @@ glimmer::TraverseAction glimmer::LightBuffer::ClearLightStepCallback(const Light
 }
 
 glimmer::TraverseAction glimmer::LightBuffer::SetLightStepCallback(const LightSource *lightSourcePtr,
-                                                                      const TileVector2D current,
-                                                                      const TileVector2D next,
-                                                                      const bool centerOfCircle,
-                                                                      const TileLayerType layerType,
-                                                                      const int rayIndex) {
+                                                                   const TileVector2D current,
+                                                                   const TileVector2D next,
+                                                                   const bool centerOfCircle,
+                                                                   const TileLayerType layerType,
+                                                                   const int rayIndex) {
     const Color *emissionColor = lightSourcePtr->
             GetEmissionColor();
     auto &currentTileLight = tileLightData_[current];
@@ -123,7 +123,7 @@ glimmer::TraverseAction glimmer::LightBuffer::SetLightStepCallback(const LightSo
         if (lightMaskColor != nullptr) {
             nextLightContribution->SetLightColor(
                 LightUtils::ApplyLightingMask(
-                    currentColor, lightMaskColor));
+                    nextColor.get(), lightMaskColor, lightMask->GetTintFactor()));
             applyLightMask = true;
         }
     }
@@ -140,7 +140,7 @@ glimmer::TraverseAction glimmer::LightBuffer::SetLightStepCallback(const LightSo
 
 
 void glimmer::LightBuffer::SetLightMask(const TileVector2D position, const TileLayerType layerType,
-                                           std::unique_ptr<LightMask> lightMask) {
+                                        std::unique_ptr<LightMask> lightMask) {
     tileLightData_[position]->SetLightMask(layerType, std::move(lightMask));
     auto tileLightDataIterator = tileLightData_.find(position);
     if (tileLightDataIterator == tileLightData_.end()) {
@@ -223,7 +223,7 @@ const glimmer::TileLightData *glimmer::LightBuffer::GetTileLightData(const TileV
 }
 
 void glimmer::LightBuffer::SetLightSource(const TileVector2D position, const TileLayerType layerType,
-                                             std::unique_ptr<LightSource> lightSource) {
+                                          std::unique_ptr<LightSource> lightSource) {
     if (lightSource == nullptr) {
         return;
     }

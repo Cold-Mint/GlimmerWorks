@@ -149,7 +149,8 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
             lightBuffer_->ClearLightMask(lightSourcePosition, tile->GetLayerType());
         } else {
             lightBuffer_->SetLightMask(lightSourcePosition, layerType,
-                                       std::make_unique<LightMask>(lightMaskColorPtr.get()));
+                                       std::make_unique<LightMask>(lightMaskColorPtr.get(),
+                                                                   lightMaskResource->tintFactor));
         }
     }
     const LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(

@@ -32,7 +32,8 @@ std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor()
             if (lightMaskColor == nullptr) {
                 continue;
             }
-            finalLightColor = LightUtils::ApplyLightingMask(finalLightColor.get(), lightMaskColor);
+            finalLightColor = LightUtils::ApplyLightingMask(finalLightColor.get(), lightMaskColor,
+                                                            lightMaskUnique->GetTintFactor());
         }
         const auto lightContributionIterator = lightContributions_.find(tileLayer);
         if (lightContributionIterator == lightContributions_.end()) {

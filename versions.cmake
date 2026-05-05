@@ -13,8 +13,8 @@
 #protocolbuffers/protobuf@latest
 #google/googletest@latest
 set(OCORNUT_IMGUI_VERSION "v1.92.7")
-set(LIBSDL-ORG_SDL_VERSION "release-3.4.4")
-set(LIBSDL-ORG_SDL_IMAGE_VERSION "release-3.4.2")
+set(LIBSDL-ORG_SDL_VERSION "release-3.4.8")
+set(LIBSDL-ORG_SDL_IMAGE_VERSION "release-3.4.4")
 set(LIBSDL-ORG_SDL_TTF_VERSION "release-3.2.2")
 set(LIBSDL-ORG_SDL_MIXER_VERSION "release-3.2.0")
 set(MOBIUS3_TWEENY_VERSION "v3.2.1")

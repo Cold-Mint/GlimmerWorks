@@ -58,6 +58,8 @@ namespace glimmer {
     struct LightMaskResource : Resource {
         //@genNextLine(lightMaskColor A 0 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 0代表完全不透光 RGB 控制光线的混合)
         ResourceRef lightMaskColor;
+        //@genNextLine(tintFactor|染色比例 0为光照颜色，1为光源遮照颜色)
+        float tintFactor = 0.0F;
     };
 
     //@genNextLine(FixedColorResource|固定颜色资源)

@@ -10,7 +10,6 @@
 
 #include "CommandHookEntry.h"
 #include "Config.h"
-#include "SDL3/SDL_scancode.h"
 
 
 namespace glimmer {

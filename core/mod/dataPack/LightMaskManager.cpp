@@ -5,26 +5,26 @@
 #include "LightMaskManager.h"
 
 
-glimmer::LightMaskManager::LightMaskManager() {
-    lightMaskFillResource_ = std::make_unique<LightMaskResource>();
-    lightMaskFillResource_->packId = RESOURCE_REF_CORE;
-    lightMaskFillResource_->resourceId = LIGHT_MASK_FULL;
-    lightMaskFillResource_->missing = false;
-    ResourceRef lightMaskFillColorRef;
-    lightMaskFillColorRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    lightMaskFillColorRef.SetResourceKey(LIGHT_MASK_FULL_COLOR);
-    lightMaskFillColorRef.SetResourceType(RESOURCE_TYPE_FIXED_COLOR);
-    lightMaskFillResource_->lightMaskColor = lightMaskFillColorRef;
+std::unique_ptr<glimmer::LightMaskResource> glimmer::LightMaskManager::CreateLightMaskResource(
+    const std::string &resourceId, const std::string &colorKey) {
+    std::unique_ptr<LightMaskResource> result = std::make_unique<LightMaskResource>();
+    result->packId = RESOURCE_REF_CORE;
+    result->resourceId = resourceId;
+    result->missing = false;
+    ResourceRef colorRef;
+    colorRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    colorRef.SetResourceKey(colorKey);
+    colorRef.SetResourceType(RESOURCE_TYPE_FIXED_COLOR);
+    result->lightMaskColor = colorRef;
+    return result;
+}
 
-    lightMaskNoneResource_ = std::make_unique<LightMaskResource>();
-    lightMaskNoneResource_->packId = RESOURCE_REF_CORE;
-    lightMaskNoneResource_->resourceId = LIGHT_MASK_NONE;
-    lightMaskNoneResource_->missing = false;
-    ResourceRef lightMaskNoneColorRef;
-    lightMaskNoneColorRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    lightMaskNoneColorRef.SetResourceKey(LIGHT_MASK_NONE_COLOR);
-    lightMaskNoneColorRef.SetResourceType(RESOURCE_TYPE_FIXED_COLOR);
-    lightMaskNoneResource_->lightMaskColor = lightMaskNoneColorRef;
+glimmer::LightMaskManager::LightMaskManager() {
+    lightMaskFillResource_ = CreateLightMaskResource(LIGHT_MASK_FULL, LIGHT_MASK_FULL_COLOR);
+    lightMaskHighResource_ = CreateLightMaskResource(LIGHT_MASK_HIGH, LIGHT_MASK_HIGH_COLOR);
+    lightMaskMediumResource_ = CreateLightMaskResource(LIGHT_MASK_MEDIUM, LIGHT_MASK_MEDIUM_COLOR);
+    lightMaskLowResource_ = CreateLightMaskResource(LIGHT_MASK_LOW, LIGHT_MASK_LOW_COLOR);
+    lightMaskNoneResource_ = CreateLightMaskResource(LIGHT_MASK_NONE, LIGHT_MASK_NONE_COLOR);
 }
 
 glimmer::LightMaskResource *glimmer::LightMaskManager::Register(std::unique_ptr<LightMaskResource> lightMaskResource) {
@@ -41,6 +41,15 @@ glimmer::LightMaskResource *glimmer::LightMaskManager::FindLightMaskResource(con
     }
     if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_NONE) {
         return lightMaskNoneResource_.get();
+    }
+    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_LOW) {
+        return lightMaskLowResource_.get();
+    }
+    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_MEDIUM) {
+        return lightMaskMediumResource_.get();
+    }
+    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_HIGH) {
+        return lightMaskHighResource_.get();
     }
     const auto packIt = lightMaskMap_.find(packId);
     if (packIt == lightMaskMap_.end()) {

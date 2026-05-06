@@ -20,6 +20,21 @@ glimmer::FixedColorManager::FixedColorManager() {
     lightNoneColorResource_->g = 0;
     lightNoneColorResource_->b = 0;
     lightNoneColorResource_->a = 0;
+    lightMaskLowColorResource_ = std::make_unique<FixedColorResource>();
+    lightMaskLowColorResource_->r = 0;
+    lightMaskLowColorResource_->g = 0;
+    lightMaskLowColorResource_->b = 0;
+    lightMaskLowColorResource_->a = 64;
+    lightMaskMediumColorResource_ = std::make_unique<FixedColorResource>();
+    lightMaskMediumColorResource_->r = 0;
+    lightMaskMediumColorResource_->g = 0;
+    lightMaskMediumColorResource_->b = 0;
+    lightMaskMediumColorResource_->a = 128;
+    lightMaskHighColorResource_ = std::make_unique<FixedColorResource>();
+    lightMaskHighColorResource_->r = 0;
+    lightMaskHighColorResource_->g = 0;
+    lightMaskHighColorResource_->b = 0;
+    lightMaskHighColorResource_->a = 192;
 }
 
 glimmer::FixedColorResource *glimmer::FixedColorManager::Register(
@@ -37,6 +52,15 @@ glimmer::FixedColorResource *glimmer::FixedColorManager::FindFixedColorResource(
     }
     if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_NONE_COLOR) {
         return lightMaskNoneColorResource_.get();
+    }
+    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_LOW_COLOR) {
+        return lightMaskLowColorResource_.get();
+    }
+    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_MEDIUM_COLOR) {
+        return lightMaskMediumColorResource_.get();
+    }
+    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_HIGH_COLOR) {
+        return lightMaskHighColorResource_.get();
     }
     if (packId == RESOURCE_REF_CORE && key == LIGHT_NONE_COLOR) {
         return lightNoneColorResource_.get();

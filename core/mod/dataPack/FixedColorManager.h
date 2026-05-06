@@ -18,6 +18,9 @@ namespace glimmer {
                 {};
 
         std::unique_ptr<FixedColorResource> lightMaskFillColorResource_;
+        std::unique_ptr<FixedColorResource> lightMaskHighColorResource_;
+        std::unique_ptr<FixedColorResource> lightMaskMediumColorResource_;
+        std::unique_ptr<FixedColorResource> lightMaskLowColorResource_;
         std::unique_ptr<FixedColorResource> lightMaskNoneColorResource_;
         std::unique_ptr<FixedColorResource> lightNoneColorResource_;
 

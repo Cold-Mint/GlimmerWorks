@@ -177,10 +177,6 @@ void glimmer::WorldContext::UpdateChunkLight(const Chunk *chunk) const {
     if (chunk == nullptr) {
         return;
     }
-    if (appContext_ == nullptr) {
-        return;
-    }
-
     for (int index = 0; index < CHUNK_AREA; ++index) {
         for (int i = 0; i < TILE_LAYER_TYPE_COUNT; ++i) {
             UpdateTileLight(chunk, static_cast<TileLayerType>(1 << i), index);
@@ -416,6 +412,7 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     if (newlyCreatedChunk == nullptr) {
         return;
     }
+    UpdateChunkLight(newlyCreatedChunk.get());
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext_, worldId_, newlyCreatedChunk.get());
     newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, TileLayerType layerType,
                                                      int index,
@@ -444,8 +441,7 @@ void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
         //卸载当前区块的光源和遮挡。
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int y = 0; y < CHUNK_SIZE; y++) {
-                auto lightPosition = TileVector2D(position.x + x, position.y + y);
-                lightBuffer_->ClearTileLightData(lightPosition);
+                lightBuffer_->ClearTileLightData(TileVector2D(position.x + x, position.y + y));
             }
         }
         ChunkPhysicsHelper::DetachPhysicsBodyToChunk(appContext_, it->second.get());

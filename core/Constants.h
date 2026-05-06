@@ -334,15 +334,22 @@ static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
 static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
-// Complete occlusion (solid/transparent obstruction)
-// 完全遮照（实心/不透明遮挡）
-static constexpr std::string LIGHT_MASK_FULL = "fill";
-static constexpr std::string LIGHT_MASK_FULL_COLOR = "fill";
+
 
 // Transparent (without blocking light)
 // 无遮照（透明/不遮挡光线）
 static constexpr std::string LIGHT_MASK_NONE = "none";
 static constexpr std::string LIGHT_MASK_NONE_COLOR = "none";
+static constexpr std::string LIGHT_MASK_LOW = "low";
+static constexpr std::string LIGHT_MASK_LOW_COLOR = "low";
+static constexpr std::string LIGHT_MASK_MEDIUM = "medium";
+static constexpr std::string LIGHT_MASK_MEDIUM_COLOR = "medium";
+static constexpr std::string LIGHT_MASK_HIGH = "high";
+static constexpr std::string LIGHT_MASK_HIGH_COLOR = "high";
+// Complete occlusion (solid/transparent obstruction)
+// 完全遮照（实心/不透明遮挡）
+static constexpr std::string LIGHT_MASK_FULL = "fill";
+static constexpr std::string LIGHT_MASK_FULL_COLOR = "fill";
 
 static constexpr std::string LIGHT_NONE = "none";
 static constexpr std::string LIGHT_NONE_COLOR = "none";

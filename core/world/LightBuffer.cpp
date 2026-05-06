@@ -141,15 +141,13 @@ glimmer::TraverseAction glimmer::LightBuffer::SetLightStepCallback(const LightSo
 
 void glimmer::LightBuffer::SetLightMask(const TileVector2D position, const TileLayerType layerType,
                                         std::unique_ptr<LightMask> lightMask) {
-    tileLightData_[position]->SetLightMask(layerType, std::move(lightMask));
     auto tileLightDataIterator = tileLightData_.find(position);
     if (tileLightDataIterator == tileLightData_.end()) {
-        return;
+        tileLightData_[position] = std::make_unique<TileLightData>();
+        tileLightDataIterator = tileLightData_.find(position);
     }
     const auto &tileLightDataPtr = tileLightDataIterator->second;
-    if (tileLightDataPtr == nullptr) {
-        return;
-    }
+    tileLightDataPtr->SetLightMask(layerType, std::move(lightMask));
     const std::vector<const LightContribution *> lightContributionVector = tileLightDataPtr->
             GetLightContributionVector(layerType);
     for (auto lightContribution: lightContributionVector) {

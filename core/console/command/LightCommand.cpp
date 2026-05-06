@@ -151,7 +151,7 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandA
                 const Color *lightMaskColor = lightMask->GetLightMaskColor();
                 lightMaskStream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
                                                static_cast<uint8_t>(layerType), lightMaskColor->r, lightMaskColor->g,
-                                               lightMaskColor->b, lightMaskColor->a);
+                                               lightMaskColor->b, lightMaskColor->a, lightMask->GetTintFactor());
             }
         }
 

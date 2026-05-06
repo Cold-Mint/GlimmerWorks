@@ -21,19 +21,16 @@ std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor()
         //叠加阴影。
         if (hasFoundLightSource) {
             const auto lightMaskIterator = lightMaskData_.find(tileLayer);
-            if (lightMaskIterator == lightMaskData_.end()) {
-                continue;
+            if (lightMaskIterator != lightMaskData_.end()) {
+                const auto &lightMaskUnique = lightMaskIterator->second;
+                if (lightMaskUnique != nullptr) {
+                    const Color *lightMaskColor = lightMaskUnique->GetLightMaskColor();
+                    if (lightMaskColor != nullptr) {
+                        finalLightColor = LightUtils::ApplyLightingMask(finalLightColor.get(), lightMaskColor,
+                                                                        lightMaskUnique->GetTintFactor());
+                    }
+                }
             }
-            const auto &lightMaskUnique = lightMaskIterator->second;
-            if (lightMaskUnique == nullptr) {
-                continue;
-            }
-            const Color *lightMaskColor = lightMaskUnique->GetLightMaskColor();
-            if (lightMaskColor == nullptr) {
-                continue;
-            }
-            finalLightColor = LightUtils::ApplyLightingMask(finalLightColor.get(), lightMaskColor,
-                                                            lightMaskUnique->GetTintFactor());
         }
         const auto lightContributionIterator = lightContributions_.find(tileLayer);
         if (lightContributionIterator == lightContributions_.end()) {

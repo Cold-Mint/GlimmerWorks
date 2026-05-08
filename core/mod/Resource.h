@@ -47,7 +47,7 @@ namespace glimmer {
     //@genNextLine(LightSourceResource|光源资源)
     struct LightSourceResource : Resource {
         //@genNextLine(lightRadius The maximum value is 16, which is the length of the block.|光照半径 最大值为区块长度16)
-        int lightRadius = 0;
+        uint8_t lightRadius = 0;
         //@genNextLine(lightBrightestAtCenter If true, light is brightest at center; if false, light is brightest at edge.|亮度峰值在圆心 true=中心亮四周暗，false=中心暗四周亮)
         bool lightBrightestAtCenter = true;
         //@genNextLine(lightColor A: Indicates the intensity of light emission.|发光颜色 A表示发光强度。)
@@ -438,8 +438,6 @@ namespace glimmer {
         uint8_t layerType = 0;
         //@genNextLine(allowChainMining|是否允许连锁挖掘)
         bool allowChainMining = false;
-        //@genNextLine(allowCrossLayerPlacement This attribute provides cross-layer placement functionality for the internal air and error blocks within the engine. It is not recommended to use it within data packets.|是否允许跨图层放置 这个属性为引擎内部的空气和错误方块提供跨图层放置功能，不建议数据包内使用。)
-        bool allowCrossLayerPlacement = false;
         //@genNextLine(lightSource|光源)
         ResourceRef lightSource;
         //@genNextLine(lightMask|光源遮罩)

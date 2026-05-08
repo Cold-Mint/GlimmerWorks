@@ -96,11 +96,7 @@ void glimmer::Chunk::SetTileToLayer(const int index, const TileLayerType layerTy
     }
     Tile *tilePtr = tile.get();
     TileLayerType targetLayerType = tile->GetLayerType();
-    if (tilePtr->ChangeLayerTypeIfAllowed(layerType)) {
-        targetLayerType = tile->GetLayerType();
-    }
     auto [it, inserted] = tiles_.try_emplace(targetLayerType);
-
     it->second[index] = std::move(tile);
     InvokeSetTileCallback(this, index, tilePtr, targetLayerType);
 }

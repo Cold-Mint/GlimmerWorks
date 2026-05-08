@@ -18,7 +18,7 @@ namespace glimmer {
         lightSourceMap_
                 {};
 
-        std::unique_ptr<LightSourceResource> lightSourceNoneResource_;
+        void RegisterCoreLightSourceResource(const std::string& resourceId,const std::string& colorResKey,uint8_t lightRadius);
 
     public:
         LightSourceManager();

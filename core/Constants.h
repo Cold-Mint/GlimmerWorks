@@ -230,6 +230,7 @@ static constexpr float MAX_PEAK_LIFT = 0.30F; // 山峰额外抬升的最大噪�
 static constexpr int TILE_SIZE = 32;
 static constexpr int HALF_TILE_SIZE = TILE_SIZE / 2;
 static constexpr std::string ERROR_TEXTURE_KEY = "@error";
+static constexpr std::string ACCESS_DENIED_TEXTURE_KEY = "@access_denied";
 /**
  * The placement distance of the tiles(Unit: Number of Tile Squares)
  * 瓦片的放置距离（单位：瓦片格数）
@@ -329,11 +330,31 @@ static constexpr uint32_t COMPONENT_ID_DRAGGABLE = 24;
 
 
 static constexpr std::string TILE_ID_AIR = "air";
+static constexpr std::string TILE_ID_AIR_WALL = "air_wall";
 static constexpr std::string TILE_ID_WATER = "water";
 static constexpr std::string TILE_ID_BEDROCK = "bedrock";
 static constexpr std::string TILE_ID_ERROR = "error";
+static constexpr std::string TILE_ID_ERROR_WALL = "error_wall";
+static constexpr std::string TILE_ID_ACCESS_DENIED = "access_denied";
+static const std::string TILE_ID_ACCESS_DENIED_WALL = "access_denied_wall";
 static constexpr std::string SHAPE_ID_DROPPED_ITEM = "droppedItem";
 static constexpr std::string DROPPED_ITEM_ID_DEFAULT = "default";
+
+static const std::string STRING_TILE_AIR_NAME = "tile_name_air";
+static const std::string STRING_TILE_AIR_WALL_NAME = "tile_name_air_wall";
+static const std::string STRING_TILE_ERROR_NAME = "tile_name_error";
+static const std::string STRING_TILE_ERROR_WALL_NAME = "tile_name_error_wall";
+static const std::string STRING_TILE_ACCESS_DENIED_NAME = "tile_name_access_denied";
+static const std::string STRING_TILE_ACCESS_DENIED_WALL_NAME = "tile_name_access_denied_wall";
+static const std::string STRING_TILE_BEDROCK_NAME = "tile_name_bedrock";
+static const std::string STRING_TILE_WATER_NAME = "tile_name_water";
+static const std::string STRING_TILE_AIR_DESCRIPTION = "tile_description_air";
+static const std::string STRING_TILE_AIR_WALL_DESCRIPTION = "tile_description_air_wall";
+static const std::string STRING_TILE_ERROR_DESCRIPTION = "tile_description_error";
+static const std::string STRING_TILE_ERROR_WALL_DESCRIPTION = "tile_description_error_wall";
+static const std::string STRING_TILE_ACCESS_DENIED_DESCRIPTION = "tile_description_access_denied";
+static const std::string STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION = "tile_description_access_denied_wall";
+static const std::string STRING_TILE_BEDROCK_DESCRIPTION = "tile_description_bedrock";
 
 
 // Transparent (without blocking light)
@@ -352,7 +373,9 @@ static constexpr std::string LIGHT_MASK_FULL = "fill";
 static constexpr std::string LIGHT_MASK_FULL_COLOR = "fill";
 
 static constexpr std::string LIGHT_NONE = "none";
+static constexpr std::string LIGHT_SKY = "sky";
 static constexpr std::string LIGHT_NONE_COLOR = "none";
+static constexpr std::string LIGHT_SKY_COLOR = "sky";
 static constexpr std::string TEMPLATE_CURRENT = "@current";
 static constexpr std::string TEMPLATE_ROOT = "@root";
 static constexpr std::string PROJECT_NAME = "GlimmerWorks";

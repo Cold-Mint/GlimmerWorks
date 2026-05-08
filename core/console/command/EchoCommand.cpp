@@ -4,7 +4,7 @@
 
 #include "EchoCommand.h"
 
-#include "core/Langs.h"
+#include "core/LangsResources.h"
 #include "fmt/xchar.h"
 #include "../../scene/AppContext.h"
 

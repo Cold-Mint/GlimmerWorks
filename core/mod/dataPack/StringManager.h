@@ -9,6 +9,7 @@
 
 
 namespace glimmer {
+    struct LangsResources;
     struct StringResource;
 
     class StringManager {
@@ -18,9 +19,15 @@ namespace glimmer {
     public:
         StringManager();
 
+        void LoadLangsString(const LangsResources *langsResources);
+
+        StringResource *AddCoreResource(const std::string &resourceId,
+                                        const std::string &value);
+
+
         //Register the string resource to the manager
         //注册字符串资源到管理器
-        StringResource* AddResource( std::unique_ptr<StringResource> stringResource);
+        StringResource *AddResource(std::unique_ptr<StringResource> stringResource);
 
         //Search for string resources based on the data packet id and string key.
         //根据数据包id和字符串key查找字符串资源。

@@ -71,92 +71,109 @@
 #endif
 void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     toml::value value = toml::parse_str(data, tomlVersion_);
-    langs_->startGame = find<std::string>(value, "start_game");
-    langs_->settings = find<std::string>(value, "settings");
-    langs_->mods = find<std::string>(value, "mods");
-    langs_->exitGame = find<std::string>(value, "exit_game");
-    langs_->console = find<std::string>(value, "console");
-    langs_->commandNotFound = find<std::string>(value, "command_not_found");
-    langs_->executionFailed = find<std::string>(value, "execution_failed");
-    langs_->executedSuccess = find<std::string>(value, "executed_success");
-    langs_->commandIsEmpty = find<std::string>(value, "command_is_empty");
-    langs_->createWorld = find<std::string>(value, "create_world");
-    langs_->savedGames = find<std::string>(value, "saved_games");
-    langs_->cancel = find<std::string>(value, "cancel");
-    langs_->worldName = find<std::string>(value, "world_name");
-    langs_->seed = find<std::string>(value, "seed");
-    langs_->random = find<std::string>(value, "random");
-    langs_->commandInfo = find<std::string>(value, "command_info");
-    langs_->awakeBodyCount = find<std::string>(value, "awake_body_count");
-    langs_->getActualPathError = find<std::string>(value, "get_actual_path_error");
-    langs_->unknownAssetType = find<std::string>(value, "unknown_asset_type");
-    langs_->unknownCommandParameters = find<std::string>(value, "unknown_command_parameters");
-    langs_->worldContextIsNull = find<std::string>(value, "world_context_is_null");
-    langs_->insufficientParameterLength = find<std::string>(value, "insufficient_parameter_length");
-    langs_->entryCannotFoundInConfigurationFile = find<std::string>(value, "entry_cannot_found_in_configuration_file");
-    langs_->configurationUpdate = find<std::string>(value, "configuration_update");
-    langs_->itemIdNotFound = find<std::string>(value, "item_id_not_found");
-    langs_->lootTableNotFound = find<std::string>(value, "loot_table_not_found");
-    langs_->itemContainerIsNull = find<std::string>(value, "item_container_is_null");
-    langs_->composableItemIsNull = find<std::string>(value, "composable_item_is_null");
-    langs_->abilityItemIsNull = find<std::string>(value, "ability_item_is_null");
-    langs_->itemResourceIsNull = find<std::string>(value, "item_resource_is_null");
-    langs_->tileResourceIsNull = find<std::string>(value, "tile_resource_is_null");
-    langs_->minXIsGreaterThanMaxX = find<std::string>(value, "min_x_is_greater_than_max_x");
-    langs_->folderCreationFailed = find<std::string>(value, "folder_creation_failed");
-    langs_->fileWritingFailed = find<std::string>(value, "file_writing_failed");
-    langs_->failedToLoadLicense = find<std::string>(value, "failed_to_load_license");
-    langs_->cantFindObject = find<std::string>(value, "cant_find_object");
-    langs_->teleportEntity = find<std::string>(value, "teleport_entity");
-    langs_->loadGame = find<std::string>(value, "load_game");
-    langs_->deleteGame = find<std::string>(value, "delete_game");
-    langs_->confirm = find<std::string>(value, "confirm");
-    langs_->wantDeleteThisSave = find<std::string>(value, "want_delete_this_save");
-    langs_->savesList = find<std::string>(value, "saves_list");
-    langs_->pause = find<std::string>(value, "pause");
-    langs_->restore = find<std::string>(value, "restore");
-    langs_->saveAndExit = find<std::string>(value, "save_and_exit");
-    langs_->screenshotSavedSuccess = find<std::string>(value, "screenshot_saved_success");
-    langs_->screenshotSavedFailed = find<std::string>(value, "screenshot_saved_failed");
-    langs_->areaMarkerTip = find<std::string>(value, "area_marker_tip");
-    langs_->efficiencyTip = find<std::string>(value, "efficiency_tip");
-    langs_->precisionMiningTip = find<std::string>(value, "precision_mining_tip");
-    langs_->canMineBlockTip = find<std::string>(value, "can_mine_block_tip");
-    langs_->canMineWallTip = find<std::string>(value, "can_mine_wall_tip");
-    langs_->fumbleTip = find<std::string>(value, "fumble_tip");
-    langs_->chainMiningTip = find<std::string>(value, "chain_mining_tip");
-    langs_->flyEnable = find<std::string>(value, "fly_enable");
-    langs_->flyDisable = find<std::string>(value, "fly_disable");
-    langs_->tileDebugInfo = find<std::string>(value, "tile_debug_info");
-    langs_->tileResDebugInfo = find<std::string>(value, "tile_res_debug_info");
-    langs_->mousePosition = find<std::string>(value, "mouse_position");
-    langs_->totalLight = find<std::string>(value, "total_light");
-    langs_->noBiomeWasFound = find<std::string>(value, "no_biome_was_found");
-    langs_->biomeHasFound = find<std::string>(value, "biome_has_found");
-    langs_->configurationCommitSuccess = find<std::string>(value, "configuration_commit_success");
-    langs_->configurationCommitFail = find<std::string>(value, "configuration_commit_fail");
-    langs_->scancodeUnknown = find<std::string>(value, "scancode_unknown");
-    langs_->hookCreateDuplicate = find<std::string>(value, "hook_create_duplicate");
-    langs_->hookAddDuplicate = find<std::string>(value, "hook_add_duplicate");
-    langs_->hookAddSuccess = find<std::string>(value, "hook_add_success");
-    langs_->hookRemoveSuccess = find<std::string>(value, "hook_remove_success");
-    langs_->hookIdNotExist = find<std::string>(value, "hook_id_not_exist");
-    langs_->hookInfo = find<std::string>(value, "hook_info");
-    langs_->lightInfo = find<std::string>(value, "light_info");
-    langs_->lightContributionInfo = find<std::string>(value, "light_contribution_info");
-    langs_->lightSourceInfo = find<std::string>(value, "light_source_info");
-    langs_->lightMaskInfo = find<std::string>(value, "light_mask_info");
-    langs_->notIncludeLighting = find<std::string>(value, "not_include_lighting");
-    langs_->scancodeHookNotFound = find<std::string>(value, "scancode_hook_not_found");
-    langs_->scancodeHookFoundCount = find<std::string>(value, "scancode_hook_found_count");
-    langs_->worldNamePrefix = find<std::vector<std::string> >(value, "world_name_prefix");
-    langs_->worldNameSuffix = find<std::vector<std::string> >(value, "world_name_suffix");
-    langs_->slogans = find<std::vector<std::string> >(value, "slogans");
-    langs_->cmdHookManagerNotFound = find<std::string>(value, "cmd_hook_manager_not_found");
-    langs_->lightingInspectorEnable = find<std::string>(value, "lighting_inspector_enable");
-    langs_->lightingInspectorDisable = find<std::string>(value, "lighting_inspector_disable");
-    langs_->lightingInspectorEnableFail = find<std::string>(value, "lighting_inspector_enable_fail");
-    langs_->lightingInspectorDisableFail = find<std::string>(value, "lighting_inspector_disable_fail");
+    langsResources_->startGame = find<std::string>(value, "start_game");
+    langsResources_->settings = find<std::string>(value, "settings");
+    langsResources_->mods = find<std::string>(value, "mods");
+    langsResources_->exitGame = find<std::string>(value, "exit_game");
+    langsResources_->console = find<std::string>(value, "console");
+    langsResources_->commandNotFound = find<std::string>(value, "command_not_found");
+    langsResources_->executionFailed = find<std::string>(value, "execution_failed");
+    langsResources_->executedSuccess = find<std::string>(value, "executed_success");
+    langsResources_->commandIsEmpty = find<std::string>(value, "command_is_empty");
+    langsResources_->createWorld = find<std::string>(value, "create_world");
+    langsResources_->savedGames = find<std::string>(value, "saved_games");
+    langsResources_->cancel = find<std::string>(value, "cancel");
+    langsResources_->worldName = find<std::string>(value, "world_name");
+    langsResources_->seed = find<std::string>(value, "seed");
+    langsResources_->random = find<std::string>(value, "random");
+    langsResources_->commandInfo = find<std::string>(value, "command_info");
+    langsResources_->awakeBodyCount = find<std::string>(value, "awake_body_count");
+    langsResources_->getActualPathError = find<std::string>(value, "get_actual_path_error");
+    langsResources_->unknownAssetType = find<std::string>(value, "unknown_asset_type");
+    langsResources_->unknownCommandParameters = find<std::string>(value, "unknown_command_parameters");
+    langsResources_->worldContextIsNull = find<std::string>(value, "world_context_is_null");
+    langsResources_->insufficientParameterLength = find<std::string>(value, "insufficient_parameter_length");
+    langsResources_->entryCannotFoundInConfigurationFile = find<std::string>(
+        value, "entry_cannot_found_in_configuration_file");
+    langsResources_->configurationUpdate = find<std::string>(value, "configuration_update");
+    langsResources_->itemIdNotFound = find<std::string>(value, "item_id_not_found");
+    langsResources_->lootTableNotFound = find<std::string>(value, "loot_table_not_found");
+    langsResources_->itemContainerIsNull = find<std::string>(value, "item_container_is_null");
+    langsResources_->composableItemIsNull = find<std::string>(value, "composable_item_is_null");
+    langsResources_->abilityItemIsNull = find<std::string>(value, "ability_item_is_null");
+    langsResources_->itemResourceIsNull = find<std::string>(value, "item_resource_is_null");
+    langsResources_->tileResourceIsNull = find<std::string>(value, "tile_resource_is_null");
+    langsResources_->minXIsGreaterThanMaxX = find<std::string>(value, "min_x_is_greater_than_max_x");
+    langsResources_->folderCreationFailed = find<std::string>(value, "folder_creation_failed");
+    langsResources_->fileWritingFailed = find<std::string>(value, "file_writing_failed");
+    langsResources_->failedToLoadLicense = find<std::string>(value, "failed_to_load_license");
+    langsResources_->cantFindObject = find<std::string>(value, "cant_find_object");
+    langsResources_->teleportEntity = find<std::string>(value, "teleport_entity");
+    langsResources_->loadGame = find<std::string>(value, "load_game");
+    langsResources_->deleteGame = find<std::string>(value, "delete_game");
+    langsResources_->confirm = find<std::string>(value, "confirm");
+    langsResources_->wantDeleteThisSave = find<std::string>(value, "want_delete_this_save");
+    langsResources_->savesList = find<std::string>(value, "saves_list");
+    langsResources_->pause = find<std::string>(value, "pause");
+    langsResources_->restore = find<std::string>(value, "restore");
+    langsResources_->saveAndExit = find<std::string>(value, "save_and_exit");
+    langsResources_->screenshotSavedSuccess = find<std::string>(value, "screenshot_saved_success");
+    langsResources_->screenshotSavedFailed = find<std::string>(value, "screenshot_saved_failed");
+    langsResources_->areaMarkerTip = find<std::string>(value, "area_marker_tip");
+    langsResources_->efficiencyTip = find<std::string>(value, "efficiency_tip");
+    langsResources_->precisionMiningTip = find<std::string>(value, "precision_mining_tip");
+    langsResources_->canMineBlockTip = find<std::string>(value, "can_mine_block_tip");
+    langsResources_->canMineWallTip = find<std::string>(value, "can_mine_wall_tip");
+    langsResources_->fumbleTip = find<std::string>(value, "fumble_tip");
+    langsResources_->chainMiningTip = find<std::string>(value, "chain_mining_tip");
+    langsResources_->flyEnable = find<std::string>(value, "fly_enable");
+    langsResources_->flyDisable = find<std::string>(value, "fly_disable");
+    langsResources_->tileDebugInfo = find<std::string>(value, "tile_debug_info");
+    langsResources_->tileResDebugInfo = find<std::string>(value, "tile_res_debug_info");
+    langsResources_->mousePosition = find<std::string>(value, "mouse_position");
+    langsResources_->totalLight = find<std::string>(value, "total_light");
+    langsResources_->noBiomeWasFound = find<std::string>(value, "no_biome_was_found");
+    langsResources_->biomeHasFound = find<std::string>(value, "biome_has_found");
+    langsResources_->configurationCommitSuccess = find<std::string>(value, "configuration_commit_success");
+    langsResources_->configurationCommitFail = find<std::string>(value, "configuration_commit_fail");
+    langsResources_->scancodeUnknown = find<std::string>(value, "scancode_unknown");
+    langsResources_->hookCreateDuplicate = find<std::string>(value, "hook_create_duplicate");
+    langsResources_->hookAddDuplicate = find<std::string>(value, "hook_add_duplicate");
+    langsResources_->hookAddSuccess = find<std::string>(value, "hook_add_success");
+    langsResources_->hookRemoveSuccess = find<std::string>(value, "hook_remove_success");
+    langsResources_->hookIdNotExist = find<std::string>(value, "hook_id_not_exist");
+    langsResources_->hookInfo = find<std::string>(value, "hook_info");
+    langsResources_->lightInfo = find<std::string>(value, "light_info");
+    langsResources_->lightContributionInfo = find<std::string>(value, "light_contribution_info");
+    langsResources_->lightSourceInfo = find<std::string>(value, "light_source_info");
+    langsResources_->lightMaskInfo = find<std::string>(value, "light_mask_info");
+    langsResources_->notIncludeLighting = find<std::string>(value, "not_include_lighting");
+    langsResources_->scancodeHookNotFound = find<std::string>(value, "scancode_hook_not_found");
+    langsResources_->scancodeHookFoundCount = find<std::string>(value, "scancode_hook_found_count");
+    langsResources_->worldNamePrefix = find<std::vector<std::string> >(value, "world_name_prefix");
+    langsResources_->worldNameSuffix = find<std::vector<std::string> >(value, "world_name_suffix");
+    langsResources_->slogans = find<std::vector<std::string> >(value, "slogans");
+    langsResources_->cmdHookManagerNotFound = find<std::string>(value, "cmd_hook_manager_not_found");
+    langsResources_->lightingInspectorEnable = find<std::string>(value, "lighting_inspector_enable");
+    langsResources_->lightingInspectorDisable = find<std::string>(value, "lighting_inspector_disable");
+    langsResources_->lightingInspectorEnableFail = find<std::string>(value, "lighting_inspector_enable_fail");
+    langsResources_->lightingInspectorDisableFail = find<std::string>(value, "lighting_inspector_disable_fail");
+    langsResources_->tileNameAir = find<std::string>(value, STRING_TILE_AIR_NAME);
+    langsResources_->tileNameAirWall = find<std::string>(value, STRING_TILE_AIR_WALL_NAME);
+    langsResources_->tileNameError = find<std::string>(value, STRING_TILE_ERROR_NAME);
+    langsResources_->tileNameErrorWall = find<std::string>(value, STRING_TILE_ERROR_WALL_NAME);
+    langsResources_->tileNameAccessDenied = find<std::string>(value, STRING_TILE_ACCESS_DENIED_NAME);
+    langsResources_->tileNameAccessDeniedWall = find<std::string>(value, STRING_TILE_ACCESS_DENIED_WALL_NAME);
+    langsResources_->tileNameBedrock = find<std::string>(value, STRING_TILE_BEDROCK_NAME);
+    langsResources_->tileNameWater = find<std::string>(value, STRING_TILE_WATER_NAME);
+    langsResources_->tileDescriptionAir = find<std::string>(value, STRING_TILE_AIR_DESCRIPTION);
+    langsResources_->tileDescriptionAirWall = find<std::string>(value, STRING_TILE_AIR_WALL_DESCRIPTION);
+    langsResources_->tileDescriptionError = find<std::string>(value, STRING_TILE_ERROR_DESCRIPTION);
+    langsResources_->tileDescriptionErrorWall = find<std::string>(value, STRING_TILE_ERROR_WALL_DESCRIPTION);
+    langsResources_->tileDescriptionAccessDenied = find<std::string>(value, STRING_TILE_ACCESS_DENIED_DESCRIPTION);
+    langsResources_->tileDescriptionAccessDeniedWall = find<std::string>(
+        value, STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION);
+    langsResources_->tileDescriptionBedrock = find<std::string>(value, STRING_TILE_BEDROCK_DESCRIPTION);
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
@@ -273,7 +290,7 @@ glimmer::AppContext::AppContext() {
         LogCat::e("Failed to load language file!");
         return;
     }
-    langs_ = std::make_unique<LangsResources>();
+    langsResources_ = std::make_unique<LangsResources>();
     contributorManager_ = std::make_unique<ContributorManager>();
     commandHookManager_ = std::make_unique<CommandHookManager>();
     mobManager_ = std::make_unique<MobManager>();
@@ -309,6 +326,7 @@ glimmer::AppContext::AppContext() {
     resourceLocator_ = std::make_unique<ResourceLocator>(this);
     sceneManager_ = std::make_unique<SceneManager>();
     stringManager_ = std::make_unique<StringManager>();
+    stringManager_->LoadLangsString(langsResources_.get());
     biomesManager_ = std::make_unique<BiomesManager>();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BiomeSuggestions>(biomesManager_.get()));
     tileManager_ = std::make_unique<TileManager>();
@@ -593,7 +611,7 @@ glimmer::CommandHistoryManager *glimmer::AppContext::GetCommandHistoryManager() 
 }
 
 glimmer::LangsResources *glimmer::AppContext::GetLangsResources() const {
-    return langs_.get();
+    return langsResources_.get();
 }
 
 glimmer::ResourcePackManager *glimmer::AppContext::GetResourcePackManager() const {
@@ -657,11 +675,11 @@ glimmer::SceneManager *glimmer::AppContext::GetSceneManager() const {
 }
 
 void glimmer::AppContext::SetRandomSlogan() const {
-    if (window_ == nullptr || langs_ == nullptr) {
+    if (window_ == nullptr || langsResources_ == nullptr) {
         SDL_SetWindowTitle(window_, PROJECT_NAME.c_str());
         return;
     }
-    const std::vector<std::string> &slogans = langs_->slogans;
+    const std::vector<std::string> &slogans = langsResources_->slogans;
     if (slogans.empty()) {
         SDL_SetWindowTitle(window_, PROJECT_NAME.c_str());
     } else {

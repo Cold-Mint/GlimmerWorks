@@ -57,7 +57,9 @@ bool glimmer::DroppedItemComponent::IsSerializable() {
 
 std::string glimmer::DroppedItemComponent::Serialize() {
     DroppedItemMessage droppedItemMessage;
-    item_->WriteItemMessage(*droppedItemMessage.mutable_item());
+    if (item_ != nullptr) {
+        item_->WriteItemMessage(*droppedItemMessage.mutable_item());
+    }
     droppedItemMessage.set_pickupcooldown(pickupCooldown_);
     droppedItemMessage.set_remainingtime(remainingTime_);
     return droppedItemMessage.SerializeAsString();

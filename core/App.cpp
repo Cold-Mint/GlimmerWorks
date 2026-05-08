@@ -10,7 +10,6 @@
 #include "imgui.h"
 #include "backends/imgui_impl_sdl3.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
-#include "console/CommandSender.h"
 #include "scene/SplashScene.h"
 #include "scene/ConsoleOverlay.h"
 #include "scene/DebugOverlay.h"
@@ -184,8 +183,7 @@ bool glimmer::App::Init() {
         LogCat::e("ResourcePackManager is nullptr.");
         return false;
     }
-    resourcePackManager->SetRenderer(renderer_, appContext_->GetPreloadColors()->error.accentColor,
-                                     appContext_->GetPreloadColors()->error.baseColor);
+    resourcePackManager->SetRenderer(renderer_, appContext_->GetPreloadColors());
     // Enable alpha blending rendering
     // 启用按 alpha 混合渲染
     // This will allow us to use transparency during rendering

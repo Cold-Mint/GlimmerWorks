@@ -31,26 +31,6 @@ bool glimmer::Tile::IsCustomLootTable() const {
     return customLootTable_;
 }
 
-bool glimmer::Tile::ChangeLayerTypeIfAllowed(const TileLayerType layerType) {
-    if (layerType_ == layerType) {
-        return false;
-    }
-    if (allowCrossLayerPlacement_) {
-        layerType_ = layerType;
-        return true;
-    }
-#if  !defined(NDEBUG)
-    LogCat::e("Attempt to modify the fixed layer.");
-    assert(false);
-#endif
-    return false;
-}
-
-
-bool glimmer::Tile::IsAllowCrossLayerPlacement() const {
-    return allowCrossLayerPlacement_;
-}
-
 glimmer::TilePhysicsType glimmer::Tile::GetTilePhysicsType() const {
     return physicsType_;
 }
@@ -118,7 +98,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
                                                                const TileResource *tileResource,
                                                                const ResourceRef &resourceRef) {
     auto tile = std::make_unique<Tile>();
-    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     tile->tileRef_ = resourceRef;
     tile->id_ = Resource::GenerateId(*tileResource);
     const StringResource *nameStringResource = resourceLocator->FindString(
@@ -140,7 +120,6 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->hardness_ = tileResource->hardness;
     tile->breakable = tileResource->hardness >= 0;
     tile->allowChainMining_ = tileResource->allowChainMining;
-    tile->allowCrossLayerPlacement_ = tileResource->allowCrossLayerPlacement;
     tile->lightMask_ = tileResource->lightMask;
     tile->lightSource_ = tileResource->lightSource;
     tile->texture_ = resourceLocator->FindTexture(

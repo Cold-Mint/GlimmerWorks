@@ -8,7 +8,7 @@
 #include <string>
 
 #include "SceneManager.h"
-#include "../Langs.h"
+#include "../LangsResources.h"
 #include "../console/CommandExecutor.h"
 #include "../mod/dataPack/BiomesManager.h"
 #include "../mod/dataPack/ItemManager.h"
@@ -73,7 +73,7 @@ namespace glimmer {
         TTF_Font *ttfFont_ = nullptr;
         std::unique_ptr<CommandExecutor> commandExecutor_;
         std::unique_ptr<ResourcePackManager> resourcePackManager_;
-        std::unique_ptr<LangsResources> langs_;
+        std::unique_ptr<LangsResources> langsResources_;
         std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_;
         std::unique_ptr<VirtualFileSystem> virtualFileSystem_;
         std::unique_ptr<BiomeDecoratorManager> biomeDecoratorManager_;

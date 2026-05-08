@@ -334,7 +334,7 @@ target_sources(GlimmerWorks
         core/console/command/HelpCommand.cpp
         core/scene/SceneManager.cpp
         core/scene/HomeScene.cpp
-        core/Langs.cpp
+        core/LangsResources.cpp
         core/scene/SavedGamesScene.cpp
         core/saves/Saves.cpp
         core/saves/MapManifest.cpp
@@ -571,7 +571,7 @@ target_sources(GlimmerWorks
         core/console/command/HelpCommand.h
         core/scene/SceneManager.h
         core/scene/HomeScene.h
-        core/Langs.h
+        core/LangsResources.h
         core/scene/SavedGamesScene.h
         core/saves/Saves.h
         core/saves/MapManifest.h
@@ -1507,7 +1507,7 @@ if (WIN32)
 endif ()
 if (UNIX AND NOT APPLE)
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl-build/libSDL3.${LIB_SUFFIX}.0" DESTINATION ${LIB_DIR})
-    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl-build/libSDL3.${LIB_SUFFIX}.0.4.4" DESTINATION ${LIB_DIR})
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl-build/libSDL3.${LIB_SUFFIX}.0.4.8" DESTINATION ${LIB_DIR})
 endif ()
 
 if (WIN32)

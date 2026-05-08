@@ -31,11 +31,6 @@ namespace glimmer {
         bool isPlayerPlaced_ = false;
         TilePhysicsType physicsType_ = TilePhysicsType::None;
         TileLayerType layerType_ = Ground;
-        /**
-         * Is it allowed to disregard one's own Layer and place it onto any block layer?
-         * 是否允许无视自身 Layer，放置到任意区块图层
-         */
-        bool allowCrossLayerPlacement_ = false;
         ResourceRef lightSource_;
         ResourceRef lightMask_;
 
@@ -50,16 +45,6 @@ namespace glimmer {
 
 
         [[nodiscard]] bool IsCustomLootTable() const;
-
-        /**
-         * ChangeLayerTypeIfAllowed
-         * 改变图层如果允许的话
-         * @param layerType TileLayerType 图层
-         * @return 是否设置成功
-         */
-        [[nodiscard]] bool ChangeLayerTypeIfAllowed(TileLayerType layerType);
-
-        [[nodiscard]] bool IsAllowCrossLayerPlacement() const;
 
         [[nodiscard]] TilePhysicsType GetTilePhysicsType() const;
 

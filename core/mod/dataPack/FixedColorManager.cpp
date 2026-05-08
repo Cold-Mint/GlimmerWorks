@@ -4,37 +4,29 @@
 
 #include "FixedColorManager.h"
 
+
+void glimmer::FixedColorManager::RegisterCoreRef(const std::string &resourceId, const uint8_t r, const uint8_t b,
+                                                 const uint8_t g,
+                                                 const uint8_t a) {
+    auto fixedColorResource = std::make_unique<FixedColorResource>();
+    fixedColorResource->resourceId = resourceId;
+    fixedColorResource->packId = RESOURCE_REF_CORE;
+    fixedColorResource->missing = false;
+    fixedColorResource->r = r;
+    fixedColorResource->g = g;
+    fixedColorResource->b = b;
+    fixedColorResource->a = a;
+    Register(std::move(fixedColorResource));
+}
+
 glimmer::FixedColorManager::FixedColorManager() {
-    lightMaskFillColorResource_ = std::make_unique<FixedColorResource>();
-    lightMaskFillColorResource_->r = 0;
-    lightMaskFillColorResource_->g = 0;
-    lightMaskFillColorResource_->b = 0;
-    lightMaskFillColorResource_->a = 255;
-    lightMaskNoneColorResource_ = std::make_unique<FixedColorResource>();
-    lightMaskNoneColorResource_->r = 0;
-    lightMaskNoneColorResource_->g = 0;
-    lightMaskNoneColorResource_->b = 0;
-    lightMaskNoneColorResource_->a = 0;
-    lightNoneColorResource_ = std::make_unique<FixedColorResource>();
-    lightNoneColorResource_->r = 0;
-    lightNoneColorResource_->g = 0;
-    lightNoneColorResource_->b = 0;
-    lightNoneColorResource_->a = 0;
-    lightMaskLowColorResource_ = std::make_unique<FixedColorResource>();
-    lightMaskLowColorResource_->r = 0;
-    lightMaskLowColorResource_->g = 0;
-    lightMaskLowColorResource_->b = 0;
-    lightMaskLowColorResource_->a = 64;
-    lightMaskMediumColorResource_ = std::make_unique<FixedColorResource>();
-    lightMaskMediumColorResource_->r = 0;
-    lightMaskMediumColorResource_->g = 0;
-    lightMaskMediumColorResource_->b = 0;
-    lightMaskMediumColorResource_->a = 128;
-    lightMaskHighColorResource_ = std::make_unique<FixedColorResource>();
-    lightMaskHighColorResource_->r = 0;
-    lightMaskHighColorResource_->g = 0;
-    lightMaskHighColorResource_->b = 0;
-    lightMaskHighColorResource_->a = 192;
+    RegisterCoreRef(LIGHT_MASK_FULL_COLOR, 0, 0, 0, 255);
+    RegisterCoreRef(LIGHT_MASK_NONE_COLOR, 0, 0, 0, 0);
+    RegisterCoreRef(LIGHT_MASK_LOW_COLOR, 0, 0, 0, 64);
+    RegisterCoreRef(LIGHT_MASK_MEDIUM_COLOR, 0, 0, 0, 128);
+    RegisterCoreRef(LIGHT_MASK_HIGH_COLOR, 0, 0, 0, 192);
+    RegisterCoreRef(LIGHT_NONE_COLOR, 0, 0, 0, 0);
+    RegisterCoreRef(LIGHT_SKY_COLOR, 0, 102, 255, 64);
 }
 
 glimmer::FixedColorResource *glimmer::FixedColorManager::Register(
@@ -47,24 +39,6 @@ glimmer::FixedColorResource *glimmer::FixedColorManager::Register(
 
 glimmer::FixedColorResource *glimmer::FixedColorManager::FindFixedColorResource(const std::string &packId,
     const std::string &key) {
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_FULL_COLOR) {
-        return lightMaskFillColorResource_.get();
-    }
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_NONE_COLOR) {
-        return lightMaskNoneColorResource_.get();
-    }
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_LOW_COLOR) {
-        return lightMaskLowColorResource_.get();
-    }
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_MEDIUM_COLOR) {
-        return lightMaskMediumColorResource_.get();
-    }
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_HIGH_COLOR) {
-        return lightMaskHighColorResource_.get();
-    }
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_NONE_COLOR) {
-        return lightNoneColorResource_.get();
-    }
     const auto packIt = fixedColorMap_.find(packId);
     if (packIt == fixedColorMap_.end()) {
         return nullptr;

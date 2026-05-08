@@ -4,7 +4,7 @@
 
 #include "LightCommand.h"
 
-#include "core/Langs.h"
+#include "core/LangsResources.h"
 #include "fmt/xchar.h"
 #include "core/scene/AppContext.h"
 #include "../../world/WorldContext.h"

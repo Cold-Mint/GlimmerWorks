@@ -104,6 +104,9 @@ void glimmer::MagnetSystem::Update(const float delta) {
             }
 
             const auto *item = droppedItem->GetItem();
+            if (item == nullptr) {
+                continue;
+            }
             size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(item);
             if (remainingItemAmount == item->GetAmount()) {
                 //Not a single one can be added.

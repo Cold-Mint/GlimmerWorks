@@ -6,13 +6,11 @@
 #include <cmath>
 
 #include "../../Constants.h"
-#include "../component/PlayerComponent.h"
 #include "../component/Transform2DComponent.h"
 #include "../component/TileLayerComponent.h"
 #include "../../world/WorldContext.h"
 #include "../component/CameraComponent.h"
 #include "box2d/box2d.h"
-#include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/utils/ColorUtils.h"
 #include "core/world/Tile.h"
 #include "core/world/generator/Chunk.h"
@@ -66,48 +64,6 @@ void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, fl
 
     SDL_FRect vLine = {screenX, 0.0f, 1.0f, static_cast<float>(windowH)};
     SDL_RenderFillRect(renderer, &vLine);
-}
-
-
-void glimmer::DebugPanelSystem::RenderPlayerInfo(
-    SDL_Renderer *renderer,
-    const int windowW, const int windowH
-) const {
-    if (worldContext_ == nullptr || windowW <= 0 || windowH <= 0) {
-        return;
-    }
-    const GameEntity::ID player = worldContext_->GetPlayerEntity();
-    const auto rigidBody2dComponent = worldContext_->GetComponent<RigidBody2DComponent>(player);
-    if (rigidBody2dComponent == nullptr || !rigidBody2dComponent->IsReady()) {
-        return;
-    }
-    const b2Vec2 currentVel = b2Body_GetLinearVelocity(rigidBody2dComponent->GetBodyId());
-    char speedText[128];
-    snprintf(speedText, sizeof(speedText), "Player Speed: (%.1f, %.1f)", currentVel.x, currentVel.y);
-    SDL_Color color = {255, 255, 180, 255};
-    SDL_Surface *surface = TTF_RenderText_Blended(
-        worldContext_->GetAppContext()->GetFont(),
-        speedText,
-        strlen(speedText),
-        color
-    );
-    if (!surface) return;
-
-    const float bottomOffsetY = 20.0f;
-    float textX = static_cast<float>(windowW) / 2.0f - static_cast<float>(surface->w) / 2.0f;
-    float textY = static_cast<float>(windowH) - static_cast<float>(surface->h) - bottomOffsetY;
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (texture) {
-        SDL_FRect dst = {
-            textX,
-            textY,
-            static_cast<float>(surface->w),
-            static_cast<float>(surface->h)
-        };
-        SDL_RenderTexture(renderer, texture, nullptr, &dst);
-        SDL_DestroyTexture(texture);
-    }
-    SDL_DestroySurface(surface);
 }
 
 
@@ -176,7 +132,6 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         inPointInViewport = cameraComponent->IsPointInViewport(cameraTransform->GetPosition(), mousePosition_);
     }
     RenderChunkBounds(renderer, cameraComponent, cameraTransform->GetPosition());
-    RenderPlayerInfo(renderer, windowW, windowH);
 
     if (!inPointInViewport) {
         //Do not display the tile debugging information that is outside the screen.

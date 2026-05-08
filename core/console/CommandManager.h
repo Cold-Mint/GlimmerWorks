@@ -10,7 +10,7 @@
 
 #include "Command.h"
 #include "CommandSender.h"
-#include "core/Langs.h"
+#include "core/LangsResources.h"
 #include "suggestion/DynamicSuggestionsManager.h"
 
 namespace glimmer {

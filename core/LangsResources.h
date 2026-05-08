@@ -95,6 +95,21 @@ namespace glimmer {
         std::string lightingInspectorDisable;
         std::string lightingInspectorEnableFail;
         std::string lightingInspectorDisableFail;
+        std::string tileNameAir;
+        std::string tileNameAirWall;
+        std::string tileNameError;
+        std::string tileNameErrorWall;
+        std::string tileNameAccessDenied;
+        std::string tileNameAccessDeniedWall;
+        std::string tileNameBedrock;
+        std::string tileNameWater;
+        std::string tileDescriptionAir;
+        std::string tileDescriptionAirWall;
+        std::string tileDescriptionError;
+        std::string tileDescriptionErrorWall;
+        std::string tileDescriptionAccessDenied;
+        std::string tileDescriptionAccessDeniedWall;
+        std::string tileDescriptionBedrock;
     };
 }
 

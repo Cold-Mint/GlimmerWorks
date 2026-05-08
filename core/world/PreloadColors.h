@@ -28,7 +28,7 @@ namespace glimmer {
         };
 
 
-        struct ErrorTextureColors {
+        struct TextureColors {
             Color accentColor;
             Color baseColor;
         };
@@ -227,7 +227,8 @@ namespace glimmer {
 
 
         ConsoleColors console;
-        ErrorTextureColors error;
+        TextureColors error;
+        TextureColors accessDenied;
         GameColors game;
         Light2dColors light;
 
@@ -245,7 +246,7 @@ namespace glimmer {
          * @return
          */
         static Color LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
-                                   const Color &defaultColor);
+                               const Color &defaultColor);
     };
 }
 

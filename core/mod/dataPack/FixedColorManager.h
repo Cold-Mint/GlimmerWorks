@@ -17,12 +17,7 @@ namespace glimmer {
         fixedColorMap_
                 {};
 
-        std::unique_ptr<FixedColorResource> lightMaskFillColorResource_;
-        std::unique_ptr<FixedColorResource> lightMaskHighColorResource_;
-        std::unique_ptr<FixedColorResource> lightMaskMediumColorResource_;
-        std::unique_ptr<FixedColorResource> lightMaskLowColorResource_;
-        std::unique_ptr<FixedColorResource> lightMaskNoneColorResource_;
-        std::unique_ptr<FixedColorResource> lightNoneColorResource_;
+        void RegisterCoreRef(const std::string &resourceId, uint8_t r, uint8_t b, uint8_t g, uint8_t a);
 
     public:
         FixedColorManager();

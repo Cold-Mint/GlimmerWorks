@@ -9,36 +9,28 @@
 #include <unordered_map>
 
 #include "../Resource.h"
+#include "core/world/generator/TileLayerType.h"
 
 namespace glimmer {
-    class TileManager {
-        [[nodiscard]] static std::unique_ptr<TileResource> GenerateErrorPlaceHolder(
-            const std::string &packId, const std::string &resourceId);
+    enum class TilePhysicsType : uint8_t;
 
+    class TileManager {
     protected:
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource> > > tileMap_{};
 
-        /**
-         * Air
-         * 空气
-         */
-        std::unique_ptr<TileResource> air_ = nullptr;
+        //Save all the tiles that were created but were denied access.
+        //保存所有被拒绝访问创建的瓦片。
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource> > >
+        accessDeniedTileMap_{};
 
-        std::unique_ptr<ResourceRef> airResourceRef_;
+        TileResource *air_ = nullptr;
+        TileResource *airWall_ = nullptr;
 
-
-        /**
-         * Water
-         * 水
-         */
-        std::unique_ptr<TileResource> water_ = nullptr;
-
-        /**
-         * TileResource
-         * 基岩
-         */
-        std::unique_ptr<TileResource> bedrock_ = nullptr;
-        std::unique_ptr<TileResource> error_ = nullptr;
+        TileResource *AddCoreResource(const std::string &resourceId, TilePhysicsType physicsType,
+                                      TileLayerType layerType, float hardness, const std::string &nameKey,
+                                      const std::string &textureKey, const std::string &lightSourceKey,
+                                      const std::string &lightMaskKey,
+                                      std::optional<std::string> descriptionKey);
 
     public:
         /**
@@ -47,23 +39,23 @@ namespace glimmer {
          */
         void InitBuiltinTiles();
 
+        [[nodiscard]] TileResource *AddErrorPlaceHolder(
+            const std::string &packId, const std::string &resourceId);
+
+        [[nodiscard]] TileResource *GenerateAccessDeniedPlaceHolder(
+            const std::string &packId, const std::string &resourceId);
+
+        [[nodiscard]] TileResource *AddResource(std::unique_ptr<TileResource> tileResource);
+
         /**
-         * GetAir
-         * 获取空气瓦片
+         * Obtain the air resources at the corresponding location.
+         * 获取对应位置的空气资源。
+         * @param tileLayerType
          * @return
          */
-        [[nodiscard]] TileResource *GetAir() const;
+        [[nodiscard]] TileResource *GetAirResource(TileLayerType tileLayerType) const;
 
-        [[nodiscard]] const ResourceRef *GetAirResourceRef() const;
-
-        [[nodiscard]] TileResource *GetWater() const;
-
-        [[nodiscard]] TileResource *GetBedrock() const;
-
-        [[nodiscard]] TileResource *GetError() const;
-
-
-        TileResource *AddResource(std::unique_ptr<TileResource> tileResource);
+        [[nodiscard]] static ResourceRef GetAirResourceRef(TileLayerType tileLayerType);
 
         [[nodiscard]] TileResource *Find(const std::string &packId, const std::string &key);
 

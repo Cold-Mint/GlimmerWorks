@@ -4,15 +4,23 @@
 
 #include "LightSourceManager.h"
 
-glimmer::LightSourceManager::LightSourceManager() {
-    lightSourceNoneResource_ = std::make_unique<LightSourceResource>();
-    lightSourceNoneResource_->lightRadius = 0;
+void glimmer::LightSourceManager::RegisterCoreLightSourceResource(const std::string &resourceId,
+                                                                  const std::string &colorResKey, uint8_t lightRadius) {
+    auto lightSourceResource = std::make_unique<LightSourceResource>();
+    lightSourceResource->resourceId = resourceId;
+    lightSourceResource->lightRadius = lightRadius;
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TYPE_FIXED_COLOR);
-    resourceRef.SetResourceKey(LIGHT_NONE_COLOR);
-    lightSourceNoneResource_->lightColor = resourceRef;
-    lightSourceNoneResource_->lightBrightestAtCenter = true;
+    resourceRef.SetResourceKey(colorResKey);
+    lightSourceResource->lightColor = resourceRef;
+    lightSourceResource->lightBrightestAtCenter = true;
+    (void) Register(std::move(lightSourceResource));
+}
+
+glimmer::LightSourceManager::LightSourceManager() {
+    RegisterCoreLightSourceResource(LIGHT_NONE, LIGHT_NONE_COLOR, 0);
+    RegisterCoreLightSourceResource(LIGHT_SKY, LIGHT_SKY_COLOR, 1);
 }
 
 glimmer::LightSourceResource *glimmer::LightSourceManager::Register(
@@ -25,9 +33,6 @@ glimmer::LightSourceResource *glimmer::LightSourceManager::Register(
 
 glimmer::LightSourceResource *glimmer::LightSourceManager::FindLightSourceResource(const std::string &packId,
     const std::string &key) {
-    if (packId == RESOURCE_REF_CORE || key == LIGHT_NONE) {
-        return lightSourceNoneResource_.get();
-    }
     const auto packIt = lightSourceMap_.find(packId);
     if (packIt == lightSourceMap_.end()) {
         return nullptr;

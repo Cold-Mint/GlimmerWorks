@@ -32,8 +32,11 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext_) : appContext_
 }
 
 std::shared_ptr<SDL_Texture> glimmer::ResourceLocator::FindTexture(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_TEXTURES || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_TEXTURES) {
         return appContext_->GetResourcePackManager()->errorTexture_;
+    }
+    if (!ValidateAccessPermission(resourceRef)) {
+        return appContext_->GetResourcePackManager()->accessDeniedTexture_;
     }
     return appContext_->GetResourcePackManager()->LoadTextureFromFile(appContext_, resourceRef);
 }
@@ -111,21 +114,8 @@ glimmer::LightMaskResource *glimmer::ResourceLocator::FindLightMask(const Resour
 
 glimmer::TileResource *glimmer::ResourceLocator::FindTile(const ResourceRef &resourceRef) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_TILE || !ValidateAccessPermission(resourceRef)) {
-        return appContext_->GetTileManager()->GetError();
-    }
-    if (resourceRef.GetPackageId() == RESOURCE_REF_CORE) {
-        if (resourceRef.GetResourceKey() == TILE_ID_AIR) {
-            return appContext_->GetTileManager()->GetAir();
-        }
-        if (resourceRef.GetResourceKey() == TILE_ID_WATER) {
-            return appContext_->GetTileManager()->GetWater();
-        }
-        if (resourceRef.GetResourceKey() == TILE_ID_BEDROCK) {
-            return appContext_->GetTileManager()->GetBedrock();
-        }
-        if (resourceRef.GetResourceKey() == TILE_ID_ERROR) {
-            return appContext_->GetTileManager()->GetError();
-        }
+        return appContext_->GetTileManager()->GenerateAccessDeniedPlaceHolder(
+            resourceRef.GetPackageId(), resourceRef.GetResourceKey());
     }
     return appContext_->GetTileManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }

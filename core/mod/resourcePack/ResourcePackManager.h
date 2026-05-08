@@ -21,6 +21,7 @@
 
 namespace glimmer {
     class AppContext;
+    struct PreloadColors;
 
     class ResourcePackManager {
         friend class ResourceLocator;
@@ -57,25 +58,19 @@ namespace glimmer {
 
         ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef &resourceRef);
 
-        /**
-         * CreateErrorTexture
-         * 创建错误纹理
-         * @param accent accent color (purple) 强调色（原紫色）
-         * @param base base color (black) 基础色（原黑色）
-         * @return
-         */
-        std::shared_ptr<SDL_Texture> CreateErrorTexture(Color accent,
+        std::shared_ptr<SDL_Texture> CreateTexture(Color accent,
                                                         Color base) const;
 
+
         std::shared_ptr<SDL_Texture> errorTexture_;
+        std::shared_ptr<SDL_Texture> accessDeniedTexture_;
 
     public:
         explicit ResourcePackManager(VirtualFileSystem *virtualFilesystem);
 
         void SetMixer(MIX_Mixer *mixer);
 
-        void SetRenderer(SDL_Renderer *renderer, Color accent,
-                         Color base);
+        void SetRenderer(SDL_Renderer *renderer, const PreloadColors *preloadColors);
 
         int Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
                  const toml::spec &tomlVersion);

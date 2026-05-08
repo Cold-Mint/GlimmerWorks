@@ -427,16 +427,14 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
         {BackGround, {}}
     };
     std::unordered_set<BiomeResource *> biomeResourcesSet;
-    const ResourceRef *airResourceRef = tileManager->GetAirResourceRef();
-
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             const int idx = localY * CHUNK_SIZE + localX;
             auto &terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             auto terrainType = terrainTileResult.terrainType;
-            tilesRefMap[BackGround][idx] = *airResourceRef;
+            tilesRefMap[BackGround][idx] = TileManager::GetAirResourceRef(BackGround);
             if (terrainType == AIR) {
-                tilesRefMap[Ground][idx] = *airResourceRef;
+                tilesRefMap[Ground][idx] = TileManager::GetAirResourceRef(Ground);
                 continue;
             }
             if (terrainType == WATER) {
@@ -452,7 +450,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                 continue;
             }
             if (terrainType == SOLID) {
-                tilesRefMap[Ground][idx] = *airResourceRef;
+                tilesRefMap[Ground][idx] = TileManager::GetAirResourceRef(Ground);
                 if (terrainTileResult.biomeResource != nullptr && !biomeResourcesSet.contains(
                         terrainTileResult.biomeResource)) {
                     biomeResourcesSet.insert(terrainTileResult.biomeResource);
@@ -494,7 +492,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                 } else {
                     LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
                               " does not exist.");
-                    tileResourceValue = tileManager->GetAir();
+                    tileResourceValue = tileManager->GetAirResource(tileArrayPair.first);
                 }
                 chunk->SetTileToLayer(localTile,
                                       tileArrayPair.first,

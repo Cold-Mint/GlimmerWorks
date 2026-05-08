@@ -18,6 +18,7 @@
 #include "core/utils/TomlUtils.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3_mixer/SDL_mixer.h"
+#include "core/world/PreloadColors.h"
 
 
 bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack &pack) const {
@@ -164,9 +165,14 @@ void glimmer::ResourcePackManager::SetMixer(MIX_Mixer *mixer) {
     mixer_ = mixer;
 }
 
-void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer, Color accent, Color base) {
+void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer, const PreloadColors *preloadColors) {
     renderer_ = renderer;
-    errorTexture_ = CreateErrorTexture(accent, base);
+    if (preloadColors == nullptr) {
+        return;
+    }
+    errorTexture_ = CreateTexture(preloadColors->error.accentColor, preloadColors->error.baseColor);
+    accessDeniedTexture_ = CreateTexture(preloadColors->accessDenied.accentColor,
+                                                     preloadColors->accessDenied.baseColor);
 }
 
 int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
@@ -248,8 +254,14 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(AppContext *appContext,
                                                                                const ResourceRef &resourceRef) {
-    if (resourceRef.GetPackageId() == RESOURCE_REF_CORE && resourceRef.GetResourceKey() == ERROR_TEXTURE_KEY) {
-        return errorTexture_;
+    if (resourceRef.GetPackageId() == RESOURCE_REF_CORE) {
+        const std::string resourceKey = resourceRef.GetResourceKey();
+        if (resourceKey == ERROR_TEXTURE_KEY) {
+            return errorTexture_;
+        }
+        if (resourceKey == ACCESS_DENIED_TEXTURE_KEY) {
+            return accessDeniedTexture_;
+        }
     }
     std::string path = resourceRef.GetPackageId() + "/" + resourceRef.GetResourceKey();
     return appContext->AddMainThreadTaskAwait(
@@ -311,7 +323,7 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
     return nullptr;
 }
 
-std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(const Color accent, const Color base) const {
+std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateTexture(Color accent, Color base) const {
     if (renderer_ == nullptr) {
         return nullptr;
     }
@@ -343,7 +355,7 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateErrorTexture(co
             SDL_CreateTextureFromSurface(renderer_, surface);
     auto deleter = [](SDL_Texture *tex) {
         LogCat::d("Destroying error texture");
-        if (tex == nullptr) {
+        if (tex != nullptr) {
             SDL_DestroyTexture(tex);
         }
     };

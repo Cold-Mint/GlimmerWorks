@@ -29,7 +29,7 @@ namespace glimmer {
         TileResource *AddCoreResource(const std::string &resourceId, TilePhysicsType physicsType,
                                       TileLayerType layerType, float hardness, const std::string &nameKey,
                                       const std::string &textureKey, const std::string &lightSourceKey,
-                                      const std::string &lightMaskKey,
+                                      const std::string &lightMaskKey, bool isOverwritable, bool canDropLoot,
                                       std::optional<std::string> descriptionKey);
 
     public:
@@ -40,10 +40,10 @@ namespace glimmer {
         void InitBuiltinTiles();
 
         [[nodiscard]] TileResource *AddErrorPlaceHolder(
-            const std::string &packId, const std::string &resourceId);
+            const std::string &packId, const std::string &resourceId, TileLayerType tileLayer);
 
         [[nodiscard]] TileResource *GenerateAccessDeniedPlaceHolder(
-            const std::string &packId, const std::string &resourceId);
+            const std::string &packId, const std::string &resourceId, TileLayerType tileLayer);
 
         [[nodiscard]] TileResource *AddResource(std::unique_ptr<TileResource> tileResource);
 
@@ -57,7 +57,26 @@ namespace glimmer {
 
         [[nodiscard]] static ResourceRef GetAirResourceRef(TileLayerType tileLayerType);
 
-        [[nodiscard]] TileResource *Find(const std::string &packId, const std::string &key);
+        /**
+         * Search for the tile. If not found, return nullptr.
+         * 查找瓦片，找不到时返回nullptr
+         * @param packId
+         * @param key
+         * @return
+         */
+        [[nodiscard]] TileResource *FindTileRaw(const std::string &packId, const std::string &key);
+
+
+        /**
+         * Search for tiles. If no tiles are found, generate error tiles and placeholder tiles instead.
+         * 查找瓦片，找不到时生成错误瓦片占位瓦片。
+         * @param packId
+         * @param key
+         * @param tileLayer
+         * @return
+         */
+        [[nodiscard]] TileResource *FindTileFallback(const std::string &packId, const std::string &key,
+                                                     TileLayerType tileLayer);
 
         [[nodiscard]] std::vector<std::string> GetTileIDList();
 

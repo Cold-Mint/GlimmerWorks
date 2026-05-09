@@ -98,12 +98,12 @@ bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event &event) {
         ItemSlotComponent *previousItemSlotComponent = nullptr;
         ItemSlotComponent *currentlyItemSlotComponent = nullptr;
         for (uint32_t entity: entities) {
-            GuiTransform2DComponent *guiTransform2dComponent = worldContext_->GetComponent<
+            auto *guiTransform2dComponent = worldContext_->GetComponent<
                 GuiTransform2DComponent>(entity);
             if (guiTransform2dComponent == nullptr) {
                 continue;
             }
-            ItemSlotComponent *itemSlotComponent = worldContext_->GetComponent<ItemSlotComponent>(entity);
+            auto *itemSlotComponent = worldContext_->GetComponent<ItemSlotComponent>(entity);
             if (itemSlotComponent == nullptr) {
                 continue;
             }

@@ -1515,7 +1515,7 @@ if (WIN32)
 endif ()
 if (UNIX AND NOT APPLE)
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_image-build/libSDL3_image.${LIB_SUFFIX}.0" DESTINATION ${LIB_DIR})
-    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_image-build/libSDL3_image.${LIB_SUFFIX}.0.4.2" DESTINATION ${LIB_DIR})
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_image-build/libSDL3_image.${LIB_SUFFIX}.0.4.4" DESTINATION ${LIB_DIR})
 endif ()
 
 if (WIN32)

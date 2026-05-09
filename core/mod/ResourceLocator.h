@@ -64,9 +64,12 @@ namespace glimmer {
          * FindTile
          * 查找瓦片资源
          * @param resourceRef  resourceRef 瓦片引用
+         * @param tileLayer tileLayer
          * @return
          */
-        [[nodiscard]] TileResource *FindTile(const ResourceRef &resourceRef) const;
+        [[nodiscard]] TileResource *FindTileFallback(const ResourceRef &resourceRef, TileLayerType tileLayer) const;
+
+        [[nodiscard]] TileResource *FindTileRaw(const ResourceRef &resourceRef) const;
 
         [[nodiscard]] MobResource *FindMob(const ResourceRef &resourceRef) const;
 

@@ -6,10 +6,9 @@
 #include "../ecs/component/TileLayerComponent.h"
 #include "../ecs/component/Transform2DComponent.h"
 #include "../Constants.h"
-#include "../world/generator/ChunkPhysicsHelper.h"
 #include "../world/WorldContext.h"
-#include "core/ecs/component/DebugDrawComponent.h"
 #include "core/ecs/component/TilePlacementForbiddenZoneComponent.h"
+#include "core/ecs/system/DiggingSystem.h"
 
 glimmer::TileItem::TileItem(std::unique_ptr<Tile> tile) : tile_(std::move(tile)) {
     resourceRef_ = tile_->GetResourceRef();
@@ -70,10 +69,7 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
         if (currentTile == nullptr) {
             canPlacement = true;
         } else {
-            const std::string &currentTileId = currentTile->GetId();
-            if (currentTileId == Resource::GenerateId(RESOURCE_REF_CORE, TILE_ID_AIR) || currentTileId ==
-                Resource::GenerateId(
-                    RESOURCE_REF_CORE, TILE_ID_WATER)) {
+            if (currentTile->IsOverwritable()) {
                 canPlacement = true;
             }
         }
@@ -129,8 +125,7 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
 
             auto tile = std::make_unique<Tile>(*tile_);
             tile->SetPlayerPlaced(true);
-            (void) tileLayer->SetTile(
-                targetPos, std::move(tile));
+            DiggingSystem::BreakTile(worldContext, tileLayer, targetPos, false, true, std::move(tile));
             (void) RemoveAmount(1);
         }
     }

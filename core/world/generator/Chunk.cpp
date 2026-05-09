@@ -155,7 +155,7 @@ void glimmer::Chunk::ReadChunkMessage(const AppContext *appContext, const ChunkM
             auto &tileMessage = tileData.tilemessage(i);
             ResourceRef resourceRef;
             resourceRef.ReadResourceRefMessage(tileMessage.resourceref());
-            auto tileResource = appContext->GetResourceLocator()->FindTile(resourceRef);
+            auto tileResource = appContext->GetResourceLocator()->FindTileFallback(resourceRef, layerType);
             if (tileResource == nullptr) {
                 continue;
             }

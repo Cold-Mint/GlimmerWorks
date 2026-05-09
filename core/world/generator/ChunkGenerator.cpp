@@ -483,19 +483,20 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             TileVector2D localTile(localX, localY);
             const int idx = localY * CHUNK_SIZE + localX;
             for (auto &tileArrayPair: tilesRefMap) {
+                const TileLayerType tileLayerType = tileArrayPair.first;
                 ResourceRef &resourceRef = tileArrayPair.second[idx];
-                const std::optional tileResource = resourceLocator->FindTile(
-                    resourceRef);
+                const std::optional tileResource = resourceLocator->FindTileFallback(
+                    resourceRef, tileLayerType);
                 const TileResource *tileResourceValue = nullptr;
                 if (tileResource.has_value()) {
                     tileResourceValue = tileResource.value();
                 } else {
                     LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
                               " does not exist.");
-                    tileResourceValue = tileManager->GetAirResource(tileArrayPair.first);
+                    tileResourceValue = tileManager->GetAirResource(tileLayerType);
                 }
                 chunk->SetTileToLayer(localTile,
-                                      tileArrayPair.first,
+                                      tileLayerType,
                                       Tile::FromTileResource(appContext, tileResourceValue, resourceRef));
             }
         }

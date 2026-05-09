@@ -8,6 +8,7 @@
 #include "component/MagneticComponent.h"
 #include "component/RayCast2DComponent.h"
 #include "component/RigidBody2DComponent.h"
+#include "core/world/WorldContext.h"
 
 glimmer::DroppedItemCreator::DroppedItemCreator(WorldContext *worldContext) : IPersistenceEntityCreator(worldContext) {
 }

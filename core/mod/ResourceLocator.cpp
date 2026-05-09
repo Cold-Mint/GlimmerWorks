@@ -112,12 +112,21 @@ glimmer::LightMaskResource *glimmer::ResourceLocator::FindLightMask(const Resour
                                                                      resourceRef.GetResourceKey());
 }
 
-glimmer::TileResource *glimmer::ResourceLocator::FindTile(const ResourceRef &resourceRef) const {
+glimmer::TileResource *glimmer::ResourceLocator::FindTileFallback(const ResourceRef &resourceRef,
+                                                                  TileLayerType tileLayer) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_TILE || !ValidateAccessPermission(resourceRef)) {
         return appContext_->GetTileManager()->GenerateAccessDeniedPlaceHolder(
-            resourceRef.GetPackageId(), resourceRef.GetResourceKey());
+            resourceRef.GetPackageId(), resourceRef.GetResourceKey(), tileLayer);
     }
-    return appContext_->GetTileManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
+    return appContext_->GetTileManager()->FindTileFallback(resourceRef.GetPackageId(), resourceRef.GetResourceKey(),
+                                                           tileLayer);
+}
+
+glimmer::TileResource *glimmer::ResourceLocator::FindTileRaw(const ResourceRef &resourceRef) const {
+    if (resourceRef.GetResourceType() != RESOURCE_TYPE_TILE || !ValidateAccessPermission(resourceRef)) {
+        return nullptr;
+    }
+    return appContext_->GetTileManager()->FindTileRaw(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }
 
 glimmer::MobResource *glimmer::ResourceLocator::FindMob(const ResourceRef &resourceRef) const {
@@ -164,7 +173,7 @@ glimmer::ResourceLocator::FindItem(const ItemMessage &itemMessage) const {
     }
     std::unique_ptr<Item> result = nullptr;
     if (resourceType == RESOURCE_TYPE_TILE) {
-        auto tileResource = FindTile(resourceRef);
+        auto tileResource = FindTileRaw(resourceRef);
         if (tileResource != nullptr) {
             result = std::make_unique<TileItem>(Tile::FromTileResource(appContext_, tileResource, resourceRef));
         }

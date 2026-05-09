@@ -50,7 +50,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, CommandAr
             return false;
         }
         ResourceRef &resourceRef = itemId.value();
-        auto tileResource = appContext_->GetResourceLocator()->FindTile(resourceRef);
+        auto tileResource = appContext_->GetResourceLocator()->FindTileRaw(resourceRef);
         if (tileResource == nullptr) {
             onMessage(appContext_->GetLangsResources()->tileResourceIsNull);
             return false;

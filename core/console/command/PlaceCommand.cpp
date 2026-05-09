@@ -80,7 +80,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender *commandSender, CommandA
                 continue;
             }
             auto *tileResource =
-                    appContext_->GetResourceLocator()->FindTile(resourceRef);
+                    appContext_->GetResourceLocator()->FindTileRaw(resourceRef);
             if (tileResource == nullptr) {
                 continue;
             }

@@ -76,6 +76,14 @@ bool glimmer::Tile::IsBreakable() const {
     return breakable;
 }
 
+bool glimmer::Tile::IsOverwritable() const {
+    return isOverwritable_;
+}
+
+bool glimmer::Tile::CanDropLoot() const {
+    return canDropLoot_;
+}
+
 const std::string &glimmer::Tile::GetName() const {
     return name_;
 }
@@ -122,6 +130,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->allowChainMining_ = tileResource->allowChainMining;
     tile->lightMask_ = tileResource->lightMask;
     tile->lightSource_ = tileResource->lightSource;
+    tile->isOverwritable_ = tileResource->isOverwritable;
+    tile->canDropLoot_ = tileResource->canDropLoot;
     tile->texture_ = resourceLocator->FindTexture(
         tileResource->texture);
     tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);

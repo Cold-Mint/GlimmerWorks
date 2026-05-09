@@ -442,6 +442,10 @@ namespace glimmer {
         ResourceRef lightSource;
         //@genNextLine(lightMask|光源遮罩)
         ResourceRef lightMask;
+        //@genNextLine(Can a certain tile be directly placed on top|是否可以将某个瓦片直接覆盖上去)
+        bool isOverwritable = false;
+        //@genNextLine(When being destroyed/overwritten, will debris be generated|被销毁/覆盖时 是否生成掉落物)
+        bool canDropLoot = true;
     };
 
     //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)

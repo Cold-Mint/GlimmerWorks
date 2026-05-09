@@ -29,6 +29,16 @@ namespace glimmer {
         bool breakable = true;
         bool allowChainMining_ = false;
         bool isPlayerPlaced_ = false;
+        /**
+         * Can a certain tile be directly placed on top?
+         * 是否可以将某个瓦片直接覆盖上去？
+         */
+        bool isOverwritable_ = false;
+        /**
+         * When being destroyed/overwritten, will debris be generated?
+         * 被销毁/覆盖时 是否生成掉落物
+         */
+        bool canDropLoot_ = true;
         TilePhysicsType physicsType_ = TilePhysicsType::None;
         TileLayerType layerType_ = Ground;
         ResourceRef lightSource_;
@@ -67,6 +77,10 @@ namespace glimmer {
         [[nodiscard]] const float &GetHardness() const;
 
         [[nodiscard]] bool IsBreakable() const;
+
+        [[nodiscard]] bool IsOverwritable() const;
+
+        [[nodiscard]] bool CanDropLoot() const;
 
         [[nodiscard]] const std::string &GetName() const;
 

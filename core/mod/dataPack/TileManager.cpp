@@ -15,6 +15,7 @@ glimmer::TileResource *glimmer::TileManager::AddCoreResource(const std::string &
                                                              const std::string &textureKey,
                                                              const std::string &lightSourceKey,
                                                              const std::string &lightMaskKey,
+                                                             bool isOverwritable, bool canDropLoot,
                                                              std::optional<std::string> descriptionKey) {
     auto tileResource = std::make_unique<TileResource>();
     ResourceRef textureResourceRef;
@@ -39,6 +40,8 @@ glimmer::TileResource *glimmer::TileManager::AddCoreResource(const std::string &
     tileResource->physicsType = static_cast<uint8_t>(physicsType);
     tileResource->layerType = static_cast<uint8_t>(layerType);
     tileResource->hardness = hardness;
+    tileResource->isOverwritable = isOverwritable;
+    tileResource->canDropLoot = canDropLoot;
     ResourceRef lightSourceRef;
     lightSourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     lightSourceRef.SetResourceType(RESOURCE_TYPE_LIGHT_SOURCE);
@@ -54,30 +57,31 @@ glimmer::TileResource *glimmer::TileManager::AddCoreResource(const std::string &
 
 void glimmer::TileManager::InitBuiltinTiles() {
     air_ = AddCoreResource(TILE_ID_AIR, TilePhysicsType::None, Ground, -1.0F, STRING_TILE_AIR_NAME, "tiles/air",
-                           LIGHT_NONE, LIGHT_MASK_NONE, STRING_TILE_AIR_DESCRIPTION);
+                           LIGHT_NONE, LIGHT_MASK_NONE, true, false, STRING_TILE_AIR_DESCRIPTION);
     airWall_ = AddCoreResource(TILE_ID_AIR_WALL, TilePhysicsType::None, BackGround, -1.0F, STRING_TILE_AIR_WALL_NAME,
                                "tiles/air_wall",
-                               LIGHT_SKY, LIGHT_MASK_NONE, STRING_TILE_AIR_WALL_DESCRIPTION);
+                               LIGHT_SKY, LIGHT_MASK_NONE, true, false, STRING_TILE_AIR_WALL_DESCRIPTION);
     AddCoreResource(TILE_ID_BEDROCK, TilePhysicsType::Static, Ground, -1.0F, STRING_TILE_BEDROCK_NAME, "tiles/bedrock",
-                    LIGHT_NONE, LIGHT_MASK_HIGH, STRING_TILE_BEDROCK_DESCRIPTION);
+                    LIGHT_NONE, LIGHT_MASK_HIGH, false, false, STRING_TILE_BEDROCK_DESCRIPTION);
     AddCoreResource(TILE_ID_WATER, TilePhysicsType::None, Ground, -1.0F, STRING_TILE_WATER_NAME, "tiles/water",
-                    LIGHT_NONE, LIGHT_MASK_NONE, std::nullopt);
+                    LIGHT_NONE, LIGHT_MASK_NONE, true, true, std::nullopt);
     AddCoreResource(TILE_ID_ERROR, TilePhysicsType::Static, Ground, 0.1F, STRING_TILE_ERROR_NAME, ERROR_TEXTURE_KEY,
-                    LIGHT_NONE, LIGHT_MASK_NONE, STRING_TILE_ERROR_DESCRIPTION);
+                    LIGHT_NONE, LIGHT_MASK_NONE, false, true, STRING_TILE_ERROR_DESCRIPTION);
     AddCoreResource(TILE_ID_ERROR_WALL, TilePhysicsType::Static, BackGround, 0.1F, STRING_TILE_ERROR_WALL_NAME,
                     ERROR_TEXTURE_KEY,
-                    LIGHT_NONE, LIGHT_MASK_NONE, STRING_TILE_ERROR_WALL_DESCRIPTION);
+                    LIGHT_NONE, LIGHT_MASK_NONE, false, true, STRING_TILE_ERROR_WALL_DESCRIPTION);
     AddCoreResource(TILE_ID_ACCESS_DENIED, TilePhysicsType::Static, Ground, 0.1F, STRING_TILE_ACCESS_DENIED_NAME,
                     ACCESS_DENIED_TEXTURE_KEY,
-                    LIGHT_NONE, LIGHT_MASK_NONE, STRING_TILE_ACCESS_DENIED_DESCRIPTION);
+                    LIGHT_NONE, LIGHT_MASK_NONE, false, true, STRING_TILE_ACCESS_DENIED_DESCRIPTION);
     AddCoreResource(TILE_ID_ACCESS_DENIED_WALL, TilePhysicsType::Static, BackGround, 0.1F,
                     STRING_TILE_ACCESS_DENIED_WALL_NAME,
                     ACCESS_DENIED_TEXTURE_KEY,
-                    LIGHT_NONE, LIGHT_MASK_NONE, STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION);
+                    LIGHT_NONE, LIGHT_MASK_NONE, false, true, STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION);
 }
 
 glimmer::TileResource *glimmer::TileManager::AddErrorPlaceHolder(const std::string &packId,
-                                                                 const std::string &resourceId) {
+                                                                 const std::string &resourceId,
+                                                                 const TileLayerType tileLayer) {
     auto errorPlaceholder = std::make_unique<TileResource>();
     ResourceRef errorResource;
     errorResource.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -86,15 +90,20 @@ glimmer::TileResource *glimmer::TileManager::AddErrorPlaceHolder(const std::stri
     errorPlaceholder->texture = errorResource;
     errorPlaceholder->resourceId = resourceId;
     errorPlaceholder->packId = packId;
-    errorPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
-    errorPlaceholder->layerType = static_cast<uint8_t>(Ground);
+    if (tileLayer == Ground) {
+        errorPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
+    } else {
+        errorPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
+    }
+    errorPlaceholder->layerType = tileLayer;
     errorPlaceholder->hardness = 0.1F;
     errorPlaceholder->missing = true;
     return AddResource(std::move(errorPlaceholder));
 }
 
 glimmer::TileResource *glimmer::TileManager::GenerateAccessDeniedPlaceHolder(const std::string &packId,
-                                                                             const std::string &resourceId) {
+                                                                             const std::string &resourceId,
+                                                                             const TileLayerType tileLayer) {
     const auto packIt = accessDeniedTileMap_.find(packId);
     if (packIt != accessDeniedTileMap_.end()) {
         auto &keyMap = packIt->second;
@@ -111,8 +120,14 @@ glimmer::TileResource *glimmer::TileManager::GenerateAccessDeniedPlaceHolder(con
     accessDeniedPlaceholder->texture = accessDeniedResource;
     accessDeniedPlaceholder->resourceId = resourceId;
     accessDeniedPlaceholder->packId = packId;
-    accessDeniedPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
-    accessDeniedPlaceholder->layerType = static_cast<uint8_t>(Ground);
+    accessDeniedPlaceholder->isOverwritable = false;
+    accessDeniedPlaceholder->canDropLoot = true;
+    if (tileLayer == Ground) {
+        accessDeniedPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::Static);
+    } else {
+        accessDeniedPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
+    }
+    accessDeniedPlaceholder->layerType = tileLayer;
     accessDeniedPlaceholder->hardness = 0.1F;
     accessDeniedPlaceholder->missing = true;
     auto &slot = accessDeniedTileMap_[packId][resourceId];
@@ -146,18 +161,27 @@ glimmer::ResourceRef glimmer::TileManager::GetAirResourceRef(const TileLayerType
     return resourceRef;
 }
 
-glimmer::TileResource *glimmer::TileManager::Find(const std::string &packId, const std::string &key) {
+glimmer::TileResource *glimmer::TileManager::FindTileRaw(const std::string &packId, const std::string &key) {
     const auto packIt = tileMap_.find(packId);
     if (packIt == tileMap_.end()) {
-        return AddErrorPlaceHolder(packId, key);
+        return nullptr;
     }
 
     auto &keyMap = packIt->second;
     const auto keyIt = keyMap.find(key);
     if (keyIt == keyMap.end()) {
-        return AddErrorPlaceHolder(packId, key);
+        return nullptr;
     }
     return keyIt->second.get();
+}
+
+glimmer::TileResource *glimmer::TileManager::FindTileFallback(const std::string &packId, const std::string &key,
+                                                              const TileLayerType tileLayer) {
+    TileResource *result = FindTileRaw(packId, key);
+    if (result == nullptr) {
+        return AddErrorPlaceHolder(packId, key, tileLayer);
+    }
+    return result;
 }
 
 std::vector<std::string> glimmer::TileManager::GetTileIDList() {

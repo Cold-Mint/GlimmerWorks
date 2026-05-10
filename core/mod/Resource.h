@@ -440,8 +440,10 @@ namespace glimmer {
         bool allowChainMining = false;
         //@genNextLine(lightSource|光源)
         ResourceRef lightSource;
-        //@genNextLine(lightMask|光源遮罩)
-        ResourceRef lightMask;
+        //@genNextLine(sideLightMask|侧面光源遮罩)
+        ResourceRef sideLightMask;
+        //@genNextLine(backLightMask|背面光源遮罩)
+        ResourceRef backLightMask;
         //@genNextLine(Can a certain tile be directly placed on top|是否可以将某个瓦片直接覆盖上去)
         bool isOverwritable = false;
         //@genNextLine(When being destroyed/overwritten, will debris be generated|被销毁/覆盖时 是否生成掉落物)
@@ -541,6 +543,8 @@ namespace glimmer {
         float strictnessElevation = 1.0F;
         //@genNextLine(BGM|BGM)
         ResourceRef bgm;
+        //@genNextLine(parallaxBackground|视差背景)
+        ResourceRef parallaxBackground;
     };
 
     //@genNextLine(LootResource|战利品资源)

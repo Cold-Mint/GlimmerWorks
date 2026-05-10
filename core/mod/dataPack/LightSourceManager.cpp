@@ -8,6 +8,7 @@ void glimmer::LightSourceManager::RegisterCoreLightSourceResource(const std::str
                                                                   const std::string &colorResKey, uint8_t lightRadius) {
     auto lightSourceResource = std::make_unique<LightSourceResource>();
     lightSourceResource->resourceId = resourceId;
+    lightSourceResource->packId = RESOURCE_REF_CORE;
     lightSourceResource->lightRadius = lightRadius;
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);

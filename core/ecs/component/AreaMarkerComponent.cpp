@@ -55,7 +55,3 @@ const TileVector2D &glimmer::AreaMarkerComponent::GetStartPoint() const {
 const TileVector2D &glimmer::AreaMarkerComponent::GetEndPoint() const {
     return endPoint_;
 }
-
-bool glimmer::AreaMarkerComponent::IsSerializable() {
-    return false;
-}

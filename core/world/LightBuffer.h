@@ -26,9 +26,13 @@ namespace glimmer {
                                             int rayIndex);
 
     public:
-        void SetLightMask(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
+        void SetSideLightMask(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightMask> sideLightMask);
 
-        void ClearLightMask(const TileVector2D &position, TileLayerType layerType);
+        void SetBackLightMask(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightMask> backLightMask);
+
+        void ClearSideLightMask(const TileVector2D &position, TileLayerType layerType);
+
+        void ClearBackLightMask(const TileVector2D &position, TileLayerType layerType);
 
         void ClearTileLightData(const TileVector2D &position);
 

@@ -348,7 +348,6 @@ target_sources(GlimmerWorks
         core/ecs/GameSystem.cpp
         core/ecs/system/Transform2DSystem.cpp
         core/ecs/component/Transform2DComponent.cpp
-        core/ecs/system/GameStartSystem.cpp
         core/ecs/system/CameraSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
         core/ecs/component/CameraComponent.cpp
@@ -543,6 +542,9 @@ target_sources(GlimmerWorks
         core/console/suggestion/EventTypeDynamicSuggestions.cpp
         core/utils/MouseButtonUtils.cpp
         core/console/suggestion/MouseButtonDynamicSuggestions.cpp
+        core/ecs/system/ParallaxBackgroundSystem.cpp
+        core/ecs/component/ParallaxBackgroundComponent.cpp
+        core/console/command/ParallaxBackgroundCommand.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -585,7 +587,6 @@ target_sources(GlimmerWorks
         core/ecs/GameSystem.h
         core/ecs/system/Transform2DSystem.h
         core/ecs/component/Transform2DComponent.h
-        core/ecs/system/GameStartSystem.h
         core/ecs/component/CameraComponent.h
         core/ecs/component/DebugDrawComponent.h
         core/ecs/system/DebugDrawSystem.h
@@ -778,6 +779,9 @@ target_sources(GlimmerWorks
         core/console/suggestion/EventTypeDynamicSuggestions.h
         core/utils/MouseButtonUtils.h
         core/console/suggestion/MouseButtonDynamicSuggestions.h
+        core/ecs/component/ParallaxBackgroundComponent.h
+        core/ecs/system/ParallaxBackgroundSystem.h
+        core/console/command/ParallaxBackgroundCommand.h
 )
 
 #Define version information

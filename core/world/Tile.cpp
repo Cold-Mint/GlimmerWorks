@@ -23,8 +23,12 @@ const glimmer::ResourceRef &glimmer::Tile::GetLightSourceResource() {
     return lightSource_;
 }
 
-const glimmer::ResourceRef &glimmer::Tile::GetLightMaskResource() {
-    return lightMask_;
+const glimmer::ResourceRef & glimmer::Tile::GetSideLightMaskResource() {
+    return sideLightMask_;
+}
+
+const glimmer::ResourceRef & glimmer::Tile::GetBackLightMaskResource() {
+    return backLightMask_;
 }
 
 bool glimmer::Tile::IsCustomLootTable() const {
@@ -128,7 +132,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->hardness_ = tileResource->hardness;
     tile->breakable = tileResource->hardness >= 0;
     tile->allowChainMining_ = tileResource->allowChainMining;
-    tile->lightMask_ = tileResource->lightMask;
+    tile->backLightMask_ = tileResource->backLightMask;
+    tile->sideLightMask_ = tileResource->sideLightMask;
     tile->lightSource_ = tileResource->lightSource;
     tile->isOverwritable_ = tileResource->isOverwritable;
     tile->canDropLoot_ = tileResource->canDropLoot;

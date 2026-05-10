@@ -7,7 +7,7 @@
 #include "core/LangsResources.h"
 #include "fmt/xchar.h"
 #include "core/scene/AppContext.h"
-#include "../../world/WorldContext.h"
+#include "core/world/WorldContext.h"
 #include "core/console/CommandSender.h"
 
 glimmer::LightCommand::LightCommand(AppContext *appContext) : Command(appContext) {
@@ -27,7 +27,7 @@ std::string glimmer::LightCommand::GetName() const {
 }
 
 void glimmer::LightCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
-    strings.emplace_back("[operation：string]");
+    strings.emplace_back("[operation:string]");
     if (commandArgs.GetSize() >= 2) {
         std::string operation = commandArgs.AsString(1);
         if (operation == "info") {
@@ -142,16 +142,34 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandA
         }
 
         std::stringstream lightMaskStream;
-        const auto lightMasks = lightData->GetLightMasks();
-        if (lightMasks != nullptr) {
-            for (const auto &layerPair: *lightMasks) {
+        const auto sideLightMasks = lightData->GetSideLightMasks();
+        if (sideLightMasks != nullptr) {
+            for (const auto &layerPair: *sideLightMasks) {
                 TileLayerType layerType = layerPair.first;
-                const auto &lightMask = layerPair.second;
+                const auto &sideLightMask = layerPair.second;
                 lightMaskStream << '\n';
-                const Color *lightMaskColor = lightMask->GetLightMaskColor();
+                const Color *sideLightMaskColor = sideLightMask->GetLightMaskColor();
                 lightMaskStream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
-                                               static_cast<uint8_t>(layerType), lightMaskColor->r, lightMaskColor->g,
-                                               lightMaskColor->b, lightMaskColor->a, lightMask->GetTintFactor());
+                                               true,
+                                               static_cast<uint8_t>(layerType), sideLightMaskColor->r,
+                                               sideLightMaskColor->g,
+                                               sideLightMaskColor->b, sideLightMaskColor->a,
+                                               sideLightMask->GetTintFactor());
+            }
+        }
+        const auto backLightMasks = lightData->GetBackLightMasks();
+        if (backLightMasks != nullptr) {
+            for (const auto &layerPair: *backLightMasks) {
+                TileLayerType layerType = layerPair.first;
+                const auto &backLightMask = layerPair.second;
+                lightMaskStream << '\n';
+                const Color *backLightMaskColor = backLightMask->GetLightMaskColor();
+                lightMaskStream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
+                                               false,
+                                               static_cast<uint8_t>(layerType), backLightMaskColor->r,
+                                               backLightMaskColor->g,
+                                               backLightMaskColor->b, backLightMaskColor->a,
+                                               backLightMask->GetTintFactor());
             }
         }
 

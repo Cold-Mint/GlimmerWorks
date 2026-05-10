@@ -29,7 +29,8 @@ namespace glimmer {
         TileResource *AddCoreResource(const std::string &resourceId, TilePhysicsType physicsType,
                                       TileLayerType layerType, float hardness, const std::string &nameKey,
                                       const std::string &textureKey, const std::string &lightSourceKey,
-                                      const std::string &lightMaskKey, bool isOverwritable, bool canDropLoot,
+                                      const std::string &sideLightMaskKey, const std::string &backLightMaskKey,
+                                      bool isOverwritable, bool canDropLoot,
                                       std::optional<std::string> descriptionKey);
 
     public:

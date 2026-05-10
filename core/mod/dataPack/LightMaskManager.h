@@ -16,14 +16,8 @@ namespace glimmer {
         lightMaskMap_
                 {};
 
-        std::unique_ptr<LightMaskResource> lightMaskFillResource_;
-        std::unique_ptr<LightMaskResource> lightMaskHighResource_;
-        std::unique_ptr<LightMaskResource> lightMaskMediumResource_;
-        std::unique_ptr<LightMaskResource> lightMaskLowResource_;
-        std::unique_ptr<LightMaskResource> lightMaskNoneResource_;
-
-        static std::unique_ptr<LightMaskResource> CreateLightMaskResource(const std::string &resourceId,
-                                                                          const std::string &colorKey);
+        LightMaskResource *RegisterCoreLightMaskResource(const std::string &resourceId,
+                                                         const std::string &colorKey);
 
     public:
         LightMaskManager();

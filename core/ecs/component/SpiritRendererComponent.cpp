@@ -33,10 +33,6 @@ SDL_Texture *glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator 
     return texture_.get();
 }
 
-const glimmer::ResourceRef &glimmer::SpiritRendererComponent::GetTextureRef() const {
-    return resourceRef_;
-}
-
 void glimmer::SpiritRendererComponent::SetPosition(const Vector2D position) {
     position_ = position;
 }

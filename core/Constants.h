@@ -34,6 +34,7 @@ static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
 static constexpr std::string LOCATE_COMMAND_NAME = "locate";
 static constexpr std::string HOOK_COMMAND_NAME = "commandHook";
 static constexpr std::string LIGHT_COMMAND_NAME = "light";
+static const std::string PARALLAX_BACKGROUND_COMMAND_NAME = "parallaxBackground";
 static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
 static constexpr std::string BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME = "&bool_toggle";
 static constexpr std::string X_DYNAMIC_SUGGESTIONS_NAME = "&x";
@@ -269,10 +270,11 @@ static constexpr float PLAYER_MOVE_SPEED = 60.0F;
  * 表示无效的游戏ID
  */
 static constexpr uint32_t GAME_ENTITY_ID_INVALID = 0;
-static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 1;
-static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 2;
-static constexpr uint8_t RENDER_ORDER_HOTBAR = 3;
-static constexpr uint8_t RENDER_ORDER_ITEM_EDITOR = 4;
+static constexpr uint8_t RENDER_ORDER_PARALLAX_BACKGROUND = 1;
+static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 2;
+static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 3;
+static constexpr uint8_t RENDER_ORDER_HOTBAR = 4;
+static constexpr uint8_t RENDER_ORDER_ITEM_EDITOR = 5;
 static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
 static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
 static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;
@@ -327,6 +329,7 @@ static constexpr uint32_t COMPONENT_ID_RAY_CAST_2D = 21;
 static constexpr uint32_t COMPONENT_ID_FLOATING_TEXT = 22;
 static constexpr uint32_t COMPONENT_ID_TILE_PLACEMENT_FORBIDDEN_ZONE = 23;
 static constexpr uint32_t COMPONENT_ID_DRAGGABLE = 24;
+static constexpr uint32_t COMPONENT_ID_PARALLAX_BACKGROUND = 25;
 
 
 static constexpr std::string TILE_ID_AIR = "air";

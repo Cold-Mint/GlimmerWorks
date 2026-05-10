@@ -34,8 +34,6 @@ namespace glimmer {
 
         [[nodiscard]] SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
 
-        [[nodiscard]] const ResourceRef &GetTextureRef() const;
-
         void SetPosition(Vector2D position);
 
         [[nodiscard]] uint32_t GetId() override;

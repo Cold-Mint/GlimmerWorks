@@ -26,7 +26,7 @@ glimmer::FixedColorManager::FixedColorManager() {
     RegisterCoreRef(LIGHT_MASK_MEDIUM_COLOR, 0, 0, 0, 128);
     RegisterCoreRef(LIGHT_MASK_HIGH_COLOR, 0, 0, 0, 192);
     RegisterCoreRef(LIGHT_NONE_COLOR, 0, 0, 0, 0);
-    RegisterCoreRef(LIGHT_SKY_COLOR, 0, 102, 255, 64);
+    RegisterCoreRef(LIGHT_SKY_COLOR, 255, 255, 255, 24);
 }
 
 glimmer::FixedColorResource *glimmer::FixedColorManager::Register(

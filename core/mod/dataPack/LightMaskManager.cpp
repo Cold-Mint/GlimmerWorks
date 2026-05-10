@@ -5,8 +5,8 @@
 #include "LightMaskManager.h"
 
 
-std::unique_ptr<glimmer::LightMaskResource> glimmer::LightMaskManager::CreateLightMaskResource(
-    const std::string &resourceId, const std::string &colorKey) {
+glimmer::LightMaskResource *glimmer::LightMaskManager::RegisterCoreLightMaskResource(const std::string &resourceId,
+    const std::string &colorKey) {
     std::unique_ptr<LightMaskResource> result = std::make_unique<LightMaskResource>();
     result->packId = RESOURCE_REF_CORE;
     result->resourceId = resourceId;
@@ -16,15 +16,15 @@ std::unique_ptr<glimmer::LightMaskResource> glimmer::LightMaskManager::CreateLig
     colorRef.SetResourceKey(colorKey);
     colorRef.SetResourceType(RESOURCE_TYPE_FIXED_COLOR);
     result->lightMaskColor = colorRef;
-    return result;
+    return Register(std::move(result));
 }
 
 glimmer::LightMaskManager::LightMaskManager() {
-    lightMaskFillResource_ = CreateLightMaskResource(LIGHT_MASK_FULL, LIGHT_MASK_FULL_COLOR);
-    lightMaskHighResource_ = CreateLightMaskResource(LIGHT_MASK_HIGH, LIGHT_MASK_HIGH_COLOR);
-    lightMaskMediumResource_ = CreateLightMaskResource(LIGHT_MASK_MEDIUM, LIGHT_MASK_MEDIUM_COLOR);
-    lightMaskLowResource_ = CreateLightMaskResource(LIGHT_MASK_LOW, LIGHT_MASK_LOW_COLOR);
-    lightMaskNoneResource_ = CreateLightMaskResource(LIGHT_MASK_NONE, LIGHT_MASK_NONE_COLOR);
+    RegisterCoreLightMaskResource(LIGHT_MASK_FULL, LIGHT_MASK_FULL_COLOR);
+    RegisterCoreLightMaskResource(LIGHT_MASK_HIGH, LIGHT_MASK_HIGH_COLOR);
+    RegisterCoreLightMaskResource(LIGHT_MASK_MEDIUM, LIGHT_MASK_MEDIUM_COLOR);
+    RegisterCoreLightMaskResource(LIGHT_MASK_LOW, LIGHT_MASK_LOW_COLOR);
+    RegisterCoreLightMaskResource(LIGHT_MASK_NONE, LIGHT_MASK_NONE_COLOR);
 }
 
 glimmer::LightMaskResource *glimmer::LightMaskManager::Register(std::unique_ptr<LightMaskResource> lightMaskResource) {
@@ -36,21 +36,6 @@ glimmer::LightMaskResource *glimmer::LightMaskManager::Register(std::unique_ptr<
 
 glimmer::LightMaskResource *glimmer::LightMaskManager::FindLightMaskResource(const std::string &packId,
                                                                              const std::string &key) {
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_FULL) {
-        return lightMaskFillResource_.get();
-    }
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_NONE) {
-        return lightMaskNoneResource_.get();
-    }
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_LOW) {
-        return lightMaskLowResource_.get();
-    }
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_MEDIUM) {
-        return lightMaskMediumResource_.get();
-    }
-    if (packId == RESOURCE_REF_CORE && key == LIGHT_MASK_HIGH) {
-        return lightMaskHighResource_.get();
-    }
     const auto packIt = lightMaskMap_.find(packId);
     if (packIt == lightMaskMap_.end()) {
         return nullptr;

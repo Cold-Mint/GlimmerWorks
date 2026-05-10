@@ -110,6 +110,10 @@ namespace glimmer {
         std::string tileDescriptionAccessDenied;
         std::string tileDescriptionAccessDeniedWall;
         std::string tileDescriptionBedrock;
+        std::string parallaxBackgroundClear;
+        std::string parallaxBackgroundSet;
+        std::string parallaxBackgroundGet;
+        std::string parallaxBackgroundNone;
     };
 }
 

@@ -9,7 +9,7 @@
 
 #include "../Constants.h"
 #include "../ecs/component/DebugDrawComponent.h"
-#include "../ecs/system/GameStartSystem.h"
+#include "../ecs/component/ParallaxBackgroundComponent.h"
 #include "../ecs/system/Transform2DSystem.h"
 #include "../ecs/system/CameraSystem.h"
 #include "../ecs/system/ChunkSystem.h"
@@ -30,6 +30,7 @@
 #include "../saves/Saves.h"
 #include "../utils/Box2DUtils.h"
 #include "box2d/box2d.h"
+#include "core/console/command/ParallaxBackgroundCommand.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/AutoPickComponent.h"
@@ -49,6 +50,7 @@
 #include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/ItemEditorSystem.h"
 #include "core/ecs/system/Light2DSystem.h"
+#include "core/ecs/system/ParallaxBackgroundSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/utils/TimeUtils.h"
@@ -138,19 +140,34 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
     const int localX = index & CHUNK_MASK;
     const int localY = index >> CHUNK_SHIFT;
     auto lightSourcePosition = TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY);
-    const LightMaskResource *lightMaskResource = resourceLocator->FindLightMask(tile->GetLightMaskResource());
-    if (lightMaskResource != nullptr) {
-        const std::unique_ptr<Color> lightMaskColorPtr = resourceLocator->FindColor(
-            lightMaskResource->lightMaskColor);
-        if (lightMaskColorPtr == nullptr) {
+    const LightMaskResource *sideLightMaskResource = resourceLocator->FindLightMask(tile->GetSideLightMaskResource());
+    if (sideLightMaskResource != nullptr) {
+        const std::unique_ptr<Color> sideLightMaskColorPtr = resourceLocator->FindColor(
+            sideLightMaskResource->lightMaskColor);
+        if (sideLightMaskColorPtr == nullptr) {
             return;
         }
-        if (lightMaskColorPtr->a == 0) {
-            lightBuffer_->ClearLightMask(lightSourcePosition, tile->GetLayerType());
+        if (sideLightMaskColorPtr->a == 0) {
+            lightBuffer_->ClearSideLightMask(lightSourcePosition, tile->GetLayerType());
         } else {
-            lightBuffer_->SetLightMask(lightSourcePosition, layerType,
-                                       std::make_unique<LightMask>(lightMaskColorPtr.get(),
-                                                                   lightMaskResource->tintFactor));
+            lightBuffer_->SetSideLightMask(lightSourcePosition, layerType,
+                                           std::make_unique<LightMask>(sideLightMaskColorPtr.get(),
+                                                                       sideLightMaskResource->tintFactor));
+        }
+    }
+    const LightMaskResource *backLightMaskResource = resourceLocator->FindLightMask(tile->GetBackLightMaskResource());
+    if (backLightMaskResource != nullptr) {
+        const std::unique_ptr<Color> backLightMaskColorPtr = resourceLocator->FindColor(
+            backLightMaskResource->lightMaskColor);
+        if (backLightMaskColorPtr == nullptr) {
+            return;
+        }
+        if (backLightMaskColorPtr->a == 0) {
+            lightBuffer_->ClearBackLightMask(lightSourcePosition, tile->GetLayerType());
+        } else {
+            lightBuffer_->SetBackLightMask(lightSourcePosition, layerType,
+                                           std::make_unique<LightMask>(backLightMaskColorPtr.get(),
+                                                                       backLightMaskResource->tintFactor));
         }
     }
     const LightSourceResource *lightSourceResource = resourceLocator->FindLightSource(
@@ -359,6 +376,10 @@ void glimmer::WorldContext::InitItemEditor() {
 
 glimmer::ItemEditorComponent *glimmer::WorldContext::GetItemEditorComponent() const {
     return itemEditorComponent_;
+}
+
+glimmer::ParallaxBackgroundComponent *glimmer::WorldContext::GetParallaxBackgroundComponent() const {
+    return parallaxBackgroundComponent_;
 }
 
 glimmer::GameEntity::ID glimmer::WorldContext::GetPlayerEntity() const {
@@ -676,7 +697,6 @@ void glimmer::WorldContext::OnFrameStart() {
 
 void glimmer::WorldContext::InitSystem() {
     allowRegisterSystem = true;
-    RegisterSystem(std::make_unique<GameStartSystem>(this));
     RegisterSystem(std::make_unique<Transform2DSystem>(this));
     RegisterSystem(std::make_unique<CameraSystem>(this));
     RegisterSystem(std::make_unique<PlayerControlSystem>(this));
@@ -686,6 +706,7 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<HotBarSystem>(this));
     RegisterSystem(std::make_unique<ItemSlotSystem>(this));
     RegisterSystem(std::make_unique<MagnetSystem>(this));
+    RegisterSystem(std::make_unique<ParallaxBackgroundSystem>(this));
     RegisterSystem(std::make_unique<FloatingTextSystem>(this));
     RegisterSystem(std::make_unique<DroppedItemSystem>(this));
     RegisterSystem(std::make_unique<AutoPickSystem>(this));
@@ -972,6 +993,26 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
     lightBuffer_ = std::make_unique<LightBuffer>();
     chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_);
     startTime_ = TimeUtils::GetCurrentTimeMs();
+    parallaxBackgroundComponent_ = AddComponent<ParallaxBackgroundComponent>(CreateEntity());
+    auto pause = CreateEntity();
+    AddComponent<PauseComponent>(pause);
+
+    auto groundTileLayerEntity = CreateEntity();
+    AddComponent<
+        TileLayerComponent>(groundTileLayerEntity, this, Ground);
+    AddComponent<AreaMarkerComponent>(groundTileLayerEntity);
+    auto backgroundTileLayerEntity = CreateEntity();
+    AddComponent<
+        TileLayerComponent>(backgroundTileLayerEntity, this, BackGround);
+    ResourceRef playerResourceRef{};
+    playerResourceRef.ReadResource(*appContext->GetMobManager()->GetPlayerResourceList()[0],
+                                   RESOURCE_TYPE_MOB);
+    InitPlayer(
+        playerResourceRef);
+    InitHotbar(
+        GetComponent<ItemContainerComponent>(GetPlayerEntity())->
+        GetItemContainer());
+    LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 
 long glimmer::WorldContext::GetStartTime() const {

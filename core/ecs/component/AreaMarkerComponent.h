@@ -39,7 +39,6 @@ namespace glimmer {
 
         [[nodiscard]] const TileVector2D &GetEndPoint() const;
 
-        [[nodiscard]] bool IsSerializable() override;
     };
 }
 

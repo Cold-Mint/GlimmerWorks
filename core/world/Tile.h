@@ -42,7 +42,8 @@ namespace glimmer {
         TilePhysicsType physicsType_ = TilePhysicsType::None;
         TileLayerType layerType_ = Ground;
         ResourceRef lightSource_;
-        ResourceRef lightMask_;
+        ResourceRef sideLightMask_;
+        ResourceRef backLightMask_;
 
     public:
         [[nodiscard]] const ResourceRef &GetLootTableRef();
@@ -51,8 +52,9 @@ namespace glimmer {
 
         [[nodiscard]] const ResourceRef &GetLightSourceResource();
 
-        [[nodiscard]] const ResourceRef &GetLightMaskResource();
+        [[nodiscard]] const ResourceRef &GetSideLightMaskResource();
 
+        [[nodiscard]] const ResourceRef &GetBackLightMaskResource();
 
         [[nodiscard]] bool IsCustomLootTable() const;
 

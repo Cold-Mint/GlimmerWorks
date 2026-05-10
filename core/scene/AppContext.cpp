@@ -31,6 +31,7 @@
 #include "core/console/command/LightCommand.h"
 #include "core/console/command/LocateCommand.h"
 #include "core/console/command/LootCommand.h"
+#include "core/console/command/ParallaxBackgroundCommand.h"
 #include "core/console/command/PlaceCommand.h"
 #include "core/console/command/ScreenshotCommand.h"
 #include "core/console/command/SummonCommand.h"
@@ -174,6 +175,10 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langsResources_->tileDescriptionAccessDeniedWall = find<std::string>(
         value, STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION);
     langsResources_->tileDescriptionBedrock = find<std::string>(value, STRING_TILE_BEDROCK_DESCRIPTION);
+    langsResources_->parallaxBackgroundClear = find<std::string>(value, "parallax_background_clear");
+    langsResources_->parallaxBackgroundSet = find<std::string>(value, "parallax_background_set");
+    langsResources_->parallaxBackgroundGet = find<std::string>(value, "parallax_background_get");
+    langsResources_->parallaxBackgroundNone = find<std::string>(value, "parallax_background_none");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
@@ -343,6 +348,7 @@ glimmer::AppContext::AppContext() {
     commandManager_ = std::make_unique<CommandManager>();
     commandManager_->RegisterCommand(std::make_unique<GiveCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HelpCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LightCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TpCommand>(this));

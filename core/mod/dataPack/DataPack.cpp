@@ -191,7 +191,8 @@ bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileMa
     tileResource->breakSfx.SetSelfPackageId(manifest_.id);
     tileResource->placeSfx.SetSelfPackageId(manifest_.id);
     tileResource->lightSource.SetSelfPackageId(manifest_.id);
-    tileResource->lightMask.SetSelfPackageId(manifest_.id);
+    tileResource->sideLightMask.SetSelfPackageId(manifest_.id);
+    tileResource->backLightMask.SetSelfPackageId(manifest_.id);
     if (tileResource->customLootTable) {
         tileResource->lootTable.SetSelfPackageId(manifest_.id);
     }

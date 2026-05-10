@@ -31,6 +31,7 @@
 #include "generator/ChunkLoader.h"
 
 namespace glimmer {
+    class ParallaxBackgroundComponent;
     /**
      * GameEntity has been restricted to be accessed directly only within the WorldContext. GameEntity::ID is provided externally.
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供GameEntity::ID。
@@ -85,17 +86,13 @@ namespace glimmer {
 
         ItemEditorComponent *itemEditorComponent_ = nullptr;
 
+        ParallaxBackgroundComponent *parallaxBackgroundComponent_ = nullptr;
+
         /**
          * Camera coordinate component
          * 相机坐标组件
          */
         Transform2DComponent *cameraTransform2D_ = nullptr;
-
-        /**
-         * Pause component
-         * 暂停组件
-         */
-        PauseComponent *pauseComponent_ = nullptr;
 
         /**
          * HotBar Component
@@ -177,6 +174,20 @@ namespace glimmer {
          */
         void UpdateChunkLight(const Chunk *chunk) const;
 
+        /**
+     * Initialize the player
+     * 初始化玩家
+     * This method will load the player data from the disk and then supplement the player's components after the loading process.
+     * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
+     */
+        void InitPlayer(const ResourceRef &resourceRef);
+
+        /**
+    * Initialize the hotbar
+    * 初始化快捷栏
+    */
+        void InitHotbar(ItemContainer *itemContainer);
+
     public:
         ~WorldContext();
 
@@ -256,24 +267,11 @@ namespace glimmer {
         bool HasComponentType(const std::type_index &type) const;
 
 
-        /**
-         * Initialize the player
-         * 初始化玩家
-         * This method will load the player data from the disk and then supplement the player's components after the loading process.
-         * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
-         */
-        void InitPlayer(const ResourceRef &resourceRef);
-
-        /**
-         * Initialize the hotbar
-         * 初始化快捷栏
-         */
-        void InitHotbar(ItemContainer *itemContainer);
-
-
         void InitItemEditor();
 
         [[nodiscard]] ItemEditorComponent *GetItemEditorComponent() const;
+
+        [[nodiscard]] ParallaxBackgroundComponent *GetParallaxBackgroundComponent() const;
 
 
         /**

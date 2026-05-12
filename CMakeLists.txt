@@ -1529,7 +1529,7 @@ if (WIN32)
 endif ()
 if (UNIX AND NOT APPLE)
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_mixer-build/libSDL3_mixer.${LIB_SUFFIX}.0" DESTINATION ${LIB_DIR})
-    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_mixer-build/libSDL3_mixer.${LIB_SUFFIX}.0.2.0" DESTINATION ${LIB_DIR})
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_mixer-build/libSDL3_mixer.${LIB_SUFFIX}.0.2.2" DESTINATION ${LIB_DIR})
 endif ()
 
 if (WIN32)

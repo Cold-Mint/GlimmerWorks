@@ -30,7 +30,8 @@ std::optional<TileVector2D> glimmer::LocateCommand::SearchBiomes(int tileX, cons
                                                                            chunkCenter, elevation),
                                                                        chunkGenerator->GetWeirdness(chunkCenter),
                                                                        chunkGenerator->GetErosion(chunkCenter),
-                                                                       elevation);
+                                                                       elevation, ChunkGenerator::GetSurfaceProximity(
+                                                                           firstTileTerrainY, y));
         if (nowBiomeResource == nullptr) {
             continue;
         }
@@ -60,8 +61,8 @@ void glimmer::LocateCommand::PutCommandStructure(const CommandArgs &commandArgs,
 }
 
 bool glimmer::LocateCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
-    const std::function<void(const std::string &text)> onMessage) {
-  if (appContext_ == nullptr) {
+                                     const std::function<void(const std::string &text)> onMessage) {
+    if (appContext_ == nullptr) {
         return false;
     }
     if (worldContext_ == nullptr) {

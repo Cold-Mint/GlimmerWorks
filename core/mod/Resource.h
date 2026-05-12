@@ -514,15 +514,17 @@ namespace glimmer {
         //@genNextLine(decors|生物群系装饰器列表)
         std::vector<ResourceRef> decors;
         //@genNextLine(humidity|湿度)
-        float humidity = 0.0F;
+        float humidity = 0.5F;
         //@genNextLine(temperature|温度)
-        float temperature = 0.0F;
+        float temperature = 0.5F;
         //@genNextLine(weirdness|怪异度)
-        float weirdness = 0.0F;
+        float weirdness = 0.5F;
         //@genNextLine(erosion|侵蚀度)
-        float erosion = 0.0F;
+        float erosion = 0.5F;
         //@genNextLine(elevation|海拔高度)
-        float elevation = 0.0F;
+        float elevation = 0.5F;
+        //@genNextLine(surfaceProximity|地表贴近度)
+        float surfaceProximity = 0.5F;
         // Biome property strictness
         // Higher = stricter requirements; small differences result in poor matching
         // Lower = more lenient; large differences have little effect
@@ -541,6 +543,8 @@ namespace glimmer {
         float strictnessErosion = 1.0F;
         //@genNextLine(strictnessElevation|海拔高度严格度)
         float strictnessElevation = 1.0F;
+        //@genNextLine(surfaceProximity|地表贴近严格度)
+        float strictnessSurfaceProximity = 1.0F;
         //@genNextLine(BGM|BGM)
         ResourceRef bgm;
         //@genNextLine(parallaxBackground|视差背景)

@@ -34,13 +34,20 @@ glimmer::BiomeResource *glimmer::BiomesManager::Find(const std::string &packId, 
     return keyIt->second.get();
 }
 
+float glimmer::BiomesManager::CalculateBiomeScoreDelta(const float targetValue, const float actualValue,
+                                                       const float strictness) {
+    const float diff = targetValue - actualValue;
+    return diff * diff * strictness;
+}
 
-glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
-    const float humidity,
-    const float temperature,
-    const float weirdness,
-    const float erosion,
-    const float elevation) const {
+const std::vector<glimmer::BiomeResource *> &glimmer::BiomesManager::GetBiomeVector() {
+    return biomeVector_;
+}
+
+glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(const float humidity, const float temperature,
+                                                              const float weirdness,
+                                                              const float erosion, const float elevation,
+                                                              const float surfaceProximity) const {
     if (biomeVector_.empty()) {
         return nullptr;
     }
@@ -49,29 +56,18 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(
     float bestDistance = std::numeric_limits<float>::max();
 
     for (auto &biome: biomeVector_) {
-        // Compute terrain-biome attribute difference
-        // 计算地形属性与生物群系属性的差值
-        const float dh = biome->humidity - humidity;
-        const float dt = biome->temperature - temperature;
-        const float dw = biome->weirdness - weirdness;
-        const float de = biome->erosion - erosion;
-        const float dE = biome->elevation - elevation;
-
-        // Core: Strictness weighted calculation (attribute difference × corresponding strictness)
-        // Higher strictness = greater penalty for attribute mismatch, making selection less likely
-        // 核心：严格度加权计算（属性差值 × 对应严格度）
-        // 严格度越高，属性不匹配的惩罚越大，越难被选中
-        const float distance =
-                dh * dh * biome->strictnessHumidity +
-                dt * dt * biome->strictnessTemperature +
-                dw * dw * biome->strictnessWeirdness +
-                de * de * biome->strictnessErosion +
-                dE * dE * biome->strictnessElevation;
-
-        // Find the biome with the smallest matching distance
-        // 匹配距离最小的生物群系
-        if (distance < bestDistance) {
-            bestDistance = distance;
+        const float scoreHumidity = CalculateBiomeScoreDelta(biome->humidity, humidity, biome->strictnessHumidity);
+        const float scoreTemperature = CalculateBiomeScoreDelta(biome->temperature, temperature,
+                                                                biome->strictnessTemperature);
+        const float scoreWeirdness = CalculateBiomeScoreDelta(biome->weirdness, weirdness, biome->strictnessWeirdness);
+        const float scoreErosion = CalculateBiomeScoreDelta(biome->erosion, erosion, biome->strictnessErosion);
+        const float scoreElevation = CalculateBiomeScoreDelta(biome->elevation, elevation, biome->strictnessElevation);
+        const float scoreSurfaceProximity = CalculateBiomeScoreDelta(biome->surfaceProximity, surfaceProximity,
+                                                                     biome->strictnessSurfaceProximity);
+        const float totalDistance = scoreHumidity + scoreTemperature + scoreWeirdness + scoreErosion + scoreElevation +
+                                    scoreSurfaceProximity;
+        if (totalDistance < bestDistance) {
+            bestDistance = totalDistance;
             bestBiome = biome;
         }
     }

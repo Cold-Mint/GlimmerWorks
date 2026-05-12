@@ -545,6 +545,7 @@ target_sources(GlimmerWorks
         core/ecs/system/ParallaxBackgroundSystem.cpp
         core/ecs/component/ParallaxBackgroundComponent.cpp
         core/console/command/ParallaxBackgroundCommand.cpp
+        core/console/command/BiomeScoreCommand.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -782,6 +783,7 @@ target_sources(GlimmerWorks
         core/ecs/component/ParallaxBackgroundComponent.h
         core/ecs/system/ParallaxBackgroundSystem.h
         core/console/command/ParallaxBackgroundCommand.h
+        core/console/command/BiomeScoreCommand.h
 )
 
 #Define version information

@@ -100,7 +100,7 @@ namespace glimmer {
 
         void GenerateStructure(TileVector2D position) const;
 
-        TerrainTileResult GetTerrainTileResult(TileVector2D world, int height);
+        TerrainTileResult GetTerrainTileResult(TileVector2D world, int firstTileTerrainY);
 
         std::unique_ptr<Chunk> GenerateChunkAt(TileVector2D position) const;
 
@@ -146,6 +146,15 @@ namespace glimmer {
          * @return 侵蚀0-1
          */
         float GetErosion(TileVector2D tileVector2d);
+
+        /**
+         * GetSurfaceProximity
+         * 获取地表贴近度
+         * @param firstTileTerrainY
+         * @param worldY
+         * @return
+         */
+        static float GetSurfaceProximity(int firstTileTerrainY, int worldY);
     };
 }
 

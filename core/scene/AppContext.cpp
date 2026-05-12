@@ -6,6 +6,7 @@
 #include <random>
 
 #include "core/console/command/AssetViewerCommand.h"
+#include "core/console/command/BiomeScoreCommand.h"
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/EcsCommand.h"
 #include "core/console/command/GiveCommand.h"
@@ -179,6 +180,17 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langsResources_->parallaxBackgroundSet = find<std::string>(value, "parallax_background_set");
     langsResources_->parallaxBackgroundGet = find<std::string>(value, "parallax_background_get");
     langsResources_->parallaxBackgroundNone = find<std::string>(value, "parallax_background_none");
+    langsResources_->biomeTemperatureInfo = find<std::string>(value, "biome_temperature_info");
+    langsResources_->biomeHumidityInfo = find<std::string>(value, "biome_humidity_info");
+    langsResources_->biomeElevationInfo = find<std::string>(value, "biome_elevation_info");
+    langsResources_->biomeWeirdnessInfo = find<std::string>(value, "biome_weirdness_info");
+    langsResources_->biomeErosionInfo = find<std::string>(value, "biome_erosion_info");
+    langsResources_->biomeSurfaceProximityInfo = find<std::string>(value, "biome_surface_proximity_info");
+    langsResources_->biomeTotalScore = find<std::string>(value, "biome_total_score");
+    langsResources_->biomeScoreInspectorEnable = find<std::string>(value, "biome_score_inspector_enable");
+    langsResources_->biomeScoreInspectorDisable = find<std::string>(value, "biome_score_inspector_disable");
+    langsResources_->biomeScoreInspectorEnableFail = find<std::string>(value, "biome_score_inspector_enable_fail");
+    langsResources_->biomeScoreInspectorDisableFail = find<std::string>(value, "biome_score_inspector_disable_fail");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
@@ -356,6 +368,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ClearCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LootCommand>(this));

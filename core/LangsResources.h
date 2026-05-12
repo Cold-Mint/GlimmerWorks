@@ -114,6 +114,18 @@ namespace glimmer {
         std::string parallaxBackgroundSet;
         std::string parallaxBackgroundGet;
         std::string parallaxBackgroundNone;
+        std::string biomeTemperatureInfo;
+        std::string biomeHumidityInfo;
+        std::string biomeElevationInfo;
+        std::string biomeWeirdnessInfo;
+        std::string biomeErosionInfo;
+        std::string biomeSurfaceProximityInfo;
+        std::string biomeTotalScore;
+        std::string biomeScoreInspectorEnable;
+        std::string biomeScoreInspectorDisable;
+        std::string biomeScoreInspectorEnableFail;
+        std::string biomeScoreInspectorDisableFail;
+
     };
 }
 

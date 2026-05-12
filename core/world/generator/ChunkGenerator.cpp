@@ -64,42 +64,7 @@ int glimmer::ChunkGenerator::GetFirstTileTerrainY(int x) {
     }
     const float sampleX = static_cast<float>(x);
     const float continentNoise = (continentHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-    // const float mountainNoise = (mountainHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-    // const float hillsNoise = (hillsNoiseHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
-
-    // const float continentMask = std::pow(continentNoise, 3.0F);
-    //
-    // // B) 组合陆地起伏噪声 (主要由山脉和丘陵构成)
-    // // landmassNoise 范围 [0, 1]
-    // float landmassNoise = mountainNoise * MOUNTAIN_WEIGHT + hillsNoise * HILLS_WEIGHT;
-    //
-    // // C) 平滑山峰抬升 (生成高原和尖锐的山脉)
-    // float peakLift = 0.0F;
-    // if (landmassNoise > PEAK_LIFT_THRESHOLD) {
-    //     // 只有在陆地噪声较高时，才计算额外的线性抬升，避免山峰顶部平坦。
-    //     // liftFactor 范围 [0, 1]
-    //     float liftFactor = (landmassNoise - PEAK_LIFT_THRESHOLD) / (1.0F - PEAK_LIFT_THRESHOLD);
-    //     peakLift = liftFactor * MAX_PEAK_LIFT;
-    // }
-    //
-    // // D) 最终陆地噪声：基础起伏 + 额外山峰抬升
-    // float totalLandNoise = landmassNoise + peakLift;
-    // // 确保总噪声不会超出我们预设的最大抬升比例
-    // totalLandNoise = std::min(totalLandNoise, 1.0F + MAX_PEAK_LIFT);
-    //
-    // // E) 应用大陆掩码：只有大陆区域，陆地噪声才能抬升地形
-    // float combinedNoise = continentMask * totalLandNoise;
-    //
-    //
-    // // 3. 将总噪声映射到最终的世界高度
-    // // combinedNoise 的范围现在约为 [0, 1.3]，我们使用 TERRAIN_HEIGHT_RANGE 进行映射
     int height = GROUND_START_HEIGHT + CONTINENT_MAX_HEIGHT * continentNoise;
-    // static_cast<int>(combinedNoise * TERRAIN_HEIGHT_RANGE / (1.0F + MAX_PEAK_LIFT));
-    //
-
-    // 5. 确保不超过世界最大高度
-    // height = std::min(height, MAX_LAND_HEIGHT);
-
     // 缓存并返回高度
     heightMap_[x] = height;
     LogCat::d("Generated and cached heights for chunkX=", x);
@@ -111,21 +76,21 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
     auto terrainResult = std::make_unique<TerrainResult>();
     terrainResult->SetPosition(position);
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
-        const int height = GetFirstTileTerrainY(position.x + localX);
+        const int firstTileTerrainY = GetFirstTileTerrainY(position.x + localX);
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             terrainResult->SetTerrainTileResult(localX, localY,
-                                                GetTerrainTileResult(position + TileVector2D(localX, localY), height));
+                                                GetTerrainTileResult(position + TileVector2D(localX, localY), firstTileTerrainY));
         }
     }
     const int leftWorldX = position.x - 1;
 
     for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
         const int worldY = position.y + localY;
-        const int height = GetFirstTileTerrainY(leftWorldX);
+        const int firstTileTerrainY = GetFirstTileTerrainY(leftWorldX);
 
         terrainResult->SetLeftTerrainTileResult(
             localY,
-            GetTerrainTileResult({leftWorldX, worldY}, height)
+            GetTerrainTileResult({leftWorldX, worldY}, firstTileTerrainY)
         );
     }
 
@@ -134,11 +99,11 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 
     for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
         const int worldY = position.y + localY;
-        const int height = GetFirstTileTerrainY(rightWorldX);
+        const int firstTileTerrainY = GetFirstTileTerrainY(rightWorldX);
 
         terrainResult->SetRightTerrainTileResult(
             localY,
-            GetTerrainTileResult({rightWorldX, worldY}, height)
+            GetTerrainTileResult({rightWorldX, worldY}, firstTileTerrainY)
         );
     }
 
@@ -147,11 +112,11 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int worldX = position.x + localX;
-        const int height = GetFirstTileTerrainY(worldX);
+        const int firstTileTerrainY = GetFirstTileTerrainY(worldX);
 
         terrainResult->SetDownTerrainTileResult(
             localX,
-            GetTerrainTileResult({worldX, downWorldY}, height)
+            GetTerrainTileResult({worldX, downWorldY}, firstTileTerrainY)
         );
     }
 
@@ -159,11 +124,11 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         const int worldX = position.x + localX;
-        const int height = GetFirstTileTerrainY(worldX);
+        const int firstTileTerrainY = GetFirstTileTerrainY(worldX);
 
         terrainResult->SetUpTerrainTileResult(
             localX,
-            GetTerrainTileResult({worldX, upWorldY}, height)
+            GetTerrainTileResult({worldX, upWorldY}, firstTileTerrainY)
         );
     }
 
@@ -321,21 +286,22 @@ void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const {
 }
 
 
-TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector2D world, const int height) {
+TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector2D world, const int firstTileTerrainY) {
     TerrainTileResult terrainTileResult;
     const float elevation = GetElevation(world.y);
     const auto humidity = GetHumidity(world);
     const auto temperature = GetTemperature(world, elevation);
     const auto weirdness = GetWeirdness(world);
     const auto erosion = GetErosion(world);
+    const auto surfaceProximity = GetSurfaceProximity(firstTileTerrainY, world.y);
     terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetBiomesManager()->FindBestBiome(
         humidity, temperature, weirdness, erosion,
-        elevation);
+        elevation, surfaceProximity);
     if (world.y <= WORLD_MIN_Y || world.x == WORLD_MAX_X || world.x == WORLD_MIN_X) {
         terrainTileResult.terrainType = BEDROCK;
         return terrainTileResult;
     }
-    if (world.y > height) {
+    if (world.y > firstTileTerrainY) {
         if (world.y < SEA_LEVEL_HEIGHT) {
             //water
             //水
@@ -352,11 +318,26 @@ TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector
     return terrainTileResult;
 }
 
+float glimmer::ChunkGenerator::GetSurfaceProximity(const int firstTileTerrainY, const int worldY) {
+    constexpr float totalHeight = WORLD_MAX_Y - WORLD_MIN_Y;
+    const float surfaceNormalized = static_cast<float>(firstTileTerrainY - WORLD_MIN_Y) / totalHeight;
+    const float currentNormalized = static_cast<float>(worldY - WORLD_MIN_Y) / totalHeight;
+    const float offset = currentNormalized - surfaceNormalized;
+    float proximity = 0.5F + offset * 0.5F;
+    if (proximity < 0.0F) {
+        proximity = 0.0F;
+    }
+    if (proximity > 1.0F) {
+        proximity = 1.0F;
+    }
+    return proximity;
+}
+
 float glimmer::ChunkGenerator::GetElevation(const int y) {
     return static_cast<float>(y) / (WORLD_MAX_Y - WORLD_MIN_Y + WORLD_MIN_Y);
 }
 
-float glimmer::ChunkGenerator::GetHumidity(TileVector2D tileVector2d) {
+float glimmer::ChunkGenerator::GetHumidity(const TileVector2D tileVector2d) {
     const auto it = humidityMap_.find(tileVector2d);
     if (it != humidityMap_.end()) {
         return it->second;

@@ -27,7 +27,7 @@ namespace glimmer {
 
         [[nodiscard]] CommandSender *GetDefaultCommandSender();
 
-        [[nodiscard]] CommandSender* GetMouseCommandSender();
+        [[nodiscard]] CommandSender *GetMouseCommandSender();
 
         void BindWorldContext(WorldContext *worldContext);
 
@@ -44,7 +44,7 @@ namespace glimmer {
          * @param commandArgs commandArgs 命令参数
          * @return
          */
-        std::vector<std::string> GetCommandStructure(const CommandArgs &commandArgs) const;
+        std::vector<std::string> GetCommandStructure(const CommandArgs *commandArgs) const;
 
         /**
          * Extended suggestions

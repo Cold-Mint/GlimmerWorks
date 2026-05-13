@@ -9,8 +9,12 @@
 #include "box2d/box2d.h"
 #include "fmt/color.h"
 
-void glimmer::Box2DCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
-    suggestionsTree.AddChild("count");
+
+void glimmer::Box2DCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
+        return;
+    }
+    suggestionsTree->AddChild("count");
 }
 
 glimmer::Box2DCommand::Box2DCommand(AppContext *appContext)
@@ -25,32 +29,36 @@ bool glimmer::Box2DCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::Box2DCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
-    const std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
+void glimmer::Box2DCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
+        return;
+    }
+    strings->emplace_back("count");
+}
+
+bool glimmer::Box2DCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                    const std::function<void(const std::string &text)> *onMessage) {
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
     const LangsResources *langsResources = appContext_->GetLangsResources();
     if (langsResources == nullptr) {
         return false;
     }
     if (worldContext_ == nullptr) {
-        onMessage(langsResources->worldContextIsNull);
+        onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
-    if (commandArgs.AsString(1) == "count") {
+    if (commandArgs->AsString(1) == "count") {
         //Obtain the number of active rigid bodies
         //获取活跃的刚体数量
         const auto bodyCount = b2World_GetAwakeBodyCount(worldContext_->GetWorldId());
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(langsResources->awakeBodyCount),
             bodyCount));
         return true;
     }
-    onMessage(langsResources->unknownCommandParameters);
+    onMessageRef(langsResources->unknownCommandParameters);
     return false;
-}
-
-void glimmer::Box2DCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
-    strings.emplace_back("count");
 }

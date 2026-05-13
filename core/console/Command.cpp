@@ -19,6 +19,6 @@ void glimmer::Command::UnBindWorldContext() {
     worldContext_ = nullptr;
 }
 
-glimmer::NodeTree<std::string> glimmer::Command::GetSuggestionsTree(const CommandArgs &commandArgs) {
-    return suggestionsTree_;
+glimmer::NodeTree<std::string> *glimmer::Command::GetSuggestionsTree(const CommandArgs *commandArgs) {
+    return &suggestionsTree_;
 }

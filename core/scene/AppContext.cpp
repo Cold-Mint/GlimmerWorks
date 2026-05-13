@@ -380,8 +380,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LocateCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HookCommand>(this));
-
-    commandExecutor_ = std::make_unique<CommandExecutor>();
+    consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
     biomeDecoratorResourcesManager_ = std::make_unique<BiomeDecoratorResourcesManager>();
     itemManager_ = std::make_unique<ItemManager>();
@@ -484,16 +483,20 @@ void glimmer::AppContext::SetRenderer(SDL_Renderer *renderer) {
     this->renderer_ = renderer;
 }
 
-void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string &text)> &onMessage) const {
+void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const {
+    if (onMessage == nullptr) {
+        return;
+    }
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
     if (!renderer_) {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "renderer is null failed"));
         return;
     }
     if (!virtualFileSystem_->Exists(config_->runtimePath + "/screenshots")) {
         if (!virtualFileSystem_->CreateFolder(config_->runtimePath + "/screenshots")) {
-            onMessage(fmt::format(
+            onMessageRef(fmt::format(
                 fmt::runtime(GetLangsResources()->screenshotSavedFailed),
                 "CreateFolder failed"));
             return;
@@ -502,14 +505,14 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     const auto actualPath = virtualFileSystem_->GetActualPath(
         config_->runtimePath + "/screenshots/" + GetTimeFileName());
     if (!actualPath.has_value()) {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "GetActualPath failed"));
         return;
     }
     int width, height;
     if (!SDL_GetRenderOutputSize(renderer_, &width, &height)) {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "SDL_GetRenderOutputSize failed"));
         return;
@@ -523,7 +526,7 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
         renderer_, &sdlRect);
     if (surface == nullptr) {
         SDL_DestroySurface(surface);
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "SDL_RenderReadPixels failed"));
         return;
@@ -531,11 +534,11 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     const bool result = IMG_SavePNG(surface, actualPath.value().c_str());
     SDL_DestroySurface(surface);
     if (result) {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedSuccess),
             actualPath.value()));
     } else {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "IMG_SavePNG Failed"));
     }
@@ -587,6 +590,10 @@ glimmer::CommandManager *glimmer::AppContext::GetCommandManager() const {
 
 glimmer::AudioManager *glimmer::AppContext::GetAudioManager() const {
     return audioManager_.get();
+}
+
+glimmer::ConsoleWorker *glimmer::AppContext::GetConsoleWorker() {
+    return consoleWorker_.get();
 }
 
 glimmer::LightMaskManager *glimmer::AppContext::GetLightMaskManager() const {

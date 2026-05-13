@@ -13,9 +13,12 @@
 glimmer::LightCommand::LightCommand(AppContext *appContext) : Command(appContext) {
 }
 
-void glimmer::LightCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
-    suggestionsTree.AddChild("inspector");
-    suggestionsTree.AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+void glimmer::LightCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
+        return;
+    }
+    suggestionsTree->AddChild("inspector");
+    suggestionsTree->AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
 bool glimmer::LightCommand::RequiresWorldContext() const {
@@ -26,50 +29,54 @@ std::string glimmer::LightCommand::GetName() const {
     return LIGHT_COMMAND_NAME;
 }
 
-void glimmer::LightCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
-    strings.emplace_back("[operation:string]");
-    if (commandArgs.GetSize() >= 2) {
-        std::string operation = commandArgs.AsString(1);
+void glimmer::LightCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
+        return;
+    }
+    strings->emplace_back("[operation:string]");
+    if (commandArgs->GetSize() >= 2) {
+        std::string operation = commandArgs->AsString(1);
         if (operation == "info") {
-            strings.emplace_back("[x:int]");
-            strings.emplace_back("[y:int]");
+            strings->emplace_back("[x:int]");
+            strings->emplace_back("[y:int]");
         }
     }
 }
 
-bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
-                                    std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
+bool glimmer::LightCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                    const std::function<void(const std::string &text)> *onMessage) {
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
     if (worldContext_ == nullptr) {
-        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const LangsResources *langsResources = appContext_->GetLangsResources();
     if (langsResources == nullptr) {
         return false;
     }
-    const int size = commandArgs.GetSize();
+    const int size = commandArgs->GetSize();
     if (size < 2) {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
-    std::string operation = commandArgs.AsString(1);
+    std::string operation = commandArgs->AsString(1);
     if (operation == "inspector") {
         CommandHookManager *commandHookManager = appContext_->GetCommandHookManager();
         if (commandHookManager == nullptr) {
-            onMessage(langsResources->cmdHookManagerNotFound);
+            onMessageRef(langsResources->cmdHookManagerNotFound);
             return false;
         }
         if (commandHookManager->Contains(LIGHT_INSPECTOR_ID)) {
             if (commandHookManager->Unregister(LIGHT_INSPECTOR_ID)) {
-                onMessage(langsResources->lightingInspectorDisable);
+                onMessageRef(langsResources->lightingInspectorDisable);
                 return true;
             }
-            onMessage(langsResources->lightingInspectorDisableFail);
+            onMessageRef(langsResources->lightingInspectorDisableFail);
         } else {
             auto commandHookEntry = std::make_unique<CommandHookEntry>();
             commandHookEntry->hookId = LIGHT_INSPECTOR_ID;
@@ -78,28 +85,28 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandA
             commandHookEntry->command = LIGHT_COMMAND_NAME + " info ~ ~";
             commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
             if (commandHookManager->Register(std::move(commandHookEntry))) {
-                onMessage(langsResources->lightingInspectorEnable);
+                onMessageRef(langsResources->lightingInspectorEnable);
                 return true;
             }
-            onMessage(langsResources->lightingInspectorEnableFail);
+            onMessageRef(langsResources->lightingInspectorEnableFail);
         }
     }
     if (operation == "info") {
         if (size < 4) {
-            onMessage(fmt::format(
+            onMessageRef(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
                 4, size));
             return false;
         }
         const WorldVector2D commandSenderPosition = commandSender->GetPosition();
         const TileVector2D tileVector2D = TileLayerComponent::WorldToTile(WorldVector2D(
-            commandArgs.AsCoordinate(2, commandSenderPosition.x),
-            commandArgs.AsCoordinate(
+            commandArgs->AsCoordinate(2, commandSenderPosition.x),
+            commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));
         const TileLightData *lightData = worldContext_->GetLightingBuffer()->GetTileLightData(
             tileVector2D);
         if (lightData == nullptr) {
-            onMessage(fmt::format(fmt::runtime(langsResources->notIncludeLighting), tileVector2D.x, tileVector2D.y));
+            onMessageRef(fmt::format(fmt::runtime(langsResources->notIncludeLighting), tileVector2D.x, tileVector2D.y));
             return false;
         }
         std::stringstream lightContributionStream;
@@ -180,14 +187,14 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, CommandA
                                         -1, -1,
                                         -1, -1, lightContributionStream.str(),
                                         lightSourceStream.str(), lightMaskStream.str());
-            onMessage(stringStream.str());
+            onMessageRef(stringStream.str());
         } else {
             std::stringstream stringStream;
             stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
                                         finalColor->r, finalColor->g,
                                         finalColor->b, finalColor->a, lightContributionStream.str(),
                                         lightSourceStream.str(), lightMaskStream.str());
-            onMessage(stringStream.str());
+            onMessageRef(stringStream.str());
         }
         return true;
     }

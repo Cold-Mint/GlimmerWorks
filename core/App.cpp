@@ -440,6 +440,16 @@ void glimmer::App::Run() {
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
     auto &overlayScenes = sceneManager->GetOverlayScenes();
     Uint64 lastInputTime = SDL_GetTicks();
+    ConsoleWorker *consoleWorker = appContext_->GetConsoleWorker();
+    consoleWorker->PushOnMessage(
+        std::make_unique<std::function<void(const std::string &)> >([this](const std::string &text) {
+            if (appContext_ == nullptr) {
+                return;
+            }
+            appContext_->AddUIMessage(text);
+        })
+    );
+
     while (appContext_->Running() && sceneManager->GetSceneCount() > 0) {
         int idleDelayMs = config->window.idleDelayMs;
         float targetFrameTime = 0;
@@ -484,33 +494,25 @@ void glimmer::App::Run() {
                 useMouse = true;
             }
             const uint32_t key = CommandHookEntry::GetKey(type, code);
-            auto commandList = std::vector<std::string>();
             const std::vector<CommandHookEntry *> &commandHookEntry = appContext_->GetCommandHookManager()->
                     GetCommandHookVector(
                         key);
             if (!commandHookEntry.empty()) {
-                for (const auto &commandHook: commandHookEntry) {
-                    if (isKey && commandHook->keyRepeat != event.key.repeat) {
-                        continue;
+                if (consoleWorker != nullptr) {
+                    for (const auto &commandHook: commandHookEntry) {
+                        if (isKey && commandHook->keyRepeat != event.key.repeat) {
+                            continue;
+                        }
+                        if (useMouse) {
+                            consoleWorker->CreateRequest(commandHook->command,
+                                                         appContext_->GetCommandManager()->
+                                                         GetMouseCommandSender());
+                        } else {
+                            consoleWorker->CreateRequest(commandHook->command,
+                                                         appContext_->GetCommandManager()->
+                                                         GetDefaultCommandSender());
+                        }
                     }
-                    commandList.emplace_back(commandHook->command);
-                }
-                if (useMouse) {
-                    CommandExecutor::ExecuteAsyncBatch(appContext_->GetCommandManager()->GetMouseCommandSender(),
-                                                       commandList, appContext_->GetCommandManager(),
-                                                       [](const CommandResult, const std::string &) {
-                                                       },
-                                                       [this](const std::string &text) {
-                                                           appContext_->AddUIMessage(text);
-                                                       });
-                } else {
-                    CommandExecutor::ExecuteAsyncBatch(appContext_->GetCommandManager()->GetDefaultCommandSender(),
-                                                       commandList, appContext_->GetCommandManager(),
-                                                       [](const CommandResult, const std::string &) {
-                                                       },
-                                                       [this](const std::string &text) {
-                                                           appContext_->AddUIMessage(text);
-                                                       });
                 }
             }
 

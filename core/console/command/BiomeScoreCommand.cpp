@@ -11,9 +11,12 @@
 glimmer::BiomeScoreCommand::BiomeScoreCommand(AppContext *appContext) : Command(appContext) {
 }
 
-void glimmer::BiomeScoreCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
-    suggestionsTree.AddChild("inspector");
-    suggestionsTree.AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
+void glimmer::BiomeScoreCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
+        return;
+    }
+    suggestionsTree->AddChild("inspector");
+    suggestionsTree->AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
 std::string glimmer::BiomeScoreCommand::GetName() const {
@@ -25,50 +28,54 @@ bool glimmer::BiomeScoreCommand::RequiresWorldContext() const {
 }
 
 void glimmer::BiomeScoreCommand::
-PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
-    strings.emplace_back("[operation:string]");
-    if (commandArgs.GetSize() >= 2) {
-        std::string operation = commandArgs.AsString(1);
+PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
+        return;
+    }
+    strings->emplace_back("[operation:string]");
+    if (commandArgs->GetSize() >= 2) {
+        std::string operation = commandArgs->AsString(1);
         if (operation == "info") {
-            strings.emplace_back("[x:int]");
-            strings.emplace_back("[y:int]");
+            strings->emplace_back("[x:int]");
+            strings->emplace_back("[y:int]");
         }
     }
 }
 
-bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
-                                         std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
+bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                         const std::function<void(const std::string &text)> *onMessage) {
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
     if (worldContext_ == nullptr) {
-        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const LangsResources *langsResources = appContext_->GetLangsResources();
     if (langsResources == nullptr) {
         return false;
     }
-    const int size = commandArgs.GetSize();
+    const int size = commandArgs->GetSize();
     if (size < 2) {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
-    std::string operation = commandArgs.AsString(1);
+    std::string operation = commandArgs->AsString(1);
     if (operation == "inspector") {
         CommandHookManager *commandHookManager = appContext_->GetCommandHookManager();
         if (commandHookManager == nullptr) {
-            onMessage(langsResources->cmdHookManagerNotFound);
+            onMessageRef(langsResources->cmdHookManagerNotFound);
             return false;
         }
         if (commandHookManager->Contains(BIOME_SCORE_INSPECTOR_ID)) {
             if (commandHookManager->Unregister(BIOME_SCORE_INSPECTOR_ID)) {
-                onMessage(langsResources->biomeScoreInspectorDisable);
+                onMessageRef(langsResources->biomeScoreInspectorDisable);
                 return true;
             }
-            onMessage(langsResources->biomeScoreInspectorDisableFail);
+            onMessageRef(langsResources->biomeScoreInspectorDisableFail);
         } else {
             auto commandHookEntry = std::make_unique<CommandHookEntry>();
             commandHookEntry->hookId = BIOME_SCORE_INSPECTOR_ID;
@@ -77,23 +84,23 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, Com
             commandHookEntry->command = BIOME_SCORE_COMMAND_NAME + " info ~ ~";
             commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
             if (commandHookManager->Register(std::move(commandHookEntry))) {
-                onMessage(langsResources->biomeScoreInspectorEnable);
+                onMessageRef(langsResources->biomeScoreInspectorEnable);
                 return true;
             }
-            onMessage(langsResources->biomeScoreInspectorEnableFail);
+            onMessageRef(langsResources->biomeScoreInspectorEnableFail);
         }
     }
     if (operation == "info") {
         if (size < 4) {
-            onMessage(fmt::format(
+            onMessageRef(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
                 4, size));
             return false;
         }
         const WorldVector2D commandSenderPosition = commandSender->GetPosition();
         const TileVector2D tileVector2D = TileLayerComponent::WorldToTile(WorldVector2D(
-            commandArgs.AsCoordinate(2, commandSenderPosition.x),
-            commandArgs.AsCoordinate(
+            commandArgs->AsCoordinate(2, commandSenderPosition.x),
+            commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));
         ChunkGenerator *chunkGenerator = worldContext_->GetChunkGenerator();
         if (chunkGenerator == nullptr) {
@@ -160,7 +167,7 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, Com
             biomeStream << fmt::format(fmt::runtime(langsResources->biomeTotalScore), biomeId, total);
             biomeStream << '\n';
         }
-        onMessage(biomeStream.str());
+        onMessageRef(biomeStream.str());
         return true;
     }
     return false;

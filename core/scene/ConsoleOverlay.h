@@ -11,6 +11,7 @@
 
 #include "imgui.h"
 #include "Scene.h"
+#include "core/console/ConsoleWorker.h"
 
 namespace glimmer {
     /**
@@ -37,6 +38,7 @@ namespace glimmer {
         // Temporarily save the unsubmitted input content (used when switching between the history)
         // 临时保存未提交的输入内容（上下切换历史时用）
         std::string tempCommand_;
+        std::vector<uint32_t> commandIDList_;
         /**
          * Code structure
          * 命令结构
@@ -47,12 +49,18 @@ namespace glimmer {
          * 命令结构需要高亮的索引位置
          */
         int commandStructureHighlightIndex_ = 0;
+        ConsoleWorker *consoleWorker_;
+        CommandSender commandSender_;
 
         void addMessage(const std::string &message);
 
         static int InputCallback(ImGuiInputTextCallbackData *data);
 
         [[nodiscard]] std::string ClikAutoCompleteItem(const std::string &suggestion) const;
+
+        void Show();
+
+        void Hide() const;
 
     public:
         explicit ConsoleOverlay(AppContext *context);

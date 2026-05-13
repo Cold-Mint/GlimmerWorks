@@ -10,10 +10,14 @@
 #include "fmt/color.h"
 #include "toml.hpp"
 
-void glimmer::ConfigCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
-    suggestionsTree.AddChild("get")->AddChild(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
-    suggestionsTree.AddChild("set")->AddChild(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
-    suggestionsTree.AddChild("commit");
+
+void glimmer::ConfigCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
+        return;
+    }
+    suggestionsTree->AddChild("get")->AddChild(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("set")->AddChild(CONFIG_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("commit");
 }
 
 glimmer::ConfigCommand::ConfigCommand(AppContext *appContext, toml::value *value) : Command(appContext),
@@ -24,33 +28,129 @@ std::string glimmer::ConfigCommand::GetName() const {
     return CONFIG_COMMAND_NAME;
 }
 
-void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
-    strings.emplace_back("[operation type:string]");
-    const int size = commandArgs.GetSize();
+void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr || commandArgs == nullptr) {
+        return;
+    }
+    strings->emplace_back("[operation type:string]");
+    const int size = commandArgs->GetSize();
     if (size >= 2) {
-        std::string parameter1 = commandArgs.AsString(1);
+        std::string parameter1 = commandArgs->AsString(1);
         if (parameter1 == "get" || parameter1 == "set") {
-            strings.emplace_back("[parameter name:string]");
+            strings->emplace_back("[parameter name:string]");
         }
     }
     if (size >= 3) {
-        if (commandArgs.AsString(1) == "set") {
-            if (const ConfigType configType = GetParameterType(commandArgs.AsString(2));
+        if (commandArgs->AsString(1) == "set") {
+            if (const ConfigType configType = GetParameterType(commandArgs->AsString(2));
                 configType == ConfigType::BOOLEAN) {
-                strings.emplace_back("[value:bool]");
+                strings->emplace_back("[value:bool]");
             } else if (configType == ConfigType::FLOAT) {
-                strings.emplace_back("[value:float]");
+                strings->emplace_back("[value:float]");
             } else if (configType == ConfigType::INT) {
-                strings.emplace_back("[value:int]");
+                strings->emplace_back("[value:int]");
             } else if (configType == ConfigType::ARRAY) {
-                strings.emplace_back("[value:array(format:value1,value2)]");
+                strings->emplace_back("[value:array(format:value1,value2)]");
             } else if (configType == ConfigType::TABLE) {
-                strings.emplace_back("[value:table]");
+                strings->emplace_back("[value:table]");
             } else {
-                strings.emplace_back("[value:string]");
+                strings->emplace_back("[value:string]");
             }
         }
     }
+}
+
+glimmer::NodeTree<std::string> *glimmer::ConfigCommand::GetSuggestionsTree(const CommandArgs *commandArgs) {
+    const int size = commandArgs->GetSize();
+    if (size > 2) {
+        if (commandArgs->AsString(1) == "set") {
+            if (const auto obj = suggestionsTree_.GetChildByValue("set")->GetChildByValue(
+                CONFIG_DYNAMIC_SUGGESTIONS_NAME); obj != nullptr) {
+                obj->ClearChildren();
+                const std::string arg2 = commandArgs->AsString(2);
+                if (GetParameterType(arg2) == ConfigType::BOOLEAN) {
+                    obj->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
+                }
+                if (GetParameterType(arg2) == ConfigType::STRING && (
+                        arg2 == "mods.resourcePackPath" || arg2 ==
+                        "mods.dataPackPath")) {
+                    obj->AddChild(std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(3));
+                }
+            }
+        }
+    }
+    return &suggestionsTree_;
+}
+
+
+bool glimmer::ConfigCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                     const std::function<void(const std::string &text)> *onMessage) {
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
+        return false;
+    }
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const LangsResources *langsResources = appContext_->GetLangsResources();
+    if (langsResources == nullptr) {
+        return false;
+    }
+    int size = commandArgs->GetSize();
+    if (size < 2) {
+        onMessageRef(fmt::format(
+            fmt::runtime(langsResources->insufficientParameterLength),
+            2, size));
+        return false;
+    }
+
+    const std::string operation = commandArgs->AsString(1);
+    if (operation == "commit") {
+        if (appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue_))) {
+            appContext_->GetConfig()->LoadConfig(appContext_->GetCommandHookManager(), *configValue_);
+            onMessageRef(langsResources->configurationCommitSuccess);
+            return true;
+        }
+        onMessageRef(langsResources->configurationCommitFail);
+        return false;
+    }
+
+    if (operation == "get") {
+        if (size < 3) {
+            onMessageRef(fmt::format(
+                fmt::runtime(langsResources->insufficientParameterLength),
+                3, size));
+            return false;
+        }
+        onMessageRef(GetValue(commandArgs->AsString(2)));
+        return true;
+    }
+    if (operation == "set") {
+        if (size < 4) {
+            onMessageRef(fmt::format(
+                fmt::runtime(langsResources->insufficientParameterLength),
+                4, size));
+            return false;
+        }
+
+        std::string parameterName = commandArgs->AsString(2);
+        std::string value = commandArgs->AsString(3);
+        const ConfigType configType = GetParameterType(parameterName);
+        if (configType == ConfigType::BOOLEAN && value == TOGGLE_KEY_WORD) {
+            const std::string oldValue = GetValue(parameterName);
+            if (oldValue == "true") {
+                value = "false";
+            } else {
+                value = "true";
+            }
+        }
+        if (SetValue(parameterName, value)) {
+            appContext_->GetConfig()->LoadConfig(appContext_->GetCommandHookManager(), *configValue_);
+            onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
+                                     parameterName, value));
+        }
+        return true;
+    }
+
+    onMessageRef(appContext_->GetLangsResources()->unknownCommandParameters);
+    return false;
 }
 
 glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string &parameterName) const {
@@ -208,96 +308,4 @@ bool glimmer::ConfigCommand::SetValue(
 
     table[finalKey] = toml::value(value);
     return true;
-}
-
-bool glimmer::ConfigCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
-                                     std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
-        return false;
-    }
-    const LangsResources *langsResources = appContext_->GetLangsResources();
-    if (langsResources == nullptr) {
-        return false;
-    }
-    int size = commandArgs.GetSize();
-    if (size < 2) {
-        onMessage(fmt::format(
-            fmt::runtime(langsResources->insufficientParameterLength),
-            2, size));
-        return false;
-    }
-
-    const std::string operation = commandArgs.AsString(1);
-    if (operation == "commit") {
-        if (appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue_))) {
-            appContext_->GetConfig()->LoadConfig(appContext_->GetCommandHookManager(), *configValue_);
-            onMessage(langsResources->configurationCommitSuccess);
-            return true;
-        }
-        onMessage(langsResources->configurationCommitFail);
-        return false;
-    }
-
-    if (operation == "get") {
-        if (size < 3) {
-            onMessage(fmt::format(
-                fmt::runtime(langsResources->insufficientParameterLength),
-                3, size));
-            return false;
-        }
-        onMessage(GetValue(commandArgs.AsString(2)));
-        return true;
-    }
-    if (operation == "set") {
-        if (size < 4) {
-            onMessage(fmt::format(
-                fmt::runtime(langsResources->insufficientParameterLength),
-                4, size));
-            return false;
-        }
-
-        std::string parameterName = commandArgs.AsString(2);
-        std::string value = commandArgs.AsString(3);
-        const ConfigType configType = GetParameterType(parameterName);
-        if (configType == ConfigType::BOOLEAN && value == TOGGLE_KEY_WORD) {
-            const std::string oldValue = GetValue(parameterName);
-            if (oldValue == "true") {
-                value = "false";
-            } else {
-                value = "true";
-            }
-        }
-        if (SetValue(parameterName, value)) {
-            appContext_->GetConfig()->LoadConfig(appContext_->GetCommandHookManager(), *configValue_);
-            onMessage(fmt::format(fmt::runtime(langsResources->configurationUpdate),
-                                  parameterName, value));
-        }
-        return true;
-    }
-
-    onMessage(appContext_->GetLangsResources()->unknownCommandParameters);
-    return false;
-}
-
-
-glimmer::NodeTree<std::string> glimmer::ConfigCommand::GetSuggestionsTree(const CommandArgs &commandArgs) {
-    int size = commandArgs.GetSize();
-    if (size > 2) {
-        if (commandArgs.AsString(1) == "set") {
-            if (const auto obj = suggestionsTree_.GetChildByValue("set")->GetChildByValue(
-                CONFIG_DYNAMIC_SUGGESTIONS_NAME); obj != nullptr) {
-                obj->ClearChildren();
-                const std::string arg2 = commandArgs.AsString(2);
-                if (GetParameterType(arg2) == ConfigType::BOOLEAN) {
-                    obj->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
-                }
-                if (GetParameterType(arg2) == ConfigType::STRING && (
-                        arg2 == "mods.resourcePackPath" || arg2 ==
-                        "mods.dataPackPath")) {
-                    obj->AddChild(std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs.AsString(3));
-                }
-            }
-        }
-    }
-    return suggestionsTree_;
 }

@@ -51,7 +51,8 @@ glimmer::CommandSender *glimmer::CommandManager::GetMouseCommandSender() {
                 float mouseX = 0;
                 float mouseY = 0;
                 SDL_GetMouseState(&mouseX, &mouseY);
-                const WorldVector2D worldPosition = cameraComponent->GetWorldPosition(transform2DComponent->GetPosition(),
+                const WorldVector2D worldPosition = cameraComponent->GetWorldPosition(
+                    transform2DComponent->GetPosition(),
                     {mouseX, mouseY});
                 mouseCommandSender_.SetPosition(worldPosition);
             }
@@ -121,9 +122,8 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
     if (command == nullptr) {
         return {};
     }
-    NodeTree<std::string> nodeTree = command->GetSuggestionsTree(commandArgs);
     std::vector<std::string> results;
-    NodeTree<std::string> *nextNodeTree = &nodeTree;
+    NodeTree<std::string> *nextNodeTree = command->GetSuggestionsTree(&commandArgs);
     for (int index = 1; index <= tokenIndex; index++) {
         std::string keyWord = commandArgs.AsString(index);
         if (index == tokenIndex) {
@@ -186,19 +186,22 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
     return results;
 }
 
-std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const CommandArgs &commandArgs) const {
-    const int size = commandArgs.GetSize();
+std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const CommandArgs *commandArgs) const {
+    if (commandArgs == nullptr) {
+        return {};
+    }
+    const int size = commandArgs->GetSize();
     if (size == 0) {
         return {"[command name:string]"};
     }
-    std::string commandName = commandArgs.AsString(0);
+    std::string commandName = commandArgs->AsString(0);
     Command *command = GetCommand(commandName);
     if (command == nullptr) {
         return {commandName};
     }
     std::vector<std::string> results;
     results.emplace_back(commandName);
-    command->PutCommandStructure(commandArgs, results);
+    command->PutCommandStructure(commandArgs, &results);
     return results;
 }
 

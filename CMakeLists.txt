@@ -325,7 +325,6 @@ target_sources(GlimmerWorks
         core/scene/SplashScene.cpp
         core/scene/ConsoleOverlay.cpp
         core/console/Command.cpp
-        core/console/CommandExecutor.cpp
         core/console/CommandManager.cpp
         core/console/CommandArgs.cpp
         core/console/CommandResult.cpp
@@ -546,6 +545,14 @@ target_sources(GlimmerWorks
         core/ecs/component/ParallaxBackgroundComponent.cpp
         core/console/command/ParallaxBackgroundCommand.cpp
         core/console/command/BiomeScoreCommand.cpp
+        core/threadPools/io/FileReadRequest.cpp
+        core/threadPools/io/FileReadResponse.cpp
+        core/threadPools/io/FileWorker.cpp
+        core/threadPools/io/FileWriteRequest.cpp
+        core/threadPools/io/FileWriteResponse.cpp
+        core/console/ConsoleWorker.cpp
+        core/console/CommandResponse.cpp
+        core/console/CommandRequest.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -565,7 +572,6 @@ target_sources(GlimmerWorks
         core/scene/SplashScene.h
         core/scene/ConsoleOverlay.h
         core/console/Command.h
-        core/console/CommandExecutor.h
         core/console/CommandManager.h
         core/console/CommandArgs.h
         core/console/CommandResult.h
@@ -784,6 +790,14 @@ target_sources(GlimmerWorks
         core/ecs/system/ParallaxBackgroundSystem.h
         core/console/command/ParallaxBackgroundCommand.h
         core/console/command/BiomeScoreCommand.h
+        core/threadPools/io/FileReadRequest.h
+        core/threadPools/io/FileReadResponse.h
+        core/threadPools/io/FileWorker.h
+        core/threadPools/io/FileWriteRequest.h
+        core/threadPools/io/FileWriteResponse.h
+        core/console/ConsoleWorker.h
+        core/console/CommandRequest.h
+        core/console/CommandResponse.h
 )
 
 #Define version information

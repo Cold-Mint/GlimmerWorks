@@ -9,32 +9,36 @@
 #include "../../scene/AppContext.h"
 
 
-glimmer::EchoCommand::EchoCommand(AppContext *appContext) : Command(appContext) {
+void glimmer::EchoCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
 }
 
-void glimmer::EchoCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
+glimmer::EchoCommand::EchoCommand(AppContext *appContext) : Command(appContext) {
 }
 
 std::string glimmer::EchoCommand::GetName() const {
     return ECHO_COMMAND_NAME;
 }
 
-void glimmer::EchoCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
-    strings.emplace_back("[text:string...]");
+void glimmer::EchoCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (commandArgs == nullptr || strings == nullptr) {
+        return;
+    }
+    strings->emplace_back("[text:string...]");
 }
 
-bool glimmer::EchoCommand::Execute(const CommandSender *commandSender, CommandArgs commandArgs,
-                                   std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
+bool glimmer::EchoCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                   const std::function<void(const std::string &text)> *onMessage) {
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
     const LangsResources *langsResources = appContext_->GetLangsResources();
     if (langsResources == nullptr) {
         return false;
     }
-    const int size = commandArgs.GetSize();
+    const int size = commandArgs->GetSize();
     if (size < 2) {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
@@ -44,8 +48,8 @@ bool glimmer::EchoCommand::Execute(const CommandSender *commandSender, CommandAr
         if (i > 0) {
             stringStream << " ";
         }
-        stringStream << commandArgs.AsString(i);
+        stringStream << commandArgs->AsString(i);
     }
-    onMessage(stringStream.str());
+    onMessageRef(stringStream.str());
     return true;
 }

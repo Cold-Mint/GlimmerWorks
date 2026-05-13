@@ -17,7 +17,7 @@ namespace glimmer {
         toml::value *configValue_;
 
     protected:
-        void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
     public:
         explicit ConfigCommand(AppContext *appContext, toml::value *value);
@@ -26,18 +26,18 @@ namespace glimmer {
 
         [[nodiscard]] std::string GetName() const override;
 
-        void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
+
+        [[nodiscard]] NodeTree<std::string> *GetSuggestionsTree(const CommandArgs *commandArgs) override;
+
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
         [[nodiscard]] ConfigType GetParameterType(const std::string &parameterName) const;
 
         [[nodiscard]] std::string GetValue(const std::string &parameterName) const;
 
         [[nodiscard]] bool SetValue(const std::string &parameterName, const std::string &value) const;
-
-        bool Execute(const CommandSender *commandSender, CommandArgs commandArgs,
-            std::function<void(const std::string &text)> onMessage) override;
-
-        [[nodiscard]] NodeTree<std::string> GetSuggestionsTree(const CommandArgs &commandArgs) override;
     };
 }
 

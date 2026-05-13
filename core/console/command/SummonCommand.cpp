@@ -9,8 +9,11 @@
 #include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 
-void glimmer::SummonCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
-    suggestionsTree.AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME)->AddChild(
+void glimmer::SummonCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
+        return;
+    }
+    suggestionsTree->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME)->AddChild(
         MOB_DYNAMIC_SUGGESTIONS_NAME);
 }
 
@@ -21,23 +24,24 @@ bool glimmer::SummonCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::SummonCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
-                                     const std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
+bool glimmer::SummonCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                     const std::function<void(const std::string &text)> *onMessage) {
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
     if (worldContext_ == nullptr) {
-        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const size_t size = commandArgs.GetSize();
+    const size_t size = commandArgs->GetSize();
     if (size < 1) {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
             1, size));
         return false;
     }
-    auto resourceRefOptional = commandArgs.AsResourceRef(3, RESOURCE_TYPE_MOB);
+    auto resourceRefOptional = commandArgs->AsResourceRef(3, RESOURCE_TYPE_MOB);
     if (!resourceRefOptional.has_value()) {
         return false;
     }
@@ -53,8 +57,8 @@ bool glimmer::SummonCommand::Execute(const CommandSender *commandSender, const C
     mobEntityCreator.MergeEntityItemMessage(modId,
                                             MobEntityCreator::GetEntityItemMessage(
                                                 WorldVector2D(
-                                                    commandArgs.AsCoordinate(1, commandSenderPosition.x),
-                                                    commandArgs.AsCoordinate(
+                                                    commandArgs->AsCoordinate(1, commandSenderPosition.x),
+                                                    commandArgs->AsCoordinate(
                                                         2, commandSenderPosition.y))));
     return true;
 }
@@ -63,8 +67,11 @@ std::string glimmer::SummonCommand::GetName() const {
     return SUMMON_COMMAND_NAME;
 }
 
-void glimmer::SummonCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
-    strings.emplace_back("[x:int]");
-    strings.emplace_back("[y:int]");
-    strings.emplace_back("[mob_type:string]");
+void glimmer::SummonCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
+        return;
+    }
+    strings->emplace_back("[x:int]");
+    strings->emplace_back("[y:int]");
+    strings->emplace_back("[mob_type:string]");
 }

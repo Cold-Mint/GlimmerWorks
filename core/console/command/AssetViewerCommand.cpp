@@ -8,26 +8,29 @@
 #include "../../mod/dataPack/StringManager.h"
 #include "../../scene/AppContext.h"
 
-glimmer::AssetViewerCommand::AssetViewerCommand(AppContext *appContext)
-    : Command(appContext) {
+void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
+        return;
+    }
+    suggestionsTree->AddChild("string");
+    suggestionsTree->AddChild("texture");
+    suggestionsTree->AddChild("tile");
+    suggestionsTree->AddChild("biomes");
+    suggestionsTree->AddChild("composableItems");
+    suggestionsTree->AddChild("abilityItems");
+    suggestionsTree->AddChild("lootTables");
+    suggestionsTree->AddChild("structures");
+    suggestionsTree->AddChild("startinv");
+    suggestionsTree->AddChild("mobs");
+    suggestionsTree->AddChild("shapes");
+    suggestionsTree->AddChild("biomeDecors");
+    suggestionsTree->AddChild("fixedColor");
+    suggestionsTree->AddChild("lightMask");
+    suggestionsTree->AddChild("lightSource");
 }
 
-void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
-    suggestionsTree.AddChild("string");
-    suggestionsTree.AddChild("texture");
-    suggestionsTree.AddChild("tile");
-    suggestionsTree.AddChild("biomes");
-    suggestionsTree.AddChild("composableItems");
-    suggestionsTree.AddChild("abilityItems");
-    suggestionsTree.AddChild("lootTables");
-    suggestionsTree.AddChild("structures");
-    suggestionsTree.AddChild("startinv");
-    suggestionsTree.AddChild("mobs");
-    suggestionsTree.AddChild("shapes");
-    suggestionsTree.AddChild("biomeDecors");
-    suggestionsTree.AddChild("fixedColor");
-    suggestionsTree.AddChild("lightMask");
-    suggestionsTree.AddChild("lightSource");
+glimmer::AssetViewerCommand::AssetViewerCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
 std::string glimmer::AssetViewerCommand::GetName() const {
@@ -39,22 +42,26 @@ bool glimmer::AssetViewerCommand::RequiresWorldContext() const {
 }
 
 void glimmer::AssetViewerCommand::
-PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
-    strings.emplace_back("[asset type:string]");
+PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
+        return;
+    }
+    strings->emplace_back("[asset type:string]");
 }
 
-bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
-                                          const std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
+bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                          const std::function<void(const std::string &text)> *onMessage) {
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const auto type = commandArgs.AsString(1);
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const auto type = commandArgs->AsString(1);
     if (type == "string") {
         const StringManager *stringManager = appContext_->GetStringManager();
         if (stringManager == nullptr) {
             return false;
         }
-        onMessage(stringManager->ListStrings());
+        onMessageRef(stringManager->ListStrings());
         return true;
     }
 
@@ -63,7 +70,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (resourcePackManager == nullptr) {
             return false;
         }
-        onMessage(resourcePackManager->ListTextureCache());
+        onMessageRef(resourcePackManager->ListTextureCache());
         return true;
     }
 
@@ -72,7 +79,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (tileManager == nullptr) {
             return false;
         }
-        onMessage(tileManager->ListTiles());
+        onMessageRef(tileManager->ListTiles());
         return true;
     }
 
@@ -81,7 +88,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (biomesManager == nullptr) {
             return false;
         }
-        onMessage(biomesManager->ListBiomes());
+        onMessageRef(biomesManager->ListBiomes());
         return true;
     }
 
@@ -90,7 +97,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (itemManager == nullptr) {
             return false;
         }
-        onMessage(itemManager->ListComposableItems());
+        onMessageRef(itemManager->ListComposableItems());
         return true;
     }
 
@@ -99,7 +106,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (itemManager == nullptr) {
             return false;
         }
-        onMessage(itemManager->ListAbilityItems());
+        onMessageRef(itemManager->ListAbilityItems());
         return true;
     }
 
@@ -108,7 +115,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (lootTableManager == nullptr) {
             return false;
         }
-        onMessage(lootTableManager->ListLootTables());
+        onMessageRef(lootTableManager->ListLootTables());
         return true;
     }
 
@@ -117,7 +124,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (initialInventoryManager == nullptr) {
             return false;
         }
-        onMessage(initialInventoryManager->ListInitialInventory());
+        onMessageRef(initialInventoryManager->ListInitialInventory());
         return true;
     }
 
@@ -126,7 +133,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (structureManager == nullptr) {
             return false;
         }
-        onMessage(structureManager->ListStructures());
+        onMessageRef(structureManager->ListStructures());
         return true;
     }
 
@@ -135,7 +142,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (mobManager == nullptr) {
             return false;
         }
-        onMessage(mobManager->ListMobs());
+        onMessageRef(mobManager->ListMobs());
         return true;
     }
 
@@ -144,7 +151,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (shapeManager == nullptr) {
             return false;
         }
-        onMessage(shapeManager->ListShapes());
+        onMessageRef(shapeManager->ListShapes());
         return true;
     }
     if (type == "biomeDecors") {
@@ -153,7 +160,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (decoratorResourcesManager == nullptr) {
             return false;
         }
-        onMessage(decoratorResourcesManager->ListBiomeDecorators());
+        onMessageRef(decoratorResourcesManager->ListBiomeDecorators());
         return true;
     }
     if (type == "fixedColor") {
@@ -161,7 +168,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (fixedColorManager == nullptr) {
             return false;
         }
-        onMessage(fixedColorManager->ListFixedColorResources());
+        onMessageRef(fixedColorManager->ListFixedColorResources());
         return true;
     }
     if (type == "lightMask") {
@@ -169,7 +176,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (lightMaskManager == nullptr) {
             return false;
         }
-        onMessage(lightMaskManager->ListLightMaskResource());
+        onMessageRef(lightMaskManager->ListLightMaskResource());
         return true;
     }
 
@@ -178,7 +185,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
         if (lightSourceManager == nullptr) {
             return false;
         }
-        onMessage(lightSourceManager->ListLightSourceResource());
+        onMessageRef(lightSourceManager->ListLightSourceResource());
         return true;
     }
 
@@ -186,6 +193,6 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
     if (langsResources == nullptr) {
         return false;
     }
-    onMessage(langsResources->unknownAssetType);
+    onMessageRef(langsResources->unknownAssetType);
     return false;
 }

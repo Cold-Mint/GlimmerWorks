@@ -8,8 +8,11 @@
 #include "core/ecs/component/ItemContainerComonent.h"
 #include "fmt/format.h"
 
-void glimmer::LootCommand::InitSuggestions(NodeTree<std::string> &suggestionsTree) {
-    suggestionsTree.AddChild("get")->AddChild(LOOT_DYNAMIC_SUGGESTIONS_NAME);
+void glimmer::LootCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
+        return;
+    }
+    suggestionsTree->AddChild("get")->AddChild(LOOT_DYNAMIC_SUGGESTIONS_NAME);
 }
 
 glimmer::LootCommand::LootCommand(AppContext *appContext)
@@ -20,42 +23,46 @@ std::string glimmer::LootCommand::GetName() const {
     return LOOT_COMMAND_NAME;
 }
 
-void glimmer::LootCommand::PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) {
-    strings.emplace_back("[type:string]");
-    strings.emplace_back("[lootTableId:string]");
+void glimmer::LootCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
+        return;
+    }
+    strings->emplace_back("[type:string]");
+    strings->emplace_back("[lootTableId:string]");
 }
 
 bool glimmer::LootCommand::RequiresWorldContext() const {
     return true;
 }
 
-bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const CommandArgs commandArgs,
-                                   const std::function<void(const std::string &text)> onMessage) {
-    if (appContext_ == nullptr) {
+bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+    const std::function<void(const std::string &text)> *onMessage) {
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
     if (worldContext_ == nullptr) {
-        onMessage(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const size_t size = commandArgs.GetSize();
+    const size_t size = commandArgs->GetSize();
     if (size < 3) {
-        onMessage(fmt::format(
+        onMessageRef(fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
             3, size));
         return false;
     }
-    const std::string type = commandArgs.AsString(1);
+    const std::string type = commandArgs->AsString(1);
     if (type == "get") {
         auto playerId = worldContext_->GetPlayerEntity();
         auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
         if (item_container == nullptr) {
-            onMessage(appContext_->GetLangsResources()->itemContainerIsNull);
+            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
         }
-        auto lootId = commandArgs.AsResourceRef(2, RESOURCE_TYPE_LOOT_TABLE);
+        auto lootId = commandArgs->AsResourceRef(2, RESOURCE_TYPE_LOOT_TABLE);
         if (!lootId.has_value()) {
-            onMessage(appContext_->GetLangsResources()->lootTableNotFound);
+            onMessageRef(appContext_->GetLangsResources()->lootTableNotFound);
             return false;
         }
         ResourceRef &resourceRef = lootId.value();

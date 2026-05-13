@@ -24,6 +24,7 @@ void glimmer::ConsoleOverlay::SetCommandStructure(const std::vector<std::string>
 bool glimmer::ConsoleOverlay::OnBackPressed() {
     if (show_) {
         show_ = false;
+        Hide();
         return true;
     }
     return false;
@@ -111,6 +112,9 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
             show_ = !show_;
             if (show_) {
                 focusNextFrame_ = true;
+                Show();
+            } else {
+                Hide();
             }
             return true;
         }
@@ -212,7 +216,42 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event &event) {
 }
 
 void glimmer::ConsoleOverlay::Update(float delta) {
+    for (auto it = commandIDList_.begin(); it != commandIDList_.end();) {
+        uint32_t commandId = *it;
+        std::unique_ptr<CommandResponse> commandResponse = consoleWorker_->TakeCommandResponse(commandId);
+
+        if (commandResponse == nullptr) {
+            ++it;
+            continue;
+        }
+
+        CommandResult commandResult = commandResponse->GetCommandResult();
+        std::string pattern;
+        std::string message;
+
+        switch (commandResult) {
+            case CommandResult::Success:
+                pattern = appContext->GetLangsResources()->executedSuccess;
+                break;
+            case CommandResult::Failure:
+                pattern = appContext->GetLangsResources()->executionFailed;
+                break;
+            case CommandResult::EmptyArgs:
+                message = appContext->GetLangsResources()->commandIsEmpty;
+                break;
+            case CommandResult::NotFound:
+                pattern = appContext->GetLangsResources()->commandNotFound;
+                break;
+        }
+
+        if (!pattern.empty()) {
+            message = fmt::format(fmt::runtime(pattern), commandResponse->GetCommand());
+        }
+        addMessage(message);
+        it = commandIDList_.erase(it);
+    }
 }
+
 
 void glimmer::ConsoleOverlay::addMessage(const std::string &message) {
     LogCat::d(message);
@@ -236,7 +275,7 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData *data) {
             overlay->appContext->GetCommandManager()->GetSuggestions(
                 overlay->appContext->GetDynamicSuggestionsManager(),
                 commandArgs, cursorPos));
-        overlay->SetCommandStructure(overlay->appContext->GetCommandManager()->GetCommandStructure(commandArgs));
+        overlay->SetCommandStructure(overlay->appContext->GetCommandManager()->GetCommandStructure(&commandArgs));
         overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
     }
     if (overlay->nextCursorPos_ != -1) {
@@ -294,13 +333,33 @@ std::string glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string &sug
     return newText;
 }
 
+void glimmer::ConsoleOverlay::Show() {
+    if (consoleWorker_ == nullptr) {
+        return;
+    }
+    consoleWorker_->PushOnMessage(
+        std::make_unique<std::function<void(const std::string &)> >([this](const std::string &text) {
+            this->addMessage(text);
+        })
+    );
+}
+
+void glimmer::ConsoleOverlay::Hide() const {
+    if (consoleWorker_ != nullptr) {
+        consoleWorker_->PopOnMessage();
+    }
+}
+
 
 glimmer::ConsoleOverlay::ConsoleOverlay(AppContext *context)
     : Scene(context) {
+    consoleWorker_ = context->GetConsoleWorker();
 }
 
 void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
-    if (!show_) return;
+    if (!show_) {
+        return;
+    }
     const float uiScale = appContext->GetConfig()->window.uiScale;
     const PreloadColors *preloadColors = appContext->GetPreloadColors();
     ImGui::GetIO().FontGlobalScale = uiScale;
@@ -552,33 +611,7 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
                 const int delete_num = current_size - max_entries;
                 mutableHistory->DeleteSubrange(0, delete_num);
             }
-            CommandSender commandSender;
-            CommandExecutor::ExecuteAsyncSingle(&commandSender, command_, appContext->GetCommandManager(),
-                                                [this](const CommandResult result, const std::string &cmd) {
-                                                    std::string message;
-                                                    std::string pattern;
-                                                    switch (result) {
-                                                        case CommandResult::Success:
-                                                            pattern = appContext->GetLangsResources()->executedSuccess;
-                                                            break;
-                                                        case CommandResult::Failure:
-                                                            pattern = appContext->GetLangsResources()->executionFailed;
-                                                            break;
-                                                        case CommandResult::EmptyArgs:
-                                                            message = appContext->GetLangsResources()->commandIsEmpty;
-                                                            break;
-                                                        case CommandResult::NotFound:
-                                                            pattern = appContext->GetLangsResources()->commandNotFound;
-                                                            break;
-                                                    }
-                                                    if (!pattern.empty()) {
-                                                        message = fmt::format(fmt::runtime(pattern), cmd);
-                                                    }
-                                                    addMessage(message);
-                                                },
-                                                [this](const std::string &text) {
-                                                    addMessage(text);
-                                                });
+            commandIDList_.push_back(consoleWorker_->CreateRequest(command_, &commandSender_));
         }
         command_.clear();
         tempCommand_.clear();

@@ -12,7 +12,7 @@
 #ToruNiina/toml11@latest
 #protocolbuffers/protobuf@latest
 #google/googletest@latest
-set(OCORNUT_IMGUI_VERSION "v1.92.7")
+set(OCORNUT_IMGUI_VERSION "v1.92.8")
 set(LIBSDL-ORG_SDL_VERSION "release-3.4.8")
 set(LIBSDL-ORG_SDL_IMAGE_VERSION "release-3.4.4")
 set(LIBSDL-ORG_SDL_TTF_VERSION "release-3.2.2")

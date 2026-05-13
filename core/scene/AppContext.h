@@ -9,7 +9,6 @@
 
 #include "SceneManager.h"
 #include "../LangsResources.h"
-#include "../console/CommandExecutor.h"
 #include "../mod/dataPack/BiomesManager.h"
 #include "../mod/dataPack/ItemManager.h"
 #include "../mod/dataPack/TileManager.h"
@@ -23,6 +22,8 @@
 #include "core/Config.h"
 #include "core/GameUIMessage.h"
 #include "core/console/CommandHistoryManager.h"
+#include "core/console/CommandManager.h"
+#include "core/console/ConsoleWorker.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
 #include "core/mod/StructurePlacementConditionsManager.h"
@@ -71,7 +72,7 @@ namespace glimmer {
         std::unique_ptr<CommandManager> commandManager_;
         std::unique_ptr<SavesManager> savesManager_;
         TTF_Font *ttfFont_ = nullptr;
-        std::unique_ptr<CommandExecutor> commandExecutor_;
+        std::unique_ptr<ConsoleWorker> consoleWorker_;
         std::unique_ptr<ResourcePackManager> resourcePackManager_;
         std::unique_ptr<LangsResources> langsResources_;
         std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_;
@@ -126,7 +127,7 @@ namespace glimmer {
 
         void SetRenderer(SDL_Renderer *renderer);
 
-        void CreateScreenshot(const std::function<void(const std::string &text)> &onMessage) const;
+        void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
 
         void SetFont(TTF_Font *font);
 
@@ -151,6 +152,8 @@ namespace glimmer {
         [[nodiscard]] CommandManager *GetCommandManager() const;
 
         [[nodiscard]] AudioManager *GetAudioManager() const;
+
+        [[nodiscard]] ConsoleWorker* GetConsoleWorker();
 
         [[nodiscard]] LightMaskManager *GetLightMaskManager() const;
 

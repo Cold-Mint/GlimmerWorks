@@ -12,18 +12,18 @@ namespace glimmer {
         explicit HookCommand(AppContext *appContext);
 
     protected:
-        void InitSuggestions(NodeTree<std::string> &suggestionsTree) override;
+        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
     public:
 
         [[nodiscard]] std::string GetName() const override;
 
-        void PutCommandStructure(const CommandArgs &commandArgs, std::vector<std::string> &strings) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        bool Execute(const CommandSender *commandSender, CommandArgs commandArgs,
-            std::function<void(const std::string &text)> onMessage) override;
+        [[nodiscard]] NodeTree<std::string> * GetSuggestionsTree(const CommandArgs *commandArgs) override;
 
-        [[nodiscard]] NodeTree<std::string> GetSuggestionsTree(const CommandArgs &commandArgs) override;
+        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+            const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
 

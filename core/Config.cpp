@@ -39,7 +39,7 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     window.fullscreen = toml::find<bool>(configValue, "window", "fullscreen");
     window.uiScale = toml::find<float>(configValue, "window", "ui_scale");
     window.vSync = toml::find<bool>(configValue, "window", "vsync");
-    window.idleDelayMs = toml::find<int>(configValue, "window", "idle_delay_ms");
+    window.idleDelay = toml::find<float>(configValue, "window", "idle_delay");
     window.idleTargetFps = toml::find<float>(configValue, "window", "idle_target_fps");
     window.normalTargetFps = toml::find<float>(configValue, "window", "normal_target_fps");
     mods.dataPackPath = toml::find<std::string>(configValue, "mods", "data_pack_path");
@@ -55,6 +55,7 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     if (world.preloadLightingRadius > world.preloadChunkRadius) {
         world.preloadLightingRadius = world.preloadChunkRadius;
     }
+    world.chunkSpawnCleanInterval = toml::find<float>(configValue, "world", "chunk_spawn_clean_interval");
     audio.channels = toml::find<int>(configValue, "audio", "channels");
     audio.masterVolume = toml::find<float>(configValue, "audio", "master_volume");
     audio.freq = toml::find<int>(configValue, "audio", "freq");

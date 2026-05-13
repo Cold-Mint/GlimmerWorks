@@ -10,6 +10,7 @@
 
 
 void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
+    pthread_setname_np(thread_.native_handle(), "ConsoleWorker");
     while (!stopToken.stop_requested()) {
         std::unique_lock lock(commandMutex_);
         cv_.wait(lock, [this, &stopToken] {
@@ -94,6 +95,11 @@ void glimmer::ConsoleWorker::PopOnMessage() {
     if (!onMessageStack_.empty()) {
         onMessageStack_.pop();
     }
+    cv_.notify_one();
+}
+
+void glimmer::ConsoleWorker::Stop() {
+    thread_.request_stop();
     cv_.notify_one();
 }
 

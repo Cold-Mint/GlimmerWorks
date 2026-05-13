@@ -44,6 +44,8 @@ namespace glimmer {
 
         void PopOnMessage();
 
+        void Stop();
+
         void PushOnMessage(std::unique_ptr<std::function<void(const std::string &text)> > onMessage);
     };
 }

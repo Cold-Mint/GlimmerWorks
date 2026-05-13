@@ -14,10 +14,10 @@ height = 1080
 # Is it full screen
 # 是否全屏
 fullscreen = false
-# After being idle and without any operation for a certain period of time, the frame rate will start to decrease (unit: milliseconds).
+# After being idle and without any operation for a certain period of time, the frame rate will start to decrease (unit: seconds).
 # -1 indicates that the function is turned off.
-# 闲置无操作多久后开始降帧 (单位：毫秒)，-1为关闭功能。
-idle_delay_ms = 15000
+# 闲置无操作多久后开始降帧 (单位：秒)，-1为关闭功能。
+idle_delay = 10.0
 # The minimum rendering frame rate locked in the idle state
 # 闲置状态下锁定的最低渲染帧率
 idle_target_fps = 15.0
@@ -96,6 +96,11 @@ preload_structure_radius = 5.0
 # Constraint: Must be ≤ preload_chunk_radius. No tiles available for lighting calculation beyond the chunk range.
 # 约束：必须 ≤ preload_chunk_radius，超出区块范围无瓦片可计算光照
 preload_lighting_radius = 1.0
+# Block generation and recycling interval (seconds)
+# Periodically detect and generate new blocks that enter the field of view, and remove and delete redundant blocks that are far from the field of view.
+# 区块生成与回收间隔（秒）
+# 定时检测、生成新进入视野的区块，卸载删除远离视野的冗余区块
+chunk_spawn_clean_interval = 0.5
 
 [command]
 # Number of chunks traversed in the positive/negative X direction when using the `locate biome` command.

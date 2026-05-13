@@ -5,7 +5,6 @@
 #ifndef GLIMMERWORKS_LOCATECOMMAND_H
 #define GLIMMERWORKS_LOCATECOMMAND_H
 #include "core/console/Command.h"
-#include "core/mod/Resource.h"
 #include "core/mod/dataPack/BiomesManager.h"
 #include "core/world/generator/ChunkGenerator.h"
 

@@ -553,6 +553,8 @@ target_sources(GlimmerWorks
         core/console/ConsoleWorker.cpp
         core/console/CommandResponse.cpp
         core/console/CommandRequest.cpp
+        core/world/ChunkTask.cpp
+        core/world/ChunkType.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -798,6 +800,8 @@ target_sources(GlimmerWorks
         core/console/ConsoleWorker.h
         core/console/CommandRequest.h
         core/console/CommandResponse.h
+        core/world/ChunkType.h
+        core/world/ChunkTask.h
 )
 
 #Define version information

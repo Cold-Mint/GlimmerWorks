@@ -451,7 +451,7 @@ void glimmer::App::Run() {
     );
 
     while (appContext_->Running() && sceneManager->GetSceneCount() > 0) {
-        int idleDelayMs = config->window.idleDelayMs;
+        const int idleDelayMs = config->window.idleDelay * 1000;
         float targetFrameTime = 0;
         if (idleDelayMs == -1) {
             //Disable idle mode to reduce frame rate.

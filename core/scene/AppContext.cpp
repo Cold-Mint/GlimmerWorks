@@ -562,6 +562,9 @@ std::vector<glimmer::GameUIMessage> &glimmer::AppContext::GetGameUIMessages() {
 }
 
 void glimmer::AppContext::ExitApp() {
+    if (consoleWorker_ != nullptr) {
+        consoleWorker_->Stop();
+    }
     if (config_->console.maxHistoryEntries > 0) {
         commandHistoryManager_->Save();
     }

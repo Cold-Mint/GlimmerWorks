@@ -19,14 +19,30 @@ glimmer::ChunkSystem::ChunkSystem(WorldContext *worldContext)
     RequireComponent<PlayerComponent>();
 }
 
-void glimmer::ChunkSystem::Update(float delta) {
-    const auto *camera = worldContext_->GetCameraComponent();
-    const auto *cameraPos = worldContext_->GetCameraTransform2D();
-    if (camera == nullptr || cameraPos == nullptr) {
-        return;
+void glimmer::ChunkSystem::Update(const float delta) {
+    if (!chunkTasks_.empty()) {
+        for (int i = 0; i < 4; i++) {
+            if (chunkTasks_.empty()) {
+                break;
+            }
+            ChunkTask chunkTask = chunkTasks_.front();
+            uint64_t id = chunkTask.GetId();
+            taskIdSet_.erase(id);
+            chunkTasks_.pop_front();
+            if (chunkTask.chunkType == LoadTerrain) {
+                worldContext_->LoadTerrainAt(chunkTask.tileVector2D);
+            }
+            if (chunkTask.chunkType == LoadChunk) {
+                worldContext_->LoadChunkAt(chunkTask.tileVector2D);
+            }
+            if (chunkTask.chunkType == UnloadChunk) {
+                worldContext_->UnloadChunkAt(chunkTask.tileVector2D);
+            }
+            if (chunkTask.chunkType == UnloadTerrain) {
+                worldContext_->UnloadTerrainAt(chunkTask.tileVector2D);
+            }
+        }
     }
-    const auto originalViewportRect = camera->GetViewportRect(cameraPos->GetPosition());
-    constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
     const AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
         return;
@@ -35,6 +51,25 @@ void glimmer::ChunkSystem::Update(float delta) {
     if (config == nullptr) {
         return;
     }
+    accumTime_ += delta;
+    if (!firstTime_ && accumTime_ < config->world.chunkSpawnCleanInterval) {
+        return;
+    }
+    firstTime_ = false;
+    accumTime_ -= config->world.chunkSpawnCleanInterval;
+    const auto *camera = worldContext_->GetCameraComponent();
+    const auto *cameraTransform2D = worldContext_->GetCameraTransform2D();
+    if (camera == nullptr || cameraTransform2D == nullptr) {
+        return;
+    }
+    WorldVector2D cameraPosition = cameraTransform2D->GetPosition();
+    if (cameraPosition_.x == cameraPosition.x && cameraPosition_.y == cameraPosition.y) {
+        return;
+    }
+    cameraPosition_.x = cameraPosition.x;
+    cameraPosition_.y = cameraPosition.y;
+    const auto originalViewportRect = camera->GetViewportRect(cameraPosition);
+    constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
     //Pre-calculated terrain range.
     //预计算的地形范围。
     auto preloadedTerrainViewportRect = originalViewportRect;
@@ -66,7 +101,14 @@ void glimmer::ChunkSystem::Update(float delta) {
         for (int cx = startTerrain.x; cx < endTerrain.x; cx += CHUNK_SIZE) {
             TileVector2D chunkPos(cx, cy);
             if (!WorldContext::ChunkIsOutOfBounds(chunkPos)) {
-                worldContext_->LoadTerrainAt(chunkPos);
+                ChunkTask chunkTask;
+                chunkTask.chunkType = LoadTerrain;
+                chunkTask.tileVector2D = chunkPos;
+                uint64_t id = chunkTask.GetId();
+                if (!taskIdSet_.contains(id)) {
+                    chunkTasks_.push_back(chunkTask);
+                    taskIdSet_.insert(id);
+                }
             }
         }
     }
@@ -85,7 +127,14 @@ void glimmer::ChunkSystem::Update(float delta) {
         for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
             TileVector2D chunkPos(cx, cy);
             if (!WorldContext::ChunkIsOutOfBounds(chunkPos) && !worldContext_->HasChunk(chunkPos)) {
-                worldContext_->LoadChunkAt(chunkPos);
+                ChunkTask chunkTask;
+                chunkTask.chunkType = LoadChunk;
+                chunkTask.tileVector2D = chunkPos;
+                uint64_t id = chunkTask.GetId();
+                if (!taskIdSet_.contains(id)) {
+                    chunkTasks_.push_back(chunkTask);
+                    taskIdSet_.insert(id);
+                }
             }
         }
     }
@@ -106,7 +155,14 @@ void glimmer::ChunkSystem::Update(float delta) {
     }
 
     for (const auto &pos: chunksToUnload) {
-        worldContext_->UnloadChunkAt(pos);
+        ChunkTask chunkTask;
+        chunkTask.chunkType = UnloadChunk;
+        chunkTask.tileVector2D = pos;
+        uint64_t id = chunkTask.GetId();
+        if (!taskIdSet_.contains(id)) {
+            chunkTasks_.push_back(chunkTask);
+            taskIdSet_.insert(id);
+        }
     }
 
     std::vector<TileVector2D> terrainToUnload;
@@ -122,7 +178,14 @@ void glimmer::ChunkSystem::Update(float delta) {
         }
     }
     for (const auto &pos: terrainToUnload) {
-        worldContext_->UnloadTerrainAt(pos);
+        ChunkTask chunkTask;
+        chunkTask.chunkType = UnloadTerrain;
+        chunkTask.tileVector2D = pos;
+        uint64_t id = chunkTask.GetId();
+        if (!taskIdSet_.contains(id)) {
+            chunkTasks_.push_back(chunkTask);
+            taskIdSet_.insert(id);
+        }
     }
 }
 

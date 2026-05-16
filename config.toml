@@ -98,9 +98,43 @@ preload_structure_radius = 5.0
 preload_lighting_radius = 1.0
 # Block generation and recycling interval (seconds)
 # Periodically detect and generate new blocks that enter the field of view, and remove and delete redundant blocks that are far from the field of view.
+# Set to 0 to execute every frame
 # 区块生成与回收间隔（秒）
 # 定时检测、生成新进入视野的区块，卸载删除远离视野的冗余区块
+# 设置为 0 则每帧执行
 chunk_spawn_clean_interval = 0.5
+# How many terrain unloading tasks are executed each time?(Set to 0 for all to execute)
+# 每次执行多少个地形卸载任务。（设置为0全部执行）
+unload_terrain_batch = 10
+# Interval for unloading terrain task (seconds)
+# Set to 0 to execute every frame
+# 卸载地形任务间隔（秒）
+# 设置为 0 则每帧执行
+unload_terrain_interval = 0.05
+# How many chunk unloading tasks are executed each time?(Set to 0 for all to execute)
+# 每次执行多少个区块卸载任务。（设置为0全部执行）
+unload_chunk_batch = 1
+# Interval for unloading chunk task (seconds)
+# Set to 0 to execute every frame
+# 卸载区块任务间隔（秒）
+# 设置为 0 则每帧执行
+unload_chunk_interval = 0.05
+# Interval for loading chunk task (seconds)
+# Set to 0 to execute every frame
+# 加载区块任务间隔（秒）
+# 设置为 0 则每帧执行
+load_chunk_interval = 0.05
+# How many terrain loading tasks are executed each time?(Set to 0 for all to execute)
+# 每次执行多少个地形加载任务。（设置为0全部执行）
+load_terrain_batch = 10
+# Interval for loading terrain task (seconds)
+# Set to 0 to execute every frame
+# 加载地形任务间隔（秒）
+# 设置为 0 则每帧执行
+load_terrain_interval = 0.05
+# How many chunk loading tasks are executed each time?(Set to 0 for all to execute)
+# 每次执行多少个区块加载任务。（设置为0全部执行）
+load_chunk_batch = 1
 
 [command]
 # Number of chunks traversed in the positive/negative X direction when using the `locate biome` command.

@@ -605,10 +605,10 @@ void glimmer::ConsoleOverlay::Render(SDL_Renderer *renderer) {
             const auto mutableHistory = commandHistoryMessage.mutable_history();
             auto *new_command = mutableHistory->Add();
             *new_command = command_;
-            const int max_entries = appContext->GetConfig()->console.maxHistoryEntries;
+            const uint16_t maxEntries = appContext->GetConfig()->console.maxHistoryEntries;
             int current_size = mutableHistory->size();
-            if (current_size > max_entries && max_entries >= 0) {
-                const int delete_num = current_size - max_entries;
+            if (current_size > maxEntries) {
+                const int delete_num = current_size - maxEntries;
                 mutableHistory->DeleteSubrange(0, delete_num);
             }
             commandIDList_.push_back(consoleWorker_->CreateRequest(command_, &commandSender_));

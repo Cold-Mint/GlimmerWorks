@@ -5,13 +5,13 @@
 #include "CommandRequest.h"
 
 
-glimmer::CommandRequest::CommandRequest(const u_int32_t id, const std::string &command, CommandSender *commandSender) {
+glimmer::CommandRequest::CommandRequest(const uint32_t id, const std::string &command, CommandSender *commandSender) {
     id_ = id;
     command_ = command;
     commandSender_ = commandSender;
 }
 
-u_int32_t glimmer::CommandRequest::GetId() const {
+uint32_t glimmer::CommandRequest::GetId() const {
     return id_;
 }
 

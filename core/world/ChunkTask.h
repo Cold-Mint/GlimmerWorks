@@ -8,14 +8,24 @@
 #include "core/ecs/component/TileLayerComponent.h"
 
 namespace glimmer {
-    struct ChunkTask {
-        ChunkType chunkType = None;
-        TileVector2D tileVector2D;
+    class ChunkTask {
+        ChunkType chunkType_ = None;
+        TileVector2D chunkVertexCoordinates_;
+        uint32_t distance_ = 0;
 
-        uint64_t GetId() const;
+    public:
+        ChunkTask(ChunkType chunkType, TileVector2D chunkVertexCoordinates);
+
+        [[nodiscard]] ChunkType GetChunkType() const;
+
+        [[nodiscard]] uint32_t GetDistance() const;
+
+        void SetOrigin(TileVector2D origin);
+
+        [[nodiscard]] const TileVector2D &GetChunkVertexCoordinates() const;
+
+        [[nodiscard]] uint64_t GetId() const;
     };
-
-
 }
 
 #endif //GLIMMERWORKS_CHUNKTASK_H

@@ -36,7 +36,7 @@ namespace glimmer {
     };
 
     struct CommandConfig {
-        int locateMaxRadiusSearchChunks = 2048;
+        uint16_t locateMaxRadiusSearchChunks = 2048;
     };
 
     struct Mods {
@@ -64,7 +64,7 @@ namespace glimmer {
     };
 
     struct Console {
-        int maxHistoryEntries = 100;
+        uint16_t maxHistoryEntries = 100;
     };
 
     struct World {
@@ -72,6 +72,14 @@ namespace glimmer {
         float preloadStructureRadius;
         float preloadLightingRadius;
         float chunkSpawnCleanInterval;
+        float loadTerrainInterval;
+        uint16_t loadTerrainBatch;
+        float loadChunkInterval;
+        uint16_t loadChunkBatch;
+        float unloadChunkInterval;
+        uint16_t unloadChunkBatch;
+        float unloadTerrainInterval;
+        uint16_t unloadTerrainBatch;
     };
 
     struct AudioTrack {

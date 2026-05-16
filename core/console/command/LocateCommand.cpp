@@ -113,7 +113,7 @@ bool glimmer::LocateCommand::Execute(const CommandSender *commandSender, const C
             return false;
         }
         TileVector2D position = TileLayerComponent::WorldToTile(transform2dComponent->GetPosition());
-        int locateMaxRadiusSearchChunks = appContext_->GetConfig()->command.locateMaxRadiusSearchChunks;
+        uint16_t locateMaxRadiusSearchChunks = appContext_->GetConfig()->command.locateMaxRadiusSearchChunks;
         std::optional<TileVector2D> target = std::nullopt;
         for (int searchRadius = 0; searchRadius < locateMaxRadiusSearchChunks; searchRadius++) {
             if (searchRadius == 0) {

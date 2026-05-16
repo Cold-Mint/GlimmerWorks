@@ -71,7 +71,7 @@ int glimmer::Vector2DI::LengthSquared() const {
     return x * x + y * y;
 }
 
-int glimmer::Vector2DI::DistanceSquared(const Vector2DI &rhs) const {
+uint32_t glimmer::Vector2DI::DistanceSquared(const Vector2DI &rhs) const {
     const int dx = x - rhs.x;
     const int dy = y - rhs.y;
     return dx * dx + dy * dy;

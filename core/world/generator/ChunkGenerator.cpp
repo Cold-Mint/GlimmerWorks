@@ -403,6 +403,9 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     }
     auto chunk = std::make_unique<Chunk>(position);
     TerrainResult *terrainResult = worldContext_->GetTerrainData(position);
+    if (terrainResult == nullptr) {
+        return nullptr;
+    }
     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > tilesRefMap = {
         {Ground, {}},
         {BackGround, {}}

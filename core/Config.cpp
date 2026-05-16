@@ -56,6 +56,14 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
         world.preloadLightingRadius = world.preloadChunkRadius;
     }
     world.chunkSpawnCleanInterval = toml::find<float>(configValue, "world", "chunk_spawn_clean_interval");
+    world.loadTerrainInterval = toml::find<float>(configValue, "world", "load_terrain_interval");
+    world.loadTerrainBatch = toml::find<uint16_t>(configValue, "world", "load_terrain_batch");
+    world.loadChunkInterval = toml::find<float>(configValue, "world", "load_chunk_interval");
+    world.loadChunkBatch = toml::find<uint16_t>(configValue, "world", "load_chunk_batch");
+    world.unloadChunkInterval = toml::find<float>(configValue, "world", "unload_chunk_interval");
+    world.unloadChunkBatch = toml::find<uint16_t>(configValue, "world", "unload_chunk_batch");
+    world.unloadTerrainInterval = toml::find<float>(configValue, "world", "unload_terrain_interval");
+    world.unloadTerrainBatch = toml::find<uint16_t>(configValue, "world", "unload_terrain_batch");
     audio.channels = toml::find<int>(configValue, "audio", "channels");
     audio.masterVolume = toml::find<float>(configValue, "audio", "master_volume");
     audio.freq = toml::find<int>(configValue, "audio", "freq");
@@ -70,9 +78,9 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     debug.displayErosionMap = toml::find<bool>(configValue, "debug", "display_erosion_map");
     debug.displayWeirdnessMap = toml::find<bool>(configValue, "debug", "display_weirdness_map");
     light.enable = toml::find<bool>(configValue, "light", "enable");
-    console.maxHistoryEntries = toml::find<int>(configValue, "console", "max_history_entries");
+    console.maxHistoryEntries = toml::find<uint16_t>(configValue, "console", "max_history_entries");
     runtimePath = toml::find<std::string>(configValue, "runtime_path");
-    command.locateMaxRadiusSearchChunks = toml::find<int>(configValue, "command", "locate_max_radius_search_chunks");
+    command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(configValue, "command", "locate_max_radius_search_chunks");
     commandHooks = toml::find<std::vector<CommandHookResource> >(configValue, "command_hooks");
     commandHookManager->LoadHookFromConfig(commandHooks);
 }

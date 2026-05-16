@@ -5,6 +5,7 @@
 #ifndef GLIMMERWORKS_VECTOR2DI_H
 #define GLIMMERWORKS_VECTOR2DI_H
 #include <cmath>
+#include <cstdint>
 #include <functional>
 
 #include "Vector2D.h"
@@ -101,7 +102,7 @@ namespace glimmer {
          * Compute distance squared to another vector
          * 计算到另一个向量的距离平方
          */
-        [[nodiscard]] int DistanceSquared(const Vector2DI &rhs) const;
+        [[nodiscard]] uint32_t DistanceSquared(const Vector2DI &rhs) const;
 
         /**
          * Calculate the angle between this vector and another vector.

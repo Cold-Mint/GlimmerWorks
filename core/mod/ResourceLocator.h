@@ -8,11 +8,11 @@
 #include "Resource.h"
 #include "ResourceRef.h"
 #include "core/math/Color.h"
-#include "core/scene/AppContext.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
 namespace glimmer {
     class Item;
+    class TileInstancePool;
     /**
      * ResourceLocator，Used to interpret references and return the corresponding resources.
      * 资源定位器，用于解释引用并返回对应的资源。
@@ -100,14 +100,15 @@ namespace glimmer {
         /**
          * FindItem
          * 查找物品
+         * @param worldContext worldContext
          * @param itemMessage itemMessage 物品数据
          * @return  Item pointer 物品指针
          */
-        [[nodiscard]] std::unique_ptr<Item> FindItem(
-            const ItemMessage &itemMessage) const;
+        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext *worldContext,
+                                                     const ItemMessage &itemMessage) const;
 
-        [[nodiscard]] std::unique_ptr<Item> FindItem(
-            const ItemMessageResource &itemMessageResource) const;
+        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext *worldContext,
+                                                     const ItemMessageResource &itemMessageResource) const;
     };
 }
 

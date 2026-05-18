@@ -18,7 +18,6 @@
 #include "LightBuffer.h"
 #include "../ecs/GameComponent.h"
 #include "../ecs/component/DiggingComponent.h"
-#include "../ecs/component/PauseComponent.h"
 #include "../math/Vector2DI.h"
 #include "../saves/Saves.h"
 #include "box2d/id.h"
@@ -29,9 +28,12 @@
 #include "core/inventory/ComposableItem.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
+#include "core/world/TileInstancePool.h"
 
 namespace glimmer {
     class ParallaxBackgroundComponent;
+    class TileInstancePool;
+
     /**
      * GameEntity has been restricted to be accessed directly only within the WorldContext. GameEntity::ID is provided externally.
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供GameEntity::ID。
@@ -125,6 +127,7 @@ namespace glimmer {
         GameEntity::ID itemEditorPanel_ = GAME_ENTITY_ID_INVALID;
         std::unique_ptr<ChunkLoader> chunkLoader_ = nullptr;
         std::unique_ptr<ChunkGenerator> chunkGenerator_ = nullptr;
+        std::unique_ptr<TileInstancePool> tileInstancePool_;
 
         /**
          * Whether to enable the item dragging mode
@@ -163,7 +166,8 @@ namespace glimmer {
          * @param layerType layerType 图层类型
          * @param index index 索引
          */
-        void OnChunkTileChange(Chunk *chunk, Tile *tile, TileLayerType layerType, int index) const;
+        void OnChunkTileChange(Chunk *chunk, const std::shared_ptr<Tile> &tile, TileLayerType layerType,
+                               int index) const;
 
         void UpdateTileLight(const Chunk *chunk, TileLayerType layerType, int index) const;
 
@@ -326,6 +330,8 @@ namespace glimmer {
          * @return
          */
         Chunk *GetChunk(TileVector2D chunkVertex);
+
+        [[nodiscard]] TileInstancePool *GetTileInstancePool() const;
 
         /**
          * SaveChunk

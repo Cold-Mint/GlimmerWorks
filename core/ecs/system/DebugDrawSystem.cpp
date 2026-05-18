@@ -7,7 +7,8 @@
 #include "../../Constants.h"
 #include "../component/CameraComponent.h"
 #include "../component/DebugDrawComponent.h"
-#include "../../world/WorldContext.h"
+#include "core/world/TileInstancePool.h"
+#include "core/world/WorldContext.h"
 
 
 glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext *worldContext) : GameSystem(worldContext) {

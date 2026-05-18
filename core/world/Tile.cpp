@@ -177,6 +177,5 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
         tileResource->texture);
     tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);
     tile->placeSFX_ = resourceLocator->FindAudio(tileResource->placeSfx);
-
     return tile;
 }

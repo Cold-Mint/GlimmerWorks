@@ -295,9 +295,7 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks
-            core/console/command/MemoryUsageCommand.cpp
-            core/console/command/MemoryUsageCommand.h)
+    add_executable(GlimmerWorks)
 endif ()
 
 target_sources(GlimmerWorks
@@ -554,6 +552,8 @@ target_sources(GlimmerWorks
         core/world/ChunkType.cpp
         core/ISignable.cpp
         core/MemoryUsage.cpp
+        core/console/command/MemoryUsageCommand.cpp
+        core/world/TileInstancePool.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -798,6 +798,8 @@ target_sources(GlimmerWorks
         core/world/ChunkTask.h
         core/ISignable.h
         core/MemoryUsage.h
+        core/console/command/MemoryUsageCommand.h
+        core/world/TileInstancePool.h
 )
 
 #Define version information

@@ -110,7 +110,7 @@ unload_terrain_batch = 10
 # Set to 0 to execute every frame
 # 卸载地形任务间隔（秒）
 # 设置为 0 则每帧执行
-unload_terrain_interval = 0.05
+unload_terrain_interval = 0.03
 # How many chunk unloading tasks are executed each time?(Set to 0 for all to execute)
 # 每次执行多少个区块卸载任务。（设置为0全部执行）
 unload_chunk_batch = 1
@@ -118,12 +118,12 @@ unload_chunk_batch = 1
 # Set to 0 to execute every frame
 # 卸载区块任务间隔（秒）
 # 设置为 0 则每帧执行
-unload_chunk_interval = 0.05
+unload_chunk_interval = 0.03
 # Interval for loading chunk task (seconds)
 # Set to 0 to execute every frame
 # 加载区块任务间隔（秒）
 # 设置为 0 则每帧执行
-load_chunk_interval = 0.05
+load_chunk_interval = 0.03
 # How many terrain loading tasks are executed each time?(Set to 0 for all to execute)
 # 每次执行多少个地形加载任务。（设置为0全部执行）
 load_terrain_batch = 10
@@ -131,10 +131,17 @@ load_terrain_batch = 10
 # Set to 0 to execute every frame
 # 加载地形任务间隔（秒）
 # 设置为 0 则每帧执行
-load_terrain_interval = 0.05
+load_terrain_interval = 0.03
 # How many chunk loading tasks are executed each time?(Set to 0 for all to execute)
 # 每次执行多少个区块加载任务。（设置为0全部执行）
 load_chunk_batch = 1
+
+[animation]
+# Duration of the block fade-in animation (unit: seconds)
+# 区块淡入动画时长 单位：秒
+chunk_fadein_duration = 0.2
+chunk_fadein_from = 0.0
+chunk_fadein_to = 1.0
 
 [command]
 # Number of chunks traversed in the positive/negative X direction when using the `locate biome` command.

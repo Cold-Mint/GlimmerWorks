@@ -62,7 +62,7 @@ namespace glimmer {
          * @param item  item 物品
          * @return 返回0表示可完全添加
          */
-        [[nodiscard]] size_t GetRemainingItemAmountAfterAdd(const Item* item) const;
+        [[nodiscard]] size_t GetRemainingItemAmountAfterAdd(const Item *item) const;
 
         /**
          * ReplaceItem
@@ -141,7 +141,7 @@ namespace glimmer {
          */
         bool SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex);
 
-        void FromMessage(const AppContext *appContext, const ItemContainerMessage &message);
+        void FromMessage(WorldContext *worldContext, const ItemContainerMessage &message);
 
         void ToMessage(ItemContainerMessage &message) const;
 

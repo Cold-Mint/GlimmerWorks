@@ -74,6 +74,9 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(configValue, "command",
                                                                "locate_max_radius_search_chunks");
     commandHooks = toml::find<std::vector<CommandHookResource> >(configValue, "command_hooks");
+    anim.chunkFadeinDuration = toml::find<float>(configValue, "animation", "chunk_fadein_duration");
+    anim.chunkFadeInFrom = toml::find<float>(configValue, "animation", "chunk_fadein_from");
+    anim.chunkFadeInTo = toml::find<float>(configValue, "animation", "chunk_fadein_to");
 #if  !defined(NDEBUG)
     debug.displayDebugPanel = toml::find<bool>(configValue, "debug", "display_debug_panel");
     debug.displayBox2dShape = toml::find<bool>(configValue, "debug", "display_box2d_shape");

@@ -10,13 +10,13 @@
 
 namespace glimmer {
     class TileItem : public Item {
-        std::unique_ptr<Tile> tile_;
+        std::shared_ptr<Tile> tile_;
         AbilityConfig abilityConfig_;
 
     public:
         ~TileItem() override = default;
 
-        explicit TileItem(std::unique_ptr<Tile> tile);
+        explicit TileItem(const std::shared_ptr<Tile> &tile);
 
         [[nodiscard]] const std::string &GetId() const override;
 

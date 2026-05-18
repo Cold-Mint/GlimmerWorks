@@ -16,6 +16,8 @@
 
 namespace glimmer {
     class Tile {
+        friend class TileInstancePool;
+
         ResourceRef tileRef_;
         std::string id_;
         std::string name_;
@@ -48,6 +50,17 @@ namespace glimmer {
         ResourceRef lightSource_;
         ResourceRef sideLightMask_;
         ResourceRef backLightMask_;
+        /**
+       * From Tile Resource
+       * 从资源创建瓦片
+       * @param appContext appContext 应用上下文
+       * @param tileResource tileResource 瓦片资源
+       * @param resourceRef resourceRef 瓦片引用
+       * @return
+       */
+        static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext,
+                                                      const TileResource *tileResource,
+                                                      const ResourceRef &resourceRef);
 
     public:
         [[nodiscard]] const ResourceRef &GetLootTableRef();
@@ -111,17 +124,6 @@ namespace glimmer {
         [[nodiscard]] float GetColliderWidth() const;
 
         [[nodiscard]] float GetColliderHeight() const;
-
-        /**
-         * From Tile Resource
-         * 从资源创建瓦片
-         * @param appContext appContext 应用上下文
-         * @param tileResource tileResource 瓦片资源
-         * @param resourceRef resourceRef 瓦片引用
-         * @return
-         */
-        static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext, const TileResource *tileResource,
-                                                      const ResourceRef &resourceRef);
     };
 }
 

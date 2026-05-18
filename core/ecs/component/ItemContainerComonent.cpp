@@ -4,7 +4,7 @@
 
 #include "ItemContainerComonent.h"
 
-#include "core/log/LogCat.h"
+#include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 
 glimmer::ItemContainerComponent::ItemContainerComponent(size_t capacity)
@@ -32,7 +32,7 @@ std::string glimmer::ItemContainerComponent::Serialize() {
 void glimmer::ItemContainerComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     ItemContainerMessage itemContainerMessage;
     if (itemContainerMessage.ParseFromString(data)) {
-        itemContainer_->FromMessage(worldContext->GetAppContext(), itemContainerMessage);
+        itemContainer_->FromMessage(worldContext, itemContainerMessage);
     }
 }
 

@@ -10,6 +10,8 @@
 #include "core/inventory/ComposableItem.h"
 #include "core/inventory/TileItem.h"
 #include "core/log/LogCat.h"
+#include "core/world/WorldContext.h"
+#include "core/world/TileInstancePool.h"
 #include "dataPack/StringManager.h"
 
 bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef &resourceRef) const {
@@ -118,8 +120,9 @@ glimmer::TileResource *glimmer::ResourceLocator::FindTileFallback(const Resource
         return appContext_->GetTileResourceManager()->GenerateAccessDeniedPlaceHolder(
             resourceRef.GetPackageId(), resourceRef.GetResourceKey(), tileLayer);
     }
-    return appContext_->GetTileResourceManager()->FindTileFallback(resourceRef.GetPackageId(), resourceRef.GetResourceKey(),
-                                                           tileLayer);
+    return appContext_->GetTileResourceManager()->FindTileFallback(resourceRef.GetPackageId(),
+                                                                   resourceRef.GetResourceKey(),
+                                                                   tileLayer);
 }
 
 glimmer::TileResource *glimmer::ResourceLocator::FindTileRaw(const ResourceRef &resourceRef) const {
@@ -163,8 +166,11 @@ glimmer::LootResource *glimmer::ResourceLocator::FindLoot(const ResourceRef &res
                                                     resourceRef.GetResourceKey());
 }
 
-std::unique_ptr<glimmer::Item>
-glimmer::ResourceLocator::FindItem(const ItemMessage &itemMessage) const {
+std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext *worldContext,
+                                                                  const ItemMessage &itemMessage) const {
+    if (worldContext == nullptr) {
+        return nullptr;
+    }
     ResourceRef resourceRef;
     resourceRef.ReadResourceRefMessage(itemMessage.itemresourceref());
     const uint32_t resourceType = resourceRef.GetResourceType();
@@ -173,16 +179,20 @@ glimmer::ResourceLocator::FindItem(const ItemMessage &itemMessage) const {
     }
     std::unique_ptr<Item> result = nullptr;
     if (resourceType == RESOURCE_TYPE_TILE) {
+        auto tileInstancePool = worldContext->GetTileInstancePool();
+        if (tileInstancePool == nullptr) {
+            return nullptr;
+        }
         auto tileResource = FindTileRaw(resourceRef);
         if (tileResource != nullptr) {
-            result = std::make_unique<TileItem>(Tile::FromTileResource(appContext_, tileResource, resourceRef));
+            result = std::make_unique<TileItem>(tileInstancePool->CreateTile(appContext_, tileResource, resourceRef));
         }
     }
     if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
         auto composableItemResource = FindComposableItem(resourceRef);
         if (composableItemResource != nullptr) {
             result = std::move(
-                ComposableItem::FromItemResource(appContext_, composableItemResource, resourceRef));
+                ComposableItem::FromItemResource(worldContext, composableItemResource, resourceRef));
         }
     }
 
@@ -195,12 +205,16 @@ glimmer::ResourceLocator::FindItem(const ItemMessage &itemMessage) const {
     if (result == nullptr) {
         return nullptr;
     }
-    result->ReadItemMessage(appContext_, itemMessage);
+    result->ReadItemMessage(worldContext, itemMessage);
     return result;
 }
 
-std::unique_ptr<glimmer::Item>
-glimmer::ResourceLocator::FindItem(const ItemMessageResource &itemMessageResource) const {
+std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext *worldContext,
+                                                                  const ItemMessageResource &itemMessageResource)
+const {
+    if (worldContext == nullptr) {
+        return nullptr;
+    }
     auto itemMessage = ItemMessage();
     itemMessage.set_amount(itemMessageResource.amount);
     itemMessageResource.item.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
@@ -209,5 +223,5 @@ glimmer::ResourceLocator::FindItem(const ItemMessageResource &itemMessageResourc
         abilityItemResource.item.WriteResourceRefMessage(*abilityItem->mutable_itemresourceref());
         abilityItem->set_amount(abilityItemResource.amount);
     }
-    return FindItem(itemMessage);
+    return FindItem(worldContext, itemMessage);
 }

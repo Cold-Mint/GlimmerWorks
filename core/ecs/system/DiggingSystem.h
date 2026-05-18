@@ -33,7 +33,7 @@ namespace glimmer {
         static bool BreakTile(WorldContext *worldContext,
                               const TileLayerComponent *tileLayerComponent,
                               TileVector2D tilePosition, bool precisionMining, bool overwrite,
-                              std::unique_ptr<Tile> newTile);
+                              const std::shared_ptr<Tile>& newTile);
 
         explicit DiggingSystem(WorldContext *worldContext);
 

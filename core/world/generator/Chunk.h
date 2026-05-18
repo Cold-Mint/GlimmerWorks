@@ -16,40 +16,50 @@
 namespace glimmer {
     class Chunk {
         TileVector2D position;
-        std::unordered_map<TileLayerType, std::array<std::unique_ptr<Tile>, CHUNK_AREA> >
+        std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, CHUNK_AREA> >
         tiles_;
         std::vector<b2BodyId> attachedBodies_;
-
-        std::vector<std::function<void(Chunk *chunk, int index, Tile *tile, TileLayerType layerType)> >
+        //chunk fade-in easing animation
+        //区块淡入缓动动画
+        tweeny::tween<float> chunkFadeInTween_;
+        float chunkFadeAlpha_ = 0.0F;
+        std::vector<std::function<void(Chunk *chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)> >
         setTileCallback_;
 
         std::vector<std::function<void(Chunk *chunk, TileLayerType layerType, int index,
-                                       Tile *oldTile, Tile *newTile)> > replaceTileCallback_;
+                                       std::shared_ptr<Tile> oldTile,
+                                       std::shared_ptr<Tile> newTile)> > replaceTileCallback_;
 
-        void InvokeSetTileCallback(Chunk *chunk, int index, Tile *tile, TileLayerType layerType) const;
+        void InvokeSetTileCallback(Chunk *chunk, int index, const std::shared_ptr<Tile> &tile,
+                                   TileLayerType layerType) const;
 
         void InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, int index,
-                                       Tile *oldTile, Tile *newTile) const;
+                                       const std::shared_ptr<Tile> &oldTile,
+                                       const std::shared_ptr<Tile> &newTile) const;
 
     public:
-        explicit Chunk(const TileVector2D &pos);
+        explicit Chunk(const TileVector2D &pos, const AnimConfig &animConfig);
 
+        void UpdateFadeInAnimation(float delta);
 
         void AddBodyId(b2BodyId bodyId);
 
+        [[nodiscard]] float GetChunkFadeAlpha() const;
 
         [[nodiscard]] const std::vector<b2BodyId> &GetAttachedBodies();
 
         void ClearAttachedBodies();
 
         size_t AddSetTileCallback(
-            const std::function<void(Chunk *chunk, int index, Tile *tile, TileLayerType layerType)> &callBack);
+            const std::function<void(Chunk *chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)> &
+            callBack);
 
         bool RemoveSetTileCallback(long index);
 
         size_t AddReplaceTileCallback(const std::function<void(Chunk *chunk, TileLayerType layerType,
                                                                int index,
-                                                               Tile *oldTile, Tile *newTile)> &callBack);
+                                                               std::shared_ptr<Tile> oldTile,
+                                                               std::shared_ptr<Tile> newTile)> &callBack);
 
         bool RemoveReplaceTileCallback(long index);
 
@@ -69,9 +79,9 @@ namespace glimmer {
          */
         [[nodiscard]] static TileVector2D TileCoordinatesToChunkRelativeCoordinates(TileVector2D tileVector2d);
 
-        void SetTile(TileVector2D pos, std::unique_ptr<Tile> tile);
+        void SetTile(TileVector2D pos, const std::shared_ptr<Tile> &tile);
 
-        void SetTile(int index, std::unique_ptr<Tile> tile);
+        void SetTile(int index, const std::shared_ptr<Tile> &tile);
 
         [[nodiscard]] TileVector2D GetPosition() const;
 
@@ -91,7 +101,7 @@ namespace glimmer {
         [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(uint8_t layerFilter,
                                                              const TileVector2D &tileVector2d) const;
 
-        void ReadChunkMessage(const AppContext *appContext, const ChunkMessage &chunkMessage);
+        void ReadChunkMessage(const WorldContext *worldContext, const ChunkMessage &chunkMessage);
 
         void WriteChunkMessage(ChunkMessage &chunkMessage);
 
@@ -107,8 +117,8 @@ namespace glimmer {
          * @param newTile newTile 新瓦片
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Tile> ReplaceTile(TileLayerType layerType, const TileVector2D &tileVector2d,
-                                                        std::unique_ptr<Tile> newTile);
+        [[nodiscard]] std::shared_ptr<Tile> ReplaceTile(TileLayerType layerType, const TileVector2D &tileVector2d,
+                                                        const std::shared_ptr<Tile> &newTile);
     };
 }
 

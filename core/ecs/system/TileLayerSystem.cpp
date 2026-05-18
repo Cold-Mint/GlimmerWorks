@@ -8,13 +8,43 @@
 #include "../component/CameraComponent.h"
 #include "../component/TileLayerComponent.h"
 #include "../component/Transform2DComponent.h"
-#include "../../world/WorldContext.h"
+#include "core/world/TileInstancePool.h"
+#include "core/world/WorldContext.h"
 #include "core/utils/ColorUtils.h"
 #include "core/world/Tile.h"
 
 glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)
     : GameSystem(worldContext) {
     RequireComponent<TileLayerComponent>();
+}
+
+void glimmer::TileLayerSystem::Update(const float delta) {
+    if (worldContext_ == nullptr) {
+        return;
+    }
+    const auto *cameraComponent = worldContext_->GetCameraComponent();
+    if (cameraComponent == nullptr) {
+        return;
+    }
+    const auto *cameraPos = worldContext_->GetCameraTransform2D();
+    if (cameraPos == nullptr) {
+        return;
+    }
+    auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
+    const TileVector2D topLeft = TileLayerComponent::WorldToTile({viewportRect.x, viewportRect.y});
+    const TileVector2D bottomRight = TileLayerComponent::WorldToTile({
+        viewportRect.x + viewportRect.w + TILE_SIZE * CHUNK_SIZE,
+        viewportRect.y + viewportRect.h + TILE_SIZE * CHUNK_SIZE
+    });
+    for (int x = topLeft.x; x < bottomRight.x; x += CHUNK_SIZE) {
+        for (int y = topLeft.y; y < bottomRight.y; y += CHUNK_SIZE) {
+            Chunk *chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(TileVector2D(x, y)));
+            if (chunk == nullptr) {
+                continue;
+            }
+            chunk->UpdateFadeInAnimation(delta);
+        }
+    }
 }
 
 void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
@@ -51,6 +81,12 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
             tileLayerComponent->GetTopVisibleTilesInViewport(Ground | BackGround, viewportRect);
     TileVector2D focusPosition = tileLayerComponent->GetFocusPosition();
     for (const auto &[tileCoord, tileList]: visibleTiles) {
+        const Chunk *chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileCoord));
+        Uint8 alpha = 255;
+        if (chunk != nullptr) {
+            alpha = static_cast<Uint8>(chunk->GetChunkFadeAlpha() * 255.0F);
+        }
+
         const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileCoord);
         const CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
             cameraPos->GetPosition(), worldTilePos);
@@ -62,17 +98,17 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
         SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
         for (auto tile: tileList) {
             const Color *finalLightColor = worldContext_->GetLightingBuffer()->GetFinalLightColor(tileCoord);
-            #if  defined(NDEBUG)
-             if (finalLightColor == nullptr) {
-                    continue;
-                }
-                if (finalLightColor->a == 0) {
-                    //Do not draw tiles that do not emit light at all.
-                    //不绘制完全不发光的瓦片。
-                    continue;
-                }
-            #else
-                 if (config->light.enable) {
+#if  defined(NDEBUG)
+            if (finalLightColor == nullptr) {
+                continue;
+            }
+            if (finalLightColor->a == 0) {
+                //Do not draw tiles that do not emit light at all.
+                //不绘制完全不发光的瓦片。
+                continue;
+            }
+#else
+            if (config->light.enable) {
                 if (finalLightColor == nullptr) {
                     continue;
                 }
@@ -82,9 +118,14 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                     continue;
                 }
             }
-            #endif
-            if (!SDL_RenderTexture(renderer, tile->GetTexture(), nullptr, &dstRect)) {
-                LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
+#endif
+            SDL_Texture *texture = tile->GetTexture();
+            if (texture != nullptr) {
+                SDL_SetTextureAlphaMod(texture, alpha);
+                if (!SDL_RenderTexture(renderer, texture, nullptr, &dstRect)) {
+                    LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
+                }
+                SDL_SetTextureAlphaMod(texture, 255);
             }
         }
         if (tileCoord == focusPosition) {

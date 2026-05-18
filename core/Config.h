@@ -35,6 +35,12 @@ namespace glimmer {
         bool vSync = true;
     };
 
+    struct AnimConfig {
+        float chunkFadeinDuration = 0.35F;
+        float chunkFadeInFrom = 0.0F;
+        float chunkFadeInTo = 1.0F;
+    };
+
     struct CommandConfig {
         uint16_t locateMaxRadiusSearchChunks = 2048;
     };
@@ -112,6 +118,7 @@ namespace glimmer {
         World world{};
         Audio audio{};
         Console console{};
+        AnimConfig anim{};
         CommandConfig command{};
         int configVersion = 1;
         std::string runtimePath;

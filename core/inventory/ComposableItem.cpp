@@ -6,6 +6,7 @@
 
 #include "AbilityItem.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include <utility>
 #include <vector>
@@ -44,9 +45,15 @@ size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const s
     return itemContainer_->RemoveItem(id, amount);
 }
 
-
-std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(const AppContext *appContext,
+std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(WorldContext *worldContext,
     const ComposableItemResource *itemResource, const ResourceRef &resourceRef) {
+    if (worldContext == nullptr) {
+        return nullptr;
+    }
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (itemResource == nullptr) {
+        return nullptr;
+    }
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
     if (nameRes != nullptr) {
@@ -67,8 +74,8 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
     if (defaultAbilitySize > 0) {
         for (int i = 0; i < defaultAbilitySize; i++) {
-            auto itemObj = appContext->GetResourceLocator()->FindItem(
-                itemResource->defaultAbilityList[i]);
+            auto itemObj = appContext->GetResourceLocator()->FindItem(worldContext,
+                                                                      itemResource->defaultAbilityList[i]);
             if (itemObj != nullptr) {
                 (void) result->ReplaceItem(static_cast<size_t>(i), std::move(itemObj));
             }
@@ -159,23 +166,31 @@ glimmer::ComposableItem::ComposableItem(std::string id, std::string name, std::o
     LogCat::d("ComposableItem Constructor");
 }
 
-void glimmer::ComposableItem::ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage) {
-    Item::ReadItemMessage(context, itemMessage);
+void glimmer::ComposableItem::ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage) {
+    Item::ReadItemMessage(worldContext, itemMessage);
+    if (worldContext == nullptr) {
+        return;
+    }
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
     //Filling ability.
     //填充能力。
-    const ResourceLocator *resourceLocator = context->GetResourceLocator();
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
     auto abilityItemRefSize = itemMessage.abilityitemref_size();
     for (int i = 0; i < maxSlotSize_; i++) {
         if (i >= abilityItemRefSize) {
             break;
         }
         const ItemMessage &abilityItemMessage = itemMessage.abilityitemref(i);
-        std::unique_ptr<Item> item = resourceLocator->FindItem(abilityItemMessage);
+        std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, abilityItemMessage);
         if (item != nullptr) {
             std::unique_ptr<Item> result = ReplaceItem(static_cast<size_t>(i), std::move(item));
         }
     }
 }
+
 
 void glimmer::ComposableItem::WriteItemMessage(ItemMessage &itemMessage) const {
     Item::WriteItemMessage(itemMessage);

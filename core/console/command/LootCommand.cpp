@@ -36,7 +36,7 @@ bool glimmer::LootCommand::RequiresWorldContext() const {
 }
 
 bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-    const std::function<void(const std::string &text)> *onMessage) {
+                                   const std::function<void(const std::string &text)> *onMessage) {
     if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
@@ -75,9 +75,9 @@ bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const Com
             return false;
         }
         for (auto &itemMessage: itemMessageList) {
-            auto itemRes = appContext_->GetResourceLocator()->FindItem(itemMessage);
+            auto itemRes = appContext_->GetResourceLocator()->FindItem(worldContext_, itemMessage);
             if (itemRes != nullptr) {
-                itemRes->ReadItemMessage(appContext_, itemMessage);
+                itemRes->ReadItemMessage(worldContext_, itemMessage);
                 std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
                     std::move(itemRes));
             }

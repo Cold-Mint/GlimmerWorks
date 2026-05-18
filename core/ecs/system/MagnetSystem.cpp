@@ -4,7 +4,8 @@
 
 #include "MagnetSystem.h"
 
-#include "../../world/WorldContext.h"
+#include "core/world/TileInstancePool.h"
+#include "core/world/WorldContext.h"
 #include "../component/RigidBody2DComponent.h"
 #include "../component/DroppedItemComponent.h"
 #include "../component/MagnetComponent.h"

@@ -12,7 +12,7 @@
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "scene/SplashScene.h"
 #include "scene/ConsoleOverlay.h"
-#if  defined(NDEBUG)
+#if  !defined(NDEBUG)
 #include "scene/DebugOverlay.h"
 #endif
 #include "SDL3_ttf/SDL_ttf.h"

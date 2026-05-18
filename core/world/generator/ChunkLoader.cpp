@@ -72,12 +72,23 @@ glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMes
 
 
 std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVector2D position) const {
+    if (worldContext_ == nullptr) {
+        return nullptr;
+    }
+    const AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr) {
+        return nullptr;
+    }
+    const Config *config = appContext->GetConfig();
+    if (config == nullptr) {
+        return nullptr;
+    }
     if (saves_->ChunkExists(position)) {
         //Read the chunk file.
         //读取区块文件。
         if (const auto chunkMessage = saves_->ReadChunk(position); chunkMessage.has_value()) {
-            auto chunk = std::make_unique<Chunk>(position);
-            chunk.get()->ReadChunkMessage(worldContext_->GetAppContext(), chunkMessage.value());
+            auto chunk = std::make_unique<Chunk>(position, config->anim);
+            chunk.get()->ReadChunkMessage(worldContext_, chunkMessage.value());
             LoadEntityFromSaves(position);
             return chunk;
         }

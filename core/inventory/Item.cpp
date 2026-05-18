@@ -7,7 +7,7 @@
 #include "core/log/LogCat.h"
 
 
-void glimmer::Item::ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage) {
+void glimmer::Item::ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage) {
     amount_ = itemMessage.amount();
     resourceRef_.ReadResourceRefMessage(itemMessage.itemresourceref());
 }

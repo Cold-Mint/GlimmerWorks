@@ -31,7 +31,7 @@ namespace glimmer {
         explicit ComposableItem(std::string id, std::string name, std::optional<std::string> description,
                                 std::shared_ptr<SDL_Texture> icon, size_t maxSize, const ResourceRef &resourceRef);
 
-        void ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage) override;
+        void ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage) override;
 
         void WriteItemMessage(ItemMessage &itemMessage) const override;
 
@@ -56,8 +56,7 @@ namespace glimmer {
         [[nodiscard]] size_t RemoveItemAbility(const std::string &id, size_t amount) const;
 
 
-
-        static std::unique_ptr<ComposableItem> FromItemResource(const AppContext *appContext,
+        static std::unique_ptr<ComposableItem> FromItemResource(WorldContext *worldContext,
                                                                 const ComposableItemResource *itemResource,
                                                                 const ResourceRef &resourceRef);
 

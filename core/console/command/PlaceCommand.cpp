@@ -74,6 +74,10 @@ bool glimmer::PlaceCommand::Execute(const CommandSender *commandSender, const Co
         if (!structureInfoOptional.has_value()) {
             return false;
         }
+        TileInstancePool *tileInstancePool = worldContext_->GetTileInstancePool();
+        if (tileInstancePool == nullptr) {
+            return false;
+        }
         StructureInfo &structureInfo = structureInfoOptional.value();
         TileVector2D minPos = structureInfo.GetMinPosition();
         for (auto &[coord, resourceRef]: structureInfo.GetStructureMap()) {
@@ -94,7 +98,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender *commandSender, const Co
 
             chunk->SetTile(
                 Chunk::TileCoordinatesToChunkRelativeCoordinates(position),
-                Tile::FromTileResource(appContext_, tileResource, resourceRef));
+                tileInstancePool->CreateTile(appContext_, tileResource, resourceRef));
         }
         return true;
     }

@@ -67,13 +67,16 @@ std::string glimmer::DroppedItemComponent::Serialize() {
 
 void glimmer::DroppedItemComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
     AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
     GameComponent::Deserialize(worldContext, data);
     DroppedItemMessage droppedItemMessage;
     if (droppedItemMessage.ParseFromString(data)) {
-        auto item = appContext->GetResourceLocator()->FindItem(droppedItemMessage.item());
+        auto item = appContext->GetResourceLocator()->FindItem(worldContext, droppedItemMessage.item());
         if (item != nullptr) {
             item_ = std::move(item);
-            item_->ReadItemMessage(appContext, droppedItemMessage.item());
+            item_->ReadItemMessage(worldContext, droppedItemMessage.item());
         }
         pickupCooldown_ = droppedItemMessage.pickupcooldown();
         remainingTime_ = droppedItemMessage.remainingtime();

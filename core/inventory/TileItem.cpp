@@ -3,14 +3,17 @@
 //
 
 #include "TileItem.h"
+#include "core/world/TileInstancePool.h"
+#include "core/world/WorldContext.h"
 #include "../ecs/component/TileLayerComponent.h"
 #include "../ecs/component/Transform2DComponent.h"
 #include "../Constants.h"
-#include "../world/WorldContext.h"
+
 #include "core/ecs/component/TilePlacementForbiddenZoneComponent.h"
 #include "core/ecs/system/DiggingSystem.h"
 
-glimmer::TileItem::TileItem(std::unique_ptr<Tile> tile) : tile_(std::move(tile)) {
+
+glimmer::TileItem::TileItem(const std::shared_ptr<Tile> &tile) : tile_(tile) {
     resourceRef_ = tile_->GetResourceRef();
     maxStack_ = ITEM_MAX_STACK;
 }

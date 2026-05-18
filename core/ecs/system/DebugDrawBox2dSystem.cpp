@@ -6,7 +6,7 @@
 
 #include "Box2dSystemContext.h"
 #include "../../utils/Box2DUtils.h"
-#include "../../world/WorldContext.h"
+#include "core/world/WorldContext.h"
 #include "../component/CameraComponent.h"
 #include "../component/Transform2DComponent.h"
 #include "box2d/box2d.h"

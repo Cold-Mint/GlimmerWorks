@@ -386,6 +386,13 @@ float glimmer::ChunkGenerator::GetErosion(TileVector2D tileVector2d) {
 }
 
 std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVector2D position) const {
+    if (worldContext_ == nullptr) {
+        return nullptr;
+    }
+    TileInstancePool *tileInstancePool = worldContext_->GetTileInstancePool();
+    if (tileInstancePool == nullptr) {
+        return nullptr;
+    }
     AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
         return nullptr;
@@ -402,7 +409,11 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     if (biomeDecoratorManager == nullptr) {
         return nullptr;
     }
-    auto chunk = std::make_unique<Chunk>(position);
+    Config *config = appContext->GetConfig();
+    if (config == nullptr) {
+        return nullptr;
+    }
+    auto chunk = std::make_unique<Chunk>(position, config->anim);
     TerrainResult *terrainResult = worldContext_->GetTerrainData(position);
     if (terrainResult == nullptr) {
         return nullptr;
@@ -480,8 +491,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                               " does not exist.");
                     tileResourceValue = tileResourceManager->GetAirResource(tileLayerType);
                 }
-                chunk->SetTile(localTile,
-                               Tile::FromTileResource(appContext, tileResourceValue, resourceRef));
+                chunk->SetTile(localTile, tileInstancePool->CreateTile(appContext, tileResourceValue, resourceRef));
             }
         }
     }

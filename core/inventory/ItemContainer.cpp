@@ -7,6 +7,8 @@
 #include "AbilityItem.h"
 #include "../log/LogCat.h"
 #include "../mod/ResourceLocator.h"
+#include "core/world/TileInstancePool.h"
+#include "core/world/WorldContext.h"
 
 
 void glimmer::ItemContainer::BindItemEvent(std::unique_ptr<Item> &item) const {
@@ -244,12 +246,16 @@ bool glimmer::ItemContainer::SwapItem(size_t index, ItemContainer *otherContaine
     return true;
 }
 
-void glimmer::ItemContainer::FromMessage(const AppContext *appContext, const ItemContainerMessage &message) {
+void glimmer::ItemContainer::FromMessage(WorldContext *worldContext, const ItemContainerMessage &message) {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
+        return;
+    }
     const size_t messageSize = message.itemresourceref_size();
     items_.resize(messageSize);
     for (int i = 0; i < messageSize; ++i) {
         const ItemMessage &itemMessage = message.itemresourceref(i);
-        auto item = appContext->GetResourceLocator()->FindItem(itemMessage);
+        auto item = appContext->GetResourceLocator()->FindItem(worldContext, itemMessage);
         if (item != nullptr) {
             item->SetAmount(itemMessage.amount());
             items_[i] = std::move(item);

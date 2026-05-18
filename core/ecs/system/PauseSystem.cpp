@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "../../world/WorldContext.h"
 #include "core/utils/TimeUtils.h"
+#include "core/ecs/component/PauseComponent.h"
 
 
 glimmer::PauseSystem::PauseSystem(WorldContext *worldContext) : GameSystem(worldContext) {

@@ -31,7 +31,7 @@ namespace glimmer {
     public:
         virtual ~Item() = default;
 
-        virtual void ReadItemMessage(const AppContext *context, const ItemMessage &itemMessage);
+        virtual void ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage);
 
         virtual void WriteItemMessage(ItemMessage &itemMessage) const;
 

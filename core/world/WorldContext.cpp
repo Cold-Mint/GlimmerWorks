@@ -9,6 +9,7 @@
 
 #include "../Constants.h"
 #include "../ecs/component/DebugDrawComponent.h"
+#include "../ecs/component/PauseComponent.h"
 #include "../ecs/component/ParallaxBackgroundComponent.h"
 #include "../ecs/system/Transform2DSystem.h"
 #include "../ecs/system/CameraSystem.h"
@@ -30,7 +31,6 @@
 #include "../saves/Saves.h"
 #include "../utils/Box2DUtils.h"
 #include "box2d/box2d.h"
-#include "core/console/command/ParallaxBackgroundCommand.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/AutoPickComponent.h"
@@ -42,7 +42,6 @@
 #include "core/ecs/component/ItemEditorComponent.h"
 #include "core/ecs/component/MagnetComponent.h"
 #include "core/ecs/component/MagneticComponent.h"
-#include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
 #include "core/ecs/system/DebugMultiMapSystem.h"
@@ -68,7 +67,7 @@ void glimmer::WorldContext::SetDragMode(const bool dragMode) {
     dragMode_ = dragMode;
 }
 
-void glimmer::WorldContext::RemoveComponentInternal(GameEntity::ID id, GameComponent *comp) {
+void glimmer::WorldContext::RemoveComponentInternal(const GameEntity::ID id, GameComponent *comp) {
     const auto type = std::type_index(typeid(*comp));
     //Reduce componentCount
     // 减少 componentCount
@@ -106,19 +105,20 @@ void glimmer::WorldContext::UnRegisterEntity(const GameEntity::ID id) {
     entityMap_.erase(id);
 }
 
-void glimmer::WorldContext::OnChunkTileChange(Chunk *chunk, Tile *tile, const TileLayerType layerType,
-                                              const int index) const {
+void glimmer::WorldContext::OnChunkTileChange(Chunk *chunk, const std::shared_ptr<Tile> &tile, TileLayerType layerType,
+                                              int index) const {
     if (layerType == Ground) {
         ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(this, chunk);
     }
     UpdateTileLight(chunk, layerType, index);
 }
 
+
 void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerType layerType, const int index) const {
     if (appContext_ == nullptr) {
         return;
     }
-    #if  !defined(NDEBUG)
+#if  !defined(NDEBUG)
     const Config *config = appContext_->GetConfig();
     if (config == nullptr) {
         return;
@@ -126,7 +126,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
     if (!config->light.enable) {
         return;
     }
-    #endif
+#endif
     if (chunk == nullptr) {
         return;
     }
@@ -312,7 +312,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef &resourceRef) {
             auto &allInitialInventory = appContext_->GetInitialInventoryManager()->GetAllInitialInventory();
             for (auto &initialInventory: allInitialInventory) {
                 for (auto &addItem: initialInventory->addItems) {
-                    auto item = appContext_->GetResourceLocator()->FindItem(addItem);
+                    auto item = appContext_->GetResourceLocator()->FindItem(this, addItem);
                     if (item == nullptr) {
                         continue;
                     }
@@ -439,12 +439,13 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
     ChunkPhysicsHelper::AttachPhysicsBodyToChunk(appContext_, worldId_, newlyCreatedChunk.get());
     newlyCreatedChunk->AddReplaceTileCallback([this](Chunk *chunk, TileLayerType layerType,
                                                      int index,
-                                                     Tile *, Tile *newTile) {
+                                                     std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
         OnChunkTileChange(chunk, newTile, layerType, index);
     });
-    newlyCreatedChunk->AddSetTileCallback([this](Chunk *chunk, int index, Tile *tile, TileLayerType layerType) {
-        OnChunkTileChange(chunk, tile, layerType, index);
-    });
+    newlyCreatedChunk->AddSetTileCallback(
+        [this](Chunk *chunk, int index, const std::shared_ptr<Tile> &tile, TileLayerType layerType) {
+            OnChunkTileChange(chunk, tile, layerType, index);
+        });
     chunks_.insert({position, std::move(newlyCreatedChunk)});
     chunksVersion_++;
 }
@@ -489,6 +490,10 @@ glimmer::Chunk *glimmer::WorldContext::GetChunk(const TileVector2D position) {
         return nullptr;
     }
     return it->second.get();
+}
+
+glimmer::TileInstancePool *glimmer::WorldContext::GetTileInstancePool() const {
+    return tileInstancePool_.get();
 }
 
 bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
@@ -995,6 +1000,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
         return this->RegisterEntity(std::move(entity));
     });
     lightBuffer_ = std::make_unique<LightBuffer>();
+    tileInstancePool_ = std::make_unique<TileInstancePool>();
     chunkGenerator_ = std::make_unique<ChunkGenerator>(this, worldSeed_);
     startTime_ = TimeUtils::GetCurrentTimeMs();
     parallaxBackgroundComponent_ = AddComponent<ParallaxBackgroundComponent>(CreateEntity());

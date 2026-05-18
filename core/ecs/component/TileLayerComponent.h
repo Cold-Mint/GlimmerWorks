@@ -30,11 +30,13 @@ namespace glimmer {
         /**
          * GetTopVisibleTile
          * 获取顶层可见瓦片
+         * @param chunk
          * @param layerFilter
          * @param tilePos
          * @return
          */
-        [[nodiscard]] std::vector<Tile *> GetTopVisibleTiles(uint8_t layerFilter, const TileVector2D &tilePos) const;
+        [[nodiscard]] static std::vector<Tile *> GetTopVisibleTiles(const Chunk *chunk, uint8_t layerFilter,
+                                                                    const TileVector2D &tilePos);
 
     public:
         /**
@@ -89,8 +91,8 @@ namespace glimmer {
          */
         [[nodiscard]] Tile *GetSelfLayerTile(const TileVector2D &tilePos) const;
 
-        [[nodiscard]] std::unique_ptr<Tile> ReplaceTile(const TileVector2D &tileVector2d,
-                                                        std::unique_ptr<Tile> newTile) const;
+        [[nodiscard]] std::shared_ptr<Tile> ReplaceTile(const TileVector2D &tileVector2d,
+                                                        const std::shared_ptr<Tile> &newTile) const;
 
 
         [[nodiscard]] TileLayerType GetTileLayerType() const;

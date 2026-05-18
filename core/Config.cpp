@@ -69,6 +69,12 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     audio.freq = toml::find<int>(configValue, "audio", "freq");
     audio.track = toml::find<std::vector<AudioTrack> >(configValue, "audio", "track");
     audio.format = toml::find<std::string>(configValue, "audio", "format");
+    console.maxHistoryEntries = toml::find<uint16_t>(configValue, "console", "max_history_entries");
+    runtimePath = toml::find<std::string>(configValue, "runtime_path");
+    command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(configValue, "command",
+                                                               "locate_max_radius_search_chunks");
+    commandHooks = toml::find<std::vector<CommandHookResource> >(configValue, "command_hooks");
+#if  !defined(NDEBUG)
     debug.displayDebugPanel = toml::find<bool>(configValue, "debug", "display_debug_panel");
     debug.displayBox2dShape = toml::find<bool>(configValue, "debug", "display_box2d_shape");
     debug.displayDraggableTarget = toml::find<bool>(configValue, "debug", "display_draggable_target");
@@ -78,9 +84,6 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     debug.displayErosionMap = toml::find<bool>(configValue, "debug", "display_erosion_map");
     debug.displayWeirdnessMap = toml::find<bool>(configValue, "debug", "display_weirdness_map");
     light.enable = toml::find<bool>(configValue, "light", "enable");
-    console.maxHistoryEntries = toml::find<uint16_t>(configValue, "console", "max_history_entries");
-    runtimePath = toml::find<std::string>(configValue, "runtime_path");
-    command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(configValue, "command", "locate_max_radius_search_chunks");
-    commandHooks = toml::find<std::vector<CommandHookResource> >(configValue, "command_hooks");
+#endif
     commandHookManager->LoadHookFromConfig(commandHooks);
 }

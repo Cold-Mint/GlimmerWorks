@@ -295,7 +295,9 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks)
+    add_executable(GlimmerWorks
+            core/console/command/MemoryUsageCommand.cpp
+            core/console/command/MemoryUsageCommand.h)
 endif ()
 
 target_sources(GlimmerWorks
@@ -381,7 +383,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/VFSDynamicSuggestions.cpp
         core/console/command/ConfigCommand.cpp
         core/console/suggestion/ConfigSuggestions.cpp
-        core/mod/dataPack/TileManager.cpp
+        core/mod/dataPack/TileResourceManager.cpp
         core/world/generator/TilePhysicsType.cpp
         core/mod/dataPack/BiomesManager.cpp
         core/world/generator/BiomeDecorator.cpp
@@ -550,6 +552,8 @@ target_sources(GlimmerWorks
         core/console/CommandRequest.cpp
         core/world/ChunkTask.cpp
         core/world/ChunkType.cpp
+        core/ISignable.cpp
+        core/MemoryUsage.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -623,7 +627,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/VFSDynamicSuggestions.h
         core/console/command/ConfigCommand.h
         core/console/suggestion/ConfigSuggestions.h
-        core/mod/dataPack/TileManager.h
+        core/mod/dataPack/TileResourceManager.h
         core/world/generator/TilePhysicsType.h
         core/mod/dataPack/BiomesManager.h
         core/world/generator/BiomeDecorator.h
@@ -792,11 +796,14 @@ target_sources(GlimmerWorks
         core/console/CommandResponse.h
         core/world/ChunkType.h
         core/world/ChunkTask.h
+        core/ISignable.h
+        core/MemoryUsage.h
 )
 
 #Define version information
 #定义版本信息
 set(CONFIG_FILE_NAME "config.toml")
+set(DEBUG_CONFIG_FILE_NAME "config_debug.toml")
 target_compile_definitions(GlimmerWorks PRIVATE
         CONFIG_FILE_NAME="${CONFIG_FILE_NAME}"
         GAME_VERSION_NUMBER=${GAME_VERSION_NUMBER}
@@ -847,8 +854,16 @@ target_include_directories(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/glimmerworksprotobuf-build/cpp"
 )
 
-file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"
-        DESTINATION "${CMAKE_BINARY_DIR}/")
+if (CMAKE_BUILD_TYPE MATCHES "^Debug$")
+    file(READ "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}" MAIN_CONFIG_CONTENT)
+    file(READ "${CMAKE_SOURCE_DIR}/${DEBUG_CONFIG_FILE_NAME}" DEBUG_CONFIG_CONTENT)
+    set(FINAL_CONFIG_CONTENT "${MAIN_CONFIG_CONTENT}\n${DEBUG_CONFIG_CONTENT}")
+    file(WRITE "${CMAKE_BINARY_DIR}/${CONFIG_FILE_NAME}" "${FINAL_CONFIG_CONTENT}")
+else ()
+    file(COPY "${CMAKE_SOURCE_DIR}/${CONFIG_FILE_NAME}"
+            DESTINATION "${CMAKE_BINARY_DIR}/")
+endif ()
+
 
 file(COPY "${CMAKE_SOURCE_DIR}/core_langs/"
         DESTINATION "${CMAKE_BINARY_DIR}/langs/")

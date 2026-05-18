@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/6.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_DEBUGDRAWBOX2DSYSTEM_H
 #define GLIMMERWORKS_DEBUGDRAWBOX2DSYSTEM_H
 #include "../GameSystem.h"
@@ -47,5 +47,5 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
+#endif
 #endif //GLIMMERWORKS_DEBUGDRAWBOX2DSYSTEM_H

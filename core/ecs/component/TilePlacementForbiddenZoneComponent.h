@@ -5,6 +5,7 @@
 #ifndef GLIMMERWORKS_TILEPLACEMENTFORBIDDENZONECOMPONENT_H
 #define GLIMMERWORKS_TILEPLACEMENTFORBIDDENZONECOMPONENT_H
 #include "core/ecs/GameComponent.h"
+#include "core/math/Vector2D.h"
 
 namespace glimmer {
     /**
@@ -14,8 +15,7 @@ namespace glimmer {
     class TilePlacementForbiddenZoneComponent : public GameComponent {
         float width_ = 0;
         float height_ = 0;
-        float offsetX_ = 0;
-        float offsetY_ = 0;
+        Vector2D offset_;
 
     public:
         void SetWidth(float width);

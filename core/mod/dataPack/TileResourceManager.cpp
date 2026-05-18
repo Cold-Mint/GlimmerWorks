@@ -2,14 +2,14 @@
 // Created by Cold-Mint on 2025/12/3.
 //
 
-#include "TileManager.h"
+#include "TileResourceManager.h"
 
 #include "../../Constants.h"
 #include "core/world/generator/TileLayerType.h"
 #include "core/world/generator/TilePhysicsType.h"
 
 
-glimmer::TileResource *glimmer::TileManager::AddCoreResource(const std::string &resourceId,
+glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const std::string &resourceId,
                                                              TilePhysicsType physicsType, TileLayerType layerType,
                                                              float hardness, const std::string &nameKey,
                                                              const std::string &textureKey,
@@ -61,7 +61,7 @@ glimmer::TileResource *glimmer::TileManager::AddCoreResource(const std::string &
     return AddResource(std::move(tileResource));
 }
 
-void glimmer::TileManager::InitBuiltinTiles() {
+void glimmer::TileResourceManager::InitBuiltinTiles() {
     air_ = AddCoreResource(TILE_ID_AIR, TilePhysicsType::None, Ground, -1.0F, STRING_TILE_AIR_NAME, "tiles/air",
                            LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_NONE, true, false, STRING_TILE_AIR_DESCRIPTION);
     airWall_ = AddCoreResource(TILE_ID_AIR_WALL, TilePhysicsType::None, BackGround, -1.0F, STRING_TILE_AIR_WALL_NAME,
@@ -87,7 +87,7 @@ void glimmer::TileManager::InitBuiltinTiles() {
                     STRING_TILE_ACCESS_DENIED_WALL_DESCRIPTION);
 }
 
-glimmer::TileResource *glimmer::TileManager::AddErrorPlaceHolder(const std::string &packId,
+glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(const std::string &packId,
                                                                  const std::string &resourceId,
                                                                  const TileLayerType tileLayer) {
     auto errorPlaceholder = std::make_unique<TileResource>();
@@ -109,7 +109,7 @@ glimmer::TileResource *glimmer::TileManager::AddErrorPlaceHolder(const std::stri
     return AddResource(std::move(errorPlaceholder));
 }
 
-glimmer::TileResource *glimmer::TileManager::GenerateAccessDeniedPlaceHolder(const std::string &packId,
+glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHolder(const std::string &packId,
                                                                              const std::string &resourceId,
                                                                              const TileLayerType tileLayer) {
     const auto packIt = accessDeniedTileMap_.find(packId);
@@ -144,20 +144,20 @@ glimmer::TileResource *glimmer::TileManager::GenerateAccessDeniedPlaceHolder(con
 }
 
 
-glimmer::TileResource *glimmer::TileManager::AddResource(std::unique_ptr<TileResource> tileResource) {
+glimmer::TileResource *glimmer::TileResourceManager::AddResource(std::unique_ptr<TileResource> tileResource) {
     auto &slot = tileMap_[tileResource->packId][tileResource->resourceId];
     slot = std::move(tileResource);
     return slot.get();
 }
 
-glimmer::TileResource *glimmer::TileManager::GetAirResource(const TileLayerType tileLayerType) const {
+glimmer::TileResource *glimmer::TileResourceManager::GetAirResource(const TileLayerType tileLayerType) const {
     if (tileLayerType == Ground) {
         return air_;
     }
     return airWall_;
 }
 
-glimmer::ResourceRef glimmer::TileManager::GetAirResourceRef(const TileLayerType tileLayerType) {
+glimmer::ResourceRef glimmer::TileResourceManager::GetAirResourceRef(const TileLayerType tileLayerType) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TYPE_TILE);
@@ -169,7 +169,7 @@ glimmer::ResourceRef glimmer::TileManager::GetAirResourceRef(const TileLayerType
     return resourceRef;
 }
 
-glimmer::TileResource *glimmer::TileManager::FindTileRaw(const std::string &packId, const std::string &key) {
+glimmer::TileResource *glimmer::TileResourceManager::FindTileRaw(const std::string &packId, const std::string &key) {
     const auto packIt = tileMap_.find(packId);
     if (packIt == tileMap_.end()) {
         return nullptr;
@@ -183,7 +183,7 @@ glimmer::TileResource *glimmer::TileManager::FindTileRaw(const std::string &pack
     return keyIt->second.get();
 }
 
-glimmer::TileResource *glimmer::TileManager::FindTileFallback(const std::string &packId, const std::string &key,
+glimmer::TileResource *glimmer::TileResourceManager::FindTileFallback(const std::string &packId, const std::string &key,
                                                               const TileLayerType tileLayer) {
     TileResource *result = FindTileRaw(packId, key);
     if (result == nullptr) {
@@ -192,7 +192,7 @@ glimmer::TileResource *glimmer::TileManager::FindTileFallback(const std::string 
     return result;
 }
 
-std::vector<std::string> glimmer::TileManager::GetTileIDList() {
+std::vector<std::string> glimmer::TileResourceManager::GetTileIDList() {
     std::vector<std::string> result;
     for (const auto &[packId, keyMap]: tileMap_) {
         for (const auto &[key, resource]: keyMap) {
@@ -203,7 +203,7 @@ std::vector<std::string> glimmer::TileManager::GetTileIDList() {
     return result;
 }
 
-std::string glimmer::TileManager::ListTiles() const {
+std::string glimmer::TileResourceManager::ListTiles() const {
     std::ostringstream oss;
     for (const auto &packPair: tileMap_) {
         const auto &packId = packPair.first;

@@ -6,7 +6,7 @@
 
 #include "../../Constants.h"
 
-glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileManager *tileManager) {
+glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileResourceManager *tileManager) {
     tileManager_ = tileManager;
 }
 

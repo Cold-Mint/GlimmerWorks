@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/3.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_DEBUGPANELSYSTEM_H
 #define GLIMMERWORKS_DEBUGPANELSYSTEM_H
 #include "core/ecs/GameSystem.h"
@@ -40,3 +40,4 @@ namespace glimmer {
 }
 
 #endif //GLIMMERWORKS_DEBUGPANELSYSTEM_H
+#endif

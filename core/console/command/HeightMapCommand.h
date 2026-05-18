@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/12/14.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_HEIGHTMAPCOMMAND_H
 #define GLIMMERWORKS_HEIGHTMAPCOMMAND_H
 #include "../Command.h"
@@ -29,3 +29,4 @@ namespace glimmer {
 }
 
 #endif //GLIMMERWORKS_HEIGHTMAPCOMMAND_H
+#endif

@@ -125,7 +125,7 @@ namespace glimmer {
         std::string biomeScoreInspectorDisable;
         std::string biomeScoreInspectorEnableFail;
         std::string biomeScoreInspectorDisableFail;
-
+        std::string memoryUseInfo;
     };
 }
 

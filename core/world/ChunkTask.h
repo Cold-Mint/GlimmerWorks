@@ -5,10 +5,11 @@
 #ifndef GLIMMERWORKS_CHUNKTASK_H
 #define GLIMMERWORKS_CHUNKTASK_H
 #include "ChunkType.h"
+#include "core/ISignable.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
 namespace glimmer {
-    class ChunkTask {
+    class ChunkTask : public ISignable {
         ChunkType chunkType_ = None;
         TileVector2D chunkVertexCoordinates_;
         uint32_t distance_ = 0;
@@ -24,7 +25,7 @@ namespace glimmer {
 
         [[nodiscard]] const TileVector2D &GetChunkVertexCoordinates() const;
 
-        [[nodiscard]] uint64_t GetId() const;
+        [[nodiscard]] uint64_t GetSignature() const override;
     };
 }
 

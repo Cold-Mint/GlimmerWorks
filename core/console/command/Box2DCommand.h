@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/16.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_BOX2DCOMMAND_H
 #define GLIMMERWORKS_BOX2DCOMMAND_H
 #include "../Command.h"
@@ -23,8 +23,9 @@ namespace glimmer {
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
 
 #endif //GLIMMERWORKS_BOX2DCOMMAND_H
+#endif

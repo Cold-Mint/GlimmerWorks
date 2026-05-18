@@ -98,6 +98,7 @@ void glimmer::DraggableSystem::Render(SDL_Renderer *renderer) {
         }
     }
 
+        #if  !defined(NDEBUG)
     if (appContext->GetConfig()->debug.displayDraggableTarget) {
         CameraComponent *cameraComponent = worldContext_->GetCameraComponent();
         if (cameraComponent == nullptr) {
@@ -123,6 +124,7 @@ void glimmer::DraggableSystem::Render(SDL_Renderer *renderer) {
             SDL_RenderRect(renderer, &border);
         }
     }
+    #endif
     AppContext::RestoreColorRenderer(renderer);
 }
 

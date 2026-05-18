@@ -100,8 +100,8 @@ void glimmer::DiggingSystem::Update(float delta) {
     if (appContext == nullptr) {
         return;
     }
-    const TileManager *tileManager = appContext->GetTileManager();
-    if (tileManager == nullptr) {
+    const TileResourceManager *tileResourceManager = appContext->GetTileResourceManager();
+    if (tileResourceManager == nullptr) {
         return;
     }
     const auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
@@ -119,8 +119,8 @@ void glimmer::DiggingSystem::Update(float delta) {
             for (auto point: diggingComponent->GetMiningRangeData()->GetPoints()) {
                 const TileVector2D tilePosition = TileLayerComponent::WorldToTile(point);
                 BreakTile(worldContext_, tileLayer, tilePosition, diggingComponent->IsPrecisionMining(), false,
-                          Tile::FromTileResource(appContext, tileManager->GetAirResource(tileLayerType),
-                                                 TileManager::GetAirResourceRef(tileLayerType)));
+                          Tile::FromTileResource(appContext, tileResourceManager->GetAirResource(tileLayerType),
+                                                 TileResourceManager::GetAirResourceRef(tileLayerType)));
             }
             // Reset digging after break
             // 破坏方块重置挖掘

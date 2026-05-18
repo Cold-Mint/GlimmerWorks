@@ -52,8 +52,10 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
     const TileLayerType targetTileLayerType = tile_->GetLayerType();
     for (auto &entity: entities) {
         auto *tileLayer = worldContext->GetComponent<TileLayerComponent>(entity);
-        const TileLayerType tileLayerType = tileLayer->GetTileLayerType();
-        if (tileLayerType != targetTileLayerType) {
+        if (tileLayer == nullptr) {
+            continue;
+        }
+        if (tileLayer->GetTileLayerType() != targetTileLayerType) {
             //The tile layer is incorrect. Let's look for the next one.
             //瓦片图层不对，找下一个。
             continue;

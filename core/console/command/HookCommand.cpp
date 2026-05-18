@@ -1,7 +1,7 @@
 //
 // Created by coldmint on 2026/5/1.
 //
-
+#if  !defined(NDEBUG)
 #include "HookCommand.h"
 #include "../../scene/AppContext.h"
 #include "core/utils/EventTypeUtils.h"
@@ -238,3 +238,4 @@ bool glimmer::HookCommand::Execute(const CommandSender *commandSender, const Com
     }
     return false;
 }
+#endif

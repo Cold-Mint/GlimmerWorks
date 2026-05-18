@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2026/1/15.
 //
-
+#if  !defined(NDEBUG)
 #include "EcsCommand.h"
 
 #include "fmt/base.h"
@@ -104,3 +104,4 @@ bool glimmer::EcsCommand::Execute(const CommandSender *commandSender, const Comm
 bool glimmer::EcsCommand::RequiresWorldContext() const {
     return true;
 }
+#endif

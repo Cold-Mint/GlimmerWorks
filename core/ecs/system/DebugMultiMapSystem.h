@@ -1,7 +1,7 @@
 //
 // Created by coldmint on 2026/4/4.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_DEBUGMULTIMAPSYSTEM_H
 #define GLIMMERWORKS_DEBUGMULTIMAPSYSTEM_H
 #include "core/ecs/GameSystem.h"
@@ -26,5 +26,5 @@ namespace glimmer {
     };
 }
 
-
+#endif
 #endif //GLIMMERWORKS_DEBUGMULTIMAPSYSTEM_H

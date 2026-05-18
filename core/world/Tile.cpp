@@ -23,11 +23,11 @@ const glimmer::ResourceRef &glimmer::Tile::GetLightSourceResource() {
     return lightSource_;
 }
 
-const glimmer::ResourceRef & glimmer::Tile::GetSideLightMaskResource() {
+const glimmer::ResourceRef &glimmer::Tile::GetSideLightMaskResource() {
     return sideLightMask_;
 }
 
-const glimmer::ResourceRef & glimmer::Tile::GetBackLightMaskResource() {
+const glimmer::ResourceRef &glimmer::Tile::GetBackLightMaskResource() {
     return backLightMask_;
 }
 
@@ -106,6 +106,38 @@ void glimmer::Tile::WriteTileMessage(TileMessage &tileMessage) const {
     tileMessage.set_isplayerplaced(isPlayerPlaced_);
 }
 
+void glimmer::Tile::SetTileWidth(const int tileWidth) {
+    tileWidth_ = tileWidth;
+}
+
+void glimmer::Tile::SetTileHeight(const int tileWidth) {
+    tileHeight_ = tileWidth;
+}
+
+void glimmer::Tile::SetColliderWidth(const float colliderWidth) {
+    colliderWidth_ = colliderWidth;
+}
+
+void glimmer::Tile::SetColliderHeight(const float colliderHeight) {
+    colliderHeight_ = colliderHeight;
+}
+
+int glimmer::Tile::GetTileWidth() const {
+    return tileWidth_;
+}
+
+int glimmer::Tile::GetTileHeight() const {
+    return tileHeight_;
+}
+
+float glimmer::Tile::GetColliderWidth() const {
+    return colliderWidth_;
+}
+
+float glimmer::Tile::GetColliderHeight() const {
+    return colliderHeight_;
+}
+
 std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext *appContext,
                                                                const TileResource *tileResource,
                                                                const ResourceRef &resourceRef) {
@@ -137,6 +169,10 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->lightSource_ = tileResource->lightSource;
     tile->isOverwritable_ = tileResource->isOverwritable;
     tile->canDropLoot_ = tileResource->canDropLoot;
+    tile->tileHeight_ = tileResource->tileHeight;
+    tile->tileWidth_ = tileResource->tileWidth;
+    tile->colliderHeight_ = tileResource->colliderHeight;
+    tile->colliderWidth_ = tileResource->colliderWidth;
     tile->texture_ = resourceLocator->FindTexture(
         tileResource->texture);
     tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);

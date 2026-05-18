@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/28.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_VFSCOMMAND_H
 #define GLIMMERWORKS_VFSCOMMAND_H
 #include "../Command.h"
@@ -19,12 +19,12 @@ namespace glimmer {
 
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        [[nodiscard]] NodeTree<std::string> * GetSuggestionsTree(const CommandArgs *commandArgs) override;
+        [[nodiscard]] NodeTree<std::string> *GetSuggestionsTree(const CommandArgs *commandArgs) override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
                      const std::function<void(const std::string &text)> *onMessage) override;
-
     };
 }
 
 #endif //GLIMMERWORKS_VFSCOMMAND_H
+#endif

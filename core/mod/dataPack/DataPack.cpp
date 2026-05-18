@@ -6,7 +6,7 @@
 #include "core/Constants.h"
 
 #include "StringManager.h"
-#include "TileManager.h"
+#include "TileResourceManager.h"
 #include "core/log/LogCat.h"
 #include "core/utils/TomlUtils.h"
 #include "core/mod/PackManifest.h"
@@ -170,7 +170,7 @@ LoadStructureResourceFromFile(const std::string &path, StructureManager *structu
     return true;
 }
 
-bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileManager *tileManager) const {
+bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileResourceManager *tileManager) const {
     auto data =
             virtualFileSystem_->ReadFile(path);
     if (!data.has_value()) {
@@ -559,7 +559,7 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
         }
         if (dataType == DATA_FILE_TYPE_TILE) {
             LogCat::d("Loading tile file: ", file);
-            if (LoadTileResourceFromFile(file, appContext->GetTileManager())) {
+            if (LoadTileResourceFromFile(file, appContext->GetTileResourceManager())) {
                 total++;
             }
             continue;

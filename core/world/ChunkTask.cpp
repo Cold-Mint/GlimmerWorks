@@ -26,7 +26,8 @@ const TileVector2D &glimmer::ChunkTask::GetChunkVertexCoordinates() const {
     return chunkVertexCoordinates_;
 }
 
-uint64_t glimmer::ChunkTask::GetId() const {
+
+uint64_t glimmer::ChunkTask::GetSignature() const {
     const uint64_t type = static_cast<uint64_t>(chunkType_) & 0b11;
     const uint64_t x = static_cast<uint32_t>(chunkVertexCoordinates_.x);
     const uint64_t y = static_cast<uint32_t>(chunkVertexCoordinates_.y);

@@ -25,7 +25,7 @@
 #include "toml11/spec.hpp"
 
 namespace glimmer {
-    class TileManager;
+    class TileResourceManager;
     class StringManager;
 
     class DataPack {
@@ -66,7 +66,7 @@ namespace glimmer {
         [[nodiscard]] bool LoadStructureResourceFromFile(const std::string &path,
                                                          StructureManager *structureManager) const;
 
-        [[nodiscard]] bool LoadTileResourceFromFile(const std::string &path, TileManager *tileManager) const;
+        [[nodiscard]] bool LoadTileResourceFromFile(const std::string &path, TileResourceManager *tileManager) const;
 
         [[nodiscard]] bool LoadBiomeResourceFromFile(const std::string &path, BiomesManager *biomesManager) const;
 

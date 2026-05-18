@@ -79,7 +79,8 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
         const int firstTileTerrainY = GetFirstTileTerrainY(position.x + localX);
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
             terrainResult->SetTerrainTileResult(localX, localY,
-                                                GetTerrainTileResult(position + TileVector2D(localX, localY), firstTileTerrainY));
+                                                GetTerrainTileResult(position + TileVector2D(localX, localY),
+                                                                     firstTileTerrainY));
         }
     }
     const int leftWorldX = position.x - 1;
@@ -393,8 +394,8 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     if (resourceLocator == nullptr) {
         return nullptr;
     }
-    TileManager *tileManager = appContext->GetTileManager();
-    if (tileManager == nullptr) {
+    const TileResourceManager *tileResourceManager = appContext->GetTileResourceManager();
+    if (tileResourceManager == nullptr) {
         return nullptr;
     }
     BiomeDecoratorManager *biomeDecoratorManager = appContext->GetBiomeDecoratorManager();
@@ -416,9 +417,9 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             const int idx = localY * CHUNK_SIZE + localX;
             auto &terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             auto terrainType = terrainTileResult.terrainType;
-            tilesRefMap[BackGround][idx] = TileManager::GetAirResourceRef(BackGround);
+            tilesRefMap[BackGround][idx] = TileResourceManager::GetAirResourceRef(BackGround);
             if (terrainType == AIR) {
-                tilesRefMap[Ground][idx] = TileManager::GetAirResourceRef(Ground);
+                tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
                 continue;
             }
             if (terrainType == WATER) {
@@ -434,7 +435,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                 continue;
             }
             if (terrainType == SOLID) {
-                tilesRefMap[Ground][idx] = TileManager::GetAirResourceRef(Ground);
+                tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
                 if (terrainTileResult.biomeResource != nullptr && !biomeResourcesSet.contains(
                         terrainTileResult.biomeResource)) {
                     biomeResourcesSet.insert(terrainTileResult.biomeResource);
@@ -477,11 +478,10 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                 } else {
                     LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
                               " does not exist.");
-                    tileResourceValue = tileManager->GetAirResource(tileLayerType);
+                    tileResourceValue = tileResourceManager->GetAirResource(tileLayerType);
                 }
-                chunk->SetTileToLayer(localTile,
-                                      tileLayerType,
-                                      Tile::FromTileResource(appContext, tileResourceValue, resourceRef));
+                chunk->SetTile(localTile,
+                               Tile::FromTileResource(appContext, tileResourceValue, resourceRef));
             }
         }
     }

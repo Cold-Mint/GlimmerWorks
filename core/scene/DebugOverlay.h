@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/25.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_DEBUGSCENE_H
 #define GLIMMERWORKS_DEBUGSCENE_H
 #include "Scene.h"
@@ -32,5 +32,5 @@ namespace glimmer {
     };
 }
 
-
+#endif
 #endif //GLIMMERWORKS_DEBUGSCENE_H

@@ -22,7 +22,7 @@ namespace glimmer {
         std::vector<std::unique_ptr<ChunkTask> > loadChunkTasks_;
         std::vector<std::unique_ptr<ChunkTask> > unloadChunkTasks_;
         std::vector<std::unique_ptr<ChunkTask> > unloadTerrainTasks_;
-        std::unordered_set<uint64_t> taskIdSet_;
+        std::unordered_set<uint64_t> taskSignatureSet_;
 
         void ExecuteLoadTerrainTask(uint16_t loadTerrainBatch);
 
@@ -37,8 +37,10 @@ namespace glimmer {
          * 推送任务到列表
          * @param taskList taskList 任务列表
          * @param chunkTask chunkTask 区块任务
+         * @param signature signature 签名
          */
-        void PushTask(std::vector<std::unique_ptr<ChunkTask> > &taskList, std::unique_ptr<ChunkTask> chunkTask);
+        void PushTask(std::vector<std::unique_ptr<ChunkTask> > &taskList, std::unique_ptr<ChunkTask> chunkTask,
+                      uint64_t signature);
 
         /**
          * SetOriginAndSort

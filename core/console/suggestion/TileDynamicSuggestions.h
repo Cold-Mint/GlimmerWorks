@@ -5,14 +5,14 @@
 #ifndef GLIMMERWORKS_TILEDYNAMICSUGGESTIONS_H
 #define GLIMMERWORKS_TILEDYNAMICSUGGESTIONS_H
 #include "DynamicSuggestions.h"
-#include "../../mod/dataPack/TileManager.h"
+#include "../../mod/dataPack/TileResourceManager.h"
 
 namespace glimmer {
     class TileDynamicSuggestions final : public DynamicSuggestions {
-        TileManager *tileManager_;
+        TileResourceManager *tileManager_;
 
     public:
-        explicit TileDynamicSuggestions(TileManager *tileManager);
+        explicit TileDynamicSuggestions(TileResourceManager *tileManager);
 
         [[nodiscard]] std::string GetId() const override;
 

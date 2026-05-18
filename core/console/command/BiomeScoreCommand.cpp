@@ -1,7 +1,7 @@
 //
 // Created by coldmint on 2026/5/12.
 //
-
+#if  !defined(NDEBUG)
 #include "BiomeScoreCommand.h"
 #include "core/LangsResources.h"
 #include "fmt/xchar.h"
@@ -172,3 +172,4 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, con
     }
     return false;
 }
+#endif

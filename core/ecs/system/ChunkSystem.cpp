@@ -22,7 +22,7 @@ void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatc
     if (loadTerrainBatch == 0) {
         while (!loadTerrainTasks_.empty()) {
             auto task = std::move(loadTerrainTasks_.back());
-            taskIdSet_.erase(task->GetId());
+            taskSignatureSet_.erase(task->GetSignature());
             worldContext_->LoadTerrainAt(task->GetChunkVertexCoordinates());
             loadTerrainTasks_.pop_back();
         }
@@ -32,7 +32,7 @@ void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatc
                 break;
             }
             auto task = std::move(loadTerrainTasks_.back());
-            taskIdSet_.erase(task->GetId());
+            taskSignatureSet_.erase(task->GetSignature());
             worldContext_->LoadTerrainAt(task->GetChunkVertexCoordinates());
             loadTerrainTasks_.pop_back();
         }
@@ -50,7 +50,7 @@ void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch) {
     if (loadChunkBatch == 0) {
         while (!loadChunkTasks_.empty()) {
             auto task = std::move(loadChunkTasks_.back());
-            taskIdSet_.erase(task->GetId());
+            taskSignatureSet_.erase(task->GetSignature());
             worldContext_->LoadChunkAt(task->GetChunkVertexCoordinates());
             loadChunkTasks_.pop_back();
         }
@@ -60,7 +60,7 @@ void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch) {
                 break;
             }
             auto task = std::move(loadChunkTasks_.back());
-            taskIdSet_.erase(task->GetId());
+            taskSignatureSet_.erase(task->GetSignature());
             worldContext_->LoadChunkAt(task->GetChunkVertexCoordinates());
             loadChunkTasks_.pop_back();
         }
@@ -77,7 +77,7 @@ void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatc
     if (unloadChunkBatch == 0) {
         while (!unloadChunkTasks_.empty()) {
             auto task = std::move(unloadChunkTasks_.back());
-            taskIdSet_.erase(task->GetId());
+            taskSignatureSet_.erase(task->GetSignature());
             worldContext_->UnloadChunkAt(task->GetChunkVertexCoordinates());
             unloadChunkTasks_.pop_back();
         }
@@ -87,7 +87,7 @@ void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatc
                 break;
             }
             auto task = std::move(unloadChunkTasks_.back());
-            taskIdSet_.erase(task->GetId());
+            taskSignatureSet_.erase(task->GetSignature());
             worldContext_->UnloadChunkAt(task->GetChunkVertexCoordinates());
             unloadChunkTasks_.pop_back();
         }
@@ -104,7 +104,7 @@ void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrain
     if (unloadTerrainBatch == 0) {
         while (!unloadTerrainTasks_.empty()) {
             auto task = std::move(unloadTerrainTasks_.back());
-            taskIdSet_.erase(task->GetId());
+            taskSignatureSet_.erase(task->GetSignature());
             worldContext_->UnloadTerrainAt(task->GetChunkVertexCoordinates());
             unloadTerrainTasks_.pop_back();
         }
@@ -114,7 +114,7 @@ void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrain
                 break;
             }
             auto task = std::move(unloadTerrainTasks_.back());
-            taskIdSet_.erase(task->GetId());
+            taskSignatureSet_.erase(task->GetSignature());
             worldContext_->UnloadTerrainAt(task->GetChunkVertexCoordinates());
             unloadTerrainTasks_.pop_back();
         }
@@ -122,10 +122,9 @@ void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrain
 }
 
 void glimmer::ChunkSystem::PushTask(std::vector<std::unique_ptr<ChunkTask> > &taskList,
-                                    std::unique_ptr<ChunkTask> chunkTask) {
-    const uint64_t id = chunkTask->GetId();
+                                    std::unique_ptr<ChunkTask> chunkTask, const uint64_t signature) {
     taskList.push_back(std::move(chunkTask));
-    taskIdSet_.insert(id);
+    taskSignatureSet_.insert(signature);
 }
 
 void glimmer::ChunkSystem::SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, TileVector2D origin,
@@ -261,9 +260,9 @@ void glimmer::ChunkSystem::Update(const float delta) {
             TileVector2D chunkVertexCoordinates(cx, cy);
             if (!WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates)) {
                 auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadTerrain, chunkVertexCoordinates);
-                uint64_t id = chunkTaskPtr->GetId();
-                if (!taskIdSet_.contains(id)) {
-                    PushTask(loadTerrainTasks_, std::move(chunkTaskPtr));
+                uint64_t signature = chunkTaskPtr->GetSignature();
+                if (!taskSignatureSet_.contains(signature)) {
+                    PushTask(loadTerrainTasks_, std::move(chunkTaskPtr), signature);
                 }
             }
         }
@@ -285,9 +284,9 @@ void glimmer::ChunkSystem::Update(const float delta) {
             if (!WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates) && !worldContext_->HasChunk(
                     chunkVertexCoordinates)) {
                 auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadChunk, chunkVertexCoordinates);
-                uint64_t id = chunkTaskPtr->GetId();
-                if (!taskIdSet_.contains(id)) {
-                    PushTask(loadChunkTasks_, std::move(chunkTaskPtr));
+                uint64_t signature = chunkTaskPtr->GetSignature();
+                if (!taskSignatureSet_.contains(signature)) {
+                    PushTask(loadChunkTasks_, std::move(chunkTaskPtr), signature);
                 }
             }
         }
@@ -304,9 +303,9 @@ void glimmer::ChunkSystem::Update(const float delta) {
             endChunk.y
         ) {
             auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadChunk, chunkVertexCoordinates);
-            uint64_t id = chunkTaskPtr->GetId();
-            if (!taskIdSet_.contains(id)) {
-                PushTask(unloadChunkTasks_, std::move(chunkTaskPtr));
+            uint64_t signature = chunkTaskPtr->GetSignature();
+            if (!taskSignatureSet_.contains(signature)) {
+                PushTask(unloadChunkTasks_, std::move(chunkTaskPtr), signature);
             }
         }
     }
@@ -320,9 +319,9 @@ void glimmer::ChunkSystem::Update(const float delta) {
             endTerrain.y
         ) {
             auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadTerrain, chunkVertexCoordinates);
-            uint64_t id = chunkTaskPtr->GetId();
-            if (!taskIdSet_.contains(id)) {
-                PushTask(unloadTerrainTasks_, std::move(chunkTaskPtr));
+            uint64_t signature = chunkTaskPtr->GetSignature();
+            if (!taskSignatureSet_.contains(signature)) {
+                PushTask(unloadTerrainTasks_, std::move(chunkTaskPtr), signature);
             }
         }
     }

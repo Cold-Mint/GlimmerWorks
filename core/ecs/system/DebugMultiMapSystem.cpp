@@ -1,7 +1,7 @@
 //
 // Created by coldmint on 2026/4/4.
 //
-
+#if  !defined(NDEBUG)
 #include "DebugMultiMapSystem.h"
 
 #include "core/scene/AppContext.h"
@@ -131,3 +131,4 @@ void glimmer::DebugMultiMapSystem::Render(SDL_Renderer *renderer) {
 std::string glimmer::DebugMultiMapSystem::GetName() {
     return "DebugMultiMapSystem";
 }
+#endif

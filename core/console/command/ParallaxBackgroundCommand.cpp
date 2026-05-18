@@ -1,7 +1,7 @@
 //
 // Created by coldmint on 2026/5/10.
 //
-
+#if  !defined(NDEBUG)
 #include "ParallaxBackgroundCommand.h"
 
 #include "core/ecs/component/ParallaxBackgroundComponent.h"
@@ -109,3 +109,4 @@ bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender *commandSen
     }
     return false;
 }
+#endif

@@ -6,6 +6,7 @@
 #include <string>
 
 #include "../Constants.h"
+#include "core/ISignable.h"
 #include "src/core/resource_ref.pb.h"
 #include "toml11/spec.hpp"
 
@@ -28,7 +29,7 @@ namespace glimmer {
     //
     //@endContent
 
-    class ResourceRef {
+    class ResourceRef : public ISignable {
         std::string packId_ = RESOURCE_REF_SELF;
         uint32_t resourceType_ = RESOURCE_TYPE_NONE;
         std::string resourceKey_;
@@ -95,6 +96,8 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetResourceType() const;
 
         void SetResourceKey(const std::string &resourceKey);
+
+        [[nodiscard]] uint64_t GetSignature() const override;
 
         [[nodiscard]] std::string GetResourceKey() const;
     };

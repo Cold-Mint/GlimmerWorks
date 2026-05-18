@@ -1,7 +1,7 @@
 //
 // Created by coldmint on 2026/5/3.
 //
-
+#if  !defined(NDEBUG)
 #include "LightCommand.h"
 
 #include "core/LangsResources.h"
@@ -200,3 +200,4 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, const Co
     }
     return false;
 }
+#endif

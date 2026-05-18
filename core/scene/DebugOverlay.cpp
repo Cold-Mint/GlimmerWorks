@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/25.
 //
-
+#if  !defined(NDEBUG)
 #include "DebugOverlay.h"
 
 #include "../log/LogCat.h"
@@ -46,7 +46,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
         LogCat::e("Invalid window size: w=", w, ", h=", h);
         return;
     }
-#if  !defined(NDEBUG)
+
     if (appContext->GetConfig()->debug.displayDebugPanel) {
         //Draw the SDL screen coordinates
         //绘制SDL屏幕坐标
@@ -106,7 +106,6 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             SDL_DestroyTexture(texture);
         }
     }
-#endif
     // Draw the fps information (top) and window information (bottom)
     // 绘制 fps 信息（在上）和窗口信息（在下）
     if (appContext->GetFont() != nullptr) {
@@ -169,3 +168,4 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
         }
     }
 }
+#endif

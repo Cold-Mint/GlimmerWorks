@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/12/14.
 //
-
+#if  !defined(NDEBUG)
 #include "HeightMapCommand.h"
 
 #include "../../Constants.h"
@@ -101,3 +101,4 @@ bool glimmer::HeightMapCommand::Execute(const CommandSender *commandSender, cons
     }
     return true;
 }
+#endif

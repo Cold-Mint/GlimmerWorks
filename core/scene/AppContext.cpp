@@ -32,6 +32,7 @@
 #include "core/console/command/LightCommand.h"
 #include "core/console/command/LocateCommand.h"
 #include "core/console/command/LootCommand.h"
+#include "core/console/command/MemoryUsageCommand.h"
 #include "core/console/command/ParallaxBackgroundCommand.h"
 #include "core/console/command/PlaceCommand.h"
 #include "core/console/command/ScreenshotCommand.h"
@@ -191,6 +192,7 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langsResources_->biomeScoreInspectorDisable = find<std::string>(value, "biome_score_inspector_disable");
     langsResources_->biomeScoreInspectorEnableFail = find<std::string>(value, "biome_score_inspector_enable_fail");
     langsResources_->biomeScoreInspectorDisableFail = find<std::string>(value, "biome_score_inspector_disable_fail");
+    langsResources_->memoryUseInfo = find<std::string>(value, "memory_use_info");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
@@ -346,7 +348,7 @@ glimmer::AppContext::AppContext() {
     stringManager_->LoadLangsString(langsResources_.get());
     biomesManager_ = std::make_unique<BiomesManager>();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BiomeSuggestions>(biomesManager_.get()));
-    tileManager_ = std::make_unique<TileManager>();
+    tileResourceManager_ = std::make_unique<TileResourceManager>();
     structurePlacementConditionsManager_ = std::make_unique<StructurePlacementConditionsManager>();
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<SurfaceStructureConditionProcessor>());
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<HeightStructureConditionProcessor>());
@@ -354,32 +356,35 @@ glimmer::AppContext::AppContext() {
         std::make_unique<HorizontalSpacingStructureConditionProcessor>());
     structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<BiomeStructureConditionProcessor>());
     initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
-    tileManager_->InitBuiltinTiles();
+    tileResourceManager_->InitBuiltinTiles();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<TileDynamicSuggestions>(tileManager_.get()));
+        std::make_unique<TileDynamicSuggestions>(tileResourceManager_.get()));
     commandManager_ = std::make_unique<CommandManager>();
     commandManager_->RegisterCommand(std::make_unique<GiveCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<HelpCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<LightCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TpCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<SummonCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ClearCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LootCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<VFSCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<EchoCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LocateCommand>(this));
+#if  !defined(NDEBUG)
     commandManager_->RegisterCommand(std::make_unique<HookCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<MemoryUsageCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<VFSCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<LightCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(this));
+#endif
     consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
     biomeDecoratorResourcesManager_ = std::make_unique<BiomeDecoratorResourcesManager>();
@@ -651,8 +656,8 @@ glimmer::StructurePlacementConditionsManager *glimmer::AppContext::GetStructureP
     return structurePlacementConditionsManager_.get();
 }
 
-glimmer::TileManager *glimmer::AppContext::GetTileManager() const {
-    return tileManager_.get();
+glimmer::TileResourceManager *glimmer::AppContext::GetTileResourceManager() const {
+    return tileResourceManager_.get();
 }
 
 glimmer::DataPackManager *glimmer::AppContext::GetDataPackManager() const {

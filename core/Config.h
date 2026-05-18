@@ -110,14 +110,16 @@ namespace glimmer {
         Window window{};
         Mods mods{};
         World world{};
-        Debug debug{};
         Audio audio{};
         Console console{};
         CommandConfig command{};
         int configVersion = 1;
         std::string runtimePath;
-        LightConfig light;
         std::vector<CommandHookResource> commandHooks;
+#if  !defined(NDEBUG)
+        LightConfig light;
+        Debug debug{};
+#endif
 
         void LoadConfig(CommandHookManager *commandHookManager, const toml::value &configValue);
     };

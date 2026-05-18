@@ -29,6 +29,10 @@ namespace glimmer {
         bool breakable = true;
         bool allowChainMining_ = false;
         bool isPlayerPlaced_ = false;
+        int tileWidth_ = 1;
+        int tileHeight_ = 1;
+        float colliderWidth_ = 1.0F;
+        float colliderHeight_ = 1.0F;
         /**
          * Can a certain tile be directly placed on top?
          * 是否可以将某个瓦片直接覆盖上去？
@@ -91,6 +95,22 @@ namespace glimmer {
         void ReadTileMessage(const TileMessage &tileMessage);
 
         void WriteTileMessage(TileMessage &tileMessage) const;
+
+        void SetTileWidth(int tileWidth);
+
+        void SetTileHeight(int tileWidth);
+
+        void SetColliderWidth(float colliderWidth);
+
+        void SetColliderHeight(float colliderHeight);
+
+        [[nodiscard]] int GetTileWidth() const;
+
+        [[nodiscard]] int GetTileHeight() const;
+
+        [[nodiscard]] float GetColliderWidth() const;
+
+        [[nodiscard]] float GetColliderHeight() const;
 
         /**
          * From Tile Resource

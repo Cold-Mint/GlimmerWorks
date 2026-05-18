@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/27.
 //
-
+#if  !defined(NDEBUG)
 #include "AssetViewerCommand.h"
 
 #include "../../Constants.h"
@@ -75,11 +75,11 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
     }
 
     if (type == "tile") {
-        const TileManager *tileManager = appContext_->GetTileManager();
-        if (tileManager == nullptr) {
+        const TileResourceManager *tileResourceManager = appContext_->GetTileResourceManager();
+        if (tileResourceManager == nullptr) {
             return false;
         }
-        onMessageRef(tileManager->ListTiles());
+        onMessageRef(tileResourceManager->ListTiles());
         return true;
     }
 
@@ -196,3 +196,4 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender *commandSender, co
     onMessageRef(langsResources->unknownAssetType);
     return false;
 }
+#endif

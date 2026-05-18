@@ -95,6 +95,12 @@ void glimmer::ResourceRef::SetResourceKey(const std::string &resourceKey) {
     resourceKey_ = resourceKey;
 }
 
+uint64_t glimmer::ResourceRef::GetSignature() const {
+    return static_cast<uint64_t>(resourceType_) & 0x1FULL << 59
+            | (std::hash<std::string>{}(packId_) & 0x1FFFFFFFULL) << 30
+            | std::hash<std::string>{}(resourceKey_) & 0x3FFFFFFFULL;
+}
+
 std::string glimmer::ResourceRef::GetResourceKey() const {
     return resourceKey_;
 }

@@ -1,7 +1,7 @@
 //
 // Created by coldmint on 2026/5/12.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_BIOMESCORECOMMAND_H
 #define GLIMMERWORKS_BIOMESCORECOMMAND_H
 #include "core/console/Command.h"
@@ -22,8 +22,9 @@ namespace glimmer {
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
 
 #endif //GLIMMERWORKS_BIOMESCORECOMMAND_H
+#endif

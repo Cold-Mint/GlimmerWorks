@@ -118,6 +118,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
     if (appContext_ == nullptr) {
         return;
     }
+    #if  !defined(NDEBUG)
     const Config *config = appContext_->GetConfig();
     if (config == nullptr) {
         return;
@@ -125,6 +126,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
     if (!config->light.enable) {
         return;
     }
+    #endif
     if (chunk == nullptr) {
         return;
     }
@@ -716,13 +718,15 @@ void glimmer::WorldContext::InitSystem() {
     RegisterSystem(std::make_unique<SpiritRendererSystem>(this));
     RegisterSystem(std::make_unique<PauseSystem>(this));
     RegisterSystem(std::make_unique<ItemEditorSystem>(this));
+    RegisterSystem(std::make_unique<RayCast2DSystem>(this));
+    RegisterSystem(std::make_unique<BiomeBGMSystem>(this));
+    RegisterSystem(std::make_unique<Light2DSystem>(this));
+#if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));
     RegisterSystem(std::make_unique<DebugPanelSystem>(this));
     RegisterSystem(std::make_unique<DebugMultiMapSystem>(this));
-    RegisterSystem(std::make_unique<RayCast2DSystem>(this));
-    RegisterSystem(std::make_unique<BiomeBGMSystem>(this));
-    RegisterSystem(std::make_unique<Light2DSystem>(this));
+#endif
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(this));
 #endif

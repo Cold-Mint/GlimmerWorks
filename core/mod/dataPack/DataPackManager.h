@@ -14,7 +14,7 @@
 namespace glimmer {
     class AppContext;
     class BiomesManager;
-    class TileManager;
+    class TileResourceManager;
     class StringManager;
     class DataPack;
     class Config;

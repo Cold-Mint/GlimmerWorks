@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2026/1/15.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_ECSCOMMAND_H
 #define GLIMMERWORKS_ECSCOMMAND_H
 #include "core/console/Command.h"
@@ -22,10 +22,11 @@ namespace glimmer {
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
     };
 }
 
 #endif //GLIMMERWORKS_ECSCOMMAND_H
+#endif

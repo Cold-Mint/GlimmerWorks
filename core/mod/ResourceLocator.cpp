@@ -115,10 +115,10 @@ glimmer::LightMaskResource *glimmer::ResourceLocator::FindLightMask(const Resour
 glimmer::TileResource *glimmer::ResourceLocator::FindTileFallback(const ResourceRef &resourceRef,
                                                                   TileLayerType tileLayer) const {
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_TILE || !ValidateAccessPermission(resourceRef)) {
-        return appContext_->GetTileManager()->GenerateAccessDeniedPlaceHolder(
+        return appContext_->GetTileResourceManager()->GenerateAccessDeniedPlaceHolder(
             resourceRef.GetPackageId(), resourceRef.GetResourceKey(), tileLayer);
     }
-    return appContext_->GetTileManager()->FindTileFallback(resourceRef.GetPackageId(), resourceRef.GetResourceKey(),
+    return appContext_->GetTileResourceManager()->FindTileFallback(resourceRef.GetPackageId(), resourceRef.GetResourceKey(),
                                                            tileLayer);
 }
 
@@ -126,7 +126,7 @@ glimmer::TileResource *glimmer::ResourceLocator::FindTileRaw(const ResourceRef &
     if (resourceRef.GetResourceType() != RESOURCE_TYPE_TILE || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
-    return appContext_->GetTileManager()->FindTileRaw(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
+    return appContext_->GetTileResourceManager()->FindTileRaw(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }
 
 glimmer::MobResource *glimmer::ResourceLocator::FindMob(const ResourceRef &resourceRef) const {

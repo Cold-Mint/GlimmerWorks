@@ -14,7 +14,7 @@
 namespace glimmer {
     enum class TilePhysicsType : uint8_t;
 
-    class TileManager {
+    class TileResourceManager {
     protected:
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource> > > tileMap_{};
 

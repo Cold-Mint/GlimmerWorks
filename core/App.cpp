@@ -12,7 +12,9 @@
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "scene/SplashScene.h"
 #include "scene/ConsoleOverlay.h"
+#if  defined(NDEBUG)
 #include "scene/DebugOverlay.h"
+#endif
 #include "SDL3_ttf/SDL_ttf.h"
 #include "SDL3/SDL_init.h"
 #include "SDL3/SDL_render.h"
@@ -437,7 +439,9 @@ void glimmer::App::Run() {
     auto config = appContext_->GetConfig();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
+#if  !defined(NDEBUG)
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
+#endif
     auto &overlayScenes = sceneManager->GetOverlayScenes();
     Uint64 lastInputTime = SDL_GetTicks();
     ConsoleWorker *consoleWorker = appContext_->GetConsoleWorker();

@@ -1,15 +1,17 @@
 //
-// Created by coldmint on 2026/5/1.
+// Created by coldmint on 2026/5/18.
 //
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_HOOKCOMMAND_H
-#define GLIMMERWORKS_HOOKCOMMAND_H
+#ifndef GLIMMERWORKS_MEMORYUSAGECOMMAND_H
+#define GLIMMERWORKS_MEMORYUSAGECOMMAND_H
 #include "core/console/Command.h"
 
 namespace glimmer {
-    class HookCommand final : public Command {
+    class MemoryUsageCommand : public Command {
     public:
-        explicit HookCommand(AppContext *appContext);
+        explicit MemoryUsageCommand(AppContext *appContext);
+
+        static std::string BytesToReadableUnit(uint64_t byteSize);
 
     protected:
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
@@ -17,14 +19,12 @@ namespace glimmer {
     public:
         [[nodiscard]] std::string GetName() const override;
 
-        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
-        [[nodiscard]] NodeTree<std::string> *GetSuggestionsTree(const CommandArgs *commandArgs) override;
+        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
                      const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
 #endif
-#endif //GLIMMERWORKS_HOOKCOMMAND_H
+#endif //GLIMMERWORKS_MEMORYUSAGECOMMAND_H

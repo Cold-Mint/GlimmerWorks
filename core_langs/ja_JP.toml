@@ -135,3 +135,4 @@ biome_score_inspector_enable = "バイオームスコア検査機を有効にし
 biome_score_inspector_disable = "バイオームスコア検査機を無効にしました。"
 biome_score_inspector_enable_fail = "バイオームスコア検査機の有効化に失敗しました。"
 biome_score_inspector_disable_fail = "バイオームスコア検査機の無効化に失敗しました。"
+memory_use_info = "エンジンヒープメモリ使用量：{} バイト({})\n備考：エンジン自身の業務コードが使用するヒープメモリのみ集計し、サードパーティライブラリ・システムコンポーネント・ゲーム実行基盤のメモリは含みません。"

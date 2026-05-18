@@ -12,7 +12,4 @@ namespace glimmer {
         std::string link;
     };
 }
-
-
-
 #endif //GLIMMERWORKS_HYPERLINK_H

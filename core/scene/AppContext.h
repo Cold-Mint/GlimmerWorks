@@ -11,7 +11,7 @@
 #include "../LangsResources.h"
 #include "../mod/dataPack/BiomesManager.h"
 #include "../mod/dataPack/ItemManager.h"
-#include "../mod/dataPack/TileManager.h"
+#include "../mod/dataPack/TileResourceManager.h"
 #include "../mod/resourcePack/ResourcePackManager.h"
 #include "../../core/contributor/ContributorManager.h"
 #include "core/CommandHookManager.h"
@@ -67,7 +67,7 @@ namespace glimmer {
         std::unique_ptr<toml::value> configValue;
         std::unique_ptr<SceneManager> sceneManager_;
         std::unique_ptr<StringManager> stringManager_;
-        std::unique_ptr<TileManager> tileManager_;
+        std::unique_ptr<TileResourceManager> tileResourceManager_;
         std::unique_ptr<BiomesManager> biomesManager_;
         std::unique_ptr<CommandManager> commandManager_;
         std::unique_ptr<SavesManager> savesManager_;
@@ -153,7 +153,7 @@ namespace glimmer {
 
         [[nodiscard]] AudioManager *GetAudioManager() const;
 
-        [[nodiscard]] ConsoleWorker* GetConsoleWorker();
+        [[nodiscard]] ConsoleWorker *GetConsoleWorker();
 
         [[nodiscard]] LightMaskManager *GetLightMaskManager() const;
 
@@ -181,7 +181,7 @@ namespace glimmer {
 
         [[nodiscard]] StructurePlacementConditionsManager *GetStructurePlacementConditionsManager() const;
 
-        [[nodiscard]] TileManager *GetTileManager() const;
+        [[nodiscard]] TileResourceManager *GetTileResourceManager() const;
 
         [[nodiscard]] DataPackManager *GetDataPackManager() const;
 

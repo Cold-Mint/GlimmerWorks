@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/27.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_ASSETVIEWERCOMMAND_H
 #define GLIMMERWORKS_ASSETVIEWERCOMMAND_H
 #include "../Command.h"
@@ -26,3 +26,4 @@ namespace glimmer {
 }
 
 #endif //GLIMMERWORKS_ASSETVIEWERCOMMAND_H
+#endif

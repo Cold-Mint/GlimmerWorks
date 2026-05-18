@@ -25,6 +25,7 @@ void glimmer::Light2DSystem::Render(SDL_Renderer *renderer) {
     if (appContext == nullptr) {
         return;
     }
+    #if  !defined(NDEBUG)
     const Config *config = appContext->GetConfig();
     if (config == nullptr) {
         return;
@@ -32,6 +33,7 @@ void glimmer::Light2DSystem::Render(SDL_Renderer *renderer) {
     if (!config->light.enable) {
         return;
     }
+    #endif
     const auto *cameraComponent = worldContext_->GetCameraComponent();
     const auto *cameraPos = worldContext_->GetCameraTransform2D();
     if (cameraComponent == nullptr) {

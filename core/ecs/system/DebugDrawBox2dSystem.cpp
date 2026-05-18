@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/6.
 //
-
+#if  !defined(NDEBUG)
 #include "DebugDrawBox2dSystem.h"
 
 #include "Box2dSystemContext.h"
@@ -607,3 +607,4 @@ uint8_t glimmer::DebugDrawBox2dSystem::GetRenderOrder() {
 std::string glimmer::DebugDrawBox2dSystem::GetName() {
     return "glimmer.DebugDrawBox2dSystem";
 }
+#endif

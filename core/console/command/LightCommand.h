@@ -1,13 +1,13 @@
 //
 // Created by coldmint on 2026/5/3.
 //
-
+#if  !defined(NDEBUG)
 #ifndef GLIMMERWORKS_LIGHTCOMMAND_H
 #define GLIMMERWORKS_LIGHTCOMMAND_H
 #include "core/console/Command.h"
 
 namespace glimmer {
-    class LightCommand : public Command{
+    class LightCommand : public Command {
     public:
         explicit LightCommand(AppContext *appContext);
 
@@ -22,8 +22,9 @@ namespace glimmer {
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
 
 #endif //GLIMMERWORKS_LIGHTCOMMAND_H
+#endif

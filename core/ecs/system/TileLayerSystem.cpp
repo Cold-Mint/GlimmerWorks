@@ -62,7 +62,17 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
         SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
         for (auto tile: tileList) {
             const Color *finalLightColor = worldContext_->GetLightingBuffer()->GetFinalLightColor(tileCoord);
-            if (config->light.enable) {
+            #if  defined(NDEBUG)
+             if (finalLightColor == nullptr) {
+                    continue;
+                }
+                if (finalLightColor->a == 0) {
+                    //Do not draw tiles that do not emit light at all.
+                    //不绘制完全不发光的瓦片。
+                    continue;
+                }
+            #else
+                 if (config->light.enable) {
                 if (finalLightColor == nullptr) {
                     continue;
                 }
@@ -72,6 +82,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                     continue;
                 }
             }
+            #endif
             if (!SDL_RenderTexture(renderer, tile->GetTexture(), nullptr, &dstRect)) {
                 LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
             }

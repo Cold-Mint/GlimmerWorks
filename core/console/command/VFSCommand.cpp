@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/28.
 //
-
+#if  !defined(NDEBUG)
 #include "VFSCommand.h"
 
 #include "../../Constants.h"
@@ -121,3 +121,4 @@ bool glimmer::VFSCommand::Execute(const CommandSender *commandSender, const Comm
     }
     return false;
 }
+#endif

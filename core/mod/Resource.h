@@ -11,6 +11,7 @@
 
 #include "ResourceRef.h"
 #include "core/Box2dFilter.h"
+#include "core/ecs/component/TileLayerComponent.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/math/Color.h"
 #include "src/saves/item.pb.h"
@@ -183,10 +184,8 @@ namespace glimmer {
         float width = 1;
         //@genNextLine(height|高度)
         float height = 1;
-        //@genNextLine(offsetX|偏移X)
-        float offsetX = 1;
-        //@genNextLine(offsetY|偏移Y)
-        float offsetY = 1;
+        //@genNextLine(offset|偏移)
+        Vector2DResource offset;
     };
 
     /**
@@ -420,6 +419,14 @@ namespace glimmer {
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
         ResourceRef description = {};
+        //@genNextLine(tileWidth|瓦片宽度)
+        int tileWidth = 1;
+        //@genNextLine(tileHeight|瓦片高度)
+        int tileHeight = 1;
+        //@genNextLine(colliderWidth|碰撞箱宽度)
+        float colliderWidth = 1.0F;
+        //@genNextLine(colliderHeight|碰撞箱高度)
+        float colliderHeight = 1.0F;
         //@genNextLine(customLootTable|是否使用自定义战利品表)
         bool customLootTable = false;
         //@genNextLine(lootTable|战利品表资源引用)

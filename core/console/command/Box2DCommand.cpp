@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/16.
 //
-
+#if  !defined(NDEBUG)
 #include "Box2DCommand.h"
 
 #include "../../Constants.h"
@@ -62,3 +62,4 @@ bool glimmer::Box2DCommand::Execute(const CommandSender *commandSender, const Co
     onMessageRef(langsResources->unknownCommandParameters);
     return false;
 }
+#endif

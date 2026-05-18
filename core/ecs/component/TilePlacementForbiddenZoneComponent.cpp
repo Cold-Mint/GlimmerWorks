@@ -11,11 +11,11 @@ void glimmer::TilePlacementForbiddenZoneComponent::SetWidth(const float width) {
 }
 
 void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetX(const float offsetX) {
-    offsetX_ = offsetX;
+    offset_.x = offsetX;
 }
 
 void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetY(const float offsetY) {
-    offsetY_ = offsetY;
+    offset_.y = offsetY;
 }
 
 uint32_t glimmer::TilePlacementForbiddenZoneComponent::GetId() {
@@ -23,11 +23,11 @@ uint32_t glimmer::TilePlacementForbiddenZoneComponent::GetId() {
 }
 
 float glimmer::TilePlacementForbiddenZoneComponent::GetOffsetX() const {
-    return offsetX_;
+    return offset_.x;
 }
 
 float glimmer::TilePlacementForbiddenZoneComponent::GetOffsetY() const {
-    return offsetY_;
+    return offset_.y;
 }
 
 void glimmer::TilePlacementForbiddenZoneComponent::SetHeight(const float height) {

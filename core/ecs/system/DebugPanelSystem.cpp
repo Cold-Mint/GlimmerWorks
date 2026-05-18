@@ -1,7 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/3.
 //
-
+#if  !defined(NDEBUG)
 #include "DebugPanelSystem.h"
 #include <cmath>
 
@@ -340,3 +340,4 @@ uint8_t glimmer::DebugPanelSystem::GetRenderOrder() {
 std::string glimmer::DebugPanelSystem::GetName() {
     return "glimmer.DebugPanelSystem";
 }
+#endif

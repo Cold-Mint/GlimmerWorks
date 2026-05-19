@@ -1,9 +1,7 @@
 //
 // Created by coldmint on 2026/4/15.
 //
-
-#ifndef GLIMMERWORKS_LIGHTINGBUFFER_H
-#define GLIMMERWORKS_LIGHTINGBUFFER_H
+#pragma once
 
 #include "LightMask.h"
 #include "LightSource.h"
@@ -45,6 +43,3 @@ namespace glimmer {
         const Color *GetFinalLightColor(TileVector2D position);
     };
 }
-
-
-#endif //GLIMMERWORKS_LIGHTINGBUFFER_H

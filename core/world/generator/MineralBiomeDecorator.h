@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/6.
 //
 
-#ifndef GLIMMERWORKS_CAVEBIOMEDECORATOR_H
-#define GLIMMERWORKS_CAVEBIOMEDECORATOR_H
+#pragma once
 #include "BiomeDecorator.h"
 
 
@@ -18,6 +17,3 @@ namespace glimmer {
         BiomeDecoratorType GetBiomeDecoratorType() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_CAVEBIOMEDECORATOR_H

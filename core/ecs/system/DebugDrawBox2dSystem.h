@@ -1,10 +1,9 @@
 //
 // Created by Cold-Mint on 2025/11/6.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_DEBUGDRAWBOX2DSYSTEM_H
-#define GLIMMERWORKS_DEBUGDRAWBOX2DSYSTEM_H
-#include "../GameSystem.h"
+#include "core/ecs/GameSystem.h"
 #include "box2d/types.h"
 
 namespace glimmer {
@@ -48,4 +47,3 @@ namespace glimmer {
     };
 }
 #endif
-#endif //GLIMMERWORKS_DEBUGDRAWBOX2DSYSTEM_H

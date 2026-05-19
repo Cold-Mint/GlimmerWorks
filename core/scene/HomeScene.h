@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/17.
 //
 
-#ifndef GLIMMERWORKS_HOMESCENE_H
-#define GLIMMERWORKS_HOMESCENE_H
+#pragma once
 #include <vector>
 #include "Scene.h"
 #include "core/Hyperlink.h"
@@ -41,5 +40,3 @@ namespace glimmer {
         ~HomeScene() override;
     };
 }
-
-#endif //GLIMMERWORKS_HOMESCENE_H

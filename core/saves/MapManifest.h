@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/19.
 //
 
-#ifndef GLIMMERWORKS_MAPMANIFEST_H
-#define GLIMMERWORKS_MAPMANIFEST_H
+#pragma once
 #include <string>
 
 #include "core/ecs/GameEntity.h"
@@ -25,5 +24,3 @@ namespace glimmer {
         void ToMessage(MapManifestMessage &manifestMessage);
     };
 }
-
-#endif //GLIMMERWORKS_MAPMANIFEST_H

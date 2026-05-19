@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/12/25.
 //
 
-#ifndef GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
-#define GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H
+#pragma once
 
 #include "ItemAbility.h"
 #include "MiningRangeData.h"
@@ -26,6 +25,3 @@ namespace glimmer {
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };
 }
-
-
-#endif //GLIMMERWORKS_DIGBLOCKFUNCTIONMOD_H

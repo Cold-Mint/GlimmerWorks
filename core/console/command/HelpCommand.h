@@ -1,11 +1,8 @@
 //
 // Created by Cold-Mint on 2025/10/15.
 //
-
-#ifndef GLIMMERWORKS_HELPCOMMAND_H
-#define GLIMMERWORKS_HELPCOMMAND_H
-#include "../Command.h"
-
+#pragma once
+#include "core/console/Command.h"
 
 namespace glimmer {
     class HelpCommand final : public Command {
@@ -25,5 +22,3 @@ namespace glimmer {
                      const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-#endif //GLIMMERWORKS_HELPCOMMAND_H

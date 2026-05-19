@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/18.
 //
 
-#ifndef GLIMMERWORKS_TILEINSTANCEMANAGER_H
-#define GLIMMERWORKS_TILEINSTANCEMANAGER_H
+#pragma once
 #include <memory>
 #include <unordered_map>
 
@@ -22,5 +21,3 @@ namespace glimmer {
                                          const ResourceRef &resourceRef);
     };
 }
-
-#endif //GLIMMERWORKS_TILEMANAGER_H

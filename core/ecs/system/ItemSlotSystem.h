@@ -2,11 +2,9 @@
 // Created by Cold-Mint on 2025/12/25.
 //
 
-#ifndef GLIMMERWORKS_ITEMSLOTSYSTEM_H
-#define GLIMMERWORKS_ITEMSLOTSYSTEM_H
-
-#include "../GameSystem.h"
-#include "../component/ItemSlotComponent.h"
+#pragma once
+#include "core/ecs/GameSystem.h"
+#include "core/ecs/component/ItemSlotComponent.h"
 
 namespace glimmer {
     class Item;
@@ -28,5 +26,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_ITEMSLOTSYSTEM_H

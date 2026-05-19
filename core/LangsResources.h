@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/18.
 //
 
-#ifndef GLIMMERWORKS_LANGS_H
-#define GLIMMERWORKS_LANGS_H
+#pragma once
 #include <string>
 #include <vector>
 
@@ -128,5 +127,3 @@ namespace glimmer {
         std::string memoryUseInfo;
     };
 }
-
-#endif //GLIMMERWORKS_LANGS_H

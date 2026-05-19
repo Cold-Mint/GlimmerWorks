@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/15.
 //
 
-#ifndef GLIMMERWORKS_LIGHTSOURCE_H
-#define GLIMMERWORKS_LIGHTSOURCE_H
+#pragma once
 #include "core/math/Vector2DI.h"
 #include "core/math/Color.h"
 
@@ -24,6 +23,3 @@ namespace glimmer {
         [[nodiscard]] const Color *GetEmissionColor() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_LIGHTSOURCE_H

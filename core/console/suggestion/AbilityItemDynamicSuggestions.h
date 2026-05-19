@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/12/28.
 //
 
-#ifndef GLIMMERWORKS_ABILITYITEMDYNAMICSUGGESTIONS_H
-#define GLIMMERWORKS_ABILITYITEMDYNAMICSUGGESTIONS_H
+#pragma once
 #include "DynamicSuggestions.h"
-#include "../../mod/dataPack/ItemManager.h"
+#include "core/mod/dataPack/ItemManager.h"
 
 namespace glimmer {
     class AbilityItemDynamicSuggestions final : public DynamicSuggestions {
@@ -21,6 +20,3 @@ namespace glimmer {
         bool Match(std::string keyword, std::string param) override;
     };
 }
-
-
-#endif //GLIMMERWORKS_ABILITYITEMDYNAMICSUGGESTIONS_H

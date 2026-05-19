@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/3.
 //
 
-#ifndef GLIMMERWORKS_EVENTTYPEUTILS_H
-#define GLIMMERWORKS_EVENTTYPEUTILS_H
+#pragma once
 #include <unordered_map>
 #include <vector>
 
@@ -36,5 +35,3 @@ namespace glimmer {
         [[nodiscard]] static const std::vector<std::string> &GetAllEventTypeKeys();
     };
 }
-
-#endif //GLIMMERWORKS_EVENTTYPEUTILS_H

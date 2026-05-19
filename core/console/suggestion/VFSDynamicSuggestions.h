@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/11/28.
 //
 
-#ifndef GLIMMERWORKS_VFSDYNAMICSUGGESTIONS_H
-#define GLIMMERWORKS_VFSDYNAMICSUGGESTIONS_H
+#pragma once
 #include "DynamicSuggestions.h"
-#include "../../vfs/VirtualFileSystem.h"
+#include "core/vfs/VirtualFileSystem.h"
 
 namespace glimmer {
     class VFSDynamicSuggestions final : public DynamicSuggestions {
@@ -21,5 +20,3 @@ namespace glimmer {
         bool Match(std::string keyword, std::string param) override;
     };
 }
-
-#endif //GLIMMERWORKS_VFSDYNAMICSUGGESTIONS_H

@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/1.
 //
 
-#ifndef GLIMMERWORKS_STRINGUTILS_H
-#define GLIMMERWORKS_STRINGUTILS_H
+#pragma once
 #include <string>
 
 
@@ -21,6 +20,3 @@ namespace glimmer {
         static void ReplaceAll(std::string &str, std::string_view from, std::string_view to);
     };
 }
-
-
-#endif //GLIMMERWORKS_STRINGUTILS_H

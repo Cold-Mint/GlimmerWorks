@@ -2,15 +2,14 @@
 // Created by Cold-Mint on 2025/12/17.
 //
 
-#ifndef GLIMMERWORKS_ITEM_H
-#define GLIMMERWORKS_ITEM_H
+#pragma once
 #include <memory>
 #include <string>
 
 #include "ContainerChangeType.h"
 #include "SDL3/SDL_render.h"
-#include "../scene/AppContext.h"
-#include "../../core/ecs/GameEntity.h"
+#include "core/scene/AppContext.h"
+#include "core/ecs/GameEntity.h"
 
 namespace glimmer {
     /**
@@ -147,5 +146,3 @@ namespace glimmer {
         [[nodiscard]] virtual std::unique_ptr<Item> Clone() const = 0;
     };
 }
-
-#endif //GLIMMERWORKS_ITEM_H

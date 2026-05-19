@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/12/17.
 //
 
-#ifndef GLIMMERWORKS_ITEMCONTAINER_H
-#define GLIMMERWORKS_ITEMCONTAINER_H
+#pragma once
 #include <vector>
 #include <memory>
 #include <functional>
@@ -150,5 +149,3 @@ namespace glimmer {
         [[nodiscard]] std::unique_ptr<ItemContainer> Clone() const;
     };
 }
-
-#endif //GLIMMERWORKS_ITEMCONTAINER_H

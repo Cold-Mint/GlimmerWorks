@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/4.
 //
 
-#ifndef GLIMMERWORKS_TERRAINRESULTTYPE_H
-#define GLIMMERWORKS_TERRAINRESULTTYPE_H
+#pragma once
 
 namespace glimmer {
     enum TerrainResultType {
@@ -14,5 +13,3 @@ namespace glimmer {
         BEDROCK,
     };
 }
-
-#endif //GLIMMERWORKS_TERRAINRESULTTYPE_H

@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/27.
 //
 
-#ifndef GLIMMERWORKS_COLORF_H
-#define GLIMMERWORKS_COLORF_H
+#pragma once
 
 namespace glimmer {
     class ColorF {
@@ -13,5 +12,3 @@ namespace glimmer {
         float a = 0;
     };
 }
-
-#endif //GLIMMERWORKS_COLORF_H

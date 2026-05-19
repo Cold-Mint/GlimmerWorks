@@ -1,9 +1,8 @@
 //
 // Created by coldmint on 2026/5/18.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_MEMORYUSAGECOMMAND_H
-#define GLIMMERWORKS_MEMORYUSAGECOMMAND_H
 #include "core/console/Command.h"
 
 namespace glimmer {
@@ -27,4 +26,3 @@ namespace glimmer {
     };
 }
 #endif
-#endif //GLIMMERWORKS_MEMORYUSAGECOMMAND_H

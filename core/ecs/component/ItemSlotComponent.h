@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/12/25.
 //
 
-#ifndef GLIMMERWORKS_ITEMSLOTCOMPONENT_H
-#define GLIMMERWORKS_ITEMSLOTCOMPONENT_H
+#pragma once
 #include "ItemContainerComonent.h"
-#include "../GameComponent.h"
+#include "core/ecs/GameComponent.h"
 
 namespace glimmer {
     class ItemSlotComponent : public GameComponent {
@@ -37,5 +36,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
     };
 }
-
-#endif //GLIMMERWORKS_ITEMSLOTCOMPONENT_H

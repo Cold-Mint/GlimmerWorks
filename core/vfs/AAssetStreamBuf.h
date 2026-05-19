@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/29.
 //
 
-#ifndef ASSETSCPP_AASSETSTREAMBUF_H
-#define ASSETSCPP_AASSETSTREAMBUF_H
+#pragma once
 
 #ifdef __ANDROID__
 #include <streambuf>
@@ -155,4 +154,3 @@ namespace glimmer {
     };
 }
 #endif
-#endif //ASSETSCPP_AASSETSTREAMBUF_H

@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/20.
 //
 
-#ifndef GLIMMERWORKS_CREATEWORLDSCENE_H
-#define GLIMMERWORKS_CREATEWORLDSCENE_H
+#pragma once
 #include <string>
 
 #include "Scene.h"
@@ -31,5 +30,3 @@ namespace glimmer {
         ~CreateWorldScene() override = default;
     };
 }
-
-#endif //GLIMMERWORKS_CREATEWORLDSCENE_H

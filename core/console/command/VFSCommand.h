@@ -1,10 +1,9 @@
 //
 // Created by Cold-Mint on 2025/11/28.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_VFSCOMMAND_H
-#define GLIMMERWORKS_VFSCOMMAND_H
-#include "../Command.h"
+#include "core/console/Command.h"
 
 namespace glimmer {
     class VFSCommand final : public Command {
@@ -25,6 +24,4 @@ namespace glimmer {
                      const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-#endif //GLIMMERWORKS_VFSCOMMAND_H
 #endif

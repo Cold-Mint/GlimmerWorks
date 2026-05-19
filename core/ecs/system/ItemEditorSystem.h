@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/1/23.
 //
 
-#ifndef GLIMMERWORKS_ITEMEDITORSYSTEM_H
-#define GLIMMERWORKS_ITEMEDITORSYSTEM_H
+#pragma once
 #include "core/ecs/GameSystem.h"
 
 namespace glimmer {
@@ -20,5 +19,3 @@ namespace glimmer {
         uint8_t GetRenderOrder() override;
     };
 }
-
-#endif //GLIMMERWORKS_ITEMEDITORSYSTEM_H

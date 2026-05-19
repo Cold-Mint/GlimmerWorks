@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/6.
 //
 
-#ifndef GLIMMERWORKS_BIOMESUGGESTIONS_H
-#define GLIMMERWORKS_BIOMESUGGESTIONS_H
+#pragma once
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/BiomesManager.h"
 
@@ -22,6 +21,3 @@ namespace glimmer {
         bool Match(std::string keyword, std::string param) override;
     };
 }
-
-
-#endif //GLIMMERWORKS_BIOMESUGGESTIONS_H

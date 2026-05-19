@@ -2,10 +2,8 @@
 // Created by Cold-Mint on 2025/10/19.
 //
 
-#ifndef GLIMMERWORKS_SAVEDGAMESSCENE_H
-#define GLIMMERWORKS_SAVEDGAMESSCENE_H
+#pragma once
 #include "Scene.h"
-
 
 namespace glimmer {
     class SavedGamesScene : public Scene {
@@ -23,6 +21,3 @@ namespace glimmer {
         ~SavedGamesScene() override = default;
     };
 }
-
-
-#endif //GLIMMERWORKS_SAVEDGAMESSCENE_H

@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/2.
 //
 
-#ifndef GLIMMERWORKS_BOX2DSYSTEMCONTEXT_H
-#define GLIMMERWORKS_BOX2DSYSTEMCONTEXT_H
+#pragma once
 #include "SDL3/SDL_render.h"
 
 namespace glimmer {
@@ -21,5 +20,3 @@ namespace glimmer {
         [[nodiscard]] SDL_Renderer *GetRenderer() const;
     };
 }
-
-#endif //GLIMMERWORKS_BOX2DSYSTEMCONTEXT_H

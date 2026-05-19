@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/12/23.
 //
 
-#ifndef GLIMMERWORKS_TILEDYNAMICSUGGESTIONS_H
-#define GLIMMERWORKS_TILEDYNAMICSUGGESTIONS_H
+#pragma once
 #include "DynamicSuggestions.h"
-#include "../../mod/dataPack/TileResourceManager.h"
+#include "core/mod/dataPack/TileResourceManager.h"
 
 namespace glimmer {
     class TileDynamicSuggestions final : public DynamicSuggestions {
@@ -21,5 +20,3 @@ namespace glimmer {
         bool Match(std::string keyword, std::string param) override;
     };
 }
-
-#endif //GLIMMERWORKS_TILEDYNAMICSUGGESTIONS_H

@@ -1,10 +1,9 @@
 //
 // Created by Cold-Mint on 2025/11/27.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_ASSETVIEWERCOMMAND_H
-#define GLIMMERWORKS_ASSETVIEWERCOMMAND_H
-#include "../Command.h"
+#include "core/console/Command.h"
 
 namespace glimmer {
     class AssetViewerCommand final : public Command {
@@ -24,6 +23,4 @@ namespace glimmer {
                      const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-#endif //GLIMMERWORKS_ASSETVIEWERCOMMAND_H
 #endif

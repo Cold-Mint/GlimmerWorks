@@ -2,13 +2,12 @@
 // Created by Cold-Mint on 2025/12/22.
 //
 
-#ifndef GLIMMERWORKS_MAGNETCOMPONENT_H
-#define GLIMMERWORKS_MAGNETCOMPONENT_H
+#pragma once
 #include <vector>
 
-#include "../GameComponent.h"
-#include "../GameEntity.h"
-#include "../../Constants.h"
+#include "core/ecs/GameComponent.h"
+#include "core/ecs/GameEntity.h"
+#include "core/Constants.h"
 
 namespace glimmer {
     /**
@@ -68,5 +67,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
     };
 }
-
-#endif //GLIMMERWORKS_MAGNETCOMPONENT_H

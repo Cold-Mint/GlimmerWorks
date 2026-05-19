@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/16.
 //
 
-#ifndef GLIMMERWORKS_IUNQIUEID_H
-#define GLIMMERWORKS_IUNQIUEID_H
+#pragma once
 #include <cstdint>
 
 namespace glimmer {
@@ -25,6 +24,3 @@ namespace glimmer {
         [[nodiscard]] virtual uint64_t GetSignature() const = 0;
     };
 }
-
-
-#endif //GLIMMERWORKS_IUNQIUEID_H

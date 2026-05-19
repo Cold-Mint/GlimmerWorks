@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/1/6.
 //
 
-#ifndef GLIMMERWORKS_SAVESMANAGER_H
-#define GLIMMERWORKS_SAVESMANAGER_H
+#pragma once
 #include <vector>
 
 #include "Saves.h"
@@ -43,7 +42,7 @@ namespace glimmer {
         * 创建存档
         * @param manifest manifest 清单文件
         */
-        Saves *Create(const std::string &runtimePath,MapManifest &manifest);
+        Saves *Create(const std::string &runtimePath, MapManifest &manifest);
 
 
         /**
@@ -60,5 +59,3 @@ namespace glimmer {
         [[nodiscard]] size_t GetSavesListSize() const;
     };
 }
-
-#endif //GLIMMERWORKS_SAVESMANAGER_H

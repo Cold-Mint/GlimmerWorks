@@ -1,8 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/9.
 //
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 #include <string>
 #include <vector>
 
@@ -131,5 +130,3 @@ namespace glimmer {
         void LoadConfig(CommandHookManager *commandHookManager, const toml::value &configValue);
     };
 }
-
-#endif //CONFIG_H

@@ -1,11 +1,10 @@
 //
 // Created by Cold-Mint on 2025/12/14.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_HEIGHTMAPCOMMAND_H
-#define GLIMMERWORKS_HEIGHTMAPCOMMAND_H
-#include "../Command.h"
-#include "../../vfs/VirtualFileSystem.h"
+#include "core/console/Command.h"
+#include "core/vfs/VirtualFileSystem.h"
 
 namespace glimmer {
     class HeightMapCommand : public Command {
@@ -27,6 +26,4 @@ namespace glimmer {
                      const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-#endif //GLIMMERWORKS_HEIGHTMAPCOMMAND_H
 #endif

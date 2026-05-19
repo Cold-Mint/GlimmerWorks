@@ -1,8 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/10.
 //
-#ifndef SCENE_H
-#define SCENE_H
+#pragma once
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
@@ -49,5 +48,3 @@ namespace glimmer {
         explicit Scene(AppContext *context);
     };
 }
-
-#endif //SCENE_H

@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/3/1.
 //
 
-#ifndef GLIMMERWORKS_CONTRIBUTORMANAGER_H
-#define GLIMMERWORKS_CONTRIBUTORMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -25,9 +24,6 @@ namespace glimmer {
          * @param uuid
          * @return
          */
-        Contributor* Find(const std::string& uuid) const;
+        Contributor *Find(const std::string &uuid) const;
     };
 }
-
-
-#endif //GLIMMERWORKS_CONTRIBUTORMANAGER_H

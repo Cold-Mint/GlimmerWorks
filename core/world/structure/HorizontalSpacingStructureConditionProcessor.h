@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/23.
 //
 
-#ifndef GLIMMERWORKS_HORIZONTALSPACINGSTRUCTURECONDITIONPROCESSOR_H
-#define GLIMMERWORKS_HORIZONTALSPACINGSTRUCTURECONDITIONPROCESSOR_H
+#pragma once
 #include "IStructureConditionProcessor.h"
 
 namespace glimmer {
@@ -14,5 +13,3 @@ namespace glimmer {
         std::bitset<CHUNK_AREA> Match(TerrainResult *terrainResult, const VariableConfig &variableConfig) override;
     };
 }
-
-#endif //GLIMMERWORKS_HORIZONTALSPACINGSTRUCTURECONDITIONPROCESSOR_H

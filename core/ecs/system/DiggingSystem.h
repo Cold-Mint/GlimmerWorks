@@ -2,12 +2,10 @@
 // Created by Cold-Mint on 2025/12/29.
 //
 
-#ifndef GLIMMERWORKS_DIGGINGSYSTEM_H
-#define GLIMMERWORKS_DIGGINGSYSTEM_H
+#pragma once
 #include <memory>
 #include <vector>
-
-#include "../GameSystem.h"
+#include "core/ecs/GameSystem.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
 
@@ -46,5 +44,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_DIGGINGSYSTEM_H

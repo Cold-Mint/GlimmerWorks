@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2025/10/29.
 //
 
-#ifndef GLIMMERWORKS_CAMERASYSTEM_H
-#define GLIMMERWORKS_CAMERASYSTEM_H
-#include "../GameSystem.h"
+#pragma once
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer {
     /**
@@ -21,5 +20,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_CAMERASYSTEM_H

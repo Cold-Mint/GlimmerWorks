@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/28.
 //
 
-#ifndef GLIMMERWORKS_VIRTUALFILESYSTEM_H
-#define GLIMMERWORKS_VIRTUALFILESYSTEM_H
+#pragma once
 #include <memory>
 #include <vector>
 
@@ -55,5 +54,3 @@ namespace glimmer {
         [[nodiscard]] std::optional<std::string> GetActualPath(const std::string &path) const;
     };
 }
-
-#endif //GLIMMERWORKS_VIRTUALFILESYSTEM_H

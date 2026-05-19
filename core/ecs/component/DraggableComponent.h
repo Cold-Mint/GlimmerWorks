@@ -2,12 +2,9 @@
 // Created by coldmint on 2026/4/2.
 //
 
-#ifndef GLIMMERWORKS_DRAGGABLECOMPONENT_H
-#define GLIMMERWORKS_DRAGGABLECOMPONENT_H
-
+#pragma once
 #include "core/ecs/GameComponent.h"
 #include "core/math/Vector2D.h"
-
 
 namespace glimmer {
     class DraggableComponent : public GameComponent {
@@ -21,6 +18,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_DRAGGABLECOMPONENT_H

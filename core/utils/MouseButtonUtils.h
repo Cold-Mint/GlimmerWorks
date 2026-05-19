@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/3.
 //
 
-#ifndef GLIMMERWORKS_MUSEBUTTONUTILS_H
-#define GLIMMERWORKS_MUSEBUTTONUTILS_H
+#pragma once
 #include <unordered_map>
 #include <vector>
 
@@ -20,6 +19,3 @@ namespace glimmer {
         [[nodiscard]] static const std::vector<std::string> &GetAllMouseButtonKeys();
     };
 }
-
-
-#endif //GLIMMERWORKS_MUSEBUTTONUTILS_H

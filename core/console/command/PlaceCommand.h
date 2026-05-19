@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/13.
 //
 
-#ifndef GLIMMERWORKS_STRUCTURECOMMAND_H
-#define GLIMMERWORKS_STRUCTURECOMMAND_H
+#pragma once
 #include "core/console/Command.h"
 
 namespace glimmer {
@@ -21,9 +20,6 @@ namespace glimmer {
         [[nodiscard]] bool RequiresWorldContext() const override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-
-#endif //GLIMMERWORKS_STRUCTURECOMMAND_H

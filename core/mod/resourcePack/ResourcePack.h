@@ -2,12 +2,11 @@
 // Created by Cold-Mint on 2025/10/15.
 //
 
-#ifndef GLIMMERWORKS_RESOURCEPACK_H
-#define GLIMMERWORKS_RESOURCEPACK_H
+#pragma once
 #include <string>
 
-#include "../PackManifest.h"
-#include "../../vfs/VirtualFileSystem.h"
+#include "core/mod/PackManifest.h"
+#include "core/vfs/VirtualFileSystem.h"
 #include "toml11/spec.hpp"
 
 
@@ -29,6 +28,3 @@ namespace glimmer {
         [[nodiscard]] std::string getPath() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_RESOURCEPACK_H

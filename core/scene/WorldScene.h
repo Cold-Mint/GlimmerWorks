@@ -2,13 +2,11 @@
 // Created by Cold-Mint on 2025/10/25.
 //
 
-#ifndef GLIMMERWORKS_WORLDSCENE_H
-#define GLIMMERWORKS_WORLDSCENE_H
+#pragma once
 #include "Scene.h"
-#include "../world/WorldContext.h"
+#include "core/world/WorldContext.h"
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
-
 
 namespace glimmer {
     class WorldScene : public Scene {
@@ -28,5 +26,3 @@ namespace glimmer {
         void Render(SDL_Renderer *renderer) override;
     };
 }
-
-#endif //GLIMMERWORKS_WORLDSCENE_H

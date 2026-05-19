@@ -1,9 +1,8 @@
 //
 // Created by Cold-Mint on 2026/1/15.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_ECSCOMMAND_H
-#define GLIMMERWORKS_ECSCOMMAND_H
 #include "core/console/Command.h"
 #include "core/ecs/GameEntity.h"
 
@@ -27,6 +26,4 @@ namespace glimmer {
         [[nodiscard]] bool RequiresWorldContext() const override;
     };
 }
-
-#endif //GLIMMERWORKS_ECSCOMMAND_H
 #endif

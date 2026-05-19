@@ -3,11 +3,10 @@
 // Created by Cold-Mint on 2026/3/1.
 //
 
-#ifndef GLIMMERWORKS_CONTRIBUTOR_H
-#define GLIMMERWORKS_CONTRIBUTOR_H
+#pragma once
 #include <string>
 
-#include "../mod/ResourceRef.h"
+#include "core/mod/ResourceRef.h"
 
 namespace glimmer {
     //@genNextLine(Contributor|贡献者)
@@ -22,5 +21,3 @@ namespace glimmer {
         std::string country;
     };
 }
-
-#endif //GLIMMERWORKS_CONTRIBUTOR_H

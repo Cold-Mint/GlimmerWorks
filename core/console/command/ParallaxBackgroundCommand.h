@@ -1,9 +1,8 @@
 //
 // Created by coldmint on 2026/5/10.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_PARALLAXBACKGROUNDCOMMAND_H
-#define GLIMMERWORKS_PARALLAXBACKGROUNDCOMMAND_H
 #include "core/console/Command.h"
 
 namespace glimmer {
@@ -25,6 +24,4 @@ namespace glimmer {
                      const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-#endif //GLIMMERWORKS_PARALLAXBACKGROUNDCOMMAND_H
 #endif

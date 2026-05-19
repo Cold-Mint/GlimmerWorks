@@ -2,10 +2,8 @@
 // Created by Cold-Mint on 2025/11/6.
 //
 
-#ifndef GLIMMERWORKS_PHYSICSSYSTEM_H
-#define GLIMMERWORKS_PHYSICSSYSTEM_H
-#include "../GameSystem.h"
-
+#pragma once
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer {
     class PhysicsSystem : public GameSystem {
@@ -35,5 +33,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_PHYSICSSYSTEM_H

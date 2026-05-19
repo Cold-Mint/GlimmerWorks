@@ -2,15 +2,13 @@
 // Created by Cold-Mint on 2025/11/2.
 //
 
-#ifndef GLIMMERWORKS_TILELAYERCOMPONENT_H
-#define GLIMMERWORKS_TILELAYERCOMPONENT_H
+#pragma once
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
-#include "../GameComponent.h"
-#include "../../math/Vector2D.h"
-#include "../../math/Vector2DI.h"
+#include "core/ecs/GameComponent.h"
+#include "core/math/Vector2D.h"
+#include "core/math/Vector2DI.h"
 #include "core/world/generator/TileLayerType.h"
 #include "SDL3/SDL_rect.h"
 using TileVector2D = glimmer::Vector2DI;
@@ -124,6 +122,3 @@ namespace glimmer {
         TileVector2D focusPosition_ = TileVector2D{};
     };
 }
-
-
-#endif //GLIMMERWORKS_TILELAYERCOMPONENT_H

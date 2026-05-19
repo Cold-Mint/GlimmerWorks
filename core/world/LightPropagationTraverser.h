@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/11.
 //
 
-#ifndef GLIMMERWORKS_CLOCKWISEWALKER8_H
-#define GLIMMERWORKS_CLOCKWISEWALKER8_H
+#pragma once
 #include <functional>
 #include <unordered_set>
 
@@ -127,6 +126,3 @@ namespace glimmer {
         void PropagateSingleRay(int rayIndex) const;
     };
 }
-
-
-#endif //GLIMMERWORKS_CLOCKWISEWALKER8_H

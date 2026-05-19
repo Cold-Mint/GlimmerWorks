@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/26.
 //
 
-#ifndef GLIMMERWORKS_AREAMARKERABILITY_H
-#define GLIMMERWORKS_AREAMARKERABILITY_H
+#pragma once
 #include "ItemAbility.h"
 
 namespace glimmer {
@@ -19,6 +18,3 @@ namespace glimmer {
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };
 }
-
-
-#endif //GLIMMERWORKS_AREAMARKERABILITY_H

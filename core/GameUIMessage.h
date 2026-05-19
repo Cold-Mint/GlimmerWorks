@@ -1,9 +1,7 @@
 //
 // Created by Cold-Mint on 2026/2/19.
 //
-
-#ifndef GLIMMERWORKS_MESSAGE_H
-#define GLIMMERWORKS_MESSAGE_H
+#pragma once
 #include <cstdint>
 #include <string>
 
@@ -24,5 +22,3 @@ namespace glimmer {
     };
 }
 
-
-#endif //GLIMMERWORKS_MESSAGE_H

@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/12/23.
 //
 
-#ifndef GLIMMERWORKS_ITEMFUNCTIONMOD_H
-#define GLIMMERWORKS_ITEMFUNCTIONMOD_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_set>
@@ -39,5 +38,3 @@ namespace glimmer {
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;
     };
 }
-
-#endif //GLIMMERWORKS_ITEMFUNCTIONMOD_H

@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/17.
 //
 
-#ifndef GLIMMERWORKS_UNSETTEMPLATECOMMAND_H
-#define GLIMMERWORKS_UNSETTEMPLATECOMMAND_H
+#pragma once
 #include "core/mod/ITemplateCommand.h"
 
 
@@ -20,6 +19,3 @@ namespace glimmer {
         [[nodiscard]] const std::string_view &GetCommandName() const override;
     };
 }
-
-
-#endif //GLIMMERWORKS_UNSETTEMPLATECOMMAND_H

@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2025/12/9.
 //
 
-#ifndef GLIMMERWORKS_LICENSECOMMAND_H
-#define GLIMMERWORKS_LICENSECOMMAND_H
-#include "../Command.h"
+#pragma once
+#include "core/console/Command.h"
 
 namespace glimmer {
     class LicenseCommand : public Command {
@@ -15,12 +14,10 @@ namespace glimmer {
         explicit LicenseCommand(AppContext *appContext);
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         [[nodiscard]] std::string GetName() const override;
     };
 }
-
-#endif //GLIMMERWORKS_LICENSECOMMAND_H

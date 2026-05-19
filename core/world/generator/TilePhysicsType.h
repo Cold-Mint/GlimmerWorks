@@ -1,9 +1,7 @@
 //
 // Created by Cold-Mint on 2025/12/3.
 //
-
-#ifndef GLIMMERWORKS_TILEPHYSICSTYPE_H
-#define GLIMMERWORKS_TILEPHYSICSTYPE_H
+#pragma once
 #include <cstdint>
 
 namespace glimmer {
@@ -30,4 +28,3 @@ namespace glimmer {
         Fluid,
     };
 }
-#endif //GLIMMERWORKS_TILEPHYSICSTYPE_H

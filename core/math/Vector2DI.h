@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/3.
 //
 
-#ifndef GLIMMERWORKS_VECTOR2DI_H
-#define GLIMMERWORKS_VECTOR2DI_H
+#pragma once
 #include <cmath>
 #include <cstdint>
 #include <functional>
@@ -147,4 +146,3 @@ namespace glimmer {
 }
 
 using TileVector2D = glimmer::Vector2DI;
-#endif //GLIMMERWORKS_VECTOR2DI_H

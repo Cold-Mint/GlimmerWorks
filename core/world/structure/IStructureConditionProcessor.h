@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/22.
 //
 
-#ifndef GLIMMERWORKS_ISTRUCTURECONDITIONPROCESSOR_H
-#define GLIMMERWORKS_ISTRUCTURECONDITIONPROCESSOR_H
+#pragma once
 #include <string>
 #include <bitset>
 
@@ -17,8 +16,6 @@ namespace glimmer {
         virtual std::string GetName() = 0;
 
         virtual std::bitset<CHUNK_AREA> Match(TerrainResult *terrainResult,
-                                                           const VariableConfig &variableConfig) = 0;
+                                              const VariableConfig &variableConfig) = 0;
     };
 }
-
-#endif //GLIMMERWORKS_ISTRUCTURECONDITIONPROCESSOR_H

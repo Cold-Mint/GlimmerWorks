@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/1.
 //
 
-#ifndef GLIMMERWORKS_COMMANDHOOKSCOPE_H
-#define GLIMMERWORKS_COMMANDHOOKSCOPE_H
+#pragma once
 #include <cstdint>
 
 namespace glimmer {
@@ -16,5 +15,3 @@ namespace glimmer {
         SESSION,
     };
 }
-
-#endif //GLIMMERWORKS_COMMANDHOOKSCOPE_H

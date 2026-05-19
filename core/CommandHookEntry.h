@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/1.
 //
 
-#ifndef GLIMMERWORKS_COMMANDHOOK_H
-#define GLIMMERWORKS_COMMANDHOOK_H
+#pragma once
 #include <string>
 
 #include "CommandHookScope.h"
@@ -30,5 +29,3 @@ namespace glimmer {
         [[nodiscard]] static uint32_t GetKey(SDL_EventType eventType, uint16_t code);
     };
 }
-
-#endif //GLIMMERWORKS_COMMANDHOOK_H

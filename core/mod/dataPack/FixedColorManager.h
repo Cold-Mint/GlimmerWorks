@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/16.
 //
 
-#ifndef GLIMMERWORKS_FIXEDCOLORMANAGER_H
-#define GLIMMERWORKS_FIXEDCOLORMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -31,6 +30,3 @@ namespace glimmer {
         std::string ListFixedColorResources() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_FIXEDCOLORMANAGER_H

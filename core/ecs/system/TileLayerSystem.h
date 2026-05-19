@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2025/11/2.
 //
 
-#ifndef GLIMMERWORKS_TILELAYERSYSTEM_H
-#define GLIMMERWORKS_TILELAYERSYSTEM_H
-#include "../GameSystem.h"
+#pragma once
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer {
     class TileLayerSystem final : public GameSystem {
@@ -22,6 +21,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_TILELAYERSYSTEM_H

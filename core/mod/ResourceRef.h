@@ -1,11 +1,10 @@
 //@genCode
 // Created by Cold-Mint on 2025/10/10.
 //
-#ifndef RESOURCEREF_H
-#define RESOURCEREF_H
+#pragma once
 #include <string>
 
-#include "../Constants.h"
+#include "core/Constants.h"
 #include "core/ISignable.h"
 #include "src/core/resource_ref.pb.h"
 #include "toml11/spec.hpp"
@@ -102,5 +101,3 @@ namespace glimmer {
         [[nodiscard]] std::string GetResourceKey() const;
     };
 }
-
-#endif //RESOURCEREF_H

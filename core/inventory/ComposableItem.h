@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/12/23.
 //
 
-#ifndef GLIMMERWORKS_COMPOSABLEITEM_H
-#define GLIMMERWORKS_COMPOSABLEITEM_H
+#pragma once
 
 #include "Item.h"
 #include "ItemContainer.h"
@@ -70,5 +69,3 @@ namespace glimmer {
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };
 }
-
-#endif //GLIMMERWORKS_COMPOSABLEITEM_H

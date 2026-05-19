@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/3/8.
 //
 
-#ifndef GLIMMERWORKS_RAYCAST2DCOMPONENT_H
-#define GLIMMERWORKS_RAYCAST2DCOMPONENT_H
+#pragma once
 #include "box2d/id.h"
 #include "core/Box2dFilter.h"
 #include "core/Constants.h"
@@ -71,5 +70,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
     };
 }
-
-#endif //GLIMMERWORKS_RAYCAST2DCOMPONENT_H

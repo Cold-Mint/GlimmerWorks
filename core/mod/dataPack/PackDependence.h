@@ -3,8 +3,7 @@
 // Created by Cold-Mint on 2026/2/15.
 //
 
-#ifndef GLIMMERWORKS_PACKDEPENDENCE_H
-#define GLIMMERWORKS_PACKDEPENDENCE_H
+#pragma once
 #include <string>
 #include <cstdint>
 
@@ -21,5 +20,3 @@ namespace glimmer {
         uint32_t minVersion;
     };
 }
-
-#endif //GLIMMERWORKS_PACKDEPENDENCE_H

@@ -1,11 +1,9 @@
 //
 // Created by Cold-Mint on 2025/10/9.
 //
-#ifndef STRINGMANAGER_H
-#define STRINGMANAGER_H
+#pragma once
 #include <unordered_map>
-
-#include "../Resource.h"
+#include "core/mod/Resource.h"
 
 
 namespace glimmer {
@@ -41,6 +39,3 @@ namespace glimmer {
         std::string ListStrings() const;
     };
 }
-
-
-#endif //STRINGMANAGER_H

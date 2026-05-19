@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/6.
 //
 
-#ifndef GLIMMERWORKS_LOCATECOMMAND_H
-#define GLIMMERWORKS_LOCATECOMMAND_H
+#pragma once
 #include "core/console/Command.h"
 #include "core/mod/dataPack/BiomesManager.h"
 #include "core/world/generator/ChunkGenerator.h"
@@ -14,7 +13,8 @@ namespace glimmer {
     public:
         explicit LocateCommand(AppContext *appContext);
 
-        static std::optional<TileVector2D> SearchBiomes(int tileX, const BiomesManager *biomesManager, ChunkGenerator *chunkGenerator,
+        static std::optional<TileVector2D> SearchBiomes(int tileX, const BiomesManager *biomesManager,
+                                                        ChunkGenerator *chunkGenerator,
                                                         const std::string &targetBiomeId);
 
     protected:
@@ -31,6 +31,3 @@ namespace glimmer {
                      const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-
-#endif //GLIMMERWORKS_LOCATECOMMAND_H

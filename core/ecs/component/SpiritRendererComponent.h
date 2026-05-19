@@ -2,9 +2,7 @@
 // Created by Cold-Mint on 2026/3/3.
 //
 
-#ifndef GLIMMERWORKS_SPIRITRENDERERCOMPONENT_H
-#define GLIMMERWORKS_SPIRITRENDERERCOMPONENT_H
-
+#pragma once
 #include "core/ecs/GameComponent.h"
 #include "core/math/Vector2D.h"
 #include "core/mod/ResourceLocator.h"
@@ -41,5 +39,3 @@ namespace glimmer {
         [[nodiscard]] const Vector2D &GetPosition() const;
     };
 }
-
-#endif //GLIMMERWORKS_SPIRITRENDERERCOMPONENT_H

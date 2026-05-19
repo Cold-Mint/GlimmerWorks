@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/13.
 //
 
-#ifndef GLIMMERWORKS_CHUNKTYPE_H
-#define GLIMMERWORKS_CHUNKTYPE_H
+#pragma once
 #include <cstdint>
 
 namespace glimmer {
@@ -15,5 +14,3 @@ namespace glimmer {
         UnloadTerrain
     };
 }
-
-#endif //GLIMMERWORKS_CHUNKTYPE_H

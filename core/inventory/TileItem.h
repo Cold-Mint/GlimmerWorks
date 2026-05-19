@@ -2,11 +2,10 @@
 // Created by Cold-Mint on 2025/12/17.
 //
 
-#ifndef GLIMMERWORKS_TILEITEM_H
-#define GLIMMERWORKS_TILEITEM_H
+#pragma once
 #include "Item.h"
 
-#include "../world/Tile.h"
+#include "core/world/Tile.h"
 
 namespace glimmer {
     class TileItem : public Item {
@@ -34,5 +33,3 @@ namespace glimmer {
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };
 }
-
-#endif //GLIMMERWORKS_TILEITEM_H

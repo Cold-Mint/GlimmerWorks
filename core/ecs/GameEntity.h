@@ -2,9 +2,7 @@
 // Created by Cold-Mint on 2025/10/26.
 //
 
-#ifndef GLIMMERWORKS_GAMEENTITY_H
-#define GLIMMERWORKS_GAMEENTITY_H
-
+#pragma once
 #include "core/mod/ResourceRef.h"
 
 namespace glimmer {
@@ -31,5 +29,3 @@ namespace glimmer {
         [[nodiscard]] bool IsPersistable() const;
     };
 }
-
-#endif //GLIMMERWORKS_GAMEENTITY_H

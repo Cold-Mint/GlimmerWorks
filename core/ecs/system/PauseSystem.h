@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2026/1/8.
 //
 
-#ifndef GLIMMERWORKS_PAUSESYSTEM_H
-#define GLIMMERWORKS_PAUSESYSTEM_H
-#include "../GameSystem.h"
+#pragma once
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer {
     class PauseComponent;
@@ -26,5 +25,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_PAUSESYSTEM_H

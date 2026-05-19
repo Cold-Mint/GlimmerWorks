@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/26.
 //
 
-#ifndef GLIMMERWORKS_PRELOADCOLORS_H
-#define GLIMMERWORKS_PRELOADCOLORS_H
+#pragma once
 #include <memory>
 #include <string>
 
@@ -249,6 +248,3 @@ namespace glimmer {
                                const Color &defaultColor);
     };
 }
-
-
-#endif //GLIMMERWORKS_PRELOADCOLORS_H

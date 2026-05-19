@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/3/7.
 //
 
-#ifndef GLIMMERWORKS_SHAPETYPE_H
-#define GLIMMERWORKS_SHAPETYPE_H
+#pragma once
 #include <cstdint>
 
 namespace glimmer {
@@ -13,5 +12,3 @@ namespace glimmer {
         ROUNDED_RECTANGLE = 2,
     };
 }
-
-#endif //GLIMMERWORKS_SHAPETYPE_H

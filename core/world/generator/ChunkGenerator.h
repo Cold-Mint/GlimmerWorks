@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/4.
 //
 
-#ifndef GLIMMERWORKS_CHUNKGENERATOR_H
-#define GLIMMERWORKS_CHUNKGENERATOR_H
+#pragma once
 #include <FastNoiseLite.h>
 #include <memory>
 
@@ -157,6 +156,3 @@ namespace glimmer {
         static float GetSurfaceProximity(int firstTileTerrainY, int worldY);
     };
 }
-
-
-#endif //GLIMMERWORKS_CHUNKGENERATOR_H

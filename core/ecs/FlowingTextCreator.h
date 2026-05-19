@@ -2,11 +2,9 @@
 // Created by coldmint on 2026/3/28.
 //
 
-#ifndef GLIMMERWORKS_FLOWINGTEXTCREATOR_H
-#define GLIMMERWORKS_FLOWINGTEXTCREATOR_H
+#pragma once
 #include "IEntityCreator.h"
 #include "IPersistenceEntityCreator.h"
-
 
 namespace glimmer {
     class FlowingTextCreator : public IEntityCreator {
@@ -19,6 +17,3 @@ namespace glimmer {
         void LoadTemplateComponents(GameEntity::ID id) override;
     };
 }
-
-
-#endif //GLIMMERWORKS_FLOWINGTEXTCREATOR_H

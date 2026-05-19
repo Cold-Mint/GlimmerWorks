@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/12/18.
 //
 
-#ifndef GLIMMERWORKS_HOTBARSYSTEM_H
-#define GLIMMERWORKS_HOTBARSYSTEM_H
-#include "../GameSystem.h"
-#include "../component/ItemContainerComonent.h"
+#pragma once
+#include "core/ecs/GameSystem.h"
+#include "core/ecs/component/ItemContainerComonent.h"
 
 namespace glimmer {
     /**
@@ -23,5 +22,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_HOTBARSYSTEM_H

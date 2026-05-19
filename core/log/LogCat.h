@@ -1,8 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/9.
 //
-#ifndef LOGCAT_H
-#define LOGCAT_H
+#pragma once
 #include <chrono>
 #include <iostream>
 #ifdef __ANDROID__
@@ -84,5 +83,3 @@ namespace glimmer {
         }
     };
 }
-
-#endif //LOGCAT_H

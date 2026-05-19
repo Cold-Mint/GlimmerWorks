@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/24.
 //
 
-#ifndef GLIMMERWORKS_VECTOR2D_H
-#define GLIMMERWORKS_VECTOR2D_H
+#pragma once
 
 namespace glimmer {
     struct Vector2DI;
@@ -156,5 +155,3 @@ using WorldVector2D = glimmer::Vector2D;
  */
 
 using CameraVector2D = glimmer::Vector2D;
-
-#endif //GLIMMERWORKS_VECTOR2D_H

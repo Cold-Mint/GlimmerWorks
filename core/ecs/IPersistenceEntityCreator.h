@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/3/23.
 //
 
-#ifndef GLIMMERWORKS_IPERSISTENCEENTITYCREATOR_H
-#define GLIMMERWORKS_IPERSISTENCEENTITYCREATOR_H
+#pragma once
 #include "GameEntity.h"
 #include "core/mod/ResourceRef.h"
 #include "core/world/WorldContext.h"
@@ -57,5 +56,3 @@ namespace glimmer {
         virtual void MergeEntityItemMessage(GameEntity::ID id, const EntityItemMessage &entityItemMessage) = 0;
     };
 }
-
-#endif //GLIMMERWORKS_IENTITYCREATOR_H

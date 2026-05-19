@@ -1,8 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/10.
 //
-#ifndef DATAPACK_H
-#define DATAPACK_H
+#pragma once
 #include <string>
 
 #include "BiomeDecoratorResourcesManager.h"
@@ -109,6 +108,3 @@ namespace glimmer {
         [[nodiscard]] const DataPackManifest &GetManifest() const;
     };
 }
-
-
-#endif //DATAPACK_H

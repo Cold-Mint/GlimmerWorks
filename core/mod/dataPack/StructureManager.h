@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/13.
 //
 
-#ifndef GLIMMERWORKS_STRUCTUREMANAGER_H
-#define GLIMMERWORKS_STRUCTUREMANAGER_H
+#pragma once
 #include "core/mod/Resource.h"
 
 namespace glimmer {
@@ -25,5 +24,3 @@ namespace glimmer {
         std::string ListStructures() const;
     };
 }
-
-#endif //GLIMMERWORKS_STRUCTUREMANAGER_H

@@ -1,9 +1,7 @@
 //
 // Created by coldmint on 2026/5/13.
 //
-
-#ifndef GLIMMERWORKS_CHUNKTASK_H
-#define GLIMMERWORKS_CHUNKTASK_H
+#pragma once
 #include "ChunkType.h"
 #include "core/ISignable.h"
 #include "core/ecs/component/TileLayerComponent.h"
@@ -28,5 +26,3 @@ namespace glimmer {
         [[nodiscard]] uint64_t GetSignature() const override;
     };
 }
-
-#endif //GLIMMERWORKS_CHUNKTASK_H

@@ -1,9 +1,7 @@
 //
 // Created by Cold-Mint on 2025/11/2.
 //
-
-#ifndef GLIMMERWORKS_TILE_H
-#define GLIMMERWORKS_TILE_H
+#pragma once
 #include <memory>
 
 #include "core/mod/ResourceRef.h"
@@ -126,6 +124,3 @@ namespace glimmer {
         [[nodiscard]] float GetColliderHeight() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_TILE_H

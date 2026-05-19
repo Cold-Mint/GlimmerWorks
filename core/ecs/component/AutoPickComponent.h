@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2025/12/22.
 //
 
-#ifndef GLIMMERWORKS_AUTOPICKCOMPONENT_H
-#define GLIMMERWORKS_AUTOPICKCOMPONENT_H
-#include "../GameComponent.h"
+#pragma once
+#include "core/ecs/GameComponent.h"
 
 namespace glimmer {
     class AutoPickComponent : public GameComponent {
@@ -14,5 +13,3 @@ namespace glimmer {
         [[nodiscard]] bool IsSerializable() override;
     };
 }
-
-#endif //GLIMMERWORKS_AUTOPICKCOMPONENT_H

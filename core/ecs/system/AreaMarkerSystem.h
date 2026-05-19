@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/26.
 //
 
-#ifndef GLIMMERWORKS_AREAMARKERSYSTEM_H
-#define GLIMMERWORKS_AREAMARKERSYSTEM_H
+#pragma once
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/AreaMarkerComponent.h"
 
@@ -21,5 +20,3 @@ namespace glimmer {
         uint8_t GetRenderOrder() override;
     };
 }
-
-#endif //GLIMMERWORKS_AREAMARKERSYSTEM_H

@@ -2,10 +2,8 @@
 // Created by coldmint on 2026/5/13.
 //
 
-#ifndef GLIMMERWORKS_COMMANDREPONSE_H
-#define GLIMMERWORKS_COMMANDREPONSE_H
+#pragma once
 #include <string>
-
 #include "CommandResult.h"
 
 namespace glimmer {
@@ -21,6 +19,3 @@ namespace glimmer {
         [[nodiscard]] CommandResult GetCommandResult() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_COMMANDREPONSE_H

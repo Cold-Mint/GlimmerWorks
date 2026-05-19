@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/13.
 //
 
-#ifndef GLIMMERWORKS_COMMANDREQUEST_H
-#define GLIMMERWORKS_COMMANDREQUEST_H
+#pragma once
 #include <cstdint>
 #include <string>
 
@@ -25,5 +24,3 @@ namespace glimmer {
         [[nodiscard]] const CommandSender *GetCommandSender() const;
     };
 }
-
-#endif //GLIMMERWORKS_COMMANDREQUEST_H

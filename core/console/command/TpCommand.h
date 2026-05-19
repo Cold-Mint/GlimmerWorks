@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2025/11/16.
 //
 
-#ifndef GLIMMERWORKS_TPCOMMAND_H
-#define GLIMMERWORKS_TPCOMMAND_H
-#include "../Command.h"
+#pragma once
+#include "core/console/Command.h"
 
 namespace glimmer {
     class TpCommand final : public Command {
@@ -21,11 +20,8 @@ namespace glimmer {
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
     };
 }
-
-
-#endif //GLIMMERWORKS_TPCOMMAND_H

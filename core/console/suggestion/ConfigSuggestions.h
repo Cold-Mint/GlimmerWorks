@@ -2,9 +2,7 @@
 // Created by Cold-Mint on 2025/12/2.
 //
 
-#ifndef GLIMMERWORKS_CONFIGSUGGESTION_H
-#define GLIMMERWORKS_CONFIGSUGGESTION_H
-
+#pragma once
 #include "DynamicSuggestions.h"
 #include "toml11/types.hpp"
 
@@ -26,5 +24,3 @@ namespace glimmer {
         std::vector<std::string> GetSuggestions(std::string param) override;
     };
 }
-
-#endif //GLIMMERWORKS_CONFIGSUGGESTION_H

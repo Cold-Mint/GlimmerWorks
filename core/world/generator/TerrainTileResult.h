@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/4.
 //
 
-#ifndef GLIMMERWORKS_TERRAINTILERESULT_H
-#define GLIMMERWORKS_TERRAINTILERESULT_H
+#pragma once
 #include "TerrainResultType.h"
 #include "core/mod/Resource.h"
 #include "core/math/Vector2DI.h"
@@ -19,6 +18,3 @@ struct TerrainTileResult {
     glimmer::BiomeResource *biomeResource = nullptr;
     glimmer::ResourceRef resRef;
 };
-
-
-#endif //GLIMMERWORKS_TERRAINTILERESULT_H

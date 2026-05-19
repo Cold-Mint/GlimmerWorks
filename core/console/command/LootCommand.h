@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/1/30.
 //
 
-#ifndef GLIMMERWORKS_LOOTTABLECOMMAND_H
-#define GLIMMERWORKS_LOOTTABLECOMMAND_H
+#pragma once
 #include "core/console/Command.h"
 
 namespace glimmer {
@@ -21,8 +20,6 @@ namespace glimmer {
         [[nodiscard]] bool RequiresWorldContext() const override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-#endif //GLIMMERWORKS_LOOTTABLECOMMAND_H

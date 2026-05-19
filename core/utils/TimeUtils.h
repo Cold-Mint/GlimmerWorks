@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/1/8.
 //
 
-#ifndef GLIMMERWORKS_TIMEUTILS_H
-#define GLIMMERWORKS_TIMEUTILS_H
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -27,6 +26,3 @@ namespace glimmer {
         [[nodiscard]] static std::string FormatTimeMs(uint64_t ms);
     };
 }
-
-
-#endif //GLIMMERWORKS_TIMEUTILS_H

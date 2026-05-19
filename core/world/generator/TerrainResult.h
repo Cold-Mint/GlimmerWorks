@@ -2,9 +2,7 @@
 // Created by Cold-Mint on 2026/2/4.
 //
 
-#ifndef GLIMMERWORKS_TERRAINRESULT_H
-#define GLIMMERWORKS_TERRAINRESULT_H
-
+#pragma once
 #include "TerrainTileResult.h"
 
 namespace glimmer {
@@ -73,6 +71,3 @@ namespace glimmer {
         void SetDownTerrainTileResult(int x, const TerrainTileResult &result);
     };
 }
-
-
-#endif //GLIMMERWORKS_TERRAINRESULT_H

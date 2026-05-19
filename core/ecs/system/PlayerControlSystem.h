@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2025/10/29.
 //
 
-#ifndef GLIMMERWORKS_PLAYERCONTROLSYSTEM_H
-#define GLIMMERWORKS_PLAYERCONTROLSYSTEM_H
-#include "../GameSystem.h"
+#pragma once
+#include "core/ecs/GameSystem.h"
 #include "core/ecs/component/PlayerComponent.h"
 
 namespace glimmer {
@@ -35,5 +34,3 @@ namespace glimmer {
         bool HandleEvent(const SDL_Event &event) override;
     };
 }
-
-#endif //GLIMMERWORKS_PLAYERCONTROLSYSTEM_H

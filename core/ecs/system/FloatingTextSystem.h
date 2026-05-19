@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/3/28.
 //
 
-#ifndef GLIMMERWORKS_FLOATINGTEXTSYSTEM_H
-#define GLIMMERWORKS_FLOATINGTEXTSYSTEM_H
+#pragma once
 #include "core/ecs/GameSystem.h"
 
 
@@ -22,6 +21,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_FLOATINGTEXTSYSTEM_H

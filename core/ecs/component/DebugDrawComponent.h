@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/10/29.
 //
 
-#ifndef GLIMMERWORKS_DEBUGDRAWCOMPONENT_H
-#define GLIMMERWORKS_DEBUGDRAWCOMPONENT_H
-#include "../GameComponent.h"
-#include "../../math/Vector2D.h"
+#pragma once
+#include "core/ecs/GameComponent.h"
+#include "core/math/Vector2D.h"
 #include "SDL3/SDL_pixels.h"
 
 namespace glimmer {
@@ -47,6 +46,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_DEBUGDRAWCOMPONENT_H

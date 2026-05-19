@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/3/25.
 //
 
-#ifndef GLIMMERWORKS_AUDIOMANAGER_H
-#define GLIMMERWORKS_AUDIOMANAGER_H
+#pragma once
 
 #include <unordered_map>
 #include <vector>
@@ -91,6 +90,3 @@ namespace glimmer {
         void CreateTracks(AudioType type, size_t count);
     };
 }
-
-
-#endif //GLIMMERWORKS_AUDIOMANAGER_H

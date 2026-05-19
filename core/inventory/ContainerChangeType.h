@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/28.
 //
 
-#ifndef GLIMMERWORKS_CONTAINERCHANGETYPE_H
-#define GLIMMERWORKS_CONTAINERCHANGETYPE_H
+#pragma once
 
 namespace glimmer {
     enum class ContainerChangeType {
@@ -29,5 +28,3 @@ namespace glimmer {
         COUNT_REMOVE
     };
 }
-
-#endif //GLIMMERWORKS_CONTAINERCHANGETYPE_H

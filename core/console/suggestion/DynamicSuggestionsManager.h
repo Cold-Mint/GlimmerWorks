@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/27.
 //
 
-#ifndef GLIMMERWORKS_DYNAMICSUGGESTIONSMANAGER_H
-#define GLIMMERWORKS_DYNAMICSUGGESTIONSMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -20,5 +19,3 @@ namespace glimmer {
         [[nodiscard]] DynamicSuggestions *GetSuggestions(const std::string &id) const;
     };
 }
-
-#endif //GLIMMERWORKS_DYNAMICSUGGESTIONSMANAGER_H

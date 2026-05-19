@@ -1,10 +1,9 @@
 //
 // Created by Cold-Mint on 2025/11/16.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_BOX2DCOMMAND_H
-#define GLIMMERWORKS_BOX2DCOMMAND_H
-#include "../Command.h"
+#include "core/console/Command.h"
 
 namespace glimmer {
     class Box2DCommand final : public Command {
@@ -26,6 +25,4 @@ namespace glimmer {
                      const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-#endif //GLIMMERWORKS_BOX2DCOMMAND_H
 #endif

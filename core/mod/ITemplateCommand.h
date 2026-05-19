@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/17.
 //
 
-#ifndef GLIMMERWORKS_ITEMPLATECOMMAND_H
-#define GLIMMERWORKS_ITEMPLATECOMMAND_H
+#pragma once
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -27,6 +26,3 @@ namespace glimmer {
         [[nodiscard]] virtual const std::string_view &GetCommandName() const = 0;
     };
 }
-
-
-#endif //GLIMMERWORKS_ITEMPLATECOMMAND_H

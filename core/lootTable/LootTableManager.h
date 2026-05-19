@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/1/30.
 //
 
-#ifndef GLIMMERWORKS_LOOTTABLEMANAGER_H
-#define GLIMMERWORKS_LOOTTABLEMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -25,5 +24,3 @@ namespace glimmer {
         std::string ListLootTables() const;
     };
 }
-
-#endif //GLIMMERWORKS_LOOTTABLEMANAGER_H

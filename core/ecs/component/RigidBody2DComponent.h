@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2025/11/6.
 //
 
-#ifndef GLIMMERWORKS_RIGIDBODY2DCOMPONENT_H
-#define GLIMMERWORKS_RIGIDBODY2DCOMPONENT_H
-#include "../GameComponent.h"
+#pragma once
+#include "core/ecs/GameComponent.h"
 #include "box2d/types.h"
 #include "core/Box2dFilter.h"
 #include "core/math/Vector2D.h"
@@ -157,5 +156,3 @@ namespace glimmer {
         [[nodiscard]] bool IsSerializable() override;
     };
 }
-
-#endif //GLIMMERWORKS_RIGIDBODY2DCOMPONENT_H

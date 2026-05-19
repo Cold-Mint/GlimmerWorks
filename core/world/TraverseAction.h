@@ -2,10 +2,8 @@
 // Created by coldmint on 2026/4/11.
 //
 
-#ifndef GLIMMERWORKS_TRAVERSEACTION_H
-#define GLIMMERWORKS_TRAVERSEACTION_H
+#pragma once
 #include <cstdint>
-
 
 namespace glimmer {
     enum class TraverseAction : uint8_t {
@@ -14,6 +12,3 @@ namespace glimmer {
         StopAll = 2, // 停止全部遍历
     };
 }
-
-
-#endif //GLIMMERWORKS_TRAVERSEACTION_H

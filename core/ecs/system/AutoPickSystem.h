@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/12/22.
 //
 
-#ifndef GLIMMERWORKS_AUTOPICKSYSTEM_H
-#define GLIMMERWORKS_AUTOPICKSYSTEM_H
-#include "../GameSystem.h"
-#include "../component/ItemContainerComonent.h"
+#pragma once
+#include "core/ecs/GameSystem.h"
+#include "core/ecs/component/ItemContainerComonent.h"
 
 namespace glimmer {
     class AutoPickSystem : public GameSystem {
@@ -23,5 +22,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_AUTOPICKSYSTEM_H

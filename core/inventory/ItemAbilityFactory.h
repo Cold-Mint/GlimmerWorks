@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/12/29.
 //
 
-#ifndef GLIMMERWORKS_ITEMABILITYFACTORY_H
-#define GLIMMERWORKS_ITEMABILITYFACTORY_H
+#pragma once
 #include <memory>
 #include <string>
 
@@ -25,5 +24,3 @@ namespace glimmer {
                                                               const AbilityConfig &abilityConfig);
     };
 }
-
-#endif //GLIMMERWORKS_ITEMABILITYFACTORY_H

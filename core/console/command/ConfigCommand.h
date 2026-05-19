@@ -2,10 +2,8 @@
 // Created by Cold-Mint on 2025/12/2.
 //
 
-#ifndef GLIMMERWORKS_CONFIGCOMMAND_H
-#define GLIMMERWORKS_CONFIGCOMMAND_H
-
-#include "../Command.h"
+#pragma once
+#include "core/console/Command.h"
 #include "toml11/types.hpp"
 
 namespace glimmer {
@@ -40,5 +38,3 @@ namespace glimmer {
         [[nodiscard]] bool SetValue(const std::string &parameterName, const std::string &value) const;
     };
 }
-
-#endif //GLIMMERWORKS_CONFIGCOMMAND_H

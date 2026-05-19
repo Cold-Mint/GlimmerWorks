@@ -1,8 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/10.
 //
-#ifndef APPCONTEXT_H
-#define APPCONTEXT_H
+#pragma once
 #include <future>
 #include <queue>
 #include <string>
@@ -277,6 +276,3 @@ namespace glimmer {
         void AddMainThreadTask(std::function<void()> task);
     };
 }
-
-
-#endif //APPCONTEXT_H

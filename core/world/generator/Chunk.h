@@ -2,13 +2,12 @@
 // Created by Cold-Mint on 2025/11/4.
 //
 
-#ifndef GLIMMERWORKS_CHUNK_H
-#define GLIMMERWORKS_CHUNK_H
+#pragma once
 #include <unordered_map>
 
 #include "src/saves/chunk.pb.h"
 #include "box2d/id.h"
-#include "../../ecs/component/TileLayerComponent.h"
+#include "core/ecs/component/TileLayerComponent.h"
 #include "core/Constants.h"
 #include "core/world/Tile.h"
 
@@ -121,5 +120,3 @@ namespace glimmer {
                                                         const std::shared_ptr<Tile> &newTile);
     };
 }
-
-#endif //GLIMMERWORKS_CHUNK_H

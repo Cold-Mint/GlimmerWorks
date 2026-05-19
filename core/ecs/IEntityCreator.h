@@ -2,10 +2,8 @@
 // Created by coldmint on 2026/3/28.
 //
 
-#ifndef GLIMMERWORKS_IENTITYCREATOR_H
-#define GLIMMERWORKS_IENTITYCREATOR_H
+#pragma once
 #include "core/world/WorldContext.h"
-
 
 /**
  * IEntityCreator
@@ -29,6 +27,3 @@ namespace glimmer {
         virtual void LoadTemplateComponents(GameEntity::ID id) = 0;
     };
 }
-
-
-#endif //GLIMMERWORKS_IENTITYCREATOR_H

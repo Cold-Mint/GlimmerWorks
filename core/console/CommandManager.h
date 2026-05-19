@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/15.
 //
 
-#ifndef GLIMMERWORKS_COMMANDMANAGER_H
-#define GLIMMERWORKS_COMMANDMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -57,5 +56,3 @@ namespace glimmer {
                                                           NodeTree<std::string> *nextNodeTree);
     };
 }
-
-#endif //GLIMMERWORKS_COMMANDMANAGER_H

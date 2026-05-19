@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/13.
 //
 
-#ifndef GLIMMERWORKS_CONSOLEWORKER_H
-#define GLIMMERWORKS_CONSOLEWORKER_H
+#pragma once
 #include <condition_variable>
 #include <mutex>
 #include <queue>
@@ -49,5 +48,3 @@ namespace glimmer {
         void PushOnMessage(std::unique_ptr<std::function<void(const std::string &text)> > onMessage);
     };
 }
-
-#endif //GLIMMERWORKS_CONSOLEWORKER_H

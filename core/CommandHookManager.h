@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/1.
 //
 
-#ifndef GLIMMERWORKS_COMMANDHOOKMANAGER_H
-#define GLIMMERWORKS_COMMANDHOOKMANAGER_H
+#pragma once
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -62,7 +61,7 @@ namespace glimmer {
          * @param hookId 钩子Id
          * @return
          */
-        [[nodiscard]] bool Contains(const std::string& hookId) const;
+        [[nodiscard]] bool Contains(const std::string &hookId) const;
 
         [[nodiscard]] std::vector<std::string> GetCommandHookIdsWithOutConfig() const;
 
@@ -72,5 +71,3 @@ namespace glimmer {
         [[nodiscard]] bool Unregister(const std::string &commandHookId);
     };
 }
-
-#endif //GLIMMERWORKS_COMMANDHOOKMANAGER_H

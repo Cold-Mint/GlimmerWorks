@@ -2,8 +2,8 @@
 // Created by coldmint on 2026/4/10.
 //
 
-#ifndef GLIMMERWORKS_LIGHT2DSYSTEM_H
-#define GLIMMERWORKS_LIGHT2DSYSTEM_H
+
+#pragma once
 #include "core/ecs/GameSystem.h"
 #include "core/world/Tile.h"
 
@@ -20,6 +20,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_LIGHT2DSYSTEM_H

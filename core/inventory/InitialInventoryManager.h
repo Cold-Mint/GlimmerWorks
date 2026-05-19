@@ -2,11 +2,9 @@
 // Created by Cold-Mint on 2026/2/21.
 //
 
-#ifndef GLIMMERWORKS_INITIALINVENTORYMANAGER_H
-#define GLIMMERWORKS_INITIALINVENTORYMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
-
 #include "core/mod/Resource.h"
 
 namespace glimmer {
@@ -22,5 +20,3 @@ namespace glimmer {
         [[nodiscard]] std::string ListInitialInventory() const;
     };
 }
-
-#endif //GLIMMERWORKS_INITIALINVENTORYMANAGER_H

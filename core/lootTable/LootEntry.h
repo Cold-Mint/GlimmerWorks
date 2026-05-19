@@ -3,8 +3,7 @@
 // Created by Cold-Mint on 2026/1/30.
 //
 
-#ifndef GLIMMERWORKS_LOOTENTRY_H
-#define GLIMMERWORKS_LOOTENTRY_H
+#pragma once
 #include "core/mod/ResourceRef.h"
 
 namespace glimmer {
@@ -30,5 +29,3 @@ namespace glimmer {
         bool mandatory = false;
     };
 }
-
-#endif //GLIMMERWORKS_LOOTENTRY_H

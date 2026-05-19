@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/28.
 //
 
-#ifndef GLIMMERWORKS_FILEPROVIDER_H
-#define GLIMMERWORKS_FILEPROVIDER_H
+#pragma once
 #include <memory>
 #include <optional>
 #include <string>
@@ -101,5 +100,3 @@ namespace glimmer {
         virtual bool CreateFolder(const std::string &path) = 0;
     };
 }
-
-#endif //GLIMMERWORKS_FILEPROVIDER_H

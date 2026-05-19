@@ -2,14 +2,12 @@
 // Created by coldmint on 2026/4/2.
 //
 
-#ifndef GLIMMERWORKS_DRAGGABLESYSTEM_H
-#define GLIMMERWORKS_DRAGGABLESYSTEM_H
+#pragma once
 #include "core/ecs/GameEntity.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/inventory/Item.h"
 #include "core/math/Vector2D.h"
-
 
 namespace glimmer {
     class DraggableSystem : public GameSystem {
@@ -37,6 +35,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_DRAGGABLESYSTEM_H

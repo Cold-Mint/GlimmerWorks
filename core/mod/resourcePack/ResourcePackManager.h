@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/15.
 //
 
-#ifndef GLIMMERWORKS_RESOURCEPACKMANAGER_H
-#define GLIMMERWORKS_RESOURCEPACKMANAGER_H
+#pragma once
 #include <memory>
 #include <optional>
 #include <string>
@@ -12,8 +11,8 @@
 #include <vector>
 
 #include "ResourcePack.h"
-#include "../../vfs/VirtualFileSystem.h"
-#include "../../Config.h"
+#include "core/vfs/VirtualFileSystem.h"
+#include "core/Config.h"
 #include "core/mod/ResourceLocator.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3_mixer/SDL_mixer.h"
@@ -59,7 +58,7 @@ namespace glimmer {
         ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef &resourceRef);
 
         std::shared_ptr<SDL_Texture> CreateTexture(Color accent,
-                                                        Color base) const;
+                                                   Color base) const;
 
 
         std::shared_ptr<SDL_Texture> errorTexture_;
@@ -81,5 +80,3 @@ namespace glimmer {
         std::string ListTextureCache() const;
     };
 }
-
-#endif //GLIMMERWORKS_RESOURCEPACKMANAGER_H

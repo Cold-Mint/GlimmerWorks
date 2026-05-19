@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/22.
 //
 
-#ifndef GLIMMERWORKS_STRUCTUREPLACEMENTCONDITIONSMANAGER_H
-#define GLIMMERWORKS_STRUCTUREPLACEMENTCONDITIONSMANAGER_H
+#pragma once
 #include <memory>
 
 #include "core/world/structure/IStructureConditionProcessor.h"
@@ -18,6 +17,3 @@ namespace glimmer {
         IStructureConditionProcessor *FindConditionProcessors(const std::string &id);
     };
 }
-
-
-#endif //GLIMMERWORKS_STRUCTUREPLACEMENTCONDITIONSMANAGER_H

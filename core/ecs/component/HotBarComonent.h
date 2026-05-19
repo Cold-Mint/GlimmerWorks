@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2025/12/18.
 //
 
-#ifndef GLIMMERWORKS_HOTBARCOMONENT_H
-#define GLIMMERWORKS_HOTBARCOMONENT_H
-#include "../GameComponent.h"
+#pragma once
+#include "core/ecs/GameComponent.h"
 #include <vector>
 
 #include "core/ecs/GameEntity.h"
@@ -28,5 +27,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
     };
 }
-
-#endif //GLIMMERWORKS_HOTBARCOMONENT_H

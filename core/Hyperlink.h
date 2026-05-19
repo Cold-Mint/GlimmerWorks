@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/16.
 //
 
-#ifndef GLIMMERWORKS_HYPERLINK_H
-#define GLIMMERWORKS_HYPERLINK_H
+#pragma once
 #include <string>
 
 namespace glimmer {
@@ -12,4 +11,3 @@ namespace glimmer {
         std::string link;
     };
 }
-#endif //GLIMMERWORKS_HYPERLINK_H

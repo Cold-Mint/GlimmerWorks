@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/24.
 //
 
-#ifndef GLIMMERWORKS_LIGHTDATA_H
-#define GLIMMERWORKS_LIGHTDATA_H
+#pragma once
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -132,6 +131,3 @@ namespace glimmer {
         void ClearLightContribution(TileLayerType layerType, const LightSource *lightSource, int rayIndex);
     };
 }
-
-
-#endif //GLIMMERWORKS_LIGHTDATA_H

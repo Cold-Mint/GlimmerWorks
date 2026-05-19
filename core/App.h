@@ -1,8 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/9.
 //
-#ifndef APP_H
-#define APP_H
+#pragma once
 #include "scene/AppContext.h"
 
 
@@ -29,6 +28,3 @@ namespace glimmer {
         void Run();
     };
 }
-
-
-#endif //APP_H

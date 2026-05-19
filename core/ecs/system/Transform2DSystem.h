@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2025/10/28.
 //
 
-#ifndef GLIMMERWORKS_WORLDPOSITIONSYSTEM_H
-#define GLIMMERWORKS_WORLDPOSITIONSYSTEM_H
-#include "../GameSystem.h"
+#pragma once
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer {
     class Transform2DSystem final : public GameSystem {
@@ -14,5 +13,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_WORLDPOSITIONSYSTEM_H

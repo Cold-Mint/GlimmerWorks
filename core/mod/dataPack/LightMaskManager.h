@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/16.
 //
 
-#ifndef GLIMMERWORKS_LIGHTMASKMANAGER_H
-#define GLIMMERWORKS_LIGHTMASKMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -31,5 +30,3 @@ namespace glimmer {
         std::string ListLightMaskResource() const;
     };
 }
-
-#endif //GLIMMERWORKS_LIGHTMASKMANAGER_H

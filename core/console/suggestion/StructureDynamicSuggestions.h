@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/13.
 //
 
-#ifndef GLIMMERWORKS_STRUCTUREDYNAMICSUGGESTIONS_H
-#define GLIMMERWORKS_STRUCTUREDYNAMICSUGGESTIONS_H
+#pragma once
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/StructureManager.h"
 
@@ -21,6 +20,3 @@ namespace glimmer {
         bool Match(std::string keyword, std::string param) override;
     };
 }
-
-
-#endif //GLIMMERWORKS_STRUCTUREDYNAMICSUGGESTIONS_H

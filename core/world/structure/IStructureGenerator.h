@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/7.
 //
 
-#ifndef GLIMMERWORKS_ISTRUCTUREGENERATOR_H
-#define GLIMMERWORKS_ISTRUCTUREGENERATOR_H
+#pragma once
 #include "StructureInfo.h"
 #include "core/mod/Resource.h"
 
@@ -35,5 +34,3 @@ namespace glimmer {
         virtual std::string GetStructureGeneratorId() = 0;
     };
 }
-
-#endif //GLIMMERWORKS_ISTRUCTUREGENERATOR_H

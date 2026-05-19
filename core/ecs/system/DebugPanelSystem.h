@@ -1,9 +1,8 @@
 //
 // Created by Cold-Mint on 2025/11/3.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_DEBUGPANELSYSTEM_H
-#define GLIMMERWORKS_DEBUGPANELSYSTEM_H
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/math/Vector2D.h"
@@ -38,6 +37,4 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_DEBUGPANELSYSTEM_H
 #endif

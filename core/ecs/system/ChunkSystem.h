@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/11/4.
 //
 
-#ifndef GLIMMERWORKS_CHUNKSYSTEM_H
-#define GLIMMERWORKS_CHUNKSYSTEM_H
+#pragma once
 
-#include "../GameSystem.h"
+#include "core/ecs/GameSystem.h"
 #include "core/math/Vector2D.h"
 #include "core/world/ChunkTask.h"
 
@@ -60,6 +59,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_CHUNKSYSTEM_H

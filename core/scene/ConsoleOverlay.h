@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/13.
 //
 
-#ifndef GLIMMERWORKS_CONSOLESCENE_H
-#define GLIMMERWORKS_CONSOLESCENE_H
+#pragma once
 #include <string>
 #include <mutex>
 #include <optional>
@@ -98,5 +97,3 @@ namespace glimmer {
         ~ConsoleOverlay() override;
     };
 }
-
-#endif //GLIMMERWORKS_CONSOLESCENE_H

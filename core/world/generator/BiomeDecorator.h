@@ -2,15 +2,13 @@
 // Created by Cold-Mint on 2025/12/9.
 //
 
-#ifndef GLIMMERWORKS_TILEPLACER_H
-#define GLIMMERWORKS_TILEPLACER_H
-#include <string>
+#pragma once
 
 #include "Chunk.h"
 #include "TerrainResult.h"
-#include "../../Constants.h"
-#include "../../mod/Resource.h"
-#include "../../mod/ResourceRef.h"
+#include "core/Constants.h"
+#include "core/mod/Resource.h"
+#include "core/mod/ResourceRef.h"
 
 namespace glimmer {
     class IBiomeDecorator {
@@ -48,5 +46,3 @@ namespace glimmer {
         }
     };
 }
-
-#endif //GLIMMERWORKS_TILEPLACER_H

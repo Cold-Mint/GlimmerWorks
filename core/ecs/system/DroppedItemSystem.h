@@ -2,10 +2,8 @@
 // Created by Cold-Mint on 2025/12/20.
 //
 
-#ifndef GLIMMERWORKS_DROPPEDITEMSYSTEM_H
-#define GLIMMERWORKS_DROPPEDITEMSYSTEM_H
-#include "../GameSystem.h"
-
+#pragma once
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer {
     class DroppedItemSystem : public GameSystem {
@@ -21,6 +19,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_DROPPEDITEMSYSTEM_H

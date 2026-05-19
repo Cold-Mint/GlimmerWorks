@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/2.
 //
 
-#ifndef GLIMMERWORKS_SCANCODEUTILS_H
-#define GLIMMERWORKS_SCANCODEUTILS_H
+#pragma once
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -23,5 +22,3 @@ namespace glimmer {
         [[nodiscard]] static const std::vector<std::string> &GetAllScanCodeKeys();
     };
 }
-
-#endif //GLIMMERWORKS_SCANCODEUTILS_H

@@ -2,10 +2,8 @@
 // Created by coldmint on 2026/3/28.
 //
 
-#ifndef GLIMMERWORKS_FLYCOMMAND_H
-#define GLIMMERWORKS_FLYCOMMAND_H
+#pragma once
 #include "core/console/Command.h"
-
 
 namespace glimmer {
     class FlyCommand final : public Command {
@@ -22,9 +20,6 @@ namespace glimmer {
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-
-#endif //GLIMMERWORKS_FLYCOMMAND_H

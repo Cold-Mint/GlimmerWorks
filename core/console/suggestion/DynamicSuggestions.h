@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/27.
 //
 
-#ifndef GLIMMERWORKS_DYNAMICSUGGESTIONS_H
-#define GLIMMERWORKS_DYNAMICSUGGESTIONS_H
+#pragma once
 #include <string>
 #include <vector>
 
@@ -19,5 +18,3 @@ namespace glimmer {
         virtual bool Match(std::string keyword, std::string param) = 0;
     };
 }
-
-#endif //GLIMMERWORKS_DYNAMICSUGGESTIONS_H

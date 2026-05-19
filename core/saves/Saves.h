@@ -2,12 +2,11 @@
 // Created by Cold-Mint on 2025/10/19.
 //
 
-#ifndef GLIMMERWORKS_SAVES_H
-#define GLIMMERWORKS_SAVES_H
+#pragma once
 
 #include "MapManifest.h"
-#include "../ecs/component/TileLayerComponent.h"
-#include "../vfs/VirtualFileSystem.h"
+#include "core/ecs/component/TileLayerComponent.h"
+#include "core/vfs/VirtualFileSystem.h"
 #include "src/core/player.pb.h"
 #include "src/saves/chunk.pb.h"
 #include "src/saves/chunk_entity.pb.h"
@@ -85,5 +84,3 @@ namespace glimmer {
         [[nodiscard]] bool WriteMapManifest(const MapManifestMessage &mapManifestMessage) const;
     };
 }
-
-#endif //GLIMMERWORKS_SAVES_H

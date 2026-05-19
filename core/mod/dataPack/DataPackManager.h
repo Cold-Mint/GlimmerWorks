@@ -1,12 +1,11 @@
 //
 // Created by Cold-Mint on 2025/10/10.
 //
-#ifndef DATAPACKMANAGER_H
-#define DATAPACKMANAGER_H
+#pragma once
 #include <string>
 #include <vector>
 
-#include "../../vfs/VirtualFileSystem.h"
+#include "core/vfs/VirtualFileSystem.h"
 #include "core/mod/PackManifest.h"
 #include "core/mod/TomlTemplateExpander.h"
 #include "toml11/spec.hpp"
@@ -48,6 +47,3 @@ namespace glimmer {
                  const toml::spec &tomlVersion);
     };
 }
-
-
-#endif //DATAPACKMANAGER_H

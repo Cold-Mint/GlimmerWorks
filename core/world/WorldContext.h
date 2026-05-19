@@ -2,27 +2,26 @@
 // Created by Cold-Mint on 2025/10/24.
 //
 
-#ifndef GLIMMERWORKS_WORLDCONTEXT_H
-#define GLIMMERWORKS_WORLDCONTEXT_H
+#pragma once
 
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
 
-#include "../ecs/GameEntity.h"
-#include "../log/LogCat.h"
+#include "core/ecs/GameEntity.h"
+#include "core/log/LogCat.h"
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
 #include "LightBuffer.h"
-#include "../ecs/GameComponent.h"
-#include "../ecs/component/DiggingComponent.h"
-#include "../math/Vector2DI.h"
-#include "../saves/Saves.h"
+#include "core/ecs/GameComponent.h"
+#include "core/ecs/component/DiggingComponent.h"
+#include "core/math/Vector2DI.h"
+#include "core/saves/Saves.h"
 #include "box2d/id.h"
 #include "core/ecs/component/ItemEditorComponent.h"
-#include "../ecs/GameSystem.h"
+#include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/inventory/ComposableItem.h"
@@ -666,6 +665,3 @@ namespace glimmer {
         return false;
     }
 }
-
-
-#endif //GLIMMERWORKS_WORLDCONTEXT_H

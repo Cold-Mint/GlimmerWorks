@@ -2,12 +2,11 @@
 // Created by Cold-Mint on 2025/12/22.
 //
 
-#ifndef GLIMMERWORKS_MAGNETICCOMPONENT_H
-#define GLIMMERWORKS_MAGNETICCOMPONENT_H
+#pragma once
 #include <cstdint>
 
-#include "../GameComponent.h"
-#include "../../math/Vector2D.h"
+#include "core/ecs/GameComponent.h"
+#include "core/math/Vector2D.h"
 
 namespace glimmer {
     /**
@@ -37,5 +36,3 @@ namespace glimmer {
         [[nodiscard]] bool IsSerializable() override;
     };
 }
-
-#endif //GLIMMERWORKS_MAGNETICCOMPONENT_H

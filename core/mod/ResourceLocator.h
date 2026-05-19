@@ -2,12 +2,11 @@
 // Created by Cold-Mint on 2025/12/11.
 //
 
-#ifndef GLIMMERWORKS_RESOURCELOCATOR_H
-#define GLIMMERWORKS_RESOURCELOCATOR_H
-
+#pragma once
 #include "Resource.h"
 #include "ResourceRef.h"
 #include "core/math/Color.h"
+#include "core/scene/AppContext.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
 namespace glimmer {
@@ -111,5 +110,3 @@ namespace glimmer {
                                                      const ItemMessageResource &itemMessageResource) const;
     };
 }
-
-#endif //GLIMMERWORKS_RESOURCELOCATOR_H

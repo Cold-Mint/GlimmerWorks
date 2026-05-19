@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/3/24.
 //
 
-#ifndef GLIMMERWORKS_MOBENTITYCREATOR_H
-#define GLIMMERWORKS_MOBENTITYCREATOR_H
+#pragma once
 #include "IPersistenceEntityCreator.h"
 
 namespace glimmer {
@@ -18,5 +17,3 @@ namespace glimmer {
         void MergeEntityItemMessage(GameEntity::ID id, const EntityItemMessage &entityItemMessage) override;
     };
 }
-
-#endif //GLIMMERWORKS_MOBENTITYCREATOR_H

@@ -2,8 +2,8 @@
 // Created by coldmint on 2026/4/1.
 //
 
-#ifndef GLIMMERWORKS_COMMANDHISTORYMANAGER_H
-#define GLIMMERWORKS_COMMANDHISTORYMANAGER_H
+#pragma once
+
 #include "core/vfs/VirtualFileSystem.h"
 #include "src/saves/command_history.pb.h"
 
@@ -38,6 +38,3 @@ namespace glimmer {
         void Read();
     };
 }
-
-
-#endif //GLIMMERWORKS_COMMANDHISTORYMANAGER_H

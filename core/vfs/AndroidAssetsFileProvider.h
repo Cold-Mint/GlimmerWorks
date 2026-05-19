@@ -3,8 +3,7 @@
 // Created by Cold-Mint on 2025/11/28.
 //
 
-#ifndef GLIMMERWORKS_ANDROIDASSETSFILEPROVIDER_H
-#define GLIMMERWORKS_ANDROIDASSETSFILEPROVIDER_H
+#pragma once
 
 #ifdef __ANDROID__
 #include <algorithm>
@@ -75,4 +74,3 @@ namespace glimmer {
 }
 
 #endif
-#endif //GLIMMERWORKS_ANDROIDASSETSFILEPROVIDER_H

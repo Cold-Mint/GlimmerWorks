@@ -1,9 +1,8 @@
 //
 // Created by coldmint on 2026/4/4.
 //
+#pragma once
 #if  !defined(NDEBUG)
-#ifndef GLIMMERWORKS_DEBUGMULTIMAPSYSTEM_H
-#define GLIMMERWORKS_DEBUGMULTIMAPSYSTEM_H
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/math/Color.h"
@@ -27,4 +26,3 @@ namespace glimmer {
 }
 
 #endif
-#endif //GLIMMERWORKS_DEBUGMULTIMAPSYSTEM_H

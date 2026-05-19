@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/11.
 //
 
-#ifndef GLIMMERWORKS_SCENEMANAGER_H
-#define GLIMMERWORKS_SCENEMANAGER_H
+#pragma once
 #include <memory>
 #include <stack>
 #include <vector>
@@ -86,6 +85,3 @@ namespace glimmer {
         [[nodiscard]] size_t GetSceneCount() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_SCENEMANAGER_H

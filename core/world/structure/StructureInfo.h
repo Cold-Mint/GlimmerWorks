@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/7.
 //
 
-#ifndef GLIMMERWORKS_STRUCTUREINFO_H
-#define GLIMMERWORKS_STRUCTUREINFO_H
+#pragma once
 
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/mod/ResourceRef.h"
@@ -27,5 +26,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetHeight() const;
     };
 }
-
-#endif //GLIMMERWORKS_STRUCTUREINFO_H

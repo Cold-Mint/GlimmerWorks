@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/28.
 //
 
-#ifndef GLIMMERWORKS_SDLFILEPROVIDER_H
-#define GLIMMERWORKS_SDLFILEPROVIDER_H
+#pragma once
 #include <filesystem>
 #include <memory>
 
@@ -47,5 +46,3 @@ namespace glimmer {
         [[nodiscard]] std::optional<std::string> GetActualPath(const std::string &path) const override;
     };
 }
-
-#endif //GLIMMERWORKS_SDLFILEPROVIDER_H

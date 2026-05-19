@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/27.
 //
 
-#ifndef GLIMMERWORKS_COLOR_H
-#define GLIMMERWORKS_COLOR_H
+#pragma once
 #include <cstdint>
 
 #ifndef UNIT_TEST_MODE
@@ -21,5 +20,3 @@ namespace glimmer {
 #endif
     };
 }
-
-#endif //GLIMMERWORKS_COLOR_H

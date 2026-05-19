@@ -2,12 +2,10 @@
 // Created by Cold-Mint on 2025/10/12.
 //
 
-#ifndef GLIMMERWORKS_SPLASHSCENE_H
-#define GLIMMERWORKS_SPLASHSCENE_H
+#pragma once
 #include <memory>
 
 #include "Scene.h"
-#include "../log/LogCat.h"
 #include "tween.h"
 
 namespace glimmer {
@@ -31,6 +29,3 @@ namespace glimmer {
         ~SplashScene() override = default;
     };
 }
-
-
-#endif //GLIMMERWORKS_SPLASHSCENE_H

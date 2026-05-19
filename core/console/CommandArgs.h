@@ -2,13 +2,13 @@
 // Created by Cold-Mint on 2025/10/15.
 //
 
-#ifndef GLIMMERWORKS_COMMANDARGS_H
-#define GLIMMERWORKS_COMMANDARGS_H
+#pragma once
+
 #include <string>
 #include <vector>
 #include <optional>
 
-#include "../mod/ResourceRef.h"
+#include "core/mod/ResourceRef.h"
 #include "core/BoolOrToggle.h"
 
 namespace glimmer {
@@ -67,5 +67,3 @@ namespace glimmer {
         [[nodiscard]] std::optional<ResourceRef> AsResourceRef(int index, int resourceType) const;
     };
 }
-
-#endif //GLIMMERWORKS_COMMANDARGS_H

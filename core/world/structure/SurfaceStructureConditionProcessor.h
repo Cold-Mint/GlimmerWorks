@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/22.
 //
 
-#ifndef GLIMMERWORKS_SURFACEPLACMENTCONDITIONS_H
-#define GLIMMERWORKS_SURFACEPLACMENTCONDITIONS_H
+#pragma once
 #include "IStructureConditionProcessor.h"
 
 namespace glimmer {
@@ -15,5 +14,3 @@ namespace glimmer {
         Match(TerrainResult *terrainResult, const VariableConfig &variableConfig) override;
     };
 }
-
-#endif //GLIMMERWORKS_SURFACEPLACMENTCONDITIONS_H

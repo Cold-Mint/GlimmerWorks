@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/26.
 //
 
-#ifndef GLIMMERWORKS_AREAMARKERCOMPONENT_H
-#define GLIMMERWORKS_AREAMARKERCOMPONENT_H
+#pragma once
 #include "TileLayerComponent.h"
 #include "core/ecs/GameComponent.h"
 
@@ -38,8 +37,5 @@ namespace glimmer {
         [[nodiscard]] const TileVector2D &GetStartPoint() const;
 
         [[nodiscard]] const TileVector2D &GetEndPoint() const;
-
     };
 }
-
-#endif //GLIMMERWORKS_AREAMARKERCOMPONENT_H

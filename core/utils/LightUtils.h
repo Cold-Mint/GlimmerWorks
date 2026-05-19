@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/21.
 //
 
-#ifndef GLIMMERWORKS_LIGHTUTILS_H
-#define GLIMMERWORKS_LIGHTUTILS_H
+#pragma once
 #include <memory>
 #include "core/math/Color.h"
 
@@ -26,6 +25,3 @@ namespace glimmer {
         static std::unique_ptr<Color> MixLights(const Color *colorA, const Color *colorB);
     };
 }
-
-
-#endif //GLIMMERWORKS_LIGHTUTILS_H

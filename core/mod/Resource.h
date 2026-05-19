@@ -2,8 +2,7 @@
 //
 // Created by Cold-Mint on 2025/10/9.
 //
-#ifndef RESOURCE_H
-#define RESOURCE_H
+#pragma once
 #include <FastNoiseLite.h>
 #include <memory>
 #include <string>
@@ -11,7 +10,6 @@
 
 #include "ResourceRef.h"
 #include "core/Box2dFilter.h"
-#include "core/ecs/component/TileLayerComponent.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/math/Color.h"
 #include "src/saves/item.pb.h"
@@ -625,5 +623,3 @@ namespace glimmer {
         std::vector<ItemMessageResource> addItems;
     };
 }
-
-#endif //RESOURCE_H

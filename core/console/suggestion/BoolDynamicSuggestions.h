@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/27.
 //
 
-#ifndef GLIMMERWORKS_BOOLDYNAMICSUGGESTIONS_H
-#define GLIMMERWORKS_BOOLDYNAMICSUGGESTIONS_H
+#pragma once
 #include "DynamicSuggestions.h"
 
 namespace glimmer {
@@ -23,5 +22,3 @@ namespace glimmer {
         bool Match(std::string keyword, std::string param) override;
     };
 }
-
-#endif //GLIMMERWORKS_BOOLDYNAMICSUGGESTIONS_H

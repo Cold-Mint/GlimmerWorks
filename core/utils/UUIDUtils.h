@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/2.
 //
 
-#ifndef GLIMMERWORKS_UUIDUTILS_H
-#define GLIMMERWORKS_UUIDUTILS_H
+#pragma once
 #include <string>
 
 namespace glimmer {
@@ -17,6 +16,3 @@ namespace glimmer {
         [[nodiscard]] static std::string Generate();
     };
 }
-
-
-#endif //GLIMMERWORKS_UUIDUTILS_H

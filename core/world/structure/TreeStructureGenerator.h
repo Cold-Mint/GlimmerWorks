@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/7.
 //
 
-#ifndef GLIMMERWORKS_TREESTRUCTUREGENERATOR_H
-#define GLIMMERWORKS_TREESTRUCTUREGENERATOR_H
+#pragma once
 
 #include "IStructureGenerator.h"
 
@@ -18,6 +17,3 @@ namespace glimmer {
         std::string GetStructureGeneratorId() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_TREESTRUCTUREGENERATOR_H

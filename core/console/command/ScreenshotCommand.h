@@ -2,10 +2,8 @@
 // Created by coldmint on 2026/3/29.
 //
 
-#ifndef GLIMMERWORKS_SCREENSHOTCOMMAND_H
-#define GLIMMERWORKS_SCREENSHOTCOMMAND_H
+#pragma once
 #include "core/console/Command.h"
-
 
 namespace glimmer {
     class ScreenshotCommand : public Command {
@@ -20,9 +18,6 @@ namespace glimmer {
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
     };
 }
-
-
-#endif //GLIMMERWORKS_SCREENSHOTCOMMAND_H

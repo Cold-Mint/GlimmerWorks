@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/2.
 //
 
-#ifndef GLIMMERWORKS_COMMANDHOOKSCDYNAMICSUGGESTIONS_H
-#define GLIMMERWORKS_COMMANDHOOKSCDYNAMICSUGGESTIONS_H
+#pragma once
 #include "DynamicSuggestions.h"
 
 namespace glimmer {
@@ -16,6 +15,3 @@ namespace glimmer {
         bool Match(std::string keyword, std::string param) override;
     };
 }
-
-
-#endif //GLIMMERWORKS_COMMANDHOOKSCDYNAMICSUGGESTIONS_H

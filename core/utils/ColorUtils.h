@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/5.
 //
 
-#ifndef GLIMMERWORKS_COLORUTILS_H
-#define GLIMMERWORKS_COLORUTILS_H
+#pragma once
 #include <vector>
 
 #include "core/math/Color.h"
@@ -40,6 +39,3 @@ namespace glimmer {
         static Color AdditiveBlend(Color firstColor, Color secondColor);
     };
 }
-
-
-#endif //GLIMMERWORKS_COLORUTILS_H

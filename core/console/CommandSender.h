@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/3.
 //
 
-#ifndef GLIMMERWORKS_COMMANDSENDER_H
-#define GLIMMERWORKS_COMMANDSENDER_H
+#pragma once
 #include "core/ecs/component/TileLayerComponent.h"
 
 namespace glimmer {
@@ -16,5 +15,3 @@ namespace glimmer {
         [[nodiscard]] WorldVector2D GetPosition() const;
     };
 }
-
-#endif //GLIMMERWORKS_COMMANDSENDER_H

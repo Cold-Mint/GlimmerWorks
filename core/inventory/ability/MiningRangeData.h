@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/3/2.
 //
 
-#ifndef GLIMMERWORKS_MININGRANGEDATA_H
-#define GLIMMERWORKS_MININGRANGEDATA_H
+#pragma once
 #include <vector>
 
 #include "core/ecs/component/TileLayerComponent.h"
@@ -46,5 +45,3 @@ namespace glimmer {
         void CalculateChainMining(WorldVector2D startVector, const TileLayerComponent *tileLayerComponent, int radius);
     };
 }
-
-#endif //GLIMMERWORKS_MININGRANGEDATA_H

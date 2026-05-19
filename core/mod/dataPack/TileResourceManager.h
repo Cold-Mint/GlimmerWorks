@@ -2,13 +2,12 @@
 // Created by Cold-Mint on 2025/12/3.
 //
 
-#ifndef GLIMMERWORKS_TILEMANAGER_H
-#define GLIMMERWORKS_TILEMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-#include "../Resource.h"
+#include "core/mod/Resource.h"
 #include "core/world/generator/TileLayerType.h"
 
 namespace glimmer {
@@ -84,6 +83,3 @@ namespace glimmer {
         std::string ListTiles() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_TILEMANAGER_H

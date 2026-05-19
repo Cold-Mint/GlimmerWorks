@@ -2,12 +2,10 @@
 // Created by Cold-Mint on 2025/10/29.
 //
 
-#ifndef GLIMMERWORKS_CAMERACOMPONENT_H
-#define GLIMMERWORKS_CAMERACOMPONENT_H
-#include "../GameComponent.h"
+#pragma once
+#include "core/ecs/GameComponent.h"
 #include <SDL3/SDL_rect.h>
-
-#include "../../math/Vector2D.h"
+#include "core/math/Vector2D.h"
 
 namespace glimmer {
     /**
@@ -73,7 +71,7 @@ namespace glimmer {
          * @param rect
          * @return
          */
-        [[nodiscard]] bool IsRectInViewport(WorldVector2D cameraPosition, const SDL_FRect* rect) const;
+        [[nodiscard]] bool IsRectInViewport(WorldVector2D cameraPosition, const SDL_FRect *rect) const;
 
 
         /**
@@ -108,5 +106,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
     };
 }
-
-#endif //GLIMMERWORKS_CAMERACOMPONENT_H

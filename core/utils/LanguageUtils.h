@@ -1,8 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/10.
 //
-#ifndef LANGUAGEUTILS_H
-#define LANGUAGEUTILS_H
+#pragma once
 #include <string>
 
 namespace glimmer {
@@ -11,6 +10,3 @@ namespace glimmer {
         static std::string getLanguage();
     };
 }
-
-
-#endif //LANGUAGEUTILS_H

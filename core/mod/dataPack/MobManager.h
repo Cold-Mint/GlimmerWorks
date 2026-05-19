@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/3/3.
 //
 
-#ifndef GLIMMERWORKS_MOBMANAGER_H
-#define GLIMMERWORKS_MOBMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -34,5 +33,3 @@ namespace glimmer {
         std::string ListMobs() const;
     };
 }
-
-#endif //GLIMMERWORKS_MOBMANAGER_H

@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/12/19.
 //
 
-#ifndef GLIMMERWORKS_TILETYPE_H
-#define GLIMMERWORKS_TILETYPE_H
+#pragma once
 #include <cstdint>
 
 namespace glimmer {
@@ -22,7 +21,4 @@ namespace glimmer {
          */
         Ground = 2,
     };
-
 }
-
-#endif //GLIMMERWORKS_TILETYPE_H

@@ -1,8 +1,7 @@
 //
 // Created by Cold-Mint on 2025/10/10.
 //
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#pragma once
 #include <string>
 #include <cstdint>
 
@@ -396,5 +395,3 @@ static constexpr int FLY_SPEED = TILE_SIZE * 25;
 //累积多长时间结算一次捡起的物品信息（单位：秒）
 static constexpr float MERGE_DURATION = 0.35F;
 static constexpr int LIGHT_CONTRIBUTION_CENTER_RAY_INDEX = -1;
-
-#endif //CONSTANTS_H

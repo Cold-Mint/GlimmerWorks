@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/1.
 //
 
-#ifndef GLIMMERWORKS_LOOTSUGGESTIONS_H
-#define GLIMMERWORKS_LOOTSUGGESTIONS_H
+#pragma once
 #include "DynamicSuggestions.h"
 #include "core/lootTable/LootTableManager.h"
 
@@ -21,5 +20,3 @@ namespace glimmer {
         bool Match(std::string keyword, std::string param) override;
     };
 }
-
-#endif //GLIMMERWORKS_LOOTSUGGESTIONS_H

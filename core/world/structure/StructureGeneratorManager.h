@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/13.
 //
 
-#ifndef GLIMMERWORKS_STRUCTUREGENERATORMANAGER_H
-#define GLIMMERWORKS_STRUCTUREGENERATORMANAGER_H
+#pragma once
 #include "IStructureGenerator.h"
 #include "StructureInfo.h"
 #include "core/mod/Resource.h"
@@ -20,5 +19,3 @@ namespace glimmer {
         std::optional<StructureInfo> Generate(TileVector2D structuralOrigin, StructureResource *structureResource);
     };
 }
-
-#endif //GLIMMERWORKS_STRUCTUREGENERATORMANAGER_H

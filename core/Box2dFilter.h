@@ -3,8 +3,7 @@
 // Created by Cold-Mint on 2026/3/9.
 //
 
-#ifndef GLIMMERWORKS_BOX2DFILTER_H
-#define GLIMMERWORKS_BOX2DFILTER_H
+#pragma once
 
 #include "box2d/types.h"
 
@@ -19,5 +18,3 @@ namespace glimmer {
         [[nodiscard]] b2QueryFilter Tob2QueryFilter() const;
     };
 }
-
-#endif //GLIMMERWORKS_BOX2DFILTER_H

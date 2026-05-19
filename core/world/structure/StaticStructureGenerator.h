@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/7.
 //
 
-#ifndef GLIMMERWORKS_STATICSTRUCTUREGENERATOR_H
-#define GLIMMERWORKS_STATICSTRUCTUREGENERATOR_H
+#pragma once
 #include "IStructureGenerator.h"
 
 namespace glimmer {
@@ -14,5 +13,3 @@ namespace glimmer {
         std::string GetStructureGeneratorId() override;
     };
 }
-
-#endif //GLIMMERWORKS_STATICSTRUCTUREGENERATOR_H

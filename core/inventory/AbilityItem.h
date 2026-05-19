@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/12/28.
 //
 
-#ifndef GLIMMERWORKS_ABILITYITEM_H
-#define GLIMMERWORKS_ABILITYITEM_H
+#pragma once
 #include "Item.h"
 #include "ability/ItemAbility.h"
 
@@ -44,5 +43,3 @@ namespace glimmer {
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };
 }
-
-#endif //GLIMMERWORKS_ABILITYITEM_H

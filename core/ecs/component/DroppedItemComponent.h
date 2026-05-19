@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/12/20.
 //
 
-#ifndef GLIMMERWORKS_DROPPEDITEMCOMPONENT_H
-#define GLIMMERWORKS_DROPPEDITEMCOMPONENT_H
-#include "../GameComponent.h"
-#include "../../inventory/Item.h"
+#pragma once
+#include "core/ecs/GameComponent.h"
+#include "core/inventory/Item.h"
 
 namespace glimmer {
     class DroppedItemComponent : public GameComponent {
@@ -80,5 +79,3 @@ namespace glimmer {
         void Deserialize(WorldContext *worldContext, const std::string &data) override;
     };
 }
-
-#endif //GLIMMERWORKS_DROPPEDITEMCOMPONENT_H

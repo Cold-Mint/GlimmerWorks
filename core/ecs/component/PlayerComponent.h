@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/29.
 //
 
-#ifndef GLIMMERWORKS_PLAYERCONTROLCOMPONENT_H
-#define GLIMMERWORKS_PLAYERCONTROLCOMPONENT_H
+#pragma once
 
 #include "MobComponent.h"
 #include "core/ecs/GameEntity.h"
@@ -32,5 +31,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
     };
 }
-
-#endif //GLIMMERWORKS_PLAYERCONTROLCOMPONENT_H

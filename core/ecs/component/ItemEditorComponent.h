@@ -2,10 +2,8 @@
 // Created by Cold-Mint on 2026/1/23.
 //
 
-#ifndef GLIMMERWORKS_ITEMEDITORCOMPONENT_H
-#define GLIMMERWORKS_ITEMEDITORCOMPONENT_H
+#pragma once
 #include <vector>
-
 #include "core/ecs/GameComponent.h"
 #include "core/ecs/GameEntity.h"
 
@@ -23,5 +21,3 @@ namespace glimmer {
         std::vector<GameEntity::ID> &GetSlotEntities();
     };
 }
-
-#endif //GLIMMERWORKS_ITEMEDITORCOMPONENT_H

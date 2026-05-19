@@ -2,10 +2,9 @@
 // Created by coldmint on 2026/5/10.
 //
 
-#ifndef GLIMMERWORKS_PARALLAXBACKGROUNDCOMPONENT_H
-#define GLIMMERWORKS_PARALLAXBACKGROUNDCOMPONENT_H
+#pragma once
 #include <memory>
-
+#include "core/ecs/GameComponent.h"
 #include "core/mod/ResourceLocator.h"
 #include "SDL3/SDL_render.h"
 
@@ -28,6 +27,3 @@ namespace glimmer {
         SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
     };
 }
-
-
-#endif //GLIMMERWORKS_PARALLAXBACKGROUNDCOMPONENT_H

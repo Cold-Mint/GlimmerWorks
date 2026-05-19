@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/24.
 //
 
-#ifndef GLIMMERWORKS_LIGHTCONTRIBUTION_H
-#define GLIMMERWORKS_LIGHTCONTRIBUTION_H
+#pragma once
 #include <memory>
 
 #include "LightSource.h"
@@ -32,6 +31,3 @@ namespace glimmer {
         [[nodiscard]] const Color *GetLightColor() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_LIGHTCONTRIBUTION_H

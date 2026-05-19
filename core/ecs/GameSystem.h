@@ -2,9 +2,7 @@
 // Created by Cold-Mint on 2025/10/26.
 //
 
-#ifndef GLIMMERWORKS_GAMESYSTEM_H
-#define GLIMMERWORKS_GAMESYSTEM_H
-
+#pragma once
 #include <string>
 #include <typeindex>
 #include <unordered_set>
@@ -86,5 +84,3 @@ namespace glimmer {
         virtual void Render(SDL_Renderer *renderer);
     };
 }
-
-#endif //GLIMMERWORKS_GAMESYSTEM_H

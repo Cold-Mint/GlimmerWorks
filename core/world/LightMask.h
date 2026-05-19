@@ -1,9 +1,7 @@
 //
 // Created by coldmint on 2026/4/15.
 //
-
-#ifndef GLIMMERWORKS_LIGHTMASK_H
-#define GLIMMERWORKS_LIGHTMASK_H
+#pragma once
 #include "core/math/Color.h"
 
 
@@ -24,6 +22,3 @@ namespace glimmer {
         [[nodiscard]] const Color *GetLightMaskColor() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_LIGHTMASK_H

@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/3/26.
 //
 
-#ifndef GLIMMERWORKS_BIOMEBGMSYSTEM_H
-#define GLIMMERWORKS_BIOMEBGMSYSTEM_H
+#pragma once
 #include "core/ecs/GameSystem.h"
 #include "core/mod/Resource.h"
 #include "SDL3_mixer/SDL_mixer.h"
@@ -22,5 +21,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_BIOMEBGMSYSTEM_H

@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/16.
 //
 
-#ifndef GLIMMERWORKS_LIGHTSOURCEMANAGER_H
-#define GLIMMERWORKS_LIGHTSOURCEMANAGER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -18,7 +17,8 @@ namespace glimmer {
         lightSourceMap_
                 {};
 
-        void RegisterCoreLightSourceResource(const std::string& resourceId,const std::string& colorResKey,uint8_t lightRadius);
+        void RegisterCoreLightSourceResource(const std::string &resourceId, const std::string &colorResKey,
+                                             uint8_t lightRadius);
 
     public:
         LightSourceManager();
@@ -32,6 +32,3 @@ namespace glimmer {
         std::string ListLightSourceResource() const;
     };
 }
-
-
-#endif //GLIMMERWORKS_LIGHTSOURCEMANAGER_H

@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/12/1.
 //
 
-#ifndef GLIMMERWORKS_ANDROIDCONTROLSYSTEM_H
-#define GLIMMERWORKS_ANDROIDCONTROLSYSTEM_H
+#pragma once
 #ifdef __ANDROID__
-#include "../GameSystem.h"
+#include "core/ecs/GameSystem.h"
 #include <map>
 #include <memory>
 
@@ -46,4 +45,3 @@ namespace glimmer {
     };
 }
 #endif
-#endif //GLIMMERWORKS_ANDROIDCONTROLSYSTEM_H

@@ -2,10 +2,8 @@
 // Created by Cold-Mint on 2025/12/22.
 //
 
-#ifndef GLIMMERWORKS_MAGNETSYSTEM_H
-#define GLIMMERWORKS_MAGNETSYSTEM_H
-#include "../GameSystem.h"
-
+#pragma once
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer {
     class MagnetSystem : public GameSystem {
@@ -17,5 +15,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_MAGNETSYSTEM_H

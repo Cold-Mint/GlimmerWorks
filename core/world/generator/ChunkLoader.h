@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/2/3.
 //
 
-#ifndef GLIMMERWORKS_WORLDGENERATOR_H
-#define GLIMMERWORKS_WORLDGENERATOR_H
+#pragma once
 #include "core/math/Vector2DI.h"
 #include "core/saves/Saves.h"
 
@@ -41,5 +40,3 @@ namespace glimmer {
         [[nodiscard]] GameEntity::ID RecoveryEntity(const EntityItemMessage &entityItemMessage) const;
     };
 }
-
-#endif //GLIMMERWORKS_WORLDGENERATOR_H

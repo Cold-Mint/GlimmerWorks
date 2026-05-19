@@ -2,13 +2,12 @@
 // Created by Cold-Mint on 2025/10/15.
 //
 
-#ifndef GLIMMERWORKS_COMMAND_H
-#define GLIMMERWORKS_COMMAND_H
+#pragma once
 #include <functional>
 #include <string>
 
 #include "CommandArgs.h"
-#include "../utils/NodeTree.h"
+#include "core/utils/NodeTree.h"
 
 namespace glimmer {
     class CommandSender;
@@ -83,6 +82,3 @@ namespace glimmer {
                              const std::function<void(const std::string &text)> *onMessage) = 0;
     };
 }
-
-
-#endif //GLIMMERWORKS_COMMAND_H

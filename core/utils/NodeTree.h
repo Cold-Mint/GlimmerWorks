@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/27.
 //
 
-#ifndef GLIMMERWORKS_NODETREE_H
-#define GLIMMERWORKS_NODETREE_H
+#pragma once
 
 #include <list>
 #include <optional>
@@ -80,7 +79,8 @@ namespace glimmer {
          * @return
          */
         bool RemoveChild(const T &value) {
-            for (auto it = children_.begin(); it != children_.end(); ++it) { //skipcq: CXX-W1161
+            for (auto it = children_.begin(); it != children_.end(); ++it) {
+                //skipcq: CXX-W1161
                 if (it->Data().has_value() && it->Data().value() == value) {
                     children_.erase(it);
                     return true;
@@ -145,6 +145,4 @@ namespace glimmer {
         std::optional<T> data_;
         std::list<NodeTree> children_;
     };
-} // namespace glimmer
-
-#endif //GLIMMERWORKS_NODETREE_H
+}

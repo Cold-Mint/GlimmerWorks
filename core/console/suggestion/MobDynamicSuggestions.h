@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/3/3.
 //
 
-#ifndef GLIMMERWORKS_MOBDYNAMICSUGGESTIONS_H
-#define GLIMMERWORKS_MOBDYNAMICSUGGESTIONS_H
+#pragma once
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/MobManager.h"
 
@@ -21,5 +20,3 @@ namespace glimmer {
         bool Match(std::string keyword, std::string param) override;
     };
 }
-
-#endif //GLIMMERWORKS_MOBDYNAMICSUGGESTIONS_H

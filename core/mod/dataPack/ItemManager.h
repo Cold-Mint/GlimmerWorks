@@ -2,12 +2,11 @@
 // Created by Cold-Mint on 2025/12/23.
 //
 
-#ifndef GLIMMERWORKS_ITEMMANAGER_H
-#define GLIMMERWORKS_ITEMMANAGER_H
+#pragma once
 #include <string>
 #include <unordered_map>
 
-#include "../Resource.h"
+#include "core/mod/Resource.h"
 
 namespace glimmer {
     class ItemManager {
@@ -48,5 +47,3 @@ namespace glimmer {
         std::string ListAbilityItems() const;
     };
 }
-
-#endif //GLIMMERWORKS_ITEMMANAGER_H

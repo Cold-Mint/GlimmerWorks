@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/9.
 //
 
-#ifndef GLIMMERWORKS_CHUNKPHYSICSHELPER_H
-#define GLIMMERWORKS_CHUNKPHYSICSHELPER_H
+#pragma once
 #include "Chunk.h"
 
 namespace glimmer {
@@ -37,5 +36,3 @@ namespace glimmer {
         static void UpdatePhysicsBodyToChunk(const WorldContext *worldContext, Chunk *chunk);
     };
 }
-
-#endif //GLIMMERWORKS_CHUNKPHYSICSHELPER_H

@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2026/3/3.
 //
 
-#ifndef GLIMMERWORKS_SPIRITRENDERERSYSTEM_H
-#define GLIMMERWORKS_SPIRITRENDERERSYSTEM_H
+#pragma once
 
 #include "core/ecs/GameSystem.h"
 #include "core/mod/ResourceRef.h"
@@ -20,5 +19,3 @@ namespace glimmer {
         std::string GetName() override;
     };
 }
-
-#endif //GLIMMERWORKS_SPIRITRENDERERSYSTEM_H

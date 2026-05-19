@@ -2,13 +2,11 @@
 // Created by Cold-Mint on 2026/1/6.
 //
 
-#ifndef GLIMMERWORKS_SEEDCOMMAND_H
-#define GLIMMERWORKS_SEEDCOMMAND_H
-#include "../Command.h"
+#pragma once
+#include "core/console/Command.h"
 
 namespace glimmer {
     class SeedCommand : public Command {
-
     protected:
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
@@ -18,12 +16,10 @@ namespace glimmer {
         [[nodiscard]] bool RequiresWorldContext() const override;
 
         bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-            const std::function<void(const std::string &text)> *onMessage) override;
+                     const std::function<void(const std::string &text)> *onMessage) override;
 
         [[nodiscard]] std::string GetName() const override;
 
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
     };
 }
-
-#endif //GLIMMERWORKS_SEEDCOMMAND_H

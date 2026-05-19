@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/2.
 //
 
-#ifndef GLIMMERWORKS_TILEPLACEMENTFORBIDDENZONECOMPONENT_H
-#define GLIMMERWORKS_TILEPLACEMENTFORBIDDENZONECOMPONENT_H
+#pragma once
 #include "core/ecs/GameComponent.h"
 #include "core/math/Vector2D.h"
 
@@ -37,5 +36,3 @@ namespace glimmer {
         [[nodiscard]] float GetHeight() const;
     };
 }
-
-#endif //GLIMMERWORKS_TILEPLACEMENTFORBIDDENZONECOMPONENT_H

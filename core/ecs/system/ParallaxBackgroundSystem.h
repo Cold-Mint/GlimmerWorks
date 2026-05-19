@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/5/10.
 //
 
-#ifndef GLIMMERWORKS_PARALLAXBACKGROUNDSYSTEM_H
-#define GLIMMERWORKS_PARALLAXBACKGROUNDSYSTEM_H
+#pragma once
 #include "core/ecs/GameSystem.h"
 
 namespace glimmer {
@@ -18,6 +17,3 @@ namespace glimmer {
         uint8_t GetRenderOrder() override;
     };
 }
-
-
-#endif //GLIMMERWORKS_PARALLAXBACKGROUNDSYSTEM_H

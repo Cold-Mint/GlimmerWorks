@@ -2,14 +2,13 @@
 // Created by coldmint on 2026/3/24.
 //
 
-#ifndef GLIMMERWORKS_DROPEDITEMCREATOR_H
-#define GLIMMERWORKS_DROPEDITEMCREATOR_H
+#pragma once
 #include "IPersistenceEntityCreator.h"
 
 namespace glimmer {
     class WorldContext;
-    class DroppedItemCreator : public IPersistenceEntityCreator {
 
+    class DroppedItemCreator : public IPersistenceEntityCreator {
     public:
         explicit DroppedItemCreator(WorldContext *worldContext);
 
@@ -20,8 +19,6 @@ namespace glimmer {
 
         void LoadTemplateComponents(GameEntity::ID id, const ResourceRef &resourceRef) override;
 
-        void MergeEntityItemMessage(GameEntity::ID id,  const EntityItemMessage &entityItemMessage) override;
+        void MergeEntityItemMessage(GameEntity::ID id, const EntityItemMessage &entityItemMessage) override;
     };
 }
-
-#endif //GLIMMERWORKS_DROPEDITEMCREATOR_H

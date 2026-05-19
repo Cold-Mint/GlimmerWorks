@@ -2,8 +2,7 @@
 //
 // Created by Cold-Mint on 2025/10/10.
 //
-#ifndef DATAPACKMANIFEST_H
-#define DATAPACKMANIFEST_H
+#pragma once
 #include <string>
 
 #include "ResourceRef.h"
@@ -43,6 +42,3 @@ namespace glimmer {
     struct ResourcePackManifest : PackManifest {
     };
 }
-
-
-#endif //DATAPACKMANIFEST_H

@@ -2,10 +2,9 @@
 // Created by Cold-Mint on 2025/10/28.
 //
 
-#ifndef GLIMMERWORKS_WORLDPOSITIONCOMPONENT_H
-#define GLIMMERWORKS_WORLDPOSITIONCOMPONENT_H
-#include "../GameComponent.h"
-#include "../../math/Vector2D.h"
+#pragma once
+#include "core/ecs/GameComponent.h"
+#include "core/math/Vector2D.h"
 
 namespace glimmer {
     /**
@@ -61,5 +60,3 @@ namespace glimmer {
         [[nodiscard]] uint32_t GetId() override;
     };
 }
-
-#endif //GLIMMERWORKS_WORLDPOSITIONCOMPONENT_H

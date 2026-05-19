@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/10/26.
 //
 
-#ifndef GLIMMERWORKS_COMPONENT_H
-#define GLIMMERWORKS_COMPONENT_H
+#pragma once
 #include <string>
 #include <cstdint>
 
@@ -40,5 +39,3 @@ namespace glimmer {
         [[nodiscard]] virtual uint32_t GetId() = 0;
     };
 }
-
-#endif //GLIMMERWORKS_COMPONENT_H

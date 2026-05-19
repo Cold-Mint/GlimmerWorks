@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/4/16.
 //
 
-#ifndef GLIMMERWORKS_TOMLTEMPLATEEXPANDER_H
-#define GLIMMERWORKS_TOMLTEMPLATEEXPANDER_H
+#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -32,6 +31,3 @@ namespace glimmer {
                            const VirtualFileSystem *virtualFileSystem) const;
     };
 }
-
-
-#endif //GLIMMERWORKS_TOMLTEMPLATEEXPANDER_H

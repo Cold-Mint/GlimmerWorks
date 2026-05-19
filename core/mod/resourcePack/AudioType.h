@@ -2,8 +2,7 @@
 // Created by coldmint on 2026/3/25.
 //
 
-#ifndef GLIMMERWORKS_AUDIOTYPE_H
-#define GLIMMERWORKS_AUDIOTYPE_H
+#pragma once
 #include <cstdint>
 
 namespace glimmer {
@@ -16,5 +15,3 @@ namespace glimmer {
         AMBIENT = 1
     };
 }
-
-#endif //GLIMMERWORKS_AUDIOTYPE_H

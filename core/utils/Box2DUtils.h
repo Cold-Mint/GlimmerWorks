@@ -2,8 +2,7 @@
 // Created by Cold-Mint on 2025/11/7.
 //
 
-#ifndef GLIMMERWORKS_BOX2DUTILS_H
-#define GLIMMERWORKS_BOX2DUTILS_H
+#pragma once
 #include "box2d/math_functions.h"
 #include "core/math/Vector2D.h"
 
@@ -44,5 +43,3 @@ namespace glimmer {
         static b2Vec2 ToMeters(Vector2D vector2D);
     };
 }
-
-#endif //GLIMMERWORKS_BOX2DUTILS_H

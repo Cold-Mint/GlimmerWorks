@@ -2,9 +2,8 @@
 // Created by Cold-Mint on 2026/1/30.
 //
 
-#ifndef GLIMMERWORKS_CLEARCOMMAND_H
-#define GLIMMERWORKS_CLEARCOMMAND_H
-#include "../Command.h"
+#pragma once
+#include "core/console/Command.h"
 
 namespace glimmer {
     class ClearCommand final : public Command {
@@ -24,5 +23,3 @@ namespace glimmer {
         [[nodiscard]] bool RequiresWorldContext() const override;
     };
 }
-
-#endif //GLIMMERWORKS_CLEARCOMMAND_H

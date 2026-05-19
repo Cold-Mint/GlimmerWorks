@@ -2,12 +2,11 @@
 // Created by Cold-Mint on 2025/12/8.
 //
 
-#ifndef GLIMMERWORKS_BIOMESMANAGER_H
-#define GLIMMERWORKS_BIOMESMANAGER_H
+#pragma once
 #include <string>
 #include <unordered_map>
-#include "../Resource.h"
-#include "../../ecs/component/TileLayerComponent.h"
+#include "core/mod/Resource.h"
+#include "core/ecs/component/TileLayerComponent.h"
 
 
 namespace glimmer {
@@ -55,5 +54,3 @@ namespace glimmer {
         std::string ListBiomes() const;
     };
 }
-
-#endif //GLIMMERWORKS_BIOMESMANAGER_H

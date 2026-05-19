@@ -10,8 +10,6 @@ namespace glimmer {
     public:
         explicit TileLayerSystem(WorldContext *worldContext);
 
-        void Update(float delta) override;
-
         void Render(SDL_Renderer *renderer) override;
 
         uint8_t GetRenderOrder() override;

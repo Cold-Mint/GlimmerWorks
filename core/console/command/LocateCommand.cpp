@@ -89,7 +89,7 @@ bool glimmer::LocateCommand::Execute(const CommandSender *commandSender, const C
         if (biomesManager == nullptr) {
             return false;
         }
-        auto resourceRefOptional = commandArgs->AsResourceRef(2, RESOURCE_TYPE_BIOME);
+        auto resourceRefOptional = commandArgs->AsResourceRef(2, Biome);
         if (!resourceRefOptional.has_value()) {
             return false;
         }

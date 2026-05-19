@@ -528,13 +528,13 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position) {
             continue;
         }
         if (IsPersistable(transform2dEntity)) {
-            SaveEntity(chunkEntityMessage.add_entitys(), transform2dEntity);
+            SaveEntity(chunkEntityMessage.add_entities(), transform2dEntity);
         }
         //Whether this entity is successfully saved or not, it will disappear due to the block unloading.
         //无论这个实体是否成功保存，它都会因为区块卸载而消失。
         entitiesToRemove.push_back(transform2dEntity);
     }
-    if (chunkEntityMessage.entitys_size() > 0) {
+    if (chunkEntityMessage.entities_size() > 0) {
         //Create a file and save it
         //创建文件并保存
         (void) saves_->WriteChunkEntity(position, chunkEntityMessage);
@@ -1016,7 +1016,7 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
         TileLayerComponent>(backgroundTileLayerEntity, this, BackGround);
     ResourceRef playerResourceRef{};
     playerResourceRef.ReadResource(*appContext->GetMobManager()->GetPlayerResourceList()[0],
-                                   RESOURCE_TYPE_MOB);
+                                   Mob);
     InitPlayer(
         playerResourceRef);
     InitHotbar(

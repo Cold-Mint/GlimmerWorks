@@ -22,12 +22,6 @@ const std::string &glimmer::ResourceRef::GetSelfPackageId() const {
     return selfPackageId_;
 }
 
-uint32_t glimmer::ResourceRef::ResolveResourceType(const std::string &typeName) {
-    const auto it = resourceTypeMap_.find(typeName);
-    return it == resourceTypeMap_.end() ? RESOURCE_TYPE_NONE : it->second;
-}
-
-
 void glimmer::ResourceRef::SetPackageId(const std::string &packId) {
     packId_ = packId;
 }
@@ -47,15 +41,8 @@ void glimmer::ResourceRef::WriteResourceRefMessage(ResourceRefMessage &resourceR
     resourceRefMessage.set_selfpackageid(selfPackageId_);
 }
 
-void glimmer::ResourceRef::ReadResource(const Resource &resource, const uint32_t resourceType) {
-    packId_ = resource.packId;
-    resourceKey_ = resource.resourceId;
-    selfPackageId_ = resource.packId;
-    resourceType_ = resourceType;
-    bindPackage_ = true;
-}
-
-std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(const std::string &id, const int resourceType) {
+std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(const std::string &id,
+                                                                      const ResourceTypeMessage resourceType) {
     auto pos = id.find(':');
     if (pos == std::string::npos) {
         return std::nullopt;
@@ -73,6 +60,14 @@ std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(const std:
     return ref;
 }
 
+void glimmer::ResourceRef::ReadResource(const Resource &resource, const ResourceTypeMessage resourceType) {
+    packId_ = resource.packId;
+    resourceKey_ = resource.resourceId;
+    selfPackageId_ = resource.packId;
+    resourceType_ = resourceType;
+    bindPackage_ = true;
+}
+
 std::string glimmer::ResourceRef::GetPackageId() const {
     if (!bindPackage_) {
         LogCat::e("Unbound packages may return placeholders.");
@@ -83,13 +78,14 @@ std::string glimmer::ResourceRef::GetPackageId() const {
     return packId_;
 }
 
-void glimmer::ResourceRef::SetResourceType(const uint32_t resourceType) {
+void glimmer::ResourceRef::SetResourceType(const ResourceTypeMessage resourceType) {
     resourceType_ = resourceType;
 }
 
-uint32_t glimmer::ResourceRef::GetResourceType() const {
+ResourceTypeMessage glimmer::ResourceRef::GetResourceType() const {
     return resourceType_;
 }
+
 
 void glimmer::ResourceRef::SetResourceKey(const std::string &resourceKey) {
     resourceKey_ = resourceKey;
@@ -97,8 +93,8 @@ void glimmer::ResourceRef::SetResourceKey(const std::string &resourceKey) {
 
 uint64_t glimmer::ResourceRef::GetSignature() const {
     return static_cast<uint64_t>(resourceType_) & 0x1FULL << 59
-            | (std::hash<std::string>{}(packId_) & 0x1FFFFFFFULL) << 30
-            | std::hash<std::string>{}(resourceKey_) & 0x3FFFFFFFULL;
+           | (std::hash<std::string>{}(packId_) & 0x1FFFFFFFULL) << 30
+           | std::hash<std::string>{}(resourceKey_) & 0x3FFFFFFFULL;
 }
 
 std::string glimmer::ResourceRef::GetResourceKey() const {

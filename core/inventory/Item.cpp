@@ -13,7 +13,7 @@ void glimmer::Item::ReadItemMessage(WorldContext *worldContext, const ItemMessag
 }
 
 void glimmer::Item::WriteItemMessage(ItemMessage &itemMessage) const {
-    if (resourceRef_.GetResourceType() == RESOURCE_TYPE_NONE) {
+    if (resourceRef_.GetResourceType() == None) {
         LogCat::e("Item references must be set.");
 #if  !defined(NDEBUG)
         assert(false);

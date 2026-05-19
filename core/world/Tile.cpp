@@ -8,7 +8,6 @@
 
 #include "../scene/AppContext.h"
 #include "../mod/ResourceLocator.h"
-#include "core/log/LogCat.h"
 
 
 const glimmer::ResourceRef &glimmer::Tile::GetLootTableRef() {
@@ -106,30 +105,6 @@ void glimmer::Tile::WriteTileMessage(TileMessage &tileMessage) const {
     tileMessage.set_isplayerplaced(isPlayerPlaced_);
 }
 
-void glimmer::Tile::SetTileWidth(const int tileWidth) {
-    tileWidth_ = tileWidth;
-}
-
-void glimmer::Tile::SetTileHeight(const int tileWidth) {
-    tileHeight_ = tileWidth;
-}
-
-void glimmer::Tile::SetColliderWidth(const float colliderWidth) {
-    colliderWidth_ = colliderWidth;
-}
-
-void glimmer::Tile::SetColliderHeight(const float colliderHeight) {
-    colliderHeight_ = colliderHeight;
-}
-
-int glimmer::Tile::GetTileWidth() const {
-    return tileWidth_;
-}
-
-int glimmer::Tile::GetTileHeight() const {
-    return tileHeight_;
-}
-
 float glimmer::Tile::GetColliderWidth() const {
     return colliderWidth_;
 }
@@ -178,4 +153,12 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);
     tile->placeSFX_ = resourceLocator->FindAudio(tileResource->placeSfx);
     return tile;
+}
+
+uint8_t glimmer::Tile::GetTileWidth() const {
+    return tileWidth_;
+}
+
+uint8_t glimmer::Tile::GetTileHeight() const {
+    return tileHeight_;
 }

@@ -554,6 +554,7 @@ target_sources(GlimmerWorks
         core/MemoryUsage.cpp
         core/console/command/MemoryUsageCommand.cpp
         core/world/TileInstancePool.cpp
+        core/world/TileAnchor.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -800,6 +801,7 @@ target_sources(GlimmerWorks
         core/MemoryUsage.h
         core/console/command/MemoryUsageCommand.h
         core/world/TileInstancePool.h
+        core/world/TileAnchor.h
 )
 
 #Define version information

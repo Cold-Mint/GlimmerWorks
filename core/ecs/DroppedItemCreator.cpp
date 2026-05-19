@@ -36,14 +36,14 @@ EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldV
 glimmer::ResourceRef glimmer::DroppedItemCreator::GetResourceRef() {
     ResourceRef resourceRef{};
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_TYPE_DROPPED_ITEM);
+    resourceRef.SetResourceType(DroppedItem);
     resourceRef.SetResourceKey(DROPPED_ITEM_ID_DEFAULT);
     return resourceRef;
 }
 
 void glimmer::DroppedItemCreator::LoadTemplateComponents(const GameEntity::ID id, const ResourceRef &resourceRef) {
     uint32_t type = resourceRef.GetResourceType();
-    if (type != RESOURCE_TYPE_DROPPED_ITEM) {
+    if (type != DroppedItem) {
         return;
     }
     if (worldContext_ == nullptr || WorldContext::IsEmptyEntityId(id)) {
@@ -64,7 +64,7 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const GameEntity::ID id
         ResourceRef shapeResourceRef;
         shapeResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         shapeResourceRef.SetResourceKey(SHAPE_ID_DROPPED_ITEM);
-        shapeResourceRef.SetResourceType(RESOURCE_TYPE_SHAPE);
+        shapeResourceRef.SetResourceType(Shape);
         rigidBody2DComponent->SetShapeRef(shapeResourceRef);
     }
     const auto rayCast2DComponent = worldContext_->AddComponent<RayCast2DComponent>(id);

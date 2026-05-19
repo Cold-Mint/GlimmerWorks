@@ -11,7 +11,7 @@ glimmer::ContributorManager::ContributorManager() {
     ResourceRef displayName;
     displayName.SetSelfPackageId(RESOURCE_REF_CORE);
     displayName.SetResourceKey(DEV_DISPLAY_NAME_KEY_COLD_MINT);
-    displayName.SetResourceType(RESOURCE_TYPE_STRING);
+    displayName.SetResourceType(String);
     coldMintContributor->displayName = displayName;
     coldMintContributor->country = "CN";
     Register(std::move(coldMintContributor));

@@ -15,45 +15,44 @@
 #include "../mod/dataPack/PackDependence.h"
 
 namespace toml {
+    // Injected by //@content annotations (globally sorted by index)
 
-// Injected by //@content annotations (globally sorted by index)
-
- template<>
- struct from<glimmer::ResourceRef> {
-     static glimmer::ResourceRef from_toml(const value &v) {
-         glimmer::ResourceRef r;
-         r.SetPackageId(toml::find<std::string>(v, "pack_id"));
-         r.SetResourceType(glimmer::ResourceRef::ResolveResourceType(toml::find<std::string>(v, "resource_type")));
-         r.SetResourceKey(toml::find<std::string>(v, "resource_key"));
-         return r;
-     }
- };
+    template<>
+    struct from<glimmer::ResourceRef> {
+        static glimmer::ResourceRef from_toml(const value &v) {
+            glimmer::ResourceRef r;
+            r.SetPackageId(toml::find<std::string>(v, "pack_id"));
+            r.SetResourceType(static_cast<ResourceTypeMessage>(toml::find<int>(v, "resource_type")));
+            r.SetResourceKey(toml::find<std::string>(v, "resource_key"));
+            return r;
+        }
+    };
 
 
- template<>
- struct from<glimmer::VariableDefinition> {
-     static glimmer::VariableDefinition from_toml(const value &v) {
-         glimmer::VariableDefinition r;
-         r.key = toml::find<std::string>(v, "key");
-         r.type = glimmer::VariableDefinition::ResolveVariableType(
-             toml::find<std::string>(v, "type"));
-         if (r.type == glimmer::VariableDefinitionType::INT) {
-             r.value = std::to_string(toml::find<int>(v, "value"));
-         } else if (r.type == glimmer::VariableDefinitionType::FLOAT) {
-             r.value = std::to_string(toml::find<float>(v, "value"));
-         } else if (r.type == glimmer::VariableDefinitionType::BOOL) {
-             r.value = std::to_string(toml::find<bool>(v, "value"));
-         } else if (r.type == glimmer::VariableDefinitionType::REF) {
-             auto resourceRef = toml::find<glimmer::ResourceRef>(v, "value");
-             ResourceRefMessage refMessage;
-             resourceRef.WriteResourceRefMessage(refMessage);
-             r.value = refMessage.SerializeAsString();
-         } else {
-             r.value = toml::find<std::string>(v, "value");
-         }
-         return r;
-     }
- };
+    template<>
+    struct from<glimmer::VariableDefinition> {
+        static glimmer::VariableDefinition from_toml(const value &v) {
+            glimmer::VariableDefinition r;
+            r.key = toml::find<std::string>(v, "key");
+            r.type = glimmer::VariableDefinition::ResolveVariableType(
+                toml::find<std::string>(v, "type"));
+            if (r.type == glimmer::VariableDefinitionType::INT) {
+                r.value = std::to_string(toml::find<int>(v, "value"));
+            } else if (r.type == glimmer::VariableDefinitionType::FLOAT) {
+                r.value = std::to_string(toml::find<float>(v, "value"));
+            } else if (r.type == glimmer::VariableDefinitionType::BOOL) {
+                r.value = std::to_string(toml::find<bool>(v, "value"));
+            } else if (r.type == glimmer::VariableDefinitionType::REF) {
+                auto resourceRef = toml::find<glimmer::ResourceRef>(v, "value");
+                ResourceRefMessage refMessage;
+                resourceRef.WriteResourceRefMessage(refMessage);
+                r.value = refMessage.SerializeAsString();
+            } else {
+                r.value = toml::find<std::string>(v, "value");
+            }
+            return r;
+        }
+    };
 
 
     template<>
@@ -62,9 +61,9 @@ namespace toml {
             glimmer::LootResource r;
             r.empty_weight = toml::find_or<uint32_t>(v, "empty_weight", 0);
             r.rolls = toml::find_or<uint32_t>(v, "rolls", 1);
-            r.pool = toml::find_or<std::vector<glimmer::LootEntry>>(v, "pool", {});
+            r.pool = toml::find_or<std::vector<glimmer::LootEntry> >(v, "pool", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
-            r.mandatory = toml::find<std::vector<glimmer::LootEntry>>(v, "mandatory");
+            r.mandatory = toml::find<std::vector<glimmer::LootEntry> >(v, "mandatory");
             return r;
         }
     };
@@ -188,8 +187,9 @@ namespace toml {
         static glimmer::DataPackManifest from_toml(const value &v) {
             glimmer::DataPackManifest r;
             r.resPack = toml::find<bool>(v, "res_pack");
-            r.templateSearchPath = toml::find_or<std::vector<std::string>>(v, "template_search_path", {TEMPLATE_CURRENT, TEMPLATE_ROOT});
-            r.packDependencies = toml::find<std::vector<glimmer::PackDependence>>(v, "pack_dependencies");
+            r.templateSearchPath = toml::find_or<std::vector<std::string> >(
+                v, "template_search_path", {TEMPLATE_CURRENT, TEMPLATE_ROOT});
+            r.packDependencies = toml::find<std::vector<glimmer::PackDependence> >(v, "pack_dependencies");
             r.id = toml::find<std::string>(v, "id");
             r.versionName = toml::find<std::string>(v, "version_name");
             r.minGameVersion = toml::find<uint32_t>(v, "min_game_version");
@@ -206,7 +206,7 @@ namespace toml {
         static glimmer::InitialInventoryResource from_toml(const value &v) {
             glimmer::InitialInventoryResource r;
             r.resourceId = toml::find<std::string>(v, "resource_id");
-            r.addItems = toml::find<std::vector<glimmer::ItemMessageResource>>(v, "add_items");
+            r.addItems = toml::find<std::vector<glimmer::ItemMessageResource> >(v, "add_items");
             return r;
         }
     };
@@ -223,7 +223,8 @@ namespace toml {
             r.minGameVersion = toml::find<uint32_t>(v, "min_game_version");
             r.resPack = toml::find<bool>(v, "res_pack");
             r.id = toml::find<std::string>(v, "id");
-            r.templateSearchPath = toml::find_or<std::vector<std::string>>(v, "template_search_path", {TEMPLATE_CURRENT, TEMPLATE_ROOT});
+            r.templateSearchPath = toml::find_or<std::vector<std::string> >(
+                v, "template_search_path", {TEMPLATE_CURRENT, TEMPLATE_ROOT});
             return r;
         }
     };
@@ -232,7 +233,7 @@ namespace toml {
     struct from<glimmer::VariableConfig> {
         static glimmer::VariableConfig from_toml(const value &v) {
             glimmer::VariableConfig r;
-            r.definition = toml::find<std::vector<glimmer::VariableDefinition>>(v, "definition");
+            r.definition = toml::find<std::vector<glimmer::VariableDefinition> >(v, "definition");
             return r;
         }
     };
@@ -276,7 +277,8 @@ namespace toml {
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             r.slotSize = toml::find<size_t>(v, "slot_size");
-            r.defaultAbilityList = toml::find_or<std::vector<glimmer::ItemMessageResource>>(v, "default_ability_list", {});
+            r.defaultAbilityList = toml::find_or<std::vector<glimmer::ItemMessageResource> >(
+                v, "default_ability_list", {});
             return r;
         }
     };
@@ -311,7 +313,7 @@ namespace toml {
     struct from<glimmer::BiomeResource> {
         static glimmer::BiomeResource from_toml(const value &v) {
             glimmer::BiomeResource r;
-            r.decors = toml::find<std::vector<glimmer::ResourceRef>>(v, "decors");
+            r.decors = toml::find<std::vector<glimmer::ResourceRef> >(v, "decors");
             r.temperature = toml::find_or<float>(v, "temperature", 0.5F);
             r.weirdness = toml::find_or<float>(v, "weirdness", 0.5F);
             r.strictnessWeirdness = toml::find_or<float>(v, "strictness_weirdness", 1.0F);
@@ -380,7 +382,8 @@ namespace toml {
             glimmer::PackManifest r;
             r.versionNumber = toml::find<uint32_t>(v, "version_number");
             r.resPack = toml::find<bool>(v, "res_pack");
-            r.templateSearchPath = toml::find_or<std::vector<std::string>>(v, "template_search_path", {TEMPLATE_CURRENT, TEMPLATE_ROOT});
+            r.templateSearchPath = toml::find_or<std::vector<std::string> >(
+                v, "template_search_path", {TEMPLATE_CURRENT, TEMPLATE_ROOT});
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.description = toml::find<glimmer::ResourceRef>(v, "description");
             r.minGameVersion = toml::find<uint32_t>(v, "min_game_version");
@@ -397,7 +400,7 @@ namespace toml {
             glimmer::ItemMessageResource r;
             r.item = toml::find<glimmer::ResourceRef>(v, "item");
             r.amount = toml::find_or<uint64_t>(v, "amount", 0);
-            r.abilityItemRef = toml::find_or<std::vector<glimmer::ItemMessageResource>>(v, "ability_item_ref", {});
+            r.abilityItemRef = toml::find_or<std::vector<glimmer::ItemMessageResource> >(v, "ability_item_ref", {});
             return r;
         }
     };
@@ -431,8 +434,8 @@ namespace toml {
             glimmer::TileResource r;
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
-            r.tileWidth = toml::find_or<int>(v, "tile_width", 1);
-            r.tileHeight = toml::find_or<int>(v, "tile_height", 1);
+            r.tileWidth = toml::find_or<uint8_t>(v, "tile_width", 1);
+            r.tileHeight = toml::find_or<uint8_t>(v, "tile_height", 1);
             r.colliderHeight = toml::find_or<float>(v, "collider_height", 1.0F);
             r.lightSource = toml::find<glimmer::ResourceRef>(v, "light_source");
             r.sideLightMask = toml::find<glimmer::ResourceRef>(v, "side_light_mask");
@@ -485,9 +488,9 @@ namespace toml {
     struct from<glimmer::StructureResource> {
         static glimmer::StructureResource from_toml(const value &v) {
             glimmer::StructureResource r;
-            r.condition = toml::find_or<std::vector<glimmer::StructurePlacementConditions>>(v, "condition", {});
-            r.tileInfo = toml::find_or<std::vector<glimmer::TileInfo>>(v, "tile_info", {});
-            r.data = toml::find_or<std::vector<glimmer::ResourceRef>>(v, "data", {});
+            r.condition = toml::find_or<std::vector<glimmer::StructurePlacementConditions> >(v, "condition", {});
+            r.tileInfo = toml::find_or<std::vector<glimmer::TileInfo> >(v, "tile_info", {});
+            r.data = toml::find_or<std::vector<glimmer::ResourceRef> >(v, "data", {});
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.generatorId = toml::find<std::string>(v, "generator_id");
             r.generatorConfig = toml::find_or<glimmer::VariableConfig>(v, "generator_config", {});
@@ -550,7 +553,8 @@ namespace toml {
             r.airControlFactor = toml::find_or<float>(v, "air_control_factor", 1.0F);
             r.textureOffset = toml::find<glimmer::Vector2DResource>(v, "texture_offset");
             r.density = toml::find_or<float>(v, "density", 0.001F);
-            r.tilePlacementForbiddenZone = toml::find_or<glimmer::TilePlacementForbiddenZone>(v, "tile_placement_forbidden_zone", {});
+            r.tilePlacementForbiddenZone = toml::find_or<glimmer::TilePlacementForbiddenZone>(
+                v, "tile_placement_forbidden_zone", {});
             r.isPlayer = toml::find_or<bool>(v, "is_player", false);
             r.shape = toml::find<glimmer::ResourceRef>(v, "shape");
             r.allowBodySleep = toml::find<bool>(v, "allow_body_sleep");
@@ -559,9 +563,9 @@ namespace toml {
             r.jumpForce = toml::find_or<float>(v, "jump_force", 7.5F);
             r.maxSpeed = toml::find_or<float>(v, "max_speed", 18.0F);
             r.bodyType = toml::find<uint8_t>(v, "body_type");
-            r.groundCheckRayCast = toml::find_or<std::vector<glimmer::RayCastResource>>(v, "ground_check_ray_cast", {});
+            r.groundCheckRayCast = toml::find_or<std::vector<
+                glimmer::RayCastResource> >(v, "ground_check_ray_cast", {});
             return r;
         }
     };
-
 }

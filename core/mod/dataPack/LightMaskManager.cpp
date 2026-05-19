@@ -14,7 +14,7 @@ glimmer::LightMaskResource *glimmer::LightMaskManager::RegisterCoreLightMaskReso
     ResourceRef colorRef;
     colorRef.SetSelfPackageId(RESOURCE_REF_CORE);
     colorRef.SetResourceKey(colorKey);
-    colorRef.SetResourceType(RESOURCE_TYPE_FIXED_COLOR);
+    colorRef.SetResourceType(FixedColor);
     result->lightMaskColor = colorRef;
     return Register(std::move(result));
 }

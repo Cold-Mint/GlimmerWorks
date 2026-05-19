@@ -20,7 +20,7 @@ namespace glimmer {
     //     static glimmer::ResourceRef from_toml(const value &v) {
     //         glimmer::ResourceRef r;
     //         r.SetPackageId(toml::find<std::string>(v, "pack_id"));
-    //         r.SetResourceType(glimmer::ResourceRef::ResolveResourceType(toml::find<std::string>(v, "resource_type")));
+    //         r.SetResourceType(static_cast<ResourceTypeMessage>(toml::find<int>(v, "resource_type")));
     //         r.SetResourceKey(toml::find<std::string>(v, "resource_key"));
     //         return r;
     //     }
@@ -30,29 +30,10 @@ namespace glimmer {
 
     class ResourceRef : public ISignable {
         std::string packId_ = RESOURCE_REF_SELF;
-        uint32_t resourceType_ = RESOURCE_TYPE_NONE;
+        ResourceTypeMessage resourceType_ = ResourceTypeMessage::None;
         std::string resourceKey_;
         std::string selfPackageId_;
         bool bindPackage_ = false;
-
-        inline static const std::unordered_map<std::string, uint32_t> resourceTypeMap_{
-            {"none", RESOURCE_TYPE_NONE},
-            {"string", RESOURCE_TYPE_STRING},
-            {"tile", RESOURCE_TYPE_TILE},
-            {"composable", RESOURCE_TYPE_COMPOSABLE_ITEM},
-            {"ability", RESOURCE_TYPE_ABILITY_ITEM},
-            {"loot", RESOURCE_TYPE_LOOT_TABLE},
-            {"structure", RESOURCE_TYPE_STRUCTURE},
-            {"texture", RESOURCE_TYPE_TEXTURES},
-            {"audio", RESOURCE_TYPE_AUDIO},
-            {"biome", RESOURCE_TYPE_BIOME},
-            {"color", RESOURCE_TYPE_COLOR},
-            {"shape", RESOURCE_TYPE_SHAPE},
-            {"decor", RESOURCE_TYPE_BIOME_DECORATOR},
-            {"fixed_color", RESOURCE_TYPE_FIXED_COLOR},
-            {"light_source", RESOURCE_TYPE_LIGHT_SOURCE},
-            {"light_mask", RESOURCE_TYPE_LIGHT_MASK},
-        };
 
     public:
         /**
@@ -63,8 +44,6 @@ namespace glimmer {
         void SetSelfPackageId(const std::string &selfPackageId);
 
         [[nodiscard]] const std::string &GetSelfPackageId() const;
-
-        static uint32_t ResolveResourceType(const std::string &typeName);
 
         /**
          *The package Id for serialization from the toml file might be set to @self
@@ -78,7 +57,8 @@ namespace glimmer {
         void WriteResourceRefMessage(ResourceRefMessage &resourceRefMessage) const;
 
 
-        [[nodiscard]] static std::optional<ResourceRef> ParseFromId(const std::string &id, int resourceType);
+        [[nodiscard]] static std::optional<ResourceRef> ParseFromId(const std::string &id,
+                                                                    ResourceTypeMessage resourceType);
 
         /**
          * ReadResource
@@ -86,13 +66,13 @@ namespace glimmer {
          * @param resource resource
          * @param resourceType resourceType
          */
-        void ReadResource(const Resource &resource, uint32_t resourceType);
+        void ReadResource(const Resource &resource, ResourceTypeMessage resourceType);
 
         [[nodiscard]] std::string GetPackageId() const;
 
-        void SetResourceType(uint32_t resourceType);
+        void SetResourceType(ResourceTypeMessage resourceType);
 
-        [[nodiscard]] uint32_t GetResourceType() const;
+        [[nodiscard]] ResourceTypeMessage GetResourceType() const;
 
         void SetResourceKey(const std::string &resourceKey);
 

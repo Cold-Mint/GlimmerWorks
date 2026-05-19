@@ -13,9 +13,6 @@
 
 
 void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatch) {
-    if (worldContext_ == nullptr) {
-        return;
-    }
     if (loadTerrainTasks_.empty()) {
         return;
     }
@@ -40,9 +37,6 @@ void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatc
 }
 
 void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch) {
-    if (worldContext_ == nullptr) {
-        return;
-    }
     if (loadChunkTasks_.empty()) {
         return;
     }
@@ -68,9 +62,6 @@ void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch) {
 }
 
 void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatch) {
-    if (worldContext_ == nullptr) {
-        return;
-    }
     if (unloadChunkTasks_.empty()) {
         return;
     }
@@ -95,9 +86,6 @@ void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatc
 }
 
 void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrainBatch) {
-    if (worldContext_ == nullptr) {
-        return;
-    }
     if (unloadTerrainTasks_.empty()) {
         return;
     }
@@ -147,6 +135,36 @@ glimmer::ChunkSystem::ChunkSystem(WorldContext *worldContext)
 }
 
 void glimmer::ChunkSystem::Update(const float delta) {
+    if (worldContext_ == nullptr) {
+        return;
+    }
+    const auto *cameraComponent = worldContext_->GetCameraComponent();
+    if (cameraComponent == nullptr) {
+        return;
+    }
+    const auto *cameraTransform2D = worldContext_->GetCameraTransform2D();
+    if (cameraTransform2D == nullptr) {
+        return;
+    }
+    constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
+    auto viewportRect = cameraComponent->GetViewportRect(cameraTransform2D->GetPosition());
+    const TileVector2D topLeft = TileLayerComponent::WorldToTile({
+        viewportRect.x - chunkWorldSize, viewportRect.y - chunkWorldSize
+    });
+    const TileVector2D bottomRight = TileLayerComponent::WorldToTile({
+        viewportRect.x + viewportRect.w + chunkWorldSize,
+        viewportRect.y + viewportRect.h + chunkWorldSize
+    });
+    for (int x = topLeft.x; x < bottomRight.x; x += CHUNK_SIZE) {
+        for (int y = topLeft.y; y < bottomRight.y; y += CHUNK_SIZE) {
+            Chunk *chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(TileVector2D(x, y)));
+            if (chunk == nullptr) {
+                continue;
+            }
+            chunk->UpdateFadeInAnimation(delta);
+        }
+    }
+
     const AppContext *appContext = worldContext_->GetAppContext();
     if (appContext == nullptr) {
         return;
@@ -215,22 +233,15 @@ void glimmer::ChunkSystem::Update(const float delta) {
         firstTime_ = false;
         accumTime_ -= interval;
     }
-    const auto *camera = worldContext_->GetCameraComponent();
-    const auto *cameraTransform2D = worldContext_->GetCameraTransform2D();
-    if (camera == nullptr || cameraTransform2D == nullptr) {
-        return;
-    }
     WorldVector2D cameraPosition = cameraTransform2D->GetPosition();
     if (cameraPosition_.x == cameraPosition.x && cameraPosition_.y == cameraPosition.y) {
         return;
     }
     cameraPosition_.x = cameraPosition.x;
     cameraPosition_.y = cameraPosition.y;
-    const auto originalViewportRect = camera->GetViewportRect(cameraPosition);
-    constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
     //Pre-calculated terrain range.
     //预计算的地形范围。
-    auto preloadedTerrainViewportRect = originalViewportRect;
+    auto preloadedTerrainViewportRect = viewportRect;
     const float preloadStructureRadius = config->world.preloadStructureRadius;
     preloadedTerrainViewportRect.x -= preloadStructureRadius * chunkWorldSize;
     preloadedTerrainViewportRect.y -= preloadStructureRadius * chunkWorldSize;
@@ -238,7 +249,7 @@ void glimmer::ChunkSystem::Update(const float delta) {
     preloadedTerrainViewportRect.h += preloadStructureRadius * 2 * chunkWorldSize;
     //The complete range of pre-calculated blocks.
     //预计算的完整区块范围。
-    auto preloadedChunkViewportRect = originalViewportRect;
+    auto preloadedChunkViewportRect = viewportRect;
     const float preloadChunkRadius = config->world.preloadChunkRadius;
     preloadedChunkViewportRect.x -= preloadChunkRadius * chunkWorldSize;
     preloadedChunkViewportRect.y -= preloadChunkRadius * chunkWorldSize;

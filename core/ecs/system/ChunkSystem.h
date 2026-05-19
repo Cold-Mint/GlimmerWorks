@@ -48,8 +48,8 @@ namespace glimmer {
          * @param origin origin 原点
          * @param sortAscending sortAscending 是否升序（从小到大）
          */
-        void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, TileVector2D origin,
-                              bool sortAscending);
+        static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, TileVector2D origin,
+                              bool sortAscending) ;
 
     public:
         explicit ChunkSystem(WorldContext *worldContext);

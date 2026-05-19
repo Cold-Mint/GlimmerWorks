@@ -36,7 +36,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const GameEntity::ID id, 
         return;
     }
     uint32_t resourceType = resourceRef.GetResourceType();
-    if (resourceType != RESOURCE_TYPE_MOB) {
+    if (resourceType != Mob) {
         return;
     }
     ResourceLocator *resourceLocator = appContext->GetResourceLocator();

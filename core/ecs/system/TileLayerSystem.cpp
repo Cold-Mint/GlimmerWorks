@@ -18,35 +18,6 @@ glimmer::TileLayerSystem::TileLayerSystem(WorldContext *worldContext)
     RequireComponent<TileLayerComponent>();
 }
 
-void glimmer::TileLayerSystem::Update(const float delta) {
-    if (worldContext_ == nullptr) {
-        return;
-    }
-    const auto *cameraComponent = worldContext_->GetCameraComponent();
-    if (cameraComponent == nullptr) {
-        return;
-    }
-    const auto *cameraPos = worldContext_->GetCameraTransform2D();
-    if (cameraPos == nullptr) {
-        return;
-    }
-    auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
-    const TileVector2D topLeft = TileLayerComponent::WorldToTile({viewportRect.x, viewportRect.y});
-    const TileVector2D bottomRight = TileLayerComponent::WorldToTile({
-        viewportRect.x + viewportRect.w + TILE_SIZE * CHUNK_SIZE,
-        viewportRect.y + viewportRect.h + TILE_SIZE * CHUNK_SIZE
-    });
-    for (int x = topLeft.x; x < bottomRight.x; x += CHUNK_SIZE) {
-        for (int y = topLeft.y; y < bottomRight.y; y += CHUNK_SIZE) {
-            Chunk *chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(TileVector2D(x, y)));
-            if (chunk == nullptr) {
-                continue;
-            }
-            chunk->UpdateFadeInAnimation(delta);
-        }
-    }
-}
-
 void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     if (worldContext_ == nullptr) {
         return;

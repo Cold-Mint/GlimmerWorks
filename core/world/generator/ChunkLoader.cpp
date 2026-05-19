@@ -28,9 +28,9 @@ void glimmer::ChunkLoader::LoadEntityFromSaves(TileVector2D position) const {
         auto chunkEntityMessageOptional = saves_->ReadChunkEntity(position);
         if (chunkEntityMessageOptional.has_value()) {
             ChunkEntityMessage &chunkEntityMessage = chunkEntityMessageOptional.value();
-            int entitySize = chunkEntityMessage.entitys_size();
+            int entitySize = chunkEntityMessage.entities_size();
             for (int i = 0; i < entitySize; i++) {
-                (void) RecoveryEntity(chunkEntityMessage.entitys(i));
+                (void) RecoveryEntity(chunkEntityMessage.entities(i));
             }
         }
     }
@@ -49,7 +49,7 @@ glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMes
     if (entityItemMessage.has_resourceref()) {
         const ResourceRefMessage &resourceRefMessage = entityItemMessage.resourceref();
         const uint32_t resourceType = resourceRefMessage.resourcetype();
-        if (resourceType == RESOURCE_TYPE_MOB) {
+        if (resourceType == Mob) {
             ResourceRef resourceRef{};
             resourceRef.ReadResourceRefMessage(resourceRefMessage);
             MobEntityCreator mobEntityCreator{worldContext_};
@@ -57,7 +57,7 @@ glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMes
             mobEntityCreator.MergeEntityItemMessage(id, entityItemMessage);
         }
 
-        if (resourceType == RESOURCE_TYPE_DROPPED_ITEM) {
+        if (resourceType == DroppedItem) {
             ResourceRef resourceRef{};
             resourceRef.ReadResourceRefMessage(resourceRefMessage);
             DroppedItemCreator droppedItemCreator{worldContext_};

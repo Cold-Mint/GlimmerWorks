@@ -418,9 +418,9 @@ namespace glimmer {
         //@genNextLine(description|描述资源引用)
         ResourceRef description = {};
         //@genNextLine(tileWidth|瓦片宽度)
-        int tileWidth = 1;
+        uint8_t tileWidth = 1;
         //@genNextLine(tileHeight|瓦片高度)
-        int tileHeight = 1;
+        uint8_t tileHeight = 1;
         //@genNextLine(colliderWidth|碰撞箱宽度)
         float colliderWidth = 1.0F;
         //@genNextLine(colliderHeight|碰撞箱高度)

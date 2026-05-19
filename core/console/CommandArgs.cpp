@@ -176,6 +176,7 @@ std::string glimmer::CommandArgs::AsString(const int index) const {
     return tokens_[index];
 }
 
-std::optional<glimmer::ResourceRef> glimmer::CommandArgs::AsResourceRef(const int index, const int resourceType) const {
+std::optional<glimmer::ResourceRef> glimmer::CommandArgs::AsResourceRef(int index,
+                                                                        ResourceTypeMessage resourceType) const {
     return ResourceRef::ParseFromId(AsString(index), resourceType);
 }

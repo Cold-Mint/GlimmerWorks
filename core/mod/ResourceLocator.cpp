@@ -34,7 +34,7 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext_) : appContext_
 }
 
 std::shared_ptr<SDL_Texture> glimmer::ResourceLocator::FindTexture(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_TEXTURES) {
+    if (resourceRef.GetResourceType() != Texture) {
         return appContext_->GetResourcePackManager()->errorTexture_;
     }
     if (!ValidateAccessPermission(resourceRef)) {
@@ -44,7 +44,7 @@ std::shared_ptr<SDL_Texture> glimmer::ResourceLocator::FindTexture(const Resourc
 }
 
 std::shared_ptr<MIX_Audio> glimmer::ResourceLocator::FindAudio(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_AUDIO || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != ResourceTypeMessage::Audio || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetResourcePackManager()->LoadAudioFromFile(appContext_, resourceRef);
@@ -55,7 +55,7 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
     if (!ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
-    if (resourceType == RESOURCE_TYPE_COLOR) {
+    if (resourceType == ResourceTypeMessage::Color) {
         const ColorResource *colorResource = appContext_->GetResourcePackManager()->LoadColorResFromFile(
             appContext_, resourceRef);
         if (colorResource == nullptr) {
@@ -63,7 +63,7 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
         }
         return std::make_unique<Color>(colorResource->ToColor());
     }
-    if (resourceType == RESOURCE_TYPE_FIXED_COLOR) {
+    if (resourceType == FixedColor) {
         const FixedColorResource *fixedColorResource = appContext_->GetFixedColorManager()->FindFixedColorResource(
             resourceRef.GetPackageId(),
             resourceRef.GetResourceKey());
@@ -77,14 +77,14 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
 
 
 glimmer::IShapeResource *glimmer::ResourceLocator::FindShape(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_SHAPE || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != Shape || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetShapeManager()->FindShape(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }
 
 glimmer::IBiomeDecoratorResource *glimmer::ResourceLocator::FindBiomeDecorator(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_BIOME_DECORATOR || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != BiomeDecorator || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetBiomeDecoratorResourcesManager()->FindBiomeDecorator(
@@ -92,14 +92,14 @@ glimmer::IBiomeDecoratorResource *glimmer::ResourceLocator::FindBiomeDecorator(c
 }
 
 glimmer::StringResource *glimmer::ResourceLocator::FindString(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_STRING || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != String || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetStringManager()->Find(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }
 
 glimmer::LightSourceResource *glimmer::ResourceLocator::FindLightSource(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_LIGHT_SOURCE || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != ResourceTypeMessage::LightSource || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetLightSourceManager()->FindLightSourceResource(resourceRef.GetPackageId(),
@@ -107,7 +107,7 @@ glimmer::LightSourceResource *glimmer::ResourceLocator::FindLightSource(const Re
 }
 
 glimmer::LightMaskResource *glimmer::ResourceLocator::FindLightMask(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_LIGHT_MASK || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != ResourceTypeMessage::LightMask || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetLightMaskManager()->FindLightMaskResource(resourceRef.GetPackageId(),
@@ -116,7 +116,7 @@ glimmer::LightMaskResource *glimmer::ResourceLocator::FindLightMask(const Resour
 
 glimmer::TileResource *glimmer::ResourceLocator::FindTileFallback(const ResourceRef &resourceRef,
                                                                   TileLayerType tileLayer) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_TILE || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != ResourceTypeMessage::Tile || !ValidateAccessPermission(resourceRef)) {
         return appContext_->GetTileResourceManager()->GenerateAccessDeniedPlaceHolder(
             resourceRef.GetPackageId(), resourceRef.GetResourceKey(), tileLayer);
     }
@@ -126,14 +126,14 @@ glimmer::TileResource *glimmer::ResourceLocator::FindTileFallback(const Resource
 }
 
 glimmer::TileResource *glimmer::ResourceLocator::FindTileRaw(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_TILE || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != ResourceTypeMessage::Tile || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetTileResourceManager()->FindTileRaw(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
 }
 
 glimmer::MobResource *glimmer::ResourceLocator::FindMob(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_MOB || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != Mob || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetMobManager()->FindMobResource(resourceRef.GetPackageId(),
@@ -142,7 +142,7 @@ glimmer::MobResource *glimmer::ResourceLocator::FindMob(const ResourceRef &resou
 
 glimmer::ComposableItemResource *glimmer::ResourceLocator::FindComposableItem(
     const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_COMPOSABLE_ITEM || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != ResourceTypeMessage::ComposableItem || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetItemManager()->FindComposableItemResource(resourceRef.GetPackageId(),
@@ -151,7 +151,7 @@ glimmer::ComposableItemResource *glimmer::ResourceLocator::FindComposableItem(
 
 glimmer::AbilityItemResource *glimmer::ResourceLocator::FindAbilityItem(
     const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_ABILITY_ITEM || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != ResourceTypeMessage::AbilityItem || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetItemManager()->FindAbilityItemResource(resourceRef.GetPackageId(),
@@ -159,7 +159,7 @@ glimmer::AbilityItemResource *glimmer::ResourceLocator::FindAbilityItem(
 }
 
 glimmer::LootResource *glimmer::ResourceLocator::FindLoot(const ResourceRef &resourceRef) const {
-    if (resourceRef.GetResourceType() != RESOURCE_TYPE_LOOT_TABLE || !ValidateAccessPermission(resourceRef)) {
+    if (resourceRef.GetResourceType() != LootTable || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     return appContext_->GetLootTableManager()->Find(resourceRef.GetPackageId(),
@@ -174,11 +174,11 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext *
     ResourceRef resourceRef;
     resourceRef.ReadResourceRefMessage(itemMessage.itemresourceref());
     const uint32_t resourceType = resourceRef.GetResourceType();
-    if (resourceType == RESOURCE_TYPE_NONE || !ValidateAccessPermission(resourceRef)) {
+    if (resourceType == ResourceTypeMessage::None || !ValidateAccessPermission(resourceRef)) {
         return nullptr;
     }
     std::unique_ptr<Item> result = nullptr;
-    if (resourceType == RESOURCE_TYPE_TILE) {
+    if (resourceType == ResourceTypeMessage::Tile) {
         auto tileInstancePool = worldContext->GetTileInstancePool();
         if (tileInstancePool == nullptr) {
             return nullptr;
@@ -188,7 +188,7 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext *
             result = std::make_unique<TileItem>(tileInstancePool->CreateTile(appContext_, tileResource, resourceRef));
         }
     }
-    if (resourceType == RESOURCE_TYPE_COMPOSABLE_ITEM) {
+    if (resourceType == ResourceTypeMessage::ComposableItem) {
         auto composableItemResource = FindComposableItem(resourceRef);
         if (composableItemResource != nullptr) {
             result = std::move(
@@ -196,7 +196,7 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext *
         }
     }
 
-    if (resourceType == RESOURCE_TYPE_ABILITY_ITEM) {
+    if (resourceType == ResourceTypeMessage::AbilityItem) {
         auto abilityItemResource = FindAbilityItem(resourceRef);
         if (abilityItemResource != nullptr) {
             result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource, resourceRef));

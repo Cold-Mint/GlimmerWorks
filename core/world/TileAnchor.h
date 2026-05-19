@@ -1,0 +1,21 @@
+//
+// Created by coldmint on 2026/5/19.
+//
+
+#pragma once
+#include <cstdint>
+
+namespace glimmer {
+    enum class TileAnchor: uint8_t {
+        TopLeft,
+        TopCenter,
+        TopRight,
+        CenterLeft,
+        Center,
+        CenterRight,
+        BottomLeft,
+        BottomCenter,
+        BottomRight,
+        Custom,
+    };
+}

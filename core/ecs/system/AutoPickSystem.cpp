@@ -19,7 +19,7 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem
     RequireComponent<ItemContainerComponent>();
     ResourceRef ref{};
     ref.SetSelfPackageId(RESOURCE_REF_CORE);
-    ref.SetResourceType(RESOURCE_TYPE_AUDIO);
+    ref.SetResourceType(ResourceTypeMessage::Audio);
     ref.SetResourceKey("sfx/pick_item");
     AppContext *appContext = worldContext->GetAppContext();
     if (appContext != nullptr) {

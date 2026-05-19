@@ -64,6 +64,6 @@ namespace glimmer {
 
         [[nodiscard]] std::string AsString(int index) const;
 
-        [[nodiscard]] std::optional<ResourceRef> AsResourceRef(int index, int resourceType) const;
+        [[nodiscard]] std::optional<ResourceRef> AsResourceRef(int index, ResourceTypeMessage resourceType) const;
     };
 }

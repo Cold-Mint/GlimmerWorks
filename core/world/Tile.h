@@ -29,8 +29,8 @@ namespace glimmer {
         bool breakable = true;
         bool allowChainMining_ = false;
         bool isPlayerPlaced_ = false;
-        int tileWidth_ = 1;
-        int tileHeight_ = 1;
+        uint8_t tileWidth_ = 1;
+        uint8_t tileHeight_ = 1;
         float colliderWidth_ = 1.0F;
         float colliderHeight_ = 1.0F;
         /**
@@ -61,6 +61,10 @@ namespace glimmer {
                                                       const ResourceRef &resourceRef);
 
     public:
+        [[nodiscard]] uint8_t GetTileWidth() const;
+
+        [[nodiscard]] uint8_t GetTileHeight() const;
+
         [[nodiscard]] const ResourceRef &GetLootTableRef();
 
         [[nodiscard]] const ResourceRef &GetResourceRef();
@@ -106,18 +110,6 @@ namespace glimmer {
         void ReadTileMessage(const TileMessage &tileMessage);
 
         void WriteTileMessage(TileMessage &tileMessage) const;
-
-        void SetTileWidth(int tileWidth);
-
-        void SetTileHeight(int tileWidth);
-
-        void SetColliderWidth(float colliderWidth);
-
-        void SetColliderHeight(float colliderHeight);
-
-        [[nodiscard]] int GetTileWidth() const;
-
-        [[nodiscard]] int GetTileHeight() const;
 
         [[nodiscard]] float GetColliderWidth() const;
 

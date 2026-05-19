@@ -10,30 +10,32 @@
 
 
 glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const std::string &resourceId,
-                                                             TilePhysicsType physicsType, TileLayerType layerType,
-                                                             float hardness, const std::string &nameKey,
-                                                             const std::string &textureKey,
-                                                             const std::string &lightSourceKey,
-                                                             const std::string &sideLightMaskKey,
-                                                             const std::string &backLightMaskKey, bool isOverwritable,
-                                                             bool canDropLoot,
-                                                             std::optional<std::string> descriptionKey) {
+                                                                     TilePhysicsType physicsType,
+                                                                     TileLayerType layerType,
+                                                                     float hardness, const std::string &nameKey,
+                                                                     const std::string &textureKey,
+                                                                     const std::string &lightSourceKey,
+                                                                     const std::string &sideLightMaskKey,
+                                                                     const std::string &backLightMaskKey,
+                                                                     bool isOverwritable,
+                                                                     bool canDropLoot,
+                                                                     std::optional<std::string> descriptionKey) {
     auto tileResource = std::make_unique<TileResource>();
     ResourceRef textureResourceRef;
     textureResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     textureResourceRef.SetResourceKey(textureKey);
-    textureResourceRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    textureResourceRef.SetResourceType(Texture);
     tileResource->texture = textureResourceRef;
     ResourceRef nameResource;
     nameResource.SetSelfPackageId(RESOURCE_REF_CORE);
     nameResource.SetResourceKey(nameKey);
-    nameResource.SetResourceType(RESOURCE_TYPE_STRING);
+    nameResource.SetResourceType(String);
     tileResource->name = nameResource;
     if (descriptionKey.has_value()) {
         ResourceRef descriptionResource;
         descriptionResource.SetSelfPackageId(RESOURCE_REF_CORE);
         descriptionResource.SetResourceKey(descriptionKey.value());
-        descriptionResource.SetResourceType(RESOURCE_TYPE_STRING);
+        descriptionResource.SetResourceType(String);
         tileResource->description = descriptionResource;
     }
     tileResource->resourceId = resourceId;
@@ -45,17 +47,17 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const std::
     tileResource->canDropLoot = canDropLoot;
     ResourceRef lightSourceRef;
     lightSourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    lightSourceRef.SetResourceType(RESOURCE_TYPE_LIGHT_SOURCE);
+    lightSourceRef.SetResourceType(LightSource);
     lightSourceRef.SetResourceKey(lightSourceKey);
     tileResource->lightSource = lightSourceRef;
     ResourceRef sideLightMaskRef;
     sideLightMaskRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    sideLightMaskRef.SetResourceType(RESOURCE_TYPE_LIGHT_SOURCE);
+    sideLightMaskRef.SetResourceType(LightSource);
     sideLightMaskRef.SetResourceKey(sideLightMaskKey);
     tileResource->sideLightMask = sideLightMaskRef;
     ResourceRef backLightMaskRef;
     backLightMaskRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    backLightMaskRef.SetResourceType(RESOURCE_TYPE_LIGHT_SOURCE);
+    backLightMaskRef.SetResourceType(LightSource);
     backLightMaskRef.SetResourceKey(backLightMaskKey);
     tileResource->backLightMask = backLightMaskRef;
     return AddResource(std::move(tileResource));
@@ -88,13 +90,13 @@ void glimmer::TileResourceManager::InitBuiltinTiles() {
 }
 
 glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(const std::string &packId,
-                                                                 const std::string &resourceId,
-                                                                 const TileLayerType tileLayer) {
+                                                                         const std::string &resourceId,
+                                                                         const TileLayerType tileLayer) {
     auto errorPlaceholder = std::make_unique<TileResource>();
     ResourceRef errorResource;
     errorResource.SetSelfPackageId(RESOURCE_REF_CORE);
     errorResource.SetResourceKey(ERROR_TEXTURE_KEY);
-    errorResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    errorResource.SetResourceType(Texture);
     errorPlaceholder->texture = errorResource;
     errorPlaceholder->resourceId = resourceId;
     errorPlaceholder->packId = packId;
@@ -110,8 +112,8 @@ glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(const s
 }
 
 glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHolder(const std::string &packId,
-                                                                             const std::string &resourceId,
-                                                                             const TileLayerType tileLayer) {
+    const std::string &resourceId,
+    const TileLayerType tileLayer) {
     const auto packIt = accessDeniedTileMap_.find(packId);
     if (packIt != accessDeniedTileMap_.end()) {
         auto &keyMap = packIt->second;
@@ -124,7 +126,7 @@ glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHo
     ResourceRef accessDeniedResource;
     accessDeniedResource.SetSelfPackageId(RESOURCE_REF_CORE);
     accessDeniedResource.SetResourceKey(ACCESS_DENIED_TEXTURE_KEY);
-    accessDeniedResource.SetResourceType(RESOURCE_TYPE_TEXTURES);
+    accessDeniedResource.SetResourceType(Texture);
     accessDeniedPlaceholder->texture = accessDeniedResource;
     accessDeniedPlaceholder->resourceId = resourceId;
     accessDeniedPlaceholder->packId = packId;
@@ -160,7 +162,7 @@ glimmer::TileResource *glimmer::TileResourceManager::GetAirResource(const TileLa
 glimmer::ResourceRef glimmer::TileResourceManager::GetAirResourceRef(const TileLayerType tileLayerType) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_TYPE_TILE);
+    resourceRef.SetResourceType(Tile);
     if (tileLayerType == Ground) {
         resourceRef.SetResourceKey(TILE_ID_AIR);
     } else {
@@ -184,7 +186,7 @@ glimmer::TileResource *glimmer::TileResourceManager::FindTileRaw(const std::stri
 }
 
 glimmer::TileResource *glimmer::TileResourceManager::FindTileFallback(const std::string &packId, const std::string &key,
-                                                              const TileLayerType tileLayer) {
+                                                                      const TileLayerType tileLayer) {
     TileResource *result = FindTileRaw(packId, key);
     if (result == nullptr) {
         return AddErrorPlaceHolder(packId, key, tileLayer);

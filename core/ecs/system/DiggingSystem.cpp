@@ -16,8 +16,9 @@
 
 
 bool glimmer::DiggingSystem::BreakTile(WorldContext *worldContext, const TileLayerComponent *tileLayerComponent,
-                                       TileVector2D tilePosition, bool precisionMining, bool overwrite,
-                                       const std::shared_ptr<Tile>& newTile) {
+                                       const TileVector2D tilePosition, const bool precisionMining,
+                                       const bool overwrite,
+                                       const std::shared_ptr<Tile> &newTile) {
     if (worldContext == nullptr || tileLayerComponent == nullptr) {
         return false;
     }
@@ -36,7 +37,7 @@ bool glimmer::DiggingSystem::BreakTile(WorldContext *worldContext, const TileLay
         return false;
     }
     auto oldTile = tileLayerComponent->ReplaceTile(
-        tilePosition, std::move(newTile));
+        tilePosition, newTile);
     if (oldTile == nullptr) {
         return false;
     }
@@ -142,7 +143,7 @@ void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {
         for (uint8_t i = 0; i < 10; i++) {
             ResourceRef resourceRef;
             resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-            resourceRef.SetResourceType(RESOURCE_TYPE_TEXTURES);
+            resourceRef.SetResourceType(Texture);
             resourceRef.SetResourceKey("cracks/cracks_" + std::to_string(i));
             textureList.push_back(appContext->GetResourceLocator()->FindTexture(
                 resourceRef

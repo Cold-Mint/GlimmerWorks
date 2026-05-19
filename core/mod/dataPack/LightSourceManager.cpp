@@ -12,7 +12,7 @@ void glimmer::LightSourceManager::RegisterCoreLightSourceResource(const std::str
     lightSourceResource->lightRadius = lightRadius;
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_TYPE_FIXED_COLOR);
+    resourceRef.SetResourceType(FixedColor);
     resourceRef.SetResourceKey(colorResKey);
     lightSourceResource->lightColor = resourceRef;
     lightSourceResource->lightBrightestAtCenter = true;

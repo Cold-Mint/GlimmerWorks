@@ -456,7 +456,7 @@ glimmer::AppContext::AppContext() {
 void glimmer::AppContext::LoadMainMenuBGM() {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_TYPE_AUDIO);
+    resourceRef.SetResourceType(ResourceTypeMessage::Audio);
     resourceRef.SetResourceKey("bgm/main_menu");
     mainMenuBGM_ = resourceLocator_->FindAudio(resourceRef);
 }

@@ -355,7 +355,7 @@ glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resource
                                                  const Color &defaultColor) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_TYPE_COLOR);
+    resourceRef.SetResourceType(ResourceTypeMessage::Color);
     resourceRef.SetResourceKey(key);
     const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(resourceRef);
     if (targetColor == nullptr) {

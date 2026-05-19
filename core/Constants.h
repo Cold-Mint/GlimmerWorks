@@ -70,31 +70,6 @@ static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HORIZONTAL_SPACING =
 
 static constexpr std::string TOGGLE_KEY_WORD = "toggle";
 static constexpr std::string SESSION_KEY_WORD = "session";
-/**
- * Resource ref
- * 资源引用
- */
-static constexpr uint32_t RESOURCE_TYPE_NONE = 0;
-static constexpr uint32_t RESOURCE_TYPE_STRING = 1;
-static constexpr uint32_t RESOURCE_TYPE_TILE = 2;
-static constexpr uint32_t RESOURCE_TYPE_COMPOSABLE_ITEM = 3;
-static constexpr uint32_t RESOURCE_TYPE_ABILITY_ITEM = 4;
-static constexpr uint32_t RESOURCE_TYPE_LOOT_TABLE = 5;
-static constexpr uint32_t RESOURCE_TYPE_STRUCTURE = 6;
-static constexpr uint32_t RESOURCE_TYPE_TEXTURES = 7;
-static constexpr uint32_t RESOURCE_TYPE_BIOME = 8;
-static constexpr uint32_t RESOURCE_TYPE_COLOR = 9;
-static constexpr uint32_t RESOURCE_TYPE_MOB = 10;
-static constexpr uint32_t RESOURCE_TYPE_SHAPE = 11;
-static constexpr uint32_t RESOURCE_TYPE_AUDIO = 12;
-//This dropped item resource type is used for serialization within the game save file. Currently, this type of resource is not supported for definition within the mod.
-//这个掉落物资源类型用作存档内序列化。模组内暂不支持定义此类型的资源。
-static constexpr uint32_t RESOURCE_TYPE_DROPPED_ITEM = 13;
-static constexpr uint32_t RESOURCE_TYPE_BIOME_DECORATOR = 14;
-static constexpr uint32_t RESOURCE_TYPE_FIXED_COLOR = 15;
-static constexpr uint32_t RESOURCE_TYPE_LIGHT_SOURCE = 16;
-static constexpr uint32_t RESOURCE_TYPE_LIGHT_MASK = 17;
-
 
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
 static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;

@@ -12,6 +12,8 @@
 #ToruNiina/toml11@latest
 #protocolbuffers/protobuf@latest
 #google/googletest@latest
+#BLAKE3-team/BLAKE3@latest
+#LoupVaillant/Monocypher@latest
 set(OCORNUT_IMGUI_VERSION "v1.92.8")
 set(LIBSDL-ORG_SDL_VERSION "release-3.4.8")
 set(LIBSDL-ORG_SDL_IMAGE_VERSION "release-3.4.4")
@@ -24,3 +26,5 @@ set(ERINCATTO_BOX2D_VERSION "v3.1.1")
 set(TORUNIINA_TOML11_VERSION "v4.4.0")
 set(PROTOCOLBUFFERS_PROTOBUF_VERSION "v34.1")
 set(GOOGLE_GOOGLETEST_VERSION "v1.17.0")
+set(BLAKE3-TEAM_BLAKE3_VERSION "1.8.5")
+set(LOUPVAILLANT_MONOCYPHER_VERSION "4.0.2")

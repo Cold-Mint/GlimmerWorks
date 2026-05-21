@@ -45,6 +45,8 @@ namespace glimmer {
     };
 
     struct Mods {
+        bool enableSignVerify;
+        bool loadOnlyVerified;
         std::string dataPackPath;
         std::string resourcePackPath;
         std::vector<std::string> enabledDataPack;

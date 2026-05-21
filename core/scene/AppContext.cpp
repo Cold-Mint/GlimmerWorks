@@ -33,6 +33,7 @@
 #include "core/console/command/LocateCommand.h"
 #include "core/console/command/LootCommand.h"
 #include "core/console/command/MemoryUsageCommand.h"
+#include "core/console/command/PackVerifyCommand.h"
 #include "core/console/command/ParallaxBackgroundCommand.h"
 #include "core/console/command/PlaceCommand.h"
 #include "core/console/command/ScreenshotCommand.h"
@@ -43,6 +44,7 @@
 #include "core/console/suggestion/CommandHookScopeDynamicSuggestions.h"
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/CoordinateDynamicSuggestions.h"
+#include "core/console/suggestion/DataPackDynamicSuggestions.h"
 #include "core/console/suggestion/EventTypeDynamicSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
 #include "core/console/suggestion/MobDynamicSuggestions.h"
@@ -193,6 +195,11 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langsResources_->biomeScoreInspectorEnableFail = find<std::string>(value, "biome_score_inspector_enable_fail");
     langsResources_->biomeScoreInspectorDisableFail = find<std::string>(value, "biome_score_inspector_disable_fail");
     langsResources_->memoryUseInfo = find<std::string>(value, "memory_use_info");
+    langsResources_->notEnabledSignVerify = find<std::string>(value, "not_enabled_sign_verify");
+    langsResources_->unsignedPackage = find<std::string>(value, "unsigned");
+    langsResources_->signatureVerificationSuccessful = find<std::string>(value, "signature_verification_successful");
+    langsResources_->signatureVerificationFailed = find<std::string>(value, "signature_verification_failed");
+    langsResources_->dataPackageCannotBeFound = find<std::string>(value, "data_package_cannot_be_found");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
@@ -341,6 +348,8 @@ glimmer::AppContext::AppContext() {
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<VFSDynamicSuggestions>(vfs));
     dataPackManager_ = std::make_unique<DataPackManager>(vfs, tomlTemplateExpander_.get());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<DataPackDynamicSuggestions>(dataPackManager_.get()));
     resourcePackManager_ = std::make_unique<ResourcePackManager>(vfs);
     resourceLocator_ = std::make_unique<ResourceLocator>(this);
     sceneManager_ = std::make_unique<SceneManager>();
@@ -367,6 +376,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ClearCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LootCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<PackVerifyCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(this));

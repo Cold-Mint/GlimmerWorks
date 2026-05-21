@@ -28,6 +28,9 @@ namespace glimmer {
     std::string TomlTemplateExpander::Expand(const std::vector<std::string> &templateSearchPath,
                                              const std::string &inputText,
                                              const VirtualFileSystem *virtualFileSystem) const {
+        if (templateSearchPath.empty()) {
+            return inputText;
+        }
         std::stringstream inputStringStream(inputText);
         std::stringstream output;
         std::string line;

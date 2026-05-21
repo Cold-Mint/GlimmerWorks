@@ -290,14 +290,31 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
 
+FetchContent_Declare(
+        blake3
+        GIT_REPOSITORY "https://github.com/BLAKE3-team/BLAKE3"
+        GIT_TAG ${BLAKE3-TEAM_BLAKE3_VERSION}
+        GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(blake3)
+add_subdirectory(${blake3_SOURCE_DIR}/c)
+
+FetchContent_Declare(
+        monoCypher
+        GIT_REPOSITORY "https://github.com/LoupVaillant/Monocypher"
+        GIT_TAG ${LOUPVAILLANT_MONOCYPHER_VERSION}
+        GIT_PROGRESS TRUE
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(monoCypher)
+
 if (ANDROID)
     message(STATUS "Building for Android → Shared Library (.so)")
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks
-            core/world/structure/StructureGeneratorType.cpp
-            core/world/structure/StructureGeneratorType.h)
+    add_executable(GlimmerWorks)
 endif ()
 
 target_sources(GlimmerWorks
@@ -311,6 +328,10 @@ target_sources(GlimmerWorks
         # SDL3 后端
         "${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_sdl3.cpp"
         "${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_sdlrenderer3.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.c"
+        "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.h"
+        "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/optional/monocypher-ed25519.c"
+        "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/optional/monocypher-ed25519.h"
         main.cpp
         core/log/LogCat.cpp
         core/Config.cpp
@@ -557,6 +578,10 @@ target_sources(GlimmerWorks
         core/console/command/MemoryUsageCommand.cpp
         core/world/TileInstancePool.cpp
         core/world/TileAnchorType.cpp
+        core/world/structure/StructureGeneratorType.cpp
+        core/mod/PackVerifyState.cpp
+        core/console/command/PackVerifyCommand.cpp
+        core/console/suggestion/DataPackDynamicSuggestions.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -804,6 +829,10 @@ target_sources(GlimmerWorks
         core/console/command/MemoryUsageCommand.h
         core/world/TileInstancePool.h
         core/world/TileAnchorType.h
+        core/world/structure/StructureGeneratorType.h
+        core/mod/PackVerifyState.h
+        core/console/command/PackVerifyCommand.h
+        core/console/suggestion/DataPackDynamicSuggestions.h
 )
 
 #Define version information
@@ -818,9 +847,9 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
+    target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3)
 else ()
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3)
 endif ()
 
 
@@ -850,6 +879,16 @@ target_include_directories(GlimmerWorks PRIVATE
 
 target_include_directories(GlimmerWorks PRIVATE
         "${CMAKE_BINARY_DIR}/_deps/sdl-src/include"
+)
+
+target_include_directories(GlimmerWorks PRIVATE
+        "${CMAKE_BINARY_DIR}/_deps/blake3-src/c"
+)
+target_include_directories(GlimmerWorks PRIVATE
+        "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src"
+)
+target_include_directories(GlimmerWorks PRIVATE
+        "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/optional"
 )
 target_include_directories(GlimmerWorks PRIVATE
         "${CMAKE_BINARY_DIR}/_deps/sdl_mixer-src/include"

@@ -42,6 +42,8 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     window.idleDelay = toml::find<float>(configValue, "window", "idle_delay");
     window.idleTargetFps = toml::find<float>(configValue, "window", "idle_target_fps");
     window.normalTargetFps = toml::find<float>(configValue, "window", "normal_target_fps");
+    mods.enableSignVerify = toml::find<bool>(configValue, "mods", "enable_sign_verify");
+    mods.loadOnlyVerified = toml::find<bool>(configValue, "mods", "load_only_verified");
     mods.dataPackPath = toml::find<std::string>(configValue, "mods", "data_pack_path");
     mods.resourcePackPath = toml::find<std::string>(configValue, "mods", "resource_pack_path");
     mods.enabledDataPack = toml::find<std::vector<std::string> >(configValue, "mods", "enabled_data_pack");

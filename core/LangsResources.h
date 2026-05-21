@@ -125,5 +125,10 @@ namespace glimmer {
         std::string biomeScoreInspectorEnableFail;
         std::string biomeScoreInspectorDisableFail;
         std::string memoryUseInfo;
+        std::string notEnabledSignVerify;
+        std::string unsignedPackage;
+        std::string signatureVerificationSuccessful;
+        std::string signatureVerificationFailed;
+        std::string dataPackageCannotBeFound;
     };
 }

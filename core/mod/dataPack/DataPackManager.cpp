@@ -99,6 +99,25 @@ bool glimmer::DataPackManager::IsDependencySatisfied(const std::string &pack1Id,
     return match;
 }
 
+bool glimmer::DataPackManager::Contains(const std::string &packId) const {
+    return packVerifyStateMap_.contains(packId);
+}
+
+glimmer::PackVerifyState glimmer::DataPackManager::GetPackVerifyState(const std::string &packId) {
+    if (packVerifyStateMap_.contains(packId)) {
+        return packVerifyStateMap_[packId];
+    }
+    return PackVerifyState::Unsigned;
+}
+
+std::vector<std::string> glimmer::DataPackManager::GetPackIdList() const {
+    std::vector<std::string> packIdList;
+    for (auto &packManifest: packManifestVector_) {
+        packIdList.push_back(packManifest.id);
+    }
+    return packIdList;
+}
+
 int glimmer::DataPackManager::Scan(AppContext *appContext, const toml::spec &tomlVersion) {
     const std::string &path = appContext->GetConfig()->mods.dataPackPath;
     if (!virtualFileSystem_->Exists(path)) {
@@ -106,6 +125,7 @@ int glimmer::DataPackManager::Scan(AppContext *appContext, const toml::spec &tom
         return 0;
     }
     packManifestVector_.clear();
+    packVerifyStateMap_.clear();
     LogCat::i("Scanning data packs in: ", path);
     int success = 0;
     std::vector<std::string> files = virtualFileSystem_->ListFile(path, false);
@@ -127,6 +147,7 @@ int glimmer::DataPackManager::Scan(AppContext *appContext, const toml::spec &tom
             }
             if (pack.LoadPack(appContext)) {
                 success++;
+                packVerifyStateMap_[pack.GetManifest().id] = pack.GetPackVerifyState();
                 packManifestVector_.push_back(pack.GetManifest());
             }
         }

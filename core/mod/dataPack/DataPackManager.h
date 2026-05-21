@@ -11,6 +11,7 @@
 #include "toml11/spec.hpp"
 
 namespace glimmer {
+    enum class PackVerifyState : uint8_t;
     class AppContext;
     class BiomesManager;
     class TileResourceManager;
@@ -23,6 +24,7 @@ namespace glimmer {
         VirtualFileSystem *virtualFileSystem_;
         TomlTemplateExpander *tomlTemplateExpander_;
         std::vector<DataPackManifest> packManifestVector_;
+        std::unordered_map<std::string, PackVerifyState> packVerifyStateMap_;
 
         //Check whether the data packet is available (for example, determine whether the minimum game version declared by the data packet exceeds the game version)
         //检测数据包是否可用（例如判断数据包声明的最低游戏版本是否超过了游戏版本）
@@ -40,6 +42,12 @@ namespace glimmer {
          * @return
          */
         bool IsDependencySatisfied(const std::string &pack1Id, const std::string &pack2Id);
+
+        bool Contains(const std::string &packId) const;
+
+        PackVerifyState GetPackVerifyState(const std::string &packId);
+
+        std::vector<std::string> GetPackIdList() const;
 
         //Scan the data packets in the specified directory(Return the number of data packets successfully loaded)
         //扫描指定目录下的数据包（返回成功加载多少个数据包）

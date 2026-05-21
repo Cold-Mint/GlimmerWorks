@@ -149,6 +149,12 @@ chunk_fadein_to = 1.0
 locate_max_radius_search_chunks = 2048
 
 [mods]
+# Enable signature verification
+# 是否开启签名校验
+enable_sign_verify = true
+# Only load the verified modules
+# 仅加载校验通过的模组
+load_only_verified = false
 # Data pack storage path
 # 数据包存储路径
 data_pack_path = "mods/data_packs"

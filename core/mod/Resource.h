@@ -322,6 +322,7 @@ namespace glimmer {
     //@genNextLine(StructureResource|结构资源)
     struct IStructureResource : Resource {
         virtual ~IStructureResource() = default;
+
         //@genNextLine(generatorId|生成器ID)
         uint8_t generatorId = 0;
         //@genNextLine(condition|结构放置条件列表)
@@ -487,6 +488,8 @@ namespace glimmer {
 
     //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)
     struct IBiomeDecoratorResource : Resource {
+        ~IBiomeDecoratorResource() = default;
+
         //@genNextLine(biomeDecoratorType|装饰器类型)
         uint8_t biomeDecoratorType = 0;
         //@genNextLine(layerType|层级类型)

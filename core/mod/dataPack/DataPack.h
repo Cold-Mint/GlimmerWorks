@@ -18,11 +18,13 @@
 #include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
 #include "core/lootTable/LootTableManager.h"
+#include "core/mod/PackVerifyState.h"
 #include "core/mod/TomlTemplateExpander.h"
 #include "core/shape/ShapeManager.h"
 #include "core/shape/ShapeType.h"
 #include "core/world/structure/StructureGeneratorType.h"
 #include "toml11/spec.hpp"
+#include "toml11/types.hpp"
 
 namespace glimmer {
     class TileResourceManager;
@@ -34,6 +36,7 @@ namespace glimmer {
         toml::spec tomlVersion_;
         const VirtualFileSystem *virtualFileSystem_;
         const TomlTemplateExpander *tomlTemplateExpander_;
+        PackVerifyState packVerifyState_ = PackVerifyState::Unsigned;
 
 
         /**
@@ -47,54 +50,54 @@ namespace glimmer {
         /**
          * GetDataType
          * 获取数据类型
-         * @param path path 路径
+         * @param fileName fileName 文件名
          * @return
          */
-        [[nodiscard]] std::optional<std::string> GetDataType(const std::string &path) const;
+        static std::optional<std::string> GetDataType(const std::string &fileName);
 
 
         [[nodiscard]] int LoadStringResourceFromFile(const std::string &path, StringManager *stringManager) const;
 
-        [[nodiscard]] bool LoadLootTableResourceFromFile(const std::string &path,
-                                                         LootTableManager *lootTableManager) const;
+        void LoadLootTableResourceFromFile(const toml::value &value,
+                                           LootTableManager *lootTableManager) const;
 
 
-        [[nodiscard]] bool LoadInitialInventoryResourceFromFile(const std::string &path,
-                                                                InitialInventoryManager *lootTableManager) const;
+        void LoadInitialInventoryResourceFromFile(const toml::value &value,
+                                                  InitialInventoryManager *lootTableManager) const;
 
 
-        [[nodiscard]] bool LoadStructureResourceFromFile(const std::string &path,
-                                                         StructureManager *structureManager,
-                                                         StructureGeneratorType structureGeneratorType) const;
+        void LoadStructureResourceFromFile(const toml::value &value,
+                                           StructureManager *structureManager,
+                                           StructureGeneratorType structureGeneratorType) const;
 
-        [[nodiscard]] bool LoadTileResourceFromFile(const std::string &path, TileResourceManager *tileManager) const;
+        void LoadTileResourceFromFile(const toml::value &value, TileResourceManager *tileManager) const;
 
-        [[nodiscard]] bool LoadBiomeResourceFromFile(const std::string &path, BiomesManager *biomesManager) const;
+        void LoadBiomeResourceFromFile(const toml::value &value, BiomesManager *biomesManager) const;
 
-        [[nodiscard]] bool LoadComposableItemResourceFromFile(const std::string &path, ItemManager *itemManager) const;
+        void LoadComposableItemResourceFromFile(const toml::value &value, ItemManager *itemManager) const;
 
-        [[nodiscard]] bool LoadAbilityItemResourceFromFile(const std::string &path, ItemManager *itemManager) const;
+        void LoadAbilityItemResourceFromFile(const toml::value &value, ItemManager *itemManager) const;
 
-        [[nodiscard]] bool LoadContributorResourceFromFile(const std::string &path,
-                                                           ContributorManager *contributorManager) const;
+        void LoadContributorResourceFromFile(const toml::value &value,
+                                             ContributorManager *contributorManager) const;
 
-        [[nodiscard]] bool LoadMobResourceFromFile(const std::string &path, MobManager *mobManager) const;
+        void LoadMobResourceFromFile(const toml::value &value, MobManager *mobManager) const;
 
-        [[nodiscard]] bool LoadShapeResourceFromFile(const std::string &path, ShapeManager *shapeManager,
-                                                     ShapeType type) const;
+        void LoadShapeResourceFromFile(const toml::value &value, ShapeManager *shapeManager,
+                                       ShapeType type) const;
 
-        [[nodiscard]] bool LoadFixedColorResourceFromFile(const std::string &path,
-                                                          FixedColorManager *fixedColorManager) const;
+        void LoadFixedColorResourceFromFile(const toml::value &value,
+                                            FixedColorManager *fixedColorManager) const;
 
-        [[nodiscard]] bool LoadLightMaskResourceFromFile(const std::string &path,
-                                                         LightMaskManager *lightMaskManager) const;
+        void LoadLightMaskResourceFromFile(const toml::value &value,
+                                           LightMaskManager *lightMaskManager) const;
 
-        [[nodiscard]] bool LoadLightSourceResourceFromFile(const std::string &path,
-                                                           LightSourceManager *lightSourceManager) const;
+        void LoadLightSourceResourceFromFile(const toml::value &value,
+                                             LightSourceManager *lightSourceManager) const;
 
-        [[nodiscard]] bool LoadBiomeDecoratorResourceFromFile(const std::string &path,
-                                                              BiomeDecoratorResourcesManager *biomeDecoratorManager,
-                                                              BiomeDecoratorType type) const;
+        void LoadBiomeDecoratorResourceFromFile(const toml::value &value,
+                                                BiomeDecoratorResourcesManager *biomeDecoratorManager,
+                                                BiomeDecoratorType type) const;
 
         [[nodiscard]] static std::optional<std::string> ExtractLanguageFromFileName(const std::string &fileName);
 
@@ -105,7 +108,9 @@ namespace glimmer {
 
         bool LoadManifest();
 
-        [[nodiscard]] bool LoadPack(AppContext *appContext) const;
+        [[nodiscard]] PackVerifyState GetPackVerifyState() const;
+
+        [[nodiscard]] bool LoadPack(AppContext *appContext);
 
         [[nodiscard]] const DataPackManifest &GetManifest() const;
     };

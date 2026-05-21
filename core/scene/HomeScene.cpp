@@ -33,6 +33,7 @@ glimmer::HomeScene::HomeScene(AppContext *context)
     hyperlinks_ = std::vector<Hyperlink>{};
     hyperlinks_.push_back(Hyperlink("Github", "https://github.com/Cold-Mint/GlimmerWorks"));
     hyperlinks_.push_back(Hyperlink("Discord", "https://discord.com/invite/CfppC9WHw8"));
+    hyperlinks_.push_back(Hyperlink("itch.io", "https://cold-mint.itch.io/glimmerworks"));
     hyperlinks_.push_back(Hyperlink("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"));
     copyright_ = GetCopyrightString();
     appContext->PlayMainMenuBGM();

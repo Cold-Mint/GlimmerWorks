@@ -11,9 +11,9 @@ namespace glimmer {
     public:
         void SetWorldSeed(int worldSeed) override;
 
-        StructureInfo Generate(TileVector2D startPosition, StructureResource *structureResource) override;
+        std::optional<StructureInfo>
+        Generate(TileVector2D startPosition, IStructureResource *structureResource) override;
 
-
-        std::string GetStructureGeneratorId() override;
+        [[nodiscard]] StructureGeneratorType GetStructureGeneratorType() const override;
     };
 }

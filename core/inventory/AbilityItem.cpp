@@ -18,12 +18,12 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
                                                                              const AbilityItemResource *itemResource,
                                                                              const ResourceRef &resourceRef) {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
-    const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
+    const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name);
     if (nameRes != nullptr) {
         name = nameRes->value;
     }
     std::optional<std::string> description;
-    auto descriptionRes = appContext->GetResourceLocator()->FindString(itemResource->description);
+    auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description);
     if (descriptionRes != nullptr) {
         description = descriptionRes->value;
     }
@@ -37,7 +37,7 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), name,
                                          description,
                                          appContext->GetResourceLocator()->FindTexture(
-                                             itemResource->texture), std::move(itemAbility),
+                                             &itemResource->texture), std::move(itemAbility),
                                          itemResource->canUseAlone, resourceRef);
 }
 

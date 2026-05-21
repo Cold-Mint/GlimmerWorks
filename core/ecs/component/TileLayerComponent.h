@@ -11,6 +11,7 @@
 #include "core/math/Vector2DI.h"
 #include "core/world/generator/TileLayerType.h"
 #include "SDL3/SDL_rect.h"
+#include "src/saves/tile_state.pb.h"
 using TileVector2D = glimmer::Vector2DI;
 
 namespace glimmer {
@@ -23,7 +24,14 @@ namespace glimmer {
      * Transform2DComponent组件的位置不会影响坐标转换。
      */
     class TileLayerComponent final : public GameComponent {
-        [[nodiscard]] Tile *GetTile(TileLayerType layerType, const TileVector2D &tilePos) const;
+        WorldContext *worldContext_;
+        TileLayerType tileLayerType_;
+        TileVector2D focusPosition_ = TileVector2D{};
+
+        [[nodiscard]] const Tile *GetTile(TileLayerType layerType, const TileVector2D &tilePos) const;
+
+        [[nodiscard]] std::shared_ptr<Tile>
+        GetTilePtr(TileLayerType layerType, const TileVector2D &tilePos) const;
 
         /**
          * GetTopVisibleTile
@@ -33,8 +41,8 @@ namespace glimmer {
          * @param tilePos
          * @return
          */
-        [[nodiscard]] static std::vector<Tile *> GetTopVisibleTiles(const Chunk *chunk, uint8_t layerFilter,
-                                                                    const TileVector2D &tilePos);
+        [[nodiscard]] static std::vector<const Tile *> GetTopVisibleTiles(const Chunk *chunk, uint8_t layerFilter,
+                                                                          const TileVector2D &tilePos);
 
     public:
         /**
@@ -68,30 +76,25 @@ namespace glimmer {
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<Tile *> > > GetTopVisibleTilesInViewport(
+        [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<const Tile *> > > GetTopVisibleTilesInViewport(
             uint8_t layerFilter,
             const SDL_FRect &worldViewport) const;
 
-        /**
-         * Set Tile
-         * 设置瓦片
-         * @param tilePos tilePos 瓦片坐标
-         * @param tile tile 瓦片
-         * @return If the block to which the tile belongs has not yet been loaded, return false 如果放置瓦片所属区块尚未加载，则返回false
-         */
-        [[nodiscard]] bool SetTile(const TileVector2D &tilePos, std::unique_ptr<Tile> tile) const;
 
-        /**
-         * GetSelfLayerTile
-         * 获取子身图层瓦片的信息
-         * @param tilePos 瓦片坐标
-         * @return Tile 瓦片信息
-         */
-        [[nodiscard]] Tile *GetSelfLayerTile(const TileVector2D &tilePos) const;
+        [[nodiscard]] const Tile *GetSelfLayerTile(const TileVector2D &tilePos) const;
 
-        [[nodiscard]] std::shared_ptr<Tile> ReplaceTile(const TileVector2D &tileVector2d,
-                                                        const std::shared_ptr<Tile> &newTile) const;
+        [[nodiscard]] std::shared_ptr<Tile> GetSelfLayerTilePtr(const TileVector2D &tilePos) const;
 
+        [[nodiscard]] bool CommitTileState(
+            TileLayerType layerType, const TileVector2D &tilePos, bool fallback) const;
+
+        [[nodiscard]] TileStateMessage *GetTileStatePtr(
+            TileLayerType layerType,
+            const TileVector2D &tilePos) const;
+
+        [[nodiscard]] const TileStateMessage *GetTileState(
+            TileLayerType layerType,
+            const TileVector2D &tilePos) const;
 
         [[nodiscard]] TileLayerType GetTileLayerType() const;
 
@@ -109,16 +112,12 @@ namespace glimmer {
          */
         [[nodiscard]] const TileVector2D &GetFocusPosition() const;
 
+
         explicit TileLayerComponent(WorldContext *worldContext,
                                     const TileLayerType tileLayerType) : worldContext_(worldContext), tileLayerType_(
                                                                              tileLayerType) {
         }
 
         [[nodiscard]] uint32_t GetId() override;
-
-    private:
-        WorldContext *worldContext_;
-        TileLayerType tileLayerType_;
-        TileVector2D focusPosition_ = TileVector2D{};
     };
 }

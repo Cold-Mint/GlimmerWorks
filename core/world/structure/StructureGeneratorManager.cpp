@@ -5,22 +5,22 @@
 #include "StructureGeneratorManager.h"
 
 void glimmer::StructureGeneratorManager::SetWorldSeed(const int worldSeed) {
-    for (auto &structureGenerator: structureGeneratorMap_) {
+    for (const auto &structureGenerator: structureGeneratorMap_) {
         structureGenerator.second->SetWorldSeed(worldSeed);
     }
 }
 
 void glimmer::StructureGeneratorManager::RegisterStructureGenerator(
     std::unique_ptr<IStructureGenerator> structureGenerator) {
-    const std::string id = structureGenerator->GetStructureGeneratorId();
-    structureGeneratorMap_.emplace(id, std::move(structureGenerator));
+    const StructureGeneratorType type = structureGenerator->GetStructureGeneratorType();
+    structureGeneratorMap_.emplace(type, std::move(structureGenerator));
 }
 
-std::optional<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(TileVector2D structuralOrigin,
-    StructureResource *structureResource) {
-    const std::string &generatorId = structureResource->generatorId;
-    if (!structureGeneratorMap_.contains(generatorId)) {
+std::optional<glimmer::StructureInfo> glimmer::StructureGeneratorManager::Generate(const TileVector2D structuralOrigin,
+    IStructureResource *structureResource) {
+    const auto type = static_cast<StructureGeneratorType>(structureResource->generatorId);
+    if (!structureGeneratorMap_.contains(type)) {
         return std::nullopt;
     }
-    return structureGeneratorMap_[generatorId]->Generate(structuralOrigin, structureResource);
+    return structureGeneratorMap_[type]->Generate(structuralOrigin, structureResource);
 }

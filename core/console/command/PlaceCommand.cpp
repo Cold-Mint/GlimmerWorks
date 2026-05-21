@@ -3,8 +3,8 @@
 //
 
 #include "PlaceCommand.h"
-#include "../../scene/AppContext.h"
-#include "../../world/WorldContext.h"
+#include "core/scene/AppContext.h"
+#include "core/world/WorldContext.h"
 #include "core/world/generator/ChunkPhysicsHelper.h"
 #include "fmt/format.h"
 
@@ -58,7 +58,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender *commandSender, const Co
     std::string type = commandArgs->AsString(1);
     if (type == "structure") {
         auto structureId = commandArgs->AsResourceRef(2, Structure);
-        StructureResource *structureResource = appContext_->GetStructureManager()->Find(
+        IStructureResource *structureResource = appContext_->GetStructureManager()->Find(
             structureId->GetPackageId(), structureId->GetResourceKey());
         if (structureResource == nullptr) {
             return false;
@@ -79,27 +79,40 @@ bool glimmer::PlaceCommand::Execute(const CommandSender *commandSender, const Co
             return false;
         }
         StructureInfo &structureInfo = structureInfoOptional.value();
-        TileVector2D minPos = structureInfo.GetMinPosition();
-        for (auto &[coord, resourceRef]: structureInfo.GetStructureMap()) {
-            int localX = coord.x - minPos.x;
-            int localY = coord.y - minPos.y;
-            TileVector2D position =
-                    tilePosition + TileVector2D(localX, localY);
-            Chunk *chunk =
-                    worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(position));
-            if (chunk == nullptr) {
-                continue;
-            }
-            auto *tileResource =
-                    appContext_->GetResourceLocator()->FindTileRaw(resourceRef);
-            if (tileResource == nullptr) {
-                continue;
-            }
+        const int baseX = tilePosition.x;
+        const int baseY = tilePosition.y;
 
-            chunk->SetTile(
-                Chunk::TileCoordinatesToChunkRelativeCoordinates(position),
-                tileInstancePool->CreateTile(appContext_, tileResource, resourceRef));
+        Chunk *currentChunk = nullptr;
+        Vector2DI currentChunkCoord = {INT_MIN, INT_MIN};
+        for (auto &[tileLayerType, tileMap]: structureInfo.GetStructureMap()) {
+            for (auto &[coord, resourceRef]: tileMap) {
+                const int worldX = baseX + coord.x;
+                const int worldY = baseY + coord.y;
+                const int chunkX = worldX & ~CHUNK_MASK;
+                const int chunkY = worldY & ~CHUNK_MASK;
+                const int relativeX = worldX & CHUNK_MASK;
+                const int relativeY = worldY & CHUNK_MASK;
+                Vector2DI chunkCoord{chunkX, chunkY};
+                if (chunkCoord != currentChunkCoord) {
+                    currentChunkCoord = chunkCoord;
+                    currentChunk = worldContext_->GetChunk(
+                        Chunk::TileCoordinatesToChunkVertexCoordinates(chunkCoord)
+                    );
+                }
+                if (currentChunk == nullptr) {
+                    continue;
+                }
+                auto *tileResource = appContext_->GetResourceLocator()->FindTileRaw(&resourceRef);
+                if (tileResource == nullptr) {
+                    continue;
+                }
+                const int index = relativeY << CHUNK_SHIFT | relativeX;
+                TileStateMessage *tileStateMessage = currentChunk->GetTileState(tileLayerType, index);
+                resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+                currentChunk->CommitTileState(tileLayerType, index, false);
+            }
         }
+
         return true;
     }
     return false;

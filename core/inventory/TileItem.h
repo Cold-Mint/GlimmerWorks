@@ -15,7 +15,7 @@ namespace glimmer {
     public:
         ~TileItem() override = default;
 
-        explicit TileItem(const std::shared_ptr<Tile> &tile);
+        explicit TileItem(const std::shared_ptr<Tile> &tile,const ResourceRef& resourceRef);
 
         [[nodiscard]] const std::string &GetId() const override;
 

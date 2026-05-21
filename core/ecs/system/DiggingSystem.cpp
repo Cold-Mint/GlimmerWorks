@@ -16,9 +16,8 @@
 
 
 bool glimmer::DiggingSystem::BreakTile(WorldContext *worldContext, const TileLayerComponent *tileLayerComponent,
-                                       const TileVector2D tilePosition, const bool precisionMining,
-                                       const bool overwrite,
-                                       const std::shared_ptr<Tile> &newTile) {
+                                       TileVector2D tilePosition, bool precisionMining, bool overwrite,
+                                       ResourceRef newTileRef) {
     if (worldContext == nullptr || tileLayerComponent == nullptr) {
         return false;
     }
@@ -26,19 +25,25 @@ bool glimmer::DiggingSystem::BreakTile(WorldContext *worldContext, const TileLay
     if (appContext == nullptr) {
         return false;
     }
-    const Tile *currentTile = tileLayerComponent->GetSelfLayerTile(tilePosition);
-    if (currentTile == nullptr) {
-        return false;
-    }
-    if (overwrite && !currentTile->IsOverwritable()) {
-        return false;
-    }
-    if (!overwrite && !currentTile->IsBreakable()) {
-        return false;
-    }
-    auto oldTile = tileLayerComponent->ReplaceTile(
-        tilePosition, newTile);
+    const auto oldTile = tileLayerComponent->GetSelfLayerTilePtr(tilePosition);
     if (oldTile == nullptr) {
+        return false;
+    }
+    if (overwrite && !oldTile->IsOverwritable()) {
+        return false;
+    }
+    if (!overwrite && !oldTile->IsBreakable()) {
+        return false;
+    }
+    TileStateMessage *tileStateMessage = tileLayerComponent->GetTileStatePtr(
+        tileLayerComponent->GetTileLayerType(), tilePosition);
+    ResourceRef oldResourceRef;
+    oldResourceRef.ReadResourceRefMessage(tileStateMessage->resourceref());
+    newTileRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+    if (!tileLayerComponent->CommitTileState(tileLayerComponent->GetTileLayerType(), tilePosition, false)) {
+        //If the placement fails, then revert to the previous resource reference.
+        //如果放置失败了那么还原到之前的资源引用。
+        oldResourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
         return false;
     }
     auto *breakSFX = oldTile->GetBreakSFX();
@@ -58,8 +63,7 @@ bool glimmer::DiggingSystem::BreakTile(WorldContext *worldContext, const TileLay
         droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
         droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
                                                       TileLayerComponent::TileToWorld(tilePosition),
-                                                      std::make_unique<TileItem>(
-                                                          std::move(oldTile)),
+                                                      std::make_unique<TileItem>(oldTile, oldResourceRef),
                                                       0));
         return true;
     }
@@ -125,8 +129,7 @@ void glimmer::DiggingSystem::Update(float delta) {
             for (auto point: diggingComponent->GetMiningRangeData()->GetPoints()) {
                 const TileVector2D tilePosition = TileLayerComponent::WorldToTile(point);
                 BreakTile(worldContext_, tileLayer, tilePosition, diggingComponent->IsPrecisionMining(), false,
-                          tileInstancePool->CreateTile(appContext, tileResourceManager->GetAirResource(tileLayerType),
-                                                       TileResourceManager::GetAirResourceRef(tileLayerType)));
+                          TileResourceManager::GetAirResourceRef(tileLayerType));
             }
             // Reset digging after break
             // 破坏方块重置挖掘
@@ -146,7 +149,7 @@ void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {
             resourceRef.SetResourceType(Texture);
             resourceRef.SetResourceKey("cracks/cracks_" + std::to_string(i));
             textureList.push_back(appContext->GetResourceLocator()->FindTexture(
-                resourceRef
+                &resourceRef
             ));
         }
         cacheTexture = true;

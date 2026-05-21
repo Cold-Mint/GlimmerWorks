@@ -66,7 +66,7 @@ bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const Com
             return false;
         }
         ResourceRef &resourceRef = lootId.value();
-        LootResource *lootResource = appContext_->GetResourceLocator()->FindLoot(resourceRef);
+        LootResource *lootResource = appContext_->GetResourceLocator()->FindLoot(&resourceRef);
         if (lootResource == nullptr) {
             return false;
         }

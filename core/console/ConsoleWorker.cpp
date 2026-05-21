@@ -10,7 +10,6 @@
 
 
 void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
-    // pthread_setname_np(thread_.native_handle(), "ConsoleWorker");
     while (!stopToken.stop_requested()) {
         std::unique_lock lock(commandMutex_);
         cv_.wait(lock, [this, &stopToken] {

@@ -5,7 +5,7 @@
 #include <string>
 
 #include "core/Constants.h"
-#include "core/ISignable.h"
+#include "core/IFingerprintable.h"
 #include "src/core/resource_ref.pb.h"
 #include "toml11/spec.hpp"
 
@@ -28,7 +28,7 @@ namespace glimmer {
     //
     //@endContent
 
-    class ResourceRef : public ISignable {
+    class ResourceRef : public IFingerprintable {
         std::string packId_ = RESOURCE_REF_SELF;
         ResourceTypeMessage resourceType_ = ResourceTypeMessage::None;
         std::string resourceKey_;
@@ -76,7 +76,7 @@ namespace glimmer {
 
         void SetResourceKey(const std::string &resourceKey);
 
-        [[nodiscard]] uint64_t GetSignature() const override;
+        [[nodiscard]] uint64_t GetFingerprint() const override;
 
         [[nodiscard]] std::string GetResourceKey() const;
     };

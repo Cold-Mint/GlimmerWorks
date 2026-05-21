@@ -46,7 +46,7 @@ bool glimmer::SummonCommand::Execute(const CommandSender *commandSender, const C
         return false;
     }
     ResourceRef &resourceRef = resourceRefOptional.value();
-    MobResource *mobResource = appContext_->GetResourceLocator()->FindMob(resourceRef);
+    MobResource *mobResource = appContext_->GetResourceLocator()->FindMob(&resourceRef);
     if (mobResource == nullptr) {
         return false;
     }

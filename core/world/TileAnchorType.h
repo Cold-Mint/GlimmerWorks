@@ -6,7 +6,7 @@
 #include <cstdint>
 
 namespace glimmer {
-    enum class TileAnchor: uint8_t {
+    enum class TileAnchorType: uint8_t {
         TopLeft,
         TopCenter,
         TopRight,

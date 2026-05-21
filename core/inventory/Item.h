@@ -25,7 +25,7 @@ namespace glimmer {
 
         std::function<void(ContainerChangeType, size_t)> onAmountChanged_ = nullptr;
 
-        ResourceRef resourceRef_{};
+        ResourceRef resourceRef_;
 
     public:
         virtual ~Item() = default;

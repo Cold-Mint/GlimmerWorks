@@ -13,11 +13,11 @@ namespace glimmer {
     class ResourceRef;
 
     class TileInstancePool {
+        friend class Chunk;
         std::unordered_map<u_int64_t, std::weak_ptr<Tile> > tileInstanceMap_;
 
     public:
         std::shared_ptr<Tile> CreateTile(const AppContext *appContext,
-                                         const TileResource *tileResource,
-                                         const ResourceRef &resourceRef);
+                                         const TileResource *tileResource, uint64_t fingerprint);
     };
 }

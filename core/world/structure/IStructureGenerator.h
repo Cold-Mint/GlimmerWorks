@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "StructureGeneratorType.h"
 #include "StructureInfo.h"
 #include "core/mod/Resource.h"
 
@@ -23,14 +24,14 @@ namespace glimmer {
          * @param structureResource
          * @return
          */
-        virtual StructureInfo Generate(TileVector2D startPosition,
-                                       StructureResource *structureResource) = 0;
+        virtual std::optional<StructureInfo> Generate(TileVector2D startPosition,
+                                                      IStructureResource *structureResource) = 0;
 
         /**
          * Get the structure generator ID
          * 获取结构生成器Id
          * @return
          */
-        virtual std::string GetStructureGeneratorId() = 0;
+        [[nodiscard]] virtual StructureGeneratorType GetStructureGeneratorType() const = 0;
     };
 }

@@ -52,7 +52,7 @@ void glimmer::BiomeBGMSystem::Update(float delta) {
     if (biomeResource == nullptr || biomeResource == biomeResource_) {
         return;
     }
-    std::shared_ptr<MIX_Audio> audio = resourceLocator->FindAudio(biomeResource->bgm);
+    std::shared_ptr<MIX_Audio> audio = resourceLocator->FindAudio(&biomeResource->bgm);
     if (audio == nullptr) {
         return;
     }

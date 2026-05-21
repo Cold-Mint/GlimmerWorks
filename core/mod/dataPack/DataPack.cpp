@@ -140,35 +140,6 @@ bool glimmer::DataPack::LoadInitialInventoryResourceFromFile(const std::string &
     return true;
 }
 
-bool glimmer::DataPack::
-LoadStructureResourceFromFile(const std::string &path, StructureManager *structureManager) const {
-    auto data =
-            virtualFileSystem_->ReadFile(path);
-    if (!data.has_value()) {
-        LogCat::e("Failed to load toml file: ", path);
-        return false;
-    }
-    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
-    if (searchPath.empty()) {
-        return false;
-    }
-    const toml::value value = toml::parse_str(
-        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
-    auto structureResource = std::make_unique<StructureResource>(toml::get<StructureResource>(value));
-    structureResource->packId = manifest_.id;
-    structureResource->generatorConfig.UpdateArgs(manifest_.id);
-    for (auto &ref: structureResource->data) {
-        ref.SetSelfPackageId(manifest_.id);
-    }
-    for (auto &condition: structureResource->condition) {
-        condition.config.UpdateArgs(manifest_.id);
-    }
-    for (auto &tile_info: structureResource->tileInfo) {
-        tile_info.tile.SetSelfPackageId(manifest_.id);
-    }
-    structureManager->AddResource(std::move(structureResource));
-    return true;
-}
 
 bool glimmer::DataPack::LoadTileResourceFromFile(const std::string &path, TileResourceManager *tileManager) const {
     auto data =
@@ -314,6 +285,50 @@ bool glimmer::DataPack::LoadMobResourceFromFile(const std::string &path, MobMana
     return true;
 }
 
+bool glimmer::DataPack::LoadStructureResourceFromFile(const std::string &path, StructureManager *structureManager,
+                                                      StructureGeneratorType structureGeneratorType) const {
+    auto data =
+            virtualFileSystem_->ReadFile(path);
+    if (!data.has_value()) {
+        LogCat::e("Failed to load toml file: ", path);
+        return false;
+    }
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    if (searchPath.empty()) {
+        return false;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
+    std::unique_ptr<IStructureResource> structureResource;
+    switch (structureGeneratorType) {
+        case StructureGeneratorType::None:
+            break;
+        case StructureGeneratorType::Tree:
+            structureResource = std::make_unique<TreeStructureResource>(
+                toml::get<TreeStructureResource>(value));
+            break;
+        case StructureGeneratorType::Static:
+            std::unique_ptr<StaticStructureResource> staticStructureResource = std::make_unique<
+                StaticStructureResource>(
+                toml::get<StaticStructureResource>(value));
+            for (auto &tile_info: staticStructureResource->tileInfo) {
+                tile_info.tile.SetSelfPackageId(manifest_.id);
+            }
+            structureResource = std::move(staticStructureResource);
+            break;
+    }
+    structureResource->packId = manifest_.id;
+    structureResource->generatorId = static_cast<uint8_t>(structureGeneratorType);
+    for (auto &ref: structureResource->data) {
+        ref.SetSelfPackageId(manifest_.id);
+    }
+    for (auto &condition: structureResource->condition) {
+        condition.config.UpdateArgs(manifest_.id);
+    }
+    structureManager->AddResource(std::move(structureResource));
+    return true;
+}
+
 bool glimmer::DataPack::LoadShapeResourceFromFile(const std::string &path, ShapeManager *shapeManager,
                                                   const ShapeType type) const {
     const auto data =
@@ -328,34 +343,30 @@ bool glimmer::DataPack::LoadShapeResourceFromFile(const std::string &path, Shape
     }
     const toml::value value = toml::parse_str(
         tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
+    std::unique_ptr<IShapeResource> shapeResource;
     switch (type) {
         case ShapeType::CIRCLE: {
-            auto circularShapeResource = std::make_unique<CircularShapeResource>(
+            shapeResource = std::make_unique<CircularShapeResource>(
                 toml::get<CircularShapeResource>(value));
-            circularShapeResource->packId = manifest_.id;
-            circularShapeResource->shapeType = static_cast<uint8_t>(ShapeType::CIRCLE);
-            shapeManager->Register(std::move(circularShapeResource));
+            shapeResource->shapeType = static_cast<uint8_t>(ShapeType::CIRCLE);
             break;
         }
 
         case ShapeType::RECTANGLE: {
-            auto rectangleShapeResource = std::make_unique<RectangleShapeResource>(
+            shapeResource = std::make_unique<RectangleShapeResource>(
                 toml::get<RectangleShapeResource>(value));
-            rectangleShapeResource->packId = manifest_.id;
-            rectangleShapeResource->shapeType = static_cast<uint8_t>(ShapeType::RECTANGLE);
-            shapeManager->Register(std::move(rectangleShapeResource));
+            shapeResource->shapeType = static_cast<uint8_t>(ShapeType::RECTANGLE);
             break;
         }
         case ShapeType::ROUNDED_RECTANGLE: {
-            auto roundedRectangleShapeResource = std::make_unique<RoundedRectangleShapeResource>(
+            shapeResource = std::make_unique<RoundedRectangleShapeResource>(
                 toml::get<RoundedRectangleShapeResource>(value));
-            roundedRectangleShapeResource->packId = manifest_.id;
-            roundedRectangleShapeResource->shapeType = static_cast<uint8_t>(ShapeType::ROUNDED_RECTANGLE);
-            shapeManager->Register(std::move(roundedRectangleShapeResource));
+            shapeResource->shapeType = static_cast<uint8_t>(ShapeType::ROUNDED_RECTANGLE);
             break;
         }
     }
-
+    shapeResource->packId = manifest_.id;
+    shapeManager->Register(std::move(shapeResource));
     return true;
 }
 
@@ -593,9 +604,17 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) const {
                 total++;
             }
         }
-        if (dataType == DATA_FILE_TYPE_STRUCTURE) {
+        if (dataType == DATA_FILE_TYPE_TREE_STRUCTURE) {
             LogCat::d("Loading structure file: ", file);
-            if (LoadStructureResourceFromFile(file, appContext->GetStructureManager())) {
+            if (LoadStructureResourceFromFile(file, appContext->GetStructureManager(),
+                                              StructureGeneratorType::Tree)) {
+                total++;
+            }
+        }
+        if (dataType == DATA_FILE_TYPE_STATIC_STRUCTURE) {
+            LogCat::d("Loading structure file: ", file);
+            if (LoadStructureResourceFromFile(file, appContext->GetStructureManager(),
+                                              StructureGeneratorType::Static)) {
                 total++;
             }
         }

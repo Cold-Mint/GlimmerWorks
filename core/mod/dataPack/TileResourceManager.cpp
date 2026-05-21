@@ -8,6 +8,8 @@
 #include "core/world/generator/TileLayerType.h"
 #include "core/world/generator/TilePhysicsType.h"
 
+static uint64_t airResourceRefFingerprint_ = 0;
+static uint64_t airWallResourceRefFingerprint_ = 0;
 
 glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const std::string &resourceId,
                                                                      TilePhysicsType physicsType,
@@ -61,6 +63,17 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const std::
     backLightMaskRef.SetResourceKey(backLightMaskKey);
     tileResource->backLightMask = backLightMaskRef;
     return AddResource(std::move(tileResource));
+}
+
+glimmer::TileResourceManager::TileResourceManager() {
+    ResourceRef airResourceRef;
+    airResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    airResourceRef.SetResourceType(ResourceTypeMessage::Tile);
+    airResourceRef.SetResourceKey(TILE_ID_AIR);
+
+    airResourceRefFingerprint_ = airResourceRef.GetFingerprint();
+    airResourceRef.SetResourceKey(TILE_ID_AIR_WALL);
+    airWallResourceRefFingerprint_ = airResourceRef.GetFingerprint();
 }
 
 void glimmer::TileResourceManager::InitBuiltinTiles() {
@@ -159,16 +172,23 @@ glimmer::TileResource *glimmer::TileResourceManager::GetAirResource(const TileLa
     return airWall_;
 }
 
-glimmer::ResourceRef glimmer::TileResourceManager::GetAirResourceRef(const TileLayerType tileLayerType) {
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(Tile);
+uint64_t glimmer::TileResourceManager::GetAirResourceRefFingerprint(const TileLayerType tileLayerType) {
     if (tileLayerType == Ground) {
-        resourceRef.SetResourceKey(TILE_ID_AIR);
-    } else {
-        resourceRef.SetResourceKey(TILE_ID_AIR_WALL);
+        return airResourceRefFingerprint_;
     }
-    return resourceRef;
+    return airWallResourceRefFingerprint_;
+}
+
+glimmer::ResourceRef glimmer::TileResourceManager::GetAirResourceRef(TileLayerType tileLayerType) {
+    ResourceRef airResourceRef;
+    airResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    airResourceRef.SetResourceType(ResourceTypeMessage::Tile);
+    if (tileLayerType == Ground) {
+        airResourceRef.SetResourceKey(TILE_ID_AIR);
+    } else {
+        airResourceRef.SetResourceKey(TILE_ID_AIR_WALL);
+    }
+    return airResourceRef;
 }
 
 glimmer::TileResource *glimmer::TileResourceManager::FindTileRaw(const std::string &packId, const std::string &key) {

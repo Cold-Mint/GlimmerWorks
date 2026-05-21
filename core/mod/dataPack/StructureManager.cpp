@@ -6,8 +6,8 @@
 
 #include "core/log/LogCat.h"
 
-glimmer::StructureResource *glimmer::StructureManager::AddResource(
-    std::unique_ptr<StructureResource> structureResource) {
+glimmer::IStructureResource *glimmer::StructureManager::AddResource(
+    std::unique_ptr<IStructureResource> structureResource) {
     LogCat::i("Registering tile resource: packId = ", structureResource->packId,
               ", resourceId = ", structureResource->resourceId);
     auto &slot = structureMap_[structureResource->packId][structureResource->resourceId];
@@ -16,7 +16,7 @@ glimmer::StructureResource *glimmer::StructureManager::AddResource(
     return slot.get();
 }
 
-glimmer::StructureResource *glimmer::StructureManager::Find(const std::string &packId, const std::string &key) {
+glimmer::IStructureResource *glimmer::StructureManager::Find(const std::string &packId, const std::string &key) {
     LogCat::d("Searching for structure resource: packId = ", packId, ", key = ", key);
     const auto packIt = structureMap_.find(packId);
     if (packIt == structureMap_.end()) {
@@ -35,7 +35,7 @@ glimmer::StructureResource *glimmer::StructureManager::Find(const std::string &p
     return keyIt->second.get();
 }
 
-const std::vector<glimmer::StructureResource *> &glimmer::StructureManager::GetAll() const {
+const std::vector<glimmer::IStructureResource *> &glimmer::StructureManager::GetAll() const {
     return structureVector_;
 }
 

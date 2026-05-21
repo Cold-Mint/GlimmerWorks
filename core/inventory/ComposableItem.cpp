@@ -55,19 +55,19 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
         return nullptr;
     }
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
-    const auto nameRes = appContext->GetResourceLocator()->FindString(itemResource->name);
+    const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name);
     if (nameRes != nullptr) {
         name = nameRes->value;
     }
     std::optional<std::string> description;
-    auto descriptionRes = appContext->GetResourceLocator()->FindString(itemResource->description);
+    auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description);
     if (descriptionRes != nullptr) {
         description = descriptionRes->value;
     }
     std::unique_ptr<ComposableItem> result = std::make_unique<ComposableItem>(
         Resource::GenerateId(*itemResource), name,
         description,
-        appContext->GetResourceLocator()->FindTexture(itemResource->texture),
+        appContext->GetResourceLocator()->FindTexture(&itemResource->texture),
         itemResource->slotSize, resourceRef);
     //If the capability is not specified within the resource reference, then the default capability will be loaded.
     //如果没有在资源引用内指定能力，那么加载默认能力。

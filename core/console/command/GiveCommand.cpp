@@ -63,7 +63,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, const Com
             return false;
         }
         ResourceRef &resourceRef = itemId.value();
-        auto tileResource = appContext_->GetResourceLocator()->FindTileRaw(resourceRef);
+        auto tileResource = appContext_->GetResourceLocator()->FindTileRaw(&resourceRef);
         if (tileResource == nullptr) {
             onMessageRef(appContext_->GetLangsResources()->tileResourceIsNull);
             return false;
@@ -79,7 +79,8 @@ bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, const Com
             return false;
         }
         auto tileItem = std::make_unique<
-            TileItem>(tileInstancePool->CreateTile(appContext_, tileResource, resourceRef));
+            TileItem>(tileInstancePool->CreateTile(appContext_, tileResource, resourceRef.GetFingerprint()),
+                      resourceRef);
         if (size >= 4) {
             if (const int number = commandArgs->AsInt(3); number > 1) {
                 tileItem->SetAmount(number);
@@ -96,7 +97,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, const Com
             return false;
         }
         ResourceRef &resourceRef = itemId.value();
-        auto itemResource = appContext_->GetResourceLocator()->FindComposableItem(resourceRef);
+        auto itemResource = appContext_->GetResourceLocator()->FindComposableItem(&resourceRef);
         if (itemResource == nullptr) {
             onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;
@@ -129,7 +130,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, const Com
             return false;
         }
         ResourceRef &resourceRef = itemId.value();
-        auto itemResource = appContext_->GetResourceLocator()->FindAbilityItem(resourceRef);
+        auto itemResource = appContext_->GetResourceLocator()->FindAbilityItem(&resourceRef);
         if (itemResource == nullptr) {
             onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;

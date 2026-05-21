@@ -220,7 +220,7 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     if (miningEfficiency != 0.0F) {
         std::string tip = fmt::format(
             fmt::runtime(langsResources->efficiencyTip),
-            fmt::format("{0:+.2f}", miningEfficiency * 100)
+            fmt::format("{0:+.0f}", miningEfficiency * 100)
         );
         SDL_Surface *sVar = TTF_RenderText_Blended(
             appContext->GetFont(),
@@ -239,7 +239,7 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer *renderer, const Item *
     if (fumbleProbability != 0.0F) {
         std::string tip = fmt::format(
             fmt::runtime(langsResources->fumbleTip),
-            (fumbleProbability > 0 ? "+" : "") + std::to_string(fumbleProbability * 100));
+            (fumbleProbability > 0 ? "+" : "") + fmt::format("{0:.0f}", fumbleProbability * 100));
         SDL_Surface *sVar = TTF_RenderText_Blended(
             appContext->GetFont(),
             tip.c_str(),

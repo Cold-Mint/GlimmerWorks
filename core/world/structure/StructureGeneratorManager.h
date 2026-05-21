@@ -9,13 +9,13 @@
 
 namespace glimmer {
     class StructureGeneratorManager {
-        std::unordered_map<std::string, std::unique_ptr<IStructureGenerator> > structureGeneratorMap_{};
+        std::unordered_map<StructureGeneratorType, std::unique_ptr<IStructureGenerator> > structureGeneratorMap_{};
 
     public:
-        void SetWorldSeed(const int worldSeed);
+        void SetWorldSeed(int worldSeed);
 
         void RegisterStructureGenerator(std::unique_ptr<IStructureGenerator> structureGenerator);
 
-        std::optional<StructureInfo> Generate(TileVector2D structuralOrigin, StructureResource *structureResource);
+        std::optional<StructureInfo> Generate(TileVector2D structuralOrigin, IStructureResource *structureResource);
     };
 }

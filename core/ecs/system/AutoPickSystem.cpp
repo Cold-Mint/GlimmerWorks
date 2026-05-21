@@ -17,13 +17,13 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem
     RequireComponent<AutoPickComponent>();
     RequireComponent<MagnetComponent>();
     RequireComponent<ItemContainerComponent>();
-    ResourceRef ref{};
-    ref.SetSelfPackageId(RESOURCE_REF_CORE);
-    ref.SetResourceType(ResourceTypeMessage::Audio);
-    ref.SetResourceKey("sfx/pick_item");
-    AppContext *appContext = worldContext->GetAppContext();
+    const AppContext *appContext = worldContext->GetAppContext();
     if (appContext != nullptr) {
-        pickItemSFX_ = appContext->GetResourceLocator()->FindAudio(ref);
+        ResourceRef ref;
+        ref.SetSelfPackageId(RESOURCE_REF_CORE);
+        ref.SetResourceType(ResourceTypeMessage::Audio);
+        ref.SetResourceKey("sfx/pick_item");
+        pickItemSFX_ = appContext->GetResourceLocator()->FindAudio(&ref);
     }
 }
 

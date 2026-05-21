@@ -8,8 +8,9 @@
 namespace glimmer {
     class StaticStructureGenerator : public IStructureGenerator {
     public:
-        StructureInfo Generate(TileVector2D startPosition, StructureResource *structureResource) override;
+        std::optional<StructureInfo>
+        Generate(TileVector2D startPosition, IStructureResource *structureResource) override;
 
-        std::string GetStructureGeneratorId() override;
+        [[nodiscard]] StructureGeneratorType GetStructureGeneratorType() const override;
     };
 }

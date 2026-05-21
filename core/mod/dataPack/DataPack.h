@@ -21,6 +21,7 @@
 #include "core/mod/TomlTemplateExpander.h"
 #include "core/shape/ShapeManager.h"
 #include "core/shape/ShapeType.h"
+#include "core/world/structure/StructureGeneratorType.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {
@@ -63,7 +64,8 @@ namespace glimmer {
 
 
         [[nodiscard]] bool LoadStructureResourceFromFile(const std::string &path,
-                                                         StructureManager *structureManager) const;
+                                                         StructureManager *structureManager,
+                                                         StructureGeneratorType structureGeneratorType) const;
 
         [[nodiscard]] bool LoadTileResourceFromFile(const std::string &path, TileResourceManager *tileManager) const;
 

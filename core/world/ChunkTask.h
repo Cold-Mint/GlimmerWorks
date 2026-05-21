@@ -3,11 +3,11 @@
 //
 #pragma once
 #include "ChunkType.h"
-#include "core/ISignable.h"
+#include "core/IFingerprintable.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
 namespace glimmer {
-    class ChunkTask : public ISignable {
+    class ChunkTask : public IFingerprintable {
         ChunkType chunkType_ = None;
         TileVector2D chunkVertexCoordinates_;
         uint32_t distance_ = 0;
@@ -23,6 +23,6 @@ namespace glimmer {
 
         [[nodiscard]] const TileVector2D &GetChunkVertexCoordinates() const;
 
-        [[nodiscard]] uint64_t GetSignature() const override;
+        [[nodiscard]] uint64_t GetFingerprint() const override;
     };
 }

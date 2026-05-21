@@ -130,7 +130,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
     if (chunk == nullptr) {
         return;
     }
-    Tile *tile = chunk->GetTile(layerType, index);
+    const Tile *tile = chunk->GetTile(layerType, index);
     if (tile == nullptr) {
         return;
     }
@@ -145,7 +145,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
     const LightMaskResource *sideLightMaskResource = resourceLocator->FindLightMask(tile->GetSideLightMaskResource());
     if (sideLightMaskResource != nullptr) {
         const std::unique_ptr<Color> sideLightMaskColorPtr = resourceLocator->FindColor(
-            sideLightMaskResource->lightMaskColor);
+            &sideLightMaskResource->lightMaskColor);
         if (sideLightMaskColorPtr == nullptr) {
             return;
         }
@@ -160,7 +160,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
     const LightMaskResource *backLightMaskResource = resourceLocator->FindLightMask(tile->GetBackLightMaskResource());
     if (backLightMaskResource != nullptr) {
         const std::unique_ptr<Color> backLightMaskColorPtr = resourceLocator->FindColor(
-            backLightMaskResource->lightMaskColor);
+            &backLightMaskResource->lightMaskColor);
         if (backLightMaskColorPtr == nullptr) {
             return;
         }
@@ -176,7 +176,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk *chunk, const TileLayerT
         tile->GetLightSourceResource());
     if (lightSourceResource != nullptr) {
         const std::unique_ptr<Color> lightColorPtr = resourceLocator->
-                FindColor(lightSourceResource->lightColor);
+                FindColor(&lightSourceResource->lightColor);
         if (lightColorPtr == nullptr) {
             return;
         }
@@ -442,10 +442,6 @@ void glimmer::WorldContext::LoadChunkAt(TileVector2D position) {
                                                      std::shared_ptr<Tile>, const std::shared_ptr<Tile> &newTile) {
         OnChunkTileChange(chunk, newTile, layerType, index);
     });
-    newlyCreatedChunk->AddSetTileCallback(
-        [this](Chunk *chunk, int index, const std::shared_ptr<Tile> &tile, TileLayerType layerType) {
-            OnChunkTileChange(chunk, tile, layerType, index);
-        });
     chunks_.insert({position, std::move(newlyCreatedChunk)});
     chunksVersion_++;
 }

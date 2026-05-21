@@ -48,7 +48,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     }
     auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
     const float zoom = cameraComponent->GetZoom();
-    std::vector<std::pair<TileVector2D, std::vector<Tile *> > > visibleTiles =
+    std::vector<std::pair<TileVector2D, std::vector<const Tile *> > > visibleTiles =
             tileLayerComponent->GetTopVisibleTilesInViewport(Ground | BackGround, viewportRect);
     TileVector2D focusPosition = tileLayerComponent->GetFocusPosition();
     for (const auto &[tileCoord, tileList]: visibleTiles) {

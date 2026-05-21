@@ -458,7 +458,7 @@ void glimmer::AppContext::LoadMainMenuBGM() {
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(ResourceTypeMessage::Audio);
     resourceRef.SetResourceKey("bgm/main_menu");
-    mainMenuBGM_ = resourceLocator_->FindAudio(resourceRef);
+    mainMenuBGM_ = resourceLocator_->FindAudio(&resourceRef);
 }
 
 void glimmer::AppContext::PlayMainMenuBGM() const {
@@ -600,7 +600,7 @@ glimmer::AudioManager *glimmer::AppContext::GetAudioManager() const {
     return audioManager_.get();
 }
 
-glimmer::ConsoleWorker *glimmer::AppContext::GetConsoleWorker() {
+glimmer::ConsoleWorker *glimmer::AppContext::GetConsoleWorker() const {
     return consoleWorker_.get();
 }
 

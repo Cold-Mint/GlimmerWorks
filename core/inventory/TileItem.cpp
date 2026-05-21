@@ -13,8 +13,8 @@
 #include "core/ecs/system/DiggingSystem.h"
 
 
-glimmer::TileItem::TileItem(const std::shared_ptr<Tile> &tile) : tile_(tile) {
-    resourceRef_ = tile_->GetResourceRef();
+glimmer::TileItem::TileItem(const std::shared_ptr<Tile> &tile, const ResourceRef &resourceRef) : tile_(tile) {
+    resourceRef_ = resourceRef;
     maxStack_ = ITEM_MAX_STACK;
 }
 
@@ -99,7 +99,7 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
                 }
                 //The rectangular area where tiles are prohibited from being placed.
                 //禁止放置瓦片的矩形范围。
-                WorldVector2D transform2dWorldPos = transform2dComponent->GetPosition();
+                const WorldVector2D transform2dWorldPos = transform2dComponent->GetPosition();
                 auto forbiddenRect = SDL_FRect{
                     transform2dWorldPos.x - forbiddenZone->GetHeight() * HALF_TILE_SIZE + forbiddenZone->GetOffsetX() *
                     TILE_SIZE,
@@ -127,10 +127,7 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
                 audioManager->TryPlayFree(
                     AMBIENT, tile_->GetPlaceSFX(), 0);
             }
-
-            auto tile = std::make_unique<Tile>(*tile_);
-            tile->SetPlayerPlaced(true);
-            DiggingSystem::BreakTile(worldContext, tileLayer, targetPos, false, true, std::move(tile));
+            DiggingSystem::BreakTile(worldContext, tileLayer, targetPos, false, true, resourceRef_);
             (void) RemoveAmount(1);
         }
     }
@@ -146,5 +143,5 @@ const glimmer::AbilityConfig &glimmer::TileItem::GetAbilityConfig() const {
 }
 
 std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const {
-    return std::make_unique<TileItem>(std::make_unique<Tile>(*tile_));
+    return std::make_unique<TileItem>(tile_, resourceRef_);
 }

@@ -51,11 +51,11 @@ namespace glimmer {
 
         std::shared_ptr<MIX_Audio> ImplLoadAudioFromFile(const std::string &path, const Mods &modConfig);
 
-        std::shared_ptr<SDL_Texture> LoadTextureFromFile(AppContext *appContext, const ResourceRef &resourceRef);
+        std::shared_ptr<SDL_Texture> LoadTextureFromFile(AppContext *appContext, const ResourceRef *resourceRef);
 
-        std::shared_ptr<MIX_Audio> LoadAudioFromFile(AppContext *appContext, const ResourceRef &resourceRef);
+        std::shared_ptr<MIX_Audio> LoadAudioFromFile(AppContext *appContext, const ResourceRef *resourceRef);
 
-        ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef &resourceRef);
+        ColorResource *LoadColorResFromFile(const AppContext *appContext, const ResourceRef *resourceRef);
 
         std::shared_ptr<SDL_Texture> CreateTexture(Color accent,
                                                    Color base) const;

@@ -20,20 +20,6 @@ void glimmer::Chunk::ClearAttachedBodies() {
     attachedBodies_.clear();
 }
 
-size_t glimmer::Chunk::AddSetTileCallback(
-    const std::function<void(Chunk *chunk, int index, std::shared_ptr<Tile> tile, TileLayerType layerType)> &callBack) {
-    setTileCallback_.emplace_back(callBack);
-    return setTileCallback_.size() - 1;
-}
-
-bool glimmer::Chunk::RemoveSetTileCallback(const long index) {
-    if (setTileCallback_.size() <= index) {
-        return false;
-    }
-    setTileCallback_.erase(setTileCallback_.begin() + index);
-    return true;
-}
-
 size_t glimmer::Chunk::AddReplaceTileCallback(
     const std::function<void(Chunk *chunk, TileLayerType layerType, int index, std::shared_ptr<Tile> oldTile, std::
                              shared_ptr<Tile> newTile)> &callBack) {
@@ -64,21 +50,79 @@ TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const Til
     };
 }
 
-void glimmer::Chunk::SetTile(const TileVector2D pos, const std::shared_ptr<Tile> &tile) {
-    if (tile == nullptr) {
-        return;
+bool glimmer::Chunk::CommitTileState(const TileLayerType layerType, const int index, const bool fallback) {
+    if (index < 0 || index >= CHUNK_AREA) {
+        return false;
     }
-    SetTile(pos.y << CHUNK_SHIFT | pos.x, tile);
+    const TileStateMessage *tileStateMessage = GetTileState(layerType, index);
+    if (tileStateMessage == nullptr) {
+        return false;
+    }
+    //Check if it is necessary to rebuild the tiles.
+    //检查是否需要重建瓦片。
+    ResourceRef resourceRef;
+    resourceRef.ReadResourceRefMessage(tileStateMessage->resourceref());
+    const uint64_t fingerprint = resourceRef.GetFingerprint();
+    bool rebuildTile = false;
+    auto iterator = tileFingerprint_.find(layerType);
+    if (iterator == tileFingerprint_.end()) {
+        rebuildTile = true;
+    } else {
+        rebuildTile = iterator->second[index] != fingerprint;
+    }
+    if (rebuildTile) {
+        if (worldContext_ == nullptr) {
+            return false;
+        }
+        const AppContext *appContext = worldContext_->GetAppContext();
+        if (appContext == nullptr) {
+            return false;
+        }
+
+        const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+        if (resourceLocator == nullptr) {
+            return false;
+        }
+        const TileResource *tileResource = nullptr;
+        if (fallback) {
+            tileResource = resourceLocator->FindTileFallback(&resourceRef, layerType);
+        } else {
+            tileResource = resourceLocator->FindTileRaw(&resourceRef);
+        }
+        if (tileResource == nullptr) {
+            return false;
+        }
+        TileInstancePool *tileInstancePool = worldContext_->GetTileInstancePool();
+        if (tileInstancePool == nullptr) {
+            return false;
+        }
+
+        const std::shared_ptr<Tile> newTile = tileInstancePool->CreateTile(appContext, tileResource,
+                                                                           fingerprint);
+        if (newTile == nullptr) {
+            return false;
+        }
+        std::shared_ptr<Tile> oldTile = nullptr;
+        auto [tileIterator, tileInserted] = tiles_.try_emplace(layerType);
+        oldTile = tileIterator->second[index];
+        tileIterator->second[index] = newTile;
+        auto [tileFingerprintIterator, tileFingerprintInserted] = tileFingerprint_.try_emplace(layerType);
+        tileFingerprintIterator->second[index] = fingerprint;
+        InvokeReplaceTileCallback(this, layerType, index, oldTile, newTile);
+    }
+    return true;
 }
 
-void glimmer::Chunk::InvokeSetTileCallback(Chunk *chunk, const int index, const std::shared_ptr<Tile> &tile,
-                                           const TileLayerType layerType) const {
-    for (auto &tileCallback: setTileCallback_) {
-        tileCallback(chunk, index, tile, layerType);
+TileStateMessage *glimmer::Chunk::GetTileState(const TileLayerType layerType, const uint8_t index) const {
+    const auto it = tileState_.find(layerType);
+    if (it == tileState_.end()) {
+        return nullptr;
     }
+    return it->second[index].get();
 }
 
-void glimmer::Chunk::InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layerType, int index,
+
+void glimmer::Chunk::InvokeReplaceTileCallback(Chunk *chunk, const TileLayerType layerType, const int index,
                                                const std::shared_ptr<Tile> &oldTile,
                                                const std::shared_ptr<Tile> &newTile) const {
     for (auto &replaceTileCallback: replaceTileCallback_) {
@@ -86,7 +130,9 @@ void glimmer::Chunk::InvokeReplaceTileCallback(Chunk *chunk, TileLayerType layer
     }
 }
 
-glimmer::Chunk::Chunk(const TileVector2D &pos, const AnimConfig &animConfig) : position(pos) {
+glimmer::Chunk::Chunk(WorldContext *worldContext, const TileVector2D &pos,
+                      const AnimConfig &animConfig) : position(pos) {
+    worldContext_ = worldContext;
     chunkFadeAlpha_ = animConfig.chunkFadeInFrom;
     chunkFadeInTween_ = tweeny::tween<float>::from(animConfig.chunkFadeInFrom).to(animConfig.chunkFadeInTo).during(
         animConfig.chunkFadeinDuration * 1000).via(tweeny::easing::cubicOut);
@@ -100,48 +146,46 @@ void glimmer::Chunk::UpdateFadeInAnimation(const float delta) {
     }
 }
 
-void glimmer::Chunk::SetTile(const int index, const std::shared_ptr<Tile> &tile) {
-    if (tile == nullptr || index < 0 || index >= CHUNK_AREA) {
-        return;
+TileStateMessage *glimmer::Chunk::GetOrCreateTileState(const TileLayerType layerType, const int index) {
+    TileStateMessage *tileStateMessage = GetTileState(layerType, index);
+    if (tileStateMessage == nullptr) {
+        auto tileState = std::make_unique<TileStateMessage>();
+        auto [tileStateIterator, tileStateInserted] = tileState_.try_emplace(layerType);
+        tileStateIterator->second[index] = std::move(tileState);
+        return tileStateIterator->second[index].get();
     }
-    const TileLayerType targetLayerType = tile->GetLayerType();
-    auto [it, inserted] = tiles_.try_emplace(targetLayerType);
-    it->second[index] = tile;
-    InvokeSetTileCallback(this, index, tile, targetLayerType);
+    return tileStateMessage;
 }
 
 TileVector2D glimmer::Chunk::GetPosition() const {
     return position;
 }
 
-glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const int x, const int y) const {
-    return GetTile(layerType, y << CHUNK_SHIFT | x);
-}
-
-glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const int index) const {
+const glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const uint8_t index) const {
     const auto it = tiles_.find(layerType);
     if (it == tiles_.end()) {
-        return nullptr;
-    }
-    if (index < 0 || index >= CHUNK_AREA) {
         return nullptr;
     }
     return it->second[index].get();
 }
 
-glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, const TileVector2D &tileVector2d) const {
-    return GetTile(layerType, tileVector2d.y << CHUNK_SHIFT | tileVector2d.x);
+std::shared_ptr<glimmer::Tile> glimmer::Chunk::GetTilePtr(const TileLayerType layerType, const uint8_t index) const {
+    const auto it = tiles_.find(layerType);
+    if (it == tiles_.end()) {
+        return nullptr;
+    }
+    return it->second[index];
 }
 
-std::vector<glimmer::Tile *> glimmer::Chunk::GetTopVisibleTiles(const uint8_t layerFilter,
-                                                                const TileVector2D &tileVector2d) const {
-    std::vector<Tile *> tiles = {};
+std::vector<const glimmer::Tile *> glimmer::Chunk::GetTopVisibleTiles(const uint8_t layerFilter,
+                                                                      const uint8_t index) const {
+    std::vector<const Tile *> tiles = {};
     for (int i = 0; i < TILE_LAYER_TYPE_COUNT; i++) {
         const uint8_t layer = 1 << i;
         if (layerFilter && layer) {
             //If the i-th position is 1.
             //如果第i位为1。
-            Tile *tile = GetTile(static_cast<TileLayerType>(layer), tileVector2d);
+            const Tile *tile = GetTile(static_cast<TileLayerType>(layer), index);
             if (tile == nullptr) {
                 continue;
             }
@@ -151,34 +195,21 @@ std::vector<glimmer::Tile *> glimmer::Chunk::GetTopVisibleTiles(const uint8_t la
     return tiles;
 }
 
-void glimmer::Chunk::ReadChunkMessage(const WorldContext *worldContext, const ChunkMessage &chunkMessage) {
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
-        return;
-    }
-    TileInstancePool *tileInstancePool = worldContext->GetTileInstancePool();
+void glimmer::Chunk::ReadChunkMessage(const ChunkMessage &chunkMessage) {
     position.ReadVector2DIMessage(chunkMessage.position());
     tiles_.clear();
-    auto &map = chunkMessage.tiles();
+    tileState_.clear();
+    auto &map = chunkMessage.tilestates();
     for (const auto &mapPair: map) {
-        const TileArrayMessage &tileData = mapPair.second;
-        auto tileResourceRefSize = tileData.tilemessage_size();
+        const auto layerType = static_cast<TileLayerType>(mapPair.first);
+        const TileStateArrayMessage &tileData = mapPair.second;
+        auto tileResourceRefSize = tileData.tilestatemessage_size();
         std::array<std::unique_ptr<Tile>, CHUNK_AREA> value;
         for (int i = 0; i < tileResourceRefSize; i++) {
-            auto &tileMessage = tileData.tilemessage(i);
-            ResourceRef resourceRef;
-            resourceRef.ReadResourceRefMessage(tileMessage.resourceref());
-            auto tileResource = appContext->GetResourceLocator()->FindTileFallback(
-                resourceRef, static_cast<TileLayerType>(mapPair.first));
-            if (tileResource == nullptr) {
-                continue;
-            }
-            std::shared_ptr<Tile> tile = tileInstancePool->CreateTile(appContext, tileResource, resourceRef);
-            if (tile == nullptr) {
-                continue;
-            }
-            tile->ReadTileMessage(tileMessage);
-            SetTile(i, tile);
+            auto &tileStateMessage = tileData.tilestatemessage(i);
+            auto tileStatePtr = GetOrCreateTileState(layerType, i);
+            tileStatePtr->CopyFrom(tileStateMessage);
+            CommitTileState(layerType, i, true);
         }
     }
 }
@@ -186,22 +217,22 @@ void glimmer::Chunk::ReadChunkMessage(const WorldContext *worldContext, const Ch
 
 void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
     position.WriteVector2DIMessage(*chunkMessage.mutable_position());
-    chunkMessage.clear_tiles();
-    for (const auto &[layerType, tileArray]: tiles_) {
+    chunkMessage.clear_tilestates();
+    for (const auto &[layerType, tileArray]: tileState_) {
         auto &tileData =
-                (*chunkMessage.mutable_tiles())[static_cast<uint8_t>(layerType)];
-        tileData.mutable_tilemessage()->Reserve(
+                (*chunkMessage.mutable_tilestates())[static_cast<uint8_t>(layerType)];
+        tileData.mutable_tilestatemessage()->Reserve(
             CHUNK_AREA
         );
         for (int y = 0; y < CHUNK_SIZE; y++) {
             for (int x = 0; x < CHUNK_SIZE; x++) {
-                const auto tileMessage = tileData.add_tilemessage();
+                const auto modifiableTileStateMessage = tileData.add_tilestatemessage();
                 const int index = y << CHUNK_SHIFT | x;
-                const Tile *tile = tileArray[index].get();
-                if (tile == nullptr) {
+                const TileStateMessage *tileStateMessage = tileArray[index].get();
+                if (tileStateMessage == nullptr) {
                     continue;
                 }
-                tile->WriteTileMessage(*tileMessage);
+                modifiableTileStateMessage->CopyFrom(*tileStateMessage);
             }
         }
     }
@@ -213,21 +244,4 @@ WorldVector2D glimmer::Chunk::GetStartWorldPosition() const {
 
 WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
     return TileLayerComponent::TileToWorld(position + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
-}
-
-std::shared_ptr<glimmer::Tile> glimmer::Chunk::ReplaceTile(const TileLayerType layerType,
-                                                           const TileVector2D &tileVector2d,
-                                                           const std::shared_ptr<Tile> &newTile) {
-    if (newTile == nullptr) {
-        return nullptr;
-    }
-    const int index = tileVector2d.y << CHUNK_SHIFT | tileVector2d.x;
-    const auto it = tiles_.find(layerType);
-    if (it == tiles_.end() || index < 0 || index >= CHUNK_AREA) {
-        return nullptr;
-    }
-    std::shared_ptr<Tile> extracted = it->second[index];
-    it->second[index] = newTile;
-    InvokeReplaceTileCallback(this, layerType, index, extracted, newTile);
-    return extracted;
 }

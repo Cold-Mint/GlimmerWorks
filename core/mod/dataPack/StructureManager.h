@@ -7,17 +7,17 @@
 
 namespace glimmer {
     class StructureManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<StructureResource> > >
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IStructureResource> > >
         structureMap_
                 {};
-        std::vector<StructureResource *> structureVector_ = {};
+        std::vector<IStructureResource *> structureVector_ = {};
 
     public:
-        StructureResource *AddResource(std::unique_ptr<StructureResource> structureResource);
+        IStructureResource *AddResource(std::unique_ptr<IStructureResource> structureResource);
 
-        [[nodiscard]] StructureResource *Find(const std::string &packId, const std::string &key);
+        [[nodiscard]] IStructureResource *Find(const std::string &packId, const std::string &key);
 
-        [[nodiscard]] const std::vector<StructureResource *> &GetAll() const;
+        [[nodiscard]] const std::vector<IStructureResource *> &GetAll() const;
 
         [[nodiscard]] std::vector<std::string> GetStructureIDList() const;
 

@@ -7,6 +7,7 @@
 #include <vector>
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/TileLayerComponent.h"
+#include "core/mod/ResourceRef.h"
 
 
 namespace glimmer {
@@ -25,13 +26,13 @@ namespace glimmer {
      * @param tilePosition tilePosition 瓦片位置
      * @param precisionMining Is precise collection carried out? 是否精准采集
      * @param overwrite 是否为覆盖方块模式，例如将某个方块放置在空气上。
-     * @param newTile newTile 新瓦片
+     * @param newTileRef newTileRef 新瓦片
      * @return
      */
         static bool BreakTile(WorldContext *worldContext,
                               const TileLayerComponent *tileLayerComponent,
                               TileVector2D tilePosition, bool precisionMining, bool overwrite,
-                              const std::shared_ptr<Tile>& newTile);
+                              ResourceRef newTileRef);
 
         explicit DiggingSystem(WorldContext *worldContext);
 

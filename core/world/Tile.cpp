@@ -10,24 +10,12 @@
 #include "../mod/ResourceLocator.h"
 
 
-const glimmer::ResourceRef &glimmer::Tile::GetLootTableRef() {
-    return lootTable_;
+const glimmer::ResourceRef *glimmer::Tile::GetSideLightMaskResource() const {
+    return &sideLightMask_;
 }
 
-const glimmer::ResourceRef &glimmer::Tile::GetResourceRef() {
-    return tileRef_;
-}
-
-const glimmer::ResourceRef &glimmer::Tile::GetLightSourceResource() {
-    return lightSource_;
-}
-
-const glimmer::ResourceRef &glimmer::Tile::GetSideLightMaskResource() {
-    return sideLightMask_;
-}
-
-const glimmer::ResourceRef &glimmer::Tile::GetBackLightMaskResource() {
-    return backLightMask_;
+const glimmer::ResourceRef * glimmer::Tile::GetBackLightMaskResource() const {
+    return &backLightMask_;
 }
 
 bool glimmer::Tile::IsCustomLootTable() const {
@@ -40,6 +28,10 @@ glimmer::TilePhysicsType glimmer::Tile::GetTilePhysicsType() const {
 
 bool glimmer::Tile::IsAllowChainMining() const {
     return allowChainMining_;
+}
+
+bool glimmer::Tile::IsAllowDirAdjustAnchor() const {
+    return allowDirAdjustAnchor_;
 }
 
 const std::string &glimmer::Tile::GetId() const {
@@ -58,13 +50,6 @@ MIX_Audio *glimmer::Tile::GetPlaceSFX() const {
     return placeSFX_.get();
 }
 
-void glimmer::Tile::SetPlayerPlaced(const bool playerPlaced) {
-    isPlayerPlaced_ = playerPlaced;
-}
-
-bool glimmer::Tile::IsPlayerPlaced() const {
-    return isPlayerPlaced_;
-}
 
 const std::optional<std::string> &glimmer::Tile::GetDescription() const {
     return description_;
@@ -95,40 +80,89 @@ glimmer::TileLayerType glimmer::Tile::GetLayerType() const {
     return layerType_;
 }
 
-void glimmer::Tile::ReadTileMessage(const TileMessage &tileMessage) {
-    tileRef_.ReadResourceRefMessage(tileMessage.resourceref());
-    isPlayerPlaced_ = tileMessage.isplayerplaced();
-}
 
-void glimmer::Tile::WriteTileMessage(TileMessage &tileMessage) const {
-    tileRef_.WriteResourceRefMessage(*tileMessage.mutable_resourceref());
-    tileMessage.set_isplayerplaced(isPlayerPlaced_);
-}
-
-float glimmer::Tile::GetColliderWidth() const {
-    return colliderWidth_;
-}
-
-float glimmer::Tile::GetColliderHeight() const {
-    return colliderHeight_;
+TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType tileAnchorType, const uint8_t tileWidth,
+                                                const uint8_t tileHeight,
+                                                const Vector2DIResource &customTileAnchor) {
+    auto result = TileVector2D(1, 1);
+    switch (tileAnchorType) {
+        case TileAnchorType::TopLeft:
+            result.x = 1;
+            result.y = tileHeight;
+            break;
+        case TileAnchorType::Center:
+            result.x = tileWidth / 2;
+            result.y = tileHeight / 2;
+            break;
+        case TileAnchorType::CenterRight:
+            result.x = tileWidth;
+            result.y = tileHeight / 2;
+            break;
+        case TileAnchorType::TopCenter:
+            result.x = tileWidth / 2;
+            result.y = tileHeight;
+            break;
+        case TileAnchorType::TopRight:
+            result.x = tileWidth;
+            result.y = tileHeight;
+            break;
+        case TileAnchorType::CenterLeft:
+            result.x = 1;
+            result.y = tileHeight / 2;
+            break;
+        case TileAnchorType::BottomCenter:
+            result.x = tileWidth / 2;
+            result.y = 1;
+            break;
+        case TileAnchorType::BottomRight:
+            result.x = tileWidth;
+            result.y = 1;
+            break;
+        case TileAnchorType::Custom:
+            result.x = customTileAnchor.x;
+            result.y = customTileAnchor.y;
+            break;
+        case TileAnchorType::BottomLeft:
+        default:
+            result.x = 1;
+            result.y = 1;
+            break;
+    }
+    if (result.x < 1) {
+        result.x = 1;
+    }
+    if (result.y < 1) {
+        result.y = 1;
+    }
+    if (result.x > tileWidth) {
+        result.x = tileWidth;
+    }
+    if (result.y > tileHeight) {
+        result.y = tileHeight;
+    }
+    return result;
 }
 
 std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext *appContext,
-                                                               const TileResource *tileResource,
-                                                               const ResourceRef &resourceRef) {
-    auto tile = std::make_unique<Tile>();
+                                                               const TileResource *tileResource) {
+    if (appContext == nullptr) {
+        return nullptr;
+    }
     const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    tile->tileRef_ = resourceRef;
+    if (resourceLocator == nullptr) {
+        return nullptr;
+    }
+    auto tile = std::make_unique<Tile>();
     tile->id_ = Resource::GenerateId(*tileResource);
     const StringResource *nameStringResource = resourceLocator->FindString(
-        tileResource->name);
+        &tileResource->name);
     if (nameStringResource == nullptr) {
         tile->name_ = tile->id_;
     } else {
         tile->name_ = nameStringResource->value;
     }
     const StringResource *descriptionStringResource = resourceLocator->FindString(
-        tileResource->description);
+        &tileResource->description);
     if (descriptionStringResource != nullptr) {
         tile->description_ = descriptionStringResource->value;
     }
@@ -144,14 +178,30 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->lightSource_ = tileResource->lightSource;
     tile->isOverwritable_ = tileResource->isOverwritable;
     tile->canDropLoot_ = tileResource->canDropLoot;
-    tile->tileHeight_ = tileResource->tileHeight;
-    tile->tileWidth_ = tileResource->tileWidth;
-    tile->colliderHeight_ = tileResource->colliderHeight;
-    tile->colliderWidth_ = tileResource->colliderWidth;
+    uint8_t tileHeight = tileResource->tileHeight;
+    if (tileHeight > CHUNK_SIZE) {
+        tileHeight = CHUNK_SIZE;
+    }
+    if (tileHeight == 0) {
+        tileHeight = 1;
+    }
+    tile->tileHeight_ = tileHeight;
+    uint8_t tileWidth = tileResource->tileWidth;
+    if (tileWidth > CHUNK_SIZE) {
+        tileWidth = CHUNK_SIZE;
+    }
+    if (tileWidth == 0) {
+        tileWidth = 1;
+    }
+    tile->tileWidth_ = tileWidth;
+    tile->tileAnchor_ = CalculateTileAnchor(static_cast<TileAnchorType>(tileResource->tileAnchorType), tileWidth,
+                                            tileHeight,
+                                            tileResource->customTileAnchor);
+    tile->allowDirAdjustAnchor_ = tileResource->allowDirAdjustAnchor;
     tile->texture_ = resourceLocator->FindTexture(
-        tileResource->texture);
-    tile->breakSFX_ = resourceLocator->FindAudio(tileResource->breakSfx);
-    tile->placeSFX_ = resourceLocator->FindAudio(tileResource->placeSfx);
+        &tileResource->texture);
+    tile->breakSFX_ = resourceLocator->FindAudio(&tileResource->breakSfx);
+    tile->placeSFX_ = resourceLocator->FindAudio(&tileResource->placeSfx);
     return tile;
 }
 
@@ -161,4 +211,16 @@ uint8_t glimmer::Tile::GetTileWidth() const {
 
 uint8_t glimmer::Tile::GetTileHeight() const {
     return tileHeight_;
+}
+
+const TileVector2D *glimmer::Tile::GetTileAnchor() const {
+    return &tileAnchor_;
+}
+
+const glimmer::ResourceRef *glimmer::Tile::GetLootTableRef() const {
+    return &lootTable_;
+}
+
+const glimmer::ResourceRef *glimmer::Tile::GetLightSourceResource() const {
+    return &lightSource_;
 }

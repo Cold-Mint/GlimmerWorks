@@ -138,7 +138,7 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 
 void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const {
     const AppContext *appContext = worldContext_->GetAppContext();
-    const std::vector<StructureResource *> &all = appContext->GetStructureManager()->GetAll();
+    const std::vector<IStructureResource *> &all = appContext->GetStructureManager()->GetAll();
     if (all.empty()) {
         return;
     }
@@ -249,31 +249,30 @@ void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const {
                         Vector2DI currentChunk = {INT_MIN, INT_MIN};
                         LogCat::d("StructurePlacement", "Structure generated successfully - Width: ",
                                   width, ", Height: ", height);
-                        for (auto &[coord,tileResource]: structureInfo.GetStructureMap()) {
-                            const int worldX = baseX + coord.x;
-                            const int worldY = baseY + coord.y;
-                            const int chunkX = worldX & ~CHUNK_MASK;
-                            const int chunkY = worldY & ~CHUNK_MASK;
-                            const int relativeX = worldX & CHUNK_MASK;
-                            const int relativeY = worldY & CHUNK_MASK;
-                            Vector2DI chunkCoord{chunkX, chunkY};
-                            if (chunkCoord != currentChunk) {
-                                currentChunk = chunkCoord;
-                                currentTerrain = worldContext_->GetOrCreateTerrainData(chunkCoord);
+                        for (auto &[tileLayerType, tileMap]: structureInfo.GetStructureMap()) {
+                            for (auto &[coord,tileResource]: tileMap) {
+                                const int worldX = baseX + coord.x;
+                                const int worldY = baseY + coord.y;
+                                const int chunkX = worldX & ~CHUNK_MASK;
+                                const int chunkY = worldY & ~CHUNK_MASK;
+                                const int relativeX = worldX & CHUNK_MASK;
+                                const int relativeY = worldY & CHUNK_MASK;
+                                Vector2DI chunkCoord{chunkX, chunkY};
+                                if (chunkCoord != currentChunk) {
+                                    currentChunk = chunkCoord;
+                                    currentTerrain = worldContext_->GetOrCreateTerrainData(chunkCoord);
+                                }
+                                if (currentTerrain == nullptr) {
+                                    continue;
+                                }
+                                const int index = relativeY << CHUNK_SHIFT | relativeX;
+                                currentTerrain->SetTerrainTileStructure(index, &tileResource);
                             }
-                            if (currentTerrain == nullptr) {
-                                continue;
-                            }
-                            const int index = relativeY << CHUNK_SHIFT | relativeX;
-                            currentTerrain->SetTerrainTileStructure(index, &tileResource);
                         }
                     } else {
                         LogCat::w("StructurePlacement", "Failed to generate structure at global origin - x: ",
                                   globalOrigin.x, ", y: ", globalOrigin.y);
                     }
-                    //This is a test procedure. Place a bedrock at the structural origin point.
-                    //测试用，在结构原点处放置一块基岩。
-                    // terrainResult->SetTerrainTileStructure(i, &bedrockTileRef_);
                     markedCount++;
                     LogCat::d("StructurePlacement", "Finish processing candidate point - Index: ", i,
                               ", Total marked points so far: ", markedCount);
@@ -413,7 +412,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
     if (config == nullptr) {
         return nullptr;
     }
-    auto chunk = std::make_unique<Chunk>(position, config->anim);
+    auto chunk = std::make_unique<Chunk>(worldContext_, position, config->anim);
     TerrainResult *terrainResult = worldContext_->GetTerrainData(position);
     if (terrainResult == nullptr) {
         return nullptr;
@@ -460,7 +459,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
             continue;
         }
         for (auto &decRef: biomeResources->decors) {
-            IBiomeDecoratorResource *decoratorResource = resourceLocator->FindBiomeDecorator(decRef);
+            IBiomeDecoratorResource *decoratorResource = resourceLocator->FindBiomeDecorator(&decRef);
             if (decoratorResource == nullptr) {
                 continue;
             }
@@ -476,22 +475,13 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
 
     for (int localX = 0; localX < CHUNK_SIZE; ++localX) {
         for (int localY = 0; localY < CHUNK_SIZE; ++localY) {
-            TileVector2D localTile(localX, localY);
             const int idx = localY * CHUNK_SIZE + localX;
             for (auto &tileArrayPair: tilesRefMap) {
                 const TileLayerType tileLayerType = tileArrayPair.first;
                 ResourceRef &resourceRef = tileArrayPair.second[idx];
-                const std::optional tileResource = resourceLocator->FindTileFallback(
-                    resourceRef, tileLayerType);
-                const TileResource *tileResourceValue = nullptr;
-                if (tileResource.has_value()) {
-                    tileResourceValue = tileResource.value();
-                } else {
-                    LogCat::w("Tile packageId=", resourceRef.GetPackageId(), ", key=", resourceRef.GetResourceKey(),
-                              " does not exist.");
-                    tileResourceValue = tileResourceManager->GetAirResource(tileLayerType);
-                }
-                chunk->SetTile(localTile, tileInstancePool->CreateTile(appContext, tileResourceValue, resourceRef));
+                TileStateMessage *tileStateMessage = chunk->GetOrCreateTileState(tileLayerType, idx);
+                resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+                chunk->CommitTileState(tileLayerType, idx, true);
             }
         }
     }

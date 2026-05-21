@@ -25,7 +25,7 @@ void glimmer::ParallaxBackgroundComponent::ClearTexture() {
 
 SDL_Texture *glimmer::ParallaxBackgroundComponent::GetTexture(const ResourceLocator *resourceLocator) {
     if (needsUpdate_) {
-        texture_ = resourceLocator->FindTexture(textureResourceRef_);
+        texture_ = resourceLocator->FindTexture(&textureResourceRef_);
         needsUpdate_ = false;
     }
     if (texture_ == nullptr) {

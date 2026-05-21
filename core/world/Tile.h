@@ -9,14 +9,13 @@
 #include "generator/TileLayerType.h"
 #include "generator/TilePhysicsType.h"
 #include "SDL3/SDL_render.h"
-#include "src/saves/tile.pb.h"
+#include "src/saves/tile_state.pb.h"
 
 
 namespace glimmer {
     class Tile {
         friend class TileInstancePool;
 
-        ResourceRef tileRef_;
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
@@ -28,11 +27,10 @@ namespace glimmer {
         float hardness_ = 1.0F;
         bool breakable = true;
         bool allowChainMining_ = false;
-        bool isPlayerPlaced_ = false;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
-        float colliderWidth_ = 1.0F;
-        float colliderHeight_ = 1.0F;
+        bool allowDirAdjustAnchor_ = true;
+        TileVector2D tileAnchor_ = TileVector2D(1, 1);
         /**
          * Can a certain tile be directly placed on top?
          * 是否可以将某个瓦片直接覆盖上去？
@@ -48,38 +46,51 @@ namespace glimmer {
         ResourceRef lightSource_;
         ResourceRef sideLightMask_;
         ResourceRef backLightMask_;
+
+        /**
+         * Calculate the anchor point coordinates of the tiles
+         * 计算瓦片的锚点坐标
+         * @param tileAnchorType tileAnchorType 瓦片锚点类型
+         * @param tileWidth tileWidth 瓦片宽度
+         * @param tileHeight tileHeight 瓦片高度
+         * @param customTileAnchor customTileAnchor 自定义瓦片锚点
+         * @return
+         */
+        static TileVector2D CalculateTileAnchor(TileAnchorType tileAnchorType, uint8_t tileWidth, uint8_t tileHeight,
+                                                const Vector2DIResource &customTileAnchor);
+
         /**
        * From Tile Resource
        * 从资源创建瓦片
        * @param appContext appContext 应用上下文
        * @param tileResource tileResource 瓦片资源
-       * @param resourceRef resourceRef 瓦片引用
        * @return
        */
         static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext,
-                                                      const TileResource *tileResource,
-                                                      const ResourceRef &resourceRef);
+                                                      const TileResource *tileResource);
 
     public:
         [[nodiscard]] uint8_t GetTileWidth() const;
 
         [[nodiscard]] uint8_t GetTileHeight() const;
 
-        [[nodiscard]] const ResourceRef &GetLootTableRef();
+        [[nodiscard]] const TileVector2D *GetTileAnchor() const;
 
-        [[nodiscard]] const ResourceRef &GetResourceRef();
+        [[nodiscard]] const ResourceRef *GetLootTableRef() const;
 
-        [[nodiscard]] const ResourceRef &GetLightSourceResource();
+        [[nodiscard]] const ResourceRef *GetLightSourceResource() const;
 
-        [[nodiscard]] const ResourceRef &GetSideLightMaskResource();
+        [[nodiscard]] const ResourceRef *GetSideLightMaskResource() const;
 
-        [[nodiscard]] const ResourceRef &GetBackLightMaskResource();
+        [[nodiscard]] const ResourceRef *GetBackLightMaskResource() const;
 
         [[nodiscard]] bool IsCustomLootTable() const;
 
         [[nodiscard]] TilePhysicsType GetTilePhysicsType() const;
 
         [[nodiscard]] bool IsAllowChainMining() const;
+
+        [[nodiscard]] bool IsAllowDirAdjustAnchor() const;
 
         [[nodiscard]] const std::string &GetId() const;
 
@@ -88,10 +99,6 @@ namespace glimmer {
         [[nodiscard]] MIX_Audio *GetBreakSFX() const;
 
         [[nodiscard]] MIX_Audio *GetPlaceSFX() const;
-
-        void SetPlayerPlaced(bool playerPlaced);
-
-        [[nodiscard]] bool IsPlayerPlaced() const;
 
         [[nodiscard]] const std::optional<std::string> &GetDescription() const;
 
@@ -106,13 +113,5 @@ namespace glimmer {
         [[nodiscard]] const std::string &GetName() const;
 
         [[nodiscard]] TileLayerType GetLayerType() const;
-
-        void ReadTileMessage(const TileMessage &tileMessage);
-
-        void WriteTileMessage(TileMessage &tileMessage) const;
-
-        [[nodiscard]] float GetColliderWidth() const;
-
-        [[nodiscard]] float GetColliderHeight() const;
     };
 }

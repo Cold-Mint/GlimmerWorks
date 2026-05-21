@@ -42,7 +42,7 @@ void glimmer::SplashScene::Render(SDL_Renderer *renderer) {
         splashTextureRef.SetResourceKey("gui/splash");
         splashTextureRef.SetResourceType(Texture);
         splashTexture = appContext->GetResourceLocator()->FindTexture(
-            splashTextureRef);
+            &splashTextureRef);
         fadeTween = tweeny::from(0.0F).to(1.0F).during(1000);
         alpha = 0.0F;
         animationFinished = false;

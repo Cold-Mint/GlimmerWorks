@@ -152,7 +152,7 @@ namespace glimmer {
 
         [[nodiscard]] AudioManager *GetAudioManager() const;
 
-        [[nodiscard]] ConsoleWorker *GetConsoleWorker();
+        [[nodiscard]] ConsoleWorker *GetConsoleWorker() const;
 
         [[nodiscard]] LightMaskManager *GetLightMaskManager() const;
 

@@ -33,6 +33,8 @@ namespace glimmer {
                                       std::optional<std::string> descriptionKey);
 
     public:
+        TileResourceManager();
+
         /**
          * Initialize the built-in tiles
          * 初始化内置瓦片
@@ -45,7 +47,7 @@ namespace glimmer {
         [[nodiscard]] TileResource *GenerateAccessDeniedPlaceHolder(
             const std::string &packId, const std::string &resourceId, TileLayerType tileLayer);
 
-        [[nodiscard]] TileResource *AddResource(std::unique_ptr<TileResource> tileResource);
+        TileResource *AddResource(std::unique_ptr<TileResource> tileResource);
 
         /**
          * Obtain the air resources at the corresponding location.
@@ -54,6 +56,8 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] TileResource *GetAirResource(TileLayerType tileLayerType) const;
+
+        [[nodiscard]] static uint64_t GetAirResourceRefFingerprint(TileLayerType tileLayerType);
 
         [[nodiscard]] static ResourceRef GetAirResourceRef(TileLayerType tileLayerType);
 

@@ -6,8 +6,10 @@
 
 #include <utility>
 
-void glimmer::StructureInfo::SetTile(const TileVector2D position, ResourceRef resourceRef) {
-    structureMap_[position] = std::move(resourceRef);
+
+void glimmer::StructureInfo::SetTile(const TileLayerType tileLayer, const TileVector2D position,
+                                     ResourceRef resourceRef) {
+    structureMap_[tileLayer][position] = std::move(resourceRef);
     if (first_) {
         minPosition_ = position;
         maxPosition_ = position;
@@ -28,14 +30,11 @@ void glimmer::StructureInfo::SetTile(const TileVector2D position, ResourceRef re
     }
 }
 
-const std::unordered_map<TileVector2D, glimmer::ResourceRef, glimmer::Vector2DIHash> &glimmer::StructureInfo::
-GetStructureMap() const {
+const std::unordered_map<glimmer::TileLayerType, std::unordered_map<TileVector2D, glimmer::ResourceRef, glimmer::
+    Vector2DIHash> > &glimmer::StructureInfo::GetStructureMap() const {
     return structureMap_;
 }
 
-const TileVector2D &glimmer::StructureInfo::GetMinPosition() const {
-    return minPosition_;
-}
 
 uint32_t glimmer::StructureInfo::GetWidth() const {
     return maxPosition_.x - minPosition_.x + 1;

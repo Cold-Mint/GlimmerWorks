@@ -11,86 +11,42 @@ void glimmer::TreeStructureGenerator::SetWorldSeed(int worldSeed) {
     IStructureGenerator::SetWorldSeed(worldSeed);
 }
 
-glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D structuralOrigin,
-                                                                 StructureResource *structureResource) {
-    int leafDataIndex = 0;
-    const VariableDefinition *leafDataIndexDefinition = structureResource->generatorConfig.
-            FindVariable("leafDataIndex");
-    if (leafDataIndexDefinition != nullptr) {
-        leafDataIndex = leafDataIndexDefinition->AsInt();
+std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(TileVector2D startPosition,
+    IStructureResource *structureResource) {
+    if (structureResource == nullptr) {
+        return std::nullopt;
     }
-    int trunkDataIndex = 1;
-    const VariableDefinition *trunkDataIndexDefinition = structureResource->generatorConfig.FindVariable(
-        "trunkDataIndex");
-    if (trunkDataIndexDefinition != nullptr) {
-        trunkDataIndex = trunkDataIndexDefinition->AsInt();
-    }
-    int trunkHeightMax = 9;
-    const VariableDefinition *trunkHeightMaxDefinition = structureResource->generatorConfig.FindVariable(
-        "trunkHeightMax");
-    if (trunkHeightMaxDefinition != nullptr) {
-        trunkHeightMax = trunkHeightMaxDefinition->AsInt();
-    }
-    int trunkHeightMin = 3;
-    const VariableDefinition *trunkHeightMinDefinition = structureResource->generatorConfig.FindVariable(
-        "trunkHeightMin");
-    if (trunkHeightMinDefinition != nullptr) {
-        trunkHeightMin = trunkHeightMinDefinition->AsInt();
-    }
-    bool hasLeaves = false;
-    const VariableDefinition *hasLeavesDefinition = structureResource->generatorConfig.FindVariable("hasLeaves");
-    if (hasLeavesDefinition != nullptr) {
-        hasLeaves = hasLeavesDefinition->AsBool();
-    }
-    int leafRadius = 3;
-    const VariableDefinition *leafRadiusDefinition = structureResource->generatorConfig.FindVariable("leafRadius");
-    if (leafRadiusDefinition != nullptr) {
-        leafRadius = leafRadiusDefinition->AsInt();
-    }
-    int leafClusterCount = 1;
-    const VariableDefinition *leafClusterCountDefinition = structureResource->generatorConfig.FindVariable(
-        "leafClusterCount");
-    if (leafClusterCountDefinition != nullptr) {
-        leafClusterCount = leafClusterCountDefinition->AsInt();
-    }
-    int leafVerticalSpacing = 1;
-    const VariableDefinition *leafVerticalSpacingDefinition = structureResource->generatorConfig.FindVariable(
-        "leafVerticalSpacing");
-    if (leafVerticalSpacingDefinition != nullptr) {
-        leafVerticalSpacing = leafVerticalSpacingDefinition->AsInt();
-    }
-    int trunkWidth = 1;
-    const VariableDefinition *trunkWidthDefinition = structureResource->generatorConfig.FindVariable("trunkWidth");
-    if (trunkWidthDefinition != nullptr) {
-        trunkWidth = trunkWidthDefinition->AsInt();
-    }
-    ResourceRef &trunkRef = structureResource->data.at(trunkDataIndex);
-    ResourceRef &leafRef = structureResource->data.at(leafDataIndex);
+    auto *treeStructureResource = dynamic_cast<TreeStructureResource *>(structureResource);
+    ResourceRef &trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
+    ResourceRef &leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
     auto structureInfo = StructureInfo();
     std::mt19937 rng(worldSeed_ ^
-                     structuralOrigin.x * 73428767 ^
-                     structuralOrigin.y * 912931);
+                     startPosition.x * 73428767 ^
+                     startPosition.y * 912931);
 
-    std::uniform_int_distribution heightDist(trunkHeightMin, trunkHeightMax);
+    std::uniform_int_distribution heightDist(treeStructureResource->trunkHeightMin,
+                                             treeStructureResource->trunkHeightMax);
     int trunkHeight = heightDist(rng);
-
+    auto trunkTileLayer = static_cast<TileLayerType>(treeStructureResource->trunkTileLayer);
     for (int y = 0; y < trunkHeight; ++y) {
-        for (int x = 0; x < trunkWidth; ++x) {
-            structureInfo.SetTile(TileVector2D(x, y), trunkRef);
+        for (int x = 0; x < treeStructureResource->trunkWidth; ++x) {
+            structureInfo.SetTile(trunkTileLayer, TileVector2D(x, y), trunkRef);
         }
     }
-    if (hasLeaves) {
-        for (int i = 0; i < leafClusterCount; ++i) {
-            int clusterY = trunkHeight - i * leafVerticalSpacing;
+    if (treeStructureResource->hasLeaves) {
+        auto leafTileLayer = static_cast<TileLayerType>(treeStructureResource->leafTileLayer);
+        u_int8_t leafRadius = treeStructureResource->leafRadius;
+        for (int i = 0; i < treeStructureResource->leafClusterCount; ++i) {
+            int clusterY = trunkHeight - i * treeStructureResource->leafVerticalSpacing;
             for (int x = -leafRadius; x <= leafRadius; ++x) {
                 for (int y = -leafRadius; y <= leafRadius; ++y) {
                     if (x * x + y * y <= leafRadius * leafRadius && y >= 0) {
-                        structureInfo.SetTile(
-                            TileVector2D{
-                                x + trunkWidth / 2,
-                                clusterY + y
-                            },
-                            leafRef
+                        structureInfo.SetTile(leafTileLayer,
+                                              TileVector2D{
+                                                  x + treeStructureResource->trunkWidth / 2,
+                                                  clusterY + y
+                                              },
+                                              leafRef
                         );
                     }
                 }
@@ -100,6 +56,7 @@ glimmer::StructureInfo glimmer::TreeStructureGenerator::Generate(TileVector2D st
     return structureInfo;
 }
 
-std::string glimmer::TreeStructureGenerator::GetStructureGeneratorId() {
-    return STRUCTURE_GENERATOR_ID_TREE;
+
+glimmer::StructureGeneratorType glimmer::TreeStructureGenerator::GetStructureGeneratorType() const {
+    return StructureGeneratorType::Tree;
 }

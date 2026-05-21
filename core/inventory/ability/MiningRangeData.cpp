@@ -42,11 +42,16 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
         return;
     }
     const TileVector2D startPosition = TileLayerComponent::WorldToTile(startVector);
-    Tile *startTile = tileLayerComponent->GetSelfLayerTile(startPosition);
+    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(startPosition);
+    if (startTile == nullptr) {
+        return;
+    }
     if (!startTile->IsBreakable()) {
         return;
     }
-    if (startTile->IsPlayerPlaced()) {
+    const TileStateMessage *tileStateMessage = tileLayerComponent->GetTileState(
+        startTile->GetLayerType(), startPosition);
+    if (tileStateMessage != nullptr && tileStateMessage->isplayerplaced()) {
         return;
     }
     if (!startTile->IsAllowChainMining()) {
@@ -106,9 +111,14 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
 
             //Check 3: Obtain the target block and verify its validity
             //检查3：获取目标方块并验证有效性
-            Tile *nextTile = tileLayerComponent->GetSelfLayerTile(nextPos);
-            if (nextTile == nullptr || nextTile->IsPlayerPlaced() || !nextTile->IsBreakable() || !nextTile->
+            const Tile *nextTile = tileLayerComponent->GetSelfLayerTile(nextPos);
+            if (nextTile == nullptr || !nextTile->IsBreakable() || !nextTile->
                 IsAllowChainMining()) {
+                continue;
+            }
+            const TileStateMessage *nextTileStateMessage = tileLayerComponent->GetTileState(
+                nextTile->GetLayerType(), nextPos);
+            if (nextTileStateMessage != nullptr && nextTileStateMessage->isplayerplaced()) {
                 continue;
             }
 

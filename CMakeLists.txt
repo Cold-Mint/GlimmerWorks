@@ -295,7 +295,9 @@ if (ANDROID)
     add_library(GlimmerWorks SHARED)
 else ()
     message(STATUS "Building for Desktop → Executable")
-    add_executable(GlimmerWorks)
+    add_executable(GlimmerWorks
+            core/world/structure/StructureGeneratorType.cpp
+            core/world/structure/StructureGeneratorType.h)
 endif ()
 
 target_sources(GlimmerWorks
@@ -550,11 +552,11 @@ target_sources(GlimmerWorks
         core/console/CommandRequest.cpp
         core/world/ChunkTask.cpp
         core/world/ChunkType.cpp
-        core/ISignable.cpp
+        core/IFingerprintable.cpp
         core/MemoryUsage.cpp
         core/console/command/MemoryUsageCommand.cpp
         core/world/TileInstancePool.cpp
-        core/world/TileAnchor.cpp
+        core/world/TileAnchorType.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -797,11 +799,11 @@ target_sources(GlimmerWorks
         core/console/CommandResponse.h
         core/world/ChunkType.h
         core/world/ChunkTask.h
-        core/ISignable.h
+        core/IFingerprintable.h
         core/MemoryUsage.h
         core/console/command/MemoryUsageCommand.h
         core/world/TileInstancePool.h
-        core/world/TileAnchor.h
+        core/world/TileAnchorType.h
 )
 
 #Define version information

@@ -4,15 +4,21 @@
 
 #include "StaticStructureGenerator.h"
 
-glimmer::StructureInfo glimmer::StaticStructureGenerator::Generate(TileVector2D structuralOrigin,
-                                                                   StructureResource *structureResource) {
-    auto structureInfo = StructureInfo();
-    for (auto &tile_info: structureResource->tileInfo) {
-        structureInfo.SetTile({tile_info.position.x, tile_info.position.y}, tile_info.tile);
+
+std::optional<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(TileVector2D startPosition,
+    IStructureResource *structureResource) {
+    if (structureResource == nullptr) {
+        return std::nullopt;
+    }
+    StructureInfo structureInfo;
+    auto staticStructureResource = dynamic_cast<StaticStructureResource *>(structureResource);
+    for (auto &tileInfo: staticStructureResource->tileInfo) {
+        structureInfo.SetTile(static_cast<TileLayerType>(tileInfo.layerType),
+                              {tileInfo.position.x, tileInfo.position.y}, tileInfo.tile);
     }
     return structureInfo;
 }
 
-std::string glimmer::StaticStructureGenerator::GetStructureGeneratorId() {
-    return STRUCTURE_GENERATOR_ID_STATIC;
+glimmer::StructureGeneratorType glimmer::StaticStructureGenerator::GetStructureGeneratorType() const {
+    return StructureGeneratorType::Static;
 }

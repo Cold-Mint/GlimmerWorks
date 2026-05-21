@@ -87,8 +87,8 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVec
         //Read the chunk file.
         //读取区块文件。
         if (const auto chunkMessage = saves_->ReadChunk(position); chunkMessage.has_value()) {
-            auto chunk = std::make_unique<Chunk>(position, config->anim);
-            chunk.get()->ReadChunkMessage(worldContext_, chunkMessage.value());
+            auto chunk = std::make_unique<Chunk>(worldContext_, position, config->anim);
+            chunk.get()->ReadChunkMessage(chunkMessage.value());
             LoadEntityFromSaves(position);
             return chunk;
         }

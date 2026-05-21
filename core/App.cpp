@@ -502,20 +502,18 @@ void glimmer::App::Run() {
                     GetCommandHookVector(
                         key);
             if (!commandHookEntry.empty()) {
-                if (consoleWorker != nullptr) {
-                    for (const auto &commandHook: commandHookEntry) {
-                        if (isKey && commandHook->keyRepeat != event.key.repeat) {
-                            continue;
-                        }
-                        if (useMouse) {
-                            consoleWorker->CreateRequest(commandHook->command,
-                                                         appContext_->GetCommandManager()->
-                                                         GetMouseCommandSender());
-                        } else {
-                            consoleWorker->CreateRequest(commandHook->command,
-                                                         appContext_->GetCommandManager()->
-                                                         GetDefaultCommandSender());
-                        }
+                for (const auto &commandHook: commandHookEntry) {
+                    if (isKey && commandHook->keyRepeat != event.key.repeat) {
+                        continue;
+                    }
+                    if (useMouse) {
+                        consoleWorker->CreateRequest(commandHook->command,
+                                                     appContext_->GetCommandManager()->
+                                                     GetMouseCommandSender());
+                    } else {
+                        consoleWorker->CreateRequest(commandHook->command,
+                                                     appContext_->GetCommandManager()->
+                                                     GetDefaultCommandSender());
                     }
                 }
             }

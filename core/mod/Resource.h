@@ -12,6 +12,7 @@
 #include "core/Box2dFilter.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/math/Color.h"
+#include "core/world/TileAnchorType.h"
 #include "src/saves/item.pb.h"
 
 namespace glimmer {
@@ -314,24 +315,51 @@ namespace glimmer {
         Vector2DIResource position;
         //@genNextLine(tile|瓦片资源引用)
         ResourceRef tile;
+        //@genNextLine(layerType|图层类型)
+        uint8_t layerType = 0;
     };
 
     //@genNextLine(StructureResource|结构资源)
-    struct StructureResource : Resource {
-        /**
-        * Generator ID
-         * 生成器Id
-         */
+    struct IStructureResource : Resource {
+        virtual ~IStructureResource() = default;
         //@genNextLine(generatorId|生成器ID)
-        std::string generatorId;
-        //@genNextLine(generatorConfig|生成器变量配置)
-        VariableConfig generatorConfig = {};
+        uint8_t generatorId = 0;
         //@genNextLine(condition|结构放置条件列表)
         std::vector<StructurePlacementConditions> condition = {};
-        //@genNextLine(tileInfo|瓦片信息列表)
-        std::vector<TileInfo> tileInfo = {};
         //@genNextLine(data|数据资源引用列表)
         std::vector<ResourceRef> data = {};
+    };
+
+    //@genNextLine(StaticStructureResource|静态结构资源)
+    struct StaticStructureResource : IStructureResource {
+        //@genNextLine(tileInfo|瓦片信息列表)
+        std::vector<TileInfo> tileInfo = {};
+    };
+
+    //@genNextLine(TreeStructureResource|树结构资源)
+    struct TreeStructureResource : IStructureResource {
+        //@genNextLine(hasLeaves|是否拥有树叶)
+        bool hasLeaves = false;
+        //@genNextLine(leafDataIndex|树叶数据索引)
+        uint8_t leafDataIndex = 0;
+        //@genNextLine(trunkDataIndex|树干数据索引)
+        uint8_t trunkDataIndex = 0;
+        //@genNextLine(trunkHeightMax|树干最大高度)
+        uint8_t trunkHeightMax = 9;
+        //@genNextLine(trunkHeightMin|树干最小高度)
+        uint8_t trunkHeightMin = 5;
+        //@genNextLine(leafRadius|树叶半径)
+        uint8_t leafRadius = 2;
+        //@genNextLine(leafClusterCount|树叶簇数量)
+        uint8_t leafClusterCount = 1;
+        //@genNextLine(leafVerticalSpacing|树叶垂直间距)
+        uint8_t leafVerticalSpacing = 0;
+        //@genNextLine(trunkWidth|树干宽度)
+        uint8_t trunkWidth = 1;
+        //@genNextLine(trunkTileLayer|树干图层类型)
+        uint8_t trunkTileLayer = 0;
+        //@genNextLine(leafTileLayer|树叶图层类型)
+        uint8_t leafTileLayer = 0;
     };
 
     //@genNextLine(AbilityConfig|能力配置)
@@ -341,7 +369,7 @@ namespace glimmer {
         //@genNextLine(Using the item is more likely to cause accidental dropping.|使用物品时多大概率触发手滑)
         float fumbleProbability = 0;
         //@genNextLine(chainMiningRadius|连锁采集半径)
-        int chainMiningRadius = 0;
+        uint8_t chainMiningRadius = 0;
         //@genNextLine(precisionMining|是否精准采集)
         bool enablePrecisionMining = false;
         //@genNextLine(miningEfficiency|工具效率)
@@ -421,10 +449,6 @@ namespace glimmer {
         uint8_t tileWidth = 1;
         //@genNextLine(tileHeight|瓦片高度)
         uint8_t tileHeight = 1;
-        //@genNextLine(colliderWidth|碰撞箱宽度)
-        float colliderWidth = 1.0F;
-        //@genNextLine(colliderHeight|碰撞箱高度)
-        float colliderHeight = 1.0F;
         //@genNextLine(customLootTable|是否使用自定义战利品表)
         bool customLootTable = false;
         //@genNextLine(lootTable|战利品表资源引用)
@@ -453,6 +477,12 @@ namespace glimmer {
         bool isOverwritable = false;
         //@genNextLine(When being destroyed/overwritten, will debris be generated|被销毁/覆盖时 是否生成掉落物)
         bool canDropLoot = true;
+        //@genNextLine(The anchor point type of the tiles. When placing large tiles, the placement position is relative to the anchor point of the tile. The anchor point is based on the player's right side.|瓦片的锚点类型，当放置大型瓦片时放置位置相对于瓦片的锚点，锚点以玩家右侧为准)
+        uint8_t tileAnchorType = static_cast<uint8_t>(TileAnchorType::BottomLeft);
+        //@genNextLine(The anchor point coordinates of the tiles, when tileAnchorType is set to "Custom", can be defined; for other values, the engine will calculate them automatically.|瓦片的锚点坐标，tileAnchorType为Custom值时可定义，其他值为引擎自动计算。)
+        Vector2DIResource customTileAnchor = {1, 1};
+        //@genNextLine(Allow anchor adjustment by facing direction.|允许按朝向调整锚点，放置瓦片时，开启就会跟着左右朝向自动调换锚点，让瓦片顺着朝向方向延伸，关闭则固定原始锚点不动。)
+        bool allowDirAdjustAnchor = true;
     };
 
     //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)

@@ -57,8 +57,6 @@ static constexpr std::string SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME = "&scan_key";
 static constexpr std::string EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME = "&event_type";
 static constexpr std::string MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME = "&mouse_button";
 
-static constexpr std::string STRUCTURE_GENERATOR_ID_TREE = "tree";
-static constexpr std::string STRUCTURE_GENERATOR_ID_STATIC = "static";
 static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_DIG = "dig";
 static constexpr std::string ABILITY_ID_AREA_MARKER = "areaMarker";
@@ -95,6 +93,8 @@ static constexpr std::string DATA_FILE_TYPE_COMPOSABLE_ITEM = "composable";
 static constexpr std::string DATA_FILE_TYPE_ABILITY_ITEM = "ability";
 static constexpr std::string DATA_FILE_TYPE_LOOT_TABLE = "loot";
 static constexpr std::string DATA_FILE_TYPE_STRUCTURE = "structure";
+static const std::string DATA_FILE_TYPE_STATIC_STRUCTURE = "static_structure";
+static constexpr std::string DATA_FILE_TYPE_TREE_STRUCTURE = "tree_structure";
 static constexpr std::string DATA_FILE_TYPE_INITIAL_INVENTORY = "startinv";
 static constexpr std::string DATA_FILE_TYPE_CONTRIBUTOR = "contributor";
 static constexpr std::string DATA_FILE_TYPE_COLOR = "color";

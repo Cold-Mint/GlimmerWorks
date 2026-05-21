@@ -172,7 +172,7 @@ void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer *renderer, const Pre
     }
     errorTexture_ = CreateTexture(preloadColors->error.accentColor, preloadColors->error.baseColor);
     accessDeniedTexture_ = CreateTexture(preloadColors->accessDenied.accentColor,
-                                                     preloadColors->accessDenied.baseColor);
+                                         preloadColors->accessDenied.baseColor);
 }
 
 int glimmer::ResourcePackManager::Scan(const std::string &path, const std::vector<std::string> &enabledResourcePack,
@@ -253,9 +253,9 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 }
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(AppContext *appContext,
-                                                                               const ResourceRef &resourceRef) {
-    if (resourceRef.GetPackageId() == RESOURCE_REF_CORE) {
-        const std::string resourceKey = resourceRef.GetResourceKey();
+                                                                               const ResourceRef *resourceRef) {
+    if (resourceRef->GetPackageId() == RESOURCE_REF_CORE) {
+        const std::string resourceKey = resourceRef->GetResourceKey();
         if (resourceKey == ERROR_TEXTURE_KEY) {
             return errorTexture_;
         }
@@ -263,7 +263,7 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(A
             return accessDeniedTexture_;
         }
     }
-    std::string path = resourceRef.GetPackageId() + "/" + resourceRef.GetResourceKey();
+    std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
     return appContext->AddMainThreadTaskAwait(
         [this,appContext, path] {
             auto result = ImplLoadTextureFromFile(path, appContext->GetConfig()->mods);
@@ -278,8 +278,8 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(A
 }
 
 std::shared_ptr<MIX_Audio> glimmer::ResourcePackManager::LoadAudioFromFile(AppContext *appContext,
-                                                                           const ResourceRef &resourceRef) {
-    std::string path = resourceRef.GetPackageId() + "/" + resourceRef.GetResourceKey();
+                                                                           const ResourceRef *resourceRef) {
+    std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
     return appContext->AddMainThreadTaskAwait(
         [this,appContext, path] {
             return ImplLoadAudioFromFile(path, appContext->GetConfig()->mods);
@@ -288,8 +288,8 @@ std::shared_ptr<MIX_Audio> glimmer::ResourcePackManager::LoadAudioFromFile(AppCo
 }
 
 glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const AppContext *appContext,
-                                                                           const ResourceRef &resourceRef) {
-    std::string path = resourceRef.GetPackageId() + "/" + resourceRef.GetResourceKey();
+                                                                           const ResourceRef *resourceRef) {
+    std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
     const auto cacheIt = colorCache_.find(path);
     if (cacheIt != colorCache_.end()) {
         return cacheIt->second.get();
@@ -322,6 +322,7 @@ glimmer::ColorResource *glimmer::ResourcePackManager::LoadColorResFromFile(const
     }
     return nullptr;
 }
+
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateTexture(Color accent, Color base) const {
     if (renderer_ == nullptr) {

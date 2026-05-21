@@ -13,7 +13,8 @@
 #include "core/world/WorldContext.h"
 
 
-glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileLayerType layerType, const TileVector2D &tilePos) const {
+const glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileLayerType layerType,
+                                                          const TileVector2D &tilePos) const {
     if (worldContext_ == nullptr) {
         return nullptr;
     }
@@ -21,16 +22,32 @@ glimmer::Tile *glimmer::TileLayerComponent::GetTile(const TileLayerType layerTyp
     if (chunk == nullptr) {
         return nullptr;
     }
-    return chunk->GetTile(layerType, Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos));
+    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    return chunk->GetTile(layerType, pos.y << CHUNK_SHIFT | pos.x);
 }
 
-std::vector<glimmer::Tile *> glimmer::TileLayerComponent::GetTopVisibleTiles(
+std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetTilePtr(const TileLayerType layerType,
+                                                                       const TileVector2D &tilePos) const {
+    if (worldContext_ == nullptr) {
+        return nullptr;
+    }
+    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    if (chunk == nullptr) {
+        return nullptr;
+    }
+    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    return chunk->GetTilePtr(layerType, pos.y << CHUNK_SHIFT | pos.x);
+}
+
+
+std::vector<const glimmer::Tile *> glimmer::TileLayerComponent::GetTopVisibleTiles(
     const Chunk *chunk, const uint8_t layerFilter,
     const TileVector2D &tilePos) {
     if (chunk == nullptr) {
         return {};
     }
-    return chunk->GetTopVisibleTiles(layerFilter, Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos));
+    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    return chunk->GetTopVisibleTiles(layerFilter, pos.y << CHUNK_SHIFT | pos.x);
 }
 
 WorldVector2D glimmer::TileLayerComponent::TileToWorld(
@@ -55,7 +72,7 @@ TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D &world
     };
 }
 
-std::vector<std::pair<TileVector2D, std::vector<glimmer::Tile *> > > glimmer::TileLayerComponent::
+std::vector<std::pair<TileVector2D, std::vector<const glimmer::Tile *> > > glimmer::TileLayerComponent::
 GetTopVisibleTilesInViewport(const uint8_t layerFilter, const SDL_FRect &worldViewport) const {
     if (worldContext_ == nullptr) {
         return {};
@@ -67,7 +84,7 @@ GetTopVisibleTilesInViewport(const uint8_t layerFilter, const SDL_FRect &worldVi
         worldViewport.x + worldViewport.w + TILE_SIZE,
         worldViewport.y + worldViewport.h + TILE_SIZE
     });
-    std::vector<std::pair<TileVector2D, std::vector<Tile *> > > visibleTiles;
+    std::vector<std::pair<TileVector2D, std::vector<const Tile *> > > visibleTiles;
     for (int y = topLeft.y; y <= bottomRight.y; ++y) {
         for (int x = topLeft.x; x <= bottomRight.x; ++x) {
             TileVector2D tileVector2D(x, y);
@@ -81,8 +98,18 @@ GetTopVisibleTilesInViewport(const uint8_t layerFilter, const SDL_FRect &worldVi
     return visibleTiles;
 }
 
+const glimmer::Tile *glimmer::TileLayerComponent::GetSelfLayerTile(const TileVector2D &tilePos) const {
+    return GetTile(GetTileLayerType(), tilePos);
+}
 
-bool glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, std::unique_ptr<Tile> tile) const {
+
+std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetSelfLayerTilePtr(const TileVector2D &tilePos) const {
+    return GetTilePtr(GetTileLayerType(), tilePos);
+}
+
+
+bool glimmer::TileLayerComponent::CommitTileState(const TileLayerType layerType, const TileVector2D &tilePos,
+                                                  const bool fallback) const {
     if (worldContext_ == nullptr) {
         return false;
     }
@@ -90,25 +117,26 @@ bool glimmer::TileLayerComponent::SetTile(const TileVector2D &tilePos, std::uniq
     if (chunk == nullptr) {
         return false;
     }
-    chunk->SetTile(Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos), std::move(tile));
-    return true;
+    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    return chunk->CommitTileState(layerType, pos.y << CHUNK_SHIFT | pos.x, fallback);
 }
 
-glimmer::Tile *glimmer::TileLayerComponent::GetSelfLayerTile(const TileVector2D &tilePos) const {
-    return GetTile(GetTileLayerType(), tilePos);
-}
-
-std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::ReplaceTile(const TileVector2D &tileVector2d,
-                                                                        const std::shared_ptr<Tile> &newTile) const {
+TileStateMessage *glimmer::TileLayerComponent::GetTileStatePtr(const TileLayerType layerType,
+                                                               const TileVector2D &tilePos) const {
     if (worldContext_ == nullptr) {
         return nullptr;
     }
-    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d));
+    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr) {
         return nullptr;
     }
-    return chunk->ReplaceTile(GetTileLayerType(), Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2d),
-                              newTile);
+    const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
+    return chunk->GetTileState(layerType, pos.y << CHUNK_SHIFT | pos.x);
+}
+
+const TileStateMessage *glimmer::TileLayerComponent::GetTileState(const TileLayerType layerType,
+                                                                  const TileVector2D &tilePos) const {
+    return GetTileStatePtr(layerType, tilePos);
 }
 
 

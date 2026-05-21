@@ -43,7 +43,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const GameEntity::ID id, 
     if (resourceLocator == nullptr) {
         return;
     }
-    MobResource *mobResource = resourceLocator->FindMob(resourceRef);
+    MobResource *mobResource = resourceLocator->FindMob(&resourceRef);
     if (mobResource == nullptr) {
         return;
     }

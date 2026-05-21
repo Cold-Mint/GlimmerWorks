@@ -360,7 +360,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
     std::sort(files.begin(), files.end());
     std::vector<std::string> defaultLanguageFiles;
     std::vector<std::string> targetLanguageFiles;
-    const std::unordered_set<std::string> skipFiles = {".gitignore", ".public", ".sign"};
     Config *config = appContext->GetConfig();
     packVerifyState_ = PackVerifyState::Unsigned;
     bool findPublicKey = false;
@@ -368,14 +367,18 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
     std::vector<uint8_t> publicKey(32);
     std::vector<uint8_t> signature(64);
     std::vector<uint8_t> allHashData;
+    std::string publicPath = rootPath_ + "/.public";
+    std::string signPath = rootPath_ + "/.sign";
     for (const auto &file: files) {
+        if (!virtualFileSystem_->IsFile(file)) {
+            continue;
+        }
         auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(file);
         if (!fileNameOptional.has_value()) {
             continue;
         }
         auto &fileName = fileNameOptional.value();
-        LogCat::d("fileName =", fileName);
-        if (!findPublicKey && config->mods.enableSignVerify && fileName == ".public") {
+        if (!findPublicKey && config->mods.enableSignVerify && file == publicPath) {
             auto publicKeyStream = virtualFileSystem_->ReadStream(file);
             if (publicKeyStream.has_value()) {
                 auto &pubStream = *publicKeyStream.value();
@@ -386,7 +389,7 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             }
             continue;
         }
-        if (!findSignature && config->mods.enableSignVerify && fileName == ".sign") {
+        if (!findSignature && config->mods.enableSignVerify && file == signPath) {
             auto signStream = virtualFileSystem_->ReadStream(file);
             if (signStream.has_value()) {
                 auto &sigStream = *signStream.value();
@@ -397,7 +400,7 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             }
             continue;
         }
-        if (skipFiles.contains(fileName)) {
+        if (!fileName.empty() && fileName[0] == '.') {
             continue;
         }
         std::optional<std::unique_ptr<std::istream> > istreamOptional = virtualFileSystem_->ReadStream(file);

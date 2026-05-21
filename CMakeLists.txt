@@ -2,13 +2,24 @@ cmake_minimum_required(VERSION 4.2.2)
 project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
 
-#Open the build log and progress output
-#打开构建日志和进度输出
-set(FETCHCONTENT_QUIET OFF CACHE BOOL "Show real-time git clone progress (ON=quiet, OFF=visible)" FORCE)
-set(CMAKE_MESSAGE_LOG_LEVEL STATUS CACHE STRING
-        "CMake message verbosity level")
+include("${CMAKE_CURRENT_SOURCE_DIR}/versions.cmake")
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
+    message(FATAL_ERROR "The file \"config.cmake\" was not found. Please copy \"config_template.cmake\", fill in its content, rename it to \"config.cmake\", and then run it again.")
+endif ()
+include("${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
 
-include("versions.cmake")
+if (NOT EXISTS ${PACK_SIGNER_EXE})
+    message(FATAL_ERROR "The file pointed to by PACK_SIGNER_EXE does not exist.")
+endif ()
+
+if (NOT EXISTS ${SIGN_PRIVATE_KEY})
+    message(FATAL_ERROR "The file pointed to by SIGN_PRIVATE_KEY does not exist.")
+endif ()
+
+if (NOT EXISTS ${SIGN_PUBLIC_KEY})
+    message(FATAL_ERROR "The file pointed to by SIGN_PUBLIC_KEY does not exist.")
+endif ()
+
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(ARCH_BIT "64")
     set(LIB_DIR "lib64")
@@ -47,7 +58,6 @@ set(GAME_VERSION_STRING
 
 include(FetchContent)
 
-option(UNIT_TEST "Enable unit test" OFF)
 if (UNIT_TEST)
     add_compile_definitions(UNIT_TEST_MODE)
 
@@ -55,7 +65,6 @@ if (UNIT_TEST)
             googletest
             GIT_REPOSITORY "https://github.com/google/googletest"
             GIT_TAG ${GOOGLE_GOOGLETEST_VERSION}
-            GIT_PROGRESS TRUE
             EXCLUDE_FROM_ALL
     )
     FetchContent_MakeAvailable(googletest)
@@ -90,7 +99,7 @@ if (UNIT_TEST)
     target_link_libraries(LightTest PRIVATE gtest_main gtest)
     return()
 endif ()
-option(X11_SUPPORT "Enable X11 support" OFF)
+
 set(SDL_CAMERA OFF)
 set(SDL_TRAY OFF)
 # JOYSTICK
@@ -190,7 +199,6 @@ FetchContent_Declare(
         SDL
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL"
         GIT_TAG ${LIBSDL-ORG_SDL_VERSION}
-        GIT_PROGRESS TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(SDL)
@@ -204,7 +212,6 @@ FetchContent_Declare(
         SDL_image
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_image"
         GIT_TAG ${LIBSDL-ORG_SDL_IMAGE_VERSION}
-        GIT_PROGRESS TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(SDL_image)
@@ -214,7 +221,6 @@ FetchContent_Declare(
         SDL_ttf
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_ttf"
         GIT_TAG ${LIBSDL-ORG_SDL_TTF_VERSION}
-        GIT_PROGRESS TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(SDL_ttf)
@@ -223,7 +229,6 @@ FetchContent_Declare(
         SDL_mixer
         GIT_REPOSITORY "https://github.com/libsdl-org/SDL_mixer"
         GIT_TAG ${LIBSDL-ORG_SDL_MIXER_VERSION}
-        GIT_PROGRESS TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(SDL_mixer)
@@ -231,7 +236,6 @@ FetchContent_MakeAvailable(SDL_mixer)
 FetchContent_Declare(
         imgui
         GIT_REPOSITORY "https://github.com/ocornut/imgui"
-        GIT_PROGRESS TRUE
         GIT_TAG ${OCORNUT_IMGUI_VERSION}
         EXCLUDE_FROM_ALL
 )
@@ -240,7 +244,6 @@ FetchContent_MakeAvailable(imgui)
 FetchContent_Declare(
         tweeny
         GIT_REPOSITORY "https://github.com/mobius3/tweeny"
-        GIT_PROGRESS TRUE
         GIT_TAG ${MOBIUS3_TWEENY_VERSION}
         EXCLUDE_FROM_ALL
 )
@@ -249,7 +252,6 @@ FetchContent_MakeAvailable(tweeny)
 FetchContent_Declare(
         fmt
         GIT_REPOSITORY "https://github.com/fmtlib/fmt"
-        GIT_PROGRESS TRUE
         GIT_TAG ${FMTLIB_FMT_VERSION}
         EXCLUDE_FROM_ALL
 )
@@ -258,7 +260,6 @@ FetchContent_MakeAvailable(fmt)
 FetchContent_Declare(
         fastNoiseLite
         GIT_REPOSITORY "https://github.com/Auburn/FastNoiseLite"
-        GIT_PROGRESS TRUE
         GIT_TAG ${AUBURN_FASTNOISELITE_VERSION}
         EXCLUDE_FROM_ALL
 )
@@ -268,7 +269,6 @@ FetchContent_Declare(
         box2d
         GIT_REPOSITORY "https://github.com/erincatto/box2d"
         GIT_TAG ${ERINCATTO_BOX2D_VERSION}
-        GIT_PROGRESS TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(box2d)
@@ -277,7 +277,6 @@ FetchContent_Declare(
         toml11
         GIT_REPOSITORY "https://github.com/ToruNiina/toml11"
         GIT_TAG ${TORUNIINA_TOML11_VERSION}
-        GIT_PROGRESS TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(toml11)
@@ -285,7 +284,6 @@ FetchContent_MakeAvailable(toml11)
 FetchContent_Declare(
         glimmerWorksProtobuf
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerWorksProtobuf"
-        GIT_PROGRESS TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
@@ -294,17 +292,15 @@ FetchContent_Declare(
         blake3
         GIT_REPOSITORY "https://github.com/BLAKE3-team/BLAKE3"
         GIT_TAG ${BLAKE3-TEAM_BLAKE3_VERSION}
-        GIT_PROGRESS TRUE
+        SOURCE_SUBDIR c
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(blake3)
-add_subdirectory(${blake3_SOURCE_DIR}/c)
 
 FetchContent_Declare(
         monoCypher
         GIT_REPOSITORY "https://github.com/LoupVaillant/Monocypher"
         GIT_TAG ${LOUPVAILLANT_MONOCYPHER_VERSION}
-        GIT_PROGRESS TRUE
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(monoCypher)
@@ -922,7 +918,6 @@ file(WRITE "${CMAKE_BINARY_DIR}/.gitignore" "*")
 FetchContent_Declare(
         VanillaDataPack
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksData"
-        GIT_PROGRESS TRUE
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/data_packs/glimmerworks"
 )
 
@@ -934,7 +929,6 @@ endif ()
 FetchContent_Declare(
         VanillaResourcePack
         GIT_REPOSITORY "https://github.com/Cold-Mint/GlimmerworksAssets"
-        GIT_PROGRESS TRUE
         SOURCE_DIR "${CMAKE_BINARY_DIR}/mods/resource_packs/glimmerworks_res"
 )
 
@@ -971,7 +965,37 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/core_langs/"
         DESTINATION "langs")
 install(DIRECTORY "${CMAKE_BINARY_DIR}/mods/"
         DESTINATION "mods"
-        PATTERN ".git" EXCLUDE)
+        PATTERN ".*" EXCLUDE
+)
+
+install(CODE "
+    # 安装目标根目录（由 CMAKE_INSTALL_PREFIX 和 DESTDIR 共同决定）
+    set(INSTALL_MODS_DIR \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/mods\")
+    set(DATA_PACKS_DIR \"\${INSTALL_MODS_DIR}/data_packs\")
+
+    if(NOT EXISTS \"\${DATA_PACKS_DIR}\")
+        message(WARNING \"Data packs directory not found: \${DATA_PACKS_DIR}, skip signing.\")
+    else()
+        file(GLOB SUB_DIRS LIST_DIRECTORIES true \"\${DATA_PACKS_DIR}/*\")
+        foreach(SUB_DIR \${SUB_DIRS})
+            if(IS_DIRECTORY \${SUB_DIR})
+                get_filename_component(PACK_NAME \${SUB_DIR} NAME)
+                message(STATUS \"Signing data pack: \${PACK_NAME} at \${SUB_DIR}\")
+                execute_process(
+                    COMMAND \"${PACK_SIGNER_EXE}\" sign
+                            -k \"${SIGN_PRIVATE_KEY}\"
+                            -p \"${SIGN_PUBLIC_KEY}\"
+                            -d \"\${SUB_DIR}\"
+                    RESULT_VARIABLE SIGN_RESULT
+                )
+                if(NOT SIGN_RESULT EQUAL 0)
+                    message(FATAL_ERROR \"Signing failed for \${SUB_DIR}\")
+                endif()
+            endif()
+        endforeach()
+    endif()
+")
+
 install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
         DESTINATION .)
 
@@ -1606,6 +1630,14 @@ endif ()
 if (UNIX AND NOT APPLE)
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_ttf-build/libSDL3_ttf.${LIB_SUFFIX}.0" DESTINATION ${LIB_DIR})
     install(FILES "${CMAKE_BINARY_DIR}/_deps/sdl_ttf-build/libSDL3_ttf.${LIB_SUFFIX}.0.2.2" DESTINATION ${LIB_DIR})
+endif ()
+
+if (WIN32)
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/blake3-build/libblake3.${LIB_SUFFIX}" DESTINATION ${LIB_DIR})
+endif ()
+if (UNIX AND NOT APPLE)
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/blake3-build/libblake3.${LIB_SUFFIX}.0" DESTINATION ${LIB_DIR})
+    install(FILES "${CMAKE_BINARY_DIR}/_deps/blake3-build/libblake3.${LIB_SUFFIX}.1.8.5" DESTINATION ${LIB_DIR})
 endif ()
 
 

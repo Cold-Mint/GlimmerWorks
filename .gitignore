@@ -4,3 +4,7 @@
 #vscode
 .vscode/
 .claude/
+# Key folder
+# 密钥文件夹
+keys/
+config.cmake

@@ -71,10 +71,6 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(const float humidi
             bestBiome = biome;
         }
     }
-
-    if (bestBiome != nullptr) {
-        LogCat::d("return bestBiome = ", Resource::GenerateId(bestBiome->packId, bestBiome->resourceId));
-    }
     return bestBiome;
 }
 

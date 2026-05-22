@@ -14,7 +14,7 @@ namespace glimmer {
      * 将其添加到一个游戏对象上，使游戏对象拥有持有物品的能力。
      */
     class ItemContainerComponent : public GameComponent {
-        std::unique_ptr<ItemContainer> itemContainer_;
+        std::unique_ptr<ItemContainer> itemContainer_ = nullptr;
 
     public:
         explicit ItemContainerComponent(size_t capacity);

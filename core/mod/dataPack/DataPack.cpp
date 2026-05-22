@@ -73,7 +73,6 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string &path, Strin
             );
             count++;
         }
-        LogCat::i("Loaded ", count, " language entries from ", path);
         return count;
     } catch (const std::exception &e) {
         LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
@@ -147,6 +146,7 @@ void glimmer::DataPack::LoadTileResourceFromFile(const toml::value &value, TileR
     tileResource->name.SetSelfPackageId(manifest_.id);
     tileResource->description.SetSelfPackageId(manifest_.id);
     tileResource->texture.SetSelfPackageId(manifest_.id);
+    tileResource->blueprintTexture.SetSelfPackageId(manifest_.id);
     tileResource->breakSfx.SetSelfPackageId(manifest_.id);
     tileResource->placeSfx.SetSelfPackageId(manifest_.id);
     tileResource->lightSource.SetSelfPackageId(manifest_.id);
@@ -321,28 +321,13 @@ bool glimmer::DataPack::LoadManifest() {
     auto data =
             virtualFileSystem_->ReadFile(rootPath_ + "/" + MANIFEST_FILE_NAME);
     if (!data.has_value()) {
-        LogCat::e("DataPack::loadManifest - Failed to load manifest: ", rootPath_ + "/" + MANIFEST_FILE_NAME);
         return false;
     }
 
     const toml::value value = toml::parse_str(data.value(), tomlVersion_);
-    try {
-        manifest_ = toml::get<DataPackManifest>(value);
-    } catch (const std::exception &e) {
-        LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
-        return false;
-    }
+    manifest_ = toml::get<DataPackManifest>(value);
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);
-    LogCat::d("DataPack::loadManifest - Loaded manifest for data pack: ", rootPath_);
-    LogCat::d("ID: ", manifest_.id);
-    LogCat::d("Name: ", manifest_.name.GetResourceKey(), " (packId: ", manifest_.name.GetPackageId(), ")");
-    LogCat::d("Description: ", manifest_.description.GetResourceKey(), " (packId: ",
-              manifest_.description.GetPackageId(), ")");
-    LogCat::d("Author: ", manifest_.author);
-    LogCat::d("Version: ", manifest_.versionName, " (Number: ", manifest_.versionNumber, ")");
-    LogCat::d("Minimum Game Version: ", manifest_.minGameVersion);
-    LogCat::d("Is Resource Pack: ", manifest_.resPack ? "true" : "false");
     return true;
 }
 
@@ -447,7 +432,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             continue;
         }
         if (dataType == DATA_FILE_TYPE_TILE) {
-            LogCat::d("Loading tile file: ", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -456,7 +440,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             continue;
         }
         if (dataType == DATA_FILE_TYPE_BIOME) {
-            LogCat::d("Loading biomes file: ", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -466,7 +449,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
         }
 
         if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM) {
-            LogCat::d("Loading composableItem file: ", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -476,7 +458,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
         }
 
         if (dataType == DATA_FILE_TYPE_ABILITY_ITEM) {
-            LogCat::d("Loading abilityItem file: ", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -485,7 +466,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             continue;
         }
         if (dataType == DATA_FILE_TYPE_LOOT_TABLE) {
-            LogCat::d("Loading lootTable file: ", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -493,7 +473,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_TREE_STRUCTURE) {
-            LogCat::d("Loading structure file: ", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -502,7 +481,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_STATIC_STRUCTURE) {
-            LogCat::d("Loading structure file: ", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -511,7 +489,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_INITIAL_INVENTORY) {
-            LogCat::d("Loading startinv file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -519,7 +496,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_CONTRIBUTOR) {
-            LogCat::d("Loading contributor file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -527,7 +503,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_MOB) {
-            LogCat::d("Loading mob file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -535,7 +510,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_SHAPE_CIRCLE) {
-            LogCat::d("Loading circle file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -543,7 +517,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_SHAPE_RECTANGLE) {
-            LogCat::d("Loading rectangle file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -551,7 +524,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE) {
-            LogCat::d("Loading rounded rectangle file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -560,7 +532,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
         }
 
         if (dataType == DATA_FILE_TYPE_DECORATOR_FILL) {
-            LogCat::d("Loading decorator fill file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -569,7 +540,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_DECORATOR_MINERAL) {
-            LogCat::d("Loading decorator mineral file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -578,7 +548,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_DECORATOR_SURFACE) {
-            LogCat::d("Loading decorator surface file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -587,7 +556,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_FIXED_COLOR) {
-            LogCat::d("Loading fixed color file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -595,7 +563,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_LIGHT_MASK) {
-            LogCat::d("Loading mask file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
@@ -603,7 +570,6 @@ bool glimmer::DataPack::LoadPack(AppContext *appContext) {
             total++;
         }
         if (dataType == DATA_FILE_TYPE_LIGHT_SOURCE) {
-            LogCat::d("Loading source file:", file);
             const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);

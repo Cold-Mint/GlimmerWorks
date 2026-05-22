@@ -11,6 +11,7 @@ namespace glimmer {
         std::shared_ptr<MIX_Audio> pickItemSFX_;
         WorldVector2D lastPosition{};
         float remainingTime_ = MERGE_DURATION;
+        AudioManager *audioManager_ = nullptr;
 
         std::unordered_map<std::string, size_t> frameItemCounts_ = {};
 

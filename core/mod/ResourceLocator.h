@@ -38,6 +38,7 @@ namespace glimmer {
         explicit ResourceLocator(AppContext *appContext_);
 
         [[nodiscard]] std::shared_ptr<SDL_Texture> FindTexture(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::shared_ptr<SDL_Texture> FindTextureRaw(const ResourceRef *resourceRef) const;
 
         [[nodiscard]] std::shared_ptr<MIX_Audio> FindAudio(const ResourceRef *resourceRef) const;
 

@@ -144,54 +144,39 @@ void glimmer::PlayerControlSystem::Update(const float delta) {
         playerComponent->dropPressed = false;
     }
 
-    if (playerComponent->mouseLeftDown && hotBarComp && containerComp) {
-        auto &slotEntityList = hotBarComp->GetSlotEntities();
-        int total = slotEntityList.size();
-        for (int i = 0; i < total; i++) {
-            const auto entityId = slotEntityList[i];
-            if (WorldContext::IsEmptyEntityId(entityId)) {
-                continue;
-            }
-            auto *itemSlot = worldContext_->GetComponent<ItemSlotComponent>(entityId);
-            if (itemSlot == nullptr) {
-                continue;
-            }
-            if (itemSlot->IsSelected()) {
-                if (const auto itemContainer = containerComp->GetItemContainer()) {
-                    if (Item *item = itemContainer->GetItem(i)) {
-                        slipTimer_ += delta;
-                        std::unordered_set<std::string> popupAbility;
-                        const AbilityConfig &abilityConfig = item->GetAbilityConfig();
-                        if (slipTimer_ > 0.5F) {
-                            slipTimer_ = 0.0F;
-                            float fumbleChance = std::clamp(abilityConfig.fumbleProbability, 0.0F, 1.0F);
-                            if (fumbleChance > 0.0F) {
-                                std::uniform_real_distribution dist(0.0F, 1.0F);
-                                std::random_device rd;
-                                std::mt19937 rng(rd());
-                                float randomValue = dist(rng);
+    if (playerComponent->mouseLeftDown && playerComponent->item != nullptr && hotBarComp && containerComp) {
+        const auto itemContainer = containerComp->GetItemContainer();
+        int index = itemContainer->FindIndex(playerComponent->item);
+        if (index >= 0) {
+            slipTimer_ += delta;
+            std::unordered_set<std::string> popupAbility;
+            const AbilityConfig &abilityConfig = playerComponent->item->GetAbilityConfig();
+            if (slipTimer_ > 0.5F) {
+                slipTimer_ = 0.0F;
+                float fumbleChance = std::clamp(abilityConfig.fumbleProbability, 0.0F, 1.0F);
+                if (fumbleChance > 0.0F) {
+                    std::uniform_real_distribution dist(0.0F, 1.0F);
+                    std::random_device rd;
+                    std::mt19937 rng(rd());
+                    float randomValue = dist(rng);
 
-                                if (randomValue <= fumbleChance) {
-                                    const GameEntity::ID droppedEntity = worldContext_->CreateEntity();
-                                    DroppedItemCreator droppedItemCreator{worldContext_};
-                                    droppedItemCreator.LoadTemplateComponents(droppedEntity,
-                                                                              DroppedItemCreator::GetResourceRef());
-                                    droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                                                              DroppedItemCreator::GetEntityItemMessage(
-                                                                                  worldContext_->GetCameraTransform2D()
-                                                                                  ->
-                                                                                  GetPosition(),
-                                                                                  std::move(itemContainer->TakeAllItem(
-                                                                                      i)),
-                                                                                  2));
-                                }
-                            }
-                        }
-                        item->OnUse(worldContext_, player, abilityConfig, popupAbility);
+                    if (randomValue <= fumbleChance) {
+                        const GameEntity::ID droppedEntity = worldContext_->CreateEntity();
+                        DroppedItemCreator droppedItemCreator{worldContext_};
+                        droppedItemCreator.LoadTemplateComponents(droppedEntity,
+                                                                  DroppedItemCreator::GetResourceRef());
+                        droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                                                  DroppedItemCreator::GetEntityItemMessage(
+                                                                      worldContext_->GetCameraTransform2D()
+                                                                      ->
+                                                                      GetPosition(),
+                                                                      std::move(itemContainer->TakeAllItem(
+                                                                          index)),
+                                                                      2));
                     }
                 }
-                break;
             }
+            playerComponent->item->OnUse(worldContext_, player, abilityConfig, popupAbility);
         }
     } else {
         slipTimer_ = 0.0F;

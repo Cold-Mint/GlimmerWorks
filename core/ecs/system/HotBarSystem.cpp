@@ -35,6 +35,8 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event &event) {
         }
         ItemSlotComponent *previousItemSlot = nullptr;
         ItemSlotComponent *currentItemSlot = nullptr;
+        int prevIdx = 0;
+        int nextIdx = 0;
         ItemSlotComponent *nextItemSlot = nullptr;
         for (int i = 0; i < slotEntityList.size(); ++i) {
             const auto entityId = slotEntityList[i];
@@ -47,20 +49,22 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event &event) {
             }
             if (itemSlot->IsSelected()) {
                 currentItemSlot = itemSlot;
-                int prevIdx = (i - 1 + total) % total;
-                int nextIdx = (i + 1) % total;
+                prevIdx = (i - 1 + total) % total;
+                nextIdx = (i + 1) % total;
                 previousItemSlot = worldContext_->GetComponent<ItemSlotComponent>(slotEntityList[prevIdx]);
                 nextItemSlot = worldContext_->GetComponent<ItemSlotComponent>(slotEntityList[nextIdx]);
                 break;
             }
         }
+        int focusIndex = 0;
         if (event.wheel.y > 0) {
             if (currentItemSlot != nullptr) {
                 currentItemSlot->
-                SetSelected(false);
+                        SetSelected(false);
             }
             if (previousItemSlot != nullptr) {
                 previousItemSlot->SetSelected(true);
+                focusIndex = prevIdx;
             }
         } else if (event.wheel.y < 0) {
             if (currentItemSlot != nullptr) {
@@ -68,6 +72,19 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event &event) {
             }
             if (nextItemSlot != nullptr) {
                 nextItemSlot->SetSelected(true);
+                focusIndex = nextIdx;
+            }
+        }
+        GameEntity::ID playerId = worldContext_->GetPlayerEntity();
+        auto playerComponent = worldContext_->GetComponent<PlayerComponent>(
+            playerId);
+        if (playerComponent != nullptr) {
+            auto containerComponent = worldContext_->GetComponent<ItemContainerComponent>(playerId);
+            if (containerComponent != nullptr) {
+                ItemContainer *container = containerComponent->GetItemContainer();
+                if (container != nullptr) {
+                    playerComponent->item = container->GetItem(focusIndex);
+                }
             }
         }
         return true;

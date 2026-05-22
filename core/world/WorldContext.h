@@ -22,6 +22,7 @@
 #include "box2d/id.h"
 #include "core/ecs/component/ItemEditorComponent.h"
 #include "core/ecs/GameSystem.h"
+#include "core/ecs/component/AreaMarkerComponent.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/inventory/ComposableItem.h"
@@ -95,6 +96,9 @@ namespace glimmer {
          */
         Transform2DComponent *cameraTransform2D_ = nullptr;
 
+        AreaMarkerComponent *areaMarker_ = nullptr;
+
+
         /**
          * HotBar Component
          * 快捷栏组件
@@ -127,6 +131,7 @@ namespace glimmer {
         std::unique_ptr<ChunkLoader> chunkLoader_ = nullptr;
         std::unique_ptr<ChunkGenerator> chunkGenerator_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_;
+        std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > itemCallback_;
 
         /**
          * Whether to enable the item dragging mode
@@ -409,6 +414,10 @@ namespace glimmer {
 
         [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 
+
+        [[nodiscard]] AreaMarkerComponent *GetAreaMarkerComponent() const;
+
+        void SetAreaMarkerComponent(AreaMarkerComponent *areaMarkerComponent);
 
         [[nodiscard]] GameEntity::ID GetHotBarEntity() const;
 

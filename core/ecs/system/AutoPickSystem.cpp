@@ -17,17 +17,20 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem
     RequireComponent<AutoPickComponent>();
     RequireComponent<MagnetComponent>();
     RequireComponent<ItemContainerComponent>();
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext != nullptr) {
-        ResourceRef ref;
-        ref.SetSelfPackageId(RESOURCE_REF_CORE);
-        ref.SetResourceType(ResourceTypeMessage::Audio);
-        ref.SetResourceKey("sfx/pick_item");
-        pickItemSFX_ = appContext->GetResourceLocator()->FindAudio(&ref);
-    }
+
+    AppContext *appContext = worldContext->GetAppContext();
+    ResourceRef ref;
+    ref.SetSelfPackageId(RESOURCE_REF_CORE);
+    ref.SetResourceType(ResourceTypeMessage::Audio);
+    ref.SetResourceKey("sfx/pick_item");
+    pickItemSFX_ = appContext->GetResourceLocator()->FindAudio(&ref);
+    audioManager_ = appContext->GetAudioManager();
 }
 
-void glimmer::AutoPickSystem::Update(float delta) {
+void glimmer::AutoPickSystem::Update(const float delta) {
+    if (audioManager_ == nullptr) {
+        return;
+    }
     if (remainingTime_ <= 0) {
         if (!frameItemCounts_.empty()) {
             std::stringstream stringStream{};
@@ -75,7 +78,7 @@ void glimmer::AutoPickSystem::Update(float delta) {
 
             auto item = containerComponent->GetItemContainer()->AddItem(std::move(extractItem));
             if (item == nullptr) {
-                worldContext_->GetAppContext()->GetAudioManager()->TryPlayFree(AMBIENT, pickItemSFX_.get(), 0);
+                audioManager_->TryPlayFree(AMBIENT, pickItemSFX_.get(), 0);
             }
             worldContext_->RemoveEntity(entityId);
         }

@@ -43,8 +43,6 @@ glimmer::StringResource *glimmer::StringManager::AddCoreResource(const std::stri
 
 
 glimmer::StringResource *glimmer::StringManager::AddResource(std::unique_ptr<StringResource> stringResource) {
-    LogCat::i("Registering string resource: packId = ", stringResource->packId,
-              ", id = ", stringResource->resourceId, "value = ", stringResource->value);
     auto &slot =
             stringMap_[stringResource->packId][stringResource->resourceId];
     slot = std::move(stringResource);
@@ -65,8 +63,6 @@ glimmer::StringResource *glimmer::StringManager::Find(const std::string &packId,
         LogCat::w("Key not found in pack ", packId, ": ", key);
         return nullptr;
     }
-
-    LogCat::i("Found string resource: packId = ", packId, ", key = ", key);
     return keyIt->second.get();
 }
 

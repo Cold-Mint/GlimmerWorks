@@ -14,7 +14,7 @@ const glimmer::ResourceRef *glimmer::Tile::GetSideLightMaskResource() const {
     return &sideLightMask_;
 }
 
-const glimmer::ResourceRef * glimmer::Tile::GetBackLightMaskResource() const {
+const glimmer::ResourceRef *glimmer::Tile::GetBackLightMaskResource() const {
     return &backLightMask_;
 }
 
@@ -40,6 +40,14 @@ const std::string &glimmer::Tile::GetId() const {
 
 SDL_Texture *glimmer::Tile::GetTexture() const {
     return texture_.get();
+}
+
+SDL_Texture * glimmer::Tile::GetBlueprintTexture() const {
+    return blueprintTexture_.get();
+}
+
+bool glimmer::Tile::EnableBlueprint() const {
+    return enableBlueprint_;
 }
 
 MIX_Audio *glimmer::Tile::GetBreakSFX() const {
@@ -200,6 +208,12 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->allowDirAdjustAnchor_ = tileResource->allowDirAdjustAnchor;
     tile->texture_ = resourceLocator->FindTexture(
         &tileResource->texture);
+    tile->enableBlueprint_ = tileResource->enableBlueprint;
+    tile->blueprintTexture_ = resourceLocator->FindTextureRaw(
+        &tileResource->blueprintTexture);
+    if (tile->blueprintTexture_ == nullptr) {
+        tile->blueprintTexture_ = tile->texture_;
+    }
     tile->breakSFX_ = resourceLocator->FindAudio(&tileResource->breakSfx);
     tile->placeSFX_ = resourceLocator->FindAudio(&tileResource->placeSfx);
     return tile;

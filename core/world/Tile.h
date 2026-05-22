@@ -9,7 +9,6 @@
 #include "generator/TileLayerType.h"
 #include "generator/TilePhysicsType.h"
 #include "SDL3/SDL_render.h"
-#include "src/saves/tile_state.pb.h"
 
 
 namespace glimmer {
@@ -20,12 +19,14 @@ namespace glimmer {
         std::string name_;
         std::optional<std::string> description_;
         std::shared_ptr<SDL_Texture> texture_;
+        std::shared_ptr<SDL_Texture> blueprintTexture_;
         std::shared_ptr<MIX_Audio> breakSFX_;
         std::shared_ptr<MIX_Audio> placeSFX_;
         bool customLootTable_ = false;
         ResourceRef lootTable_;
         float hardness_ = 1.0F;
         bool breakable = true;
+        bool enableBlueprint_ = true;
         bool allowChainMining_ = false;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
@@ -95,6 +96,10 @@ namespace glimmer {
         [[nodiscard]] const std::string &GetId() const;
 
         [[nodiscard]] SDL_Texture *GetTexture() const;
+
+        [[nodiscard]] SDL_Texture *GetBlueprintTexture() const;
+
+        [[nodiscard]] bool EnableBlueprint() const;
 
         [[nodiscard]] MIX_Audio *GetBreakSFX() const;
 

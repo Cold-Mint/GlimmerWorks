@@ -34,7 +34,7 @@ glimmer::ResourceLocator::ResourceLocator(AppContext *appContext_) : appContext_
 
 std::shared_ptr<SDL_Texture> glimmer::ResourceLocator::FindTexture(const ResourceRef *resourceRef) const {
     if (resourceRef == nullptr) {
-        return nullptr;
+        return appContext_->GetResourcePackManager()->errorTexture_;
     }
     if (resourceRef->GetResourceType() != Texture) {
         return appContext_->GetResourcePackManager()->errorTexture_;
@@ -43,6 +43,19 @@ std::shared_ptr<SDL_Texture> glimmer::ResourceLocator::FindTexture(const Resourc
         return appContext_->GetResourcePackManager()->accessDeniedTexture_;
     }
     return appContext_->GetResourcePackManager()->LoadTextureFromFile(appContext_, resourceRef);
+}
+
+std::shared_ptr<SDL_Texture> glimmer::ResourceLocator::FindTextureRaw(const ResourceRef *resourceRef) const {
+    if (resourceRef == nullptr) {
+        return nullptr;
+    }
+    if (resourceRef->GetResourceType() != Texture) {
+        return nullptr;
+    }
+    if (!ValidateAccessPermission(resourceRef)) {
+        return nullptr;
+    }
+    return appContext_->GetResourcePackManager()->LoadTextureFromFileRaw(appContext_, resourceRef);
 }
 
 std::shared_ptr<MIX_Audio> glimmer::ResourceLocator::FindAudio(const ResourceRef *resourceRef) const {

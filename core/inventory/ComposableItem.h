@@ -21,7 +21,7 @@ namespace glimmer {
         std::shared_ptr<SDL_Texture> icon_;
         AbilityConfig totalAbilityConfig_;
         size_t maxSlotSize_;
-        std::shared_ptr<std::function<void(ContainerChangeType)> > callback_;
+        std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > callback_;
 
 
         void AddCallback();

@@ -16,23 +16,25 @@ namespace glimmer {
     class ItemContainer {
         std::vector<std::unique_ptr<Item> > items_;
 
-        std::vector<std::shared_ptr<std::function<void(ContainerChangeType)> > > onContentChanged_;
+        std::vector<std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > > onContentChanged_;
 
         /**
          * Binding Item Event
          * 绑定物品事件
+         * @param index
          * @param item
          */
-        void BindItemEvent(std::unique_ptr<Item> &item) const;
+        void BindItemEvent(size_t index, std::unique_ptr<Item> &item) const;
 
         /**
          * Unbinding Item Incident
          * 解绑物品事件
+         * @param index
          * @param item
          */
-        void UnBindItemEvent(const std::unique_ptr<Item> &item) const;
+        void UnBindItemEvent(size_t index, const std::unique_ptr<Item> &item) const;
 
-        void InvokeOnContentChanged(ContainerChangeType containerChange) const;
+        void InvokeOnContentChanged(size_t index, Item * item, ContainerChangeType containerChange) const;
 
     public:
         explicit ItemContainer(size_t capacity);
@@ -41,19 +43,28 @@ namespace glimmer {
 
         ~ItemContainer();
 
-        std::shared_ptr<std::function<void(ContainerChangeType)> > AddOnContentChanged(
-            const std::function<void(ContainerChangeType)> &onContentChanged);
+        std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > AddOnContentChanged(
+            const std::function<void(size_t, Item *, ContainerChangeType)> &onContentChanged);
 
-        void RemoveOnContentChanged(const std::shared_ptr<std::function<void(ContainerChangeType)> > &onContentChanged);
+        void RemoveOnContentChanged(
+            const std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > &onContentChanged);
 
 
         /**
          * AddItem
          * 添加物品
-         * @param item item 物品
+         * @param newItem item 物品
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Item> AddItem(std::unique_ptr<Item> item);
+        [[nodiscard]] std::unique_ptr<Item> AddItem(std::unique_ptr<Item> newItem);
+
+        /**
+         * Locate the position where the item is located
+         * 查找物品所在的位置
+         * @param item
+         * @return A return value of -1 indicates that the item is not within the container. 返回-1,则表示不在容器内。
+         */
+        [[nodiscard]] int FindIndex(const Item *item);
 
         /**
          * Get Remaining Item Amount After Add

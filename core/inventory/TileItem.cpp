@@ -30,6 +30,10 @@ const std::optional<std::string> &glimmer::TileItem::GetDescription() const {
     return tile_->GetDescription();
 }
 
+const glimmer::Tile * glimmer::TileItem::GetTile() const {
+    return tile_.get();
+}
+
 void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
                               std::unordered_set<std::string> &popupAbility) {
     if (tile_ == nullptr) {

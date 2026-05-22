@@ -15,16 +15,6 @@ namespace glimmer {
          * Remove items
          * 移除物品
          */
-        REMOVE,
-        /**
-         * Increase in quantity
-         * 数量增加
-         */
-        COUNT_ADD,
-        /**
-         * Quantity removal
-         * 数量移除
-         */
-        COUNT_REMOVE
+        REMOVE
     };
 }

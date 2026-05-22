@@ -135,19 +135,14 @@ std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const {
 }
 
 void glimmer::ComposableItem::AddCallback() {
-    LogCat::d("ComposableItem AddCallback");
-    callback_ = itemContainer_->AddOnContentChanged([this](ContainerChangeType changeType) {
+    callback_ = itemContainer_->AddOnContentChanged([this](size_t index, Item *item, ContainerChangeType changeType) {
         switch (changeType) {
             case ContainerChangeType::ADD:
-                LogCat::d("ComposableItem changeType add");
                 RefreshAttributes();
                 break;
             case ContainerChangeType::REMOVE:
-                LogCat::d("ComposableItem changeType remove");
                 RefreshAttributes();
                 break;
-            default:
-                LogCat::d("ComposableItem changeType default");
         }
     });
 }

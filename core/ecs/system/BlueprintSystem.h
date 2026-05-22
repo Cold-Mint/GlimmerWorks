@@ -1,31 +1,33 @@
 //
-// Created by Cold-Mint on 2026/2/26.
+// Created by coldmint on 2026/5/22.
 //
 
 #pragma once
 #include "core/ecs/GameSystem.h"
-#include "core/ecs/component/AreaMarkerComponent.h"
 #include "core/ecs/component/CameraComponent.h"
+#include "core/ecs/component/PlayerComponent.h"
+#include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/PreloadColors.h"
 
 namespace glimmer {
-    class AreaMarkerSystem : public GameSystem {
-        AreaMarkerComponent *areaMarkerComponent_ = nullptr;
+    class AppContext;
+
+    class BlueprintSystem final : public GameSystem {
         AppContext *appContext_ = nullptr;
-        PreloadColors *preloadColors_ = nullptr;
+        TileLayerComponent *tileLayerComponent_ = nullptr;
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        PreloadColors *preloadColors_ = nullptr;
+        PlayerComponent* playerComponent_ = nullptr;
 
     public:
-        explicit AreaMarkerSystem(WorldContext *worldContext);
+        explicit BlueprintSystem(WorldContext *worldContext);
 
-        void Update(float delta) override;
+        uint8_t GetRenderOrder() override;
 
         void Render(SDL_Renderer *renderer) override;
 
         std::string GetName() override;
-
-        uint8_t GetRenderOrder() override;
     };
 }

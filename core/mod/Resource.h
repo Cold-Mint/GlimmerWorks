@@ -456,6 +456,10 @@ namespace glimmer {
         ResourceRef lootTable = {};
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture;
+        //@genNextLine(enableBlueprint|启用蓝图-手持瓦片时显示蓝图)
+        bool enableBlueprint = true;
+        //@genNextLine(blueprintTexture|蓝图纹理资源引用)
+        ResourceRef blueprintTexture = {};
         //@genNextLine(breakSFX|瓦片被破坏时的音效)
         ResourceRef breakSfx;
         //@genNextLine(placeSFX|放置瓦片时的音效)

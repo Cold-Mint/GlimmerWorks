@@ -556,7 +556,6 @@ void glimmer::App::Run() {
                 for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
                     if (overlayScene->HandleEvent(event)) {
                         handled = true;
-                        LogCat::w("OverlayScene handled event, stopping propagation.");
                         break;
                     }
                 }
@@ -565,7 +564,6 @@ void glimmer::App::Run() {
                         if (topScene->
                             HandleEvent(event)) {
                             handled = true;
-                            LogCat::i("Main scene handled event, stopping propagation.");
                         }
                     }
                 }

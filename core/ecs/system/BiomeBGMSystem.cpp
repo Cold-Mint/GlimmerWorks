@@ -13,33 +13,33 @@ glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext *worldContext) : GameSystem
     RequireComponent<PlayerComponent>();
     RequireComponent<TileLayerComponent>();
     RequireComponent<Transform2DComponent>();
+    GameEntity::ID player = worldContext_->GetPlayerEntity();
+    if (WorldContext::IsEmptyEntityId(player)) {
+        return;
+    }
+    appContext_ = worldContext->GetAppContext();
+    playerTransform2DComponent_ = worldContext_->GetComponent<Transform2DComponent>(player);
 }
 
 void glimmer::BiomeBGMSystem::Update(float delta) {
     if (worldContext_ == nullptr) {
         return;
     }
-    AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
+    if (appContext_ == nullptr) {
         return;
     }
-    AudioManager *audioManager = appContext->GetAudioManager();
+    AudioManager *audioManager = appContext_->GetAudioManager();
     if (audioManager == nullptr) {
         return;
     }
-    ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    ResourceLocator *resourceLocator = appContext_->GetResourceLocator();
     if (resourceLocator == nullptr) {
         return;
     }
-    GameEntity::ID player = worldContext_->GetPlayerEntity();
-    if (WorldContext::IsEmptyEntityId(player)) {
+    if (playerTransform2DComponent_ == nullptr) {
         return;
     }
-    auto transform2D = worldContext_->GetComponent<Transform2DComponent>(player);
-    if (transform2D == nullptr) {
-        return;
-    }
-    const WorldVector2D position = transform2D->GetPosition();
+    const WorldVector2D position = playerTransform2DComponent_->GetPosition();
     const TileVector2D tileVector2d = TileLayerComponent::WorldToTile(position);
     const TileVector2D chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d);
     const TerrainResult *terrainResult = worldContext_->GetTerrainData(chunkVertex);

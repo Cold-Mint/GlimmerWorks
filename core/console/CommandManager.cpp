@@ -15,7 +15,6 @@ void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command) 
     const std::string name = command->GetName();
     command->Initialize();
     commandMap_[name] = std::move(command);
-    LogCat::i("Command registered successfully: ", name);
 }
 
 glimmer::Command *glimmer::CommandManager::GetCommand(const std::string &name) const {

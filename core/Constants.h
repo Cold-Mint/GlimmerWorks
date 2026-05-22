@@ -261,7 +261,7 @@ static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
 static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;
 static constexpr uint8_t RENDER_ORDER_FLOATING_TEXT = 13;
 static constexpr uint8_t RENDER_ORDER_DRAGGABLE = 14;
-
+static constexpr uint8_t RENDER_ORDER_BLUEPRINT = 15;
 static constexpr uint8_t RENDER_ORDER_LIGHT2D = 93;
 static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 94;
 static constexpr uint8_t RENDER_ORDER_DEBUG_CHUNK = 95;

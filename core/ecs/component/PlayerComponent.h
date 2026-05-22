@@ -5,7 +5,7 @@
 #pragma once
 
 #include "MobComponent.h"
-#include "core/ecs/GameEntity.h"
+#include "core/inventory/Item.h"
 
 namespace glimmer {
     /**
@@ -27,6 +27,9 @@ namespace glimmer {
         float dropTimer = 0.0F;
         bool dropPressed = false;
         bool isFlying = false;
+        //The current item being held.
+        //当前手持的物品。
+        Item *item = nullptr;
 
         [[nodiscard]] uint32_t GetId() override;
     };

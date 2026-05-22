@@ -50,7 +50,6 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     const float zoom = cameraComponent->GetZoom();
     std::vector<std::pair<TileVector2D, std::vector<const Tile *> > > visibleTiles =
             tileLayerComponent->GetTopVisibleTilesInViewport(Ground | BackGround, viewportRect);
-    TileVector2D focusPosition = tileLayerComponent->GetFocusPosition();
     for (const auto &[tileCoord, tileList]: visibleTiles) {
         const Chunk *chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileCoord));
         Uint8 alpha = 255;
@@ -98,13 +97,6 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                 }
                 SDL_SetTextureAlphaMod(texture, 255);
             }
-        }
-        if (tileCoord == focusPosition) {
-            SDL_SetRenderDrawColor(renderer, appContext->GetPreloadColors()->game.focusTileBorderColor.r,
-                                   appContext->GetPreloadColors()->game.focusTileBorderColor.g,
-                                   appContext->GetPreloadColors()->game.focusTileBorderColor.b,
-                                   appContext->GetPreloadColors()->game.focusTileBorderColor.a);
-            SDL_RenderRect(renderer, &dstRect);
         }
     }
     AppContext::RestoreColorRenderer(renderer);

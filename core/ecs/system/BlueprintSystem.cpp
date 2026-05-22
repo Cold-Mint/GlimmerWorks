@@ -19,7 +19,9 @@ glimmer::BlueprintSystem::BlueprintSystem(WorldContext *worldContext) : GameSyst
     cameraComponent_ = worldContext_->GetCameraComponent();
     cameraTransform2DComponent_ = worldContext->GetCameraTransform2D();
     preloadColors_ = appContext_->GetPreloadColors();
-    playerComponent_ = worldContext_->GetComponent<PlayerComponent>(worldContext_->GetPlayerEntity());
+    const GameEntity::ID playerEntity = worldContext_->GetPlayerEntity();
+    playerComponent_ = worldContext_->GetComponent<PlayerComponent>(playerEntity);
+    playerTransform2DComponent_ = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
 }
 
 uint8_t glimmer::BlueprintSystem::GetRenderOrder() {
@@ -36,25 +38,43 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer *renderer) {
     if (cameraTransform2DComponent_ == nullptr) {
         return;
     }
+    if (playerComponent_ == nullptr) {
+        return;
+    }
+    if (playerTransform2DComponent_ == nullptr) {
+        return;
+    }
     const Tile *heldTile = nullptr;
-    if (playerComponent_ != nullptr) {
-        Item *item = playerComponent_->item;
-        if (item != nullptr) {
-            auto tileItem = dynamic_cast<TileItem *>(item);
-            if (tileItem != nullptr) {
-                heldTile = tileItem->GetTile();
+    uint8_t tileWidth = 1;
+    uint8_t tileHeight = 1;
+    TileVector2D tileAnchor = {0, 0};
+    const WorldVector2D focusWorldTilePos = TileLayerComponent::TileToWorld(tileLayerComponent_->GetFocusPosition());
+
+    Item *item = playerComponent_->item;
+    if (item != nullptr) {
+        auto tileItem = dynamic_cast<TileItem *>(item);
+        if (tileItem != nullptr) {
+            heldTile = tileItem->GetTile();
+            if (heldTile != nullptr) {
+                tileWidth = heldTile->GetTileWidth();
+                tileHeight = heldTile->GetTileHeight();
+                tileAnchor = *heldTile->GetTileAnchor();
+                WorldVector2D playerPosition = playerTransform2DComponent_->GetPosition();
+                bool atLeft = focusWorldTilePos.x < playerPosition.x;
+                if (atLeft && heldTile->IsAllowDirAdjustAnchor()) {
+                    tileAnchor.x = tileWidth - 1 - tileAnchor.x;
+                }
             }
         }
     }
     const float zoom = cameraComponent_->GetZoom();
-    const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileLayerComponent_->GetFocusPosition());
     const CameraVector2D screenPos = cameraComponent_->GetViewPortPosition(
-        cameraTransform2DComponent_->GetPosition(), worldTilePos);
+        cameraTransform2DComponent_->GetPosition(), focusWorldTilePos);
     SDL_FRect renderQuad;
-    renderQuad.w = TILE_SIZE * zoom;
-    renderQuad.h = TILE_SIZE * zoom;
-    renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
-    renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
+    renderQuad.w = static_cast<float>(tileWidth) * TILE_SIZE * zoom;
+    renderQuad.h = static_cast<float>(tileHeight) * TILE_SIZE * zoom;
+    renderQuad.x = screenPos.x - HALF_TILE_SIZE - static_cast<float>(tileAnchor.x) * TILE_SIZE * zoom;
+    renderQuad.y = screenPos.y - HALF_TILE_SIZE - static_cast<float>(tileAnchor.y) * TILE_SIZE * zoom;
     SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
     SDL_SetRenderDrawColor(renderer, preloadColors_->game.focusTileBorderColor.r,
                            preloadColors_->game.focusTileBorderColor.g,

@@ -42,7 +42,7 @@ SDL_Texture *glimmer::Tile::GetTexture() const {
     return texture_.get();
 }
 
-SDL_Texture * glimmer::Tile::GetBlueprintTexture() const {
+SDL_Texture *glimmer::Tile::GetBlueprintTexture() const {
     return blueprintTexture_.get();
 }
 
@@ -92,61 +92,65 @@ glimmer::TileLayerType glimmer::Tile::GetLayerType() const {
 TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType tileAnchorType, const uint8_t tileWidth,
                                                 const uint8_t tileHeight,
                                                 const Vector2DIResource &customTileAnchor) {
-    auto result = TileVector2D(1, 1);
+    TileVector2D result = TileVector2D(0, 0);
     switch (tileAnchorType) {
         case TileAnchorType::TopLeft:
-            result.x = 1;
-            result.y = tileHeight;
-            break;
-        case TileAnchorType::Center:
-            result.x = tileWidth / 2;
-            result.y = tileHeight / 2;
-            break;
-        case TileAnchorType::CenterRight:
-            result.x = tileWidth;
-            result.y = tileHeight / 2;
+            result.x = 0;
+            result.y = 0;
             break;
         case TileAnchorType::TopCenter:
-            result.x = tileWidth / 2;
-            result.y = tileHeight;
+            result.x = tileWidth >> 1;
+            result.y = 0;
             break;
         case TileAnchorType::TopRight:
-            result.x = tileWidth;
-            result.y = tileHeight;
+            result.x = tileWidth - 1;
+            result.y = 0;
             break;
         case TileAnchorType::CenterLeft:
-            result.x = 1;
-            result.y = tileHeight / 2;
+            result.x = 0;
+            result.y = tileHeight >> 1;
+            break;
+        case TileAnchorType::Center:
+            result.x = tileWidth >> 1;
+            result.y = tileHeight >> 1;
+            break;
+        case TileAnchorType::CenterRight:
+            result.x = tileWidth - 1;
+            result.y = tileHeight >> 1;
+            break;
+        case TileAnchorType::BottomLeft:
+            result.x = 0;
+            result.y = tileHeight - 1;
             break;
         case TileAnchorType::BottomCenter:
-            result.x = tileWidth / 2;
-            result.y = 1;
+            result.x = tileWidth >> 1;
+            result.y = tileHeight - 1;
             break;
         case TileAnchorType::BottomRight:
-            result.x = tileWidth;
-            result.y = 1;
+            result.x = tileWidth - 1;
+            result.y = tileHeight - 1;
             break;
         case TileAnchorType::Custom:
             result.x = customTileAnchor.x;
             result.y = customTileAnchor.y;
             break;
-        case TileAnchorType::BottomLeft:
         default:
-            result.x = 1;
-            result.y = 1;
+            result.x = 0;
+            result.y = tileHeight - 1;
             break;
     }
-    if (result.x < 1) {
-        result.x = 1;
+
+    if (result.x < 0) {
+        result.x = 0;
     }
-    if (result.y < 1) {
-        result.y = 1;
+    if (result.y < 0) {
+        result.y = 0;
     }
-    if (result.x > tileWidth) {
-        result.x = tileWidth;
+    if (result.x >= tileWidth) {
+        result.x = tileWidth - 1;
     }
-    if (result.y > tileHeight) {
-        result.y = tileHeight;
+    if (result.y >= tileHeight) {
+        result.y = tileHeight - 1;
     }
     return result;
 }

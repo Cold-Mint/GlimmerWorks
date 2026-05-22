@@ -19,7 +19,8 @@ namespace glimmer {
         CameraComponent *cameraComponent_ = nullptr;
         Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         PreloadColors *preloadColors_ = nullptr;
-        PlayerComponent* playerComponent_ = nullptr;
+        PlayerComponent *playerComponent_ = nullptr;
+        Transform2DComponent *playerTransform2DComponent_ = nullptr;
 
     public:
         explicit BlueprintSystem(WorldContext *worldContext);

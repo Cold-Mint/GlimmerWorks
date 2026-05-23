@@ -15,6 +15,6 @@ namespace glimmer {
 
         [[nodiscard]] CameraVector2D GetSize() const;
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

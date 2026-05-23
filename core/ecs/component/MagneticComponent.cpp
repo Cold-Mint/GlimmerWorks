@@ -23,9 +23,10 @@ uint16_t glimmer::MagneticComponent::GetType() const {
     return type_;
 }
 
-uint32_t glimmer::MagneticComponent::GetId() {
-    return COMPONENT_ID_MAGNETIC;
+GameComponentTypeMessage glimmer::MagneticComponent::GetComponentType() {
+    return COMPONENT_MAGNET;
 }
+
 
 bool glimmer::MagneticComponent::IsSerializable() {
     return false;

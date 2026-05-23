@@ -499,6 +499,14 @@ glimmer::ChunkGenerator *glimmer::WorldContext::GetChunkGenerator() const {
     return chunkGenerator_.get();
 }
 
+glimmer::BlueprintComponent *glimmer::WorldContext::GetBlueprintComponent() const {
+    return blueprintComponent_;
+}
+
+void glimmer::WorldContext::SetBlueprintComponent(BlueprintComponent *blueprintComponent) {
+    blueprintComponent_ = blueprintComponent;
+}
+
 
 void glimmer::WorldContext::UnloadChunkAt(TileVector2D position) {
     auto it = chunks_.find(position);
@@ -605,7 +613,7 @@ void glimmer::WorldContext::SaveEntity(EntityItemMessage *entityItemMessage, con
             continue;
         }
         ComponentMessage *componentMessage = mutableComponents->Add();
-        componentMessage->set_id(componentItem->GetId());
+        componentMessage->set_type(componentItem->GetComponentType());
         componentMessage->set_data(componentItem->Serialize());
     }
 }
@@ -840,34 +848,34 @@ glimmer::GameEntity::ID glimmer::WorldContext::CreateEntity() {
 
 glimmer::GameComponent *glimmer::WorldContext::RecoveryComponent(GameEntity::ID id,
                                                                  const ComponentMessage &componentMessage) {
-    uint32_t componentId = componentMessage.id();
+    GameComponentTypeMessage componentId = componentMessage.type();
     GameComponent *gameComponent = nullptr;
     switch (componentId) {
-        case COMPONENT_ID_AUTO_PICK:
+        case COMPONENT_AUTO_PICK:
             gameComponent = AddComponent<AutoPickComponent>(id);
             break;
-        case COMPONENT_ID_CAMERA:
+        case COMPONENT_CAMERA:
             gameComponent = AddComponent<CameraComponent>(id);
             break;
-        case COMPONENT_ID_DEBUG_DRAW:
+        case COMPONENT_DEBUG_DRAW:
             gameComponent = AddComponent<DebugDrawComponent>(id);
             break;
-        case COMPONENT_ID_DIGGING:
+        case COMPONENT_DIGGING:
             gameComponent = AddComponent<DiggingComponent>(id);
             break;
-        case COMPONENT_ID_DROPPED_ITEM:
+        case COMPONENT_DROPPED_ITEM:
             gameComponent = AddComponent<DroppedItemComponent>(id);
             break;
-        case COMPONENT_ID_ITEM_CONTAINER:
+        case COMPONENT_ITEM_CONTAINER:
             gameComponent = AddComponent<ItemContainerComponent>(id);
             break;
-        case COMPONENT_ID_MAGNET:
+        case COMPONENT_MAGNET:
             gameComponent = AddComponent<MagnetComponent>(id);
             break;
-        case COMPONENT_ID_MAGNETIC:
+        case COMPONENT_MAGNETIC:
             gameComponent = AddComponent<MagneticComponent>(id);
             break;
-        case COMPONENT_ID_TRANSFORM_2D:
+        case COMPONENT_TRANSFORM_2D:
             gameComponent = AddComponent<Transform2DComponent>(id);
             break;
         default:
@@ -1063,12 +1071,13 @@ glimmer::WorldContext::WorldContext(AppContext *appContext, MapManifest *mapMani
     AddComponent<
         TileLayerComponent>(groundTileLayerEntity, this, Ground);
     SetAreaMarkerComponent(AddComponent<AreaMarkerComponent>(groundTileLayerEntity));
+    SetBlueprintComponent(AddComponent<BlueprintComponent>(groundTileLayerEntity));
     auto backgroundTileLayerEntity = CreateEntity();
     AddComponent<
         TileLayerComponent>(backgroundTileLayerEntity, this, BackGround);
     ResourceRef playerResourceRef{};
     playerResourceRef.ReadResource(*appContext->GetMobManager()->GetPlayerResourceList()[0],
-                                   Mob);
+                                   RESOURCE_MOB);
     InitPlayer(
         playerResourceRef);
     InitHotbar(

@@ -57,7 +57,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, const Com
     }
     const std::string itemType = commandArgs->AsString(1);
     if (itemType == "tileItem") {
-        auto itemId = commandArgs->AsResourceRef(2, ResourceTypeMessage::Tile);
+        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_TILE);
         if (!itemId.has_value()) {
             onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
             return false;
@@ -91,7 +91,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, const Com
         return item == nullptr;
     }
     if (itemType == "composableItem") {
-        auto itemId = commandArgs->AsResourceRef(2, ResourceTypeMessage::ComposableItem);
+        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_COMPOSABLE_ITEM);
         if (!itemId.has_value()) {
             onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
             return false;
@@ -124,7 +124,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, const Com
         return item == nullptr;
     }
     if (itemType == "abilityItem") {
-        auto itemId = commandArgs->AsResourceRef(2, ResourceTypeMessage::AbilityItem);
+        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_ABILITY_ITEM);
         if (!itemId.has_value()) {
             onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
             return false;

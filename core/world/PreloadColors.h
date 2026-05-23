@@ -57,6 +57,11 @@ namespace glimmer {
             Color defaultLightTransmissionColor;
         };
 
+        struct BlueprintColors {
+            Color validColor;
+            Color invalidColor;
+        };
+
         struct DebugColors {
             Color box2dBorderColor;
             Color box2dFullColor;
@@ -230,6 +235,7 @@ namespace glimmer {
         TextureColors accessDenied;
         GameColors game;
         Light2dColors light;
+        BlueprintColors blueprint;
 
         void LoadAllColors(const ResourceLocator *resourceLocator);
 

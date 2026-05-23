@@ -103,6 +103,6 @@ namespace glimmer {
          */
         void SetZoom(float zoom);
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

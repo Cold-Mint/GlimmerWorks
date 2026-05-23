@@ -180,11 +180,13 @@ namespace glimmer {
     //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
     struct TilePlacementForbiddenZone {
         //@genNextLine(width|宽度)
-        float width = 1;
+        int width = 1;
         //@genNextLine(height|高度)
-        float height = 1;
-        //@genNextLine(offset|偏移)
-        Vector2DResource offset;
+        int height = 1;
+        //@genNextLine(offsetX|偏移X)
+        int offsetX = 0;
+        //@genNextLine(offsetY|偏移Y)
+        int offsetY = 0;
     };
 
     /**
@@ -458,14 +460,20 @@ namespace glimmer {
         ResourceRef texture;
         //@genNextLine(enableBlueprint|启用蓝图-手持瓦片时显示蓝图)
         bool enableBlueprint = true;
+        //@genNextLine(enableBlueprintMask|启用蓝图遮照-用颜色标记禁止放置的区域)
+        bool enableBlueprintMask = true;
+        //@genNextLine(drawValidBlueprintColor|绘制合法放置的蓝图颜色)
+        bool drawValidBlueprintColor = false;
         //@genNextLine(blueprintTexture|蓝图纹理资源引用)
         ResourceRef blueprintTexture = {};
         //@genNextLine(breakSFX|瓦片被破坏时的音效)
         ResourceRef breakSfx;
         //@genNextLine(placeSFX|放置瓦片时的音效)
         ResourceRef placeSfx;
-        //@genNextLine(hardness If the hardness is less than 0, then it is indestructible.|硬度 如果硬度小于0那么不可破坏。)
-        float hardness = 1.0F;
+        //@genNextLine(Single-cell hardness: Sets the hardness provided by a single cell. If the hardness is less than 0, it is non-destructible.|单格硬度 设置单个格子提供的硬度。 如果硬度小于0那么不可破坏。)
+        float unitHardness = 1.0F;
+        //@genNextLine(Is the total hardness calculated based on the area?|是否按面积计算总硬度)
+        bool autoHardnessScale = true;
         //@genNextLine(physicsType|物理类型)
         uint8_t physicsType = 0;
         //@genNextLine(layerType|层级类型)

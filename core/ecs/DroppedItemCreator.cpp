@@ -21,14 +21,14 @@ EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldV
             entityItemMessage.add_components();
     Transform2DComponent transform2DComponent{};
     transform2DComponent.SetPosition(position);
-    transform2DComponentMessage->set_id(transform2DComponent.GetId());
+    transform2DComponentMessage->set_type(transform2DComponent.GetComponentType());
     transform2DComponentMessage->set_data(transform2DComponent.Serialize());
     ComponentMessage *droppedItemComponentMessage =
             entityItemMessage.add_components();
     DroppedItemComponent droppedItemComponent{};
     droppedItemComponent.SetItem(std::move(item));
     droppedItemComponent.SetPickupCooldown(pickupCooldown);
-    droppedItemComponentMessage->set_id(droppedItemComponent.GetId());
+    droppedItemComponentMessage->set_type(droppedItemComponent.GetComponentType());
     droppedItemComponentMessage->set_data(droppedItemComponent.Serialize());
     return entityItemMessage;
 }
@@ -36,14 +36,14 @@ EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldV
 glimmer::ResourceRef glimmer::DroppedItemCreator::GetResourceRef() {
     ResourceRef resourceRef{};
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(DroppedItem);
+    resourceRef.SetResourceType(RESOURCE_DROPPED_ITEM);
     resourceRef.SetResourceKey(DROPPED_ITEM_ID_DEFAULT);
     return resourceRef;
 }
 
 void glimmer::DroppedItemCreator::LoadTemplateComponents(const GameEntity::ID id, const ResourceRef &resourceRef) {
     uint32_t type = resourceRef.GetResourceType();
-    if (type != DroppedItem) {
+    if (type != RESOURCE_DROPPED_ITEM) {
         return;
     }
     if (worldContext_ == nullptr || WorldContext::IsEmptyEntityId(id)) {
@@ -64,7 +64,7 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const GameEntity::ID id
         ResourceRef shapeResourceRef;
         shapeResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         shapeResourceRef.SetResourceKey(SHAPE_ID_DROPPED_ITEM);
-        shapeResourceRef.SetResourceType(Shape);
+        shapeResourceRef.SetResourceType(RESOURCE_SHAPE);
         rigidBody2DComponent->SetShapeRef(shapeResourceRef);
     }
     const auto rayCast2DComponent = worldContext_->AddComponent<RayCast2DComponent>(id);

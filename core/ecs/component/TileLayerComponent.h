@@ -28,7 +28,6 @@ namespace glimmer {
         TileLayerType tileLayerType_;
         TileVector2D focusPosition_ = TileVector2D{};
 
-        [[nodiscard]] const Tile *GetTile(TileLayerType layerType, const TileVector2D &tilePos) const;
 
         [[nodiscard]] std::shared_ptr<Tile>
         GetTilePtr(TileLayerType layerType, const TileVector2D &tilePos) const;
@@ -45,6 +44,8 @@ namespace glimmer {
                                                                           const TileVector2D &tilePos);
 
     public:
+        [[nodiscard]] const Tile *GetTile(TileLayerType layerType, const TileVector2D &tilePos) const;
+
         /**
          *Tile To World
          * 瓦片坐标转世界坐标
@@ -118,6 +119,6 @@ namespace glimmer {
                                                                              tileLayerType) {
         }
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

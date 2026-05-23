@@ -152,7 +152,6 @@ const TileVector2D &glimmer::TileLayerComponent::GetFocusPosition() const {
     return focusPosition_;
 }
 
-
-uint32_t glimmer::TileLayerComponent::GetId() {
-    return COMPONENT_ID_TILE_LAYER;
+GameComponentTypeMessage glimmer::TileLayerComponent::GetComponentType() {
+    return COMPONENT_TILE_LAYER;
 }

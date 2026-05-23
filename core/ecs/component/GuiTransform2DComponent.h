@@ -26,6 +26,6 @@ namespace glimmer {
 
         [[nodiscard]] bool IsSerializable() override;
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

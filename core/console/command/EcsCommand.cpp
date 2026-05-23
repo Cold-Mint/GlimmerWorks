@@ -25,7 +25,8 @@ std::string glimmer::EcsCommand::EntityToString(const GameEntity::ID gameEntityI
     const std::vector<GameComponent *> components = worldContext_->GetAllComponents(gameEntityId);
     std::string data;
     for (auto &component: components) {
-        data += fmt::format("componentId = {} name = {}\n", component->GetId(), typeid(component).name());
+        data += fmt::format("componentId = {} name = {}\n", static_cast<int>(component->GetComponentType()),
+                            typeid(component).name());
     }
     return fmt::format("id={} isPersistable={} \ncomponents={}\n", gameEntityId,
                        worldContext_->IsPersistable(gameEntityId),

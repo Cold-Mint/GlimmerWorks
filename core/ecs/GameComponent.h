@@ -4,7 +4,7 @@
 
 #pragma once
 #include <string>
-#include <cstdint>
+#include "src/core/game_component_type.pb.h"
 
 namespace glimmer {
     class AppContext;
@@ -36,6 +36,6 @@ namespace glimmer {
          */
         virtual void Deserialize(WorldContext *worldContext, const std::string &data);
 
-        [[nodiscard]] virtual uint32_t GetId() = 0;
+        [[nodiscard]] virtual GameComponentTypeMessage GetComponentType() = 0;
     };
 }

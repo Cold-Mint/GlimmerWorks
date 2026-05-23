@@ -56,6 +56,6 @@ bool glimmer::MagnetComponent::IsSerializable() {
     return false;
 }
 
-uint32_t glimmer::MagnetComponent::GetId() {
-    return COMPONENT_ID_MAGNET;
+GameComponentTypeMessage glimmer::MagnetComponent::GetComponentType() {
+    return COMPONENT_MAGNET;
 }

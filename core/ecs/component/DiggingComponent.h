@@ -73,6 +73,6 @@ namespace glimmer {
 
         [[nodiscard]] bool CheckAndResetActive();
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

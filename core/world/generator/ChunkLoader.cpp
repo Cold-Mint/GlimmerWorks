@@ -49,7 +49,7 @@ glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMes
     if (entityItemMessage.has_resourceref()) {
         const ResourceRefMessage &resourceRefMessage = entityItemMessage.resourceref();
         const uint32_t resourceType = resourceRefMessage.resourcetype();
-        if (resourceType == Mob) {
+        if (resourceType == RESOURCE_MOB) {
             ResourceRef resourceRef{};
             resourceRef.ReadResourceRefMessage(resourceRefMessage);
             MobEntityCreator mobEntityCreator{worldContext_};
@@ -57,7 +57,7 @@ glimmer::GameEntity::ID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMes
             mobEntityCreator.MergeEntityItemMessage(id, entityItemMessage);
         }
 
-        if (resourceType == DroppedItem) {
+        if (resourceType == RESOURCE_DROPPED_ITEM) {
             ResourceRef resourceRef{};
             resourceRef.ReadResourceRefMessage(resourceRefMessage);
             DroppedItemCreator droppedItemCreator{worldContext_};

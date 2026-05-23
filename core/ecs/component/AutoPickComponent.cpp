@@ -4,10 +4,8 @@
 
 #include "AutoPickComponent.h"
 
-#include "core/Constants.h"
-
-uint32_t glimmer::AutoPickComponent::GetId() {
-    return COMPONENT_ID_AUTO_PICK;
+GameComponentTypeMessage glimmer::AutoPickComponent::GetComponentType() {
+    return COMPONENT_AUTO_PICK;
 }
 
 bool glimmer::AutoPickComponent::IsSerializable() {

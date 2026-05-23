@@ -4,6 +4,7 @@
 
 #pragma once
 #include "core/ecs/GameSystem.h"
+#include "core/ecs/component/BlueprintComponent.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
@@ -21,6 +22,22 @@ namespace glimmer {
         PreloadColors *preloadColors_ = nullptr;
         PlayerComponent *playerComponent_ = nullptr;
         Transform2DComponent *playerTransform2DComponent_ = nullptr;
+        BlueprintComponent *blueprintComponent_ = nullptr;
+        const Tile *heldTile_ = nullptr;
+        std::vector<SDL_Rect> blockRects_;
+
+        /**
+         * 检查矩形区域放置的可行性
+         * @param tile
+         * @param leftBottom
+         * @param playerPosition
+         * @param tileWidth
+         * @param tileHeight
+         * @return
+         */
+        std::vector<bool> CheckRectPlacementValidity(const Tile *tile, TileVector2D leftBottom,
+                                                     WorldVector2D playerPosition, uint8_t tileWidth,
+                                                     uint8_t tileHeight) const;
 
     public:
         explicit BlueprintSystem(WorldContext *worldContext);

@@ -272,46 +272,6 @@ static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 99;
 static constexpr uint8_t RENDER_ORDER_PAUSE = 100;
 
 
-/**
- * The component IDs defined here should be auto-incremented and cannot be reused.
- * 这里定义的组件id应该是自增的。不能重复利用。
- */
-static constexpr uint32_t COMPONENT_ID_AUTO_PICK = 1;
-static constexpr uint32_t COMPONENT_ID_CAMERA = 2;
-static constexpr uint32_t COMPONENT_ID_DEBUG_DRAW = 3;
-static constexpr uint32_t COMPONENT_ID_DIGGING = 4;
-static constexpr uint32_t COMPONENT_ID_DROPPED_ITEM = 5;
-// Serialization is not supported.
-// 不支持序列化。
-static constexpr uint32_t COMPONENT_ID_HOTBAR = 6;
-static constexpr uint32_t COMPONENT_ID_ITEM_CONTAINER = 7;
-// Serialization is not supported.
-// 不支持序列化。
-static constexpr uint32_t COMPONENT_ID_ITEM_SLOT = 8;
-static constexpr uint32_t COMPONENT_ID_MAGNET = 9;
-static constexpr uint32_t COMPONENT_ID_MAGNETIC = 10;
-// Serialization is not supported.
-// 不支持序列化。
-static constexpr uint32_t COMPONENT_ID_PAUSE = 11;
-// Serialization is not supported.
-// 不支持序列化。
-static constexpr uint32_t COMPONENT_ID_PLAYER = 12;
-static constexpr uint32_t COMPONENT_ID_RIGID_BODY_2D = 13;
-// Serialization is not supported.
-// 不支持序列化。
-static constexpr uint32_t COMPONENT_ID_TILE_LAYER = 14;
-static constexpr uint32_t COMPONENT_ID_TRANSFORM_2D = 15;
-static constexpr uint32_t COMPONENT_ID_GUI_TRANSFORM_2D = 16;
-static constexpr uint32_t COMPONENT_ID_AREA_MARKER = 17;
-static constexpr uint32_t COMPONENT_ID_SPIRIT_RENDERER = 18;
-static constexpr uint32_t COMPONENT_ID_ITEM_EDITOR = 19;
-static constexpr uint32_t COMPONENT_ID_MOB = 20;
-static constexpr uint32_t COMPONENT_ID_RAY_CAST_2D = 21;
-static constexpr uint32_t COMPONENT_ID_FLOATING_TEXT = 22;
-static constexpr uint32_t COMPONENT_ID_TILE_PLACEMENT_FORBIDDEN_ZONE = 23;
-static constexpr uint32_t COMPONENT_ID_DRAGGABLE = 24;
-static constexpr uint32_t COMPONENT_ID_PARALLAX_BACKGROUND = 25;
-
 
 static constexpr std::string TILE_ID_AIR = "air";
 static constexpr std::string TILE_ID_AIR_WALL = "air_wall";

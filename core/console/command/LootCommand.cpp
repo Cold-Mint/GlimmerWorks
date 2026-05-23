@@ -60,7 +60,7 @@ bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const Com
             onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
         }
-        auto lootId = commandArgs->AsResourceRef(2, LootTable);
+        auto lootId = commandArgs->AsResourceRef(2, RESOURCE_LOOT_TABLE);
         if (!lootId.has_value()) {
             onMessageRef(appContext_->GetLangsResources()->lootTableNotFound);
             return false;

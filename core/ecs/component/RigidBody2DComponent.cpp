@@ -168,9 +168,10 @@ bool glimmer::RigidBody2DComponent::IsStaticBody() const {
     return bodyType_ == b2_staticBody;
 }
 
-uint32_t glimmer::RigidBody2DComponent::GetId() {
-    return COMPONENT_ID_RIGID_BODY_2D;
+GameComponentTypeMessage glimmer::RigidBody2DComponent::GetComponentType() {
+    return COMPONENT_RIGID_BODY_2D;
 }
+
 
 bool glimmer::RigidBody2DComponent::IsSerializable() {
     return false;

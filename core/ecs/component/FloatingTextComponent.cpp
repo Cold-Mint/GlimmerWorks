@@ -36,6 +36,6 @@ std::string &glimmer::FloatingTextComponent::GetText() {
     return text_;
 }
 
-uint32_t glimmer::FloatingTextComponent::GetId() {
-    return COMPONENT_ID_FLOATING_TEXT;
+GameComponentTypeMessage glimmer::FloatingTextComponent::GetComponentType() {
+    return COMPONENT_FLOATING_TEXT;
 }

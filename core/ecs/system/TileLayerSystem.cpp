@@ -65,7 +65,6 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
         renderQuad.h = TILE_SIZE * zoom;
         renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
         renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
-        SDL_FRect dstRect = {renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h};
         for (auto tile: tileList) {
             const Color *finalLightColor = worldContext_->GetLightingBuffer()->GetFinalLightColor(tileCoord);
 #if  defined(NDEBUG)
@@ -92,7 +91,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
             SDL_Texture *texture = tile->GetTexture();
             if (texture != nullptr) {
                 SDL_SetTextureAlphaMod(texture, alpha);
-                if (!SDL_RenderTexture(renderer, texture, nullptr, &dstRect)) {
+                if (!SDL_RenderTexture(renderer, texture, nullptr, &renderQuad)) {
                     LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
                 }
                 SDL_SetTextureAlphaMod(texture, 255);

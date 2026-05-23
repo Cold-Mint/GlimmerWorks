@@ -26,7 +26,6 @@ bool glimmer::GuiTransform2DComponent::IsSerializable() {
     return false;
 }
 
-
-uint32_t glimmer::GuiTransform2DComponent::GetId() {
-    return COMPONENT_ID_GUI_TRANSFORM_2D;
+GameComponentTypeMessage glimmer::GuiTransform2DComponent::GetComponentType() {
+    return COMPONENT_GUI_TRANSFORM_2D;
 }

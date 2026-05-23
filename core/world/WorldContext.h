@@ -23,6 +23,7 @@
 #include "core/ecs/component/ItemEditorComponent.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/AreaMarkerComponent.h"
+#include "core/ecs/component/BlueprintComponent.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/inventory/ComposableItem.h"
@@ -110,6 +111,8 @@ namespace glimmer {
          * 正在挖掘组件
          */
         DiggingComponent *diggingComponent_ = nullptr;
+
+        BlueprintComponent *blueprintComponent_ = nullptr;
 
         std::vector<std::unique_ptr<GameSystem> > activeSystems;
         std::vector<std::unique_ptr<GameSystem> > inactiveSystems;
@@ -318,6 +321,9 @@ namespace glimmer {
 
         ChunkGenerator *GetChunkGenerator() const;
 
+        [[nodiscard]] BlueprintComponent *GetBlueprintComponent() const;
+
+        void SetBlueprintComponent(BlueprintComponent *blueprintComponent);
 
         /**
          * Unload Chunk

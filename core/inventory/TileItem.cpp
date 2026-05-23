@@ -9,7 +9,6 @@
 #include "../ecs/component/Transform2DComponent.h"
 #include "../Constants.h"
 
-#include "core/ecs/component/TilePlacementForbiddenZoneComponent.h"
 #include "core/ecs/system/DiggingSystem.h"
 
 
@@ -30,7 +29,7 @@ const std::optional<std::string> &glimmer::TileItem::GetDescription() const {
     return tile_->GetDescription();
 }
 
-const glimmer::Tile * glimmer::TileItem::GetTile() const {
+const glimmer::Tile *glimmer::TileItem::GetTile() const {
     return tile_.get();
 }
 
@@ -54,7 +53,10 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
     if (playerTransform == nullptr) {
         return;
     }
-    const WorldVector2D playerWorldPos = playerTransform->GetPosition();
+    const BlueprintComponent *blueprintComponent = worldContext->GetBlueprintComponent();
+    if (blueprintComponent == nullptr) {
+        return;
+    }
     const auto entities = worldContext->GetEntityIDWithComponents<TileLayerComponent>();
     const TileLayerType targetTileLayerType = tile_->GetLayerType();
     for (auto &entity: entities) {
@@ -68,63 +70,9 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
             continue;
         }
         auto targetPos = tileLayer->GetFocusPosition();
-        if (TileLayerComponent::TileToWorldCenter(targetPos).Distance(playerWorldPos) / TILE_SIZE >
-            TILE_PLACE_RANGE) {
-            break;
+        if (!blueprintComponent->CanPlace()) {
+            continue;
         }
-
-        bool canPlacement = false;
-        auto currentTile = tileLayer->GetSelfLayerTile(targetPos);
-        if (currentTile == nullptr) {
-            canPlacement = true;
-        } else {
-            if (currentTile->IsOverwritable()) {
-                canPlacement = true;
-            }
-        }
-        if (!canPlacement) {
-            break;
-        }
-        if (tileLayer->GetTileLayerType() == Ground) {
-            bool isPlacementForbidden = false;
-            const auto mobList = worldContext->GetEntityIDWithComponents<Transform2DComponent,
-                TilePlacementForbiddenZoneComponent>();
-            auto targetWorldPos = TileLayerComponent::TileToWorldCenter(targetPos);
-            for (uint32_t mob: mobList) {
-                const Transform2DComponent *transform2dComponent = worldContext->GetComponent<
-                    Transform2DComponent>(mob);
-                if (transform2dComponent == nullptr) {
-                    continue;
-                }
-                const TilePlacementForbiddenZoneComponent *forbiddenZone = worldContext->GetComponent<
-                    TilePlacementForbiddenZoneComponent>(mob);
-                if (forbiddenZone == nullptr) {
-                    continue;
-                }
-                //The rectangular area where tiles are prohibited from being placed.
-                //禁止放置瓦片的矩形范围。
-                const WorldVector2D transform2dWorldPos = transform2dComponent->GetPosition();
-                auto forbiddenRect = SDL_FRect{
-                    transform2dWorldPos.x - forbiddenZone->GetHeight() * HALF_TILE_SIZE + forbiddenZone->GetOffsetX() *
-                    TILE_SIZE,
-                    transform2dWorldPos.y - forbiddenZone->GetWidth() * HALF_TILE_SIZE + forbiddenZone->GetOffsetY() *
-                    TILE_SIZE,
-                    forbiddenZone->GetWidth() * TILE_SIZE,
-                    forbiddenZone->GetHeight() * TILE_SIZE
-                };
-                if (targetWorldPos.x >= forbiddenRect.x &&
-                    targetWorldPos.x <= forbiddenRect.x + forbiddenRect.w &&
-                    targetWorldPos.y >= forbiddenRect.y &&
-                    targetWorldPos.y <= forbiddenRect.y + forbiddenRect.h) {
-                    isPlacementForbidden = true;
-                    break;
-                }
-            }
-            if (isPlacementForbidden) {
-                continue;
-            }
-        }
-
         if (GetAmount() > 0) {
             AudioManager *audioManager = appContext->GetAudioManager();
             if (audioManager != nullptr) {

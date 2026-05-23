@@ -37,8 +37,8 @@ void glimmer::SpiritRendererComponent::SetPosition(const Vector2D position) {
     position_ = position;
 }
 
-uint32_t glimmer::SpiritRendererComponent::GetId() {
-    return COMPONENT_ID_SPIRIT_RENDERER;
+GameComponentTypeMessage glimmer::SpiritRendererComponent::GetComponentType() {
+    return COMPONENT_SPIRIT_RENDERER;
 }
 
 const glimmer::Vector2D &glimmer::SpiritRendererComponent::GetPosition() const {

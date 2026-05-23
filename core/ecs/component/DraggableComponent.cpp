@@ -15,6 +15,6 @@ CameraVector2D glimmer::DraggableComponent::GetSize() const {
     return size_;
 }
 
-uint32_t glimmer::DraggableComponent::GetId() {
-    return COMPONENT_ID_DRAGGABLE;
+GameComponentTypeMessage glimmer::DraggableComponent::GetComponentType() {
+    return COMPONENT_DRAGGABLE;
 }

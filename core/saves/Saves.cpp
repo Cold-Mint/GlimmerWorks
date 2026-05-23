@@ -14,7 +14,7 @@ std::string glimmer::Saves::ToChunkPath(TileVector2D position) const {
 }
 
 std::string glimmer::Saves::ToChunkEntityPath(TileVector2D position) const {
-    return path_ + "/entitys/entity_" + std::to_string(position.x) + "_" + std::to_string(position.y) + ".bin";
+    return path_ + "/entities/entity_" + std::to_string(position.x) + "_" + std::to_string(position.y) + ".bin";
 }
 
 std::string glimmer::Saves::ToPlayerPath() const {

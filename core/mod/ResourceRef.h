@@ -30,7 +30,7 @@ namespace glimmer {
 
     class ResourceRef : public IFingerprintable {
         std::string packId_ = RESOURCE_REF_SELF;
-        ResourceTypeMessage resourceType_ = ResourceTypeMessage::None;
+        ResourceTypeMessage resourceType_ = RESOURCE_NONE;
         std::string resourceKey_;
         std::string selfPackageId_;
         bool bindPackage_ = false;

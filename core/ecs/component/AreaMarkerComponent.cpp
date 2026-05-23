@@ -4,10 +4,9 @@
 
 #include "AreaMarkerComponent.h"
 
-#include "core/Constants.h"
 
-uint32_t glimmer::AreaMarkerComponent::GetId() {
-    return COMPONENT_ID_AREA_MARKER;
+GameComponentTypeMessage glimmer::AreaMarkerComponent::GetComponentType() {
+    return COMPONENT_AREA_MARKER;
 }
 
 float glimmer::AreaMarkerComponent::GetRemainingTime() const {

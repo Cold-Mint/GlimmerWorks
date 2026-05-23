@@ -15,7 +15,7 @@ namespace glimmer {
         float MAX_REMAINING_TIME = 0.05F;
 
     public:
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
         [[nodiscard]] float GetRemainingTime() const;
 

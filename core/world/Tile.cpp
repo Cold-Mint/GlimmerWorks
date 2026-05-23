@@ -50,6 +50,14 @@ bool glimmer::Tile::EnableBlueprint() const {
     return enableBlueprint_;
 }
 
+bool glimmer::Tile::EnableBlueprintMask() const {
+    return enableBlueprintMask_;
+}
+
+bool glimmer::Tile::DrawValidBlueprintColor() const {
+    return drawValidBlueprintColor_;
+}
+
 MIX_Audio *glimmer::Tile::GetBreakSFX() const {
     return breakSFX_.get();
 }
@@ -182,8 +190,6 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->lootTable_ = tileResource->lootTable;
     tile->layerType_ = static_cast<TileLayerType>(tileResource->layerType);
     tile->physicsType_ = static_cast<TilePhysicsType>(tileResource->physicsType);
-    tile->hardness_ = tileResource->hardness;
-    tile->breakable = tileResource->hardness >= 0;
     tile->allowChainMining_ = tileResource->allowChainMining;
     tile->backLightMask_ = tileResource->backLightMask;
     tile->sideLightMask_ = tileResource->sideLightMask;
@@ -206,6 +212,12 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
         tileWidth = 1;
     }
     tile->tileWidth_ = tileWidth;
+    if (tileResource->autoHardnessScale) {
+        tile->hardness_ = static_cast<float>(tileWidth) * static_cast<float>(tileHeight) * tileResource->unitHardness;
+    } else {
+        tile->hardness_ = tileResource->unitHardness;
+    }
+    tile->breakable = tile->hardness_ >= 0;
     tile->tileAnchor_ = CalculateTileAnchor(static_cast<TileAnchorType>(tileResource->tileAnchorType), tileWidth,
                                             tileHeight,
                                             tileResource->customTileAnchor);
@@ -213,6 +225,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext 
     tile->texture_ = resourceLocator->FindTexture(
         &tileResource->texture);
     tile->enableBlueprint_ = tileResource->enableBlueprint;
+    tile->enableBlueprintMask_ = tileResource->enableBlueprintMask;
+    tile->drawValidBlueprintColor_ = tileResource->drawValidBlueprintColor;
     tile->blueprintTexture_ = resourceLocator->FindTextureRaw(
         &tileResource->blueprintTexture);
     if (tile->blueprintTexture_ == nullptr) {

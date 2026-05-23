@@ -4,8 +4,6 @@
 
 #include "MobComponent.h"
 
-#include "core/Constants.h"
-
-uint32_t glimmer::MobComponent::GetId() {
-    return COMPONENT_ID_MOB;
+GameComponentTypeMessage glimmer::MobComponent::GetComponentType() {
+    return COMPONENT_MOB;
 }

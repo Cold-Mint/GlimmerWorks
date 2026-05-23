@@ -33,6 +33,6 @@ namespace glimmer {
 
         void SetSelected(bool selected);
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

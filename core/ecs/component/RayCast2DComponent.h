@@ -67,6 +67,6 @@ namespace glimmer {
 
         void SetHit(bool hit);
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

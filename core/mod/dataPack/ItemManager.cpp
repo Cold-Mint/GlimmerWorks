@@ -24,7 +24,7 @@ std::unique_ptr<glimmer::ComposableItemResource> glimmer::ItemManager::CreatePla
     composableItemResource->resourceId = resourceId;
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(Texture);
+    resourceRef.SetResourceType(RESOURCE_TEXTURE);
     resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
     composableItemResource->texture = resourceRef;
     composableItemResource->defaultAbilityList = {};
@@ -40,7 +40,7 @@ std::unique_ptr<glimmer::AbilityItemResource> glimmer::ItemManager::CreateAbilit
     abilityItemResource->resourceId = resourceId;
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(Texture);
+    resourceRef.SetResourceType(RESOURCE_TEXTURE);
     resourceRef.SetResourceKey(ERROR_TEXTURE_KEY);
     abilityItemResource->texture = resourceRef;
     abilityItemResource->ability = ABILITY_ID_NONE;

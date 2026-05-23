@@ -31,6 +31,6 @@ namespace glimmer {
         //当前手持的物品。
         Item *item = nullptr;
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

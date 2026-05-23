@@ -6,8 +6,9 @@
 
 #include <utility>
 
-uint32_t glimmer::ParallaxBackgroundComponent::GetId() {
-    return COMPONENT_ID_PARALLAX_BACKGROUND;
+
+GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentType() {
+    return COMPONENT_PARALLAX_BACKGROUND;
 }
 
 void glimmer::ParallaxBackgroundComponent::SetTextureResourceRef(ResourceRef textureResourceRef) {

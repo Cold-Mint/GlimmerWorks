@@ -14,10 +14,11 @@ void glimmer::ItemEditorComponent::AddSlotEntity(GameEntity::ID id) {
     slotEntities.push_back(id);
 }
 
-uint32_t glimmer::ItemEditorComponent::GetId() {
-    return COMPONENT_ID_ITEM_EDITOR;
+GameComponentTypeMessage glimmer::ItemEditorComponent::GetComponentType() {
+    return COMPONENT_ITEM_EDITOR;
 }
 
-std::vector<glimmer::GameEntity::ID>& glimmer::ItemEditorComponent::GetSlotEntities() {
+
+std::vector<glimmer::GameEntity::ID> &glimmer::ItemEditorComponent::GetSlotEntities() {
     return slotEntities;
 }

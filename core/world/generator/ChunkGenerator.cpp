@@ -46,12 +46,12 @@ glimmer::ChunkGenerator::ChunkGenerator(WorldContext *worldContext, const int wo
     erosionMapNoise_->SetFrequency(0.003F);
     erosionMapNoise_->SetNoiseType(FastNoiseLite::NoiseType_Perlin);
     waterTileRef_ = ResourceRef();
-    waterTileRef_.SetResourceType(ResourceTypeMessage::Tile);
+    waterTileRef_.SetResourceType(RESOURCE_TILE);
     waterTileRef_.SetPackageId(RESOURCE_REF_CORE);
     waterTileRef_.SetSelfPackageId(RESOURCE_REF_CORE);
     waterTileRef_.SetResourceKey(TILE_ID_WATER);
     bedrockTileRef_ = ResourceRef();
-    bedrockTileRef_.SetResourceType(ResourceTypeMessage::Tile);
+    bedrockTileRef_.SetResourceType(RESOURCE_TILE);
     bedrockTileRef_.SetPackageId(RESOURCE_REF_CORE);
     bedrockTileRef_.SetSelfPackageId(RESOURCE_REF_CORE);
     bedrockTileRef_.SetResourceKey(TILE_ID_BEDROCK);

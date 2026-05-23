@@ -57,7 +57,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender *commandSender, const Co
     }
     std::string type = commandArgs->AsString(1);
     if (type == "structure") {
-        auto structureId = commandArgs->AsResourceRef(2, Structure);
+        auto structureId = commandArgs->AsResourceRef(2, RESOURCE_STRUCTURE);
         IStructureResource *structureResource = appContext_->GetStructureManager()->Find(
             structureId->GetPackageId(), structureId->GetResourceKey());
         if (structureResource == nullptr) {

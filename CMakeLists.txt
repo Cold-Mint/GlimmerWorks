@@ -579,6 +579,7 @@ target_sources(GlimmerWorks
         core/console/command/PackVerifyCommand.cpp
         core/console/suggestion/DataPackDynamicSuggestions.cpp
         core/ecs/system/BlueprintSystem.cpp
+        core/ecs/component/BlueprintComponent.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -831,6 +832,7 @@ target_sources(GlimmerWorks
         core/console/command/PackVerifyCommand.h
         core/console/suggestion/DataPackDynamicSuggestions.h
         core/ecs/system/BlueprintSystem.h
+        core/ecs/component/BlueprintComponent.h
 )
 
 #Define version information

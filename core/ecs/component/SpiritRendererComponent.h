@@ -34,7 +34,7 @@ namespace glimmer {
 
         void SetPosition(Vector2D position);
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
         [[nodiscard]] const Vector2D &GetPosition() const;
     };

@@ -51,6 +51,6 @@ void glimmer::Transform2DComponent::Deserialize(WorldContext *worldContext, cons
     rotation_ = transform2DMessage.rotation();
 }
 
-uint32_t glimmer::Transform2DComponent::GetId() {
-    return COMPONENT_ID_TRANSFORM_2D;
+GameComponentTypeMessage glimmer::Transform2DComponent::GetComponentType() {
+    return COMPONENT_TRANSFORM_2D;
 }

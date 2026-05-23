@@ -29,6 +29,6 @@ namespace glimmer {
 
         [[nodiscard]] std::string &GetText();
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

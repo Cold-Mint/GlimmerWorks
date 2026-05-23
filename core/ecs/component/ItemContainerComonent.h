@@ -34,6 +34,6 @@ namespace glimmer {
 
         void Deserialize(WorldContext *worldContext, const std::string &data) override;
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

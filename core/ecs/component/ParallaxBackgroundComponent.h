@@ -16,7 +16,7 @@ namespace glimmer {
         bool needsUpdate_ = false;
 
     public:
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
         void SetTextureResourceRef(ResourceRef textureResourceRef);
 

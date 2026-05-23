@@ -56,6 +56,11 @@ void glimmer::RayCast2DComponent::SetHit(bool hit) {
     hit_ = hit;
 }
 
+GameComponentTypeMessage glimmer::RayCast2DComponent::GetComponentType() {
+    return COMPONENT_RAY_CAST_2D;
+}
+
+
 const WorldVector2D &glimmer::RayCast2DComponent::GetTranslation() const {
     return translation_;
 }
@@ -70,8 +75,4 @@ glimmer::GameEntity::ID glimmer::RayCast2DComponent::GetTransform2DEntity() cons
 
 void glimmer::RayCast2DComponent::SetTransform2D(const WorldVector2D &transform2D) {
     translation_ = transform2D;
-}
-
-uint32_t glimmer::RayCast2DComponent::GetId() {
-    return COMPONENT_ID_RAY_CAST_2D;
 }

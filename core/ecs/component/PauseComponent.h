@@ -8,6 +8,6 @@
 namespace glimmer {
     class PauseComponent : public GameComponent {
     public:
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

@@ -4,7 +4,6 @@
 
 #pragma once
 #include "core/ecs/GameComponent.h"
-#include "core/math/Vector2D.h"
 
 namespace glimmer {
     /**
@@ -12,27 +11,28 @@ namespace glimmer {
      * 禁止放置瓦片的区域。
      */
     class TilePlacementForbiddenZoneComponent : public GameComponent {
-        float width_ = 0;
-        float height_ = 0;
-        Vector2D offset_;
+        int width_ = 0;
+        int height_ = 0;
+        int offsetX_ = 0;
+        int offsetY_ = 0;
 
     public:
-        void SetWidth(float width);
+        void SetWidth(int width);
 
-        void SetOffsetX(float offsetX);
+        void SetHeight(int height);
 
-        void SetOffsetY(float offsetY);
+        void SetOffsetX(int offsetX);
 
-        [[nodiscard]] uint32_t GetId() override;
+        void SetOffsetY(int offsetY);
 
-        [[nodiscard]] float GetOffsetX() const;
+        [[nodiscard]] int GetWidth() const;
 
-        [[nodiscard]] float GetOffsetY() const;
+        [[nodiscard]] int GetHeight() const;
 
-        void SetHeight(float height);
+        [[nodiscard]] int GetOffsetX() const;
 
-        [[nodiscard]] float GetWidth() const;
+        [[nodiscard]] int GetOffsetY() const;
 
-        [[nodiscard]] float GetHeight() const;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

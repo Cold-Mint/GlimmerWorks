@@ -70,7 +70,7 @@ namespace glimmer {
          */
         [[nodiscard]] bool CanBePickedUp() const;
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
         [[nodiscard]] bool IsSerializable() override;
 

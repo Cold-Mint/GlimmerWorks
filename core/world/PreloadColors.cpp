@@ -349,13 +349,27 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     defaultLightTransmissionRes.a = 0;
     light.defaultLightTransmissionColor = LoadColor(resourceLocator, "light/default_light_transmission_color",
                                                     defaultLightTransmissionRes);
+    Color defaultBlueprintValidRes;
+    defaultBlueprintValidRes.r = 65;
+    defaultBlueprintValidRes.g = 175;
+    defaultBlueprintValidRes.b = 255;
+    defaultBlueprintValidRes.a = 160;
+    blueprint.validColor = LoadColor(resourceLocator, "blueprint/valid_place_color",
+                                     defaultBlueprintValidRes);
+    Color defaultBlueprintInvalidRes;
+    defaultBlueprintInvalidRes.r = 230;
+    defaultBlueprintInvalidRes.g = 60;
+    defaultBlueprintInvalidRes.b = 60;
+    defaultBlueprintInvalidRes.a = 160;
+    blueprint.invalidColor = LoadColor(resourceLocator, "blueprint/invalid_place_color",
+                                       defaultBlueprintInvalidRes);
 }
 
 glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
                                                  const Color &defaultColor) {
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(ResourceTypeMessage::Color);
+    resourceRef.SetResourceType(RESOURCE_COLOR);
     resourceRef.SetResourceKey(key);
     const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(&resourceRef);
     if (targetColor == nullptr) {

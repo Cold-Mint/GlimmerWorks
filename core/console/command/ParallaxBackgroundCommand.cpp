@@ -82,7 +82,7 @@ bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender *commandSen
             return false;
         }
         const std::optional<ResourceRef> texturesResourceRefOptional = commandArgs->AsResourceRef(
-            2, Texture);
+            2, RESOURCE_TEXTURE);
         if (!texturesResourceRefOptional.has_value()) {
             return false;
         }

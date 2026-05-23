@@ -16,7 +16,7 @@ namespace glimmer {
 
         void AddSlotEntity(GameEntity::ID id);
 
-        [[nodiscard]] uint32_t GetId() override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
         std::vector<GameEntity::ID> &GetSlotEntities();
     };

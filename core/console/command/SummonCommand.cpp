@@ -41,7 +41,7 @@ bool glimmer::SummonCommand::Execute(const CommandSender *commandSender, const C
             1, size));
         return false;
     }
-    auto resourceRefOptional = commandArgs->AsResourceRef(3, Mob);
+    auto resourceRefOptional = commandArgs->AsResourceRef(3, RESOURCE_MOB);
     if (!resourceRefOptional.has_value()) {
         return false;
     }

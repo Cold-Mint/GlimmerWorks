@@ -22,7 +22,7 @@ EntityItemMessage glimmer::MobEntityCreator::GetEntityItemMessage(const WorldVec
             entityItemMessage.add_components();
     Transform2DComponent transform2DComponent{};
     transform2DComponent.SetPosition(position);
-    transform2DComponentMessage->set_id(transform2DComponent.GetId());
+    transform2DComponentMessage->set_type(transform2DComponent.GetComponentType());
     transform2DComponentMessage->set_data(transform2DComponent.Serialize());
     return entityItemMessage;
 }
@@ -36,7 +36,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const GameEntity::ID id, 
         return;
     }
     uint32_t resourceType = resourceRef.GetResourceType();
-    if (resourceType != Mob) {
+    if (resourceType != RESOURCE_MOB) {
         return;
     }
     ResourceLocator *resourceLocator = appContext->GetResourceLocator();
@@ -99,8 +99,8 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const GameEntity::ID id, 
         const TilePlacementForbiddenZone tilePlacementForbiddenZone = mobResource->tilePlacementForbiddenZone;
         tilePlacementForbiddenZoneComponent->SetWidth(tilePlacementForbiddenZone.width);
         tilePlacementForbiddenZoneComponent->SetHeight(tilePlacementForbiddenZone.height);
-        tilePlacementForbiddenZoneComponent->SetOffsetX(tilePlacementForbiddenZone.offset.x);
-        tilePlacementForbiddenZoneComponent->SetOffsetY(tilePlacementForbiddenZone.offset.y);
+        tilePlacementForbiddenZoneComponent->SetOffsetX(tilePlacementForbiddenZone.offsetX);
+        tilePlacementForbiddenZoneComponent->SetOffsetY(tilePlacementForbiddenZone.offsetY);
     }
 
 

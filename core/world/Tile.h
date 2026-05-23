@@ -27,6 +27,8 @@ namespace glimmer {
         float hardness_ = 1.0F;
         bool breakable = true;
         bool enableBlueprint_ = true;
+        bool enableBlueprintMask_ = true;
+        bool drawValidBlueprintColor_ = true;
         bool allowChainMining_ = false;
         uint8_t tileWidth_ = 1;
         uint8_t tileHeight_ = 1;
@@ -100,6 +102,10 @@ namespace glimmer {
         [[nodiscard]] SDL_Texture *GetBlueprintTexture() const;
 
         [[nodiscard]] bool EnableBlueprint() const;
+
+        [[nodiscard]] bool EnableBlueprintMask() const;
+
+        [[nodiscard]] bool DrawValidBlueprintColor() const;
 
         [[nodiscard]] MIX_Audio *GetBreakSFX() const;
 

@@ -14,7 +14,7 @@ static uint64_t airWallResourceRefFingerprint_ = 0;
 glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const std::string &resourceId,
                                                                      TilePhysicsType physicsType,
                                                                      TileLayerType layerType,
-                                                                     float hardness, const std::string &nameKey,
+                                                                     float unitHardness, const std::string &nameKey,
                                                                      const std::string &textureKey,
                                                                      const std::string &lightSourceKey,
                                                                      const std::string &sideLightMaskKey,
@@ -26,40 +26,40 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const std::
     ResourceRef textureResourceRef;
     textureResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     textureResourceRef.SetResourceKey(textureKey);
-    textureResourceRef.SetResourceType(Texture);
+    textureResourceRef.SetResourceType(RESOURCE_TEXTURE);
     tileResource->texture = textureResourceRef;
     ResourceRef nameResource;
     nameResource.SetSelfPackageId(RESOURCE_REF_CORE);
     nameResource.SetResourceKey(nameKey);
-    nameResource.SetResourceType(String);
+    nameResource.SetResourceType(RESOURCE_STRING);
     tileResource->name = nameResource;
     if (descriptionKey.has_value()) {
         ResourceRef descriptionResource;
         descriptionResource.SetSelfPackageId(RESOURCE_REF_CORE);
         descriptionResource.SetResourceKey(descriptionKey.value());
-        descriptionResource.SetResourceType(String);
+        descriptionResource.SetResourceType(RESOURCE_STRING);
         tileResource->description = descriptionResource;
     }
     tileResource->resourceId = resourceId;
     tileResource->packId = RESOURCE_REF_CORE;
     tileResource->physicsType = static_cast<uint8_t>(physicsType);
     tileResource->layerType = static_cast<uint8_t>(layerType);
-    tileResource->hardness = hardness;
+    tileResource->unitHardness = unitHardness;
     tileResource->isOverwritable = isOverwritable;
     tileResource->canDropLoot = canDropLoot;
     ResourceRef lightSourceRef;
     lightSourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    lightSourceRef.SetResourceType(LightSource);
+    lightSourceRef.SetResourceType(RESOURCE_LIGHT_SOURCE);
     lightSourceRef.SetResourceKey(lightSourceKey);
     tileResource->lightSource = lightSourceRef;
     ResourceRef sideLightMaskRef;
     sideLightMaskRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    sideLightMaskRef.SetResourceType(LightSource);
+    sideLightMaskRef.SetResourceType(RESOURCE_LIGHT_SOURCE);
     sideLightMaskRef.SetResourceKey(sideLightMaskKey);
     tileResource->sideLightMask = sideLightMaskRef;
     ResourceRef backLightMaskRef;
     backLightMaskRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    backLightMaskRef.SetResourceType(LightSource);
+    backLightMaskRef.SetResourceType(RESOURCE_LIGHT_SOURCE);
     backLightMaskRef.SetResourceKey(backLightMaskKey);
     tileResource->backLightMask = backLightMaskRef;
     return AddResource(std::move(tileResource));
@@ -68,7 +68,7 @@ glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const std::
 glimmer::TileResourceManager::TileResourceManager() {
     ResourceRef airResourceRef;
     airResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    airResourceRef.SetResourceType(ResourceTypeMessage::Tile);
+    airResourceRef.SetResourceType(RESOURCE_TILE);
     airResourceRef.SetResourceKey(TILE_ID_AIR);
 
     airResourceRefFingerprint_ = airResourceRef.GetFingerprint();
@@ -109,7 +109,7 @@ glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(const s
     ResourceRef errorResource;
     errorResource.SetSelfPackageId(RESOURCE_REF_CORE);
     errorResource.SetResourceKey(ERROR_TEXTURE_KEY);
-    errorResource.SetResourceType(Texture);
+    errorResource.SetResourceType(RESOURCE_TEXTURE);
     errorPlaceholder->texture = errorResource;
     errorPlaceholder->resourceId = resourceId;
     errorPlaceholder->packId = packId;
@@ -119,7 +119,7 @@ glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(const s
         errorPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     }
     errorPlaceholder->layerType = tileLayer;
-    errorPlaceholder->hardness = 0.1F;
+    errorPlaceholder->unitHardness = 0.1F;
     errorPlaceholder->missing = true;
     return AddResource(std::move(errorPlaceholder));
 }
@@ -139,7 +139,7 @@ glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHo
     ResourceRef accessDeniedResource;
     accessDeniedResource.SetSelfPackageId(RESOURCE_REF_CORE);
     accessDeniedResource.SetResourceKey(ACCESS_DENIED_TEXTURE_KEY);
-    accessDeniedResource.SetResourceType(Texture);
+    accessDeniedResource.SetResourceType(RESOURCE_TEXTURE);
     accessDeniedPlaceholder->texture = accessDeniedResource;
     accessDeniedPlaceholder->resourceId = resourceId;
     accessDeniedPlaceholder->packId = packId;
@@ -151,7 +151,7 @@ glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHo
         accessDeniedPlaceholder->physicsType = static_cast<uint8_t>(TilePhysicsType::None);
     }
     accessDeniedPlaceholder->layerType = tileLayer;
-    accessDeniedPlaceholder->hardness = 0.1F;
+    accessDeniedPlaceholder->unitHardness = 0.1F;
     accessDeniedPlaceholder->missing = true;
     auto &slot = accessDeniedTileMap_[packId][resourceId];
     slot = std::move(accessDeniedPlaceholder);
@@ -182,7 +182,7 @@ uint64_t glimmer::TileResourceManager::GetAirResourceRefFingerprint(const TileLa
 glimmer::ResourceRef glimmer::TileResourceManager::GetAirResourceRef(TileLayerType tileLayerType) {
     ResourceRef airResourceRef;
     airResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    airResourceRef.SetResourceType(ResourceTypeMessage::Tile);
+    airResourceRef.SetResourceType(RESOURCE_TILE);
     if (tileLayerType == Ground) {
         airResourceRef.SetResourceKey(TILE_ID_AIR);
     } else {

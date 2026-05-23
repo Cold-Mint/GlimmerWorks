@@ -36,6 +36,6 @@ void glimmer::ItemContainerComponent::Deserialize(WorldContext *worldContext, co
     }
 }
 
-uint32_t glimmer::ItemContainerComponent::GetId() {
-    return COMPONENT_ID_ITEM_CONTAINER;
+GameComponentTypeMessage glimmer::ItemContainerComponent::GetComponentType() {
+    return COMPONENT_ITEM_CONTAINER;
 }

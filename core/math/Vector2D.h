@@ -3,11 +3,13 @@
 //
 
 #pragma once
+#include "core/IFingerprintable.h"
 
 namespace glimmer {
+    using Vector2DFingerprint = uint64_t;
     struct Vector2DI;
 
-    struct Vector2D {
+    struct Vector2D : IFingerprintable {
         float x;
         float y;
 
@@ -30,6 +32,10 @@ namespace glimmer {
         Vector2D(float x, float y);
 
         Vector2D(int x, int y);
+
+        [[nodiscard]] Vector2DFingerprint GetFingerprint() const override;
+
+        [[nodiscard]] static Vector2D FromFingerprint(Vector2DFingerprint fingerprint);
 
         /**
          * Vector addition

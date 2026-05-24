@@ -127,9 +127,9 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer *renderer) {
             if (tilePlacementForbiddenZone == nullptr) {
                 continue;
             }
-            TileVector2D originTileVector2D = TileLayerComponent::WorldToTile(transform2DComponent->GetPosition());
-            int startX = originTileVector2D.x + tilePlacementForbiddenZone->GetOffsetX();
-            int startY = originTileVector2D.y + tilePlacementForbiddenZone->GetOffsetY();
+            const TileVector2D originTileVector2D = TileLayerComponent::WorldToTile(transform2DComponent->GetPosition());
+            const int startX = originTileVector2D.x + tilePlacementForbiddenZone->GetOffsetX();
+            const int startY = originTileVector2D.y + tilePlacementForbiddenZone->GetOffsetY();
             blockRects_.push_back({
                 startX, startY, tilePlacementForbiddenZone->GetWidth(), tilePlacementForbiddenZone->GetHeight()
             });
@@ -161,6 +161,11 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer *renderer) {
         }
     }
     const float zoom = cameraComponent_->GetZoom();
+    //The coordinates used in the code logic need to be -1.
+    //代码逻辑用的坐标需要-1。
+    blueprintComponent_->SetTopLeftVector({leftBottom.x, leftBottom.y + tileHeight - 1});
+    //Drawing the coordinates doesn't require -1.
+    //绘制坐标不不需要-1。
     const CameraVector2D topLeftCamera = cameraComponent_->GetViewPortPosition(
         cameraTransform2DComponent_->GetPosition(),
         TileLayerComponent::TileToWorld({leftBottom.x, leftBottom.y + tileHeight}) -
@@ -204,8 +209,8 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer *renderer) {
                     SDL_FRect indicatorRenderQuad;
                     indicatorRenderQuad.w = TILE_SIZE * zoom;
                     indicatorRenderQuad.h = TILE_SIZE * zoom;
-                    indicatorRenderQuad.x = tileScreenPos.x - indicatorRenderQuad.w * 0.5F;
-                    indicatorRenderQuad.y = tileScreenPos.y - indicatorRenderQuad.h * 0.5F;
+                    indicatorRenderQuad.x = tileScreenPos.x - HALF_TILE_SIZE;
+                    indicatorRenderQuad.y = tileScreenPos.y - HALF_TILE_SIZE;
                     if (checkRectResult[i]) {
                         if (heldTile_->DrawValidBlueprintColor()) {
                             SDL_SetRenderDrawColor(renderer, preloadColors_->blueprint.validColor.r,

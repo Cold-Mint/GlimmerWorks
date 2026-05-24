@@ -69,7 +69,6 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
             //瓦片图层不对，找下一个。
             continue;
         }
-        auto targetPos = tileLayer->GetFocusPosition();
         if (!blueprintComponent->CanPlace()) {
             continue;
         }
@@ -79,7 +78,9 @@ void glimmer::TileItem::OnUse(WorldContext *worldContext, GameEntity::ID user, c
                 audioManager->TryPlayFree(
                     AMBIENT, tile_->GetPlaceSFX(), 0);
             }
-            DiggingSystem::BreakTile(worldContext, tileLayer, targetPos, false, true, resourceRef_);
+            DiggingSystem::BreakTile(worldContext, tileLayer, blueprintComponent->GetTopLeftVector(), false, true,
+                                     tile_->GetTileWidth(), tile_->GetTileHeight(),
+                                     resourceRef_);
             (void) RemoveAmount(1);
         }
     }

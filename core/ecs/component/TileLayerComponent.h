@@ -10,8 +10,8 @@
 #include "core/math/Vector2D.h"
 #include "core/math/Vector2DI.h"
 #include "core/world/generator/TileLayerType.h"
+#include "core/world/generator/TileSnapshot.h"
 #include "SDL3/SDL_rect.h"
-#include "src/saves/tile_state.pb.h"
 using TileVector2D = glimmer::Vector2DI;
 
 namespace glimmer {
@@ -30,18 +30,15 @@ namespace glimmer {
 
 
         [[nodiscard]] std::shared_ptr<Tile>
-        GetTilePtr(TileLayerType layerType, const TileVector2D &tilePos) const;
+        GetTileShared(TileLayerType layerType, const TileVector2D &tilePos) const;
 
-        /**
-         * GetTopVisibleTile
-         * 获取顶层可见瓦片
-         * @param chunk
-         * @param layerFilter
-         * @param tilePos
-         * @return
-         */
-        [[nodiscard]] static std::vector<const Tile *> GetTopVisibleTiles(const Chunk *chunk, uint8_t layerFilter,
-                                                                          const TileVector2D &tilePos);
+        [[nodiscard]] static std::unique_ptr<std::vector<TileSnapshot> > GetTopVisibleTileSnapshots(
+            const Chunk *chunk, uint8_t layerFilter,
+            const TileVector2D &tilePos);
+
+        [[nodiscard]] TileStateMessage *GetTileStatePtr(
+            TileLayerType layerType,
+            const TileVector2D &tilePos) const;
 
     public:
         [[nodiscard]] const Tile *GetTile(TileLayerType layerType, const TileVector2D &tilePos) const;
@@ -77,24 +74,24 @@ namespace glimmer {
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<const Tile *> > > GetTopVisibleTilesInViewport(
+        [[nodiscard]] std::vector<std::pair<TileVector2D, std::unique_ptr<std::vector<TileSnapshot> > > >
+        GetTopVisibleTileSnapshotsInViewport(
             uint8_t layerFilter,
             const SDL_FRect &worldViewport) const;
 
 
         [[nodiscard]] const Tile *GetSelfLayerTile(const TileVector2D &tilePos) const;
 
-        [[nodiscard]] std::shared_ptr<Tile> GetSelfLayerTilePtr(const TileVector2D &tilePos) const;
+        [[nodiscard]] std::shared_ptr<Tile> GetSelfLayerTileShared(const TileVector2D &tilePos) const;
 
         [[nodiscard]] bool CommitTileState(
             TileLayerType layerType, const TileVector2D &tilePos, bool fallback) const;
 
-        [[nodiscard]] TileStateMessage *GetTileStatePtr(
-            TileLayerType layerType,
+
+        [[nodiscard]] const TileStateMessage *GetSelfLayerTileState(
             const TileVector2D &tilePos) const;
 
-        [[nodiscard]] const TileStateMessage *GetTileState(
-            TileLayerType layerType,
+        [[nodiscard]] TileStateMessage *GetSelfLayerTileStateMutable(
             const TileVector2D &tilePos) const;
 
         [[nodiscard]] TileLayerType GetTileLayerType() const;

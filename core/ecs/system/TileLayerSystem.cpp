@@ -48,9 +48,9 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
     }
     auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
     const float zoom = cameraComponent->GetZoom();
-    std::vector<std::pair<TileVector2D, std::vector<const Tile *> > > visibleTiles =
-            tileLayerComponent->GetTopVisibleTilesInViewport(Ground | BackGround, viewportRect);
-    for (const auto &[tileCoord, tileList]: visibleTiles) {
+    std::vector<std::pair<TileVector2D, std::unique_ptr<std::vector<TileSnapshot> > > > visibleTiles =
+            tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(Ground | BackGround, viewportRect);
+    for (auto &[tileCoord, tileList]: visibleTiles) {
         const Chunk *chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileCoord));
         Uint8 alpha = 255;
         if (chunk != nullptr) {
@@ -60,12 +60,27 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
         const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileCoord);
         const CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
             cameraPos->GetPosition(), worldTilePos);
-        SDL_FRect renderQuad;
-        renderQuad.w = TILE_SIZE * zoom;
-        renderQuad.h = TILE_SIZE * zoom;
-        renderQuad.x = screenPos.x - renderQuad.w * 0.5F;
-        renderQuad.y = screenPos.y - renderQuad.h * 0.5F;
-        for (auto tile: tileList) {
+
+        for (const auto &tileSnapshot: *tileList) {
+            const Tile *tile = tileSnapshot.GetTile();
+            if (tile == nullptr) {
+                continue;
+            }
+            const TileStateMessage *tileState = tileSnapshot.GetTileState();
+            if (tileState == nullptr) {
+                continue;
+            }
+            const Vector2DIMessage &offset = tileState->offset();
+            if (offset.x() != 0 || offset.y() != 0) {
+                //The upper left corner of the non-tile area will not be drawn.
+                //非瓦片左上角不绘制。
+                continue;
+            }
+            SDL_FRect renderQuad;
+            renderQuad.w = static_cast<float>(tileState->width()) * TILE_SIZE * zoom;
+            renderQuad.h = static_cast<float>(tileState->height()) * TILE_SIZE * zoom;
+            renderQuad.x = screenPos.x - HALF_TILE_SIZE;
+            renderQuad.y = screenPos.y - HALF_TILE_SIZE;
             const Color *finalLightColor = worldContext_->GetLightingBuffer()->GetFinalLightColor(tileCoord);
 #if  defined(NDEBUG)
             if (finalLightColor == nullptr) {
@@ -88,7 +103,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer *renderer) {
                 }
             }
 #endif
-            SDL_Texture *texture = tile->GetTexture();
+            auto texture = tile->GetTexture();
             if (texture != nullptr) {
                 SDL_SetTextureAlphaMod(texture, alpha);
                 if (!SDL_RenderTexture(renderer, texture, nullptr, &renderQuad)) {

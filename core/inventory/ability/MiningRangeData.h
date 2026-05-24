@@ -3,10 +3,11 @@
 //
 
 #pragma once
+#include <unordered_set>
 #include <vector>
 
+#include "MiningRangeDataPoint.h"
 #include "core/ecs/component/TileLayerComponent.h"
-#include "core/math/Vector2D.h"
 
 
 /**
@@ -17,18 +18,18 @@ namespace glimmer {
     class MiningRangeData {
         //The array of coordinates being excavated.
         //正在被挖掘的坐标数组。
-        std::vector<WorldVector2D> points_;
+        std::vector<MiningRangeDataPoint> points_;
+        std::unordered_set<Vector2DIFingerprint> pointsFingerprint_;
         float maxHardness_ = 0;
+
+        void TryPushPoint(const TileLayerComponent *tileLayerComponent, const TileVector2D &position);
 
     public:
         MiningRangeData();
 
-        /**
-         * Obtain all coordinate points.
-         * 获取所有坐标点。
-         * @return
-         */
-        [[nodiscard]] const std::vector<WorldVector2D> &GetPoints() const;
+        [[nodiscard]] size_t GetPointsCount() const;
+
+        [[nodiscard]] const MiningRangeDataPoint *GetPoint(size_t index) const;
 
         /**
          * Achieve maximum hardness
@@ -40,8 +41,9 @@ namespace glimmer {
         void Reset();
 
 
-        void CalculateMining(WorldVector2D startVector, const TileLayerComponent *tileLayerComponent);
+        void CalculateMining(const TileLayerComponent *tileLayerComponent, const TileVector2D &startVector);
 
-        void CalculateChainMining(WorldVector2D startVector, const TileLayerComponent *tileLayerComponent, int radius);
+        void CalculateChainMining(const TileLayerComponent *tileLayerComponent, const TileVector2D &startVector,
+                                  uint8_t radius);
     };
 }

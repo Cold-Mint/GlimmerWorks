@@ -9,6 +9,7 @@
 #include "generator/TileLayerType.h"
 #include "generator/TilePhysicsType.h"
 #include "SDL3/SDL_render.h"
+#include "SDL3_mixer/SDL_mixer.h"
 
 
 namespace glimmer {

@@ -5,6 +5,7 @@
 #include "Vector2D.h"
 
 #include <cmath>
+#include <bit>
 #include "Vector2DI.h"
 
 glimmer::Vector2D::Vector2D() : x(0.0F), y(0.0F) {
@@ -14,6 +15,20 @@ glimmer::Vector2D::Vector2D(const float x, const float y) : x(x), y(y) {
 }
 
 glimmer::Vector2D::Vector2D(const int x, const int y) : x(static_cast<float>(x)), y(static_cast<float>(y)) {
+}
+
+uint64_t glimmer::Vector2D::GetFingerprint() const {
+    const uint32_t bitsX = std::bit_cast<uint32_t>(x);
+    const uint32_t bitsY = std::bit_cast<uint32_t>(y);
+    return static_cast<uint64_t>(bitsX) << 32 | bitsY;
+}
+
+glimmer::Vector2D glimmer::Vector2D::FromFingerprint(Vector2DFingerprint fingerprint) {
+    const uint32_t bitsX = static_cast<uint32_t>(fingerprint >> 32);
+    const uint32_t bitsY = static_cast<uint32_t>(fingerprint & 0xFFFFFFFF);
+    const float x = std::bit_cast<float>(bitsX);
+    const float y = std::bit_cast<float>(bitsY);
+    return {x, y};
 }
 
 glimmer::Vector2D glimmer::Vector2D::operator+(const Vector2D &rhs) const {

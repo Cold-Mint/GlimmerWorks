@@ -5,6 +5,7 @@
 #include "Chunk.h"
 
 #include "core/world/WorldContext.h"
+#include "src/saves/tile_state.pb.h"
 
 void glimmer::Chunk::AddBodyId(b2BodyId bodyId) { attachedBodies_.emplace_back(bodyId); }
 
@@ -169,7 +170,7 @@ const glimmer::Tile *glimmer::Chunk::GetTile(const TileLayerType layerType, cons
     return it->second[index].get();
 }
 
-std::shared_ptr<glimmer::Tile> glimmer::Chunk::GetTilePtr(const TileLayerType layerType, const uint8_t index) const {
+std::shared_ptr<glimmer::Tile> glimmer::Chunk::GetTileShared(TileLayerType layerType, uint8_t index) const {
     const auto it = tiles_.find(layerType);
     if (it == tiles_.end()) {
         return nullptr;
@@ -177,22 +178,31 @@ std::shared_ptr<glimmer::Tile> glimmer::Chunk::GetTilePtr(const TileLayerType la
     return it->second[index];
 }
 
-std::vector<const glimmer::Tile *> glimmer::Chunk::GetTopVisibleTiles(const uint8_t layerFilter,
-                                                                      const uint8_t index) const {
-    std::vector<const Tile *> tiles = {};
+std::unique_ptr<std::vector<glimmer::TileSnapshot> > glimmer::Chunk::GetTopVisibleTileSnapshots(
+    const uint8_t layerFilter,
+    const uint8_t index) const {
+    auto tileSnapshotVector = std::make_unique<std::vector<TileSnapshot> >();
     for (int i = 0; i < TILE_LAYER_TYPE_COUNT; i++) {
         const uint8_t layer = 1 << i;
         if (layerFilter && layer) {
             //If the i-th position is 1.
             //如果第i位为1。
-            const Tile *tile = GetTile(static_cast<TileLayerType>(layer), index);
+            const auto layerType = static_cast<TileLayerType>(layer);
+            const Tile *tile = GetTile(layerType, index);
             if (tile == nullptr) {
                 continue;
             }
-            tiles.emplace_back(tile);
+            const TileStateMessage *tileStateMessage = GetTileState(layerType, index);
+            if (tileStateMessage == nullptr) {
+                continue;
+            }
+            TileSnapshot tileSnapshot;
+            tileSnapshot.SetTile(tile);
+            tileSnapshot.SetTileState(tileStateMessage);
+            tileSnapshotVector->emplace_back(tileSnapshot);
         }
     }
-    return tiles;
+    return tileSnapshotVector;
 }
 
 void glimmer::Chunk::ReadChunkMessage(const ChunkMessage &chunkMessage) {

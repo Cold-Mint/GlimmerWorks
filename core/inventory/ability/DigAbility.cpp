@@ -46,9 +46,13 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
         if (tileLayerComponent == nullptr) {
             continue;
         }
-        TileLayerType layerType = tileLayerComponent->GetTileLayerType();
+        const TileLayerType layerType = tileLayerComponent->GetTileLayerType();
         if (abilityConfig.mineAbleLayer & layerType) {
-            TileVector2D tileVector2D = tileLayerComponent->GetFocusPosition();
+            const TileVector2D &tileVector2D = tileLayerComponent->GetFocusPosition();
+            if (TileLayerComponent::TileToWorldCenter(tileVector2D).Distance(playerWorldPos) / TILE_SIZE > abilityConfig
+                .miningRange) {
+                continue;
+            }
             const Tile *tile = tileLayerComponent->GetSelfLayerTile(
                 tileVector2D);
             if (tile == nullptr) {
@@ -57,33 +61,29 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
             if (!tile->IsBreakable()) {
                 continue;
             }
-            if (TileLayerComponent::TileToWorldCenter(tileVector2D).Distance(playerWorldPos) / TILE_SIZE > abilityConfig
-                .miningRange) {
-                continue;
-            }
-            const WorldVector2D tileWorldPos = TileLayerComponent::TileToWorld(tileVector2D);
-            if (diggingComponent->GetStartPosition() != tileWorldPos) {
+            if (diggingComponent->GetStartPosition() != tileVector2D) {
                 //Change the starting point of the excavation and recalculate the progress.
                 //挖掘起点改变，重新计算进度。
                 miningRangeData_.Reset();
                 diggingComponent->SetChainMiningRadius(abilityConfig.chainMiningRadius);
                 miningRangeData_.
-                        CalculateChainMining(tileWorldPos, tileLayerComponent, abilityConfig.chainMiningRadius);
+                        CalculateChainMining(tileLayerComponent, tileVector2D, abilityConfig.chainMiningRadius);
                 diggingComponent->SetPrecisionMining(abilityConfig.enablePrecisionMining);
-                if (miningRangeData_.GetPoints().empty()) {
+                size_t pointCount = miningRangeData_.GetPointsCount();
+                if (pointCount == 0) {
                     //If no exploitable tiles are found, then calculate the default excavation range.
                     //如果没有发现可挖掘的瓦片，那么计算默认的挖掘范围。
-                    miningRangeData_.CalculateMining(tileWorldPos, tileLayerComponent);
+                    miningRangeData_.CalculateMining(tileLayerComponent, tileVector2D);
                 }
                 diggingComponent->SetEfficiency(abilityConfig.miningEfficiency);
                 diggingComponent->SetMiningRangeData(&miningRangeData_);
                 diggingComponent->SetProgress(0.0F);
-                diggingComponent->SetStartPosition(tileWorldPos);
+                diggingComponent->SetStartPosition(tileVector2D);
             }
             //efficiency
             //工具效率
             diggingComponent->SetLayerType(layerType);
-            if (!miningRangeData_.GetPoints().empty()) {
+            if (miningRangeData_.GetPointsCount() > 0) {
                 //If there are any exploitable tiles, then activate the mining module.
                 //如果有可挖掘的瓦片，那么激活挖掘组建。
                 diggingComponent->MarkActive();

@@ -15,126 +15,147 @@
 #include "core/ecs/component/DiggingComponent.h"
 
 
-bool glimmer::DiggingSystem::BreakTile(WorldContext *worldContext, const TileLayerComponent *tileLayerComponent,
-                                       TileVector2D tilePosition, bool precisionMining, bool overwrite,
-                                       ResourceRef newTileRef) {
+uint16_t glimmer::DiggingSystem::BreakTile(WorldContext *worldContext, const TileLayerComponent *tileLayerComponent,
+                                           const TileVector2D &topLeftVector, const bool precisionMining,
+                                           const bool isPlaceMode,
+                                           const uint8_t tileWidth, const uint8_t tileHeight,
+                                           const ResourceRef &newTileRef) {
+    LogCat::d("左上", topLeftVector.x, "y=", topLeftVector.y);
     if (worldContext == nullptr || tileLayerComponent == nullptr) {
-        return false;
+        return 0;
     }
     const AppContext *appContext = worldContext->GetAppContext();
     if (appContext == nullptr) {
-        return false;
+        return 0;
     }
-    const auto oldTile = tileLayerComponent->GetSelfLayerTilePtr(tilePosition);
-    if (oldTile == nullptr) {
-        return false;
-    }
-    if (overwrite && !oldTile->IsOverwritable()) {
-        return false;
-    }
-    if (!overwrite && !oldTile->IsBreakable()) {
-        return false;
-    }
-    TileStateMessage *tileStateMessage = tileLayerComponent->GetTileStatePtr(
-        tileLayerComponent->GetTileLayerType(), tilePosition);
-    ResourceRef oldResourceRef;
-    oldResourceRef.ReadResourceRefMessage(tileStateMessage->resourceref());
-    newTileRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-    if (!tileLayerComponent->CommitTileState(tileLayerComponent->GetTileLayerType(), tilePosition, false)) {
-        //If the placement fails, then revert to the previous resource reference.
-        //如果放置失败了那么还原到之前的资源引用。
-        oldResourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-        return false;
-    }
-    auto *breakSFX = oldTile->GetBreakSFX();
-    //No destructive sound effects will be played when it is covered.
-    //被覆盖时不播放破坏音效。
-    if (!overwrite && breakSFX != nullptr) {
-        appContext->GetAudioManager()->TryPlayFree(AMBIENT, breakSFX, 0);
-    }
-
-
-    if (!oldTile->CanDropLoot()) {
-        return true;
-    }
-    if (precisionMining || !oldTile->IsCustomLootTable()) {
-        const GameEntity::ID droppedEntity = worldContext->CreateEntity();
-        DroppedItemCreator droppedItemCreator{worldContext};
-        droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
-        droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
-                                                      TileLayerComponent::TileToWorld(tilePosition),
-                                                      std::make_unique<TileItem>(oldTile, oldResourceRef),
-                                                      0));
-        return true;
-    }
-    const auto lootResource = appContext->GetResourceLocator()->FindLoot(oldTile->GetLootTableRef());
-    if (lootResource != nullptr) {
-        std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
-        for (auto &itemMessage: itemMessageList) {
-            auto itemPtr = appContext->GetResourceLocator()->FindItem(worldContext, itemMessage);
-            if (itemPtr == nullptr) {
+    uint8_t sum = 0;
+    uint8_t centerX = tileWidth >> 1;
+    uint8_t centerY = tileHeight >> 1;
+    for (int x = 0; x < tileWidth; x++) {
+        for (int y = 0; y < tileHeight; y++) {
+            auto currentVector = TileVector2D(topLeftVector.x + x, topLeftVector.y - y);
+            const auto currentTile = tileLayerComponent->GetSelfLayerTileShared(currentVector);
+            if (currentTile == nullptr) {
                 continue;
             }
-            itemPtr->ReadItemMessage(worldContext, itemMessage);
-            const GameEntity::ID droppedEntity = worldContext->CreateEntity();
-            DroppedItemCreator droppedItemCreator{worldContext};
-            droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
-            droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
-                                                          TileLayerComponent::TileToWorld(tilePosition),
-                                                          std::move(itemPtr), 0));
+            if (isPlaceMode && !currentTile->IsOverwritable()) {
+                continue;
+            }
+            if (!isPlaceMode && !currentTile->IsBreakable()) {
+                continue;
+            }
+            TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileStateMutable(currentVector);
+            ResourceRef oldResourceRef;
+            oldResourceRef.ReadResourceRefMessage(tileStateMessage->resourceref());
+            uint8_t oldWidth = tileStateMessage->width();
+            uint8_t oldHeight = tileStateMessage->height();
+            auto oldVector2D = Vector2DI{0, 0};
+            oldVector2D.ReadVector2DIMessage(tileStateMessage->offset());
+            newTileRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+            if (x == 0 && y == 0) {
+                tileStateMessage->set_width(tileWidth);
+                tileStateMessage->set_height(tileHeight);
+            } else {
+                tileStateMessage->set_width(0);
+                tileStateMessage->set_height(0);
+            }
+            if (!tileLayerComponent->CommitTileState(tileLayerComponent->GetTileLayerType(), currentVector, false)) {
+                //If the placement fails, then restore to the previous state.
+                //如果放置失败了那么还原到之前的状态。
+                oldResourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+                tileStateMessage->set_width(oldWidth);
+                tileStateMessage->set_height(oldHeight);
+                oldVector2D.WriteVector2DIMessage(*tileStateMessage->mutable_offset());
+                continue;
+            }
+            sum++;
+            auto *breakSFX = currentTile->GetBreakSFX();
+            //Only when the tiles are damaged, does the center point emit sound effects.
+            //只有瓦片被破坏时，其中心点，发出音效。
+            if (!isPlaceMode && breakSFX != nullptr && x == centerX && y == centerY) {
+                appContext->GetAudioManager()->TryPlayFree(AMBIENT, breakSFX, 0);
+            }
+            if (currentTile->CanDropLoot()) {
+                const auto lootResource = appContext->GetResourceLocator()->
+                        FindLoot(currentTile->GetLootTableRef());
+                if (precisionMining || !currentTile->IsCustomLootTable() || lootResource == nullptr) {
+                    const GameEntity::ID droppedEntity = worldContext->CreateEntity();
+                    DroppedItemCreator droppedItemCreator{worldContext};
+                    droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+                    droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
+                                                                  TileLayerComponent::TileToWorld(currentVector),
+                                                                  std::make_unique<TileItem>(
+                                                                      currentTile, oldResourceRef),
+                                                                  0));
+                } else {
+                    std::vector<ItemMessage> itemMessageList = LootResource::GetLootItems(lootResource);
+                    for (auto &itemMessage: itemMessageList) {
+                        auto itemPtr = appContext->GetResourceLocator()->FindItem(worldContext, itemMessage);
+                        if (itemPtr == nullptr) {
+                            continue;
+                        }
+                        itemPtr->ReadItemMessage(worldContext, itemMessage);
+                        const GameEntity::ID droppedEntity = worldContext->CreateEntity();
+                        DroppedItemCreator droppedItemCreator{worldContext};
+                        droppedItemCreator.LoadTemplateComponents(droppedEntity,
+                                                                  DroppedItemCreator::GetResourceRef());
+                        droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                                                  DroppedItemCreator::GetEntityItemMessage(
+                                                                      TileLayerComponent::TileToWorld(
+                                                                          topLeftVector),
+                                                                      std::move(itemPtr), 0));
+                    }
+                }
+            }
         }
     }
-    return true;
+    return sum;
 }
 
 glimmer::DiggingSystem::DiggingSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     RequireComponent<DiggingComponent>();
+    diggingComponent_ = worldContext->GetDiggingComponent();
 }
 
 void glimmer::DiggingSystem::Update(float delta) {
     if (worldContext_ == nullptr) {
         return;
     }
-    auto diggingComponent = worldContext_->GetDiggingComponent();
-    if (!diggingComponent->CheckAndResetActive()) {
-        diggingComponent->SetEnable(false);
-        diggingComponent->SetProgress(0.0F);
+    if (!diggingComponent_->CheckAndResetActive()) {
+        diggingComponent_->SetEnable(false);
+        diggingComponent_->SetProgress(0.0F);
         return;
     }
-    diggingComponent->SetEnable(true);
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
-        return;
-    }
-    const TileResourceManager *tileResourceManager = appContext->GetTileResourceManager();
-    if (tileResourceManager == nullptr) {
-        return;
-    }
-    TileInstancePool *tileInstancePool = worldContext_->GetTileInstancePool();
-    if (tileInstancePool == nullptr) {
-        return;
-    }
+    diggingComponent_->SetEnable(true);
     const auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
     for (auto &entity: tileLayerEntities) {
         const auto *tileLayer = worldContext_->GetComponent<TileLayerComponent>(entity);
         const TileLayerType tileLayerType = tileLayer->GetTileLayerType();
-        if (tileLayerType != diggingComponent->GetLayerType()) {
+        if (tileLayerType != diggingComponent_->GetLayerType()) {
             continue;
         }
         // Accumulate progress
         // 积累进度
-        diggingComponent->AddProgress(
-            diggingComponent->GetEfficiency() / diggingComponent->GetMiningRangeData()->GetMaxHardness() * delta);
-        if (diggingComponent->GetProgress() >= 1.0F) {
-            for (auto point: diggingComponent->GetMiningRangeData()->GetPoints()) {
-                const TileVector2D tilePosition = TileLayerComponent::WorldToTile(point);
-                BreakTile(worldContext_, tileLayer, tilePosition, diggingComponent->IsPrecisionMining(), false,
-                          TileResourceManager::GetAirResourceRef(tileLayerType));
+        diggingComponent_->AddProgress(
+            diggingComponent_->GetEfficiency() / diggingComponent_->GetMiningRangeData()->GetMaxHardness() * delta);
+        if (diggingComponent_->GetProgress() >= 1.0F) {
+            const MiningRangeData *miningRangeData = diggingComponent_->GetMiningRangeData();
+            size_t pointsCount = miningRangeData->GetPointsCount();
+            if (pointsCount > 0) {
+                for (size_t i = 0; i < pointsCount; i++) {
+                    const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
+                    if (point == nullptr) {
+                        continue;
+                    }
+                    BreakTile(worldContext_, tileLayer, point->GetTileTopLeftPosition(), point->GetWidth(),
+                              point->GetHeight(), diggingComponent_->IsPrecisionMining(), false,
+                              TileResourceManager::GetAirResourceRef(tileLayerType));
+                }
             }
             // Reset digging after break
             // 破坏方块重置挖掘
-            diggingComponent->SetProgress(0.0F);
-            diggingComponent->SetEnable(false);
+            diggingComponent_->SetProgress(0.0F);
+            diggingComponent_->SetEnable(false);
         }
         break;
     }
@@ -155,26 +176,38 @@ void glimmer::DiggingSystem::Render(SDL_Renderer *renderer) {
         cacheTexture = true;
         return;
     }
-    auto diggingComponent = worldContext_->GetDiggingComponent();
-    if (!diggingComponent->IsEnable()) {
+    if (!diggingComponent_->IsEnable()) {
         return;
     }
     auto cameraTransform2D = worldContext_->GetCameraTransform2D();
     auto cameraComponent = worldContext_->GetCameraComponent();
-    for (auto point: diggingComponent->GetMiningRangeData()->GetPoints()) {
-        if (!cameraComponent->IsPointInViewport(cameraTransform2D->GetPosition(), point)) {
-            return;
-        }
-        CameraVector2D cameraVector2d = cameraComponent->GetViewPortPosition(
-            cameraTransform2D->GetPosition(), point);
-        float size = TILE_SIZE * cameraComponent->GetZoom();
-
-        const auto maxIndex = static_cast<float>(textureList.size() - 1);
-        uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent->GetProgress() * maxIndex, maxIndex));
-        SDL_FRect dstRect = {cameraVector2d.x - size / 2, cameraVector2d.y - size / 2, size, size};
-        auto &crackTexture = textureList[crackIndex];
-        if (crackTexture) {
-            SDL_RenderTexture(renderer, crackTexture.get(), nullptr, &dstRect);
+    const MiningRangeData *miningRangeData = diggingComponent_->GetMiningRangeData();
+    float zoom = cameraComponent->GetZoom();
+    size_t pointsCount = miningRangeData->GetPointsCount();
+    if (pointsCount > 0) {
+        for (size_t i = 0; i < pointsCount; i++) {
+            const MiningRangeDataPoint *point = miningRangeData->GetPoint(i);
+            if (point == nullptr) {
+                continue;
+            }
+            const TileVector2D &tileTopLeftPosition = point->GetTileTopLeftPosition();
+            WorldVector2D tileTopLeftPositionWorld = TileLayerComponent::TileToWorld(tileTopLeftPosition);
+            if (!cameraComponent->IsPointInViewport(cameraTransform2D->GetPosition(), tileTopLeftPositionWorld)) {
+                return;
+            }
+            CameraVector2D cameraVector2d = cameraComponent->GetViewPortPosition(
+                cameraTransform2D->GetPosition(), tileTopLeftPositionWorld);
+            const auto maxIndex = static_cast<float>(textureList.size() - 1);
+            const uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
+                                                                     maxIndex));
+            SDL_FRect dstRect = {
+                cameraVector2d.x, cameraVector2d.y, TILE_SIZE * zoom * point->GetWidth(),
+                TILE_SIZE * zoom * point->GetHeight()
+            };
+            auto &crackTexture = textureList[crackIndex];
+            if (crackTexture) {
+                SDL_RenderTexture(renderer, crackTexture.get(), nullptr, &dstRect);
+            }
         }
     }
 }

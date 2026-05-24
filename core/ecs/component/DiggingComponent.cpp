@@ -4,7 +4,7 @@
 
 #include "DiggingComponent.h"
 
-#include "core/Constants.h"
+#include <utility>
 
 bool glimmer::DiggingComponent::IsEnable() const {
     return enable_;
@@ -18,15 +18,15 @@ void glimmer::DiggingComponent::SetMiningRangeData(MiningRangeData *miningRangeD
     miningRangeData_ = miningRangeData;
 }
 
-const glimmer::MiningRangeData * glimmer::DiggingComponent::GetMiningRangeData() const {
+const glimmer::MiningRangeData *glimmer::DiggingComponent::GetMiningRangeData() const {
     return miningRangeData_;
 }
 
-void glimmer::DiggingComponent::SetStartPosition(WorldVector2D startPosition) {
-    startPosition_ = startPosition;
+void glimmer::DiggingComponent::SetStartPosition(TileVector2D startPosition) {
+    startPosition_ = std::move(startPosition);
 }
 
-const WorldVector2D &glimmer::DiggingComponent::GetStartPosition() const {
+const TileVector2D &glimmer::DiggingComponent::GetStartPosition() const {
     return startPosition_;
 }
 

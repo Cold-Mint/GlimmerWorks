@@ -5,6 +5,7 @@
 #pragma once
 #include <unordered_map>
 
+#include "TileSnapshot.h"
 #include "src/saves/chunk.pb.h"
 #include "box2d/id.h"
 #include "core/ecs/component/TileLayerComponent.h"
@@ -87,17 +88,11 @@ namespace glimmer {
 
         [[nodiscard]] const Tile *GetTile(TileLayerType layerType, uint8_t index) const;
 
-        [[nodiscard]] std::shared_ptr<Tile> GetTilePtr(TileLayerType layerType, uint8_t index) const;
+        [[nodiscard]] std::shared_ptr<Tile> GetTileShared(TileLayerType layerType, uint8_t index) const;
 
-        /**
-         * GetTopVisibleTile
-         * 获取顶层可见的瓦片。
-         * @param layerFilter layerFilter 图层过滤
-         * @param index index 位置
-         * @return
-         */
-        [[nodiscard]] std::vector<const Tile *> GetTopVisibleTiles(uint8_t layerFilter,
-                                                                   uint8_t index) const;
+
+        [[nodiscard]] std::unique_ptr<std::vector<TileSnapshot> > GetTopVisibleTileSnapshots(
+            uint8_t layerFilter, uint8_t index) const;
 
         void ReadChunkMessage(const ChunkMessage &chunkMessage);
 

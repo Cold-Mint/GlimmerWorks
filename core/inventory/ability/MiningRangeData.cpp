@@ -5,11 +5,44 @@
 #include "MiningRangeData.h"
 
 #include "core/world/Tile.h"
+#include "src/saves/tile_state.pb.h"
+
+void glimmer::MiningRangeData::TryPushPoint(const TileLayerComponent *tileLayerComponent,
+                                            const TileVector2D &position) {
+    if (tileLayerComponent == nullptr) {
+        return;
+    }
+    const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(position);
+    if (tileStateMessage == nullptr) {
+        return;
+    }
+    auto offset = Vector2DI(0, 0);
+    offset.ReadVector2DIMessage(tileStateMessage->offset());
+    const TileVector2D tileTopLeftPosition = position - offset;
+    const Vector2DIFingerprint fingerprint = tileTopLeftPosition.GetFingerprint();
+    if (pointsFingerprint_.contains(fingerprint)) {
+        return;
+    }
+    MiningRangeDataPoint miningRangeDataPoint{};
+    miningRangeDataPoint.SetWidth(tileStateMessage->width());
+    miningRangeDataPoint.SetHeight(tileStateMessage->height());
+    miningRangeDataPoint.SetTileTopLeftPosition(tileTopLeftPosition);
+    points_.emplace_back(miningRangeDataPoint);
+    pointsFingerprint_.insert(fingerprint);
+}
+
 
 glimmer::MiningRangeData::MiningRangeData() = default;
 
-const std::vector<WorldVector2D> &glimmer::MiningRangeData::GetPoints() const {
-    return points_;
+size_t glimmer::MiningRangeData::GetPointsCount() const {
+    return points_.size();
+}
+
+const glimmer::MiningRangeDataPoint *glimmer::MiningRangeData::GetPoint(const size_t index) const {
+    if (index >= points_.size()) {
+        return nullptr;
+    }
+    return &points_[index];
 }
 
 float glimmer::MiningRangeData::GetMaxHardness() const {
@@ -21,36 +54,36 @@ void glimmer::MiningRangeData::Reset() {
     maxHardness_ = 0.0f;
 }
 
-void glimmer::MiningRangeData::CalculateMining(WorldVector2D startVector,
-                                               const TileLayerComponent *tileLayerComponent) {
-    const TileVector2D startPosition = TileLayerComponent::WorldToTile(startVector);
-    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(startPosition);
-    if (!startTile->IsBreakable()) {
+void glimmer::MiningRangeData::CalculateMining(const TileLayerComponent *tileLayerComponent,
+                                               const TileVector2D &startVector) {
+    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(startVector);
+    if (startTile == nullptr || !startTile->IsBreakable()) {
         return;
     }
-    points_.emplace_back(startVector);
+    const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(startVector);
+    if (tileStateMessage == nullptr) {
+        return;
+    }
+
+    TryPushPoint(tileLayerComponent, startVector);
     maxHardness_ = startTile->GetHardness();
 }
 
-
-void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
-                                                    const TileLayerComponent *tileLayerComponent,
-                                                    const int radius) {
+void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent *tileLayerComponent,
+                                                    const TileVector2D &startVector, uint8_t radius) {
     if (radius <= 0) {
         //Invalid chain radius.
         //无效的连锁半径。
         return;
     }
-    const TileVector2D startPosition = TileLayerComponent::WorldToTile(startVector);
-    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(startPosition);
+    const Tile *startTile = tileLayerComponent->GetSelfLayerTile(startVector);
     if (startTile == nullptr) {
         return;
     }
     if (!startTile->IsBreakable()) {
         return;
     }
-    const TileStateMessage *tileStateMessage = tileLayerComponent->GetTileState(
-        startTile->GetLayerType(), startPosition);
+    const TileStateMessage *tileStateMessage = tileLayerComponent->GetSelfLayerTileState(startVector);
     if (tileStateMessage != nullptr && tileStateMessage->isplayerplaced()) {
         return;
     }
@@ -62,7 +95,7 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
     maxHardness_ = startTile->GetHardness();
     //Add the array of excavation coordinates.
     //加入挖掘坐标数组。
-    points_.emplace_back(startVector);
+    TryPushPoint(tileLayerComponent, startVector);
 
     //Core implementation: Connected region search
     //核心实现：连通区域查找
@@ -77,18 +110,18 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
 
     //The set of visited blocks (to avoid redundant processing)
     //已访问的方块集合（避免重复处理）
-    std::unordered_set<TileVector2D, Vector2DIHash> visited;
-    visited.insert(startPosition);
+    std::unordered_set<Vector2DIFingerprint> visited;
+    visited.insert(startVector.GetFingerprint());
 
     //Breadth-First Search (BFS) Queue
     //广度优先搜索（BFS）队列
     std::queue<TileVector2D> bfsQueue;
-    bfsQueue.push(startPosition);
+    bfsQueue.push(startVector);
 
     //Traverse all connected blocks
     //遍历所有连通方块
     while (!bfsQueue.empty()) {
-        TileVector2D currentPos = bfsQueue.front();
+        const TileVector2D &currentPos = bfsQueue.front();
         bfsQueue.pop();
 
         //Traverse all directions
@@ -98,14 +131,15 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
 
             //Check 1: Is it within the radius range (Manhattan distance/Euclidean distance; here, Manhattan distance is more appropriate for the sub-game)?
             // 检查1：是否在半径范围内（曼哈顿距离/欧几里得距离，这里用曼哈顿更贴合格子游戏）
-            int distance = abs(nextPos.x - startPosition.x) + abs(nextPos.y - startPosition.y);
+            int distance = abs(nextPos.x - startVector.x) + abs(nextPos.y - startVector.y);
             if (distance > radius) {
                 continue;
             }
 
+            Vector2DIFingerprint fingerprint = nextPos.GetFingerprint();
             // Check 2: Have you visited before?
             // 检查2：是否已访问过
-            if (visited.contains(nextPos)) {
+            if (visited.contains(fingerprint)) {
                 continue;
             }
 
@@ -116,22 +150,16 @@ void glimmer::MiningRangeData::CalculateChainMining(WorldVector2D startVector,
                 IsAllowChainMining()) {
                 continue;
             }
-            const TileStateMessage *nextTileStateMessage = tileLayerComponent->GetTileState(
-                nextTile->GetLayerType(), nextPos);
+            const TileStateMessage *nextTileStateMessage = tileLayerComponent->GetSelfLayerTileState(nextPos);
             if (nextTileStateMessage != nullptr && nextTileStateMessage->isplayerplaced()) {
                 continue;
             }
 
             //All conditions met, add to the result set
             //所有条件满足，加入结果集
-            visited.insert(nextPos);
+            visited.insert(fingerprint);
             bfsQueue.push(nextPos);
-
-            //Convert to world coordinates and add "points_"
-            //转换为世界坐标并加入points_
-            WorldVector2D nextWorldVec = TileLayerComponent::TileToWorld(nextPos);
-            points_.emplace_back(nextWorldVec);
-
+            TryPushPoint(tileLayerComponent, nextPos);
             //Update the maximum hardness value
             //更新最大硬度值
             if (nextTile->GetHardness() > maxHardness_) {

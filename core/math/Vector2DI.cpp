@@ -31,6 +31,17 @@ void glimmer::Vector2DI::WriteVector2DIMessage(Vector2DIMessage &vector2di) cons
 #endif
 }
 
+uint64_t glimmer::Vector2DI::GetFingerprint() const {
+    const uint64_t high = static_cast<uint32_t>(x);
+    const uint64_t low = static_cast<uint32_t>(y);
+    return high << 32 | low;
+}
+
+glimmer::Vector2DI glimmer::Vector2DI::FromFingerprint(const Vector2DIFingerprint fingerprint) {
+    return Vector2DI(static_cast<int>(static_cast<uint32_t>(fingerprint >> 32)),
+                     static_cast<int>(static_cast<uint32_t>(fingerprint & 0xFFFFFFFF)));
+}
+
 glimmer::Vector2DI glimmer::Vector2DI::operator+(const Vector2DI &rhs) const {
     return {x + rhs.x, y + rhs.y};
 }

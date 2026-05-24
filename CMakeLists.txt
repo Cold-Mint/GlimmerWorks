@@ -580,6 +580,9 @@ target_sources(GlimmerWorks
         core/console/suggestion/DataPackDynamicSuggestions.cpp
         core/ecs/system/BlueprintSystem.cpp
         core/ecs/component/BlueprintComponent.cpp
+        core/inventory/ability/MiningRangeDataPoint.cpp
+        core/world/generator/TileSnapshot.cpp
+        core/console/command/TileSnapshotCommand.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -833,6 +836,9 @@ target_sources(GlimmerWorks
         core/console/suggestion/DataPackDynamicSuggestions.h
         core/ecs/system/BlueprintSystem.h
         core/ecs/component/BlueprintComponent.h
+        core/inventory/ability/MiningRangeDataPoint.h
+        core/world/generator/TileSnapshot.h
+        core/console/command/TileSnapshotCommand.h
 )
 
 #Define version information

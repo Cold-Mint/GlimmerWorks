@@ -3,17 +3,17 @@
 //
 
 #pragma once
-#include <cmath>
 #include <cstdint>
-#include <functional>
 
 #include "Vector2D.h"
+#include "core/IFingerprintable.h"
 
 
 class Vector2DIMessage;
+using Vector2DIFingerprint = uint64_t;
 
 namespace glimmer {
-    struct Vector2DI {
+    struct Vector2DI : IFingerprintable {
         int x;
         int y;
 
@@ -42,6 +42,10 @@ namespace glimmer {
         void ReadVector2DIMessage(const Vector2DIMessage &vector2di);
 
         void WriteVector2DIMessage(Vector2DIMessage &vector2di) const;
+
+        [[nodiscard]] Vector2DIFingerprint GetFingerprint() const override;
+
+        [[nodiscard]] static Vector2DI FromFingerprint(Vector2DIFingerprint fingerprint);
 
         /**
          * Vector addition
@@ -134,13 +138,7 @@ namespace glimmer {
      */
     struct Vector2DIHash {
         std::size_t operator()(const Vector2DI &v) const noexcept {
-            // Use a simple hash combination formula
-            // 使用简单的哈希组合公式
-            const std::size_t hx = std::hash<int>()(v.x);
-            const std::size_t hy = std::hash<int>()(v.y);
-            // Classic hash mixture formula, avoiding conflicts
-            // 经典哈希混合公式，避免冲突
-            return hx ^ hy + 0x9e3779b9 + (hx << 6) + (hx >> 2);
+            return v.GetFingerprint();
         }
     };
 }

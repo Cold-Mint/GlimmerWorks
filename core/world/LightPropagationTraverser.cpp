@@ -4,6 +4,7 @@
 
 #include "LightPropagationTraverser.h"
 
+#include <cmath>
 #include <queue>
 #include <unordered_set>
 

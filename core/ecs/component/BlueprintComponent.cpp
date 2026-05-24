@@ -12,6 +12,14 @@ bool glimmer::BlueprintComponent::CanPlace() const {
     return canPlace_;
 }
 
+void glimmer::BlueprintComponent::SetTopLeftVector(const TileVector2D &topLeftVector) {
+    topLeftVector_ = topLeftVector;
+}
+
+TileVector2D glimmer::BlueprintComponent::GetTopLeftVector() const {
+    return topLeftVector_;
+}
+
 GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentType() {
     return COMPONENT_BLUEPRINT;
 }

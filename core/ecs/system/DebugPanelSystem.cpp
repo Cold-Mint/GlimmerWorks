@@ -146,9 +146,11 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     float totalLines = 1.0F + static_cast<float>(tileLayers.size());
     float totalTextHeight = totalLines * lineSpacing;
     yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;
+    CameraVector2D cameraVector2d = cameraComponent->
+            GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
     std::string mouseText = fmt::format(
         fmt::runtime(appContext->GetLangsResources()->mousePosition),
-        mousePosition_.x, mousePosition_.y
+        mousePosition_.x, mousePosition_.y, cameraVector2d.x, cameraVector2d.y
     );
     RenderDebugText(renderer, windowW, mouseText, yOffset,
                     appContext->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),

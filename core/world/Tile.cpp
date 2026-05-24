@@ -104,15 +104,15 @@ TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType tileAnchorT
     switch (tileAnchorType) {
         case TileAnchorType::TopLeft:
             result.x = 0;
-            result.y = 0;
+            result.y = tileHeight - 1;
             break;
         case TileAnchorType::TopCenter:
             result.x = tileWidth >> 1;
-            result.y = 0;
+            result.y = tileHeight - 1;
             break;
         case TileAnchorType::TopRight:
             result.x = tileWidth - 1;
-            result.y = 0;
+            result.y = tileHeight - 1;
             break;
         case TileAnchorType::CenterLeft:
             result.x = 0;
@@ -128,15 +128,15 @@ TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType tileAnchorT
             break;
         case TileAnchorType::BottomLeft:
             result.x = 0;
-            result.y = tileHeight - 1;
+            result.y = 0;
             break;
         case TileAnchorType::BottomCenter:
             result.x = tileWidth >> 1;
-            result.y = tileHeight - 1;
+            result.y = 0;
             break;
         case TileAnchorType::BottomRight:
             result.x = tileWidth - 1;
-            result.y = tileHeight - 1;
+            result.y = 0;
             break;
         case TileAnchorType::Custom:
             result.x = customTileAnchor.x;

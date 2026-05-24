@@ -161,13 +161,16 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer *renderer) {
         }
     }
     const float zoom = cameraComponent_->GetZoom();
-    const CameraVector2D screenPos = cameraComponent_->GetViewPortPosition(
-        cameraTransform2DComponent_->GetPosition(), focusWorldTilePos);
+    const CameraVector2D topLeftCamera = cameraComponent_->GetViewPortPosition(
+        cameraTransform2DComponent_->GetPosition(),
+        TileLayerComponent::TileToWorld({leftBottom.x, leftBottom.y + tileHeight}) -
+        WorldVector2D(HALF_TILE_SIZE * zoom, HALF_TILE_SIZE * zoom)
+    );
     SDL_FRect renderQuad;
     renderQuad.w = static_cast<float>(tileWidth) * TILE_SIZE * zoom;
     renderQuad.h = static_cast<float>(tileHeight) * TILE_SIZE * zoom;
-    renderQuad.x = screenPos.x - HALF_TILE_SIZE - static_cast<float>(tileAnchor.x) * TILE_SIZE * zoom;
-    renderQuad.y = screenPos.y - HALF_TILE_SIZE - static_cast<float>(tileAnchor.y) * TILE_SIZE * zoom;
+    renderQuad.x = topLeftCamera.x;
+    renderQuad.y = topLeftCamera.y;
     SDL_SetRenderDrawColor(renderer, preloadColors_->game.focusTileBorderColor.r,
                            preloadColors_->game.focusTileBorderColor.g,
                            preloadColors_->game.focusTileBorderColor.b,

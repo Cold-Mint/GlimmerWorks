@@ -118,7 +118,7 @@ namespace glimmer {
         * @param tileVector2d tileVector2d 瓦片坐标
         * @return 湿度0-1
         */
-        float GetHumidity(TileVector2D tileVector2d);
+        float GetHumidity(const TileVector2D& tileVector2d);
 
         /**
          * Obtain the temperature value of a certain coordinate
@@ -127,7 +127,7 @@ namespace glimmer {
          * @param elevation elevation 海拔
          * @return 温度0-1
          */
-        float GetTemperature(TileVector2D tileVector2d, float elevation);
+        float GetTemperature(const TileVector2D& tileVector2d, float elevation);
 
         /**
          * Obtain the strange value of a certain coordinate
@@ -135,7 +135,7 @@ namespace glimmer {
          * @param tileVector2d tileVector2d 瓦片坐标
          * @return 怪异0-1
          */
-        float GetWeirdness(TileVector2D tileVector2d);
+        float GetWeirdness(const TileVector2D& tileVector2d);
 
 
         /**
@@ -144,7 +144,7 @@ namespace glimmer {
          * @param tileVector2d tileVector2d 瓦片坐标
          * @return 侵蚀0-1
          */
-        float GetErosion(TileVector2D tileVector2d);
+        float GetErosion(const TileVector2D& tileVector2d);
 
         /**
          * GetSurfaceProximity

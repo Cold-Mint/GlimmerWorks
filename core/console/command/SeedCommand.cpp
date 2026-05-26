@@ -3,7 +3,6 @@
 //
 
 #include "SeedCommand.h"
-#include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 
 void glimmer::SeedCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {

@@ -15,27 +15,28 @@ static constexpr std::string PLAYER_FILE_NAME = "player.bin";
 static constexpr std::string HELP_COMMAND_NAME = "help";
 static constexpr std::string LICENSE_COMMAND_NAME = "license";
 static constexpr std::string SEED_COMMAND_NAME = "seed";
-static constexpr std::string PACK_VERIFY_COMMAND_NAME = "packVerify";
 static constexpr std::string SUMMON_COMMAND_NAME = "summon";
 static constexpr std::string CONFIG_COMMAND_NAME = "config";
 static constexpr std::string HEIGHT_MAP_COMMAND_NAME = "heightMap";
 static constexpr std::string TP_COMMAND_NAME = "tp";
-static constexpr std::string VFS_COMMAND_NAME = "vfs";
-static constexpr std::string BOX2D_COMMAND_NAME = "box2d";
 static constexpr std::string GIVE_COMMAND_NAME = "give";
-static constexpr std::string ASSET_VIEWER_COMMAND_NAME = "assetViewer";
 static constexpr std::string CLEAR_COMMAND_NAME = "clear";
 static constexpr std::string LOOT_COMMAND_NAME = "loot";
 static constexpr std::string PLACE_COMMAND_NAME = "place";
-static constexpr std::string ECS_COMMAND_NAME = "ecs";
 static constexpr std::string FLY_COMMAND_NAME = "fly";
 static constexpr std::string ECHO_COMMAND_NAME = "echo";
 static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
 static constexpr std::string LOCATE_COMMAND_NAME = "locate";
-static constexpr std::string LIGHT_COMMAND_NAME = "light";
-static constexpr std::string BIOME_SCORE_COMMAND_NAME = "biomeScore";
-static const std::string PARALLAX_BACKGROUND_COMMAND_NAME = "parallaxBackground";
 #if  !defined(NDEBUG)
+static const std::string PARALLAX_BACKGROUND_COMMAND_NAME = "parallaxBackground";
+static constexpr std::string PACK_VERIFY_COMMAND_NAME = "packVerify";
+static constexpr std::string BOX2D_COMMAND_NAME = "box2d";
+static constexpr std::string BIOME_SCORE_COMMAND_NAME = "biomeScore";
+static constexpr std::string TILE_SNAPSHOT_COMMAND_NAME = "tileSnapshot";
+static constexpr std::string ASSET_VIEWER_COMMAND_NAME = "assetViewer";
+static constexpr std::string LIGHT_COMMAND_NAME = "light";
+static constexpr std::string ECS_COMMAND_NAME = "ecs";
+static constexpr std::string VFS_COMMAND_NAME = "vfs";
 static constexpr std::string HOOK_COMMAND_NAME = "commandHook";
 static constexpr std::string MEMORY_USAGE_COMMAND_NAME = "memoryUsage";
 #endif
@@ -82,6 +83,7 @@ static constexpr uint32_t RESOURCE_REF_ARG_TYPE_REF_TOML = 6;
 static constexpr std::string DEV_DISPLAY_NAME_KEY_COLD_MINT = "dev@Cold-Mint";
 static const std::string DEV_UUID_COLD_MINT = "4a724ce8-ec7f-411e-833c-b0a5e2529263";
 static const std::string LIGHT_INSPECTOR_ID = "7ff1662b-0dd4-4cb3-866a-339f7a95bf8b";
+static const std::string TILE_SNAPSHOT_INSPECTOR_ID = "446690e5-36f3-4cc3-b6fe-f170eb77749f";
 static const std::string BIOME_SCORE_INSPECTOR_ID = "288937ef-4627-46cf-89b9-187b7b11a445";
 static constexpr std::string DEV_NAME_COLO_MINT = "Cold-Mint";
 static constexpr std::string RESOURCE_REF_SELF = "@self";
@@ -270,7 +272,6 @@ static constexpr uint8_t RENDER_ORDER_DEBUG_MAP = 97;
 static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 98;
 static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 99;
 static constexpr uint8_t RENDER_ORDER_PAUSE = 100;
-
 
 
 static constexpr std::string TILE_ID_AIR = "air";

@@ -12,8 +12,10 @@
 #include "SDL3_mixer/SDL_mixer.h"
 
 
-namespace glimmer {
-    class Tile {
+namespace glimmer
+{
+    class Tile
+    {
         friend class TileInstancePool;
 
         std::string id_;
@@ -26,6 +28,7 @@ namespace glimmer {
         bool customLootTable_ = false;
         ResourceRef lootTable_;
         float hardness_ = 1.0F;
+        bool lootScaleBySize_ = false;
         bool breakable = true;
         bool enableBlueprint_ = true;
         bool enableBlueprintMask_ = true;
@@ -61,7 +64,7 @@ namespace glimmer {
          * @return
          */
         static TileVector2D CalculateTileAnchor(TileAnchorType tileAnchorType, uint8_t tileWidth, uint8_t tileHeight,
-                                                const Vector2DIResource &customTileAnchor);
+                                                const Vector2DIResource& customTileAnchor);
 
         /**
        * From Tile Resource
@@ -70,23 +73,23 @@ namespace glimmer {
        * @param tileResource tileResource 瓦片资源
        * @return
        */
-        static std::unique_ptr<Tile> FromTileResource(const AppContext *appContext,
-                                                      const TileResource *tileResource);
+        static std::unique_ptr<Tile> FromTileResource(const AppContext* appContext,
+                                                      const TileResource* tileResource);
 
     public:
         [[nodiscard]] uint8_t GetTileWidth() const;
 
         [[nodiscard]] uint8_t GetTileHeight() const;
 
-        [[nodiscard]] const TileVector2D *GetTileAnchor() const;
+        [[nodiscard]] const TileVector2D* GetTileAnchor() const;
 
-        [[nodiscard]] const ResourceRef *GetLootTableRef() const;
+        [[nodiscard]] const ResourceRef* GetLootTableRef() const;
 
-        [[nodiscard]] const ResourceRef *GetLightSourceResource() const;
+        [[nodiscard]] const ResourceRef* GetLightSourceResource() const;
 
-        [[nodiscard]] const ResourceRef *GetSideLightMaskResource() const;
+        [[nodiscard]] const ResourceRef* GetSideLightMaskResource() const;
 
-        [[nodiscard]] const ResourceRef *GetBackLightMaskResource() const;
+        [[nodiscard]] const ResourceRef* GetBackLightMaskResource() const;
 
         [[nodiscard]] bool IsCustomLootTable() const;
 
@@ -96,11 +99,13 @@ namespace glimmer {
 
         [[nodiscard]] bool IsAllowDirAdjustAnchor() const;
 
-        [[nodiscard]] const std::string &GetId() const;
+        [[nodiscard]] bool LootScaleBySize() const;
 
-        [[nodiscard]] SDL_Texture *GetTexture() const;
+        [[nodiscard]] const std::string& GetId() const;
 
-        [[nodiscard]] SDL_Texture *GetBlueprintTexture() const;
+        [[nodiscard]] SDL_Texture* GetTexture() const;
+
+        [[nodiscard]] SDL_Texture* GetBlueprintTexture() const;
 
         [[nodiscard]] bool EnableBlueprint() const;
 
@@ -108,13 +113,13 @@ namespace glimmer {
 
         [[nodiscard]] bool DrawValidBlueprintColor() const;
 
-        [[nodiscard]] MIX_Audio *GetBreakSFX() const;
+        [[nodiscard]] MIX_Audio* GetBreakSFX() const;
 
-        [[nodiscard]] MIX_Audio *GetPlaceSFX() const;
+        [[nodiscard]] MIX_Audio* GetPlaceSFX() const;
 
-        [[nodiscard]] const std::optional<std::string> &GetDescription() const;
+        [[nodiscard]] const std::optional<std::string>& GetDescription() const;
 
-        [[nodiscard]] const float &GetHardness() const;
+        [[nodiscard]] const float& GetHardness() const;
 
         [[nodiscard]] bool IsBreakable() const;
 
@@ -122,7 +127,7 @@ namespace glimmer {
 
         [[nodiscard]] bool CanDropLoot() const;
 
-        [[nodiscard]] const std::string &GetName() const;
+        [[nodiscard]] const std::string& GetName() const;
 
         [[nodiscard]] TileLayerType GetLayerType() const;
     };

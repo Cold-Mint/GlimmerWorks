@@ -474,6 +474,8 @@ namespace glimmer {
         float unitHardness = 1.0F;
         //@genNextLine(Is the total hardness calculated based on the area?|是否按面积计算总硬度)
         bool autoHardnessScale = true;
+        //@genNextLine(Does the loot quantity scale with tile area? (Only for giant tiles)|战利品数量是否按面积缩放（仅巨型瓦片生效）)
+        bool lootScaleBySize = false;
         //@genNextLine(physicsType|物理类型)
         uint8_t physicsType = 0;
         //@genNextLine(layerType|层级类型)

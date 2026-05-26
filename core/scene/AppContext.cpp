@@ -38,6 +38,7 @@
 #include "core/console/command/PlaceCommand.h"
 #include "core/console/command/ScreenshotCommand.h"
 #include "core/console/command/SummonCommand.h"
+#include "core/console/command/TileSnapshotCommand.h"
 #include "core/console/suggestion/BiomeSuggestions.h"
 #include "core/console/suggestion/BooleanToggleDynamicSuggestions.h"
 #include "core/console/suggestion/CommandHookIdDynamicSuggestions.h"
@@ -200,6 +201,14 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langsResources_->signatureVerificationSuccessful = find<std::string>(value, "signature_verification_successful");
     langsResources_->signatureVerificationFailed = find<std::string>(value, "signature_verification_failed");
     langsResources_->dataPackageCannotBeFound = find<std::string>(value, "data_package_cannot_be_found");
+    langsResources_->tileSnapshotInfo = find<std::string>(value, "tile_snapshot_info");
+    langsResources_->tileSnapshotInspectorEnable = find<std::string>(value, "tile_snapshot_inspector_enable");
+    langsResources_->tileSnapshotInspectorDisable = find<std::string>(value, "tile_snapshot_inspector_disable");
+    langsResources_->tileSnapshotInspectorEnableFail = find<std::string>(value, "tile_snapshot_inspector_enable_fail");
+    langsResources_->tileSnapshotInspectorDisableFail = find<std::string>(value, "tile_snapshot_inspector_disable_fail");
+    langsResources_->chunkHasNotBeenLoadedYet = find<std::string>(value, "chunk_has_not_been_loaded_yet");
+    langsResources_->tileSnapshotsDoesNotExist = find<std::string>(value, "tile_snapshots_does_not_exist");
+
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
@@ -382,6 +391,7 @@ glimmer::AppContext::AppContext() {
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<EchoCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LocateCommand>(this));
 #if  !defined(NDEBUG)
     commandManager_->RegisterCommand(std::make_unique<HookCommand>(this));

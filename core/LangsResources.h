@@ -6,8 +6,10 @@
 #include <string>
 #include <vector>
 
-namespace glimmer {
-    struct LangsResources {
+namespace glimmer
+{
+    struct LangsResources
+    {
         std::string startGame;
         std::string settings;
         std::string mods;
@@ -130,5 +132,12 @@ namespace glimmer {
         std::string signatureVerificationSuccessful;
         std::string signatureVerificationFailed;
         std::string dataPackageCannotBeFound;
+        std::string tileSnapshotInfo;
+        std::string tileSnapshotInspectorEnable;
+        std::string tileSnapshotInspectorDisable;
+        std::string tileSnapshotInspectorEnableFail;
+        std::string tileSnapshotInspectorDisableFail;
+        std::string chunkHasNotBeenLoadedYet;
+        std::string tileSnapshotsDoesNotExist;
     };
 }

@@ -583,6 +583,7 @@ target_sources(GlimmerWorks
         core/inventory/ability/MiningRangeDataPoint.cpp
         core/world/generator/TileSnapshot.cpp
         core/console/command/TileSnapshotCommand.cpp
+        core/inventory/MaterialItem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -839,6 +840,7 @@ target_sources(GlimmerWorks
         core/inventory/ability/MiningRangeDataPoint.h
         core/world/generator/TileSnapshot.h
         core/console/command/TileSnapshotCommand.h
+        core/inventory/MaterialItem.h
 )
 
 #Define version information

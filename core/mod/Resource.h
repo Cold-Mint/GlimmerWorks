@@ -15,7 +15,8 @@
 #include "core/world/TileAnchorType.h"
 #include "src/saves/item.pb.h"
 
-namespace glimmer {
+namespace glimmer
+{
     struct TileRules;
 
     /**
@@ -26,7 +27,8 @@ namespace glimmer {
      */
     //@include(toml11/find.hpp)
     //@genNextLine(Resource|资源类)
-    struct Resource {
+    struct Resource
+    {
         std::string packId;
 
         //@genNextLine(resourceId|资源Id)
@@ -38,14 +40,15 @@ namespace glimmer {
          */
         bool missing = false;
 
-        [[nodiscard]] static std::string GenerateId(const std::string &packId, const std::string &key);
+        [[nodiscard]] static std::string GenerateId(const std::string& packId, const std::string& key);
 
-        [[nodiscard]] static std::string GenerateId(const Resource &resource);
+        [[nodiscard]] static std::string GenerateId(const Resource& resource);
     };
 
 
     //@genNextLine(LightSourceResource|光源资源)
-    struct LightSourceResource : Resource {
+    struct LightSourceResource : Resource
+    {
         //@genNextLine(lightRadius The maximum value is 16, which is the length of the block.|光照半径 最大值为区块长度16)
         uint8_t lightRadius = 0;
         //@genNextLine(lightBrightestAtCenter If true, light is brightest at center; if false, light is brightest at edge.|亮度峰值在圆心 true=中心亮四周暗，false=中心暗四周亮)
@@ -55,7 +58,8 @@ namespace glimmer {
     };
 
     //@genNextLine(LightMaskResource|光源遮照资源)
-    struct LightMaskResource : Resource {
+    struct LightMaskResource : Resource
+    {
         //@genNextLine(lightMaskColor A 0 represents the complete blocking of light by the RGB control, resulting in no light transmission.|光线透射色彩 A 0代表完全不透光 RGB 控制光线的混合)
         ResourceRef lightMaskColor;
         //@genNextLine(tintFactor|染色系数 0为光照颜色，1为光源遮照颜色)
@@ -63,7 +67,8 @@ namespace glimmer {
     };
 
     //@genNextLine(FixedColorResource|固定颜色资源)
-    struct FixedColorResource : Resource {
+    struct FixedColorResource : Resource
+    {
         //@genNextLine(a|透明度)
         uint8_t a = 255;
         //@genNextLine(r|红色通道值)
@@ -81,7 +86,8 @@ namespace glimmer {
      * 向量资源
      */
     //@genNextLine(Vector2DIResource|向量整数资源)
-    struct Vector2DIResource {
+    struct Vector2DIResource
+    {
         //@genNextLine(x|x)
         int x = 0;
         //@genNextLine(y|y)
@@ -89,7 +95,8 @@ namespace glimmer {
     };
 
     //@genNextLine(Vector2DResource|向量资源)
-    struct Vector2DResource {
+    struct Vector2DResource
+    {
         //@genNextLine(x|x)
         float x = 0.0F;
         //@genNextLine(y|y)
@@ -101,7 +108,8 @@ namespace glimmer {
      * 字符串资源
      */
     //@genNextLine(StringResource|字符串资源类)
-    struct StringResource : Resource {
+    struct StringResource : Resource
+    {
         //@genNextLine(value|字符串值)
         std::string value;
     };
@@ -111,7 +119,8 @@ namespace glimmer {
      * 形状资源
      */
     //@genNextLine(ShapeResource|形状资源)
-    struct IShapeResource : Resource {
+    struct IShapeResource : Resource
+    {
         //@genNextLine(shapeType|形状类型)
         uint8_t shapeType = 0;
 
@@ -123,7 +132,8 @@ namespace glimmer {
      * 矩形形状资源
      */
     //@genNextLine(RectangularShapeResource|矩形形状资源)
-    struct RectangleShapeResource : IShapeResource {
+    struct RectangleShapeResource : IShapeResource
+    {
         //@genNextLine(width|宽度)
         float width = 1.0F;
         //@genNextLine(height|高度)
@@ -136,7 +146,8 @@ namespace glimmer {
      * 圆形资源
      */
     //@genNextLine(CircularShapeResource|圆形资源)
-    struct CircularShapeResource : IShapeResource {
+    struct CircularShapeResource : IShapeResource
+    {
         //@genNextLine(center|中心)
         Vector2DResource center;
         //@genNextLine(radius|半径)
@@ -148,7 +159,8 @@ namespace glimmer {
  * 圆角矩形资源
  */
     //@genNextLine(RoundedRectangleShapeResource|圆角矩形资源)
-    struct RoundedRectangleShapeResource : IShapeResource {
+    struct RoundedRectangleShapeResource : IShapeResource
+    {
         //@genNextLine(width|宽度)
         float width = 1.0F;
         //@genNextLine(height|高度)
@@ -163,7 +175,8 @@ namespace glimmer {
      * 射线资源
      */
     //@genNextLine(RayCastResource|射线资源类)
-    struct RayCastResource {
+    struct RayCastResource
+    {
         //@genNextLine(origin|原点)
         Vector2DResource origin;
         //@genNextLine(translation|位移)
@@ -178,7 +191,8 @@ namespace glimmer {
      * 瓦片放置禁止区域
      */
     //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
-    struct TilePlacementForbiddenZone {
+    struct TilePlacementForbiddenZone
+    {
         //@genNextLine(width|宽度)
         int width = 1;
         //@genNextLine(height|高度)
@@ -194,7 +208,8 @@ namespace glimmer {
      * 生物资源
      */
     //@genNextLine(MobResource|生物资源)
-    struct MobResource : Resource {
+    struct MobResource : Resource
+    {
         //@genNextLine(isPlayer|是否为玩家)
         bool isPlayer = false;
         //@genNextLine(movementAcceleration|移动加速度)
@@ -230,7 +245,8 @@ namespace glimmer {
     };
 
 
-    enum VariableDefinitionType {
+    enum VariableDefinitionType
+    {
         INT,
         FLOAT,
         BOOL,
@@ -265,7 +281,8 @@ namespace glimmer {
     // };
     //@endContent
 
-    struct VariableDefinition {
+    struct VariableDefinition
+    {
         std::string key;
         uint8_t type = 3;
         std::string value;
@@ -278,9 +295,9 @@ namespace glimmer {
         };
 
 
-        static VariableDefinitionType ResolveVariableType(const std::string &typeName);
+        static VariableDefinitionType ResolveVariableType(const std::string& typeName);
 
-        void AsResourceRef(ResourceRef &resourceRef) const;
+        void AsResourceRef(ResourceRef& resourceRef) const;
 
         [[nodiscard]] int AsInt() const;
 
@@ -292,19 +309,21 @@ namespace glimmer {
     };
 
     //@genNextLine(VariableConfig|变量配置)
-    struct VariableConfig {
+    struct VariableConfig
+    {
         //@genNextLine(definition|变量定义列表)
         std::vector<VariableDefinition> definition;
 
-        [[nodiscard]] const VariableDefinition *FindVariable(const std::string &name) const;
+        [[nodiscard]] const VariableDefinition* FindVariable(const std::string& name) const;
 
-        [[nodiscard]] VariableDefinition *FindVariableModifiable(const std::string &name);
+        [[nodiscard]] VariableDefinition* FindVariableModifiable(const std::string& name);
 
-        void UpdateArgs(const std::string &selfPackId);
+        void UpdateArgs(const std::string& selfPackId);
     };
 
     //@genNextLine(StructurePlacementConditions|结构放置条件)
-    struct StructurePlacementConditions {
+    struct StructurePlacementConditions
+    {
         //@genNextLine(processorId|处理器ID)
         std::string processorId;
         //@genNextLine(config|变量配置)
@@ -312,7 +331,8 @@ namespace glimmer {
     };
 
     //@genNextLine(TileInfo|瓦片信息)
-    struct TileInfo {
+    struct TileInfo
+    {
         //@genNextLine(position|位置)
         Vector2DIResource position;
         //@genNextLine(tile|瓦片资源引用)
@@ -322,7 +342,8 @@ namespace glimmer {
     };
 
     //@genNextLine(StructureResource|结构资源)
-    struct IStructureResource : Resource {
+    struct IStructureResource : Resource
+    {
         virtual ~IStructureResource() = default;
 
         //@genNextLine(generatorId|生成器ID)
@@ -334,13 +355,15 @@ namespace glimmer {
     };
 
     //@genNextLine(StaticStructureResource|静态结构资源)
-    struct StaticStructureResource : IStructureResource {
+    struct StaticStructureResource : IStructureResource
+    {
         //@genNextLine(tileInfo|瓦片信息列表)
         std::vector<TileInfo> tileInfo = {};
     };
 
     //@genNextLine(TreeStructureResource|树结构资源)
-    struct TreeStructureResource : IStructureResource {
+    struct TreeStructureResource : IStructureResource
+    {
         //@genNextLine(hasLeaves|是否拥有树叶)
         bool hasLeaves = false;
         //@genNextLine(leafDataIndex|树叶数据索引)
@@ -366,7 +389,8 @@ namespace glimmer {
     };
 
     //@genNextLine(AbilityConfig|能力配置)
-    struct AbilityConfig {
+    struct AbilityConfig
+    {
         //@genNextLine(miningRange|挖掘范围)
         float miningRange = 5;
         //@genNextLine(Using the item is more likely to cause accidental dropping.|使用物品时多大概率触发手滑)
@@ -380,7 +404,8 @@ namespace glimmer {
         //@genNextLine(mineAbleLayer|可挖掘的图层)
         uint8_t mineAbleLayer = 0;
 
-        void Reset() {
+        void Reset()
+        {
             miningRange = 5;
             fumbleProbability = 0;
             chainMiningRadius = 0;
@@ -389,7 +414,8 @@ namespace glimmer {
             mineAbleLayer = 0;
         }
 
-        AbilityConfig &operator+=(const AbilityConfig &other) {
+        AbilityConfig& operator+=(const AbilityConfig& other)
+        {
             this->enablePrecisionMining = this->enablePrecisionMining || other.enablePrecisionMining;
             this->miningRange += other.miningRange;
             this->fumbleProbability += other.fumbleProbability;
@@ -405,7 +431,8 @@ namespace glimmer {
      * 能力物品
      */
     //@genNextLine(AbilityItemResource|能力物品资源)
-    struct AbilityItemResource : Resource {
+    struct AbilityItemResource : Resource
+    {
         //@genNextLine(name|名称资源引用)
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
@@ -418,6 +445,8 @@ namespace glimmer {
         AbilityConfig abilityConfig = {};
         //@genNextLine(canUseAlone|是否可单独使用)
         bool canUseAlone = false;
+        //@genNextLine(durability|耐久度)
+        uint16_t durability = 16;
     };
 
     /**
@@ -425,7 +454,8 @@ namespace glimmer {
      * 颜色资源
      */
     //@genNextLine(ColorResource|颜色资源)
-    struct ColorResource {
+    struct ColorResource
+    {
         //@genNextLine(a|透明度)
         uint8_t a = 255;
         //@genNextLine(r|红色通道值)
@@ -443,7 +473,8 @@ namespace glimmer {
      * 瓦片资源
      */
     //@genNextLine(TileResource|瓦片资源)
-    struct TileResource : Resource {
+    struct TileResource : Resource
+    {
         //@genNextLine(name|名称资源引用)
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
@@ -493,7 +524,7 @@ namespace glimmer {
         //@genNextLine(When being destroyed/overwritten, will debris be generated|被销毁/覆盖时 是否生成掉落物)
         bool canDropLoot = true;
         //@genNextLine(The anchor point type of the tiles. When placing large tiles, the placement position is relative to the anchor point of the tile. The anchor point is based on the player's right side.|瓦片的锚点类型，当放置大型瓦片时放置位置相对于瓦片的锚点，锚点以玩家右侧为准)
-        uint8_t tileAnchorType = static_cast<uint8_t>(TileAnchorType::BottomLeft);
+        uint8_t tileAnchorType = 6;
         //@genNextLine(The anchor point coordinates of the tiles, when tileAnchorType is set to "Custom", can be defined; for other values, the engine will calculate them automatically.|瓦片的锚点坐标，tileAnchorType为Custom值时可定义，其他值为引擎自动计算。)
         Vector2DIResource customTileAnchor = {1, 1};
         //@genNextLine(Allow anchor adjustment by facing direction.|允许按朝向调整锚点，放置瓦片时，开启就会跟着左右朝向自动调换锚点，让瓦片顺着朝向方向延伸，关闭则固定原始锚点不动。)
@@ -501,7 +532,8 @@ namespace glimmer {
     };
 
     //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)
-    struct IBiomeDecoratorResource : Resource {
+    struct IBiomeDecoratorResource : Resource
+    {
         ~IBiomeDecoratorResource() = default;
 
         //@genNextLine(biomeDecoratorType|装饰器类型)
@@ -512,13 +544,15 @@ namespace glimmer {
 
 
     //@genNextLine(FillBiomeDecoratorResource|填充生物群系装饰器)
-    struct FillBiomeDecoratorResource : IBiomeDecoratorResource {
+    struct FillBiomeDecoratorResource : IBiomeDecoratorResource
+    {
         //@genNextLine(tile|瓦片)
         ResourceRef tile;
     };
 
     //@genNextLine(MineralBiomeDecoratorResource|矿脉生物群系装饰器)
-    struct MineralBiomeDecoratorResource : IBiomeDecoratorResource {
+    struct MineralBiomeDecoratorResource : IBiomeDecoratorResource
+    {
     private:
         std::unique_ptr<FastNoiseLite> fastNoiseLite_ = nullptr;
 
@@ -544,11 +578,12 @@ namespace glimmer {
         //@genNextLine(maxSpawnElevation|矿石最大生成高度(地表浅层))
         float maxSpawnElevation = 0.5F;
 
-        FastNoiseLite *GetFastNoiseLite(int seed);
+        FastNoiseLite* GetFastNoiseLite(int seed);
     };
 
     //@genNextLine(SurfaceBiomeDecoratorResource|表面生物群系装饰器)
-    struct SurfaceBiomeDecoratorResource : IBiomeDecoratorResource {
+    struct SurfaceBiomeDecoratorResource : IBiomeDecoratorResource
+    {
         //@genNextLine(tile|瓦片)
         ResourceRef tile;
         //@genNextLine(allowAir|允许上方为空气)
@@ -562,7 +597,8 @@ namespace glimmer {
      * 生物群系
      */
     //@genNextLine(BiomeResource|生物群系)
-    struct BiomeResource : Resource {
+    struct BiomeResource : Resource
+    {
         //@genNextLine(decors|生物群系装饰器列表)
         std::vector<ResourceRef> decors;
         //@genNextLine(humidity|湿度)
@@ -604,7 +640,8 @@ namespace glimmer {
     };
 
     //@genNextLine(LootResource|战利品资源)
-    struct LootResource : Resource {
+    struct LootResource : Resource
+    {
         /**
          * mandatory
          * 必然掉落
@@ -631,11 +668,12 @@ namespace glimmer {
         //@genNextLine(pool|战利品池列表)
         std::vector<LootEntry> pool = {};
 
-        static std::vector<ItemMessage> GetLootItems(const LootResource *lootResource);
+        static std::vector<ItemMessage> GetLootItems(const LootResource* lootResource);
     };
 
     //@genNextLine(ItemMessageResource|物品消息资源)
-    struct ItemMessageResource {
+    struct ItemMessageResource
+    {
         //@genNextLine(item|物品)
         ResourceRef item;
         //@genNextLine(amount|数量)
@@ -651,7 +689,8 @@ namespace glimmer {
  * 可组合的物品资源
  */
     //@genNextLine(ComposableItemResource|可组合的物品资源类)
-    struct ComposableItemResource : Resource {
+    struct ComposableItemResource : Resource
+    {
         //@genNextLine(name|名称资源引用)
         ResourceRef name;
         //@genNextLine(description|描述资源引用)
@@ -662,11 +701,33 @@ namespace glimmer {
         size_t slotSize;
         //@genNextLine(defaultAbilityList|默认能力列表资源引用)
         std::vector<ItemMessageResource> defaultAbilityList = {};
+        //@genNextLine(durability|耐久度)
+        uint16_t durability = 16;
     };
 
     //@genNextLine(InitialInventoryResource|初始化库存资源)
-    struct InitialInventoryResource : Resource {
+    struct InitialInventoryResource : Resource
+    {
         //@genNextLine(addItems|初始添加物品列表)
         std::vector<ItemMessageResource> addItems;
+    };
+
+    //@genNextLine(RecipeResource|配方资源)
+    struct RecipeResource : Resource
+    {
+        //@genNextLine(input|输入)
+        std::vector<ItemMessageResource> input;
+        //@genNextLine(output|输出)
+        ItemMessageResource output;
+        //@genNextLine(duration|执行时间)
+        float duration = 0.0F;
+    };
+
+    //@genNextLine(RecipeTableResource|配方表资源)
+    struct RecipeTableResource : Resource
+    {
+        //配方表提供的配方。
+        //@genNextLine(The recipes provided in the formula sheet|配方表提供的配方)
+        std::vector<ResourceRef> recipeVector;
     };
 }

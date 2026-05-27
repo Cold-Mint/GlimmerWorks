@@ -15,53 +15,69 @@
 #include "ability/ItemAbility.h"
 #include "core/ecs/DroppedItemCreator.h"
 
-void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex) const {
+void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer* otherContainer, size_t otherIndex) const
+{
     itemContainer_->SwapItem(index, otherContainer, otherIndex);
 }
 
-void glimmer::ComposableItem::RefreshAttributes() {
-    LogCat::d("ComposableItem RefreshAttributes");
+void glimmer::ComposableItem::RefreshAttributes()
+{
     const size_t max = itemContainer_->GetCapacity();
     totalAbilityConfig_.Reset();
-    for (size_t index = 0; index < max; index++) {
-        Item *item = itemContainer_->GetItem(index);
-        if (item == nullptr) {
+    for (size_t index = 0; index < max; index++)
+    {
+        Item* item = itemContainer_->GetItem(index);
+        if (item == nullptr)
+        {
             continue;
         }
-        auto *abilityItem = dynamic_cast<AbilityItem *>(item);
-        if (abilityItem == nullptr) {
+        auto* abilityItem = dynamic_cast<AbilityItem*>(item);
+        if (abilityItem == nullptr)
+        {
             continue;
         }
-        totalAbilityConfig_ += item->GetAbilityConfig();
+        const AbilityConfig* abilityConfig = item->GetAbilityConfig();
+        if (abilityConfig == nullptr)
+        {
+            continue;
+        }
+        totalAbilityConfig_ += *abilityConfig;
     }
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const size_t index,
-                                                                    std::unique_ptr<Item> item) const {
+                                                                    std::unique_ptr<Item> item) const
+{
     return itemContainer_->ReplaceItem(index, std::move(item));
 }
 
-size_t glimmer::ComposableItem::RemoveItemAbility(const std::string &id, const size_t amount) const {
+size_t glimmer::ComposableItem::RemoveItemAbility(const std::string& id, const size_t amount) const
+{
     return itemContainer_->RemoveItem(id, amount);
 }
 
-std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(WorldContext *worldContext,
-    const ComposableItemResource *itemResource, const ResourceRef &resourceRef) {
-    if (worldContext == nullptr) {
+std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResource(WorldContext* worldContext,
+    const ComposableItemResource* itemResource, const ResourceRef& resourceRef)
+{
+    if (worldContext == nullptr)
+    {
         return nullptr;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (itemResource == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (itemResource == nullptr)
+    {
         return nullptr;
     }
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name);
-    if (nameRes != nullptr) {
+    if (nameRes != nullptr)
+    {
         name = nameRes->value;
     }
     std::optional<std::string> description;
     auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description);
-    if (descriptionRes != nullptr) {
+    if (descriptionRes != nullptr)
+    {
         description = descriptionRes->value;
     }
     std::unique_ptr<ComposableItem> result = std::make_unique<ComposableItem>(
@@ -72,43 +88,52 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     //If the capability is not specified within the resource reference, then the default capability will be loaded.
     //如果没有在资源引用内指定能力，那么加载默认能力。
     size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
-    if (defaultAbilitySize > 0) {
-        for (int i = 0; i < defaultAbilitySize; i++) {
+    if (defaultAbilitySize > 0)
+    {
+        for (int i = 0; i < defaultAbilitySize; i++)
+        {
             auto itemObj = appContext->GetResourceLocator()->FindItem(worldContext,
                                                                       itemResource->defaultAbilityList[i]);
-            if (itemObj != nullptr) {
-                (void) result->ReplaceItem(static_cast<size_t>(i), std::move(itemObj));
+            if (itemObj != nullptr)
+            {
+                (void)result->ReplaceItem(static_cast<size_t>(i), std::move(itemObj));
             }
         }
     }
     return result;
 }
 
-
-const glimmer::AbilityConfig &glimmer::ComposableItem::GetAbilityConfig() const {
-    return totalAbilityConfig_;
+const glimmer::AbilityConfig* glimmer::ComposableItem::GetAbilityConfig() const
+{
+    return &totalAbilityConfig_;
 }
 
-void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &configMessage,
-                                    std::unordered_set<std::string> &popupAbility) {
+void glimmer::ComposableItem::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+                                    std::unordered_set<std::string>& popupAbility)
+{
     const size_t max = itemContainer_->GetCapacity();
     //The ability to pop up
     //需要弹出的能力
-    for (size_t index = 0; index < max; index++) {
-        Item *item = itemContainer_->GetItem(index);
-        if (item == nullptr) {
+    for (size_t index = 0; index < max; index++)
+    {
+        Item* item = itemContainer_->GetItem(index);
+        if (item == nullptr)
+        {
             continue;
         }
-        auto *abilityItem = dynamic_cast<AbilityItem *>(item);
-        if (abilityItem == nullptr) {
+        auto* abilityItem = dynamic_cast<AbilityItem*>(item);
+        if (abilityItem == nullptr)
+        {
             continue;
         }
-        ItemAbility *itemAbility = abilityItem->GetItemAbility();
-        if (itemAbility == nullptr) {
+        ItemAbility* itemAbility = abilityItem->GetItemAbility();
+        if (itemAbility == nullptr)
+        {
             continue;
         }
 
-        if (popupAbility.contains(itemAbility->GetId())) {
+        if (popupAbility.contains(itemAbility->GetId()))
+        {
             //Mutual exclusivity
             //互斥
             const GameEntity::ID droppedEntity = worldContext->CreateEntity();
@@ -116,107 +141,126 @@ void glimmer::ComposableItem::OnUse(WorldContext *worldContext, GameEntity::ID u
             droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
             droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
                                                           worldContext->GetCameraTransform2D()->
-                                                          GetPosition(), itemContainer_->TakeAllItem(index), 2));
+                                                                        GetPosition(),
+                                                          itemContainer_->TakeAllItem(index), 2));
             continue;
         }
-        itemAbility->OnUse(worldContext, user, configMessage, popupAbility);
+        itemAbility->OnUse(worldContext, user, abilityConfig, popupAbility);
     }
 }
 
-glimmer::ItemContainer *glimmer::ComposableItem::GetItemContainer() const {
+
+glimmer::ItemContainer* glimmer::ComposableItem::GetItemContainer() const
+{
     return itemContainer_.get();
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const {
-    LogCat::d("ComposableItem Clone");
+std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const
+{
     auto composableItem = std::make_unique<ComposableItem>(*this);
     composableItem->AddCallback();
     return composableItem;
 }
 
-void glimmer::ComposableItem::AddCallback() {
-    callback_ = itemContainer_->AddOnContentChanged([this](size_t index, Item *item, ContainerChangeType changeType) {
-        switch (changeType) {
-            case ContainerChangeType::ADD:
-                RefreshAttributes();
-                break;
-            case ContainerChangeType::REMOVE:
-                RefreshAttributes();
-                break;
+void glimmer::ComposableItem::AddCallback()
+{
+    callback_ = itemContainer_->AddOnContentChanged([this](size_t index, Item* item, ContainerChangeType changeType)
+    {
+        switch (changeType)
+        {
+        case ContainerChangeType::ADD:
+            RefreshAttributes();
+            break;
+        case ContainerChangeType::REMOVE:
+            RefreshAttributes();
+            break;
         }
     });
 }
 
 glimmer::ComposableItem::ComposableItem(std::string id, std::string name, std::optional<std::string> description,
                                         std::shared_ptr<SDL_Texture> icon, size_t maxSize,
-                                        const ResourceRef &resourceRef) : itemContainer_(
+                                        const ResourceRef& resourceRef) : itemContainer_(
                                                                               std::make_shared<ItemContainer>(maxSize)),
                                                                           id_(std::move(id)),
                                                                           name_(std::move(name)),
                                                                           description_(std::move(description)),
                                                                           icon_(std::move(icon)),
-                                                                          maxSlotSize_(maxSize) {
+                                                                          maxSlotSize_(maxSize)
+{
     resourceRef_ = resourceRef;
     AddCallback();
-    LogCat::d("ComposableItem Constructor");
 }
 
-void glimmer::ComposableItem::ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage) {
+void glimmer::ComposableItem::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
+{
     Item::ReadItemMessage(worldContext, itemMessage);
-    if (worldContext == nullptr) {
+    if (worldContext == nullptr)
+    {
         return;
     }
-    const AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
     //Filling ability.
     //填充能力。
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
     auto abilityItemRefSize = itemMessage.abilityitemref_size();
-    for (int i = 0; i < maxSlotSize_; i++) {
-        if (i >= abilityItemRefSize) {
+    for (int i = 0; i < maxSlotSize_; i++)
+    {
+        if (i >= abilityItemRefSize)
+        {
             break;
         }
-        const ItemMessage &abilityItemMessage = itemMessage.abilityitemref(i);
+        const ItemMessage& abilityItemMessage = itemMessage.abilityitemref(i);
         std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, abilityItemMessage);
-        if (item != nullptr) {
+        if (item != nullptr)
+        {
             std::unique_ptr<Item> result = ReplaceItem(static_cast<size_t>(i), std::move(item));
         }
     }
 }
 
 
-void glimmer::ComposableItem::WriteItemMessage(ItemMessage &itemMessage) const {
+void glimmer::ComposableItem::WriteItemMessage(ItemMessage& itemMessage) const
+{
     Item::WriteItemMessage(itemMessage);
     itemMessage.clear_abilityitemref();
-    for (int i = 0; i < maxSlotSize_; i++) {
-        ItemMessage *abilityItemMessage = itemMessage.add_abilityitemref();
-        const Item *item = itemContainer_->GetItem(i);
-        if (item == nullptr) {
+    for (int i = 0; i < maxSlotSize_; i++)
+    {
+        ItemMessage* abilityItemMessage = itemMessage.add_abilityitemref();
+        const Item* item = itemContainer_->GetItem(i);
+        if (item == nullptr)
+        {
             continue;
         }
         item->WriteItemMessage(*abilityItemMessage);
     }
 }
 
-glimmer::ComposableItem::~ComposableItem() {
+glimmer::ComposableItem::~ComposableItem()
+{
     itemContainer_->RemoveOnContentChanged(callback_);
-    LogCat::d("ComposableItem Destroy");
 }
 
-const std::string &glimmer::ComposableItem::GetId() const {
+const std::string& glimmer::ComposableItem::GetId() const
+{
     return id_;
 }
 
-const std::string &glimmer::ComposableItem::GetName() const {
+const std::string& glimmer::ComposableItem::GetName() const
+{
     return name_;
 }
 
-const std::optional<std::string> &glimmer::ComposableItem::GetDescription() const {
+const std::optional<std::string>& glimmer::ComposableItem::GetDescription() const
+{
     return description_;
 }
 
-SDL_Texture *glimmer::ComposableItem::GetIcon() const {
+SDL_Texture* glimmer::ComposableItem::GetIcon() const
+{
     return icon_.get();
 }

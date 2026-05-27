@@ -5,13 +5,15 @@
 #pragma once
 #include "ItemAbility.h"
 
-namespace glimmer {
-    class AreaMarkerAbility : public ItemAbility {
+namespace glimmer
+{
+    class AreaMarkerAbility : public ItemAbility
+    {
     public:
-        explicit AreaMarkerAbility(const AppContext *appContext, const AbilityConfig &abilityConfigMessage);
+        explicit AreaMarkerAbility(const AbilityConfig& abilityConfigMessage);
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
-                   std::unordered_set<std::string> &popupAbility) override;
+        void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+            std::unordered_set<std::string>& popupAbility) override;
 
         [[nodiscard]] std::string GetId() const override;
 

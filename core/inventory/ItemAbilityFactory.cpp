@@ -10,17 +10,20 @@
 #include "ability/NoneAbility.h"
 
 
-std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(
-    const AppContext *appContext, const std::string &id,
-    const AbilityConfig &abilityConfig) {
-    if (id == ABILITY_ID_NONE) {
-        return std::make_shared<NoneAbility>(appContext, abilityConfig);
+std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(const std::string& id,
+    const AbilityConfig& abilityConfig)
+{
+    if (id == ABILITY_ID_NONE)
+    {
+        return std::make_shared<NoneAbility>(abilityConfig);
     }
-    if (id == ABILITY_ID_DIG) {
-        return std::make_shared<DigAbility>(appContext, abilityConfig);
+    if (id == ABILITY_ID_DIG)
+    {
+        return std::make_shared<DigAbility>(abilityConfig);
     }
-    if (id == ABILITY_ID_AREA_MARKER) {
-        return std::make_shared<AreaMarkerAbility>(appContext, abilityConfig);
+    if (id == ABILITY_ID_AREA_MARKER)
+    {
+        return std::make_shared<AreaMarkerAbility>(abilityConfig);
     }
     return nullptr;
 }

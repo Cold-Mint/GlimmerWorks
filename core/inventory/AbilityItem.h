@@ -34,11 +34,9 @@ namespace glimmer {
         static std::unique_ptr<AbilityItem> FromItemResource(const AppContext *appContext,
                                                              const AbilityItemResource *itemResource,
                                                              const ResourceRef &resourceRef);
-
-        [[nodiscard]] const AbilityConfig &GetAbilityConfig() const override;
-
-        void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
-                   std::unordered_set<std::string> &popupAbility) override;
+        [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
+        void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+            std::unordered_set<std::string>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

@@ -11,71 +11,90 @@
 #include "../../inventory/TileItem.h"
 
 
-glimmer::DigAbility::DigAbility(const AppContext *appContext, const AbilityConfig &abilityConfig) : ItemAbility(
-    appContext, abilityConfig) {
+glimmer::DigAbility::DigAbility(const AbilityConfig& abilityConfig) : ItemAbility(
+    abilityConfig)
+{
 }
 
-std::string glimmer::DigAbility::GetId() const {
+std::string glimmer::DigAbility::GetId() const
+{
     return ABILITY_ID_DIG;
 }
 
-void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
-                                std::unordered_set<std::string> &popupAbility) {
+void glimmer::DigAbility::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+                                std::unordered_set<std::string>& popupAbility)
+{
     popupAbility.emplace(GetId());
-    if (abilityConfig.mineAbleLayer == 0) {
+    if (abilityConfig == nullptr)
+    {
+        return;
+    }
+    if (abilityConfig->mineAbleLayer == 0)
+    {
         return;
     }
     auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
         TileLayerComponent>();
     auto playerEntity = worldContext->GetPlayerEntity();
-    if (WorldContext::IsEmptyEntityId(playerEntity)) {
+    if (WorldContext::IsEmptyEntityId(playerEntity))
+    {
         return;
     }
     auto playerTransform = worldContext->GetComponent<Transform2DComponent>(playerEntity);
-    if (playerTransform == nullptr) {
+    if (playerTransform == nullptr)
+    {
         return;
     }
     const WorldVector2D playerWorldPos = playerTransform->GetPosition();
-    DiggingComponent *diggingComponent = worldContext->GetDiggingComponent();
-    if (diggingComponent == nullptr) {
+    DiggingComponent* diggingComponent = worldContext->GetDiggingComponent();
+    if (diggingComponent == nullptr)
+    {
         return;
     }
-    for (const auto &gameEntity: tileLayerEntityList) {
-        auto *tileLayerComponent = worldContext->GetComponent<TileLayerComponent>(
+    for (const auto& gameEntity : tileLayerEntityList)
+    {
+        auto* tileLayerComponent = worldContext->GetComponent<TileLayerComponent>(
             gameEntity);
-        if (tileLayerComponent == nullptr) {
+        if (tileLayerComponent == nullptr)
+        {
             continue;
         }
         const TileLayerType layerType = tileLayerComponent->GetTileLayerType();
-        if (abilityConfig.mineAbleLayer & layerType) {
-            const TileVector2D &tileVector2D = tileLayerComponent->GetFocusPosition();
+        if (abilityConfig->mineAbleLayer & layerType)
+        {
+            const TileVector2D& tileVector2D = tileLayerComponent->GetFocusPosition();
             if (TileLayerComponent::TileToWorldCenter(tileVector2D).Distance(playerWorldPos) / TILE_SIZE > abilityConfig
-                .miningRange) {
+                ->miningRange)
+            {
                 continue;
             }
-            const Tile *tile = tileLayerComponent->GetSelfLayerTile(
+            const Tile* tile = tileLayerComponent->GetSelfLayerTile(
                 tileVector2D);
-            if (tile == nullptr) {
+            if (tile == nullptr)
+            {
                 continue;
             }
-            if (!tile->IsBreakable()) {
+            if (!tile->IsBreakable())
+            {
                 continue;
             }
-            if (diggingComponent->GetStartPosition() != tileVector2D) {
+            if (diggingComponent->GetStartPosition() != tileVector2D)
+            {
                 //Change the starting point of the excavation and recalculate the progress.
                 //挖掘起点改变，重新计算进度。
                 miningRangeData_.Reset();
-                diggingComponent->SetChainMiningRadius(abilityConfig.chainMiningRadius);
+                diggingComponent->SetChainMiningRadius(abilityConfig->chainMiningRadius);
                 miningRangeData_.
-                        CalculateChainMining(tileLayerComponent, tileVector2D, abilityConfig.chainMiningRadius);
-                diggingComponent->SetPrecisionMining(abilityConfig.enablePrecisionMining);
+                    CalculateChainMining(tileLayerComponent, tileVector2D, abilityConfig->chainMiningRadius);
+                diggingComponent->SetPrecisionMining(abilityConfig->enablePrecisionMining);
                 size_t pointCount = miningRangeData_.GetPointsCount();
-                if (pointCount == 0) {
+                if (pointCount == 0)
+                {
                     //If no exploitable tiles are found, then calculate the default excavation range.
                     //如果没有发现可挖掘的瓦片，那么计算默认的挖掘范围。
                     miningRangeData_.CalculateMining(tileLayerComponent, tileVector2D);
                 }
-                diggingComponent->SetEfficiency(abilityConfig.miningEfficiency);
+                diggingComponent->SetEfficiency(abilityConfig->miningEfficiency);
                 diggingComponent->SetMiningRangeData(&miningRangeData_);
                 diggingComponent->SetProgress(0.0F);
                 diggingComponent->SetStartPosition(tileVector2D);
@@ -83,7 +102,8 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
             //efficiency
             //工具效率
             diggingComponent->SetLayerType(layerType);
-            if (miningRangeData_.GetPointsCount() > 0) {
+            if (miningRangeData_.GetPointsCount() > 0)
+            {
                 //If there are any exploitable tiles, then activate the mining module.
                 //如果有可挖掘的瓦片，那么激活挖掘组建。
                 diggingComponent->MarkActive();
@@ -100,6 +120,7 @@ void glimmer::DigAbility::OnUse(WorldContext *worldContext, GameEntity::ID user,
 }
 
 
-std::unique_ptr<glimmer::ItemAbility> glimmer::DigAbility::Clone() const {
+std::unique_ptr<glimmer::ItemAbility> glimmer::DigAbility::Clone() const
+{
     return std::make_unique<DigAbility>(*this);
 }

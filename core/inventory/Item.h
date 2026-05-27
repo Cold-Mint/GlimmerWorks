@@ -11,11 +11,13 @@
 #include "core/scene/AppContext.h"
 #include "core/ecs/GameEntity.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * 物品类
      */
-    class Item {
+    class Item
+    {
         size_t amount_ = 1;
 
     protected:
@@ -30,9 +32,9 @@ namespace glimmer {
     public:
         virtual ~Item() = default;
 
-        virtual void ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage);
+        virtual void ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage);
 
-        virtual void WriteItemMessage(ItemMessage &itemMessage) const;
+        virtual void WriteItemMessage(ItemMessage& itemMessage) const;
 
 
         /**
@@ -40,7 +42,7 @@ namespace glimmer {
           * 获取id
           * @return
           */
-        [[nodiscard]] virtual const std::string &GetId() const = 0;
+        [[nodiscard]] virtual const std::string& GetId() const = 0;
 
 
         /**
@@ -64,7 +66,7 @@ namespace glimmer {
          * 获取可堆叠的数量
          * @return
          */
-        [[nodiscard]] size_t GetRemainingStackCount(const Item *item) const;
+        [[nodiscard]] size_t GetRemainingStackCount(const Item* item) const;
 
 
         /**
@@ -72,9 +74,9 @@ namespace glimmer {
          * 设置当数量为0时的回调。
          * @param onAmountZero
          */
-        void SetOnAmountZero(const std::function<void()> &onAmountZero);
+        void SetOnAmountZero(const std::function<void()>& onAmountZero);
 
-        void SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)> &onAmountChanged);
+        void SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)>& onAmountChanged);
 
         /**
          * SetAmount
@@ -112,31 +114,31 @@ namespace glimmer {
          * 获取物品名称
          * @return
          */
-        [[nodiscard]] virtual const std::string &GetName() const = 0;
+        [[nodiscard]] virtual const std::string& GetName() const = 0;
 
         /**
          * GetDescription
          * 获取描述
          * @return
          */
-        [[nodiscard]] virtual const std::optional<std::string> &GetDescription() const = 0;
+        [[nodiscard]] virtual const std::optional<std::string>& GetDescription() const = 0;
 
         /**
          * Variable configuration for obtaining items
          * 获取物品的变量配置
          * @return
          */
-        [[nodiscard]] virtual const AbilityConfig &GetAbilityConfig() const = 0;
+        [[nodiscard]] virtual const AbilityConfig* GetAbilityConfig() const = 0;
 
         /**
          * 获取图标
          * @return
          */
-        [[nodiscard]] virtual SDL_Texture *GetIcon() const = 0;
+        [[nodiscard]] virtual SDL_Texture* GetIcon() const = 0;
 
 
-        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &configMessage,
-                           std::unordered_set<std::string> &popupAbility) = 0;
+        virtual void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+                           std::unordered_set<std::string>& popupAbility) = 0;
 
         /**
          * Clone

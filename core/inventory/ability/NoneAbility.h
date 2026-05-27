@@ -5,14 +5,15 @@
 #pragma once
 #include "ItemAbility.h"
 
-namespace glimmer {
-    class NoneAbility : public ItemAbility {
+namespace glimmer
+{
+    class NoneAbility : public ItemAbility
+    {
     public:
-        NoneAbility(const AppContext *appContext, const AbilityConfig &abilityConfigMessage);
+        NoneAbility(const AbilityConfig& abilityConfigMessage);
 
-        void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
-                   std::unordered_set<std::string> &popupAbility) override;
-
+        void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+            std::unordered_set<std::string>& popupAbility) override;
         [[nodiscard]] std::string GetId() const override;
 
 

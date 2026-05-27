@@ -10,27 +10,32 @@
 #include "../mod/ResourceLocator.h"
 
 
-glimmer::ItemAbility *glimmer::AbilityItem::GetItemAbility() const {
+glimmer::ItemAbility* glimmer::AbilityItem::GetItemAbility() const
+{
     return itemAbility_.get();
 }
 
-std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext *appContext,
-                                                                             const AbilityItemResource *itemResource,
-                                                                             const ResourceRef &resourceRef) {
+std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext* appContext,
+                                                                             const AbilityItemResource* itemResource,
+                                                                             const ResourceRef& resourceRef)
+{
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
     const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name);
-    if (nameRes != nullptr) {
+    if (nameRes != nullptr)
+    {
         name = nameRes->value;
     }
     std::optional<std::string> description;
     auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description);
-    if (descriptionRes != nullptr) {
+    if (descriptionRes != nullptr)
+    {
         description = descriptionRes->value;
     }
 
     auto itemAbility =
-            ItemAbilityFactory::CreateItemAbility(appContext, itemResource->ability, itemResource->abilityConfig);
-    if (itemAbility == nullptr) {
+        ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
+    if (itemAbility == nullptr)
+    {
         LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
         return nullptr;
     }
@@ -41,13 +46,16 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
                                          itemResource->canUseAlone, resourceRef);
 }
 
-const glimmer::AbilityConfig &glimmer::AbilityItem::GetAbilityConfig() const {
+const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
+{
     return itemAbility_->GetAbilityConfig();
 }
 
-void glimmer::AbilityItem::OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
-                                 std::unordered_set<std::string> &popupAbility) {
-    if (canUseAlone_) {
+void glimmer::AbilityItem::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+                                 std::unordered_set<std::string>& popupAbility)
+{
+    if (canUseAlone_)
+    {
         itemAbility_->OnUse(worldContext, user, abilityConfig, popupAbility);
     }
 }
@@ -55,31 +63,37 @@ void glimmer::AbilityItem::OnUse(WorldContext *worldContext, GameEntity::ID user
 glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optional<std::string> description,
                                   std::shared_ptr<SDL_Texture> icon, std::shared_ptr<ItemAbility> itemAbility,
                                   bool canUseAlone,
-                                  const ResourceRef &resourceRef) : id_(std::move(id)),
+                                  const ResourceRef& resourceRef) : id_(std::move(id)),
                                                                     name_(std::move(name)),
                                                                     description_(std::move(description)),
                                                                     icon_(std::move(icon)),
                                                                     itemAbility_(std::move(itemAbility)),
-                                                                    canUseAlone_(canUseAlone) {
+                                                                    canUseAlone_(canUseAlone)
+{
     resourceRef_ = resourceRef;
 }
 
-const std::string &glimmer::AbilityItem::GetId() const {
+const std::string& glimmer::AbilityItem::GetId() const
+{
     return id_;
 }
 
-const std::string &glimmer::AbilityItem::GetName() const {
+const std::string& glimmer::AbilityItem::GetName() const
+{
     return name_;
 }
 
-const std::optional<std::string> &glimmer::AbilityItem::GetDescription() const {
+const std::optional<std::string>& glimmer::AbilityItem::GetDescription() const
+{
     return description_;
 }
 
-SDL_Texture *glimmer::AbilityItem::GetIcon() const {
+SDL_Texture* glimmer::AbilityItem::GetIcon() const
+{
     return icon_.get();
 }
 
-std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const {
+std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const
+{
     return std::make_unique<AbilityItem>(*this);
 }

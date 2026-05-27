@@ -10,7 +10,8 @@
 #include "core/ecs/GameEntity.h"
 #include "core/mod/Resource.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
     class WorldContext;
     class GameEntity;
@@ -19,21 +20,21 @@ namespace glimmer {
      * Item Ability
      * 物品能力
      */
-    class ItemAbility {
+    class ItemAbility
+    {
         AbilityConfig abilityConfig_;
 
     public:
-        explicit ItemAbility(
-            const AppContext *appContext, const AbilityConfig &abilityConfig);
+        explicit ItemAbility(const AbilityConfig& abilityConfig);
 
         virtual ~ItemAbility() = default;
 
         [[nodiscard]] virtual std::string GetId() const = 0;
 
-        [[nodiscard]] const AbilityConfig &GetAbilityConfig() const;
+        [[nodiscard]] const AbilityConfig* GetAbilityConfig() const;
 
-        virtual void OnUse(WorldContext *worldContext, GameEntity::ID user, const AbilityConfig &abilityConfig,
-                           std::unordered_set<std::string> &popupAbility) = 0;
+        virtual void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+                           std::unordered_set<std::string>& popupAbility) = 0;
 
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;
     };

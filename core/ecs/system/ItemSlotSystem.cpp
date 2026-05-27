@@ -195,7 +195,7 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* 
     std::vector<SDL_Surface*> surfacesToDraw;
     SDL_Surface* sName = TTF_RenderText_Blended(appContext->GetFont(), nameInfo.c_str(), nameInfo.length(),
                                                 appContext->GetPreloadColors()->textColor.ToSDLColor());
-    if (sName)
+    if (sName != nullptr)
     {
         surfacesToDraw.push_back(sName);
     }
@@ -205,9 +205,27 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* 
         SDL_Surface* sDesc = TTF_RenderText_Blended_Wrapped(appContext->GetFont(), description.c_str(),
                                                             description.length(),
                                                             appContext->GetPreloadColors()->textColor.ToSDLColor(), 0);
-        if (sDesc)
+        if (sDesc != nullptr)
         {
             surfacesToDraw.push_back(sDesc);
+        }
+    }
+    if (!item->IsUnbreakable())
+    {
+        uint32_t totalDur = std::max(item->GetMaxDurability(), 1U);
+        uint32_t usedDur = item->GetUsedDurability();
+        uint32_t remainDur = usedDur >= totalDur ? 0U : totalDur - usedDur;
+
+        std::string durabilityInfoTip = fmt::format(
+            fmt::runtime(langsResources->durabilityInfo),
+            std::round(static_cast<float>(remainDur) / static_cast<float>(totalDur) * 100.0f)
+        );
+        SDL_Surface* durabilityInfo = TTF_RenderText_Blended(appContext->GetFont(), durabilityInfoTip.c_str(),
+                                                             durabilityInfoTip.length(),
+                                                             appContext->GetPreloadColors()->textColor.ToSDLColor());
+        if (durabilityInfo != nullptr)
+        {
+            surfacesToDraw.push_back(durabilityInfo);
         }
     }
 

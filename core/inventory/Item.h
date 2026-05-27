@@ -10,13 +10,14 @@
 #include "SDL3/SDL_render.h"
 #include "core/scene/AppContext.h"
 #include "core/ecs/GameEntity.h"
+#include "core/math/IAllocatable.h"
 
 namespace glimmer
 {
     /**
      * 物品类
      */
-    class Item
+    class Item : public IAllocatable<uint32_t>
     {
         size_t amount_ = 1;
 
@@ -29,13 +30,25 @@ namespace glimmer
 
         ResourceRef resourceRef_;
 
+        uint32_t usedDurability_ = 0;
+
     public:
-        virtual ~Item() = default;
+        ~Item() override = default;
 
         virtual void ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage);
 
         virtual void WriteItemMessage(ItemMessage& itemMessage) const;
 
+        [[nodiscard]] virtual uint32_t GetMaxDurability() const = 0;
+
+        [[nodiscard]] uint32_t GetUsedDurability() const;
+
+        /**
+         * Is it indestructible (with infinite durability)?
+         * 是否为坚不可摧的（无限耐久）
+         * @return
+         */
+        [[nodiscard]] virtual bool IsUnbreakable() const = 0;
 
         /**
           * GetId
@@ -139,6 +152,16 @@ namespace glimmer
 
         virtual void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
                            std::unordered_set<std::string>& popupAbility) = 0;
+
+        unsigned GetRemaining() const override;
+
+        /**
+      * Subtract the durability points specified
+      * 扣除指定点数的耐久
+      * @param value
+      * @return The cancelled points, with 0 indicating no cancellation, are used for durability transfer between modules. 抵消的点数，0表示未抵消，用于模块间的耐久度传递。
+      */
+        void Reduce(unsigned value) override = 0;
 
         /**
          * Clone

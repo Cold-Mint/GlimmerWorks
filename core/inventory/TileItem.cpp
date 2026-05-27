@@ -38,6 +38,20 @@ const glimmer::Tile* glimmer::TileItem::GetTile() const
     return tile_.get();
 }
 
+uint32_t glimmer::TileItem::GetMaxDurability() const
+{
+    return 0;
+}
+
+bool glimmer::TileItem::IsUnbreakable() const
+{
+    return true;
+}
+
+void glimmer::TileItem::Reduce(unsigned value)
+{
+}
+
 void glimmer::TileItem::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
                               std::unordered_set<std::string>& popupAbility)
 {

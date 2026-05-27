@@ -43,7 +43,27 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
                                          description,
                                          appContext->GetResourceLocator()->FindTexture(
                                              &itemResource->texture), std::move(itemAbility),
+                                         itemResource->maxDurability, itemResource->isUnbreakable,
                                          itemResource->canUseAlone, resourceRef);
+}
+
+uint32_t glimmer::AbilityItem::GetMaxDurability() const
+{
+    return maxDurability_;
+}
+
+void glimmer::AbilityItem::Reduce(const unsigned value)
+{
+    if (isUnbreakable_)
+    {
+        return;
+    }
+    usedDurability_ += value;
+}
+
+bool glimmer::AbilityItem::IsUnbreakable() const
+{
+    return isUnbreakable_;
 }
 
 const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
@@ -62,13 +82,16 @@ void glimmer::AbilityItem::OnUse(WorldContext* worldContext, GameEntity::ID user
 
 glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optional<std::string> description,
                                   std::shared_ptr<SDL_Texture> icon, std::shared_ptr<ItemAbility> itemAbility,
-                                  bool canUseAlone,
+                                  uint32_t maxDurability,
+                                  bool isUnbreakable, bool canUseAlone,
                                   const ResourceRef& resourceRef) : id_(std::move(id)),
                                                                     name_(std::move(name)),
                                                                     description_(std::move(description)),
                                                                     icon_(std::move(icon)),
                                                                     itemAbility_(std::move(itemAbility)),
-                                                                    canUseAlone_(canUseAlone)
+                                                                    canUseAlone_(canUseAlone),
+                                                                    maxDurability_(maxDurability),
+                                                                    isUnbreakable_(isUnbreakable)
 {
     resourceRef_ = resourceRef;
 }

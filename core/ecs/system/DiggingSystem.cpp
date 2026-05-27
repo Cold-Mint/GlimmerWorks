@@ -13,6 +13,7 @@
 #include "../../world/generator/Chunk.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/DiggingComponent.h"
+#include "core/ecs/component/PlayerComponent.h"
 
 
 uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const TileLayerComponent* tileLayerComponent,
@@ -29,6 +30,13 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
     if (appContext == nullptr)
     {
         return 0;
+    }
+    auto player = worldContext->GetPlayerEntity();
+    PlayerComponent* playerComponent = worldContext->GetComponent<PlayerComponent>(player);
+    Item* item = nullptr;
+    if (playerComponent != nullptr)
+    {
+        item = playerComponent->item;
     }
     uint8_t sum = 0;
     uint8_t centerX = tileWidth >> 1;
@@ -78,8 +86,14 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
             }
             sum++;
             bool center = x == centerX && y == centerY;
-
             auto* breakSFX = currentTile->GetBreakSFX();
+            if (item != nullptr)
+            {
+                if (currentTile->IsAutoDigCostScale() || center)
+                {
+                    item->Reduce(currentTile->GetUnitDigCost());
+                }
+            }
             //Only when the tiles are damaged, does the center point emit sound effects.
             //只有瓦片被破坏时，其中心点，发出音效。
             if (center && !isPlaceMode && breakSFX != nullptr)

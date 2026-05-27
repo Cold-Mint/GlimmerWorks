@@ -48,6 +48,7 @@
 #include "core/console/suggestion/DataPackDynamicSuggestions.h"
 #include "core/console/suggestion/EventTypeDynamicSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
+#include "core/console/suggestion/MaterialItemDynamicSuggestions.h"
 #include "core/console/suggestion/MobDynamicSuggestions.h"
 #include "core/console/suggestion/MouseButtonDynamicSuggestions.h"
 #include "core/console/suggestion/ScanKeyDynamicSuggestions.h"
@@ -75,7 +76,8 @@
 #include <android/asset_manager_jni.h>
 #include "core/vfs/AndroidAssetsFileProvider.h"
 #endif
-void glimmer::AppContext::LoadLanguage(const std::string &data) const {
+void glimmer::AppContext::LoadLanguage(const std::string& data) const
+{
     toml::value value = toml::parse_str(data, tomlVersion_);
     langsResources_->startGame = find<std::string>(value, "start_game");
     langsResources_->settings = find<std::string>(value, "settings");
@@ -156,9 +158,9 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langsResources_->notIncludeLighting = find<std::string>(value, "not_include_lighting");
     langsResources_->scancodeHookNotFound = find<std::string>(value, "scancode_hook_not_found");
     langsResources_->scancodeHookFoundCount = find<std::string>(value, "scancode_hook_found_count");
-    langsResources_->worldNamePrefix = find<std::vector<std::string> >(value, "world_name_prefix");
-    langsResources_->worldNameSuffix = find<std::vector<std::string> >(value, "world_name_suffix");
-    langsResources_->slogans = find<std::vector<std::string> >(value, "slogans");
+    langsResources_->worldNamePrefix = find<std::vector<std::string>>(value, "world_name_prefix");
+    langsResources_->worldNameSuffix = find<std::vector<std::string>>(value, "world_name_suffix");
+    langsResources_->slogans = find<std::vector<std::string>>(value, "slogans");
     langsResources_->cmdHookManagerNotFound = find<std::string>(value, "cmd_hook_manager_not_found");
     langsResources_->lightingInspectorEnable = find<std::string>(value, "lighting_inspector_enable");
     langsResources_->lightingInspectorDisable = find<std::string>(value, "lighting_inspector_disable");
@@ -205,13 +207,15 @@ void glimmer::AppContext::LoadLanguage(const std::string &data) const {
     langsResources_->tileSnapshotInspectorEnable = find<std::string>(value, "tile_snapshot_inspector_enable");
     langsResources_->tileSnapshotInspectorDisable = find<std::string>(value, "tile_snapshot_inspector_disable");
     langsResources_->tileSnapshotInspectorEnableFail = find<std::string>(value, "tile_snapshot_inspector_enable_fail");
-    langsResources_->tileSnapshotInspectorDisableFail = find<std::string>(value, "tile_snapshot_inspector_disable_fail");
+    langsResources_->tileSnapshotInspectorDisableFail = find<
+        std::string>(value, "tile_snapshot_inspector_disable_fail");
     langsResources_->chunkHasNotBeenLoadedYet = find<std::string>(value, "chunk_has_not_been_loaded_yet");
     langsResources_->tileSnapshotsDoesNotExist = find<std::string>(value, "tile_snapshots_does_not_exist");
-
+    langsResources_->durabilityInfo = find<std::string>(value, "durability_info");
 }
 
-std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, const std::string &ext) {
+std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, const std::string& ext)
+{
     auto now = std::chrono::system_clock::now();
     auto t = std::chrono::system_clock::to_time_t(now);
     std::tm tm;
@@ -222,84 +226,98 @@ std::string glimmer::AppContext::GetTimeFileName(const std::string &prefix, cons
 #endif
     std::ostringstream oss;
     oss << prefix << "_"
-            << std::put_time(&tm, "%Y%m%d_%H%M%S")
-            << ext;
+        << std::put_time(&tm, "%Y%m%d_%H%M%S")
+        << ext;
 
     return oss.str();
 }
 
-glimmer::AppContext::AppContext() {
+glimmer::AppContext::AppContext()
+{
     mainThreadId_ = std::this_thread::get_id();
     virtualFileSystem_ = std::make_unique<VirtualFileSystem>();
 #ifdef __ANDROID__
-    auto *env = static_cast<JNIEnv *>(SDL_GetAndroidJNIEnv());
-    if (env == nullptr) {
+    auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+    if (env == nullptr)
+    {
         LogCat::e("Failed to get JNIEnv!");
         initSuccess_ = false;
         return;
     }
     auto activity = static_cast<jobject>(SDL_GetAndroidActivity());
-    if (activity == nullptr) {
+    if (activity == nullptr)
+    {
         LogCat::e("Failed to get Android activity!");
         initSuccess_ = false;
         return;
     }
     jclass activityClass = env->GetObjectClass(activity);
-    if (activityClass == nullptr) {
+    if (activityClass == nullptr)
+    {
         LogCat::e("Android: Failed to get activity class!");
         return;
     }
     jmethodID getAssetsMethod = env->GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
-    if (getAssetsMethod == nullptr) {
+    if (getAssetsMethod == nullptr)
+    {
         LogCat::e("Android: Failed to find 'getAssets' method!");
         return;
     }
     jobject assetManagerJava = env->CallObjectMethod(activity, getAssetsMethod);
-    if (assetManagerJava == nullptr) {
+    if (assetManagerJava == nullptr)
+    {
         LogCat::e("Android: Failed to get AssetManager instance!");
         return;
     }
-    AAssetManager *assetManager = AAssetManager_fromJava(env, assetManagerJava);
-    if (assetManager == nullptr) {
+    AAssetManager* assetManager = AAssetManager_fromJava(env, assetManagerJava);
+    if (assetManager == nullptr)
+    {
         LogCat::e("Android: Failed to convert to native AAssetManager!");
         return;
     }
     auto assetsProvider = std::make_unique<AndroidAssetsFileProvider>(assetManager);
     std::optional<std::string> indexTomlOptional = assetsProvider->ReadFile("index.toml");
-    if (!indexTomlOptional.has_value()) {
+    if (!indexTomlOptional.has_value())
+    {
         LogCat::e("Android: 'index.toml' not found or could not be read!");
         return;
     }
     const toml::value tomlValue = toml::parse_str(indexTomlOptional.value(), tomlVersion_);
-    auto assetsEntry = toml::get<std::vector<AndroidAssetEntry> >(tomlValue);
+    auto assetsEntry = toml::get<std::vector<AndroidAssetEntry>>(tomlValue);
     assetsProvider->SetAssetEntryData(assetsEntry);
     jmethodID getDataDirMethod = env->GetMethodID(activityClass, "getFilesDir", "()Ljava/io/File;");
-    if (getDataDirMethod == nullptr) {
+    if (getDataDirMethod == nullptr)
+    {
         LogCat::e("Android: Failed to find 'getFilesDir' method!");
         return;
     }
     jobject dataDirFile = env->CallObjectMethod(activity, getDataDirMethod);
-    if (dataDirFile == nullptr) {
+    if (dataDirFile == nullptr)
+    {
         LogCat::e("Android: Failed to get data directory File object!");
         return;
     }
     jclass fileClass = env->GetObjectClass(dataDirFile);
-    if (fileClass == nullptr) {
+    if (fileClass == nullptr)
+    {
         LogCat::e("Android: Failed to get File class!");
         return;
     }
     jmethodID getAbsolutePathMethod = env->GetMethodID(fileClass, "getAbsolutePath", "()Ljava/lang/String;");
-    if (getAbsolutePathMethod == nullptr) {
+    if (getAbsolutePathMethod == nullptr)
+    {
         LogCat::e("Android: Failed to find 'getAbsolutePath' method!");
         return;
     }
     auto absolutePathJStr = static_cast<jstring>(env->CallObjectMethod(dataDirFile, getAbsolutePathMethod));
-    if (!absolutePathJStr) {
+    if (!absolutePathJStr)
+    {
         LogCat::e("Android: Failed to get absolute path string!");
         return;
     }
-    const char *absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
-    if (!absolutePathCStr) {
+    const char* absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
+    if (!absolutePathCStr)
+    {
         LogCat::e("Android: Failed to convert JString to UTF-8!");
         return;
     }
@@ -315,13 +333,15 @@ glimmer::AppContext::AppContext() {
     LogCat::i("Load the built-in language file.");
     std::string langFile = "langs/" + language_ + ".toml";
     LogCat::i("Try to load language file:", langFile);
-    if (!virtualFileSystem_->Exists(langFile)) {
+    if (!virtualFileSystem_->Exists(langFile))
+    {
         LogCat::w("Not found, fall back to default.toml");
         langFile = "langs/default.toml";
     }
-    VirtualFileSystem *vfs = virtualFileSystem_.get();
+    VirtualFileSystem* vfs = virtualFileSystem_.get();
     const auto langData = virtualFileSystem_->ReadFile(langFile);
-    if (!langData.has_value()) {
+    if (!langData.has_value())
+    {
         LogCat::e("Failed to load language file!");
         return;
     }
@@ -409,26 +429,29 @@ glimmer::AppContext::AppContext() {
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
     biomeDecoratorResourcesManager_ = std::make_unique<BiomeDecoratorResourcesManager>();
     itemManager_ = std::make_unique<ItemManager>();
-    ItemManager *im = itemManager_.get();
+    ItemManager* im = itemManager_.get();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<ComposableItemDynamicSuggestions>(im));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<AbilityItemDynamicSuggestions>(im));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<MaterialItemDynamicSuggestions>(im));
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<SurfaceBiomeDecorator>());
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
     config_ = std::make_unique<Config>();
     LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
     const std::optional<std::string> configData = vfs->ReadFile(CONFIG_FILE_NAME);
-    if (!configData.has_value()) {
+    if (!configData.has_value())
+    {
         LogCat::e("Failed to read ",CONFIG_FILE_NAME, " file!");
     }
     configValue = std::make_unique<toml::value>(toml::parse_str(configData.value(), tomlVersion_));
-    toml::value *configValuePtr = configValue.get();
+    toml::value* configValuePtr = configValue.get();
     config_->LoadConfig(commandHookManager_.get(), *configValuePtr);
     commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(this, configValuePtr));
     dynamicSuggestionsManager_->
-            RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValuePtr));
+        RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValuePtr));
     LogCat::i("windowHeight = ", config_->window.height);
     LogCat::i("windowWidth = ", config_->window.width);
     LogCat::i("dataPackPath = ", config_->mods.dataPackPath);
@@ -449,31 +472,36 @@ glimmer::AppContext::AppContext() {
     LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
     LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
     LogCat::i("Starting GlimmerWorks...");
-    if (dataPackManager_->Scan(this, tomlVersion_) == 0) {
+    if (dataPackManager_->Scan(this, tomlVersion_) == 0)
+    {
         LogCat::e("Failed to load dataPack");
         return;
     }
     if (resourcePackManager_->Scan(config_->mods.resourcePackPath, config_->mods.enabledResourcePack,
-                                   tomlVersion_) == 0) {
+                                   tomlVersion_) == 0)
+    {
         LogCat::e("Failed to load resourcePack");
         return;
     }
     preloadColors_ = std::make_unique<PreloadColors>();
     preloadColors_->LoadAllColors(resourceLocator_.get());
     const size_t number = mobManager_->GetPlayerResourceList().size();
-    if (number == 0) {
+    if (number == 0)
+    {
         LogCat::e("At least one of the mob files must have the \"isPlayer = true\" setting.");
         return;
     }
     commandHistoryManager_ = std::make_unique<CommandHistoryManager>(config_->runtimePath, virtualFileSystem_.get());
-    if (config_->console.maxHistoryEntries > 0) {
+    if (config_->console.maxHistoryEntries > 0)
+    {
         commandHistoryManager_->Read();
     }
     LogCat::i("Starting the app...");
     initSuccess_ = true;
 }
 
-void glimmer::AppContext::LoadMainMenuBGM() {
+void glimmer::AppContext::LoadMainMenuBGM()
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_AUDIO);
@@ -481,46 +509,58 @@ void glimmer::AppContext::LoadMainMenuBGM() {
     mainMenuBGM_ = resourceLocator_->FindAudio(&resourceRef);
 }
 
-void glimmer::AppContext::PlayMainMenuBGM() const {
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr) {
+void glimmer::AppContext::PlayMainMenuBGM() const
+{
+    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
+    {
         return;
     }
     audioManager_->ForcePlayReplace(BGM, mainMenuBGM_.get(), -1);
 }
 
-const toml::spec &glimmer::AppContext::GetTomlVersion() const {
+const toml::spec& glimmer::AppContext::GetTomlVersion() const
+{
     return tomlVersion_;
 }
 
-glimmer::AppContext::~AppContext() {
+glimmer::AppContext::~AppContext()
+{
     sceneManager_->ClearScenes();
 }
 
-bool glimmer::AppContext::InitSuccess() const {
+bool glimmer::AppContext::InitSuccess() const
+{
     return initSuccess_;
 }
 
-void glimmer::AppContext::SetWindow(SDL_Window *window) {
+void glimmer::AppContext::SetWindow(SDL_Window* window)
+{
     this->window_ = window;
 }
 
-void glimmer::AppContext::SetRenderer(SDL_Renderer *renderer) {
+void glimmer::AppContext::SetRenderer(SDL_Renderer* renderer)
+{
     this->renderer_ = renderer;
 }
 
-void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const {
-    if (onMessage == nullptr) {
+void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string& text)>* onMessage) const
+{
+    if (onMessage == nullptr)
+    {
         return;
     }
-    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
-    if (!renderer_) {
+    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
+    if (!renderer_)
+    {
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "renderer is null failed"));
         return;
     }
-    if (!virtualFileSystem_->Exists(config_->runtimePath + "/screenshots")) {
-        if (!virtualFileSystem_->CreateFolder(config_->runtimePath + "/screenshots")) {
+    if (!virtualFileSystem_->Exists(config_->runtimePath + "/screenshots"))
+    {
+        if (!virtualFileSystem_->CreateFolder(config_->runtimePath + "/screenshots"))
+        {
             onMessageRef(fmt::format(
                 fmt::runtime(GetLangsResources()->screenshotSavedFailed),
                 "CreateFolder failed"));
@@ -529,14 +569,16 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     }
     const auto actualPath = virtualFileSystem_->GetActualPath(
         config_->runtimePath + "/screenshots/" + GetTimeFileName());
-    if (!actualPath.has_value()) {
+    if (!actualPath.has_value())
+    {
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "GetActualPath failed"));
         return;
     }
     int width, height;
-    if (!SDL_GetRenderOutputSize(renderer_, &width, &height)) {
+    if (!SDL_GetRenderOutputSize(renderer_, &width, &height))
+    {
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "SDL_GetRenderOutputSize failed"));
@@ -547,9 +589,10 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     sdlRect.y = 0;
     sdlRect.w = width;
     sdlRect.h = height;
-    SDL_Surface *surface = SDL_RenderReadPixels(
+    SDL_Surface* surface = SDL_RenderReadPixels(
         renderer_, &sdlRect);
-    if (surface == nullptr) {
+    if (surface == nullptr)
+    {
         SDL_DestroySurface(surface);
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
@@ -558,231 +601,288 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     }
     const bool result = IMG_SavePNG(surface, actualPath.value().c_str());
     SDL_DestroySurface(surface);
-    if (result) {
+    if (result)
+    {
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedSuccess),
             actualPath.value()));
-    } else {
+    }
+    else
+    {
         onMessageRef(fmt::format(
             fmt::runtime(GetLangsResources()->screenshotSavedFailed),
             "IMG_SavePNG Failed"));
     }
 }
 
-void glimmer::AppContext::SetFont(TTF_Font *font) {
+void glimmer::AppContext::SetFont(TTF_Font* font)
+{
     this->ttfFont_ = font;
 }
 
-bool glimmer::AppContext::Running() const {
+bool glimmer::AppContext::Running() const
+{
     return isRunning;
 }
 
-void glimmer::AppContext::AddUIMessage(const std::string &string) {
+void glimmer::AppContext::AddUIMessage(const std::string& string)
+{
     LogCat::d(string);
     gameUIMessages_.emplace_back(string, SDL_GetTicks());
 }
 
-std::vector<glimmer::GameUIMessage> &glimmer::AppContext::GetGameUIMessages() {
+std::vector<glimmer::GameUIMessage>& glimmer::AppContext::GetGameUIMessages()
+{
     return gameUIMessages_;
 }
 
-void glimmer::AppContext::ExitApp() {
-    if (consoleWorker_ != nullptr) {
+void glimmer::AppContext::ExitApp()
+{
+    if (consoleWorker_ != nullptr)
+    {
         consoleWorker_->Stop();
     }
-    if (config_->console.maxHistoryEntries > 0) {
+    if (config_->console.maxHistoryEntries > 0)
+    {
         commandHistoryManager_->Save();
     }
     isRunning = false;
 }
 
-glimmer::PreloadColors *glimmer::AppContext::GetPreloadColors() const {
+glimmer::PreloadColors* glimmer::AppContext::GetPreloadColors() const
+{
     return preloadColors_.get();
 }
 
-glimmer::Config *glimmer::AppContext::GetConfig() const {
+glimmer::Config* glimmer::AppContext::GetConfig() const
+{
     return config_.get();
 }
 
-TTF_Font *glimmer::AppContext::GetFont() const {
+TTF_Font* glimmer::AppContext::GetFont() const
+{
     return ttfFont_;
 }
 
-glimmer::InitialInventoryManager *glimmer::AppContext::GetInitialInventoryManager() const {
+glimmer::InitialInventoryManager* glimmer::AppContext::GetInitialInventoryManager() const
+{
     return initialInventoryManager_.get();
 }
 
-glimmer::CommandManager *glimmer::AppContext::GetCommandManager() const {
+glimmer::CommandManager* glimmer::AppContext::GetCommandManager() const
+{
     return commandManager_.get();
 }
 
-glimmer::AudioManager *glimmer::AppContext::GetAudioManager() const {
+glimmer::AudioManager* glimmer::AppContext::GetAudioManager() const
+{
     return audioManager_.get();
 }
 
-glimmer::ConsoleWorker *glimmer::AppContext::GetConsoleWorker() const {
+glimmer::ConsoleWorker* glimmer::AppContext::GetConsoleWorker() const
+{
     return consoleWorker_.get();
 }
 
-glimmer::LightMaskManager *glimmer::AppContext::GetLightMaskManager() const {
+glimmer::LightMaskManager* glimmer::AppContext::GetLightMaskManager() const
+{
     return lightMaskManager_.get();
 }
 
-glimmer::LightSourceManager *glimmer::AppContext::GetLightSourceManager() const {
+glimmer::LightSourceManager* glimmer::AppContext::GetLightSourceManager() const
+{
     return lightSourceManager_.get();
 }
 
-glimmer::FixedColorManager *glimmer::AppContext::GetFixedColorManager() const {
+glimmer::FixedColorManager* glimmer::AppContext::GetFixedColorManager() const
+{
     return fixedColorManager_.get();
 }
 
-glimmer::StringManager *glimmer::AppContext::GetStringManager() const {
+glimmer::StringManager* glimmer::AppContext::GetStringManager() const
+{
     return stringManager_.get();
 }
 
-glimmer::CommandHookManager *glimmer::AppContext::GetCommandHookManager() const {
+glimmer::CommandHookManager* glimmer::AppContext::GetCommandHookManager() const
+{
     return commandHookManager_.get();
 }
 
-glimmer::BiomeDecoratorResourcesManager *glimmer::AppContext::GetBiomeDecoratorResourcesManager() const {
+glimmer::BiomeDecoratorResourcesManager* glimmer::AppContext::GetBiomeDecoratorResourcesManager() const
+{
     return biomeDecoratorResourcesManager_.get();
 }
 
-glimmer::TomlTemplateExpander *glimmer::AppContext::GetTomlTemplateExpander() const {
+glimmer::TomlTemplateExpander* glimmer::AppContext::GetTomlTemplateExpander() const
+{
     return tomlTemplateExpander_.get();
 }
 
-glimmer::DynamicSuggestionsManager *glimmer::AppContext::GetDynamicSuggestionsManager() const {
+glimmer::DynamicSuggestionsManager* glimmer::AppContext::GetDynamicSuggestionsManager() const
+{
     return dynamicSuggestionsManager_.get();
 }
 
-const std::string &glimmer::AppContext::GetLanguage() {
+const std::string& glimmer::AppContext::GetLanguage()
+{
     return language_;
 }
 
-glimmer::CommandHistoryManager *glimmer::AppContext::GetCommandHistoryManager() const {
+glimmer::CommandHistoryManager* glimmer::AppContext::GetCommandHistoryManager() const
+{
     return commandHistoryManager_.get();
 }
 
-glimmer::LangsResources *glimmer::AppContext::GetLangsResources() const {
+glimmer::LangsResources* glimmer::AppContext::GetLangsResources() const
+{
     return langsResources_.get();
 }
 
-glimmer::ResourcePackManager *glimmer::AppContext::GetResourcePackManager() const {
+glimmer::ResourcePackManager* glimmer::AppContext::GetResourcePackManager() const
+{
     return resourcePackManager_.get();
 }
 
-glimmer::StructurePlacementConditionsManager *glimmer::AppContext::GetStructurePlacementConditionsManager() const {
+glimmer::StructurePlacementConditionsManager* glimmer::AppContext::GetStructurePlacementConditionsManager() const
+{
     return structurePlacementConditionsManager_.get();
 }
 
-glimmer::TileResourceManager *glimmer::AppContext::GetTileResourceManager() const {
+glimmer::TileResourceManager* glimmer::AppContext::GetTileResourceManager() const
+{
     return tileResourceManager_.get();
 }
 
-glimmer::DataPackManager *glimmer::AppContext::GetDataPackManager() const {
+glimmer::DataPackManager* glimmer::AppContext::GetDataPackManager() const
+{
     return dataPackManager_.get();
 }
 
-glimmer::LootTableManager *glimmer::AppContext::GetLootTableManager() const {
+glimmer::LootTableManager* glimmer::AppContext::GetLootTableManager() const
+{
     return lootTableManager_.get();
 }
 
-glimmer::ContributorManager *glimmer::AppContext::GetContributorManager() const {
+glimmer::ContributorManager* glimmer::AppContext::GetContributorManager() const
+{
     return contributorManager_.get();
 }
 
-glimmer::StructureManager *glimmer::AppContext::GetStructureManager() const {
+glimmer::StructureManager* glimmer::AppContext::GetStructureManager() const
+{
     return structureManager_.get();
 }
 
-glimmer::StructureGeneratorManager *glimmer::AppContext::GetStructureGeneratorManager() const {
+glimmer::StructureGeneratorManager* glimmer::AppContext::GetStructureGeneratorManager() const
+{
     return structureGeneratorManager_.get();
 }
 
-glimmer::BiomeDecoratorManager *glimmer::AppContext::GetBiomeDecoratorManager() const {
+glimmer::BiomeDecoratorManager* glimmer::AppContext::GetBiomeDecoratorManager() const
+{
     return biomeDecoratorManager_.get();
 }
 
-glimmer::BiomesManager *glimmer::AppContext::GetBiomesManager() const {
+glimmer::BiomesManager* glimmer::AppContext::GetBiomesManager() const
+{
     return biomesManager_.get();
 }
 
-glimmer::ShapeManager *glimmer::AppContext::GetShapeManager() const {
+glimmer::ShapeManager* glimmer::AppContext::GetShapeManager() const
+{
     return shapeManager_.get();
 }
 
-glimmer::ResourceLocator *glimmer::AppContext::GetResourceLocator() const {
+glimmer::ResourceLocator* glimmer::AppContext::GetResourceLocator() const
+{
     return resourceLocator_.get();
 }
 
-glimmer::VirtualFileSystem *glimmer::AppContext::GetVirtualFileSystem() const {
+glimmer::VirtualFileSystem* glimmer::AppContext::GetVirtualFileSystem() const
+{
     return virtualFileSystem_.get();
 }
 
-glimmer::ItemManager *glimmer::AppContext::GetItemManager() const {
+glimmer::ItemManager* glimmer::AppContext::GetItemManager() const
+{
     return itemManager_.get();
 }
 
-glimmer::SceneManager *glimmer::AppContext::GetSceneManager() const {
+glimmer::SceneManager* glimmer::AppContext::GetSceneManager() const
+{
     return sceneManager_.get();
 }
 
-void glimmer::AppContext::SetRandomSlogan() const {
-    if (window_ == nullptr || langsResources_ == nullptr) {
+void glimmer::AppContext::SetRandomSlogan() const
+{
+    if (window_ == nullptr || langsResources_ == nullptr)
+    {
         SDL_SetWindowTitle(window_, PROJECT_NAME.c_str());
         return;
     }
-    const std::vector<std::string> &slogans = langsResources_->slogans;
-    if (slogans.empty()) {
+    const std::vector<std::string>& slogans = langsResources_->slogans;
+    if (slogans.empty())
+    {
         SDL_SetWindowTitle(window_, PROJECT_NAME.c_str());
-    } else {
+    }
+    else
+    {
         static std::random_device rd;
         static std::mt19937 gen(rd());
         std::uniform_int_distribution dist(0, static_cast<int>(slogans.size()) - 1);
         int idx = dist(gen);
-        const std::string &random_str = slogans[idx];
+        const std::string& random_str = slogans[idx];
         SDL_SetWindowTitle(window_, random_str.c_str());
     }
 }
 
-glimmer::SavesManager *glimmer::AppContext::GetSavesManager() const {
+glimmer::SavesManager* glimmer::AppContext::GetSavesManager() const
+{
     return savesManager_.get();
 }
 
-SDL_Window *glimmer::AppContext::GetWindow() const {
+SDL_Window* glimmer::AppContext::GetWindow() const
+{
     return window_;
 }
 
-glimmer::MobManager *glimmer::AppContext::GetMobManager() const {
+glimmer::MobManager* glimmer::AppContext::GetMobManager() const
+{
     return mobManager_.get();
 }
 
-bool glimmer::AppContext::IsMainThread() const {
+bool glimmer::AppContext::IsMainThread() const
+{
     return std::this_thread::get_id() == mainThreadId_;
 }
 
-void glimmer::AppContext::ProcessMainThreadTasks() {
-    std::queue<std::function<void()> > tasks;
+void glimmer::AppContext::ProcessMainThreadTasks()
+{
+    std::queue<std::function<void()>> tasks;
     {
         std::lock_guard lock(mainThreadMutex_);
         std::swap(tasks, mainThreadTasks_);
     }
 
-    while (!tasks.empty()) {
+    while (!tasks.empty())
+    {
         tasks.front()();
         tasks.pop();
     }
 }
 
-void glimmer::AppContext::RestoreColorRenderer(SDL_Renderer *sdlRenderer) {
+void glimmer::AppContext::RestoreColorRenderer(SDL_Renderer* sdlRenderer)
+{
     //Set the default renderer color to black.
     //设置默认渲染器颜色为黑色。
     SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 255);
 }
 
-void glimmer::AppContext::AddMainThreadTask(std::function<void()> task) {
-    if (IsMainThread()) {
+void glimmer::AppContext::AddMainThreadTask(std::function<void()> task)
+{
+    if (IsMainThread())
+    {
         task();
         return;
     }

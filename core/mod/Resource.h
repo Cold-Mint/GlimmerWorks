@@ -445,8 +445,21 @@ namespace glimmer
         AbilityConfig abilityConfig = {};
         //@genNextLine(canUseAlone|是否可单独使用)
         bool canUseAlone = false;
-        //@genNextLine(durability|耐久度)
-        uint16_t durability = 16;
+        //@genNextLine(maxDurability|最大耐久度)
+        uint32_t maxDurability = 16;
+        //@genNextLine(isUnbreakable|是否坚不可摧)
+        bool isUnbreakable = false;
+    };
+
+    //@genNextLine(MaterialItemResource|材料物品资源)
+    struct MaterialItemResource : Resource
+    {
+        //@genNextLine(name|名称资源引用)
+        ResourceRef name;
+        //@genNextLine(description|描述资源引用)
+        ResourceRef description = {};
+        //@genNextLine(texture|纹理资源引用)
+        ResourceRef texture;
     };
 
     /**
@@ -507,6 +520,10 @@ namespace glimmer
         bool autoHardnessScale = true;
         //@genNextLine(Does the loot quantity scale with tile area? (Only for giant tiles)|战利品数量是否按面积缩放（仅巨型瓦片生效）)
         bool lootScaleBySize = false;
+        //genNextLine(Unit durability consumption|单位耐久度消耗)
+        uint32_t unitDigCost = 1;
+        //@genNextLine(Is durability calculated based on area?|是否按面积扣除耐久度)
+        bool autoDigCostScale = true;
         //@genNextLine(physicsType|物理类型)
         uint8_t physicsType = 0;
         //@genNextLine(layerType|层级类型)
@@ -699,6 +716,10 @@ namespace glimmer
         ResourceRef texture;
         //@genNextLine(slotSize|槽位大小)
         size_t slotSize;
+        //@genNextLine(maxDurability|最大耐久度)
+        uint32_t maxDurability = 16;
+        //@genNextLine(isUnbreakable|是否坚不可摧)
+        bool isUnbreakable = false;
         //@genNextLine(defaultAbilityList|默认能力列表资源引用)
         std::vector<ItemMessageResource> defaultAbilityList = {};
         //@genNextLine(durability|耐久度)

@@ -8,41 +8,57 @@
 
 #include "core/mod/Resource.h"
 
-namespace glimmer {
-    class ItemManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ComposableItemResource> > >
+namespace glimmer
+{
+    class ItemManager
+    {
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ComposableItemResource>>>
         composableItemMap_{};
 
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<AbilityItemResource> > >
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<AbilityItemResource>>>
         abilityItemMap_{};
 
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<MaterialItemResource>>>
+        materialItemMap_{};
+
         static std::unique_ptr<ComposableItemResource> CreatePlaceholderComposableItemResource(
-            const std::string &packId,
-            const std::string &resourceId);
+            const std::string& packId,
+            const std::string& resourceId);
 
 
         static std::unique_ptr<AbilityItemResource> CreateAbilityItemResource(
-            const std::string &packId,
-            const std::string &resourceId);
+            const std::string& packId,
+            const std::string& resourceId);
+
+        static std::unique_ptr<MaterialItemResource> CreateMaterialItemResource(
+            const std::string& packId,
+            const std::string& resourceId);
 
     public:
-        ComposableItemResource *AddComposableResource(std::unique_ptr<ComposableItemResource> itemResource);
+        ComposableItemResource* AddComposableResource(std::unique_ptr<ComposableItemResource> itemResource);
+
+        MaterialItemResource* AddMaterialItemResource(std::unique_ptr<MaterialItemResource> itemResource);
 
 
-        AbilityItemResource *AddAbilityItemResource(std::unique_ptr<AbilityItemResource> itemResource);
+        AbilityItemResource* AddAbilityItemResource(std::unique_ptr<AbilityItemResource> itemResource);
 
-        [[nodiscard]] ComposableItemResource *FindComposableItemResource(
-            const std::string &packId, const std::string &key);
+        [[nodiscard]] ComposableItemResource* FindComposableItemResource(
+            const std::string& packId, const std::string& key);
 
-        [[nodiscard]] AbilityItemResource *FindAbilityItemResource(
-            const std::string &packId, const std::string &key);
+        [[nodiscard]] MaterialItemResource* FindMaterialItemResource(const std::string& packId, const std::string& key);
+
+        [[nodiscard]] AbilityItemResource* FindAbilityItemResource(
+            const std::string& packId, const std::string& key);
 
 
         [[nodiscard]] std::vector<std::string> GetComposableItemIDList();
+        [[nodiscard]] std::vector<std::string> GetMaterialItemIDList();
 
         [[nodiscard]] std::vector<std::string> GetAbilityItemIDList();
 
         std::string ListComposableItems() const;
+
+        std::string ListMaterialItems() const;
 
         std::string ListAbilityItems() const;
     };

@@ -584,6 +584,14 @@ target_sources(GlimmerWorks
         core/world/generator/TileSnapshot.cpp
         core/console/command/TileSnapshotCommand.cpp
         core/inventory/MaterialItem.cpp
+        core/console/suggestion/MaterialItemDynamicSuggestions.cpp
+        core/math/IAllocatable.cpp
+        core/math/IAllocStrategy.cpp
+        core/math/AllocStrategyType.cpp
+        core/math/ForwardAllocStrategy.cpp
+        core/math/BackwardAllocStrategy.cpp
+        core/math/BalanceAllocStrategy.cpp
+        core/math/RandomAllocStrategy.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -841,6 +849,14 @@ target_sources(GlimmerWorks
         core/world/generator/TileSnapshot.h
         core/console/command/TileSnapshotCommand.h
         core/inventory/MaterialItem.h
+        core/console/suggestion/MaterialItemDynamicSuggestions.h
+        core/math/IAllocatable.h
+        core/math/IAllocStrategy.h
+        core/math/AllocStrategyType.h
+        core/math/BalanceAllocStrategy.h
+        core/math/ForwardAllocStrategy.h
+        core/math/BackwardAllocStrategy.h
+        core/math/RandomAllocStrategy.h
 )
 
 #Define version information

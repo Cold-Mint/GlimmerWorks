@@ -26,16 +26,18 @@
 #include "toml11/spec.hpp"
 #include "toml11/types.hpp"
 
-namespace glimmer {
+namespace glimmer
+{
     class TileResourceManager;
     class StringManager;
 
-    class DataPack {
+    class DataPack
+    {
         std::string rootPath_;
         DataPackManifest manifest_;
         toml::spec tomlVersion_;
-        const VirtualFileSystem *virtualFileSystem_;
-        const TomlTemplateExpander *tomlTemplateExpander_;
+        const VirtualFileSystem* virtualFileSystem_;
+        const TomlTemplateExpander* tomlTemplateExpander_;
         PackVerifyState packVerifyState_ = PackVerifyState::Unsigned;
 
 
@@ -45,7 +47,7 @@ namespace glimmer {
          * @param path toml路径
          * @return The expanded path 展开后的路径
          */
-        [[nodiscard]] std::vector<std::string> GetActuallyTemplateSearchPath(const std::string &path) const;
+        [[nodiscard]] std::vector<std::string> GetActuallyTemplateSearchPath(const std::string& path) const;
 
         /**
          * GetDataType
@@ -53,65 +55,67 @@ namespace glimmer {
          * @param fileName fileName 文件名
          * @return
          */
-        static std::optional<std::string> GetDataType(const std::string &fileName);
+        static std::optional<std::string> GetDataType(const std::string& fileName);
 
 
-        [[nodiscard]] int LoadStringResourceFromFile(const std::string &path, StringManager *stringManager) const;
+        [[nodiscard]] int LoadStringResourceFromFile(const std::string& path, StringManager* stringManager) const;
 
-        void LoadLootTableResourceFromFile(const toml::value &value,
-                                           LootTableManager *lootTableManager) const;
-
-
-        void LoadInitialInventoryResourceFromFile(const toml::value &value,
-                                                  InitialInventoryManager *lootTableManager) const;
+        void LoadLootTableResourceFromFile(const toml::value& value,
+                                           LootTableManager* lootTableManager) const;
 
 
-        void LoadStructureResourceFromFile(const toml::value &value,
-                                           StructureManager *structureManager,
+        void LoadInitialInventoryResourceFromFile(const toml::value& value,
+                                                  InitialInventoryManager* lootTableManager) const;
+
+
+        void LoadStructureResourceFromFile(const toml::value& value,
+                                           StructureManager* structureManager,
                                            StructureGeneratorType structureGeneratorType) const;
 
-        void LoadTileResourceFromFile(const toml::value &value, TileResourceManager *tileManager) const;
+        void LoadTileResourceFromFile(const toml::value& value, TileResourceManager* tileManager) const;
 
-        void LoadBiomeResourceFromFile(const toml::value &value, BiomesManager *biomesManager) const;
+        void LoadBiomeResourceFromFile(const toml::value& value, BiomesManager* biomesManager) const;
 
-        void LoadComposableItemResourceFromFile(const toml::value &value, ItemManager *itemManager) const;
+        void LoadComposableItemResourceFromFile(const toml::value& value, ItemManager* itemManager) const;
 
-        void LoadAbilityItemResourceFromFile(const toml::value &value, ItemManager *itemManager) const;
+        void LoadAbilityItemResourceFromFile(const toml::value& value, ItemManager* itemManager) const;
 
-        void LoadContributorResourceFromFile(const toml::value &value,
-                                             ContributorManager *contributorManager) const;
+        void LoadMaterialItemResourceResourceFromFile(const toml::value& value, ItemManager* itemManager) const;
 
-        void LoadMobResourceFromFile(const toml::value &value, MobManager *mobManager) const;
+        void LoadContributorResourceFromFile(const toml::value& value,
+                                             ContributorManager* contributorManager) const;
 
-        void LoadShapeResourceFromFile(const toml::value &value, ShapeManager *shapeManager,
+        void LoadMobResourceFromFile(const toml::value& value, MobManager* mobManager) const;
+
+        void LoadShapeResourceFromFile(const toml::value& value, ShapeManager* shapeManager,
                                        ShapeType type) const;
 
-        void LoadFixedColorResourceFromFile(const toml::value &value,
-                                            FixedColorManager *fixedColorManager) const;
+        void LoadFixedColorResourceFromFile(const toml::value& value,
+                                            FixedColorManager* fixedColorManager) const;
 
-        void LoadLightMaskResourceFromFile(const toml::value &value,
-                                           LightMaskManager *lightMaskManager) const;
+        void LoadLightMaskResourceFromFile(const toml::value& value,
+                                           LightMaskManager* lightMaskManager) const;
 
-        void LoadLightSourceResourceFromFile(const toml::value &value,
-                                             LightSourceManager *lightSourceManager) const;
+        void LoadLightSourceResourceFromFile(const toml::value& value,
+                                             LightSourceManager* lightSourceManager) const;
 
-        void LoadBiomeDecoratorResourceFromFile(const toml::value &value,
-                                                BiomeDecoratorResourcesManager *biomeDecoratorManager,
+        void LoadBiomeDecoratorResourceFromFile(const toml::value& value,
+                                                BiomeDecoratorResourcesManager* biomeDecoratorManager,
                                                 BiomeDecoratorType type) const;
 
-        [[nodiscard]] static std::optional<std::string> ExtractLanguageFromFileName(const std::string &fileName);
+        [[nodiscard]] static std::optional<std::string> ExtractLanguageFromFileName(const std::string& fileName);
 
     public:
-        explicit DataPack(std::string path, const VirtualFileSystem *virtualFileSystem,
-                          const TomlTemplateExpander *tomlTemplateExpander,
-                          const toml::spec &tomlVersion);
+        explicit DataPack(std::string path, const VirtualFileSystem* virtualFileSystem,
+                          const TomlTemplateExpander* tomlTemplateExpander,
+                          const toml::spec& tomlVersion);
 
         bool LoadManifest();
 
         [[nodiscard]] PackVerifyState GetPackVerifyState() const;
 
-        [[nodiscard]] bool LoadPack(AppContext *appContext);
+        [[nodiscard]] bool LoadPack(AppContext* appContext);
 
-        [[nodiscard]] const DataPackManifest &GetManifest() const;
+        [[nodiscard]] const DataPackManifest& GetManifest() const;
     };
 }

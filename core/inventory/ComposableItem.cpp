@@ -10,10 +10,10 @@
 #include "core/world/WorldContext.h"
 #include <utility>
 #include <vector>
-#include "../log/LogCat.h"
 #include "../../core/mod/ResourceLocator.h"
 #include "ability/ItemAbility.h"
 #include "core/ecs/DroppedItemCreator.h"
+#include "core/math/RandomAllocStrategy.h"
 
 void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer* otherContainer, size_t otherIndex) const
 {
@@ -84,7 +84,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
         Resource::GenerateId(*itemResource), name,
         description,
         appContext->GetResourceLocator()->FindTexture(&itemResource->texture),
-        itemResource->slotSize, resourceRef);
+        itemResource->slotSize, itemResource->maxDurability, itemResource->isUnbreakable, resourceRef);
     //If the capability is not specified within the resource reference, then the default capability will be loaded.
     //如果没有在资源引用内指定能力，那么加载默认能力。
     size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
@@ -179,18 +179,23 @@ void glimmer::ComposableItem::AddCallback()
 }
 
 glimmer::ComposableItem::ComposableItem(std::string id, std::string name, std::optional<std::string> description,
-                                        std::shared_ptr<SDL_Texture> icon, size_t maxSize,
+                                        std::shared_ptr<SDL_Texture> icon, size_t maxSize, uint32_t maxDurability,
+                                        bool isUnbreakable,
                                         const ResourceRef& resourceRef) : itemContainer_(
                                                                               std::make_shared<ItemContainer>(maxSize)),
                                                                           id_(std::move(id)),
                                                                           name_(std::move(name)),
                                                                           description_(std::move(description)),
                                                                           icon_(std::move(icon)),
-                                                                          maxSlotSize_(maxSize)
+                                                                          maxSlotSize_(maxSize),
+                                                                          isUnbreakable_(isUnbreakable),
+                                                                          maxDurability_(maxDurability)
 {
     resourceRef_ = resourceRef;
+    allocStrategyPtr_ = std::make_unique<RandomAllocStrategy<uint32_t>>();
     AddCallback();
 }
+
 
 void glimmer::ComposableItem::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
 {
@@ -245,6 +250,16 @@ glimmer::ComposableItem::~ComposableItem()
     itemContainer_->RemoveOnContentChanged(callback_);
 }
 
+uint32_t glimmer::ComposableItem::GetMaxDurability() const
+{
+    return maxDurability_;
+}
+
+bool glimmer::ComposableItem::IsUnbreakable() const
+{
+    return isUnbreakable_;
+}
+
 const std::string& glimmer::ComposableItem::GetId() const
 {
     return id_;
@@ -263,4 +278,30 @@ const std::optional<std::string>& glimmer::ComposableItem::GetDescription() cons
 SDL_Texture* glimmer::ComposableItem::GetIcon() const
 {
     return icon_.get();
+}
+
+unsigned glimmer::ComposableItem::GetRemaining() const
+{
+    if (isUnbreakable_)
+    {
+        return 0;
+    }
+    return maxDurability_ - usedDurability_;
+}
+
+void glimmer::ComposableItem::Reduce(unsigned value)
+{
+    const size_t max = itemContainer_->GetCapacity();
+    std::vector<IAllocatable*> itemsList;
+    for (size_t index = 0; index < max; index++)
+    {
+        Item* item = itemContainer_->GetItem(index);
+        if (item == nullptr)
+        {
+            continue;
+        }
+        itemsList.emplace_back(item);
+    }
+    allocStrategyPtr_->Allocate(itemsList, value);
+    usedDurability_ += value;
 }

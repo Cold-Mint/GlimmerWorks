@@ -53,6 +53,8 @@ namespace glimmer
         ResourceRef lightSource_;
         ResourceRef sideLightMask_;
         ResourceRef backLightMask_;
+        bool autoDigCostScale_ = true;
+        uint32_t unitDigCost_ = 1;
 
         /**
          * Calculate the anchor point coordinates of the tiles
@@ -80,6 +82,10 @@ namespace glimmer
         [[nodiscard]] uint8_t GetTileWidth() const;
 
         [[nodiscard]] uint8_t GetTileHeight() const;
+
+        [[nodiscard]] uint32_t GetUnitDigCost() const;
+
+        [[nodiscard]] bool IsAutoDigCostScale() const;
 
         [[nodiscard]] const TileVector2D* GetTileAnchor() const;
 

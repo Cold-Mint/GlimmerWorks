@@ -7,7 +7,6 @@
 #include "core/Constants.h"
 #include "core/IFingerprintable.h"
 #include "src/core/resource_ref.pb.h"
-#include "toml11/spec.hpp"
 
 namespace glimmer {
     struct Resource;

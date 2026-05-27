@@ -280,6 +280,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
         tile->blueprintTexture_ = tile->texture_;
     }
     tile->lootScaleBySize_ = tileResource->lootScaleBySize;
+    tile->unitDigCost_ = tileResource->unitDigCost;
+    tile->autoDigCostScale_ = tileResource->autoDigCostScale;
     tile->breakSFX_ = resourceLocator->FindAudio(&tileResource->breakSfx);
     tile->placeSFX_ = resourceLocator->FindAudio(&tileResource->placeSfx);
     return tile;
@@ -293,6 +295,16 @@ uint8_t glimmer::Tile::GetTileWidth() const
 uint8_t glimmer::Tile::GetTileHeight() const
 {
     return tileHeight_;
+}
+
+uint32_t glimmer::Tile::GetUnitDigCost() const
+{
+    return unitDigCost_;
+}
+
+bool glimmer::Tile::IsAutoDigCostScale() const
+{
+    return autoDigCostScale_;
 }
 
 const TileVector2D* glimmer::Tile::GetTileAnchor() const

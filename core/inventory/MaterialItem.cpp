@@ -34,10 +34,24 @@ const glimmer::AbilityConfig* glimmer::MaterialItem::GetAbilityConfig() const
     return nullptr;
 }
 
+void glimmer::MaterialItem::Reduce(unsigned value)
+{
+}
+
 
 SDL_Texture* glimmer::MaterialItem::GetIcon() const
 {
     return icon_.get();
+}
+
+uint32_t glimmer::MaterialItem::GetMaxDurability() const
+{
+    return 0;
+}
+
+bool glimmer::MaterialItem::IsUnbreakable() const
+{
+    return true;
 }
 
 void glimmer::MaterialItem::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,

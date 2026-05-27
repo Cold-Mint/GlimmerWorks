@@ -7,66 +7,89 @@
 #include "core/log/LogCat.h"
 
 
-void glimmer::Item::ReadItemMessage(WorldContext *worldContext, const ItemMessage &itemMessage) {
+void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
+{
     amount_ = itemMessage.amount();
+    usedDurability_ = itemMessage.useddurability();
     resourceRef_.ReadResourceRefMessage(itemMessage.itemresourceref());
 }
 
-void glimmer::Item::WriteItemMessage(ItemMessage &itemMessage) const {
-    if (resourceRef_.GetResourceType() == RESOURCE_NONE) {
+void glimmer::Item::WriteItemMessage(ItemMessage& itemMessage) const
+{
+    if (resourceRef_.GetResourceType() == RESOURCE_NONE)
+    {
         LogCat::e("Item references must be set.");
 #if  !defined(NDEBUG)
         assert(false);
 #endif
     }
     itemMessage.set_amount(amount_);
+    itemMessage.set_useddurability(usedDurability_);
     resourceRef_.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
 }
 
-size_t glimmer::Item::GetAmount() const {
+uint32_t glimmer::Item::GetUsedDurability() const
+{
+    return usedDurability_;
+}
+
+size_t glimmer::Item::GetAmount() const
+{
     return amount_;
 }
 
-size_t glimmer::Item::GetMaxStack() const {
+size_t glimmer::Item::GetMaxStack() const
+{
     return maxStack_;
 }
 
-size_t glimmer::Item::GetRemainingStackCount(const Item *item) const {
-    if (item == nullptr) {
+size_t glimmer::Item::GetRemainingStackCount(const Item* item) const
+{
+    if (item == nullptr)
+    {
         return 0;
     }
-    if (item->GetId() != GetId()) {
+    if (item->GetId() != GetId())
+    {
         return 0;
     }
     return maxStack_ - amount_;
 }
 
-void glimmer::Item::SetOnAmountZero(const std::function<void()> &onAmountZero) {
+void glimmer::Item::SetOnAmountZero(const std::function<void()>& onAmountZero)
+{
     onAmountZero_ = onAmountZero;
 }
 
-void glimmer::Item::SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)> &onAmountChanged) {
+void glimmer::Item::SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)>& onAmountChanged)
+{
     onAmountChanged_ = onAmountChanged;
 }
 
-void glimmer::Item::SetAmount(const size_t amount) {
+void glimmer::Item::SetAmount(const size_t amount)
+{
     const bool add = amount >= amount_;
     amount_ = std::min(amount, maxStack_);
-    if (onAmountChanged_ != nullptr) {
+    if (onAmountChanged_ != nullptr)
+    {
         onAmountChanged_(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
     }
-    if (onAmountZero_ != nullptr && amount_ == 0) {
+    if (onAmountZero_ != nullptr && amount_ == 0)
+    {
         onAmountZero_();
     }
 }
 
-size_t glimmer::Item::AddAmount(const size_t amount) {
-    if (amount_ >= maxStack_ || amount <= 0) {
+size_t glimmer::Item::AddAmount(const size_t amount)
+{
+    if (amount_ >= maxStack_ || amount <= 0)
+    {
         return 0;
     }
     const size_t oldAmount = amount;
     const size_t count = amount + amount_;
-    if (count > maxStack_) {
+    if (count > maxStack_)
+    {
         SetAmount(maxStack_);
         return maxStack_ - oldAmount;
     }
@@ -74,13 +97,16 @@ size_t glimmer::Item::AddAmount(const size_t amount) {
     return amount;
 }
 
-size_t glimmer::Item::RemoveAmount(const size_t amount) {
-    if (amount_ <= 0 || amount <= 0) {
+size_t glimmer::Item::RemoveAmount(const size_t amount)
+{
+    if (amount_ <= 0 || amount <= 0)
+    {
         return 0;
     }
     const int oldAmount = static_cast<int>(amount_);
     const int newAmount = static_cast<int>(amount_) - static_cast<int>(amount);
-    if (newAmount < 0) {
+    if (newAmount < 0)
+    {
         SetAmount(0);
         return oldAmount;
     }
@@ -88,6 +114,12 @@ size_t glimmer::Item::RemoveAmount(const size_t amount) {
     return amount;
 }
 
-bool glimmer::Item::IsStackable() const {
+bool glimmer::Item::IsStackable() const
+{
     return maxStack_ > 1;
+}
+
+unsigned glimmer::Item::GetRemaining() const
+{
+    return GetMaxDurability() - usedDurability_;
 }

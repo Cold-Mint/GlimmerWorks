@@ -6,6 +6,7 @@
 
 #include "Item.h"
 #include "ItemContainer.h"
+#include "core/math/IAllocStrategy.h"
 
 namespace glimmer
 {
@@ -22,21 +23,29 @@ namespace glimmer
         std::optional<std::string> description_;
         std::shared_ptr<SDL_Texture> icon_;
         AbilityConfig totalAbilityConfig_;
+        uint32_t maxDurability_;
+        bool isUnbreakable_;
         size_t maxSlotSize_;
         std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>> callback_;
+        std::shared_ptr<IAllocStrategy<uint32_t>> allocStrategyPtr_;
 
 
         void AddCallback();
 
     public:
         explicit ComposableItem(std::string id, std::string name, std::optional<std::string> description,
-                                std::shared_ptr<SDL_Texture> icon, size_t maxSize, const ResourceRef& resourceRef);
+                                std::shared_ptr<SDL_Texture> icon, size_t maxSize, uint32_t maxDurability,
+                                bool isUnbreakable, const ResourceRef& resourceRef);
 
         void ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage) override;
 
         void WriteItemMessage(ItemMessage& itemMessage) const override;
 
         ~ComposableItem() override;
+
+        [[nodiscard]] uint32_t GetMaxDurability() const override;
+
+        [[nodiscard]] bool IsUnbreakable() const override;
 
         [[nodiscard]] const std::string& GetId() const override;
 
@@ -45,6 +54,10 @@ namespace glimmer
         [[nodiscard]] const std::optional<std::string>& GetDescription() const override;
 
         [[nodiscard]] SDL_Texture* GetIcon() const override;
+
+        unsigned GetRemaining() const override;
+
+        void Reduce(unsigned value) override;
 
         void SwapItem(size_t index,
                       ItemContainer* otherContainer,

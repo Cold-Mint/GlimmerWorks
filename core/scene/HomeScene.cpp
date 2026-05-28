@@ -12,24 +12,28 @@
 #include "SavedGamesScene.h"
 #include "../Config.h"
 #include "core/saves/SavesManager.h"
+#include "core/utils/RandomUtils.h"
 
-std::string glimmer::HomeScene::GetCopyrightString() {
+std::string glimmer::HomeScene::GetCopyrightString()
+{
     constexpr int startYear = 2025;
     std::time_t t = std::time(nullptr);
-    std::tm *now = std::localtime(&t);
+    std::tm* now = std::localtime(&t);
     int currentYear = now->tm_year + 1900;
 
-    if (currentYear <= startYear) {
+    if (currentYear <= startYear)
+    {
         return "Copyright (C) " + std::to_string(startYear) + " Cold-Mint";
     }
     return "Copyright (C) " +
-           std::to_string(startYear) + "–" +
-           std::to_string(currentYear) +
-           " Cold-Mint";
+        std::to_string(startYear) + "–" +
+        std::to_string(currentYear) +
+        " Cold-Mint";
 }
 
-glimmer::HomeScene::HomeScene(AppContext *context)
-    : Scene(context) {
+glimmer::HomeScene::HomeScene(AppContext* context)
+    : Scene(context)
+{
     hyperlinks_ = std::vector<Hyperlink>{};
     hyperlinks_.push_back(Hyperlink("Github", "https://github.com/Cold-Mint/GlimmerWorks"));
     hyperlinks_.push_back(Hyperlink("Discord", "https://discord.com/invite/CfppC9WHw8"));
@@ -40,35 +44,38 @@ glimmer::HomeScene::HomeScene(AppContext *context)
     appContext->SetRandomSlogan();
 }
 
-bool glimmer::HomeScene::HandleEvent(const SDL_Event &event) {
+bool glimmer::HomeScene::HandleEvent(const SDL_Event& event)
+{
     return false;
 }
 
-void glimmer::HomeScene::Update(float delta) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution dist(-3, 3);
-
-    for (auto &star: stars_) {
-        const int deltaTemp = dist(gen);
+void glimmer::HomeScene::Update(float delta)
+{
+    for (auto& star : stars_)
+    {
+        const int deltaTemp = RandomUtils::Random(-3, 3);
         star.r = std::clamp(static_cast<int>(star.r) + deltaTemp, 128, 255);
         star.g = std::clamp(static_cast<int>(star.g) + deltaTemp, 128, 255);
         star.b = std::clamp(static_cast<int>(star.b) + deltaTemp, 128, 255);
     }
 }
 
-void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
+void glimmer::HomeScene::Render(SDL_Renderer* renderer)
+{
     int winW = 0;
     int winH = 0;
-    if (!SDL_GetRenderOutputSize(renderer, &winW, &winH)) {
+    if (!SDL_GetRenderOutputSize(renderer, &winW, &winH))
+    {
         return;
     }
-    if (windowWidth != winW || windowHeight != winH) {
+    if (windowWidth != winW || windowHeight != winH)
+    {
         windowWidth = winW;
         windowHeight = winH;
         generateStars();
     }
-    for (const auto &star: stars_) {
+    for (const auto& star : stars_)
+    {
         SDL_SetRenderDrawColor(renderer, star.r, star.g, star.b, 255);
         SDL_FRect rect{star.x, star.y, star.size, star.size};
         SDL_RenderFillRect(renderer, &rect);
@@ -98,14 +105,19 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     float totalHeight = 3 * buttonHeight + 2 * buttonSpacing;
     ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5F);
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->GetLangsResources()->startGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-        if (appContext->GetSavesManager()->GetSavesListSize() == 0) {
+    if (ImGui::Button(appContext->GetLangsResources()->startGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
+    {
+        if (appContext->GetSavesManager()->GetSavesListSize() == 0)
+        {
             appContext->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext));
-        } else {
+        }
+        else
+        {
             appContext->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(appContext));
         }
     }
-    if (ImGui::IsItemHovered()) {
+    if (ImGui::IsItemHovered())
+    {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
     // ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
@@ -121,10 +133,12 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     //     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     // }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight))) {
+    if (ImGui::Button(appContext->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
+    {
         OnBackPressed();
     }
-    if (ImGui::IsItemHovered()) {
+    if (ImGui::IsItemHovered())
+    {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
 
@@ -136,10 +150,11 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     // ===== 计算版本号位置 =====
     float versionPosY = windowSize.y - lineHeight - margin;
     float versionPosX =
-            windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - margin;
+        windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - margin;
     float currentY = versionPosY - spacing;
-    for (int i = static_cast<int>(hyperlinks_.size()) - 1; i >= 0; --i) {
-        const auto &link = hyperlinks_[i];
+    for (int i = static_cast<int>(hyperlinks_.size()) - 1; i >= 0; --i)
+    {
+        const auto& link = hyperlinks_[i];
 
         currentY -= lineHeight;
 
@@ -148,10 +163,12 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
 
         ImGui::SetCursorPos(ImVec2(posX, currentY));
 
-        if (ImGui::TextLink(link.displayText.c_str())) {
+        if (ImGui::TextLink(link.displayText.c_str()))
+        {
             SDL_OpenURL(link.link.c_str());
         }
-        if (ImGui::IsItemHovered()) {
+        if (ImGui::IsItemHovered())
+        {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
 
@@ -170,14 +187,9 @@ void glimmer::HomeScene::Render(SDL_Renderer *renderer) {
     AppContext::RestoreColorRenderer(renderer);
 }
 
-void glimmer::HomeScene::generateStars() {
+void glimmer::HomeScene::generateStars()
+{
     stars_.clear();
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution xDist(0.0F, static_cast<float>(windowWidth - 1));
-    std::uniform_real_distribution yDist(0.0F, static_cast<float>(windowHeight - 1));
-    std::uniform_int_distribution colorDist(128, 255);
-    std::uniform_real_distribution sizeDist(1.0F, 10.0F);
     constexpr int minStars = 50;
     constexpr int maxStars = 1000;
     constexpr float densityFactor = 0.03F;
@@ -187,18 +199,26 @@ void glimmer::HomeScene::generateStars() {
     numStars = std::clamp(numStars, minStars, maxStars);
     numStars = std::clamp(numStars, minStars, maxStars);
 
-    for (int i = 0; i < numStars; i++) {
+    for (int i = 0; i < numStars; i++)
+    {
+        float x = RandomUtils::Random(0.0F, static_cast<float>(windowWidth - 1));
+        float y = RandomUtils::Random(0.0F, static_cast<float>(windowHeight - 1));
+        uint8_t r = RandomUtils::Random(128, 255);
+        uint8_t g = RandomUtils::Random(128, 255);
+        uint8_t b = RandomUtils::Random(128, 255);
+        float size = RandomUtils::Random(1.0F, 10.0F);
         stars_.push_back({
-            xDist(gen),
-            yDist(gen),
-            static_cast<Uint8>(colorDist(gen)),
-            static_cast<Uint8>(colorDist(gen)),
-            static_cast<Uint8>(colorDist(gen)), sizeDist(gen)
+            x,
+            y,
+            r,
+            g,
+            b, size
         });
     }
 }
 
-bool glimmer::HomeScene::OnBackPressed() {
+bool glimmer::HomeScene::OnBackPressed()
+{
     appContext->ExitApp();
     return true;
 }

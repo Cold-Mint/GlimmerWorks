@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/5/27.
+// Created by Cold-Mint on 2026/5/27.
 //
 
 #pragma once
@@ -18,7 +18,7 @@ namespace glimmer
     public:
         void Allocate(std::vector<IAllocatable<T>*>& items, T total) override;
 
-        AllocStrategyType GetStrategyType() const override;
+        [[nodiscard]] AllocStrategyType GetStrategyType() const override;
     };
 
     template <typename T>

@@ -57,6 +57,7 @@
 #include "core/mod/templateCommand/SetTemplateCommand.h"
 #include "core/mod/templateCommand/UnSetTemplateCommand.h"
 #include "core/saves/SavesManager.h"
+#include "core/utils/RandomUtils.h"
 #include "core/world/generator/FillBiomeDecorator.h"
 #include "core/world/generator/MineralBiomeDecorator.h"
 #include "core/world/generator/SurfaceBiomeDecorator.h"
@@ -828,10 +829,7 @@ void glimmer::AppContext::SetRandomSlogan() const
     }
     else
     {
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        std::uniform_int_distribution dist(0, static_cast<int>(slogans.size()) - 1);
-        int idx = dist(gen);
+        const int idx = RandomUtils::Random(0, static_cast<int>(slogans.size()) - 1);
         const std::string& random_str = slogans[idx];
         SDL_SetWindowTitle(window_, random_str.c_str());
     }

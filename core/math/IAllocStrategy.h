@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/5/27.
+// Created by Cold-Mint on 2026/5/27.
 //
 
 #pragma once
@@ -28,9 +28,9 @@ namespace glimmer
         ) = 0;
 
         /**
-         * 获取当前策略类型
+         * Obtain the current strategy type
          * 获取当前策略类型
          */
-        virtual AllocStrategyType GetStrategyType() const = 0;
+        [[nodiscard]] virtual AllocStrategyType GetStrategyType() const = 0;
     };
 }

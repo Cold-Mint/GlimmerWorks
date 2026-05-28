@@ -17,8 +17,6 @@ namespace glimmer {
 
         void CreateWorld() const;
 
-        static int RandomSeed();
-
         [[nodiscard]] std::string RandomName() const;
 
         bool HandleEvent(const SDL_Event &event) override;

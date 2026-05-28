@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/4/24.
+// Created by Cold-Mint on 2026/4/24.
 //
 
 #include "LightContribution.h"

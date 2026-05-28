@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/5/27.
+// Created by Cold-Mint on 2026/5/27.
 //
 
 #pragma once
@@ -18,6 +18,10 @@ namespace glimmer
         explicit MaterialItem(std::string id, std::string name, std::optional<std::string> description,
                               std::shared_ptr<SDL_Texture> icon,
                               const ResourceRef& resourceRef);
+
+        static std::unique_ptr<MaterialItem> FromItemResource(const AppContext* appContext,
+                                                              const MaterialItemResource* itemResource,
+                                                              const ResourceRef& resourceRef);
         [[nodiscard]] const std::string& GetId() const override;
         [[nodiscard]] const std::string& GetName() const override;
         [[nodiscard]] const std::optional<std::string>& GetDescription() const override;

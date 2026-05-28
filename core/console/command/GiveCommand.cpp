@@ -14,6 +14,7 @@
 #include "../../mod/ResourceLocator.h"
 #include "../../scene/AppContext.h"
 #include "../../world/WorldContext.h"
+#include "core/inventory/MaterialItem.h"
 #include "fmt/color.h"
 
 void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
@@ -188,9 +189,43 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         return item == nullptr;
     }
     if (itemType == "materialItem")
-    {
-        //TODO:实现我！
+    {auto itemId = commandArgs->AsResourceRef(2, RESOURCE_MATERIAL_ITEM);
+        if (!itemId.has_value())
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
+            return false;
+        }
+        ResourceRef& resourceRef = itemId.value();
+        auto itemResource = appContext_->GetResourceLocator()->FindMaterialItem(&resourceRef);
+        if (itemResource == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
+            return false;
+        }
+        auto playerId = worldContext_->GetPlayerEntity();
+        auto* item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
+        if (item_container == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            return false;
+        }
 
+        auto materialItem = MaterialItem::FromItemResource(appContext_, itemResource, resourceRef);
+        if (materialItem == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->composableItemIsNull);
+            return false;
+        }
+        if (size >= 4)
+        {
+            if (const int number = commandArgs->AsInt(3); number > 1)
+            {
+                materialItem->SetAmount(number);
+            }
+        }
+        std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
+            std::move(materialItem));
+        return item == nullptr;
     }
     onMessageRef(appContext_->GetLangsResources()->unknownCommandParameters);
     return false;

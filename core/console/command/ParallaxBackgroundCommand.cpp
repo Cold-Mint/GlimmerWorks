@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/5/10.
+// Created by Cold-Mint on 2026/5/10.
 //
 #if  !defined(NDEBUG)
 #include "ParallaxBackgroundCommand.h"

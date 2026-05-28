@@ -592,6 +592,7 @@ target_sources(GlimmerWorks
         core/math/BackwardAllocStrategy.cpp
         core/math/BalanceAllocStrategy.cpp
         core/math/RandomAllocStrategy.cpp
+        core/utils/RandomUtils.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -857,6 +858,7 @@ target_sources(GlimmerWorks
         core/math/ForwardAllocStrategy.h
         core/math/BackwardAllocStrategy.h
         core/math/RandomAllocStrategy.h
+        core/utils/RandomUtils.h
 )
 
 #Define version information

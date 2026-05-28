@@ -1,11 +1,12 @@
 //
-// Created by coldmint on 2026/5/27.
+// Created by Cold-Mint on 2026/5/27.
 //
 
 #pragma once
 #include <random>
 
 #include "IAllocStrategy.h"
+#include "core/utils/RandomUtils.h"
 
 namespace glimmer
 {
@@ -16,16 +17,10 @@ namespace glimmer
     template <typename T>
     class RandomAllocStrategy : public IAllocStrategy<T>
     {
-        static std::mt19937& GetGenerator()
-        {
-            static std::mt19937 gen(std::random_device{}());
-            return gen;
-        }
-
     public:
         void Allocate(std::vector<IAllocatable<T>*>& items, T total) override;
 
-        AllocStrategyType GetStrategyType() const override;
+        [[nodiscard]] AllocStrategyType GetStrategyType() const override;
     };
 
     template <typename T>
@@ -44,12 +39,8 @@ namespace glimmer
             if (valid.empty())
             {
                 break;
-            }
-
-            // Pick one randomly
-            // 随机选一个
-            std::uniform_int_distribution<> dis(0, static_cast<int>(valid.size()) - 1);
-            auto* target = valid[dis(GetGenerator())];
+            };
+            auto* target = valid[RandomUtils::Random<int>(0, static_cast<int>(valid.size()) - 1)];
 
             // Deduct
             // 扣除

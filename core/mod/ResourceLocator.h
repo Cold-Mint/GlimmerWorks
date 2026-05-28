@@ -9,15 +9,17 @@
 #include "core/scene/AppContext.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class Item;
     class TileInstancePool;
     /**
      * ResourceLocator，Used to interpret references and return the corresponding resources.
      * 资源定位器，用于解释引用并返回对应的资源。
      */
-    class ResourceLocator {
-        AppContext *appContext_;
+    class ResourceLocator
+    {
+        AppContext* appContext_;
 
         /**
      * ValidateAccessPermission
@@ -32,21 +34,21 @@ namespace glimmer {
      * @param resourceRef resourceRef 资源引用
      * @return If access is permitted, return true; otherwise, return false. 若允许访问则返回 true，否则返回 false
      */
-        [[nodiscard]] bool ValidateAccessPermission(const ResourceRef *resourceRef) const;
+        [[nodiscard]] bool ValidateAccessPermission(const ResourceRef* resourceRef) const;
 
     public:
-        explicit ResourceLocator(AppContext *appContext_);
+        explicit ResourceLocator(AppContext* appContext_);
 
-        [[nodiscard]] std::shared_ptr<SDL_Texture> FindTexture(const ResourceRef *resourceRef) const;
-        [[nodiscard]] std::shared_ptr<SDL_Texture> FindTextureRaw(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::shared_ptr<SDL_Texture> FindTexture(const ResourceRef* resourceRef) const;
+        [[nodiscard]] std::shared_ptr<SDL_Texture> FindTextureRaw(const ResourceRef* resourceRef) const;
 
-        [[nodiscard]] std::shared_ptr<MIX_Audio> FindAudio(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::shared_ptr<MIX_Audio> FindAudio(const ResourceRef* resourceRef) const;
 
-        [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef *resourceRef) const;
+        [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef* resourceRef) const;
 
-        [[nodiscard]] IShapeResource *FindShape(const ResourceRef *resourceRef) const;
+        [[nodiscard]] IShapeResource* FindShape(const ResourceRef* resourceRef) const;
 
-        [[nodiscard]] IBiomeDecoratorResource *FindBiomeDecorator(const ResourceRef *resourceRef) const;
+        [[nodiscard]] IBiomeDecoratorResource* FindBiomeDecorator(const ResourceRef* resourceRef) const;
 
         /**
          * FindString
@@ -54,11 +56,11 @@ namespace glimmer {
          * @param resourceRef resourceRef 字符串引用
          * @return
          */
-        [[nodiscard]] StringResource *FindString(const ResourceRef *resourceRef) const;
+        [[nodiscard]] StringResource* FindString(const ResourceRef* resourceRef) const;
 
-        [[nodiscard]] LightSourceResource *FindLightSource(const ResourceRef *resourceRef) const;
+        [[nodiscard]] LightSourceResource* FindLightSource(const ResourceRef* resourceRef) const;
 
-        [[nodiscard]] LightMaskResource *FindLightMask(const ResourceRef *resourceRef) const;
+        [[nodiscard]] LightMaskResource* FindLightMask(const ResourceRef* resourceRef) const;
 
         /**
          * FindTile
@@ -67,11 +69,11 @@ namespace glimmer {
          * @param tileLayer tileLayer
          * @return
          */
-        [[nodiscard]] TileResource *FindTileFallback(const ResourceRef *resourceRef, TileLayerType tileLayer) const;
+        [[nodiscard]] TileResource* FindTileFallback(const ResourceRef* resourceRef, TileLayerType tileLayer) const;
 
-        [[nodiscard]] TileResource *FindTileRaw(const ResourceRef *resourceRef) const;
+        [[nodiscard]] TileResource* FindTileRaw(const ResourceRef* resourceRef) const;
 
-        [[nodiscard]] MobResource *FindMob(const ResourceRef *resourceRef) const;
+        [[nodiscard]] MobResource* FindMob(const ResourceRef* resourceRef) const;
 
         /**
          * FindComposableItem
@@ -79,7 +81,7 @@ namespace glimmer {
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] ComposableItemResource *FindComposableItem(const ResourceRef *resourceRef) const;
+        [[nodiscard]] ComposableItemResource* FindComposableItem(const ResourceRef* resourceRef) const;
 
         /**
          * FindAbilityItem
@@ -87,7 +89,9 @@ namespace glimmer {
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] AbilityItemResource *FindAbilityItem(const ResourceRef *resourceRef) const;
+        [[nodiscard]] AbilityItemResource* FindAbilityItem(const ResourceRef* resourceRef) const;
+
+        [[nodiscard]] MaterialItemResource* FindMaterialItem(const ResourceRef* resourceRef) const;
 
         /**
          * FindLoot
@@ -95,7 +99,7 @@ namespace glimmer {
          * @param resourceRef resourceRef 物品引用
          * @return
          */
-        [[nodiscard]] LootResource *FindLoot(const ResourceRef *resourceRef) const;
+        [[nodiscard]] LootResource* FindLoot(const ResourceRef* resourceRef) const;
 
         /**
          * FindItem
@@ -104,10 +108,10 @@ namespace glimmer {
          * @param itemMessage itemMessage 物品数据
          * @return  Item pointer 物品指针
          */
-        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext *worldContext,
-                                                     const ItemMessage &itemMessage) const;
+        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext* worldContext,
+                                                     const ItemMessage& itemMessage) const;
 
-        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext *worldContext,
-                                                     const ItemMessageResource &itemMessageResource) const;
+        [[nodiscard]] std::unique_ptr<Item> FindItem(WorldContext* worldContext,
+                                                     const ItemMessageResource& itemMessageResource) const;
     };
 }

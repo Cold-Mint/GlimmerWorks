@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/5/27.
+// Created by Cold-Mint on 2026/5/27.
 //
 
 #include "MaterialItem.h"
@@ -12,6 +12,28 @@ glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optio
                                                                       icon_(std::move(icon))
 {
     resourceRef_ = resourceRef;
+}
+
+std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(const AppContext* appContext,
+                                                                               const MaterialItemResource* itemResource,
+                                                                               const ResourceRef& resourceRef)
+{
+    std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
+    const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name);
+    if (nameRes != nullptr)
+    {
+        name = nameRes->value;
+    }
+    std::optional<std::string> description;
+    auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description);
+    if (descriptionRes != nullptr)
+    {
+        description = descriptionRes->value;
+    }
+    return std::make_unique<MaterialItem>(Resource::GenerateId(*itemResource), name,
+                                          description,
+                                          appContext->GetResourceLocator()->FindTexture(
+                                              &itemResource->texture), resourceRef);
 }
 
 const std::string& glimmer::MaterialItem::GetId() const

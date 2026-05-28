@@ -19,6 +19,7 @@
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/RayCast2DComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
+#include "core/utils/RandomUtils.h"
 
 glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
@@ -187,11 +188,7 @@ void glimmer::PlayerControlSystem::Update(const float delta)
                 float fumbleChance = std::clamp(abilityConfig->fumbleProbability, 0.0F, 1.0F);
                 if (fumbleChance > 0.0F)
                 {
-                    std::uniform_real_distribution dist(0.0F, 1.0F);
-                    std::random_device rd;
-                    std::mt19937 rng(rd());
-                    float randomValue = dist(rng);
-
+                    auto randomValue = RandomUtils::Random<float>(0.0F, 1.0F);
                     if (randomValue <= fumbleChance)
                     {
                         const GameEntity::ID droppedEntity = worldContext_->CreateEntity();

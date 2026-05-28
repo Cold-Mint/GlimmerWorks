@@ -1,5 +1,5 @@
 //
-// Created by coldmint on 2026/4/15.
+// Created by Cold-Mint on 2026/4/15.
 //
 
 #include "LightBuffer.h"

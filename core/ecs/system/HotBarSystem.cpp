@@ -32,44 +32,54 @@
 #include "core/ecs/component/PlayerComponent.h"
 
 
-glimmer::HotBarSystem::HotBarSystem(WorldContext *worldContext)
-    : GameSystem(worldContext) {
+glimmer::HotBarSystem::HotBarSystem(WorldContext* worldContext)
+    : GameSystem(worldContext)
+{
     RequireComponent<PlayerComponent>();
     RequireComponent<ItemContainerComponent>();
     RequireComponent<HotBarComponent>();
     RequireComponent<GuiTransform2DComponent>();
 }
 
-bool glimmer::HotBarSystem::HandleEvent(const SDL_Event &event) {
-    if (worldContext_ == nullptr) {
+bool glimmer::HotBarSystem::HandleEvent(const SDL_Event& event)
+{
+    if (worldContext_ == nullptr)
+    {
         return false;
     }
-    if (event.type == SDL_EVENT_MOUSE_WHEEL) {
+    if (event.type == SDL_EVENT_MOUSE_WHEEL)
+    {
         const auto hotBarComponent = worldContext_->GetComponent<HotBarComponent>(worldContext_->GetHotBarEntity());
-        if (hotBarComponent == nullptr) {
+        if (hotBarComponent == nullptr)
+        {
             return false;
         }
 
-        auto &slotEntityList = hotBarComponent->GetSlotEntities();
+        auto& slotEntityList = hotBarComponent->GetSlotEntities();
         int total = slotEntityList.size();
-        if (total == 0) {
+        if (total == 0)
+        {
             return false;
         }
-        ItemSlotComponent *previousItemSlot = nullptr;
-        ItemSlotComponent *currentItemSlot = nullptr;
+        ItemSlotComponent* previousItemSlot = nullptr;
+        ItemSlotComponent* currentItemSlot = nullptr;
         int prevIdx = 0;
         int nextIdx = 0;
-        ItemSlotComponent *nextItemSlot = nullptr;
-        for (int i = 0; i < slotEntityList.size(); ++i) {
+        ItemSlotComponent* nextItemSlot = nullptr;
+        for (int i = 0; i < slotEntityList.size(); ++i)
+        {
             const auto entityId = slotEntityList[i];
-            if (WorldContext::IsEmptyEntityId(entityId)) {
+            if (WorldContext::IsEmptyEntityId(entityId))
+            {
                 continue;
             }
-            auto *itemSlot = worldContext_->GetComponent<ItemSlotComponent>(entityId);
-            if (itemSlot == nullptr) {
+            auto* itemSlot = worldContext_->GetComponent<ItemSlotComponent>(entityId);
+            if (itemSlot == nullptr)
+            {
                 continue;
             }
-            if (itemSlot->IsSelected()) {
+            if (itemSlot->IsSelected())
+            {
                 currentItemSlot = itemSlot;
                 prevIdx = (i - 1 + total) % total;
                 nextIdx = (i + 1) % total;
@@ -79,20 +89,27 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event &event) {
             }
         }
         int focusIndex = 0;
-        if (event.wheel.y > 0) {
-            if (currentItemSlot != nullptr) {
+        if (event.wheel.y > 0)
+        {
+            if (currentItemSlot != nullptr)
+            {
                 currentItemSlot->
-                        SetSelected(false);
+                    SetSelected(false);
             }
-            if (previousItemSlot != nullptr) {
+            if (previousItemSlot != nullptr)
+            {
                 previousItemSlot->SetSelected(true);
                 focusIndex = prevIdx;
             }
-        } else if (event.wheel.y < 0) {
-            if (currentItemSlot != nullptr) {
+        }
+        else if (event.wheel.y < 0)
+        {
+            if (currentItemSlot != nullptr)
+            {
                 currentItemSlot->SetSelected(false);
             }
-            if (nextItemSlot != nullptr) {
+            if (nextItemSlot != nullptr)
+            {
                 nextItemSlot->SetSelected(true);
                 focusIndex = nextIdx;
             }
@@ -100,11 +117,14 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event &event) {
         GameEntity::ID playerId = worldContext_->GetPlayerEntity();
         auto playerComponent = worldContext_->GetComponent<PlayerComponent>(
             playerId);
-        if (playerComponent != nullptr) {
+        if (playerComponent != nullptr)
+        {
             auto containerComponent = worldContext_->GetComponent<ItemContainerComponent>(playerId);
-            if (containerComponent != nullptr) {
-                ItemContainer *container = containerComponent->GetItemContainer();
-                if (container != nullptr) {
+            if (containerComponent != nullptr)
+            {
+                const ItemContainer* container = containerComponent->GetItemContainer();
+                if (container != nullptr)
+                {
                     playerComponent->item = container->GetItem(focusIndex);
                 }
             }
@@ -115,10 +135,12 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event &event) {
 }
 
 
-uint8_t glimmer::HotBarSystem::GetRenderOrder() {
+uint8_t glimmer::HotBarSystem::GetRenderOrder()
+{
     return RENDER_ORDER_HOTBAR;
 }
 
-std::string glimmer::HotBarSystem::GetName() {
+std::string glimmer::HotBarSystem::GetName()
+{
     return "glimmer.HotBarSystem";
 }

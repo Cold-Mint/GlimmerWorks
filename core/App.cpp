@@ -44,13 +44,15 @@
 #include "SDL3_mixer/SDL_mixer.h"
 
 
-void glimmer::App::RendererUiMessage() {
-    auto &uiMessages = appContext_->GetGameUIMessages();
+void glimmer::App::RendererUiMessage()
+{
+    auto& uiMessages = appContext_->GetGameUIMessages();
     uint64_t now = SDL_GetTicks();
     int32_t delta = now - lastTime_;
     lastTime_ = now;
     std::erase_if(uiMessages,
-                  [now](const GameUIMessage &msg) {
+                  [now](const GameUIMessage& msg)
+                  {
                       return msg.expireTime <= now;
                   });
 
@@ -63,22 +65,25 @@ void glimmer::App::RendererUiMessage() {
 
     float totalHeight = 0.0f;
 
-    for (auto &msg: uiMessages) {
+    for (auto& msg : uiMessages)
+    {
         msg.tween.step(delta);
         msg.alpha = msg.tween.peek();
 
-        if (msg.alpha <= 0.01F) {
+        if (msg.alpha <= 0.01F)
+        {
             continue;
         }
 
-        SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(
+        SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(
             appContext_->GetFont(),
             msg.text.c_str(),
             msg.text.length(),
             {255, 255, 255, 255},
             0);
 
-        if (!surface) {
+        if (!surface)
+        {
             continue;
         }
 
@@ -86,16 +91,19 @@ void glimmer::App::RendererUiMessage() {
         SDL_DestroySurface(surface);
     }
 
-    if (!uiMessages.empty()) {
+    if (!uiMessages.empty())
+    {
         totalHeight -= spacing;
     }
 
     float startY = windowH - totalHeight - padding;
-    for (auto &msg: uiMessages) {
-        if (msg.alpha <= 0.01F) {
+    for (auto& msg : uiMessages)
+    {
+        if (msg.alpha <= 0.01F)
+        {
             continue;
         }
-        SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(
+        SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(
             appContext_->GetFont(),
             msg.text.c_str(),
             msg.text.length(),
@@ -103,17 +111,19 @@ void glimmer::App::RendererUiMessage() {
             0
         );
 
-        if (!surface) {
+        if (!surface)
+        {
             continue;
         }
 
         float w = static_cast<float>(surface->w);
         float h = static_cast<float>(surface->h);
 
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer_, surface);
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
         SDL_DestroySurface(surface);
 
-        if (texture == nullptr) {
+        if (texture == nullptr)
+        {
             continue;
         }
 
@@ -131,23 +141,29 @@ void glimmer::App::RendererUiMessage() {
     }
 }
 
-glimmer::App::~App() {
+glimmer::App::~App()
+{
     LogCat::i("Destroy the app");
-    if (initSDLMixSuccess_) {
+    if (initSDLMixSuccess_)
+    {
         MIX_Quit();
     }
-    if (window != nullptr) {
+    if (window != nullptr)
+    {
         SDL_DestroyWindow(window);
     }
-    if (initSDLTtfSuccess_) {
+    if (initSDLTtfSuccess_)
+    {
         TTF_Quit();
     }
-    if (initSDLSuccess_) {
+    if (initSDLSuccess_)
+    {
         SDL_Quit();
     }
 }
 
-glimmer::App::App(AppContext *ac) : appContext_(ac) {
+glimmer::App::App(AppContext* ac) : appContext_(ac)
+{
     window = nullptr;
     renderer_ = nullptr;
     initSDLSuccess_ = false;
@@ -156,24 +172,28 @@ glimmer::App::App(AppContext *ac) : appContext_(ac) {
     mixer_ = nullptr;
 }
 
-bool glimmer::App::Init() {
+bool glimmer::App::Init()
+{
     LogCat::i("Initializing SDL...");
 #ifdef __ANDROID__
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     SDL_SetHint("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
 #endif
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
+    {
         LogCat::e("SDL_Init Error: ", SDL_GetError());
         return false;
     }
     initSDLSuccess_ = true;
-    if (!MIX_Init()) {
+    if (!MIX_Init())
+    {
         LogCat::e("MIX_Init Error: ", SDL_GetError());
         return false;
     }
     initSDLMixSuccess_ = true;
     LogCat::i("Initializing SDL_ttf...");
-    if (!TTF_Init()) {
+    if (!TTF_Init())
+    {
         LogCat::e("TTF_Init Error: ", SDL_GetError());
         return false;
     }
@@ -181,14 +201,15 @@ bool glimmer::App::Init() {
     LogCat::i("SDL initialized successfully.");
 
     LogCat::i("Creating SDL window...");
-    Config *config = appContext_->GetConfig();
+    Config* config = appContext_->GetConfig();
     window = SDL_CreateWindow(
         "GlimmerWorks",
         config->window.width,
         config->window.height,
         config->window.fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE
     );
-    if (window == nullptr) {
+    if (window == nullptr)
+    {
         LogCat::e("SDL_CreateWindow Error: ", SDL_GetError());
         return false;
     }
@@ -196,15 +217,17 @@ bool glimmer::App::Init() {
     appContext_->SetWindow(window);
     LogCat::i("Creating SDL renderer...");
     renderer_ =
-            SDL_CreateRenderer(window, nullptr);
-    if (renderer_ == nullptr) {
+        SDL_CreateRenderer(window, nullptr);
+    if (renderer_ == nullptr)
+    {
         LogCat::e("SDL_CreateRenderer Error: ", SDL_GetError());
         return false;
     }
     SDL_SetRenderVSync(renderer_, config->window.vSync);
     appContext_->SetRenderer(renderer_);
-    ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
-    if (resourcePackManager == nullptr) {
+    ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
+    if (resourcePackManager == nullptr)
+    {
         LogCat::e("ResourcePackManager is nullptr.");
         return false;
     }
@@ -220,9 +243,9 @@ bool glimmer::App::Init() {
     ImGui::CreateContext();
     LogCat::i("ImGui context created.");
 
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr;
-    (void) io;
+    (void)io;
 
     LogCat::i("Setting ImGui style to Light...");
     auto preloadColors = appContext_->GetPreloadColors();
@@ -380,71 +403,94 @@ bool glimmer::App::Init() {
         config->mods.enabledResourcePack,
         appContext_->GetLanguage());
 
-    if (fontPathOpt.has_value()) {
-        const std::string &fontPath = fontPathOpt.value();
-        if (!appContext_->GetVirtualFileSystem()->Exists(fontPath)) {
+    if (fontPathOpt.has_value())
+    {
+        const std::string& fontPath = fontPathOpt.value();
+        if (!appContext_->GetVirtualFileSystem()->Exists(fontPath))
+        {
             return false;
         }
         auto actualPath = appContext_->GetVirtualFileSystem()->GetActualPath(fontPath);
-        if (!actualPath.has_value()) {
+        if (!actualPath.has_value())
+        {
             LogCat::e("An error occurred when converting to the actual font path.");
             return false;
         }
-        if (io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F)) {
+        if (io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F))
+        {
             LogCat::d("Loaded font: ", fontPath);
-        } else {
+        }
+        else
+        {
             LogCat::e("Failed to load font (ImGui error): ", fontPath);
         }
-        if (TTF_Font *sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16); !sdlFont) {
+        if (TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16); !sdlFont)
+        {
             LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
-        } else {
+        }
+        else
+        {
             LogCat::d("SDL_ttf font loaded: ", fontPath);
             appContext_->SetFont(sdlFont);
         }
-    } else {
+    }
+    else
+    {
         LogCat::w("No font found for language '", appContext_->GetLanguage(), "', skipping font load");
     }
 
 
     LogCat::i("Initializing ImGui SDL3 backend for SDLRenderer...");
-    if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer_)) {
+    if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer_))
+    {
         LogCat::e("ImGui_ImplSDL3_InitForSDLRenderer failed!");
         return false;
     }
     LogCat::i("ImGui SDL3 backend initialized successfully.");
 
     LogCat::i("Initializing ImGui SDLRenderer3 backend...");
-    if (!ImGui_ImplSDLRenderer3_Init(renderer_)) {
+    if (!ImGui_ImplSDLRenderer3_Init(renderer_))
+    {
         LogCat::e("ImGui_ImplSDLRenderer3_Init failed!");
         return false;
     }
     LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
     SDL_AudioSpec audioSpec;
-    if (config->audio.format == "U8") {
+    if (config->audio.format == "U8")
+    {
         audioSpec.format = SDL_AUDIO_U8;
-    } else if (config->audio.format == "S16") {
+    }
+    else if (config->audio.format == "S16")
+    {
         audioSpec.format = SDL_AUDIO_S16;
-    } else if (config->audio.format == "S32") {
+    }
+    else if (config->audio.format == "S32")
+    {
         audioSpec.format = SDL_AUDIO_S32;
-    } else {
+    }
+    else
+    {
         audioSpec.format = SDL_AUDIO_F32;
     }
     audioSpec.channels = config->audio.channels;
     audioSpec.freq = config->audio.freq;
     mixer_ = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
-    if (mixer_ == nullptr) {
+    if (mixer_ == nullptr)
+    {
         LogCat::e("MIX_CreateMixerDevice failed! ", SDL_GetError());
         return false;
     }
     resourcePackManager->SetMixer(mixer_);
     appContext_->LoadMainMenuBGM();
-    AudioManager *audioManager = appContext_->GetAudioManager();
-    if (audioManager == nullptr) {
+    AudioManager* audioManager = appContext_->GetAudioManager();
+    if (audioManager == nullptr)
+    {
         LogCat::e("audioManager == null");
         return false;
     }
     audioManager->SetMixer(mixer_);
-    for (const AudioTrack &trackConfig: config->audio.track) {
+    for (const AudioTrack& trackConfig : config->audio.track)
+    {
         audioManager->CreateTracks(trackConfig.type, trackConfig.trackCount);
         audioManager->SetTypeVolume(trackConfig.type, trackConfig.volume);
     }
@@ -453,7 +499,8 @@ bool glimmer::App::Init() {
     return true;
 }
 
-void glimmer::App::Run() {
+void glimmer::App::Run()
+{
     Uint64 frameStart = SDL_GetTicks();
     float deltaTime = 0.0F;
     SDL_Event event;
@@ -465,30 +512,39 @@ void glimmer::App::Run() {
 #if  !defined(NDEBUG)
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
 #endif
-    auto &overlayScenes = sceneManager->GetOverlayScenes();
+    auto& overlayScenes = sceneManager->GetOverlayScenes();
     Uint64 lastInputTime = SDL_GetTicks();
-    ConsoleWorker *consoleWorker = appContext_->GetConsoleWorker();
+    ConsoleWorker* consoleWorker = appContext_->GetConsoleWorker();
     consoleWorker->PushOnMessage(
-        std::make_unique<std::function<void(const std::string &)> >([this](const std::string &text) {
-            if (appContext_ == nullptr) {
+        std::make_unique<std::function<void(const std::string&)>>([this](const std::string& text)
+        {
+            if (appContext_ == nullptr)
+            {
                 return;
             }
             appContext_->AddUIMessage(text);
         })
     );
 
-    while (appContext_->Running() && sceneManager->GetSceneCount() > 0) {
+    while (appContext_->Running() && sceneManager->GetSceneCount() > 0)
+    {
         const int idleDelayMs = config->window.idleDelay * 1000;
         float targetFrameTime = 0;
-        if (idleDelayMs == -1) {
+        if (idleDelayMs == -1)
+        {
             //Disable idle mode to reduce frame rate.
             //禁用闲置降低帧率。
             targetFrameTime = 1.0F / config->window.normalTargetFps;
-        } else {
+        }
+        else
+        {
             const Uint64 duration = SDL_GetTicks() - lastInputTime;
-            if (duration < idleDelayMs) {
+            if (duration < idleDelayMs)
+            {
                 targetFrameTime = 1.0F / config->window.normalTargetFps;
-            } else {
+            }
+            else
+            {
                 targetFrameTime = 1.0F / config->window.idleTargetFps;
             }
         }
@@ -497,73 +553,93 @@ void glimmer::App::Run() {
         //Target frame time (in milliseconds)
         //目标帧时间（毫秒为单位）
         const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
-        for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
+        for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+        {
             overlayScene->OnFrameStart();
         }
         appContext_->ProcessMainThreadTasks();
-        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+        {
             topScene->OnFrameStart();
         }
-        while (SDL_PollEvent(&event)) {
+        while (SDL_PollEvent(&event))
+        {
             //Update the last input time.
             //更新最后一次输入时间。
             lastInputTime = SDL_GetTicks();
             uint16_t code = 0;
             auto type = static_cast<SDL_EventType>(event.type);
             bool isKey = false;
-            if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP) {
+            if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP)
+            {
                 code = event.key.scancode;
                 isKey = true;
             }
             bool useMouse = false;
-            if (type == SDL_EVENT_MOUSE_BUTTON_DOWN || type == SDL_EVENT_MOUSE_BUTTON_UP) {
+            if (type == SDL_EVENT_MOUSE_BUTTON_DOWN || type == SDL_EVENT_MOUSE_BUTTON_UP)
+            {
                 code = event.button.button;
                 useMouse = true;
             }
             const uint32_t key = CommandHookEntry::GetKey(type, code);
-            const std::vector<CommandHookEntry *> &commandHookEntry = appContext_->GetCommandHookManager()->
-                    GetCommandHookVector(
-                        key);
-            if (!commandHookEntry.empty()) {
-                for (const auto &commandHook: commandHookEntry) {
-                    if (isKey && commandHook->keyRepeat != event.key.repeat) {
+            const std::vector<CommandHookEntry*>& commandHookEntry = appContext_->GetCommandHookManager()->
+                GetCommandHookVector(
+                    key);
+            if (!commandHookEntry.empty())
+            {
+                for (const auto& commandHook : commandHookEntry)
+                {
+                    if (isKey && commandHook->keyRepeat != event.key.repeat)
+                    {
                         continue;
                     }
-                    if (useMouse) {
+                    if (useMouse)
+                    {
                         consoleWorker->CreateRequest(commandHook->command,
                                                      appContext_->GetCommandManager()->
-                                                     GetMouseCommandSender());
-                    } else {
+                                                                  GetMouseCommandSender());
+                    }
+                    else
+                    {
                         consoleWorker->CreateRequest(commandHook->command,
                                                      appContext_->GetCommandManager()->
-                                                     GetDefaultCommandSender());
+                                                                  GetDefaultCommandSender());
                     }
                 }
             }
 
 #ifdef __ANDROID__
             if (event.type == SDL_EVENT_KEY_DOWN &&
-                event.key.key == SDLK_AC_BACK) {
-                if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
-                    if (!topScene->OnBackPressed()) {
+                event.key.key == SDLK_AC_BACK)
+            {
+                if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+                {
+                    if (!topScene->OnBackPressed())
+                    {
                         sceneManager->PopScene();
                         break;
                     }
                 }
             }
 #else
-            if (event.type == SDL_EVENT_KEY_DOWN) {
-                if (event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat) {
+            if (event.type == SDL_EVENT_KEY_DOWN)
+            {
+                if (event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat)
+                {
                     bool handled = false;
-                    for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
-                        if (overlayScene->OnBackPressed()) {
+                    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+                    {
+                        if (overlayScene->OnBackPressed())
+                        {
                             handled = true;
                             break;
                         }
                     }
                     auto topScene = sceneManager->GetTopScene();
-                    if (!handled && topScene != nullptr) {
-                        if (!topScene->OnBackPressed()) {
+                    if (!handled && topScene != nullptr)
+                    {
+                        if (!topScene->OnBackPressed())
+                        {
                             sceneManager->PopScene();
                             break;
                         }
@@ -571,26 +647,35 @@ void glimmer::App::Run() {
                 }
             }
 #endif
-            if (event.type == SDL_EVENT_QUIT) {
+            if (event.type == SDL_EVENT_QUIT)
+            {
                 LogCat::i("Received SDL_QUIT event. Exiting...");
                 appContext_->ExitApp();
-            } else {
+            }
+            else
+            {
                 bool handled = false;
-                for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
-                    if (overlayScene->HandleEvent(event)) {
+                for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+                {
+                    if (overlayScene->HandleEvent(event))
+                    {
                         handled = true;
                         break;
                     }
                 }
-                if (!handled) {
-                    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+                if (!handled)
+                {
+                    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+                    {
                         if (topScene->
-                            HandleEvent(event)) {
+                            HandleEvent(event))
+                        {
                             handled = true;
                         }
                     }
                 }
-                if (!handled) {
+                if (!handled)
+                {
                     ImGui_ImplSDL3_ProcessEvent(&event);
                 }
             }
@@ -598,42 +683,50 @@ void glimmer::App::Run() {
         ImGui_ImplSDL3_NewFrame();
         ImGui_ImplSDLRenderer3_NewFrame();
         ImGui::NewFrame();
-        for (const auto overlay: overlayScenes) {
+        for (const auto overlay : overlayScenes)
+        {
             overlay->Update(deltaTime);
         }
-        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+        {
             topScene->Update(deltaTime);
         }
 
         SDL_RenderClear(renderer_);
 #if  defined(NDEBUG)
-        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+        {
             topScene->Render(renderer_);
         }
-        for (const auto overlay: overlayScenes) {
+        for (const auto overlay : overlayScenes)
+        {
             overlay->Render(renderer_);
         }
 #else
         SDL_Color oldColor;
         SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-        if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
+        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+        {
             topScene->Render(renderer_);
         }
         SDL_Color newColor;
         SDL_GetRenderDrawColor(renderer_, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
         if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
-            b) {
+            b)
+        {
             LogCat::e("The color of the renderer has been changed by the scene.");
             assert(false);
         }
-        for (const auto overlay: overlayScenes) {
+        for (const auto overlay : overlayScenes)
+        {
             SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
             overlay->Render(renderer_);
             SDL_Color overlayColor;
             SDL_GetRenderDrawColor(renderer_, &overlayColor.r, &overlayColor.g, &overlayColor.b, &overlayColor.a);
             if (oldColor.a != overlayColor.a || oldColor.r != overlayColor.r || oldColor.g != overlayColor.g || oldColor
                 .b !=
-                overlayColor.b) {
+                overlayColor.b)
+            {
                 LogCat::e("The color of the renderer has been changed by the overlay scene.");
                 assert(false);
             }
@@ -647,7 +740,8 @@ void glimmer::App::Run() {
         SDL_RenderPresent(renderer_);
         const auto frameEnd = SDL_GetTicks();
         const auto frameTimeMs = frameEnd - frameStart;
-        if (frameTimeMs < targetFrameTimeMs) {
+        if (frameTimeMs < targetFrameTimeMs)
+        {
             SDL_Delay(targetFrameTimeMs - frameTimeMs);
         }
         const auto actualFrameEnd = SDL_GetTicks();

@@ -55,9 +55,13 @@ namespace glimmer
         void AddCallback();
 
     public:
-        explicit ComposableItem(std::string id, std::string name, std::optional<std::string> description,
-                                std::shared_ptr<SDL_Texture> icon, size_t maxSize, uint32_t maxDurability,
+        explicit ComposableItem(const std::string& id, const std::string& name, const std::optional<std::string>& description,
+                                const std::shared_ptr<SDL_Texture>& icon, size_t maxSize, uint32_t maxDurability,
                                 bool isUnbreakable, const ResourceRef& resourceRef);
+
+        void SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType);
+
+        [[nodiscard]] AllocStrategyTypeMessage GetAllocStrategyType() const;
 
         void ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage) override;
 

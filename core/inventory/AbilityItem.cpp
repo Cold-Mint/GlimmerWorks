@@ -80,7 +80,7 @@ void glimmer::AbilityItem::Reduce(const unsigned value)
     {
         return;
     }
-    usedDurability_ += value;
+    AddUsedDurability(value);
 }
 
 bool glimmer::AbilityItem::IsUnbreakable() const

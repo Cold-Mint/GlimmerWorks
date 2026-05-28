@@ -27,7 +27,7 @@
 #pragma once
 #include <vector>
 
-#include "AllocStrategyType.h"
+#include "src/core/alloc_strategy_type.pb.h"
 #include "IAllocatable.h"
 
 namespace glimmer
@@ -53,6 +53,6 @@ namespace glimmer
          * Obtain the current strategy type
          * 获取当前策略类型
          */
-        [[nodiscard]] virtual AllocStrategyType GetStrategyType() const = 0;
+        [[nodiscard]] virtual AllocStrategyTypeMessage GetStrategyType() const = 0;
     };
 }

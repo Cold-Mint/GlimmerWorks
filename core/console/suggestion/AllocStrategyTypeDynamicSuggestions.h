@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,15 +25,21 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+#include "DynamicSuggestions.h"
 
 namespace glimmer
 {
-    enum class AllocStrategyType: uint8_t
+    class AllocStrategyTypeDynamicSuggestions final : public DynamicSuggestions
     {
-        Forward, // 正序分配
-        Backward, // 倒序分配
-        Balance, // 均衡分配
-        Random // 随机分配
+        std::vector<std::string> suggestions;
+
+    public:
+        AllocStrategyTypeDynamicSuggestions();
+
+        [[nodiscard]] std::string GetId() const override;
+
+        std::vector<std::string> GetSuggestions(std::string param) override;
+
+        bool Match(std::string keyword, std::string param) override;
     };
 }

@@ -63,7 +63,8 @@
 #include "core/world/structure/StructureGeneratorManager.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     class SavesManager;
     class ResourceLocator;
     class DynamicSuggestionsManager;
@@ -80,9 +81,10 @@ namespace glimmer {
      * and dependencies to different modules.
      *
      */
-    class AppContext {
-        SDL_Window *window_ = nullptr;
-        SDL_Renderer *renderer_ = nullptr;
+    class AppContext
+    {
+        SDL_Window* window_ = nullptr;
+        SDL_Renderer* renderer_ = nullptr;
         std::string language_;
         std::unique_ptr<DataPackManager> dataPackManager_;
         std::unique_ptr<Config> config_;
@@ -93,7 +95,7 @@ namespace glimmer {
         std::unique_ptr<BiomesManager> biomesManager_;
         std::unique_ptr<CommandManager> commandManager_;
         std::unique_ptr<SavesManager> savesManager_;
-        TTF_Font *ttfFont_ = nullptr;
+        TTF_Font* ttfFont_ = nullptr;
         std::unique_ptr<ConsoleWorker> consoleWorker_;
         std::unique_ptr<ResourcePackManager> resourcePackManager_;
         std::unique_ptr<LangsResources> langsResources_;
@@ -121,16 +123,16 @@ namespace glimmer {
         std::shared_ptr<MIX_Audio> mainMenuBGM_;
         std::shared_ptr<CommandHistoryManager> commandHistoryManager_;
         std::mutex mainThreadMutex_;
-        std::queue<std::function<void()> > mainThreadTasks_;
+        std::queue<std::function<void()>> mainThreadTasks_;
         bool isRunning = true;
         std::thread::id mainThreadId_;
         toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
         std::vector<GameUIMessage> gameUIMessages_;
         bool initSuccess_ = false;
 
-        void LoadLanguage(const std::string &data) const;
+        void LoadLanguage(const std::string& data) const;
 
-        static std::string GetTimeFileName(const std::string &prefix = "screenshot", const std::string &ext = ".png");
+        static std::string GetTimeFileName(const std::string& prefix = "screenshot", const std::string& ext = ".png");
 
     public:
         AppContext();
@@ -139,103 +141,103 @@ namespace glimmer {
 
         void PlayMainMenuBGM() const;
 
-        [[nodiscard]] const toml::spec &GetTomlVersion() const;
+        [[nodiscard]] const toml::spec& GetTomlVersion() const;
 
         ~AppContext();
 
         [[nodiscard]] bool InitSuccess() const;
 
-        void SetWindow(SDL_Window *window);
+        void SetWindow(SDL_Window* window);
 
-        void SetRenderer(SDL_Renderer *renderer);
+        void SetRenderer(SDL_Renderer* renderer);
 
-        void CreateScreenshot(const std::function<void(const std::string &text)> *onMessage) const;
+        void CreateScreenshot(const std::function<void(const std::string& text)>* onMessage) const;
 
-        void SetFont(TTF_Font *font);
+        void SetFont(TTF_Font* font);
 
         [[nodiscard]] bool Running() const;
 
 
-        void AddUIMessage(const std::string &string);
+        void AddUIMessage(const std::string& string);
 
-        std::vector<GameUIMessage> &GetGameUIMessages();
+        std::vector<GameUIMessage>& GetGameUIMessages();
 
         void ExitApp();
 
 
-        [[nodiscard]] PreloadColors *GetPreloadColors() const;
+        [[nodiscard]] PreloadColors* GetPreloadColors() const;
 
-        [[nodiscard]] Config *GetConfig() const;
+        [[nodiscard]] Config* GetConfig() const;
 
-        [[nodiscard]] TTF_Font *GetFont() const;
+        [[nodiscard]] TTF_Font* GetFont() const;
 
-        [[nodiscard]] InitialInventoryManager *GetInitialInventoryManager() const;
+        [[nodiscard]] InitialInventoryManager* GetInitialInventoryManager() const;
 
-        [[nodiscard]] CommandManager *GetCommandManager() const;
+        [[nodiscard]] CommandManager* GetCommandManager() const;
 
-        [[nodiscard]] AudioManager *GetAudioManager() const;
+        [[nodiscard]] AudioManager* GetAudioManager() const;
 
-        [[nodiscard]] ConsoleWorker *GetConsoleWorker() const;
+        [[nodiscard]] ConsoleWorker* GetConsoleWorker() const;
 
-        [[nodiscard]] LightMaskManager *GetLightMaskManager() const;
+        [[nodiscard]] LightMaskManager* GetLightMaskManager() const;
 
-        [[nodiscard]] LightSourceManager *GetLightSourceManager() const;
+        [[nodiscard]] LightSourceManager* GetLightSourceManager() const;
 
-        [[nodiscard]] FixedColorManager *GetFixedColorManager() const;
+        [[nodiscard]] FixedColorManager* GetFixedColorManager() const;
 
-        [[nodiscard]] StringManager *GetStringManager() const;
+        [[nodiscard]] StringManager* GetStringManager() const;
 
-        [[nodiscard]] CommandHookManager *GetCommandHookManager() const;
+        [[nodiscard]] CommandHookManager* GetCommandHookManager() const;
 
-        [[nodiscard]] BiomeDecoratorResourcesManager *GetBiomeDecoratorResourcesManager() const;
+        [[nodiscard]] BiomeDecoratorResourcesManager* GetBiomeDecoratorResourcesManager() const;
 
-        [[nodiscard]] TomlTemplateExpander *GetTomlTemplateExpander() const;
+        [[nodiscard]] TomlTemplateExpander* GetTomlTemplateExpander() const;
 
-        [[nodiscard]] DynamicSuggestionsManager *GetDynamicSuggestionsManager() const;
+        [[nodiscard]] DynamicSuggestionsManager* GetDynamicSuggestionsManager() const;
 
-        [[nodiscard]] const std::string &GetLanguage();
+        [[nodiscard]] const std::string& GetLanguage();
 
-        [[nodiscard]] CommandHistoryManager *GetCommandHistoryManager() const;
+        [[nodiscard]] CommandHistoryManager* GetCommandHistoryManager() const;
 
-        [[nodiscard]] LangsResources *GetLangsResources() const;
+        [[nodiscard]] LangsResources* GetLangsResources() const;
 
-        [[nodiscard]] ResourcePackManager *GetResourcePackManager() const;
+        [[nodiscard]] ResourcePackManager* GetResourcePackManager() const;
 
-        [[nodiscard]] StructurePlacementConditionsManager *GetStructurePlacementConditionsManager() const;
+        [[nodiscard]] StructurePlacementConditionsManager* GetStructurePlacementConditionsManager() const;
 
-        [[nodiscard]] TileResourceManager *GetTileResourceManager() const;
+        [[nodiscard]] TileResourceManager* GetTileResourceManager() const;
 
-        [[nodiscard]] DataPackManager *GetDataPackManager() const;
+        [[nodiscard]] DataPackManager* GetDataPackManager() const;
 
-        [[nodiscard]] LootTableManager *GetLootTableManager() const;
+        [[nodiscard]] LootTableManager* GetLootTableManager() const;
 
-        [[nodiscard]] ContributorManager *GetContributorManager() const;
+        [[nodiscard]] ContributorManager* GetContributorManager() const;
 
-        [[nodiscard]] StructureManager *GetStructureManager() const;
+        [[nodiscard]] StructureManager* GetStructureManager() const;
 
-        [[nodiscard]] StructureGeneratorManager *GetStructureGeneratorManager() const;
+        [[nodiscard]] StructureGeneratorManager* GetStructureGeneratorManager() const;
 
-        [[nodiscard]] BiomeDecoratorManager *GetBiomeDecoratorManager() const;
+        [[nodiscard]] BiomeDecoratorManager* GetBiomeDecoratorManager() const;
 
-        [[nodiscard]] BiomesManager *GetBiomesManager() const;
+        [[nodiscard]] BiomesManager* GetBiomesManager() const;
 
-        [[nodiscard]] ShapeManager *GetShapeManager() const;
+        [[nodiscard]] ShapeManager* GetShapeManager() const;
 
-        [[nodiscard]] ResourceLocator *GetResourceLocator() const;
+        [[nodiscard]] ResourceLocator* GetResourceLocator() const;
 
-        [[nodiscard]] VirtualFileSystem *GetVirtualFileSystem() const;
+        [[nodiscard]] VirtualFileSystem* GetVirtualFileSystem() const;
 
-        [[nodiscard]] ItemManager *GetItemManager() const;
+        [[nodiscard]] ItemManager* GetItemManager() const;
 
-        [[nodiscard]] SceneManager *GetSceneManager() const;
+        [[nodiscard]] SceneManager* GetSceneManager() const;
 
         void SetRandomSlogan() const;
 
-        [[nodiscard]] SavesManager *GetSavesManager() const;
+        [[nodiscard]] SavesManager* GetSavesManager() const;
 
-        [[nodiscard]] SDL_Window *GetWindow() const;
+        [[nodiscard]] SDL_Window* GetWindow() const;
 
-        [[nodiscard]] MobManager *GetMobManager() const;
+        [[nodiscard]] MobManager* GetMobManager() const;
 
         [[nodiscard]] bool IsMainThread() const;
 
@@ -248,38 +250,53 @@ namespace glimmer {
          * @param func
          * @return
          */
-        template<typename Func>
-        std::future<std::invoke_result_t<Func> > AddMainThreadTaskAwait(Func &&func) {
+        template <typename Func>
+        std::future<std::invoke_result_t<Func>> AddMainThreadTaskAwait(Func&& func)
+        {
             using Result = std::invoke_result_t<Func>;
-            if (IsMainThread()) {
+            if (IsMainThread())
+            {
                 std::promise<Result> p;
-                try {
-                    if constexpr (std::is_void_v<Result>) {
+                try
+                {
+                    if constexpr (std::is_void_v<Result>)
+                    {
                         func();
                         p.set_value();
-                    } else {
+                    }
+                    else
+                    {
                         p.set_value(func());
                     }
-                } catch (...) {
+                }
+                catch (...)
+                {
                     p.set_exception(std::current_exception());
                 }
                 return p.get_future();
             }
-            auto promise = std::make_shared<std::promise<Result> >();
+            auto promise = std::make_shared<std::promise<Result>>();
             auto future = promise->get_future();
             {
                 std::lock_guard lock(mainThreadMutex_);
                 mainThreadTasks_.push(
-                    [func = std::forward<Func>(func), promise]() mutable {
+                    [func = std::forward<Func>(func), promise]() mutable
+                    {
                         //skipcq: CXX-W1247
-                        try {
-                            if constexpr (std::is_void_v<Result>) {
+                        try
+                        {
+                            if constexpr (std::is_void_v<Result>)
+                            {
                                 func();
                                 promise->set_value();
-                            } else {
+                            }
+                            else
+                            {
                                 promise->set_value(func());
                             }
-                        } catch (...) {
+                        }
+                        catch (...)
+                        {
                             promise->set_exception(std::current_exception());
                         }
                     }
@@ -293,9 +310,20 @@ namespace glimmer {
          * Restore the color of the renderer.
          * 恢复渲染器的颜色。
          */
-        static void RestoreColorRenderer(SDL_Renderer *sdlRenderer);
+        static void RestoreColorRenderer(SDL_Renderer* sdlRenderer);
 
+        /**
+         * RunOnMainThread
+         * 在主线程执行
+         * @param task
+         */
+        void RunOnMainThread(std::function<void()> task);
 
-        void AddMainThreadTask(std::function<void()> task);
+        /**
+         * In the next frame, the main thread will execute.
+         * 在下一帧主线程执行
+         * @param task
+         */
+        void PostToNextMainFrame(std::function<void()> task);
     };
 }

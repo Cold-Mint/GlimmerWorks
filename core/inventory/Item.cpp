@@ -78,14 +78,14 @@ size_t glimmer::Item::GetRemainingStackCount(const Item* item) const
     return maxStack_ - amount_;
 }
 
-void glimmer::Item::SetOnAmountZero(const std::function<void()>& onAmountZero)
-{
-    onAmountZero_ = onAmountZero;
-}
-
 void glimmer::Item::SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)>& onAmountChanged)
 {
     onAmountChanged_ = onAmountChanged;
+}
+
+void glimmer::Item::SetOnUsedDurabilityChanged(const std::function<void(size_t, size_t)>& onUsedDurabilityChanged)
+{
+    onUsedDurabilityChanged_ = onUsedDurabilityChanged;
 }
 
 void glimmer::Item::SetAmount(const size_t amount)
@@ -95,10 +95,6 @@ void glimmer::Item::SetAmount(const size_t amount)
     if (onAmountChanged_ != nullptr)
     {
         onAmountChanged_(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
-    }
-    if (onAmountZero_ != nullptr && amount_ == 0)
-    {
-        onAmountZero_();
     }
 }
 
@@ -144,4 +140,35 @@ bool glimmer::Item::IsStackable() const
 unsigned glimmer::Item::GetRemaining() const
 {
     return GetMaxDurability() - usedDurability_;
+}
+
+void glimmer::Item::AddUsedDurability(const uint32_t value)
+{
+    const int newValue = static_cast<int>(usedDurability_) + value;
+    if (newValue > GetMaxDurability())
+    {
+        SetUsedDurability(GetMaxDurability());
+        return;
+    }
+    SetUsedDurability(static_cast<uint32_t>(newValue));
+}
+
+void glimmer::Item::RemoveUsedDurability(const uint32_t value)
+{
+    const int newValue = static_cast<int>(usedDurability_) - value;
+    if (newValue < 0)
+    {
+        SetUsedDurability(0);
+        return;
+    }
+    SetUsedDurability(static_cast<uint32_t>(newValue));
+}
+
+void glimmer::Item::SetUsedDurability(const uint32_t value)
+{
+    usedDurability_ = value;
+    if (onUsedDurabilityChanged_ != nullptr)
+    {
+        onUsedDurabilityChanged_(GetMaxDurability(), value);
+    }
 }

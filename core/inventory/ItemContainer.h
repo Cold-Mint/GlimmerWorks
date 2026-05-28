@@ -32,13 +32,15 @@
 #include "Item.h"
 #include "src/saves/item_container.pb.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class Item;
 
-    class ItemContainer {
-        std::vector<std::unique_ptr<Item> > items_;
+    class ItemContainer
+    {
+        std::vector<std::unique_ptr<Item>> items_;
 
-        std::vector<std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > > onContentChanged_;
+        std::vector<std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>>> onContentChanged_;
 
         /**
          * Binding Item Event
@@ -46,7 +48,7 @@ namespace glimmer {
          * @param index
          * @param item
          */
-        void BindItemEvent(size_t index, std::unique_ptr<Item> &item) const;
+        void BindItemEvent(size_t index, std::unique_ptr<Item>& item) const;
 
         /**
          * Unbinding Item Incident
@@ -54,22 +56,23 @@ namespace glimmer {
          * @param index
          * @param item
          */
-        void UnBindItemEvent(size_t index, const std::unique_ptr<Item> &item) const;
+        void UnBindItemEvent(size_t index, const std::unique_ptr<Item>& item) const;
 
-        void InvokeOnContentChanged(size_t index, Item * item, ContainerChangeType containerChange) const;
+        void InvokeOnContentChanged(size_t index, Item* item, ContainerChangeType containerChange) const;
 
     public:
-        explicit ItemContainer(size_t capacity);
+        std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>> AddOnContentChanged(
+            const std::function<void(size_t, Item*, ContainerChangeType)>& onContentChanged);
 
-        ItemContainer();
-
-        ~ItemContainer();
-
-        std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > AddOnContentChanged(
-            const std::function<void(size_t, Item *, ContainerChangeType)> &onContentChanged);
+        /**
+         * Set the capacity of the item container.
+         * 设置物品容器的容量。
+         * @param capacity
+         */
+        void Resize(size_t capacity);
 
         void RemoveOnContentChanged(
-            const std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > &onContentChanged);
+            const std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>>& onContentChanged);
 
 
         /**
@@ -86,7 +89,7 @@ namespace glimmer {
          * @param item
          * @return A return value of -1 indicates that the item is not within the container. 返回-1,则表示不在容器内。
          */
-        [[nodiscard]] int FindIndex(const Item *item);
+        [[nodiscard]] int FindIndex(const Item* item);
 
         /**
          * Get Remaining Item Amount After Add
@@ -94,7 +97,7 @@ namespace glimmer {
          * @param item  item 物品
          * @return 返回0表示可完全添加
          */
-        [[nodiscard]] size_t GetRemainingItemAmountAfterAdd(const Item *item) const;
+        [[nodiscard]] size_t GetRemainingItemAmountAfterAdd(const Item* item) const;
 
         /**
          * ReplaceItem
@@ -112,7 +115,7 @@ namespace glimmer {
          * @param amount amount 数量
          * @return
          */
-        [[nodiscard]] size_t RemoveItem(const std::string &id, size_t amount) const;
+        [[nodiscard]] size_t RemoveItem(const std::string& id, size_t amount) const;
 
 
         /**
@@ -138,7 +141,7 @@ namespace glimmer {
          * @param index
          * @return
          */
-        [[nodiscard]] Item *GetItem(size_t index) const;
+        [[nodiscard]] Item* GetItem(size_t index) const;
 
         /**
          * GetCapacity
@@ -171,11 +174,11 @@ namespace glimmer {
          * @param otherIndex Target index in other container
          * @return true if successful
          */
-        bool SwapItem(size_t index, ItemContainer *otherContainer, size_t otherIndex);
+        bool SwapItem(size_t index, ItemContainer* otherContainer, size_t otherIndex);
 
-        void FromMessage(WorldContext *worldContext, const ItemContainerMessage &message);
+        void FromMessage(WorldContext* worldContext, const ItemContainerMessage& message);
 
-        void ToMessage(ItemContainerMessage &message) const;
+        void ToMessage(ItemContainerMessage& message) const;
 
         void ResetItems();
 

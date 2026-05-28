@@ -35,6 +35,9 @@
 #include "../../core/mod/ResourceLocator.h"
 #include "ability/ItemAbility.h"
 #include "core/ecs/DroppedItemCreator.h"
+#include "core/math/BackwardAllocStrategy.h"
+#include "core/math/BalanceAllocStrategy.h"
+#include "core/math/ForwardAllocStrategy.h"
 #include "core/math/RandomAllocStrategy.h"
 
 void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer* otherContainer, size_t otherIndex) const
@@ -85,7 +88,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     {
         return nullptr;
     }
-    const AppContext* appContext = worldContext->GetAppContext();
+    AppContext* appContext = worldContext->GetAppContext();
     if (itemResource == nullptr)
     {
         return nullptr;
@@ -105,8 +108,11 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     std::unique_ptr<ComposableItem> result = std::make_unique<ComposableItem>(
         Resource::GenerateId(*itemResource), name,
         description,
-        appContext->GetResourceLocator()->FindTexture(&itemResource->texture),
-        itemResource->slotSize, itemResource->maxDurability, itemResource->isUnbreakable, resourceRef);
+        appContext->GetResourceLocator()->
+                    FindTexture(&itemResource->texture),
+        itemResource->slotSize,
+        itemResource->maxDurability,
+        itemResource->isUnbreakable, resourceRef);
     //If the capability is not specified within the resource reference, then the default capability will be loaded.
     //如果没有在资源引用内指定能力，那么加载默认能力。
     size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
@@ -200,22 +206,57 @@ void glimmer::ComposableItem::AddCallback()
     });
 }
 
-glimmer::ComposableItem::ComposableItem(std::string id, std::string name, std::optional<std::string> description,
-                                        std::shared_ptr<SDL_Texture> icon, size_t maxSize, uint32_t maxDurability,
-                                        bool isUnbreakable,
-                                        const ResourceRef& resourceRef) : itemContainer_(
-                                                                              std::make_shared<ItemContainer>(maxSize)),
-                                                                          id_(std::move(id)),
-                                                                          name_(std::move(name)),
-                                                                          description_(std::move(description)),
-                                                                          icon_(std::move(icon)),
-                                                                          maxSlotSize_(maxSize),
-                                                                          isUnbreakable_(isUnbreakable),
-                                                                          maxDurability_(maxDurability)
+glimmer::ComposableItem::ComposableItem(const std::string& id, const std::string& name,
+                                        const std::optional<std::string>& description,
+                                        const std::shared_ptr<SDL_Texture>& icon, const size_t maxSize,
+                                        const uint32_t maxDurability,
+                                        const bool isUnbreakable,
+                                        const ResourceRef& resourceRef)
 {
+    id_ = id;
+    name_ = name;
+    description_ = description;
+    icon_ = icon;
+    maxDurability_ = maxDurability;
+    isUnbreakable_ = isUnbreakable;
     resourceRef_ = resourceRef;
-    allocStrategyPtr_ = std::make_unique<RandomAllocStrategy<uint32_t>>();
+    itemContainer_ = std::make_shared<ItemContainer>();
+    itemContainer_->Resize(maxSize);
+    SetAllocStrategyType(static_cast<AllocStrategyTypeMessage>(RandomUtils::Random(
+        0, 3)));
     AddCallback();
+}
+
+void glimmer::ComposableItem::SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType)
+{
+    switch (allocStrategyType)
+    {
+    case ALLOC_STRATEGY_BACKWARD:
+        allocStrategyPtr_ = std::make_unique<BackwardAllocStrategy<uint32_t>>();
+        break;
+    case ALLOC_STRATEGY_FORWARD:
+        allocStrategyPtr_ = std::make_unique<ForwardAllocStrategy<uint32_t>>();
+        break;
+    case ALLOC_STRATEGY_BALANCE:
+        allocStrategyPtr_ = std::make_unique<BalanceAllocStrategy<uint32_t>>();
+        break;
+    case ALLOC_STRATEGY_RANDOM:
+        allocStrategyPtr_ = std::make_unique<RandomAllocStrategy<uint32_t>>();
+        break;
+    case AllocStrategyTypeMessage_INT_MIN_SENTINEL_DO_NOT_USE_:
+        break;
+    case AllocStrategyTypeMessage_INT_MAX_SENTINEL_DO_NOT_USE_:
+        break;
+    }
+}
+
+AllocStrategyTypeMessage glimmer::ComposableItem::GetAllocStrategyType() const
+{
+    if (allocStrategyPtr_ == nullptr)
+    {
+        return ALLOC_STRATEGY_FORWARD;
+    }
+    return allocStrategyPtr_->GetStrategyType();
 }
 
 
@@ -248,6 +289,7 @@ void glimmer::ComposableItem::ReadItemMessage(WorldContext* worldContext, const 
             std::unique_ptr<Item> result = ReplaceItem(static_cast<size_t>(i), std::move(item));
         }
     }
+    SetAllocStrategyType(itemMessage.durabilitystrategy());
 }
 
 
@@ -255,6 +297,7 @@ void glimmer::ComposableItem::WriteItemMessage(ItemMessage& itemMessage) const
 {
     Item::WriteItemMessage(itemMessage);
     itemMessage.clear_abilityitemref();
+    itemMessage.set_durabilitystrategy(allocStrategyPtr_->GetStrategyType());
     for (int i = 0; i < maxSlotSize_; i++)
     {
         ItemMessage* abilityItemMessage = itemMessage.add_abilityitemref();
@@ -308,7 +351,7 @@ unsigned glimmer::ComposableItem::GetRemaining() const
     {
         return 0;
     }
-    return maxDurability_ - usedDurability_;
+    return maxDurability_ - GetUsedDurability();
 }
 
 void glimmer::ComposableItem::Reduce(unsigned value)
@@ -325,5 +368,5 @@ void glimmer::ComposableItem::Reduce(unsigned value)
         itemsList.emplace_back(item);
     }
     allocStrategyPtr_->Allocate(itemsList, value);
-    usedDurability_ += value;
+    AddUsedDurability(value);
 }

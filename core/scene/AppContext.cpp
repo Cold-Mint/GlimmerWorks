@@ -52,6 +52,7 @@
 #include "core/console/command/EchoCommand.h"
 #include "core/console/command/FlyCommand.h"
 #include "core/console/command/HookCommand.h"
+#include "core/console/command/ItemEditorCommand.h"
 #include "core/console/command/LightCommand.h"
 #include "core/console/command/LocateCommand.h"
 #include "core/console/command/LootCommand.h"
@@ -62,6 +63,7 @@
 #include "core/console/command/ScreenshotCommand.h"
 #include "core/console/command/SummonCommand.h"
 #include "core/console/command/TileSnapshotCommand.h"
+#include "core/console/suggestion/AllocStrategyTypeDynamicSuggestions.h"
 #include "core/console/suggestion/BiomeSuggestions.h"
 #include "core/console/suggestion/BooleanToggleDynamicSuggestions.h"
 #include "core/console/suggestion/CommandHookIdDynamicSuggestions.h"
@@ -236,6 +238,11 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->chunkHasNotBeenLoadedYet = find<std::string>(value, "chunk_has_not_been_loaded_yet");
     langsResources_->tileSnapshotsDoesNotExist = find<std::string>(value, "tile_snapshots_does_not_exist");
     langsResources_->durabilityInfo = find<std::string>(value, "durability_info");
+    langsResources_->durabilityInfo = find<std::string>(value, "durability_info");
+    langsResources_->itemEditorHoldItem = find<std::string>(value, "item_editor_hold_item");
+    langsResources_->itemEditorReadAttr = find<std::string>(value, "item_editor_read_attr");
+    langsResources_->itemEditorSetAttr = find<std::string>(value, "item_editor_set_attr");
+    langsResources_->playerDoesNotExist = find<std::string>(value, "player_does_not_exist");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, const std::string& ext)
@@ -391,6 +398,7 @@ glimmer::AppContext::AppContext()
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<ScanKeyDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<MouseButtonDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<EventTypeDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AllocStrategyTypeDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<CoordinateDynamicSuggestions>(Y_DYNAMIC_SUGGESTIONS_NAME));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
@@ -437,6 +445,7 @@ glimmer::AppContext::AppContext()
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LocateCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(this));
 #if  !defined(NDEBUG)
     commandManager_->RegisterCommand(std::make_unique<HookCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<MemoryUsageCommand>(this));
@@ -900,13 +909,19 @@ void glimmer::AppContext::RestoreColorRenderer(SDL_Renderer* sdlRenderer)
     SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 255);
 }
 
-void glimmer::AppContext::AddMainThreadTask(std::function<void()> task)
+void glimmer::AppContext::RunOnMainThread(std::function<void()> task)
 {
     if (IsMainThread())
     {
         task();
         return;
     }
+    std::lock_guard lock(mainThreadMutex_);
+    mainThreadTasks_.push(std::move(task));
+}
+
+void glimmer::AppContext::PostToNextMainFrame(std::function<void()> task)
+{
     std::lock_guard lock(mainThreadMutex_);
     mainThreadTasks_.push(std::move(task));
 }

@@ -192,7 +192,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     Item* item = playerComponent_->item;
     TileVector2D leftBottom = {0, 0};
     WorldVector2D playerPosition = playerTransform2DComponent_->GetPosition();
-    if (item != nullptr)
+    if (item != nullptr && item->GetAmount() > 0)
     {
         auto tileItem = dynamic_cast<TileItem*>(item);
         if (tileItem != nullptr)

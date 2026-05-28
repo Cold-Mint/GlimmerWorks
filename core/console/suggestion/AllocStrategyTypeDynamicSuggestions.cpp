@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,38 +24,36 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/ecs/GameComponent.h"
-#include "core/inventory/ItemContainer.h"
+#include "AllocStrategyTypeDynamicSuggestions.h"
 
-namespace glimmer
+#include "core/Constants.h"
+
+glimmer::AllocStrategyTypeDynamicSuggestions::AllocStrategyTypeDynamicSuggestions()
 {
-    /**
-     * Item container component
-     * 物品容器组件
-     * Add it to a game object to give the game object the ability to hold items.
-     * 将其添加到一个游戏对象上，使游戏对象拥有持有物品的能力。
-     */
-    class ItemContainerComponent : public GameComponent
+    suggestions.emplace_back(ALLOC_STR_STRATEGY_BACKWARD);
+    suggestions.emplace_back(ALLOC_STR_STRATEGY_FORWARD);
+    suggestions.emplace_back(ALLOC_STR_STRATEGY_BALANCE);
+    suggestions.emplace_back(ALLOC_STR_STRATEGY_RANDOM);
+}
+
+std::string glimmer::AllocStrategyTypeDynamicSuggestions::GetId() const
+{
+    return ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME;
+}
+
+std::vector<std::string> glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(std::string param)
+{
+    return suggestions;
+}
+
+bool glimmer::AllocStrategyTypeDynamicSuggestions::Match(std::string keyword, std::string param)
+{
+    for (const auto& itemId : suggestions)
     {
-        std::unique_ptr<ItemContainer> itemContainer_ = nullptr;
-
-    public:
-        ItemContainerComponent();
-
-        /**
-         * GetItemContainer
-         * 获取物品容器
-         * @return
-         */
-        [[nodiscard]] ItemContainer* GetItemContainer() const;
-
-        [[nodiscard]] bool IsSerializable() override;
-
-        [[nodiscard]] std::string Serialize() override;
-
-        void Deserialize(WorldContext* worldContext, const std::string& data) override;
-
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
-    };
+        if (itemId == keyword)
+        {
+            return true;
+        }
+    }
+    return false;
 }

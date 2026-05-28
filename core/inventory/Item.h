@@ -42,17 +42,15 @@ namespace glimmer
     class Item : public IAllocatable<uint32_t>
     {
         size_t amount_ = 1;
+        uint32_t usedDurability_ = 0;
 
     protected:
         size_t maxStack_ = 1;
 
-        std::function<void()> onAmountZero_ = nullptr;
-
         std::function<void(ContainerChangeType, size_t)> onAmountChanged_ = nullptr;
+        std::function<void(size_t, size_t)> onUsedDurabilityChanged_ = nullptr;
 
         ResourceRef resourceRef_;
-
-        uint32_t usedDurability_ = 0;
 
     public:
         ~Item() override = default;
@@ -104,14 +102,9 @@ namespace glimmer
         [[nodiscard]] size_t GetRemainingStackCount(const Item* item) const;
 
 
-        /**
-         * Set the callback when the quantity is 0.
-         * 设置当数量为0时的回调。
-         * @param onAmountZero
-         */
-        void SetOnAmountZero(const std::function<void()>& onAmountZero);
-
         void SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)>& onAmountChanged);
+
+        void SetOnUsedDurabilityChanged(const std::function<void(size_t, size_t)>& onUsedDurabilityChanged);
 
         /**
          * SetAmount
@@ -191,5 +184,11 @@ namespace glimmer
          * @return
          */
         [[nodiscard]] virtual std::unique_ptr<Item> Clone() const = 0;
+
+        void AddUsedDurability(uint32_t value);
+
+        void RemoveUsedDurability(uint32_t value);
+
+        void SetUsedDurability(uint32_t value);
     };
 }

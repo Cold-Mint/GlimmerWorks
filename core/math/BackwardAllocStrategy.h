@@ -39,7 +39,7 @@ namespace glimmer
     public:
         void Allocate(std::vector<IAllocatable<T>*>& items, T total) override;
 
-       [[nodiscard]] AllocStrategyType GetStrategyType() const override;
+       [[nodiscard]] AllocStrategyTypeMessage GetStrategyType() const override;
     };
 
     template <typename T>
@@ -80,8 +80,8 @@ namespace glimmer
     }
 
     template <typename T>
-    AllocStrategyType BackwardAllocStrategy<T>::GetStrategyType() const
+    AllocStrategyTypeMessage BackwardAllocStrategy<T>::GetStrategyType() const
     {
-        return AllocStrategyType::Backward;
+        return ALLOC_STRATEGY_BACKWARD;
     }
 }

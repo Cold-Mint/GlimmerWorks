@@ -587,12 +587,13 @@ target_sources(GlimmerWorks
         core/console/suggestion/MaterialItemDynamicSuggestions.cpp
         core/math/IAllocatable.cpp
         core/math/IAllocStrategy.cpp
-        core/math/AllocStrategyType.cpp
         core/math/ForwardAllocStrategy.cpp
         core/math/BackwardAllocStrategy.cpp
         core/math/BalanceAllocStrategy.cpp
         core/math/RandomAllocStrategy.cpp
         core/utils/RandomUtils.cpp
+        core/console/command/ItemEditorCommand.cpp
+        core/console/suggestion/AllocStrategyTypeDynamicSuggestions.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -853,12 +854,13 @@ target_sources(GlimmerWorks
         core/console/suggestion/MaterialItemDynamicSuggestions.h
         core/math/IAllocatable.h
         core/math/IAllocStrategy.h
-        core/math/AllocStrategyType.h
         core/math/BalanceAllocStrategy.h
         core/math/ForwardAllocStrategy.h
         core/math/BackwardAllocStrategy.h
         core/math/RandomAllocStrategy.h
         core/utils/RandomUtils.h
+        core/console/command/ItemEditorCommand.h
+        core/console/suggestion/AllocStrategyTypeDynamicSuggestions.h
 )
 
 #Define version information

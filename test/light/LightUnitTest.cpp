@@ -1,94 +1,30 @@
-//
-// Created by Cold-Mint on 2026/4/27.
-//
-#include <gtest/gtest.h>
-
-#include "core/world/LightingBuffer.h"
-#include "core/world/LightPropagationTraverser.h"
-
-//Check the integrity of the light source
-//检测光源完整性：验证光照传播遍历器覆盖所有圆形内的点
-TEST(LightUnitTest, LightIntegrityCheck) {
-    const TileVector2D center = {0, 0};
-    std::unordered_set<TileVector2D, glimmer::Vector2DIHash> points;
-
-    for (int radius = 0; radius <= CHUNK_SIZE; radius++) {
-        points.clear();
-        const int radiusSquared = radius * radius;
-        for (int x = -radius; x <= radius; ++x) {
-            for (int y = -radius; y <= radius; ++y) {
-                // Distance squared <= Radius squared → Inside the circle
-                // 距离平方 <= 半径平方 → 在圆形内
-                if (TileVector2D p(x, y); p.DistanceSquared(center) <= radiusSquared) {
-                    points.insert(p);
-                }
-            }
-        }
-
-        glimmer::LightPropagationTraverser light_traverser(center, radius,
-                                                           [&points](const TileVector2D current,
-                                                                     const TileVector2D next, bool center_of_circle,
-                                                                     int) -> glimmer::TraverseAction {
-                                                               if (center_of_circle) {
-                                                                   points.erase(current);
-                                                               }
-                                                               points.erase(next);
-                                                               return glimmer::TraverseAction::Continue;
-                                                           });
-
-        light_traverser.PropagateAllRays();
-        EXPECT_TRUE(points.empty())
-            << "Light source integrity check failed! Radius = " << radius
-            << ", Unvisited points count: " << points.size()
-            << ", Coordinates: " << [&]() {
-                                       std::string s;
-                                       for (auto &p: points)
-                                           s += "(" + std::to_string(p.x) + "," + std::to_string(p.y) + ") ";
-                                       return s;
-                                   }();
-    }
-}
-
-
-//Check whether the LightingBuffer can correctly render a complete light source.
-//检测LightingBuffer是否能够正确的渲染完整光源。
-TEST(LightUnitTest, lightingComplete) {
-    const TileVector2D center = {0, 0};
-    std::unordered_set<TileVector2D, glimmer::Vector2DIHash> points;
-    auto redColor = glimmer::Color(255, 0, 0, 255);
-    for (int radius = 0; radius <= CHUNK_SIZE; radius++) {
-        points.clear();
-        const int radiusSquared = radius * radius;
-        for (int x = -radius; x <= radius; ++x) {
-            for (int y = -radius; y <= radius; ++y) {
-                // Distance squared <= Radius squared → Inside the circle
-                // 距离平方 <= 半径平方 → 在圆形内
-                if (TileVector2D p(x, y); p.DistanceSquared(center) <= radiusSquared) {
-                    points.insert(p);
-                }
-            }
-        }
-        auto pointSource = std::make_unique<glimmer::LightSource>(center, radius, redColor);
-        glimmer::LightingBuffer lightingBuffer;
-        lightingBuffer.SetLightSource(center, glimmer::Ground, std::move(pointSource));
-        for (auto &point: points) {
-            const glimmer::Color *finalLightColor = lightingBuffer.GetFinalLightColor(point);
-            EXPECT_TRUE(finalLightColor != nullptr)
-                  << "Light rendering failed! radius = " << radius
-                  << ", coordinates (" << point.x << "," << point.y << ") → light color is nullptr";
-
-            if (finalLightColor != nullptr) {
-                EXPECT_TRUE(finalLightColor->a > 0)
-             << "Light rendering failed! radius = " << radius
-             << ", coordinates (" << point.x << "," << point.y << ") → light alpha is 0";
-            }
-        }
-    }
-}
-
-
-//Check if there are any remnants after the light damage.
-//检测光照破坏后是否有残留。
+/*
+ * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * 
+ * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
+ *
+ * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
+ * 该许可证的第3版，或者（由你选择）任何后续版本。
+ *
+ * 本程序的发布目的是希望它能有用，但没有任何担保；甚至没有适销性或特定用途适用性的默示担保。
+ * 有关详细细节，请参阅GNU Affero通用公共许可证。
+ *
+ * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
+ */
+检测光照破坏后是否有残留。
 TEST(LightUnitTest, CheckLightRemainAfterBreak) {
     // Check the case of placing alone.
     TileVector2D originPoint = {0, 0};

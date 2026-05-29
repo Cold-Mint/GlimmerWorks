@@ -28,17 +28,19 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/ItemContainerComonent.h"
 
-namespace glimmer {
-    class AutoPickSystem : public GameSystem {
-        std::shared_ptr<MIX_Audio> pickItemSFX_;
+namespace glimmer
+{
+    class AutoPickSystem : public GameSystem
+    {
+        std::shared_ptr<MIX_Audio> pickItemSFX_ = nullptr;
         WorldVector2D lastPosition{};
         float remainingTime_ = MERGE_DURATION;
-        AudioManager *audioManager_ = nullptr;
+        AudioManager* audioManager_ = nullptr;
 
         std::unordered_map<std::string, size_t> frameItemCounts_ = {};
 
     public:
-        explicit AutoPickSystem(WorldContext *worldContext);
+        explicit AutoPickSystem(WorldContext* worldContext);
 
         void Update(float delta) override;
 

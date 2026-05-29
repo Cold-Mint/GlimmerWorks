@@ -47,6 +47,13 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : 
 {
     RequireComponent<PlayerComponent>();
     RequireComponent<Transform2DComponent>();
+    const AppContext* appContext = worldContext->GetAppContext();
+    ResourceRef ref;
+    ref.SetSelfPackageId(RESOURCE_REF_CORE);
+    ref.SetResourceType(RESOURCE_AUDIO);
+    ref.SetResourceKey("sfx/drop_item");
+    dropItemSFX_ = appContext->GetResourceLocator()->FindAudio(&ref);
+    audioManager_ = appContext->GetAudioManager();
 }
 
 void glimmer::PlayerControlSystem::Update(const float delta)
@@ -178,6 +185,7 @@ void glimmer::PlayerControlSystem::Update(const float delta)
                         auto item = itemContainer->TakeItem(i, 1);
                         if (item != nullptr)
                         {
+                            audioManager_->TryPlayFree(AMBIENT, dropItemSFX_.get(), 0);
                             const GameEntity::ID droppedEntity = worldContext_->CreateEntity();
                             DroppedItemCreator droppedItemCreator{worldContext_};
                             droppedItemCreator.LoadTemplateComponents(droppedEntity,

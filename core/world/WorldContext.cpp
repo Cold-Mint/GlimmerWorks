@@ -283,6 +283,12 @@ glimmer::WorldContext::~WorldContext()
     b2DestroyWorld(worldId_);
     worldId_ = b2_nullWorldId;
     appContext_->GetCommandManager()->UnbindWorldContext();
+    ResourceRef ref;
+    ref.SetSelfPackageId(RESOURCE_REF_CORE);
+    ref.SetResourceType(RESOURCE_AUDIO);
+    ref.SetResourceKey("sfx/item_break");
+    itemBreakSFX_ = appContext_->GetResourceLocator()->FindAudio(&ref);
+    audioManager_ = appContext_->GetAudioManager();
 }
 
 glimmer::GameEntity::ID glimmer::WorldContext::GetEntityIdIndex() const
@@ -487,6 +493,37 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                         if (remaining == 0)
                         {
                             playerComponent->item = nullptr;
+                            audioManager_->TryPlayFree(AMBIENT, itemBreakSFX_.get(), 0);
+                            auto composableItem = dynamic_cast<ComposableItem*>(item);
+                            if (composableItem != nullptr)
+                            {
+                                ItemContainer* itemContainer = composableItem->GetItemContainer();
+                                if (itemContainer != nullptr)
+                                {
+                                    size_t size = itemContainer->GetCapacity();
+                                    for (size_t i = 0; i < size; i++)
+                                    {
+                                        Item* abilityItem = itemContainer->GetItem(i);
+                                        if (abilityItem != nullptr)
+                                        {
+                                            const size_t abilityRemaining = abilityItem->GetRemaining();
+                                            if (abilityRemaining > 0)
+                                            {
+                                                std::unique_ptr<Item> takeItem = itemContainer->TakeItem(
+                                                    i, abilityItem->GetAmount());
+                                                const GameEntity::ID droppedEntity = CreateEntity();
+                                                DroppedItemCreator droppedItemCreator{this};
+                                                droppedItemCreator.LoadTemplateComponents(droppedEntity,
+                                                    DroppedItemCreator::GetResourceRef());
+                                                droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                                    DroppedItemCreator::GetEntityItemMessage(
+                                                        GetCameraTransform2D()->
+                                                        GetPosition(), std::move(takeItem), 2));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -1231,7 +1268,6 @@ std::vector<glimmer::GameEntity::ID> glimmer::WorldContext::GetAllGameEntityId()
 
 void glimmer::WorldContext::RemoveEntity(GameEntity::ID id)
 {
-    LogCat::d("Attempting to remove entity ID = ", id);
     auto entityIt = entityMap_.find(id);
     if (entityIt == entityMap_.end())
     {
@@ -1255,13 +1291,10 @@ void glimmer::WorldContext::RemoveEntity(GameEntity::ID id)
 
         for (auto* comp : componentsToRemove)
         {
-            LogCat::d("Perform component removal =", id, " components = ", comp);
             RemoveComponentInternal(id, comp);
-            LogCat::d("Perform component removal =", id, " components = ", comp, " success");
         }
 
         entityComponents.erase(compIt);
-        LogCat::d("All components of Entity ID = ", id, " have been removed.");
     }
 
     // Remove the entity record
@@ -1275,8 +1308,6 @@ void glimmer::WorldContext::RemoveEntity(GameEntity::ID id)
     {
         entities_.erase(it);
     }
-
-    LogCat::i("Entity ID ", id, " successfully removed. Remaining entities = ", entities_.size());
 }
 
 bool glimmer::WorldContext::IsEmptyEntityId(const GameEntity::ID id)

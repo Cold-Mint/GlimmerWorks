@@ -46,6 +46,11 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
+    const PreloadColors* preloadColors = appContext->GetPreloadColors();
+    if (preloadColors == nullptr)
+    {
+        return;
+    }
     const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -75,6 +80,39 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
+        if (!item->IsUnbreakable())
+        {
+            const uint32_t totalDur = std::max(item->GetMaxDurability(), 1U);
+            const uint32_t usedDur = item->GetUsedDurability();
+            const uint32_t remainDur = usedDur >= totalDur ? 0U : totalDur - usedDur;
+            float remainingDurabilityPercentage = static_cast<float>(remainDur) / static_cast<float>(totalDur);
+            if (remainingDurabilityPercentage != 1.0F)
+            {
+                Color color;
+                if (remainingDurabilityPercentage >= 0.8F)
+                {
+                    color = preloadColors->durability.durabilityGood;
+                }
+                else if (remainingDurabilityPercentage >= 0.6F)
+                {
+                    color = preloadColors->durability.durabilityNotice;
+                }
+                else if (remainingDurabilityPercentage >= 0.1F)
+                {
+                    color = preloadColors->durability.durabilityWarning;
+                }
+                else
+                {
+                    color = preloadColors->durability.durabilityDanger;
+                }
+                const float durabilityBarHeight = size.y * remainingDurabilityPercentage;
+                const float barY = rect.y + rect.h - durabilityBarHeight;
+                const SDL_FRect durabilityRect = {rect.x, barY, rect.w, durabilityBarHeight};
+                SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+                SDL_RenderFillRect(renderer, &durabilityRect);
+            }
+        }
+
         auto texture = item->GetIcon();
         if (texture != nullptr)
         {
@@ -204,7 +242,10 @@ void glimmer::ItemSlotSystem::RenderQuantity(SDL_Renderer* renderer, const SDL_F
 
 void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* item) const
 {
-    if (!item) return;
+    if (item == nullptr)
+    {
+        return;
+    }
 
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -230,24 +271,6 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* 
         if (sDesc != nullptr)
         {
             surfacesToDraw.push_back(sDesc);
-        }
-    }
-    if (!item->IsUnbreakable())
-    {
-        uint32_t totalDur = std::max(item->GetMaxDurability(), 1U);
-        uint32_t usedDur = item->GetUsedDurability();
-        uint32_t remainDur = usedDur >= totalDur ? 0U : totalDur - usedDur;
-
-        std::string durabilityInfoTip = fmt::format(
-            fmt::runtime(langsResources->durabilityInfo),
-            std::round(static_cast<float>(remainDur) / static_cast<float>(totalDur) * 100.0f)
-        );
-        SDL_Surface* durabilityInfo = TTF_RenderText_Blended(appContext->GetFont(), durabilityInfoTip.c_str(),
-                                                             durabilityInfoTip.length(),
-                                                             appContext->GetPreloadColors()->textColor.ToSDLColor());
-        if (durabilityInfo != nullptr)
-        {
-            surfacesToDraw.push_back(durabilityInfo);
         }
     }
 

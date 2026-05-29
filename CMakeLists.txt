@@ -594,6 +594,8 @@ target_sources(GlimmerWorks
         core/utils/RandomUtils.cpp
         core/console/command/ItemEditorCommand.cpp
         core/console/suggestion/AllocStrategyTypeDynamicSuggestions.cpp
+        core/console/command/PlayCommand.cpp
+        core/console/suggestion/AudioTrackDynamicSuggestions.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -861,6 +863,8 @@ target_sources(GlimmerWorks
         core/utils/RandomUtils.h
         core/console/command/ItemEditorCommand.h
         core/console/suggestion/AllocStrategyTypeDynamicSuggestions.h
+        core/console/command/PlayCommand.h
+        core/console/suggestion/AudioTrackDynamicSuggestions.h
 )
 
 #Define version information

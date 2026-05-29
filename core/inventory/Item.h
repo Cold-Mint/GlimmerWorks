@@ -168,7 +168,7 @@ namespace glimmer
         virtual void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
                            std::unordered_set<std::string>& popupAbility) = 0;
 
-        unsigned GetRemaining() const override;
+        [[nodiscard]] unsigned GetRemaining() const override;
 
         /**
       * Subtract the durability points specified

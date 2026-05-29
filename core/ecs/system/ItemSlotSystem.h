@@ -34,6 +34,11 @@ namespace glimmer {
     class ItemSlotSystem : public GameSystem {
         void RenderQuantity(SDL_Renderer *renderer, const SDL_FRect &slotDest, int amount) const;
 
+        /**
+         *
+         * @param renderer 渲染器
+         * @param item 物品
+         */
         void RenderTooltip(SDL_Renderer *renderer, const Item *item) const;
 
     public:

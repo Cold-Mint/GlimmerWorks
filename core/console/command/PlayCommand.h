@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,38 +25,23 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/ecs/GameSystem.h"
-#include "core/ecs/component/PlayerComponent.h"
+#include "core/console/Command.h"
+#include "core/mod/resourcePack/AudioManager.h"
 
 namespace glimmer
 {
-    class RigidBody2DComponent;
-    /**
-     * The player control system processes the player's input control and realizes the WASD mobile camera function
-     * 玩家控制系统，处理玩家的输入控制，实现WASD移动相机功能
-     */
-    class PlayerControlSystem final : public GameSystem
+    class PlayCommand : public Command
     {
-        //Hand slip determination interval.
-        //手滑判定间隔。
-        float slipTimer_ = 0.0F;
         AudioManager* audioManager_ = nullptr;
-        std::shared_ptr<MIX_Audio> dropItemSFX_ = nullptr;
-        /**
-        * Check if the player is on the ground
-        * 检查玩家是否在地面上
-        * @return If the player is on the ground, return true; otherwise, return false 如果玩家在地面上则返回true，否则返回false
-        */
-        bool OnGround(const PlayerComponent* playerControlComponent) const;
+
+    protected:
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
-        explicit PlayerControlSystem(WorldContext* worldContext);
-
-        void Update(float delta) override;
-
-
-        std::string GetName() override;
-
-        bool HandleEvent(const SDL_Event& event) override;
+        explicit PlayCommand(AppContext* appContext);
+        [[nodiscard]] std::string GetName() const override;
+        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                     const std::function<void(const std::string& text)>* onMessage) override;
     };
 }

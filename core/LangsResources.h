@@ -161,7 +161,6 @@ namespace glimmer
         std::string tileSnapshotInspectorDisableFail;
         std::string chunkHasNotBeenLoadedYet;
         std::string tileSnapshotsDoesNotExist;
-        std::string durabilityInfo;
         std::string itemEditorHoldItem;
         std::string itemEditorReadAttr;
         std::string itemEditorSetAttr;

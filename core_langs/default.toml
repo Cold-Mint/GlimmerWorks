@@ -148,7 +148,6 @@ tile_snapshot_inspector_enable_fail = "Failed to enable tile snapshot inspector.
 tile_snapshot_inspector_disable_fail = "Failed to disable tile snapshot inspector."
 chunk_has_not_been_loaded_yet = "Chunk at ({}, {}) has not been loaded yet."
 tile_snapshots_does_not_exist = "Tile snapshot at ({}, {}) does not exist."
-durability_info = "Durability: {}%"
 item_editor_hold_item = "Hold an item in hand."
 item_editor_read_attr = "Read {}'s {} attribute: {}."
 item_editor_set_attr = "Set {}'s {} attribute to: {}."

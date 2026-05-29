@@ -157,7 +157,8 @@ namespace glimmer {
         std::unique_ptr<ChunkGenerator> chunkGenerator_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_;
         std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > itemCallback_;
-
+        std::shared_ptr<MIX_Audio> itemBreakSFX_ = nullptr;
+        AudioManager* audioManager_ = nullptr;
         /**
          * Whether to enable the item dragging mode
          * 是否启用物品拖拽模式

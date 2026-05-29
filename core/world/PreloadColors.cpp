@@ -30,7 +30,8 @@
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
 
-void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocator) {
+void glimmer::PreloadColors::LoadAllColors(const ResourceLocator* resourceLocator)
+{
     Color text;
     text.r = 250;
     text.g = 250;
@@ -385,16 +386,46 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator *resourceLocato
     defaultBlueprintInvalidRes.a = 160;
     blueprint.invalidColor = LoadColor(resourceLocator, "blueprint/invalid_place_color",
                                        defaultBlueprintInvalidRes);
+
+    Color defaultDurabilityGood;
+    defaultDurabilityGood.r = 60;
+    defaultDurabilityGood.g = 230;
+    defaultDurabilityGood.b = 60;
+    defaultDurabilityGood.a = 96;
+    durability.durabilityGood = LoadColor(resourceLocator, "durability/good", defaultDurabilityGood);
+
+    Color defaultDurabilityNotice;
+    defaultDurabilityNotice.r = 230;
+    defaultDurabilityNotice.g = 200;
+    defaultDurabilityNotice.b = 60;
+    defaultDurabilityNotice.a = 96;
+    durability.durabilityNotice = LoadColor(resourceLocator, "durability/notice", defaultDurabilityNotice);
+
+    Color defaultDurabilityWarning;
+    defaultDurabilityWarning.r = 230;
+    defaultDurabilityWarning.g = 140;
+    defaultDurabilityWarning.b = 60;
+    defaultDurabilityWarning.a = 96;
+    durability.durabilityWarning = LoadColor(resourceLocator, "durability/warning", defaultDurabilityWarning);
+
+    Color defaultDurabilityDanger;
+    defaultDurabilityDanger.r = 230;
+    defaultDurabilityDanger.g = 60;
+    defaultDurabilityDanger.b = 60;
+    defaultDurabilityDanger.a = 96;
+    durability.durabilityDanger = LoadColor(resourceLocator, "durability/danger", defaultDurabilityDanger);
 }
 
-glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator *resourceLocator, const std::string &key,
-                                                 const Color &defaultColor) {
+glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator* resourceLocator, const std::string& key,
+                                                 const Color& defaultColor)
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_COLOR);
     resourceRef.SetResourceKey(key);
     const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(&resourceRef);
-    if (targetColor == nullptr) {
+    if (targetColor == nullptr)
+    {
         return defaultColor;
     }
     return Color{targetColor->r, targetColor->g, targetColor->b, targetColor->a};

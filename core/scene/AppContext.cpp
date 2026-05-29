@@ -60,10 +60,12 @@
 #include "core/console/command/PackVerifyCommand.h"
 #include "core/console/command/ParallaxBackgroundCommand.h"
 #include "core/console/command/PlaceCommand.h"
+#include "core/console/command/PlayCommand.h"
 #include "core/console/command/ScreenshotCommand.h"
 #include "core/console/command/SummonCommand.h"
 #include "core/console/command/TileSnapshotCommand.h"
 #include "core/console/suggestion/AllocStrategyTypeDynamicSuggestions.h"
+#include "core/console/suggestion/AudioTrackDynamicSuggestions.h"
 #include "core/console/suggestion/BiomeSuggestions.h"
 #include "core/console/suggestion/BooleanToggleDynamicSuggestions.h"
 #include "core/console/suggestion/CommandHookIdDynamicSuggestions.h"
@@ -237,8 +239,6 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
         std::string>(value, "tile_snapshot_inspector_disable_fail");
     langsResources_->chunkHasNotBeenLoadedYet = find<std::string>(value, "chunk_has_not_been_loaded_yet");
     langsResources_->tileSnapshotsDoesNotExist = find<std::string>(value, "tile_snapshots_does_not_exist");
-    langsResources_->durabilityInfo = find<std::string>(value, "durability_info");
-    langsResources_->durabilityInfo = find<std::string>(value, "durability_info");
     langsResources_->itemEditorHoldItem = find<std::string>(value, "item_editor_hold_item");
     langsResources_->itemEditorReadAttr = find<std::string>(value, "item_editor_read_attr");
     langsResources_->itemEditorSetAttr = find<std::string>(value, "item_editor_set_attr");
@@ -399,6 +399,7 @@ glimmer::AppContext::AppContext()
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<MouseButtonDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<EventTypeDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AllocStrategyTypeDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AudioTrackDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<CoordinateDynamicSuggestions>(Y_DYNAMIC_SUGGESTIONS_NAME));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
@@ -446,6 +447,7 @@ glimmer::AppContext::AppContext()
     commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LocateCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<PlayCommand>(this));
 #if  !defined(NDEBUG)
     commandManager_->RegisterCommand(std::make_unique<HookCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<MemoryUsageCommand>(this));

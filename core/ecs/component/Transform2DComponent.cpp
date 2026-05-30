@@ -28,44 +28,54 @@
 
 #include "core/Constants.h"
 #include "src/saves/transform2d.pb.h"
+#include "core/math/WorldVector2D.h"
 
-glimmer::Transform2DComponent::Transform2DComponent(WorldVector2D position) : position_(position) {
+glimmer::Transform2DComponent::Transform2DComponent(WorldVector2D position) : position_(position)
+{
 }
 
-void glimmer::Transform2DComponent::SetPosition(WorldVector2D newPosition) {
+void glimmer::Transform2DComponent::SetPosition(WorldVector2D newPosition)
+{
     position_ = newPosition;
 }
 
-void glimmer::Transform2DComponent::SetRotation(const float newRotation) {
+void glimmer::Transform2DComponent::SetRotation(const float newRotation)
+{
     rotation_ = newRotation;
 }
 
-float glimmer::Transform2DComponent::GetRotation() const {
+float glimmer::Transform2DComponent::GetRotation() const
+{
     return rotation_;
 }
 
-void glimmer::Transform2DComponent::Translate(const WorldVector2D deltaPosition) {
+void glimmer::Transform2DComponent::Translate(WorldVector2D deltaPosition)
+{
     position_ += deltaPosition;
 }
 
-WorldVector2D glimmer::Transform2DComponent::GetPosition() const {
+glimmer::WorldVector2D glimmer::Transform2DComponent::GetPosition() const
+{
     return position_;
 }
 
-bool glimmer::Transform2DComponent::IsSerializable() {
+bool glimmer::Transform2DComponent::IsSerializable()
+{
     return true;
 }
 
-std::string glimmer::Transform2DComponent::Serialize() {
+std::string glimmer::Transform2DComponent::Serialize()
+{
     Transform2dMessage transform2DMessage;
-    auto *pos = transform2DMessage.mutable_position();
+    auto* pos = transform2DMessage.mutable_position();
     pos->set_x(position_.x);
     pos->set_y(position_.y);
     transform2DMessage.set_rotation(rotation_);
     return transform2DMessage.SerializeAsString();
 }
 
-void glimmer::Transform2DComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
+void glimmer::Transform2DComponent::Deserialize(WorldContext* worldContext, const std::string& data)
+{
     Transform2dMessage transform2DMessage;
     transform2DMessage.ParseFromString(data);
     position_.x = transform2DMessage.position().x();
@@ -73,6 +83,7 @@ void glimmer::Transform2DComponent::Deserialize(WorldContext *worldContext, cons
     rotation_ = transform2DMessage.rotation();
 }
 
-GameComponentTypeMessage glimmer::Transform2DComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::Transform2DComponent::GetComponentType()
+{
     return COMPONENT_TRANSFORM_2D;
 }

@@ -27,54 +27,58 @@
 #pragma once
 #include "core/ecs/GameComponent.h"
 #include <SDL3/SDL_rect.h>
-#include "core/math/Vector2D.h"
 
-namespace glimmer {
+#include "core/math/CameraVector2D.h"
+#include "core/math/WorldVector2D.h"
+
+namespace glimmer
+{
     /**
      * Camera component, used to control the game view
      * 相机组件，用于控制游戏视图
      */
-    class CameraComponent : public GameComponent {
+    class CameraComponent : public GameComponent
+    {
         /**
          * Size: Camera size (pixel coordinates)
          * Size 相机尺寸（像素坐标）
          */
-        Vector2D size_ = {800.0F, 600.0F};
+        CameraVector2D size_ = {800.0F, 600.0F};
 
         /**
          * zoom camera zoom ratio
          * zoom 相机缩放比例
          */
-        float zoom_ = 1.0F;
+        float zoom_ = 2.0F;
 
     public:
         /**
          * Get the camera viewport rectangle (in pixel coordinates)
          * 获取相机的视口矩形（像素坐标）
-         * @return SDL_FRect Viewport rectangle 视口矩形
+         * @return SDL_FRect Viewport rectangle(World Coordinates) 视口矩形(世界坐标)
          */
-        [[nodiscard]] SDL_FRect GetViewportRect(WorldVector2D cameraPosition) const;
+        [[nodiscard]] SDL_FRect GetViewportRect(const WorldVector2D& cameraPosition) const;
 
 
         /**
-         * Get the camera viewport position (in pixel coordinates)
-         * 获取相机的视口位置（像素坐标）
+         * World coordinates to screen coordinates
+         * 世界坐标转屏幕坐标
          * @param cameraPosition The camera position (in pixel coordinates) 相机位置（像素坐标）
-         * @param worldPosition The world position (in pixel coordinates) 世界位置（像素坐标）
+         * @param worldPosition The world position (in pixel coordinates) 世界位置（逻辑像素坐标）
          * @return The camera viewport position (in pixel coordinates) 相机视口位置（像素坐标）
          */
-        [[nodiscard]] CameraVector2D GetViewPortPosition(WorldVector2D cameraPosition,
-                                                         WorldVector2D worldPosition) const;
+        [[nodiscard]] CameraVector2D WorldToScreen(const WorldVector2D& cameraPosition,
+                                                         const WorldVector2D& worldPosition) const;
 
         /**
-         * Convert the viewport position to world coordinates
-         * 视口位置转世界坐标
+         * Screen coordinates to world coordinates
+         * 屏幕坐标转世界坐标
          * @param cameraPosition 相机位置
          * @param viewPortPosition
          * @return
          */
-        [[nodiscard]] WorldVector2D GetWorldPosition(WorldVector2D cameraPosition,
-                                                     CameraVector2D viewPortPosition) const;
+        [[nodiscard]] WorldVector2D ScreenToWorld(const WorldVector2D& cameraPosition,
+                                                     const CameraVector2D& viewPortPosition) const;
 
 
         /**
@@ -84,7 +88,7 @@ namespace glimmer {
          * @param worldPos worldPos 世界坐标
          * @return 是否在相机视口内
          */
-        [[nodiscard]] bool IsPointInViewport(WorldVector2D cameraPosition, WorldVector2D worldPos) const;
+        [[nodiscard]] bool IsPointInViewport(const WorldVector2D& cameraPosition, const WorldVector2D& worldPos) const;
 
         /**
          * Is rect in viewport
@@ -93,7 +97,7 @@ namespace glimmer {
          * @param rect
          * @return
          */
-        [[nodiscard]] bool IsRectInViewport(WorldVector2D cameraPosition, const SDL_FRect *rect) const;
+        [[nodiscard]] bool IsRectInViewport(const WorldVector2D& cameraPosition, const SDL_FRect* rect) const;
 
 
         /**
@@ -101,14 +105,14 @@ namespace glimmer {
          * 设置尺寸
          * @param size Size 尺寸
          */
-        void SetSize(Vector2D size);
+        void SetSize(const CameraVector2D& size);
 
         /**
          * Get Size
          * 获取相机尺寸
          * @return
          */
-        [[nodiscard]] Vector2D GetSize() const;
+        [[nodiscard]] CameraVector2D GetSize() const;
 
 
         /**

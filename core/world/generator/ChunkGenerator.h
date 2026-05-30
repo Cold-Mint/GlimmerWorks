@@ -30,7 +30,7 @@
 
 #include "Chunk.h"
 #include "TerrainResult.h"
-#include "core/math/Vector2DI.h"
+#include "core/math/Vector2DIHash.h"
 
 namespace glimmer {
     class ChunkGenerator {

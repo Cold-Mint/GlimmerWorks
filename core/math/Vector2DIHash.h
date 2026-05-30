@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,29 +24,19 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BlueprintComponent.h"
+#pragma once
 
-void glimmer::BlueprintComponent::SetCanPlace(bool canPlace)
-{
-    canPlace_ = canPlace;
-}
+#include "Vector2DI.h"
 
-bool glimmer::BlueprintComponent::CanPlace() const
+namespace glimmer
 {
-    return canPlace_;
-}
-
-void glimmer::BlueprintComponent::SetTopLeftVector(const TileVector2D& topLeftVector)
-{
-    topLeftVector_ = topLeftVector;
-}
-
-const glimmer::TileVector2D& glimmer::BlueprintComponent::GetTopLeftVector() const
-{
-    return topLeftVector_;
-}
-
-GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentType()
-{
-    return COMPONENT_BLUEPRINT;
+    struct Vector2DIHash
+    {
+        template <typename TVec>
+        size_t operator()(const TVec& v) const noexcept
+        {
+            return static_cast<uint64_t>(static_cast<uint32_t>(v.x)) << 32
+                | static_cast<uint32_t>(v.y);
+        }
+    };
 }

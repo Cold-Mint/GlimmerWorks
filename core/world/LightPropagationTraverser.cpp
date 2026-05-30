@@ -55,6 +55,7 @@ void glimmer::LightPropagationTraverser::PropagateSingleRayImpl(const int rayInd
             //这里拦截射线超过半径。必须要的。
             break;
         }
+        //Clangd: In template: invalid operands to binary expression ('const glimmer::TileVector2D' and 'const glimmer::TileVector2D')
         if (!visited.contains(nextTile)) {
             const TraverseAction action = stepCallback_(currentTile, nextTile, centerOfCircle, rayIndex);
             if (action == TraverseAction::StopAll) {

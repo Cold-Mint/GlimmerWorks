@@ -26,17 +26,25 @@
  */
 #pragma once
 #include "core/ecs/GameSystem.h"
+#include "core/ecs/component/CameraComponent.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * The camera system handles the logic of the camera and its interaction with the world coordinates
      * 相机系统，处理相机的逻辑和与世界坐标的联动
      */
-    class CameraSystem final : public GameSystem {
-    public:
-        explicit CameraSystem(WorldContext *worldContext);
+    class CameraSystem final : public GameSystem
+    {
+        int windowWidth_ = 0;
+        int windowHeight_ = 0;
+        CameraComponent* cameraComponent_ = nullptr;
+        SDL_Window* window_ = nullptr;
 
-        void Render(SDL_Renderer *renderer) override;
+    public:
+        explicit CameraSystem(WorldContext* worldContext);
+
+        void Render(SDL_Renderer* renderer) override;
 
 
         std::string GetName() override;

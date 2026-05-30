@@ -78,7 +78,7 @@ std::unique_ptr<std::vector<glimmer::TileSnapshot>> glimmer::TileLayerComponent:
     return chunk->GetTopVisibleTileSnapshots(layerFilter, pos.y << CHUNK_SHIFT | pos.x);
 }
 
-WorldVector2D glimmer::TileLayerComponent::TileToWorld(
+glimmer::WorldVector2D glimmer::TileLayerComponent::TileToWorld(
     const TileVector2D& tilePos)
 {
     return {
@@ -87,7 +87,7 @@ WorldVector2D glimmer::TileLayerComponent::TileToWorld(
     };
 }
 
-WorldVector2D glimmer::TileLayerComponent::TileToWorldCenter(const TileVector2D& tilePos)
+glimmer::WorldVector2D glimmer::TileLayerComponent::TileToWorldCenter(const TileVector2D& tilePos)
 {
     return {
         (static_cast<float>(tilePos.x) + 0.5F) * TILE_SIZE,
@@ -95,7 +95,7 @@ WorldVector2D glimmer::TileLayerComponent::TileToWorldCenter(const TileVector2D&
     };
 }
 
-TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D& worldPos)
+glimmer::TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D& worldPos)
 {
     return {
         static_cast<int>(std::floor(worldPos.x / TILE_SIZE + 0.5F)),
@@ -103,7 +103,7 @@ TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D& world
     };
 }
 
-std::vector<std::pair<TileVector2D, std::unique_ptr<std::vector<glimmer::TileSnapshot>>>>
+std::vector<std::pair<glimmer::TileVector2D, std::unique_ptr<std::vector<glimmer::TileSnapshot>>>>
 glimmer::TileLayerComponent::
 GetTopVisibleTileSnapshotsInViewport(const uint8_t layerFilter, const SDL_FRect& worldViewport) const
 {
@@ -210,7 +210,7 @@ void glimmer::TileLayerComponent::SetFocusPosition(const TileVector2D focusPosit
     focusPosition_ = focusPosition;
 }
 
-const TileVector2D& glimmer::TileLayerComponent::GetFocusPosition() const
+const glimmer::TileVector2D& glimmer::TileLayerComponent::GetFocusPosition() const
 {
     return focusPosition_;
 }

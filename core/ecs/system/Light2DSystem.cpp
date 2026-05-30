@@ -85,7 +85,7 @@ void glimmer::Light2DSystem::Render(SDL_Renderer *renderer) {
         for (int x = topLeft.x; x <= bottomRight.x; ++x) {
             auto tileVector2D = TileVector2D(x, y);
             const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileVector2D);
-            const CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
+            const CameraVector2D screenPos = cameraComponent->WorldToScreen(
                 cameraPos->GetPosition(), worldTilePos);
             SDL_FRect renderQuad;
             renderQuad.w = TILE_SIZE * zoom;

@@ -36,6 +36,7 @@
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/DiggingComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/math/Vector2DI.h"
 
 
 uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const TileLayerComponent* tileLayerComponent,
@@ -93,7 +94,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
             tileStateMessage->set_height(tileHeight);
             bool oldPlayerPlaced = tileStateMessage->isplayerplaced();
             tileStateMessage->set_isplayerplaced(isPlaceMode);
-            Vector2DI offset = topLeftVector - currentVector;
+            TileVector2D offset = topLeftVector - currentVector;
             offset.WriteVector2DIMessage(*tileStateMessage->mutable_offset());
             if (!tileLayerComponent->CommitTileState(tileLayerComponent->GetTileLayerType(), currentVector, false))
             {
@@ -271,7 +272,7 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
                 })
                 -
                 WorldVector2D{HALF_TILE_SIZE * zoom, HALF_TILE_SIZE * zoom};
-            const CameraVector2D cameraVector2d = cameraComponent->GetViewPortPosition(
+            const CameraVector2D cameraVector2d = cameraComponent->WorldToScreen(
                 cameraTransform2D->GetPosition(), tileTopLeftPositionWorld);
             const auto maxIndex = static_cast<float>(textureList.size() - 1);
             const uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,

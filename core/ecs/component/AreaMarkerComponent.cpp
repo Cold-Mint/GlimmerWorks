@@ -69,10 +69,10 @@ void glimmer::AreaMarkerComponent::SetPoint(TileVector2D point) {
     endPoint_ = point;
 }
 
-const TileVector2D &glimmer::AreaMarkerComponent::GetStartPoint() const {
+const glimmer::TileVector2D &glimmer::AreaMarkerComponent::GetStartPoint() const {
     return startPoint_;
 }
 
-const TileVector2D &glimmer::AreaMarkerComponent::GetEndPoint() const {
+const glimmer::TileVector2D &glimmer::AreaMarkerComponent::GetEndPoint() const {
     return endPoint_;
 }

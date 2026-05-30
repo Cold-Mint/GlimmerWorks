@@ -745,8 +745,6 @@ namespace glimmer
         bool isUnbreakable = false;
         //@genNextLine(defaultAbilityList|默认能力列表资源引用)
         std::vector<ItemMessageResource> defaultAbilityList = {};
-        //@genNextLine(durability|耐久度)
-        uint16_t durability = 16;
     };
 
     //@genNextLine(InitialInventoryResource|初始化库存资源)

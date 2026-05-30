@@ -248,7 +248,7 @@ void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value& value
 void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::value& value,
                                                                  ItemManager* itemManager) const
 {
-    auto itemResource = std::make_unique<MaterialItemResource>(toml::get<AbilityItemResource>(value));
+    auto itemResource = std::make_unique<MaterialItemResource>(toml::get<MaterialItemResource>(value));
     itemResource->packId = manifest_.id;
     itemResource->name.SetSelfPackageId(manifest_.id);
     itemResource->description.SetSelfPackageId(manifest_.id);

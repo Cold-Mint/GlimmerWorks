@@ -28,7 +28,7 @@
 #include "core/ecs/GameComponent.h"
 #include "box2d/types.h"
 #include "core/Box2dFilter.h"
-#include "core/math/Vector2D.h"
+#include "core/math/WorldVector2D.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 

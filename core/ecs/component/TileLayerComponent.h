@@ -29,12 +29,11 @@
 #include <vector>
 
 #include "core/ecs/GameComponent.h"
-#include "core/math/Vector2D.h"
-#include "core/math/Vector2DI.h"
+#include "core/math/TileVector2D.h"
+#include "core/math/WorldVector2D.h"
 #include "core/world/generator/TileLayerType.h"
 #include "core/world/generator/TileSnapshot.h"
 #include "SDL3/SDL_rect.h"
-using TileVector2D = glimmer::Vector2DI;
 
 namespace glimmer
 {

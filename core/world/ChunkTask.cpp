@@ -44,7 +44,7 @@ void glimmer::ChunkTask::SetOrigin(const TileVector2D origin) {
 }
 
 
-const TileVector2D &glimmer::ChunkTask::GetChunkVertexCoordinates() const {
+const glimmer::TileVector2D &glimmer::ChunkTask::GetChunkVertexCoordinates() const {
     return chunkVertexCoordinates_;
 }
 

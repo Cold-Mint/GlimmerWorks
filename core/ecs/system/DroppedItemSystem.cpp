@@ -89,11 +89,11 @@ void glimmer::DroppedItemSystem::Render(SDL_Renderer *renderer) {
         }
         if (cameraComponent->IsPointInViewport(cameraTransform2D->GetPosition(), transform2DComponent->GetPosition())) {
             const auto worldPos = transform2DComponent->GetPosition();
-            const CameraVector2D viewport = cameraComponent->GetViewPortPosition(
+            const CameraVector2D viewport = cameraComponent->WorldToScreen(
                 cameraTransform2D->GetPosition(), worldPos);
             SDL_FRect dstRect{
-                viewport.x - size * 0.5f,
-                viewport.y - size * 0.5f,
+                viewport.x - size * 0.5F,
+                viewport.y - size * 0.5F,
                 size,
                 size
             };

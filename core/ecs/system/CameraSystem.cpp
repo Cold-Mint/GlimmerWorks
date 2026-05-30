@@ -26,25 +26,36 @@
  */
 #include "CameraSystem.h"
 #include "../../world/WorldContext.h"
+#include "core/math/CameraVector2D.h"
 
 
-glimmer::CameraSystem::CameraSystem(WorldContext *worldContext)
-    : GameSystem(worldContext) {
+glimmer::CameraSystem::CameraSystem(WorldContext* worldContext)
+    : GameSystem(worldContext)
+{
     RequireComponent<CameraComponent>();
     RequireComponent<Transform2DComponent>();
+    cameraComponent_ = worldContext->GetCameraComponent();
+    window_ = worldContext_->GetAppContext()->GetWindow();
 }
 
-void glimmer::CameraSystem::Render(SDL_Renderer *renderer) {
-    auto *camera = worldContext_->GetCameraComponent();
-    if (camera == nullptr) {
+void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
+{
+    if (cameraComponent_ == nullptr || window_ == nullptr)
+    {
         return;
     }
-    int winW = 0;
-    int winH = 0;
-    SDL_GetWindowSize(worldContext_->GetAppContext()->GetWindow(), &winW, &winH);
-    camera->SetSize(Vector2D(winW, winH));
+    int tempWindowWidth = 0;
+    int tempWindowHeight = 0;
+    SDL_GetWindowSize(window_, &tempWindowWidth, &tempWindowHeight);
+    if (tempWindowHeight != windowHeight_ || tempWindowWidth != windowWidth_)
+    {
+        cameraComponent_->SetSize(CameraVector2D(windowWidth_, windowHeight_));
+        windowWidth_ = tempWindowWidth;
+        windowHeight_ = tempWindowHeight;
+    }
 }
 
-std::string glimmer::CameraSystem::GetName() {
+std::string glimmer::CameraSystem::GetName()
+{
     return "glimmer.CameraSystem";
 }

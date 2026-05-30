@@ -599,7 +599,7 @@ glimmer::GameEntity::ID glimmer::WorldContext::GetPlayerEntity() const
 }
 
 
-std::unordered_map<TileVector2D, glimmer::Chunk*, glimmer::Vector2DIHash>* glimmer::WorldContext::GetAllChunks()
+std::unordered_map<glimmer::TileVector2D, glimmer::Chunk*, glimmer::Vector2DIHash>* glimmer::WorldContext::GetAllChunks()
 {
     if (lastChunksVersion_ != chunksVersion_)
     {
@@ -615,7 +615,7 @@ std::unordered_map<TileVector2D, glimmer::Chunk*, glimmer::Vector2DIHash>* glimm
     return &chunksCache_;
 }
 
-std::unordered_map<TileVector2D, glimmer::TerrainResult*, glimmer::Vector2DIHash>* glimmer::WorldContext::
+std::unordered_map<glimmer::TileVector2D, glimmer::TerrainResult*, glimmer::Vector2DIHash>* glimmer::WorldContext::
 GetTerrainResults()
 {
     return &terrainTileDataCache_;

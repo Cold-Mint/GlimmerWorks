@@ -72,7 +72,7 @@ glimmer::CommandSender *glimmer::CommandManager::GetMouseCommandSender() {
                 float mouseX = 0;
                 float mouseY = 0;
                 SDL_GetMouseState(&mouseX, &mouseY);
-                const WorldVector2D worldPosition = cameraComponent->GetWorldPosition(
+                const WorldVector2D worldPosition = cameraComponent->ScreenToWorld(
                     transform2DComponent->GetPosition(),
                     {mouseX, mouseY});
                 mouseCommandSender_.SetPosition(worldPosition);

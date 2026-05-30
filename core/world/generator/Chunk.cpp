@@ -58,7 +58,7 @@ bool glimmer::Chunk::RemoveReplaceTileCallback(const long index) {
     return true;
 }
 
-TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileVector2D tileVector2d) {
+glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileVector2D tileVector2d) {
     return {
         tileVector2d.x & CHUNK_ALIGN,
         tileVector2d.y & CHUNK_ALIGN
@@ -66,7 +66,7 @@ TileVector2D glimmer::Chunk::TileCoordinatesToChunkVertexCoordinates(const TileV
 }
 
 
-TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const TileVector2D tileVector2d) {
+glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(const TileVector2D tileVector2d) {
     return {
         tileVector2d.x & CHUNK_MASK,
         tileVector2d.y & CHUNK_MASK
@@ -180,7 +180,7 @@ TileStateMessage *glimmer::Chunk::GetOrCreateTileState(const TileLayerType layer
     return tileStateMessage;
 }
 
-TileVector2D glimmer::Chunk::GetPosition() const {
+glimmer::TileVector2D glimmer::Chunk::GetPosition() const {
     return position;
 }
 
@@ -270,10 +270,10 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
     }
 }
 
-WorldVector2D glimmer::Chunk::GetStartWorldPosition() const {
+glimmer::WorldVector2D glimmer::Chunk::GetStartWorldPosition() const {
     return TileLayerComponent::TileToWorld(position);
 }
 
-WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
+glimmer::WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
     return TileLayerComponent::TileToWorld(position + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
 }

@@ -27,6 +27,7 @@
 #include "LightBuffer.h"
 
 #include "LightPropagationTraverser.h"
+#include "core/math/TileVector2D.h"
 #include "core/utils/LightUtils.h"
 
 
@@ -37,6 +38,7 @@ glimmer::TraverseAction glimmer::LightBuffer::ClearLightStepCallback(const Light
                                                                      const TileLayerType layerType,
                                                                      const int rayIndex) {
     if (centerOfCircle) {
+        //Clangd: In template: invalid operands to binary expression ('const const glimmer::TileVector2D' and 'const const glimmer::TileVector2D')
         auto currentTileLightIterator = tileLightData_.find(
             current);
         if (currentTileLightIterator != tileLightData_.end()) {

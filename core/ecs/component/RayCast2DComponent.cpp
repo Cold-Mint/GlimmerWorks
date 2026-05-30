@@ -26,7 +26,7 @@
  */
 #include "RayCast2DComponent.h"
 
-const WorldVector2D &glimmer::RayCast2DComponent::GetOrigin() const {
+const glimmer::WorldVector2D &glimmer::RayCast2DComponent::GetOrigin() const {
     return origin_;
 }
 
@@ -46,7 +46,7 @@ void glimmer::RayCast2DComponent::SetTransform(const WorldVector2D &transform) {
     translation_ = transform;
 }
 
-const WorldVector2D &glimmer::RayCast2DComponent::GetHitPoint() const {
+const glimmer::WorldVector2D &glimmer::RayCast2DComponent::GetHitPoint() const {
     return hitPoint_;
 }
 
@@ -62,7 +62,7 @@ void glimmer::RayCast2DComponent::SetHitShape(const b2ShapeId &hitShapeId) {
     hitShapeId_ = hitShapeId;
 }
 
-const WorldVector2D &glimmer::RayCast2DComponent::GetHitNormal() const {
+const glimmer::WorldVector2D &glimmer::RayCast2DComponent::GetHitNormal() const {
     return hitNormal_;
 }
 
@@ -83,7 +83,7 @@ GameComponentTypeMessage glimmer::RayCast2DComponent::GetComponentType() {
 }
 
 
-const WorldVector2D &glimmer::RayCast2DComponent::GetTranslation() const {
+const glimmer::WorldVector2D &glimmer::RayCast2DComponent::GetTranslation() const {
     return translation_;
 }
 

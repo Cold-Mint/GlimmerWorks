@@ -48,7 +48,7 @@ void glimmer::DiggingComponent::SetStartPosition(TileVector2D startPosition) {
     startPosition_ = std::move(startPosition);
 }
 
-const TileVector2D &glimmer::DiggingComponent::GetStartPosition() const {
+const glimmer::TileVector2D &glimmer::DiggingComponent::GetStartPosition() const {
     return startPosition_;
 }
 

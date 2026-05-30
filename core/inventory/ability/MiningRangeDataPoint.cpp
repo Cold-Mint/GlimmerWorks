@@ -26,7 +26,7 @@
  */
 #include "MiningRangeDataPoint.h"
 
-const TileVector2D &glimmer::MiningRangeDataPoint::GetTileTopLeftPosition() const {
+const glimmer::TileVector2D &glimmer::MiningRangeDataPoint::GetTileTopLeftPosition() const {
     return tileTopLeftPosition_;
 }
 

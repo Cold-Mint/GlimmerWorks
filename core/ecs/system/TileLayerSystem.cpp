@@ -103,7 +103,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
             {
                 continue;
             }
-            Vector2DI offset;
+            TileVector2D offset;
             offset.ReadVector2DIMessage(tileState->offset());
             const TileVector2D tileTopLeftPosition = tileCoord + offset;
             uint64_t tileTopLeftFingerprint = TileLayerComponent::GenerateTileFingerprint(
@@ -113,7 +113,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
                 continue;
             }
             drawnTiles.emplace(tileTopLeftFingerprint);
-            const CameraVector2D tileTopLeftCamera = cameraComponent->GetViewPortPosition(
+            const CameraVector2D tileTopLeftCamera = cameraComponent->WorldToScreen(
                 cameraPos->GetPosition(), TileLayerComponent::TileToWorld(TileVector2D{
                     tileTopLeftPosition.x, tileTopLeftPosition.y + 1
                 }) - WorldVector2D{HALF_TILE_SIZE * zoom, HALF_TILE_SIZE * zoom});
@@ -189,7 +189,7 @@ bool glimmer::TileLayerSystem::HandleEvent(const SDL_Event& event)
     {
         return false;
     }
-    const WorldVector2D worldPos = camera->GetWorldPosition(
+    const WorldVector2D worldPos = camera->ScreenToWorld(
         cameraTransform->GetPosition(),
         CameraVector2D(event.motion.x, event.motion.y)
     );

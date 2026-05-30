@@ -28,7 +28,6 @@
 #if  !defined(NDEBUG)
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
-#include "core/math/Vector2D.h"
 
 namespace glimmer {
     class DebugPanelSystem : public GameSystem {
@@ -46,7 +45,7 @@ namespace glimmer {
          * 渲染区块边界
          */
         static void RenderChunkBounds(SDL_Renderer *renderer, const CameraComponent *cameraComponent,
-                                      WorldVector2D cameraPosition);
+                                      const WorldVector2D& cameraPosition);
 
     public:
         explicit DebugPanelSystem(WorldContext *worldContext);

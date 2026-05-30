@@ -596,6 +596,12 @@ target_sources(GlimmerWorks
         core/console/suggestion/AllocStrategyTypeDynamicSuggestions.cpp
         core/console/command/PlayCommand.cpp
         core/console/suggestion/AudioTrackDynamicSuggestions.cpp
+        core/math/CameraVector2D.cpp
+        core/math/WorldVector2D.cpp
+        core/math/TileVector2D.cpp
+        core/math/Vector2DBase.cpp
+        core/math/Vector2DIBase.cpp
+        core/math/Vector2DIHash.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -865,6 +871,12 @@ target_sources(GlimmerWorks
         core/console/suggestion/AllocStrategyTypeDynamicSuggestions.h
         core/console/command/PlayCommand.h
         core/console/suggestion/AudioTrackDynamicSuggestions.h
+        core/math/WorldVector2D.h
+        core/math/CameraVector2D.h
+        core/math/TileVector2D.h
+        core/math/Vector2DBase.h
+        core/math/Vector2DIBase.h
+        core/math/Vector2DIHash.h
 )
 
 #Define version information

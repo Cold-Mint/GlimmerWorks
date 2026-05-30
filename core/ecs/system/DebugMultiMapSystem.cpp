@@ -134,7 +134,7 @@ void glimmer::DebugMultiMapSystem::Render(SDL_Renderer *renderer) {
         for (int y = topLeft.y; y < bottomRight.y; y++) {
             const TileVector2D tileVector2D = {x, y};
             const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileVector2D);
-            const CameraVector2D screenPos = cameraComponent->GetViewPortPosition(
+            const CameraVector2D screenPos = cameraComponent->WorldToScreen(
                 cameraPos->GetPosition(), worldTilePos);
             SDL_FRect renderQuad;
             renderQuad.w = TILE_SIZE * zoom;

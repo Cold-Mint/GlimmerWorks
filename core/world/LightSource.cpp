@@ -37,7 +37,7 @@ int glimmer::LightSource::GetMaxRadius() const {
     return maxRadius_;
 }
 
-const TileVector2D &glimmer::LightSource::GetCenter() const {
+const glimmer::TileVector2D &glimmer::LightSource::GetCenter() const {
     return center_;
 }
 

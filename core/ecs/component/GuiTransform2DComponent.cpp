@@ -36,11 +36,11 @@ void glimmer::GuiTransform2DComponent::SetSize(const CameraVector2D size) {
     size_ = size;
 }
 
-CameraVector2D glimmer::GuiTransform2DComponent::GetPosition() const {
+glimmer::CameraVector2D glimmer::GuiTransform2DComponent::GetPosition() const {
     return position_;
 }
 
-CameraVector2D glimmer::GuiTransform2DComponent::GetSize() const {
+glimmer::CameraVector2D glimmer::GuiTransform2DComponent::GetSize() const {
     return size_;
 }
 

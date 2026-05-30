@@ -29,8 +29,8 @@
 #include "../../Constants.h"
 #include "../component/CameraComponent.h"
 #include "../component/DebugDrawComponent.h"
-#include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
+#include "core/math/Vector2D.h"
 
 
 glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext *worldContext) : GameSystem(worldContext) {
@@ -53,7 +53,7 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer *renderer) {
         if (debugDrawComponent != nullptr) {
             auto worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity);
             if (worldPositionComponent != nullptr) {
-                auto cameraVector2d = cameraComponent->GetViewPortPosition(
+                auto cameraVector2d = cameraComponent->WorldToScreen(
                     cameraPos->GetPosition(), worldPositionComponent->GetPosition());
                 if (!cameraComponent->
                     IsPointInViewport(cameraPos->GetPosition(), worldPositionComponent->GetPosition())) {

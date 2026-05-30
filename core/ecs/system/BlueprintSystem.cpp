@@ -219,12 +219,12 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     blueprintComponent_->SetTopLeftVector({leftBottom.x, leftBottom.y + tileHeight - 1});
     //Drawing the coordinates doesn't require -1.
     //绘制坐标不不需要-1。
-    const CameraVector2D topLeftCamera = cameraComponent_->GetViewPortPosition(
+    const CameraVector2D topLeftCamera = cameraComponent_->WorldToScreen(
         cameraTransform2DComponent_->GetPosition(),
         TileLayerComponent::TileToWorld({leftBottom.x, leftBottom.y + tileHeight}) -
         WorldVector2D(HALF_TILE_SIZE * zoom, HALF_TILE_SIZE * zoom)
     );
-    const CameraVector2D focusWorldTileCamera = cameraComponent_->GetViewPortPosition(
+    const CameraVector2D focusWorldTileCamera = cameraComponent_->WorldToScreen(
         cameraTransform2DComponent_->GetPosition(),
         TileLayerComponent::TileToWorld({focusPosition.x, focusPosition.y + 1}) - WorldVector2D(
             HALF_TILE_SIZE * zoom, HALF_TILE_SIZE * zoom));
@@ -280,7 +280,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
                     int relX = i % tileWidth;
                     int relY = i / tileWidth;
                     TileVector2D currTile = {leftBottom.x + relX, leftBottom.y + relY};
-                    const CameraVector2D tileScreenPos = cameraComponent_->GetViewPortPosition(
+                    const CameraVector2D tileScreenPos = cameraComponent_->WorldToScreen(
                         cameraTransform2DComponent_->GetPosition(), TileLayerComponent::TileToWorld(currTile));
                     SDL_FRect indicatorRenderQuad;
                     indicatorRenderQuad.w = TILE_SIZE * zoom;

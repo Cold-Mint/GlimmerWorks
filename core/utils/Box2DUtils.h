@@ -26,7 +26,7 @@
  */
 #pragma once
 #include "box2d/math_functions.h"
-#include "core/math/Vector2D.h"
+#include "core/math/WorldVector2D.h"
 
 namespace glimmer {
     class Box2DUtils {
@@ -54,7 +54,7 @@ namespace glimmer {
          * @param vec2 vec2 Box2D Vec2
          * @return Vector2D Vector2D
          */
-        static Vector2D ToPixels(b2Vec2 vec2);
+        static WorldVector2D ToPixels(b2Vec2 vec2);
 
         /**
          * Convert Vector2D to Box2D Vec2
@@ -62,6 +62,6 @@ namespace glimmer {
          * @param vector2D vector2D Vector2D
          * @return b2Vec2 b2Vec2
          */
-        static b2Vec2 ToMeters(const Vector2D& vector2D);
+        static b2Vec2 ToMeters(const WorldVector2D& vector2D);
     };
 }

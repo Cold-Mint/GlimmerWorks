@@ -29,11 +29,11 @@
 #include "core/Constants.h"
 
 
-void glimmer::DraggableComponent::SetSize(const CameraVector2D size) {
+void glimmer::DraggableComponent::SetSize(const CameraVector2D& size) {
     size_ = size;
 }
 
-CameraVector2D glimmer::DraggableComponent::GetSize() const {
+glimmer::CameraVector2D glimmer::DraggableComponent::GetSize() const {
     return size_;
 }
 

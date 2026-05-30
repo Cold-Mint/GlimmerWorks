@@ -26,7 +26,7 @@
  */
 #pragma once
 #include "core/ecs/GameComponent.h"
-#include "core/math/Vector2D.h"
+#include "core/math/WorldVector2D.h"
 
 namespace glimmer {
     /**

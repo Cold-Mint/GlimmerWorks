@@ -33,7 +33,7 @@ void glimmer::MagneticComponent::SetType(uint16_t type) {
 }
 
 
-const WorldVector2D &glimmer::MagneticComponent::GetStartPos() const {
+const glimmer::WorldVector2D &glimmer::MagneticComponent::GetStartPos() const {
     return startPos_;
 }
 

@@ -73,9 +73,14 @@ namespace glimmer {
 
         std::shared_ptr<MIX_Audio> ImplLoadAudioFromFile(const std::string &path, const Mods &modConfig);
 
+        /**
+         * Load texture from file
+         * 从文件加载纹理
+         * @param appContext appContext 应用上下文环境
+         * @param resourceRef resourceRef 资源引用
+         * @return Not found, return null. 找不到返回null
+         */
         std::shared_ptr<SDL_Texture> LoadTextureFromFile(AppContext *appContext, const ResourceRef *resourceRef);
-
-        std::shared_ptr<SDL_Texture> LoadTextureFromFileRaw(AppContext *appContext, const ResourceRef *resourceRef);
 
         std::shared_ptr<MIX_Audio> LoadAudioFromFile(AppContext *appContext, const ResourceRef *resourceRef);
 

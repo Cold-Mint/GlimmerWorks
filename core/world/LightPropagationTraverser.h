@@ -30,7 +30,8 @@
 
 #include "TraverseAction.h"
 #include "core/Constants.h"
-#include "core/math/Vector2DI.h"
+#include "core/math/TileVector2D.h"
+#include "core/math/Vector2DIHash.h"
 
 namespace glimmer {
     /**

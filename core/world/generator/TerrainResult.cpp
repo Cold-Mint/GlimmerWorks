@@ -35,7 +35,7 @@ void glimmer::TerrainResult::SetPosition(const TileVector2D &position) {
     position_ = position;
 }
 
-TileVector2D glimmer::TerrainResult::GetPosition() const {
+glimmer::TileVector2D glimmer::TerrainResult::GetPosition() const {
     return position_;
 }
 

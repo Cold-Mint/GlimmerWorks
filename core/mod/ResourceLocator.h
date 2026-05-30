@@ -28,11 +28,13 @@
 #include "Resource.h"
 #include "ResourceRef.h"
 #include "core/math/Color.h"
-#include "core/scene/AppContext.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
 namespace glimmer
 {
+    class WorldContext;
+    enum TileLayerType : uint8_t;
+    class AppContext;
     class Item;
     class TileInstancePool;
     /**
@@ -61,7 +63,19 @@ namespace glimmer
     public:
         explicit ResourceLocator(AppContext* appContext_);
 
+        /**
+         * Load the texture and return an error placeholder if the loading fails.
+         * 加载纹理，并在加载失败后返回错误占位符。
+         * @param resourceRef
+         * @return
+         */
         [[nodiscard]] std::shared_ptr<SDL_Texture> FindTexture(const ResourceRef* resourceRef) const;
+
+        /**
+         * 加载纹理
+         * @param resourceRef 资源引用
+         * @return 找不到返回null，权限受限返回accessDeniedTexture。
+         */
         [[nodiscard]] std::shared_ptr<SDL_Texture> FindTextureRaw(const ResourceRef* resourceRef) const;
 
         [[nodiscard]] std::shared_ptr<MIX_Audio> FindAudio(const ResourceRef* resourceRef) const;

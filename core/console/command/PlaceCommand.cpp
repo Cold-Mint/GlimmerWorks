@@ -120,7 +120,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
         const int baseY = tilePosition.y;
 
         Chunk* currentChunk = nullptr;
-        Vector2DI currentChunkCoord = {INT_MIN, INT_MIN};
+        TileVector2D currentChunkCoord = {INT_MIN, INT_MIN};
         for (auto& [tileLayerType, tileMap] : structureInfo.GetStructureMap())
         {
             for (auto& [coord, resourceRef] : tileMap)
@@ -131,7 +131,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
                 const int chunkY = worldY & ~CHUNK_MASK;
                 const int relativeX = worldX & CHUNK_MASK;
                 const int relativeY = worldY & CHUNK_MASK;
-                Vector2DI chunkCoord{chunkX, chunkY};
+                TileVector2D chunkCoord{chunkX, chunkY};
                 if (chunkCoord != currentChunkCoord)
                 {
                     currentChunkCoord = chunkCoord;

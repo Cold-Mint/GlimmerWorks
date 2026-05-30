@@ -29,12 +29,13 @@
 #include "core/math/Vector2D.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
+#include "core/world/WorldContext.h"
 #include "SDL3/SDL_render.h"
 
 namespace glimmer {
     class SpiritRendererComponent : public GameComponent {
         ResourceRef resourceRef_;
-        Vector2D position_;
+        WorldVector2D position_;
         std::shared_ptr<SDL_Texture> texture_ = nullptr;
         bool flipH_ = false;
         bool flipV_ = false;
@@ -54,10 +55,10 @@ namespace glimmer {
 
         [[nodiscard]] SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
 
-        void SetPosition(Vector2D position);
+        void SetPosition(WorldVector2D position);
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
-        [[nodiscard]] const Vector2D &GetPosition() const;
+        [[nodiscard]] const WorldVector2D &GetPosition() const;
     };
 }

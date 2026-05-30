@@ -27,7 +27,7 @@
 #pragma once
 #include "TerrainResultType.h"
 #include "core/mod/Resource.h"
-#include "core/math/Vector2DI.h"
+#include "core/math/TileVector2D.h"
 
 
 /**
@@ -35,7 +35,7 @@
  * 瓦片地形结果
  */
 struct TerrainTileResult {
-    TileVector2D world;
+    glimmer::TileVector2D world;
     glimmer::TerrainResultType terrainType = glimmer::AIR;
     glimmer::BiomeResource *biomeResource = nullptr;
     glimmer::ResourceRef resRef;

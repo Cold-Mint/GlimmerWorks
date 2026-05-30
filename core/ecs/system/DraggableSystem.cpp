@@ -50,7 +50,7 @@ SDL_FRect glimmer::DraggableSystem::DraggableBorder(GameEntity::ID entityId, Wor
         if (!cameraComponent->IsPointInViewport(cameraPosition, entityPosition)) {
             return border;
         }
-        startCoordinates = cameraComponent->GetViewPortPosition(
+        startCoordinates = cameraComponent->WorldToScreen(
             cameraPosition, transformComponent->GetPosition());
     }
     const GuiTransform2DComponent *guiTransformComponent = worldContext_->GetComponent<

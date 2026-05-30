@@ -60,8 +60,8 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         const auto slotComp = worldContext_->GetComponent<ItemSlotComponent>(entity);
         const auto transform = worldContext_->GetComponent<GuiTransform2DComponent>(entity);
 
-        const Vector2D pos = transform->GetPosition();
-        const Vector2D size = transform->GetSize();
+        const CameraVector2D pos = transform->GetPosition();
+        const CameraVector2D size = transform->GetSize();
 
         const Item* item = slotComp->GetItem();
         const SDL_FRect rect = {pos.x, pos.y, size.x, size.y};

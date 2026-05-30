@@ -31,18 +31,23 @@
 #include "TileLightData.h"
 #include "TraverseAction.h"
 #include "core/math/Color.h"
+#include "core/math/Vector2DIHash.h"
 
 
-namespace glimmer {
-    class LightBuffer {
+namespace glimmer
+{
+    class TileVector2D;
+
+    class LightBuffer
+    {
         std::unordered_map<const TileVector2D, std::unique_ptr<TileLightData>, Vector2DIHash> tileLightData_;
 
-        TraverseAction ClearLightStepCallback(const LightSource *lightSourcePtr,
+        TraverseAction ClearLightStepCallback(const LightSource* lightSourcePtr,
                                               TileVector2D current,
                                               TileVector2D next, bool centerOfCircle, TileLayerType layerType,
                                               int rayIndex);
 
-        TraverseAction SetLightStepCallback(const LightSource *lightSourcePtr, TileVector2D current, TileVector2D next,
+        TraverseAction SetLightStepCallback(const LightSource* lightSourcePtr, TileVector2D current, TileVector2D next,
                                             bool centerOfCircle, TileLayerType layerType,
                                             int rayIndex);
 
@@ -51,18 +56,18 @@ namespace glimmer {
 
         void SetBackLightMask(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightMask> backLightMask);
 
-        void ClearSideLightMask(const TileVector2D &position, TileLayerType layerType);
+        void ClearSideLightMask(const TileVector2D& position, TileLayerType layerType);
 
-        void ClearBackLightMask(const TileVector2D &position, TileLayerType layerType);
+        void ClearBackLightMask(const TileVector2D& position, TileLayerType layerType);
 
-        void ClearTileLightData(const TileVector2D &position);
+        void ClearTileLightData(const TileVector2D& position);
 
-        [[nodiscard]] const TileLightData *GetTileLightData(const TileVector2D &position) const;
+        [[nodiscard]] const TileLightData* GetTileLightData(const TileVector2D& position) const;
 
         void SetLightSource(TileVector2D position, TileLayerType layerType, std::unique_ptr<LightSource> lightSource);
 
         void ClearLightSource(TileVector2D position, TileLayerType layerType);
 
-        const Color *GetFinalLightColor(TileVector2D position);
+        const Color* GetFinalLightColor(TileVector2D position);
     };
 }

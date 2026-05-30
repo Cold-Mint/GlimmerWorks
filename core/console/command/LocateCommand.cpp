@@ -32,9 +32,9 @@
 glimmer::LocateCommand::LocateCommand(AppContext *appContext) : Command(appContext) {
 }
 
-std::optional<TileVector2D> glimmer::LocateCommand::SearchBiomes(int tileX, const BiomesManager *biomesManager,
-                                                                 ChunkGenerator *chunkGenerator,
-                                                                 const std::string &targetBiomeId) {
+std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int tileX, const BiomesManager *biomesManager,
+                                                                          ChunkGenerator *chunkGenerator,
+                                                                          const std::string &targetBiomeId) {
     TileVector2D chunkCenter = Chunk::TileCoordinatesToChunkVertexCoordinates({tileX, 0}) + TileVector2D{
                                    HALF_CHUNK_SIZE, HALF_CHUNK_SIZE
                                };

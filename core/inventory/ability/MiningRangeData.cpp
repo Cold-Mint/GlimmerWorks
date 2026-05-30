@@ -42,7 +42,7 @@ void glimmer::MiningRangeData::TryPushPoint(const TileLayerComponent* tileLayerC
     {
         return;
     }
-    auto offset = Vector2DI(0, 0);
+    auto offset = TileVector2D(0, 0);
     offset.ReadVector2DIMessage(currentTileStateMessage->offset());
     const TileVector2D tileTopLeftPosition = position + offset;
     const TileStateMessage* topLeftTileStateMessage = tileLayerComponent->GetSelfLayerTileState(tileTopLeftPosition);

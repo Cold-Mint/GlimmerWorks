@@ -55,14 +55,16 @@ SDL_Texture *glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator 
     return texture_.get();
 }
 
-void glimmer::SpiritRendererComponent::SetPosition(const Vector2D position) {
+void glimmer::SpiritRendererComponent::SetPosition(WorldVector2D position)
+{
     position_ = position;
 }
+
 
 GameComponentTypeMessage glimmer::SpiritRendererComponent::GetComponentType() {
     return COMPONENT_SPIRIT_RENDERER;
 }
 
-const glimmer::Vector2D &glimmer::SpiritRendererComponent::GetPosition() const {
+const glimmer::WorldVector2D &glimmer::SpiritRendererComponent::GetPosition() const {
     return position_;
 }

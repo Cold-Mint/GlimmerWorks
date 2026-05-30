@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,29 +24,21 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BlueprintComponent.h"
+#pragma once
+#include "Vector2D.h"
 
-void glimmer::BlueprintComponent::SetCanPlace(bool canPlace)
+namespace glimmer
 {
-    canPlace_ = canPlace;
-}
-
-bool glimmer::BlueprintComponent::CanPlace() const
-{
-    return canPlace_;
-}
-
-void glimmer::BlueprintComponent::SetTopLeftVector(const TileVector2D& topLeftVector)
-{
-    topLeftVector_ = topLeftVector;
-}
-
-const glimmer::TileVector2D& glimmer::BlueprintComponent::GetTopLeftVector() const
-{
-    return topLeftVector_;
-}
-
-GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentType()
-{
-    return COMPONENT_BLUEPRINT;
+    /**
+     * Two-dimensional vector of camera coordinates
+     * 相机坐标二维向量
+     * Unit: Screen pixels
+     * 单位：屏幕像素
+     */
+    class CameraVector2D final : public Vector2DBase<CameraVector2D>
+    {
+        //Inherit all the constructors of the parent class.
+        //继承父类的所有构造函数。
+        using Vector2DBase::Vector2DBase;
+    };
 }

@@ -110,7 +110,7 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer *renderer) {
             IsPointInViewport(cameraTransform2D->GetPosition(), transform2DComponent->GetPosition())) {
             continue;
         }
-        CameraVector2D camera2D = cameraComponent->GetViewPortPosition(cameraTransform2D->GetPosition(),
+        CameraVector2D camera2D = cameraComponent->WorldToScreen(cameraTransform2D->GetPosition(),
                                                                        transform2DComponent->GetPosition());
         std::string &text = floatingTextComponent->GetText();
         if (text.empty()) {

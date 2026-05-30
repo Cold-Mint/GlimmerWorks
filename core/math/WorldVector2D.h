@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,29 +24,21 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BlueprintComponent.h"
+#pragma once
+#include "Vector2D.h"
 
-void glimmer::BlueprintComponent::SetCanPlace(bool canPlace)
+namespace glimmer
 {
-    canPlace_ = canPlace;
-}
-
-bool glimmer::BlueprintComponent::CanPlace() const
-{
-    return canPlace_;
-}
-
-void glimmer::BlueprintComponent::SetTopLeftVector(const TileVector2D& topLeftVector)
-{
-    topLeftVector_ = topLeftVector;
-}
-
-const glimmer::TileVector2D& glimmer::BlueprintComponent::GetTopLeftVector() const
-{
-    return topLeftVector_;
-}
-
-GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentType()
-{
-    return COMPONENT_BLUEPRINT;
+    /**
+     * Two-dimensional vector of world coordinates
+     * 世界坐标二维向量
+     * The unit of the world coordinate is logical pixels. It is affected by the camera's zoom.
+     * 世界坐标的单位是逻辑像素。会受到相机缩放的影响。
+     * For example: X + 1, when scaled by a factor of 2, then it actually moves 2 screen pixels to the right.
+     * 例如：X+1,缩放为2倍，那么实际向右偏移了2屏幕像素。
+     */
+    class WorldVector2D final : public Vector2DBase<WorldVector2D>
+    {
+        using Vector2DBase::Vector2DBase;
+    };
 }

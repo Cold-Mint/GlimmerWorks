@@ -92,24 +92,23 @@ void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer *renderer, fl
 
 
 void glimmer::DebugPanelSystem::RenderChunkBounds(SDL_Renderer *renderer, const CameraComponent *cameraComponent,
-                                                  const WorldVector2D cameraPosition) {
+                                                  const WorldVector2D& cameraPosition) {
     //Calculate the size of each block(World Coordinates)
     //计算每个区块的尺寸（世界坐标）
     auto viewportRect = cameraComponent->GetViewportRect(cameraPosition);
     float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
-    float halfTile = TILE_SIZE * 0.5f;
     int minChunkX = static_cast<int>(floorf(viewportRect.x / chunkWorldSize));
     int minChunkY = static_cast<int>(floorf(viewportRect.y / chunkWorldSize));
     int maxChunkX = static_cast<int>(floorf((viewportRect.x + viewportRect.w) / chunkWorldSize));
     int maxChunkY = static_cast<int>(floorf((viewportRect.y + viewportRect.h) / chunkWorldSize));
-    for (int cx = minChunkX; cx <= maxChunkX; ++cx) {
-        for (int cy = minChunkY; cy <= maxChunkY; ++cy) {
+    for (int chunkX = minChunkX; chunkX <= maxChunkX; ++chunkX) {
+        for (int chunkY = minChunkY; chunkY <= maxChunkY; ++chunkY) {
             WorldVector2D chunkWorldPos{
-                static_cast<float>(cx) * chunkWorldSize - halfTile,
-                static_cast<float>(cy) * chunkWorldSize - halfTile
+                static_cast<float>(chunkX) * chunkWorldSize - HALF_TILE_SIZE,
+                static_cast<float>(chunkY) * chunkWorldSize - HALF_TILE_SIZE
             };
             CameraVector2D screenPos =
-                    cameraComponent->GetViewPortPosition(
+                    cameraComponent->WorldToScreen(
                         cameraPosition,
                         chunkWorldPos
                     );
@@ -170,7 +169,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
     float totalTextHeight = totalLines * lineSpacing;
     yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;
     CameraVector2D cameraVector2d = cameraComponent->
-            GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
+            WorldToScreen(cameraTransform->GetPosition(), mousePosition_);
     std::string mouseText = fmt::format(
         fmt::runtime(appContext->GetLangsResources()->mousePosition),
         mousePosition_.x, mousePosition_.y, cameraVector2d.x, cameraVector2d.y
@@ -332,7 +331,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer *renderer) {
         }
         SDL_DestroySurface(s);
     }
-    CameraVector2D screenPos = cameraComponent->GetViewPortPosition(cameraTransform->GetPosition(), mousePosition_);
+    CameraVector2D screenPos = cameraComponent->WorldToScreen(cameraTransform->GetPosition(), mousePosition_);
     RenderCrosshairToEdge(renderer, screenPos.x, screenPos.y);
     AppContext::RestoreColorRenderer(renderer);
 }
@@ -350,7 +349,7 @@ bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event &event) {
         return false;
     }
     if (event.type == SDL_EVENT_MOUSE_MOTION) {
-        mousePosition_ = cameraComponent->GetWorldPosition(
+        mousePosition_ = cameraComponent->ScreenToWorld(
             transform2dComponent->GetPosition(),
             CameraVector2D{
                 event.motion.x, event.motion.y

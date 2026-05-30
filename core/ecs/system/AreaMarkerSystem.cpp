@@ -94,8 +94,8 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
     rectWorldMax.y = maxWorldY + HALF_TILE_SIZE;
     if (cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMin) ||
         cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMax)) {
-        CameraVector2D camMin = cameraComponent_->GetViewPortPosition(cameraPosition, rectWorldMin);
-        CameraVector2D camMax = cameraComponent_->GetViewPortPosition(cameraPosition, rectWorldMax);
+        CameraVector2D camMin = cameraComponent_->WorldToScreen(cameraPosition, rectWorldMin);
+        CameraVector2D camMax = cameraComponent_->WorldToScreen(cameraPosition, rectWorldMax);
         SDL_FRect rect;
         rect.x = std::min(camMin.x, camMax.x);
         rect.y = std::min(camMin.y, camMax.y);

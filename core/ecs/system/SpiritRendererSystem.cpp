@@ -73,7 +73,7 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
             static_cast<float>(sdlTexture->h)
         };
         if (cameraComponent->IsRectInViewport(cameraTransform2D->GetPosition(), &worldVectorRect)) {
-            CameraVector2D cameraVector2d = cameraComponent->GetViewPortPosition(
+            CameraVector2D cameraVector2d = cameraComponent->WorldToScreen(
                 cameraTransform2D->GetPosition(), worldVector2d);
             SDL_FRect dstrect = {
                 cameraVector2d.x, cameraVector2d.y, static_cast<float>(sdlTexture->w),

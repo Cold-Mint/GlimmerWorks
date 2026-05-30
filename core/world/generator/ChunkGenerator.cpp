@@ -277,8 +277,8 @@ void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const
                     LogCat::d("StructurePlacement", "Processing candidate point - Index: ", i, ", localX: ", localX,
                               ", localY: ", localY);
 
-                    Vector2DI structuralOrigin{localX, localY};
-                    Vector2DI globalOrigin = position + structuralOrigin;
+                    TileVector2D structuralOrigin{localX, localY};
+                    TileVector2D globalOrigin = position + structuralOrigin;
 
                     LogCat::d("StructurePlacement", "Generating structure at global origin - x: ", globalOrigin.x,
                               ", y: ", globalOrigin.y);
@@ -295,7 +295,7 @@ void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const
                         const int baseY = globalOrigin.y;
 
                         TerrainResult* currentTerrain = nullptr;
-                        Vector2DI currentChunk = {INT_MIN, INT_MIN};
+                        TileVector2D currentChunk = {INT_MIN, INT_MIN};
                         LogCat::d("StructurePlacement", "Structure generated successfully - Width: ",
                                   width, ", Height: ", height);
                         for (auto& [tileLayerType, tileMap] : structureInfo.GetStructureMap())
@@ -308,7 +308,7 @@ void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const
                                 const int chunkY = worldY & ~CHUNK_MASK;
                                 const int relativeX = worldX & CHUNK_MASK;
                                 const int relativeY = worldY & CHUNK_MASK;
-                                Vector2DI chunkCoord{chunkX, chunkY};
+                                TileVector2D chunkCoord{chunkX, chunkY};
                                 if (chunkCoord != currentChunk)
                                 {
                                     currentChunk = chunkCoord;

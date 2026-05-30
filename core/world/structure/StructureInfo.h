@@ -27,6 +27,7 @@
 #pragma once
 
 #include "core/ecs/component/TileLayerComponent.h"
+#include "core/math/Vector2DIHash.h"
 #include "core/mod/ResourceRef.h"
 
 namespace glimmer {

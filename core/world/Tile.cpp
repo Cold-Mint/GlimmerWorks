@@ -145,9 +145,9 @@ glimmer::TileLayerType glimmer::Tile::GetLayerType() const
 }
 
 
-TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType tileAnchorType, const uint8_t tileWidth,
-                                                const uint8_t tileHeight,
-                                                const Vector2DIResource& customTileAnchor)
+glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType tileAnchorType, const uint8_t tileWidth,
+                                                         const uint8_t tileHeight,
+                                                         const Vector2DIResource& customTileAnchor)
 {
     TileVector2D result = TileVector2D(0, 0);
     switch (tileAnchorType)
@@ -329,7 +329,7 @@ bool glimmer::Tile::IsAutoDigCostScale() const
     return autoDigCostScale_;
 }
 
-const TileVector2D* glimmer::Tile::GetTileAnchor() const
+const glimmer::TileVector2D* glimmer::Tile::GetTileAnchor() const
 {
     return &tileAnchor_;
 }

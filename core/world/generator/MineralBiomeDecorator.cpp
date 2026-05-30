@@ -49,7 +49,7 @@ void glimmer::MineralBiomeDecorator::DecorationImp(WorldContext *worldContext, T
     for (int localX = 0; localX < CHUNK_SIZE; localX++) {
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
-            const Vector2DI absolutePosition = terrainResult->GetPosition() + Vector2DI(localX, localY);
+            const TileVector2D absolutePosition = terrainResult->GetPosition() + TileVector2D(localX, localY);
             float elevation = ChunkGenerator::GetElevation(absolutePosition.y);
             if (elevation > decoratorResource->maxSpawnElevation || elevation < decoratorResource->minSpawnElevation) {
                 continue;

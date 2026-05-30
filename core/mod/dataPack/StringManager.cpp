@@ -73,17 +73,14 @@ glimmer::StringResource *glimmer::StringManager::AddResource(std::unique_ptr<Str
 }
 
 glimmer::StringResource *glimmer::StringManager::Find(const std::string &packId, const std::string &key) {
-    LogCat::d("Searching for string resource: packId = ", packId, ", key = ", key);
     const auto packIt = stringMap_.find(packId);
     if (packIt == stringMap_.end()) {
-        LogCat::w("Pack not found: ", packId);
         return nullptr;
     }
 
     auto &keyMap = packIt->second;
     const auto keyIt = keyMap.find(key);
     if (keyIt == keyMap.end()) {
-        LogCat::w("Key not found in pack ", packId, ": ", key);
         return nullptr;
     }
     return keyIt->second.get();

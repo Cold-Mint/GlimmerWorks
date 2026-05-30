@@ -260,6 +260,15 @@ void glimmer::WorldContext::UpdateChunkLight(const Chunk* chunk) const
 
 glimmer::WorldContext::~WorldContext()
 {
+    Config* config = appContext_->GetConfig();
+    if (config != nullptr)
+    {
+        if (configChangedId_ != INVALID_CONFIG_CALL_BACK)
+        {
+            config->UnregisterOnConfigChanged(configChangedId_);
+        }
+    }
+
     const ItemContainerComponent* itemContainerComponent = GetComponent<ItemContainerComponent>(player_);
     if (itemCallback_ != nullptr && itemContainerComponent != nullptr)
     {
@@ -477,59 +486,51 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                     if (item == nullptr)
                     {
                         playerComponent->item = nullptr;
+                        return;
                     }
-                    else
+                    const size_t amount = item->GetAmount();
+                    if (amount == 0)
                     {
-                        const size_t amount = item->GetAmount();
-                        if (amount == 0)
+                        playerComponent->item = nullptr;
+                        return;
+                    }
+                    if (!item->IsUnbreakable() && item->GetRemaining() == 0)
+                    {
+                        audioManager_->TryPlayFree(AMBIENT, itemBreakSFX_.get(), 0);
+                        auto composableItem = dynamic_cast<ComposableItem*>(item);
+                        if (composableItem != nullptr)
                         {
-                            playerComponent->item = nullptr;
-                        }
-                        else
-                        {
-                            playerComponent->item = item;
-                        }
-                        const size_t remaining = item->GetRemaining();
-                        if (remaining == 0)
-                        {
-                            playerComponent->item = nullptr;
-                            audioManager_->TryPlayFree(AMBIENT, itemBreakSFX_.get(), 0);
-                            auto composableItem = dynamic_cast<ComposableItem*>(item);
-                            if (composableItem != nullptr)
+                            ItemContainer* itemContainer = composableItem->GetItemContainer();
+                            if (itemContainer != nullptr)
                             {
-                                ItemContainer* itemContainer = composableItem->GetItemContainer();
-                                if (itemContainer != nullptr)
+                                size_t size = itemContainer->GetCapacity();
+                                for (size_t i = 0; i < size; i++)
                                 {
-                                    size_t size = itemContainer->GetCapacity();
-                                    for (size_t i = 0; i < size; i++)
+                                    Item* abilityItem = itemContainer->GetItem(i);
+                                    if (abilityItem != nullptr)
                                     {
-                                        Item* abilityItem = itemContainer->GetItem(i);
-                                        if (abilityItem != nullptr)
+                                        const size_t abilityRemaining = abilityItem->GetRemaining();
+                                        if (abilityRemaining > 0)
                                         {
-                                            const size_t abilityRemaining = abilityItem->GetRemaining();
-                                            if (abilityRemaining > 0)
-                                            {
-                                                std::unique_ptr<Item> takeItem = itemContainer->TakeItem(
-                                                    i, abilityItem->GetAmount());
-                                                const GameEntity::ID droppedEntity = CreateEntity();
-                                                DroppedItemCreator droppedItemCreator{this};
-                                                droppedItemCreator.LoadTemplateComponents(droppedEntity,
-                                                    DroppedItemCreator::GetResourceRef());
-                                                droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                                    DroppedItemCreator::GetEntityItemMessage(
-                                                        GetCameraTransform2D()->
-                                                        GetPosition(), std::move(takeItem), 2));
-                                            }
+                                            std::unique_ptr<Item> takeItem = itemContainer->TakeItem(
+                                                i, abilityItem->GetAmount());
+                                            const GameEntity::ID droppedEntity = CreateEntity();
+                                            DroppedItemCreator droppedItemCreator{this};
+                                            droppedItemCreator.LoadTemplateComponents(droppedEntity,
+                                                DroppedItemCreator::GetResourceRef());
+                                            droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                                DroppedItemCreator::GetEntityItemMessage(
+                                                    GetCameraTransform2D()->
+                                                    GetPosition(), std::move(takeItem), 2));
                                         }
                                     }
                                 }
                             }
                         }
-                        else
-                        {
-                            playerComponent->item = item;
-                        }
+                        playerComponent->item = nullptr;
+                        return;
                     }
+                    playerComponent->item = item;
                 });
         }
     }
@@ -599,7 +600,8 @@ glimmer::GameEntity::ID glimmer::WorldContext::GetPlayerEntity() const
 }
 
 
-std::unordered_map<glimmer::TileVector2D, glimmer::Chunk*, glimmer::Vector2DIHash>* glimmer::WorldContext::GetAllChunks()
+std::unordered_map<glimmer::TileVector2D, glimmer::Chunk*, glimmer::Vector2DIHash>*
+glimmer::WorldContext::GetAllChunks()
 {
     if (lastChunksVersion_ != chunksVersion_)
     {
@@ -1039,6 +1041,25 @@ void glimmer::WorldContext::SetDiggingComponent(DiggingComponent* diggingCompone
 void glimmer::WorldContext::SetCameraComponent(CameraComponent* cameraComponent)
 {
     cameraComponent_ = cameraComponent;
+    Config* config = appContext_->GetConfig();
+    if (config == nullptr)
+    {
+        return;
+    }
+    if (configChangedId_ != INVALID_CONFIG_CALL_BACK)
+    {
+        config->UnregisterOnConfigChanged(configChangedId_);
+    }
+    configChangedId_ = config->RegisterOnConfigChanged(true, std::make_unique<std::function<void(const Config*)>>(
+                                                           [this](const Config* cfg)
+                                                           {
+                                                               float oldZoom = cameraComponent_->GetZoom();
+                                                               if (oldZoom == cfg->window.cameraScale)
+                                                               {
+                                                                   return;
+                                                               }
+                                                               cameraComponent_->SetZoom(cfg->window.cameraScale);
+                                                           }));
 }
 
 glimmer::DiggingComponent* glimmer::WorldContext::GetDiggingComponent() const

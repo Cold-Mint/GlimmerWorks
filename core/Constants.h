@@ -256,7 +256,10 @@ static constexpr std::string ACCESS_DENIED_TEXTURE_KEY = "@access_denied";
  */
 static constexpr float TILE_PLACE_RANGE = 10;
 
-static constexpr int DROPPED_ITEM_SIZE = TILE_SIZE * 0.8F;
+static constexpr float DROPPED_ITEM_SIZE = TILE_SIZE * 0.8F;
+
+static constexpr size_t INVALID_CONFIG_CALL_BACK = 0;
+
 
 /**
  * @brief Box2D 世界坐标到像素坐标的缩放因子

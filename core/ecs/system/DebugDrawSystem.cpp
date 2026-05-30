@@ -33,30 +33,38 @@
 #include "core/math/Vector2D.h"
 
 
-glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
     RequireComponent<DebugDrawComponent>();
     RequireComponent<Transform2DComponent>();
 }
 
-void glimmer::DebugDrawSystem::Render(SDL_Renderer *renderer) {
-    const auto *cameraComponent = worldContext_->GetCameraComponent();
-    const auto *cameraPos = worldContext_->GetCameraTransform2D();
-    if (cameraComponent == nullptr) {
+void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
+{
+    const auto* cameraComponent = worldContext_->GetCameraComponent();
+    const auto* cameraPos = worldContext_->GetCameraTransform2D();
+    if (cameraComponent == nullptr)
+    {
         return;
     }
-    if (cameraPos == nullptr) {
+    if (cameraPos == nullptr)
+    {
         return;
     }
     auto gameEntities = worldContext_->GetEntityIDWithComponents<DebugDrawComponent, Transform2DComponent>();
-    for (auto entity: gameEntities) {
+    for (auto entity : gameEntities)
+    {
         auto debugDrawComponent = worldContext_->GetComponent<DebugDrawComponent>(entity);
-        if (debugDrawComponent != nullptr) {
+        if (debugDrawComponent != nullptr)
+        {
             auto worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity);
-            if (worldPositionComponent != nullptr) {
+            if (worldPositionComponent != nullptr)
+            {
                 auto cameraVector2d = cameraComponent->WorldToScreen(
                     cameraPos->GetPosition(), worldPositionComponent->GetPosition());
                 if (!cameraComponent->
-                    IsPointInViewport(cameraPos->GetPosition(), worldPositionComponent->GetPosition())) {
+                    IsPointInViewport(cameraPos->GetPosition(), worldPositionComponent->GetPosition()))
+                {
                     continue;
                 }
                 SDL_Color oldColor = {255, 255, 255, 255};
@@ -64,12 +72,14 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer *renderer) {
                 const auto color = debugDrawComponent->GetColor();
                 SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
                 SDL_FRect renderQuad;
-                float w = debugDrawComponent->GetSize().x * cameraComponent->GetZoom();
-                float h = debugDrawComponent->GetSize().y * cameraComponent->GetZoom();
+                WorldVector2D worldVector2D = debugDrawComponent->GetSize();
+                float zoom = cameraComponent->GetZoom();
+                float w = worldVector2D.x * zoom;
+                float h = worldVector2D.y * zoom;
                 renderQuad.w = w;
                 renderQuad.h = h;
-                renderQuad.x = cameraVector2d.x - w * 0.5f;
-                renderQuad.y = cameraVector2d.y - h * 0.5f;
+                renderQuad.x = cameraVector2d.x - w * 0.5F;
+                renderQuad.y = cameraVector2d.y - h * 0.5F;
                 SDL_RenderFillRect(renderer, &renderQuad);
                 // 恢复原先颜色
                 SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
@@ -78,10 +88,12 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer *renderer) {
     }
 }
 
-uint8_t glimmer::DebugDrawSystem::GetRenderOrder() {
+uint8_t glimmer::DebugDrawSystem::GetRenderOrder()
+{
     return RENDER_ORDER_DEBUG_DRAW;
 }
 
-std::string glimmer::DebugDrawSystem::GetName() {
+std::string glimmer::DebugDrawSystem::GetName()
+{
     return "glimmer.DebugDrawSystem";
 }

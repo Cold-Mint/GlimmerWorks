@@ -26,8 +26,6 @@
  */
 #include "CameraComponent.h"
 
-#include <algorithm>
-
 SDL_FRect glimmer::CameraComponent::GetViewportRect(const WorldVector2D& cameraPosition) const
 {
     const float scaledWidth = size_.x / zoom_;

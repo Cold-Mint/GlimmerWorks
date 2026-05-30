@@ -89,7 +89,6 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
         if (ImGui::Button(appContext->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0))) {
             auto mapManifestMessageData = worldContext_->GetSaves()->ReadMapManifest();
             if (!mapManifestMessageData.has_value()) {
-                LogCat::e("Error get map Manifest ");
                 return;
             }
             const long endTime = TimeUtils::GetCurrentTimeMs();
@@ -98,7 +97,6 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
             mapManifestMessageData->set_lastplayedtime(endTime);
             mapManifestMessageData->set_entityidindex(worldContext_->GetEntityIdIndex());
             if (!worldContext_->GetSaves()->WriteMapManifest(mapManifestMessageData.value())) {
-                LogCat::e("Error update map Manifest ");
                 return;
             }
             //保存玩家

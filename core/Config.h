@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -32,10 +33,12 @@
 #include "toml11/types.hpp"
 
 
-namespace glimmer {
+namespace glimmer
+{
     class CommandHookManager;
 
-    struct Window {
+    struct Window
+    {
         int width = 1920;
         int height = 1080;
         bool fullscreen = false;
@@ -54,20 +57,24 @@ namespace glimmer {
         //uiScale
         //ui缩放
         float uiScale = 1.0F;
+        float cameraScale = 2.0F;
         bool vSync = true;
     };
 
-    struct AnimConfig {
+    struct AnimConfig
+    {
         float chunkFadeinDuration = 0.35F;
         float chunkFadeInFrom = 0.0F;
         float chunkFadeInTo = 1.0F;
     };
 
-    struct CommandConfig {
+    struct CommandConfig
+    {
         uint16_t locateMaxRadiusSearchChunks = 2048;
     };
 
-    struct Mods {
+    struct Mods
+    {
         bool enableSignVerify;
         bool loadOnlyVerified;
         std::string dataPackPath;
@@ -78,7 +85,8 @@ namespace glimmer {
         std::vector<std::string> supportedAudioFormats;
     };
 
-    struct Debug {
+    struct Debug
+    {
         bool displayDebugPanel;
         bool displayBox2dShape;
         bool displayDraggableTarget;
@@ -89,15 +97,18 @@ namespace glimmer {
         bool displayWeirdnessMap;
     };
 
-    struct LightConfig {
+    struct LightConfig
+    {
         bool enable;
     };
 
-    struct Console {
+    struct Console
+    {
         uint16_t maxHistoryEntries = 100;
     };
 
-    struct World {
+    struct World
+    {
         float preloadChunkRadius;
         float preloadStructureRadius;
         float preloadLightingRadius;
@@ -112,13 +123,15 @@ namespace glimmer {
         uint16_t unloadTerrainBatch;
     };
 
-    struct AudioTrack {
+    struct AudioTrack
+    {
         AudioType type;
         int trackCount;
         float volume;
     };
 
-    struct Audio {
+    struct Audio
+    {
         float masterVolume;
         int channels;
         int freq;
@@ -126,7 +139,8 @@ namespace glimmer {
         std::vector<AudioTrack> track;
     };
 
-    struct CommandHookResource {
+    struct CommandHookResource
+    {
         std::string hookId;
         std::string command;
         bool keyRepeat;
@@ -135,7 +149,11 @@ namespace glimmer {
     };
 
 
-    class Config {
+    class Config
+    {
+        std::vector<std::pair<size_t, std::unique_ptr<std::function<void(const Config*)>>>> onConfigChanged_;
+        size_t nextConfigChangedId_ = 1;
+
     public:
         Window window{};
         Mods mods{};
@@ -152,6 +170,26 @@ namespace glimmer {
         Debug debug{};
 #endif
 
-        void LoadConfig(CommandHookManager *commandHookManager, const toml::value &configValue);
+        ~Config();
+
+        /**
+         * RegisterOnConfigChanged
+         * 注册配置变更回调
+         * @param fireImmediately Should we immediately make the callback? If so, then immediately make a callback to Config once. If not, then wait until the next LoadConfig to make the callback. 是否立即回调，如果是那么立即将Config回调一次，如果否那么等到下次LoadConfig时回调。
+         * @param onConfigChanged
+         * @return ID, you can use this ID to log out. id ，可以使用这个id注销
+         */
+        [[nodiscard]] size_t RegisterOnConfigChanged(bool fireImmediately,
+                                                     std::unique_ptr<std::function<void(const Config*)>>
+                                                     onConfigChanged);
+
+        /**
+         * Cancel configuration change callback
+         * 注销配置变更回调
+         * @param id
+         */
+        void UnregisterOnConfigChanged(size_t id);
+
+        void LoadConfig(const toml::value& configValue);
     };
 }

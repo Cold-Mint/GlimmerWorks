@@ -274,19 +274,22 @@ void glimmer::ComposableItem::ReadItemMessage(WorldContext* worldContext, const 
     }
     //Filling ability.
     //填充能力。
-    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
-    auto abilityItemRefSize = itemMessage.abilityitemref_size();
-    for (int i = 0; i < maxSlotSize_; i++)
+    if (itemContainer_ != nullptr)
     {
-        if (i >= abilityItemRefSize)
+        const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+        auto abilityItemRefSize = itemMessage.abilityitemref_size();
+        for (int i = 0; i < itemContainer_->GetCapacity(); i++)
         {
-            break;
-        }
-        const ItemMessage& abilityItemMessage = itemMessage.abilityitemref(i);
-        std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, abilityItemMessage);
-        if (item != nullptr)
-        {
-            std::unique_ptr<Item> result = ReplaceItem(static_cast<size_t>(i), std::move(item));
+            if (i >= abilityItemRefSize)
+            {
+                break;
+            }
+            const ItemMessage& abilityItemMessage = itemMessage.abilityitemref(i);
+            std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, abilityItemMessage);
+            if (item != nullptr)
+            {
+                std::unique_ptr<Item> result = ReplaceItem(static_cast<size_t>(i), std::move(item));
+            }
         }
     }
     SetAllocStrategyType(itemMessage.durabilitystrategy());
@@ -298,21 +301,27 @@ void glimmer::ComposableItem::WriteItemMessage(ItemMessage& itemMessage) const
     Item::WriteItemMessage(itemMessage);
     itemMessage.clear_abilityitemref();
     itemMessage.set_durabilitystrategy(allocStrategyPtr_->GetStrategyType());
-    for (int i = 0; i < maxSlotSize_; i++)
+    if (itemContainer_ != nullptr)
     {
-        ItemMessage* abilityItemMessage = itemMessage.add_abilityitemref();
-        const Item* item = itemContainer_->GetItem(i);
-        if (item == nullptr)
+        for (int i = 0; i < itemContainer_->GetCapacity(); i++)
         {
-            continue;
+            ItemMessage* abilityItemMessage = itemMessage.add_abilityitemref();
+            const Item* item = itemContainer_->GetItem(i);
+            if (item == nullptr)
+            {
+                continue;
+            }
+            item->WriteItemMessage(*abilityItemMessage);
         }
-        item->WriteItemMessage(*abilityItemMessage);
     }
 }
 
 glimmer::ComposableItem::~ComposableItem()
 {
-    itemContainer_->RemoveOnContentChanged(callback_);
+    if (itemContainer_ != nullptr)
+    {
+        itemContainer_->RemoveOnContentChanged(callback_);
+    }
 }
 
 uint32_t glimmer::ComposableItem::GetMaxDurability() const
@@ -356,17 +365,19 @@ unsigned glimmer::ComposableItem::GetRemaining() const
 
 void glimmer::ComposableItem::Reduce(unsigned value)
 {
-    const size_t max = itemContainer_->GetCapacity();
-    std::vector<IAllocatable*> itemsList;
-    for (size_t index = 0; index < max; index++)
+    if (itemContainer_ != nullptr)
     {
-        Item* item = itemContainer_->GetItem(index);
-        if (item == nullptr)
+        std::vector<IAllocatable*> itemsList;
+        for (size_t index = 0; index < itemContainer_->GetCapacity(); index++)
         {
-            continue;
+            Item* item = itemContainer_->GetItem(index);
+            if (item == nullptr)
+            {
+                continue;
+            }
+            itemsList.emplace_back(item);
         }
-        itemsList.emplace_back(item);
+        allocStrategyPtr_->Allocate(itemsList, value);
     }
-    allocStrategyPtr_->Allocate(itemsList, value);
     AddUsedDurability(value);
 }

@@ -85,7 +85,8 @@ void glimmer::DigAbility::OnUse(WorldContext* worldContext, GameEntity::ID user,
         if (abilityConfig->mineAbleLayer & layerType)
         {
             const TileVector2D& tileVector2D = tileLayerComponent->GetFocusPosition();
-            if (TileLayerComponent::TileToWorldCenter(tileVector2D).Distance(playerWorldPos) / TILE_SIZE > abilityConfig
+            if ((TileLayerComponent::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
+                Distance(playerWorldPos) / TILE_SIZE > abilityConfig
                 ->miningRange)
             {
                 continue;

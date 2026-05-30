@@ -27,6 +27,9 @@ normal_target_fps = 60.0
 # UI scaling factor
 # UI界面缩放比例
 ui_scale = 1.0
+# Camera zooming
+# 相机缩放
+camera_scale = 2.0
 # Enable vertical sync (VSync)
 # 启用垂直同步
 vsync = true

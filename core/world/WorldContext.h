@@ -164,6 +164,7 @@ namespace glimmer {
          * 是否启用物品拖拽模式
          */
         bool dragMode_ = false;
+        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
 
         /**
          * Whether it is running or not, if false, it indicates that the game has been paused.

@@ -378,7 +378,6 @@ glimmer::AppContext::AppContext()
     }
     langsResources_ = std::make_unique<LangsResources>();
     contributorManager_ = std::make_unique<ContributorManager>();
-    commandHookManager_ = std::make_unique<CommandHookManager>();
     mobManager_ = std::make_unique<MobManager>();
     shapeManager_ = std::make_unique<ShapeManager>();
     audioManager_ = std::make_unique<AudioManager>();
@@ -483,7 +482,8 @@ glimmer::AppContext::AppContext()
     }
     configValue = std::make_unique<toml::value>(toml::parse_str(configData.value(), tomlVersion_));
     toml::value* configValuePtr = configValue.get();
-    config_->LoadConfig(commandHookManager_.get(), *configValuePtr);
+    config_->LoadConfig(*configValuePtr);
+    commandHookManager_ = std::make_unique<CommandHookManager>(config_.get());
     commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(this, configValuePtr));
     dynamicSuggestionsManager_->
         RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValuePtr));

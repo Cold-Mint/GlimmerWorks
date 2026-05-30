@@ -29,42 +29,56 @@
 #include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/world/WorldContext.h"
 
-glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
     RequireComponent<SpiritRendererComponent>();
     RequireComponent<Transform2DComponent>();
 }
 
-void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
-    if (worldContext_ == nullptr) {
+void glimmer::SpiritRendererSystem::Render(SDL_Renderer* renderer)
+{
+    if (worldContext_ == nullptr)
+    {
         return;
     }
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
+    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
         return;
     }
-    const CameraComponent *cameraComponent = worldContext_->GetCameraComponent();
-    const Transform2DComponent *cameraTransform2D = worldContext_->GetCameraTransform2D();
-    if (cameraComponent == nullptr) {
+    const CameraComponent* cameraComponent = worldContext_->GetCameraComponent();
+    const Transform2DComponent* cameraTransform2D = worldContext_->GetCameraTransform2D();
+    if (cameraComponent == nullptr)
+    {
         return;
     }
-    if (cameraTransform2D == nullptr) {
+    if (cameraTransform2D == nullptr)
+    {
         return;
     }
+    float zoom = cameraComponent->GetZoom();
     const std::vector<GameEntity::ID> spiritRendererEntity = worldContext_->GetEntityIDWithComponents<
         Transform2DComponent, SpiritRendererComponent>();
-    for (const uint32_t spiritRenderer: spiritRendererEntity) {
+    for (const uint32_t spiritRenderer : spiritRendererEntity)
+    {
         auto spiritRendererComponent = worldContext_->GetComponent<SpiritRendererComponent>(
             spiritRenderer);
-        const Transform2DComponent *transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(
-            spiritRenderer);
-        if (spiritRendererComponent == nullptr || transform2DComponent == nullptr) {
+        if (spiritRendererComponent == nullptr)
+        {
             continue;
         }
-        SDL_Texture *sdlTexture = spiritRendererComponent->GetTexture(resourceLocator);
+        const Transform2DComponent* transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(
+            spiritRenderer);
+        if (transform2DComponent == nullptr)
+        {
+            continue;
+        }
+        SDL_Texture* sdlTexture = spiritRendererComponent->GetTexture(resourceLocator);
         WorldVector2D worldVector2d = transform2DComponent->GetPosition() + spiritRendererComponent->GetPosition();
         SDL_FRect worldVectorRect = {
             worldVector2d.x,
@@ -72,19 +86,22 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
             static_cast<float>(sdlTexture->w),
             static_cast<float>(sdlTexture->h)
         };
-        if (cameraComponent->IsRectInViewport(cameraTransform2D->GetPosition(), &worldVectorRect)) {
+        if (cameraComponent->IsRectInViewport(cameraTransform2D->GetPosition(), &worldVectorRect))
+        {
             CameraVector2D cameraVector2d = cameraComponent->WorldToScreen(
                 cameraTransform2D->GetPosition(), worldVector2d);
             SDL_FRect dstrect = {
-                cameraVector2d.x, cameraVector2d.y, static_cast<float>(sdlTexture->w),
-                static_cast<float>(sdlTexture->h)
+                cameraVector2d.x, cameraVector2d.y, static_cast<float>(sdlTexture->w) * zoom,
+                static_cast<float>(sdlTexture->h) * zoom
             };
             SDL_FlipMode flip = SDL_FLIP_NONE;
 
-            if (spiritRendererComponent->IsFlipH()) {
+            if (spiritRendererComponent->IsFlipH())
+            {
                 flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_HORIZONTAL);
             }
-            if (spiritRendererComponent->IsFlipV()) {
+            if (spiritRendererComponent->IsFlipV())
+            {
                 flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_VERTICAL);
             }
             SDL_RenderTextureRotated(
@@ -92,7 +109,7 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
                 sdlTexture,
                 nullptr,
                 &dstrect,
-                0.0f,
+                0.0F,
                 nullptr,
                 flip
             );
@@ -100,10 +117,12 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
     }
 }
 
-uint8_t glimmer::SpiritRendererSystem::GetRenderOrder() {
+uint8_t glimmer::SpiritRendererSystem::GetRenderOrder()
+{
     return RENDER_ORDER_SPIRIT_RENDERER;
 }
 
-std::string glimmer::SpiritRendererSystem::GetName() {
+std::string glimmer::SpiritRendererSystem::GetName()
+{
     return "glimmer.SpiritRendererSystem";
 }

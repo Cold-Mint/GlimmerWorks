@@ -29,9 +29,11 @@
 #include "CommandHookManager.h"
 #include "toml11/find.hpp"
 
-template<>
-struct toml::from<glimmer::AudioTrack> {
-    static glimmer::AudioTrack from_toml(const value &v) {
+template <>
+struct toml::from<glimmer::AudioTrack>
+{
+    static glimmer::AudioTrack from_toml(const value& v)
+    {
         glimmer::AudioTrack track{};
         track.trackCount = toml::find<int>(v, "track_count");
         track.type = static_cast<glimmer::AudioType>(toml::find<int>(v, "type"));
@@ -41,9 +43,11 @@ struct toml::from<glimmer::AudioTrack> {
 };
 
 
-template<>
-struct toml::from<glimmer::CommandHookResource> {
-    static glimmer::CommandHookResource from_toml(const value &v) {
+template <>
+struct toml::from<glimmer::CommandHookResource>
+{
+    static glimmer::CommandHookResource from_toml(const value& v)
+    {
         glimmer::CommandHookResource commandHookResource{};
         commandHookResource.hookId = toml::find<std::string>(v, "hook_id");
         commandHookResource.command = toml::find<std::string>(v, "command");
@@ -55,12 +59,47 @@ struct toml::from<glimmer::CommandHookResource> {
 };
 
 
-void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const toml::value &configValue) {
+glimmer::Config::~Config()
+{
+    onConfigChanged_.clear();
+}
+
+size_t glimmer::Config::RegisterOnConfigChanged(const bool fireImmediately,
+                                                std::unique_ptr<std::function<void(const Config*)>> onConfigChanged)
+{
+    if (onConfigChanged == nullptr)
+    {
+        return INVALID_CONFIG_CALL_BACK;
+    }
+    if (fireImmediately)
+    {
+        (*onConfigChanged.get())(this);
+    }
+    auto id = nextConfigChangedId_++;
+    onConfigChanged_.emplace_back(id, std::move(onConfigChanged));
+    return id;
+}
+
+void glimmer::Config::UnregisterOnConfigChanged(size_t id)
+{
+    if (id == INVALID_CONFIG_CALL_BACK)
+    {
+        return;
+    }
+    std::erase_if(onConfigChanged_, [id](auto& pair)
+    {
+        return pair.first == id;
+    });
+}
+
+void glimmer::Config::LoadConfig(const toml::value& configValue)
+{
     configVersion = toml::find<int>(configValue, "config_version");
     window.height = toml::find<int>(configValue, "window", "height");
     window.width = toml::find<int>(configValue, "window", "width");
     window.fullscreen = toml::find<bool>(configValue, "window", "fullscreen");
     window.uiScale = toml::find<float>(configValue, "window", "ui_scale");
+    window.cameraScale = toml::find<float>(configValue, "window", "camera_scale");
     window.vSync = toml::find<bool>(configValue, "window", "vsync");
     window.idleDelay = toml::find<float>(configValue, "window", "idle_delay");
     window.idleTargetFps = toml::find<float>(configValue, "window", "idle_target_fps");
@@ -69,15 +108,16 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     mods.loadOnlyVerified = toml::find<bool>(configValue, "mods", "load_only_verified");
     mods.dataPackPath = toml::find<std::string>(configValue, "mods", "data_pack_path");
     mods.resourcePackPath = toml::find<std::string>(configValue, "mods", "resource_pack_path");
-    mods.enabledDataPack = toml::find<std::vector<std::string> >(configValue, "mods", "enabled_data_pack");
-    mods.enabledResourcePack = toml::find<std::vector<std::string> >(configValue, "mods", "enabled_resource_pack");
+    mods.enabledDataPack = toml::find<std::vector<std::string>>(configValue, "mods", "enabled_data_pack");
+    mods.enabledResourcePack = toml::find<std::vector<std::string>>(configValue, "mods", "enabled_resource_pack");
     mods.supportedTextureFormats = toml::find<std::vector<
-        std::string> >(configValue, "mods", "supported_texture_formats");
-    mods.supportedAudioFormats = toml::find<std::vector<std::string> >(configValue, "mods", "supported_audio_formats");
+        std::string>>(configValue, "mods", "supported_texture_formats");
+    mods.supportedAudioFormats = toml::find<std::vector<std::string>>(configValue, "mods", "supported_audio_formats");
     world.preloadChunkRadius = toml::find<float>(configValue, "world", "preload_chunk_radius");
     world.preloadStructureRadius = toml::find<float>(configValue, "world", "preload_structure_radius");
     world.preloadLightingRadius = toml::find<float>(configValue, "world", "preload_lighting_radius");
-    if (world.preloadLightingRadius > world.preloadChunkRadius) {
+    if (world.preloadLightingRadius > world.preloadChunkRadius)
+    {
         world.preloadLightingRadius = world.preloadChunkRadius;
     }
     world.chunkSpawnCleanInterval = toml::find<float>(configValue, "world", "chunk_spawn_clean_interval");
@@ -92,13 +132,13 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     audio.channels = toml::find<int>(configValue, "audio", "channels");
     audio.masterVolume = toml::find<float>(configValue, "audio", "master_volume");
     audio.freq = toml::find<int>(configValue, "audio", "freq");
-    audio.track = toml::find<std::vector<AudioTrack> >(configValue, "audio", "track");
+    audio.track = toml::find<std::vector<AudioTrack>>(configValue, "audio", "track");
     audio.format = toml::find<std::string>(configValue, "audio", "format");
     console.maxHistoryEntries = toml::find<uint16_t>(configValue, "console", "max_history_entries");
     runtimePath = toml::find<std::string>(configValue, "runtime_path");
     command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(configValue, "command",
                                                                "locate_max_radius_search_chunks");
-    commandHooks = toml::find<std::vector<CommandHookResource> >(configValue, "command_hooks");
+    commandHooks = toml::find<std::vector<CommandHookResource>>(configValue, "command_hooks");
     anim.chunkFadeinDuration = toml::find<float>(configValue, "animation", "chunk_fadein_duration");
     anim.chunkFadeInFrom = toml::find<float>(configValue, "animation", "chunk_fadein_from");
     anim.chunkFadeInTo = toml::find<float>(configValue, "animation", "chunk_fadein_to");
@@ -113,5 +153,12 @@ void glimmer::Config::LoadConfig(CommandHookManager *commandHookManager, const t
     debug.displayWeirdnessMap = toml::find<bool>(configValue, "debug", "display_weirdness_map");
     light.enable = toml::find<bool>(configValue, "light", "enable");
 #endif
-    commandHookManager->LoadHookFromConfig(commandHooks);
+    for (auto& item : onConfigChanged_)
+    {
+        auto& callbackFunc = item.second;
+        if (callbackFunc)
+        {
+            (*callbackFunc)(this);
+        }
+    }
 }

@@ -31,35 +31,43 @@
 
 #include "CommandHookEntry.h"
 #include "Config.h"
+#include "scene/AppContext.h"
 
 
-namespace glimmer {
-    class CommandHookManager {
-        std::vector<std::unique_ptr<CommandHookEntry> > sessionCommandHookVector_;
-        std::vector<std::unique_ptr<CommandHookEntry> > configCommandHookVector_;
-        std::unordered_map<uint32_t, std::vector<CommandHookEntry *> > sessionCommandHookMap_;
-        std::unordered_map<uint32_t, std::vector<CommandHookEntry *> > configCommandHookMap_;
-        std::vector<CommandHookEntry *> fullVector_;
+namespace glimmer
+{
+    class CommandHookManager
+    {
+        std::vector<std::unique_ptr<CommandHookEntry>> sessionCommandHookVector_;
+        std::vector<std::unique_ptr<CommandHookEntry>> configCommandHookVector_;
+        std::unordered_map<uint32_t, std::vector<CommandHookEntry*>> sessionCommandHookMap_;
+        std::unordered_map<uint32_t, std::vector<CommandHookEntry*>> configCommandHookMap_;
+        std::vector<CommandHookEntry*> fullVector_;
+        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
+        Config* config_ = nullptr;
 
+        void LoadHookFromConfig(const std::vector<CommandHookResource>& commandHooks);
 
         [[nodiscard]] bool Exist(CommandHookScope scope,
-                                 uint32_t key, const std::string &command) const;
+                                 uint32_t key, const std::string& command) const;
 
         [[nodiscard]] std::optional<std::string> RegisterImpl(
-            std::unordered_map<uint32_t, std::vector<CommandHookEntry *> > &commandHookMap,
-            std::vector<std::unique_ptr<CommandHookEntry> > &commandHookVector, CommandHookScope exclude,
+            std::unordered_map<uint32_t, std::vector<CommandHookEntry*>>& commandHookMap,
+            std::vector<std::unique_ptr<CommandHookEntry>>& commandHookVector, CommandHookScope exclude,
             std::unique_ptr<CommandHookEntry> commandHookEntry) const;
 
         [[nodiscard]] static bool UnregisterImpl(
-            std::unordered_map<uint32_t, std::vector<CommandHookEntry *> > &commandHookMap,
-            std::vector<std::unique_ptr<CommandHookEntry> > &commandHookVector, CommandHookScope exclude,
-            const std::string &commandHookId
+            std::unordered_map<uint32_t, std::vector<CommandHookEntry*>>& commandHookMap,
+            std::vector<std::unique_ptr<CommandHookEntry>>& commandHookVector, CommandHookScope exclude,
+            const std::string& commandHookId
         );
 
     public:
-        CommandHookManager();
+        explicit CommandHookManager(Config* config);
 
-        [[nodiscard]] const std::vector<CommandHookEntry *> &GetCommandHookVector(uint32_t key);
+        ~CommandHookManager();
+
+        [[nodiscard]] const std::vector<CommandHookEntry*>& GetCommandHookVector(uint32_t key);
 
         /**
          * CreateCommandHookEntry
@@ -72,10 +80,9 @@ namespace glimmer {
          * @return If the hook does not exist, then return the created hook. If it exists, return an empty value. 如果钩子不存在，那么返回创建后的钩子。存在返回空。
          */
         [[nodiscard]] std::unique_ptr<CommandHookEntry> CreateCommandHookEntry(
-            CommandHookScope scope, SDL_EventType eventType, uint16_t code, const std::string &command,
+            CommandHookScope scope, SDL_EventType eventType, uint16_t code, const std::string& command,
             bool keyRepeat) const;
 
-        void LoadHookFromConfig(const std::vector<CommandHookResource> &commandHooks);
 
         /**
          * Contains
@@ -83,13 +90,13 @@ namespace glimmer {
          * @param hookId 钩子Id
          * @return
          */
-        [[nodiscard]] bool Contains(const std::string &hookId) const;
+        [[nodiscard]] bool Contains(const std::string& hookId) const;
 
         [[nodiscard]] std::vector<std::string> GetCommandHookIdsWithOutConfig() const;
 
 
         [[nodiscard]] std::optional<std::string> Register(std::unique_ptr<CommandHookEntry> commandHookEntry);
 
-        [[nodiscard]] bool Unregister(const std::string &commandHookId);
+        [[nodiscard]] bool Unregister(const std::string& commandHookId);
     };
 }

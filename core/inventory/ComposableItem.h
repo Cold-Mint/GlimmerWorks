@@ -39,7 +39,7 @@ namespace glimmer
      */
     class ComposableItem : public Item
     {
-        std::shared_ptr<ItemContainer> itemContainer_;
+        std::shared_ptr<ItemContainer> itemContainer_ = nullptr;
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
@@ -47,9 +47,8 @@ namespace glimmer
         AbilityConfig totalAbilityConfig_;
         uint32_t maxDurability_;
         bool isUnbreakable_;
-        size_t maxSlotSize_;
-        std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>> callback_;
-        std::shared_ptr<IAllocStrategy<uint32_t>> allocStrategyPtr_;
+        std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>> callback_ = nullptr;
+        std::shared_ptr<IAllocStrategy<uint32_t>> allocStrategyPtr_ = nullptr;
 
 
         void AddCallback();

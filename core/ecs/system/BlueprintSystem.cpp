@@ -82,7 +82,8 @@ std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Til
                 continue;
             }
 
-            if (TileLayerComponent::TileToWorldCenter(point).Distance(playerPosition) / TILE_SIZE >
+            if ((TileLayerComponent::TileToWorld(point) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
+                Distance(playerPosition) / TILE_SIZE >
                 TILE_PLACE_RANGE)
             {
                 result[index] = false;
@@ -213,33 +214,28 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
             }
         }
     }
-    const float zoom = cameraComponent_->GetZoom();
-    //The coordinates used in the code logic need to be -1.
-    //代码逻辑用的坐标需要-1。
-    blueprintComponent_->SetTopLeftVector({leftBottom.x, leftBottom.y + tileHeight - 1});
-    //Drawing the coordinates doesn't require -1.
-    //绘制坐标不不需要-1。
-    const CameraVector2D topLeftCamera = cameraComponent_->WorldToScreen(
-        cameraTransform2DComponent_->GetPosition(),
-        TileLayerComponent::TileToWorld({leftBottom.x, leftBottom.y + tileHeight}) -
-        WorldVector2D(HALF_TILE_SIZE * zoom, HALF_TILE_SIZE * zoom)
-    );
+    auto TopLeftVector = TileVector2D{leftBottom.x, leftBottom.y + tileHeight - 1};
+    blueprintComponent_->SetTopLeftVector(TopLeftVector);
     const CameraVector2D focusWorldTileCamera = cameraComponent_->WorldToScreen(
         cameraTransform2DComponent_->GetPosition(),
-        TileLayerComponent::TileToWorld({focusPosition.x, focusPosition.y + 1}) - WorldVector2D(
-            HALF_TILE_SIZE * zoom, HALF_TILE_SIZE * zoom));
+        TileLayerComponent::TileToWorld({focusPosition.x, focusPosition.y}));
     SDL_FRect renderQuad;
+    const float zoom = cameraComponent_->GetZoom();
     renderQuad.w = static_cast<float>(tileWidth) * TILE_SIZE * zoom;
     renderQuad.h = static_cast<float>(tileHeight) * TILE_SIZE * zoom;
     if (heldTile_ == nullptr)
     {
-        renderQuad.x = focusWorldTileCamera.x;
-        renderQuad.y = focusWorldTileCamera.y;
+        renderQuad.x = focusWorldTileCamera.x - renderQuad.w * 0.5F;
+        renderQuad.y = focusWorldTileCamera.y - renderQuad.h * 0.5F;
     }
     else
     {
-        renderQuad.x = topLeftCamera.x;
-        renderQuad.y = topLeftCamera.y;
+        const CameraVector2D topLeftCamera = cameraComponent_->WorldToScreen(
+            cameraTransform2DComponent_->GetPosition(),
+            TileLayerComponent::TileToWorld(TopLeftVector)
+        );
+        renderQuad.x = topLeftCamera.x - renderQuad.w * 0.5F;
+        renderQuad.y = topLeftCamera.y - renderQuad.w * 0.5F;
     }
 
     SDL_SetRenderDrawColor(renderer, preloadColors_->game.focusTileBorderColor.r,
@@ -285,8 +281,8 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
                     SDL_FRect indicatorRenderQuad;
                     indicatorRenderQuad.w = TILE_SIZE * zoom;
                     indicatorRenderQuad.h = TILE_SIZE * zoom;
-                    indicatorRenderQuad.x = tileScreenPos.x - HALF_TILE_SIZE;
-                    indicatorRenderQuad.y = tileScreenPos.y - HALF_TILE_SIZE;
+                    indicatorRenderQuad.x = tileScreenPos.x - indicatorRenderQuad.w * 0.5;
+                    indicatorRenderQuad.y = tileScreenPos.y - indicatorRenderQuad.h * 0.5;
                     if (checkRectResult[i])
                     {
                         if (heldTile_->DrawValidBlueprintColor())

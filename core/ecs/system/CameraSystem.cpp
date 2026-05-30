@@ -49,9 +49,9 @@ void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
     SDL_GetWindowSize(window_, &tempWindowWidth, &tempWindowHeight);
     if (tempWindowHeight != windowHeight_ || tempWindowWidth != windowWidth_)
     {
-        cameraComponent_->SetSize(CameraVector2D(windowWidth_, windowHeight_));
         windowWidth_ = tempWindowWidth;
         windowHeight_ = tempWindowHeight;
+        cameraComponent_->SetSize(CameraVector2D(static_cast<float>(windowWidth_), static_cast<float>(windowHeight_)));
     }
 }
 

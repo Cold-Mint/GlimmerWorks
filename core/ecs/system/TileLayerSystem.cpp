@@ -115,13 +115,15 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
             drawnTiles.emplace(tileTopLeftFingerprint);
             const CameraVector2D tileTopLeftCamera = cameraComponent->WorldToScreen(
                 cameraPos->GetPosition(), TileLayerComponent::TileToWorld(TileVector2D{
-                    tileTopLeftPosition.x, tileTopLeftPosition.y + 1
-                }) - WorldVector2D{HALF_TILE_SIZE * zoom, HALF_TILE_SIZE * zoom});
+                    tileTopLeftPosition.x, tileTopLeftPosition.y
+                }));
+            float width = static_cast<float>(tileState->width()) * TILE_SIZE * zoom;
+            float height = static_cast<float>(tileState->height()) * TILE_SIZE * zoom;
             SDL_FRect renderQuad;
-            renderQuad.w = static_cast<float>(tileState->width()) * TILE_SIZE * zoom;
-            renderQuad.h = static_cast<float>(tileState->height()) * TILE_SIZE * zoom;
-            renderQuad.x = tileTopLeftCamera.x;
-            renderQuad.y = tileTopLeftCamera.y;
+            renderQuad.w = width;
+            renderQuad.h = height;
+            renderQuad.x = tileTopLeftCamera.x - renderQuad.w * 0.5F;
+            renderQuad.y = tileTopLeftCamera.y - renderQuad.h * 0.5F;
             const Color* finalLightColor = worldContext_->GetLightingBuffer()->GetFinalLightColor(tileCoord);
 #if  defined(NDEBUG)
             if (finalLightColor == nullptr)

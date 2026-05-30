@@ -78,14 +78,6 @@ namespace glimmer
         [[nodiscard]] static WorldVector2D TileToWorld(const TileVector2D& tilePos);
 
         /**
-        * Tile To World
-         * 瓦片坐标转世界坐标
-         * @param tilePos TileVector2D 瓦片坐标
-         * @return WorldVector2D(The center of the tile) 世界坐标（瓦片中心）
-         */
-        [[nodiscard]] static WorldVector2D TileToWorldCenter(const TileVector2D& tilePos);
-
-        /**
          * WorldToTile
          * 世界坐标转瓦片坐标
          * @param worldPos worldPos 世界坐标

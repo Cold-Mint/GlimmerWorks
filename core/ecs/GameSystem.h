@@ -26,21 +26,23 @@
  */
 #pragma once
 #include <string>
-#include <typeindex>
 #include <unordered_set>
 
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_render.h"
+#include "src/core/game_component_type.pb.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class WorldContext;
 
-    class GameSystem {
+    class GameSystem
+    {
         /**
          * Is the system in an activated state
          * 系统是否处于激活状态
          */
-        bool active = false;
+        bool active_ = false;
 
         /**
          * Is it necessary to activate the system
@@ -49,23 +51,20 @@ namespace glimmer {
          */
         [[nodiscard]] virtual bool ShouldActivate();
 
-        std::unordered_set<std::type_index> requiredComponents;
+        std::unordered_set<GameComponentTypeMessage> requiredComponents_;
 
 
         virtual void OnActivationChanged(bool activeStatus);
 
     protected:
-        template<typename TComponent>
-        void RequireComponent() {
-            requiredComponents.insert(std::type_index(typeid(TComponent)));
-        }
+        void RequireComponent(GameComponentTypeMessage gameComponentType);
 
-        WorldContext *worldContext_;
+        WorldContext* worldContext_;
 
     public:
         virtual ~GameSystem() = default;
 
-        explicit GameSystem(WorldContext *worldContext);
+        explicit GameSystem(WorldContext* worldContext);
 
         virtual std::string GetName() = 0;
 
@@ -83,7 +82,7 @@ namespace glimmer {
          */
         [[nodiscard]] bool IsActive() const;
 
-        bool SupportsComponentType(const std::type_index &type) const;
+        bool SupportsComponentType(GameComponentTypeMessage gameComponentType) const;
 
 
         /**
@@ -95,7 +94,7 @@ namespace glimmer {
          */
         [[nodiscard]] virtual bool CanRunWhilePaused() const;
 
-        virtual bool HandleEvent(const SDL_Event &event);
+        virtual bool HandleEvent(const SDL_Event& event);
 
         virtual bool OnBackPressed();
 
@@ -103,6 +102,6 @@ namespace glimmer {
 
         virtual uint8_t GetRenderOrder();
 
-        virtual void Render(SDL_Renderer *renderer);
+        virtual void Render(SDL_Renderer* renderer);
     };
 }

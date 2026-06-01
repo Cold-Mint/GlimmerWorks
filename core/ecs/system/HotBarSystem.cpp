@@ -35,10 +35,10 @@
 glimmer::HotBarSystem::HotBarSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
-    RequireComponent<PlayerComponent>();
-    RequireComponent<ItemContainerComponent>();
-    RequireComponent<HotBarComponent>();
-    RequireComponent<GuiTransform2DComponent>();
+    RequireComponent(COMPONENT_PLAYER);
+    RequireComponent(COMPONENT_ITEM_CONTAINER);
+    RequireComponent(COMPONENT_HOT_BAR);
+    RequireComponent(COMPONENT_GUI_TRANSFORM_2D);
 }
 
 bool glimmer::HotBarSystem::HandleEvent(const SDL_Event& event)

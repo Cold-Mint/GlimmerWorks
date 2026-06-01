@@ -39,7 +39,7 @@
 glimmer::TileLayerSystem::TileLayerSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
-    RequireComponent<TileLayerComponent>();
+    RequireComponent(COMPONENT_TILE_LAYER);
 }
 
 void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)

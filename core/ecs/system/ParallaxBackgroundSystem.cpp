@@ -32,7 +32,7 @@
 #include "core/world/WorldContext.h"
 
 glimmer::ParallaxBackgroundSystem::ParallaxBackgroundSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<ParallaxBackgroundComponent>();
+    RequireComponent(COMPONENT_PARALLAX_BACKGROUND);
 }
 
 void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer *renderer) {

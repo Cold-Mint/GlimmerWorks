@@ -27,10 +27,12 @@
 #include "Transform2DSystem.h"
 #include "../component/Transform2DComponent.h"
 
-glimmer::Transform2DSystem::Transform2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<Transform2DComponent>();
+glimmer::Transform2DSystem::Transform2DSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
+    RequireComponent(COMPONENT_TRANSFORM_2D);
 }
 
-std::string glimmer::Transform2DSystem::GetName() {
+std::string glimmer::Transform2DSystem::GetName()
+{
     return "glimmer.Transform2DSystem";
 }

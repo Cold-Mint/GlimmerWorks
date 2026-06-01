@@ -39,6 +39,7 @@
 #include "core/math/BalanceAllocStrategy.h"
 #include "core/math/ForwardAllocStrategy.h"
 #include "core/math/RandomAllocStrategy.h"
+#include "core/utils/StringUtils.h"
 
 void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer* otherContainer, size_t otherIndex) const
 {
@@ -105,6 +106,11 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     {
         description = descriptionRes->value;
     }
+    std::unordered_set<uint64_t> tags;
+    for (auto& tag : itemResource->tags)
+    {
+        tags.emplace(StringUtils::StringToUint64(tag));
+    }
     std::unique_ptr<ComposableItem> result = std::make_unique<ComposableItem>(
         Resource::GenerateId(*itemResource), name,
         description,
@@ -112,7 +118,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
                     FindTexture(&itemResource->texture),
         itemResource->slotSize,
         itemResource->maxDurability,
-        itemResource->isUnbreakable, resourceRef);
+        itemResource->isUnbreakable, tags, resourceRef);
     //If the capability is not specified within the resource reference, then the default capability will be loaded.
     //如果没有在资源引用内指定能力，那么加载默认能力。
     size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
@@ -208,9 +214,8 @@ void glimmer::ComposableItem::AddCallback()
 
 glimmer::ComposableItem::ComposableItem(const std::string& id, const std::string& name,
                                         const std::optional<std::string>& description,
-                                        const std::shared_ptr<SDL_Texture>& icon, const size_t maxSize,
-                                        const uint32_t maxDurability,
-                                        const bool isUnbreakable,
+                                        const std::shared_ptr<SDL_Texture>& icon, size_t maxSize,
+                                        uint32_t maxDurability, bool isUnbreakable, std::unordered_set<uint64_t> tags,
                                         const ResourceRef& resourceRef)
 {
     id_ = id;
@@ -222,6 +227,7 @@ glimmer::ComposableItem::ComposableItem(const std::string& id, const std::string
     resourceRef_ = resourceRef;
     itemContainer_ = std::make_shared<ItemContainer>();
     itemContainer_->Resize(maxSize);
+    tags_.insert(tags.begin(), tags.end());
     SetAllocStrategyType(static_cast<AllocStrategyTypeMessage>(RandomUtils::Random(
         0, 3)));
     AddCallback();

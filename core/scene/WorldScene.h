@@ -43,6 +43,8 @@ namespace glimmer {
 
         bool OnBackPressed() override;
 
+        void OnWindowClose() override;
+
         void Update(float delta) override;
 
         void Render(SDL_Renderer *renderer) override;

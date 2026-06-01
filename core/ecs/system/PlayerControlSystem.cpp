@@ -45,8 +45,8 @@
 
 glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent<PlayerComponent>();
-    RequireComponent<Transform2DComponent>();
+    RequireComponent(COMPONENT_PLAYER);
+    RequireComponent(COMPONENT_TRANSFORM_2D);
     const AppContext* appContext = worldContext->GetAppContext();
     ResourceRef ref;
     ref.SetSelfPackageId(RESOURCE_REF_CORE);

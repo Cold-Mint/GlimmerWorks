@@ -36,9 +36,9 @@
 
 
 glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<AutoPickComponent>();
-    RequireComponent<MagnetComponent>();
-    RequireComponent<ItemContainerComponent>();
+    RequireComponent(COMPONENT_AUTO_PICK);
+    RequireComponent(COMPONENT_MAGNET);
+    RequireComponent(COMPONENT_ITEM_CONTAINER);
 
     AppContext *appContext = worldContext->GetAppContext();
     ResourceRef ref;

@@ -32,8 +32,8 @@
 #include "core/world/WorldContext.h"
 
 glimmer::RayCast2DSystem::RayCast2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<Transform2DComponent>();
-    RequireComponent<RayCast2DComponent>();
+    RequireComponent(COMPONENT_TRANSFORM_2D);
+    RequireComponent(COMPONENT_RAY_CAST_2D);
 }
 
 void glimmer::RayCast2DSystem::Update(float delta) {

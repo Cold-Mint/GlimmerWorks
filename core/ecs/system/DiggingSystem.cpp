@@ -172,7 +172,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
 
 glimmer::DiggingSystem::DiggingSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent<DiggingComponent>();
+    RequireComponent(COMPONENT_DIGGING);
     diggingComponent_ = worldContext->GetDiggingComponent();
 }
 

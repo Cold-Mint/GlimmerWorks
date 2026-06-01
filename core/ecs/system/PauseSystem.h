@@ -27,18 +27,20 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class PauseComponent;
 
-    class PauseSystem : public GameSystem {
+    class PauseSystem : public GameSystem
+    {
+
     public:
-        explicit PauseSystem(WorldContext *worldContext);
+        explicit PauseSystem(WorldContext* worldContext);
 
 
         uint8_t GetRenderOrder() override;
 
-        void Render(SDL_Renderer *renderer) override;
-
+        void Render(SDL_Renderer* renderer) override;
 
         bool OnBackPressed() override;
 

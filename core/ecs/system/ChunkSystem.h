@@ -27,7 +27,6 @@
 #pragma once
 
 #include "core/ecs/GameSystem.h"
-#include "core/math/Vector2D.h"
 #include "core/world/ChunkTask.h"
 
 namespace glimmer {

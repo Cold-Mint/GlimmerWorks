@@ -32,7 +32,7 @@
 #include "core/world/WorldContext.h"
 
 glimmer::Light2DSystem::Light2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<TileLayerComponent>();
+    RequireComponent(COMPONENT_TILE_LAYER);
 }
 
 uint8_t glimmer::Light2DSystem::GetRenderOrder() {

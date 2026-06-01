@@ -25,28 +25,44 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "core/Constants.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/ItemSlotComponent.h"
+#include "SDL3_ttf/SDL_ttf.h"
 
-namespace glimmer {
+
+namespace glimmer
+{
+    struct PreloadColors;
     class Item;
 
-    class ItemSlotSystem : public GameSystem {
-        void RenderQuantity(SDL_Renderer *renderer, const SDL_FRect &slotDest, int amount) const;
+    class ItemSlotSystem : public GameSystem
+    {
+        std::shared_ptr<SDL_Texture> itemSlotTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> itemSlotSelectedTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> tooltipBgTexture_ = nullptr;
+        PreloadColors* preloadColors_ = nullptr;
+        TTF_Font* font_ = nullptr;
+        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
+        AppContext* appContext_ = nullptr;
+        float uiScale_ = 1.0F;
+        void RenderQuantity(SDL_Renderer* renderer, const SDL_FRect& slotDest, int amount) const;
 
         /**
          *
          * @param renderer 渲染器
          * @param item 物品
          */
-        void RenderTooltip(SDL_Renderer *renderer, const Item *item) const;
+        void RenderTooltip(SDL_Renderer* renderer, const Item* item) const;
 
     public:
-        explicit ItemSlotSystem(WorldContext *worldContext);
+        explicit ItemSlotSystem(WorldContext* worldContext);
 
-        void Render(SDL_Renderer *renderer) override;
+        ~ItemSlotSystem() override;
 
-        bool HandleEvent(const SDL_Event &event) override;
+        void Render(SDL_Renderer* renderer) override;
+
+        bool HandleEvent(const SDL_Event& event) override;
 
         uint8_t GetRenderOrder() override;
 

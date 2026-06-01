@@ -54,9 +54,10 @@ namespace glimmer
         void AddCallback();
 
     public:
-        explicit ComposableItem(const std::string& id, const std::string& name, const std::optional<std::string>& description,
+        explicit ComposableItem(const std::string& id, const std::string& name,
+                                const std::optional<std::string>& description,
                                 const std::shared_ptr<SDL_Texture>& icon, size_t maxSize, uint32_t maxDurability,
-                                bool isUnbreakable, const ResourceRef& resourceRef);
+                                bool isUnbreakable, std::unordered_set<uint64_t> tags, const ResourceRef& resourceRef);
 
         void SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType);
 

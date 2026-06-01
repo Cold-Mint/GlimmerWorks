@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,20 +24,4 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/ecs/GameSystem.h"
-
-namespace glimmer {
-    class ItemEditorSystem : public GameSystem {
-        [[nodiscard]] bool ShouldActivate() override;
-
-    public:
-        explicit ItemEditorSystem(WorldContext *worldContext);
-
-        bool HandleEvent(const SDL_Event &event) override;
-
-        std::string GetName() override;
-
-        uint8_t GetRenderOrder() override;
-    };
-}
+#include "RecipeGroup.h"

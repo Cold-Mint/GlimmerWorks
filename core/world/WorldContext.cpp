@@ -69,7 +69,6 @@
 #include "core/ecs/system/DebugMultiMapSystem.h"
 #include "core/ecs/system/DraggableSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
-#include "core/ecs/system/ItemEditorSystem.h"
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
@@ -91,20 +90,22 @@ void glimmer::WorldContext::SetDragMode(const bool dragMode)
     dragMode_ = dragMode;
 }
 
-void glimmer::WorldContext::RemoveComponentInternal(const GameEntity::ID id, GameComponent* comp)
+void glimmer::WorldContext::RemoveComponentImp(GameEntity::ID id, GameComponentTypeMessage gameComponentType)
 {
-    const auto type = std::type_index(typeid(*comp));
     //Reduce componentCount
     // 减少 componentCount
-    if (componentCount_[type] > 0) --componentCount_[type];
+    if (componentCount_[gameComponentType] > 0)
+    {
+        --componentCount_[gameComponentType];
+    }
 
     //Check if the system is disabled
     // 检查系统是否停用
-    if (componentCount_[type] == 0)
+    if (componentCount_[gameComponentType] == 0)
     {
         for (auto& sys : activeSystems)
         {
-            if (sys && sys->SupportsComponentType(type))
+            if (sys && sys->SupportsComponentType(gameComponentType))
             {
                 sys->CheckActivation();
             }
@@ -115,9 +116,9 @@ void glimmer::WorldContext::RemoveComponentInternal(const GameEntity::ID id, Gam
     // 从 entityComponents 删除
     auto& components = entityComponents[id];
     std::erase_if(components,
-                  [comp](const std::unique_ptr<GameComponent>& c)
+                  [gameComponentType](const std::unique_ptr<GameComponent>& c)
                   {
-                      return c.get() == comp;
+                      return c.get()->GetComponentType() == gameComponentType;
                   });
 }
 
@@ -373,12 +374,6 @@ glimmer::MapManifest* glimmer::WorldContext::GetMapManifest() const
     return mapManifest_;
 }
 
-bool glimmer::WorldContext::HasComponentType(const std::type_index& type) const
-{
-    const auto it = componentCount_.find(type);
-    return it != componentCount_.end() && it->second > 0;
-}
-
 void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
 {
     if (!IsEmptyEntityId(player_))
@@ -576,6 +571,12 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
         draggableComponent->SetSize(guiTransform2DComponent->GetSize());
         hotBarComponent->AddSlotEntity(slotEntity);
     }
+}
+
+bool glimmer::WorldContext::HasComponentType(const GameComponentTypeMessage gameComponentType) const
+{
+    const auto it = componentCount_.find(gameComponentType);
+    return it != componentCount_.end() && it->second > 0;
 }
 
 void glimmer::WorldContext::InitItemEditor()
@@ -895,24 +896,7 @@ bool glimmer::WorldContext::OnBackPressed() const
 
 void glimmer::WorldContext::Render(SDL_Renderer* renderer) const
 {
-    std::vector<GameSystem*> systemsToRender;
-    systemsToRender.reserve(activeSystems.size());
-
-    for (const auto& system : activeSystems)
-    {
-        if (system)
-            systemsToRender.push_back(system.get());
-    }
-
-    //Sort by rendering order (lower layers at the bottom, upper layers at the top)
-    //按渲染顺序排序（低层在底，高层在上）
-    std::ranges::stable_sort(systemsToRender,
-                             [](GameSystem* a, GameSystem* b)
-                             {
-                                 return a->GetRenderOrder() < b->GetRenderOrder();
-                             });
-
-    for (GameSystem* system : systemsToRender)
+    for (const std::unique_ptr<GameSystem>& system : activeSystems)
     {
 #if  defined(NDEBUG)
         system->Render(renderer);
@@ -933,11 +917,11 @@ void glimmer::WorldContext::Render(SDL_Renderer* renderer) const
     }
 }
 
-
 void glimmer::WorldContext::OnFrameStart()
 {
-    std::vector<GameSystem*> toActivate;
-    std::vector<GameSystem*> toDeactivate;
+    std::queue<GameSystem*> toActivate;
+    std::queue<GameSystem*> toDeactivate;
+    bool changed = false;
 
     // Traverse inactiveSystems to check if activation is needed
     // 遍历 inactiveSystems 检查是否需要激活
@@ -947,7 +931,8 @@ void glimmer::WorldContext::OnFrameStart()
         {
             // Returning true indicates that the system is currently active
             // 返回 true 表示系统现在是激活的
-            toActivate.push_back(system.get());
+            toActivate.push(system.get());
+            changed = true;
         }
     }
 
@@ -959,34 +944,51 @@ void glimmer::WorldContext::OnFrameStart()
         {
             // Returning false indicates that the system is not activated at present
             // 返回 false 表示系统现在未激活
-            toDeactivate.push_back(system.get());
+            toDeactivate.push(system.get());
+            changed = true;
         }
     }
 
     // Batch mobile activation system
     // 批量移动激活系统
-    for (auto* sys : toActivate)
+    while (!toActivate.empty())
     {
+        GameSystem* system = toActivate.front();
+        toActivate.pop();
         auto it = std::ranges::find_if(inactiveSystems,
-                                       [sys](auto& s) { return s.get() == sys; });
-        if (it != inactiveSystems.end())
+                                       [system](auto& inactiveSystem) { return inactiveSystem.get() == system; });
+        if (it == inactiveSystems.end())
         {
-            activeSystems.push_back(std::move(*it));
-            inactiveSystems.erase(it);
+            continue;
         }
+        activeSystems.push_back(std::move(*it));
+        inactiveSystems.erase(it);
     }
 
     // Batch mobile deactivation of the system
     // 批量移动停用系统
-    for (auto* sys : toDeactivate)
+    while (!toDeactivate.empty())
     {
+        GameSystem* system = toDeactivate.front();
+        toDeactivate.pop();
         auto it = std::ranges::find_if(activeSystems,
-                                       [sys](auto& s) { return s.get() == sys; });
-        if (it != activeSystems.end())
+                                       [system](auto& activeSystem) { return activeSystem.get() == system; });
+        if (it == activeSystems.end())
         {
-            inactiveSystems.push_back(std::move(*it));
-            activeSystems.erase(it);
+            continue;
         }
+        inactiveSystems.push_back(std::move(*it));
+        activeSystems.erase(it);
+    }
+    // //Sort by rendering order (lower layers at the bottom, upper layers at the top)
+    // //按渲染顺序排序（低层在底，高层在上）
+    if (changed)
+    {
+        std::ranges::stable_sort(activeSystems,
+                                 [](const std::unique_ptr<GameSystem>& a, const std::unique_ptr<GameSystem>& b)
+                                 {
+                                     return a->GetRenderOrder() < b->GetRenderOrder();
+                                 });
     }
 }
 
@@ -1011,7 +1013,6 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<DraggableSystem>(this));
     RegisterSystem(std::make_unique<SpiritRendererSystem>(this));
     RegisterSystem(std::make_unique<PauseSystem>(this));
-    RegisterSystem(std::make_unique<ItemEditorSystem>(this));
     RegisterSystem(std::make_unique<RayCast2DSystem>(this));
     RegisterSystem(std::make_unique<BiomeBGMSystem>(this));
     RegisterSystem(std::make_unique<Light2DSystem>(this));
@@ -1162,75 +1163,74 @@ glimmer::GameComponent* glimmer::WorldContext::RecoveryComponent(GameEntity::ID 
 }
 
 
-void glimmer::WorldContext::ShowItemEditorPanel(const ComposableItem* composableItem)
-{
-    if (!IsEmptyEntityId(itemEditorPanel_))
-    {
-        LogCat::e("Please close the previous panel first.");
-#if  !defined(NDEBUG)
-        assert(false);
-#endif
-    }
-    const auto entityId = CreateEntity();
-    auto* itemEditorComponent = AddComponent<ItemEditorComponent>(entityId);
-    if (itemEditorComponent == nullptr)
-    {
-        LogCat::e("itemEditorComponent is nullptr.");
-        return;
-    }
-    ItemContainer* itemContainer = composableItem->GetItemContainer();
-    const size_t capacity = itemContainer->GetCapacity();
-    itemEditorComponent->Reserve(capacity);
-    auto uiScale = appContext_->GetConfig()->window.uiScale;
-    constexpr float slotStep = ITEM_SLOT_SIZE + ITEM_SLOT_PADDING;
-    for (int i = 0; i < capacity; i++)
-    {
-        const auto slotEntity = CreateEntity();
-        AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, false);
-        auto* guiTransform2DComponent = AddComponent<GuiTransform2DComponent>(slotEntity);
-        if (guiTransform2DComponent == nullptr)
-        {
-            continue;
-        }
-        guiTransform2DComponent->SetSize(CameraVector2D(ITEM_SLOT_SIZE * uiScale, ITEM_SLOT_SIZE * uiScale));
-        guiTransform2DComponent->SetPosition(CameraVector2D(
-            (ITEM_SLOT_PADDING + slotStep * static_cast<float>(i)) * uiScale,
-            (ITEM_SLOT_PADDING + slotStep) * uiScale
-        ));
-        auto draggableComponent = AddComponent<DraggableComponent>(slotEntity);
-        if (draggableComponent == nullptr)
-        {
-            continue;
-        }
-        draggableComponent->SetSize(guiTransform2DComponent->GetSize());
-        itemEditorComponent->AddSlotEntity(slotEntity);
-    }
-    itemEditorPanel_ = entityId;
-    dragMode_ = true;
-}
-
-bool glimmer::WorldContext::IsItemEditorPanelVisible() const
-{
-    return !IsEmptyEntityId(itemEditorPanel_);
-}
-
-void glimmer::WorldContext::HideItemEditorPanel()
-{
-    if (!IsEmptyEntityId(itemEditorPanel_))
-    {
-        if (auto* itemEditorComponent = GetComponent<ItemEditorComponent>(itemEditorPanel_);
-            itemEditorComponent != nullptr)
-        {
-            for (const GameEntity::ID& slotEntity : itemEditorComponent->GetSlotEntities())
-            {
-                RemoveEntity(slotEntity);
-            }
-        }
-        RemoveEntity(itemEditorPanel_);
-        itemEditorPanel_ = 0;
-    }
-    dragMode_ = false;
-}
+// void glimmer::WorldContext::ShowItemEditorPanel(const ComposableItem* composableItem)
+// {
+//     if (!IsEmptyEntityId(itemEditorPanel_))
+//     {
+//         LogCat::e("Please close the previous panel first.");
+// #if  !defined(NDEBUG)
+//         assert(false);
+// #endif
+//     }
+//     const auto entityId = CreateEntity();
+//     auto* itemEditorComponent = AddComponent<ItemEditorComponent>(entityId);
+//     if (itemEditorComponent == nullptr)
+//     {
+//         LogCat::e("itemEditorComponent is nullptr.");
+//         return;
+//     }
+//     ItemContainer* itemContainer = composableItem->GetItemContainer();
+//     const size_t capacity = itemContainer->GetCapacity();
+//     itemEditorComponent->Reserve(capacity);
+//     constexpr float slotStep = ITEM_SLOT_SIZE + ITEM_SLOT_PADDING;
+//     for (int i = 0; i < capacity; i++)
+//     {
+//         const auto slotEntity = CreateEntity();
+//         AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, false);
+//         auto* guiTransform2DComponent = AddComponent<GuiTransform2DComponent>(slotEntity);
+//         if (guiTransform2DComponent == nullptr)
+//         {
+//             continue;
+//         }
+//         guiTransform2DComponent->SetSize(CameraVector2D(ITEM_SLOT_SIZE , ITEM_SLOT_SIZE ));
+//         guiTransform2DComponent->SetPosition(CameraVector2D(
+//             ITEM_SLOT_PADDING + slotStep * static_cast<float>(i) ,
+//             ITEM_SLOT_PADDING + slotStep
+//         ));
+//         auto draggableComponent = AddComponent<DraggableComponent>(slotEntity);
+//         if (draggableComponent == nullptr)
+//         {
+//             continue;
+//         }
+//         draggableComponent->SetSize(guiTransform2DComponent->GetSize());
+//         itemEditorComponent->AddSlotEntity(slotEntity);
+//     }
+//     itemEditorPanel_ = entityId;
+//     dragMode_ = true;
+// }
+//
+// bool glimmer::WorldContext::IsItemEditorPanelVisible() const
+// {
+//     return !IsEmptyEntityId(itemEditorPanel_);
+// }
+//
+// void glimmer::WorldContext::HideItemEditorPanel()
+// {
+//     if (!IsEmptyEntityId(itemEditorPanel_))
+//     {
+//         if (auto* itemEditorComponent = GetComponent<ItemEditorComponent>(itemEditorPanel_);
+//             itemEditorComponent != nullptr)
+//         {
+//             for (const GameEntity::ID& slotEntity : itemEditorComponent->GetSlotEntities())
+//             {
+//                 RemoveEntity(slotEntity);
+//             }
+//         }
+//         RemoveEntity(itemEditorPanel_);
+//         itemEditorPanel_ = 0;
+//     }
+//     dragMode_ = false;
+// }
 
 
 bool glimmer::WorldContext::SetPersistable(const GameEntity::ID id, const bool persistable)
@@ -1276,6 +1276,53 @@ bool glimmer::WorldContext::IsPersistable(const GameEntity::ID id)
     return it->second->IsPersistable();
 }
 
+void glimmer::WorldContext::SaveGame()
+{
+    if (saving_)
+    {
+        return;
+    }
+    saving_ = true;
+    const Saves* saves = GetSaves();
+    if (saves == nullptr)
+    {
+        saving_ = false;
+        return;
+    }
+    auto mapManifestMessageData = saves->ReadMapManifest();
+    if (!mapManifestMessageData.has_value())
+    {
+        saving_ = false;
+        return;
+    }
+    const long endTime = TimeUtils::GetCurrentTimeMs();
+    mapManifestMessageData->set_totalplaytime(
+        mapManifestMessageData->totalplaytime() + (endTime - GetStartTime()));
+    mapManifestMessageData->set_lastplayedtime(endTime);
+    mapManifestMessageData->set_entityidindex(GetEntityIdIndex());
+    if (!saves->WriteMapManifest(mapManifestMessageData.value()))
+    {
+        saving_ = false;
+        return;
+    }
+    //保存玩家
+    if (IsPersistable(GetPlayerEntity()))
+    {
+        PlayerMessage playerMessage;
+        SaveEntity(playerMessage.mutable_entity(), GetPlayerEntity());
+        (void)saves->WritePlayer(playerMessage);
+    }
+
+    //Save all blocks.
+    //保存所有区块。
+    auto allChunks = GetAllChunks();
+    for (const auto& pos : *allChunks | std::views::keys)
+    {
+        (void)SaveChunk(pos);
+    }
+    saving_ = false;
+}
+
 std::vector<glimmer::GameEntity::ID> glimmer::WorldContext::GetAllGameEntityId() const
 {
     std::vector<GameEntity::ID> result;
@@ -1312,7 +1359,7 @@ void glimmer::WorldContext::RemoveEntity(GameEntity::ID id)
 
         for (auto* comp : componentsToRemove)
         {
-            RemoveComponentInternal(id, comp);
+            RemoveComponentImp(id, comp->GetComponentType());
         }
 
         entityComponents.erase(compIt);

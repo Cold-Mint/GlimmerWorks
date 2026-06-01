@@ -26,6 +26,8 @@
  */
 #include "FixedColorManager.h"
 
+#include "google/protobuf/compiler/csharp/csharp_field_base.h"
+
 
 void glimmer::FixedColorManager::RegisterCoreRef(const std::string &resourceId, const uint8_t r, const uint8_t b,
                                                  const uint8_t g,
@@ -89,7 +91,7 @@ std::vector<std::string> glimmer::FixedColorManager::GetFixedColorResourceList()
 }
 
 std::string glimmer::FixedColorManager::ListFixedColorResources() const {
-    std::ostringstream oss;
+    std::stringstream oss;
     for (const auto &packPair: fixedColorMap_) {
         const auto &packId = packPair.first;
         const auto &keyMap = packPair.second;

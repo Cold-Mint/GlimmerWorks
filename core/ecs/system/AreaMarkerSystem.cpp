@@ -31,7 +31,7 @@
 #include "fmt/color.h"
 
 glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<AreaMarkerComponent>();
+    RequireComponent(COMPONENT_AREA_MARKER);
     appContext_ = worldContext->GetAppContext();
     areaMarkerComponent_ = worldContext->GetAreaMarkerComponent();
     preloadColors_ = appContext_->GetPreloadColors();

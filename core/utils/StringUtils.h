@@ -39,6 +39,8 @@ namespace glimmer {
          */
         static std::string ToSafeSaveName(const std::string &utf8Str);
 
+        static u_int64_t StringToUint64(const std::string& string);
+
         static void ReplaceAll(std::string &str, std::string_view from, std::string_view to);
     };
 }

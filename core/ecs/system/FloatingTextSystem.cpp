@@ -32,8 +32,8 @@
 #include "core/world/WorldContext.h"
 
 glimmer::FloatingTextSystem::FloatingTextSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<FloatingTextComponent>();
-    RequireComponent<Transform2DComponent>();
+    RequireComponent(COMPONENT_FLOATING_TEXT);
+    RequireComponent(COMPONENT_TRANSFORM_2D);
 }
 
 void glimmer::FloatingTextSystem::Update(float delta) {

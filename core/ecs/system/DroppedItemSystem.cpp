@@ -33,8 +33,8 @@
 
 
 glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<Transform2DComponent>();
-    RequireComponent<DroppedItemComponent>();
+    RequireComponent(COMPONENT_TRANSFORM_2D);
+    RequireComponent(COMPONENT_DROPPED_ITEM);
 }
 
 uint8_t glimmer::DroppedItemSystem::GetRenderOrder() {

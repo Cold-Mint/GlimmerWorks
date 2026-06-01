@@ -39,6 +39,7 @@
 #include "../saves/Saves.h"
 #include "core/saves/SavesManager.h"
 #include "core/utils/RandomUtils.h"
+#include "core/utils/StringUtils.h"
 #include "core/utils/TimeUtils.h"
 #include "SDL3/SDL_log.h"
 namespace fs = std::filesystem;
@@ -59,19 +60,18 @@ void glimmer::CreateWorldScene::CreateWorld() const
         return;
     }
     const std::string seed_input = seedStr_;
-    int seed_value = 0;
+    int seedValue = 0;
     try
     {
-        seed_value = std::stoi(seed_input);
+        seedValue = std::stoi(seed_input);
     }
     catch (...)
     {
-        std::hash<std::string> hasher;
-        seed_value = static_cast<int>(hasher(seed_input));
+        seedValue = static_cast<int>(StringUtils::StringToUint64(seed_input));
     }
-    LogCat::d("Create a world: ", name, ", seed: ", seed_value);
+    LogCat::d("Create a world: ", name, ", seed: ", seedValue);
     MapManifest manifest;
-    manifest.seed = seed_value;
+    manifest.seed = seedValue;
     manifest.name = name;
     manifest.gameVersionName = GAME_VERSION_STRING;
     manifest.gameVersionNumber = GAME_VERSION_NUMBER;
@@ -118,7 +118,7 @@ std::string glimmer::CreateWorldScene::RandomName() const
 
 bool glimmer::CreateWorldScene::HandleEvent(const SDL_Event& event)
 {
-    return false;
+    return true;
 }
 
 void glimmer::CreateWorldScene::Update(float delta)

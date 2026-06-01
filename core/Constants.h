@@ -148,15 +148,19 @@ static constexpr std::string DATA_FILE_TYPE_DECORATOR_SURFACE = "decor_surface";
 static constexpr std::string DATA_FILE_TYPE_FIXED_COLOR = "fixed_color";
 static constexpr std::string DATA_FILE_TYPE_LIGHT_MASK = "light_mask";
 static constexpr std::string DATA_FILE_TYPE_LIGHT_SOURCE = "light_source";
+static constexpr std::string DATA_FILE_TYPE_RECIPE = "recipe";
+static constexpr std::string DATA_FILE_TYPE_RECIPE_TABLE = "recipe_table";
 
 static constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 static constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
 static constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
 static constexpr size_t ITEM_MAX_STACK = 64;
 static constexpr size_t HOT_BAR_SIZE = 9;
-static constexpr float ITEM_SLOT_SIZE = 40.0F;
-static constexpr float ITEM_SLOT_PADDING = 8.0F;
+static constexpr float ITEM_SLOT_SIZE = 20.0F;
+static constexpr float ITEM_SLOT_PADDING = 2.0F;
 static constexpr float DROP_INTERVAL = 1.0F / ITEM_MAX_STACK;
+static constexpr int TOOLTIP_TEXT_WRAP_WIDTH = 180;
+
 //Maximum suction (slightly larger than the original 80, compensating for attenuation)
 //最大吸力（比原80稍大，补偿衰减）
 static constexpr float MAX_MAGNET_FORCE = 120.0F;
@@ -295,7 +299,6 @@ static constexpr uint8_t RENDER_ORDER_PARALLAX_BACKGROUND = 1;
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 2;
 static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 3;
 static constexpr uint8_t RENDER_ORDER_HOTBAR = 4;
-static constexpr uint8_t RENDER_ORDER_ITEM_EDITOR = 5;
 static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
 static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
 static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;

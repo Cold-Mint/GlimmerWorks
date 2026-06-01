@@ -35,8 +35,8 @@
 
 glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent<DebugDrawComponent>();
-    RequireComponent<Transform2DComponent>();
+    RequireComponent(COMPONENT_DEBUG_DRAW);
+    RequireComponent(COMPONENT_TRANSFORM_2D);
 }
 
 void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)

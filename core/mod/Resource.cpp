@@ -29,6 +29,7 @@
 #include <random>
 
 #include "core/utils/RandomUtils.h"
+#include "core/utils/StringUtils.h"
 
 std::string glimmer::Resource::GenerateId(const std::string& packId, const std::string& key)
 {
@@ -214,4 +215,17 @@ std::vector<ItemMessage> glimmer::LootResource::GetLootItems(const LootResource*
         }
     }
     return itemMessageList;
+}
+
+void glimmer::RequiredTag::MakeCachedTag()
+{
+    if (cachedTagId_ == 0)
+    {
+        cachedTagId_ = StringUtils::StringToUint64(requiredTag);
+    }
+}
+
+uint64_t glimmer::RequiredTag::GetCachedTagId() const
+{
+    return cachedTagId_;
 }

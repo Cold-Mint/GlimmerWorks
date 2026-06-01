@@ -31,20 +31,26 @@
 #include "core/ecs/component/PauseComponent.h"
 
 
-glimmer::PauseSystem::PauseSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<PauseComponent>();
+
+
+glimmer::PauseSystem::PauseSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
+    RequireComponent(COMPONENT_PAUSE);
 }
 
-uint8_t glimmer::PauseSystem::GetRenderOrder() {
+uint8_t glimmer::PauseSystem::GetRenderOrder()
+{
     return RENDER_ORDER_PAUSE;
 }
 
-void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
-    if (worldContext_->IsRuning()) {
+void glimmer::PauseSystem::Render(SDL_Renderer* renderer)
+{
+    if (worldContext_->IsRuning())
+    {
         return;
     }
 
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
 
     // 让窗口居中
     ImVec2 windowSize(300.0f, 200.0f);
@@ -57,15 +63,16 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
     ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
 
     ImGuiWindowFlags flags =
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoTitleBar;
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoTitleBar;
 
-    AppContext *appContext = worldContext_->GetAppContext();
-    if (ImGui::Begin("PauseMenu", nullptr, flags)) {
+    AppContext* appContext = worldContext_->GetAppContext();
+    if (ImGui::Begin("PauseMenu", nullptr, flags))
+    {
         // 居中标题
-        const char *title = appContext->GetLangsResources()->pause.c_str();
+        const char* title = appContext->GetLangsResources()->pause.c_str();
         ImVec2 textSize = ImGui::CalcTextSize(title);
         ImGui::SetCursorPosX((windowSize.x - textSize.x) * 0.5f);
         ImGui::TextUnformatted(title);
@@ -79,39 +86,17 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
         float buttonWidth = 200.0f;
         ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
 
-        if (ImGui::Button(appContext->GetLangsResources()->restore.c_str(), ImVec2(buttonWidth, 0))) {
+        if (ImGui::Button(appContext->GetLangsResources()->restore.c_str(), ImVec2(buttonWidth, 0)))
+        {
             worldContext_->SetRuning(true);
         }
 
         ImGui::Spacing();
         ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
 
-        if (ImGui::Button(appContext->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0))) {
-            auto mapManifestMessageData = worldContext_->GetSaves()->ReadMapManifest();
-            if (!mapManifestMessageData.has_value()) {
-                return;
-            }
-            const long endTime = TimeUtils::GetCurrentTimeMs();
-            mapManifestMessageData->set_totalplaytime(
-                mapManifestMessageData->totalplaytime() + (endTime - worldContext_->GetStartTime()));
-            mapManifestMessageData->set_lastplayedtime(endTime);
-            mapManifestMessageData->set_entityidindex(worldContext_->GetEntityIdIndex());
-            if (!worldContext_->GetSaves()->WriteMapManifest(mapManifestMessageData.value())) {
-                return;
-            }
-            //保存玩家
-            if (worldContext_->IsPersistable(worldContext_->GetPlayerEntity())) {
-                PlayerMessage playerMessage;
-                worldContext_->SaveEntity(playerMessage.mutable_entity(), worldContext_->GetPlayerEntity());
-                (void) worldContext_->GetSaves()->WritePlayer(playerMessage);
-            }
-
-            //Save all blocks.
-            //保存所有区块。
-            auto allChunks = worldContext_->GetAllChunks();
-            for (const auto &pos: *allChunks | std::views::keys) {
-                (void) worldContext_->SaveChunk(pos);
-            }
+        if (ImGui::Button(appContext->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0)))
+        {
+            worldContext_->SaveGame();
             appContext->SetRandomSlogan();
             appContext->PlayMainMenuBGM();
             appContext->GetSceneManager()->PopScene();
@@ -121,15 +106,19 @@ void glimmer::PauseSystem::Render(SDL_Renderer *renderer) {
     ImGui::End();
 }
 
-bool glimmer::PauseSystem::OnBackPressed() {
+bool glimmer::PauseSystem::OnBackPressed()
+{
     worldContext_->SetRuning(!worldContext_->IsRuning());
     return true;
 }
 
-bool glimmer::PauseSystem::CanRunWhilePaused() const {
+
+bool glimmer::PauseSystem::CanRunWhilePaused() const
+{
     return true;
 }
 
-std::string glimmer::PauseSystem::GetName() {
+std::string glimmer::PauseSystem::GetName()
+{
     return "glimmer.PauseSystem";
 }

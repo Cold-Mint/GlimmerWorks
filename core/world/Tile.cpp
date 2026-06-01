@@ -30,6 +30,7 @@
 
 #include "../scene/AppContext.h"
 #include "../mod/ResourceLocator.h"
+#include "core/utils/StringUtils.h"
 
 
 const glimmer::ResourceRef* glimmer::Tile::GetSideLightMaskResource() const
@@ -306,12 +307,21 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     tile->autoDigCostScale_ = tileResource->autoDigCostScale;
     tile->breakSFX_ = resourceLocator->FindAudio(&tileResource->breakSfx);
     tile->placeSFX_ = resourceLocator->FindAudio(&tileResource->placeSfx);
+    for (auto& tag : tileResource->tags)
+    {
+        tile->tags_.emplace(StringUtils::StringToUint64(tag));
+    }
     return tile;
 }
 
 uint8_t glimmer::Tile::GetTileWidth() const
 {
     return tileWidth_;
+}
+
+std::unordered_set<uint64_t> glimmer::Tile::GetTags() const
+{
+    return tags_;
 }
 
 uint8_t glimmer::Tile::GetTileHeight() const

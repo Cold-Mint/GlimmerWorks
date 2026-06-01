@@ -26,13 +26,17 @@
  */
 #include "MaterialItem.h"
 
+#include "core/utils/StringUtils.h"
+
 glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optional<std::string> description,
-                                    std::shared_ptr<SDL_Texture> icon,
+                                    std::shared_ptr<SDL_Texture> icon, std::unordered_set<uint64_t> tags,
                                     const ResourceRef& resourceRef) : id_(std::move(id)),
                                                                       name_(std::move(name)),
                                                                       description_(std::move(description)),
                                                                       icon_(std::move(icon))
 {
+    tags.clear();
+    tags_.insert(tags.begin(), tags.end());
     resourceRef_ = resourceRef;
 }
 
@@ -52,10 +56,15 @@ std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(c
     {
         description = descriptionRes->value;
     }
+    std::unordered_set<uint64_t> tags;
+    for (auto& tag : itemResource->tags)
+    {
+        tags.emplace(StringUtils::StringToUint64(tag));
+    }
     return std::make_unique<MaterialItem>(Resource::GenerateId(*itemResource), name,
                                           description,
                                           appContext->GetResourceLocator()->FindTexture(
-                                              &itemResource->texture), resourceRef);
+                                              &itemResource->texture), tags, resourceRef);
 }
 
 const std::string& glimmer::MaterialItem::GetId() const

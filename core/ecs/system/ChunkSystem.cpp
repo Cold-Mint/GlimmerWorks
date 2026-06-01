@@ -151,9 +151,9 @@ void glimmer::ChunkSystem::SetOriginAndSort(std::vector<std::unique_ptr<ChunkTas
 
 glimmer::ChunkSystem::ChunkSystem(WorldContext *worldContext)
     : GameSystem(worldContext) {
-    RequireComponent<TileLayerComponent>();
-    RequireComponent<CameraComponent>();
-    RequireComponent<PlayerComponent>();
+    RequireComponent(COMPONENT_TILE_LAYER);
+    RequireComponent(COMPONENT_CAMERA);
+    RequireComponent(COMPONENT_PLAYER);
 }
 
 void glimmer::ChunkSystem::Update(const float delta) {

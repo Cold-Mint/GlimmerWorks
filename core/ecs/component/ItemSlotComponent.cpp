@@ -26,48 +26,68 @@
  */
 #include "ItemSlotComponent.h"
 
-#include "core/Constants.h"
+#include "core/inventory/ItemContainer.h"
 
 
-glimmer::ItemSlotComponent::ItemSlotComponent(ItemContainer *itemContainer, int slotIndex,
+glimmer::ItemSlotComponent::ItemSlotComponent(ItemContainer* itemContainer, int slotIndex,
                                               bool allowSelected) : itemContainer_(itemContainer),
                                                                     slotIndex_(slotIndex),
-                                                                    allowSelected_(allowSelected) {
+                                                                    allowSelected_(allowSelected)
+{
 }
 
-bool glimmer::ItemSlotComponent::AllowSelected() const {
+float glimmer::ItemSlotComponent::GetPadding() const
+{
+    return padding_;
+}
+
+void glimmer::ItemSlotComponent::SetPadding(const float padding)
+{
+    padding_ = padding;
+}
+
+bool glimmer::ItemSlotComponent::AllowSelected() const
+{
     return allowSelected_;
 }
 
-glimmer::Item *glimmer::ItemSlotComponent::GetItem() const {
+glimmer::Item* glimmer::ItemSlotComponent::GetItem() const
+{
     return itemContainer_->GetItem(slotIndex_);
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::TakeAllItem() const {
+std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::TakeAllItem() const
+{
     return itemContainer_->TakeAllItem(slotIndex_);
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::ReplaceItem(std::unique_ptr<Item> item) const {
+std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::ReplaceItem(std::unique_ptr<Item> item) const
+{
     return itemContainer_->ReplaceItem(slotIndex_, std::move(item));
 }
 
 
-bool glimmer::ItemSlotComponent::IsHovered() const {
+bool glimmer::ItemSlotComponent::IsHovered() const
+{
     return isHovered_;
 }
 
-void glimmer::ItemSlotComponent::SetHovered(const bool hovered) {
+void glimmer::ItemSlotComponent::SetHovered(const bool hovered)
+{
     isHovered_ = hovered;
 }
 
-bool glimmer::ItemSlotComponent::IsSelected() const {
+bool glimmer::ItemSlotComponent::IsSelected() const
+{
     return isSelected_;
 }
 
-void glimmer::ItemSlotComponent::SetSelected(const bool selected) {
+void glimmer::ItemSlotComponent::SetSelected(const bool selected)
+{
     isSelected_ = selected;
 }
 
-GameComponentTypeMessage glimmer::ItemSlotComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::ItemSlotComponent::GetComponentType()
+{
     return COMPONENT_ITEM_SLOT;
 }

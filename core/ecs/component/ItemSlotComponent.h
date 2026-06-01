@@ -25,23 +25,33 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ItemContainerComonent.h"
+#include "core/Constants.h"
 #include "core/ecs/GameComponent.h"
 
-namespace glimmer {
-    class ItemSlotComponent : public GameComponent {
-        ItemContainer *itemContainer_;
+namespace glimmer
+{
+    class Item;
+    class ItemContainer;
+
+    class ItemSlotComponent : public GameComponent
+    {
+        ItemContainer* itemContainer_;
         int slotIndex_;
         bool isHovered_ = false;
         bool isSelected_ = false;
         bool allowSelected_ = false;
+        float padding_ = ITEM_SLOT_PADDING;
 
     public:
-        explicit ItemSlotComponent(ItemContainer *itemContainer, int slotIndex, bool allowSelected);
+        explicit ItemSlotComponent(ItemContainer* itemContainer, int slotIndex, bool allowSelected);
+
+        [[nodiscard]] float GetPadding() const;
+
+        void SetPadding(float padding);
 
         [[nodiscard]] bool AllowSelected() const;
 
-        [[nodiscard]] Item *GetItem() const;
+        [[nodiscard]] Item* GetItem() const;
 
         [[nodiscard]] std::unique_ptr<Item> TakeAllItem() const;
 

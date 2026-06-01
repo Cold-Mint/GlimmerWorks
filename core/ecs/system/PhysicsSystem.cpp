@@ -34,7 +34,7 @@
 
 
 glimmer::PhysicsSystem::PhysicsSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<RigidBody2DComponent>();
+    RequireComponent(COMPONENT_RIGID_BODY_2D);
 }
 
 void glimmer::PhysicsSystem::Update(const float delta) {

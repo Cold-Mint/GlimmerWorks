@@ -49,7 +49,7 @@ namespace glimmer
 
         std::function<void(ContainerChangeType, size_t)> onAmountChanged_ = nullptr;
         std::function<void(size_t, size_t)> onUsedDurabilityChanged_ = nullptr;
-
+        std::unordered_set<uint64_t> tags_;
         ResourceRef resourceRef_;
 
     public:
@@ -112,6 +112,8 @@ namespace glimmer
          * @param amount
          */
         void SetAmount(size_t amount);
+
+        [[nodiscard]] bool HasTag(uint64_t tag) const;
 
         /**
          * AddAmount

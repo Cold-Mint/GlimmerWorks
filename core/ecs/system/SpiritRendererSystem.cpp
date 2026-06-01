@@ -31,8 +31,8 @@
 
 glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent<SpiritRendererComponent>();
-    RequireComponent<Transform2DComponent>();
+    RequireComponent(COMPONENT_SPIRIT_RENDERER);
+    RequireComponent(COMPONENT_TRANSFORM_2D);
 }
 
 void glimmer::SpiritRendererSystem::Render(SDL_Renderer* renderer)

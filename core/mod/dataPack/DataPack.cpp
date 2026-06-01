@@ -375,6 +375,24 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value& va
     }
 }
 
+void glimmer::DataPack::LoadRecipeResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const
+{
+    auto recipeResource = std::make_unique<RecipeResource>(toml::get<RecipeResource>(value));
+    recipeResource->packId = manifest_.id;
+    for (auto& input : recipeResource->input)
+    {
+        input.MakeCachedTag();
+    }
+    recipeManager->RegisterRecipe(std::move(recipeResource));
+}
+
+void glimmer::DataPack::LoadRecipeTableResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const
+{
+    auto recipeTableResource = std::make_unique<RecipeTableResource>(toml::get<RecipeTableResource>(value));
+    recipeTableResource->packId = manifest_.id;
+    recipeManager->RegisterRecipeTable(std::move(recipeTableResource));
+}
+
 std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(const std::string& fileName)
 {
     constexpr std::string_view suffix = ".strings.toml";
@@ -709,6 +727,22 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
             LoadLightSourceResourceFromFile(value, appContext->GetLightSourceManager());
+            total++;
+        }
+        if (dataType == DATA_FILE_TYPE_RECIPE)
+        {
+            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
+            const toml::value value = toml::parse_str(
+                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
+            LoadRecipeResourceFromFile(value, appContext->GetRecipeManager());
+            total++;
+        }
+        if (dataType == DATA_FILE_TYPE_RECIPE_TABLE)
+        {
+            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
+            const toml::value value = toml::parse_str(
+                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
+            LoadRecipeTableResourceFromFile(value, appContext->GetRecipeManager());
             total++;
         }
     }

@@ -28,30 +28,43 @@
 
 #include "core/saves/SavesManager.h"
 
-glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext)
-    : Scene(context) {
+glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext)
+    : Scene(context)
+{
     worldContext_ = std::move(worldContext);
-    if (context != nullptr) {
-        SDL_SetWindowTitle(context->GetWindow(), (PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
+    if (context != nullptr)
+    {
+        SDL_SetWindowTitle(context->GetWindow(),
+                           (PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
     }
 }
 
-void glimmer::WorldScene::OnFrameStart() {
+void glimmer::WorldScene::OnFrameStart()
+{
     worldContext_->OnFrameStart();
 }
 
-bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
+bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
+{
     return worldContext_->HandleEvent(event);
 }
 
-bool glimmer::WorldScene::OnBackPressed() {
+bool glimmer::WorldScene::OnBackPressed()
+{
     return worldContext_->OnBackPressed();
 }
 
-void glimmer::WorldScene::Update(float delta) {
+void glimmer::WorldScene::OnWindowClose()
+{
+    worldContext_->SaveGame();
+}
+
+void glimmer::WorldScene::Update(float delta)
+{
     worldContext_->Update(delta);
 }
 
-void glimmer::WorldScene::Render(SDL_Renderer *renderer) {
+void glimmer::WorldScene::Render(SDL_Renderer* renderer)
+{
     worldContext_->Render(renderer);
 }

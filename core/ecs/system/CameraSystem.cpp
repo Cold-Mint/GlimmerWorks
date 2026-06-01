@@ -32,8 +32,8 @@
 glimmer::CameraSystem::CameraSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
-    RequireComponent<CameraComponent>();
-    RequireComponent<Transform2DComponent>();
+    RequireComponent(COMPONENT_CAMERA);
+    RequireComponent(COMPONENT_TRANSFORM_2D);
     cameraComponent_ = worldContext->GetCameraComponent();
     window_ = worldContext_->GetAppContext()->GetWindow();
 }

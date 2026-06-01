@@ -378,6 +378,7 @@ glimmer::AppContext::AppContext()
     }
     langsResources_ = std::make_unique<LangsResources>();
     contributorManager_ = std::make_unique<ContributorManager>();
+    recipeManager_ = std::make_unique<RecipeManager>();
     mobManager_ = std::make_unique<MobManager>();
     shapeManager_ = std::make_unique<ShapeManager>();
     audioManager_ = std::make_unique<AudioManager>();
@@ -732,6 +733,11 @@ glimmer::LightSourceManager* glimmer::AppContext::GetLightSourceManager() const
 glimmer::FixedColorManager* glimmer::AppContext::GetFixedColorManager() const
 {
     return fixedColorManager_.get();
+}
+
+glimmer::RecipeManager* glimmer::AppContext::GetRecipeManager() const
+{
+    return recipeManager_.get();
 }
 
 glimmer::StringManager* glimmer::AppContext::GetStringManager() const

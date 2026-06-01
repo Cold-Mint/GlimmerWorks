@@ -35,6 +35,7 @@
 #include "LightMaskManager.h"
 #include "LightSourceManager.h"
 #include "MobManager.h"
+#include "RecipeManager.h"
 #include "StructureManager.h"
 #include "../PackManifest.h"
 #include "../../vfs/VirtualFileSystem.h"
@@ -126,7 +127,12 @@ namespace glimmer
                                                 BiomeDecoratorResourcesManager* biomeDecoratorManager,
                                                 BiomeDecoratorType type) const;
 
-        [[nodiscard]] static std::optional<std::string> ExtractLanguageFromFileName(const std::string& fileName);
+        void LoadRecipeResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const;
+
+        void LoadRecipeTableResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const;
+
+        [[nodiscard]]
+        static std::optional<std::string> ExtractLanguageFromFileName(const std::string& fileName);
 
     public:
         explicit DataPack(std::string path, const VirtualFileSystem* virtualFileSystem,

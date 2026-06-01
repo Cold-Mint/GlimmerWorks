@@ -45,7 +45,7 @@ namespace glimmer
         explicit AbilityItem(std::string id, std::string name, std::optional<std::string> description,
                              std::shared_ptr<SDL_Texture> icon,
                              std::shared_ptr<ItemAbility> itemAbility, uint32_t maxDurability, bool isUnbreakable,
-                             bool canUseAlone,
+                             bool canUseAlone, std::unordered_set<uint64_t> tags,
                              const ResourceRef& resourceRef);
 
         [[nodiscard]] const std::string& GetId() const override;

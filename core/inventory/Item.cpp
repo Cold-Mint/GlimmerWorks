@@ -29,6 +29,7 @@
 #include "core/log/LogCat.h"
 
 
+
 void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
 {
     amount_ = itemMessage.amount();
@@ -96,6 +97,11 @@ void glimmer::Item::SetAmount(const size_t amount)
     {
         onAmountChanged_(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
     }
+}
+
+bool glimmer::Item::HasTag(const uint64_t tag) const
+{
+    return tags_.contains(tag);
 }
 
 size_t glimmer::Item::AddAmount(const size_t amount)

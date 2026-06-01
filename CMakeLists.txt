@@ -446,7 +446,6 @@ target_sources(GlimmerWorks
         core/console/command/EcsCommand.cpp
         core/ecs/component/GuiTransform2DComponent.cpp
         core/ecs/component/ItemEditorComponent.cpp
-        core/ecs/system/ItemEditorSystem.cpp
         core/utils/TomlUtils.cpp
         core/inventory/ability/NoneAbility.cpp
         core/lootTable/LootEntry.cpp
@@ -602,6 +601,8 @@ target_sources(GlimmerWorks
         core/math/Vector2DBase.cpp
         core/math/Vector2DIBase.cpp
         core/math/Vector2DIHash.cpp
+        core/mod/dataPack/RecipeManager.cpp
+        core/mod/dataPack/RecipeGroup.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -720,7 +721,6 @@ target_sources(GlimmerWorks
         core/console/command/EcsCommand.h
         core/ecs/component/GuiTransform2DComponent.h
         core/ecs/component/ItemEditorComponent.h
-        core/ecs/system/ItemEditorSystem.h
         core/utils/TomlUtils.h
         core/inventory/ability/NoneAbility.h
         core/lootTable/LootEntry.h
@@ -877,6 +877,8 @@ target_sources(GlimmerWorks
         core/math/Vector2DBase.h
         core/math/Vector2DIBase.h
         core/math/Vector2DIHash.h
+        core/mod/dataPack/RecipeManager.h
+        core/mod/dataPack/RecipeGroup.h
 )
 
 #Define version information

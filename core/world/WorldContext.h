@@ -53,7 +53,8 @@
 #include "generator/ChunkLoader.h"
 #include "core/world/TileInstancePool.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class ParallaxBackgroundComponent;
     class TileInstancePool;
 
@@ -61,7 +62,8 @@ namespace glimmer {
      * GameEntity has been restricted to be accessed directly only within the WorldContext. GameEntity::ID is provided externally.
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供GameEntity::ID。
      */
-    class WorldContext {
+    class WorldContext
+    {
         void RegisterSystem(std::unique_ptr<GameSystem> system);
 
         uint32_t chunksVersion_ = 0;
@@ -86,40 +88,40 @@ namespace glimmer {
         //Mark the terrain coordinates that have been scanned and structured.(The coordinates are the vertices of the block.)When loading block A, block A can request and create the terrain data for block B, so as to write the structure information. Therefore, using this variable to determine whether the terrain of the block has been manually generated is completely correct.
         //标记已扫描过结构的地形坐标。（坐标为区块顶点。）当加载区块A时，区块A可以申请，创建区块B的地形数据，以便写入结构信息。所以使用这个变量判断区块的地形是否手动生成过是完全正确的。
         std::unordered_set<TileVector2D, Vector2DIHash> processedTerrainTiles_;
-        std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> chunksCache_;
-        std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> terrainTileDataCache_;
+        std::unordered_map<TileVector2D, Chunk*, Vector2DIHash> chunksCache_;
+        std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash> terrainTileDataCache_;
         GameEntity::ID entityId_ = GAME_ENTITY_ID_INVALID;
 
         /**
          * Entity to component list
          * 实体到组件列表
          */
-        std::unordered_map<GameEntity::ID, std::vector<std::unique_ptr<GameComponent> > > entityComponents;
+        std::unordered_map<GameEntity::ID, std::vector<std::unique_ptr<GameComponent>>> entityComponents;
 
         /**
          * Components to quantity
          * 组件到数量
          */
-        std::unordered_map<std::type_index, size_t> componentCount_;
+        std::unordered_map<GameComponentTypeMessage, size_t> componentCount_;
 
 
         /**
          * camera Component
          * 相机组件
          */
-        CameraComponent *cameraComponent_ = nullptr;
+        CameraComponent* cameraComponent_ = nullptr;
 
-        ItemEditorComponent *itemEditorComponent_ = nullptr;
+        ItemEditorComponent* itemEditorComponent_ = nullptr;
 
-        ParallaxBackgroundComponent *parallaxBackgroundComponent_ = nullptr;
+        ParallaxBackgroundComponent* parallaxBackgroundComponent_ = nullptr;
 
         /**
          * Camera coordinate component
          * 相机坐标组件
          */
-        Transform2DComponent *cameraTransform2D_ = nullptr;
+        Transform2DComponent* cameraTransform2D_ = nullptr;
 
-        AreaMarkerComponent *areaMarker_ = nullptr;
+        AreaMarkerComponent* areaMarker_ = nullptr;
 
 
         /**
@@ -132,33 +134,37 @@ namespace glimmer {
          * digging Component
          * 正在挖掘组件
          */
-        DiggingComponent *diggingComponent_ = nullptr;
+        DiggingComponent* diggingComponent_ = nullptr;
 
-        BlueprintComponent *blueprintComponent_ = nullptr;
+        BlueprintComponent* blueprintComponent_ = nullptr;
 
-        std::vector<std::unique_ptr<GameSystem> > activeSystems;
-        std::vector<std::unique_ptr<GameSystem> > inactiveSystems;
+        std::vector<std::unique_ptr<GameSystem>> activeSystems;
+        std::vector<std::unique_ptr<GameSystem>> inactiveSystems;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
         /**
         * Game saves
         * 游戏存档
         */
-        Saves *saves_;
+        Saves* saves_;
 
         b2WorldId worldId_ = b2_nullWorldId;
-        MapManifest *mapManifest_ = nullptr;
-        std::vector<std::unique_ptr<GameEntity> > entities_;
-        std::unordered_map<GameEntity::ID, GameEntity *> entityMap_;
-        AppContext *appContext_;
+        MapManifest* mapManifest_ = nullptr;
+        std::vector<std::unique_ptr<GameEntity>> entities_;
+        std::unordered_map<GameEntity::ID, GameEntity*> entityMap_;
+        AppContext* appContext_;
 
         GameEntity::ID player_ = GAME_ENTITY_ID_INVALID;
         GameEntity::ID itemEditorPanel_ = GAME_ENTITY_ID_INVALID;
         std::unique_ptr<ChunkLoader> chunkLoader_ = nullptr;
         std::unique_ptr<ChunkGenerator> chunkGenerator_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_;
-        std::shared_ptr<std::function<void(size_t, Item *, ContainerChangeType)> > itemCallback_;
+        std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>> itemCallback_;
         std::shared_ptr<MIX_Audio> itemBreakSFX_ = nullptr;
         AudioManager* audioManager_ = nullptr;
+        //Is the game being saved
+        //是否正在保存游戏
+        bool saving_ = false;
+
         /**
          * Whether to enable the item dragging mode
          * 是否启用物品拖拽模式
@@ -173,7 +179,7 @@ namespace glimmer {
         bool running = true;
 
 
-        void RemoveComponentInternal(GameEntity::ID id, GameComponent *comp);
+        void RemoveComponentImp(GameEntity::ID id, GameComponentTypeMessage gameComponentType);
 
         /**
          * RegisterEntity
@@ -197,17 +203,17 @@ namespace glimmer {
          * @param layerType layerType 图层类型
          * @param index index 索引
          */
-        void OnChunkTileChange(Chunk *chunk, const std::shared_ptr<Tile> &tile, TileLayerType layerType,
+        void OnChunkTileChange(Chunk* chunk, const std::shared_ptr<Tile>& tile, TileLayerType layerType,
                                int index) const;
 
-        void UpdateTileLight(const Chunk *chunk, TileLayerType layerType, int index) const;
+        void UpdateTileLight(const Chunk* chunk, TileLayerType layerType, int index) const;
 
         /**
          * Update the lighting for the entire chunk.
          * 更新整个区块的光照。
          * @param chunk
          */
-        void UpdateChunkLight(const Chunk *chunk) const;
+        void UpdateChunkLight(const Chunk* chunk) const;
 
         /**
      * Initialize the player
@@ -215,13 +221,13 @@ namespace glimmer {
      * This method will load the player data from the disk and then supplement the player's components after the loading process.
      * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
      */
-        void InitPlayer(const ResourceRef &resourceRef);
+        void InitPlayer(const ResourceRef& resourceRef);
 
         /**
     * Initialize the hotbar
     * 初始化快捷栏
     */
-        void InitHotbar(ItemContainer *itemContainer);
+        void InitHotbar(ItemContainer* itemContainer);
 
     public:
         ~WorldContext();
@@ -232,7 +238,7 @@ namespace glimmer {
 
         [[nodiscard]] GameEntity::ID GetEntityIdIndex() const;
 
-        [[nodiscard]] TerrainResult *GetTerrainData(TileVector2D position);
+        [[nodiscard]] TerrainResult* GetTerrainData(TileVector2D position);
 
         /**
 * GetOrCreateTerrainData
@@ -241,7 +247,7 @@ namespace glimmer {
 * 如果地形已存在，那么返回地形数据，如果地形不存在，那么创建一份空白数据。
 * @return
 */
-        [[nodiscard]] TerrainResult *GetOrCreateTerrainData(TileVector2D position);
+        [[nodiscard]] TerrainResult* GetOrCreateTerrainData(TileVector2D position);
 
 
         /**
@@ -258,9 +264,9 @@ namespace glimmer {
          * @param id id 实体id
          * @return
          */
-        [[nodiscard]] std::vector<GameComponent *> GetAllComponents(GameEntity::ID id);
+        [[nodiscard]] std::vector<GameComponent*> GetAllComponents(GameEntity::ID id);
 
-        [[nodiscard]] std::vector<GameSystem *> GetAllActiveSystem() const;
+        [[nodiscard]] std::vector<GameSystem*> GetAllActiveSystem() const;
 
         /**
          *Set the running
@@ -269,19 +275,19 @@ namespace glimmer {
          */
         void SetRuning(bool run);
 
-        Saves *GetSaves() const;
+        Saves* GetSaves() const;
 
-        MapManifest *GetMapManifest() const;
+        MapManifest* GetMapManifest() const;
 
-        template<typename TComponent, typename... Args>
-        TComponent *AddComponent(GameEntity::ID id, Args &&... args);
+        template <typename TComponent, typename... Args>
+        TComponent* AddComponent(GameEntity::ID id, Args&&... args);
 
 
-        template<typename TComponent>
+        template <typename TComponent>
         void RemoveComponent(GameEntity::ID id);
 
 
-        template<typename TComponent>
+        template <typename TComponent>
         bool HasComponent(GameEntity::ID id);
 
         /**
@@ -290,23 +296,22 @@ namespace glimmer {
          * @param id 实体ID
          * @return 组件指针，如果不存在则返回nullptr
          */
-        template<typename TComponent>
-        TComponent *GetComponent(GameEntity::ID id);
+        template <typename TComponent>
+        TComponent* GetComponent(GameEntity::ID id);
 
         /**
          * Is there a component of the specified type
          * 是否有指定类型的组件
-         * @param type 类型
+         * @param gameComponentType type 类型
          * @return
          */
-        bool HasComponentType(const std::type_index &type) const;
-
+        bool HasComponentType(GameComponentTypeMessage gameComponentType) const;
 
         void InitItemEditor();
 
-        [[nodiscard]] ItemEditorComponent *GetItemEditorComponent() const;
+        [[nodiscard]] ItemEditorComponent* GetItemEditorComponent() const;
 
-        [[nodiscard]] ParallaxBackgroundComponent *GetParallaxBackgroundComponent() const;
+        [[nodiscard]] ParallaxBackgroundComponent* GetParallaxBackgroundComponent() const;
 
 
         /**
@@ -322,10 +327,10 @@ namespace glimmer {
          * 获取区块
          * @return
          */
-        std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> *GetAllChunks();
+        std::unordered_map<TileVector2D, Chunk*, Vector2DIHash>* GetAllChunks();
 
 
-        std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> *GetTerrainResults();
+        std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash>* GetTerrainResults();
 
         /**
          * LoadTerrainAt
@@ -343,11 +348,11 @@ namespace glimmer {
         */
         void LoadChunkAt(TileVector2D position);
 
-        ChunkGenerator *GetChunkGenerator() const;
+        ChunkGenerator* GetChunkGenerator() const;
 
-        [[nodiscard]] BlueprintComponent *GetBlueprintComponent() const;
+        [[nodiscard]] BlueprintComponent* GetBlueprintComponent() const;
 
-        void SetBlueprintComponent(BlueprintComponent *blueprintComponent);
+        void SetBlueprintComponent(BlueprintComponent* blueprintComponent);
 
         /**
          * Unload Chunk
@@ -363,9 +368,9 @@ namespace glimmer {
          * @param chunkVertex chunkVertex 区块顶点位置
          * @return
          */
-        Chunk *GetChunk(TileVector2D chunkVertex);
+        Chunk* GetChunk(TileVector2D chunkVertex);
 
-        [[nodiscard]] TileInstancePool *GetTileInstancePool() const;
+        [[nodiscard]] TileInstancePool* GetTileInstancePool() const;
 
         /**
          * SaveChunk
@@ -381,7 +386,7 @@ namespace glimmer {
          * @param entityId
          * @return
          */
-        void SaveEntity(EntityItemMessage *entityItemMessage, GameEntity::ID entityId);
+        void SaveEntity(EntityItemMessage* entityItemMessage, GameEntity::ID entityId);
 
         /**
          * Determine whether a block at a certain position has been loaded
@@ -400,13 +405,13 @@ namespace glimmer {
          */
         static bool ChunkIsOutOfBounds(TileVector2D position);
 
-        bool HandleEvent(const SDL_Event &event) const;
+        bool HandleEvent(const SDL_Event& event) const;
 
         void Update(float delta) const;
 
         bool OnBackPressed() const;
 
-        void Render(SDL_Renderer *renderer) const;
+        void Render(SDL_Renderer* renderer) const;
 
         void OnFrameStart();
 
@@ -417,7 +422,7 @@ namespace glimmer {
          * 设置相机位置组件
          * @param worldPositionComponent
          */
-        void SetCameraPosition(Transform2DComponent *worldPositionComponent);
+        void SetCameraPosition(Transform2DComponent* worldPositionComponent);
 
 
         /**
@@ -425,7 +430,7 @@ namespace glimmer {
          * 设置正在挖掘组件
          * @param diggingComponent
          */
-        void SetDiggingComponent(DiggingComponent *diggingComponent);
+        void SetDiggingComponent(DiggingComponent* diggingComponent);
 
 
         /**
@@ -433,21 +438,21 @@ namespace glimmer {
          * 设置相机的组件
          * @param cameraComponent
          */
-        void SetCameraComponent(CameraComponent *cameraComponent);
+        void SetCameraComponent(CameraComponent* cameraComponent);
 
 
-        [[nodiscard]] DiggingComponent *GetDiggingComponent() const;
+        [[nodiscard]] DiggingComponent* GetDiggingComponent() const;
 
-        [[nodiscard]] CameraComponent *GetCameraComponent() const;
+        [[nodiscard]] CameraComponent* GetCameraComponent() const;
 
-        [[nodiscard]] Transform2DComponent *GetCameraTransform2D() const;
+        [[nodiscard]] Transform2DComponent* GetCameraTransform2D() const;
 
-        [[nodiscard]] LightBuffer *GetLightingBuffer() const;
+        [[nodiscard]] LightBuffer* GetLightingBuffer() const;
 
 
-        [[nodiscard]] AreaMarkerComponent *GetAreaMarkerComponent() const;
+        [[nodiscard]] AreaMarkerComponent* GetAreaMarkerComponent() const;
 
-        void SetAreaMarkerComponent(AreaMarkerComponent *areaMarkerComponent);
+        void SetAreaMarkerComponent(AreaMarkerComponent* areaMarkerComponent);
 
         [[nodiscard]] GameEntity::ID GetHotBarEntity() const;
 
@@ -465,28 +470,8 @@ namespace glimmer {
       * @param componentMessage componentMessage 组件消息
       * @return
       */
-        [[nodiscard]] GameComponent *RecoveryComponent(GameEntity::ID id,
-                                                       const ComponentMessage &componentMessage);
-
-        /**
-         * Display the item editing panel
-         * 显示物品编辑面板
-         * @param composableItem
-         */
-        void ShowItemEditorPanel(const ComposableItem *composableItem);
-
-        /**
-         * Is the item editing panel currently displayed?
-         * 物品编辑面板是否在显示中。
-         * @return
-         */
-        bool IsItemEditorPanelVisible() const;
-
-        /**
-         * Hidden Items Editing Panel
-         * 隐藏物品编辑面板
-         */
-        void HideItemEditorPanel();
+        [[nodiscard]] GameComponent* RecoveryComponent(GameEntity::ID id,
+                                                       const ComponentMessage& componentMessage);
 
 
         /**
@@ -498,9 +483,9 @@ namespace glimmer {
          */
         bool SetPersistable(GameEntity::ID id, bool persistable);
 
-        bool SetResourceRef(GameEntity::ID id, const ResourceRef &resourceRef);
+        bool SetResourceRef(GameEntity::ID id, const ResourceRef& resourceRef);
 
-        const ResourceRef *GetResourceRef(GameEntity::ID id);
+        const ResourceRef* GetResourceRef(GameEntity::ID id);
 
         /**
          * Is the game entity persistent?
@@ -509,6 +494,12 @@ namespace glimmer {
          * @return
          */
         bool IsPersistable(GameEntity::ID id);
+
+        /**
+         * SaveGame
+         * 保存游戏
+         */
+        void SaveGame();
 
 
         /**
@@ -531,7 +522,7 @@ namespace glimmer {
          * @tparam Ts 其他组件类型
          * @return 具有所有指定组件类型的实体列表
          */
-        template<typename T, typename... Ts>
+        template <typename T, typename... Ts>
         std::vector<GameEntity::ID> GetEntityIDWithComponents();
 
         /**
@@ -551,7 +542,7 @@ namespace glimmer {
 
         long startTime_ = 0;
 
-        explicit WorldContext(AppContext *appContext, MapManifest *mapManifest, Saves *saves);
+        explicit WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves);
 
         /**
          * The time when the world environment is constructed and completed.
@@ -560,38 +551,44 @@ namespace glimmer {
          */
         [[nodiscard]] long GetStartTime() const;
 
-        [[nodiscard]] AppContext *GetAppContext() const;
+        [[nodiscard]] AppContext* GetAppContext() const;
 
         [[nodiscard]] b2WorldId GetWorldId() const;
     };
 
 
-    namespace detail {
+    namespace detail
+    {
         // Basic situation: There is only one component type.
         // 基本情况：只有一个组件类型
-        template<typename T>
-        bool HasAllComponents(WorldContext *world, const GameEntity::ID id) {
+        template <typename T>
+        bool HasAllComponents(WorldContext* world, const GameEntity::ID id)
+        {
             return world->HasComponent<T>(id);
         }
 
         // Recursive situation: Multiple component types
         // 递归情况：多个组件类型
-        template<typename T, typename U, typename... Ts>
-        bool HasAllComponents(WorldContext *world, const GameEntity::ID id) {
+        template <typename T, typename U, typename... Ts>
+        bool HasAllComponents(WorldContext* world, const GameEntity::ID id)
+        {
             return world->HasComponent<T>(id) && HasAllComponents<U, Ts...>(world, id);
         }
     }
 
-    template<typename T, typename... Ts>
-    std::vector<GameEntity::ID> WorldContext::GetEntityIDWithComponents() {
+    template <typename T, typename... Ts>
+    std::vector<GameEntity::ID> WorldContext::GetEntityIDWithComponents()
+    {
         std::vector<GameEntity::ID> result;
 
         // Traverse all entities
         // 遍历所有实体
-        for (auto &entity: entities_) {
+        for (auto& entity : entities_)
+        {
             // Check if the entity has all specified component types
             // 检查实体是否有所有指定类型的组件
-            if (detail::HasAllComponents<T, Ts...>(this, entity->GetID())) {
+            if (detail::HasAllComponents<T, Ts...>(this, entity->GetID()))
+            {
                 result.push_back(entity->GetID());
             }
         }
@@ -599,19 +596,24 @@ namespace glimmer {
         return result;
     }
 
-    template<typename TComponent>
-    TComponent *WorldContext::GetComponent(const GameEntity::ID id) {
+    template <typename TComponent>
+    TComponent* WorldContext::GetComponent(const GameEntity::ID id)
+    {
         const auto it = entityComponents.find(id);
-        if (it == entityComponents.end()) {
+        if (it == entityComponents.end())
+        {
             return nullptr;
         }
-        for (auto &component: it->second) {
-            if (component == nullptr) {
+        for (auto& component : it->second)
+        {
+            if (component == nullptr)
+            {
                 continue;
             }
-            GameComponent *gameComponent = component.get();
-            auto *target = dynamic_cast<TComponent *>(gameComponent);
-            if (target == nullptr) {
+            GameComponent* gameComponent = component.get();
+            auto* target = dynamic_cast<TComponent*>(gameComponent);
+            if (target == nullptr)
+            {
                 continue;
             }
             return target;
@@ -629,10 +631,12 @@ namespace glimmer {
      * @param args
      * @return
      */
-    template<typename TComponent, typename... Args>
-    TComponent *WorldContext::AddComponent(GameEntity::ID id, Args &&... args) {
+    template <typename TComponent, typename... Args>
+    TComponent* WorldContext::AddComponent(GameEntity::ID id, Args&&... args)
+    {
         const auto it = entityMap_.find(id);
-        if (it == entityMap_.end()) {
+        if (it == entityMap_.end())
+        {
             LogCat::e("Entity ", id, " does not exist.");
 #if  !defined(NDEBUG)
             assert(false);
@@ -640,28 +644,35 @@ namespace glimmer {
             return nullptr;
         }
         const auto components = entityComponents.find(id);
-        if (components != entityComponents.end()) {
-            for (auto &component: components->second) {
-                if (component == nullptr) {
+        if (components != entityComponents.end())
+        {
+            for (auto& component : components->second)
+            {
+                if (component == nullptr)
+                {
                     continue;
                 }
-                GameComponent *gameComponent = component.get();
-                auto *target = dynamic_cast<TComponent *>(gameComponent);
-                if (target == nullptr) {
+                GameComponent* gameComponent = component.get();
+                auto* target = dynamic_cast<TComponent*>(gameComponent);
+                if (target == nullptr)
+                {
                     continue;
                 }
                 return target;
             }
         }
 
-        const auto type = std::type_index(typeid(TComponent));
         auto comp = std::make_unique<TComponent>(std::forward<Args>(args)...);
-        TComponent *ptr = comp.get();
+        TComponent* ptr = comp.get();
+        GameComponentTypeMessage gameComponentTypeMessage = ptr->GetComponentType();
         entityComponents[id].push_back(std::move(comp));
-        ++componentCount_[type];
-        if (componentCount_[type] == 1) {
-            for (const auto &sys: inactiveSystems) {
-                if (sys && sys->SupportsComponentType(type)) {
+        ++componentCount_[gameComponentTypeMessage];
+        if (componentCount_[gameComponentTypeMessage] == 1)
+        {
+            for (const auto& sys : inactiveSystems)
+            {
+                if (sys && sys->SupportsComponentType(gameComponentTypeMessage))
+                {
                     sys->CheckActivation();
                 }
             }
@@ -669,13 +680,16 @@ namespace glimmer {
         return ptr;
     }
 
-    template<typename TComponent>
-    void WorldContext::RemoveComponent(GameEntity::ID id) {
+    template <typename TComponent>
+    void WorldContext::RemoveComponent(GameEntity::ID id)
+    {
         const auto it = entityComponents.find(id);
         if (it == entityComponents.end()) return;
-        auto &components = it->second;
-        for (auto &c: components) {
-            if (auto ptr = dynamic_cast<TComponent *>(c.get())) {
+        auto& components = it->second;
+        for (auto& c : components)
+        {
+            if (auto ptr = dynamic_cast<TComponent*>(c.get()))
+            {
                 RemoveComponentInternal(id, ptr);
                 break;
             }
@@ -683,19 +697,24 @@ namespace glimmer {
     }
 
 
-    template<typename TComponent>
-    bool WorldContext::HasComponent(const GameEntity::ID id) {
+    template <typename TComponent>
+    bool WorldContext::HasComponent(const GameEntity::ID id)
+    {
         const auto it = entityComponents.find(id);
-        if (it == entityComponents.end()) {
+        if (it == entityComponents.end())
+        {
             return false;
         }
 
-        for (auto &component: it->second) {
-            if (component == nullptr) {
+        for (auto& component : it->second)
+        {
+            if (component == nullptr)
+            {
                 continue;
             }
-            GameComponent *gameComponent = component.get();
-            if (dynamic_cast<TComponent *>(gameComponent) == nullptr) {
+            GameComponent* gameComponent = component.get();
+            if (dynamic_cast<TComponent*>(gameComponent) == nullptr)
+            {
                 continue;
             }
             return true;

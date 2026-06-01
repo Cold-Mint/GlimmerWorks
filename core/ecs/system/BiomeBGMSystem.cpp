@@ -32,9 +32,9 @@
 #include "core/world/WorldContext.h"
 
 glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent<PlayerComponent>();
-    RequireComponent<TileLayerComponent>();
-    RequireComponent<Transform2DComponent>();
+    RequireComponent(COMPONENT_PLAYER);
+    RequireComponent(COMPONENT_TILE_LAYER);
+    RequireComponent(COMPONENT_TRANSFORM_2D);
     GameEntity::ID player = worldContext_->GetPlayerEntity();
     if (WorldContext::IsEmptyEntityId(player)) {
         return;

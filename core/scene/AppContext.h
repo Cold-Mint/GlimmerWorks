@@ -55,6 +55,7 @@
 #include "core/mod/dataPack/LightMaskManager.h"
 #include "core/mod/dataPack/LightSourceManager.h"
 #include "core/mod/dataPack/MobManager.h"
+#include "core/mod/dataPack/RecipeManager.h"
 #include "core/mod/dataPack/StructureManager.h"
 #include "core/mod/resourcePack/AudioManager.h"
 #include "core/shape/ShapeManager.h"
@@ -122,6 +123,7 @@ namespace glimmer
         std::unique_ptr<CommandHookManager> commandHookManager_;
         std::shared_ptr<MIX_Audio> mainMenuBGM_;
         std::shared_ptr<CommandHistoryManager> commandHistoryManager_;
+        std::unique_ptr<RecipeManager> recipeManager_;
         std::mutex mainThreadMutex_;
         std::queue<std::function<void()>> mainThreadTasks_;
         bool isRunning = true;
@@ -184,6 +186,8 @@ namespace glimmer
         [[nodiscard]] LightSourceManager* GetLightSourceManager() const;
 
         [[nodiscard]] FixedColorManager* GetFixedColorManager() const;
+
+        [[nodiscard]] RecipeManager* GetRecipeManager() const;
 
         [[nodiscard]] StringManager* GetStringManager() const;
 

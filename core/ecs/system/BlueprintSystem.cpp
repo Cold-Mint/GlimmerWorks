@@ -106,7 +106,7 @@ std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Til
 
 glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent<TileLayerComponent>();
+    RequireComponent(COMPONENT_TILE_LAYER);
     appContext_ = worldContext->GetAppContext();
     auto gameEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
     if (gameEntities.empty())

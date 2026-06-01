@@ -33,5 +33,10 @@ bool glimmer::Scene::OnBackPressed() {
     return false;
 }
 
+void glimmer::Scene::OnWindowClose()
+{
+
+}
+
 glimmer::Scene::Scene(AppContext *context) : appContext(context) {
 }

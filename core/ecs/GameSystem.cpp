@@ -27,15 +27,20 @@
 #include "GameSystem.h"
 #include "../world/WorldContext.h"
 
-bool glimmer::GameSystem::ShouldActivate() {
-    if (worldContext_ == nullptr) {
+bool glimmer::GameSystem::ShouldActivate()
+{
+    if (worldContext_ == nullptr)
+    {
         return false;
     }
-    if (requiredComponents.empty()) {
+    if (requiredComponents_.empty())
+    {
         return false;
     }
-    for (const auto &type: requiredComponents) {
-        if (!worldContext_->HasComponentType(type)) {
+    for (const auto& type : requiredComponents_)
+    {
+        if (!worldContext_->HasComponentType(type))
+        {
             //A certain dependent component type in the world does not exist and cannot be activated
             // 世界中某个依赖的组件类型不存在，不能激活
             return false;
@@ -44,55 +49,74 @@ bool glimmer::GameSystem::ShouldActivate() {
     return true; // All components exist and can be activated 所有组件都存在，可以激活
 }
 
-void glimmer::GameSystem::OnActivationChanged(const bool activeStatus) {
+void glimmer::GameSystem::OnActivationChanged(const bool activeStatus)
+{
 }
 
-glimmer::GameSystem::GameSystem(WorldContext *worldContext) : worldContext_(worldContext) {
+void glimmer::GameSystem::RequireComponent(const GameComponentTypeMessage gameComponentType)
+{
+    requiredComponents_.insert(gameComponentType);
 }
 
-bool glimmer::GameSystem::CheckActivation() {
+glimmer::GameSystem::GameSystem(WorldContext* worldContext) : worldContext_(worldContext)
+{
+}
+
+bool glimmer::GameSystem::CheckActivation()
+{
     const bool shouldActivate = ShouldActivate();
-    if (!active && shouldActivate) {
-        active = true;
-        LogCat::w("System Activated: ", GetName());
-        OnActivationChanged(active);
-    } else if (active && !shouldActivate) {
-        active = false;
-        LogCat::w("System Deactivated: ", GetName());
-        OnActivationChanged(active);
+    if (!active_ && shouldActivate)
+    {
+        active_ = true;
+        OnActivationChanged(active_);
     }
-    return active;
+    else if (active_ && !shouldActivate)
+    {
+        active_ = false;
+        OnActivationChanged(active_);
+    }
+    return active_;
 }
 
-bool glimmer::GameSystem::IsActive() const {
-    return active;
+bool glimmer::GameSystem::IsActive() const
+{
+    return active_;
 }
 
-bool glimmer::GameSystem::SupportsComponentType(const std::type_index &type) const {
-    if (requiredComponents.empty()) {
+bool glimmer::GameSystem::SupportsComponentType(GameComponentTypeMessage gameComponentType) const
+{
+    if (requiredComponents_.empty())
+    {
         return false;
     }
-    return requiredComponents.contains(type);
+    return requiredComponents_.contains(gameComponentType);
 }
 
-bool glimmer::GameSystem::CanRunWhilePaused() const {
+
+bool glimmer::GameSystem::CanRunWhilePaused() const
+{
     return false;
 }
 
-bool glimmer::GameSystem::HandleEvent(const SDL_Event &event) {
+bool glimmer::GameSystem::HandleEvent(const SDL_Event& event)
+{
     return false;
 }
 
-bool glimmer::GameSystem::OnBackPressed() {
+bool glimmer::GameSystem::OnBackPressed()
+{
     return false;
 }
 
-void glimmer::GameSystem::Update(float delta) {
+void glimmer::GameSystem::Update(float delta)
+{
 }
 
-uint8_t glimmer::GameSystem::GetRenderOrder() {
+uint8_t glimmer::GameSystem::GetRenderOrder()
+{
     return 0;
 }
 
-void glimmer::GameSystem::Render(SDL_Renderer *renderer) {
+void glimmer::GameSystem::Render(SDL_Renderer* renderer)
+{
 }

@@ -67,15 +67,19 @@ void glimmer::PhysicsSystem::Update(const float delta)
     }
     for (GameEntityID entityId : entities_)
     {
-        const RigidBody2DComponent* body = entityManager_->GetComponent<RigidBody2DComponent>(entityId);
-        if (!body->IsReady() || !body->IsEnabled())
+        const RigidBody2DComponent* rigidBody2dComponent = entityManager_->GetComponent<RigidBody2DComponent>(entityId);
+        if (rigidBody2dComponent == nullptr)
+        {
+            continue;
+        }
+        if (!rigidBody2dComponent->IsReady() || !rigidBody2dComponent->IsEnabled())
         {
             continue;
         }
         auto* transform = entityManager_->GetComponent<Transform2DComponent>(entityId);
-        const b2Vec2 position = b2Body_GetPosition(body->GetBodyId());
+        const b2Vec2 position = b2Body_GetPosition(rigidBody2dComponent->GetBodyId());
         transform->SetPosition(Box2DUtils::ToPixels(position));
-        transform->SetRotation(b2Rot_GetAngle(b2Body_GetRotation(body->GetBodyId())));
+        transform->SetRotation(b2Rot_GetAngle(b2Body_GetRotation(rigidBody2dComponent->GetBodyId())));
     }
 }
 

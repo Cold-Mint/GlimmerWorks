@@ -60,7 +60,6 @@ void glimmer::DigAbility::OnUse(WorldContext* worldContext, uint32_t user, const
     {
         return;
     }
-    auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D});
     auto playerEntity = worldContext->GetEntityShortCut()->GetPlayer();
     if (WorldContext::IsEmptyEntityId(playerEntity))
     {
@@ -82,6 +81,7 @@ void glimmer::DigAbility::OnUse(WorldContext* worldContext, uint32_t user, const
     {
         return;
     }
+    auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
     for (const auto& gameEntity : tileLayerEntityList)
     {
         auto* tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(

@@ -28,7 +28,6 @@
 
 #include "ItemAbility.h"
 #include "MiningRangeData.h"
-#include "core/ecs/GameEntity.h"
 
 namespace glimmer
 {

@@ -199,7 +199,3 @@ GameComponentTypeMessage glimmer::RigidBody2DComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }
 
-
-bool glimmer::RigidBody2DComponent::IsSerializable() {
-    return false;
-}

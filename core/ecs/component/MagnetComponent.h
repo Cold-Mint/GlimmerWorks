@@ -87,8 +87,6 @@ namespace glimmer
 
         [[nodiscard]] const std::vector<GameEntityID>& GetEntities() const;
 
-        [[nodiscard]] bool IsSerializable() override;
-
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;

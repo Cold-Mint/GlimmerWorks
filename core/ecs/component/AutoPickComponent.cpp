@@ -34,7 +34,3 @@ GameComponentTypeMessage glimmer::AutoPickComponent::GetComponentTypeStatic()
 GameComponentTypeMessage glimmer::AutoPickComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }
-
-bool glimmer::AutoPickComponent::IsSerializable() {
-    return true;
-}

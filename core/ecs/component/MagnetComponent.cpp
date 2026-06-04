@@ -87,11 +87,6 @@ const std::vector<GameEntityID>& glimmer::MagnetComponent::GetEntities() const
     return entities_;
 }
 
-bool glimmer::MagnetComponent::IsSerializable()
-{
-    return false;
-}
-
 GameComponentTypeMessage glimmer::MagnetComponent::GetComponentTypeStatic()
 {
     return COMPONENT_MAGNET;

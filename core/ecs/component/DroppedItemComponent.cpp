@@ -88,12 +88,7 @@ GameComponentTypeMessage glimmer::DroppedItemComponent::GetComponentType()
     return GetComponentTypeStatic();
 }
 
-bool glimmer::DroppedItemComponent::IsSerializable()
-{
-    return true;
-}
-
-std::string glimmer::DroppedItemComponent::Serialize()
+std::optional<std::string> glimmer::DroppedItemComponent::Serialize()
 {
     DroppedItemMessage droppedItemMessage;
     if (item_ != nullptr)
@@ -104,6 +99,7 @@ std::string glimmer::DroppedItemComponent::Serialize()
     droppedItemMessage.set_remainingtime(remainingTime_);
     return droppedItemMessage.SerializeAsString();
 }
+
 
 void glimmer::DroppedItemComponent::Deserialize(WorldContext* worldContext, const std::string& data)
 {

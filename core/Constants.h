@@ -52,9 +52,9 @@ static constexpr std::string ECHO_COMMAND_NAME = "echo";
 static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
 static constexpr std::string LOCATE_COMMAND_NAME = "locate";
 static constexpr std::string ITEM_EDITOR_COMMAND_NAME = "itemEditor";
+static constexpr std::string PACK_VERIFY_COMMAND_NAME = "packVerify";
 #if  !defined(NDEBUG)
 static const std::string PARALLAX_BACKGROUND_COMMAND_NAME = "parallaxBackground";
-static constexpr std::string PACK_VERIFY_COMMAND_NAME = "packVerify";
 static constexpr std::string BOX2D_COMMAND_NAME = "box2d";
 static constexpr std::string BIOME_SCORE_COMMAND_NAME = "biomeScore";
 static constexpr std::string TILE_SNAPSHOT_COMMAND_NAME = "tileSnapshot";

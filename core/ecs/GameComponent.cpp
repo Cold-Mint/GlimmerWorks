@@ -26,13 +26,11 @@
  */
 #include "GameComponent.h"
 
-bool glimmer::GameComponent::IsSerializable() {
-    return false;
+std::optional<std::string> glimmer::GameComponent::Serialize()
+{
+    return std::nullopt;
 }
 
-std::string glimmer::GameComponent::Serialize() {
-    return "";
-}
-
-void glimmer::GameComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
+void glimmer::GameComponent::Deserialize(WorldContext* worldContext, const std::string& data)
+{
 }

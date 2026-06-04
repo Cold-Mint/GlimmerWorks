@@ -41,19 +41,28 @@ EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldV
                                                                     const float pickupCooldown)
 {
     EntityItemMessage entityItemMessage{};
-    ComponentMessage* transform2DComponentMessage =
-        entityItemMessage.add_components();
     Transform2DComponent transform2DComponent{};
     transform2DComponent.SetPosition(position);
-    transform2DComponentMessage->set_type(transform2DComponent.GetComponentType());
-    transform2DComponentMessage->set_data(transform2DComponent.Serialize());
-    ComponentMessage* droppedItemComponentMessage =
-        entityItemMessage.add_components();
+    auto transform2DString = transform2DComponent.Serialize();
+    if (transform2DString.has_value())
+    {
+        ComponentMessage* transform2DComponentMessage =
+            entityItemMessage.add_components();
+        transform2DComponentMessage->set_type(transform2DComponent.GetComponentType());
+        transform2DComponentMessage->set_data(transform2DString.value());
+    }
+
     DroppedItemComponent droppedItemComponent{};
     droppedItemComponent.SetItem(std::move(item));
     droppedItemComponent.SetPickupCooldown(pickupCooldown);
-    droppedItemComponentMessage->set_type(droppedItemComponent.GetComponentType());
-    droppedItemComponentMessage->set_data(droppedItemComponent.Serialize());
+    auto droppedItemString = droppedItemComponent.Serialize();
+    if (droppedItemString.has_value())
+    {
+        ComponentMessage* droppedItemComponentMessage =
+            entityItemMessage.add_components();
+        droppedItemComponentMessage->set_type(droppedItemComponent.GetComponentType());
+        droppedItemComponentMessage->set_data(droppedItemString.value());
+    }
     return entityItemMessage;
 }
 
@@ -115,7 +124,7 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, cons
 void glimmer::DroppedItemCreator::
 MergeEntityItemMessage(uint32_t id, const EntityItemMessage& entityItemMessage)
 {
-    RecoveryAllComponent(worldContext_,id, entityItemMessage);
+    RecoveryAllComponent(worldContext_, id, entityItemMessage);
     EntityManager* entityManager = worldContext_->GetEntityManager();
     auto* transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
     auto* rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);

@@ -751,13 +751,13 @@ void glimmer::WorldContext::SaveEntity(EntityItemMessage* entityItemMessage, con
     auto mutableComponents = entityItemMessage->mutable_components();
     for (auto& componentItem : components)
     {
-        if (!componentItem->IsSerializable())
+        auto stringOptional = componentItem->Serialize();
+        if (stringOptional.has_value())
         {
-            continue;
+            ComponentMessage* componentMessage = mutableComponents->Add();
+            componentMessage->set_type(componentItem->GetComponentType());
+            componentMessage->set_data(stringOptional.value());
         }
-        ComponentMessage* componentMessage = mutableComponents->Add();
-        componentMessage->set_type(componentItem->GetComponentType());
-        componentMessage->set_data(componentItem->Serialize());
     }
 }
 

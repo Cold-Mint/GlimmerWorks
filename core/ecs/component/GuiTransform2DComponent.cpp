@@ -48,11 +48,6 @@ glimmer::CameraVector2D glimmer::GuiTransform2DComponent::GetSize() const
     return size_;
 }
 
-bool glimmer::GuiTransform2DComponent::IsSerializable()
-{
-    return false;
-}
-
 GameComponentTypeMessage glimmer::GuiTransform2DComponent::GetComponentTypeStatic()
 {
     return COMPONENT_GUI_TRANSFORM_2D;

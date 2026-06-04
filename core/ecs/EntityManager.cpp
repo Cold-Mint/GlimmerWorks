@@ -302,36 +302,25 @@ std::vector<GameEntityID> glimmer::EntityManager::GetEntityIDWithComponents(
 void glimmer::EntityManager::RecoveryComponent(WorldContext* worldContext, GameEntityID gameEntityId,
                                                const ComponentMessage& componentMessage)
 {
+    //Note: Within this method, this part of the code only includes components that can be serialized. That is, components that override the Serialize() method.
+    //注意：在这个方法内，这部分代码只写可被序列化的组件。即覆盖了Serialize()方法的组件。
     GameComponentTypeMessage type = componentMessage.type();
+    GameComponent* gameComponent = nullptr;
     switch (type)
     {
-    case COMPONENT_AUTO_PICK:
-        //Clangd: In template: cannot initialize return object of type 'glimmer::AutoPickComponent *' with an rvalue of type 'pointer' (aka 'glimmer::GameComponent *')
-        AddComponent<AutoPickComponent>(gameEntityId);
-        break;
-    case COMPONENT_CAMERA:
-        AddComponent<CameraComponent>(gameEntityId);
-        break;
-    case COMPONENT_DEBUG_DRAW:
-        AddComponent<DebugDrawComponent>(gameEntityId);
-        break;
-    case COMPONENT_DIGGING:
-        AddComponent<DiggingComponent>(gameEntityId);
-        break;
     case COMPONENT_DROPPED_ITEM:
-        AddComponent<DroppedItemComponent>(gameEntityId);
+        gameComponent = AddComponent<DroppedItemComponent>(gameEntityId);
         break;
     case COMPONENT_ITEM_CONTAINER:
-        AddComponent<ItemContainerComponent>(gameEntityId);
-        break;
-    case COMPONENT_MAGNET:
-        AddComponent<MagnetComponent>(gameEntityId);
-        break;
-    case COMPONENT_MAGNETIC:
-        AddComponent<MagneticComponent>(gameEntityId);
+        gameComponent = AddComponent<ItemContainerComponent>(gameEntityId);
         break;
     case COMPONENT_TRANSFORM_2D:
-        AddComponent<Transform2DComponent>(gameEntityId);
+        gameComponent = AddComponent<Transform2DComponent>(gameEntityId);
         break;
     }
+    if (gameComponent == nullptr)
+    {
+        return;
+    }
+    gameComponent->Deserialize(worldContext, componentMessage.data());
 }

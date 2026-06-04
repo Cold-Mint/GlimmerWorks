@@ -58,9 +58,3 @@ GameComponentTypeMessage glimmer::MagneticComponent::GetComponentType()
 {
     return GetComponentTypeStatic();
 }
-
-
-bool glimmer::MagneticComponent::IsSerializable()
-{
-    return false;
-}

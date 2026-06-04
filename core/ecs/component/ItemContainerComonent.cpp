@@ -40,17 +40,13 @@ glimmer::ItemContainer* glimmer::ItemContainerComponent::GetItemContainer() cons
     return itemContainer_.get();
 }
 
-bool glimmer::ItemContainerComponent::IsSerializable()
-{
-    return true;
-}
-
-std::string glimmer::ItemContainerComponent::Serialize()
+std::optional<std::string> glimmer::ItemContainerComponent::Serialize()
 {
     ItemContainerMessage itemContainerMessage;
     itemContainer_->ToMessage(itemContainerMessage);
     return itemContainerMessage.SerializeAsString();
 }
+
 
 void glimmer::ItemContainerComponent::Deserialize(WorldContext* worldContext, const std::string& data)
 {

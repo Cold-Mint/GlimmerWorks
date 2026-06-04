@@ -43,12 +43,16 @@ glimmer::MobEntityCreator::MobEntityCreator(WorldContext* worldContext) : IPersi
 EntityItemMessage glimmer::MobEntityCreator::GetEntityItemMessage(const WorldVector2D position)
 {
     EntityItemMessage entityItemMessage{};
-    ComponentMessage* transform2DComponentMessage =
-        entityItemMessage.add_components();
     Transform2DComponent transform2DComponent{};
     transform2DComponent.SetPosition(position);
-    transform2DComponentMessage->set_type(transform2DComponent.GetComponentType());
-    transform2DComponentMessage->set_data(transform2DComponent.Serialize());
+    auto transform2DString = transform2DComponent.Serialize();
+    if (transform2DString.has_value())
+    {
+        ComponentMessage* transform2DComponentMessage =
+            entityItemMessage.add_components();
+        transform2DComponentMessage->set_type(transform2DComponent.GetComponentType());
+        transform2DComponentMessage->set_data(transform2DString.value());
+    }
     return entityItemMessage;
 }
 

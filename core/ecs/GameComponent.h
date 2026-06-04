@@ -39,26 +39,23 @@ namespace glimmer
         virtual ~GameComponent() = default;
 
         /**
-         * Does the component support serialization?
-         * 组件是否支持序列化。
-         * @return
+         * The game attempts to call this function when saving the data of the components to the save file.
+         * 游戏尝试将组件的数据保存到存档内时调用。
+         *
+         * Note that after you override this method, don't forget to add the corresponding judgment within the RecoveryComponent.
+         * 注意，当你覆盖了这个方法后不要忘记在RecoveryComponent内添加对应的判断。
+         * @return data  The default return value is std::nullopt, indicating that saving to the archive is not supported.
+         * 数据 默认返回std::nullopt表示不支持保存到存档。
          */
-        [[nodiscard]] virtual bool IsSerializable();
+        [[nodiscard]] virtual std::optional<std::string> Serialize();
 
         /**
-         * serialize
-         * 系列化组件
-         * @return data 数据
-         */
-        [[nodiscard]] virtual std::string Serialize();
-
-        /**
-         * deserialize
-         * 反系列化
+         * Called when loading data from the archive.
+         * 从存档加载数据时调用。
          * @param worldContext worldContext 世界上下文
          * @param data data 数据
          */
-        virtual void Deserialize(WorldContext *worldContext, const std::string &data);
+        virtual void Deserialize(WorldContext* worldContext, const std::string& data);
 
         [[nodiscard]] virtual GameComponentTypeMessage GetComponentType() = 0;
     };

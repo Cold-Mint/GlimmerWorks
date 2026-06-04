@@ -98,9 +98,7 @@ namespace glimmer
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
-        [[nodiscard]] bool IsSerializable() override;
-
-        [[nodiscard]] std::string Serialize() override;
+        [[nodiscard]] std::optional<std::string> Serialize() override;
 
         void Deserialize(WorldContext* worldContext, const std::string& data) override;
     };

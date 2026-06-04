@@ -444,12 +444,12 @@ glimmer::AppContext::AppContext()
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<EchoCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LocateCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<PlayCommand>(this));
 #if  !defined(NDEBUG)
     commandManager_->RegisterCommand(std::make_unique<HookCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<MemoryUsageCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<VFSCommand>(this));

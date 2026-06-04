@@ -58,6 +58,5 @@ namespace glimmer
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
-        [[nodiscard]] bool IsSerializable() override;
     };
 }

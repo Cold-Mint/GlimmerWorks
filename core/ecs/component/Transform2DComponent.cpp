@@ -59,12 +59,7 @@ glimmer::WorldVector2D glimmer::Transform2DComponent::GetPosition() const
     return position_;
 }
 
-bool glimmer::Transform2DComponent::IsSerializable()
-{
-    return true;
-}
-
-std::string glimmer::Transform2DComponent::Serialize()
+std::optional<std::string> glimmer::Transform2DComponent::Serialize()
 {
     Transform2dMessage transform2DMessage;
     auto* pos = transform2DMessage.mutable_position();
@@ -73,6 +68,7 @@ std::string glimmer::Transform2DComponent::Serialize()
     transform2DMessage.set_rotation(rotation_);
     return transform2DMessage.SerializeAsString();
 }
+
 
 void glimmer::Transform2DComponent::Deserialize(WorldContext* worldContext, const std::string& data)
 {

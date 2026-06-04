@@ -48,9 +48,7 @@ namespace glimmer
 
         [[nodiscard]] CameraVector2D GetSize() const;
 
-        [[nodiscard]] bool IsSerializable() override;
-
-        [[nodiscard]] static  GameComponentTypeMessage GetComponentTypeStatic();
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

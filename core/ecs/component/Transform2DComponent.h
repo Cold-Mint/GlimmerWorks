@@ -75,9 +75,7 @@ namespace glimmer
          */
         [[nodiscard]] WorldVector2D GetPosition() const;
 
-        [[nodiscard]] bool IsSerializable() override;
-
-        [[nodiscard]] std::string Serialize() override;
+        [[nodiscard]] std::optional<std::string> Serialize() override;
 
         void Deserialize(WorldContext* worldContext, const std::string& data) override;
 

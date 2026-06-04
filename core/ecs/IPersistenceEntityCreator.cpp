@@ -36,9 +36,9 @@ void glimmer::IPersistenceEntityCreator::RecoveryAllComponent(WorldContext* worl
         return;
     }
     const int componentSize = entityItemMessage.components_size();
-    for (int j = 0; j < componentSize; j++)
+    for (int i = 0; i < componentSize; i++)
     {
-        entityManager->RecoveryComponent(worldContext, gameEntityId, entityItemMessage.components(j));
+        entityManager->RecoveryComponent(worldContext, gameEntityId, entityItemMessage.components(i));
     }
 }
 

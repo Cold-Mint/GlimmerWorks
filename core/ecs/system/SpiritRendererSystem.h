@@ -38,11 +38,10 @@ namespace glimmer
         uint32_t spiritRendererComponentCount_ = 0;
         uint32_t transformCount_ = 0;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit SpiritRendererSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Render(SDL_Renderer* renderer) override;
 

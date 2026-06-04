@@ -37,11 +37,10 @@ namespace glimmer
         uint32_t transform2dCount = 0;
         uint32_t droppedItemCount = 0;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit DroppedItemSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         uint8_t GetRenderOrder() override;
 

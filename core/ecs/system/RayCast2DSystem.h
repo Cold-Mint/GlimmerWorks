@@ -35,11 +35,10 @@ namespace glimmer
         uint32_t transform2dCount_ = 0;
         uint32_t ratCast2DCount_ = 0;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit RayCast2DSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Update(float delta) override;
 

@@ -77,11 +77,10 @@ namespace glimmer
         static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask>>& taskList, TileVector2D origin,
                                      bool sortAscending);
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t number) override;
-
     public:
         explicit ChunkSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t number) override;
 
         void Update(float delta) override;
 

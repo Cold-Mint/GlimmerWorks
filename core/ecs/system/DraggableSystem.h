@@ -25,11 +25,9 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/ecs/GameEntity.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/inventory/Item.h"
-#include "core/math/Vector2D.h"
 
 namespace glimmer
 {
@@ -49,16 +47,14 @@ namespace glimmer
         SDL_FRect DraggableBorder(uint32_t entityId, WorldVector2D cameraPosition,
                                   const CameraComponent* cameraComponent) const;
 
-        void OnActivationChanged(bool activeStatus) override;
-
-
         bool DropItem();
-
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
     public:
         explicit DraggableSystem(WorldContext* worldContext);
+
+        void OnActivationChanged(bool activeStatus) override;
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         uint8_t GetRenderOrder() override;
 

@@ -28,7 +28,6 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/BlueprintComponent.h"
 #include "core/ecs/component/CameraComponent.h"
-#include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/PreloadColors.h"
@@ -65,11 +64,10 @@ namespace glimmer
                                                      WorldVector2D playerPosition, uint8_t tileWidth,
                                                      uint8_t tileHeight) const;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit BlueprintSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         uint8_t GetRenderOrder() override;
 

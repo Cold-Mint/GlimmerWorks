@@ -60,11 +60,10 @@ namespace glimmer
          */
         void RenderTooltip(SDL_Renderer* renderer, const Item* item) const;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit ItemSlotSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         ~ItemSlotSystem() override;
 

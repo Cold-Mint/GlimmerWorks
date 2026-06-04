@@ -45,9 +45,6 @@ namespace glimmer
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         std::vector<const TileLayerComponent*> tileLayerComponents_;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         /**
      * BreakTile
@@ -66,6 +63,8 @@ namespace glimmer
                                   const TileVector2D& topLeftVector, bool precisionMining, bool isPlaceMode,
                                   uint8_t tileWidth, uint8_t tileHeight,
                                   const ResourceRef& newTileRef);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         explicit DiggingSystem(WorldContext* worldContext);
 

@@ -41,11 +41,10 @@ namespace glimmer
         PlayerComponent* playerComponent_ = nullptr;
         ItemContainerComponent* itemContainerComponent_ = nullptr;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit HotBarSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         bool HandleEvent(const SDL_Event& event) override;
 

@@ -42,14 +42,15 @@ namespace glimmer
         uint32_t transform2DCount_ = 0;
         uint32_t rayCast2DCount_ = 0;
         std::vector<GameEntityID> entities_;
-
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
+        bool active_ = false;
 
     public:
         explicit DebugDrawBox2dSystem(WorldContext* worldContext);
 
         static void b2DrawPolygonFcn(const b2Vec2* b2_vec2, int i, b2HexColor b2_hex_color, void* p);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         static void b2DrawSolidPolygonFcn(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius,
                                           b2HexColor color, void* context);
@@ -68,6 +69,7 @@ namespace glimmer
 
         static void b2DrawStringFcn(b2Vec2 p, const char* s, b2HexColor color, void* context);
 
+        bool CanActive() const override;
 
         void Render(SDL_Renderer* renderer) override;
 

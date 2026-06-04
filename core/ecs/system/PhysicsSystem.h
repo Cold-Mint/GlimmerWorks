@@ -27,8 +27,10 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer {
-    class PhysicsSystem : public GameSystem {
+namespace glimmer
+{
+    class PhysicsSystem : public GameSystem
+    {
         /**
          * Fixed time step of physical simulation (unit: seconds)
          * The physical world (such as Box2D) usually requires a fixed time step for updates.
@@ -48,12 +50,11 @@ namespace glimmer {
         std::vector<GameEntityID> entities_;
         uint32_t rigidBody2dCount_ = 0;
         uint32_t transform2dCount_ = 0;
-    protected:
-
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
     public:
-        explicit PhysicsSystem(WorldContext *worldContext);
+        explicit PhysicsSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Update(float delta) override;
 

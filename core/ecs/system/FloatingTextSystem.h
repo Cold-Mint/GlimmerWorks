@@ -38,11 +38,10 @@ namespace glimmer
         uint32_t transform2DCount_ = 0;
         uint32_t floatingTextCount_ = 0;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit FloatingTextSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Update(float delta) override;
 

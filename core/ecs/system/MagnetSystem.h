@@ -40,12 +40,10 @@ namespace glimmer
         uint32_t itemContainerCount_ = 0;
         std::vector<GameEntityID> magnetEntities_;
         std::vector<GameEntityID> magneticEntities_;
-
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit MagnetSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Update(float delta) override;
 

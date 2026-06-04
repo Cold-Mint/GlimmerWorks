@@ -42,11 +42,10 @@ namespace glimmer
         AudioManager* audioManager_ = nullptr;
         ResourceLocator* resourceLocator_ = nullptr;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit BiomeBGMSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Update(float delta) override;
 

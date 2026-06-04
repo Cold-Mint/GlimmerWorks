@@ -44,11 +44,10 @@ namespace glimmer
 
         std::unordered_map<std::string, size_t> frameItemCounts_ = {};
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit AutoPickSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Update(float delta) override;
 

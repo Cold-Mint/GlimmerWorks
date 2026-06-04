@@ -38,13 +38,12 @@ namespace glimmer
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         Color GetTileDebugColor(TileVector2D tile) const;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         uint8_t GetRenderOrder() override;
 
         void Render(SDL_Renderer* renderer) override;
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         explicit DebugMultiMapSystem(WorldContext* worldContext);
 

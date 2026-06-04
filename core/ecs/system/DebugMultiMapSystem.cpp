@@ -43,26 +43,6 @@ glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType()
     return GameSystemType::DebugMultiMapSystem;
 }
 
-// bool glimmer::DebugMultiMapSystem::ShouldActivate()
-// {
-//     if (worldContext_ == nullptr)
-//     {
-//         return false;
-//     }
-//     const AppContext* appContext = worldContext_->GetAppContext();
-//     if (appContext == nullptr)
-//     {
-//         return false;
-//     }
-//     const Config* config = appContext->GetConfig();
-//     if (config == nullptr)
-//     {
-//         return false;
-//     }
-//     return config->debug.displayElevationMap || config->debug.displayTempMap || config->debug.displayHumidityMap ||
-//         config->debug.displayErosionMap || config->debug.displayWeirdnessMap;
-// }
-
 glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D tile) const
 {
     constexpr Color color = {0, 0, 0, 0};

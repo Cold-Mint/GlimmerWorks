@@ -37,7 +37,6 @@ namespace glimmer
     public:
         explicit PauseSystem(WorldContext* worldContext);
 
-
         uint8_t GetRenderOrder() override;
 
         void Render(SDL_Renderer* renderer) override;

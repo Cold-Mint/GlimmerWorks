@@ -249,7 +249,7 @@ glimmer::WorldContext::~WorldContext()
             }
         }
     }
-
+    entityManager_->Clear();
     activeSystems.clear();
     inactiveSystems.clear();
     chunks_.clear();
@@ -874,11 +874,7 @@ void glimmer::WorldContext::OnFrameStart()
             {
                 if (count == 0)
                 {
-                    //If the quantity of a certain component is 0, then shut down the system.
-                    //当某个组件的数量为0,那么关闭系统。
                     system->RemoveActiveWatchComponent(gameComponentType);
-                    toDeactivate.push(system.get());
-                    changed = true;
                 }
                 else
                 {
@@ -904,9 +900,21 @@ void glimmer::WorldContext::OnFrameStart()
         {
             continue;
         }
-        if (system->CanActive())
+        if (system->IsAllWatchComponentsReady() && system->CanActive())
         {
             toActivate.push(system.get());
+            changed = true;
+        }
+    }
+    for (auto& system : activeSystems)
+    {
+        if (system == nullptr)
+        {
+            continue;
+        }
+        if (!system->IsAllWatchComponentsReady() || !system->CanActive())
+        {
+            toDeactivate.push(system.get());
             changed = true;
         }
     }
@@ -923,6 +931,11 @@ void glimmer::WorldContext::OnFrameStart()
         {
             continue;
         }
+        GameSystem* systemPtr = it->get();
+        if (systemPtr != nullptr)
+        {
+            systemPtr->OnActivationChanged(true);
+        }
         activeSystems.push_back(std::move(*it));
         inactiveSystems.erase(it);
     }
@@ -938,6 +951,11 @@ void glimmer::WorldContext::OnFrameStart()
         if (it == activeSystems.end())
         {
             continue;
+        }
+        GameSystem* systemPtr = it->get();
+        if (systemPtr != nullptr)
+        {
+            systemPtr->OnActivationChanged(false);
         }
         inactiveSystems.push_back(std::move(*it));
         activeSystems.erase(it);

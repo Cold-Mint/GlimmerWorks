@@ -35,11 +35,10 @@ namespace glimmer {
         uint32_t transform2DCount = 0;
         std::vector<GameEntityID> entities_;
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit DebugDrawSystem(WorldContext *worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Render(SDL_Renderer *renderer) override;
 

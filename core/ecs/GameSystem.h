@@ -73,11 +73,18 @@ namespace glimmer
         void RemoveActiveWatchComponent(GameComponentTypeMessage gameComponentType);
 
         /**
+         * Have all the observing components been activated?
+         * 所有的观察的组件是否已激活。
+         * @return
+         */
+        bool IsAllWatchComponentsReady() const;
+
+        /**
          * Does the current system meet the activation conditions?
          * 当前系统是否满足激活条件？
          * @return
          */
-        bool CanActive() const;
+        virtual bool CanActive() const;
 
         /**
         * When the number of observed components changes

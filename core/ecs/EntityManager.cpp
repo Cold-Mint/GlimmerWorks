@@ -41,6 +41,15 @@ ComponentFingerprint glimmer::EntityManager::GenComponentFingerprint(const GameE
     return static_cast<std::uint64_t>(gameEntityId) << 32 | rawType;
 }
 
+void glimmer::EntityManager::Clear()
+{
+    entityMap_.clear();
+    entityToGameComponentType_.clear();
+    components_.clear();
+    componentCount_.clear();
+    onComponentCountChanged_.clear();
+}
+
 GameEntityID glimmer::EntityManager::AddEntity(GameEntityID gameEntityId)
 {
     if (gameEntityId == GAME_ENTITY_ID_INVALID)

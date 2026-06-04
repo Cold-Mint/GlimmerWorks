@@ -34,25 +34,22 @@ void glimmer::GameSystem::OnActivationChanged(const bool activeStatus)
 
 void glimmer::GameSystem::AddActiveWatchComponent(GameComponentTypeMessage gameComponentType)
 {
-    if (!watchComponents_.contains(gameComponentType))
-    {
-        return;
-    }
     activeWatchComponents_.emplace(gameComponentType);
 }
 
 void glimmer::GameSystem::RemoveActiveWatchComponent(GameComponentTypeMessage gameComponentType)
 {
-    if (!watchComponents_.contains(gameComponentType))
-    {
-        return;
-    }
     activeWatchComponents_.erase(gameComponentType);
+}
+
+bool glimmer::GameSystem::IsAllWatchComponentsReady() const
+{
+    return activeWatchComponents_ == watchComponents_;
 }
 
 bool glimmer::GameSystem::CanActive() const
 {
-    return activeWatchComponents_.size() == watchComponents_.size();
+    return true;
 }
 
 void glimmer::GameSystem::WatchComponent(const GameComponentTypeMessage gameComponentType)

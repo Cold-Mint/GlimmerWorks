@@ -51,11 +51,10 @@ namespace glimmer
         static void RenderChunkBounds(SDL_Renderer* renderer, const CameraComponent* cameraComponent,
                                       const WorldVector2D& cameraPosition);
 
-    protected:
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
     public:
         explicit DebugPanelSystem(WorldContext* worldContext);
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Render(SDL_Renderer* renderer) override;
 

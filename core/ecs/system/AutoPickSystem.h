@@ -36,14 +36,22 @@ namespace glimmer
         WorldVector2D lastPosition{};
         float remainingTime_ = MERGE_DURATION;
         AudioManager* audioManager_ = nullptr;
+        uint32_t autoPickCount_ = 0;
+        uint32_t magnetCount_ = 0;
+        uint32_t itemContainerCount_ = 0;
+        uint32_t droppedItemCount_ = 0;
+        std::vector<GameEntityID> entities_;
 
         std::unordered_map<std::string, size_t> frameItemCounts_ = {};
+
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
     public:
         explicit AutoPickSystem(WorldContext* worldContext);
 
         void Update(float delta) override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

@@ -28,8 +28,10 @@
 #include "core/ecs/GameComponent.h"
 #include "core/inventory/Item.h"
 
-namespace glimmer {
-    class DroppedItemComponent : public GameComponent {
+namespace glimmer
+{
+    class DroppedItemComponent : public GameComponent
+    {
         std::unique_ptr<Item> item_ = nullptr;
         //How long will it be before it disappears
         //还剩多久会消失(秒)
@@ -69,7 +71,7 @@ namespace glimmer {
          */
         [[nodiscard]] std::unique_ptr<Item> ExtractItem();
 
-        [[nodiscard]] Item *GetItem() const;
+        [[nodiscard]] Item* GetItem() const;
 
         /**
          * Set Pickup Cooldown
@@ -92,12 +94,14 @@ namespace glimmer {
          */
         [[nodiscard]] bool CanBePickedUp() const;
 
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
         [[nodiscard]] bool IsSerializable() override;
 
         [[nodiscard]] std::string Serialize() override;
 
-        void Deserialize(WorldContext *worldContext, const std::string &data) override;
+        void Deserialize(WorldContext* worldContext, const std::string& data) override;
     };
 }

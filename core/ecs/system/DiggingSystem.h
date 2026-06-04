@@ -32,13 +32,21 @@
 #include "core/mod/ResourceRef.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     class DiggingComponent;
 
-    class DiggingSystem : public GameSystem {
+    class DiggingSystem : public GameSystem
+    {
         bool cacheTexture = false;
-        std::vector<std::shared_ptr<SDL_Texture> > textureList = {};
-        DiggingComponent *diggingComponent_ = nullptr;
+        std::vector<std::shared_ptr<SDL_Texture>> textureList = {};
+        DiggingComponent* diggingComponent_ = nullptr;
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        std::vector<const TileLayerComponent*> tileLayerComponents_;
+
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
     public:
         /**
@@ -54,19 +62,19 @@ namespace glimmer {
      * @param newTileRef newTileRef 新瓦片
      * @return
      */
-        static uint16_t BreakTile(WorldContext *worldContext, const TileLayerComponent *tileLayerComponent,
-                                  const TileVector2D &topLeftVector, bool precisionMining, bool isPlaceMode,
+        static uint16_t BreakTile(WorldContext* worldContext, const TileLayerComponent* tileLayerComponent,
+                                  const TileVector2D& topLeftVector, bool precisionMining, bool isPlaceMode,
                                   uint8_t tileWidth, uint8_t tileHeight,
-                                  const ResourceRef &newTileRef);
+                                  const ResourceRef& newTileRef);
 
-        explicit DiggingSystem(WorldContext *worldContext);
+        explicit DiggingSystem(WorldContext* worldContext);
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SDL_Renderer* renderer) override;
 
         uint8_t GetRenderOrder() override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

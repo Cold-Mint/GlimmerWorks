@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #ifdef __ANDROID__
+#include "src/core/game_component_type.pb.h"
 #include "core/scene/AppContext.h"
 #include "core/scene/AppContext.h"
 #include "core/world/WorldContext.h"
@@ -43,8 +44,9 @@ namespace glimmer {
         return x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
     }
 
-    std::string AndroidControlSystem::GetName() {
-        return "AndroidControlSystem";
+    glimmer::GameSystemType glimmer::AndroidControlSystem::GetGameSystemType()
+    {
+        return GameSystemType::AndroidControlSystem;
     }
 
     uint8_t AndroidControlSystem::GetRenderOrder() {
@@ -62,8 +64,8 @@ namespace glimmer {
 
     AndroidControlSystem::AndroidControlSystem(WorldContext *worldContext)
         : GameSystem(worldContext) {
-        RequireComponent<PlayerComponent>();
-        RequireComponent<Transform2DComponent>();
+        WatchComponent(COMPONENT_PLAYER);
+        WatchComponent(COMPONENT_TRANSFORM_2D);
     }
 
     bool AndroidControlSystem::HandleEvent(const SDL_Event &event) {

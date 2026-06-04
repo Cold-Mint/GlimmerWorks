@@ -26,64 +26,78 @@
  */
 #include "BiomeBGMSystem.h"
 
-#include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/WorldContext.h"
 
-glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent(COMPONENT_PLAYER);
-    RequireComponent(COMPONENT_TILE_LAYER);
-    RequireComponent(COMPONENT_TRANSFORM_2D);
-    GameEntity::ID player = worldContext_->GetPlayerEntity();
-    if (WorldContext::IsEmptyEntityId(player)) {
-        return;
+void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && playerTransform2DComponent_ == nullptr)
+    {
+        GameEntityID player = entityShortCut_->GetPlayer();
+        if (!WorldContext::IsEmptyEntityId(player))
+        {
+            playerTransform2DComponent_ = entityManager_->GetComponent<Transform2DComponent>(player);
+        }
     }
-    appContext_ = worldContext->GetAppContext();
-    playerTransform2DComponent_ = worldContext_->GetComponent<Transform2DComponent>(player);
 }
 
-void glimmer::BiomeBGMSystem::Update(float delta) {
-    if (worldContext_ == nullptr) {
+glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+
+    AppContext* appContext = worldContext->GetAppContext();
+    if (appContext != nullptr)
+    {
+        audioManager_ = appContext->GetAudioManager();
+        resourceLocator_ = appContext->GetResourceLocator();
+    }
+}
+
+void glimmer::BiomeBGMSystem::Update(float delta)
+{
+    if (worldContext_ == nullptr)
+    {
         return;
     }
-    if (appContext_ == nullptr) {
+    if (playerTransform2DComponent_ == nullptr)
+    {
         return;
     }
-    AudioManager *audioManager = appContext_->GetAudioManager();
-    if (audioManager == nullptr) {
+    if (resourceLocator_ == nullptr)
+    {
         return;
     }
-    ResourceLocator *resourceLocator = appContext_->GetResourceLocator();
-    if (resourceLocator == nullptr) {
-        return;
-    }
-    if (playerTransform2DComponent_ == nullptr) {
+    if (audioManager_ == nullptr)
+    {
         return;
     }
     const WorldVector2D position = playerTransform2DComponent_->GetPosition();
     const TileVector2D tileVector2d = TileLayerComponent::WorldToTile(position);
     const TileVector2D chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d);
-    const TerrainResult *terrainResult = worldContext_->GetTerrainData(chunkVertex);
-    if (terrainResult == nullptr) {
+    const TerrainResult* terrainResult = worldContext_->GetTerrainData(chunkVertex);
+    if (terrainResult == nullptr)
+    {
         return;
     }
     TileVector2D chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2d);
-    const TerrainTileResult &terrainTileResult = terrainResult->QueryTerrain(chunkRelative.x, chunkRelative.y);
-    BiomeResource *biomeResource = terrainTileResult.biomeResource;
-    if (biomeResource == nullptr || biomeResource == biomeResource_) {
+    const TerrainTileResult& terrainTileResult = terrainResult->QueryTerrain(chunkRelative.x, chunkRelative.y);
+    BiomeResource* biomeResource = terrainTileResult.biomeResource;
+    if (biomeResource == nullptr || biomeResource == biomeResource_)
+    {
         return;
     }
-    std::shared_ptr<MIX_Audio> audio = resourceLocator->FindAudio(&biomeResource->bgm);
-    if (audio == nullptr) {
+    std::shared_ptr<MIX_Audio> audio = resourceLocator_->FindAudio(&biomeResource->bgm);
+    if (audio == nullptr)
+    {
         return;
     }
     audio_ = audio;
-    audioManager->ForcePlayReplace(BGM, audio_.get(), -1);
+    audioManager_->ForcePlayReplace(BGM, audio_.get(), -1);
     biomeResource_ = biomeResource;
 }
 
-
-std::string glimmer::BiomeBGMSystem::GetName() {
-    return "glimmer.BiomeBGMSystem";
+glimmer::GameSystemType glimmer::BiomeBGMSystem::GetGameSystemType()
+{
+    return GameSystemType::BiomeBGMSystem;
 }

@@ -28,35 +28,42 @@
 #if  !defined(NDEBUG)
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/CameraComponent.h"
+#include "core/ecs/component/TileLayerComponent.h"
 
-namespace glimmer {
-    class DebugPanelSystem : public GameSystem {
+namespace glimmer
+{
+    class DebugPanelSystem : public GameSystem
+    {
         WorldVector2D mousePosition_ = WorldVector2D{};
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        std::vector<TileLayerComponent*> tileLayerComponents_;
 
-        [[nodiscard]] bool ShouldActivate() override;
-
-        void RenderDebugText(SDL_Renderer *renderer, int windowW, const std::string &text, float y,
+        void RenderDebugText(SDL_Renderer* renderer, int windowW, const std::string& text, float y,
                              SDL_Color textColor, SDL_Color textBGColor) const;
 
-        void RenderCrosshairToEdge(SDL_Renderer *renderer, float screenX, float screenY) const;
+        void RenderCrosshairToEdge(SDL_Renderer* renderer, float screenX, float screenY) const;
 
         /**
          * RenderChunkBounds
          * 渲染区块边界
          */
-        static void RenderChunkBounds(SDL_Renderer *renderer, const CameraComponent *cameraComponent,
+        static void RenderChunkBounds(SDL_Renderer* renderer, const CameraComponent* cameraComponent,
                                       const WorldVector2D& cameraPosition);
 
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
     public:
-        explicit DebugPanelSystem(WorldContext *worldContext);
+        explicit DebugPanelSystem(WorldContext* worldContext);
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SDL_Renderer* renderer) override;
 
-        bool HandleEvent(const SDL_Event &event) override;
+        bool HandleEvent(const SDL_Event& event) override;
 
         uint8_t GetRenderOrder() override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }
 #endif

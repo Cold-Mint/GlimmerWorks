@@ -35,7 +35,7 @@
 
 glimmer::PauseSystem::PauseSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent(COMPONENT_PAUSE);
+    WatchComponent(COMPONENT_PAUSE);
 }
 
 uint8_t glimmer::PauseSystem::GetRenderOrder()
@@ -118,7 +118,7 @@ bool glimmer::PauseSystem::CanRunWhilePaused() const
     return true;
 }
 
-std::string glimmer::PauseSystem::GetName()
+glimmer::GameSystemType glimmer::PauseSystem::GetGameSystemType()
 {
-    return "glimmer.PauseSystem";
+    return GameSystemType::PauseSystem;
 }

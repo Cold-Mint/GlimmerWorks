@@ -107,7 +107,7 @@ bool glimmer::MaterialItem::IsUnbreakable() const
     return true;
 }
 
-void glimmer::MaterialItem::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+void glimmer::MaterialItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                                   std::unordered_set<std::string>& popupAbility)
 {
 }

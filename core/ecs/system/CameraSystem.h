@@ -41,12 +41,14 @@ namespace glimmer
         CameraComponent* cameraComponent_ = nullptr;
         SDL_Window* window_ = nullptr;
 
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
     public:
         explicit CameraSystem(WorldContext* worldContext);
 
         void Render(SDL_Renderer* renderer) override;
 
-
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

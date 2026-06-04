@@ -34,6 +34,13 @@ namespace glimmer
 
     class TileLayerSystem final : public GameSystem
     {
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        std::vector<TileLayerComponent*> tileLayerComponents_;
+
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
     public:
         explicit TileLayerSystem(WorldContext* worldContext);
 
@@ -43,6 +50,6 @@ namespace glimmer
 
         bool HandleEvent(const SDL_Event& event) override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

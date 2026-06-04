@@ -29,29 +29,41 @@
 #include <utility>
 
 
-GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentTypeStatic()
+{
     return COMPONENT_PARALLAX_BACKGROUND;
 }
 
-void glimmer::ParallaxBackgroundComponent::SetTextureResourceRef(ResourceRef textureResourceRef) {
+GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
+}
+
+void glimmer::ParallaxBackgroundComponent::SetTextureResourceRef(ResourceRef textureResourceRef)
+{
     textureResourceRef_ = std::move(textureResourceRef);
     needsUpdate_ = true;
 }
 
-glimmer::ResourceRef &glimmer::ParallaxBackgroundComponent::GetTextureResourceRef() {
+glimmer::ResourceRef& glimmer::ParallaxBackgroundComponent::GetTextureResourceRef()
+{
     return textureResourceRef_;
 }
 
-void glimmer::ParallaxBackgroundComponent::ClearTexture() {
+void glimmer::ParallaxBackgroundComponent::ClearTexture()
+{
     texture_ = nullptr;
 }
 
-SDL_Texture *glimmer::ParallaxBackgroundComponent::GetTexture(const ResourceLocator *resourceLocator) {
-    if (needsUpdate_) {
+SDL_Texture* glimmer::ParallaxBackgroundComponent::GetTexture(const ResourceLocator* resourceLocator)
+{
+    if (needsUpdate_)
+    {
         texture_ = resourceLocator->FindTexture(&textureResourceRef_);
         needsUpdate_ = false;
     }
-    if (texture_ == nullptr) {
+    if (texture_ == nullptr)
+    {
         return nullptr;
     }
     return texture_.get();

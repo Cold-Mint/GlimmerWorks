@@ -33,30 +33,53 @@
 #include "core/ecs/component/Transform2DComponent.h"
 
 
-glimmer::PhysicsSystem::PhysicsSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent(COMPONENT_RIGID_BODY_2D);
+void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, const uint32_t count)
+{
+    if (gameComponentType == COMPONENT_RIGID_BODY_2D)
+    {
+        rigidBody2dCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
+        transform2dCount_ = count;
+    }
+    if (rigidBody2dCount_ > 0 && transform2dCount_ > 0)
+    {
+        entities_.clear();
+        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_RIGID_BODY_2D, COMPONENT_TRANSFORM_2D});
+    }
 }
 
-void glimmer::PhysicsSystem::Update(const float delta) {
+glimmer::PhysicsSystem::PhysicsSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
+    WatchComponent(COMPONENT_RIGID_BODY_2D);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+}
+
+void glimmer::PhysicsSystem::Update(const float delta)
+{
     const b2WorldId worldId_ = worldContext_->GetWorldId();
     accumulator_ += delta;
-    while (accumulator_ >= FIXED_TIME_STEP) {
+    while (accumulator_ >= FIXED_TIME_STEP)
+    {
         b2World_Step(worldId_, FIXED_TIME_STEP, 4);
         accumulator_ -= FIXED_TIME_STEP;
     }
-    for (const auto entities = worldContext_->GetEntityIDWithComponents<RigidBody2DComponent, Transform2DComponent>();
-         auto &entity: entities) {
-        const RigidBody2DComponent *body = worldContext_->GetComponent<RigidBody2DComponent>(entity);
-        if (!body->IsReady() || !body->IsEnabled()) {
+    for (GameEntityID entityId : entities_)
+    {
+        const RigidBody2DComponent* body = entityManager_->GetComponent<RigidBody2DComponent>(entityId);
+        if (!body->IsReady() || !body->IsEnabled())
+        {
             continue;
         }
-        auto *transform = worldContext_->GetComponent<Transform2DComponent>(entity);
+        auto* transform = entityManager_->GetComponent<Transform2DComponent>(entityId);
         const b2Vec2 position = b2Body_GetPosition(body->GetBodyId());
         transform->SetPosition(Box2DUtils::ToPixels(position));
         transform->SetRotation(b2Rot_GetAngle(b2Body_GetRotation(body->GetBodyId())));
     }
 }
 
-std::string glimmer::PhysicsSystem::GetName() {
-    return "glimmer.PhysicsSystem";
+glimmer::GameSystemType glimmer::PhysicsSystem::GetGameSystemType()
+{
+    return GameSystemType::PhysicsSystem;
 }

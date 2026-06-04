@@ -43,7 +43,7 @@ namespace glimmer
 
         [[nodiscard]] std::string GetId() const override;
 
-        void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+        void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
             std::unordered_set<std::string>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;

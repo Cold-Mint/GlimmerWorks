@@ -26,6 +26,12 @@
  */
 #include "MobComponent.h"
 
-GameComponentTypeMessage glimmer::MobComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::MobComponent::GetComponentTypeStatic()
+{
     return COMPONENT_MOB;
+}
+
+GameComponentTypeMessage glimmer::MobComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

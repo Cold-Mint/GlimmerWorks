@@ -28,23 +28,27 @@
 #include "core/ecs/GameComponent.h"
 #include <vector>
 
-#include "core/ecs/GameEntity.h"
+#include "core/ecs/EcsTypes.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class GameEntity;
 
-    class HotBarComponent : public GameComponent {
+    class HotBarComponent : public GameComponent
+    {
         int maxSlot_;
-        std::vector<GameEntity::ID> slotEntities_;
+        std::vector<GameEntityID> slotEntities_;
 
     public:
         explicit HotBarComponent(int maxSlot);
 
         [[nodiscard]] int GetMaxSlot() const;
 
-        void AddSlotEntity(GameEntity::ID entity);
+        void AddSlotEntity(GameEntityID entity);
 
-        [[nodiscard]] const std::vector<GameEntity::ID> &GetSlotEntities() const;
+        [[nodiscard]] const std::vector<GameEntityID>& GetSlotEntities() const;
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

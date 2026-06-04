@@ -104,23 +104,57 @@ std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Til
     return result;
 }
 
+void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_TILE_LAYER)
+    {
+        tileLayerEntities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        if (!tileLayerEntities_.empty())
+        {
+            tileLayerComponent_ = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntities_[0]);
+        }
+    }
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
+        if (cameraTransform2DComponent_ == nullptr)
+        {
+            cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        }
+        transform2DCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_BLUEPRINT && blueprintComponent_ == nullptr)
+    {
+        blueprintComponent_ = entityShortCut_->GetBlueprintComponent();
+    }
+    if (gameComponentType == COMPONENT_PLAYER && WorldContext::IsEmptyEntityId(player))
+    {
+        player = entityShortCut_->GetPlayer();
+    }
+    if (gameComponentType == COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE)
+    {
+        tilePlacementForbiddenZoneCount_ = count;
+    }
+    if (transform2DCount_ > 0 && tilePlacementForbiddenZoneCount_ > 0)
+    {
+        entities_ = entityManager_->GetEntityIDWithComponents({
+            COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE, COMPONENT_TRANSFORM_2D
+        });
+    }
+}
+
 glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent(COMPONENT_TILE_LAYER);
-    appContext_ = worldContext->GetAppContext();
-    auto gameEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
-    if (gameEntities.empty())
-    {
-        return;
-    }
-    tileLayerComponent_ = worldContext_->GetComponent<TileLayerComponent>(gameEntities[0]);
-    cameraComponent_ = worldContext_->GetCameraComponent();
-    cameraTransform2DComponent_ = worldContext->GetCameraTransform2D();
-    preloadColors_ = appContext_->GetPreloadColors();
-    const GameEntity::ID playerEntity = worldContext_->GetPlayerEntity();
-    playerComponent_ = worldContext_->GetComponent<PlayerComponent>(playerEntity);
-    playerTransform2DComponent_ = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
-    blueprintComponent_ = worldContext_->GetBlueprintComponent();
+    WatchComponent(COMPONENT_TILE_LAYER);
+    WatchComponent(COMPONENT_CAMERA);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_PLAYER);
+    WatchComponent(COMPONENT_BLUEPRINT);
+    WatchComponent(COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE);
+
 }
 
 uint8_t glimmer::BlueprintSystem::GetRenderOrder()
@@ -146,32 +180,26 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    if (playerComponent_ == nullptr)
-    {
-        return;
-    }
-    if (playerTransform2DComponent_ == nullptr)
-    {
-        return;
-    }
     if (tileLayerComponent_ == nullptr)
+    {
+        return;
+    }
+    if (WorldContext::IsEmptyEntityId(player))
     {
         return;
     }
     heldTile_ = nullptr;
     blockRects_.clear();
-    std::vector<GameEntity::ID> entities = worldContext_->GetEntityIDWithComponents<TilePlacementForbiddenZoneComponent,
-        Transform2DComponent>();
-    if (!entities.empty())
+    if (!entities_.empty())
     {
-        for (uint32_t entity : entities)
+        for (uint32_t entity : entities_)
         {
-            auto transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(entity);
+            auto transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(entity);
             if (transform2DComponent == nullptr)
             {
                 continue;
             }
-            auto tilePlacementForbiddenZone = worldContext_->GetComponent<TilePlacementForbiddenZoneComponent>(entity);
+            auto tilePlacementForbiddenZone = entityManager_->GetComponent<TilePlacementForbiddenZoneComponent>(entity);
             if (tilePlacementForbiddenZone == nullptr)
             {
                 continue;
@@ -190,9 +218,11 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     TileVector2D tileAnchor = {0, 0};
     const TileVector2D& focusPosition = tileLayerComponent_->GetFocusPosition();
     const WorldVector2D focusWorldTilePos = TileLayerComponent::TileToWorld(focusPosition);
-    Item* item = playerComponent_->item;
+    PlayerComponent* playerComponent = entityManager_->GetComponent<PlayerComponent>(player);
+    Transform2DComponent* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(player);
+    Item* item = playerComponent->item;
     TileVector2D leftBottom = {0, 0};
-    WorldVector2D playerPosition = playerTransform2DComponent_->GetPosition();
+    WorldVector2D playerPosition = transform2DComponent->GetPosition();
     if (item != nullptr && item->GetAmount() > 0)
     {
         auto tileItem = dynamic_cast<TileItem*>(item);
@@ -310,7 +340,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
-std::string glimmer::BlueprintSystem::GetName()
+glimmer::GameSystemType glimmer::BlueprintSystem::GetGameSystemType()
 {
-    return "BlueprintSystem";
+    return GameSystemType::BlueprintSystem;
 }

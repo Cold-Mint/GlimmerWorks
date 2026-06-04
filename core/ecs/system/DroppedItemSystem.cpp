@@ -32,26 +32,56 @@
 #include "../component/Transform2DComponent.h"
 
 
-glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent(COMPONENT_TRANSFORM_2D);
-    RequireComponent(COMPONENT_DROPPED_ITEM);
+void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
+        transform2dCount = count;
+        if (cameraTransform2DComponent_ == nullptr)
+        {
+            cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        }
+    }
+    if (gameComponentType == COMPONENT_DROPPED_ITEM)
+    {
+        droppedItemCount = count;
+    }
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+    if (transform2dCount > 0 && droppedItemCount > 0)
+    {
+        droppedEntities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_DROPPED_ITEM});
+    }
 }
 
-uint8_t glimmer::DroppedItemSystem::GetRenderOrder() {
+glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_DROPPED_ITEM);
+    WatchComponent(COMPONENT_CAMERA);
+}
+
+uint8_t glimmer::DroppedItemSystem::GetRenderOrder()
+{
     return RENDER_ORDER_DROPPED_ITEM;
 }
 
-void glimmer::DroppedItemSystem::Update(float delta) {
-    auto entity = worldContext_->GetEntityIDWithComponents<DroppedItemComponent, Transform2DComponent>();
-    for (const auto &gameEntity: entity) {
-        auto *droppedItemComponent = worldContext_->GetComponent<DroppedItemComponent>(
+void glimmer::DroppedItemSystem::Update(float delta)
+{
+    for (const auto& gameEntity : droppedEntities_)
+    {
+        auto* droppedItemComponent = entityManager_->GetComponent<DroppedItemComponent>(
             gameEntity);
-        auto *transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(gameEntity);
-        if (droppedItemComponent == nullptr || transform2DComponent == nullptr) {
+        auto* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(gameEntity);
+        if (droppedItemComponent == nullptr || transform2DComponent == nullptr)
+        {
             continue;
         }
-        if (droppedItemComponent->IsExpired()) {
-            worldContext_->RemoveEntity(gameEntity);
+        if (droppedItemComponent->IsExpired())
+        {
+            entityManager_->RemoveEntity(gameEntity);
             continue;
         }
         float remaining = droppedItemComponent->GetRemainingTime();
@@ -59,38 +89,47 @@ void glimmer::DroppedItemSystem::Update(float delta) {
         droppedItemComponent->SetRemainingTime(remaining);
 
         float cooldown = droppedItemComponent->GetPickupCooldown();
-        if (cooldown > 0.0F) {
+        if (cooldown > 0.0F)
+        {
             cooldown -= delta;
             droppedItemComponent->SetPickupCooldown(cooldown);
         }
     }
 }
 
-void glimmer::DroppedItemSystem::Render(SDL_Renderer *renderer) {
-    auto entity = worldContext_->GetEntityIDWithComponents<DroppedItemComponent, Transform2DComponent>();
-    auto cameraComponent = worldContext_->GetCameraComponent();
-    auto cameraTransform2D = worldContext_->GetCameraTransform2D();
-    float size = DROPPED_ITEM_SIZE * cameraComponent->GetZoom();
+void glimmer::DroppedItemSystem::Render(SDL_Renderer* renderer)
+{
+    if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr)
+    {
+        return;
+    }
+    float size = DROPPED_ITEM_SIZE * cameraComponent_->GetZoom();
 
-    for (auto gameEntity: entity) {
-        auto *droppedItemComponent = worldContext_->GetComponent<DroppedItemComponent>(
+    for (auto gameEntity : droppedEntities_)
+    {
+        auto* droppedItemComponent = entityManager_->GetComponent<DroppedItemComponent>(
             gameEntity);
-        auto *transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(gameEntity);
-        if (droppedItemComponent == nullptr || transform2DComponent == nullptr) {
+        auto* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(gameEntity);
+        if (droppedItemComponent == nullptr || transform2DComponent == nullptr)
+        {
             continue;
         }
-        Item *item = droppedItemComponent->GetItem();
-        if (item == nullptr) {
+        Item* item = droppedItemComponent->GetItem();
+        if (item == nullptr)
+        {
             continue;
         }
         auto icon = item->GetIcon();
-        if (icon == nullptr) {
+        if (icon == nullptr)
+        {
             continue;
         }
-        if (cameraComponent->IsPointInViewport(cameraTransform2D->GetPosition(), transform2DComponent->GetPosition())) {
+        if (cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
+                                                transform2DComponent->GetPosition()))
+        {
             const auto worldPos = transform2DComponent->GetPosition();
-            const CameraVector2D viewport = cameraComponent->WorldToScreen(
-                cameraTransform2D->GetPosition(), worldPos);
+            const CameraVector2D viewport = cameraComponent_->WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), worldPos);
             SDL_FRect dstRect{
                 viewport.x - size * 0.5F,
                 viewport.y - size * 0.5F,
@@ -103,6 +142,7 @@ void glimmer::DroppedItemSystem::Render(SDL_Renderer *renderer) {
     }
 }
 
-std::string glimmer::DroppedItemSystem::GetName() {
-    return "glimmer.DroppedItemSystem";
+glimmer::GameSystemType glimmer::DroppedItemSystem::GetGameSystemType()
+{
+    return GameSystemType::DroppedItemSystem;
 }

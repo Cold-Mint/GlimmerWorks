@@ -29,12 +29,14 @@
 #include "core/ecs/GameComponent.h"
 #include "core/math/WorldVector2D.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
     * Magnetic(The party being sucked)
     * 磁吸物（被吸的一方）
     */
-    class MagneticComponent : public GameComponent {
+    class MagneticComponent : public GameComponent
+    {
         /**
          * The type of the aspirated substance
          * 被吸物的类型
@@ -46,11 +48,13 @@ namespace glimmer {
     public:
         void SetType(uint16_t type);
 
-        [[nodiscard]] const WorldVector2D &GetStartPos() const;
+        [[nodiscard]] const WorldVector2D& GetStartPos() const;
 
-        void SetStartPos(const WorldVector2D &startPos);
+        void SetStartPos(const WorldVector2D& startPos);
 
         [[nodiscard]] uint16_t GetType() const;
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 

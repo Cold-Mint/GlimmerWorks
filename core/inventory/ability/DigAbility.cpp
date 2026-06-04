@@ -43,7 +43,7 @@ std::string glimmer::DigAbility::GetId() const
     return ABILITY_ID_DIG;
 }
 
-void glimmer::DigAbility::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+void glimmer::DigAbility::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                                 std::unordered_set<std::string>& popupAbility)
 {
     popupAbility.emplace(GetId());
@@ -55,27 +55,36 @@ void glimmer::DigAbility::OnUse(WorldContext* worldContext, GameEntity::ID user,
     {
         return;
     }
-    auto tileLayerEntityList = worldContext->GetEntityIDWithComponents<
-        TileLayerComponent>();
-    auto playerEntity = worldContext->GetPlayerEntity();
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return;
+    }
+    auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D});
+    auto playerEntity = worldContext->GetEntityShortCut()->GetPlayer();
     if (WorldContext::IsEmptyEntityId(playerEntity))
     {
         return;
     }
-    auto playerTransform = worldContext->GetComponent<Transform2DComponent>(playerEntity);
+    auto playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     if (playerTransform == nullptr)
     {
         return;
     }
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return;
+    }
     const WorldVector2D playerWorldPos = playerTransform->GetPosition();
-    DiggingComponent* diggingComponent = worldContext->GetDiggingComponent();
+    DiggingComponent* diggingComponent = entityShortCut->GetDiggingComponent();
     if (diggingComponent == nullptr)
     {
         return;
     }
     for (const auto& gameEntity : tileLayerEntityList)
     {
-        auto* tileLayerComponent = worldContext->GetComponent<TileLayerComponent>(
+        auto* tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
             gameEntity);
         if (tileLayerComponent == nullptr)
         {

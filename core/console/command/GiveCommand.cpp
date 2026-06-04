@@ -104,8 +104,22 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
             onMessageRef(appContext_->GetLangsResources()->tileResourceIsNull);
             return false;
         }
-        auto playerId = worldContext_->GetPlayerEntity();
-        auto* item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
+        EntityManager* entityManager = worldContext_->GetEntityManager();
+        if (entityManager == nullptr)
+        {
+            return false;
+        }
+        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        if (entityShortCut == nullptr)
+        {
+            return false;
+        }
+        auto playerId = entityShortCut->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(playerId))
+        {
+            return false;
+        }
+        auto* item_container = entityManager->GetComponent<ItemContainerComponent>(playerId);
         if (item_container == nullptr)
         {
             onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
@@ -145,8 +159,22 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
             onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;
         }
-        auto playerId = worldContext_->GetPlayerEntity();
-        auto* item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
+        EntityManager* entityManager = worldContext_->GetEntityManager();
+        if (entityManager == nullptr)
+        {
+            return false;
+        }
+        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        if (entityShortCut == nullptr)
+        {
+            return false;
+        }
+        auto playerId = entityShortCut->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(playerId))
+        {
+            return false;
+        }
+        auto* item_container = entityManager->GetComponent<ItemContainerComponent>(playerId);
         if (item_container == nullptr)
         {
             onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
@@ -185,9 +213,23 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
             onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;
         }
-        auto playerId = worldContext_->GetPlayerEntity();
-        auto* item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
-        if (item_container == nullptr)
+        EntityManager* entityManager = worldContext_->GetEntityManager();
+        if (entityManager == nullptr)
+        {
+            return false;
+        }
+        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        if (entityShortCut == nullptr)
+        {
+            return false;
+        }
+        auto playerId = entityShortCut->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(playerId))
+        {
+            return false;
+        }
+        auto* itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
+        if (itemContainer == nullptr)
         {
             onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
@@ -206,12 +248,13 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
                 abilityItem->SetAmount(number);
             }
         }
-        std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
+        std::unique_ptr<Item> item = itemContainer->GetItemContainer()->AddItem(
             std::move(abilityItem));
         return item == nullptr;
     }
     if (itemType == "materialItem")
-    {auto itemId = commandArgs->AsResourceRef(2, RESOURCE_MATERIAL_ITEM);
+    {
+        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_MATERIAL_ITEM);
         if (!itemId.has_value())
         {
             onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
@@ -224,8 +267,22 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
             onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;
         }
-        auto playerId = worldContext_->GetPlayerEntity();
-        auto* item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
+        EntityManager* entityManager = worldContext_->GetEntityManager();
+        if (entityManager == nullptr)
+        {
+            return false;
+        }
+        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        if (entityShortCut == nullptr)
+        {
+            return false;
+        }
+        auto playerId = entityShortCut->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(playerId))
+        {
+            return false;
+        }
+        auto* item_container = entityManager->GetComponent<ItemContainerComponent>(playerId);
         if (item_container == nullptr)
         {
             onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);

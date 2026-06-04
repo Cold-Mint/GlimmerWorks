@@ -27,6 +27,7 @@
 #pragma once
 #include "Item.h"
 #include "ability/ItemAbility.h"
+#include "core/world/WorldContext.h"
 
 namespace glimmer
 {
@@ -69,7 +70,7 @@ namespace glimmer
 
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
 
-        void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+        void OnUse(WorldContext* worldContext, GameEntityID user, const AbilityConfig* abilityConfig,
                    std::unordered_set<std::string>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;

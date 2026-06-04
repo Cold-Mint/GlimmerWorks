@@ -32,8 +32,10 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 
-namespace glimmer {
-    class RigidBody2DComponent : public GameComponent {
+namespace glimmer
+{
+    class RigidBody2DComponent : public GameComponent
+    {
         b2BodyId bodyId_ = b2_nullBodyId;
         Box2dFilter filter_;
         bool ready_ = false;
@@ -53,7 +55,7 @@ namespace glimmer {
 
         void SetFilter(Box2dFilter filter);
 
-        void SetShapeRef(const ResourceRef &shapeRef);
+        void SetShapeRef(const ResourceRef& shapeRef);
 
         void Enable();
 
@@ -95,7 +97,7 @@ namespace glimmer {
          * @param worldId worldId 世界ID
          * @param vector2d vector2d 位置
          */
-        void CreateBody(const ResourceLocator *resourceLocator, b2WorldId worldId, WorldVector2D vector2d);
+        void CreateBody(const ResourceLocator* resourceLocator, b2WorldId worldId, WorldVector2D vector2d);
 
         /**
          * GetBodyId
@@ -172,6 +174,8 @@ namespace glimmer {
          * @return true if the body is static
          */
         [[nodiscard]] bool IsStaticBody() const;
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 

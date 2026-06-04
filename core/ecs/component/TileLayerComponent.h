@@ -135,6 +135,8 @@ namespace glimmer
         {
         }
 
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

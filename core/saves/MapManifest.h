@@ -39,7 +39,7 @@ namespace glimmer {
         long createTime;
         long lastPlayedTime;
         long totalPlayTime;
-        GameEntity::ID entityIDIndex;
+        uint32_t entityIDIndex;
 
         void FromMessage(const MapManifestMessage &manifestMessage);
 

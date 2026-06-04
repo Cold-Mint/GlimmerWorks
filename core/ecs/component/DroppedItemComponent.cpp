@@ -33,53 +33,71 @@
 
 glimmer::DroppedItemComponent::DroppedItemComponent() = default;
 
-float glimmer::DroppedItemComponent::GetRemainingTime() const {
+float glimmer::DroppedItemComponent::GetRemainingTime() const
+{
     return remainingTime_;
 }
 
-void glimmer::DroppedItemComponent::SetRemainingTime(const float remainingTime) {
+void glimmer::DroppedItemComponent::SetRemainingTime(const float remainingTime)
+{
     remainingTime_ = remainingTime;
 }
 
-bool glimmer::DroppedItemComponent::IsExpired() const {
+bool glimmer::DroppedItemComponent::IsExpired() const
+{
     return remainingTime_ <= 0.0F;
 }
 
-void glimmer::DroppedItemComponent::SetItem(std::unique_ptr<Item> item) {
+void glimmer::DroppedItemComponent::SetItem(std::unique_ptr<Item> item)
+{
     item_ = std::move(item);
 }
 
-std::unique_ptr<glimmer::Item> glimmer::DroppedItemComponent::ExtractItem() {
+std::unique_ptr<glimmer::Item> glimmer::DroppedItemComponent::ExtractItem()
+{
     return std::move(item_);
 }
 
-glimmer::Item *glimmer::DroppedItemComponent::GetItem() const {
+glimmer::Item* glimmer::DroppedItemComponent::GetItem() const
+{
     return item_.get();
 }
 
-void glimmer::DroppedItemComponent::SetPickupCooldown(const float cooldown) {
+void glimmer::DroppedItemComponent::SetPickupCooldown(const float cooldown)
+{
     pickupCooldown_ = cooldown;
 }
 
-float glimmer::DroppedItemComponent::GetPickupCooldown() const {
+float glimmer::DroppedItemComponent::GetPickupCooldown() const
+{
     return pickupCooldown_;
 }
 
-bool glimmer::DroppedItemComponent::CanBePickedUp() const {
+bool glimmer::DroppedItemComponent::CanBePickedUp() const
+{
     return pickupCooldown_ <= 0.0F;
 }
 
-GameComponentTypeMessage glimmer::DroppedItemComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::DroppedItemComponent::GetComponentTypeStatic()
+{
     return COMPONENT_DROPPED_ITEM;
 }
 
-bool glimmer::DroppedItemComponent::IsSerializable() {
+GameComponentTypeMessage glimmer::DroppedItemComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
+}
+
+bool glimmer::DroppedItemComponent::IsSerializable()
+{
     return true;
 }
 
-std::string glimmer::DroppedItemComponent::Serialize() {
+std::string glimmer::DroppedItemComponent::Serialize()
+{
     DroppedItemMessage droppedItemMessage;
-    if (item_ != nullptr) {
+    if (item_ != nullptr)
+    {
         item_->WriteItemMessage(*droppedItemMessage.mutable_item());
     }
     droppedItemMessage.set_pickupcooldown(pickupCooldown_);
@@ -87,16 +105,20 @@ std::string glimmer::DroppedItemComponent::Serialize() {
     return droppedItemMessage.SerializeAsString();
 }
 
-void glimmer::DroppedItemComponent::Deserialize(WorldContext *worldContext, const std::string &data) {
-    AppContext *appContext = worldContext->GetAppContext();
-    if (appContext == nullptr) {
+void glimmer::DroppedItemComponent::Deserialize(WorldContext* worldContext, const std::string& data)
+{
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
     GameComponent::Deserialize(worldContext, data);
     DroppedItemMessage droppedItemMessage;
-    if (droppedItemMessage.ParseFromString(data)) {
+    if (droppedItemMessage.ParseFromString(data))
+    {
         auto item = appContext->GetResourceLocator()->FindItem(worldContext, droppedItemMessage.item());
-        if (item != nullptr) {
+        if (item != nullptr)
+        {
             item_ = std::move(item);
             item_->ReadItemMessage(worldContext, droppedItemMessage.item());
         }

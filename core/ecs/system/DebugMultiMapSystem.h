@@ -27,24 +27,28 @@
 #pragma once
 #if  !defined(NDEBUG)
 #include "core/ecs/GameSystem.h"
-#include "core/ecs/component/TileLayerComponent.h"
 #include "core/math/Color.h"
 
 
-namespace glimmer {
-    class DebugMultiMapSystem : public GameSystem {
-        [[nodiscard]] bool ShouldActivate() override;
-
+namespace glimmer
+{
+    class DebugMultiMapSystem : public GameSystem
+    {
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         Color GetTileDebugColor(TileVector2D tile) const;
+
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
     public:
         uint8_t GetRenderOrder() override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SDL_Renderer* renderer) override;
 
-        explicit DebugMultiMapSystem(WorldContext *worldContext);
+        explicit DebugMultiMapSystem(WorldContext* worldContext);
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }
 

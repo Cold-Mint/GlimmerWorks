@@ -28,12 +28,14 @@
 #include "core/ecs/GameComponent.h"
 #include "core/math/CameraVector2D.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * GUI transform component
      * GUI坐标组件
      */
-    class GuiTransform2DComponent : public GameComponent {
+    class GuiTransform2DComponent : public GameComponent
+    {
         CameraVector2D position_;
         CameraVector2D size_;
 
@@ -47,6 +49,8 @@ namespace glimmer {
         [[nodiscard]] CameraVector2D GetSize() const;
 
         [[nodiscard]] bool IsSerializable() override;
+
+        [[nodiscard]] static  GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

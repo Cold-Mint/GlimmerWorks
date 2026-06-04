@@ -31,29 +31,41 @@
 #include "core/inventory/Item.h"
 #include "core/math/Vector2D.h"
 
-namespace glimmer {
-    class DraggableSystem : public GameSystem {
+namespace glimmer
+{
+    class DraggableSystem : public GameSystem
+    {
         std::unique_ptr<Item> item_;
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2D_ = nullptr;
+        std::vector<GameEntityID> draggableEntities_;
+        uint32_t draggableCount_ = 0;
+        uint32_t itemSlotCount_ = 0;
+#if  !defined(NDEBUG)
+        uint32_t transform2DCount_ = 0;
+        uint32_t guiTransform2DCount_ = 0;
+#endif
 
-        SDL_FRect DraggableBorder(GameEntity::ID entityId, WorldVector2D cameraPosition,
-                                  const CameraComponent *cameraComponent) const;
-
-        [[nodiscard]] bool ShouldActivate() override;
+        SDL_FRect DraggableBorder(uint32_t entityId, WorldVector2D cameraPosition,
+                                  const CameraComponent* cameraComponent) const;
 
         void OnActivationChanged(bool activeStatus) override;
 
 
         bool DropItem();
 
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
     public:
-        explicit DraggableSystem(WorldContext *worldContext);
+        explicit DraggableSystem(WorldContext* worldContext);
 
         uint8_t GetRenderOrder() override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SDL_Renderer* renderer) override;
 
-        bool HandleEvent(const SDL_Event &event) override;
+        bool HandleEvent(const SDL_Event& event) override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

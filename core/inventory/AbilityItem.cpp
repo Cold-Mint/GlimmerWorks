@@ -30,6 +30,7 @@
 #include "ComposableItem.h"
 #include "ItemAbilityFactory.h"
 #include "../mod/ResourceLocator.h"
+#include "core/ecs/EcsTypes.h"
 #include "core/utils/StringUtils.h"
 
 
@@ -99,7 +100,7 @@ const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
     return itemAbility_->GetAbilityConfig();
 }
 
-void glimmer::AbilityItem::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+void glimmer::AbilityItem::OnUse(WorldContext* worldContext, GameEntityID user, const AbilityConfig* abilityConfig,
                                  std::unordered_set<std::string>& popupAbility)
 {
     if (canUseAlone_)

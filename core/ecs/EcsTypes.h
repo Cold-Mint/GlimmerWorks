@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,15 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "Transform2DSystem.h"
-#include "../component/Transform2DComponent.h"
-
-glimmer::Transform2DSystem::Transform2DSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
-    RequireComponent(COMPONENT_TRANSFORM_2D);
-}
-
-std::string glimmer::Transform2DSystem::GetName()
-{
-    return "glimmer.Transform2DSystem";
-}
+#pragma once
+#include <cstdint>
+using GameEntityID = uint32_t;
+using ComponentFingerprint = uint64_t;

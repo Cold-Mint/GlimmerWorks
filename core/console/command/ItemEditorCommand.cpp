@@ -128,8 +128,22 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
             2, size));
         return false;
     }
-    auto player = worldContext_->GetPlayerEntity();
-    auto playerComponent = worldContext_->GetComponent<PlayerComponent>(player);
+    EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return false;
+    }
+    EntityManager *entityManager = worldContext_->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return false;
+    }
+    auto playerId = entityShortCut->GetPlayer();
+    if (WorldContext::IsEmptyEntityId(playerId))
+    {
+        return false;
+    }
+    auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerId);
     if (playerComponent == nullptr)
     {
         onMessageRef(langsResources->playerDoesNotExist);

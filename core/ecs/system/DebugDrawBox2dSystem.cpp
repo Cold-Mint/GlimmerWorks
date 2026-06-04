@@ -35,26 +35,38 @@
 #include "box2d/box2d.h"
 #include "core/ecs/component/RayCast2DComponent.h"
 
-bool glimmer::DebugDrawBox2dSystem::ShouldActivate()
-{
-    return worldContext_->GetAppContext()->GetConfig()->debug.displayBox2dShape;
-}
 
-void glimmer::DebugDrawBox2dSystem::OnActivationChanged(bool activeStatus)
+void glimmer::DebugDrawBox2dSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
+                                                              uint32_t count)
 {
-    LogCat::d("[DebugDrawBox2dSystem] Activation changed: ", activeStatus);
-    if (activeStatus)
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        LogCat::d("[DebugDrawBox2dSystem] DebugDraw attached to world.");
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
     }
-    else
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
     {
-        LogCat::d("[DebugDrawBox2dSystem] DebugDraw detached from world.");
+        if (cameraTransform2DComponent_ == nullptr)
+        {
+            cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        }
+        transform2DCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_RAY_CAST_2D)
+    {
+        rayCast2DCount_ = count;
+    }
+    if (transform2DCount_ > 0 && rayCast2DCount_ > 0)
+    {
+        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_RAY_CAST_2D});
     }
 }
 
 glimmer::DebugDrawBox2dSystem::DebugDrawBox2dSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
+    WatchComponent(COMPONENT_CAMERA);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_RAY_CAST_2D);
+
 }
 
 /**
@@ -80,8 +92,13 @@ static void SetSDLColor(SDL_Renderer* renderer, b2HexColor color, Uint8 alpha = 
  */
 static glimmer::CameraVector2D ConvertBox2DToScreen(const glimmer::WorldContext* worldContext, const b2Vec2& worldPos)
 {
-    const glimmer::Transform2DComponent* cameraTransform2D = worldContext->GetCameraTransform2D();
-    const glimmer::CameraComponent* cameraComponent = worldContext->GetCameraComponent();
+    glimmer::EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return {worldPos.x * glimmer::kScale, -worldPos.y * glimmer::kScale};
+    }
+    const glimmer::Transform2DComponent* cameraTransform2D = entityShortCut->GetCameraTransform2DComponent();
+    const glimmer::CameraComponent* cameraComponent = entityShortCut->GetCameraComponent();
     if (!cameraTransform2D || !cameraComponent)
     {
         return {worldPos.x * glimmer::kScale, -worldPos.y * glimmer::kScale};
@@ -294,8 +311,14 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     Color box2dBorderColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dBorderColor;
     Color box2dFullColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dFullColor;
     SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
-    const Transform2DComponent* cameraTransform2D = worldContext->GetCameraTransform2D();
-    const CameraComponent* cameraComponent = worldContext->GetCameraComponent();
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return;
+    }
+
+    const Transform2DComponent* cameraTransform2D = entityShortCut->GetCameraTransform2DComponent();
+    const CameraComponent* cameraComponent = entityShortCut->GetCameraComponent();
     if (cameraTransform2D == nullptr || cameraComponent == nullptr)
     {
         LogCat::w("DrawSolidPolygonFcn cameraPosition or cameraComponent is nullptr");
@@ -600,6 +623,18 @@ void glimmer::DebugDrawBox2dSystem::b2DrawStringFcn(
 
 void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
 {
+    if (entityManager_ == nullptr)
+    {
+        return;
+    }
+    if (cameraComponent_ == nullptr)
+    {
+        return;
+    }
+    if (cameraTransform2DComponent_ == nullptr)
+    {
+        return;
+    }
     auto box2dSystemContext = Box2dSystemContext(worldContext_, renderer);
     b2DebugDraw debugDraw = b2DefaultDebugDraw();
     debugDraw.DrawPolygonFcn = b2DrawPolygonFcn;
@@ -614,20 +649,16 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
     debugDraw.context = &box2dSystemContext;
     debugDraw.drawShapes = true;
     b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
-    CameraComponent* cameraComponent = worldContext_->GetCameraComponent();
-    Transform2DComponent* cameraTransform2DComponent = worldContext_->GetCameraTransform2D();
-    const std::vector<GameEntity::ID> rayCast2dEntity =
-        worldContext_->GetEntityIDWithComponents<RayCast2DComponent>();
-    for (const GameEntity::ID entity : rayCast2dEntity)
+    for (const uint32_t entity : entities_)
     {
         const auto rayComp =
-            worldContext_->GetComponent<RayCast2DComponent>(entity);
+            entityManager_->GetComponent<RayCast2DComponent>(entity);
         if (rayComp == nullptr)
         {
             continue;
         }
         const auto transform2dComponent =
-            worldContext_->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
+            entityManager_->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
         if (transform2dComponent == nullptr)
         {
             continue;
@@ -644,10 +675,10 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
         }
         WorldVector2D startPosition = transform2dComponent->GetPosition() + rayComp->
             GetOrigin();
-        const CameraVector2D origin = cameraComponent->WorldToScreen(cameraTransform2DComponent->GetPosition(),
-                                                                           startPosition);
-        const CameraVector2D end = cameraComponent->WorldToScreen(cameraTransform2DComponent->GetPosition(),
-                                                                        startPosition + rayComp->GetTranslation());
+        const CameraVector2D origin = cameraComponent_->WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+                                                                     startPosition);
+        const CameraVector2D end = cameraComponent_->WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+                                                                  startPosition + rayComp->GetTranslation());
         SDL_RenderLine(renderer, origin.x, origin.y, end.x, end.y);
     }
     AppContext::RestoreColorRenderer(renderer);
@@ -658,8 +689,9 @@ uint8_t glimmer::DebugDrawBox2dSystem::GetRenderOrder()
     return RENDER_ORDER_DEBUG_BOX2D;
 }
 
-std::string glimmer::DebugDrawBox2dSystem::GetName()
+glimmer::GameSystemType glimmer::DebugDrawBox2dSystem::GetGameSystemType()
 {
-    return "glimmer.DebugDrawBox2dSystem";
+    return GameSystemType::DebugDrawBox2dSystem;
 }
+
 #endif

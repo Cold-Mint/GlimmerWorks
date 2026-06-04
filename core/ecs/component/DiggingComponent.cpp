@@ -28,84 +28,109 @@
 
 #include <utility>
 
-bool glimmer::DiggingComponent::IsEnable() const {
+bool glimmer::DiggingComponent::IsEnable() const
+{
     return enable_;
 }
 
-void glimmer::DiggingComponent::SetEnable(const bool enable) {
+void glimmer::DiggingComponent::SetEnable(const bool enable)
+{
     enable_ = enable;
 }
 
-void glimmer::DiggingComponent::SetMiningRangeData(MiningRangeData *miningRangeData) {
+void glimmer::DiggingComponent::SetMiningRangeData(MiningRangeData* miningRangeData)
+{
     miningRangeData_ = miningRangeData;
 }
 
-const glimmer::MiningRangeData *glimmer::DiggingComponent::GetMiningRangeData() const {
+const glimmer::MiningRangeData* glimmer::DiggingComponent::GetMiningRangeData() const
+{
     return miningRangeData_;
 }
 
-void glimmer::DiggingComponent::SetStartPosition(TileVector2D startPosition) {
+void glimmer::DiggingComponent::SetStartPosition(TileVector2D startPosition)
+{
     startPosition_ = std::move(startPosition);
 }
 
-const glimmer::TileVector2D &glimmer::DiggingComponent::GetStartPosition() const {
+const glimmer::TileVector2D& glimmer::DiggingComponent::GetStartPosition() const
+{
     return startPosition_;
 }
 
-float glimmer::DiggingComponent::GetProgress() const {
+float glimmer::DiggingComponent::GetProgress() const
+{
     return progress_;
 }
 
-void glimmer::DiggingComponent::SetLayerType(const TileLayerType tileLayerType) {
+void glimmer::DiggingComponent::SetLayerType(const TileLayerType tileLayerType)
+{
     layerType_ = tileLayerType;
 }
 
-glimmer::TileLayerType glimmer::DiggingComponent::GetLayerType() const {
+glimmer::TileLayerType glimmer::DiggingComponent::GetLayerType() const
+{
     return layerType_;
 }
 
-void glimmer::DiggingComponent::SetChainMiningRadius(const int chainMiningRadius) {
+void glimmer::DiggingComponent::SetChainMiningRadius(const int chainMiningRadius)
+{
     chainMiningRadius_ = chainMiningRadius;
 }
 
-int glimmer::DiggingComponent::GetChainMiningRadius() const {
+int glimmer::DiggingComponent::GetChainMiningRadius() const
+{
     return chainMiningRadius_;
 }
 
-void glimmer::DiggingComponent::SetProgress(const float progress) {
+void glimmer::DiggingComponent::SetProgress(const float progress)
+{
     progress_ = progress;
 }
 
-void glimmer::DiggingComponent::SetPrecisionMining(bool precisionMining) {
+void glimmer::DiggingComponent::SetPrecisionMining(bool precisionMining)
+{
     precisionMining_ = precisionMining;
 }
 
-bool glimmer::DiggingComponent::IsPrecisionMining() const {
+bool glimmer::DiggingComponent::IsPrecisionMining() const
+{
     return precisionMining_;
 }
 
-void glimmer::DiggingComponent::AddProgress(float progress) {
+void glimmer::DiggingComponent::AddProgress(float progress)
+{
     progress_ += progress;
 }
 
-void glimmer::DiggingComponent::SetEfficiency(float efficiency) {
+void glimmer::DiggingComponent::SetEfficiency(float efficiency)
+{
     efficiency_ = efficiency;
 }
 
-float glimmer::DiggingComponent::GetEfficiency() const {
+float glimmer::DiggingComponent::GetEfficiency() const
+{
     return efficiency_;
 }
 
-void glimmer::DiggingComponent::MarkActive() {
+void glimmer::DiggingComponent::MarkActive()
+{
     activeSignal_ = true;
 }
 
-bool glimmer::DiggingComponent::CheckAndResetActive() {
+bool glimmer::DiggingComponent::CheckAndResetActive()
+{
     const bool active = activeSignal_;
     activeSignal_ = false;
     return active;
 }
 
-GameComponentTypeMessage glimmer::DiggingComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::DiggingComponent::GetComponentTypeStatic()
+{
     return COMPONENT_DIGGING;
+}
+
+GameComponentTypeMessage glimmer::DiggingComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

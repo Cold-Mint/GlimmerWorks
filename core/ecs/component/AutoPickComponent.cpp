@@ -26,8 +26,13 @@
  */
 #include "AutoPickComponent.h"
 
-GameComponentTypeMessage glimmer::AutoPickComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::AutoPickComponent::GetComponentTypeStatic()
+{
     return COMPONENT_AUTO_PICK;
+}
+
+GameComponentTypeMessage glimmer::AutoPickComponent::GetComponentType() {
+    return GetComponentTypeStatic();
 }
 
 bool glimmer::AutoPickComponent::IsSerializable() {

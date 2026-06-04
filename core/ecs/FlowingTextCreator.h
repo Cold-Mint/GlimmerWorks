@@ -36,6 +36,6 @@ namespace glimmer {
     public:
         explicit FlowingTextCreator(WorldContext *worldContext, const std::string &text, WorldVector2D position);
 
-        void LoadTemplateComponents(GameEntity::ID id) override;
+        void LoadTemplateComponents(uint32_t id) override;
     };
 }

@@ -25,9 +25,11 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <string>
 #include <unordered_set>
 
+#include "EntityManager.h"
+#include "EntityShortCut.h"
+#include "GameSystemType.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_render.h"
 #include "src/core/game_component_type.pb.h"
@@ -38,52 +40,52 @@ namespace glimmer
 
     class GameSystem
     {
-        /**
-         * Is the system in an activated state
-         * 系统是否处于激活状态
-         */
-        bool active_ = false;
+        std::unordered_set<GameComponentTypeMessage> watchComponents_;
+        std::unordered_set<GameComponentTypeMessage> activeWatchComponents_;
 
-        /**
-         * Is it necessary to activate the system
-         * 是否需要激活系统
-         * @return
-         */
-        [[nodiscard]] virtual bool ShouldActivate();
-
-        std::unordered_set<GameComponentTypeMessage> requiredComponents_;
-
-
-        virtual void OnActivationChanged(bool activeStatus);
+        bool lockWatchComponents_ = false;
 
     protected:
-        void RequireComponent(GameComponentTypeMessage gameComponentType);
+        void WatchComponent(GameComponentTypeMessage gameComponentType);
+
 
         WorldContext* worldContext_;
+        EntityManager* entityManager_;
+        EntityShortCut* entityShortCut_;
 
     public:
         virtual ~GameSystem() = default;
 
         explicit GameSystem(WorldContext* worldContext);
 
-        virtual std::string GetName() = 0;
+        /**
+        * The component for locking observation
+        * 锁定观察的组件
+        */
+        void LockWatchComponent();
+
+        [[nodiscard]] virtual GameSystemType GetGameSystemType() = 0;
+
+        virtual void OnActivationChanged(bool activeStatus);
+
+        void AddActiveWatchComponent(GameComponentTypeMessage gameComponentType);
+
+        void RemoveActiveWatchComponent(GameComponentTypeMessage gameComponentType);
 
         /**
-         * Check if activation is needed. (Detection per frame
-         * 检查是否需要激活。（每帧检测）
-         * @return IsActive 激活状态
-         */
-        bool CheckActivation();
-
-        /**
-         * Is the system in an activated state
-         * 系统是否为激活状态
+         * Does the current system meet the activation conditions?
+         * 当前系统是否满足激活条件？
          * @return
          */
-        [[nodiscard]] bool IsActive() const;
+        bool CanActive() const;
 
-        bool SupportsComponentType(GameComponentTypeMessage gameComponentType) const;
-
+        /**
+        * When the number of observed components changes
+        * 当观察的组件数量改变时
+        * @param gameComponentType
+        * @param count
+        */
+        virtual void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count);
 
         /**
          * Determine whether the system can continue to run when the game is paused
@@ -93,6 +95,8 @@ namespace glimmer
          * @return true= Continues running when paused, false= stops running when paused true=暂停时继续运行，false=暂停时停止运行
          */
         [[nodiscard]] virtual bool CanRunWhilePaused() const;
+
+        [[nodiscard]] bool IsWatchingComponent(GameComponentTypeMessage gameComponentType) const;
 
         virtual bool HandleEvent(const SDL_Event& event);
 

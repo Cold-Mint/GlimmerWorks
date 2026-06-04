@@ -68,7 +68,7 @@ namespace glimmer
          * @return The camera viewport position (in pixel coordinates) 相机视口位置（像素坐标）
          */
         [[nodiscard]] CameraVector2D WorldToScreen(const WorldVector2D& cameraPosition,
-                                                         const WorldVector2D& worldPosition) const;
+                                                   const WorldVector2D& worldPosition) const;
 
         /**
          * Screen coordinates to world coordinates
@@ -78,7 +78,7 @@ namespace glimmer
          * @return
          */
         [[nodiscard]] WorldVector2D ScreenToWorld(const WorldVector2D& cameraPosition,
-                                                     const CameraVector2D& viewPortPosition) const;
+                                                  const CameraVector2D& viewPortPosition) const;
 
 
         /**
@@ -128,6 +128,8 @@ namespace glimmer
          * @param zoom The camera zoom factor 相机缩放比例
          */
         void SetZoom(float zoom);
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

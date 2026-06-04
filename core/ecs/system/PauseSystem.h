@@ -46,6 +46,6 @@ namespace glimmer
 
         [[nodiscard]] bool CanRunWhilePaused() const override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

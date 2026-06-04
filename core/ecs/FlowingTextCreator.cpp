@@ -35,15 +35,16 @@ glimmer::FlowingTextCreator::FlowingTextCreator(WorldContext *worldContext, cons
     position_ = position;
 }
 
-void glimmer::FlowingTextCreator::LoadTemplateComponents(GameEntity::ID id) {
+void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id) {
     if (worldContext_ == nullptr) {
         return;
     }
-    auto transform2dComponent = worldContext_->AddComponent<Transform2DComponent>(id);
+    EntityManager* entityManager = worldContext_->GetEntityManager();
+    auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(id);
     if (transform2dComponent != nullptr) {
         transform2dComponent->SetPosition(position_);
     }
-    auto floatingTextComponent = worldContext_->AddComponent<FloatingTextComponent>(id);
+    auto floatingTextComponent = entityManager->AddComponent<FloatingTextComponent>(id);
     if (floatingTextComponent != nullptr) {
         floatingTextComponent->SetText(text_);
     }

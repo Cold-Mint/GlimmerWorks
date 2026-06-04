@@ -27,19 +27,21 @@
 #pragma once
 #include <vector>
 
+#include "core/ecs/EcsTypes.h"
 #include "core/ecs/GameComponent.h"
-#include "core/ecs/GameEntity.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * MobComponent
      * 生物组件
      */
-    class MobComponent : public GameComponent {
+    class MobComponent : public GameComponent
+    {
     public:
         //A list of physical IDs with radiation components for ground detection
         //用于地面检测的带有射线组件的实体ID列表
-        std::vector<GameEntity::ID> groundCheckRayEntityIds;
+        std::vector<GameEntityID> groundCheckRayEntityIds;
 
         //Linear acceleration
         //移动加速度
@@ -58,6 +60,8 @@ namespace glimmer {
          * 是否为面向左侧
          */
         bool facingLeft = false;
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

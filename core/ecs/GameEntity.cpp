@@ -26,25 +26,32 @@
  */
 #include "GameEntity.h"
 
-glimmer::GameEntity::GameEntity(const ID id) : id_(id) {
+glimmer::GameEntity::GameEntity(const GameEntityID id) : id_(id)
+{
 }
 
-const glimmer::ResourceRef &glimmer::GameEntity::GetResourceRef() const {
+const glimmer::ResourceRef& glimmer::GameEntity::GetResourceRef() const
+{
     return resourceRef_;
 }
 
-void glimmer::GameEntity::SetResourceRef(const ResourceRef &resourceRef) {
+void glimmer::GameEntity::SetResourceRef(const ResourceRef& resourceRef)
+{
     resourceRef_ = resourceRef;
 }
 
-glimmer::GameEntity::ID glimmer::GameEntity::GetID() const {
+GameEntityID glimmer::GameEntity::GetID() const
+{
     return id_;
 }
 
-void glimmer::GameEntity::SetPersistable(const bool persistable) {
+
+void glimmer::GameEntity::SetPersistable(const bool persistable)
+{
     persistable_ = persistable;
 }
 
-bool glimmer::GameEntity::IsPersistable() const {
+bool glimmer::GameEntity::IsPersistable() const
+{
     return persistable_;
 }

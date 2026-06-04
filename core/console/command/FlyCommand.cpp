@@ -79,11 +79,25 @@ bool glimmer::FlyCommand::Execute(const CommandSender *commandSender, const Comm
             2, size));
         return false;
     }
-    const GameEntity::ID playerEntity = worldContext_->GetPlayerEntity();
-    if (WorldContext::IsEmptyEntityId(playerEntity)) {
+    EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
         return false;
     }
-    auto playerComponent = worldContext_->GetComponent<PlayerComponent>(playerEntity);
+    EntityManager *entityManager = worldContext_->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return false;
+    }
+    auto playerId = entityShortCut->GetPlayer();
+    if (WorldContext::IsEmptyEntityId(playerId))
+    {
+        return false;
+    }
+    if (WorldContext::IsEmptyEntityId(playerId)) {
+        return false;
+    }
+    auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerId);
     if (playerComponent == nullptr) {
         return false;
     }
@@ -93,15 +107,15 @@ bool glimmer::FlyCommand::Execute(const CommandSender *commandSender, const Comm
         newValue = !playerComponent->isFlying;
     }
     if (newValue) {
-        auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(playerEntity);
+        auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerId);
         if (rigidBody2DComponent != nullptr) {
             rigidBody2DComponent->Disable();
         }
         onMessageRef(langsResources->flyEnable);
     } else {
-        auto transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(playerEntity);
+        auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(playerId);
         if (transform2DComponent != nullptr) {
-            auto rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(playerEntity);
+            auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerId);
             if (rigidBody2DComponent && rigidBody2DComponent->IsReady()) {
                 rigidBody2DComponent->Enable();
                 b2Vec2 newPos = Box2DUtils::ToMeters(transform2DComponent->GetPosition());

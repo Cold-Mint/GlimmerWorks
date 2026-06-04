@@ -28,11 +28,13 @@
 #include <string>
 #include "src/core/game_component_type.pb.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
     class WorldContext;
 
-    class GameComponent {
+    class GameComponent
+    {
     public:
         virtual ~GameComponent() = default;
 

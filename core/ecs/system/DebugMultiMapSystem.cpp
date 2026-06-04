@@ -31,67 +31,85 @@
 #include "core/utils/ColorUtils.h"
 #include "core/world/WorldContext.h"
 
-glimmer::DebugMultiMapSystem::DebugMultiMapSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::DebugMultiMapSystem::DebugMultiMapSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
+    WatchComponent(COMPONENT_CAMERA);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+
 }
 
-bool glimmer::DebugMultiMapSystem::ShouldActivate() {
-    if (worldContext_ == nullptr) {
-        return false;
-    }
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
-        return false;
-    }
-    const Config *config = appContext->GetConfig();
-    if (config == nullptr) {
-        return false;
-    }
-    return config->debug.displayElevationMap || config->debug.displayTempMap || config->debug.displayHumidityMap ||
-           config->debug.displayErosionMap || config->debug.displayWeirdnessMap;
+glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType()
+{
+    return GameSystemType::DebugMultiMapSystem;
 }
 
-glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D tile) const {
+// bool glimmer::DebugMultiMapSystem::ShouldActivate()
+// {
+//     if (worldContext_ == nullptr)
+//     {
+//         return false;
+//     }
+//     const AppContext* appContext = worldContext_->GetAppContext();
+//     if (appContext == nullptr)
+//     {
+//         return false;
+//     }
+//     const Config* config = appContext->GetConfig();
+//     if (config == nullptr)
+//     {
+//         return false;
+//     }
+//     return config->debug.displayElevationMap || config->debug.displayTempMap || config->debug.displayHumidityMap ||
+//         config->debug.displayErosionMap || config->debug.displayWeirdnessMap;
+// }
+
+glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D tile) const
+{
     constexpr Color color = {0, 0, 0, 0};
-    if (worldContext_ == nullptr) {
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
         return color;
     }
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
-        return color;
-    }
-    const Config *config = appContext->GetConfig();
-    if (config == nullptr) {
+    const Config* config = appContext->GetConfig();
+    if (config == nullptr)
+    {
         return color;
     }
     auto debugColor = appContext->GetPreloadColors()->debugColor;
     float elevation = ChunkGenerator::GetElevation(tile.x);
-    ChunkGenerator *chunkGenerator = worldContext_->GetChunkGenerator();
+    ChunkGenerator* chunkGenerator = worldContext_->GetChunkGenerator();
     std::vector<Color> activeColors;
 
-    if (config->debug.displayElevationMap) {
+    if (config->debug.displayElevationMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LerpColor(debugColor.elevationMapFrom, debugColor.elevationMapTo, elevation)
         );
     }
-    if (config->debug.displayTempMap) {
+    if (config->debug.displayTempMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LerpColor(debugColor.tempMapFrom, debugColor.tempMapTo,
                                   chunkGenerator->GetTemperature(tile, elevation))
         );
     }
-    if (config->debug.displayHumidityMap) {
+    if (config->debug.displayHumidityMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LerpColor(debugColor.humidityMapFrom, debugColor.humidityMapTo,
                                   chunkGenerator->GetHumidity(tile))
         );
     }
-    if (config->debug.displayErosionMap) {
+    if (config->debug.displayErosionMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LerpColor(debugColor.erosionMapFrom, debugColor.erosionMapTo,
                                   chunkGenerator->GetErosion(tile))
         );
     }
-    if (config->debug.displayWeirdnessMap) {
+    if (config->debug.displayWeirdnessMap)
+    {
         activeColors.emplace_back(
             ColorUtils::LerpColor(debugColor.weirdnessMapFrom, debugColor.weirdnessMapTo,
                                   chunkGenerator->GetWeirdness(tile))
@@ -100,42 +118,50 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     return ColorUtils::AverageColors(activeColors);
 }
 
-uint8_t glimmer::DebugMultiMapSystem::GetRenderOrder() {
+void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
+    {
+        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+    }
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+}
+
+uint8_t glimmer::DebugMultiMapSystem::GetRenderOrder()
+{
     return RENDER_ORDER_DEBUG_MAP;
 }
 
-void glimmer::DebugMultiMapSystem::Render(SDL_Renderer *renderer) {
-    if (worldContext_ == nullptr) {
+void glimmer::DebugMultiMapSystem::Render(SDL_Renderer* renderer)
+{
+    if (worldContext_ == nullptr)
+    {
         return;
     }
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    const auto *cameraComponent = worldContext_->GetCameraComponent();
-    if (cameraComponent == nullptr) {
-        return;
-    }
-    const auto *cameraPos = worldContext_->GetCameraTransform2D();
-    if (cameraPos == nullptr) {
-        return;
-    }
-    auto gameEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
-
-    auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
-    const float zoom = cameraComponent->GetZoom();
+    auto viewportRect = cameraComponent_->GetViewportRect(cameraTransform2DComponent_->GetPosition());
+    const float zoom = cameraComponent_->GetZoom();
     const TileVector2D topLeft = TileLayerComponent::WorldToTile({viewportRect.x, viewportRect.y});
     const TileVector2D bottomRight = TileLayerComponent::WorldToTile({
         viewportRect.x + viewportRect.w + TILE_SIZE,
         viewportRect.y + viewportRect.h + TILE_SIZE
     });
 
-    for (int x = topLeft.x; x < bottomRight.x; x++) {
-        for (int y = topLeft.y; y < bottomRight.y; y++) {
+    for (int x = topLeft.x; x < bottomRight.x; x++)
+    {
+        for (int y = topLeft.y; y < bottomRight.y; y++)
+        {
             const TileVector2D tileVector2D = {x, y};
             const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileVector2D);
-            const CameraVector2D screenPos = cameraComponent->WorldToScreen(
-                cameraPos->GetPosition(), worldTilePos);
+            const CameraVector2D screenPos = cameraComponent_->WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), worldTilePos);
             SDL_FRect renderQuad;
             renderQuad.w = TILE_SIZE * zoom;
             renderQuad.h = TILE_SIZE * zoom;
@@ -149,9 +175,5 @@ void glimmer::DebugMultiMapSystem::Render(SDL_Renderer *renderer) {
     }
 
     AppContext::RestoreColorRenderer(renderer);
-}
-
-std::string glimmer::DebugMultiMapSystem::GetName() {
-    return "DebugMultiMapSystem";
 }
 #endif

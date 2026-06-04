@@ -32,12 +32,14 @@
 #include "core/ecs/GameEntity.h"
 #include "core/math/WorldVector2D.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * RayCast2D component
      * 射线组件
      */
-    class RayCast2DComponent : public GameComponent {
+    class RayCast2DComponent : public GameComponent
+    {
         WorldVector2D origin_;
         WorldVector2D translation_;
         b2QueryFilter filter_ = {};
@@ -52,42 +54,44 @@ namespace glimmer {
         //碰撞形状ID
         b2ShapeId hitShapeId_ = b2_nullShapeId;
 
-        GameEntity::ID transform2DEntity_ = GAME_ENTITY_ID_INVALID;
+        uint32_t transform2DEntity_ = GAME_ENTITY_ID_INVALID;
 
     public:
-        [[nodiscard]] const WorldVector2D &GetOrigin() const;
+        [[nodiscard]] const WorldVector2D& GetOrigin() const;
 
-        [[nodiscard]] const WorldVector2D &GetTranslation() const;
+        [[nodiscard]] const WorldVector2D& GetTranslation() const;
 
-        void SetTransform2DEntity(GameEntity::ID id);
+        void SetTransform2DEntity(uint32_t id);
 
-        [[nodiscard]] GameEntity::ID GetTransform2DEntity() const;
+        [[nodiscard]] uint32_t GetTransform2DEntity() const;
 
-        void SetTransform2D(const WorldVector2D &transform2D);
+        void SetTransform2D(const WorldVector2D& transform2D);
 
-        void SetOrigin(const WorldVector2D &origin);
+        void SetOrigin(const WorldVector2D& origin);
 
-        [[nodiscard]] const b2QueryFilter &GetFilter() const;
+        [[nodiscard]] const b2QueryFilter& GetFilter() const;
 
-        void SetFilter(const b2QueryFilter &filter);
+        void SetFilter(const b2QueryFilter& filter);
 
-        void SetTransform(const WorldVector2D &transform);
+        void SetTransform(const WorldVector2D& transform);
 
-        [[nodiscard]] const WorldVector2D &GetHitPoint() const;
+        [[nodiscard]] const WorldVector2D& GetHitPoint() const;
 
-        void SetHitPoint(const WorldVector2D &hitPoint);
+        void SetHitPoint(const WorldVector2D& hitPoint);
 
-        [[nodiscard]] const b2ShapeId &GetHitShape() const;
+        [[nodiscard]] const b2ShapeId& GetHitShape() const;
 
-        void SetHitShape(const b2ShapeId &hitShapeId);
+        void SetHitShape(const b2ShapeId& hitShapeId);
 
-        [[nodiscard]] const WorldVector2D &GetHitNormal() const;
+        [[nodiscard]] const WorldVector2D& GetHitNormal() const;
 
-        void SetHitNormal(const WorldVector2D &hitNormal);
+        void SetHitNormal(const WorldVector2D& hitNormal);
 
         [[nodiscard]] bool IsHit() const;
 
         void SetHit(bool hit);
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

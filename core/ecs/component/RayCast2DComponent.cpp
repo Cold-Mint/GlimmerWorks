@@ -26,75 +26,98 @@
  */
 #include "RayCast2DComponent.h"
 
-const glimmer::WorldVector2D &glimmer::RayCast2DComponent::GetOrigin() const {
+const glimmer::WorldVector2D& glimmer::RayCast2DComponent::GetOrigin() const
+{
     return origin_;
 }
 
-void glimmer::RayCast2DComponent::SetOrigin(const WorldVector2D &origin) {
+void glimmer::RayCast2DComponent::SetOrigin(const WorldVector2D& origin)
+{
     origin_ = origin;
 }
 
-const b2QueryFilter &glimmer::RayCast2DComponent::GetFilter() const {
+const b2QueryFilter& glimmer::RayCast2DComponent::GetFilter() const
+{
     return filter_;
 }
 
-void glimmer::RayCast2DComponent::SetFilter(const b2QueryFilter &filter) {
+void glimmer::RayCast2DComponent::SetFilter(const b2QueryFilter& filter)
+{
     filter_ = filter;
 }
 
-void glimmer::RayCast2DComponent::SetTransform(const WorldVector2D &transform) {
+void glimmer::RayCast2DComponent::SetTransform(const WorldVector2D& transform)
+{
     translation_ = transform;
 }
 
-const glimmer::WorldVector2D &glimmer::RayCast2DComponent::GetHitPoint() const {
+const glimmer::WorldVector2D& glimmer::RayCast2DComponent::GetHitPoint() const
+{
     return hitPoint_;
 }
 
-void glimmer::RayCast2DComponent::SetHitPoint(const WorldVector2D &hitPoint) {
+void glimmer::RayCast2DComponent::SetHitPoint(const WorldVector2D& hitPoint)
+{
     hitPoint_ = hitPoint;
 }
 
-const b2ShapeId &glimmer::RayCast2DComponent::GetHitShape() const {
+const b2ShapeId& glimmer::RayCast2DComponent::GetHitShape() const
+{
     return hitShapeId_;
 }
 
-void glimmer::RayCast2DComponent::SetHitShape(const b2ShapeId &hitShapeId) {
+void glimmer::RayCast2DComponent::SetHitShape(const b2ShapeId& hitShapeId)
+{
     hitShapeId_ = hitShapeId;
 }
 
-const glimmer::WorldVector2D &glimmer::RayCast2DComponent::GetHitNormal() const {
+const glimmer::WorldVector2D& glimmer::RayCast2DComponent::GetHitNormal() const
+{
     return hitNormal_;
 }
 
-void glimmer::RayCast2DComponent::SetHitNormal(const WorldVector2D &hitNormal) {
+void glimmer::RayCast2DComponent::SetHitNormal(const WorldVector2D& hitNormal)
+{
     hitNormal_ = hitNormal;
 }
 
-bool glimmer::RayCast2DComponent::IsHit() const {
+bool glimmer::RayCast2DComponent::IsHit() const
+{
     return hit_;
 }
 
-void glimmer::RayCast2DComponent::SetHit(bool hit) {
+void glimmer::RayCast2DComponent::SetHit(bool hit)
+{
     hit_ = hit;
 }
 
-GameComponentTypeMessage glimmer::RayCast2DComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::RayCast2DComponent::GetComponentTypeStatic()
+{
     return COMPONENT_RAY_CAST_2D;
 }
 
+GameComponentTypeMessage glimmer::RayCast2DComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
+}
 
-const glimmer::WorldVector2D &glimmer::RayCast2DComponent::GetTranslation() const {
+
+const glimmer::WorldVector2D& glimmer::RayCast2DComponent::GetTranslation() const
+{
     return translation_;
 }
 
-void glimmer::RayCast2DComponent::SetTransform2DEntity(GameEntity::ID id) {
+void glimmer::RayCast2DComponent::SetTransform2DEntity(uint32_t id)
+{
     transform2DEntity_ = id;
 }
 
-glimmer::GameEntity::ID glimmer::RayCast2DComponent::GetTransform2DEntity() const {
+uint32_t glimmer::RayCast2DComponent::GetTransform2DEntity() const
+{
     return transform2DEntity_;
 }
 
-void glimmer::RayCast2DComponent::SetTransform2D(const WorldVector2D &transform2D) {
+void glimmer::RayCast2DComponent::SetTransform2D(const WorldVector2D& transform2D)
+{
     translation_ = transform2D;
 }

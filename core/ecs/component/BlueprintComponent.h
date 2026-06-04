@@ -25,8 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "TileLayerComponent.h"
 #include "core/ecs/GameComponent.h"
+#include "core/math/TileVector2D.h"
 
 
 namespace glimmer
@@ -44,6 +44,8 @@ namespace glimmer
         void SetTopLeftVector(const TileVector2D& topLeftVector);
 
         [[nodiscard]] const TileVector2D& GetTopLeftVector() const;
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

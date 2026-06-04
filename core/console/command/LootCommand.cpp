@@ -76,9 +76,23 @@ bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const Com
     }
     const std::string type = commandArgs->AsString(1);
     if (type == "get") {
-        auto playerId = worldContext_->GetPlayerEntity();
-        auto *item_container = worldContext_->GetComponent<ItemContainerComponent>(playerId);
-        if (item_container == nullptr) {
+        EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+        if (entityShortCut == nullptr)
+        {
+            return false;
+        }
+        EntityManager *entityManager = worldContext_->GetEntityManager();
+        if (entityManager == nullptr)
+        {
+            return false;
+        }
+        auto playerId = entityShortCut->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(playerId))
+        {
+            return false;
+        }
+        auto *itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
+        if (itemContainer == nullptr) {
             onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
         }
@@ -100,7 +114,7 @@ bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const Com
             auto itemRes = appContext_->GetResourceLocator()->FindItem(worldContext_, itemMessage);
             if (itemRes != nullptr) {
                 itemRes->ReadItemMessage(worldContext_, itemMessage);
-                std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
+                std::unique_ptr<Item> item = itemContainer->GetItemContainer()->AddItem(
                     std::move(itemRes));
             }
         }

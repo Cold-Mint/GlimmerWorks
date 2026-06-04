@@ -75,7 +75,7 @@ void glimmer::TileItem::Reduce(unsigned value)
 {
 }
 
-void glimmer::TileItem::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                               std::unordered_set<std::string>& popupAbility)
 {
     if (tile_ == nullptr)
@@ -91,26 +91,32 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, GameEntity::ID user, c
     {
         return;
     }
-    auto playerEntity = worldContext->GetPlayerEntity();
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return;
+    }
+    auto playerEntity = entityShortCut->GetPlayer();
     if (WorldContext::IsEmptyEntityId(playerEntity))
     {
         return;
     }
-    auto playerTransform = worldContext->GetComponent<Transform2DComponent>(playerEntity);
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    auto playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     if (playerTransform == nullptr)
     {
         return;
     }
-    const BlueprintComponent* blueprintComponent = worldContext->GetBlueprintComponent();
+    const BlueprintComponent* blueprintComponent = entityShortCut->GetBlueprintComponent();
     if (blueprintComponent == nullptr)
     {
         return;
     }
-    const auto entities = worldContext->GetEntityIDWithComponents<TileLayerComponent>();
+    const auto entities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
     const TileLayerType targetTileLayerType = tile_->GetLayerType();
     for (auto& entity : entities)
     {
-        auto* tileLayer = worldContext->GetComponent<TileLayerComponent>(entity);
+        auto* tileLayer = entityManager->GetComponent<TileLayerComponent>(entity);
         if (tileLayer == nullptr)
         {
             continue;

@@ -46,7 +46,12 @@ const glimmer::TileVector2D& glimmer::BlueprintComponent::GetTopLeftVector() con
     return topLeftVector_;
 }
 
-GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentType()
+GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentTypeStatic()
 {
     return COMPONENT_BLUEPRINT;
+}
+
+GameComponentTypeMessage glimmer::BlueprintComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

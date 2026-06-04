@@ -46,6 +46,6 @@ namespace glimmer {
          * 加载模板组件
          *
          */
-        virtual void LoadTemplateComponents(GameEntity::ID id) = 0;
+        virtual void LoadTemplateComponents(uint32_t id) = 0;
     };
 }

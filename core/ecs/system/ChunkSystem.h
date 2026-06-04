@@ -29,8 +29,14 @@
 #include "core/ecs/GameSystem.h"
 #include "core/world/ChunkTask.h"
 
-namespace glimmer {
-    class ChunkSystem final : public GameSystem {
+namespace glimmer
+{
+    class Transform2DComponent;
+
+    class ChunkSystem final : public GameSystem
+    {
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         WorldVector2D cameraPosition_;
         float accumTime_ = 0.0F;
         float loadTerrainAccumTime_ = 0.0F;
@@ -38,10 +44,10 @@ namespace glimmer {
         float unloadChunkAccumTime_ = 0.0F;
         float unloadTerrainAccumTime_ = 0.0F;
         bool firstTime_ = true;
-        std::vector<std::unique_ptr<ChunkTask> > loadTerrainTasks_;
-        std::vector<std::unique_ptr<ChunkTask> > loadChunkTasks_;
-        std::vector<std::unique_ptr<ChunkTask> > unloadChunkTasks_;
-        std::vector<std::unique_ptr<ChunkTask> > unloadTerrainTasks_;
+        std::vector<std::unique_ptr<ChunkTask>> loadTerrainTasks_;
+        std::vector<std::unique_ptr<ChunkTask>> loadChunkTasks_;
+        std::vector<std::unique_ptr<ChunkTask>> unloadChunkTasks_;
+        std::vector<std::unique_ptr<ChunkTask>> unloadTerrainTasks_;
         std::unordered_set<uint64_t> taskFingerprintSet_;
 
         void ExecuteLoadTerrainTask(uint16_t loadTerrainBatch);
@@ -51,15 +57,14 @@ namespace glimmer {
         void ExecuteUnloadChunkTask(uint16_t unloadChunkBatch);
 
         void ExecuteUnloadTerrainTask(uint16_t unloadTerrainBatch);
-
         /**
-         * PushTask
-         * 推送任务到列表
-         * @param taskList taskList 任务列表
-         * @param chunkTask chunkTask 区块任务
-         * @param fingerprint fingerprint 指纹
-         */
-        void PushTask(std::vector<std::unique_ptr<ChunkTask> > &taskList, std::unique_ptr<ChunkTask> chunkTask,
+      * PushTask
+      * 推送任务到列表
+      * @param taskList taskList 任务列表
+      * @param chunkTask chunkTask 区块任务
+      * @param fingerprint fingerprint 指纹
+      */
+        void PushTask(std::vector<std::unique_ptr<ChunkTask>>& taskList, std::unique_ptr<ChunkTask> chunkTask,
                       uint64_t fingerprint);
 
         /**
@@ -69,14 +74,17 @@ namespace glimmer {
          * @param origin origin 原点
          * @param sortAscending sortAscending 是否升序（从小到大）
          */
-        static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, TileVector2D origin,
-                              bool sortAscending) ;
+        static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask>>& taskList, TileVector2D origin,
+                                     bool sortAscending);
+
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t number) override;
 
     public:
-        explicit ChunkSystem(WorldContext *worldContext);
+        explicit ChunkSystem(WorldContext* worldContext);
 
         void Update(float delta) override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

@@ -27,20 +27,28 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/ItemContainerComonent.h"
+#include "core/ecs/component/PlayerComponent.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * HotBar
      * 物品快捷栏
      */
-    class HotBarSystem : public GameSystem {
+    class HotBarSystem : public GameSystem
+    {
+        HotBarComponent* hotBarComponent_ = nullptr;
+        PlayerComponent* playerComponent_ = nullptr;
+        ItemContainerComponent* itemContainerComponent_ = nullptr;
+
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
     public:
-        explicit HotBarSystem(WorldContext *worldContext);
+        explicit HotBarSystem(WorldContext* worldContext);
 
-        bool HandleEvent(const SDL_Event &event) override;
+        bool HandleEvent(const SDL_Event& event) override;
 
-        uint8_t GetRenderOrder() override;
-
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

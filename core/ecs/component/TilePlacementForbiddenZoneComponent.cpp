@@ -27,38 +27,52 @@
 #include "TilePlacementForbiddenZoneComponent.h"
 
 
-void glimmer::TilePlacementForbiddenZoneComponent::SetWidth(const int width) {
+void glimmer::TilePlacementForbiddenZoneComponent::SetWidth(const int width)
+{
     width_ = width;
 }
 
-void glimmer::TilePlacementForbiddenZoneComponent::SetHeight(const int height) {
+void glimmer::TilePlacementForbiddenZoneComponent::SetHeight(const int height)
+{
     height_ = height;
 }
 
-void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetX(const int offsetX) {
+void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetX(const int offsetX)
+{
     offsetX_ = offsetX;
 }
 
-void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetY(const int offsetY) {
+void glimmer::TilePlacementForbiddenZoneComponent::SetOffsetY(const int offsetY)
+{
     offsetY_ = offsetY;
 }
 
-int glimmer::TilePlacementForbiddenZoneComponent::GetWidth() const {
+int glimmer::TilePlacementForbiddenZoneComponent::GetWidth() const
+{
     return width_;
 }
 
-int glimmer::TilePlacementForbiddenZoneComponent::GetHeight() const {
+int glimmer::TilePlacementForbiddenZoneComponent::GetHeight() const
+{
     return height_;
 }
 
-int glimmer::TilePlacementForbiddenZoneComponent::GetOffsetX() const {
+int glimmer::TilePlacementForbiddenZoneComponent::GetOffsetX() const
+{
     return offsetX_;
 }
 
-int glimmer::TilePlacementForbiddenZoneComponent::GetOffsetY() const {
+int glimmer::TilePlacementForbiddenZoneComponent::GetOffsetY() const
+{
     return offsetY_;
 }
 
-GameComponentTypeMessage glimmer::TilePlacementForbiddenZoneComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::TilePlacementForbiddenZoneComponent::GetComponentTypeStatic()
+{
     return COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE;
+}
+
+GameComponentTypeMessage glimmer::TilePlacementForbiddenZoneComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

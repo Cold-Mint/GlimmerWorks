@@ -26,6 +26,12 @@
  */
 #include "PlayerComponent.h"
 
-GameComponentTypeMessage glimmer::PlayerComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::PlayerComponent::GetComponentTypeStatic()
+{
     return COMPONENT_PLAYER;
+}
+
+GameComponentTypeMessage glimmer::PlayerComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

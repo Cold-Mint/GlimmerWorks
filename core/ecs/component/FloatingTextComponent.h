@@ -28,8 +28,10 @@
 #include "tween.h"
 #include "core/ecs/GameComponent.h"
 
-namespace glimmer {
-    class FloatingTextComponent : public GameComponent {
+namespace glimmer
+{
+    class FloatingTextComponent : public GameComponent
+    {
         std::string text_;
         float alpha_ = 0.0F;
         tweeny::tween<float> tween_;
@@ -38,9 +40,9 @@ namespace glimmer {
     public:
         explicit FloatingTextComponent();
 
-        void SetText(const std::string &text);
+        void SetText(const std::string& text);
 
-        tweeny::tween<float> &GetTween();
+        tweeny::tween<float>& GetTween();
 
         [[nodiscard]] uint64_t GetExpireTime() const;
 
@@ -49,7 +51,9 @@ namespace glimmer {
 
         [[nodiscard]] float GetAlpha() const;
 
-        [[nodiscard]] std::string &GetText();
+        [[nodiscard]] std::string& GetText();
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

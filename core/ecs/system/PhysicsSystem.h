@@ -45,13 +45,18 @@ namespace glimmer {
          */
         static constexpr float FIXED_TIME_STEP = 0.016F;
         float accumulator_ = 0.0F;
+        std::vector<GameEntityID> entities_;
+        uint32_t rigidBody2dCount_ = 0;
+        uint32_t transform2dCount_ = 0;
+    protected:
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
     public:
         explicit PhysicsSystem(WorldContext *worldContext);
 
-
         void Update(float delta) override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

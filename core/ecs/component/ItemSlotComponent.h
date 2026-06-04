@@ -65,6 +65,8 @@ namespace glimmer
 
         void SetSelected(bool selected);
 
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

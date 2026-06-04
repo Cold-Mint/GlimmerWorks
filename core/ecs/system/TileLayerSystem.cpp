@@ -29,17 +29,44 @@
 #include "../../Constants.h"
 #include "../component/CameraComponent.h"
 #include "../component/TileLayerComponent.h"
-#include "../component/Transform2DComponent.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include "core/utils/ColorUtils.h"
 #include "core/world/Tile.h"
 #include "core/world/generator/TileLayerType.h"
 
+void glimmer::TileLayerSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
+    {
+        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+    }
+    if (gameComponentType == COMPONENT_TILE_LAYER)
+    {
+        tileLayerComponents_.clear();
+        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        for (auto& entity : tileLayerEntities)
+        {
+            auto* tileLayerComponent = entityManager_->GetComponent<TileLayerComponent>(entity);
+            if (tileLayerComponent == nullptr)
+            {
+                continue;
+            }
+            tileLayerComponents_.emplace_back(tileLayerComponent);
+        }
+    }
+}
+
 glimmer::TileLayerSystem::TileLayerSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
-    RequireComponent(COMPONENT_TILE_LAYER);
+    WatchComponent(COMPONENT_CAMERA);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_TILE_LAYER);
 }
 
 void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
@@ -48,6 +75,19 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
+    if (cameraComponent_ == nullptr)
+    {
+        return;
+    }
+    if (cameraTransform2DComponent_ == nullptr)
+    {
+        return;
+    }
+    if (tileLayerComponents_.empty())
+    {
+        return;
+    }
+    TileLayerComponent* tileLayerComponent = tileLayerComponents_.front();
     const AppContext* appContext = worldContext_->GetAppContext();
     if (appContext == nullptr)
     {
@@ -58,28 +98,8 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    const auto* cameraComponent = worldContext_->GetCameraComponent();
-    const auto* cameraPos = worldContext_->GetCameraTransform2D();
-    if (cameraComponent == nullptr)
-    {
-        return;
-    }
-    if (cameraPos == nullptr)
-    {
-        return;
-    }
-    auto gameEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
-    if (gameEntities.empty())
-    {
-        return;
-    }
-    auto tileLayerComponent = worldContext_->GetComponent<TileLayerComponent>(gameEntities[0]);
-    if (tileLayerComponent == nullptr)
-    {
-        return;
-    }
-    auto viewportRect = cameraComponent->GetViewportRect(cameraPos->GetPosition());
-    const float zoom = cameraComponent->GetZoom();
+    auto viewportRect = cameraComponent_->GetViewportRect(cameraTransform2DComponent_->GetPosition());
+    const float zoom = cameraComponent_->GetZoom();
     std::vector<std::pair<TileVector2D, std::unique_ptr<std::vector<TileSnapshot>>>> visibleTiles =
         tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(Ground | BackGround, viewportRect);
     std::unordered_set<uint64_t> drawnTiles = {};
@@ -113,8 +133,8 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
                 continue;
             }
             drawnTiles.emplace(tileTopLeftFingerprint);
-            const CameraVector2D tileTopLeftCamera = cameraComponent->WorldToScreen(
-                cameraPos->GetPosition(), TileLayerComponent::TileToWorld(TileVector2D{
+            const CameraVector2D tileTopLeftCamera = cameraComponent_->WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), TileLayerComponent::TileToWorld(TileVector2D{
                     tileTopLeftPosition.x, tileTopLeftPosition.y
                 }));
             float width = static_cast<float>(tileState->width()) * TILE_SIZE * zoom;
@@ -181,34 +201,26 @@ bool glimmer::TileLayerSystem::HandleEvent(const SDL_Event& event)
     {
         return false;
     }
-    const auto* camera = worldContext_->GetCameraComponent();
-    if (camera == nullptr)
+    if (cameraComponent_ == nullptr)
     {
         return false;
     }
-    const auto* cameraTransform = worldContext_->GetCameraTransform2D();
-    if (cameraTransform == nullptr)
+    if (cameraTransform2DComponent_ == nullptr)
     {
         return false;
     }
-    const WorldVector2D worldPos = camera->ScreenToWorld(
-        cameraTransform->GetPosition(),
+    const WorldVector2D worldPos = cameraComponent_->ScreenToWorld(
+        cameraTransform2DComponent_->GetPosition(),
         CameraVector2D(event.motion.x, event.motion.y)
     );
-    auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
-    for (auto& entity : tileLayerEntities)
+    for (auto tileLayerComponent : tileLayerComponents_)
     {
-        auto* layer = worldContext_->GetComponent<TileLayerComponent>(entity);
-        if (layer == nullptr)
-        {
-            continue;
-        }
-        layer->SetFocusPosition(TileLayerComponent::WorldToTile(worldPos));
+        tileLayerComponent->SetFocusPosition(TileLayerComponent::WorldToTile(worldPos));
     }
     return true;
 }
 
-std::string glimmer::TileLayerSystem::GetName()
+glimmer::GameSystemType glimmer::TileLayerSystem::GetGameSystemType()
 {
-    return "glimmer.TileLayerSystem";
+    return GameSystemType::TileLayerSystem;
 }

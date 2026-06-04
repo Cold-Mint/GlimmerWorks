@@ -29,18 +29,25 @@
 #include "core/math/CameraVector2D.h"
 
 
+void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+}
+
 glimmer::CameraSystem::CameraSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
-    RequireComponent(COMPONENT_CAMERA);
-    RequireComponent(COMPONENT_TRANSFORM_2D);
-    cameraComponent_ = worldContext->GetCameraComponent();
     window_ = worldContext_->GetAppContext()->GetWindow();
+    WatchComponent(COMPONENT_CAMERA);
+
 }
 
 void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
 {
-    if (cameraComponent_ == nullptr || window_ == nullptr)
+    if (window_ == nullptr || cameraComponent_ == nullptr)
     {
         return;
     }
@@ -55,7 +62,7 @@ void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
     }
 }
 
-std::string glimmer::CameraSystem::GetName()
+glimmer::GameSystemType glimmer::CameraSystem::GetGameSystemType()
 {
-    return "glimmer.CameraSystem";
+    return GameSystemType::CameraSystem;
 }

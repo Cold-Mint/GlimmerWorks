@@ -32,32 +32,38 @@
 #include "Command.h"
 #include "CommandSender.h"
 #include "core/LangsResources.h"
+#include "core/ecs/EntityManager.h"
+#include "core/ecs/EntityShortCut.h"
 #include "suggestion/DynamicSuggestionsManager.h"
 
-namespace glimmer {
-    class CommandManager {
-        std::unordered_map<std::string, std::unique_ptr<Command> > commandMap_{};
+namespace glimmer
+{
+    class CommandManager
+    {
+        std::unordered_map<std::string, std::unique_ptr<Command>> commandMap_{};
         CommandSender defaultCommandSender_;
         CommandSender mouseCommandSender_;
-        WorldContext *worldContext_ = nullptr;
+        WorldContext* worldContext_ = nullptr;
+        EntityManager* entityManager_ = nullptr;
+        EntityShortCut* entityShortCut_ = nullptr;
 
     public:
         void RegisterCommand(std::unique_ptr<Command> command);
 
-        Command *GetCommand(const std::string &name) const;
+        Command* GetCommand(const std::string& name) const;
 
-        [[nodiscard]] CommandSender *GetDefaultCommandSender();
+        [[nodiscard]] CommandSender* GetDefaultCommandSender();
 
-        [[nodiscard]] CommandSender *GetMouseCommandSender();
+        [[nodiscard]] CommandSender* GetMouseCommandSender();
 
-        void BindWorldContext(WorldContext *worldContext);
+        void BindWorldContext(WorldContext* worldContext);
 
         void UnbindWorldContext();
 
-        [[nodiscard]] std::string GetHelpText(const LangsResources *langsResources);
+        [[nodiscard]] std::string GetHelpText(const LangsResources* langsResources);
 
-        std::vector<std::string> GetSuggestions(const DynamicSuggestionsManager *dynamicSuggestionsManager,
-                                                const CommandArgs &commandArgs, int cursorPos) const;
+        std::vector<std::string> GetSuggestions(const DynamicSuggestionsManager* dynamicSuggestionsManager,
+                                                const CommandArgs& commandArgs, int cursorPos) const;
 
         /**
          * Get Command Structure
@@ -65,7 +71,7 @@ namespace glimmer {
          * @param commandArgs commandArgs 命令参数
          * @return
          */
-        std::vector<std::string> GetCommandStructure(const CommandArgs *commandArgs) const;
+        std::vector<std::string> GetCommandStructure(const CommandArgs* commandArgs) const;
 
         /**
          * Extended suggestions
@@ -74,7 +80,7 @@ namespace glimmer {
          * @param nextNodeTree Fully expand the dynamic suggestions of the nodes. 将节点的动态建议完全展开。
          * @return The expanded list of suggestions 展开后的建议列表
          */
-        static std::vector<std::string> ExtendSuggestions(const DynamicSuggestionsManager *dynamicSuggestionsManager,
-                                                          NodeTree<std::string> *nextNodeTree);
+        static std::vector<std::string> ExtendSuggestions(const DynamicSuggestionsManager* dynamicSuggestionsManager,
+                                                          NodeTree<std::string>* nextNodeTree);
     };
 }

@@ -32,8 +32,10 @@
 #include "../../scene/AppContext.h"
 #include "../../scene/WorldScene.h"
 
-void glimmer::EcsCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
-    if (suggestionsTree == nullptr) {
+void glimmer::EcsCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
+{
+    if (suggestionsTree == nullptr)
+    {
         return;
     }
     suggestionsTree->AddChild("showEntityList");
@@ -41,83 +43,104 @@ void glimmer::EcsCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree
     suggestionsTree->AddChild("activeSystems");
 }
 
-glimmer::EcsCommand::EcsCommand(AppContext *appContext) : Command(appContext) {
+glimmer::EcsCommand::EcsCommand(AppContext* appContext) : Command(appContext)
+{
 }
 
-std::string glimmer::EcsCommand::EntityToString(const GameEntity::ID gameEntityId) const {
-    const std::vector<GameComponent *> components = worldContext_->GetAllComponents(gameEntityId);
+std::string glimmer::EcsCommand::EntityToString(const GameEntityID gameEntityId) const
+{
+    EntityManager* entityManager = worldContext_->GetEntityManager();
+    const std::vector<GameComponent*> components = entityManager->GetAllComponent(gameEntityId);
     std::string data;
-    for (auto &component: components) {
+    for (auto& component : components)
+    {
         data += fmt::format("componentId = {} name = {}\n", static_cast<int>(component->GetComponentType()),
                             typeid(component).name());
     }
     return fmt::format("id={} isPersistable={} \ncomponents={}\n", gameEntityId,
-                       worldContext_->IsPersistable(gameEntityId),
+                       entityManager->IsPersistable(gameEntityId),
                        data);
 }
 
-std::string glimmer::EcsCommand::GetName() const {
+std::string glimmer::EcsCommand::GetName() const
+{
     return ECS_COMMAND_NAME;
 }
 
-void glimmer::EcsCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
-    if (commandArgs == nullptr || strings == nullptr) {
+void glimmer::EcsCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+{
+    if (commandArgs == nullptr || strings == nullptr)
+    {
         return;
     }
     strings->emplace_back("[type:string]");
-    if (commandArgs->GetSize() > 1 && commandArgs->AsString(1) == "displayDetailedInformation") {
+    if (commandArgs->GetSize() > 1 && commandArgs->AsString(1) == "displayDetailedInformation")
+    {
         strings->emplace_back("[id:uint]");
     }
 }
 
-bool glimmer::EcsCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                                  const std::function<void(const std::string &text)> *onMessage) {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
+bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                                  const std::function<void(const std::string& text)>* onMessage)
+{
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    {
         return false;
     }
-    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
-    const LangsResources *langsResources = appContext_->GetLangsResources();
-    if (langsResources == nullptr) {
+    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
+    const LangsResources* langsResources = appContext_->GetLangsResources();
+    if (langsResources == nullptr)
+    {
         return false;
     }
-    if (worldContext_ == nullptr) {
+    if (worldContext_ == nullptr)
+    {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
     int size = commandArgs->GetSize();
-    if (commandArgs->GetSize() < 2) {
+    if (commandArgs->GetSize() < 2)
+    {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
     std::string arg = commandArgs->AsString(1);
-    if (arg == "showEntityList") {
-        for (const std::vector<GameEntity::ID> allGameEntities = worldContext_->GetAllGameEntityId(); const auto &e:
-             allGameEntities) {
+    if (arg == "showEntityList")
+    {
+        for (const std::vector<uint32_t> allGameEntities = worldContext_->GetEntityManager()->GetAllEntityIDs(); const
+             auto& e :
+             allGameEntities)
+        {
             onMessageRef(EntityToString(e));
         }
         return true;
     }
-    if (arg == "displayDetailedInformation") {
-        if (commandArgs->GetSize() < 3) {
+    if (arg == "displayDetailedInformation")
+    {
+        if (commandArgs->GetSize() < 3)
+        {
             onMessageRef(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
                 3, size));
             return false;
         }
-        const GameEntity::ID id = commandArgs->AsInt(2);
-        if (WorldContext::IsEmptyEntityId(id)) {
+        const uint32_t id = commandArgs->AsInt(2);
+        if (WorldContext::IsEmptyEntityId(id))
+        {
             onMessageRef(langsResources->cantFindObject);
             return false;
         }
         onMessageRef(EntityToString(id));
         return true;
     }
-    if (arg == "activeSystems") {
-        std::vector<GameSystem *> allGameSystems = worldContext_->GetAllActiveSystem();
-        for (auto &s: allGameSystems) {
-            onMessageRef(fmt::format("{}\n", s->GetName()));
+    if (arg == "activeSystems")
+    {
+        for (std::vector<GameSystemType> allGameSystems = worldContext_->GetAllActiveSystemType(); auto& type :
+             allGameSystems)
+        {
+            onMessageRef(fmt::format("{}\n", static_cast<uint8_t>(type)));
         }
         return true;
     }
@@ -125,7 +148,8 @@ bool glimmer::EcsCommand::Execute(const CommandSender *commandSender, const Comm
 }
 
 
-bool glimmer::EcsCommand::RequiresWorldContext() const {
+bool glimmer::EcsCommand::RequiresWorldContext() const
+{
     return true;
 }
 #endif

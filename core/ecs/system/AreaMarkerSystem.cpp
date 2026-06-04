@@ -30,13 +30,29 @@
 #include "../../world/WorldContext.h"
 #include "fmt/color.h"
 
+void glimmer::AreaMarkerSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
+    {
+        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+    }
+    if (gameComponentType == COMPONENT_AREA_MARKER && areaMarkerComponent_ == nullptr)
+    {
+        areaMarkerComponent_ = entityShortCut_->GetAreaMarkerComponent();
+    }
+}
+
 glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent(COMPONENT_AREA_MARKER);
+    WatchComponent(COMPONENT_AREA_MARKER);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_CAMERA);
+
     appContext_ = worldContext->GetAppContext();
-    areaMarkerComponent_ = worldContext->GetAreaMarkerComponent();
     preloadColors_ = appContext_->GetPreloadColors();
-    cameraComponent_ = worldContext->GetCameraComponent();
-    cameraTransform2DComponent_ = worldContext->GetCameraTransform2D();
 }
 
 
@@ -139,9 +155,9 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
     AppContext::RestoreColorRenderer(renderer);
 }
 
-
-std::string glimmer::AreaMarkerSystem::GetName() {
-    return "glimmer.AreaMarkerSystem";
+glimmer::GameSystemType glimmer::AreaMarkerSystem::GetGameSystemType()
+{
+    return GameSystemType::AreaMarkerSystem;
 }
 
 uint8_t glimmer::AreaMarkerSystem::GetRenderOrder() {

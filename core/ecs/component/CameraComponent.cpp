@@ -94,7 +94,12 @@ void glimmer::CameraComponent::SetZoom(const float zoom)
     this->zoom_ = std::clamp(zoom, 0.2F, 4.0F);
 }
 
-GameComponentTypeMessage glimmer::CameraComponent::GetComponentType()
+GameComponentTypeMessage glimmer::CameraComponent::GetComponentTypeStatic()
 {
     return COMPONENT_CAMERA;
+}
+
+GameComponentTypeMessage glimmer::CameraComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

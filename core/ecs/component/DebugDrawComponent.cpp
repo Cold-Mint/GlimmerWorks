@@ -47,7 +47,12 @@ void glimmer::DebugDrawComponent::SetSize(const WorldVector2D& size)
     size_ = size;
 }
 
-GameComponentTypeMessage glimmer::DebugDrawComponent::GetComponentType()
+GameComponentTypeMessage glimmer::DebugDrawComponent::GetComponentTypeStatic()
 {
     return COMPONENT_DEBUG_DRAW;
+}
+
+GameComponentTypeMessage glimmer::DebugDrawComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

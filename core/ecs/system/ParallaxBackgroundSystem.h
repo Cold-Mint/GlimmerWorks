@@ -34,7 +34,7 @@ namespace glimmer {
 
         void Render(SDL_Renderer *renderer) override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
 
         uint8_t GetRenderOrder() override;
     };

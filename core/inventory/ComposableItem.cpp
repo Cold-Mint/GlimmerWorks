@@ -142,9 +142,14 @@ const glimmer::AbilityConfig* glimmer::ComposableItem::GetAbilityConfig() const
     return &totalAbilityConfig_;
 }
 
-void glimmer::ComposableItem::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                                     std::unordered_set<std::string>& popupAbility)
 {
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return;
+    }
     const size_t max = itemContainer_->GetCapacity();
     //The ability to pop up
     //需要弹出的能力
@@ -170,11 +175,11 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, GameEntity::ID u
         {
             //Mutual exclusivity
             //互斥
-            const GameEntity::ID droppedEntity = worldContext->CreateEntity();
+            const uint32_t droppedEntity = entityManager->AddEntity();
             DroppedItemCreator droppedItemCreator{worldContext};
             droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
             droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
-                                                          worldContext->GetCameraTransform2D()->
+                                                          worldContext->GetEntityShortCut()->GetCameraTransform2DComponent()->
                                                                         GetPosition(),
                                                           itemContainer_->TakeAllItem(index), 2));
             continue;

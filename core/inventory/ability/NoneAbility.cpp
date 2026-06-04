@@ -33,7 +33,7 @@ glimmer::NoneAbility::NoneAbility(const AbilityConfig& abilityConfigMessage)
 {
 }
 
-void glimmer::NoneAbility::OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+void glimmer::NoneAbility::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                                  std::unordered_set<std::string>& popupAbility)
 {
 }

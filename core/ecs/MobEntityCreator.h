@@ -30,12 +30,12 @@
 namespace glimmer {
     class MobEntityCreator : public IPersistenceEntityCreator {
     public:
-        explicit MobEntityCreator(WorldContext *worldContext);
+        explicit MobEntityCreator(WorldContext* worldContext);
 
         static EntityItemMessage GetEntityItemMessage(WorldVector2D position);
 
-        void LoadTemplateComponents(GameEntity::ID id, const ResourceRef &resourceRef) override;
+        void LoadTemplateComponents(uint32_t id, const ResourceRef &resourceRef) override;
 
-        void MergeEntityItemMessage(GameEntity::ID id, const EntityItemMessage &entityItemMessage) override;
+        void MergeEntityItemMessage(uint32_t id, const EntityItemMessage &entityItemMessage) override;
     };
 }

@@ -33,20 +33,24 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/PreloadColors.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class AppContext;
 
-    class BlueprintSystem final : public GameSystem {
-        AppContext *appContext_ = nullptr;
-        TileLayerComponent *tileLayerComponent_ = nullptr;
-        CameraComponent *cameraComponent_ = nullptr;
-        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
-        PreloadColors *preloadColors_ = nullptr;
-        PlayerComponent *playerComponent_ = nullptr;
-        Transform2DComponent *playerTransform2DComponent_ = nullptr;
-        BlueprintComponent *blueprintComponent_ = nullptr;
-        const Tile *heldTile_ = nullptr;
+    class BlueprintSystem final : public GameSystem
+    {
+        TileLayerComponent* tileLayerComponent_ = nullptr;
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        PreloadColors* preloadColors_ = nullptr;
+        BlueprintComponent* blueprintComponent_ = nullptr;
+        GameEntityID player = GAME_ENTITY_ID_INVALID;
+        const Tile* heldTile_ = nullptr;
         std::vector<SDL_Rect> blockRects_;
+        std::vector<GameEntityID> tileLayerEntities_;
+        std::vector<GameEntityID> entities_;
+        uint32_t tilePlacementForbiddenZoneCount_ = 0;
+        uint32_t transform2DCount_ = 0;
 
         /**
          * 检查矩形区域放置的可行性
@@ -57,17 +61,20 @@ namespace glimmer {
          * @param tileHeight
          * @return
          */
-        std::vector<bool> CheckRectPlacementValidity(const Tile *tile, TileVector2D leftBottom,
+        std::vector<bool> CheckRectPlacementValidity(const Tile* tile, TileVector2D leftBottom,
                                                      WorldVector2D playerPosition, uint8_t tileWidth,
                                                      uint8_t tileHeight) const;
 
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
     public:
-        explicit BlueprintSystem(WorldContext *worldContext);
+        explicit BlueprintSystem(WorldContext* worldContext);
 
         uint8_t GetRenderOrder() override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SDL_Renderer* renderer) override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

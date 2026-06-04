@@ -34,7 +34,7 @@ namespace glimmer
     public:
         NoneAbility(const AbilityConfig& abilityConfigMessage);
 
-        void OnUse(WorldContext* worldContext, GameEntity::ID user, const AbilityConfig* abilityConfig,
+        void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
             std::unordered_set<std::string>& popupAbility) override;
         [[nodiscard]] std::string GetId() const override;
 

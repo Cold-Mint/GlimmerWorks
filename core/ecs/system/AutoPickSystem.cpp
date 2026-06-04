@@ -31,16 +31,43 @@
 #include "../../world/WorldContext.h"
 #include "../component/DroppedItemComponent.h"
 #include "core/ecs/FlowingTextCreator.h"
-#include "core/ecs/component/AutoPickComponent.h"
 #include "core/ecs/component/MagnetComponent.h"
 
 
-glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent(COMPONENT_AUTO_PICK);
-    RequireComponent(COMPONENT_MAGNET);
-    RequireComponent(COMPONENT_ITEM_CONTAINER);
+void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_AUTO_PICK)
+    {
+        autoPickCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_MAGNET)
+    {
+        magnetCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_ITEM_CONTAINER)
+    {
+        itemContainerCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_DROPPED_ITEM)
+    {
+        droppedItemCount_ = count;
+    }
+    if (autoPickCount_ > 0 && magnetCount_ > 0 && itemContainerCount_ > 0 && droppedItemCount_ > 0)
+    {
+        entities_ = entityManager_->GetEntityIDWithComponents({
+            COMPONENT_AUTO_PICK, COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER, COMPONENT_DROPPED_ITEM
+        });
+    }
+}
 
-    AppContext *appContext = worldContext->GetAppContext();
+glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
+    WatchComponent(COMPONENT_AUTO_PICK);
+    WatchComponent(COMPONENT_MAGNET);
+    WatchComponent(COMPONENT_ITEM_CONTAINER);
+    WatchComponent(COMPONENT_DROPPED_ITEM);
+
+    AppContext* appContext = worldContext->GetAppContext();
     ResourceRef ref;
     ref.SetSelfPackageId(RESOURCE_REF_CORE);
     ref.SetResourceType(RESOURCE_AUDIO);
@@ -49,65 +76,75 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext *worldContext) : GameSystem
     audioManager_ = appContext->GetAudioManager();
 }
 
-void glimmer::AutoPickSystem::Update(const float delta) {
-    if (audioManager_ == nullptr) {
+void glimmer::AutoPickSystem::Update(const float delta)
+{
+    if (audioManager_ == nullptr)
+    {
         return;
     }
-    if (remainingTime_ <= 0) {
-        if (!frameItemCounts_.empty()) {
+    if (remainingTime_ <= 0)
+    {
+        if (!frameItemCounts_.empty())
+        {
             std::stringstream stringStream{};
-            for (auto &pair: frameItemCounts_) {
+            for (auto& pair : frameItemCounts_)
+            {
                 stringStream << pair.first;
-                if (pair.second > 1) {
+                if (pair.second > 1)
+                {
                     stringStream << " * " << pair.second << "\n";
                 }
             }
 
             FlowingTextCreator flowingTextCreator(worldContext_, stringStream.str(), lastPosition);
-            flowingTextCreator.LoadTemplateComponents(worldContext_->CreateEntity());
+            flowingTextCreator.LoadTemplateComponents(entityManager_->AddEntity());
             frameItemCounts_.clear();
         }
         remainingTime_ = MERGE_DURATION;
     }
     remainingTime_ -= delta;
 
-    auto entityList = worldContext_->GetEntityIDWithComponents<AutoPickComponent, MagnetComponent,
-        ItemContainerComponent>();
-    for (auto entity: entityList) {
-        auto *magnetComponent = worldContext_->GetComponent<MagnetComponent>(entity);
-        auto *containerComponent = worldContext_->GetComponent<ItemContainerComponent>(
+    for (auto entity : entities_)
+    {
+        auto* magnetComponent = entityManager_->GetComponent<MagnetComponent>(entity);
+        auto* containerComponent = entityManager_->GetComponent<ItemContainerComponent>(
             entity);
-        auto &entities = magnetComponent->GetEntities();
-        for (GameEntity::ID entityId: entities) {
-            auto *transform2DComponent = worldContext_->GetComponent<Transform2DComponent>(entityId);
-            if (transform2DComponent == nullptr) {
+        auto& entities = magnetComponent->GetEntities();
+        for (uint32_t entityId : entities)
+        {
+            auto* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(entityId);
+            if (transform2DComponent == nullptr)
+            {
                 continue;
             }
             lastPosition = transform2DComponent->GetPosition();
 
-            auto *droppedItemComponent = worldContext_->GetComponent<DroppedItemComponent>(entityId);
-            if (droppedItemComponent == nullptr) {
+            auto* droppedItemComponent = entityManager_->GetComponent<DroppedItemComponent>(entityId);
+            if (droppedItemComponent == nullptr)
+            {
                 continue;
             }
 
             auto extractItem = droppedItemComponent->ExtractItem();
-            if (extractItem == nullptr) {
+            if (extractItem == nullptr)
+            {
                 continue;
             }
 
-            const std::string &itemName = extractItem->GetName();
+            const std::string& itemName = extractItem->GetName();
             frameItemCounts_[itemName] += extractItem->GetAmount();
 
             auto item = containerComponent->GetItemContainer()->AddItem(std::move(extractItem));
-            if (item == nullptr) {
+            if (item == nullptr)
+            {
                 audioManager_->TryPlayFree(AMBIENT, pickItemSFX_.get(), 0);
             }
-            worldContext_->RemoveEntity(entityId);
+            entityManager_->RemoveEntity(entityId);
         }
     }
 }
 
-
-std::string glimmer::AutoPickSystem::GetName() {
-    return "glimmer.AutoPickSystem";
+glimmer::GameSystemType glimmer::AutoPickSystem::GetGameSystemType()
+{
+    return GameSystemType::AutoPickSystem;
 }

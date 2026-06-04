@@ -66,8 +66,9 @@ bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const Co
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
-    auto playerEntity = worldContext_->GetPlayerEntity();
-    const auto* itemContainerComponent = worldContext_->GetComponent<ItemContainerComponent>(playerEntity);
+    auto playerEntity = worldContext_->GetEntityShortCut()->GetPlayer();
+    const auto* itemContainerComponent = worldContext_->GetEntityManager()->GetComponent<
+        ItemContainerComponent>(playerEntity);
     if (itemContainerComponent == nullptr)
     {
         onMessageRef(langsResources->itemContainerIsNull);
@@ -75,7 +76,7 @@ bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const Co
     }
     appContext_->PostToNextMainFrame([this, itemContainerComponent, playerEntity]
         {
-            auto* playerComponent = worldContext_->GetComponent<PlayerComponent>(playerEntity);
+            auto* playerComponent = worldContext_->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity);
             if (playerComponent != nullptr)
             {
                 playerComponent->item = nullptr;

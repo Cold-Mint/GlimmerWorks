@@ -25,31 +25,32 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "GameEntity.h"
 #include "core/mod/ResourceRef.h"
 #include "core/world/WorldContext.h"
 #include "src/saves/entity_item.pb.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * IPersistenceEntityCreator
      * 持久化实体创建器
      */
-    class IPersistenceEntityCreator {
+    class IPersistenceEntityCreator
+    {
     protected:
-        WorldContext *worldContext_ = nullptr;
-
+        WorldContext* worldContext_ = nullptr;
         /**
          * RecoveryAllComponent
          * 恢复所有的组件
-         * @param id id 实体id
+         * @param worldContext id 实体id
+         * @param gameEntityId id 实体id
          * @param entityItemMessage entityItemMessage 实体项目信息
          */
-        void RecoveryAllComponent(GameEntity::ID id,
-                                  const EntityItemMessage &entityItemMessage) const;
+        static void RecoveryAllComponent(WorldContext* worldContext, GameEntityID gameEntityId,
+                                         const EntityItemMessage& entityItemMessage);
 
     public:
-        explicit IPersistenceEntityCreator(WorldContext *worldContext);
+        explicit IPersistenceEntityCreator(WorldContext* worldContext);
 
         virtual ~IPersistenceEntityCreator() = default;
 
@@ -60,7 +61,7 @@ namespace glimmer {
          * This method typically adds the corresponding component information based on the resources defined in the data package.
          * 这个方法通常从数据包定义的资源来添加对应的组件信息。
          */
-        virtual void LoadTemplateComponents(GameEntity::ID id, const ResourceRef &resourceRef) = 0;
+        virtual void LoadTemplateComponents(GameEntityID gameEntityId, const ResourceRef& resourceRef) = 0;
 
         /**
          * Merge the data of the entity projects
@@ -72,9 +73,9 @@ namespace glimmer {
          *For example: The current health value of the health component (which needs to be saved in the save file during runtime) is called dynamic data.
          * 比如：健康组件的当前健康值（运行时，需要保存到存档内的）这些数据叫做动态数据。
          *
-         * @param id
+         * @param gameEntityId
          * @param entityItemMessage
          */
-        virtual void MergeEntityItemMessage(GameEntity::ID id, const EntityItemMessage &entityItemMessage) = 0;
+        virtual void MergeEntityItemMessage(GameEntityID gameEntityId, const EntityItemMessage& entityItemMessage) = 0;
     };
 }

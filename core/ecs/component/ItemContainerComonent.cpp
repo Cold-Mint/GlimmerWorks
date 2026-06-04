@@ -61,7 +61,12 @@ void glimmer::ItemContainerComponent::Deserialize(WorldContext* worldContext, co
     }
 }
 
-GameComponentTypeMessage glimmer::ItemContainerComponent::GetComponentType()
+GameComponentTypeMessage glimmer::ItemContainerComponent::GetComponentTypeStatic()
 {
     return COMPONENT_ITEM_CONTAINER;
+}
+
+GameComponentTypeMessage glimmer::ItemContainerComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

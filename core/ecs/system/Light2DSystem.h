@@ -29,15 +29,23 @@
 #include "core/world/Tile.h"
 
 
-namespace glimmer {
-    class Light2DSystem : public GameSystem {
+namespace glimmer
+{
+    class Light2DSystem : public GameSystem
+    {
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
     public:
-        explicit Light2DSystem(WorldContext *worldContext);
+        explicit Light2DSystem(WorldContext* worldContext);
 
         uint8_t GetRenderOrder() override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SDL_Renderer* renderer) override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

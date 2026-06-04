@@ -28,28 +28,39 @@
 
 #include "core/Constants.h"
 
-void glimmer::MagneticComponent::SetType(uint16_t type) {
+void glimmer::MagneticComponent::SetType(uint16_t type)
+{
     type_ = type;
 }
 
 
-const glimmer::WorldVector2D &glimmer::MagneticComponent::GetStartPos() const {
+const glimmer::WorldVector2D& glimmer::MagneticComponent::GetStartPos() const
+{
     return startPos_;
 }
 
-void glimmer::MagneticComponent::SetStartPos(const WorldVector2D &startPos) {
+void glimmer::MagneticComponent::SetStartPos(const WorldVector2D& startPos)
+{
     startPos_ = startPos;
 }
 
-uint16_t glimmer::MagneticComponent::GetType() const {
+uint16_t glimmer::MagneticComponent::GetType() const
+{
     return type_;
 }
 
-GameComponentTypeMessage glimmer::MagneticComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::MagneticComponent::GetComponentTypeStatic()
+{
     return COMPONENT_MAGNET;
 }
 
+GameComponentTypeMessage glimmer::MagneticComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
+}
 
-bool glimmer::MagneticComponent::IsSerializable() {
+
+bool glimmer::MagneticComponent::IsSerializable()
+{
     return false;
 }

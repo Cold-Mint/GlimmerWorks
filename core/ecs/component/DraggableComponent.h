@@ -28,14 +28,18 @@
 #include "core/ecs/GameComponent.h"
 #include "core/math/CameraVector2D.h"
 
-namespace glimmer {
-    class DraggableComponent : public GameComponent {
+namespace glimmer
+{
+    class DraggableComponent : public GameComponent
+    {
         CameraVector2D size_;
 
     public:
         void SetSize(const CameraVector2D& size);
 
         [[nodiscard]] CameraVector2D GetSize() const;
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

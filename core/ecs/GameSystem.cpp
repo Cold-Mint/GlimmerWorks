@@ -27,75 +27,71 @@
 #include "GameSystem.h"
 #include "../world/WorldContext.h"
 
-bool glimmer::GameSystem::ShouldActivate()
-{
-    if (worldContext_ == nullptr)
-    {
-        return false;
-    }
-    if (requiredComponents_.empty())
-    {
-        return false;
-    }
-    for (const auto& type : requiredComponents_)
-    {
-        if (!worldContext_->HasComponentType(type))
-        {
-            //A certain dependent component type in the world does not exist and cannot be activated
-            // 世界中某个依赖的组件类型不存在，不能激活
-            return false;
-        }
-    }
-    return true; // All components exist and can be activated 所有组件都存在，可以激活
-}
 
 void glimmer::GameSystem::OnActivationChanged(const bool activeStatus)
 {
 }
 
-void glimmer::GameSystem::RequireComponent(const GameComponentTypeMessage gameComponentType)
+void glimmer::GameSystem::AddActiveWatchComponent(GameComponentTypeMessage gameComponentType)
 {
-    requiredComponents_.insert(gameComponentType);
+    if (!watchComponents_.contains(gameComponentType))
+    {
+        return;
+    }
+    activeWatchComponents_.emplace(gameComponentType);
 }
+
+void glimmer::GameSystem::RemoveActiveWatchComponent(GameComponentTypeMessage gameComponentType)
+{
+    if (!watchComponents_.contains(gameComponentType))
+    {
+        return;
+    }
+    activeWatchComponents_.erase(gameComponentType);
+}
+
+bool glimmer::GameSystem::CanActive() const
+{
+    return activeWatchComponents_.size() == watchComponents_.size();
+}
+
+void glimmer::GameSystem::WatchComponent(const GameComponentTypeMessage gameComponentType)
+{
+    if (lockWatchComponents_)
+    {
+        return;
+    }
+    watchComponents_.insert(gameComponentType);
+    //When observing the changes of a certain component, a callback will be triggered first.
+    //当开始观察某个组件的变化时，会优先进行一次回调。
+    OnWatchedComponentChanged(gameComponentType, entityManager_->GetComponentCount(gameComponentType));
+}
+
+void glimmer::GameSystem::LockWatchComponent()
+{
+    lockWatchComponents_ = true;
+}
+
+void glimmer::GameSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+}
+
 
 glimmer::GameSystem::GameSystem(WorldContext* worldContext) : worldContext_(worldContext)
 {
-}
-
-bool glimmer::GameSystem::CheckActivation()
-{
-    const bool shouldActivate = ShouldActivate();
-    if (!active_ && shouldActivate)
-    {
-        active_ = true;
-        OnActivationChanged(active_);
-    }
-    else if (active_ && !shouldActivate)
-    {
-        active_ = false;
-        OnActivationChanged(active_);
-    }
-    return active_;
-}
-
-bool glimmer::GameSystem::IsActive() const
-{
-    return active_;
-}
-
-bool glimmer::GameSystem::SupportsComponentType(GameComponentTypeMessage gameComponentType) const
-{
-    if (requiredComponents_.empty())
-    {
-        return false;
-    }
-    return requiredComponents_.contains(gameComponentType);
+    entityManager_ = worldContext_->GetEntityManager();
+    entityShortCut_ = worldContext_->GetEntityShortCut();
 }
 
 
 bool glimmer::GameSystem::CanRunWhilePaused() const
 {
     return false;
+}
+
+bool glimmer::GameSystem::IsWatchingComponent(GameComponentTypeMessage gameComponentType) const
+{
+    return watchComponents_.contains(gameComponentType);
 }
 
 bool glimmer::GameSystem::HandleEvent(const SDL_Event& event)

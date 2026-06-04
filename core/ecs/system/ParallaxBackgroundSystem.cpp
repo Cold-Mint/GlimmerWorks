@@ -31,32 +31,40 @@
 #include "core/ecs/component/ParallaxBackgroundComponent.h"
 #include "core/world/WorldContext.h"
 
-glimmer::ParallaxBackgroundSystem::ParallaxBackgroundSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent(COMPONENT_PARALLAX_BACKGROUND);
+glimmer::ParallaxBackgroundSystem::ParallaxBackgroundSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
+    WatchComponent(COMPONENT_PARALLAX_BACKGROUND);
 }
 
-void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer *renderer) {
-    if (worldContext_ == nullptr) {
+void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer* renderer)
+{
+    if (worldContext_ == nullptr)
+    {
         return;
     }
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr) {
+    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
         return;
     }
-    ParallaxBackgroundComponent *parallaxBackgroundComponent = worldContext_->GetParallaxBackgroundComponent();
-    if (parallaxBackgroundComponent == nullptr) {
+    ParallaxBackgroundComponent* parallaxBackgroundComponent = entityShortCut_->GetParallaxBackgroundComponent();
+    if (parallaxBackgroundComponent == nullptr)
+    {
         return;
     }
-    SDL_Texture *texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
-    if (texture == nullptr) {
+    SDL_Texture* texture = parallaxBackgroundComponent->GetTexture(resourceLocator);
+    if (texture == nullptr)
+    {
         return;
     }
-    SDL_Window *window = appContext->GetWindow();
-    if (window == nullptr) {
+    SDL_Window* window = appContext->GetWindow();
+    if (window == nullptr)
+    {
         return;
     }
     int w, h;
@@ -70,10 +78,12 @@ void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer *renderer) {
     SDL_RenderTexture(renderer, texture, nullptr, &destRect);
 }
 
-std::string glimmer::ParallaxBackgroundSystem::GetName() {
-    return "glimmer.ParallaxBackgroundSystem";
+glimmer::GameSystemType glimmer::ParallaxBackgroundSystem::GetGameSystemType()
+{
+    return GameSystemType::ParallaxBackgroundSystem;
 }
 
-uint8_t glimmer::ParallaxBackgroundSystem::GetRenderOrder() {
+uint8_t glimmer::ParallaxBackgroundSystem::GetRenderOrder()
+{
     return RENDER_ORDER_PARALLAX_BACKGROUND;
 }

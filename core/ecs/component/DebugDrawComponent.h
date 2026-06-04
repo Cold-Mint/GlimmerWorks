@@ -67,6 +67,8 @@ namespace glimmer
          */
         void SetSize(const WorldVector2D& size);
 
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

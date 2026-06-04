@@ -46,6 +46,11 @@ namespace glimmer
         size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
         AppContext* appContext_ = nullptr;
         float uiScale_ = 1.0F;
+        std::vector<GameEntityID> entities_;
+        uint32_t guiTransform2DCont_ = 0;
+        uint32_t itemSlotCount_ = 0;
+
+
         void RenderQuantity(SDL_Renderer* renderer, const SDL_FRect& slotDest, int amount) const;
 
         /**
@@ -54,6 +59,9 @@ namespace glimmer
          * @param item 物品
          */
         void RenderTooltip(SDL_Renderer* renderer, const Item* item) const;
+
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
     public:
         explicit ItemSlotSystem(WorldContext* worldContext);
@@ -64,8 +72,6 @@ namespace glimmer
 
         bool HandleEvent(const SDL_Event& event) override;
 
-        uint8_t GetRenderOrder() override;
-
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

@@ -126,11 +126,22 @@ bool glimmer::LocateCommand::Execute(const CommandSender *commandSender, const C
             return false;
         }
         std::string targetBiomeID = Resource::GenerateId(*targetBiomeResource);
-        const GameEntity::ID playerId = worldContext_->GetPlayerEntity();
-        if (WorldContext::IsEmptyEntityId(playerId)) {
+        EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+        if (entityShortCut == nullptr)
+        {
             return false;
         }
-        const Transform2DComponent *transform2dComponent = worldContext_->GetComponent<Transform2DComponent>(playerId);
+        EntityManager *entityManager = worldContext_->GetEntityManager();
+        if (entityManager == nullptr)
+        {
+            return false;
+        }
+        auto playerId = entityShortCut->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(playerId))
+        {
+            return false;
+        }
+        const Transform2DComponent *transform2dComponent = entityManager->GetComponent<Transform2DComponent>(playerId);
         if (transform2dComponent == nullptr) {
             return false;
         }

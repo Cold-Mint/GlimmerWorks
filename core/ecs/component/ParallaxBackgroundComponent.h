@@ -31,21 +31,25 @@
 #include "SDL3/SDL_render.h"
 
 
-namespace glimmer {
-    class ParallaxBackgroundComponent : public GameComponent {
+namespace glimmer
+{
+    class ParallaxBackgroundComponent : public GameComponent
+    {
         std::shared_ptr<SDL_Texture> texture_ = nullptr;
         ResourceRef textureResourceRef_;
         bool needsUpdate_ = false;
 
     public:
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
         void SetTextureResourceRef(ResourceRef textureResourceRef);
 
-        ResourceRef &GetTextureResourceRef();
+        ResourceRef& GetTextureResourceRef();
 
         void ClearTexture();
 
-        SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
+        SDL_Texture* GetTexture(const ResourceLocator* resourceLocator);
     };
 }

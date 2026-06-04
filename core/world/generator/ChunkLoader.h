@@ -25,15 +25,15 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/math/Vector2DI.h"
+#include "core/ecs/EntityManager.h"
 #include "core/saves/Saves.h"
 
-namespace glimmer {
-    class ChunkLoader {
-        Saves *saves_;
-        WorldContext *worldContext_;
-
-        std::function<GameEntity::ID(std::unique_ptr<GameEntity> entity)> registerEntity_;
+namespace glimmer
+{
+    class ChunkLoader
+    {
+        Saves* saves_ = nullptr;
+        WorldContext* worldContext_ = nullptr;
 
         /**
          * Load entity from saves
@@ -43,8 +43,7 @@ namespace glimmer {
         void LoadEntityFromSaves(TileVector2D position) const;
 
     public:
-        ChunkLoader(WorldContext *worldContext, Saves *saves,
-                    std::function<GameEntity::ID(std::unique_ptr<GameEntity> entity)> registerEntity);
+        ChunkLoader(WorldContext* worldContext, Saves* saves);
 
         /**
          * Load block from saves
@@ -59,6 +58,6 @@ namespace glimmer {
         * @param entityItemMessage
         * @return
         */
-        [[nodiscard]] GameEntity::ID RecoveryEntity(const EntityItemMessage &entityItemMessage) const;
+        [[nodiscard]] GameEntityID RecoveryEntity(const EntityItemMessage& entityItemMessage) const;
     };
 }

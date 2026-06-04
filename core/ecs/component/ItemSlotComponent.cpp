@@ -87,7 +87,12 @@ void glimmer::ItemSlotComponent::SetSelected(const bool selected)
     isSelected_ = selected;
 }
 
-GameComponentTypeMessage glimmer::ItemSlotComponent::GetComponentType()
+GameComponentTypeMessage glimmer::ItemSlotComponent::GetComponentTypeStatic()
 {
     return COMPONENT_ITEM_SLOT;
+}
+
+GameComponentTypeMessage glimmer::ItemSlotComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

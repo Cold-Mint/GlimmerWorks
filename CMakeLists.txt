@@ -364,7 +364,6 @@ target_sources(GlimmerWorks
         core/ecs/GameEntity.cpp
         core/ecs/GameComponent.cpp
         core/ecs/GameSystem.cpp
-        core/ecs/system/Transform2DSystem.cpp
         core/ecs/component/Transform2DComponent.cpp
         core/ecs/system/CameraSystem.cpp
         core/ecs/system/PlayerControlSystem.cpp
@@ -603,6 +602,9 @@ target_sources(GlimmerWorks
         core/math/Vector2DIHash.cpp
         core/mod/dataPack/RecipeManager.cpp
         core/mod/dataPack/RecipeGroup.cpp
+        core/ecs/GameSystemType.cpp
+        core/ecs/EntityManager.cpp
+        core/ecs/EntityShortCut.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -642,7 +644,6 @@ target_sources(GlimmerWorks
         core/ecs/GameEntity.h
         core/ecs/GameComponent.h
         core/ecs/GameSystem.h
-        core/ecs/system/Transform2DSystem.h
         core/ecs/component/Transform2DComponent.h
         core/ecs/component/CameraComponent.h
         core/ecs/component/DebugDrawComponent.h
@@ -879,6 +880,10 @@ target_sources(GlimmerWorks
         core/math/Vector2DIHash.h
         core/mod/dataPack/RecipeManager.h
         core/mod/dataPack/RecipeGroup.h
+        core/ecs/GameSystemType.h
+        core/ecs/EcsTypes.h
+        core/ecs/EntityManager.h
+        core/ecs/EntityShortCut.h
 )
 
 #Define version information

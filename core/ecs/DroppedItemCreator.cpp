@@ -32,21 +32,23 @@
 #include "component/RigidBody2DComponent.h"
 #include "core/world/WorldContext.h"
 
-glimmer::DroppedItemCreator::DroppedItemCreator(WorldContext *worldContext) : IPersistenceEntityCreator(worldContext) {
+glimmer::DroppedItemCreator::DroppedItemCreator(WorldContext* worldContext) : IPersistenceEntityCreator(worldContext)
+{
 }
 
 EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldVector2D position,
                                                                     std::unique_ptr<Item> item,
-                                                                    const float pickupCooldown) {
+                                                                    const float pickupCooldown)
+{
     EntityItemMessage entityItemMessage{};
-    ComponentMessage *transform2DComponentMessage =
-            entityItemMessage.add_components();
+    ComponentMessage* transform2DComponentMessage =
+        entityItemMessage.add_components();
     Transform2DComponent transform2DComponent{};
     transform2DComponent.SetPosition(position);
     transform2DComponentMessage->set_type(transform2DComponent.GetComponentType());
     transform2DComponentMessage->set_data(transform2DComponent.Serialize());
-    ComponentMessage *droppedItemComponentMessage =
-            entityItemMessage.add_components();
+    ComponentMessage* droppedItemComponentMessage =
+        entityItemMessage.add_components();
     DroppedItemComponent droppedItemComponent{};
     droppedItemComponent.SetItem(std::move(item));
     droppedItemComponent.SetPickupCooldown(pickupCooldown);
@@ -55,7 +57,8 @@ EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldV
     return entityItemMessage;
 }
 
-glimmer::ResourceRef glimmer::DroppedItemCreator::GetResourceRef() {
+glimmer::ResourceRef glimmer::DroppedItemCreator::GetResourceRef()
+{
     ResourceRef resourceRef{};
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_DROPPED_ITEM);
@@ -63,23 +66,29 @@ glimmer::ResourceRef glimmer::DroppedItemCreator::GetResourceRef() {
     return resourceRef;
 }
 
-void glimmer::DroppedItemCreator::LoadTemplateComponents(const GameEntity::ID id, const ResourceRef &resourceRef) {
+void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, const ResourceRef& resourceRef)
+{
     uint32_t type = resourceRef.GetResourceType();
-    if (type != RESOURCE_DROPPED_ITEM) {
+    if (type != RESOURCE_DROPPED_ITEM)
+    {
         return;
     }
-    if (worldContext_ == nullptr || WorldContext::IsEmptyEntityId(id)) {
+    if (worldContext_ == nullptr || WorldContext::IsEmptyEntityId(id))
+    {
         return;
     }
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    worldContext_->SetResourceRef(id, resourceRef);
-    worldContext_->SetPersistable(id, true);
-    const auto rigidBody2DComponent = worldContext_->AddComponent<RigidBody2DComponent>(
+    EntityManager* entityManager = worldContext_->GetEntityManager();
+    entityManager->SetResourceRef(id, resourceRef);
+    entityManager->SetPersistable(id, true);
+    const auto rigidBody2DComponent = entityManager->AddComponent<RigidBody2DComponent>(
         id);
-    if (rigidBody2DComponent != nullptr) {
+    if (rigidBody2DComponent != nullptr)
+    {
         rigidBody2DComponent->SetFilter({BOX2D_CATEGORY_ITEM, BOX2D_CATEGORY_TILE});
         rigidBody2DComponent->SetBodyType(b2_dynamicBody);
         rigidBody2DComponent->SetDensity(0.005F);
@@ -89,24 +98,29 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const GameEntity::ID id
         shapeResourceRef.SetResourceType(RESOURCE_SHAPE);
         rigidBody2DComponent->SetShapeRef(shapeResourceRef);
     }
-    const auto rayCast2DComponent = worldContext_->AddComponent<RayCast2DComponent>(id);
-    if (rayCast2DComponent != nullptr) {
+    const auto rayCast2DComponent = entityManager->AddComponent<RayCast2DComponent>(id);
+    if (rayCast2DComponent != nullptr)
+    {
         rayCast2DComponent->SetOrigin({0, 0});
         rayCast2DComponent->SetFilter({BOX2D_CATEGORY_ITEM, BOX2D_CATEGORY_TILE});
         rayCast2DComponent->SetTransform2DEntity(id);
     }
-    auto *magnetic = worldContext_->AddComponent<MagneticComponent>(id);
-    if (magnetic != nullptr) {
+    auto* magnetic = entityManager->AddComponent<MagneticComponent>(id);
+    if (magnetic != nullptr)
+    {
         magnetic->SetType(MAGNETIC_TYPE_ITEM);
     }
 }
 
 void glimmer::DroppedItemCreator::
-MergeEntityItemMessage(GameEntity::ID id, const EntityItemMessage &entityItemMessage) {
-    RecoveryAllComponent(id, entityItemMessage);
-    auto *transform2dComponent = worldContext_->GetComponent<Transform2DComponent>(id);
-    auto *rigidBody2dComponent = worldContext_->GetComponent<RigidBody2DComponent>(id);
-    if (transform2dComponent != nullptr && rigidBody2dComponent != nullptr) {
+MergeEntityItemMessage(uint32_t id, const EntityItemMessage& entityItemMessage)
+{
+    RecoveryAllComponent(worldContext_,id, entityItemMessage);
+    EntityManager* entityManager = worldContext_->GetEntityManager();
+    auto* transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
+    auto* rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
+    if (transform2dComponent != nullptr && rigidBody2dComponent != nullptr)
+    {
         rigidBody2dComponent->CreateBody(worldContext_->GetAppContext()->GetResourceLocator(),
                                          worldContext_->GetWorldId(), transform2dComponent->GetPosition());
     }

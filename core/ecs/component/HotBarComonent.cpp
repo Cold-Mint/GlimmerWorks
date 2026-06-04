@@ -27,6 +27,7 @@
 #include "HotBarComonent.h"
 
 #include "core/Constants.h"
+#include "core/ecs/EcsTypes.h"
 
 
 glimmer::HotBarComponent::HotBarComponent(const int maxSlot) : maxSlot_(maxSlot) {
@@ -36,14 +37,19 @@ int glimmer::HotBarComponent::GetMaxSlot() const {
     return maxSlot_;
 }
 
-void glimmer::HotBarComponent::AddSlotEntity(const GameEntity::ID entity) {
+void glimmer::HotBarComponent::AddSlotEntity(const uint32_t entity) {
     slotEntities_.push_back(entity);
 }
 
-const std::vector<glimmer::GameEntity::ID> &glimmer::HotBarComponent::GetSlotEntities() const {
+const std::vector<GameEntityID> &glimmer::HotBarComponent::GetSlotEntities() const {
     return slotEntities_;
 }
 
-GameComponentTypeMessage glimmer::HotBarComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::HotBarComponent::GetComponentTypeStatic()
+{
     return COMPONENT_HOT_BAR;
+}
+
+GameComponentTypeMessage glimmer::HotBarComponent::GetComponentType() {
+    return GetComponentTypeStatic();
 }

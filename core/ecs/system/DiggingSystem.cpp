@@ -39,6 +39,36 @@
 #include "core/math/Vector2DI.h"
 
 
+void glimmer::DiggingSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_DIGGING && diggingComponent_ == nullptr)
+    {
+        diggingComponent_ = entityShortCut_->GetDiggingComponent();
+    }
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
+    {
+        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+    }
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+    if (gameComponentType == COMPONENT_TILE_LAYER)
+    {
+        tileLayerComponents_.clear();
+        const auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        for (GameEntityID tileLayerEntity : tileLayerEntities)
+        {
+            const auto* tileLayer = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntity);
+            if (tileLayer == nullptr)
+            {
+                continue;
+            }
+            tileLayerComponents_.emplace_back(tileLayer);
+        }
+    }
+}
+
 uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const TileLayerComponent* tileLayerComponent,
                                            const TileVector2D& topLeftVector, const bool precisionMining,
                                            const bool isPlaceMode,
@@ -54,8 +84,22 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
     {
         return 0;
     }
-    auto player = worldContext->GetPlayerEntity();
-    PlayerComponent* playerComponent = worldContext->GetComponent<PlayerComponent>(player);
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return 0;
+    }
+    GameEntityID player = entityShortCut->GetPlayer();
+    if (WorldContext::IsEmptyEntityId(player))
+    {
+        return 0;
+    }
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return 0;
+    }
+    PlayerComponent* playerComponent = entityManager->GetComponent<PlayerComponent>(player);
     Item* item = nullptr;
     if (playerComponent != nullptr)
     {
@@ -131,7 +175,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
                                                           FindLoot(currentTile->GetLootTableRef());
                     if (precisionMining || !currentTile->IsCustomLootTable() || lootResource == nullptr)
                     {
-                        const GameEntity::ID droppedEntity = worldContext->CreateEntity();
+                        const uint32_t droppedEntity = entityManager->AddEntity();
                         DroppedItemCreator droppedItemCreator{worldContext};
                         droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
                         droppedItemCreator.MergeEntityItemMessage(droppedEntity,
@@ -152,7 +196,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
                                 continue;
                             }
                             itemPtr->ReadItemMessage(worldContext, itemMessage);
-                            const GameEntity::ID droppedEntity = worldContext->CreateEntity();
+                            const uint32_t droppedEntity = entityManager->AddEntity();
                             DroppedItemCreator droppedItemCreator{worldContext};
                             droppedItemCreator.LoadTemplateComponents(droppedEntity,
                                                                       DroppedItemCreator::GetResourceRef());
@@ -172,8 +216,11 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
 
 glimmer::DiggingSystem::DiggingSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent(COMPONENT_DIGGING);
-    diggingComponent_ = worldContext->GetDiggingComponent();
+    WatchComponent(COMPONENT_DIGGING);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_CAMERA);
+    WatchComponent(COMPONENT_TILE_LAYER);
+
 }
 
 void glimmer::DiggingSystem::Update(float delta)
@@ -189,10 +236,8 @@ void glimmer::DiggingSystem::Update(float delta)
         return;
     }
     diggingComponent_->SetEnable(true);
-    const auto tileLayerEntities = worldContext_->GetEntityIDWithComponents<TileLayerComponent>();
-    for (auto& entity : tileLayerEntities)
+    for (auto tileLayer : tileLayerComponents_)
     {
-        const auto* tileLayer = worldContext_->GetComponent<TileLayerComponent>(entity);
         const TileLayerType tileLayerType = tileLayer->GetTileLayerType();
         if (tileLayerType != diggingComponent_->GetLayerType())
         {
@@ -252,10 +297,8 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    auto cameraTransform2D = worldContext_->GetCameraTransform2D();
-    auto cameraComponent = worldContext_->GetCameraComponent();
     const MiningRangeData* miningRangeData = diggingComponent_->GetMiningRangeData();
-    float zoom = cameraComponent->GetZoom();
+    float zoom = cameraComponent_->GetZoom();
     size_t pointsCount = miningRangeData->GetPointsCount();
     if (pointsCount > 0)
     {
@@ -270,8 +313,8 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
             const WorldVector2D tileTopLeftPositionWorld = TileLayerComponent::TileToWorld({
                 tileTopLeftPosition.x, tileTopLeftPosition.y
             });
-            const CameraVector2D cameraVector2d = cameraComponent->WorldToScreen(
-                cameraTransform2D->GetPosition(), tileTopLeftPositionWorld);
+            const CameraVector2D cameraVector2d = cameraComponent_->WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld);
             const auto maxIndex = static_cast<float>(textureList.size() - 1);
             const uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
                                                                      maxIndex));
@@ -295,7 +338,7 @@ uint8_t glimmer::DiggingSystem::GetRenderOrder()
     return RENDER_ORDER_DIGGING;
 }
 
-std::string glimmer::DiggingSystem::GetName()
+glimmer::GameSystemType glimmer::DiggingSystem::GetGameSystemType()
 {
-    return "glimmer.DiggingSystem";
+    return GameSystemType::DiggingSystem;
 }

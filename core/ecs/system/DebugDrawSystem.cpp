@@ -27,43 +27,66 @@
 #include "DebugDrawSystem.h"
 
 #include "../../Constants.h"
-#include "../component/CameraComponent.h"
 #include "../component/DebugDrawComponent.h"
 #include "core/world/WorldContext.h"
 #include "core/math/Vector2D.h"
 
 
+void glimmer::DebugDrawSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
+        if (cameraTransform2DComponent_ == nullptr)
+        {
+            cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        }
+        transform2DCount = count;
+    }
+    if (gameComponentType == COMPONENT_DEBUG_DRAW)
+    {
+        debugDrawCount = count;
+    }
+    if (transform2DCount > 0 && debugDrawCount > 0)
+    {
+        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_DEBUG_DRAW, COMPONENT_TRANSFORM_2D});
+    }
+}
+
 glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent(COMPONENT_DEBUG_DRAW);
-    RequireComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_DEBUG_DRAW);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_CAMERA);
+
 }
 
 void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
 {
-    const auto* cameraComponent = worldContext_->GetCameraComponent();
-    const auto* cameraPos = worldContext_->GetCameraTransform2D();
-    if (cameraComponent == nullptr)
+    if (cameraComponent_ == nullptr)
     {
         return;
     }
-    if (cameraPos == nullptr)
+    if (cameraTransform2DComponent_ == nullptr)
     {
         return;
     }
-    auto gameEntities = worldContext_->GetEntityIDWithComponents<DebugDrawComponent, Transform2DComponent>();
-    for (auto entity : gameEntities)
+    for (auto entity : entities_)
     {
-        auto debugDrawComponent = worldContext_->GetComponent<DebugDrawComponent>(entity);
+        auto debugDrawComponent = entityManager_->GetComponent<DebugDrawComponent>(entity);
         if (debugDrawComponent != nullptr)
         {
-            auto worldPositionComponent = worldContext_->GetComponent<Transform2DComponent>(entity);
+            auto worldPositionComponent = entityManager_->GetComponent<Transform2DComponent>(entity);
             if (worldPositionComponent != nullptr)
             {
-                auto cameraVector2d = cameraComponent->WorldToScreen(
-                    cameraPos->GetPosition(), worldPositionComponent->GetPosition());
-                if (!cameraComponent->
-                    IsPointInViewport(cameraPos->GetPosition(), worldPositionComponent->GetPosition()))
+                auto cameraVector2d = cameraComponent_->WorldToScreen(
+                    cameraTransform2DComponent_->GetPosition(), worldPositionComponent->GetPosition());
+                if (!cameraComponent_->
+                    IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
+                                      worldPositionComponent->GetPosition()))
                 {
                     continue;
                 }
@@ -73,7 +96,7 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
                 SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
                 SDL_FRect renderQuad;
                 WorldVector2D worldVector2D = debugDrawComponent->GetSize();
-                float zoom = cameraComponent->GetZoom();
+                float zoom = cameraComponent_->GetZoom();
                 float w = worldVector2D.x * zoom;
                 float h = worldVector2D.y * zoom;
                 renderQuad.w = w;
@@ -93,7 +116,7 @@ uint8_t glimmer::DebugDrawSystem::GetRenderOrder()
     return RENDER_ORDER_DEBUG_DRAW;
 }
 
-std::string glimmer::DebugDrawSystem::GetName()
+glimmer::GameSystemType glimmer::DebugDrawSystem::GetGameSystemType()
 {
-    return "glimmer.DebugDrawSystem";
+    return GameSystemType::DebugDrawSystem;
 }

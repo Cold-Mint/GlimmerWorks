@@ -32,8 +32,10 @@
 #include "core/world/WorldContext.h"
 #include "SDL3/SDL_render.h"
 
-namespace glimmer {
-    class SpiritRendererComponent : public GameComponent {
+namespace glimmer
+{
+    class SpiritRendererComponent : public GameComponent
+    {
         ResourceRef resourceRef_;
         WorldVector2D position_;
         std::shared_ptr<SDL_Texture> texture_ = nullptr;
@@ -43,7 +45,7 @@ namespace glimmer {
     public:
         SpiritRendererComponent();
 
-        void SetTextureRef(const ResourceRef &resourceRef);
+        void SetTextureRef(const ResourceRef& resourceRef);
 
         [[nodiscard]] bool IsFlipH() const;
 
@@ -53,12 +55,14 @@ namespace glimmer {
 
         void SetFlipV(bool flipV);
 
-        [[nodiscard]] SDL_Texture *GetTexture(const ResourceLocator *resourceLocator);
+        [[nodiscard]] SDL_Texture* GetTexture(const ResourceLocator* resourceLocator);
 
         void SetPosition(WorldVector2D position);
 
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
-        [[nodiscard]] const WorldVector2D &GetPosition() const;
+        [[nodiscard]] const WorldVector2D& GetPosition() const;
     };
 }

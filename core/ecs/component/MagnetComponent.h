@@ -30,13 +30,16 @@
 #include "core/ecs/GameComponent.h"
 #include "core/ecs/GameEntity.h"
 #include "core/Constants.h"
+#include "core/ecs/EcsTypes.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * Magnet (the side that generates suction)
      * 吸铁石（产生吸力的一方）
      */
-    class MagnetComponent : public GameComponent {
+    class MagnetComponent : public GameComponent
+    {
         /**
          * radius(Add it to entities when the radius is less than or equal to this)
          * 吸附半径(当小于等于此半径时将其加入到entities内)
@@ -61,7 +64,7 @@ namespace glimmer {
          *The id of the adsorbed entity
          * 被吸附的实体id
          */
-        std::vector<GameEntity::ID> entities_;
+        std::vector<GameEntityID> entities_;
 
     public:
         void SetType(uint16_t type);
@@ -76,15 +79,17 @@ namespace glimmer {
 
         [[nodiscard]] float GetAdsorptionRadius() const;
 
-        void RemoveEntity(GameEntity::ID entityId);
+        void RemoveEntity(GameEntityID entityId);
 
-        [[nodiscard]] bool ContainEntity(GameEntity::ID entityId) const;
+        [[nodiscard]] bool ContainEntity(GameEntityID entityId) const;
 
-        void AddEntity(GameEntity::ID entityId);
+        void AddEntity(GameEntityID entityId);
 
-        [[nodiscard]] const std::vector<GameEntity::ID> &GetEntities() const;
+        [[nodiscard]] const std::vector<GameEntityID>& GetEntities() const;
 
         [[nodiscard]] bool IsSerializable() override;
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

@@ -29,11 +29,13 @@
 #include "MobComponent.h"
 #include "core/inventory/Item.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * 玩家控制组件，用于处理玩家的输入控制
      */
-    class PlayerComponent final : public MobComponent {
+    class PlayerComponent final : public MobComponent
+    {
     public:
         //If the player does not press the left or right key, then this value is 0. Pressing A is -1, and pressing D is 1.0.
         //如果玩家没有按下左键或右键那么此值为0,按下A为-1,按下D为1.0
@@ -51,7 +53,9 @@ namespace glimmer {
         bool isFlying = false;
         //The current item being held.
         //当前手持的物品。
-        Item *item = nullptr;
+        Item* item = nullptr;
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };

@@ -30,38 +30,51 @@
 #include "core/Constants.h"
 #include "SDL3/SDL_timer.h"
 
-glimmer::FloatingTextComponent::FloatingTextComponent() {
+glimmer::FloatingTextComponent::FloatingTextComponent()
+{
     expireTime_ = SDL_GetTicks() + 25000;
     tween_ = tweeny::tween(tweeny::from(0.0f)
-        .to(1.0f).during(200)
-        .to(1.0f).during(2000)
-        .to(0.0f).during(300));
+                           .to(1.0f).during(200)
+                           .to(1.0f).during(2000)
+                           .to(0.0f).during(300));
 }
 
-void glimmer::FloatingTextComponent::SetText(const std::string &text) {
+void glimmer::FloatingTextComponent::SetText(const std::string& text)
+{
     text_ = text;
 }
 
-tweeny::tween<float> &glimmer::FloatingTextComponent::GetTween() {
+tweeny::tween<float>& glimmer::FloatingTextComponent::GetTween()
+{
     return tween_;
 }
 
-uint64_t glimmer::FloatingTextComponent::GetExpireTime() const {
+uint64_t glimmer::FloatingTextComponent::GetExpireTime() const
+{
     return expireTime_;
 }
 
-void glimmer::FloatingTextComponent::SetAlpha(float alpha) {
+void glimmer::FloatingTextComponent::SetAlpha(float alpha)
+{
     alpha_ = alpha;
 }
 
-float glimmer::FloatingTextComponent::GetAlpha() const {
+float glimmer::FloatingTextComponent::GetAlpha() const
+{
     return alpha_;
 }
 
-std::string &glimmer::FloatingTextComponent::GetText() {
+std::string& glimmer::FloatingTextComponent::GetText()
+{
     return text_;
 }
 
-GameComponentTypeMessage glimmer::FloatingTextComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::FloatingTextComponent::GetComponentTypeStatic()
+{
     return COMPONENT_FLOATING_TEXT;
+}
+
+GameComponentTypeMessage glimmer::FloatingTextComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

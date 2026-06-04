@@ -28,20 +28,28 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/mod/Resource.h"
+#include "core/mod/ResourceLocator.h"
+#include "core/mod/resourcePack/AudioManager.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
-namespace glimmer {
-    class BiomeBGMSystem final : public GameSystem {
-        BiomeResource *biomeResource_ = nullptr;
+namespace glimmer
+{
+    class BiomeBGMSystem final : public GameSystem
+    {
+        BiomeResource* biomeResource_ = nullptr;
         std::shared_ptr<MIX_Audio> audio_ = nullptr;
-        Transform2DComponent *playerTransform2DComponent_ = nullptr;
-        AppContext *appContext_ = nullptr;
+        Transform2DComponent* playerTransform2DComponent_ = nullptr;
+        AudioManager* audioManager_ = nullptr;
+        ResourceLocator* resourceLocator_ = nullptr;
+
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
     public:
-        explicit BiomeBGMSystem(WorldContext *worldContext);
+        explicit BiomeBGMSystem(WorldContext* worldContext);
 
         void Update(float delta) override;
 
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

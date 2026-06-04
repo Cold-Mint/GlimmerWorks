@@ -25,26 +25,23 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "EcsTypes.h"
 #include "core/mod/ResourceRef.h"
 
 namespace glimmer {
     class GameEntity {
-    public:
-        using ID = uint32_t;
-
-    private:
-        ID id_;
+        GameEntityID id_;
         bool persistable_ = false;
         ResourceRef resourceRef_;
 
     public:
-        explicit GameEntity(ID id);
+        explicit GameEntity(GameEntityID id);
 
         [[nodiscard]] const ResourceRef &GetResourceRef() const;
 
         void SetResourceRef(const ResourceRef &resourceRef);
 
-        [[nodiscard]] ID GetID() const;
+        [[nodiscard]] GameEntityID GetID() const;
 
         void SetPersistable(bool persistable);
 

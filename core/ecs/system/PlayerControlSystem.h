@@ -42,6 +42,9 @@ namespace glimmer
         float slipTimer_ = 0.0F;
         AudioManager* audioManager_ = nullptr;
         std::shared_ptr<MIX_Audio> dropItemSFX_ = nullptr;
+        CameraComponent* cameraComponent_ = nullptr;
+        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        GameEntityID playerEntityID_ = GAME_ENTITY_ID_INVALID;
         /**
         * Check if the player is on the ground
         * 检查玩家是否在地面上
@@ -49,13 +52,15 @@ namespace glimmer
         */
         bool OnGround(const PlayerComponent* playerControlComponent) const;
 
+    protected:
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
     public:
         explicit PlayerControlSystem(WorldContext* worldContext);
 
         void Update(float delta) override;
 
-
-        std::string GetName() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() override;
 
         bool HandleEvent(const SDL_Event& event) override;
     };

@@ -208,7 +208,12 @@ const glimmer::TileVector2D& glimmer::TileLayerComponent::GetFocusPosition() con
     return focusPosition_;
 }
 
-GameComponentTypeMessage glimmer::TileLayerComponent::GetComponentType()
+GameComponentTypeMessage glimmer::TileLayerComponent::GetComponentTypeStatic()
 {
     return COMPONENT_TILE_LAYER;
+}
+
+GameComponentTypeMessage glimmer::TileLayerComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

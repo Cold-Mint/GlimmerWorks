@@ -39,14 +39,61 @@
 #include "core/utils/Box2DUtils.h"
 
 
+void glimmer::MagnetSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
+        transform2DComponentCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_MAGNET)
+    {
+        magnetComponentCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_MAGNETIC)
+    {
+        magneticComponentCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_RIGID_BODY_2D)
+    {
+        rigidComponentCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_RAY_CAST_2D)
+    {
+        rayCast2dComponentCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_DROPPED_ITEM)
+    {
+        droppedItemComponentCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_ITEM_CONTAINER)
+    {
+        itemContainerCount_ = count;
+    }
+    if (transform2DComponentCount_ > 0 && magnetComponentCount_ > 0)
+    {
+        magnetEntities_ = entityManager_->GetEntityIDWithComponents({
+            COMPONENT_TRANSFORM_2D, COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER
+        });
+    }
+    if (magneticComponentCount_ > 0 && transform2DComponentCount_ > 0 && rigidComponentCount_ > 0 &&
+        rayCast2dComponentCount_ > 0 && droppedItemComponentCount_ > 0)
+    {
+        magneticEntities_ = entityManager_->GetEntityIDWithComponents({
+            COMPONENT_MAGNETIC, COMPONENT_TRANSFORM_2D, COMPONENT_RIGID_BODY_2D, COMPONENT_RAY_CAST_2D,
+            COMPONENT_DROPPED_ITEM
+        });
+    }
+}
+
 glimmer::MagnetSystem::MagnetSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    RequireComponent(COMPONENT_TRANSFORM_2D);
-    RequireComponent(COMPONENT_MAGNET);
-    RequireComponent(COMPONENT_MAGNETIC);
-    RequireComponent(COMPONENT_RIGID_BODY_2D);
-    RequireComponent(COMPONENT_RAY_CAST_2D);
-    RequireComponent(COMPONENT_ITEM_CONTAINER);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_MAGNET);
+    WatchComponent(COMPONENT_MAGNETIC);
+    WatchComponent(COMPONENT_RIGID_BODY_2D);
+    WatchComponent(COMPONENT_RAY_CAST_2D);
+    WatchComponent(COMPONENT_ITEM_CONTAINER);
+    WatchComponent(COMPONENT_DROPPED_ITEM);
 }
 
 void glimmer::MagnetSystem::Update(const float delta)
@@ -55,41 +102,38 @@ void glimmer::MagnetSystem::Update(const float delta)
     {
         return;
     }
+    if (entityManager_ == nullptr)
+    {
+        return;
+    }
     //magnets
     //磁铁
-    auto magnetEntityList =
-        worldContext_->GetEntityIDWithComponents<MagnetComponent, Transform2DComponent>();
-
-    if (magnetEntityList.empty())
+    if (magnetEntities_.empty())
     {
         return;
     }
 
     //magnetics
     //磁性材料
-    auto magneticList =
-        worldContext_->GetEntityIDWithComponents<MagneticComponent, Transform2DComponent, RigidBody2DComponent,
-                                                 RayCast2DComponent>();
-
-    if (magneticList.empty())
+    if (magneticEntities_.empty())
     {
         return;
     }
 
-    for (auto magnetEntity : magnetEntityList)
+    for (auto magnetEntity : magnetEntities_)
     {
-        auto* magnet = worldContext_->GetComponent<MagnetComponent>(magnetEntity);
+        auto* magnet = entityManager_->GetComponent<MagnetComponent>(magnetEntity);
         if (magnet == nullptr)
         {
             continue;
         }
         auto* magnetTransform =
-            worldContext_->GetComponent<Transform2DComponent>(magnetEntity);
+            entityManager_->GetComponent<Transform2DComponent>(magnetEntity);
         if (magnetTransform == nullptr)
         {
             continue;
         }
-        auto* itemContainerComponent = worldContext_->GetComponent<ItemContainerComponent>(magnetEntity);
+        auto* itemContainerComponent = entityManager_->GetComponent<ItemContainerComponent>(magnetEntity);
         if (itemContainerComponent == nullptr)
         {
             continue;
@@ -101,28 +145,28 @@ void glimmer::MagnetSystem::Update(const float delta)
         }
         const WorldVector2D magnetPos = magnetTransform->GetPosition();
         const float detectionRadius = magnet->GetDetectionRadius();
-        for (auto magneticEntity : magneticList)
+        for (auto magneticEntity : magneticEntities_)
         {
             auto* magneticTransform =
-                worldContext_->GetComponent<Transform2DComponent>(magneticEntity);
+                entityManager_->GetComponent<Transform2DComponent>(magneticEntity);
             if (magneticTransform == nullptr)
             {
                 continue;
             }
             auto* magnetic =
-                worldContext_->GetComponent<MagneticComponent>(magneticEntity);
+                entityManager_->GetComponent<MagneticComponent>(magneticEntity);
             if (magnetic == nullptr)
             {
                 continue;
             }
-            auto* rigidBody2DComponent = worldContext_->GetComponent<RigidBody2DComponent>(magneticEntity);
+            auto* rigidBody2DComponent = entityManager_->GetComponent<RigidBody2DComponent>(magneticEntity);
             if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady() || !rigidBody2DComponent->
                 IsEnabled())
             {
                 continue;
             }
 
-            auto* rayCast2DComponent = worldContext_->GetComponent<RayCast2DComponent>(magneticEntity);
+            auto* rayCast2DComponent = entityManager_->GetComponent<RayCast2DComponent>(magneticEntity);
             if (rayCast2DComponent == nullptr)
             {
                 continue;
@@ -134,7 +178,7 @@ void glimmer::MagnetSystem::Update(const float delta)
                 //没有重叠的吸引位。
                 continue;
             }
-            const auto* droppedItem = worldContext_->GetComponent<DroppedItemComponent>(magneticEntity);
+            const auto* droppedItem = entityManager_->GetComponent<DroppedItemComponent>(magneticEntity);
             if (droppedItem == nullptr)
             {
                 continue;
@@ -194,7 +238,7 @@ void glimmer::MagnetSystem::Update(const float delta)
     }
 }
 
-std::string glimmer::MagnetSystem::GetName()
+glimmer::GameSystemType glimmer::MagnetSystem::GetGameSystemType()
 {
-    return "glimmer.MagnetSystem";
+    return GameSystemType::MagnetSystem;
 }

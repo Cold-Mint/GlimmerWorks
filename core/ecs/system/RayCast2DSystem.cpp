@@ -31,23 +31,51 @@
 #include "core/utils/Box2DUtils.h"
 #include "core/world/WorldContext.h"
 
-glimmer::RayCast2DSystem::RayCast2DSystem(WorldContext *worldContext) : GameSystem(worldContext) {
-    RequireComponent(COMPONENT_TRANSFORM_2D);
-    RequireComponent(COMPONENT_RAY_CAST_2D);
+void glimmer::RayCast2DSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
+        transform2dCount_ = count;
+    }
+    if (gameComponentType == COMPONENT_RAY_CAST_2D)
+    {
+        ratCast2DCount_ = count;
+    }
+    if (transform2dCount_ > 0 && ratCast2DCount_ > 0)
+    {
+        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_RAY_CAST_2D});
+    }
 }
 
-void glimmer::RayCast2DSystem::Update(float delta) {
-    const std::vector<GameEntity::ID> rayCast2dEntity =
-            worldContext_->GetEntityIDWithComponents<RayCast2DComponent>();
-    for (const GameEntity::ID entity: rayCast2dEntity) {
+glimmer::RayCast2DSystem::RayCast2DSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+    WatchComponent(COMPONENT_RAY_CAST_2D);
+}
+
+void glimmer::RayCast2DSystem::Update(float delta)
+{
+    if (worldContext_ == nullptr)
+    {
+        return;
+    }
+    EntityManager* entityManager = worldContext_->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return;
+    }
+    for (const uint32_t entity : entities_)
+    {
         const auto rayComp =
-                worldContext_->GetComponent<RayCast2DComponent>(entity);
-        if (rayComp == nullptr) {
+            entityManager->GetComponent<RayCast2DComponent>(entity);
+        if (rayComp == nullptr)
+        {
             continue;
         }
         const auto transform2dComponent =
-                worldContext_->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
-        if (transform2dComponent == nullptr) {
+            entityManager->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
+        if (transform2dComponent == nullptr)
+        {
             continue;
         }
         rayComp->SetHit(false);
@@ -58,7 +86,8 @@ void glimmer::RayCast2DSystem::Update(float delta) {
             Box2DUtils::ToMeters(rayComp->GetTranslation()),
             rayComp->GetFilter()
         );
-        if (rayResult.hit) {
+        if (rayResult.hit)
+        {
             rayComp->SetHit(true);
             rayComp->SetHitPoint(WorldVector2D{rayResult.point.x, rayResult.point.y});
             rayComp->SetHitNormal(WorldVector2D{rayResult.normal.x, rayResult.normal.y});
@@ -67,6 +96,7 @@ void glimmer::RayCast2DSystem::Update(float delta) {
     }
 }
 
-std::string glimmer::RayCast2DSystem::GetName() {
-    return "glimmer.RayCast2DSystem";
+glimmer::GameSystemType glimmer::RayCast2DSystem::GetGameSystemType()
+{
+    return GameSystemType::RayCast2DSystem;
 }

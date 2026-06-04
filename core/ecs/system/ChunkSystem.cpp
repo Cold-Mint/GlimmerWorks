@@ -29,50 +29,64 @@
 #include "../../Constants.h"
 #include "../../world/WorldContext.h"
 #include "../component/Transform2DComponent.h"
-#include "core/ecs/component/PlayerComponent.h"
-#include "core/ecs/component/CameraComponent.h"
 #include "core/world/generator/Chunk.h"
 
 
-void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatch) {
-    if (loadTerrainTasks_.empty()) {
+void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatch)
+{
+    if (loadTerrainTasks_.empty())
+    {
         return;
     }
-    if (loadTerrainBatch == 0) {
-        while (!loadTerrainTasks_.empty()) {
-            auto task = std::move(loadTerrainTasks_.back());
-            taskFingerprintSet_.erase(task->GetFingerprint());
-            worldContext_->LoadTerrainAt(task->GetChunkVertexCoordinates());
-            loadTerrainTasks_.pop_back();
-        }
-    } else {
-        for (uint16_t i = 0; i < loadTerrainBatch; i++) {
-            if (loadTerrainTasks_.empty()) {
-                break;
-            }
+    if (loadTerrainBatch == 0)
+    {
+        while (!loadTerrainTasks_.empty())
+        {
             auto task = std::move(loadTerrainTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
             worldContext_->LoadTerrainAt(task->GetChunkVertexCoordinates());
             loadTerrainTasks_.pop_back();
         }
     }
+    else
+    {
+        for (uint16_t i = 0; i < loadTerrainBatch; i++)
+        {
+            if (loadTerrainTasks_.empty())
+            {
+                break;
+            }
+            auto task = std::move(loadTerrainTasks_.back());
+            taskFingerprintSet_.erase(task->GetFingerprint());
+            worldContext_->LoadTerrainAt(task->GetChunkVertexCoordinates());
+            loadTerrainTasks_.pop_back();
+        }
+    }
 }
 
-void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch) {
-    if (loadChunkTasks_.empty()) {
+void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch)
+{
+    if (loadChunkTasks_.empty())
+    {
         return;
     }
 
-    if (loadChunkBatch == 0) {
-        while (!loadChunkTasks_.empty()) {
+    if (loadChunkBatch == 0)
+    {
+        while (!loadChunkTasks_.empty())
+        {
             auto task = std::move(loadChunkTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
             worldContext_->LoadChunkAt(task->GetChunkVertexCoordinates());
             loadChunkTasks_.pop_back();
         }
-    } else {
-        for (uint16_t i = 0; i < loadChunkBatch; i++) {
-            if (loadChunkTasks_.empty()) {
+    }
+    else
+    {
+        for (uint16_t i = 0; i < loadChunkBatch; i++)
+        {
+            if (loadChunkTasks_.empty())
+            {
                 break;
             }
             auto task = std::move(loadChunkTasks_.back());
@@ -83,20 +97,28 @@ void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch) {
     }
 }
 
-void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatch) {
-    if (unloadChunkTasks_.empty()) {
+void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatch)
+{
+    if (unloadChunkTasks_.empty())
+    {
         return;
     }
-    if (unloadChunkBatch == 0) {
-        while (!unloadChunkTasks_.empty()) {
+    if (unloadChunkBatch == 0)
+    {
+        while (!unloadChunkTasks_.empty())
+        {
             auto task = std::move(unloadChunkTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
             worldContext_->UnloadChunkAt(task->GetChunkVertexCoordinates());
             unloadChunkTasks_.pop_back();
         }
-    } else {
-        for (uint16_t i = 0; i < unloadChunkBatch; i++) {
-            if (unloadChunkTasks_.empty()) {
+    }
+    else
+    {
+        for (uint16_t i = 0; i < unloadChunkBatch; i++)
+        {
+            if (unloadChunkTasks_.empty())
+            {
                 break;
             }
             auto task = std::move(unloadChunkTasks_.back());
@@ -107,20 +129,28 @@ void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatc
     }
 }
 
-void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrainBatch) {
-    if (unloadTerrainTasks_.empty()) {
+void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrainBatch)
+{
+    if (unloadTerrainTasks_.empty())
+    {
         return;
     }
-    if (unloadTerrainBatch == 0) {
-        while (!unloadTerrainTasks_.empty()) {
+    if (unloadTerrainBatch == 0)
+    {
+        while (!unloadTerrainTasks_.empty())
+        {
             auto task = std::move(unloadTerrainTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
             worldContext_->UnloadTerrainAt(task->GetChunkVertexCoordinates());
             unloadTerrainTasks_.pop_back();
         }
-    } else {
-        for (uint16_t i = 0; i < unloadTerrainBatch; i++) {
-            if (unloadTerrainTasks_.empty()) {
+    }
+    else
+    {
+        for (uint16_t i = 0; i < unloadTerrainBatch; i++)
+        {
+            if (unloadTerrainTasks_.empty())
+            {
                 break;
             }
             auto task = std::move(unloadTerrainTasks_.back());
@@ -131,45 +161,64 @@ void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrain
     }
 }
 
-void glimmer::ChunkSystem::PushTask(std::vector<std::unique_ptr<ChunkTask> > &taskList,
-                                    std::unique_ptr<ChunkTask> chunkTask, const uint64_t fingerprint) {
+void glimmer::ChunkSystem::PushTask(std::vector<std::unique_ptr<ChunkTask>>& taskList,
+                                    std::unique_ptr<ChunkTask> chunkTask, const uint64_t fingerprint)
+{
     taskList.push_back(std::move(chunkTask));
     taskFingerprintSet_.insert(fingerprint);
 }
 
-void glimmer::ChunkSystem::SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask> > &taskList, TileVector2D origin,
-                                            bool sortAscending) {
-    for (const auto &task: taskList) {
+void glimmer::ChunkSystem::SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask>>& taskList, TileVector2D origin,
+                                            bool sortAscending)
+{
+    for (const auto& task : taskList)
+    {
         task->SetOrigin(origin);
     }
-    std::sort(taskList.begin(), taskList.end(), [sortAscending](const auto &a, const auto &b) {
+    std::sort(taskList.begin(), taskList.end(), [sortAscending](const auto& a, const auto& b)
+    {
         const auto distA = a->GetDistance();
         const auto distB = b->GetDistance();
         return sortAscending ? distA < distB : distA > distB;
     });
 }
 
-glimmer::ChunkSystem::ChunkSystem(WorldContext *worldContext)
-    : GameSystem(worldContext) {
-    RequireComponent(COMPONENT_TILE_LAYER);
-    RequireComponent(COMPONENT_CAMERA);
-    RequireComponent(COMPONENT_PLAYER);
+void glimmer::ChunkSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t number)
+{
+    if (gameComponentType == COMPONENT_CAMERA)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    {
+        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+    }
 }
 
-void glimmer::ChunkSystem::Update(const float delta) {
-    if (worldContext_ == nullptr) {
+glimmer::ChunkSystem::ChunkSystem(WorldContext* worldContext)
+    : GameSystem(worldContext)
+{
+    WatchComponent(COMPONENT_CAMERA);
+    WatchComponent(COMPONENT_TRANSFORM_2D);
+
+}
+
+void glimmer::ChunkSystem::Update(const float delta)
+{
+    if (worldContext_ == nullptr)
+    {
         return;
     }
-    const auto *cameraComponent = worldContext_->GetCameraComponent();
-    if (cameraComponent == nullptr) {
+    if (cameraComponent_ == nullptr)
+    {
         return;
     }
-    const auto *cameraTransform2D = worldContext_->GetCameraTransform2D();
-    if (cameraTransform2D == nullptr) {
+    if (cameraTransform2DComponent_ == nullptr)
+    {
         return;
     }
     constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
-    auto viewportRect = cameraComponent->GetViewportRect(cameraTransform2D->GetPosition());
+    auto viewportRect = cameraComponent_->GetViewportRect(cameraTransform2DComponent_->GetPosition());
     const TileVector2D topLeft = TileLayerComponent::WorldToTile({
         viewportRect.x - chunkWorldSize, viewportRect.y - chunkWorldSize
     });
@@ -177,86 +226,112 @@ void glimmer::ChunkSystem::Update(const float delta) {
         viewportRect.x + viewportRect.w + chunkWorldSize,
         viewportRect.y + viewportRect.h + chunkWorldSize
     });
-    for (int x = topLeft.x; x < bottomRight.x; x += CHUNK_SIZE) {
-        for (int y = topLeft.y; y < bottomRight.y; y += CHUNK_SIZE) {
-            Chunk *chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(TileVector2D(x, y)));
-            if (chunk == nullptr) {
+    for (int x = topLeft.x; x < bottomRight.x; x += CHUNK_SIZE)
+    {
+        for (int y = topLeft.y; y < bottomRight.y; y += CHUNK_SIZE)
+        {
+            Chunk* chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(TileVector2D(x, y)));
+            if (chunk == nullptr)
+            {
                 continue;
             }
             chunk->UpdateFadeInAnimation(delta);
         }
     }
 
-    const AppContext *appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr) {
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
         return;
     }
-    const Config *config = appContext->GetConfig();
-    if (config == nullptr) {
+    const Config* config = appContext->GetConfig();
+    if (config == nullptr)
+    {
         return;
     }
     const float loadTerrainInterval = config->world.loadTerrainInterval;
-    if (loadTerrainInterval == 0.0F) {
+    if (loadTerrainInterval == 0.0F)
+    {
         ExecuteLoadTerrainTask(config->world.loadTerrainBatch);
-    } else {
+    }
+    else
+    {
         loadTerrainAccumTime_ += delta;
-        if (loadTerrainAccumTime_ > loadTerrainInterval) {
+        if (loadTerrainAccumTime_ > loadTerrainInterval)
+        {
             ExecuteLoadTerrainTask(config->world.loadTerrainBatch);
             loadTerrainAccumTime_ -= loadTerrainInterval;
         }
     }
 
     const float loadChunkInterval = config->world.loadChunkInterval;
-    if (loadChunkInterval == 0.0F) {
+    if (loadChunkInterval == 0.0F)
+    {
         ExecuteLoadChunkTask(config->world.loadChunkBatch);
-    } else {
+    }
+    else
+    {
         loadChunkAccumTime_ += delta;
-        if (loadChunkAccumTime_ > loadChunkInterval) {
+        if (loadChunkAccumTime_ > loadChunkInterval)
+        {
             ExecuteLoadChunkTask(config->world.loadChunkBatch);
             loadChunkAccumTime_ -= loadChunkInterval;
         }
     }
 
     const float unloadChunkInterval = config->world.unloadChunkInterval;
-    if (unloadChunkInterval == 0.0F) {
+    if (unloadChunkInterval == 0.0F)
+    {
         ExecuteUnloadChunkTask(config->world.unloadChunkBatch);
-    } else {
+    }
+    else
+    {
         unloadChunkAccumTime_ += delta;
-        if (unloadChunkAccumTime_ > unloadChunkInterval) {
+        if (unloadChunkAccumTime_ > unloadChunkInterval)
+        {
             ExecuteUnloadChunkTask(config->world.unloadChunkBatch);
             unloadChunkAccumTime_ -= unloadChunkInterval;
         }
     }
 
     const float unloadTerrainInterval = config->world.unloadTerrainInterval;
-    if (unloadTerrainInterval == 0.0F) {
+    if (unloadTerrainInterval == 0.0F)
+    {
         ExecuteUnloadTerrainTask(config->world.unloadTerrainBatch);
-    } else {
+    }
+    else
+    {
         unloadTerrainAccumTime_ += delta;
-        if (unloadTerrainAccumTime_ > unloadTerrainInterval) {
+        if (unloadTerrainAccumTime_ > unloadTerrainInterval)
+        {
             ExecuteUnloadTerrainTask(config->world.unloadTerrainBatch);
             unloadTerrainAccumTime_ -= unloadTerrainInterval;
         }
     }
 
     const float interval = config->world.chunkSpawnCleanInterval;
-    if (interval == 0.0F) {
+    if (interval == 0.0F)
+    {
         // Execute for each frame, reset the timer, and directly skip the subsequent judgment.
         // 每帧都执行，重置计时器，直接跳过后续判断
         accumTime_ = 0.0F;
         firstTime_ = false;
-    } else {
+    }
+    else
+    {
         accumTime_ += delta;
         // Intervals greater than 0 are executed according to normal timing.
         // 大于0的间隔，正常计时执行
-        if (!firstTime_ && accumTime_ < interval) {
+        if (!firstTime_ && accumTime_ < interval)
+        {
             return;
         }
         firstTime_ = false;
         accumTime_ -= interval;
     }
-    WorldVector2D cameraPosition = cameraTransform2D->GetPosition();
-    if (cameraPosition_.x == cameraPosition.x && cameraPosition_.y == cameraPosition.y) {
+    WorldVector2D cameraPosition = cameraTransform2DComponent_->GetPosition();
+    if (cameraPosition_.x == cameraPosition.x && cameraPosition_.y == cameraPosition.y)
+    {
         return;
     }
     cameraPosition_.x = cameraPosition.x;
@@ -288,13 +363,17 @@ void glimmer::ChunkSystem::Update(const float delta) {
     const TileVector2D endTerrain = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightTerrainCorner);
     //Pre-calculate the terrain
     //预先计算地形
-    for (int cy = startTerrain.y; cy < endTerrain.y; cy += CHUNK_SIZE) {
-        for (int cx = startTerrain.x; cx < endTerrain.x; cx += CHUNK_SIZE) {
+    for (int cy = startTerrain.y; cy < endTerrain.y; cy += CHUNK_SIZE)
+    {
+        for (int cx = startTerrain.x; cx < endTerrain.x; cx += CHUNK_SIZE)
+        {
             TileVector2D chunkVertexCoordinates(cx, cy);
-            if (!WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates)) {
+            if (!WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates))
+            {
                 auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadTerrain, chunkVertexCoordinates);
                 uint64_t signature = chunkTaskPtr->GetFingerprint();
-                if (!taskFingerprintSet_.contains(signature)) {
+                if (!taskFingerprintSet_.contains(signature))
+                {
                     PushTask(loadTerrainTasks_, std::move(chunkTaskPtr), signature);
                 }
             }
@@ -311,14 +390,18 @@ void glimmer::ChunkSystem::Update(const float delta) {
     const TileVector2D endChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightChunkCorner);
 
     // 加载可见区块
-    for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE) {
-        for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE) {
+    for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE)
+    {
+        for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE)
+        {
             TileVector2D chunkVertexCoordinates(cx, cy);
             if (!WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates) && !worldContext_->HasChunk(
-                    chunkVertexCoordinates)) {
+                chunkVertexCoordinates))
+            {
                 auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadChunk, chunkVertexCoordinates);
                 uint64_t signature = chunkTaskPtr->GetFingerprint();
-                if (!taskFingerprintSet_.contains(signature)) {
+                if (!taskFingerprintSet_.contains(signature))
+                {
                     PushTask(loadChunkTasks_, std::move(chunkTaskPtr), signature);
                 }
             }
@@ -326,34 +409,40 @@ void glimmer::ChunkSystem::Update(const float delta) {
     }
 
     // 卸载不可见区块
-    std::unordered_map<TileVector2D, Chunk *, Vector2DIHash> &allChunks = *worldContext_->
-            GetAllChunks();
+    std::unordered_map<TileVector2D, Chunk*, Vector2DIHash>& allChunks = *worldContext_->
+        GetAllChunks();
     for (const
-         auto &chunkVertexCoordinates: allChunks | std::views::keys) {
+         auto& chunkVertexCoordinates : allChunks | std::views::keys)
+    {
         if (chunkVertexCoordinates.x < startChunk.x || chunkVertexCoordinates.x >
             endChunk.x ||
             chunkVertexCoordinates.y < startChunk.y || chunkVertexCoordinates.y >
             endChunk.y
-        ) {
+        )
+        {
             auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadChunk, chunkVertexCoordinates);
             uint64_t signature = chunkTaskPtr->GetFingerprint();
-            if (!taskFingerprintSet_.contains(signature)) {
+            if (!taskFingerprintSet_.contains(signature))
+            {
                 PushTask(unloadChunkTasks_, std::move(chunkTaskPtr), signature);
             }
         }
     }
 
-    std::unordered_map<TileVector2D, TerrainResult *, Vector2DIHash> &terrain = *worldContext_->GetTerrainResults();
+    std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash>& terrain = *worldContext_->GetTerrainResults();
     for (const
-         auto &chunkVertexCoordinates: terrain | std::views::keys) {
+         auto& chunkVertexCoordinates : terrain | std::views::keys)
+    {
         if (chunkVertexCoordinates.x < startTerrain.x || chunkVertexCoordinates.x >
             endTerrain.x ||
             chunkVertexCoordinates.y < startTerrain.y || chunkVertexCoordinates.y >
             endTerrain.y
-        ) {
+        )
+        {
             auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadTerrain, chunkVertexCoordinates);
             uint64_t signature = chunkTaskPtr->GetFingerprint();
-            if (!taskFingerprintSet_.contains(signature)) {
+            if (!taskFingerprintSet_.contains(signature))
+            {
                 PushTask(unloadTerrainTasks_, std::move(chunkTaskPtr), signature);
             }
         }
@@ -367,6 +456,7 @@ void glimmer::ChunkSystem::Update(const float delta) {
     SetOriginAndSort(unloadTerrainTasks_, originPosition, true);
 }
 
-std::string glimmer::ChunkSystem::GetName() {
-    return "glimmer.ChunkSystem";
+glimmer::GameSystemType glimmer::ChunkSystem::GetGameSystemType()
+{
+    return GameSystemType::ChunkSystem;
 }

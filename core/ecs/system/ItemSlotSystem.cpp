@@ -43,14 +43,13 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     const Item* hoveredItem = nullptr;
-    for (auto& entity : entities)
+    for (auto& entity : entities_)
     {
-        const auto itemSlotComponent = worldContext_->GetComponent<ItemSlotComponent>(entity);
-        const auto guiTransform2DComponent = worldContext_->GetComponent<GuiTransform2DComponent>(entity);
+        const auto itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+        const auto guiTransform2DComponent = entityManager_->GetComponent<GuiTransform2DComponent>(entity);
 
         const CameraVector2D size = guiTransform2DComponent->GetSize();
         const CameraVector2D position = guiTransform2DComponent->GetPosition();
@@ -187,8 +186,7 @@ bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event& event)
     }
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT)
     {
-        const auto entities = worldContext_->GetEntityIDWithComponents<ItemSlotComponent, GuiTransform2DComponent>();
-        if (entities.empty())
+        if (entities_.empty())
         {
             return false;
         }
@@ -196,15 +194,15 @@ bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event& event)
         float mouseY = event.motion.y;
         ItemSlotComponent* previousItemSlotComponent = nullptr;
         ItemSlotComponent* currentlyItemSlotComponent = nullptr;
-        for (uint32_t entity : entities)
+        for (uint32_t entity : entities_)
         {
-            auto* guiTransform2dComponent = worldContext_->GetComponent<
+            auto* guiTransform2dComponent = entityManager_->GetComponent<
                 GuiTransform2DComponent>(entity);
             if (guiTransform2dComponent == nullptr)
             {
                 continue;
             }
-            auto* itemSlotComponent = worldContext_->GetComponent<ItemSlotComponent>(entity);
+            auto* itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
             if (itemSlotComponent == nullptr)
             {
                 continue;
@@ -341,8 +339,9 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* 
             );
             SDL_Surface* sVar = TTF_RenderText_Blended_Wrapped(
                 font_, tip.c_str(), tip.length(),
-                miningEfficiency > 0 ? preloadColors_->game.positiveAttributeColor.ToSDLColor()
-                                     : preloadColors_->game.negativeAttributeColor.ToSDLColor(),
+                miningEfficiency > 0
+                    ? preloadColors_->game.positiveAttributeColor.ToSDLColor()
+                    : preloadColors_->game.negativeAttributeColor.ToSDLColor(),
                 TOOLTIP_TEXT_WRAP_WIDTH
             );
             if (sVar) surfacesToDraw.push_back(sVar);
@@ -357,8 +356,9 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* 
                 (fumbleProbability > 0 ? "+" : "") + fmt::format("{0:.0f}", fumbleProbability * 100));
             SDL_Surface* sVar = TTF_RenderText_Blended_Wrapped(
                 font_, tip.c_str(), tip.length(),
-                fumbleProbability > 0 ? preloadColors_->game.negativeAttributeColor.ToSDLColor()
-                                     : preloadColors_->game.positiveAttributeColor.ToSDLColor(),
+                fumbleProbability > 0
+                    ? preloadColors_->game.negativeAttributeColor.ToSDLColor()
+                    : preloadColors_->game.positiveAttributeColor.ToSDLColor(),
                 TOOLTIP_TEXT_WRAP_WIDTH
             );
             if (sVar) surfacesToDraw.push_back(sVar);
@@ -372,16 +372,17 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* 
                                           (chainMiningRadius > 0 ? "+" : "") + std::to_string(chainMiningRadius));
             SDL_Surface* sVar = TTF_RenderText_Blended_Wrapped(
                 font_, tip.c_str(), tip.length(),
-                chainMiningRadius > 0 ? preloadColors_->game.positiveAttributeColor.ToSDLColor()
-                                     : preloadColors_->game.negativeAttributeColor.ToSDLColor(),
+                chainMiningRadius > 0
+                    ? preloadColors_->game.positiveAttributeColor.ToSDLColor()
+                    : preloadColors_->game.negativeAttributeColor.ToSDLColor(),
                 TOOLTIP_TEXT_WRAP_WIDTH
             );
             if (sVar) surfacesToDraw.push_back(sVar);
         }
     }
 
-    constexpr float baseLineSpacing = 2.0F;   // 基础行间距（未缩放）
-    constexpr float basePadding = 8.0F;       // 基础内边距（未缩放）
+    constexpr float baseLineSpacing = 2.0F; // 基础行间距（未缩放）
+    constexpr float basePadding = 8.0F; // 基础内边距（未缩放）
     const float scaledLineSpacing = baseLineSpacing * uiScale_;
     const float scaledPadding = basePadding * uiScale_;
 
@@ -406,16 +407,14 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* 
     const SDL_FRect backgroundRect{
         mouseX,
         mouseY,
-        (maxWidth + 2 * basePadding) * uiScale_,    // 左右padding
-        (totalTextHeight + 2 * basePadding) * uiScale_  // 上下padding
+        (maxWidth + 2 * basePadding) * uiScale_, // 左右padding
+        (totalTextHeight + 2 * basePadding) * uiScale_ // 上下padding
     };
 
     if (tooltipBgTexture_ != nullptr)
     {
         SDL_RenderTexture(renderer, tooltipBgTexture_.get(), nullptr, &backgroundRect);
     }
-
-    // 绘制文本（修复：从padding位置开始，行间距缩放）
     float currentX = backgroundRect.x + scaledPadding;
     float currentY = backgroundRect.y + scaledPadding;
 
@@ -435,20 +434,33 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* 
             SDL_RenderTexture(renderer, textTexture, nullptr, &dstRect);
             SDL_DestroyTexture(textTexture);
         }
-
-        // 更新Y坐标（修复：行间距应用缩放）
         currentY += static_cast<float>(surf->h) * uiScale_ + scaledLineSpacing;
         SDL_DestroySurface(surf);
     }
-    // ====================== 修复区域 结束 ======================
+}
+
+void glimmer::ItemSlotSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_GUI_TRANSFORM_2D)
+    {
+        guiTransform2DCont_ = count;
+    }
+    if (gameComponentType == COMPONENT_ITEM_SLOT)
+    {
+        itemSlotCount_ = count;
+    }
+    if (guiTransform2DCont_ > 0 && itemSlotCount_ > 0)
+    {
+        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT, COMPONENT_GUI_TRANSFORM_2D});
+    }
 }
 
 
 glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
-    RequireComponent(COMPONENT_ITEM_SLOT);
-    RequireComponent(COMPONENT_GUI_TRANSFORM_2D);
+    WatchComponent(COMPONENT_ITEM_SLOT);
+    WatchComponent(COMPONENT_GUI_TRANSFORM_2D);
     appContext_ = worldContext->GetAppContext();
     const ResourceLocator* resourceLocator = appContext_->GetResourceLocator();
     ResourceRef itemSlotResourceRef;
@@ -485,13 +497,7 @@ glimmer::ItemSlotSystem::~ItemSlotSystem()
     }
 }
 
-
-uint8_t glimmer::ItemSlotSystem::GetRenderOrder()
+glimmer::GameSystemType glimmer::ItemSlotSystem::GetGameSystemType()
 {
-    return RENDER_ORDER_HOTBAR;
-}
-
-std::string glimmer::ItemSlotSystem::GetName()
-{
-    return "glimmer.ItemSlotSystem";
+    return GameSystemType::ItemSlotSystem;
 }

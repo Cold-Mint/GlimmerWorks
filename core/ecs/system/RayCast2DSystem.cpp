@@ -33,23 +33,14 @@
 
 void glimmer::RayCast2DSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
-        transform2dCount_ = count;
-    }
     if (gameComponentType == COMPONENT_RAY_CAST_2D)
     {
-        ratCast2DCount_ = count;
-    }
-    if (transform2dCount_ > 0 && ratCast2DCount_ > 0)
-    {
-        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_RAY_CAST_2D});
+        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_RAY_CAST_2D});
     }
 }
 
 glimmer::RayCast2DSystem::RayCast2DSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_RAY_CAST_2D);
 }
 

@@ -43,21 +43,13 @@ void glimmer::DebugDrawBox2dSystem::OnWatchedComponentChanged(GameComponentTypeM
     {
         cameraComponent_ = entityShortCut_->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
     {
-        if (cameraTransform2DComponent_ == nullptr)
-        {
-            cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
-        }
-        transform2DCount_ = count;
+        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
     }
     if (gameComponentType == COMPONENT_RAY_CAST_2D)
     {
-        rayCast2DCount_ = count;
-    }
-    if (transform2DCount_ > 0 && rayCast2DCount_ > 0)
-    {
-        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_RAY_CAST_2D});
+        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_RAY_CAST_2D});
     }
 }
 

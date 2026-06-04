@@ -32,8 +32,6 @@ namespace glimmer
     class RayCast2DSystem final : public GameSystem
     {
         std::vector<GameEntityID> entities_;
-        uint32_t transform2dCount_ = 0;
-        uint32_t ratCast2DCount_ = 0;
 
     public:
         explicit RayCast2DSystem(WorldContext* worldContext);

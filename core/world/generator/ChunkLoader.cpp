@@ -26,21 +26,12 @@
  */
 #include "ChunkLoader.h"
 
-#include <utility>
-
 #include "Chunk.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/MobEntityCreator.h"
-#include "core/ecs/component/AutoPickComponent.h"
-#include "core/ecs/component/CameraComponent.h"
-#include "core/ecs/component/DebugDrawComponent.h"
-#include "core/ecs/component/DiggingComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
-#include "core/ecs/component/ItemContainerComonent.h"
 #include "core/ecs/component/MagnetComponent.h"
-#include "core/ecs/component/MagneticComponent.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
-#include "core/ecs/component/Transform2DComponent.h"
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
 

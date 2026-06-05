@@ -97,7 +97,7 @@ void glimmer::BiomeBGMSystem::Update(float delta)
     biomeResource_ = biomeResource;
 }
 
-glimmer::GameSystemType glimmer::BiomeBGMSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::BiomeBGMSystem::GetGameSystemType() const
 {
     return GameSystemType::BiomeBGMSystem;
 }

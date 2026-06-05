@@ -49,8 +49,19 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
     for (auto& entity : entities_)
     {
         const auto itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+        if (itemSlotComponent == nullptr)
+        {
+            continue;
+        }
+        if (!itemSlotComponent->IsVisible())
+        {
+            continue;
+        }
         const auto guiTransform2DComponent = entityManager_->GetComponent<GuiTransform2DComponent>(entity);
-
+        if (guiTransform2DComponent == nullptr)
+        {
+            continue;
+        }
         const CameraVector2D size = guiTransform2DComponent->GetSize();
         const CameraVector2D position = guiTransform2DComponent->GetPosition();
 
@@ -238,6 +249,11 @@ bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event& event)
 uint8_t glimmer::ItemSlotSystem::GetRenderOrder()
 {
     return RENDER_ORDER_ITEM_SLOT;
+}
+
+glimmer::GameSystemType glimmer::ItemSlotSystem::GetGameSystemType() const
+{
+    return GameSystemType::ItemSlotSystem;
 }
 
 void glimmer::ItemSlotSystem::RenderQuantity(SDL_Renderer* renderer, const SDL_FRect& slotDest, int amount) const
@@ -500,9 +516,4 @@ glimmer::ItemSlotSystem::~ItemSlotSystem()
     {
         config->UnregisterOnConfigChanged(configChangedId_);
     }
-}
-
-glimmer::GameSystemType glimmer::ItemSlotSystem::GetGameSystemType()
-{
-    return GameSystemType::ItemSlotSystem;
 }

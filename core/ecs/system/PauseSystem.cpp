@@ -118,7 +118,7 @@ bool glimmer::PauseSystem::CanRunWhilePaused() const
     return true;
 }
 
-glimmer::GameSystemType glimmer::PauseSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::PauseSystem::GetGameSystemType() const
 {
     return GameSystemType::PauseSystem;
 }

@@ -27,7 +27,7 @@
 #include "LootCommand.h"
 #include "../../scene/AppContext.h"
 #include "../../world/WorldContext.h"
-#include "core/ecs/component/ItemContainerComonent.h"
+#include "core/ecs/component/ItemContainerComponent.h"
 #include "fmt/format.h"
 
 void glimmer::LootCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {

@@ -87,7 +87,7 @@ void glimmer::RayCast2DSystem::Update(float delta)
     }
 }
 
-glimmer::GameSystemType glimmer::RayCast2DSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::RayCast2DSystem::GetGameSystemType() const
 {
     return GameSystemType::RayCast2DSystem;
 }

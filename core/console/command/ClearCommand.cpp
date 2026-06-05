@@ -26,7 +26,7 @@
  */
 #include "ClearCommand.h"
 #include "../../world/WorldContext.h"
-#include "core/ecs/component/ItemContainerComonent.h"
+#include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 
 void glimmer::ClearCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)

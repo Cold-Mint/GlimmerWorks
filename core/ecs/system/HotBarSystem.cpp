@@ -25,7 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "HotBarSystem.h"
-#include "../component/HotBarComonent.h"
+#include "../component/HotBarComponent.h"
 #include "../../world/WorldContext.h"
 #include "../component/ItemSlotComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
@@ -148,8 +148,7 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event& event)
     return false;
 }
 
-
-glimmer::GameSystemType glimmer::HotBarSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::HotBarSystem::GetGameSystemType() const
 {
     return GameSystemType::HotBarSystem;
 }

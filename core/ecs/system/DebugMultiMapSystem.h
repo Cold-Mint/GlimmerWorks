@@ -47,7 +47,7 @@ namespace glimmer
 
         explicit DebugMultiMapSystem(WorldContext* worldContext);
 
-        [[nodiscard]] GameSystemType GetGameSystemType() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }
 

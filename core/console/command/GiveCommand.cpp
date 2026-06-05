@@ -27,7 +27,7 @@
 #include "GiveCommand.h"
 
 #include "../../Constants.h"
-#include "../../ecs/component/ItemContainerComonent.h"
+#include "../../ecs/component/ItemContainerComponent.h"
 #include "../../inventory/AbilityItem.h"
 #include "../../inventory/ComposableItem.h"
 #include "../../inventory/ItemContainer.h"

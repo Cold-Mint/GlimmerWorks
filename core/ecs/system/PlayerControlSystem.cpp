@@ -35,8 +35,8 @@
 #include "box2d/box2d.h"
 #include "../../Constants.h"
 #include "core/ecs/DroppedItemCreator.h"
-#include "core/ecs/component/HotBarComonent.h"
-#include "core/ecs/component/ItemContainerComonent.h"
+#include "core/ecs/component/HotBarComponent.h"
+#include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/ItemSlotComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/RayCast2DComponent.h"
@@ -243,7 +243,7 @@ void glimmer::PlayerControlSystem::Update(const float delta)
     }
 }
 
-glimmer::GameSystemType glimmer::PlayerControlSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::PlayerControlSystem::GetGameSystemType() const
 {
     return GameSystemType::PlayerControlSystem;
 }

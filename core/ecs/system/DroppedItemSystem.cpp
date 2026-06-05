@@ -142,7 +142,7 @@ void glimmer::DroppedItemSystem::Render(SDL_Renderer* renderer)
     }
 }
 
-glimmer::GameSystemType glimmer::DroppedItemSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::DroppedItemSystem::GetGameSystemType() const
 {
     return GameSystemType::DroppedItemSystem;
 }

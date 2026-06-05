@@ -50,7 +50,7 @@ namespace glimmer
 
         void Render(SDL_Renderer* renderer) override;
 
-        [[nodiscard]] GameSystemType GetGameSystemType() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
         uint8_t GetRenderOrder() override;
     };

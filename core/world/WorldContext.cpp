@@ -56,7 +56,7 @@
 #include "core/ecs/component/DraggableComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/component/GuiTransform2DComponent.h"
-#include "core/ecs/component/HotBarComonent.h"
+#include "core/ecs/component/HotBarComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
 #include "core/ecs/system/BlueprintSystem.h"
@@ -266,6 +266,16 @@ glimmer::WorldContext::~WorldContext()
     ref.SetResourceKey("sfx/item_break");
     itemBreakSFX_ = appContext_->GetResourceLocator()->FindAudio(&ref);
     audioManager_ = appContext_->GetAudioManager();
+}
+
+void glimmer::WorldContext::SetActiveGuiSystem(const GameSystemType systemType)
+{
+    activeGuiSystem_ = systemType;
+}
+
+glimmer::GameSystemType glimmer::WorldContext::GetActiveGuiSystemType() const
+{
+    return activeGuiSystem_;
 }
 
 glimmer::TerrainResult* glimmer::WorldContext::GetTerrainData(TileVector2D position)

@@ -126,7 +126,7 @@ void glimmer::Light2DSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
-glimmer::GameSystemType glimmer::Light2DSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::Light2DSystem::GetGameSystemType() const
 {
     return GameSystemType::Light2DSystem;
 }

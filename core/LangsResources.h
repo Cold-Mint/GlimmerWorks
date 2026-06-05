@@ -165,5 +165,7 @@ namespace glimmer
         std::string itemEditorReadAttr;
         std::string itemEditorSetAttr;
         std::string playerDoesNotExist;
+        std::string inventoryTile;
+        std::string recipeTile;
     };
 }

@@ -26,7 +26,7 @@
  */
 #pragma once
 #include "core/ecs/GameSystem.h"
-#include "core/ecs/component/ItemContainerComonent.h"
+#include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 
 namespace glimmer
@@ -48,6 +48,6 @@ namespace glimmer
 
         bool HandleEvent(const SDL_Event& event) override;
 
-        [[nodiscard]] GameSystemType GetGameSystemType() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }

@@ -59,7 +59,7 @@ namespace glimmer
 
         void Update(float delta) override;
 
-        [[nodiscard]] GameSystemType GetGameSystemType() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
         bool HandleEvent(const SDL_Event& event) override;
     };

@@ -83,7 +83,7 @@ void glimmer::PhysicsSystem::Update(const float delta)
     }
 }
 
-glimmer::GameSystemType glimmer::PhysicsSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::PhysicsSystem::GetGameSystemType() const
 {
     return GameSystemType::PhysicsSystem;
 }

@@ -179,7 +179,7 @@ uint8_t glimmer::FloatingTextSystem::GetRenderOrder()
     return RENDER_ORDER_FLOATING_TEXT;
 }
 
-glimmer::GameSystemType glimmer::FloatingTextSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::FloatingTextSystem::GetGameSystemType() const
 {
     return GameSystemType::FloatingTextSystem;
 }

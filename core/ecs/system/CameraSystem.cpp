@@ -42,7 +42,6 @@ glimmer::CameraSystem::CameraSystem(WorldContext* worldContext)
 {
     window_ = worldContext_->GetAppContext()->GetWindow();
     WatchComponent(COMPONENT_CAMERA);
-
 }
 
 void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
@@ -62,7 +61,7 @@ void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
     }
 }
 
-glimmer::GameSystemType glimmer::CameraSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::CameraSystem::GetGameSystemType() const
 {
     return GameSystemType::CameraSystem;
 }

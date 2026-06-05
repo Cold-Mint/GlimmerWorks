@@ -64,7 +64,7 @@ namespace glimmer
         */
         void LockWatchComponent();
 
-        [[nodiscard]] virtual GameSystemType GetGameSystemType() = 0;
+        [[nodiscard]] virtual GameSystemType GetGameSystemType() const = 0;
 
         virtual void OnActivationChanged(bool activeStatus);
 

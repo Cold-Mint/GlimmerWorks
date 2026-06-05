@@ -58,6 +58,6 @@ namespace glimmer
 
         void Update(float delta) override;
 
-        [[nodiscard]] GameSystemType GetGameSystemType() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }

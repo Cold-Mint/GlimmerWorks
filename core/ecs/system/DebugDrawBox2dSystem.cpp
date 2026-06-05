@@ -699,7 +699,7 @@ uint8_t glimmer::DebugDrawBox2dSystem::GetRenderOrder()
     return RENDER_ORDER_DEBUG_BOX2D;
 }
 
-glimmer::GameSystemType glimmer::DebugDrawBox2dSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::DebugDrawBox2dSystem::GetGameSystemType() const
 {
     return GameSystemType::DebugDrawBox2dSystem;
 }

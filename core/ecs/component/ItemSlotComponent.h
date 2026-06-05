@@ -27,13 +27,14 @@
 #pragma once
 #include "core/Constants.h"
 #include "core/ecs/GameComponent.h"
+#include "core/ecs/IVisible.h"
 
 namespace glimmer
 {
     class Item;
     class ItemContainer;
 
-    class ItemSlotComponent : public GameComponent
+    class ItemSlotComponent : public GameComponent, public IVisible
     {
         ItemContainer* itemContainer_;
         int slotIndex_;

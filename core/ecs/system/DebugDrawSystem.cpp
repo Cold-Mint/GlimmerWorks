@@ -61,7 +61,6 @@ glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext* worldContext) : GameSyst
     WatchComponent(COMPONENT_DEBUG_DRAW);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
-
 }
 
 void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
@@ -116,7 +115,7 @@ uint8_t glimmer::DebugDrawSystem::GetRenderOrder()
     return RENDER_ORDER_DEBUG_DRAW;
 }
 
-glimmer::GameSystemType glimmer::DebugDrawSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::DebugDrawSystem::GetGameSystemType() const
 {
     return GameSystemType::DebugDrawSystem;
 }

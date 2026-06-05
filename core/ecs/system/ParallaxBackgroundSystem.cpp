@@ -78,7 +78,7 @@ void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer* renderer)
     SDL_RenderTexture(renderer, texture, nullptr, &destRect);
 }
 
-glimmer::GameSystemType glimmer::ParallaxBackgroundSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::ParallaxBackgroundSystem::GetGameSystemType() const
 {
     return GameSystemType::ParallaxBackgroundSystem;
 }

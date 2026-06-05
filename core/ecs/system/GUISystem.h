@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -27,15 +27,17 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer {
-    class ParallaxBackgroundSystem : public GameSystem {
+namespace glimmer
+{
+    class GUISystem : public GameSystem
+    {
+        std::string tile_;
+
     public:
-        explicit ParallaxBackgroundSystem(WorldContext *worldContext);
+        explicit GUISystem(WorldContext* worldContext);
 
-        void Render(SDL_Renderer *renderer) override;
+        bool CanActive() const override;
 
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
-
-        uint8_t GetRenderOrder() override;
+        [[nodiscard]] virtual std::optional<std::string> GetTile() = 0;
     };
 }

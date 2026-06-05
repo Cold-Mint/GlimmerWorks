@@ -59,7 +59,8 @@ namespace glimmer
         RayCast2DSystem,
         SpiritRendererSystem,
         TileLayerSystem,
-        Transform2DSystem
+        Transform2DSystem,
+        InventoryGUISystem,
+        RecipeGUISystem,
     };
-
 }

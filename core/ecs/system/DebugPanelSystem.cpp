@@ -433,8 +433,9 @@ uint8_t glimmer::DebugPanelSystem::GetRenderOrder()
     return RENDER_ORDER_DEBUG_PANEL;
 }
 
-glimmer::GameSystemType glimmer::DebugPanelSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::DebugPanelSystem::GetGameSystemType() const
 {
     return GameSystemType::DebugPanelSystem;
 }
+
 #endif

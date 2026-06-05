@@ -141,7 +141,7 @@ void glimmer::AutoPickSystem::Update(const float delta)
     }
 }
 
-glimmer::GameSystemType glimmer::AutoPickSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::AutoPickSystem::GetGameSystemType() const
 {
     return GameSystemType::AutoPickSystem;
 }

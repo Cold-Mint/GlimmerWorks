@@ -411,9 +411,9 @@ target_sources(GlimmerWorks
         core/inventory/Item.cpp
         core/inventory/TileItem.cpp
         core/inventory/ItemContainer.cpp
-        core/ecs/component/ItemContainerComonent.cpp
+        core/ecs/component/ItemContainerComponent.cpp
         core/ecs/system/HotBarSystem.cpp
-        core/ecs/component/HotBarComonent.cpp
+        core/ecs/component/HotBarComponent.cpp
         core/world/generator/TileLayerType.cpp
         core/ecs/component/DroppedItemComponent.cpp
         core/ecs/system/DroppedItemSystem.cpp
@@ -605,6 +605,10 @@ target_sources(GlimmerWorks
         core/ecs/GameSystemType.cpp
         core/ecs/EntityManager.cpp
         core/ecs/EntityShortCut.cpp
+        core/ecs/system/GUISystem.cpp
+        core/ecs/system/InventoryGUISystem.cpp
+        core/ecs/system/RecipeGUISystem.cpp
+        core/ecs/IVisible.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -689,9 +693,9 @@ target_sources(GlimmerWorks
         core/inventory/Item.h
         core/inventory/TileItem.h
         core/inventory/ItemContainer.h
-        core/ecs/component/ItemContainerComonent.h
+        core/ecs/component/ItemContainerComponent.h
         core/ecs/system/HotBarSystem.h
-        core/ecs/component/HotBarComonent.h
+        core/ecs/component/HotBarComponent.h
         core/world/generator/TileLayerType.h
         core/ecs/component/DroppedItemComponent.h
         core/ecs/system/DroppedItemSystem.h
@@ -884,6 +888,10 @@ target_sources(GlimmerWorks
         core/ecs/EcsTypes.h
         core/ecs/EntityManager.h
         core/ecs/EntityShortCut.h
+        core/ecs/system/GUISystem.h
+        core/ecs/system/InventoryGUISystem.h
+        core/ecs/system/RecipeGUISystem.h
+        core/ecs/IVisible.h
 )
 
 #Define version information

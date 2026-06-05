@@ -200,7 +200,6 @@ glimmer::ChunkSystem::ChunkSystem(WorldContext* worldContext)
 {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
-
 }
 
 void glimmer::ChunkSystem::Update(const float delta)
@@ -456,7 +455,7 @@ void glimmer::ChunkSystem::Update(const float delta)
     SetOriginAndSort(unloadTerrainTasks_, originPosition, true);
 }
 
-glimmer::GameSystemType glimmer::ChunkSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::ChunkSystem::GetGameSystemType() const
 {
     return GameSystemType::ChunkSystem;
 }

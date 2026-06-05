@@ -34,7 +34,7 @@
 #include "../component/MagneticComponent.h"
 #include "../component/Transform2DComponent.h"
 #include "box2d/box2d.h"
-#include "core/ecs/component/ItemContainerComonent.h"
+#include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/RayCast2DComponent.h"
 #include "core/utils/Box2DUtils.h"
 
@@ -238,7 +238,7 @@ void glimmer::MagnetSystem::Update(const float delta)
     }
 }
 
-glimmer::GameSystemType glimmer::MagnetSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::MagnetSystem::GetGameSystemType() const
 {
     return GameSystemType::MagnetSystem;
 }

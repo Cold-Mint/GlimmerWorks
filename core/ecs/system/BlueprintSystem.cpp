@@ -340,7 +340,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
-glimmer::GameSystemType glimmer::BlueprintSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::BlueprintSystem::GetGameSystemType() const
 {
     return GameSystemType::BlueprintSystem;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,18 +24,35 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/ecs/GameSystem.h"
+#include "InventoryGUISystem.h"
 
-namespace glimmer {
-    class ParallaxBackgroundSystem : public GameSystem {
-    public:
-        explicit ParallaxBackgroundSystem(WorldContext *worldContext);
+#include "core/world/WorldContext.h"
 
-        void Render(SDL_Renderer *renderer) override;
+glimmer::InventoryGUISystem::InventoryGUISystem(WorldContext* worldContext)
+    : GUISystem(worldContext)
+{
+}
 
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
+glimmer::GameSystemType glimmer::InventoryGUISystem::GetGameSystemType() const
+{
+    return GameSystemType::InventoryGUISystem;
+}
 
-        uint8_t GetRenderOrder() override;
-    };
+std::optional<std::string> glimmer::InventoryGUISystem::GetTile()
+{
+    if (worldContext_ == nullptr)
+    {
+        return std::nullopt;
+    }
+    AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
+        return std::nullopt;
+    }
+    const LangsResources* langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr)
+    {
+        return std::nullopt;
+    }
+    return langsResources->inventoryTile;
 }

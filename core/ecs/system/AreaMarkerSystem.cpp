@@ -46,7 +46,8 @@ void glimmer::AreaMarkerSystem::OnWatchedComponentChanged(GameComponentTypeMessa
     }
 }
 
-glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext *worldContext) : GameSystem(worldContext) {
+glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext* worldContext) : GameSystem(worldContext)
+{
     WatchComponent(COMPONENT_AREA_MARKER);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
@@ -56,43 +57,53 @@ glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext *worldContext) : GameSy
 }
 
 
-void glimmer::AreaMarkerSystem::Update(const float delta) {
-    if (areaMarkerComponent_ == nullptr) {
+void glimmer::AreaMarkerSystem::Update(const float delta)
+{
+    if (areaMarkerComponent_ == nullptr)
+    {
         return;;
     }
-    if (!areaMarkerComponent_->CanDraw()) {
+    if (!areaMarkerComponent_->CanDraw())
+    {
         return;
     }
     areaMarkerComponent_->SetRemainingTime(areaMarkerComponent_->GetRemainingTime() - delta);
-    if (areaMarkerComponent_->IsExpired()) {
+    if (areaMarkerComponent_->IsExpired())
+    {
         areaMarkerComponent_->Reset();
     }
 }
 
-void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
-    if (appContext_ == nullptr) {
+void glimmer::AreaMarkerSystem::Render(SDL_Renderer* renderer)
+{
+    if (appContext_ == nullptr)
+    {
         return;
     }
-    if (cameraComponent_ == nullptr) {
+    if (cameraComponent_ == nullptr)
+    {
         return;
     }
-    if (cameraTransform2DComponent_ == nullptr) {
+    if (cameraTransform2DComponent_ == nullptr)
+    {
         return;
     }
-    if (areaMarkerComponent_ == nullptr) {
+    if (areaMarkerComponent_ == nullptr)
+    {
         return;;
     }
-    if (!areaMarkerComponent_->CanDraw()) {
+    if (!areaMarkerComponent_->CanDraw())
+    {
         return;
     }
     WorldVector2D cameraPosition = cameraTransform2DComponent_->GetPosition();
-    const auto &areaMarkerFullColor =
-            preloadColors_->
-            areaMarkerColor;
-    const auto &areaMarkerBorderColor = preloadColors_->
-            areaMarkerBorderColor;
-    const TileVector2D &startPointTileVector2D = areaMarkerComponent_->GetStartPoint();
-    const TileVector2D &endPointTileVector2D = areaMarkerComponent_->GetEndPoint();
+    const auto& areaMarkerFullColor =
+        preloadColors_->
+        areaMarkerColor;
+    const auto& areaMarkerBorderColor = preloadColors_->
+        areaMarkerBorderColor;
+    const TileVector2D& startPointTileVector2D = areaMarkerComponent_->GetStartPoint();
+    const TileVector2D& endPointTileVector2D = areaMarkerComponent_->GetEndPoint();
     const WorldVector2D startPoint = TileLayerComponent::TileToWorld(startPointTileVector2D);
     const WorldVector2D endPoint = TileLayerComponent::TileToWorld(endPointTileVector2D);
     int tileWidth = std::abs(endPointTileVector2D.x - startPointTileVector2D.x) + 1;
@@ -109,7 +120,8 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
     rectWorldMax.x = maxWorldX + HALF_TILE_SIZE;
     rectWorldMax.y = maxWorldY + HALF_TILE_SIZE;
     if (cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMin) ||
-        cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMax)) {
+        cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMax))
+    {
         CameraVector2D camMin = cameraComponent_->WorldToScreen(cameraPosition, rectWorldMin);
         CameraVector2D camMax = cameraComponent_->WorldToScreen(cameraPosition, rectWorldMax);
         SDL_FRect rect;
@@ -128,17 +140,19 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
 
         std::string text = fmt::format(fmt::runtime(appContext_->GetLangsResources()->areaMarkerTip),
                                        tileWidth, tileHeight, tileArea);
-        SDL_Surface *ttfSurface = TTF_RenderText_Blended_Wrapped(appContext_->GetFont(),
+        SDL_Surface* ttfSurface = TTF_RenderText_Blended_Wrapped(appContext_->GetFont(),
                                                                  text.c_str(), text.length(),
                                                                  appContext_->GetPreloadColors()
-                                                                 ->textColor.ToSDLColor(), 0);
-        if (ttfSurface == nullptr) {
+                                                                            ->textColor.ToSDLColor(), 0);
+        if (ttfSurface == nullptr)
+        {
             return;
         }
         const auto ttfSurfaceWidth = static_cast<float>(ttfSurface->w);
         const auto ttfSurfaceHeight = static_cast<float>(ttfSurface->h);
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-        if (texture == nullptr) {
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        if (texture == nullptr)
+        {
             return;
         }
         const float textX = rect.x + (rect.w - ttfSurfaceWidth) / 2.0F;
@@ -155,11 +169,12 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer *renderer) {
     AppContext::RestoreColorRenderer(renderer);
 }
 
-glimmer::GameSystemType glimmer::AreaMarkerSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::AreaMarkerSystem::GetGameSystemType() const
 {
     return GameSystemType::AreaMarkerSystem;
 }
 
-uint8_t glimmer::AreaMarkerSystem::GetRenderOrder() {
+uint8_t glimmer::AreaMarkerSystem::GetRenderOrder()
+{
     return RENDER_ORDER_AREA_MARKER;
 }

@@ -26,7 +26,7 @@
  */
 #pragma once
 #include "core/ecs/GameSystem.h"
-#include "core/ecs/component/ItemContainerComonent.h"
+#include "core/ecs/component/ItemContainerComponent.h"
 
 namespace glimmer
 {
@@ -50,6 +50,6 @@ namespace glimmer
 
         void Update(float delta) override;
 
-        [[nodiscard]] GameSystemType GetGameSystemType() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }

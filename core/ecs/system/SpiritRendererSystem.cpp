@@ -147,7 +147,7 @@ uint8_t glimmer::SpiritRendererSystem::GetRenderOrder()
     return RENDER_ORDER_SPIRIT_RENDERER;
 }
 
-glimmer::GameSystemType glimmer::SpiritRendererSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::SpiritRendererSystem::GetGameSystemType() const
 {
     return GameSystemType::SpiritRendererSystem;
 }

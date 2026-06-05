@@ -35,10 +35,9 @@ glimmer::DebugMultiMapSystem::DebugMultiMapSystem(WorldContext* worldContext) : 
 {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
-
 }
 
-glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType() const
 {
     return GameSystemType::DebugMultiMapSystem;
 }

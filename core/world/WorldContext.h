@@ -49,6 +49,9 @@
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
 #include "core/world/TileInstancePool.h"
+#include "SDL3_mixer/SDL_mixer.h"
+#include "src/core/game_component_type.pb.h"
+#include "src/saves/entity_item.pb.h"
 
 namespace glimmer
 {
@@ -122,6 +125,12 @@ namespace glimmer
         bool saving_ = false;
 
         /**
+         * The currently active GUI system type
+         * 当前正在激活的GUI系统类型
+         */
+        GameSystemType activeGuiSystem_ = GameSystemType::None;
+
+        /**
          * Whether to enable the item dragging mode
          * 是否启用物品拖拽模式
          */
@@ -174,6 +183,10 @@ namespace glimmer
     public:
         ~WorldContext();
 
+        void SetActiveGuiSystem(GameSystemType systemType);
+
+        [[nodiscard]] GameSystemType GetActiveGuiSystemType() const;
+
         [[nodiscard]] EntityManager* GetEntityManager() const;
 
         [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
@@ -204,7 +217,6 @@ namespace glimmer
 
 
         [[nodiscard]] std::vector<GameSystemType> GetAllActiveSystemType() const;
-
 
 
         /**

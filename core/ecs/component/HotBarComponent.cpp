@@ -24,18 +24,32 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/ecs/GameSystem.h"
+#include "HotBarComponent.h"
 
-namespace glimmer {
-    class ParallaxBackgroundSystem : public GameSystem {
-    public:
-        explicit ParallaxBackgroundSystem(WorldContext *worldContext);
+#include "core/Constants.h"
+#include "core/ecs/EcsTypes.h"
 
-        void Render(SDL_Renderer *renderer) override;
 
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
+glimmer::HotBarComponent::HotBarComponent(const int maxSlot) : maxSlot_(maxSlot) {
+}
 
-        uint8_t GetRenderOrder() override;
-    };
+int glimmer::HotBarComponent::GetMaxSlot() const {
+    return maxSlot_;
+}
+
+void glimmer::HotBarComponent::AddSlotEntity(const uint32_t entity) {
+    slotEntities_.push_back(entity);
+}
+
+const std::vector<GameEntityID> &glimmer::HotBarComponent::GetSlotEntities() const {
+    return slotEntities_;
+}
+
+GameComponentTypeMessage glimmer::HotBarComponent::GetComponentTypeStatic()
+{
+    return COMPONENT_HOT_BAR;
+}
+
+GameComponentTypeMessage glimmer::HotBarComponent::GetComponentType() {
+    return GetComponentTypeStatic();
 }

@@ -221,7 +221,7 @@ bool glimmer::TileLayerSystem::HandleEvent(const SDL_Event& event)
     return true;
 }
 
-glimmer::GameSystemType glimmer::TileLayerSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::TileLayerSystem::GetGameSystemType() const
 {
     return GameSystemType::TileLayerSystem;
 }

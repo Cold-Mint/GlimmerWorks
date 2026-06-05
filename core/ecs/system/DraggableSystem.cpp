@@ -277,7 +277,7 @@ bool glimmer::DraggableSystem::HandleEvent(const SDL_Event& event)
     return false;
 }
 
-glimmer::GameSystemType glimmer::DraggableSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::DraggableSystem::GetGameSystemType() const
 {
     return GameSystemType::DraggableSystem;
 }

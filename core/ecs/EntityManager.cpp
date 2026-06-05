@@ -29,7 +29,7 @@
 #include "component/AutoPickComponent.h"
 #include "component/DebugDrawComponent.h"
 #include "component/DroppedItemComponent.h"
-#include "component/ItemContainerComonent.h"
+#include "component/ItemContainerComponent.h"
 #include "component/MagnetComponent.h"
 #include "component/MagneticComponent.h"
 #include "core/world/WorldContext.h"

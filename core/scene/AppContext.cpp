@@ -243,6 +243,8 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->itemEditorReadAttr = find<std::string>(value, "item_editor_read_attr");
     langsResources_->itemEditorSetAttr = find<std::string>(value, "item_editor_set_attr");
     langsResources_->playerDoesNotExist = find<std::string>(value, "player_does_not_exist");
+    langsResources_->inventoryTile = find<std::string>(value, "inventory_tile");
+    langsResources_->recipeTile = find<std::string>(value, "recipe_tile");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, const std::string& ext)

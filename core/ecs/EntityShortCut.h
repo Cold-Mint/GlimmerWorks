@@ -30,7 +30,7 @@
 #include "component/BlueprintComponent.h"
 #include "component/CameraComponent.h"
 #include "component/DiggingComponent.h"
-#include "component/HotBarComonent.h"
+#include "component/HotBarComponent.h"
 #include "component/ParallaxBackgroundComponent.h"
 #include "component/Transform2DComponent.h"
 #include "core/Constants.h"

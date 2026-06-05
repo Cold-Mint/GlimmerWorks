@@ -338,7 +338,7 @@ uint8_t glimmer::DiggingSystem::GetRenderOrder()
     return RENDER_ORDER_DIGGING;
 }
 
-glimmer::GameSystemType glimmer::DiggingSystem::GetGameSystemType()
+glimmer::GameSystemType glimmer::DiggingSystem::GetGameSystemType() const
 {
     return GameSystemType::DiggingSystem;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,32 +24,18 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "HotBarComonent.h"
-
-#include "core/Constants.h"
-#include "core/ecs/EcsTypes.h"
-
-
-glimmer::HotBarComponent::HotBarComponent(const int maxSlot) : maxSlot_(maxSlot) {
-}
-
-int glimmer::HotBarComponent::GetMaxSlot() const {
-    return maxSlot_;
-}
-
-void glimmer::HotBarComponent::AddSlotEntity(const uint32_t entity) {
-    slotEntities_.push_back(entity);
-}
-
-const std::vector<GameEntityID> &glimmer::HotBarComponent::GetSlotEntities() const {
-    return slotEntities_;
-}
-
-GameComponentTypeMessage glimmer::HotBarComponent::GetComponentTypeStatic()
+#pragma once
+namespace glimmer
 {
-    return COMPONENT_HOT_BAR;
-}
+    class IVisible
+    {
+        bool visible_ = true;
 
-GameComponentTypeMessage glimmer::HotBarComponent::GetComponentType() {
-    return GetComponentTypeStatic();
+    public:
+        void Show();
+
+        void Hide();
+
+        [[nodiscard]] bool IsVisible() const;
+    };
 }

@@ -81,8 +81,9 @@ void glimmer::DigAbility::OnUse(WorldContext* worldContext, uint32_t user, const
     {
         return;
     }
-    auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
-    for (const auto& gameEntity : tileLayerEntityList)
+    auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+    std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
+    for (const auto& gameEntity : tileLayerEntities)
     {
         auto* tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
             gameEntity);

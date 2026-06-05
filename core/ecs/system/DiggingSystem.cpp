@@ -56,7 +56,8 @@ void glimmer::DiggingSystem::OnWatchedComponentChanged(GameComponentTypeMessage 
     if (gameComponentType == COMPONENT_TILE_LAYER)
     {
         tileLayerComponents_.clear();
-        const auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
         for (GameEntityID tileLayerEntity : tileLayerEntities)
         {
             const auto* tileLayer = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntity);
@@ -220,7 +221,6 @@ glimmer::DiggingSystem::DiggingSystem(WorldContext* worldContext) : GameSystem(w
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TILE_LAYER);
-
 }
 
 void glimmer::DiggingSystem::Update(float delta)

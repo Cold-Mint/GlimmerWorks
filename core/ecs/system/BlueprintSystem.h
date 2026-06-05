@@ -46,7 +46,6 @@ namespace glimmer
         GameEntityID player = GAME_ENTITY_ID_INVALID;
         const Tile* heldTile_ = nullptr;
         std::vector<SDL_Rect> blockRects_;
-        std::vector<GameEntityID> tileLayerEntities_;
         std::vector<GameEntityID> entities_;
         uint32_t tilePlacementForbiddenZoneCount_ = 0;
         uint32_t transform2DCount_ = 0;

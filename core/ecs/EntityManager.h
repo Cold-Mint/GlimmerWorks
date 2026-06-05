@@ -154,6 +154,8 @@ namespace glimmer
         /**
          * Obtain the entity that contains the specific component.
          * 获取带有特定组件的实体。
+         * Note: This method does not guarantee the order of the vector.
+         * 注意：此方法不保证vector的顺序。
          * @param gameComponentTypeMessages
          * @return
          */

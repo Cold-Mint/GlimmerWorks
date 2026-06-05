@@ -108,10 +108,10 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 {
     if (gameComponentType == COMPONENT_TILE_LAYER)
     {
-        tileLayerEntities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
-        if (!tileLayerEntities_.empty())
+        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        if (!tileLayerEntities.empty())
         {
-            tileLayerComponent_ = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntities_[0]);
+            tileLayerComponent_ = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntities[0]);
         }
     }
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)

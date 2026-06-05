@@ -148,8 +148,9 @@ void glimmer::DebugPanelSystem::OnWatchedComponentChanged(GameComponentTypeMessa
     if (gameComponentType == COMPONENT_TILE_LAYER)
     {
         tileLayerComponents_.clear();
-        auto tileLayers = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
-        for (GameEntityID tileLayerEntity : tileLayers)
+        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
+        for (GameEntityID tileLayerEntity : tileLayerEntities)
         {
             auto tileLayerComponent = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntity);
             if (tileLayerComponent == nullptr)
@@ -167,7 +168,6 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext* worldContext) : GameSy
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_TILE_LAYER);
-
 }
 
 

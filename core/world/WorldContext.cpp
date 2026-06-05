@@ -876,10 +876,7 @@ void glimmer::WorldContext::OnFrameStart()
                 {
                     system->RemoveActiveWatchComponent(gameComponentType);
                 }
-                else
-                {
-                    system->OnWatchedComponentChanged(gameComponentType, count);
-                }
+                system->OnWatchedComponentChanged(gameComponentType, count);
             }
         }
         for (auto& system : inactiveSystems)
@@ -891,6 +888,7 @@ void glimmer::WorldContext::OnFrameStart()
             if (system->IsWatchingComponent(gameComponentType))
             {
                 system->AddActiveWatchComponent(gameComponentType);
+                system->OnWatchedComponentChanged(gameComponentType, count);
             }
         }
     }

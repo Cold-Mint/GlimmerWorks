@@ -38,7 +38,11 @@ namespace glimmer
         uint32_t rayCast2dComponentCount_ = 0;
         uint32_t droppedItemComponentCount_ = 0;
         uint32_t itemContainerCount_ = 0;
+        //magnet
+        //吸铁石
         std::vector<GameEntityID> magnetEntities_;
+        //magnetic
+        //磁吸物
         std::vector<GameEntityID> magneticEntities_;
     public:
         explicit MagnetSystem(WorldContext* worldContext);

@@ -39,7 +39,6 @@ namespace glimmer
         uint32_t autoPickCount_ = 0;
         uint32_t magnetCount_ = 0;
         uint32_t itemContainerCount_ = 0;
-        uint32_t droppedItemCount_ = 0;
         std::vector<GameEntityID> entities_;
 
         std::unordered_map<std::string, size_t> frameItemCounts_ = {};

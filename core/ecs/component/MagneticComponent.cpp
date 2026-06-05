@@ -51,7 +51,7 @@ uint16_t glimmer::MagneticComponent::GetType() const
 
 GameComponentTypeMessage glimmer::MagneticComponent::GetComponentTypeStatic()
 {
-    return COMPONENT_MAGNET;
+    return COMPONENT_MAGNETIC;
 }
 
 GameComponentTypeMessage glimmer::MagneticComponent::GetComponentType()

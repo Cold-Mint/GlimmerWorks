@@ -51,15 +51,19 @@ std::string glimmer::EcsCommand::EntityToString(const GameEntityID gameEntityId)
 {
     EntityManager* entityManager = worldContext_->GetEntityManager();
     const std::vector<GameComponent*> components = entityManager->GetAllComponent(gameEntityId);
-    std::string data;
-    for (auto& component : components)
+    std::stringstream stringStream;
+    for (int i = 0; i < components.size(); ++i)
     {
-        data += fmt::format("componentId = {} name = {}\n", static_cast<int>(component->GetComponentType()),
-                            typeid(component).name());
+        auto const& component = components[i];
+        stringStream << component->GetComponentType();
+        if (i != components.size() - 1)
+        {
+            stringStream << ',';
+        }
     }
-    return fmt::format("id={} isPersistable={} \ncomponents={}\n", gameEntityId,
+    return fmt::format("id={} isPersistable={} \ncomponents = [{}]\n", gameEntityId,
                        entityManager->IsPersistable(gameEntityId),
-                       data);
+                       stringStream.str());
 }
 
 std::string glimmer::EcsCommand::GetName() const

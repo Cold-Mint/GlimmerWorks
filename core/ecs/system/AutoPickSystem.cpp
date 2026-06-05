@@ -48,14 +48,10 @@ void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage
     {
         itemContainerCount_ = count;
     }
-    if (gameComponentType == COMPONENT_DROPPED_ITEM)
-    {
-        droppedItemCount_ = count;
-    }
-    if (autoPickCount_ > 0 && magnetCount_ > 0 && itemContainerCount_ > 0 && droppedItemCount_ > 0)
+    if (autoPickCount_ > 0 && magnetCount_ > 0 && itemContainerCount_ > 0)
     {
         entities_ = entityManager_->GetEntityIDWithComponents({
-            COMPONENT_AUTO_PICK, COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER, COMPONENT_DROPPED_ITEM
+            COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER
         });
     }
 }
@@ -65,6 +61,8 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem
     WatchComponent(COMPONENT_AUTO_PICK);
     WatchComponent(COMPONENT_MAGNET);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
+    //The system will only be activated when there is a falling object.
+    //限制只有出现掉落物时才激活系统。
     WatchComponent(COMPONENT_DROPPED_ITEM);
 
     AppContext* appContext = worldContext->GetAppContext();
@@ -103,7 +101,6 @@ void glimmer::AutoPickSystem::Update(const float delta)
         remainingTime_ = MERGE_DURATION;
     }
     remainingTime_ -= delta;
-
     for (auto entity : entities_)
     {
         auto* magnetComponent = entityManager_->GetComponent<MagnetComponent>(entity);

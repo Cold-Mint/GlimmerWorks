@@ -71,6 +71,8 @@ namespace glimmer
 
         bool HandleEvent(const SDL_Event& event) override;
 
+        uint8_t GetRenderOrder() override;
+
         [[nodiscard]] GameSystemType GetGameSystemType() override;
     };
 }

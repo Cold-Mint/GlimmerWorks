@@ -73,7 +73,7 @@ size_t glimmer::Config::RegisterOnConfigChanged(const bool fireImmediately,
     }
     if (fireImmediately)
     {
-        (*onConfigChanged.get())(this);
+        (*onConfigChanged)(this);
     }
     auto id = nextConfigChangedId_++;
     onConfigChanged_.emplace_back(id, std::move(onConfigChanged));

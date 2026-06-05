@@ -38,6 +38,9 @@ namespace glimmer
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         std::vector<TileLayerComponent*> tileLayerComponents_;
+        AppContext* appContext_ = nullptr;
+        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
+        bool displayDebugPanel_ = false;
 
         void RenderDebugText(SDL_Renderer* renderer, int windowW, const std::string& text, float y,
                              SDL_Color textColor, SDL_Color textBGColor) const;
@@ -52,7 +55,11 @@ namespace glimmer
                                       const WorldVector2D& cameraPosition);
 
     public:
+        bool CanActive() const override;
+
         explicit DebugPanelSystem(WorldContext* worldContext);
+
+        ~DebugPanelSystem() override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

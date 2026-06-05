@@ -235,6 +235,11 @@ bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event& event)
     return false;
 }
 
+uint8_t glimmer::ItemSlotSystem::GetRenderOrder()
+{
+    return RENDER_ORDER_ITEM_SLOT;
+}
+
 void glimmer::ItemSlotSystem::RenderQuantity(SDL_Renderer* renderer, const SDL_FRect& slotDest, int amount) const
 {
     const std::string text = std::to_string(amount);

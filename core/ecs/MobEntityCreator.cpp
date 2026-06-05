@@ -103,7 +103,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
         auto transform2DComponent = entityManager->AddComponent<Transform2DComponent>(id);
         if (cameraComponent != nullptr && transform2DComponent != nullptr)
         {
-            entityShortCut->SetCameraComponent(cameraComponent);
+            worldContext_->BindCameraComponent(cameraComponent);
             entityShortCut->SetCameraTransform2DComponent(transform2DComponent);
         }
         auto diggingComponent = entityManager->AddComponent<DiggingComponent>(id);

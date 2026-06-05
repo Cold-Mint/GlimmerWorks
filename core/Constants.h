@@ -298,6 +298,7 @@ static constexpr uint32_t GAME_ENTITY_ID_INVALID = 0;
 static constexpr uint8_t RENDER_ORDER_PARALLAX_BACKGROUND = 1;
 static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 2;
 static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 3;
+static constexpr uint8_t RENDER_ORDER_ITEM_SLOT = 4;
 static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
 static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
 static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;

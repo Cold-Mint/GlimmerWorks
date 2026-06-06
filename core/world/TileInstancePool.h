@@ -27,6 +27,7 @@
 #pragma once
 #include <memory>
 #include <unordered_map>
+#include <cstdint>
 
 namespace glimmer {
     class AppContext;
@@ -36,7 +37,7 @@ namespace glimmer {
 
     class TileInstancePool {
         friend class Chunk;
-        std::unordered_map<u_int64_t, std::weak_ptr<Tile> > tileInstanceMap_;
+        std::unordered_map<uint64_t, std::weak_ptr<Tile> > tileInstanceMap_;
 
     public:
         std::shared_ptr<Tile> CreateTile(const AppContext *appContext,

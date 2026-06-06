@@ -27,14 +27,15 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
+#include <cstdint>
 
 namespace glimmer {
     class MouseButtonUtils {
-        static std::unordered_map<std::string, u_int8_t> stringToMouseButtonMap_;
+        static std::unordered_map<std::string, uint8_t> stringToMouseButtonMap_;
         static std::vector<std::string> cachedKeys_;
 
     public:
-        [[nodiscard]] static u_int8_t StringToMouseButton(const std::string &buttonStr);
+        [[nodiscard]] static uint8_t StringToMouseButton(const std::string &buttonStr);
 
         [[nodiscard]] static bool ContainsKey(const std::string &buttonStr);
 

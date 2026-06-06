@@ -29,7 +29,7 @@
 #include "SDL3/SDL_mouse.h"
 
 
-std::unordered_map<std::string, u_int8_t> glimmer::MouseButtonUtils::stringToMouseButtonMap_ = {
+std::unordered_map<std::string, uint8_t> glimmer::MouseButtonUtils::stringToMouseButtonMap_ = {
     {"left", SDL_BUTTON_LEFT},
     {"middle", SDL_BUTTON_MIDDLE},
     {"right", SDL_BUTTON_RIGHT},
@@ -46,7 +46,7 @@ std::vector<std::string> glimmer::MouseButtonUtils::cachedKeys_ = [] {
     return keys;
 }();
 
-u_int8_t glimmer::MouseButtonUtils::StringToMouseButton(const std::string &buttonStr) {
+uint8_t glimmer::MouseButtonUtils::StringToMouseButton(const std::string &buttonStr) {
     const auto iter = stringToMouseButtonMap_.find(buttonStr);
     return iter == stringToMouseButtonMap_.end() ? 0 : iter->second;
 }

@@ -43,7 +43,7 @@ namespace glimmer
         std::unordered_map<GameEntityID, std::unique_ptr<GameEntity>> entityMap_;
         std::unordered_map<GameEntityID, std::unordered_set<GameComponentTypeMessage>> entityToGameComponentType_;
         std::unordered_map<ComponentFingerprint, std::unique_ptr<GameComponent>> components_;
-        std::unordered_map<GameComponentTypeMessage, u_int32_t> componentCount_;
+        std::unordered_map<GameComponentTypeMessage, uint32_t> componentCount_;
         std::vector<std::pair<uint32_t, std::function<void(GameComponentTypeMessage, uint32_t)>>>
         onComponentCountChanged_;
         uint32_t onComponentCountChangedId_ = 0;

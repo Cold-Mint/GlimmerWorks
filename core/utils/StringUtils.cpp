@@ -52,7 +52,7 @@ std::string glimmer::StringUtils::ToSafeSaveName(const std::string& utf8Str)
     return oss.str();
 }
 
-u_int64_t glimmer::StringUtils::StringToUint64(const std::string& string)
+uint64_t glimmer::StringUtils::StringToUint64(const std::string& string)
 {
     blake3_hasher hasher;
     blake3_hasher_init(&hasher);

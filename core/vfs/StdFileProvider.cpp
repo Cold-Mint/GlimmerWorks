@@ -154,7 +154,11 @@ bool glimmer::StdFileProvider::CreateFolder(const std::string &path) {
 }
 
 std::optional<std::string> glimmer::StdFileProvider::GetParentPath(const std::string &path) const {
-    return std::filesystem::path(path).parent_path();
+    auto parent = std::filesystem::path(path).parent_path();
+if (parent.empty()) {
+    return std::nullopt;
+}
+return parent.string();
 }
 
 std::optional<std::string> glimmer::StdFileProvider::GetActualPath(const std::string &path) const {

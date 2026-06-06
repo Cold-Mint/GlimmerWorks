@@ -62,7 +62,7 @@ std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(
     if (treeStructureResource->hasLeaves)
     {
         auto leafTileLayer = static_cast<TileLayerType>(treeStructureResource->leafTileLayer);
-        u_int8_t leafRadius = treeStructureResource->leafRadius;
+        uint8_t leafRadius = treeStructureResource->leafRadius;
         for (int i = 0; i < treeStructureResource->leafClusterCount; ++i)
         {
             int clusterY = trunkHeight - i * treeStructureResource->leafVerticalSpacing;

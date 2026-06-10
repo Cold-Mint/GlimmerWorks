@@ -287,6 +287,7 @@ FetchContent_Declare(
         EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(glimmerWorksProtobuf)
+target_include_directories(GlimmerWorksProto PRIVATE "${CMAKE_BINARY_DIR}/_deps/protobuf-src/third_party/utf8_range")
 
 FetchContent_Declare(
         blake3
@@ -960,6 +961,7 @@ target_include_directories(GlimmerWorks PRIVATE
 target_include_directories(GlimmerWorks
         PRIVATE
         "${CMAKE_BINARY_DIR}/_deps/glimmerworksprotobuf-build/cpp"
+        "${CMAKE_BINARY_DIR}/_deps/protobuf-src/third_party/utf8_range"
 )
 
 if (CMAKE_BUILD_TYPE MATCHES "^Debug$")

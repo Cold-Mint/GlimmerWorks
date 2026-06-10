@@ -36,10 +36,8 @@ namespace glimmer
      */
     class CameraSystem final : public GameSystem
     {
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
+        AppContext* appContext_ = nullptr;
         CameraComponent* cameraComponent_ = nullptr;
-        SDL_Window* window_ = nullptr;
 
     public:
         explicit CameraSystem(WorldContext* worldContext);

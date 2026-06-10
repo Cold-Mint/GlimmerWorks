@@ -74,18 +74,13 @@ void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer* renderer, int wind
 
 void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer* renderer, float screenX, float screenY) const
 {
-    int windowW = 0;
-    int windowH = 0;
-    SDL_GetWindowSize(worldContext_->GetAppContext()->GetWindow(), &windowW, &windowH);
-    if (windowW <= 0 || windowH <= 0) return;
-
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 255, 230, 0, 200);
 
-    SDL_FRect hLine = {0.0f, screenY, static_cast<float>(windowW), 1.0f};
+    SDL_FRect hLine = {0.0F, screenY, static_cast<float>(worldContext_->GetAppContext()->GetWindowWidth()), 1.0F};
     SDL_RenderFillRect(renderer, &hLine);
 
-    SDL_FRect vLine = {screenX, 0.0f, 1.0f, static_cast<float>(windowH)};
+    SDL_FRect vLine = {screenX, 0.0F, 1.0F, static_cast<float>(worldContext_->GetAppContext()->GetWindowHeight())};
     SDL_RenderFillRect(renderer, &vLine);
 }
 
@@ -201,14 +196,6 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-
-    int windowW = 0;
-    int windowH = 0;
-    SDL_GetWindowSize(appContext_->GetWindow(), &windowW, &windowH);
-    if (windowW <= 0 || windowH <= 0)
-    {
-        return;
-    }
     float yOffset = 0.0F;
     bool inPointInViewport = cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
                                                                  mousePosition_);
@@ -222,18 +209,20 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         AppContext::RestoreColorRenderer(renderer);
         return;
     }
+    int windowHeight = appContext_->GetWindowHeight();
+    int windowWidth = appContext_->GetWindowWidth();
     ChunkGenerator* chunkGenerator = worldContext_->GetChunkGenerator();
     constexpr float lineSpacing = 20.0F;
     float totalLines = 1.0F + static_cast<float>(tileLayerComponents_.size());
     float totalTextHeight = totalLines * lineSpacing;
-    yOffset = (static_cast<float>(windowH) - totalTextHeight) / 2.0F;
+    yOffset = (static_cast<float>(windowHeight) - totalTextHeight) / 2.0F;
     CameraVector2D cameraVector2d = cameraComponent_->
         WorldToScreen(cameraTransform2DComponent_->GetPosition(), mousePosition_);
     std::string mouseText = fmt::format(
         fmt::runtime(appContext_->GetLangsResources()->mousePosition),
         mousePosition_.x, mousePosition_.y, cameraVector2d.x, cameraVector2d.y
     );
-    RenderDebugText(renderer, windowW, mouseText, yOffset,
+    RenderDebugText(renderer, windowWidth, mouseText, yOffset,
                     appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
                     appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
     yOffset += lineSpacing;
@@ -255,7 +244,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
                 elevation,
                 chunkGenerator->GetWeirdness(tileCoord)
             );
-            RenderDebugText(renderer, windowW, tileDebugInfo, yOffset,
+            RenderDebugText(renderer, windowWidth, tileDebugInfo, yOffset,
                             appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
                             appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
             yOffset += lineSpacing;
@@ -271,7 +260,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
             fmt::runtime(appContext_->GetLangsResources()->tileResDebugInfo),
             static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName()
         );
-        RenderDebugText(renderer, windowW, tileResDebugInfo, yOffset,
+        RenderDebugText(renderer, windowWidth, tileResDebugInfo, yOffset,
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
         yOffset += lineSpacing;
@@ -283,7 +272,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
             fmt::runtime(appContext_->GetLangsResources()->totalLight),
             -1, -1, -1, -1
         );
-        RenderDebugText(renderer, windowW, totalLight, yOffset,
+        RenderDebugText(renderer, windowWidth, totalLight, yOffset,
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
     }
@@ -293,7 +282,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
             fmt::runtime(appContext_->GetLangsResources()->totalLight),
             finalLightColor->a, finalLightColor->r, finalLightColor->g, finalLightColor->b
         );
-        RenderDebugText(renderer, windowW, totalLight, yOffset,
+        RenderDebugText(renderer, windowWidth, totalLight, yOffset,
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
     }
@@ -314,7 +303,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
 
     float cellSize = 10.0F;
     float gridCenterX = 100.0F;
-    float gridCenterY = static_cast<float>(windowH) - 100.0F;
+    float gridCenterY = static_cast<float>(windowHeight) - 100.0F;
 
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
@@ -388,7 +377,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         {
             SDL_FRect dst = {
                 48.0F,
-                static_cast<float>(windowH) - static_cast<float>(s->h) - 8.0F,
+                static_cast<float>(windowHeight) - static_cast<float>(s->h) - 8.0F,
                 static_cast<float>(s->w),
                 static_cast<float>(s->h)
             };

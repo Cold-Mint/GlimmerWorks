@@ -26,22 +26,24 @@
  */
 #include "DraggableComponent.h"
 
-#include "core/Constants.h"
 
-
-void glimmer::DraggableComponent::SetSize(const CameraVector2D& size) {
+void glimmer::DraggableComponent::SetSize(NormalizedVector2D size)
+{
     size_ = size;
 }
 
-glimmer::CameraVector2D glimmer::DraggableComponent::GetSize() const {
+const glimmer::NormalizedVector2D& glimmer::DraggableComponent::GetSize() const
+{
     return size_;
 }
+
 
 GameComponentTypeMessage glimmer::DraggableComponent::GetComponentTypeStatic()
 {
     return COMPONENT_DRAGGABLE;
 }
 
-GameComponentTypeMessage glimmer::DraggableComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::DraggableComponent::GetComponentType()
+{
     return GetComponentTypeStatic();
 }

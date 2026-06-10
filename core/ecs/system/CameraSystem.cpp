@@ -40,25 +40,17 @@ void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
 glimmer::CameraSystem::CameraSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
-    window_ = worldContext_->GetAppContext()->GetWindow();
     WatchComponent(COMPONENT_CAMERA);
+    appContext_ = worldContext->GetAppContext();
 }
 
 void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
 {
-    if (window_ == nullptr || cameraComponent_ == nullptr)
+    if (cameraComponent_ == nullptr || appContext_ == nullptr)
     {
         return;
     }
-    int tempWindowWidth = 0;
-    int tempWindowHeight = 0;
-    SDL_GetWindowSize(window_, &tempWindowWidth, &tempWindowHeight);
-    if (tempWindowHeight != windowHeight_ || tempWindowWidth != windowWidth_)
-    {
-        windowWidth_ = tempWindowWidth;
-        windowHeight_ = tempWindowHeight;
-        cameraComponent_->SetSize(CameraVector2D(static_cast<float>(windowWidth_), static_cast<float>(windowHeight_)));
-    }
+    cameraComponent_->SetSize(CameraVector2D(appContext_->GetWindowWidth(), appContext_->GetWindowHeight()));
 }
 
 glimmer::GameSystemType glimmer::CameraSystem::GetGameSystemType() const

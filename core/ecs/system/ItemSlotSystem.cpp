@@ -62,9 +62,13 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        const CameraVector2D size = guiTransform2DComponent->GetSize();
-        const CameraVector2D position = guiTransform2DComponent->GetPosition();
-
+        const NormalizedVector2D sizeNormalized = guiTransform2DComponent->GetSize();
+        int min = std::min(appContext_->GetWindowWidth(), appContext_->GetWindowHeight());
+        const CameraVector2D size = CameraVector2D(sizeNormalized.x * min,
+                                                   sizeNormalized.y * min);
+        const NormalizedVector2D positionNormalized = guiTransform2DComponent->GetPosition();
+        const CameraVector2D position = CameraVector2D(positionNormalized.x * appContext_->GetWindowWidth(),
+                                                       positionNormalized.y * appContext_->GetWindowHeight());
         const SDL_FRect rect = {position.x * uiScale_, position.y * uiScale_, size.x * uiScale_, size.y * uiScale_};
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
             mouseY >= rect.y && mouseY <= rect.y + rect.h;
@@ -94,7 +98,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        float padding = itemSlotComponent->GetPadding() * uiScale_;
+        float padding = itemSlotComponent->GetPaddingNormalized() * min;
         const SDL_FRect itemRect = {
             rect.x + padding, rect.y + padding, rect.w - padding * 2.0F,
             rect.h - padding * 2.0F
@@ -207,9 +211,9 @@ bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event& event)
         ItemSlotComponent* currentlyItemSlotComponent = nullptr;
         for (uint32_t entity : entities_)
         {
-            auto* guiTransform2dComponent = entityManager_->GetComponent<
+            auto* guiTransform2DComponent = entityManager_->GetComponent<
                 GuiTransform2DComponent>(entity);
-            if (guiTransform2dComponent == nullptr)
+            if (guiTransform2DComponent == nullptr)
             {
                 continue;
             }
@@ -218,8 +222,12 @@ bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event& event)
             {
                 continue;
             }
-            const CameraVector2D position = guiTransform2dComponent->GetPosition();
-            const CameraVector2D size = guiTransform2dComponent->GetSize();
+            const NormalizedVector2D sizeNormalized = guiTransform2DComponent->GetSize();
+            const CameraVector2D size = CameraVector2D(sizeNormalized.x * appContext_->GetWindowWidth(),
+                                                       sizeNormalized.y * appContext_->GetWindowHeight());
+            const NormalizedVector2D positionNormalized = guiTransform2DComponent->GetPosition();
+            const CameraVector2D position = CameraVector2D(positionNormalized.x * appContext_->GetWindowWidth(),
+                                                           positionNormalized.y * appContext_->GetWindowHeight());
             const SDL_FRect border = {position.x, position.y, size.x, size.y};
             if (itemSlotComponent->IsSelected())
             {

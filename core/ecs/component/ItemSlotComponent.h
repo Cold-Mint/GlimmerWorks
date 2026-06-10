@@ -41,14 +41,14 @@ namespace glimmer
         bool isHovered_ = false;
         bool isSelected_ = false;
         bool allowSelected_ = false;
-        float padding_ = ITEM_SLOT_PADDING;
+        float paddingNormalized_ = ITEM_SLOT_PADDING_NORMALIZED;
 
     public:
         explicit ItemSlotComponent(ItemContainer* itemContainer, int slotIndex, bool allowSelected);
 
-        [[nodiscard]] float GetPadding() const;
+        [[nodiscard]] float GetPaddingNormalized() const;
 
-        void SetPadding(float padding);
+        void SetPaddingNormalized(float paddingNormalized);
 
         [[nodiscard]] bool AllowSelected() const;
 

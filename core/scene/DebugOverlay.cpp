@@ -62,21 +62,15 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
     if (!appContext->GetConfig()->debug.displayDebugPanel) {
         return;
     }
-    int w = 0;
-    int h = 0;
-    SDL_GetWindowSize(appContext->GetWindow(), &w, &h);
-    if (w <= 0 || h <= 0) {
-        LogCat::e("Invalid window size: w=", w, ", h=", h);
-        return;
-    }
-
+    int windowWidth = appContext->GetWindowWidth();
+    int windowHeight = appContext->GetWindowHeight();
     if (appContext->GetConfig()->debug.displayDebugPanel) {
         //Draw the SDL screen coordinates
         //绘制SDL屏幕坐标
         const float uiScale = appContext->GetConfig()->window.uiScale;
         const int labelSpacing = static_cast<int>(50 * uiScale);
         constexpr SDL_Color textColor = {180, 180, 255, 255};
-        for (int x = 0; x <= w; x += labelSpacing) {
+        for (int x = 0; x <= windowWidth; x += labelSpacing) {
             char text[32];
             //skipcq: CXX-C1000
             (void) snprintf(text, sizeof(text), "x%d", x);
@@ -102,7 +96,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
             SDL_DestroySurface(surface);
             SDL_DestroyTexture(texture);
         }
-        for (int y = 0; y <= h; y += labelSpacing) {
+        for (int y = 0; y <= windowHeight; y += labelSpacing) {
             char text[32];
             //skipcq: CXX-C1000
             (void) snprintf(text, sizeof(text), "y%d", y);
@@ -150,7 +144,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
 
             char winText[64];
             //skipcq: CXX-C1000
-            (void) snprintf(winText, sizeof(winText), "Window: %dx%d", w, h);
+            (void) snprintf(winText, sizeof(winText), "Window: %dx%d", windowWidth, windowHeight);
             SDL_Surface *winSurface = TTF_RenderText_Blended(appContext->GetFont(), winText, strlen(winText), color);
             if (!winSurface) {
                 LogCat::w("TTF_RenderText_Blended failed (win): %s", SDL_GetError());
@@ -163,15 +157,15 @@ void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
                     const float padding = 4.0F * uiScale;
 
                     SDL_FRect winRect = {
-                        (static_cast<float>(w) - static_cast<float>(winSurface->w) * uiScale - padding),
-                        (static_cast<float>(h) - static_cast<float>(winSurface->h) * uiScale - padding),
+                        (static_cast<float>(windowWidth) - static_cast<float>(winSurface->w) * uiScale - padding),
+                        (static_cast<float>(windowHeight) - static_cast<float>(winSurface->h) * uiScale - padding),
                         static_cast<float>(winSurface->w) * uiScale,
                         static_cast<float>(winSurface->h) * uiScale
                     };
 
                     SDL_FRect fpsRect = {
-                        (static_cast<float>(w) - static_cast<float>(fpsSurface->w) * uiScale - padding),
-                        (static_cast<float>(h) - static_cast<float>(winSurface->h) * uiScale - static_cast<float>(
+                        (static_cast<float>(windowWidth) - static_cast<float>(fpsSurface->w) * uiScale - padding),
+                        (static_cast<float>(windowHeight) - static_cast<float>(winSurface->h) * uiScale - static_cast<float>(
                              fpsSurface->h) * uiScale -
                          padding * 2.0f),
                         static_cast<float>(fpsSurface->w) * uiScale,

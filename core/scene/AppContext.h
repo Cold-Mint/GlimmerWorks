@@ -131,7 +131,8 @@ namespace glimmer
         toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
         std::vector<GameUIMessage> gameUIMessages_;
         bool initSuccess_ = false;
-
+        int windowWidth_ = 0;
+        int windowHeight_ = 0;
         void LoadLanguage(const std::string& data) const;
 
         static std::string GetTimeFileName(const std::string& prefix = "screenshot", const std::string& ext = ".png");
@@ -148,6 +149,16 @@ namespace glimmer
         ~AppContext();
 
         [[nodiscard]] bool InitSuccess() const;
+
+        void SetWindowWidth(int width);
+
+        void SetWindowHeight(int height);
+
+        void SetWindowTitle( const char* title) const;
+
+        [[nodiscard]] int GetWindowWidth() const;
+
+        [[nodiscard]] int GetWindowHeight() const;
 
         void SetWindow(SDL_Window* window);
 
@@ -239,7 +250,6 @@ namespace glimmer
 
         [[nodiscard]] SavesManager* GetSavesManager() const;
 
-        [[nodiscard]] SDL_Window* GetWindow() const;
 
         [[nodiscard]] MobManager* GetMobManager() const;
 

@@ -36,14 +36,14 @@ glimmer::ItemSlotComponent::ItemSlotComponent(ItemContainer* itemContainer, int 
 {
 }
 
-float glimmer::ItemSlotComponent::GetPadding() const
+float glimmer::ItemSlotComponent::GetPaddingNormalized() const
 {
-    return padding_;
+    return paddingNormalized_;
 }
 
-void glimmer::ItemSlotComponent::SetPadding(const float padding)
+void glimmer::ItemSlotComponent::SetPaddingNormalized(float paddingNormalized)
 {
-    padding_ = padding;
+    paddingNormalized_ = paddingNormalized;
 }
 
 bool glimmer::ItemSlotComponent::AllowSelected() const

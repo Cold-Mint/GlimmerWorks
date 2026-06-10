@@ -528,6 +528,16 @@ void glimmer::App::Run()
 
     while (appContext_->Running() && sceneManager->GetSceneCount() > 0)
     {
+        int windowWidth, windowHeight;
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+        if (windowHeight != appContext_->GetWindowHeight())
+        {
+            appContext_->SetWindowHeight(windowHeight);
+        }
+        if (windowWidth != appContext_->GetWindowWidth())
+        {
+            appContext_->SetWindowWidth(windowWidth);
+        }
         const int idleDelayMs = config->window.idleDelay * 1000;
         float targetFrameTime = 0;
         if (idleDelayMs == -1)
@@ -706,45 +716,51 @@ void glimmer::App::Run()
 
         SDL_RenderClear(renderer_);
 #if  defined(NDEBUG)
-        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+        if (windowWidth > 0 && windowHeight > 0)
         {
-            topScene->Render(renderer_);
-        }
-        for (const auto overlay : overlayScenes)
-        {
-            overlay->Render(renderer_);
-        }
-#else
-        SDL_Color oldColor;
-        SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-        {
-            topScene->Render(renderer_);
-        }
-        SDL_Color newColor;
-        SDL_GetRenderDrawColor(renderer_, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
-        if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
-            b)
-        {
-            LogCat::e("The color of the renderer has been changed by the scene.");
-            assert(false);
-        }
-        for (const auto overlay : overlayScenes)
-        {
-            SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-            overlay->Render(renderer_);
-            SDL_Color overlayColor;
-            SDL_GetRenderDrawColor(renderer_, &overlayColor.r, &overlayColor.g, &overlayColor.b, &overlayColor.a);
-            if (oldColor.a != overlayColor.a || oldColor.r != overlayColor.r || oldColor.g != overlayColor.g || oldColor
-                .b !=
-                overlayColor.b)
+            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
             {
-                LogCat::e("The color of the renderer has been changed by the overlay scene.");
-                assert(false);
+                topScene->Render(renderer_);
+            }
+            for (const auto overlay : overlayScenes)
+            {
+                overlay->Render(renderer_);
             }
         }
-
-
+#else
+        if (windowWidth > 0 && windowHeight > 0)
+        {
+            SDL_Color oldColor;
+            SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+            {
+                topScene->Render(renderer_);
+            }
+            SDL_Color newColor;
+            SDL_GetRenderDrawColor(renderer_, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
+            if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b !=
+                newColor.
+                b)
+            {
+                LogCat::e("The color of the renderer has been changed by the scene.");
+                assert(false);
+            }
+            for (const auto overlay : overlayScenes)
+            {
+                SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+                overlay->Render(renderer_);
+                SDL_Color overlayColor;
+                SDL_GetRenderDrawColor(renderer_, &overlayColor.r, &overlayColor.g, &overlayColor.b, &overlayColor.a);
+                if (oldColor.a != overlayColor.a || oldColor.r != overlayColor.r || oldColor.g != overlayColor.g ||
+                    oldColor
+                    .b !=
+                    overlayColor.b)
+                {
+                    LogCat::e("The color of the renderer has been changed by the overlay scene.");
+                    assert(false);
+                }
+            }
+        }
 #endif
         ImGui::Render();
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);

@@ -26,18 +26,18 @@
  */
 #pragma once
 #include "core/ecs/GameComponent.h"
-#include "core/math/CameraVector2D.h"
+#include "core/math/NormalizedVector2D.h"
 
 namespace glimmer
 {
     class DraggableComponent : public GameComponent
     {
-        CameraVector2D size_;
+        NormalizedVector2D size_;
 
     public:
-        void SetSize(const CameraVector2D& size);
+        void SetSize(NormalizedVector2D size);
 
-        [[nodiscard]] CameraVector2D GetSize() const;
+        [[nodiscard]] const NormalizedVector2D& GetSize() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

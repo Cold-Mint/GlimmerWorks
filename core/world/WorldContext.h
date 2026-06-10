@@ -178,6 +178,12 @@ namespace glimmer
     */
         void InitHotbar(ItemContainer* itemContainer);
 
+        /**
+         * Initialize inventory view(Bag)
+         * 初始化库存视图（背包）
+         */
+        void InitInventory(ItemContainer* itemContainer);
+
         void OnWatchedComponentChanged(GameComponentTypeMessage type, uint32_t count);
 
     public:

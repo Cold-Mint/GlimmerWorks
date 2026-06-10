@@ -63,9 +63,11 @@
 #include "core/ecs/system/DebugMultiMapSystem.h"
 #include "core/ecs/system/DraggableSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
+#include "core/ecs/system/InventoryGUISystem.h"
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
+#include "core/ecs/system/RecipeGUISystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
@@ -383,7 +385,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
             auto& allInitialInventory = appContext_->GetInitialInventoryManager()->GetAllInitialInventory();
             if (ItemContainer* itemContainer = itemContainerComponent->GetItemContainer(); itemContainer != nullptr)
             {
-                itemContainer->Resize(HOT_BAR_SIZE);
+                itemContainer->Resize(HOT_BAR_SIZE * INVENTORY_ROW_COUNT);
                 for (auto& initialInventory : allInitialInventory)
                 {
                     for (auto& addItem : initialInventory->addItems)
@@ -509,7 +511,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
 
 void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
 {
-    if (entityManager_ == nullptr || entityShortCut_ == nullptr)
+    if (entityManager_ == nullptr || entityShortCut_ == nullptr || itemContainer == nullptr)
     {
         return;
     }
@@ -521,8 +523,7 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
         return;
     }
     entityShortCut_->SetHotBarComponent(hotBarComponent);
-    auto uiScale = appContext_->GetConfig()->window.uiScale;
-    constexpr float slotStep = ITEM_SLOT_SIZE + ITEM_SLOT_PADDING;
+    constexpr float slotStep = 0.002F + ITEM_SLOT_SIZE_NORMALIZED;
     for (int i = 0; i < HOT_BAR_SIZE; ++i)
     {
         const auto slotEntity = entityManager_->AddEntity();
@@ -537,10 +538,10 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
         {
             continue;
         }
-        guiTransform2DComponent->SetSize(CameraVector2D(ITEM_SLOT_SIZE * uiScale, ITEM_SLOT_SIZE * uiScale));
-        guiTransform2DComponent->SetPosition(CameraVector2D(
-            (ITEM_SLOT_PADDING + slotStep * static_cast<float>(i)) * uiScale,
-            ITEM_SLOT_PADDING * uiScale
+        guiTransform2DComponent->SetSize(NormalizedVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
+        guiTransform2DComponent->SetPosition(NormalizedVector2D(
+            slotStep * static_cast<float>(i),
+            slotStep
         ));
         auto draggableComponent = entityManager_->AddComponent<DraggableComponent>(slotEntity);
         if (draggableComponent == nullptr)
@@ -549,6 +550,44 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
         }
         draggableComponent->SetSize(guiTransform2DComponent->GetSize());
         hotBarComponent->AddSlotEntity(slotEntity);
+    }
+}
+
+void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer)
+{
+    if (entityManager_ == nullptr || entityShortCut_ == nullptr || itemContainer == nullptr)
+    {
+        return;
+    }
+    uint32_t capacity = itemContainer->GetCapacity();
+    constexpr float slotStep = ITEM_SLOT_PADDING_NORMALIZED + 0.02F;
+
+    for (uint32_t i = 0; i < capacity; ++i)
+    {
+        const auto slotEntity = entityManager_->AddEntity();
+        auto* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
+        if (itemSlotComponent == nullptr)
+        {
+            continue;
+        }
+        auto* guiTransform2DComponent = entityManager_->AddComponent<GuiTransform2DComponent>(slotEntity);
+        if (guiTransform2DComponent == nullptr)
+        {
+            continue;
+        }
+        guiTransform2DComponent->SetSize(NormalizedVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
+        int row = i / 9;
+        int column = i % 9;
+        guiTransform2DComponent->SetPosition(NormalizedVector2D(
+            0.3 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(column),
+            0.2 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(row)
+        ));
+        auto draggableComponent = entityManager_->AddComponent<DraggableComponent>(slotEntity);
+        if (draggableComponent == nullptr)
+        {
+            continue;
+        }
+        draggableComponent->SetSize(guiTransform2DComponent->GetSize());
     }
 }
 
@@ -1004,6 +1043,8 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<BiomeBGMSystem>(this));
     RegisterSystem(std::make_unique<Light2DSystem>(this));
     RegisterSystem(std::make_unique<BlueprintSystem>(this));
+    RegisterSystem(std::make_unique<InventoryGUISystem>(this));
+    RegisterSystem(std::make_unique<RecipeGUISystem>(this));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));
@@ -1166,9 +1207,11 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
                                    RESOURCE_MOB);
     InitPlayer(
         playerResourceRef);
-    InitHotbar(
-        entityManager_->GetComponent<ItemContainerComponent>(entityShortCut_->GetPlayer())->
-                        GetItemContainer());
+    ItemContainer* itemContainerPtr = entityManager_->
+                                      GetComponent<ItemContainerComponent>(entityShortCut_->GetPlayer())->
+                                      GetItemContainer();
+    InitHotbar(itemContainerPtr);
+    InitInventory(itemContainerPtr);
     InitSystem();
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }

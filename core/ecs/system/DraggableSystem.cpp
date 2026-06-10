@@ -61,7 +61,11 @@ SDL_FRect glimmer::DraggableSystem::DraggableBorder(uint32_t entityId, WorldVect
         GuiTransform2DComponent>(entityId);
     if (guiTransformComponent != nullptr)
     {
-        startCoordinates = guiTransformComponent->GetPosition();
+        int windowHeight = appContext_->GetWindowHeight();
+        int windowWidth = appContext_->GetWindowWidth();
+        startCoordinates = CameraVector2D({
+            guiTransformComponent->GetPosition().x * windowWidth, guiTransformComponent->GetPosition().y * windowHeight
+        });
     }
     border.x = startCoordinates.x;
     border.y = startCoordinates.y;
@@ -150,6 +154,7 @@ void glimmer::DraggableSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 glimmer::DraggableSystem::DraggableSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     item_ = nullptr;
+    appContext_ = worldContext->GetAppContext();
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_DRAGGABLE);
@@ -171,12 +176,11 @@ void glimmer::DraggableSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    auto uiScale = appContext->GetConfig()->window.uiScale;
     if (item_ != nullptr)
     {
         float mouseX, mouseY = 0;
         SDL_GetMouseState(&mouseX, &mouseY);
-        const SDL_FRect dst = {mouseX + 6, mouseY + 24, ITEM_SLOT_SIZE * uiScale, ITEM_SLOT_SIZE * uiScale};
+        const SDL_FRect dst = {mouseX + 6, mouseY + 24, ITEM_SLOT_SIZE_NORMALIZED * appContext->GetWindowWidth(), ITEM_SLOT_SIZE_NORMALIZED * appContext->GetWindowHeight()};
         SDL_Texture* texture = item_.get()->GetIcon();
         if (texture != nullptr)
         {

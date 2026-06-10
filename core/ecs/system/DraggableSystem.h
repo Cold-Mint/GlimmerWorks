@@ -37,6 +37,7 @@ namespace glimmer
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2D_ = nullptr;
         std::vector<GameEntityID> draggableEntities_;
+        AppContext* appContext_ = nullptr;
         uint32_t draggableCount_ = 0;
         uint32_t itemSlotCount_ = 0;
 #if  !defined(NDEBUG)

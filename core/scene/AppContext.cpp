@@ -571,6 +571,32 @@ bool glimmer::AppContext::InitSuccess() const
     return initSuccess_;
 }
 
+void glimmer::AppContext::SetWindowWidth(const int width)
+{
+    windowWidth_ = width;
+}
+
+void glimmer::AppContext::SetWindowHeight(const int height)
+{
+    windowHeight_ = height;
+}
+
+void glimmer::AppContext::SetWindowTitle(const char* title) const
+{
+    SDL_SetWindowTitle(window_, title);
+}
+
+int glimmer::AppContext::GetWindowWidth() const
+{
+    return windowWidth_;
+}
+
+int glimmer::AppContext::GetWindowHeight() const
+{
+    return windowHeight_;
+}
+
+
 void glimmer::AppContext::SetWindow(SDL_Window* window)
 {
     this->window_ = window;
@@ -880,11 +906,6 @@ void glimmer::AppContext::SetRandomSlogan() const
 glimmer::SavesManager* glimmer::AppContext::GetSavesManager() const
 {
     return savesManager_.get();
-}
-
-SDL_Window* glimmer::AppContext::GetWindow() const
-{
-    return window_;
 }
 
 glimmer::MobManager* glimmer::AppContext::GetMobManager() const

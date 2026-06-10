@@ -27,6 +27,7 @@
 #include "DebugDrawSystem.h"
 
 #include "../../Constants.h"
+#include "core/math/CoordinateTransformer.h"
 #include "../component/DebugDrawComponent.h"
 #include "core/world/WorldContext.h"
 #include "core/math/Vector2D.h"
@@ -81,8 +82,8 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
             auto worldPositionComponent = entityManager_->GetComponent<Transform2DComponent>(entity);
             if (worldPositionComponent != nullptr)
             {
-                auto cameraVector2d = cameraComponent_->WorldToScreen(
-                    cameraTransform2DComponent_->GetPosition(), worldPositionComponent->GetPosition());
+                auto cameraVector2d = CoordinateTransformer::WorldToScreen(
+                    cameraTransform2DComponent_->GetPosition(), worldPositionComponent->GetPosition(), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
                 if (!cameraComponent_->
                     IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
                                       worldPositionComponent->GetPosition()))

@@ -26,6 +26,7 @@
  */
 #include "LocateCommand.h"
 
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
@@ -145,7 +146,7 @@ bool glimmer::LocateCommand::Execute(const CommandSender *commandSender, const C
         if (transform2dComponent == nullptr) {
             return false;
         }
-        TileVector2D position = TileLayerComponent::WorldToTile(transform2dComponent->GetPosition());
+        TileVector2D position = CoordinateTransformer::WorldToTile(transform2dComponent->GetPosition());
         uint16_t locateMaxRadiusSearchChunks = appContext_->GetConfig()->command.locateMaxRadiusSearchChunks;
         std::optional<TileVector2D> target = std::nullopt;
         for (int searchRadius = 0; searchRadius < locateMaxRadiusSearchChunks; searchRadius++) {

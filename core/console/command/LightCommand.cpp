@@ -32,6 +32,7 @@
 #include "core/scene/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/console/CommandSender.h"
+#include "core/math/CoordinateTransformer.h"
 
 glimmer::LightCommand::LightCommand(AppContext *appContext) : Command(appContext) {
 }
@@ -122,7 +123,7 @@ bool glimmer::LightCommand::Execute(const CommandSender *commandSender, const Co
             return false;
         }
         const WorldVector2D commandSenderPosition = commandSender->GetPosition();
-        const TileVector2D tileVector2D = TileLayerComponent::WorldToTile(WorldVector2D(
+        const TileVector2D tileVector2D = CoordinateTransformer::WorldToTile(WorldVector2D(
             commandArgs->AsCoordinate(2, commandSenderPosition.x),
             commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));

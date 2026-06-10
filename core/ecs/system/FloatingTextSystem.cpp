@@ -27,6 +27,7 @@
 #include "FloatingTextSystem.h"
 
 #include "core/Constants.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/ecs/component/FloatingTextComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/WorldContext.h"
@@ -137,8 +138,8 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        CameraVector2D camera2D = cameraComponent_->WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                  transform2DComponent->GetPosition());
+        CameraVector2D camera2D = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+                                                                  transform2DComponent->GetPosition(), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
         std::string& text = floatingTextComponent->GetText();
         if (text.empty())
         {

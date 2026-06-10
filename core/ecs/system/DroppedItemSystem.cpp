@@ -30,6 +30,7 @@
 #include "../component/CameraComponent.h"
 #include "../component/DroppedItemComponent.h"
 #include "../component/Transform2DComponent.h"
+#include "core/math/CoordinateTransformer.h"
 
 
 void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
@@ -128,8 +129,9 @@ void glimmer::DroppedItemSystem::Render(SDL_Renderer* renderer)
                                                 transform2DComponent->GetPosition()))
         {
             const auto worldPos = transform2DComponent->GetPosition();
-            const CameraVector2D viewport = cameraComponent_->WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), worldPos);
+            const CameraVector2D viewport = CoordinateTransformer::WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), worldPos, cameraComponent_->GetSize(),
+                cameraComponent_->GetZoom());
             SDL_FRect dstRect{
                 viewport.x - size * 0.5F,
                 viewport.y - size * 0.5F,

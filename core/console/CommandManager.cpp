@@ -29,6 +29,7 @@
 #include <cassert>
 
 #include "../log/LogCat.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 #include "suggestion/DynamicSuggestionsManager.h"
@@ -88,9 +89,9 @@ glimmer::CommandSender* glimmer::CommandManager::GetMouseCommandSender()
                 float mouseX = 0;
                 float mouseY = 0;
                 SDL_GetMouseState(&mouseX, &mouseY);
-                const WorldVector2D worldPosition = cameraComponent->ScreenToWorld(
+                const WorldVector2D worldPosition = CoordinateTransformer::ScreenToWorld(
                     transform2DComponent->GetPosition(),
-                    {mouseX, mouseY});
+                    {mouseX, mouseY}, cameraComponent->GetSize(), cameraComponent->GetZoom());
                 mouseCommandSender_.SetPosition(worldPosition);
             }
         }

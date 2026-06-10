@@ -28,6 +28,7 @@
 #include "DebugDrawBox2dSystem.h"
 
 #include "Box2dSystemContext.h"
+#include "core/math/CoordinateTransformer.h"
 #include "../../utils/Box2DUtils.h"
 #include "core/world/WorldContext.h"
 #include "../component/CameraComponent.h"
@@ -108,7 +109,7 @@ static glimmer::CameraVector2D ConvertBox2DToScreen(const glimmer::WorldContext*
     {
         return {worldPos.x * glimmer::kScale, -worldPos.y * glimmer::kScale};
     }
-    return cameraComponent->WorldToScreen(cameraTransform2D->GetPosition(), glimmer::Box2DUtils::ToPixels(worldPos));
+    return glimmer::CoordinateTransformer::WorldToScreen(cameraTransform2D->GetPosition(), glimmer::Box2DUtils::ToPixels(worldPos), cameraComponent->GetSize(), cameraComponent->GetZoom());
 }
 
 /**
@@ -339,10 +340,10 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     SDL_GetRenderDrawColor(sdlRenderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
     const WorldVector2D upperLeft = Box2DUtils::ToPixels(transform.p + vertices[0]);
     const WorldVector2D lowerRight = Box2DUtils::ToPixels(transform.p + vertices[2]);
-    const CameraVector2D upperLeftCamera = cameraComponent->WorldToScreen(
-        cameraTransform2D->GetPosition(), upperLeft);
-    const CameraVector2D lowerRightCamera = cameraComponent->WorldToScreen(
-        cameraTransform2D->GetPosition(), lowerRight);
+    const CameraVector2D upperLeftCamera = CoordinateTransformer::WorldToScreen(
+        cameraTransform2D->GetPosition(), upperLeft, cameraComponent->GetSize(), cameraComponent->GetZoom());
+    const CameraVector2D lowerRightCamera = CoordinateTransformer::WorldToScreen(
+        cameraTransform2D->GetPosition(), lowerRight, cameraComponent->GetSize(), cameraComponent->GetZoom());
     SDL_FRect renderQuad;
     renderQuad.x = upperLeftCamera.x;
     renderQuad.y = upperLeftCamera.y;
@@ -685,10 +686,10 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
         }
         WorldVector2D startPosition = transform2dComponent->GetPosition() + rayComp->
             GetOrigin();
-        const CameraVector2D origin = cameraComponent_->WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                      startPosition);
-        const CameraVector2D end = cameraComponent_->WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                   startPosition + rayComp->GetTranslation());
+        const CameraVector2D origin = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+                                                                      startPosition,cameraComponent_->GetSize(),cameraComponent_->GetZoom());
+        const CameraVector2D end = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+                                                                   startPosition + rayComp->GetTranslation(),cameraComponent_->GetSize(),cameraComponent_->GetZoom());
         SDL_RenderLine(renderer, origin.x, origin.y, end.x, end.y);
     }
     AppContext::RestoreColorRenderer(renderer);

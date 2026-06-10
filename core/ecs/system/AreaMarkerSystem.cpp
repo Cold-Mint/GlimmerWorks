@@ -27,6 +27,7 @@
 #include "AreaMarkerSystem.h"
 
 #include "core/ecs/component/AreaMarkerComponent.h"
+#include "core/math/CoordinateTransformer.h"
 #include "../../world/WorldContext.h"
 #include "fmt/color.h"
 
@@ -104,8 +105,8 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer* renderer)
         areaMarkerBorderColor;
     const TileVector2D& startPointTileVector2D = areaMarkerComponent_->GetStartPoint();
     const TileVector2D& endPointTileVector2D = areaMarkerComponent_->GetEndPoint();
-    const WorldVector2D startPoint = TileLayerComponent::TileToWorld(startPointTileVector2D);
-    const WorldVector2D endPoint = TileLayerComponent::TileToWorld(endPointTileVector2D);
+    const WorldVector2D startPoint = CoordinateTransformer::TileToWorld(startPointTileVector2D);
+    const WorldVector2D endPoint = CoordinateTransformer::TileToWorld(endPointTileVector2D);
     int tileWidth = std::abs(endPointTileVector2D.x - startPointTileVector2D.x) + 1;
     int tileHeight = std::abs(endPointTileVector2D.y - startPointTileVector2D.y) + 1;
     int tileArea = tileWidth * tileHeight;
@@ -122,8 +123,8 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer* renderer)
     if (cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMin) ||
         cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMax))
     {
-        CameraVector2D camMin = cameraComponent_->WorldToScreen(cameraPosition, rectWorldMin);
-        CameraVector2D camMax = cameraComponent_->WorldToScreen(cameraPosition, rectWorldMax);
+        CameraVector2D camMin = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMin, cameraComponent_->GetSize(), cameraComponent_->GetZoom());
+        CameraVector2D camMax = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMax, cameraComponent_->GetSize(), cameraComponent_->GetZoom());
         SDL_FRect rect;
         rect.x = std::min(camMin.x, camMax.x);
         rect.y = std::min(camMin.y, camMax.y);

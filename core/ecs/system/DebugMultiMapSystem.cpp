@@ -27,6 +27,7 @@
 #if  !defined(NDEBUG)
 #include "DebugMultiMapSystem.h"
 
+#include "core/math/CoordinateTransformer.h"
 #include "core/scene/AppContext.h"
 #include "core/utils/ColorUtils.h"
 #include "core/world/WorldContext.h"
@@ -125,10 +126,12 @@ void glimmer::DebugMultiMapSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    auto viewportRect = cameraComponent_->GetViewportRect(cameraTransform2DComponent_->GetPosition());
+    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+                                                               cameraComponent_->GetSize(),
+                                                               cameraComponent_->GetZoom());
     const float zoom = cameraComponent_->GetZoom();
-    const TileVector2D topLeft = TileLayerComponent::WorldToTile({viewportRect.x, viewportRect.y});
-    const TileVector2D bottomRight = TileLayerComponent::WorldToTile({
+    const TileVector2D topLeft = CoordinateTransformer::WorldToTile({viewportRect.x, viewportRect.y});
+    const TileVector2D bottomRight = CoordinateTransformer::WorldToTile({
         viewportRect.x + viewportRect.w + TILE_SIZE,
         viewportRect.y + viewportRect.h + TILE_SIZE
     });
@@ -138,9 +141,10 @@ void glimmer::DebugMultiMapSystem::Render(SDL_Renderer* renderer)
         for (int y = topLeft.y; y < bottomRight.y; y++)
         {
             const TileVector2D tileVector2D = {x, y};
-            const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileVector2D);
-            const CameraVector2D screenPos = cameraComponent_->WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), worldTilePos);
+            const WorldVector2D worldTilePos = CoordinateTransformer::TileToWorld(tileVector2D);
+            const CameraVector2D screenPos = CoordinateTransformer::WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), worldTilePos, cameraComponent_->GetSize(),
+                cameraComponent_->GetZoom());
             SDL_FRect renderQuad;
             renderQuad.w = TILE_SIZE * zoom;
             renderQuad.h = TILE_SIZE * zoom;

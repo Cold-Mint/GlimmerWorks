@@ -25,3 +25,62 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "CoordinateTransformer.h"
+
+#include "../Constants.h"
+
+namespace glimmer
+{
+    SDL_FRect CoordinateTransformer::GetViewportRect(const WorldVector2D& cameraPosition,
+                                                     const CameraVector2D& cameraSize,
+                                                     float zoom)
+    {
+        const float scaledWidth = cameraSize.x / zoom;
+        const float scaledHeight = cameraSize.y / zoom;
+        return {
+            cameraPosition.x - scaledWidth * 0.5F,
+            cameraPosition.y - scaledHeight * 0.5F,
+            scaledWidth,
+            scaledHeight
+        };
+    }
+
+    CameraVector2D CoordinateTransformer::WorldToScreen(const WorldVector2D& cameraPosition,
+                                                        const WorldVector2D& worldPosition,
+                                                        const CameraVector2D& cameraSize,
+                                                        float zoom)
+    {
+        const float offsetX = (worldPosition.x - cameraPosition.x) * zoom;
+        const float offsetY = (worldPosition.y - cameraPosition.y) * zoom;
+        return {
+            cameraSize.x * 0.5F + offsetX,
+            cameraSize.y * 0.5F - offsetY
+        };
+    }
+
+    WorldVector2D CoordinateTransformer::ScreenToWorld(const WorldVector2D& cameraPosition,
+                                                       const CameraVector2D& screenPosition,
+                                                       const CameraVector2D& cameraSize,
+                                                       float zoom)
+    {
+        return {
+            cameraPosition.x + (screenPosition.x - cameraSize.x * 0.5F) / zoom,
+            cameraPosition.y + (cameraSize.y * 0.5F - screenPosition.y) / zoom
+        };
+    }
+
+    WorldVector2D CoordinateTransformer::TileToWorld(const TileVector2D& tilePos)
+    {
+        return {
+            static_cast<float>(tilePos.x) * TILE_SIZE,
+            static_cast<float>(tilePos.y) * TILE_SIZE
+        };
+    }
+
+    TileVector2D CoordinateTransformer::WorldToTile(const WorldVector2D& worldPos)
+    {
+        return {
+            static_cast<int>(std::floor(worldPos.x / TILE_SIZE + 0.5F)),
+            static_cast<int>(std::floor(worldPos.y / TILE_SIZE + 0.5F))
+        };
+    }
+}

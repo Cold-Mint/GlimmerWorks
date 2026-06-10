@@ -31,6 +31,7 @@
 #include "../../ecs/component/TileLayerComponent.h"
 #include "../../ecs/component/Transform2DComponent.h"
 #include "../../inventory/TileItem.h"
+#include "core/math/CoordinateTransformer.h"
 
 
 glimmer::DigAbility::DigAbility(const AbilityConfig& abilityConfig) : ItemAbility(
@@ -95,7 +96,7 @@ void glimmer::DigAbility::OnUse(WorldContext* worldContext, uint32_t user, const
         if (abilityConfig->mineAbleLayer & layerType)
         {
             const TileVector2D& tileVector2D = tileLayerComponent->GetFocusPosition();
-            if ((TileLayerComponent::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
+            if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
                 Distance(playerWorldPos) / TILE_SIZE > abilityConfig
                 ->miningRange)
             {

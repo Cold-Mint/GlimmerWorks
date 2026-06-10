@@ -29,6 +29,7 @@
 #include "../../Constants.h"
 #include "../../world/WorldContext.h"
 #include "../component/Transform2DComponent.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/generator/Chunk.h"
 
 
@@ -217,11 +218,13 @@ void glimmer::ChunkSystem::Update(const float delta)
         return;
     }
     constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
-    auto viewportRect = cameraComponent_->GetViewportRect(cameraTransform2DComponent_->GetPosition());
-    const TileVector2D topLeft = TileLayerComponent::WorldToTile({
+    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+                                                               cameraComponent_->GetSize(),
+                                                               cameraComponent_->GetZoom());
+    const TileVector2D topLeft = CoordinateTransformer::WorldToTile({
         viewportRect.x - chunkWorldSize, viewportRect.y - chunkWorldSize
     });
-    const TileVector2D bottomRight = TileLayerComponent::WorldToTile({
+    const TileVector2D bottomRight = CoordinateTransformer::WorldToTile({
         viewportRect.x + viewportRect.w + chunkWorldSize,
         viewportRect.y + viewportRect.h + chunkWorldSize
     });
@@ -352,10 +355,10 @@ void glimmer::ChunkSystem::Update(const float delta)
     preloadedChunkViewportRect.w += preloadChunkRadius * 2 * chunkWorldSize;
     preloadedChunkViewportRect.h += preloadChunkRadius * 2 * chunkWorldSize;
 
-    TileVector2D topLeftTerrainCorner = TileLayerComponent::WorldToTile(
+    TileVector2D topLeftTerrainCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedTerrainViewportRect.x, preloadedTerrainViewportRect.y));
 
-    TileVector2D lowerRightTerrainCorner = TileLayerComponent::WorldToTile(
+    TileVector2D lowerRightTerrainCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedTerrainViewportRect.x + preloadedTerrainViewportRect.w,
                       preloadedTerrainViewportRect.y + preloadedTerrainViewportRect.h));
     const TileVector2D startTerrain = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftTerrainCorner);
@@ -379,10 +382,10 @@ void glimmer::ChunkSystem::Update(const float delta)
         }
     }
 
-    const TileVector2D topLeftChunkCorner = TileLayerComponent::WorldToTile(
+    const TileVector2D topLeftChunkCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedChunkViewportRect.x, preloadedChunkViewportRect.y));
 
-    const TileVector2D lowerRightChunkCorner = TileLayerComponent::WorldToTile(
+    const TileVector2D lowerRightChunkCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedChunkViewportRect.x + preloadedChunkViewportRect.w,
                       preloadedChunkViewportRect.y + preloadedChunkViewportRect.h));
     const TileVector2D startChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftChunkCorner);
@@ -446,7 +449,7 @@ void glimmer::ChunkSystem::Update(const float delta)
             }
         }
     }
-    const TileVector2D originPosition = TileLayerComponent::WorldToTile(cameraPosition);
+    const TileVector2D originPosition = CoordinateTransformer::WorldToTile(cameraPosition);
     //It needs to be saved in the set in reverse order.
     //需要反向保存在集合内。
     SetOriginAndSort(loadTerrainTasks_, originPosition, false);

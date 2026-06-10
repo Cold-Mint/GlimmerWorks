@@ -26,49 +26,19 @@
  */
 #include "CameraComponent.h"
 
-SDL_FRect glimmer::CameraComponent::GetViewportRect(const WorldVector2D& cameraPosition) const
-{
-    const float scaledWidth = size_.x / zoom_;
-    const float scaledHeight = size_.y / zoom_;
-    return {
-        cameraPosition.x - scaledWidth * 0.5F,
-        cameraPosition.y - scaledHeight * 0.5F,
-        scaledWidth,
-        scaledHeight
-    };
-}
-
-glimmer::CameraVector2D glimmer::CameraComponent::WorldToScreen(const WorldVector2D& cameraPosition,
-                                                                const WorldVector2D& worldPosition) const
-{
-    const float offsetX = (worldPosition.x - cameraPosition.x) * zoom_;
-    const float offsetY = (worldPosition.y - cameraPosition.y) * zoom_;
-    return {
-        size_.x * 0.5F + offsetX,
-        size_.y * 0.5F - offsetY
-    };
-}
-
-glimmer::WorldVector2D glimmer::CameraComponent::ScreenToWorld(const WorldVector2D& cameraPosition,
-                                                               const CameraVector2D& viewPortPosition) const
-{
-    return {
-        cameraPosition.x + (viewPortPosition.x - size_.x * 0.5F) / zoom_,
-        cameraPosition.y + (size_.y * 0.5F - viewPortPosition.y) / zoom_
-    };
-}
+#include "core/math/CoordinateTransformer.h"
 
 bool glimmer::CameraComponent::IsPointInViewport(const WorldVector2D& cameraPosition,
                                                  const WorldVector2D& worldPos) const
 {
-    const auto viewportRect = GetViewportRect(cameraPosition);
+    const auto viewportRect = CoordinateTransformer::GetViewportRect(cameraPosition, size_, zoom_);
     const SDL_FPoint point = SDL_FPoint(worldPos.x, worldPos.y);
     return SDL_PointInRectFloat(&point, &viewportRect);
 }
 
 bool glimmer::CameraComponent::IsRectInViewport(const WorldVector2D& cameraPosition, const SDL_FRect* rect) const
 {
-    const auto viewportRect = GetViewportRect(cameraPosition);
+    const auto viewportRect = CoordinateTransformer::GetViewportRect(cameraPosition, size_, zoom_);
     return SDL_HasRectIntersectionFloat(&viewportRect, rect);
 }
 

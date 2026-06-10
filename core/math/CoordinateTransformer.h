@@ -25,9 +25,71 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <SDL3/SDL_rect.h>
+
+#include "CameraVector2D.h"
+#include "TileVector2D.h"
+#include "WorldVector2D.h"
+
 namespace glimmer
 {
- class CoordinateTransformer
- {
- };
+    class CoordinateTransformer final
+    {
+    public:
+        /**
+         * Get the camera viewport rectangle (in world coordinates)
+         * 获取相机的视口矩形（世界坐标）
+         * @param cameraPosition The camera position in world coordinates 相机位置（世界坐标）
+         * @param cameraSize The camera size in pixels 相机尺寸（像素）
+         * @param zoom The camera zoom factor 相机缩放比例
+         * @return SDL_FRect Viewport rectangle in world coordinates 视口矩形（世界坐标）
+         */
+        [[nodiscard]] static SDL_FRect GetViewportRect(const WorldVector2D& cameraPosition,
+                                                       const CameraVector2D& cameraSize,
+                                                       float zoom);
+
+        /**
+         * World coordinates to screen coordinates
+         * 世界坐标转屏幕坐标
+         * @param cameraPosition The camera position in world coordinates 相机位置（世界坐标）
+         * @param worldPosition The world position to convert 要转换的世界坐标
+         * @param cameraSize The camera size in pixels 相机尺寸（像素）
+         * @param zoom The camera zoom factor 相机缩放比例
+         * @return CameraVector2D Screen position in pixels 屏幕坐标（像素）
+         */
+        [[nodiscard]] static CameraVector2D WorldToScreen(const WorldVector2D& cameraPosition,
+                                                          const WorldVector2D& worldPosition,
+                                                          const CameraVector2D& cameraSize,
+                                                          float zoom);
+
+        /**
+         * Screen coordinates to world coordinates
+         * 屏幕坐标转世界坐标
+         * @param cameraPosition The camera position in world coordinates 相机位置（世界坐标）
+         * @param screenPosition The screen position in pixels 屏幕位置（像素）
+         * @param cameraSize The camera size in pixels 相机尺寸（像素）
+         * @param zoom The camera zoom factor 相机缩放比例
+         * @return WorldVector2D World position 世界坐标
+         */
+        [[nodiscard]] static WorldVector2D ScreenToWorld(const WorldVector2D& cameraPosition,
+                                                         const CameraVector2D& screenPosition,
+                                                         const CameraVector2D& cameraSize,
+                                                         float zoom);
+
+        /**
+         * Tile coordinates to world coordinates
+         * 瓦片坐标转世界坐标
+         * @param tilePos TileVector2D Tile coordinates 瓦片坐标
+         * @return WorldVector2D World coordinates (top-left corner of the tile) 世界坐标（瓦片左上角）
+         */
+        [[nodiscard]] static WorldVector2D TileToWorld(const TileVector2D& tilePos);
+
+        /**
+         * World coordinates to tile coordinates
+         * 世界坐标转瓦片坐标
+         * @param worldPos WorldVector2D World coordinates 世界坐标
+         * @return TileVector2D Tile coordinates 瓦片坐标
+         */
+        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D& worldPos);
+    };
 }

@@ -29,6 +29,7 @@
 #include "../../Constants.h"
 #include "../component/CameraComponent.h"
 #include "../component/TileLayerComponent.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include "core/utils/ColorUtils.h"
@@ -99,7 +100,9 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    auto viewportRect = cameraComponent_->GetViewportRect(cameraTransform2DComponent_->GetPosition());
+    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+                                                               cameraComponent_->GetSize(),
+                                                               cameraComponent_->GetZoom());
     const float zoom = cameraComponent_->GetZoom();
     std::vector<std::pair<TileVector2D, std::unique_ptr<std::vector<TileSnapshot>>>> visibleTiles =
         tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(Ground | BackGround, viewportRect);
@@ -134,10 +137,10 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
                 continue;
             }
             drawnTiles.emplace(tileTopLeftFingerprint);
-            const CameraVector2D tileTopLeftCamera = cameraComponent_->WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), TileLayerComponent::TileToWorld(TileVector2D{
+            const CameraVector2D tileTopLeftCamera = CoordinateTransformer::WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), CoordinateTransformer::TileToWorld(TileVector2D{
                     tileTopLeftPosition.x, tileTopLeftPosition.y
-                }));
+                }), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
             float width = static_cast<float>(tileState->width()) * TILE_SIZE * zoom;
             float height = static_cast<float>(tileState->height()) * TILE_SIZE * zoom;
             SDL_FRect renderQuad;
@@ -210,13 +213,13 @@ bool glimmer::TileLayerSystem::HandleEvent(const SDL_Event& event)
     {
         return false;
     }
-    const WorldVector2D worldPos = cameraComponent_->ScreenToWorld(
+    const WorldVector2D worldPos = CoordinateTransformer::ScreenToWorld(
         cameraTransform2DComponent_->GetPosition(),
-        CameraVector2D(event.motion.x, event.motion.y)
+        CameraVector2D(event.motion.x, event.motion.y), cameraComponent_->GetSize(), cameraComponent_->GetZoom()
     );
     for (auto tileLayerComponent : tileLayerComponents_)
     {
-        tileLayerComponent->SetFocusPosition(TileLayerComponent::WorldToTile(worldPos));
+        tileLayerComponent->SetFocusPosition(CoordinateTransformer::WorldToTile(worldPos));
     }
     return true;
 }

@@ -36,6 +36,7 @@
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/DiggingComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/math/Vector2DI.h"
 
 
@@ -181,7 +182,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
                         droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
                         droppedItemCreator.MergeEntityItemMessage(droppedEntity,
                                                                   DroppedItemCreator::GetEntityItemMessage(
-                                                                      TileLayerComponent::TileToWorld(currentVector),
+                                                                      CoordinateTransformer::TileToWorld(currentVector),
                                                                       std::make_unique<TileItem>(
                                                                           currentTile, oldResourceRef),
                                                                       0));
@@ -203,7 +204,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
                                                                       DroppedItemCreator::GetResourceRef());
                             droppedItemCreator.MergeEntityItemMessage(droppedEntity,
                                                                       DroppedItemCreator::GetEntityItemMessage(
-                                                                          TileLayerComponent::TileToWorld(
+                                                                          CoordinateTransformer::TileToWorld(
                                                                               topLeftVector),
                                                                           std::move(itemPtr), 0));
                         }
@@ -310,11 +311,12 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
                 continue;
             }
             const TileVector2D& tileTopLeftPosition = point->GetTileTopLeftPosition();
-            const WorldVector2D tileTopLeftPositionWorld = TileLayerComponent::TileToWorld({
+            const WorldVector2D tileTopLeftPositionWorld = CoordinateTransformer::TileToWorld({
                 tileTopLeftPosition.x, tileTopLeftPosition.y
             });
-            const CameraVector2D cameraVector2d = cameraComponent_->WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld);
+            const CameraVector2D cameraVector2d = CoordinateTransformer::WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
+                cameraComponent_->GetZoom());
             const auto maxIndex = static_cast<float>(textureList.size() - 1);
             const uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
                                                                      maxIndex));

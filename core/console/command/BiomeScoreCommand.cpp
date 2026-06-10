@@ -27,6 +27,7 @@
 #if  !defined(NDEBUG)
 #include "BiomeScoreCommand.h"
 #include "core/LangsResources.h"
+#include "core/math/CoordinateTransformer.h"
 #include "fmt/xchar.h"
 #include "core/scene/AppContext.h"
 #include "core/world/WorldContext.h"
@@ -121,7 +122,7 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender *commandSender, con
             return false;
         }
         const WorldVector2D commandSenderPosition = commandSender->GetPosition();
-        const TileVector2D tileVector2D = TileLayerComponent::WorldToTile(WorldVector2D(
+        const TileVector2D tileVector2D = CoordinateTransformer::WorldToTile(WorldVector2D(
             commandArgs->AsCoordinate(2, commandSenderPosition.x),
             commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));

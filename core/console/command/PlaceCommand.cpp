@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "PlaceCommand.h"
+
+#include "core/math/CoordinateTransformer.h"
 #include "core/scene/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/world/generator/ChunkPhysicsHelper.h"
@@ -99,7 +101,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
             return false;
         }
         const WorldVector2D commandSenderPosition = commandSender->GetPosition();
-        auto tilePosition = TileLayerComponent::WorldToTile(
+        auto tilePosition = CoordinateTransformer::WorldToTile(
             {
                 commandArgs->AsCoordinate(3, commandSenderPosition.x),
                 commandArgs->AsCoordinate(4, commandSenderPosition.y)

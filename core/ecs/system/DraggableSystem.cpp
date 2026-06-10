@@ -27,6 +27,7 @@
 #include "DraggableSystem.h"
 
 #include "core/Constants.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/DraggableComponent.h"
 #include "core/ecs/component/GuiTransform2DComponent.h"
@@ -54,8 +55,8 @@ SDL_FRect glimmer::DraggableSystem::DraggableBorder(uint32_t entityId, WorldVect
         {
             return border;
         }
-        startCoordinates = cameraComponent->WorldToScreen(
-            cameraPosition, transformComponent->GetPosition());
+        startCoordinates = CoordinateTransformer::WorldToScreen(
+            cameraPosition, transformComponent->GetPosition(), cameraComponent->GetSize(), cameraComponent->GetZoom());
     }
     const GuiTransform2DComponent* guiTransformComponent = entityManager_->GetComponent<
         GuiTransform2DComponent>(entityId);

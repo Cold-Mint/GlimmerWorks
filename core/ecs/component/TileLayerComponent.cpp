@@ -32,11 +32,12 @@
 #include "../../world/Tile.h"
 #include "../../math/Vector2DI.h"
 #include "../../world/generator/Chunk.h"
+#include "../../math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
 
 const glimmer::Tile* glimmer::TileLayerComponent::GetTile(const TileLayerType layerType,
-                                                          const TileVector2D& tilePos) const
+                                                      const TileVector2D& tilePos) const
 {
     if (worldContext_ == nullptr)
     {
@@ -78,24 +79,6 @@ std::unique_ptr<std::vector<glimmer::TileSnapshot>> glimmer::TileLayerComponent:
     return chunk->GetTopVisibleTileSnapshots(layerFilter, pos.y << CHUNK_SHIFT | pos.x);
 }
 
-glimmer::WorldVector2D glimmer::TileLayerComponent::TileToWorld(
-    const TileVector2D& tilePos)
-{
-    return {
-        static_cast<float>(tilePos.x) * TILE_SIZE,
-        static_cast<float>(tilePos.y) * TILE_SIZE
-    };
-}
-
-
-glimmer::TileVector2D glimmer::TileLayerComponent::WorldToTile(const WorldVector2D& worldPos)
-{
-    return {
-        static_cast<int>(std::floor(worldPos.x / TILE_SIZE + 0.5F)),
-        static_cast<int>(std::floor(worldPos.y / TILE_SIZE + 0.5F))
-    };
-}
-
 std::vector<std::pair<glimmer::TileVector2D, std::unique_ptr<std::vector<glimmer::TileSnapshot>>>>
 glimmer::TileLayerComponent::
 GetTopVisibleTileSnapshotsInViewport(const uint8_t layerFilter, const SDL_FRect& worldViewport) const
@@ -104,10 +87,10 @@ GetTopVisibleTileSnapshotsInViewport(const uint8_t layerFilter, const SDL_FRect&
     {
         return {};
     }
-    const TileVector2D topLeft = WorldToTile({worldViewport.x, worldViewport.y});
+    const TileVector2D topLeft = CoordinateTransformer::WorldToTile({worldViewport.x, worldViewport.y});
     //The purpose of adding "TILE_SIZE" in the lower right corner is to prevent blank areas from appearing.
     //右下角加TILE_SIZE的目的是，防止出现空白区域。
-    const TileVector2D bottomRight = WorldToTile({
+    const TileVector2D bottomRight = CoordinateTransformer::WorldToTile({
         worldViewport.x + worldViewport.w + TILE_SIZE,
         worldViewport.y + worldViewport.h + TILE_SIZE
     });

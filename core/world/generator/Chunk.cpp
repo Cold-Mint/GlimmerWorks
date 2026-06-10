@@ -26,6 +26,7 @@
  */
 #include "Chunk.h"
 
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 #include "src/saves/tile_state.pb.h"
 
@@ -271,9 +272,9 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage &chunkMessage) {
 }
 
 glimmer::WorldVector2D glimmer::Chunk::GetStartWorldPosition() const {
-    return TileLayerComponent::TileToWorld(position);
+    return CoordinateTransformer::TileToWorld(position);
 }
 
 glimmer::WorldVector2D glimmer::Chunk::GetEndWorldPosition() const {
-    return TileLayerComponent::TileToWorld(position + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
+    return CoordinateTransformer::TileToWorld(position + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
 }

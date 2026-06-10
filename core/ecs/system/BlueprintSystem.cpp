@@ -29,6 +29,7 @@
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TilePlacementForbiddenZoneComponent.h"
 #include "core/inventory/TileItem.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
 std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Tile* tile, TileVector2D leftBottom,
@@ -82,7 +83,7 @@ std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Til
                 continue;
             }
 
-            if ((TileLayerComponent::TileToWorld(point) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
+            if ((CoordinateTransformer::TileToWorld(point) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
                 Distance(playerPosition) / TILE_SIZE >
                 TILE_PLACE_RANGE)
             {
@@ -205,7 +206,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
                 continue;
             }
             const TileVector2D originTileVector2D =
-                TileLayerComponent::WorldToTile(transform2DComponent->GetPosition());
+                CoordinateTransformer::WorldToTile(transform2DComponent->GetPosition());
             const int startX = originTileVector2D.x + tilePlacementForbiddenZone->GetOffsetX();
             const int startY = originTileVector2D.y + tilePlacementForbiddenZone->GetOffsetY();
             blockRects_.push_back({
@@ -217,7 +218,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     uint8_t tileHeight = 1;
     TileVector2D tileAnchor = {0, 0};
     const TileVector2D& focusPosition = tileLayerComponent_->GetFocusPosition();
-    const WorldVector2D focusWorldTilePos = TileLayerComponent::TileToWorld(focusPosition);
+    const WorldVector2D focusWorldTilePos = CoordinateTransformer::TileToWorld(focusPosition);
     PlayerComponent* playerComponent = entityManager_->GetComponent<PlayerComponent>(player);
     Transform2DComponent* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(player);
     Item* item = playerComponent->item;
@@ -246,9 +247,10 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     }
     auto TopLeftVector = TileVector2D{leftBottom.x, leftBottom.y + tileHeight - 1};
     blueprintComponent_->SetTopLeftVector(TopLeftVector);
-    const CameraVector2D focusWorldTileCamera = cameraComponent_->WorldToScreen(
+    const CameraVector2D focusWorldTileCamera = CoordinateTransformer::WorldToScreen(
         cameraTransform2DComponent_->GetPosition(),
-        TileLayerComponent::TileToWorld({focusPosition.x, focusPosition.y}));
+        CoordinateTransformer::TileToWorld({focusPosition.x, focusPosition.y}), cameraComponent_->GetSize(),
+        cameraComponent_->GetZoom());
     SDL_FRect renderQuad;
     const float zoom = cameraComponent_->GetZoom();
     renderQuad.w = static_cast<float>(tileWidth) * TILE_SIZE * zoom;
@@ -260,9 +262,10 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     }
     else
     {
-        const CameraVector2D topLeftCamera = cameraComponent_->WorldToScreen(
+        const CameraVector2D topLeftCamera = CoordinateTransformer::WorldToScreen(
             cameraTransform2DComponent_->GetPosition(),
-            TileLayerComponent::TileToWorld(TopLeftVector)
+            CoordinateTransformer::TileToWorld(TopLeftVector), cameraComponent_->GetSize(),
+            cameraComponent_->GetZoom()
         );
         renderQuad.x = topLeftCamera.x - renderQuad.w * 0.5F;
         renderQuad.y = topLeftCamera.y - renderQuad.w * 0.5F;
@@ -306,8 +309,9 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
                     int relX = i % tileWidth;
                     int relY = i / tileWidth;
                     TileVector2D currTile = {leftBottom.x + relX, leftBottom.y + relY};
-                    const CameraVector2D tileScreenPos = cameraComponent_->WorldToScreen(
-                        cameraTransform2DComponent_->GetPosition(), TileLayerComponent::TileToWorld(currTile));
+                    const CameraVector2D tileScreenPos = CoordinateTransformer::WorldToScreen(
+                        cameraTransform2DComponent_->GetPosition(), CoordinateTransformer::TileToWorld(currTile),
+                        cameraComponent_->GetSize(), cameraComponent_->GetZoom());
                     SDL_FRect indicatorRenderQuad;
                     indicatorRenderQuad.w = TILE_SIZE * zoom;
                     indicatorRenderQuad.h = TILE_SIZE * zoom;

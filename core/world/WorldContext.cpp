@@ -69,6 +69,7 @@
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/RecipeGUISystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
 #include "generator/ChunkPhysicsHelper.h"
@@ -373,7 +374,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
         mobEntityCreator.LoadTemplateComponents(playerEntity, resourceRef);
         mobEntityCreator.MergeEntityItemMessage(playerEntity,
                                                 MobEntityCreator::GetEntityItemMessage(
-                                                    TileLayerComponent::TileToWorld(
+                                                    CoordinateTransformer::TileToWorld(
                                                         TileVector2D(0, firstTileTerrainY + 3))));
     }
     if (!entityManager_->HasComponent(playerEntity, COMPONENT_ITEM_CONTAINER))

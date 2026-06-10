@@ -26,8 +26,8 @@
  */
 #include "BiomeBGMSystem.h"
 
-#include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
 void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
@@ -73,7 +73,7 @@ void glimmer::BiomeBGMSystem::Update(float delta)
         return;
     }
     const WorldVector2D position = playerTransform2DComponent_->GetPosition();
-    const TileVector2D tileVector2d = TileLayerComponent::WorldToTile(position);
+    const TileVector2D tileVector2d = CoordinateTransformer::WorldToTile(position);
     const TileVector2D chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d);
     const TerrainResult* terrainResult = worldContext_->GetTerrainData(chunkVertex);
     if (terrainResult == nullptr)

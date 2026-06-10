@@ -27,6 +27,7 @@
 #include "Light2DSystem.h"
 
 #include "core/Constants.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/utils/ColorUtils.h"
 #include "core/world/LightPropagationTraverser.h"
 #include "core/world/WorldContext.h"
@@ -84,12 +85,12 @@ void glimmer::Light2DSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    auto viewportRect = cameraComponent_->GetViewportRect(cameraTransform2DComponent_->GetPosition());
     const float zoom = cameraComponent_->GetZoom();
-    const TileVector2D topLeft = TileLayerComponent::WorldToTile({viewportRect.x, viewportRect.y});
+    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(), cameraComponent_->GetSize(), zoom);
+    const TileVector2D topLeft = CoordinateTransformer::WorldToTile({viewportRect.x, viewportRect.y});
     //The purpose of adding "TILE_SIZE" in the lower right corner is to prevent blank areas from appearing.
     //右下角加TILE_SIZE的目的是，防止出现空白区域。
-    const TileVector2D bottomRight = TileLayerComponent::WorldToTile({
+    const TileVector2D bottomRight = CoordinateTransformer::WorldToTile({
         viewportRect.x + viewportRect.w + TILE_SIZE,
         viewportRect.y + viewportRect.h + TILE_SIZE
     });
@@ -98,9 +99,9 @@ void glimmer::Light2DSystem::Render(SDL_Renderer* renderer)
         for (int x = topLeft.x; x <= bottomRight.x; ++x)
         {
             auto tileVector2D = TileVector2D(x, y);
-            const WorldVector2D worldTilePos = TileLayerComponent::TileToWorld(tileVector2D);
-            const CameraVector2D screenPos = cameraComponent_->WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), worldTilePos);
+            const WorldVector2D worldTilePos = CoordinateTransformer::TileToWorld(tileVector2D);
+            const CameraVector2D screenPos = CoordinateTransformer::WorldToScreen(
+                cameraTransform2DComponent_->GetPosition(), worldTilePos, cameraComponent_->GetSize(), zoom);
             SDL_FRect renderQuad;
             renderQuad.w = TILE_SIZE * zoom;
             renderQuad.h = TILE_SIZE * zoom;

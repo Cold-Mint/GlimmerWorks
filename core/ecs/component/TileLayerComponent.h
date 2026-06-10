@@ -70,22 +70,6 @@ namespace glimmer
         [[nodiscard]] const Tile* GetTile(TileLayerType layerType, const TileVector2D& tilePos) const;
 
         /**
-         *Tile To World
-         * 瓦片坐标转世界坐标
-         * @param tilePos TileVector2D 瓦片坐标
-         * @return WorldVector2D(The upper left corner of the tile) 世界坐标（瓦片左上角）
-         */
-        [[nodiscard]] static WorldVector2D TileToWorld(const TileVector2D& tilePos);
-
-        /**
-         * WorldToTile
-         * 世界坐标转瓦片坐标
-         * @param worldPos worldPos 世界坐标
-         * @return
-         */
-        [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D& worldPos);
-
-        /**
          * Get Top Visible Tiles In Viewport
          * 获取视口矩形内的所有顶层可见瓦片数据
          * @param layerFilter The layer to be queried 要查询的图层

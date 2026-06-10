@@ -83,4 +83,12 @@ namespace glimmer
             static_cast<int>(std::floor(worldPos.y / TILE_SIZE + 0.5F))
         };
     }
+
+    CameraVector2D CoordinateTransformer::DesignToCamera(const DesignVector2D& designPos, float uiScale)
+    {
+        return {
+            designPos.x * uiScale,
+            designPos.y * uiScale
+        };
+    }
 }

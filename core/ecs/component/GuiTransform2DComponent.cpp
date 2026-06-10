@@ -29,22 +29,22 @@
 #include "core/Constants.h"
 
 
-void glimmer::GuiTransform2DComponent::SetPosition(const NormalizedVector2D& position)
+void glimmer::GuiTransform2DComponent::SetPosition(const DesignVector2D& position)
 {
     position_ = position;
 }
 
-void glimmer::GuiTransform2DComponent::SetSize(const NormalizedVector2D& size)
+void glimmer::GuiTransform2DComponent::SetSize(const DesignVector2D& size)
 {
     size_ = size;
 }
 
-const glimmer::NormalizedVector2D& glimmer::GuiTransform2DComponent::GetPosition() const
+const glimmer::DesignVector2D& glimmer::GuiTransform2DComponent::GetPosition() const
 {
     return position_;
 }
 
-const glimmer::NormalizedVector2D& glimmer::GuiTransform2DComponent::GetSize() const
+const glimmer::DesignVector2D& glimmer::GuiTransform2DComponent::GetSize() const
 {
     return size_;
 }

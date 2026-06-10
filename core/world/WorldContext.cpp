@@ -539,8 +539,8 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
         {
             continue;
         }
-        guiTransform2DComponent->SetSize(NormalizedVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
-        guiTransform2DComponent->SetPosition(NormalizedVector2D(
+        guiTransform2DComponent->SetSize(DesignVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
+        guiTransform2DComponent->SetPosition(DesignVector2D(
             slotStep * static_cast<float>(i),
             slotStep
         ));
@@ -576,10 +576,10 @@ void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer)
         {
             continue;
         }
-        guiTransform2DComponent->SetSize(NormalizedVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
+        guiTransform2DComponent->SetSize(DesignVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
         int row = i / 9;
         int column = i % 9;
-        guiTransform2DComponent->SetPosition(NormalizedVector2D(
+        guiTransform2DComponent->SetPosition(DesignVector2D(
             0.3 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(column),
             0.2 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(row)
         ));

@@ -27,12 +27,12 @@
 #include "DraggableComponent.h"
 
 
-void glimmer::DraggableComponent::SetSize(NormalizedVector2D size)
+void glimmer::DraggableComponent::SetSize(DesignVector2D size)
 {
     size_ = size;
 }
 
-const glimmer::NormalizedVector2D& glimmer::DraggableComponent::GetSize() const
+const glimmer::DesignVector2D& glimmer::DraggableComponent::GetSize() const
 {
     return size_;
 }

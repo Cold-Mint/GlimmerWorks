@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -25,13 +25,4 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "Vector2DBase.h"
-namespace glimmer
-{
-    class NormalizedVector2D final : public Vector2DBase<NormalizedVector2D>
-    {
-        //Inherit all the constructors of the parent class.
-        //继承父类的所有构造函数。
-        using Vector2DBase::Vector2DBase;
-    };
-}
+#include "DesignVector2D.h"

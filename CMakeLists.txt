@@ -609,8 +609,8 @@ target_sources(GlimmerWorks
         core/ecs/system/InventoryGUISystem.cpp
         core/ecs/system/RecipeGUISystem.cpp
         core/ecs/IVisible.cpp
-        core/math/NormalizedVector2D.cpp
         core/math/CoordinateTransformer.cpp
+        core/math/DesignVector2D.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -894,8 +894,8 @@ target_sources(GlimmerWorks
         core/ecs/system/InventoryGUISystem.h
         core/ecs/system/RecipeGUISystem.h
         core/ecs/IVisible.h
-        core/math/NormalizedVector2D.h
         core/math/CoordinateTransformer.h
+        core/math/DesignVector2D.h
 )
 
 #Define version information

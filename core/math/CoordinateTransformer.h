@@ -28,6 +28,7 @@
 #include <SDL3/SDL_rect.h>
 
 #include "CameraVector2D.h"
+#include "DesignVector2D.h"
 #include "TileVector2D.h"
 #include "WorldVector2D.h"
 
@@ -91,5 +92,14 @@ namespace glimmer
          * @return TileVector2D Tile coordinates 瓦片坐标
          */
         [[nodiscard]] static TileVector2D WorldToTile(const WorldVector2D& worldPos);
+
+        /**
+         * Design coordinates to camera coordinates
+         * 设计坐标转相机坐标
+         * @param designPos DesignVector2D Design coordinates 设计坐标
+         * @param uiScale UI scale factor UI缩放比例
+         * @return CameraVector2D Camera coordinates 相机坐标
+         */
+        [[nodiscard]] static CameraVector2D DesignToCamera(const DesignVector2D& designPos, float uiScale);
     };
 }

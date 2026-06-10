@@ -62,11 +62,11 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        const NormalizedVector2D sizeNormalized = guiTransform2DComponent->GetSize();
+        const DesignVector2D sizeNormalized = guiTransform2DComponent->GetSize();
         int min = std::min(appContext_->GetWindowWidth(), appContext_->GetWindowHeight());
         const CameraVector2D size = CameraVector2D(sizeNormalized.x * min,
                                                    sizeNormalized.y * min);
-        const NormalizedVector2D positionNormalized = guiTransform2DComponent->GetPosition();
+        const DesignVector2D positionNormalized = guiTransform2DComponent->GetPosition();
         const CameraVector2D position = CameraVector2D(positionNormalized.x * appContext_->GetWindowWidth(),
                                                        positionNormalized.y * appContext_->GetWindowHeight());
         const SDL_FRect rect = {position.x * uiScale_, position.y * uiScale_, size.x * uiScale_, size.y * uiScale_};
@@ -222,10 +222,10 @@ bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event& event)
             {
                 continue;
             }
-            const NormalizedVector2D sizeNormalized = guiTransform2DComponent->GetSize();
+            const DesignVector2D sizeNormalized = guiTransform2DComponent->GetSize();
             const CameraVector2D size = CameraVector2D(sizeNormalized.x * appContext_->GetWindowWidth(),
                                                        sizeNormalized.y * appContext_->GetWindowHeight());
-            const NormalizedVector2D positionNormalized = guiTransform2DComponent->GetPosition();
+            const DesignVector2D positionNormalized = guiTransform2DComponent->GetPosition();
             const CameraVector2D position = CameraVector2D(positionNormalized.x * appContext_->GetWindowWidth(),
                                                            positionNormalized.y * appContext_->GetWindowHeight());
             const SDL_FRect border = {position.x, position.y, size.x, size.y};

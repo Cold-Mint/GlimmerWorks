@@ -26,7 +26,7 @@
  */
 #pragma once
 #include "core/ecs/GameComponent.h"
-#include "core/math/NormalizedVector2D.h"
+#include "core/math/DesignVector2D.h"
 
 namespace glimmer
 {
@@ -36,17 +36,17 @@ namespace glimmer
      */
     class GuiTransform2DComponent : public GameComponent
     {
-        NormalizedVector2D position_;
-        NormalizedVector2D size_;
+        DesignVector2D position_;
+        DesignVector2D size_;
 
     public:
-        void SetPosition(const NormalizedVector2D& position);
+        void SetPosition(const DesignVector2D& position);
 
-        void SetSize(const NormalizedVector2D& size);
+        void SetSize(const DesignVector2D& size);
 
-        [[nodiscard]] const NormalizedVector2D& GetPosition() const;
+        [[nodiscard]] const DesignVector2D& GetPosition() const;
 
-        [[nodiscard]] const NormalizedVector2D& GetSize() const;
+        [[nodiscard]] const DesignVector2D& GetSize() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

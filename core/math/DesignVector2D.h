@@ -24,4 +24,13 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "NormalizedVector2D.h"
+#pragma once
+#include "Vector2DBase.h"
+
+namespace glimmer
+{
+    class DesignVector2D : public Vector2DBase<DesignVector2D>
+    {
+        using Vector2DBase::Vector2DBase;
+    };
+}

@@ -53,7 +53,7 @@ namespace glimmer
     public:
         explicit DraggableSystem(WorldContext* worldContext);
 
-        ~DraggableSystem();
+        ~DraggableSystem() override;
 
         void OnActivationChanged(bool activeStatus) override;
 

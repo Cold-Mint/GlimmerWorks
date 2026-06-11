@@ -53,6 +53,7 @@
 #include "box2d/box2d.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/MobEntityCreator.h"
+#include "core/ecs/component/DraggableComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/component/HotBarComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
@@ -491,7 +492,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
     entityShortCut_->SetPlayer(playerEntity);
 }
 
-void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
+void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer) const
 {
     if (entityManager_ == nullptr || entityShortCut_ == nullptr || itemContainer == nullptr)
     {
@@ -505,67 +506,73 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
         return;
     }
     entityShortCut_->SetHotBarComponent(hotBarComponent);
-    // constexpr float slotStep = 0.002F + ITEM_SLOT_SIZE_NORMALIZED;
-    // for (int i = 0; i < HOT_BAR_SIZE; ++i)
-    // {
-    //     const auto slotEntity = entityManager_->AddEntity();
-    //     auto* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
-    //     if (itemSlotComponent == nullptr)
-    //     {
-    //         continue;
-    //     }
-    //     itemSlotComponent->SetSelected(i == 0);
-    //     auto* guiTransform2DComponent = entityManager_->AddComponent<GuiTransform2DComponent>(slotEntity);
-    //     if (guiTransform2DComponent == nullptr)
-    //     {
-    //         continue;
-    //     }
-    //     guiTransform2DComponent->SetSize(DesignVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
-    //     guiTransform2DComponent->SetPosition(DesignVector2D(
-    //         slotStep * static_cast<float>(i),
-    //         slotStep
-    //     ));
-    //     auto draggableComponent = entityManager_->AddComponent<DraggableComponent>(slotEntity);
-    //     if (draggableComponent == nullptr)
-    //     {
-    //         continue;
-    //     }
-    //     draggableComponent->SetSize(guiTransform2DComponent->GetSize());
-    //     hotBarComponent->AddSlotEntity(slotEntity);
-    // }
+
+    CameraComponent* cameraComponent = entityShortCut_->GetCameraComponent();
+    if (cameraComponent == nullptr)
+    {
+        LogCat::e("initHotbar: CameraComponent is null.");
+        return;
+    }
+
+    const ScreenVector2D screenSize = cameraComponent->GetSize();
+    const DesignDimension slotSize = ITEM_SLOT_SIZE;
+    const DesignDimension padding = ITEM_SLOT_PADDING;
+    const DesignVector2D hotbarStartPosition{padding, screenSize.y - slotSize - padding};
+    GenerateItemSlot(itemContainer, hotbarStartPosition, HOT_BAR_SIZE);
 }
 
-void glimmer::WorldContext::GenerateItemSlot(ItemContainer* itemContainer, ScreenVector2D startPosition, int column)
+void glimmer::WorldContext::GenerateItemSlot(ItemContainer* itemContainer, const DesignVector2D& startPosition,
+                                             const uint8_t column) const
 {
-    // uint32_t capacity = itemContainer->GetCapacity();
-    // constexpr float slotStep = ITEM_SLOT_PADDING_NORMALIZED + 0.02F;
-    // for (uint32_t i = 0; i < capacity; ++i)
-    // {
-    //     const auto slotEntity = entityManager_->AddEntity();
-    //     auto* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
-    //     if (itemSlotComponent == nullptr)
-    //     {
-    //         continue;
-    //     }
-    //     auto* guiTransform2DComponent = entityManager_->AddComponent<GuiTransform2DComponent>(slotEntity);
-    //     if (guiTransform2DComponent == nullptr)
-    //     {
-    //         continue;
-    //     }
-    //     guiTransform2DComponent->SetSize(DesignVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
-    //     int row = i / 9;
-    //     int column = i % 9;
-    //     guiTransform2DComponent->SetPosition(DesignVector2D(
-    //         0.3 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(column),
-    //         0.2 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(row)
-    //     ));
-    //     auto draggableComponent = entityManager_->AddComponent<DraggableComponent>(slotEntity);
-    //     if (draggableComponent == nullptr)
-    //     {
-    //         continue;
-    //     }
-    //     draggableComponent->SetSize(guiTransform2DComponent->GetSize());
-    // }
+    if (entityManager_ == nullptr || itemContainer == nullptr)
+    {
+        LogCat::e("GenerateItemSlot: Invalid parameters.");
+        return;
+    }
+
+    const size_t capacity = itemContainer->GetCapacity();
+    if (capacity == 0)
+    {
+        LogCat::e("GenerateItemSlot: Invalid capacity or column.");
+        return;
+    }
+
+    const DesignDimension slotSize = ITEM_SLOT_SIZE;
+    const DesignDimension padding = ITEM_SLOT_PADDING;
+    const DesignDimension totalSlotWidth = slotSize + padding;
+
+    for (size_t i = 0; i < capacity; ++i)
+    {
+        const int row = static_cast<int>(i / column);
+        const int col = static_cast<int>(i % column);
+
+        DesignVector2D slotPosition;
+        slotPosition.x = startPosition.x + static_cast<DesignDimension>(col) * totalSlotWidth;
+        slotPosition.y = startPosition.y + static_cast<DesignDimension>(row) * totalSlotWidth;
+
+        GameEntityID slotEntity = entityManager_->AddEntity();
+        if (slotEntity == GAME_ENTITY_ID_INVALID)
+        {
+            LogCat::e("GenerateItemSlot: Failed to create slot entity.");
+            continue;
+        }
+
+        auto* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(
+            slotEntity, itemContainer, static_cast<int>(i));
+        if (itemSlotComponent == nullptr)
+        {
+            LogCat::e("GenerateItemSlot: Failed to add ItemSlotComponent.");
+            continue;
+        }
+
+        itemSlotComponent->SetPosition(slotPosition);
+        itemSlotComponent->SetSize({slotSize, slotSize});
+
+        if (!entityManager_->AddComponent<DraggableComponent>(slotEntity))
+        {
+            LogCat::e("GenerateItemSlot: Failed to add DraggableComponent.");
+        }
+    }
 }
 
 void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer)
@@ -574,6 +581,31 @@ void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer)
     {
         return;
     }
+
+    CameraComponent* cameraComponent = entityShortCut_->GetCameraComponent();
+    if (cameraComponent == nullptr)
+    {
+        LogCat::e("InitInventory: CameraComponent is null.");
+        return;
+    }
+
+    const ScreenVector2D screenSize = cameraComponent->GetSize();
+    const size_t capacity = itemContainer->GetCapacity();
+    const int column = HOT_BAR_SIZE;
+    const int row = static_cast<int>(capacity / column);
+
+    const DesignDimension slotSize = ITEM_SLOT_SIZE;
+    const DesignDimension padding = ITEM_SLOT_PADDING;
+    const DesignDimension totalSlotWidth = slotSize + padding;
+
+    const DesignDimension inventoryWidth = static_cast<DesignDimension>(column) * totalSlotWidth - padding;
+    const DesignDimension inventoryHeight = static_cast<DesignDimension>(row) * totalSlotWidth - padding;
+
+    DesignVector2D inventoryStartPosition;
+    inventoryStartPosition.x = (screenSize.x - inventoryWidth) * 0.5F;
+    inventoryStartPosition.y = (screenSize.y - inventoryHeight) * 0.5F;
+
+    GenerateItemSlot(itemContainer, inventoryStartPosition, column);
 }
 
 void glimmer::WorldContext::OnWatchedComponentChanged(const GameComponentTypeMessage type, const uint32_t count)

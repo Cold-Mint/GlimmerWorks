@@ -188,10 +188,10 @@ void glimmer::DraggableSystem::Render(SDL_Renderer* renderer)
         float mouseX, mouseY = 0;
         SDL_GetMouseState(&mouseX, &mouseY);
         const SDL_FRect dst = {
-            mouseX + 6, mouseY + 24, ITEM_SLOT_SIZE_NORMALIZED * appContext->GetWindowWidth(),
-            ITEM_SLOT_SIZE_NORMALIZED * appContext->GetWindowHeight()
+            mouseX + 6, mouseY + 24, ITEM_SLOT_SIZE * uiScale_,
+            ITEM_SLOT_SIZE * uiScale_
         };
-        SDL_Texture* texture = item_.get()->GetIcon();
+        SDL_Texture* texture = item_->GetIcon();
         if (texture != nullptr)
         {
             SDL_RenderTexture(renderer, texture, nullptr, &dst);

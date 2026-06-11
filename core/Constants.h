@@ -165,8 +165,8 @@ static constexpr size_t ITEM_MAX_STACK = 64;
 static constexpr size_t HOT_BAR_SIZE = 9;
 //Number of backpacks
 //背包行数
-static constexpr float ITEM_SLOT_SIZE_NORMALIZED = 0.05F;
-static constexpr float ITEM_SLOT_PADDING_NORMALIZED = 0.002F;
+static constexpr float ITEM_SLOT_SIZE = 24;
+static constexpr float ITEM_SLOT_PADDING = 2;
 static constexpr size_t INVENTORY_ROW_COUNT = 4;
 static constexpr float DROP_INTERVAL = 1.0F / ITEM_MAX_STACK;
 static constexpr int TOOLTIP_TEXT_WRAP_WIDTH = 180;

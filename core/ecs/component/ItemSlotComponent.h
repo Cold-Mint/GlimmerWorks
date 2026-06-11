@@ -40,7 +40,7 @@ namespace glimmer
         ItemContainer* itemContainer_;
         int slotIndex_;
         bool isHovered_ = false;
-        DesignDimension padding_ = ITEM_SLOT_PADDING_NORMALIZED;
+        DesignDimension padding_ = ITEM_SLOT_PADDING;
         DesignVector2D size_;
         DesignVector2D position_;
 

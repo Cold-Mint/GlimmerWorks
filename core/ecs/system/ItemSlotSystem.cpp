@@ -55,7 +55,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        const DesignVector2D& size = itemSlotComponent->GetSize() * uiScale_;
+        const DesignVector2D& size = itemSlotComponent->GetSize() ;
         const DesignVector2D& position = itemSlotComponent->GetPosition() * uiScale_;
         const SDL_FRect rect = {position.x, position.y, size.x, size.y};
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
@@ -462,7 +462,7 @@ void glimmer::ItemSlotSystem::OnWatchedComponentChanged(GameComponentTypeMessage
             {
                 continue;
             }
-            itemSlotComponents_.push_back(itemSlotComponent);
+            itemSlotComponents_.emplace_back(itemSlotComponent);
         }
     }
 }

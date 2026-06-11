@@ -114,10 +114,10 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer* renderer)
         };
         if (cameraComponent_->IsRectInViewport(cameraTransform2DComponent_->GetPosition(), &worldVectorRect))
         {
-            CameraVector2D cameraVector2d = CoordinateTransformer::WorldToScreen(
+            ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetPosition(), worldVector2d, cameraComponent_->GetSize(), cameraComponent_->GetZoom());
             SDL_FRect dstrect = {
-                cameraVector2d.x, cameraVector2d.y, static_cast<float>(sdlTexture->w) * zoom,
+                ScreenVector2D.x, ScreenVector2D.y, static_cast<float>(sdlTexture->w) * zoom,
                 static_cast<float>(sdlTexture->h) * zoom
             };
             SDL_FlipMode flip = SDL_FLIP_NONE;

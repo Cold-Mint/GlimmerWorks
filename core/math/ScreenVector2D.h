@@ -35,7 +35,7 @@ namespace glimmer
      * Unit: Screen pixels
      * 单位：屏幕像素
      */
-    class CameraVector2D final : public Vector2DBase<CameraVector2D>
+    class ScreenVector2D final : public Vector2DBase<ScreenVector2D>
     {
         //Inherit all the constructors of the parent class.
         //继承父类的所有构造函数。

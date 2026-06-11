@@ -27,7 +27,7 @@
 #pragma once
 #include <SDL3/SDL_rect.h>
 
-#include "CameraVector2D.h"
+#include "ScreenVector2D.h"
 #include "DesignVector2D.h"
 #include "TileVector2D.h"
 #include "WorldVector2D.h"
@@ -46,7 +46,7 @@ namespace glimmer
          * @return SDL_FRect Viewport rectangle in world coordinates 视口矩形（世界坐标）
          */
         [[nodiscard]] static SDL_FRect GetViewportRect(const WorldVector2D& cameraPosition,
-                                                       const CameraVector2D& cameraSize,
+                                                       const ScreenVector2D& cameraSize,
                                                        float zoom);
 
         /**
@@ -56,11 +56,11 @@ namespace glimmer
          * @param worldPosition The world position to convert 要转换的世界坐标
          * @param cameraSize The camera size in pixels 相机尺寸（像素）
          * @param zoom The camera zoom factor 相机缩放比例
-         * @return CameraVector2D Screen position in pixels 屏幕坐标（像素）
+         * @return ScreenVector2D Screen position in pixels 屏幕坐标（像素）
          */
-        [[nodiscard]] static CameraVector2D WorldToScreen(const WorldVector2D& cameraPosition,
+        [[nodiscard]] static ScreenVector2D WorldToScreen(const WorldVector2D& cameraPosition,
                                                           const WorldVector2D& worldPosition,
-                                                          const CameraVector2D& cameraSize,
+                                                          const ScreenVector2D& cameraSize,
                                                           float zoom);
 
         /**
@@ -73,8 +73,8 @@ namespace glimmer
          * @return WorldVector2D World position 世界坐标
          */
         [[nodiscard]] static WorldVector2D ScreenToWorld(const WorldVector2D& cameraPosition,
-                                                         const CameraVector2D& screenPosition,
-                                                         const CameraVector2D& cameraSize,
+                                                         const ScreenVector2D& screenPosition,
+                                                         const ScreenVector2D& cameraSize,
                                                          float zoom);
 
         /**
@@ -98,8 +98,8 @@ namespace glimmer
          * 设计坐标转相机坐标
          * @param designPos DesignVector2D Design coordinates 设计坐标
          * @param uiScale UI scale factor UI缩放比例
-         * @return CameraVector2D Camera coordinates 相机坐标
+         * @return ScreenVector2D Camera coordinates 相机坐标
          */
-        [[nodiscard]] static CameraVector2D DesignToCamera(const DesignVector2D& designPos, float uiScale);
+        [[nodiscard]] static ScreenVector2D DesignToScreen(const DesignVector2D& designPos, float uiScale);
     };
 }

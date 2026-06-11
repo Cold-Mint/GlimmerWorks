@@ -96,7 +96,7 @@ static void SetSDLColor(SDL_Renderer* renderer, b2HexColor color, Uint8 alpha = 
  * @param worldPos Box2D世界坐标（米）
  * @return 屏幕视口坐标（像素）
  */
-static glimmer::CameraVector2D ConvertBox2DToScreen(const glimmer::WorldContext* worldContext, const b2Vec2& worldPos)
+static glimmer::ScreenVector2D ConvertBox2DToScreen(const glimmer::WorldContext* worldContext, const b2Vec2& worldPos)
 {
     glimmer::EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
@@ -283,8 +283,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
     {
         const b2Vec2& v1 = vertices[i];
         const b2Vec2& v2 = vertices[(i + 1) % vertexCount];
-        CameraVector2D p1 = ConvertBox2DToScreen(worldContext, v1);
-        CameraVector2D p2 = ConvertBox2DToScreen(worldContext, v2);
+        ScreenVector2D p1 = ConvertBox2DToScreen(worldContext, v1);
+        ScreenVector2D p2 = ConvertBox2DToScreen(worldContext, v2);
 
         SDL_RenderLine(sdlRenderer, p1.x, p1.y, p2.x, p2.y);
     }
@@ -340,9 +340,9 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     SDL_GetRenderDrawColor(sdlRenderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
     const WorldVector2D upperLeft = Box2DUtils::ToPixels(transform.p + vertices[0]);
     const WorldVector2D lowerRight = Box2DUtils::ToPixels(transform.p + vertices[2]);
-    const CameraVector2D upperLeftCamera = CoordinateTransformer::WorldToScreen(
+    const ScreenVector2D upperLeftCamera = CoordinateTransformer::WorldToScreen(
         cameraTransform2D->GetPosition(), upperLeft, cameraComponent->GetSize(), cameraComponent->GetZoom());
-    const CameraVector2D lowerRightCamera = CoordinateTransformer::WorldToScreen(
+    const ScreenVector2D lowerRightCamera = CoordinateTransformer::WorldToScreen(
         cameraTransform2D->GetPosition(), lowerRight, cameraComponent->GetSize(), cameraComponent->GetZoom());
     SDL_FRect renderQuad;
     renderQuad.x = upperLeftCamera.x;
@@ -389,7 +389,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
     SDL_GetRenderDrawColor(sdlRenderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
 
     SetSDLColor(sdlRenderer, color);
-    CameraVector2D centerViewport = ConvertBox2DToScreen(worldContext, center);
+    ScreenVector2D centerViewport = ConvertBox2DToScreen(worldContext, center);
     float radiusPx = radius * kScale;
     constexpr float step = 2.0F * kPi / kCircleSegments;
     for (int i = 0; i < kCircleSegments; ++i)
@@ -431,7 +431,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
     SetSDLColor(sdlRenderer, color, 150);
     const b2Vec2 center = transform.p;
     // 转换圆心到视口坐标
-    CameraVector2D centerViewport = ConvertBox2DToScreen(worldContext, center);
+    ScreenVector2D centerViewport = ConvertBox2DToScreen(worldContext, center);
     // 半径转换为像素
     float radiusPx = radius * kScale;
 
@@ -480,8 +480,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
     LogCat::d("[DrawSolidCapsule] p1=(", p1.x, ",", p1.y, ") p2=(", p2.x, ",", p2.y, ") radius=", radius);
 
     // 1. 绘制胶囊中心线
-    CameraVector2D vp1 = ConvertBox2DToScreen(worldContext, p1);
-    CameraVector2D vp2 = ConvertBox2DToScreen(worldContext, p2);
+    ScreenVector2D vp1 = ConvertBox2DToScreen(worldContext, p1);
+    ScreenVector2D vp2 = ConvertBox2DToScreen(worldContext, p2);
     SDL_RenderLine(sdlRenderer, vp1.x, vp1.y, vp2.x, vp2.y);
 
     // 2. 绘制两端圆形（实心）- 替换为兼容实现
@@ -489,7 +489,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
     for (int j = 0; j < 2; ++j)
     {
         b2Vec2 c = (j == 0 ? p1 : p2);
-        CameraVector2D cvp = ConvertBox2DToScreen(worldContext, c);
+        ScreenVector2D cvp = ConvertBox2DToScreen(worldContext, c);
 
         // 填充圆形
         SDL_RenderFillCircle_Compat(sdlRenderer, cvp.x, cvp.y, radiusPx);
@@ -534,8 +534,8 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
 
     SetSDLColor(sdlRenderer, color);
     // 转换线段端点到视口坐标
-    CameraVector2D vp1 = ConvertBox2DToScreen(worldContext, p1);
-    CameraVector2D vp2 = ConvertBox2DToScreen(worldContext, p2);
+    ScreenVector2D vp1 = ConvertBox2DToScreen(worldContext, p1);
+    ScreenVector2D vp2 = ConvertBox2DToScreen(worldContext, p2);
     SDL_RenderLine(sdlRenderer, vp1.x, vp1.y, vp2.x, vp2.y);
 
     // 恢复原始颜色
@@ -566,9 +566,9 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
     b2Vec2 yAxis = {p.x - 0.4f * transform.q.s, p.y + 0.4f * transform.q.c};
 
     // 转换坐标到视口
-    CameraVector2D pViewport = ConvertBox2DToScreen(worldContext, p);
-    CameraVector2D xAxisViewport = ConvertBox2DToScreen(worldContext, xAxis);
-    CameraVector2D yAxisViewport = ConvertBox2DToScreen(worldContext, yAxis);
+    ScreenVector2D pViewport = ConvertBox2DToScreen(worldContext, p);
+    ScreenVector2D xAxisViewport = ConvertBox2DToScreen(worldContext, xAxis);
+    ScreenVector2D yAxisViewport = ConvertBox2DToScreen(worldContext, yAxis);
 
     // X轴（红色）
     SDL_SetRenderDrawColor(sdlRenderer, 255, 0, 0, 255);
@@ -607,7 +607,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
 
     SetSDLColor(sdlRenderer, color);
     // 转换点坐标到视口
-    CameraVector2D pViewport = ConvertBox2DToScreen(worldContext, p);
+    ScreenVector2D pViewport = ConvertBox2DToScreen(worldContext, p);
     // 点大小转换为像素
     float sizePx = size * kScale;
     const SDL_FRect rect = {(pViewport.x - sizePx / 2), (pViewport.y - sizePx / 2), sizePx, sizePx};
@@ -686,9 +686,9 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
         }
         WorldVector2D startPosition = transform2dComponent->GetPosition() + rayComp->
             GetOrigin();
-        const CameraVector2D origin = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+        const ScreenVector2D origin = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
                                                                       startPosition,cameraComponent_->GetSize(),cameraComponent_->GetZoom());
-        const CameraVector2D end = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+        const ScreenVector2D end = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
                                                                    startPosition + rayComp->GetTranslation(),cameraComponent_->GetSize(),cameraComponent_->GetZoom());
         SDL_RenderLine(renderer, origin.x, origin.y, end.x, end.y);
     }

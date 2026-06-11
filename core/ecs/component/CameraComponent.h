@@ -28,7 +28,7 @@
 #include "core/ecs/GameComponent.h"
 #include <SDL3/SDL_rect.h>
 
-#include "core/math/CameraVector2D.h"
+#include "core/math/ScreenVector2D.h"
 #include "core/math/WorldVector2D.h"
 
 namespace glimmer
@@ -43,7 +43,7 @@ namespace glimmer
          * Size: Camera size (pixel coordinates)
          * Size 相机尺寸（像素坐标）
          */
-        CameraVector2D size_ = {800.0F, 600.0F};
+        ScreenVector2D size_ = {800.0F, 600.0F};
 
         /**
          * zoom camera zoom ratio
@@ -76,14 +76,14 @@ namespace glimmer
          * 设置尺寸
          * @param size Size 尺寸
          */
-        void SetSize(const CameraVector2D& size);
+        void SetSize(const ScreenVector2D& size);
 
         /**
          * Get Size
          * 获取相机尺寸
          * @return
          */
-        [[nodiscard]] CameraVector2D GetSize() const;
+        [[nodiscard]] ScreenVector2D GetSize() const;
 
 
         /**

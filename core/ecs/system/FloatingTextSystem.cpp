@@ -138,7 +138,7 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        CameraVector2D camera2D = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+        ScreenVector2D camera2D = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
                                                                   transform2DComponent->GetPosition(), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
         std::string& text = floatingTextComponent->GetText();
         if (text.empty())

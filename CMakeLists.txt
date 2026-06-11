@@ -595,7 +595,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/AllocStrategyTypeDynamicSuggestions.cpp
         core/console/command/PlayCommand.cpp
         core/console/suggestion/AudioTrackDynamicSuggestions.cpp
-        core/math/CameraVector2D.cpp
+        core/math/ScreenVector2D.cpp
         core/math/WorldVector2D.cpp
         core/math/TileVector2D.cpp
         core/math/Vector2DBase.cpp
@@ -880,7 +880,7 @@ target_sources(GlimmerWorks
         core/console/command/PlayCommand.h
         core/console/suggestion/AudioTrackDynamicSuggestions.h
         core/math/WorldVector2D.h
-        core/math/CameraVector2D.h
+        core/math/ScreenVector2D.h
         core/math/TileVector2D.h
         core/math/Vector2DBase.h
         core/math/Vector2DIBase.h

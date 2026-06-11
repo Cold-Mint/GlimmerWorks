@@ -129,7 +129,7 @@ void glimmer::DroppedItemSystem::Render(SDL_Renderer* renderer)
                                                 transform2DComponent->GetPosition()))
         {
             const auto worldPos = transform2DComponent->GetPosition();
-            const CameraVector2D viewport = CoordinateTransformer::WorldToScreen(
+            const ScreenVector2D viewport = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetPosition(), worldPos, cameraComponent_->GetSize(),
                 cameraComponent_->GetZoom());
             SDL_FRect dstRect{

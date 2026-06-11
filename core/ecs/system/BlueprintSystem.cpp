@@ -247,7 +247,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     }
     auto TopLeftVector = TileVector2D{leftBottom.x, leftBottom.y + tileHeight - 1};
     blueprintComponent_->SetTopLeftVector(TopLeftVector);
-    const CameraVector2D focusWorldTileCamera = CoordinateTransformer::WorldToScreen(
+    const ScreenVector2D focusWorldTileCamera = CoordinateTransformer::WorldToScreen(
         cameraTransform2DComponent_->GetPosition(),
         CoordinateTransformer::TileToWorld({focusPosition.x, focusPosition.y}), cameraComponent_->GetSize(),
         cameraComponent_->GetZoom());
@@ -262,7 +262,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     }
     else
     {
-        const CameraVector2D topLeftCamera = CoordinateTransformer::WorldToScreen(
+        const ScreenVector2D topLeftCamera = CoordinateTransformer::WorldToScreen(
             cameraTransform2DComponent_->GetPosition(),
             CoordinateTransformer::TileToWorld(TopLeftVector), cameraComponent_->GetSize(),
             cameraComponent_->GetZoom()
@@ -309,7 +309,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
                     int relX = i % tileWidth;
                     int relY = i / tileWidth;
                     TileVector2D currTile = {leftBottom.x + relX, leftBottom.y + relY};
-                    const CameraVector2D tileScreenPos = CoordinateTransformer::WorldToScreen(
+                    const ScreenVector2D tileScreenPos = CoordinateTransformer::WorldToScreen(
                         cameraTransform2DComponent_->GetPosition(), CoordinateTransformer::TileToWorld(currTile),
                         cameraComponent_->GetSize(), cameraComponent_->GetZoom());
                     SDL_FRect indicatorRenderQuad;

@@ -26,7 +26,7 @@
  */
 #include "CameraSystem.h"
 #include "../../world/WorldContext.h"
-#include "core/math/CameraVector2D.h"
+#include "core/math/ScreenVector2D.h"
 
 
 void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
@@ -50,7 +50,7 @@ void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    cameraComponent_->SetSize(CameraVector2D(appContext_->GetWindowWidth(), appContext_->GetWindowHeight()));
+    cameraComponent_->SetSize(ScreenVector2D(appContext_->GetWindowWidth(), appContext_->GetWindowHeight()));
 }
 
 glimmer::GameSystemType glimmer::CameraSystem::GetGameSystemType() const

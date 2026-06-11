@@ -46,7 +46,7 @@ SDL_FRect glimmer::DraggableSystem::DraggableBorder(uint32_t entityId, WorldVect
     {
         return border;
     }
-    CameraVector2D startCoordinates;
+    ScreenVector2D startCoordinates;
     const Transform2DComponent* transformComponent = entityManager_->GetComponent<Transform2DComponent>(entityId);
     if (transformComponent != nullptr)
     {
@@ -64,7 +64,7 @@ SDL_FRect glimmer::DraggableSystem::DraggableBorder(uint32_t entityId, WorldVect
     {
         int windowHeight = appContext_->GetWindowHeight();
         int windowWidth = appContext_->GetWindowWidth();
-        startCoordinates = CameraVector2D({
+        startCoordinates = ScreenVector2D({
             guiTransformComponent->GetPosition().x * windowWidth, guiTransformComponent->GetPosition().y * windowHeight
         });
     }

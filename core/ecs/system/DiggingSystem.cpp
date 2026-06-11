@@ -314,7 +314,7 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
             const WorldVector2D tileTopLeftPositionWorld = CoordinateTransformer::TileToWorld({
                 tileTopLeftPosition.x, tileTopLeftPosition.y
             });
-            const CameraVector2D cameraVector2d = CoordinateTransformer::WorldToScreen(
+            const ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
                 cameraComponent_->GetZoom());
             const auto maxIndex = static_cast<float>(textureList.size() - 1);
@@ -323,7 +323,7 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
             float w = TILE_SIZE * zoom * static_cast<float>(point->GetWidth());
             float h = TILE_SIZE * zoom * static_cast<float>(point->GetHeight());
             SDL_FRect dstRect = {
-                cameraVector2d.x - w * 0.5F, cameraVector2d.y - h * 0.5F, w,
+                ScreenVector2D.x - w * 0.5F, ScreenVector2D.y - h * 0.5F, w,
                 h
             };
             auto& crackTexture = textureList[crackIndex];

@@ -106,7 +106,7 @@ void glimmer::DebugPanelSystem::RenderChunkBounds(SDL_Renderer* renderer, const 
                 static_cast<float>(chunkX) * chunkWorldSize - HALF_TILE_SIZE,
                 static_cast<float>(chunkY) * chunkWorldSize - HALF_TILE_SIZE
             };
-            CameraVector2D screenPos =
+            ScreenVector2D screenPos =
                 CoordinateTransformer::WorldToScreen(
                     cameraPosition,
                     chunkWorldPos,
@@ -220,12 +220,12 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     float totalLines = 1.0F + static_cast<float>(tileLayerComponents_.size());
     float totalTextHeight = totalLines * lineSpacing;
     yOffset = (static_cast<float>(windowHeight) - totalTextHeight) / 2.0F;
-    CameraVector2D cameraVector2d = CoordinateTransformer::WorldToScreen(
+    ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
         cameraTransform2DComponent_->GetPosition(), mousePosition_,
         cameraComponent_->GetSize(), cameraComponent_->GetZoom());
     std::string mouseText = fmt::format(
         fmt::runtime(appContext_->GetLangsResources()->mousePosition),
-        mousePosition_.x, mousePosition_.y, cameraVector2d.x, cameraVector2d.y
+        mousePosition_.x, mousePosition_.y, ScreenVector2D.x, ScreenVector2D.y
     );
     RenderDebugText(renderer, windowWidth, mouseText, yOffset,
                     appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
@@ -393,10 +393,10 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         }
         SDL_DestroySurface(s);
     }
-    CameraVector2D screenPos = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                    mousePosition_,
-                                                                    cameraComponent_->GetSize(),
-                                                                    cameraComponent_->GetZoom());
+    glimmer::ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
+                                                                             mousePosition_,
+                                                                             cameraComponent_->GetSize(),
+                                                                             cameraComponent_->GetZoom());
     RenderCrosshairToEdge(renderer, screenPos.x, screenPos.y);
     AppContext::RestoreColorRenderer(renderer);
 }
@@ -419,7 +419,7 @@ bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event& event)
     {
         mousePosition_ = CoordinateTransformer::ScreenToWorld(
             cameraTransform2DComponent_->GetPosition(),
-            CameraVector2D{
+            ScreenVector2D{
                 event.motion.x, event.motion.y
             },
             cameraComponent_->GetSize(),

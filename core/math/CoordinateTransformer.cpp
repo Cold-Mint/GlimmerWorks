@@ -31,7 +31,7 @@
 namespace glimmer
 {
     SDL_FRect CoordinateTransformer::GetViewportRect(const WorldVector2D& cameraPosition,
-                                                     const CameraVector2D& cameraSize,
+                                                     const ScreenVector2D& cameraSize,
                                                      float zoom)
     {
         const float scaledWidth = cameraSize.x / zoom;
@@ -44,9 +44,9 @@ namespace glimmer
         };
     }
 
-    CameraVector2D CoordinateTransformer::WorldToScreen(const WorldVector2D& cameraPosition,
+    ScreenVector2D CoordinateTransformer::WorldToScreen(const WorldVector2D& cameraPosition,
                                                         const WorldVector2D& worldPosition,
-                                                        const CameraVector2D& cameraSize,
+                                                        const ScreenVector2D& cameraSize,
                                                         float zoom)
     {
         const float offsetX = (worldPosition.x - cameraPosition.x) * zoom;
@@ -58,8 +58,8 @@ namespace glimmer
     }
 
     WorldVector2D CoordinateTransformer::ScreenToWorld(const WorldVector2D& cameraPosition,
-                                                       const CameraVector2D& screenPosition,
-                                                       const CameraVector2D& cameraSize,
+                                                       const ScreenVector2D& screenPosition,
+                                                       const ScreenVector2D& cameraSize,
                                                        float zoom)
     {
         return {
@@ -84,7 +84,7 @@ namespace glimmer
         };
     }
 
-    CameraVector2D CoordinateTransformer::DesignToCamera(const DesignVector2D& designPos, float uiScale)
+    ScreenVector2D CoordinateTransformer::DesignToScreen(const DesignVector2D& designPos, float uiScale)
     {
         return {
             designPos.x * uiScale,

@@ -82,7 +82,7 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
             auto worldPositionComponent = entityManager_->GetComponent<Transform2DComponent>(entity);
             if (worldPositionComponent != nullptr)
             {
-                auto cameraVector2d = CoordinateTransformer::WorldToScreen(
+                auto ScreenVector2D = CoordinateTransformer::WorldToScreen(
                     cameraTransform2DComponent_->GetPosition(), worldPositionComponent->GetPosition(), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
                 if (!cameraComponent_->
                     IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
@@ -101,8 +101,8 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
                 float h = worldVector2D.y * zoom;
                 renderQuad.w = w;
                 renderQuad.h = h;
-                renderQuad.x = cameraVector2d.x - w * 0.5F;
-                renderQuad.y = cameraVector2d.y - h * 0.5F;
+                renderQuad.x = ScreenVector2D.x - w * 0.5F;
+                renderQuad.y = ScreenVector2D.y - h * 0.5F;
                 SDL_RenderFillRect(renderer, &renderQuad);
                 // 恢复原先颜色
                 SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);

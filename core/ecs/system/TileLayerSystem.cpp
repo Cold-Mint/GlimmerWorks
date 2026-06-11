@@ -137,7 +137,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
                 continue;
             }
             drawnTiles.emplace(tileTopLeftFingerprint);
-            const CameraVector2D tileTopLeftCamera = CoordinateTransformer::WorldToScreen(
+            const ScreenVector2D tileTopLeftCamera = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetPosition(), CoordinateTransformer::TileToWorld(TileVector2D{
                     tileTopLeftPosition.x, tileTopLeftPosition.y
                 }), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
@@ -215,7 +215,7 @@ bool glimmer::TileLayerSystem::HandleEvent(const SDL_Event& event)
     }
     const WorldVector2D worldPos = CoordinateTransformer::ScreenToWorld(
         cameraTransform2DComponent_->GetPosition(),
-        CameraVector2D(event.motion.x, event.motion.y), cameraComponent_->GetSize(), cameraComponent_->GetZoom()
+        ScreenVector2D(event.motion.x, event.motion.y), cameraComponent_->GetSize(), cameraComponent_->GetZoom()
     );
     for (auto tileLayerComponent : tileLayerComponents_)
     {

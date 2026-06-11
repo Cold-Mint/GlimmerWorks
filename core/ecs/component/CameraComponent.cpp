@@ -42,13 +42,13 @@ bool glimmer::CameraComponent::IsRectInViewport(const WorldVector2D& cameraPosit
     return SDL_HasRectIntersectionFloat(&viewportRect, rect);
 }
 
-void glimmer::CameraComponent::SetSize(const CameraVector2D& size)
+void glimmer::CameraComponent::SetSize(const ScreenVector2D& size)
 {
     this->size_ = size;
 }
 
 
-glimmer::CameraVector2D glimmer::CameraComponent::GetSize() const
+glimmer::ScreenVector2D glimmer::CameraComponent::GetSize() const
 {
     return size_;
 }

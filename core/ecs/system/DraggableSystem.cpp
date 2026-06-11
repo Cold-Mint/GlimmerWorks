@@ -30,50 +30,11 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/DraggableComponent.h"
-#include "core/ecs/component/GuiTransform2DComponent.h"
 #include "core/ecs/component/ItemSlotComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
 #include "core/scene/AppContext.h"
 #include "core/world/WorldContext.h"
 
-
-SDL_FRect glimmer::DraggableSystem::DraggableBorder(uint32_t entityId, WorldVector2D cameraPosition,
-                                                    const CameraComponent* cameraComponent) const
-{
-    SDL_FRect border = {0, 0, 0, 0};
-    const DraggableComponent* draggableComponent = entityManager_->GetComponent<DraggableComponent>(entityId);
-    if (draggableComponent == nullptr)
-    {
-        return border;
-    }
-    ScreenVector2D startCoordinates;
-    const Transform2DComponent* transformComponent = entityManager_->GetComponent<Transform2DComponent>(entityId);
-    if (transformComponent != nullptr)
-    {
-        const WorldVector2D entityPosition = transformComponent->GetPosition();
-        if (!cameraComponent->IsPointInViewport(cameraPosition, entityPosition))
-        {
-            return border;
-        }
-        startCoordinates = CoordinateTransformer::WorldToScreen(
-            cameraPosition, transformComponent->GetPosition(), cameraComponent->GetSize(), cameraComponent->GetZoom());
-    }
-    const GuiTransform2DComponent* guiTransformComponent = entityManager_->GetComponent<
-        GuiTransform2DComponent>(entityId);
-    if (guiTransformComponent != nullptr)
-    {
-        int windowHeight = appContext_->GetWindowHeight();
-        int windowWidth = appContext_->GetWindowWidth();
-        startCoordinates = ScreenVector2D({
-            guiTransformComponent->GetPosition().x * windowWidth, guiTransformComponent->GetPosition().y * windowHeight
-        });
-    }
-    border.x = startCoordinates.x;
-    border.y = startCoordinates.y;
-    border.w = draggableComponent->GetSize().x;
-    border.h = draggableComponent->GetSize().y;
-    return border;
-}
 
 void glimmer::DraggableSystem::OnActivationChanged(bool activeStatus)
 {
@@ -81,6 +42,25 @@ void glimmer::DraggableSystem::OnActivationChanged(bool activeStatus)
     {
         DropItem();
     }
+}
+
+
+SDL_FRect glimmer::DraggableSystem::DraggableBorder(const ItemSlotComponent* itemSlotComponent,
+                                                    const float uiScale)
+{
+    SDL_FRect border = {0, 0, 0, 0};
+    if (itemSlotComponent == nullptr)
+    {
+        return border;
+    }
+    const ScreenVector2D size = CoordinateTransformer::DesignToScreen(itemSlotComponent->GetSize(), uiScale);
+    const ScreenVector2D startCoordinates = CoordinateTransformer::DesignToScreen(
+        itemSlotComponent->GetPosition(), uiScale);
+    border.x = startCoordinates.x;
+    border.y = startCoordinates.y;
+    border.w = size.x;
+    border.h = size.y;
+    return border;
 }
 
 bool glimmer::DraggableSystem::DropItem()
@@ -127,12 +107,6 @@ void glimmer::DraggableSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     {
         draggableCount_ = count;
     }
-    if (gameComponentType == COMPONENT_GUI_TRANSFORM_2D)
-    {
-#if  !defined(NDEBUG)
-        guiTransform2DCount_ = count;
-#endif
-    }
     if (gameComponentType == COMPONENT_ITEM_SLOT)
     {
         itemSlotCount_ = count;
@@ -140,14 +114,34 @@ void glimmer::DraggableSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 #if  defined(NDEBUG)
     if (draggableCount_ > 0 && itemSlotCount_ > 0)
     {
-        draggableEntities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_DRAGGABLE, COMPONENT_ITEM_SLOT});
+        std::vector<GameEntityID> entities_ = entityManager_->GetEntityIDWithComponents({
+            COMPONENT_DRAGGABLE, COMPONENT_ITEM_SLOT
+        });
+        for (GameEntityID entity : entities_)
+        {
+            ItemSlotComponent* itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            if (itemSlotComponent == nullptr)
+            {
+                continue;
+            }
+            itemSlotComponentVector_.emplace_back(itemSlotComponent);
+        }
     }
 #else
-    if (draggableCount_ > 0 && itemSlotCount_ > 0 && guiTransform2DCount_ > 0 && transform2DCount_ > 0)
+    if (draggableCount_ > 0 && itemSlotCount_ > 0 && transform2DCount_ > 0)
     {
-        draggableEntities_ = entityManager_->GetEntityIDWithComponents({
-            COMPONENT_DRAGGABLE, COMPONENT_ITEM_SLOT, COMPONENT_TRANSFORM_2D, COMPONENT_GUI_TRANSFORM_2D
+        std::vector<GameEntityID> entities_ = entityManager_->GetEntityIDWithComponents({
+            COMPONENT_DRAGGABLE, COMPONENT_ITEM_SLOT, COMPONENT_TRANSFORM_2D
         });
+        for (GameEntityID entity : entities_)
+        {
+            ItemSlotComponent* itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            if (itemSlotComponent == nullptr)
+            {
+                continue;
+            }
+            itemSlotComponentVector_.emplace_back(itemSlotComponent);
+        }
     }
 #endif
 }
@@ -160,9 +154,21 @@ glimmer::DraggableSystem::DraggableSystem(WorldContext* worldContext) : GameSyst
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_DRAGGABLE);
     WatchComponent(COMPONENT_ITEM_SLOT);
-#if  !defined(NDEBUG)
-    WatchComponent(COMPONENT_GUI_TRANSFORM_2D);
-#endif
+    configChangedId_ = appContext_->GetConfig()->RegisterOnConfigChanged(
+        true, std::make_unique<std::function<void(const Config*)>>(
+            [this](const Config* cfg)
+            {
+                uiScale_ = cfg->window.uiScale;
+            }));
+}
+
+glimmer::DraggableSystem::~DraggableSystem()
+{
+    Config* config = appContext_->GetConfig();
+    if (configChangedId_ != INVALID_CONFIG_CALL_BACK && config != nullptr)
+    {
+        config->UnregisterOnConfigChanged(configChangedId_);
+    }
 }
 
 uint8_t glimmer::DraggableSystem::GetRenderOrder()
@@ -181,7 +187,10 @@ void glimmer::DraggableSystem::Render(SDL_Renderer* renderer)
     {
         float mouseX, mouseY = 0;
         SDL_GetMouseState(&mouseX, &mouseY);
-        const SDL_FRect dst = {mouseX + 6, mouseY + 24, ITEM_SLOT_SIZE_NORMALIZED * appContext->GetWindowWidth(), ITEM_SLOT_SIZE_NORMALIZED * appContext->GetWindowHeight()};
+        const SDL_FRect dst = {
+            mouseX + 6, mouseY + 24, ITEM_SLOT_SIZE_NORMALIZED * appContext->GetWindowWidth(),
+            ITEM_SLOT_SIZE_NORMALIZED * appContext->GetWindowHeight()
+        };
         SDL_Texture* texture = item_.get()->GetIcon();
         if (texture != nullptr)
         {
@@ -200,16 +209,16 @@ void glimmer::DraggableSystem::Render(SDL_Renderer* renderer)
         {
             return;
         }
-        if (draggableEntities_.empty())
+        if (itemSlotComponentVector_.empty())
         {
             return;
         }
 
         Color draggableColor = appContext->GetPreloadColors()->debugColor.draggableColor;
         SDL_SetRenderDrawColor(renderer, draggableColor.r, draggableColor.g, draggableColor.b, draggableColor.a);
-        for (uint32_t entity : draggableEntities_)
+        for (auto itemSlotComponent : itemSlotComponentVector_)
         {
-            SDL_FRect border = DraggableBorder(entity, cameraTransform2D_->GetPosition(), cameraComponent_);
+            SDL_FRect border = DraggableBorder(itemSlotComponent, uiScale_);
             if (border.h <= 0 || border.w <= 0)
             {
                 continue;
@@ -237,20 +246,18 @@ bool glimmer::DraggableSystem::HandleEvent(const SDL_Event& event)
         {
             return false;
         }
-        if (draggableEntities_.empty())
+        if (itemSlotComponentVector_.empty())
         {
             return false;
         }
         bool changed = false;
-        for (uint32_t entity : draggableEntities_)
+        for (auto itemSlotComponent : itemSlotComponentVector_)
         {
-            const DraggableComponent* draggableComponent = entityManager_->GetComponent<DraggableComponent>(entity);
-            if (draggableComponent == nullptr)
+            if (itemSlotComponent == nullptr)
             {
                 continue;
             }
-            const SDL_FRect border = DraggableBorder(entity, cameraTransform2D_->GetPosition(),
-                                                     cameraComponent_);
+            const SDL_FRect border = DraggableBorder(itemSlotComponent, uiScale_);
             if (border.h <= 0 || border.w <= 0)
             {
                 continue;
@@ -260,12 +267,8 @@ bool glimmer::DraggableSystem::HandleEvent(const SDL_Event& event)
             if (mouseX >= border.x && mouseX <= border.x + border.w &&
                 mouseY >= border.y && mouseY <= border.y + border.h)
             {
-                const ItemSlotComponent* itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
-                if (itemSlotComponent != nullptr)
-                {
-                    item_ = std::move(itemSlotComponent->ReplaceItem(std::move(item_)));
-                    changed = true;
-                }
+                item_ = std::move(itemSlotComponent->ReplaceItem(std::move(item_)));
+                changed = true;
                 break;
             }
         }

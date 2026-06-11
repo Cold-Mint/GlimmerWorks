@@ -28,6 +28,13 @@
 #include <string>
 #include <cstdint>
 
+
+/**
+ * DesignDimension
+ * 设计尺寸
+ */
+using DesignDimension = float;
+
 // Manifest file names of data packets and resource packets
 // 数据包和资源包的清单文件名
 static constexpr std::string MANIFEST_FILE_NAME = "manifest.toml";

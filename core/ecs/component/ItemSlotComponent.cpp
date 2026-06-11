@@ -29,31 +29,46 @@
 #include "core/inventory/ItemContainer.h"
 
 
-glimmer::ItemSlotComponent::ItemSlotComponent(ItemContainer* itemContainer, int slotIndex,
-                                              bool allowSelected) : itemContainer_(itemContainer),
-                                                                    slotIndex_(slotIndex),
-                                                                    allowSelected_(allowSelected)
+glimmer::ItemSlotComponent::ItemSlotComponent(ItemContainer* itemContainer, const int slotIndex) :
+    itemContainer_(itemContainer),
+    slotIndex_(slotIndex)
 {
 }
 
-float glimmer::ItemSlotComponent::GetPaddingNormalized() const
+DesignDimension glimmer::ItemSlotComponent::GetPadding() const
 {
-    return paddingNormalized_;
+    return padding_;
 }
 
-void glimmer::ItemSlotComponent::SetPaddingNormalized(float paddingNormalized)
+void glimmer::ItemSlotComponent::SetPadding(DesignDimension padding)
 {
-    paddingNormalized_ = paddingNormalized;
+    padding_ = padding;
 }
 
-bool glimmer::ItemSlotComponent::AllowSelected() const
-{
-    return allowSelected_;
-}
 
 glimmer::Item* glimmer::ItemSlotComponent::GetItem() const
 {
     return itemContainer_->GetItem(slotIndex_);
+}
+
+const glimmer::DesignVector2D& glimmer::ItemSlotComponent::GetPosition() const
+{
+    return position_;
+}
+
+const glimmer::DesignVector2D& glimmer::ItemSlotComponent::GetSize() const
+{
+    return size_;
+}
+
+void glimmer::ItemSlotComponent::SetSize(const DesignVector2D& size)
+{
+    size_ = size;
+}
+
+void glimmer::ItemSlotComponent::SetPosition(const DesignVector2D& position)
+{
+    position_ = position;
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::TakeAllItem() const
@@ -75,16 +90,6 @@ bool glimmer::ItemSlotComponent::IsHovered() const
 void glimmer::ItemSlotComponent::SetHovered(const bool hovered)
 {
     isHovered_ = hovered;
-}
-
-bool glimmer::ItemSlotComponent::IsSelected() const
-{
-    return isSelected_;
-}
-
-void glimmer::ItemSlotComponent::SetSelected(const bool selected)
-{
-    isSelected_ = selected;
 }
 
 GameComponentTypeMessage glimmer::ItemSlotComponent::GetComponentTypeStatic()

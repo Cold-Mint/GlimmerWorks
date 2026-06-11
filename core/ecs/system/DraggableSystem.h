@@ -36,22 +36,24 @@ namespace glimmer
         std::unique_ptr<Item> item_;
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2D_ = nullptr;
-        std::vector<GameEntityID> draggableEntities_;
+        std::vector<ItemSlotComponent*> itemSlotComponentVector_;
+        float uiScale_ = 1.0F;
+        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
         AppContext* appContext_ = nullptr;
         uint32_t draggableCount_ = 0;
         uint32_t itemSlotCount_ = 0;
 #if  !defined(NDEBUG)
         uint32_t transform2DCount_ = 0;
-        uint32_t guiTransform2DCount_ = 0;
 #endif
 
-        SDL_FRect DraggableBorder(uint32_t entityId, WorldVector2D cameraPosition,
-                                  const CameraComponent* cameraComponent) const;
+        static SDL_FRect DraggableBorder(const ItemSlotComponent* itemSlotComponent, float uiScale);
 
         bool DropItem();
 
     public:
         explicit DraggableSystem(WorldContext* worldContext);
+
+        ~DraggableSystem();
 
         void OnActivationChanged(bool activeStatus) override;
 

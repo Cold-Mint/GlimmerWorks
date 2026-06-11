@@ -76,6 +76,26 @@ glimmer::HotBarComponent* glimmer::EntityShortCut::GetHotBarComponent() const
     return hotBarComponent_;
 }
 
+void glimmer::EntityShortCut::SetItemContainerComponent(ItemContainerComponent* itemContainerComponent)
+{
+    itemContainerComponent_ = itemContainerComponent;
+}
+
+glimmer::ItemContainerComponent* glimmer::EntityShortCut::GetItemContainerComponent() const
+{
+    return itemContainerComponent_;
+}
+
+void glimmer::EntityShortCut::SetInventoryGroupComponent(InventoryGroupComponent* inventoryGroupComponent)
+{
+    inventoryGroupComponent_ = inventoryGroupComponent;
+}
+
+glimmer::InventoryGroupComponent* glimmer::EntityShortCut::GetInventoryGroupComponent() const
+{
+    return inventoryGroupComponent_;
+}
+
 void glimmer::EntityShortCut::SetCameraComponent(CameraComponent* cameraComponent)
 {
     cameraComponent_ = cameraComponent;

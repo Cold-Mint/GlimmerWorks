@@ -26,18 +26,6 @@
  */
 #include "DraggableComponent.h"
 
-
-void glimmer::DraggableComponent::SetSize(DesignVector2D size)
-{
-    size_ = size;
-}
-
-const glimmer::DesignVector2D& glimmer::DraggableComponent::GetSize() const
-{
-    return size_;
-}
-
-
 GameComponentTypeMessage glimmer::DraggableComponent::GetComponentTypeStatic()
 {
     return COMPONENT_DRAGGABLE;

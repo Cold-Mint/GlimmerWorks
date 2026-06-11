@@ -26,27 +26,34 @@
  */
 #pragma once
 #include "core/ecs/GameComponent.h"
-#include <vector>
-
-#include "core/ecs/EcsTypes.h"
 
 namespace glimmer
 {
+    class ItemSlotComponent;
     class GameEntity;
 
     class HotBarComponent : public GameComponent
     {
-        int maxSlot_;
-        std::vector<GameEntityID> slotEntities_;
+        uint8_t selectedSlot_ = 0;
+        ItemSlotComponent* selectedSlotComponent_ = nullptr;
+
+        void SetSelectedSlotImp(uint8_t selectedSlot);
 
     public:
-        explicit HotBarComponent(int maxSlot);
 
-        [[nodiscard]] int GetMaxSlot() const;
+        [[nodiscard]] uint8_t GetSelectedSlot() const;
 
-        void AddSlotEntity(GameEntityID entity);
+        void SelectNextSlot();
 
-        [[nodiscard]] const std::vector<GameEntityID>& GetSlotEntities() const;
+        void SelectPreviousSlot();
+
+        void SetSelectedSlot(uint8_t selectedSlot);
+
+        void SetSelectedSlotComponent(ItemSlotComponent* selectedSlotComponent);
+
+        [[nodiscard]] ItemSlotComponent* GetSelectedSlotComponent() const;
+
+        [[nodiscard]] static uint8_t GetMaxSlot();
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

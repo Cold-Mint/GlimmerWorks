@@ -179,6 +179,15 @@ namespace glimmer
         void InitHotbar(ItemContainer* itemContainer);
 
         /**
+         * Generate Item Slot Component
+         * 生成物品槽组件
+         * @param itemContainer 物品容器
+         * @param startPosition 绘制起点
+         * @param column 列
+         */
+        void GenerateItemSlot(ItemContainer* itemContainer, ScreenVector2D startPosition, int column);
+
+        /**
          * Initialize inventory view(Bag)
          * 初始化库存视图（背包）
          */

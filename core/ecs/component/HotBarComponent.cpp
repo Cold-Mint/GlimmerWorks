@@ -27,29 +27,73 @@
 #include "HotBarComponent.h"
 
 #include "core/Constants.h"
-#include "core/ecs/EcsTypes.h"
 
-
-glimmer::HotBarComponent::HotBarComponent(const int maxSlot) : maxSlot_(maxSlot) {
+void glimmer::HotBarComponent::SetSelectedSlotImp(const uint8_t selectedSlot)
+{
+    selectedSlot_ = selectedSlot;
 }
 
-int glimmer::HotBarComponent::GetMaxSlot() const {
-    return maxSlot_;
+uint8_t glimmer::HotBarComponent::GetSelectedSlot() const
+{
+    return selectedSlot_;
 }
 
-void glimmer::HotBarComponent::AddSlotEntity(const uint32_t entity) {
-    slotEntities_.push_back(entity);
+void glimmer::HotBarComponent::SelectNextSlot()
+{
+    uint8_t next = selectedSlot_ + 1;
+    if (next >= HOT_BAR_SIZE)
+    {
+        next = 0;
+    }
+    SetSelectedSlotImp(next);
 }
 
-const std::vector<GameEntityID> &glimmer::HotBarComponent::GetSlotEntities() const {
-    return slotEntities_;
+void glimmer::HotBarComponent::SelectPreviousSlot()
+{
+    if (selectedSlot_ == 0)
+    {
+        SetSelectedSlotImp(HOT_BAR_SIZE - 1);
+    }
+    else
+    {
+        SetSelectedSlotImp(selectedSlot_ - 1);
+    }
 }
+
+void glimmer::HotBarComponent::SetSelectedSlot(const uint8_t selectedSlot)
+{
+    if (selectedSlot >= HOT_BAR_SIZE)
+    {
+        SetSelectedSlotImp(HOT_BAR_SIZE - 1);
+    }
+    else
+    {
+        SetSelectedSlotImp(selectedSlot);
+    }
+}
+
+void glimmer::HotBarComponent::SetSelectedSlotComponent(ItemSlotComponent* selectedSlotComponent)
+{
+    selectedSlotComponent_ = selectedSlotComponent;
+}
+
+glimmer::ItemSlotComponent* glimmer::HotBarComponent::GetSelectedSlotComponent() const
+{
+    return selectedSlotComponent_;
+}
+
+uint8_t glimmer::HotBarComponent::GetMaxSlot()
+{
+    return HOT_BAR_SIZE;
+}
+
 
 GameComponentTypeMessage glimmer::HotBarComponent::GetComponentTypeStatic()
 {
     return COMPONENT_HOT_BAR;
 }
 
-GameComponentTypeMessage glimmer::HotBarComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::HotBarComponent::GetComponentType()
+{
     return GetComponentTypeStatic();
 }

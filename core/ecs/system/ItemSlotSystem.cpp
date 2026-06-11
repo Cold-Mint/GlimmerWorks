@@ -33,7 +33,6 @@
 #include <algorithm>
 #include "fmt/format.h"
 
-#include "core/ecs/component/GuiTransform2DComponent.h"
 #include "core/ecs/component/ItemSlotComponent.h"
 #include "core/world/PreloadColors.h"
 
@@ -46,9 +45,8 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     const Item* hoveredItem = nullptr;
-    for (auto& entity : entities_)
+    for (auto itemSlotComponent : itemSlotComponents_)
     {
-        const auto itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
         if (itemSlotComponent == nullptr)
         {
             continue;
@@ -57,24 +55,14 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        const auto guiTransform2DComponent = entityManager_->GetComponent<GuiTransform2DComponent>(entity);
-        if (guiTransform2DComponent == nullptr)
-        {
-            continue;
-        }
-        const DesignVector2D sizeNormalized = guiTransform2DComponent->GetSize();
-        int min = std::min(appContext_->GetWindowWidth(), appContext_->GetWindowHeight());
-        const ScreenVector2D size = ScreenVector2D(sizeNormalized.x * min,
-                                                   sizeNormalized.y * min);
-        const DesignVector2D positionNormalized = guiTransform2DComponent->GetPosition();
-        const ScreenVector2D position = ScreenVector2D(positionNormalized.x * appContext_->GetWindowWidth(),
-                                                       positionNormalized.y * appContext_->GetWindowHeight());
-        const SDL_FRect rect = {position.x * uiScale_, position.y * uiScale_, size.x * uiScale_, size.y * uiScale_};
+        const DesignVector2D& size = itemSlotComponent->GetSize() * uiScale_;
+        const DesignVector2D& position = itemSlotComponent->GetPosition() * uiScale_;
+        const SDL_FRect rect = {position.x, position.y, size.x, size.y};
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
             mouseY >= rect.y && mouseY <= rect.y + rect.h;
 
         itemSlotComponent->SetHovered(isHovered);
-        if (itemSlotComponent->IsSelected())
+        if (hotBarComponent_ != nullptr && hotBarComponent_->GetSelectedSlotComponent() == itemSlotComponent)
         {
             if (itemSlotSelectedTexture_ != nullptr)
             {
@@ -98,7 +86,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        float padding = itemSlotComponent->GetPaddingNormalized() * min;
+        float padding = itemSlotComponent->GetPadding() * uiScale_;
         const SDL_FRect itemRect = {
             rect.x + padding, rect.y + padding, rect.w - padding * 2.0F,
             rect.h - padding * 2.0F
@@ -201,54 +189,44 @@ bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event& event)
     }
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT)
     {
-        if (entities_.empty())
-        {
-            return false;
-        }
-        float mouseX = event.motion.x;
-        float mouseY = event.motion.y;
-        ItemSlotComponent* previousItemSlotComponent = nullptr;
-        ItemSlotComponent* currentlyItemSlotComponent = nullptr;
-        for (uint32_t entity : entities_)
-        {
-            auto* guiTransform2DComponent = entityManager_->GetComponent<
-                GuiTransform2DComponent>(entity);
-            if (guiTransform2DComponent == nullptr)
-            {
-                continue;
-            }
-            auto* itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
-            if (itemSlotComponent == nullptr)
-            {
-                continue;
-            }
-            const DesignVector2D sizeNormalized = guiTransform2DComponent->GetSize();
-            const ScreenVector2D size = ScreenVector2D(sizeNormalized.x * appContext_->GetWindowWidth(),
-                                                       sizeNormalized.y * appContext_->GetWindowHeight());
-            const DesignVector2D positionNormalized = guiTransform2DComponent->GetPosition();
-            const ScreenVector2D position = ScreenVector2D(positionNormalized.x * appContext_->GetWindowWidth(),
-                                                           positionNormalized.y * appContext_->GetWindowHeight());
-            const SDL_FRect border = {position.x, position.y, size.x, size.y};
-            if (itemSlotComponent->IsSelected())
-            {
-                previousItemSlotComponent = itemSlotComponent;
-            }
-            if (itemSlotComponent->AllowSelected())
-            {
-                bool selected = mouseX >= border.x && mouseX <= border.x + border.w &&
-                    mouseY >= border.y && mouseY <= border.y + border.h;
-                if (selected)
-                {
-                    currentlyItemSlotComponent = itemSlotComponent;
-                }
-            }
-        }
-        if (currentlyItemSlotComponent != nullptr && previousItemSlotComponent != nullptr && previousItemSlotComponent
-            != currentlyItemSlotComponent)
-        {
-            currentlyItemSlotComponent->SetSelected(true);
-            previousItemSlotComponent->SetSelected(false);
-        }
+        // if (entities_.empty())
+        // {
+        //     return false;
+        // }
+        // float mouseX = event.motion.x;
+        // float mouseY = event.motion.y;
+        // ItemSlotComponent* previousItemSlotComponent = nullptr;
+        // ItemSlotComponent* currentlyItemSlotComponent = nullptr;
+        // for (uint32_t entity : entities_)
+        // {
+        //     auto* itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+        //     if (itemSlotComponent == nullptr)
+        //     {
+        //         continue;
+        //     }
+        //     const DesignVector2D size = itemSlotComponent->GetSize()*uiScale_;
+        //     const DesignVector2D position = itemSlotComponent->GetPosition() * uiScale_;
+        //     const SDL_FRect border = {position.x, position.y, size.x, size.y};
+        //     if (itemSlotComponent->IsSelected())
+        //     {
+        //         previousItemSlotComponent = itemSlotComponent;
+        //     }
+        //     if (itemSlotComponent->AllowSelected())
+        //     {
+        //         bool selected = mouseX >= border.x && mouseX <= border.x + border.w &&
+        //             mouseY >= border.y && mouseY <= border.y + border.h;
+        //         if (selected)
+        //         {
+        //             currentlyItemSlotComponent = itemSlotComponent;
+        //         }
+        //     }
+        // }
+        // if (currentlyItemSlotComponent != nullptr && previousItemSlotComponent != nullptr && previousItemSlotComponent
+        //     != currentlyItemSlotComponent)
+        // {
+        //     currentlyItemSlotComponent->SetSelected(true);
+        //     previousItemSlotComponent->SetSelected(false);
+        // }
     }
 
     return false;
@@ -470,17 +448,22 @@ void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* 
 
 void glimmer::ItemSlotSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
-    if (gameComponentType == COMPONENT_GUI_TRANSFORM_2D)
+    if (gameComponentType == COMPONENT_HOT_BAR && hotBarComponent_ == nullptr)
     {
-        guiTransform2DCont_ = count;
+        hotBarComponent_ = entityShortCut_->GetHotBarComponent();
     }
     if (gameComponentType == COMPONENT_ITEM_SLOT)
     {
-        itemSlotCount_ = count;
-    }
-    if (guiTransform2DCont_ > 0 && itemSlotCount_ > 0)
-    {
-        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT, COMPONENT_GUI_TRANSFORM_2D});
+        auto entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT});
+        for (auto entity : entities_)
+        {
+            auto itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            if (itemSlotComponent == nullptr)
+            {
+                continue;
+            }
+            itemSlotComponents_.push_back(itemSlotComponent);
+        }
     }
 }
 
@@ -489,7 +472,7 @@ glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_ITEM_SLOT);
-    WatchComponent(COMPONENT_GUI_TRANSFORM_2D);
+    WatchComponent(COMPONENT_HOT_BAR);
     appContext_ = worldContext->GetAppContext();
     const ResourceLocator* resourceLocator = appContext_->GetResourceLocator();
     ResourceRef itemSlotResourceRef;

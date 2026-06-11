@@ -115,7 +115,6 @@ set(SDL_HIDAPI OFF)
 set(SDL_SENSOR OFF)
 set(SDL_POWER OFF)
 set(SDL_VIRTUAL_JOYSTICK OFF)
-set(SDL_ASSERTIONS OFF)
 set(SDL_X11 ${X11_SUPPORT})
 set(SDL_X11_SHARED ${X11_SUPPORT})
 set(SDL_X11_XCURSOR ${X11_SUPPORT})
@@ -444,7 +443,6 @@ target_sources(GlimmerWorks
         core/utils/TimeUtils.cpp
         core/ecs/component/PlayerComponent.cpp
         core/console/command/EcsCommand.cpp
-        core/ecs/component/GuiTransform2DComponent.cpp
         core/ecs/component/ItemEditorComponent.cpp
         core/utils/TomlUtils.cpp
         core/inventory/ability/NoneAbility.cpp
@@ -612,6 +610,7 @@ target_sources(GlimmerWorks
         core/ecs/IVisible.cpp
         core/math/CoordinateTransformer.cpp
         core/math/DesignVector2D.cpp
+        core/ecs/component/InventoryGroupComponent.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -727,7 +726,6 @@ target_sources(GlimmerWorks
         core/ecs/component/PauseComponent.h
         core/utils/TimeUtils.h
         core/console/command/EcsCommand.h
-        core/ecs/component/GuiTransform2DComponent.h
         core/ecs/component/ItemEditorComponent.h
         core/utils/TomlUtils.h
         core/inventory/ability/NoneAbility.h
@@ -897,6 +895,7 @@ target_sources(GlimmerWorks
         core/ecs/IVisible.h
         core/math/CoordinateTransformer.h
         core/math/DesignVector2D.h
+        core/ecs/component/InventoryGroupComponent.h
 )
 
 #Define version information

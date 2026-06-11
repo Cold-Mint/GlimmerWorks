@@ -47,11 +47,11 @@ void glimmer::HotBarSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     }
     if (gameComponentType == COMPONENT_ITEM_CONTAINER && itemContainerComponent_ == nullptr)
     {
-        const GameEntityID player = entityShortCut_->GetPlayer();
-        if (!WorldContext::IsEmptyEntityId(player))
-        {
-            itemContainerComponent_ = entityManager_->GetComponent<ItemContainerComponent>(player);
-        }
+        itemContainerComponent_ = entityShortCut_->GetItemContainerComponent();
+    }
+    if (gameComponentType == COMPONENT_INVENTORY_GROUP && inventoryGroupComponent_ == nullptr)
+    {
+        inventoryGroupComponent_ = entityShortCut_->GetInventoryGroupComponent();
     }
 }
 
@@ -60,6 +60,7 @@ glimmer::HotBarSystem::HotBarSystem(WorldContext* worldContext)
 {
     WatchComponent(COMPONENT_PLAYER);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
+    WatchComponent(COMPONENT_INVENTORY_GROUP);
     WatchComponent(COMPONENT_HOT_BAR);
 }
 
@@ -75,73 +76,26 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event& event)
         {
             return false;
         }
-
-        auto& slotEntityList = hotBarComponent_->GetSlotEntities();
-        const int total = slotEntityList.size();
-        if (total == 0)
-        {
-            return false;
-        }
-        ItemSlotComponent* previousItemSlot = nullptr;
-        ItemSlotComponent* currentItemSlot = nullptr;
-        int prevIdx = 0;
-        int nextIdx = 0;
-        ItemSlotComponent* nextItemSlot = nullptr;
-        for (int i = 0; i < slotEntityList.size(); ++i)
-        {
-            const auto entityId = slotEntityList[i];
-            if (WorldContext::IsEmptyEntityId(entityId))
-            {
-                continue;
-            }
-            auto* itemSlot = entityManager_->GetComponent<ItemSlotComponent>(entityId);
-            if (itemSlot == nullptr)
-            {
-                continue;
-            }
-            if (itemSlot->IsSelected())
-            {
-                currentItemSlot = itemSlot;
-                prevIdx = (i - 1 + total) % total;
-                nextIdx = (i + 1) % total;
-                previousItemSlot = entityManager_->GetComponent<ItemSlotComponent>(slotEntityList[prevIdx]);
-                nextItemSlot = entityManager_->GetComponent<ItemSlotComponent>(slotEntityList[nextIdx]);
-                break;
-            }
-        }
-        int focusIndex = 0;
         if (event.wheel.y > 0)
         {
-            if (currentItemSlot != nullptr)
-            {
-                currentItemSlot->
-                    SetSelected(false);
-            }
-            if (previousItemSlot != nullptr)
-            {
-                previousItemSlot->SetSelected(true);
-                focusIndex = prevIdx;
-            }
+            hotBarComponent_->SelectPreviousSlot();
         }
         else if (event.wheel.y < 0)
         {
-            if (currentItemSlot != nullptr)
-            {
-                currentItemSlot->SetSelected(false);
-            }
-            if (nextItemSlot != nullptr)
-            {
-                nextItemSlot->SetSelected(true);
-                focusIndex = nextIdx;
-            }
+            hotBarComponent_->SelectNextSlot();
         }
         if (playerComponent_ != nullptr && itemContainerComponent_ != nullptr)
         {
             const ItemContainer* container = itemContainerComponent_->GetItemContainer();
             if (container != nullptr)
             {
-                playerComponent_->item = container->GetItem(focusIndex);
+                playerComponent_->item = container->GetItem(hotBarComponent_->GetSelectedSlot());
             }
+        }
+        if (inventoryGroupComponent_ != nullptr)
+        {
+            hotBarComponent_->SetSelectedSlotComponent(
+                inventoryGroupComponent_->GetItemSlotComponent(hotBarComponent_->GetSelectedSlot()));
         }
         return true;
     }

@@ -46,8 +46,8 @@ namespace glimmer
         size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
         AppContext* appContext_ = nullptr;
         float uiScale_ = 1.0F;
-        std::vector<GameEntityID> entities_;
-        uint32_t guiTransform2DCont_ = 0;
+        std::vector<ItemSlotComponent*> itemSlotComponents_;
+        HotBarComponent* hotBarComponent_ = nullptr;
         uint32_t itemSlotCount_ = 0;
 
 

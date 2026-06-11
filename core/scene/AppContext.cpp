@@ -73,6 +73,7 @@
 #include "core/console/suggestion/ConfigSuggestions.h"
 #include "core/console/suggestion/CoordinateDynamicSuggestions.h"
 #include "core/console/suggestion/DataPackDynamicSuggestions.h"
+#include "core/console/suggestion/DynamicSuggestionsManager.h"
 #include "core/console/suggestion/EventTypeDynamicSuggestions.h"
 #include "core/console/suggestion/LootSuggestions.h"
 #include "core/console/suggestion/MaterialItemDynamicSuggestions.h"

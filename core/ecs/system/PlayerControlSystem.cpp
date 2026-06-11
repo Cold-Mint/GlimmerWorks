@@ -152,90 +152,21 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         float gravityForce = massData.mass * GRAVITY_SCALE;
         b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
     }
-    auto hotBarComp = entityShortCut_->GetHotBarComponent();
-    const auto* containerComp = entityManager_->GetComponent<ItemContainerComponent>(playerEntityID_);
-
+    auto hotBarComponent = entityShortCut_->GetHotBarComponent();
+    auto itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
     playerComponent->dropTimer += delta;
     if (playerComponent->dropPressed && playerComponent->dropTimer >= DROP_INTERVAL)
     {
         playerComponent->dropTimer -= DROP_INTERVAL;
-        if (hotBarComp && containerComp)
-        {
-            auto itemContainer = containerComp->GetItemContainer();
-            if (itemContainer != nullptr)
-            {
-                auto& slotEntityList = hotBarComp->GetSlotEntities();
-                int total = slotEntityList.size();
-                for (int i = 0; i < total; i++)
-                {
-                    const auto entityId = slotEntityList[i];
-                    if (WorldContext::IsEmptyEntityId(entityId))
-                    {
-                        continue;
-                    }
-                    auto* itemSlot = entityManager_->GetComponent<ItemSlotComponent>(entityId);
-                    if (itemSlot == nullptr)
-                    {
-                        continue;
-                    }
-                    if (itemSlot->IsSelected())
-                    {
-                        auto item = itemContainer->TakeItem(i, 1);
-                        if (item != nullptr)
-                        {
-                            audioManager_->TryPlayFree(AMBIENT, dropItemSFX_.get(), 0);
-                            const uint32_t droppedEntity = entityManager_->AddEntity();
-                            DroppedItemCreator droppedItemCreator{worldContext_};
-                            droppedItemCreator.LoadTemplateComponents(droppedEntity,
-                                                                      DroppedItemCreator::GetResourceRef());
-                            droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                                                      DroppedItemCreator::GetEntityItemMessage(
-                                                                          cameraTransform2DComponent_->
-                                                                          GetPosition(), std::move(item), 2));
-                        }
-                        break;
-                    }
-                }
-            }
-        }
+        DropItem(itemContainer, hotBarComponent->GetSelectedSlot());
         playerComponent->dropPressed = false;
     }
 
-    if (playerComponent->mouseLeftDown && playerComponent->item != nullptr && hotBarComp && containerComp)
+    if (playerComponent->mouseLeftDown && playerComponent->item != nullptr)
     {
-        const auto itemContainer = containerComp->GetItemContainer();
-        int index = itemContainer->FindIndex(playerComponent->item);
-        if (index >= 0)
-        {
-            slipTimer_ += delta;
-            std::unordered_set<std::string> popupAbility;
-            const AbilityConfig* abilityConfig = playerComponent->item->GetAbilityConfig();
-            if (abilityConfig != nullptr && slipTimer_ > 0.5F)
-            {
-                slipTimer_ = 0.0F;
-                float fumbleChance = std::clamp(abilityConfig->fumbleProbability, 0.0F, 1.0F);
-                if (fumbleChance > 0.0F)
-                {
-                    auto randomValue = RandomUtils::Random<float>(0.0F, 1.0F);
-                    if (randomValue <= fumbleChance)
-                    {
-                        const uint32_t droppedEntity = entityManager_->AddEntity();
-                        DroppedItemCreator droppedItemCreator{worldContext_};
-                        droppedItemCreator.LoadTemplateComponents(droppedEntity,
-                                                                  DroppedItemCreator::GetResourceRef());
-                        droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                                                  DroppedItemCreator::GetEntityItemMessage(
-                                                                      cameraTransform2DComponent_
-                                                                      ->
-                                                                      GetPosition(),
-                                                                      std::move(itemContainer->TakeAllItem(
-                                                                          index)),
-                                                                      2));
-                    }
-                }
-            }
-            playerComponent->item->OnUse(worldContext_, playerEntityID_, abilityConfig, popupAbility);
-        }
+        slipTimer_ += delta;
+        UseItem(playerComponent, itemContainer, hotBarComponent->GetSelectedSlot());
     }
     else
     {
@@ -267,6 +198,64 @@ bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent* playerControl
         }
     }
     return false;
+}
+
+void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, const uint8_t index) const
+{
+    if (itemContainer == nullptr)
+    {
+        return;
+    }
+    auto item = itemContainer->TakeItem(index, 1);
+    if (item == nullptr)
+    {
+        return;
+    }
+    audioManager_->TryPlayFree(AMBIENT, dropItemSFX_.get(), 0);
+    const uint32_t droppedEntity = entityManager_->AddEntity();
+    DroppedItemCreator droppedItemCreator{worldContext_};
+    droppedItemCreator.LoadTemplateComponents(droppedEntity,
+                                              DroppedItemCreator::GetResourceRef());
+    droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                              DroppedItemCreator::GetEntityItemMessage(
+                                                  cameraTransform2DComponent_->
+                                                  GetPosition(), std::move(item), 2));
+}
+
+void glimmer::PlayerControlSystem::UseItem(const PlayerComponent* playerComponent, ItemContainer* itemContainer,
+                                           const uint8_t index)
+{
+    if (itemContainer == nullptr)
+    {
+        return;
+    }
+    std::unordered_set<std::string> popupAbility;
+    const AbilityConfig* abilityConfig = playerComponent->item->GetAbilityConfig();
+    if (abilityConfig != nullptr && slipTimer_ > 0.5F)
+    {
+        slipTimer_ = 0.0F;
+        float fumbleChance = std::clamp(abilityConfig->fumbleProbability, 0.0F, 1.0F);
+        if (fumbleChance > 0.0F)
+        {
+            auto randomValue = RandomUtils::Random<float>(0.0F, 1.0F);
+            if (randomValue <= fumbleChance)
+            {
+                const uint32_t droppedEntity = entityManager_->AddEntity();
+                DroppedItemCreator droppedItemCreator{worldContext_};
+                droppedItemCreator.LoadTemplateComponents(droppedEntity,
+                                                          DroppedItemCreator::GetResourceRef());
+                droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                                          DroppedItemCreator::GetEntityItemMessage(
+                                                              cameraTransform2DComponent_
+                                                              ->
+                                                              GetPosition(),
+                                                              std::move(itemContainer->TakeAllItem(
+                                                                  index)),
+                                                              2));
+            }
+        }
+    }
+    playerComponent->item->OnUse(worldContext_, playerEntityID_, abilityConfig, popupAbility);
 }
 
 void glimmer::PlayerControlSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)

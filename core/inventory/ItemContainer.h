@@ -159,6 +159,7 @@ namespace glimmer
         [[nodiscard]] std::unique_ptr<Item> TakeAllItem(size_t index);
 
         /**
+         * Take out the specified quantity of items
          * 取出指定数量的物品
          * @param index
          * @param amount

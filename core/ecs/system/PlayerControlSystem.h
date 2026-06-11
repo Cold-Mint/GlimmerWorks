@@ -52,6 +52,23 @@ namespace glimmer
         */
         bool OnGround(const PlayerComponent* playerControlComponent) const;
 
+        /**
+         * DropItem
+         * 丢弃物品
+         * @param itemContainer
+         * @param index
+         */
+        void DropItem(const ItemContainer* itemContainer, uint8_t index) const;
+
+        /**
+         * UseItem
+         * 使用物品
+         * @param itemContainer
+         * @param playerComponent
+         * @param index
+         */
+        void UseItem(const PlayerComponent* playerComponent, ItemContainer* itemContainer, uint8_t index);
+
     public:
         explicit PlayerControlSystem(WorldContext* worldContext);
 

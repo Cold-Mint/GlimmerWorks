@@ -30,15 +30,13 @@
 
 namespace glimmer
 {
+    /**
+     * This component is used as a symbol.
+     * 本组件作为标识使用。
+     */
     class DraggableComponent : public GameComponent
     {
-        DesignVector2D size_;
-
     public:
-        void SetSize(DesignVector2D size);
-
-        [[nodiscard]] const DesignVector2D& GetSize() const;
-
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;

@@ -28,6 +28,7 @@
 #include "core/Constants.h"
 #include "core/ecs/GameComponent.h"
 #include "core/ecs/IVisible.h"
+#include "core/math/DesignVector2D.h"
 
 namespace glimmer
 {
@@ -39,20 +40,27 @@ namespace glimmer
         ItemContainer* itemContainer_;
         int slotIndex_;
         bool isHovered_ = false;
-        bool isSelected_ = false;
-        bool allowSelected_ = false;
-        float paddingNormalized_ = ITEM_SLOT_PADDING_NORMALIZED;
+        DesignDimension padding_ = ITEM_SLOT_PADDING_NORMALIZED;
+        DesignVector2D size_;
+        DesignVector2D position_;
 
     public:
-        explicit ItemSlotComponent(ItemContainer* itemContainer, int slotIndex, bool allowSelected);
+        explicit ItemSlotComponent(ItemContainer* itemContainer, int slotIndex);
 
-        [[nodiscard]] float GetPaddingNormalized() const;
+        [[nodiscard]] DesignDimension GetPadding() const;
 
-        void SetPaddingNormalized(float paddingNormalized);
+        void SetPadding(DesignDimension padding);
 
-        [[nodiscard]] bool AllowSelected() const;
 
         [[nodiscard]] Item* GetItem() const;
+
+        [[nodiscard]] const DesignVector2D& GetPosition() const;
+
+        [[nodiscard]] const DesignVector2D& GetSize() const;
+
+        void SetSize(const DesignVector2D& size);
+
+        void SetPosition(const DesignVector2D& position);
 
         [[nodiscard]] std::unique_ptr<Item> TakeAllItem() const;
 
@@ -61,10 +69,6 @@ namespace glimmer
         [[nodiscard]] bool IsHovered() const;
 
         void SetHovered(bool hovered);
-
-        [[nodiscard]] bool IsSelected() const;
-
-        void SetSelected(bool selected);
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

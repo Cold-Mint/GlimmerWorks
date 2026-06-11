@@ -32,12 +32,12 @@
 #include "../Constants.h"
 #include "../ecs/component/DebugDrawComponent.h"
 #include "../ecs/component/PauseComponent.h"
+#include "../ecs/system/AutoPickSystem.h"
 #include "../ecs/system/CameraSystem.h"
 #include "../ecs/system/ChunkSystem.h"
 #include "../ecs/system/DebugDrawBox2dSystem.h"
 #include "../ecs/system/DebugDrawSystem.h"
 #include "../ecs/system/DebugPanelSystem.h"
-#include "../ecs/system/AutoPickSystem.h"
 #include "../ecs/system/DiggingSystem.h"
 #include "../ecs/system/DroppedItemSystem.h"
 #include "../ecs/system/HotBarSystem.h"
@@ -53,9 +53,7 @@
 #include "box2d/box2d.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/MobEntityCreator.h"
-#include "core/ecs/component/DraggableComponent.h"
 #include "core/ecs/component/DroppedItemComponent.h"
-#include "core/ecs/component/GuiTransform2DComponent.h"
 #include "core/ecs/component/HotBarComponent.h"
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
@@ -237,18 +235,13 @@ glimmer::WorldContext::~WorldContext()
 
     if (entityShortCut_ != nullptr && entityManager_ != nullptr)
     {
-        auto player = entityShortCut_->GetPlayer();
-        if (!IsEmptyEntityId(player))
+        const ItemContainerComponent* itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+        if (itemCallback_ != nullptr && itemContainerComponent != nullptr)
         {
-            const ItemContainerComponent* itemContainerComponent = entityManager_->GetComponent<
-                ItemContainerComponent>(player);
-            if (itemCallback_ != nullptr && itemContainerComponent != nullptr)
+            ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+            if (itemContainer != nullptr)
             {
-                ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-                if (itemContainer != nullptr)
-                {
-                    itemContainer->RemoveOnContentChanged(itemCallback_);
-                }
+                itemContainer->RemoveOnContentChanged(itemCallback_);
             }
         }
     }
@@ -435,19 +428,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                     {
                         return;
                     }
-                    auto& slotEntityList = hotBarComponent->GetSlotEntities();
-                    auto total = slotEntityList.size();
-                    if (index >= total)
-                    {
-                        return;
-                    }
-                    auto ItemSlotEntityId = slotEntityList[index];
-                    auto* itemSlot = entityManager_->GetComponent<ItemSlotComponent>(ItemSlotEntityId);
-                    if (itemSlot == nullptr)
-                    {
-                        return;
-                    }
-                    if (!itemSlot->IsSelected())
+                    if (index != hotBarComponent->GetSelectedSlot())
                     {
                         return;
                     }
@@ -517,41 +498,74 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
         return;
     }
     auto hotBar = entityManager_->AddEntity();
-    auto* hotBarComponent = entityManager_->AddComponent<HotBarComponent>(hotBar, HOT_BAR_SIZE);
+    auto* hotBarComponent = entityManager_->AddComponent<HotBarComponent>(hotBar);
     if (hotBarComponent == nullptr)
     {
         LogCat::e("initHotbar Error.");
         return;
     }
     entityShortCut_->SetHotBarComponent(hotBarComponent);
-    constexpr float slotStep = 0.002F + ITEM_SLOT_SIZE_NORMALIZED;
-    for (int i = 0; i < HOT_BAR_SIZE; ++i)
-    {
-        const auto slotEntity = entityManager_->AddEntity();
-        auto* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
-        if (itemSlotComponent == nullptr)
-        {
-            continue;
-        }
-        itemSlotComponent->SetSelected(i == 0);
-        auto* guiTransform2DComponent = entityManager_->AddComponent<GuiTransform2DComponent>(slotEntity);
-        if (guiTransform2DComponent == nullptr)
-        {
-            continue;
-        }
-        guiTransform2DComponent->SetSize(DesignVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
-        guiTransform2DComponent->SetPosition(DesignVector2D(
-            slotStep * static_cast<float>(i),
-            slotStep
-        ));
-        auto draggableComponent = entityManager_->AddComponent<DraggableComponent>(slotEntity);
-        if (draggableComponent == nullptr)
-        {
-            continue;
-        }
-        draggableComponent->SetSize(guiTransform2DComponent->GetSize());
-        hotBarComponent->AddSlotEntity(slotEntity);
-    }
+    // constexpr float slotStep = 0.002F + ITEM_SLOT_SIZE_NORMALIZED;
+    // for (int i = 0; i < HOT_BAR_SIZE; ++i)
+    // {
+    //     const auto slotEntity = entityManager_->AddEntity();
+    //     auto* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
+    //     if (itemSlotComponent == nullptr)
+    //     {
+    //         continue;
+    //     }
+    //     itemSlotComponent->SetSelected(i == 0);
+    //     auto* guiTransform2DComponent = entityManager_->AddComponent<GuiTransform2DComponent>(slotEntity);
+    //     if (guiTransform2DComponent == nullptr)
+    //     {
+    //         continue;
+    //     }
+    //     guiTransform2DComponent->SetSize(DesignVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
+    //     guiTransform2DComponent->SetPosition(DesignVector2D(
+    //         slotStep * static_cast<float>(i),
+    //         slotStep
+    //     ));
+    //     auto draggableComponent = entityManager_->AddComponent<DraggableComponent>(slotEntity);
+    //     if (draggableComponent == nullptr)
+    //     {
+    //         continue;
+    //     }
+    //     draggableComponent->SetSize(guiTransform2DComponent->GetSize());
+    //     hotBarComponent->AddSlotEntity(slotEntity);
+    // }
+}
+
+void glimmer::WorldContext::GenerateItemSlot(ItemContainer* itemContainer, ScreenVector2D startPosition, int column)
+{
+    // uint32_t capacity = itemContainer->GetCapacity();
+    // constexpr float slotStep = ITEM_SLOT_PADDING_NORMALIZED + 0.02F;
+    // for (uint32_t i = 0; i < capacity; ++i)
+    // {
+    //     const auto slotEntity = entityManager_->AddEntity();
+    //     auto* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
+    //     if (itemSlotComponent == nullptr)
+    //     {
+    //         continue;
+    //     }
+    //     auto* guiTransform2DComponent = entityManager_->AddComponent<GuiTransform2DComponent>(slotEntity);
+    //     if (guiTransform2DComponent == nullptr)
+    //     {
+    //         continue;
+    //     }
+    //     guiTransform2DComponent->SetSize(DesignVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
+    //     int row = i / 9;
+    //     int column = i % 9;
+    //     guiTransform2DComponent->SetPosition(DesignVector2D(
+    //         0.3 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(column),
+    //         0.2 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(row)
+    //     ));
+    //     auto draggableComponent = entityManager_->AddComponent<DraggableComponent>(slotEntity);
+    //     if (draggableComponent == nullptr)
+    //     {
+    //         continue;
+    //     }
+    //     draggableComponent->SetSize(guiTransform2DComponent->GetSize());
+    // }
 }
 
 void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer)
@@ -559,36 +573,6 @@ void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer)
     if (entityManager_ == nullptr || entityShortCut_ == nullptr || itemContainer == nullptr)
     {
         return;
-    }
-    uint32_t capacity = itemContainer->GetCapacity();
-    constexpr float slotStep = ITEM_SLOT_PADDING_NORMALIZED + 0.02F;
-
-    for (uint32_t i = 0; i < capacity; ++i)
-    {
-        const auto slotEntity = entityManager_->AddEntity();
-        auto* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(slotEntity, itemContainer, i, true);
-        if (itemSlotComponent == nullptr)
-        {
-            continue;
-        }
-        auto* guiTransform2DComponent = entityManager_->AddComponent<GuiTransform2DComponent>(slotEntity);
-        if (guiTransform2DComponent == nullptr)
-        {
-            continue;
-        }
-        guiTransform2DComponent->SetSize(DesignVector2D(ITEM_SLOT_SIZE_NORMALIZED, ITEM_SLOT_SIZE_NORMALIZED));
-        int row = i / 9;
-        int column = i % 9;
-        guiTransform2DComponent->SetPosition(DesignVector2D(
-            0.3 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(column),
-            0.2 + ITEM_SLOT_PADDING_NORMALIZED + slotStep * static_cast<float>(row)
-        ));
-        auto draggableComponent = entityManager_->AddComponent<DraggableComponent>(slotEntity);
-        if (draggableComponent == nullptr)
-        {
-            continue;
-        }
-        draggableComponent->SetSize(guiTransform2DComponent->GetSize());
     }
 }
 
@@ -1208,11 +1192,15 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
                                    RESOURCE_MOB);
     InitPlayer(
         playerResourceRef);
-    ItemContainer* itemContainerPtr = entityManager_->
-                                      GetComponent<ItemContainerComponent>(entityShortCut_->GetPlayer())->
-                                      GetItemContainer();
-    InitHotbar(itemContainerPtr);
-    InitInventory(itemContainerPtr);
+    auto* itemContainerPtr = entityManager_->
+        GetComponent<ItemContainerComponent>(entityShortCut_->GetPlayer());
+    entityShortCut_->SetItemContainerComponent(itemContainerPtr);
+    ItemContainer* itemContainer = itemContainerPtr->GetItemContainer();
+    if (itemContainer != nullptr)
+    {
+        InitHotbar(itemContainer);
+        InitInventory(itemContainer);
+    }
     InitSystem();
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }

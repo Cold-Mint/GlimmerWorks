@@ -32,12 +32,13 @@
 #include "Command.h"
 #include "CommandSender.h"
 #include "core/LangsResources.h"
-#include "core/ecs/EntityManager.h"
-#include "core/ecs/EntityShortCut.h"
-#include "suggestion/DynamicSuggestionsManager.h"
 
 namespace glimmer
 {
+    class DynamicSuggestionsManager;
+    class EntityManager;
+    class EntityShortCut;
+
     class CommandManager
     {
         std::unordered_map<std::string, std::unique_ptr<Command>> commandMap_{};

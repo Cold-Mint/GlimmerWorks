@@ -63,6 +63,11 @@ void glimmer::WorldScene::Update(float delta)
     worldContext_->Update(delta);
 }
 
+void glimmer::WorldScene::OnConfigChanged(const Config* config)
+{
+    worldContext_->OnConfigChanged(config);
+}
+
 void glimmer::WorldScene::Render(SDL_Renderer* renderer)
 {
     worldContext_->Render(renderer);

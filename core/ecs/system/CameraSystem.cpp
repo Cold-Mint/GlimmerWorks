@@ -34,6 +34,17 @@ void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
         cameraComponent_ = entityShortCut_->GetCameraComponent();
+        const AppContext* appContext = worldContext_->GetAppContext();
+        if (appContext == nullptr)
+        {
+            return;
+        }
+        const Config* config = appContext->GetConfig();
+        if (config == nullptr)
+        {
+            return;
+        }
+        cameraComponent_->SetZoom(config->window.cameraScale);
     }
 }
 
@@ -42,6 +53,21 @@ glimmer::CameraSystem::CameraSystem(WorldContext* worldContext)
 {
     WatchComponent(COMPONENT_CAMERA);
     appContext_ = worldContext->GetAppContext();
+}
+
+void glimmer::CameraSystem::OnConfigChanged(const Config* config)
+{
+    if (cameraComponent_ == nullptr)
+    {
+        return;
+    }
+    const float oldZoom = cameraComponent_->GetZoom();
+    const float newZoom = config->window.cameraScale;
+    if (oldZoom == newZoom)
+    {
+        return;
+    }
+    cameraComponent_->SetZoom(newZoom);
 }
 
 void glimmer::CameraSystem::Render(SDL_Renderer* renderer)

@@ -107,6 +107,8 @@ namespace glimmer
 
         virtual bool HandleEvent(const SDL_Event& event);
 
+        virtual void OnConfigChanged(const Config* config);
+
         virtual bool OnBackPressed();
 
         virtual void Update(float delta);

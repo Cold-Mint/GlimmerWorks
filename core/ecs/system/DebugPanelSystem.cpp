@@ -172,24 +172,11 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext* worldContext) : GameSy
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_TILE_LAYER);
     appContext_ = worldContext_->GetAppContext();
-    configChangedId_ = appContext_->GetConfig()->RegisterOnConfigChanged(
-        true, std::make_unique<std::function<void(const Config*)>>(
-            [ this](const Config* newConfig)
-            {
-                displayDebugPanel_ = newConfig->debug.displayDebugPanel;
-            }));
 }
 
-glimmer::DebugPanelSystem::~DebugPanelSystem()
+void glimmer::DebugPanelSystem::OnConfigChanged(const Config* config)
 {
-    if (appContext_ != nullptr && configChangedId_ != INVALID_CONFIG_CALL_BACK)
-    {
-        Config* config = appContext_->GetConfig();
-        if (config != nullptr)
-        {
-            config->UnregisterOnConfigChanged(configChangedId_);
-        }
-    }
+    displayDebugPanel_ = config->debug.displayDebugPanel;
 }
 
 

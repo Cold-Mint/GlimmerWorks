@@ -59,37 +59,9 @@ struct toml::from<glimmer::CommandHookResource>
 };
 
 
-glimmer::Config::~Config()
+uint64_t glimmer::Config::GetFingerprint() const
 {
-    onConfigChanged_.clear();
-}
-
-size_t glimmer::Config::RegisterOnConfigChanged(const bool fireImmediately,
-                                                std::unique_ptr<std::function<void(const Config*)>> onConfigChanged)
-{
-    if (onConfigChanged == nullptr)
-    {
-        return INVALID_CONFIG_CALL_BACK;
-    }
-    if (fireImmediately)
-    {
-        (*onConfigChanged)(this);
-    }
-    auto id = nextConfigChangedId_++;
-    onConfigChanged_.emplace_back(id, std::move(onConfigChanged));
-    return id;
-}
-
-void glimmer::Config::UnregisterOnConfigChanged(size_t id)
-{
-    if (id == INVALID_CONFIG_CALL_BACK)
-    {
-        return;
-    }
-    std::erase_if(onConfigChanged_, [id](auto& pair)
-    {
-        return pair.first == id;
-    });
+    return fingerprint_;
 }
 
 void glimmer::Config::LoadConfig(const toml::value& configValue)
@@ -153,12 +125,5 @@ void glimmer::Config::LoadConfig(const toml::value& configValue)
     debug.displayWeirdnessMap = toml::find<bool>(configValue, "debug", "display_weirdness_map");
     light.enable = toml::find<bool>(configValue, "light", "enable");
 #endif
-    for (auto& item : onConfigChanged_)
-    {
-        auto& callbackFunc = item.second;
-        if (callbackFunc)
-        {
-            (*callbackFunc)(this);
-        }
-    }
+    fingerprint_++;
 }

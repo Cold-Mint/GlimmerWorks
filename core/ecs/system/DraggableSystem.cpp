@@ -154,22 +154,13 @@ glimmer::DraggableSystem::DraggableSystem(WorldContext* worldContext) : GameSyst
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_DRAGGABLE);
     WatchComponent(COMPONENT_ITEM_SLOT);
-    configChangedId_ = appContext_->GetConfig()->RegisterOnConfigChanged(
-        true, std::make_unique<std::function<void(const Config*)>>(
-            [this](const Config* cfg)
-            {
-                uiScale_ = cfg->window.uiScale;
-            }));
 }
 
-glimmer::DraggableSystem::~DraggableSystem()
+void glimmer::DraggableSystem::OnConfigChanged(const Config* config)
 {
-    Config* config = appContext_->GetConfig();
-    if (configChangedId_ != INVALID_CONFIG_CALL_BACK && config != nullptr)
-    {
-        config->UnregisterOnConfigChanged(configChangedId_);
-    }
+    uiScale_ = config->window.uiScale;
 }
+
 
 uint8_t glimmer::DraggableSystem::GetRenderOrder()
 {

@@ -29,6 +29,11 @@
 void glimmer::Scene::OnFrameStart() {
 }
 
+void glimmer::Scene::OnConfigChanged(const Config* config)
+{
+
+}
+
 bool glimmer::Scene::OnBackPressed() {
     return false;
 }

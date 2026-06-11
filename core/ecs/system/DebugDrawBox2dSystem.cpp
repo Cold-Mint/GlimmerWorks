@@ -59,20 +59,11 @@ glimmer::DebugDrawBox2dSystem::DebugDrawBox2dSystem(WorldContext* worldContext) 
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_RAY_CAST_2D);
-    AppContext* appContext = worldContext->GetAppContext();
-    if (appContext != nullptr)
-    {
-        Config* config = appContext->GetConfig();
-        if (config != nullptr)
-        {
-            configChangedId_ = config->RegisterOnConfigChanged(
-                true, std::make_unique<std::function<void(const Config*)>>(
-                    [this](const Config* cfg)
-                    {
-                        active_ = cfg->debug.displayBox2dShape;
-                    }));
-        }
-    }
+}
+
+void glimmer::DebugDrawBox2dSystem::OnConfigChanged(const Config* config)
+{
+    displayBox2dShape_ = config->debug.displayBox2dShape;
 }
 
 /**
@@ -109,7 +100,9 @@ static glimmer::ScreenVector2D ConvertBox2DToScreen(const glimmer::WorldContext*
     {
         return {worldPos.x * glimmer::kScale, -worldPos.y * glimmer::kScale};
     }
-    return glimmer::CoordinateTransformer::WorldToScreen(cameraTransform2D->GetPosition(), glimmer::Box2DUtils::ToPixels(worldPos), cameraComponent->GetSize(), cameraComponent->GetZoom());
+    return glimmer::CoordinateTransformer::WorldToScreen(cameraTransform2D->GetPosition(),
+                                                         glimmer::Box2DUtils::ToPixels(worldPos),
+                                                         cameraComponent->GetSize(), cameraComponent->GetZoom());
 }
 
 /**
@@ -629,7 +622,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawStringFcn(
 
 bool glimmer::DebugDrawBox2dSystem::CanActive() const
 {
-    return active_;
+    return displayBox2dShape_;
 }
 
 void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
@@ -687,9 +680,12 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
         WorldVector2D startPosition = transform2dComponent->GetPosition() + rayComp->
             GetOrigin();
         const ScreenVector2D origin = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                      startPosition,cameraComponent_->GetSize(),cameraComponent_->GetZoom());
+                                                                           startPosition, cameraComponent_->GetSize(),
+                                                                           cameraComponent_->GetZoom());
         const ScreenVector2D end = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                   startPosition + rayComp->GetTranslation(),cameraComponent_->GetSize(),cameraComponent_->GetZoom());
+                                                                        startPosition + rayComp->GetTranslation(),
+                                                                        cameraComponent_->GetSize(),
+                                                                        cameraComponent_->GetZoom());
         SDL_RenderLine(renderer, origin.x, origin.y, end.x, end.y);
     }
     AppContext::RestoreColorRenderer(renderer);

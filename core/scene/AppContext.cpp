@@ -487,7 +487,7 @@ glimmer::AppContext::AppContext()
     configValue = std::make_unique<toml::value>(toml::parse_str(configData.value(), tomlVersion_));
     toml::value* configValuePtr = configValue.get();
     config_->LoadConfig(*configValuePtr);
-    commandHookManager_ = std::make_unique<CommandHookManager>(config_.get());
+    commandHookManager_ = std::make_unique<CommandHookManager>();
     commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(this, configValuePtr));
     dynamicSuggestionsManager_->
         RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValuePtr));

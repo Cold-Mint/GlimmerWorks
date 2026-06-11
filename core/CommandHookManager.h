@@ -43,10 +43,7 @@ namespace glimmer
         std::unordered_map<uint32_t, std::vector<CommandHookEntry*>> sessionCommandHookMap_;
         std::unordered_map<uint32_t, std::vector<CommandHookEntry*>> configCommandHookMap_;
         std::vector<CommandHookEntry*> fullVector_;
-        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
-        Config* config_ = nullptr;
 
-        void LoadHookFromConfig(const std::vector<CommandHookResource>& commandHooks);
 
         [[nodiscard]] bool Exist(CommandHookScope scope,
                                  uint32_t key, const std::string& command) const;
@@ -63,9 +60,8 @@ namespace glimmer
         );
 
     public:
-        explicit CommandHookManager(Config* config);
+        void LoadHookFromConfig(const std::vector<CommandHookResource>& commandHooks);
 
-        ~CommandHookManager();
 
         [[nodiscard]] const std::vector<CommandHookEntry*>& GetCommandHookVector(uint32_t key);
 

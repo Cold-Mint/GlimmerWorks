@@ -525,7 +525,9 @@ void glimmer::App::Run()
             appContext_->AddUIMessage(text);
         })
     );
-
+    //+1 is used to ensure that the first frame receives the broadcast.
+    //+1是为了让第一帧收到广播。
+    uint64_t configFingerprint = config->GetFingerprint() + 1;
     while (appContext_->Running() && sceneManager->GetSceneCount() > 0)
     {
         int windowWidth, windowHeight;
@@ -538,9 +540,9 @@ void glimmer::App::Run()
         {
             appContext_->SetWindowWidth(windowWidth);
         }
-        const int idleDelayMs = config->window.idleDelay * 1000;
+        const float idleDelay = config->window.idleDelay;
         float targetFrameTime = 0;
-        if (idleDelayMs == -1)
+        if (idleDelay == -1)
         {
             //Disable idle mode to reduce frame rate.
             //禁用闲置降低帧率。
@@ -548,8 +550,8 @@ void glimmer::App::Run()
         }
         else
         {
-            const Uint64 duration = SDL_GetTicks() - lastInputTime;
-            if (duration < idleDelayMs)
+            const float duration = static_cast<float>(SDL_GetTicks() - lastInputTime) * 0.001F;
+            if (duration < idleDelay)
             {
                 targetFrameTime = 1.0F / config->window.normalTargetFps;
             }
@@ -557,6 +559,24 @@ void glimmer::App::Run()
             {
                 targetFrameTime = 1.0F / config->window.idleTargetFps;
             }
+        }
+        const uint64_t nowConfigFingerprint = config->GetFingerprint();
+        if (configFingerprint != nowConfigFingerprint)
+        {
+            if (CommandHookManager* commandHookManager = appContext_->GetCommandHookManager(); commandHookManager !=
+                nullptr)
+            {
+                commandHookManager->LoadHookFromConfig(config->commandHooks);
+            }
+            for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+            {
+                overlayScene->OnConfigChanged(config);
+            }
+            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+            {
+                topScene->OnConfigChanged(config);
+            }
+            configFingerprint = nowConfigFingerprint;
         }
         //The time interval of the target (in seconds)
         //目标的时间间隔（以秒为单位）
@@ -702,9 +722,12 @@ void glimmer::App::Run()
                 }
             }
         }
-        ImGui_ImplSDL3_NewFrame();
-        ImGui_ImplSDLRenderer3_NewFrame();
-        ImGui::NewFrame();
+        if (windowWidth > 0 && windowHeight > 0)
+        {
+            ImGui_ImplSDL3_NewFrame();
+            ImGui_ImplSDLRenderer3_NewFrame();
+            ImGui::NewFrame();
+        }
         for (const auto overlay : overlayScenes)
         {
             overlay->Update(deltaTime);
@@ -713,7 +736,6 @@ void glimmer::App::Run()
         {
             topScene->Update(deltaTime);
         }
-
         SDL_RenderClear(renderer_);
 #if  defined(NDEBUG)
         if (windowWidth > 0 && windowHeight > 0)
@@ -762,9 +784,12 @@ void glimmer::App::Run()
             }
         }
 #endif
-        ImGui::Render();
-        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
-        RendererUiMessage();
+        if (windowWidth > 0 && windowHeight > 0)
+        {
+            ImGui::Render();
+            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
+            RendererUiMessage();
+        }
         SDL_RenderPresent(renderer_);
         const auto frameEnd = SDL_GetTicks();
         const auto frameTimeMs = frameEnd - frameStart;

@@ -42,6 +42,8 @@ namespace glimmer
     public:
         explicit CameraSystem(WorldContext* worldContext);
 
+        void OnConfigChanged(const Config* config) override;
+
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void Render(SDL_Renderer* renderer) override;

@@ -151,8 +151,7 @@ namespace glimmer
 
     class Config
     {
-        std::vector<std::pair<size_t, std::unique_ptr<std::function<void(const Config*)>>>> onConfigChanged_;
-        size_t nextConfigChangedId_ = 1;
+        uint64_t fingerprint_ = 0;
 
     public:
         Window window{};
@@ -170,25 +169,7 @@ namespace glimmer
         Debug debug{};
 #endif
 
-        ~Config();
-
-        /**
-         * RegisterOnConfigChanged
-         * 注册配置变更回调
-         * @param fireImmediately Should we immediately make the callback? If so, then immediately make a callback to Config once. If not, then wait until the next LoadConfig to make the callback. 是否立即回调，如果是那么立即将Config回调一次，如果否那么等到下次LoadConfig时回调。
-         * @param onConfigChanged
-         * @return ID, you can use this ID to log out. id ，可以使用这个id注销
-         */
-        [[nodiscard]] size_t RegisterOnConfigChanged(bool fireImmediately,
-                                                     std::unique_ptr<std::function<void(const Config*)>>
-                                                     onConfigChanged);
-
-        /**
-         * Cancel configuration change callback
-         * 注销配置变更回调
-         * @param id
-         */
-        void UnregisterOnConfigChanged(size_t id);
+        [[nodiscard]] uint64_t GetFingerprint() const;
 
         void LoadConfig(const toml::value& configValue);
     };

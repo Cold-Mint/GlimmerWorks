@@ -128,26 +128,6 @@ bool glimmer::CommandHookManager::UnregisterImpl(
     return false;
 }
 
-glimmer::CommandHookManager::CommandHookManager(Config* config)
-{
-    config_ = config;
-    configChangedId_ = config_->RegisterOnConfigChanged(true,
-                                                        std::make_unique<std::function<void(const Config*)>>(
-                                                            [this](const Config* cfg)
-                                                            {
-                                                                LoadHookFromConfig(cfg->commandHooks);
-                                                            }));
-}
-
-
-glimmer::CommandHookManager::~CommandHookManager()
-{
-    if (config_ != nullptr && configChangedId_ != INVALID_CONFIG_CALL_BACK)
-    {
-        config_->UnregisterOnConfigChanged(configChangedId_);
-    }
-}
-
 
 const std::vector<glimmer::CommandHookEntry*>& glimmer::CommandHookManager::GetCommandHookVector(const uint32_t key)
 {

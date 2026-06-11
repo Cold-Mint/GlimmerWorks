@@ -135,7 +135,6 @@ namespace glimmer
          * 是否启用物品拖拽模式
          */
         bool dragMode_ = false;
-        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
 
         /**
          * Whether it is running or not, if false, it indicates that the game has been paused.
@@ -336,18 +335,11 @@ namespace glimmer
 
         void InitSystem();
 
+        void OnConfigChanged(const Config* config);
+
 
         [[nodiscard]] LightBuffer* GetLightingBuffer() const;
 
-        /**
-         * Bind the camera to the world context.
-         * 绑定相机到世界上下文。
-         *
-         * This will register a configuration change callback to the camera's zoom. When the configuration is changed, the camera zoom will be automatically adjusted.
-         * 这个将注册一个配置变更回调到相机的缩放。当配置改变时，自动调整相机缩放。
-         * @param cameraComponent
-         */
-        void BindCameraComponent(CameraComponent* cameraComponent);
 
         /**
          * SaveGame

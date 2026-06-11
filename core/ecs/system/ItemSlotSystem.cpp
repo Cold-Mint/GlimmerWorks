@@ -55,7 +55,7 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        const DesignVector2D& size = itemSlotComponent->GetSize() ;
+        const DesignVector2D& size = itemSlotComponent->GetSize();
         const DesignVector2D& position = itemSlotComponent->GetPosition() * uiScale_;
         const SDL_FRect rect = {position.x, position.y, size.x, size.y};
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
@@ -467,6 +467,11 @@ void glimmer::ItemSlotSystem::OnWatchedComponentChanged(GameComponentTypeMessage
     }
 }
 
+void glimmer::ItemSlotSystem::OnConfigChanged(const Config* config)
+{
+    uiScale_ = config->window.uiScale;
+}
+
 
 glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
@@ -492,19 +497,4 @@ glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
     tooltipBgTexture_ = resourceLocator->FindTexture(&tooltipBgResourceRef);
     preloadColors_ = appContext_->GetPreloadColors();
     font_ = appContext_->GetFont();
-    configChangedId_ = appContext_->GetConfig()->RegisterOnConfigChanged(
-        true, std::make_unique<std::function<void(const Config*)>>(
-            [this](const Config* cfg)
-            {
-                uiScale_ = cfg->window.uiScale;
-            }));
-}
-
-glimmer::ItemSlotSystem::~ItemSlotSystem()
-{
-    Config* config = appContext_->GetConfig();
-    if (configChangedId_ != INVALID_CONFIG_CALL_BACK && config != nullptr)
-    {
-        config->UnregisterOnConfigChanged(configChangedId_);
-    }
 }

@@ -225,14 +225,6 @@ glimmer::WorldContext::~WorldContext()
     {
         entityManager_->UnRegisterOnComponentCountChanged(onComponentCountChangedId_);
     }
-    Config* config = appContext_->GetConfig();
-    if (config != nullptr)
-    {
-        if (configChangedId_ != INVALID_CONFIG_CALL_BACK)
-        {
-            config->UnregisterOnConfigChanged(configChangedId_);
-        }
-    }
 
     if (entityShortCut_ != nullptr && entityManager_ != nullptr)
     {
@@ -1074,39 +1066,22 @@ void glimmer::WorldContext::InitSystem()
     allowRegisterSystem = false;
 }
 
+void glimmer::WorldContext::OnConfigChanged(const Config* config)
+{
+    for (auto& activeSystem : activeSystems)
+    {
+        activeSystem->OnConfigChanged(config);
+    }
+    for (auto& inactiveSystem : inactiveSystems)
+    {
+        inactiveSystem->OnConfigChanged(config);
+    }
+}
+
 
 glimmer::LightBuffer* glimmer::WorldContext::GetLightingBuffer() const
 {
     return lightBuffer_.get();
-}
-
-void glimmer::WorldContext::BindCameraComponent(CameraComponent* cameraComponent)
-{
-    if (entityShortCut_ == nullptr)
-    {
-        return;
-    }
-    entityShortCut_->SetCameraComponent(cameraComponent);
-    Config* config = appContext_->GetConfig();
-    if (config == nullptr)
-    {
-        return;
-    }
-    if (configChangedId_ != INVALID_CONFIG_CALL_BACK)
-    {
-        config->UnregisterOnConfigChanged(configChangedId_);
-    }
-    configChangedId_ = config->RegisterOnConfigChanged(true, std::make_unique<std::function<void(const Config*)>>(
-                                                           [ cameraComponent](const Config* newConfig)
-                                                           {
-                                                               float oldZoom = cameraComponent->GetZoom();
-                                                               float newZoom = newConfig->window.cameraScale;
-                                                               if (oldZoom == newZoom)
-                                                               {
-                                                                   return;
-                                                               }
-                                                               cameraComponent->SetZoom(newZoom);
-                                                           }));
 }
 
 

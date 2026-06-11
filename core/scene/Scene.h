@@ -28,6 +28,8 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
+#include "core/Config.h"
+
 
 namespace glimmer
 {
@@ -68,6 +70,12 @@ namespace glimmer
          */
         virtual void OnFrameStart();
 
+        /**
+         * When the configuration changes
+         * 当配置发生改变时
+         * @param config
+         */
+        virtual void OnConfigChanged(const Config* config);
 
         /**
          * This method is called when the back key is pressed. On Android systems, navigate up; on desktop platforms, press ESC.

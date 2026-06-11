@@ -43,7 +43,6 @@ namespace glimmer
         std::shared_ptr<SDL_Texture> tooltipBgTexture_ = nullptr;
         PreloadColors* preloadColors_ = nullptr;
         TTF_Font* font_ = nullptr;
-        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
         AppContext* appContext_ = nullptr;
         float uiScale_ = 1.0F;
         std::vector<ItemSlotComponent*> itemSlotComponents_;
@@ -65,7 +64,7 @@ namespace glimmer
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        ~ItemSlotSystem() override;
+        void OnConfigChanged(const Config* config) override;
 
         void Render(SDL_Renderer* renderer) override;
 

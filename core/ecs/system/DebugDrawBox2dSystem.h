@@ -42,11 +42,12 @@ namespace glimmer
         uint32_t transform2DCount_ = 0;
         uint32_t rayCast2DCount_ = 0;
         std::vector<GameEntityID> entities_;
-        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
-        bool active_ = false;
+        bool displayBox2dShape_ = false;
 
     public:
         explicit DebugDrawBox2dSystem(WorldContext* worldContext);
+
+        void OnConfigChanged(const Config* config) override;
 
         static void b2DrawPolygonFcn(const b2Vec2* b2_vec2, int i, b2HexColor b2_hex_color, void* p);
 

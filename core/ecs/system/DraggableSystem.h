@@ -38,7 +38,6 @@ namespace glimmer
         Transform2DComponent* cameraTransform2D_ = nullptr;
         std::vector<ItemSlotComponent*> itemSlotComponentVector_;
         float uiScale_ = 1.0F;
-        size_t configChangedId_ = INVALID_CONFIG_CALL_BACK;
         AppContext* appContext_ = nullptr;
         uint32_t draggableCount_ = 0;
         uint32_t itemSlotCount_ = 0;
@@ -53,7 +52,7 @@ namespace glimmer
     public:
         explicit DraggableSystem(WorldContext* worldContext);
 
-        ~DraggableSystem() override;
+        void OnConfigChanged(const Config* config) override;
 
         void OnActivationChanged(bool activeStatus) override;
 

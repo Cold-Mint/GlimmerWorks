@@ -96,6 +96,11 @@ bool glimmer::GameSystem::HandleEvent(const SDL_Event& event)
     return false;
 }
 
+void glimmer::GameSystem::OnConfigChanged(const Config* config)
+{
+
+}
+
 bool glimmer::GameSystem::OnBackPressed()
 {
     return false;

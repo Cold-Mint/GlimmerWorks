@@ -610,7 +610,10 @@ target_sources(GlimmerWorks
         core/ecs/IVisible.cpp
         core/math/CoordinateTransformer.cpp
         core/math/DesignVector2D.cpp
-        core/ecs/component/InventoryGroupComponent.cpp
+        core/layout/ILayoutStepper.cpp
+        core/layout/GridLayoutStepper.cpp
+        core/layout/HorizontalLayoutStepper.cpp
+        core/layout/VerticalLayoutStepper.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -895,7 +898,11 @@ target_sources(GlimmerWorks
         core/ecs/IVisible.h
         core/math/CoordinateTransformer.h
         core/math/DesignVector2D.h
-        core/ecs/component/InventoryGroupComponent.h
+        core/layout/ILayoutStepper.h
+        core/layout/GridLayoutStepper.h
+        core/layout/VerticalLayoutStepper.h
+        core/layout/HorizontalLayoutStepper.h
+        core/ecs/ItemSlotType.h
 )
 
 #Define version information

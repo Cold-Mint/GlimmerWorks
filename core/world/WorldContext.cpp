@@ -68,6 +68,7 @@
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/RecipeGUISystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
+#include "core/layout/GridLayoutStepper.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
@@ -484,86 +485,30 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
     entityShortCut_->SetPlayer(playerEntity);
 }
 
-void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer) const
+void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
 {
     if (entityManager_ == nullptr || entityShortCut_ == nullptr || itemContainer == nullptr)
     {
         return;
     }
-    auto hotBar = entityManager_->AddEntity();
-    auto* hotBarComponent = entityManager_->AddComponent<HotBarComponent>(hotBar);
-    if (hotBarComponent == nullptr)
+    auto hotBarEntity = entityManager_->AddEntity();
+    auto* hotBarComponent = entityManager_->AddComponent<HotBarComponent>(hotBarEntity);
+    if (hotBarComponent != nullptr)
     {
-        LogCat::e("initHotbar Error.");
-        return;
+        entityShortCut_->SetHotBarComponent(hotBarComponent);
     }
-    entityShortCut_->SetHotBarComponent(hotBarComponent);
-
-    CameraComponent* cameraComponent = entityShortCut_->GetCameraComponent();
-    if (cameraComponent == nullptr)
+    hotBarItemSlot_.clear();
+    for (int i = 0; i < HOT_BAR_SIZE; i++)
     {
-        LogCat::e("initHotbar: CameraComponent is null.");
-        return;
-    }
-
-    const ScreenVector2D screenSize = cameraComponent->GetSize();
-    const DesignDimension slotSize = ITEM_SLOT_SIZE;
-    const DesignDimension padding = ITEM_SLOT_PADDING;
-    const DesignVector2D hotbarStartPosition{padding, screenSize.y - slotSize - padding};
-    GenerateItemSlot(itemContainer, hotbarStartPosition, HOT_BAR_SIZE);
-}
-
-void glimmer::WorldContext::GenerateItemSlot(ItemContainer* itemContainer, const DesignVector2D& startPosition,
-                                             const uint8_t column) const
-{
-    if (entityManager_ == nullptr || itemContainer == nullptr)
-    {
-        LogCat::e("GenerateItemSlot: Invalid parameters.");
-        return;
-    }
-
-    const size_t capacity = itemContainer->GetCapacity();
-    if (capacity == 0)
-    {
-        LogCat::e("GenerateItemSlot: Invalid capacity or column.");
-        return;
-    }
-
-    const DesignDimension slotSize = ITEM_SLOT_SIZE;
-    const DesignDimension padding = ITEM_SLOT_PADDING;
-    const DesignDimension totalSlotWidth = slotSize + padding;
-
-    for (size_t i = 0; i < capacity; ++i)
-    {
-        const int row = static_cast<int>(i / column);
-        const int col = static_cast<int>(i % column);
-
-        DesignVector2D slotPosition;
-        slotPosition.x = startPosition.x + static_cast<DesignDimension>(col) * totalSlotWidth;
-        slotPosition.y = startPosition.y + static_cast<DesignDimension>(row) * totalSlotWidth;
-
-        GameEntityID slotEntity = entityManager_->AddEntity();
-        if (slotEntity == GAME_ENTITY_ID_INVALID)
-        {
-            LogCat::e("GenerateItemSlot: Failed to create slot entity.");
-            continue;
-        }
-
-        auto* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(
-            slotEntity, itemContainer, static_cast<int>(i));
+        const auto itemSlotEntity = entityManager_->AddEntity();
+        ItemSlotComponent* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(
+            itemSlotEntity, ItemSlotType::HotBar, itemContainer, i);
         if (itemSlotComponent == nullptr)
         {
-            LogCat::e("GenerateItemSlot: Failed to add ItemSlotComponent.");
             continue;
         }
-
-        itemSlotComponent->SetPosition(slotPosition);
-        itemSlotComponent->SetSize({slotSize, slotSize});
-
-        if (!entityManager_->AddComponent<DraggableComponent>(slotEntity))
-        {
-            LogCat::e("GenerateItemSlot: Failed to add DraggableComponent.");
-        }
+        itemSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
+        hotBarItemSlot_.emplace_back(itemSlotComponent);
     }
 }
 
@@ -573,31 +518,64 @@ void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer)
     {
         return;
     }
-
-    CameraComponent* cameraComponent = entityShortCut_->GetCameraComponent();
-    if (cameraComponent == nullptr)
+    inventoryItemSlot_.clear();
+    for (int i = 0; i < itemContainer->GetCapacity(); i++)
     {
-        LogCat::e("InitInventory: CameraComponent is null.");
-        return;
+        const auto itemSlotEntity = entityManager_->AddEntity();
+        ItemSlotComponent* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(
+            itemSlotEntity, ItemSlotType::Inventory, itemContainer, i);
+        if (itemSlotComponent == nullptr)
+        {
+            continue;
+        }
+        const DraggableComponent* draggableComponent = entityManager_->AddComponent<DraggableComponent>(itemSlotEntity);
+        if (draggableComponent == nullptr)
+        {
+            continue;
+        }
+        itemSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
+        inventoryItemSlot_.emplace_back(itemSlotComponent);
     }
+}
 
-    const ScreenVector2D screenSize = cameraComponent->GetSize();
-    const size_t capacity = itemContainer->GetCapacity();
-    const int column = HOT_BAR_SIZE;
-    const int row = static_cast<int>(capacity / column);
-
-    const DesignDimension slotSize = ITEM_SLOT_SIZE;
-    const DesignDimension padding = ITEM_SLOT_PADDING;
-    const DesignDimension totalSlotWidth = slotSize + padding;
-
-    const DesignDimension inventoryWidth = static_cast<DesignDimension>(column) * totalSlotWidth - padding;
-    const DesignDimension inventoryHeight = static_cast<DesignDimension>(row) * totalSlotWidth - padding;
-
-    DesignVector2D inventoryStartPosition;
-    inventoryStartPosition.x = (screenSize.x - inventoryWidth) * 0.5F;
-    inventoryStartPosition.y = (screenSize.y - inventoryHeight) * 0.5F;
-
-    GenerateItemSlot(itemContainer, inventoryStartPosition, column);
+void glimmer::WorldContext::ReCalculationLayout(int width, int height)
+{
+    DesignDimension padding = 5;
+    size_t hotBarItemSlotSize = hotBarItemSlot_.size();
+    DesignVector2D hotBarStartPosition{padding, padding};
+    auto horizontalLayoutStepper = HorizontalLayoutStepper(ITEM_SLOT_SIZE, hotBarStartPosition, padding, hotBarItemSlotSize);
+    int hotBarIndex = 0;
+    while (horizontalLayoutStepper.HasNext())
+    {
+        if (hotBarIndex >= hotBarItemSlotSize)
+        {
+            break;
+        }
+        hotBarItemSlot_.at(hotBarIndex)->SetPosition(horizontalLayoutStepper.Next());
+        hotBarIndex++;
+    }
+    //Calculate the starting position
+    //计算起点位置
+    size_t inventoryItemSlotSize = inventoryItemSlot_.size();
+    const uint8_t columns = 5;
+    const uint32_t inventoryScreenWidth = (ITEM_SLOT_SIZE * columns + padding * (columns - 1)) * uiScale_;
+    const uint8_t rows = inventoryItemSlotSize / columns;
+    const uint32_t inventoryScreenHeight = (ITEM_SLOT_SIZE * rows + padding * (rows - 1)) * uiScale_;
+    auto gridLayoutStepper = GridLayoutStepper(ITEM_SLOT_SIZE,
+                                               DesignVector2D{
+                                                   (width - inventoryScreenWidth) / uiScale_ * 0.5F,
+                                                   (height - inventoryScreenHeight) / uiScale_ * 0.5F
+                                               }, columns, padding, inventoryItemSlotSize);
+    int index = 0;
+    while (gridLayoutStepper.HasNext())
+    {
+        if (index >= inventoryItemSlotSize)
+        {
+            break;
+        }
+        inventoryItemSlot_.at(index)->SetPosition(gridLayoutStepper.Next());
+        index++;
+    }
 }
 
 void glimmer::WorldContext::OnWatchedComponentChanged(const GameComponentTypeMessage type, const uint32_t count)
@@ -1068,6 +1046,7 @@ void glimmer::WorldContext::InitSystem()
 
 void glimmer::WorldContext::OnConfigChanged(const Config* config)
 {
+    uiScale_ = config->window.uiScale;
     for (auto& activeSystem : activeSystems)
     {
         activeSystem->OnConfigChanged(config);
@@ -1120,7 +1099,7 @@ void glimmer::WorldContext::SaveGame()
     }
     const long endTime = TimeUtils::GetCurrentTimeMs();
     mapManifestMessageData->set_totalplaytime(
-        mapManifestMessageData->totalplaytime() + (endTime - GetStartTime()));
+        mapManifestMessageData->totalplaytime() + (endTime - startTime_));
     mapManifestMessageData->set_lastplayedtime(endTime);
     mapManifestMessageData->set_entityidindex(entityManager_->GetEntityIndex());
     if (!saves->WriteMapManifest(mapManifestMessageData.value()))
@@ -1212,9 +1191,17 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 
-long glimmer::WorldContext::GetStartTime() const
+void glimmer::WorldContext::OnWindowSizeChanged(int width, int height)
 {
-    return startTime_;
+    ReCalculationLayout(width,height);
+    for (auto& activeSystem : activeSystems)
+    {
+        activeSystem->OnWindowSizeChanged(width, height);
+    }
+    for (auto& inactiveSystem : inactiveSystems)
+    {
+        inactiveSystem->OnWindowSizeChanged(width, height);
+    }
 }
 
 glimmer::AppContext* glimmer::WorldContext::GetAppContext() const

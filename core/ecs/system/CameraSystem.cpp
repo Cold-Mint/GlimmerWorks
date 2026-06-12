@@ -45,7 +45,17 @@ void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
             return;
         }
         cameraComponent_->SetZoom(config->window.cameraScale);
+        cameraComponent_->SetSize(ScreenVector2D(static_cast<float>(appContext->GetWindowWidth()), static_cast<float>(appContext->GetWindowHeight())));
     }
+}
+
+void glimmer::CameraSystem::OnWindowSizeChanged(int width, int height)
+{
+    if (cameraComponent_ == nullptr || appContext_ == nullptr)
+    {
+        return;
+    }
+    cameraComponent_->SetSize(ScreenVector2D(static_cast<float>(width), static_cast<float>(height)));
 }
 
 glimmer::CameraSystem::CameraSystem(WorldContext* worldContext)
@@ -70,14 +80,6 @@ void glimmer::CameraSystem::OnConfigChanged(const Config* config)
     cameraComponent_->SetZoom(newZoom);
 }
 
-void glimmer::CameraSystem::Render(SDL_Renderer* renderer)
-{
-    if (cameraComponent_ == nullptr || appContext_ == nullptr)
-    {
-        return;
-    }
-    cameraComponent_->SetSize(ScreenVector2D(appContext_->GetWindowWidth(), appContext_->GetWindowHeight()));
-}
 
 glimmer::GameSystemType glimmer::CameraSystem::GetGameSystemType() const
 {

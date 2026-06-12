@@ -46,6 +46,7 @@
 #include "core/ecs/component/BlueprintComponent.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/inventory/ComposableItem.h"
+#include "core/layout/HorizontalLayoutStepper.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
 #include "core/world/TileInstancePool.h"
@@ -95,6 +96,9 @@ namespace glimmer
         std::vector<std::unique_ptr<GameSystem>> activeSystems;
         std::vector<std::unique_ptr<GameSystem>> inactiveSystems;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
+        std::vector<ItemSlotComponent*> hotBarItemSlot_;
+        std::vector<ItemSlotComponent*> inventoryItemSlot_;
+        float uiScale_ = 1.0F;
         /**
         * Game saves
         * 游戏存档
@@ -175,22 +179,19 @@ namespace glimmer
     * Initialize the hotbar
     * 初始化快捷栏
     */
-        void InitHotbar(ItemContainer* itemContainer) const;
-
-        /**
-         * Generate Item Slot Component
-         * 生成物品槽组件
-         * @param itemContainer 物品容器
-         * @param startPosition 绘制起点（设计坐标）
-         * @param column 列数
-         */
-        void GenerateItemSlot(ItemContainer* itemContainer, const DesignVector2D& startPosition, uint8_t column) const;
+        void InitHotbar(ItemContainer* itemContainer);
 
         /**
          * Initialize inventory view(Bag)
          * 初始化库存视图（背包）
          */
         void InitInventory(ItemContainer* itemContainer);
+
+        /**
+         * ReCalculationLayout
+         * 重新计算布局
+         */
+        void ReCalculationLayout(int width,int height);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage type, uint32_t count);
 
@@ -366,12 +367,7 @@ namespace glimmer
 
         explicit WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves);
 
-        /**
-         * The time when the world environment is constructed and completed.
-         * 世界环境构建完成的时间。
-         * @return
-         */
-        [[nodiscard]] long GetStartTime() const;
+        void OnWindowSizeChanged(int width, int height);
 
         [[nodiscard]] AppContext* GetAppContext() const;
 

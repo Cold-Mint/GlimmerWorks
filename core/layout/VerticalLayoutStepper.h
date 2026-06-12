@@ -25,22 +25,26 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ItemSlotComponent.h"
-#include "core/ecs/GameComponent.h"
+#include "ILayoutStepper.h"
+#include "core/Constants.h"
+#include "core/math/DesignVector2D.h"
 
 namespace glimmer
 {
-    class InventoryGroupComponent : public GameComponent
+    class VerticalLayoutStepper : public ILayoutStepper
     {
-        std::vector<ItemSlotComponent*> itemSlotComponents_;
+        DesignDimension cellHeight_;
+        DesignVector2D startPosition_;
+        DesignDimension padding_;
+        uint32_t dataLength_;
+        uint32_t currentIndex_ = 0;
 
     public:
-        void AddItemSlotComponent(ItemSlotComponent* component);
+        VerticalLayoutStepper(DesignDimension cellHeight, const DesignVector2D& startPosition,
+                             DesignDimension padding, uint32_t dataLength);
 
-        [[nodiscard]] ItemSlotComponent* GetItemSlotComponent(uint8_t index) const;
-
-        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
-
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
+        bool HasNext() override;
+        DesignVector2D Next() override;
+        void Reset() override;
     };
 }

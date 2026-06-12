@@ -40,7 +40,6 @@ namespace glimmer
         HotBarComponent* hotBarComponent_ = nullptr;
         PlayerComponent* playerComponent_ = nullptr;
         ItemContainerComponent* itemContainerComponent_ = nullptr;
-        InventoryGroupComponent* inventoryGroupComponent_ = nullptr;
 
     public:
         explicit HotBarSystem(WorldContext* worldContext);

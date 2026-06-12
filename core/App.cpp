@@ -528,17 +528,32 @@ void glimmer::App::Run()
     //+1 is used to ensure that the first frame receives the broadcast.
     //+1是为了让第一帧收到广播。
     uint64_t configFingerprint = config->GetFingerprint() + 1;
+    bool windowsSizeChanged = false;
     while (appContext_->Running() && sceneManager->GetSceneCount() > 0)
     {
         int windowWidth, windowHeight;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         if (windowHeight != appContext_->GetWindowHeight())
         {
+            windowsSizeChanged = true;
             appContext_->SetWindowHeight(windowHeight);
         }
         if (windowWidth != appContext_->GetWindowWidth())
         {
+            windowsSizeChanged = true;
             appContext_->SetWindowWidth(windowWidth);
+        }
+        if (windowsSizeChanged)
+        {
+            for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+            {
+                overlayScene->OnWindowSizeChanged(windowWidth, windowHeight);
+            }
+            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+            {
+                topScene->OnWindowSizeChanged(windowWidth, windowHeight);
+            }
+            windowsSizeChanged = false;
         }
         const float idleDelay = config->window.idleDelay;
         float targetFrameTime = 0;

@@ -87,6 +87,8 @@ namespace glimmer
 
         virtual void OnWindowClose();
 
+        virtual void OnWindowSizeChanged(int width, int height);
+
 
         virtual ~Scene() = default;
 

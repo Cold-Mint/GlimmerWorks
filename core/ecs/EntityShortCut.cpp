@@ -86,16 +86,6 @@ glimmer::ItemContainerComponent* glimmer::EntityShortCut::GetItemContainerCompon
     return itemContainerComponent_;
 }
 
-void glimmer::EntityShortCut::SetInventoryGroupComponent(InventoryGroupComponent* inventoryGroupComponent)
-{
-    inventoryGroupComponent_ = inventoryGroupComponent;
-}
-
-glimmer::InventoryGroupComponent* glimmer::EntityShortCut::GetInventoryGroupComponent() const
-{
-    return inventoryGroupComponent_;
-}
-
 void glimmer::EntityShortCut::SetCameraComponent(CameraComponent* cameraComponent)
 {
     cameraComponent_ = cameraComponent;

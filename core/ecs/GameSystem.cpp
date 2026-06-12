@@ -101,6 +101,11 @@ void glimmer::GameSystem::OnConfigChanged(const Config* config)
 
 }
 
+void glimmer::GameSystem::OnWindowSizeChanged(int width, int height)
+{
+
+}
+
 bool glimmer::GameSystem::OnBackPressed()
 {
     return false;

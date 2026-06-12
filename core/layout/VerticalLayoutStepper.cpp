@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,56 +24,43 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "WorldScene.h"
+#include "VerticalLayoutStepper.h"
+#include "core/math/DesignVector2D.h"
 
-#include "core/saves/SavesManager.h"
-
-glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext)
-    : Scene(context)
+namespace glimmer
 {
-    worldContext_ = std::move(worldContext);
-    if (context != nullptr)
+    VerticalLayoutStepper::VerticalLayoutStepper(DesignDimension cellHeight, const DesignVector2D& startPosition,
+                                                DesignDimension padding, uint32_t dataLength)
+        : cellHeight_(cellHeight),
+          startPosition_(startPosition),
+          padding_(padding),
+          dataLength_(dataLength),
+          currentIndex_(0)
     {
-        context->SetWindowTitle((PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
     }
-}
 
-void glimmer::WorldScene::OnFrameStart()
-{
-    worldContext_->OnFrameStart();
-}
+    bool VerticalLayoutStepper::HasNext()
+    {
+        return currentIndex_ < dataLength_;
+    }
 
-bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
-{
-    return worldContext_->HandleEvent(event);
-}
+    DesignVector2D VerticalLayoutStepper::Next()
+    {
+        if (!HasNext())
+        {
+            return startPosition_;
+        }
 
-bool glimmer::WorldScene::OnBackPressed()
-{
-    return worldContext_->OnBackPressed();
-}
+        DesignVector2D position;
+        position.x = startPosition_.x;
+        position.y = startPosition_.y + static_cast<DesignDimension>(currentIndex_) * (cellHeight_ + padding_);
 
-void glimmer::WorldScene::OnWindowClose()
-{
-    worldContext_->SaveGame();
-}
+        currentIndex_++;
+        return position;
+    }
 
-void glimmer::WorldScene::Update(float delta)
-{
-    worldContext_->Update(delta);
-}
-
-void glimmer::WorldScene::OnWindowSizeChanged(int width, int height)
-{
-    worldContext_->OnWindowSizeChanged(width, height);
-}
-
-void glimmer::WorldScene::OnConfigChanged(const Config* config)
-{
-    worldContext_->OnConfigChanged(config);
-}
-
-void glimmer::WorldScene::Render(SDL_Renderer* renderer)
-{
-    worldContext_->Render(renderer);
+    void VerticalLayoutStepper::Reset()
+    {
+        currentIndex_ = 0;
+    }
 }

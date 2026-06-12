@@ -109,6 +109,8 @@ namespace glimmer
 
         virtual void OnConfigChanged(const Config* config);
 
+        virtual void OnWindowSizeChanged(int width, int height);
+
         virtual bool OnBackPressed();
 
         virtual void Update(float delta);

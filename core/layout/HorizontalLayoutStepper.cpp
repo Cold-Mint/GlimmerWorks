@@ -24,28 +24,43 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "InventoryGroupComponent.h"
+#include "HorizontalLayoutStepper.h"
+#include "core/math/DesignVector2D.h"
 
-void glimmer::InventoryGroupComponent::AddItemSlotComponent(ItemSlotComponent* component)
+namespace glimmer
 {
-    itemSlotComponents_.emplace_back(component);
-}
-
-glimmer::ItemSlotComponent* glimmer::InventoryGroupComponent::GetItemSlotComponent(const uint8_t index) const
-{
-    if (index >= itemSlotComponents_.size())
+    HorizontalLayoutStepper::HorizontalLayoutStepper(DesignDimension cellWidth, const DesignVector2D& startPosition,
+                                                    DesignDimension padding, uint32_t dataLength)
+        : cellWidth_(cellWidth),
+          startPosition_(startPosition),
+          padding_(padding),
+          dataLength_(dataLength),
+          currentIndex_(0)
     {
-        return nullptr;
     }
-    return itemSlotComponents_.at(index);
-}
 
-GameComponentTypeMessage glimmer::InventoryGroupComponent::GetComponentTypeStatic()
-{
-    return COMPONENT_INVENTORY_GROUP;
-}
+    bool HorizontalLayoutStepper::HasNext()
+    {
+        return currentIndex_ < dataLength_;
+    }
 
-GameComponentTypeMessage glimmer::InventoryGroupComponent::GetComponentType()
-{
-    return GetComponentTypeStatic();
+    DesignVector2D HorizontalLayoutStepper::Next()
+    {
+        if (!HasNext())
+        {
+            return startPosition_;
+        }
+
+        DesignVector2D position;
+        position.x = startPosition_.x + static_cast<DesignDimension>(currentIndex_) * (cellWidth_ + padding_);
+        position.y = startPosition_.y;
+
+        currentIndex_++;
+        return position;
+    }
+
+    void HorizontalLayoutStepper::Reset()
+    {
+        currentIndex_ = 0;
+    }
 }

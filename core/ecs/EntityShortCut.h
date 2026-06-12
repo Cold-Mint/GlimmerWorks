@@ -31,7 +31,6 @@
 #include "component/CameraComponent.h"
 #include "component/DiggingComponent.h"
 #include "component/HotBarComponent.h"
-#include "component/InventoryGroupComponent.h"
 #include "component/ItemContainerComponent.h"
 #include "component/ParallaxBackgroundComponent.h"
 #include "component/Transform2DComponent.h"
@@ -45,7 +44,6 @@ namespace glimmer
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         HotBarComponent* hotBarComponent_ = nullptr;
-        InventoryGroupComponent* inventoryGroupComponent_ = nullptr;
         BlueprintComponent* blueprintComponent_ = nullptr;
         ItemContainerComponent* itemContainerComponent_ = nullptr;
         DiggingComponent* diggingComponent_ = nullptr;
@@ -78,10 +76,6 @@ namespace glimmer
         void SetItemContainerComponent(ItemContainerComponent* itemContainerComponent);
 
         [[nodiscard]] ItemContainerComponent* GetItemContainerComponent() const;
-
-        void SetInventoryGroupComponent(InventoryGroupComponent* inventoryGroupComponent);
-
-        [[nodiscard]] InventoryGroupComponent* GetInventoryGroupComponent() const;
 
         void SetCameraComponent(CameraComponent* cameraComponent);
 

@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,56 +24,26 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "WorldScene.h"
+#pragma once
+#include "core/math/DesignVector2D.h"
 
-#include "core/saves/SavesManager.h"
-
-glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext)
-    : Scene(context)
+namespace glimmer
 {
-    worldContext_ = std::move(worldContext);
-    if (context != nullptr)
+    /**
+     * ILayoutStepper
+     * 布局步进器
+     * Calculate the drawing coordinates of the next point based on the input data.
+     * 根据输入数据推算下一个点的绘制坐标。
+     */
+    class ILayoutStepper
     {
-        context->SetWindowTitle((PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
-    }
-}
+    public:
+        virtual ~ILayoutStepper() = default;
 
-void glimmer::WorldScene::OnFrameStart()
-{
-    worldContext_->OnFrameStart();
-}
+        virtual bool HasNext() = 0;
 
-bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
-{
-    return worldContext_->HandleEvent(event);
-}
+        virtual DesignVector2D Next() = 0;
 
-bool glimmer::WorldScene::OnBackPressed()
-{
-    return worldContext_->OnBackPressed();
-}
-
-void glimmer::WorldScene::OnWindowClose()
-{
-    worldContext_->SaveGame();
-}
-
-void glimmer::WorldScene::Update(float delta)
-{
-    worldContext_->Update(delta);
-}
-
-void glimmer::WorldScene::OnWindowSizeChanged(int width, int height)
-{
-    worldContext_->OnWindowSizeChanged(width, height);
-}
-
-void glimmer::WorldScene::OnConfigChanged(const Config* config)
-{
-    worldContext_->OnConfigChanged(config);
-}
-
-void glimmer::WorldScene::Render(SDL_Renderer* renderer)
-{
-    worldContext_->Render(renderer);
+        virtual void Reset() = 0;
+    };
 }

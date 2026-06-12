@@ -43,5 +43,10 @@ void glimmer::Scene::OnWindowClose()
 
 }
 
+void glimmer::Scene::OnWindowSizeChanged(int width, int height)
+{
+
+}
+
 glimmer::Scene::Scene(AppContext *context) : appContext(context) {
 }

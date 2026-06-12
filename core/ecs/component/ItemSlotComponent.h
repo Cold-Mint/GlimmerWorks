@@ -27,6 +27,7 @@
 #pragma once
 #include "core/Constants.h"
 #include "core/ecs/GameComponent.h"
+#include "core/ecs/ItemSlotType.h"
 #include "core/ecs/IVisible.h"
 #include "core/math/DesignVector2D.h"
 
@@ -41,16 +42,18 @@ namespace glimmer
         int slotIndex_;
         bool isHovered_ = false;
         DesignDimension padding_ = ITEM_SLOT_PADDING;
+        ItemSlotType itemSlotType_ = ItemSlotType::None;
         DesignVector2D size_;
         DesignVector2D position_;
 
     public:
-        explicit ItemSlotComponent(ItemContainer* itemContainer, int slotIndex);
+        explicit ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, int slotIndex);
 
         [[nodiscard]] DesignDimension GetPadding() const;
 
         void SetPadding(DesignDimension padding);
 
+        ItemSlotType GetItemSlotType() const;
 
         [[nodiscard]] Item* GetItem() const;
 

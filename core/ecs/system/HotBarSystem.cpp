@@ -27,7 +27,6 @@
 #include "HotBarSystem.h"
 #include "../component/HotBarComponent.h"
 #include "../../world/WorldContext.h"
-#include "../component/ItemSlotComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 
 
@@ -49,10 +48,6 @@ void glimmer::HotBarSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     {
         itemContainerComponent_ = entityShortCut_->GetItemContainerComponent();
     }
-    if (gameComponentType == COMPONENT_INVENTORY_GROUP && inventoryGroupComponent_ == nullptr)
-    {
-        inventoryGroupComponent_ = entityShortCut_->GetInventoryGroupComponent();
-    }
 }
 
 glimmer::HotBarSystem::HotBarSystem(WorldContext* worldContext)
@@ -60,7 +55,6 @@ glimmer::HotBarSystem::HotBarSystem(WorldContext* worldContext)
 {
     WatchComponent(COMPONENT_PLAYER);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
-    WatchComponent(COMPONENT_INVENTORY_GROUP);
     WatchComponent(COMPONENT_HOT_BAR);
 }
 
@@ -91,11 +85,6 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event& event)
             {
                 playerComponent_->item = container->GetItem(hotBarComponent_->GetSelectedSlot());
             }
-        }
-        if (inventoryGroupComponent_ != nullptr)
-        {
-            hotBarComponent_->SetSelectedSlotComponent(
-                inventoryGroupComponent_->GetItemSlotComponent(hotBarComponent_->GetSelectedSlot()));
         }
         return true;
     }

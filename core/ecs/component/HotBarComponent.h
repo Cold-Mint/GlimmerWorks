@@ -53,8 +53,6 @@ namespace glimmer
 
         [[nodiscard]] ItemSlotComponent* GetSelectedSlotComponent() const;
 
-        [[nodiscard]] static uint8_t GetMaxSlot();
-
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;

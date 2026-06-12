@@ -46,7 +46,7 @@ namespace glimmer
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void OnWindowSizeChanged(int width, int height) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

@@ -163,8 +163,6 @@ static constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
 static constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
 static constexpr size_t ITEM_MAX_STACK = 64;
 static constexpr size_t HOT_BAR_SIZE = 9;
-//Number of backpacks
-//背包行数
 static constexpr float ITEM_SLOT_SIZE = 24;
 static constexpr float ITEM_SLOT_PADDING = 2;
 static constexpr size_t INVENTORY_ROW_COUNT = 4;

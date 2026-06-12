@@ -82,11 +82,6 @@ glimmer::ItemSlotComponent* glimmer::HotBarComponent::GetSelectedSlotComponent()
     return selectedSlotComponent_;
 }
 
-uint8_t glimmer::HotBarComponent::GetMaxSlot()
-{
-    return HOT_BAR_SIZE;
-}
-
 
 GameComponentTypeMessage glimmer::HotBarComponent::GetComponentTypeStatic()
 {

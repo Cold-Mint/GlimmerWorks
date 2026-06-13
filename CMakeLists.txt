@@ -2,9 +2,8 @@ cmake_minimum_required(VERSION 3.31.6)
 project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
 
-
+include("${CMAKE_CURRENT_SOURCE_DIR}/versions.cmake")
 if (NOT DEFINED ENV{GITHUB_ACTIONS})
-    include("${CMAKE_CURRENT_SOURCE_DIR}/versions.cmake")
     if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
         message(FATAL_ERROR "The file \"config.cmake\" was not found. Please copy \"config_template.cmake\", fill in its content, rename it to \"config.cmake\", and then run it again.")
     endif ()

@@ -38,6 +38,7 @@ glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optio
     tags.clear();
     tags_.insert(tags.begin(), tags.end());
     resourceRef_ = resourceRef;
+    maxStack_ = ITEM_MAX_STACK;
 }
 
 std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(const AppContext* appContext,

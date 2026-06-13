@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "InventoryGUISystem.h"
+#include "InventoryCraftGUISystem.h"
 
 #include "core/ecs/ItemSlotType.h"
 #include "core/world/WorldContext.h"
@@ -32,13 +32,24 @@
 #include "core/layout/GridLayoutStepper.h"
 
 
-glimmer::InventoryGUISystem::InventoryGUISystem(WorldContext* worldContext)
+glimmer::InventoryCraftGUISystem::InventoryCraftGUISystem(WorldContext* worldContext)
     : GUISystem(worldContext)
 {
     WatchComponent(COMPONENT_ITEM_SLOT);
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
+        return;
+    }
+    const Config* config = appContext->GetConfig();
+    if (config == nullptr)
+    {
+        return;
+    }
+    uiScale_ = config->window.uiScale;
 }
 
-void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus)
+void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
 {
     if (activeStatus)
     {
@@ -56,7 +67,8 @@ void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus)
     }
 }
 
-void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+void glimmer::InventoryCraftGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
+                                                                 uint32_t count)
 {
     if (gameComponentType == COMPONENT_ITEM_SLOT)
     {
@@ -82,17 +94,17 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
     }
 }
 
-glimmer::GameSystemType glimmer::InventoryGUISystem::GetGameSystemType() const
+glimmer::GameSystemType glimmer::InventoryCraftGUISystem::GetGameSystemType() const
 {
-    return GameSystemType::InventoryGUISystem;
+    return GameSystemType::InventoryCraftGUISystem;
 }
 
-void glimmer::InventoryGUISystem::OnConfigChanged(const Config* config)
+void glimmer::InventoryCraftGUISystem::OnConfigChanged(const Config* config)
 {
     uiScale_ = config->window.uiScale;
 }
 
-void glimmer::InventoryGUISystem::OnWindowSizeChanged(int width, int height)
+void glimmer::InventoryCraftGUISystem::OnWindowSizeChanged(int width, int height)
 {
     DesignDimension padding = 5;
     size_t hotBarItemSlotSize = inventoryItemSlot_.size();

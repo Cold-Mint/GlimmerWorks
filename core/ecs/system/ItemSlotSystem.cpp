@@ -180,60 +180,6 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
-bool glimmer::ItemSlotSystem::HandleEvent(const SDL_Event& event)
-{
-    if (worldContext_ == nullptr)
-    {
-        return false;
-    }
-    if (worldContext_->IsDragMode())
-    {
-        return false;
-    }
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT)
-    {
-        // if (entities_.empty())
-        // {
-        //     return false;
-        // }
-        // float mouseX = event.motion.x;
-        // float mouseY = event.motion.y;
-        // ItemSlotComponent* previousItemSlotComponent = nullptr;
-        // ItemSlotComponent* currentlyItemSlotComponent = nullptr;
-        // for (uint32_t entity : entities_)
-        // {
-        //     auto* itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
-        //     if (itemSlotComponent == nullptr)
-        //     {
-        //         continue;
-        //     }
-        //     const DesignVector2D size = itemSlotComponent->GetSize()*uiScale_;
-        //     const DesignVector2D position = itemSlotComponent->GetPosition() * uiScale_;
-        //     const SDL_FRect border = {position.x, position.y, size.x, size.y};
-        //     if (itemSlotComponent->IsSelected())
-        //     {
-        //         previousItemSlotComponent = itemSlotComponent;
-        //     }
-        //     if (itemSlotComponent->AllowSelected())
-        //     {
-        //         bool selected = mouseX >= border.x && mouseX <= border.x + border.w &&
-        //             mouseY >= border.y && mouseY <= border.y + border.h;
-        //         if (selected)
-        //         {
-        //             currentlyItemSlotComponent = itemSlotComponent;
-        //         }
-        //     }
-        // }
-        // if (currentlyItemSlotComponent != nullptr && previousItemSlotComponent != nullptr && previousItemSlotComponent
-        //     != currentlyItemSlotComponent)
-        // {
-        //     currentlyItemSlotComponent->SetSelected(true);
-        //     previousItemSlotComponent->SetSelected(false);
-        // }
-    }
-
-    return false;
-}
 
 uint8_t glimmer::ItemSlotSystem::GetRenderOrder()
 {
@@ -500,4 +446,10 @@ glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
     tooltipBgTexture_ = resourceLocator->FindTexture(&tooltipBgResourceRef);
     preloadColors_ = appContext_->GetPreloadColors();
     font_ = appContext_->GetFont();
+    const Config* config = appContext_->GetConfig();
+    if (config == nullptr)
+    {
+        return;
+    }
+    uiScale_ = config->window.uiScale;
 }

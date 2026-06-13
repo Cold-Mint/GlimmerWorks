@@ -55,7 +55,7 @@ namespace glimmer
 
         void SetPadding(DesignDimension padding);
 
-        ItemSlotType GetItemSlotType() const;
+        [[nodiscard]] ItemSlotType GetItemSlotType() const;
 
         [[nodiscard]] Item* GetItem() const;
 

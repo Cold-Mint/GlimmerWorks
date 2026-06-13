@@ -25,41 +25,30 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+#include "GUISystem.h"
 
 namespace glimmer
 {
-    enum class GameSystemType : uint8_t
+    /**
+     * InventoryGUI
+     * 库存GUI
+     */
+    class InventoryCraftGUISystem : public GUISystem
     {
-        None,
-        AndroidControlSystem,
-        AreaMarkerSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        Light2DSystem,
-        MagnetSystem,
-        ParallaxBackgroundSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryCraftGUISystem
+        std::vector<ItemSlotComponent*> inventoryItemSlot_;
+        float uiScale_ = 1.0F;
+
+    public:
+        explicit InventoryCraftGUISystem(WorldContext* worldContext);
+
+        void OnActivationChanged(bool activeStatus) override;
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
+
+        void OnConfigChanged(const Config* config) override;
+
+        void OnWindowSizeChanged(int width, int height) override;
     };
 }

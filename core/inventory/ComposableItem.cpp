@@ -28,7 +28,6 @@
 
 #include "AbilityItem.h"
 #include "core/ecs/component/Transform2DComponent.h"
-#include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include <utility>
 #include <vector>
@@ -41,16 +40,16 @@
 #include "core/math/RandomAllocStrategy.h"
 #include "core/utils/StringUtils.h"
 
-void glimmer::ComposableItem::SwapItem(size_t index, ItemContainer* otherContainer, size_t otherIndex) const
+void glimmer::ComposableItem::SwapItem(uint8_t index, ItemContainer* otherContainer, uint8_t otherIndex) const
 {
     itemContainer_->SwapItem(index, otherContainer, otherIndex);
 }
 
 void glimmer::ComposableItem::RefreshAttributes()
 {
-    const size_t max = itemContainer_->GetCapacity();
+    const uint8_t max = itemContainer_->GetCapacity();
     totalAbilityConfig_.Reset();
-    for (size_t index = 0; index < max; index++)
+    for (uint8_t index = 0; index < max; index++)
     {
         Item* item = itemContainer_->GetItem(index);
         if (item == nullptr)
@@ -71,13 +70,13 @@ void glimmer::ComposableItem::RefreshAttributes()
     }
 }
 
-std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const size_t index,
+std::unique_ptr<glimmer::Item> glimmer::ComposableItem::ReplaceItem(const uint8_t index,
                                                                     std::unique_ptr<Item> item) const
 {
     return itemContainer_->ReplaceItem(index, std::move(item));
 }
 
-size_t glimmer::ComposableItem::RemoveItemAbility(const std::string& id, const size_t amount) const
+uint8_t glimmer::ComposableItem::RemoveItemAbility(const std::string& id, const uint8_t amount) const
 {
     return itemContainer_->RemoveItem(id, amount);
 }
@@ -121,7 +120,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
         itemResource->isUnbreakable, tags, resourceRef);
     //If the capability is not specified within the resource reference, then the default capability will be loaded.
     //如果没有在资源引用内指定能力，那么加载默认能力。
-    size_t defaultAbilitySize = itemResource->defaultAbilityList.size();
+    uint8_t defaultAbilitySize = itemResource->defaultAbilityList.size();
     if (defaultAbilitySize > 0)
     {
         for (int i = 0; i < defaultAbilitySize; i++)
@@ -130,7 +129,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
                                                                       itemResource->defaultAbilityList[i]);
             if (itemObj != nullptr)
             {
-                (void)result->ReplaceItem(static_cast<size_t>(i), std::move(itemObj));
+                (void)result->ReplaceItem(static_cast<uint8_t>(i), std::move(itemObj));
             }
         }
     }
@@ -150,10 +149,10 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, c
     {
         return;
     }
-    const size_t max = itemContainer_->GetCapacity();
+    const uint8_t max = itemContainer_->GetCapacity();
     //The ability to pop up
     //需要弹出的能力
-    for (size_t index = 0; index < max; index++)
+    for (uint8_t index = 0; index < max; index++)
     {
         Item* item = itemContainer_->GetItem(index);
         if (item == nullptr)
@@ -203,7 +202,7 @@ std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const
 
 void glimmer::ComposableItem::AddCallback()
 {
-    callback_ = itemContainer_->AddOnContentChanged([this](size_t index, Item* item, ContainerChangeType changeType)
+    callback_ = itemContainer_->AddOnContentChanged([this](uint8_t index, Item* item, ContainerChangeType changeType)
     {
         switch (changeType)
         {
@@ -219,7 +218,7 @@ void glimmer::ComposableItem::AddCallback()
 
 glimmer::ComposableItem::ComposableItem(const std::string& id, const std::string& name,
                                         const std::optional<std::string>& description,
-                                        const std::shared_ptr<SDL_Texture>& icon, size_t maxSize,
+                                        const std::shared_ptr<SDL_Texture>& icon, uint8_t maxSize,
                                         uint32_t maxDurability, bool isUnbreakable, std::unordered_set<uint64_t> tags,
                                         const ResourceRef& resourceRef)
 {
@@ -299,7 +298,7 @@ void glimmer::ComposableItem::ReadItemMessage(WorldContext* worldContext, const 
             std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, abilityItemMessage);
             if (item != nullptr)
             {
-                std::unique_ptr<Item> result = ReplaceItem(static_cast<size_t>(i), std::move(item));
+                std::unique_ptr<Item> result = ReplaceItem(static_cast<uint8_t>(i), std::move(item));
             }
         }
     }
@@ -379,7 +378,7 @@ void glimmer::ComposableItem::Reduce(unsigned value)
     if (itemContainer_ != nullptr)
     {
         std::vector<IAllocatable*> itemsList;
-        for (size_t index = 0; index < itemContainer_->GetCapacity(); index++)
+        for (uint8_t index = 0; index < itemContainer_->GetCapacity(); index++)
         {
             Item* item = itemContainer_->GetItem(index);
             if (item == nullptr)

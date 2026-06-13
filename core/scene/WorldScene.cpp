@@ -51,7 +51,7 @@ bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
         //当按下某个键，且没有系统正在显示中时。
         if (event.key.scancode == SDL_SCANCODE_E)
         {
-            worldContext_->PushGuiSystemType(GameSystemType::InventoryGUISystem);
+            worldContext_->PushGuiSystemType(GameSystemType::InventoryCraftGUISystem);
         }
     }
     return worldContext_->HandleEvent(event);

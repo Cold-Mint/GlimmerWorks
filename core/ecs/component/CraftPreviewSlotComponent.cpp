@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -24,42 +24,10 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <cstdint>
+#include "CraftPreviewSlotComponent.h"
 
-namespace glimmer
+GameComponentTypeMessage glimmer::CraftPreviewSlotComponent::GetComponentType()
 {
-    enum class GameSystemType : uint8_t
-    {
-        None,
-        AndroidControlSystem,
-        AreaMarkerSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        Light2DSystem,
-        MagnetSystem,
-        ParallaxBackgroundSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryCraftGUISystem
-    };
+    //TODO:修复我！
+    return COMPONENT_TRANSFORM_2D;
 }

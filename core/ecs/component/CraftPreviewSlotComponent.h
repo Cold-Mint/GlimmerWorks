@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -25,30 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "GUISystem.h"
+#include "core/ecs/GameComponent.h"
 
 namespace glimmer
 {
-    /**
-     * InventoryGUI
-     * 库存GUI
-     */
-    class InventoryGUISystem : public GUISystem
+    class CraftPreviewSlotComponent : public GameComponent
     {
-        std::vector<ItemSlotComponent*> inventoryItemSlot_;
-        float uiScale_ = 1.0F;
-
     public:
-        explicit InventoryGUISystem(WorldContext* worldContext);
-
-        void OnActivationChanged(bool activeStatus) override;
-
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
-
-        void OnConfigChanged(const Config* config) override;
-
-        void OnWindowSizeChanged(int width, int height) override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

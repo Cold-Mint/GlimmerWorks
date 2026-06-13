@@ -112,7 +112,7 @@ namespace glimmer
         std::unique_ptr<ChunkLoader> chunkLoader_ = nullptr;
         std::unique_ptr<ChunkGenerator> chunkGenerator_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_;
-        std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>> itemCallback_;
+        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> itemCallback_;
         std::shared_ptr<MIX_Audio> itemBreakSFX_ = nullptr;
         AudioManager* audioManager_ = nullptr;
         /**

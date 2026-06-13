@@ -62,7 +62,7 @@
 #include "core/ecs/system/DebugMultiMapSystem.h"
 #include "core/ecs/system/DraggableSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
-#include "core/ecs/system/InventoryGUISystem.h"
+#include "core/ecs/system/InventoryCraftGUISystem.h"
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
@@ -432,7 +432,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                 tempPlayerComponent->item = itemContainer->GetItem(0);
             }
             itemCallback_ = itemContainer->AddOnContentChanged(
-                [this, playerEntity](size_t index, Item* item, ContainerChangeType changeType)
+                [this, playerEntity](uint8_t index, Item* item, ContainerChangeType changeType)
                 {
                     auto hotBarComponent = entityShortCut_->GetHotBarComponent();
                     if (hotBarComponent == nullptr)
@@ -453,7 +453,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                         playerComponent->item = nullptr;
                         return;
                     }
-                    const size_t amount = item->GetAmount();
+                    const uint8_t amount = item->GetAmount();
                     if (amount == 0)
                     {
                         playerComponent->item = nullptr;
@@ -468,13 +468,13 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                             ItemContainer* itemContainer = composableItem->GetItemContainer();
                             if (itemContainer != nullptr)
                             {
-                                size_t size = itemContainer->GetCapacity();
-                                for (size_t i = 0; i < size; i++)
+                                uint8_t size = itemContainer->GetCapacity();
+                                for (uint8_t i = 0; i < size; i++)
                                 {
                                     Item* abilityItem = itemContainer->GetItem(i);
                                     if (abilityItem != nullptr)
                                     {
-                                        const size_t abilityRemaining = abilityItem->GetRemaining();
+                                        const uint8_t abilityRemaining = abilityItem->GetRemaining();
                                         if (abilityRemaining > 0)
                                         {
                                             std::unique_ptr<Item> takeItem = itemContainer->TakeItem(
@@ -1014,7 +1014,7 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<Light2DSystem>(this));
     RegisterSystem(std::make_unique<BlueprintSystem>(this));
     RegisterSystem(std::make_unique<HotBarGUISystem>(this));
-    RegisterSystem(std::make_unique<InventoryGUISystem>(this));
+    RegisterSystem(std::make_unique<InventoryCraftGUISystem>(this));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));

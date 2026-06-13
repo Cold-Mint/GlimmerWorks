@@ -29,6 +29,7 @@
 #include "core/scene/AppContext.h"
 #include "core/inventory/AbilityItem.h"
 #include "core/inventory/ComposableItem.h"
+#include "core/inventory/MaterialItem.h"
 #include "core/inventory/TileItem.h"
 #include "core/log/LogCat.h"
 #include "core/world/WorldContext.h"
@@ -352,6 +353,14 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
         if (abilityItemResource != nullptr)
         {
             result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource, resourceRef));
+        }
+    }
+    if (resourceType == RESOURCE_MATERIAL_ITEM)
+    {
+        auto materialItemResource = FindMaterialItem(&resourceRef);
+        if (materialItemResource != nullptr)
+        {
+            result = std::move(MaterialItem::FromItemResource(appContext_, materialItemResource, resourceRef));
         }
     }
     if (result == nullptr)

@@ -47,7 +47,7 @@ namespace glimmer
         AbilityConfig totalAbilityConfig_;
         uint32_t maxDurability_;
         bool isUnbreakable_;
-        std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>> callback_ = nullptr;
+        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_ = nullptr;
         std::shared_ptr<IAllocStrategy<uint32_t>> allocStrategyPtr_ = nullptr;
 
 
@@ -56,7 +56,7 @@ namespace glimmer
     public:
         explicit ComposableItem(const std::string& id, const std::string& name,
                                 const std::optional<std::string>& description,
-                                const std::shared_ptr<SDL_Texture>& icon, size_t maxSize, uint32_t maxDurability,
+                                const std::shared_ptr<SDL_Texture>& icon, uint8_t maxSize, uint32_t maxDurability,
                                 bool isUnbreakable, std::unordered_set<uint64_t> tags, const ResourceRef& resourceRef);
 
         void SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType);
@@ -85,15 +85,15 @@ namespace glimmer
 
         void Reduce(unsigned value) override;
 
-        void SwapItem(size_t index,
+        void SwapItem(uint8_t index,
                       ItemContainer* otherContainer,
-                      size_t otherIndex) const;
+                      uint8_t otherIndex) const;
 
         void RefreshAttributes();
 
-        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(size_t index, std::unique_ptr<Item> item) const;
+        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(uint8_t index, std::unique_ptr<Item> item) const;
 
-        [[nodiscard]] size_t RemoveItemAbility(const std::string& id, size_t amount) const;
+        [[nodiscard]] uint8_t RemoveItemAbility(const std::string& id, uint8_t amount) const;
 
 
         static std::unique_ptr<ComposableItem> FromItemResource(WorldContext* worldContext,

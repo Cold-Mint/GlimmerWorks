@@ -605,7 +605,7 @@ target_sources(GlimmerWorks
         core/ecs/EntityManager.cpp
         core/ecs/EntityShortCut.cpp
         core/ecs/system/GUISystem.cpp
-        core/ecs/system/InventoryGUISystem.cpp
+        core/ecs/system/InventoryCraftGUISystem.cpp
         core/ecs/IVisible.cpp
         core/math/CoordinateTransformer.cpp
         core/math/DesignVector2D.cpp
@@ -613,6 +613,7 @@ target_sources(GlimmerWorks
         core/layout/GridLayoutStepper.cpp
         core/layout/HorizontalLayoutStepper.cpp
         core/layout/VerticalLayoutStepper.cpp
+        core/ecs/component/CraftPreviewSlotComponent.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -892,7 +893,7 @@ target_sources(GlimmerWorks
         core/ecs/EntityManager.h
         core/ecs/EntityShortCut.h
         core/ecs/system/GUISystem.h
-        core/ecs/system/InventoryGUISystem.h
+        core/ecs/system/InventoryCraftGUISystem.h
         core/ecs/IVisible.h
         core/math/CoordinateTransformer.h
         core/math/DesignVector2D.h
@@ -901,6 +902,7 @@ target_sources(GlimmerWorks
         core/layout/VerticalLayoutStepper.h
         core/layout/HorizontalLayoutStepper.h
         core/ecs/ItemSlotType.h
+        core/ecs/component/CraftPreviewSlotComponent.h
 )
 
 #Define version information

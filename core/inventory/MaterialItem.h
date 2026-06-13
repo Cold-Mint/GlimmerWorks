@@ -46,15 +46,24 @@ namespace glimmer
                                                               const MaterialItemResource* itemResource,
                                                               const ResourceRef& resourceRef);
         [[nodiscard]] const std::string& GetId() const override;
+
         [[nodiscard]] const std::string& GetName() const override;
+
         [[nodiscard]] const std::optional<std::string>& GetDescription() const override;
+
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
+
         void Reduce(unsigned value) override;
+
         [[nodiscard]] SDL_Texture* GetIcon() const override;
+
         [[nodiscard]] uint32_t GetMaxDurability() const override;
+
         [[nodiscard]] bool IsUnbreakable() const override;
+
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                    std::unordered_set<std::string>& popupAbility) override;
+
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };
 }

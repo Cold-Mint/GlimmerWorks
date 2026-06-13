@@ -40,7 +40,8 @@ namespace glimmer
     {
         std::vector<std::unique_ptr<Item>> items_;
 
-        std::vector<std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>>> onContentChanged_;
+        
+        std::vector<std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>> onContentChanged_;
 
         /**
          * Binding Item Event
@@ -48,7 +49,7 @@ namespace glimmer
          * @param index
          * @param item
          */
-        void BindItemEvent(size_t index, std::unique_ptr<Item>& item) const;
+        void BindItemEvent(uint8_t index, std::unique_ptr<Item>& item) const;
 
         /**
          * Unbinding Item Incident
@@ -56,23 +57,23 @@ namespace glimmer
          * @param index
          * @param item
          */
-        void UnBindItemEvent(size_t index, const std::unique_ptr<Item>& item) const;
+        void UnBindItemEvent(uint8_t index, const std::unique_ptr<Item>& item) const;
 
-        void InvokeOnContentChanged(size_t index, Item* item, ContainerChangeType containerChange) const;
+        void InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange) const;
 
     public:
-        std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>> AddOnContentChanged(
-            const std::function<void(size_t, Item*, ContainerChangeType)>& onContentChanged);
+        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> AddOnContentChanged(
+            const std::function<void(uint8_t, Item*, ContainerChangeType)>& onContentChanged);
 
         /**
          * Set the capacity of the item container.
          * 设置物品容器的容量。
          * @param capacity
          */
-        void Resize(size_t capacity);
+        void Resize(uint8_t capacity);
 
         void RemoveOnContentChanged(
-            const std::shared_ptr<std::function<void(size_t, Item*, ContainerChangeType)>>& onContentChanged);
+            const std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>& onContentChanged);
 
 
         /**
@@ -97,7 +98,7 @@ namespace glimmer
          * @param item  item 物品
          * @return 返回0表示可完全添加
          */
-        [[nodiscard]] size_t GetRemainingItemAmountAfterAdd(const Item* item) const;
+        [[nodiscard]] uint8_t GetRemainingItemAmountAfterAdd(const Item* item) const;
 
         /**
          * ReplaceItem
@@ -106,7 +107,7 @@ namespace glimmer
          * @param item item 物品
          * @return The replaced item 被替换的物品
          */
-        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(size_t index, std::unique_ptr<Item> item);
+        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(uint8_t index, std::unique_ptr<Item> item);
 
         /**
          * Remove Item
@@ -115,7 +116,7 @@ namespace glimmer
          * @param amount amount 数量
          * @return
          */
-        [[nodiscard]] size_t RemoveItem(const std::string& id, size_t amount) const;
+        [[nodiscard]] uint8_t RemoveItem(const std::string& id, uint8_t amount) const;
 
 
         /**
@@ -123,7 +124,7 @@ namespace glimmer
          * 获取已经使用的容量
          * @return
          */
-        [[nodiscard]] size_t GetUsedCapacity() const;
+        [[nodiscard]] uint8_t GetUsedCapacity() const;
 
 
         /**
@@ -133,7 +134,7 @@ namespace glimmer
          * @param amount
          * @return
          */
-        [[nodiscard]] size_t RemoveItemAt(size_t index, size_t amount) const;
+        [[nodiscard]] uint8_t RemoveItemAt(uint8_t index, uint8_t amount) const;
 
         /**
          * GetItem
@@ -141,14 +142,14 @@ namespace glimmer
          * @param index
          * @return
          */
-        [[nodiscard]] Item* GetItem(size_t index) const;
+        [[nodiscard]] Item* GetItem(uint8_t index) const;
 
         /**
          * GetCapacity
          * 获取容量
          * @return
          */
-        [[nodiscard]] size_t GetCapacity() const;
+        [[nodiscard]] uint8_t GetCapacity() const;
 
         /**
          * Take Item At Index (Moves ownership out of container)
@@ -156,7 +157,7 @@ namespace glimmer
          * @param index
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Item> TakeAllItem(size_t index);
+        [[nodiscard]] std::unique_ptr<Item> TakeAllItem(uint8_t index);
 
         /**
          * Take out the specified quantity of items
@@ -165,7 +166,7 @@ namespace glimmer
          * @param amount
          * @return
          */
-        [[nodiscard]] std::unique_ptr<Item> TakeItem(size_t index, size_t amount) const;
+        [[nodiscard]] std::unique_ptr<Item> TakeItem(uint8_t index, uint8_t amount) const;
 
         /**
          * Swap Item
@@ -175,7 +176,7 @@ namespace glimmer
          * @param otherIndex Target index in other container
          * @return true if successful
          */
-        bool SwapItem(size_t index, ItemContainer* otherContainer, size_t otherIndex);
+        bool SwapItem(uint8_t index, ItemContainer* otherContainer, uint8_t otherIndex);
 
         void FromMessage(WorldContext* worldContext, const ItemContainerMessage& message);
 

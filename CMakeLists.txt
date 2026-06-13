@@ -3,24 +3,16 @@ project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
 
 
-if(NOT DEFINED ENV{GITHUB_ACTIONS})
-include("${CMAKE_CURRENT_SOURCE_DIR}/versions.cmake")
-if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
-    message(FATAL_ERROR "The file \"config.cmake\" was not found. Please copy \"config_template.cmake\", fill in its content, rename it to \"config.cmake\", and then run it again.")
+if (NOT DEFINED ENV{GITHUB_ACTIONS})
+    include("${CMAKE_CURRENT_SOURCE_DIR}/versions.cmake")
+    if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
+        message(FATAL_ERROR "The file \"config.cmake\" was not found. Please copy \"config_template.cmake\", fill in its content, rename it to \"config.cmake\", and then run it again.")
+    endif ()
+    include("${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
 endif ()
-include("${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
-endif()
 
 if (NOT EXISTS ${PACK_SIGNER_EXE})
     message(FATAL_ERROR "The file pointed to by PACK_SIGNER_EXE does not exist.")
-endif ()
-
-if (NOT EXISTS ${SIGN_PRIVATE_KEY})
-    message(FATAL_ERROR "The file pointed to by SIGN_PRIVATE_KEY does not exist.")
-endif ()
-
-if (NOT EXISTS ${SIGN_PUBLIC_KEY})
-    message(FATAL_ERROR "The file pointed to by SIGN_PUBLIC_KEY does not exist.")
 endif ()
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -1061,6 +1053,7 @@ install(CODE "
                 message(STATUS \"Signing data pack: \${PACK_NAME} at \${SUB_DIR}\")
                 execute_process(
                     COMMAND \"${PACK_SIGNER_EXE}\" sign
+                            -x 
                             -k \"${SIGN_PRIVATE_KEY}\"
                             -p \"${SIGN_PUBLIC_KEY}\"
                             -d \"\${SUB_DIR}\"

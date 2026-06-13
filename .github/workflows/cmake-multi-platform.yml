@@ -91,6 +91,7 @@ jobs:
         echo "Found executable: $exe_path"
       shell: bash
     - name: Configure CMake (Linux)
+      if: runner.os == 'Linux'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
@@ -100,6 +101,7 @@ jobs:
         -G Ninja
         -S ${{ github.workspace }}
     - name: Configure CMake (Windows)
+      if: runner.os == 'Windows'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}

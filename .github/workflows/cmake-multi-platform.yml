@@ -90,7 +90,7 @@ jobs:
         echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
         echo "Found executable: $exe_path"
       shell: bash
-    - name: Configure CMake
+    - name: Configure CMake (Linux)
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
@@ -99,7 +99,14 @@ jobs:
         -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
         -G Ninja
         -S ${{ github.workspace }}
-
+    - name: Configure CMake (Windows)
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
+        -S ${{ github.workspace }}
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}

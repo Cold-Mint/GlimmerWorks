@@ -53,14 +53,38 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+    - name: Download PackSigner binaries (Linux)
+      if: runner.os == 'Linux'
+      uses: robinraju/release-downloader@v1.11
+      with:
+        repository: 'Cold-Mint/GlimmerWorksPackSigner'
+        latest: true
+        fileName: 'packSigner-linux-*'
+        out-file-path: 'bin'
+    - name: Download PackSigner binaries (Windows)
+      if: runner.os == 'Windows'
+      uses: robinraju/release-downloader@v1.11
+      with:
+        repository: 'Cold-Mint/GlimmerWorksPackSigner'
+        latest: true
+        fileName: 'packSigner-windows-amd64-*.exe'
+        out-file-path: 'bin'
+    - name: Locate PackSigner executable
+      run: >
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            pattern="packSigner-linux-*"
+          else
+            pattern="packSigner-windows-amd64-*.exe"
+          fi
+          exe_path=$(find bin -name "$pattern" -type f | head -n1)
+          echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
         -S ${{ github.workspace }}
 
     - name: Build

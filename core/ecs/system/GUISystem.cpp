@@ -39,5 +39,5 @@ bool glimmer::GUISystem::CanActive() const
     {
         return false;
     }
-    return GetGameSystemType() == worldContext_->GetActiveGuiSystemType();
+    return GetGameSystemType() == worldContext_->GetGuiSystemType();
 }

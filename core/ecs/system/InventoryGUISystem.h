@@ -35,11 +35,20 @@ namespace glimmer
      */
     class InventoryGUISystem : public GUISystem
     {
+        std::vector<ItemSlotComponent*> inventoryItemSlot_;
+        float uiScale_ = 1.0F;
+
     public:
         explicit InventoryGUISystem(WorldContext* worldContext);
 
+        void OnActivationChanged(bool activeStatus) override;
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
-        [[nodiscard]] std::optional<std::string> GetTile() override;
+        void OnConfigChanged(const Config* config) override;
+
+        void OnWindowSizeChanged(int width, int height) override;
     };
 }

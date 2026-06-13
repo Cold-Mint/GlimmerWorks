@@ -29,7 +29,6 @@
 #include "core/log/LogCat.h"
 
 
-
 void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
 {
     amount_ = itemMessage.amount();
@@ -89,7 +88,7 @@ void glimmer::Item::SetOnUsedDurabilityChanged(const std::function<void(size_t, 
     onUsedDurabilityChanged_ = onUsedDurabilityChanged;
 }
 
-void glimmer::Item::SetAmount(const size_t amount)
+void glimmer::Item::SetAmount(uint8_t amount)
 {
     const bool add = amount >= amount_;
     amount_ = std::min(amount, maxStack_);
@@ -104,7 +103,7 @@ bool glimmer::Item::HasTag(const uint64_t tag) const
     return tags_.contains(tag);
 }
 
-size_t glimmer::Item::AddAmount(const size_t amount)
+uint8_t glimmer::Item::AddAmount(uint8_t amount)
 {
     if (amount_ >= maxStack_ || amount <= 0)
     {
@@ -121,13 +120,13 @@ size_t glimmer::Item::AddAmount(const size_t amount)
     return amount;
 }
 
-size_t glimmer::Item::RemoveAmount(const size_t amount)
+uint8_t glimmer::Item::RemoveAmount(uint8_t amount)
 {
     if (amount_ <= 0 || amount <= 0)
     {
         return 0;
     }
-    const int oldAmount = static_cast<int>(amount_);
+    const int oldAmount = amount_;
     const int newAmount = static_cast<int>(amount_) - static_cast<int>(amount);
     if (newAmount < 0)
     {
@@ -137,6 +136,7 @@ size_t glimmer::Item::RemoveAmount(const size_t amount)
     SetAmount(newAmount);
     return amount;
 }
+
 
 bool glimmer::Item::IsStackable() const
 {

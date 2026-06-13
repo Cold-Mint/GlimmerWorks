@@ -34,6 +34,7 @@
 #include "fmt/format.h"
 
 #include "core/ecs/component/ItemSlotComponent.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/PreloadColors.h"
 
 void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
@@ -55,8 +56,10 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        const DesignVector2D& size = itemSlotComponent->GetSize();
-        const DesignVector2D& position = itemSlotComponent->GetPosition() * uiScale_;
+        const ScreenVector2D& size = CoordinateTransformer::DesignToScreen(
+            itemSlotComponent->GetSize(), uiScale_);
+        const ScreenVector2D& position = CoordinateTransformer::DesignToScreen(
+            itemSlotComponent->GetPosition(), uiScale_);
         const SDL_FRect rect = {position.x, position.y, size.x, size.y};
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
             mouseY >= rect.y && mouseY <= rect.y + rect.h;

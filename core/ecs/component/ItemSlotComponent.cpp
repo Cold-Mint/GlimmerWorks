@@ -29,7 +29,7 @@
 #include "core/inventory/ItemContainer.h"
 
 
-glimmer::ItemSlotComponent::ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, int slotIndex) :
+glimmer::ItemSlotComponent::ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, uint8_t slotIndex) :
     itemSlotType_(itemSlot),
     itemContainer_(itemContainer),
     slotIndex_(slotIndex)
@@ -39,6 +39,11 @@ glimmer::ItemSlotComponent::ItemSlotComponent(ItemSlotType itemSlot, ItemContain
 DesignDimension glimmer::ItemSlotComponent::GetPadding() const
 {
     return padding_;
+}
+
+uint8_t glimmer::ItemSlotComponent::GetSlotIndex() const
+{
+    return slotIndex_;
 }
 
 void glimmer::ItemSlotComponent::SetPadding(DesignDimension padding)

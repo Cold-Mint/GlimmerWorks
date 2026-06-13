@@ -161,11 +161,11 @@ static constexpr std::string DATA_FILE_TYPE_RECIPE_TABLE = "recipe_table";
 static constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 static constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;
 static constexpr uint16_t BOX2D_CATEGORY_ITEM = 0x0004;
-static constexpr size_t ITEM_MAX_STACK = 64;
-static constexpr size_t HOT_BAR_SIZE = 9;
+static constexpr uint8_t ITEM_MAX_STACK = 64;
+static constexpr uint8_t HOT_BAR_SIZE = 9;
 static constexpr float ITEM_SLOT_SIZE = 24;
 static constexpr float ITEM_SLOT_PADDING = 2;
-static constexpr size_t INVENTORY_ROW_COUNT = 4;
+static constexpr uint8_t INVENTORY_ROW_COUNT = 4;
 static constexpr float DROP_INTERVAL = 1.0F / ITEM_MAX_STACK;
 static constexpr int TOOLTIP_TEXT_WRAP_WIDTH = 180;
 

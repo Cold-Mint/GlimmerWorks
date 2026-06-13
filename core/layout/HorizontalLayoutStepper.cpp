@@ -34,8 +34,7 @@ namespace glimmer
         : cellWidth_(cellWidth),
           startPosition_(startPosition),
           padding_(padding),
-          dataLength_(dataLength),
-          currentIndex_(0)
+          dataLength_(dataLength)
     {
     }
 

@@ -31,13 +31,10 @@ namespace glimmer
 {
     class GUISystem : public GameSystem
     {
-        std::string tile_;
-
     public:
         explicit GUISystem(WorldContext* worldContext);
 
-        bool CanActive() const override;
 
-        [[nodiscard]] virtual std::optional<std::string> GetTile() = 0;
+        bool CanActive() const override;
     };
 }

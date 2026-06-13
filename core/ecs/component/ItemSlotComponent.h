@@ -39,7 +39,7 @@ namespace glimmer
     class ItemSlotComponent : public GameComponent, public IVisible
     {
         ItemContainer* itemContainer_;
-        int slotIndex_;
+        uint8_t slotIndex_;
         bool isHovered_ = false;
         DesignDimension padding_ = ITEM_SLOT_PADDING;
         ItemSlotType itemSlotType_ = ItemSlotType::None;
@@ -47,9 +47,11 @@ namespace glimmer
         DesignVector2D position_;
 
     public:
-        explicit ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, int slotIndex);
+        explicit ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, uint8_t slotIndex);
 
         [[nodiscard]] DesignDimension GetPadding() const;
+
+        [[nodiscard]] uint8_t GetSlotIndex() const;
 
         void SetPadding(DesignDimension padding);
 

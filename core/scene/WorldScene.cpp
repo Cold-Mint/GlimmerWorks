@@ -45,6 +45,15 @@ void glimmer::WorldScene::OnFrameStart()
 
 bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
 {
+    if (event.type == SDL_EVENT_KEY_DOWN && !worldContext_->HasAnyModalGuiOpen())
+    {
+        //When a certain key is pressed and there is no system display currently active.
+        //当按下某个键，且没有系统正在显示中时。
+        if (event.key.scancode == SDL_SCANCODE_E)
+        {
+            worldContext_->PushGuiSystemType(GameSystemType::InventoryGUISystem);
+        }
+    }
     return worldContext_->HandleEvent(event);
 }
 

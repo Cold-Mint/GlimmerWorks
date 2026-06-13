@@ -48,7 +48,7 @@ namespace glimmer
         DraggableSystem,
         DroppedItemSystem,
         FloatingTextSystem,
-        HotBarSystem,
+        HotBarGUISystem,
         ItemSlotSystem,
         Light2DSystem,
         MagnetSystem,
@@ -60,7 +60,6 @@ namespace glimmer
         SpiritRendererSystem,
         TileLayerSystem,
         Transform2DSystem,
-        InventoryGUISystem,
-        RecipeGUISystem,
+        InventoryGUISystem
     };
 }

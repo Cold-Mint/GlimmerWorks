@@ -44,7 +44,6 @@
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/BlueprintComponent.h"
-#include "core/ecs/component/CameraComponent.h"
 #include "core/inventory/ComposableItem.h"
 #include "core/layout/HorizontalLayoutStepper.h"
 #include "generator/ChunkGenerator.h"
@@ -96,9 +95,8 @@ namespace glimmer
         std::vector<std::unique_ptr<GameSystem>> activeSystems;
         std::vector<std::unique_ptr<GameSystem>> inactiveSystems;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
-        std::vector<ItemSlotComponent*> hotBarItemSlot_;
-        std::vector<ItemSlotComponent*> inventoryItemSlot_;
-        float uiScale_ = 1.0F;
+        std::stack<GameSystemType> activeSystemStack_;
+        uint64_t persistentGuiSystemCount_ = 0;
         /**
         * Game saves
         * 游戏存档
@@ -127,12 +125,6 @@ namespace glimmer
         //Is the game being saved
         //是否正在保存游戏
         bool saving_ = false;
-
-        /**
-         * The currently active GUI system type
-         * 当前正在激活的GUI系统类型
-         */
-        GameSystemType activeGuiSystem_ = GameSystemType::None;
 
         /**
          * Whether to enable the item dragging mode
@@ -179,28 +171,37 @@ namespace glimmer
     * Initialize the hotbar
     * 初始化快捷栏
     */
-        void InitHotbar(ItemContainer* itemContainer);
+        void InitHotbar(ItemContainer* itemContainer) const;
 
         /**
          * Initialize inventory view(Bag)
          * 初始化库存视图（背包）
          */
-        void InitInventory(ItemContainer* itemContainer);
-
-        /**
-         * ReCalculationLayout
-         * 重新计算布局
-         */
-        void ReCalculationLayout(int width,int height);
+        void InitInventory(ItemContainer* itemContainer) const;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage type, uint32_t count);
 
     public:
         ~WorldContext();
 
-        void SetActiveGuiSystem(GameSystemType systemType);
+        /**
+       * PushGuiSystemType
+       * 推送系统
+       * @param systemType
+       */
+        void PushGuiSystemType(GameSystemType systemType);
 
-        [[nodiscard]] GameSystemType GetActiveGuiSystemType() const;
+        /**
+         * PushPersistentGuiSystem
+         * 推送不可关闭的系统
+         * @param systemType
+         */
+        void PushPersistentGuiSystem(GameSystemType systemType);
+
+        void PopGuiSystemType();
+
+        GameSystemType GetGuiSystemType() const;
+
 
         [[nodiscard]] EntityManager* GetEntityManager() const;
 
@@ -324,11 +325,18 @@ namespace glimmer
          */
         static bool ChunkIsOutOfBounds(TileVector2D position);
 
+        /**
+         * Is there a GUI system that can be closed currently being displayed?
+         * 是否有可关闭的GUI系统正在显示中。
+         * @return
+         */
+        bool HasAnyModalGuiOpen() const;
+
         bool HandleEvent(const SDL_Event& event) const;
 
         void Update(float delta) const;
 
-        bool OnBackPressed() const;
+        bool OnBackPressed();
 
         void Render(SDL_Renderer* renderer) const;
 

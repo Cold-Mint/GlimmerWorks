@@ -41,13 +41,13 @@ namespace glimmer
      */
     class Item : public IAllocatable<uint32_t>
     {
-        size_t amount_ = 1;
+        uint8_t amount_ = 1;
         uint32_t usedDurability_ = 0;
 
     protected:
-        size_t maxStack_ = 1;
+        uint8_t maxStack_ = 1;
 
-        std::function<void(ContainerChangeType, size_t)> onAmountChanged_ = nullptr;
+        std::function<void(ContainerChangeType, uint8_t)> onAmountChanged_ = nullptr;
         std::function<void(size_t, size_t)> onUsedDurabilityChanged_ = nullptr;
         std::unordered_set<uint64_t> tags_;
         ResourceRef resourceRef_;
@@ -111,7 +111,7 @@ namespace glimmer
          * 设置数量
          * @param amount
          */
-        void SetAmount(size_t amount);
+        void SetAmount(uint8_t amount);
 
         [[nodiscard]] bool HasTag(uint64_t tag) const;
 
@@ -121,7 +121,7 @@ namespace glimmer
          * @param amount amount 数量
          * @return 返回成功添加了多少个数量
          */
-        [[nodiscard]] size_t AddAmount(size_t amount);
+        [[nodiscard]] uint8_t AddAmount(uint8_t amount);
 
         /**
          * Remove Amount
@@ -129,7 +129,7 @@ namespace glimmer
          * @param amount 移除数量
          * @return 移除了多少个
          */
-        [[nodiscard]] size_t RemoveAmount(size_t amount);
+        [[nodiscard]] uint8_t RemoveAmount(uint8_t amount);
 
 
         /**

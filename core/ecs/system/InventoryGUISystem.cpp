@@ -26,11 +26,60 @@
  */
 #include "InventoryGUISystem.h"
 
+#include "core/ecs/ItemSlotType.h"
 #include "core/world/WorldContext.h"
+#include "core/ecs/component/ItemSlotComponent.h"
+#include "core/layout/GridLayoutStepper.h"
+
 
 glimmer::InventoryGUISystem::InventoryGUISystem(WorldContext* worldContext)
     : GUISystem(worldContext)
 {
+    WatchComponent(COMPONENT_ITEM_SLOT);
+}
+
+void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus)
+{
+    if (activeStatus)
+    {
+        for (auto inventoryItemSlot : inventoryItemSlot_)
+        {
+            inventoryItemSlot->Show();
+        }
+    }
+    else
+    {
+        for (auto inventoryItemSlot : inventoryItemSlot_)
+        {
+            inventoryItemSlot->Hide();
+        }
+    }
+}
+
+void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_ITEM_SLOT)
+    {
+        auto entities = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT});
+        inventoryItemSlot_.clear();
+        for (auto entity : entities)
+        {
+            auto itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            if (itemSlotComponent == nullptr)
+            {
+                continue;
+            }
+            if (itemSlotComponent->GetItemSlotType() == ItemSlotType::Inventory)
+            {
+                inventoryItemSlot_.emplace_back(itemSlotComponent);
+            }
+        }
+        std::sort(inventoryItemSlot_.begin(), inventoryItemSlot_.end(),
+                  [](const ItemSlotComponent* lhs, const ItemSlotComponent* rhs)
+                  {
+                      return lhs->GetSlotIndex() < rhs->GetSlotIndex();
+                  });
+    }
 }
 
 glimmer::GameSystemType glimmer::InventoryGUISystem::GetGameSystemType() const
@@ -38,21 +87,26 @@ glimmer::GameSystemType glimmer::InventoryGUISystem::GetGameSystemType() const
     return GameSystemType::InventoryGUISystem;
 }
 
-std::optional<std::string> glimmer::InventoryGUISystem::GetTile()
+void glimmer::InventoryGUISystem::OnConfigChanged(const Config* config)
 {
-    if (worldContext_ == nullptr)
+    uiScale_ = config->window.uiScale;
+}
+
+void glimmer::InventoryGUISystem::OnWindowSizeChanged(int width, int height)
+{
+    DesignDimension padding = 5;
+    size_t hotBarItemSlotSize = inventoryItemSlot_.size();
+    DesignVector2D hotBarStartPosition{padding, padding};
+    auto horizontalLayoutStepper = GridLayoutStepper(ITEM_SLOT_SIZE, hotBarStartPosition, HOT_BAR_SIZE, padding,
+                                                     hotBarItemSlotSize);
+    int index = 0;
+    while (horizontalLayoutStepper.HasNext())
     {
-        return std::nullopt;
+        if (index >= hotBarItemSlotSize)
+        {
+            break;
+        }
+        inventoryItemSlot_.at(index)->SetPosition(horizontalLayoutStepper.Next());
+        index++;
     }
-    AppContext* appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr)
-    {
-        return std::nullopt;
-    }
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
-        return std::nullopt;
-    }
-    return langsResources->inventoryTile;
 }

@@ -412,7 +412,7 @@ target_sources(GlimmerWorks
         core/inventory/TileItem.cpp
         core/inventory/ItemContainer.cpp
         core/ecs/component/ItemContainerComponent.cpp
-        core/ecs/system/HotBarSystem.cpp
+        core/ecs/system/HotBarGUISystem.cpp
         core/ecs/component/HotBarComponent.cpp
         core/world/generator/TileLayerType.cpp
         core/ecs/component/DroppedItemComponent.cpp
@@ -606,7 +606,6 @@ target_sources(GlimmerWorks
         core/ecs/EntityShortCut.cpp
         core/ecs/system/GUISystem.cpp
         core/ecs/system/InventoryGUISystem.cpp
-        core/ecs/system/RecipeGUISystem.cpp
         core/ecs/IVisible.cpp
         core/math/CoordinateTransformer.cpp
         core/math/DesignVector2D.cpp
@@ -699,7 +698,7 @@ target_sources(GlimmerWorks
         core/inventory/TileItem.h
         core/inventory/ItemContainer.h
         core/ecs/component/ItemContainerComponent.h
-        core/ecs/system/HotBarSystem.h
+        core/ecs/system/HotBarGUISystem.h
         core/ecs/component/HotBarComponent.h
         core/world/generator/TileLayerType.h
         core/ecs/component/DroppedItemComponent.h
@@ -894,7 +893,6 @@ target_sources(GlimmerWorks
         core/ecs/EntityShortCut.h
         core/ecs/system/GUISystem.h
         core/ecs/system/InventoryGUISystem.h
-        core/ecs/system/RecipeGUISystem.h
         core/ecs/IVisible.h
         core/math/CoordinateTransformer.h
         core/math/DesignVector2D.h

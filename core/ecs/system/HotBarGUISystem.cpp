@@ -24,13 +24,14 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "HotBarSystem.h"
+#include "HotBarGUISystem.h"
 #include "../component/HotBarComponent.h"
 #include "../../world/WorldContext.h"
+#include "core/ecs/component/ItemSlotComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 
 
-void glimmer::HotBarSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
     if (gameComponentType == COMPONENT_HOT_BAR && hotBarComponent_ == nullptr)
     {
@@ -48,17 +49,77 @@ void glimmer::HotBarSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     {
         itemContainerComponent_ = entityShortCut_->GetItemContainerComponent();
     }
+    if (gameComponentType == COMPONENT_ITEM_SLOT)
+    {
+        auto entities = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT});
+        hotBarItemSlot_.clear();
+        for (auto entity : entities)
+        {
+            auto itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            if (itemSlotComponent == nullptr)
+            {
+                continue;
+            }
+            if (itemSlotComponent->GetItemSlotType() == ItemSlotType::HotBar)
+            {
+                hotBarItemSlot_.emplace_back(itemSlotComponent);
+            }
+        }
+        std::sort(hotBarItemSlot_.begin(), hotBarItemSlot_.end(),
+                  [](const ItemSlotComponent* lhs, const ItemSlotComponent* rhs)
+                  {
+                      return lhs->GetSlotIndex() < rhs->GetSlotIndex();
+                  });
+    }
 }
 
-glimmer::HotBarSystem::HotBarSystem(WorldContext* worldContext)
-    : GameSystem(worldContext)
+
+void glimmer::HotBarGUISystem::OnActivationChanged(bool activeStatus)
+{
+    if (activeStatus)
+    {
+        for (auto hotBarItemSlot : hotBarItemSlot_)
+        {
+            hotBarItemSlot->Show();
+        }
+    }
+    else
+    {
+        for (auto hotBarItemSlot : hotBarItemSlot_)
+        {
+            hotBarItemSlot->Hide();
+        }
+    }
+}
+
+glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GUISystem(worldContext)
 {
     WatchComponent(COMPONENT_PLAYER);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     WatchComponent(COMPONENT_HOT_BAR);
+    WatchComponent(COMPONENT_ITEM_SLOT);
 }
 
-bool glimmer::HotBarSystem::HandleEvent(const SDL_Event& event)
+void glimmer::HotBarGUISystem::OnWindowSizeChanged(int width, int height)
+{
+    DesignDimension padding = 5;
+    size_t hotBarItemSlotSize = hotBarItemSlot_.size();
+    DesignVector2D hotBarStartPosition{padding, padding};
+    auto horizontalLayoutStepper = HorizontalLayoutStepper(ITEM_SLOT_SIZE, hotBarStartPosition, padding,
+                                                           hotBarItemSlotSize);
+    int hotBarIndex = 0;
+    while (horizontalLayoutStepper.HasNext())
+    {
+        if (hotBarIndex >= hotBarItemSlotSize)
+        {
+            break;
+        }
+        hotBarItemSlot_.at(hotBarIndex)->SetPosition(horizontalLayoutStepper.Next());
+        hotBarIndex++;
+    }
+}
+
+bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event& event)
 {
     if (worldContext_ == nullptr)
     {
@@ -91,7 +152,7 @@ bool glimmer::HotBarSystem::HandleEvent(const SDL_Event& event)
     return false;
 }
 
-glimmer::GameSystemType glimmer::HotBarSystem::GetGameSystemType() const
+glimmer::GameSystemType glimmer::HotBarGUISystem::GetGameSystemType() const
 {
-    return GameSystemType::HotBarSystem;
+    return GameSystemType::HotBarGUISystem;
 }

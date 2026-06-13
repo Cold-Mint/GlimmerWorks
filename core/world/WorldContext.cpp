@@ -40,7 +40,7 @@
 #include "../ecs/system/DebugPanelSystem.h"
 #include "../ecs/system/DiggingSystem.h"
 #include "../ecs/system/DroppedItemSystem.h"
-#include "../ecs/system/HotBarSystem.h"
+#include "../ecs/system/HotBarGUISystem.h"
 #include "../ecs/system/ItemSlotSystem.h"
 #include "../ecs/system/MagnetSystem.h"
 #include "../ecs/system/PauseSystem.h"
@@ -66,9 +66,7 @@
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
-#include "core/ecs/system/RecipeGUISystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
-#include "core/layout/GridLayoutStepper.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
@@ -258,14 +256,33 @@ glimmer::WorldContext::~WorldContext()
     audioManager_ = appContext_->GetAudioManager();
 }
 
-void glimmer::WorldContext::SetActiveGuiSystem(const GameSystemType systemType)
+void glimmer::WorldContext::PushGuiSystemType(GameSystemType systemType)
 {
-    activeGuiSystem_ = systemType;
+    activeSystemStack_.emplace(systemType);
 }
 
-glimmer::GameSystemType glimmer::WorldContext::GetActiveGuiSystemType() const
+void glimmer::WorldContext::PushPersistentGuiSystem(GameSystemType systemType)
 {
-    return activeGuiSystem_;
+    persistentGuiSystemCount_++;
+    activeSystemStack_.emplace(systemType);
+}
+
+glimmer::GameSystemType glimmer::WorldContext::GetGuiSystemType() const
+{
+    if (activeSystemStack_.empty())
+    {
+        return GameSystemType::None;
+    }
+    return activeSystemStack_.top();
+}
+
+
+void glimmer::WorldContext::PopGuiSystemType()
+{
+    if (activeSystemStack_.size() > persistentGuiSystemCount_)
+    {
+        activeSystemStack_.pop();
+    }
 }
 
 glimmer::TerrainResult* glimmer::WorldContext::GetTerrainData(TileVector2D position)
@@ -309,7 +326,7 @@ std::vector<glimmer::GameSystemType> glimmer::WorldContext::GetAllActiveSystemTy
         {
             continue;
         }
-        result.push_back(activeSystem->GetGameSystemType());
+        result.emplace_back(activeSystem->GetGameSystemType());
     }
     return result;
 }
@@ -485,7 +502,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
     entityShortCut_->SetPlayer(playerEntity);
 }
 
-void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
+void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer) const
 {
     if (entityManager_ == nullptr || entityShortCut_ == nullptr || itemContainer == nullptr)
     {
@@ -497,32 +514,30 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer)
     {
         entityShortCut_->SetHotBarComponent(hotBarComponent);
     }
-    hotBarItemSlot_.clear();
     for (int i = 0; i < HOT_BAR_SIZE; i++)
     {
         const auto itemSlotEntity = entityManager_->AddEntity();
-        ItemSlotComponent* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(
+        auto itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(
             itemSlotEntity, ItemSlotType::HotBar, itemContainer, i);
         if (itemSlotComponent == nullptr)
         {
             continue;
         }
         itemSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
-        hotBarItemSlot_.emplace_back(itemSlotComponent);
+        itemSlotComponent->Hide();
     }
 }
 
-void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer)
+void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer) const
 {
     if (entityManager_ == nullptr || entityShortCut_ == nullptr || itemContainer == nullptr)
     {
         return;
     }
-    inventoryItemSlot_.clear();
     for (int i = 0; i < itemContainer->GetCapacity(); i++)
     {
         const auto itemSlotEntity = entityManager_->AddEntity();
-        ItemSlotComponent* itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(
+        auto itemSlotComponent = entityManager_->AddComponent<ItemSlotComponent>(
             itemSlotEntity, ItemSlotType::Inventory, itemContainer, i);
         if (itemSlotComponent == nullptr)
         {
@@ -534,47 +549,7 @@ void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer)
             continue;
         }
         itemSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
-        inventoryItemSlot_.emplace_back(itemSlotComponent);
-    }
-}
-
-void glimmer::WorldContext::ReCalculationLayout(int width, int height)
-{
-    DesignDimension padding = 5;
-    size_t hotBarItemSlotSize = hotBarItemSlot_.size();
-    DesignVector2D hotBarStartPosition{padding, padding};
-    auto horizontalLayoutStepper = HorizontalLayoutStepper(ITEM_SLOT_SIZE, hotBarStartPosition, padding, hotBarItemSlotSize);
-    int hotBarIndex = 0;
-    while (horizontalLayoutStepper.HasNext())
-    {
-        if (hotBarIndex >= hotBarItemSlotSize)
-        {
-            break;
-        }
-        hotBarItemSlot_.at(hotBarIndex)->SetPosition(horizontalLayoutStepper.Next());
-        hotBarIndex++;
-    }
-    //Calculate the starting position
-    //计算起点位置
-    size_t inventoryItemSlotSize = inventoryItemSlot_.size();
-    const uint8_t columns = 5;
-    const uint32_t inventoryScreenWidth = (ITEM_SLOT_SIZE * columns + padding * (columns - 1)) * uiScale_;
-    const uint8_t rows = inventoryItemSlotSize / columns;
-    const uint32_t inventoryScreenHeight = (ITEM_SLOT_SIZE * rows + padding * (rows - 1)) * uiScale_;
-    auto gridLayoutStepper = GridLayoutStepper(ITEM_SLOT_SIZE,
-                                               DesignVector2D{
-                                                   (width - inventoryScreenWidth) / uiScale_ * 0.5F,
-                                                   (height - inventoryScreenHeight) / uiScale_ * 0.5F
-                                               }, columns, padding, inventoryItemSlotSize);
-    int index = 0;
-    while (gridLayoutStepper.HasNext())
-    {
-        if (index >= inventoryItemSlotSize)
-        {
-            break;
-        }
-        inventoryItemSlot_.at(index)->SetPosition(gridLayoutStepper.Next());
-        index++;
+        itemSlotComponent->Hide();
     }
 }
 
@@ -756,7 +731,7 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position)
         }
         //Whether this entity is successfully saved or not, it will disappear due to the block unloading.
         //无论这个实体是否成功保存，它都会因为区块卸载而消失。
-        entitiesToRemove.push_back(transform2dEntity);
+        entitiesToRemove.emplace_back(transform2dEntity);
     }
     if (chunkEntityMessage.entities_size() > 0)
     {
@@ -808,6 +783,10 @@ bool glimmer::WorldContext::ChunkIsOutOfBounds(const TileVector2D position)
         WORLD_MIN_X;
 }
 
+bool glimmer::WorldContext::HasAnyModalGuiOpen() const
+{
+    return activeSystemStack_.size() > persistentGuiSystemCount_;
+}
 
 bool glimmer::WorldContext::HandleEvent(const SDL_Event& event) const
 {
@@ -846,8 +825,13 @@ void glimmer::WorldContext::Update(const float delta) const
     }
 }
 
-bool glimmer::WorldContext::OnBackPressed() const
+bool glimmer::WorldContext::OnBackPressed()
 {
+    if (activeSystemStack_.size() > persistentGuiSystemCount_)
+    {
+        activeSystemStack_.pop();
+        return true;
+    }
     bool handled = false;
     for (auto& system : activeSystems)
     {
@@ -936,7 +920,7 @@ void glimmer::WorldContext::OnFrameStart()
         }
         if (system->IsAllWatchComponentsReady() && system->CanActive())
         {
-            toActivate.push(system.get());
+            toActivate.emplace(system.get());
             changed = true;
         }
     }
@@ -948,7 +932,7 @@ void glimmer::WorldContext::OnFrameStart()
         }
         if (!system->IsAllWatchComponentsReady() || !system->CanActive())
         {
-            toDeactivate.push(system.get());
+            toDeactivate.emplace(system.get());
             changed = true;
         }
     }
@@ -970,7 +954,7 @@ void glimmer::WorldContext::OnFrameStart()
         {
             systemPtr->OnActivationChanged(true);
         }
-        activeSystems.push_back(std::move(*it));
+        activeSystems.emplace_back(std::move(*it));
         inactiveSystems.erase(it);
     }
 
@@ -991,7 +975,7 @@ void glimmer::WorldContext::OnFrameStart()
         {
             systemPtr->OnActivationChanged(false);
         }
-        inactiveSystems.push_back(std::move(*it));
+        inactiveSystems.emplace_back(std::move(*it));
         activeSystems.erase(it);
     }
     // //Sort by rendering order (lower layers at the bottom, upper layers at the top)
@@ -1014,7 +998,6 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<TileLayerSystem>(this));
     RegisterSystem(std::make_unique<ChunkSystem>(this));
     RegisterSystem(std::make_unique<PhysicsSystem>(this));
-    RegisterSystem(std::make_unique<HotBarSystem>(this));
     RegisterSystem(std::make_unique<ItemSlotSystem>(this));
     RegisterSystem(std::make_unique<MagnetSystem>(this));
     RegisterSystem(std::make_unique<ParallaxBackgroundSystem>(this));
@@ -1030,8 +1013,8 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<BiomeBGMSystem>(this));
     RegisterSystem(std::make_unique<Light2DSystem>(this));
     RegisterSystem(std::make_unique<BlueprintSystem>(this));
+    RegisterSystem(std::make_unique<HotBarGUISystem>(this));
     RegisterSystem(std::make_unique<InventoryGUISystem>(this));
-    RegisterSystem(std::make_unique<RecipeGUISystem>(this));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));
@@ -1042,11 +1025,11 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<AndroidControlSystem>(this));
 #endif
     allowRegisterSystem = false;
+    PushPersistentGuiSystem(GameSystemType::HotBarGUISystem);
 }
 
 void glimmer::WorldContext::OnConfigChanged(const Config* config)
 {
-    uiScale_ = config->window.uiScale;
     for (auto& activeSystem : activeSystems)
     {
         activeSystem->OnConfigChanged(config);
@@ -1069,7 +1052,7 @@ void glimmer::WorldContext::RegisterSystem(std::unique_ptr<GameSystem> system)
     if (allowRegisterSystem)
     {
         system->LockWatchComponent();
-        inactiveSystems.push_back(std::move(system));
+        inactiveSystems.emplace_back(std::move(system));
     }
     else
     {
@@ -1193,7 +1176,6 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
 
 void glimmer::WorldContext::OnWindowSizeChanged(int width, int height)
 {
-    ReCalculationLayout(width,height);
     for (auto& activeSystem : activeSystems)
     {
         activeSystem->OnWindowSizeChanged(width, height);

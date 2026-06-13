@@ -70,14 +70,15 @@ jobs:
         fileName: 'packSigner-windows-amd64-*.exe'
         out-file-path: 'bin'
     - name: Locate PackSigner executable
-      run: >
-          if [[ "${{ runner.os }}" == "Linux" ]]; then
-            pattern="packSigner-linux-*"
-          else
-            pattern="packSigner-windows-amd64-*.exe"
-          fi
-          exe_path=$(find bin -name "$pattern" -type f | head -n1)
-          echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          pattern="packSigner-linux-*"
+        else
+          pattern="packSigner-windows-amd64-*.exe"
+        fi
+        exe_path=$(find bin -name "$pattern" -type f | head -n1)
+        echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
+      shell: bash
     - name: Configure CMake
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}

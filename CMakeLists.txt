@@ -11,7 +11,8 @@ if (NOT DEFINED ENV{GITHUB_ACTIONS})
 endif ()
 
 if(MSVC)
-    add_compile_options(/wd4834)   # 禁用警告 C4834
+    # 禁用警告
+    add_compile_options(/wd4834)
 endif()
 
 if (NOT EXISTS ${PACK_SIGNER_EXE})

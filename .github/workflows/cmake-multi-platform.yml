@@ -84,6 +84,9 @@ jobs:
         exe_path="${{ github.workspace }}/$exe_path_rel"
         echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
       shell: bash
+    - name: Set executable permission on Linux
+      if: runner.os == 'Linux'
+      run: chmod +x "$PACK_SIGNER_EXE"
     - name: Cache build directory
       uses: actions/cache@v4
       with:

@@ -86,7 +86,7 @@ jobs:
       shell: bash
     - name: Set executable permission on Linux
       if: runner.os == 'Linux'
-      run: chmod +x "$PACK_SIGNER_EXE"
+      run: sudo chmod +x "$PACK_SIGNER_EXE"
     - name: Cache build directory
       uses: actions/cache@v4
       with:

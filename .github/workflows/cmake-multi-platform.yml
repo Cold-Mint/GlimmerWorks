@@ -95,16 +95,24 @@ jobs:
           ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ matrix.build_type }}-cmake-
     - name: Configure CMake (Linux)
       if: runner.os == 'Linux'
+      env:
+        SIGN_PRIVATE_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
+        SIGN_PUBLIC_KEY: ${{ secrets.SIGN_PUBLIC_KEY }}
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
+        -DSIGN_PRIVATE_KEY="${{ env.SIGN_PRIVATE_KEY }}"
+        -DSIGN_PUBLIC_KEY="${{ env.SIGN_PUBLIC_KEY }}"
         -G Ninja
         -S ${{ github.workspace }}
     - name: Configure CMake (Windows)
       if: runner.os == 'Windows'
+      env:
+        SIGN_PRIVATE_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
+        SIGN_PUBLIC_KEY: ${{ secrets.SIGN_PUBLIC_KEY }}
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}

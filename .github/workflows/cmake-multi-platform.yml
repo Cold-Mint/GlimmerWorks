@@ -88,7 +88,6 @@ jobs:
         exe_path_rel=$(find bin -name "$pattern" -type f | head -n1 | tr -d '\r')
         exe_path="${{ github.workspace }}/$exe_path_rel"
         echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
-        echo "Found executable: $exe_path"
       shell: bash
     - name: Configure CMake (Linux)
       if: runner.os == 'Linux'

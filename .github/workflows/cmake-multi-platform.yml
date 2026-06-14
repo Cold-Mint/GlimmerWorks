@@ -89,6 +89,15 @@ jobs:
         exe_path="${{ github.workspace }}/$exe_path_rel"
         echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
       shell: bash
+    - name: Cache build directory
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.strings.outputs.build-output-dir }}
+        # Key includes OS, compiler, build type, and a hash of all CMake configuration files.
+        # This way the cache is invalidated when any CMakeLists.txt or .cmake file changes.
+        key: ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ matrix.build_type }}-cmake-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ matrix.build_type }}-cmake-
     - name: Configure CMake (Linux)
       if: runner.os == 'Linux'
       run: >

@@ -30,6 +30,10 @@
 
 #include "core/IFingerprintable.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 namespace glimmer
 {
     using Vector2DFingerprint = uint64_t;

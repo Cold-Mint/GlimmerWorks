@@ -28,6 +28,7 @@
 
 #include <iomanip>
 #include <thread>
+#include <array>
 
 std::string glimmer::LogCat::CurrentTime() {
     using namespace std::chrono;

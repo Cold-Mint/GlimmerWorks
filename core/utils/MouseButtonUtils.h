@@ -28,7 +28,7 @@
 #include <unordered_map>
 #include <vector>
 #include <cstdint>
-
+#include <string>
 namespace glimmer {
     class MouseButtonUtils {
         static std::unordered_map<std::string, uint8_t> stringToMouseButtonMap_;

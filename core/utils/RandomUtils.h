@@ -64,50 +64,68 @@ namespace glimmer
         return T{};
     }
 
-    template <typename T>
-    T RandomUtils::Random(T A, T B)
-    {
-        const T realMin = std::min(A, B);
-        const T realMax = std::max(A, B);
+template <typename T>
+T RandomUtils::Random(T A, T B)
+{
+    const T realMin = std::min(A, B);
+    const T realMax = std::max(A, B);
 
-        if constexpr (std::is_integral_v<T>)
+    if constexpr (std::is_integral_v<T>)
+    {
+        // Promote 8-bit types to int for uniform_int_distribution
+        if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> || std::is_same_v<T, char>)
+        {
+            std::uniform_int_distribution<int> dist(static_cast<int>(realMin), static_cast<int>(realMax));
+            return static_cast<T>(dist(GetGenerator()));
+        }
+        else
         {
             std::uniform_int_distribution<T> dist(realMin, realMax);
             return dist(GetGenerator());
         }
-        else if constexpr (std::is_floating_point_v<T>)
+    }
+    else if constexpr (std::is_floating_point_v<T>)
+    {
+        std::uniform_real_distribution<T> dist(realMin, realMax);
+        return dist(GetGenerator());
+    }
+    else
+    {
+        static_assert(std::is_arithmetic_v<T>, "Only number types are supported");
+    }
+    return T{};
+}
+
+template <typename T>
+T RandomUtils::Random(const int32_t seed, T A, T B)
+{
+    std::mt19937 tempRng(seed);
+    const T realMin = std::min(A, B);
+    const T realMax = std::max(A, B);
+
+    if constexpr (std::is_integral_v<T>)
+    {
+        // Promote 8-bit types to int for uniform_int_distribution
+        if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> || std::is_same_v<T, char>)
         {
-            std::uniform_real_distribution<T> dist(realMin, realMax);
-            return dist(GetGenerator());
+            std::uniform_int_distribution<int> dist(static_cast<int>(realMin), static_cast<int>(realMax));
+            return static_cast<T>(dist(tempRng));
         }
         else
-        {
-            static_assert(std::is_arithmetic_v<T>, "Only number types are supported");
-        }
-        return T{};
-    }
-
-    template <typename T>
-    T RandomUtils::Random(const int32_t seed, T A, T B)
-    {
-        std::mt19937 tempRng(seed);
-        const T realMin = std::min(A, B);
-        const T realMax = std::max(A, B);
-
-        if constexpr (std::is_integral_v<T>)
         {
             std::uniform_int_distribution<T> dist(realMin, realMax);
             return dist(tempRng);
         }
-        else if constexpr (std::is_floating_point_v<T>)
-        {
-            std::uniform_real_distribution<T> dist(realMin, realMax);
-            return dist(tempRng);
-        }
-        else
-        {
-            static_assert(std::is_arithmetic_v<T>, "Only number types are supported");
-        }
-        return T{};
     }
+    else if constexpr (std::is_floating_point_v<T>)
+    {
+        std::uniform_real_distribution<T> dist(realMin, realMax);
+        return dist(tempRng);
+    }
+    else
+    {
+        static_assert(std::is_arithmetic_v<T>, "Only number types are supported");
+    }
+    return T{};
+}
 }

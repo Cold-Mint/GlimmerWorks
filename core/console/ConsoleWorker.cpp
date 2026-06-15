@@ -83,7 +83,7 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken) {
 
 glimmer::ConsoleWorker::ConsoleWorker(CommandManager *commandManager)
     : commandManager_(commandManager) {
-    thread_ = std::jthread(&ConsoleWorker::WorkLoop, this);
+    thread_ = std::jthread([this](std::stop_token stopToken) { this->WorkLoop(stopToken); });
 }
 
 std::unique_ptr<glimmer::CommandResponse> glimmer::ConsoleWorker::TakeCommandResponse(const uint32_t id) {

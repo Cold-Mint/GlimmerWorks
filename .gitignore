@@ -1,6 +1,7 @@
 #clion
 .idea/
 
+.vs/
 #vscode
 .vscode/
 .claude/

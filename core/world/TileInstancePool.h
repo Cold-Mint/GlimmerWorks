@@ -32,7 +32,7 @@
 namespace glimmer {
     class AppContext;
     class Tile;
-    class TileResource;
+    struct TileResource;
     class ResourceRef;
 
     class TileInstancePool {

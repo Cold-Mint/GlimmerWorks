@@ -278,7 +278,7 @@ namespace glimmer
     {
         const auto dx = static_cast<float>(to.x - x);
         const auto dy = static_cast<float>(to.y - y);
-        const float ang = std::atan2(dy, dx) * 180.0F / static_cast<float>(M_PI);
+        const float ang = std::atan2(dy, dx) * 180.0F / static_cast<float>(3.14159265358979323846);
         return ang < 0 ? ang + 360.0F : ang;
     }
 

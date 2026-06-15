@@ -228,7 +228,7 @@ static constexpr int CHUNK_ALIGN = ~CHUNK_MASK;
  * Function: x >> CHUNK_SHIFT is equivalent to x / CHUNK_SIZE (this holds true only when CHUNK_SIZE is a power of 2)
  * 作用：x >> CHUNK_SHIFT 等价于 x / CHUNK_SIZE（仅当CHUNK_SIZE为2的幂时成立）
  */
-static constexpr int CHUNK_SHIFT = std::countr_zero(static_cast<uint32_t>(CHUNK_SIZE));
+static constexpr int CHUNK_SHIFT = 4; // Since CHUNK_SIZE = 16 = 2^4
 static constexpr int SKY_HEIGHT = 64;
 static constexpr int WORLD_MAX_Y = 1200;
 static constexpr int WORLD_MIN_Y = 0;

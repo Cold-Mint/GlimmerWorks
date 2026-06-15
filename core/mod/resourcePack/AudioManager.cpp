@@ -26,6 +26,7 @@
  */
 #include "AudioManager.h"
 
+#include <algorithm>
 #include "core/log/LogCat.h"
 
 

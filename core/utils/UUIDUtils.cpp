@@ -27,6 +27,7 @@
 #include "UUIDUtils.h"
 
 #include <iomanip>
+#include <sstream>
 #include <random>
 
 #include "RandomUtils.h"

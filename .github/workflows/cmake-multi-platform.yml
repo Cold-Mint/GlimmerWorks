@@ -164,21 +164,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Download all build artifacts
         uses: actions/download-artifact@v8
         with:
           path: artifacts
           merge-multiple: true
-      - name: Debug - List all downloaded files
-        run: |
-          echo "=== 正在检查 artifacts 目录的完整结构 ==="
-          if command -v tree &> /dev/null; then
-            tree artifacts
-          else
-            ls -R artifacts
-          fi
-          echo "========================================"
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v3
         with:

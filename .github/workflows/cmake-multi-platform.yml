@@ -174,5 +174,7 @@ jobs:
       - name: Create GitHub Release and upload assets
         uses: softprops/action-gh-release@v3
         with:
-          files: artifacts/*
+          files: |
+            artifacts/GlimmerWorks-*-Release-Linux-wayland-x64.tar.zst
+            artifacts/GlimmerWorks-*-Release-Windows-x64.zip
           generate_release_notes: true

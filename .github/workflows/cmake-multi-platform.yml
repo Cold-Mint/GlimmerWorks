@@ -87,6 +87,9 @@ jobs:
     - name: Set executable permission on Linux
       if: runner.os == 'Linux'
       run: sudo chmod +x "$PACK_SIGNER_EXE"
+    - name: Setup MSVC (Windows)
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
     - name: Cache build directory
       uses: actions/cache@v4
       with:

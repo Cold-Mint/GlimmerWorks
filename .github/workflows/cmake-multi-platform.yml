@@ -153,7 +153,7 @@ jobs:
       with:
         name: GlimmerWorks-Package-${{ matrix.os }}
         path: |
-          ${{ steps.strings.outputs.build-output-dir }}/dist/Release/*.zip
+          ${{ steps.strings.outputs.build-output-dir }}/dist/Release/*.7z
           ${{ steps.strings.outputs.build-output-dir }}/dist/Release/*.tar.zst
         archive: false
        
@@ -184,5 +184,5 @@ jobs:
         with:
           files: |
             artifacts/GlimmerWorks-*-Release-Linux-wayland-x64.tar.zst
-            artifacts/GlimmerWorks-*-Release-Windows-x64.zip
+            artifacts/GlimmerWorks-*-Release-Windows-x64.7z
           generate_release_notes: true

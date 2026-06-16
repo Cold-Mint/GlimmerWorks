@@ -1026,12 +1026,9 @@ if (UNIX AND NOT APPLE)
     set(CPACK_GENERATOR "TZST")
 endif ()
 if (WIN32)
-    set(LIB_SUFFIX "dll")
     set(CPACK_PACKAGE_FILE_NAME
             "${PROJECT_NAME}-${GAME_VERSION_STRING}-Windows-x${ARCH_BIT}")
-    set(CPACK_GENERATOR "ZIP")
-else ()
-    set(LIB_SUFFIX "so")
+    set(CPACK_GENERATOR "7Z")
 endif ()
 
 set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/dist/${CMAKE_BUILD_TYPE}")

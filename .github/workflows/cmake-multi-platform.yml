@@ -138,14 +138,11 @@ jobs:
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }}
-    - name: Pack(Linux)
-      if: runner.os == 'Linux'
+    - name: Pack
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: cpack -C ${{ matrix.build_type }}
-      #Implicit keys need to be on a single line at line 140, column 13: uses: actions/upload-artifact@v7 ^ 
-    - name: Upload artifacts (Linux)
-      if: runner.os == 'Linux'
+    - name: Upload artifacts
       uses: actions/upload-artifact@v7
       with:
-       path: ${{ steps.strings.outputs.build-output-dir }}/dist/Release/GlimmerWorks-*.tar.zst
+       path: ${{ steps.strings.outputs.build-output-dir }}/dist/Release/GlimmerWorks-*
        archive: false

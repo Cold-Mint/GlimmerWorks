@@ -80,8 +80,12 @@ jobs:
         else
           pattern="packSigner-windows-amd64-*.exe"
         fi
+        \
         exe_path_rel=$(find bin -name "$pattern" -type f | head -n1 | tr -d '\r')
         exe_path="${{ github.workspace }}/$exe_path_rel"
+        # Replace backslashes in the path with forward slashes to avoid CMake escaping issues
+        # 将路径中的反斜杠替换为正斜杠，避免 CMake 转义问题
+        exe_path="${exe_path//\\//}"
         echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
       shell: bash
     - name: Set executable permission on Linux

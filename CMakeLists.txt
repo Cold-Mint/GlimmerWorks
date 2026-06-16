@@ -14,6 +14,7 @@ endif ()
 if(MSVC)
     # 禁用警告
     add_compile_options(/wd4834)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 if (NOT EXISTS ${PACK_SIGNER_EXE})

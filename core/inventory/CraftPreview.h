@@ -26,7 +26,7 @@
  */
 #pragma once
 #include <memory>
-
+#include <string>
 #include "SDL3/SDL_render.h"
 
 namespace glimmer

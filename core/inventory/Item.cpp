@@ -29,6 +29,17 @@
 #include "core/log/LogCat.h"
 
 
+void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
+{
+    tags_.clear();
+    tagSet_.clear();
+    for (auto& tag : tags)
+    {
+        tags_.emplace_back(tag);
+        tagSet_.emplace(tag.GetCachedTagId());
+    }
+}
+
 void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
 {
     amount_ = itemMessage.amount();
@@ -55,17 +66,17 @@ uint32_t glimmer::Item::GetUsedDurability() const
     return usedDurability_;
 }
 
-size_t glimmer::Item::GetAmount() const
+uint8_t glimmer::Item::GetAmount() const
 {
     return amount_;
 }
 
-size_t glimmer::Item::GetMaxStack() const
+uint8_t glimmer::Item::GetMaxStack() const
 {
     return maxStack_;
 }
 
-size_t glimmer::Item::GetRemainingStackCount(const Item* item) const
+uint8_t glimmer::Item::GetRemainingStackCount(const Item* item) const
 {
     if (item == nullptr)
     {
@@ -78,15 +89,16 @@ size_t glimmer::Item::GetRemainingStackCount(const Item* item) const
     return maxStack_ - amount_;
 }
 
-void glimmer::Item::SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)>& onAmountChanged)
+void glimmer::Item::SetOnAmountChanged(const std::function<void(ContainerChangeType, uint8_t)>& onAmountChanged)
 {
     onAmountChanged_ = onAmountChanged;
 }
 
-void glimmer::Item::SetOnUsedDurabilityChanged(const std::function<void(size_t, size_t)>& onUsedDurabilityChanged)
+void glimmer::Item::SetOnUsedDurabilityChanged(const std::function<void(uint32_t, uint32_t)>& onUsedDurabilityChanged)
 {
     onUsedDurabilityChanged_ = onUsedDurabilityChanged;
 }
+
 
 void glimmer::Item::SetAmount(uint8_t amount)
 {
@@ -100,7 +112,12 @@ void glimmer::Item::SetAmount(uint8_t amount)
 
 bool glimmer::Item::HasTag(const uint64_t tag) const
 {
-    return tags_.contains(tag);
+    return tagSet_.contains(tag);
+}
+
+const std::vector<glimmer::ItemTagResource>& glimmer::Item::GetTags() const
+{
+    return tags_;
 }
 
 uint8_t glimmer::Item::AddAmount(uint8_t amount)

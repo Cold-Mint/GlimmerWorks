@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,45 +25,29 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <memory>
 
-#include "MobComponent.h"
-#include "core/inventory/Item.h"
-#include "core/mod/dataPack/RecipeGroup.h"
+#include "SDL3/SDL_render.h"
 
 namespace glimmer
 {
-    /**
-     * 玩家控制组件，用于处理玩家的输入控制
-     */
-    class PlayerComponent final : public MobComponent
+    class CraftPreview
     {
-        std::unordered_map<RecipeGroup, uint8_t> technologyMap_ = {
-            {RecipeGroup::None, 1}
-        };
+        std::shared_ptr<SDL_Texture> texture_;
+        uint8_t count_ = 1;
+        std::string name_;
 
     public:
-        //If the player does not press the left or right key, then this value is 0. Pressing A is -1, and pressing D is 1.0.
-        //如果玩家没有按下左键或右键那么此值为0,按下A为-1,按下D为1.0
-        float horizontalInput = 0.0F;
-        float verticalInput = 0.0F;
-        bool pressedW = false;
-        bool pressedA = false;
-        bool pressedS = false;
-        bool pressedD = false;
-        bool jump = false;
-        int jumpBuffer = 0;
-        bool mouseLeftDown = false;
-        float dropTimer = 0.0F;
-        bool dropPressed = false;
-        bool isFlying = false;
-        //The current item being held.
-        //当前手持的物品。
-        Item* item = nullptr;
+        void SetCount(uint8_t count);
 
-        std::string ListTechnology(const std::string& technologyItem) const;
+        [[nodiscard]] const std::string& GetName();
 
-        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+        void SetName(std::string name);
 
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
+        [[nodiscard]] uint8_t GetCount() const;
+
+        std::shared_ptr<SDL_Texture> GetTexture();
+
+        void SetTexture(std::shared_ptr<SDL_Texture> texture);
     };
 }

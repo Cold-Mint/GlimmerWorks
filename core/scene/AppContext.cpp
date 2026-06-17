@@ -63,6 +63,8 @@
 #include "core/console/command/PlayCommand.h"
 #include "core/console/command/ScreenshotCommand.h"
 #include "core/console/command/SummonCommand.h"
+#include "core/console/command/TagCommand.h"
+#include "core/console/command/TechnologyCommand.h"
 #include "core/console/command/TileSnapshotCommand.h"
 #include "core/console/suggestion/AllocStrategyTypeDynamicSuggestions.h"
 #include "core/console/suggestion/AudioTrackDynamicSuggestions.h"
@@ -246,6 +248,9 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->playerDoesNotExist = find<std::string>(value, "player_does_not_exist");
     langsResources_->inventoryTile = find<std::string>(value, "inventory_tile");
     langsResources_->recipeTile = find<std::string>(value, "recipe_tile");
+    langsResources_->technologyItem = find<std::string>(value, "technology_item");
+    langsResources_->tagItem = find<std::string>(value, "tag_item");
+    langsResources_->tagCannotFound = find<std::string>(value, "tag_cannot_found");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, const std::string& ext)
@@ -462,6 +467,8 @@ glimmer::AppContext::AppContext()
     commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<TagCommand>(this));
 #endif
     consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();

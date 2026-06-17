@@ -37,7 +37,7 @@
 glimmer::TileItem::TileItem(const std::shared_ptr<Tile>& tile, const ResourceRef& resourceRef) : tile_(tile)
 {
     resourceRef_ = resourceRef;
-    tags_.insert(tile->GetTags().begin(), tile->GetTags().end());
+    SetTags(tile->GetTags());
     maxStack_ = ITEM_MAX_STACK;
 }
 

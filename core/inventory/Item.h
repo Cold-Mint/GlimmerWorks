@@ -43,14 +43,16 @@ namespace glimmer
     {
         uint8_t amount_ = 1;
         uint32_t usedDurability_ = 0;
+        std::vector<ItemTagResource> tags_;
+        std::unordered_set<uint64_t> tagSet_;
 
     protected:
         uint8_t maxStack_ = 1;
-
         std::function<void(ContainerChangeType, uint8_t)> onAmountChanged_ = nullptr;
-        std::function<void(size_t, size_t)> onUsedDurabilityChanged_ = nullptr;
-        std::unordered_set<uint64_t> tags_;
+        std::function<void(uint32_t, uint32_t)> onUsedDurabilityChanged_ = nullptr;
         ResourceRef resourceRef_;
+
+        void SetTags(const std::vector<ItemTagResource>& tags);
 
     public:
         ~Item() override = default;
@@ -83,7 +85,7 @@ namespace glimmer
          * 获取物品数量
          * @return
          */
-        [[nodiscard]] size_t GetAmount() const;
+        [[nodiscard]] uint8_t GetAmount() const;
 
 
         /**
@@ -91,7 +93,7 @@ namespace glimmer
          * 获取最大堆叠数量
          * @return
          */
-        [[nodiscard]] size_t GetMaxStack() const;
+        [[nodiscard]] uint8_t GetMaxStack() const;
 
 
         /**
@@ -99,12 +101,12 @@ namespace glimmer
          * 获取可堆叠的数量
          * @return
          */
-        [[nodiscard]] size_t GetRemainingStackCount(const Item* item) const;
+        [[nodiscard]] uint8_t GetRemainingStackCount(const Item* item) const;
 
 
-        void SetOnAmountChanged(const std::function<void(ContainerChangeType, size_t)>& onAmountChanged);
+        void SetOnAmountChanged(const std::function<void(ContainerChangeType, uint8_t)>& onAmountChanged);
 
-        void SetOnUsedDurabilityChanged(const std::function<void(size_t, size_t)>& onUsedDurabilityChanged);
+        void SetOnUsedDurabilityChanged(const std::function<void(uint32_t, uint32_t)>& onUsedDurabilityChanged);
 
         /**
          * SetAmount
@@ -114,6 +116,8 @@ namespace glimmer
         void SetAmount(uint8_t amount);
 
         [[nodiscard]] bool HasTag(uint64_t tag) const;
+
+        [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
 
         /**
          * AddAmount

@@ -36,15 +36,6 @@ glimmer::RecipeResource* glimmer::RecipeManager::RegisterRecipe(std::unique_ptr<
     return slot.get();
 }
 
-glimmer::RecipeTableResource* glimmer::RecipeManager::RegisterRecipeTable(
-    std::unique_ptr<RecipeTableResource> recipeTableResource)
-{
-    auto& slot =
-        recipeTableMap_[recipeTableResource->packId][recipeTableResource->resourceId];
-    slot = std::move(recipeTableResource);
-    return slot.get();
-}
-
 glimmer::RecipeResource* glimmer::RecipeManager::FindRecipeResource(const std::string& packId, const std::string& key)
 {
     const auto packIt = recipeMap_.find(packId);
@@ -62,23 +53,6 @@ glimmer::RecipeResource* glimmer::RecipeManager::FindRecipeResource(const std::s
     return keyIt->second.get();
 }
 
-glimmer::RecipeTableResource* glimmer::RecipeManager::FindRecipeTableResource(const std::string& packId,
-    const std::string& key)
-{
-    const auto packIt = recipeTableMap_.find(packId);
-    if (packIt == recipeTableMap_.end())
-    {
-        return nullptr;
-    }
-
-    auto& keyMap = packIt->second;
-    const auto keyIt = keyMap.find(key);
-    if (keyIt == keyMap.end())
-    {
-        return nullptr;
-    }
-    return keyIt->second.get();
-}
 
 std::vector<std::string> glimmer::RecipeManager::GetRecipeResourceList() const
 {
@@ -97,43 +71,11 @@ std::vector<std::string> glimmer::RecipeManager::GetRecipeResourceList() const
     return result;
 }
 
-std::vector<std::string> glimmer::RecipeManager::GetRecipeTableResourceList() const
-{
-    std::vector<std::string> result;
-    for (const auto& packPair : recipeTableMap_)
-    {
-        const auto& packId = packPair.first;
-        const auto& keyMap = packPair.second;
-
-        for (const auto& keyPair : keyMap)
-        {
-            const auto& key = keyPair;
-            result.emplace_back(Resource::GenerateId(packId, key.first));
-        }
-    }
-    return result;
-}
 
 std::string glimmer::RecipeManager::ListRecipeResources() const
 {
     std::stringstream oss;
     for (const auto& packPair : recipeMap_)
-    {
-        const auto& packId = packPair.first;
-        const auto& keyMap = packPair.second;
-        for (const auto& keyPair : keyMap)
-        {
-            const auto& key = keyPair.first;
-            oss << Resource::GenerateId(packId, key) << "\n";
-        }
-    }
-    return oss.str();
-}
-
-std::string glimmer::RecipeManager::ListRecipeTableResources() const
-{
-    std::stringstream oss;
-    for (const auto& packPair : recipeTableMap_)
     {
         const auto& packId = packPair.first;
         const auto& keyMap = packPair.second;

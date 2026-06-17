@@ -32,7 +32,7 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>& item) const
+void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>& item)
 {
     if (item == nullptr)
     {
@@ -58,7 +58,7 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>&
     });
 }
 
-void glimmer::ItemContainer::UnBindItemEvent(uint8_t index, const std::unique_ptr<Item>& item) const
+void glimmer::ItemContainer::UnBindItemEvent(uint8_t index, const std::unique_ptr<Item>& item)
 {
     if (item == nullptr)
     {
@@ -69,9 +69,9 @@ void glimmer::ItemContainer::UnBindItemEvent(uint8_t index, const std::unique_pt
     item->SetOnUsedDurabilityChanged(nullptr);
 }
 
-void glimmer::ItemContainer::
-InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange) const
+void glimmer::ItemContainer::InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange)
 {
+    needRefreshTag_ = true;
     if (onContentChanged_.empty())
     {
         return;
@@ -80,6 +80,49 @@ InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerC
     {
         (*onChanged)(index, item, containerChange);
     }
+}
+
+void glimmer::ItemContainer::RefreshTotalTags()
+{
+    tagToValue_.clear();
+    totalTagVector_.clear();
+    for (int i = 0; i < items_.size(); ++i)
+    {
+        const std::unique_ptr<Item>& currentItem = items_[i];
+        if (currentItem == nullptr)
+        {
+            continue;
+        }
+        uint8_t amount = currentItem->GetAmount();
+        if (amount == 0)
+        {
+            continue;
+        }
+        const std::vector<ItemTagResource>& tags = currentItem->GetTags();
+        for (auto& tag : tags)
+        {
+            uint64_t tagId = tag.GetCachedTagId();
+            uint64_t singleVal = tag.value;
+            auto tagIterator = tagToValue_.find(tagId);
+            if (tagIterator == tagToValue_.end())
+            {
+                auto itemTagPtr = std::make_unique<ItemTagResource>();
+                itemTagPtr->name = tag.name;
+                itemTagPtr->value = singleVal * amount;
+                itemTagPtr->MakeCachedTag();
+                tagToValue_[tagId] = std::move(itemTagPtr);
+            }
+            else
+            {
+                tagIterator->second->value += singleVal * amount;
+            }
+        }
+    }
+    for (auto& tagToValue : tagToValue_)
+    {
+        totalTagVector_.emplace_back(tagToValue.second.get());
+    }
+    needRefreshTag_ = false;
 }
 
 std::shared_ptr<std::function<void(uint8_t, glimmer::Item*, glimmer::ContainerChangeType)>>
@@ -173,6 +216,24 @@ int glimmer::ItemContainer::FindIndex(const Item* item)
     return -1;
 }
 
+const std::vector<glimmer::ItemTagResource*>& glimmer::ItemContainer::GetTotalTags()
+{
+    if (needRefreshTag_)
+    {
+        RefreshTotalTags();
+    }
+    return totalTagVector_;
+}
+
+bool glimmer::ItemContainer::HasTag(uint64_t tag)
+{
+    if (needRefreshTag_)
+    {
+        RefreshTotalTags();
+    }
+    return tagToValue_.contains(tag);
+}
+
 
 uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item* item) const
 {
@@ -231,7 +292,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::ReplaceItem(const uint8_t
 
 uint8_t glimmer::ItemContainer::RemoveItem(const std::string& id, const uint8_t amount) const
 {
-    int unallocatedCount = static_cast<int>(amount);
+    int unallocatedCount = amount;
     for (auto& i : items_)
     {
         Item* itemPtr = i.get();

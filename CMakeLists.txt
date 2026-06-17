@@ -11,11 +11,11 @@ if (NOT DEFINED ENV{GITHUB_ACTIONS})
     include("${CMAKE_CURRENT_SOURCE_DIR}/config.cmake")
 endif ()
 
-if(MSVC)
+if (MSVC)
     # 禁用警告
     add_compile_options(/wd4834)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-endif()
+endif ()
 
 if (NOT EXISTS ${PACK_SIGNER_EXE})
     message(FATAL_ERROR "The file pointed to by PACK_SIGNER_EXE does not exist.")
@@ -354,7 +354,6 @@ target_sources(GlimmerWorks
         core/console/command/HelpCommand.cpp
         core/scene/SceneManager.cpp
         core/scene/HomeScene.cpp
-        core/LangsResources.cpp
         core/scene/SavedGamesScene.cpp
         core/saves/Saves.cpp
         core/saves/MapManifest.cpp
@@ -616,6 +615,9 @@ target_sources(GlimmerWorks
         core/layout/HorizontalLayoutStepper.cpp
         core/layout/VerticalLayoutStepper.cpp
         core/ecs/component/CraftPreviewSlotComponent.cpp
+        core/inventory/CraftPreview.cpp
+        core/console/command/TechnologyCommand.cpp
+        core/console/command/TagCommand.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -905,6 +907,9 @@ target_sources(GlimmerWorks
         core/layout/HorizontalLayoutStepper.h
         core/ecs/ItemSlotType.h
         core/ecs/component/CraftPreviewSlotComponent.h
+        core/inventory/CraftPreview.h
+        core/console/command/TagCommand.h
+        core/console/command/TechnologyCommand.h
 )
 
 #Define version information

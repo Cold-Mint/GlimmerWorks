@@ -187,6 +187,16 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::ItemTagResource> {
+        static glimmer::ItemTagResource from_toml(const value &v) {
+            glimmer::ItemTagResource r;
+            r.name = toml::find<std::string>(v, "name");
+            r.value = toml::find_or<uint8_t>(v, "value", 1);
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::LootResource> {
         static glimmer::LootResource from_toml(const value &v) {
             glimmer::LootResource r;
@@ -210,16 +220,6 @@ namespace toml {
     };
 
     template<>
-    struct from<glimmer::RecipeTableResource> {
-        static glimmer::RecipeTableResource from_toml(const value &v) {
-            glimmer::RecipeTableResource r;
-            r.recipeVector = toml::find<std::vector<glimmer::ResourceRef>>(v, "recipe_vector");
-            r.resourceId = toml::find<std::string>(v, "resource_id");
-            return r;
-        }
-    };
-
-    template<>
     struct from<glimmer::RectangleShapeResource> {
         static glimmer::RectangleShapeResource from_toml(const value &v) {
             glimmer::RectangleShapeResource r;
@@ -236,7 +236,7 @@ namespace toml {
         static glimmer::RequiredTag from_toml(const value &v) {
             glimmer::RequiredTag r;
             r.requiredTag = toml::find<std::string>(v, "required_tag");
-            r.requiredWeight = toml::find_or<uint64_t>(v, "required_weight", 1);
+            r.requiredWeight = toml::find_or<uint16_t>(v, "required_weight", 1);
             return r;
         }
     };
@@ -379,7 +379,7 @@ namespace toml {
             r.maxDurability = toml::find_or<uint32_t>(v, "max_durability", 16);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.resourceId = toml::find<std::string>(v, "resource_id");
-            r.tags = toml::find_or<std::vector<std::string>>(v, "tags", {});
+            r.tags = toml::find_or<std::vector<glimmer::ItemTagResource>>(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             return r;
         }
@@ -420,7 +420,7 @@ namespace toml {
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.slotSize = toml::find<size_t>(v, "slot_size");
-            r.tags = toml::find_or<std::vector<std::string>>(v, "tags", {});
+            r.tags = toml::find_or<std::vector<glimmer::ItemTagResource>>(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             return r;
         }
@@ -504,7 +504,7 @@ namespace toml {
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.resourceId = toml::find<std::string>(v, "resource_id");
-            r.tags = toml::find_or<std::vector<std::string>>(v, "tags", {});
+            r.tags = toml::find_or<std::vector<glimmer::ItemTagResource>>(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             return r;
         }
@@ -610,7 +610,7 @@ namespace toml {
             r.placeSfx = toml::find<glimmer::ResourceRef>(v, "place_sfx");
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.sideLightMask = toml::find<glimmer::ResourceRef>(v, "side_light_mask");
-            r.tags = toml::find_or<std::vector<std::string>>(v, "tags", {});
+            r.tags = toml::find_or<std::vector<glimmer::ItemTagResource>>(v, "tags", {});
             r.technologyLevel = toml::find_or<uint8_t>(v, "technology_level", 0);
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
             r.tileAnchorType = toml::find_or<uint8_t>(v, "tile_anchor_type", 6);
@@ -676,9 +676,10 @@ namespace toml {
             r.duration = toml::find_or<float>(v, "duration", 0.0F);
             r.exactMatch = toml::find_or<bool>(v, "exact_match", false);
             r.input = toml::find<std::vector<glimmer::RequiredTag>>(v, "input");
+            r.minTechnologyLevel = toml::find_or<uint8_t>(v, "min_technology_level", 0);
             r.output = toml::find<glimmer::ItemMessageResource>(v, "output");
+            r.recipeGroup = toml::find_or<uint8_t>(v, "recipe_group", 0);
             r.resourceId = toml::find<std::string>(v, "resource_id");
-            r.technologyLevel = toml::find_or<uint8_t>(v, "technology_level", 0);
             return r;
         }
     };

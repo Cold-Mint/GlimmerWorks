@@ -48,7 +48,7 @@ namespace glimmer
         std::shared_ptr<SDL_Texture> blueprintTexture_;
         std::shared_ptr<MIX_Audio> breakSFX_;
         std::shared_ptr<MIX_Audio> placeSFX_;
-        std::unordered_set<uint64_t> tags_;
+        std::vector<ItemTagResource> tags_;
         bool customLootTable_ = false;
         ResourceRef lootTable_;
         float hardness_ = 1.0F;
@@ -105,7 +105,7 @@ namespace glimmer
     public:
         [[nodiscard]] uint8_t GetTileWidth() const;
 
-        [[nodiscard]] std::unordered_set<uint64_t> GetTags() const;
+        [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
 
         [[nodiscard]] uint8_t GetTileHeight() const;
 

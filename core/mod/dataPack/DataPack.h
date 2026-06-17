@@ -129,8 +129,6 @@ namespace glimmer
 
         void LoadRecipeResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const;
 
-        void LoadRecipeTableResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const;
-
         [[nodiscard]]
         static std::optional<std::string> ExtractLanguageFromFileName(const std::string& fileName);
 

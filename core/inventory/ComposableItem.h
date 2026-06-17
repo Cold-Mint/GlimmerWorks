@@ -57,7 +57,7 @@ namespace glimmer
         explicit ComposableItem(const std::string& id, const std::string& name,
                                 const std::optional<std::string>& description,
                                 const std::shared_ptr<SDL_Texture>& icon, uint8_t maxSize, uint32_t maxDurability,
-                                bool isUnbreakable, std::unordered_set<uint64_t> tags, const ResourceRef& resourceRef);
+                                bool isUnbreakable, const std::vector<ItemTagResource>& tags, const ResourceRef& resourceRef);
 
         void SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType);
 

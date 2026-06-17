@@ -71,6 +71,8 @@ static constexpr std::string ECS_COMMAND_NAME = "ecs";
 static constexpr std::string VFS_COMMAND_NAME = "vfs";
 static constexpr std::string HOOK_COMMAND_NAME = "commandHook";
 static constexpr std::string MEMORY_USAGE_COMMAND_NAME = "memoryUsage";
+static constexpr std::string TECHNOLOGY_COMMAND_NAME = "technology";
+static constexpr std::string TAG_COMMAND_NAME = "tag";
 #endif
 static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
 static constexpr std::string BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME = "&bool_toggle";
@@ -156,7 +158,6 @@ static constexpr std::string DATA_FILE_TYPE_FIXED_COLOR = "fixed_color";
 static constexpr std::string DATA_FILE_TYPE_LIGHT_MASK = "light_mask";
 static constexpr std::string DATA_FILE_TYPE_LIGHT_SOURCE = "light_source";
 static constexpr std::string DATA_FILE_TYPE_RECIPE = "recipe";
-static constexpr std::string DATA_FILE_TYPE_RECIPE_TABLE = "recipe_table";
 
 static constexpr uint16_t BOX2D_CATEGORY_PLAYER = 0x0001;
 static constexpr uint16_t BOX2D_CATEGORY_TILE = 0x0002;

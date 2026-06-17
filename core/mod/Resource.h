@@ -450,6 +450,23 @@ namespace glimmer
         }
     };
 
+    //@genNextLine(ItemTagResource|物品标签)
+    struct ItemTagResource
+    {
+    private:
+        uint64_t cachedTagId_ = 0;
+
+    public:
+        //@genNextLine(name|标签名)
+        std::string name;
+        //@genNextLine(value|值)
+        uint8_t value = 1;
+
+        void MakeCachedTag();
+
+        [[nodiscard]] uint64_t GetCachedTagId() const;
+    };
+
     /**
      * AbilityItem
      * 能力物品
@@ -474,7 +491,7 @@ namespace glimmer
         //@genNextLine(isUnbreakable|是否坚不可摧)
         bool isUnbreakable = false;
         //@genNextLine(tags|标签)
-        std::vector<std::string> tags = {};
+        std::vector<ItemTagResource> tags = {};
     };
 
     //@genNextLine(MaterialItemResource|材料物品资源)
@@ -487,7 +504,7 @@ namespace glimmer
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture;
         //@genNextLine(tags|标签)
-        std::vector<std::string> tags = {};
+        std::vector<ItemTagResource> tags = {};
     };
 
     /**
@@ -508,6 +525,7 @@ namespace glimmer
 
         [[nodiscard]] Color ToColor() const;
     };
+
 
     /**
      * TileResource
@@ -579,7 +597,7 @@ namespace glimmer
         //@genNextLine(Allow anchor adjustment by facing direction.|允许按朝向调整锚点，放置瓦片时，开启就会跟着左右朝向自动调换锚点，让瓦片顺着朝向方向延伸，关闭则固定原始锚点不动。)
         bool allowDirAdjustAnchor = true;
         //@genNextLine(tags|标签)
-        std::vector<std::string> tags = {};
+        std::vector<ItemTagResource> tags = {};
     };
 
     //@genNextLine(IBiomeDecoratorResource|生物群系装饰器接口)
@@ -757,7 +775,7 @@ namespace glimmer
         //@genNextLine(defaultAbilityList|默认能力列表资源引用)
         std::vector<ItemMessageResource> defaultAbilityList = {};
         //@genNextLine(tags|标签)
-        std::vector<std::string> tags = {};
+        std::vector<ItemTagResource> tags = {};
     };
 
     //@genNextLine(InitialInventoryResource|初始化库存资源)
@@ -776,7 +794,7 @@ namespace glimmer
         //@genNextLine(requiredTag|需要的标签)
         std::string requiredTag;
         //@genNextLine(requiredWeight|需要的权重)
-        uint64_t requiredWeight = 1;
+        uint16_t requiredWeight = 1;
 
         void MakeCachedTag();
 
@@ -795,15 +813,9 @@ namespace glimmer
         float duration = 0.0F;
         //@genNextLine(Exact match true requires that the total weight of the tags collected by the player exactly meets the requiredWeight to execute the recipe. False only requires the weight to be greater than a certain value to execute the recipe, and no materials will be refunded.|精确匹配 true需要玩家凑够的标签权重正好满足requiredWeight才能执行配方，false仅需大于即可执行配方，不退还材料)
         bool exactMatch = false;
-        //@genNextLine(Technology level: The recipe can only be unlocked when there are corresponding blocks of the same technology level nearby.|科技等级，当附近有对应科技等级的方块才解锁配方。)
-        uint8_t technologyLevel = 0;
-    };
-
-    //@genNextLine(RecipeTableResource|配方表资源)
-    struct RecipeTableResource : Resource
-    {
-        //配方表提供的配方。
-        //@genNextLine(The recipes provided in the formula sheet|配方表提供的配方)
-        std::vector<ResourceRef> recipeVector;
+        //@genNextLine(min Technology level: The recipe can only be unlocked when there are corresponding blocks of the same technology level nearby.|最低科技等级，当附近有对应科技等级的方块才解锁配方。)
+        uint8_t minTechnologyLevel = 0;
+        //@genNextLine(RecipeGroup|配方组)
+        uint8_t recipeGroup = 0;
     };
 }

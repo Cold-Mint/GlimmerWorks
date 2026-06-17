@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,45 +25,33 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-
-#include "MobComponent.h"
-#include "core/inventory/Item.h"
-#include "core/mod/dataPack/RecipeGroup.h"
+#if  !defined(NDEBUG)
+#include "core/console/Command.h"
+#include "core/mod/Resource.h"
 
 namespace glimmer
 {
-    /**
-     * 玩家控制组件，用于处理玩家的输入控制
-     */
-    class PlayerComponent final : public MobComponent
+    class StringManager;
+
+    class TagCommand : public Command
     {
-        std::unordered_map<RecipeGroup, uint8_t> technologyMap_ = {
-            {RecipeGroup::None, 1}
-        };
+    protected:
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+
+        static void WriteTag(const std::string& tagItem, std::stringstream& stringStream, StringManager* stringManager,
+                             const ItemTagResource& itemTagResource);
 
     public:
-        //If the player does not press the left or right key, then this value is 0. Pressing A is -1, and pressing D is 1.0.
-        //如果玩家没有按下左键或右键那么此值为0,按下A为-1,按下D为1.0
-        float horizontalInput = 0.0F;
-        float verticalInput = 0.0F;
-        bool pressedW = false;
-        bool pressedA = false;
-        bool pressedS = false;
-        bool pressedD = false;
-        bool jump = false;
-        int jumpBuffer = 0;
-        bool mouseLeftDown = false;
-        float dropTimer = 0.0F;
-        bool dropPressed = false;
-        bool isFlying = false;
-        //The current item being held.
-        //当前手持的物品。
-        Item* item = nullptr;
+        explicit TagCommand(AppContext* appContext);
 
-        std::string ListTechnology(const std::string& technologyItem) const;
+        [[nodiscard]] bool RequiresWorldContext() const override;
 
-        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+        [[nodiscard]] std::string GetName() const override;
 
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
+        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+
+        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                     const std::function<void(const std::string& text)>* onMessage) override;
     };
 }
+#endif

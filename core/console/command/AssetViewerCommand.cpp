@@ -53,6 +53,7 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string>* suggest
     suggestionsTree->AddChild("fixedColor");
     suggestionsTree->AddChild("lightMask");
     suggestionsTree->AddChild("lightSource");
+    suggestionsTree->AddChild("recipes");
 }
 
 glimmer::AssetViewerCommand::AssetViewerCommand(AppContext* appContext)
@@ -259,6 +260,16 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
             return false;
         }
         onMessageRef(lightSourceManager->ListLightSourceResource());
+        return true;
+    }
+    if (type == "recipes")
+    {
+        const RecipeManager* recipeManager = appContext_->GetRecipeManager();
+        if (recipeManager == nullptr)
+        {
+            return false;
+        }
+        onMessageRef(recipeManager->ListRecipeResources());
         return true;
     }
 

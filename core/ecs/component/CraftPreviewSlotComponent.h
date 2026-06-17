@@ -26,12 +26,27 @@
  */
 #pragma once
 #include "core/ecs/GameComponent.h"
+#include "core/math/DesignVector2D.h"
 
 namespace glimmer
 {
     class CraftPreviewSlotComponent : public GameComponent
     {
+        DesignVector2D size_;
+        DesignVector2D position_;
+        bool isHovered_ = false;
+
     public:
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
+
+        [[nodiscard]] const DesignVector2D& GetPosition() const;
+
+        [[nodiscard]] const DesignVector2D& GetSize() const;
+
+        void SetSize(const DesignVector2D& size);
+
+        void SetPosition(const DesignVector2D& position);
     };
 }

@@ -39,8 +39,12 @@ namespace glimmer
     class ItemContainer
     {
         std::vector<std::unique_ptr<Item>> items_;
+        std::unordered_map<uint64_t, std::unique_ptr<ItemTagResource>> tagToValue_;
+        std::vector<ItemTagResource*> totalTagVector_;
 
-        
+        bool needRefreshTag_ = true;
+
+
         std::vector<std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>> onContentChanged_;
 
         /**
@@ -49,7 +53,7 @@ namespace glimmer
          * @param index
          * @param item
          */
-        void BindItemEvent(uint8_t index, std::unique_ptr<Item>& item) const;
+        void BindItemEvent(uint8_t index, std::unique_ptr<Item>& item);
 
         /**
          * Unbinding Item Incident
@@ -57,9 +61,11 @@ namespace glimmer
          * @param index
          * @param item
          */
-        void UnBindItemEvent(uint8_t index, const std::unique_ptr<Item>& item) const;
+        void UnBindItemEvent(uint8_t index, const std::unique_ptr<Item>& item);
 
-        void InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange) const;
+        void InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange);
+
+        void RefreshTotalTags();
 
     public:
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> AddOnContentChanged(
@@ -91,6 +97,10 @@ namespace glimmer
          * @return A return value of -1 indicates that the item is not within the container. 返回-1,则表示不在容器内。
          */
         [[nodiscard]] int FindIndex(const Item* item);
+
+        const std::vector<ItemTagResource*>& GetTotalTags();
+
+        bool HasTag(uint64_t tag);
 
         /**
          * Get Remaining Item Amount After Add

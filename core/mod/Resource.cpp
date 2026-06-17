@@ -154,6 +154,19 @@ glimmer::Color glimmer::ColorResource::ToColor() const
     return Color{r, g, b, a};
 }
 
+void glimmer::ItemTagResource::MakeCachedTag()
+{
+    if (cachedTagId_ == 0)
+    {
+        cachedTagId_ = StringUtils::StringToUint64(name);
+    }
+}
+
+uint64_t glimmer::ItemTagResource::GetCachedTagId() const
+{
+    return cachedTagId_;
+}
+
 FastNoiseLite* glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const int seed)
 {
     if (fastNoiseLite_ == nullptr)

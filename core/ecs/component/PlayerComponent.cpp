@@ -25,6 +25,20 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "PlayerComponent.h"
+#include "fmt/xchar.h"
+
+
+std::string glimmer::PlayerComponent::ListTechnology(const std::string& technologyItem) const
+{
+    std::stringstream ss;
+    for (auto& technology : technologyMap_)
+    {
+        ss << fmt::format(
+            fmt::runtime(technologyItem),
+            static_cast<int>(technology.first), static_cast<int>(technology.second));
+    }
+    return ss.str();
+}
 
 GameComponentTypeMessage glimmer::PlayerComponent::GetComponentTypeStatic()
 {

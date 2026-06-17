@@ -167,5 +167,8 @@ namespace glimmer
         std::string playerDoesNotExist;
         std::string inventoryTile;
         std::string recipeTile;
+        std::string technologyItem;
+        std::string tagItem;
+        std::string tagCannotFound;
     };
 }

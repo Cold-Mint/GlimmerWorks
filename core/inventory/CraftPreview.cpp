@@ -24,34 +24,36 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "CraftPreviewSlotComponent.h"
+#include "CraftPreview.h"
 
-GameComponentTypeMessage glimmer::CraftPreviewSlotComponent::GetComponentTypeStatic()
+#include <utility>
+
+void glimmer::CraftPreview::SetCount(uint8_t count)
 {
-    return COMPONENT_CRAFT_PREVIEW;
+    count_ = count;
 }
 
-GameComponentTypeMessage glimmer::CraftPreviewSlotComponent::GetComponentType()
+const std::string& glimmer::CraftPreview::GetName()
 {
-    return GetComponentTypeStatic();
+    return name_;
 }
 
-const glimmer::DesignVector2D& glimmer::CraftPreviewSlotComponent::GetPosition() const
+void glimmer::CraftPreview::SetName(std::string name)
 {
-    return position_;
+    name_ = std::move(name);
 }
 
-const glimmer::DesignVector2D& glimmer::CraftPreviewSlotComponent::GetSize() const
+uint8_t glimmer::CraftPreview::GetCount() const
 {
-    return size_;
+    return count_;
 }
 
-void glimmer::CraftPreviewSlotComponent::SetSize(const DesignVector2D& size)
+std::shared_ptr<SDL_Texture> glimmer::CraftPreview::GetTexture()
 {
-    size_ = size;
+    return texture_;
 }
 
-void glimmer::CraftPreviewSlotComponent::SetPosition(const DesignVector2D& position)
+void glimmer::CraftPreview::SetTexture(std::shared_ptr<SDL_Texture> texture)
 {
-    position_ = position;
+    texture_ = std::move(texture);
 }

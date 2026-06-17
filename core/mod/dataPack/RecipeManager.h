@@ -37,9 +37,6 @@ namespace glimmer
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<RecipeResource>>>
         recipeMap_
             {};
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<RecipeTableResource>>>
-        recipeTableMap_
-            {};
 
     public:
         /**
@@ -52,24 +49,11 @@ namespace glimmer
          */
         RecipeResource* RegisterRecipe(std::unique_ptr<RecipeResource> recipeResource);
 
-        /**
-         * Registration formula list
-         * 注册配方表
-         * @param recipeTableResource recipeTableResource 配方表资源
-         * @return
-         */
-        RecipeTableResource* RegisterRecipeTable(std::unique_ptr<RecipeTableResource> recipeTableResource);
 
         [[nodiscard]] RecipeResource* FindRecipeResource(const std::string& packId, const std::string& key);
 
-        [[nodiscard]] RecipeTableResource* FindRecipeTableResource(const std::string& packId, const std::string& key);
-
         std::vector<std::string> GetRecipeResourceList() const;
 
-        std::vector<std::string> GetRecipeTableResourceList() const;
-
         std::string ListRecipeResources() const;
-
-        std::string ListRecipeTableResources() const;
     };
 }

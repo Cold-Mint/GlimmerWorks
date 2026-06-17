@@ -24,38 +24,50 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "PlayCommand.h"
+#if  !defined(NDEBUG)
+#include "TechnologyCommand.h"
 
+#include "core/LangsResources.h"
+#include "core/ecs/component/PlayerComponent.h"
 #include "core/scene/AppContext.h"
+#include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
-void glimmer::PlayCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
+void glimmer::TechnologyCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
 {
-    suggestionsTree->AddChild(AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME);
+    if (suggestionsTree == nullptr)
+    {
+        return;
+    }
+    suggestionsTree->AddChild("list");
 }
 
-glimmer::PlayCommand::PlayCommand(AppContext* appContext) : Command(appContext)
+glimmer::TechnologyCommand::TechnologyCommand(AppContext* appContext)
+    : Command(appContext)
 {
-    audioManager_ = appContext->GetAudioManager();
 }
 
-std::string glimmer::PlayCommand::GetName() const
+std::string glimmer::TechnologyCommand::GetName() const
 {
-    return PLAY_COMMAND_NAME;
+    return TECHNOLOGY_COMMAND_NAME;
 }
 
-void glimmer::PlayCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+bool glimmer::TechnologyCommand::RequiresWorldContext() const
+{
+    return true;
+}
+
+void glimmer::TechnologyCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (strings == nullptr)
     {
         return;
     }
-    strings->emplace_back("[audio_track:string]");
-    strings->emplace_back("[path:string]");
+    strings->emplace_back("[list:string]");
 }
 
-bool glimmer::PlayCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                   const std::function<void(const std::string& text)>* onMessage)
+bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                                         const std::function<void(const std::string& text)>* onMessage)
 {
     if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
@@ -68,29 +80,39 @@ bool glimmer::PlayCommand::Execute(const CommandSender* commandSender, const Com
         return false;
     }
     int size = commandArgs->GetSize();
-    if (size < 3)
+    if (size < 2)
     {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
-            3, size));
+            2, size));
         return false;
     }
-    const std::string audioTrack = commandArgs->AsString(1);
-    AudioType audioType = AMBIENT;
-    if (audioTrack == AUDIO_TRACK_BGM)
+    const std::string type = commandArgs->AsString(1);
+    if (type == "list")
     {
-        audioType = BGM;
+        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        if (entityShortCut == nullptr)
+        {
+            return false;
+        }
+        EntityManager* entityManager = worldContext_->GetEntityManager();
+        if (entityManager == nullptr)
+        {
+            return false;
+        }
+        auto plyerEntity = entityShortCut->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(plyerEntity))
+        {
+            return false;
+        }
+        auto playerComponent = entityManager->GetComponent<PlayerComponent>(plyerEntity);
+        if (playerComponent == nullptr)
+        {
+            return false;
+        }
+        onMessageRef(playerComponent->ListTechnology(langsResources->technologyItem));
+        return true;
     }
-    const auto resourceRef = commandArgs->AsResourceRef(2, RESOURCE_AUDIO);
-    if (!resourceRef.has_value())
-    {
-        return false;
-    }
-    const std::shared_ptr<MIX_Audio> audio = appContext_->GetResourceLocator()->FindAudio(&resourceRef.value());
-    if (audio == nullptr)
-    {
-        return false;
-    }
-    audioManager_->ForcePlayReplace(audioType, audio.get(), 0);
-    return true;
+    return false;
 }
+#endif

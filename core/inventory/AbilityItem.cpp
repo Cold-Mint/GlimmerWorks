@@ -31,7 +31,6 @@
 #include "ItemAbilityFactory.h"
 #include "../mod/ResourceLocator.h"
 #include "core/ecs/EcsTypes.h"
-#include "core/utils/StringUtils.h"
 
 
 glimmer::ItemAbility* glimmer::AbilityItem::GetItemAbility() const
@@ -63,17 +62,12 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
         LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
         return nullptr;
     }
-    std::unordered_set<uint64_t> tags;
-    for (auto& tag : itemResource->tags)
-    {
-        tags.emplace(StringUtils::StringToUint64(tag));
-    }
     return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), name,
                                          description,
                                          appContext->GetResourceLocator()->FindTexture(
                                              &itemResource->texture), std::move(itemAbility),
                                          itemResource->maxDurability, itemResource->isUnbreakable,
-                                         itemResource->canUseAlone, tags, resourceRef);
+                                         itemResource->canUseAlone, itemResource->tags, resourceRef);
 }
 
 uint32_t glimmer::AbilityItem::GetMaxDurability() const
@@ -109,10 +103,11 @@ void glimmer::AbilityItem::OnUse(WorldContext* worldContext, GameEntityID user, 
     }
 }
 
+
 glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optional<std::string> description,
                                   std::shared_ptr<SDL_Texture> icon, std::shared_ptr<ItemAbility> itemAbility,
                                   uint32_t maxDurability,
-                                  bool isUnbreakable, bool canUseAlone, std::unordered_set<uint64_t> tags,
+                                  bool isUnbreakable, bool canUseAlone, const std::vector<ItemTagResource>& tags,
                                   const ResourceRef& resourceRef) : id_(std::move(id)),
                                                                     name_(std::move(name)),
                                                                     description_(std::move(description)),
@@ -122,7 +117,7 @@ glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optiona
                                                                     maxDurability_(maxDurability),
                                                                     isUnbreakable_(isUnbreakable)
 {
-    tags_.insert(tags.begin(), tags.end());
+    SetTags(tags);
     resourceRef_ = resourceRef;
 }
 

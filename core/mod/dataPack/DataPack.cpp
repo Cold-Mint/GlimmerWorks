@@ -105,6 +105,16 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string& path, Strin
             );
             count++;
         }
+
+        auto tagArray = toml::find<std::vector<StringResource>>(value, "tag_string");
+        for (auto& stringRes : tagArray)
+        {
+            stringRes.packId = manifest_.id;
+            stringManager->SetTagTranslate(
+                StringUtils::StringToUint64(stringRes.resourceId), stringRes.value
+            );
+            count++;
+        }
         return count;
     }
     catch (const std::exception& e)
@@ -198,6 +208,10 @@ void glimmer::DataPack::LoadTileResourceFromFile(const toml::value& value, TileR
     tileResource->lightSource.SetSelfPackageId(manifest_.id);
     tileResource->sideLightMask.SetSelfPackageId(manifest_.id);
     tileResource->backLightMask.SetSelfPackageId(manifest_.id);
+    for (auto& tag : tileResource->tags)
+    {
+        tag.MakeCachedTag();
+    }
     if (tileResource->customLootTable)
     {
         tileResource->lootTable.SetSelfPackageId(manifest_.id);
@@ -224,6 +238,10 @@ void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value& va
     itemResource->name.SetSelfPackageId(manifest_.id);
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
+    for (auto& tag : itemResource->tags)
+    {
+        tag.MakeCachedTag();
+    }
     for (auto& defaultAbility : itemResource->defaultAbilityList)
     {
         defaultAbility.item.SetSelfPackageId(manifest_.id);
@@ -242,6 +260,10 @@ void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value& value
     itemResource->name.SetSelfPackageId(manifest_.id);
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
+    for (auto& tag : itemResource->tags)
+    {
+        tag.MakeCachedTag();
+    }
     itemManager->AddAbilityItemResource(std::move(itemResource));
 }
 
@@ -253,6 +275,10 @@ void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::val
     itemResource->name.SetSelfPackageId(manifest_.id);
     itemResource->description.SetSelfPackageId(manifest_.id);
     itemResource->texture.SetSelfPackageId(manifest_.id);
+    for (auto& tag : itemResource->tags)
+    {
+        tag.MakeCachedTag();
+    }
     itemManager->AddMaterialItemResource(std::move(itemResource));
 }
 
@@ -384,13 +410,6 @@ void glimmer::DataPack::LoadRecipeResourceFromFile(const toml::value& value, Rec
         input.MakeCachedTag();
     }
     recipeManager->RegisterRecipe(std::move(recipeResource));
-}
-
-void glimmer::DataPack::LoadRecipeTableResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const
-{
-    auto recipeTableResource = std::make_unique<RecipeTableResource>(toml::get<RecipeTableResource>(value));
-    recipeTableResource->packId = manifest_.id;
-    recipeManager->RegisterRecipeTable(std::move(recipeTableResource));
 }
 
 std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(const std::string& fileName)
@@ -735,14 +754,6 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
             const toml::value value = toml::parse_str(
                 tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
             LoadRecipeResourceFromFile(value, appContext->GetRecipeManager());
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_RECIPE_TABLE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadRecipeTableResourceFromFile(value, appContext->GetRecipeManager());
             total++;
         }
     }

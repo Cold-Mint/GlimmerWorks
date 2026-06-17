@@ -29,30 +29,41 @@
 #include "core/mod/Resource.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     struct LangsResources;
     struct StringResource;
 
-    class StringManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<StringResource> > > stringMap_
-                {};
+    class StringManager
+    {
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<StringResource>>> stringMap_
+            {};
+
+        /**
+         * Tag to translation
+         * 标签到翻译
+         */
+        std::unordered_map<uint64_t, std::string> tagTranslateMap_;
 
     public:
         StringManager();
 
-        void LoadLangsString(const LangsResources *langsResources);
+        void LoadLangsString(const LangsResources* langsResources);
 
-        StringResource *AddCoreResource(const std::string &resourceId,
-                                        const std::string &value);
+        StringResource* AddCoreResource(const std::string& resourceId,
+                                        const std::string& value);
 
+        void SetTagTranslate(uint64_t tag, const std::string& value);
+
+        std::optional<std::string> GetTagTranslate(uint64_t tag);
 
         //Register the string resource to the manager
         //注册字符串资源到管理器
-        StringResource *AddResource(std::unique_ptr<StringResource> stringResource);
+        StringResource* AddResource(std::unique_ptr<StringResource> stringResource);
 
         //Search for string resources based on the data packet id and string key.
         //根据数据包id和字符串key查找字符串资源。
-        StringResource *Find(const std::string &packId, const std::string &key);
+        StringResource* Find(const std::string& packId, const std::string& key);
 
         /**
          * List all the string resources

@@ -39,7 +39,7 @@ namespace glimmer
     public:
         explicit MaterialItem(std::string id, std::string name, std::optional<std::string> description,
                               std::shared_ptr<SDL_Texture> icon,
-                              std::unordered_set<uint64_t> tags,
+                              const std::vector<ItemTagResource>& tags,
                               const ResourceRef& resourceRef);
 
         static std::unique_ptr<MaterialItem> FromItemResource(const AppContext* appContext,

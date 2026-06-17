@@ -307,10 +307,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     tile->autoDigCostScale_ = tileResource->autoDigCostScale;
     tile->breakSFX_ = resourceLocator->FindAudio(&tileResource->breakSfx);
     tile->placeSFX_ = resourceLocator->FindAudio(&tileResource->placeSfx);
-    for (auto& tag : tileResource->tags)
-    {
-        tile->tags_.emplace(StringUtils::StringToUint64(tag));
-    }
+    tile->tags_ = tileResource->tags;
     return tile;
 }
 
@@ -319,7 +316,7 @@ uint8_t glimmer::Tile::GetTileWidth() const
     return tileWidth_;
 }
 
-std::unordered_set<uint64_t> glimmer::Tile::GetTags() const
+const std::vector<glimmer::ItemTagResource>& glimmer::Tile::GetTags() const
 {
     return tags_;
 }

@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/Constants.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/ItemSlotComponent.h"
 #include "SDL3_ttf/SDL_ttf.h"
@@ -42,22 +41,41 @@ namespace glimmer
         std::shared_ptr<SDL_Texture> itemSlotSelectedTexture_ = nullptr;
         std::shared_ptr<SDL_Texture> tooltipBgTexture_ = nullptr;
         PreloadColors* preloadColors_ = nullptr;
-        TTF_Font* font_ = nullptr;
         AppContext* appContext_ = nullptr;
         float uiScale_ = 1.0F;
         std::vector<ItemSlotComponent*> itemSlotComponents_;
         HotBarComponent* hotBarComponent_ = nullptr;
         uint32_t itemSlotCount_ = 0;
+        ResourcePackManager* resourcePackManager_ = nullptr;
+        std::unordered_map<uint8_t, std::shared_ptr<SDL_Texture>> numberTextures_;
+        std::shared_ptr<SDL_Texture> itemNameTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> itemDescriptionTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> canMineBlockTipTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> canMineWallTipTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> precisionMiningTipTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> efficiencyTipTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> fumbleTipTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> chainMiningTipTexture_ = nullptr;
+        uint64_t itemNameFingerprint_ = 0;
+        uint64_t itemDescriptionFingerprint_ = 0;
+        uint64_t canMineBlockFingerprint_ = 0;
+        uint64_t canMineWallFingerprint_ = 0;
+        uint64_t precisionMiningTipFingerprint_ = 0;
+        uint64_t efficiencyTipFingerprint_ = 0;
+        uint64_t fumbleTipFingerprint_ = 0;
+        uint64_t chainMiningTipFingerprint_ = 0;
+        bool efficiencyTipPositive_ = false;
+        bool fumbleTipPositive_ = false;
+        bool chainMiningTipPositive_ = false;
 
-
-        void RenderQuantity(SDL_Renderer* renderer, const SDL_FRect& slotDest, int amount) const;
 
         /**
-         *
+         * RenderTooltip
+         * 渲染工具提示
          * @param renderer 渲染器
          * @param item 物品
          */
-        void RenderTooltip(SDL_Renderer* renderer, const Item* item) const;
+        void RenderTooltip(SDL_Renderer* renderer, const Item* item);
 
     public:
         explicit ItemSlotSystem(WorldContext* worldContext);

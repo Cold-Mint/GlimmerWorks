@@ -27,29 +27,39 @@
 #if  !defined(NDEBUG)
 #include "DebugOverlay.h"
 
-#include "../log/LogCat.h"
-#include "SDL3_ttf/SDL_ttf.h"
 #include "AppContext.h"
 #include "../Config.h"
+#include "core/utils/StringUtils.h"
+#include "fmt/xchar.h"
 
 
-glimmer::DebugOverlay::DebugOverlay(AppContext *context)
-    : Scene(context) {
+glimmer::DebugOverlay::DebugOverlay(AppContext* context)
+    : Scene(context)
+{
+    resourcePackManager_ = appContext->GetResourcePackManager();
+    preloadColors_ = appContext->GetPreloadColors();
 }
 
-bool glimmer::DebugOverlay::HandleEvent(const SDL_Event &event) {
+bool glimmer::DebugOverlay::HandleEvent(const SDL_Event& event)
+{
     return false;
 }
 
-void glimmer::DebugOverlay::Update(const float delta) {
-    if (!appContext->GetConfig()->debug.displayDebugPanel) {
+void glimmer::DebugOverlay::Update(const float delta)
+{
+    if (!displayDebugPanel_)
+    {
         return;
     }
-    if (delta <= 0.0F) return;
+    if (delta <= 0.0F)
+    {
+        return;
+    }
     fpsAccumTime_ += delta;
     fpsFrameCount_ += 1;
     constexpr float kFpsUpdateInterval = 1.0F;
-    if (fpsAccumTime_ >= kFpsUpdateInterval) {
+    if (fpsAccumTime_ >= kFpsUpdateInterval)
+    {
         fps_ = static_cast<float>(fpsFrameCount_) / fpsAccumTime_;
         frameTimeMs_ = fpsAccumTime_ / static_cast<float>(fpsFrameCount_) * 1000.0F;
         // Average time consumption per frame (ms) 平均每帧耗时(ms)
@@ -58,131 +68,92 @@ void glimmer::DebugOverlay::Update(const float delta) {
     }
 }
 
-void glimmer::DebugOverlay::Render(SDL_Renderer *renderer) {
-    if (!appContext->GetConfig()->debug.displayDebugPanel) {
+void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
+{
+    if (!displayDebugPanel_)
+    {
         return;
     }
-    int windowWidth = appContext->GetWindowWidth();
-    int windowHeight = appContext->GetWindowHeight();
-    if (appContext->GetConfig()->debug.displayDebugPanel) {
-        //Draw the SDL screen coordinates
-        //绘制SDL屏幕坐标
-        const float uiScale = appContext->GetConfig()->window.uiScale;
-        const int labelSpacing = static_cast<int>(50 * uiScale);
-        constexpr SDL_Color textColor = {180, 180, 255, 255};
-        for (int x = 0; x <= windowWidth; x += labelSpacing) {
-            char text[32];
-            //skipcq: CXX-C1000
-            (void) snprintf(text, sizeof(text), "x%d", x);
-            SDL_Surface *surface = TTF_RenderText_Blended(appContext->GetFont(), text, strlen(text), textColor);
-            if (!surface) {
-                LogCat::w("TTF_RenderText_Blended failed at x=%d: %s", x, SDL_GetError());
-                continue;
-            }
 
-            SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-            if (!texture) {
-                LogCat::w("SDL_CreateTextureFromSurface failed at x=%d: %s", x, SDL_GetError());
-                SDL_DestroySurface(surface);
-                continue;
-            }
-
-            SDL_FRect dst = {
-                static_cast<float>(x) + 2.0f * uiScale, 2.0f * uiScale, static_cast<float>(surface->w) * uiScale,
-                static_cast<float>(surface->h) * uiScale
-            };
-            SDL_RenderTexture(renderer, texture, nullptr, &dst);
-
-            SDL_DestroySurface(surface);
-            SDL_DestroyTexture(texture);
+    //Draw the SDL screen coordinates
+    //绘制SDL屏幕坐标
+    const int labelSpacing = static_cast<int>(50 * uiScale_);
+    for (int x = 0; x <= windowWidth_; x += labelSpacing)
+    {
+        SDL_Texture* texture = nullptr;
+        auto textureIterator = numberTextureMap_.find(x);
+        if (textureIterator == numberTextureMap_.end())
+        {
+            std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(
+                std::to_string(x), &preloadColors_->textColor);
+            numberTextureMap_[x] = texturePtr;
+            texture = texturePtr.get();
         }
-        for (int y = 0; y <= windowHeight; y += labelSpacing) {
-            char text[32];
-            //skipcq: CXX-C1000
-            (void) snprintf(text, sizeof(text), "y%d", y);
-
-            SDL_Surface *surface = TTF_RenderText_Blended(appContext->GetFont(), text, strlen(text), textColor);
-            if (!surface) {
-                LogCat::w("TTF_RenderText_Blended failed at y=%d: %s", y, SDL_GetError());
-                continue;
-            }
-
-            SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-            if (!texture) {
-                LogCat::w("SDL_CreateTextureFromSurface failed at y=%d: %s", y, SDL_GetError());
-                SDL_DestroySurface(surface);
-                continue;
-            }
-
-            SDL_FRect dst = {
-                2.0f * uiScale, static_cast<float>(y) + 2.0f * uiScale, static_cast<float>(surface->w) * uiScale,
-                static_cast<float>(surface->h) * uiScale
-            };
-            SDL_RenderTexture(renderer, texture, nullptr, &dst);
-            SDL_DestroySurface(surface);
-            SDL_DestroyTexture(texture);
+        else
+        {
+            texture = textureIterator->second.get();
         }
+        SDL_FRect dst = {
+            static_cast<float>(x) + 2.0f * uiScale_, 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
+            static_cast<float>(texture->h) * uiScale_
+        };
+        SDL_RenderTexture(renderer, texture, nullptr, &dst);
     }
-    // Draw the fps information (top) and window information (bottom)
-    // 绘制 fps 信息（在上）和窗口信息（在下）
-    if (appContext->GetFont() != nullptr) {
-        SDL_Color color = {255, 255, 180, 255};
-
-        // FPS text
-        // FPS 文本
-        char fpsText[64];
-        //skipcq: CXX-C1000
-        (void) snprintf(fpsText, sizeof(fpsText), "FPS: %.1f (%.2f ms)", fps_, frameTimeMs_);
-        SDL_Surface *fpsSurface = TTF_RenderText_Blended(appContext->GetFont(), fpsText, strlen(fpsText), color);
-        if (!fpsSurface) {
-            LogCat::w("TTF_RenderText_Blended failed (fps): %s", SDL_GetError());
-        } else {
-            SDL_Texture *fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
-            if (!fpsTexture) {
-                LogCat::w("SDL_CreateTextureFromSurface failed (fps): %s", SDL_GetError());
-            }
-
-            char winText[64];
-            //skipcq: CXX-C1000
-            (void) snprintf(winText, sizeof(winText), "Window: %dx%d", windowWidth, windowHeight);
-            SDL_Surface *winSurface = TTF_RenderText_Blended(appContext->GetFont(), winText, strlen(winText), color);
-            if (!winSurface) {
-                LogCat::w("TTF_RenderText_Blended failed (win): %s", SDL_GetError());
-            } else {
-                SDL_Texture *winTexture = SDL_CreateTextureFromSurface(renderer, winSurface);
-                if (!winTexture) {
-                    LogCat::w("SDL_CreateTextureFromSurface failed (win): %s", SDL_GetError());
-                } else {
-                    const float uiScale = appContext->GetConfig()->window.uiScale;
-                    const float padding = 4.0F * uiScale;
-
-                    SDL_FRect winRect = {
-                        (static_cast<float>(windowWidth) - static_cast<float>(winSurface->w) * uiScale - padding),
-                        (static_cast<float>(windowHeight) - static_cast<float>(winSurface->h) * uiScale - padding),
-                        static_cast<float>(winSurface->w) * uiScale,
-                        static_cast<float>(winSurface->h) * uiScale
-                    };
-
-                    SDL_FRect fpsRect = {
-                        (static_cast<float>(windowWidth) - static_cast<float>(fpsSurface->w) * uiScale - padding),
-                        (static_cast<float>(windowHeight) - static_cast<float>(winSurface->h) * uiScale - static_cast<float>(
-                             fpsSurface->h) * uiScale -
-                         padding * 2.0f),
-                        static_cast<float>(fpsSurface->w) * uiScale,
-                        static_cast<float>(fpsSurface->h) * uiScale
-                    };
-
-                    SDL_RenderTexture(renderer, fpsTexture, nullptr, &fpsRect);
-                    SDL_RenderTexture(renderer, winTexture, nullptr, &winRect);
-
-                    SDL_DestroyTexture(winTexture);
-                }
-                SDL_DestroySurface(winSurface);
-            }
-
-            if (fpsTexture) SDL_DestroyTexture(fpsTexture);
-            SDL_DestroySurface(fpsSurface);
+    for (int y = 0; y <= windowHeight_; y += labelSpacing)
+    {
+        SDL_Texture* texture = nullptr;
+        auto textureIterator = numberTextureMap_.find(y);
+        if (textureIterator == numberTextureMap_.end())
+        {
+            std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(
+                std::to_string(y), &preloadColors_->textColor);
+            numberTextureMap_[y] = texturePtr;
+            texture = texturePtr.get();
         }
+        else
+        {
+            texture = textureIterator->second.get();
+        }
+        SDL_FRect dst = {
+            2.0f * uiScale_, static_cast<float>(y) + 2.0f * uiScale_, static_cast<float>(texture->w) * uiScale_,
+            static_cast<float>(texture->h) * uiScale_
+        };
+        SDL_RenderTexture(renderer, texture, nullptr, &dst);
     }
+
+    std::string fpsString = fmt::format("FPS: {} {}", fps_, frameTimeMs_);
+    uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
+    SDL_Texture* texture = nullptr;
+    auto fpsIterator = fpsTextures_.find(fpsFingerprint);
+    if (fpsIterator == fpsTextures_.end())
+    {
+        std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(
+            fpsString, &preloadColors_->textColor);
+        fpsTextures_[fpsFingerprint] = texturePtr;
+        texture = texturePtr.get();
+    }
+    else
+    {
+        texture = fpsIterator->second.get();
+    }
+    SDL_FRect fpsRect = {
+        static_cast<float>(windowWidth_) - texture->w * uiScale_,
+        static_cast<float>(windowHeight_) - texture->h * uiScale_,
+        texture->w * uiScale_,
+        texture->h * uiScale_
+    };
+    SDL_RenderTexture(renderer, texture, nullptr, &fpsRect);
+}
+
+void glimmer::DebugOverlay::OnConfigChanged(const Config* config)
+{
+    displayDebugPanel_ = config->debug.displayDebugPanel;
+    uiScale_ = config->window.uiScale;
+}
+
+void glimmer::DebugOverlay::OnWindowSizeChanged(const int width, const int height)
+{
+    windowWidth_ = width;
+    windowHeight_ = height;
 }
 #endif

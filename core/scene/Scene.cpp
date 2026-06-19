@@ -26,27 +26,34 @@
  */
 #include "Scene.h"
 
-void glimmer::Scene::OnFrameStart() {
+#include "AppContext.h"
+
+void glimmer::Scene::OnFrameStart()
+{
 }
 
 void glimmer::Scene::OnConfigChanged(const Config* config)
 {
-
 }
 
-bool glimmer::Scene::OnBackPressed() {
+bool glimmer::Scene::OnBackPressed()
+{
     return false;
 }
 
 void glimmer::Scene::OnWindowClose()
 {
-
 }
 
 void glimmer::Scene::OnWindowSizeChanged(int width, int height)
 {
-
 }
 
-glimmer::Scene::Scene(AppContext *context) : appContext(context) {
+glimmer::Scene::Scene(AppContext* context) : appContext(context)
+{
+    Scene::OnWindowSizeChanged(context->GetWindowWidth(), context->GetWindowHeight());
+    if (const Config* config = appContext->GetConfig(); config != nullptr)
+    {
+        Scene::OnConfigChanged(config);
+    }
 }

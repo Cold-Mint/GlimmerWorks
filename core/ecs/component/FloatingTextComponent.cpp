@@ -28,19 +28,29 @@
 
 #include "tweeny.h"
 #include "core/Constants.h"
+#include "core/mod/resourcePack/ResourcePackManager.h"
+#include "core/scene/AppContext.h"
 #include "SDL3/SDL_timer.h"
 
-glimmer::FloatingTextComponent::FloatingTextComponent()
+
+glimmer::FloatingTextComponent::FloatingTextComponent(AppContext* appContext)
 {
     expireTime_ = SDL_GetTicks() + 25000;
     tween_ = tweeny::tween(tweeny::from(0.0f)
                            .to(1.0f).during(200)
                            .to(1.0f).during(2000)
                            .to(0.0f).during(300));
+    resourcePackManager_ = appContext->GetResourcePackManager();
+    preloadColors_ = appContext->GetPreloadColors();
 }
 
 void glimmer::FloatingTextComponent::SetText(const std::string& text)
 {
+    if (resourcePackManager_ == nullptr)
+    {
+        return;
+    }
+    texture_ = resourcePackManager_->CreateStringTexture(text, &preloadColors_->textColor);
     text_ = text;
 }
 
@@ -67,6 +77,15 @@ float glimmer::FloatingTextComponent::GetAlpha() const
 std::string& glimmer::FloatingTextComponent::GetText()
 {
     return text_;
+}
+
+SDL_Texture* glimmer::FloatingTextComponent::GetTexture() const
+{
+    if (texture_ == nullptr)
+    {
+        return nullptr;
+    }
+    return texture_.get();
 }
 
 GameComponentTypeMessage glimmer::FloatingTextComponent::GetComponentTypeStatic()

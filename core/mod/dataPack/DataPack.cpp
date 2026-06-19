@@ -405,6 +405,7 @@ void glimmer::DataPack::LoadRecipeResourceFromFile(const toml::value& value, Rec
 {
     auto recipeResource = std::make_unique<RecipeResource>(toml::get<RecipeResource>(value));
     recipeResource->packId = manifest_.id;
+    recipeResource->output.item.SetSelfPackageId(manifest_.id);
     for (auto& input : recipeResource->input)
     {
         input.MakeCachedTag();

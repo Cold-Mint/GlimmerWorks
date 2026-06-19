@@ -49,7 +49,7 @@ void glimmer::FloatingTextSystem::OnWatchedComponentChanged(GameComponentTypeMes
     }
     if (transform2DCount_ > count && floatingTextCount_ > count)
     {
-        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D,COMPONENT_FLOATING_TEXT});
+        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_FLOATING_TEXT});
     }
 }
 
@@ -139,7 +139,9 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer* renderer)
             continue;
         }
         ScreenVector2D camera2D = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
-                                                                  transform2DComponent->GetPosition(), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
+                                                                       transform2DComponent->GetPosition(),
+                                                                       cameraComponent_->GetSize(),
+                                                                       cameraComponent_->GetZoom());
         std::string& text = floatingTextComponent->GetText();
         if (text.empty())
         {
@@ -149,29 +151,19 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-        SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(appContext->GetFont(), text.c_str(), text.length(),
-                                                              appContext->GetPreloadColors()->textColor.ToSDLColor(),
-                                                              0);
-        if (surface == nullptr)
+        SDL_Texture* texture = floatingTextComponent->GetTexture();
+        if (texture != nullptr)
         {
-            continue;
-        }
-        if (SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface))
-        {
-            auto textW = static_cast<float>(surface->w);
-            auto textH = static_cast<float>(surface->h);
             SDL_FRect dst = {
                 camera2D.x,
                 camera2D.y,
-                textW,
-                textH
+                static_cast<float>(texture->w),
+                static_cast<float>(texture->h)
             };
 
             SDL_SetTextureAlphaMod(texture, static_cast<Uint8>(floatingTextComponent->GetAlpha() * 255));
             SDL_RenderTexture(renderer, texture, nullptr, &dst);
-            SDL_DestroyTexture(texture);
         }
-        SDL_DestroySurface(surface);
     }
 }
 

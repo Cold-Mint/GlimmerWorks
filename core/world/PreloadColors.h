@@ -69,6 +69,10 @@ namespace glimmer
             //Negative/curse attribute color
             //负面/诅咒属性色
             Color negativeAttributeColor;
+
+            //Item slot text color(Quantity of items text color)
+            //物品槽文本颜色（物品数量文本颜色）
+            Color itemSlotTextColor;
         };
 
         struct Light2dColors

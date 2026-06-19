@@ -27,18 +27,25 @@
 #pragma once
 #include "tween.h"
 #include "core/ecs/GameComponent.h"
+#include "core/world/PreloadColors.h"
+#include "SDL3/SDL_render.h"
 
 namespace glimmer
 {
+    class ResourcePackManager;
+
     class FloatingTextComponent : public GameComponent
     {
         std::string text_;
         float alpha_ = 0.0F;
         tweeny::tween<float> tween_;
         uint64_t expireTime_ = 0;
+        std::shared_ptr<SDL_Texture> texture_ = nullptr;
+        ResourcePackManager* resourcePackManager_ = nullptr;
+        PreloadColors* preloadColors_ = nullptr;
 
     public:
-        explicit FloatingTextComponent();
+        explicit FloatingTextComponent(AppContext* appContext);
 
         void SetText(const std::string& text);
 
@@ -52,6 +59,8 @@ namespace glimmer
         [[nodiscard]] float GetAlpha() const;
 
         [[nodiscard]] std::string& GetText();
+
+        [[nodiscard]] SDL_Texture* GetTexture() const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

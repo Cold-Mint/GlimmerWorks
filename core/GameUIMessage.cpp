@@ -26,11 +26,55 @@
  */
 #include "GameUIMessage.h"
 
-glimmer::GameUIMessage::GameUIMessage(const std::string &t, uint64_t now) : text(t),
-                                                                            createTime(now),
-                                                                            expireTime(now + 2500),
-                                                                            tween(tweeny::from(0.0f)
-                                                                                .to(1.0f).during(200)
-                                                                                .to(1.0f).during(2000)
-                                                                                .to(0.0f).during(300)) {
+#include <utility>
+
+glimmer::GameUIMessage::GameUIMessage(ResourcePackManager* resourcePackManager, std::string text, const uint64_t now,
+                                      const Color* color) : text_(std::move(text)),
+                                                      createTime_(now),
+                                                      expireTime_(now + 2500),
+                                                      tween_(tweeny::from(0.0f)
+                                                             .to(1.0f).during(200)
+                                                             .to(1.0f).during(2000)
+                                                             .to(0.0f).during(300))
+{
+    texture_ = resourcePackManager->CreateStringTexture(text, color);
+}
+
+uint64_t glimmer::GameUIMessage::GetCreateTime() const
+{
+    return createTime_;
+}
+
+void glimmer::GameUIMessage::SetAlpha(const float alpha)
+{
+    alpha_ = alpha;
+}
+
+std::string glimmer::GameUIMessage::GetText() const
+{
+    return text_;
+}
+
+float glimmer::GameUIMessage::GetAlpha() const
+{
+    return alpha_;
+}
+
+SDL_Texture* glimmer::GameUIMessage::GetTexture() const
+{
+    if (texture_ == nullptr)
+    {
+        return nullptr;
+    }
+    return texture_.get();
+}
+
+tweeny::tween<float>& glimmer::GameUIMessage::GetTween()
+{
+    return tween_;
+}
+
+uint64_t glimmer::GameUIMessage::GetExpireTime() const
+{
+    return expireTime_;
 }

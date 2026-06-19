@@ -44,21 +44,18 @@
 #include "SDL3_mixer/SDL_mixer.h"
 
 
-void glimmer::App::RendererUiMessage()
+void glimmer::App::RendererUiMessage(int windowHeight, uint64_t frameStart, const float deltaTime) const
 {
     auto& uiMessages = appContext_->GetGameUIMessages();
-    uint64_t now = SDL_GetTicks();
-    int32_t delta = now - lastTime_;
-    lastTime_ = now;
+    if (uiMessages.empty())
+    {
+        return;
+    }
     std::erase_if(uiMessages,
-                  [now](const GameUIMessage& msg)
+                  [frameStart](const GameUIMessage& msg)
                   {
-                      return msg.expireTime <= now;
+                      return msg.GetExpireTime() <= frameStart;
                   });
-
-    int windowW = 0;
-    int windowH = 0;
-    SDL_GetRenderOutputSize(renderer_, &windowW, &windowH);
 
     constexpr float padding = 16.0f;
     constexpr float spacing = 6.0f;
@@ -67,28 +64,19 @@ void glimmer::App::RendererUiMessage()
 
     for (auto& msg : uiMessages)
     {
-        msg.tween.step(delta);
-        msg.alpha = msg.tween.peek();
-
-        if (msg.alpha <= 0.01F)
+        auto& tween = msg.GetTween();
+        tween.step(deltaTime * 1000);
+        msg.SetAlpha(tween.peek());
+        if (msg.GetAlpha() <= 0.01F)
         {
             continue;
         }
-
-        SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(
-            appContext_->GetFont(),
-            msg.text.c_str(),
-            msg.text.length(),
-            {255, 255, 255, 255},
-            0);
-
-        if (!surface)
+        const SDL_Texture* sdlTexture = msg.GetTexture();
+        if (sdlTexture == nullptr)
         {
             continue;
         }
-
-        totalHeight += static_cast<float>(surface->h) + spacing;
-        SDL_DestroySurface(surface);
+        totalHeight += static_cast<float>(sdlTexture->h) + spacing;
     }
 
     if (!uiMessages.empty())
@@ -96,48 +84,28 @@ void glimmer::App::RendererUiMessage()
         totalHeight -= spacing;
     }
 
-    float startY = windowH - totalHeight - padding;
+    float startY = windowHeight - totalHeight - padding;
     for (auto& msg : uiMessages)
     {
-        if (msg.alpha <= 0.01F)
+        if (msg.GetAlpha() <= 0.01F)
         {
             continue;
         }
-        SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(
-            appContext_->GetFont(),
-            msg.text.c_str(),
-            msg.text.length(),
-            {255, 255, 255, 255},
-            0
-        );
-
-        if (!surface)
+        SDL_Texture* sdlTexture = msg.GetTexture();
+        if (sdlTexture == nullptr)
         {
             continue;
         }
-
-        float w = static_cast<float>(surface->w);
-        float h = static_cast<float>(surface->h);
-
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
-        SDL_DestroySurface(surface);
-
-        if (texture == nullptr)
-        {
-            continue;
-        }
-
-        SDL_SetTextureAlphaMod(texture, static_cast<Uint8>(msg.alpha * 255));
+        SDL_SetTextureAlphaMod(sdlTexture, static_cast<Uint8>(msg.GetAlpha() * 255));
         SDL_FRect dst = {
             padding,
             startY,
-            w,
-            h
+            static_cast<float>(sdlTexture->w),
+            static_cast<float>(sdlTexture->h)
         };
 
-        SDL_RenderTexture(renderer_, texture, nullptr, &dst);
-        startY += h + spacing;
-        SDL_DestroyTexture(texture);
+        SDL_RenderTexture(renderer_, sdlTexture, nullptr, &dst);
+        startY += static_cast<float>(sdlTexture->h) + spacing;
     }
 }
 
@@ -162,14 +130,11 @@ glimmer::App::~App()
     }
 }
 
-glimmer::App::App(AppContext* ac) : appContext_(ac)
+glimmer::App::App(AppContext* appContext) : appContext_(appContext)
 {
-    window = nullptr;
-    renderer_ = nullptr;
     initSDLSuccess_ = false;
     initSDLTtfSuccess_ = false;
     initSDLMixSuccess_ = false;
-    mixer_ = nullptr;
 }
 
 bool glimmer::App::Init()
@@ -237,6 +202,7 @@ bool glimmer::App::Init()
     // This will allow us to use transparency during rendering
     // 这将允许我们在渲染时使用透明度
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+    SDL_SetDefaultTextureScaleMode(renderer_, SDL_SCALEMODE_PIXELART);
     LogCat::i("SDL renderer created successfully.");
     LogCat::i("Initializing ImGui context...");
     IMGUI_CHECKVERSION();
@@ -431,7 +397,7 @@ bool glimmer::App::Init()
         else
         {
             LogCat::d("SDL_ttf font loaded: ", fontPath);
-            appContext_->SetFont(sdlFont);
+            resourcePackManager->SetFont(sdlFont);
         }
     }
     else
@@ -565,7 +531,7 @@ void glimmer::App::Run()
         }
         else
         {
-            const float duration = static_cast<float>(SDL_GetTicks() - lastInputTime) * 0.001F;
+            const float duration = static_cast<float>(frameStart - lastInputTime) * 0.001F;
             if (duration < idleDelay)
             {
                 targetFrameTime = 1.0F / config->window.normalTargetFps;
@@ -611,7 +577,7 @@ void glimmer::App::Run()
         {
             //Update the last input time.
             //更新最后一次输入时间。
-            lastInputTime = SDL_GetTicks();
+            lastInputTime = frameStart;
             //Is it a system event (an event that is hardcoded by the engine and cannot be handled through command hooks or scene processing)?
             //是否为系统事件（引擎强制写死的事件，不能通过命令钩子和场景处理。）
             //Defaulted to system navigation and program shutdown events.
@@ -803,11 +769,10 @@ void glimmer::App::Run()
         {
             ImGui::Render();
             ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
-            RendererUiMessage();
+            RendererUiMessage(windowHeight, frameStart, deltaTime);
         }
         SDL_RenderPresent(renderer_);
-        const auto frameEnd = SDL_GetTicks();
-        const auto frameTimeMs = frameEnd - frameStart;
+        const auto frameTimeMs = SDL_GetTicks() - frameStart;
         if (frameTimeMs < targetFrameTimeMs)
         {
             SDL_Delay(targetFrameTimeMs - frameTimeMs);

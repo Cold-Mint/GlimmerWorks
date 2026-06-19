@@ -29,6 +29,7 @@
 #include "core/ecs/component/AreaMarkerComponent.h"
 #include "core/math/CoordinateTransformer.h"
 #include "../../world/WorldContext.h"
+#include "core/utils/StringUtils.h"
 #include "fmt/color.h"
 
 void glimmer::AreaMarkerSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
@@ -54,6 +55,7 @@ glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext* worldContext) : GameSy
     WatchComponent(COMPONENT_CAMERA);
 
     appContext_ = worldContext->GetAppContext();
+    resourcePackManager_ = appContext_->GetResourcePackManager();
     preloadColors_ = appContext_->GetPreloadColors();
 }
 
@@ -123,8 +125,12 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer* renderer)
     if (cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMin) ||
         cameraComponent_->IsPointInViewport(cameraPosition, rectWorldMax))
     {
-        ScreenVector2D camMin = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMin, cameraComponent_->GetSize(), cameraComponent_->GetZoom());
-        ScreenVector2D camMax = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMax, cameraComponent_->GetSize(), cameraComponent_->GetZoom());
+        ScreenVector2D camMin = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMin,
+                                                                     cameraComponent_->GetSize(),
+                                                                     cameraComponent_->GetZoom());
+        ScreenVector2D camMax = CoordinateTransformer::WorldToScreen(cameraPosition, rectWorldMax,
+                                                                     cameraComponent_->GetSize(),
+                                                                     cameraComponent_->GetZoom());
         SDL_FRect rect;
         rect.x = std::min(camMin.x, camMax.x);
         rect.y = std::min(camMin.y, camMax.y);
@@ -139,33 +145,27 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer* renderer)
                                areaMarkerBorderColor.a);
         SDL_RenderRect(renderer, &rect);
 
-        std::string text = fmt::format(fmt::runtime(appContext_->GetLangsResources()->areaMarkerTip),
-                                       tileWidth, tileHeight, tileArea);
-        SDL_Surface* ttfSurface = TTF_RenderText_Blended_Wrapped(appContext_->GetFont(),
-                                                                 text.c_str(), text.length(),
-                                                                 appContext_->GetPreloadColors()
-                                                                            ->textColor.ToSDLColor(), 0);
-        if (ttfSurface == nullptr)
+        std::string areaMarkerTip = fmt::format(fmt::runtime(appContext_->GetLangsResources()->areaMarkerTip),
+                                                tileWidth, tileHeight, tileArea);
+        uint64_t areaMarkerTipFingerprint = StringUtils::StringToUint64(areaMarkerTip);
+        if (areaMarkerTipFingerprint != areaMarkerTipFingerprint_)
+        {
+            areaMarkerTipTexture_ = resourcePackManager_->
+                CreateStringTexture(areaMarkerTip, &preloadColors_->textColor);
+        }
+
+        if (areaMarkerTipTexture_ == nullptr)
         {
             return;
         }
-        const auto ttfSurfaceWidth = static_cast<float>(ttfSurface->w);
-        const auto ttfSurfaceHeight = static_cast<float>(ttfSurface->h);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-        if (texture == nullptr)
-        {
-            return;
-        }
-        const float textX = rect.x + (rect.w - ttfSurfaceWidth) / 2.0F;
-        const float textY = rect.y + (rect.h - ttfSurfaceHeight) / 2.0F;
+        const float textX = rect.x + (rect.w - areaMarkerTipTexture_->w) / 2.0F;
+        const float textY = rect.y + (rect.h - areaMarkerTipTexture_->h) / 2.0F;
         SDL_FRect rectCenter = {
             textX, textY,
-            ttfSurfaceWidth,
-            ttfSurfaceHeight
+            static_cast<float>(areaMarkerTipTexture_->w),
+            static_cast<float>(areaMarkerTipTexture_->h)
         };
-        SDL_RenderTexture(renderer, texture, nullptr, &rectCenter);
-        SDL_DestroyTexture(texture);
-        SDL_DestroySurface(ttfSurface);
+        SDL_RenderTexture(renderer, areaMarkerTipTexture_.get(), nullptr, &rectCenter);
     }
     AppContext::RestoreColorRenderer(renderer);
 }

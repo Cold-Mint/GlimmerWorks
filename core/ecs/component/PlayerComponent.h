@@ -60,6 +60,8 @@ namespace glimmer
         //当前手持的物品。
         Item* item = nullptr;
 
+        const std::unordered_map<RecipeGroup, uint8_t>& GetTechnologyMap() const;
+
         std::string ListTechnology(const std::string& technologyItem) const;
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();

@@ -28,23 +28,25 @@
 #include "scene/AppContext.h"
 
 
-namespace glimmer {
-    class App {
-        SDL_Window *window;
+namespace glimmer
+{
+    class App
+    {
         bool initSDLSuccess_;
         bool initSDLMixSuccess_;
         bool initSDLTtfSuccess_;
-        SDL_Renderer *renderer_;
-        AppContext *appContext_;
         uint64_t lastTime_ = 0;
-        MIX_Mixer *mixer_;
+        SDL_Renderer* renderer_ = nullptr;
+        AppContext* appContext_ = nullptr;
+        SDL_Window* window = nullptr;
+        MIX_Mixer* mixer_ = nullptr;
 
-        void RendererUiMessage();
+        void RendererUiMessage(int windowHeight,uint64_t frameStart, float deltaTime) const;
 
     public:
         ~App();
 
-        explicit App(AppContext *ac);
+        explicit App(AppContext* appContext);
 
         bool Init();
 

@@ -66,6 +66,7 @@
 #include "core/console/command/TagCommand.h"
 #include "core/console/command/TechnologyCommand.h"
 #include "core/console/command/TileSnapshotCommand.h"
+#include "core/console/command/UnlockedRecipesCommand.h"
 #include "core/console/suggestion/AllocStrategyTypeDynamicSuggestions.h"
 #include "core/console/suggestion/AudioTrackDynamicSuggestions.h"
 #include "core/console/suggestion/BiomeSuggestions.h"
@@ -246,11 +247,13 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->itemEditorReadAttr = find<std::string>(value, "item_editor_read_attr");
     langsResources_->itemEditorSetAttr = find<std::string>(value, "item_editor_set_attr");
     langsResources_->playerDoesNotExist = find<std::string>(value, "player_does_not_exist");
-    langsResources_->inventoryTile = find<std::string>(value, "inventory_tile");
-    langsResources_->recipeTile = find<std::string>(value, "recipe_tile");
+    langsResources_->craft = find<std::string>(value, "craft");
     langsResources_->technologyItem = find<std::string>(value, "technology_item");
     langsResources_->tagItem = find<std::string>(value, "tag_item");
     langsResources_->tagCannotFound = find<std::string>(value, "tag_cannot_found");
+    langsResources_->noUnlockedRecipes = find<std::string>(value, "no_unlocked_recipes");
+    langsResources_->recipesItem = find<std::string>(value, "recipes_item");
+    langsResources_->debugChunkInfo = find<std::string>(value, "debug_chunk_info");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, const std::string& ext)
@@ -469,6 +472,7 @@ glimmer::AppContext::AppContext()
     commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TagCommand>(this));
+    commandManager_->RegisterCommand(std::make_unique<UnlockedRecipesCommand>(this));
 #endif
     consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
@@ -523,6 +527,7 @@ glimmer::AppContext::AppContext()
         LogCat::e("Failed to load dataPack");
         return;
     }
+    recipeManager_->PreSortRecipes();
     if (resourcePackManager_->Scan(config_->mods.resourcePackPath, config_->mods.enabledResourcePack,
                                    tomlVersion_) == 0)
     {
@@ -687,11 +692,6 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     }
 }
 
-void glimmer::AppContext::SetFont(TTF_Font* font)
-{
-    this->ttfFont_ = font;
-}
-
 bool glimmer::AppContext::Running() const
 {
     return isRunning;
@@ -700,7 +700,11 @@ bool glimmer::AppContext::Running() const
 void glimmer::AppContext::AddUIMessage(const std::string& string)
 {
     LogCat::d(string);
-    gameUIMessages_.emplace_back(string, SDL_GetTicks());
+    if (resourcePackManager_ == nullptr)
+    {
+        return;
+    }
+    gameUIMessages_.emplace_back(resourcePackManager_.get(), string, SDL_GetTicks(), &preloadColors_->textColor);
 }
 
 std::vector<glimmer::GameUIMessage>& glimmer::AppContext::GetGameUIMessages()
@@ -729,11 +733,6 @@ glimmer::PreloadColors* glimmer::AppContext::GetPreloadColors() const
 glimmer::Config* glimmer::AppContext::GetConfig() const
 {
     return config_.get();
-}
-
-TTF_Font* glimmer::AppContext::GetFont() const
-{
-    return ttfFont_;
 }
 
 glimmer::InitialInventoryManager* glimmer::AppContext::GetInitialInventoryManager() const

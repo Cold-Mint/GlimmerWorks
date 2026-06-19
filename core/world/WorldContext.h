@@ -30,20 +30,17 @@
 #include <unordered_map>
 #include <vector>
 
-#include "core/log/LogCat.h"
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
 #include "LightBuffer.h"
 #include "core/ecs/GameComponent.h"
-#include "core/ecs/component/DiggingComponent.h"
 #include "core/saves/Saves.h"
 #include "box2d/id.h"
 #include "core/ecs/EcsTypes.h"
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/GameSystem.h"
-#include "core/ecs/component/BlueprintComponent.h"
 #include "core/inventory/ComposableItem.h"
 #include "core/layout/HorizontalLayoutStepper.h"
 #include "generator/ChunkGenerator.h"

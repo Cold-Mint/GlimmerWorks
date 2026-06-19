@@ -45,7 +45,7 @@ glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType() const
 
 glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D tile) const
 {
-    constexpr Color color = {0, 0, 0, 0};
+    Color color = Color(0, 0, 0, 0);
     const AppContext* appContext = worldContext_->GetAppContext();
     if (appContext == nullptr)
     {

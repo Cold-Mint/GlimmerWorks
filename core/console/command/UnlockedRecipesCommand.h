@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,47 +26,33 @@
  */
 #pragma once
 #if  !defined(NDEBUG)
-#include "Scene.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
+#include <string>
+
+#include "core/console/Command.h"
+#include "core/mod/Resource.h"
 
 namespace glimmer
 {
-    /**
-     * Debug the overlay layer
-     * 调试叠加层
-     * It can be displayed on any scene. Display frps, screen coordinates and other information.
-     * 可以显示在任意场景上。显示frps，屏幕坐标等信息。
-     */
-    class DebugOverlay : public Scene
+    struct RecipeResource;
+    class UnlockedRecipesCommand : public Command
     {
-        float fps_ = 0.0F;
-        float frameTimeMs_ = 0.0F;
-        float fpsAccumTime_ = 0.0F;
-        int fpsFrameCount_ = 0;
-        bool displayDebugPanel_ = false;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-        float uiScale_ = 0.0F;
-        std::unordered_map<int, std::shared_ptr<SDL_Texture>> numberTextureMap_;
-        std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture>> fpsTextures_;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
+    protected:
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
-        explicit DebugOverlay(AppContext* context);
+        explicit UnlockedRecipesCommand(AppContext* appContext);
 
-        bool HandleEvent(const SDL_Event& event) override;
+        [[nodiscard]] bool RequiresWorldContext() const override;
 
-        void Update(float delta) override;
+        [[nodiscard]] std::string GetName() const override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
 
-        void OnConfigChanged(const Config* config) override;
+        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                     const std::function<void(const std::string& text)>* onMessage) override;
 
-        void OnWindowSizeChanged(int width, int height) override;
-
-        ~DebugOverlay() override = default;
+        static void WriteRecipe(const std::string& recipesItem, std::stringstream& stringStream,
+                                const RecipeResource* recipe);
     };
 }
-
 #endif

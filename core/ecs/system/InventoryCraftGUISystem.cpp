@@ -30,23 +30,52 @@
 #include "core/world/WorldContext.h"
 #include "core/ecs/component/ItemSlotComponent.h"
 #include "core/layout/GridLayoutStepper.h"
+#include "core/utils/StringUtils.h"
 
 
 glimmer::InventoryCraftGUISystem::InventoryCraftGUISystem(WorldContext* worldContext)
     : GUISystem(worldContext)
 {
     WatchComponent(COMPONENT_ITEM_SLOT);
+    WatchComponent(COMPONENT_ITEM_CONTAINER);
+    WatchComponent(COMPONENT_PLAYER);
     const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
     }
+    langsResources_ = appContext->GetLangsResources();
+    preloadColors_ = appContext->GetPreloadColors();
     const Config* config = appContext->GetConfig();
     if (config == nullptr)
     {
         return;
     }
     uiScale_ = config->window.uiScale;
+    recipeManager_ = appContext->GetRecipeManager();
+    resourcePackManager_ = appContext->GetResourcePackManager();
+}
+
+void glimmer::InventoryCraftGUISystem::Render(SDL_Renderer* renderer)
+{
+    if (unlockedRecipesSize_ == 0)
+    {
+        return;
+    }
+    DesignDimension padding = 5;
+    const std::string& craftInfo = langsResources_->craft;
+    uint64_t craftFingerprint = StringUtils::StringToUint64(craftInfo);
+    if (craftFingerprint_ != craftFingerprint)
+    {
+        craftTexture_ = resourcePackManager_->CreateStringTexture(craftInfo, &preloadColors_->textColor);
+    }
+    const SDL_FRect dstRect{
+        padding * uiScale_,
+        ITEM_SLOT_SIZE * 5 * uiScale_,
+        static_cast<float>(craftTexture_->w) * uiScale_,
+        static_cast<float>(craftTexture_->h) * uiScale_
+    };
+    SDL_RenderTexture(renderer, craftTexture_.get(), nullptr, &dstRect);
 }
 
 void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
@@ -57,12 +86,60 @@ void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
         {
             inventoryItemSlot->Show();
         }
+        std::vector<RecipeResource*> recipeResources = recipeManager_->FindUnlockedRecipes(
+            playerComponent_->GetTechnologyMap(), itemContainer_->GetTotalTags());
+        DesignDimension padding = 5;
+        unlockedRecipesSize_ = recipeResources.size();
+        DesignVector2D craftPreviewSlotStartPosition{padding, ITEM_SLOT_SIZE * 6};
+        auto gridLayoutStepper = GridLayoutStepper(ITEM_SLOT_SIZE, craftPreviewSlotStartPosition, HOT_BAR_SIZE, padding,
+                                                   unlockedRecipesSize_);
+        for (int i = 0; i < unlockedRecipesSize_; i++)
+        {
+            CraftPreviewSlotComponent* craftPreviewSlotComponent;
+            if (i == craftPreviewSlot_.size())
+            {
+                auto craftPreviewSlotEntity = entityManager_->AddEntity();
+                craftPreviewSlotComponent = entityManager_->AddComponent<CraftPreviewSlotComponent>(
+                    craftPreviewSlotEntity);
+                craftPreviewSlot_.emplace_back(craftPreviewSlotComponent);
+            }
+            else
+            {
+                craftPreviewSlotComponent = craftPreviewSlot_[i];
+            }
+            craftPreviewSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
+            const DesignVector2D& position = gridLayoutStepper.Next();
+            craftPreviewSlotComponent->SetPosition(position);
+            craftPreviewSlotComponent->SetRecipeResource(worldContext_, recipeResources[i]);
+            craftPreviewSlotComponent->Show();
+        }
+        if (craftPreviewSlot_.size() > unlockedRecipesSize_)
+        {
+            for (int i = static_cast<int>(unlockedRecipesSize_); i < craftPreviewSlot_.size(); i++)
+            {
+                CraftPreviewSlotComponent* craftPreviewSlotComponent = craftPreviewSlot_[i];
+                if (craftPreviewSlotComponent == nullptr)
+                {
+                    continue;
+                }
+                craftPreviewSlotComponent->Hide();
+            }
+        }
     }
     else
     {
         for (auto inventoryItemSlot : inventoryItemSlot_)
         {
             inventoryItemSlot->Hide();
+        }
+        for (int i = 0; i < craftPreviewSlot_.size(); i++)
+        {
+            CraftPreviewSlotComponent* craftPreviewSlotComponent = craftPreviewSlot_[i];
+            if (craftPreviewSlotComponent == nullptr)
+            {
+                continue;
+            }
+            craftPreviewSlotComponent->Hide();
         }
     }
 }
@@ -92,6 +169,24 @@ void glimmer::InventoryCraftGUISystem::OnWatchedComponentChanged(GameComponentTy
                       return lhs->GetSlotIndex() < rhs->GetSlotIndex();
                   });
     }
+    if (gameComponentType == COMPONENT_PLAYER)
+    {
+        auto playerEntity = entityShortCut_->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(playerEntity))
+        {
+            return;
+        }
+        playerComponent_ = entityManager_->GetComponent<PlayerComponent>(playerEntity);
+    }
+    if (gameComponentType == COMPONENT_ITEM_CONTAINER)
+    {
+        auto itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+        if (itemContainerComponent == nullptr)
+        {
+            return;
+        }
+        itemContainer_ = itemContainerComponent->GetItemContainer();
+    }
 }
 
 glimmer::GameSystemType glimmer::InventoryCraftGUISystem::GetGameSystemType() const
@@ -109,16 +204,16 @@ void glimmer::InventoryCraftGUISystem::OnWindowSizeChanged(int width, int height
     DesignDimension padding = 5;
     size_t hotBarItemSlotSize = inventoryItemSlot_.size();
     DesignVector2D hotBarStartPosition{padding, padding};
-    auto horizontalLayoutStepper = GridLayoutStepper(ITEM_SLOT_SIZE, hotBarStartPosition, HOT_BAR_SIZE, padding,
-                                                     hotBarItemSlotSize);
+    auto gridLayoutStepper = GridLayoutStepper(ITEM_SLOT_SIZE, hotBarStartPosition, HOT_BAR_SIZE, padding,
+                                               hotBarItemSlotSize);
     int index = 0;
-    while (horizontalLayoutStepper.HasNext())
+    while (gridLayoutStepper.HasNext())
     {
         if (index >= hotBarItemSlotSize)
         {
             break;
         }
-        inventoryItemSlot_.at(index)->SetPosition(horizontalLayoutStepper.Next());
+        inventoryItemSlot_.at(index)->SetPosition(gridLayoutStepper.Next());
         index++;
     }
 }

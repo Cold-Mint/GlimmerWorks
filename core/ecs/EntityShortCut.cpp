@@ -36,6 +36,16 @@ void glimmer::EntityShortCut::SetParallaxBackgroundComponent(ParallaxBackgroundC
     parallaxBackgroundComponent_ = parallaxBackgroundComponent;
 }
 
+void glimmer::EntityShortCut::SetSelectedCraftPreviewSlotComponent(CraftPreviewSlotComponent* craftPreviewSlotComponent)
+{
+    selectedCraftPreviewSlotComponent_ = craftPreviewSlotComponent;
+}
+
+glimmer::CraftPreviewSlotComponent* glimmer::EntityShortCut::GetSelectedCraftPreviewSlotComponent() const
+{
+    return selectedCraftPreviewSlotComponent_;
+}
+
 glimmer::ParallaxBackgroundComponent* glimmer::EntityShortCut::GetParallaxBackgroundComponent() const
 {
     return parallaxBackgroundComponent_;

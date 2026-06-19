@@ -73,6 +73,7 @@ static constexpr std::string HOOK_COMMAND_NAME = "commandHook";
 static constexpr std::string MEMORY_USAGE_COMMAND_NAME = "memoryUsage";
 static constexpr std::string TECHNOLOGY_COMMAND_NAME = "technology";
 static constexpr std::string TAG_COMMAND_NAME = "tag";
+static const std::string UNLOCKED_RECIPES_COMMAND_NAME = "unlockedRecipes";
 #endif
 static constexpr std::string BOOL_DYNAMIC_SUGGESTIONS_NAME = "&bool";
 static constexpr std::string BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME = "&bool_toggle";
@@ -311,6 +312,7 @@ static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;
 static constexpr uint8_t RENDER_ORDER_FLOATING_TEXT = 13;
 static constexpr uint8_t RENDER_ORDER_DRAGGABLE = 14;
 static constexpr uint8_t RENDER_ORDER_BLUEPRINT = 15;
+static constexpr uint8_t RENDER_ORDER_CRAFT_PREVIEW_SLOT = 16;
 static constexpr uint8_t RENDER_ORDER_LIGHT2D = 93;
 static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 94;
 static constexpr uint8_t RENDER_ORDER_DEBUG_CHUNK = 95;

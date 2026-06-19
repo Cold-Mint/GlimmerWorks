@@ -33,8 +33,88 @@ glimmer::RecipeResource* glimmer::RecipeManager::RegisterRecipe(std::unique_ptr<
     auto& slot =
         recipeMap_[recipeResource->packId][recipeResource->resourceId];
     slot = std::move(recipeResource);
-    return slot.get();
+    RecipeResource* recipe = slot.get();
+    auto recipeGroup = static_cast<RecipeGroup>(recipe->recipeGroup);
+    auto& groupVec = recipeGroupMap_[recipeGroup]; // 不存在则自动新建vector
+    groupVec.emplace_back(recipe);
+
+    return recipe;
 }
+
+void glimmer::RecipeManager::PreSortRecipes()
+{
+    for (auto& groupEntry : recipeGroupMap_)
+    {
+        auto& recipeList = groupEntry.second;
+        // Sorting rules:
+        // 1. First, sort by the smallest technological level from smallest to largest.
+        // 2. If the technological levels are the same, then sort by the quantity of input materials from smallest to largest.
+        // 排序规则：
+        // 1. 先按最小科技等级从小到大
+        // 2. 科技等级相同时，按输入材料数量从小到大
+        std::sort(recipeList.begin(), recipeList.end(),
+                  [](const RecipeResource* a, const RecipeResource* b)
+                  {
+                      if (a->minTechnologyLevel != b->minTechnologyLevel)
+                      {
+                          return a->minTechnologyLevel < b->minTechnologyLevel;
+                      }
+                      return a->input.size() < b->input.size();
+                  });
+    }
+}
+
+std::vector<glimmer::RecipeResource*> glimmer::RecipeManager::FindUnlockedRecipes(
+    std::unordered_map<RecipeGroup, uint8_t> technologyMap, const std::vector<ItemTagResource*>& totalTagVector) const
+{
+    std::unordered_map<uint64_t, uint8_t> tagValueMap;
+    tagValueMap.reserve(totalTagVector.size());
+    for (const auto& tag : totalTagVector)
+    {
+        if (tag != nullptr)
+        {
+            tagValueMap[tag->GetCachedTagId()] = tag->value;
+        }
+    }
+
+    std::vector<RecipeResource*> unlockedRecipes;
+    for (const auto& groupEntry : recipeGroupMap_)
+    {
+        const RecipeGroup group = groupEntry.first;
+        const auto techIt = technologyMap.find(group);
+        const uint8_t techLevel = techIt != technologyMap.end() ? techIt->second : 0;
+
+        for (const auto& recipe : groupEntry.second)
+        {
+            if (recipe == nullptr)
+            {
+                continue;
+            }
+            if (techLevel < recipe->minTechnologyLevel)
+            {
+                continue;
+            }
+            bool allSatisfied = true;
+            for (const auto& required : recipe->input)
+            {
+                const auto valueIt = tagValueMap.find(required.GetCachedTagId());
+                if (valueIt == tagValueMap.end() || valueIt->second < required.requiredWeight)
+                {
+                    allSatisfied = false;
+                    break;
+                }
+            }
+
+            if (allSatisfied)
+            {
+                unlockedRecipes.push_back(recipe);
+            }
+        }
+    }
+
+    return unlockedRecipes;
+}
+
 
 glimmer::RecipeResource* glimmer::RecipeManager::FindRecipeResource(const std::string& packId, const std::string& key)
 {

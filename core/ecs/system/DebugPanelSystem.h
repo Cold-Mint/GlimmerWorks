@@ -40,9 +40,15 @@ namespace glimmer
         std::vector<TileLayerComponent*> tileLayerComponents_;
         AppContext* appContext_ = nullptr;
         bool displayDebugPanel_ = false;
+        std::shared_ptr<SDL_Texture> chunkTextTexture_ = nullptr;
+        uint64_t chunkTextFingerprint_ = 0;
+        PreloadColors* preloadColors_ = nullptr;
+        LangsResources* langsResources_ = nullptr;
+        ResourcePackManager* resourcePackManager_ = nullptr;
+        std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture>> textures_;
 
         void RenderDebugText(SDL_Renderer* renderer, int windowW, const std::string& text, float y,
-                             SDL_Color textColor, SDL_Color textBGColor) const;
+                             const Color& textColor, SDL_Color textBGColor);
 
         void RenderCrosshairToEdge(SDL_Renderer* renderer, float screenX, float screenY) const;
 
@@ -59,6 +65,8 @@ namespace glimmer
         explicit DebugPanelSystem(WorldContext* worldContext);
 
         void OnConfigChanged(const Config* config) override;
+
+        void OnActivationChanged(bool activeStatus) override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

@@ -96,7 +96,6 @@ namespace glimmer
         std::unique_ptr<BiomesManager> biomesManager_;
         std::unique_ptr<CommandManager> commandManager_;
         std::unique_ptr<SavesManager> savesManager_;
-        TTF_Font* ttfFont_ = nullptr;
         std::unique_ptr<ConsoleWorker> consoleWorker_;
         std::unique_ptr<ResourcePackManager> resourcePackManager_;
         std::unique_ptr<LangsResources> langsResources_;
@@ -154,7 +153,7 @@ namespace glimmer
 
         void SetWindowHeight(int height);
 
-        void SetWindowTitle( const char* title) const;
+        void SetWindowTitle(const char* title) const;
 
         [[nodiscard]] int GetWindowWidth() const;
 
@@ -165,8 +164,6 @@ namespace glimmer
         void SetRenderer(SDL_Renderer* renderer);
 
         void CreateScreenshot(const std::function<void(const std::string& text)>* onMessage) const;
-
-        void SetFont(TTF_Font* font);
 
         [[nodiscard]] bool Running() const;
 
@@ -181,8 +178,6 @@ namespace glimmer
         [[nodiscard]] PreloadColors* GetPreloadColors() const;
 
         [[nodiscard]] Config* GetConfig() const;
-
-        [[nodiscard]] TTF_Font* GetFont() const;
 
         [[nodiscard]] InitialInventoryManager* GetInitialInventoryManager() const;
 

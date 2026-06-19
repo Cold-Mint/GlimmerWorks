@@ -26,6 +26,8 @@
  */
 #pragma once
 #include "GUISystem.h"
+#include "core/ecs/component/CraftPreviewSlotComponent.h"
+#include "core/ecs/component/PlayerComponent.h"
 
 namespace glimmer
 {
@@ -36,10 +38,26 @@ namespace glimmer
     class InventoryCraftGUISystem : public GUISystem
     {
         std::vector<ItemSlotComponent*> inventoryItemSlot_;
+        std::vector<CraftPreviewSlotComponent*> craftPreviewSlot_;
         float uiScale_ = 1.0F;
+        RecipeManager* recipeManager_ = nullptr;
+        ResourcePackManager* resourcePackManager_ = nullptr;
+        PlayerComponent* playerComponent_ = nullptr;
+        ItemContainer* itemContainer_ = nullptr;
+        LangsResources* langsResources_ = nullptr;
+        PreloadColors* preloadColors_ = nullptr;
+        /**
+         * The number of unlocked recipes
+         * 解锁的配方数量
+         */
+        size_t unlockedRecipesSize_ = 0;
+        uint64_t craftFingerprint_ = 0;
+        std::shared_ptr<SDL_Texture> craftTexture_ = nullptr;
 
     public:
         explicit InventoryCraftGUISystem(WorldContext* worldContext);
+
+        void Render(SDL_Renderer* renderer) override;
 
         void OnActivationChanged(bool activeStatus) override;
 

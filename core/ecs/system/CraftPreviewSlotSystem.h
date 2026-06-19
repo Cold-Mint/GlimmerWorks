@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,48 +25,40 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#if  !defined(NDEBUG)
-#include "Scene.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
+#include "core/ecs/GameSystem.h"
+#include "core/ecs/component/CraftPreviewSlotComponent.h"
 
 namespace glimmer
 {
-    /**
-     * Debug the overlay layer
-     * 调试叠加层
-     * It can be displayed on any scene. Display frps, screen coordinates and other information.
-     * 可以显示在任意场景上。显示frps，屏幕坐标等信息。
-     */
-    class DebugOverlay : public Scene
+    class CraftPreviewSlotSystem : public GameSystem
     {
-        float fps_ = 0.0F;
-        float frameTimeMs_ = 0.0F;
-        float fpsAccumTime_ = 0.0F;
-        int fpsFrameCount_ = 0;
-        bool displayDebugPanel_ = false;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-        float uiScale_ = 0.0F;
-        std::unordered_map<int, std::shared_ptr<SDL_Texture>> numberTextureMap_;
-        std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture>> fpsTextures_;
-        ResourcePackManager* resourcePackManager_ = nullptr;
+        std::shared_ptr<SDL_Texture> craftPreviewSlotTexture_ = nullptr;
+        AppContext* appContext_ = nullptr;
         PreloadColors* preloadColors_ = nullptr;
+        float uiScale_ = 1.0F;
+        std::shared_ptr<SDL_Texture> tooltipBgTexture_ = nullptr;
+        std::vector<CraftPreviewSlotComponent*> craftPreviewSlotComponents_;
+        CraftPreviewSlotComponent* hoveredCraftPreviewSlotComponent_ = nullptr;
+        std::shared_ptr<SDL_Texture> itemNameTexture_ = nullptr;
+        uint64_t itemNameFingerprint_ = 0;
+        ResourcePackManager* resourcePackManager_ = nullptr;
+        std::unordered_map<uint8_t,std::shared_ptr<SDL_Texture>> numberTextures_;
+
+        void RenderTooltip(SDL_Renderer* renderer, const Item* item);
 
     public:
-        explicit DebugOverlay(AppContext* context);
+        explicit CraftPreviewSlotSystem(WorldContext* worldContext);
 
-        bool HandleEvent(const SDL_Event& event) override;
-
-        void Update(float delta) override;
-
-        void Render(SDL_Renderer* renderer) override;
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void OnConfigChanged(const Config* config) override;
 
-        void OnWindowSizeChanged(int width, int height) override;
+        void Render(SDL_Renderer* renderer) override;
 
-        ~DebugOverlay() override = default;
+        bool HandleEvent(const SDL_Event& event) override;
+
+        uint8_t GetRenderOrder() override;
+
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }
-
-#endif

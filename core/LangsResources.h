@@ -165,10 +165,12 @@ namespace glimmer
         std::string itemEditorReadAttr;
         std::string itemEditorSetAttr;
         std::string playerDoesNotExist;
-        std::string inventoryTile;
-        std::string recipeTile;
+        std::string craft;
         std::string technologyItem;
         std::string tagItem;
         std::string tagCannotFound;
+        std::string noUnlockedRecipes;
+        std::string recipesItem;
+        std::string debugChunkInfo;
     };
 }

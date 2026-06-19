@@ -26,6 +26,36 @@
  */
 #include "CraftPreviewSlotComponent.h"
 
+#include "core/mod/ResourceLocator.h"
+#include "core/world/WorldContext.h"
+
+
+void glimmer::CraftPreviewSlotComponent::SetRecipeResource(WorldContext* worldContext, RecipeResource* recipeResource)
+{
+    recipeResource_ = recipeResource;
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
+        return;
+    }
+    ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
+        return;
+    }
+    std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, recipeResource->output);
+    if (item == nullptr)
+    {
+        return;
+    }
+    item_ = std::move(item);
+}
+
+glimmer::RecipeResource* glimmer::CraftPreviewSlotComponent::GetRecipeResource() const
+{
+    return recipeResource_;
+}
+
 GameComponentTypeMessage glimmer::CraftPreviewSlotComponent::GetComponentTypeStatic()
 {
     return COMPONENT_CRAFT_PREVIEW;
@@ -54,4 +84,33 @@ void glimmer::CraftPreviewSlotComponent::SetSize(const DesignVector2D& size)
 void glimmer::CraftPreviewSlotComponent::SetPosition(const DesignVector2D& position)
 {
     position_ = position;
+}
+
+bool glimmer::CraftPreviewSlotComponent::IsHovered() const
+{
+    return isHovered_;
+}
+
+DesignDimension glimmer::CraftPreviewSlotComponent::GetPadding() const
+{
+    return padding_;
+}
+
+void glimmer::CraftPreviewSlotComponent::SetPadding(DesignDimension padding)
+{
+    padding_ = padding;
+}
+
+void glimmer::CraftPreviewSlotComponent::SetHovered(bool hovered)
+{
+    isHovered_ = hovered;
+}
+
+glimmer::Item* glimmer::CraftPreviewSlotComponent::GetItem() const
+{
+    if (item_ == nullptr)
+    {
+        return nullptr;
+    }
+    return item_.get();
 }

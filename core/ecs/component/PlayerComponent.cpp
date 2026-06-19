@@ -28,6 +28,11 @@
 #include "fmt/xchar.h"
 
 
+const std::unordered_map<glimmer::RecipeGroup, uint8_t>& glimmer::PlayerComponent::GetTechnologyMap() const
+{
+    return technologyMap_;
+}
+
 std::string glimmer::PlayerComponent::ListTechnology(const std::string& technologyItem) const
 {
     std::stringstream ss;

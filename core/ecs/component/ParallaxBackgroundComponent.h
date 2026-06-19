@@ -37,7 +37,8 @@ namespace glimmer
     {
         std::shared_ptr<SDL_Texture> texture_ = nullptr;
         ResourceRef textureResourceRef_;
-        bool needsUpdate_ = false;
+        uint64_t textureResourceFingerprint_ = 0;
+        uint64_t newTextureResourceFingerprint_ = 0;
 
     public:
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();

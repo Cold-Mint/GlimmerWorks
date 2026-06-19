@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,48 +25,26 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#if  !defined(NDEBUG)
-#include "Scene.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
+#include "GUISystem.h"
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer
 {
-    /**
-     * Debug the overlay layer
-     * 调试叠加层
-     * It can be displayed on any scene. Display frps, screen coordinates and other information.
-     * 可以显示在任意场景上。显示frps，屏幕坐标等信息。
-     */
-    class DebugOverlay : public Scene
+    class MaterialSelectCraftUISystem : public GUISystem
     {
-        float fps_ = 0.0F;
-        float frameTimeMs_ = 0.0F;
-        float fpsAccumTime_ = 0.0F;
-        int fpsFrameCount_ = 0;
-        bool displayDebugPanel_ = false;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-        float uiScale_ = 0.0F;
-        std::unordered_map<int, std::shared_ptr<SDL_Texture>> numberTextureMap_;
-        std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture>> fpsTextures_;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
+        RecipeResource* recipeResource_ = nullptr;
+        std::unordered_map<uint64_t, std::string> recipeStringMap_;
+        StringManager* stringManager_ = nullptr;
 
     public:
-        explicit DebugOverlay(AppContext* context);
+        explicit MaterialSelectCraftUISystem(WorldContext* worldContext);
 
-        bool HandleEvent(const SDL_Event& event) override;
-
-        void Update(float delta) override;
-
-        void Render(SDL_Renderer* renderer) override;
-
-        void OnConfigChanged(const Config* config) override;
+        void OnActivationChanged(bool activeStatus) override;
 
         void OnWindowSizeChanged(int width, int height) override;
 
-        ~DebugOverlay() override = default;
+        void Render(SDL_Renderer* renderer) override;
+
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }
-
-#endif

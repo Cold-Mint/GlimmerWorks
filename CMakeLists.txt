@@ -618,6 +618,9 @@ target_sources(GlimmerWorks
         core/inventory/CraftPreview.cpp
         core/console/command/TechnologyCommand.cpp
         core/console/command/TagCommand.cpp
+        core/console/command/UnlockedRecipesCommand.cpp
+        core/ecs/system/CraftPreviewSlotSystem.cpp
+        core/ecs/system/MaterialSelectCraftUISystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -910,6 +913,9 @@ target_sources(GlimmerWorks
         core/inventory/CraftPreview.h
         core/console/command/TagCommand.h
         core/console/command/TechnologyCommand.h
+        core/console/command/UnlockedRecipesCommand.h
+        core/ecs/system/MaterialSelectCraftUISystem.h
+        core/ecs/system/CraftPreviewSlotSystem.h
 )
 
 #Define version information

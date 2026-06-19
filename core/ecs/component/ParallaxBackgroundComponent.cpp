@@ -42,7 +42,7 @@ GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentType(
 void glimmer::ParallaxBackgroundComponent::SetTextureResourceRef(ResourceRef textureResourceRef)
 {
     textureResourceRef_ = std::move(textureResourceRef);
-    needsUpdate_ = true;
+    newTextureResourceFingerprint_ = textureResourceRef_.GetFingerprint();
 }
 
 glimmer::ResourceRef& glimmer::ParallaxBackgroundComponent::GetTextureResourceRef()
@@ -57,10 +57,10 @@ void glimmer::ParallaxBackgroundComponent::ClearTexture()
 
 SDL_Texture* glimmer::ParallaxBackgroundComponent::GetTexture(const ResourceLocator* resourceLocator)
 {
-    if (needsUpdate_)
+    if (textureResourceFingerprint_ != newTextureResourceFingerprint_)
     {
         texture_ = resourceLocator->FindTexture(&textureResourceRef_);
-        needsUpdate_ = false;
+        textureResourceFingerprint_ = newTextureResourceFingerprint_;
     }
     if (texture_ == nullptr)
     {

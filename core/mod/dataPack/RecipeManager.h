@@ -28,6 +28,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include "RecipeGroup.h"
 #include "core/mod/Resource.h"
 
 namespace glimmer
@@ -37,6 +38,12 @@ namespace glimmer
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<RecipeResource>>>
         recipeMap_
             {};
+
+        /**
+         *An array for quick query, where the Key represents the recipe group and the Value represents the collection of recipe resources.
+         * 用于快速查询的数组，Key为配方组，Value为配方资源集合。
+         */
+        std::unordered_map<RecipeGroup, std::vector<RecipeResource*>> recipeGroupMap_;
 
     public:
         /**
@@ -48,6 +55,16 @@ namespace glimmer
          * @return
          */
         RecipeResource* RegisterRecipe(std::unique_ptr<RecipeResource> recipeResource);
+
+
+        /**
+         * Pre-sort the recipes.
+         * 对配方进行预先排序。
+         */
+        void PreSortRecipes();
+
+        std::vector<RecipeResource*> FindUnlockedRecipes(std::unordered_map<RecipeGroup, uint8_t> technologyMap,
+                                                        const std::vector<ItemTagResource*>& totalTagVector) const;
 
 
         [[nodiscard]] RecipeResource* FindRecipeResource(const std::string& packId, const std::string& key);

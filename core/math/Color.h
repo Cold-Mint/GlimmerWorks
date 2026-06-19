@@ -27,18 +27,28 @@
 #pragma once
 #include <cstdint>
 
+#include "core/IFingerprintable.h"
+
 #ifndef UNIT_TEST_MODE
 #include "SDL3/SDL_pixels.h"
 #endif
 
-namespace glimmer {
-    struct Color {
-        std::uint8_t r = 0;
+namespace glimmer
+{
+    struct Color : IFingerprintable
+    {
+        uint8_t r = 0;
         uint8_t g = 0;
         uint8_t b = 0;
         uint8_t a = 0;
 #ifndef UNIT_TEST_MODE
         [[nodiscard]] SDL_Color ToSDLColor() const;
 #endif
+
+        [[nodiscard]] uint64_t GetFingerprint() const override;
+
+        Color(uint8_t tempR,uint8_t tempG,uint8_t tempB,uint8_t tempA);
+
+        Color() = default;
     };
 }

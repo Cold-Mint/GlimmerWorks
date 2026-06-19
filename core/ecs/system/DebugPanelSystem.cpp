@@ -36,42 +36,39 @@
 #include "core/world/WorldContext.h"
 #include "../component/CameraComponent.h"
 #include "core/utils/ColorUtils.h"
+#include "core/utils/StringUtils.h"
 #include "core/world/Tile.h"
 #include "core/world/generator/Chunk.h"
 #include "fmt/xchar.h"
 
 
 void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer* renderer, int windowW, const std::string& text, float y,
-                                                SDL_Color textColor, SDL_Color textBGColor) const
+                                                const Color& textColor, SDL_Color textBGColor)
 {
-    SDL_Surface* surface = TTF_RenderText_Blended(
-        worldContext_->GetAppContext()->GetFont(), text.c_str(), text.length(), textColor
-    );
-    if (surface == nullptr)
+    uint64_t stringFingerprint = StringUtils::StringToUint64(text);
+    auto iterator = textures_.find(stringFingerprint);
+    SDL_Texture* texture = nullptr;
+    if (iterator == textures_.end())
     {
-        return;
+        std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(text, &textColor);
+        textures_[stringFingerprint] = texturePtr;
+        texture = texturePtr.get();
     }
-
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (texture == nullptr)
+    else
     {
-        SDL_DestroySurface(surface);
-        return;
+        texture = iterator->second.get();
     }
     SDL_FRect dst{
-        static_cast<float>(windowW - surface->w - 4),
+        static_cast<float>(windowW - texture->w - 4),
         y,
-        static_cast<float>(surface->w),
-        static_cast<float>(surface->h)
+        static_cast<float>(texture->w),
+        static_cast<float>(texture->h)
     };
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, textBGColor.r, textBGColor.g, textBGColor.b, textBGColor.a);
     SDL_RenderFillRect(renderer, &dst);
     SDL_RenderTexture(renderer, texture, nullptr, &dst);
-    SDL_DestroyTexture(texture);
-    SDL_DestroySurface(surface);
 }
-
 
 void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer* renderer, float screenX, float screenY) const
 {
@@ -172,11 +169,22 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext* worldContext) : GameSy
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_TILE_LAYER);
     appContext_ = worldContext_->GetAppContext();
+    preloadColors_ = appContext_->GetPreloadColors();
+    langsResources_ = appContext_->GetLangsResources();
+    resourcePackManager_ = appContext_->GetResourcePackManager();
 }
 
 void glimmer::DebugPanelSystem::OnConfigChanged(const Config* config)
 {
     displayDebugPanel_ = config->debug.displayDebugPanel;
+}
+
+void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus)
+{
+    if (!activeStatus)
+    {
+        textures_.clear();
+    }
 }
 
 
@@ -215,7 +223,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         mousePosition_.x, mousePosition_.y, ScreenVector2D.x, ScreenVector2D.y
     );
     RenderDebugText(renderer, windowWidth, mouseText, yOffset,
-                    appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                    appContext_->GetPreloadColors()->debugColor.debugPanelTextColor,
                     appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
     yOffset += lineSpacing;
     bool firstLayer = true;
@@ -237,7 +245,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
                 chunkGenerator->GetWeirdness(tileCoord)
             );
             RenderDebugText(renderer, windowWidth, tileDebugInfo, yOffset,
-                            appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                            appContext_->GetPreloadColors()->debugColor.debugPanelTextColor,
                             appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
             yOffset += lineSpacing;
             firstLayer = false;
@@ -253,7 +261,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
             static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName()
         );
         RenderDebugText(renderer, windowWidth, tileResDebugInfo, yOffset,
-                        appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                        appContext_->GetPreloadColors()->debugColor.debugPanelTextColor,
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
         yOffset += lineSpacing;
     }
@@ -265,7 +273,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
             -1, -1, -1, -1
         );
         RenderDebugText(renderer, windowWidth, totalLight, yOffset,
-                        appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                        appContext_->GetPreloadColors()->debugColor.debugPanelTextColor,
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
     }
     else
@@ -275,7 +283,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
             finalLightColor->a, finalLightColor->r, finalLightColor->g, finalLightColor->b
         );
         RenderDebugText(renderer, windowWidth, totalLight, yOffset,
-                        appContext_->GetPreloadColors()->debugColor.debugPanelTextColor.ToSDLColor(),
+                        appContext_->GetPreloadColors()->debugColor.debugPanelTextColor,
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
     }
 
@@ -359,26 +367,24 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
 
     // Draw Chunk Info Text
     // 绘制区块信息文本
-    char chunkText[128];
-    snprintf(chunkText, sizeof(chunkText), "Chunk: (%d, %d) | Vis: %d | Total: %zu",
-             playerChunkX, playerChunkY, visibleChunkCount, chunksPtr.size());
-    SDL_Surface* s = TTF_RenderText_Blended(worldContext_->GetAppContext()->GetFont(), chunkText, strlen(chunkText),
-                                            {255, 255, 255, 255});
-    if (s)
+    std::string chunkText = fmt::format(fmt::runtime(langsResources_->debugChunkInfo), playerChunkX, playerChunkY,
+                                        visibleChunkCount, chunksPtr.size());
+    uint64_t chunkTextFingerprint = StringUtils::StringToUint64(chunkText);
+    if (chunkTextFingerprint != chunkTextFingerprint_)
     {
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, s);
-        if (texture)
-        {
-            SDL_FRect dst = {
-                48.0F,
-                static_cast<float>(windowHeight) - static_cast<float>(s->h) - 8.0F,
-                static_cast<float>(s->w),
-                static_cast<float>(s->h)
-            };
-            SDL_RenderTexture(renderer, texture, nullptr, &dst);
-            SDL_DestroyTexture(texture);
-        }
-        SDL_DestroySurface(s);
+        chunkTextTexture_ = resourcePackManager_->CreateStringTexture(
+            chunkText, &preloadColors_->debugColor.debugPanelTextColor);
+        chunkTextFingerprint_ = chunkTextFingerprint;
+    }
+    if (chunkTextTexture_ != nullptr)
+    {
+        SDL_FRect dst = {
+            48.0F,
+            static_cast<float>(windowHeight) - static_cast<float>(chunkTextTexture_->h) - 8.0F,
+            static_cast<float>(chunkTextTexture_->w),
+            static_cast<float>(chunkTextTexture_->h)
+        };
+        SDL_RenderTexture(renderer, chunkTextTexture_.get(), nullptr, &dst);
     }
     glimmer::ScreenVector2D screenPos = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
                                                                              mousePosition_,

@@ -39,7 +39,10 @@ namespace glimmer
         AppContext* appContext_ = nullptr;
         PreloadColors* preloadColors_ = nullptr;
         CameraComponent* cameraComponent_ = nullptr;
+        ResourcePackManager* resourcePackManager_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        uint64_t areaMarkerTipFingerprint_ = 0;
+        std::shared_ptr<SDL_Texture> areaMarkerTipTexture_ = nullptr;
 
     public:
         explicit AreaMarkerSystem(WorldContext* worldContext);

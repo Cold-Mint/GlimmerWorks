@@ -25,23 +25,42 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+#include <memory>
 #include <string>
 
 #include "tweeny.h"
+#include "math/Color.h"
+#include "mod/resourcePack/ResourcePackManager.h"
+#include "SDL3/SDL_render.h"
 
-namespace glimmer {
-    struct GameUIMessage {
-        std::string text;
+namespace glimmer
+{
+    class GameUIMessage
+    {
+        std::string text_;
+        uint64_t createTime_;
+        uint64_t expireTime_;
 
-        uint64_t createTime;
-        uint64_t expireTime;
+        float alpha_ = 0.0F;
 
-        float alpha = 0.0F;
+        tweeny::tween<float> tween_;
+        std::shared_ptr<SDL_Texture> texture_;
 
-        tweeny::tween<float> tween;
+    public:
+        GameUIMessage(ResourcePackManager* resourcePackManager, std::string text, uint64_t now, const Color* color);
 
-        GameUIMessage(const std::string &t, uint64_t now);
+        [[nodiscard]] uint64_t GetCreateTime() const;
+
+        void SetAlpha(float alpha);
+
+        [[nodiscard]] std::string GetText() const;
+
+        [[nodiscard]] float GetAlpha() const;
+
+        [[nodiscard]] SDL_Texture* GetTexture() const;
+
+        [[nodiscard]] tweeny::tween<float>& GetTween();
+
+        [[nodiscard]] uint64_t GetExpireTime() const;
     };
 }
-

@@ -154,6 +154,7 @@ glimmer::DraggableSystem::DraggableSystem(WorldContext* worldContext) : GameSyst
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_DRAGGABLE);
     WatchComponent(COMPONENT_ITEM_SLOT);
+    Init();
 }
 
 void glimmer::DraggableSystem::OnConfigChanged(const Config* config)

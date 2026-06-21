@@ -30,32 +30,33 @@
 #include "core/Hyperlink.h"
 #include "SDL3_mixer/SDL_mixer.h"
 
-namespace glimmer {
-    struct Star {
+namespace glimmer
+{
+    struct Star
+    {
         float x, y;
         Uint8 r, g, b;
         float size;
     };
 
-    class HomeScene : public Scene {
-        std::vector<Star> stars_;
-        int windowWidth = 0;
-        int windowHeight = 0;
+    class HomeScene : public Scene
+    {
         std::vector<Hyperlink> hyperlinks_;
         std::string copyright_;
+        float uiScale_ = 1.0F;
+        int windowWidth_ = 0;
+        int windowHeight_ = 0;
 
         static std::string GetCopyrightString();
 
     public:
-        explicit HomeScene(AppContext *context);
+        explicit HomeScene(AppContext* context);
 
-        bool HandleEvent(const SDL_Event &event) override;
+        void RenderImGui(int width, int height, SDL_Renderer* renderer) override;
 
-        void Update(float delta) override;
+        void OnConfigChanged(const Config* config) override;
 
-        void Render(SDL_Renderer *renderer) override;
-
-        void generateStars();
+        void OnWindowSizeChanged(int width, int height) override;
 
         bool OnBackPressed() override;
 

@@ -48,6 +48,7 @@ glimmer::Light2DSystem::Light2DSystem(WorldContext* worldContext) : GameSystem(w
 {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
+    Init();
 }
 
 uint8_t glimmer::Light2DSystem::GetRenderOrder()

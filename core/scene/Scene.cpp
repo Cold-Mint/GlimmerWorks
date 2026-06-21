@@ -27,6 +27,7 @@
 #include "Scene.h"
 
 #include "AppContext.h"
+#include "core/log/LogCat.h"
 
 void glimmer::Scene::OnFrameStart()
 {
@@ -49,11 +50,48 @@ void glimmer::Scene::OnWindowSizeChanged(int width, int height)
 {
 }
 
-glimmer::Scene::Scene(AppContext* context) : appContext(context)
+void glimmer::Scene::Init()
 {
-    Scene::OnWindowSizeChanged(context->GetWindowWidth(), context->GetWindowHeight());
-    if (const Config* config = appContext->GetConfig(); config != nullptr)
+    initSubclassFinish_ = true;
+    if (appContext_ == nullptr)
     {
-        Scene::OnConfigChanged(config);
+        return;
     }
+    OnWindowSizeChanged(appContext_->GetWindowWidth(), appContext_->GetWindowHeight());
+    if (const Config* config = appContext_->GetConfig(); config != nullptr)
+    {
+        OnConfigChanged(config);
+    }
+}
+
+bool glimmer::Scene::HandleEvent(const SDL_Event& event)
+{
+    return false;
+}
+
+void glimmer::Scene::Update(float delta)
+{
+#if  !defined(NDEBUG)
+    if (!initSubclassFinish_)
+    {
+        initTimeOut_ += delta;
+        if (initTimeOut_ > 2)
+        {
+            LogCat::e("The subclass did not call the Init method within its constructor.");
+            assert(false);
+        }
+    }
+#endif
+}
+
+void glimmer::Scene::Render(SDL_Renderer* renderer)
+{
+}
+
+void glimmer::Scene::RenderImGui(int width, int height, SDL_Renderer* renderer)
+{
+}
+
+glimmer::Scene::Scene(AppContext* context) : appContext_(context)
+{
 }

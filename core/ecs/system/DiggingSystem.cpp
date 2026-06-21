@@ -222,6 +222,7 @@ glimmer::DiggingSystem::DiggingSystem(WorldContext* worldContext) : GameSystem(w
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TILE_LAYER);
+    Init();
 }
 
 void glimmer::DiggingSystem::Update(float delta)

@@ -39,6 +39,7 @@ glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* 
         return;
     }
     stringManager_ = appContext->GetStringManager();
+    Init();
 }
 
 void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus)

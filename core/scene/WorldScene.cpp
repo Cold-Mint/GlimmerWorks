@@ -36,15 +36,24 @@ glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContex
     {
         context->SetWindowTitle((PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
     }
+    Init();
 }
 
 void glimmer::WorldScene::OnFrameStart()
 {
+    if (worldContext_ == nullptr)
+    {
+        return;
+    }
     worldContext_->OnFrameStart();
 }
 
 bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
 {
+    if (worldContext_ == nullptr)
+    {
+        return false;
+    }
     if (event.type == SDL_EVENT_KEY_DOWN && !worldContext_->HasAnyModalGuiOpen())
     {
         //When a certain key is pressed and there is no system display currently active.
@@ -59,30 +68,54 @@ bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
 
 bool glimmer::WorldScene::OnBackPressed()
 {
+    if (worldContext_ == nullptr)
+    {
+        return false;
+    }
     return worldContext_->OnBackPressed();
 }
 
 void glimmer::WorldScene::OnWindowClose()
 {
+    if (worldContext_ == nullptr)
+    {
+        return;
+    }
     worldContext_->SaveGame();
 }
 
 void glimmer::WorldScene::Update(float delta)
 {
+    if (worldContext_ == nullptr)
+    {
+        return;
+    }
     worldContext_->Update(delta);
 }
 
 void glimmer::WorldScene::OnWindowSizeChanged(int width, int height)
 {
+    if (worldContext_ == nullptr)
+    {
+        return;
+    }
     worldContext_->OnWindowSizeChanged(width, height);
 }
 
 void glimmer::WorldScene::OnConfigChanged(const Config* config)
 {
+    if (worldContext_ == nullptr)
+    {
+        return;
+    }
     worldContext_->OnConfigChanged(config);
 }
 
 void glimmer::WorldScene::Render(SDL_Renderer* renderer)
 {
+    if (worldContext_ == nullptr)
+    {
+        return;
+    }
     worldContext_->Render(renderer);
 }

@@ -1054,7 +1054,6 @@ void glimmer::WorldContext::RegisterSystem(std::unique_ptr<GameSystem> system)
     if (allowRegisterSystem)
     {
         system->LockWatchComponent();
-        system->Init();
         inactiveSystems.emplace_back(std::move(system));
     }
     else

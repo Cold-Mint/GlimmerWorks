@@ -29,23 +29,25 @@
 
 #include "Scene.h"
 
-namespace glimmer {
-    class CreateWorldScene : public Scene {
+namespace glimmer
+{
+    class CreateWorldScene : public Scene
+    {
     public:
         std::string worldName_;
         std::string seedStr_;
+        float uiScale_ = 1.0F;
 
-        explicit CreateWorldScene(AppContext *context);
+        explicit CreateWorldScene(AppContext* context);
 
         void CreateWorld() const;
 
+        void OnConfigChanged(const Config* config) override;
+
         [[nodiscard]] std::string RandomName() const;
 
-        bool HandleEvent(const SDL_Event &event) override;
+        void RenderImGui(int width, int height, SDL_Renderer* renderer) override;
 
-        void Update(float delta) override;
-
-        void Render(SDL_Renderer *renderer) override;
 
         ~CreateWorldScene() override = default;
     };

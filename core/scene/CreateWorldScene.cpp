@@ -49,6 +49,7 @@ glimmer::CreateWorldScene::CreateWorldScene(AppContext* context) : Scene(context
     const int newSeed = RandomUtils::Random<int>();
     seedStr_ = std::to_string(newSeed);
     worldName_ = RandomName();
+    Init();
 }
 
 void glimmer::CreateWorldScene::CreateWorld() const
@@ -78,26 +79,31 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.createTime = TimeUtils::GetCurrentTimeMs();
     manifest.lastPlayedTime = manifest.createTime;
     manifest.totalPlayTime = 0;
-    SavesManager* savesManager = appContext->GetSavesManager();
+    SavesManager* savesManager = appContext_->GetSavesManager();
     Saves* saves =
         savesManager->
-        Create(appContext->GetConfig()->runtimePath, manifest);
+        Create(appContext_->GetConfig()->runtimePath, manifest);
     if (saves == nullptr)
     {
         LogCat::e("Failed to create world");
         return;
     }
-    appContext->GetSceneManager()->
-                ReplaceScene(std::make_unique<WorldScene>(
-                    appContext, std::make_unique<WorldContext>(
-                        appContext, savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
-                        saves)));
+    appContext_->GetSceneManager()->
+                 ReplaceScene(std::make_unique<WorldScene>(
+                     appContext_, std::make_unique<WorldContext>(
+                         appContext_, savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
+                         saves)));
+}
+
+void glimmer::CreateWorldScene::OnConfigChanged(const Config* config)
+{
+    uiScale_ = config->window.uiScale;
 }
 
 std::string glimmer::CreateWorldScene::RandomName() const
 {
-    const std::vector<std::string>& prefixList = appContext->GetLangsResources()->worldNamePrefix;
-    const std::vector<std::string>& suffixList = appContext->GetLangsResources()->worldNameSuffix;
+    const std::vector<std::string>& prefixList = appContext_->GetLangsResources()->worldNamePrefix;
+    const std::vector<std::string>& suffixList = appContext_->GetLangsResources()->worldNameSuffix;
     if (prefixList.empty())
     {
         throw std::runtime_error("CreateWorldScene::RandomName: worldNamePrefix is empty");
@@ -109,27 +115,21 @@ std::string glimmer::CreateWorldScene::RandomName() const
 
     const auto randomPrefixIdx = RandomUtils::Random<size_t>(0, prefixList.size() - 1);
     const auto randomSuffixIdx = RandomUtils::Random<size_t>(0, suffixList.size() - 1);
-    if (appContext->GetLanguage().compare(0, 2, "en") == 0)
+    if (appContext_->GetLanguage().compare(0, 2, "en") == 0)
     {
         return prefixList[randomPrefixIdx] + " " + suffixList[randomSuffixIdx];
     }
     return prefixList[randomPrefixIdx] + suffixList[randomSuffixIdx];
 }
 
-bool glimmer::CreateWorldScene::HandleEvent(const SDL_Event& event)
+void glimmer::CreateWorldScene::RenderImGui(int width, int height, SDL_Renderer* renderer)
 {
-    return true;
-}
-
-void glimmer::CreateWorldScene::Update(float delta)
-{
-    const float uiScale = appContext->GetConfig()->window.uiScale;
-    ImGui::GetIO().FontGlobalScale = uiScale;
-    ImGui::SetNextWindowSize(ImVec2(400 * uiScale, 250 * uiScale), ImGuiCond_Once);
+    ImGui::GetIO().FontGlobalScale = uiScale_;
+    ImGui::SetNextWindowSize(ImVec2(400 * uiScale_, 250 * uiScale_), ImGuiCond_Once);
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(),
                             ImGuiCond_Once, ImVec2(0.5f, 0.5f));
 
-    LangsResources* langsResources = appContext->GetLangsResources();
+    LangsResources* langsResources = appContext_->GetLangsResources();
     ImGui::Begin(langsResources->createWorld.c_str(), nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
@@ -154,20 +154,15 @@ void glimmer::CreateWorldScene::Update(float delta)
     ImGui::Separator();
     ImGui::Spacing();
 
-    if (ImGui::Button(langsResources->cancel.c_str(), ImVec2(120 * uiScale, 0)))
+    if (ImGui::Button(langsResources->cancel.c_str(), ImVec2(120 * uiScale_, 0)))
     {
-        appContext->GetSceneManager()->PopScene();
+        appContext_->GetSceneManager()->PopScene();
     }
     ImGui::SameLine();
-    if (ImGui::Button(langsResources->createWorld.c_str(), ImVec2(120 * uiScale, 0)))
+    if (ImGui::Button(langsResources->createWorld.c_str(), ImVec2(120 * uiScale_, 0)))
     {
         CreateWorld();
     }
 
     ImGui::End();
-}
-
-
-void glimmer::CreateWorldScene::Render(SDL_Renderer* renderer)
-{
 }

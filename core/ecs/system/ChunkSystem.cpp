@@ -201,6 +201,7 @@ glimmer::ChunkSystem::ChunkSystem(WorldContext* worldContext)
 {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
+    Init();
 }
 
 void glimmer::ChunkSystem::Update(const float delta)

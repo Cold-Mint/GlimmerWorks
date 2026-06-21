@@ -94,6 +94,7 @@ glimmer::MagnetSystem::MagnetSystem(WorldContext* worldContext) : GameSystem(wor
     WatchComponent(COMPONENT_RAY_CAST_2D);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     WatchComponent(COMPONENT_DROPPED_ITEM);
+    Init();
 }
 
 void glimmer::MagnetSystem::Update(const float delta)

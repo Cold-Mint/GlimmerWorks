@@ -36,13 +36,9 @@
 glimmer::DebugOverlay::DebugOverlay(AppContext* context)
     : Scene(context)
 {
-    resourcePackManager_ = appContext->GetResourcePackManager();
-    preloadColors_ = appContext->GetPreloadColors();
-}
-
-bool glimmer::DebugOverlay::HandleEvent(const SDL_Event& event)
-{
-    return false;
+    resourcePackManager_ = appContext_->GetResourcePackManager();
+    preloadColors_ = appContext_->GetPreloadColors();
+    Init();
 }
 
 void glimmer::DebugOverlay::Update(const float delta)

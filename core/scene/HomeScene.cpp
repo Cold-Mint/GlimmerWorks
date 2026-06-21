@@ -33,8 +33,8 @@
 #include "imgui.h"
 #include "SavedGamesScene.h"
 #include "../Config.h"
+#include "core/log/LogCat.h"
 #include "core/saves/SavesManager.h"
-#include "core/utils/RandomUtils.h"
 
 std::string glimmer::HomeScene::GetCopyrightString()
 {
@@ -62,56 +62,24 @@ glimmer::HomeScene::HomeScene(AppContext* context)
     hyperlinks_.push_back(Hyperlink("itch.io", "https://cold-mint.itch.io/glimmerworks"));
     hyperlinks_.push_back(Hyperlink("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"));
     copyright_ = GetCopyrightString();
-    appContext->PlayMainMenuBGM();
-    appContext->SetRandomSlogan();
+    appContext_->PlayMainMenuBGM();
+    appContext_->SetRandomSlogan();
+    Init();
 }
 
-bool glimmer::HomeScene::HandleEvent(const SDL_Event& event)
+void glimmer::HomeScene::RenderImGui(int width, int height, SDL_Renderer* renderer)
 {
-    return false;
-}
-
-void glimmer::HomeScene::Update(float delta)
-{
-    for (auto& star : stars_)
-    {
-        const int deltaTemp = RandomUtils::Random(-3, 3);
-        star.r = std::clamp(static_cast<int>(star.r) + deltaTemp, 128, 255);
-        star.g = std::clamp(static_cast<int>(star.g) + deltaTemp, 128, 255);
-        star.b = std::clamp(static_cast<int>(star.b) + deltaTemp, 128, 255);
-    }
-}
-
-void glimmer::HomeScene::Render(SDL_Renderer* renderer)
-{
-    int winW = 0;
-    int winH = 0;
-    if (!SDL_GetRenderOutputSize(renderer, &winW, &winH))
-    {
-        return;
-    }
-    if (windowWidth != winW || windowHeight != winH)
-    {
-        windowWidth = winW;
-        windowHeight = winH;
-        generateStars();
-    }
-    for (const auto& star : stars_)
-    {
-        SDL_SetRenderDrawColor(renderer, star.r, star.g, star.b, 255);
-        SDL_FRect rect{star.x, star.y, star.size, star.size};
-        SDL_RenderFillRect(renderer, &rect);
-    }
-    SDL_SetRenderDrawColor(renderer, 10, 10, 30, 255);
     ImGui::SetNextWindowPos(ImVec2(0, 0));
+    // 获取窗口大小
+    const ImVec2 windowSize(static_cast<float>(windowWidth_), static_cast<float>(windowHeight_));
+    ImGui::SetNextWindowSize(windowSize);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
     ImGui::Begin("Home",
                  nullptr,
                  ImGuiWindowFlags_NoTitleBar |
                  ImGuiWindowFlags_NoResize |
                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-    // 获取窗口大小
-    const ImVec2 windowSize(static_cast<float>(winW), static_cast<float>(winH));
+
 
     // 设置标题字体（需提前加载，见下方说明）
     const ImVec2 titleSize = ImGui::CalcTextSize("Glimmer");
@@ -119,23 +87,22 @@ void glimmer::HomeScene::Render(SDL_Renderer* renderer)
     ImGui::Text("Glimmer");
 
     // 按钮区域
-    const float uiScale = appContext->GetConfig()->window.uiScale;
-    ImGui::GetIO().FontGlobalScale = uiScale;
-    float buttonWidth = 200.0F * uiScale;
-    float buttonHeight = 40.0F * uiScale;
-    float buttonSpacing = 10.0F * uiScale;
+    ImGui::GetIO().FontGlobalScale = uiScale_;
+    float buttonWidth = 200.0F * uiScale_;
+    float buttonHeight = 40.0F * uiScale_;
+    float buttonSpacing = 10.0F * uiScale_;
     float totalHeight = 3 * buttonHeight + 2 * buttonSpacing;
     ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5F);
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->GetLangsResources()->startGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
+    if (ImGui::Button(appContext_->GetLangsResources()->startGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
     {
-        if (appContext->GetSavesManager()->GetSavesListSize() == 0)
+        if (appContext_->GetSavesManager()->GetSavesListSize() == 0)
         {
-            appContext->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext));
+            appContext_->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext_));
         }
         else
         {
-            appContext->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(appContext));
+            appContext_->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(appContext_));
         }
     }
     if (ImGui::IsItemHovered())
@@ -155,7 +122,7 @@ void glimmer::HomeScene::Render(SDL_Renderer* renderer)
     //     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     // }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
+    if (ImGui::Button(appContext_->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
     {
         OnBackPressed();
     }
@@ -206,44 +173,24 @@ void glimmer::HomeScene::Render(SDL_Renderer* renderer)
     ImGui::Text("%s", copyright_.c_str());
     ImGui::PopStyleColor();
     ImGui::End();
-    AppContext::RestoreColorRenderer(renderer);
 }
 
-void glimmer::HomeScene::generateStars()
+void glimmer::HomeScene::OnConfigChanged(const Config* config)
 {
-    stars_.clear();
-    constexpr int minStars = 50;
-    constexpr int maxStars = 1000;
-    constexpr float densityFactor = 0.03F;
+    uiScale_ = config->window.uiScale;
+}
 
-    float areaSqrt = std::sqrt(static_cast<float>(windowWidth * windowHeight));
-    int numStars = static_cast<int>(areaSqrt * densityFactor);
-    numStars = std::clamp(numStars, minStars, maxStars);
-    numStars = std::clamp(numStars, minStars, maxStars);
-
-    for (int i = 0; i < numStars; i++)
-    {
-        float x = RandomUtils::Random(0.0F, static_cast<float>(windowWidth - 1));
-        float y = RandomUtils::Random(0.0F, static_cast<float>(windowHeight - 1));
-        uint8_t r = RandomUtils::Random(128, 255);
-        uint8_t g = RandomUtils::Random(128, 255);
-        uint8_t b = RandomUtils::Random(128, 255);
-        float size = RandomUtils::Random(1.0F, 10.0F);
-        stars_.push_back({
-            x,
-            y,
-            r,
-            g,
-            b, size
-        });
-    }
+void glimmer::HomeScene::OnWindowSizeChanged(int width, int height)
+{
+    LogCat::d("OnWindowSizeChanged C w=", width, ", h=", height);
+    windowWidth_ = width;
+    windowHeight_ = height;
 }
 
 bool glimmer::HomeScene::OnBackPressed()
 {
-    appContext->ExitApp();
+    appContext_->ExitApp();
     return true;
 }
-
 
 glimmer::HomeScene::~HomeScene() = default;

@@ -115,6 +115,7 @@ glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GUISyste
     WatchComponent(COMPONENT_HOT_BAR);
     WatchComponent(COMPONENT_ITEM_SLOT);
     AfterSelectItemSlot(hotBarComponent_->GetSelectedSlot());
+    Init();
 }
 
 void glimmer::HotBarGUISystem::OnWindowSizeChanged(int width, int height)

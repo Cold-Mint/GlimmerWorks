@@ -54,6 +54,7 @@ glimmer::PhysicsSystem::PhysicsSystem(WorldContext* worldContext) : GameSystem(w
 {
     WatchComponent(COMPONENT_RIGID_BODY_2D);
     WatchComponent(COMPONENT_TRANSFORM_2D);
+    Init();
 }
 
 void glimmer::PhysicsSystem::Update(const float delta)

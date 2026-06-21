@@ -466,4 +466,5 @@ glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
     tooltipBgTexture_ = resourceLocator->FindTexture(&tooltipBgResourceRef);
     preloadColors_ = appContext_->GetPreloadColors();
     resourcePackManager_ = appContext_->GetResourcePackManager();
+    Init();
 }

@@ -156,6 +156,7 @@ glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext) : GameSyst
     WatchComponent(COMPONENT_BLUEPRINT);
     WatchComponent(COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE);
     preloadColors_ = worldContext->GetAppContext()->GetPreloadColors();
+    Init();
 }
 
 uint8_t glimmer::BlueprintSystem::GetRenderOrder()

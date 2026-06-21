@@ -172,6 +172,7 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext* worldContext) : GameSy
     preloadColors_ = appContext_->GetPreloadColors();
     langsResources_ = appContext_->GetLangsResources();
     resourcePackManager_ = appContext_->GetResourcePackManager();
+    Init();
 }
 
 void glimmer::DebugPanelSystem::OnConfigChanged(const Config* config)

@@ -30,8 +30,10 @@
 #include "Scene.h"
 #include "tween.h"
 
-namespace glimmer {
-    class SplashScene final : public Scene {
+namespace glimmer
+{
+    class SplashScene final : public Scene
+    {
         std::shared_ptr<SDL_Texture> splashTexture = nullptr;
         float alpha = 0.0F;
         bool animationFinished = false;
@@ -40,14 +42,12 @@ namespace glimmer {
         bool sceneJumped = false;
 
     public:
-        explicit SplashScene(AppContext *context);
-
-        bool HandleEvent(const SDL_Event &event) override;
+        explicit SplashScene(AppContext* context);
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void Render(SDL_Renderer* renderer) override;
 
-        ~SplashScene() override = default;
+        ~SplashScene() override;
     };
 }

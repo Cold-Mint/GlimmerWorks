@@ -44,6 +44,10 @@ namespace glimmer
         std::unordered_set<GameComponentTypeMessage> activeWatchComponents_;
 
         bool lockWatchComponents_ = false;
+        bool initSubclassFinish_ = false;
+#if  !defined(NDEBUG)
+        float initTimeOut_ = 0.0F;
+#endif
 
     protected:
         void WatchComponent(GameComponentTypeMessage gameComponentType);
@@ -52,18 +56,17 @@ namespace glimmer
         WorldContext* worldContext_;
         EntityManager* entityManager_;
         EntityShortCut* entityShortCut_;
+        /**
+        * Initialize the system after construction.
+        * 在构造完成后初始化系统。
+        */
+        void Init();
 
     public:
         virtual ~GameSystem() = default;
 
         explicit GameSystem(WorldContext* worldContext);
 
-        /**
-         * Initialize the system after construction.
-         * This method should be called after the subclass is fully constructed.
-         * 在构造完成后初始化系统。应在子类完全构造后调用。
-         */
-        void Init();
 
         /**
         * The component for locking observation

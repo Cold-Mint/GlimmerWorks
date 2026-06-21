@@ -26,19 +26,20 @@
  */
 #pragma once
 #include "Scene.h"
+#include "core/LangsResources.h"
 
 namespace glimmer {
     class SavedGamesScene : public Scene {
-        int selected_save_index = -1;
+        int selectedSaveIndex = -1;
+        float uiScale_ = 1.0F;
+        LangsResources* langsResources_ = nullptr;
 
     public:
         explicit SavedGamesScene(AppContext *context);
 
-        bool HandleEvent(const SDL_Event &event) override;
+        void RenderImGui(int width, int height, SDL_Renderer* renderer) override;
 
-        void Update(float delta) override;
-
-        void Render(SDL_Renderer *renderer) override;
+        void OnConfigChanged(const Config* config) override;
 
         ~SavedGamesScene() override = default;
     };

@@ -62,6 +62,7 @@ glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext* worldContext) : Game
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_DROPPED_ITEM);
     WatchComponent(COMPONENT_CAMERA);
+    Init();
 }
 
 uint8_t glimmer::DroppedItemSystem::GetRenderOrder()

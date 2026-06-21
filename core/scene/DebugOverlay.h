@@ -55,8 +55,6 @@ namespace glimmer
     public:
         explicit DebugOverlay(AppContext* context);
 
-        bool HandleEvent(const SDL_Event& event) override;
-
         void Update(float delta) override;
 
         void Render(SDL_Renderer* renderer) override;

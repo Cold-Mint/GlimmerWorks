@@ -42,6 +42,7 @@ void glimmer::RayCast2DSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 glimmer::RayCast2DSystem::RayCast2DSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_RAY_CAST_2D);
+    Init();
 }
 
 void glimmer::RayCast2DSystem::Update(float delta)

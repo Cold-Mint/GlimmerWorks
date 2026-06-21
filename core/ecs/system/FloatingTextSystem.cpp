@@ -58,6 +58,7 @@ glimmer::FloatingTextSystem::FloatingTextSystem(WorldContext* worldContext) : Ga
     WatchComponent(COMPONENT_FLOATING_TEXT);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
+    Init();
 }
 
 void glimmer::FloatingTextSystem::Update(float delta)

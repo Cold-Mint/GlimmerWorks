@@ -45,13 +45,13 @@ void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage
 glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_TRANSFORM_2D);
-
     AppContext* appContext = worldContext->GetAppContext();
     if (appContext != nullptr)
     {
         audioManager_ = appContext->GetAudioManager();
         resourceLocator_ = appContext->GetResourceLocator();
     }
+    Init();
 }
 
 void glimmer::BiomeBGMSystem::Update(float delta)

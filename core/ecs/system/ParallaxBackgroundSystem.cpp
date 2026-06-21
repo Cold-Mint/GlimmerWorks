@@ -34,6 +34,7 @@
 glimmer::ParallaxBackgroundSystem::ParallaxBackgroundSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_PARALLAX_BACKGROUND);
+    Init();
 }
 
 void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer* renderer)

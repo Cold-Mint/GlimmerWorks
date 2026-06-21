@@ -63,6 +63,7 @@ glimmer::CameraSystem::CameraSystem(WorldContext* worldContext)
 {
     WatchComponent(COMPONENT_CAMERA);
     appContext_ = worldContext->GetAppContext();
+    Init();
 }
 
 void glimmer::CameraSystem::OnConfigChanged(const Config* config)

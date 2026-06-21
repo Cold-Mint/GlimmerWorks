@@ -63,6 +63,7 @@ glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext* worldContext) 
     WatchComponent(COMPONENT_SPIRIT_RENDERER);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
+    Init();
 }
 
 void glimmer::SpiritRendererSystem::Render(SDL_Renderer* renderer)

@@ -86,6 +86,7 @@ glimmer::CraftPreviewSlotSystem::CraftPreviewSlotSystem(WorldContext* worldConte
     tooltipBgTexture_ = resourceLocator->FindTexture(&tooltipResourceRef);
     preloadColors_ = appContext_->GetPreloadColors();
     resourcePackManager_ = appContext_->GetResourcePackManager();
+    Init();
 }
 
 void glimmer::CraftPreviewSlotSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,

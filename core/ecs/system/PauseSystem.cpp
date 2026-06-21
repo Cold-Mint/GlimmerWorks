@@ -36,6 +36,7 @@
 glimmer::PauseSystem::PauseSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_PAUSE);
+    Init();
 }
 
 uint8_t glimmer::PauseSystem::GetRenderOrder()

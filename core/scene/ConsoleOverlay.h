@@ -34,13 +34,15 @@
 #include "Scene.h"
 #include "core/console/ConsoleWorker.h"
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * ConsoleOverlay
      * 控制台叠加层
      *
      */
-    class ConsoleOverlay : public Scene {
+    class ConsoleOverlay : public Scene
+    {
         bool show_ = false;
         bool focusNextFrame_ = false;
         std::string command_;
@@ -70,25 +72,26 @@ namespace glimmer {
          * 命令结构需要高亮的索引位置
          */
         int commandStructureHighlightIndex_ = 0;
-        ConsoleWorker *consoleWorker_;
+        ConsoleWorker* consoleWorker_;
         CommandSender commandSender_;
+        float uiScale_ = 1.0F;
 
-        void addMessage(const std::string &message);
+        void addMessage(const std::string& message);
 
-        static int InputCallback(ImGuiInputTextCallbackData *data);
+        static int InputCallback(ImGuiInputTextCallbackData* data);
 
-        [[nodiscard]] std::string ClikAutoCompleteItem(const std::string &suggestion) const;
+        [[nodiscard]] std::string ClikAutoCompleteItem(const std::string& suggestion) const;
 
         void Show();
 
         void Hide() const;
 
     public:
-        explicit ConsoleOverlay(AppContext *context);
+        explicit ConsoleOverlay(AppContext* context);
 
         void SetLastCursorPos(int cursorPos);
 
-        void SetCommandStructure(const std::vector<std::string> &commandStructure);
+        void SetCommandStructure(const std::vector<std::string>& commandStructure);
 
         bool OnBackPressed() override;
 
@@ -97,24 +100,25 @@ namespace glimmer {
          * 设置搜索时的关键字
          * @param keyword keyword 关键字
          */
-        void SetKeyword(const std::string &keyword);
+        void SetKeyword(const std::string& keyword);
 
         void SetCommandStructureHighlightIndex(int commandStructureHighlightIndex);
 
-        void SetCommandSuggestions(const std::vector<std::string> &commandSuggestions);
+        void SetCommandSuggestions(const std::vector<std::string>& commandSuggestions);
 
-        static int ComputeScore(const std::string &cmd, const std::string &keyword);
+        static int ComputeScore(const std::string& cmd, const std::string& keyword);
 
         [[nodiscard]] int GetLastCursorPos() const;
 
         [[nodiscard]] std::optional<std::string> GetBestHistoryCommandSuggestion() const;
 
-        bool HandleEvent(const SDL_Event &event) override;
+        bool HandleEvent(const SDL_Event& event) override;
 
         void Update(float delta) override;
 
+        void OnConfigChanged(const Config* config) override;
 
-        void Render(SDL_Renderer *renderer) override;
+        void RenderImGui(int width, int height, SDL_Renderer* renderer) override;
 
         ~ConsoleOverlay() override;
     };

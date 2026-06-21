@@ -53,10 +53,10 @@ glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext* worldContext) : GameSy
     WatchComponent(COMPONENT_AREA_MARKER);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
-
     appContext_ = worldContext->GetAppContext();
     resourcePackManager_ = appContext_->GetResourcePackManager();
     preloadColors_ = appContext_->GetPreloadColors();
+    Init();
 }
 
 

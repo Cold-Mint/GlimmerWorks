@@ -37,8 +37,20 @@ namespace glimmer
 
     class Scene
     {
+        bool initSubclassFinish_ = false;
+
+#if  !defined(NDEBUG)
+        float initTimeOut_ = 0.0F;
+#endif
+
     protected:
-        AppContext* appContext = nullptr;
+        AppContext* appContext_ = nullptr;
+
+        /**
+       * It is called after the subclass is fully constructed.
+       * 在子类完全构造后调用。
+       */
+        void Init();
 
     public:
         /**
@@ -47,22 +59,32 @@ namespace glimmer
          * @param event
          * @return
          */
-        virtual bool HandleEvent(const SDL_Event& event) = 0;
+        virtual bool HandleEvent(const SDL_Event& event);
 
         /**
          * Call this before the Render function. It is recommended to calculate the view data within this function.
          * 在Render函数前调用，建议在此函数内计算视图数据。
          * @param delta
          */
-        virtual void Update(float delta) = 0;
+        virtual void Update(float delta);
 
         /**
          * Render
          * 渲染
          * @param renderer
          */
-        virtual void Render(SDL_Renderer* renderer) = 0;
+        virtual void Render(SDL_Renderer* renderer);
 
+        /**
+         * Render ImGui content. Called before ImGui::Render().
+         * 渲染 ImGui 内容。在 ImGui::Render() 之前调用。
+         * Use this for ImGui UI elements that should be drawn below SDL content.
+         * 用于应该在 SDL 内容之下绘制的 ImGui UI 元素。
+         * @param width
+         * @param height
+         * @param renderer
+         */
+        virtual void RenderImGui(int width, int height, SDL_Renderer* renderer);
 
         /**
          * Called when the frame begins

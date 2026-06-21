@@ -62,6 +62,7 @@ glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext* worldContext) : GameSyst
     WatchComponent(COMPONENT_DEBUG_DRAW);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
+    Init();
 }
 
 void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)

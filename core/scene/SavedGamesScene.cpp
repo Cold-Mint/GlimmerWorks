@@ -38,61 +38,58 @@
 
 #include "../utils/TimeUtils.h"
 
-glimmer::SavedGamesScene::SavedGamesScene(AppContext *context)
-    : Scene(context) {
+glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
+    : Scene(context)
+{
+    langsResources_ = context->GetLangsResources();
+    Init();
 }
 
-bool glimmer::SavedGamesScene::HandleEvent(const SDL_Event &event) {
-    return false;
-}
-
-void glimmer::SavedGamesScene::Update(float delta) {
-}
-
-void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
-    int winW, winH;
-    if (!SDL_GetRenderOutputSize(renderer, &winW, &winH)) {
-        return;
-    }
-    const float uiScale = appContext->GetConfig()->window.uiScale;
-    ImGui::GetIO().FontGlobalScale = uiScale;
+void glimmer::SavedGamesScene::RenderImGui(int width, int height, SDL_Renderer* renderer)
+{
+    ImGui::GetIO().FontGlobalScale = uiScale_;
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(static_cast<float>(winW), static_cast<float>(winH)));
+    ImGui::SetNextWindowSize(ImVec2(static_cast<float>(width), static_cast<float>(height)));
 
     ImGui::Begin("Saved Games Scene", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
 
-    ImGui::TextUnformatted(appContext->GetLangsResources()->savedGames.c_str());
-    if (ImGui::Button(appContext->GetLangsResources()->createWorld.c_str())) {
-        appContext->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext));
+    ImGui::TextUnformatted(langsResources_->savedGames.c_str());
+    if (ImGui::Button(langsResources_->createWorld.c_str()))
+    {
+        appContext_->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext_));
     }
-    if (ImGui::IsItemHovered()) {
+    if (ImGui::IsItemHovered())
+    {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
     ImGui::SameLine();
-    if (ImGui::Button(appContext->GetLangsResources()->cancel.c_str())) {
+    if (ImGui::Button(langsResources_->cancel.c_str()))
+    {
         ImGui::End();
-        appContext->GetSceneManager()->PopScene();
+        appContext_->GetSceneManager()->PopScene();
         return;
     }
-    if (ImGui::IsItemHovered()) {
+    if (ImGui::IsItemHovered())
+    {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
 
     ImGui::Separator();
 
-    ImGui::BeginChild(appContext->GetLangsResources()->savesList.c_str(), ImVec2(0, -50 * uiScale), true);
+    ImGui::BeginChild(langsResources_->savesList.c_str(), ImVec2(0, -50 * uiScale_), true);
 
-    auto savesManager = appContext->GetSavesManager();
+    auto savesManager = appContext_->GetSavesManager();
     size_t count = savesManager->GetSavesListSize();
 
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i)
+    {
         auto manifest = savesManager->GetMapManifest(i);
         if (!manifest) continue;
 
         std::stringstream ss;
         time_t timeVal = manifest->lastPlayedTime / 1000;
-        tm *tmInfo = localtime(&timeVal);
+        tm* tmInfo = localtime(&timeVal);
         char timeBuffer[64];
         strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", tmInfo);
 
@@ -104,60 +101,74 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
 
         std::string label = ss.str();
 
-        if (ImGui::Selectable(label.c_str(), selected_save_index == static_cast<int>(i), 0, ImVec2(0, 0))) {
-            selected_save_index = static_cast<int>(i);
+        if (ImGui::Selectable(label.c_str(), selectedSaveIndex == static_cast<int>(i), 0, ImVec2(0, 0)))
+        {
+            selectedSaveIndex = static_cast<int>(i);
         }
-        if (ImGui::IsItemHovered()) {
+        if (ImGui::IsItemHovered())
+        {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
     }
     ImGui::EndChild();
 
-    if (selected_save_index >= 0 && selected_save_index < static_cast<int>(count)) {
-        if (ImGui::Button(appContext->GetLangsResources()->loadGame.c_str())) {
-            auto saves = savesManager->GetSave(selected_save_index);
-            auto manifest = savesManager->GetMapManifest(selected_save_index);
-            if (saves && manifest) {
-                appContext->GetSceneManager()->PushScene(std::make_unique<WorldScene>(
-                    appContext, std::make_unique<WorldContext>(appContext, manifest, saves)));
+    if (selectedSaveIndex >= 0 && selectedSaveIndex < static_cast<int>(count))
+    {
+        if (ImGui::Button(langsResources_->loadGame.c_str()))
+        {
+            auto saves = savesManager->GetSave(selectedSaveIndex);
+            auto manifest = savesManager->GetMapManifest(selectedSaveIndex);
+            if (saves && manifest)
+            {
+                appContext_->GetSceneManager()->PushScene(std::make_unique<WorldScene>(
+                    appContext_, std::make_unique<WorldContext>(appContext_, manifest, saves)));
             }
         }
-        if (ImGui::IsItemHovered()) {
+        if (ImGui::IsItemHovered())
+        {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
         ImGui::SameLine();
-        if (ImGui::Button(appContext->GetLangsResources()->deleteGame.c_str())) {
-            ImGui::OpenPopup(appContext->GetLangsResources()->deleteGame.c_str());
+        if (ImGui::Button(langsResources_->deleteGame.c_str()))
+        {
+            ImGui::OpenPopup(langsResources_->deleteGame.c_str());
         }
-        if (ImGui::IsItemHovered()) {
+        if (ImGui::IsItemHovered())
+        {
             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         }
 
-        if (ImGui::BeginPopupModal(appContext->GetLangsResources()->deleteGame.c_str(), nullptr,
-                                   ImGuiWindowFlags_AlwaysAutoResize)) {
-            ImGui::TextUnformatted(appContext->GetLangsResources()->wantDeleteThisSave.c_str());
+        if (ImGui::BeginPopupModal(langsResources_->deleteGame.c_str(), nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::TextUnformatted(langsResources_->wantDeleteThisSave.c_str());
             ImGui::Separator();
 
-            if (ImGui::Button(appContext->GetLangsResources()->confirm.c_str(), ImVec2(120, 0))) {
-                savesManager->DeleteSave(selected_save_index);
-                selected_save_index = -1;
+            if (ImGui::Button(langsResources_->confirm.c_str(), ImVec2(120, 0)))
+            {
+                savesManager->DeleteSave(selectedSaveIndex);
+                selectedSaveIndex = -1;
                 ImGui::CloseCurrentPopup();
-                if (savesManager->GetSavesListSize() == 0) {
+                if (savesManager->GetSavesListSize() == 0)
+                {
                     ImGui::EndPopup();
                     ImGui::End();
-                    appContext->GetSceneManager()->ReplaceScene(std::make_unique<CreateWorldScene>(appContext));
+                    appContext_->GetSceneManager()->ReplaceScene(std::make_unique<CreateWorldScene>(appContext_));
                     return;
                 }
             }
-            if (ImGui::IsItemHovered()) {
+            if (ImGui::IsItemHovered())
+            {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
             ImGui::SetItemDefaultFocus();
             ImGui::SameLine();
-            if (ImGui::Button(appContext->GetLangsResources()->cancel.c_str(), ImVec2(120, 0))) {
+            if (ImGui::Button(langsResources_->cancel.c_str(), ImVec2(120, 0)))
+            {
                 ImGui::CloseCurrentPopup();
             }
-            if (ImGui::IsItemHovered()) {
+            if (ImGui::IsItemHovered())
+            {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
             }
             ImGui::EndPopup();
@@ -165,4 +176,10 @@ void glimmer::SavedGamesScene::Render(SDL_Renderer *renderer) {
     }
 
     ImGui::End();
+}
+
+
+void glimmer::SavedGamesScene::OnConfigChanged(const Config* config)
+{
+    uiScale_ = config->window.uiScale;
 }

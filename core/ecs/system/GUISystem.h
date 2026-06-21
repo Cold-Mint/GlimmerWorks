@@ -34,7 +34,6 @@ namespace glimmer
     public:
         explicit GUISystem(WorldContext* worldContext);
 
-
         bool CanActive() const override;
     };
 }

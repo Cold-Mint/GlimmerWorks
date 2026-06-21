@@ -59,6 +59,7 @@ glimmer::DebugDrawBox2dSystem::DebugDrawBox2dSystem(WorldContext* worldContext) 
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_RAY_CAST_2D);
+    Init();
 }
 
 void glimmer::DebugDrawBox2dSystem::OnConfigChanged(const Config* config)

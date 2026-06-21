@@ -72,6 +72,7 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem
     ref.SetResourceKey("sfx/pick_item");
     pickItemSFX_ = appContext->GetResourceLocator()->FindAudio(&ref);
     audioManager_ = appContext->GetAudioManager();
+    Init();
 }
 
 void glimmer::AutoPickSystem::Update(const float delta)

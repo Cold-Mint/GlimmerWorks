@@ -82,6 +82,7 @@ glimmer::GameSystem::GameSystem(WorldContext* worldContext) : worldContext_(worl
 
 void glimmer::GameSystem::Init()
 {
+    initSubclassFinish_ = true;
     const AppContext* appContext = worldContext_->GetAppContext();
     if (appContext == nullptr)
     {
@@ -126,6 +127,17 @@ bool glimmer::GameSystem::OnBackPressed()
 
 void glimmer::GameSystem::Update(float delta)
 {
+#if  !defined(NDEBUG)
+    if (!initSubclassFinish_)
+    {
+        initTimeOut_ += delta;
+        if (initTimeOut_ > 2)
+        {
+            LogCat::e("The game system subclass did not call the Init method within its constructor.");
+            assert(false);
+        }
+    }
+#endif
 }
 
 uint8_t glimmer::GameSystem::GetRenderOrder()

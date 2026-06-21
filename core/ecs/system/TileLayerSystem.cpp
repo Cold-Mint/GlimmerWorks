@@ -69,6 +69,7 @@ glimmer::TileLayerSystem::TileLayerSystem(WorldContext* worldContext)
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_TILE_LAYER);
+    Init();
 }
 
 void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)

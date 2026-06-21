@@ -46,12 +46,6 @@ glimmer::InventoryCraftGUISystem::InventoryCraftGUISystem(WorldContext* worldCon
     }
     langsResources_ = appContext->GetLangsResources();
     preloadColors_ = appContext->GetPreloadColors();
-    const Config* config = appContext->GetConfig();
-    if (config == nullptr)
-    {
-        return;
-    }
-    uiScale_ = config->window.uiScale;
     recipeManager_ = appContext->GetRecipeManager();
     resourcePackManager_ = appContext->GetResourcePackManager();
 }
@@ -201,15 +195,19 @@ void glimmer::InventoryCraftGUISystem::OnConfigChanged(const Config* config)
 
 void glimmer::InventoryCraftGUISystem::OnWindowSizeChanged(int width, int height)
 {
+    const size_t inventoryItemSlotSize = inventoryItemSlot_.size();
+    if (inventoryItemSlotSize == 0)
+    {
+        return;
+    }
     DesignDimension padding = 5;
-    size_t hotBarItemSlotSize = inventoryItemSlot_.size();
     DesignVector2D hotBarStartPosition{padding, padding};
     auto gridLayoutStepper = GridLayoutStepper(ITEM_SLOT_SIZE, hotBarStartPosition, HOT_BAR_SIZE, padding,
-                                               hotBarItemSlotSize);
+                                               inventoryItemSlotSize);
     int index = 0;
     while (gridLayoutStepper.HasNext())
     {
-        if (index >= hotBarItemSlotSize)
+        if (index >= inventoryItemSlotSize)
         {
             break;
         }

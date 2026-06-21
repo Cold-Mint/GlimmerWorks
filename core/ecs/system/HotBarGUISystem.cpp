@@ -102,8 +102,12 @@ glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GUISyste
 
 void glimmer::HotBarGUISystem::OnWindowSizeChanged(int width, int height)
 {
-    DesignDimension padding = 5;
     size_t hotBarItemSlotSize = hotBarItemSlot_.size();
+    if (hotBarItemSlotSize == 0)
+    {
+        return;
+    }
+    DesignDimension padding = 5;
     DesignVector2D hotBarStartPosition{padding, padding};
     auto horizontalLayoutStepper = HorizontalLayoutStepper(ITEM_SLOT_SIZE, hotBarStartPosition, padding,
                                                            hotBarItemSlotSize);

@@ -372,7 +372,7 @@ namespace glimmer
 
         explicit WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves);
 
-        void OnWindowSizeChanged(int width, int height);
+        void OnWindowSizeChanged(int width, int height) const;
 
         [[nodiscard]] AppContext* GetAppContext() const;
 

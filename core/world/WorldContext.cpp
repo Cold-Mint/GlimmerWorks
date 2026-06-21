@@ -1054,6 +1054,7 @@ void glimmer::WorldContext::RegisterSystem(std::unique_ptr<GameSystem> system)
     if (allowRegisterSystem)
     {
         system->LockWatchComponent();
+        system->Init();
         inactiveSystems.emplace_back(std::move(system));
     }
     else
@@ -1176,7 +1177,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 
-void glimmer::WorldContext::OnWindowSizeChanged(int width, int height)
+void glimmer::WorldContext::OnWindowSizeChanged(int width, int height) const
 {
     for (auto& activeSystem : activeSystems)
     {

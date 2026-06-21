@@ -89,25 +89,6 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
     }
 }
 
-void glimmer::MaterialSelectCraftUISystem::OnWindowSizeChanged(int width, int height)
-{
-    GUISystem::OnWindowSizeChanged(width, height);
-}
-
-void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
-{
-    // if (recipeResource_ == nullptr)
-    // {
-    //     return;
-    // }
-    // VerticalLayoutStepper verticalLayoutStepper = VerticalLayoutStepper(60, {0, 0}, 5, recipeStringMap_.size());
-    // for (auto& recipeStringNap : recipeStringMap_)
-    // {
-    //     // recipeStringNap.second
-    //     verticalLayoutStepper.Next()
-    // }
-}
-
 glimmer::GameSystemType glimmer::MaterialSelectCraftUISystem::GetGameSystemType() const
 {
     return GameSystemType::MaterialSelectCraftUISystem;

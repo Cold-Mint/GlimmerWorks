@@ -80,6 +80,21 @@ glimmer::GameSystem::GameSystem(WorldContext* worldContext) : worldContext_(worl
     entityShortCut_ = worldContext_->GetEntityShortCut();
 }
 
+void glimmer::GameSystem::Init()
+{
+    const AppContext* appContext = worldContext_->GetAppContext();
+    if (appContext == nullptr)
+    {
+        return;
+    }
+    OnWindowSizeChanged(appContext->GetWindowWidth(), appContext->GetWindowHeight());
+    const Config* config = appContext->GetConfig();
+    if (config != nullptr)
+    {
+        OnConfigChanged(config);
+    }
+}
+
 
 bool glimmer::GameSystem::CanRunWhilePaused() const
 {
@@ -98,12 +113,10 @@ bool glimmer::GameSystem::HandleEvent(const SDL_Event& event)
 
 void glimmer::GameSystem::OnConfigChanged(const Config* config)
 {
-
 }
 
 void glimmer::GameSystem::OnWindowSizeChanged(int width, int height)
 {
-
 }
 
 bool glimmer::GameSystem::OnBackPressed()

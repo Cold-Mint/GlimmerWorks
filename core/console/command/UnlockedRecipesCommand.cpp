@@ -24,6 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
+#if  !defined(NDEBUG)
 #include "UnlockedRecipesCommand.h"
 
 #include <sstream>
@@ -177,3 +178,4 @@ bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender
     onMessageRef(stringStream.str());
     return true;
 }
+#endif

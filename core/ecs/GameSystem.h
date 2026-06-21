@@ -59,6 +59,13 @@ namespace glimmer
         explicit GameSystem(WorldContext* worldContext);
 
         /**
+         * Initialize the system after construction.
+         * This method should be called after the subclass is fully constructed.
+         * 在构造完成后初始化系统。应在子类完全构造后调用。
+         */
+        void Init();
+
+        /**
         * The component for locking observation
         * 锁定观察的组件
         */

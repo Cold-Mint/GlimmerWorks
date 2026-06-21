@@ -41,10 +41,6 @@ namespace glimmer
 
         void OnActivationChanged(bool activeStatus) override;
 
-        void OnWindowSizeChanged(int width, int height) override;
-
-        void Render(SDL_Renderer* renderer) override;
-
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }

@@ -31,6 +31,7 @@
 
 namespace glimmer
 {
+    struct LangsResources;
     /**
      * Debug the overlay layer
      * 调试叠加层
@@ -50,6 +51,7 @@ namespace glimmer
         std::unordered_map<int, std::shared_ptr<SDL_Texture>> numberTextureMap_;
         std::unordered_map<uint64_t, std::shared_ptr<SDL_Texture>> fpsTextures_;
         ResourcePackManager* resourcePackManager_ = nullptr;
+        LangsResources* langsResources_ = nullptr;
         PreloadColors* preloadColors_ = nullptr;
 
     public:

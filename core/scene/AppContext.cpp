@@ -254,6 +254,7 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->noUnlockedRecipes = find<std::string>(value, "no_unlocked_recipes");
     langsResources_->recipesItem = find<std::string>(value, "recipes_item");
     langsResources_->debugChunkInfo = find<std::string>(value, "debug_chunk_info");
+    langsResources_->fpsInfo = find<std::string>(value, "fps_info");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, const std::string& ext)

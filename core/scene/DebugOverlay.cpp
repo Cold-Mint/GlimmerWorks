@@ -38,6 +38,7 @@ glimmer::DebugOverlay::DebugOverlay(AppContext* context)
 {
     resourcePackManager_ = appContext_->GetResourcePackManager();
     preloadColors_ = appContext_->GetPreloadColors();
+    langsResources_ = appContext_->GetLangsResources();
     Init();
 }
 
@@ -116,8 +117,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
         };
         SDL_RenderTexture(renderer, texture, nullptr, &dst);
     }
-
-    std::string fpsString = fmt::format("FPS: {} {}", fps_, frameTimeMs_);
+    std::string fpsString = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
     uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
     SDL_Texture* texture = nullptr;
     auto fpsIterator = fpsTextures_.find(fpsFingerprint);

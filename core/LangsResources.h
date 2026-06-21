@@ -172,5 +172,6 @@ namespace glimmer
         std::string noUnlockedRecipes;
         std::string recipesItem;
         std::string debugChunkInfo;
+        std::string fpsInfo;
     };
 }

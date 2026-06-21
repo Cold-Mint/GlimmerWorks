@@ -74,6 +74,22 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
 }
 
 
+void glimmer::HotBarGUISystem::AfterSelectItemSlot(const uint8_t selectedSlotIndex) const
+{
+    if (playerComponent_ != nullptr && itemContainerComponent_ != nullptr)
+    {
+        const ItemContainer* container = itemContainerComponent_->GetItemContainer();
+        if (container != nullptr)
+        {
+            playerComponent_->item = container->GetItem(selectedSlotIndex);
+        }
+    }
+    if (selectedSlotIndex < hotBarItemSlot_.size())
+    {
+        hotBarComponent_->SetSelectedSlotComponent(hotBarItemSlot_[selectedSlotIndex]);
+    }
+}
+
 void glimmer::HotBarGUISystem::OnActivationChanged(bool activeStatus)
 {
     if (activeStatus)
@@ -98,6 +114,7 @@ glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GUISyste
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     WatchComponent(COMPONENT_HOT_BAR);
     WatchComponent(COMPONENT_ITEM_SLOT);
+    AfterSelectItemSlot(hotBarComponent_->GetSelectedSlot());
 }
 
 void glimmer::HotBarGUISystem::OnWindowSizeChanged(int width, int height)
@@ -129,12 +146,13 @@ bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event& event)
     {
         return false;
     }
+    if (hotBarComponent_ == nullptr)
+    {
+        return false;
+    }
+    const uint8_t preSelectIndex = hotBarComponent_->GetSelectedSlot();
     if (event.type == SDL_EVENT_MOUSE_WHEEL)
     {
-        if (hotBarComponent_ == nullptr)
-        {
-            return false;
-        }
         if (event.wheel.y > 0)
         {
             hotBarComponent_->SelectPreviousSlot();
@@ -143,14 +161,50 @@ bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event& event)
         {
             hotBarComponent_->SelectNextSlot();
         }
-        if (playerComponent_ != nullptr && itemContainerComponent_ != nullptr)
+    }
+    if (event.type == SDL_EVENT_KEY_DOWN)
+    {
+        if (event.key.scancode == SDL_SCANCODE_1)
         {
-            const ItemContainer* container = itemContainerComponent_->GetItemContainer();
-            if (container != nullptr)
-            {
-                playerComponent_->item = container->GetItem(hotBarComponent_->GetSelectedSlot());
-            }
+            hotBarComponent_->SetSelectedSlot(0);
         }
+        if (event.key.scancode == SDL_SCANCODE_2)
+        {
+            hotBarComponent_->SetSelectedSlot(1);
+        }
+        if (event.key.scancode == SDL_SCANCODE_3)
+        {
+            hotBarComponent_->SetSelectedSlot(2);
+        }
+        if (event.key.scancode == SDL_SCANCODE_4)
+        {
+            hotBarComponent_->SetSelectedSlot(3);
+        }
+        if (event.key.scancode == SDL_SCANCODE_5)
+        {
+            hotBarComponent_->SetSelectedSlot(4);
+        }
+        if (event.key.scancode == SDL_SCANCODE_6)
+        {
+            hotBarComponent_->SetSelectedSlot(5);
+        }
+        if (event.key.scancode == SDL_SCANCODE_7)
+        {
+            hotBarComponent_->SetSelectedSlot(6);
+        }
+        if (event.key.scancode == SDL_SCANCODE_8)
+        {
+            hotBarComponent_->SetSelectedSlot(7);
+        }
+        if (event.key.scancode == SDL_SCANCODE_9)
+        {
+            hotBarComponent_->SetSelectedSlot(8);
+        }
+    }
+    const uint8_t afterSelectIndex = hotBarComponent_->GetSelectedSlot();
+    if (afterSelectIndex != preSelectIndex)
+    {
+        AfterSelectItemSlot(afterSelectIndex);
         return true;
     }
     return false;

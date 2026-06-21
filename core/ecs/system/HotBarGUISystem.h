@@ -43,6 +43,13 @@ namespace glimmer
         ItemContainerComponent* itemContainerComponent_ = nullptr;
         std::vector<ItemSlotComponent*> hotBarItemSlot_;
 
+        /**
+         * Things to do after selecting a certain slot
+         * 选中某个槽位后要做的事
+         * @param selectedSlotIndex
+         */
+        void AfterSelectItemSlot(uint8_t selectedSlotIndex) const;
+
     public:
         void OnActivationChanged(bool activeStatus) override;
 

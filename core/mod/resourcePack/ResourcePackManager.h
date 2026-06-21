@@ -119,5 +119,7 @@ namespace glimmer
         std::string ListTextureCache() const;
 
         void SetFont(TTF_Font* font);
+
+        ~ResourcePackManager();
     };
 }

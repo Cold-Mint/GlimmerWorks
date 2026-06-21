@@ -525,3 +525,8 @@ void glimmer::ResourcePackManager::SetFont(TTF_Font* font)
 {
     font_ = font;
 }
+
+glimmer::ResourcePackManager::~ResourcePackManager()
+{
+    stringTextureCache_.clear();
+}

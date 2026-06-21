@@ -70,7 +70,6 @@ static constexpr std::string LIGHT_COMMAND_NAME = "light";
 static constexpr std::string ECS_COMMAND_NAME = "ecs";
 static constexpr std::string VFS_COMMAND_NAME = "vfs";
 static constexpr std::string HOOK_COMMAND_NAME = "commandHook";
-static constexpr std::string MEMORY_USAGE_COMMAND_NAME = "memoryUsage";
 static constexpr std::string TECHNOLOGY_COMMAND_NAME = "technology";
 static constexpr std::string TAG_COMMAND_NAME = "tag";
 static const std::string UNLOCKED_RECIPES_COMMAND_NAME = "unlockedRecipes";

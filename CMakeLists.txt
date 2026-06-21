@@ -568,8 +568,6 @@ target_sources(GlimmerWorks
         core/world/ChunkTask.cpp
         core/world/ChunkType.cpp
         core/IFingerprintable.cpp
-        core/MemoryUsage.cpp
-        core/console/command/MemoryUsageCommand.cpp
         core/world/TileInstancePool.cpp
         core/world/TileAnchorType.cpp
         core/world/structure/StructureGeneratorType.cpp
@@ -861,8 +859,6 @@ target_sources(GlimmerWorks
         core/world/ChunkType.h
         core/world/ChunkTask.h
         core/IFingerprintable.h
-        core/MemoryUsage.h
-        core/console/command/MemoryUsageCommand.h
         core/world/TileInstancePool.h
         core/world/TileAnchorType.h
         core/world/structure/StructureGeneratorType.h

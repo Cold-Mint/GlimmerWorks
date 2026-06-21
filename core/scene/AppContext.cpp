@@ -56,7 +56,6 @@
 #include "core/console/command/LightCommand.h"
 #include "core/console/command/LocateCommand.h"
 #include "core/console/command/LootCommand.h"
-#include "core/console/command/MemoryUsageCommand.h"
 #include "core/console/command/PackVerifyCommand.h"
 #include "core/console/command/ParallaxBackgroundCommand.h"
 #include "core/console/command/PlaceCommand.h"
@@ -463,7 +462,6 @@ glimmer::AppContext::AppContext()
 #if  !defined(NDEBUG)
     commandManager_->RegisterCommand(std::make_unique<HookCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<MemoryUsageCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<VFSCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<LightCommand>(this));

@@ -89,6 +89,7 @@
 #include "core/mod/templateCommand/UnSetTemplateCommand.h"
 #include "core/saves/SavesManager.h"
 #include "core/utils/RandomUtils.h"
+#include "core/utils/StringUtils.h"
 #include "core/world/generator/FillBiomeDecorator.h"
 #include "core/world/generator/MineralBiomeDecorator.h"
 #include "core/world/generator/SurfaceBiomeDecorator.h"
@@ -701,11 +702,24 @@ bool glimmer::AppContext::Running() const
 void glimmer::AppContext::AddUIMessage(const std::string& string)
 {
     LogCat::d(string);
+    if (!gameUIMessages_.empty())
+    {
+        const uint64_t lastFingerprint = gameUIMessages_.back().GetFingerprint();
+        const uint64_t stringFingerprint = StringUtils::StringToUint64(string);
+        if (lastFingerprint == stringFingerprint)
+        {
+            return;
+        }
+    }
     if (resourcePackManager_ == nullptr)
     {
         return;
     }
-    gameUIMessages_.emplace_back(resourcePackManager_.get(), string, SDL_GetTicks(), &preloadColors_->textColor);
+
+    PostToNextMainFrame([this, string]
+    {
+        gameUIMessages_.emplace_back(resourcePackManager_.get(), string, SDL_GetTicks(), &preloadColors_->textColor);
+    });
 }
 
 std::vector<glimmer::GameUIMessage>& glimmer::AppContext::GetGameUIMessages()

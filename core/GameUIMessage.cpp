@@ -28,16 +28,18 @@
 
 #include <utility>
 
+#include "utils/StringUtils.h"
+
 glimmer::GameUIMessage::GameUIMessage(ResourcePackManager* resourcePackManager, std::string text, const uint64_t now,
                                       const Color* color) : text_(std::move(text)),
-                                                      createTime_(now),
-                                                      expireTime_(now + 2500),
-                                                      tween_(tweeny::from(0.0f)
-                                                             .to(1.0f).during(200)
-                                                             .to(1.0f).during(2000)
-                                                             .to(0.0f).during(300))
+                                                            createTime_(now),
+                                                            expireTime_(now + 2500),
+                                                            tween_(tweeny::from(0.0F)
+                                                                   .to(1.0F).during(200)
+                                                                   .to(1.0F).during(2000)
+                                                                   .to(0.0F).during(300))
 {
-    texture_ = resourcePackManager->CreateStringTexture(text, color);
+    texture_ = resourcePackManager->CreateStringTexture(text_, color);
 }
 
 uint64_t glimmer::GameUIMessage::GetCreateTime() const
@@ -77,4 +79,9 @@ tweeny::tween<float>& glimmer::GameUIMessage::GetTween()
 uint64_t glimmer::GameUIMessage::GetExpireTime() const
 {
     return expireTime_;
+}
+
+uint64_t glimmer::GameUIMessage::GetFingerprint() const
+{
+    return StringUtils::StringToUint64(text_);
 }

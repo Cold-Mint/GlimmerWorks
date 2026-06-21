@@ -35,7 +35,7 @@
 
 namespace glimmer
 {
-    class GameUIMessage
+    class GameUIMessage : IFingerprintable
     {
         std::string text_;
         uint64_t createTime_;
@@ -62,5 +62,7 @@ namespace glimmer
         [[nodiscard]] tweeny::tween<float>& GetTween();
 
         [[nodiscard]] uint64_t GetExpireTime() const;
+
+        [[nodiscard]] uint64_t GetFingerprint() const override;
     };
 }

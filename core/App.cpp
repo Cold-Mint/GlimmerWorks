@@ -44,7 +44,7 @@
 #include "SDL3_mixer/SDL_mixer.h"
 
 
-void glimmer::App::RendererUiMessage(int windowHeight, uint64_t frameStart, const float deltaTime) const
+void glimmer::App::RendererUiMessage(const int windowHeight, uint64_t frameStart, const float deltaTime) const
 {
     auto& uiMessages = appContext_->GetGameUIMessages();
     if (uiMessages.empty())
@@ -57,17 +57,18 @@ void glimmer::App::RendererUiMessage(int windowHeight, uint64_t frameStart, cons
                       return msg.GetExpireTime() <= frameStart;
                   });
 
-    constexpr float padding = 16.0f;
-    constexpr float spacing = 6.0f;
+    constexpr float padding = 16.0F;
+    constexpr float spacing = 6.0F;
 
-    float totalHeight = 0.0f;
+    float totalHeight = 0.0F;
 
     for (auto& msg : uiMessages)
     {
         auto& tween = msg.GetTween();
-        tween.step(deltaTime * 1000);
-        msg.SetAlpha(tween.peek());
-        if (msg.GetAlpha() <= 0.01F)
+        tween.step(deltaTime);
+        float peekResult = tween.peek();
+        msg.SetAlpha(peekResult);
+        if (peekResult <= 0.01F)
         {
             continue;
         }
@@ -79,12 +80,11 @@ void glimmer::App::RendererUiMessage(int windowHeight, uint64_t frameStart, cons
         totalHeight += static_cast<float>(sdlTexture->h) + spacing;
     }
 
-    if (!uiMessages.empty())
+    if (!uiMessages.empty() && totalHeight > 0.0F)
     {
         totalHeight -= spacing;
     }
-
-    float startY = windowHeight - totalHeight - padding;
+    float startY = static_cast<float>(windowHeight) - totalHeight - padding;
     for (auto& msg : uiMessages)
     {
         if (msg.GetAlpha() <= 0.01F)

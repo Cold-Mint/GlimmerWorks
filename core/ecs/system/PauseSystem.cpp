@@ -28,9 +28,6 @@
 #include "imgui.h"
 #include "../../world/WorldContext.h"
 #include "core/utils/TimeUtils.h"
-#include "core/ecs/component/PauseComponent.h"
-
-
 
 
 glimmer::PauseSystem::PauseSystem(WorldContext* worldContext) : GameSystem(worldContext)
@@ -44,7 +41,8 @@ uint8_t glimmer::PauseSystem::GetRenderOrder()
     return RENDER_ORDER_PAUSE;
 }
 
-void glimmer::PauseSystem::Render(SDL_Renderer* renderer)
+
+void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
 {
     if (worldContext_->IsRuning())
     {

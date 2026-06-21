@@ -326,7 +326,7 @@ void glimmer::ConsoleOverlay::OnConfigChanged(const Config* config)
     uiScale_ = config->window.uiScale;
 }
 
-void glimmer::ConsoleOverlay::RenderImGui(int width, int height, SDL_Renderer* renderer)
+void glimmer::ConsoleOverlay::RenderImGui(SDL_Renderer* renderer)
 {
     if (!show_)
     {

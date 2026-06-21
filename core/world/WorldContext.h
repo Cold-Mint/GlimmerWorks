@@ -337,6 +337,8 @@ namespace glimmer
 
         void Render(SDL_Renderer* renderer) const;
 
+        void RenderImGui(SDL_Renderer* renderer) const;
+
         void OnFrameStart();
 
         void InitSystem();

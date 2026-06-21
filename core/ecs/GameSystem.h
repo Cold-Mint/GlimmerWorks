@@ -127,6 +127,8 @@ namespace glimmer
 
         virtual uint8_t GetRenderOrder();
 
+        virtual void RenderImGui(SDL_Renderer* renderer);
+
         virtual void Render(SDL_Renderer* renderer);
     };
 }

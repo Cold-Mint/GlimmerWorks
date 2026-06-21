@@ -88,7 +88,7 @@ void glimmer::Scene::Render(SDL_Renderer* renderer)
 {
 }
 
-void glimmer::Scene::RenderImGui(int width, int height, SDL_Renderer* renderer)
+void glimmer::Scene::RenderImGui(SDL_Renderer* renderer)
 {
 }
 

@@ -145,6 +145,10 @@ uint8_t glimmer::GameSystem::GetRenderOrder()
     return 0;
 }
 
+void glimmer::GameSystem::RenderImGui(SDL_Renderer* renderer)
+{
+}
+
 void glimmer::GameSystem::Render(SDL_Renderer* renderer)
 {
 }

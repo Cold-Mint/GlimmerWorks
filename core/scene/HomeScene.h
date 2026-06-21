@@ -52,7 +52,7 @@ namespace glimmer
     public:
         explicit HomeScene(AppContext* context);
 
-        void RenderImGui(int width, int height, SDL_Renderer* renderer) override;
+        void RenderImGui(SDL_Renderer* renderer) override;
 
         void OnConfigChanged(const Config* config) override;
 

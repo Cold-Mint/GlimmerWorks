@@ -876,6 +876,30 @@ void glimmer::WorldContext::Render(SDL_Renderer* renderer) const
     }
 }
 
+void glimmer::WorldContext::RenderImGui(SDL_Renderer* renderer) const
+{
+    for (const std::unique_ptr<GameSystem>& system : activeSystems)
+    {
+#if  defined(NDEBUG)
+        system->RenderImGui(renderer);
+#else
+        SDL_Color oldColor;
+        SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+        system->RenderImGui(renderer);
+        SDL_Color newColor;
+        SDL_GetRenderDrawColor(renderer, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
+        if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
+            b)
+        {
+            LogCat::e("The color of the renderImGui has been changed by the game system.",
+                      static_cast<uint8_t>(system->GetGameSystemType()),
+                      " invoke AppContext::RestoreColorRenderer(renderer);");
+            assert(false);
+        }
+#endif
+    }
+}
+
 void glimmer::WorldContext::OnFrameStart()
 {
     std::queue<GameSystem*> toActivate;

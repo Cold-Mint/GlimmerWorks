@@ -118,7 +118,7 @@ namespace glimmer
 
         void OnConfigChanged(const Config* config) override;
 
-        void RenderImGui(int width, int height, SDL_Renderer* renderer) override;
+        void RenderImGui(SDL_Renderer* renderer) override;
 
         ~ConsoleOverlay() override;
     };

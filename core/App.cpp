@@ -723,18 +723,18 @@ void glimmer::App::Run()
         {
             if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
             {
-                topScene->RenderImGui(windowWidth, windowHeight, renderer_);
+                topScene->Render(renderer_);
+            }
+            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+            {
+                topScene->RenderImGui(renderer_);
             }
             for (const auto overlay : overlayScenes)
             {
-                overlay->RenderImGui(windowWidth, windowHeight, renderer_);
+                overlay->RenderImGui(renderer_);
             }
             ImGui::Render();
             ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                topScene->Render(renderer_);
-            }
             for (const auto overlay : overlayScenes)
             {
                 overlay->Render(renderer_);
@@ -744,16 +744,6 @@ void glimmer::App::Run()
 #else
         if (windowWidth > 0 && windowHeight > 0)
         {
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                topScene->RenderImGui(windowWidth, windowHeight, renderer_);
-            }
-            for (const auto overlay : overlayScenes)
-            {
-                overlay->RenderImGui(windowWidth, windowHeight, renderer_);
-            }
-            ImGui::Render();
-            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
             SDL_Color oldColor;
             SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
             if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
@@ -769,6 +759,16 @@ void glimmer::App::Run()
                 LogCat::e("The color of the renderer has been changed by the scene.");
                 assert(false);
             }
+            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+            {
+                topScene->RenderImGui(renderer_);
+            }
+            for (const auto overlay : overlayScenes)
+            {
+                overlay->RenderImGui(renderer_);
+            }
+            ImGui::Render();
+            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
             for (const auto overlay : overlayScenes)
             {
                 SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);

@@ -122,7 +122,7 @@ std::string glimmer::CreateWorldScene::RandomName() const
     return prefixList[randomPrefixIdx] + suffixList[randomSuffixIdx];
 }
 
-void glimmer::CreateWorldScene::RenderImGui(int width, int height, SDL_Renderer* renderer)
+void glimmer::CreateWorldScene::RenderImGui(SDL_Renderer* renderer)
 {
     ImGui::GetIO().FontGlobalScale = uiScale_;
     ImGui::SetNextWindowSize(ImVec2(400 * uiScale_, 250 * uiScale_), ImGuiCond_Once);

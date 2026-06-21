@@ -119,3 +119,12 @@ void glimmer::WorldScene::Render(SDL_Renderer* renderer)
     }
     worldContext_->Render(renderer);
 }
+
+void glimmer::WorldScene::RenderImGui(SDL_Renderer* renderer)
+{
+    if (worldContext_ == nullptr)
+    {
+        return;
+    }
+    worldContext_->RenderImGui(renderer);
+}

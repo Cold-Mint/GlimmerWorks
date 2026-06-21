@@ -67,7 +67,7 @@ glimmer::HomeScene::HomeScene(AppContext* context)
     Init();
 }
 
-void glimmer::HomeScene::RenderImGui(int width, int height, SDL_Renderer* renderer)
+void glimmer::HomeScene::RenderImGui(SDL_Renderer* renderer)
 {
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     // 获取窗口大小

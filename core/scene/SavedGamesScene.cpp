@@ -45,12 +45,12 @@ glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
     Init();
 }
 
-void glimmer::SavedGamesScene::RenderImGui(int width, int height, SDL_Renderer* renderer)
+void glimmer::SavedGamesScene::RenderImGui(SDL_Renderer* renderer)
 {
     ImGui::GetIO().FontGlobalScale = uiScale_;
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(static_cast<float>(width), static_cast<float>(height)));
+    ImGui::SetNextWindowSize(ImVec2(static_cast<float>(windowWidth_), static_cast<float>(windowHeight_)));
 
     ImGui::Begin("Saved Games Scene", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
 
@@ -176,6 +176,12 @@ void glimmer::SavedGamesScene::RenderImGui(int width, int height, SDL_Renderer* 
     }
 
     ImGui::End();
+}
+
+void glimmer::SavedGamesScene::OnWindowSizeChanged(int width, int height)
+{
+    windowWidth_ = width;
+    windowHeight_ = height;
 }
 
 

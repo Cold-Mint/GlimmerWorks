@@ -33,11 +33,15 @@ namespace glimmer {
         int selectedSaveIndex = -1;
         float uiScale_ = 1.0F;
         LangsResources* langsResources_ = nullptr;
+        int windowWidth_ = 0;
+        int windowHeight_ = 0;
 
     public:
         explicit SavedGamesScene(AppContext *context);
 
-        void RenderImGui(int width, int height, SDL_Renderer* renderer) override;
+        void RenderImGui(SDL_Renderer* renderer) override;
+
+        void OnWindowSizeChanged(int width, int height) override;
 
         void OnConfigChanged(const Config* config) override;
 

@@ -33,13 +33,13 @@ namespace glimmer
 
     class PauseSystem : public GameSystem
     {
-
     public:
         explicit PauseSystem(WorldContext* worldContext);
 
         uint8_t GetRenderOrder() override;
 
-        void Render(SDL_Renderer* renderer) override;
+
+        void RenderImGui(SDL_Renderer* renderer) override;
 
         bool OnBackPressed() override;
 

@@ -47,7 +47,7 @@ void glimmer::FloatingTextSystem::OnWatchedComponentChanged(GameComponentTypeMes
     {
         floatingTextCount_ = count;
     }
-    if (transform2DCount_ > count && floatingTextCount_ > count)
+    if (transform2DCount_ > 0 && floatingTextCount_ > 0)
     {
         entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_TRANSFORM_2D, COMPONENT_FLOATING_TEXT});
     }
@@ -121,6 +121,10 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer* renderer)
         return;
     }
     if (cameraTransform2DComponent_ == nullptr)
+    {
+        return;
+    }
+    if (entities_.empty())
     {
         return;
     }

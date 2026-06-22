@@ -61,11 +61,11 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem
     WatchComponent(COMPONENT_AUTO_PICK);
     WatchComponent(COMPONENT_MAGNET);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
-    //The system will only be activated when there is a falling object.
-    //限制只有出现掉落物时才激活系统。
-    WatchComponent(COMPONENT_DROPPED_ITEM);
-
     AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
+        return;
+    }
     ResourceRef ref;
     ref.SetSelfPackageId(RESOURCE_REF_CORE);
     ref.SetResourceType(RESOURCE_AUDIO);

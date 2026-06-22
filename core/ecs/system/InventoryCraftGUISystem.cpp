@@ -189,6 +189,11 @@ glimmer::GameSystemType glimmer::InventoryCraftGUISystem::GetGameSystemType() co
     return GameSystemType::InventoryCraftGUISystem;
 }
 
+uint8_t glimmer::InventoryCraftGUISystem::GetRenderOrder()
+{
+    return RENDER_ORDER_INVENTORY_CRAFT_GUI;
+}
+
 void glimmer::InventoryCraftGUISystem::OnConfigChanged(const Config* config)
 {
     uiScale_ = config->window.uiScale;

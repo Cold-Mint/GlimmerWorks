@@ -26,7 +26,7 @@
  */
 #include "MaterialSelectCraftUISystem.h"
 
-#include "core/layout/GridLayoutStepper.h"
+#include <algorithm>
 #include "core/layout/VerticalLayoutStepper.h"
 #include "core/world/WorldContext.h"
 
@@ -39,6 +39,8 @@ glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* 
         return;
     }
     stringManager_ = appContext->GetStringManager();
+    resourcePackManager_ = appContext->GetResourcePackManager();
+    preloadColors_ = appContext->GetPreloadColors();
     Init();
 }
 
@@ -58,14 +60,15 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             worldContext_->PopGuiSystemType();
             return;
         }
+        recipeResource_ = recipeResource;
         const size_t inputResourceSize = recipeResource_->input.size();
         if (inputResourceSize == 0)
         {
             worldContext_->PopGuiSystemType();
         }
-        recipeResource_ = recipeResource;
         std::vector<RequiredTag>& input = recipeResource_->input;
         recipeStringMap_.clear();
+        textTexture_.clear();
         if (stringManager_ == nullptr)
         {
             return;
@@ -85,9 +88,112 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             }
             stringStream << '*';
             stringStream << static_cast<int>(requiredTag.requiredWeight);
-            recipeStringMap_[cachedTagId] = stringStream.str();
+            std::string text = stringStream.str();
+            recipeStringMap_[cachedTagId] = text;
+            //get texture data.
+            //得到纹理数据。
+            std::array<std::shared_ptr<SDL_Texture>, 2> array;
+            array[0] = resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.positiveAttributeColor);
+            array[1] = resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.negativeAttributeColor);
+            textTexture_[cachedTagId] = array;
         }
     }
+}
+
+void glimmer::MaterialSelectCraftUISystem::OnConfigChanged(const Config* config)
+{
+    uiScale_ = config->window.uiScale;
+}
+
+void glimmer::MaterialSelectCraftUISystem::OnWindowSizeChanged(int width, int height)
+{
+    windowHeight_ = height;
+    windowWidth_ = width;
+}
+
+void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
+{
+    if (panelBackGroundTexture_ == nullptr)
+    {
+        ResourceRef panelBGResourceRef;
+        panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
+        panelBGResourceRef.SetResourceKey("gui/panel_bg");
+        panelBackGroundTexture_ = worldContext_->GetAppContext()->GetResourceLocator()->
+                                                 FindTexture(&panelBGResourceRef);
+    }
+    if (textTexture_.empty() || preloadColors_ == nullptr)
+    {
+        return;
+    }
+
+    // Find the maximum texture size so that the panel can accommodate all tag textures.
+    // 获取纹理的最大尺寸，使面板能够容纳所有标签纹理。
+    DesignDimension maxTextureWidth = 0.0F;
+    DesignDimension maxTextureHeight = 0.0F;
+    for (const auto& kv : textTexture_)
+    {
+        const auto& textures = kv.second;
+        if (textures[0] == nullptr)
+        {
+            continue;
+        }
+        maxTextureWidth = std::max(maxTextureWidth, static_cast<DesignDimension>(textures[0]->w));
+        maxTextureHeight = std::max(maxTextureHeight, static_cast<DesignDimension>(textures[0]->h));
+    }
+    if (maxTextureWidth <= 0.0F || maxTextureHeight <= 0.0F)
+    {
+        return;
+    }
+
+    // Panel layout parameters (design coordinates).
+    // 面板布局参数（设计坐标）。
+    constexpr DesignDimension panelPadding = 8.0F;
+    constexpr DesignDimension cellPadding = 4.0F;
+    const auto dataLength = static_cast<uint32_t>(textTexture_.size());
+
+    // Panel size in design coordinates.
+    // 面板尺寸（设计坐标）。
+    const DesignDimension panelWidth = maxTextureWidth + 2.0F * panelPadding;
+    const DesignDimension panelHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight + cellPadding) +
+        2.0F * panelPadding - cellPadding;
+
+    // Convert to screen coordinates and center the panel.
+    // 转换到屏幕坐标并使面板居中。
+    const float scaledPanelWidth = panelWidth * uiScale_;
+    const float scaledPanelHeight = panelHeight * uiScale_;
+    const float panelX = (static_cast<float>(windowWidth_) - scaledPanelWidth) * 0.5F;
+    const float panelY = (static_cast<float>(windowHeight_) - scaledPanelHeight) * 0.5F;
+    const SDL_FRect panelRect{panelX, panelY, scaledPanelWidth, scaledPanelHeight};
+    SDL_RenderTexture(renderer, panelBackGroundTexture_.get(), nullptr, &panelRect);
+
+    // Place the tag textures vertically on the left side of the panel using VerticalLayoutStepper.
+    // 使用VerticalLayoutStepper将标签纹理垂直排在面板的左侧。
+    DesignVector2D startPosition{panelPadding, panelPadding};
+    VerticalLayoutStepper stepper(maxTextureHeight, startPosition, cellPadding, dataLength);
+    for (const auto& kv : textTexture_)
+    {
+        const DesignVector2D position = stepper.Next();
+        const auto& texture = kv.second[0];
+        if (texture == nullptr)
+        {
+            continue;
+        }
+        const SDL_FRect dstRect{
+            panelX + position.x * uiScale_,
+            panelY + position.y * uiScale_,
+            static_cast<float>(texture->w) * uiScale_,
+            static_cast<float>(texture->h) * uiScale_
+        };
+        SDL_RenderTexture(renderer, texture.get(), nullptr, &dstRect);
+    }
+
+    AppContext::RestoreColorRenderer(renderer);
+}
+
+uint8_t glimmer::MaterialSelectCraftUISystem::GetRenderOrder()
+{
+    return RENDER_ORDER_MATERIAL_SELECT_CRAFT_UI;
 }
 
 glimmer::GameSystemType glimmer::MaterialSelectCraftUISystem::GetGameSystemType() const

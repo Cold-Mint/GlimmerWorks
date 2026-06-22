@@ -212,9 +212,8 @@ bool glimmer::CraftPreviewSlotSystem::HandleEvent(const SDL_Event& event)
         {
             return false;
         }
-        appContext_->AddUIMessage(hoveredCraftPreviewSlotComponent_->GetItem()->GetName());
-        worldContext_->PushGuiSystemType(GameSystemType::MaterialSelectCraftUISystem);
         entityShortCut_->SetSelectedCraftPreviewSlotComponent(hoveredCraftPreviewSlotComponent_);
+        worldContext_->PushGuiSystemType(GameSystemType::MaterialSelectCraftUISystem);
         return true;
     }
     return false;

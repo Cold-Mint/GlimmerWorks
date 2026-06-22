@@ -65,6 +65,7 @@
 #include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/InventoryCraftGUISystem.h"
 #include "core/ecs/system/Light2DSystem.h"
+#include "core/ecs/system/MaterialSelectCraftUISystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
@@ -1041,6 +1042,7 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<HotBarGUISystem>(this));
     RegisterSystem(std::make_unique<InventoryCraftGUISystem>(this));
     RegisterSystem(std::make_unique<CraftPreviewSlotSystem>(this));
+    RegisterSystem(std::make_unique<MaterialSelectCraftUISystem>(this));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));

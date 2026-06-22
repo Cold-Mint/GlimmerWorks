@@ -35,11 +35,26 @@ namespace glimmer
         RecipeResource* recipeResource_ = nullptr;
         std::unordered_map<uint64_t, std::string> recipeStringMap_;
         StringManager* stringManager_ = nullptr;
+        std::unordered_map<uint64_t, std::array<std::shared_ptr<SDL_Texture>, 2>> textTexture_;
+        ResourcePackManager* resourcePackManager_ = nullptr;
+        PreloadColors* preloadColors_;
+        float uiScale_ = 1.0F;
+        int windowHeight_ = 0;
+        int windowWidth_ = 0;
+        std::shared_ptr<SDL_Texture> panelBackGroundTexture_ = nullptr;
 
     public:
         explicit MaterialSelectCraftUISystem(WorldContext* worldContext);
 
         void OnActivationChanged(bool activeStatus) override;
+
+        void OnConfigChanged(const Config* config) override;
+
+        void OnWindowSizeChanged(int width, int height) override;
+
+        void Render(SDL_Renderer* renderer) override;
+
+        uint8_t GetRenderOrder() override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

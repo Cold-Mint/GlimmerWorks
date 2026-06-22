@@ -65,6 +65,8 @@ namespace glimmer
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
+        uint8_t GetRenderOrder() override;
+
         void OnConfigChanged(const Config* config) override;
 
         void OnWindowSizeChanged(int width, int height) override;

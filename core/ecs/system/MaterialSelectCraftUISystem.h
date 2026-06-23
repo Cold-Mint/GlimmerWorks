@@ -44,8 +44,15 @@ namespace glimmer
         int windowHeight_ = 0;
         int windowWidth_ = 0;
         std::shared_ptr<SDL_Texture> panelBackGroundTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> subPanelBackGroundTexture_ = nullptr;
         DesignDimension panelWidth_ = 0.0F;
         DesignDimension panelHeight_ = 0.0F;
+        // Base inner padding between panel and sub-panel
+        // 面板与子面板之间的基础内边距
+        DesignDimension basePanelInnerPadding_ = 4.0F;
+        // Actual inner padding (basePadding * uiScale)
+        // 实际内边距（基础内边距 × UI缩放比例）
+        float panelInnerPadding_ = 4.0F;
 
     public:
         explicit MaterialSelectCraftUISystem(WorldContext* worldContext);

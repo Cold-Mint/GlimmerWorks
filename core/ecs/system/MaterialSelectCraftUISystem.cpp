@@ -155,8 +155,17 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
         const uint8_t actualColumns = matchingCount > 0 ? std::min(matchingCount, gridColumns) : 1;
         const DesignDimension gridWidth = actualColumns * (ITEM_SLOT_SIZE + gridPadding) - gridPadding;
         const DesignDimension panelWidth = maxTextureWidth + gridWidth + 2.0F * panelPadding;
-        const DesignDimension panelHeight = static_cast<DesignDimension>(textTexture_.size()) * (maxTextureHeight + cellPadding) +
+
+        // Calculate required heights for tag area and item slot grid, then take the larger one.
+        // 计算标签区域和物品槽网格所需的高度，取较大值。
+        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(textTexture_.size()) * (maxTextureHeight + cellPadding) +
             2.0F * panelPadding - cellPadding;
+        const uint32_t gridRows = matchingCount > 0
+                                      ? (matchingCount + gridColumns - 1) / gridColumns
+                                      : 1;
+        const DesignDimension gridAreaHeight = static_cast<DesignDimension>(gridRows) * (ITEM_SLOT_SIZE + gridPadding) -
+            gridPadding + 2.0F * panelPadding;
+        const DesignDimension panelHeight = std::max(tagAreaHeight, gridAreaHeight);
         panelWidth_ = panelWidth;
         panelHeight_ = panelHeight;
 
@@ -227,6 +236,9 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
 void glimmer::MaterialSelectCraftUISystem::OnConfigChanged(const Config* config)
 {
     uiScale_ = config->window.uiScale;
+    // Dynamic inner padding = base padding * UI scale
+    // 动态内边距 = 基础内边距 × UI缩放比例
+    panelInnerPadding_ = basePanelInnerPadding_ * uiScale_;
 }
 
 void glimmer::MaterialSelectCraftUISystem::OnWindowSizeChanged(int width, int height)
@@ -244,6 +256,15 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
         panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
         panelBGResourceRef.SetResourceKey("gui/panel_bg");
         panelBackGroundTexture_ = worldContext_->GetAppContext()->GetResourceLocator()->
+                                                 FindTexture(&panelBGResourceRef);
+    }
+    if (subPanelBackGroundTexture_ == nullptr)
+    {
+        ResourceRef panelBGResourceRef;
+        panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
+        panelBGResourceRef.SetResourceKey("gui/sub_panel_bg");
+        subPanelBackGroundTexture_ = worldContext_->GetAppContext()->GetResourceLocator()->
                                                  FindTexture(&panelBGResourceRef);
     }
     if (textTexture_.empty() || preloadColors_ == nullptr)
@@ -289,6 +310,36 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
     const float panelY = (static_cast<float>(windowHeight_) - scaledPanelHeight) * 0.5F;
     const SDL_FRect panelRect{panelX, panelY, scaledPanelWidth, scaledPanelHeight};
     SDL_RenderTexture(renderer, panelBackGroundTexture_.get(), nullptr, &panelRect);
+
+    // Draw sub-panel background for the tag area (left side).
+    // 绘制左侧标签区域的子面板背景。
+    if (subPanelBackGroundTexture_ != nullptr && dataLength > 0)
+    {
+        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight + cellPadding) +
+            2.0F * panelPadding - cellPadding;
+        const float scaledTagSubPanelWidth = maxTextureWidth * uiScale_;
+        const float scaledTagSubPanelHeight = std::max(tagAreaHeight, panelHeight_ - 2.0F * panelInnerPadding_ / uiScale_) * uiScale_;
+        const SDL_FRect tagSubPanelRect{
+            panelX + panelInnerPadding_,
+            panelY + panelInnerPadding_,
+            scaledTagSubPanelWidth,
+            scaledTagSubPanelHeight
+        };
+        SDL_RenderTexture(renderer, subPanelBackGroundTexture_.get(), nullptr, &tagSubPanelRect);
+
+        // Draw sub-panel background for the item slot grid (right side).
+        // 绘制右侧物品槽网格的子面板背景。
+        const DesignDimension gridSubPanelWidth = panelWidth_ - maxTextureWidth - 2.0F * panelPadding;
+        const float scaledGridSubPanelWidth = gridSubPanelWidth * uiScale_;
+        const float gridSubPanelX = panelX + (maxTextureWidth + panelPadding) * uiScale_;
+        const SDL_FRect gridSubPanelRect{
+            gridSubPanelX,
+            panelY + panelInnerPadding_,
+            scaledGridSubPanelWidth,
+            scaledTagSubPanelHeight
+        };
+        SDL_RenderTexture(renderer, subPanelBackGroundTexture_.get(), nullptr, &gridSubPanelRect);
+    }
 
     // Place the tag textures vertically on the left side of the panel using VerticalLayoutStepper.
     // 使用VerticalLayoutStepper将标签纹理垂直排在面板的左侧。

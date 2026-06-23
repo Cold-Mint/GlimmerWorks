@@ -27,6 +27,7 @@
 #pragma once
 #include "GUISystem.h"
 #include "core/ecs/GameSystem.h"
+#include "core/ecs/component/ItemSlotQuantityComponent.h"
 
 namespace glimmer
 {
@@ -34,6 +35,7 @@ namespace glimmer
     {
         RecipeResource* recipeResource_ = nullptr;
         std::unordered_map<uint64_t, std::string> recipeStringMap_;
+        std::vector<ItemSlotQuantityComponent*> itemSlotQuantityList_;
         StringManager* stringManager_ = nullptr;
         std::unordered_map<uint64_t, std::array<std::shared_ptr<SDL_Texture>, 2>> textTexture_;
         ResourcePackManager* resourcePackManager_ = nullptr;
@@ -42,6 +44,8 @@ namespace glimmer
         int windowHeight_ = 0;
         int windowWidth_ = 0;
         std::shared_ptr<SDL_Texture> panelBackGroundTexture_ = nullptr;
+        DesignDimension panelWidth_ = 0.0F;
+        DesignDimension panelHeight_ = 0.0F;
 
     public:
         explicit MaterialSelectCraftUISystem(WorldContext* worldContext);

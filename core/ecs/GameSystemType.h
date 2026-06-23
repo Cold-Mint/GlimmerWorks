@@ -62,6 +62,8 @@ namespace glimmer
         Transform2DSystem,
         InventoryCraftGUISystem,
         CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem
+        MaterialSelectCraftUISystem,
+        ItemToolTipSystem,
+        ItemSlotQuantitySystem,
     };
 }

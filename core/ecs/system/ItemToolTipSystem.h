@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,29 +26,40 @@
  */
 #pragma once
 #include "core/ecs/GameSystem.h"
-#include "core/ecs/component/ItemSlotComponent.h"
-
 
 namespace glimmer
 {
-    struct PreloadColors;
-    class Item;
-
-    class ItemSlotSystem : public GameSystem
+    class ItemToolTipSystem : public GameSystem
     {
-        std::shared_ptr<SDL_Texture> itemSlotTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> itemSlotSelectedTexture_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
-        AppContext* appContext_ = nullptr;
         float uiScale_ = 1.0F;
-        std::vector<ItemSlotComponent*> itemSlotComponents_;
-        HotBarComponent* hotBarComponent_ = nullptr;
-        uint32_t itemSlotCount_ = 0;
+        std::shared_ptr<SDL_Texture> tooltipBgTexture_ = nullptr;
+        ItemToolTipComponent* itemToolTipComponent_ = nullptr;
+        AppContext* appContext_ = nullptr;
+        std::shared_ptr<SDL_Texture> itemNameTexture_ = nullptr;
+        uint64_t itemNameFingerprint_ = 0;
+        std::shared_ptr<SDL_Texture> itemDescriptionTexture_ = nullptr;
+        uint64_t itemDescriptionFingerprint_ = 0;
         ResourcePackManager* resourcePackManager_ = nullptr;
-        std::unordered_map<uint8_t, std::shared_ptr<SDL_Texture>> numberTextures_;
+        uint64_t canMineBlockFingerprint_ = 0;
+        std::shared_ptr<SDL_Texture> canMineBlockTipTexture_ = nullptr;
+        uint64_t canMineWallFingerprint_ = 0;
+        std::shared_ptr<SDL_Texture> canMineWallTipTexture_ = nullptr;
+        uint64_t precisionMiningTipFingerprint_ = 0;
+        std::shared_ptr<SDL_Texture> precisionMiningTipTexture_ = nullptr;
+        uint64_t efficiencyTipFingerprint_ = 0;
+        std::shared_ptr<SDL_Texture> efficiencyTipTexture_ = nullptr;
+        uint64_t fumbleTipFingerprint_ = 0;
+        std::shared_ptr<SDL_Texture> fumbleTipTexture_ = nullptr;
+        uint64_t chainMiningTipFingerprint_ = 0;
+        std::shared_ptr<SDL_Texture> chainMiningTipTexture_ = nullptr;
+        bool efficiencyTipPositive_ = false;
+        bool fumbleTipPositive_ = false;
+        bool chainMiningTipPositive_ = false;
+        PreloadColors* preloadColors_ = nullptr;
+
 
     public:
-        explicit ItemSlotSystem(WorldContext* worldContext);
+        explicit ItemToolTipSystem(WorldContext* worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

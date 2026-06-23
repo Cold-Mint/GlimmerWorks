@@ -46,7 +46,7 @@ uint8_t glimmer::ItemSlotComponent::GetSlotIndex() const
     return slotIndex_;
 }
 
-void glimmer::ItemSlotComponent::SetPadding(DesignDimension padding)
+void glimmer::ItemSlotComponent::SetPadding(const DesignDimension padding)
 {
     padding_ = padding;
 }

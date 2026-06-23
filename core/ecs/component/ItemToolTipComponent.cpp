@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,40 +24,35 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/ecs/GameSystem.h"
-#include "core/ecs/component/ItemSlotComponent.h"
+#include "ItemToolTipComponent.h"
 
-
-namespace glimmer
+void glimmer::ItemToolTipComponent::SetPosition(const ScreenVector2D& position)
 {
-    struct PreloadColors;
-    class Item;
+    position_ = position;
+}
 
-    class ItemSlotSystem : public GameSystem
-    {
-        std::shared_ptr<SDL_Texture> itemSlotTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> itemSlotSelectedTexture_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
-        AppContext* appContext_ = nullptr;
-        float uiScale_ = 1.0F;
-        std::vector<ItemSlotComponent*> itemSlotComponents_;
-        HotBarComponent* hotBarComponent_ = nullptr;
-        uint32_t itemSlotCount_ = 0;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        std::unordered_map<uint8_t, std::shared_ptr<SDL_Texture>> numberTextures_;
+void glimmer::ItemToolTipComponent::SetItem(const Item* item)
+{
+    item_ = item;
+}
 
-    public:
-        explicit ItemSlotSystem(WorldContext* worldContext);
+const glimmer::Item* glimmer::ItemToolTipComponent::GetItem() const
+{
+    return item_;
+}
 
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+const glimmer::ScreenVector2D& glimmer::ItemToolTipComponent::GetPosition() const
+{
+    return position_;
+}
 
-        void OnConfigChanged(const Config* config) override;
 
-        void Render(SDL_Renderer* renderer) override;
+GameComponentTypeMessage glimmer::ItemToolTipComponent::GetComponentTypeStatic()
+{
+    return COMPONENT_ITEM_TOOL_TIP;
+}
 
-        uint8_t GetRenderOrder() override;
-
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
-    };
+GameComponentTypeMessage glimmer::ItemToolTipComponent::GetComponentType()
+{
+    return GetComponentTypeStatic();
 }

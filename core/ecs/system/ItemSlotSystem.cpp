@@ -34,7 +34,6 @@
 
 #include "core/ecs/component/ItemSlotComponent.h"
 #include "core/math/CoordinateTransformer.h"
-#include "core/utils/StringUtils.h"
 #include "core/world/PreloadColors.h"
 
 void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
@@ -172,9 +171,15 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
             SDL_RenderTexture(renderer, amountTexture, nullptr, &dst);
         }
     }
-    if (hoveredItem)
+    if (entityShortCut_ != nullptr)
     {
-        RenderTooltip(renderer, hoveredItem);
+        ItemToolTipComponent* itemToolTipComponent =
+            entityShortCut_->GetItemToolTipComponent();
+        if (itemToolTipComponent != nullptr)
+        {
+            itemToolTipComponent->SetItem(hoveredItem);
+            itemToolTipComponent->SetPosition({mouseX, mouseY});
+        }
     }
     AppContext::RestoreColorRenderer(renderer);
 }
@@ -188,231 +193,6 @@ uint8_t glimmer::ItemSlotSystem::GetRenderOrder()
 glimmer::GameSystemType glimmer::ItemSlotSystem::GetGameSystemType() const
 {
     return GameSystemType::ItemSlotSystem;
-}
-
-void glimmer::ItemSlotSystem::RenderTooltip(SDL_Renderer* renderer, const Item* item)
-{
-    if (item == nullptr)
-    {
-        return;
-    }
-    float mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
-    const LangsResources* langsResources = appContext_->GetLangsResources();
-    std::vector<SDL_Texture*> textureToDraw;
-    // 渲染物品名称
-    const std::string& name = item->GetName();
-    const uint64_t itemNameFingerprint = StringUtils::StringToUint64(name);
-    if (itemNameFingerprint != itemNameFingerprint_)
-    {
-        itemNameTexture_ = resourcePackManager_->CreateStringTexture(name, &preloadColors_->textColor);
-        itemNameFingerprint_ = itemNameFingerprint;
-    }
-    if (itemNameTexture_ != nullptr)
-    {
-        textureToDraw.emplace_back(itemNameTexture_.get());
-    }
-    const std::optional<std::string>& descriptionOptional = item->GetDescription();
-    if (descriptionOptional.has_value())
-    {
-        const std::string& description = descriptionOptional.value();
-        const uint64_t itemDescriptionFingerprint = StringUtils::StringToUint64(description);
-        if (itemDescriptionFingerprint != itemDescriptionFingerprint_)
-        {
-            itemDescriptionTexture_ = resourcePackManager_->
-                CreateStringTexture(description, &preloadColors_->textColor);
-            itemDescriptionFingerprint_ = itemDescriptionFingerprint;
-        }
-        if (itemDescriptionTexture_ != nullptr)
-        {
-            textureToDraw.emplace_back(itemDescriptionTexture_.get());
-        }
-    }
-
-    // 渲染能力属性
-    const AbilityConfig* abilityConfig = item->GetAbilityConfig();
-    if (abilityConfig != nullptr)
-    {
-        if (abilityConfig->mineAbleLayer & Ground)
-        {
-            uint64_t canMineBlockFingerprint = StringUtils::StringToUint64(langsResources->canMineBlockTip);
-            if (canMineBlockFingerprint != canMineBlockFingerprint_)
-            {
-                canMineBlockTipTexture_ = resourcePackManager_->
-                    CreateStringTexture(langsResources->canMineBlockTip, &preloadColors_->game.positiveAttributeColor,
-                                        TOOLTIP_TEXT_WRAP_WIDTH);
-                canMineBlockFingerprint_ = canMineBlockFingerprint;
-            }
-            if (canMineBlockTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(canMineBlockTipTexture_.get());
-            }
-        }
-        if (abilityConfig->mineAbleLayer & BackGround)
-        {
-            uint64_t canMineWallFingerprint = StringUtils::StringToUint64(langsResources->canMineWallTip);
-            if (canMineWallFingerprint != canMineWallFingerprint_)
-            {
-                canMineWallTipTexture_ = resourcePackManager_->
-                    CreateStringTexture(langsResources->canMineWallTip, &preloadColors_->game.positiveAttributeColor,
-                                        TOOLTIP_TEXT_WRAP_WIDTH);
-                canMineWallFingerprint_ = canMineWallFingerprint;
-            }
-            if (canMineWallTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(canMineWallTipTexture_.get());
-            }
-        }
-        if (abilityConfig->enablePrecisionMining)
-        {
-            uint64_t precisionMiningTipFingerprint = StringUtils::StringToUint64(langsResources->precisionMiningTip);
-            if (precisionMiningTipFingerprint != precisionMiningTipFingerprint_)
-            {
-                precisionMiningTipTexture_ = resourcePackManager_->CreateStringTexture(
-                    langsResources->precisionMiningTip, &preloadColors_->game.positiveAttributeColor,
-                    TOOLTIP_TEXT_WRAP_WIDTH);
-                precisionMiningTipFingerprint_ = precisionMiningTipFingerprint;
-            }
-            if (precisionMiningTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(precisionMiningTipTexture_.get());
-            }
-        }
-
-        // 挖掘效率
-        float miningEfficiency = abilityConfig->miningEfficiency;
-        if (miningEfficiency != 0.0F)
-        {
-            std::string efficiencyTip = fmt::format(
-                fmt::runtime(langsResources->efficiencyTip),
-                fmt::format("{0:+.0f}", miningEfficiency * 100)
-            );
-            uint64_t efficiencyTipFingerprint = StringUtils::StringToUint64(efficiencyTip);
-            bool efficiencyTipPositive = miningEfficiency > 0;
-            if (efficiencyTipPositive != efficiencyTipPositive_ || efficiencyTipFingerprint !=
-                efficiencyTipFingerprint_)
-            {
-                efficiencyTipTexture_ = resourcePackManager_->CreateStringTexture(
-                    efficiencyTip, efficiencyTipPositive
-                                       ? &preloadColors_->game.positiveAttributeColor
-                                       : &preloadColors_->game.negativeAttributeColor,
-                    TOOLTIP_TEXT_WRAP_WIDTH);
-                efficiencyTipPositive_ = efficiencyTipPositive;
-                efficiencyTipFingerprint_ = efficiencyTipFingerprint;
-            }
-            if (efficiencyTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(efficiencyTipTexture_.get());
-            }
-        }
-
-        // 失误概率
-        float fumbleProbability = abilityConfig->fumbleProbability;
-        if (fumbleProbability != 0.0F)
-        {
-            std::string fumbleTip = fmt::format(
-                fmt::runtime(langsResources->fumbleTip),
-                (fumbleProbability > 0 ? "+" : "") + fmt::format("{0:.0f}", fumbleProbability * 100));
-            uint64_t fumbleTipFingerprint = StringUtils::StringToUint64(fumbleTip);
-            bool fumbleTipPositive = fumbleProbability > 0;
-            if (fumbleTipPositive != fumbleTipPositive_ || fumbleTipFingerprint != fumbleTipFingerprint_)
-            {
-                fumbleTipTexture_ = resourcePackManager_->CreateStringTexture(
-                    fumbleTip, fumbleTipPositive
-                                   ? &preloadColors_->game.positiveAttributeColor
-                                   : &preloadColors_->game.negativeAttributeColor,
-                    TOOLTIP_TEXT_WRAP_WIDTH);
-                fumbleTipPositive_ = fumbleTipPositive;
-                fumbleTipFingerprint_ = fumbleTipFingerprint;
-            }
-            if (fumbleTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(fumbleTipTexture_.get());
-            }
-        }
-
-        // 连锁挖掘半径
-        int chainMiningRadius = abilityConfig->chainMiningRadius;
-        if (chainMiningRadius != 0)
-        {
-            std::string chainMiningTip = fmt::format(
-                fmt::runtime(langsResources->chainMiningTip),
-                (chainMiningRadius > 0 ? "+" : "") + std::to_string(chainMiningRadius));
-            uint64_t chainMiningTipFingerprint = StringUtils::StringToUint64(chainMiningTip);
-            bool chainMiningTipPositive = chainMiningRadius > 0;
-            if (chainMiningTipPositive != chainMiningTipPositive_ || chainMiningTipFingerprint !=
-                chainMiningTipFingerprint_)
-            {
-                chainMiningTipTexture_ = resourcePackManager_->CreateStringTexture(
-                    chainMiningTip, chainMiningTipPositive
-                                        ? &preloadColors_->game.positiveAttributeColor
-                                        : &preloadColors_->game.negativeAttributeColor,
-                    TOOLTIP_TEXT_WRAP_WIDTH);
-                chainMiningTipPositive_ = chainMiningTipPositive;
-                chainMiningTipFingerprint_ = chainMiningTipFingerprint;
-            }
-            if (chainMiningTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(chainMiningTipTexture_.get());
-            }
-        }
-    }
-
-    constexpr float baseLineSpacing = 2.0F; // 基础行间距（未缩放）
-    constexpr float basePadding = 8.0F; // 基础内边距（未缩放）
-    const float scaledLineSpacing = baseLineSpacing * uiScale_;
-    const float scaledPadding = basePadding * uiScale_;
-
-    float maxWidth = 0.0F;
-    float totalTextHeight = 0.0F;
-    const size_t textureCount = textureToDraw.size();
-
-    for (size_t i = 0; i < textureCount; ++i)
-    {
-        SDL_Texture* texture = textureToDraw[i];
-        if (texture == nullptr)
-        {
-            continue;
-        }
-
-        maxWidth = std::max(maxWidth, static_cast<float>(texture->w));
-        totalTextHeight += static_cast<float>(texture->h);
-        if (i != textureCount - 1)
-        {
-            totalTextHeight += scaledLineSpacing;
-        }
-    }
-
-    const SDL_FRect backgroundRect{
-        mouseX,
-        mouseY,
-        (maxWidth + 2 * basePadding) * uiScale_, // 左右padding
-        (totalTextHeight + 2 * basePadding) * uiScale_ // 上下padding
-    };
-
-    if (tooltipBgTexture_ != nullptr)
-    {
-        SDL_RenderTexture(renderer, tooltipBgTexture_.get(), nullptr, &backgroundRect);
-    }
-    float currentX = backgroundRect.x + scaledPadding;
-    float currentY = backgroundRect.y + scaledPadding;
-
-    for (auto* texture : textureToDraw)
-    {
-        if (texture == nullptr)
-        {
-            continue;
-        }
-
-        const SDL_FRect dstRect{
-            currentX,
-            currentY,
-            static_cast<float>(texture->w) * uiScale_,
-            static_cast<float>(texture->h) * uiScale_
-        };
-        SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
-        currentY += static_cast<float>(texture->h) * uiScale_ + scaledLineSpacing;
-    }
 }
 
 void glimmer::ItemSlotSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
@@ -459,11 +239,6 @@ glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
     itemSlotSelectedResourceRef.SetResourceType(RESOURCE_TEXTURE);
     itemSlotSelectedResourceRef.SetResourceKey("gui/item_slot_selected");
     itemSlotSelectedTexture_ = resourceLocator->FindTexture(&itemSlotSelectedResourceRef);
-    ResourceRef tooltipBgResourceRef;
-    tooltipBgResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    tooltipBgResourceRef.SetResourceType(RESOURCE_TEXTURE);
-    tooltipBgResourceRef.SetResourceKey("gui/tooltip_bg");
-    tooltipBgTexture_ = resourceLocator->FindTexture(&tooltipBgResourceRef);
     preloadColors_ = appContext_->GetPreloadColors();
     resourcePackManager_ = appContext_->GetResourcePackManager();
     Init();

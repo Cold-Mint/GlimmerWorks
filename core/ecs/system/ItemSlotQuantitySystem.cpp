@@ -24,57 +24,38 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "CraftPreviewSlotSystem.h"
-#include "fmt/format.h"
+#include "ItemSlotQuantitySystem.h"
 
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
-glimmer::CraftPreviewSlotSystem::CraftPreviewSlotSystem(WorldContext* worldContext)
+glimmer::ItemSlotQuantitySystem::ItemSlotQuantitySystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
-    WatchComponent(COMPONENT_CRAFT_PREVIEW);
+    WatchComponent(COMPONENT_ITEM_SLOT_QUANTITY);
     appContext_ = worldContext->GetAppContext();
     const ResourceLocator* resourceLocator = appContext_->GetResourceLocator();
-    ResourceRef craftPreviewSlotResourceRef;
-    craftPreviewSlotResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    craftPreviewSlotResourceRef.SetResourceType(RESOURCE_TEXTURE);
-    craftPreviewSlotResourceRef.SetResourceKey("gui/craft_preview_slot");
-    craftPreviewSlotTexture_ = resourceLocator->FindTexture(&craftPreviewSlotResourceRef);
-    ResourceRef tooltipResourceRef;
-    tooltipResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    tooltipResourceRef.SetResourceType(RESOURCE_TEXTURE);
-    tooltipResourceRef.SetResourceKey("gui/tooltip_bg");
-    tooltipBgTexture_ = resourceLocator->FindTexture(&tooltipResourceRef);
-    preloadColors_ = appContext_->GetPreloadColors();
+    ResourceRef itemSlotResourceRef;
+    itemSlotResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    itemSlotResourceRef.SetResourceType(RESOURCE_TEXTURE);
+    itemSlotResourceRef.SetResourceKey("gui/item_slot");
+    itemSlotTexture_ = resourceLocator->FindTexture(&itemSlotResourceRef);
     resourcePackManager_ = appContext_->GetResourcePackManager();
+    preloadColors_ = appContext_->GetPreloadColors();
     Init();
 }
 
-void glimmer::CraftPreviewSlotSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
-                                                                uint32_t count)
+uint8_t glimmer::ItemSlotQuantitySystem::GetRenderOrder()
 {
-    if (gameComponentType == COMPONENT_CRAFT_PREVIEW)
-    {
-        auto entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_CRAFT_PREVIEW});
-        for (auto entity : entities_)
-        {
-            auto craftPreviewSlotComponent = entityManager_->GetComponent<CraftPreviewSlotComponent>(entity);
-            if (craftPreviewSlotComponent == nullptr)
-            {
-                continue;
-            }
-            craftPreviewSlotComponents_.emplace_back(craftPreviewSlotComponent);
-        }
-    }
+    return RENDER_ORDER_ITEM_SLOT_QUANTITY;
 }
 
-void glimmer::CraftPreviewSlotSystem::OnConfigChanged(const Config* config)
+void glimmer::ItemSlotQuantitySystem::OnConfigChanged(const Config* config)
 {
     uiScale_ = config->window.uiScale;
 }
 
-void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
+void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
 {
     if (worldContext_ == nullptr || preloadColors_ == nullptr)
     {
@@ -83,47 +64,86 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     const Item* hoveredItem = nullptr;
-    hoveredCraftPreviewSlotComponent_ = nullptr;
-    for (auto craftPreviewSlotComponent : craftPreviewSlotComponents_)
+    for (auto itemSlotComponent : itemSlotQuantityComponents_)
     {
-        if (craftPreviewSlotComponent == nullptr)
+        if (itemSlotComponent == nullptr)
         {
             continue;
         }
-        if (!craftPreviewSlotComponent->IsVisible())
+        if (!itemSlotComponent->IsVisible())
         {
             continue;
         }
         const ScreenVector2D& size = CoordinateTransformer::DesignToScreen(
-            craftPreviewSlotComponent->GetSize(), uiScale_);
+            itemSlotComponent->GetSize(), uiScale_);
         const ScreenVector2D& position = CoordinateTransformer::DesignToScreen(
-            craftPreviewSlotComponent->GetPosition(), uiScale_);
+            itemSlotComponent->GetPosition(), uiScale_);
         const SDL_FRect rect = {position.x, position.y, size.x, size.y};
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
             mouseY >= rect.y && mouseY <= rect.y + rect.h;
-        craftPreviewSlotComponent->SetHovered(isHovered);
-        SDL_RenderTexture(renderer, craftPreviewSlotTexture_.get(), nullptr, &rect);
 
-        const Item* item = craftPreviewSlotComponent->GetItem();
+        itemSlotComponent->SetHovered(isHovered);
+        if (itemSlotTexture_ != nullptr)
+        {
+            SDL_RenderTexture(renderer, itemSlotTexture_.get(), nullptr, &rect);
+        }
+        const Item* item = itemSlotComponent->GetItem();
         if (isHovered)
         {
             hoveredItem = item;
-            hoveredCraftPreviewSlotComponent_ = craftPreviewSlotComponent;
         }
         if (item == nullptr)
         {
             continue;
         }
-        float padding = craftPreviewSlotComponent->GetPadding() * uiScale_;
+        float padding = itemSlotComponent->GetPadding() * uiScale_;
         const SDL_FRect itemRect = {
             rect.x + padding, rect.y + padding, rect.w - padding * 2.0F,
             rect.h - padding * 2.0F
         };
 
-        auto iconTexture = item->GetIcon();
-        if (iconTexture != nullptr)
+        if (!item->IsUnbreakable())
         {
-            SDL_RenderTexture(renderer, iconTexture, nullptr, &itemRect);
+            const uint32_t totalDur = std::max(item->GetMaxDurability(), 1U);
+            const uint32_t usedDur = item->GetUsedDurability();
+            const uint32_t remainDur = usedDur >= totalDur ? 0U : totalDur - usedDur;
+            float remainingDurabilityPercentage = static_cast<float>(remainDur) / static_cast<float>(totalDur);
+            if (remainingDurabilityPercentage != 1.0F)
+            {
+                Color color;
+                if (remainingDurabilityPercentage >= 0.8F)
+                {
+                    color = preloadColors_->durability.durabilityGood;
+                }
+                else if (remainingDurabilityPercentage >= 0.6F)
+                {
+                    color = preloadColors_->durability.durabilityNotice;
+                }
+                else if (remainingDurabilityPercentage >= 0.1F)
+                {
+                    color = preloadColors_->durability.durabilityWarning;
+                }
+                else
+                {
+                    color = preloadColors_->durability.durabilityDanger;
+                }
+                const float durabilityBarHeight = itemRect.h * remainingDurabilityPercentage;
+                const float barY = itemRect.y + itemRect.h - durabilityBarHeight;
+                const SDL_FRect durabilityRect = {
+                    itemRect.x,
+                    barY,
+                    itemRect.w,
+                    durabilityBarHeight
+                };
+                SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+                SDL_RenderFillRect(renderer, &durabilityRect);
+            }
+        }
+
+        auto texture = item->GetIcon();
+        if (texture != nullptr)
+        {
+            SDL_RenderTexture(renderer, texture, nullptr, &itemRect);
         }
         uint8_t amount = item->GetAmount();
         if (amount > 1)
@@ -172,27 +192,25 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
-bool glimmer::CraftPreviewSlotSystem::HandleEvent(const SDL_Event& event)
+void glimmer::ItemSlotQuantitySystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
+                                                                uint32_t count)
 {
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT)
+    if (gameComponentType == COMPONENT_ITEM_SLOT_QUANTITY)
     {
-        if (hoveredCraftPreviewSlotComponent_ == nullptr)
+        auto entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT_QUANTITY});
+        for (auto entity : entities_)
         {
-            return false;
+            auto itemSlotQuantityComponent = entityManager_->GetComponent<ItemSlotQuantityComponent>(entity);
+            if (itemSlotQuantityComponent == nullptr)
+            {
+                continue;
+            }
+            itemSlotQuantityComponents_.emplace_back(itemSlotQuantityComponent);
         }
-        entityShortCut_->SetSelectedCraftPreviewSlotComponent(hoveredCraftPreviewSlotComponent_);
-        worldContext_->PushGuiSystemType(GameSystemType::MaterialSelectCraftUISystem);
-        return true;
     }
-    return false;
 }
 
-uint8_t glimmer::CraftPreviewSlotSystem::GetRenderOrder()
+glimmer::GameSystemType glimmer::ItemSlotQuantitySystem::GetGameSystemType() const
 {
-    return RENDER_ORDER_CRAFT_PREVIEW_SLOT;
-}
-
-glimmer::GameSystemType glimmer::CraftPreviewSlotSystem::GetGameSystemType() const
-{
-    return GameSystemType::CraftPreviewSlotSystem;
+    return GameSystemType::ItemSlotQuantitySystem;
 }

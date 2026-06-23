@@ -33,6 +33,7 @@
 #include "component/DiggingComponent.h"
 #include "component/HotBarComponent.h"
 #include "component/ItemContainerComponent.h"
+#include "component/ItemToolTipComponent.h"
 #include "component/ParallaxBackgroundComponent.h"
 #include "component/Transform2DComponent.h"
 #include "core/Constants.h"
@@ -51,6 +52,7 @@ namespace glimmer
         AreaMarkerComponent* areaMarkerComponent_ = nullptr;
         ParallaxBackgroundComponent* parallaxBackgroundComponent_ = nullptr;
         CraftPreviewSlotComponent* selectedCraftPreviewSlotComponent_ = nullptr;
+        ItemToolTipComponent* itemToolTipComponent_ = nullptr;
 
     public:
         void SetPlayer(GameEntityID player);
@@ -65,6 +67,9 @@ namespace glimmer
 
         [[nodiscard]] GameEntityID GetPlayer() const;
 
+        [[nodiscard]] ItemToolTipComponent* GetItemToolTipComponent() const;
+
+        void SetItemToolTipComponent(ItemToolTipComponent* itemToolTipComponent);
 
         void SetDiggingComponent(DiggingComponent* diggingComponent);
 

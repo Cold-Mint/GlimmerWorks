@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,37 +26,30 @@
  */
 #pragma once
 #include "core/ecs/GameSystem.h"
-#include "core/ecs/component/ItemSlotComponent.h"
-
+#include "core/ecs/component/ItemSlotQuantityComponent.h"
 
 namespace glimmer
 {
-    struct PreloadColors;
-    class Item;
-
-    class ItemSlotSystem : public GameSystem
+    class ItemSlotQuantitySystem : public GameSystem
     {
+        std::vector<ItemSlotQuantityComponent*> itemSlotQuantityComponents_;
         std::shared_ptr<SDL_Texture> itemSlotTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> itemSlotSelectedTexture_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
         AppContext* appContext_ = nullptr;
         float uiScale_ = 1.0F;
-        std::vector<ItemSlotComponent*> itemSlotComponents_;
-        HotBarComponent* hotBarComponent_ = nullptr;
-        uint32_t itemSlotCount_ = 0;
+        PreloadColors* preloadColors_ = nullptr;
         ResourcePackManager* resourcePackManager_ = nullptr;
         std::unordered_map<uint8_t, std::shared_ptr<SDL_Texture>> numberTextures_;
 
     public:
-        explicit ItemSlotSystem(WorldContext* worldContext);
+        explicit ItemSlotQuantitySystem(WorldContext* worldContext);
 
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+        uint8_t GetRenderOrder() override;
 
         void OnConfigChanged(const Config* config) override;
 
         void Render(SDL_Renderer* renderer) override;
 
-        uint8_t GetRenderOrder() override;
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

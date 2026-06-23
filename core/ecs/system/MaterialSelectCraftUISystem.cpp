@@ -27,6 +27,7 @@
 #include "MaterialSelectCraftUISystem.h"
 
 #include <algorithm>
+#include "core/layout/GridLayoutStepper.h"
 #include "core/layout/VerticalLayoutStepper.h"
 #include "core/world/WorldContext.h"
 
@@ -48,7 +49,7 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
 {
     if (activeStatus)
     {
-        CraftPreviewSlotComponent* slotComponent = entityShortCut_->GetSelectedCraftPreviewSlotComponent();
+        const CraftPreviewSlotComponent* slotComponent = entityShortCut_->GetSelectedCraftPreviewSlotComponent();
         if (slotComponent == nullptr)
         {
             worldContext_->PopGuiSystemType();
@@ -96,6 +97,129 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             array[0] = resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.positiveAttributeColor);
             array[1] = resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.negativeAttributeColor);
             textTexture_[cachedTagId] = array;
+        }
+        //Filter out all the items that have the labels required for this recipe synthesis.
+        //筛选所有的带有此配方合成需要的标签的物品。
+        ItemContainerComponent* itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+        if (itemContainerComponent == nullptr)
+        {
+            worldContext_->PopGuiSystemType();
+            return;
+        }
+        ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+        if (itemContainer == nullptr)
+        {
+            worldContext_->PopGuiSystemType();
+            return;
+        }
+        uint8_t capacity = itemContainer->GetCapacity();
+        uint8_t nextIndex = 0;
+
+        // Count matching items first to determine actual grid width
+        // 先统计匹配的物品数量以确定实际网格宽度
+        uint8_t matchingCount = 0;
+        for (int i = 0; i < capacity; i++)
+        {
+            const Item* item = itemContainer->GetItem(i);
+            if (item == nullptr)
+            {
+                continue;
+            }
+            for (auto& recipeString : recipeStringMap_)
+            {
+                if (item->HasTag(recipeString.first))
+                {
+                    matchingCount++;
+                    break;
+                }
+            }
+        }
+
+        constexpr DesignDimension panelPadding = 8.0F;
+        constexpr DesignDimension cellPadding = 4.0F;
+        DesignDimension maxTextureWidth = 0.0F;
+        DesignDimension maxTextureHeight = 0.0F;
+        for (const auto& kv : textTexture_)
+        {
+            const auto& textures = kv.second;
+            if (textures[0] == nullptr)
+            {
+                continue;
+            }
+            maxTextureWidth = std::max(maxTextureWidth, static_cast<DesignDimension>(textures[0]->w));
+            maxTextureHeight = std::max(maxTextureHeight, static_cast<DesignDimension>(textures[0]->h));
+        }
+
+        constexpr uint8_t gridColumns = 6;
+        constexpr DesignDimension gridPadding = 4.0F;
+        const uint8_t actualColumns = matchingCount > 0 ? std::min(matchingCount, gridColumns) : 1;
+        const DesignDimension gridWidth = actualColumns * (ITEM_SLOT_SIZE + gridPadding) - gridPadding;
+        const DesignDimension panelWidth = maxTextureWidth + gridWidth + 2.0F * panelPadding;
+        const DesignDimension panelHeight = static_cast<DesignDimension>(textTexture_.size()) * (maxTextureHeight + cellPadding) +
+            2.0F * panelPadding - cellPadding;
+        panelWidth_ = panelWidth;
+        panelHeight_ = panelHeight;
+
+        const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth) * 0.5F;
+        const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight) * 0.5F;
+
+        const DesignVector2D gridStartPosition{panelOffsetX + maxTextureWidth + panelPadding, panelOffsetY + panelPadding};
+        GridLayoutStepper gridStepper(ITEM_SLOT_SIZE, gridStartPosition, gridColumns, gridPadding, capacity);
+
+        for (int i = 0; i < capacity; i++)
+        {
+            const Item* item = itemContainer->GetItem(i);
+            if (item == nullptr)
+            {
+                continue;
+            }
+            bool hasTag = false;
+            for (auto& recipeString : recipeStringMap_)
+            {
+                if (item->HasTag(recipeString.first))
+                {
+                    hasTag = true;
+                    break;
+                }
+            }
+            if (!hasTag)
+            {
+                continue;
+            }
+            ItemSlotQuantityComponent* itemSlotQuantityComponent = nullptr;
+            if (nextIndex < itemSlotQuantityList_.size())
+            {
+                itemSlotQuantityComponent = itemSlotQuantityList_[nextIndex];
+            }
+            else
+            {
+                itemSlotQuantityComponent = entityManager_->AddComponent<
+                    ItemSlotQuantityComponent>(entityManager_->AddEntity());
+                itemSlotQuantityList_.emplace_back(itemSlotQuantityComponent);
+            }
+            if (itemSlotQuantityComponent == nullptr)
+            {
+                worldContext_->PopGuiSystemType();
+                return;
+            }
+            itemSlotQuantityComponent->Show();
+            itemSlotQuantityComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
+            itemSlotQuantityComponent->SetItemContainer(itemContainer);
+            itemSlotQuantityComponent->SetSlotIndex(i);
+            const DesignVector2D position = gridStepper.Next();
+            itemSlotQuantityComponent->SetPosition(position);
+            nextIndex++;
+        }
+        for (int i = nextIndex; i < itemSlotQuantityList_.size(); i++)
+        {
+            itemSlotQuantityList_[i]->Hide();
+        }
+    }
+    else
+    {
+        for (int i = 0; i < itemSlotQuantityList_.size(); i++)
+        {
+            itemSlotQuantityList_[i]->Hide();
         }
     }
 }
@@ -154,9 +278,8 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
 
     // Panel size in design coordinates.
     // 面板尺寸（设计坐标）。
-    const DesignDimension panelWidth = maxTextureWidth + 2.0F * panelPadding;
-    const DesignDimension panelHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight + cellPadding) +
-        2.0F * panelPadding - cellPadding;
+    const DesignDimension panelWidth = panelWidth_;
+    const DesignDimension panelHeight = panelHeight_;
 
     // Convert to screen coordinates and center the panel.
     // 转换到屏幕坐标并使面板居中。

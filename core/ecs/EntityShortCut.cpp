@@ -56,6 +56,16 @@ GameEntityID glimmer::EntityShortCut::GetPlayer() const
     return player_;
 }
 
+glimmer::ItemToolTipComponent* glimmer::EntityShortCut::GetItemToolTipComponent() const
+{
+    return itemToolTipComponent_;
+}
+
+void glimmer::EntityShortCut::SetItemToolTipComponent(ItemToolTipComponent* itemToolTipComponent)
+{
+    itemToolTipComponent_ = itemToolTipComponent;
+}
+
 void glimmer::EntityShortCut::SetDiggingComponent(DiggingComponent* diggingComponent)
 {
     diggingComponent_ = diggingComponent;

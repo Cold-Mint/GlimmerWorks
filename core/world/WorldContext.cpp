@@ -64,6 +64,8 @@
 #include "core/ecs/system/DraggableSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/InventoryCraftGUISystem.h"
+#include "core/ecs/system/ItemSlotQuantitySystem.h"
+#include "core/ecs/system/ItemToolTipSystem.h"
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/MaterialSelectCraftUISystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
@@ -1043,6 +1045,8 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<InventoryCraftGUISystem>(this));
     RegisterSystem(std::make_unique<CraftPreviewSlotSystem>(this));
     RegisterSystem(std::make_unique<MaterialSelectCraftUISystem>(this));
+    RegisterSystem(std::make_unique<ItemToolTipSystem>(this));
+    RegisterSystem(std::make_unique<ItemSlotQuantitySystem>(this));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));
@@ -1198,6 +1202,8 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
         InitHotbar(itemContainer);
         InitInventory(itemContainer);
     }
+    entityShortCut_->SetItemToolTipComponent(
+        entityManager_->AddComponent<ItemToolTipComponent>(entityManager_->AddEntity()));
     InitSystem();
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }

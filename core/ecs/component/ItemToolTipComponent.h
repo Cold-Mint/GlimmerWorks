@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,39 +25,27 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/ecs/GameSystem.h"
-#include "core/ecs/component/ItemSlotComponent.h"
-
+#include "core/inventory/Item.h"
+#include "core/math/ScreenVector2D.h"
 
 namespace glimmer
 {
-    struct PreloadColors;
-    class Item;
-
-    class ItemSlotSystem : public GameSystem
+    class ItemToolTipComponent : public GameComponent
     {
-        std::shared_ptr<SDL_Texture> itemSlotTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> itemSlotSelectedTexture_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
-        AppContext* appContext_ = nullptr;
-        float uiScale_ = 1.0F;
-        std::vector<ItemSlotComponent*> itemSlotComponents_;
-        HotBarComponent* hotBarComponent_ = nullptr;
-        uint32_t itemSlotCount_ = 0;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        std::unordered_map<uint8_t, std::shared_ptr<SDL_Texture>> numberTextures_;
+        ScreenVector2D position_;
+        const Item* item_ = nullptr;
 
     public:
-        explicit ItemSlotSystem(WorldContext* worldContext);
+        void SetPosition(const ScreenVector2D& position);
 
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+        void SetItem(const Item* item);
 
-        void OnConfigChanged(const Config* config) override;
+        [[nodiscard]] const Item* GetItem() const;
 
-        void Render(SDL_Renderer* renderer) override;
+        [[nodiscard]] const ScreenVector2D& GetPosition() const;
 
-        uint8_t GetRenderOrder() override;
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

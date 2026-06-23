@@ -619,6 +619,10 @@ target_sources(GlimmerWorks
         core/console/command/UnlockedRecipesCommand.cpp
         core/ecs/system/CraftPreviewSlotSystem.cpp
         core/ecs/system/MaterialSelectCraftUISystem.cpp
+        core/ecs/component/ItemToolTipComponent.cpp
+        core/ecs/system/ItemToolTipSystem.cpp
+        core/ecs/component/ItemSlotQuantityComponent.cpp
+        core/ecs/system/ItemSlotQuantitySystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -912,6 +916,10 @@ target_sources(GlimmerWorks
         core/console/command/UnlockedRecipesCommand.h
         core/ecs/system/MaterialSelectCraftUISystem.h
         core/ecs/system/CraftPreviewSlotSystem.h
+        core/ecs/system/ItemToolTipSystem.h
+        core/ecs/component/ItemToolTipComponent.h
+        core/ecs/component/ItemSlotQuantityComponent.h
+        core/ecs/system/ItemSlotQuantitySystem.h
 )
 
 #Define version information

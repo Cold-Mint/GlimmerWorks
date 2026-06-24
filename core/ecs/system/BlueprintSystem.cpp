@@ -32,9 +32,10 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
-std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Tile* tile, TileVector2D leftBottom,
-                                                                       WorldVector2D playerPosition, uint8_t tileWidth,
-                                                                       uint8_t tileHeight) const
+std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Tile* tile, const TileVector2D& leftBottom,
+                                                                       const WorldVector2D& playerPosition,
+                                                                       const uint8_t tileWidth,
+                                                                       const uint8_t tileHeight) const
 {
     std::vector<bool> result;
     result.resize(tileHeight * tileWidth + 1, false);
@@ -220,8 +221,8 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     TileVector2D tileAnchor = {0, 0};
     const TileVector2D& focusPosition = tileLayerComponent_->GetFocusPosition();
     const WorldVector2D focusWorldTilePos = CoordinateTransformer::TileToWorld(focusPosition);
-    PlayerComponent* playerComponent = entityManager_->GetComponent<PlayerComponent>(player);
-    Transform2DComponent* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(player);
+    auto* playerComponent = entityManager_->GetComponent<PlayerComponent>(player);
+    auto* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(player);
     Item* item = playerComponent->item;
     TileVector2D leftBottom = {0, 0};
     WorldVector2D playerPosition = transform2DComponent->GetPosition();

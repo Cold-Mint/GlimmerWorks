@@ -456,7 +456,7 @@ namespace toml {
         static glimmer::ItemMessageResource from_toml(const value &v) {
             glimmer::ItemMessageResource r;
             r.abilityItemRef = toml::find_or<std::vector<glimmer::ItemMessageResource>>(v, "ability_item_ref", {});
-            r.amount = toml::find_or<uint64_t>(v, "amount", 0);
+            r.amount = toml::find_or<uint64_t>(v, "amount", 1);
             r.item = toml::find<glimmer::ResourceRef>(v, "item");
             return r;
         }

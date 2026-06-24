@@ -59,8 +59,8 @@ namespace glimmer
          * @param tileHeight
          * @return
          */
-        std::vector<bool> CheckRectPlacementValidity(const Tile* tile, TileVector2D leftBottom,
-                                                     WorldVector2D playerPosition, uint8_t tileWidth,
+        std::vector<bool> CheckRectPlacementValidity(const Tile* tile, const TileVector2D& leftBottom,
+                                                     const WorldVector2D& playerPosition, uint8_t tileWidth,
                                                      uint8_t tileHeight) const;
 
     public:

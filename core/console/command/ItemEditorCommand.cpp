@@ -193,7 +193,7 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
         }
         else if (attribute == "amount")
         {
-            value << item->GetAmount();
+            value << static_cast<uint32_t>(item->GetAmount());
         }
         else if (attribute == "max_durability")
         {
@@ -201,7 +201,7 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
         }
         else if (attribute == "max_stack")
         {
-            value << item->GetMaxStack();
+            value << static_cast<uint32_t>(item->GetMaxStack());
         }
         onMessageRef(fmt::format(fmt::runtime(langsResources->itemEditorReadAttr), item->GetName(), attribute,
                                  value.str()));

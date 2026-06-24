@@ -746,7 +746,7 @@ namespace glimmer
         //@genNextLine(item|物品)
         ResourceRef item;
         //@genNextLine(amount|数量)
-        uint64_t amount = 0;
+        uint64_t amount = 1;
         //If it is a combinable item, then a list of capabilities needs to be set up.
         //如果是可组合物品，那么需要设置能力列表。
         //@genNextLine(abilityItemRef|能力物品)

@@ -46,7 +46,12 @@ void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
 
 void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
 {
-    amount_ = itemMessage.amount();
+    uint8_t amount = itemMessage.amount();
+    if (amount == 0)
+    {
+        amount = 1;
+    }
+    amount_ = amount;
     usedDurability_ = itemMessage.useddurability();
     resourceRef_.ReadResourceRefMessage(itemMessage.itemresourceref());
 }
@@ -104,13 +109,28 @@ void glimmer::Item::SetOnUsedDurabilityChanged(const std::function<void(uint32_t
 }
 
 
-void glimmer::Item::SetAmount(uint8_t amount)
+void glimmer::Item::SetAmount(const uint8_t amount)
 {
-    const bool add = amount >= amount_;
-    amount_ = std::min(amount, maxStack_);
-    if (onAmountChanged_ != nullptr)
+    if (amount == 0)
     {
-        onAmountChanged_(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
+        //Even if the quantity of the items is set to 0, the game will set it to 1 after reading the data to modify the dirty data.
+        //即使物品数量被设置为0，游戏会在读取数据后将其设置为1。以修改脏数据。
+        //It is feasible to consider "0" as a mark indicating that an item has been used up.
+        //0被看作是物品用完的标记是可行的。
+        amount_ = 0;
+        if (onAmountChanged_ != nullptr)
+        {
+            onAmountChanged_(ContainerChangeType::REMOVE, amount_);
+        }
+    }
+    else
+    {
+        const bool add = amount >= amount_;
+        amount_ = std::min(amount, maxStack_);
+        if (onAmountChanged_ != nullptr)
+        {
+            onAmountChanged_(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
+        }
     }
 }
 

@@ -428,7 +428,6 @@ void glimmer::ItemContainer::FromMessage(WorldContext* worldContext, const ItemC
         auto item = appContext->GetResourceLocator()->FindItem(worldContext, itemMessage);
         if (item != nullptr)
         {
-            item->SetAmount(itemMessage.amount());
             items_[i] = std::move(item);
             BindItemEvent(i, items_[i]);
         }

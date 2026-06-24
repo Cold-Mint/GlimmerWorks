@@ -221,14 +221,18 @@ namespace glimmer
          *按钮默认背景色（普通 ImGui::Button () 的底色）
          */
         Color buttonColor;
+        Color buttonTextColor;
         /**
          *鼠标悬停在按钮上时的背景色
          */
         Color buttonHoveredColor;
+        Color buttonHoveredTextColor;
         /**
          *鼠标点击按钮时的背景色
          */
-        Color buttonActiveColor;
+        Color buttonPressedColor;
+        Color buttonPressedTextColor;
+        Color buttonDisableTextColor;
 
         /**
          * The background color of the scroll bar (the base color of the scroll bar track)

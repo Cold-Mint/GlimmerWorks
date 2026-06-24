@@ -623,6 +623,8 @@ target_sources(GlimmerWorks
         core/ecs/system/ItemToolTipSystem.cpp
         core/ecs/component/ItemSlotQuantityComponent.cpp
         core/ecs/system/ItemSlotQuantitySystem.cpp
+        core/ecs/component/ButtonComponent.cpp
+        core/ecs/system/ButtonSystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -920,6 +922,8 @@ target_sources(GlimmerWorks
         core/ecs/component/ItemToolTipComponent.h
         core/ecs/component/ItemSlotQuantityComponent.h
         core/ecs/system/ItemSlotQuantitySystem.h
+        core/ecs/system/ButtonSystem.h
+        core/ecs/component/ButtonComponent.h
 )
 
 #Define version information

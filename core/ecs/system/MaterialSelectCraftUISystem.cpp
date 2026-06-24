@@ -34,14 +34,15 @@
 glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* worldContext)
     : GUISystem(worldContext)
 {
-    AppContext* appContext = worldContext_->GetAppContext();
-    if (appContext == nullptr)
+    appContext_ = worldContext_->GetAppContext();
+    langsResources_ = appContext_->GetLangsResources();
+    if (appContext_ == nullptr)
     {
         return;
     }
-    stringManager_ = appContext->GetStringManager();
-    resourcePackManager_ = appContext->GetResourcePackManager();
-    preloadColors_ = appContext->GetPreloadColors();
+    stringManager_ = appContext_->GetStringManager();
+    resourcePackManager_ = appContext_->GetResourcePackManager();
+    preloadColors_ = appContext_->GetPreloadColors();
     Init();
 }
 
@@ -117,7 +118,7 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
 
         // Count matching items first to determine actual grid width
         // 先统计匹配的物品数量以确定实际网格宽度
-        uint8_t matchingCount = 0;
+        matchingCount_ = 0;
         for (int i = 0; i < capacity; i++)
         {
             const Item* item = itemContainer->GetItem(i);
@@ -129,7 +130,7 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             {
                 if (item->HasTag(recipeString.first))
                 {
-                    matchingCount++;
+                    matchingCount_++;
                     break;
                 }
             }
@@ -137,8 +138,8 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
 
         constexpr DesignDimension panelPadding = 8.0F;
         constexpr DesignDimension cellPadding = 4.0F;
-        DesignDimension maxTextureWidth = 0.0F;
-        DesignDimension maxTextureHeight = 0.0F;
+        maxTextureWidth_ = 0.0F;
+        maxTextureHeight_ = 0.0F;
         for (const auto& kv : textTexture_)
         {
             const auto& textures = kv.second;
@@ -146,22 +147,24 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             {
                 continue;
             }
-            maxTextureWidth = std::max(maxTextureWidth, static_cast<DesignDimension>(textures[0]->w));
-            maxTextureHeight = std::max(maxTextureHeight, static_cast<DesignDimension>(textures[0]->h));
+            maxTextureWidth_ = std::max(maxTextureWidth_, static_cast<DesignDimension>(textures[0]->w));
+            maxTextureHeight_ = std::max(maxTextureHeight_, static_cast<DesignDimension>(textures[0]->h));
         }
 
         constexpr uint8_t gridColumns = 6;
         constexpr DesignDimension gridPadding = 4.0F;
-        const uint8_t actualColumns = matchingCount > 0 ? std::min(matchingCount, gridColumns) : 1;
-        const DesignDimension gridWidth = actualColumns * (ITEM_SLOT_SIZE + gridPadding) - gridPadding;
-        const DesignDimension panelWidth = maxTextureWidth + gridWidth + 2.0F * panelPadding;
+        const uint8_t actualColumns = matchingCount_ > 0 ? std::min(matchingCount_, gridColumns) : 1;
+        const DesignDimension gridWidth = static_cast<float>(actualColumns) * (ITEM_SLOT_SIZE + gridPadding) -
+            gridPadding;
+        const DesignDimension panelWidth = maxTextureWidth_ + gridWidth + 2.0F * panelPadding;
 
         // Calculate required heights for tag area and item slot grid, then take the larger one.
         // 计算标签区域和物品槽网格所需的高度，取较大值。
-        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(textTexture_.size()) * (maxTextureHeight + cellPadding) +
+        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(textTexture_.size()) * (maxTextureHeight_ +
+                cellPadding) +
             2.0F * panelPadding - cellPadding;
-        const uint32_t gridRows = matchingCount > 0
-                                      ? (matchingCount + gridColumns - 1) / gridColumns
+        const uint32_t gridRows = matchingCount_ > 0
+                                      ? (matchingCount_ + gridColumns - 1) / gridColumns
                                       : 1;
         const DesignDimension gridAreaHeight = static_cast<DesignDimension>(gridRows) * (ITEM_SLOT_SIZE + gridPadding) -
             gridPadding + 2.0F * panelPadding;
@@ -169,11 +172,14 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
         panelWidth_ = panelWidth;
         panelHeight_ = panelHeight;
 
-        const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth) * 0.5F;
-        const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight) * 0.5F;
+        const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth) *
+            0.5F;
+        const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight) *
+            0.5F;
 
-        const DesignVector2D gridStartPosition{panelOffsetX + maxTextureWidth + panelPadding, panelOffsetY + panelPadding};
-        GridLayoutStepper gridStepper(ITEM_SLOT_SIZE, gridStartPosition, gridColumns, gridPadding, capacity);
+        const DesignVector2D gridStartPosition{
+            panelOffsetX + maxTextureWidth_ + panelPadding, panelOffsetY + panelPadding
+        };
 
         for (int i = 0; i < capacity; i++)
         {
@@ -215,14 +221,25 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             itemSlotQuantityComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
             itemSlotQuantityComponent->SetItemContainer(itemContainer);
             itemSlotQuantityComponent->SetSlotIndex(i);
-            const DesignVector2D position = gridStepper.Next();
-            itemSlotQuantityComponent->SetPosition(position);
             nextIndex++;
         }
         for (int i = nextIndex; i < itemSlotQuantityList_.size(); i++)
         {
             itemSlotQuantityList_[i]->Hide();
         }
+
+        UpdateItemSlotPositions();
+
+        if (buttonComponent_ == nullptr)
+        {
+            buttonComponent_ = entityManager_->AddComponent<ButtonComponent>(entityManager_->AddEntity());
+            buttonComponent_->SetText(appContext_, langsResources_->craft);
+            buttonComponent_->SetClickCallback([]
+            {
+
+            });
+        }
+        buttonComponent_->Show();
     }
     else
     {
@@ -230,14 +247,16 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
         {
             itemSlotQuantityList_[i]->Hide();
         }
+        if (buttonComponent_ != nullptr)
+        {
+            buttonComponent_->Hide();
+        }
     }
 }
 
 void glimmer::MaterialSelectCraftUISystem::OnConfigChanged(const Config* config)
 {
     uiScale_ = config->window.uiScale;
-    // Dynamic inner padding = base padding * UI scale
-    // 动态内边距 = 基础内边距 × UI缩放比例
     panelInnerPadding_ = basePanelInnerPadding_ * uiScale_;
 }
 
@@ -245,6 +264,42 @@ void glimmer::MaterialSelectCraftUISystem::OnWindowSizeChanged(int width, int he
 {
     windowHeight_ = height;
     windowWidth_ = width;
+    UpdateItemSlotPositions();
+}
+
+void glimmer::MaterialSelectCraftUISystem::UpdateItemSlotPositions() const
+{
+    if (itemSlotQuantityList_.empty())
+    {
+        return;
+    }
+
+    constexpr DesignDimension panelPadding = 8.0F;
+    constexpr uint8_t gridColumns = 6;
+    constexpr DesignDimension gridPadding = 4.0F;
+
+    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth_) *
+        0.5F;
+    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight_) *
+        0.5F;
+
+    const DesignVector2D gridStartPosition{
+        panelOffsetX + maxTextureWidth_ + panelPadding, panelOffsetY + panelPadding
+    };
+
+    uint8_t itemIndex = 0;
+    GridLayoutStepper gridStepper(ITEM_SLOT_SIZE, gridStartPosition, gridColumns, gridPadding,
+                                  itemSlotQuantityList_.size());
+    for (auto itemSlotQuantityComponent : itemSlotQuantityList_)
+    {
+        if (itemSlotQuantityComponent == nullptr || !itemSlotQuantityComponent->IsVisible())
+        {
+            continue;
+        }
+        const DesignVector2D position = gridStepper.Next();
+        itemSlotQuantityComponent->SetPosition(position);
+        itemIndex++;
+    }
 }
 
 void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
@@ -265,7 +320,7 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
         panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
         panelBGResourceRef.SetResourceKey("gui/sub_panel_bg");
         subPanelBackGroundTexture_ = worldContext_->GetAppContext()->GetResourceLocator()->
-                                                 FindTexture(&panelBGResourceRef);
+                                                    FindTexture(&panelBGResourceRef);
     }
     if (textTexture_.empty() || preloadColors_ == nullptr)
     {
@@ -315,10 +370,12 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
     // 绘制左侧标签区域的子面板背景。
     if (subPanelBackGroundTexture_ != nullptr && dataLength > 0)
     {
-        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight + cellPadding) +
+        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight +
+                cellPadding) +
             2.0F * panelPadding - cellPadding;
         const float scaledTagSubPanelWidth = maxTextureWidth * uiScale_;
-        const float scaledTagSubPanelHeight = std::max(tagAreaHeight, panelHeight_ - 2.0F * panelInnerPadding_ / uiScale_) * uiScale_;
+        const float scaledTagSubPanelHeight = std::max(tagAreaHeight,
+                                                       panelHeight_ - 2.0F * panelInnerPadding_ / uiScale_) * uiScale_;
         const SDL_FRect tagSubPanelRect{
             panelX + panelInnerPadding_,
             panelY + panelInnerPadding_,

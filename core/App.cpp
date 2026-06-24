@@ -305,12 +305,12 @@ bool glimmer::App::Init()
                                              static_cast<float>(buttonHoveredColor.b) / 255,
                                              static_cast<float>(buttonHoveredColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered] = buttonHoveredImColor;
-    const auto buttonActiveColor = preloadColors->buttonActiveColor;
-    const auto buttonActiveImColor = ImVec4(static_cast<float>(buttonActiveColor.r) / 255,
-                                            static_cast<float>(buttonActiveColor.g) / 255,
-                                            static_cast<float>(buttonActiveColor.b) / 255,
-                                            static_cast<float>(buttonActiveColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_ButtonActive] = buttonActiveImColor;
+    const auto buttonPressedColor = preloadColors->buttonPressedColor;
+    const auto buttonPressedImColor = ImVec4(static_cast<float>(buttonPressedColor.r) / 255,
+                                            static_cast<float>(buttonPressedColor.g) / 255,
+                                            static_cast<float>(buttonPressedColor.b) / 255,
+                                            static_cast<float>(buttonPressedColor.a) / 255);
+    ImGui::GetStyle().Colors[ImGuiCol_ButtonActive] = buttonPressedImColor;
     const auto scrollbarBgColor = preloadColors->scrollbarBgColor;
     const auto scrollbarBgImColor = ImVec4(static_cast<float>(scrollbarBgColor.r) / 255,
                                            static_cast<float>(scrollbarBgColor.g) / 255,

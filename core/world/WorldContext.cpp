@@ -59,6 +59,7 @@
 #include "core/ecs/system/AreaMarkerSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
 #include "core/ecs/system/BlueprintSystem.h"
+#include "core/ecs/system/ButtonSystem.h"
 #include "core/ecs/system/CraftPreviewSlotSystem.h"
 #include "core/ecs/system/DebugMultiMapSystem.h"
 #include "core/ecs/system/DraggableSystem.h"
@@ -1047,6 +1048,7 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<MaterialSelectCraftUISystem>(this));
     RegisterSystem(std::make_unique<ItemToolTipSystem>(this));
     RegisterSystem(std::make_unique<ItemSlotQuantitySystem>(this));
+    RegisterSystem(std::make_unique<ButtonSystem>(this));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));

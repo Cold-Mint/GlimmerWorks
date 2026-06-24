@@ -28,33 +28,38 @@
 #include "core/Constants.h"
 #include "core/ecs/GameComponent.h"
 #include "core/ecs/IVisible.h"
-#include "core/inventory/Item.h"
 #include "core/math/DesignVector2D.h"
+#include "SDL3/SDL_render.h"
 
 namespace glimmer
 {
-    class ResourceLocator;
-    struct RecipeResource;
-
-    class CraftPreviewSlotComponent : public GameComponent, public IVisible
+    class ButtonComponent : public GameComponent, public IVisible
     {
         DesignVector2D size_;
         DesignVector2D position_;
-        bool isHovered_ = false;
-        RecipeResource* recipeResource_ = nullptr;
-        DesignDimension padding_ = ITEM_SLOT_PADDING;
-        std::unique_ptr<Item> item_ = nullptr;
+        DesignDimension padding_ = 4.0F;
+        std::string text_;
+        std::shared_ptr<SDL_Texture> buttonTextTexture_;
+        std::shared_ptr<SDL_Texture> buttonHoveredTextTexture_;
+        std::shared_ptr<SDL_Texture> buttonPressedTextTexture_;
+        std::function<void()> onClick_ = nullptr;
 
     public:
-        void SetRecipeResource(WorldContext* worldContext, RecipeResource* recipeResource);
-
-        [[nodiscard]] RecipeResource* GetRecipeResource() const;
-
-        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
-
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
-
         [[nodiscard]] const DesignVector2D& GetPosition() const;
+
+        void SetClickCallback(std::function<void()> onClick);
+
+        void InvokeClick() const;
+
+        void SetText(const AppContext* appContext, const std::string& text);
+
+        [[nodiscard]] SDL_Texture* GetButtonTextTexture() const;
+
+        [[nodiscard]] SDL_Texture* GetButtonHoveredTextTexture() const;
+
+        [[nodiscard]] SDL_Texture* GetButtonPressedTextTexture() const;
+
+        [[nodiscard]] const std::string& GetText() const;
 
         [[nodiscard]] const DesignVector2D& GetSize() const;
 
@@ -62,14 +67,12 @@ namespace glimmer
 
         void SetPosition(const DesignVector2D& position);
 
-        [[nodiscard]] bool IsHovered() const;
+        void SetPadding(DesignDimension padding);
 
         [[nodiscard]] DesignDimension GetPadding() const;
 
-        void SetPadding(DesignDimension padding);
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 
-        void SetHovered(bool hovered);
-
-        [[nodiscard]] Item* GetItem() const;
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

@@ -26,6 +26,8 @@
  */
 #pragma once
 #include "GUISystem.h"
+#include "core/SelectedItemRuntimeData.h"
+#include "core/TagRuntimeData.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/ButtonComponent.h"
 #include "core/ecs/component/ItemSlotQuantityComponent.h"
@@ -36,10 +38,9 @@ namespace glimmer
     {
         AppContext* appContext_ = nullptr;
         RecipeResource* recipeResource_ = nullptr;
-        std::unordered_map<uint64_t, std::string> recipeStringMap_;
-        std::vector<ItemSlotQuantityComponent*> itemSlotQuantityList_;
+        std::unordered_map<uint64_t, std::unique_ptr<TagRuntimeData>> tagRuntimeDataMap_;
+        std::vector<ItemSlotQuantityComponent*> itemSlotQuantityVector_;
         StringManager* stringManager_ = nullptr;
-        std::unordered_map<uint64_t, std::array<std::shared_ptr<SDL_Texture>, 2>> textTexture_;
         ResourcePackManager* resourcePackManager_ = nullptr;
         PreloadColors* preloadColors_;
         float uiScale_ = 1.0F;
@@ -47,6 +48,9 @@ namespace glimmer
         int windowWidth_ = 0;
         std::shared_ptr<SDL_Texture> panelBackGroundTexture_ = nullptr;
         std::shared_ptr<SDL_Texture> subPanelBackGroundTexture_ = nullptr;
+        //Key represents the index of the item, while Value indicates the selected quantity.
+        //Key为物品下标，Value为选中的数量。
+        std::vector<std::unique_ptr<SelectedItemRuntimeData>> selectedItemVector_;
         DesignDimension panelWidth_ = 0.0F;
         DesignDimension panelHeight_ = 0.0F;
         // Base inner padding between panel and sub-panel

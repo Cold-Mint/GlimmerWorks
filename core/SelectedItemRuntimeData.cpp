@@ -24,36 +24,34 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/ecs/GameSystem.h"
-#include "core/ecs/component/ItemSlotQuantityComponent.h"
+#include "SelectedItemRuntimeData.h"
 
-namespace glimmer
+void glimmer::SelectedItemRuntimeData::SetItem(Item* item)
 {
-    class ItemSlotQuantitySystem : public GameSystem
-    {
-        std::vector<ItemSlotQuantityComponent*> itemSlotQuantityComponents_;
-        std::shared_ptr<SDL_Texture> itemSlotTexture_ = nullptr;
-        AppContext* appContext_ = nullptr;
-        float uiScale_ = 1.0F;
-        PreloadColors* preloadColors_ = nullptr;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        std::unordered_map<uint8_t, std::shared_ptr<SDL_Texture>> numberTextures_;
-        ItemSlotQuantityComponent* hoveredItemSlotQuantityComponent_ = nullptr;
+    item_ = item;
+}
 
-    public:
-        explicit ItemSlotQuantitySystem(WorldContext* worldContext);
+glimmer::Item* glimmer::SelectedItemRuntimeData::GetItem() const
+{
+    return item_;
+}
 
-        uint8_t GetRenderOrder() override;
+uint8_t glimmer::SelectedItemRuntimeData::GetSlotIndex() const
+{
+    return slotIndex_;
+}
 
-        void OnConfigChanged(const Config* config) override;
+uint8_t glimmer::SelectedItemRuntimeData::GetSelectedAmount() const
+{
+    return selectedAmount_;
+}
 
-        void Render(SDL_Renderer* renderer) override;
+void glimmer::SelectedItemRuntimeData::SetSelectedAmount(const uint8_t selectedAmount)
+{
+    selectedAmount_ = selectedAmount;
+}
 
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
-        bool HandleEvent(const SDL_Event& event) override;
-
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
-    };
+void glimmer::SelectedItemRuntimeData::SetSlotIndex(const uint8_t slotIndex)
+{
+    slotIndex_ = slotIndex;
 }

@@ -795,6 +795,8 @@ namespace glimmer
         std::string requiredTag;
         //@genNextLine(requiredWeight|需要的权重)
         uint16_t requiredWeight = 1;
+        //@genNextLine(exactMatch The number of true labels must be equal to requiredWeight for the condition to be met; otherwise, it fails. False values are considered as passing if they are greater than or equal to the requiredWeight.|精准匹配 true标签数量必须等于requiredWeight才通过，false大于等于都通过。)
+        bool exactMatch = true;
 
         void MakeCachedTag();
 
@@ -811,8 +813,6 @@ namespace glimmer
         ItemMessageResource output;
         //@genNextLine(duration|执行时间)
         float duration = 0.0F;
-        //@genNextLine(Exact match true requires that the total weight of the tags collected by the player exactly meets the requiredWeight to execute the recipe. False only requires the weight to be greater than a certain value to execute the recipe, and no materials will be refunded.|精确匹配 true需要玩家凑够的标签权重正好满足requiredWeight才能执行配方，false仅需大于即可执行配方，不退还材料)
-        bool exactMatch = false;
         //@genNextLine(min Technology level: The recipe can only be unlocked when there are corresponding blocks of the same technology level nearby.|最低科技等级，当附近有对应科技等级的方块才解锁配方。)
         uint8_t minTechnologyLevel = 0;
         //@genNextLine(RecipeGroup|配方组)

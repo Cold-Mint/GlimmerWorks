@@ -25,35 +25,29 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/ecs/GameSystem.h"
-#include "core/ecs/component/ItemSlotQuantityComponent.h"
+#include "inventory/Item.h"
 
 namespace glimmer
 {
-    class ItemSlotQuantitySystem : public GameSystem
+    class SelectedItemRuntimeData
     {
-        std::vector<ItemSlotQuantityComponent*> itemSlotQuantityComponents_;
-        std::shared_ptr<SDL_Texture> itemSlotTexture_ = nullptr;
-        AppContext* appContext_ = nullptr;
-        float uiScale_ = 1.0F;
-        PreloadColors* preloadColors_ = nullptr;
-        ResourcePackManager* resourcePackManager_ = nullptr;
-        std::unordered_map<uint8_t, std::shared_ptr<SDL_Texture>> numberTextures_;
-        ItemSlotQuantityComponent* hoveredItemSlotQuantityComponent_ = nullptr;
+        Item* item_ = nullptr;
+        uint8_t slotIndex_ = 0;
+        //selectedAmount
+        //选中的数量
+        uint8_t selectedAmount_ = 0;
 
     public:
-        explicit ItemSlotQuantitySystem(WorldContext* worldContext);
+        void SetItem(Item* item);
 
-        uint8_t GetRenderOrder() override;
+        [[nodiscard]] Item* GetItem() const;
 
-        void OnConfigChanged(const Config* config) override;
+        [[nodiscard]] uint8_t GetSlotIndex() const;
 
-        void Render(SDL_Renderer* renderer) override;
+        [[nodiscard]] uint8_t GetSelectedAmount() const;
 
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+        void SetSelectedAmount(uint8_t selectedAmount);
 
-        bool HandleEvent(const SDL_Event& event) override;
-
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
+        void SetSlotIndex(uint8_t slotIndex);
     };
 }

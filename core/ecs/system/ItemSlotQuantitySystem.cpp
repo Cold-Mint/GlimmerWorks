@@ -64,6 +64,7 @@ void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
     float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     const Item* hoveredItem = nullptr;
+    hoveredItemSlotQuantityComponent_ = nullptr;
     for (auto itemSlotComponent : itemSlotQuantityComponents_)
     {
         if (itemSlotComponent == nullptr)
@@ -91,6 +92,7 @@ void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
         if (isHovered)
         {
             hoveredItem = item;
+            hoveredItemSlotQuantityComponent_ = itemSlotComponent;
         }
         if (item == nullptr)
         {
@@ -145,39 +147,36 @@ void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
         {
             SDL_RenderTexture(renderer, texture, nullptr, &itemRect);
         }
-        uint8_t amount = item->GetAmount();
-        if (amount > 1)
+        uint8_t selectQuantity = itemSlotComponent->GetSelectQuantity();
+        auto selectQuantityIterator = numberTextures_.find(selectQuantity);
+        SDL_Texture* selectQuantityTexture = nullptr;
+        if (selectQuantityIterator == numberTextures_.end())
         {
-            auto amountIterator = numberTextures_.find(amount);
-            SDL_Texture* amountTexture = nullptr;
-            if (amountIterator == numberTextures_.end())
-            {
-                std::shared_ptr<SDL_Texture> amountTexturePtr = resourcePackManager_->CreateStringTexture(
-                    std::to_string(amount), &preloadColors_->game.itemSlotTextColor);
-                numberTextures_[amount] = amountTexturePtr;
-                amountTexture = amountTexturePtr.get();
-            }
-            else
-            {
-                amountTexture = amountIterator->second.get();
-            }
-
-            const float textOffset = 2.0F * uiScale_;
-            float textW = static_cast<float>(itemRect.w) * 0.5F;
-            if (amount < 10)
-            {
-                //Reduce the single number by half again
-                //单个数字再减少一半
-                textW = textW * 0.5F;
-            }
-            const float textH = static_cast<float>(itemRect.h) * 0.5F;
-            SDL_FRect dst = {
-                rect.x + rect.w - textW - textOffset,
-                rect.y + rect.h - textH - textOffset, textW,
-                textH
-            };
-            SDL_RenderTexture(renderer, amountTexture, nullptr, &dst);
+            std::shared_ptr<SDL_Texture> selectQuantityTexturePtr = resourcePackManager_->CreateStringTexture(
+                std::to_string(selectQuantity), &preloadColors_->game.itemSlotTextColor);
+            numberTextures_[selectQuantity] = selectQuantityTexturePtr;
+            selectQuantityTexture = selectQuantityTexturePtr.get();
         }
+        else
+        {
+            selectQuantityTexture = selectQuantityIterator->second.get();
+        }
+
+        const float textOffset = 2.0F * uiScale_;
+        float textW = static_cast<float>(itemRect.w) * 0.5F;
+        if (selectQuantity < 10)
+        {
+            //Reduce the single number by half again
+            //单个数字再减少一半
+            textW = textW * 0.5F;
+        }
+        const float textH = static_cast<float>(itemRect.h) * 0.5F;
+        SDL_FRect dst = {
+            rect.x + rect.w - textW - textOffset,
+            rect.y + rect.h - textH - textOffset, textW,
+            textH
+        };
+        SDL_RenderTexture(renderer, selectQuantityTexture, nullptr, &dst);
     }
     if (entityShortCut_ != nullptr)
     {
@@ -208,6 +207,41 @@ void glimmer::ItemSlotQuantitySystem::OnWatchedComponentChanged(GameComponentTyp
             itemSlotQuantityComponents_.emplace_back(itemSlotQuantityComponent);
         }
     }
+}
+
+bool glimmer::ItemSlotQuantitySystem::HandleEvent(const SDL_Event& event)
+{
+    if (hoveredItemSlotQuantityComponent_ == nullptr)
+    {
+        return false;
+    }
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.reserved)
+    {
+        if (event.button.button == SDL_BUTTON_LEFT)
+        {
+            hoveredItemSlotQuantityComponent_->AddSelectQuantity();
+            return true;
+        }
+        if (event.button.button == SDL_BUTTON_RIGHT)
+        {
+            hoveredItemSlotQuantityComponent_->RemoveSelectQuantity();
+            return true;
+        }
+    }
+    if (event.type == SDL_EVENT_MOUSE_WHEEL)
+    {
+        if (event.wheel.y > 0)
+        {
+            hoveredItemSlotQuantityComponent_->RemoveSelectQuantity();
+            return true;
+        }
+        if (event.wheel.y < 0)
+        {
+            hoveredItemSlotQuantityComponent_->AddSelectQuantity();
+            return true;
+        }
+    }
+    return false;
 }
 
 glimmer::GameSystemType glimmer::ItemSlotQuantitySystem::GetGameSystemType() const

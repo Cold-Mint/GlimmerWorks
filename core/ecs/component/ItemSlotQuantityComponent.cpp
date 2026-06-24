@@ -27,6 +27,16 @@
 #include "ItemSlotQuantityComponent.h"
 
 
+void glimmer::ItemSlotQuantityComponent::InvokeOnSelectQuantityChanged(uint8_t slotIndex, Item* item,
+                                                                       uint8_t selectQuantity) const
+{
+    if (onSelectQuantityChanged_ == nullptr)
+    {
+        return;
+    }
+    onSelectQuantityChanged_(slotIndex, item, selectQuantity);
+}
+
 DesignDimension glimmer::ItemSlotQuantityComponent::GetPadding() const
 {
     return padding_;
@@ -35,6 +45,12 @@ DesignDimension glimmer::ItemSlotQuantityComponent::GetPadding() const
 uint8_t glimmer::ItemSlotQuantityComponent::GetSlotIndex() const
 {
     return slotIndex_;
+}
+
+void glimmer::ItemSlotQuantityComponent::SetOnSelectQuantityChanged(
+    const std::function<void(uint8_t slotIndex, Item* item, uint8_t selectQuantity)>& onSelectQuantityChanged)
+{
+    onSelectQuantityChanged_ = onSelectQuantityChanged;
 }
 
 void glimmer::ItemSlotQuantityComponent::SetPadding(const DesignDimension padding)
@@ -71,6 +87,25 @@ void glimmer::ItemSlotQuantityComponent::SetSlotIndex(const uint8_t slotIndex)
     slotIndex_ = slotIndex;
 }
 
+void glimmer::ItemSlotQuantityComponent::SetSelectQuantity(uint8_t selectQuantity)
+{
+    Item* item = GetItem();
+    if (item == nullptr)
+    {
+        return;
+    }
+    uint8_t amount = item->GetAmount();
+    if (selectQuantity > amount)
+    {
+        selectQuantity_ = amount;
+    }
+    else
+    {
+        selectQuantity_ = selectQuantity;
+    }
+    InvokeOnSelectQuantityChanged(slotIndex_, item, selectQuantity_);
+}
+
 void glimmer::ItemSlotQuantityComponent::AddSelectQuantity()
 {
     Item* item = GetItem();
@@ -78,19 +113,29 @@ void glimmer::ItemSlotQuantityComponent::AddSelectQuantity()
     {
         return;
     }
-    uint8_t max = item->GetMaxStack();
-    if (selectQuantity_ < max)
+    uint8_t amount = item->GetAmount();
+    selectQuantity_++;
+    if (selectQuantity_ > amount)
     {
-        selectQuantity_++;
+        selectQuantity_ = 0;
     }
+    InvokeOnSelectQuantityChanged(slotIndex_, item, selectQuantity_);
 }
 
 void glimmer::ItemSlotQuantityComponent::RemoveSelectQuantity()
 {
-    if (selectQuantity_ > 0)
+    Item* item = GetItem();
+    if (item == nullptr)
     {
-        selectQuantity_--;
+        return;
     }
+    uint8_t amount = item->GetAmount();
+    selectQuantity_--;
+    if (selectQuantity_ > amount)
+    {
+        selectQuantity_ = amount;
+    }
+    InvokeOnSelectQuantityChanged(slotIndex_, item, selectQuantity_);
 }
 
 uint8_t glimmer::ItemSlotQuantityComponent::GetSelectQuantity() const

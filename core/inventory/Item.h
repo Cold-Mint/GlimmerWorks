@@ -43,8 +43,10 @@ namespace glimmer
     {
         uint8_t amount_ = 1;
         uint32_t usedDurability_ = 0;
+#if  !defined(NDEBUG)
         std::vector<ItemTagResource> tags_;
-        std::unordered_set<uint64_t> tagSet_;
+#endif
+        std::unordered_map<uint64_t, uint8_t> tagMap_;
 
     protected:
         uint8_t maxStack_ = 1;
@@ -115,10 +117,30 @@ namespace glimmer
          */
         void SetAmount(uint8_t amount);
 
+        /**
+         * GetTagValue
+         * 获取标签值
+         * @param tag tag 标签
+         * @return Return the label value. If not found, return 0. 返回标签值，若找不到则返回0
+         */
+        [[nodiscard]] uint8_t GetTagValue(uint64_t tag) const;
+
+        /**
+         * HasTag
+         * 是否包含某个标签。
+         * @param tag tag 标签
+         * @return
+         */
         [[nodiscard]] bool HasTag(uint64_t tag) const;
 
+#if  !defined(NDEBUG)
+        /**
+         * GetTags
+         * 获取全部标签
+         * @return
+         */
         [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
-
+#endif
         /**
          * AddAmount
          * 添加数量

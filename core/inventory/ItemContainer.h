@@ -86,7 +86,7 @@ namespace glimmer
          * AddItem
          * 添加物品
          * @param newItem item 物品
-         * @return
+         * @return Added successfully, returned null. 添加成功返回null。
          */
         [[nodiscard]] std::unique_ptr<Item> AddItem(std::unique_ptr<Item> newItem);
 
@@ -124,7 +124,7 @@ namespace glimmer
          * 移除物品
          * @param id id 物品
          * @param amount amount 数量
-         * @return
+         * @return The total number of items successfully removed from the container this time 本次成功从容器中移除掉的物品总数量
          */
         [[nodiscard]] uint8_t RemoveItem(const std::string& id, uint8_t amount) const;
 
@@ -142,7 +142,7 @@ namespace glimmer
          * 移除指定位置的物品
          * @param index
          * @param amount
-         * @return
+         * @return The total number of items successfully removed from the container this time 本次成功从容器中移除掉的物品总数量
          */
         [[nodiscard]] uint8_t RemoveItemAt(uint8_t index, uint8_t amount) const;
 

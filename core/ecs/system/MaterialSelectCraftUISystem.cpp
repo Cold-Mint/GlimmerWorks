@@ -69,8 +69,8 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             worldContext_->PopGuiSystemType();
         }
         std::vector<RequiredTag>& input = recipeResource_->input;
-        recipeStringMap_.clear();
-        textTexture_.clear();
+        tagRuntimeDataMap_.clear();
+        selectedItemVector_.clear();
         if (stringManager_ == nullptr)
         {
             return;
@@ -91,13 +91,14 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             stringStream << '*';
             stringStream << static_cast<int>(requiredTag.requiredWeight);
             std::string text = stringStream.str();
-            recipeStringMap_[cachedTagId] = text;
-            //get texture data.
-            //得到纹理数据。
-            std::array<std::shared_ptr<SDL_Texture>, 2> array;
-            array[0] = resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.positiveAttributeColor);
-            array[1] = resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.negativeAttributeColor);
-            textTexture_[cachedTagId] = array;
+            std::unique_ptr<TagRuntimeData> tagRuntimeData = std::make_unique<TagRuntimeData>();
+            tagRuntimeData->SetText(text);
+            tagRuntimeData->SetRequiredWeight(requiredTag.requiredWeight);
+            tagRuntimeData->SetPositiveTexture(
+                resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.positiveAttributeColor));
+            tagRuntimeData->SetNegativeTexture(
+                resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.negativeAttributeColor));
+            tagRuntimeDataMap_[cachedTagId] = std::move(tagRuntimeData);
         }
         //Filter out all the items that have the labels required for this recipe synthesis.
         //筛选所有的带有此配方合成需要的标签的物品。
@@ -126,9 +127,9 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             {
                 continue;
             }
-            for (auto& recipeString : recipeStringMap_)
+            for (auto& tagRuntimeDataPair : tagRuntimeDataMap_)
             {
-                if (item->HasTag(recipeString.first))
+                if (item->HasTag(tagRuntimeDataPair.first))
                 {
                     matchingCount_++;
                     break;
@@ -140,15 +141,33 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
         constexpr DesignDimension cellPadding = 4.0F;
         maxTextureWidth_ = 0.0F;
         maxTextureHeight_ = 0.0F;
-        for (const auto& kv : textTexture_)
+        for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
         {
-            const auto& textures = kv.second;
-            if (textures[0] == nullptr)
+            const auto& tagRuntimeData = tagRuntimeDataPair.second;
+            if (tagRuntimeData == nullptr)
             {
                 continue;
             }
-            maxTextureWidth_ = std::max(maxTextureWidth_, static_cast<DesignDimension>(textures[0]->w));
-            maxTextureHeight_ = std::max(maxTextureHeight_, static_cast<DesignDimension>(textures[0]->h));
+            if (tagRuntimeData->Matched())
+            {
+                SDL_Texture* positiveTexture = tagRuntimeData->GetPositiveTexture();
+                if (positiveTexture == nullptr)
+                {
+                    continue;
+                }
+                maxTextureWidth_ = std::max(maxTextureWidth_, static_cast<DesignDimension>(positiveTexture->w));
+                maxTextureHeight_ = std::max(maxTextureHeight_, static_cast<DesignDimension>(positiveTexture->h));
+            }
+            else
+            {
+                SDL_Texture* negativeTexture = tagRuntimeData->GetNegativeTexture();
+                if (negativeTexture == nullptr)
+                {
+                    continue;
+                }
+                maxTextureWidth_ = std::max(maxTextureWidth_, static_cast<DesignDimension>(negativeTexture->w));
+                maxTextureHeight_ = std::max(maxTextureHeight_, static_cast<DesignDimension>(negativeTexture->h));
+            }
         }
 
         constexpr uint8_t gridColumns = 6;
@@ -160,7 +179,8 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
 
         // Calculate required heights for tag area and item slot grid, then take the larger one.
         // 计算标签区域和物品槽网格所需的高度，取较大值。
-        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(textTexture_.size()) * (maxTextureHeight_ +
+        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(tagRuntimeDataMap_.size()) * (
+                maxTextureHeight_ +
                 cellPadding) +
             2.0F * panelPadding - cellPadding;
         const uint32_t gridRows = matchingCount_ > 0
@@ -189,9 +209,9 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
                 continue;
             }
             bool hasTag = false;
-            for (auto& recipeString : recipeStringMap_)
+            for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
             {
-                if (item->HasTag(recipeString.first))
+                if (item->HasTag(tagRuntimeDataPair.first))
                 {
                     hasTag = true;
                     break;
@@ -202,15 +222,79 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
                 continue;
             }
             ItemSlotQuantityComponent* itemSlotQuantityComponent = nullptr;
-            if (nextIndex < itemSlotQuantityList_.size())
+            if (nextIndex < itemSlotQuantityVector_.size())
             {
-                itemSlotQuantityComponent = itemSlotQuantityList_[nextIndex];
+                itemSlotQuantityComponent = itemSlotQuantityVector_[nextIndex];
             }
             else
             {
                 itemSlotQuantityComponent = entityManager_->AddComponent<
                     ItemSlotQuantityComponent>(entityManager_->AddEntity());
-                itemSlotQuantityList_.emplace_back(itemSlotQuantityComponent);
+                itemSlotQuantityComponent->SetOnSelectQuantityChanged(
+                    [this](uint8_t slotIndex, Item* item, uint8_t selectQuantity)
+                    {
+                        SelectedItemRuntimeData* selectedItemRuntimeData = nullptr;
+                        for (auto& selectedItem : selectedItemVector_)
+                        {
+                            if (selectedItem == nullptr)
+                            {
+                                continue;
+                            }
+                            SelectedItemRuntimeData* temporarySelectedItemRuntimeData = selectedItem.get();
+                            if (temporarySelectedItemRuntimeData == nullptr)
+                            {
+                                continue;
+                            }
+                            uint8_t selectedSlotIndex = temporarySelectedItemRuntimeData->GetSlotIndex();
+                            if (selectedSlotIndex == slotIndex)
+                            {
+                                selectedItemRuntimeData = temporarySelectedItemRuntimeData;
+                                break;
+                            }
+                        }
+                        if (selectedItemRuntimeData == nullptr)
+                        {
+                            auto selectedItemRuntimeDataUnique = std::make_unique<
+                                SelectedItemRuntimeData>();
+                            selectedItemRuntimeDataUnique->SetSlotIndex(slotIndex);
+                            selectedItemRuntimeDataUnique->SetItem(item);
+                            selectedItemVector_.emplace_back(std::move(selectedItemRuntimeDataUnique));
+                            selectedItemRuntimeData = selectedItemVector_.back().get();
+                        }
+                        //Local variable selectedItemRuntimeData may point to memory which is out of scope
+                        selectedItemRuntimeData->SetSelectedAmount(selectQuantity);
+                        //When the selected item changes, we recalculate the tag.
+                        //当选择的Item改变时，我们重新计算标签。
+                        for (auto& tagPair : tagRuntimeDataMap_)
+                        {
+                            tagPair.second->SetActualValue(0);
+                        }
+                        for (auto& selectedItem : selectedItemVector_)
+                        {
+                            const uint8_t selectAmount = selectedItem->GetSelectedAmount();
+                            if (selectAmount == 0)
+                            {
+                                continue;
+                            }
+                            for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
+                            {
+                                Item* selectedItemPtr = selectedItem->GetItem();
+                                if (selectedItemPtr == nullptr)
+                                {
+                                    continue;
+                                }
+                                uint8_t value = selectedItemPtr->GetTagValue(tagRuntimeDataPair.first);
+                                if (value == 0)
+                                {
+                                    //This tag is not included.
+                                    //不包含此标签。
+                                    continue;
+                                }
+                                tagRuntimeDataPair.second->AddActualValue(value * selectAmount);
+                            }
+                        }
+                    });
+                itemSlotQuantityVector_.emplace_back(itemSlotQuantityComponent);
             }
             if (itemSlotQuantityComponent == nullptr)
             {
@@ -218,14 +302,15 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
                 return;
             }
             itemSlotQuantityComponent->Show();
+            itemSlotQuantityComponent->SetSelectQuantity(0);
             itemSlotQuantityComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
             itemSlotQuantityComponent->SetItemContainer(itemContainer);
             itemSlotQuantityComponent->SetSlotIndex(i);
             nextIndex++;
         }
-        for (int i = nextIndex; i < itemSlotQuantityList_.size(); i++)
+        for (int i = nextIndex; i < itemSlotQuantityVector_.size(); i++)
         {
-            itemSlotQuantityList_[i]->Hide();
+            itemSlotQuantityVector_[i]->Hide();
         }
 
         UpdateItemSlotPositions();
@@ -234,18 +319,60 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
         {
             buttonComponent_ = entityManager_->AddComponent<ButtonComponent>(entityManager_->AddEntity());
             buttonComponent_->SetText(appContext_, langsResources_->craft);
-            buttonComponent_->SetClickCallback([]
+            buttonComponent_->SetClickCallback([this]
             {
-
+                //Carry out synthesis
+                //进行合成
+                //Deduct the items
+                //扣除物品
+                ItemContainerComponent* itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+                if (itemContainerComponent == nullptr)
+                {
+                    worldContext_->PopGuiSystemType();
+                    return;
+                }
+                ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+                if (itemContainer == nullptr)
+                {
+                    worldContext_->PopGuiSystemType();
+                    return;
+                }
+                for (auto& selectedItem : selectedItemVector_)
+                {
+                    uint8_t expectedQuantity = selectedItem->GetSelectedAmount();
+                    uint8_t actualQuantity = itemContainer->
+                        RemoveItemAt(selectedItem->GetSlotIndex(), expectedQuantity);
+                    if (expectedQuantity != actualQuantity)
+                    {
+                        LogCat::w("Failed to remove the item. At ", selectedItem->GetSlotIndex());
+                    }
+                }
+                //Give the player items
+                //给予玩家物品
+                ResourceLocator* resourceLocator = appContext_->GetResourceLocator();
+                if (resourceLocator == nullptr)
+                {
+                    return;
+                }
+                std::unique_ptr<Item> outputItem = resourceLocator->FindItem(worldContext_, recipeResource_->output);
+                if (outputItem != nullptr)
+                {
+                    std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(outputItem));
+                    if (returnItem != nullptr)
+                    {
+                        LogCat::w("Failed to add the item. ");
+                    }
+                }
+                worldContext_->PopGuiSystemType();
             });
         }
         buttonComponent_->Show();
     }
     else
     {
-        for (int i = 0; i < itemSlotQuantityList_.size(); i++)
+        for (int i = 0; i < itemSlotQuantityVector_.size(); i++)
         {
-            itemSlotQuantityList_[i]->Hide();
+            itemSlotQuantityVector_[i]->Hide();
         }
         if (buttonComponent_ != nullptr)
         {
@@ -269,7 +396,7 @@ void glimmer::MaterialSelectCraftUISystem::OnWindowSizeChanged(int width, int he
 
 void glimmer::MaterialSelectCraftUISystem::UpdateItemSlotPositions() const
 {
-    if (itemSlotQuantityList_.empty())
+    if (itemSlotQuantityVector_.empty())
     {
         return;
     }
@@ -289,8 +416,8 @@ void glimmer::MaterialSelectCraftUISystem::UpdateItemSlotPositions() const
 
     uint8_t itemIndex = 0;
     GridLayoutStepper gridStepper(ITEM_SLOT_SIZE, gridStartPosition, gridColumns, gridPadding,
-                                  itemSlotQuantityList_.size());
-    for (auto itemSlotQuantityComponent : itemSlotQuantityList_)
+                                  itemSlotQuantityVector_.size());
+    for (auto& itemSlotQuantityComponent : itemSlotQuantityVector_)
     {
         if (itemSlotQuantityComponent == nullptr || !itemSlotQuantityComponent->IsVisible())
         {
@@ -322,7 +449,7 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
         subPanelBackGroundTexture_ = worldContext_->GetAppContext()->GetResourceLocator()->
                                                     FindTexture(&panelBGResourceRef);
     }
-    if (textTexture_.empty() || preloadColors_ == nullptr)
+    if (tagRuntimeDataMap_.empty() || preloadColors_ == nullptr)
     {
         return;
     }
@@ -331,15 +458,39 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
     // 获取纹理的最大尺寸，使面板能够容纳所有标签纹理。
     DesignDimension maxTextureWidth = 0.0F;
     DesignDimension maxTextureHeight = 0.0F;
-    for (const auto& kv : textTexture_)
+    for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
     {
-        const auto& textures = kv.second;
-        if (textures[0] == nullptr)
+        const auto& tagRuntimeData = tagRuntimeDataPair.second;
+        if (tagRuntimeData == nullptr)
         {
             continue;
         }
-        maxTextureWidth = std::max(maxTextureWidth, static_cast<DesignDimension>(textures[0]->w));
-        maxTextureHeight = std::max(maxTextureHeight, static_cast<DesignDimension>(textures[0]->h));
+        const auto tagRuntimeDataPtr = tagRuntimeData.get();
+        if (tagRuntimeDataPtr == nullptr)
+        {
+            continue;
+        }
+
+        if (tagRuntimeDataPtr->Matched())
+        {
+            auto positiveTexture = tagRuntimeDataPtr->GetPositiveTexture();
+            if (positiveTexture == nullptr)
+            {
+                continue;
+            }
+            maxTextureWidth = std::max(maxTextureWidth, static_cast<DesignDimension>(positiveTexture->w));
+            maxTextureHeight = std::max(maxTextureHeight, static_cast<DesignDimension>(positiveTexture->h));
+        }
+        else
+        {
+            auto negativeTexture = tagRuntimeDataPtr->GetNegativeTexture();
+            if (negativeTexture == nullptr)
+            {
+                continue;
+            }
+            maxTextureWidth = std::max(maxTextureWidth, static_cast<DesignDimension>(negativeTexture->w));
+            maxTextureHeight = std::max(maxTextureHeight, static_cast<DesignDimension>(negativeTexture->h));
+        }
     }
     if (maxTextureWidth <= 0.0F || maxTextureHeight <= 0.0F)
     {
@@ -350,7 +501,7 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
     // 面板布局参数（设计坐标）。
     constexpr DesignDimension panelPadding = 8.0F;
     constexpr DesignDimension cellPadding = 4.0F;
-    const auto dataLength = static_cast<uint32_t>(textTexture_.size());
+    const auto dataLength = static_cast<uint32_t>(tagRuntimeDataMap_.size());
 
     // Panel size in design coordinates.
     // 面板尺寸（设计坐标）。
@@ -402,10 +553,28 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
     // 使用VerticalLayoutStepper将标签纹理垂直排在面板的左侧。
     DesignVector2D startPosition{panelPadding, panelPadding};
     VerticalLayoutStepper stepper(maxTextureHeight, startPosition, cellPadding, dataLength);
-    for (const auto& kv : textTexture_)
+    for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
     {
+        const auto& tagRuntimeData = tagRuntimeDataPair.second;
+        if (tagRuntimeData == nullptr)
+        {
+            continue;
+        }
+        const auto tagRuntimeDataPtr = tagRuntimeData.get();
+        if (tagRuntimeDataPtr == nullptr)
+        {
+            continue;
+        }
         const DesignVector2D position = stepper.Next();
-        const auto& texture = kv.second[0];
+        SDL_Texture* texture = nullptr;
+        if (tagRuntimeDataPtr->Matched())
+        {
+            texture = tagRuntimeDataPtr->GetPositiveTexture();
+        }
+        else
+        {
+            texture = tagRuntimeDataPtr->GetNegativeTexture();
+        }
         if (texture == nullptr)
         {
             continue;
@@ -416,7 +585,7 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
             static_cast<float>(texture->w) * uiScale_,
             static_cast<float>(texture->h) * uiScale_
         };
-        SDL_RenderTexture(renderer, texture.get(), nullptr, &dstRect);
+        SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
     }
 
     AppContext::RestoreColorRenderer(renderer);

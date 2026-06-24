@@ -115,14 +115,6 @@ static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HORIZONTAL_SPACING =
 static constexpr std::string TOGGLE_KEY_WORD = "toggle";
 static constexpr std::string SESSION_KEY_WORD = "session";
 
-static constexpr uint32_t RESOURCE_REF_ARG_TYPE_NONE = 0;
-static constexpr uint32_t RESOURCE_REF_ARG_TYPE_STRING = 1;
-static constexpr uint32_t RESOURCE_REF_ARG_TYPE_INT = 2;
-static constexpr uint32_t RESOURCE_REF_ARG_TYPE_FLOAT = 3;
-static constexpr uint32_t RESOURCE_REF_ARG_TYPE_BOOL = 4;
-static constexpr uint32_t RESOURCE_REF_ARG_TYPE_REF_PB = 5;
-static constexpr uint32_t RESOURCE_REF_ARG_TYPE_REF_TOML = 6;
-
 static constexpr std::string DEV_DISPLAY_NAME_KEY_COLD_MINT = "dev@Cold-Mint";
 static const std::string DEV_UUID_COLD_MINT = "4a724ce8-ec7f-411e-833c-b0a5e2529263";
 static const std::string LIGHT_INSPECTOR_ID = "7ff1662b-0dd4-4cb3-866a-339f7a95bf8b";

@@ -625,6 +625,8 @@ target_sources(GlimmerWorks
         core/ecs/system/ItemSlotQuantitySystem.cpp
         core/ecs/component/ButtonComponent.cpp
         core/ecs/system/ButtonSystem.cpp
+        core/TagRuntimeData.cpp
+        core/SelectedItemRuntimeData.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -924,6 +926,8 @@ target_sources(GlimmerWorks
         core/ecs/system/ItemSlotQuantitySystem.h
         core/ecs/system/ButtonSystem.h
         core/ecs/component/ButtonComponent.h
+        core/TagRuntimeData.h
+        core/SelectedItemRuntimeData.h
 )
 
 #Define version information

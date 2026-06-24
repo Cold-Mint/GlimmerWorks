@@ -75,9 +75,7 @@ void glimmer::UnlockedRecipesCommand::WriteRecipe(const std::string& recipesItem
     stringStream << fmt::format(fmt::runtime(recipesItem),
         Resource::GenerateId(recipe->packId, recipe->resourceId),
         outputStr,
-        recipe->duration,
-        recipe->exactMatch ? "true" : "false",
-        static_cast<int>(recipe->minTechnologyLevel),
+        recipe->duration,static_cast<int>(recipe->minTechnologyLevel),
         recipeGroupStr);
 }
 

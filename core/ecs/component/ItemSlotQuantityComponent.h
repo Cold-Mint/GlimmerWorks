@@ -42,11 +42,17 @@ namespace glimmer
         DesignVector2D size_;
         DesignVector2D position_;
         uint8_t selectQuantity_ = 0;
+        std::function<void(uint8_t slotIndex, Item* item, uint8_t selectQuantity)> onSelectQuantityChanged_ = nullptr;
+
+        void InvokeOnSelectQuantityChanged(uint8_t slotIndex, Item* item, uint8_t selectQuantity) const;
 
     public:
         [[nodiscard]] DesignDimension GetPadding() const;
 
         [[nodiscard]] uint8_t GetSlotIndex() const;
+
+        void SetOnSelectQuantityChanged(
+            const std::function<void(uint8_t slotIndex, Item* item, uint8_t selectQuantity)>& onSelectQuantityChanged);
 
         void SetPadding(DesignDimension padding);
 
@@ -59,6 +65,8 @@ namespace glimmer
         void SetItemContainer(ItemContainer* itemContainer);
 
         void SetSlotIndex(uint8_t slotIndex);
+
+        void SetSelectQuantity(uint8_t selectQuantity);
 
         void AddSelectQuantity();
 

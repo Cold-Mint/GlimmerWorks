@@ -235,6 +235,7 @@ namespace toml {
     struct from<glimmer::RequiredTag> {
         static glimmer::RequiredTag from_toml(const value &v) {
             glimmer::RequiredTag r;
+            r.exactMatch = toml::find_or<bool>(v, "exact_match", true);
             r.requiredTag = toml::find<std::string>(v, "required_tag");
             r.requiredWeight = toml::find_or<uint16_t>(v, "required_weight", 1);
             return r;
@@ -674,7 +675,6 @@ namespace toml {
         static glimmer::RecipeResource from_toml(const value &v) {
             glimmer::RecipeResource r;
             r.duration = toml::find_or<float>(v, "duration", 0.0F);
-            r.exactMatch = toml::find_or<bool>(v, "exact_match", false);
             r.input = toml::find<std::vector<glimmer::RequiredTag>>(v, "input");
             r.minTechnologyLevel = toml::find_or<uint8_t>(v, "min_technology_level", 0);
             r.output = toml::find<glimmer::ItemMessageResource>(v, "output");

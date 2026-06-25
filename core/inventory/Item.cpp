@@ -111,6 +111,9 @@ void glimmer::Item::SetOnUsedDurabilityChanged(const std::function<void(uint32_t
 
 void glimmer::Item::SetAmount(const uint8_t amount)
 {
+    //The callback function of Copy must be used.
+    //必须得用Copy的回调函数。
+    const std::function<void(ContainerChangeType, uint8_t)> onAmountChangedCopy = onAmountChanged_;
     if (amount == 0)
     {
         //Even if the quantity of the items is set to 0, the game will set it to 1 after reading the data to modify the dirty data.
@@ -118,18 +121,18 @@ void glimmer::Item::SetAmount(const uint8_t amount)
         //It is feasible to consider "0" as a mark indicating that an item has been used up.
         //0被看作是物品用完的标记是可行的。
         amount_ = 0;
-        if (onAmountChanged_ != nullptr)
+        if (onAmountChangedCopy != nullptr)
         {
-            onAmountChanged_(ContainerChangeType::REMOVE, amount_);
+            onAmountChangedCopy(ContainerChangeType::REMOVE, amount_);
         }
     }
     else
     {
         const bool add = amount >= amount_;
         amount_ = std::min(amount, maxStack_);
-        if (onAmountChanged_ != nullptr)
+        if (onAmountChangedCopy != nullptr)
         {
-            onAmountChanged_(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
+            onAmountChangedCopy(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
         }
     }
 }
@@ -173,9 +176,9 @@ uint8_t glimmer::Item::AddAmount(uint8_t amount)
     return amount;
 }
 
-uint8_t glimmer::Item::RemoveAmount(uint8_t amount)
+uint8_t glimmer::Item::RemoveAmount(const uint8_t amount)
 {
-    if (amount_ <= 0 || amount <= 0)
+    if (amount_ == 0 || amount == 0)
     {
         return 0;
     }

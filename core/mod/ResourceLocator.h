@@ -44,7 +44,7 @@ namespace glimmer
      */
     class ResourceLocator
     {
-        AppContext* appContext_;
+        AppContext* appContext_ = nullptr;
 
         /**
      * ValidateAccessPermission

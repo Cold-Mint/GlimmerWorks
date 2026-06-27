@@ -99,10 +99,33 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
         craftPreviewSlotComponent->SetHovered(isHovered);
         if (craftPreviewSlotTextureResult_ != nullptr)
         {
-            SDL_Texture* craftPreviewSlotTexture = craftPreviewSlotTextureResult_->GetResource();
-            if (craftPreviewSlotTexture != nullptr)
+            SDL_Texture* texture = craftPreviewSlotTextureResult_->GetResource();
+            if (texture != nullptr)
             {
-                SDL_RenderTexture(renderer, craftPreviewSlotTexture, nullptr, &rect);
+                const ResourcePack* resourcePack = craftPreviewSlotTextureResult_->GetResourcePack();
+                if (resourcePack != nullptr)
+                {
+                    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+                    if (packConfig.craftPreviewSlotNineSlice.enableTiled)
+                    {
+                        SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
+                                                    packConfig.craftPreviewSlotNineSlice.leftBorderPx,
+                                                    packConfig.craftPreviewSlotNineSlice.rightBorderPx,
+                                                    packConfig.craftPreviewSlotNineSlice.topBorderPx,
+                                                    packConfig.craftPreviewSlotNineSlice.bottomBorderPx,
+                                                    packConfig.craftPreviewSlotNineSlice.scale, &rect,
+                                                    packConfig.craftPreviewSlotNineSlice.tileScale);
+                    }
+                    else
+                    {
+                        SDL_RenderTexture9Grid(renderer, texture, nullptr,
+                                               packConfig.craftPreviewSlotNineSlice.leftBorderPx,
+                                               packConfig.craftPreviewSlotNineSlice.rightBorderPx,
+                                               packConfig.craftPreviewSlotNineSlice.topBorderPx,
+                                               packConfig.craftPreviewSlotNineSlice.bottomBorderPx,
+                                               packConfig.craftPreviewSlotNineSlice.scale, &rect);
+                    }
+                }
             }
         }
 

@@ -34,6 +34,7 @@
 #include "core/mod/PackManifest.h"
 #include "core/mod/Resource.h"
 #include "core/mod/dataPack/PackDependence.h"
+#include "core/mod/resourcePack/ResourcePackConfig.h"
 
 namespace toml {
 
@@ -210,6 +211,21 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::NineSliceConfig> {
+        static glimmer::NineSliceConfig from_toml(const value &v) {
+            glimmer::NineSliceConfig r;
+            r.bottomBorderPx = toml::find_or<float>(v, "bottom_border_px", 1.0F);
+            r.enableTiled = toml::find_or<bool>(v, "enable_tiled", false);
+            r.leftBorderPx = toml::find_or<float>(v, "left_border_px", 1.0F);
+            r.rightBorderPx = toml::find_or<float>(v, "right_border_px", 1.0F);
+            r.scale = toml::find_or<float>(v, "scale", 0.0F);
+            r.tileScale = toml::find_or<float>(v, "tile_scale", 1.0F);
+            r.topBorderPx = toml::find_or<float>(v, "top_border_px", 1.0F);
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::PackDependence> {
         static glimmer::PackDependence from_toml(const value &v) {
             glimmer::PackDependence r;
@@ -364,6 +380,19 @@ namespace toml {
             glimmer::Vector2DResource r;
             r.x = toml::find_or<float>(v, "x", 0.0F);
             r.y = toml::find_or<float>(v, "y", 0.0F);
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::ResourcePackConfig> {
+        static glimmer::ResourcePackConfig from_toml(const value &v) {
+            glimmer::ResourcePackConfig r;
+            r.buttonNineSlice = toml::find<glimmer::NineSliceConfig>(v, "button_nine_slice");
+            r.craftPreviewSlotNineSlice = toml::find<glimmer::NineSliceConfig>(v, "craft_preview_slot_nine_slice");
+            r.itemSlotNineSlice = toml::find<glimmer::NineSliceConfig>(v, "item_slot_nine_slice");
+            r.itemSlotQuantityNineSlice = toml::find<glimmer::NineSliceConfig>(v, "item_slot_quantity_nine_slice");
+            r.itemToolTipNineSlice = toml::find<glimmer::NineSliceConfig>(v, "item_tool_tip_nine_slice");
             return r;
         }
     };

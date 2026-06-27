@@ -28,6 +28,7 @@
 
 #include <optional>
 
+#include "TileAnchorType.h"
 #include "../scene/AppContext.h"
 #include "../mod/ResourceLocator.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"

@@ -273,10 +273,32 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
 
     if (tooltipBgTextureResult_ != nullptr)
     {
-        SDL_Texture* tooltipBgTexture = tooltipBgTextureResult_->GetResource();
-        if (tooltipBgTexture != nullptr)
+        SDL_Texture* texture = tooltipBgTextureResult_->GetResource();
+        if (texture != nullptr)
         {
-            SDL_RenderTexture(renderer, tooltipBgTexture, nullptr, &backgroundRect);
+            const ResourcePack* resourcePack = tooltipBgTextureResult_->GetResourcePack();
+            if (resourcePack != nullptr)
+            {
+                const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+                if (packConfig.itemToolTipNineSlice.enableTiled)
+                {
+                    SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
+                                                packConfig.itemToolTipNineSlice.leftBorderPx,
+                                                packConfig.itemToolTipNineSlice.rightBorderPx,
+                                                packConfig.itemToolTipNineSlice.topBorderPx,
+                                                packConfig.itemToolTipNineSlice.bottomBorderPx,
+                                                packConfig.itemToolTipNineSlice.scale, &backgroundRect,
+                                                packConfig.itemToolTipNineSlice.tileScale);
+                }
+                else
+                {
+                    SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.itemToolTipNineSlice.leftBorderPx,
+                                           packConfig.itemToolTipNineSlice.rightBorderPx,
+                                           packConfig.itemToolTipNineSlice.topBorderPx,
+                                           packConfig.itemToolTipNineSlice.bottomBorderPx,
+                                           packConfig.itemToolTipNineSlice.scale, &backgroundRect);
+                }
+            }
         }
     }
     float currentX = backgroundRect.x + scaledPadding;

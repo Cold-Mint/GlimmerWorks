@@ -31,7 +31,6 @@
 
 #include "CommandHookEntry.h"
 #include "Config.h"
-#include "scene/AppContext.h"
 
 
 namespace glimmer

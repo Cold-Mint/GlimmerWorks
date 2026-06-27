@@ -85,5 +85,6 @@ namespace glimmer
 
     private:
         void UpdateItemSlotPositions() const;
+        void UpdateButtonPosition() const;
     };
 }

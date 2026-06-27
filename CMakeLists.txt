@@ -631,6 +631,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/ResourceResult.cpp
         core/mod/resourcePack/TextureResourceResult.cpp
         core/mod/resourcePack/AudioResourceResult.cpp
+        core/mod/resourcePack/ResourcePackConfig.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -936,6 +937,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/ResourceResult.h
         core/mod/resourcePack/TextureResourceResult.h
         core/mod/resourcePack/AudioResourceResult.h
+        core/mod/resourcePack/ResourcePackConfig.h
 )
 
 #Define version information

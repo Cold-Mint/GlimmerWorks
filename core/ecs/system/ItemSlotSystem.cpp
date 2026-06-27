@@ -64,25 +64,48 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
             mouseY >= rect.y && mouseY <= rect.y + rect.h;
 
         itemSlotComponent->SetHovered(isHovered);
+        TextureResourceResult* itemSlotTextureResult = nullptr;
         if (hotBarComponent_ != nullptr && hotBarComponent_->GetSelectedSlotComponent() == itemSlotComponent)
         {
             if (itemSlotSelectedTextureResult_ != nullptr)
             {
-                SDL_Texture* itemSlotSelectedTexture = itemSlotSelectedTextureResult_->GetResource();
-                if (itemSlotSelectedTexture != nullptr)
-                {
-                    SDL_RenderTexture(renderer, itemSlotSelectedTexture, nullptr, &rect);
-                }
+                itemSlotTextureResult = itemSlotSelectedTextureResult_.get();
             }
         }
         else
         {
             if (itemSlotTextureResult_ != nullptr)
             {
-                SDL_Texture* itemSlotTexture = itemSlotTextureResult_->GetResource();
-                if (itemSlotTexture != nullptr)
+                itemSlotTextureResult = itemSlotTextureResult_.get();
+            }
+        }
+        if (itemSlotTextureResult != nullptr)
+        {
+            SDL_Texture* texture = itemSlotTextureResult->GetResource();
+            if (texture != nullptr)
+            {
+                const ResourcePack* resourcePack = itemSlotTextureResult->GetResourcePack();
+                if (resourcePack != nullptr)
                 {
-                    SDL_RenderTexture(renderer, itemSlotTexture, nullptr, &rect);
+                    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+                    if (packConfig.itemSlotNineSlice.enableTiled)
+                    {
+                        SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
+                                                    packConfig.itemSlotNineSlice.leftBorderPx,
+                                                    packConfig.itemSlotNineSlice.rightBorderPx,
+                                                    packConfig.itemSlotNineSlice.topBorderPx,
+                                                    packConfig.itemSlotNineSlice.bottomBorderPx,
+                                                    packConfig.itemSlotNineSlice.scale, &rect,
+                                                    packConfig.itemSlotNineSlice.tileScale);
+                    }
+                    else
+                    {
+                        SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.itemSlotNineSlice.leftBorderPx,
+                                               packConfig.itemSlotNineSlice.rightBorderPx,
+                                               packConfig.itemSlotNineSlice.topBorderPx,
+                                               packConfig.itemSlotNineSlice.bottomBorderPx,
+                                               packConfig.itemSlotNineSlice.scale, &rect);
+                    }
                 }
             }
         }

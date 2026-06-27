@@ -29,14 +29,12 @@
 #include <FastNoiseLite.h>
 #include <memory>
 #include <string>
-#include <unordered_set>
 #include <vector>
 
 #include "ResourceRef.h"
 #include "core/Box2dFilter.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/math/Color.h"
-#include "core/world/TileAnchorType.h"
 #include "src/saves/item.pb.h"
 
 namespace glimmer

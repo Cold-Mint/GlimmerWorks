@@ -38,8 +38,8 @@ glimmer::ItemSlotQuantitySystem::ItemSlotQuantitySystem(WorldContext* worldConte
     ResourceRef itemSlotResourceRef;
     itemSlotResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     itemSlotResourceRef.SetResourceType(RESOURCE_TEXTURE);
-    itemSlotResourceRef.SetResourceKey("gui/item_slot");
-    itemSlotTextureResult_ = resourceLocator->FindTexture(&itemSlotResourceRef);
+    itemSlotResourceRef.SetResourceKey("gui/item_slot_quantity");
+    itemSlotQuantityTextureResult_ = resourceLocator->FindTexture(&itemSlotResourceRef);
     resourcePackManager_ = appContext_->GetResourcePackManager();
     preloadColors_ = appContext_->GetPreloadColors();
     Init();
@@ -84,12 +84,29 @@ void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
             mouseY >= rect.y && mouseY <= rect.y + rect.h;
 
         itemSlotComponent->SetHovered(isHovered);
-        if (itemSlotTextureResult_ != nullptr)
+        if (itemSlotQuantityTextureResult_ != nullptr)
         {
-            SDL_Texture* texture = itemSlotTextureResult_->GetResource();
+            SDL_Texture* texture = itemSlotQuantityTextureResult_->GetResource();
             if (texture != nullptr)
             {
-                SDL_RenderTexture(renderer, texture, nullptr, &rect);
+                const ResourcePack* resourcePack = itemSlotQuantityTextureResult_->GetResourcePack();
+                if (resourcePack != nullptr)
+                {
+                    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+                    if (packConfig.itemSlotQuantityNineSlice.enableTiled)
+                    {
+                        SDL_RenderTexture9GridTiled(renderer, texture, nullptr, packConfig.itemSlotQuantityNineSlice.leftBorderPx,
+                                                    packConfig.itemSlotQuantityNineSlice.rightBorderPx, packConfig.itemSlotQuantityNineSlice.topBorderPx,
+                                                    packConfig.itemSlotQuantityNineSlice.bottomBorderPx, packConfig.itemSlotQuantityNineSlice.scale, &rect,
+                                                    packConfig.itemSlotQuantityNineSlice.tileScale);
+                    }
+                    else
+                    {
+                        SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.itemSlotQuantityNineSlice.leftBorderPx,
+                                               packConfig.itemSlotQuantityNineSlice.rightBorderPx, packConfig.itemSlotQuantityNineSlice.topBorderPx,
+                                               packConfig.itemSlotQuantityNineSlice.bottomBorderPx, packConfig.itemSlotQuantityNineSlice.scale, &rect);
+                    }
+                }
             }
         }
         const Item* item = itemSlotComponent->GetItem();

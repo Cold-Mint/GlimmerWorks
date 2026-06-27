@@ -160,7 +160,28 @@ void glimmer::ButtonSystem::Render(SDL_Renderer* renderer)
             SDL_Texture* texture = backgroundTextureResult->GetResource();
             if (texture != nullptr)
             {
-                SDL_RenderTexture9GridTiled(renderer, texture, nullptr, 1, 1, 1, 1, 0.0F, &rect, 1.0F);
+                const ResourcePack* resourcePack = backgroundTextureResult->GetResourcePack();
+                if (resourcePack != nullptr)
+                {
+                    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+                    if (packConfig.buttonNineSlice.enableTiled)
+                    {
+                        SDL_RenderTexture9GridTiled(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
+                                                    packConfig.buttonNineSlice.rightBorderPx,
+                                                    packConfig.buttonNineSlice.topBorderPx,
+                                                    packConfig.buttonNineSlice.bottomBorderPx,
+                                                    packConfig.buttonNineSlice.scale, &rect,
+                                                    packConfig.buttonNineSlice.tileScale);
+                    }
+                    else
+                    {
+                        SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
+                                               packConfig.buttonNineSlice.rightBorderPx,
+                                               packConfig.buttonNineSlice.topBorderPx,
+                                               packConfig.buttonNineSlice.bottomBorderPx,
+                                               packConfig.buttonNineSlice.scale, &rect);
+                    }
+                }
             }
         }
 

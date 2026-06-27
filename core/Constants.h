@@ -38,8 +38,9 @@ using DesignDimension = float;
 // Manifest file names of data packets and resource packets
 // 数据包和资源包的清单文件名
 static constexpr std::string MANIFEST_FILE_NAME = "manifest.toml";
-static constexpr std::string MAP_MANIFEST_FILE_NAME = "mapManifest.bin";
+static constexpr std::string MAP_MANIFEST_FILE_NAME = "manifest.bin";
 static constexpr std::string PLAYER_FILE_NAME = "player.bin";
+static constexpr std::string RESOURCE_PACK_CONFIG_FILE_NAME = "res_config.toml";
 
 
 static constexpr std::string HELP_COMMAND_NAME = "help";
@@ -159,6 +160,9 @@ static constexpr uint8_t HOT_BAR_SIZE = 9;
 static constexpr float ITEM_SLOT_SIZE = 24;
 static constexpr float ITEM_SLOT_PADDING = 2;
 static constexpr uint8_t INVENTORY_ROW_COUNT = 4;
+static constexpr DesignDimension MATERIAL_SELECT_CRAFT_PANEL_MIN_WIDTH = 380.0F;
+static constexpr DesignDimension MATERIAL_SELECT_CRAFT_PANEL_MIN_HEIGHT = 320.0F;
+static constexpr DesignDimension MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT = 32.0F;
 static constexpr float DROP_INTERVAL = 1.0F / ITEM_MAX_STACK;
 static constexpr int TOOLTIP_TEXT_WRAP_WIDTH = 180;
 

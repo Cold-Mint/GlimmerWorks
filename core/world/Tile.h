@@ -37,6 +37,8 @@
 
 namespace glimmer
 {
+    enum class TileAnchorType : uint8_t;
+
     class Tile
     {
         friend class TileInstancePool;

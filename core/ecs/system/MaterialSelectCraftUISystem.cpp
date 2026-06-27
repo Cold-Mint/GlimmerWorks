@@ -27,6 +27,7 @@
 #include "MaterialSelectCraftUISystem.h"
 
 #include <algorithm>
+#include "core/Constants.h"
 #include "core/layout/GridLayoutStepper.h"
 #include "core/layout/VerticalLayoutStepper.h"
 #include "core/world/WorldContext.h"
@@ -176,10 +177,9 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
         const uint8_t actualColumns = matchingCount_ > 0 ? std::min(matchingCount_, gridColumns) : 1;
         const DesignDimension gridWidth = static_cast<float>(actualColumns) * (ITEM_SLOT_SIZE + gridPadding) -
             gridPadding;
-        const DesignDimension panelWidth = maxTextureWidth_ + gridWidth + 2.0F * panelPadding;
+        const DesignDimension contentPanelWidth = maxTextureWidth_ + gridWidth + 2.0F * panelPadding;
+        const DesignDimension panelWidth = std::max(contentPanelWidth, MATERIAL_SELECT_CRAFT_PANEL_MIN_WIDTH);
 
-        // Calculate required heights for tag area and item slot grid, then take the larger one.
-        // 计算标签区域和物品槽网格所需的高度，取较大值。
         const DesignDimension tagAreaHeight = static_cast<DesignDimension>(tagRuntimeDataMap_.size()) * (
                 maxTextureHeight_ +
                 cellPadding) +
@@ -189,13 +189,14 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
                                       : 1;
         const DesignDimension gridAreaHeight = static_cast<DesignDimension>(gridRows) * (ITEM_SLOT_SIZE + gridPadding) -
             gridPadding + 2.0F * panelPadding;
-        const DesignDimension panelHeight = std::max(tagAreaHeight, gridAreaHeight);
+        const DesignDimension contentPanelHeight = std::max(tagAreaHeight, gridAreaHeight);
+        const DesignDimension totalPanelHeight = contentPanelHeight + MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT + panelPadding;
         panelWidth_ = panelWidth;
-        panelHeight_ = panelHeight;
+        panelHeight_ = std::max(totalPanelHeight, MATERIAL_SELECT_CRAFT_PANEL_MIN_HEIGHT);
 
-        const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth) *
+        const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth_) *
             0.5F;
-        const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight) *
+        const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight_) *
             0.5F;
 
         const DesignVector2D gridStartPosition{
@@ -390,6 +391,7 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
         }
         buttonComponent_->Disable();
         buttonComponent_->Show();
+        UpdateButtonPosition();
     }
     else
     {
@@ -415,6 +417,7 @@ void glimmer::MaterialSelectCraftUISystem::OnWindowSizeChanged(int width, int he
     windowHeight_ = height;
     windowWidth_ = width;
     UpdateItemSlotPositions();
+    UpdateButtonPosition();
 }
 
 void glimmer::MaterialSelectCraftUISystem::UpdateItemSlotPositions() const
@@ -450,6 +453,27 @@ void glimmer::MaterialSelectCraftUISystem::UpdateItemSlotPositions() const
         itemSlotQuantityComponent->SetPosition(position);
         itemIndex++;
     }
+}
+
+void glimmer::MaterialSelectCraftUISystem::UpdateButtonPosition() const
+{
+    if (buttonComponent_ == nullptr)
+    {
+        return;
+    }
+
+    constexpr DesignDimension panelPadding = 8.0F;
+
+    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth_) *
+        0.5F;
+    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight_) *
+        0.5F;
+
+    const DesignVector2D buttonPosition{
+        panelOffsetX + (panelWidth_ - buttonComponent_->GetSize().x) * 0.5F,
+        panelOffsetY + panelHeight_ - MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT - panelPadding
+    };
+    buttonComponent_->SetPosition(buttonPosition);
 }
 
 void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
@@ -553,23 +577,20 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
         SDL_Texture* subPanelBackGroundTexture = subPanelBackGroundTextureResult_->GetResource();
         if (subPanelBackGroundTexture != nullptr && dataLength > 0)
         {
+            const DesignDimension contentAreaHeight = panelHeight_ - MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT - panelPadding;
             const DesignDimension tagAreaHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight +
                     cellPadding) +
                 2.0F * panelPadding - cellPadding;
             const float scaledTagSubPanelWidth = maxTextureWidth * uiScale_;
-            const float scaledTagSubPanelHeight = std::max(tagAreaHeight,
-                                                           panelHeight_ - 2.0F * panelInnerPadding_ / uiScale_) *
-                uiScale_;
+            const float scaledContentAreaHeight = std::max(tagAreaHeight, contentAreaHeight) * uiScale_;
             const SDL_FRect tagSubPanelRect{
                 panelX + panelInnerPadding_,
                 panelY + panelInnerPadding_,
                 scaledTagSubPanelWidth,
-                scaledTagSubPanelHeight
+                scaledContentAreaHeight
             };
             SDL_RenderTexture(renderer, subPanelBackGroundTexture, nullptr, &tagSubPanelRect);
 
-            // Draw sub-panel background for the item slot grid (right side).
-            // 绘制右侧物品槽网格的子面板背景。
             const DesignDimension gridSubPanelWidth = panelWidth_ - maxTextureWidth - 2.0F * panelPadding;
             const float scaledGridSubPanelWidth = gridSubPanelWidth * uiScale_;
             const float gridSubPanelX = panelX + (maxTextureWidth + panelPadding) * uiScale_;
@@ -577,7 +598,7 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
                 gridSubPanelX,
                 panelY + panelInnerPadding_,
                 scaledGridSubPanelWidth,
-                scaledTagSubPanelHeight
+                scaledContentAreaHeight
             };
             SDL_RenderTexture(renderer, subPanelBackGroundTexture, nullptr, &gridSubPanelRect);
         }

@@ -32,23 +32,50 @@
 #include "toml11/parser.hpp"
 
 
-glimmer::ResourcePack::ResourcePack(std::string path, const VirtualFileSystem *virtualFileSystem,
-                                    const toml::spec &tomlVersion) : path_(std::move(path)),
+glimmer::ResourcePack::ResourcePack(std::string path, const VirtualFileSystem* virtualFileSystem,
+                                    const toml::spec& tomlVersion) : path_(std::move(path)),
                                                                      virtualFileSystem_(virtualFileSystem), manifest_(),
-                                                                     tomlVersion_(tomlVersion) {
+                                                                     tomlVersion_(tomlVersion)
+{
 }
 
-bool glimmer::ResourcePack::loadManifest() {
+bool glimmer::ResourcePack::LoadResourceConfig()
+{
     auto data =
-            virtualFileSystem_->ReadFile(path_ + "/" + MANIFEST_FILE_NAME);
-    if (!data.has_value()) {
+        virtualFileSystem_->ReadFile(path_ + "/" + RESOURCE_PACK_CONFIG_FILE_NAME);
+    if (!data.has_value())
+    {
+        return false;
+    }
+    toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    try
+    {
+        resourcePackConfig_ = toml::get<ResourcePackConfig>(value);
+    }
+    catch (const std::exception& e)
+    {
+        LogCat::e("DataPack::LoadResourceConfig - Failed to parse res_config.toml: ", e.what());
+        return false;
+    }
+    return true;
+}
+
+bool glimmer::ResourcePack::LoadManifest()
+{
+    auto data =
+        virtualFileSystem_->ReadFile(path_ + "/" + MANIFEST_FILE_NAME);
+    if (!data.has_value())
+    {
         LogCat::e("DataPack::loadManifest - Failed to load manifest: ", path_ + "/" + MANIFEST_FILE_NAME);
         return false;
     }
     toml::value value = toml::parse_str(data.value(), tomlVersion_);
-    try {
+    try
+    {
         manifest_ = toml::get<ResourcePackManifest>(value);
-    } catch (const std::exception &e) {
+    }
+    catch (const std::exception& e)
+    {
         LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
         return false;
     }
@@ -67,10 +94,17 @@ bool glimmer::ResourcePack::loadManifest() {
     return true;
 }
 
-const glimmer::ResourcePackManifest &glimmer::ResourcePack::getManifest() const {
+const glimmer::ResourcePackConfig& glimmer::ResourcePack::GetResourcePackConfig() const
+{
+    return resourcePackConfig_;
+}
+
+const glimmer::ResourcePackManifest& glimmer::ResourcePack::GetManifest() const
+{
     return manifest_;
 }
 
-std::string glimmer::ResourcePack::getPath() const {
+std::string glimmer::ResourcePack::GetPath() const
+{
     return path_;
 }

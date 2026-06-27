@@ -33,7 +33,7 @@ namespace glimmer
     class ItemSlotQuantitySystem : public GameSystem
     {
         std::vector<ItemSlotQuantityComponent*> itemSlotQuantityComponents_;
-        std::shared_ptr<TextureResourceResult> itemSlotTextureResult_ = nullptr;
+        std::shared_ptr<TextureResourceResult> itemSlotQuantityTextureResult_ = nullptr;
         AppContext* appContext_ = nullptr;
         float uiScale_ = 1.0F;
         PreloadColors* preloadColors_ = nullptr;

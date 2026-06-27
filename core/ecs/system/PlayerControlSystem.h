@@ -41,7 +41,7 @@ namespace glimmer
         //手滑判定间隔。
         float slipTimer_ = 0.0F;
         AudioManager* audioManager_ = nullptr;
-        std::shared_ptr<MIX_Audio> dropItemSFX_ = nullptr;
+        std::shared_ptr<AudioResourceResult> dropItemSFXResult_ = nullptr;
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         GameEntityID playerEntityID_ = GAME_ENTITY_ID_INVALID;

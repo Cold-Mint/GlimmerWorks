@@ -30,6 +30,7 @@
 
 #include "../scene/AppContext.h"
 #include "../mod/ResourceLocator.h"
+#include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/utils/StringUtils.h"
 
 
@@ -75,12 +76,20 @@ const std::string& glimmer::Tile::GetId() const
 
 SDL_Texture* glimmer::Tile::GetTexture() const
 {
-    return texture_.get();
+    if (textureResult_ == nullptr)
+    {
+        return nullptr;
+    }
+    return textureResult_->GetResource();
 }
 
 SDL_Texture* glimmer::Tile::GetBlueprintTexture() const
 {
-    return blueprintTexture_.get();
+    if (blueprintTextureResult_ == nullptr)
+    {
+        return nullptr;
+    }
+    return blueprintTextureResult_->GetResource();
 }
 
 bool glimmer::Tile::EnableBlueprint() const
@@ -100,12 +109,20 @@ bool glimmer::Tile::DrawValidBlueprintColor() const
 
 MIX_Audio* glimmer::Tile::GetBreakSFX() const
 {
-    return breakSFX_.get();
+    if (breakSFXResult_ == nullptr)
+    {
+        return nullptr;
+    }
+    return breakSFXResult_->GetResource();
 }
 
 MIX_Audio* glimmer::Tile::GetPlaceSFX() const
 {
-    return placeSFX_.get();
+    if (placeSFXResult_ == nullptr)
+    {
+        return nullptr;
+    }
+    return placeSFXResult_->GetResource();
 }
 
 
@@ -291,22 +308,22 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
                                             tileHeight,
                                             tileResource->customTileAnchor);
     tile->allowDirAdjustAnchor_ = tileResource->allowDirAdjustAnchor;
-    tile->texture_ = resourceLocator->FindTexture(
+    tile->textureResult_ = resourceLocator->FindTexture(
         &tileResource->texture);
     tile->enableBlueprint_ = tileResource->enableBlueprint;
     tile->enableBlueprintMask_ = tileResource->enableBlueprintMask;
     tile->drawValidBlueprintColor_ = tileResource->drawValidBlueprintColor;
-    tile->blueprintTexture_ = resourceLocator->FindTextureRaw(
+    tile->blueprintTextureResult_ = resourceLocator->FindTextureRaw(
         &tileResource->blueprintTexture);
-    if (tile->blueprintTexture_ == nullptr)
+    if (tile->blueprintTextureResult_ == nullptr)
     {
-        tile->blueprintTexture_ = tile->texture_;
+        tile->blueprintTextureResult_ = tile->textureResult_;
     }
     tile->lootScaleBySize_ = tileResource->lootScaleBySize;
     tile->unitDigCost_ = tileResource->unitDigCost;
     tile->autoDigCostScale_ = tileResource->autoDigCostScale;
-    tile->breakSFX_ = resourceLocator->FindAudio(&tileResource->breakSfx);
-    tile->placeSFX_ = resourceLocator->FindAudio(&tileResource->placeSfx);
+    tile->breakSFXResult_ = resourceLocator->FindAudio(&tileResource->breakSfx);
+    tile->placeSFXResult_ = resourceLocator->FindAudio(&tileResource->placeSfx);
     tile->tags_ = tileResource->tags;
     return tile;
 }

@@ -38,8 +38,8 @@ namespace glimmer
 
     class DiggingSystem : public GameSystem
     {
-        bool cacheTexture = false;
-        std::vector<std::shared_ptr<SDL_Texture>> textureList = {};
+        bool cacheTexture_ = false;
+        std::vector<std::shared_ptr<TextureResourceResult>> textureResultList_ = {};
         DiggingComponent* diggingComponent_ = nullptr;
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;

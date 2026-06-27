@@ -30,14 +30,13 @@
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/resourcePack/AudioManager.h"
-#include "SDL3_mixer/SDL_mixer.h"
 
 namespace glimmer
 {
     class BiomeBGMSystem final : public GameSystem
     {
         BiomeResource* biomeResource_ = nullptr;
-        std::shared_ptr<MIX_Audio> audio_ = nullptr;
+        std::shared_ptr<AudioResourceResult> audioResult_ = nullptr;
         Transform2DComponent* playerTransform2DComponent_ = nullptr;
         AudioManager* audioManager_ = nullptr;
         ResourceLocator* resourceLocator_ = nullptr;

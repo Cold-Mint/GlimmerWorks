@@ -66,16 +66,24 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
         itemSlotComponent->SetHovered(isHovered);
         if (hotBarComponent_ != nullptr && hotBarComponent_->GetSelectedSlotComponent() == itemSlotComponent)
         {
-            if (itemSlotSelectedTexture_ != nullptr)
+            if (itemSlotSelectedTextureResult_ != nullptr)
             {
-                SDL_RenderTexture(renderer, itemSlotSelectedTexture_.get(), nullptr, &rect);
+                SDL_Texture* itemSlotSelectedTexture = itemSlotSelectedTextureResult_->GetResource();
+                if (itemSlotSelectedTexture != nullptr)
+                {
+                    SDL_RenderTexture(renderer, itemSlotSelectedTexture, nullptr, &rect);
+                }
             }
         }
         else
         {
-            if (itemSlotTexture_ != nullptr)
+            if (itemSlotTextureResult_ != nullptr)
             {
-                SDL_RenderTexture(renderer, itemSlotTexture_.get(), nullptr, &rect);
+                SDL_Texture* itemSlotTexture = itemSlotTextureResult_->GetResource();
+                if (itemSlotTexture != nullptr)
+                {
+                    SDL_RenderTexture(renderer, itemSlotTexture, nullptr, &rect);
+                }
             }
         }
 
@@ -233,12 +241,12 @@ glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
     itemSlotResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     itemSlotResourceRef.SetResourceType(RESOURCE_TEXTURE);
     itemSlotResourceRef.SetResourceKey("gui/item_slot");
-    itemSlotTexture_ = resourceLocator->FindTexture(&itemSlotResourceRef);
+    itemSlotTextureResult_ = resourceLocator->FindTexture(&itemSlotResourceRef);
     ResourceRef itemSlotSelectedResourceRef;
     itemSlotSelectedResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     itemSlotSelectedResourceRef.SetResourceType(RESOURCE_TEXTURE);
     itemSlotSelectedResourceRef.SetResourceKey("gui/item_slot_selected");
-    itemSlotSelectedTexture_ = resourceLocator->FindTexture(&itemSlotSelectedResourceRef);
+    itemSlotSelectedTextureResult_ = resourceLocator->FindTexture(&itemSlotSelectedResourceRef);
     preloadColors_ = appContext_->GetPreloadColors();
     resourcePackManager_ = appContext_->GetResourcePackManager();
     Init();

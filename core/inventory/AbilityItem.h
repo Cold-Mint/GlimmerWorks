@@ -36,7 +36,7 @@ namespace glimmer
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
-        std::shared_ptr<SDL_Texture> icon_;
+        std::shared_ptr<TextureResourceResult> iconResult_;
         std::shared_ptr<ItemAbility> itemAbility_;
         uint32_t maxDurability_;
         bool isUnbreakable_;
@@ -44,7 +44,7 @@ namespace glimmer
 
     public:
         explicit AbilityItem(std::string id, std::string name, std::optional<std::string> description,
-                             std::shared_ptr<SDL_Texture> icon,
+                             std::shared_ptr<TextureResourceResult> iconResult,
                              std::shared_ptr<ItemAbility> itemAbility, uint32_t maxDurability, bool isUnbreakable,
                              bool canUseAlone, const std::vector<ItemTagResource>& tags,
                              const ResourceRef& resourceRef);

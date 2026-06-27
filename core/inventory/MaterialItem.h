@@ -34,11 +34,11 @@ namespace glimmer
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
-        std::shared_ptr<SDL_Texture> icon_;
+        std::shared_ptr<TextureResourceResult> iconResult_;
 
     public:
         explicit MaterialItem(std::string id, std::string name, std::optional<std::string> description,
-                              std::shared_ptr<SDL_Texture> icon,
+                              std::shared_ptr<TextureResourceResult> iconResult,
                               const std::vector<ItemTagResource>& tags,
                               const ResourceRef& resourceRef);
 

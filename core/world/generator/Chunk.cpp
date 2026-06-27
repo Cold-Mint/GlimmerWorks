@@ -165,7 +165,7 @@ glimmer::Chunk::Chunk(WorldContext *worldContext, const TileVector2D &pos,
 
 void glimmer::Chunk::UpdateFadeInAnimation(const float delta) {
     if (!chunkFadeInTween_.isFinished()) {
-        chunkFadeInTween_.step(static_cast<int>(delta * 1000));
+        chunkFadeInTween_.step(delta);
         chunkFadeAlpha_ = chunkFadeInTween_.peek();
     }
 }

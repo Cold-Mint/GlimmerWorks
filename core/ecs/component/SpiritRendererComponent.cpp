@@ -55,14 +55,18 @@ void glimmer::SpiritRendererComponent::SetFlipV(const bool flipV)
 
 SDL_Texture* glimmer::SpiritRendererComponent::GetTexture(const ResourceLocator* resourceLocator)
 {
-    if (texture_ == nullptr)
+    if (textureResult_ == nullptr)
     {
-        texture_ = resourceLocator->FindTexture(&resourceRef_);
+        textureResult_ = resourceLocator->FindTexture(&resourceRef_);
+        if (textureResult_ == nullptr)
+        {
+            return nullptr;
+        }
     }
-    return texture_.get();
+    return textureResult_->GetResource();
 }
 
-void glimmer::SpiritRendererComponent::SetPosition(WorldVector2D position)
+void glimmer::SpiritRendererComponent::SetPosition(const WorldVector2D& position)
 {
     position_ = position;
 }

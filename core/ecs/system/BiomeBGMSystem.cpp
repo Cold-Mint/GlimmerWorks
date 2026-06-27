@@ -28,6 +28,7 @@
 
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/world/WorldContext.h"
 
 void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
@@ -87,13 +88,21 @@ void glimmer::BiomeBGMSystem::Update(float delta)
     {
         return;
     }
-    std::shared_ptr<MIX_Audio> audio = resourceLocator_->FindAudio(&biomeResource->bgm);
-    if (audio == nullptr)
+    std::shared_ptr<AudioResourceResult> audioResourceResult = resourceLocator_->FindAudio(&biomeResource->bgm);
+    if (audioResourceResult == nullptr)
     {
         return;
     }
-    audio_ = audio;
-    audioManager_->ForcePlayReplace(BGM, audio_.get(), -1);
+    audioResult_ = audioResourceResult;
+    if (audioResult_ != nullptr)
+    {
+        MIX_Audio* audio = audioResult_->GetResource();
+        if (audio != nullptr)
+        {
+            audioManager_->ForcePlayReplace(BGM, audio, -1);
+        }
+    }
+
     biomeResource_ = biomeResource;
 }
 

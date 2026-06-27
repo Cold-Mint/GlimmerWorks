@@ -32,11 +32,10 @@ namespace glimmer
 {
     class CraftPreviewSlotSystem : public GameSystem
     {
-        std::shared_ptr<SDL_Texture> craftPreviewSlotTexture_ = nullptr;
+        std::shared_ptr<TextureResourceResult> craftPreviewSlotTextureResult_ = nullptr;
         AppContext* appContext_ = nullptr;
         PreloadColors* preloadColors_ = nullptr;
         float uiScale_ = 1.0F;
-        std::shared_ptr<SDL_Texture> tooltipBgTexture_ = nullptr;
         std::vector<CraftPreviewSlotComponent*> craftPreviewSlotComponents_;
         CraftPreviewSlotComponent* hoveredCraftPreviewSlotComponent_ = nullptr;
         std::shared_ptr<SDL_Texture> itemNameTexture_ = nullptr;

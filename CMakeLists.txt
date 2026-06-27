@@ -627,6 +627,10 @@ target_sources(GlimmerWorks
         core/ecs/system/ButtonSystem.cpp
         core/TagRuntimeData.cpp
         core/SelectedItemRuntimeData.cpp
+        core/ecs/ISwitchable.cpp
+        core/mod/resourcePack/ResourceResult.cpp
+        core/mod/resourcePack/TextureResourceResult.cpp
+        core/mod/resourcePack/AudioResourceResult.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -928,6 +932,10 @@ target_sources(GlimmerWorks
         core/ecs/component/ButtonComponent.h
         core/TagRuntimeData.h
         core/SelectedItemRuntimeData.h
+        core/ecs/ISwitchable.h
+        core/mod/resourcePack/ResourceResult.h
+        core/mod/resourcePack/TextureResourceResult.h
+        core/mod/resourcePack/AudioResourceResult.h
 )
 
 #Define version information

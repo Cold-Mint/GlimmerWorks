@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,32 +25,14 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
-#include "core/ecs/GameComponent.h"
-#include "core/mod/ResourceLocator.h"
+#include "ResourceResult.h"
 #include "SDL3/SDL_render.h"
-
 
 namespace glimmer
 {
-    class ParallaxBackgroundComponent : public GameComponent
+    class TextureResourceResult : public ResourceResult<SDL_Texture>
     {
-        std::shared_ptr<TextureResourceResult> textureResourceResult_ = nullptr;
-        ResourceRef textureResourceRef_;
-        uint64_t textureResourceFingerprint_ = 0;
-        uint64_t newTextureResourceFingerprint_ = 0;
-
     public:
-        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
-
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
-
-        void SetTextureResourceRef(ResourceRef textureResourceRef);
-
-        ResourceRef& GetTextureResourceRef();
-
-        void ClearTexture();
-
-        SDL_Texture* GetTexture(const ResourceLocator* resourceLocator);
+        void DestroyResource() override;
     };
 }

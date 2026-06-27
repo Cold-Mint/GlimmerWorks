@@ -36,8 +36,8 @@ namespace glimmer
 
     class ItemSlotSystem : public GameSystem
     {
-        std::shared_ptr<SDL_Texture> itemSlotTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> itemSlotSelectedTexture_ = nullptr;
+        std::shared_ptr<TextureResourceResult> itemSlotTextureResult_ = nullptr;
+        std::shared_ptr<TextureResourceResult> itemSlotSelectedTextureResult_ = nullptr;
         PreloadColors* preloadColors_ = nullptr;
         AppContext* appContext_ = nullptr;
         float uiScale_ = 1.0F;

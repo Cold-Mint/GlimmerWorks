@@ -35,71 +35,54 @@
 glimmer::SplashScene::SplashScene(AppContext* context)
     : Scene(context)
 {
-    nextSceneTime = std::numeric_limits<Uint64>::max();
+    nextSceneTime_ = std::numeric_limits<Uint64>::max();
     Init();
 }
 
 void glimmer::SplashScene::Update(float delta)
 {
-    if (!animationFinished && fadeTween.progress() < 1.0f)
+    if (!animationFinished_ && fadeTween_.progress() < 1.0f)
     {
-        fadeTween.step(static_cast<int>(delta * 1000));
-        alpha = fadeTween.peek();
+        fadeTween_.step(delta);
+        alpha_ = fadeTween_.peek();
     }
-    else if (!animationFinished && fadeTween.progress() >= 1.0f)
+    else if (!animationFinished_ && fadeTween_.progress() >= 1.0f)
     {
-        animationFinished = true;
-        nextSceneTime = SDL_GetTicks() + 200;
+        animationFinished_ = true;
+        nextSceneTime_ = SDL_GetTicks() + 200;
         LogCat::i("Splash fade-in animation completed");
     }
-    if (!sceneJumped && SDL_GetTicks() >= nextSceneTime)
+    if (!sceneJumped_ && SDL_GetTicks() >= nextSceneTime_)
     {
-        sceneJumped = true;
+        sceneJumped_ = true;
         appContext_->GetSceneManager()->ReplaceScene(std::make_unique<HomeScene>(appContext_));
     }
 }
 
 void glimmer::SplashScene::Render(SDL_Renderer* renderer)
 {
-    if (!renderer) return;
-    if (!splashTexture)
+    if (splashTextureResult_ == nullptr)
     {
         ResourceRef splashTextureRef;
         splashTextureRef.SetSelfPackageId(RESOURCE_REF_CORE);
         splashTextureRef.SetResourceKey("gui/splash");
         splashTextureRef.SetResourceType(RESOURCE_TEXTURE);
-        splashTexture = appContext_->GetResourceLocator()->FindTexture(
+        splashTextureResult_ = appContext_->GetResourceLocator()->FindTexture(
             &splashTextureRef);
-        fadeTween = tweeny::from(0.0F).to(1.0F).during(1000);
-        alpha = 0.0F;
-        animationFinished = false;
+        fadeTween_ = tweeny::from(0.0F).to(1.0F).during(1000);
+        alpha_ = 0.0F;
+        animationFinished_ = false;
         LogCat::i("Splash texture loaded, starting fade-in animation");
     }
-    SDL_Texture* rawTex = splashTexture.get();
-    float texW = 0;
-    float texH = 0;
-    if (!SDL_GetTextureSize(rawTex, &texW, &texH))
+
+    SDL_Texture* rawTex = splashTextureResult_->GetResource();
+    if (rawTex == nullptr)
     {
-        LogCat::e("SDL_GetTextureSize Error: ", SDL_GetError());
-        return;
-    }
-    int winW = 0;
-    int winH = 0;
-    if (!SDL_GetRenderOutputSize(renderer, &winW, &winH))
-    {
-        LogCat::e("SDL_GetRenderOutputSize Error: ", SDL_GetError());
         return;
     }
 
-    const SDL_FRect dstRect = {
-        0.0F,
-        0.0F,
-        static_cast<float>(winW),
-        static_cast<float>(winH)
-    };
-
-    SDL_SetTextureAlphaMod(rawTex, static_cast<Uint8>(alpha * 255));
-    if (!SDL_RenderTexture(renderer, rawTex, nullptr, &dstRect))
+    SDL_SetTextureAlphaMod(rawTex, static_cast<Uint8>(alpha_ * 255));
+    if (!SDL_RenderTexture(renderer, rawTex, nullptr, nullptr))
     {
         LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
     }

@@ -52,19 +52,19 @@ glimmer::ResourceRef& glimmer::ParallaxBackgroundComponent::GetTextureResourceRe
 
 void glimmer::ParallaxBackgroundComponent::ClearTexture()
 {
-    texture_ = nullptr;
+    textureResourceResult_ = nullptr;
 }
 
 SDL_Texture* glimmer::ParallaxBackgroundComponent::GetTexture(const ResourceLocator* resourceLocator)
 {
     if (textureResourceFingerprint_ != newTextureResourceFingerprint_)
     {
-        texture_ = resourceLocator->FindTexture(&textureResourceRef_);
+        textureResourceResult_ = resourceLocator->FindTexture(&textureResourceRef_);
         textureResourceFingerprint_ = newTextureResourceFingerprint_;
     }
-    if (texture_ == nullptr)
+    if (textureResourceResult_ == nullptr)
     {
         return nullptr;
     }
-    return texture_.get();
+    return textureResourceResult_->GetResource();
 }

@@ -27,21 +27,23 @@
 #pragma once
 #include "core/Constants.h"
 #include "core/ecs/GameComponent.h"
+#include "core/ecs/ISwitchable.h"
 #include "core/ecs/IVisible.h"
 #include "core/math/DesignVector2D.h"
 #include "SDL3/SDL_render.h"
 
 namespace glimmer
 {
-    class ButtonComponent : public GameComponent, public IVisible
+    class ButtonComponent : public GameComponent, public IVisible, public ISwitchable
     {
         DesignVector2D size_;
         DesignVector2D position_;
         DesignDimension padding_ = 4.0F;
         std::string text_;
-        std::shared_ptr<SDL_Texture> buttonTextTexture_;
-        std::shared_ptr<SDL_Texture> buttonHoveredTextTexture_;
-        std::shared_ptr<SDL_Texture> buttonPressedTextTexture_;
+        std::shared_ptr<SDL_Texture> buttonTextTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> buttonHoveredTextTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> buttonPressedTextTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> buttonDisabledTextTexture_ = nullptr;
         std::function<void()> onClick_ = nullptr;
 
     public:
@@ -59,11 +61,11 @@ namespace glimmer
 
         [[nodiscard]] SDL_Texture* GetButtonPressedTextTexture() const;
 
+        [[nodiscard]] SDL_Texture* GetButtonDisabledTextTexture() const;
+
         [[nodiscard]] const std::string& GetText() const;
 
         [[nodiscard]] const DesignVector2D& GetSize() const;
-
-        void SetSize(const DesignVector2D& size);
 
         void SetPosition(const DesignVector2D& position);
 

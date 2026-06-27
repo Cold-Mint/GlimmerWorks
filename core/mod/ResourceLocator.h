@@ -28,7 +28,8 @@
 #include "Resource.h"
 #include "ResourceRef.h"
 #include "core/math/Color.h"
-#include "SDL3_mixer/SDL_mixer.h"
+#include "resourcePack/AudioResourceResult.h"
+#include "resourcePack/TextureResourceResult.h"
 
 namespace glimmer
 {
@@ -69,16 +70,16 @@ namespace glimmer
          * @param resourceRef
          * @return
          */
-        [[nodiscard]] std::shared_ptr<SDL_Texture> FindTexture(const ResourceRef* resourceRef) const;
+        [[nodiscard]] std::shared_ptr<TextureResourceResult> FindTexture(const ResourceRef* resourceRef) const;
 
         /**
          * 加载纹理
          * @param resourceRef 资源引用
          * @return 找不到返回null，权限受限返回accessDeniedTexture。
          */
-        [[nodiscard]] std::shared_ptr<SDL_Texture> FindTextureRaw(const ResourceRef* resourceRef) const;
+        [[nodiscard]] std::shared_ptr<TextureResourceResult> FindTextureRaw(const ResourceRef* resourceRef) const;
 
-        [[nodiscard]] std::shared_ptr<MIX_Audio> FindAudio(const ResourceRef* resourceRef) const;
+        [[nodiscard]] std::shared_ptr<AudioResourceResult> FindAudio(const ResourceRef* resourceRef) const;
 
         [[nodiscard]] std::unique_ptr<Color> FindColor(const ResourceRef* resourceRef) const;
 

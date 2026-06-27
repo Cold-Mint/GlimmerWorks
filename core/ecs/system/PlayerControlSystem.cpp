@@ -41,6 +41,7 @@
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/RayCast2DComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
+#include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/utils/RandomUtils.h"
 
 glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : GameSystem(worldContext)
@@ -53,7 +54,7 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : 
     ref.SetSelfPackageId(RESOURCE_REF_CORE);
     ref.SetResourceType(RESOURCE_AUDIO);
     ref.SetResourceKey("sfx/drop_item");
-    dropItemSFX_ = appContext->GetResourceLocator()->FindAudio(&ref);
+    dropItemSFXResult_ = appContext->GetResourceLocator()->FindAudio(&ref);
     audioManager_ = appContext->GetAudioManager();
     Init();
 }
@@ -212,7 +213,14 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
     {
         return;
     }
-    audioManager_->TryPlayFree(AMBIENT, dropItemSFX_.get(), 0);
+    if (dropItemSFXResult_ != nullptr)
+    {
+        MIX_Audio* audio = dropItemSFXResult_->GetResource();
+        if (audio != nullptr)
+        {
+            audioManager_->TryPlayFree(AMBIENT, audio, 0);
+        }
+    }
     const uint32_t droppedEntity = entityManager_->AddEntity();
     DroppedItemCreator droppedItemCreator{worldContext_};
     droppedItemCreator.LoadTemplateComponents(droppedEntity,

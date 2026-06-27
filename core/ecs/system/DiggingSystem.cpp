@@ -280,7 +280,7 @@ void glimmer::DiggingSystem::Update(float delta)
 void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
 {
     AppContext* appContext = worldContext_->GetAppContext();
-    if (!cacheTexture)
+    if (!cacheTexture_)
     {
         for (uint8_t i = 0; i < 10; i++)
         {
@@ -288,11 +288,11 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
             resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
             resourceRef.SetResourceType(RESOURCE_TEXTURE);
             resourceRef.SetResourceKey("cracks/cracks_" + std::to_string(i));
-            textureList.push_back(appContext->GetResourceLocator()->FindTexture(
+            textureResultList_.push_back(appContext->GetResourceLocator()->FindTexture(
                 &resourceRef
             ));
         }
-        cacheTexture = true;
+        cacheTexture_ = true;
         return;
     }
     if (!diggingComponent_->IsEnable())
@@ -318,7 +318,7 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
             const ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
                 cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
                 cameraComponent_->GetZoom());
-            const auto maxIndex = static_cast<float>(textureList.size() - 1);
+            const auto maxIndex = static_cast<float>(textureResultList_.size() - 1);
             const uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
                                                                      maxIndex));
             float w = TILE_SIZE * zoom * static_cast<float>(point->GetWidth());
@@ -327,10 +327,14 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
                 ScreenVector2D.x - w * 0.5F, ScreenVector2D.y - h * 0.5F, w,
                 h
             };
-            auto& crackTexture = textureList[crackIndex];
-            if (crackTexture)
+            auto& crackTextureResult = textureResultList_[crackIndex];
+            if (crackTextureResult != nullptr)
             {
-                SDL_RenderTexture(renderer, crackTexture.get(), nullptr, &dstRect);
+                SDL_Texture* texture = crackTextureResult->GetResource();
+                if (texture != nullptr)
+                {
+                    SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
+                }
             }
         }
     }

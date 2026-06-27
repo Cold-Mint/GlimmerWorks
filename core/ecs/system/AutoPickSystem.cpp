@@ -32,6 +32,7 @@
 #include "../component/DroppedItemComponent.h"
 #include "core/ecs/FlowingTextCreator.h"
 #include "core/ecs/component/MagnetComponent.h"
+#include "core/mod/resourcePack/AudioResourceResult.h"
 
 
 void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
@@ -70,7 +71,7 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem
     ref.SetSelfPackageId(RESOURCE_REF_CORE);
     ref.SetResourceType(RESOURCE_AUDIO);
     ref.SetResourceKey("sfx/pick_item");
-    pickItemSFX_ = appContext->GetResourceLocator()->FindAudio(&ref);
+    pickItemSFXResult_ = appContext->GetResourceLocator()->FindAudio(&ref);
     audioManager_ = appContext->GetAudioManager();
     Init();
 }
@@ -133,9 +134,13 @@ void glimmer::AutoPickSystem::Update(const float delta)
             frameItemCounts_[itemName] += extractItem->GetAmount();
 
             auto item = containerComponent->GetItemContainer()->AddItem(std::move(extractItem));
-            if (item == nullptr)
+            if (item == nullptr && pickItemSFXResult_ != nullptr)
             {
-                audioManager_->TryPlayFree(AMBIENT, pickItemSFX_.get(), 0);
+                MIX_Audio* audio = pickItemSFXResult_->GetResource();
+                if (audio != nullptr)
+                {
+                    audioManager_->TryPlayFree(AMBIENT, audio, 0);
+                }
             }
             entityManager_->RemoveEntity(entityId);
         }

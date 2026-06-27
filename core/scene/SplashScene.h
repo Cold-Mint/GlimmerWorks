@@ -29,17 +29,18 @@
 
 #include "Scene.h"
 #include "tween.h"
+#include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer
 {
     class SplashScene final : public Scene
     {
-        std::shared_ptr<SDL_Texture> splashTexture = nullptr;
-        float alpha = 0.0F;
-        bool animationFinished = false;
-        tweeny::tween<float> fadeTween;
-        Uint64 nextSceneTime;
-        bool sceneJumped = false;
+        std::shared_ptr<TextureResourceResult> splashTextureResult_ = nullptr;
+        float alpha_ = 0.0F;
+        bool animationFinished_ = false;
+        tweeny::tween<float> fadeTween_;
+        Uint64 nextSceneTime_;
+        bool sceneJumped_ = false;
 
     public:
         explicit SplashScene(AppContext* context);

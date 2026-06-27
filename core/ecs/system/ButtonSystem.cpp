@@ -45,16 +45,16 @@ glimmer::ButtonSystem::ButtonSystem(WorldContext* worldContext)
     buttonResourceRef.SetResourceType(RESOURCE_TEXTURE);
 
     buttonResourceRef.SetResourceKey("gui/button");
-    buttonTexture_ = resourceLocator->FindTexture(&buttonResourceRef);
+    buttonTextureResult_ = resourceLocator->FindTexture(&buttonResourceRef);
 
     buttonResourceRef.SetResourceKey("gui/button_hovered");
-    buttonHoveredTexture_ = resourceLocator->FindTexture(&buttonResourceRef);
+    buttonHoveredTextureResult_ = resourceLocator->FindTexture(&buttonResourceRef);
 
     buttonResourceRef.SetResourceKey("gui/button_pressed");
-    buttonPressedTexture_ = resourceLocator->FindTexture(&buttonResourceRef);
+    buttonPressedTextureResult_ = resourceLocator->FindTexture(&buttonResourceRef);
 
     buttonResourceRef.SetResourceKey("gui/button_disable");
-    buttonDisableTexture_ = resourceLocator->FindTexture(&buttonResourceRef);
+    buttonDisableTextureResult_ = resourceLocator->FindTexture(&buttonResourceRef);
 
     Init();
 }
@@ -139,26 +139,29 @@ void glimmer::ButtonSystem::Render(SDL_Renderer* renderer)
             buttonComponent->GetPosition(), uiScale_);
         const SDL_FRect rect = {position.x, position.y, size.x, size.y};
 
-        SDL_Texture* backgroundTexture = buttonTexture_.get();
+        TextureResourceResult* backgroundTextureResult = buttonTextureResult_.get();
         SDL_Texture* textTexture = buttonComponent->GetButtonTextTexture();
-
         if (hoveredButton_ == buttonComponent)
         {
             if (hoveredButtonPressed)
             {
-                backgroundTexture = buttonPressedTexture_.get();
+                backgroundTextureResult = buttonPressedTextureResult_.get();
                 textTexture = buttonComponent->GetButtonPressedTextTexture();
             }
             else
             {
-                backgroundTexture = buttonHoveredTexture_.get();
+                backgroundTextureResult = buttonHoveredTextureResult_.get();
                 textTexture = buttonComponent->GetButtonHoveredTextTexture();
             }
         }
 
-        if (backgroundTexture != nullptr)
+        if (backgroundTextureResult != nullptr)
         {
-            SDL_RenderTexture(renderer, backgroundTexture, nullptr, &rect);
+            SDL_Texture* texture = backgroundTextureResult->GetResource();
+            if (texture != nullptr)
+            {
+                SDL_RenderTexture9GridTiled(renderer, texture, nullptr, 1, 1, 1, 1, 0.0F, &rect, 1.0F);
+            }
         }
 
         if (textTexture != nullptr)

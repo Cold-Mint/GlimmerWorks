@@ -173,8 +173,9 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, c
             DroppedItemCreator droppedItemCreator{worldContext};
             droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
             droppedItemCreator.MergeEntityItemMessage(droppedEntity, DroppedItemCreator::GetEntityItemMessage(
-                                                          worldContext->GetEntityShortCut()->GetCameraTransform2DComponent()->
-                                                                        GetPosition(),
+                                                          worldContext->
+                                                          GetEntityShortCut()->GetCameraTransform2DComponent()->
+                                                          GetPosition(),
                                                           itemContainer_->TakeAllItem(index), 2));
             continue;
         }
@@ -212,13 +213,16 @@ void glimmer::ComposableItem::AddCallback()
 }
 
 glimmer::ComposableItem::ComposableItem(const std::string& id, const std::string& name,
-    const std::optional<std::string>& description, const std::shared_ptr<SDL_Texture>& icon, uint8_t maxSize,
-    uint32_t maxDurability, bool isUnbreakable, const std::vector<ItemTagResource>& tags, const ResourceRef& resourceRef)
+                                        const std::optional<std::string>& description,
+                                        const std::shared_ptr<TextureResourceResult>& iconResult,
+                                        uint8_t maxSize, uint32_t maxDurability, bool isUnbreakable,
+                                        const std::vector<ItemTagResource>& tags,
+                                        const ResourceRef& resourceRef)
 {
     id_ = id;
     name_ = name;
     description_ = description;
-    icon_ = icon;
+    iconResult_ = iconResult;
     maxDurability_ = maxDurability;
     isUnbreakable_ = isUnbreakable;
     resourceRef_ = resourceRef;
@@ -354,7 +358,11 @@ const std::optional<std::string>& glimmer::ComposableItem::GetDescription() cons
 
 SDL_Texture* glimmer::ComposableItem::GetIcon() const
 {
-    return icon_.get();
+    if (iconResult_ == nullptr)
+    {
+        return nullptr;
+    }
+    return iconResult_->GetResource();
 }
 
 unsigned glimmer::ComposableItem::GetRemaining() const

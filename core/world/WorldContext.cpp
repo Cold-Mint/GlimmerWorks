@@ -73,6 +73,7 @@
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/Chunk.h"
 #include "generator/ChunkPhysicsHelper.h"
@@ -257,7 +258,7 @@ glimmer::WorldContext::~WorldContext()
     ref.SetSelfPackageId(RESOURCE_REF_CORE);
     ref.SetResourceType(RESOURCE_AUDIO);
     ref.SetResourceKey("sfx/item_break");
-    itemBreakSFX_ = appContext_->GetResourceLocator()->FindAudio(&ref);
+    itemBreakSFXResult_ = appContext_->GetResourceLocator()->FindAudio(&ref);
     audioManager_ = appContext_->GetAudioManager();
 }
 
@@ -466,7 +467,14 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                     }
                     if (!item->IsUnbreakable() && item->GetRemaining() == 0)
                     {
-                        audioManager_->TryPlayFree(AMBIENT, itemBreakSFX_.get(), 0);
+                        if (itemBreakSFXResult_ != nullptr)
+                        {
+                            MIX_Audio* audio = itemBreakSFXResult_->GetResource();
+                            if (audio != nullptr)
+                            {
+                                audioManager_->TryPlayFree(AMBIENT, audio, 0);
+                            }
+                        }
                         auto composableItem = dynamic_cast<ComposableItem*>(item);
                         if (composableItem != nullptr)
                         {

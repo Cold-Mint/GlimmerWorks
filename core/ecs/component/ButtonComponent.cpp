@@ -42,6 +42,10 @@ void glimmer::ButtonComponent::SetClickCallback(std::function<void()> onClick)
 
 void glimmer::ButtonComponent::InvokeClick() const
 {
+    if (!IsEnabled())
+    {
+        return;
+    }
     if (onClick_ == nullptr)
     {
         return;
@@ -69,7 +73,8 @@ void glimmer::ButtonComponent::SetText(const AppContext* appContext, const std::
     buttonTextTexture_ = resourcePackManager->CreateStringTexture(text, &preloadColors->buttonTextColor);
     buttonHoveredTextTexture_ = resourcePackManager->CreateStringTexture(text, &preloadColors->buttonHoveredTextColor);
     buttonPressedTextTexture_ = resourcePackManager->CreateStringTexture(text, &preloadColors->buttonPressedTextColor);
-    Config* config = appContext->GetConfig();
+    buttonDisabledTextTexture_ = resourcePackManager->CreateStringTexture(text, &preloadColors->buttonDisableTextColor);
+    const Config* config = appContext->GetConfig();
     if (config == nullptr)
     {
         return;
@@ -104,6 +109,15 @@ SDL_Texture* glimmer::ButtonComponent::GetButtonPressedTextTexture() const
         return nullptr;
     }
     return buttonPressedTextTexture_.get();
+}
+
+SDL_Texture* glimmer::ButtonComponent::GetButtonDisabledTextTexture() const
+{
+    if (buttonDisabledTextTexture_ == nullptr)
+    {
+        return nullptr;
+    }
+    return buttonDisabledTextTexture_.get();
 }
 
 const std::string& glimmer::ButtonComponent::GetText() const

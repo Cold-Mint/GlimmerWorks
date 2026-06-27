@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,32 +25,54 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
-#include "core/ecs/GameComponent.h"
-#include "core/mod/ResourceLocator.h"
-#include "SDL3/SDL_render.h"
-
+#include "ResourcePack.h"
 
 namespace glimmer
 {
-    class ParallaxBackgroundComponent : public GameComponent
+    template <typename T>
+    class ResourceResult
     {
-        std::shared_ptr<TextureResourceResult> textureResourceResult_ = nullptr;
-        ResourceRef textureResourceRef_;
-        uint64_t textureResourceFingerprint_ = 0;
-        uint64_t newTextureResourceFingerprint_ = 0;
+        const ResourcePack* resourcePack_ = nullptr;
+
+    protected:
+        T* resource_ = nullptr;
 
     public:
-        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+        virtual ~ResourceResult() = default;
 
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
+        void SetResource(T* resource);
 
-        void SetTextureResourceRef(ResourceRef textureResourceRef);
+        void SetResourcePack(const ResourcePack* resourcePack);
 
-        ResourceRef& GetTextureResourceRef();
+        [[nodiscard]] const ResourcePack* GetResourcePack() const;
 
-        void ClearTexture();
+        virtual void DestroyResource() = 0;
 
-        SDL_Texture* GetTexture(const ResourceLocator* resourceLocator);
+        [[nodiscard]] T* GetResource() const;
     };
+
+    template <typename T>
+    void ResourceResult<T>::SetResource(T* resource)
+    {
+        resource_ = resource;
+    }
+
+    template <typename T>
+    void ResourceResult<T>::SetResourcePack(const ResourcePack* resourcePack)
+    {
+        resourcePack_ = resourcePack;
+    }
+
+    template <typename T>
+    const ResourcePack* ResourceResult<T>::GetResourcePack() const
+    {
+        return resourcePack_;
+    }
+
+
+    template <typename T>
+    T* ResourceResult<T>::GetResource() const
+    {
+        return resource_;
+    }
 }

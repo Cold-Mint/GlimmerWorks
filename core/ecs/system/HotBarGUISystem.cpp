@@ -29,6 +29,7 @@
 #include "../../world/WorldContext.h"
 #include "core/ecs/component/ItemSlotComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/layout/HorizontalLayoutStepper.h"
 
 
 void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)

@@ -26,13 +26,12 @@
  */
 #pragma once
 #include "core/ecs/GameSystem.h"
-#include "core/ecs/component/ItemContainerComponent.h"
 
 namespace glimmer
 {
     class AutoPickSystem : public GameSystem
     {
-        std::shared_ptr<MIX_Audio> pickItemSFX_ = nullptr;
+        std::shared_ptr<AudioResourceResult> pickItemSFXResult_ = nullptr;
         WorldVector2D lastPosition{};
         float remainingTime_ = MERGE_DURATION;
         AudioManager* audioManager_ = nullptr;

@@ -39,7 +39,7 @@ glimmer::ItemSlotQuantitySystem::ItemSlotQuantitySystem(WorldContext* worldConte
     itemSlotResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     itemSlotResourceRef.SetResourceType(RESOURCE_TEXTURE);
     itemSlotResourceRef.SetResourceKey("gui/item_slot");
-    itemSlotTexture_ = resourceLocator->FindTexture(&itemSlotResourceRef);
+    itemSlotTextureResult_ = resourceLocator->FindTexture(&itemSlotResourceRef);
     resourcePackManager_ = appContext_->GetResourcePackManager();
     preloadColors_ = appContext_->GetPreloadColors();
     Init();
@@ -84,9 +84,13 @@ void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
             mouseY >= rect.y && mouseY <= rect.y + rect.h;
 
         itemSlotComponent->SetHovered(isHovered);
-        if (itemSlotTexture_ != nullptr)
+        if (itemSlotTextureResult_ != nullptr)
         {
-            SDL_RenderTexture(renderer, itemSlotTexture_.get(), nullptr, &rect);
+            SDL_Texture* texture = itemSlotTextureResult_->GetResource();
+            if (texture != nullptr)
+            {
+                SDL_RenderTexture(renderer, texture, nullptr, &rect);
+            }
         }
         const Item* item = itemSlotComponent->GetItem();
         if (isHovered)

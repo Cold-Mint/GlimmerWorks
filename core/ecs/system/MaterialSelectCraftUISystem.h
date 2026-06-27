@@ -42,12 +42,13 @@ namespace glimmer
         std::vector<ItemSlotQuantityComponent*> itemSlotQuantityVector_;
         StringManager* stringManager_ = nullptr;
         ResourcePackManager* resourcePackManager_ = nullptr;
-        PreloadColors* preloadColors_;
+        PreloadColors* preloadColors_ = nullptr;
+        ResourceLocator* resourceLocator_ = nullptr;
         float uiScale_ = 1.0F;
         int windowHeight_ = 0;
         int windowWidth_ = 0;
-        std::shared_ptr<SDL_Texture> panelBackGroundTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> subPanelBackGroundTexture_ = nullptr;
+        std::shared_ptr<TextureResourceResult> panelBackGroundTextureResult_ = nullptr;
+        std::shared_ptr<TextureResourceResult> subPanelBackGroundTextureResult_ = nullptr;
         //Key represents the index of the item, while Value indicates the selected quantity.
         //Key为物品下标，Value为选中的数量。
         std::vector<std::unique_ptr<SelectedItemRuntimeData>> selectedItemVector_;

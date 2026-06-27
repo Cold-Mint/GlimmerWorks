@@ -34,7 +34,6 @@
 #include <SDL3/SDL_render.h>
 
 #include "LightBuffer.h"
-#include "core/ecs/GameComponent.h"
 #include "core/saves/Saves.h"
 #include "box2d/id.h"
 #include "core/ecs/EcsTypes.h"
@@ -42,11 +41,9 @@
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/GameSystem.h"
 #include "core/inventory/ComposableItem.h"
-#include "core/layout/HorizontalLayoutStepper.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
 #include "core/world/TileInstancePool.h"
-#include "SDL3_mixer/SDL_mixer.h"
 #include "src/core/game_component_type.pb.h"
 #include "src/saves/entity_item.pb.h"
 
@@ -110,7 +107,7 @@ namespace glimmer
         std::unique_ptr<ChunkGenerator> chunkGenerator_ = nullptr;
         std::unique_ptr<TileInstancePool> tileInstancePool_;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> itemCallback_;
-        std::shared_ptr<MIX_Audio> itemBreakSFX_ = nullptr;
+        std::shared_ptr<AudioResourceResult> itemBreakSFXResult_ = nullptr;
         AudioManager* audioManager_ = nullptr;
         /**
          * Update the component total count cache area.

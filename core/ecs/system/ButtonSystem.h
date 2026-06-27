@@ -32,10 +32,10 @@ namespace glimmer
 {
     class ButtonSystem : public GameSystem
     {
-        std::shared_ptr<SDL_Texture> buttonTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> buttonHoveredTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> buttonPressedTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> buttonDisableTexture_ = nullptr;
+        std::shared_ptr<TextureResourceResult> buttonTextureResult_ = nullptr;
+        std::shared_ptr<TextureResourceResult> buttonHoveredTextureResult_ = nullptr;
+        std::shared_ptr<TextureResourceResult> buttonPressedTextureResult_ = nullptr;
+        std::shared_ptr<TextureResourceResult> buttonDisableTextureResult_ = nullptr;
         std::vector<ButtonComponent*> buttonComponents_;
         ButtonComponent* hoveredButton_ = nullptr;
         bool hoveredButtonPressed = false;

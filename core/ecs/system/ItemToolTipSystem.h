@@ -32,7 +32,7 @@ namespace glimmer
     class ItemToolTipSystem : public GameSystem
     {
         float uiScale_ = 1.0F;
-        std::shared_ptr<SDL_Texture> tooltipBgTexture_ = nullptr;
+        std::shared_ptr<TextureResourceResult> tooltipBgTextureResult_ = nullptr;
         ItemToolTipComponent* itemToolTipComponent_ = nullptr;
         AppContext* appContext_ = nullptr;
         std::shared_ptr<SDL_Texture> itemNameTexture_ = nullptr;

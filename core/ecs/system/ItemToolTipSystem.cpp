@@ -48,7 +48,7 @@ glimmer::ItemToolTipSystem::ItemToolTipSystem(WorldContext* worldContext) : Game
     {
         return;
     }
-    tooltipBgTexture_ = resourceLocator->FindTexture(&tooltipBgResourceRef);
+    tooltipBgTextureResult_ = resourceLocator->FindTexture(&tooltipBgResourceRef);
     resourcePackManager_ = appContext_->GetResourcePackManager();
     preloadColors_ = appContext_->GetPreloadColors();
     Init();
@@ -271,9 +271,13 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
         (totalTextHeight + 2 * basePadding) * uiScale_ // 上下padding
     };
 
-    if (tooltipBgTexture_ != nullptr)
+    if (tooltipBgTextureResult_ != nullptr)
     {
-        SDL_RenderTexture(renderer, tooltipBgTexture_.get(), nullptr, &backgroundRect);
+        SDL_Texture* tooltipBgTexture = tooltipBgTextureResult_->GetResource();
+        if (tooltipBgTexture != nullptr)
+        {
+            SDL_RenderTexture(renderer, tooltipBgTexture, nullptr, &backgroundRect);
+        }
     }
     float currentX = backgroundRect.x + scaledPadding;
     float currentY = backgroundRect.y + scaledPadding;

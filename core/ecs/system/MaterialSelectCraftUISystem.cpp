@@ -35,11 +35,12 @@ glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* 
     : GUISystem(worldContext)
 {
     appContext_ = worldContext_->GetAppContext();
-    langsResources_ = appContext_->GetLangsResources();
     if (appContext_ == nullptr)
     {
         return;
     }
+    langsResources_ = appContext_->GetLangsResources();
+    resourceLocator_ = appContext_->GetResourceLocator();
     stringManager_ = appContext_->GetStringManager();
     resourcePackManager_ = appContext_->GetResourcePackManager();
     preloadColors_ = appContext_->GetPreloadColors();
@@ -293,6 +294,28 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
                                 tagRuntimeDataPair.second->AddActualValue(value * selectAmount);
                             }
                         }
+                        bool allMatched = true;
+                        for (auto& tagPair : tagRuntimeDataMap_)
+                        {
+                            std::unique_ptr<TagRuntimeData>& tagRuntimeData = tagPair.second;
+                            if (tagRuntimeData == nullptr)
+                            {
+                                continue;
+                            }
+                            if (!tagRuntimeData->Matched())
+                            {
+                                allMatched = false;
+                                break;
+                            }
+                        }
+                        if (allMatched)
+                        {
+                            buttonComponent_->Enable();
+                        }
+                        else
+                        {
+                            buttonComponent_->Disable();
+                        }
                     });
                 itemSlotQuantityVector_.emplace_back(itemSlotQuantityComponent);
             }
@@ -349,12 +372,11 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
                 }
                 //Give the player items
                 //给予玩家物品
-                ResourceLocator* resourceLocator = appContext_->GetResourceLocator();
-                if (resourceLocator == nullptr)
+                if (resourceLocator_ == nullptr)
                 {
                     return;
                 }
-                std::unique_ptr<Item> outputItem = resourceLocator->FindItem(worldContext_, recipeResource_->output);
+                std::unique_ptr<Item> outputItem = resourceLocator_->FindItem(worldContext_, recipeResource_->output);
                 if (outputItem != nullptr)
                 {
                     std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(outputItem));
@@ -366,6 +388,7 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
                 worldContext_->PopGuiSystemType();
             });
         }
+        buttonComponent_->Disable();
         buttonComponent_->Show();
     }
     else
@@ -431,23 +454,24 @@ void glimmer::MaterialSelectCraftUISystem::UpdateItemSlotPositions() const
 
 void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
 {
-    if (panelBackGroundTexture_ == nullptr)
+    if (panelBackGroundTextureResult_ == nullptr && resourceLocator_ != nullptr)
     {
         ResourceRef panelBGResourceRef;
         panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
         panelBGResourceRef.SetResourceKey("gui/panel_bg");
-        panelBackGroundTexture_ = worldContext_->GetAppContext()->GetResourceLocator()->
-                                                 FindTexture(&panelBGResourceRef);
+        panelBackGroundTextureResult_ =
+            resourceLocator_->
+            FindTexture(&panelBGResourceRef);
     }
-    if (subPanelBackGroundTexture_ == nullptr)
+    if (subPanelBackGroundTextureResult_ == nullptr && resourceLocator_ != nullptr)
     {
         ResourceRef panelBGResourceRef;
         panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
         panelBGResourceRef.SetResourceKey("gui/sub_panel_bg");
-        subPanelBackGroundTexture_ = worldContext_->GetAppContext()->GetResourceLocator()->
-                                                    FindTexture(&panelBGResourceRef);
+        subPanelBackGroundTextureResult_ = resourceLocator_->
+            FindTexture(&panelBGResourceRef);
     }
     if (tagRuntimeDataMap_.empty() || preloadColors_ == nullptr)
     {
@@ -515,38 +539,48 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
     const float panelX = (static_cast<float>(windowWidth_) - scaledPanelWidth) * 0.5F;
     const float panelY = (static_cast<float>(windowHeight_) - scaledPanelHeight) * 0.5F;
     const SDL_FRect panelRect{panelX, panelY, scaledPanelWidth, scaledPanelHeight};
-    SDL_RenderTexture(renderer, panelBackGroundTexture_.get(), nullptr, &panelRect);
-
-    // Draw sub-panel background for the tag area (left side).
-    // 绘制左侧标签区域的子面板背景。
-    if (subPanelBackGroundTexture_ != nullptr && dataLength > 0)
+    if (panelBackGroundTextureResult_ != nullptr)
     {
-        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight +
-                cellPadding) +
-            2.0F * panelPadding - cellPadding;
-        const float scaledTagSubPanelWidth = maxTextureWidth * uiScale_;
-        const float scaledTagSubPanelHeight = std::max(tagAreaHeight,
-                                                       panelHeight_ - 2.0F * panelInnerPadding_ / uiScale_) * uiScale_;
-        const SDL_FRect tagSubPanelRect{
-            panelX + panelInnerPadding_,
-            panelY + panelInnerPadding_,
-            scaledTagSubPanelWidth,
-            scaledTagSubPanelHeight
-        };
-        SDL_RenderTexture(renderer, subPanelBackGroundTexture_.get(), nullptr, &tagSubPanelRect);
+        SDL_Texture* panelBackGroundTexture = panelBackGroundTextureResult_->GetResource();
+        if (panelBackGroundTexture != nullptr)
+        {
+            SDL_RenderTexture(renderer, panelBackGroundTexture, nullptr, &panelRect);
+        }
+    }
 
-        // Draw sub-panel background for the item slot grid (right side).
-        // 绘制右侧物品槽网格的子面板背景。
-        const DesignDimension gridSubPanelWidth = panelWidth_ - maxTextureWidth - 2.0F * panelPadding;
-        const float scaledGridSubPanelWidth = gridSubPanelWidth * uiScale_;
-        const float gridSubPanelX = panelX + (maxTextureWidth + panelPadding) * uiScale_;
-        const SDL_FRect gridSubPanelRect{
-            gridSubPanelX,
-            panelY + panelInnerPadding_,
-            scaledGridSubPanelWidth,
-            scaledTagSubPanelHeight
-        };
-        SDL_RenderTexture(renderer, subPanelBackGroundTexture_.get(), nullptr, &gridSubPanelRect);
+    if (subPanelBackGroundTextureResult_ != nullptr)
+    {
+        SDL_Texture* subPanelBackGroundTexture = subPanelBackGroundTextureResult_->GetResource();
+        if (subPanelBackGroundTexture != nullptr && dataLength > 0)
+        {
+            const DesignDimension tagAreaHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight +
+                    cellPadding) +
+                2.0F * panelPadding - cellPadding;
+            const float scaledTagSubPanelWidth = maxTextureWidth * uiScale_;
+            const float scaledTagSubPanelHeight = std::max(tagAreaHeight,
+                                                           panelHeight_ - 2.0F * panelInnerPadding_ / uiScale_) *
+                uiScale_;
+            const SDL_FRect tagSubPanelRect{
+                panelX + panelInnerPadding_,
+                panelY + panelInnerPadding_,
+                scaledTagSubPanelWidth,
+                scaledTagSubPanelHeight
+            };
+            SDL_RenderTexture(renderer, subPanelBackGroundTexture, nullptr, &tagSubPanelRect);
+
+            // Draw sub-panel background for the item slot grid (right side).
+            // 绘制右侧物品槽网格的子面板背景。
+            const DesignDimension gridSubPanelWidth = panelWidth_ - maxTextureWidth - 2.0F * panelPadding;
+            const float scaledGridSubPanelWidth = gridSubPanelWidth * uiScale_;
+            const float gridSubPanelX = panelX + (maxTextureWidth + panelPadding) * uiScale_;
+            const SDL_FRect gridSubPanelRect{
+                gridSubPanelX,
+                panelY + panelInnerPadding_,
+                scaledGridSubPanelWidth,
+                scaledTagSubPanelHeight
+            };
+            SDL_RenderTexture(renderer, subPanelBackGroundTexture, nullptr, &gridSubPanelRect);
+        }
     }
 
     // Place the tag textures vertically on the left side of the panel using VerticalLayoutStepper.

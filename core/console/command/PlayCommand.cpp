@@ -26,6 +26,7 @@
  */
 #include "PlayCommand.h"
 
+#include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/scene/AppContext.h"
 #include "fmt/xchar.h"
 
@@ -86,11 +87,16 @@ bool glimmer::PlayCommand::Execute(const CommandSender* commandSender, const Com
     {
         return false;
     }
-    const std::shared_ptr<MIX_Audio> audio = appContext_->GetResourceLocator()->FindAudio(&resourceRef.value());
+    const std::shared_ptr<AudioResourceResult> audioResourceResult = appContext_->GetResourceLocator()->FindAudio(&resourceRef.value());
+    if (audioResourceResult == nullptr)
+    {
+        return false;
+    }
+    MIX_Audio* audio = audioResourceResult->GetResource();
     if (audio == nullptr)
     {
         return false;
     }
-    audioManager_->ForcePlayReplace(audioType, audio.get(), 0);
+    audioManager_->ForcePlayReplace(audioType, audio, 0);
     return true;
 }

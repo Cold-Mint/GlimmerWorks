@@ -29,11 +29,12 @@
 #include "core/utils/StringUtils.h"
 
 glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optional<std::string> description,
-                                    std::shared_ptr<SDL_Texture> icon, const std::vector<ItemTagResource>& tags,
+                                    std::shared_ptr<TextureResourceResult> iconResult,
+                                    const std::vector<ItemTagResource>& tags,
                                     const ResourceRef& resourceRef) : id_(std::move(id)),
                                                                       name_(std::move(name)),
                                                                       description_(std::move(description)),
-                                                                      icon_(std::move(icon))
+                                                                      iconResult_(std::move(iconResult))
 {
     SetTags(tags);
     resourceRef_ = resourceRef;
@@ -89,7 +90,11 @@ void glimmer::MaterialItem::Reduce(unsigned value)
 
 SDL_Texture* glimmer::MaterialItem::GetIcon() const
 {
-    return icon_.get();
+    if (iconResult_ == nullptr)
+    {
+        return nullptr;
+    }
+    return iconResult_->GetResource();
 }
 
 uint32_t glimmer::MaterialItem::GetMaxDurability() const

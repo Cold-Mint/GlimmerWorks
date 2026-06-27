@@ -38,7 +38,7 @@ namespace glimmer
     {
         ResourceRef resourceRef_;
         WorldVector2D position_;
-        std::shared_ptr<SDL_Texture> texture_ = nullptr;
+        std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
         bool flipH_ = false;
         bool flipV_ = false;
 
@@ -57,7 +57,7 @@ namespace glimmer
 
         [[nodiscard]] SDL_Texture* GetTexture(const ResourceLocator* resourceLocator);
 
-        void SetPosition(WorldVector2D position);
+        void SetPosition(const WorldVector2D& position);
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

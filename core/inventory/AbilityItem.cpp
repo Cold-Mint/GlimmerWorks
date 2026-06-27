@@ -105,13 +105,14 @@ void glimmer::AbilityItem::OnUse(WorldContext* worldContext, GameEntityID user, 
 
 
 glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optional<std::string> description,
-                                  std::shared_ptr<SDL_Texture> icon, std::shared_ptr<ItemAbility> itemAbility,
+                                  std::shared_ptr<TextureResourceResult> iconResult,
+                                  std::shared_ptr<ItemAbility> itemAbility,
                                   uint32_t maxDurability,
                                   bool isUnbreakable, bool canUseAlone, const std::vector<ItemTagResource>& tags,
                                   const ResourceRef& resourceRef) : id_(std::move(id)),
                                                                     name_(std::move(name)),
                                                                     description_(std::move(description)),
-                                                                    icon_(std::move(icon)),
+                                                                    iconResult_(std::move(iconResult)),
                                                                     itemAbility_(std::move(itemAbility)),
                                                                     canUseAlone_(canUseAlone),
                                                                     maxDurability_(maxDurability),
@@ -138,7 +139,11 @@ const std::optional<std::string>& glimmer::AbilityItem::GetDescription() const
 
 SDL_Texture* glimmer::AbilityItem::GetIcon() const
 {
-    return icon_.get();
+    if (iconResult_ == nullptr)
+    {
+        return nullptr;
+    }
+    return iconResult_->GetResource();
 }
 
 std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const

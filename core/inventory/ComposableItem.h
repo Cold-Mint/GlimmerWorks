@@ -43,7 +43,7 @@ namespace glimmer
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
-        std::shared_ptr<SDL_Texture> icon_;
+        std::shared_ptr<TextureResourceResult> iconResult_;
         AbilityConfig totalAbilityConfig_;
         uint32_t maxDurability_;
         bool isUnbreakable_;
@@ -56,8 +56,10 @@ namespace glimmer
     public:
         explicit ComposableItem(const std::string& id, const std::string& name,
                                 const std::optional<std::string>& description,
-                                const std::shared_ptr<SDL_Texture>& icon, uint8_t maxSize, uint32_t maxDurability,
-                                bool isUnbreakable, const std::vector<ItemTagResource>& tags, const ResourceRef& resourceRef);
+                                const std::shared_ptr<TextureResourceResult>& iconResult, uint8_t maxSize,
+                                uint32_t maxDurability,
+                                bool isUnbreakable, const std::vector<ItemTagResource>& tags,
+                                const ResourceRef& resourceRef);
 
         void SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType);
 
@@ -103,6 +105,7 @@ namespace glimmer
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                    std::unordered_set<std::string>& popupAbility) override;
+
         [[nodiscard]] ItemContainer* GetItemContainer() const;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;

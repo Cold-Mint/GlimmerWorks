@@ -44,10 +44,10 @@ namespace glimmer
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
-        std::shared_ptr<SDL_Texture> texture_;
-        std::shared_ptr<SDL_Texture> blueprintTexture_;
-        std::shared_ptr<MIX_Audio> breakSFX_;
-        std::shared_ptr<MIX_Audio> placeSFX_;
+        std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
+        std::shared_ptr<TextureResourceResult> blueprintTextureResult_ = nullptr;
+        std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
+        std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
         std::vector<ItemTagResource> tags_;
         bool customLootTable_ = false;
         ResourceRef lootTable_;

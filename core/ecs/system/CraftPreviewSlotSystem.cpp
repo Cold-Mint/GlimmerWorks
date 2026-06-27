@@ -40,12 +40,7 @@ glimmer::CraftPreviewSlotSystem::CraftPreviewSlotSystem(WorldContext* worldConte
     craftPreviewSlotResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     craftPreviewSlotResourceRef.SetResourceType(RESOURCE_TEXTURE);
     craftPreviewSlotResourceRef.SetResourceKey("gui/craft_preview_slot");
-    craftPreviewSlotTexture_ = resourceLocator->FindTexture(&craftPreviewSlotResourceRef);
-    ResourceRef tooltipResourceRef;
-    tooltipResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    tooltipResourceRef.SetResourceType(RESOURCE_TEXTURE);
-    tooltipResourceRef.SetResourceKey("gui/tooltip_bg");
-    tooltipBgTexture_ = resourceLocator->FindTexture(&tooltipResourceRef);
+    craftPreviewSlotTextureResult_ = resourceLocator->FindTexture(&craftPreviewSlotResourceRef);
     preloadColors_ = appContext_->GetPreloadColors();
     resourcePackManager_ = appContext_->GetResourcePackManager();
     Init();
@@ -102,7 +97,15 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
             mouseY >= rect.y && mouseY <= rect.y + rect.h;
         craftPreviewSlotComponent->SetHovered(isHovered);
-        SDL_RenderTexture(renderer, craftPreviewSlotTexture_.get(), nullptr, &rect);
+        if (craftPreviewSlotTextureResult_ != nullptr)
+        {
+            SDL_Texture* craftPreviewSlotTexture = craftPreviewSlotTextureResult_->GetResource();
+            if (craftPreviewSlotTexture != nullptr)
+            {
+                SDL_RenderTexture(renderer, craftPreviewSlotTexture, nullptr, &rect);
+            }
+        }
+
 
         const Item* item = craftPreviewSlotComponent->GetItem();
         if (isHovered)

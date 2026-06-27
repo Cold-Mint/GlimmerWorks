@@ -83,6 +83,7 @@
 #include "core/console/suggestion/MouseButtonDynamicSuggestions.h"
 #include "core/console/suggestion/ScanKeyDynamicSuggestions.h"
 #include "core/console/suggestion/StructureDynamicSuggestions.h"
+#include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/mod/templateCommand/InsertTemplateCommand.h"
 #include "core/mod/templateCommand/SetTemplateCommand.h"
 #include "core/mod/templateCommand/UnSetTemplateCommand.h"
@@ -566,7 +567,12 @@ void glimmer::AppContext::PlayMainMenuBGM() const
     {
         return;
     }
-    audioManager_->ForcePlayReplace(BGM, mainMenuBGM_.get(), -1);
+    MIX_Audio* audio = mainMenuBGM_->GetResource();
+    if (audio == nullptr)
+    {
+        return;
+    }
+    audioManager_->ForcePlayReplace(BGM, audio, -1);
 }
 
 const toml::spec& glimmer::AppContext::GetTomlVersion() const

@@ -28,7 +28,10 @@
 
 #include <regex>
 #include <algorithm>
+
+#include "AudioResourceResult.h"
 #include "ResourcePack.h"
+#include "TextureResourceResult.h"
 #include "core/Config.h"
 #include "core/log/LogCat.h"
 #include "core/scene/AppContext.h"
@@ -71,7 +74,8 @@ bool glimmer::ResourcePackManager::IsResourcePackEnabled(const ResourcePack& pac
     return std::ranges::find(enabledResourcePack, pack.getManifest().id) != enabledResourcePack.end();
 }
 
-std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFile(const std::string& path,
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::ImplLoadTextureFromFile(
+    const std::string& path,
     const Mods& modConfig)
 {
     if (renderer_ == nullptr || path.empty())
@@ -129,24 +133,28 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::ImplLoadTextureFromFi
             {
                 continue;
             }
-            auto deleter = [this,path](SDL_Texture* sdlTexture)
+            auto* textureResourceResult = new TextureResourceResult();
+            textureResourceResult->SetResourcePack(resourcePack);
+            textureResourceResult->SetResource(texture);
+            auto deleter = [this,path](TextureResourceResult* textureResourceResult)
             {
-                if (sdlTexture != nullptr)
+                if (textureResourceResult != nullptr)
                 {
-                    SDL_DestroyTexture(sdlTexture);
+                    textureResourceResult->DestroyResource();
                 }
                 textureCache_.erase(path);
             };
-            std::shared_ptr<SDL_Texture> texturePtr(texture, std::move(deleter));
-            textureCache_[path] = texturePtr;
-            return texturePtr;
+            std::shared_ptr<TextureResourceResult> textureSharedPtr(textureResourceResult, deleter);
+            textureCache_[path] = textureSharedPtr;
+            return textureSharedPtr;
         }
     }
     return nullptr;
 }
 
-std::shared_ptr<MIX_Audio> glimmer::ResourcePackManager::ImplLoadAudioFromFile(const std::string& path,
-                                                                               const Mods& modConfig)
+std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::ImplLoadAudioFromFile(
+    const std::string& path,
+    const Mods& modConfig)
 {
     if (mixer_ == nullptr || path.empty())
     {
@@ -192,21 +200,48 @@ std::shared_ptr<MIX_Audio> glimmer::ResourcePackManager::ImplLoadAudioFromFile(c
             }
 
             LogCat::d("Loaded audio from pack '", packId, "': ", audioPath);
-            auto deleter = [](MIX_Audio* audio)
+            auto* audioResourceResult = new AudioResourceResult();
+            audioResourceResult->SetResourcePack(pack);
+            audioResourceResult->SetResource(audio);
+            auto deleter = [this, path](AudioResourceResult* audioResourceResult)
             {
-                if (audio != nullptr)
+                if (audioResourceResult != nullptr)
                 {
-                    MIX_DestroyAudio(audio);
+                    audioResourceResult->DestroyResource();
                 }
+                audioMixCache_.erase(path);
             };
-
-            std::shared_ptr<MIX_Audio> audioPtr(audio, deleter);
-            audioMixCache_[path] = audioPtr;
-            return audioPtr;
+            std::shared_ptr<AudioResourceResult> audioSharedPtr(audioResourceResult, deleter);
+            audioMixCache_[path] = audioSharedPtr;
+            return audioSharedPtr;
         }
     }
     LogCat::w("Audio not found in any enabled resource pack: ", path);
     return nullptr;
+}
+
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::LoadTextureFromFile(
+    AppContext* appContext, const ResourceRef* resourceRef)
+{
+    if (resourceRef->GetPackageId() == RESOURCE_REF_CORE)
+    {
+        const std::string resourceKey = resourceRef->GetResourceKey();
+        if (resourceKey == ERROR_TEXTURE_KEY)
+        {
+            return errorTexture_;
+        }
+        if (resourceKey == ACCESS_DENIED_TEXTURE_KEY)
+        {
+            return accessDeniedTexture_;
+        }
+    }
+    std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
+    return appContext->AddMainThreadTaskAwait(
+        [this,appContext, path]
+        {
+            return ImplLoadTextureFromFile(path, appContext->GetConfig()->mods);
+        }
+    ).get();
 }
 
 glimmer::ResourcePackManager::ResourcePackManager(VirtualFileSystem* virtualFilesystem) : virtualFileSystem_(
@@ -371,32 +406,9 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateStringTexture(c
     return texturePtr;
 }
 
-std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::LoadTextureFromFile(AppContext* appContext,
-                                                                               const ResourceRef* resourceRef)
-{
-    if (resourceRef->GetPackageId() == RESOURCE_REF_CORE)
-    {
-        const std::string resourceKey = resourceRef->GetResourceKey();
-        if (resourceKey == ERROR_TEXTURE_KEY)
-        {
-            return errorTexture_;
-        }
-        if (resourceKey == ACCESS_DENIED_TEXTURE_KEY)
-        {
-            return accessDeniedTexture_;
-        }
-    }
-    std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
-    return appContext->AddMainThreadTaskAwait(
-        [this,appContext, path]
-        {
-            return ImplLoadTextureFromFile(path, appContext->GetConfig()->mods);
-        }
-    ).get();
-}
 
-std::shared_ptr<MIX_Audio> glimmer::ResourcePackManager::LoadAudioFromFile(AppContext* appContext,
-                                                                           const ResourceRef* resourceRef)
+std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::LoadAudioFromFile(AppContext* appContext,
+    const ResourceRef* resourceRef)
 {
     std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
     return appContext->AddMainThreadTaskAwait(
@@ -449,8 +461,8 @@ glimmer::ColorResource* glimmer::ResourcePackManager::LoadColorResFromFile(const
     return nullptr;
 }
 
-
-std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateTexture(Color accent, Color base) const
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::CreateTexture(const Color& accent,
+    const Color& base) const
 {
     if (renderer_ == nullptr)
     {
@@ -485,16 +497,18 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateTexture(Color a
     }
     SDL_Texture* texture =
         SDL_CreateTextureFromSurface(renderer_, surface);
-    auto deleter = [](SDL_Texture* tex)
-    {
-        LogCat::d("Destroying error texture");
-        if (tex != nullptr)
-        {
-            SDL_DestroyTexture(tex);
-        }
-    };
     SDL_DestroySurface(surface);
-    return std::shared_ptr<SDL_Texture>(texture, deleter);
+    auto textureResourceResult = new TextureResourceResult();
+    textureResourceResult->SetResource(texture);
+    auto deleter = [](TextureResourceResult* textureResourceResult)
+    {
+        if (textureResourceResult == nullptr)
+        {
+            return;
+        }
+        textureResourceResult->DestroyResource();
+    };
+    return {textureResourceResult, deleter};
 }
 
 std::string glimmer::ResourcePackManager::ListTextureCache() const

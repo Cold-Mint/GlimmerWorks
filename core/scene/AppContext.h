@@ -120,7 +120,7 @@ namespace glimmer
         std::unique_ptr<FixedColorManager> fixedColorManager_;
         std::unique_ptr<TomlTemplateExpander> tomlTemplateExpander_;
         std::unique_ptr<CommandHookManager> commandHookManager_;
-        std::shared_ptr<MIX_Audio> mainMenuBGM_;
+        std::shared_ptr<AudioResourceResult> mainMenuBGM_;
         std::shared_ptr<CommandHistoryManager> commandHistoryManager_;
         std::unique_ptr<RecipeManager> recipeManager_;
         std::mutex mainThreadMutex_;

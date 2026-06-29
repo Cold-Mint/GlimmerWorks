@@ -540,9 +540,9 @@ namespace glimmer
         uint8_t tileWidth = 1;
         //@genNextLine(tileHeight|瓦片高度)
         uint8_t tileHeight = 1;
-        //@genNextLine(The technological level provided by the tiles|瓦片提供的科技等级)
+        //@genNextLine(The technological level provided by the tiles is 0, which indicates that no technological level is offered.|瓦片提供的科技等级，0表示不提供科技等级)
         uint8_t technologyLevel = 0;
-        //genNextLine(recipeGroup|配方组)
+        //@genNextLine(recipeGroup|配方组)
         uint8_t recipeGroup = 0;
         //@genNextLine(customLootTable|是否使用自定义战利品表)
         bool customLootTable = false;

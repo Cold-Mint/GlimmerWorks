@@ -638,6 +638,7 @@ namespace toml {
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.physicsType = toml::find_or<uint8_t>(v, "physics_type", 0);
             r.placeSfx = toml::find<glimmer::ResourceRef>(v, "place_sfx");
+            r.recipeGroup = toml::find_or<uint8_t>(v, "recipe_group", 0);
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.sideLightMask = toml::find<glimmer::ResourceRef>(v, "side_light_mask");
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource>>(v, "tags", {});

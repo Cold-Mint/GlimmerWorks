@@ -54,6 +54,15 @@ glimmer::ItemToolTipSystem::ItemToolTipSystem(WorldContext* worldContext) : Game
     Init();
 }
 
+void glimmer::ItemToolTipSystem::OnFrameStart()
+{
+    if (itemToolTipComponent_ == nullptr)
+    {
+        return;
+    }
+    itemToolTipComponent_->ResetItem();
+}
+
 void glimmer::ItemToolTipSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
     if (gameComponentType == COMPONENT_ITEM_TOOL_TIP && itemToolTipComponent_ == nullptr)

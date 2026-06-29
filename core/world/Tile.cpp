@@ -140,7 +140,7 @@ const float& glimmer::Tile::GetHardness() const
 
 bool glimmer::Tile::IsBreakable() const
 {
-    return breakable;
+    return hardness_ >= 0;
 }
 
 bool glimmer::Tile::IsOverwritable() const
@@ -151,6 +151,11 @@ bool glimmer::Tile::IsOverwritable() const
 bool glimmer::Tile::CanDropLoot() const
 {
     return canDropLoot_;
+}
+
+bool glimmer::Tile::IsWorkBlock() const
+{
+    return technologyLevel_ > 0;
 }
 
 const std::string& glimmer::Tile::GetName() const
@@ -304,7 +309,8 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     {
         tile->hardness_ = tileResource->unitHardness;
     }
-    tile->breakable = tile->hardness_ >= 0;
+    tile->technologyLevel_ = tileResource->technologyLevel;
+    tile->recipeGroup_ = tileResource->recipeGroup;
     tile->tileAnchor_ = CalculateTileAnchor(static_cast<TileAnchorType>(tileResource->tileAnchorType), tileWidth,
                                             tileHeight,
                                             tileResource->customTileAnchor);

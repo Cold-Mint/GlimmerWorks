@@ -86,8 +86,8 @@ namespace glimmer
         std::unordered_map<TileVector2D, Chunk*, Vector2DIHash> chunksCache_;
         std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash> terrainTileDataCache_;
 
-        std::vector<std::unique_ptr<GameSystem>> activeSystems;
-        std::vector<std::unique_ptr<GameSystem>> inactiveSystems;
+        std::vector<std::unique_ptr<GameSystem>> activeSystems_;
+        std::vector<std::unique_ptr<GameSystem>> inactiveSystems_;
         std::unique_ptr<LightBuffer> lightBuffer_ = nullptr;
         std::stack<GameSystemType> activeSystemStack_;
         uint64_t persistentGuiSystemCount_ = 0;

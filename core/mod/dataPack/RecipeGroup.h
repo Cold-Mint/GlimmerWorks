@@ -36,7 +36,7 @@ namespace glimmer
         None = 0,
         //A workbench is required to unlock.
         //需要工作台才能解锁
-        Workbench = 1,
+        CraftTable = 1,
         //A furnace is needed.
         //需要熔炉,
         Furnace = 2,

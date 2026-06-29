@@ -123,6 +123,8 @@ namespace glimmer
 
         virtual bool OnBackPressed();
 
+        virtual void OnFrameStart();
+
         virtual void Update(float delta);
 
         virtual uint8_t GetRenderOrder();

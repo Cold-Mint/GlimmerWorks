@@ -61,6 +61,8 @@ namespace glimmer
     public:
         explicit ItemToolTipSystem(WorldContext* worldContext);
 
+        void OnFrameStart() override;
+
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
         void OnConfigChanged(const Config* config) override;

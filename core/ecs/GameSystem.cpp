@@ -125,6 +125,10 @@ bool glimmer::GameSystem::OnBackPressed()
     return false;
 }
 
+void glimmer::GameSystem::OnFrameStart()
+{
+}
+
 void glimmer::GameSystem::Update(float delta)
 {
 #if  !defined(NDEBUG)

@@ -55,7 +55,8 @@ namespace glimmer
         ResourceRef lootTable_;
         float hardness_ = 1.0F;
         bool lootScaleBySize_ = false;
-        bool breakable = true;
+        uint8_t technologyLevel_ = 0;
+        uint8_t recipeGroup_ = 0;
         bool enableBlueprint_ = true;
         bool enableBlueprintMask_ = true;
         bool drawValidBlueprintColor_ = true;
@@ -160,6 +161,8 @@ namespace glimmer
         [[nodiscard]] bool IsOverwritable() const;
 
         [[nodiscard]] bool CanDropLoot() const;
+
+        [[nodiscard]] bool IsWorkBlock() const;
 
         [[nodiscard]] const std::string& GetName() const;
 

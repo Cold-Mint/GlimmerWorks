@@ -33,7 +33,17 @@ void glimmer::ItemToolTipComponent::SetPosition(const ScreenVector2D& position)
 
 void glimmer::ItemToolTipComponent::SetItem(const Item* item)
 {
-    item_ = item;
+    //Data can only be written when no valid items are set.
+    //只有未被设置有效物品时才能写入。
+    if (item_ == nullptr)
+    {
+        item_ = item;
+    }
+}
+
+void glimmer::ItemToolTipComponent::ResetItem()
+{
+    item_ = nullptr;
 }
 
 const glimmer::Item* glimmer::ItemToolTipComponent::GetItem() const

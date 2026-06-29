@@ -244,8 +244,8 @@ glimmer::WorldContext::~WorldContext()
         }
     }
     entityManager_->Clear();
-    activeSystems.clear();
-    inactiveSystems.clear();
+    activeSystems_.clear();
+    inactiveSystems_.clear();
     chunks_.clear();
     terrainTileData_.clear();
     processedTerrainTiles_.clear();
@@ -326,7 +326,7 @@ bool glimmer::WorldContext::IsRuning() const
 std::vector<glimmer::GameSystemType> glimmer::WorldContext::GetAllActiveSystemType() const
 {
     std::vector<GameSystemType> result;
-    for (auto& activeSystem : activeSystems)
+    for (auto& activeSystem : activeSystems_)
     {
         if (activeSystem == nullptr)
         {
@@ -804,7 +804,7 @@ bool glimmer::WorldContext::HasAnyModalGuiOpen() const
 bool glimmer::WorldContext::HandleEvent(const SDL_Event& event) const
 {
     bool handled = false;
-    for (auto& system : activeSystems)
+    for (auto& system : activeSystems_)
     {
         if (system == nullptr)
         {
@@ -824,7 +824,7 @@ bool glimmer::WorldContext::HandleEvent(const SDL_Event& event) const
 
 void glimmer::WorldContext::Update(const float delta) const
 {
-    for (auto& system : activeSystems)
+    for (auto& system : activeSystems_)
     {
         if (system == nullptr)
         {
@@ -846,7 +846,7 @@ bool glimmer::WorldContext::OnBackPressed()
         return true;
     }
     bool handled = false;
-    for (auto& system : activeSystems)
+    for (auto& system : activeSystems_)
     {
         if (system == nullptr)
         {
@@ -866,7 +866,7 @@ bool glimmer::WorldContext::OnBackPressed()
 
 void glimmer::WorldContext::Render(SDL_Renderer* renderer) const
 {
-    for (const std::unique_ptr<GameSystem>& system : activeSystems)
+    for (const std::unique_ptr<GameSystem>& system : activeSystems_)
     {
 #if  defined(NDEBUG)
         system->Render(renderer);
@@ -890,7 +890,7 @@ void glimmer::WorldContext::Render(SDL_Renderer* renderer) const
 
 void glimmer::WorldContext::RenderImGui(SDL_Renderer* renderer) const
 {
-    for (const std::unique_ptr<GameSystem>& system : activeSystems)
+    for (const std::unique_ptr<GameSystem>& system : activeSystems_)
     {
 #if  defined(NDEBUG)
         system->RenderImGui(renderer);
@@ -921,7 +921,7 @@ void glimmer::WorldContext::OnFrameStart()
     {
         const GameComponentTypeMessage gameComponentType = buffer.first;
         const uint32_t count = buffer.second;
-        for (auto& system : activeSystems)
+        for (auto& system : activeSystems_)
         {
             if (system == nullptr)
             {
@@ -936,7 +936,7 @@ void glimmer::WorldContext::OnFrameStart()
                 system->OnWatchedComponentChanged(gameComponentType, count);
             }
         }
-        for (auto& system : inactiveSystems)
+        for (auto& system : inactiveSystems_)
         {
             if (system == nullptr)
             {
@@ -949,7 +949,7 @@ void glimmer::WorldContext::OnFrameStart()
             }
         }
     }
-    for (auto& system : inactiveSystems)
+    for (auto& system : inactiveSystems_)
     {
         if (system == nullptr)
         {
@@ -961,7 +961,7 @@ void glimmer::WorldContext::OnFrameStart()
             changed = true;
         }
     }
-    for (auto& system : activeSystems)
+    for (auto& system : activeSystems_)
     {
         if (system == nullptr)
         {
@@ -980,9 +980,9 @@ void glimmer::WorldContext::OnFrameStart()
     {
         GameSystem* system = toActivate.front();
         toActivate.pop();
-        auto it = std::ranges::find_if(inactiveSystems,
+        auto it = std::ranges::find_if(inactiveSystems_,
                                        [system](auto& inactiveSystem) { return inactiveSystem.get() == system; });
-        if (it == inactiveSystems.end())
+        if (it == inactiveSystems_.end())
         {
             continue;
         }
@@ -991,8 +991,8 @@ void glimmer::WorldContext::OnFrameStart()
         {
             systemPtr->OnActivationChanged(true);
         }
-        activeSystems.emplace_back(std::move(*it));
-        inactiveSystems.erase(it);
+        activeSystems_.emplace_back(std::move(*it));
+        inactiveSystems_.erase(it);
     }
 
     // Batch mobile deactivation of the system
@@ -1001,9 +1001,9 @@ void glimmer::WorldContext::OnFrameStart()
     {
         GameSystem* system = toDeactivate.front();
         toDeactivate.pop();
-        auto it = std::ranges::find_if(activeSystems,
+        auto it = std::ranges::find_if(activeSystems_,
                                        [system](auto& activeSystem) { return activeSystem.get() == system; });
-        if (it == activeSystems.end())
+        if (it == activeSystems_.end())
         {
             continue;
         }
@@ -1012,18 +1012,26 @@ void glimmer::WorldContext::OnFrameStart()
         {
             systemPtr->OnActivationChanged(false);
         }
-        inactiveSystems.emplace_back(std::move(*it));
-        activeSystems.erase(it);
+        inactiveSystems_.emplace_back(std::move(*it));
+        activeSystems_.erase(it);
     }
     // //Sort by rendering order (lower layers at the bottom, upper layers at the top)
     // //按渲染顺序排序（低层在底，高层在上）
     if (changed)
     {
-        std::ranges::stable_sort(activeSystems,
+        std::ranges::stable_sort(activeSystems_,
                                  [](const std::unique_ptr<GameSystem>& a, const std::unique_ptr<GameSystem>& b)
                                  {
                                      return a->GetRenderOrder() < b->GetRenderOrder();
                                  });
+    }
+    for (auto& system : activeSystems_)
+    {
+        if (system == nullptr)
+        {
+            continue;
+        }
+        system->OnFrameStart();
     }
 }
 
@@ -1072,11 +1080,11 @@ void glimmer::WorldContext::InitSystem()
 
 void glimmer::WorldContext::OnConfigChanged(const Config* config)
 {
-    for (auto& activeSystem : activeSystems)
+    for (auto& activeSystem : activeSystems_)
     {
         activeSystem->OnConfigChanged(config);
     }
-    for (auto& inactiveSystem : inactiveSystems)
+    for (auto& inactiveSystem : inactiveSystems_)
     {
         inactiveSystem->OnConfigChanged(config);
     }
@@ -1094,7 +1102,7 @@ void glimmer::WorldContext::RegisterSystem(std::unique_ptr<GameSystem> system)
     if (allowRegisterSystem)
     {
         system->LockWatchComponent();
-        inactiveSystems.emplace_back(std::move(system));
+        inactiveSystems_.emplace_back(std::move(system));
     }
     else
     {
@@ -1220,11 +1228,11 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
 
 void glimmer::WorldContext::OnWindowSizeChanged(int width, int height) const
 {
-    for (auto& activeSystem : activeSystems)
+    for (auto& activeSystem : activeSystems_)
     {
         activeSystem->OnWindowSizeChanged(width, height);
     }
-    for (auto& inactiveSystem : inactiveSystems)
+    for (auto& inactiveSystem : inactiveSystems_)
     {
         inactiveSystem->OnWindowSizeChanged(width, height);
     }

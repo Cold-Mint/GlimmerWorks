@@ -40,6 +40,8 @@ namespace glimmer
 
         void SetItem(const Item* item);
 
+        void ResetItem();
+
         [[nodiscard]] const Item* GetItem() const;
 
         [[nodiscard]] const ScreenVector2D& GetPosition() const;

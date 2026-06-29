@@ -32,6 +32,7 @@
 #include "box2d/id.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/Constants.h"
+#include "core/ecs/EcsTypes.h"
 #include "core/math/WorldVector2D.h"
 #include "core/world/Tile.h"
 
@@ -52,6 +53,9 @@ namespace glimmer
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA>>
         tileState_;
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA>> tileSnapshots_;
+        //The entity bound to the tiles.
+        //与区块生命周期绑定的实体。
+        std::unordered_map<TileLayerType,std::array<GameEntityID, CHUNK_AREA>> lifecycleBoundEntities_;
         std::vector<b2BodyId> attachedBodies_;
         //chunk fade-in easing animation
         //区块淡入缓动动画

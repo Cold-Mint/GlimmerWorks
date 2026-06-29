@@ -139,13 +139,11 @@ bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, c
     }
     if (operation == "info")
     {
-        onMessageRef("come1");
         if (size < 4)
         {
             onMessageRef(fmt::format(
                 fmt::runtime(langsResources->insufficientParameterLength),
                 4, size));
-            onMessageRef("come2");
             return false;
         }
         const WorldVector2D commandSenderPosition = commandSender->GetPosition();
@@ -154,44 +152,38 @@ bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, c
             commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));
         const auto chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D);
-        const Chunk* chunk = worldContext_->GetChunk(chunkVertex);
+         Chunk* chunk = worldContext_->GetChunk(chunkVertex);
         if (chunk == nullptr)
         {
             onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,
                                      tileVector2D.y));
-            onMessageRef("come3");
             return false;
         }
         const auto chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2D);
-        std::unique_ptr<std::vector<TileSnapshot>> tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
+        std::vector<TileSnapshot*> tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
             Ground | BackGround, chunkRelative.y << CHUNK_SHIFT | chunkRelative.x);
-        if (tileSnapshotVectorPtr == nullptr)
-        {
-            onMessageRef(fmt::format(fmt::runtime(langsResources->tileSnapshotsDoesNotExist), tileVector2D.x,
-                                     tileVector2D.y));
-            onMessageRef("come4");
-            return false;
-        }
-        std::vector<TileSnapshot>* tileSnapshotVector = tileSnapshotVectorPtr.get();
-        auto tileSnapshotSize = tileSnapshotVector->size();
+        auto tileSnapshotSize = tileSnapshotVectorPtr.size();
         if (tileSnapshotSize == 0)
         {
             onMessageRef(fmt::format(fmt::runtime(langsResources->tileSnapshotsDoesNotExist), tileVector2D.x,
                                      tileVector2D.y));
-            onMessageRef("come5");
             return false;
         }
 
         std::stringstream stringStream;
         for (int i = 0; i < tileSnapshotSize; i++)
         {
-            TileSnapshot& tileSnapshot = tileSnapshotVector->at(i);
-            const Tile* tile = tileSnapshot.GetTile();
+            TileSnapshot* tileSnapshot = tileSnapshotVectorPtr.at(i);
+            if (tileSnapshot == nullptr)
+            {
+                continue;
+            }
+            const Tile* tile = tileSnapshot->GetTile();
             if (tile == nullptr)
             {
                 continue;
             }
-            const TileStateMessage* tileStateMessage = tileSnapshot.GetTileState();
+            const TileStateMessage* tileStateMessage = tileSnapshot->GetTileState();
             if (tileStateMessage == nullptr)
             {
                 continue;
@@ -210,7 +202,6 @@ bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, c
             stringStream << '\n';
         }
         onMessageRef(stringStream.str());
-        onMessageRef("come6");
         return true;
     }
     return false;

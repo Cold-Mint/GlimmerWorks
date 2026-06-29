@@ -105,10 +105,14 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
     const float zoom = cameraComponent_->GetZoom();
-    std::vector<std::pair<TileVector2D, std::unique_ptr<std::vector<TileSnapshot>>>> visibleTiles =
+    std::vector<std::pair<TileVector2D, std::vector<TileSnapshot*>>>* visibleTiles =
         tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(Ground | BackGround, viewportRect);
+    if (visibleTiles == nullptr)
+    {
+        return;
+    }
     std::unordered_set<uint64_t> drawnTiles = {};
-    for (auto& [tileCoord, tileList] : visibleTiles)
+    for (auto& [tileCoord, tileList] : *visibleTiles)
     {
         const Chunk* chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileCoord));
         Uint8 alpha = 255;
@@ -116,14 +120,18 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
         {
             alpha = static_cast<Uint8>(chunk->GetChunkFadeAlpha() * 255.0F);
         }
-        for (const auto& tileSnapshot : *tileList)
+        for (const auto& tileSnapshot : tileList)
         {
-            const Tile* tile = tileSnapshot.GetTile();
+            if (tileSnapshot == nullptr)
+            {
+                continue;
+            }
+            const Tile* tile = tileSnapshot->GetTile();
             if (tile == nullptr)
             {
                 continue;
             }
-            const TileStateMessage* tileState = tileSnapshot.GetTileState();
+            const TileStateMessage* tileState = tileSnapshot->GetTileState();
             if (tileState == nullptr)
             {
                 continue;

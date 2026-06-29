@@ -388,11 +388,11 @@ namespace toml {
     struct from<glimmer::ResourcePackConfig> {
         static glimmer::ResourcePackConfig from_toml(const value &v) {
             glimmer::ResourcePackConfig r;
-            r.buttonNineSlice = toml::find<glimmer::NineSliceConfig>(v, "button_nine_slice");
-            r.craftPreviewSlotNineSlice = toml::find<glimmer::NineSliceConfig>(v, "craft_preview_slot_nine_slice");
-            r.itemSlotNineSlice = toml::find<glimmer::NineSliceConfig>(v, "item_slot_nine_slice");
-            r.itemSlotQuantityNineSlice = toml::find<glimmer::NineSliceConfig>(v, "item_slot_quantity_nine_slice");
-            r.itemToolTipNineSlice = toml::find<glimmer::NineSliceConfig>(v, "item_tool_tip_nine_slice");
+            r.buttonNineSlice = toml::find_or<glimmer::NineSliceConfig>(v, "button_nine_slice", {});
+            r.craftPreviewSlotNineSlice = toml::find_or<glimmer::NineSliceConfig>(v, "craft_preview_slot_nine_slice", {});
+            r.itemSlotNineSlice = toml::find_or<glimmer::NineSliceConfig>(v, "item_slot_nine_slice", {});
+            r.itemSlotQuantityNineSlice = toml::find_or<glimmer::NineSliceConfig>(v, "item_slot_quantity_nine_slice", {});
+            r.itemToolTipNineSlice = toml::find_or<glimmer::NineSliceConfig>(v, "item_tool_tip_nine_slice", {});
             return r;
         }
     };

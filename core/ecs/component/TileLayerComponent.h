@@ -30,7 +30,6 @@
 
 #include "core/ecs/GameComponent.h"
 #include "core/math/TileVector2D.h"
-#include "core/math/WorldVector2D.h"
 #include "core/world/generator/TileLayerType.h"
 #include "core/world/generator/TileSnapshot.h"
 #include "SDL3/SDL_rect.h"
@@ -50,12 +49,15 @@ namespace glimmer
         WorldContext* worldContext_;
         TileLayerType tileLayerType_;
         TileVector2D focusPosition_ = TileVector2D{};
+        std::vector<std::pair<TileVector2D, std::vector<TileSnapshot*>>> visibleTiles_;
+        Vector2DIFingerprint visibleTileTopLeftFingerprint_ = 0;
+        Vector2DIFingerprint visibleTileBottomRightFingerprint_ = 0;
 
 
         [[nodiscard]] std::shared_ptr<Tile>
         GetTileShared(TileLayerType layerType, const TileVector2D& tilePos) const;
 
-        [[nodiscard]] static std::unique_ptr<std::vector<TileSnapshot>> GetTopVisibleTileSnapshots(
+        [[nodiscard]] static std::vector<TileSnapshot*> GetTopVisibleTileSnapshots(
             const Chunk* chunk, uint8_t layerFilter,
             const TileVector2D& tilePos);
 
@@ -76,10 +78,10 @@ namespace glimmer
          * @param worldViewport
          * @return
          */
-        [[nodiscard]] std::vector<std::pair<TileVector2D, std::unique_ptr<std::vector<TileSnapshot>>>>
+        [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<TileSnapshot*>>>*
         GetTopVisibleTileSnapshotsInViewport(
             uint8_t layerFilter,
-            const SDL_FRect& worldViewport) const;
+            const SDL_FRect& worldViewport);
 
 
         [[nodiscard]] const Tile* GetSelfLayerTile(const TileVector2D& tilePos) const;

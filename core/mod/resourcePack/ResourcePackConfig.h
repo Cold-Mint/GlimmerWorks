@@ -58,18 +58,18 @@ namespace glimmer
     struct ResourcePackConfig
     {
         //@genNextLine(button|按钮九切片配置)
-        NineSliceConfig buttonNineSlice;
+        NineSliceConfig buttonNineSlice = {};
 
         //@genNextLine(itemSlot|物品槽九切片配置)
-        NineSliceConfig itemSlotNineSlice;
+        NineSliceConfig itemSlotNineSlice = {};
 
         //@genNextLine(itemSlotQuantity|物品槽数量框九切片配置)
-        NineSliceConfig itemSlotQuantityNineSlice;
+        NineSliceConfig itemSlotQuantityNineSlice = {};
 
         //@genNextLine(craftPreviewSlot|合成预览框九切片配置)
-        NineSliceConfig craftPreviewSlotNineSlice;
+        NineSliceConfig craftPreviewSlotNineSlice = {};
 
         //@genNextLine(itemToolTip|物品工具提示配置)
-        NineSliceConfig itemToolTipNineSlice;
+        NineSliceConfig itemToolTipNineSlice = {};
     };
 }

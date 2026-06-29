@@ -85,12 +85,16 @@ glimmer::TileVector2D glimmer::Chunk::TileCoordinatesToChunkRelativeCoordinates(
     };
 }
 
-bool glimmer::Chunk::CommitTileState(const TileLayerType layerType, const int index, const bool fallback)
+bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLayerType layerType, const int index,
+                                     const bool fallback)
 {
     if (index < 0 || index >= CHUNK_AREA)
     {
         return false;
     }
+    TileVector2D tileVector2D;
+    tileVector2D.x = index & CHUNK_MASK + position_.x;
+    tileVector2D.y = (index >> CHUNK_SHIFT) + position_.y;
     const TileStateMessage* tileStateMessage = GetTileState(layerType, index);
     if (tileStateMessage == nullptr)
     {
@@ -156,7 +160,9 @@ bool glimmer::Chunk::CommitTileState(const TileLayerType layerType, const int in
         std::shared_ptr<Tile> oldTile = nullptr;
         auto [tileIterator, tileInserted] = tiles_.try_emplace(layerType);
         oldTile = tileIterator->second[index];
+        oldTile->OnBreak(worldContext_, breakSource, tileVector2D);
         tileIterator->second[index] = newTile;
+        newTile->OnPlace(worldContext_, tileStateMessage->placesource(), tileVector2D);
         auto [tileFingerprintIterator, tileFingerprintInserted] = tileFingerprint_.try_emplace(layerType);
         tileFingerprintIterator->second[index] = fingerprint;
         auto [tileSnapshotIterator,tileSnapshotInserted] = tileSnapshots_.try_emplace(layerType);
@@ -194,7 +200,7 @@ void glimmer::Chunk::InvokeReplaceTileCallback(Chunk* chunk, const TileLayerType
 }
 
 glimmer::Chunk::Chunk(WorldContext* worldContext, const TileVector2D& pos,
-                      const AnimConfig& animConfig) : position(pos)
+                      const AnimConfig& animConfig) : position_(pos)
 {
     worldContext_ = worldContext;
     chunkFadeAlpha_ = animConfig.chunkFadeInFrom;
@@ -227,7 +233,7 @@ TileStateMessage* glimmer::Chunk::GetOrCreateTileState(const TileLayerType layer
 
 glimmer::TileVector2D glimmer::Chunk::GetPosition() const
 {
-    return position;
+    return position_;
 }
 
 const glimmer::Tile* glimmer::Chunk::GetTile(const TileLayerType layerType, const uint8_t index) const
@@ -250,7 +256,8 @@ std::shared_ptr<glimmer::Tile> glimmer::Chunk::GetTileShared(TileLayerType layer
     return it->second[index];
 }
 
-std::vector<glimmer::TileSnapshot*> glimmer::Chunk::GetTopVisibleTileSnapshots(const uint8_t layerFilter, const uint8_t index) const
+std::vector<glimmer::TileSnapshot*> glimmer::Chunk::GetTopVisibleTileSnapshots(
+    const uint8_t layerFilter, const uint8_t index) const
 {
     int intIndex = index;
     if (intIndex >= CHUNK_AREA)
@@ -290,7 +297,7 @@ std::vector<glimmer::TileSnapshot*> glimmer::Chunk::GetTopVisibleTileSnapshots(c
 
 void glimmer::Chunk::ReadChunkMessage(const ChunkMessage& chunkMessage)
 {
-    position.ReadVector2DIMessage(chunkMessage.position());
+    position_.ReadVector2DIMessage(chunkMessage.position());
     tiles_.clear();
     tileState_.clear();
     auto& map = chunkMessage.tilestates();
@@ -305,7 +312,7 @@ void glimmer::Chunk::ReadChunkMessage(const ChunkMessage& chunkMessage)
             auto& tileStateMessage = tileData.tilestatemessage(i);
             auto tileStatePtr = GetOrCreateTileState(layerType, i);
             tileStatePtr->CopyFrom(tileStateMessage);
-            CommitTileState(layerType, i, true);
+            CommitTileState(BreakSource::ChunkLoad, layerType, i, true);
         }
     }
 }
@@ -313,7 +320,7 @@ void glimmer::Chunk::ReadChunkMessage(const ChunkMessage& chunkMessage)
 
 void glimmer::Chunk::WriteChunkMessage(ChunkMessage& chunkMessage)
 {
-    position.WriteVector2DIMessage(*chunkMessage.mutable_position());
+    position_.WriteVector2DIMessage(*chunkMessage.mutable_position());
     chunkMessage.clear_tilestates();
     for (const auto& [layerType, tileArray] : tileState_)
     {
@@ -341,10 +348,10 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage& chunkMessage)
 
 glimmer::WorldVector2D glimmer::Chunk::GetStartWorldPosition() const
 {
-    return CoordinateTransformer::TileToWorld(position);
+    return CoordinateTransformer::TileToWorld(position_);
 }
 
 glimmer::WorldVector2D glimmer::Chunk::GetEndWorldPosition() const
 {
-    return CoordinateTransformer::TileToWorld(position + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
+    return CoordinateTransformer::TileToWorld(position_ + TileVector2D(CHUNK_SIZE, CHUNK_SIZE));
 }

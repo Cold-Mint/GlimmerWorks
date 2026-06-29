@@ -27,12 +27,14 @@
 #pragma once
 #include <memory>
 
+#include "BreakSource.h"
 #include "core/mod/ResourceRef.h"
 #include "core/scene/AppContext.h"
 #include "generator/TileLayerType.h"
 #include "generator/TilePhysicsType.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3_mixer/SDL_mixer.h"
+#include "src/core/place_source_message.pb.h"
 
 
 namespace glimmer
@@ -107,6 +109,10 @@ namespace glimmer
 
     public:
         [[nodiscard]] uint8_t GetTileWidth() const;
+
+        void OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource, const TileVector2D& position);
+
+        void OnBreak(const WorldContext* worldContext, BreakSource breakSource, const TileVector2D& position);
 
         [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
 

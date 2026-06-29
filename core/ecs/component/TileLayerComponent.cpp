@@ -145,9 +145,8 @@ std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetSelfLayerTileShar
     return GetTileShared(tileLayerType_, tilePos);
 }
 
-
-bool glimmer::TileLayerComponent::CommitTileState(const TileLayerType layerType, const TileVector2D& tilePos,
-                                                  const bool fallback) const
+bool glimmer::TileLayerComponent::CommitTileState(const BreakSource breakSource, const TileLayerType layerType,
+                                                  const TileVector2D& tilePos, const bool fallback) const
 {
     if (worldContext_ == nullptr)
     {
@@ -159,7 +158,7 @@ bool glimmer::TileLayerComponent::CommitTileState(const TileLayerType layerType,
         return false;
     }
     const TileVector2D pos = Chunk::TileCoordinatesToChunkRelativeCoordinates(tilePos);
-    return chunk->CommitTileState(layerType, pos.y << CHUNK_SHIFT | pos.x, fallback);
+    return chunk->CommitTileState(breakSource, layerType, pos.y << CHUNK_SHIFT | pos.x, fallback);
 }
 
 TileStateMessage* glimmer::TileLayerComponent::GetTileStatePtr(const TileLayerType layerType,

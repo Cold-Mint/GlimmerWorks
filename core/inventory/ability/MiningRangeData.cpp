@@ -129,7 +129,7 @@ void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent* ti
         return;
     }
     const TileStateMessage* tileStateMessage = tileLayerComponent->GetSelfLayerTileState(startVector);
-    if (tileStateMessage != nullptr && tileStateMessage->isplayerplaced())
+    if (tileStateMessage != nullptr && tileStateMessage->placesource() == PLACE_SOURCE_PLAYER)
     {
         return;
     }
@@ -203,7 +203,7 @@ void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent* ti
                 continue;
             }
             const TileStateMessage* nextTileStateMessage = tileLayerComponent->GetSelfLayerTileState(nextPos);
-            if (nextTileStateMessage != nullptr && nextTileStateMessage->isplayerplaced())
+            if (nextTileStateMessage != nullptr && nextTileStateMessage->placesource() == PLACE_SOURCE_PLAYER)
             {
                 continue;
             }

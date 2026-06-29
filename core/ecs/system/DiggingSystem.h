@@ -59,7 +59,8 @@ namespace glimmer
      * @param newTileRef newTileRef 新瓦片
      * @return
      */
-        static uint16_t BreakTile(WorldContext* worldContext, const TileLayerComponent* tileLayerComponent,
+        static uint16_t BreakTile(BreakSource breakSource, WorldContext* worldContext,
+                                  const TileLayerComponent* tileLayerComponent,
                                   const TileVector2D& topLeftVector, bool precisionMining, bool isPlaceMode,
                                   uint8_t tileWidth, uint8_t tileHeight,
                                   const ResourceRef& newTileRef);

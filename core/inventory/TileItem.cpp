@@ -139,7 +139,8 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
                 audioManager->TryPlayFree(
                     AMBIENT, tile_->GetPlaceSFX(), 0);
             }
-            DiggingSystem::BreakTile(worldContext, tileLayer, blueprintComponent->GetTopLeftVector(), false, true,
+            DiggingSystem::BreakTile(BreakSource::PlayerOverride, worldContext, tileLayer,
+                                     blueprintComponent->GetTopLeftVector(), false, true,
                                      tile_->GetTileWidth(), tile_->GetTileHeight(),
                                      resourceRef_);
             (void)RemoveAmount(1);

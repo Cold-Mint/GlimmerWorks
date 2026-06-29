@@ -156,12 +156,17 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
                     {
                         const int index = relativeY << CHUNK_SHIFT | relativeX;
                         TileStateMessage* tileStateMessage = currentChunk->GetTileState(tileLayerType, index);
+                        if (tileStateMessage == nullptr)
+                        {
+                            continue;
+                        }
                         tileStateMessage->set_width(tileResource->tileWidth);
                         tileStateMessage->set_height(tileResource->tileHeight);
+                        tileStateMessage->set_placesource(PLACE_SOURCE_CONSOLE);
                         tileStateMessage->mutable_offset()->set_x(x);
                         tileStateMessage->mutable_offset()->set_y(y);
                         resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-                        currentChunk->CommitTileState(tileLayerType, index, false);
+                        currentChunk->CommitTileState(BreakSource::Console, tileLayerType, index, false);
                     }
                 }
             }

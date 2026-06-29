@@ -40,41 +40,10 @@
 #include "core/math/Vector2DI.h"
 
 
-void glimmer::DiggingSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    if (gameComponentType == COMPONENT_DIGGING && diggingComponent_ == nullptr)
-    {
-        diggingComponent_ = entityShortCut_->GetDiggingComponent();
-    }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
-    {
-        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
-    }
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
-    }
-    if (gameComponentType == COMPONENT_TILE_LAYER)
-    {
-        tileLayerComponents_.clear();
-        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
-        std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
-        for (GameEntityID tileLayerEntity : tileLayerEntities)
-        {
-            const auto* tileLayer = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntity);
-            if (tileLayer == nullptr)
-            {
-                continue;
-            }
-            tileLayerComponents_.emplace_back(tileLayer);
-        }
-    }
-}
-
-uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const TileLayerComponent* tileLayerComponent,
-                                           const TileVector2D& topLeftVector, const bool precisionMining,
-                                           const bool isPlaceMode,
-                                           const uint8_t tileWidth, const uint8_t tileHeight,
+uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext* worldContext,
+                                           const TileLayerComponent* tileLayerComponent,
+                                           const TileVector2D& topLeftVector, bool precisionMining,
+                                           bool isPlaceMode, uint8_t tileWidth, uint8_t tileHeight,
                                            const ResourceRef& newTileRef)
 {
     if (worldContext == nullptr || tileLayerComponent == nullptr)
@@ -101,7 +70,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
     {
         return 0;
     }
-    PlayerComponent* playerComponent = entityManager->GetComponent<PlayerComponent>(player);
+    auto playerComponent = entityManager->GetComponent<PlayerComponent>(player);
     Item* item = nullptr;
     if (playerComponent != nullptr)
     {
@@ -138,18 +107,24 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
             newTileRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
             tileStateMessage->set_width(tileWidth);
             tileStateMessage->set_height(tileHeight);
-            bool oldPlayerPlaced = tileStateMessage->isplayerplaced();
-            tileStateMessage->set_isplayerplaced(isPlaceMode);
+            if (isPlaceMode)
+            {
+                tileStateMessage->set_placesource(PLACE_SOURCE_PLAYER);
+            }
+            else
+            {
+                tileStateMessage->set_placesource(PLACE_SOURCE_WORLD_GEN);
+            }
             TileVector2D offset = topLeftVector - currentVector;
             offset.WriteVector2DIMessage(*tileStateMessage->mutable_offset());
-            if (!tileLayerComponent->CommitTileState(tileLayerComponent->GetTileLayerType(), currentVector, false))
+            if (!tileLayerComponent->CommitTileState(breakSource, tileLayerComponent->GetTileLayerType(), currentVector,
+                                                     false))
             {
                 //If the placement fails, then restore to the previous state.
                 //如果放置失败了那么还原到之前的状态。
                 oldResourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
                 tileStateMessage->set_width(oldWidth);
                 tileStateMessage->set_height(oldHeight);
-                tileStateMessage->set_isplayerplaced(oldPlayerPlaced);
                 oldVector2D.WriteVector2DIMessage(*tileStateMessage->mutable_offset());
                 continue;
             }
@@ -216,6 +191,37 @@ uint16_t glimmer::DiggingSystem::BreakTile(WorldContext* worldContext, const Til
     return sum;
 }
 
+void glimmer::DiggingSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_DIGGING && diggingComponent_ == nullptr)
+    {
+        diggingComponent_ = entityShortCut_->GetDiggingComponent();
+    }
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
+    {
+        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+    }
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
+    {
+        cameraComponent_ = entityShortCut_->GetCameraComponent();
+    }
+    if (gameComponentType == COMPONENT_TILE_LAYER)
+    {
+        tileLayerComponents_.clear();
+        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
+        for (GameEntityID tileLayerEntity : tileLayerEntities)
+        {
+            const auto* tileLayer = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntity);
+            if (tileLayer == nullptr)
+            {
+                continue;
+            }
+            tileLayerComponents_.emplace_back(tileLayer);
+        }
+    }
+}
+
 glimmer::DiggingSystem::DiggingSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_DIGGING);
@@ -262,7 +268,7 @@ void glimmer::DiggingSystem::Update(float delta)
                     {
                         continue;
                     }
-                    BreakTile(worldContext_, tileLayer, point->GetTileTopLeftPosition(),
+                    BreakTile(BreakSource::PlayerMining, worldContext_, tileLayer, point->GetTileTopLeftPosition(),
                               diggingComponent_->IsPrecisionMining(), false, point->GetWidth(),
                               point->GetHeight(),
                               TileResourceManager::GetAirResourceRef(tileLayerType));

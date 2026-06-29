@@ -32,7 +32,6 @@
 #include "box2d/id.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/Constants.h"
-#include "core/ecs/EcsTypes.h"
 #include "core/math/WorldVector2D.h"
 #include "core/world/Tile.h"
 
@@ -41,7 +40,7 @@ namespace glimmer
 {
     class Chunk
     {
-        TileVector2D position;
+        TileVector2D position_;
         WorldContext* worldContext_;
         std::unordered_map<TileLayerType, std::array<std::shared_ptr<Tile>, CHUNK_AREA>>
         tiles_;
@@ -53,9 +52,6 @@ namespace glimmer
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA>>
         tileState_;
         std::unordered_map<TileLayerType, std::array<std::unique_ptr<TileSnapshot>, CHUNK_AREA>> tileSnapshots_;
-        //The entity bound to the tiles.
-        //与区块生命周期绑定的实体。
-        std::unordered_map<TileLayerType,std::array<GameEntityID, CHUNK_AREA>> lifecycleBoundEntities_;
         std::vector<b2BodyId> attachedBodies_;
         //chunk fade-in easing animation
         //区块淡入缓动动画
@@ -108,7 +104,7 @@ namespace glimmer
          */
         [[nodiscard]] static TileVector2D TileCoordinatesToChunkRelativeCoordinates(const TileVector2D& tileVector2d);
 
-        bool CommitTileState(TileLayerType layerType, int index, bool fallback);
+        bool CommitTileState(BreakSource breakSource,TileLayerType layerType, int index, bool fallback);
 
         [[nodiscard]] TileStateMessage* GetTileState(TileLayerType layerType, uint8_t index) const;
 

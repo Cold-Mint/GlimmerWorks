@@ -152,7 +152,7 @@ bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, c
             commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));
         const auto chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D);
-         Chunk* chunk = worldContext_->GetChunk(chunkVertex);
+        Chunk* chunk = worldContext_->GetChunk(chunkVertex);
         if (chunk == nullptr)
         {
             onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,
@@ -194,7 +194,7 @@ bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, c
                                         static_cast<uint8_t>(tile->GetLayerType()),
                                         tileStateMessage->resourceref().packid() + ":" + tileStateMessage->resourceref()
                                         .resourcekey(),
-                                        tileStateMessage->isplayerplaced(),
+                                        static_cast<int>(tileStateMessage->placesource()),
                                         offsetX,
                                         offsetY,
                                         tileStateMessage->width(),

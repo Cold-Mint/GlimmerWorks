@@ -29,10 +29,13 @@
 #include <optional>
 
 #include "TileAnchorType.h"
+#include "WorldContext.h"
 #include "../scene/AppContext.h"
 #include "../mod/ResourceLocator.h"
+#include "core/log/LogCat.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/utils/StringUtils.h"
+#include "fmt/xchar.h"
 
 
 const glimmer::ResourceRef* glimmer::Tile::GetSideLightMaskResource() const
@@ -339,6 +342,71 @@ uint8_t glimmer::Tile::GetTileWidth() const
 {
     return tileWidth_;
 }
+
+void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource, const TileVector2D& position)
+{
+#if  !defined(NDEBUG)
+    AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
+        return;
+    }
+    LangsResources* langResources = appContext->GetLangsResources();
+    if (langResources == nullptr)
+    {
+        return;
+    }
+    if (placeSource == PLACE_SOURCE_PLAYER)
+    {
+        LogCat::d(fmt::format(fmt::runtime(langResources->logPlacePlayer), position.x, position.y, name_,static_cast<int>(layerType_)));
+    }
+    if (placeSource == PLACE_SOURCE_CONSOLE)
+    {
+        LogCat::d(fmt::format(fmt::runtime(langResources->logPlaceConsole), position.x, position.y, name_,static_cast<int>(layerType_)));
+    }
+    if (placeSource == PLACE_SOURCE_WORLD_GEN)
+    {
+        LogCat::d(fmt::format(fmt::runtime(langResources->logPlaceWorldGen), position.x, position.y, name_,static_cast<int>(layerType_)));
+    }
+#endif
+}
+
+void glimmer::Tile::OnBreak(const WorldContext* worldContext, BreakSource breakSource, const TileVector2D& position)
+{
+#if  !defined(NDEBUG)
+    AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
+        return;
+    }
+    LangsResources* langResources = appContext->GetLangsResources();
+    if (langResources == nullptr)
+    {
+        return;
+    }
+    if (breakSource == BreakSource::ChunkGenerate)
+    {
+        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakChunkGenerate), position.x, position.y));
+    }
+    if (breakSource == BreakSource::ChunkLoad)
+    {
+        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakChunkLoad), position.x, position.y));
+    }
+    if (breakSource == BreakSource::Console)
+    {
+        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakConsole), position.x, position.y));
+    }
+    if (breakSource == BreakSource::PlayerMining)
+    {
+        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakPlayerMining), position.x, position.y, name_,static_cast<int>(layerType_)));
+    }
+    if (breakSource == BreakSource::PlayerOverride)
+    {
+        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakPlayerOverride), position.x, position.y, name_,static_cast<int>(layerType_)));
+    }
+#endif
+}
+
 
 const std::vector<glimmer::ItemTagResource>& glimmer::Tile::GetTags() const
 {

@@ -1,0 +1,8 @@
+log_place_player = "玩家放置位于({},{})的方块：{} 图层：{}"
+log_place_world_gen = "世界生成器放置位于({},{})的方块：{} 图层：{}"
+log_place_console = "控制台放置位于({},{})的方块：{}"
+log_break_player_mining = "玩家破坏位于({},{})的方块：{}"
+log_break_player_override = "玩家覆盖位于({},{})的方块：{} 图层：{}"
+log_break_chunk_generate = "区块生成器破坏位于({},{})的方块"
+log_break_chunk_load = "区块加载器破坏位于({},{})的方块"
+log_break_console = "控制台破坏位于({},{})的方块"

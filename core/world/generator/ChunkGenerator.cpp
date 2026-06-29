@@ -588,12 +588,13 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                     {
                         const int unitIndex = topLeftIndex + y * CHUNK_SIZE + x;
                         TileStateMessage* tileStateMessage = chunk->GetOrCreateTileState(tileLayerType, unitIndex);
+                        tileStateMessage->set_placesource(PLACE_SOURCE_WORLD_GEN);
                         tileStateMessage->set_width(tileResource->tileWidth);
                         tileStateMessage->set_height(tileResource->tileHeight);
                         tileStateMessage->mutable_offset()->set_x(x);
                         tileStateMessage->mutable_offset()->set_y(y);
                         resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-                        chunk->CommitTileState(tileLayerType, unitIndex, true);
+                        chunk->CommitTileState(BreakSource::ChunkGenerate,tileLayerType, unitIndex, true);
                     }
                 }
             }

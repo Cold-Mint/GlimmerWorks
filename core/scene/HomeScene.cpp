@@ -182,7 +182,6 @@ void glimmer::HomeScene::OnConfigChanged(const Config* config)
 
 void glimmer::HomeScene::OnWindowSizeChanged(int width, int height)
 {
-    LogCat::d("OnWindowSizeChanged C w=", width, ", h=", height);
     windowWidth_ = width;
     windowHeight_ = height;
 }

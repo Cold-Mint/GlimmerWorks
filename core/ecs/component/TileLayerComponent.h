@@ -30,6 +30,7 @@
 
 #include "core/ecs/GameComponent.h"
 #include "core/math/TileVector2D.h"
+#include "core/world/BreakSource.h"
 #include "core/world/generator/TileLayerType.h"
 #include "core/world/generator/TileSnapshot.h"
 #include "SDL3/SDL_rect.h"
@@ -89,7 +90,7 @@ namespace glimmer
         [[nodiscard]] std::shared_ptr<Tile> GetSelfLayerTileShared(const TileVector2D& tilePos) const;
 
         [[nodiscard]] bool CommitTileState(
-            TileLayerType layerType, const TileVector2D& tilePos, bool fallback) const;
+            BreakSource breakSource, TileLayerType layerType, const TileVector2D& tilePos, bool fallback) const;
 
 
         [[nodiscard]] const TileStateMessage* GetSelfLayerTileState(

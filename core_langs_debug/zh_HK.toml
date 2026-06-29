@@ -1,0 +1,8 @@
+log_place_player = "玩家放置位於({},{})的方塊：{} 圖層：{}"
+log_place_world_gen = "世界生成器放置位於({},{})的方塊：{} 圖層：{}"
+log_place_console = "控製颱放置位於({},{})的方塊：{}"
+log_break_player_mining = "玩家破壞位於({},{})的方塊：{}"
+log_break_player_override = "玩家覆蓋位於({},{})的方塊：{} 圖層：{}"
+log_break_chunk_generate = "區塊生成器破壞位於({},{})的方塊"
+log_break_chunk_load = "區塊加載器破壞位於({},{})的方塊"
+log_break_console = "控製颱破壞位於({},{})的方塊"

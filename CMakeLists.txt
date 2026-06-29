@@ -938,6 +938,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/TextureResourceResult.h
         core/mod/resourcePack/AudioResourceResult.h
         core/mod/resourcePack/ResourcePackConfig.h
+        core/world/BreakSource.h
 )
 
 #Define version information
@@ -1018,6 +1019,17 @@ endif ()
 
 file(COPY "${CMAKE_SOURCE_DIR}/core_langs/"
         DESTINATION "${CMAKE_BINARY_DIR}/langs/")
+if (CMAKE_BUILD_TYPE MATCHES "^Debug$")
+    file(GLOB_RECURSE DEBUG_LANG_FILES "${CMAKE_SOURCE_DIR}/core_langs_debug/*")
+
+    foreach (DEBUG_FILE ${DEBUG_LANG_FILES})
+        file(RELATIVE_PATH REL_PATH "${CMAKE_SOURCE_DIR}/core_langs_debug" "${DEBUG_FILE}")
+        set(TARGET_FILE "${CMAKE_BINARY_DIR}/langs/${REL_PATH}")
+        file(READ "${DEBUG_FILE}" DEBUG_CONTENT)
+        file(APPEND "${TARGET_FILE}" "\n${DEBUG_CONTENT}")
+    endforeach ()
+endif ()
+
 file(COPY "${CMAKE_SOURCE_DIR}/LICENSE"
         DESTINATION "${CMAKE_BINARY_DIR}/")
 

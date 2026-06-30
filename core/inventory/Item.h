@@ -43,9 +43,7 @@ namespace glimmer
     {
         uint8_t amount_ = 1;
         uint32_t usedDurability_ = 0;
-#if  !defined(NDEBUG)
         std::vector<ItemTagResource> tags_;
-#endif
         std::unordered_map<uint64_t, uint8_t> tagMap_;
 
     protected:
@@ -133,14 +131,13 @@ namespace glimmer
          */
         [[nodiscard]] bool HasTag(uint64_t tag) const;
 
-#if  !defined(NDEBUG)
+
         /**
          * GetTags
          * 获取全部标签
          * @return
          */
         [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
-#endif
         /**
          * AddAmount
          * 添加数量

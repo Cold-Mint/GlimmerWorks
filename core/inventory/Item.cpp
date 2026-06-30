@@ -152,12 +152,10 @@ bool glimmer::Item::HasTag(const uint64_t tag) const
     return tagMap_.contains(tag);
 }
 
-#if  !defined(NDEBUG)
 const std::vector<glimmer::ItemTagResource>& glimmer::Item::GetTags() const
 {
     return tags_;
 }
-#endif
 
 uint8_t glimmer::Item::AddAmount(uint8_t amount)
 {

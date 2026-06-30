@@ -25,47 +25,27 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <cstdint>
+#include "core/ecs/GameSystem.h"
 
 namespace glimmer
 {
-    enum class GameSystemType : uint8_t
+    class TechProviderSystem final : public GameSystem
     {
-        None,
-        AndroidControlSystem,
-        AreaMarkerSystem,
-        AutoPickSystem,
-        BiomeBGMSystem,
-        BlueprintSystem,
-        Box2dSystemContext,
-        CameraSystem,
-        ChunkSystem,
-        DebugDrawBox2dSystem,
-        DebugDrawSystem,
-        DebugMultiMapSystem,
-        DebugPanelSystem,
-        DiggingSystem,
-        DraggableSystem,
-        DroppedItemSystem,
-        FloatingTextSystem,
-        HotBarGUISystem,
-        ItemSlotSystem,
-        Light2DSystem,
-        MagnetSystem,
-        ParallaxBackgroundSystem,
-        PauseSystem,
-        PhysicsSystem,
-        PlayerControlSystem,
-        RayCast2DSystem,
-        SpiritRendererSystem,
-        TileLayerSystem,
-        Transform2DSystem,
-        InventoryCraftGUISystem,
-        CraftPreviewSlotSystem,
-        MaterialSelectCraftUISystem,
-        ItemToolTipSystem,
-        ItemSlotQuantitySystem,
-        ButtonSystem,
-        TeachProviderSystem
+        uint32_t transform2DCount_ = 0;
+        uint32_t techProviderCount_ = 0;
+        std::vector<GameEntityID> techProviderEntities_;
+        GameEntityID player_ = 0;
+        bool changed = false;
+
+    public:
+        explicit TechProviderSystem(WorldContext* worldContext);
+
+        void OnActivationChanged(bool activeStatus) override;
+
+        void OnFrameStart() override;
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };
 }

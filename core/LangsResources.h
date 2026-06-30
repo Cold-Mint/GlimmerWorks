@@ -173,15 +173,5 @@ namespace glimmer
         std::string recipesItem;
         std::string debugChunkInfo;
         std::string fpsInfo;
-#if  !defined(NDEBUG)
-        std::string logPlacePlayer;
-        std::string logPlaceWorldGen;
-        std::string logPlaceConsole;
-        std::string logBreakPlayerMining;
-        std::string logBreakPlayerOverride;
-        std::string logBreakChunkGenerate;
-        std::string logBreakChunkLoad;
-        std::string logBreakConsole;
-#endif
     };
 }

@@ -256,16 +256,6 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->recipesItem = find<std::string>(value, "recipes_item");
     langsResources_->debugChunkInfo = find<std::string>(value, "debug_chunk_info");
     langsResources_->fpsInfo = find<std::string>(value, "fps_info");
-#if  !defined(NDEBUG)
-    langsResources_->logPlacePlayer = find<std::string>(value, "log_place_player");
-    langsResources_->logPlaceWorldGen = find<std::string>(value, "log_place_world_gen");
-    langsResources_->logPlaceConsole = find<std::string>(value, "log_place_console");
-    langsResources_->logBreakPlayerMining = find<std::string>(value, "log_break_player_mining");
-    langsResources_->logBreakPlayerOverride = find<std::string>(value, "log_break_player_override");
-    langsResources_->logBreakChunkGenerate = find<std::string>(value, "log_break_chunk_generate");
-    langsResources_->logBreakChunkLoad = find<std::string>(value, "log_break_chunk_load");
-    langsResources_->logBreakConsole = find<std::string>(value, "log_break_console");
-#endif
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, const std::string& ext)

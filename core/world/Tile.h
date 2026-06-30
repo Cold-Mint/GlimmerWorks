@@ -28,6 +28,7 @@
 #include <memory>
 
 #include "BreakSource.h"
+#include "core/ecs/EcsTypes.h"
 #include "core/mod/ResourceRef.h"
 #include "core/scene/AppContext.h"
 #include "generator/TileLayerType.h"
@@ -52,6 +53,7 @@ namespace glimmer
         std::shared_ptr<TextureResourceResult> blueprintTextureResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
+        std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
         std::vector<ItemTagResource> tags_;
         bool customLootTable_ = false;
         ResourceRef lootTable_;

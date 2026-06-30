@@ -264,6 +264,11 @@ static constexpr std::string ACCESS_DENIED_TEXTURE_KEY = "@access_denied";
  * 瓦片的放置距离（单位：瓦片格数）
  */
 static constexpr float TILE_PLACE_RANGE = 10;
+/**
+ * The detection radius of the player's work block.(Unit: Number of Tile Squares)
+ * 玩家的工作方块检测半径。（单位：瓦片格数）
+ */
+static constexpr float WORK_STATION_RANGE = 10;
 
 static constexpr float DROPPED_ITEM_SIZE = TILE_SIZE * 0.8F;
 

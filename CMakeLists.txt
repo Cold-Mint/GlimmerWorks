@@ -632,6 +632,8 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/TextureResourceResult.cpp
         core/mod/resourcePack/AudioResourceResult.cpp
         core/mod/resourcePack/ResourcePackConfig.cpp
+        core/ecs/component/TechProviderComponent.cpp
+        core/ecs/system/TechProviderSystem.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -939,6 +941,8 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/AudioResourceResult.h
         core/mod/resourcePack/ResourcePackConfig.h
         core/world/BreakSource.h
+        core/ecs/component/TechProviderComponent.h
+        core/ecs/system/TechProviderSystem.h
 )
 
 #Define version information

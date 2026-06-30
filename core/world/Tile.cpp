@@ -32,7 +32,9 @@
 #include "WorldContext.h"
 #include "../scene/AppContext.h"
 #include "../mod/ResourceLocator.h"
+#include "core/ecs/component/TechProviderComponent.h"
 #include "core/log/LogCat.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
@@ -343,68 +345,62 @@ uint8_t glimmer::Tile::GetTileWidth() const
     return tileWidth_;
 }
 
-void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource, const TileVector2D& position)
+void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource,
+                            const TileVector2D& position)
 {
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return;
+    }
+    const Vector2DIFingerprint fingerprint = position.GetFingerprint();
+    auto gameEntityIterator = gameEntities_.find(fingerprint);
+    if (gameEntityIterator != gameEntities_.end())
+    {
 #if  !defined(NDEBUG)
-    AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+        LogCat::e(
+            "Before generating a new entity, it is necessary to ensure that there are no other entities at the current location.");
+        assert(false);
+#else
         return;
-    }
-    LangsResources* langResources = appContext->GetLangsResources();
-    if (langResources == nullptr)
-    {
-        return;
-    }
-    if (placeSource == PLACE_SOURCE_PLAYER)
-    {
-        LogCat::d(fmt::format(fmt::runtime(langResources->logPlacePlayer), position.x, position.y, name_,static_cast<int>(layerType_)));
-    }
-    if (placeSource == PLACE_SOURCE_CONSOLE)
-    {
-        LogCat::d(fmt::format(fmt::runtime(langResources->logPlaceConsole), position.x, position.y, name_,static_cast<int>(layerType_)));
-    }
-    if (placeSource == PLACE_SOURCE_WORLD_GEN)
-    {
-        LogCat::d(fmt::format(fmt::runtime(langResources->logPlaceWorldGen), position.x, position.y, name_,static_cast<int>(layerType_)));
-    }
 #endif
+    }
+    if (IsWorkBlock())
+    {
+        //If it is a work block, then generate the corresponding entity.
+        //如果是工作方块，那么生成对应的实体。
+        GameEntityID entity = entityManager->AddEntity();
+        const auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(entity);
+        transform2dComponent->SetPosition(CoordinateTransformer::TileToWorld(position));
+        const auto teachProviderComponent = entityManager->AddComponent<TechProviderComponent>(entity);
+        teachProviderComponent->SetRecipeGroup(static_cast<RecipeGroup>(recipeGroup_));
+        teachProviderComponent->SetTechnologyLevel(technologyLevel_);
+        gameEntities_[fingerprint] = entity;
+    }
 }
 
 void glimmer::Tile::OnBreak(const WorldContext* worldContext, BreakSource breakSource, const TileVector2D& position)
 {
-#if  !defined(NDEBUG)
-    AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
+    if (breakSource == BreakSource::ChunkLoad || breakSource == BreakSource::ChunkGenerate)
     {
         return;
     }
-    LangsResources* langResources = appContext->GetLangsResources();
-    if (langResources == nullptr)
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
     {
         return;
     }
-    if (breakSource == BreakSource::ChunkGenerate)
+    const Vector2DIFingerprint fingerprint = position.GetFingerprint();
+    auto gameEntityIterator = gameEntities_.find(fingerprint);
+    if (gameEntityIterator == gameEntities_.end())
     {
-        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakChunkGenerate), position.x, position.y));
+        return;
     }
-    if (breakSource == BreakSource::ChunkLoad)
-    {
-        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakChunkLoad), position.x, position.y));
-    }
-    if (breakSource == BreakSource::Console)
-    {
-        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakConsole), position.x, position.y));
-    }
-    if (breakSource == BreakSource::PlayerMining)
-    {
-        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakPlayerMining), position.x, position.y, name_,static_cast<int>(layerType_)));
-    }
-    if (breakSource == BreakSource::PlayerOverride)
-    {
-        LogCat::d(fmt::format(fmt::runtime(langResources->logBreakPlayerOverride), position.x, position.y, name_,static_cast<int>(layerType_)));
-    }
-#endif
+    //If there is an associated entity at the current location, then it must be destroyed regardless of anything.
+    //如果当前位置有相关联的实体，那么无论如何都要销毁它。
+    entityManager->RemoveEntity(gameEntityIterator->second);
+    gameEntities_.erase(gameEntityIterator);
+    LogCat::d("Remove tile associated entities.");
 }
 
 

@@ -1,8 +1,0 @@
-log_place_player = "Player placed block at ({},{}):{} Layer: {}"
-log_place_world_gen = "World generator placed block at ({},{}) :{} Layer: {}"
-log_place_console = "Console placed block at ({},{}):{}"
-log_break_player_mining = "Player mined block at ({},{}):{}"
-log_break_player_override = "Player overwrote block at ({},{}): {} Layer: {}"
-log_break_chunk_generate = "Chunk generator removed block at ({},{})"
-log_break_chunk_load = "Chunk loader removed block at ({},{})"
-log_break_console = "Console removed block at ({},{})"

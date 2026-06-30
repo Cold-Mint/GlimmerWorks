@@ -1,8 +1,0 @@
-log_place_player = "プレイヤーが座標({}, {})にブロックを設置：{} レイヤー：{}"
-log_place_world_gen = "ワールド生成器が座標({}, {})にブロックを設置：{} レイヤー：{}"
-log_place_console = "コンソールが座標({}, {})にブロックを設置：{} レイヤー：{}"
-log_break_player_mining = "プレイヤーが座標({}, {})のブロックを採掘：{}"
-log_break_player_override = "プレイヤーが座標 ({}, {}) のブロックを上書き：{} レイヤー：{}"
-log_break_chunk_generate = "チャンク生成器が座標({}, {})のブロックを削除"
-log_break_chunk_load = "チャンクローダーが座標({}, {})のブロックを削除"
-log_break_console = "コンソールが座標({}, {})のブロックを削除"

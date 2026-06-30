@@ -72,6 +72,7 @@
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
+#include "core/ecs/system/TechProviderSystem.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/utils/TimeUtils.h"
@@ -1065,6 +1066,7 @@ void glimmer::WorldContext::InitSystem()
     RegisterSystem(std::make_unique<ItemToolTipSystem>(this));
     RegisterSystem(std::make_unique<ItemSlotQuantitySystem>(this));
     RegisterSystem(std::make_unique<ButtonSystem>(this));
+    RegisterSystem(std::make_unique<TechProviderSystem>(this));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(this));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(this));

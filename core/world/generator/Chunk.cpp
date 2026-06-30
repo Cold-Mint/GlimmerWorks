@@ -26,6 +26,7 @@
  */
 #include "Chunk.h"
 
+#include "tween.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 #include "src/saves/tile_state.pb.h"
@@ -93,7 +94,7 @@ bool glimmer::Chunk::CommitTileState(const BreakSource breakSource, const TileLa
         return false;
     }
     TileVector2D tileVector2D;
-    tileVector2D.x = index & CHUNK_MASK + position_.x;
+    tileVector2D.x = (index & CHUNK_MASK) + position_.x;
     tileVector2D.y = (index >> CHUNK_SHIFT) + position_.y;
     const TileStateMessage* tileStateMessage = GetTileState(layerType, index);
     if (tileStateMessage == nullptr)

@@ -28,6 +28,30 @@
 #include "fmt/xchar.h"
 
 
+void glimmer::PlayerComponent::ResetTechnologyMap()
+{
+    technologyMap_.clear();
+    technologyMap_[RecipeGroup::None] = 1;
+}
+
+void glimmer::PlayerComponent::SetTechnology(RecipeGroup recipeGroup, uint8_t technologyLevel)
+{
+    auto iterator = technologyMap_.find(recipeGroup);
+    if (iterator == technologyMap_.end())
+    {
+        technologyMap_[recipeGroup] = technologyLevel;
+    }
+    else
+    {
+        if (technologyLevel > iterator->second)
+        {
+            //If the current technological level set is higher than the previous one.
+            //如果当前设置的科技等级大于上次设置的科技等级。
+            technologyMap_[recipeGroup] = technologyLevel;
+        }
+    }
+}
+
 const std::unordered_map<glimmer::RecipeGroup, uint8_t>& glimmer::PlayerComponent::GetTechnologyMap() const
 {
     return technologyMap_;
@@ -41,6 +65,7 @@ std::string glimmer::PlayerComponent::ListTechnology(const std::string& technolo
         ss << fmt::format(
             fmt::runtime(technologyItem),
             static_cast<int>(technology.first), static_cast<int>(technology.second));
+        ss << '\n';
     }
     return ss.str();
 }

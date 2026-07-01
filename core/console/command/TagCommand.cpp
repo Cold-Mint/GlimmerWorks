@@ -122,7 +122,7 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
         {
             return false;
         }
-        auto item = playerComponent->item;
+        auto item = playerComponent->GetItem();
         if (item == nullptr)
         {
             return false;

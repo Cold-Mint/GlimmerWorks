@@ -117,10 +117,7 @@ namespace glimmer
 
 
         explicit TileLayerComponent(WorldContext* worldContext,
-                                    const TileLayerType tileLayerType) : worldContext_(worldContext), tileLayerType_(
-                                                                             tileLayerType)
-        {
-        }
+                                    TileLayerType tileLayerType);
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

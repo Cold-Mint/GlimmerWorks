@@ -26,6 +26,66 @@
  */
 #include "MobComponent.h"
 
+const std::vector<GameEntityID>& glimmer::MobComponent::GetGroundCheckRayEntityIds() const
+{
+    return groundCheckRayEntityIds_;
+}
+
+void glimmer::MobComponent::AddGroundCheckRayEntity(GameEntityID id)
+{
+    groundCheckRayEntityIds_.emplace_back(id);
+}
+
+void glimmer::MobComponent::SetMovementAcceleration(const float acceleration)
+{
+    movementAcceleration_ = acceleration;
+}
+
+float glimmer::MobComponent::GetMovementAcceleration() const
+{
+    return movementAcceleration_;
+}
+
+void glimmer::MobComponent::SetMaxSpeed(const float speed)
+{
+    maxSpeed_ = speed;
+}
+
+float glimmer::MobComponent::GetMaxSpeed() const
+{
+    return maxSpeed_;
+}
+
+void glimmer::MobComponent::SetAirControlFactor(const float factor)
+{
+    airControlFactor_ = factor;
+}
+
+float glimmer::MobComponent::GetAirControlFactor() const
+{
+    return airControlFactor_;
+}
+
+void glimmer::MobComponent::SetJumpForce(const float force)
+{
+    jumpForce_ = force;
+}
+
+float glimmer::MobComponent::GetJumpForce() const
+{
+    return jumpForce_;
+}
+
+void glimmer::MobComponent::SetFacingLeft(const bool facing)
+{
+    facingLeft_ = facing;
+}
+
+bool glimmer::MobComponent::GetFacingLeft() const
+{
+    return facingLeft_;
+}
+
 GameComponentTypeMessage glimmer::MobComponent::GetComponentTypeStatic()
 {
     return COMPONENT_MOB;

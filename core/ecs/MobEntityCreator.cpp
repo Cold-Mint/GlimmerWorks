@@ -126,10 +126,10 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
     {
         return;
     }
-    mobComponent->movementAcceleration = mobResource->movementAcceleration;
-    mobComponent->maxSpeed = mobResource->maxSpeed;
-    mobComponent->airControlFactor = mobResource->airControlFactor;
-    mobComponent->jumpForce = mobResource->jumpForce;
+    mobComponent->SetMovementAcceleration(mobResource->movementAcceleration);
+    mobComponent->SetMaxSpeed(mobResource->maxSpeed);
+    mobComponent->SetAirControlFactor(mobResource->airControlFactor);
+    mobComponent->SetJumpForce(mobResource->jumpForce);
     for (auto& groundCheckRayCast : mobResource->groundCheckRayCast)
     {
         auto groundRayCast = entityManager->AddEntity();
@@ -145,7 +145,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
         });
         rayCast2dComponent->SetFilter(groundCheckRayCast.filter.Tob2QueryFilter());
         rayCast2dComponent->SetTransform2DEntity(id);
-        mobComponent->groundCheckRayEntityIds.push_back(groundRayCast);
+        mobComponent->AddGroundCheckRayEntity(groundRayCast);
     }
     const auto tilePlacementForbiddenZoneComponent = entityManager->AddComponent<
         TilePlacementForbiddenZoneComponent>(id);

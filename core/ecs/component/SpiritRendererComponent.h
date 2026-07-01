@@ -26,10 +26,9 @@
  */
 #pragma once
 #include "core/ecs/GameComponent.h"
-#include "core/math/Vector2D.h"
+#include "core/math/WorldVector2D.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
-#include "core/world/WorldContext.h"
 #include "SDL3/SDL_render.h"
 
 namespace glimmer

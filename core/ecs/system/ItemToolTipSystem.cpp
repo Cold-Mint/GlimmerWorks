@@ -194,31 +194,6 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
             }
         }
 
-        // 失误概率
-        float fumbleProbability = abilityConfig->fumbleProbability;
-        if (fumbleProbability != 0.0F)
-        {
-            std::string fumbleTip = fmt::format(
-                fmt::runtime(langsResources->fumbleTip),
-                (fumbleProbability > 0 ? "+" : "") + fmt::format("{0:.0f}", fumbleProbability * 100));
-            uint64_t fumbleTipFingerprint = StringUtils::StringToUint64(fumbleTip);
-            bool fumbleTipPositive = fumbleProbability > 0;
-            if (fumbleTipPositive != fumbleTipPositive_ || fumbleTipFingerprint != fumbleTipFingerprint_)
-            {
-                fumbleTipTexture_ = resourcePackManager_->CreateStringTexture(
-                    fumbleTip, fumbleTipPositive
-                                   ? &preloadColors_->game.positiveAttributeColor
-                                   : &preloadColors_->game.negativeAttributeColor,
-                    TOOLTIP_TEXT_WRAP_WIDTH);
-                fumbleTipPositive_ = fumbleTipPositive;
-                fumbleTipFingerprint_ = fumbleTipFingerprint;
-            }
-            if (fumbleTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(fumbleTipTexture_.get());
-            }
-        }
-
         // 连锁挖掘半径
         int chainMiningRadius = abilityConfig->chainMiningRadius;
         if (chainMiningRadius != 0)

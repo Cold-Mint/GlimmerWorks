@@ -223,7 +223,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     const WorldVector2D focusWorldTilePos = CoordinateTransformer::TileToWorld(focusPosition);
     auto* playerComponent = entityManager_->GetComponent<PlayerComponent>(player);
     auto* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(player);
-    Item* item = playerComponent->item;
+    Item* item = playerComponent->GetItem();
     TileVector2D leftBottom = {0, 0};
     WorldVector2D playerPosition = transform2DComponent->GetPosition();
     if (item != nullptr && item->GetAmount() > 0)

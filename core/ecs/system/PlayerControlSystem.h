@@ -37,14 +37,12 @@ namespace glimmer
      */
     class PlayerControlSystem final : public GameSystem
     {
-        //Hand slip determination interval.
-        //手滑判定间隔。
-        float slipTimer_ = 0.0F;
         AudioManager* audioManager_ = nullptr;
         std::shared_ptr<AudioResourceResult> dropItemSFXResult_ = nullptr;
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         GameEntityID playerEntityID_ = GAME_ENTITY_ID_INVALID;
+        std::unordered_set<std::string> popupAbility_;
         /**
         * Check if the player is on the ground
         * 检查玩家是否在地面上
@@ -63,11 +61,9 @@ namespace glimmer
         /**
          * UseItem
          * 使用物品
-         * @param itemContainer
-         * @param playerComponent
-         * @param index
+         * @param item
          */
-        void UseItem(const PlayerComponent* playerComponent, ItemContainer* itemContainer, uint8_t index);
+        void UseItem(Item* item);
 
     public:
         explicit PlayerControlSystem(WorldContext* worldContext);

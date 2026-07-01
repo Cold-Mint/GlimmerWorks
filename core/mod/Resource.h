@@ -374,8 +374,6 @@ namespace glimmer
     {
         //@genNextLine(miningRange|挖掘范围)
         float miningRange = 5;
-        //@genNextLine(Using the item is more likely to cause accidental dropping.|使用物品时多大概率触发手滑)
-        float fumbleProbability = 0;
         //@genNextLine(chainMiningRadius|连锁采集半径)
         uint8_t chainMiningRadius = 0;
         //@genNextLine(precisionMining|是否精准采集)
@@ -388,7 +386,6 @@ namespace glimmer
         void Reset()
         {
             miningRange = 5;
-            fumbleProbability = 0;
             chainMiningRadius = 0;
             enablePrecisionMining = false;
             miningEfficiency = 0;
@@ -399,7 +396,6 @@ namespace glimmer
         {
             this->enablePrecisionMining = this->enablePrecisionMining || other.enablePrecisionMining;
             this->miningRange += other.miningRange;
-            this->fumbleProbability += other.fumbleProbability;
             this->chainMiningRadius += other.chainMiningRadius;
             this->miningEfficiency += other.miningEfficiency;
             this->mineAbleLayer = this->mineAbleLayer | other.mineAbleLayer;

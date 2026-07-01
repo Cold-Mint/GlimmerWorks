@@ -50,12 +50,9 @@ namespace glimmer
         std::shared_ptr<SDL_Texture> precisionMiningTipTexture_ = nullptr;
         uint64_t efficiencyTipFingerprint_ = 0;
         std::shared_ptr<SDL_Texture> efficiencyTipTexture_ = nullptr;
-        uint64_t fumbleTipFingerprint_ = 0;
-        std::shared_ptr<SDL_Texture> fumbleTipTexture_ = nullptr;
         uint64_t chainMiningTipFingerprint_ = 0;
         std::shared_ptr<SDL_Texture> chainMiningTipTexture_ = nullptr;
         bool efficiencyTipPositive_ = false;
-        bool fumbleTipPositive_ = false;
         bool chainMiningTipPositive_ = false;
         PreloadColors* preloadColors_ = nullptr;
 

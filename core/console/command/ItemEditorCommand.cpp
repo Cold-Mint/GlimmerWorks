@@ -162,7 +162,7 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
         onMessageRef(langsResources->playerDoesNotExist);
         return false;
     }
-    auto item = playerComponent->item;
+    auto item = playerComponent->GetItem();
     if (item == nullptr)
     {
         onMessageRef(langsResources->itemEditorHoldItem);

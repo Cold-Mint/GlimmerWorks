@@ -41,32 +41,96 @@ namespace glimmer
         std::unordered_map<RecipeGroup, uint8_t> technologyMap_ = {
             {RecipeGroup::None, 1}
         };
-
-    public:
         //If the player does not press the left or right key, then this value is 0. Pressing A is -1, and pressing D is 1.0.
         //如果玩家没有按下左键或右键那么此值为0,按下A为-1,按下D为1.0
-        float horizontalInput = 0.0F;
-        float verticalInput = 0.0F;
-        bool pressedW = false;
-        bool pressedA = false;
-        bool pressedS = false;
-        bool pressedD = false;
-        bool jump = false;
-        int jumpBuffer = 0;
-        bool mouseLeftDown = false;
-        float dropTimer = 0.0F;
-        bool dropPressed = false;
-        bool isFlying = false;
+        float horizontalInput_ = 0.0F;
+        float verticalInput_ = 0.0F;
+        bool pressedW_ = false;
+        bool pressedA_ = false;
+        bool pressedS_ = false;
+        bool pressedD_ = false;
+        bool jump_ = false;
+        int jumpBuffer_ = 0;
+        bool mouseLeftDown_ = false;
+        float dropTimer_ = 0.0F;
+        bool dropPressed_ = false;
+        bool isFlying_ = false;
         //The current item being held.
         //当前手持的物品。
-        Item* item = nullptr;
-        float distanceSquared = 50.0F;
+        Item* item_ = nullptr;
+
+    public:
+        void RemoveHorizontalInput(float increment);
+
+        void AddHorizontalInput(float increment);
+
+        void ResetHorizontalInput();
+
+        void RemoveVerticalInput(float increment);
+
+        void AddVerticalInput(float increment);
+
+        void ResetVerticalInput();
+
+        [[nodiscard]] float GetHorizontalInput() const;
+
+        void SetVerticalInput(float verticalInput);
+
+        [[nodiscard]] float GetVerticalInput() const;
+
+        void SetPressedW(bool pressedW);
+
+        void SetPressedA(bool pressedA);
+
+        void SetPressedS(bool pressedS);
+
+        void SetPressedD(bool pressedD);
+
+        [[nodiscard]] bool IsPressedW() const;
+
+        [[nodiscard]] bool IsPressedA() const;
+
+        [[nodiscard]] bool IsPressedS() const;
+
+        [[nodiscard]] bool IsPressedD() const;
+
+        void ResetDropTimer();
+
+        void AddDropTimer(float delta);
+
+        void RemoveDropTimer(float delta);
+
+        void SetJump(bool jump);
+
+        [[nodiscard]] bool IsJump() const;
+
+        void SetJumpBuffer(float jumpBuffer);
+
+        [[nodiscard]] float GetJumpBuffer() const;
+
+        void SetMouseLeftDown(bool mouseLeftDown);
+
+        [[nodiscard]] bool IsMouseLeftDown() const;
+
+        [[nodiscard]] float GetDropTimer() const;
+
+        void SetDropPressed(bool dropPressed);
+
+        [[nodiscard]] bool IsDropPressed() const;
+
+        void SetFlying(bool flying);
+
+        [[nodiscard]] bool IsFlying() const;
+
+        void SetItem(Item* item);
+
+        [[nodiscard]] Item* GetItem() const;
 
         void ResetTechnologyMap();
 
         void SetTechnology(RecipeGroup recipeGroup, uint8_t technologyLevel);
 
-        const std::unordered_map<RecipeGroup, uint8_t>& GetTechnologyMap() const;
+        [[nodiscard]] const std::unordered_map<RecipeGroup, uint8_t>& GetTechnologyMap() const;
 
         std::string ListTechnology(const std::string& technologyItem) const;
 

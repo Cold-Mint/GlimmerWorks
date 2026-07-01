@@ -74,7 +74,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext
     Item* item = nullptr;
     if (playerComponent != nullptr)
     {
-        item = playerComponent->item;
+        item = playerComponent->GetItem();
     }
     uint8_t sum = 0;
     uint8_t centerX = tileWidth >> 1;

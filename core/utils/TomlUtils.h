@@ -83,7 +83,6 @@ namespace toml {
             glimmer::AbilityConfig r;
             r.chainMiningRadius = toml::find_or<uint8_t>(v, "chain_mining_radius", 0);
             r.enablePrecisionMining = toml::find_or<bool>(v, "enable_precision_mining", false);
-            r.fumbleProbability = toml::find_or<float>(v, "fumble_probability", 0);
             r.mineAbleLayer = toml::find_or<uint8_t>(v, "mine_able_layer", 0);
             r.miningEfficiency = toml::find_or<float>(v, "mining_efficiency", 0);
             r.miningRange = toml::find_or<float>(v, "mining_range", 5);

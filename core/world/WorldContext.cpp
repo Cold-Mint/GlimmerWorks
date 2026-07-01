@@ -436,7 +436,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
             auto tempPlayerComponent = entityManager_->GetComponent<PlayerComponent>(playerEntity);
             if (tempPlayerComponent != nullptr)
             {
-                tempPlayerComponent->item = itemContainer->GetItem(0);
+                tempPlayerComponent->SetItem(itemContainer->GetItem(0));
             }
             itemCallback_ = itemContainer->AddOnContentChanged(
                 [this, playerEntity](uint8_t index, Item* item, ContainerChangeType changeType)
@@ -457,13 +457,13 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                     }
                     if (item == nullptr)
                     {
-                        playerComponent->item = nullptr;
+                        playerComponent->SetItem(nullptr);
                         return;
                     }
                     const uint8_t amount = item->GetAmount();
                     if (amount == 0)
                     {
-                        playerComponent->item = nullptr;
+                        playerComponent->SetItem(nullptr);
                         return;
                     }
                     if (!item->IsUnbreakable() && item->GetRemaining() == 0)
@@ -508,10 +508,10 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                                 }
                             }
                         }
-                        playerComponent->item = nullptr;
+                        playerComponent->SetItem(nullptr);
                         return;
                     }
-                    playerComponent->item = item;
+                    playerComponent->SetItem(item);
                 });
         }
     }

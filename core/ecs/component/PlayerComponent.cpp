@@ -28,6 +28,172 @@
 #include "fmt/xchar.h"
 
 
+void glimmer::PlayerComponent::RemoveHorizontalInput(const float increment)
+{
+    horizontalInput_ -= increment;
+}
+
+void glimmer::PlayerComponent::AddHorizontalInput(const float increment)
+{
+    horizontalInput_ += increment;
+}
+
+void glimmer::PlayerComponent::ResetHorizontalInput()
+{
+    horizontalInput_ = 0.0F;
+}
+
+void glimmer::PlayerComponent::RemoveVerticalInput(const float increment)
+{
+    verticalInput_ -= increment;
+}
+
+void glimmer::PlayerComponent::AddVerticalInput(const float increment)
+{
+    verticalInput_ += increment;
+}
+
+void glimmer::PlayerComponent::ResetVerticalInput()
+{
+    verticalInput_ = 0.0F;
+}
+
+
+float glimmer::PlayerComponent::GetHorizontalInput() const
+{
+    return horizontalInput_;
+}
+
+void glimmer::PlayerComponent::SetVerticalInput(const float verticalInput)
+{
+    verticalInput_ = verticalInput;
+}
+
+float glimmer::PlayerComponent::GetVerticalInput() const
+{
+    return verticalInput_;
+}
+
+void glimmer::PlayerComponent::SetPressedW(const bool pressedW)
+{
+    pressedW_ = pressedW;
+}
+
+void glimmer::PlayerComponent::SetPressedA(const bool pressedA)
+{
+    pressedA_ = pressedA;
+}
+
+void glimmer::PlayerComponent::SetPressedS(const bool pressedS)
+{
+    pressedS_ = pressedS;
+}
+
+void glimmer::PlayerComponent::SetPressedD(const bool pressedD)
+{
+    pressedD_ = pressedD;
+}
+
+bool glimmer::PlayerComponent::IsPressedW() const
+{
+    return pressedW_;
+}
+
+bool glimmer::PlayerComponent::IsPressedA() const
+{
+    return pressedA_;
+}
+
+bool glimmer::PlayerComponent::IsPressedS() const
+{
+    return pressedS_;
+}
+
+bool glimmer::PlayerComponent::IsPressedD() const
+{
+    return pressedD_;
+}
+
+void glimmer::PlayerComponent::ResetDropTimer()
+{
+    dropTimer_ = 0;
+}
+
+void glimmer::PlayerComponent::AddDropTimer(const float delta)
+{
+    dropTimer_ += delta;
+}
+
+void glimmer::PlayerComponent::RemoveDropTimer(const float delta)
+{
+    dropTimer_ -= delta;
+}
+
+void glimmer::PlayerComponent::SetJump(const bool jump)
+{
+    jump_ = jump;
+}
+
+bool glimmer::PlayerComponent::IsJump() const
+{
+    return jump_;
+}
+
+void glimmer::PlayerComponent::SetJumpBuffer(const float jumpBuffer)
+{
+    jumpBuffer_ = jumpBuffer;
+}
+
+float glimmer::PlayerComponent::GetJumpBuffer() const
+{
+    return jumpBuffer_;
+}
+
+void glimmer::PlayerComponent::SetMouseLeftDown(const bool mouseLeftDown)
+{
+    mouseLeftDown_ = mouseLeftDown;
+}
+
+bool glimmer::PlayerComponent::IsMouseLeftDown() const
+{
+    return mouseLeftDown_;
+}
+
+float glimmer::PlayerComponent::GetDropTimer() const
+{
+    return dropTimer_;
+}
+
+void glimmer::PlayerComponent::SetDropPressed(const bool dropPressed)
+{
+    dropPressed_ = dropPressed;
+}
+
+bool glimmer::PlayerComponent::IsDropPressed() const
+{
+    return dropPressed_;
+}
+
+void glimmer::PlayerComponent::SetFlying(const bool flying)
+{
+    isFlying_ = flying;
+}
+
+bool glimmer::PlayerComponent::IsFlying() const
+{
+    return isFlying_;
+}
+
+void glimmer::PlayerComponent::SetItem(Item* item)
+{
+    item_ = item;
+}
+
+glimmer::Item* glimmer::PlayerComponent::GetItem() const
+{
+    return item_;
+}
+
 void glimmer::PlayerComponent::ResetTechnologyMap()
 {
     technologyMap_.clear();

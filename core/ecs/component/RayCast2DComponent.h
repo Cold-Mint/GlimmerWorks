@@ -29,7 +29,6 @@
 #include "core/Box2dFilter.h"
 #include "core/Constants.h"
 #include "core/ecs/GameComponent.h"
-#include "core/ecs/GameEntity.h"
 #include "core/math/WorldVector2D.h"
 
 namespace glimmer

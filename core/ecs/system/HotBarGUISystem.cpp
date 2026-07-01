@@ -82,7 +82,7 @@ void glimmer::HotBarGUISystem::AfterSelectItemSlot(const uint8_t selectedSlotInd
         const ItemContainer* container = itemContainerComponent_->GetItemContainer();
         if (container != nullptr)
         {
-            playerComponent_->item = container->GetItem(selectedSlotIndex);
+            playerComponent_->SetItem(container->GetItem(selectedSlotIndex));
         }
     }
     if (selectedSlotIndex < hotBarItemSlot_.size())

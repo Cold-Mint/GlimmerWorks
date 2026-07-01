@@ -27,8 +27,8 @@
 #include "ItemContainer.h"
 
 #include "AbilityItem.h"
-#include "../log/LogCat.h"
-#include "../mod/ResourceLocator.h"
+#include "core/log/LogCat.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/world/WorldContext.h"
 
 

@@ -26,8 +26,8 @@
  */
 #include "SummonCommand.h"
 #include "fmt/color.h"
-#include "../../scene/AppContext.h"
-#include "../../world/WorldContext.h"
+#include "core/scene/AppContext.h"
+#include "core/world/WorldContext.h"
 #include "core/ecs/MobEntityCreator.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 

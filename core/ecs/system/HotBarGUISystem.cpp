@@ -25,8 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "HotBarGUISystem.h"
-#include "../component/HotBarComponent.h"
-#include "../../world/WorldContext.h"
+#include "core/ecs/component/HotBarComponent.h"
+#include "core/world/WorldContext.h"
 #include "core/ecs/component/ItemSlotComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/layout/HorizontalLayoutStepper.h"

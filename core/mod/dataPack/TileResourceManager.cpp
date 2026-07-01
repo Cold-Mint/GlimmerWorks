@@ -26,7 +26,7 @@
  */
 #include "TileResourceManager.h"
 
-#include "../../Constants.h"
+#include "core/Constants.h"
 #include "core/world/generator/TileLayerType.h"
 #include "core/world/generator/TilePhysicsType.h"
 

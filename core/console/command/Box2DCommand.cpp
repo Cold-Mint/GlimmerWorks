@@ -27,8 +27,8 @@
 #if  !defined(NDEBUG)
 #include "Box2DCommand.h"
 
-#include "../../Constants.h"
-#include "../../world/WorldContext.h"
+#include "core/Constants.h"
+#include "core/world/WorldContext.h"
 #include "box2d/box2d.h"
 #include "fmt/color.h"
 

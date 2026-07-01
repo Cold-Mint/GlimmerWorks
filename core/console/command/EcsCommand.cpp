@@ -29,8 +29,8 @@
 
 #include "fmt/base.h"
 #include "fmt/compile.h"
-#include "../../scene/AppContext.h"
-#include "../../scene/WorldScene.h"
+#include "core/scene/AppContext.h"
+#include "core/scene/WorldScene.h"
 
 void glimmer::EcsCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
 {

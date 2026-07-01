@@ -28,9 +28,9 @@
 
 #include <cassert>
 
-#include "../log/LogCat.h"
+#include "core/log/LogCat.h"
 
-#include "../utils/TomlUtils.h"
+#include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
 void glimmer::ResourceRef::SetSelfPackageId(const std::string &selfPackageId) {

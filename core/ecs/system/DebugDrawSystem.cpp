@@ -26,11 +26,10 @@
  */
 #include "DebugDrawSystem.h"
 
-#include "../../Constants.h"
+#include "core/Constants.h"
 #include "core/math/CoordinateTransformer.h"
-#include "../component/DebugDrawComponent.h"
+#include "core/ecs/component/DebugDrawComponent.h"
 #include "core/world/WorldContext.h"
-#include "core/math/Vector2D.h"
 
 
 void glimmer::DebugDrawSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)

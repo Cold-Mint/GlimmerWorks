@@ -26,7 +26,7 @@
  */
 #include "PauseSystem.h"
 #include "imgui.h"
-#include "../../world/WorldContext.h"
+#include "core/world/WorldContext.h"
 #include "core/utils/TimeUtils.h"
 
 

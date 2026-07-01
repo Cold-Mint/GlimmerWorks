@@ -28,7 +28,7 @@
 
 #include "AppContext.h"
 #include "HomeScene.h"
-#include "../log/LogCat.h"
+#include "core/log/LogCat.h"
 #include "tweeny.h"
 #include "SDL3/SDL_timer.h"
 

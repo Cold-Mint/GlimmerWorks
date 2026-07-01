@@ -29,7 +29,7 @@
 #include <filesystem>
 #include <fstream>
 
-#include "../log/LogCat.h"
+#include "core/log/LogCat.h"
 
 
 glimmer::StdFileProvider::StdFileProvider(std::string rootPath)

@@ -26,9 +26,9 @@
  */
 #include "TileLayerSystem.h"
 
-#include "../../Constants.h"
-#include "../component/CameraComponent.h"
-#include "../component/TileLayerComponent.h"
+#include "core/Constants.h"
+#include "core/ecs/component/CameraComponent.h"
+#include "core/ecs/component/TileLayerComponent.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"

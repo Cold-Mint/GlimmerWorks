@@ -29,7 +29,7 @@
 #include <regex>
 #include <algorithm>
 #include "DataPack.h"
-#include "../../log/LogCat.h"
+#include "core/log/LogCat.h"
 #include "core/scene/AppContext.h"
 #include "toml11/spec.hpp"
 

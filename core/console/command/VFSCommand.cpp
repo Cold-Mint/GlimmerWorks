@@ -27,8 +27,8 @@
 #if  !defined(NDEBUG)
 #include "VFSCommand.h"
 
-#include "../../Constants.h"
-#include "../../scene/AppContext.h"
+#include "core/Constants.h"
+#include "core/scene/AppContext.h"
 #include "fmt/color.h"
 
 void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {

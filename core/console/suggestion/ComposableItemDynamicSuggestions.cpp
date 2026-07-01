@@ -26,7 +26,7 @@
  */
 #include "ComposableItemDynamicSuggestions.h"
 
-#include "../../Constants.h"
+#include "core/Constants.h"
 
 glimmer::ComposableItemDynamicSuggestions::ComposableItemDynamicSuggestions(ItemManager *itemManager) {
     itemManager_ = itemManager;

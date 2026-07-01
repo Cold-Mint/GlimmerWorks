@@ -27,9 +27,9 @@
 #if  !defined(NDEBUG)
 #include "AssetViewerCommand.h"
 
-#include "../../Constants.h"
-#include "../../mod/dataPack/StringManager.h"
-#include "../../scene/AppContext.h"
+#include "core/Constants.h"
+#include "core/mod/dataPack/StringManager.h"
+#include "core/scene/AppContext.h"
 
 void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
 {

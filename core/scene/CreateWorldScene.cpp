@@ -29,14 +29,14 @@
 #include <filesystem>
 #include <random>
 
-#include "../Config.h"
+#include "core/Config.h"
 #include "AppContext.h"
 #include "HomeScene.h"
 #include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "WorldScene.h"
-#include "../log/LogCat.h"
-#include "../saves/Saves.h"
+#include "core/log/LogCat.h"
+#include "core/saves/Saves.h"
 #include "core/saves/SavesManager.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"

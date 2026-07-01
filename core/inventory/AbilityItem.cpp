@@ -26,10 +26,10 @@
  */
 #include "AbilityItem.h"
 #include <utility>
-#include "../log/LogCat.h"
+#include "core/log/LogCat.h"
 #include "ComposableItem.h"
 #include "ItemAbilityFactory.h"
-#include "../mod/ResourceLocator.h"
+#include "core/mod/ResourceLocator.h"
 #include "core/ecs/EcsTypes.h"
 
 

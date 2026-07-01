@@ -26,7 +26,7 @@
  */
 #include "BiomesManager.h"
 
-#include "../../log/LogCat.h"
+#include "core/log/LogCat.h"
 
 glimmer::BiomeResource *glimmer::BiomesManager::AddResource(std::unique_ptr<BiomeResource> biomeResource) {
     LogCat::i("Registering biome resource: packId = ", biomeResource->packId,

@@ -29,10 +29,10 @@
 
 #include "Box2dSystemContext.h"
 #include "core/math/CoordinateTransformer.h"
-#include "../../utils/Box2DUtils.h"
+#include "core/utils/Box2DUtils.h"
 #include "core/world/WorldContext.h"
-#include "../component/CameraComponent.h"
-#include "../component/Transform2DComponent.h"
+#include "core/ecs/component/CameraComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
 #include "box2d/box2d.h"
 #include "core/ecs/component/RayCast2DComponent.h"
 

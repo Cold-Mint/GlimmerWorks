@@ -26,13 +26,12 @@
  */
 #include "MagnetSystem.h"
 
-#include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
-#include "../component/RigidBody2DComponent.h"
-#include "../component/DroppedItemComponent.h"
-#include "../component/MagnetComponent.h"
-#include "../component/MagneticComponent.h"
-#include "../component/Transform2DComponent.h"
+#include "core/ecs/component/RigidBody2DComponent.h"
+#include "core/ecs/component/DroppedItemComponent.h"
+#include "core/ecs/component/MagnetComponent.h"
+#include "core/ecs/component/MagneticComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
 #include "box2d/box2d.h"
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/RayCast2DComponent.h"

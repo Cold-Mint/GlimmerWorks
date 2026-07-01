@@ -28,8 +28,8 @@
 
 #include <strstream>
 
-#include "../../world/WorldContext.h"
-#include "../component/DroppedItemComponent.h"
+#include "core/world/WorldContext.h"
+#include "core/ecs/component/DroppedItemComponent.h"
 #include "core/ecs/FlowingTextCreator.h"
 #include "core/ecs/component/MagnetComponent.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"

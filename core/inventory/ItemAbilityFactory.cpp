@@ -26,7 +26,7 @@
  */
 #include "ItemAbilityFactory.h"
 
-#include "../Constants.h"
+#include "core/Constants.h"
 #include "ability/AreaMarkerAbility.h"
 #include "ability/DigAbility.h"
 #include "ability/NoneAbility.h"

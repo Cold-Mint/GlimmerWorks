@@ -28,7 +28,7 @@
 
 #include "box2d/box2d.h"
 #include "TilePhysicsType.h"
-#include "../../utils/Box2DUtils.h"
+#include "core/utils/Box2DUtils.h"
 #include "box2d/types.h"
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"

@@ -26,10 +26,10 @@
  */
 #include "DroppedItemSystem.h"
 
-#include "../../world/WorldContext.h"
-#include "../component/CameraComponent.h"
-#include "../component/DroppedItemComponent.h"
-#include "../component/Transform2DComponent.h"
+#include "core/world/WorldContext.h"
+#include "core/ecs/component/CameraComponent.h"
+#include "core/ecs/component/DroppedItemComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
 #include "core/math/CoordinateTransformer.h"
 
 

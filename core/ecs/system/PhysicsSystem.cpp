@@ -26,8 +26,8 @@
  */
 #include "PhysicsSystem.h"
 
-#include "../../utils/Box2DUtils.h"
-#include "../../world/WorldContext.h"
+#include "core/utils/Box2DUtils.h"
+#include "core/world/WorldContext.h"
 #include "box2d/box2d.h"
 #include "core/ecs/component/RigidBody2DComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"

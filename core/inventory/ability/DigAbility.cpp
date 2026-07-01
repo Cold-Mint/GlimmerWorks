@@ -27,10 +27,10 @@
 #include "DigAbility.h"
 
 #include "MiningRangeData.h"
-#include "../../world/WorldContext.h"
-#include "../../ecs/component/TileLayerComponent.h"
-#include "../../ecs/component/Transform2DComponent.h"
-#include "../../inventory/TileItem.h"
+#include "core/world/WorldContext.h"
+#include "core/ecs/component/TileLayerComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
+#include "core/inventory/TileItem.h"
 #include "core/math/CoordinateTransformer.h"
 
 

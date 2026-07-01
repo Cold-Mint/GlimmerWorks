@@ -29,12 +29,12 @@
 #include <cmath>
 #include "core/math/CoordinateTransformer.h"
 
-#include "../../Constants.h"
-#include "../component/Transform2DComponent.h"
-#include "../component/TileLayerComponent.h"
+#include "core/Constants.h"
+#include "core/ecs/component/Transform2DComponent.h"
+#include "core/ecs/component/TileLayerComponent.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
-#include "../component/CameraComponent.h"
+#include "core/ecs/component/CameraComponent.h"
 #include "core/utils/ColorUtils.h"
 #include "core/utils/StringUtils.h"
 #include "core/world/Tile.h"

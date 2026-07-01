@@ -26,7 +26,7 @@
  */
 #include "BoolDynamicSuggestions.h"
 
-#include "../../Constants.h"
+#include "core/Constants.h"
 
 
 std::string glimmer::BoolDynamicSuggestions::GetId() const {

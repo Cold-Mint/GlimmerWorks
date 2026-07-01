@@ -26,7 +26,7 @@
  */
 #include "AbilityItemDynamicSuggestions.h"
 
-#include "../../Constants.h"
+#include "core/Constants.h"
 
 glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(ItemManager *itemManager) {
     itemManager_ = itemManager;

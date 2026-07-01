@@ -26,9 +26,9 @@
  */
 #include "ResourcePack.h"
 
-#include "../../Constants.h"
-#include "../../log/LogCat.h"
-#include "../../utils/TomlUtils.h"
+#include "core/Constants.h"
+#include "core/log/LogCat.h"
+#include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
 

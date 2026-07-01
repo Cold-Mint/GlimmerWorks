@@ -28,7 +28,7 @@
 
 #include "core/ecs/component/AreaMarkerComponent.h"
 #include "core/math/CoordinateTransformer.h"
-#include "../../world/WorldContext.h"
+#include "core/world/WorldContext.h"
 #include "core/utils/StringUtils.h"
 #include "fmt/color.h"
 

@@ -26,8 +26,8 @@
  */
 #include "HelpCommand.h"
 
-#include "../../Constants.h"
-#include "../../scene/AppContext.h"
+#include "core/Constants.h"
+#include "core/scene/AppContext.h"
 
 
 void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {

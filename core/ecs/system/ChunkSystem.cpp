@@ -26,9 +26,9 @@
  */
 #include "ChunkSystem.h"
 
-#include "../../Constants.h"
-#include "../../world/WorldContext.h"
-#include "../component/Transform2DComponent.h"
+#include "core/Constants.h"
+#include "core/world/WorldContext.h"
+#include "core/ecs/component/Transform2DComponent.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/generator/Chunk.h"
 

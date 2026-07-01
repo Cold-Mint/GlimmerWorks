@@ -26,8 +26,8 @@
  */
 #include "SavesManager.h"
 
-#include "../log/LogCat.h"
-#include "../scene/AppContext.h"
+#include "core/log/LogCat.h"
+#include "core/scene/AppContext.h"
 #include "core/utils/StringUtils.h"
 
 

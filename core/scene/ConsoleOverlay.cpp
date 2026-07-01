@@ -28,10 +28,9 @@
 
 #include <algorithm>
 #include "AppContext.h"
-#include "../log/LogCat.h"
-#include "../Config.h"
+#include "core/log/LogCat.h"
+#include "core/Config.h"
 #include "backends/imgui_impl_sdl3.h"
-#include "core/console/CommandSender.h"
 #include "fmt/color.h"
 #include "misc/cpp/imgui_stdlib.h"
 

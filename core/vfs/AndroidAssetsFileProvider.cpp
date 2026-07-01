@@ -30,7 +30,7 @@
 
 #include <filesystem>
 
-#include "../log/LogCat.h"
+#include "core/log/LogCat.h"
 #include <istream>
 #include <set>
 

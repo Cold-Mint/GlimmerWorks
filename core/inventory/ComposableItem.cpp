@@ -31,7 +31,7 @@
 #include "core/world/WorldContext.h"
 #include <utility>
 #include <vector>
-#include "../../core/mod/ResourceLocator.h"
+#include "core/mod/ResourceLocator.h"
 #include "ability/ItemAbility.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/math/BackwardAllocStrategy.h"

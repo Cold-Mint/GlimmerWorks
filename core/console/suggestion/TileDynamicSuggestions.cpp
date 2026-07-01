@@ -26,7 +26,7 @@
  */
 #include "TileDynamicSuggestions.h"
 
-#include "../../Constants.h"
+#include "core/Constants.h"
 
 glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileResourceManager *tileManager) {
     tileManager_ = tileManager;

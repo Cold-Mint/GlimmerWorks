@@ -25,7 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "GameSystem.h"
-#include "../world/WorldContext.h"
+#include "core/world/WorldContext.h"
 
 
 void glimmer::GameSystem::OnActivationChanged(const bool activeStatus)

@@ -26,10 +26,10 @@
  */
 #include "TpCommand.h"
 
-#include "../../Constants.h"
-#include "../../ecs/component/RigidBody2DComponent.h"
-#include "../../utils/Box2DUtils.h"
-#include "../../world/WorldContext.h"
+#include "core/Constants.h"
+#include "core/ecs/component/RigidBody2DComponent.h"
+#include "core/utils/Box2DUtils.h"
+#include "core/world/WorldContext.h"
 #include "box2d/box2d.h"
 #include "fmt/color.h"
 

@@ -27,8 +27,8 @@
 #if  !defined(NDEBUG)
 #include "HeightMapCommand.h"
 
-#include "../../Constants.h"
-#include "../../world/WorldContext.h"
+#include "core/Constants.h"
+#include "core/world/WorldContext.h"
 #include "fmt/color.h"
 
 void glimmer::HeightMapCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {

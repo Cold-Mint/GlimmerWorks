@@ -25,8 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "ItemSlotSystem.h"
-#include "../../inventory/Item.h"
-#include "../../world/WorldContext.h"
+#include "core/inventory/Item.h"
+#include "core/world/WorldContext.h"
 #include <SDL3/SDL.h>
 #include <string>
 #include <algorithm>

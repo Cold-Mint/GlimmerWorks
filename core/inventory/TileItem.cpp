@@ -27,9 +27,9 @@
 #include "TileItem.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
-#include "../ecs/component/TileLayerComponent.h"
-#include "../ecs/component/Transform2DComponent.h"
-#include "../Constants.h"
+#include "core/ecs/component/TileLayerComponent.h"
+#include "core/ecs/component/Transform2DComponent.h"
+#include "core/Constants.h"
 
 #include "core/ecs/system/DiggingSystem.h"
 

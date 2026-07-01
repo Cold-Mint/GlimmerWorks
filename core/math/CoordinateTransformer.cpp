@@ -26,7 +26,7 @@
  */
 #include "CoordinateTransformer.h"
 
-#include "../Constants.h"
+#include "core/Constants.h"
 
 namespace glimmer
 {

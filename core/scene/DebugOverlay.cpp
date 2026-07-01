@@ -28,7 +28,7 @@
 #include "DebugOverlay.h"
 
 #include "AppContext.h"
-#include "../Config.h"
+#include "core/Config.h"
 #include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
 

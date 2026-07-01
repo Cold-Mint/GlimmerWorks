@@ -27,16 +27,16 @@
 #include "SavedGamesScene.h"
 
 #include "AppContext.h"
-#include "../Config.h"
+#include "core/Config.h"
 #include "CreateWorldScene.h"
 #include "WorldScene.h"
-#include "../saves/SavesManager.h"
-#include "../saves/MapManifest.h"
+#include "core/saves/SavesManager.h"
+#include "core/saves/MapManifest.h"
 #include "imgui.h"
 #include <ctime>
 #include <sstream>
 
-#include "../utils/TimeUtils.h"
+#include "core/utils/TimeUtils.h"
 
 glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
     : Scene(context)

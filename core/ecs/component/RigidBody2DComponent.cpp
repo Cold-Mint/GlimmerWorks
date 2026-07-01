@@ -26,8 +26,8 @@
  */
 #include "RigidBody2DComponent.h"
 
-#include "../../log/LogCat.h"
-#include "../../utils/Box2DUtils.h"
+#include "core/log/LogCat.h"
+#include "core/utils/Box2DUtils.h"
 #include "box2d/box2d.h"
 #include "core/Constants.h"
 #include "core/shape/ShapeType.h"

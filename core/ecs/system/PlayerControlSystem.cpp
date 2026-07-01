@@ -28,12 +28,12 @@
 
 #include <random>
 
-#include "../../log/LogCat.h"
-#include "../../world/WorldContext.h"
-#include "../../utils/Box2DUtils.h"
-#include "../component/RigidBody2DComponent.h"
+#include "core/log/LogCat.h"
+#include "core/world/WorldContext.h"
+#include "core/utils/Box2DUtils.h"
+#include "core/ecs/component/RigidBody2DComponent.h"
 #include "box2d/box2d.h"
-#include "../../Constants.h"
+#include "core/Constants.h"
 #include "core/ecs/DroppedItemCreator.h"
 #include "core/ecs/component/HotBarComponent.h"
 #include "core/ecs/component/ItemContainerComponent.h"

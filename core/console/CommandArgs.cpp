@@ -26,8 +26,8 @@
  */
 #include "CommandArgs.h"
 
-#include "../mod/Resource.h"
-#include "../mod/ResourceRef.h"
+#include "core/mod/Resource.h"
+#include "core/mod/ResourceRef.h"
 #include <optional>
 
 glimmer::CommandArgs::CommandArgs(const std::string &command) {

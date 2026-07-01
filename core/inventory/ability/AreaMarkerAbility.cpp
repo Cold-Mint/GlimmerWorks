@@ -27,7 +27,7 @@
 #include "AreaMarkerAbility.h"
 
 #include "core/ecs/component/TileLayerComponent.h"
-#include "../../world/WorldContext.h"
+#include "core/world/WorldContext.h"
 #include "core/ecs/component/AreaMarkerComponent.h"
 
 

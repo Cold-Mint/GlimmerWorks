@@ -26,7 +26,7 @@
  */
 #include "ConfigSuggestions.h"
 
-#include "../../Constants.h"
+#include "core/Constants.h"
 
 void glimmer::ConfigSuggestions::ParseTable(const toml::value::table_type &table, std::vector<std::string> &fields,
                                             const std::string &prefix) {

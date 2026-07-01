@@ -28,7 +28,7 @@
 
 #include <cassert>
 
-#include "../log/LogCat.h"
+#include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"

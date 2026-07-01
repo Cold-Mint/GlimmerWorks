@@ -28,11 +28,11 @@
 
 #include <cassert>
 
-#include "../../Constants.h"
-#include "../../world/Tile.h"
-#include "../../math/Vector2DI.h"
-#include "../../world/generator/Chunk.h"
-#include "../../math/CoordinateTransformer.h"
+#include "core/Constants.h"
+#include "core/world/Tile.h"
+#include "core/math/Vector2DI.h"
+#include "core/world/generator/Chunk.h"
+#include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
 
 

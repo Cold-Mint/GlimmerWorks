@@ -28,7 +28,7 @@
 
 #include "core/LangsResources.h"
 #include "fmt/xchar.h"
-#include "../../scene/AppContext.h"
+#include "core/scene/AppContext.h"
 
 
 void glimmer::EchoCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {

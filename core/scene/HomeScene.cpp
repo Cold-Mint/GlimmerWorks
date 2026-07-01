@@ -32,8 +32,7 @@
 #include "CreateWorldScene.h"
 #include "imgui.h"
 #include "SavedGamesScene.h"
-#include "../Config.h"
-#include "core/log/LogCat.h"
+#include "core/Config.h"
 #include "core/saves/SavesManager.h"
 
 std::string glimmer::HomeScene::GetCopyrightString()

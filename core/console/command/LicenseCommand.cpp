@@ -26,8 +26,8 @@
  */
 #include "LicenseCommand.h"
 
-#include "../../Constants.h"
-#include "../../scene/AppContext.h"
+#include "core/Constants.h"
+#include "core/scene/AppContext.h"
 
 void glimmer::LicenseCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
 }

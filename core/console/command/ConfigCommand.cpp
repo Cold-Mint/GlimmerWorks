@@ -26,9 +26,9 @@
  */
 #include "ConfigCommand.h"
 
-#include "../../Config.h"
-#include "../../Constants.h"
-#include "../../scene/AppContext.h"
+#include "core/Config.h"
+#include "core/Constants.h"
+#include "core/scene/AppContext.h"
 #include "fmt/color.h"
 #include "toml.hpp"
 

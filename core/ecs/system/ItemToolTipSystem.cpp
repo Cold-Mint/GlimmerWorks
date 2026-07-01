@@ -167,7 +167,6 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
                 textureToDraw.emplace_back(precisionMiningTipTexture_.get());
             }
         }
-
         // 挖掘效率
         float miningEfficiency = abilityConfig->miningEfficiency;
         if (miningEfficiency != 0.0F)
@@ -247,6 +246,20 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
         }
     }
 
+    if (item->IsLocked())
+    {
+        const uint64_t lockedFingerprint = StringUtils::StringToUint64(langsResources->lockedTip);
+        if (lockedFingerprint != itemLockedFingerprint_)
+        {
+            itemLockedTexture_ = resourcePackManager_->
+                CreateStringTexture(langsResources->lockedTip, &preloadColors_->game.negativeAttributeColor);
+            itemLockedFingerprint_ = lockedFingerprint;
+        }
+        if (itemLockedTexture_ != nullptr)
+        {
+            textureToDraw.emplace_back(itemLockedTexture_.get());
+        }
+    }
     constexpr float baseLineSpacing = 2.0F; // 基础行间距（未缩放）
     constexpr float basePadding = 8.0F; // 基础内边距（未缩放）
     const float scaledLineSpacing = baseLineSpacing * uiScale_;

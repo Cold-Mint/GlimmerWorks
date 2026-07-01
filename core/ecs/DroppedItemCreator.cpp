@@ -36,7 +36,7 @@ glimmer::DroppedItemCreator::DroppedItemCreator(WorldContext* worldContext) : IP
 {
 }
 
-EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldVector2D position,
+EntityItemMessage glimmer::DroppedItemCreator::GetEntityItemMessage(const WorldVector2D& position,
                                                                     std::unique_ptr<Item> item,
                                                                     const float pickupCooldown)
 {

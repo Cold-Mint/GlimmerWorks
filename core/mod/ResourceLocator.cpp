@@ -382,12 +382,14 @@ const
         return nullptr;
     }
     auto itemMessage = ItemMessage();
+    itemMessage.set_locked(itemMessageResource.locked);
     itemMessage.set_amount(itemMessageResource.amount);
     itemMessageResource.item.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
     for (auto& abilityItemResource : itemMessageResource.abilityItemRef)
     {
         ItemMessage* abilityItem = itemMessage.add_abilityitemref();
         abilityItemResource.item.WriteResourceRefMessage(*abilityItem->mutable_itemresourceref());
+        abilityItem->set_locked(abilityItemResource.locked);
         abilityItem->set_amount(abilityItemResource.amount);
     }
     return FindItem(worldContext, itemMessage);

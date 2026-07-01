@@ -230,7 +230,6 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->biomeScoreInspectorDisable = find<std::string>(value, "biome_score_inspector_disable");
     langsResources_->biomeScoreInspectorEnableFail = find<std::string>(value, "biome_score_inspector_enable_fail");
     langsResources_->biomeScoreInspectorDisableFail = find<std::string>(value, "biome_score_inspector_disable_fail");
-    langsResources_->memoryUseInfo = find<std::string>(value, "memory_use_info");
     langsResources_->notEnabledSignVerify = find<std::string>(value, "not_enabled_sign_verify");
     langsResources_->unsignedPackage = find<std::string>(value, "unsigned");
     langsResources_->signatureVerificationSuccessful = find<std::string>(value, "signature_verification_successful");
@@ -256,6 +255,7 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->recipesItem = find<std::string>(value, "recipes_item");
     langsResources_->debugChunkInfo = find<std::string>(value, "debug_chunk_info");
     langsResources_->fpsInfo = find<std::string>(value, "fps_info");
+    langsResources_->lockedTip = find<std::string>(value, "locked_tip");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, const std::string& ext)

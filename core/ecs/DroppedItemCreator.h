@@ -34,7 +34,7 @@ namespace glimmer {
     public:
         explicit DroppedItemCreator(WorldContext *worldContext);
 
-        static EntityItemMessage GetEntityItemMessage(WorldVector2D position, std::unique_ptr<Item> item,
+        static EntityItemMessage GetEntityItemMessage(const WorldVector2D& position, std::unique_ptr<Item> item,
                                                       float pickupCooldown);
 
         static ResourceRef GetResourceRef();

@@ -50,11 +50,15 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>&
     });
     item->SetOnUsedDurabilityChanged([this,index, &item](uint32_t maxDurability, uint32_t usedDurability)
     {
-        if (maxDurability - usedDurability <= 0)
+        if (usedDurability >= maxDurability)
         {
             UnBindItemEvent(index, item);
             item.reset();
         }
+    });
+    item->SetOnLockStatusChanged([this](bool)
+    {
+        needRefreshTag_ = true;
     });
 }
 
@@ -67,6 +71,7 @@ void glimmer::ItemContainer::UnBindItemEvent(uint8_t index, const std::unique_pt
     InvokeOnContentChanged(index, item.get(), ContainerChangeType::REMOVE);
     item->SetOnAmountChanged(nullptr);
     item->SetOnUsedDurabilityChanged(nullptr);
+    item->SetOnLockStatusChanged(nullptr);
 }
 
 void glimmer::ItemContainer::InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange)
@@ -90,6 +95,10 @@ void glimmer::ItemContainer::RefreshTotalTags()
     {
         const std::unique_ptr<Item>& currentItem = items_[i];
         if (currentItem == nullptr)
+        {
+            continue;
+        }
+        if (currentItem->IsLocked())
         {
             continue;
         }

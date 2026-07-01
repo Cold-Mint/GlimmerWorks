@@ -445,13 +445,13 @@ namespace toml {
             glimmer::ComposableItemResource r;
             r.defaultAbilityList = toml::find_or<std::vector<glimmer::ItemMessageResource>>(v, "default_ability_list", {});
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
-            r.isUnbreakable = toml::find_or<bool>(v, "is_unbreakable", false);
             r.maxDurability = toml::find_or<uint32_t>(v, "max_durability", 16);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.slotSize = toml::find<size_t>(v, "slot_size");
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource>>(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
+            r.unbreakable = toml::find_or<bool>(v, "unbreakable", false);
             return r;
         }
     };
@@ -487,6 +487,7 @@ namespace toml {
             r.abilityItemRef = toml::find_or<std::vector<glimmer::ItemMessageResource>>(v, "ability_item_ref", {});
             r.amount = toml::find_or<uint64_t>(v, "amount", 1);
             r.item = toml::find<glimmer::ResourceRef>(v, "item");
+            r.locked = toml::find_or<bool>(v, "locked", false);
             return r;
         }
     };
@@ -665,6 +666,17 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::RayCastResource> {
+        static glimmer::RayCastResource from_toml(const value &v) {
+            glimmer::RayCastResource r;
+            r.filter = toml::find<glimmer::Box2dFilter>(v, "filter");
+            r.origin = toml::find<glimmer::Vector2DResource>(v, "origin");
+            r.translation = toml::find<glimmer::Vector2DResource>(v, "translation");
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::MobResource> {
         static glimmer::MobResource from_toml(const value &v) {
             glimmer::MobResource r;
@@ -676,6 +688,7 @@ namespace toml {
             r.fixedRotation = toml::find<bool>(v, "fixed_rotation");
             r.friction = toml::find_or<float>(v, "friction", 0.0F);
             r.groundCheckRayCast = toml::find_or<std::vector<glimmer::RayCastResource>>(v, "ground_check_ray_cast", {});
+            r.hand = toml::find<glimmer::ItemMessageResource>(v, "hand");
             r.isPlayer = toml::find_or<bool>(v, "is_player", false);
             r.jumpForce = toml::find_or<float>(v, "jump_force", 7.5F);
             r.maxSpeed = toml::find_or<float>(v, "max_speed", 18.0F);
@@ -685,17 +698,6 @@ namespace toml {
             r.texture = toml::find_or<glimmer::ResourceRef>(v, "texture", {});
             r.textureOffset = toml::find<glimmer::Vector2DResource>(v, "texture_offset");
             r.tilePlacementForbiddenZone = toml::find_or<glimmer::TilePlacementForbiddenZone>(v, "tile_placement_forbidden_zone", {});
-            return r;
-        }
-    };
-
-    template<>
-    struct from<glimmer::RayCastResource> {
-        static glimmer::RayCastResource from_toml(const value &v) {
-            glimmer::RayCastResource r;
-            r.filter = toml::find<glimmer::Box2dFilter>(v, "filter");
-            r.origin = toml::find<glimmer::Vector2DResource>(v, "origin");
-            r.translation = toml::find<glimmer::Vector2DResource>(v, "translation");
             return r;
         }
     };

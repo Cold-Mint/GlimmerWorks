@@ -148,7 +148,6 @@ namespace glimmer
         std::string biomeScoreInspectorDisable;
         std::string biomeScoreInspectorEnableFail;
         std::string biomeScoreInspectorDisableFail;
-        std::string memoryUseInfo;
         std::string notEnabledSignVerify;
         std::string unsignedPackage;
         std::string signatureVerificationSuccessful;
@@ -173,5 +172,6 @@ namespace glimmer
         std::string recipesItem;
         std::string debugChunkInfo;
         std::string fpsInfo;
+        std::string lockedTip;
     };
 }

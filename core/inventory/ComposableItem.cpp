@@ -105,16 +105,14 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     {
         description = descriptionRes->value;
     }
-    std::unique_ptr<ComposableItem> result = std::make_unique<ComposableItem>(
+    auto result = std::make_unique<ComposableItem>(
         Resource::GenerateId(*itemResource), name,
         description,
         appContext->GetResourceLocator()->
                     FindTexture(&itemResource->texture),
         itemResource->slotSize,
         itemResource->maxDurability,
-        itemResource->isUnbreakable, itemResource->tags, resourceRef);
-    //If the capability is not specified within the resource reference, then the default capability will be loaded.
-    //如果没有在资源引用内指定能力，那么加载默认能力。
+        itemResource->unbreakable, itemResource->tags, resourceRef);
     uint8_t defaultAbilitySize = itemResource->defaultAbilityList.size();
     if (defaultAbilitySize > 0)
     {
@@ -215,7 +213,7 @@ void glimmer::ComposableItem::AddCallback()
 glimmer::ComposableItem::ComposableItem(const std::string& id, const std::string& name,
                                         const std::optional<std::string>& description,
                                         const std::shared_ptr<TextureResourceResult>& iconResult,
-                                        uint8_t maxSize, uint32_t maxDurability, bool isUnbreakable,
+                                        const uint8_t maxSize, const uint32_t maxDurability, const bool unbreakable,
                                         const std::vector<ItemTagResource>& tags,
                                         const ResourceRef& resourceRef)
 {
@@ -224,7 +222,7 @@ glimmer::ComposableItem::ComposableItem(const std::string& id, const std::string
     description_ = description;
     iconResult_ = iconResult;
     maxDurability_ = maxDurability;
-    isUnbreakable_ = isUnbreakable;
+    unbreakable_ = unbreakable;
     resourceRef_ = resourceRef;
     itemContainer_ = std::make_shared<ItemContainer>();
     itemContainer_->Resize(maxSize);
@@ -251,7 +249,6 @@ void glimmer::ComposableItem::SetAllocStrategyType(AllocStrategyTypeMessage allo
         allocStrategyPtr_ = std::make_unique<RandomAllocStrategy<uint32_t>>();
         break;
     case AllocStrategyTypeMessage_INT_MIN_SENTINEL_DO_NOT_USE_:
-        break;
     case AllocStrategyTypeMessage_INT_MAX_SENTINEL_DO_NOT_USE_:
         break;
     }
@@ -338,7 +335,7 @@ uint32_t glimmer::ComposableItem::GetMaxDurability() const
 
 bool glimmer::ComposableItem::IsUnbreakable() const
 {
-    return isUnbreakable_;
+    return unbreakable_;
 }
 
 const std::string& glimmer::ComposableItem::GetId() const
@@ -367,7 +364,7 @@ SDL_Texture* glimmer::ComposableItem::GetIcon() const
 
 unsigned glimmer::ComposableItem::GetRemaining() const
 {
-    if (isUnbreakable_)
+    if (unbreakable_)
     {
         return 0;
     }

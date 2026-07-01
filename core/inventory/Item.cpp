@@ -29,6 +29,20 @@
 #include "core/log/LogCat.h"
 
 
+void glimmer::Item::SetLockStatus(const bool locked)
+{
+    if (locked_ == locked)
+    {
+        return;
+    }
+    locked_ = locked;
+    const std::function<void(bool)> onLockStatusChangedCopy = onLockStatusChanged_;
+    if (onLockStatusChangedCopy != nullptr)
+    {
+        onLockStatusChangedCopy(locked);
+    }
+}
+
 void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
 {
 #if  !defined(NDEBUG)
@@ -52,6 +66,7 @@ void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessag
         amount = 1;
     }
     amount_ = amount;
+    locked_ = itemMessage.locked();
     usedDurability_ = itemMessage.useddurability();
     resourceRef_.ReadResourceRefMessage(itemMessage.itemresourceref());
 }
@@ -66,6 +81,7 @@ void glimmer::Item::WriteItemMessage(ItemMessage& itemMessage) const
 #endif
     }
     itemMessage.set_amount(amount_);
+    itemMessage.set_locked(locked_);
     itemMessage.set_useddurability(usedDurability_);
     resourceRef_.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
 }
@@ -73,6 +89,21 @@ void glimmer::Item::WriteItemMessage(ItemMessage& itemMessage) const
 uint32_t glimmer::Item::GetUsedDurability() const
 {
     return usedDurability_;
+}
+
+bool glimmer::Item::IsLocked() const
+{
+    return locked_;
+}
+
+void glimmer::Item::Lock()
+{
+    SetLockStatus(true);
+}
+
+void glimmer::Item::Unlock()
+{
+    SetLockStatus(false);
 }
 
 uint8_t glimmer::Item::GetAmount() const
@@ -101,6 +132,11 @@ uint8_t glimmer::Item::GetRemainingStackCount(const Item* item) const
 void glimmer::Item::SetOnAmountChanged(const std::function<void(ContainerChangeType, uint8_t)>& onAmountChanged)
 {
     onAmountChanged_ = onAmountChanged;
+}
+
+void glimmer::Item::SetOnLockStatusChanged(const std::function<void(bool)>& onLockStatusChanged)
+{
+    onLockStatusChanged_ = onLockStatusChanged;
 }
 
 void glimmer::Item::SetOnUsedDurabilityChanged(const std::function<void(uint32_t, uint32_t)>& onUsedDurabilityChanged)
@@ -204,31 +240,33 @@ unsigned glimmer::Item::GetRemaining() const
 
 void glimmer::Item::AddUsedDurability(const uint32_t value)
 {
-    const int newValue = static_cast<int>(usedDurability_) + value;
+    const uint32_t newValue = usedDurability_ + value;
     if (newValue > GetMaxDurability())
     {
         SetUsedDurability(GetMaxDurability());
         return;
     }
-    SetUsedDurability(static_cast<uint32_t>(newValue));
+    SetUsedDurability(newValue);
 }
 
 void glimmer::Item::RemoveUsedDurability(const uint32_t value)
 {
-    const int newValue = static_cast<int>(usedDurability_) - value;
-    if (newValue < 0)
+    if (value >= usedDurability_)
     {
         SetUsedDurability(0);
-        return;
     }
-    SetUsedDurability(static_cast<uint32_t>(newValue));
+    else
+    {
+        SetUsedDurability(value);
+    }
 }
 
 void glimmer::Item::SetUsedDurability(const uint32_t value)
 {
     usedDurability_ = value;
-    if (onUsedDurabilityChanged_ != nullptr)
+    const std::function<void(uint32_t, uint32_t)> onUsedDurabilityChangedCopy = onUsedDurabilityChanged_;
+    if (onUsedDurabilityChangedCopy != nullptr)
     {
-        onUsedDurabilityChanged_(GetMaxDurability(), value);
+        onUsedDurabilityChangedCopy(GetMaxDurability(), value);
     }
 }

@@ -52,6 +52,15 @@ void glimmer::ItemEditorCommand::AddSuggestionsValue(NodeTree<std::string>* sugg
         durabilityStrategy->AddChild(ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME);
     }
     suggestionsTree->AddChild("amount");
+    auto locked = suggestionsTree->AddChild("locked");
+    if (setMode)
+    {
+        locked->AddChild(BOOL_DYNAMIC_SUGGESTIONS_NAME);
+    }
+    if (!setMode)
+    {
+        suggestionsTree->AddChild("unbreakable");
+    }
 }
 
 void glimmer::ItemEditorCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
@@ -93,6 +102,10 @@ void glimmer::ItemEditorCommand::PutCommandStructure(const CommandArgs* commandA
                 {
                     strings->emplace_back("[type:string]");
                 }
+                else if (attribute == "locked")
+                {
+                    strings->emplace_back("[locked:bool]");
+                }
                 else if (attribute == "amount")
                 {
                     strings->emplace_back("[number:uint]");
@@ -128,12 +141,12 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
             2, size));
         return false;
     }
-    EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
         return false;
     }
-    EntityManager *entityManager = worldContext_->GetEntityManager();
+    EntityManager* entityManager = worldContext_->GetEntityManager();
     if (entityManager == nullptr)
     {
         return false;
@@ -203,6 +216,14 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
         {
             value << static_cast<uint32_t>(item->GetMaxStack());
         }
+        else if (attribute == "locked")
+        {
+            value << item->IsLocked();
+        }
+        else if (attribute == "unbreakable")
+        {
+            value << item->IsUnbreakable();
+        }
         onMessageRef(fmt::format(fmt::runtime(langsResources->itemEditorReadAttr), item->GetName(), attribute,
                                  value.str()));
         return true;
@@ -250,6 +271,17 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
             else if (attribute == "amount")
             {
                 item->SetAmount(std::stoi(value));
+            }
+            else if (attribute == "locked")
+            {
+                if (value == "true")
+                {
+                    item->Lock();
+                }
+                else
+                {
+                    item->Unlock();
+                }
             }
         });
 

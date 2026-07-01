@@ -38,6 +38,8 @@ namespace glimmer
         std::shared_ptr<SDL_Texture> itemNameTexture_ = nullptr;
         uint64_t itemNameFingerprint_ = 0;
         std::shared_ptr<SDL_Texture> itemDescriptionTexture_ = nullptr;
+        std::shared_ptr<SDL_Texture> itemLockedTexture_ = nullptr;
+        uint64_t itemLockedFingerprint_ = 0;
         uint64_t itemDescriptionFingerprint_ = 0;
         ResourcePackManager* resourcePackManager_ = nullptr;
         uint64_t canMineBlockFingerprint_ = 0;

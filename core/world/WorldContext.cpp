@@ -489,7 +489,9 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
                                     if (abilityItem != nullptr)
                                     {
                                         const uint8_t abilityRemaining = abilityItem->GetRemaining();
-                                        if (abilityRemaining > 0)
+                                        //The locked abilities will disappear once the durability of the combinable items is exhausted.
+                                        //被锁定的能力会随着可组合物品耐久用完而消失。
+                                        if (abilityRemaining > 0 && !abilityItem->IsLocked())
                                         {
                                             std::unique_ptr<Item> takeItem = itemContainer->TakeItem(
                                                 i, abilityItem->GetAmount());

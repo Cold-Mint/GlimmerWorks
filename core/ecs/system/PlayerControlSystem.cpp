@@ -208,8 +208,17 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
     {
         return;
     }
-    auto item = itemContainer->TakeItem(index, 1);
+    auto item = itemContainer->GetItem(index);
     if (item == nullptr)
+    {
+        return;
+    }
+    if (item->IsLocked())
+    {
+        return;
+    }
+    auto takeItem = itemContainer->TakeItem(index,1);
+    if (takeItem == nullptr)
     {
         return;
     }
@@ -228,7 +237,7 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
     droppedItemCreator.MergeEntityItemMessage(droppedEntity,
                                               DroppedItemCreator::GetEntityItemMessage(
                                                   cameraTransform2DComponent_->
-                                                  GetPosition(), std::move(item), 2));
+                                                  GetPosition(), std::move(takeItem), 2));
 }
 
 void glimmer::PlayerControlSystem::UseItem(const PlayerComponent* playerComponent, ItemContainer* itemContainer,

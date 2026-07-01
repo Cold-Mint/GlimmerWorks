@@ -225,47 +225,6 @@ namespace glimmer
         int offsetY = 0;
     };
 
-    /**
-     * Mob Resource
-     * 生物资源
-     */
-    //@genNextLine(MobResource|生物资源)
-    struct MobResource : Resource
-    {
-        //@genNextLine(isPlayer|是否为玩家)
-        bool isPlayer = false;
-        //@genNextLine(movementAcceleration|移动加速度)
-        float movementAcceleration = 6.0F;
-        //@genNextLine(jumpForce|跳跃强度)
-        float jumpForce = 7.5F;
-        //@genNextLine(maxSpeed|最大速度)
-        float maxSpeed = 18.0F;
-        //@genNextLine(airControlFactor|空中移动衰减 如果设置为0,那么禁止空中左右移动，如果设置为1,那么不限制空中移动，如果设置为0.8那么会将加速度乘以0.8。)
-        float airControlFactor = 1.0F;
-        //@genNextLine(shape|碰撞形状)
-        ResourceRef shape;
-        //@genNextLine(bodyType|物理体类型)
-        uint8_t bodyType;
-        //@genNextLine(allowBodySleep|是否允许物理体休眠)
-        bool allowBodySleep;
-        //@genNextLine(box2dFilter|物理层过滤)
-        Box2dFilter box2dFilter;
-        //@genNextLine(fixedRotation|是否固定旋转)
-        bool fixedRotation;
-        //@genNextLine(friction|摩擦力)
-        float friction = 0.0F;
-        //@genNextLine(textureOffset|纹理偏移)
-        Vector2DResource textureOffset;
-        //@genNextLine(density|密度)
-        float density = 0.001F;
-        //@genNextLine(texture|纹理资源引用)
-        ResourceRef texture = {};
-        //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
-        TilePlacementForbiddenZone tilePlacementForbiddenZone = {};
-        //@genNextLine(groundCheckRayCast|地面检测射线)
-        std::vector<RayCastResource> groundCheckRayCast = {};
-    };
-
 
     enum VariableDefinitionType
     {
@@ -745,10 +704,56 @@ namespace glimmer
         ResourceRef item;
         //@genNextLine(amount|数量)
         uint64_t amount = 1;
+        //@genNextLine(locked If it is true, then the player cannot move the item within the inventory. Dropping is prohibited. For combined items, neither moving nor extracting is allowed, but when the combined items are used up, this module will disappear as well.Items that are locked are prohibited from being used in the synthesis process.|绑定 如果为true那么玩家不能在物品槽内移动他。禁止丢弃。在可组合物品内，同样不能移动和取出，但是当可组合物品被用完，此模块会随之消失。锁定的物品禁止参与合成。)
+        bool locked = false;
         //If it is a combinable item, then a list of capabilities needs to be set up.
         //如果是可组合物品，那么需要设置能力列表。
         //@genNextLine(abilityItemRef|能力物品)
         std::vector<ItemMessageResource> abilityItemRef = {};
+    };
+
+
+    /**
+     * Mob Resource
+     * 生物资源
+     */
+    //@genNextLine(MobResource|生物资源)
+    struct MobResource : Resource
+    {
+        //@genNextLine(isPlayer|是否为玩家)
+        bool isPlayer = false;
+        //@genNextLine(movementAcceleration|移动加速度)
+        float movementAcceleration = 6.0F;
+        //@genNextLine(jumpForce|跳跃强度)
+        float jumpForce = 7.5F;
+        //@genNextLine(maxSpeed|最大速度)
+        float maxSpeed = 18.0F;
+        //@genNextLine(airControlFactor|空中移动衰减 如果设置为0,那么禁止空中左右移动，如果设置为1,那么不限制空中移动，如果设置为0.8那么会将加速度乘以0.8。)
+        float airControlFactor = 1.0F;
+        //@genNextLine(shape|碰撞形状)
+        ResourceRef shape;
+        //@genNextLine(bodyType|物理体类型)
+        uint8_t bodyType;
+        //@genNextLine(allowBodySleep|是否允许物理体休眠)
+        bool allowBodySleep;
+        //@genNextLine(box2dFilter|物理层过滤)
+        Box2dFilter box2dFilter;
+        //@genNextLine(fixedRotation|是否固定旋转)
+        bool fixedRotation;
+        //@genNextLine(friction|摩擦力)
+        float friction = 0.0F;
+        //@genNextLine(textureOffset|纹理偏移)
+        Vector2DResource textureOffset;
+        //@genNextLine(density|密度)
+        float density = 0.001F;
+        //@genNextLine(texture|纹理资源引用)
+        ResourceRef texture = {};
+        //@genNextLine(hand Set the items that will be automatically used when no items are held.|手 设置不持有任何物品时自动使用的物品。)
+        ItemMessageResource hand;
+        //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
+        TilePlacementForbiddenZone tilePlacementForbiddenZone = {};
+        //@genNextLine(groundCheckRayCast|地面检测射线)
+        std::vector<RayCastResource> groundCheckRayCast = {};
     };
 
     /**
@@ -768,8 +773,8 @@ namespace glimmer
         size_t slotSize;
         //@genNextLine(maxDurability|最大耐久度)
         uint32_t maxDurability = 16;
-        //@genNextLine(isUnbreakable|是否坚不可摧)
-        bool isUnbreakable = false;
+        //@genNextLine(unbreakable|是否坚不可摧)
+        bool unbreakable = false;
         //@genNextLine(defaultAbilityList|默认能力列表资源引用)
         std::vector<ItemMessageResource> defaultAbilityList = {};
         //@genNextLine(tags|标签)

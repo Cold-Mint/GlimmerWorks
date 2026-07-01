@@ -46,7 +46,7 @@ namespace glimmer
         std::shared_ptr<TextureResourceResult> iconResult_;
         AbilityConfig totalAbilityConfig_;
         uint32_t maxDurability_;
-        bool isUnbreakable_;
+        bool unbreakable_;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_ = nullptr;
         std::shared_ptr<IAllocStrategy<uint32_t>> allocStrategyPtr_ = nullptr;
 
@@ -58,7 +58,7 @@ namespace glimmer
                                 const std::optional<std::string>& description,
                                 const std::shared_ptr<TextureResourceResult>& iconResult, uint8_t maxSize,
                                 uint32_t maxDurability,
-                                bool isUnbreakable, const std::vector<ItemTagResource>& tags,
+                                bool unbreakable, const std::vector<ItemTagResource>& tags,
                                 const ResourceRef& resourceRef);
 
         void SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType);

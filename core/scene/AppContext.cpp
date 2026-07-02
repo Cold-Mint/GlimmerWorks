@@ -255,6 +255,10 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->debugChunkInfo = find<std::string>(value, "debug_chunk_info");
     langsResources_->fpsInfo = find<std::string>(value, "fps_info");
     langsResources_->lockedTip = find<std::string>(value, "locked_tip");
+    langsResources_->timeH = find<std::string>(value, "time_h");
+    langsResources_->timeM = find<std::string>(value, "time_m");
+    langsResources_->timeS = find<std::string>(value, "time_s");
+    langsResources_->savesDescription = find<std::string>(value, "saves_description");
 }
 
 std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, const std::string& ext)
@@ -658,7 +662,8 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
             "GetActualPath failed"));
         return;
     }
-    int width, height;
+    int width = 0;
+    int height = 0;
     if (!SDL_GetRenderOutputSize(renderer_, &width, &height))
     {
         onMessageRef(fmt::format(

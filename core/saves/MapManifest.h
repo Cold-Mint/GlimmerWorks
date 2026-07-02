@@ -27,7 +27,6 @@
 #pragma once
 #include <string>
 
-#include "core/ecs/GameEntity.h"
 #include "src/saves/map_manifest.pb.h"
 
 namespace glimmer {

@@ -46,20 +46,23 @@ glimmer::Color glimmer::ColorUtils::AverageColors(const std::vector<Color>& colo
     {
         return {0, 0, 0, 0};
     }
-    int total_r = 0, total_g = 0, total_b = 0, total_a = 0;
+    int totalR = 0;
+    int totalG = 0;
+    int totalB = 0;
+    int totalA = 0;
     for (const auto& color : colors)
     {
-        total_r += color.r;
-        total_g += color.g;
-        total_b += color.b;
-        total_a += color.a;
+        totalR += color.r;
+        totalG += color.g;
+        totalB += color.b;
+        totalA += color.a;
     }
 
     const auto count = static_cast<int>(colors.size());
-    uint8_t r = static_cast<uint8_t>(std::clamp(total_r / count, 0, 255));
-    uint8_t g = static_cast<uint8_t>(std::clamp(total_g / count, 0, 255));
-    uint8_t b = static_cast<uint8_t>(std::clamp(total_b / count, 0, 255));
-    uint8_t a = static_cast<uint8_t>(std::clamp(total_a / count, 0, 255));
+    uint8_t r = static_cast<uint8_t>(std::clamp(totalR / count, 0, 255));
+    uint8_t g = static_cast<uint8_t>(std::clamp(totalG / count, 0, 255));
+    uint8_t b = static_cast<uint8_t>(std::clamp(totalB / count, 0, 255));
+    uint8_t a = static_cast<uint8_t>(std::clamp(totalA / count, 0, 255));
     return {r, g, b, a};
 }
 

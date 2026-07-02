@@ -37,6 +37,7 @@
 #include <sstream>
 
 #include "core/utils/TimeUtils.h"
+#include "fmt/xchar.h"
 
 glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
     : Scene(context)
@@ -90,14 +91,10 @@ void glimmer::SavedGamesScene::RenderImGui(SDL_Renderer* renderer)
         std::stringstream ss;
         time_t timeVal = manifest->lastPlayedTime / 1000;
         tm* tmInfo = localtime(&timeVal);
-        char timeBuffer[64];
-        strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M:%S", tmInfo);
 
         ss << manifest->name << "\n";
-        ss << "Version: " << manifest->gameVersionName << " | ";
-        ss << "Played: " << timeBuffer << " | ";
-        ss << "Seed: " << manifest->seed << " | ";
-        ss << "TotalPlay: " << TimeUtils::FormatTimeMs(manifest->totalPlayTime);
+        ss << fmt::format(fmt::runtime(langsResources_->savesDescription), manifest->gameVersionName, *tmInfo,
+                          TimeUtils::FormatTimeMs(langsResources_, manifest->totalPlayTime));
 
         std::string label = ss.str();
 

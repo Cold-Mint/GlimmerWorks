@@ -29,8 +29,12 @@
 #include <cstdint>
 #include <string>
 
-namespace glimmer {
-    class TimeUtils {
+#include "core/LangsResources.h"
+
+namespace glimmer
+{
+    class TimeUtils
+    {
     public:
         /**
          *Get the current time (in milliseconds) since Unix Epoch (1970-01-01 00:00:00 UTC)
@@ -42,9 +46,10 @@ namespace glimmer {
         /**
          * Format time in milliseconds to a human-readable string.
          * 格式化时间，将毫秒转换为人类可读的字符串。
+         * @param langsResources
          * @param ms
          * @return
          */
-        [[nodiscard]] static std::string FormatTimeMs(uint64_t ms);
+        [[nodiscard]] static std::string FormatTimeMs(LangsResources* langsResources, uint64_t ms);
     };
 }

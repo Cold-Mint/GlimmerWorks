@@ -61,7 +61,8 @@ void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    float mouseX, mouseY;
+    float mouseX = 0;
+    float mouseY = 0;
     SDL_GetMouseState(&mouseX, &mouseY);
     const Item* hoveredItem = nullptr;
     hoveredItemSlotQuantityComponent_ = nullptr;
@@ -95,16 +96,22 @@ void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
                     const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
                     if (packConfig.itemSlotQuantityNineSlice.enableTiled)
                     {
-                        SDL_RenderTexture9GridTiled(renderer, texture, nullptr, packConfig.itemSlotQuantityNineSlice.leftBorderPx,
-                                                    packConfig.itemSlotQuantityNineSlice.rightBorderPx, packConfig.itemSlotQuantityNineSlice.topBorderPx,
-                                                    packConfig.itemSlotQuantityNineSlice.bottomBorderPx, packConfig.itemSlotQuantityNineSlice.scale, &rect,
+                        SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
+                                                    packConfig.itemSlotQuantityNineSlice.leftBorderPx,
+                                                    packConfig.itemSlotQuantityNineSlice.rightBorderPx,
+                                                    packConfig.itemSlotQuantityNineSlice.topBorderPx,
+                                                    packConfig.itemSlotQuantityNineSlice.bottomBorderPx,
+                                                    packConfig.itemSlotQuantityNineSlice.scale, &rect,
                                                     packConfig.itemSlotQuantityNineSlice.tileScale);
                     }
                     else
                     {
-                        SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.itemSlotQuantityNineSlice.leftBorderPx,
-                                               packConfig.itemSlotQuantityNineSlice.rightBorderPx, packConfig.itemSlotQuantityNineSlice.topBorderPx,
-                                               packConfig.itemSlotQuantityNineSlice.bottomBorderPx, packConfig.itemSlotQuantityNineSlice.scale, &rect);
+                        SDL_RenderTexture9Grid(renderer, texture, nullptr,
+                                               packConfig.itemSlotQuantityNineSlice.leftBorderPx,
+                                               packConfig.itemSlotQuantityNineSlice.rightBorderPx,
+                                               packConfig.itemSlotQuantityNineSlice.topBorderPx,
+                                               packConfig.itemSlotQuantityNineSlice.bottomBorderPx,
+                                               packConfig.itemSlotQuantityNineSlice.scale, &rect);
                     }
                 }
             }

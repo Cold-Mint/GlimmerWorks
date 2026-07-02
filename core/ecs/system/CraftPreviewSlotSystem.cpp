@@ -75,7 +75,8 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    float mouseX, mouseY;
+    float mouseX = 0;
+    float mouseY = 0;
     SDL_GetMouseState(&mouseX, &mouseY);
     const Item* hoveredItem = nullptr;
     hoveredCraftPreviewSlotComponent_ = nullptr;

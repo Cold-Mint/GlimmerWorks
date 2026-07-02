@@ -26,12 +26,10 @@
  */
 #include "StructureInfo.h"
 
-#include <utility>
 
-
-void glimmer::StructureInfo::SetTile(const TileLayerType tileLayer, const TileVector2D position,
-                                     ResourceRef resourceRef) {
-    structureMap_[tileLayer][position] = std::move(resourceRef);
+void glimmer::StructureInfo::SetTile(const TileLayerType tileLayer, const TileVector2D& position, const ResourceRef& resourceRef)
+{
+    structureMap_[tileLayer][position] = resourceRef;
     if (first_) {
         minPosition_ = position;
         maxPosition_ = position;

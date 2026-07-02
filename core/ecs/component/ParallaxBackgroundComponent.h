@@ -45,7 +45,7 @@ namespace glimmer
 
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
 
-        void SetTextureResourceRef(ResourceRef textureResourceRef);
+        void SetTextureResourceRef(const ResourceRef& textureResourceRef);
 
         ResourceRef& GetTextureResourceRef();
 

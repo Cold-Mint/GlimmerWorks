@@ -42,7 +42,7 @@ namespace glimmer
 
         [[nodiscard]] const std::string& GetName();
 
-        void SetName(std::string name);
+        void SetName(const std::string& name);
 
         [[nodiscard]] uint8_t GetCount() const;
 

@@ -39,9 +39,9 @@ GameComponentTypeMessage glimmer::ParallaxBackgroundComponent::GetComponentType(
     return GetComponentTypeStatic();
 }
 
-void glimmer::ParallaxBackgroundComponent::SetTextureResourceRef(ResourceRef textureResourceRef)
+void glimmer::ParallaxBackgroundComponent::SetTextureResourceRef(const ResourceRef& textureResourceRef)
 {
-    textureResourceRef_ = std::move(textureResourceRef);
+    textureResourceRef_ = textureResourceRef;
     newTextureResourceFingerprint_ = textureResourceRef_.GetFingerprint();
 }
 

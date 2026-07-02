@@ -30,18 +30,21 @@
 #include "core/math/Color.h"
 
 
-namespace glimmer {
-    class ColorUtils {
+namespace glimmer
+{
+    class ColorUtils
+    {
+
     public:
         /**
-         * Obtain the mixing value of a color.
-         * 获取一个颜色的混色值。
-         * @param from 起始颜色。
-         * @param to 终点颜色。
-         * @param percent 输入1对应终点颜色，0对应起始颜色，其他值介于两者之间的颜色。
-         * @return
-         */
-        static Color LerpColor(Color from, Color to, float percent);
+       * Obtain linear interpolated color value between two colors.
+       * 在两个颜色之间获取线性插值混合色。
+       * @param from 起始基准颜色
+       * @param to 目标终点颜色
+       * @param percent 插值系数，取值范围0~1；0返回from原色，1返回to原色，中间数值为两者混合过渡色
+       * @return 线性插值计算后的混合颜色结果
+       */
+        static Color LinearInterpolateColor(const Color& from, const Color& to, float percent);
 
         /**
          * AverageColors
@@ -49,7 +52,7 @@ namespace glimmer {
          * @param colors
          * @return
          */
-        static Color AverageColors(const std::vector<Color> &colors);
+        static Color AverageColors(const std::vector<Color>& colors);
 
         /**
          * AdditiveBlend
@@ -58,6 +61,6 @@ namespace glimmer {
          * @param secondColor
          * @return
          */
-        static Color AdditiveBlend(Color firstColor, Color secondColor);
+        static Color AdditiveBlend(const Color& firstColor, const Color& secondColor);
     };
 }

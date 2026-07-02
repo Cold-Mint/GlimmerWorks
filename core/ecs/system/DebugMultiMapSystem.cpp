@@ -65,34 +65,34 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     if (config->debug.displayElevationMap)
     {
         activeColors.emplace_back(
-            ColorUtils::LerpColor(debugColor.elevationMapFrom, debugColor.elevationMapTo, elevation)
+            ColorUtils::LinearInterpolateColor(debugColor.elevationMapFrom, debugColor.elevationMapTo, elevation)
         );
     }
     if (config->debug.displayTempMap)
     {
         activeColors.emplace_back(
-            ColorUtils::LerpColor(debugColor.tempMapFrom, debugColor.tempMapTo,
+            ColorUtils::LinearInterpolateColor(debugColor.tempMapFrom, debugColor.tempMapTo,
                                   chunkGenerator->GetTemperature(tile, elevation))
         );
     }
     if (config->debug.displayHumidityMap)
     {
         activeColors.emplace_back(
-            ColorUtils::LerpColor(debugColor.humidityMapFrom, debugColor.humidityMapTo,
+            ColorUtils::LinearInterpolateColor(debugColor.humidityMapFrom, debugColor.humidityMapTo,
                                   chunkGenerator->GetHumidity(tile))
         );
     }
     if (config->debug.displayErosionMap)
     {
         activeColors.emplace_back(
-            ColorUtils::LerpColor(debugColor.erosionMapFrom, debugColor.erosionMapTo,
+            ColorUtils::LinearInterpolateColor(debugColor.erosionMapFrom, debugColor.erosionMapTo,
                                   chunkGenerator->GetErosion(tile))
         );
     }
     if (config->debug.displayWeirdnessMap)
     {
         activeColors.emplace_back(
-            ColorUtils::LerpColor(debugColor.weirdnessMapFrom, debugColor.weirdnessMapTo,
+            ColorUtils::LinearInterpolateColor(debugColor.weirdnessMapFrom, debugColor.weirdnessMapTo,
                                   chunkGenerator->GetWeirdness(tile))
         );
     }

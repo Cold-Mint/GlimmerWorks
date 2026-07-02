@@ -38,9 +38,9 @@ const std::string& glimmer::CraftPreview::GetName()
     return name_;
 }
 
-void glimmer::CraftPreview::SetName(std::string name)
+void glimmer::CraftPreview::SetName(const std::string& name)
 {
-    name_ = std::move(name);
+    name_ = name;
 }
 
 uint8_t glimmer::CraftPreview::GetCount() const

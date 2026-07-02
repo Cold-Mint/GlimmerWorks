@@ -296,6 +296,12 @@ void glimmer::DataPack::LoadMobResourceFromFile(const toml::value& value, MobMan
     mobResource->packId = manifest_.id;
     mobResource->shape.SetSelfPackageId(manifest_.id);
     mobResource->texture.SetSelfPackageId(manifest_.id);
+    ItemMessageResource& emptyHandAutoUseItem = mobResource->emptyHandAutoUseItem;
+    emptyHandAutoUseItem.item.SetSelfPackageId(manifest_.id);
+    for (auto& abilityItemRef : emptyHandAutoUseItem.abilityItemRef)
+    {
+        abilityItemRef.item.SetSelfPackageId(manifest_.id);
+    }
     mobManager->Register(std::move(mobResource));
 }
 
@@ -405,7 +411,12 @@ void glimmer::DataPack::LoadRecipeResourceFromFile(const toml::value& value, Rec
 {
     auto recipeResource = std::make_unique<RecipeResource>(toml::get<RecipeResource>(value));
     recipeResource->packId = manifest_.id;
-    recipeResource->output.item.SetSelfPackageId(manifest_.id);
+    ItemMessageResource& output = recipeResource->output;
+    output.item.SetSelfPackageId(manifest_.id);
+    for (auto& abilityItemRef : output.abilityItemRef)
+    {
+        abilityItemRef.item.SetSelfPackageId(manifest_.id);
+    }
     for (auto& input : recipeResource->input)
     {
         input.MakeCachedTag();

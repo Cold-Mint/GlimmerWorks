@@ -31,6 +31,20 @@ const std::vector<GameEntityID>& glimmer::MobComponent::GetGroundCheckRayEntityI
     return groundCheckRayEntityIds_;
 }
 
+void glimmer::MobComponent::SetEmptyHandAutoUseItem(std::unique_ptr<Item> emptyHandAutoUseItem)
+{
+    emptyHandAutoUseItem_ = std::move(emptyHandAutoUseItem);
+}
+
+glimmer::Item* glimmer::MobComponent::GetEmptyHandAutoUseItem() const
+{
+    if (emptyHandAutoUseItem_ == nullptr)
+    {
+        return nullptr;
+    }
+    return emptyHandAutoUseItem_.get();
+}
+
 void glimmer::MobComponent::AddGroundCheckRayEntity(GameEntityID id)
 {
     groundCheckRayEntityIds_.emplace_back(id);

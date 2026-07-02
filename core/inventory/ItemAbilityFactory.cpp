@@ -28,7 +28,7 @@
 
 #include "core/Constants.h"
 #include "ability/AreaMarkerAbility.h"
-#include "ability/DigAbility.h"
+#include "ability/MiningAbility.h"
 #include "ability/NoneAbility.h"
 
 
@@ -39,9 +39,9 @@ std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbi
     {
         return std::make_shared<NoneAbility>(abilityConfig);
     }
-    if (id == ABILITY_ID_DIG)
+    if (id == ABILITY_ID_MINING)
     {
-        return std::make_shared<DigAbility>(abilityConfig);
+        return std::make_shared<MiningAbility>(abilityConfig);
     }
     if (id == ABILITY_ID_AREA_MARKER)
     {

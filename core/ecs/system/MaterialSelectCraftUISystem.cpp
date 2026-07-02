@@ -190,7 +190,8 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
         const DesignDimension gridAreaHeight = static_cast<DesignDimension>(gridRows) * (ITEM_SLOT_SIZE + gridPadding) -
             gridPadding + 2.0F * panelPadding;
         const DesignDimension contentPanelHeight = std::max(tagAreaHeight, gridAreaHeight);
-        const DesignDimension totalPanelHeight = contentPanelHeight + MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT + panelPadding;
+        const DesignDimension totalPanelHeight = contentPanelHeight + MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT +
+            panelPadding;
         panelWidth_ = panelWidth;
         panelHeight_ = std::max(totalPanelHeight, MATERIAL_SELECT_CRAFT_PANEL_MIN_HEIGHT);
 

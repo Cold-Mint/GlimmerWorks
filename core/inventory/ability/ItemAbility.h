@@ -29,7 +29,6 @@
 #include <string>
 #include <unordered_set>
 
-#include "core/ecs/GameEntity.h"
 #include "core/mod/Resource.h"
 
 namespace glimmer
@@ -51,7 +50,7 @@ namespace glimmer
 
         virtual ~ItemAbility() = default;
 
-        [[nodiscard]] virtual std::string GetId() const = 0;
+        [[nodiscard]] virtual const std::string& GetId() const = 0;
 
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const;
 

@@ -281,6 +281,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     tile->layerType_ = static_cast<TileLayerType>(tileResource->layerType);
     tile->physicsType_ = static_cast<TilePhysicsType>(tileResource->physicsType);
     tile->allowChainMining_ = tileResource->allowChainMining;
+    tile->minMiningEfficiency_ = tileResource->minMiningEfficiency;
     tile->backLightMask_ = tileResource->backLightMask;
     tile->sideLightMask_ = tileResource->sideLightMask;
     tile->lightSource_ = tileResource->lightSource;
@@ -428,6 +429,17 @@ const glimmer::TileVector2D* glimmer::Tile::GetTileAnchor() const
 {
     return &tileAnchor_;
 }
+
+float glimmer::Tile::GetMinMiningEfficiency() const
+{
+    return minMiningEfficiency_;
+}
+
+void glimmer::Tile::SetMinMiningEfficiency(const float minMiningEfficiency)
+{
+    minMiningEfficiency_ = minMiningEfficiency;
+}
+
 
 const glimmer::ResourceRef* glimmer::Tile::GetLootTableRef() const
 {

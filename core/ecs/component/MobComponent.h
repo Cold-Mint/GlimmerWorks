@@ -29,6 +29,7 @@
 
 #include "core/ecs/EcsTypes.h"
 #include "core/ecs/GameComponent.h"
+#include "core/inventory/Item.h"
 
 namespace glimmer
 {
@@ -60,8 +61,14 @@ namespace glimmer
          */
         bool facingLeft_ = false;
 
+        std::unique_ptr<Item> emptyHandAutoUseItem_ = nullptr;
+
     public:
         [[nodiscard]] const std::vector<GameEntityID>& GetGroundCheckRayEntityIds() const;
+
+        void SetEmptyHandAutoUseItem(std::unique_ptr<Item> emptyHandAutoUseItem);
+
+        [[nodiscard]] Item* GetEmptyHandAutoUseItem() const;
 
         void AddGroundCheckRayEntity(GameEntityID id);
 

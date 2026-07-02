@@ -105,7 +105,7 @@ static constexpr std::string EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME = "&event_type"
 static constexpr std::string MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME = "&mouse_button";
 
 static constexpr std::string ABILITY_ID_NONE = "none";
-static constexpr std::string ABILITY_ID_DIG = "dig";
+static constexpr std::string ABILITY_ID_MINING = "mining";
 static constexpr std::string ABILITY_ID_AREA_MARKER = "areaMarker";
 
 static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_BIOME = "biome";

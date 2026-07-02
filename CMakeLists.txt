@@ -431,7 +431,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/TileDynamicSuggestions.cpp
         core/ecs/component/ItemSlotComponent.cpp
         core/ecs/system/ItemSlotSystem.cpp
-        core/inventory/ability/DigAbility.cpp
+        core/inventory/ability/MiningAbility.cpp
         core/inventory/AbilityItem.cpp
         core/console/suggestion/AbilityItemDynamicSuggestions.cpp
         core/inventory/ItemAbilityFactory.cpp
@@ -737,7 +737,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/TileDynamicSuggestions.h
         core/ecs/component/ItemSlotComponent.h
         core/ecs/system/ItemSlotSystem.h
-        core/inventory/ability/DigAbility.h
+        core/inventory/ability/MiningAbility.h
         core/inventory/AbilityItem.h
         core/console/suggestion/AbilityItemDynamicSuggestions.h
         core/inventory/ItemAbilityFactory.h

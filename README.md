@@ -2,7 +2,9 @@
 
 English | [简体中文](README_zh_CN.md)
 
-Welcome to the GlimmerWorks open-source repository! We aim to build a player-centric open creation platform that inspires creativity and unlocks boundless imagination. No matter where you are in the world, you are welcome to join us in building an open sandbox world together.
+Welcome to the GlimmerWorks open-source repository! We aim to build a player-centric open creation platform that
+inspires creativity and unlocks boundless imagination. No matter where you are in the world, you are welcome to join us
+in building an open sandbox world together.
 
 ### Implemented Features
 
@@ -17,12 +19,12 @@ Welcome to the GlimmerWorks open-source repository! We aim to build a player-cen
 
 ### Roadmap
 
-| Feature | Development Status | Estimated Version |
-| :--- | :--- | :--- |
-| 2D Lighting & Occlusion System | In Progress | v0.0.2 |
-| Crafting System, Recipes & Functional Blocks (Workbench, Furnace, Anvil, Chest) | Pending | v0.0.2 |
-| Health & Hunger Mechanics | Pending | TBD |
-| Crop Planting & Growth System | Pending | TBD |
+| Feature                                      | Development Status | Estimated Version |
+|:---------------------------------------------|:-------------------|:------------------|
+| 2D Lighting & Occlusion System               | In Progress        | v0.0.2            |
+| Crafting System, Recipes & Functional Blocks | Pending            | v0.0.2            |
+| Health & Hunger Mechanics                    | Pending            | TBD               |
+| Crop Planting & Growth System                | Pending            | TBD               |
 
 ### Build from Source
 

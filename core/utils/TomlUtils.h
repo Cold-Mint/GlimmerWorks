@@ -404,12 +404,12 @@ namespace toml {
             r.abilityConfig = toml::find_or<glimmer::AbilityConfig>(v, "ability_config", {});
             r.canUseAlone = toml::find_or<bool>(v, "can_use_alone", false);
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
-            r.isUnbreakable = toml::find_or<bool>(v, "is_unbreakable", false);
             r.maxDurability = toml::find_or<uint32_t>(v, "max_durability", 16);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.tags = toml::find_or<std::vector<glimmer::ItemTagResource>>(v, "tags", {});
             r.texture = toml::find<glimmer::ResourceRef>(v, "texture");
+            r.unbreakable = toml::find_or<bool>(v, "unbreakable", false);
             return r;
         }
     };
@@ -635,6 +635,7 @@ namespace toml {
             r.lightSource = toml::find<glimmer::ResourceRef>(v, "light_source");
             r.lootScaleBySize = toml::find_or<bool>(v, "loot_scale_by_size", false);
             r.lootTable = toml::find_or<glimmer::ResourceRef>(v, "loot_table", {});
+            r.minMiningEfficiency = toml::find_or<float>(v, "min_mining_efficiency", 0);
             r.name = toml::find<glimmer::ResourceRef>(v, "name");
             r.physicsType = toml::find_or<uint8_t>(v, "physics_type", 0);
             r.placeSfx = toml::find<glimmer::ResourceRef>(v, "place_sfx");
@@ -684,10 +685,10 @@ namespace toml {
             r.bodyType = toml::find<uint8_t>(v, "body_type");
             r.box2dFilter = toml::find<glimmer::Box2dFilter>(v, "box2d_filter");
             r.density = toml::find_or<float>(v, "density", 0.001F);
+            r.emptyHandAutoUseItem = toml::find<glimmer::ItemMessageResource>(v, "empty_hand_auto_use_item");
             r.fixedRotation = toml::find<bool>(v, "fixed_rotation");
             r.friction = toml::find_or<float>(v, "friction", 0.0F);
             r.groundCheckRayCast = toml::find_or<std::vector<glimmer::RayCastResource>>(v, "ground_check_ray_cast", {});
-            r.hand = toml::find<glimmer::ItemMessageResource>(v, "hand");
             r.isPlayer = toml::find_or<bool>(v, "is_player", false);
             r.jumpForce = toml::find_or<float>(v, "jump_force", 7.5F);
             r.maxSpeed = toml::find_or<float>(v, "max_speed", 18.0F);

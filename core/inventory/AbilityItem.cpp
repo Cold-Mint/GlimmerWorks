@@ -66,7 +66,7 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
                                          description,
                                          appContext->GetResourceLocator()->FindTexture(
                                              &itemResource->texture), std::move(itemAbility),
-                                         itemResource->maxDurability, itemResource->isUnbreakable,
+                                         itemResource->maxDurability, itemResource->unbreakable,
                                          itemResource->canUseAlone, itemResource->tags, resourceRef);
 }
 
@@ -77,7 +77,7 @@ uint32_t glimmer::AbilityItem::GetMaxDurability() const
 
 void glimmer::AbilityItem::Reduce(const unsigned value)
 {
-    if (isUnbreakable_)
+    if (unbreakable_)
     {
         return;
     }
@@ -86,7 +86,7 @@ void glimmer::AbilityItem::Reduce(const unsigned value)
 
 bool glimmer::AbilityItem::IsUnbreakable() const
 {
-    return isUnbreakable_;
+    return unbreakable_;
 }
 
 const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
@@ -108,7 +108,7 @@ glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optiona
                                   std::shared_ptr<TextureResourceResult> iconResult,
                                   std::shared_ptr<ItemAbility> itemAbility,
                                   uint32_t maxDurability,
-                                  bool isUnbreakable, bool canUseAlone, const std::vector<ItemTagResource>& tags,
+                                  bool unbreakable, bool canUseAlone, const std::vector<ItemTagResource>& tags,
                                   const ResourceRef& resourceRef) : id_(std::move(id)),
                                                                     name_(std::move(name)),
                                                                     description_(std::move(description)),
@@ -116,7 +116,7 @@ glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optiona
                                                                     itemAbility_(std::move(itemAbility)),
                                                                     canUseAlone_(canUseAlone),
                                                                     maxDurability_(maxDurability),
-                                                                    isUnbreakable_(isUnbreakable)
+                                                                    unbreakable_(unbreakable)
 {
     SetTags(tags);
     resourceRef_ = resourceRef;

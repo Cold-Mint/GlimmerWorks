@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "DigAbility.h"
+#include "MiningAbility.h"
 
 #include "MiningRangeData.h"
 #include "core/world/WorldContext.h"
@@ -34,18 +34,19 @@
 #include "core/math/CoordinateTransformer.h"
 
 
-glimmer::DigAbility::DigAbility(const AbilityConfig& abilityConfig) : ItemAbility(
+glimmer::MiningAbility::MiningAbility(const AbilityConfig& abilityConfig) : ItemAbility(
     abilityConfig)
 {
 }
 
-std::string glimmer::DigAbility::GetId() const
+
+const std::string& glimmer::MiningAbility::GetId() const
 {
-    return ABILITY_ID_DIG;
+    return ABILITY_ID_MINING;
 }
 
-void glimmer::DigAbility::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                                std::unordered_set<std::string>& popupAbility)
+void glimmer::MiningAbility::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+                                   std::unordered_set<std::string>& popupAbility)
 {
     popupAbility.emplace(GetId());
     if (abilityConfig == nullptr)
@@ -154,7 +155,7 @@ void glimmer::DigAbility::OnUse(WorldContext* worldContext, uint32_t user, const
 }
 
 
-std::unique_ptr<glimmer::ItemAbility> glimmer::DigAbility::Clone() const
+std::unique_ptr<glimmer::ItemAbility> glimmer::MiningAbility::Clone() const
 {
-    return std::make_unique<DigAbility>(*this);
+    return std::make_unique<MiningAbility>(*this);
 }

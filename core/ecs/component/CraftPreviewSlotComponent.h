@@ -70,6 +70,6 @@ namespace glimmer
 
         void SetHovered(bool hovered);
 
-        [[nodiscard]] Item* GetItem() const;
+        [[nodiscard]] const Item* GetItem() const;
     };
 }

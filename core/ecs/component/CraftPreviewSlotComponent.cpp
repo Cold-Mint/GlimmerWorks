@@ -106,7 +106,7 @@ void glimmer::CraftPreviewSlotComponent::SetHovered(bool hovered)
     isHovered_ = hovered;
 }
 
-glimmer::Item* glimmer::CraftPreviewSlotComponent::GetItem() const
+const glimmer::Item* glimmer::CraftPreviewSlotComponent::GetItem() const
 {
     if (item_ == nullptr)
     {

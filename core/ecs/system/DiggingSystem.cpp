@@ -75,6 +75,10 @@ uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext
     if (playerComponent != nullptr)
     {
         item = playerComponent->GetItem();
+        if (item == nullptr)
+        {
+            item = playerComponent->GetEmptyHandAutoUseItem();
+        }
     }
     uint8_t sum = 0;
     uint8_t centerX = tileWidth >> 1;
@@ -146,7 +150,15 @@ uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext
             }
             if (center || currentTile->LootScaleBySize())
             {
-                if (currentTile->CanDropLoot())
+                bool canDropLoot = currentTile->CanDropLoot();
+                if (canDropLoot && item != nullptr)
+                {
+                    if (currentTile->GetMinMiningEfficiency() > item->GetAbilityConfig()->miningEfficiency)
+                    {
+                        canDropLoot = false;
+                    }
+                }
+                if (canDropLoot)
                 {
                     const auto lootResource = appContext->GetResourceLocator()->
                                                           FindLoot(currentTile->GetLootTableRef());
@@ -154,10 +166,12 @@ uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext
                     {
                         const uint32_t droppedEntity = entityManager->AddEntity();
                         DroppedItemCreator droppedItemCreator{worldContext};
-                        droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+                        droppedItemCreator.LoadTemplateComponents(droppedEntity,
+                                                                  DroppedItemCreator::GetResourceRef());
                         droppedItemCreator.MergeEntityItemMessage(droppedEntity,
                                                                   DroppedItemCreator::GetEntityItemMessage(
-                                                                      CoordinateTransformer::TileToWorld(currentVector),
+                                                                      CoordinateTransformer::TileToWorld(
+                                                                          currentVector),
                                                                       std::make_unique<TileItem>(
                                                                           currentTile, oldResourceRef),
                                                                       0));

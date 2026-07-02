@@ -59,6 +59,7 @@ namespace glimmer
         ResourceRef lootTable_;
         float hardness_ = 1.0F;
         bool lootScaleBySize_ = false;
+        float minMiningEfficiency_ = 0.0F;
         uint8_t technologyLevel_ = 0;
         uint8_t recipeGroup_ = 0;
         bool enableBlueprint_ = true;
@@ -125,6 +126,10 @@ namespace glimmer
         [[nodiscard]] bool IsAutoDigCostScale() const;
 
         [[nodiscard]] const TileVector2D* GetTileAnchor() const;
+
+        [[nodiscard]] float GetMinMiningEfficiency() const;
+
+        void SetMinMiningEfficiency(float minMiningEfficiency);
 
         [[nodiscard]] const ResourceRef* GetLootTableRef() const;
 

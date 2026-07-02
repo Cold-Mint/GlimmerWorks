@@ -31,19 +31,19 @@
 
 namespace glimmer
 {
-    class DigAbility : public ItemAbility
+    class MiningAbility : public ItemAbility
     {
         MiningRangeData miningRangeData_;
 
     public:
-        explicit DigAbility(const AbilityConfig& abilityConfig);
+        explicit MiningAbility(const AbilityConfig& abilityConfig);
 
-        ~DigAbility() override = default;
+        ~MiningAbility() override = default;
 
-        [[nodiscard]] std::string GetId() const override;
+        [[nodiscard]] const std::string& GetId() const override;
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<std::string>& popupAbility) override;
+                   std::unordered_set<std::string>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };

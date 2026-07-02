@@ -38,7 +38,7 @@ void glimmer::NoneAbility::OnUse(WorldContext* worldContext, uint32_t user, cons
 {
 }
 
-std::string glimmer::NoneAbility::GetId() const
+const std::string& glimmer::NoneAbility::GetId() const
 {
     return ABILITY_ID_NONE;
 }

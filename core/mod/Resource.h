@@ -441,8 +441,8 @@ namespace glimmer
         bool canUseAlone = false;
         //@genNextLine(maxDurability|最大耐久度)
         uint32_t maxDurability = 16;
-        //@genNextLine(isUnbreakable|是否坚不可摧)
-        bool isUnbreakable = false;
+        //@genNextLine(unbreakable|是否坚不可摧)
+        bool unbreakable = false;
         //@genNextLine(tags|标签)
         std::vector<ItemTagResource> tags = {};
     };
@@ -533,6 +533,8 @@ namespace glimmer
         uint8_t layerType = 0;
         //@genNextLine(allowChainMining|是否允许连锁挖掘)
         bool allowChainMining = false;
+        //@genNextLine(The minimum excavation efficiency required for dropping items.|掉落物品最低需要的挖掘效率。)
+        float minMiningEfficiency = 0;
         //@genNextLine(lightSource|光源)
         ResourceRef lightSource;
         //@genNextLine(sideLightMask|侧面光源遮罩)
@@ -744,8 +746,8 @@ namespace glimmer
         float density = 0.001F;
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture = {};
-        //@genNextLine(hand Set the items that will be automatically used when no items are held.|手 设置不持有任何物品时自动使用的物品。)
-        ItemMessageResource hand;
+        //@genNextLine(Set the item that will be automatically used when no items are held. This item cannot be discarded, does not participate in recipe synthesis, and cannot be edited using the itemEditor command.If this item has the ability to be excavated, then its durability will not be deducted.|设置不持有任何物品时自动使用的物品。此物品不能丢弃，不参与配方合成，不能通过itemEditor命令编辑。如果此物品有挖掘能力，那么也不会扣除耐久。)
+        ItemMessageResource emptyHandAutoUseItem;
         //@genNextLine(TilePlacementForbiddenZone|瓦片放置禁止区域)
         TilePlacementForbiddenZone tilePlacementForbiddenZone = {};
         //@genNextLine(groundCheckRayCast|地面检测射线)

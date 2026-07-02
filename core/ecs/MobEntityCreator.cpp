@@ -126,6 +126,8 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
     {
         return;
     }
+    mobComponent->SetEmptyHandAutoUseItem(resourceLocator->FindItem(
+        worldContext_, mobResource->emptyHandAutoUseItem));
     mobComponent->SetMovementAcceleration(mobResource->movementAcceleration);
     mobComponent->SetMaxSpeed(mobResource->maxSpeed);
     mobComponent->SetAirControlFactor(mobResource->airControlFactor);

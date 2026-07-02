@@ -164,9 +164,17 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         playerComponent->SetDropPressed(false);
     }
 
-    Item* item = playerComponent->GetItem();
-    if (playerComponent->IsMouseLeftDown() && item != nullptr)
+    if (playerComponent->IsMouseLeftDown())
     {
+        Item* item = playerComponent->GetItem();
+        if (item == nullptr)
+        {
+            item = playerComponent->GetEmptyHandAutoUseItem();
+        }
+        if (item == nullptr)
+        {
+            return;
+        }
         UseItem(item);
     }
 }

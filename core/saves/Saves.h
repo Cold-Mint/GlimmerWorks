@@ -39,9 +39,9 @@ namespace glimmer {
         VirtualFileSystem *virtualFileSystem_;
         std::function<void(const MapManifestMessage &)> onMapManifestChanged_;
 
-        [[nodiscard]] std::string ToChunkPath(TileVector2D position) const;
+        [[nodiscard]] std::string ToChunkPath(const TileVector2D& position) const;
 
-        [[nodiscard]] std::string ToChunkEntityPath(TileVector2D position) const;
+        [[nodiscard]] std::string ToChunkEntityPath(const TileVector2D& position) const;
 
         [[nodiscard]] std::string ToPlayerPath() const;
 
@@ -70,7 +70,7 @@ namespace glimmer {
          * @param position
          * @return
          */
-        [[nodiscard]] bool ChunkExists(TileVector2D position) const;
+        [[nodiscard]] bool ChunkExists(const TileVector2D& position) const;
 
         /**
          * Check whether the specified entity file exists.
@@ -78,17 +78,17 @@ namespace glimmer {
          * @param position
          * @return
          */
-        [[nodiscard]] bool EntityExists(TileVector2D position) const;
+        [[nodiscard]] bool EntityExists(const TileVector2D& position) const;
 
-        [[nodiscard]] std::optional<ChunkMessage> ReadChunk(TileVector2D position) const;
+        [[nodiscard]] std::optional<ChunkMessage> ReadChunk(const TileVector2D& position) const;
 
-        [[nodiscard]] bool WriteChunk(TileVector2D position, const ChunkMessage &chunkMessage) const;
+        [[nodiscard]] bool WriteChunk(const TileVector2D& position, const ChunkMessage &chunkMessage) const;
 
-        [[nodiscard]] std::optional<ChunkEntityMessage> ReadChunkEntity(TileVector2D position) const;
+        [[nodiscard]] std::optional<ChunkEntityMessage> ReadChunkEntity(const TileVector2D& position) const;
 
-        [[nodiscard]] bool WriteChunkEntity(TileVector2D position, const ChunkEntityMessage &chunkEntityMessage) const;
+        [[nodiscard]] bool WriteChunkEntity(const TileVector2D& position, const ChunkEntityMessage &chunkEntityMessage) const;
 
-        [[nodiscard]] bool DeleteChunkEntity(TileVector2D position) const;
+        [[nodiscard]] bool DeleteChunkEntity(const TileVector2D& position) const;
 
         [[nodiscard]] bool WritePlayer(const PlayerMessage &playerMessage) const;
 

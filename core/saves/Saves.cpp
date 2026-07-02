@@ -31,11 +31,11 @@
 #include "core/Constants.h"
 
 
-std::string glimmer::Saves::ToChunkPath(TileVector2D position) const {
+std::string glimmer::Saves::ToChunkPath(const TileVector2D& position) const {
     return path_ + "/chunks/chunk_" + std::to_string(position.x) + "_" + std::to_string(position.y) + ".bin";
 }
 
-std::string glimmer::Saves::ToChunkEntityPath(TileVector2D position) const {
+std::string glimmer::Saves::ToChunkEntityPath(const TileVector2D& position) const {
     return path_ + "/entities/entity_" + std::to_string(position.x) + "_" + std::to_string(position.y) + ".bin";
 }
 
@@ -60,17 +60,17 @@ std::string glimmer::Saves::GetPath() const {
     return path_;
 }
 
-bool glimmer::Saves::ChunkExists(const TileVector2D position) const {
+bool glimmer::Saves::ChunkExists(const TileVector2D& position) const {
     return virtualFileSystem_->Exists(
         ToChunkPath(position));
 }
 
-bool glimmer::Saves::EntityExists(TileVector2D position) const {
+bool glimmer::Saves::EntityExists(const TileVector2D& position) const {
     return virtualFileSystem_->Exists(
         ToChunkEntityPath(position));
 }
 
-std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D position) const {
+std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D& position) const {
     const auto stream = virtualFileSystem_->ReadStream(ToChunkPath(position));
     if (!stream.has_value()) {
         return std::nullopt;
@@ -82,11 +82,11 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D positio
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunk(const TileVector2D position, const ChunkMessage &chunkMessage) const {
+bool glimmer::Saves::WriteChunk(const TileVector2D& position, const ChunkMessage &chunkMessage) const {
     return virtualFileSystem_->WriteFile(ToChunkPath(position), chunkMessage.SerializeAsString());
 }
 
-std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVector2D position) const {
+std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVector2D& position) const {
     const auto stream = virtualFileSystem_->ReadStream(ToChunkEntityPath(position));
     if (!stream.has_value()) {
         return std::nullopt;
@@ -98,11 +98,11 @@ std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVect
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunkEntity(TileVector2D position, const ChunkEntityMessage &chunkEntityMessage) const {
+bool glimmer::Saves::WriteChunkEntity(const TileVector2D& position, const ChunkEntityMessage &chunkEntityMessage) const {
     return virtualFileSystem_->WriteFile(ToChunkEntityPath(position), chunkEntityMessage.SerializeAsString());
 }
 
-bool glimmer::Saves::DeleteChunkEntity(TileVector2D position) const {
+bool glimmer::Saves::DeleteChunkEntity(const TileVector2D& position) const {
     return virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(position));
 }
 

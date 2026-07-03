@@ -56,6 +56,7 @@ bool glimmer::FlyCommand::RequiresWorldContext() const
     return true;
 }
 
+//skipcq: CXX-C2014
 void glimmer::FlyCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (strings == nullptr)

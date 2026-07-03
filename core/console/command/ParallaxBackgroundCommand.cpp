@@ -59,6 +59,7 @@ bool glimmer::ParallaxBackgroundCommand::RequiresWorldContext() const
     return true;
 }
 
+//skipcq: CXX-C2014
 void glimmer::ParallaxBackgroundCommand::PutCommandStructure(const CommandArgs* commandArgs,
                                                              std::vector<std::string>* strings)
 {

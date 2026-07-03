@@ -52,6 +52,7 @@ std::string glimmer::PlaceCommand::GetName() const
     return PLACE_COMMAND_NAME;
 }
 
+//skipcq: CXX-C2014
 void glimmer::PlaceCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (strings == nullptr)

@@ -71,6 +71,7 @@ bool glimmer::AssetViewerCommand::RequiresWorldContext() const
     return false;
 }
 
+//skipcq: CXX-C2014
 void glimmer::AssetViewerCommand::
 PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {

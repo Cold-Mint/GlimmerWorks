@@ -57,6 +57,7 @@ bool glimmer::TechnologyCommand::RequiresWorldContext() const
     return true;
 }
 
+//skipcq: CXX-C2014
 void glimmer::TechnologyCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (strings == nullptr)

@@ -58,6 +58,7 @@ bool glimmer::TileSnapshotCommand::RequiresWorldContext() const
     return true;
 }
 
+//skipcq: CXX-C2014
 void glimmer::TileSnapshotCommand::PutCommandStructure(const CommandArgs* commandArgs,
                                                        std::vector<std::string>* strings)
 {

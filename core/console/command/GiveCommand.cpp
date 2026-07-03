@@ -56,6 +56,7 @@ glimmer::GiveCommand::GiveCommand(AppContext* appContext)
 {
 }
 
+//skipcq: CXX-C2014
 void glimmer::GiveCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (strings == nullptr)

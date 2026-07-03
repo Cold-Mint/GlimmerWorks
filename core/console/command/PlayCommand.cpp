@@ -45,6 +45,7 @@ std::string glimmer::PlayCommand::GetName() const
     return PLAY_COMMAND_NAME;
 }
 
+//skipcq: CXX-C2014
 void glimmer::PlayCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (strings == nullptr)

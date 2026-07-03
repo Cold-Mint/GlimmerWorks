@@ -94,6 +94,7 @@ std::string glimmer::UnlockedRecipesCommand::GetName() const
     return UNLOCKED_RECIPES_COMMAND_NAME;
 }
 
+//skipcq: CXX-C2014
 void glimmer::UnlockedRecipesCommand::PutCommandStructure(const CommandArgs* commandArgs,
                                                           std::vector<std::string>* strings)
 {

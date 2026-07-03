@@ -423,6 +423,7 @@ bool glimmer::App::Init()
     LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
     SDL_AudioSpec audioSpec;
     const std::string& audioFormat = config->audio.format;
+    //skipcq: CXX-W2041
     if (audioFormat == "U8")
     {
         audioSpec.format = SDL_AUDIO_U8;

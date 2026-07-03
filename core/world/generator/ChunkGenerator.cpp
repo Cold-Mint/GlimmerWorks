@@ -509,7 +509,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
         for (int localY = 0; localY < CHUNK_SIZE; ++localY)
         {
             const int idx = localY * CHUNK_SIZE + localX;
-            auto& terrainTileResult = terrainResult->QueryTerrain(localX, localY);
+            const auto& terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             auto terrainType = terrainTileResult.terrainType;
             tilesRefMap[BackGround][idx] = TileResourceManager::GetAirResourceRef(BackGround);
             if (terrainType == AIR)
@@ -594,7 +594,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVec
                         tileStateMessage->mutable_offset()->set_x(x);
                         tileStateMessage->mutable_offset()->set_y(y);
                         resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-                        chunk->CommitTileState(BreakSource::ChunkGenerate,tileLayerType, unitIndex, true);
+                        chunk->CommitTileState(BreakSource::ChunkGenerate, tileLayerType, unitIndex, true);
                     }
                 }
             }

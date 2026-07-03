@@ -40,6 +40,7 @@ std::string glimmer::HelpCommand::GetName() const {
     return HELP_COMMAND_NAME;
 }
 
+//skipcq: CXX-C2014
 void glimmer::HelpCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
 }
 

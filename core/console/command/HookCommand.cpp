@@ -49,6 +49,7 @@ std::string glimmer::HookCommand::GetName() const {
     return HOOK_COMMAND_NAME;
 }
 
+//skipcq: CXX-C2014
 void glimmer::HookCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
     if (commandArgs == nullptr || strings == nullptr) {
         return;

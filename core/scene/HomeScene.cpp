@@ -130,8 +130,8 @@ void glimmer::HomeScene::RenderImGui(SDL_Renderer* renderer)
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
 
-    float margin = 10.0f;
-    float spacing = 4.0f;
+    float margin = 10.0F;
+    float spacing = 4.0F;
 
     float lineHeight = ImGui::GetFontSize();
 

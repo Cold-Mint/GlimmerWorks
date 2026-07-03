@@ -663,6 +663,7 @@ void glimmer::ConsoleOverlay::addMessage(const std::string& message)
     scrollToBottom_ = true;
 }
 
+//skipcq: CXX-C2014
 int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData* data)
 {
     //When the text changes

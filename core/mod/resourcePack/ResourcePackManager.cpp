@@ -394,6 +394,7 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateStringTexture(c
     {
         return nullptr;
     }
+    //skipcq: CXX-C2014
     auto deleter = [this,totalFingerprint](SDL_Texture* sdlTexture)
     {
         if (sdlTexture != nullptr)

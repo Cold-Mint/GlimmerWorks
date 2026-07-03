@@ -111,6 +111,7 @@ void glimmer::AudioManager::SetTypeVolume(const AudioType type, const float volu
     MIX_SetTagGain(mixer_, AudioTypeToTag(type), masterVolume_ * clampVolume);
 }
 
+//skipcq: CXX-C2014
 void glimmer::AudioManager::TryPlayFree(const AudioType audioType, MIX_Audio* audio, const int loopsNumber)
 {
     if (audio == nullptr)
@@ -131,6 +132,7 @@ void glimmer::AudioManager::TryPlayFree(const AudioType audioType, MIX_Audio* au
     SDL_DestroyProperties(props);
 }
 
+//skipcq: CXX-C2014
 void glimmer::AudioManager::ForcePlayReplace(const AudioType audioType, MIX_Audio* audio, const int loopsNumber)
 {
     if (audio == nullptr)

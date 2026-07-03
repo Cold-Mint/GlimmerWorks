@@ -30,58 +30,71 @@
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "fmt/format.h"
 
-void glimmer::LootCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
-    if (suggestionsTree == nullptr) {
+void glimmer::LootCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
+{
+    if (suggestionsTree == nullptr)
+    {
         return;
     }
     suggestionsTree->AddChild("get")->AddChild(LOOT_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::LootCommand::LootCommand(AppContext *appContext)
-    : Command(appContext) {
+glimmer::LootCommand::LootCommand(AppContext* appContext)
+    : Command(appContext)
+{
 }
 
-std::string glimmer::LootCommand::GetName() const {
+std::string glimmer::LootCommand::GetName() const
+{
     return LOOT_COMMAND_NAME;
 }
 
-void glimmer::LootCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
-    if (strings == nullptr) {
+//skipcq: CXX-C2014
+void glimmer::LootCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+{
+    if (strings == nullptr)
+    {
         return;
     }
     strings->emplace_back("[type:string]");
     strings->emplace_back("[lootTableId:string]");
 }
 
-bool glimmer::LootCommand::RequiresWorldContext() const {
+bool glimmer::LootCommand::RequiresWorldContext() const
+{
     return true;
 }
 
-bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                                   const std::function<void(const std::string &text)> *onMessage) {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
+bool glimmer::LootCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                                   const std::function<void(const std::string& text)>* onMessage)
+{
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    {
         return false;
     }
-    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
-    if (worldContext_ == nullptr) {
+    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
+    if (worldContext_ == nullptr)
+    {
         onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const size_t size = commandArgs->GetSize();
-    if (size < 3) {
+    if (size < 3)
+    {
         onMessageRef(fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
             3, size));
         return false;
     }
     const std::string type = commandArgs->AsString(1);
-    if (type == "get") {
-        EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    if (type == "get")
+    {
+        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
         }
-        EntityManager *entityManager = worldContext_->GetEntityManager();
+        EntityManager* entityManager = worldContext_->GetEntityManager();
         if (entityManager == nullptr)
         {
             return false;
@@ -91,28 +104,34 @@ bool glimmer::LootCommand::Execute(const CommandSender *commandSender, const Com
         {
             return false;
         }
-        auto *itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
-        if (itemContainer == nullptr) {
+        auto* itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
+        if (itemContainer == nullptr)
+        {
             onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
         }
         auto lootId = commandArgs->AsResourceRef(2, RESOURCE_LOOT_TABLE);
-        if (!lootId.has_value()) {
+        if (!lootId.has_value())
+        {
             onMessageRef(appContext_->GetLangsResources()->lootTableNotFound);
             return false;
         }
-        ResourceRef &resourceRef = lootId.value();
-        LootResource *lootResource = appContext_->GetResourceLocator()->FindLoot(&resourceRef);
-        if (lootResource == nullptr) {
+        ResourceRef& resourceRef = lootId.value();
+        LootResource* lootResource = appContext_->GetResourceLocator()->FindLoot(&resourceRef);
+        if (lootResource == nullptr)
+        {
             return false;
         }
         auto itemMessageList = LootResource::GetLootItems(lootResource);
-        if (itemMessageList.empty()) {
+        if (itemMessageList.empty())
+        {
             return false;
         }
-        for (auto &itemMessage: itemMessageList) {
+        for (auto& itemMessage : itemMessageList)
+        {
             auto itemRes = appContext_->GetResourceLocator()->FindItem(worldContext_, itemMessage);
-            if (itemRes != nullptr) {
+            if (itemRes != nullptr)
+            {
                 itemRes->ReadItemMessage(worldContext_, itemMessage);
                 std::unique_ptr<Item> item = itemContainer->GetItemContainer()->AddItem(
                     std::move(itemRes));

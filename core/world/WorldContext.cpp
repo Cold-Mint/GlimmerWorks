@@ -768,6 +768,7 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position)
     return true;
 }
 
+//skipcq: CXX-C2014
 void glimmer::WorldContext::SaveEntity(EntityItemMessage* entityItemMessage, const GameEntityID entityId) const
 {
     entityItemMessage->mutable_gameentity()->set_id(entityId);

@@ -46,7 +46,7 @@ void glimmer::BiomeScoreCommand::InitSuggestions(NodeTree<std::string>* suggesti
     suggestionsTree->AddChild("info")->AddChild(X_DYNAMIC_SUGGESTIONS_NAME)->AddChild(Y_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-std::string glimmer::BiomeScoreCommand::GetName() const
+const std::string& glimmer::BiomeScoreCommand::GetName() const
 {
     return BIOME_SCORE_COMMAND_NAME;
 }
@@ -56,9 +56,8 @@ bool glimmer::BiomeScoreCommand::RequiresWorldContext() const
     return true;
 }
 
-//skipcq: CXX-C2014
 void glimmer::BiomeScoreCommand::
-PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) //skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

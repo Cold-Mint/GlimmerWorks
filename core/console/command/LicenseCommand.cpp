@@ -55,12 +55,12 @@ bool glimmer::LicenseCommand::Execute(const CommandSender* commandSender, const 
     return false;
 }
 
-//skipcq: CXX-C2014
 void glimmer::LicenseCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
 }
 
-std::string glimmer::LicenseCommand::GetName() const
+const std::string& glimmer::LicenseCommand::GetName() const
 {
     return LICENSE_COMMAND_NAME;
 }

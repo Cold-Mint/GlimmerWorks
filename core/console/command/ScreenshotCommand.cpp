@@ -43,14 +43,13 @@ glimmer::ScreenshotCommand::ScreenshotCommand(AppContext* appContext)
 {
 }
 
-std::string glimmer::ScreenshotCommand::GetName() const
+const std::string& glimmer::ScreenshotCommand::GetName() const
 {
     return SCREEN_SHOT_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::ScreenshotCommand::
-PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) //skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

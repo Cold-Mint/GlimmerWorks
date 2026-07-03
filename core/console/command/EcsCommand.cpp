@@ -66,13 +66,13 @@ std::string glimmer::EcsCommand::EntityToString(const GameEntityID gameEntityId)
                        stringStream.str());
 }
 
-std::string glimmer::EcsCommand::GetName() const
+const std::string& glimmer::EcsCommand::GetName() const
 {
     return ECS_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::EcsCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

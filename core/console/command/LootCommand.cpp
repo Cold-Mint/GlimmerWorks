@@ -44,13 +44,13 @@ glimmer::LootCommand::LootCommand(AppContext* appContext)
 {
 }
 
-std::string glimmer::LootCommand::GetName() const
+const std::string& glimmer::LootCommand::GetName() const
 {
     return LOOT_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::LootCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

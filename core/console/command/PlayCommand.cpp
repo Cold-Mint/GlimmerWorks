@@ -40,13 +40,13 @@ glimmer::PlayCommand::PlayCommand(AppContext* appContext) : Command(appContext)
     audioManager_ = appContext->GetAudioManager();
 }
 
-std::string glimmer::PlayCommand::GetName() const
+const std::string& glimmer::PlayCommand::GetName() const
 {
     return PLAY_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::PlayCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {
@@ -88,7 +88,8 @@ bool glimmer::PlayCommand::Execute(const CommandSender* commandSender, const Com
     {
         return false;
     }
-    const std::shared_ptr<AudioResourceResult> audioResourceResult = appContext_->GetResourceLocator()->FindAudio(&resourceRef.value());
+    const std::shared_ptr<AudioResourceResult> audioResourceResult = appContext_->GetResourceLocator()->FindAudio(
+        &resourceRef.value());
     if (audioResourceResult == nullptr)
     {
         return false;

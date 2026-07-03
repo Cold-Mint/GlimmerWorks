@@ -72,13 +72,13 @@ void glimmer::ItemEditorCommand::InitSuggestions(NodeTree<std::string>* suggesti
     AddSuggestionsValue(suggestionsTree->AddChild("set"), true);
 }
 
-std::string glimmer::ItemEditorCommand::GetName() const
+const std::string& glimmer::ItemEditorCommand::GetName() const
 {
     return ITEM_EDITOR_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::ItemEditorCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

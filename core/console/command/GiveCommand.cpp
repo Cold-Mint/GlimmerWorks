@@ -56,8 +56,8 @@ glimmer::GiveCommand::GiveCommand(AppContext* appContext)
 {
 }
 
-//skipcq: CXX-C2014
 void glimmer::GiveCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {
@@ -330,7 +330,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
     return false;
 }
 
-std::string glimmer::GiveCommand::GetName() const
+const std::string& glimmer::GiveCommand::GetName() const
 {
     return GIVE_COMMAND_NAME;
 }

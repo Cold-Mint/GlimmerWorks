@@ -39,13 +39,13 @@ glimmer::EchoCommand::EchoCommand(AppContext* appContext) : Command(appContext)
 {
 }
 
-std::string glimmer::EchoCommand::GetName() const
+const std::string& glimmer::EchoCommand::GetName() const
 {
     return ECHO_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::EchoCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

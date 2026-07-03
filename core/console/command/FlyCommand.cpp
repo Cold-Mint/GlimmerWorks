@@ -46,7 +46,7 @@ glimmer::FlyCommand::FlyCommand(AppContext* appContext) : Command(appContext)
 {
 }
 
-std::string glimmer::FlyCommand::GetName() const
+const std::string& glimmer::FlyCommand::GetName() const
 {
     return FLY_COMMAND_NAME;
 }
@@ -56,8 +56,8 @@ bool glimmer::FlyCommand::RequiresWorldContext() const
     return true;
 }
 
-//skipcq: CXX-C2014
 void glimmer::FlyCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

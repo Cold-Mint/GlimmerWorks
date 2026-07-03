@@ -61,7 +61,7 @@ glimmer::AssetViewerCommand::AssetViewerCommand(AppContext* appContext)
 {
 }
 
-std::string glimmer::AssetViewerCommand::GetName() const
+const std::string& glimmer::AssetViewerCommand::GetName() const
 {
     return ASSET_VIEWER_COMMAND_NAME;
 }
@@ -71,9 +71,8 @@ bool glimmer::AssetViewerCommand::RequiresWorldContext() const
     return false;
 }
 
-//skipcq: CXX-C2014
 void glimmer::AssetViewerCommand::
-PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) //skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

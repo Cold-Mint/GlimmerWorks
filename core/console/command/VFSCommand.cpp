@@ -56,13 +56,13 @@ glimmer::VFSCommand::VFSCommand(AppContext* appContext)
 {
 }
 
-std::string glimmer::VFSCommand::GetName() const
+const std::string& glimmer::VFSCommand::GetName() const
 {
     return VFS_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::VFSCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

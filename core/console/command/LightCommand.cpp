@@ -53,13 +53,13 @@ bool glimmer::LightCommand::RequiresWorldContext() const
     return true;
 }
 
-std::string glimmer::LightCommand::GetName() const
+const std::string& glimmer::LightCommand::GetName() const
 {
     return LIGHT_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::LightCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

@@ -34,6 +34,7 @@
 namespace glimmer
 {
     struct RecipeResource;
+
     class UnlockedRecipesCommand : public Command
     {
     protected:
@@ -44,7 +45,7 @@ namespace glimmer
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
 
         void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
 

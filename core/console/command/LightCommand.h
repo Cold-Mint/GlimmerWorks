@@ -28,23 +28,25 @@
 #if  !defined(NDEBUG)
 #include "core/console/Command.h"
 
-namespace glimmer {
-    class LightCommand : public Command {
+namespace glimmer
+{
+    class LightCommand : public Command
+    {
     public:
-        explicit LightCommand(AppContext *appContext);
+        explicit LightCommand(AppContext* appContext);
 
     protected:
-        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
         [[nodiscard]] bool RequiresWorldContext() const override;
 
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
 
-        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
+        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
 
-        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                     const std::function<void(const std::string &text)> *onMessage) override;
+        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                     const std::function<void(const std::string& text)>* onMessage) override;
     };
 }
 #endif

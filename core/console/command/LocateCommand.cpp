@@ -80,7 +80,7 @@ void glimmer::LocateCommand::InitSuggestions(NodeTree<std::string>* suggestionsT
     suggestionsTree->AddChild("biome")->AddChild(BIOME_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-std::string glimmer::LocateCommand::GetName() const
+const std::string& glimmer::LocateCommand::GetName() const
 {
     return LOCATE_COMMAND_NAME;
 }
@@ -90,8 +90,8 @@ bool glimmer::LocateCommand::RequiresWorldContext() const
     return true;
 }
 
-//skipcq: CXX-C2014
 void glimmer::LocateCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

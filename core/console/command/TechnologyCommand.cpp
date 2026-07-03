@@ -47,7 +47,7 @@ glimmer::TechnologyCommand::TechnologyCommand(AppContext* appContext)
 {
 }
 
-std::string glimmer::TechnologyCommand::GetName() const
+const std::string& glimmer::TechnologyCommand::GetName() const
 {
     return TECHNOLOGY_COMMAND_NAME;
 }
@@ -57,8 +57,8 @@ bool glimmer::TechnologyCommand::RequiresWorldContext() const
     return true;
 }
 
-//skipcq: CXX-C2014
 void glimmer::TechnologyCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

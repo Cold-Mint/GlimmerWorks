@@ -95,13 +95,13 @@ bool glimmer::SummonCommand::Execute(const CommandSender* commandSender, const C
     return true;
 }
 
-std::string glimmer::SummonCommand::GetName() const
+const std::string& glimmer::SummonCommand::GetName() const
 {
     return SUMMON_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::SummonCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

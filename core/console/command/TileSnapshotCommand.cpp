@@ -48,7 +48,7 @@ glimmer::TileSnapshotCommand::TileSnapshotCommand(AppContext* appContext)
 {
 }
 
-std::string glimmer::TileSnapshotCommand::GetName() const
+const std::string& glimmer::TileSnapshotCommand::GetName() const
 {
     return TILE_SNAPSHOT_COMMAND_NAME;
 }
@@ -58,9 +58,8 @@ bool glimmer::TileSnapshotCommand::RequiresWorldContext() const
     return true;
 }
 
-//skipcq: CXX-C2014
 void glimmer::TileSnapshotCommand::PutCommandStructure(const CommandArgs* commandArgs,
-                                                       std::vector<std::string>* strings)
+                                                       std::vector<std::string>* strings) //skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

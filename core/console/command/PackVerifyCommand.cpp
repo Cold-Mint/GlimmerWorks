@@ -43,9 +43,8 @@ glimmer::PackVerifyCommand::PackVerifyCommand(AppContext* appContext) : Command(
 {
 }
 
-//skipcq: CXX-C2014
 void glimmer::PackVerifyCommand::
-PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) //skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {
@@ -110,7 +109,7 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender* commandSender, con
     return true;
 }
 
-std::string glimmer::PackVerifyCommand::GetName() const
+const std::string& glimmer::PackVerifyCommand::GetName() const
 {
     return PACK_VERIFY_COMMAND_NAME;
 }

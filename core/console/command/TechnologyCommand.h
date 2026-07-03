@@ -38,7 +38,7 @@ namespace glimmer
     public:
         explicit TechnologyCommand(AppContext* appContext);
 
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 

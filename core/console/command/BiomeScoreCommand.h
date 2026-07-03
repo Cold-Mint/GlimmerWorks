@@ -37,7 +37,7 @@ namespace glimmer {
         void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
 
     public:
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 

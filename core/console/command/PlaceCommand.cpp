@@ -47,13 +47,13 @@ glimmer::PlaceCommand::PlaceCommand(AppContext* appContext) : Command(appContext
 {
 }
 
-std::string glimmer::PlaceCommand::GetName() const
+const std::string& glimmer::PlaceCommand::GetName() const
 {
     return PLACE_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::PlaceCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

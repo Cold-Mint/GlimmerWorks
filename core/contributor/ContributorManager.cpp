@@ -26,7 +26,8 @@
  */
 #include "ContributorManager.h"
 
-glimmer::ContributorManager::ContributorManager() {
+glimmer::ContributorManager::ContributorManager()
+{
     auto coldMintContributor = std::make_unique<Contributor>();
     coldMintContributor->uuid = DEV_UUID_COLD_MINT;
     coldMintContributor->name = DEV_NAME_COLO_MINT;
@@ -39,18 +40,21 @@ glimmer::ContributorManager::ContributorManager() {
     Register(std::move(coldMintContributor));
 }
 
-bool glimmer::ContributorManager::Register(std::unique_ptr<Contributor> contributor) {
-    if (contributor == nullptr) {
+bool glimmer::ContributorManager::Register(const std::unique_ptr<Contributor>& contributor) const
+{
+    if (contributor == nullptr)
+    {
         return false;
     }
-    std::string &uuid = contributor->uuid;
-    if (contributors.contains(uuid)) {
-        return false;
+    std::string& uuid = contributor->uuid;
+    if (contributors.contains(uuid))
+    {
+        return false; //skipcq: CXX-C2015
     }
-    contributors.insert(std::make_pair(std::move(uuid), std::move(contributor)));
     return true;
 }
 
-glimmer::Contributor *glimmer::ContributorManager::Find(const std::string &uuid) const {
+glimmer::Contributor* glimmer::ContributorManager::Find(const std::string& uuid) const
+{
     return contributors.find(uuid)->second.get();
 }

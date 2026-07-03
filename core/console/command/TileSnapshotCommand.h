@@ -37,7 +37,7 @@ namespace glimmer
 
     public:
         explicit TileSnapshotCommand(AppContext* appContext);
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
         [[nodiscard]] bool RequiresWorldContext() const override;
         void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
         bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,

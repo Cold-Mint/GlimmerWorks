@@ -44,7 +44,7 @@ namespace glimmer {
 
         ~ConfigCommand() override = default;
 
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
 
         void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
 

@@ -49,13 +49,13 @@ glimmer::ConfigCommand::ConfigCommand(AppContext* appContext, toml::value* value
 {
 }
 
-std::string glimmer::ConfigCommand::GetName() const
+const std::string& glimmer::ConfigCommand::GetName() const
 {
     return CONFIG_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr || commandArgs == nullptr)
     {

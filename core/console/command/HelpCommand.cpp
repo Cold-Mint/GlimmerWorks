@@ -30,26 +30,32 @@
 #include "core/scene/AppContext.h"
 
 
-void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
+{
 }
 
-glimmer::HelpCommand::HelpCommand(AppContext *appContext) : Command(appContext) {
+glimmer::HelpCommand::HelpCommand(AppContext* appContext) : Command(appContext)
+{
 }
 
-std::string glimmer::HelpCommand::GetName() const {
+const std::string& glimmer::HelpCommand::GetName() const
+{
     return HELP_COMMAND_NAME;
 }
 
+void glimmer::HelpCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 //skipcq: CXX-C2014
-void glimmer::HelpCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+{
 }
 
-bool glimmer::HelpCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                                   const std::function<void(const std::string &text)> *onMessage) {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr) {
+bool glimmer::HelpCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                                   const std::function<void(const std::string& text)>* onMessage)
+{
+    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    {
         return false;
     }
-    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
     onMessageRef(appContext_->GetCommandManager()->GetHelpText(appContext_->GetLangsResources()));
     return true;
 }

@@ -35,7 +35,7 @@ namespace glimmer {
     public:
         explicit FlyCommand(AppContext *appContext);
 
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 

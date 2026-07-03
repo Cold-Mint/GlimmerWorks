@@ -49,7 +49,7 @@ void glimmer::ParallaxBackgroundCommand::InitSuggestions(NodeTree<std::string>* 
 }
 
 
-std::string glimmer::ParallaxBackgroundCommand::GetName() const
+const std::string& glimmer::ParallaxBackgroundCommand::GetName() const
 {
     return PARALLAX_BACKGROUND_COMMAND_NAME;
 }
@@ -59,9 +59,8 @@ bool glimmer::ParallaxBackgroundCommand::RequiresWorldContext() const
     return true;
 }
 
-//skipcq: CXX-C2014
 void glimmer::ParallaxBackgroundCommand::PutCommandStructure(const CommandArgs* commandArgs,
-                                                             std::vector<std::string>* strings)
+                                                             std::vector<std::string>* strings) //skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

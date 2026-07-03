@@ -46,13 +46,13 @@ glimmer::TpCommand::TpCommand(AppContext* appContext) : Command(appContext)
 {
 }
 
-std::string glimmer::TpCommand::GetName() const
+const std::string& glimmer::TpCommand::GetName() const
 {
     return TP_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::TpCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

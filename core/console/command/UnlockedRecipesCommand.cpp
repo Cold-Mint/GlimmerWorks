@@ -51,32 +51,35 @@ void glimmer::UnlockedRecipesCommand::WriteRecipe(const std::string& recipesItem
 
     const auto& output = recipe->output;
     std::string outputStr = fmt::format("{} x{}",
-        Resource::GenerateId(output.item.GetPackageId(), output.item.GetResourceKey()),
-        output.amount);
+                                        Resource::GenerateId(output.item.GetPackageId(), output.item.GetResourceKey()),
+                                        output.amount);
 
     std::string recipeGroupStr;
     switch (static_cast<RecipeGroup>(recipe->recipeGroup))
     {
-        case RecipeGroup::None: recipeGroupStr = "None"; break;
-        case RecipeGroup::CraftTable: recipeGroupStr = "CraftTable"; break;
-        case RecipeGroup::Furnace: recipeGroupStr = "Furnace"; break;
-        default:
-            if (recipe->recipeGroup >= 65)
-            {
-                recipeGroupStr = fmt::format("Custom{}", recipe->recipeGroup - 64);
-            }
-            else
-            {
-                recipeGroupStr = fmt::format("Unknown({})", static_cast<int>(recipe->recipeGroup));
-            }
-            break;
+    case RecipeGroup::None: recipeGroupStr = "None";
+        break;
+    case RecipeGroup::CraftTable: recipeGroupStr = "CraftTable";
+        break;
+    case RecipeGroup::Furnace: recipeGroupStr = "Furnace";
+        break;
+    default:
+        if (recipe->recipeGroup >= 65)
+        {
+            recipeGroupStr = fmt::format("Custom{}", recipe->recipeGroup - 64);
+        }
+        else
+        {
+            recipeGroupStr = fmt::format("Unknown({})", static_cast<int>(recipe->recipeGroup));
+        }
+        break;
     }
 
     stringStream << fmt::format(fmt::runtime(recipesItem),
-        Resource::GenerateId(recipe->packId, recipe->resourceId),
-        outputStr,
-        recipe->duration,static_cast<int>(recipe->minTechnologyLevel),
-        recipeGroupStr);
+                                Resource::GenerateId(recipe->packId, recipe->resourceId),
+                                outputStr,
+                                recipe->duration, static_cast<int>(recipe->minTechnologyLevel),
+                                recipeGroupStr);
 }
 
 glimmer::UnlockedRecipesCommand::UnlockedRecipesCommand(AppContext* appContext)
@@ -89,14 +92,13 @@ bool glimmer::UnlockedRecipesCommand::RequiresWorldContext() const
     return true;
 }
 
-std::string glimmer::UnlockedRecipesCommand::GetName() const
+const std::string& glimmer::UnlockedRecipesCommand::GetName() const
 {
     return UNLOCKED_RECIPES_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::UnlockedRecipesCommand::PutCommandStructure(const CommandArgs* commandArgs,
-                                                          std::vector<std::string>* strings)
+                                                          std::vector<std::string>* strings) //skipcq: CXX-C2014
 {
 }
 
@@ -153,7 +155,8 @@ bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender
     {
         return false;
     }
-    auto unlockedRecipes = recipeManager->FindUnlockedRecipes(playerComponent->GetTechnologyMap(), itemContainer->GetTotalTags());
+    auto unlockedRecipes = recipeManager->FindUnlockedRecipes(playerComponent->GetTechnologyMap(),
+                                                              itemContainer->GetTotalTags());
     if (unlockedRecipes.empty())
     {
         onMessageRef(langsResources->noUnlockedRecipes);

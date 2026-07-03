@@ -47,7 +47,7 @@ glimmer::Box2DCommand::Box2DCommand(AppContext* appContext)
 {
 }
 
-std::string glimmer::Box2DCommand::GetName() const
+const std::string& glimmer::Box2DCommand::GetName() const
 {
     return BOX2D_COMMAND_NAME;
 }
@@ -57,8 +57,8 @@ bool glimmer::Box2DCommand::RequiresWorldContext() const
     return true;
 }
 
-//skipcq: CXX-C2014
 void glimmer::Box2DCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

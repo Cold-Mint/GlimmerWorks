@@ -58,12 +58,12 @@ bool glimmer::SeedCommand::Execute(const CommandSender* commandSender, const Com
     return true;
 }
 
-std::string glimmer::SeedCommand::GetName() const
+const std::string& glimmer::SeedCommand::GetName() const
 {
     return SEED_COMMAND_NAME;
 }
 
-//skipcq: CXX-C2014
 void glimmer::SeedCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
 }

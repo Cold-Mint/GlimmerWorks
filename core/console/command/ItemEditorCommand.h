@@ -31,7 +31,7 @@ namespace glimmer
 {
     class ItemEditorCommand final : public Command
     {
-        static void AddSuggestionsValue(NodeTree<std::string>* suggestionsTree,bool setMode);
+        static void AddSuggestionsValue(NodeTree<std::string>* suggestionsTree, bool setMode);
 
     protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
@@ -39,7 +39,7 @@ namespace glimmer
     public:
         explicit ItemEditorCommand(AppContext* appContext);
         [[nodiscard]] bool RequiresWorldContext() const override;
-        [[nodiscard]] std::string GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
         void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
         bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                      const std::function<void(const std::string& text)>* onMessage) override;

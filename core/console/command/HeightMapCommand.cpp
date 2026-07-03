@@ -39,7 +39,7 @@ glimmer::HeightMapCommand::HeightMapCommand(AppContext* appContext) : Command(ap
 {
 }
 
-std::string glimmer::HeightMapCommand::GetName() const
+const std::string& glimmer::HeightMapCommand::GetName() const
 {
     return HEIGHT_MAP_COMMAND_NAME;
 }
@@ -49,8 +49,8 @@ bool glimmer::HeightMapCommand::RequiresWorldContext() const
     return true;
 }
 
-//skipcq: CXX-C2014
 void glimmer::HeightMapCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

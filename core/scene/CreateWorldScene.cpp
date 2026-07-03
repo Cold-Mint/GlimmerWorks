@@ -79,7 +79,7 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.createTime = TimeUtils::GetCurrentTimeMs();
     manifest.lastPlayedTime = manifest.createTime;
     manifest.totalPlayTime = 0;
-    SavesManager* savesManager = appContext_->GetSavesManager();
+    auto* savesManager = appContext_->GetSavesManager();
     Saves* saves =
         savesManager->
         Create(appContext_->GetConfig()->runtimePath, manifest);

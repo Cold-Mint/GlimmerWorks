@@ -43,7 +43,7 @@ const glimmer::Tile* glimmer::TileLayerComponent::GetTile(const TileLayerType la
     {
         return nullptr;
     }
-    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    const auto* chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr)
     {
         return nullptr;
@@ -86,7 +86,7 @@ GetTopVisibleTileSnapshotsInViewport(uint8_t layerFilter, const SDL_FRect& world
             for (int x = topLeft.x; x <= bottomRight.x; ++x)
             {
                 TileVector2D tileVector2D(x, y);
-                const auto chunk = worldContext_->
+                const auto* chunk = worldContext_->
                     GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D));
                 if (chunk == nullptr)
                 {
@@ -115,7 +115,7 @@ std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetTileShared(const 
     {
         return nullptr;
     }
-    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    const auto* chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr)
     {
         return nullptr;
@@ -152,7 +152,7 @@ bool glimmer::TileLayerComponent::CommitTileState(const BreakSource breakSource,
     {
         return false;
     }
-    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    auto* chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr)
     {
         return false;
@@ -168,7 +168,7 @@ TileStateMessage* glimmer::TileLayerComponent::GetTileStatePtr(const TileLayerTy
     {
         return nullptr;
     }
-    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    const auto* chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr)
     {
         return nullptr;

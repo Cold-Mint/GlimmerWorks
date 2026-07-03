@@ -52,10 +52,10 @@ void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
     ImGuiIO& io = ImGui::GetIO();
 
     // 让窗口居中
-    ImVec2 windowSize(300.0f, 200.0f);
+    ImVec2 windowSize(300.0F, 200.0F);
     ImVec2 windowPos(
-        (io.DisplaySize.x - windowSize.x) * 0.5f,
-        (io.DisplaySize.y - windowSize.y) * 0.5f
+        (io.DisplaySize.x - windowSize.x) * 0.5F,
+        (io.DisplaySize.y - windowSize.y) * 0.5F
     );
 
     ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always);
@@ -73,7 +73,7 @@ void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
         // 居中标题
         const char* title = appContext->GetLangsResources()->pause.c_str();
         ImVec2 textSize = ImGui::CalcTextSize(title);
-        ImGui::SetCursorPosX((windowSize.x - textSize.x) * 0.5f);
+        ImGui::SetCursorPosX((windowSize.x - textSize.x) * 0.5F);
         ImGui::TextUnformatted(title);
 
         ImGui::Spacing();
@@ -82,8 +82,8 @@ void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
         ImGui::Spacing();
 
         // 按钮宽度统一
-        float buttonWidth = 200.0f;
-        ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+        float buttonWidth = 200.0F;
+        ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
 
         if (ImGui::Button(appContext->GetLangsResources()->restore.c_str(), ImVec2(buttonWidth, 0)))
         {
@@ -91,7 +91,7 @@ void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
         }
 
         ImGui::Spacing();
-        ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5f);
+        ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
 
         if (ImGui::Button(appContext->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0)))
         {

@@ -33,8 +33,10 @@
 #include <sstream>
 #include <algorithm>
 
-namespace glimmer {
-    void TomlTemplateExpander::Register(std::unique_ptr<ITemplateCommand> command) {
+namespace glimmer
+{
+    void TomlTemplateExpander::Register(std::unique_ptr<ITemplateCommand> command)
+    {
         if (command == nullptr)
             return;
         {
@@ -42,56 +44,70 @@ namespace glimmer {
         commandMap_[command->GetCommandName()] = std::move(command);
     }
 
-    void TomlTemplateExpander::Reset() const {
-        if (commandMap_.empty()) {
+    void TomlTemplateExpander::Reset() const
+    {
+        if (commandMap_.empty())
+        {
             return;
         }
-        for (auto &commandMap: commandMap_) {
+        for (const auto& commandMap : commandMap_)
+        {
             commandMap.second->Reset();
         }
     }
 
-    std::string TomlTemplateExpander::Expand(const std::vector<std::string> &templateSearchPath,
-                                             const std::string &inputText,
-                                             const VirtualFileSystem *virtualFileSystem) const {
-        if (templateSearchPath.empty()) {
+    std::string TomlTemplateExpander::Expand(const std::vector<std::string>& templateSearchPath,
+                                             const std::string& inputText,
+                                             const VirtualFileSystem* virtualFileSystem) const
+    {
+        if (templateSearchPath.empty())
+        {
             return inputText;
         }
         std::stringstream inputStringStream(inputText);
         std::stringstream output;
         std::string line;
         std::unordered_map<std::string, std::string> variables = {};
-        while (std::getline(inputStringStream, line)) {
-            if (line.starts_with("#@")) {
+        while (std::getline(inputStringStream, line))
+        {
+            if (line.starts_with("#@"))
+            {
                 std::string commandLine = line.substr(2);
                 size_t openParen = commandLine.find('(');
-                if (openParen == std::string::npos) {
+                if (openParen == std::string::npos)
+                {
                     output << line << '\n';
                     continue;
                 }
 
                 std::string cmdName = commandLine.substr(0, openParen);
                 auto it = commandMap_.find(cmdName);
-                if (it == commandMap_.end()) {
+                if (it == commandMap_.end())
+                {
                     continue;
                 }
-                ITemplateCommand *cmd = it->second.get();
+                ITemplateCommand* cmd = it->second.get();
                 size_t closeParen = commandLine.find(')', openParen);
                 std::string argsStr;
-                if (closeParen != std::string::npos) {
+                if (closeParen != std::string::npos)
+                {
                     argsStr = commandLine.substr(openParen + 1, closeParen - openParen - 1);
                 }
                 std::vector<std::string> args;
                 std::istringstream argsIss(argsStr);
                 std::string arg;
-                while (std::getline(argsIss, arg, ',')) {
+                while (std::getline(argsIss, arg, ','))
+                {
                     args.push_back(arg);
                 }
                 auto result = cmd->Execute(templateSearchPath, variables, args, virtualFileSystem);
-                if (result.has_value()) {
+                if (result.has_value())
+                {
                     output << *result << '\n';
                 }
-            } else {
+            }
+            else
+            {
                 output << line << '\n';
             }
         }

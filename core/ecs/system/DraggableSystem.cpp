@@ -177,7 +177,8 @@ void glimmer::DraggableSystem::Render(SDL_Renderer* renderer)
     }
     if (item_ != nullptr)
     {
-        float mouseX, mouseY = 0;
+        float mouseX = 0;
+        float mouseY = 0;
         SDL_GetMouseState(&mouseX, &mouseY);
         const SDL_FRect dst = {
             mouseX + 6, mouseY + 24, ITEM_SLOT_SIZE * uiScale_,
@@ -254,7 +255,8 @@ bool glimmer::DraggableSystem::HandleEvent(const SDL_Event& event)
             {
                 continue;
             }
-            float mouseX, mouseY = 0;
+            float mouseX = 0;
+            float mouseY = 0;
             SDL_GetMouseState(&mouseX, &mouseY);
             if (mouseX >= border.x && mouseX <= border.x + border.w &&
                 mouseY >= border.y && mouseY <= border.y + border.h)

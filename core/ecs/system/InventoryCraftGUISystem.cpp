@@ -175,7 +175,7 @@ void glimmer::InventoryCraftGUISystem::OnWatchedComponentChanged(GameComponentTy
     }
     if (gameComponentType == COMPONENT_ITEM_CONTAINER)
     {
-        auto itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+        auto* itemContainerComponent = entityShortCut_->GetItemContainerComponent();
         if (itemContainerComponent == nullptr)
         {
             return;

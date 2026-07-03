@@ -58,7 +58,7 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
         const std::function<void(const std::string& text)>* currentCallback = onMessageStack_.top().get();
         lock.unlock();
 
-        if (!commandRequest || commandManager_ == nullptr || !currentCallback)
+        if (commandRequest == nullptr || commandManager_ == nullptr || currentCallback == nullptr)
         {
             continue;
         }

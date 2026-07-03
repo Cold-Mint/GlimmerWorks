@@ -84,12 +84,12 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string& path, Strin
     if (!data.has_value())
     {
         LogCat::e("Failed to load toml file: ", path);
-        return false;
+        return 0;
     }
     const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
     if (searchPath.empty())
     {
-        return false;
+        return 0;
     }
     const toml::value value = toml::parse_str(
         tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
@@ -120,7 +120,7 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string& path, Strin
     catch (const std::exception& e)
     {
         LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
-        return false;
+        return 0;
     }
 }
 

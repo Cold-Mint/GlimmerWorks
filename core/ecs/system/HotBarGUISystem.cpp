@@ -93,16 +93,13 @@ void glimmer::HotBarGUISystem::AfterSelectItemSlot(const uint8_t selectedSlotInd
 
 void glimmer::HotBarGUISystem::OnActivationChanged(bool activeStatus)
 {
-    if (activeStatus)
+    for (auto hotBarItemSlot : hotBarItemSlot_)
     {
-        for (auto hotBarItemSlot : hotBarItemSlot_)
+        if (activeStatus)
         {
             hotBarItemSlot->Show();
         }
-    }
-    else
-    {
-        for (auto hotBarItemSlot : hotBarItemSlot_)
+        else
         {
             hotBarItemSlot->Hide();
         }

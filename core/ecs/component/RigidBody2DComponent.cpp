@@ -33,55 +33,69 @@
 #include "core/shape/ShapeType.h"
 
 
-glimmer::RigidBody2DComponent::~RigidBody2DComponent() {
-    if (ready_) {
+glimmer::RigidBody2DComponent::~RigidBody2DComponent()
+{
+    if (ready_)
+    {
         b2DestroyBody(bodyId_);
     }
 }
 
-void glimmer::RigidBody2DComponent::SetFilter(const Box2dFilter filter) {
+void glimmer::RigidBody2DComponent::SetFilter(const Box2dFilter filter)
+{
     filter_ = filter;
 }
 
-void glimmer::RigidBody2DComponent::SetShapeRef(const ResourceRef &shapeRef) {
+void glimmer::RigidBody2DComponent::SetShapeRef(const ResourceRef& shapeRef)
+{
     shapeRef_ = shapeRef;
 }
 
-void glimmer::RigidBody2DComponent::Disable() {
+void glimmer::RigidBody2DComponent::Disable()
+{
     enabled_ = false;
 }
 
-bool glimmer::RigidBody2DComponent::IsEnabled() const {
+bool glimmer::RigidBody2DComponent::IsEnabled() const
+{
     return enabled_;
 }
 
-void glimmer::RigidBody2DComponent::Enable() {
+void glimmer::RigidBody2DComponent::Enable()
+{
     enabled_ = true;
 }
 
-void glimmer::RigidBody2DComponent::SetDensity(const float density) {
+void glimmer::RigidBody2DComponent::SetDensity(const float density)
+{
     density_ = density;
 }
 
-float glimmer::RigidBody2DComponent::GetDensity() const {
+float glimmer::RigidBody2DComponent::GetDensity() const
+{
     return density_;
 }
 
-void glimmer::RigidBody2DComponent::SetFriction(const float friction) {
+void glimmer::RigidBody2DComponent::SetFriction(const float friction)
+{
     friction_ = friction;
 }
 
-void glimmer::RigidBody2DComponent::SetRestitution(float restitution) {
+void glimmer::RigidBody2DComponent::SetRestitution(float restitution)
+{
     restitution_ = restitution;
 }
 
-float glimmer::RigidBody2DComponent::GetFriction() const {
+float glimmer::RigidBody2DComponent::GetFriction() const
+{
     return friction_;
 }
 
-void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLocator, const b2WorldId worldId,
-                                               const WorldVector2D vector2d) {
-    if (ready_) {
+void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator* resourceLocator, const b2WorldId worldId,
+                                               const WorldVector2D vector2d)
+{
+    if (ready_)
+    {
         return;
     }
     b2BodyDef bodyDef_ = b2DefaultBodyDef();
@@ -98,11 +112,13 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
     shapeDef.density = density_;
     shapeDef.material.restitution = restitution_;
     shapeDef.material.friction = friction_;
-    if (IShapeResource *shapeResource = resourceLocator->FindShape(&shapeRef_); shapeResource != nullptr) {
+    if (IShapeResource* shapeResource = resourceLocator->FindShape(&shapeRef_); shapeResource != nullptr)
+    {
         const auto shape = static_cast<ShapeType>(shapeResource->shapeType);
-        if (shape == ShapeType::RECTANGLE) {
+        if (shape == ShapeType::RECTANGLE)
+        {
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-            const RectangleShapeResource *rectangleShapeResource = static_cast<RectangleShapeResource *>(shapeResource);
+            const RectangleShapeResource* rectangleShapeResource = static_cast<RectangleShapeResource*>(shapeResource);
             const b2Polygon box2dShape = b2MakeBox(
                 Box2DUtils::ToMeters(rectangleShapeResource->width * TILE_SIZE * 0.5F),
                 Box2DUtils::ToMeters(rectangleShapeResource->height * TILE_SIZE * 0.5F)
@@ -110,9 +126,10 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
             b2CreatePolygonShape(bodyId_, &shapeDef, &box2dShape);
         }
 
-        if (shape == ShapeType::CIRCLE) {
+        if (shape == ShapeType::CIRCLE)
+        {
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-            const auto circularShapeResource = static_cast<CircularShapeResource *>(shapeResource);
+            const auto* circularShapeResource = static_cast<CircularShapeResource*>(shapeResource);
             b2Circle circle;
             circle.radius = circularShapeResource->radius;
             circle.center = {
@@ -122,9 +139,10 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
             b2CreateCircleShape(bodyId_, &shapeDef, &circle);
         }
 
-        if (shape == ShapeType::ROUNDED_RECTANGLE) {
+        if (shape == ShapeType::ROUNDED_RECTANGLE)
+        {
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-            const auto roundedRectangleShapeResource = static_cast<RoundedRectangleShapeResource *>(shapeResource);
+            const auto* roundedRectangleShapeResource = static_cast<RoundedRectangleShapeResource*>(shapeResource);
             const b2Polygon box2dShape = b2MakeRoundedBox(
                 Box2DUtils::ToMeters(roundedRectangleShapeResource->width * TILE_SIZE * 0.5F),
                 Box2DUtils::ToMeters(roundedRectangleShapeResource->height * TILE_SIZE * 0.5F),
@@ -138,55 +156,68 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator *resourceLo
     ready_ = true;
 }
 
-b2BodyId glimmer::RigidBody2DComponent::GetBodyId() const {
+b2BodyId glimmer::RigidBody2DComponent::GetBodyId() const
+{
     return bodyId_;
 }
 
-bool glimmer::RigidBody2DComponent::IsReady() const {
+bool glimmer::RigidBody2DComponent::IsReady() const
+{
     return ready_;
 }
 
-void glimmer::RigidBody2DComponent::SetBodyType(const b2BodyType bodyType) {
-    if (ready_) {
+void glimmer::RigidBody2DComponent::SetBodyType(const b2BodyType bodyType)
+{
+    if (ready_)
+    {
         LogCat::d("Cannot change body type after creation.");
         return;
     }
     bodyType_ = bodyType;
 }
 
-void glimmer::RigidBody2DComponent::SetAllowBodySleep(bool enable) {
-    if (ready_) {
+void glimmer::RigidBody2DComponent::SetAllowBodySleep(bool enable)
+{
+    if (ready_)
+    {
         LogCat::d("Cannot enableSleep after creation.");
         return;
     }
     allowBodySleep_ = enable;
 }
 
-bool glimmer::RigidBody2DComponent::AllowBodySleep() const {
+bool glimmer::RigidBody2DComponent::AllowBodySleep() const
+{
     return allowBodySleep_;
 }
 
-void glimmer::RigidBody2DComponent::SetFixedRotation(bool fixedRotation) {
-    if (ready_) {
+void glimmer::RigidBody2DComponent::SetFixedRotation(bool fixedRotation)
+{
+    if (ready_)
+    {
         LogCat::d("Cannot change fixedRotation after creation.");
         return;
     }
     fixedRotation_ = fixedRotation;
 }
 
-bool glimmer::RigidBody2DComponent::GetFixedRotation() const {
+bool glimmer::RigidBody2DComponent::GetFixedRotation() const
+{
     return fixedRotation_;
 }
 
-bool glimmer::RigidBody2DComponent::IsDynamicBody() const {
+bool glimmer::RigidBody2DComponent::IsDynamicBody() const
+{
     return bodyType_ == b2_dynamicBody;
 }
 
-bool glimmer::RigidBody2DComponent::IsKinematicBody() const {
+bool glimmer::RigidBody2DComponent::IsKinematicBody() const
+{
     return bodyType_ == b2_kinematicBody;
 }
 
-bool glimmer::RigidBody2DComponent::IsStaticBody() const {
+bool glimmer::RigidBody2DComponent::IsStaticBody() const
+{
     return bodyType_ == b2_staticBody;
 }
 
@@ -195,7 +226,7 @@ GameComponentTypeMessage glimmer::RigidBody2DComponent::GetComponentTypeStatic()
     return COMPONENT_RIGID_BODY_2D;
 }
 
-GameComponentTypeMessage glimmer::RigidBody2DComponent::GetComponentType() {
+GameComponentTypeMessage glimmer::RigidBody2DComponent::GetComponentType()
+{
     return GetComponentTypeStatic();
 }
-

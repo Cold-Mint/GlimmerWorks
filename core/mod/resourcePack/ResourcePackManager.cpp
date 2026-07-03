@@ -499,7 +499,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Cr
     SDL_Texture* texture =
         SDL_CreateTextureFromSurface(renderer_, surface);
     SDL_DestroySurface(surface);
-    auto textureResourceResult = new TextureResourceResult();
+    auto* textureResourceResult = new TextureResourceResult();
     textureResourceResult->SetResource(texture);
     auto deleter = [](TextureResourceResult* textureResourceResult)
     {

@@ -153,8 +153,8 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         float gravityForce = massData.mass * GRAVITY_SCALE;
         b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
     }
-    auto hotBarComponent = entityShortCut_->GetHotBarComponent();
-    auto itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+    auto* hotBarComponent = entityShortCut_->GetHotBarComponent();
+    auto* itemContainerComponent = entityShortCut_->GetItemContainerComponent();
     ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
     playerComponent->AddDropTimer(delta);
     if (playerComponent->IsDropPressed() && playerComponent->GetDropTimer() >= DROP_INTERVAL)
@@ -212,7 +212,7 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
     {
         return;
     }
-    auto item = itemContainer->GetItem(index);
+    auto* item = itemContainer->GetItem(index);
     if (item == nullptr)
     {
         return;

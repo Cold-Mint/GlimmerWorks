@@ -97,7 +97,7 @@ static glimmer::ScreenVector2D ConvertBox2DToScreen(const glimmer::WorldContext*
     }
     const glimmer::Transform2DComponent* cameraTransform2D = entityShortCut->GetCameraTransform2DComponent();
     const glimmer::CameraComponent* cameraComponent = entityShortCut->GetCameraComponent();
-    if (!cameraTransform2D || !cameraComponent)
+    if (cameraTransform2D == nullptr || cameraComponent == nullptr)
     {
         return {worldPos.x * glimmer::kScale, -worldPos.y * glimmer::kScale};
     }

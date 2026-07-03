@@ -214,152 +214,152 @@ bool glimmer::App::Init()
     (void)io;
 
     LogCat::i("Setting ImGui style to Light...");
-    auto preloadColors = appContext_->GetPreloadColors();
-    const auto textColor = preloadColors->textColor;
+    auto* preloadColors = appContext_->GetPreloadColors();
+    const auto& textColor = preloadColors->textColor;
     const auto textImColor = ImVec4(static_cast<float>(textColor.r) / 255,
                                     static_cast<float>(textColor.g) / 255,
                                     static_cast<float>(textColor.b) / 255,
                                     static_cast<float>(textColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_Text] = textImColor;
-    const auto textDisabledColor = preloadColors->textDisabledColor;
+    const auto& textDisabledColor = preloadColors->textDisabledColor;
     const auto textDisabledImColor = ImVec4(static_cast<float>(textDisabledColor.r) / 255,
                                             static_cast<float>(textDisabledColor.g) / 255,
                                             static_cast<float>(textDisabledColor.b) / 255,
                                             static_cast<float>(textDisabledColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_TextDisabled] = textDisabledImColor;
-    const auto textLinkColor = preloadColors->textLinkColor;
+    const auto& textLinkColor = preloadColors->textLinkColor;
     const auto textLinkImColor = ImVec4(static_cast<float>(textLinkColor.r) / 255,
                                         static_cast<float>(textLinkColor.g) / 255,
                                         static_cast<float>(textLinkColor.b) / 255,
                                         static_cast<float>(textLinkColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_TextLink] = textLinkImColor;
-    const auto textSelectedBgColor = preloadColors->textSelectedBgColor;
+    const auto& textSelectedBgColor = preloadColors->textSelectedBgColor;
     const auto textSelectedBgImColor = ImVec4(static_cast<float>(textSelectedBgColor.r) / 255,
                                               static_cast<float>(textSelectedBgColor.g) / 255,
                                               static_cast<float>(textSelectedBgColor.b) / 255,
                                               static_cast<float>(textSelectedBgColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_TextSelectedBg] = textSelectedBgImColor;
-    const auto backgroundColor = preloadColors->backgroundColor;
+    const auto& backgroundColor = preloadColors->backgroundColor;
     const auto backgroundImColor = ImVec4(static_cast<float>(backgroundColor.r) / 255,
                                           static_cast<float>(backgroundColor.g) / 255,
                                           static_cast<float>(backgroundColor.b) / 255,
                                           static_cast<float>(backgroundColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = backgroundImColor;
-    const auto borderColor = preloadColors->borderColor;
+    const auto& borderColor = preloadColors->borderColor;
     const auto borderImColor = ImVec4(static_cast<float>(borderColor.r) / 255,
                                       static_cast<float>(borderColor.g) / 255,
                                       static_cast<float>(borderColor.b) / 255,
                                       static_cast<float>(borderColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_Border] = borderImColor;
-    const auto borderShadowColor = preloadColors->borderShadowColor;
+    const auto& borderShadowColor = preloadColors->borderShadowColor;
     const auto borderShadowImColor = ImVec4(static_cast<float>(borderShadowColor.r) / 255,
                                             static_cast<float>(borderShadowColor.g) / 255,
                                             static_cast<float>(borderShadowColor.b) / 255,
                                             static_cast<float>(borderShadowColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_BorderShadow] = borderShadowImColor;
-    const auto separatorColor = preloadColors->separatorColor;
+    const auto& separatorColor = preloadColors->separatorColor;
     const auto separatorImColor = ImVec4(static_cast<float>(separatorColor.r) / 255,
                                          static_cast<float>(separatorColor.g) / 255,
                                          static_cast<float>(separatorColor.b) / 255,
                                          static_cast<float>(separatorColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_Separator] = separatorImColor;
-    const auto separatorHoveredColor = preloadColors->separatorHoveredColor;
+    const auto& separatorHoveredColor = preloadColors->separatorHoveredColor;
     const auto separatorHoveredImColor = ImVec4(static_cast<float>(separatorHoveredColor.r) / 255,
                                                 static_cast<float>(separatorHoveredColor.g) / 255,
                                                 static_cast<float>(separatorHoveredColor.b) / 255,
                                                 static_cast<float>(separatorHoveredColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_SeparatorHovered] = separatorHoveredImColor;
-    const auto separatorActiveColor = preloadColors->separatorActiveColor;
+    const auto& separatorActiveColor = preloadColors->separatorActiveColor;
     const auto separatorActiveImColor = ImVec4(static_cast<float>(separatorActiveColor.r) / 255,
                                                static_cast<float>(separatorActiveColor.g) / 255,
                                                static_cast<float>(separatorActiveColor.b) / 255,
                                                static_cast<float>(separatorActiveColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_SeparatorActive] = separatorActiveImColor;
-    const auto frameBgColor = preloadColors->frameBgColor;
+    const auto& frameBgColor = preloadColors->frameBgColor;
     const auto frameBgImColor = ImVec4(static_cast<float>(frameBgColor.r) / 255,
                                        static_cast<float>(frameBgColor.g) / 255,
                                        static_cast<float>(frameBgColor.b) / 255,
                                        static_cast<float>(frameBgColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_FrameBg] = frameBgImColor;
-    const auto frameBgHoveredColor = preloadColors->frameBgHoveredColor;
+    const auto& frameBgHoveredColor = preloadColors->frameBgHoveredColor;
     const auto frameBgHoveredImColor = ImVec4(static_cast<float>(frameBgHoveredColor.r) / 255,
                                               static_cast<float>(frameBgHoveredColor.g) / 255,
                                               static_cast<float>(frameBgHoveredColor.b) / 255,
                                               static_cast<float>(frameBgHoveredColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_FrameBgHovered] = frameBgHoveredImColor;
-    const auto frameBgActiveColor = preloadColors->frameBgActiveColor;
+    const auto& frameBgActiveColor = preloadColors->frameBgActiveColor;
     const auto frameBgActiveImColor = ImVec4(static_cast<float>(frameBgActiveColor.r) / 255,
                                              static_cast<float>(frameBgActiveColor.g) / 255,
                                              static_cast<float>(frameBgActiveColor.b) / 255,
                                              static_cast<float>(frameBgActiveColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_FrameBgActive] = frameBgActiveImColor;
-    const auto buttonColor = preloadColors->buttonColor;
+    const auto& buttonColor = preloadColors->buttonColor;
     const auto buttonImColor = ImVec4(static_cast<float>(buttonColor.r) / 255,
                                       static_cast<float>(buttonColor.g) / 255,
                                       static_cast<float>(buttonColor.b) / 255,
                                       static_cast<float>(buttonColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_Button] = buttonImColor;
-    const auto buttonHoveredColor = preloadColors->buttonHoveredColor;
+    const auto& buttonHoveredColor = preloadColors->buttonHoveredColor;
     const auto buttonHoveredImColor = ImVec4(static_cast<float>(buttonHoveredColor.r) / 255,
                                              static_cast<float>(buttonHoveredColor.g) / 255,
                                              static_cast<float>(buttonHoveredColor.b) / 255,
                                              static_cast<float>(buttonHoveredColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered] = buttonHoveredImColor;
-    const auto buttonPressedColor = preloadColors->buttonPressedColor;
+    const auto& buttonPressedColor = preloadColors->buttonPressedColor;
     const auto buttonPressedImColor = ImVec4(static_cast<float>(buttonPressedColor.r) / 255,
-                                            static_cast<float>(buttonPressedColor.g) / 255,
-                                            static_cast<float>(buttonPressedColor.b) / 255,
-                                            static_cast<float>(buttonPressedColor.a) / 255);
+                                             static_cast<float>(buttonPressedColor.g) / 255,
+                                             static_cast<float>(buttonPressedColor.b) / 255,
+                                             static_cast<float>(buttonPressedColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_ButtonActive] = buttonPressedImColor;
-    const auto scrollbarBgColor = preloadColors->scrollbarBgColor;
+    const auto& scrollbarBgColor = preloadColors->scrollbarBgColor;
     const auto scrollbarBgImColor = ImVec4(static_cast<float>(scrollbarBgColor.r) / 255,
                                            static_cast<float>(scrollbarBgColor.g) / 255,
                                            static_cast<float>(scrollbarBgColor.b) / 255,
                                            static_cast<float>(scrollbarBgColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_ScrollbarBg] = scrollbarBgImColor;
-    const auto scrollbarGrabColor = preloadColors->scrollbarGrabColor;
+    const auto& scrollbarGrabColor = preloadColors->scrollbarGrabColor;
     const auto scrollbarGrabImColor = ImVec4(static_cast<float>(scrollbarGrabColor.r) / 255,
                                              static_cast<float>(scrollbarGrabColor.g) / 255,
                                              static_cast<float>(scrollbarGrabColor.b) / 255,
                                              static_cast<float>(scrollbarGrabColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_ScrollbarGrab] = scrollbarGrabImColor;
-    const auto scrollbarGrabHoveredColor = preloadColors->scrollbarGrabHoveredColor;
+    const auto& scrollbarGrabHoveredColor = preloadColors->scrollbarGrabHoveredColor;
     const auto scrollbarGrabHoveredImColor = ImVec4(static_cast<float>(scrollbarGrabHoveredColor.r) / 255,
                                                     static_cast<float>(scrollbarGrabHoveredColor.g) / 255,
                                                     static_cast<float>(scrollbarGrabHoveredColor.b) / 255,
                                                     static_cast<float>(scrollbarGrabHoveredColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_ScrollbarGrabHovered] = scrollbarGrabHoveredImColor;
-    const auto scrollbarGrabActiveColor = preloadColors->scrollbarGrabActiveColor;
+    const auto& scrollbarGrabActiveColor = preloadColors->scrollbarGrabActiveColor;
     const auto scrollbarGrabActiveImColor = ImVec4(static_cast<float>(scrollbarGrabActiveColor.r) / 255,
                                                    static_cast<float>(scrollbarGrabActiveColor.g) / 255,
                                                    static_cast<float>(scrollbarGrabActiveColor.b) / 255,
                                                    static_cast<float>(scrollbarGrabActiveColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_ScrollbarGrabActive] = scrollbarGrabActiveImColor;
-    const auto inputTextCursorColor = preloadColors->inputTextCursorColor;
+    const auto& inputTextCursorColor = preloadColors->inputTextCursorColor;
     ImVec4 inputTextCursorImColor = ImVec4(static_cast<float>(inputTextCursorColor.r) / 255,
                                            static_cast<float>(inputTextCursorColor.g) / 255,
                                            static_cast<float>(inputTextCursorColor.b) / 255,
                                            static_cast<float>(inputTextCursorColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_InputTextCursor] = inputTextCursorImColor;
-    const auto navCursorColor = preloadColors->navCursorColor;
+    const auto& navCursorColor = preloadColors->navCursorColor;
     const auto navCursorImColor = ImVec4(static_cast<float>(navCursorColor.r) / 255,
                                          static_cast<float>(navCursorColor.g) / 255,
                                          static_cast<float>(navCursorColor.b) / 255,
                                          static_cast<float>(navCursorColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_NavCursor] = navCursorImColor;
-    const auto headerColor = preloadColors->headerColor;
+    const auto& headerColor = preloadColors->headerColor;
     const auto headerImColor = ImVec4(static_cast<float>(headerColor.r) / 255,
                                       static_cast<float>(headerColor.g) / 255,
                                       static_cast<float>(headerColor.b) / 255,
                                       static_cast<float>(headerColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_Header] = headerImColor;
-    const auto headerHoveredColor = preloadColors->headerHoveredColor;
+    const auto& headerHoveredColor = preloadColors->headerHoveredColor;
     const auto headerHoveredImColor = ImVec4(static_cast<float>(headerHoveredColor.r) / 255,
                                              static_cast<float>(headerHoveredColor.g) / 255,
                                              static_cast<float>(headerHoveredColor.b) / 255,
                                              static_cast<float>(headerHoveredColor.a) / 255);
     ImGui::GetStyle().Colors[ImGuiCol_HeaderHovered] = headerHoveredImColor;
-    const auto headerActiveColor = preloadColors->headerActiveColor;
+    const auto& headerActiveColor = preloadColors->headerActiveColor;
     const auto headerActiveImColor = ImVec4(static_cast<float>(headerActiveColor.r) / 255,
                                             static_cast<float>(headerActiveColor.g) / 255,
                                             static_cast<float>(headerActiveColor.b) / 255,
@@ -422,15 +422,16 @@ bool glimmer::App::Init()
     }
     LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
     SDL_AudioSpec audioSpec;
-    if (config->audio.format == "U8")
+    const std::string& audioFormat = config->audio.format;
+    if (audioFormat == "U8")
     {
         audioSpec.format = SDL_AUDIO_U8;
     }
-    else if (config->audio.format == "S16")
+    else if (audioFormat == "S16")
     {
         audioSpec.format = SDL_AUDIO_S16;
     }
-    else if (config->audio.format == "S32")
+    else if (audioFormat == "S32")
     {
         audioSpec.format = SDL_AUDIO_S32;
     }
@@ -471,8 +472,8 @@ void glimmer::App::Run()
     float deltaTime = 0.0F;
     SDL_Event event;
     LogCat::i("Entering main loop...");
-    auto sceneManager = appContext_->GetSceneManager();
-    auto config = appContext_->GetConfig();
+    auto* sceneManager = appContext_->GetSceneManager();
+    auto* config = appContext_->GetConfig();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
 #if  !defined(NDEBUG)
@@ -497,7 +498,8 @@ void glimmer::App::Run()
     bool windowsSizeChanged = false;
     while (appContext_->Running() && sceneManager->GetSceneCount() > 0)
     {
-        int windowWidth, windowHeight;
+        int windowWidth = 0;
+        int windowHeight = 0;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
         if (windowHeight != appContext_->GetWindowHeight())
         {
@@ -610,7 +612,7 @@ void glimmer::App::Run()
                         break;
                     }
                 }
-                auto topScene = sceneManager->GetTopScene();
+                auto* topScene = sceneManager->GetTopScene();
                 if (!handled && topScene != nullptr)
                 {
                     if (!topScene->OnBackPressed())

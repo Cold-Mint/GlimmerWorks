@@ -122,7 +122,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
     const AbilityConfig* abilityConfig = item->GetAbilityConfig();
     if (abilityConfig != nullptr)
     {
-        if (abilityConfig->mineAbleLayer & Ground)
+        if ((abilityConfig->mineAbleLayer & Ground) == 1)
         {
             uint64_t canMineBlockFingerprint = StringUtils::StringToUint64(langsResources->canMineBlockTip);
             if (canMineBlockFingerprint != canMineBlockFingerprint_)
@@ -137,7 +137,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
                 textureToDraw.emplace_back(canMineBlockTipTexture_.get());
             }
         }
-        if (abilityConfig->mineAbleLayer & BackGround)
+        if ((abilityConfig->mineAbleLayer & BackGround) == 1)
         {
             uint64_t canMineWallFingerprint = StringUtils::StringToUint64(langsResources->canMineWallTip);
             if (canMineWallFingerprint != canMineWallFingerprint_)

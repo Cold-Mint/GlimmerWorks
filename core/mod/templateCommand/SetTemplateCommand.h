@@ -28,16 +28,18 @@
 #include "core/mod/ITemplateCommand.h"
 
 
-namespace glimmer {
-    class SetTemplateCommand : public ITemplateCommand {
-        const std::string_view set = "set";
+namespace glimmer
+{
+    class SetTemplateCommand : public ITemplateCommand
+    {
+        static constexpr std::string_view set = "set";
 
     public:
-        [[nodiscard]] std::optional<std::string> Execute(const std::vector<std::string> &templateSearchPath,
-                                                         std::unordered_map<std::string, std::string> &variable,
-                                                         std::vector<std::string> &args,
-                                                         const VirtualFileSystem *virtualFileSystem) override;
+        [[nodiscard]] std::optional<std::string> Execute(const std::vector<std::string>& templateSearchPath,
+                                                         std::unordered_map<std::string, std::string>& variable,
+                                                         std::vector<std::string>& args,
+                                                         const VirtualFileSystem* virtualFileSystem) override;
 
-        [[nodiscard]] const std::string_view &GetCommandName() const override;
+        [[nodiscard]] const std::string_view& GetCommandName() const override;
     };
 }

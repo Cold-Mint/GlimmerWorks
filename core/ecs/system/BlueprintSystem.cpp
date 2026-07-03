@@ -228,7 +228,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     WorldVector2D playerPosition = transform2DComponent->GetPosition();
     if (item != nullptr && item->GetAmount() > 0)
     {
-        auto tileItem = dynamic_cast<TileItem*>(item);
+        auto* tileItem = dynamic_cast<TileItem*>(item);
         if (tileItem != nullptr)
         {
             heldTile_ = tileItem->GetTile();

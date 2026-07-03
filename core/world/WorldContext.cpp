@@ -427,7 +427,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
             }
         }
     }
-    auto itemContainerComponent = entityManager_->GetComponent<ItemContainerComponent>(playerEntity);
+    auto* itemContainerComponent = entityManager_->GetComponent<ItemContainerComponent>(playerEntity);
     if (itemContainerComponent != nullptr)
     {
         ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
@@ -441,7 +441,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
             itemCallback_ = itemContainer->AddOnContentChanged(
                 [this, playerEntity](uint8_t index, Item* item, ContainerChangeType changeType)
                 {
-                    auto hotBarComponent = entityShortCut_->GetHotBarComponent();
+                    auto* hotBarComponent = entityShortCut_->GetHotBarComponent();
                     if (hotBarComponent == nullptr)
                     {
                         return;

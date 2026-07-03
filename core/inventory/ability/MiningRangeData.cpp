@@ -89,7 +89,7 @@ void glimmer::MiningRangeData::Reset()
 {
     points_.clear();
     pointsFingerprint_.clear();
-    maxHardness_ = 0.0f;
+    maxHardness_ = 0.0F;
 }
 
 void glimmer::MiningRangeData::CalculateMining(const TileLayerComponent* tileLayerComponent,

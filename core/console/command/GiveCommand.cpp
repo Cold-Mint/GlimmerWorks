@@ -98,119 +98,10 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
             return false;
         }
         ResourceRef& resourceRef = itemId.value();
-        auto tileResource = appContext_->GetResourceLocator()->FindTileRaw(&resourceRef);
+        const auto* tileResource = appContext_->GetResourceLocator()->FindTileRaw(&resourceRef);
         if (tileResource == nullptr)
         {
             onMessageRef(appContext_->GetLangsResources()->tileResourceIsNull);
-            return false;
-        }
-        EntityManager* entityManager = worldContext_->GetEntityManager();
-        if (entityManager == nullptr)
-        {
-            return false;
-        }
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-        if (entityShortCut == nullptr)
-        {
-            return false;
-        }
-        auto playerId = entityShortCut->GetPlayer();
-        if (WorldContext::IsEmptyEntityId(playerId))
-        {
-            return false;
-        }
-        auto* item_container = entityManager->GetComponent<ItemContainerComponent>(playerId);
-        if (item_container == nullptr)
-        {
-            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
-            return false;
-        }
-        TileInstancePool* tileInstancePool = worldContext_->GetTileInstancePool();
-        if (tileInstancePool == nullptr)
-        {
-            return false;
-        }
-        auto tileItem = std::make_unique<
-            TileItem>(tileInstancePool->CreateTile(appContext_, tileResource, resourceRef.GetFingerprint()),
-                      resourceRef);
-        if (size >= 4)
-        {
-            if (const int number = commandArgs->AsInt(3); number > 1)
-            {
-                tileItem->SetAmount(number);
-            }
-        }
-        std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
-            std::move(tileItem));
-        return item == nullptr;
-    }
-    if (itemType == "composableItem")
-    {
-        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_COMPOSABLE_ITEM);
-        if (!itemId.has_value())
-        {
-            onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
-            return false;
-        }
-        ResourceRef& resourceRef = itemId.value();
-        auto itemResource = appContext_->GetResourceLocator()->FindComposableItem(&resourceRef);
-        if (itemResource == nullptr)
-        {
-            onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
-            return false;
-        }
-        EntityManager* entityManager = worldContext_->GetEntityManager();
-        if (entityManager == nullptr)
-        {
-            return false;
-        }
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-        if (entityShortCut == nullptr)
-        {
-            return false;
-        }
-        auto playerId = entityShortCut->GetPlayer();
-        if (WorldContext::IsEmptyEntityId(playerId))
-        {
-            return false;
-        }
-        auto* item_container = entityManager->GetComponent<ItemContainerComponent>(playerId);
-        if (item_container == nullptr)
-        {
-            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
-            return false;
-        }
-
-        auto composableItem = ComposableItem::FromItemResource(worldContext_, itemResource, resourceRef);
-        if (composableItem == nullptr)
-        {
-            onMessageRef(appContext_->GetLangsResources()->composableItemIsNull);
-            return false;
-        }
-        if (size >= 4)
-        {
-            if (const int number = commandArgs->AsInt(3); number > 1)
-            {
-                composableItem->SetAmount(number);
-            }
-        }
-        std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
-            std::move(composableItem));
-        return item == nullptr;
-    }
-    if (itemType == "abilityItem")
-    {
-        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_ABILITY_ITEM);
-        if (!itemId.has_value())
-        {
-            onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
-            return false;
-        }
-        ResourceRef& resourceRef = itemId.value();
-        auto itemResource = appContext_->GetResourceLocator()->FindAbilityItem(&resourceRef);
-        if (itemResource == nullptr)
-        {
-            onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
             return false;
         }
         EntityManager* entityManager = worldContext_->GetEntityManager();
@@ -234,34 +125,35 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
             onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
         }
-
-        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource, resourceRef);
-        if (abilityItem == nullptr)
+        TileInstancePool* tileInstancePool = worldContext_->GetTileInstancePool();
+        if (tileInstancePool == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->composableItemIsNull);
             return false;
         }
+        auto tileItem = std::make_unique<
+            TileItem>(tileInstancePool->CreateTile(appContext_, tileResource, resourceRef.GetFingerprint()),
+                      resourceRef);
         if (size >= 4)
         {
             if (const int number = commandArgs->AsInt(3); number > 1)
             {
-                abilityItem->SetAmount(number);
+                tileItem->SetAmount(number);
             }
         }
         std::unique_ptr<Item> item = itemContainer->GetItemContainer()->AddItem(
-            std::move(abilityItem));
+            std::move(tileItem));
         return item == nullptr;
     }
-    if (itemType == "materialItem")
+    if (itemType == "composableItem")
     {
-        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_MATERIAL_ITEM);
+        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_COMPOSABLE_ITEM);
         if (!itemId.has_value())
         {
             onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
             return false;
         }
         ResourceRef& resourceRef = itemId.value();
-        auto itemResource = appContext_->GetResourceLocator()->FindMaterialItem(&resourceRef);
+        auto* itemResource = appContext_->GetResourceLocator()->FindComposableItem(&resourceRef);
         if (itemResource == nullptr)
         {
             onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
@@ -282,8 +174,135 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         {
             return false;
         }
-        auto* item_container = entityManager->GetComponent<ItemContainerComponent>(playerId);
-        if (item_container == nullptr)
+        auto* itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(playerId);
+        if (itemContainerComponent == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            return false;
+        }
+        auto* itemContainer = itemContainerComponent->GetItemContainer();
+        if (itemContainer == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            return false;
+        }
+
+        auto composableItem = ComposableItem::FromItemResource(worldContext_, itemResource, resourceRef);
+        if (composableItem == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->composableItemIsNull);
+            return false;
+        }
+        if (size >= 4)
+        {
+            if (const int number = commandArgs->AsInt(3); number > 1)
+            {
+                composableItem->SetAmount(number);
+            }
+        }
+        std::unique_ptr<Item> item = itemContainer->AddItem(
+            std::move(composableItem));
+        return item == nullptr;
+    }
+    if (itemType == "abilityItem")
+    {
+        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_ABILITY_ITEM);
+        if (!itemId.has_value())
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
+            return false;
+        }
+        ResourceRef& resourceRef = itemId.value();
+        auto* itemResource = appContext_->GetResourceLocator()->FindAbilityItem(&resourceRef);
+        if (itemResource == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
+            return false;
+        }
+        EntityManager* entityManager = worldContext_->GetEntityManager();
+        if (entityManager == nullptr)
+        {
+            return false;
+        }
+        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        if (entityShortCut == nullptr)
+        {
+            return false;
+        }
+        auto playerId = entityShortCut->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(playerId))
+        {
+            return false;
+        }
+        auto* itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(playerId);
+        if (itemContainerComponent == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            return false;
+        }
+        auto* itemContainer = itemContainerComponent->GetItemContainer();
+        if (itemContainer == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            return false;
+        }
+
+        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource, resourceRef);
+        if (abilityItem == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->composableItemIsNull);
+            return false;
+        }
+        if (size >= 4)
+        {
+            if (const int number = commandArgs->AsInt(3); number > 1)
+            {
+                abilityItem->SetAmount(number);
+            }
+        }
+        std::unique_ptr<Item> item = itemContainer->AddItem(
+            std::move(abilityItem));
+        return item == nullptr;
+    }
+    if (itemType == "materialItem")
+    {
+        auto itemId = commandArgs->AsResourceRef(2, RESOURCE_MATERIAL_ITEM);
+        if (!itemId.has_value())
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
+            return false;
+        }
+        ResourceRef& resourceRef = itemId.value();
+        auto* itemResource = appContext_->GetResourceLocator()->FindMaterialItem(&resourceRef);
+        if (itemResource == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
+            return false;
+        }
+        EntityManager* entityManager = worldContext_->GetEntityManager();
+        if (entityManager == nullptr)
+        {
+            return false;
+        }
+        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        if (entityShortCut == nullptr)
+        {
+            return false;
+        }
+        auto playerId = entityShortCut->GetPlayer();
+        if (WorldContext::IsEmptyEntityId(playerId))
+        {
+            return false;
+        }
+        auto* itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(playerId);
+        if (itemContainerComponent == nullptr)
+        {
+            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            return false;
+        }
+
+        auto* itemContainer = itemContainerComponent->GetItemContainer();
+        if (itemContainer == nullptr)
         {
             onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
             return false;
@@ -302,7 +321,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
                 materialItem->SetAmount(number);
             }
         }
-        std::unique_ptr<Item> item = item_container->GetItemContainer()->AddItem(
+        std::unique_ptr<Item> item = itemContainer->AddItem(
             std::move(materialItem));
         return item == nullptr;
     }

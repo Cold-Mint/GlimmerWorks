@@ -212,7 +212,7 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
     {
         return;
     }
-    auto* item = itemContainer->GetItem(index);
+    const auto* item = itemContainer->GetItem(index);
     if (item == nullptr)
     {
         return;

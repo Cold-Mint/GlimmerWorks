@@ -269,7 +269,7 @@ std::vector<glimmer::TileSnapshot*> glimmer::Chunk::GetTopVisibleTileSnapshots(
     for (int i = 0; i < TILE_LAYER_TYPE_COUNT; i++)
     {
         const uint8_t layer = 1 << i;
-        if (layerFilter && layer)
+        if ((layerFilter && layer) != 0U)
         {
             auto tileLayerType = static_cast<TileLayerType>(layer);
             auto iterator = tileSnapshots_.find(tileLayerType);

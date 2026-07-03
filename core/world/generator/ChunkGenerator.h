@@ -123,7 +123,7 @@ namespace glimmer {
 
         TerrainTileResult GetTerrainTileResult(TileVector2D world, int firstTileTerrainY);
 
-        std::unique_ptr<Chunk> GenerateChunkAt(TileVector2D position) const;
+        std::unique_ptr<Chunk> GenerateChunkAt(const TileVector2D& position) const;
 
 
         /**

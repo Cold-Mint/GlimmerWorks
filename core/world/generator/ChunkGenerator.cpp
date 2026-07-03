@@ -457,7 +457,7 @@ float glimmer::ChunkGenerator::GetErosion(const TileVector2D& tileVector2d)
     return erosionMap_[tileVector2d];
 }
 
-std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(TileVector2D position) const
+std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const TileVector2D& position) const
 {
     if (worldContext_ == nullptr)
     {

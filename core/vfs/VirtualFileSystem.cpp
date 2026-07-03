@@ -104,7 +104,7 @@ std::optional<std::string> glimmer::VirtualFileSystem::GetFileOrFolderName(const
 {
     for (const auto& provider : fileProviders_)
     {
-        if (const auto fileName = provider->GetFileOrFolderName(path); fileName.has_value())
+        if (auto fileName = provider->GetFileOrFolderName(path); fileName.has_value())
         {
             return fileName;
         }
@@ -116,7 +116,7 @@ std::optional<std::string> glimmer::VirtualFileSystem::GetParentPath(const std::
 {
     for (const auto& provider : fileProviders_)
     {
-        if (const auto parentPath = provider->GetParentPath(path); parentPath.has_value())
+        if (auto parentPath = provider->GetParentPath(path); parentPath.has_value())
         {
             return parentPath;
         }

@@ -34,19 +34,18 @@
 
 std::string glimmer::UUIDUtils::Generate()
 {
-    std::array data{
+    //This code compiles successfully on Linux, but on the Windows platform, it is necessary to specify std::array<uint32_t, 4>. Do not modify this part as it will cause the compilation failure on the Windows platform.
+    //这段代码在Linux编译通过，但是在Windows平台需要写明std::array<uint32_t, 4>，不要修改这里，这会破坏在Windows平台的编译。
+    std::array<uint32_t, 4> data{
         RandomUtils::Random<uint32_t>(0, 0xFFFFFFFF),
         RandomUtils::Random<uint32_t>(0, 0xFFFFFFFF),
         RandomUtils::Random<uint32_t>(0, 0xFFFFFFFF),
         RandomUtils::Random<uint32_t>(0, 0xFFFFFFFF)
     };
-
-    data[1] = data[1] & 0xFFFF0FFF | 0x00004000;
-    data[2] = data[2] & 0x3FFFFFFF | 0x80000000;
-
+    data[1] = (data[1] & 0xFFFF0FFF) | 0x00004000;
+    data[2] = (data[2] & 0x3FFFFFFF) | 0x80000000;
     std::stringstream ss;
     ss << std::hex << std::setfill('0') << std::nouppercase;
-
     ss << std::setw(8) << data[0]
         << "-" << std::setw(4) << static_cast<uint16_t>(data[1] >> 16)
         << "-" << std::setw(4) << static_cast<uint16_t>(data[1] & 0xFFFF)

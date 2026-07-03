@@ -178,6 +178,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk* chunk, const TileLayerT
         {
             return;
         }
+        //skipcq: CXX-W2041
         if (backLightMaskColorPtr->a == 0)
         {
             lightBuffer_->ClearBackLightMask(lightSourcePosition, tile->GetLayerType());
@@ -199,6 +200,7 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk* chunk, const TileLayerT
         {
             return;
         }
+        //skipcq: CXX-W2041
         if (lightColorPtr->a == 0)
         {
             lightBuffer_->ClearLightSource(lightSourcePosition, layerType);

@@ -688,18 +688,13 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     }
     const bool result = IMG_SavePNG(surface, actualPath.value().c_str());
     SDL_DestroySurface(surface);
-    if (result)
-    {
-        onMessageRef(fmt::format(
-            fmt::runtime(GetLangsResources()->screenshotSavedSuccess),
-            actualPath.value()));
-    }
-    else
-    {
-        onMessageRef(fmt::format(
-            fmt::runtime(GetLangsResources()->screenshotSavedFailed),
-            "IMG_SavePNG Failed"));
-    }
+    onMessageRef(result
+                     ? fmt::format(
+                         fmt::runtime(GetLangsResources()->screenshotSavedSuccess),
+                         actualPath.value())
+                     : fmt::format(
+                         fmt::runtime(GetLangsResources()->screenshotSavedFailed),
+                         "IMG_SavePNG Failed"));
 }
 
 bool glimmer::AppContext::Running() const

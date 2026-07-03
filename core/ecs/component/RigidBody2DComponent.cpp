@@ -92,7 +92,7 @@ float glimmer::RigidBody2DComponent::GetFriction() const
 }
 
 void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator* resourceLocator, const b2WorldId worldId,
-                                               const WorldVector2D vector2d)
+                                               const WorldVector2D& vector2d)
 {
     if (ready_)
     {

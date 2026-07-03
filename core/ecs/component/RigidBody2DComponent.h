@@ -97,7 +97,7 @@ namespace glimmer
          * @param worldId worldId 世界ID
          * @param vector2d vector2d 位置
          */
-        void CreateBody(const ResourceLocator* resourceLocator, b2WorldId worldId, WorldVector2D vector2d);
+        void CreateBody(const ResourceLocator* resourceLocator, b2WorldId worldId, const WorldVector2D& vector2d);
 
         /**
          * GetBodyId

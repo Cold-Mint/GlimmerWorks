@@ -39,7 +39,12 @@ std::string glimmer::HomeScene::GetCopyrightString()
 {
     constexpr int startYear = 2025;
     std::time_t t = std::time(nullptr);
-    std::tm* now = std::localtime(&t);
+    std::tm tm_buf{};
+    const std::tm* now = localtime_r(&t, &tm_buf);
+    if (now == nullptr)
+    {
+        return "Copyright (C) " + std::to_string(startYear) + " Cold-Mint";
+    }
     int currentYear = now->tm_year + 1900;
 
     if (currentYear <= startYear)

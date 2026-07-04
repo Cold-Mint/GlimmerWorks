@@ -93,10 +93,18 @@ void glimmer::SavedGamesScene::RenderImGui(SDL_Renderer* renderer)
 
         std::stringstream ss;
         time_t timeVal = manifest->lastPlayedTime / 1000;
-        tm* tmInfo = localtime(&timeVal);
+
+        std::tm tm_buf{};
+        std::tm* tmInfo = localtime_r(&timeVal, &tm_buf);
+        if (tmInfo == nullptr)
+        {
+            continue;
+        }
 
         ss << manifest->name << "\n";
-        ss << fmt::format(fmt::runtime(langsResources_->savesDescription), manifest->gameVersionName, *tmInfo,
+        ss << fmt::format(fmt::runtime(langsResources_->savesDescription),
+                          manifest->gameVersionName,
+                          *tmInfo,
                           TimeUtils::FormatTimeMs(langsResources_, manifest->totalPlayTime));
 
         std::string label = ss.str();

@@ -90,7 +90,7 @@ namespace glimmer
          * @param commandArgs commandArgs 命令参数
          * @param strings Command structure array
          */
-        virtual void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) = 0;
+        virtual void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings);
 
         /**
          * Initialize

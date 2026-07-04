@@ -43,7 +43,5 @@ namespace glimmer
                      const std::function<void(const std::string& text)>* onMessage) override;
 
         [[nodiscard]] const std::string& GetName() const override;
-
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
     };
 }

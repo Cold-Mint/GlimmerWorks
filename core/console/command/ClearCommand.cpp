@@ -42,10 +42,6 @@ const std::string& glimmer::ClearCommand::GetName() const
     return CLEAR_COMMAND_NAME;
 }
 
-void glimmer::ClearCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-}
-
 
 bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                     const std::function<void(const std::string& text)>* onMessage)

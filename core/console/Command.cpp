@@ -41,6 +41,12 @@ void glimmer::Command::UnBindWorldContext() {
     worldContext_ = nullptr;
 }
 
+void glimmer::Command::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+{
+    //The command structure information for its display needs to be set here.
+    //需要在这里为其设置显示的命令结构信息。
+}
+
 glimmer::NodeTree<std::string> *glimmer::Command::GetSuggestionsTree(const CommandArgs *commandArgs) {
     return &suggestionsTree_;
 }

@@ -116,8 +116,8 @@ bool glimmer::FlyCommand::Execute(const CommandSender* commandSender, const Comm
         return false;
     }
     BoolOrToggle boolOrToggle = commandArgs->AsBoolOrToggle(1);
-    bool newValue = boolOrToggle == TRUE;
-    if (boolOrToggle == TOGGLE)
+    bool newValue = boolOrToggle == BoolOrToggle::TRUE;
+    if (boolOrToggle == BoolOrToggle::TOGGLE)
     {
         newValue = !playerComponent->IsFlying();
     }

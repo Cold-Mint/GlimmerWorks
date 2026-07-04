@@ -43,10 +43,6 @@ const std::string& glimmer::HelpCommand::GetName() const
     return HELP_COMMAND_NAME;
 }
 
-void glimmer::HelpCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-}
-
 bool glimmer::HelpCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                    const std::function<void(const std::string& text)>* onMessage)
 {

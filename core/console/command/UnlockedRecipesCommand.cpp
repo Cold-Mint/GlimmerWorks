@@ -97,10 +97,6 @@ const std::string& glimmer::UnlockedRecipesCommand::GetName() const
     return UNLOCKED_RECIPES_COMMAND_NAME;
 }
 
-void glimmer::UnlockedRecipesCommand::PutCommandStructure(const CommandArgs* commandArgs,
-                                                          std::vector<std::string>* strings)
-{
-}
 
 bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                               const std::function<void(const std::string& text)>* onMessage)

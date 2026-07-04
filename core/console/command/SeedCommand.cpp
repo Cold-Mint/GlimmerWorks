@@ -62,7 +62,3 @@ const std::string& glimmer::SeedCommand::GetName() const
 {
     return SEED_COMMAND_NAME;
 }
-
-void glimmer::SeedCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-}

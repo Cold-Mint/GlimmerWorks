@@ -32,26 +32,21 @@
 
 
 bool glimmer::CommandHookManager::Exist(const CommandHookScope scope, const uint32_t key,
-                                        const std::string& command) const
+                                        const std::string_view command) const
 {
     auto iterator = sessionCommandHookMap_.find(key);
     if (iterator == sessionCommandHookMap_.end())
     {
         return false;
     }
-    auto& vector = iterator->second;
-    for (auto& commandHook : vector)
+    return std::ranges::any_of(iterator->second, [&](auto& commandHook)
     {
         if (commandHook == nullptr)
         {
-            continue;
+            return false;
         }
-        if (commandHook->command == command && commandHook->scope == scope)
-        {
-            return true;
-        }
-    }
-    return false;
+        return commandHook->command == command && commandHook->scope == scope;
+    });
 }
 
 std::optional<std::string> glimmer::CommandHookManager::RegisterImpl(
@@ -83,6 +78,35 @@ std::optional<std::string> glimmer::CommandHookManager::RegisterImpl(
     return hookId;
 }
 
+void glimmer::CommandHookManager::CleanMatchedHook(
+    std::unordered_map<uint32_t, std::vector<CommandHookEntry*>>& commandHookMap,
+    std::vector<std::unique_ptr<CommandHookEntry>>& commandHookVector,
+    std::vector<std::unique_ptr<CommandHookEntry>>::iterator eraseIter, CommandHookEntry* hookEntry)
+{
+    const auto mapIter = commandHookMap.find(
+        CommandHookEntry::GetKey(hookEntry->eventType, hookEntry->code));
+
+    if (mapIter == commandHookMap.end())
+    {
+        return;
+    }
+    auto& hookPtrVector = mapIter->second;
+    for (auto ptrIter = hookPtrVector.begin(); ptrIter != hookPtrVector.end();)
+    {
+        if (*ptrIter == hookEntry)
+        {
+            hookPtrVector.erase(ptrIter);
+            break;
+        }
+        ++ptrIter;
+    }
+    if (hookPtrVector.empty())
+    {
+        commandHookMap.erase(mapIter);
+    }
+    commandHookVector.erase(eraseIter);
+}
+
 bool glimmer::CommandHookManager::UnregisterImpl(
     std::unordered_map<uint32_t, std::vector<CommandHookEntry*>>& commandHookMap,
     std::vector<std::unique_ptr<CommandHookEntry>>& commandHookVector, CommandHookScope exclude,
@@ -90,7 +114,12 @@ bool glimmer::CommandHookManager::UnregisterImpl(
 {
     for (auto iter = commandHookVector.begin(); iter != commandHookVector.end(); ++iter)
     {
-        auto& hookEntry = *iter;
+        auto& uniquePtrHookEntry = iter.base();
+        if (uniquePtrHookEntry == nullptr)
+        {
+            continue;
+        }
+        auto hookEntry = uniquePtrHookEntry->get();
         if (hookEntry == nullptr)
         {
             continue;
@@ -99,31 +128,12 @@ bool glimmer::CommandHookManager::UnregisterImpl(
         {
             continue;
         }
-        if (hookEntry->hookId == commandHookId)
+        if (hookEntry->hookId != commandHookId)
         {
-            const CommandHookEntry* rawPtr = hookEntry.get();
-            const auto mapIter = commandHookMap.find(
-                CommandHookEntry::GetKey(hookEntry->eventType, hookEntry->code));
-            if (mapIter != commandHookMap.end())
-            {
-                auto& hookPtrVector = mapIter->second;
-
-                for (auto ptrIter = hookPtrVector.begin(); ptrIter != hookPtrVector.end();)
-                {
-                    if (*ptrIter == rawPtr)
-                    {
-                        hookPtrVector.erase(ptrIter);
-                        break;
-                    }
-                }
-                if (hookPtrVector.empty())
-                {
-                    commandHookMap.erase(mapIter);
-                }
-            }
-            commandHookVector.erase(iter);
-            return true;
+            continue;
         }
+        CleanMatchedHook(commandHookMap, commandHookVector, iter, hookEntry);
+        return true;
     }
     return false;
 }

@@ -222,9 +222,9 @@ bool glimmer::App::InitImGui() const
     colorMappings.emplace_back(ImGuiCol_HeaderHovered, preloadColors->headerHoveredColor);
     colorMappings.emplace_back(ImGuiCol_HeaderActive, preloadColors->headerActiveColor);
 
-    for (const auto& mapping : colorMappings)
+    for (const auto& [imguiColor,color] : colorMappings | std::views::as_const)
     {
-        ImGui::GetStyle().Colors[mapping.first] = ColorUtils::ColorToImVec4(mapping.second);
+        ImGui::GetStyle().Colors[imguiColor] = ColorUtils::ColorToImVec4(color);
     }
 
     LogCat::i("Initializing ImGui SDL3 backend for SDLRenderer...");
@@ -282,8 +282,8 @@ bool glimmer::App::InitFont()
     {
         LogCat::e("Failed to load font (ImGui error): ", fontPath);
     }
-
-    if (TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16); !sdlFont)
+    TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16);
+    if (sdlFont == nullptr)
     {
         LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
     }
@@ -534,13 +534,10 @@ void glimmer::App::Run()
                     }
                 }
                 auto* topScene = sceneManager->GetTopScene();
-                if (!handled && topScene != nullptr)
+                if (!handled && topScene != nullptr && !topScene->OnBackPressed())
                 {
-                    if (!topScene->OnBackPressed())
-                    {
-                        sceneManager->PopScene();
-                        break;
-                    }
+                    sceneManager->PopScene();
+                    break;
                 }
             }
 #endif

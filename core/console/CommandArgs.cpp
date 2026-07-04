@@ -123,22 +123,22 @@ glimmer::BoolOrToggle glimmer::CommandArgs::AsBoolOrToggle(int index) const
 {
     if (index < 0 || index >= static_cast<int>(tokens_.size()))
     {
-        return FALSE;
+        return BoolOrToggle::FALSE;
     }
     const std::string& val = tokens_[index];
     if (val == "1" || val == "true" || val == "yes" || val == "y")
     {
-        return TRUE;
+        return BoolOrToggle::TRUE;
     }
     if (val == "0" || val == "false" || val == "no" || val == "n")
     {
-        return FALSE;
+        return BoolOrToggle::FALSE;
     }
     if (val == TOGGLE_KEY_WORD)
     {
-        return TOGGLE;
+        return BoolOrToggle::TOGGLE;
     }
-    return FALSE;
+    return BoolOrToggle::FALSE;
 }
 
 int glimmer::CommandArgs::AsInt(const int index) const

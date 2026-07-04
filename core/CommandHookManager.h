@@ -45,12 +45,19 @@ namespace glimmer
 
 
         [[nodiscard]] bool Exist(CommandHookScope scope,
-                                 uint32_t key, const std::string& command) const;
+                                 uint32_t key, std::string_view command) const;
 
         [[nodiscard]] std::optional<std::string> RegisterImpl(
             std::unordered_map<uint32_t, std::vector<CommandHookEntry*>>& commandHookMap,
             std::vector<std::unique_ptr<CommandHookEntry>>& commandHookVector, CommandHookScope exclude,
             std::unique_ptr<CommandHookEntry> commandHookEntry) const;
+
+        static void CleanMatchedHook(
+            std::unordered_map<uint32_t, std::vector<CommandHookEntry*>>& commandHookMap,
+            std::vector<std::unique_ptr<CommandHookEntry>>& commandHookVector,
+            std::vector<std::unique_ptr<CommandHookEntry>>::iterator eraseIter,
+            CommandHookEntry* hookEntry
+        );
 
         [[nodiscard]] static bool UnregisterImpl(
             std::unordered_map<uint32_t, std::vector<CommandHookEntry*>>& commandHookMap,

@@ -55,10 +55,6 @@ bool glimmer::LicenseCommand::Execute(const CommandSender* commandSender, const 
     return false;
 }
 
-void glimmer::LicenseCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-}
-
 const std::string& glimmer::LicenseCommand::GetName() const
 {
     return LICENSE_COMMAND_NAME;

@@ -27,7 +27,6 @@
 #pragma once
 #if  !defined(NDEBUG)
 #include "core/console/Command.h"
-#include "core/vfs/VirtualFileSystem.h"
 
 namespace glimmer
 {

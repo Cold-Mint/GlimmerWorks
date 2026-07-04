@@ -31,17 +31,12 @@ namespace glimmer
 {
     class RandomUtils
     {
-        static std::mt19937& GetGenerator();
-
     public:
         template <typename T>
         static T Random();
 
         template <typename T>
         static T Random(T A, T B);
-
-        template <typename T>
-        static T Random(int32_t seed, T A, T B);
     };
 
 
@@ -50,12 +45,14 @@ namespace glimmer
     {
         if constexpr (std::is_integral_v<T>)
         {
-            return static_cast<T>(GetGenerator()());
+            thread_local std::random_device rd;
+            return static_cast<T>(rd());
         }
         else if constexpr (std::is_floating_point_v<T>)
         {
+            thread_local std::random_device rd;
             std::uniform_real_distribution<T> dist(0.0F, 1.0F);
-            return dist(GetGenerator());
+            return dist(rd);
         }
         else
         {
@@ -64,68 +61,36 @@ namespace glimmer
         return T{};
     }
 
-template <typename T>
-T RandomUtils::Random(T A, T B)
-{
-    const T realMin = std::min(A, B);
-    const T realMax = std::max(A, B);
-
-    if constexpr (std::is_integral_v<T>)
+    template <typename T>
+    T RandomUtils::Random(T A, T B)
     {
-        // Promote 8-bit types to int for uniform_int_distribution
-        if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> || std::is_same_v<T, char>)
+        const T realMin = std::min(A, B);
+        const T realMax = std::max(A, B);
+
+        if constexpr (std::is_integral_v<T>)
         {
-            std::uniform_int_distribution<int> dist(static_cast<int>(realMin), static_cast<int>(realMax));
-            return static_cast<T>(dist(GetGenerator()));
+            thread_local std::random_device rd;
+            if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> || std::is_same_v<T, char>)
+            {
+                std::uniform_int_distribution<int> dist(static_cast<int>(realMin), static_cast<int>(realMax));
+                return static_cast<T>(dist(rd));
+            }
+            else
+            {
+                std::uniform_int_distribution<T> dist(realMin, realMax);
+                return dist(rd);
+            }
+        }
+        else if constexpr (std::is_floating_point_v<T>)
+        {
+            thread_local std::random_device rd;
+            std::uniform_real_distribution<T> dist(realMin, realMax);
+            return dist(rd);
         }
         else
         {
-            std::uniform_int_distribution<T> dist(realMin, realMax);
-            return dist(GetGenerator());
+            static_assert(std::is_arithmetic_v<T>, "Only number types are supported");
         }
+        return T{};
     }
-    else if constexpr (std::is_floating_point_v<T>)
-    {
-        std::uniform_real_distribution<T> dist(realMin, realMax);
-        return dist(GetGenerator());
-    }
-    else
-    {
-        static_assert(std::is_arithmetic_v<T>, "Only number types are supported");
-    }
-    return T{};
-}
-
-template <typename T>
-T RandomUtils::Random(const int32_t seed, T A, T B)
-{
-    std::mt19937 tempRng(seed);
-    const T realMin = std::min(A, B);
-    const T realMax = std::max(A, B);
-
-    if constexpr (std::is_integral_v<T>)
-    {
-        // Promote 8-bit types to int for uniform_int_distribution
-        if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> || std::is_same_v<T, char>)
-        {
-            std::uniform_int_distribution<int> dist(static_cast<int>(realMin), static_cast<int>(realMax));
-            return static_cast<T>(dist(tempRng));
-        }
-        else
-        {
-            std::uniform_int_distribution<T> dist(realMin, realMax);
-            return dist(tempRng);
-        }
-    }
-    else if constexpr (std::is_floating_point_v<T>)
-    {
-        std::uniform_real_distribution<T> dist(realMin, realMax);
-        return dist(tempRng);
-    }
-    else
-    {
-        static_assert(std::is_arithmetic_v<T>, "Only number types are supported");
-    }
-    return T{};
-}
 }

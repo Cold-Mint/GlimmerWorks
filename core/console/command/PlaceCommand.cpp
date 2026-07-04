@@ -107,6 +107,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
                 commandArgs->AsCoordinate(4, commandSenderPosition.y)
             });
         std::optional<StructureInfo> structureInfoOptional = appContext_->GetStructureGeneratorManager()->Generate(
+            worldContext_,
             tilePosition, structureResource);
         if (!structureInfoOptional.has_value())
         {

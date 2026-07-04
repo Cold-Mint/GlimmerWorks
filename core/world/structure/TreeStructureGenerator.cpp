@@ -26,20 +26,17 @@
  */
 #include "TreeStructureGenerator.h"
 
-#include <random>
+#include "core/world/WorldContext.h"
 
-#include "core/utils/RandomUtils.h"
-
-
-void glimmer::TreeStructureGenerator::SetWorldSeed(int worldSeed)
+std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(WorldContext* worldContext,
+    const TileVector2D& startPosition, IStructureResource* structureResource)
 {
-    IStructureGenerator::SetWorldSeed(worldSeed);
-}
-
-std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(TileVector2D startPosition,
-    IStructureResource* structureResource)
-{
-    if (structureResource == nullptr)
+    if (structureResource == nullptr || worldContext == nullptr)
+    {
+        return std::nullopt;
+    }
+    ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
+    if (chunkGenerator == nullptr)
     {
         return std::nullopt;
     }
@@ -47,10 +44,9 @@ std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(
     ResourceRef& trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
     ResourceRef& leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
     auto structureInfo = StructureInfo();
-    int trunkHeight = RandomUtils::Random(worldSeed_ ^
-                                          startPosition.x * 73428767 ^
-                                          startPosition.y * 912931, treeStructureResource->trunkHeightMin,
-                                          treeStructureResource->trunkHeightMax);
+    int trunkHeight = treeStructureResource->trunkHeightMin + static_cast<uint8_t>(chunkGenerator->
+        GetHumidity(startPosition) *
+        static_cast<float>(treeStructureResource->trunkHeightMax - treeStructureResource->trunkHeightMin));
     auto trunkTileLayer = static_cast<TileLayerType>(treeStructureResource->trunkTileLayer);
     for (int y = 0; y < trunkHeight; ++y)
     {
@@ -86,7 +82,6 @@ std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(
     }
     return structureInfo;
 }
-
 
 glimmer::StructureGeneratorType glimmer::TreeStructureGenerator::GetStructureGeneratorType() const
 {

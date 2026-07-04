@@ -27,11 +27,13 @@
 #pragma once
 #include "IStructureGenerator.h"
 
-namespace glimmer {
-    class StaticStructureGenerator : public IStructureGenerator {
+namespace glimmer
+{
+    class StaticStructureGenerator : public IStructureGenerator
+    {
     public:
-        std::optional<StructureInfo>
-        Generate(TileVector2D startPosition, IStructureResource *structureResource) override;
+        std::optional<StructureInfo> Generate(WorldContext* worldContext, const TileVector2D& startPosition,
+                                              IStructureResource* structureResource) override;
 
         [[nodiscard]] StructureGeneratorType GetStructureGeneratorType() const override;
     };

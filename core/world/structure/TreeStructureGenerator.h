@@ -28,13 +28,13 @@
 
 #include "IStructureGenerator.h"
 
-namespace glimmer {
-    class TreeStructureGenerator : public IStructureGenerator {
+namespace glimmer
+{
+    class TreeStructureGenerator : public IStructureGenerator
+    {
     public:
-        void SetWorldSeed(int worldSeed) override;
-
-        std::optional<StructureInfo>
-        Generate(TileVector2D startPosition, IStructureResource *structureResource) override;
+        std::optional<StructureInfo> Generate(WorldContext* worldContext, const TileVector2D& startPosition,
+            IStructureResource* structureResource) override;
 
         [[nodiscard]] StructureGeneratorType GetStructureGeneratorType() const override;
     };

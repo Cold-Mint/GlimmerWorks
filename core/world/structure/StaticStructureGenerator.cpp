@@ -27,10 +27,10 @@
 #include "StaticStructureGenerator.h"
 
 
-std::optional<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(TileVector2D startPosition,
-    IStructureResource* structureResource)
+std::optional<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generate(WorldContext* worldContext,
+    const TileVector2D& startPosition, IStructureResource* structureResource)
 {
-    if (structureResource == nullptr)
+    if (structureResource == nullptr || worldContext == nullptr)
     {
         return std::nullopt;
     }

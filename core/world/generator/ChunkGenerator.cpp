@@ -97,7 +97,7 @@ int glimmer::ChunkGenerator::GetFirstTileTerrainY(int x)
 }
 
 
-std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain(TileVector2D position)
+std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain(const TileVector2D& position)
 {
     auto terrainResult = std::make_unique<TerrainResult>();
     terrainResult->SetPosition(position);
@@ -168,7 +168,7 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
     return terrainResult;
 }
 
-void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const
+void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) const
 {
     const AppContext* appContext = worldContext_->GetAppContext();
     const std::vector<IStructureResource*>& all = appContext->GetStructureManager()->GetAll();
@@ -284,7 +284,7 @@ void glimmer::ChunkGenerator::GenerateStructure(TileVector2D position) const
                               ", y: ", globalOrigin.y);
 
                     std::optional<StructureInfo> structureInfoOptional = structureGeneratorManager->
-                        Generate(globalOrigin, structureResource);
+                        Generate(worldContext_, globalOrigin, structureResource);
 
                     if (structureInfoOptional.has_value())
                     {

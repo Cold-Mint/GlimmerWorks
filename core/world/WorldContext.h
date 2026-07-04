@@ -206,7 +206,7 @@ namespace glimmer
         void SetDragMode(bool dragMode);
 
 
-        [[nodiscard]] TerrainResult* GetTerrainData(TileVector2D position);
+        [[nodiscard]] TerrainResult* GetTerrainData(const TileVector2D& position);
 
         /**
 * GetOrCreateTerrainData
@@ -215,7 +215,7 @@ namespace glimmer
 * 如果地形已存在，那么返回地形数据，如果地形不存在，那么创建一份空白数据。
 * @return
 */
-        [[nodiscard]] TerrainResult* GetOrCreateTerrainData(TileVector2D position);
+        [[nodiscard]] TerrainResult* GetOrCreateTerrainData(const TileVector2D& position);
 
 
         /**
@@ -266,14 +266,14 @@ namespace glimmer
         */
         void LoadChunkAt(TileVector2D position);
 
-        ChunkGenerator* GetChunkGenerator() const;
+        [[nodiscard]] ChunkGenerator* GetChunkGenerator() const;
 
         /**
          * Unload Chunk
          * 卸载区块
          * @param position position 位置
          */
-        void UnloadChunkAt(TileVector2D position);
+        void UnloadChunkAt(const TileVector2D& position);
 
 
         /**

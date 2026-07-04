@@ -32,9 +32,11 @@
 #include "TerrainResult.h"
 #include "core/math/Vector2DIHash.h"
 
-namespace glimmer {
-    class ChunkGenerator {
-        WorldContext *worldContext_;
+namespace glimmer
+{
+    class ChunkGenerator
+    {
+        WorldContext* worldContext_;
         /**
         * Height map
         * 高度图
@@ -99,7 +101,7 @@ namespace glimmer {
         std::unique_ptr<FastNoiseLite> temperatureMapNoise_;
 
     public:
-        explicit ChunkGenerator(WorldContext *worldContext, int worldSeed);
+        explicit ChunkGenerator(WorldContext* worldContext, int worldSeed);
 
         /**
         * get Height
@@ -117,9 +119,9 @@ namespace glimmer {
          * @param position
          * @return
          */
-        std::unique_ptr<TerrainResult> GenerateTerrain(TileVector2D position);
+        std::unique_ptr<TerrainResult> GenerateTerrain(const TileVector2D& position);
 
-        void GenerateStructure(TileVector2D position) const;
+        void GenerateStructure(const TileVector2D& position) const;
 
         TerrainTileResult GetTerrainTileResult(TileVector2D world, int firstTileTerrainY);
 

@@ -292,7 +292,7 @@ void glimmer::WorldContext::PopGuiSystemType()
     }
 }
 
-glimmer::TerrainResult* glimmer::WorldContext::GetTerrainData(TileVector2D position)
+glimmer::TerrainResult* glimmer::WorldContext::GetTerrainData(const TileVector2D& position)
 {
     if (auto it = terrainTileData_.find(position); it != terrainTileData_.end())
     {
@@ -301,7 +301,7 @@ glimmer::TerrainResult* glimmer::WorldContext::GetTerrainData(TileVector2D posit
     return nullptr;
 }
 
-glimmer::TerrainResult* glimmer::WorldContext::GetOrCreateTerrainData(TileVector2D position)
+glimmer::TerrainResult* glimmer::WorldContext::GetOrCreateTerrainData(const TileVector2D& position)
 {
     if (auto it = terrainTileData_.find(position); it != terrainTileData_.end())
     {
@@ -318,6 +318,7 @@ glimmer::TerrainResult* glimmer::WorldContext::GetOrCreateTerrainData(TileVector
     terrainTileDataCache_.emplace(position, terrainPtr);
     return terrainPtr;
 }
+
 
 bool glimmer::WorldContext::IsRuning() const
 {
@@ -651,7 +652,7 @@ glimmer::ChunkGenerator* glimmer::WorldContext::GetChunkGenerator() const
 }
 
 
-void glimmer::WorldContext::UnloadChunkAt(TileVector2D position)
+void glimmer::WorldContext::UnloadChunkAt(const TileVector2D& position)
 {
     auto it = chunks_.find(position);
     if (it == chunks_.end())
@@ -1186,7 +1187,6 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     appContext_ = appContext;
     appContext->GetCommandManager()->BindWorldContext(this);
     appContext_->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed_);
-    appContext->GetStructureGeneratorManager()->SetWorldSeed(worldSeed_);
     entityManager_ = std::make_unique<EntityManager>();
     onComponentCountChangedId_ = entityManager_->RegisterOnComponentCountChanged(
         [this](GameComponentTypeMessage type, uint32_t count)

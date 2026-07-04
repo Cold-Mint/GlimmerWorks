@@ -62,7 +62,6 @@ const std::string& glimmer::VFSCommand::GetName() const
 }
 
 void glimmer::VFSCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

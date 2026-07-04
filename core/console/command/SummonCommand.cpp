@@ -101,7 +101,6 @@ const std::string& glimmer::SummonCommand::GetName() const
 }
 
 void glimmer::SummonCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

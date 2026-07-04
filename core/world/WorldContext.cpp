@@ -178,7 +178,6 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk* chunk, const TileLayerT
         {
             return;
         }
-        //skipcq: CXX-W2041
         if (backLightMaskColorPtr->a == 0)
         {
             lightBuffer_->ClearBackLightMask(lightSourcePosition, tile->GetLayerType());
@@ -200,7 +199,6 @@ void glimmer::WorldContext::UpdateTileLight(const Chunk* chunk, const TileLayerT
         {
             return;
         }
-        //skipcq: CXX-W2041
         if (lightColorPtr->a == 0)
         {
             lightBuffer_->ClearLightSource(lightSourcePosition, layerType);
@@ -768,7 +766,6 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position)
     return true;
 }
 
-//skipcq: CXX-C2014
 void glimmer::WorldContext::SaveEntity(EntityItemMessage* entityItemMessage, const GameEntityID entityId) const
 {
     entityItemMessage->mutable_gameentity()->set_id(entityId);

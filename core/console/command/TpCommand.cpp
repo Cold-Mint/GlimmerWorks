@@ -52,7 +52,6 @@ const std::string& glimmer::TpCommand::GetName() const
 }
 
 void glimmer::TpCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

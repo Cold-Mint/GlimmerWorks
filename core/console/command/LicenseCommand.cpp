@@ -56,7 +56,6 @@ bool glimmer::LicenseCommand::Execute(const CommandSender* commandSender, const 
 }
 
 void glimmer::LicenseCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
 }
 

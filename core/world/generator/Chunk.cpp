@@ -63,7 +63,7 @@ bool glimmer::Chunk::RemoveReplaceTileCallback(const long index)
 {
     if (replaceTileCallback_.size() <= index)
     {
-        return false; //skipcq: CXX-C2015
+        return false;
     }
     replaceTileCallback_.erase(replaceTileCallback_.begin() + index);
     return true;

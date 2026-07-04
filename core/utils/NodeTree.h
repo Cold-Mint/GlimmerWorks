@@ -102,7 +102,6 @@ namespace glimmer {
          */
         bool RemoveChild(const T &value) {
             for (auto it = children_.begin(); it != children_.end(); ++it) {
-                //skipcq: CXX-W1161
                 if (it->Data().has_value() && it->Data().value() == value) {
                     children_.erase(it);
                     return true;

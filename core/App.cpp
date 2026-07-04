@@ -42,6 +42,7 @@
 #include "SDL3/SDL_init.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3_mixer/SDL_mixer.h"
+#include "utils/ColorUtils.h"
 
 
 void glimmer::App::RendererUiMessage(const int windowHeight, uint64_t frameStart, const float deltaTime) const
@@ -109,35 +110,8 @@ void glimmer::App::RendererUiMessage(const int windowHeight, uint64_t frameStart
     }
 }
 
-glimmer::App::~App()
-{
-    LogCat::i("Destroy the app");
-    if (initSDLMixSuccess_)
-    {
-        MIX_Quit();
-    }
-    if (window != nullptr)
-    {
-        SDL_DestroyWindow(window);
-    }
-    if (initSDLTtfSuccess_)
-    {
-        TTF_Quit();
-    }
-    if (initSDLSuccess_)
-    {
-        SDL_Quit();
-    }
-}
 
-glimmer::App::App(AppContext* appContext) : appContext_(appContext)
-{
-    initSDLSuccess_ = false;
-    initSDLTtfSuccess_ = false;
-    initSDLMixSuccess_ = false;
-}
-
-bool glimmer::App::Init()
+bool glimmer::App::InitSDL()
 {
     LogCat::i("Initializing SDL...");
 #ifdef __ANDROID__
@@ -164,7 +138,11 @@ bool glimmer::App::Init()
     }
     initSDLTtfSuccess_ = true;
     LogCat::i("SDL initialized successfully.");
+    return true;
+}
 
+bool glimmer::App::InitWindowAndRenderer()
+{
     LogCat::i("Creating SDL window...");
     Config* config = appContext_->GetConfig();
     window = SDL_CreateWindow(
@@ -180,9 +158,9 @@ bool glimmer::App::Init()
     }
     LogCat::i("SDL window created successfully.");
     appContext_->SetWindow(window);
+
     LogCat::i("Creating SDL renderer...");
-    renderer_ =
-        SDL_CreateRenderer(window, nullptr);
+    renderer_ = SDL_CreateRenderer(window, nullptr);
     if (renderer_ == nullptr)
     {
         LogCat::e("SDL_CreateRenderer Error: ", SDL_GetError());
@@ -190,6 +168,7 @@ bool glimmer::App::Init()
     }
     SDL_SetRenderVSync(renderer_, config->window.vSync);
     appContext_->SetRenderer(renderer_);
+
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr)
     {
@@ -197,13 +176,15 @@ bool glimmer::App::Init()
         return false;
     }
     resourcePackManager->SetRenderer(renderer_, appContext_->GetPreloadColors());
-    // Enable alpha blending rendering
-    // 启用按 alpha 混合渲染
-    // This will allow us to use transparency during rendering
-    // 这将允许我们在渲染时使用透明度
+
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
     SDL_SetDefaultTextureScaleMode(renderer_, SDL_SCALEMODE_PIXELART);
     LogCat::i("SDL renderer created successfully.");
+    return true;
+}
+
+bool glimmer::App::InitImGui() const
+{
     LogCat::i("Initializing ImGui context...");
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -211,200 +192,40 @@ bool glimmer::App::Init()
 
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr;
-    (void)io;
 
-    LogCat::i("Setting ImGui style to Light...");
+    LogCat::i("Setting ImGui style...");
     auto* preloadColors = appContext_->GetPreloadColors();
-    const auto& textColor = preloadColors->textColor;
-    const auto textImColor = ImVec4(static_cast<float>(textColor.r) / 255,
-                                    static_cast<float>(textColor.g) / 255,
-                                    static_cast<float>(textColor.b) / 255,
-                                    static_cast<float>(textColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_Text] = textImColor;
-    const auto& textDisabledColor = preloadColors->textDisabledColor;
-    const auto textDisabledImColor = ImVec4(static_cast<float>(textDisabledColor.r) / 255,
-                                            static_cast<float>(textDisabledColor.g) / 255,
-                                            static_cast<float>(textDisabledColor.b) / 255,
-                                            static_cast<float>(textDisabledColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_TextDisabled] = textDisabledImColor;
-    const auto& textLinkColor = preloadColors->textLinkColor;
-    const auto textLinkImColor = ImVec4(static_cast<float>(textLinkColor.r) / 255,
-                                        static_cast<float>(textLinkColor.g) / 255,
-                                        static_cast<float>(textLinkColor.b) / 255,
-                                        static_cast<float>(textLinkColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_TextLink] = textLinkImColor;
-    const auto& textSelectedBgColor = preloadColors->textSelectedBgColor;
-    const auto textSelectedBgImColor = ImVec4(static_cast<float>(textSelectedBgColor.r) / 255,
-                                              static_cast<float>(textSelectedBgColor.g) / 255,
-                                              static_cast<float>(textSelectedBgColor.b) / 255,
-                                              static_cast<float>(textSelectedBgColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_TextSelectedBg] = textSelectedBgImColor;
-    const auto& backgroundColor = preloadColors->backgroundColor;
-    const auto backgroundImColor = ImVec4(static_cast<float>(backgroundColor.r) / 255,
-                                          static_cast<float>(backgroundColor.g) / 255,
-                                          static_cast<float>(backgroundColor.b) / 255,
-                                          static_cast<float>(backgroundColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = backgroundImColor;
-    const auto& borderColor = preloadColors->borderColor;
-    const auto borderImColor = ImVec4(static_cast<float>(borderColor.r) / 255,
-                                      static_cast<float>(borderColor.g) / 255,
-                                      static_cast<float>(borderColor.b) / 255,
-                                      static_cast<float>(borderColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_Border] = borderImColor;
-    const auto& borderShadowColor = preloadColors->borderShadowColor;
-    const auto borderShadowImColor = ImVec4(static_cast<float>(borderShadowColor.r) / 255,
-                                            static_cast<float>(borderShadowColor.g) / 255,
-                                            static_cast<float>(borderShadowColor.b) / 255,
-                                            static_cast<float>(borderShadowColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_BorderShadow] = borderShadowImColor;
-    const auto& separatorColor = preloadColors->separatorColor;
-    const auto separatorImColor = ImVec4(static_cast<float>(separatorColor.r) / 255,
-                                         static_cast<float>(separatorColor.g) / 255,
-                                         static_cast<float>(separatorColor.b) / 255,
-                                         static_cast<float>(separatorColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_Separator] = separatorImColor;
-    const auto& separatorHoveredColor = preloadColors->separatorHoveredColor;
-    const auto separatorHoveredImColor = ImVec4(static_cast<float>(separatorHoveredColor.r) / 255,
-                                                static_cast<float>(separatorHoveredColor.g) / 255,
-                                                static_cast<float>(separatorHoveredColor.b) / 255,
-                                                static_cast<float>(separatorHoveredColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_SeparatorHovered] = separatorHoveredImColor;
-    const auto& separatorActiveColor = preloadColors->separatorActiveColor;
-    const auto separatorActiveImColor = ImVec4(static_cast<float>(separatorActiveColor.r) / 255,
-                                               static_cast<float>(separatorActiveColor.g) / 255,
-                                               static_cast<float>(separatorActiveColor.b) / 255,
-                                               static_cast<float>(separatorActiveColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_SeparatorActive] = separatorActiveImColor;
-    const auto& frameBgColor = preloadColors->frameBgColor;
-    const auto frameBgImColor = ImVec4(static_cast<float>(frameBgColor.r) / 255,
-                                       static_cast<float>(frameBgColor.g) / 255,
-                                       static_cast<float>(frameBgColor.b) / 255,
-                                       static_cast<float>(frameBgColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_FrameBg] = frameBgImColor;
-    const auto& frameBgHoveredColor = preloadColors->frameBgHoveredColor;
-    const auto frameBgHoveredImColor = ImVec4(static_cast<float>(frameBgHoveredColor.r) / 255,
-                                              static_cast<float>(frameBgHoveredColor.g) / 255,
-                                              static_cast<float>(frameBgHoveredColor.b) / 255,
-                                              static_cast<float>(frameBgHoveredColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_FrameBgHovered] = frameBgHoveredImColor;
-    const auto& frameBgActiveColor = preloadColors->frameBgActiveColor;
-    const auto frameBgActiveImColor = ImVec4(static_cast<float>(frameBgActiveColor.r) / 255,
-                                             static_cast<float>(frameBgActiveColor.g) / 255,
-                                             static_cast<float>(frameBgActiveColor.b) / 255,
-                                             static_cast<float>(frameBgActiveColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_FrameBgActive] = frameBgActiveImColor;
-    const auto& buttonColor = preloadColors->buttonColor;
-    const auto buttonImColor = ImVec4(static_cast<float>(buttonColor.r) / 255,
-                                      static_cast<float>(buttonColor.g) / 255,
-                                      static_cast<float>(buttonColor.b) / 255,
-                                      static_cast<float>(buttonColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_Button] = buttonImColor;
-    const auto& buttonHoveredColor = preloadColors->buttonHoveredColor;
-    const auto buttonHoveredImColor = ImVec4(static_cast<float>(buttonHoveredColor.r) / 255,
-                                             static_cast<float>(buttonHoveredColor.g) / 255,
-                                             static_cast<float>(buttonHoveredColor.b) / 255,
-                                             static_cast<float>(buttonHoveredColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_ButtonHovered] = buttonHoveredImColor;
-    const auto& buttonPressedColor = preloadColors->buttonPressedColor;
-    const auto buttonPressedImColor = ImVec4(static_cast<float>(buttonPressedColor.r) / 255,
-                                             static_cast<float>(buttonPressedColor.g) / 255,
-                                             static_cast<float>(buttonPressedColor.b) / 255,
-                                             static_cast<float>(buttonPressedColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_ButtonActive] = buttonPressedImColor;
-    const auto& scrollbarBgColor = preloadColors->scrollbarBgColor;
-    const auto scrollbarBgImColor = ImVec4(static_cast<float>(scrollbarBgColor.r) / 255,
-                                           static_cast<float>(scrollbarBgColor.g) / 255,
-                                           static_cast<float>(scrollbarBgColor.b) / 255,
-                                           static_cast<float>(scrollbarBgColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_ScrollbarBg] = scrollbarBgImColor;
-    const auto& scrollbarGrabColor = preloadColors->scrollbarGrabColor;
-    const auto scrollbarGrabImColor = ImVec4(static_cast<float>(scrollbarGrabColor.r) / 255,
-                                             static_cast<float>(scrollbarGrabColor.g) / 255,
-                                             static_cast<float>(scrollbarGrabColor.b) / 255,
-                                             static_cast<float>(scrollbarGrabColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_ScrollbarGrab] = scrollbarGrabImColor;
-    const auto& scrollbarGrabHoveredColor = preloadColors->scrollbarGrabHoveredColor;
-    const auto scrollbarGrabHoveredImColor = ImVec4(static_cast<float>(scrollbarGrabHoveredColor.r) / 255,
-                                                    static_cast<float>(scrollbarGrabHoveredColor.g) / 255,
-                                                    static_cast<float>(scrollbarGrabHoveredColor.b) / 255,
-                                                    static_cast<float>(scrollbarGrabHoveredColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_ScrollbarGrabHovered] = scrollbarGrabHoveredImColor;
-    const auto& scrollbarGrabActiveColor = preloadColors->scrollbarGrabActiveColor;
-    const auto scrollbarGrabActiveImColor = ImVec4(static_cast<float>(scrollbarGrabActiveColor.r) / 255,
-                                                   static_cast<float>(scrollbarGrabActiveColor.g) / 255,
-                                                   static_cast<float>(scrollbarGrabActiveColor.b) / 255,
-                                                   static_cast<float>(scrollbarGrabActiveColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_ScrollbarGrabActive] = scrollbarGrabActiveImColor;
-    const auto& inputTextCursorColor = preloadColors->inputTextCursorColor;
-    ImVec4 inputTextCursorImColor = ImVec4(static_cast<float>(inputTextCursorColor.r) / 255,
-                                           static_cast<float>(inputTextCursorColor.g) / 255,
-                                           static_cast<float>(inputTextCursorColor.b) / 255,
-                                           static_cast<float>(inputTextCursorColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_InputTextCursor] = inputTextCursorImColor;
-    const auto& navCursorColor = preloadColors->navCursorColor;
-    const auto navCursorImColor = ImVec4(static_cast<float>(navCursorColor.r) / 255,
-                                         static_cast<float>(navCursorColor.g) / 255,
-                                         static_cast<float>(navCursorColor.b) / 255,
-                                         static_cast<float>(navCursorColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_NavCursor] = navCursorImColor;
-    const auto& headerColor = preloadColors->headerColor;
-    const auto headerImColor = ImVec4(static_cast<float>(headerColor.r) / 255,
-                                      static_cast<float>(headerColor.g) / 255,
-                                      static_cast<float>(headerColor.b) / 255,
-                                      static_cast<float>(headerColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_Header] = headerImColor;
-    const auto& headerHoveredColor = preloadColors->headerHoveredColor;
-    const auto headerHoveredImColor = ImVec4(static_cast<float>(headerHoveredColor.r) / 255,
-                                             static_cast<float>(headerHoveredColor.g) / 255,
-                                             static_cast<float>(headerHoveredColor.b) / 255,
-                                             static_cast<float>(headerHoveredColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_HeaderHovered] = headerHoveredImColor;
-    const auto& headerActiveColor = preloadColors->headerActiveColor;
-    const auto headerActiveImColor = ImVec4(static_cast<float>(headerActiveColor.r) / 255,
-                                            static_cast<float>(headerActiveColor.g) / 255,
-                                            static_cast<float>(headerActiveColor.b) / 255,
-                                            static_cast<float>(headerActiveColor.a) / 255);
-    ImGui::GetStyle().Colors[ImGuiCol_HeaderActive] = headerActiveImColor;
-    const auto fontPathOpt = resourcePackManager->GetFontPath(
-        config->mods.enabledResourcePack,
-        appContext_->GetLanguage());
+    std::vector<std::pair<ImGuiCol, Color&>> colorMappings;
+    colorMappings.emplace_back(ImGuiCol_Text, preloadColors->textColor);
+    colorMappings.emplace_back(ImGuiCol_TextDisabled, preloadColors->textDisabledColor);
+    colorMappings.emplace_back(ImGuiCol_TextLink, preloadColors->textLinkColor);
+    colorMappings.emplace_back(ImGuiCol_TextSelectedBg, preloadColors->textSelectedBgColor);
+    colorMappings.emplace_back(ImGuiCol_WindowBg, preloadColors->backgroundColor);
+    colorMappings.emplace_back(ImGuiCol_Border, preloadColors->borderColor);
+    colorMappings.emplace_back(ImGuiCol_BorderShadow, preloadColors->borderShadowColor);
+    colorMappings.emplace_back(ImGuiCol_Separator, preloadColors->separatorColor);
+    colorMappings.emplace_back(ImGuiCol_SeparatorHovered, preloadColors->separatorHoveredColor);
+    colorMappings.emplace_back(ImGuiCol_SeparatorActive, preloadColors->separatorActiveColor);
+    colorMappings.emplace_back(ImGuiCol_FrameBg, preloadColors->frameBgColor);
+    colorMappings.emplace_back(ImGuiCol_FrameBgHovered, preloadColors->frameBgHoveredColor);
+    colorMappings.emplace_back(ImGuiCol_FrameBgActive, preloadColors->frameBgActiveColor);
+    colorMappings.emplace_back(ImGuiCol_Button, preloadColors->buttonColor);
+    colorMappings.emplace_back(ImGuiCol_ButtonHovered, preloadColors->buttonHoveredColor);
+    colorMappings.emplace_back(ImGuiCol_ButtonActive, preloadColors->buttonPressedColor);
+    colorMappings.emplace_back(ImGuiCol_ScrollbarBg, preloadColors->scrollbarBgColor);
+    colorMappings.emplace_back(ImGuiCol_ScrollbarGrab, preloadColors->scrollbarGrabColor);
+    colorMappings.emplace_back(ImGuiCol_ScrollbarGrabHovered, preloadColors->scrollbarGrabHoveredColor);
+    colorMappings.emplace_back(ImGuiCol_ScrollbarGrabActive, preloadColors->scrollbarGrabActiveColor);
+    colorMappings.emplace_back(ImGuiCol_InputTextCursor, preloadColors->inputTextCursorColor);
+    colorMappings.emplace_back(ImGuiCol_NavCursor, preloadColors->navCursorColor);
+    colorMappings.emplace_back(ImGuiCol_Header, preloadColors->headerColor);
+    colorMappings.emplace_back(ImGuiCol_HeaderHovered, preloadColors->headerHoveredColor);
+    colorMappings.emplace_back(ImGuiCol_HeaderActive, preloadColors->headerActiveColor);
 
-    if (fontPathOpt.has_value())
+    for (const auto& mapping : colorMappings)
     {
-        const std::string& fontPath = fontPathOpt.value();
-        if (!appContext_->GetVirtualFileSystem()->Exists(fontPath))
-        {
-            return false;
-        }
-        auto actualPath = appContext_->GetVirtualFileSystem()->GetActualPath(fontPath);
-        if (!actualPath.has_value())
-        {
-            LogCat::e("An error occurred when converting to the actual font path.");
-            return false;
-        }
-        if (io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F))
-        {
-            LogCat::d("Loaded font: ", fontPath);
-        }
-        else
-        {
-            LogCat::e("Failed to load font (ImGui error): ", fontPath);
-        }
-        if (TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16); !sdlFont)
-        {
-            LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
-        }
-        else
-        {
-            LogCat::d("SDL_ttf font loaded: ", fontPath);
-            resourcePackManager->SetFont(sdlFont);
-        }
+        ImGui::GetStyle().Colors[mapping.first] = ColorUtils::ColorToImVec4(mapping.second);
     }
-    else
-    {
-        LogCat::w("No font found for language '", appContext_->GetLanguage(), "', skipping font load");
-    }
-
 
     LogCat::i("Initializing ImGui SDL3 backend for SDLRenderer...");
     if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer_))
@@ -421,9 +242,66 @@ bool glimmer::App::Init()
         return false;
     }
     LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
+    return true;
+}
+
+bool glimmer::App::InitFont()
+{
+    Config* config = appContext_->GetConfig();
+    ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
+
+    const auto fontPathOpt = resourcePackManager->GetFontPath(
+        config->mods.enabledResourcePack,
+        appContext_->GetLanguage());
+
+    if (!fontPathOpt.has_value())
+    {
+        LogCat::w("No font found for language '", appContext_->GetLanguage(), "', skipping font load");
+        return true;
+    }
+
+    const std::string& fontPath = fontPathOpt.value();
+    if (!appContext_->GetVirtualFileSystem()->Exists(fontPath))
+    {
+        return false;
+    }
+
+    auto actualPath = appContext_->GetVirtualFileSystem()->GetActualPath(fontPath);
+    if (!actualPath.has_value())
+    {
+        LogCat::e("An error occurred when converting to the actual font path.");
+        return false;
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F))
+    {
+        LogCat::d("Loaded font: ", fontPath);
+    }
+    else
+    {
+        LogCat::e("Failed to load font (ImGui error): ", fontPath);
+    }
+
+    if (TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16); !sdlFont)
+    {
+        LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
+    }
+    else
+    {
+        LogCat::d("SDL_ttf font loaded: ", fontPath);
+        resourcePackManager->SetFont(sdlFont);
+    }
+
+    return true;
+}
+
+bool glimmer::App::InitAudio()
+{
+    Config* config = appContext_->GetConfig();
     SDL_AudioSpec audioSpec;
     const std::string& audioFormat = config->audio.format;
-    //skipcq: CXX-W2041
+
     if (audioFormat == "U8")
     {
         audioSpec.format = SDL_AUDIO_U8;
@@ -440,16 +318,21 @@ bool glimmer::App::Init()
     {
         audioSpec.format = SDL_AUDIO_F32;
     }
+
     audioSpec.channels = config->audio.channels;
     audioSpec.freq = config->audio.freq;
+
     mixer_ = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
     if (mixer_ == nullptr)
     {
         LogCat::e("MIX_CreateMixerDevice failed! ", SDL_GetError());
         return false;
     }
+
+    ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     resourcePackManager->SetMixer(mixer_);
     appContext_->LoadMainMenuBGM();
+
     AudioManager* audioManager = appContext_->GetAudioManager();
     if (audioManager == nullptr)
     {
@@ -457,14 +340,51 @@ bool glimmer::App::Init()
         return false;
     }
     audioManager->SetMixer(mixer_);
+
     for (const AudioTrack& trackConfig : config->audio.track)
     {
         audioManager->CreateTracks(trackConfig.type, trackConfig.trackCount);
         audioManager->SetTypeVolume(trackConfig.type, trackConfig.volume);
     }
     audioManager->SetMasterVolume(config->audio.masterVolume);
+
     AppContext::RestoreColorRenderer(renderer_);
     return true;
+}
+
+glimmer::App::~App()
+{
+    LogCat::i("Destroy the app");
+    if (initSDLMixSuccess_)
+    {
+        MIX_Quit();
+    }
+    if (window != nullptr)
+    {
+        SDL_DestroyWindow(window);
+    }
+    if (initSDLTtfSuccess_)
+    {
+        TTF_Quit();
+    }
+    if (initSDLSuccess_)
+    {
+        SDL_Quit();
+    }
+}
+
+glimmer::App::App(AppContext* appContext) :
+    appContext_(appContext)
+{
+}
+
+bool glimmer::App::Init()
+{
+    return InitSDL() &&
+        InitWindowAndRenderer() &&
+        InitImGui() &&
+        InitFont() &&
+        InitAudio();
 }
 
 void glimmer::App::Run()

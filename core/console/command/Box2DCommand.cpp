@@ -58,7 +58,6 @@ bool glimmer::Box2DCommand::RequiresWorldContext() const
 }
 
 void glimmer::Box2DCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

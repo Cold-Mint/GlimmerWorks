@@ -50,7 +50,6 @@ bool glimmer::HeightMapCommand::RequiresWorldContext() const
 }
 
 void glimmer::HeightMapCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

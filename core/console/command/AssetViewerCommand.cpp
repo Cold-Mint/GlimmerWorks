@@ -72,7 +72,7 @@ bool glimmer::AssetViewerCommand::RequiresWorldContext() const
 }
 
 void glimmer::AssetViewerCommand::
-PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) //skipcq: CXX-C2014
+PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (strings == nullptr)
     {

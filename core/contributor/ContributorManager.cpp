@@ -49,7 +49,7 @@ bool glimmer::ContributorManager::Register(const std::unique_ptr<Contributor>& c
     std::string& uuid = contributor->uuid;
     if (contributors.contains(uuid))
     {
-        return false; //skipcq: CXX-C2015
+        return false;
     }
     return true;
 }

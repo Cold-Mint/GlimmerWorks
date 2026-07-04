@@ -27,6 +27,7 @@
 #pragma once
 #include <vector>
 
+#include "imgui.h"
 #include "core/math/Color.h"
 
 
@@ -53,6 +54,9 @@ namespace glimmer
          * @return
          */
         static Color AverageColors(const std::vector<Color>& colors);
+
+        static ImVec4 ColorToImVec4(const Color& color);
+
 
         /**
          * AdditiveBlend

@@ -70,7 +70,6 @@ const std::string& glimmer::TagCommand::GetName() const
 }
 
 void glimmer::TagCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

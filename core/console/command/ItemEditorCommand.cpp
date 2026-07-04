@@ -78,7 +78,6 @@ const std::string& glimmer::ItemEditorCommand::GetName() const
 }
 
 void glimmer::ItemEditorCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

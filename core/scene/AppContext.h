@@ -290,7 +290,6 @@ namespace glimmer
                 mainThreadTasks_.push(
                     [func = std::forward<Func>(func), promise]() mutable
                     {
-                        //skipcq: CXX-W1247
                         try
                         {
                             if constexpr (std::is_void_v<Result>)

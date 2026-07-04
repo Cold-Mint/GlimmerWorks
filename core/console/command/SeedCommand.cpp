@@ -64,6 +64,5 @@ const std::string& glimmer::SeedCommand::GetName() const
 }
 
 void glimmer::SeedCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
 }

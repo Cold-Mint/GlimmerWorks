@@ -57,7 +57,7 @@ bool glimmer::BiomeScoreCommand::RequiresWorldContext() const
 }
 
 void glimmer::BiomeScoreCommand::
-PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) //skipcq: CXX-C2014
+PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (commandArgs == nullptr || strings == nullptr)
     {

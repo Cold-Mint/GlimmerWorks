@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "imgui.h"
 #include "scene/AppContext.h"
 
 
@@ -32,16 +33,27 @@ namespace glimmer
 {
     class App
     {
-        bool initSDLSuccess_;
-        bool initSDLMixSuccess_;
-        bool initSDLTtfSuccess_;
+        bool initSDLSuccess_ = false;
+        bool initSDLMixSuccess_ = false;
+        bool initSDLTtfSuccess_ = false;
         uint64_t lastTime_ = 0;
         SDL_Renderer* renderer_ = nullptr;
         AppContext* appContext_ = nullptr;
         SDL_Window* window = nullptr;
         MIX_Mixer* mixer_ = nullptr;
 
-        void RendererUiMessage(int windowHeight,uint64_t frameStart, float deltaTime) const;
+
+        bool InitSDL();
+
+        bool InitWindowAndRenderer();
+
+        [[nodiscard]] bool InitImGui() const;
+
+        bool InitFont();
+
+        bool InitAudio();
+
+        void RendererUiMessage(int windowHeight, uint64_t frameStart, float deltaTime) const;
 
     public:
         ~App();

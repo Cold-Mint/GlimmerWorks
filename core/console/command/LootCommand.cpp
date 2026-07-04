@@ -50,7 +50,6 @@ const std::string& glimmer::LootCommand::GetName() const
 }
 
 void glimmer::LootCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-//skipcq: CXX-C2014
 {
     if (strings == nullptr)
     {

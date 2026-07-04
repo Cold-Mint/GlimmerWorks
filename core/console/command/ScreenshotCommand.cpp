@@ -49,7 +49,7 @@ const std::string& glimmer::ScreenshotCommand::GetName() const
 }
 
 void glimmer::ScreenshotCommand::
-PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) //skipcq: CXX-C2014
+PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (strings == nullptr)
     {

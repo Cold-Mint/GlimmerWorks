@@ -25,51 +25,30 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <SDL3/SDL.h>
 #include "scene/AppContext.h"
-#include "AppEventLoop.h"
-#include "AppRenderer.h"
-
 
 namespace glimmer
 {
-    class App
+    class AppRenderer
     {
-        bool initSDLSuccess_ = false;
-        bool initSDLMixSuccess_ = false;
-        bool initSDLTtfSuccess_ = false;
-        uint64_t lastTime_ = 0;
-        SDL_Renderer* renderer_ = nullptr;
         AppContext* appContext_ = nullptr;
-        SDL_Window* window = nullptr;
-        MIX_Mixer* mixer_ = nullptr;
+        SDL_Renderer* renderer_ = nullptr;
 
+        void RenderUiMessage(int windowHeight, uint64_t frameStart, float deltaTime) const;
 
-        bool InitSDL();
+        void RenderScenes() const;
 
-        bool InitWindowAndRenderer();
+        void RenderImGui() const;
 
-        [[nodiscard]] bool InitImGui() const;
+        void RenderOverlays() const;
 
-        bool InitFont();
+        void RenderRelease() const;
 
-        bool InitAudio();
-
-        bool CheckWindowSizeChange(int& windowWidth, int& windowHeight) const;
-        void HandleWindowSizeChange(int windowWidth, int windowHeight);
-        [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime) const;
-        bool CheckConfigChange(uint64_t& configFingerprint) const;
-        void NotifyFrameStart() const;
-        void UpdateScenes(float deltaTime) const;
-        void InitScenesAndConsole() const;
+        void RenderDebug() const;
 
     public:
-        ~App();
+        AppRenderer(AppContext* appContext, SDL_Renderer* renderer);
 
-        explicit App(AppContext* appContext);
-
-        bool Init();
-
-        void Run();
+        void RenderFrame(int windowWidth, int windowHeight, uint64_t frameStart, float deltaTime) const;
     };
 }

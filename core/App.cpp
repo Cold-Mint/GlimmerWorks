@@ -43,72 +43,9 @@
 #include "SDL3/SDL_render.h"
 #include "SDL3_mixer/SDL_mixer.h"
 #include "utils/ColorUtils.h"
-
-
-void glimmer::App::RendererUiMessage(const int windowHeight, uint64_t frameStart, const float deltaTime) const
-{
-    auto& uiMessages = appContext_->GetGameUIMessages();
-    if (uiMessages.empty())
-    {
-        return;
-    }
-    std::erase_if(uiMessages,
-                  [frameStart](const GameUIMessage& msg)
-                  {
-                      return msg.GetExpireTime() <= frameStart;
-                  });
-
-    constexpr float padding = 16.0F;
-    constexpr float spacing = 6.0F;
-
-    float totalHeight = 0.0F;
-
-    for (auto& msg : uiMessages)
-    {
-        auto& tween = msg.GetTween();
-        tween.step(deltaTime);
-        float peekResult = tween.peek();
-        msg.SetAlpha(peekResult);
-        if (peekResult <= 0.01F)
-        {
-            continue;
-        }
-        const SDL_Texture* sdlTexture = msg.GetTexture();
-        if (sdlTexture == nullptr)
-        {
-            continue;
-        }
-        totalHeight += static_cast<float>(sdlTexture->h) + spacing;
-    }
-
-    if (!uiMessages.empty() && totalHeight > 0.0F)
-    {
-        totalHeight -= spacing;
-    }
-    float startY = static_cast<float>(windowHeight) - totalHeight - padding;
-    for (auto& msg : uiMessages)
-    {
-        if (msg.GetAlpha() <= 0.01F)
-        {
-            continue;
-        }
-        SDL_Texture* sdlTexture = msg.GetTexture();
-        if (sdlTexture == nullptr)
-        {
-            continue;
-        }
-        SDL_SetTextureAlphaMod(sdlTexture, static_cast<Uint8>(msg.GetAlpha() * 255));
-        SDL_FRect dst = {
-            padding,
-            startY,
-            static_cast<float>(sdlTexture->w),
-            static_cast<float>(sdlTexture->h)
-        };
-
-        SDL_RenderTexture(renderer_, sdlTexture, nullptr, &dst);
-        startY += static_cast<float>(sdlTexture->h) + spacing;
-    }
-}
+#include "scene/SceneManager.h"
+#include "console/ConsoleWorker.h"
+#include "CommandHookManager.h"
 
 
 bool glimmer::App::InitSDL()
@@ -389,19 +326,171 @@ bool glimmer::App::Init()
 
 void glimmer::App::Run()
 {
-    Uint64 frameStart = SDL_GetTicks();
-    float deltaTime = 0.0F;
-    SDL_Event event;
     LogCat::i("Entering main loop...");
     auto* sceneManager = appContext_->GetSceneManager();
     auto* config = appContext_->GetConfig();
+
+    InitScenesAndConsole();
+
+    Uint64 frameStart = SDL_GetTicks();
+    Uint64 lastInputTime = SDL_GetTicks();
+    float deltaTime = 0.0F;
+    //+1 is used to ensure that the first frame receives the broadcast.
+    //+1是为了让第一帧收到广播。
+    uint64_t configFingerprint = config->GetFingerprint() + 1;
+
+    AppEventLoop eventLoop(appContext_, lastInputTime);
+    AppRenderer renderer(appContext_, renderer_);
+
+    while (appContext_->Running() && sceneManager->GetSceneCount() > 0)
+    {
+        int windowWidth = 0;
+        int windowHeight = 0;
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+        if (CheckWindowSizeChange(windowWidth, windowHeight))
+        {
+            HandleWindowSizeChange(windowWidth, windowHeight);
+        }
+
+        CheckConfigChange(configFingerprint);
+
+        const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastInputTime);
+        const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
+
+        NotifyFrameStart();
+        appContext_->ProcessMainThreadTasks();
+
+        eventLoop.ProcessEvents(frameStart);
+        UpdateScenes(deltaTime);
+        renderer.RenderFrame(windowWidth, windowHeight, frameStart, deltaTime);
+
+        const Uint64 frameTimeMs = SDL_GetTicks() - frameStart;
+        if (frameTimeMs < targetFrameTimeMs)
+        {
+            SDL_Delay(targetFrameTimeMs - frameTimeMs);
+        }
+        const Uint64 actualFrameEnd = SDL_GetTicks();
+        deltaTime = static_cast<float>(actualFrameEnd - frameStart) / 1000.0F;
+        frameStart = actualFrameEnd;
+    }
+}
+
+bool glimmer::App::CheckWindowSizeChange(int& windowWidth, int& windowHeight) const
+{
+    bool changed = false;
+    if (windowHeight != appContext_->GetWindowHeight())
+    {
+        changed = true;
+        appContext_->SetWindowHeight(windowHeight);
+    }
+    if (windowWidth != appContext_->GetWindowWidth())
+    {
+        changed = true;
+        appContext_->SetWindowWidth(windowWidth);
+    }
+    return changed;
+}
+
+void glimmer::App::HandleWindowSizeChange(const int windowWidth, const int windowHeight)
+{
+    auto* sceneManager = appContext_->GetSceneManager();
+    const auto& overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+    {
+        overlayScene->OnWindowSizeChanged(windowWidth, windowHeight);
+    }
+    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+    {
+        topScene->OnWindowSizeChanged(windowWidth, windowHeight);
+    }
+}
+
+float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastInputTime) const
+{
+    const auto* config = appContext_->GetConfig();
+    const float idleDelay = config->window.idleDelay;
+
+    if (idleDelay == -1)
+    {
+        return 1.0F / config->window.normalTargetFps;
+    }
+
+    const float duration = static_cast<float>(frameStart - lastInputTime) * 0.001F;
+    if (duration < idleDelay)
+    {
+        return 1.0F / config->window.normalTargetFps;
+    }
+    return 1.0F / config->window.idleTargetFps;
+}
+
+bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
+{
+    const auto* config = appContext_->GetConfig();
+    const uint64_t nowConfigFingerprint = config->GetFingerprint();
+    if (configFingerprint == nowConfigFingerprint)
+    {
+        return false;
+    }
+
+    if (CommandHookManager* commandHookManager = appContext_->GetCommandHookManager();
+        commandHookManager != nullptr)
+    {
+        commandHookManager->LoadHookFromConfig(config->commandHooks);
+    }
+
+    auto* sceneManager = appContext_->GetSceneManager();
+    const auto& overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+    {
+        overlayScene->OnConfigChanged(config);
+    }
+    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+    {
+        topScene->OnConfigChanged(config);
+    }
+
+    configFingerprint = nowConfigFingerprint;
+    return true;
+}
+
+void glimmer::App::NotifyFrameStart() const
+{
+    auto* sceneManager = appContext_->GetSceneManager();
+    const auto& overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+    {
+        overlayScene->OnFrameStart();
+    }
+    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+    {
+        topScene->OnFrameStart();
+    }
+}
+
+void glimmer::App::UpdateScenes(const float deltaTime) const
+{
+    auto* sceneManager = appContext_->GetSceneManager();
+    const auto& overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlay : overlayScenes)
+    {
+        overlay->Update(deltaTime);
+    }
+    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+    {
+        topScene->Update(deltaTime);
+    }
+}
+
+void glimmer::App::InitScenesAndConsole() const
+{
+    auto* sceneManager = appContext_->GetSceneManager();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
 #if  !defined(NDEBUG)
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
 #endif
-    auto& overlayScenes = sceneManager->GetOverlayScenes();
-    Uint64 lastInputTime = SDL_GetTicks();
+
     ConsoleWorker* consoleWorker = appContext_->GetConsoleWorker();
     consoleWorker->PushOnMessage(
         std::make_unique<std::function<void(const std::string&)>>([this](const std::string& text)
@@ -413,308 +502,4 @@ void glimmer::App::Run()
             appContext_->AddUIMessage(text);
         })
     );
-    //+1 is used to ensure that the first frame receives the broadcast.
-    //+1是为了让第一帧收到广播。
-    uint64_t configFingerprint = config->GetFingerprint() + 1;
-    bool windowsSizeChanged = false;
-    while (appContext_->Running() && sceneManager->GetSceneCount() > 0)
-    {
-        int windowWidth = 0;
-        int windowHeight = 0;
-        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-        if (windowHeight != appContext_->GetWindowHeight())
-        {
-            windowsSizeChanged = true;
-            appContext_->SetWindowHeight(windowHeight);
-        }
-        if (windowWidth != appContext_->GetWindowWidth())
-        {
-            windowsSizeChanged = true;
-            appContext_->SetWindowWidth(windowWidth);
-        }
-        if (windowsSizeChanged)
-        {
-            for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-            {
-                overlayScene->OnWindowSizeChanged(windowWidth, windowHeight);
-            }
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                topScene->OnWindowSizeChanged(windowWidth, windowHeight);
-            }
-            windowsSizeChanged = false;
-        }
-        const float idleDelay = config->window.idleDelay;
-        float targetFrameTime = 0;
-        if (idleDelay == -1)
-        {
-            //Disable idle mode to reduce frame rate.
-            //禁用闲置降低帧率。
-            targetFrameTime = 1.0F / config->window.normalTargetFps;
-        }
-        else
-        {
-            const float duration = static_cast<float>(frameStart - lastInputTime) * 0.001F;
-            if (duration < idleDelay)
-            {
-                targetFrameTime = 1.0F / config->window.normalTargetFps;
-            }
-            else
-            {
-                targetFrameTime = 1.0F / config->window.idleTargetFps;
-            }
-        }
-        const uint64_t nowConfigFingerprint = config->GetFingerprint();
-        if (configFingerprint != nowConfigFingerprint)
-        {
-            if (CommandHookManager* commandHookManager = appContext_->GetCommandHookManager(); commandHookManager !=
-                nullptr)
-            {
-                commandHookManager->LoadHookFromConfig(config->commandHooks);
-            }
-            for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-            {
-                overlayScene->OnConfigChanged(config);
-            }
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                topScene->OnConfigChanged(config);
-            }
-            configFingerprint = nowConfigFingerprint;
-        }
-        //The time interval of the target (in seconds)
-        //目标的时间间隔（以秒为单位）
-        //Target frame time (in milliseconds)
-        //目标帧时间（毫秒为单位）
-        const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
-        for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-        {
-            overlayScene->OnFrameStart();
-        }
-        appContext_->ProcessMainThreadTasks();
-        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-        {
-            topScene->OnFrameStart();
-        }
-        while (SDL_PollEvent(&event))
-        {
-            //Update the last input time.
-            //更新最后一次输入时间。
-            lastInputTime = frameStart;
-            //Is it a system event (an event that is hardcoded by the engine and cannot be handled through command hooks or scene processing)?
-            //是否为系统事件（引擎强制写死的事件，不能通过命令钩子和场景处理。）
-            //Defaulted to system navigation and program shutdown events.
-            //默认为系统导航和程序关闭事件。
-            bool systemEvent = false;
-#ifdef __ANDROID__
-            if (event.type == SDL_EVENT_KEY_DOWN &&
-                event.key.key == SDLK_AC_BACK)
-            {
-                systemEvent = true;
-                if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-                {
-                    if (!topScene->OnBackPressed())
-                    {
-                        sceneManager->PopScene();
-                        break;
-                    }
-                }
-            }
-#else
-            if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat)
-            {
-                systemEvent = true;
-                bool handled = false;
-                for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-                {
-                    if (overlayScene->OnBackPressed())
-                    {
-                        handled = true;
-                        break;
-                    }
-                }
-                auto* topScene = sceneManager->GetTopScene();
-                if (!handled && topScene != nullptr && !topScene->OnBackPressed())
-                {
-                    sceneManager->PopScene();
-                    break;
-                }
-            }
-#endif
-            if (event.type == SDL_EVENT_QUIT)
-            {
-                systemEvent = true;
-                for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-                {
-                    overlayScene->OnWindowClose();
-                }
-                if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-                {
-                    topScene->OnWindowClose();
-                }
-                appContext_->ExitApp();
-            }
-
-            if (!systemEvent)
-            {
-                uint16_t code = 0;
-                auto type = static_cast<SDL_EventType>(event.type);
-                bool isKey = false;
-                if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP)
-                {
-                    code = event.key.scancode;
-                    isKey = true;
-                }
-                bool useMouse = false;
-                if (type == SDL_EVENT_MOUSE_BUTTON_DOWN || type == SDL_EVENT_MOUSE_BUTTON_UP)
-                {
-                    code = event.button.button;
-                    useMouse = true;
-                }
-                const std::vector<CommandHookEntry*>& commandHookEntry = appContext_->GetCommandHookManager()->
-                    GetCommandHookVector(
-                        CommandHookEntry::GetKey(type, code));
-                if (!commandHookEntry.empty())
-                {
-                    for (const auto& commandHook : commandHookEntry)
-                    {
-                        if (isKey && commandHook->keyRepeat != event.key.repeat)
-                        {
-                            continue;
-                        }
-                        if (useMouse)
-                        {
-                            consoleWorker->CreateRequest(commandHook->command,
-                                                         appContext_->GetCommandManager()->
-                                                                      GetMouseCommandSender());
-                        }
-                        else
-                        {
-                            consoleWorker->CreateRequest(commandHook->command,
-                                                         appContext_->GetCommandManager()->
-                                                                      GetDefaultCommandSender());
-                        }
-                    }
-                }
-
-                bool handled = false;
-                for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-                {
-                    if (overlayScene->HandleEvent(event))
-                    {
-                        handled = true;
-                        break;
-                    }
-                }
-                if (!handled)
-                {
-                    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-                    {
-                        if (topScene->
-                            HandleEvent(event))
-                        {
-                            handled = true;
-                        }
-                    }
-                }
-                if (!handled)
-                {
-                    ImGui_ImplSDL3_ProcessEvent(&event);
-                }
-            }
-        }
-        if (windowWidth > 0 && windowHeight > 0)
-        {
-            ImGui_ImplSDL3_NewFrame();
-            ImGui_ImplSDLRenderer3_NewFrame();
-            ImGui::NewFrame();
-        }
-        for (const auto overlay : overlayScenes)
-        {
-            overlay->Update(deltaTime);
-        }
-        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-        {
-            topScene->Update(deltaTime);
-        }
-        SDL_RenderClear(renderer_);
-#if  defined(NDEBUG)
-        if (windowWidth > 0 && windowHeight > 0)
-        {
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                topScene->Render(renderer_);
-            }
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                topScene->RenderImGui(renderer_);
-            }
-            for (const auto overlay : overlayScenes)
-            {
-                overlay->RenderImGui(renderer_);
-            }
-            ImGui::Render();
-            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
-            for (const auto overlay : overlayScenes)
-            {
-                overlay->Render(renderer_);
-            }
-            RendererUiMessage(windowHeight, frameStart, deltaTime);
-        }
-#else
-        if (windowWidth > 0 && windowHeight > 0)
-        {
-            SDL_Color oldColor;
-            SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                topScene->Render(renderer_);
-            }
-            SDL_Color newColor;
-            SDL_GetRenderDrawColor(renderer_, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
-            if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b !=
-                newColor.
-                b)
-            {
-                LogCat::e("The color of the renderer has been changed by the scene.");
-                assert(false);
-            }
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                topScene->RenderImGui(renderer_);
-            }
-            for (const auto overlay : overlayScenes)
-            {
-                overlay->RenderImGui(renderer_);
-            }
-            ImGui::Render();
-            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
-            for (const auto overlay : overlayScenes)
-            {
-                SDL_GetRenderDrawColor(renderer_, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-                overlay->Render(renderer_);
-                SDL_Color overlayColor;
-                SDL_GetRenderDrawColor(renderer_, &overlayColor.r, &overlayColor.g, &overlayColor.b, &overlayColor.a);
-                if (oldColor.a != overlayColor.a || oldColor.r != overlayColor.r || oldColor.g != overlayColor.g ||
-                    oldColor
-                    .b !=
-                    overlayColor.b)
-                {
-                    LogCat::e("The color of the renderer has been changed by the overlay scene.");
-                    assert(false);
-                }
-            }
-            RendererUiMessage(windowHeight, frameStart, deltaTime);
-        }
-#endif
-        SDL_RenderPresent(renderer_);
-        const auto frameTimeMs = SDL_GetTicks() - frameStart;
-        if (frameTimeMs < targetFrameTimeMs)
-        {
-            SDL_Delay(targetFrameTimeMs - frameTimeMs);
-        }
-        const auto actualFrameEnd = SDL_GetTicks();
-        deltaTime = static_cast<float>(actualFrameEnd - frameStart) / 1000.0F;
-        frameStart = actualFrameEnd;
-    }
 }

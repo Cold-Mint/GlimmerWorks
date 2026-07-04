@@ -334,6 +334,8 @@ target_sources(GlimmerWorks
         core/log/LogCat.cpp
         core/Config.cpp
         core/App.cpp
+        core/AppEventLoop.cpp
+        core/AppRenderer.cpp
         core/mod/dataPack/StringManager.cpp
         core/mod/Resource.cpp
         core/mod/dataPack/DataPackManager.cpp
@@ -639,6 +641,8 @@ target_sources(GlimmerWorks
         core/log/LogCat.h
         core/Config.h
         core/App.h
+        core/AppEventLoop.h
+        core/AppRenderer.h
         core/mod/dataPack/StringManager.h
         core/mod/Resource.h
         core/mod/dataPack/DataPackManager.h

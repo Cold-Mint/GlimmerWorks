@@ -27,49 +27,23 @@
 #pragma once
 #include <SDL3/SDL.h>
 #include "scene/AppContext.h"
-#include "AppEventLoop.h"
-#include "AppRenderer.h"
-
 
 namespace glimmer
 {
-    class App
+    class AppEventLoop
     {
-        bool initSDLSuccess_ = false;
-        bool initSDLMixSuccess_ = false;
-        bool initSDLTtfSuccess_ = false;
-        uint64_t lastTime_ = 0;
-        SDL_Renderer* renderer_ = nullptr;
-        AppContext* appContext_ = nullptr;
-        SDL_Window* window = nullptr;
-        MIX_Mixer* mixer_ = nullptr;
+        AppContext* appContext_;
+        Uint64& lastInputTime_;
 
+        bool HandleSystemEvent(const SDL_Event& event) const;
 
-        bool InitSDL();
+        void HandleCommandHooks(const SDL_Event& event) const;
 
-        bool InitWindowAndRenderer();
-
-        [[nodiscard]] bool InitImGui() const;
-
-        bool InitFont();
-
-        bool InitAudio();
-
-        bool CheckWindowSizeChange(int& windowWidth, int& windowHeight) const;
-        void HandleWindowSizeChange(int windowWidth, int windowHeight);
-        [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime) const;
-        bool CheckConfigChange(uint64_t& configFingerprint) const;
-        void NotifyFrameStart() const;
-        void UpdateScenes(float deltaTime) const;
-        void InitScenesAndConsole() const;
+        void DispatchEvent(const SDL_Event& event) const;
 
     public:
-        ~App();
+        AppEventLoop(AppContext* appContext, Uint64& lastInputTime);
 
-        explicit App(AppContext* appContext);
-
-        bool Init();
-
-        void Run();
+        void ProcessEvents(uint64_t frameStart) const;
     };
 }

@@ -40,6 +40,7 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
         {
             return !taskCommandRequestQueue_.empty() || stopToken.stop_requested();
         });
+        lock.unlock();
         if (stopToken.stop_requested())
         {
             break;
@@ -56,8 +57,6 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
         auto commandRequest = std::move(taskCommandRequestQueue_.front());
         taskCommandRequestQueue_.pop();
         const std::function<void(const std::string& text)>* currentCallback = onMessageStack_.top().get();
-        lock.unlock();
-
         if (commandRequest == nullptr || commandManager_ == nullptr || currentCallback == nullptr)
         {
             continue;

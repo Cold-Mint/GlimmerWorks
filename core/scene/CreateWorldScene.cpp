@@ -68,7 +68,7 @@ void glimmer::CreateWorldScene::CreateWorld() const
     }
     catch (...)
     {
-        seedValue = static_cast<int>(StringUtils::StringToUint64(seed_input));
+        seedValue = static_cast<int>(StringUtils::StringToUint64Blake3(seed_input));
     }
     LogCat::d("Create a world: ", name, ", seed: ", seedValue);
     MapManifest manifest;

@@ -45,12 +45,12 @@
 void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer* renderer, int windowW, const std::string& text, float y,
                                                 const Color& textColor, SDL_Color textBGColor)
 {
-    uint64_t stringFingerprint = StringUtils::StringToUint64(text);
+    const uint64_t stringFingerprint = StringUtils::StringToUint64(text);
     auto iterator = textures_.find(stringFingerprint);
     SDL_Texture* texture = nullptr;
     if (iterator == textures_.end())
     {
-        std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(text, &textColor);
+        const std::shared_ptr<SDL_Texture> texturePtr = resourcePackManager_->CreateStringTexture(text, &textColor);
         textures_[stringFingerprint] = texturePtr;
         texture = texturePtr.get();
     }

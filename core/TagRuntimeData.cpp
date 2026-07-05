@@ -98,7 +98,7 @@ void glimmer::TagRuntimeData::SetRequiredWeight(const uint16_t requiredWeight)
     requiredWeight_ = requiredWeight;
 }
 
-void glimmer::TagRuntimeData::SetText(const std::string& text)
+void glimmer::TagRuntimeData::SetText(const std::string_view text)
 {
     text_ = text;
 }

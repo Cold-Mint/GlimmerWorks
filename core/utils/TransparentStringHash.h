@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,19 +25,30 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <cstddef>
 #include <string>
-#include "CommandResult.h"
+#include <string_view>
 
-namespace glimmer {
-    class CommandResponse {
-        CommandResult commandResult_ = CommandResult::Failure;
-        std::string command_;
-
+namespace glimmer
+{
+    class TransparentStringHash
+    {
     public:
-        void SetCommandResult(CommandResult commandResult, std::string_view command);
+        using is_transparent = void;
 
-        [[nodiscard]] const std::string &GetCommand() const;
+        std::size_t operator()(const std::string_view sv) const noexcept
+        {
+            return std::hash<std::string_view>{}(sv);
+        }
 
-        [[nodiscard]] CommandResult GetCommandResult() const;
+        std::size_t operator()(const std::string& s) const noexcept
+        {
+            return std::hash<std::string>{}(s);
+        }
+
+        std::size_t operator()(const char* s) const noexcept
+        {
+            return std::hash<std::string_view>{}(s);
+        }
     };
 }

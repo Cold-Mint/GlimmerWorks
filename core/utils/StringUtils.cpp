@@ -52,7 +52,7 @@ std::string glimmer::StringUtils::ToSafeSaveName(const std::string& utf8Str)
     return oss.str();
 }
 
-uint64_t glimmer::StringUtils::StringToUint64(const std::string& string)
+uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string& string)
 {
     blake3_hasher hasher;
     blake3_hasher_init(&hasher);
@@ -62,6 +62,11 @@ uint64_t glimmer::StringUtils::StringToUint64(const std::string& string)
     uint64_t res = 0;
     std::memcpy(&res, singleHash, sizeof(uint64_t));
     return res;
+}
+
+uint64_t glimmer::StringUtils::StringToUint64(const std::string& string)
+{
+    return std::hash<std::string>{}(string);
 }
 
 void glimmer::StringUtils::ReplaceAll(std::string& str, const std::string_view from, const std::string_view to)

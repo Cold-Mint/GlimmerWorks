@@ -36,7 +36,7 @@
 
 void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command)
 {
-    const std::string name = command->GetName();
+    const std::string& name = command->GetName();
     command->Initialize();
     commandMap_[name] = std::move(command);
 }

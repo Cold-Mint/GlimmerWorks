@@ -141,7 +141,7 @@ bool glimmer::CommandHookManager::UnregisterImpl(
 
 const std::vector<glimmer::CommandHookEntry*>& glimmer::CommandHookManager::GetCommandHookVector(const uint32_t key)
 {
-    fullVector_.clear();;
+    fullVector_.clear();
     if (const auto configIterator = configCommandHookMap_.find(key); configIterator != configCommandHookMap_.end())
     {
         fullVector_.insert(fullVector_.end(),

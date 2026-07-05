@@ -118,7 +118,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
         SDL_RenderTexture(renderer, texture, nullptr, &dst);
     }
     std::string fpsString = fmt::format(fmt::runtime(langsResources_->fpsInfo), fps_, frameTimeMs_);
-    uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
+    const uint64_t fpsFingerprint = StringUtils::StringToUint64(fpsString);
     SDL_Texture* texture = nullptr;
     auto fpsIterator = fpsTextures_.find(fpsFingerprint);
     if (fpsIterator == fpsTextures_.end())

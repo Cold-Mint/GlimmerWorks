@@ -70,35 +70,32 @@ void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs* commandArgs,
             strings->emplace_back("[parameter name:string]");
         }
     }
-    if (size >= 3)
+    if (size >= 3 && commandArgs->AsString(1) == "set")
     {
-        if (commandArgs->AsString(1) == "set")
+        if (const ConfigType configType = GetParameterType(commandArgs->AsString(2));
+            configType == ConfigType::BOOLEAN)
         {
-            if (const ConfigType configType = GetParameterType(commandArgs->AsString(2));
-                configType == ConfigType::BOOLEAN)
-            {
-                strings->emplace_back("[value:bool]");
-            }
-            else if (configType == ConfigType::FLOAT)
-            {
-                strings->emplace_back("[value:float]");
-            }
-            else if (configType == ConfigType::INT)
-            {
-                strings->emplace_back("[value:int]");
-            }
-            else if (configType == ConfigType::ARRAY)
-            {
-                strings->emplace_back("[value:array(format:value1,value2)]");
-            }
-            else if (configType == ConfigType::TABLE)
-            {
-                strings->emplace_back("[value:table]");
-            }
-            else
-            {
-                strings->emplace_back("[value:string]");
-            }
+            strings->emplace_back("[value:bool]");
+        }
+        else if (configType == ConfigType::FLOAT)
+        {
+            strings->emplace_back("[value:float]");
+        }
+        else if (configType == ConfigType::INT)
+        {
+            strings->emplace_back("[value:int]");
+        }
+        else if (configType == ConfigType::ARRAY)
+        {
+            strings->emplace_back("[value:array(format:value1,value2)]");
+        }
+        else if (configType == ConfigType::TABLE)
+        {
+            strings->emplace_back("[value:table]");
+        }
+        else
+        {
+            strings->emplace_back("[value:string]");
         }
     }
 }

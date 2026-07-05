@@ -30,7 +30,7 @@
 #include "core/mod/ResourceRef.h"
 #include <optional>
 
-glimmer::CommandArgs::CommandArgs(const std::string& command) : command_(command)
+glimmer::CommandArgs::CommandArgs(const std::string_view command) : command_(command)
 {
     std::istringstream iss(command);
     std::string token;

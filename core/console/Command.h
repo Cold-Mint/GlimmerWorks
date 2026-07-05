@@ -54,7 +54,7 @@ namespace glimmer
         * 初始化建议树
         * @param suggestionsTree
         */
-        virtual void InitSuggestions(NodeTree<std::string>* suggestionsTree) = 0;
+        virtual void InitSuggestions(NodeTree<std::string>* suggestionsTree);
 
         [[nodiscard]] WorldContext* GetWorldContext() const;
 

@@ -31,9 +31,6 @@ namespace glimmer
 {
     class ClearCommand final : public Command
     {
-    protected:
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
-
     public:
         explicit ClearCommand(AppContext* appContext);
 

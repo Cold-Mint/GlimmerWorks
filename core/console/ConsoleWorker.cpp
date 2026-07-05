@@ -63,30 +63,22 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
         }
 
         auto commandResponse = std::make_unique<CommandResponse>();
-        const std::string& command = commandRequest->GetCommand();
+        const std::string_view& command = commandRequest->GetCommand();
         const CommandArgs args(command);
-
-        try
+        if (Command* cmd = commandManager_->GetCommand(args.AsString(0)); cmd == nullptr)
         {
-            if (Command* cmd = commandManager_->GetCommand(args.AsString(0)); cmd == nullptr)
-            {
-                commandResponse->SetCommandResult(CommandResult::NotFound, command);
-            }
-            else
-            {
-                const bool success = cmd->Execute(
-                    commandRequest->GetCommandSender(),
-                    &args,
-                    currentCallback
-                );
-                commandResponse->SetCommandResult(
-                    success ? CommandResult::Success : CommandResult::Failure, command
-                );
-            }
+            commandResponse->SetCommandResult(CommandResult::NotFound, command);
         }
-        catch (...)
+        else
         {
-            commandResponse->SetCommandResult(CommandResult::Failure, command);
+            const bool success = cmd->Execute(
+                commandRequest->GetCommandSender(),
+                &args,
+                currentCallback
+            );
+            commandResponse->SetCommandResult(
+                success ? CommandResult::Success : CommandResult::Failure, command
+            );
         }
         std::lock_guard writeLock(commandMutex_);
         responseMap_[commandRequest->GetId()] = std::move(commandResponse);

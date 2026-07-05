@@ -91,8 +91,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
     std::vector<SDL_Texture*> textureToDraw;
     // 渲染物品名称
     const std::string& name = item->GetName();
-    const uint64_t itemNameFingerprint = StringUtils::StringToUint64(name);
-    if (itemNameFingerprint != itemNameFingerprint_)
+    if (const uint64_t itemNameFingerprint = StringUtils::StringToUint64(name); itemNameFingerprint != itemNameFingerprint_)
     {
         itemNameTexture_ = resourcePackManager_->CreateStringTexture(name, &preloadColors_->textColor);
         itemNameFingerprint_ = itemNameFingerprint;
@@ -105,8 +104,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
     if (descriptionOptional.has_value())
     {
         const std::string& description = descriptionOptional.value();
-        const uint64_t itemDescriptionFingerprint = StringUtils::StringToUint64(description);
-        if (itemDescriptionFingerprint != itemDescriptionFingerprint_)
+        if (const uint64_t itemDescriptionFingerprint = StringUtils::StringToUint64(description); itemDescriptionFingerprint != itemDescriptionFingerprint_)
         {
             itemDescriptionTexture_ = resourcePackManager_->
                 CreateStringTexture(description, &preloadColors_->textColor);
@@ -124,8 +122,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
     {
         if ((abilityConfig->mineAbleLayer & Ground) != static_cast<uint8_t>(0))
         {
-            uint64_t canMineBlockFingerprint = StringUtils::StringToUint64(langsResources->canMineBlockTip);
-            if (canMineBlockFingerprint != canMineBlockFingerprint_)
+            if (const uint64_t canMineBlockFingerprint = StringUtils::StringToUint64(langsResources->canMineBlockTip); canMineBlockFingerprint != canMineBlockFingerprint_)
             {
                 canMineBlockTipTexture_ = resourcePackManager_->
                     CreateStringTexture(langsResources->canMineBlockTip, &preloadColors_->game.positiveAttributeColor,
@@ -139,8 +136,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
         }
         if ((abilityConfig->mineAbleLayer & BackGround) != static_cast<uint8_t>(0))
         {
-            uint64_t canMineWallFingerprint = StringUtils::StringToUint64(langsResources->canMineWallTip);
-            if (canMineWallFingerprint != canMineWallFingerprint_)
+            if (const uint64_t canMineWallFingerprint = StringUtils::StringToUint64(langsResources->canMineWallTip); canMineWallFingerprint != canMineWallFingerprint_)
             {
                 canMineWallTipTexture_ = resourcePackManager_->
                     CreateStringTexture(langsResources->canMineWallTip, &preloadColors_->game.positiveAttributeColor,
@@ -154,8 +150,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
         }
         if (abilityConfig->enablePrecisionMining)
         {
-            uint64_t precisionMiningTipFingerprint = StringUtils::StringToUint64(langsResources->precisionMiningTip);
-            if (precisionMiningTipFingerprint != precisionMiningTipFingerprint_)
+            if (const uint64_t precisionMiningTipFingerprint = StringUtils::StringToUint64(langsResources->precisionMiningTip); precisionMiningTipFingerprint != precisionMiningTipFingerprint_)
             {
                 precisionMiningTipTexture_ = resourcePackManager_->CreateStringTexture(
                     langsResources->precisionMiningTip, &preloadColors_->game.positiveAttributeColor,
@@ -175,7 +170,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
                 fmt::runtime(langsResources->efficiencyTip),
                 fmt::format("{0:+.0f}", miningEfficiency * 100)
             );
-            uint64_t efficiencyTipFingerprint = StringUtils::StringToUint64(efficiencyTip);
+            const uint64_t efficiencyTipFingerprint = StringUtils::StringToUint64(efficiencyTip);
             bool efficiencyTipPositive = miningEfficiency > 0;
             if (efficiencyTipPositive != efficiencyTipPositive_ || efficiencyTipFingerprint !=
                 efficiencyTipFingerprint_)
@@ -201,7 +196,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
             std::string chainMiningTip = fmt::format(
                 fmt::runtime(langsResources->chainMiningTip),
                 (chainMiningRadius > 0 ? "+" : "") + std::to_string(chainMiningRadius));
-            uint64_t chainMiningTipFingerprint = StringUtils::StringToUint64(chainMiningTip);
+            const uint64_t chainMiningTipFingerprint = StringUtils::StringToUint64(chainMiningTip);
             bool chainMiningTipPositive = chainMiningRadius > 0;
             if (chainMiningTipPositive != chainMiningTipPositive_ || chainMiningTipFingerprint !=
                 chainMiningTipFingerprint_)
@@ -223,8 +218,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
 
     if (item->IsLocked())
     {
-        const uint64_t lockedFingerprint = StringUtils::StringToUint64(langsResources->lockedTip);
-        if (lockedFingerprint != itemLockedFingerprint_)
+        if (const uint64_t lockedFingerprint = StringUtils::StringToUint64(langsResources->lockedTip); lockedFingerprint != itemLockedFingerprint_)
         {
             itemLockedTexture_ = resourcePackManager_->
                 CreateStringTexture(langsResources->lockedTip, &preloadColors_->game.negativeAttributeColor);

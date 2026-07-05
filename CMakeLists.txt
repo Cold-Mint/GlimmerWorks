@@ -634,6 +634,7 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/ResourcePackConfig.cpp
         core/ecs/component/TechProviderComponent.cpp
         core/ecs/system/TechProviderSystem.cpp
+        core/utils/TransparentStringHash.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -944,6 +945,7 @@ target_sources(GlimmerWorks
         core/world/BreakSource.h
         core/ecs/component/TechProviderComponent.h
         core/ecs/system/TechProviderSystem.h
+        core/utils/TransparentStringHash.h
 )
 
 #Define version information

@@ -72,21 +72,21 @@ namespace glimmer
 
         void AddActualValue(uint16_t actualValue);
 
-        bool IsExactMatch() const;
+        [[nodiscard]] bool IsExactMatch() const;
 
         void SetExactMatch(bool exactMatch);
 
-        bool Matched() const;
+        [[nodiscard]] bool Matched() const;
 
         [[nodiscard]] uint16_t GetActualValue() const;
 
-        SDL_Texture* GetPositiveTexture() const;
+        [[nodiscard]] SDL_Texture* GetPositiveTexture() const;
 
-        SDL_Texture* GetNegativeTexture() const;
+        [[nodiscard]] SDL_Texture* GetNegativeTexture() const;
 
         void SetRequiredWeight(uint16_t requiredWeight);
 
-        void SetText(const std::string& text);
+        void SetText(std::string_view text);
 
         [[nodiscard]] const std::string& GetText() const;
     };

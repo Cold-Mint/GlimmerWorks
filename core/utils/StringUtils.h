@@ -28,8 +28,10 @@
 #include <string>
 #include <cstdint>
 
-namespace glimmer {
-    class StringUtils {
+namespace glimmer
+{
+    class StringUtils
+    {
     public:
         /**
          * Convert any UTF-8 string to a cross-platform secure archive directory name (in English + numbers)
@@ -37,10 +39,28 @@ namespace glimmer {
          * @param utf8Str
          * @return
          */
-        static std::string ToSafeSaveName(const std::string &utf8Str);
+        static std::string ToSafeSaveName(const std::string& utf8Str);
 
+
+        /**
+         * String to hash value
+         * 字符串转哈希值
+         * @param string string 字符串
+         * @return Return the fixed hash value. 返回固定的哈希值。
+         */
+        static uint64_t StringToUint64Blake3(const std::string& string);
+
+        /**
+         * String to hash value
+         * 字符串转哈希值
+         *
+         * This function is faster than StringToUint64Blake3, but after the game restarts, the hash value generated from the same input will be different from the previous one. It has random perturbations.
+         * 此函数比StringToUint64Blake3更快，但是游戏重启后，相同的输入产生的哈希值和上次会有所不同。带有随机扰动。
+         * @param string
+         * @return
+         */
         static uint64_t StringToUint64(const std::string& string);
 
-        static void ReplaceAll(std::string &str, std::string_view from, std::string_view to);
+        static void ReplaceAll(std::string& str, std::string_view from, std::string_view to);
     };
 }

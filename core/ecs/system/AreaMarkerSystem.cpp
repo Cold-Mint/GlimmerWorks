@@ -147,8 +147,7 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer* renderer)
 
         std::string areaMarkerTip = fmt::format(fmt::runtime(appContext_->GetLangsResources()->areaMarkerTip),
                                                 tileWidth, tileHeight, tileArea);
-        uint64_t areaMarkerTipFingerprint = StringUtils::StringToUint64(areaMarkerTip);
-        if (areaMarkerTipFingerprint != areaMarkerTipFingerprint_)
+        if (const uint64_t areaMarkerTipFingerprint = StringUtils::StringToUint64(areaMarkerTip); areaMarkerTipFingerprint != areaMarkerTipFingerprint_)
         {
             areaMarkerTipTexture_ = resourcePackManager_->
                 CreateStringTexture(areaMarkerTip, &preloadColors_->textColor);

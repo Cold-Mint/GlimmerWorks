@@ -31,6 +31,12 @@ glimmer::NodeTree<std::string>& glimmer::Command::GetPrivateSuggestionsTree()
     return suggestionsTree_;
 }
 
+void glimmer::Command::InitSuggestions(NodeTree<std::string>* suggestionsTree)
+{
+    //Command suggestions are implemented by subclasses.
+    //由子类实现命令建议。
+}
+
 glimmer::WorldContext* glimmer::Command::GetWorldContext() const
 {
     return worldContext_;

@@ -59,8 +59,7 @@ void glimmer::InventoryCraftGUISystem::Render(SDL_Renderer* renderer)
     }
     DesignDimension padding = 5;
     const std::string& craftInfo = langsResources_->craft;
-    uint64_t craftFingerprint = StringUtils::StringToUint64(craftInfo);
-    if (craftFingerprint_ != craftFingerprint)
+    if (const uint64_t craftFingerprint = StringUtils::StringToUint64(craftInfo); craftFingerprint_ != craftFingerprint)
     {
         craftTexture_ = resourcePackManager_->CreateStringTexture(craftInfo, &preloadColors_->textColor);
     }

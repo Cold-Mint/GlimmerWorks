@@ -32,6 +32,7 @@
 #include "Command.h"
 #include "CommandSender.h"
 #include "core/LangsResources.h"
+#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer
 {
@@ -41,7 +42,7 @@ namespace glimmer
 
     class CommandManager
     {
-        std::unordered_map<std::string, std::unique_ptr<Command>> commandMap_{};
+        std::unordered_map<std::string, std::unique_ptr<Command>, TransparentStringHash, std::equal_to<>> commandMap_{};
         CommandSender defaultCommandSender_;
         CommandSender mouseCommandSender_;
         WorldContext* worldContext_ = nullptr;

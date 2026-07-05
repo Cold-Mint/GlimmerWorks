@@ -84,7 +84,8 @@ PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* st
 bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                           const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
@@ -92,7 +93,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
     const auto type = commandArgs->AsString(1);
     if (type == "string")
     {
-        const StringManager* stringManager = appContext_->GetStringManager();
+        const StringManager* stringManager = appContext->GetStringManager();
         if (stringManager == nullptr)
         {
             return false;
@@ -103,7 +104,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "texture")
     {
-        const ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
+        const ResourcePackManager* resourcePackManager = appContext->GetResourcePackManager();
         if (resourcePackManager == nullptr)
         {
             return false;
@@ -114,7 +115,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "tile")
     {
-        const TileResourceManager* tileResourceManager = appContext_->GetTileResourceManager();
+        const TileResourceManager* tileResourceManager = appContext->GetTileResourceManager();
         if (tileResourceManager == nullptr)
         {
             return false;
@@ -125,7 +126,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "biomes")
     {
-        const BiomesManager* biomesManager = appContext_->GetBiomesManager();
+        const BiomesManager* biomesManager = appContext->GetBiomesManager();
         if (biomesManager == nullptr)
         {
             return false;
@@ -136,7 +137,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "composableItems")
     {
-        const ItemManager* itemManager = appContext_->GetItemManager();
+        const ItemManager* itemManager = appContext->GetItemManager();
         if (itemManager == nullptr)
         {
             return false;
@@ -147,7 +148,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "abilityItems")
     {
-        const ItemManager* itemManager = appContext_->GetItemManager();
+        const ItemManager* itemManager = appContext->GetItemManager();
         if (itemManager == nullptr)
         {
             return false;
@@ -157,7 +158,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
     }
     if (type == "materialItems")
     {
-        const ItemManager* itemManager = appContext_->GetItemManager();
+        const ItemManager* itemManager = appContext->GetItemManager();
         if (itemManager == nullptr)
         {
             return false;
@@ -168,7 +169,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "lootTables")
     {
-        const LootTableManager* lootTableManager = appContext_->GetLootTableManager();
+        const LootTableManager* lootTableManager = appContext->GetLootTableManager();
         if (lootTableManager == nullptr)
         {
             return false;
@@ -179,7 +180,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "startinv")
     {
-        const InitialInventoryManager* initialInventoryManager = appContext_->GetInitialInventoryManager();
+        const InitialInventoryManager* initialInventoryManager = appContext->GetInitialInventoryManager();
         if (initialInventoryManager == nullptr)
         {
             return false;
@@ -190,7 +191,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "structures")
     {
-        const StructureManager* structureManager = appContext_->GetStructureManager();
+        const StructureManager* structureManager = appContext->GetStructureManager();
         if (structureManager == nullptr)
         {
             return false;
@@ -201,7 +202,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "mobs")
     {
-        const MobManager* mobManager = appContext_->GetMobManager();
+        const MobManager* mobManager = appContext->GetMobManager();
         if (mobManager == nullptr)
         {
             return false;
@@ -212,7 +213,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "shapes")
     {
-        const ShapeManager* shapeManager = appContext_->GetShapeManager();
+        const ShapeManager* shapeManager = appContext->GetShapeManager();
         if (shapeManager == nullptr)
         {
             return false;
@@ -222,7 +223,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
     }
     if (type == "biomeDecors")
     {
-        const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext_->
+        const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext->
             GetBiomeDecoratorResourcesManager();
         if (decoratorResourcesManager == nullptr)
         {
@@ -233,7 +234,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
     }
     if (type == "fixedColor")
     {
-        const FixedColorManager* fixedColorManager = appContext_->GetFixedColorManager();
+        const FixedColorManager* fixedColorManager = appContext->GetFixedColorManager();
         if (fixedColorManager == nullptr)
         {
             return false;
@@ -243,7 +244,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
     }
     if (type == "lightMask")
     {
-        const LightMaskManager* lightMaskManager = appContext_->GetLightMaskManager();
+        const LightMaskManager* lightMaskManager = appContext->GetLightMaskManager();
         if (lightMaskManager == nullptr)
         {
             return false;
@@ -254,7 +255,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
 
     if (type == "lightSource")
     {
-        const LightSourceManager* lightSourceManager = appContext_->GetLightSourceManager();
+        const LightSourceManager* lightSourceManager = appContext->GetLightSourceManager();
         if (lightSourceManager == nullptr)
         {
             return false;
@@ -264,7 +265,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
     }
     if (type == "recipes")
     {
-        const RecipeManager* recipeManager = appContext_->GetRecipeManager();
+        const RecipeManager* recipeManager = appContext->GetRecipeManager();
         if (recipeManager == nullptr)
         {
             return false;
@@ -273,7 +274,7 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
         return true;
     }
 
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;

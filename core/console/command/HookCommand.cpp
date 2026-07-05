@@ -114,15 +114,15 @@ glimmer::NodeTree<std::string>* glimmer::HookCommand::GetSuggestionsTree(const C
         const std::string operationType = commandArgs->AsString(1);
         if (operationType == "add")
         {
-            auto operationTypeTree = suggestionsTree_.GetChildByValue(operationType);
+            auto operationTypeTree = GetPrivateSuggestionsTree().GetChildByValue(operationType);
             if (operationTypeTree == nullptr)
             {
-                return &suggestionsTree_;
+                return &GetPrivateSuggestionsTree();
             }
             auto eventTypeTree = operationTypeTree->GetChildByValue(EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
             if (eventTypeTree == nullptr)
             {
-                return &suggestionsTree_;
+                return &GetPrivateSuggestionsTree();
             }
             const std::string eventTypeString = commandArgs->AsString(2);
             const SDL_EventType eventType = EventTypeUtils::StringToEventType(eventTypeString);
@@ -147,15 +147,15 @@ glimmer::NodeTree<std::string>* glimmer::HookCommand::GetSuggestionsTree(const C
         }
         else if (operationType == "list")
         {
-            auto operationTypeTree = suggestionsTree_.GetChildByValue(operationType);
+            auto operationTypeTree = GetPrivateSuggestionsTree().GetChildByValue(operationType);
             if (operationTypeTree == nullptr)
             {
-                return &suggestionsTree_;
+                return &GetPrivateSuggestionsTree();
             }
             auto eventTypeTree = operationTypeTree->GetChildByValue(EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME);
             if (eventTypeTree == nullptr)
             {
-                return &suggestionsTree_;
+                return &GetPrivateSuggestionsTree();
             }
             const std::string eventTypeString = commandArgs->AsString(2);
             const SDL_EventType eventType = EventTypeUtils::StringToEventType(eventTypeString);
@@ -170,23 +170,24 @@ glimmer::NodeTree<std::string>* glimmer::HookCommand::GetSuggestionsTree(const C
             }
         }
     }
-    return &suggestionsTree_;
+    return &GetPrivateSuggestionsTree();
 }
 
 bool glimmer::HookCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                    const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    CommandHookManager* commandHookManager = appContext_->GetCommandHookManager();
+    CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
     if (commandHookManager == nullptr)
     {
         return false;
     }
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;

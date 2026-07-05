@@ -81,12 +81,14 @@ void glimmer::TagCommand::PutCommandStructure(const CommandArgs* commandArgs, st
 bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                   const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -102,12 +104,12 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
     const std::string type = commandArgs->AsString(1);
     if (type == "hand")
     {
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
         }
-        EntityManager* entityManager = worldContext_->GetEntityManager();
+        EntityManager* entityManager = worldContext->GetEntityManager();
         if (entityManager == nullptr)
         {
             return false;
@@ -127,7 +129,7 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
         {
             return false;
         }
-        StringManager* stringManager = appContext_->GetStringManager();
+        StringManager* stringManager = appContext->GetStringManager();
         const std::vector<ItemTagResource>& tagList = item->GetTags();
         if (tagList.empty())
         {
@@ -155,7 +157,7 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
     }
     if (type == "inventory")
     {
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
@@ -171,7 +173,7 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
             return false;
         }
         const std::vector<ItemTagResource*>& totalTags = itemContainer->GetTotalTags();
-        StringManager* stringManager = appContext_->GetStringManager();
+        StringManager* stringManager = appContext->GetStringManager();
         if (totalTags.empty())
         {
             onMessageRef(langsResources->tagCannotFound);

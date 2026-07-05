@@ -32,6 +32,8 @@
 
 void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
 {
+    //There is no need to achieve it.
+    //无需实现。
 }
 
 glimmer::HelpCommand::HelpCommand(AppContext* appContext) : Command(appContext)
@@ -46,11 +48,12 @@ const std::string& glimmer::HelpCommand::GetName() const
 bool glimmer::HelpCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                    const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    onMessageRef(appContext_->GetCommandManager()->GetHelpText(appContext_->GetLangsResources()));
+    onMessageRef(appContext->GetCommandManager()->GetHelpText(appContext->GetLangsResources()));
     return true;
 }

@@ -78,17 +78,19 @@ PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* st
 bool glimmer::BiomeScoreCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                          const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -104,7 +106,7 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender* commandSender, con
     std::string operation = commandArgs->AsString(1);
     if (operation == "inspector")
     {
-        CommandHookManager* commandHookManager = appContext_->GetCommandHookManager();
+        CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
         if (commandHookManager == nullptr)
         {
             onMessageRef(langsResources->cmdHookManagerNotFound);
@@ -149,12 +151,12 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender* commandSender, con
             commandArgs->AsCoordinate(2, commandSenderPosition.x),
             commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));
-        ChunkGenerator* chunkGenerator = worldContext_->GetChunkGenerator();
+        ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
         if (chunkGenerator == nullptr)
         {
             return false;
         }
-        BiomesManager* biomesManager = appContext_->GetBiomesManager();
+        BiomesManager* biomesManager = appContext->GetBiomesManager();
         if (biomesManager == nullptr)
         {
             return false;

@@ -68,17 +68,19 @@ void glimmer::FlyCommand::PutCommandStructure(const CommandArgs* commandArgs, st
 bool glimmer::FlyCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                   const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
     }
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
@@ -91,12 +93,12 @@ bool glimmer::FlyCommand::Execute(const CommandSender* commandSender, const Comm
             2, size));
         return false;
     }
-    EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
         return false;
     }
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+    EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
     {
         return false;

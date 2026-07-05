@@ -64,20 +64,22 @@ void glimmer::HeightMapCommand::PutCommandStructure(const CommandArgs* commandAr
 bool glimmer::HeightMapCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                         const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
     if (size_t size = commandArgs->GetSize(); size < 3)
     {
         onMessageRef(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             3, size));
         return false;
     }
@@ -85,19 +87,19 @@ bool glimmer::HeightMapCommand::Execute(const CommandSender* commandSender, cons
     const int maxX = commandArgs->AsInt(2);
     if (minX > maxX)
     {
-        onMessageRef(appContext_->GetLangsResources()->minXIsGreaterThanMaxX);
+        onMessageRef(appContext->GetLangsResources()->minXIsGreaterThanMaxX);
         return false;
     }
     std::ostringstream ss;
     ss << "{\n";
-    ss << "  \"seed\": " << worldContext_->GetWorldSeed() << ",\n";
+    ss << "  \"seed\": " << worldContext->GetWorldSeed() << ",\n";
     ss << R"(  "range": { "minX": )" << minX
         << ", \"maxX\": " << maxX << " },\n";
     ss << "  \"heightMap\": [\n";
 
     for (int x = minX; x <= maxX; ++x)
     {
-        const int height = worldContext_->GetChunkGenerator()->GetFirstTileTerrainY(x);
+        const int height = worldContext->GetChunkGenerator()->GetFirstTileTerrainY(x);
         ss << "    { \"x\": " << x
             << ", \"height\": " << height << " }";
 
@@ -112,19 +114,19 @@ bool glimmer::HeightMapCommand::Execute(const CommandSender* commandSender, cons
     LogCat::d(ss.str());
     if (commandArgs->GetSize() >= 4)
     {
-        const VirtualFileSystem* virtualFileSystem = appContext_->GetVirtualFileSystem();
+        const VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
         const std::string fileName = commandArgs->AsString(3);
         if (!virtualFileSystem->Exists(DEBUG_FOLDER_NAME))
         {
             if (!virtualFileSystem->CreateFolder(DEBUG_FOLDER_NAME))
             {
                 onMessageRef(fmt::format(
-                    fmt::runtime(appContext_->GetLangsResources()->folderCreationFailed),
+                    fmt::runtime(appContext->GetLangsResources()->folderCreationFailed),
                     DEBUG_FOLDER_NAME));
                 return false;
             }
         }
-        std::string path = DEBUG_FOLDER_NAME + "/heightMap_" + std::to_string(worldContext_->GetWorldSeed()) + "_" +
+        std::string path = DEBUG_FOLDER_NAME + "/heightMap_" + std::to_string(worldContext->GetWorldSeed()) + "_" +
             fileName
             + ".json";
         const bool write = virtualFileSystem->WriteFile(
@@ -133,7 +135,7 @@ bool glimmer::HeightMapCommand::Execute(const CommandSender* commandSender, cons
         if (!write)
         {
             onMessageRef(fmt::format(
-                fmt::runtime(appContext_->GetLangsResources()->fileWritingFailed),
+                fmt::runtime(appContext->GetLangsResources()->fileWritingFailed),
                 path));
             return false;
         }

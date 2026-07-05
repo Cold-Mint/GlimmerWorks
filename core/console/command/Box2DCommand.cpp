@@ -69,17 +69,19 @@ void glimmer::Box2DCommand::PutCommandStructure(const CommandArgs* commandArgs, 
 bool glimmer::Box2DCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                     const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
     }
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
@@ -88,7 +90,7 @@ bool glimmer::Box2DCommand::Execute(const CommandSender* commandSender, const Co
     {
         //Obtain the number of active rigid bodies
         //获取活跃的刚体数量
-        const auto bodyCount = b2World_GetAwakeBodyCount(worldContext_->GetWorldId());
+        const auto bodyCount = b2World_GetAwakeBodyCount(worldContext->GetWorldId());
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->awakeBodyCount),
             bodyCount));

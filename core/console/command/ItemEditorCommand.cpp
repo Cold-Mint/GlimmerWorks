@@ -118,17 +118,19 @@ void glimmer::ItemEditorCommand::PutCommandStructure(const CommandArgs* commandA
 bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                          const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
+    const WorldContext* worldContext = GetWorldContext();
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -141,12 +143,12 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
             2, size));
         return false;
     }
-    EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
         return false;
     }
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+    EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
     {
         return false;
@@ -239,7 +241,7 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
         }
         std::string value = commandArgs->AsString(3);
         const std::string attribute = commandArgs->AsString(2);
-        appContext_->PostToNextMainFrame([attribute, item, value]
+        appContext->PostToNextMainFrame([attribute, item, value]
         {
             if (attribute == "used_durability")
             {

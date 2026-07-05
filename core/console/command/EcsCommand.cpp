@@ -47,9 +47,14 @@ glimmer::EcsCommand::EcsCommand(AppContext* appContext) : Command(appContext)
 {
 }
 
-std::string glimmer::EcsCommand::EntityToString(const GameEntityID gameEntityId) const
+std::optional<std::string> glimmer::EcsCommand::EntityToString(GameEntityID gameEntityId) const
 {
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        return std::nullopt;
+    }
+    EntityManager* entityManager = worldContext->GetEntityManager();
     const std::vector<GameComponent*> components = entityManager->GetAllComponent(gameEntityId);
     std::stringstream stringStream;
     for (int i = 0; i < components.size(); ++i)
@@ -87,17 +92,19 @@ void glimmer::EcsCommand::PutCommandStructure(const CommandArgs* commandArgs, st
 bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                   const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
     }
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
@@ -113,11 +120,15 @@ bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const Comm
     std::string arg = commandArgs->AsString(1);
     if (arg == "showEntityList")
     {
-        for (const std::vector<uint32_t> allGameEntities = worldContext_->GetEntityManager()->GetAllEntityIDs(); const
+        for (const std::vector<uint32_t> allGameEntities = worldContext->GetEntityManager()->GetAllEntityIDs(); const
              auto& e :
              allGameEntities)
         {
-            onMessageRef(EntityToString(e));
+            auto string = EntityToString(e);
+            if (string.has_value())
+            {
+                onMessageRef(string.value());
+            }
         }
         return true;
     }
@@ -136,12 +147,16 @@ bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const Comm
             onMessageRef(langsResources->cantFindObject);
             return false;
         }
-        onMessageRef(EntityToString(id));
+        auto string = EntityToString(id);
+        if (string.has_value())
+        {
+            onMessageRef(string.value());
+        }
         return true;
     }
     if (arg == "activeSystems")
     {
-        for (std::vector<GameSystemType> allGameSystems = worldContext_->GetAllActiveSystemType(); auto& type :
+        for (std::vector<GameSystemType> allGameSystems = worldContext->GetAllActiveSystemType(); auto& type :
              allGameSystems)
         {
             onMessageRef(fmt::format("{}\n", static_cast<uint8_t>(type)));

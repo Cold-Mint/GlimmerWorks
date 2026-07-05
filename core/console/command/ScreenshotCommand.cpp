@@ -61,12 +61,13 @@ PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* st
 bool glimmer::ScreenshotCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                          const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -84,9 +85,9 @@ bool glimmer::ScreenshotCommand::Execute(const CommandSender* commandSender, con
     {
         return false;
     }
-    appContext_->PostToNextMainFrame([this, onMessage]
+    appContext->PostToNextMainFrame([ onMessage, appContext]
     {
-        appContext_->CreateScreenshot(onMessage);
+        appContext->CreateScreenshot(onMessage);
     });
     return true;
 }

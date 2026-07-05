@@ -46,33 +46,35 @@ const std::string& glimmer::ClearCommand::GetName() const
 bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                     const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || onMessage == nullptr)
     {
         return false;
     }
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
     }
 
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
-    auto playerEntity = worldContext_->GetEntityShortCut()->GetPlayer();
-    const auto* itemContainerComponent = worldContext_->GetEntityManager()->GetComponent<
+    auto playerEntity = worldContext->GetEntityShortCut()->GetPlayer();
+    const auto* itemContainerComponent = worldContext->GetEntityManager()->GetComponent<
         ItemContainerComponent>(playerEntity);
     if (itemContainerComponent == nullptr)
     {
         onMessageRef(langsResources->itemContainerIsNull);
         return false;
     }
-    appContext_->PostToNextMainFrame([this, itemContainerComponent, playerEntity]
+    appContext->PostToNextMainFrame([itemContainerComponent, playerEntity, worldContext]
         {
-            auto* playerComponent = worldContext_->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity);
+            auto* playerComponent = worldContext->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity);
             if (playerComponent != nullptr)
             {
                 playerComponent->SetItem(nullptr);

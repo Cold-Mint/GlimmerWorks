@@ -56,17 +56,18 @@ PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* st
 bool glimmer::PackVerifyCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                          const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr)
+    const AppContext* appContext = GetAppContext();
+    if (appContext == nullptr)
     {
         return false;
     }
-    Config* config = appContext_->GetConfig();
+    const Config* config = appContext->GetConfig();
     if (config == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -83,7 +84,7 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender* commandSender, con
             2, size));
         return false;
     }
-    DataPackManager* dataPackManager = appContext_->GetDataPackManager();
+    DataPackManager* dataPackManager = appContext->GetDataPackManager();
     if (dataPackManager == nullptr)
     {
         return false;

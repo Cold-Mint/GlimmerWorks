@@ -110,7 +110,7 @@ glimmer::NodeTree<std::string>* glimmer::ConfigCommand::GetSuggestionsTree(const
     {
         if (commandArgs->AsString(1) == "set")
         {
-            if (const auto obj = suggestionsTree_.GetChildByValue("set")->GetChildByValue(
+            if (const auto obj = GetPrivateSuggestionsTree().GetChildByValue("set")->GetChildByValue(
                 CONFIG_DYNAMIC_SUGGESTIONS_NAME); obj != nullptr)
             {
                 obj->ClearChildren();
@@ -128,19 +128,20 @@ glimmer::NodeTree<std::string>* glimmer::ConfigCommand::GetSuggestionsTree(const
             }
         }
     }
-    return &suggestionsTree_;
+    return &GetPrivateSuggestionsTree();
 }
 
 
 bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                      const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -157,9 +158,9 @@ bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const C
     const std::string operation = commandArgs->AsString(1);
     if (operation == "commit")
     {
-        if (appContext_->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue_)))
+        if (appContext->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue_)))
         {
-            appContext_->GetConfig()->LoadConfig(*configValue_);
+            appContext->GetConfig()->LoadConfig(*configValue_);
             onMessageRef(langsResources->configurationCommitSuccess);
             return true;
         }
@@ -206,14 +207,14 @@ bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const C
         }
         if (SetValue(parameterName, value))
         {
-            appContext_->GetConfig()->LoadConfig(*configValue_);
+            appContext->GetConfig()->LoadConfig(*configValue_);
             onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
                                      parameterName, value));
         }
         return true;
     }
 
-    onMessageRef(appContext_->GetLangsResources()->unknownCommandParameters);
+    onMessageRef(appContext->GetLangsResources()->unknownCommandParameters);
     return false;
 }
 

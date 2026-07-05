@@ -69,12 +69,14 @@ void glimmer::TechnologyCommand::PutCommandStructure(const CommandArgs* commandA
 bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                          const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -90,12 +92,12 @@ bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, con
     const std::string type = commandArgs->AsString(1);
     if (type == "list")
     {
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
         }
-        EntityManager* entityManager = worldContext_->GetEntityManager();
+        EntityManager* entityManager = worldContext->GetEntityManager();
         if (entityManager == nullptr)
         {
             return false;

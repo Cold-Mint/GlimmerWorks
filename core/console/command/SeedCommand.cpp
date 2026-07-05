@@ -44,17 +44,19 @@ bool glimmer::SeedCommand::RequiresWorldContext() const
 bool glimmer::SeedCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                    const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr)
+    AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    onMessageRef(std::to_string(worldContext_->GetWorldSeed()));
+    onMessageRef(std::to_string(worldContext->GetWorldSeed()));
     return true;
 }
 

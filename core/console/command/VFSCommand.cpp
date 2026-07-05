@@ -83,7 +83,7 @@ glimmer::NodeTree<std::string>* glimmer::VFSCommand::GetSuggestionsTree(const Co
 {
     if (commandArgs == nullptr)
     {
-        return &suggestionsTree_;
+        return &GetPrivateSuggestionsTree();
     }
     if (commandArgs->GetSize() > 1)
     {
@@ -92,10 +92,10 @@ glimmer::NodeTree<std::string>* glimmer::VFSCommand::GetSuggestionsTree(const Co
         {
             //Attach dynamic suggestion parameters to the second-level tree
             //为第二层树附加动态建议参数
-            int size = suggestionsTree_.GetSize();
+            int size = GetPrivateSuggestionsTree().GetSize();
             for (int i = 0; i < size; i++)
             {
-                auto child = suggestionsTree_.GetChild(i);
+                auto child = GetPrivateSuggestionsTree().GetChild(i);
                 child->ClearChildren();
                 child->AddChild(
                     std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(2));
@@ -103,14 +103,15 @@ glimmer::NodeTree<std::string>* glimmer::VFSCommand::GetSuggestionsTree(const Co
         }
     }
 
-    return &suggestionsTree_;
+    return &GetPrivateSuggestionsTree();
 }
 
 
 bool glimmer::VFSCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                   const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
@@ -119,11 +120,11 @@ bool glimmer::VFSCommand::Execute(const CommandSender* commandSender, const Comm
     if (size < 2)
     {
         onMessageRef(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             2, size));
         return false;
     }
-    VirtualFileSystem* virtualFileSystem = appContext_->GetVirtualFileSystem();
+    VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
     const auto type = commandArgs->AsString(1);
     if (type == "listMount")
     {
@@ -140,7 +141,7 @@ bool glimmer::VFSCommand::Execute(const CommandSender* commandSender, const Comm
         }
         else
         {
-            onMessageRef(appContext_->GetLangsResources()->getActualPathError);
+            onMessageRef(appContext->GetLangsResources()->getActualPathError);
         }
         return true;
     }

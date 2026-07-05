@@ -72,21 +72,23 @@ bool glimmer::PlaceCommand::RequiresWorldContext() const
 bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                     const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const size_t size = commandArgs->GetSize();
     if (size < 5)
     {
         onMessageRef(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             5, size));
         return false;
     }
@@ -94,7 +96,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
     if (type == "structure")
     {
         auto structureId = commandArgs->AsResourceRef(2, RESOURCE_STRUCTURE);
-        IStructureResource* structureResource = appContext_->GetStructureManager()->Find(
+        IStructureResource* structureResource = appContext->GetStructureManager()->Find(
             structureId->GetPackageId(), structureId->GetResourceKey());
         if (structureResource == nullptr)
         {
@@ -106,14 +108,14 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
                 commandArgs->AsCoordinate(3, commandSenderPosition.x),
                 commandArgs->AsCoordinate(4, commandSenderPosition.y)
             });
-        std::optional<StructureInfo> structureInfoOptional = appContext_->GetStructureGeneratorManager()->Generate(
-            worldContext_,
+        std::optional<StructureInfo> structureInfoOptional = appContext->GetStructureGeneratorManager()->Generate(
+            worldContext,
             tilePosition, structureResource);
         if (!structureInfoOptional.has_value())
         {
             return false;
         }
-        TileInstancePool* tileInstancePool = worldContext_->GetTileInstancePool();
+        TileInstancePool* tileInstancePool = worldContext->GetTileInstancePool();
         if (tileInstancePool == nullptr)
         {
             return false;
@@ -138,7 +140,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
                 if (chunkCoord != currentChunkCoord)
                 {
                     currentChunkCoord = chunkCoord;
-                    currentChunk = worldContext_->GetChunk(
+                    currentChunk = worldContext->GetChunk(
                         Chunk::TileCoordinatesToChunkVertexCoordinates(chunkCoord)
                     );
                 }
@@ -146,7 +148,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
                 {
                     continue;
                 }
-                auto* tileResource = appContext_->GetResourceLocator()->FindTileRaw(&resourceRef);
+                auto* tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
                 if (tileResource == nullptr)
                 {
                     continue;

@@ -80,17 +80,19 @@ void glimmer::TileSnapshotCommand::PutCommandStructure(const CommandArgs* comman
 bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                            const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -106,7 +108,7 @@ bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, c
     std::string operation = commandArgs->AsString(1);
     if (operation == "inspector")
     {
-        CommandHookManager* commandHookManager = appContext_->GetCommandHookManager();
+        CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
         if (commandHookManager == nullptr)
         {
             onMessageRef(langsResources->cmdHookManagerNotFound);
@@ -152,7 +154,7 @@ bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, c
             commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));
         const auto chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D);
-        Chunk* chunk = worldContext_->GetChunk(chunkVertex);
+        Chunk* chunk = worldContext->GetChunk(chunkVertex);
         if (chunk == nullptr)
         {
             onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,

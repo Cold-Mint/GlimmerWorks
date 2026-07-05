@@ -64,17 +64,19 @@ void glimmer::TpCommand::PutCommandStructure(const CommandArgs* commandArgs, std
 bool glimmer::TpCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                  const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
     }
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
@@ -88,14 +90,14 @@ bool glimmer::TpCommand::Execute(const CommandSender* commandSender, const Comma
             2, size));
         return false;
     }
-    auto playerEntity = worldContext_->GetEntityShortCut()->GetPlayer();
+    auto playerEntity = worldContext->GetEntityShortCut()->GetPlayer();
     if (WorldContext::IsEmptyEntityId(playerEntity))
     {
         onMessageRef(langsResources->cantFindObject);
         return false;
     }
     const WorldVector2D commandSenderPosition = commandSender->GetPosition();
-    auto rigidBody2DComponent = worldContext_->GetEntityManager()->GetComponent<RigidBody2DComponent>(playerEntity);
+    auto rigidBody2DComponent = worldContext->GetEntityManager()->GetComponent<RigidBody2DComponent>(playerEntity);
     if (rigidBody2DComponent && rigidBody2DComponent->IsReady())
     {
         b2Vec2 newPos = Box2DUtils::ToMeters({

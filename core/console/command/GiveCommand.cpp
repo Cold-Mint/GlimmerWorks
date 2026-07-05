@@ -70,21 +70,23 @@ void glimmer::GiveCommand::PutCommandStructure(const CommandArgs* commandArgs, s
 bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                    const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const size_t size = commandArgs->GetSize();
     if (size < 3)
     {
         onMessageRef(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             3, size));
         return false;
     }
@@ -94,22 +96,22 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         auto itemId = commandArgs->AsResourceRef(2, RESOURCE_TILE);
         if (!itemId.has_value())
         {
-            onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
+            onMessageRef(appContext->GetLangsResources()->itemIdNotFound);
             return false;
         }
         ResourceRef& resourceRef = itemId.value();
-        const auto* tileResource = appContext_->GetResourceLocator()->FindTileRaw(&resourceRef);
+        const auto* tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
         if (tileResource == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->tileResourceIsNull);
+            onMessageRef(appContext->GetLangsResources()->tileResourceIsNull);
             return false;
         }
-        EntityManager* entityManager = worldContext_->GetEntityManager();
+        EntityManager* entityManager = worldContext->GetEntityManager();
         if (entityManager == nullptr)
         {
             return false;
         }
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
@@ -122,16 +124,16 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         auto* itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
         if (itemContainer == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemContainerIsNull);
             return false;
         }
-        TileInstancePool* tileInstancePool = worldContext_->GetTileInstancePool();
+        TileInstancePool* tileInstancePool = worldContext->GetTileInstancePool();
         if (tileInstancePool == nullptr)
         {
             return false;
         }
         auto tileItem = std::make_unique<
-            TileItem>(tileInstancePool->CreateTile(appContext_, tileResource, resourceRef.GetFingerprint()),
+            TileItem>(tileInstancePool->CreateTile(appContext, tileResource, resourceRef.GetFingerprint()),
                       resourceRef);
         if (size >= 4)
         {
@@ -149,22 +151,22 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         auto itemId = commandArgs->AsResourceRef(2, RESOURCE_COMPOSABLE_ITEM);
         if (!itemId.has_value())
         {
-            onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
+            onMessageRef(appContext->GetLangsResources()->itemIdNotFound);
             return false;
         }
         ResourceRef& resourceRef = itemId.value();
-        auto* itemResource = appContext_->GetResourceLocator()->FindComposableItem(&resourceRef);
+        auto* itemResource = appContext->GetResourceLocator()->FindComposableItem(&resourceRef);
         if (itemResource == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemResourceIsNull);
             return false;
         }
-        EntityManager* entityManager = worldContext_->GetEntityManager();
+        EntityManager* entityManager = worldContext->GetEntityManager();
         if (entityManager == nullptr)
         {
             return false;
         }
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
@@ -177,20 +179,20 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         auto* itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(playerId);
         if (itemContainerComponent == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemContainerIsNull);
             return false;
         }
         auto* itemContainer = itemContainerComponent->GetItemContainer();
         if (itemContainer == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemContainerIsNull);
             return false;
         }
 
-        auto composableItem = ComposableItem::FromItemResource(worldContext_, itemResource, resourceRef);
+        auto composableItem = ComposableItem::FromItemResource(worldContext, itemResource, resourceRef);
         if (composableItem == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->composableItemIsNull);
+            onMessageRef(appContext->GetLangsResources()->composableItemIsNull);
             return false;
         }
         if (size >= 4)
@@ -209,22 +211,22 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         auto itemId = commandArgs->AsResourceRef(2, RESOURCE_ABILITY_ITEM);
         if (!itemId.has_value())
         {
-            onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
+            onMessageRef(appContext->GetLangsResources()->itemIdNotFound);
             return false;
         }
         ResourceRef& resourceRef = itemId.value();
-        auto* itemResource = appContext_->GetResourceLocator()->FindAbilityItem(&resourceRef);
+        auto* itemResource = appContext->GetResourceLocator()->FindAbilityItem(&resourceRef);
         if (itemResource == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemResourceIsNull);
             return false;
         }
-        EntityManager* entityManager = worldContext_->GetEntityManager();
+        EntityManager* entityManager = worldContext->GetEntityManager();
         if (entityManager == nullptr)
         {
             return false;
         }
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
@@ -237,20 +239,20 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         auto* itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(playerId);
         if (itemContainerComponent == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemContainerIsNull);
             return false;
         }
         auto* itemContainer = itemContainerComponent->GetItemContainer();
         if (itemContainer == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemContainerIsNull);
             return false;
         }
 
-        auto abilityItem = AbilityItem::FromItemResource(appContext_, itemResource, resourceRef);
+        auto abilityItem = AbilityItem::FromItemResource(appContext, itemResource, resourceRef);
         if (abilityItem == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->composableItemIsNull);
+            onMessageRef(appContext->GetLangsResources()->composableItemIsNull);
             return false;
         }
         if (size >= 4)
@@ -269,22 +271,22 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         auto itemId = commandArgs->AsResourceRef(2, RESOURCE_MATERIAL_ITEM);
         if (!itemId.has_value())
         {
-            onMessageRef(appContext_->GetLangsResources()->itemIdNotFound);
+            onMessageRef(appContext->GetLangsResources()->itemIdNotFound);
             return false;
         }
         ResourceRef& resourceRef = itemId.value();
-        auto* itemResource = appContext_->GetResourceLocator()->FindMaterialItem(&resourceRef);
+        auto* itemResource = appContext->GetResourceLocator()->FindMaterialItem(&resourceRef);
         if (itemResource == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemResourceIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemResourceIsNull);
             return false;
         }
-        EntityManager* entityManager = worldContext_->GetEntityManager();
+        EntityManager* entityManager = worldContext->GetEntityManager();
         if (entityManager == nullptr)
         {
             return false;
         }
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
@@ -297,21 +299,21 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
         auto* itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(playerId);
         if (itemContainerComponent == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemContainerIsNull);
             return false;
         }
 
         auto* itemContainer = itemContainerComponent->GetItemContainer();
         if (itemContainer == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->itemContainerIsNull);
+            onMessageRef(appContext->GetLangsResources()->itemContainerIsNull);
             return false;
         }
 
-        auto materialItem = MaterialItem::FromItemResource(appContext_, itemResource, resourceRef);
+        auto materialItem = MaterialItem::FromItemResource(appContext, itemResource, resourceRef);
         if (materialItem == nullptr)
         {
-            onMessageRef(appContext_->GetLangsResources()->composableItemIsNull);
+            onMessageRef(appContext->GetLangsResources()->composableItemIsNull);
             return false;
         }
         if (size >= 4)
@@ -325,7 +327,7 @@ bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const Com
             std::move(materialItem));
         return item == nullptr;
     }
-    onMessageRef(appContext_->GetLangsResources()->unknownCommandParameters);
+    onMessageRef(appContext->GetLangsResources()->unknownCommandParameters);
     return false;
 }
 

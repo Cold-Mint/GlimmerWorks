@@ -72,17 +72,19 @@ void glimmer::ParallaxBackgroundCommand::PutCommandStructure(const CommandArgs* 
 bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                                  const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -96,7 +98,7 @@ bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender* commandSen
         return false;
     }
     std::string operation = commandArgs->AsString(1);
-    EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
         return false;
@@ -116,7 +118,7 @@ bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender* commandSen
     }
     if (operation == "set")
     {
-        const ResourceLocator* resourceLocator = appContext_->GetResourceLocator();
+        const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
         if (resourceLocator == nullptr)
         {
             return false;
@@ -140,7 +142,7 @@ bool glimmer::ParallaxBackgroundCommand::Execute(const CommandSender* commandSen
     }
     if (operation == "get")
     {
-        const ResourceLocator* resourceLocator = appContext_->GetResourceLocator();
+        const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
         if (resourceLocator == nullptr)
         {
             return false;

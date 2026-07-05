@@ -26,18 +26,37 @@
  */
 #include "Command.h"
 
-glimmer::Command::Command(AppContext *appContext) : appContext_(appContext) {
+glimmer::NodeTree<std::string>& glimmer::Command::GetPrivateSuggestionsTree()
+{
+    return suggestionsTree_;
 }
 
-bool glimmer::Command::RequiresWorldContext() const {
+glimmer::WorldContext* glimmer::Command::GetWorldContext() const
+{
+    return worldContext_;
+}
+
+glimmer::AppContext* glimmer::Command::GetAppContext() const
+{
+    return appContext_;
+}
+
+glimmer::Command::Command(AppContext* appContext) : appContext_(appContext)
+{
+}
+
+bool glimmer::Command::RequiresWorldContext() const
+{
     return false;
 }
 
-void glimmer::Command::BindWorldContext(WorldContext *worldContext) {
+void glimmer::Command::BindWorldContext(WorldContext* worldContext)
+{
     worldContext_ = worldContext;
 }
 
-void glimmer::Command::UnBindWorldContext() {
+void glimmer::Command::UnBindWorldContext()
+{
     worldContext_ = nullptr;
 }
 
@@ -47,6 +66,7 @@ void glimmer::Command::PutCommandStructure(const CommandArgs* commandArgs, std::
     //需要在这里为其设置显示的命令结构信息。
 }
 
-glimmer::NodeTree<std::string> *glimmer::Command::GetSuggestionsTree(const CommandArgs *commandArgs) {
+glimmer::NodeTree<std::string>* glimmer::Command::GetSuggestionsTree(const CommandArgs* commandArgs)
+{
     return &suggestionsTree_;
 }

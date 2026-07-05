@@ -79,17 +79,19 @@ void glimmer::LightCommand::PutCommandStructure(const CommandArgs* commandArgs, 
 bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                     const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
@@ -105,7 +107,7 @@ bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const Co
     std::string operation = commandArgs->AsString(1);
     if (operation == "inspector")
     {
-        CommandHookManager* commandHookManager = appContext_->GetCommandHookManager();
+        CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
         if (commandHookManager == nullptr)
         {
             onMessageRef(langsResources->cmdHookManagerNotFound);
@@ -150,7 +152,7 @@ bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const Co
             commandArgs->AsCoordinate(2, commandSenderPosition.x),
             commandArgs->AsCoordinate(
                 3, commandSenderPosition.y)));
-        const TileLightData* lightData = worldContext_->GetLightingBuffer()->GetTileLightData(
+        const TileLightData* lightData = worldContext->GetLightingBuffer()->GetTileLightData(
             tileVector2D);
         if (lightData == nullptr)
         {

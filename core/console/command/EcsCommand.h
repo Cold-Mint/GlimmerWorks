@@ -39,7 +39,7 @@ namespace glimmer
     public:
         explicit EcsCommand(AppContext* appContext);
 
-        [[nodiscard]] std::string EntityToString(GameEntityID gameEntityId) const;
+        [[nodiscard]] std::optional<std::string> EntityToString(GameEntityID gameEntityId) const;
 
         [[nodiscard]] const std::string& GetName() const override;
 

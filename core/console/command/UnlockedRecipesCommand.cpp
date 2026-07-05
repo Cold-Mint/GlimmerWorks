@@ -101,32 +101,34 @@ const std::string& glimmer::UnlockedRecipesCommand::GetName() const
 bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                               const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+    const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {
         return false;
     }
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
-    RecipeManager* recipeManager = appContext_->GetRecipeManager();
+    RecipeManager* recipeManager = appContext->GetRecipeManager();
     if (recipeManager == nullptr)
     {
         return false;
     }
-    EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
         return false;
     }
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+    EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
     {
         return false;

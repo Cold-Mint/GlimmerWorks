@@ -53,21 +53,23 @@ bool glimmer::SummonCommand::RequiresWorldContext() const
 bool glimmer::SummonCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                      const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    const AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const size_t size = commandArgs->GetSize();
     if (size < 1)
     {
         onMessageRef(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             1, size));
         return false;
     }
@@ -77,14 +79,14 @@ bool glimmer::SummonCommand::Execute(const CommandSender* commandSender, const C
         return false;
     }
     ResourceRef& resourceRef = resourceRefOptional.value();
-    MobResource* mobResource = appContext_->GetResourceLocator()->FindMob(&resourceRef);
+    MobResource* mobResource = appContext->GetResourceLocator()->FindMob(&resourceRef);
     if (mobResource == nullptr)
     {
         return false;
     }
     const WorldVector2D commandSenderPosition = commandSender->GetPosition();
-    const GameEntityID modId = worldContext_->GetEntityManager()->AddEntity();
-    MobEntityCreator mobEntityCreator{worldContext_};
+    const GameEntityID modId = worldContext->GetEntityManager()->AddEntity();
+    MobEntityCreator mobEntityCreator{worldContext};
     mobEntityCreator.LoadTemplateComponents(modId, resourceRef);
     mobEntityCreator.MergeEntityItemMessage(modId,
                                             MobEntityCreator::GetEntityItemMessage(

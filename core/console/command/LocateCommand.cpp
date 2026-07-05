@@ -104,28 +104,30 @@ void glimmer::LocateCommand::PutCommandStructure(const CommandArgs* commandArgs,
 bool glimmer::LocateCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                      const std::function<void(const std::string& text)>* onMessage)
 {
-    if (appContext_ == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    AppContext* appContext = GetAppContext();
+    WorldContext* worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext_ == nullptr)
+    if (worldContext == nullptr)
     {
-        onMessageRef(appContext_->GetLangsResources()->worldContextIsNull);
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const size_t size = commandArgs->GetSize();
     if (size < 3)
     {
         onMessageRef(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->insufficientParameterLength),
+            fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             3, size));
         return false;
     }
     std::string type = commandArgs->AsString(1);
     if (type == "biome")
     {
-        BiomesManager* biomesManager = appContext_->GetBiomesManager();
+        BiomesManager* biomesManager = appContext->GetBiomesManager();
         if (biomesManager == nullptr)
         {
             return false;
@@ -142,18 +144,18 @@ bool glimmer::LocateCommand::Execute(const CommandSender* commandSender, const C
         {
             return false;
         }
-        ChunkGenerator* chunkGenerator = worldContext_->GetChunkGenerator();
+        ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
         if (chunkGenerator == nullptr)
         {
             return false;
         }
         std::string targetBiomeID = Resource::GenerateId(*targetBiomeResource);
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
         }
-        EntityManager* entityManager = worldContext_->GetEntityManager();
+        EntityManager* entityManager = worldContext->GetEntityManager();
         if (entityManager == nullptr)
         {
             return false;
@@ -169,7 +171,7 @@ bool glimmer::LocateCommand::Execute(const CommandSender* commandSender, const C
             return false;
         }
         TileVector2D position = CoordinateTransformer::WorldToTile(transform2dComponent->GetPosition());
-        uint16_t locateMaxRadiusSearchChunks = appContext_->GetConfig()->command.locateMaxRadiusSearchChunks;
+        uint16_t locateMaxRadiusSearchChunks = appContext->GetConfig()->command.locateMaxRadiusSearchChunks;
         std::optional<TileVector2D> target = std::nullopt;
         for (int searchRadius = 0; searchRadius < locateMaxRadiusSearchChunks; searchRadius++)
         {
@@ -197,13 +199,13 @@ bool glimmer::LocateCommand::Execute(const CommandSender* commandSender, const C
         if (target.has_value())
         {
             onMessageRef(fmt::format(
-                fmt::runtime(appContext_->GetLangsResources()->biomeHasFound), targetBiomeID, target.value().x,
+                fmt::runtime(appContext->GetLangsResources()->biomeHasFound), targetBiomeID, target.value().x,
                 target.value().y
             ));
             return true;
         }
         onMessageRef(fmt::format(
-            fmt::runtime(appContext_->GetLangsResources()->noBiomeWasFound), targetBiomeID
+            fmt::runtime(appContext->GetLangsResources()->noBiomeWasFound), targetBiomeID
         ));
         return false;
     }

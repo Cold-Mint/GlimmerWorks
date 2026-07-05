@@ -72,24 +72,25 @@ void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs* commandArgs,
     }
     if (size >= 3 && commandArgs->AsString(1) == "set")
     {
+        using enum ConfigType;
         if (const ConfigType configType = GetParameterType(commandArgs->AsString(2));
-            configType == ConfigType::TYPE_BOOLEAN)
+            configType == TYPE_BOOLEAN)
         {
             strings->emplace_back("[value:bool]");
         }
-        else if (configType == ConfigType::TYPE_FLOAT)
+        else if (configType == TYPE_FLOAT)
         {
             strings->emplace_back("[value:float]");
         }
-        else if (configType == ConfigType::TYPE_INT)
+        else if (configType == TYPE_INT)
         {
             strings->emplace_back("[value:int]");
         }
-        else if (configType == ConfigType::TYPE_ARRAY)
+        else if (configType == TYPE_ARRAY)
         {
             strings->emplace_back("[value:array(format:value1,value2)]");
         }
-        else if (configType == ConfigType::TYPE_TABLE)
+        else if (configType == TYPE_TABLE)
         {
             strings->emplace_back("[value:table]");
         }

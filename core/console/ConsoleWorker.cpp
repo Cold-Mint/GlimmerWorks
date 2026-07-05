@@ -80,6 +80,7 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
                 success ? CommandResult::Success : CommandResult::Failure, command
             );
         }
+        std::lock_guard writeLock(commandMutex_);
         responseMap_[commandRequest->GetId()] = std::move(commandResponse);
     }
 }

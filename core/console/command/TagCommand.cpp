@@ -50,7 +50,7 @@ void glimmer::TagCommand::WriteTag(const std::string& tagItem, std::stringstream
 {
     auto tagTranslate = stringManager->GetTagTranslate(itemTagResource.GetCachedTagId());
     stringStream << fmt::format(fmt::runtime(tagItem), itemTagResource.name,
-                                tagTranslate.has_value() ? tagTranslate.value() : itemTagResource.name,
+                                tagTranslate.value_or(itemTagResource.name),
                                 itemTagResource.GetCachedTagId(), itemTagResource.value);
 }
 
@@ -92,8 +92,7 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
     {
         return false;
     }
-    int size = commandArgs->GetSize();
-    if (size < 2)
+    if (int size = commandArgs->GetSize(); size < 2)
     {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
@@ -135,8 +134,7 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
             return false;
         }
         StringManager* stringManager = appContext->GetStringManager();
-        const std::vector<ItemTagResource>& tagList = item->GetTags();
-        if (tagList.empty())
+        if (const std::vector<ItemTagResource>& tagList = item->GetTags(); tagList.empty())
         {
             onMessageRef(langsResources->tagCannotFound);
         }
@@ -167,7 +165,7 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
         {
             return false;
         }
-        ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+        const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
         if (itemContainerComponent == nullptr)
         {
             return false;

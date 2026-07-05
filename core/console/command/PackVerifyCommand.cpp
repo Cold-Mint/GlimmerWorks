@@ -94,15 +94,16 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender* commandSender, con
         onMessageRef(langsResources->dataPackageCannotBeFound);
         return false;
     }
+    using enum PackVerifyState;
     switch (dataPackManager->GetPackVerifyState(packId))
     {
-    case PackVerifyState::Unsigned:
+    case Unsigned:
         onMessageRef(langsResources->unsignedPackage);
         break;
-    case PackVerifyState::VerifiedSuccess:
+    case VerifiedSuccess:
         onMessageRef(langsResources->signatureVerificationSuccessful);
         break;
-    case PackVerifyState::VerifiedFailed:
+    case VerifiedFailed:
         onMessageRef(langsResources->signatureVerificationFailed);
         break;
     }

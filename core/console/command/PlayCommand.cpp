@@ -35,9 +35,9 @@ void glimmer::PlayCommand::InitSuggestions(NodeTree<std::string>* suggestionsTre
     suggestionsTree->AddChild(AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::PlayCommand::PlayCommand(AppContext* appContext) : Command(appContext)
+glimmer::PlayCommand::PlayCommand(AppContext* appContext) : Command(appContext),
+                                                            audioManager_(appContext->GetAudioManager())
 {
-    audioManager_ = appContext->GetAudioManager();
 }
 
 const std::string& glimmer::PlayCommand::GetName() const

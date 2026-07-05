@@ -72,16 +72,14 @@ bool glimmer::ScreenshotCommand::Execute(const CommandSender* commandSender, con
     {
         return false;
     }
-    int size = commandArgs->GetSize();
-    if (size < 2)
+    if (int size = commandArgs->GetSize(); size < 2)
     {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
         return false;
     }
-    const std::string type = commandArgs->AsString(1);
-    if (type != "create")
+    if (const std::string type = commandArgs->AsString(1); type != "create")
     {
         return false;
     }

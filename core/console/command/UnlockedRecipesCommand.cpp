@@ -143,7 +143,7 @@ bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender
     {
         return false;
     }
-    ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
     if (itemContainerComponent == nullptr)
     {
         return false;

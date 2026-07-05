@@ -31,8 +31,6 @@ namespace glimmer
 {
     class SeedCommand : public Command
     {
-    protected:
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
         explicit SeedCommand(AppContext* appContext);

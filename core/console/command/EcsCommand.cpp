@@ -157,7 +157,7 @@ bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const Comm
         for (std::vector<GameSystemType> allGameSystems = worldContext->GetAllActiveSystemType(); const auto& type :
              allGameSystems)
         {
-            onMessageRef(fmt::format("{}\n", static_cast<uint8_t>(type)));
+            onMessageRef(fmt::format("{}\n", std::to_underlying(type)));
         }
         return true;
     }

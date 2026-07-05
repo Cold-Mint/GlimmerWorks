@@ -137,27 +137,24 @@ void glimmer::ItemEditorCommand::PutCommandStructure(const CommandArgs* commandA
     if (size > 1)
     {
         const std::string operationType = commandArgs->AsString(1);
-        if (operationType == "set")
+        if (operationType == "set" && size > 2)
         {
-            if (size > 2)
+            const std::string attribute = commandArgs->AsString(2);
+            if (attribute == "used_durability")
             {
-                const std::string attribute = commandArgs->AsString(2);
-                if (attribute == "used_durability")
-                {
-                    strings->emplace_back("[number:uint]");
-                }
-                else if (attribute == "durability_strategy")
-                {
-                    strings->emplace_back("[type:string]");
-                }
-                else if (attribute == "locked")
-                {
-                    strings->emplace_back("[locked:bool]");
-                }
-                else if (attribute == "amount")
-                {
-                    strings->emplace_back("[number:uint]");
-                }
+                strings->emplace_back("[number:uint]");
+            }
+            else if (attribute == "durability_strategy")
+            {
+                strings->emplace_back("[type:string]");
+            }
+            else if (attribute == "locked")
+            {
+                strings->emplace_back("[locked:bool]");
+            }
+            else if (attribute == "amount")
+            {
+                strings->emplace_back("[number:uint]");
             }
         }
     }

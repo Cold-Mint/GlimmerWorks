@@ -31,6 +31,7 @@
 #include "core/utils/MouseButtonUtils.h"
 #include "core/utils/ScanCodeUtils.h"
 #include "fmt/color.h"
+#include <ranges>
 
 glimmer::HookCommand::HookCommand(AppContext* appContext) : Command(appContext)
 {
@@ -302,18 +303,19 @@ bool glimmer::HookCommand::Execute(const CommandSender* commandSender, const Com
         stringStream << fmt::format(
             fmt::runtime(langsResources->scancodeHookFoundCount),
             vector.size(), code);
-        for (int i = 0; i < vector.size(); ++i)
+        std::ranges::for_each(vector, [&](CommandHookEntry* commandHookEntry)
         {
-            CommandHookEntry* commandHookEntry = vector.at(i);
             if (commandHookEntry == nullptr)
             {
-                continue;
+                return;
             }
             stringStream << '\n';
-            stringStream << fmt::format(fmt::runtime(langsResources->hookInfo), commandHookEntry->hookId,
-                                        static_cast<uint8_t>(commandHookEntry->scope), commandHookEntry->command,
+            stringStream << fmt::format(fmt::runtime(langsResources->hookInfo),
+                                        commandHookEntry->hookId,
+                                        std::to_underlying(commandHookEntry->scope),
+                                        commandHookEntry->command,
                                         code);
-        }
+        });
         onMessageRef(stringStream.str());
         return true;
     }

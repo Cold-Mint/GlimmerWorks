@@ -73,23 +73,23 @@ void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs* commandArgs,
     if (size >= 3 && commandArgs->AsString(1) == "set")
     {
         if (const ConfigType configType = GetParameterType(commandArgs->AsString(2));
-            configType == ConfigType::BOOLEAN)
+            configType == ConfigType::TYPE_BOOLEAN)
         {
             strings->emplace_back("[value:bool]");
         }
-        else if (configType == ConfigType::FLOAT)
+        else if (configType == ConfigType::TYPE_FLOAT)
         {
             strings->emplace_back("[value:float]");
         }
-        else if (configType == ConfigType::INT)
+        else if (configType == ConfigType::TYPE_INT)
         {
             strings->emplace_back("[value:int]");
         }
-        else if (configType == ConfigType::ARRAY)
+        else if (configType == ConfigType::TYPE_ARRAY)
         {
             strings->emplace_back("[value:array(format:value1,value2)]");
         }
-        else if (configType == ConfigType::TABLE)
+        else if (configType == ConfigType::TYPE_TABLE)
         {
             strings->emplace_back("[value:table]");
         }
@@ -112,11 +112,11 @@ glimmer::NodeTree<std::string>* glimmer::ConfigCommand::GetSuggestionsTree(const
             {
                 obj->ClearChildren();
                 const std::string arg2 = commandArgs->AsString(2);
-                if (GetParameterType(arg2) == ConfigType::BOOLEAN)
+                if (GetParameterType(arg2) == ConfigType::TYPE_BOOLEAN)
                 {
                     obj->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
                 }
-                if (GetParameterType(arg2) == ConfigType::STRING && (
+                if (GetParameterType(arg2) == ConfigType::TYPE_STRING && (
                     arg2 == "mods.resourcePackPath" || arg2 ==
                     "mods.dataPackPath"))
                 {
@@ -190,7 +190,7 @@ bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const C
         std::string parameterName = commandArgs->AsString(2);
         std::string value = commandArgs->AsString(3);
         const ConfigType configType = GetParameterType(parameterName);
-        if (configType == ConfigType::BOOLEAN && value == TOGGLE_KEY_WORD)
+        if (configType == ConfigType::TYPE_BOOLEAN && value == TOGGLE_KEY_WORD)
         {
             const std::string oldValue = GetValue(parameterName);
             if (oldValue == "true")
@@ -217,9 +217,10 @@ bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const C
 
 glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string& parameterName) const
 {
+    using enum ConfigType;
     if (!configValue_ || !configValue_->is_table())
     {
-        return ConfigType::STRING;
+        return TYPE_STRING;
     }
 
     const toml::value* current = configValue_;
@@ -237,14 +238,14 @@ glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string& 
         // 当前节点必须是 table 才能继续向下
         if (!current->is_table())
         {
-            return ConfigType::STRING;
+            return TYPE_STRING;
         }
 
         const auto& table = current->as_table();
         const auto it = table.find(key);
         if (it == table.end())
         {
-            return ConfigType::STRING;
+            return TYPE_STRING;
         }
 
         current = &it->second;
@@ -256,16 +257,14 @@ glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string& 
         start = dot + 1;
     }
 
-    // —— Reach the final node and determine the type ——
-    // —— 走到最终节点，判断类型 ——
-    if (current->is_string()) return ConfigType::STRING;
-    if (current->is_array()) return ConfigType::ARRAY;
-    if (current->is_table()) return ConfigType::TABLE;
-    if (current->is_floating()) return ConfigType::FLOAT;
-    if (current->is_integer()) return ConfigType::INT;
-    if (current->is_boolean()) return ConfigType::BOOLEAN;
+    if (current->is_string()) return TYPE_STRING;
+    if (current->is_array()) return TYPE_ARRAY;
+    if (current->is_table()) return TYPE_TABLE;
+    if (current->is_floating()) return TYPE_FLOAT;
+    if (current->is_integer()) return TYPE_INT;
+    if (current->is_boolean()) return TYPE_BOOLEAN;
 
-    return ConfigType::STRING;
+    return TYPE_STRING;
 }
 
 std::string glimmer::ConfigCommand::GetValue(const std::string& parameterName) const

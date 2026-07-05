@@ -164,10 +164,8 @@ bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const Co
             lightData->GetLightContributions();
         if (lightContributions != nullptr)
         {
-            for (const auto& layerPair : *lightContributions)
+            for (const auto& [layerType,contributionList] : *lightContributions)
             {
-                TileLayerType layerType = layerPair.first;
-                const auto& contributionList = layerPair.second;
                 for (const auto& lightPtr : contributionList)
                 {
                     if (lightPtr == nullptr)
@@ -179,7 +177,7 @@ bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const Co
                     const TileVector2D lightPosition = lightPtr->GetLightSource()->GetCenter();
                     lightContributionStream << '\n';
                     lightContributionStream << fmt::format(fmt::runtime(langsResources->lightContributionInfo),
-                                                           static_cast<uint8_t>(layerType), lightColor->r,
+                                                           std::to_underlying(layerType), lightColor->r,
                                                            lightColor->g, lightColor->b, lightColor->a,
                                                            contribution->GetRayIndex(), lightPosition.x,
                                                            lightPosition.y);
@@ -191,14 +189,12 @@ bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const Co
         const auto lightSources = lightData->GetLightSources();
         if (lightSources != nullptr)
         {
-            for (const auto& layerPair : *lightSources)
+            for (const auto& [layerType,lightSource] : *lightSources)
             {
-                TileLayerType layerType = layerPair.first;
-                const auto& lightSource = layerPair.second;
                 lightSourceStream << '\n';
                 const Color* emissionColor = lightSource->GetEmissionColor();
                 lightSourceStream << fmt::format(fmt::runtime(langsResources->lightSourceInfo),
-                                                 static_cast<uint8_t>(layerType), lightSource->GetMaxRadius(),
+                                                 std::to_underlying(layerType), lightSource->GetMaxRadius(),
                                                  emissionColor->r, emissionColor->g, emissionColor->b, emissionColor->a,
                                                  tileVector2D.x, tileVector2D.y);
             }
@@ -208,15 +204,13 @@ bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const Co
         const auto sideLightMasks = lightData->GetSideLightMasks();
         if (sideLightMasks != nullptr)
         {
-            for (const auto& layerPair : *sideLightMasks)
+            for (const auto& [layerType,sideLightMask] : *sideLightMasks)
             {
-                TileLayerType layerType = layerPair.first;
-                const auto& sideLightMask = layerPair.second;
                 lightMaskStream << '\n';
                 const Color* sideLightMaskColor = sideLightMask->GetLightMaskColor();
                 lightMaskStream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
                                                true,
-                                               static_cast<uint8_t>(layerType), sideLightMaskColor->r,
+                                               std::to_underlying(layerType), sideLightMaskColor->r,
                                                sideLightMaskColor->g,
                                                sideLightMaskColor->b, sideLightMaskColor->a,
                                                sideLightMask->GetTintFactor());
@@ -225,15 +219,13 @@ bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const Co
         const auto backLightMasks = lightData->GetBackLightMasks();
         if (backLightMasks != nullptr)
         {
-            for (const auto& layerPair : *backLightMasks)
+            for (const auto& [layerType,backLightMask] : *backLightMasks)
             {
-                TileLayerType layerType = layerPair.first;
-                const auto& backLightMask = layerPair.second;
                 lightMaskStream << '\n';
                 const Color* backLightMaskColor = backLightMask->GetLightMaskColor();
                 lightMaskStream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
                                                false,
-                                               static_cast<uint8_t>(layerType), backLightMaskColor->r,
+                                               std::to_underlying(layerType), backLightMaskColor->r,
                                                backLightMaskColor->g,
                                                backLightMaskColor->b, backLightMaskColor->a,
                                                backLightMask->GetTintFactor());

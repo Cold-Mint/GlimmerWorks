@@ -89,15 +89,7 @@ bool glimmer::VariableDefinition::AsBool() const
     {
         return false;
     }
-    if (value == "1" || value == "true" || value == "yes" || value == "y")
-    {
-        return true;
-    }
-    if (value == "0" || value == "false" || value == "no" || value == "n")
-    {
-        return false;
-    }
-    return false;
+    return value == "1" || value == "true" || value == "yes" || value == "y";
 }
 
 std::string glimmer::VariableDefinition::AsString() const

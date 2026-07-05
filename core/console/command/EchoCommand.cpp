@@ -31,10 +31,6 @@
 #include "core/scene/AppContext.h"
 
 
-void glimmer::EchoCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-}
-
 glimmer::EchoCommand::EchoCommand(AppContext* appContext) : Command(appContext)
 {
 }

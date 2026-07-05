@@ -76,8 +76,7 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender* commandSender, con
     {
         onMessageRef(langsResources->notEnabledSignVerify);
     }
-    int size = commandArgs->GetSize();
-    if (size < 2)
+    if (int size = commandArgs->GetSize(); size < 2)
     {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),

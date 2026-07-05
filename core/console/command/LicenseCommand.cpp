@@ -29,10 +29,6 @@
 #include "core/Constants.h"
 #include "core/scene/AppContext.h"
 
-void glimmer::LicenseCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-}
-
 glimmer::LicenseCommand::LicenseCommand(AppContext* appContext) : Command(appContext)
 {
 }

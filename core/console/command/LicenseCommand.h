@@ -31,9 +31,6 @@ namespace glimmer
 {
     class LicenseCommand : public Command
     {
-    protected:
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
-
     public:
         explicit LicenseCommand(AppContext* appContext);
 

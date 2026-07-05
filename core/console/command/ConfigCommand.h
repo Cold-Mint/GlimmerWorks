@@ -28,35 +28,43 @@
 #include "core/console/Command.h"
 #include "toml11/types.hpp"
 
-namespace glimmer {
-    enum class ConfigType {
-        STRING, ARRAY, TABLE, FLOAT, INT, BOOLEAN
+namespace glimmer
+{
+    enum class ConfigType
+    {
+        TYPE_STRING,
+        TYPE_ARRAY,
+        TYPE_TABLE,
+        TYPE_FLOAT,
+        TYPE_INT,
+        TYPE_BOOLEAN
     };
 
-    class ConfigCommand final : public Command {
-        toml::value *configValue_;
+    class ConfigCommand final : public Command
+    {
+        toml::value* configValue_;
 
     protected:
-        void InitSuggestions(NodeTree<std::string> *suggestionsTree) override;
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
-        explicit ConfigCommand(AppContext *appContext, toml::value *value);
+        explicit ConfigCommand(AppContext* appContext, toml::value* value);
 
         ~ConfigCommand() override = default;
 
         [[nodiscard]] const std::string& GetName() const override;
 
-        void PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) override;
+        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
 
-        [[nodiscard]] NodeTree<std::string> *GetSuggestionsTree(const CommandArgs *commandArgs) override;
+        [[nodiscard]] NodeTree<std::string>* GetSuggestionsTree(const CommandArgs* commandArgs) override;
 
-        bool Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
-                     const std::function<void(const std::string &text)> *onMessage) override;
+        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                     const std::function<void(const std::string& text)>* onMessage) override;
 
-        [[nodiscard]] ConfigType GetParameterType(const std::string &parameterName) const;
+        [[nodiscard]] ConfigType GetParameterType(const std::string& parameterName) const;
 
-        [[nodiscard]] std::string GetValue(const std::string &parameterName) const;
+        [[nodiscard]] std::string GetValue(const std::string& parameterName) const;
 
-        [[nodiscard]] bool SetValue(const std::string &parameterName, const std::string &value) const;
+        [[nodiscard]] bool SetValue(const std::string& parameterName, const std::string& value) const;
     };
 }

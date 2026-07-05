@@ -114,7 +114,7 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, cons
         rayCast2DComponent->SetFilter({BOX2D_CATEGORY_ITEM, BOX2D_CATEGORY_TILE});
         rayCast2DComponent->SetTransform2DEntity(id);
     }
-    auto* magnetic = entityManager->AddComponent<MagneticComponent>(id);
+    auto magnetic = entityManager->AddComponent<MagneticComponent>(id);
     if (magnetic != nullptr)
     {
         magnetic->SetType(MAGNETIC_TYPE_ITEM);
@@ -126,8 +126,8 @@ MergeEntityItemMessage(uint32_t id, const EntityItemMessage& entityItemMessage)
 {
     RecoveryAllComponent(worldContext_, id, entityItemMessage);
     EntityManager* entityManager = worldContext_->GetEntityManager();
-    auto* transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
-    auto* rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
+    auto transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
+    auto rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
     if (transform2dComponent != nullptr && rigidBody2dComponent != nullptr)
     {
         rigidBody2dComponent->CreateBody(worldContext_->GetAppContext()->GetResourceLocator(),

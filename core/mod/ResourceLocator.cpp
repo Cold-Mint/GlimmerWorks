@@ -327,12 +327,12 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
     std::unique_ptr<Item> result = nullptr;
     if (resourceType == RESOURCE_TILE)
     {
-        auto* tileInstancePool = worldContext->GetTileInstancePool();
+        auto tileInstancePool = worldContext->GetTileInstancePool();
         if (tileInstancePool == nullptr)
         {
             return nullptr;
         }
-        auto* tileResource = FindTileRaw(&resourceRef);
+        auto tileResource = FindTileRaw(&resourceRef);
         if (tileResource != nullptr)
         {
             result = std::make_unique<TileItem>(
@@ -341,7 +341,7 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
     }
     if (resourceType == RESOURCE_COMPOSABLE_ITEM)
     {
-        auto* composableItemResource = FindComposableItem(&resourceRef);
+        auto composableItemResource = FindComposableItem(&resourceRef);
         if (composableItemResource != nullptr)
         {
             result = std::move(
@@ -351,7 +351,7 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
 
     if (resourceType == RESOURCE_ABILITY_ITEM)
     {
-        auto* abilityItemResource = FindAbilityItem(&resourceRef);
+        auto abilityItemResource = FindAbilityItem(&resourceRef);
         if (abilityItemResource != nullptr)
         {
             result = std::move(AbilityItem::FromItemResource(appContext_, abilityItemResource, resourceRef));
@@ -359,7 +359,7 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
     }
     if (resourceType == RESOURCE_MATERIAL_ITEM)
     {
-        auto* materialItemResource = FindMaterialItem(&resourceRef);
+        auto materialItemResource = FindMaterialItem(&resourceRef);
         if (materialItemResource != nullptr)
         {
             result = std::move(MaterialItem::FromItemResource(appContext_, materialItemResource, resourceRef));

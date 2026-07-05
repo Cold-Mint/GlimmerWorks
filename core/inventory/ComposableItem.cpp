@@ -56,7 +56,7 @@ void glimmer::ComposableItem::RefreshAttributes()
         {
             continue;
         }
-        auto* abilityItem = dynamic_cast<AbilityItem*>(item);
+        auto abilityItem = dynamic_cast<AbilityItem*>(item);
         if (abilityItem == nullptr)
         {
             continue;
@@ -152,7 +152,7 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, c
         {
             continue;
         }
-        auto* abilityItem = dynamic_cast<AbilityItem*>(item);
+        auto abilityItem = dynamic_cast<AbilityItem*>(item);
         if (abilityItem == nullptr)
         {
             continue;

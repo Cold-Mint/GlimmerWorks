@@ -55,7 +55,7 @@ void glimmer::TileLayerSystem::OnWatchedComponentChanged(GameComponentTypeMessag
         std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
         for (auto& entity : tileLayerEntities)
         {
-            auto* tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(entity);
+            auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(entity);
             if (tileLayerComponent == nullptr)
             {
                 continue;

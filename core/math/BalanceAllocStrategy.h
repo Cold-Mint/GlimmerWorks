@@ -57,7 +57,7 @@ namespace glimmer
 
             // Traverse all the modules and find the one with the most remaining durability.
             // 遍历所有模块，找到【剩余耐久最多】的那个
-            for (auto* item : items)
+            for (auto item : items)
             {
                 T rest = item->GetRemaining();
                 if (rest > max_value)

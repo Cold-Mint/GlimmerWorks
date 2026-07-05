@@ -133,7 +133,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Im
             {
                 continue;
             }
-            auto* textureResourceResult = new TextureResourceResult();
+            auto textureResourceResult = new TextureResourceResult();
             textureResourceResult->SetResourcePack(resourcePack);
             textureResourceResult->SetResource(texture);
             auto deleter = [this,path](TextureResourceResult* textureResourceResult)
@@ -200,7 +200,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
             }
 
             LogCat::d("Loaded audio from pack '", packId, "': ", audioPath);
-            auto* audioResourceResult = new AudioResourceResult();
+            auto audioResourceResult = new AudioResourceResult();
             audioResourceResult->SetResourcePack(pack);
             audioResourceResult->SetResource(audio);
             auto deleter = [this, path](AudioResourceResult* audioResourceResult)
@@ -499,7 +499,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Cr
     SDL_Texture* texture =
         SDL_CreateTextureFromSurface(renderer_, surface);
     SDL_DestroySurface(surface);
-    auto* textureResourceResult = new TextureResourceResult();
+    auto textureResourceResult = new TextureResourceResult();
     textureResourceResult->SetResource(texture);
     auto deleter = [](TextureResourceResult* textureResourceResult)
     {

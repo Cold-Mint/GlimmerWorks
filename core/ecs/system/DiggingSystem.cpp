@@ -134,7 +134,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext
             }
             sum++;
             bool center = x == centerX && y == centerY;
-            auto* breakSFX = currentTile->GetBreakSFX();
+            auto breakSFX = currentTile->GetBreakSFX();
             if (item != nullptr)
             {
                 if (currentTile->IsAutoDigCostScale() || center)
@@ -228,7 +228,7 @@ void glimmer::DiggingSystem::OnWatchedComponentChanged(GameComponentTypeMessage 
         std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
         for (GameEntityID tileLayerEntity : tileLayerEntities)
         {
-            const auto* tileLayer = entityManager->GetComponent<TileLayerComponent>(tileLayerEntity);
+            const auto tileLayer = entityManager->GetComponent<TileLayerComponent>(tileLayerEntity);
             if (tileLayer == nullptr)
             {
                 continue;

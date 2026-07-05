@@ -74,7 +74,7 @@ void glimmer::PlayerControlSystem::Update(const float delta)
     }
     if (playerComponent->IsFlying())
     {
-        auto* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(playerEntityID_);
+        auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(playerEntityID_);
         if (transform2DComponent == nullptr)
         {
             return;
@@ -156,8 +156,8 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         float gravityForce = massData.mass * GRAVITY_SCALE;
         b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
     }
-    auto* hotBarComponent = entityShortCut->GetHotBarComponent();
-    auto* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    auto hotBarComponent = entityShortCut->GetHotBarComponent();
+    auto itemContainerComponent = entityShortCut->GetItemContainerComponent();
     ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
     playerComponent->AddDropTimer(delta);
     if (playerComponent->IsDropPressed() && playerComponent->GetDropTimer() >= DROP_INTERVAL)
@@ -220,7 +220,7 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
     {
         return;
     }
-    const auto* item = itemContainer->GetItem(index);
+    const auto item = itemContainer->GetItem(index);
     if (item == nullptr)
     {
         return;
@@ -295,7 +295,7 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
     {
         return false;
     }
-    auto* playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntityID_);
+    auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntityID_);
     if (playerComponent == nullptr)
     {
         return false;

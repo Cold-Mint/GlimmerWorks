@@ -87,7 +87,7 @@ void glimmer::MiningAbility::OnUse(WorldContext* worldContext, uint32_t user, co
     std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
     for (const auto& gameEntity : tileLayerEntities)
     {
-        auto* tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
+        auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
             gameEntity);
         if (tileLayerComponent == nullptr)
         {

@@ -125,18 +125,18 @@ void glimmer::MagnetSystem::Update(const float delta)
 
     for (auto magnetEntity : magnetEntities_)
     {
-        auto* magnet = entityManager->GetComponent<MagnetComponent>(magnetEntity);
+        auto magnet = entityManager->GetComponent<MagnetComponent>(magnetEntity);
         if (magnet == nullptr)
         {
             continue;
         }
-        auto* magnetTransform =
+        auto magnetTransform =
             entityManager->GetComponent<Transform2DComponent>(magnetEntity);
         if (magnetTransform == nullptr)
         {
             continue;
         }
-        auto* itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(magnetEntity);
+        auto itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(magnetEntity);
         if (itemContainerComponent == nullptr)
         {
             continue;
@@ -150,26 +150,26 @@ void glimmer::MagnetSystem::Update(const float delta)
         const float detectionRadius = magnet->GetDetectionRadius();
         for (auto magneticEntity : magneticEntities_)
         {
-            auto* magneticTransform =
+            auto magneticTransform =
                 entityManager->GetComponent<Transform2DComponent>(magneticEntity);
             if (magneticTransform == nullptr)
             {
                 continue;
             }
-            auto* magnetic =
+            auto magnetic =
                 entityManager->GetComponent<MagneticComponent>(magneticEntity);
             if (magnetic == nullptr)
             {
                 continue;
             }
-            auto* rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(magneticEntity);
+            auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(magneticEntity);
             if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady() || !rigidBody2DComponent->
                 IsEnabled())
             {
                 continue;
             }
 
-            auto* rayCast2DComponent = entityManager->GetComponent<RayCast2DComponent>(magneticEntity);
+            auto rayCast2DComponent = entityManager->GetComponent<RayCast2DComponent>(magneticEntity);
             if (rayCast2DComponent == nullptr)
             {
                 continue;
@@ -181,7 +181,7 @@ void glimmer::MagnetSystem::Update(const float delta)
                 //没有重叠的吸引位。
                 continue;
             }
-            const auto* droppedItem = entityManager->GetComponent<DroppedItemComponent>(magneticEntity);
+            const auto droppedItem = entityManager->GetComponent<DroppedItemComponent>(magneticEntity);
             if (droppedItem == nullptr)
             {
                 continue;
@@ -191,7 +191,7 @@ void glimmer::MagnetSystem::Update(const float delta)
                 continue;
             }
 
-            const auto* item = droppedItem->GetItem();
+            const auto item = droppedItem->GetItem();
             if (item == nullptr)
             {
                 continue;

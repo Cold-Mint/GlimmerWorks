@@ -107,7 +107,7 @@ std::optional<glimmer::ItemContainerComponent*> glimmer::GiveCommand::TryGetPlay
     {
         return std::nullopt;
     }
-    auto* itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
+    auto itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
     if (itemContainer == nullptr)
     {
         onMessage(langsResources->itemContainerIsNull);
@@ -133,7 +133,7 @@ bool glimmer::GiveCommand::GiveTileItem(const AppContext* appContext,
         return false;
     }
     ResourceRef& resourceRef = itemId.value();
-    const auto* tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
+    const auto tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
     if (tileResource == nullptr)
     {
         onMessage(langsResources->tileResourceIsNull);
@@ -149,8 +149,8 @@ bool glimmer::GiveCommand::GiveTileItem(const AppContext* appContext,
     {
         return false;
     }
-    auto* itemContainerComponent = containerOpt.value();
-    auto* itemContainer = itemContainerComponent->GetItemContainer();
+    auto itemContainerComponent = containerOpt.value();
+    auto itemContainer = itemContainerComponent->GetItemContainer();
     if (itemContainer == nullptr)
     {
         onMessage(langsResources->itemContainerIsNull);
@@ -181,7 +181,7 @@ bool glimmer::GiveCommand::GiveComposableItem(const AppContext* appContext,
         return false;
     }
     const ResourceRef& resourceRef = itemId.value();
-    const auto* itemResource = appContext->GetResourceLocator()->FindComposableItem(&resourceRef);
+    const auto itemResource = appContext->GetResourceLocator()->FindComposableItem(&resourceRef);
     if (itemResource == nullptr)
     {
         onMessage(langsResources->itemResourceIsNull);
@@ -192,8 +192,8 @@ bool glimmer::GiveCommand::GiveComposableItem(const AppContext* appContext,
     {
         return false;
     }
-    const auto* itemContainerComponent = containerOpt.value();
-    auto* itemContainer = itemContainerComponent->GetItemContainer();
+    const auto itemContainerComponent = containerOpt.value();
+    auto itemContainer = itemContainerComponent->GetItemContainer();
     if (itemContainer == nullptr)
     {
         onMessage(langsResources->itemContainerIsNull);
@@ -227,7 +227,7 @@ bool glimmer::GiveCommand::GiveAbilityItem(const AppContext* appContext,
         return false;
     }
     const ResourceRef& resourceRef = itemId.value();
-    const auto* itemResource = appContext->GetResourceLocator()->FindAbilityItem(&resourceRef);
+    const auto itemResource = appContext->GetResourceLocator()->FindAbilityItem(&resourceRef);
     if (itemResource == nullptr)
     {
         onMessage(langsResources->itemResourceIsNull);
@@ -238,8 +238,8 @@ bool glimmer::GiveCommand::GiveAbilityItem(const AppContext* appContext,
     {
         return false;
     }
-    auto* itemContainerComponent = containerOpt.value();
-    auto* itemContainer = itemContainerComponent->GetItemContainer();
+    auto itemContainerComponent = containerOpt.value();
+    auto itemContainer = itemContainerComponent->GetItemContainer();
     if (itemContainer == nullptr)
     {
         onMessage(langsResources->itemContainerIsNull);
@@ -273,7 +273,7 @@ bool glimmer::GiveCommand::GiveMaterialItem(const AppContext* appContext,
         return false;
     }
     const ResourceRef& resourceRef = itemId.value();
-    const auto* itemResource = appContext->GetResourceLocator()->FindMaterialItem(&resourceRef);
+    const auto itemResource = appContext->GetResourceLocator()->FindMaterialItem(&resourceRef);
     if (itemResource == nullptr)
     {
         onMessage(langsResources->itemResourceIsNull);
@@ -284,8 +284,8 @@ bool glimmer::GiveCommand::GiveMaterialItem(const AppContext* appContext,
     {
         return false;
     }
-    const auto* itemContainerComponent = containerOpt.value();
-    auto* itemContainer = itemContainerComponent->GetItemContainer();
+    const auto itemContainerComponent = containerOpt.value();
+    auto itemContainer = itemContainerComponent->GetItemContainer();
     if (itemContainer == nullptr)
     {
         onMessage(langsResources->itemContainerIsNull);

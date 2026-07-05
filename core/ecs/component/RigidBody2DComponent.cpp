@@ -129,7 +129,7 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator* resourceLo
         if (shape == ShapeType::CIRCLE)
         {
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-            const auto* circularShapeResource = static_cast<CircularShapeResource*>(shapeResource);
+            const auto circularShapeResource = static_cast<CircularShapeResource*>(shapeResource);
             b2Circle circle;
             circle.radius = circularShapeResource->radius;
             circle.center = {
@@ -142,7 +142,7 @@ void glimmer::RigidBody2DComponent::CreateBody(const ResourceLocator* resourceLo
         if (shape == ShapeType::ROUNDED_RECTANGLE)
         {
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
-            const auto* roundedRectangleShapeResource = static_cast<RoundedRectangleShapeResource*>(shapeResource);
+            const auto roundedRectangleShapeResource = static_cast<RoundedRectangleShapeResource*>(shapeResource);
             const b2Polygon box2dShape = b2MakeRoundedBox(
                 Box2DUtils::ToMeters(roundedRectangleShapeResource->width * TILE_SIZE * 0.5F),
                 Box2DUtils::ToMeters(roundedRectangleShapeResource->height * TILE_SIZE * 0.5F),

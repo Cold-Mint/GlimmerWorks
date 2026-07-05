@@ -64,7 +64,7 @@ namespace glimmer
 
     void AppRenderer::RenderScenes() const
     {
-        auto* sceneManager = appContext_->GetSceneManager();
+        auto sceneManager = appContext_->GetSceneManager();
         if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
         {
             topScene->Render(renderer_);
@@ -73,7 +73,7 @@ namespace glimmer
 
     void AppRenderer::RenderImGui() const
     {
-        auto* sceneManager = appContext_->GetSceneManager();
+        auto sceneManager = appContext_->GetSceneManager();
         if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
         {
             topScene->RenderImGui(renderer_);
@@ -89,7 +89,7 @@ namespace glimmer
 
     void AppRenderer::RenderOverlays() const
     {
-        auto* sceneManager = appContext_->GetSceneManager();
+        auto sceneManager = appContext_->GetSceneManager();
         const auto& overlayScenes = sceneManager->GetOverlayScenes();
         for (const auto overlay : overlayScenes)
         {
@@ -122,7 +122,7 @@ namespace glimmer
 
         RenderImGui();
 
-        auto* sceneManager = appContext_->GetSceneManager();
+        auto sceneManager = appContext_->GetSceneManager();
         const auto& overlayScenes = sceneManager->GetOverlayScenes();
         for (const auto overlay : overlayScenes)
         {

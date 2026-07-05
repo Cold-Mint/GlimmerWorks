@@ -105,7 +105,7 @@ bool glimmer::LootCommand::Execute(const CommandSender* commandSender, const Com
         {
             return false;
         }
-        auto* itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
+        auto itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
         if (itemContainer == nullptr)
         {
             onMessageRef(appContext->GetLangsResources()->itemContainerIsNull);

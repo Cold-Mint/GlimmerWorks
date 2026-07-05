@@ -77,9 +77,9 @@ void glimmer::DroppedItemSystem::Update(float delta)
     EntityManager* entityManager = GetEntityManager();
     for (const auto& gameEntity : droppedEntities_)
     {
-        auto* droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(
+        auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(
             gameEntity);
-        auto* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(gameEntity);
+        auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(gameEntity);
         if (droppedItemComponent == nullptr || transform2DComponent == nullptr)
         {
             continue;
@@ -113,9 +113,9 @@ void glimmer::DroppedItemSystem::Render(SDL_Renderer* renderer)
 
     for (auto gameEntity : droppedEntities_)
     {
-        auto* droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(
+        auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(
             gameEntity);
-        auto* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(gameEntity);
+        auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(gameEntity);
         if (droppedItemComponent == nullptr || transform2DComponent == nullptr)
         {
             continue;

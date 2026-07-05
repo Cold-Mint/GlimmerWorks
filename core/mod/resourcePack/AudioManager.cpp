@@ -34,7 +34,7 @@ void glimmer::AudioManager::CreateTracks(const AudioType type, const size_t coun
 {
     if (track_.contains(type))
     {
-        for (auto* track : track_[type])
+        for (auto track : track_[type])
         {
             MIX_DestroyTrack(track);
         }
@@ -62,7 +62,7 @@ MIX_Track* glimmer::AudioManager::GetFreeTrack(const AudioType type)
     {
         return nullptr;
     }
-    for (auto* track : track_[type])
+    for (auto track : track_[type])
     {
         if (!MIX_TrackPlaying(track))
         {

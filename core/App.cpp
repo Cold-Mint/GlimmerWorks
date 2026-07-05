@@ -131,7 +131,7 @@ bool glimmer::App::InitImGui() const
     io.IniFilename = nullptr;
 
     LogCat::i("Setting ImGui style...");
-    auto* preloadColors = appContext_->GetPreloadColors();
+    auto preloadColors = appContext_->GetPreloadColors();
     std::vector<std::pair<ImGuiCol, Color&>> colorMappings;
     colorMappings.emplace_back(ImGuiCol_Text, preloadColors->textColor);
     colorMappings.emplace_back(ImGuiCol_TextDisabled, preloadColors->textDisabledColor);
@@ -343,8 +343,8 @@ bool glimmer::App::Init()
 void glimmer::App::Run() const
 {
     LogCat::i("Entering main loop...");
-    const auto* sceneManager = appContext_->GetSceneManager();
-    const auto* config = appContext_->GetConfig();
+    const auto sceneManager = appContext_->GetSceneManager();
+    const auto config = appContext_->GetConfig();
 
     InitScenesAndConsole();
 
@@ -394,7 +394,7 @@ void glimmer::App::Run() const
 
 void glimmer::App::HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const
 {
-    const auto* sceneManager = appContext_->GetSceneManager();
+    const auto sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
     {
@@ -408,7 +408,7 @@ void glimmer::App::HandleWindowSizeChange(const int& windowWidth, const int& win
 
 float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastInputTime) const
 {
-    const auto* config = appContext_->GetConfig();
+    const auto config = appContext_->GetConfig();
     const float idleDelay = config->window.idleDelay;
 
     if (idleDelay == -1)
@@ -425,7 +425,7 @@ float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const ui
 
 bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
 {
-    const auto* config = appContext_->GetConfig();
+    const auto config = appContext_->GetConfig();
     const uint64_t nowConfigFingerprint = config->GetFingerprint();
     if (configFingerprint == nowConfigFingerprint)
     {
@@ -438,7 +438,7 @@ bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
         commandHookManager->LoadHookFromConfig(config->commandHooks);
     }
 
-    const auto* sceneManager = appContext_->GetSceneManager();
+    const auto sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
     {
@@ -455,7 +455,7 @@ bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
 
 void glimmer::App::NotifyFrameStart() const
 {
-    const auto* sceneManager = appContext_->GetSceneManager();
+    const auto sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
     {
@@ -469,7 +469,7 @@ void glimmer::App::NotifyFrameStart() const
 
 void glimmer::App::UpdateScenes(const float deltaTime) const
 {
-    const auto* sceneManager = appContext_->GetSceneManager();
+    const auto sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlay : overlayScenes)
     {
@@ -483,7 +483,7 @@ void glimmer::App::UpdateScenes(const float deltaTime) const
 
 void glimmer::App::InitScenesAndConsole() const
 {
-    auto* sceneManager = appContext_->GetSceneManager();
+    auto sceneManager = appContext_->GetSceneManager();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
 #if  !defined(NDEBUG)

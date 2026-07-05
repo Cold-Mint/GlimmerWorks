@@ -62,7 +62,7 @@ glimmer::WorldVector2D glimmer::Transform2DComponent::GetPosition() const
 std::optional<std::string> glimmer::Transform2DComponent::Serialize()
 {
     Transform2dMessage transform2DMessage;
-    auto* pos = transform2DMessage.mutable_position();
+    auto pos = transform2DMessage.mutable_position();
     pos->set_x(position_.x);
     pos->set_y(position_.y);
     transform2DMessage.set_rotation(rotation_);

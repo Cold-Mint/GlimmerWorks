@@ -544,7 +544,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
         }
     }
 
-    for (auto* biomeResources : biomeResourcesSet)
+    for (auto biomeResources : biomeResourcesSet)
     {
         if (auto& decorator = biomeResources->decors; decorator.empty())
         {

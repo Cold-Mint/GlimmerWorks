@@ -80,7 +80,7 @@ void glimmer::PhysicsSystem::Update(const float delta)
         {
             continue;
         }
-        auto* transform = entityManager->GetComponent<Transform2DComponent>(entityId);
+        auto transform = entityManager->GetComponent<Transform2DComponent>(entityId);
         const b2Vec2 position = b2Body_GetPosition(rigidBody2dComponent->GetBodyId());
         transform->SetPosition(Box2DUtils::ToPixels(position));
         transform->SetRotation(b2Rot_GetAngle(b2Body_GetRotation(rigidBody2dComponent->GetBodyId())));

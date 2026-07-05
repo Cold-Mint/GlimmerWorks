@@ -41,16 +41,16 @@ void glimmer::AreaMarkerAbility::OnUse(WorldContext* worldContext, uint32_t user
                                        const AbilityConfig* abilityConfig,
                                        std::unordered_set<std::string>& popupAbility)
 {
-    auto* entityManager = worldContext->GetEntityManager();
+    auto entityManager = worldContext->GetEntityManager();
     auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER, COMPONENT_AREA_MARKER});
     if (tileLayerEntityList.empty())
     {
         return;
     }
     const uint32_t gameEntity = tileLayerEntityList[0];
-    const auto* tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
+    const auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
         gameEntity);
-    auto* areaMarkerComponent = entityManager->GetComponent<AreaMarkerComponent>(gameEntity);
+    auto areaMarkerComponent = entityManager->GetComponent<AreaMarkerComponent>(gameEntity);
     if (tileLayerComponent == nullptr || areaMarkerComponent == nullptr)
     {
         return;

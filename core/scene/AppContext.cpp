@@ -283,7 +283,7 @@ glimmer::AppContext::AppContext()
     mainThreadId_ = std::this_thread::get_id();
     virtualFileSystem_ = std::make_unique<VirtualFileSystem>();
 #ifdef __ANDROID__
-    auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+    auto env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
     if (env == nullptr)
     {
         LogCat::e("Failed to get JNIEnv!");

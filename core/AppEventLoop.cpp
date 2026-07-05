@@ -57,7 +57,7 @@ namespace glimmer
 
     bool AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
     {
-        auto* sceneManager = appContext_->GetSceneManager();
+        auto sceneManager = appContext_->GetSceneManager();
 #ifdef __ANDROID__
         if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_AC_BACK)
         {
@@ -110,7 +110,7 @@ namespace glimmer
 
     void AppEventLoop::HandleCommandHooks(const SDL_Event& event) const
     {
-        auto* commandHookManager = appContext_->GetCommandHookManager();
+        auto commandHookManager = appContext_->GetCommandHookManager();
         if (commandHookManager == nullptr)
         {
             return;
@@ -142,8 +142,8 @@ namespace glimmer
             return;
         }
 
-        auto* consoleWorker = appContext_->GetConsoleWorker();
-        auto* commandManager = appContext_->GetCommandManager();
+        auto consoleWorker = appContext_->GetConsoleWorker();
+        auto commandManager = appContext_->GetCommandManager();
         for (const auto& commandHook : commandHookEntry)
         {
             if (isKey && commandHook->keyRepeat != event.key.repeat)
@@ -165,7 +165,7 @@ namespace glimmer
 
     void AppEventLoop::DispatchEvent(const SDL_Event& event) const
     {
-        auto* sceneManager = appContext_->GetSceneManager();
+        auto sceneManager = appContext_->GetSceneManager();
         const auto& overlayScenes = sceneManager->GetOverlayScenes();
 
         bool handled = false;

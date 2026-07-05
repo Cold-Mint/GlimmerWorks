@@ -52,7 +52,7 @@ namespace glimmer
         while (remaining > T{})
         {
             std::vector<IAllocatable<T>*> valid;
-            for (auto* item : items)
+            for (auto item : items)
             {
                 if (item->GetRemaining() > T{})
                     valid.push_back(item);
@@ -62,7 +62,7 @@ namespace glimmer
             {
                 break;
             };
-            auto* target = valid[RandomUtils::Random<int>(0, static_cast<int>(valid.size()) - 1)];
+            auto target = valid[RandomUtils::Random<int>(0, static_cast<int>(valid.size()) - 1)];
 
             // Deduct
             // 扣除

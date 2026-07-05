@@ -297,7 +297,7 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
     float currentX = backgroundRect.x + scaledPadding;
     float currentY = backgroundRect.y + scaledPadding;
 
-    for (auto* texture : textureToDraw)
+    for (auto texture : textureToDraw)
     {
         if (texture == nullptr)
         {

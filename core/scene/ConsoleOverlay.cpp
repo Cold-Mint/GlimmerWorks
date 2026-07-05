@@ -597,7 +597,7 @@ void glimmer::ConsoleOverlay::RenderImGui(SDL_Renderer* renderer)
             addMessage("> " + command_);
             auto& commandHistoryMessage = appContext_->GetCommandHistoryManager()->GetCommandHistoryMessage();
             const auto mutableHistory = commandHistoryMessage.mutable_history();
-            auto* new_command = mutableHistory->Add();
+            auto new_command = mutableHistory->Add();
             *new_command = command_;
             const uint16_t maxEntries = appContext_->GetConfig()->console.maxHistoryEntries;
             int current_size = mutableHistory->size();
@@ -667,7 +667,7 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData* data)
 {
     //When the text changes
     //当文本改变时
-    auto* overlay = static_cast<ConsoleOverlay*>(data->UserData);
+    auto overlay = static_cast<ConsoleOverlay*>(data->UserData);
     const int cursorPos = data->CursorPos;
     const std::string cmdStr(data->Buf, data->BufTextLen);
     if (cursorPos != overlay->GetLastCursorPos())

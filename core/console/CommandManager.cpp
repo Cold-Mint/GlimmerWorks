@@ -315,7 +315,7 @@ std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
             }
             auto pos = child.find(':');
             std::string dynName = child.substr(0, pos);
-            if (auto* dyn = dynamicSuggestionsManager->GetSuggestions(dynName); dyn != nullptr)
+            if (auto dyn = dynamicSuggestionsManager->GetSuggestions(dynName); dyn != nullptr)
             {
                 isExpanded = true;
                 std::optional<std::string> param = std::nullopt;

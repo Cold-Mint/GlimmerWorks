@@ -313,7 +313,7 @@ glimmer::TerrainResult* glimmer::WorldContext::GetOrCreateTerrainData(const Tile
     {
         return nullptr;
     }
-    auto* terrainPtr = terrainResult.get();
+    auto terrainPtr = terrainResult.get();
     terrainTileData_.emplace(position, std::move(terrainResult));
     terrainTileDataCache_.emplace(position, terrainPtr);
     return terrainPtr;
@@ -391,7 +391,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
     }
     if (!entityManager_->HasComponent(playerEntity, COMPONENT_ITEM_CONTAINER))
     {
-        const auto* itemContainerComponent = entityManager_->AddComponent<ItemContainerComponent>(
+        const auto itemContainerComponent = entityManager_->AddComponent<ItemContainerComponent>(
             playerEntity);
         if (itemContainerComponent != nullptr)
         {
@@ -428,7 +428,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
             }
         }
     }
-    auto* itemContainerComponent = entityManager_->GetComponent<ItemContainerComponent>(playerEntity);
+    auto itemContainerComponent = entityManager_->GetComponent<ItemContainerComponent>(playerEntity);
     if (itemContainerComponent != nullptr)
     {
         ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
@@ -442,7 +442,7 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
             itemCallback_ = itemContainer->AddOnContentChanged(
                 [this, playerEntity](uint8_t index, Item* item, ContainerChangeType changeType)
                 {
-                    auto* hotBarComponent = entityShortCut_->GetHotBarComponent();
+                    auto hotBarComponent = entityShortCut_->GetHotBarComponent();
                     if (hotBarComponent == nullptr)
                     {
                         return;
@@ -526,7 +526,7 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer) const
         return;
     }
     auto hotBarEntity = entityManager_->AddEntity();
-    auto* hotBarComponent = entityManager_->AddComponent<HotBarComponent>(hotBarEntity);
+    auto hotBarComponent = entityManager_->AddComponent<HotBarComponent>(hotBarEntity);
     if (hotBarComponent != nullptr)
     {
         entityShortCut_->SetHotBarComponent(hotBarComponent);
@@ -731,7 +731,7 @@ bool glimmer::WorldContext::SaveChunk(TileVector2D position)
         {
             continue;
         }
-        auto* transform2dComponent = entityManager_->GetComponent<Transform2DComponent>(transform2dEntity);
+        auto transform2dComponent = entityManager_->GetComponent<Transform2DComponent>(transform2dEntity);
         if (transform2dComponent == nullptr)
         {
             continue;
@@ -1215,7 +1215,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
                                    RESOURCE_MOB);
     InitPlayer(
         playerResourceRef);
-    auto* itemContainerPtr = entityManager_->
+    auto itemContainerPtr = entityManager_->
         GetComponent<ItemContainerComponent>(entityShortCut_->GetPlayer());
     entityShortCut_->SetItemContainerComponent(itemContainerPtr);
     ItemContainer* itemContainer = itemContainerPtr->GetItemContainer();

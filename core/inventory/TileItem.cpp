@@ -116,7 +116,7 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
     const TileLayerType targetTileLayerType = tile_->GetLayerType();
     for (auto& entity : entities)
     {
-        auto* tileLayer = entityManager->GetComponent<TileLayerComponent>(entity);
+        auto tileLayer = entityManager->GetComponent<TileLayerComponent>(entity);
         if (tileLayer == nullptr)
         {
             continue;

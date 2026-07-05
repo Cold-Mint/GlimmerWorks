@@ -80,12 +80,12 @@ void glimmer::SavedGamesScene::RenderImGui(SDL_Renderer* renderer)
 
     ImGui::BeginChild(langsResources_->savesList.c_str(), ImVec2(0, -50 * uiScale_), true);
 
-    auto* savesManager = appContext_->GetSavesManager();
+    auto savesManager = appContext_->GetSavesManager();
     size_t count = savesManager->GetSavesListSize();
 
     for (size_t i = 0; i < count; ++i)
     {
-        auto* manifest = savesManager->GetMapManifest(i);
+        auto manifest = savesManager->GetMapManifest(i);
         if (manifest == nullptr)
         {
             continue;
@@ -129,8 +129,8 @@ void glimmer::SavedGamesScene::RenderImGui(SDL_Renderer* renderer)
     {
         if (ImGui::Button(langsResources_->loadGame.c_str()))
         {
-            auto* saves = savesManager->GetSave(selectedSaveIndex);
-            auto* manifest = savesManager->GetMapManifest(selectedSaveIndex);
+            auto saves = savesManager->GetSave(selectedSaveIndex);
+            auto manifest = savesManager->GetMapManifest(selectedSaveIndex);
             if (saves != nullptr && manifest != nullptr)
             {
                 appContext_->GetSceneManager()->PushScene(std::make_unique<WorldScene>(

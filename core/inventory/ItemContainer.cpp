@@ -453,7 +453,7 @@ void glimmer::ItemContainer::ToMessage(ItemContainerMessage& message) const
         //Even if the slot is empty, we create an empty object and put it into the serializer.
         //即使槽位为空，我们创建空对象，放到系列化器内。
         const auto itemMessage = message.add_itemresourceref();
-        const auto* item = items_[i].get();
+        const auto item = items_[i].get();
         if (item == nullptr)
         {
             continue;

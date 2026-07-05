@@ -225,14 +225,14 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     TileVector2D tileAnchor = {0, 0};
     const TileVector2D& focusPosition = tileLayerComponent_->GetFocusPosition();
     const WorldVector2D focusWorldTilePos = CoordinateTransformer::TileToWorld(focusPosition);
-    auto* playerComponent = entityManager->GetComponent<PlayerComponent>(player);
-    auto* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(player);
+    auto playerComponent = entityManager->GetComponent<PlayerComponent>(player);
+    auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(player);
     Item* item = playerComponent->GetItem();
     TileVector2D leftBottom = {0, 0};
     WorldVector2D playerPosition = transform2DComponent->GetPosition();
     if (item != nullptr && item->GetAmount() > 0)
     {
-        auto* tileItem = dynamic_cast<TileItem*>(item);
+        auto tileItem = dynamic_cast<TileItem*>(item);
         if (tileItem != nullptr)
         {
             heldTile_ = tileItem->GetTile();

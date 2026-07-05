@@ -52,7 +52,7 @@ namespace glimmer
         {
             bool hasValid = false;
 
-            for (auto* item : items)
+            for (auto item : items)
             {
                 T rest = item->GetRemaining();
                 if (rest <= T{})

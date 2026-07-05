@@ -108,19 +108,19 @@ void glimmer::AutoPickSystem::Update(const float delta)
     remainingTime_ -= delta;
     for (const auto entity : entities_)
     {
-        const auto* magnetComponent = entityManager->GetComponent<MagnetComponent>(entity);
-        const auto* containerComponent = entityManager->GetComponent<ItemContainerComponent>(
+        const auto magnetComponent = entityManager->GetComponent<MagnetComponent>(entity);
+        const auto containerComponent = entityManager->GetComponent<ItemContainerComponent>(
             entity);
         for (auto& entities = magnetComponent->GetEntities(); uint32_t entityId : entities)
         {
-            auto* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(entityId);
+            auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(entityId);
             if (transform2DComponent == nullptr)
             {
                 continue;
             }
             lastPosition = transform2DComponent->GetPosition();
 
-            auto* droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(entityId);
+            auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(entityId);
             if (droppedItemComponent == nullptr)
             {
                 continue;

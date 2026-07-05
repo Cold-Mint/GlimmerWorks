@@ -111,7 +111,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
         {
             entityShortCut->SetDiggingComponent(diggingComponent);
         }
-        auto* magnetComponent = entityManager->AddComponent<MagnetComponent>(id);
+        auto magnetComponent = entityManager->AddComponent<MagnetComponent>(id);
         if (magnetComponent != nullptr)
         {
             magnetComponent->SetType(MAGNETIC_TYPE_ITEM);
@@ -135,7 +135,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
     for (auto& groundCheckRayCast : mobResource->groundCheckRayCast)
     {
         auto groundRayCast = entityManager->AddEntity();
-        auto* rayCast2dComponent = entityManager->AddComponent<RayCast2DComponent>(groundRayCast);
+        auto rayCast2dComponent = entityManager->AddComponent<RayCast2DComponent>(groundRayCast);
         if (rayCast2dComponent == nullptr)
         {
             continue;
@@ -186,8 +186,8 @@ void glimmer::MobEntityCreator::MergeEntityItemMessage(uint32_t id, const Entity
 {
     RecoveryAllComponent(worldContext_, id, entityItemMessage);
     EntityManager* entityManager = worldContext_->GetEntityManager();
-    auto* transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
-    auto* rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
+    auto transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
+    auto rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
     if (transform2dComponent != nullptr && rigidBody2dComponent != nullptr)
     {
         rigidBody2dComponent->CreateBody(worldContext_->GetAppContext()->GetResourceLocator(),

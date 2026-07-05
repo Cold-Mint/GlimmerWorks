@@ -35,7 +35,7 @@ std::optional<glimmer::StructureInfo> glimmer::StaticStructureGenerator::Generat
         return std::nullopt;
     }
     StructureInfo structureInfo;
-    auto* staticStructureResource = dynamic_cast<StaticStructureResource*>(structureResource);
+    auto staticStructureResource = dynamic_cast<StaticStructureResource*>(structureResource);
     for (auto& tileInfo : staticStructureResource->tileInfo)
     {
         structureInfo.SetTile(static_cast<TileLayerType>(tileInfo.layerType),

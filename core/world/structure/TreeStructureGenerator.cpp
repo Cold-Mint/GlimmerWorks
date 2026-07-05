@@ -40,7 +40,7 @@ std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(
     {
         return std::nullopt;
     }
-    auto* treeStructureResource = dynamic_cast<TreeStructureResource*>(structureResource);
+    auto treeStructureResource = dynamic_cast<TreeStructureResource*>(structureResource);
     ResourceRef& trunkRef = treeStructureResource->data.at(treeStructureResource->trunkDataIndex);
     ResourceRef& leafRef = treeStructureResource->data.at(treeStructureResource->leafDataIndex);
     auto structureInfo = StructureInfo();

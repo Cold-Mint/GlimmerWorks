@@ -268,7 +268,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
     {
         return;
     }
-    const auto* box2dSystemContext = static_cast<Box2dSystemContext*>(context);
+    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
     const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
     SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
     SetSDLColor(sdlRenderer, color);
@@ -308,7 +308,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
         LogCat::w("DrawSolidPolygonFcn context= nullptr");
         return;
     }
-    const auto* box2dSystemContext = static_cast<Box2dSystemContext*>(context);
+    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
     const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
     Color box2dBorderColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dBorderColor;
     Color box2dFullColor = worldContext->GetAppContext()->GetPreloadColors()->debugColor.box2dFullColor;
@@ -376,7 +376,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
         LogCat::w("b2DrawCircleFcn context= nullptr");
         return;
     }
-    const auto* box2dSystemContext = static_cast<Box2dSystemContext*>(context);
+    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
     const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
     SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
 
@@ -415,7 +415,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
         LogCat::w("b2DrawSolidCircleFcn context= nullptr");
         return;
     }
-    const auto* box2dSystemContext = static_cast<Box2dSystemContext*>(context);
+    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
     const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
     SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
 
@@ -464,7 +464,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
         LogCat::w("b2DrawSolidCapsuleFcn context= nullptr");
         return;
     }
-    const auto* box2dSystemContext = static_cast<Box2dSystemContext*>(context);
+    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
     const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
     SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
 
@@ -520,7 +520,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
         LogCat::w("b2DrawSegmentFcn context= nullptr");
         return;
     }
-    const auto* box2dSystemContext = static_cast<Box2dSystemContext*>(context);
+    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
     const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
     SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
 
@@ -549,7 +549,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
         LogCat::w("b2DrawTransformFcn context= nullptr");
         return;
     }
-    const auto* box2dSystemContext = static_cast<Box2dSystemContext*>(context);
+    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
     const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
     SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
 
@@ -593,7 +593,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
         LogCat::w("b2DrawPointFcn context= nullptr");
         return;
     }
-    const auto* box2dSystemContext = static_cast<Box2dSystemContext*>(context);
+    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
     const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
     SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
 

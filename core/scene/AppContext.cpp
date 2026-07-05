@@ -33,7 +33,6 @@
 #include "core/console/command/Box2DCommand.h"
 #include "core/console/command/EcsCommand.h"
 #include "core/console/command/GiveCommand.h"
-#include "core/console/command/HeightMapCommand.h"
 #include "core/console/command/HelpCommand.h"
 #include "core/console/command/LicenseCommand.h"
 #include "core/console/command/SeedCommand.h"
@@ -471,7 +470,6 @@ glimmer::AppContext::AppContext()
     commandManager_->RegisterCommand(std::make_unique<LightCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<HeightMapCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(this));
     commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(this));

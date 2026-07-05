@@ -41,7 +41,7 @@ namespace glimmer {
 
         void RenderImGui(SDL_Renderer* renderer) override;
 
-        void OnWindowSizeChanged(int width, int height) override;
+        void OnWindowSizeChanged(const int& width, const int& height) override;
 
         void OnConfigChanged(const Config* config) override;
 

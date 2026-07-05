@@ -116,7 +116,7 @@ void glimmer::GameSystem::OnConfigChanged(const Config* config)
 {
 }
 
-void glimmer::GameSystem::OnWindowSizeChanged(int width, int height)
+void glimmer::GameSystem::OnWindowSizeChanged(const int& width, const int& height)
 {
 }
 

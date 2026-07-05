@@ -147,7 +147,7 @@ void glimmer::DebugOverlay::OnConfigChanged(const Config* config)
     uiScale_ = config->window.uiScale;
 }
 
-void glimmer::DebugOverlay::OnWindowSizeChanged(const int width, const int height)
+void glimmer::DebugOverlay::OnWindowSizeChanged(const int& width, const int& height)
 {
     windowWidth_ = width;
     windowHeight_ = height;

@@ -47,7 +47,7 @@ bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const Co
                                     const std::function<void(const std::string& text)>* onMessage)
 {
     AppContext* appContext = GetAppContext();
-    WorldContext* worldContext = GetWorldContext();
+    const WorldContext* worldContext = GetWorldContext();
     if (appContext == nullptr || onMessage == nullptr)
     {
         return false;

@@ -81,8 +81,7 @@ void glimmer::TagCommand::PutCommandStructure(const CommandArgs* commandArgs, st
 bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                   const std::function<void(const std::string& text)>* onMessage)
 {
-    AppContext* appContext = GetAppContext();
-    WorldContext* worldContext = GetWorldContext();
+    const AppContext* appContext = GetAppContext();
     if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
@@ -101,10 +100,16 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
             2, size));
         return false;
     }
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
+        return false;
+    }
     const std::string type = commandArgs->AsString(1);
     if (type == "hand")
     {
-        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+        const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;
@@ -157,7 +162,7 @@ bool glimmer::TagCommand::Execute(const CommandSender* commandSender, const Comm
     }
     if (type == "inventory")
     {
-        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+        const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;

@@ -30,6 +30,7 @@
 
 #include "AppContext.h"
 #include "CreateWorldScene.h"
+#include "fmt/xchar.h"
 #include "imgui.h"
 #include "SavedGamesScene.h"
 #include "core/Config.h"
@@ -43,18 +44,15 @@ std::string glimmer::HomeScene::GetCopyrightString()
     const std::tm* now = localtime_r(&t, &tm_buf);
     if (now == nullptr)
     {
-        return "Copyright (C) " + std::to_string(startYear) + " Cold-Mint";
+        return fmt::format("Copyright (C) {} Cold-Mint", startYear);
     }
-    int currentYear = now->tm_year + 1900;
+    const int currentYear = now->tm_year + 1900;
 
     if (currentYear <= startYear)
     {
-        return "Copyright (C) " + std::to_string(startYear) + " Cold-Mint";
+        return fmt::format("Copyright (C) {} Cold-Mint", startYear);
     }
-    return "Copyright (C) " +
-        std::to_string(startYear) + "–" +
-        std::to_string(currentYear) +
-        " Cold-Mint";
+    return fmt::format("Copyright (C) {}–{} Cold-Mint", startYear, currentYear);
 }
 
 glimmer::HomeScene::HomeScene(AppContext* context)
@@ -184,7 +182,7 @@ void glimmer::HomeScene::OnConfigChanged(const Config* config)
     uiScale_ = config->window.uiScale;
 }
 
-void glimmer::HomeScene::OnWindowSizeChanged(int width, int height)
+void glimmer::HomeScene::OnWindowSizeChanged(const int& width, const int& height)
 {
     windowWidth_ = width;
     windowHeight_ = height;

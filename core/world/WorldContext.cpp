@@ -1230,7 +1230,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
 }
 
-void glimmer::WorldContext::OnWindowSizeChanged(int width, int height) const
+void glimmer::WorldContext::OnWindowSizeChanged(const int& width, const int& height) const
 {
     for (auto& activeSystem : activeSystems_)
     {

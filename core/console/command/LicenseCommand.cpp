@@ -40,15 +40,15 @@ glimmer::LicenseCommand::LicenseCommand(AppContext* appContext) : Command(appCon
 bool glimmer::LicenseCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                       const std::function<void(const std::string& text)>* onMessage)
 {
-    AppContext* appContext = GetAppContext();
+    const AppContext* appContext = GetAppContext();
     if (appContext == nullptr)
     {
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (const auto text = appContext->GetVirtualFileSystem()->ReadFile("LICENSE"); text.has_value())
+    if (const auto licenseText = appContext->GetVirtualFileSystem()->ReadFile("LICENSE"); licenseText.has_value())
     {
-        onMessageRef(text.value());
+        onMessageRef(licenseText.value());
         return true;
     }
     onMessageRef(

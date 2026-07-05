@@ -56,7 +56,7 @@ namespace glimmer
         bool InitAudio();
 
         bool CheckWindowSizeChange(int& windowWidth, int& windowHeight) const;
-        void HandleWindowSizeChange(int windowWidth, int windowHeight);
+        void HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const;
         [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime) const;
         bool CheckConfigChange(uint64_t& configFingerprint) const;
         void NotifyFrameStart() const;
@@ -70,6 +70,6 @@ namespace glimmer
 
         bool Init();
 
-        void Run();
+        void Run() const;
     };
 }

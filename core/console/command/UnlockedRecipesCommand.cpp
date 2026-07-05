@@ -101,7 +101,7 @@ const std::string& glimmer::UnlockedRecipesCommand::GetName() const
 bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                               const std::function<void(const std::string& text)>* onMessage)
 {
-    AppContext* appContext = GetAppContext();
+    const AppContext* appContext = GetAppContext();
     if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
@@ -112,18 +112,18 @@ bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender
     {
         return false;
     }
-    WorldContext* worldContext = GetWorldContext();
+    const WorldContext* worldContext = GetWorldContext();
     if (worldContext == nullptr)
     {
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
-    RecipeManager* recipeManager = appContext->GetRecipeManager();
+    const RecipeManager* recipeManager = appContext->GetRecipeManager();
     if (recipeManager == nullptr)
     {
         return false;
     }
-    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
         return false;

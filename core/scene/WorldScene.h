@@ -47,7 +47,7 @@ namespace glimmer {
 
         void Update(float delta) override;
 
-        void OnWindowSizeChanged(int width, int height) override;
+        void OnWindowSizeChanged(const int& width, const int& height) override;
 
         void OnConfigChanged(const Config* config) override;
 

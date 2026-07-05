@@ -92,8 +92,7 @@ void glimmer::EcsCommand::PutCommandStructure(const CommandArgs* commandArgs, st
 bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                   const std::function<void(const std::string& text)>* onMessage)
 {
-    AppContext* appContext = GetAppContext();
-    WorldContext* worldContext = GetWorldContext();
+    const AppContext* appContext = GetAppContext();
     if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
@@ -104,6 +103,7 @@ bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const Comm
     {
         return false;
     }
+    const WorldContext* worldContext = GetWorldContext();
     if (worldContext == nullptr)
     {
         onMessageRef(langsResources->worldContextIsNull);
@@ -124,8 +124,7 @@ bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const Comm
              auto& e :
              allGameEntities)
         {
-            auto string = EntityToString(e);
-            if (string.has_value())
+            if (auto string = EntityToString(e); string.has_value())
             {
                 onMessageRef(string.value());
             }
@@ -147,8 +146,7 @@ bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const Comm
             onMessageRef(langsResources->cantFindObject);
             return false;
         }
-        auto string = EntityToString(id);
-        if (string.has_value())
+        if (auto string = EntityToString(id); string.has_value())
         {
             onMessageRef(string.value());
         }
@@ -156,7 +154,7 @@ bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const Comm
     }
     if (arg == "activeSystems")
     {
-        for (std::vector<GameSystemType> allGameSystems = worldContext->GetAllActiveSystemType(); auto& type :
+        for (std::vector<GameSystemType> allGameSystems = worldContext->GetAllActiveSystemType(); const auto& type :
              allGameSystems)
         {
             onMessageRef(fmt::format("{}\n", static_cast<uint8_t>(type)));

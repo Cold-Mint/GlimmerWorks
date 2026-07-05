@@ -49,7 +49,7 @@ void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
     }
 }
 
-void glimmer::CameraSystem::OnWindowSizeChanged(int width, int height)
+void glimmer::CameraSystem::OnWindowSizeChanged(const int& width, const int& height)
 {
     if (cameraComponent_ == nullptr || appContext_ == nullptr)
     {

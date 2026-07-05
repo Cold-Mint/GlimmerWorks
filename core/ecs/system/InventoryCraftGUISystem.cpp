@@ -199,7 +199,7 @@ void glimmer::InventoryCraftGUISystem::OnConfigChanged(const Config* config)
     uiScale_ = config->window.uiScale;
 }
 
-void glimmer::InventoryCraftGUISystem::OnWindowSizeChanged(int width, int height)
+void glimmer::InventoryCraftGUISystem::OnWindowSizeChanged(const int& width, const int& height)
 {
     const size_t inventoryItemSlotSize = inventoryItemSlot_.size();
     if (inventoryItemSlotSize == 0)

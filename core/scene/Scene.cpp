@@ -46,8 +46,9 @@ void glimmer::Scene::OnWindowClose()
 {
 }
 
-void glimmer::Scene::OnWindowSizeChanged(int width, int height)
+void glimmer::Scene::OnWindowSizeChanged(const int& width, const int& height)
 {
+
 }
 
 void glimmer::Scene::Init()

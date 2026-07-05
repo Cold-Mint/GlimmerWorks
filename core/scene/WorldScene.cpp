@@ -93,7 +93,7 @@ void glimmer::WorldScene::Update(float delta)
     worldContext_->Update(delta);
 }
 
-void glimmer::WorldScene::OnWindowSizeChanged(int width, int height)
+void glimmer::WorldScene::OnWindowSizeChanged(const int& width, const int& height)
 {
     if (worldContext_ == nullptr)
     {

@@ -119,7 +119,7 @@ namespace glimmer
 
         virtual void OnConfigChanged(const Config* config);
 
-        virtual void OnWindowSizeChanged(int width, int height);
+        virtual void OnWindowSizeChanged(const int& width, const int& height);
 
         virtual bool OnBackPressed();
 

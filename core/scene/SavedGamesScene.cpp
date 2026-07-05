@@ -186,7 +186,7 @@ void glimmer::SavedGamesScene::RenderImGui(SDL_Renderer* renderer)
     ImGui::End();
 }
 
-void glimmer::SavedGamesScene::OnWindowSizeChanged(int width, int height)
+void glimmer::SavedGamesScene::OnWindowSizeChanged(const int& width, const int& height)
 {
     windowWidth_ = width;
     windowHeight_ = height;

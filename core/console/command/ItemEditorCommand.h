@@ -26,12 +26,15 @@
  */
 #pragma once
 #include "core/console/Command.h"
+#include "core/inventory/Item.h"
 
 namespace glimmer
 {
     class ItemEditorCommand final : public Command
     {
         static void AddSuggestionsValue(NodeTree<std::string>* suggestionsTree, bool setMode);
+
+        static void SetItemAttribute(const std::string& attribute, Item* item, const std::string& value);
 
     protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;

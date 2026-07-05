@@ -413,7 +413,7 @@ void glimmer::MaterialSelectCraftUISystem::OnConfigChanged(const Config* config)
     panelInnerPadding_ = basePanelInnerPadding_ * uiScale_;
 }
 
-void glimmer::MaterialSelectCraftUISystem::OnWindowSizeChanged(int width, int height)
+void glimmer::MaterialSelectCraftUISystem::OnWindowSizeChanged(const int& width, const int& height)
 {
     windowHeight_ = height;
     windowWidth_ = width;

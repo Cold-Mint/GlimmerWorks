@@ -324,11 +324,11 @@ bool glimmer::App::Init()
         InitAudio();
 }
 
-void glimmer::App::Run()
+void glimmer::App::Run() const
 {
     LogCat::i("Entering main loop...");
-    auto* sceneManager = appContext_->GetSceneManager();
-    auto* config = appContext_->GetConfig();
+    const auto* sceneManager = appContext_->GetSceneManager();
+    const auto* config = appContext_->GetConfig();
 
     InitScenesAndConsole();
 
@@ -392,9 +392,9 @@ bool glimmer::App::CheckWindowSizeChange(int& windowWidth, int& windowHeight) co
     return changed;
 }
 
-void glimmer::App::HandleWindowSizeChange(const int windowWidth, const int windowHeight)
+void glimmer::App::HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const
 {
-    auto* sceneManager = appContext_->GetSceneManager();
+    const auto* sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
     {
@@ -416,8 +416,7 @@ float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const ui
         return 1.0F / config->window.normalTargetFps;
     }
 
-    const float duration = static_cast<float>(frameStart - lastInputTime) * 0.001F;
-    if (duration < idleDelay)
+    if (static_cast<float>(frameStart - lastInputTime) * 0.001F < idleDelay)
     {
         return 1.0F / config->window.normalTargetFps;
     }
@@ -439,7 +438,7 @@ bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
         commandHookManager->LoadHookFromConfig(config->commandHooks);
     }
 
-    auto* sceneManager = appContext_->GetSceneManager();
+    const auto* sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
     {
@@ -456,7 +455,7 @@ bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
 
 void glimmer::App::NotifyFrameStart() const
 {
-    auto* sceneManager = appContext_->GetSceneManager();
+    const auto* sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
     {
@@ -470,7 +469,7 @@ void glimmer::App::NotifyFrameStart() const
 
 void glimmer::App::UpdateScenes(const float deltaTime) const
 {
-    auto* sceneManager = appContext_->GetSceneManager();
+    const auto* sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
     for (const auto overlay : overlayScenes)
     {

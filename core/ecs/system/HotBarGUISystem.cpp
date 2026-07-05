@@ -116,7 +116,7 @@ glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GUISyste
     Init();
 }
 
-void glimmer::HotBarGUISystem::OnWindowSizeChanged(int width, int height)
+void glimmer::HotBarGUISystem::OnWindowSizeChanged(const int& width, const int& height)
 {
     size_t hotBarItemSlotSize = hotBarItemSlot_.size();
     if (hotBarItemSlotSize == 0)

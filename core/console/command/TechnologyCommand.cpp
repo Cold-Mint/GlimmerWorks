@@ -70,7 +70,6 @@ bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, con
                                          const std::function<void(const std::string& text)>* onMessage)
 {
     const AppContext* appContext = GetAppContext();
-    const WorldContext* worldContext = GetWorldContext();
     if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
@@ -87,6 +86,12 @@ bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, con
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
             2, size));
+        return false;
+    }
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
     const std::string type = commandArgs->AsString(1);

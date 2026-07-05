@@ -28,6 +28,8 @@
 
 #include "core/LangsResources.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/inventory/ComposableItem.h"
+#include "core/inventory/Item.h"
 #include "core/scene/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
@@ -60,6 +62,52 @@ void glimmer::ItemEditorCommand::AddSuggestionsValue(NodeTree<std::string>* sugg
     if (!setMode)
     {
         suggestionsTree->AddChild("unbreakable");
+    }
+}
+
+void glimmer::ItemEditorCommand::SetItemAttribute(const std::string& attribute, Item* item, const std::string& value)
+{
+    if (attribute == "used_durability")
+    {
+        item->SetUsedDurability(std::stoi(value));
+    }
+    else if (attribute == "durability_strategy")
+    {
+        auto composableItem = dynamic_cast<ComposableItem*>(item);
+        if (composableItem != nullptr)
+        {
+            if (value == ALLOC_STR_STRATEGY_FORWARD)
+            {
+                composableItem->SetAllocStrategyType(ALLOC_STRATEGY_FORWARD);
+            }
+            else if (value == ALLOC_STR_STRATEGY_BACKWARD)
+            {
+                composableItem->SetAllocStrategyType(ALLOC_STRATEGY_BACKWARD);
+            }
+            else if (value == ALLOC_STR_STRATEGY_BALANCE)
+            {
+                composableItem->SetAllocStrategyType(ALLOC_STRATEGY_BALANCE);
+            }
+            else if (value == ALLOC_STR_STRATEGY_RANDOM)
+            {
+                composableItem->SetAllocStrategyType(ALLOC_STRATEGY_RANDOM);
+            }
+        }
+    }
+    else if (attribute == "amount")
+    {
+        item->SetAmount(std::stoi(value));
+    }
+    else if (attribute == "locked")
+    {
+        if (value == "true")
+        {
+            item->Lock();
+        }
+        else
+        {
+            item->Unlock();
+        }
     }
 }
 
@@ -243,48 +291,7 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
         const std::string attribute = commandArgs->AsString(2);
         appContext->PostToNextMainFrame([attribute, item, value]
         {
-            if (attribute == "used_durability")
-            {
-                item->SetUsedDurability(std::stoi(value));
-            }
-            else if (attribute == "durability_strategy")
-            {
-                auto composableItem = dynamic_cast<ComposableItem*>(item);
-                if (composableItem != nullptr)
-                {
-                    if (value == ALLOC_STR_STRATEGY_FORWARD)
-                    {
-                        composableItem->SetAllocStrategyType(ALLOC_STRATEGY_FORWARD);
-                    }
-                    else if (value == ALLOC_STR_STRATEGY_BACKWARD)
-                    {
-                        composableItem->SetAllocStrategyType(ALLOC_STRATEGY_BACKWARD);
-                    }
-                    else if (value == ALLOC_STR_STRATEGY_BALANCE)
-                    {
-                        composableItem->SetAllocStrategyType(ALLOC_STRATEGY_BALANCE);
-                    }
-                    else if (value == ALLOC_STR_STRATEGY_RANDOM)
-                    {
-                        composableItem->SetAllocStrategyType(ALLOC_STRATEGY_RANDOM);
-                    }
-                }
-            }
-            else if (attribute == "amount")
-            {
-                item->SetAmount(std::stoi(value));
-            }
-            else if (attribute == "locked")
-            {
-                if (value == "true")
-                {
-                    item->Lock();
-                }
-                else
-                {
-                    item->Unlock();
-                }
-            }
+            SetItemAttribute(attribute, item, value);
         });
 
         onMessageRef(fmt::format(fmt::runtime(langsResources->itemEditorSetAttr), item->GetName(), attribute,

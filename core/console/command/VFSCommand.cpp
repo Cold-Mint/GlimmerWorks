@@ -124,7 +124,7 @@ bool glimmer::VFSCommand::Execute(const CommandSender* commandSender, const Comm
             2, size));
         return false;
     }
-    VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
+    const VirtualFileSystem* virtualFileSystem = appContext->GetVirtualFileSystem();
     const auto type = commandArgs->AsString(1);
     if (type == "listMount")
     {

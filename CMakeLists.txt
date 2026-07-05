@@ -410,7 +410,6 @@ target_sources(GlimmerWorks
         core/world/generator/FillBiomeDecorator.cpp
         core/console/command/LicenseCommand.cpp
         core/mod/ResourceLocator.cpp
-        core/console/command/HeightMapCommand.cpp
         core/inventory/Item.cpp
         core/inventory/TileItem.cpp
         core/inventory/ItemContainer.cpp
@@ -717,7 +716,6 @@ target_sources(GlimmerWorks
         core/world/generator/BiomeDecoratorManager.h
         core/console/command/LicenseCommand.h
         core/mod/ResourceLocator.h
-        core/console/command/HeightMapCommand.h
         core/inventory/Item.h
         core/inventory/TileItem.h
         core/inventory/ItemContainer.h

@@ -55,7 +55,7 @@ namespace glimmer
 
         explicit HotBarGUISystem(WorldContext* worldContext);
 
-        void OnWindowSizeChanged(int width, int height) override;
+        void OnWindowSizeChanged(const int& width, const int& height) override;
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

@@ -94,8 +94,13 @@ void glimmer::SavedGamesScene::RenderImGui(SDL_Renderer* renderer)
         std::stringstream ss;
         time_t timeVal = manifest->lastPlayedTime / 1000;
 
-        std::tm tm_buf{};
-        std::tm* tmInfo = localtime_r(&timeVal, &tm_buf);
+        std::tm tmBuf{};
+        std::tm* tmInfo = nullptr;
+#if defined(_WIN32)
+        tmInfo = localtime_s(&tmBuf, &timeVal);
+#else
+        tmInfo = localtime_r(&timeVal, &tmBuf);
+#endif
         if (tmInfo == nullptr)
         {
             continue;

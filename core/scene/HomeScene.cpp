@@ -40,14 +40,18 @@ std::string glimmer::HomeScene::GetCopyrightString()
 {
     constexpr int startYear = 2025;
     std::time_t t = std::time(nullptr);
-    std::tm tm_buf{};
-    const std::tm* now = localtime_r(&t, &tm_buf);
+    std::tm tmBuf{};
+    const std::tm* now = nullptr;
+#if defined(_WIN32)
+    now = localtime_s(&tmBuf, &t);
+#else
+    now = localtime_r(&t, &tmBuf);
+#endif
     if (now == nullptr)
     {
         return fmt::format("Copyright (C) {} Cold-Mint", startYear);
     }
     const int currentYear = now->tm_year + 1900;
-
     if (currentYear <= startYear)
     {
         return fmt::format("Copyright (C) {} Cold-Mint", startYear);

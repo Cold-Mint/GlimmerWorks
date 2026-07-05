@@ -74,6 +74,8 @@ void glimmer::InventoryCraftGUISystem::Render(SDL_Renderer* renderer)
 
 void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
 {
+    EntityManager* entityManager = GetEntityManager();
+    WorldContext* worldContext = GetWorldContext();
     if (activeStatus)
     {
         for (auto inventoryItemSlot : inventoryItemSlot_)
@@ -92,8 +94,8 @@ void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
             CraftPreviewSlotComponent* craftPreviewSlotComponent;
             if (i == craftPreviewSlot_.size())
             {
-                auto craftPreviewSlotEntity = entityManager_->AddEntity();
-                craftPreviewSlotComponent = entityManager_->AddComponent<CraftPreviewSlotComponent>(
+                auto craftPreviewSlotEntity = entityManager->AddEntity();
+                craftPreviewSlotComponent = entityManager->AddComponent<CraftPreviewSlotComponent>(
                     craftPreviewSlotEntity);
                 craftPreviewSlot_.emplace_back(craftPreviewSlotComponent);
             }
@@ -104,7 +106,7 @@ void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
             craftPreviewSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
             const DesignVector2D& position = gridLayoutStepper.Next();
             craftPreviewSlotComponent->SetPosition(position);
-            craftPreviewSlotComponent->SetRecipeResource(worldContext_, recipeResources[i]);
+            craftPreviewSlotComponent->SetRecipeResource(worldContext, recipeResources[i]);
             craftPreviewSlotComponent->Show();
         }
         if (craftPreviewSlot_.size() > unlockedRecipesSize_)
@@ -141,13 +143,15 @@ void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
 void glimmer::InventoryCraftGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
                                                                  uint32_t count)
 {
+    EntityManager* entityManager = GetEntityManager();
+    EntityShortCut* entityShortCut = GetEntityShortCut();
     if (gameComponentType == COMPONENT_ITEM_SLOT)
     {
-        auto entities = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT});
+        auto entities = entityManager->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT});
         inventoryItemSlot_.clear();
         for (auto entity : entities)
         {
-            auto itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            auto itemSlotComponent = entityManager->GetComponent<ItemSlotComponent>(entity);
             if (itemSlotComponent == nullptr)
             {
                 continue;
@@ -165,16 +169,16 @@ void glimmer::InventoryCraftGUISystem::OnWatchedComponentChanged(GameComponentTy
     }
     if (gameComponentType == COMPONENT_PLAYER)
     {
-        auto playerEntity = entityShortCut_->GetPlayer();
+        auto playerEntity = entityShortCut->GetPlayer();
         if (WorldContext::IsEmptyEntityId(playerEntity))
         {
             return;
         }
-        playerComponent_ = entityManager_->GetComponent<PlayerComponent>(playerEntity);
+        playerComponent_ = entityManager->GetComponent<PlayerComponent>(playerEntity);
     }
     if (gameComponentType == COMPONENT_ITEM_CONTAINER)
     {
-        auto* itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+        auto* itemContainerComponent = entityShortCut->GetItemContainerComponent();
         if (itemContainerComponent == nullptr)
         {
             return;

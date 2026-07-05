@@ -36,7 +36,7 @@ namespace glimmer
     {
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
-        Color GetTileDebugColor(TileVector2D tile) const;
+        Color GetTileDebugColor(const TileVector2D& tile) const;
 
     public:
         uint8_t GetRenderOrder() override;

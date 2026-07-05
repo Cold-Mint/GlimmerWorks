@@ -60,18 +60,21 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : 
 
 void glimmer::PlayerControlSystem::Update(const float delta)
 {
+    EntityManager* entityManager = GetEntityManager();
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+
     if (WorldContext::IsEmptyEntityId(playerEntityID_))
     {
         return;
     }
-    const auto playerComponent = entityManager_->GetComponent<PlayerComponent>(playerEntityID_);
+    const auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntityID_);
     if (playerComponent == nullptr)
     {
         return;
     }
     if (playerComponent->IsFlying())
     {
-        auto* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(playerEntityID_);
+        auto* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(playerEntityID_);
         if (transform2DComponent == nullptr)
         {
             return;
@@ -83,7 +86,7 @@ void glimmer::PlayerControlSystem::Update(const float delta)
     }
     else
     {
-        const auto rigidBody2DComponent = entityManager_->GetComponent<RigidBody2DComponent>(playerEntityID_);
+        const auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(playerEntityID_);
         if (rigidBody2DComponent == nullptr)
         {
             return;
@@ -153,8 +156,8 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         float gravityForce = massData.mass * GRAVITY_SCALE;
         b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
     }
-    auto* hotBarComponent = entityShortCut_->GetHotBarComponent();
-    auto* itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+    auto* hotBarComponent = entityShortCut->GetHotBarComponent();
+    auto* itemContainerComponent = entityShortCut->GetItemContainerComponent();
     ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
     playerComponent->AddDropTimer(delta);
     if (playerComponent->IsDropPressed() && playerComponent->GetDropTimer() >= DROP_INTERVAL)
@@ -186,6 +189,8 @@ glimmer::GameSystemType glimmer::PlayerControlSystem::GetGameSystemType() const
 
 bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent* playerControlComponent) const
 {
+    EntityManager* entityManager = GetEntityManager();
+
     const std::vector<GameEntityID>& groundCheckRayEntityIds = playerControlComponent->GetGroundCheckRayEntityIds();
     if (groundCheckRayEntityIds.empty())
     {
@@ -193,7 +198,7 @@ bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent* playerControl
     }
     for (const uint32_t rayCast2dItem : groundCheckRayEntityIds)
     {
-        auto rayCast2DComponent = entityManager_->GetComponent<RayCast2DComponent>(rayCast2dItem);
+        auto rayCast2DComponent = entityManager->GetComponent<RayCast2DComponent>(rayCast2dItem);
         if (rayCast2DComponent == nullptr)
         {
             continue;
@@ -208,6 +213,9 @@ bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent* playerControl
 
 void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, const uint8_t index) const
 {
+    EntityManager* entityManager = GetEntityManager();
+    WorldContext* worldContext = GetWorldContext();
+
     if (itemContainer == nullptr)
     {
         return;
@@ -234,8 +242,8 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
             audioManager_->TryPlayFree(AMBIENT, audio, 0);
         }
     }
-    const uint32_t droppedEntity = entityManager_->AddEntity();
-    DroppedItemCreator droppedItemCreator{worldContext_};
+    const uint32_t droppedEntity = entityManager->AddEntity();
+    DroppedItemCreator droppedItemCreator{worldContext};
     droppedItemCreator.LoadTemplateComponents(droppedEntity,
                                               DroppedItemCreator::GetResourceRef());
     droppedItemCreator.MergeEntityItemMessage(droppedEntity,
@@ -246,33 +254,40 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
 
 void glimmer::PlayerControlSystem::UseItem(Item* item)
 {
+    WorldContext* worldContext = GetWorldContext();
+
     if (item == nullptr)
     {
         return;
     }
     popupAbility_.clear();
-    item->OnUse(worldContext_, playerEntityID_, item->GetAbilityConfig(), popupAbility_);
+    item->OnUse(worldContext, playerEntityID_, item->GetAbilityConfig(), popupAbility_);
 }
 
 void glimmer::PlayerControlSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
     {
-        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
     if (gameComponentType == COMPONENT_PLAYER && playerEntityID_ == GAME_ENTITY_ID_INVALID)
     {
-        playerEntityID_ = entityShortCut_->GetPlayer();
+        playerEntityID_ = entityShortCut->GetPlayer();
     }
 }
 
 bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
 {
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    EntityManager* entityManager = GetEntityManager();
+
+    if (worldContext == nullptr)
     {
         return false;
     }
@@ -280,7 +295,7 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
     {
         return false;
     }
-    auto* playerComponent = entityManager_->GetComponent<PlayerComponent>(playerEntityID_);
+    auto* playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntityID_);
     if (playerComponent == nullptr)
     {
         return false;
@@ -318,7 +333,7 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
             {
                 playerComponent->AddHorizontalInput(1.0F);
             }
-            const auto spiritRendererComponent = entityManager_->GetComponent<SpiritRendererComponent>(playerEntityID_);
+            const auto spiritRendererComponent = entityManager->GetComponent<SpiritRendererComponent>(playerEntityID_);
             if (spiritRendererComponent != nullptr)
             {
                 float horizontalInput = playerComponent->GetHorizontalInput();

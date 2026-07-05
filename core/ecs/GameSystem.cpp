@@ -30,6 +30,8 @@
 
 void glimmer::GameSystem::OnActivationChanged(const bool activeStatus)
 {
+    //Here, events related to the disabling or enabling of the system are handled.
+    //在这里处理系统被禁用或启用的事件。
 }
 
 void glimmer::GameSystem::AddActiveWatchComponent(GameComponentTypeMessage gameComponentType)
@@ -64,6 +66,21 @@ void glimmer::GameSystem::WatchComponent(const GameComponentTypeMessage gameComp
     OnWatchedComponentChanged(gameComponentType, entityManager_->GetComponentCount(gameComponentType));
 }
 
+glimmer::WorldContext* glimmer::GameSystem::GetWorldContext() const
+{
+    return worldContext_;
+}
+
+glimmer::EntityManager* glimmer::GameSystem::GetEntityManager() const
+{
+    return entityManager_;
+}
+
+glimmer::EntityShortCut* glimmer::GameSystem::GetEntityShortCut() const
+{
+    return entityShortCut_;
+}
+
 void glimmer::GameSystem::LockWatchComponent()
 {
     lockWatchComponents_ = true;
@@ -71,6 +88,8 @@ void glimmer::GameSystem::LockWatchComponent()
 
 void glimmer::GameSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    //You could consider updating the values of the member variables here.
+    //可以考虑在这里将更新成员变量的值。
 }
 
 
@@ -114,10 +133,14 @@ bool glimmer::GameSystem::HandleEvent(const SDL_Event& event)
 
 void glimmer::GameSystem::OnConfigChanged(const Config* config)
 {
+    //Rewrite this function to handle configuration changes.
+    //重写这个函数，处理配置变更。
 }
 
 void glimmer::GameSystem::OnWindowSizeChanged(const int& width, const int& height)
 {
+    //Rewrite this function so that it performs certain actions when the window size changes.
+    //重写这个函数，以便在窗口尺寸发生改变时，做些什么。
 }
 
 bool glimmer::GameSystem::OnBackPressed()
@@ -127,9 +150,11 @@ bool glimmer::GameSystem::OnBackPressed()
 
 void glimmer::GameSystem::OnFrameStart()
 {
+    //Carry out the preparatory work before processing each frame.
+    //处理每帧开始前的工作。
 }
 
-void glimmer::GameSystem::Update(float delta)
+void glimmer::GameSystem::Update(const float delta)
 {
 #if  !defined(NDEBUG)
     if (!initSubclassFinish_)
@@ -151,8 +176,12 @@ uint8_t glimmer::GameSystem::GetRenderOrder()
 
 void glimmer::GameSystem::RenderImGui(SDL_Renderer* renderer)
 {
+    //Render the ImGui components within this method.
+    //渲染Imgui组件在这个方法内。
 }
 
 void glimmer::GameSystem::Render(SDL_Renderer* renderer)
 {
+    //Here, it is drawn using SDL.
+    //在这里使用SDL绘制。
 }

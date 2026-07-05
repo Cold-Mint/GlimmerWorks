@@ -45,6 +45,9 @@ namespace glimmer
 
         bool lockWatchComponents_ = false;
         bool initSubclassFinish_ = false;
+        WorldContext* worldContext_ = nullptr;
+        EntityManager* entityManager_ = nullptr;
+        EntityShortCut* entityShortCut_ = nullptr;
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
 #endif
@@ -52,10 +55,12 @@ namespace glimmer
     protected:
         void WatchComponent(GameComponentTypeMessage gameComponentType);
 
+        [[nodiscard]] WorldContext* GetWorldContext() const;
 
-        WorldContext* worldContext_;
-        EntityManager* entityManager_;
-        EntityShortCut* entityShortCut_;
+        [[nodiscard]] EntityManager* GetEntityManager() const;
+
+        [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
+
         /**
         * Initialize the system after construction.
         * 在构造完成后初始化系统。

@@ -69,7 +69,8 @@ namespace glimmer {
     }
 
     bool AndroidControlSystem::HandleEvent(const SDL_Event &event) {
-        AppContext *appContext = worldContext_->GetAppContext();
+        const WorldContext* worldContext = GetWorldContext();
+        const AppContext *appContext = worldContext->GetAppContext();
         if (appContext == nullptr) {
             return false;
         }
@@ -154,7 +155,8 @@ namespace glimmer {
         if (renderer == nullptr) {
             return;
         }
-        AppContext *appContext = worldContext_->GetAppContext();
+        const WorldContext* worldContext = GetWorldContext();
+        const AppContext *appContext = worldContext->GetAppContext();
         if (appContext == nullptr) {
             return;
         }

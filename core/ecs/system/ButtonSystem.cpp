@@ -33,7 +33,8 @@ glimmer::ButtonSystem::ButtonSystem(WorldContext* worldContext)
     : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_BUTTON);
-    AppContext* appContext = worldContext->GetAppContext();
+    const WorldContext* worldContextPtr = GetWorldContext();
+    const AppContext* appContext = worldContextPtr->GetAppContext();
     if (appContext == nullptr)
     {
         return;
@@ -61,10 +62,11 @@ glimmer::ButtonSystem::ButtonSystem(WorldContext* worldContext)
 
 void glimmer::ButtonSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_BUTTON)
     {
         buttonComponents_.clear();
-        const std::vector<GameEntityID> buttonEntityVector = entityManager_->GetEntityIDWithComponents({
+        const std::vector<GameEntityID> buttonEntityVector = entityManager->GetEntityIDWithComponents({
             COMPONENT_BUTTON
         });
         if (buttonEntityVector.empty())
@@ -73,7 +75,7 @@ void glimmer::ButtonSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
         }
         for (const GameEntityID buttonEntity : buttonEntityVector)
         {
-            auto buttonComponent = entityManager_->GetComponent<ButtonComponent>(buttonEntity);
+            auto buttonComponent = entityManager->GetComponent<ButtonComponent>(buttonEntity);
             if (buttonComponent == nullptr)
             {
                 continue;

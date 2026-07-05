@@ -72,13 +72,14 @@ void glimmer::DebugPanelSystem::RenderDebugText(SDL_Renderer* renderer, int wind
 
 void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer* renderer, float screenX, float screenY) const
 {
+    const WorldContext* worldContext = GetWorldContext();
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 255, 230, 0, 200);
 
-    SDL_FRect hLine = {0.0F, screenY, static_cast<float>(worldContext_->GetAppContext()->GetWindowWidth()), 1.0F};
+    SDL_FRect hLine = {0.0F, screenY, static_cast<float>(worldContext->GetAppContext()->GetWindowWidth()), 1.0F};
     SDL_RenderFillRect(renderer, &hLine);
 
-    SDL_FRect vLine = {screenX, 0.0F, 1.0F, static_cast<float>(worldContext_->GetAppContext()->GetWindowHeight())};
+    SDL_FRect vLine = {screenX, 0.0F, 1.0F, static_cast<float>(worldContext->GetAppContext()->GetWindowHeight())};
     SDL_RenderFillRect(renderer, &vLine);
 }
 
@@ -137,22 +138,24 @@ bool glimmer::DebugPanelSystem::CanActive() const
 
 void glimmer::DebugPanelSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
     {
-        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
     if (gameComponentType == COMPONENT_TILE_LAYER)
     {
         tileLayerComponents_.clear();
-        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
         std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
         for (GameEntityID tileLayerEntity : tileLayerEntities)
         {
-            auto tileLayerComponent = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntity);
+            auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(tileLayerEntity);
             if (tileLayerComponent == nullptr)
             {
                 continue;
@@ -168,7 +171,8 @@ glimmer::DebugPanelSystem::DebugPanelSystem(WorldContext* worldContext) : GameSy
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_TILE_LAYER);
-    appContext_ = worldContext_->GetAppContext();
+    WorldContext* worldContextPtr = GetWorldContext();
+    appContext_ = worldContextPtr->GetAppContext();
     preloadColors_ = appContext_->GetPreloadColors();
     langsResources_ = appContext_->GetLangsResources();
     resourcePackManager_ = appContext_->GetResourcePackManager();
@@ -191,6 +195,7 @@ void glimmer::DebugPanelSystem::OnActivationChanged(bool activeStatus)
 
 void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
 {
+    WorldContext* worldContext = GetWorldContext();
     if (cameraComponent_ == nullptr || cameraTransform2DComponent_ == nullptr || appContext_ == nullptr ||
         tileLayerComponents_.empty())
     {
@@ -211,7 +216,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     }
     int windowHeight = appContext_->GetWindowHeight();
     int windowWidth = appContext_->GetWindowWidth();
-    ChunkGenerator* chunkGenerator = worldContext_->GetChunkGenerator();
+    ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
     constexpr float lineSpacing = 20.0F;
     float totalLines = 1.0F + static_cast<float>(tileLayerComponents_.size());
     float totalTextHeight = totalLines * lineSpacing;
@@ -266,8 +271,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
         yOffset += lineSpacing;
     }
-    const Color* finalLightColor = worldContext_->GetLightingBuffer()->GetFinalLightColor(tileCoord);
-    if (finalLightColor == nullptr)
+    if (const Color* finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord); finalLightColor == nullptr)
     {
         std::string totalLight = fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->totalLight),
@@ -290,11 +294,11 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
 
     // Draw Chunk Grid in Bottom-Left
     // 在左下角绘制区块网格
-    const auto chunksPtr = *worldContext_->GetAllChunks();
+    const auto chunksPtr = *worldContext->GetAllChunks();
     int playerTileX = static_cast<int>(std::floor(mousePosition_.x / TILE_SIZE));
     int playerTileY = static_cast<int>(std::floor(mousePosition_.y / TILE_SIZE));
 
-    auto getChunkIndex = [](int tileCoord)
+    auto getChunkIndex = [](const int tileCoord)
     {
         return static_cast<int>(std::floor(static_cast<float>(tileCoord) / CHUNK_SIZE));
     };
@@ -397,10 +401,6 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
 
 bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event& event)
 {
-    if (worldContext_ == nullptr)
-    {
-        return false;
-    }
     if (cameraComponent_ == nullptr)
     {
         return false;

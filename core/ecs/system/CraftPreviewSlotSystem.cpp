@@ -49,12 +49,13 @@ glimmer::CraftPreviewSlotSystem::CraftPreviewSlotSystem(WorldContext* worldConte
 void glimmer::CraftPreviewSlotSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
                                                                 uint32_t count)
 {
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_CRAFT_PREVIEW)
     {
-        auto entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_CRAFT_PREVIEW});
+        auto entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_CRAFT_PREVIEW});
         for (auto entity : entities_)
         {
-            auto craftPreviewSlotComponent = entityManager_->GetComponent<CraftPreviewSlotComponent>(entity);
+            auto craftPreviewSlotComponent = entityManager->GetComponent<CraftPreviewSlotComponent>(entity);
             if (craftPreviewSlotComponent == nullptr)
             {
                 continue;
@@ -71,7 +72,9 @@ void glimmer::CraftPreviewSlotSystem::OnConfigChanged(const Config* config)
 
 void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
 {
-    if (worldContext_ == nullptr || preloadColors_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    if (worldContext == nullptr || preloadColors_ == nullptr)
     {
         return;
     }
@@ -173,8 +176,6 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
             float textW = static_cast<float>(itemRect.w) * 0.5F;
             if (amount < 10)
             {
-                //Reduce the single number by half again
-                //单个数字再减少一半
                 textW = textW * 0.5F;
             }
             const float textH = static_cast<float>(itemRect.h) * 0.5F;
@@ -186,10 +187,10 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
             SDL_RenderTexture(renderer, amountTexture, nullptr, &dst);
         }
     }
-    if (entityShortCut_ != nullptr)
+    if (entityShortCut != nullptr)
     {
         ItemToolTipComponent* itemToolTipComponent =
-            entityShortCut_->GetItemToolTipComponent();
+            entityShortCut->GetItemToolTipComponent();
         if (itemToolTipComponent != nullptr)
         {
             itemToolTipComponent->SetItem(hoveredItem);
@@ -201,14 +202,16 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
 
 bool glimmer::CraftPreviewSlotSystem::HandleEvent(const SDL_Event& event)
 {
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+    WorldContext* worldContext = GetWorldContext();
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT)
     {
         if (hoveredCraftPreviewSlotComponent_ == nullptr)
         {
             return false;
         }
-        entityShortCut_->SetSelectedCraftPreviewSlotComponent(hoveredCraftPreviewSlotComponent_);
-        worldContext_->PushGuiSystemType(GameSystemType::MaterialSelectCraftUISystem);
+        entityShortCut->SetSelectedCraftPreviewSlotComponent(hoveredCraftPreviewSlotComponent_);
+        worldContext->PushGuiSystemType(GameSystemType::MaterialSelectCraftUISystem);
         return true;
     }
     return false;

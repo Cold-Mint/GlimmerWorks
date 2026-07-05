@@ -35,7 +35,8 @@
 glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* worldContext)
     : GUISystem(worldContext)
 {
-    appContext_ = worldContext_->GetAppContext();
+    WorldContext* worldContextPtr = GetWorldContext();
+    appContext_ = worldContextPtr->GetAppContext();
     if (appContext_ == nullptr)
     {
         return;
@@ -50,25 +51,29 @@ glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* 
 
 void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus)
 {
+    WorldContext* worldContext = GetWorldContext();
+    EntityManager* entityManager = GetEntityManager();
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+
     if (activeStatus)
     {
-        const CraftPreviewSlotComponent* slotComponent = entityShortCut_->GetSelectedCraftPreviewSlotComponent();
+        const CraftPreviewSlotComponent* slotComponent = entityShortCut->GetSelectedCraftPreviewSlotComponent();
         if (slotComponent == nullptr)
         {
-            worldContext_->PopGuiSystemType();
+            worldContext->PopGuiSystemType();
             return;
         }
         RecipeResource* recipeResource = slotComponent->GetRecipeResource();
         if (recipeResource == nullptr)
         {
-            worldContext_->PopGuiSystemType();
+            worldContext->PopGuiSystemType();
             return;
         }
         recipeResource_ = recipeResource;
         const size_t inputResourceSize = recipeResource_->input.size();
         if (inputResourceSize == 0)
         {
-            worldContext_->PopGuiSystemType();
+            worldContext->PopGuiSystemType();
         }
         std::vector<RequiredTag>& input = recipeResource_->input;
         tagRuntimeDataMap_.clear();
@@ -104,16 +109,16 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
         }
         //Filter out all the items that have the labels required for this recipe synthesis.
         //筛选所有的带有此配方合成需要的标签的物品。
-        ItemContainerComponent* itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+        ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
         if (itemContainerComponent == nullptr)
         {
-            worldContext_->PopGuiSystemType();
+            worldContext->PopGuiSystemType();
             return;
         }
         ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
         if (itemContainer == nullptr)
         {
-            worldContext_->PopGuiSystemType();
+            worldContext->PopGuiSystemType();
             return;
         }
         uint8_t capacity = itemContainer->GetCapacity();
@@ -231,8 +236,8 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             }
             else
             {
-                itemSlotQuantityComponent = entityManager_->AddComponent<
-                    ItemSlotQuantityComponent>(entityManager_->AddEntity());
+                itemSlotQuantityComponent = entityManager->AddComponent<
+                    ItemSlotQuantityComponent>(entityManager->AddEntity());
                 itemSlotQuantityComponent->SetOnSelectQuantityChanged(
                     [this](uint8_t slotIndex, Item* item, uint8_t selectQuantity)
                     {
@@ -323,7 +328,7 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
             }
             if (itemSlotQuantityComponent == nullptr)
             {
-                worldContext_->PopGuiSystemType();
+                worldContext->PopGuiSystemType();
                 return;
             }
             itemSlotQuantityComponent->Show();
@@ -342,24 +347,23 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
 
         if (buttonComponent_ == nullptr)
         {
-            buttonComponent_ = entityManager_->AddComponent<ButtonComponent>(entityManager_->AddEntity());
+            buttonComponent_ = entityManager->AddComponent<ButtonComponent>(entityManager->AddEntity());
             buttonComponent_->SetText(appContext_, langsResources_->craft);
             buttonComponent_->SetClickCallback([this]
             {
-                //Carry out synthesis
-                //进行合成
-                //Deduct the items
-                //扣除物品
-                ItemContainerComponent* itemContainerComponent = entityShortCut_->GetItemContainerComponent();
+                WorldContext* worldContext = GetWorldContext();
+                EntityShortCut* entityShortCut = GetEntityShortCut();
+
+                ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
                 if (itemContainerComponent == nullptr)
                 {
-                    worldContext_->PopGuiSystemType();
+                    worldContext->PopGuiSystemType();
                     return;
                 }
                 ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
                 if (itemContainer == nullptr)
                 {
-                    worldContext_->PopGuiSystemType();
+                    worldContext->PopGuiSystemType();
                     return;
                 }
                 for (auto& selectedItem : selectedItemVector_)
@@ -372,13 +376,11 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
                         LogCat::w("Failed to remove the item. At ", selectedItem->GetSlotIndex());
                     }
                 }
-                //Give the player items
-                //给予玩家物品
                 if (resourceLocator_ == nullptr)
                 {
                     return;
                 }
-                std::unique_ptr<Item> outputItem = resourceLocator_->FindItem(worldContext_, recipeResource_->output);
+                std::unique_ptr<Item> outputItem = resourceLocator_->FindItem(worldContext, recipeResource_->output);
                 if (outputItem != nullptr)
                 {
                     std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(outputItem));
@@ -387,7 +389,7 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
                         LogCat::w("Failed to add the item. ");
                     }
                 }
-                worldContext_->PopGuiSystemType();
+                worldContext->PopGuiSystemType();
             });
         }
         buttonComponent_->Disable();

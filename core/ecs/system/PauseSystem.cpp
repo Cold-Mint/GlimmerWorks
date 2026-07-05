@@ -44,14 +44,15 @@ uint8_t glimmer::PauseSystem::GetRenderOrder()
 
 void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
 {
-    if (worldContext_->IsRuning())
+    WorldContext* worldContext = GetWorldContext();
+
+    if (worldContext->IsRuning())
     {
         return;
     }
 
     ImGuiIO& io = ImGui::GetIO();
 
-    // 让窗口居中
     ImVec2 windowSize(300.0F, 200.0F);
     ImVec2 windowPos(
         (io.DisplaySize.x - windowSize.x) * 0.5F,
@@ -67,10 +68,9 @@ void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
         ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoTitleBar;
 
-    AppContext* appContext = worldContext_->GetAppContext();
+    AppContext* appContext = worldContext->GetAppContext();
     if (ImGui::Begin("PauseMenu", nullptr, flags))
     {
-        // 居中标题
         const char* title = appContext->GetLangsResources()->pause.c_str();
         ImVec2 textSize = ImGui::CalcTextSize(title);
         ImGui::SetCursorPosX((windowSize.x - textSize.x) * 0.5F);
@@ -81,13 +81,12 @@ void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
         ImGui::Separator();
         ImGui::Spacing();
 
-        // 按钮宽度统一
         float buttonWidth = 200.0F;
         ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
 
         if (ImGui::Button(appContext->GetLangsResources()->restore.c_str(), ImVec2(buttonWidth, 0)))
         {
-            worldContext_->SetRuning(true);
+            worldContext->SetRuning(true);
         }
 
         ImGui::Spacing();
@@ -95,7 +94,7 @@ void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
 
         if (ImGui::Button(appContext->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0)))
         {
-            worldContext_->SaveGame();
+            worldContext->SaveGame();
             appContext->SetRandomSlogan();
             appContext->PlayMainMenuBGM();
             appContext->GetSceneManager()->PopScene();
@@ -107,7 +106,8 @@ void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
 
 bool glimmer::PauseSystem::OnBackPressed()
 {
-    worldContext_->SetRuning(!worldContext_->IsRuning());
+    WorldContext* worldContext = GetWorldContext();
+    worldContext->SetRuning(!worldContext->IsRuning());
     return true;
 }
 

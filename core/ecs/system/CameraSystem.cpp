@@ -31,10 +31,12 @@
 
 void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    const WorldContext* worldContext = GetWorldContext();
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
-        const AppContext* appContext = worldContext_->GetAppContext();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
+        const AppContext* appContext = worldContext->GetAppContext();
         if (appContext == nullptr)
         {
             return;

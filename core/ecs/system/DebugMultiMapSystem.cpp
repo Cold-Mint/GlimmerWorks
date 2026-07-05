@@ -44,10 +44,11 @@ glimmer::GameSystemType glimmer::DebugMultiMapSystem::GetGameSystemType() const
     return GameSystemType::DebugMultiMapSystem;
 }
 
-glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D tile) const
+glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2D& tile) const
 {
-    Color color = Color(0, 0, 0, 0);
-    const AppContext* appContext = worldContext_->GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    auto color = Color(0, 0, 0, 0);
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return color;
@@ -59,7 +60,7 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     }
     auto debugColor = appContext->GetPreloadColors()->debugColor;
     float elevation = ChunkGenerator::GetElevation(tile.x);
-    ChunkGenerator* chunkGenerator = worldContext_->GetChunkGenerator();
+    ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
     std::vector<Color> activeColors;
 
     if (config->debug.displayElevationMap)
@@ -101,13 +102,15 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
 
 void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+
     if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
     {
-        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
 }
 
@@ -118,11 +121,12 @@ uint8_t glimmer::DebugMultiMapSystem::GetRenderOrder()
 
 void glimmer::DebugMultiMapSystem::Render(SDL_Renderer* renderer)
 {
-    if (worldContext_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return;
     }
-    const AppContext* appContext = worldContext_->GetAppContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;

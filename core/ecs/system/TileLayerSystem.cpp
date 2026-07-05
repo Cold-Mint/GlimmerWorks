@@ -38,22 +38,24 @@
 
 void glimmer::TileLayerSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
     {
-        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
     if (gameComponentType == COMPONENT_TILE_LAYER)
     {
         tileLayerComponents_.clear();
-        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
         std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
         for (auto& entity : tileLayerEntities)
         {
-            auto* tileLayerComponent = entityManager_->GetComponent<TileLayerComponent>(entity);
+            auto* tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(entity);
             if (tileLayerComponent == nullptr)
             {
                 continue;
@@ -74,7 +76,8 @@ glimmer::TileLayerSystem::TileLayerSystem(WorldContext* worldContext)
 
 void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
 {
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return;
     }
@@ -91,7 +94,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
         return;
     }
     TileLayerComponent* tileLayerComponent = tileLayerComponents_.front();
-    const AppContext* appContext = worldContext_->GetAppContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
@@ -114,7 +117,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
     std::unordered_set<uint64_t> drawnTiles = {};
     for (auto& [tileCoord, tileList] : *visibleTiles)
     {
-        const Chunk* chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileCoord));
+        const Chunk* chunk = worldContext->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileCoord));
         Uint8 alpha = 255;
         if (chunk != nullptr)
         {
@@ -157,7 +160,7 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
             renderQuad.h = height;
             renderQuad.x = tileTopLeftCamera.x - renderQuad.w * 0.5F;
             renderQuad.y = tileTopLeftCamera.y - renderQuad.h * 0.5F;
-            const Color* finalLightColor = worldContext_->GetLightingBuffer()->GetFinalLightColor(tileCoord);
+            const Color* finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
 #if  defined(NDEBUG)
             if (finalLightColor == nullptr)
             {
@@ -206,7 +209,8 @@ uint8_t glimmer::TileLayerSystem::GetRenderOrder()
 
 bool glimmer::TileLayerSystem::HandleEvent(const SDL_Event& event)
 {
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return false;
     }

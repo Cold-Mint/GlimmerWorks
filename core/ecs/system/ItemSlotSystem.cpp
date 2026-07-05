@@ -38,7 +38,9 @@
 
 void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
 {
-    if (worldContext_ == nullptr || preloadColors_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    if (worldContext == nullptr || preloadColors_ == nullptr)
     {
         return;
     }
@@ -203,10 +205,10 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
             SDL_RenderTexture(renderer, amountTexture, nullptr, &dst);
         }
     }
-    if (entityShortCut_ != nullptr)
+    if (entityShortCut != nullptr)
     {
         ItemToolTipComponent* itemToolTipComponent =
-            entityShortCut_->GetItemToolTipComponent();
+            entityShortCut->GetItemToolTipComponent();
         if (itemToolTipComponent != nullptr)
         {
             itemToolTipComponent->SetItem(hoveredItem);
@@ -229,16 +231,18 @@ glimmer::GameSystemType glimmer::ItemSlotSystem::GetGameSystemType() const
 
 void glimmer::ItemSlotSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_HOT_BAR && hotBarComponent_ == nullptr)
     {
-        hotBarComponent_ = entityShortCut_->GetHotBarComponent();
+        hotBarComponent_ = entityShortCut->GetHotBarComponent();
     }
     if (gameComponentType == COMPONENT_ITEM_SLOT)
     {
-        auto entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT});
+        auto entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT});
         for (auto entity : entities_)
         {
-            auto itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            auto itemSlotComponent = entityManager->GetComponent<ItemSlotComponent>(entity);
             if (itemSlotComponent == nullptr)
             {
                 continue;

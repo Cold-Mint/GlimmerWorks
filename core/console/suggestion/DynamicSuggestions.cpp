@@ -26,5 +26,4 @@
  */
 #include "DynamicSuggestions.h"
 
-glimmer::DynamicSuggestions::~DynamicSuggestions() {
-}
+glimmer::DynamicSuggestions::~DynamicSuggestions() = default;

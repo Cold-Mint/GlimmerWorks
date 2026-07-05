@@ -39,11 +39,14 @@ glimmer::ParallaxBackgroundSystem::ParallaxBackgroundSystem(WorldContext* worldC
 
 void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer* renderer)
 {
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+
+    if (worldContext == nullptr)
     {
         return;
     }
-    const AppContext* appContext = worldContext_->GetAppContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
@@ -53,7 +56,7 @@ void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    ParallaxBackgroundComponent* parallaxBackgroundComponent = entityShortCut_->GetParallaxBackgroundComponent();
+    ParallaxBackgroundComponent* parallaxBackgroundComponent = entityShortCut->GetParallaxBackgroundComponent();
     if (parallaxBackgroundComponent == nullptr)
     {
         return;

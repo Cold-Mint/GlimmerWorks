@@ -55,7 +55,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext
     {
         return 0;
     }
-    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
         return 0;
@@ -207,26 +207,28 @@ uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext
 
 void glimmer::DiggingSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_DIGGING && diggingComponent_ == nullptr)
     {
-        diggingComponent_ = entityShortCut_->GetDiggingComponent();
+        diggingComponent_ = entityShortCut->GetDiggingComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
     {
-        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TILE_LAYER)
     {
         tileLayerComponents_.clear();
-        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
         std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
         for (GameEntityID tileLayerEntity : tileLayerEntities)
         {
-            const auto* tileLayer = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntity);
+            const auto* tileLayer = entityManager->GetComponent<TileLayerComponent>(tileLayerEntity);
             if (tileLayer == nullptr)
             {
                 continue;
@@ -245,9 +247,10 @@ glimmer::DiggingSystem::DiggingSystem(WorldContext* worldContext) : GameSystem(w
     Init();
 }
 
-void glimmer::DiggingSystem::Update(float delta)
+void glimmer::DiggingSystem::Update(const float delta)
 {
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return;
     }
@@ -282,7 +285,7 @@ void glimmer::DiggingSystem::Update(float delta)
                     {
                         continue;
                     }
-                    BreakTile(BreakSource::PlayerMining, worldContext_, tileLayer, point->GetTileTopLeftPosition(),
+                    BreakTile(BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
                               diggingComponent_->IsPrecisionMining(), false, point->GetWidth(),
                               point->GetHeight(),
                               TileResourceManager::GetAirResourceRef(tileLayerType));
@@ -299,7 +302,8 @@ void glimmer::DiggingSystem::Update(float delta)
 
 void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
 {
-    AppContext* appContext = worldContext_->GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (!cacheTexture_)
     {
         for (uint8_t i = 0; i < 10; i++)

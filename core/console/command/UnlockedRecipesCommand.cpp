@@ -37,10 +37,6 @@
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 
-void glimmer::UnlockedRecipesCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-}
-
 void glimmer::UnlockedRecipesCommand::WriteRecipe(const std::string& recipesItem, std::stringstream& stringStream,
                                                   const RecipeResource* recipe)
 {

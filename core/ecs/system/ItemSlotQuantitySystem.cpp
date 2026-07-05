@@ -57,7 +57,9 @@ void glimmer::ItemSlotQuantitySystem::OnConfigChanged(const Config* config)
 
 void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
 {
-    if (worldContext_ == nullptr || preloadColors_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    if (worldContext == nullptr || preloadColors_ == nullptr)
     {
         return;
     }
@@ -206,10 +208,10 @@ void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
         };
         SDL_RenderTexture(renderer, selectQuantityTexture, nullptr, &dst);
     }
-    if (entityShortCut_ != nullptr)
+    if (entityShortCut != nullptr)
     {
         ItemToolTipComponent* itemToolTipComponent =
-            entityShortCut_->GetItemToolTipComponent();
+            entityShortCut->GetItemToolTipComponent();
         if (itemToolTipComponent != nullptr)
         {
             itemToolTipComponent->SetItem(hoveredItem);
@@ -222,12 +224,13 @@ void glimmer::ItemSlotQuantitySystem::Render(SDL_Renderer* renderer)
 void glimmer::ItemSlotQuantitySystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
                                                                 uint32_t count)
 {
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_ITEM_SLOT_QUANTITY)
     {
-        auto entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT_QUANTITY});
+        auto entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT_QUANTITY});
         for (auto entity : entities_)
         {
-            auto itemSlotQuantityComponent = entityManager_->GetComponent<ItemSlotQuantityComponent>(entity);
+            auto itemSlotQuantityComponent = entityManager->GetComponent<ItemSlotQuantityComponent>(entity);
             if (itemSlotQuantityComponent == nullptr)
             {
                 continue;

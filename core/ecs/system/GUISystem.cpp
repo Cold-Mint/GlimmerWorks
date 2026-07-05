@@ -35,9 +35,10 @@ glimmer::GUISystem::GUISystem(WorldContext* worldContext)
 
 bool glimmer::GUISystem::CanActive() const
 {
-    if (worldContext_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return false;
     }
-    return GetGameSystemType() == worldContext_->GetGuiSystemType();
+    return GetGameSystemType() == worldContext->GetGuiSystemType();
 }

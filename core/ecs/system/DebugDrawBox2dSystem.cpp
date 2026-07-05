@@ -40,17 +40,19 @@
 void glimmer::DebugDrawBox2dSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
                                                               uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    const EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
     {
-        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
     if (gameComponentType == COMPONENT_RAY_CAST_2D)
     {
-        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_RAY_CAST_2D});
+        entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_RAY_CAST_2D});
     }
 }
 
@@ -628,7 +630,9 @@ bool glimmer::DebugDrawBox2dSystem::CanActive() const
 
 void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
 {
-    if (entityManager_ == nullptr)
+    EntityManager* entityManager = GetEntityManager();
+    WorldContext* worldContext = GetWorldContext();
+    if (entityManager == nullptr)
     {
         return;
     }
@@ -640,7 +644,7 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    auto box2dSystemContext = Box2dSystemContext(worldContext_, renderer);
+    auto box2dSystemContext = Box2dSystemContext(worldContext, renderer);
     b2DebugDraw debugDraw = b2DefaultDebugDraw();
     debugDraw.DrawPolygonFcn = b2DrawPolygonFcn;
     debugDraw.DrawSolidPolygonFcn = b2DrawSolidPolygonFcn;
@@ -653,17 +657,17 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
     debugDraw.DrawStringFcn = b2DrawStringFcn;
     debugDraw.context = &box2dSystemContext;
     debugDraw.drawShapes = true;
-    b2World_Draw(worldContext_->GetWorldId(), &debugDraw);
+    b2World_Draw(worldContext->GetWorldId(), &debugDraw);
     for (const uint32_t entity : entities_)
     {
         const auto rayComp =
-            entityManager_->GetComponent<RayCast2DComponent>(entity);
+            entityManager->GetComponent<RayCast2DComponent>(entity);
         if (rayComp == nullptr)
         {
             continue;
         }
         const auto transform2dComponent =
-            entityManager_->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
+            entityManager->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
         if (transform2dComponent == nullptr)
         {
             continue;

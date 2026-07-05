@@ -38,7 +38,8 @@ glimmer::ItemToolTipSystem::ItemToolTipSystem(WorldContext* worldContext) : Game
     tooltipBgResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     tooltipBgResourceRef.SetResourceType(RESOURCE_TEXTURE);
     tooltipBgResourceRef.SetResourceKey("gui/tooltip_bg");
-    appContext_ = worldContext_->GetAppContext();
+    const WorldContext* worldCtx = GetWorldContext();
+    appContext_ = worldCtx->GetAppContext();
     if (appContext_ == nullptr)
     {
         return;
@@ -65,9 +66,10 @@ void glimmer::ItemToolTipSystem::OnFrameStart()
 
 void glimmer::ItemToolTipSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
     if (gameComponentType == COMPONENT_ITEM_TOOL_TIP && itemToolTipComponent_ == nullptr)
     {
-        itemToolTipComponent_ = entityShortCut_->GetItemToolTipComponent();
+        itemToolTipComponent_ = entityShortCut->GetItemToolTipComponent();
     }
 }
 

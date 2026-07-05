@@ -37,6 +37,7 @@
 
 void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_AUTO_PICK)
     {
         autoPickCount_ = count;
@@ -51,7 +52,7 @@ void glimmer::AutoPickSystem::OnWatchedComponentChanged(GameComponentTypeMessage
     }
     if (autoPickCount_ > 0 && magnetCount_ > 0 && itemContainerCount_ > 0)
     {
-        entities_ = entityManager_->GetEntityIDWithComponents({
+        entities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_MAGNET, COMPONENT_ITEM_CONTAINER
         });
     }
@@ -78,6 +79,8 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem
 
 void glimmer::AutoPickSystem::Update(const float delta)
 {
+    WorldContext* worldContext = GetWorldContext();
+    EntityManager* entityManager = GetEntityManager();
     if (audioManager_ == nullptr)
     {
         return;
@@ -96,29 +99,28 @@ void glimmer::AutoPickSystem::Update(const float delta)
                 }
             }
 
-            FlowingTextCreator flowingTextCreator(worldContext_, stringStream.str(), lastPosition);
-            flowingTextCreator.LoadTemplateComponents(entityManager_->AddEntity());
+            FlowingTextCreator flowingTextCreator(worldContext, stringStream.str(), lastPosition);
+            flowingTextCreator.LoadTemplateComponents(entityManager->AddEntity());
             frameItemCounts_.clear();
         }
         remainingTime_ = MERGE_DURATION;
     }
     remainingTime_ -= delta;
-    for (auto entity : entities_)
+    for (const auto entity : entities_)
     {
-        auto* magnetComponent = entityManager_->GetComponent<MagnetComponent>(entity);
-        auto* containerComponent = entityManager_->GetComponent<ItemContainerComponent>(
+        const auto* magnetComponent = entityManager->GetComponent<MagnetComponent>(entity);
+        const auto* containerComponent = entityManager->GetComponent<ItemContainerComponent>(
             entity);
-        auto& entities = magnetComponent->GetEntities();
-        for (uint32_t entityId : entities)
+        for (auto& entities = magnetComponent->GetEntities(); uint32_t entityId : entities)
         {
-            auto* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(entityId);
+            auto* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(entityId);
             if (transform2DComponent == nullptr)
             {
                 continue;
             }
             lastPosition = transform2DComponent->GetPosition();
 
-            auto* droppedItemComponent = entityManager_->GetComponent<DroppedItemComponent>(entityId);
+            auto* droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(entityId);
             if (droppedItemComponent == nullptr)
             {
                 continue;
@@ -142,7 +144,7 @@ void glimmer::AutoPickSystem::Update(const float delta)
                     audioManager_->TryPlayFree(AMBIENT, audio, 0);
                 }
             }
-            entityManager_->RemoveEntity(entityId);
+            entityManager->RemoveEntity(entityId);
         }
     }
 }

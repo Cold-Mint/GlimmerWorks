@@ -33,15 +33,17 @@
 void glimmer::SpiritRendererSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
                                                               uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D)
     {
         if (cameraTransform2DComponent_ == nullptr)
         {
-            cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+            cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
         }
         transformCount_ = count;
     }
@@ -52,7 +54,7 @@ void glimmer::SpiritRendererSystem::OnWatchedComponentChanged(GameComponentTypeM
     if (transformCount_ > 0 && spiritRendererComponentCount_ > 0)
     {
         spiritRendererEntities_.clear();
-        spiritRendererEntities_ = entityManager_->GetEntityIDWithComponents({
+        spiritRendererEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TRANSFORM_2D, COMPONENT_SPIRIT_RENDERER
         });
     }
@@ -68,11 +70,13 @@ glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext* worldContext) 
 
 void glimmer::SpiritRendererSystem::Render(SDL_Renderer* renderer)
 {
-    if (worldContext_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    EntityManager* entityManager = GetEntityManager();
+    if (worldContext == nullptr)
     {
         return;
     }
-    const AppContext* appContext = worldContext_->GetAppContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
@@ -93,13 +97,13 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer* renderer)
     float zoom = cameraComponent_->GetZoom();
     for (const uint32_t spiritRenderer : spiritRendererEntities_)
     {
-        auto spiritRendererComponent = entityManager_->GetComponent<SpiritRendererComponent>(
+        auto spiritRendererComponent = entityManager->GetComponent<SpiritRendererComponent>(
             spiritRenderer);
         if (spiritRendererComponent == nullptr)
         {
             continue;
         }
-        const Transform2DComponent* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(
+        const Transform2DComponent* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
             spiritRenderer);
         if (transform2DComponent == nullptr)
         {

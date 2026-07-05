@@ -35,6 +35,7 @@
 
 void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatch)
 {
+    WorldContext* worldContext = GetWorldContext();
     if (loadTerrainTasks_.empty())
     {
         return;
@@ -45,7 +46,7 @@ void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatc
         {
             auto task = std::move(loadTerrainTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
-            worldContext_->LoadTerrainAt(task->GetChunkVertexCoordinates());
+            worldContext->LoadTerrainAt(task->GetChunkVertexCoordinates());
             loadTerrainTasks_.pop_back();
         }
     }
@@ -59,7 +60,7 @@ void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatc
             }
             auto task = std::move(loadTerrainTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
-            worldContext_->LoadTerrainAt(task->GetChunkVertexCoordinates());
+            worldContext->LoadTerrainAt(task->GetChunkVertexCoordinates());
             loadTerrainTasks_.pop_back();
         }
     }
@@ -67,6 +68,7 @@ void glimmer::ChunkSystem::ExecuteLoadTerrainTask(const uint16_t loadTerrainBatc
 
 void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch)
 {
+    WorldContext* worldContext = GetWorldContext();
     if (loadChunkTasks_.empty())
     {
         return;
@@ -78,7 +80,7 @@ void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch)
         {
             auto task = std::move(loadChunkTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
-            worldContext_->LoadChunkAt(task->GetChunkVertexCoordinates());
+            worldContext->LoadChunkAt(task->GetChunkVertexCoordinates());
             loadChunkTasks_.pop_back();
         }
     }
@@ -92,7 +94,7 @@ void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch)
             }
             auto task = std::move(loadChunkTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
-            worldContext_->LoadChunkAt(task->GetChunkVertexCoordinates());
+            worldContext->LoadChunkAt(task->GetChunkVertexCoordinates());
             loadChunkTasks_.pop_back();
         }
     }
@@ -100,6 +102,7 @@ void glimmer::ChunkSystem::ExecuteLoadChunkTask(const uint16_t loadChunkBatch)
 
 void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatch)
 {
+    WorldContext* worldContext = GetWorldContext();
     if (unloadChunkTasks_.empty())
     {
         return;
@@ -110,7 +113,7 @@ void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatc
         {
             auto task = std::move(unloadChunkTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
-            worldContext_->UnloadChunkAt(task->GetChunkVertexCoordinates());
+            worldContext->UnloadChunkAt(task->GetChunkVertexCoordinates());
             unloadChunkTasks_.pop_back();
         }
     }
@@ -124,7 +127,7 @@ void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatc
             }
             auto task = std::move(unloadChunkTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
-            worldContext_->UnloadChunkAt(task->GetChunkVertexCoordinates());
+            worldContext->UnloadChunkAt(task->GetChunkVertexCoordinates());
             unloadChunkTasks_.pop_back();
         }
     }
@@ -132,6 +135,7 @@ void glimmer::ChunkSystem::ExecuteUnloadChunkTask(const uint16_t unloadChunkBatc
 
 void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrainBatch)
 {
+    WorldContext* worldContext = GetWorldContext();
     if (unloadTerrainTasks_.empty())
     {
         return;
@@ -142,7 +146,7 @@ void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrain
         {
             auto task = std::move(unloadTerrainTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
-            worldContext_->UnloadTerrainAt(task->GetChunkVertexCoordinates());
+            worldContext->UnloadTerrainAt(task->GetChunkVertexCoordinates());
             unloadTerrainTasks_.pop_back();
         }
     }
@@ -156,7 +160,7 @@ void glimmer::ChunkSystem::ExecuteUnloadTerrainTask(const uint16_t unloadTerrain
             }
             auto task = std::move(unloadTerrainTasks_.back());
             taskFingerprintSet_.erase(task->GetFingerprint());
-            worldContext_->UnloadTerrainAt(task->GetChunkVertexCoordinates());
+            worldContext->UnloadTerrainAt(task->GetChunkVertexCoordinates());
             unloadTerrainTasks_.pop_back();
         }
     }
@@ -186,13 +190,14 @@ void glimmer::ChunkSystem::SetOriginAndSort(std::vector<std::unique_ptr<ChunkTas
 
 void glimmer::ChunkSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t number)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
     if (gameComponentType == COMPONENT_CAMERA)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D)
     {
-        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
 }
 
@@ -206,7 +211,8 @@ glimmer::ChunkSystem::ChunkSystem(WorldContext* worldContext)
 
 void glimmer::ChunkSystem::Update(const float delta)
 {
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return;
     }
@@ -233,7 +239,7 @@ void glimmer::ChunkSystem::Update(const float delta)
     {
         for (int y = topLeft.y; y < bottomRight.y; y += CHUNK_SIZE)
         {
-            Chunk* chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(TileVector2D(x, y)));
+            Chunk* chunk = worldContext->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(TileVector2D(x, y)));
             if (chunk == nullptr)
             {
                 continue;
@@ -242,7 +248,7 @@ void glimmer::ChunkSystem::Update(const float delta)
         }
     }
 
-    const AppContext* appContext = worldContext_->GetAppContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
@@ -315,16 +321,12 @@ void glimmer::ChunkSystem::Update(const float delta)
     const float interval = config->world.chunkSpawnCleanInterval;
     if (interval == 0.0F)
     {
-        // Execute for each frame, reset the timer, and directly skip the subsequent judgment.
-        // 每帧都执行，重置计时器，直接跳过后续判断
         accumTime_ = 0.0F;
         firstTime_ = false;
     }
     else
     {
         accumTime_ += delta;
-        // Intervals greater than 0 are executed according to normal timing.
-        // 大于0的间隔，正常计时执行
         if (!firstTime_ && accumTime_ < interval)
         {
             return;
@@ -339,16 +341,12 @@ void glimmer::ChunkSystem::Update(const float delta)
     }
     cameraPosition_.x = cameraPosition.x;
     cameraPosition_.y = cameraPosition.y;
-    //Pre-calculated terrain range.
-    //预计算的地形范围。
     auto preloadedTerrainViewportRect = viewportRect;
     const float preloadStructureRadius = config->world.preloadStructureRadius;
     preloadedTerrainViewportRect.x -= preloadStructureRadius * chunkWorldSize;
     preloadedTerrainViewportRect.y -= preloadStructureRadius * chunkWorldSize;
     preloadedTerrainViewportRect.w += preloadStructureRadius * 2 * chunkWorldSize;
     preloadedTerrainViewportRect.h += preloadStructureRadius * 2 * chunkWorldSize;
-    //The complete range of pre-calculated blocks.
-    //预计算的完整区块范围。
     auto preloadedChunkViewportRect = viewportRect;
     const float preloadChunkRadius = config->world.preloadChunkRadius;
     preloadedChunkViewportRect.x -= preloadChunkRadius * chunkWorldSize;
@@ -364,8 +362,6 @@ void glimmer::ChunkSystem::Update(const float delta)
                       preloadedTerrainViewportRect.y + preloadedTerrainViewportRect.h));
     const TileVector2D startTerrain = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftTerrainCorner);
     const TileVector2D endTerrain = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightTerrainCorner);
-    //Pre-calculate the terrain
-    //预先计算地形
     for (int cy = startTerrain.y; cy < endTerrain.y; cy += CHUNK_SIZE)
     {
         for (int cx = startTerrain.x; cx < endTerrain.x; cx += CHUNK_SIZE)
@@ -392,13 +388,12 @@ void glimmer::ChunkSystem::Update(const float delta)
     const TileVector2D startChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftChunkCorner);
     const TileVector2D endChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightChunkCorner);
 
-    // 加载可见区块
     for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE)
     {
         for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE)
         {
             TileVector2D chunkVertexCoordinates(cx, cy);
-            if (!WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates) && !worldContext_->HasChunk(
+            if (!WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates) && !worldContext->HasChunk(
                 chunkVertexCoordinates))
             {
                 auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadChunk, chunkVertexCoordinates);
@@ -411,8 +406,7 @@ void glimmer::ChunkSystem::Update(const float delta)
         }
     }
 
-    // 卸载不可见区块
-    std::unordered_map<TileVector2D, Chunk*, Vector2DIHash>& allChunks = *worldContext_->
+    std::unordered_map<TileVector2D, Chunk*, Vector2DIHash>& allChunks = *worldContext->
         GetAllChunks();
     for (const
          auto& chunkVertexCoordinates : allChunks | std::views::keys)
@@ -432,7 +426,7 @@ void glimmer::ChunkSystem::Update(const float delta)
         }
     }
 
-    std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash>& terrain = *worldContext_->GetTerrainResults();
+    std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash>& terrain = *worldContext->GetTerrainResults();
     for (const
          auto& chunkVertexCoordinates : terrain | std::views::keys)
     {
@@ -451,8 +445,6 @@ void glimmer::ChunkSystem::Update(const float delta)
         }
     }
     const TileVector2D originPosition = CoordinateTransformer::WorldToTile(cameraPosition);
-    //It needs to be saved in the set in reverse order.
-    //需要反向保存在集合内。
     SetOriginAndSort(loadTerrainTasks_, originPosition, false);
     SetOriginAndSort(loadChunkTasks_, originPosition, false);
     SetOriginAndSort(unloadChunkTasks_, originPosition, true);

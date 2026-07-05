@@ -65,6 +65,8 @@ SDL_FRect glimmer::DraggableSystem::DraggableBorder(const ItemSlotComponent* ite
 
 bool glimmer::DraggableSystem::DropItem()
 {
+    const auto entityManager = GetEntityManager();
+    const auto worldContext = GetWorldContext();
     if (item_ == nullptr)
     {
         return false;
@@ -73,8 +75,8 @@ bool glimmer::DraggableSystem::DropItem()
     {
         return false;
     }
-    uint32_t droppedEntity = entityManager_->AddEntity();
-    DroppedItemCreator droppedItemCreator{worldContext_};
+    uint32_t droppedEntity = entityManager->AddEntity();
+    DroppedItemCreator droppedItemCreator{worldContext};
     droppedItemCreator.LoadTemplateComponents(droppedEntity,
                                               DroppedItemCreator::GetResourceRef());
     droppedItemCreator.MergeEntityItemMessage(droppedEntity,
@@ -89,15 +91,17 @@ bool glimmer::DraggableSystem::DropItem()
 
 void glimmer::DraggableSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D)
     {
         if (cameraTransform2D_ == nullptr)
         {
-            cameraTransform2D_ = entityShortCut_->GetCameraTransform2DComponent();
+            cameraTransform2D_ = entityShortCut->GetCameraTransform2DComponent();
         }
 #if  !defined(NDEBUG)
         transform2DCount_ = count;
@@ -114,12 +118,12 @@ void glimmer::DraggableSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 #if  defined(NDEBUG)
     if (draggableCount_ > 0 && itemSlotCount_ > 0)
     {
-        std::vector<GameEntityID> entities_ = entityManager_->GetEntityIDWithComponents({
+        std::vector<GameEntityID> entities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_DRAGGABLE, COMPONENT_ITEM_SLOT
         });
         for (GameEntityID entity : entities_)
         {
-            ItemSlotComponent* itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            ItemSlotComponent* itemSlotComponent = entityManager->GetComponent<ItemSlotComponent>(entity);
             if (itemSlotComponent == nullptr)
             {
                 continue;
@@ -130,12 +134,12 @@ void glimmer::DraggableSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 #else
     if (draggableCount_ > 0 && itemSlotCount_ > 0 && transform2DCount_ > 0)
     {
-        std::vector<GameEntityID> entities_ = entityManager_->GetEntityIDWithComponents({
+        std::vector<GameEntityID> entities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_DRAGGABLE, COMPONENT_ITEM_SLOT, COMPONENT_TRANSFORM_2D
         });
         for (GameEntityID entity : entities_)
         {
-            ItemSlotComponent* itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            ItemSlotComponent* itemSlotComponent = entityManager->GetComponent<ItemSlotComponent>(entity);
             if (itemSlotComponent == nullptr)
             {
                 continue;
@@ -170,7 +174,8 @@ uint8_t glimmer::DraggableSystem::GetRenderOrder()
 
 void glimmer::DraggableSystem::Render(SDL_Renderer* renderer)
 {
-    const AppContext* appContext = worldContext_->GetAppContext();
+    const WorldContext* worldContext = GetWorldContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
@@ -225,7 +230,8 @@ void glimmer::DraggableSystem::Render(SDL_Renderer* renderer)
 
 bool glimmer::DraggableSystem::HandleEvent(const SDL_Event& event)
 {
-    if (worldContext_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return false;
     }

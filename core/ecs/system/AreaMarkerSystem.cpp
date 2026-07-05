@@ -34,17 +34,18 @@
 
 void glimmer::AreaMarkerSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
     {
-        cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+        cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
     if (gameComponentType == COMPONENT_AREA_MARKER && areaMarkerComponent_ == nullptr)
     {
-        areaMarkerComponent_ = entityShortCut_->GetAreaMarkerComponent();
+        areaMarkerComponent_ = entityShortCut->GetAreaMarkerComponent();
     }
 }
 
@@ -53,7 +54,8 @@ glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext* worldContext) : GameSy
     WatchComponent(COMPONENT_AREA_MARKER);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
-    appContext_ = worldContext->GetAppContext();
+    const WorldContext* worldContextPtr = GetWorldContext();
+    appContext_ = worldContextPtr->GetAppContext();
     resourcePackManager_ = appContext_->GetResourcePackManager();
     preloadColors_ = appContext_->GetPreloadColors();
     Init();

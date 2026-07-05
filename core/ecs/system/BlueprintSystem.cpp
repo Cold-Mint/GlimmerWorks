@@ -108,33 +108,35 @@ std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Til
 
 void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    EntityManager* entityManager = GetEntityManager();
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
     if (gameComponentType == COMPONENT_TILE_LAYER)
     {
-        auto tileLayerEntities = entityManager_->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
+        auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
         if (!tileLayerEntities.empty())
         {
-            tileLayerComponent_ = entityManager_->GetComponent<TileLayerComponent>(tileLayerEntities[0]);
+            tileLayerComponent_ = entityManager->GetComponent<TileLayerComponent>(tileLayerEntities[0]);
         }
     }
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D)
     {
         if (cameraTransform2DComponent_ == nullptr)
         {
-            cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+            cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
         }
         transform2DCount_ = count;
     }
     if (gameComponentType == COMPONENT_BLUEPRINT && blueprintComponent_ == nullptr)
     {
-        blueprintComponent_ = entityShortCut_->GetBlueprintComponent();
+        blueprintComponent_ = entityShortCut->GetBlueprintComponent();
     }
     if (gameComponentType == COMPONENT_PLAYER && WorldContext::IsEmptyEntityId(player))
     {
-        player = entityShortCut_->GetPlayer();
+        player = entityShortCut->GetPlayer();
     }
     if (gameComponentType == COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE)
     {
@@ -142,7 +144,7 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     }
     if (transform2DCount_ > 0 && tilePlacementForbiddenZoneCount_ > 0)
     {
-        entities_ = entityManager_->GetEntityIDWithComponents({
+        entities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE, COMPONENT_TRANSFORM_2D
         });
     }
@@ -167,7 +169,9 @@ uint8_t glimmer::BlueprintSystem::GetRenderOrder()
 
 void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
 {
-    if (worldContext_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    EntityManager* entityManager = GetEntityManager();
+    if (worldContext == nullptr)
     {
         return;
     }
@@ -197,12 +201,12 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     {
         for (uint32_t entity : entities_)
         {
-            auto transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(entity);
+            auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(entity);
             if (transform2DComponent == nullptr)
             {
                 continue;
             }
-            auto tilePlacementForbiddenZone = entityManager_->GetComponent<TilePlacementForbiddenZoneComponent>(entity);
+            auto tilePlacementForbiddenZone = entityManager->GetComponent<TilePlacementForbiddenZoneComponent>(entity);
             if (tilePlacementForbiddenZone == nullptr)
             {
                 continue;
@@ -221,8 +225,8 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
     TileVector2D tileAnchor = {0, 0};
     const TileVector2D& focusPosition = tileLayerComponent_->GetFocusPosition();
     const WorldVector2D focusWorldTilePos = CoordinateTransformer::TileToWorld(focusPosition);
-    auto* playerComponent = entityManager_->GetComponent<PlayerComponent>(player);
-    auto* transform2DComponent = entityManager_->GetComponent<Transform2DComponent>(player);
+    auto* playerComponent = entityManager->GetComponent<PlayerComponent>(player);
+    auto* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(player);
     Item* item = playerComponent->GetItem();
     TileVector2D leftBottom = {0, 0};
     WorldVector2D playerPosition = transform2DComponent->GetPosition();

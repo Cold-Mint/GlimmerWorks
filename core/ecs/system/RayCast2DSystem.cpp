@@ -33,9 +33,10 @@
 
 void glimmer::RayCast2DSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_RAY_CAST_2D)
     {
-        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_RAY_CAST_2D});
+        entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_RAY_CAST_2D});
     }
 }
 
@@ -47,11 +48,12 @@ glimmer::RayCast2DSystem::RayCast2DSystem(WorldContext* worldContext) : GameSyst
 
 void glimmer::RayCast2DSystem::Update(float delta)
 {
-    if (worldContext_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    EntityManager* entityManager = GetEntityManager();
+    if (worldContext == nullptr)
     {
         return;
     }
-    EntityManager* entityManager = worldContext_->GetEntityManager();
     if (entityManager == nullptr)
     {
         return;
@@ -73,7 +75,7 @@ void glimmer::RayCast2DSystem::Update(float delta)
         rayComp->SetHit(false);
         rayComp->SetHitShape(b2_nullShapeId);
         const b2RayResult rayResult = b2World_CastRayClosest(
-            worldContext_->GetWorldId(),
+            worldContext->GetWorldId(),
             Box2DUtils::ToMeters(transform2dComponent->GetPosition() + rayComp->GetOrigin()),
             Box2DUtils::ToMeters(rayComp->GetTranslation()),
             rayComp->GetFilter()

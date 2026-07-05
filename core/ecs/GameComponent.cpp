@@ -33,4 +33,6 @@ std::optional<std::string> glimmer::GameComponent::Serialize()
 
 void glimmer::GameComponent::Deserialize(WorldContext* worldContext, const std::string& data)
 {
+    //Implement this function to load data from the archive into the memory.
+    //实现这个函数，以便从存档内加载数据到内存。
 }

@@ -34,15 +34,17 @@
 
 void glimmer::DebugDrawSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    const EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
     {
-        cameraComponent_ = entityShortCut_->GetCameraComponent();
+        cameraComponent_ = entityShortCut->GetCameraComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D)
     {
         if (cameraTransform2DComponent_ == nullptr)
         {
-            cameraTransform2DComponent_ = entityShortCut_->GetCameraTransform2DComponent();
+            cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
         }
         transform2DCount = count;
     }
@@ -52,7 +54,7 @@ void glimmer::DebugDrawSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     }
     if (transform2DCount > 0 && debugDrawCount > 0)
     {
-        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_DEBUG_DRAW, COMPONENT_TRANSFORM_2D});
+        entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_DEBUG_DRAW, COMPONENT_TRANSFORM_2D});
     }
 }
 
@@ -66,6 +68,7 @@ glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext* worldContext) : GameSyst
 
 void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
 {
+    EntityManager* entityManager = GetEntityManager();
     if (cameraComponent_ == nullptr)
     {
         return;
@@ -76,10 +79,10 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
     }
     for (auto entity : entities_)
     {
-        auto debugDrawComponent = entityManager_->GetComponent<DebugDrawComponent>(entity);
+        auto debugDrawComponent = entityManager->GetComponent<DebugDrawComponent>(entity);
         if (debugDrawComponent != nullptr)
         {
-            auto worldPositionComponent = entityManager_->GetComponent<Transform2DComponent>(entity);
+            auto worldPositionComponent = entityManager->GetComponent<Transform2DComponent>(entity);
             if (worldPositionComponent != nullptr)
             {
                 auto ScreenVector2D = CoordinateTransformer::WorldToScreen(
@@ -104,7 +107,6 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
                 renderQuad.x = ScreenVector2D.x - w * 0.5F;
                 renderQuad.y = ScreenVector2D.y - h * 0.5F;
                 SDL_RenderFillRect(renderer, &renderQuad);
-                // 恢复原先颜色
                 SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
             }
         }

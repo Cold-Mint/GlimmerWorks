@@ -41,15 +41,14 @@ glimmer::TechProviderSystem::TechProviderSystem(WorldContext* worldContext)
 
 void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus)
 {
+    EntityManager* entityManager = GetEntityManager();
     if (!activeStatus)
     {
-        //When shutting down the system, it might be because the COMPONENT_TECH_PROVIDER no longer exists. Therefore, we reset the players' technology levels.
-        //在关闭系统时，可能是因为COMPONENT_TECH_PROVIDER已经不存在了。所以我们清空玩家的科技等级。
         if (WorldContext::IsEmptyEntityId(player_))
         {
             return;
         }
-        auto playerComponent = entityManager_->GetComponent<PlayerComponent>(player_);
+        auto playerComponent = entityManager->GetComponent<PlayerComponent>(player_);
         if (playerComponent == nullptr)
         {
             return;
@@ -60,6 +59,7 @@ void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus)
 
 void glimmer::TechProviderSystem::OnFrameStart()
 {
+    EntityManager* entityManager = GetEntityManager();
     if (!changed)
     {
         return;
@@ -68,12 +68,12 @@ void glimmer::TechProviderSystem::OnFrameStart()
     {
         return;
     }
-    auto playerTransform2DComponent = entityManager_->GetComponent<Transform2DComponent>(player_);
+    auto playerTransform2DComponent = entityManager->GetComponent<Transform2DComponent>(player_);
     if (playerTransform2DComponent == nullptr)
     {
         return;
     }
-    auto playerComponent = entityManager_->GetComponent<PlayerComponent>(player_);
+    auto playerComponent = entityManager->GetComponent<PlayerComponent>(player_);
     if (playerComponent == nullptr)
     {
         return;
@@ -81,7 +81,7 @@ void glimmer::TechProviderSystem::OnFrameStart()
     playerComponent->ResetTechnologyMap();
     for (GameEntityID techProviderEntity : techProviderEntities_)
     {
-        auto providerTransform2DComponent = entityManager_->GetComponent<Transform2DComponent>(
+        auto providerTransform2DComponent = entityManager->GetComponent<Transform2DComponent>(
             techProviderEntity);
         if (providerTransform2DComponent == nullptr)
         {
@@ -92,7 +92,7 @@ void glimmer::TechProviderSystem::OnFrameStart()
         {
             continue;
         }
-        auto techProviderComponent = entityManager_->GetComponent<TechProviderComponent>(
+        auto techProviderComponent = entityManager->GetComponent<TechProviderComponent>(
             techProviderEntity);
         if (techProviderComponent == nullptr)
         {
@@ -106,13 +106,15 @@ void glimmer::TechProviderSystem::OnFrameStart()
 
 void glimmer::TechProviderSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_TRANSFORM_2D)
     {
         transform2DCount_ = count;
     }
     if (gameComponentType == COMPONENT_PLAYER)
     {
-        player_ = entityShortCut_->GetPlayer();
+        player_ = entityShortCut->GetPlayer();
     }
     if (gameComponentType == COMPONENT_TECH_PROVIDER)
     {
@@ -121,7 +123,7 @@ void glimmer::TechProviderSystem::OnWatchedComponentChanged(GameComponentTypeMes
     if (transform2DCount_ > 0 && techProviderCount_ > 0)
     {
         techProviderEntities_.clear();
-        techProviderEntities_ = entityManager_->GetEntityIDWithComponents({
+        techProviderEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TRANSFORM_2D, COMPONENT_TECH_PROVIDER
         });
         changed = true;

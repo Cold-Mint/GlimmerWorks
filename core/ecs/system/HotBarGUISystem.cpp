@@ -34,29 +34,31 @@
 
 void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_HOT_BAR && hotBarComponent_ == nullptr)
     {
-        hotBarComponent_ = entityShortCut_->GetHotBarComponent();
+        hotBarComponent_ = entityShortCut->GetHotBarComponent();
     }
     if (gameComponentType == COMPONENT_PLAYER && playerComponent_ == nullptr)
     {
-        const GameEntityID player = entityShortCut_->GetPlayer();
+        const GameEntityID player = entityShortCut->GetPlayer();
         if (!WorldContext::IsEmptyEntityId(player))
         {
-            playerComponent_ = entityManager_->GetComponent<PlayerComponent>(player);
+            playerComponent_ = entityManager->GetComponent<PlayerComponent>(player);
         }
     }
     if (gameComponentType == COMPONENT_ITEM_CONTAINER && itemContainerComponent_ == nullptr)
     {
-        itemContainerComponent_ = entityShortCut_->GetItemContainerComponent();
+        itemContainerComponent_ = entityShortCut->GetItemContainerComponent();
     }
     if (gameComponentType == COMPONENT_ITEM_SLOT)
     {
-        auto entities = entityManager_->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT});
+        auto entities = entityManager->GetEntityIDWithComponents({COMPONENT_ITEM_SLOT});
         hotBarItemSlot_.clear();
         for (auto entity : entities)
         {
-            auto itemSlotComponent = entityManager_->GetComponent<ItemSlotComponent>(entity);
+            auto itemSlotComponent = entityManager->GetComponent<ItemSlotComponent>(entity);
             if (itemSlotComponent == nullptr)
             {
                 continue;
@@ -141,7 +143,8 @@ void glimmer::HotBarGUISystem::OnWindowSizeChanged(const int& width, const int& 
 
 bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event& event)
 {
-    if (worldContext_ == nullptr)
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return false;
     }

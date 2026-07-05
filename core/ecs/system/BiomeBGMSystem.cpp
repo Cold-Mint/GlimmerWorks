@@ -33,12 +33,14 @@
 
 void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_TRANSFORM_2D && playerTransform2DComponent_ == nullptr)
     {
-        GameEntityID player = entityShortCut_->GetPlayer();
+        GameEntityID player = entityShortCut->GetPlayer();
         if (!WorldContext::IsEmptyEntityId(player))
         {
-            playerTransform2DComponent_ = entityManager_->GetComponent<Transform2DComponent>(player);
+            playerTransform2DComponent_ = entityManager->GetComponent<Transform2DComponent>(player);
         }
     }
 }
@@ -57,7 +59,8 @@ glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext* worldContext) : GameSystem
 
 void glimmer::BiomeBGMSystem::Update(float delta)
 {
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return;
     }
@@ -76,7 +79,7 @@ void glimmer::BiomeBGMSystem::Update(float delta)
     const WorldVector2D position = playerTransform2DComponent_->GetPosition();
     const TileVector2D tileVector2d = CoordinateTransformer::WorldToTile(position);
     const TileVector2D chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d);
-    const TerrainResult* terrainResult = worldContext_->GetTerrainData(chunkVertex);
+    const TerrainResult* terrainResult = worldContext->GetTerrainData(chunkVertex);
     if (terrainResult == nullptr)
     {
         return;

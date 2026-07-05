@@ -35,6 +35,7 @@
 
 void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, const uint32_t count)
 {
+    EntityManager* entityManager = GetEntityManager();
     if (gameComponentType == COMPONENT_RIGID_BODY_2D)
     {
         rigidBody2dCount_ = count;
@@ -46,7 +47,7 @@ void glimmer::PhysicsSystem::OnWatchedComponentChanged(GameComponentTypeMessage 
     if (rigidBody2dCount_ > 0 && transform2dCount_ > 0)
     {
         entities_.clear();
-        entities_ = entityManager_->GetEntityIDWithComponents({COMPONENT_RIGID_BODY_2D, COMPONENT_TRANSFORM_2D});
+        entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_RIGID_BODY_2D, COMPONENT_TRANSFORM_2D});
     }
 }
 
@@ -59,7 +60,9 @@ glimmer::PhysicsSystem::PhysicsSystem(WorldContext* worldContext) : GameSystem(w
 
 void glimmer::PhysicsSystem::Update(const float delta)
 {
-    const b2WorldId worldId_ = worldContext_->GetWorldId();
+    WorldContext* worldContext = GetWorldContext();
+    EntityManager* entityManager = GetEntityManager();
+    const b2WorldId worldId_ = worldContext->GetWorldId();
     accumulator_ += delta;
     while (accumulator_ >= FIXED_TIME_STEP)
     {
@@ -68,7 +71,7 @@ void glimmer::PhysicsSystem::Update(const float delta)
     }
     for (GameEntityID entityId : entities_)
     {
-        const RigidBody2DComponent* rigidBody2dComponent = entityManager_->GetComponent<RigidBody2DComponent>(entityId);
+        const RigidBody2DComponent* rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(entityId);
         if (rigidBody2dComponent == nullptr)
         {
             continue;
@@ -77,7 +80,7 @@ void glimmer::PhysicsSystem::Update(const float delta)
         {
             continue;
         }
-        auto* transform = entityManager_->GetComponent<Transform2DComponent>(entityId);
+        auto* transform = entityManager->GetComponent<Transform2DComponent>(entityId);
         const b2Vec2 position = b2Body_GetPosition(rigidBody2dComponent->GetBodyId());
         transform->SetPosition(Box2DUtils::ToPixels(position));
         transform->SetRotation(b2Rot_GetAngle(b2Body_GetRotation(rigidBody2dComponent->GetBodyId())));

@@ -41,7 +41,7 @@ namespace glimmer
     {
         std::jthread thread_;
         std::mutex commandMutex_;
-        std::condition_variable cv_;
+        std::condition_variable conditionVariable_;
         CommandManager* commandManager_ = nullptr;
         std::queue<std::unique_ptr<CommandRequest>> taskCommandRequestQueue_;
         std::stack<std::unique_ptr<std::function<void(const std::string& text)>>> onMessageStack_;

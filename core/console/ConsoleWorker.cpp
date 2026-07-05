@@ -36,7 +36,7 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
     while (!stopToken.stop_requested())
     {
         std::unique_lock lock(commandMutex_);
-        cv_.wait(lock, [this, &stopToken]
+        conditionVariable_.wait(lock, [this, &stopToken]
         {
             return !taskCommandRequestQueue_.empty() || stopToken.stop_requested();
         });
@@ -80,7 +80,6 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
                 success ? CommandResult::Success : CommandResult::Failure, command
             );
         }
-        std::lock_guard writeLock(commandMutex_);
         responseMap_[commandRequest->GetId()] = std::move(commandResponse);
     }
 }
@@ -88,7 +87,7 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
 glimmer::ConsoleWorker::ConsoleWorker(CommandManager* commandManager)
     : commandManager_(commandManager)
 {
-    thread_ = std::jthread([this](std::stop_token stopToken) { this->WorkLoop(stopToken); });
+    thread_ = std::jthread([this](const std::stop_token& stopToken) { this->WorkLoop(stopToken); });
 }
 
 std::unique_ptr<glimmer::CommandResponse> glimmer::ConsoleWorker::TakeCommandResponse(const uint32_t id)
@@ -116,7 +115,7 @@ uint32_t glimmer::ConsoleWorker::CreateRequest(const std::string& command, Comma
     taskCommandRequestQueue_.push(
         std::make_unique<CommandRequest>(id, command, commandSender)
     );
-    cv_.notify_one();
+    conditionVariable_.notify_one();
     return id;
 }
 
@@ -127,18 +126,18 @@ void glimmer::ConsoleWorker::PopOnMessage()
     {
         onMessageStack_.pop();
     }
-    cv_.notify_one();
+    conditionVariable_.notify_one();
 }
 
 void glimmer::ConsoleWorker::Stop()
 {
     thread_.request_stop();
-    cv_.notify_one();
+    conditionVariable_.notify_one();
 }
 
 void glimmer::ConsoleWorker::PushOnMessage(std::unique_ptr<std::function<void(const std::string& text)>> onMessage)
 {
     std::lock_guard lock(commandMutex_);
     onMessageStack_.push(std::move(onMessage));
-    cv_.notify_one();
+    conditionVariable_.notify_one();
 }

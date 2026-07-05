@@ -25,14 +25,48 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <optional>
+#include <string>
+
 #include "core/console/Command.h"
+#include "core/inventory/ItemContainer.h"
 
 namespace glimmer
 {
+    class Item;
+    class ItemContainerComponent;
+
     class GiveCommand : public Command
     {
     protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+
+    private:
+        static void TrySetItemAmount(const CommandArgs* commandArgs, Item* item);
+
+        [[nodiscard]] std::optional<ItemContainerComponent*> TryGetPlayerItemContainer(
+            const WorldContext* worldContext,
+            const std::function<void(const std::string& text)>& onMessage) const;
+
+        [[nodiscard]] bool GiveTileItem(const AppContext* appContext,
+                                        const WorldContext* worldContext,
+                                        const CommandArgs* commandArgs,
+                                        const std::function<void(const std::string& text)>& onMessage) const;
+
+        [[nodiscard]] bool GiveComposableItem(const AppContext* appContext,
+                                              WorldContext* worldContext,
+                                              const CommandArgs* commandArgs,
+                                              const std::function<void(const std::string& text)>& onMessage) const;
+
+        [[nodiscard]] bool GiveAbilityItem(const AppContext* appContext,
+                                           const WorldContext* worldContext,
+                                           const CommandArgs* commandArgs,
+                                           const std::function<void(const std::string& text)>& onMessage) const;
+
+        [[nodiscard]] bool GiveMaterialItem(const AppContext* appContext,
+                                            const WorldContext* worldContext,
+                                            const CommandArgs* commandArgs,
+                                            const std::function<void(const std::string& text)>& onMessage) const;
 
     public:
         explicit GiveCommand(AppContext* appContext);

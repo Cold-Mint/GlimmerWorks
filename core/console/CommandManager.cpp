@@ -293,7 +293,7 @@ std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
     //展开过的动态建议。
     std::vector<std::string> unfoldList;
     std::vector<std::string> result;
-    std::unordered_set<std::string> expandedSet;
+    std::unordered_set<std::string, TransparentStringHash, std::equal_to<>> expandedSet;
 
     size_t i = 0;
     while (i < children.size())

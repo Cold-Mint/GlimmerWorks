@@ -31,12 +31,15 @@ namespace glimmer
 {
     class AudioTrackDynamicSuggestions final : public DynamicSuggestions
     {
-        std::vector<std::string> suggestions;
+        std::vector<std::string> suggestions_;
 
     public:
         AudioTrackDynamicSuggestions();
+
         [[nodiscard]] std::string GetId() const override;
-        std::vector<std::string> GetSuggestions(std::string param) override;
+
+        std::vector<std::string> GetSuggestions(std::optional<std::string> param) override;
+
         bool Match(std::string keyword, std::string param) override;
     };
 }

@@ -28,40 +28,52 @@
 
 #include "core/Constants.h"
 
-void glimmer::ConfigSuggestions::ParseTable(const toml::value::table_type &table, std::vector<std::string> &fields,
-                                            const std::string &prefix) {
-    for (const auto &[key, val]: table) {
+void glimmer::ConfigSuggestions::ParseTable(const toml::value::table_type& table, std::vector<std::string>& fields,
+                                            const std::string& prefix)
+{
+    for (const auto& [key, val] : table)
+    {
         std::string fullKey;
-        if (prefix.empty()) {
+        if (prefix.empty())
+        {
             fullKey = key;
-        } else {
+        }
+        else
+        {
             fullKey.reserve(prefix.size() + 1 + key.size());
             fullKey = prefix;
             fullKey.push_back('.');
             fullKey += key;
         }
-        if (val.is_table()) {
+        if (val.is_table())
+        {
             ParseTable(val.as_table(), fields, fullKey);
-        } else {
+        }
+        else
+        {
             fields.push_back(fullKey);
         }
     }
 }
 
-glimmer::ConfigSuggestions::ConfigSuggestions(toml::value *configValue) : configValue_(configValue) {
+glimmer::ConfigSuggestions::ConfigSuggestions(toml::value* configValue) : configValue_(configValue)
+{
 }
 
-bool glimmer::ConfigSuggestions::Match(const std::string keyword, std::string param) {
+bool glimmer::ConfigSuggestions::Match(const std::string keyword, std::string param)
+{
     std::vector<std::string> fields;
     ParseTable(configValue_->as_table(), fields);
     return std::find(fields.begin(), fields.end(), keyword) != fields.end();
 }
 
-std::string glimmer::ConfigSuggestions::GetId() const {
+std::string glimmer::ConfigSuggestions::GetId() const
+{
     return CONFIG_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::ConfigSuggestions::GetSuggestions(std::string param) {
+std::vector<std::string> glimmer::ConfigSuggestions::GetSuggestions(std::optional<std::string> param)
+{
     std::vector<std::string> fields;
     ParseTable(configValue_->as_table(), fields);
     return fields;

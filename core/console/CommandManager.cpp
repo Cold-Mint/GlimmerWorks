@@ -160,16 +160,15 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
     {
         std::vector<std::string> results;
         const std::string keyWord = commandArgs.AsString(0);
-        for (const auto& pair : commandMap_)
+        for (const auto& commandStr : commandMap_ | std::views::keys)
         {
-            const std::string& cmd = pair.first;
-            if (cmd == keyWord)
+            if (commandStr == keyWord)
             {
                 continue;
             }
-            if (cmd.find(keyWord) != std::string::npos)
+            if (commandStr.contains(keyWord))
             {
-                results.push_back(cmd);
+                results.push_back(commandStr);
             }
         }
         return results;
@@ -198,7 +197,7 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
                 {
                     continue;
                 }
-                if (suggestion.find(keyWord) != std::string::npos)
+                if (suggestion.contains(keyWord))
                 {
                     results.push_back(suggestion);
                 }
@@ -270,8 +269,7 @@ std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const Comm
     {
         return {};
     }
-    const int size = commandArgs->GetSize();
-    if (size == 0)
+    if (const int size = commandArgs->GetSize(); size == 0)
     {
         return {"[command name:string]"};
     }
@@ -288,50 +286,53 @@ std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const Comm
 }
 
 std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
-    const DynamicSuggestionsManager* dynamicSuggestionsManager, NodeTree<std::string>* nextNodeTree)
+    const DynamicSuggestionsManager* dynamicSuggestionsManager, const NodeTree<std::string>* nextNodeTree)
 {
     std::vector<std::string> children = nextNodeTree->GetAllChildren();
     //Expanded dynamic suggestions.
     //展开过的动态建议。
-    std::vector<std::string> unfoldList = {};
-    std::vector<std::string> result = {};
-    for (size_t i = 0; i < children.size(); ++i)
+    std::vector<std::string> unfoldList;
+    std::vector<std::string> result;
+    std::unordered_set<std::string> expandedSet;
+
+    size_t i = 0;
+    while (i < children.size())
     {
-        const auto& child = children[i];
-        //Has dynamic suggestion been carried out
-        //是否展开了动态建议
-        bool unfold = false;
+        const std::string& child = children[i];
+        bool isExpanded = false;
+
         if (child.starts_with('&'))
         {
-            if (std::find(unfoldList.begin(), unfoldList.end(), child) != unfoldList.end())
+            if (auto [it, inserted] = expandedSet.insert(child); !inserted)
             {
                 LogCat::e("Repeated dynamic suggestions:", child);
-#if  defined(NDEBUG)
+#if defined(NDEBUG)
+                ++i; // 跳过重复项，既不展开也不加入结果
                 continue;
 #else
                 assert(false && "Repeated dynamic suggestions");
 #endif
             }
-            //If the suggestion starts with &, then it is a dynamic suggestion. Here we try to expand on it.
-            //如果建议以&开头，那么他是一个动态建议，我们在这里尝试展开他。
-            //Extract parameters
-            //提取参数
             auto pos = child.find(':');
-            std::string dynName = child.substr(0, pos); // "@biome"
-            DynamicSuggestions* dynamicSuggestions = dynamicSuggestionsManager->GetSuggestions(dynName);
-            if (dynamicSuggestions != nullptr)
+            std::string dynName = child.substr(0, pos);
+            if (auto* dyn = dynamicSuggestionsManager->GetSuggestions(dynName); dyn != nullptr)
             {
-                unfold = true;
-                unfoldList.push_back(child);
-                const std::string param = pos == std::string::npos ? "" : child.substr(pos + 1); // "forest"
-                std::vector<std::string> dynList = dynamicSuggestions->GetSuggestions(param);
+                isExpanded = true;
+                std::optional<std::string> param = std::nullopt;
+                if (pos != std::string::npos)
+                {
+                    param = child.substr(pos + 1);
+                }
+                auto dynList = dyn->GetSuggestions(param);
                 children.insert(children.end(), dynList.begin(), dynList.end());
             }
         }
-        if (!unfold)
+
+        if (!isExpanded)
         {
             result.emplace_back(child);
         }
+        ++i;
     }
     return result;
 }

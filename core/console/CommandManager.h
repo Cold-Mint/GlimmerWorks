@@ -82,6 +82,6 @@ namespace glimmer
          * @return The expanded list of suggestions 展开后的建议列表
          */
         static std::vector<std::string> ExtendSuggestions(const DynamicSuggestionsManager* dynamicSuggestionsManager,
-                                                          NodeTree<std::string>* nextNodeTree);
+                                                          const NodeTree<std::string>* nextNodeTree);
     };
 }

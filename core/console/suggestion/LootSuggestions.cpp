@@ -28,21 +28,27 @@
 
 #include "core/Constants.h"
 
-glimmer::LootSuggestions::LootSuggestions(LootTableManager *lootTableManager)
-    : lootTableManager_(lootTableManager) {
+glimmer::LootSuggestions::LootSuggestions(LootTableManager* lootTableManager)
+    : lootTableManager_(lootTableManager)
+{
 }
 
-std::string glimmer::LootSuggestions::GetId() const {
+std::string glimmer::LootSuggestions::GetId() const
+{
     return LOOT_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::LootSuggestions::GetSuggestions(std::string param) {
+std::vector<std::string> glimmer::LootSuggestions::GetSuggestions(std::optional<std::string> param)
+{
     return lootTableManager_->GetLootTableList();
 }
 
-bool glimmer::LootSuggestions::Match(std::string keyword, std::string param) {
-    for (const auto &itemId: lootTableManager_->GetLootTableList()) {
-        if (itemId == keyword) {
+bool glimmer::LootSuggestions::Match(std::string keyword, std::string param)
+{
+    for (const auto& itemId : lootTableManager_->GetLootTableList())
+    {
+        if (itemId == keyword)
+        {
             return true;
         }
     }

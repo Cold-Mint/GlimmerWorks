@@ -289,6 +289,22 @@ bool glimmer::App::InitAudio()
     return true;
 }
 
+bool glimmer::App::CheckWindowSizeChange(const int& windowWidth, const int& windowHeight) const
+{
+    bool changed = false;
+    if (windowHeight != appContext_->GetWindowHeight())
+    {
+        changed = true;
+        appContext_->SetWindowHeight(windowHeight);
+    }
+    if (windowWidth != appContext_->GetWindowWidth())
+    {
+        changed = true;
+        appContext_->SetWindowWidth(windowWidth);
+    }
+    return changed;
+}
+
 glimmer::App::~App()
 {
     LogCat::i("Destroy the app");
@@ -374,22 +390,6 @@ void glimmer::App::Run() const
         deltaTime = static_cast<float>(actualFrameEnd - frameStart) / 1000.0F;
         frameStart = actualFrameEnd;
     }
-}
-
-bool glimmer::App::CheckWindowSizeChange(int& windowWidth, int& windowHeight) const
-{
-    bool changed = false;
-    if (windowHeight != appContext_->GetWindowHeight())
-    {
-        changed = true;
-        appContext_->SetWindowHeight(windowHeight);
-    }
-    if (windowWidth != appContext_->GetWindowWidth())
-    {
-        changed = true;
-        appContext_->SetWindowWidth(windowWidth);
-    }
-    return changed;
 }
 
 void glimmer::App::HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const

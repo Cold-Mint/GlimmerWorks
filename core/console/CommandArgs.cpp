@@ -30,9 +30,8 @@
 #include "core/mod/ResourceRef.h"
 #include <optional>
 
-glimmer::CommandArgs::CommandArgs(const std::string& command)
+glimmer::CommandArgs::CommandArgs(const std::string& command) : command_(command)
 {
-    command_ = command;
     std::istringstream iss(command);
     std::string token;
     while (iss >> token)
@@ -43,7 +42,7 @@ glimmer::CommandArgs::CommandArgs(const std::string& command)
 
 int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const
 {
-    const int commandLen = static_cast<int>(command_.size());
+    const auto commandLen = static_cast<int>(command_.size());
     if (commandLen == 0 || cursorPos < 0 || cursorPos > commandLen)
     {
         return -1;
@@ -51,27 +50,16 @@ int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const
 
     int tokenIndex = 0;
     bool inToken = false;
-    int maxIndex = commandLen - 1;
+    const int maxIndex = commandLen - 1;
+
     for (int i = 0; i < cursorPos; ++i)
     {
-        const char c = command_[i];
-        if (c == ' ')
+        if (const char c = command_[i]; c == ' ')
         {
-            if (inToken)
+            if (inToken && (i == maxIndex || command_[i + 1] != ' '))
             {
-                if (i < maxIndex)
-                {
-                    if (const char nextChar = command_[i + 1]; nextChar != ' ')
-                    {
-                        tokenIndex++;
-                        inToken = false;
-                    }
-                }
-                else
-                {
-                    tokenIndex++;
-                    inToken = false;
-                }
+                ++tokenIndex;
+                inToken = false;
             }
         }
         else
@@ -108,15 +96,7 @@ bool glimmer::CommandArgs::AsBool(const int index) const
         return false;
     }
     const std::string& val = tokens_[index];
-    if (val == "1" || val == "true" || val == "yes" || val == "y")
-    {
-        return true;
-    }
-    if (val == "0" || val == "false" || val == "no" || val == "n")
-    {
-        return false;
-    }
-    return false;
+    return val == "1" || val == "true" || val == "yes" || val == "y";
 }
 
 glimmer::BoolOrToggle glimmer::CommandArgs::AsBoolOrToggle(int index) const

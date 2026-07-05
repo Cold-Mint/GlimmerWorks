@@ -92,7 +92,7 @@ namespace glimmer
          * @param hookId 钩子Id
          * @return
          */
-        [[nodiscard]] bool Contains(const std::string& hookId) const;
+        [[nodiscard]] bool Contains(std::string_view hookId) const;
 
         [[nodiscard]] std::vector<std::string> GetCommandHookIdsWithOutConfig() const;
 

@@ -141,17 +141,14 @@ bool glimmer::CommandHookManager::UnregisterImpl(
 
 const std::vector<glimmer::CommandHookEntry*>& glimmer::CommandHookManager::GetCommandHookVector(const uint32_t key)
 {
-    fullVector_.clear();
-    const auto configIterator = configCommandHookMap_.find(key);
-    if (configIterator != configCommandHookMap_.end())
+    fullVector_.clear();;
+    if (const auto configIterator = configCommandHookMap_.find(key); configIterator != configCommandHookMap_.end())
     {
         fullVector_.insert(fullVector_.end(),
                            configIterator->second.begin(),
                            configIterator->second.end());
     }
-
-    const auto sessionIterator = sessionCommandHookMap_.find(key);
-    if (sessionIterator != sessionCommandHookMap_.end())
+    if (const auto sessionIterator = sessionCommandHookMap_.find(key); sessionIterator != sessionCommandHookMap_.end())
     {
         fullVector_.insert(fullVector_.end(),
                            sessionIterator->second.begin(),
@@ -184,6 +181,22 @@ std::unique_ptr<glimmer::CommandHookEntry> glimmer::CommandHookManager::CreateCo
     return commandHookEntry;
 }
 
+bool glimmer::CommandHookManager::Contains(const std::string_view hookId) const
+{
+    for (auto& sessionCommandHookVector : sessionCommandHookVector_)
+    {
+        if (sessionCommandHookVector == nullptr)
+        {
+            continue;
+        }
+        if (sessionCommandHookVector->hookId == hookId)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void glimmer::CommandHookManager::LoadHookFromConfig(const std::vector<CommandHookResource>& commandHooks)
 {
     configCommandHookVector_.clear();
@@ -209,21 +222,6 @@ void glimmer::CommandHookManager::LoadHookFromConfig(const std::vector<CommandHo
     }
 }
 
-bool glimmer::CommandHookManager::Contains(const std::string& hookId) const
-{
-    for (auto& sessionCommandHookVector : sessionCommandHookVector_)
-    {
-        if (sessionCommandHookVector == nullptr)
-        {
-            continue;
-        }
-        if (sessionCommandHookVector->hookId == hookId)
-        {
-            return true;
-        }
-    }
-    return false;
-}
 
 std::vector<std::string> glimmer::CommandHookManager::GetCommandHookIdsWithOutConfig() const
 {

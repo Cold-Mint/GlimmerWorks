@@ -25,17 +25,20 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <optional>
 #include <string>
 #include <vector>
 
-namespace glimmer {
-    class DynamicSuggestions {
+namespace glimmer
+{
+    class DynamicSuggestions
+    {
     public:
         virtual ~DynamicSuggestions();
 
         [[nodiscard]] virtual std::string GetId() const = 0;
 
-        virtual std::vector<std::string> GetSuggestions(std::string param) = 0;
+        virtual std::vector<std::string> GetSuggestions(std::optional<std::string> param) = 0;
 
         virtual bool Match(std::string keyword, std::string param) = 0;
     };

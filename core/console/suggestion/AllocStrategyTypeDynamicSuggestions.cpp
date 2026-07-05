@@ -30,10 +30,10 @@
 
 glimmer::AllocStrategyTypeDynamicSuggestions::AllocStrategyTypeDynamicSuggestions()
 {
-    suggestions.emplace_back(ALLOC_STR_STRATEGY_BACKWARD);
-    suggestions.emplace_back(ALLOC_STR_STRATEGY_FORWARD);
-    suggestions.emplace_back(ALLOC_STR_STRATEGY_BALANCE);
-    suggestions.emplace_back(ALLOC_STR_STRATEGY_RANDOM);
+    suggestions_.emplace_back(ALLOC_STR_STRATEGY_BACKWARD);
+    suggestions_.emplace_back(ALLOC_STR_STRATEGY_FORWARD);
+    suggestions_.emplace_back(ALLOC_STR_STRATEGY_BALANCE);
+    suggestions_.emplace_back(ALLOC_STR_STRATEGY_RANDOM);
 }
 
 std::string glimmer::AllocStrategyTypeDynamicSuggestions::GetId() const
@@ -41,14 +41,14 @@ std::string glimmer::AllocStrategyTypeDynamicSuggestions::GetId() const
     return ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(std::string param)
+std::vector<std::string> glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
 {
-    return suggestions;
+    return suggestions_;
 }
 
 bool glimmer::AllocStrategyTypeDynamicSuggestions::Match(std::string keyword, std::string param)
 {
-    for (const auto& itemId : suggestions)
+    for (const auto& itemId : suggestions_)
     {
         if (itemId == keyword)
         {

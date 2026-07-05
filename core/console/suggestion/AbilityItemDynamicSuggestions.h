@@ -28,16 +28,18 @@
 #include "DynamicSuggestions.h"
 #include "core/mod/dataPack/ItemManager.h"
 
-namespace glimmer {
-    class AbilityItemDynamicSuggestions final : public DynamicSuggestions {
-        ItemManager *itemManager_;
+namespace glimmer
+{
+    class AbilityItemDynamicSuggestions final : public DynamicSuggestions
+    {
+        ItemManager* itemManager_;
 
     public:
-        explicit AbilityItemDynamicSuggestions(ItemManager *itemManager);
+        explicit AbilityItemDynamicSuggestions(ItemManager* itemManager);
 
         [[nodiscard]] std::string GetId() const override;
 
-        std::vector<std::string> GetSuggestions(std::string param) override;
+        std::vector<std::string> GetSuggestions(std::optional<std::string> param) override;
 
         bool Match(std::string keyword, std::string param) override;
     };

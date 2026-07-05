@@ -28,21 +28,27 @@
 
 #include "core/Constants.h"
 
-glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(ItemManager *itemManager) {
+glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(ItemManager* itemManager)
+{
     itemManager_ = itemManager;
 }
 
-std::string glimmer::AbilityItemDynamicSuggestions::GetId() const {
+std::string glimmer::AbilityItemDynamicSuggestions::GetId() const
+{
     return ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::AbilityItemDynamicSuggestions::GetSuggestions(std::string param) {
+std::vector<std::string> glimmer::AbilityItemDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+{
     return itemManager_->GetAbilityItemIDList();
 }
 
-bool glimmer::AbilityItemDynamicSuggestions::Match(std::string keyword, std::string param) {
-    for (const auto &itemId: itemManager_->GetAbilityItemIDList()) {
-        if (itemId == keyword) {
+bool glimmer::AbilityItemDynamicSuggestions::Match(std::string keyword, std::string param)
+{
+    for (const auto& itemId : itemManager_->GetAbilityItemIDList())
+    {
+        if (itemId == keyword)
+        {
             return true;
         }
     }

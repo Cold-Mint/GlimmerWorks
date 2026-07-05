@@ -29,21 +29,27 @@
 #include "core/Constants.h"
 
 glimmer::CommandHookIdDynamicSuggestions::CommandHookIdDynamicSuggestions(
-    CommandHookManager *commandHookManager) : commandHookManager_(commandHookManager) {
+    CommandHookManager* commandHookManager) : commandHookManager_(commandHookManager)
+{
 }
 
-std::string glimmer::CommandHookIdDynamicSuggestions::GetId() const {
+std::string glimmer::CommandHookIdDynamicSuggestions::GetId() const
+{
     return COMMAND_HOOK_ID_SUGGESTION_NAME;
 }
 
-std::vector<std::string> glimmer::CommandHookIdDynamicSuggestions::GetSuggestions(std::string param) {
+std::vector<std::string> glimmer::CommandHookIdDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+{
     return commandHookManager_->GetCommandHookIdsWithOutConfig();
 }
 
-bool glimmer::CommandHookIdDynamicSuggestions::Match(const std::string keyword, std::string param) {
+bool glimmer::CommandHookIdDynamicSuggestions::Match(const std::string keyword, std::string param)
+{
     auto array = commandHookManager_->GetCommandHookIdsWithOutConfig();
-    for (auto &basicString: array) {
-        if (basicString == keyword) {
+    for (auto& basicString : array)
+    {
+        if (basicString == keyword)
+        {
             return true;
         }
     }

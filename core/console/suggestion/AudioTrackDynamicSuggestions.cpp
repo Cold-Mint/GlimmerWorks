@@ -30,8 +30,8 @@
 
 glimmer::AudioTrackDynamicSuggestions::AudioTrackDynamicSuggestions()
 {
-    suggestions.emplace_back(AUDIO_TRACK_BGM);
-    suggestions.emplace_back(AUDIO_TRACK_AMBIENT);
+    suggestions_.emplace_back(AUDIO_TRACK_BGM);
+    suggestions_.emplace_back(AUDIO_TRACK_AMBIENT);
 }
 
 std::string glimmer::AudioTrackDynamicSuggestions::GetId() const
@@ -39,15 +39,17 @@ std::string glimmer::AudioTrackDynamicSuggestions::GetId() const
     return AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::AudioTrackDynamicSuggestions::GetSuggestions(std::string param)
+std::vector<std::string> glimmer::AudioTrackDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
 {
-    return suggestions;
+    return suggestions_;
 }
 
-bool glimmer::AudioTrackDynamicSuggestions::Match(std::string keyword, std::string param)
+bool glimmer::AudioTrackDynamicSuggestions::Match(const std::string keyword, std::string param)
 {
-    for (const auto &audioTrack: suggestions) {
-        if (audioTrack == keyword) {
+    for (const auto& audioTrack : suggestions_)
+    {
+        if (audioTrack == keyword)
+        {
             return true;
         }
     }

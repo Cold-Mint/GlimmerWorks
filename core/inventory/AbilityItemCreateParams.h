@@ -81,9 +81,9 @@ namespace glimmer
 
         void SetDescription(const std::optional<std::string>& description);
 
-        void SetName(const std::string& name);
+        void SetName(std::string_view name);
 
-        void SetId(const std::string& id);
+        void SetId(std::string_view id);
 
         [[nodiscard]] const std::optional<std::string>& GetDescription() const;
 

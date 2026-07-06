@@ -99,12 +99,12 @@ void glimmer::AbilityItemCreateParams::SetDescription(const std::optional<std::s
     description_ = description;
 }
 
-void glimmer::AbilityItemCreateParams::SetName(const std::string& name)
+void glimmer::AbilityItemCreateParams::SetName(std::string_view name)
 {
     name_ = name;
 }
 
-void glimmer::AbilityItemCreateParams::SetId(const std::string& id)
+void glimmer::AbilityItemCreateParams::SetId(std::string_view id)
 {
     id_ = id;
 }

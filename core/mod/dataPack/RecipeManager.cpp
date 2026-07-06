@@ -51,15 +51,15 @@ void glimmer::RecipeManager::PreSortRecipes()
         // 排序规则：
         // 1. 先按最小科技等级从小到大
         // 2. 科技等级相同时，按输入材料数量从小到大
-        std::sort(recipeList.begin(), recipeList.end(),
-                  [](const RecipeResource* a, const RecipeResource* b)
-                  {
-                      if (a->minTechnologyLevel != b->minTechnologyLevel)
-                      {
-                          return a->minTechnologyLevel < b->minTechnologyLevel;
-                      }
-                      return a->input.size() < b->input.size();
-                  });
+        std::ranges::sort(recipeList,
+                          [](const RecipeResource* a, const RecipeResource* b)
+                          {
+                              if (a->minTechnologyLevel != b->minTechnologyLevel)
+                              {
+                                  return a->minTechnologyLevel < b->minTechnologyLevel;
+                              }
+                              return a->input.size() < b->input.size();
+                          });
     }
 }
 
@@ -82,7 +82,8 @@ bool glimmer::RecipeManager::IsRecipeSatisfied(const RecipeResource* recipe,
 }
 
 std::vector<glimmer::RecipeResource*> glimmer::RecipeManager::FindUnlockedRecipes(
-    std::unordered_map<RecipeGroup, uint8_t> technologyMap, const std::vector<ItemTagResource*>& totalTagVector) const
+    std::unordered_map<RecipeGroup, uint8_t> technologyMap,
+    const std::vector<const ItemTagResource*>& totalTagVector) const
 {
     std::unordered_map<uint64_t, uint8_t> tagValueMap;
     tagValueMap.reserve(totalTagVector.size());

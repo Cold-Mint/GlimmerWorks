@@ -32,10 +32,10 @@ namespace glimmer
     class NoneAbility : public ItemAbility
     {
     public:
-        NoneAbility(const AbilityConfig& abilityConfigMessage);
+        explicit NoneAbility(const AbilityConfig& abilityConfigMessage);
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<std::string>& popupAbility) override;
+            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
 
         [[nodiscard]] const std::string& GetId() const override;
 

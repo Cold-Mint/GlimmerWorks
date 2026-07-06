@@ -77,12 +77,12 @@ void glimmer::ComposableItemCreateParams::SetDescription(const std::optional<std
     description_ = description;
 }
 
-void glimmer::ComposableItemCreateParams::SetName(const std::string& name)
+void glimmer::ComposableItemCreateParams::SetName(std::string_view name)
 {
     name_ = name;
 }
 
-void glimmer::ComposableItemCreateParams::SetId(const std::string& id)
+void glimmer::ComposableItemCreateParams::SetId(std::string_view id)
 {
     id_ = id;
 }

@@ -139,12 +139,13 @@ void glimmer::AutoPickSystem::ProcessMagnetEntity(GameEntityID entity)
         frameItemCounts_[itemName] += extractItem->GetAmount();
 
         auto item = itemContainer->AddItem(std::move(extractItem));
-        if (item == nullptr && pickItemSFXResult_ != nullptr)
+        if (item == nullptr || pickItemSFXResult_ == nullptr)
         {
-            if (MIX_Audio* audio = pickItemSFXResult_->GetResource(); audio != nullptr)
-            {
-                audioManager_->TryPlayFree(AMBIENT, audio, 0);
-            }
+            return;
+        }
+        if (MIX_Audio* audio = pickItemSFXResult_->GetResource(); audio != nullptr)
+        {
+            audioManager_->TryPlayFree(AMBIENT, audio, 0);
         }
         entityManager->RemoveEntity(entityId);
     }

@@ -37,9 +37,9 @@ glimmer::AreaMarkerAbility::AreaMarkerAbility(
 {
 }
 
-void glimmer::AreaMarkerAbility::OnUse(WorldContext* worldContext, uint32_t user,
-                                       const AbilityConfig* abilityConfig,
-                                       std::unordered_set<std::string>& popupAbility)
+void glimmer::AreaMarkerAbility::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+                                       std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
+                                       popupAbility)
 {
     auto entityManager = worldContext->GetEntityManager();
     auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER, COMPONENT_AREA_MARKER});

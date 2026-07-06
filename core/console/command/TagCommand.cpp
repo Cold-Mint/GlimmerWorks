@@ -55,7 +55,7 @@ void glimmer::TagCommand::WriteTag(const std::string& tagItem, std::stringstream
 }
 
 std::string glimmer::TagCommand::BuildTagListString(const std::string& tagItem, StringManager* stringManager,
-                                                    const std::vector<ItemTagResource*>& tagList)
+                                                    const std::vector<const ItemTagResource*>& tagList)
 {
     std::stringstream stringStream;
     bool first = true;
@@ -74,26 +74,6 @@ std::string glimmer::TagCommand::BuildTagListString(const std::string& tagItem, 
             stringStream << '\n';
         }
         WriteTag(tagItem, stringStream, stringManager, *tag);
-    }
-    return stringStream.str();
-}
-
-std::string glimmer::TagCommand::BuildTagListString(const std::string& tagItem, StringManager* stringManager,
-                                                    const std::vector<ItemTagResource>& tagList)
-{
-    std::stringstream stringStream;
-    bool first = true;
-    for (const auto& tag : tagList)
-    {
-        if (first)
-        {
-            first = false;
-        }
-        else
-        {
-            stringStream << '\n';
-        }
-        WriteTag(tagItem, stringStream, stringManager, tag);
     }
     return stringStream.str();
 }
@@ -122,7 +102,8 @@ void glimmer::TagCommand::PutCommandStructure(const CommandArgs* commandArgs, st
     strings->emplace_back("[type:string]");
 }
 
-bool glimmer::TagCommand::ExecuteHand(const CommandSender* commandSender, const WorldContext* worldContext,
+bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* commandSender,
+                                      const WorldContext* worldContext,
                                       const std::function<void(const std::string& text)>& onMessageRef,
                                       const AppContext* appContext, const LangsResources* langsResources)
 {
@@ -152,17 +133,28 @@ bool glimmer::TagCommand::ExecuteHand(const CommandSender* commandSender, const 
         return false;
     }
     StringManager* stringManager = appContext->GetStringManager();
-    const std::vector<ItemTagResource>& tagList = item->GetTags();
+    const std::vector<uint64_t>& tagList = item->GetTags();
     if (tagList.empty())
     {
         onMessageRef(langsResources->tagCannotFound);
         return true;
     }
-    onMessageRef(BuildTagListString(langsResources->tagItem, stringManager, tagList));
+    std::vector<const ItemTagResource*> itemTagResourceList;
+    for (uint64_t tag : tagList)
+    {
+        const ItemTagResource* itemTagResource = item->GetItemTagResource(tag);
+        if (itemTagResource == nullptr)
+        {
+            continue;
+        }
+        itemTagResourceList.emplace_back(itemTagResource);
+    }
+    onMessageRef(BuildTagListString(langsResources->tagItem, stringManager, itemTagResourceList));
     return true;
 }
 
-bool glimmer::TagCommand::ExecuteInventory(const CommandSender* commandSender, const WorldContext* worldContext,
+bool glimmer::TagCommand::ExecuteInventory([[maybe_unused]] const CommandSender* commandSender,
+                                           const WorldContext* worldContext,
                                            const std::function<void(const std::string& text)>& onMessageRef,
                                            const AppContext* appContext, const LangsResources* langsResources)
 {
@@ -181,7 +173,7 @@ bool glimmer::TagCommand::ExecuteInventory(const CommandSender* commandSender, c
     {
         return false;
     }
-    const std::vector<ItemTagResource*>& totalTags = itemContainer->GetTotalTags();
+    const std::vector<const ItemTagResource*>& totalTags = itemContainer->GetTotalTags();
     StringManager* stringManager = appContext->GetStringManager();
     if (totalTags.empty())
     {

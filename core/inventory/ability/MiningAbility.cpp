@@ -46,7 +46,8 @@ const std::string& glimmer::MiningAbility::GetId() const
 }
 
 void glimmer::MiningAbility::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                                   std::unordered_set<std::string>& popupAbility)
+                                   std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
+                                   popupAbility)
 {
     popupAbility.emplace(GetId());
     if (abilityConfig == nullptr)

@@ -171,8 +171,7 @@ void glimmer::HookCommand::UpdateListSuggestionsTree(NodeTree<std::string>* oper
 
 glimmer::NodeTree<std::string>* glimmer::HookCommand::GetSuggestionsTree(const CommandArgs* commandArgs)
 {
-    int size = commandArgs->GetSize();
-    if (size <= 2)
+    if (int size = commandArgs->GetSize(); size <= 2)
     {
         return &GetPrivateSuggestionsTree();
     }

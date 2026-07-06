@@ -34,23 +34,23 @@ void glimmer::AudioManager::CreateTracks(const AudioType type, const size_t coun
 {
     if (track_.contains(type))
     {
-        for (auto track : track_[type])
+        for (auto t : track_[type])
         {
-            MIX_DestroyTrack(track);
+            MIX_DestroyTrack(t);
         }
         track_[type].clear();
     }
     std::vector<MIX_Track*> newTracks;
     for (size_t i = 0; i < count; ++i)
     {
-        MIX_Track* track = MIX_CreateTrack(mixer_);
-        if (!track)
+        MIX_Track* newTrack = MIX_CreateTrack(mixer_);
+        if (!newTrack)
         {
             LogCat::e("MIX_CreateTrack failed: ", SDL_GetError());
             continue;
         }
-        MIX_TagTrack(track, AudioTypeToTag(type));
-        newTracks.push_back(track);
+        MIX_TagTrack(newTrack, AudioTypeToTag(type));
+        newTracks.push_back(newTrack);
     }
 
     track_[type] = std::move(newTracks);
@@ -94,9 +94,9 @@ void glimmer::AudioManager::SetMasterVolume(const float volume)
     masterVolume_ = std::clamp(volume, 0.0F, 1.0F);
     //After setting the main volume, refresh the volume of all tracks.
     //设置主音量后，刷新所有音轨的音量。
-    for (const auto& [type, volume] : typeVolume_)
+    for (const auto& [type, typeVolume] : typeVolume_)
     {
-        SetTypeVolume(type, volume);
+        SetTypeVolume(type, typeVolume);
     }
 }
 

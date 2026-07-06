@@ -37,7 +37,7 @@ namespace glimmer
         uint8_t tileHeight_ = 1;
         ResourceRef resourceRef_;
         bool isPlaceMode_ = false;
-        BreakSource breakSource_ = BreakSource::None;
+        BreakSource breakSource_ = BreakSource::Unknown;
 
     public:
         void SetTileWidth(uint8_t tileWidth);

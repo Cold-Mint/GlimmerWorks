@@ -58,8 +58,8 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : 
     Init();
 }
 
-void glimmer::PlayerControlSystem::UpdateFlying(float delta, PlayerComponent* playerComponent,
-                                                 Transform2DComponent* transform2DComponent)
+void glimmer::PlayerControlSystem::UpdateFlying(float delta, const PlayerComponent* playerComponent,
+                                                Transform2DComponent* transform2DComponent)
 {
     WorldVector2D velocity = {};
     velocity.x = playerComponent->GetHorizontalInput() * delta * FLY_SPEED;
@@ -137,8 +137,8 @@ void glimmer::PlayerControlSystem::UpdateGroundedMovement(float delta, PlayerCom
 }
 
 void glimmer::PlayerControlSystem::CheckDropItem(PlayerComponent* playerComponent,
-                                                 ItemContainer* itemContainer,
-                                                 HotBarComponent* hotBarComponent)
+                                                 const ItemContainer* itemContainer,
+                                                 const HotBarComponent* hotBarComponent) const
 {
     if (!playerComponent->IsDropPressed())
     {

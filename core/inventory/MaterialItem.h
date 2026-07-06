@@ -62,7 +62,7 @@ namespace glimmer
         [[nodiscard]] bool IsUnbreakable() const override;
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                   std::unordered_set<std::string>& popupAbility) override;
+            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

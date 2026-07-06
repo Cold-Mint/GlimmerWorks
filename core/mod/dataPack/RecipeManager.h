@@ -37,7 +37,9 @@ namespace glimmer
 {
     class RecipeManager
     {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<RecipeResource>, TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
+        std::unordered_map<std::string, std::unordered_map<
+                               std::string, std::unique_ptr<RecipeResource>, TransparentStringHash, std::equal_to<>>,
+                           TransparentStringHash, std::equal_to<>>
         recipeMap_
             {};
 
@@ -69,7 +71,8 @@ namespace glimmer
         void PreSortRecipes();
 
         std::vector<RecipeResource*> FindUnlockedRecipes(std::unordered_map<RecipeGroup, uint8_t> technologyMap,
-                                                        const std::vector<ItemTagResource*>& totalTagVector) const;
+                                                         const std::vector<const ItemTagResource*>& totalTagVector)
+        const;
 
 
         [[nodiscard]] RecipeResource* FindRecipeResource(const std::string& packId, const std::string& key);

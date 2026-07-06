@@ -112,7 +112,7 @@ const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
 }
 
 void glimmer::AbilityItem::OnUse(WorldContext* worldContext, GameEntityID user, const AbilityConfig* abilityConfig,
-                                 std::unordered_set<std::string>& popupAbility)
+                                 std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
 {
     if (canUseAlone_)
     {

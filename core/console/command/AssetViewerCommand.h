@@ -37,9 +37,9 @@ namespace glimmer
 
     class AssetViewerCommand final : public Command
     {
-        std::map<std::string, std::unique_ptr<IAssetEnumerator>> assetEnumerators_;
+        std::map<std::string, std::unique_ptr<IAssetEnumerator>, std::less<>> assetEnumerators_;
 
-    protected:
+    private:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
         void AddAssetEnumerator(std::unique_ptr<IAssetEnumerator> assetEnumeratorPtr);

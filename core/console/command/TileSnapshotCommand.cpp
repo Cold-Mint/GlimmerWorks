@@ -77,7 +77,7 @@ void glimmer::TileSnapshotCommand::PutCommandStructure(const CommandArgs* comman
     }
 }
 
-bool glimmer::TileSnapshotCommand::ExecuteInspector(AppContext* appContext,
+bool glimmer::TileSnapshotCommand::ExecuteInspector(const AppContext* appContext,
                                                     const std::function<void(const std::string& text)>& onMessageRef,
                                                     const LangsResources* langsResources)
 {
@@ -216,7 +216,7 @@ bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, c
     std::string operation = commandArgs->AsString(1);
     if (operation == "inspector")
     {
-        return ExecuteInspector(const_cast<AppContext*>(appContext), onMessageRef, langsResources);
+        return ExecuteInspector(appContext, onMessageRef, langsResources);
     }
     if (operation == "info")
     {

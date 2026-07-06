@@ -106,29 +106,32 @@ void glimmer::ItemContainer::RefreshTotalTags()
         {
             continue;
         }
-        const std::vector<ItemTagResource>& tags = currentItem->GetTags();
-        for (auto& tag : tags)
+        const std::vector<uint64_t>& tags = currentItem->GetTags();
+        for (auto& tagId : tags)
         {
-            uint64_t tagId = tag.GetCachedTagId();
-            uint64_t singleVal = tag.value;
+            const ItemTagResource* itemTagResourcePtr = currentItem->GetItemTagResource(tagId);
+            if (itemTagResourcePtr == nullptr)
+            {
+                continue;
+            }
             auto tagIterator = tagToValue_.find(tagId);
             if (tagIterator == tagToValue_.end())
             {
-                auto itemTagPtr = std::make_unique<ItemTagResource>();
-                itemTagPtr->name = tag.name;
-                itemTagPtr->value = singleVal * amount;
-                itemTagPtr->MakeCachedTag();
-                tagToValue_[tagId] = std::move(itemTagPtr);
+                ItemTagResource itemTagResource;
+                itemTagResource.name = itemTagResourcePtr->name;
+                itemTagResource.value = itemTagResourcePtr->value;
+                itemTagResource.MakeCachedTag();
+                tagToValue_[tagId] = itemTagResource;
             }
             else
             {
-                tagIterator->second->value += singleVal * amount;
+                tagIterator->second.value += itemTagResourcePtr->value * amount;
             }
         }
     }
-    for (const auto& [tagId, itemTagPtr] : tagToValue_)
+    for (const auto& itemTag : tagToValue_ | std::views::values)
     {
-        totalTagVector_.emplace_back(itemTagPtr.get());
+        totalTagVector_.emplace_back(&itemTag);
     }
     needRefreshTag_ = false;
 }
@@ -152,7 +155,7 @@ void glimmer::ItemContainer::Resize(const uint8_t capacity)
 void glimmer::ItemContainer::RemoveOnContentChanged(
     const std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>& onContentChanged)
 {
-    auto toRemove= std::ranges::remove_if(
+    auto toRemove = std::ranges::remove_if(
         onContentChanged_,
         [&](const std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>& ptr)
         {
@@ -168,20 +171,23 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
     {
         return nullptr;
     }
-    for (uint8_t i = 0; i < items_.size(); ++i)
+    uint8_t index = 0;
+    for (auto& currentItem : items_)
     {
-        std::unique_ptr<Item>& currentItem = items_[i];
         if (currentItem == nullptr)
         {
+            ++index;
             continue;
         }
         if (const uint8_t stackSpace = currentItem->GetRemainingStackCount(newItem.get()); stackSpace == 0)
         {
+            ++index;
             continue;
         }
         const uint8_t stackedAmount = currentItem->AddAmount(newItem->GetAmount());
         if (stackedAmount == 0)
         {
+            ++index;
             continue;
         }
         if (const uint8_t removeAmount = newItem->RemoveAmount(stackedAmount); removeAmount == 0 &&
@@ -193,16 +199,18 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
         {
             return nullptr;
         }
+        ++index;
     }
-    for (uint8_t i = 0; i < items_.size(); ++i)
+    index = 0;
+    for (auto& currentItem : items_)
     {
-        std::unique_ptr<Item>& currentItem = items_[i];
         if (currentItem == nullptr)
         {
             currentItem = std::move(newItem);
-            BindItemEvent(i, currentItem);
+            BindItemEvent(index, currentItem);
             return nullptr;
         }
+        ++index;
     }
     return newItem;
 }
@@ -228,7 +236,7 @@ int glimmer::ItemContainer::FindIndex(const Item* item)
     return -1;
 }
 
-const std::vector<glimmer::ItemTagResource*>& glimmer::ItemContainer::GetTotalTags()
+const std::vector<const glimmer::ItemTagResource*>& glimmer::ItemContainer::GetTotalTags()
 {
     if (needRefreshTag_)
     {

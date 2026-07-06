@@ -38,12 +38,10 @@
 
 glimmer::TextureResourceResult* glimmer::ItemSlotSystem::GetSlotTextureResult(const ItemSlotComponent* slotComponent) const
 {
-    if (hotBarComponent_ != nullptr && hotBarComponent_->GetSelectedSlotComponent() == slotComponent)
+    if (hotBarComponent_ != nullptr && hotBarComponent_->GetSelectedSlotComponent() == slotComponent &&
+        itemSlotSelectedTextureResult_ != nullptr)
     {
-        if (itemSlotSelectedTextureResult_ != nullptr)
-        {
-            return itemSlotSelectedTextureResult_.get();
-        }
+        return itemSlotSelectedTextureResult_.get();
     }
     if (itemSlotTextureResult_ != nullptr)
     {

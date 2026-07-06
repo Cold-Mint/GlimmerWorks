@@ -138,33 +138,37 @@ void glimmer::ButtonSystem::RenderButtonBackground(SDL_Renderer* renderer, Butto
         }
     }
 
-    if (backgroundTextureResult != nullptr)
+    if (backgroundTextureResult == nullptr)
     {
-        if (SDL_Texture* texture = backgroundTextureResult->GetResource(); texture != nullptr)
-        {
-            const ResourcePack* resourcePack = backgroundTextureResult->GetResourcePack();
-            if (resourcePack != nullptr)
-            {
-                const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
-                if (packConfig.buttonNineSlice.enableTiled)
-                {
-                    SDL_RenderTexture9GridTiled(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
-                                                packConfig.buttonNineSlice.rightBorderPx,
-                                                packConfig.buttonNineSlice.topBorderPx,
-                                                packConfig.buttonNineSlice.bottomBorderPx,
-                                                packConfig.buttonNineSlice.scale, &rect,
-                                                packConfig.buttonNineSlice.tileScale);
-                }
-                else
-                {
-                    SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
-                                           packConfig.buttonNineSlice.rightBorderPx,
-                                           packConfig.buttonNineSlice.topBorderPx,
-                                           packConfig.buttonNineSlice.bottomBorderPx,
-                                           packConfig.buttonNineSlice.scale, &rect);
-                }
-            }
-        }
+        return;
+    }
+    SDL_Texture* texture = backgroundTextureResult->GetResource();
+    if (texture == nullptr)
+    {
+        return;
+    }
+    const ResourcePack* resourcePack = backgroundTextureResult->GetResourcePack();
+    if (resourcePack == nullptr)
+    {
+        return;
+    }
+    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+    if (packConfig.buttonNineSlice.enableTiled)
+    {
+        SDL_RenderTexture9GridTiled(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
+                                    packConfig.buttonNineSlice.rightBorderPx,
+                                    packConfig.buttonNineSlice.topBorderPx,
+                                    packConfig.buttonNineSlice.bottomBorderPx,
+                                    packConfig.buttonNineSlice.scale, &rect,
+                                    packConfig.buttonNineSlice.tileScale);
+    }
+    else
+    {
+        SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
+                               packConfig.buttonNineSlice.rightBorderPx,
+                               packConfig.buttonNineSlice.topBorderPx,
+                               packConfig.buttonNineSlice.bottomBorderPx,
+                               packConfig.buttonNineSlice.scale, &rect);
     }
 }
 

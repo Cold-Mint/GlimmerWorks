@@ -45,16 +45,13 @@ void glimmer::Item::SetLockStatus(const bool locked)
 
 void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
 {
-#if  !defined(NDEBUG)
     tags_.clear();
-#endif
     tagMap_.clear();
     for (auto& tag : tags)
     {
-#if  !defined(NDEBUG)
-        tags_.emplace_back(tag);
-#endif
-        tagMap_.emplace(tag.GetCachedTagId(), tag.value);
+        uint64_t cachedTag = tag.GetCachedTagId();
+        tags_.emplace_back(cachedTag);
+        tagMap_.emplace(cachedTag, tag);
     }
 }
 
@@ -188,14 +185,14 @@ void glimmer::Item::SetAmount(const uint8_t amount)
     }
 }
 
-uint8_t glimmer::Item::GetTagValue(const uint64_t tag) const
+const glimmer::ItemTagResource* glimmer::Item::GetItemTagResource(const uint64_t tag) const
 {
     const auto tagIterator = tagMap_.find(tag);
     if (tagIterator == tagMap_.end())
     {
-        return 0;
+        return nullptr;
     }
-    return tagIterator->second;
+    return &tagIterator->second;
 }
 
 bool glimmer::Item::HasTag(const uint64_t tag) const
@@ -203,7 +200,7 @@ bool glimmer::Item::HasTag(const uint64_t tag) const
     return tagMap_.contains(tag);
 }
 
-const std::vector<glimmer::ItemTagResource>& glimmer::Item::GetTags() const
+const std::vector<uint64_t>& glimmer::Item::GetTags() const
 {
     return tags_;
 }

@@ -76,7 +76,7 @@ void glimmer::TileItem::Reduce(unsigned value)
 }
 
 void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                              std::unordered_set<std::string>& popupAbility)
+                              std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
 {
     if (tile_ == nullptr)
     {
@@ -139,10 +139,12 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
                 audioManager->TryPlayFree(
                     AMBIENT, tile_->GetPlaceSFX(), 0);
             }
-            DiggingSystem::BreakTile(BreakSource::PlayerOverride, worldContext, tileLayer,
-                                     blueprintComponent->GetTopLeftVector(), false, true,
-                                     tile_->GetTileWidth(), tile_->GetTileHeight(),
-                                     GetResourceRef());
+            DiggingSystem::BreakTile({
+                BreakSource::PlayerOverride, worldContext, tileLayer,
+                blueprintComponent->GetTopLeftVector(), false, true,
+                tile_->GetTileWidth(), tile_->GetTileHeight(),
+                GetResourceRef()
+            });
             (void)RemoveAmount(1);
         }
     }

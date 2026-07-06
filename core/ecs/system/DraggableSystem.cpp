@@ -152,7 +152,6 @@ void glimmer::DraggableSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 
 glimmer::DraggableSystem::DraggableSystem(WorldContext* worldContext)
     : GameSystem(worldContext),
-      item_(nullptr),
       appContext_(worldContext->GetAppContext())
 {
     WatchComponent(COMPONENT_TRANSFORM_2D);

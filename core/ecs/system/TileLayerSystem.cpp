@@ -74,7 +74,7 @@ glimmer::TileLayerSystem::TileLayerSystem(WorldContext* worldContext)
     Init();
 }
 
-bool glimmer::TileLayerSystem::ShouldDrawTile(const Color* finalLightColor, const Config* config) const
+bool glimmer::TileLayerSystem::ShouldDrawTile(const Color* finalLightColor, [[maybe_unused]] const Config* config) const
 {
 #if  defined(NDEBUG)
     if (finalLightColor == nullptr)

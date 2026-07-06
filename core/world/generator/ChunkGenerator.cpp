@@ -544,31 +544,30 @@ void glimmer::ChunkGenerator::PopulateChunkTiles(Chunk* chunk,
         for (int localY = 0; localY < CHUNK_SIZE; ++localY)
         {
             const int topLeftIndex = localY * CHUNK_SIZE + localX;
-            for (const auto& tileArrayPair : tilesRefMap)
-            {
-                const TileLayerType tileLayerType = tileArrayPair.first;
-                const ResourceRef& resourceRef = tileArrayPair.second[topLeftIndex];
-                const TileResource* tileResource = resourceLocator->FindTileRaw(&resourceRef);
-                if (tileResource == nullptr)
+            for (const auto& [tileLayerType, tileArray] : tilesRefMap)
                 {
-                    continue;
-                }
-                for (int x = 0; x < tileResource->tileWidth; x++)
-                {
-                    for (int y = 0; y < tileResource->tileHeight; y++)
+                    const ResourceRef& resourceRef = tileArray[topLeftIndex];
+                    const TileResource* tileResource = resourceLocator->FindTileRaw(&resourceRef);
+                    if (tileResource == nullptr)
                     {
-                        const int unitIndex = topLeftIndex + y * CHUNK_SIZE + x;
-                        TileStateMessage* tileStateMessage = chunk->GetOrCreateTileState(tileLayerType, unitIndex);
-                        tileStateMessage->set_placesource(PLACE_SOURCE_WORLD_GEN);
-                        tileStateMessage->set_width(tileResource->tileWidth);
-                        tileStateMessage->set_height(tileResource->tileHeight);
-                        tileStateMessage->mutable_offset()->set_x(x);
-                        tileStateMessage->mutable_offset()->set_y(y);
-                        resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-                        chunk->CommitTileState(BreakSource::ChunkGenerate, tileLayerType, unitIndex, true);
+                        continue;
+                    }
+                    for (int x = 0; x < tileResource->tileWidth; x++)
+                    {
+                        for (int y = 0; y < tileResource->tileHeight; y++)
+                        {
+                            const int unitIndex = topLeftIndex + y * CHUNK_SIZE + x;
+                            TileStateMessage* tileStateMessage = chunk->GetOrCreateTileState(tileLayerType, unitIndex);
+                            tileStateMessage->set_placesource(PLACE_SOURCE_WORLD_GEN);
+                            tileStateMessage->set_width(tileResource->tileWidth);
+                            tileStateMessage->set_height(tileResource->tileHeight);
+                            tileStateMessage->mutable_offset()->set_x(x);
+                            tileStateMessage->mutable_offset()->set_y(y);
+                            resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+                            chunk->CommitTileState(BreakSource::ChunkGenerate, tileLayerType, unitIndex, true);
+                        }
                     }
                 }
-            }
         }
     }
 }

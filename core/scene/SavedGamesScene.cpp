@@ -73,7 +73,7 @@ std::string glimmer::SavedGamesScene::FormatSaveLabel(const MapManifest* manifes
     return ss.str();
 }
 
-void glimmer::SavedGamesScene::RenderSavesList(SavesManager* savesManager)
+void glimmer::SavedGamesScene::RenderSavesList(const SavesManager* savesManager)
 {
     const size_t count = savesManager->GetSavesListSize();
     for (size_t i = 0; i < count; ++i)
@@ -144,8 +144,8 @@ void glimmer::SavedGamesScene::RenderDeletePopup(SavesManager* savesManager)
 
 void glimmer::SavedGamesScene::RenderSelectedSaveButtons(SavesManager* savesManager)
 {
-    const size_t count = savesManager->GetSavesListSize();
-    if (selectedSaveIndex < 0 || selectedSaveIndex >= static_cast<int>(count))
+    if (const size_t count = savesManager->GetSavesListSize();
+        selectedSaveIndex < 0 || selectedSaveIndex >= static_cast<int>(count))
     {
         return;
     }

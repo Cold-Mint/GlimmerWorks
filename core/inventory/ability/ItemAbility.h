@@ -30,6 +30,7 @@
 #include <unordered_set>
 
 #include "core/mod/Resource.h"
+#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer
 {
@@ -55,7 +56,7 @@ namespace glimmer
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const;
 
         virtual void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                           std::unordered_set<std::string>& popupAbility) = 0;
+                           std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) = 0;
 
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;
     };

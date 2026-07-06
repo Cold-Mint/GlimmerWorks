@@ -191,43 +191,35 @@ static bool CheckMiningEfficiency(const glimmer::Tile* tile, const glimmer::Item
     return true;
 }
 
-void glimmer::DiggingSystem::ProcessSingleTile(BreakSource breakSource,
-                                               WorldContext* worldContext,
-                                               const TileLayerComponent* tileLayerComponent,
-                                               const TileVector2D& topLeftVector,
+void glimmer::DiggingSystem::ProcessSingleTile(const TileBreakParams& params,
                                                const TileVector2D& currentVector,
-                                               bool precisionMining,
-                                               bool isPlaceMode,
-                                               uint8_t tileWidth,
-                                               uint8_t tileHeight,
-                                               const ResourceRef& newTileRef,
                                                Item* item,
                                                bool isCenter,
                                                uint8_t& sum)
 {
-    const AppContext* appContext = worldContext->GetAppContext();
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    const auto currentTile = tileLayerComponent->GetSelfLayerTileShared(currentVector);
-    if (!CanProcessTile(currentTile.get(), isPlaceMode))
+    const AppContext* appContext = params.worldContext->GetAppContext();
+    EntityManager* entityManager = params.worldContext->GetEntityManager();
+    const auto currentTile = params.tileLayerComponent->GetSelfLayerTileShared(currentVector);
+    if (!CanProcessTile(currentTile.get(), params.isPlaceMode))
     {
         return;
     }
-    TileStateMessage* tileStateMessage = tileLayerComponent->GetSelfLayerTileStateMutable(currentVector);
+    TileStateMessage* tileStateMessage = params.tileLayerComponent->GetSelfLayerTileStateMutable(currentVector);
     TileStateBackup backup;
     TilePlacementConfig config;
-    config.SetTileHeight(tileHeight);
-    config.SetTileWidth(tileWidth);
-    config.SetResourceRef(newTileRef);
-    config.SetPlaceMode(isPlaceMode);
-    config.SetBreakSource(breakSource);
-    if (!TryPlaceTile(tileLayerComponent, tileStateMessage, currentVector, topLeftVector,
+    config.SetTileHeight(params.tileHeight);
+    config.SetTileWidth(params.tileWidth);
+    config.SetResourceRef(params.newTileRef);
+    config.SetPlaceMode(params.isPlaceMode);
+    config.SetBreakSource(params.breakSource);
+    if (!TryPlaceTile(params.tileLayerComponent, tileStateMessage, currentVector, params.topLeftVector,
                       config, backup))
     {
         return;
     }
     sum++;
     ApplyItemDurability(item, currentTile.get(), isCenter);
-    if (isCenter && !isPlaceMode)
+    if (isCenter && !params.isPlaceMode)
     {
         auto breakSFX = currentTile->GetBreakSFX();
         if (breakSFX != nullptr)
@@ -243,26 +235,22 @@ void glimmer::DiggingSystem::ProcessSingleTile(BreakSource breakSource,
     {
         return;
     }
-    DropTileLoot(worldContext, entityManager, currentTile, currentVector,
-                 backup.GetResourceRef(), precisionMining);
+    DropTileLoot(params.worldContext, entityManager, currentTile, currentVector,
+                 backup.GetResourceRef(), params.precisionMining);
 }
 
-uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext* worldContext,
-                                           const TileLayerComponent* tileLayerComponent,
-                                           const TileVector2D& topLeftVector, bool precisionMining,
-                                           bool isPlaceMode, uint8_t tileWidth, uint8_t tileHeight,
-                                           const ResourceRef& newTileRef)
+uint16_t glimmer::DiggingSystem::BreakTile(const TileBreakParams& params)
 {
-    if (worldContext == nullptr || tileLayerComponent == nullptr)
+    if (params.worldContext == nullptr || params.tileLayerComponent == nullptr)
     {
         return 0;
     }
-    const AppContext* appContext = worldContext->GetAppContext();
+    const AppContext* appContext = params.worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return 0;
     }
-    const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    const EntityShortCut* entityShortCut = params.worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
         return 0;
@@ -272,7 +260,7 @@ uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext
     {
         return 0;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
+    EntityManager* entityManager = params.worldContext->GetEntityManager();
     if (entityManager == nullptr)
     {
         return 0;
@@ -288,17 +276,15 @@ uint16_t glimmer::DiggingSystem::BreakTile(BreakSource breakSource, WorldContext
         }
     }
     uint8_t sum = 0;
-    uint8_t centerX = tileWidth >> 1;
-    uint8_t centerY = tileHeight >> 1;
-    for (int x = 0; x < tileWidth; x++)
+    uint8_t centerX = params.tileWidth >> 1;
+    uint8_t centerY = params.tileHeight >> 1;
+    for (int x = 0; x < params.tileWidth; x++)
     {
-        for (int y = 0; y < tileHeight; y++)
+        for (int y = 0; y < params.tileHeight; y++)
         {
-            auto currentVector = TileVector2D(topLeftVector.x + x, topLeftVector.y - y);
+            auto currentVector = TileVector2D(params.topLeftVector.x + x, params.topLeftVector.y - y);
             bool isCenter = (x == centerX && y == centerY);
-            ProcessSingleTile(breakSource, worldContext, tileLayerComponent, topLeftVector,
-                              currentVector, precisionMining, isPlaceMode, tileWidth, tileHeight,
-                              newTileRef, item, isCenter, sum);
+            ProcessSingleTile(params, currentVector, item, isCenter, sum);
         }
     }
     return sum;
@@ -384,10 +370,10 @@ void glimmer::DiggingSystem::Update(const float delta)
                     {
                         continue;
                     }
-                    BreakTile(BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
+                    BreakTile({BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
                               diggingComponent_->IsPrecisionMining(), false, point->GetWidth(),
                               point->GetHeight(),
-                              TileResourceManager::GetAirResourceRef(tileLayerType));
+                              TileResourceManager::GetAirResourceRef(tileLayerType)});
                 }
             }
             // Reset digging after break

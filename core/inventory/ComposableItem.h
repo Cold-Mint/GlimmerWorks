@@ -95,7 +95,7 @@ namespace glimmer
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                   std::unordered_set<std::string>& popupAbility) override;
+            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
 
         [[nodiscard]] ItemContainer* GetItemContainer() const;
 

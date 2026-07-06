@@ -38,6 +38,9 @@ namespace glimmer
         static void PlaceTileAt(Chunk* chunk, TileLayerType tileLayerType, int index,
                                 const ResourceRef& resourceRef, const TileResource* tileResource, int x, int y);
 
+        static void PlaceTileAtWithSize(Chunk* chunk, TileLayerType tileLayerType, int index,
+                                        const ResourceRef& resourceRef, const TileResource* tileResource);
+
         bool ExecuteStructure(const CommandArgs* commandArgs, const CommandSender* commandSender,
                               AppContext* appContext, WorldContext* worldContext);
 

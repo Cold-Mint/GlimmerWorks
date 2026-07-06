@@ -53,7 +53,7 @@ namespace glimmer
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         GameEntityID playerEntityID_ = GAME_ENTITY_ID_INVALID;
-        std::unordered_set<std::string> popupAbility_;
+        std::unordered_set<std::string, TransparentStringHash, std::equal_to<>> popupAbility_;
         /**
         * Check if the player is on the ground
         * 检查玩家是否在地面上
@@ -76,7 +76,7 @@ namespace glimmer
          */
         void UseItem(Item* item);
 
-        void UpdateFlying(float delta, PlayerComponent* playerComponent,
+        void UpdateFlying(float delta, const PlayerComponent* playerComponent,
                           Transform2DComponent* transform2DComponent);
 
         void UpdateGroundedMovement(float delta, PlayerComponent* playerComponent,
@@ -88,8 +88,8 @@ namespace glimmer
         void ClampHorizontalSpeed(RigidBody2DComponent* rigidBody2DComponent,
                                   PlayerComponent* playerComponent, const b2Vec2& currentVel);
 
-        void CheckDropItem(PlayerComponent* playerComponent, ItemContainer* itemContainer,
-                           HotBarComponent* hotBarComponent);
+        void CheckDropItem(PlayerComponent* playerComponent, const ItemContainer* itemContainer,
+                           const HotBarComponent* hotBarComponent) const;
 
         void HandleMouseButton(const SDL_Event& event, PlayerComponent* playerComponent);
 

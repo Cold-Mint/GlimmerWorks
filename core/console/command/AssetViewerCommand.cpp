@@ -66,7 +66,7 @@ void glimmer::AssetViewerCommand::AddAssetEnumerator(std::unique_ptr<IAssetEnume
     {
         return;
     }
-    assetEnumerators_.emplace(assetEnumeratorPtr->GetAssetType(), std::move(assetEnumeratorPtr));
+    assetEnumerators_.try_emplace(assetEnumeratorPtr->GetAssetType(), std::move(assetEnumeratorPtr));
 }
 
 glimmer::AssetViewerCommand::AssetViewerCommand(AppContext* appContext)
@@ -122,11 +122,9 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
     const auto type = commandArgs->AsString(1);
-    auto it = assetEnumerators_.find(type);
-    if (it != assetEnumerators_.end())
+    if (auto it = assetEnumerators_.find(type); it != assetEnumerators_.end())
     {
-        auto result = it->second->ListAsset(appContext);
-        if (result.has_value())
+        if (auto result = it->second->ListAsset(appContext); result.has_value())
         {
             onMessageRef(result.value());
             return true;

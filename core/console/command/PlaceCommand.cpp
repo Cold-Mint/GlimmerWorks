@@ -86,6 +86,18 @@ void glimmer::PlaceCommand::PlaceTileAt(Chunk* chunk, TileLayerType tileLayerTyp
     chunk->CommitTileState(BreakSource::Console, tileLayerType, index, false);
 }
 
+void glimmer::PlaceCommand::PlaceTileAtWithSize(Chunk* chunk, TileLayerType tileLayerType, int index,
+                                                const ResourceRef& resourceRef, const TileResource* tileResource)
+{
+    for (int x = 0; x < tileResource->tileWidth; x++)
+    {
+        for (int y = 0; y < tileResource->tileHeight; y++)
+        {
+            PlaceTileAt(chunk, tileLayerType, index, resourceRef, tileResource, x, y);
+        }
+    }
+}
+
 bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, const CommandSender* commandSender,
                                              AppContext* appContext, WorldContext* worldContext)
 {
@@ -148,13 +160,7 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, con
                 continue;
             }
             const int index = relativeY << CHUNK_SHIFT | relativeX;
-            for (int x = 0; x < tileResource->tileWidth; x++)
-            {
-                for (int y = 0; y < tileResource->tileHeight; y++)
-                {
-                    PlaceTileAt(currentChunk, tileLayerType, index, resourceRef, tileResource, x, y);
-                }
-            }
+            PlaceTileAtWithSize(currentChunk, tileLayerType, index, resourceRef, tileResource);
         }
     }
 

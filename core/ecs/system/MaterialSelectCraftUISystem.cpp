@@ -135,14 +135,7 @@ bool glimmer::MaterialSelectCraftUISystem::ItemHasMatchingTag(const Item* item) 
     {
         return false;
     }
-    for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
-    {
-        if (item->HasTag(tagId))
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(tagRuntimeDataMap_, [item](const auto& pair) { return item->HasTag(pair.first); });
 }
 
 void glimmer::MaterialSelectCraftUISystem::CountMatchingItems()
@@ -295,9 +288,10 @@ void glimmer::MaterialSelectCraftUISystem::SetupItemSlots()
     UpdateItemSlotPositions();
 }
 
-glimmer::SelectedItemRuntimeData* glimmer::MaterialSelectCraftUISystem::FindSelectedItemBySlotIndex(uint8_t slotIndex)
+glimmer::SelectedItemRuntimeData* glimmer::MaterialSelectCraftUISystem::FindSelectedItemBySlotIndex(
+    const uint8_t slotIndex) const
 {
-    for (auto& selectedItem : selectedItemVector_)
+    for (const auto& selectedItem : selectedItemVector_)
     {
         if (selectedItem == nullptr)
         {
@@ -323,7 +317,7 @@ void glimmer::MaterialSelectCraftUISystem::RecalculateTagActualValues()
         tagRuntimeData->SetActualValue(0);
     }
 
-    for (auto& selectedItem : selectedItemVector_)
+    for (const auto& selectedItem : selectedItemVector_)
     {
         const uint8_t selectAmount = selectedItem->GetSelectedAmount();
         if (selectAmount == 0)
@@ -331,7 +325,7 @@ void glimmer::MaterialSelectCraftUISystem::RecalculateTagActualValues()
             continue;
         }
 
-        Item* selectedItemPtr = selectedItem->GetItem();
+        const Item* selectedItemPtr = selectedItem->GetItem();
         if (selectedItemPtr == nullptr)
         {
             continue;
@@ -339,12 +333,12 @@ void glimmer::MaterialSelectCraftUISystem::RecalculateTagActualValues()
 
         for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
         {
-            uint8_t value = selectedItemPtr->GetTagValue(tagId);
-            if (value == 0)
+            const ItemTagResource* itemTagResource = selectedItemPtr->GetItemTagResource(tagId);
+            if (itemTagResource == nullptr)
             {
                 continue;
             }
-            tagRuntimeData->AddActualValue(value * selectAmount);
+            tagRuntimeData->AddActualValue(itemTagResource->value * selectAmount);
         }
     }
 }
@@ -376,7 +370,7 @@ void glimmer::MaterialSelectCraftUISystem::UpdateButtonEnabledState()
 }
 
 void glimmer::MaterialSelectCraftUISystem::HandleSelectQuantityChanged(uint8_t slotIndex, Item* item,
-                                                                      uint8_t selectQuantity)
+                                                                       uint8_t selectQuantity)
 {
     SelectedItemRuntimeData* selectedItemRuntimeData = FindSelectedItemBySlotIndex(slotIndex);
 
@@ -598,7 +592,7 @@ void glimmer::MaterialSelectCraftUISystem::LoadBackgroundTextures()
 }
 
 void glimmer::MaterialSelectCraftUISystem::CalculateMaxTextureSizeForRender(DesignDimension& maxWidth,
-        DesignDimension& maxHeight) const
+                                                                            DesignDimension& maxHeight) const
 {
     maxWidth = 0.0F;
     maxHeight = 0.0F;
@@ -627,7 +621,8 @@ void glimmer::MaterialSelectCraftUISystem::CalculateMaxTextureSizeForRender(Desi
 }
 
 void glimmer::MaterialSelectCraftUISystem::RenderPanelBackground(SDL_Renderer* renderer, float panelX, float panelY,
-        DesignDimension maxTextureWidth, DesignDimension maxTextureHeight) const
+                                                                 DesignDimension maxTextureWidth,
+                                                                 DesignDimension maxTextureHeight) const
 {
     constexpr DesignDimension panelPadding = 8.0F;
     constexpr DesignDimension cellPadding = 4.0F;
@@ -684,7 +679,8 @@ void glimmer::MaterialSelectCraftUISystem::RenderPanelBackground(SDL_Renderer* r
 }
 
 void glimmer::MaterialSelectCraftUISystem::RenderTagTextures(SDL_Renderer* renderer, float panelX, float panelY,
-        DesignDimension maxTextureWidth, DesignDimension maxTextureHeight) const
+                                                             DesignDimension maxTextureWidth,
+                                                             DesignDimension maxTextureHeight) const
 {
     constexpr DesignDimension panelPadding = 8.0F;
     constexpr DesignDimension cellPadding = 4.0F;

@@ -40,8 +40,8 @@ namespace glimmer
     class ItemContainer
     {
         std::vector<std::unique_ptr<Item>> items_;
-        std::unordered_map<uint64_t, std::unique_ptr<ItemTagResource>> tagToValue_;
-        std::vector<ItemTagResource*> totalTagVector_;
+        std::unordered_map<uint64_t, ItemTagResource> tagToValue_;
+        std::vector<const ItemTagResource*> totalTagVector_;
 
         bool needRefreshTag_ = true;
 
@@ -99,7 +99,7 @@ namespace glimmer
          */
         [[nodiscard]] int FindIndex(const Item* item);
 
-        const std::vector<ItemTagResource*>& GetTotalTags();
+        const std::vector<const ItemTagResource*>& GetTotalTags();
 
         bool HasTag(uint64_t tag);
 

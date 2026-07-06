@@ -99,7 +99,8 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
         name = nameRes->value;
     }
     std::optional<std::string> description;
-    if (auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description); descriptionRes != nullptr)
+    if (auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description); descriptionRes
+        != nullptr)
     {
         description = descriptionRes->value;
     }
@@ -135,7 +136,8 @@ const glimmer::AbilityConfig* glimmer::ComposableItem::GetAbilityConfig() const
 }
 
 void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                                    std::unordered_set<std::string>& popupAbility)
+                                    std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
+                                    popupAbility)
 {
     EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
@@ -181,7 +183,6 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, c
     }
 }
 
-
 glimmer::ItemContainer* glimmer::ComposableItem::GetItemContainer() const
 {
     return itemContainer_.get();
@@ -189,7 +190,7 @@ glimmer::ItemContainer* glimmer::ComposableItem::GetItemContainer() const
 
 std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const
 {
-    auto composableItem = std::unique_ptr<ComposableItem>(new ComposableItem(*this));
+    auto composableItem = std::make_unique<ComposableItem>(*this);
     composableItem->AddCallback();
     return composableItem;
 }

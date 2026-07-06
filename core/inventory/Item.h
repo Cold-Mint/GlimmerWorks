@@ -44,8 +44,9 @@ namespace glimmer
         uint8_t amount_ = 1;
         bool locked_ = false;
         uint32_t usedDurability_ = 0;
-        std::vector<ItemTagResource> tags_;
-        std::unordered_map<uint64_t, uint8_t> tagMap_;
+        std::unordered_map<uint64_t, ItemTagResource> tagMap_;
+        std::vector<uint64_t> tags_;
+
         uint8_t maxStack_ = 1;
         std::function<void(ContainerChangeType, uint8_t)> onAmountChanged_ = nullptr;
         std::function<void(bool)> onLockStatusChanged_ = nullptr;
@@ -133,12 +134,12 @@ namespace glimmer
         void SetAmount(uint8_t amount);
 
         /**
-         * GetTagValue
-         * 获取标签值
+         * GetTag
+         * 获取标签
          * @param tag tag 标签
-         * @return Return the label value. If not found, return 0. 返回标签值，若找不到则返回0
+         * @return Return the label value. If not found, return nullptr. 返回标签值，若找不到则返回nullptr
          */
-        [[nodiscard]] uint8_t GetTagValue(uint64_t tag) const;
+        [[nodiscard]] const ItemTagResource* GetItemTagResource(uint64_t tag) const;
 
         /**
          * HasTag
@@ -154,7 +155,8 @@ namespace glimmer
          * 获取全部标签
          * @return
          */
-        [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
+        [[nodiscard]] const std::vector<uint64_t>& GetTags() const;
+
         /**
          * AddAmount
          * 添加数量
@@ -208,7 +210,7 @@ namespace glimmer
 
 
         virtual void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                           std::unordered_set<std::string>& popupAbility) = 0;
+                           std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) = 0;
 
         /**
          * Obtain the remaining durability points.

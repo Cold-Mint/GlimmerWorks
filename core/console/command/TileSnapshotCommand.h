@@ -34,7 +34,7 @@ namespace glimmer
 
     class TileSnapshotCommand : public Command
     {
-        static bool ExecuteInspector(AppContext* appContext,
+        static bool ExecuteInspector(const AppContext* appContext,
                                      const std::function<void(const std::string& text)>& onMessageRef,
                                      const LangsResources* langsResources);
 

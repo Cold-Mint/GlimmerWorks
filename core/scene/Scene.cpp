@@ -62,7 +62,7 @@ glimmer::AppContext* glimmer::Scene::GetAppContext() const
 void glimmer::Scene::Init()
 {
     initSubclassFinish_ = true;
-    AppContext* appContext = GetAppContext();
+    const AppContext* appContext = GetAppContext();
     if (appContext == nullptr)
     {
         return;

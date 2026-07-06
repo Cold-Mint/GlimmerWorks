@@ -94,29 +94,45 @@ namespace glimmer
 
     private:
         void UpdateItemSlotPositions() const;
+
         void UpdateButtonPosition() const;
 
         bool InitializeActivation();
+
         void InitializeTagRuntimeData();
+
         void CountMatchingItems();
+
         void CalculateMaxTextureSizeForActivation();
+
         void CalculatePanelDimensions();
+
         void SetupItemSlots();
+
         void SetupButton();
+
         void HandleSelectQuantityChanged(uint8_t slotIndex, Item* item, uint8_t selectQuantity);
+
         void HandleCraftButtonClick();
+
         void DeactivateUI();
 
         void LoadBackgroundTextures();
+
         void CalculateMaxTextureSizeForRender(DesignDimension& maxWidth, DesignDimension& maxHeight) const;
+
         void RenderPanelBackground(SDL_Renderer* renderer, float panelX, float panelY,
                                    DesignDimension maxTextureWidth, DesignDimension maxTextureHeight) const;
+
         void RenderTagTextures(SDL_Renderer* renderer, float panelX, float panelY,
                                DesignDimension maxTextureWidth, DesignDimension maxTextureHeight) const;
 
         bool ItemHasMatchingTag(const Item* item) const;
-        SelectedItemRuntimeData* FindSelectedItemBySlotIndex(uint8_t slotIndex);
+
+        SelectedItemRuntimeData* FindSelectedItemBySlotIndex(uint8_t slotIndex) const;
+
         void RecalculateTagActualValues();
+
         void UpdateButtonEnabledState();
     };
 }

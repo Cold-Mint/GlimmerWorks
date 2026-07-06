@@ -28,18 +28,20 @@
 #include "Scene.h"
 #include "core/LangsResources.h"
 
-namespace glimmer {
+namespace glimmer
+{
     class SavesManager;
     struct MapManifest;
 
-    class SavedGamesScene : public Scene {
+    class SavedGamesScene : public Scene
+    {
         int selectedSaveIndex = -1;
         float uiScale_ = 1.0F;
         LangsResources* langsResources_ = nullptr;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
 
-        void RenderSavesList(SavesManager* savesManager);
+        void RenderSavesList(const SavesManager* savesManager);
 
         void RenderSelectedSaveButtons(SavesManager* savesManager);
 
@@ -48,7 +50,7 @@ namespace glimmer {
         static std::string FormatSaveLabel(const MapManifest* manifest, const LangsResources* langsResources);
 
     public:
-        explicit SavedGamesScene(AppContext *context);
+        explicit SavedGamesScene(AppContext* context);
 
         void RenderImGui(SDL_Renderer* renderer) override;
 

@@ -159,13 +159,6 @@ bool glimmer::ConsoleOverlay::HandleGraveKey()
     return true;
 }
 
-void glimmer::ConsoleOverlay::ApplyAutocomplete(const std::string& text)
-{
-    pendingAutocomplete_ = text;
-    lastCursorPos_ = static_cast<int>(text.size());
-    nextCursorPos_ = lastCursorPos_;
-    focusNextFrame_ = true;
-}
 
 void glimmer::ConsoleOverlay::NavigateHistory(int direction)
 {
@@ -203,6 +196,13 @@ void glimmer::ConsoleOverlay::NavigateHistory(int direction)
     selectedSuggestionIndex_ = 0;
 }
 
+void glimmer::ConsoleOverlay::ApplyAutocomplete(const std::string& text)
+{   pendingAutocomplete_ = text;
+    lastCursorPos_ = static_cast<int>(text.size());
+    nextCursorPos_ = lastCursorPos_;
+    focusNextFrame_ = true;
+}
+
 bool glimmer::ConsoleOverlay::HandleUpKey()
 {
     if (!commandSuggestions_.empty())
@@ -235,8 +235,8 @@ bool glimmer::ConsoleOverlay::HandleRightKey()
     {
         return false;
     }
-    const int cursorPos = lastCursorPos_ < 0 ? 0 : lastCursorPos_;
-    if (cursorPos != static_cast<int>(command_.length()))
+    if (const int cursorPos = lastCursorPos_ < 0 ? 0 : lastCursorPos_;
+        cursorPos != static_cast<int>(command_.length()))
     {
         return false;
     }
@@ -450,7 +450,7 @@ void glimmer::ConsoleOverlay::RenderSuggestionItem(size_t index, const std::stri
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
 
-    const ImVec2 textPos = ImVec2(ImGui::GetItemRectMin().x + padding.x,
+    const auto textPos = ImVec2(ImGui::GetItemRectMin().x + padding.x,
                                   ImGui::GetItemRectMin().y + padding.y);
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     const ImU32 textColor = IM_COL32(preloadColors->console.textColor.r,

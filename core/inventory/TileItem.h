@@ -55,7 +55,7 @@ namespace glimmer
         void Reduce(unsigned value) override;
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-                   std::unordered_set<std::string>& popupAbility) override;
+            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
 
         [[nodiscard]] SDL_Texture* GetIcon() const override;
 

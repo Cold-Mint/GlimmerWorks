@@ -43,14 +43,11 @@ namespace glimmer
                              const ItemTagResource& itemTagResource);
 
         static std::string BuildTagListString(const std::string& tagItem, StringManager* stringManager,
-                                              const std::vector<ItemTagResource*>& tagList);
+                                              const std::vector<const ItemTagResource*>& tagList);
 
-        static std::string BuildTagListString(const std::string& tagItem, StringManager* stringManager,
-                                              const std::vector<ItemTagResource>& tagList);
-
-        bool ExecuteHand(const CommandSender* commandSender, const WorldContext* worldContext,
-                         const std::function<void(const std::string& text)>& onMessageRef,
-                         const AppContext* appContext, const LangsResources* langsResources);
+        static bool ExecuteHand(const CommandSender* commandSender, const WorldContext* worldContext,
+                                const std::function<void(const std::string& text)>& onMessageRef,
+                                const AppContext* appContext, const LangsResources* langsResources);
 
         static bool ExecuteInventory(const CommandSender* commandSender, const WorldContext* worldContext,
                                      const std::function<void(const std::string& text)>& onMessageRef,
@@ -61,7 +58,7 @@ namespace glimmer
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
-        [[nodiscard]] const std::string & GetName() const override;
+        [[nodiscard]] const std::string& GetName() const override;
 
         void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
 

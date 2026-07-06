@@ -28,7 +28,7 @@
 #if  !defined(NDEBUG)
 #include "core/scene/AppContext.h"
 
-const std::string_view glimmer::LightSourceAssetEnumerator::GetAssetType() const
+std::string_view glimmer::LightSourceAssetEnumerator::GetAssetType() const
 {
     return assetName;
 }

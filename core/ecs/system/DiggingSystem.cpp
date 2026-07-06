@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "DiggingSystem.h"
+#include <cstddef>
 #include "core/world/TileInstancePool.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 #include "core/world/WorldContext.h"
@@ -276,14 +277,14 @@ uint16_t glimmer::DiggingSystem::BreakTile(const TileBreakParams& params)
         }
     }
     uint8_t sum = 0;
-    uint8_t centerX = params.tileWidth >> 1;
-    uint8_t centerY = params.tileHeight >> 1;
+    std::byte centerX = static_cast<std::byte>(params.tileWidth >> 1);
+    std::byte centerY = static_cast<std::byte>(params.tileHeight >> 1);
     for (int x = 0; x < params.tileWidth; x++)
     {
         for (int y = 0; y < params.tileHeight; y++)
         {
             auto currentVector = TileVector2D(params.topLeftVector.x + x, params.topLeftVector.y - y);
-            bool isCenter = (x == centerX && y == centerY);
+            bool isCenter = (static_cast<std::byte>(x) == centerX && static_cast<std::byte>(y) == centerY);
             ProcessSingleTile(params, currentVector, item, isCenter, sum);
         }
     }
@@ -359,30 +360,31 @@ void glimmer::DiggingSystem::Update(const float delta)
             diggingComponent_->GetEfficiency() / diggingComponent_->GetMiningRangeData()->GetMaxHardness() * delta);
         if (diggingComponent_->GetProgress() >= 1.0F)
         {
-            const MiningRangeData* miningRangeData = diggingComponent_->GetMiningRangeData();
-            const size_t pointsCount = miningRangeData->GetPointsCount();
-            if (pointsCount > 0)
-            {
-                for (size_t i = 0; i < pointsCount; i++)
-                {
-                    const MiningRangeDataPoint* point = miningRangeData->GetPoint(i);
-                    if (point == nullptr)
-                    {
-                        continue;
-                    }
-                    BreakTile({BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
-                              diggingComponent_->IsPrecisionMining(), false, point->GetWidth(),
-                              point->GetHeight(),
-                              TileResourceManager::GetAirResourceRef(tileLayerType)});
-                }
-            }
-            // Reset digging after break
-            // 破坏方块重置挖掘
-            diggingComponent_->SetProgress(0.0F);
-            diggingComponent_->SetEnable(false);
+            ProcessMiningComplete(tileLayer, tileLayerType);
         }
         break;
     }
+}
+
+void glimmer::DiggingSystem::ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType)
+{
+    WorldContext* worldContext = GetWorldContext();
+    const MiningRangeData* miningRangeData = diggingComponent_->GetMiningRangeData();
+    const size_t pointsCount = miningRangeData->GetPointsCount();
+    for (size_t i = 0; i < pointsCount; i++)
+    {
+        const MiningRangeDataPoint* point = miningRangeData->GetPoint(i);
+        if (point == nullptr)
+        {
+            continue;
+        }
+        BreakTile({BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
+                  diggingComponent_->IsPrecisionMining(), false, point->GetWidth(),
+                  point->GetHeight(),
+                  TileResourceManager::GetAirResourceRef(tileLayerType)});
+    }
+    diggingComponent_->SetProgress(0.0F);
+    diggingComponent_->SetEnable(false);
 }
 
 void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
@@ -411,41 +413,44 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
     const MiningRangeData* miningRangeData = diggingComponent_->GetMiningRangeData();
     float zoom = cameraComponent_->GetZoom();
     size_t pointsCount = miningRangeData->GetPointsCount();
-    if (pointsCount > 0)
+    for (size_t i = 0; i < pointsCount; i++)
     {
-        for (size_t i = 0; i < pointsCount; i++)
+        const MiningRangeDataPoint* point = miningRangeData->GetPoint(i);
+        if (point == nullptr)
         {
-            const MiningRangeDataPoint* point = miningRangeData->GetPoint(i);
-            if (point == nullptr)
-            {
-                continue;
-            }
-            const TileVector2D& tileTopLeftPosition = point->GetTileTopLeftPosition();
-            const WorldVector2D tileTopLeftPositionWorld = CoordinateTransformer::TileToWorld({
-                tileTopLeftPosition.x, tileTopLeftPosition.y
-            });
-            const ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
-                cameraComponent_->GetZoom());
-            const auto maxIndex = static_cast<float>(textureResultList_.size() - 1);
-            const uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
-                                                                     maxIndex));
-            float w = TILE_SIZE * zoom * static_cast<float>(point->GetWidth());
-            float h = TILE_SIZE * zoom * static_cast<float>(point->GetHeight());
-            SDL_FRect dstRect = {
-                ScreenVector2D.x - w * 0.5F, ScreenVector2D.y - h * 0.5F, w,
-                h
-            };
-            auto& crackTextureResult = textureResultList_[crackIndex];
-            if (crackTextureResult != nullptr)
-            {
-                SDL_Texture* texture = crackTextureResult->GetResource();
-                if (texture != nullptr)
-                {
-                    SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
-                }
-            }
+            continue;
         }
+        RenderDiggingPoint(renderer, point, zoom);
+    }
+}
+
+void glimmer::DiggingSystem::RenderDiggingPoint(SDL_Renderer* renderer, const MiningRangeDataPoint* point, float zoom)
+{
+    const TileVector2D& tileTopLeftPosition = point->GetTileTopLeftPosition();
+    const WorldVector2D tileTopLeftPositionWorld = CoordinateTransformer::TileToWorld({
+        tileTopLeftPosition.x, tileTopLeftPosition.y
+    });
+    const ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
+        cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
+        cameraComponent_->GetZoom());
+    const auto maxIndex = static_cast<float>(textureResultList_.size() - 1);
+    const uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
+                                                             maxIndex));
+    float w = TILE_SIZE * zoom * static_cast<float>(point->GetWidth());
+    float h = TILE_SIZE * zoom * static_cast<float>(point->GetHeight());
+    SDL_FRect dstRect = {
+        ScreenVector2D.x - w * 0.5F, ScreenVector2D.y - h * 0.5F, w,
+        h
+    };
+    auto& crackTextureResult = textureResultList_[crackIndex];
+    if (crackTextureResult == nullptr)
+    {
+        return;
+    }
+    SDL_Texture* texture = crackTextureResult->GetResource();
+    if (texture != nullptr)
+    {
+        SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
     }
 }
 

@@ -28,7 +28,7 @@
 #if  !defined(NDEBUG)
 #include "core/scene/AppContext.h"
 
-const std::string_view glimmer::FixedColorAssetEnumerator::GetAssetType() const
+std::string_view glimmer::FixedColorAssetEnumerator::GetAssetType() const
 {
     return assetName;
 }

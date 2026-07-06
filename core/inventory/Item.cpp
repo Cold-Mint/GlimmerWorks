@@ -51,7 +51,7 @@ void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
     {
         uint64_t cachedTag = tag.GetCachedTagId();
         tags_.emplace_back(cachedTag);
-        tagMap_.emplace(cachedTag, tag);
+        tagMap_.try_emplace(cachedTag, tag);
     }
 }
 

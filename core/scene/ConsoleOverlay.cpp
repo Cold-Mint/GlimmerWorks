@@ -27,6 +27,7 @@
 #include "ConsoleOverlay.h"
 
 #include <algorithm>
+#include <string_view>
 #include "AppContext.h"
 #include "core/log/LogCat.h"
 #include "core/Config.h"
@@ -196,7 +197,7 @@ void glimmer::ConsoleOverlay::NavigateHistory(int direction)
     selectedSuggestionIndex_ = 0;
 }
 
-void glimmer::ConsoleOverlay::ApplyAutocomplete(const std::string& text)
+void glimmer::ConsoleOverlay::ApplyAutocomplete(std::string_view text)
 {   pendingAutocomplete_ = text;
     lastCursorPos_ = static_cast<int>(text.size());
     nextCursorPos_ = lastCursorPos_;
@@ -404,8 +405,7 @@ void glimmer::ConsoleOverlay::RenderMessages(float messagesHeight)
     if (scrollToBottom_)
     {
         const float scrollY = ImGui::GetScrollY();
-        const float scrollMaxY = ImGui::GetScrollMaxY();
-        if (scrollMaxY - scrollY < 5.0F)
+        if (const float scrollMaxY = ImGui::GetScrollMaxY(); scrollMaxY - scrollY < 5.0F)
         {
             ImGui::SetScrollHereY(1.0F);
         }

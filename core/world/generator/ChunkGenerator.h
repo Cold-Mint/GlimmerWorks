@@ -106,6 +106,12 @@ namespace glimmer
                                        const ResourceRef& waterTileRef,
                                        const ResourceRef& bedrockTileRef);
 
+        static void SetTileRefForTerrainType(int idx, const TerrainTileResult& terrainTileResult,
+                                             std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
+                                             std::unordered_set<BiomeResource*>& biomeResourcesSet,
+                                             const ResourceRef& waterTileRef,
+                                             const ResourceRef& bedrockTileRef);
+
         static void ApplyBiomeDecorators(const std::unordered_set<BiomeResource*>& biomeResourcesSet,
                                          ResourceLocator* resourceLocator,
                                          BiomeDecoratorManager* biomeDecoratorManager,

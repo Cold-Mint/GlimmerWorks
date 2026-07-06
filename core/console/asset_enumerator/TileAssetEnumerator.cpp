@@ -28,7 +28,7 @@
 #if  !defined(NDEBUG)
 #include "core/scene/AppContext.h"
 
-const std::string_view glimmer::TileAssetEnumerator::GetAssetType() const
+std::string_view glimmer::TileAssetEnumerator::GetAssetType() const
 {
     return assetName;
 }

@@ -35,7 +35,7 @@ namespace glimmer
         std::string assetName = "startinv";
 
     public:
-        [[nodiscard]] const std::string_view GetAssetType() const override;
+        [[nodiscard]] std::string_view GetAssetType() const override;
 
         [[nodiscard]] std::optional<std::string> ListAsset(const AppContext* appContext) override;
     };

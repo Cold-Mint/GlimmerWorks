@@ -102,9 +102,10 @@ void glimmer::TagCommand::PutCommandStructure(const CommandArgs* commandArgs, st
     strings->emplace_back("[type:string]");
 }
 
+template<typename MessageCallback>
 bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* commandSender,
                                       const WorldContext* worldContext,
-                                      const std::function<void(const std::string& text)>& onMessageRef,
+                                      MessageCallback&& onMessageRef,
                                       const AppContext* appContext, const LangsResources* langsResources)
 {
     const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
@@ -153,9 +154,10 @@ bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* comm
     return true;
 }
 
+template<typename MessageCallback>
 bool glimmer::TagCommand::ExecuteInventory([[maybe_unused]] const CommandSender* commandSender,
                                            const WorldContext* worldContext,
-                                           const std::function<void(const std::string& text)>& onMessageRef,
+                                           MessageCallback&& onMessageRef,
                                            const AppContext* appContext, const LangsResources* langsResources)
 {
     const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();

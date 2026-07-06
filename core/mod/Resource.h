@@ -789,7 +789,6 @@ namespace glimmer
     //@genNextLine(RequiredTag|需要的标签)
     class RequiredTag
     {
-    private:
         uint64_t cachedTagId_ = 0;
 
     public:

@@ -105,6 +105,10 @@ namespace glimmer
                                       bool isCenter,
                                       uint8_t& sum);
 
+        void ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType);
+
+        void RenderDiggingPoint(SDL_Renderer* renderer, const MiningRangeDataPoint* point, float zoom);
+
     public:
         /**
      * BreakTile

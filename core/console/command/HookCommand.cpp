@@ -193,8 +193,9 @@ glimmer::NodeTree<std::string>* glimmer::HookCommand::GetSuggestionsTree(const C
     return &GetPrivateSuggestionsTree();
 }
 
+template<typename MessageCallback>
 bool glimmer::HookCommand::ExecuteAdd(const CommandArgs* commandArgs,
-                                      const std::function<void(const std::string& text)>& onMessageRef, size_t size,
+                                      MessageCallback&& onMessageRef, size_t size,
                                       CommandHookManager* commandHookManager, const LangsResources* langsResources)
 {
     if (size < 4)
@@ -256,8 +257,9 @@ bool glimmer::HookCommand::ExecuteAdd(const CommandArgs* commandArgs,
     return true;
 }
 
+template<typename MessageCallback>
 bool glimmer::HookCommand::ExecuteRemove(const CommandArgs* commandArgs,
-                                         const std::function<void(const std::string& text)>& onMessageRef,
+                                         MessageCallback&& onMessageRef,
                                          CommandHookManager* commandHookManager, const LangsResources* langsResources)
 {
     auto hookId = commandArgs->AsString(2);
@@ -272,8 +274,9 @@ bool glimmer::HookCommand::ExecuteRemove(const CommandArgs* commandArgs,
     return false;
 }
 
+template<typename MessageCallback>
 bool glimmer::HookCommand::ExecuteList(const CommandArgs* commandArgs,
-                                       const std::function<void(const std::string& text)>& onMessageRef, size_t size,
+                                       MessageCallback&& onMessageRef, size_t size,
                                        CommandHookManager* commandHookManager, const LangsResources* langsResources)
 {
     const SDL_EventType eventType = EventTypeUtils::StringToEventType(commandArgs->AsString(2));
@@ -322,7 +325,7 @@ bool glimmer::HookCommand::ExecuteList(const CommandArgs* commandArgs,
 bool glimmer::HookCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                    const std::function<void(const std::string& text)>* onMessage)
 {
-    AppContext* appContext = GetAppContext();
+    const AppContext* appContext = GetAppContext();
     if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;

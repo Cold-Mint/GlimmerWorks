@@ -103,7 +103,7 @@ namespace glimmer
 
         void NavigateHistory(int direction);
 
-        void ApplyAutocomplete(const std::string& text);
+        void ApplyAutocomplete(std::string_view text);
 
         void RenderMessages(float messagesHeight);
 

@@ -143,7 +143,8 @@ void glimmer::AutoPickSystem::ProcessMagnetEntity(GameEntityID entity)
         {
             return;
         }
-        if (MIX_Audio* audio = pickItemSFXResult_->GetResource(); audio != nullptr)
+        MIX_Audio* audio = pickItemSFXResult_->GetResource();
+        if (audio != nullptr)
         {
             audioManager_->TryPlayFree(AMBIENT, audio, 0);
         }

@@ -45,16 +45,19 @@ namespace glimmer
 
         void UpdateListSuggestionsTree(NodeTree<std::string>* operationTypeTree, const std::string& eventTypeString);
 
+        template<typename MessageCallback>
         bool ExecuteAdd(const CommandArgs* commandArgs,
-                        const std::function<void(const std::string& text)>& onMessageRef, size_t size,
+                        MessageCallback&& onMessageRef, size_t size,
                         CommandHookManager* commandHookManager, const LangsResources* langsResources);
 
+        template<typename MessageCallback>
         static bool ExecuteRemove(const CommandArgs* commandArgs,
-                                  const std::function<void(const std::string& text)>& onMessageRef,
+                                  MessageCallback&& onMessageRef,
                                   CommandHookManager* commandHookManager, const LangsResources* langsResources);
 
+        template<typename MessageCallback>
         bool ExecuteList(const CommandArgs* commandArgs,
-                         const std::function<void(const std::string& text)>& onMessageRef, size_t size,
+                         MessageCallback&& onMessageRef, size_t size,
                          CommandHookManager* commandHookManager, const LangsResources* langsResources);
 
     public:

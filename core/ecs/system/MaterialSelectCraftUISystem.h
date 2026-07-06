@@ -115,7 +115,7 @@ namespace glimmer
 
         void HandleCraftButtonClick();
 
-        void DeactivateUI();
+        void DeactivateUI() const;
 
         void LoadBackgroundTextures();
 

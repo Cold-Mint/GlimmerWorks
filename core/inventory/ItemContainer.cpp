@@ -172,7 +172,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
         return nullptr;
     }
     uint8_t index = 0;
-    for (auto& currentItem : items_)
+    for (const auto& currentItem : items_)
     {
         if (currentItem == nullptr)
         {

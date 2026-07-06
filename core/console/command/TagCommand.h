@@ -45,12 +45,14 @@ namespace glimmer
         static std::string BuildTagListString(const std::string& tagItem, StringManager* stringManager,
                                               const std::vector<const ItemTagResource*>& tagList);
 
+        template<typename MessageCallback>
         static bool ExecuteHand(const CommandSender* commandSender, const WorldContext* worldContext,
-                                const std::function<void(const std::string& text)>& onMessageRef,
+                                MessageCallback&& onMessageRef,
                                 const AppContext* appContext, const LangsResources* langsResources);
 
+        template<typename MessageCallback>
         static bool ExecuteInventory(const CommandSender* commandSender, const WorldContext* worldContext,
-                                     const std::function<void(const std::string& text)>& onMessageRef,
+                                     MessageCallback&& onMessageRef,
                                      const AppContext* appContext, const LangsResources* langsResources);
 
     public:

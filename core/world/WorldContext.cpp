@@ -484,8 +484,7 @@ void glimmer::WorldContext::OnPlayerItemChanged(const uint8_t index, Item* item,
         playerComponent->SetItem(nullptr);
         return;
     }
-    const uint8_t amount = item->GetAmount();
-    if (amount == 0)
+    if (const uint8_t amount = item->GetAmount(); amount == 0)
     {
         playerComponent->SetItem(nullptr);
         return;
@@ -1027,8 +1026,28 @@ void glimmer::WorldContext::OnFrameStart()
         }
     }
     onComponentCountChangeBuffer_.clear();
-    // Batch mobile activation system
-    // 批量移动激活系统
+    MoveSystemsToActive(toActivate);
+    MoveSystemsToInactive(toDeactivate);
+    if (changed)
+    {
+        std::ranges::stable_sort(activeSystems_,
+                                 [](const std::unique_ptr<GameSystem>& a, const std::unique_ptr<GameSystem>& b)
+                                 {
+                                     return a->GetRenderOrder() < b->GetRenderOrder();
+                                 });
+    }
+    for (auto& system : activeSystems_)
+    {
+        if (system == nullptr)
+        {
+            continue;
+        }
+        system->OnFrameStart();
+    }
+}
+
+void glimmer::WorldContext::MoveSystemsToActive(std::queue<GameSystem*>& toActivate)
+{
     while (!toActivate.empty())
     {
         GameSystem* system = toActivate.front();
@@ -1047,9 +1066,10 @@ void glimmer::WorldContext::OnFrameStart()
         activeSystems_.emplace_back(std::move(*it));
         inactiveSystems_.erase(it);
     }
+}
 
-    // Batch mobile deactivation of the system
-    // 批量移动停用系统
+void glimmer::WorldContext::MoveSystemsToInactive(std::queue<GameSystem*>& toDeactivate)
+{
     while (!toDeactivate.empty())
     {
         GameSystem* system = toDeactivate.front();
@@ -1067,24 +1087,6 @@ void glimmer::WorldContext::OnFrameStart()
         }
         inactiveSystems_.emplace_back(std::move(*it));
         activeSystems_.erase(it);
-    }
-    // //Sort by rendering order (lower layers at the bottom, upper layers at the top)
-    // //按渲染顺序排序（低层在底，高层在上）
-    if (changed)
-    {
-        std::ranges::stable_sort(activeSystems_,
-                                 [](const std::unique_ptr<GameSystem>& a, const std::unique_ptr<GameSystem>& b)
-                                 {
-                                     return a->GetRenderOrder() < b->GetRenderOrder();
-                                 });
-    }
-    for (auto& system : activeSystems_)
-    {
-        if (system == nullptr)
-        {
-            continue;
-        }
-        system->OnFrameStart();
     }
 }
 

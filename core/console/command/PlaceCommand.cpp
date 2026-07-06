@@ -182,16 +182,14 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const size_t size = commandArgs->GetSize();
-    if (size < 5)
+    if (const size_t size = commandArgs->GetSize(); size < 5)
     {
         onMessageRef(fmt::format(
             fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             5, size));
         return false;
     }
-    std::string type = commandArgs->AsString(1);
-    if (type == "structure")
+    if (std::string type = commandArgs->AsString(1); type == "structure")
     {
         return ExecuteStructure(commandArgs, commandSender, appContext, worldContext);
     }

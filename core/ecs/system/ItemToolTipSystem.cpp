@@ -26,6 +26,7 @@
  */
 #include "ItemToolTipSystem.h"
 
+#include <cstddef>
 #include "core/math/CoordinateTransformer.h"
 #include "core/utils/StringUtils.h"
 #include "core/world/WorldContext.h"
@@ -117,7 +118,7 @@ void glimmer::ItemToolTipSystem::UpdateAbilityTextures(const AbilityConfig* abil
         return;
     }
 
-    if ((abilityConfig->mineAbleLayer & Ground) != 0)
+    if ((static_cast<std::byte>(abilityConfig->mineAbleLayer) & static_cast<std::byte>(Ground)) != std::byte{})
     {
         const uint64_t canMineBlockFingerprint = StringUtils::StringToUint64(langsResources->canMineBlockTip);
         if (canMineBlockFingerprint != canMineBlockTipCache_.fingerprint)
@@ -133,7 +134,7 @@ void glimmer::ItemToolTipSystem::UpdateAbilityTextures(const AbilityConfig* abil
         }
     }
 
-    if ((abilityConfig->mineAbleLayer & BackGround) != 0)
+    if ((static_cast<std::byte>(abilityConfig->mineAbleLayer) & static_cast<std::byte>(BackGround)) != std::byte{})
     {
         const uint64_t canMineWallFingerprint = StringUtils::StringToUint64(langsResources->canMineWallTip);
         if (canMineWallFingerprint != canMineWallTipCache_.fingerprint)

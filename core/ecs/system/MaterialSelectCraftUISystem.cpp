@@ -222,9 +222,9 @@ void glimmer::MaterialSelectCraftUISystem::SetupItemSlots()
 {
     WorldContext* worldContext = GetWorldContext();
     EntityManager* entityManager = GetEntityManager();
-    EntityShortCut* entityShortCut = GetEntityShortCut();
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
 
-    ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
     if (itemContainerComponent == nullptr)
     {
         worldContext->PopGuiSystemType();
@@ -312,7 +312,7 @@ glimmer::SelectedItemRuntimeData* glimmer::MaterialSelectCraftUISystem::FindSele
 
 void glimmer::MaterialSelectCraftUISystem::RecalculateTagActualValues()
 {
-    for (auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
+    for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
     {
         tagRuntimeData->SetActualValue(0);
     }
@@ -454,7 +454,7 @@ void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick()
     worldContext->PopGuiSystemType();
 }
 
-void glimmer::MaterialSelectCraftUISystem::DeactivateUI()
+void glimmer::MaterialSelectCraftUISystem::DeactivateUI() const
 {
     for (auto itemSlotQuantityComponent : itemSlotQuantityVector_)
     {

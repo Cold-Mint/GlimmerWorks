@@ -469,37 +469,40 @@ void glimmer::ChunkGenerator::InitializeTileRefs(TerrainResult* terrainResult,
         {
             const int idx = localY * CHUNK_SIZE + localX;
             const auto& terrainTileResult = terrainResult->QueryTerrain(localX, localY);
-            const auto terrainType = terrainTileResult.terrainType;
             tilesRefMap[BackGround][idx] = TileResourceManager::GetAirResourceRef(BackGround);
-            if (terrainType == AIR)
-            {
-                tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
-                continue;
-            }
-            if (terrainType == WATER)
-            {
-                tilesRefMap[Ground][idx] = waterTileRef;
-                continue;
-            }
-            if (terrainType == BEDROCK)
-            {
-                tilesRefMap[Ground][idx] = bedrockTileRef;
-                continue;
-            }
-            if (terrainType == STRUCTURE)
-            {
-                tilesRefMap[Ground][idx] = terrainTileResult.resRef;
-                continue;
-            }
-            if (terrainType == SOLID)
-            {
-                tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
-                if (terrainTileResult.biomeResource != nullptr)
-                {
-                    biomeResourcesSet.insert(terrainTileResult.biomeResource);
-                }
-            }
+            SetTileRefForTerrainType(idx, terrainTileResult, tilesRefMap, biomeResourcesSet, waterTileRef, bedrockTileRef);
         }
+    }
+}
+
+void glimmer::ChunkGenerator::SetTileRefForTerrainType(int idx, const TerrainTileResult& terrainTileResult,
+                                                       std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
+                                                       std::unordered_set<BiomeResource*>& biomeResourcesSet,
+                                                       const ResourceRef& waterTileRef,
+                                                       const ResourceRef& bedrockTileRef)
+{
+    const auto terrainType = terrainTileResult.terrainType;
+    switch (terrainType)
+    {
+    case AIR:
+        tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
+        break;
+    case WATER:
+        tilesRefMap[Ground][idx] = waterTileRef;
+        break;
+    case BEDROCK:
+        tilesRefMap[Ground][idx] = bedrockTileRef;
+        break;
+    case STRUCTURE:
+        tilesRefMap[Ground][idx] = terrainTileResult.resRef;
+        break;
+    case SOLID:
+        tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
+        if (terrainTileResult.biomeResource != nullptr)
+        {
+            biomeResourcesSet.insert(terrainTileResult.biomeResource);
+        }
+        break;
     }
 }
 

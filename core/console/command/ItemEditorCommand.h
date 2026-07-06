@@ -38,8 +38,9 @@ namespace glimmer
 
         static std::string GetItemAttribute(const std::string& attribute, Item* item);
 
+        template<typename MessageCallback>
         static Item* GetPlayerHeldItem(const WorldContext* worldContext, const LangsResources* langsResources,
-                               const std::function<void(const std::string& text)>& onMessageRef);
+                               MessageCallback&& onMessageRef);
 
     protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;

@@ -60,6 +60,10 @@ namespace glimmer
     {
         void RegisterSystem(std::unique_ptr<GameSystem> system);
 
+        void MoveSystemsToActive(std::queue<GameSystem*>& toActivate);
+
+        void MoveSystemsToInactive(std::queue<GameSystem*>& toDeactivate);
+
         uint32_t chunkSnapshot_ = 0;
         uint32_t lastChunkSnapshot_ = UINT32_MAX;
 

@@ -167,10 +167,10 @@ std::string glimmer::ItemEditorCommand::GetItemAttribute(const std::string& attr
     return value.str();
 }
 
+template<typename MessageCallback>
 glimmer::Item* glimmer::ItemEditorCommand::GetPlayerHeldItem(const WorldContext* worldContext,
                                                              const LangsResources* langsResources,
-                                                             const std::function<void(const std::string& text)>&
-                                                             onMessageRef)
+                                                             MessageCallback&& onMessageRef)
 {
     const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)

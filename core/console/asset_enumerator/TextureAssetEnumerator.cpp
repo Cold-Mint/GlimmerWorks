@@ -29,7 +29,7 @@
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/scene/AppContext.h"
 
-const std::string_view glimmer::TextureAssetEnumerator::GetAssetType() const
+std::string_view glimmer::TextureAssetEnumerator::GetAssetType() const
 {
     return assetName;
 }

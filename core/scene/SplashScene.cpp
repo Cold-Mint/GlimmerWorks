@@ -55,7 +55,8 @@ void glimmer::SplashScene::Update(float delta)
     if (!sceneJumped_ && SDL_GetTicks() >= nextSceneTime_)
     {
         sceneJumped_ = true;
-        appContext_->GetSceneManager()->ReplaceScene(std::make_unique<HomeScene>(appContext_));
+        AppContext* appContext = GetAppContext();
+        appContext->GetSceneManager()->ReplaceScene(std::make_unique<HomeScene>(appContext));
     }
 }
 
@@ -67,7 +68,7 @@ void glimmer::SplashScene::Render(SDL_Renderer* renderer)
         splashTextureRef.SetSelfPackageId(RESOURCE_REF_CORE);
         splashTextureRef.SetResourceKey("gui/splash");
         splashTextureRef.SetResourceType(RESOURCE_TEXTURE);
-        splashTextureResult_ = appContext_->GetResourceLocator()->FindTexture(
+        splashTextureResult_ = GetAppContext()->GetResourceLocator()->FindTexture(
             &splashTextureRef);
         fadeTween_ = tweeny::from(0.0F).to(1.0F).during(1000);
         alpha_ = 0.0F;

@@ -80,36 +80,40 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
     for (auto entity : entities_)
     {
         auto debugDrawComponent = entityManager->GetComponent<DebugDrawComponent>(entity);
-        if (debugDrawComponent != nullptr)
+        if (debugDrawComponent == nullptr)
         {
-            auto worldPositionComponent = entityManager->GetComponent<Transform2DComponent>(entity);
-            if (worldPositionComponent != nullptr)
-            {
-                auto ScreenVector2D = CoordinateTransformer::WorldToScreen(
-                    cameraTransform2DComponent_->GetPosition(), worldPositionComponent->GetPosition(), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
-                if (!cameraComponent_->
-                    IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
-                                      worldPositionComponent->GetPosition()))
-                {
-                    continue;
-                }
-                SDL_Color oldColor = {255, 255, 255, 255};
-                SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-                const auto color = debugDrawComponent->GetColor();
-                SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-                SDL_FRect renderQuad;
-                WorldVector2D worldVector2D = debugDrawComponent->GetSize();
-                float zoom = cameraComponent_->GetZoom();
-                float w = worldVector2D.x * zoom;
-                float h = worldVector2D.y * zoom;
-                renderQuad.w = w;
-                renderQuad.h = h;
-                renderQuad.x = ScreenVector2D.x - w * 0.5F;
-                renderQuad.y = ScreenVector2D.y - h * 0.5F;
-                SDL_RenderFillRect(renderer, &renderQuad);
-                SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
-            }
+            continue;
         }
+        auto worldPositionComponent = entityManager->GetComponent<Transform2DComponent>(entity);
+        if (worldPositionComponent == nullptr)
+        {
+            continue;
+        }
+        if (!cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
+                                                worldPositionComponent->GetPosition()))
+        {
+            continue;
+        }
+        const auto ScreenVector2D = CoordinateTransformer::WorldToScreen(
+            cameraTransform2DComponent_->GetPosition(), worldPositionComponent->GetPosition(),
+            cameraComponent_->GetSize(), cameraComponent_->GetZoom());
+
+        SDL_Color oldColor = {255, 255, 255, 255};
+        SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
+        const auto color = debugDrawComponent->GetColor();
+        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+        SDL_FRect renderQuad;
+        const WorldVector2D worldVector2D = debugDrawComponent->GetSize();
+        const float zoom = cameraComponent_->GetZoom();
+        const float w = worldVector2D.x * zoom;
+        const float h = worldVector2D.y * zoom;
+        renderQuad.w = w;
+        renderQuad.h = h;
+        renderQuad.x = ScreenVector2D.x - w * 0.5F;
+        renderQuad.y = ScreenVector2D.y - h * 0.5F;
+        SDL_RenderFillRect(renderer, &renderQuad);
+        SDL_SetRenderDrawColor(renderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
     }
 }
 

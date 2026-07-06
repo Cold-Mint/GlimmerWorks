@@ -33,20 +33,19 @@ namespace glimmer
     class ResourceResult
     {
         const ResourcePack* resourcePack_ = nullptr;
-
-    protected:
         T* resource_ = nullptr;
 
-    public:
+    protected:
         virtual ~ResourceResult() = default;
 
-        void SetResource(T* resource);
+        virtual void DestroyResource() = 0;
 
+    public:
         void SetResourcePack(const ResourcePack* resourcePack);
 
         [[nodiscard]] const ResourcePack* GetResourcePack() const;
 
-        virtual void DestroyResource() = 0;
+        void SetResource(T* resource);
 
         [[nodiscard]] T* GetResource() const;
     };

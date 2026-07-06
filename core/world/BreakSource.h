@@ -29,6 +29,7 @@ namespace glimmer
 {
     enum class BreakSource
     {
+        None,
         ChunkLoad,
         PlayerMining,
         PlayerOverride,

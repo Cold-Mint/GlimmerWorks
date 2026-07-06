@@ -72,10 +72,51 @@ void glimmer::InventoryCraftGUISystem::Render(SDL_Renderer* renderer)
     SDL_RenderTexture(renderer, craftTexture_.get(), nullptr, &dstRect);
 }
 
-void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
+void glimmer::InventoryCraftGUISystem::UpdateCraftPreviewSlots(const std::vector<RecipeResource*>& recipeResources)
 {
     EntityManager* entityManager = GetEntityManager();
     WorldContext* worldContext = GetWorldContext();
+    DesignDimension padding = 5;
+    unlockedRecipesSize_ = recipeResources.size();
+    DesignVector2D craftPreviewSlotStartPosition{padding, ITEM_SLOT_SIZE * 6};
+    auto gridLayoutStepper = GridLayoutStepper(ITEM_SLOT_SIZE, craftPreviewSlotStartPosition, HOT_BAR_SIZE, padding,
+                                               unlockedRecipesSize_);
+    for (int i = 0; i < unlockedRecipesSize_; i++)
+    {
+        CraftPreviewSlotComponent* craftPreviewSlotComponent;
+        if (i == craftPreviewSlot_.size())
+        {
+            auto craftPreviewSlotEntity = entityManager->AddEntity();
+            craftPreviewSlotComponent = entityManager->AddComponent<CraftPreviewSlotComponent>(
+                craftPreviewSlotEntity);
+            craftPreviewSlot_.emplace_back(craftPreviewSlotComponent);
+        }
+        else
+        {
+            craftPreviewSlotComponent = craftPreviewSlot_[i];
+        }
+        craftPreviewSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
+        const DesignVector2D& position = gridLayoutStepper.Next();
+        craftPreviewSlotComponent->SetPosition(position);
+        craftPreviewSlotComponent->SetRecipeResource(worldContext, recipeResources[i]);
+        craftPreviewSlotComponent->Show();
+    }
+    if (craftPreviewSlot_.size() > unlockedRecipesSize_)
+    {
+        for (auto i = static_cast<int>(unlockedRecipesSize_); i < craftPreviewSlot_.size(); i++)
+        {
+            CraftPreviewSlotComponent* craftPreviewSlotComponent = craftPreviewSlot_[i];
+            if (craftPreviewSlotComponent == nullptr)
+            {
+                continue;
+            }
+            craftPreviewSlotComponent->Hide();
+        }
+    }
+}
+
+void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
+{
     if (activeStatus)
     {
         for (auto inventoryItemSlot : inventoryItemSlot_)
@@ -84,43 +125,7 @@ void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
         }
         std::vector<RecipeResource*> recipeResources = recipeManager_->FindUnlockedRecipes(
             playerComponent_->GetTechnologyMap(), itemContainer_->GetTotalTags());
-        DesignDimension padding = 5;
-        unlockedRecipesSize_ = recipeResources.size();
-        DesignVector2D craftPreviewSlotStartPosition{padding, ITEM_SLOT_SIZE * 6};
-        auto gridLayoutStepper = GridLayoutStepper(ITEM_SLOT_SIZE, craftPreviewSlotStartPosition, HOT_BAR_SIZE, padding,
-                                                   unlockedRecipesSize_);
-        for (int i = 0; i < unlockedRecipesSize_; i++)
-        {
-            CraftPreviewSlotComponent* craftPreviewSlotComponent;
-            if (i == craftPreviewSlot_.size())
-            {
-                auto craftPreviewSlotEntity = entityManager->AddEntity();
-                craftPreviewSlotComponent = entityManager->AddComponent<CraftPreviewSlotComponent>(
-                    craftPreviewSlotEntity);
-                craftPreviewSlot_.emplace_back(craftPreviewSlotComponent);
-            }
-            else
-            {
-                craftPreviewSlotComponent = craftPreviewSlot_[i];
-            }
-            craftPreviewSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
-            const DesignVector2D& position = gridLayoutStepper.Next();
-            craftPreviewSlotComponent->SetPosition(position);
-            craftPreviewSlotComponent->SetRecipeResource(worldContext, recipeResources[i]);
-            craftPreviewSlotComponent->Show();
-        }
-        if (craftPreviewSlot_.size() > unlockedRecipesSize_)
-        {
-            for (int i = static_cast<int>(unlockedRecipesSize_); i < craftPreviewSlot_.size(); i++)
-            {
-                CraftPreviewSlotComponent* craftPreviewSlotComponent = craftPreviewSlot_[i];
-                if (craftPreviewSlotComponent == nullptr)
-                {
-                    continue;
-                }
-                craftPreviewSlotComponent->Hide();
-            }
-        }
+        UpdateCraftPreviewSlots(recipeResources);
     }
     else
     {
@@ -128,9 +133,8 @@ void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
         {
             inventoryItemSlot->Hide();
         }
-        for (int i = 0; i < craftPreviewSlot_.size(); i++)
+        for (auto craftPreviewSlotComponent : craftPreviewSlot_)
         {
-            CraftPreviewSlotComponent* craftPreviewSlotComponent = craftPreviewSlot_[i];
             if (craftPreviewSlotComponent == nullptr)
             {
                 continue;

@@ -94,9 +94,9 @@ void glimmer::AudioManager::SetMasterVolume(const float volume)
     masterVolume_ = std::clamp(volume, 0.0F, 1.0F);
     //After setting the main volume, refresh the volume of all tracks.
     //设置主音量后，刷新所有音轨的音量。
-    for (const auto& typeVolume : typeVolume_)
+    for (const auto& [type, volume] : typeVolume_)
     {
-        SetTypeVolume(typeVolume.first, typeVolume.second);
+        SetTypeVolume(type, volume);
     }
 }
 

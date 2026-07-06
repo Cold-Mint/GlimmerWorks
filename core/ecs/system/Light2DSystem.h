@@ -31,6 +31,9 @@
 
 namespace glimmer
 {
+    class CameraComponent;
+    class Transform2DComponent;
+
     class Light2DSystem : public GameSystem
     {
         CameraComponent* cameraComponent_ = nullptr;

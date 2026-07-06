@@ -31,7 +31,7 @@ namespace glimmer
 {
     enum class ItemSlotType:uint8_t
     {
-        None,
+        Empty,
         HotBar, //快捷栏
         Inventory, //背包
     };

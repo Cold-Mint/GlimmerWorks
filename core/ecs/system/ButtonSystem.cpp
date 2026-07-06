@@ -122,9 +122,84 @@ uint8_t glimmer::ButtonSystem::GetRenderOrder()
     return RENDER_ORDER_BUTTON;
 }
 
+void glimmer::ButtonSystem::RenderButtonBackground(SDL_Renderer* renderer, ButtonComponent* buttonComponent,
+                                                   const SDL_FRect& rect) const
+{
+    const TextureResourceResult* backgroundTextureResult = buttonTextureResult_.get();
+    if (hoveredButton_ == buttonComponent)
+    {
+        if (hoveredButtonPressed)
+        {
+            backgroundTextureResult = buttonPressedTextureResult_.get();
+        }
+        else
+        {
+            backgroundTextureResult = buttonHoveredTextureResult_.get();
+        }
+    }
+
+    if (backgroundTextureResult != nullptr)
+    {
+        if (SDL_Texture* texture = backgroundTextureResult->GetResource(); texture != nullptr)
+        {
+            const ResourcePack* resourcePack = backgroundTextureResult->GetResourcePack();
+            if (resourcePack != nullptr)
+            {
+                const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+                if (packConfig.buttonNineSlice.enableTiled)
+                {
+                    SDL_RenderTexture9GridTiled(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
+                                                packConfig.buttonNineSlice.rightBorderPx,
+                                                packConfig.buttonNineSlice.topBorderPx,
+                                                packConfig.buttonNineSlice.bottomBorderPx,
+                                                packConfig.buttonNineSlice.scale, &rect,
+                                                packConfig.buttonNineSlice.tileScale);
+                }
+                else
+                {
+                    SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
+                                           packConfig.buttonNineSlice.rightBorderPx,
+                                           packConfig.buttonNineSlice.topBorderPx,
+                                           packConfig.buttonNineSlice.bottomBorderPx,
+                                           packConfig.buttonNineSlice.scale, &rect);
+                }
+            }
+        }
+    }
+}
+
+void glimmer::ButtonSystem::RenderButtonText(SDL_Renderer* renderer, ButtonComponent* buttonComponent,
+                                             const ScreenVector2D& position, const ScreenVector2D& size) const
+{
+    SDL_Texture* textTexture = buttonComponent->GetButtonTextTexture();
+    if (hoveredButton_ == buttonComponent)
+    {
+        if (hoveredButtonPressed)
+        {
+            textTexture = buttonComponent->GetButtonPressedTextTexture();
+        }
+        else
+        {
+            textTexture = buttonComponent->GetButtonHoveredTextTexture();
+        }
+    }
+
+    if (textTexture != nullptr)
+    {
+        const auto scaledTextW = static_cast<float>(textTexture->w);
+        const auto scaledTextH = static_cast<float>(textTexture->h);
+        const float scaledPadding = buttonComponent->GetPadding() * uiScale_;
+        const float textX = position.x + scaledPadding + (size.x - scaledTextW - scaledPadding * 2.0F) * 0.5F;
+        const float textY = position.y + scaledPadding + (size.y - scaledTextH - scaledPadding * 2.0F) * 0.5F;
+
+        const SDL_FRect textRect{textX, textY, scaledTextW, scaledTextH};
+        SDL_RenderTexture(renderer, textTexture, nullptr, &textRect);
+    }
+}
+
 void glimmer::ButtonSystem::Render(SDL_Renderer* renderer)
 {
-    for (auto buttonComponent : buttonComponents_)
+    for (const auto buttonComponent : buttonComponents_)
     {
         if (buttonComponent == nullptr)
         {
@@ -141,63 +216,8 @@ void glimmer::ButtonSystem::Render(SDL_Renderer* renderer)
             buttonComponent->GetPosition(), uiScale_);
         const SDL_FRect rect = {position.x, position.y, size.x, size.y};
 
-        TextureResourceResult* backgroundTextureResult = buttonTextureResult_.get();
-        SDL_Texture* textTexture = buttonComponent->GetButtonTextTexture();
-        if (hoveredButton_ == buttonComponent)
-        {
-            if (hoveredButtonPressed)
-            {
-                backgroundTextureResult = buttonPressedTextureResult_.get();
-                textTexture = buttonComponent->GetButtonPressedTextTexture();
-            }
-            else
-            {
-                backgroundTextureResult = buttonHoveredTextureResult_.get();
-                textTexture = buttonComponent->GetButtonHoveredTextTexture();
-            }
-        }
-
-        if (backgroundTextureResult != nullptr)
-        {
-            SDL_Texture* texture = backgroundTextureResult->GetResource();
-            if (texture != nullptr)
-            {
-                const ResourcePack* resourcePack = backgroundTextureResult->GetResourcePack();
-                if (resourcePack != nullptr)
-                {
-                    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
-                    if (packConfig.buttonNineSlice.enableTiled)
-                    {
-                        SDL_RenderTexture9GridTiled(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
-                                                    packConfig.buttonNineSlice.rightBorderPx,
-                                                    packConfig.buttonNineSlice.topBorderPx,
-                                                    packConfig.buttonNineSlice.bottomBorderPx,
-                                                    packConfig.buttonNineSlice.scale, &rect,
-                                                    packConfig.buttonNineSlice.tileScale);
-                    }
-                    else
-                    {
-                        SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.buttonNineSlice.leftBorderPx,
-                                               packConfig.buttonNineSlice.rightBorderPx,
-                                               packConfig.buttonNineSlice.topBorderPx,
-                                               packConfig.buttonNineSlice.bottomBorderPx,
-                                               packConfig.buttonNineSlice.scale, &rect);
-                    }
-                }
-            }
-        }
-
-        if (textTexture != nullptr)
-        {
-            const float scaledTextW = static_cast<float>(textTexture->w);
-            const float scaledTextH = static_cast<float>(textTexture->h);
-            const float scaledPadding = buttonComponent->GetPadding() * uiScale_;
-            const float textX = position.x + scaledPadding + (size.x - scaledTextW - scaledPadding * 2.0F) * 0.5F;
-            const float textY = position.y + scaledPadding + (size.y - scaledTextH - scaledPadding * 2.0F) * 0.5F;
-
-            const SDL_FRect textRect{textX, textY, scaledTextW, scaledTextH};
-            SDL_RenderTexture(renderer, textTexture, nullptr, &textRect);
-        }
+        RenderButtonBackground(renderer, buttonComponent, rect);
+        RenderButtonText(renderer, buttonComponent, position, size);
     }
 }
 

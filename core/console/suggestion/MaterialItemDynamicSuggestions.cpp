@@ -36,7 +36,7 @@ std::string glimmer::MaterialItemDynamicSuggestions::GetId() const
     return MATERIAL_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-bool glimmer::MaterialItemDynamicSuggestions::Match(std::string keyword, std::string param)
+bool glimmer::MaterialItemDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
     for (const auto& itemId : itemManager_->GetMaterialItemIDList())
     {
@@ -48,7 +48,7 @@ bool glimmer::MaterialItemDynamicSuggestions::Match(std::string keyword, std::st
     return false;
 }
 
-std::vector<std::string> glimmer::MaterialItemDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::MaterialItemDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return itemManager_->GetMaterialItemIDList();
 }

@@ -78,6 +78,241 @@ void glimmer::ItemToolTipSystem::OnConfigChanged(const Config* config)
     uiScale_ = config->window.uiScale;
 }
 
+void glimmer::ItemToolTipSystem::UpdateItemNameTexture(const Item* item)
+{
+    const std::string& name = item->GetName();
+    const uint64_t itemNameFingerprint = StringUtils::StringToUint64(name);
+    if (itemNameFingerprint == itemNameCache_.fingerprint)
+    {
+        return;
+    }
+    itemNameCache_.texture = resourcePackManager_->CreateStringTexture(name, &preloadColors_->textColor);
+    itemNameCache_.fingerprint = itemNameFingerprint;
+}
+
+void glimmer::ItemToolTipSystem::UpdateItemDescriptionTexture(const Item* item)
+{
+    const std::optional<std::string>& descriptionOptional = item->GetDescription();
+    if (!descriptionOptional.has_value())
+    {
+        return;
+    }
+    const std::string& description = descriptionOptional.value();
+    const uint64_t itemDescriptionFingerprint = StringUtils::StringToUint64(description);
+    if (itemDescriptionFingerprint == itemDescriptionCache_.fingerprint)
+    {
+        return;
+    }
+    itemDescriptionCache_.texture = resourcePackManager_->
+        CreateStringTexture(description, &preloadColors_->textColor);
+    itemDescriptionCache_.fingerprint = itemDescriptionFingerprint;
+}
+
+void glimmer::ItemToolTipSystem::UpdateAbilityTextures(const AbilityConfig* abilityConfig,
+                                                       const LangsResources* langsResources,
+                                                       std::vector<SDL_Texture*>& textureToDraw)
+{
+    if (abilityConfig == nullptr)
+    {
+        return;
+    }
+
+    if ((abilityConfig->mineAbleLayer & Ground) != 0)
+    {
+        const uint64_t canMineBlockFingerprint = StringUtils::StringToUint64(langsResources->canMineBlockTip);
+        if (canMineBlockFingerprint != canMineBlockTipCache_.fingerprint)
+        {
+            canMineBlockTipCache_.texture = resourcePackManager_->
+                CreateStringTexture(langsResources->canMineBlockTip, &preloadColors_->game.positiveAttributeColor,
+                                    TOOLTIP_TEXT_WRAP_WIDTH);
+            canMineBlockTipCache_.fingerprint = canMineBlockFingerprint;
+        }
+        if (canMineBlockTipCache_.texture != nullptr)
+        {
+            textureToDraw.emplace_back(canMineBlockTipCache_.texture.get());
+        }
+    }
+
+    if ((abilityConfig->mineAbleLayer & BackGround) != 0)
+    {
+        const uint64_t canMineWallFingerprint = StringUtils::StringToUint64(langsResources->canMineWallTip);
+        if (canMineWallFingerprint != canMineWallTipCache_.fingerprint)
+        {
+            canMineWallTipCache_.texture = resourcePackManager_->
+                CreateStringTexture(langsResources->canMineWallTip, &preloadColors_->game.positiveAttributeColor,
+                                    TOOLTIP_TEXT_WRAP_WIDTH);
+            canMineWallTipCache_.fingerprint = canMineWallFingerprint;
+        }
+        if (canMineWallTipCache_.texture != nullptr)
+        {
+            textureToDraw.emplace_back(canMineWallTipCache_.texture.get());
+        }
+    }
+
+    if (abilityConfig->enablePrecisionMining)
+    {
+        const uint64_t precisionMiningTipFingerprint = StringUtils::StringToUint64(langsResources->precisionMiningTip);
+        if (precisionMiningTipFingerprint != precisionMiningTipCache_.fingerprint)
+        {
+            precisionMiningTipCache_.texture = resourcePackManager_->CreateStringTexture(
+                langsResources->precisionMiningTip, &preloadColors_->game.positiveAttributeColor,
+                TOOLTIP_TEXT_WRAP_WIDTH);
+            precisionMiningTipCache_.fingerprint = precisionMiningTipFingerprint;
+        }
+        if (precisionMiningTipCache_.texture != nullptr)
+        {
+            textureToDraw.emplace_back(precisionMiningTipCache_.texture.get());
+        }
+    }
+
+    float miningEfficiency = abilityConfig->miningEfficiency;
+    if (miningEfficiency != 0.0F)
+    {
+        std::string efficiencyTip = fmt::format(
+            fmt::runtime(langsResources->efficiencyTip),
+            fmt::format("{0:+.0f}", miningEfficiency * 100)
+        );
+        const uint64_t efficiencyTipFingerprint = StringUtils::StringToUint64(efficiencyTip);
+        bool efficiencyTipPositive = miningEfficiency > 0;
+        if (efficiencyTipPositive != efficiencyTipCache_.positive || efficiencyTipFingerprint != efficiencyTipCache_.cache.fingerprint)
+        {
+            efficiencyTipCache_.cache.texture = resourcePackManager_->CreateStringTexture(
+                efficiencyTip, efficiencyTipPositive
+                                   ? &preloadColors_->game.positiveAttributeColor
+                                   : &preloadColors_->game.negativeAttributeColor,
+                TOOLTIP_TEXT_WRAP_WIDTH);
+            efficiencyTipCache_.positive = efficiencyTipPositive;
+            efficiencyTipCache_.cache.fingerprint = efficiencyTipFingerprint;
+        }
+        if (efficiencyTipCache_.cache.texture != nullptr)
+        {
+            textureToDraw.emplace_back(efficiencyTipCache_.cache.texture.get());
+        }
+    }
+
+    int chainMiningRadius = abilityConfig->chainMiningRadius;
+    if (chainMiningRadius != 0)
+    {
+        std::string chainMiningTip = fmt::format(
+            fmt::runtime(langsResources->chainMiningTip),
+            fmt::format("{}{}", chainMiningRadius > 0 ? "+" : "", chainMiningRadius));
+        const uint64_t chainMiningTipFingerprint = StringUtils::StringToUint64(chainMiningTip);
+        bool chainMiningTipPositive = chainMiningRadius > 0;
+        if (chainMiningTipPositive != chainMiningTipCache_.positive || chainMiningTipFingerprint != chainMiningTipCache_.cache.fingerprint)
+        {
+            chainMiningTipCache_.cache.texture = resourcePackManager_->CreateStringTexture(
+                chainMiningTip, chainMiningTipPositive
+                                    ? &preloadColors_->game.positiveAttributeColor
+                                    : &preloadColors_->game.negativeAttributeColor,
+                TOOLTIP_TEXT_WRAP_WIDTH);
+            chainMiningTipCache_.positive = chainMiningTipPositive;
+            chainMiningTipCache_.cache.fingerprint = chainMiningTipFingerprint;
+        }
+        if (chainMiningTipCache_.cache.texture != nullptr)
+        {
+            textureToDraw.emplace_back(chainMiningTipCache_.cache.texture.get());
+        }
+    }
+}
+
+void glimmer::ItemToolTipSystem::UpdateLockedTexture(const LangsResources* langsResources,
+                                                     std::vector<SDL_Texture*>& textureToDraw)
+{
+    const Item* item = itemToolTipComponent_->GetItem();
+    if (item == nullptr || !item->IsLocked())
+    {
+        return;
+    }
+    const uint64_t lockedFingerprint = StringUtils::StringToUint64(langsResources->lockedTip);
+    if (lockedFingerprint != itemLockedCache_.fingerprint)
+    {
+        itemLockedCache_.texture = resourcePackManager_->
+            CreateStringTexture(langsResources->lockedTip, &preloadColors_->game.negativeAttributeColor);
+        itemLockedCache_.fingerprint = lockedFingerprint;
+    }
+    if (itemLockedCache_.texture != nullptr)
+    {
+        textureToDraw.emplace_back(itemLockedCache_.texture.get());
+    }
+}
+
+void glimmer::ItemToolTipSystem::CollectTooltipTextures(const Item* item, std::vector<SDL_Texture*>& textureToDraw)
+{
+    const LangsResources* langsResources = appContext_->GetLangsResources();
+
+    UpdateItemNameTexture(item);
+    if (itemNameCache_.texture != nullptr)
+    {
+        textureToDraw.emplace_back(itemNameCache_.texture.get());
+    }
+
+    UpdateItemDescriptionTexture(item);
+    if (itemDescriptionCache_.texture != nullptr)
+    {
+        textureToDraw.emplace_back(itemDescriptionCache_.texture.get());
+    }
+
+    UpdateAbilityTextures(item->GetAbilityConfig(), langsResources, textureToDraw);
+    UpdateLockedTexture(langsResources, textureToDraw);
+}
+
+void glimmer::ItemToolTipSystem::RenderTooltipBackground(SDL_Renderer* renderer, const SDL_FRect& backgroundRect)
+{
+    if (tooltipBgTextureResult_ == nullptr)
+    {
+        return;
+    }
+    SDL_Texture* texture = tooltipBgTextureResult_->GetResource();
+    if (texture == nullptr)
+    {
+        return;
+    }
+    const ResourcePack* resourcePack = tooltipBgTextureResult_->GetResourcePack();
+    if (resourcePack == nullptr)
+    {
+        return;
+    }
+    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+    if (packConfig.itemToolTipNineSlice.enableTiled)
+    {
+        SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
+                                    packConfig.itemToolTipNineSlice.leftBorderPx,
+                                    packConfig.itemToolTipNineSlice.rightBorderPx,
+                                    packConfig.itemToolTipNineSlice.topBorderPx,
+                                    packConfig.itemToolTipNineSlice.bottomBorderPx,
+                                    packConfig.itemToolTipNineSlice.scale, &backgroundRect,
+                                    packConfig.itemToolTipNineSlice.tileScale);
+        return;
+    }
+    SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.itemToolTipNineSlice.leftBorderPx,
+                           packConfig.itemToolTipNineSlice.rightBorderPx,
+                           packConfig.itemToolTipNineSlice.topBorderPx,
+                           packConfig.itemToolTipNineSlice.bottomBorderPx,
+                           packConfig.itemToolTipNineSlice.scale, &backgroundRect);
+}
+
+void glimmer::ItemToolTipSystem::RenderTooltipTextures(SDL_Renderer* renderer,
+                                                       const std::vector<SDL_Texture*>& textureToDraw,
+                                                       float x, float y, float lineSpacing)
+{
+    float currentY = y;
+    for (auto texture : textureToDraw)
+    {
+        if (texture == nullptr)
+        {
+            continue;
+        }
+        const SDL_FRect dstRect{
+            x,
+            currentY,
+            static_cast<float>(texture->w) * uiScale_,
+            static_cast<float>(texture->h) * uiScale_
+        };
+        SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
+        currentY += static_cast<float>(texture->h) * uiScale_ + lineSpacing;
+    }
+}
+
 void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
 {
     if (itemToolTipComponent_ == nullptr)
@@ -89,150 +324,12 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    const LangsResources* langsResources = appContext_->GetLangsResources();
+
     std::vector<SDL_Texture*> textureToDraw;
-    // 渲染物品名称
-    const std::string& name = item->GetName();
-    if (const uint64_t itemNameFingerprint = StringUtils::StringToUint64(name); itemNameFingerprint != itemNameFingerprint_)
-    {
-        itemNameTexture_ = resourcePackManager_->CreateStringTexture(name, &preloadColors_->textColor);
-        itemNameFingerprint_ = itemNameFingerprint;
-    }
-    if (itemNameTexture_ != nullptr)
-    {
-        textureToDraw.emplace_back(itemNameTexture_.get());
-    }
-    const std::optional<std::string>& descriptionOptional = item->GetDescription();
-    if (descriptionOptional.has_value())
-    {
-        const std::string& description = descriptionOptional.value();
-        if (const uint64_t itemDescriptionFingerprint = StringUtils::StringToUint64(description); itemDescriptionFingerprint != itemDescriptionFingerprint_)
-        {
-            itemDescriptionTexture_ = resourcePackManager_->
-                CreateStringTexture(description, &preloadColors_->textColor);
-            itemDescriptionFingerprint_ = itemDescriptionFingerprint;
-        }
-        if (itemDescriptionTexture_ != nullptr)
-        {
-            textureToDraw.emplace_back(itemDescriptionTexture_.get());
-        }
-    }
+    CollectTooltipTextures(item, textureToDraw);
 
-    // 渲染能力属性
-    const AbilityConfig* abilityConfig = item->GetAbilityConfig();
-    if (abilityConfig != nullptr)
-    {
-        if ((abilityConfig->mineAbleLayer & Ground) != static_cast<uint8_t>(0))
-        {
-            if (const uint64_t canMineBlockFingerprint = StringUtils::StringToUint64(langsResources->canMineBlockTip); canMineBlockFingerprint != canMineBlockFingerprint_)
-            {
-                canMineBlockTipTexture_ = resourcePackManager_->
-                    CreateStringTexture(langsResources->canMineBlockTip, &preloadColors_->game.positiveAttributeColor,
-                                        TOOLTIP_TEXT_WRAP_WIDTH);
-                canMineBlockFingerprint_ = canMineBlockFingerprint;
-            }
-            if (canMineBlockTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(canMineBlockTipTexture_.get());
-            }
-        }
-        if ((abilityConfig->mineAbleLayer & BackGround) != static_cast<uint8_t>(0))
-        {
-            if (const uint64_t canMineWallFingerprint = StringUtils::StringToUint64(langsResources->canMineWallTip); canMineWallFingerprint != canMineWallFingerprint_)
-            {
-                canMineWallTipTexture_ = resourcePackManager_->
-                    CreateStringTexture(langsResources->canMineWallTip, &preloadColors_->game.positiveAttributeColor,
-                                        TOOLTIP_TEXT_WRAP_WIDTH);
-                canMineWallFingerprint_ = canMineWallFingerprint;
-            }
-            if (canMineWallTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(canMineWallTipTexture_.get());
-            }
-        }
-        if (abilityConfig->enablePrecisionMining)
-        {
-            if (const uint64_t precisionMiningTipFingerprint = StringUtils::StringToUint64(langsResources->precisionMiningTip); precisionMiningTipFingerprint != precisionMiningTipFingerprint_)
-            {
-                precisionMiningTipTexture_ = resourcePackManager_->CreateStringTexture(
-                    langsResources->precisionMiningTip, &preloadColors_->game.positiveAttributeColor,
-                    TOOLTIP_TEXT_WRAP_WIDTH);
-                precisionMiningTipFingerprint_ = precisionMiningTipFingerprint;
-            }
-            if (precisionMiningTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(precisionMiningTipTexture_.get());
-            }
-        }
-        // 挖掘效率
-        float miningEfficiency = abilityConfig->miningEfficiency;
-        if (miningEfficiency != 0.0F)
-        {
-            std::string efficiencyTip = fmt::format(
-                fmt::runtime(langsResources->efficiencyTip),
-                fmt::format("{0:+.0f}", miningEfficiency * 100)
-            );
-            const uint64_t efficiencyTipFingerprint = StringUtils::StringToUint64(efficiencyTip);
-            bool efficiencyTipPositive = miningEfficiency > 0;
-            if (efficiencyTipPositive != efficiencyTipPositive_ || efficiencyTipFingerprint !=
-                efficiencyTipFingerprint_)
-            {
-                efficiencyTipTexture_ = resourcePackManager_->CreateStringTexture(
-                    efficiencyTip, efficiencyTipPositive
-                                       ? &preloadColors_->game.positiveAttributeColor
-                                       : &preloadColors_->game.negativeAttributeColor,
-                    TOOLTIP_TEXT_WRAP_WIDTH);
-                efficiencyTipPositive_ = efficiencyTipPositive;
-                efficiencyTipFingerprint_ = efficiencyTipFingerprint;
-            }
-            if (efficiencyTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(efficiencyTipTexture_.get());
-            }
-        }
-
-        // 连锁挖掘半径
-        int chainMiningRadius = abilityConfig->chainMiningRadius;
-        if (chainMiningRadius != 0)
-        {
-            std::string chainMiningTip = fmt::format(
-                fmt::runtime(langsResources->chainMiningTip),
-                (chainMiningRadius > 0 ? "+" : "") + std::to_string(chainMiningRadius));
-            const uint64_t chainMiningTipFingerprint = StringUtils::StringToUint64(chainMiningTip);
-            bool chainMiningTipPositive = chainMiningRadius > 0;
-            if (chainMiningTipPositive != chainMiningTipPositive_ || chainMiningTipFingerprint !=
-                chainMiningTipFingerprint_)
-            {
-                chainMiningTipTexture_ = resourcePackManager_->CreateStringTexture(
-                    chainMiningTip, chainMiningTipPositive
-                                        ? &preloadColors_->game.positiveAttributeColor
-                                        : &preloadColors_->game.negativeAttributeColor,
-                    TOOLTIP_TEXT_WRAP_WIDTH);
-                chainMiningTipPositive_ = chainMiningTipPositive;
-                chainMiningTipFingerprint_ = chainMiningTipFingerprint;
-            }
-            if (chainMiningTipTexture_ != nullptr)
-            {
-                textureToDraw.emplace_back(chainMiningTipTexture_.get());
-            }
-        }
-    }
-
-    if (item->IsLocked())
-    {
-        if (const uint64_t lockedFingerprint = StringUtils::StringToUint64(langsResources->lockedTip); lockedFingerprint != itemLockedFingerprint_)
-        {
-            itemLockedTexture_ = resourcePackManager_->
-                CreateStringTexture(langsResources->lockedTip, &preloadColors_->game.negativeAttributeColor);
-            itemLockedFingerprint_ = lockedFingerprint;
-        }
-        if (itemLockedTexture_ != nullptr)
-        {
-            textureToDraw.emplace_back(itemLockedTexture_.get());
-        }
-    }
-    constexpr float baseLineSpacing = 2.0F; // 基础行间距（未缩放）
-    constexpr float basePadding = 8.0F; // 基础内边距（未缩放）
+    constexpr float baseLineSpacing = 2.0F;
+    constexpr float basePadding = 8.0F;
     const float scaledLineSpacing = baseLineSpacing * uiScale_;
     const float scaledPadding = basePadding * uiScale_;
 
@@ -247,7 +344,6 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
-
         maxWidth = std::max(maxWidth, static_cast<float>(texture->w));
         totalTextHeight += static_cast<float>(texture->h);
         if (i != textureCount - 1)
@@ -260,59 +356,13 @@ void glimmer::ItemToolTipSystem::Render(SDL_Renderer* renderer)
     const SDL_FRect backgroundRect{
         positionScreenVector2D.x,
         positionScreenVector2D.y,
-        (maxWidth + 2 * basePadding) * uiScale_, // 左右padding
-        (totalTextHeight + 2 * basePadding) * uiScale_ // 上下padding
+        (maxWidth + 2 * basePadding) * uiScale_,
+        (totalTextHeight + 2 * basePadding) * uiScale_
     };
 
-    if (tooltipBgTextureResult_ != nullptr)
-    {
-        SDL_Texture* texture = tooltipBgTextureResult_->GetResource();
-        if (texture != nullptr)
-        {
-            const ResourcePack* resourcePack = tooltipBgTextureResult_->GetResourcePack();
-            if (resourcePack != nullptr)
-            {
-                const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
-                if (packConfig.itemToolTipNineSlice.enableTiled)
-                {
-                    SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
-                                                packConfig.itemToolTipNineSlice.leftBorderPx,
-                                                packConfig.itemToolTipNineSlice.rightBorderPx,
-                                                packConfig.itemToolTipNineSlice.topBorderPx,
-                                                packConfig.itemToolTipNineSlice.bottomBorderPx,
-                                                packConfig.itemToolTipNineSlice.scale, &backgroundRect,
-                                                packConfig.itemToolTipNineSlice.tileScale);
-                }
-                else
-                {
-                    SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.itemToolTipNineSlice.leftBorderPx,
-                                           packConfig.itemToolTipNineSlice.rightBorderPx,
-                                           packConfig.itemToolTipNineSlice.topBorderPx,
-                                           packConfig.itemToolTipNineSlice.bottomBorderPx,
-                                           packConfig.itemToolTipNineSlice.scale, &backgroundRect);
-                }
-            }
-        }
-    }
-    float currentX = backgroundRect.x + scaledPadding;
-    float currentY = backgroundRect.y + scaledPadding;
-
-    for (auto texture : textureToDraw)
-    {
-        if (texture == nullptr)
-        {
-            continue;
-        }
-
-        const SDL_FRect dstRect{
-            currentX,
-            currentY,
-            static_cast<float>(texture->w) * uiScale_,
-            static_cast<float>(texture->h) * uiScale_
-        };
-        SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
-        currentY += static_cast<float>(texture->h) * uiScale_ + scaledLineSpacing;
-    }
+    RenderTooltipBackground(renderer, backgroundRect);
+    RenderTooltipTextures(renderer, textureToDraw, backgroundRect.x + scaledPadding,
+                          backgroundRect.y + scaledPadding, scaledLineSpacing);
 }
 
 

@@ -42,6 +42,10 @@ namespace glimmer
 
         std::unordered_map<std::string, size_t> frameItemCounts_ = {};
 
+        void TryMergeFlowingText();
+
+        void ProcessMagnetEntity(GameEntityID entity);
+
     public:
         explicit AutoPickSystem(WorldContext* worldContext);
 

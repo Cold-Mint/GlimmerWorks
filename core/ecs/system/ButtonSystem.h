@@ -41,6 +41,12 @@ namespace glimmer
         bool hoveredButtonPressed = false;
         float uiScale_ = 1.0F;
 
+        void RenderButtonBackground(SDL_Renderer* renderer, ButtonComponent* buttonComponent,
+                                    const SDL_FRect& rect) const;
+
+        void RenderButtonText(SDL_Renderer* renderer, ButtonComponent* buttonComponent,
+                              const ScreenVector2D& position, const ScreenVector2D& size) const;
+
     public:
         explicit ButtonSystem(WorldContext* worldContext);
 

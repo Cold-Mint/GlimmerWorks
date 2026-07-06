@@ -51,8 +51,8 @@ namespace glimmer
             return startPosition_;
         }
 
-        const int row = static_cast<int>(currentIndex_ / columns_);
-        const int col = static_cast<int>(currentIndex_ % columns_);
+        const auto row = static_cast<int>(currentIndex_ / columns_);
+        const auto col = static_cast<int>(currentIndex_ % columns_);
 
         DesignVector2D position;
         position.x = startPosition_.x + static_cast<DesignDimension>(col) * (cellSize_ + padding_);

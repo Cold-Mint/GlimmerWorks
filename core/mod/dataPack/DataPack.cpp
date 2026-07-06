@@ -283,11 +283,11 @@ void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::val
 }
 
 void glimmer::DataPack::LoadContributorResourceFromFile(const toml::value& value,
-                                                        ContributorManager* contributorManager) const
+                                                        const ContributorManager* contributorManager) const
 {
     auto contributorResource = std::make_unique<Contributor>(toml::get<Contributor>(value));
     contributorResource->displayName.SetSelfPackageId(manifest_.id);
-    contributorManager->Register(std::move(contributorResource));
+    contributorManager->Register(contributorResource.get());
 }
 
 void glimmer::DataPack::LoadMobResourceFromFile(const toml::value& value, MobManager* mobManager) const
@@ -471,6 +471,215 @@ glimmer::PackVerifyState glimmer::DataPack::GetPackVerifyState() const
     return packVerifyState_;
 }
 
+bool glimmer::DataPack::ProcessPublicKeyFile(const std::string& file, bool& findPublicKey,
+                                             std::vector<uint8_t>& publicKey) const
+{
+    auto publicKeyStream = virtualFileSystem_->ReadStream(file);
+    if (!publicKeyStream.has_value())
+    {
+        return true;
+    }
+    auto& pubStream = *publicKeyStream.value();
+    pubStream.read(reinterpret_cast<char*>(publicKey.data()), 32);
+    if (pubStream.gcount() == 32)
+    {
+        findPublicKey = true;
+    }
+    return true;
+}
+
+bool glimmer::DataPack::ProcessSignatureFile(const std::string& file, bool& findSignature,
+                                             std::vector<uint8_t>& signature) const
+{
+    auto signStream = virtualFileSystem_->ReadStream(file);
+    if (!signStream.has_value())
+    {
+        return true;
+    }
+    auto& sigStream = *signStream.value();
+    sigStream.read(reinterpret_cast<char*>(signature.data()), 64);
+    if (sigStream.gcount() == 64)
+    {
+        findSignature = true;
+    }
+    return true;
+}
+
+std::vector<char> glimmer::DataPack::ReadFileContent(std::istream& stream)
+{
+    std::vector<char> fileBuffer;
+    std::vector<char> tempBuf(8192);
+    std::streamsize bytes;
+    while (stream.read(tempBuf.data(), tempBuf.size()) || stream.gcount() > 0)
+    {
+        bytes = stream.gcount();
+        fileBuffer.insert(fileBuffer.end(), tempBuf.data(), tempBuf.data() + bytes);
+    }
+    return fileBuffer;
+}
+
+void glimmer::DataPack::ComputeFileHash(const std::vector<char>& fileBuffer, std::vector<uint8_t>& allHashData)
+{
+    blake3_hasher hasher;
+    blake3_hasher_init(&hasher);
+    blake3_hasher_update(&hasher, fileBuffer.data(), fileBuffer.size());
+    uint8_t singleHash[BLAKE3_OUT_LEN];
+    blake3_hasher_finalize(&hasher, singleHash, BLAKE3_OUT_LEN);
+    allHashData.insert(allHashData.end(), singleHash, singleHash + BLAKE3_OUT_LEN);
+}
+
+int glimmer::DataPack::LoadResourceByType(const std::string& dataType, const std::string& file,
+                                          const std::string& content, const AppContext* appContext) const
+{
+    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
+    if (dataType == DATA_FILE_TYPE_TEMPLATE)
+    {
+        return 1;
+    }
+    const toml::value value = toml::parse_str(
+        tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
+    if (dataType == DATA_FILE_TYPE_TILE)
+    {
+        LoadTileResourceFromFile(value, appContext->GetTileResourceManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_BIOME)
+    {
+        LoadBiomeResourceFromFile(value, appContext->GetBiomesManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM)
+    {
+        LoadComposableItemResourceFromFile(value, appContext->GetItemManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_ABILITY_ITEM)
+    {
+        LoadAbilityItemResourceFromFile(value, appContext->GetItemManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_MATERIAL_ITEM)
+    {
+        LoadMaterialItemResourceResourceFromFile(value, appContext->GetItemManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_LOOT_TABLE)
+    {
+        LoadLootTableResourceFromFile(value, appContext->GetLootTableManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_TREE_STRUCTURE)
+    {
+        LoadStructureResourceFromFile(value, appContext->GetStructureManager(), StructureGeneratorType::Tree);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_STATIC_STRUCTURE)
+    {
+        LoadStructureResourceFromFile(value, appContext->GetStructureManager(), StructureGeneratorType::Static);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_INITIAL_INVENTORY)
+    {
+        LoadInitialInventoryResourceFromFile(value, appContext->GetInitialInventoryManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_CONTRIBUTOR)
+    {
+        LoadContributorResourceFromFile(value, appContext->GetContributorManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_MOB)
+    {
+        LoadMobResourceFromFile(value, appContext->GetMobManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_SHAPE_CIRCLE)
+    {
+        LoadShapeResourceFromFile(value, appContext->GetShapeManager(), ShapeType::CIRCLE);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_SHAPE_RECTANGLE)
+    {
+        LoadShapeResourceFromFile(value, appContext->GetShapeManager(), ShapeType::RECTANGLE);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE)
+    {
+        LoadShapeResourceFromFile(value, appContext->GetShapeManager(), ShapeType::ROUNDED_RECTANGLE);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_DECORATOR_FILL)
+    {
+        LoadBiomeDecoratorResourceFromFile(value, appContext->GetBiomeDecoratorResourcesManager(),
+                                           BiomeDecoratorType::FILL);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_DECORATOR_MINERAL)
+    {
+        LoadBiomeDecoratorResourceFromFile(value, appContext->GetBiomeDecoratorResourcesManager(),
+                                           BiomeDecoratorType::MINERAL);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_DECORATOR_SURFACE)
+    {
+        LoadBiomeDecoratorResourceFromFile(value, appContext->GetBiomeDecoratorResourcesManager(),
+                                           BiomeDecoratorType::SURFACE);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_FIXED_COLOR)
+    {
+        LoadFixedColorResourceFromFile(value, appContext->GetFixedColorManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_LIGHT_MASK)
+    {
+        LoadLightMaskResourceFromFile(value, appContext->GetLightMaskManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_LIGHT_SOURCE)
+    {
+        LoadLightSourceResourceFromFile(value, appContext->GetLightSourceManager());
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_RECIPE)
+    {
+        LoadRecipeResourceFromFile(value, appContext->GetRecipeManager());
+        return 1;
+    }
+    return 0;
+}
+
+int glimmer::DataPack::LoadLanguageFiles(const std::vector<std::string>& defaultLanguageFiles,
+                                         const std::vector<std::string>& targetLanguageFiles,
+                                         const AppContext* appContext) const
+{
+    int total = 0;
+    const auto& filesToLoad = targetLanguageFiles.empty() ? defaultLanguageFiles : targetLanguageFiles;
+    for (const auto& f : filesToLoad)
+    {
+        total += LoadStringResourceFromFile(f, appContext->GetStringManager());
+    }
+    return total;
+}
+
+void glimmer::DataPack::VerifySignature(const bool findPublicKey, const bool findSignature,
+                                        const std::vector<uint8_t>& publicKey,
+                                        const std::vector<uint8_t>& signature,
+                                        const std::vector<uint8_t>& allHashData)
+{
+    if (!findPublicKey || !findSignature)
+    {
+        return;
+    }
+    if (crypto_ed25519_check(signature.data(), publicKey.data(),
+                             allHashData.data(), allHashData.size()) == 0)
+    {
+        packVerifyState_ = PackVerifyState::VerifiedSuccess;
+        return;
+    }
+    packVerifyState_ = PackVerifyState::VerifiedFailed;
+}
+
 bool glimmer::DataPack::LoadPack(AppContext* appContext)
 {
     tomlTemplateExpander_->Reset();
@@ -481,17 +690,20 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
         return false;
     }
     std::sort(files.begin(), files.end());
+
     std::vector<std::string> defaultLanguageFiles;
     std::vector<std::string> targetLanguageFiles;
     Config* config = appContext->GetConfig();
     packVerifyState_ = PackVerifyState::Unsigned;
+
     bool findPublicKey = false;
     bool findSignature = false;
     std::vector<uint8_t> publicKey(32);
     std::vector<uint8_t> signature(64);
     std::vector<uint8_t> allHashData;
-    std::string publicPath = rootPath_ + "/.public";
-    std::string signPath = rootPath_ + "/.sign";
+    const std::string publicPath = rootPath_ + "/.public";
+    const std::string signPath = rootPath_ + "/.sign";
+
     for (const auto& file : files)
     {
         if (!virtualFileSystem_->IsFile(file))
@@ -503,63 +715,38 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
         {
             continue;
         }
-        auto& fileName = fileNameOptional.value();
-        if (!findPublicKey && config->mods.enableSignVerify && file == publicPath)
+        const auto& fileName = fileNameOptional.value();
+
+        if (config->mods.enableSignVerify)
         {
-            auto publicKeyStream = virtualFileSystem_->ReadStream(file);
-            if (publicKeyStream.has_value())
+            if (!findPublicKey && file == publicPath)
             {
-                auto& pubStream = *publicKeyStream.value();
-                pubStream.read(reinterpret_cast<char*>(publicKey.data()), 32);
-                if (pubStream.gcount() == 32)
-                {
-                    findPublicKey = true;
-                }
+                ProcessPublicKeyFile(file, findPublicKey, publicKey);
+                continue;
             }
-            continue;
-        }
-        if (!findSignature && config->mods.enableSignVerify && file == signPath)
-        {
-            auto signStream = virtualFileSystem_->ReadStream(file);
-            if (signStream.has_value())
+            if (!findSignature && file == signPath)
             {
-                auto& sigStream = *signStream.value();
-                sigStream.read(reinterpret_cast<char*>(signature.data()), 64);
-                if (sigStream.gcount() == 64)
-                {
-                    findSignature = true;
-                }
+                ProcessSignatureFile(file, findSignature, signature);
+                continue;
             }
-            continue;
         }
+
         if (!fileName.empty() && fileName[0] == '.')
         {
             continue;
         }
-        std::optional<std::unique_ptr<std::istream>> istreamOptional = virtualFileSystem_->ReadStream(file);
+
+        auto istreamOptional = virtualFileSystem_->ReadStream(file);
         if (!istreamOptional.has_value())
         {
             continue;
         }
         auto& stream = *istreamOptional.value();
-
-        std::vector<char> fileBuffer;
-        std::vector<char> tempBuf(8192);
-        std::streamsize bytes;
-        while (stream.read(tempBuf.data(), tempBuf.size()) || stream.gcount() > 0)
-        {
-            bytes = stream.gcount();
-            fileBuffer.insert(fileBuffer.end(), tempBuf.data(), tempBuf.data() + bytes);
-        }
+        const std::vector<char> fileBuffer = ReadFileContent(stream);
 
         if (config->mods.enableSignVerify)
         {
-            blake3_hasher hasher;
-            blake3_hasher_init(&hasher);
-            blake3_hasher_update(&hasher, fileBuffer.data(), fileBuffer.size());
-            uint8_t singleHash[BLAKE3_OUT_LEN];
-            blake3_hasher_finalize(&hasher, singleHash, BLAKE3_OUT_LEN);
-            allHashData.insert(allHashData.end(), singleHash, singleHash + BLAKE3_OUT_LEN);
+            ComputeFileHash(fileBuffer, allHashData);
         }
 
         const auto dataTypeOptional = GetDataType(fileName);
@@ -567,8 +754,9 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
         {
             continue;
         }
-        std::string content(fileBuffer.data(), fileBuffer.size());
-        auto& dataType = dataTypeOptional.value();
+        const std::string content(fileBuffer.data(), fileBuffer.size());
+        const auto& dataType = dataTypeOptional.value();
+
         if (dataType == DATA_FILE_TYPE_STRINGS)
         {
             auto langOptional = ExtractLanguageFromFileName(fileName);
@@ -576,7 +764,6 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
             {
                 continue;
             }
-
             const auto& fileLang = langOptional.value();
             if (fileLang == appContext->GetLanguage())
             {
@@ -588,213 +775,16 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
             }
             continue;
         }
-        if (dataType == DATA_FILE_TYPE_TILE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadTileResourceFromFile(value, appContext->GetTileResourceManager());
-            total++;
-            continue;
-        }
-        if (dataType == DATA_FILE_TYPE_BIOME)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadBiomeResourceFromFile(value, appContext->GetBiomesManager());
-            total++;
-            continue;
-        }
+        total += LoadResourceByType(dataType, file, content, appContext);
+    }
 
-        if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadComposableItemResourceFromFile(value, appContext->GetItemManager());
-            total++;
-            continue;
-        }
+    total += LoadLanguageFiles(defaultLanguageFiles, targetLanguageFiles, appContext);
 
-        if (dataType == DATA_FILE_TYPE_ABILITY_ITEM)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadAbilityItemResourceFromFile(value, appContext->GetItemManager());
-            total++;
-            continue;
-        }
-        if (dataType == DATA_FILE_TYPE_MATERIAL_ITEM)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadMaterialItemResourceResourceFromFile(value, appContext->GetItemManager());
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_LOOT_TABLE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadLootTableResourceFromFile(value, appContext->GetLootTableManager());
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_TREE_STRUCTURE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadStructureResourceFromFile(value, appContext->GetStructureManager(),
-                                          StructureGeneratorType::Tree);
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_STATIC_STRUCTURE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadStructureResourceFromFile(value, appContext->GetStructureManager(),
-                                          StructureGeneratorType::Static);
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_INITIAL_INVENTORY)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadInitialInventoryResourceFromFile(value, appContext->GetInitialInventoryManager());
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_CONTRIBUTOR)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadContributorResourceFromFile(value, appContext->GetContributorManager());
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_MOB)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadMobResourceFromFile(value, appContext->GetMobManager());
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_SHAPE_CIRCLE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadShapeResourceFromFile(value, appContext->GetShapeManager(), ShapeType::CIRCLE);
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_SHAPE_RECTANGLE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadShapeResourceFromFile(value, appContext->GetShapeManager(), ShapeType::RECTANGLE);
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadShapeResourceFromFile(value, appContext->GetShapeManager(), ShapeType::ROUNDED_RECTANGLE);
-            total++;
-        }
+    if (config->mods.enableSignVerify)
+    {
+        VerifySignature(findPublicKey, findSignature, publicKey, signature, allHashData);
+    }
 
-        if (dataType == DATA_FILE_TYPE_DECORATOR_FILL)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadBiomeDecoratorResourceFromFile(value, appContext->GetBiomeDecoratorResourcesManager(),
-                                               BiomeDecoratorType::FILL);
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_DECORATOR_MINERAL)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadBiomeDecoratorResourceFromFile(value, appContext->GetBiomeDecoratorResourcesManager(),
-                                               BiomeDecoratorType::MINERAL);
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_DECORATOR_SURFACE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadBiomeDecoratorResourceFromFile(value, appContext->GetBiomeDecoratorResourcesManager(),
-                                               BiomeDecoratorType::SURFACE);
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_FIXED_COLOR)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadFixedColorResourceFromFile(value, appContext->GetFixedColorManager());
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_LIGHT_MASK)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadLightMaskResourceFromFile(value, appContext->GetLightMaskManager());
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_LIGHT_SOURCE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadLightSourceResourceFromFile(value, appContext->GetLightSourceManager());
-            total++;
-        }
-        if (dataType == DATA_FILE_TYPE_RECIPE)
-        {
-            const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
-            const toml::value value = toml::parse_str(
-                tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
-            LoadRecipeResourceFromFile(value, appContext->GetRecipeManager());
-            total++;
-        }
-    }
-    if (targetLanguageFiles.empty())
-    {
-        for (auto& f : defaultLanguageFiles)
-        {
-            total += LoadStringResourceFromFile(f, appContext->GetStringManager());
-        }
-    }
-    else
-    {
-        for (auto& f : targetLanguageFiles)
-        {
-            total += LoadStringResourceFromFile(f, appContext->GetStringManager());
-        }
-    }
-    if (config->mods.enableSignVerify && findPublicKey && findSignature)
-    {
-        if (crypto_ed25519_check(signature.data(), publicKey.data(),
-                                 allHashData.data(), allHashData.size()) == 0)
-        {
-            packVerifyState_ = PackVerifyState::VerifiedSuccess;
-        }
-        else
-        {
-            packVerifyState_ = PackVerifyState::VerifiedFailed;
-        }
-    }
     if (config->mods.loadOnlyVerified && packVerifyState_ != PackVerifyState::VerifiedSuccess)
     {
         LogCat::e("Signature verification FAILED for data pack:", manifest_.id);

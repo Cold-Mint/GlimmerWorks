@@ -49,6 +49,19 @@ namespace glimmer
         EntityManager* entityManager_ = nullptr;
         EntityShortCut* entityShortCut_ = nullptr;
 
+        [[nodiscard]] std::vector<std::string> GetCommandNameSuggestions(const std::string& keyWord) const;
+
+        static std::vector<std::string> CollectMatchingSuggestions(const std::vector<std::string>& suggestions,
+                                                                   const std::string& keyWord);
+
+        static NodeTree<std::string>* FindNextNodeTree(const DynamicSuggestionsManager* dynamicSuggestionsManager,
+                                                       NodeTree<std::string>* nextNodeTree, const std::string& keyWord);
+
+        static bool TryExpandDynamicSuggestion(const DynamicSuggestionsManager* dynamicSuggestionsManager,
+                                               const std::string& child,
+                                               std::vector<std::string>& children,
+                                               std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& expandedSet);
+
     public:
         void RegisterCommand(std::unique_ptr<Command> command);
 

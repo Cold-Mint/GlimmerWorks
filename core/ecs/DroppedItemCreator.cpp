@@ -82,16 +82,17 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, cons
     {
         return;
     }
-    if (worldContext_ == nullptr || WorldContext::IsEmptyEntityId(id))
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr || WorldContext::IsEmptyEntityId(id))
     {
         return;
     }
-    const AppContext* appContext = worldContext_->GetAppContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
     }
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+    EntityManager* entityManager = worldContext->GetEntityManager();
     entityManager->SetResourceRef(id, resourceRef);
     entityManager->SetPersistable(id, true);
     const auto rigidBody2DComponent = entityManager->AddComponent<RigidBody2DComponent>(
@@ -124,13 +125,14 @@ void glimmer::DroppedItemCreator::LoadTemplateComponents(const uint32_t id, cons
 void glimmer::DroppedItemCreator::
 MergeEntityItemMessage(uint32_t id, const EntityItemMessage& entityItemMessage)
 {
-    RecoveryAllComponent(worldContext_, id, entityItemMessage);
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+    WorldContext* worldContext = GetWorldContext();
+    RecoveryAllComponent(worldContext, id, entityItemMessage);
+    EntityManager* entityManager = worldContext->GetEntityManager();
     auto transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
     auto rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
     if (transform2dComponent != nullptr && rigidBody2dComponent != nullptr)
     {
-        rigidBody2dComponent->CreateBody(worldContext_->GetAppContext()->GetResourceLocator(),
-                                         worldContext_->GetWorldId(), transform2dComponent->GetPosition());
+        rigidBody2dComponent->CreateBody(worldContext->GetAppContext()->GetResourceLocator(),
+                                         worldContext->GetWorldId(), transform2dComponent->GetPosition());
     }
 }

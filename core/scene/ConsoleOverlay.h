@@ -26,6 +26,7 @@
  */
 #pragma once
 #include <string>
+#include <string_view>
 #include <mutex>
 #include <optional>
 #include <vector>
@@ -36,6 +37,8 @@
 
 namespace glimmer
 {
+    struct PreloadColors;
+
     /**
      * ConsoleOverlay
      * 控制台叠加层
@@ -80,11 +83,44 @@ namespace glimmer
 
         static int InputCallback(ImGuiInputTextCallbackData* data);
 
-        [[nodiscard]] std::string ClikAutoCompleteItem(const std::string& suggestion) const;
+        [[nodiscard]] std::string ClikAutoCompleteItem(std::string_view suggestion) const;
 
         void Show();
 
         void Hide() const;
+
+        bool HandleKeyDown(const SDL_Event& event);
+
+        bool HandleGraveKey();
+
+        bool HandleUpKey();
+
+        bool HandleDownKey();
+
+        bool HandleRightKey();
+
+        bool HandleTabKey();
+
+        void NavigateHistory(int direction);
+
+        void ApplyAutocomplete(const std::string& text);
+
+        void RenderMessages(float messagesHeight);
+
+        void RenderAutocompleteSuggestions(float suggestionsHeight);
+
+        void RenderSuggestionItem(size_t index, const std::string& suggestion,
+                                  const PreloadColors* preloadColors);
+
+        void RenderCommandStructure(const PreloadColors* preloadColors);
+
+        void RenderCommandInput();
+
+        void RenderHistoryHint(const PreloadColors* preloadColors);
+
+        void PushConsoleStyle(const PreloadColors* preloadColors);
+
+        void PopConsoleStyle();
 
     public:
         explicit ConsoleOverlay(AppContext* context);
@@ -100,13 +136,13 @@ namespace glimmer
          * 设置搜索时的关键字
          * @param keyword keyword 关键字
          */
-        void SetKeyword(const std::string& keyword);
+        void SetKeyword(std::string_view keyword);
 
         void SetCommandStructureHighlightIndex(int commandStructureHighlightIndex);
 
         void SetCommandSuggestions(const std::vector<std::string>& commandSuggestions);
 
-        static int ComputeScore(const std::string& cmd, const std::string& keyword);
+        static int ComputeScore(std::string_view cmd, std::string_view keyword);
 
         [[nodiscard]] int GetLastCursorPos() const;
 

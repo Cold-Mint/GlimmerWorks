@@ -46,8 +46,6 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
     {
         if (y > firstTileTerrainY)
         {
-            //It is meaningless to judge the tile-based biological community of the sky.
-            //判断天空的瓦片生物群系是无意义的。
             continue;
         }
         chunkCenter.y = y;
@@ -66,6 +64,34 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
         if (Resource::GenerateId(*nowBiomeResource) == targetBiomeId)
         {
             return chunkCenter;
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomeInRadius(TileVector2D position,
+                                                                                 const BiomesManager* biomesManager,
+                                                                                 ChunkGenerator* chunkGenerator,
+                                                                                 const std::string& targetBiomeId,
+                                                                                 uint16_t maxRadiusChunks)
+{
+    auto target = SearchBiomes(position.x, biomesManager, chunkGenerator, targetBiomeId);
+    if (target.has_value())
+    {
+        return target;
+    }
+    for (int searchRadius = 1; searchRadius < maxRadiusChunks; searchRadius++)
+    {
+        const int distance = searchRadius * CHUNK_SIZE;
+        target = SearchBiomes(position.x + distance, biomesManager, chunkGenerator, targetBiomeId);
+        if (target.has_value())
+        {
+            return target;
+        }
+        target = SearchBiomes(position.x - distance, biomesManager, chunkGenerator, targetBiomeId);
+        if (target.has_value())
+        {
+            return target;
         }
     }
     return std::nullopt;
@@ -101,6 +127,71 @@ void glimmer::LocateCommand::PutCommandStructure(const CommandArgs* commandArgs,
 }
 
 
+static bool ExecuteBiome(const glimmer::CommandArgs* commandArgs,
+                         const std::function<void(const std::string& text)>& onMessageRef,
+                         glimmer::AppContext* appContext, glimmer::WorldContext* worldContext)
+{
+    glimmer::BiomesManager* biomesManager = appContext->GetBiomesManager();
+    if (biomesManager == nullptr)
+    {
+        return false;
+    }
+    auto resourceRefOptional = commandArgs->AsResourceRef(2, RESOURCE_BIOME);
+    if (!resourceRefOptional.has_value())
+    {
+        return false;
+    }
+    glimmer::ResourceRef& resourceRef = resourceRefOptional.value();
+    glimmer::BiomeResource* targetBiomeResource = biomesManager->Find(resourceRef.GetPackageId(),
+                                                                      resourceRef.GetResourceKey());
+    if (targetBiomeResource == nullptr)
+    {
+        return false;
+    }
+    glimmer::ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
+    if (chunkGenerator == nullptr)
+    {
+        return false;
+    }
+    std::string targetBiomeID = glimmer::Resource::GenerateId(*targetBiomeResource);
+    glimmer::EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return false;
+    }
+    glimmer::EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return false;
+    }
+    auto playerId = entityShortCut->GetPlayer();
+    if (glimmer::WorldContext::IsEmptyEntityId(playerId))
+    {
+        return false;
+    }
+    const glimmer::Transform2DComponent* transform2dComponent = entityManager->GetComponent<glimmer::Transform2DComponent>(playerId);
+    if (transform2dComponent == nullptr)
+    {
+        return false;
+    }
+    glimmer::TileVector2D position = glimmer::CoordinateTransformer::WorldToTile(transform2dComponent->GetPosition());
+    uint16_t locateMaxRadiusSearchChunks = appContext->GetConfig()->command.locateMaxRadiusSearchChunks;
+    std::optional<glimmer::TileVector2D> target = glimmer::LocateCommand::SearchBiomeInRadius(
+        position, biomesManager, chunkGenerator, targetBiomeID, locateMaxRadiusSearchChunks);
+    if (target.has_value())
+    {
+        onMessageRef(fmt::format(
+            fmt::runtime(appContext->GetLangsResources()->biomeHasFound), targetBiomeID, target.value().x,
+            target.value().y
+        ));
+        return true;
+    }
+    onMessageRef(fmt::format(
+        fmt::runtime(appContext->GetLangsResources()->noBiomeWasFound), targetBiomeID
+    ));
+    return false;
+}
+
 bool glimmer::LocateCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                      const std::function<void(const std::string& text)>* onMessage)
 {
@@ -127,87 +218,7 @@ bool glimmer::LocateCommand::Execute(const CommandSender* commandSender, const C
     std::string type = commandArgs->AsString(1);
     if (type == "biome")
     {
-        BiomesManager* biomesManager = appContext->GetBiomesManager();
-        if (biomesManager == nullptr)
-        {
-            return false;
-        }
-        auto resourceRefOptional = commandArgs->AsResourceRef(2, RESOURCE_BIOME);
-        if (!resourceRefOptional.has_value())
-        {
-            return false;
-        }
-        ResourceRef& resourceRef = resourceRefOptional.value();
-        BiomeResource* targetBiomeResource = biomesManager->Find(resourceRef.GetPackageId(),
-                                                                 resourceRef.GetResourceKey());
-        if (targetBiomeResource == nullptr)
-        {
-            return false;
-        }
-        ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
-        if (chunkGenerator == nullptr)
-        {
-            return false;
-        }
-        std::string targetBiomeID = Resource::GenerateId(*targetBiomeResource);
-        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-        if (entityShortCut == nullptr)
-        {
-            return false;
-        }
-        EntityManager* entityManager = worldContext->GetEntityManager();
-        if (entityManager == nullptr)
-        {
-            return false;
-        }
-        auto playerId = entityShortCut->GetPlayer();
-        if (WorldContext::IsEmptyEntityId(playerId))
-        {
-            return false;
-        }
-        const Transform2DComponent* transform2dComponent = entityManager->GetComponent<Transform2DComponent>(playerId);
-        if (transform2dComponent == nullptr)
-        {
-            return false;
-        }
-        TileVector2D position = CoordinateTransformer::WorldToTile(transform2dComponent->GetPosition());
-        uint16_t locateMaxRadiusSearchChunks = appContext->GetConfig()->command.locateMaxRadiusSearchChunks;
-        std::optional<TileVector2D> target = std::nullopt;
-        for (int searchRadius = 0; searchRadius < locateMaxRadiusSearchChunks; searchRadius++)
-        {
-            if (searchRadius == 0)
-            {
-                target = SearchBiomes(position.x, biomesManager, chunkGenerator, targetBiomeID);
-                if (target.has_value())
-                {
-                    break;
-                }
-                continue;
-            }
-            const int distance = searchRadius * CHUNK_SIZE;
-            target = SearchBiomes(position.x + distance, biomesManager, chunkGenerator, targetBiomeID);
-            if (target.has_value())
-            {
-                break;
-            }
-            target = SearchBiomes(position.x - distance, biomesManager, chunkGenerator, targetBiomeID);
-            if (target.has_value())
-            {
-                break;
-            }
-        }
-        if (target.has_value())
-        {
-            onMessageRef(fmt::format(
-                fmt::runtime(appContext->GetLangsResources()->biomeHasFound), targetBiomeID, target.value().x,
-                target.value().y
-            ));
-            return true;
-        }
-        onMessageRef(fmt::format(
-            fmt::runtime(appContext->GetLangsResources()->noBiomeWasFound), targetBiomeID
-        ));
-        return false;
+        return ExecuteBiome(commandArgs, onMessageRef, appContext, worldContext);
     }
     return false;
 }

@@ -39,8 +39,8 @@ namespace glimmer
 
         [[nodiscard]] std::string GetId() const override;
 
-        bool Match(std::string keyword, std::string param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
 
-        std::vector<std::string> GetSuggestions(std::optional<std::string> param) override;
+        std::vector<std::string> GetSuggestions(const std::optional<std::string>& param) override;
     };
 }

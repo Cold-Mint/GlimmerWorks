@@ -63,7 +63,7 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem
     WatchComponent(COMPONENT_AUTO_PICK);
     WatchComponent(COMPONENT_MAGNET);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
-    AppContext* appContext = worldContext->GetAppContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
@@ -77,75 +77,94 @@ glimmer::AutoPickSystem::AutoPickSystem(WorldContext* worldContext) : GameSystem
     Init();
 }
 
-void glimmer::AutoPickSystem::Update(const float delta)
+void glimmer::AutoPickSystem::TryMergeFlowingText()
 {
     WorldContext* worldContext = GetWorldContext();
     EntityManager* entityManager = GetEntityManager();
+    if (frameItemCounts_.empty())
+    {
+        return;
+    }
+    std::stringstream stringStream{};
+    for (auto& [itemName, count] : frameItemCounts_)
+    {
+        stringStream << itemName;
+        if (count <= 1)
+        {
+            continue;
+        }
+        stringStream << " * " << count << "\n";
+    }
+
+    FlowingTextCreator flowingTextCreator(worldContext, stringStream.str(), lastPosition);
+    flowingTextCreator.LoadTemplateComponents(entityManager->AddEntity());
+    frameItemCounts_.clear();
+}
+
+void glimmer::AutoPickSystem::ProcessMagnetEntity(GameEntityID entity)
+{
+    EntityManager* entityManager = GetEntityManager();
+    const auto magnetComponent = entityManager->GetComponent<MagnetComponent>(entity);
+    const auto containerComponent = entityManager->GetComponent<ItemContainerComponent>(entity);
+    if (magnetComponent == nullptr || containerComponent == nullptr)
+    {
+        return;
+    }
+    const auto itemContainer = containerComponent->GetItemContainer();
+    if (itemContainer == nullptr)
+    {
+        return;
+    }
+    for (auto& entities = magnetComponent->GetEntities(); uint32_t entityId : entities)
+    {
+        auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(entityId);
+        if (transform2DComponent != nullptr)
+        {
+            lastPosition = transform2DComponent->GetPosition();
+        }
+
+        auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(entityId);
+        if (droppedItemComponent == nullptr)
+        {
+            continue;
+        }
+
+        auto extractItem = droppedItemComponent->ExtractItem();
+        if (extractItem == nullptr)
+        {
+            continue;
+        }
+
+        const std::string& itemName = extractItem->GetName();
+        frameItemCounts_[itemName] += extractItem->GetAmount();
+
+        auto item = itemContainer->AddItem(std::move(extractItem));
+        if (item == nullptr && pickItemSFXResult_ != nullptr)
+        {
+            if (MIX_Audio* audio = pickItemSFXResult_->GetResource(); audio != nullptr)
+            {
+                audioManager_->TryPlayFree(AMBIENT, audio, 0);
+            }
+        }
+        entityManager->RemoveEntity(entityId);
+    }
+}
+
+void glimmer::AutoPickSystem::Update(const float delta)
+{
     if (audioManager_ == nullptr)
     {
         return;
     }
     if (remainingTime_ <= 0)
     {
-        if (!frameItemCounts_.empty())
-        {
-            std::stringstream stringStream{};
-            for (auto& pair : frameItemCounts_)
-            {
-                stringStream << pair.first;
-                if (pair.second > 1)
-                {
-                    stringStream << " * " << pair.second << "\n";
-                }
-            }
-
-            FlowingTextCreator flowingTextCreator(worldContext, stringStream.str(), lastPosition);
-            flowingTextCreator.LoadTemplateComponents(entityManager->AddEntity());
-            frameItemCounts_.clear();
-        }
+        TryMergeFlowingText();
         remainingTime_ = MERGE_DURATION;
     }
     remainingTime_ -= delta;
     for (const auto entity : entities_)
     {
-        const auto magnetComponent = entityManager->GetComponent<MagnetComponent>(entity);
-        const auto containerComponent = entityManager->GetComponent<ItemContainerComponent>(
-            entity);
-        for (auto& entities = magnetComponent->GetEntities(); uint32_t entityId : entities)
-        {
-            auto transform2DComponent = entityManager->GetComponent<Transform2DComponent>(entityId);
-            if (transform2DComponent == nullptr)
-            {
-                continue;
-            }
-            lastPosition = transform2DComponent->GetPosition();
-
-            auto droppedItemComponent = entityManager->GetComponent<DroppedItemComponent>(entityId);
-            if (droppedItemComponent == nullptr)
-            {
-                continue;
-            }
-
-            auto extractItem = droppedItemComponent->ExtractItem();
-            if (extractItem == nullptr)
-            {
-                continue;
-            }
-
-            const std::string& itemName = extractItem->GetName();
-            frameItemCounts_[itemName] += extractItem->GetAmount();
-
-            auto item = containerComponent->GetItemContainer()->AddItem(std::move(extractItem));
-            if (item == nullptr && pickItemSFXResult_ != nullptr)
-            {
-                MIX_Audio* audio = pickItemSFXResult_->GetResource();
-                if (audio != nullptr)
-                {
-                    audioManager_->TryPlayFree(AMBIENT, audio, 0);
-                }
-            }
-            entityManager->RemoveEntity(entityId);
-        }
+        ProcessMagnetEntity(entity);
     }
 }
 

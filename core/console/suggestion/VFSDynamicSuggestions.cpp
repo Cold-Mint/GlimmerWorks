@@ -39,12 +39,12 @@ std::string glimmer::VFSDynamicSuggestions::GetId() const
     return VFS_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-bool glimmer::VFSDynamicSuggestions::Match(std::string keyword, std::string param)
+bool glimmer::VFSDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
     return virtualFileSystem_->Exists(keyword);
 }
 
-std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     if (!param.has_value())
     {
@@ -54,8 +54,7 @@ std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(std::opt
     std::string directory;
     std::string keyword;
     // 判断是否包含 '/'
-    auto pos = paramValue.find_last_of('/');
-    if (pos != std::string::npos)
+    if (auto pos = paramValue.find_last_of('/'); pos != std::string::npos)
     {
         // 目录 = 最后一个 '/' 之前的部分
         directory = paramValue.substr(0, pos);
@@ -82,9 +81,9 @@ std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(std::opt
     std::vector<std::string> result;
 
     // 根据关键字过滤（关键字为空则全部返回）
-    for (auto& f : files)
+    for (const auto& f : files)
     {
-        if (keyword.empty() || f.find(keyword) != std::string::npos)
+        if (keyword.empty() || f.contains(keyword))
         {
             result.push_back(f);
         }

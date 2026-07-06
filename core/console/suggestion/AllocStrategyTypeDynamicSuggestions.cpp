@@ -26,6 +26,7 @@
  */
 #include "AllocStrategyTypeDynamicSuggestions.h"
 
+#include <algorithm>
 #include "core/Constants.h"
 
 glimmer::AllocStrategyTypeDynamicSuggestions::AllocStrategyTypeDynamicSuggestions()
@@ -41,19 +42,13 @@ std::string glimmer::AllocStrategyTypeDynamicSuggestions::GetId() const
     return ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
     return suggestions_;
 }
 
-bool glimmer::AllocStrategyTypeDynamicSuggestions::Match(std::string keyword, std::string param)
+bool glimmer::AllocStrategyTypeDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    for (const auto& itemId : suggestions_)
-    {
-        if (itemId == keyword)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(suggestions_, [&](const auto& item) { return item == keyword; });
 }

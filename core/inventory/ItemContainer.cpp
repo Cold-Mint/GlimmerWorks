@@ -44,7 +44,7 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>&
         InvokeOnContentChanged(index, item.get(), changeType);
         if (amount == 0)
         {
-            UnBindItemEvent(index, item);
+            UnBindItemEvent(index, item.get());
             item.reset();
         }
     });
@@ -52,7 +52,7 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>&
     {
         if (usedDurability >= maxDurability)
         {
-            UnBindItemEvent(index, item);
+            UnBindItemEvent(index, item.get());
             item.reset();
         }
     });
@@ -62,13 +62,13 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>&
     });
 }
 
-void glimmer::ItemContainer::UnBindItemEvent(uint8_t index, const std::unique_ptr<Item>& item)
+void glimmer::ItemContainer::UnBindItemEvent(uint8_t index, Item* item)
 {
     if (item == nullptr)
     {
         return;
     }
-    InvokeOnContentChanged(index, item.get(), ContainerChangeType::REMOVE);
+    InvokeOnContentChanged(index, item, ContainerChangeType::REMOVE);
     item->SetOnAmountChanged(nullptr);
     item->SetOnUsedDurabilityChanged(nullptr);
     item->SetOnLockStatusChanged(nullptr);
@@ -91,9 +91,8 @@ void glimmer::ItemContainer::RefreshTotalTags()
 {
     tagToValue_.clear();
     totalTagVector_.clear();
-    for (int i = 0; i < items_.size(); ++i)
+    for (const auto& currentItem : items_)
     {
-        const std::unique_ptr<Item>& currentItem = items_[i];
         if (currentItem == nullptr)
         {
             continue;
@@ -127,9 +126,9 @@ void glimmer::ItemContainer::RefreshTotalTags()
             }
         }
     }
-    for (auto& tagToValue : tagToValue_)
+    for (const auto& [tagId, itemTagPtr] : tagToValue_)
     {
-        totalTagVector_.emplace_back(tagToValue.second.get());
+        totalTagVector_.emplace_back(itemTagPtr.get());
     }
     needRefreshTag_ = false;
 }
@@ -153,15 +152,14 @@ void glimmer::ItemContainer::Resize(const uint8_t capacity)
 void glimmer::ItemContainer::RemoveOnContentChanged(
     const std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>& onContentChanged)
 {
-    auto it = std::remove_if(
-        onContentChanged_.begin(),
-        onContentChanged_.end(),
+    auto toRemove= std::ranges::remove_if(
+        onContentChanged_,
         [&](const std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>& ptr)
         {
-            return ptr == onContentChanged; // Direct comparison of shared_ptr addresses 直接比较shared_ptr地址
+            return ptr == onContentChanged;
         }
     );
-    onContentChanged_.erase(it, onContentChanged_.end());
+    onContentChanged_.erase(toRemove.begin(), toRemove.end());
 }
 
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<Item> newItem)
@@ -175,12 +173,9 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
         std::unique_ptr<Item>& currentItem = items_[i];
         if (currentItem == nullptr)
         {
-            currentItem = std::move(newItem);
-            BindItemEvent(i, currentItem);
             continue;
         }
-        const uint8_t stackSpace = currentItem->GetRemainingStackCount(newItem.get());
-        if (stackSpace == 0)
+        if (const uint8_t stackSpace = currentItem->GetRemainingStackCount(newItem.get()); stackSpace == 0)
         {
             continue;
         }
@@ -189,15 +184,23 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
         {
             continue;
         }
-        if (const uint8_t removeAmount = newItem->RemoveAmount(stackedAmount); removeAmount == 0)
+        if (const uint8_t removeAmount = newItem->RemoveAmount(stackedAmount); removeAmount == 0 &&
+            currentItem->RemoveAmount(stackedAmount) == 0)
         {
-            if (currentItem->RemoveAmount(stackedAmount) == 0)
-            {
-                LogCat::w("Failed to remove from the item container.");
-            }
+            LogCat::w("Failed to remove from the item container.");
         }
         if (newItem->GetAmount() == 0)
         {
+            return nullptr;
+        }
+    }
+    for (uint8_t i = 0; i < items_.size(); ++i)
+    {
+        std::unique_ptr<Item>& currentItem = items_[i];
+        if (currentItem == nullptr)
+        {
+            currentItem = std::move(newItem);
+            BindItemEvent(i, currentItem);
             return nullptr;
         }
     }
@@ -293,13 +296,13 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::ReplaceItem(const uint8_t
         return nullptr;
     }
     std::unique_ptr<Item> oldItem = std::move(items_[index]);
-    UnBindItemEvent(index, oldItem);
+    UnBindItemEvent(index, oldItem.get());
     items_[index] = std::move(item);
     BindItemEvent(index, items_[index]);
     return oldItem;
 }
 
-uint8_t glimmer::ItemContainer::RemoveItem(const std::string& id, const uint8_t amount) const
+uint8_t glimmer::ItemContainer::RemoveItem(std::string_view id, const uint8_t amount) const
 {
     int unallocatedCount = amount;
     for (auto& i : items_)
@@ -371,7 +374,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeAllItem(const uint8_t
         return nullptr;
     }
     std::unique_ptr<Item> item = std::move(items_[index]);
-    UnBindItemEvent(index, item);
+    UnBindItemEvent(index, item.get());
     return item;
 }
 
@@ -464,9 +467,9 @@ void glimmer::ItemContainer::ToMessage(ItemContainerMessage& message) const
 
 void glimmer::ItemContainer::ResetItems()
 {
-    for (uint8_t i = 0; i < items_.size(); ++i)
+    for (auto& item : items_)
     {
-        items_[i] = nullptr;
+        item = nullptr;
     }
 }
 

@@ -26,6 +26,8 @@
  */
 #include "LootSuggestions.h"
 
+#include <algorithm>
+
 #include "core/Constants.h"
 
 glimmer::LootSuggestions::LootSuggestions(LootTableManager* lootTableManager)
@@ -38,19 +40,12 @@ std::string glimmer::LootSuggestions::GetId() const
     return LOOT_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::LootSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::LootSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return lootTableManager_->GetLootTableList();
 }
 
-bool glimmer::LootSuggestions::Match(std::string keyword, std::string param)
+bool glimmer::LootSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    for (const auto& itemId : lootTableManager_->GetLootTableList())
-    {
-        if (itemId == keyword)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::contains(lootTableManager_->GetLootTableList(), keyword);
 }

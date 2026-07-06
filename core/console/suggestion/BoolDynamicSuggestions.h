@@ -32,7 +32,7 @@ namespace glimmer {
     public:
         [[nodiscard]] std::string GetId() const override;
 
-        std::vector<std::string> GetSuggestions(std::optional<std::string> param) override;
+        std::vector<std::string> GetSuggestions(const std::optional<std::string>& param) override;
 
         /**
          * Determine whether the input content matches this suggestion, and when obtaining the suggestion list, get the subtree
@@ -41,6 +41,6 @@ namespace glimmer {
          * @param param
          * @return
          */
-        bool Match(std::string keyword, std::string param) override;
+        bool Match(const std::string& keyword, const std::string& param) override;
     };
 }

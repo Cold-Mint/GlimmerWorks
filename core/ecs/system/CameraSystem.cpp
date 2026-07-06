@@ -61,10 +61,10 @@ void glimmer::CameraSystem::OnWindowSizeChanged(const int& width, const int& hei
 }
 
 glimmer::CameraSystem::CameraSystem(WorldContext* worldContext)
-    : GameSystem(worldContext)
+    : GameSystem(worldContext),
+      appContext_(worldContext->GetAppContext())
 {
     WatchComponent(COMPONENT_CAMERA);
-    appContext_ = worldContext->GetAppContext();
     Init();
 }
 

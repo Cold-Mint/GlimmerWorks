@@ -72,7 +72,7 @@ namespace glimmer
             thread_local std::random_device rd;
             if constexpr (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> || std::is_same_v<T, char>)
             {
-                std::uniform_int_distribution<int> dist(static_cast<int>(realMin), static_cast<int>(realMax));
+                std::uniform_int_distribution dist(static_cast<int>(realMin), static_cast<int>(realMax));
                 return static_cast<T>(dist(rd));
             }
             else

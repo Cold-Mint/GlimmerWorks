@@ -38,12 +38,12 @@ std::string glimmer::DataPackDynamicSuggestions::GetId() const
     return DATA_PACK_SUGGESTIONS_NAME;
 }
 
-bool glimmer::DataPackDynamicSuggestions::Match(std::string keyword, std::string param)
+bool glimmer::DataPackDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
     return dataPackManager_->Contains(keyword);
 }
 
-std::vector<std::string> glimmer::DataPackDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::DataPackDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return dataPackManager_->GetPackIdList();
 }

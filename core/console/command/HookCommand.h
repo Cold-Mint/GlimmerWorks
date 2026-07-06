@@ -30,8 +30,33 @@
 
 namespace glimmer
 {
+    class CommandHookManager;
+    struct LangsResources;
+
     class HookCommand final : public Command
     {
+        static void PutAddCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings,
+                                           int size);
+
+        static void PutListCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings,
+                                            int size);
+
+        void UpdateAddSuggestionsTree(NodeTree<std::string>* operationTypeTree, const std::string& eventTypeString);
+
+        void UpdateListSuggestionsTree(NodeTree<std::string>* operationTypeTree, const std::string& eventTypeString);
+
+        bool ExecuteAdd(const CommandArgs* commandArgs,
+                        const std::function<void(const std::string& text)>& onMessageRef, size_t size,
+                        CommandHookManager* commandHookManager, const LangsResources* langsResources);
+
+        static bool ExecuteRemove(const CommandArgs* commandArgs,
+                                  const std::function<void(const std::string& text)>& onMessageRef,
+                                  CommandHookManager* commandHookManager, const LangsResources* langsResources);
+
+        bool ExecuteList(const CommandArgs* commandArgs,
+                         const std::function<void(const std::string& text)>& onMessageRef, size_t size,
+                         CommandHookManager* commandHookManager, const LangsResources* langsResources);
+
     public:
         explicit HookCommand(AppContext* appContext);
 

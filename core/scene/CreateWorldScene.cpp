@@ -79,19 +79,19 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.createTime = TimeUtils::GetCurrentTimeMs();
     manifest.lastPlayedTime = manifest.createTime;
     manifest.totalPlayTime = 0;
-    auto savesManager = appContext_->GetSavesManager();
+    auto savesManager = GetAppContext()->GetSavesManager();
     Saves* saves =
         savesManager->
-        Create(appContext_->GetConfig()->runtimePath, manifest);
+        Create(GetAppContext()->GetConfig()->runtimePath, manifest);
     if (saves == nullptr)
     {
         LogCat::e("Failed to create world");
         return;
     }
-    appContext_->GetSceneManager()->
+    GetAppContext()->GetSceneManager()->
                  ReplaceScene(std::make_unique<WorldScene>(
-                     appContext_, std::make_unique<WorldContext>(
-                         appContext_, savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
+                     GetAppContext(), std::make_unique<WorldContext>(
+                         GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
                          saves)));
 }
 
@@ -102,8 +102,8 @@ void glimmer::CreateWorldScene::OnConfigChanged(const Config* config)
 
 std::string glimmer::CreateWorldScene::RandomName() const
 {
-    const std::vector<std::string>& prefixList = appContext_->GetLangsResources()->worldNamePrefix;
-    const std::vector<std::string>& suffixList = appContext_->GetLangsResources()->worldNameSuffix;
+    const std::vector<std::string>& prefixList = GetAppContext()->GetLangsResources()->worldNamePrefix;
+    const std::vector<std::string>& suffixList = GetAppContext()->GetLangsResources()->worldNameSuffix;
     if (prefixList.empty())
     {
         throw std::runtime_error("CreateWorldScene::RandomName: worldNamePrefix is empty");
@@ -115,7 +115,7 @@ std::string glimmer::CreateWorldScene::RandomName() const
 
     const auto randomPrefixIdx = RandomUtils::Random<size_t>(0, prefixList.size() - 1);
     const auto randomSuffixIdx = RandomUtils::Random<size_t>(0, suffixList.size() - 1);
-    if (appContext_->GetLanguage().compare(0, 2, "en") == 0)
+    if (GetAppContext()->GetLanguage().compare(0, 2, "en") == 0)
     {
         return prefixList[randomPrefixIdx] + " " + suffixList[randomSuffixIdx];
     }
@@ -129,7 +129,7 @@ void glimmer::CreateWorldScene::RenderImGui(SDL_Renderer* renderer)
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(),
                             ImGuiCond_Once, ImVec2(0.5f, 0.5f));
 
-    LangsResources* langsResources = appContext_->GetLangsResources();
+    LangsResources* langsResources = GetAppContext()->GetLangsResources();
     ImGui::Begin(langsResources->createWorld.c_str(), nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
 
@@ -156,7 +156,7 @@ void glimmer::CreateWorldScene::RenderImGui(SDL_Renderer* renderer)
 
     if (ImGui::Button(langsResources->cancel.c_str(), ImVec2(120 * uiScale_, 0)))
     {
-        appContext_->GetSceneManager()->PopScene();
+        GetAppContext()->GetSceneManager()->PopScene();
     }
     ImGui::SameLine();
     if (ImGui::Button(langsResources->createWorld.c_str(), ImVec2(120 * uiScale_, 0)))

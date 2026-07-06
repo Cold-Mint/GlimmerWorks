@@ -33,6 +33,7 @@
 #include "core/scene/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
+#include <sstream>
 
 glimmer::ItemEditorCommand::ItemEditorCommand(AppContext* appContext)
     : Command(appContext)
@@ -109,6 +110,96 @@ void glimmer::ItemEditorCommand::SetItemAttribute(const std::string& attribute, 
             item->Unlock();
         }
     }
+}
+
+std::string glimmer::ItemEditorCommand::GetItemAttribute(const std::string& attribute, Item* item)
+{
+    std::stringstream value;
+    if (attribute == "used_durability")
+    {
+        value << item->GetUsedDurability();
+    }
+    else if (attribute == "durability_strategy")
+    {
+        auto composableItem = dynamic_cast<ComposableItem*>(item);
+        if (composableItem != nullptr)
+        {
+            switch (composableItem->GetAllocStrategyType())
+            {
+            case ALLOC_STRATEGY_FORWARD:
+                value << ALLOC_STR_STRATEGY_FORWARD;
+                break;
+            case ALLOC_STRATEGY_BACKWARD:
+                value << ALLOC_STR_STRATEGY_BACKWARD;
+                break;
+            case ALLOC_STRATEGY_BALANCE:
+                value << ALLOC_STR_STRATEGY_BALANCE;
+                break;
+            case ALLOC_STRATEGY_RANDOM:
+                value << ALLOC_STR_STRATEGY_RANDOM;
+                break;
+            case AllocStrategyTypeMessage_INT_MIN_SENTINEL_DO_NOT_USE_:
+            case AllocStrategyTypeMessage_INT_MAX_SENTINEL_DO_NOT_USE_:
+                break;
+            }
+        }
+    }
+    else if (attribute == "amount")
+    {
+        value << static_cast<uint32_t>(item->GetAmount());
+    }
+    else if (attribute == "max_durability")
+    {
+        value << item->GetMaxDurability();
+    }
+    else if (attribute == "max_stack")
+    {
+        value << static_cast<uint32_t>(item->GetMaxStack());
+    }
+    else if (attribute == "locked")
+    {
+        value << item->IsLocked();
+    }
+    else if (attribute == "unbreakable")
+    {
+        value << item->IsUnbreakable();
+    }
+    return value.str();
+}
+
+glimmer::Item* glimmer::ItemEditorCommand::GetPlayerHeldItem(const WorldContext* worldContext,
+                                                             const LangsResources* langsResources,
+                                                             const std::function<void(const std::string& text)>&
+                                                             onMessageRef)
+{
+    const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return nullptr;
+    }
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return nullptr;
+    }
+    auto playerId = entityShortCut->GetPlayer();
+    if (WorldContext::IsEmptyEntityId(playerId))
+    {
+        return nullptr;
+    }
+    auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerId);
+    if (playerComponent == nullptr)
+    {
+        onMessageRef(langsResources->playerDoesNotExist);
+        return nullptr;
+    }
+    auto item = playerComponent->GetItem();
+    if (item == nullptr)
+    {
+        onMessageRef(langsResources->itemEditorHoldItem);
+        return nullptr;
+    }
+    return item;
 }
 
 void glimmer::ItemEditorCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
@@ -188,91 +279,18 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
             2, size));
         return false;
     }
-    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
-        return false;
-    }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
-        return false;
-    }
-    auto playerId = entityShortCut->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(playerId))
-    {
-        return false;
-    }
-    auto playerComponent = entityManager->GetComponent<PlayerComponent>(playerId);
-    if (playerComponent == nullptr)
-    {
-        onMessageRef(langsResources->playerDoesNotExist);
-        return false;
-    }
-    auto item = playerComponent->GetItem();
+    Item* item = GetPlayerHeldItem(worldContext, langsResources, onMessageRef);
     if (item == nullptr)
     {
-        onMessageRef(langsResources->itemEditorHoldItem);
         return false;
     }
     std::string operation = commandArgs->AsString(1);
     if (operation == "get")
     {
-        std::stringstream value;
         const std::string attribute = commandArgs->AsString(2);
-        if (attribute == "used_durability")
-        {
-            value << item->GetUsedDurability();
-        }
-        else if (attribute == "durability_strategy")
-        {
-            auto composableItem = dynamic_cast<ComposableItem*>(item);
-            if (composableItem != nullptr)
-            {
-                switch (composableItem->GetAllocStrategyType())
-                {
-                case ALLOC_STRATEGY_FORWARD:
-                    value << ALLOC_STR_STRATEGY_FORWARD;
-                    break;
-                case ALLOC_STRATEGY_BACKWARD:
-                    value << ALLOC_STR_STRATEGY_BACKWARD;
-
-                    break;
-                case ALLOC_STRATEGY_BALANCE:
-                    value << ALLOC_STR_STRATEGY_BALANCE;
-                    break;
-                case ALLOC_STRATEGY_RANDOM:
-                    value << ALLOC_STR_STRATEGY_RANDOM;
-                    break;
-                case AllocStrategyTypeMessage_INT_MIN_SENTINEL_DO_NOT_USE_:
-                    break;
-                case AllocStrategyTypeMessage_INT_MAX_SENTINEL_DO_NOT_USE_:
-                    break;
-                }
-            }
-        }
-        else if (attribute == "amount")
-        {
-            value << static_cast<uint32_t>(item->GetAmount());
-        }
-        else if (attribute == "max_durability")
-        {
-            value << item->GetMaxDurability();
-        }
-        else if (attribute == "max_stack")
-        {
-            value << static_cast<uint32_t>(item->GetMaxStack());
-        }
-        else if (attribute == "locked")
-        {
-            value << item->IsLocked();
-        }
-        else if (attribute == "unbreakable")
-        {
-            value << item->IsUnbreakable();
-        }
+        const std::string value = GetItemAttribute(attribute, item);
         onMessageRef(fmt::format(fmt::runtime(langsResources->itemEditorReadAttr), item->GetName(), attribute,
-                                 value.str()));
+                                 value));
         return true;
     }
     if (operation == "set")

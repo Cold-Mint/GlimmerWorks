@@ -26,6 +26,8 @@
  */
 #include "ComposableItemDynamicSuggestions.h"
 
+#include <algorithm>
+
 #include "core/Constants.h"
 
 glimmer::ComposableItemDynamicSuggestions::ComposableItemDynamicSuggestions(ItemManager* itemManager) : itemManager_(
@@ -38,19 +40,12 @@ std::string glimmer::ComposableItemDynamicSuggestions::GetId() const
     return COMPOSABLE_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-bool glimmer::ComposableItemDynamicSuggestions::Match(const std::string keyword, std::string param)
+bool glimmer::ComposableItemDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    for (const auto& itemId : itemManager_->GetComposableItemIDList())
-    {
-        if (itemId == keyword)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::contains(itemManager_->GetComposableItemIDList(), keyword);
 }
 
-std::vector<std::string> glimmer::ComposableItemDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::ComposableItemDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return itemManager_->GetComposableItemIDList();
 }

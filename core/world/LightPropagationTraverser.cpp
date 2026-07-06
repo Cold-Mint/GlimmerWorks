@@ -27,6 +27,7 @@
 #include "LightPropagationTraverser.h"
 
 #include <cmath>
+#include <numbers>
 #include <queue>
 #include <unordered_set>
 
@@ -34,7 +35,7 @@
 void glimmer::LightPropagationTraverser::PropagateSingleRayImpl(const int rayIndex,
                                                                 std::unordered_set<TileVector2D, Vector2DIHash> &
                                                                 visited, const int maxRadSq) const {
-    const float angleRadians = static_cast<float>(rayIndex) * rayAngleStep_ * 3.14159265358979323846F / 180.0F;
+    const float angleRadians = static_cast<float>(rayIndex) * rayAngleStep_ * std::numbers::pi_v<float> / 180.0F;
     const float dirX = std::cos(angleRadians);
     const float dirY = std::sin(angleRadians);
     auto currentX = static_cast<float>(center_.x);

@@ -43,9 +43,8 @@ glimmer::RecipeResource* glimmer::RecipeManager::RegisterRecipe(std::unique_ptr<
 
 void glimmer::RecipeManager::PreSortRecipes()
 {
-    for (auto& groupEntry : recipeGroupMap_)
+    for (auto& [group, recipeList] : recipeGroupMap_)
     {
-        auto& recipeList = groupEntry.second;
         // Sorting rules:
         // 1. First, sort by the smallest technological level from smallest to largest.
         // 2. If the technological levels are the same, then sort by the quantity of input materials from smallest to largest.
@@ -64,6 +63,24 @@ void glimmer::RecipeManager::PreSortRecipes()
     }
 }
 
+bool glimmer::RecipeManager::IsRecipeSatisfied(const RecipeResource* recipe,
+                                               const std::unordered_map<uint64_t, uint8_t>& tagValueMap)
+{
+    for (const auto& required : recipe->input)
+    {
+        const auto valueIt = tagValueMap.find(required.GetCachedTagId());
+        if (valueIt == tagValueMap.end())
+        {
+            return false;
+        }
+        if (valueIt->second < required.requiredWeight)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 std::vector<glimmer::RecipeResource*> glimmer::RecipeManager::FindUnlockedRecipes(
     std::unordered_map<RecipeGroup, uint8_t> technologyMap, const std::vector<ItemTagResource*>& totalTagVector) const
 {
@@ -71,20 +88,20 @@ std::vector<glimmer::RecipeResource*> glimmer::RecipeManager::FindUnlockedRecipe
     tagValueMap.reserve(totalTagVector.size());
     for (const auto& tag : totalTagVector)
     {
-        if (tag != nullptr)
+        if (tag == nullptr)
         {
-            tagValueMap[tag->GetCachedTagId()] = tag->value;
+            continue;
         }
+        tagValueMap[tag->GetCachedTagId()] = tag->value;
     }
 
     std::vector<RecipeResource*> unlockedRecipes;
-    for (const auto& groupEntry : recipeGroupMap_)
+    for (const auto& [group, recipeList] : recipeGroupMap_)
     {
-        const RecipeGroup group = groupEntry.first;
         const auto techIt = technologyMap.find(group);
         const uint8_t techLevel = techIt != technologyMap.end() ? techIt->second : 0;
 
-        for (const auto& recipe : groupEntry.second)
+        for (const auto& recipe : recipeList)
         {
             if (recipe == nullptr)
             {
@@ -94,21 +111,11 @@ std::vector<glimmer::RecipeResource*> glimmer::RecipeManager::FindUnlockedRecipe
             {
                 continue;
             }
-            bool allSatisfied = true;
-            for (const auto& required : recipe->input)
+            if (!IsRecipeSatisfied(recipe, tagValueMap))
             {
-                const auto valueIt = tagValueMap.find(required.GetCachedTagId());
-                if (valueIt == tagValueMap.end() || valueIt->second < required.requiredWeight)
-                {
-                    allSatisfied = false;
-                    break;
-                }
+                continue;
             }
-
-            if (allSatisfied)
-            {
-                unlockedRecipes.push_back(recipe);
-            }
+            unlockedRecipes.push_back(recipe);
         }
     }
 
@@ -137,15 +144,11 @@ glimmer::RecipeResource* glimmer::RecipeManager::FindRecipeResource(const std::s
 std::vector<std::string> glimmer::RecipeManager::GetRecipeResourceList() const
 {
     std::vector<std::string> result;
-    for (const auto& packPair : recipeMap_)
+    for (const auto& [packId, keyMap] : recipeMap_)
     {
-        const auto& packId = packPair.first;
-        const auto& keyMap = packPair.second;
-
-        for (const auto& keyPair : keyMap)
+        for (const auto& [key, recipe] : keyMap)
         {
-            const auto& key = keyPair;
-            result.emplace_back(Resource::GenerateId(packId, key.first));
+            result.emplace_back(Resource::GenerateId(packId, key));
         }
     }
     return result;
@@ -155,13 +158,10 @@ std::vector<std::string> glimmer::RecipeManager::GetRecipeResourceList() const
 std::string glimmer::RecipeManager::ListRecipeResources() const
 {
     std::stringstream oss;
-    for (const auto& packPair : recipeMap_)
+    for (const auto& [packId, keyMap] : recipeMap_)
     {
-        const auto& packId = packPair.first;
-        const auto& keyMap = packPair.second;
-        for (const auto& keyPair : keyMap)
+        for (const auto& [key, recipe] : keyMap)
         {
-            const auto& key = keyPair.first;
             oss << Resource::GenerateId(packId, key) << "\n";
         }
     }

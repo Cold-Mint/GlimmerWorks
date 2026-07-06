@@ -150,10 +150,11 @@ void glimmer::DraggableSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 #endif
 }
 
-glimmer::DraggableSystem::DraggableSystem(WorldContext* worldContext) : GameSystem(worldContext)
+glimmer::DraggableSystem::DraggableSystem(WorldContext* worldContext)
+    : GameSystem(worldContext),
+      item_(nullptr),
+      appContext_(worldContext->GetAppContext())
 {
-    item_ = nullptr;
-    appContext_ = worldContext->GetAppContext();
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_DRAGGABLE);
@@ -228,6 +229,50 @@ void glimmer::DraggableSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
+bool glimmer::DraggableSystem::HandleLeftMouseButtonDown()
+{
+    if (cameraComponent_ == nullptr)
+    {
+        return false;
+    }
+    if (cameraTransform2D_ == nullptr)
+    {
+        return false;
+    }
+    if (itemSlotComponentVector_.empty())
+    {
+        return false;
+    }
+    bool changed = false;
+    for (auto itemSlotComponent : itemSlotComponentVector_)
+    {
+        if (itemSlotComponent == nullptr)
+        {
+            continue;
+        }
+        const SDL_FRect border = DraggableBorder(itemSlotComponent, uiScale_);
+        if (border.h <= 0 || border.w <= 0)
+        {
+            continue;
+        }
+        float mouseX = 0;
+        float mouseY = 0;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        if (mouseX >= border.x && mouseX <= border.x + border.w &&
+            mouseY >= border.y && mouseY <= border.y + border.h)
+        {
+            item_ = std::move(itemSlotComponent->ReplaceItem(std::move(item_)));
+            changed = true;
+            break;
+        }
+    }
+    if (!changed)
+    {
+        return DropItem();
+    }
+    return false;
+}
+
 bool glimmer::DraggableSystem::HandleEvent(const SDL_Event& event)
 {
     const WorldContext* worldContext = GetWorldContext();
@@ -237,46 +282,7 @@ bool glimmer::DraggableSystem::HandleEvent(const SDL_Event& event)
     }
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT)
     {
-        if (cameraComponent_ == nullptr)
-        {
-            return false;
-        }
-        if (cameraTransform2D_ == nullptr)
-        {
-            return false;
-        }
-        if (itemSlotComponentVector_.empty())
-        {
-            return false;
-        }
-        bool changed = false;
-        for (auto itemSlotComponent : itemSlotComponentVector_)
-        {
-            if (itemSlotComponent == nullptr)
-            {
-                continue;
-            }
-            const SDL_FRect border = DraggableBorder(itemSlotComponent, uiScale_);
-            if (border.h <= 0 || border.w <= 0)
-            {
-                continue;
-            }
-            float mouseX = 0;
-            float mouseY = 0;
-            SDL_GetMouseState(&mouseX, &mouseY);
-            if (mouseX >= border.x && mouseX <= border.x + border.w &&
-                mouseY >= border.y && mouseY <= border.y + border.h)
-            {
-                item_ = std::move(itemSlotComponent->ReplaceItem(std::move(item_)));
-                changed = true;
-                break;
-            }
-        }
-        if (!changed)
-        {
-            return DropItem();
-        }
-        return false;
+        return HandleLeftMouseButtonDown();
     }
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_RIGHT)
     {

@@ -25,12 +25,23 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <functional>
+#include <unordered_set>
+
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer
 {
     class RigidBody2DComponent;
+    class AudioManager;
+    class CameraComponent;
+    class Transform2DComponent;
+    class ItemContainer;
+    class Item;
+    class HotBarComponent;
+
     /**
      * The player control system processes the player's input control and realizes the WASD mobile camera function
      * 玩家控制系统，处理玩家的输入控制，实现WASD移动相机功能
@@ -64,6 +75,31 @@ namespace glimmer
          * @param item
          */
         void UseItem(Item* item);
+
+        void UpdateFlying(float delta, PlayerComponent* playerComponent,
+                          Transform2DComponent* transform2DComponent);
+
+        void UpdateGroundedMovement(float delta, PlayerComponent* playerComponent,
+                                    RigidBody2DComponent* rigidBody2DComponent);
+
+        void UpdateJump(PlayerComponent* playerComponent, RigidBody2DComponent* rigidBody2DComponent,
+                        bool isGrounded, const b2MassData& massData);
+
+        void ClampHorizontalSpeed(RigidBody2DComponent* rigidBody2DComponent,
+                                  PlayerComponent* playerComponent, const b2Vec2& currentVel);
+
+        void CheckDropItem(PlayerComponent* playerComponent, ItemContainer* itemContainer,
+                           HotBarComponent* hotBarComponent);
+
+        void HandleMouseButton(const SDL_Event& event, PlayerComponent* playerComponent);
+
+        void HandleHorizontalInput(const SDL_Event& event, PlayerComponent* playerComponent, bool pressed);
+
+        void HandleVerticalInput(const SDL_Event& event, PlayerComponent* playerComponent, bool pressed);
+
+        void UpdatePlayerFacing(PlayerComponent* playerComponent);
+
+        void HandleKeyAction(const SDL_Event& event, PlayerComponent* playerComponent, bool pressed);
 
     public:
         explicit PlayerControlSystem(WorldContext* worldContext);

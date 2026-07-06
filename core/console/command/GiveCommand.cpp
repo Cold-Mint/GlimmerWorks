@@ -78,9 +78,10 @@ void glimmer::GiveCommand::TrySetItemAmount(const CommandArgs* commandArgs, Item
     }
 }
 
+template <typename Callback>
 std::optional<glimmer::ItemContainerComponent*> glimmer::GiveCommand::TryGetPlayerItemContainer(
     const WorldContext* worldContext,
-    const std::function<void(const std::string& text)>& onMessage) const
+    const Callback& onMessage) const
 {
     const AppContext* appContext = GetAppContext();
     if (appContext == nullptr || worldContext == nullptr)
@@ -116,10 +117,11 @@ std::optional<glimmer::ItemContainerComponent*> glimmer::GiveCommand::TryGetPlay
     return itemContainer;
 }
 
+template <typename Callback>
 bool glimmer::GiveCommand::GiveTileItem(const AppContext* appContext,
                                         const WorldContext* worldContext,
                                         const CommandArgs* commandArgs,
-                                        const std::function<void(const std::string& text)>& onMessage) const
+                                        const Callback& onMessage) const
 {
     const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
@@ -164,10 +166,11 @@ bool glimmer::GiveCommand::GiveTileItem(const AppContext* appContext,
     return item == nullptr;
 }
 
+template <typename Callback>
 bool glimmer::GiveCommand::GiveComposableItem(const AppContext* appContext,
                                               WorldContext* worldContext,
                                               const CommandArgs* commandArgs,
-                                              const std::function<void(const std::string& text)>& onMessage) const
+                                              const Callback& onMessage) const
 {
     const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
@@ -210,10 +213,11 @@ bool glimmer::GiveCommand::GiveComposableItem(const AppContext* appContext,
     return item == nullptr;
 }
 
+template <typename Callback>
 bool glimmer::GiveCommand::GiveAbilityItem(const AppContext* appContext,
                                            const WorldContext* worldContext,
                                            const CommandArgs* commandArgs,
-                                           const std::function<void(const std::string& text)>& onMessage) const
+                                           const Callback& onMessage) const
 {
     const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
@@ -256,10 +260,11 @@ bool glimmer::GiveCommand::GiveAbilityItem(const AppContext* appContext,
     return item == nullptr;
 }
 
+template <typename Callback>
 bool glimmer::GiveCommand::GiveMaterialItem(const AppContext* appContext,
                                             const WorldContext* worldContext,
                                             const CommandArgs* commandArgs,
-                                            const std::function<void(const std::string& text)>& onMessage) const
+                                            const Callback& onMessage) const
 {
     const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)

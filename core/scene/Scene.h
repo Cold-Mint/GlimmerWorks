@@ -38,13 +38,14 @@ namespace glimmer
     class Scene
     {
         bool initSubclassFinish_ = false;
+        AppContext* appContext_ = nullptr;
 
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
 #endif
 
     protected:
-        AppContext* appContext_ = nullptr;
+        [[nodiscard]] AppContext* GetAppContext() const;
 
         /**
        * It is called after the subclass is fully constructed.

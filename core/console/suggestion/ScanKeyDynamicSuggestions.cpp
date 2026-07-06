@@ -34,12 +34,12 @@ std::string glimmer::ScanKeyDynamicSuggestions::GetId() const
     return SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::ScanKeyDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::ScanKeyDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return ScanCodeUtils::GetAllScanCodeKeys();
 }
 
-bool glimmer::ScanKeyDynamicSuggestions::Match(const std::string keyword, std::string param)
+bool glimmer::ScanKeyDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
     return ScanCodeUtils::ContainsKey(keyword);
 }

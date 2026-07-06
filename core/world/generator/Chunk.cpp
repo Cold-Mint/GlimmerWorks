@@ -319,6 +319,27 @@ void glimmer::Chunk::ReadChunkMessage(const ChunkMessage& chunkMessage)
 }
 
 
+void glimmer::Chunk::WriteTileStatesToMessage(
+    const std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA>& tileStates,
+    TileStateArrayMessage& layerMessage)
+{
+    layerMessage.mutable_tilestatemessage()->Reserve(CHUNK_AREA);
+    for (int y = 0; y < CHUNK_SIZE; y++)
+    {
+        for (int x = 0; x < CHUNK_SIZE; x++)
+        {
+            const int index = y << CHUNK_SHIFT | x;
+            const TileStateMessage* tileStateMessage = tileStates[index].get();
+            auto* modifiableTileStateMessage = layerMessage.add_tilestatemessage();
+            if (tileStateMessage == nullptr)
+            {
+                continue;
+            }
+            modifiableTileStateMessage->CopyFrom(*tileStateMessage);
+        }
+    }
+}
+
 void glimmer::Chunk::WriteChunkMessage(ChunkMessage& chunkMessage)
 {
     position_.WriteVector2DIMessage(*chunkMessage.mutable_position());
@@ -327,23 +348,7 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage& chunkMessage)
     {
         auto& tileData =
             (*chunkMessage.mutable_tilestates())[static_cast<uint8_t>(layerType)];
-        tileData.mutable_tilestatemessage()->Reserve(
-            CHUNK_AREA
-        );
-        for (int y = 0; y < CHUNK_SIZE; y++)
-        {
-            for (int x = 0; x < CHUNK_SIZE; x++)
-            {
-                const auto modifiableTileStateMessage = tileData.add_tilestatemessage();
-                const int index = y << CHUNK_SHIFT | x;
-                const TileStateMessage* tileStateMessage = tileArray[index].get();
-                if (tileStateMessage == nullptr)
-                {
-                    continue;
-                }
-                modifiableTileStateMessage->CopyFrom(*tileStateMessage);
-            }
-        }
+        WriteTileStatesToMessage(tileArray, tileData);
     }
 }
 

@@ -77,6 +77,114 @@ void glimmer::TileSnapshotCommand::PutCommandStructure(const CommandArgs* comman
     }
 }
 
+bool glimmer::TileSnapshotCommand::ExecuteInspector(AppContext* appContext,
+                                                    const std::function<void(const std::string& text)>& onMessageRef,
+                                                    const LangsResources* langsResources)
+{
+    CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
+    if (commandHookManager == nullptr)
+    {
+        onMessageRef(langsResources->cmdHookManagerNotFound);
+        return false;
+    }
+    if (commandHookManager->Contains(TILE_SNAPSHOT_INSPECTOR_ID))
+    {
+        if (commandHookManager->Unregister(TILE_SNAPSHOT_INSPECTOR_ID))
+        {
+            onMessageRef(langsResources->tileSnapshotInspectorDisable);
+            return true;
+        }
+        onMessageRef(langsResources->tileSnapshotInspectorDisableFail);
+    }
+    else
+    {
+        auto commandHookEntry = std::make_unique<CommandHookEntry>();
+        commandHookEntry->hookId = TILE_SNAPSHOT_INSPECTOR_ID;
+        commandHookEntry->scope = CommandHookScope::SESSION;
+        commandHookEntry->code = SDL_BUTTON_LEFT;
+        commandHookEntry->command = TILE_SNAPSHOT_COMMAND_NAME + " info ~ ~";
+        commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
+        if (commandHookManager->Register(std::move(commandHookEntry)))
+        {
+            onMessageRef(langsResources->tileSnapshotInspectorEnable);
+            return true;
+        }
+        onMessageRef(langsResources->tileSnapshotInspectorEnableFail);
+    }
+    return false;
+}
+
+bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                                               int size,
+                                               const std::function<void(const std::string& text)>& onMessageRef,
+                                               const LangsResources* langsResources, WorldContext* worldContext)
+{
+    if (size < 4)
+    {
+        onMessageRef(fmt::format(
+            fmt::runtime(langsResources->insufficientParameterLength),
+            4, size));
+        return false;
+    }
+    const WorldVector2D commandSenderPosition = commandSender->GetPosition();
+    const TileVector2D tileVector2D = CoordinateTransformer::WorldToTile(WorldVector2D(
+        commandArgs->AsCoordinate(2, commandSenderPosition.x),
+        commandArgs->AsCoordinate(
+            3, commandSenderPosition.y)));
+    const auto chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D);
+    Chunk* chunk = worldContext->GetChunk(chunkVertex);
+    if (chunk == nullptr)
+    {
+        onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,
+                                 tileVector2D.y));
+        return false;
+    }
+    const auto chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2D);
+    std::vector<TileSnapshot*> tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
+        Ground | BackGround, chunkRelative.y << CHUNK_SHIFT | chunkRelative.x);
+    auto tileSnapshotSize = tileSnapshotVectorPtr.size();
+    if (tileSnapshotSize == 0)
+    {
+        onMessageRef(fmt::format(fmt::runtime(langsResources->tileSnapshotsDoesNotExist), tileVector2D.x,
+                                 tileVector2D.y));
+        return false;
+    }
+
+    std::stringstream stringStream;
+    for (int i = 0; i < tileSnapshotSize; i++)
+    {
+        TileSnapshot* tileSnapshot = tileSnapshotVectorPtr.at(i);
+        if (tileSnapshot == nullptr)
+        {
+            continue;
+        }
+        const Tile* tile = tileSnapshot->GetTile();
+        if (tile == nullptr)
+        {
+            continue;
+        }
+        const TileStateMessage* tileStateMessage = tileSnapshot->GetTileState();
+        if (tileStateMessage == nullptr)
+        {
+            continue;
+        }
+        int32_t offsetX = tileStateMessage->offset().x();
+        int32_t offsetY = tileStateMessage->offset().y();
+        stringStream << fmt::format(fmt::runtime(langsResources->tileSnapshotInfo),
+                                    static_cast<uint8_t>(tile->GetLayerType()),
+                                    tileStateMessage->resourceref().packid() + ":" + tileStateMessage->resourceref()
+                                    .resourcekey(),
+                                    static_cast<int>(tileStateMessage->placesource()),
+                                    offsetX,
+                                    offsetY,
+                                    tileStateMessage->width(),
+                                    tileStateMessage->height());
+        stringStream << '\n';
+    }
+    onMessageRef(stringStream.str());
+    return true;
+}
+
 bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                            const std::function<void(const std::string& text)>* onMessage)
 {
@@ -108,103 +216,11 @@ bool glimmer::TileSnapshotCommand::Execute(const CommandSender* commandSender, c
     std::string operation = commandArgs->AsString(1);
     if (operation == "inspector")
     {
-        CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
-        if (commandHookManager == nullptr)
-        {
-            onMessageRef(langsResources->cmdHookManagerNotFound);
-            return false;
-        }
-        if (commandHookManager->Contains(TILE_SNAPSHOT_INSPECTOR_ID))
-        {
-            if (commandHookManager->Unregister(TILE_SNAPSHOT_INSPECTOR_ID))
-            {
-                onMessageRef(langsResources->tileSnapshotInspectorDisable);
-                return true;
-            }
-            onMessageRef(langsResources->tileSnapshotInspectorDisableFail);
-        }
-        else
-        {
-            auto commandHookEntry = std::make_unique<CommandHookEntry>();
-            commandHookEntry->hookId = TILE_SNAPSHOT_INSPECTOR_ID;
-            commandHookEntry->scope = CommandHookScope::SESSION;
-            commandHookEntry->code = SDL_BUTTON_LEFT;
-            commandHookEntry->command = TILE_SNAPSHOT_COMMAND_NAME + " info ~ ~";
-            commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
-            if (commandHookManager->Register(std::move(commandHookEntry)))
-            {
-                onMessageRef(langsResources->tileSnapshotInspectorEnable);
-                return true;
-            }
-            onMessageRef(langsResources->tileSnapshotInspectorEnableFail);
-        }
+        return ExecuteInspector(const_cast<AppContext*>(appContext), onMessageRef, langsResources);
     }
     if (operation == "info")
     {
-        if (size < 4)
-        {
-            onMessageRef(fmt::format(
-                fmt::runtime(langsResources->insufficientParameterLength),
-                4, size));
-            return false;
-        }
-        const WorldVector2D commandSenderPosition = commandSender->GetPosition();
-        const TileVector2D tileVector2D = CoordinateTransformer::WorldToTile(WorldVector2D(
-            commandArgs->AsCoordinate(2, commandSenderPosition.x),
-            commandArgs->AsCoordinate(
-                3, commandSenderPosition.y)));
-        const auto chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D);
-        Chunk* chunk = worldContext->GetChunk(chunkVertex);
-        if (chunk == nullptr)
-        {
-            onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,
-                                     tileVector2D.y));
-            return false;
-        }
-        const auto chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2D);
-        std::vector<TileSnapshot*> tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
-            Ground | BackGround, chunkRelative.y << CHUNK_SHIFT | chunkRelative.x);
-        auto tileSnapshotSize = tileSnapshotVectorPtr.size();
-        if (tileSnapshotSize == 0)
-        {
-            onMessageRef(fmt::format(fmt::runtime(langsResources->tileSnapshotsDoesNotExist), tileVector2D.x,
-                                     tileVector2D.y));
-            return false;
-        }
-
-        std::stringstream stringStream;
-        for (int i = 0; i < tileSnapshotSize; i++)
-        {
-            TileSnapshot* tileSnapshot = tileSnapshotVectorPtr.at(i);
-            if (tileSnapshot == nullptr)
-            {
-                continue;
-            }
-            const Tile* tile = tileSnapshot->GetTile();
-            if (tile == nullptr)
-            {
-                continue;
-            }
-            const TileStateMessage* tileStateMessage = tileSnapshot->GetTileState();
-            if (tileStateMessage == nullptr)
-            {
-                continue;
-            }
-            int32_t offsetX = tileStateMessage->offset().x();
-            int32_t offsetY = tileStateMessage->offset().y();
-            stringStream << fmt::format(fmt::runtime(langsResources->tileSnapshotInfo),
-                                        static_cast<uint8_t>(tile->GetLayerType()),
-                                        tileStateMessage->resourceref().packid() + ":" + tileStateMessage->resourceref()
-                                        .resourcekey(),
-                                        static_cast<int>(tileStateMessage->placesource()),
-                                        offsetX,
-                                        offsetY,
-                                        tileStateMessage->width(),
-                                        tileStateMessage->height());
-            stringStream << '\n';
-        }
-        onMessageRef(stringStream.str());
-        return true;
+        return ExecuteInfo(commandSender, commandArgs, size, onMessageRef, langsResources, worldContext);
     }
     return false;
 }

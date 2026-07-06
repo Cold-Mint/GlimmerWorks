@@ -175,6 +175,22 @@ namespace glimmer
 
         void OnWatchedComponentChanged(GameComponentTypeMessage type, uint32_t count);
 
+        void NotifySystemsOfComponentChange(GameComponentTypeMessage gameComponentType, uint32_t count);
+
+        uint32_t CreateOrLoadPlayer(const ResourceRef& resourceRef);
+
+        void InitPlayerInventory(uint32_t playerEntity);
+
+        void OnPlayerItemChanged(uint8_t index, Item* item, ContainerChangeType changeType, uint32_t playerEntity);
+
+        void HandleItemBreak(Item* item, uint32_t playerEntity);
+
+        void DropComposableItemAbilities(ComposableItem* composableItem);
+
+        void NotifyActiveSystems(GameComponentTypeMessage gameComponentType, uint32_t count) const;
+
+        void NotifyInactiveSystems(GameComponentTypeMessage gameComponentType, uint32_t count);
+
     public:
         ~WorldContext();
 

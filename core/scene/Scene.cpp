@@ -31,10 +31,12 @@
 
 void glimmer::Scene::OnFrameStart()
 {
+    // Intentionally empty default implementation for base class
 }
 
 void glimmer::Scene::OnConfigChanged(const Config* config)
 {
+    // Intentionally empty default implementation for base class
 }
 
 bool glimmer::Scene::OnBackPressed()
@@ -44,22 +46,29 @@ bool glimmer::Scene::OnBackPressed()
 
 void glimmer::Scene::OnWindowClose()
 {
+    // Intentionally empty default implementation for base class
 }
 
 void glimmer::Scene::OnWindowSizeChanged(const int& width, const int& height)
 {
+    // Intentionally empty default implementation for base class
+}
 
+glimmer::AppContext* glimmer::Scene::GetAppContext() const
+{
+    return appContext_;
 }
 
 void glimmer::Scene::Init()
 {
     initSubclassFinish_ = true;
-    if (appContext_ == nullptr)
+    AppContext* appContext = GetAppContext();
+    if (appContext == nullptr)
     {
         return;
     }
-    OnWindowSizeChanged(appContext_->GetWindowWidth(), appContext_->GetWindowHeight());
-    if (const Config* config = appContext_->GetConfig(); config != nullptr)
+    OnWindowSizeChanged(appContext->GetWindowWidth(), appContext->GetWindowHeight());
+    if (const Config* config = appContext->GetConfig(); config != nullptr)
     {
         OnConfigChanged(config);
     }
@@ -87,10 +96,12 @@ void glimmer::Scene::Update(float delta)
 
 void glimmer::Scene::Render(SDL_Renderer* renderer)
 {
+    // Intentionally empty default implementation for base class
 }
 
 void glimmer::Scene::RenderImGui(SDL_Renderer* renderer)
 {
+    // Intentionally empty default implementation for base class
 }
 
 glimmer::Scene::Scene(AppContext* context) : appContext_(context)

@@ -25,12 +25,15 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include "core/utils/TransparentStringHash.h"
 
 #include "ResourcePack.h"
 #include "core/vfs/VirtualFileSystem.h"
@@ -53,7 +56,7 @@ namespace glimmer
         friend class ResourceLocator;
 
         std::vector<std::string> packIdVector_;
-        std::unordered_map<std::string, std::unique_ptr<ResourcePack>> resourcePackMap_;
+        std::unordered_map<std::string, std::unique_ptr<ResourcePack>, TransparentStringHash, std::equal_to<>> resourcePackMap_;
         TTF_Font* font_ = nullptr;
         VirtualFileSystem* virtualFileSystem_ = nullptr;
         SDL_Renderer* renderer_ = nullptr;
@@ -62,23 +65,31 @@ namespace glimmer
          * Placeholder texture Path Set
          * 用于存储加载失败的纹理路径
          */
-        std::unordered_set<std::string> errorTexturePathSet_{};
+        std::unordered_set<std::string, TransparentStringHash, std::equal_to<>> errorTexturePathSet_{};
 
         bool IsResourcePackAvailable(const ResourcePack& pack) const;
 
         static bool IsResourcePackEnabled(const ResourcePack& pack,
                                           const std::vector<std::string>& enabledResourcePack);
 
-        std::unordered_map<std::string, std::weak_ptr<TextureResourceResult>> textureCache_;
+        std::unordered_map<std::string, std::weak_ptr<TextureResourceResult>, TransparentStringHash, std::equal_to<>> textureCache_;
 
         std::unordered_map<uint64_t, std::weak_ptr<SDL_Texture>> stringTextureCache_;
 
-        std::unordered_map<std::string, std::weak_ptr<AudioResourceResult>> audioMixCache_;
+        std::unordered_map<std::string, std::weak_ptr<AudioResourceResult>, TransparentStringHash, std::equal_to<>> audioMixCache_;
 
-        std::unordered_map<std::string, std::unique_ptr<ColorResource>> colorCache_;
+        std::unordered_map<std::string, std::unique_ptr<ColorResource>, TransparentStringHash, std::equal_to<>> colorCache_;
 
 
         std::shared_ptr<TextureResourceResult> ImplLoadTextureFromFile(const std::string& path, const Mods& modConfig);
+
+        std::shared_ptr<TextureResourceResult> TryLoadTextureFromPack(const std::string& path,
+                                                                       const ResourcePack* resourcePack,
+                                                                       const std::vector<std::string>& supportedFormats);
+
+        std::shared_ptr<TextureResourceResult> CreateTextureResult(SDL_Texture* texture,
+                                                                   const ResourcePack* resourcePack,
+                                                                   const std::string& path);
 
         std::shared_ptr<AudioResourceResult> ImplLoadAudioFromFile(const std::string& path, const Mods& modConfig);
 

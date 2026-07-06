@@ -356,11 +356,7 @@ glimmer::MapManifest* glimmer::WorldContext::GetMapManifest() const
 
 void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
 {
-    if (entityManager_ == nullptr)
-    {
-        return;
-    }
-    if (entityShortCut_ == nullptr)
+    if (entityManager_ == nullptr || entityShortCut_ == nullptr)
     {
         return;
     }
@@ -369,6 +365,38 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
     {
         return;
     }
+    GameEntityID playerEntity = CreateOrLoadPlayer(resourceRef);
+    if (!entityManager_->HasComponent(playerEntity, COMPONENT_ITEM_CONTAINER))
+    {
+        InitPlayerInventory(playerEntity);
+    }
+    const auto* itemContainerComponent = entityManager_->GetComponent<ItemContainerComponent>(playerEntity);
+    if (itemContainerComponent == nullptr)
+    {
+        entityShortCut_->SetPlayer(playerEntity);
+        return;
+    }
+    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr)
+    {
+        entityShortCut_->SetPlayer(playerEntity);
+        return;
+    }
+    auto* tempPlayerComponent = entityManager_->GetComponent<PlayerComponent>(playerEntity);
+    if (tempPlayerComponent != nullptr)
+    {
+        tempPlayerComponent->SetItem(itemContainer->GetItem(0));
+    }
+    itemCallback_ = itemContainer->AddOnContentChanged(
+        [this, playerEntity](uint8_t index, Item* item, ContainerChangeType changeType)
+        {
+            OnPlayerItemChanged(index, item, changeType, playerEntity);
+        });
+    entityShortCut_->SetPlayer(playerEntity);
+}
+
+uint32_t glimmer::WorldContext::CreateOrLoadPlayer(const ResourceRef& resourceRef)
+{
     uint32_t playerEntity = GAME_ENTITY_ID_INVALID;
     if (saves_->PlayerExists())
     {
@@ -378,145 +406,150 @@ void glimmer::WorldContext::InitPlayer(const ResourceRef& resourceRef)
             playerEntity = chunkLoader_->RecoveryEntity(playerMessage->entity());
         }
     }
-    if (IsEmptyEntityId(playerEntity))
+    if (!IsEmptyEntityId(playerEntity))
     {
-        const auto firstTileTerrainY = chunkGenerator_->GetFirstTileTerrainY(0);
-        playerEntity = entityManager_->AddEntity();
-        MobEntityCreator mobEntityCreator{this};
-        mobEntityCreator.LoadTemplateComponents(playerEntity, resourceRef);
-        mobEntityCreator.MergeEntityItemMessage(playerEntity,
-                                                MobEntityCreator::GetEntityItemMessage(
-                                                    CoordinateTransformer::TileToWorld(
-                                                        TileVector2D(0, firstTileTerrainY + 3))));
+        return playerEntity;
     }
-    if (!entityManager_->HasComponent(playerEntity, COMPONENT_ITEM_CONTAINER))
+    const auto firstTileTerrainY = chunkGenerator_->GetFirstTileTerrainY(0);
+    playerEntity = entityManager_->AddEntity();
+    MobEntityCreator mobEntityCreator{this};
+    mobEntityCreator.LoadTemplateComponents(playerEntity, resourceRef);
+    mobEntityCreator.MergeEntityItemMessage(playerEntity,
+                                            MobEntityCreator::GetEntityItemMessage(
+                                                CoordinateTransformer::TileToWorld(
+                                                    TileVector2D(0, firstTileTerrainY + 3))));
+    return playerEntity;
+}
+
+void glimmer::WorldContext::InitPlayerInventory(const uint32_t playerEntity)
+{
+    const auto itemContainerComponent = entityManager_->AddComponent<ItemContainerComponent>(playerEntity);
+    if (itemContainerComponent == nullptr)
     {
-        const auto itemContainerComponent = entityManager_->AddComponent<ItemContainerComponent>(
-            playerEntity);
-        if (itemContainerComponent != nullptr)
+        return;
+    }
+    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr)
+    {
+        return;
+    }
+    itemContainer->Resize(HOT_BAR_SIZE * INVENTORY_ROW_COUNT);
+    const auto& allInitialInventory = appContext_->GetInitialInventoryManager()->GetAllInitialInventory();
+    const auto* playerTransform = entityManager_->GetComponent<Transform2DComponent>(playerEntity);
+    const WorldVector2D playerPos = playerTransform != nullptr ? playerTransform->GetPosition() : WorldVector2D();
+    for (const auto& initialInventory : allInitialInventory)
+    {
+        for (const auto& addItem : initialInventory->addItems)
         {
-            auto& allInitialInventory = appContext_->GetInitialInventoryManager()->GetAllInitialInventory();
-            if (ItemContainer* itemContainer = itemContainerComponent->GetItemContainer(); itemContainer != nullptr)
+            auto item = appContext_->GetResourceLocator()->FindItem(this, addItem);
+            if (item == nullptr)
             {
-                itemContainer->Resize(HOT_BAR_SIZE * INVENTORY_ROW_COUNT);
-                for (auto& initialInventory : allInitialInventory)
-                {
-                    for (auto& addItem : initialInventory->addItems)
-                    {
-                        auto item = appContext_->GetResourceLocator()->FindItem(this, addItem);
-                        if (item == nullptr)
-                        {
-                            continue;
-                        }
-                        std::unique_ptr<Item> returnItem = itemContainer->AddItem(
-                            std::move(item));
-                        if (returnItem != nullptr)
-                        {
-                            const uint32_t droppedEntity = entityManager_->AddEntity();
-                            DroppedItemCreator droppedItemCreator{this};
-                            droppedItemCreator.LoadTemplateComponents(droppedEntity,
-                                                                      DroppedItemCreator::GetResourceRef());
-                            droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                                                      DroppedItemCreator::GetEntityItemMessage(
-                                                                          entityManager_->GetComponent<
-                                                                              Transform2DComponent>(
-                                                                              playerEntity)->
-                                                                          GetPosition(), std::move(returnItem), 2));
-                        }
-                    }
-                }
+                continue;
             }
+            std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(item));
+            if (returnItem == nullptr)
+            {
+                continue;
+            }
+            const uint32_t droppedEntity = entityManager_->AddEntity();
+            DroppedItemCreator droppedItemCreator{this};
+            droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+            droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                                      DroppedItemCreator::GetEntityItemMessage(
+                                                          playerPos, std::move(returnItem), 2));
         }
     }
-    auto itemContainerComponent = entityManager_->GetComponent<ItemContainerComponent>(playerEntity);
-    if (itemContainerComponent != nullptr)
+}
+
+void glimmer::WorldContext::OnPlayerItemChanged(const uint8_t index, Item* item,
+                                                const ContainerChangeType /*changeType*/,
+                                                const uint32_t playerEntity)
+{
+    const auto* hotBarComponent = entityShortCut_->GetHotBarComponent();
+    if (hotBarComponent == nullptr)
     {
-        ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-        if (itemContainer != nullptr)
+        return;
+    }
+    if (index != hotBarComponent->GetSelectedSlot())
+    {
+        return;
+    }
+    auto* playerComponent = entityManager_->GetComponent<PlayerComponent>(playerEntity);
+    if (playerComponent == nullptr)
+    {
+        return;
+    }
+    if (item == nullptr)
+    {
+        playerComponent->SetItem(nullptr);
+        return;
+    }
+    const uint8_t amount = item->GetAmount();
+    if (amount == 0)
+    {
+        playerComponent->SetItem(nullptr);
+        return;
+    }
+    if (!item->IsUnbreakable() && item->GetRemaining() == 0)
+    {
+        HandleItemBreak(item, playerEntity);
+        return;
+    }
+    playerComponent->SetItem(item);
+}
+
+void glimmer::WorldContext::HandleItemBreak(Item* item, const uint32_t playerEntity)
+{
+    if (itemBreakSFXResult_ != nullptr)
+    {
+        MIX_Audio* audio = itemBreakSFXResult_->GetResource();
+        if (audio != nullptr)
         {
-            auto tempPlayerComponent = entityManager_->GetComponent<PlayerComponent>(playerEntity);
-            if (tempPlayerComponent != nullptr)
-            {
-                tempPlayerComponent->SetItem(itemContainer->GetItem(0));
-            }
-            itemCallback_ = itemContainer->AddOnContentChanged(
-                [this, playerEntity](uint8_t index, Item* item, ContainerChangeType changeType)
-                {
-                    auto hotBarComponent = entityShortCut_->GetHotBarComponent();
-                    if (hotBarComponent == nullptr)
-                    {
-                        return;
-                    }
-                    if (index != hotBarComponent->GetSelectedSlot())
-                    {
-                        return;
-                    }
-                    auto playerComponent = entityManager_->GetComponent<PlayerComponent>(playerEntity);
-                    if (playerComponent == nullptr)
-                    {
-                        return;
-                    }
-                    if (item == nullptr)
-                    {
-                        playerComponent->SetItem(nullptr);
-                        return;
-                    }
-                    const uint8_t amount = item->GetAmount();
-                    if (amount == 0)
-                    {
-                        playerComponent->SetItem(nullptr);
-                        return;
-                    }
-                    if (!item->IsUnbreakable() && item->GetRemaining() == 0)
-                    {
-                        if (itemBreakSFXResult_ != nullptr)
-                        {
-                            MIX_Audio* audio = itemBreakSFXResult_->GetResource();
-                            if (audio != nullptr)
-                            {
-                                audioManager_->TryPlayFree(AMBIENT, audio, 0);
-                            }
-                        }
-                        auto composableItem = dynamic_cast<ComposableItem*>(item);
-                        if (composableItem != nullptr)
-                        {
-                            ItemContainer* itemContainer = composableItem->GetItemContainer();
-                            if (itemContainer != nullptr)
-                            {
-                                uint8_t size = itemContainer->GetCapacity();
-                                for (uint8_t i = 0; i < size; i++)
-                                {
-                                    Item* abilityItem = itemContainer->GetItem(i);
-                                    if (abilityItem != nullptr)
-                                    {
-                                        const uint8_t abilityRemaining = abilityItem->GetRemaining();
-                                        //The locked abilities will disappear once the durability of the combinable items is exhausted.
-                                        //被锁定的能力会随着可组合物品耐久用完而消失。
-                                        if (abilityRemaining > 0 && !abilityItem->IsLocked())
-                                        {
-                                            std::unique_ptr<Item> takeItem = itemContainer->TakeItem(
-                                                i, abilityItem->GetAmount());
-                                            const uint32_t droppedEntity = entityManager_->AddEntity();
-                                            DroppedItemCreator droppedItemCreator{this};
-                                            droppedItemCreator.LoadTemplateComponents(droppedEntity,
-                                                DroppedItemCreator::GetResourceRef());
-                                            droppedItemCreator.MergeEntityItemMessage(droppedEntity,
-                                                DroppedItemCreator::GetEntityItemMessage(
-                                                    entityShortCut_->GetCameraTransform2DComponent()->
-                                                                     GetPosition(), std::move(takeItem), 2));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        playerComponent->SetItem(nullptr);
-                        return;
-                    }
-                    playerComponent->SetItem(item);
-                });
+            audioManager_->TryPlayFree(AMBIENT, audio, 0);
         }
     }
-    entityShortCut_->SetPlayer(playerEntity);
+    auto* composableItem = dynamic_cast<ComposableItem*>(item);
+    if (composableItem != nullptr)
+    {
+        DropComposableItemAbilities(composableItem);
+    }
+    auto* playerComponent = entityManager_->GetComponent<PlayerComponent>(playerEntity);
+    if (playerComponent != nullptr)
+    {
+        playerComponent->SetItem(nullptr);
+    }
+}
+
+void glimmer::WorldContext::DropComposableItemAbilities(ComposableItem* composableItem)
+{
+    ItemContainer* itemContainer = composableItem->GetItemContainer();
+    if (itemContainer == nullptr)
+    {
+        return;
+    }
+    const uint8_t size = itemContainer->GetCapacity();
+    const auto* cameraTransform = entityShortCut_->GetCameraTransform2DComponent();
+    const WorldVector2D dropPos = cameraTransform != nullptr ? cameraTransform->GetPosition() : WorldVector2D();
+    for (uint8_t i = 0; i < size; i++)
+    {
+        Item* abilityItem = itemContainer->GetItem(i);
+        if (abilityItem == nullptr)
+        {
+            continue;
+        }
+        const uint8_t abilityRemaining = abilityItem->GetRemaining();
+        if (abilityRemaining == 0 || abilityItem->IsLocked())
+        {
+            continue;
+        }
+        std::unique_ptr<Item> takeItem = itemContainer->TakeItem(i, abilityItem->GetAmount());
+        const uint32_t droppedEntity = entityManager_->AddEntity();
+        DroppedItemCreator droppedItemCreator{this};
+        droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
+        droppedItemCreator.MergeEntityItemMessage(droppedEntity,
+                                                  DroppedItemCreator::GetEntityItemMessage(
+                                                      dropPos, std::move(takeItem), 2));
+    }
 }
 
 void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer) const
@@ -526,8 +559,7 @@ void glimmer::WorldContext::InitHotbar(ItemContainer* itemContainer) const
         return;
     }
     auto hotBarEntity = entityManager_->AddEntity();
-    auto hotBarComponent = entityManager_->AddComponent<HotBarComponent>(hotBarEntity);
-    if (hotBarComponent != nullptr)
+    if (auto hotBarComponent = entityManager_->AddComponent<HotBarComponent>(hotBarEntity); hotBarComponent != nullptr)
     {
         entityShortCut_->SetHotBarComponent(hotBarComponent);
     }
@@ -560,8 +592,7 @@ void glimmer::WorldContext::InitInventory(ItemContainer* itemContainer) const
         {
             continue;
         }
-        const DraggableComponent* draggableComponent = entityManager_->AddComponent<DraggableComponent>(itemSlotEntity);
-        if (draggableComponent == nullptr)
+        if (const DraggableComponent* draggableComponent = entityManager_->AddComponent<DraggableComponent>(itemSlotEntity); draggableComponent == nullptr)
         {
             continue;
         }
@@ -850,7 +881,7 @@ bool glimmer::WorldContext::OnBackPressed()
         return true;
     }
     bool handled = false;
-    for (auto& system : activeSystems_)
+    for (const auto& system : activeSystems_)
     {
         if (system == nullptr)
         {
@@ -884,7 +915,7 @@ void glimmer::WorldContext::Render(SDL_Renderer* renderer) const
             b)
         {
             LogCat::e("The color of the renderer has been changed by the game system.",
-                      static_cast<uint8_t>(system->GetGameSystemType()),
+                      std::to_underlying(system->GetGameSystemType()),
                       " invoke AppContext::RestoreColorRenderer(renderer);");
             assert(false);
         }
@@ -908,11 +939,55 @@ void glimmer::WorldContext::RenderImGui(SDL_Renderer* renderer) const
             b)
         {
             LogCat::e("The color of the renderImGui has been changed by the game system.",
-                      static_cast<uint8_t>(system->GetGameSystemType()),
+                      std::to_underlying(system->GetGameSystemType()),
                       " invoke AppContext::RestoreColorRenderer(renderer);");
             assert(false);
         }
 #endif
+    }
+}
+
+void glimmer::WorldContext::NotifySystemsOfComponentChange(const GameComponentTypeMessage gameComponentType,
+                                                           const uint32_t count)
+{
+    NotifyActiveSystems(gameComponentType, count);
+    NotifyInactiveSystems(gameComponentType, count);
+}
+
+void glimmer::WorldContext::NotifyActiveSystems(const GameComponentTypeMessage gameComponentType, const uint32_t count) const
+{
+    for (auto& system : activeSystems_)
+    {
+        if (system == nullptr)
+        {
+            continue;
+        }
+        if (!system->IsWatchingComponent(gameComponentType))
+        {
+            continue;
+        }
+        if (count == 0)
+        {
+            system->RemoveActiveWatchComponent(gameComponentType);
+        }
+        system->OnWatchedComponentChanged(gameComponentType, count);
+    }
+}
+
+void glimmer::WorldContext::NotifyInactiveSystems(const GameComponentTypeMessage gameComponentType, const uint32_t count)
+{
+    for (auto& system : inactiveSystems_)
+    {
+        if (system == nullptr)
+        {
+            continue;
+        }
+        if (!system->IsWatchingComponent(gameComponentType))
+        {
+            continue;
+        }
+        system->AddActiveWatchComponent(gameComponentType);
+        system->OnWatchedComponentChanged(gameComponentType, count);
     }
 }
 
@@ -925,33 +1000,7 @@ void glimmer::WorldContext::OnFrameStart()
     {
         const GameComponentTypeMessage gameComponentType = buffer.first;
         const uint32_t count = buffer.second;
-        for (auto& system : activeSystems_)
-        {
-            if (system == nullptr)
-            {
-                continue;
-            }
-            if (system->IsWatchingComponent(gameComponentType))
-            {
-                if (count == 0)
-                {
-                    system->RemoveActiveWatchComponent(gameComponentType);
-                }
-                system->OnWatchedComponentChanged(gameComponentType, count);
-            }
-        }
-        for (auto& system : inactiveSystems_)
-        {
-            if (system == nullptr)
-            {
-                continue;
-            }
-            if (system->IsWatchingComponent(gameComponentType))
-            {
-                system->AddActiveWatchComponent(gameComponentType);
-                system->OnWatchedComponentChanged(gameComponentType, count);
-            }
-        }
+        NotifySystemsOfComponentChange(gameComponentType, count);
     }
     for (auto& system : inactiveSystems_)
     {
@@ -1085,11 +1134,11 @@ void glimmer::WorldContext::InitSystem()
 
 void glimmer::WorldContext::OnConfigChanged(const Config* config)
 {
-    for (auto& activeSystem : activeSystems_)
+    for (const auto& activeSystem : activeSystems_)
     {
         activeSystem->OnConfigChanged(config);
     }
-    for (auto& inactiveSystem : inactiveSystems_)
+    for (const auto& inactiveSystem : inactiveSystems_)
     {
         inactiveSystem->OnConfigChanged(config);
     }

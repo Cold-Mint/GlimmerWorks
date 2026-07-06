@@ -74,6 +74,91 @@ glimmer::TileLayerSystem::TileLayerSystem(WorldContext* worldContext)
     Init();
 }
 
+bool glimmer::TileLayerSystem::ShouldDrawTile(const Color* finalLightColor, const Config* config) const
+{
+#if  defined(NDEBUG)
+    if (finalLightColor == nullptr)
+    {
+        return false;
+    }
+    if (finalLightColor->a == 0)
+    {
+        return false;
+    }
+#else
+    if (config->light.enable)
+    {
+        if (finalLightColor == nullptr)
+        {
+            return false;
+        }
+        if (finalLightColor->a == 0)
+        {
+            return false;
+        }
+    }
+#endif
+    return true;
+}
+
+void glimmer::TileLayerSystem::RenderTileSnapshot(SDL_Renderer* renderer, const TileSnapshot* tileSnapshot,
+                                                  const TileVector2D& tileCoord, Uint8 alpha,
+                                                  const Color* finalLightColor, const Config* config,
+                                                  std::unordered_set<uint64_t>& drawnTiles) const
+{
+    if (tileSnapshot == nullptr)
+    {
+        return;
+    }
+    const Tile* tile = tileSnapshot->GetTile();
+    if (tile == nullptr)
+    {
+        return;
+    }
+    const TileStateMessage* tileState = tileSnapshot->GetTileState();
+    if (tileState == nullptr)
+    {
+        return;
+    }
+    if (!ShouldDrawTile(finalLightColor, config))
+    {
+        return;
+    }
+    TileVector2D offset;
+    offset.ReadVector2DIMessage(tileState->offset());
+    const TileVector2D tileTopLeftPosition = tileCoord + offset;
+    uint64_t tileTopLeftFingerprint = TileLayerComponent::GenerateTileFingerprint(
+        tileTopLeftPosition, tile->GetLayerType());
+    if (drawnTiles.contains(tileTopLeftFingerprint))
+    {
+        return;
+    }
+    drawnTiles.emplace(tileTopLeftFingerprint);
+    const float zoom = cameraComponent_->GetZoom();
+    const ScreenVector2D tileTopLeftCamera = CoordinateTransformer::WorldToScreen(
+        cameraTransform2DComponent_->GetPosition(), CoordinateTransformer::TileToWorld(TileVector2D{
+            tileTopLeftPosition.x, tileTopLeftPosition.y
+        }), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
+    float width = static_cast<float>(tileState->width()) * TILE_SIZE * zoom;
+    float height = static_cast<float>(tileState->height()) * TILE_SIZE * zoom;
+    SDL_FRect renderQuad;
+    renderQuad.w = width;
+    renderQuad.h = height;
+    renderQuad.x = tileTopLeftCamera.x - renderQuad.w * 0.5F;
+    renderQuad.y = tileTopLeftCamera.y - renderQuad.h * 0.5F;
+    auto texture = tile->GetTexture();
+    if (texture == nullptr)
+    {
+        return;
+    }
+    SDL_SetTextureAlphaMod(texture, alpha);
+    if (!SDL_RenderTexture(renderer, texture, nullptr, &renderQuad))
+    {
+        LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
+    }
+    SDL_SetTextureAlphaMod(texture, 255);
+}
+
 void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
 {
     WorldContext* worldContext = GetWorldContext();
@@ -107,7 +192,6 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
     auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
-    const float zoom = cameraComponent_->GetZoom();
     std::vector<std::pair<TileVector2D, std::vector<TileSnapshot*>>>* visibleTiles =
         tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(Ground | BackGround, viewportRect);
     if (visibleTiles == nullptr)
@@ -123,80 +207,10 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
         {
             alpha = static_cast<Uint8>(chunk->GetChunkFadeAlpha() * 255.0F);
         }
+        const Color* finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
         for (const auto& tileSnapshot : tileList)
         {
-            if (tileSnapshot == nullptr)
-            {
-                continue;
-            }
-            const Tile* tile = tileSnapshot->GetTile();
-            if (tile == nullptr)
-            {
-                continue;
-            }
-            const TileStateMessage* tileState = tileSnapshot->GetTileState();
-            if (tileState == nullptr)
-            {
-                continue;
-            }
-            TileVector2D offset;
-            offset.ReadVector2DIMessage(tileState->offset());
-            const TileVector2D tileTopLeftPosition = tileCoord + offset;
-            uint64_t tileTopLeftFingerprint = TileLayerComponent::GenerateTileFingerprint(
-                tileTopLeftPosition, tile->GetLayerType());
-            if (drawnTiles.contains(tileTopLeftFingerprint))
-            {
-                continue;
-            }
-            drawnTiles.emplace(tileTopLeftFingerprint);
-            const ScreenVector2D tileTopLeftCamera = CoordinateTransformer::WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), CoordinateTransformer::TileToWorld(TileVector2D{
-                    tileTopLeftPosition.x, tileTopLeftPosition.y
-                }), cameraComponent_->GetSize(), cameraComponent_->GetZoom());
-            float width = static_cast<float>(tileState->width()) * TILE_SIZE * zoom;
-            float height = static_cast<float>(tileState->height()) * TILE_SIZE * zoom;
-            SDL_FRect renderQuad;
-            renderQuad.w = width;
-            renderQuad.h = height;
-            renderQuad.x = tileTopLeftCamera.x - renderQuad.w * 0.5F;
-            renderQuad.y = tileTopLeftCamera.y - renderQuad.h * 0.5F;
-            const Color* finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord);
-#if  defined(NDEBUG)
-            if (finalLightColor == nullptr)
-            {
-                continue;
-            }
-            if (finalLightColor->a == 0)
-            {
-                //Do not draw tiles that do not emit light at all.
-                //不绘制完全不发光的瓦片。
-                continue;
-            }
-#else
-            if (config->light.enable)
-            {
-                if (finalLightColor == nullptr)
-                {
-                    continue;
-                }
-                if (finalLightColor->a == 0)
-                {
-                    //Do not draw tiles that do not emit light at all.
-                    //不绘制完全不发光的瓦片。
-                    continue;
-                }
-            }
-#endif
-            auto texture = tile->GetTexture();
-            if (texture != nullptr)
-            {
-                SDL_SetTextureAlphaMod(texture, alpha);
-                if (!SDL_RenderTexture(renderer, texture, nullptr, &renderQuad))
-                {
-                    LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
-                }
-                SDL_SetTextureAlphaMod(texture, 255);
-            }
+            RenderTileSnapshot(renderer, tileSnapshot, tileCoord, alpha, finalLightColor, config, drawnTiles);
         }
     }
     AppContext::RestoreColorRenderer(renderer);

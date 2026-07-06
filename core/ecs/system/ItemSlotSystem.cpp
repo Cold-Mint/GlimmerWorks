@@ -36,6 +36,161 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/PreloadColors.h"
 
+glimmer::TextureResourceResult* glimmer::ItemSlotSystem::GetSlotTextureResult(const ItemSlotComponent* slotComponent) const
+{
+    if (hotBarComponent_ != nullptr && hotBarComponent_->GetSelectedSlotComponent() == slotComponent)
+    {
+        if (itemSlotSelectedTextureResult_ != nullptr)
+        {
+            return itemSlotSelectedTextureResult_.get();
+        }
+    }
+    if (itemSlotTextureResult_ != nullptr)
+    {
+        return itemSlotTextureResult_.get();
+    }
+    return nullptr;
+}
+
+SDL_Texture* glimmer::ItemSlotSystem::GetOrCreateNumberTexture(uint8_t amount)
+{
+    auto amountIterator = numberTextures_.find(amount);
+    if (amountIterator != numberTextures_.end())
+    {
+        return amountIterator->second.get();
+    }
+    std::shared_ptr<SDL_Texture> amountTexturePtr = resourcePackManager_->CreateStringTexture(
+        std::to_string(amount), &preloadColors_->game.itemSlotTextColor);
+    numberTextures_[amount] = amountTexturePtr;
+    return amountTexturePtr.get();
+}
+
+void glimmer::ItemSlotSystem::RenderSlotBackground(SDL_Renderer* renderer, ItemSlotComponent* slotComponent,
+                                                   const SDL_FRect& rect)
+{
+    TextureResourceResult* itemSlotTextureResult = GetSlotTextureResult(slotComponent);
+    if (itemSlotTextureResult == nullptr)
+    {
+        return;
+    }
+    SDL_Texture* texture = itemSlotTextureResult->GetResource();
+    if (texture == nullptr)
+    {
+        return;
+    }
+    const ResourcePack* resourcePack = itemSlotTextureResult->GetResourcePack();
+    if (resourcePack == nullptr)
+    {
+        return;
+    }
+    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+    if (packConfig.itemSlotNineSlice.enableTiled)
+    {
+        SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
+                                    packConfig.itemSlotNineSlice.leftBorderPx,
+                                    packConfig.itemSlotNineSlice.rightBorderPx,
+                                    packConfig.itemSlotNineSlice.topBorderPx,
+                                    packConfig.itemSlotNineSlice.bottomBorderPx,
+                                    packConfig.itemSlotNineSlice.scale, &rect,
+                                    packConfig.itemSlotNineSlice.tileScale);
+        return;
+    }
+    SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.itemSlotNineSlice.leftBorderPx,
+                           packConfig.itemSlotNineSlice.rightBorderPx,
+                           packConfig.itemSlotNineSlice.topBorderPx,
+                           packConfig.itemSlotNineSlice.bottomBorderPx,
+                           packConfig.itemSlotNineSlice.scale, &rect);
+}
+
+void glimmer::ItemSlotSystem::RenderDurabilityBar(SDL_Renderer* renderer, const Item* item,
+                                                  const SDL_FRect& itemRect)
+{
+    if (item->IsUnbreakable())
+    {
+        return;
+    }
+    const uint32_t totalDur = std::max(item->GetMaxDurability(), 1U);
+    const uint32_t usedDur = item->GetUsedDurability();
+    const uint32_t remainDur = usedDur >= totalDur ? 0U : totalDur - usedDur;
+    float remainingDurabilityPercentage = static_cast<float>(remainDur) / static_cast<float>(totalDur);
+    if (remainingDurabilityPercentage == 1.0F)
+    {
+        return;
+    }
+    Color color;
+    if (remainingDurabilityPercentage >= 0.8F)
+    {
+        color = preloadColors_->durability.durabilityGood;
+    }
+    else if (remainingDurabilityPercentage >= 0.6F)
+    {
+        color = preloadColors_->durability.durabilityNotice;
+    }
+    else if (remainingDurabilityPercentage >= 0.1F)
+    {
+        color = preloadColors_->durability.durabilityWarning;
+    }
+    else
+    {
+        color = preloadColors_->durability.durabilityDanger;
+    }
+    const float durabilityBarHeight = itemRect.h * remainingDurabilityPercentage;
+    const float barY = itemRect.y + itemRect.h - durabilityBarHeight;
+    const SDL_FRect durabilityRect = {
+        itemRect.x,
+        barY,
+        itemRect.w,
+        durabilityBarHeight
+    };
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderFillRect(renderer, &durabilityRect);
+}
+
+void glimmer::ItemSlotSystem::RenderSlotItem(SDL_Renderer* renderer, ItemSlotComponent* slotComponent,
+                                             const SDL_FRect& rect, const Item* item)
+{
+    if (item == nullptr)
+    {
+        return;
+    }
+    float padding = slotComponent->GetPadding() * uiScale_;
+    const SDL_FRect itemRect = {
+        rect.x + padding, rect.y + padding, rect.w - padding * 2.0F,
+        rect.h - padding * 2.0F
+    };
+
+    RenderDurabilityBar(renderer, item, itemRect);
+
+    auto texture = item->GetIcon();
+    if (texture != nullptr)
+    {
+        SDL_RenderTexture(renderer, texture, nullptr, &itemRect);
+    }
+    uint8_t amount = item->GetAmount();
+    if (amount <= 1)
+    {
+        return;
+    }
+    SDL_Texture* amountTexture = GetOrCreateNumberTexture(amount);
+    if (amountTexture == nullptr)
+    {
+        return;
+    }
+    const float textOffset = 2.0F * uiScale_;
+    float textW = static_cast<float>(itemRect.w) * 0.5F;
+    if (amount < 10)
+    {
+        textW = textW * 0.5F;
+    }
+    const float textH = static_cast<float>(itemRect.h) * 0.5F;
+    SDL_FRect dst = {
+        rect.x + rect.w - textW - textOffset,
+        rect.y + rect.h - textH - textOffset, textW,
+        textH
+    };
+    SDL_RenderTexture(renderer, amountTexture, nullptr, &dst);
+}
+
 void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
 {
     const WorldContext* worldContext = GetWorldContext();
@@ -67,143 +222,14 @@ void glimmer::ItemSlotSystem::Render(SDL_Renderer* renderer)
             mouseY >= rect.y && mouseY <= rect.y + rect.h;
 
         itemSlotComponent->SetHovered(isHovered);
-        TextureResourceResult* itemSlotTextureResult = nullptr;
-        if (hotBarComponent_ != nullptr && hotBarComponent_->GetSelectedSlotComponent() == itemSlotComponent)
-        {
-            if (itemSlotSelectedTextureResult_ != nullptr)
-            {
-                itemSlotTextureResult = itemSlotSelectedTextureResult_.get();
-            }
-        }
-        else
-        {
-            if (itemSlotTextureResult_ != nullptr)
-            {
-                itemSlotTextureResult = itemSlotTextureResult_.get();
-            }
-        }
-        if (itemSlotTextureResult != nullptr)
-        {
-            SDL_Texture* texture = itemSlotTextureResult->GetResource();
-            if (texture != nullptr)
-            {
-                const ResourcePack* resourcePack = itemSlotTextureResult->GetResourcePack();
-                if (resourcePack != nullptr)
-                {
-                    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
-                    if (packConfig.itemSlotNineSlice.enableTiled)
-                    {
-                        SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
-                                                    packConfig.itemSlotNineSlice.leftBorderPx,
-                                                    packConfig.itemSlotNineSlice.rightBorderPx,
-                                                    packConfig.itemSlotNineSlice.topBorderPx,
-                                                    packConfig.itemSlotNineSlice.bottomBorderPx,
-                                                    packConfig.itemSlotNineSlice.scale, &rect,
-                                                    packConfig.itemSlotNineSlice.tileScale);
-                    }
-                    else
-                    {
-                        SDL_RenderTexture9Grid(renderer, texture, nullptr, packConfig.itemSlotNineSlice.leftBorderPx,
-                                               packConfig.itemSlotNineSlice.rightBorderPx,
-                                               packConfig.itemSlotNineSlice.topBorderPx,
-                                               packConfig.itemSlotNineSlice.bottomBorderPx,
-                                               packConfig.itemSlotNineSlice.scale, &rect);
-                    }
-                }
-            }
-        }
+        RenderSlotBackground(renderer, itemSlotComponent, rect);
 
         const Item* item = itemSlotComponent->GetItem();
         if (isHovered)
         {
             hoveredItem = item;
         }
-        if (item == nullptr)
-        {
-            continue;
-        }
-        float padding = itemSlotComponent->GetPadding() * uiScale_;
-        const SDL_FRect itemRect = {
-            rect.x + padding, rect.y + padding, rect.w - padding * 2.0F,
-            rect.h - padding * 2.0F
-        };
-
-        if (!item->IsUnbreakable())
-        {
-            const uint32_t totalDur = std::max(item->GetMaxDurability(), 1U);
-            const uint32_t usedDur = item->GetUsedDurability();
-            const uint32_t remainDur = usedDur >= totalDur ? 0U : totalDur - usedDur;
-            float remainingDurabilityPercentage = static_cast<float>(remainDur) / static_cast<float>(totalDur);
-            if (remainingDurabilityPercentage != 1.0F)
-            {
-                Color color;
-                if (remainingDurabilityPercentage >= 0.8F)
-                {
-                    color = preloadColors_->durability.durabilityGood;
-                }
-                else if (remainingDurabilityPercentage >= 0.6F)
-                {
-                    color = preloadColors_->durability.durabilityNotice;
-                }
-                else if (remainingDurabilityPercentage >= 0.1F)
-                {
-                    color = preloadColors_->durability.durabilityWarning;
-                }
-                else
-                {
-                    color = preloadColors_->durability.durabilityDanger;
-                }
-                const float durabilityBarHeight = itemRect.h * remainingDurabilityPercentage;
-                const float barY = itemRect.y + itemRect.h - durabilityBarHeight;
-                const SDL_FRect durabilityRect = {
-                    itemRect.x,
-                    barY,
-                    itemRect.w,
-                    durabilityBarHeight
-                };
-                SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-                SDL_RenderFillRect(renderer, &durabilityRect);
-            }
-        }
-
-        auto texture = item->GetIcon();
-        if (texture != nullptr)
-        {
-            SDL_RenderTexture(renderer, texture, nullptr, &itemRect);
-        }
-        uint8_t amount = item->GetAmount();
-        if (amount > 1)
-        {
-            auto amountIterator = numberTextures_.find(amount);
-            SDL_Texture* amountTexture = nullptr;
-            if (amountIterator == numberTextures_.end())
-            {
-                std::shared_ptr<SDL_Texture> amountTexturePtr = resourcePackManager_->CreateStringTexture(
-                    std::to_string(amount), &preloadColors_->game.itemSlotTextColor);
-                numberTextures_[amount] = amountTexturePtr;
-                amountTexture = amountTexturePtr.get();
-            }
-            else
-            {
-                amountTexture = amountIterator->second.get();
-            }
-
-            const float textOffset = 2.0F * uiScale_;
-            float textW = static_cast<float>(itemRect.w) * 0.5F;
-            if (amount < 10)
-            {
-                //Reduce the single number by half again
-                //单个数字再减少一半
-                textW = textW * 0.5F;
-            }
-            const float textH = static_cast<float>(itemRect.h) * 0.5F;
-            SDL_FRect dst = {
-                rect.x + rect.w - textW - textOffset,
-                rect.y + rect.h - textH - textOffset, textW,
-                textH
-            };
-            SDL_RenderTexture(renderer, amountTexture, nullptr, &dst);
-        }
+        RenderSlotItem(renderer, itemSlotComponent, rect, item);
     }
     if (entityShortCut != nullptr)
     {
@@ -259,11 +285,11 @@ void glimmer::ItemSlotSystem::OnConfigChanged(const Config* config)
 
 
 glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
-    : GameSystem(worldContext)
+    : GameSystem(worldContext),
+      appContext_(worldContext->GetAppContext())
 {
     WatchComponent(COMPONENT_ITEM_SLOT);
     WatchComponent(COMPONENT_HOT_BAR);
-    appContext_ = worldContext->GetAppContext();
     const ResourceLocator* resourceLocator = appContext_->GetResourceLocator();
     ResourceRef itemSlotResourceRef;
     itemSlotResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);

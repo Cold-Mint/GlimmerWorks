@@ -40,9 +40,9 @@ uint64_t glimmer::Color::GetFingerprint() const
 }
 
 glimmer::Color::Color(const uint8_t tempR, const uint8_t tempG, const uint8_t tempB, const uint8_t tempA)
+    : r(tempR),
+      g(tempG),
+      b(tempB),
+      a(tempA)
 {
-    r = tempR;
-    g = tempG;
-    b = tempB;
-    a = tempA;
 }

@@ -59,10 +59,10 @@ glimmer::Color glimmer::ColorUtils::AverageColors(const std::vector<Color>& colo
     }
 
     const auto count = static_cast<int>(colors.size());
-    uint8_t r = static_cast<uint8_t>(std::clamp(totalR / count, 0, 255));
-    uint8_t g = static_cast<uint8_t>(std::clamp(totalG / count, 0, 255));
-    uint8_t b = static_cast<uint8_t>(std::clamp(totalB / count, 0, 255));
-    uint8_t a = static_cast<uint8_t>(std::clamp(totalA / count, 0, 255));
+    const auto r = static_cast<uint8_t>(std::clamp(totalR / count, 0, 255));
+    const auto g = static_cast<uint8_t>(std::clamp(totalG / count, 0, 255));
+    const auto b = static_cast<uint8_t>(std::clamp(totalB / count, 0, 255));
+    const auto a = static_cast<uint8_t>(std::clamp(totalA / count, 0, 255));
     return {r, g, b, a};
 }
 

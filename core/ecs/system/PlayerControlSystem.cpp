@@ -58,6 +58,101 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : 
     Init();
 }
 
+void glimmer::PlayerControlSystem::UpdateFlying(float delta, PlayerComponent* playerComponent,
+                                                 Transform2DComponent* transform2DComponent)
+{
+    WorldVector2D velocity = {};
+    velocity.x = playerComponent->GetHorizontalInput() * delta * FLY_SPEED;
+    velocity.y = playerComponent->GetVerticalInput() * delta * FLY_SPEED;
+    transform2DComponent->SetPosition(transform2DComponent->GetPosition() + velocity);
+}
+
+void glimmer::PlayerControlSystem::UpdateJump(PlayerComponent* playerComponent,
+                                              RigidBody2DComponent* rigidBody2DComponent,
+                                              bool isGrounded, const b2MassData& massData)
+{
+    const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
+    if (playerComponent->IsJump())
+    {
+        playerComponent->SetJumpBuffer(JUMP_BUFFER_FRAMES);
+        playerComponent->SetJump(false);
+    }
+    if (playerComponent->GetJumpBuffer() > 0 && isGrounded)
+    {
+        b2Vec2 jumpImpulse = {0, massData.mass * playerComponent->GetJumpForce()};
+        b2Body_ApplyLinearImpulseToCenter(bodyId, jumpImpulse, true);
+        playerComponent->SetJumpBuffer(0);
+    }
+    if (playerComponent->GetJumpBuffer() > 0)
+    {
+        playerComponent->SetJumpBuffer(playerComponent->GetJumpBuffer() - 1);
+    }
+}
+
+void glimmer::PlayerControlSystem::ClampHorizontalSpeed(RigidBody2DComponent* rigidBody2DComponent,
+                                                        PlayerComponent* playerComponent,
+                                                        const b2Vec2& currentVel)
+{
+    const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
+    if (std::abs(currentVel.x) <= playerComponent->GetMaxSpeed())
+    {
+        return;
+    }
+    if (currentVel.x > 0)
+    {
+        b2Body_SetLinearVelocity(bodyId, {playerComponent->GetMaxSpeed(), currentVel.y});
+        return;
+    }
+    b2Body_SetLinearVelocity(bodyId, {-playerComponent->GetMaxSpeed(), currentVel.y});
+}
+
+void glimmer::PlayerControlSystem::UpdateGroundedMovement(float delta, PlayerComponent* playerComponent,
+                                                          RigidBody2DComponent* rigidBody2DComponent)
+{
+    const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
+    bool isGrounded = OnGround(playerComponent);
+    const b2Vec2 currentVel = b2Body_GetLinearVelocity(bodyId);
+    b2MassData massData = b2Body_GetMassData(bodyId);
+    float targetAccX = playerComponent->GetMovementAcceleration() * playerComponent->GetHorizontalInput();
+    if (!isGrounded)
+    {
+        targetAccX *= playerComponent->GetAirControlFactor();
+    }
+    float horizontalForce = massData.mass * targetAccX;
+    if (playerComponent->GetHorizontalInput() == 0)
+    {
+        const float brakeFactor = isGrounded ? 8.0F : 2.0F;
+        horizontalForce = -currentVel.x * massData.mass * brakeFactor;
+        if (fabs(currentVel.x) < 0.1F)
+        {
+            b2Body_SetLinearVelocity(bodyId, {0.0F, currentVel.y});
+            horizontalForce = 0.0F;
+        }
+    }
+    b2Body_ApplyForceToCenter(bodyId, {horizontalForce, 0.0F}, true);
+    UpdateJump(playerComponent, rigidBody2DComponent, isGrounded, massData);
+    ClampHorizontalSpeed(rigidBody2DComponent, playerComponent, currentVel);
+    float gravityForce = massData.mass * GRAVITY_SCALE;
+    b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
+}
+
+void glimmer::PlayerControlSystem::CheckDropItem(PlayerComponent* playerComponent,
+                                                 ItemContainer* itemContainer,
+                                                 HotBarComponent* hotBarComponent)
+{
+    if (!playerComponent->IsDropPressed())
+    {
+        return;
+    }
+    if (playerComponent->GetDropTimer() < DROP_INTERVAL)
+    {
+        return;
+    }
+    playerComponent->RemoveDropTimer(DROP_INTERVAL);
+    DropItem(itemContainer, hotBarComponent->GetSelectedSlot());
+    playerComponent->SetDropPressed(false);
+}
+
 void glimmer::PlayerControlSystem::Update(const float delta)
 {
     EntityManager* entityManager = GetEntityManager();
@@ -79,10 +174,7 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         {
             return;
         }
-        WorldVector2D velocity = {};
-        velocity.x = playerComponent->GetHorizontalInput() * delta * FLY_SPEED;
-        velocity.y = playerComponent->GetVerticalInput() * delta * FLY_SPEED;
-        transform2DComponent->SetPosition(transform2DComponent->GetPosition() + velocity);
+        UpdateFlying(delta, playerComponent, transform2DComponent);
     }
     else
     {
@@ -91,95 +183,32 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         {
             return;
         }
-
         if (!rigidBody2DComponent->IsReady())
         {
             return;
         }
-
-        const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
-        bool isGrounded = OnGround(playerComponent);
-        const b2Vec2 currentVel = b2Body_GetLinearVelocity(bodyId);
-        b2MassData massData = b2Body_GetMassData(bodyId);
-        float targetAccX = playerComponent->GetMovementAcceleration() * playerComponent->GetHorizontalInput();
-        if (!isGrounded)
-        {
-            targetAccX *= playerComponent->GetAirControlFactor();
-        }
-        float horizontalForce = massData.mass * targetAccX;
-        if (playerComponent->GetHorizontalInput() == 0)
-        {
-            const float brakeFactor = isGrounded ? 8.0F : 2.0F;
-            horizontalForce = -currentVel.x * massData.mass * brakeFactor;
-
-            if (fabs(currentVel.x) < 0.1F)
-            {
-                b2Body_SetLinearVelocity(bodyId, {0.0F, currentVel.y});
-                horizontalForce = 0.0F;
-            }
-        }
-        b2Body_ApplyForceToCenter(bodyId, {horizontalForce, 0.0F}, true);
-        if (playerComponent->IsJump())
-        {
-            playerComponent->SetJumpBuffer(JUMP_BUFFER_FRAMES);
-            playerComponent->SetJump(false);
-        }
-        if (playerComponent->GetJumpBuffer() > 0 && isGrounded)
-        {
-            b2Vec2 jumpImpulse = {0, massData.mass * playerComponent->GetJumpForce()};
-            b2Body_ApplyLinearImpulseToCenter(bodyId, jumpImpulse, true);
-            // Consumption buffer
-            // 消耗缓冲
-            playerComponent->SetJumpBuffer(0);
-        }
-        //Decremental buffering per frame
-        //每帧递减缓冲
-        if (playerComponent->GetJumpBuffer() > 0)
-        {
-            playerComponent->SetJumpBuffer(playerComponent->GetJumpBuffer() - 1);
-        }
-
-        if (std::abs(currentVel.x) > playerComponent->GetMaxSpeed())
-        {
-            //The horizontal speed has exceeded the maximum speed.
-            //水平方向速度，超过了最大速度。
-            if (currentVel.x > 0)
-            {
-                b2Body_SetLinearVelocity(bodyId, {playerComponent->GetMaxSpeed(), currentVel.y});
-            }
-            else
-            {
-                b2Body_SetLinearVelocity(bodyId, {-playerComponent->GetMaxSpeed(), currentVel.y});
-            }
-        }
-
-        float gravityForce = massData.mass * GRAVITY_SCALE;
-        b2Body_ApplyForceToCenter(bodyId, {0, -gravityForce}, true);
+        UpdateGroundedMovement(delta, playerComponent, rigidBody2DComponent);
     }
     auto hotBarComponent = entityShortCut->GetHotBarComponent();
     auto itemContainerComponent = entityShortCut->GetItemContainerComponent();
     ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
     playerComponent->AddDropTimer(delta);
-    if (playerComponent->IsDropPressed() && playerComponent->GetDropTimer() >= DROP_INTERVAL)
-    {
-        playerComponent->RemoveDropTimer(DROP_INTERVAL);
-        DropItem(itemContainer, hotBarComponent->GetSelectedSlot());
-        playerComponent->SetDropPressed(false);
-    }
+    CheckDropItem(playerComponent, itemContainer, hotBarComponent);
 
-    if (playerComponent->IsMouseLeftDown())
+    if (!playerComponent->IsMouseLeftDown())
     {
-        Item* item = playerComponent->GetItem();
-        if (item == nullptr)
-        {
-            item = playerComponent->GetEmptyHandAutoUseItem();
-        }
-        if (item == nullptr)
-        {
-            return;
-        }
-        UseItem(item);
+        return;
     }
+    Item* item = playerComponent->GetItem();
+    if (item == nullptr)
+    {
+        item = playerComponent->GetEmptyHandAutoUseItem();
+    }
+    if (item == nullptr)
+    {
+        return;
+    }
+    UseItem(item);
 }
 
 glimmer::GameSystemType glimmer::PlayerControlSystem::GetGameSystemType() const
@@ -282,6 +311,115 @@ void glimmer::PlayerControlSystem::OnWatchedComponentChanged(GameComponentTypeMe
     }
 }
 
+void glimmer::PlayerControlSystem::HandleMouseButton(const SDL_Event& event, PlayerComponent* playerComponent)
+{
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT)
+    {
+        playerComponent->SetMouseLeftDown(true);
+    }
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT)
+    {
+        playerComponent->SetMouseLeftDown(false);
+    }
+}
+
+void glimmer::PlayerControlSystem::UpdatePlayerFacing(PlayerComponent* playerComponent)
+{
+    EntityManager* entityManager = GetEntityManager();
+    const auto spiritRendererComponent = entityManager->GetComponent<SpiritRendererComponent>(playerEntityID_);
+    if (spiritRendererComponent == nullptr)
+    {
+        return;
+    }
+    float horizontalInput = playerComponent->GetHorizontalInput();
+    if (horizontalInput < -0.1F)
+    {
+        playerComponent->SetFacingLeft(true);
+        spiritRendererComponent->SetFlipH(true);
+    }
+    else if (horizontalInput > 0.1F)
+    {
+        playerComponent->SetFacingLeft(false);
+        spiritRendererComponent->SetFlipH(false);
+    }
+}
+
+void glimmer::PlayerControlSystem::HandleHorizontalInput(const SDL_Event& event, PlayerComponent* playerComponent,
+                                                         bool pressed)
+{
+    bool isAorD = false;
+    if (event.key.key == SDLK_A)
+    {
+        playerComponent->SetPressedA(pressed);
+        isAorD = true;
+    }
+    if (event.key.key == SDLK_D)
+    {
+        playerComponent->SetPressedD(pressed);
+        isAorD = true;
+    }
+    if (!isAorD)
+    {
+        return;
+    }
+    playerComponent->ResetHorizontalInput();
+    if (playerComponent->IsPressedA())
+    {
+        playerComponent->RemoveHorizontalInput(1.0F);
+    }
+    if (playerComponent->IsPressedD())
+    {
+        playerComponent->AddHorizontalInput(1.0F);
+    }
+    UpdatePlayerFacing(playerComponent);
+}
+
+void glimmer::PlayerControlSystem::HandleVerticalInput(const SDL_Event& event, PlayerComponent* playerComponent,
+                                                       bool pressed)
+{
+    bool isWorS = false;
+    if (event.key.key == SDLK_W)
+    {
+        playerComponent->SetPressedW(pressed);
+        isWorS = true;
+    }
+    if (event.key.key == SDLK_S)
+    {
+        playerComponent->SetPressedS(pressed);
+        isWorS = true;
+    }
+    if (!isWorS)
+    {
+        return;
+    }
+    playerComponent->ResetVerticalInput();
+    if (playerComponent->IsPressedW())
+    {
+        playerComponent->AddVerticalInput(1.0F);
+    }
+    if (playerComponent->IsPressedS())
+    {
+        playerComponent->RemoveVerticalInput(1.0F);
+    }
+}
+
+void glimmer::PlayerControlSystem::HandleKeyAction(const SDL_Event& event, PlayerComponent* playerComponent,
+                                                   bool pressed)
+{
+    if (event.key.key == SDLK_W && pressed && !event.key.repeat)
+    {
+        playerComponent->SetJump(true);
+    }
+    if (event.key.key == SDLK_Q)
+    {
+        playerComponent->SetDropPressed(pressed);
+        if (!pressed)
+        {
+            playerComponent->ResetDropTimer();
+        }
+    }
+}
+
 bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
 {
     WorldContext* worldContext = GetWorldContext();
@@ -300,93 +438,14 @@ bool glimmer::PlayerControlSystem::HandleEvent(const SDL_Event& event)
     {
         return false;
     }
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT)
+    HandleMouseButton(event, playerComponent);
+    if (event.type != SDL_EVENT_KEY_DOWN && event.type != SDL_EVENT_KEY_UP)
     {
-        playerComponent->SetMouseLeftDown(true);
+        return false;
     }
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT)
-    {
-        playerComponent->SetMouseLeftDown(false);
-    }
-    if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP)
-    {
-        bool pressed = event.type == SDL_EVENT_KEY_DOWN;
-        bool isAorD = false;
-        if (event.key.key == SDLK_A)
-        {
-            playerComponent->SetPressedA(pressed);
-            isAorD = true;
-        }
-        if (event.key.key == SDLK_D)
-        {
-            playerComponent->SetPressedD(pressed);
-            isAorD = true;
-        }
-        if (isAorD)
-        {
-            playerComponent->ResetHorizontalInput();
-            if (playerComponent->IsPressedA())
-            {
-                playerComponent->RemoveHorizontalInput(1.0F);
-            }
-            if (playerComponent->IsPressedD())
-            {
-                playerComponent->AddHorizontalInput(1.0F);
-            }
-            const auto spiritRendererComponent = entityManager->GetComponent<SpiritRendererComponent>(playerEntityID_);
-            if (spiritRendererComponent != nullptr)
-            {
-                float horizontalInput = playerComponent->GetHorizontalInput();
-                if (horizontalInput < -0.1F)
-                {
-                    playerComponent->SetFacingLeft(true);
-                    spiritRendererComponent->SetFlipH(true);
-                }
-                else if (horizontalInput > 0.1F)
-                {
-                    playerComponent->SetFacingLeft(false);
-                    spiritRendererComponent->SetFlipH(false);
-                }
-            }
-        }
-
-        bool isWorS = false;
-        if (event.key.key == SDLK_W)
-        {
-            playerComponent->SetPressedW(pressed);
-            isWorS = true;
-        }
-        if (event.key.key == SDLK_S)
-        {
-            playerComponent->SetPressedS(pressed);
-            isWorS = true;
-        }
-
-        if (isWorS)
-        {
-            playerComponent->ResetVerticalInput();
-            if (playerComponent->IsPressedW())
-            {
-                playerComponent->AddVerticalInput(1.0F);
-            }
-            if (playerComponent->IsPressedS())
-            {
-                playerComponent->RemoveVerticalInput(1.0F);
-            }
-        }
-
-        if (event.key.key == SDLK_W && pressed && !event.key.repeat)
-        {
-            playerComponent->SetJump(true);
-        }
-        if (event.key.key == SDLK_Q)
-        {
-            playerComponent->SetDropPressed(pressed);
-            if (!pressed)
-            {
-                playerComponent->ResetDropTimer();
-            }
-        }
-    }
+    bool pressed = event.type == SDL_EVENT_KEY_DOWN;
+    HandleHorizontalInput(event, playerComponent, pressed);
+    HandleVerticalInput(event, playerComponent, pressed);
+    HandleKeyAction(event, playerComponent, pressed);
     return false;
 }

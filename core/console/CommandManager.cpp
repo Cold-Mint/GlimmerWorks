@@ -141,6 +141,135 @@ std::string glimmer::CommandManager::GetHelpText(const LangsResources* langsReso
     return stringStream.str();
 }
 
+std::vector<std::string> glimmer::CommandManager::GetCommandNameSuggestions(const std::string& keyWord) const
+{
+    std::vector<std::string> results;
+    for (const auto& commandStr : commandMap_ | std::views::keys)
+    {
+        if (commandStr == keyWord)
+        {
+            continue;
+        }
+        if (commandStr.contains(keyWord))
+        {
+            results.push_back(commandStr);
+        }
+    }
+    return results;
+}
+
+std::vector<std::string> glimmer::CommandManager::CollectMatchingSuggestions(const std::vector<std::string>& suggestions,
+                                                                             const std::string& keyWord)
+{
+    std::vector<std::string> results;
+    for (const auto& suggestion : suggestions)
+    {
+        if (suggestion == keyWord)
+        {
+            continue;
+        }
+        if (suggestion.contains(keyWord))
+        {
+            results.push_back(suggestion);
+        }
+    }
+    return results;
+}
+
+glimmer::NodeTree<std::string>* glimmer::CommandManager::FindNextNodeTree(const DynamicSuggestionsManager* dynamicSuggestionsManager,
+                                                                           glimmer::NodeTree<std::string>* nextNodeTree, const std::string& keyWord)
+{
+    if (nextNodeTree == nullptr)
+    {
+        return nullptr;
+    }
+
+    const int nextNodeTreeSize = nextNodeTree->GetSize();
+    NodeTree<std::string>* dynamicTree = nullptr;
+
+    for (int c = 0; c < nextNodeTreeSize; c++)
+    {
+        NodeTree<std::string>* node = nextNodeTree->GetChild(c);
+        if (node == nullptr)
+        {
+            continue;
+        }
+
+        auto data = node->Data();
+        if (!data.has_value())
+        {
+            continue;
+        }
+
+        const std::string& dataValue = data.value();
+        if (dataValue == keyWord)
+        {
+            return node;
+        }
+
+        if (!dataValue.starts_with('&'))
+        {
+            continue;
+        }
+
+        auto pos = dataValue.find(':');
+        std::string dynName = dataValue.substr(0, pos);
+        DynamicSuggestions* dynamicSuggestions = dynamicSuggestionsManager->GetSuggestions(dynName);
+        if (dynamicSuggestions == nullptr)
+        {
+            continue;
+        }
+
+        const std::string param = pos == std::string::npos ? "" : dataValue.substr(pos + 1);
+        if (dynamicSuggestions->Match(keyWord, param))
+        {
+            dynamicTree = node;
+        }
+    }
+
+    return dynamicTree;
+}
+
+bool glimmer::CommandManager::TryExpandDynamicSuggestion(
+    const DynamicSuggestionsManager* dynamicSuggestionsManager, const std::string& child,
+    std::vector<std::string>& children,
+    std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& expandedSet)
+{
+    if (!child.starts_with('&'))
+    {
+        return false;
+    }
+
+    auto [it, inserted] = expandedSet.insert(child);
+    if (!inserted)
+    {
+        LogCat::e("Repeated dynamic suggestions:", child);
+#if defined(NDEBUG)
+        return true;
+#else
+        assert(false && "Repeated dynamic suggestions");
+#endif
+    }
+
+    auto pos = child.find(':');
+    std::string dynName = child.substr(0, pos);
+    auto dyn = dynamicSuggestionsManager->GetSuggestions(dynName);
+    if (dyn == nullptr)
+    {
+        return false;
+    }
+
+    std::optional<std::string> param = std::nullopt;
+    if (pos != std::string::npos)
+    {
+        param = child.substr(pos + 1);
+    }
+
+    auto dynList = dyn->GetSuggestions(param);
+    children.insert(children.end(), dynList.begin(), dynList.end());
+    return true;
+}
+
 std::vector<std::string> glimmer::CommandManager::GetSuggestions(
     const DynamicSuggestionsManager* dynamicSuggestionsManager, const CommandArgs& commandArgs,
     const int cursorPos) const
@@ -151,116 +280,41 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
         return {};
     }
 
-    int tokenIndex = commandArgs.GetTokenIndexAtCursor(cursorPos);
+    const int tokenIndex = commandArgs.GetTokenIndexAtCursor(cursorPos);
     if (tokenIndex == -1)
     {
         return {};
     }
+
     if (tokenIndex == 0)
     {
-        std::vector<std::string> results;
-        const std::string keyWord = commandArgs.AsString(0);
-        for (const auto& commandStr : commandMap_ | std::views::keys)
-        {
-            if (commandStr == keyWord)
-            {
-                continue;
-            }
-            if (commandStr.contains(keyWord))
-            {
-                results.push_back(commandStr);
-            }
-        }
-        return results;
+        return GetCommandNameSuggestions(commandArgs.AsString(0));
     }
-    std::string commandName = commandArgs.AsString(0);
+
+    const std::string commandName = commandArgs.AsString(0);
     Command* command = GetCommand(commandName);
     if (command == nullptr)
     {
         return {};
     }
-    std::vector<std::string> results;
+
     NodeTree<std::string>* nextNodeTree = command->GetSuggestionsTree(&commandArgs);
-    for (int index = 1; index <= tokenIndex; index++)
+    for (int index = 1; index < tokenIndex; index++)
     {
-        std::string keyWord = commandArgs.AsString(index);
-        if (index == tokenIndex)
+        nextNodeTree = FindNextNodeTree(dynamicSuggestionsManager, nextNodeTree, commandArgs.AsString(index));
+        if (nextNodeTree == nullptr)
         {
-            if (nextNodeTree == nullptr)
-            {
-                return {};
-            }
-            std::vector<std::string> suggestions = ExtendSuggestions(dynamicSuggestionsManager, nextNodeTree);
-            for (const auto& suggestion : suggestions)
-            {
-                if (suggestion == keyWord)
-                {
-                    continue;
-                }
-                if (suggestion.contains(keyWord))
-                {
-                    results.push_back(suggestion);
-                }
-            }
-        }
-        else
-        {
-            if (nextNodeTree == nullptr)
-            {
-                return {};
-            }
-            NodeTree<std::string>* dynamicTree = nullptr;
-            int nextNodeTreeSize = nextNodeTree->GetSize();
-            bool perfectMatch = false;
-            for (int c = 0; c < nextNodeTreeSize; c++)
-            {
-                NodeTree<std::string>* node = nextNodeTree->GetChild(c);
-                if (node == nullptr)
-                {
-                    continue;
-                }
-                auto data = node->Data();
-                if (!data.has_value())
-                {
-                    continue;
-                }
-                const std::string& dataValue = data.value();
-                if (dataValue == keyWord)
-                {
-                    nextNodeTree = node;
-                    perfectMatch = true;
-                    break;
-                }
-                if (dataValue.starts_with('&'))
-                {
-                    auto pos = dataValue.find(':');
-                    std::string dynName = dataValue.substr(0, pos); // "&biome"
-                    DynamicSuggestions* dynamicSuggestions = dynamicSuggestionsManager->GetSuggestions(dynName);
-                    if (dynamicSuggestions != nullptr)
-                    {
-                        const std::string param = pos == std::string::npos ? "" : dataValue.substr(pos + 1); // "forest"
-                        std::vector<std::string> dynList = dynamicSuggestions->GetSuggestions(param);
-                        if (dynamicSuggestions->Match(keyWord, param))
-                        {
-                            dynamicTree = node;
-                        }
-                    }
-                }
-            }
-            if (!perfectMatch)
-            {
-                if (dynamicTree == nullptr)
-                {
-                    nextNodeTree = nullptr;
-                }
-                else
-                {
-                    nextNodeTree = dynamicTree;
-                }
-            }
+            return {};
         }
     }
-    return results;
+
+    if (nextNodeTree == nullptr)
+    {
+        return {};
+    }
+
+    const std::vector<std::string> suggestions = ExtendSuggestions(dynamicSuggestionsManager, nextNodeTree);
+    return CollectMatchingSuggestions(suggestions, commandArgs.AsString(tokenIndex));
 }
 
 std::vector<std::string> glimmer::CommandManager::GetCommandStructure(const CommandArgs* commandArgs) const
@@ -289,9 +343,6 @@ std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
     const DynamicSuggestionsManager* dynamicSuggestionsManager, const NodeTree<std::string>* nextNodeTree)
 {
     std::vector<std::string> children = nextNodeTree->GetAllChildren();
-    //Expanded dynamic suggestions.
-    //展开过的动态建议。
-    std::vector<std::string> unfoldList;
     std::vector<std::string> result;
     std::unordered_set<std::string, TransparentStringHash, std::equal_to<>> expandedSet;
 
@@ -299,35 +350,7 @@ std::vector<std::string> glimmer::CommandManager::ExtendSuggestions(
     while (i < children.size())
     {
         const std::string& child = children[i];
-        bool isExpanded = false;
-
-        if (child.starts_with('&'))
-        {
-            if (auto [it, inserted] = expandedSet.insert(child); !inserted)
-            {
-                LogCat::e("Repeated dynamic suggestions:", child);
-#if defined(NDEBUG)
-                ++i; // 跳过重复项，既不展开也不加入结果
-                continue;
-#else
-                assert(false && "Repeated dynamic suggestions");
-#endif
-            }
-            auto pos = child.find(':');
-            std::string dynName = child.substr(0, pos);
-            if (auto dyn = dynamicSuggestionsManager->GetSuggestions(dynName); dyn != nullptr)
-            {
-                isExpanded = true;
-                std::optional<std::string> param = std::nullopt;
-                if (pos != std::string::npos)
-                {
-                    param = child.substr(pos + 1);
-                }
-                auto dynList = dyn->GetSuggestions(param);
-                children.insert(children.end(), dynList.begin(), dynList.end());
-            }
-        }
-
+        const bool isExpanded = TryExpandDynamicSuggestion(dynamicSuggestionsManager, child, children, expandedSet);
         if (!isExpanded)
         {
             result.emplace_back(child);

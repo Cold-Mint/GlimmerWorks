@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "AbilityItemCreateParams.h"
 #include "Item.h"
 #include "ability/ItemAbility.h"
 #include "core/world/WorldContext.h"
@@ -43,11 +44,11 @@ namespace glimmer
         bool canUseAlone_;
 
     public:
-        explicit AbilityItem(std::string id, std::string name, std::optional<std::string> description,
-                             std::shared_ptr<TextureResourceResult> iconResult,
-                             std::shared_ptr<ItemAbility> itemAbility, uint32_t maxDurability, bool unbreakable,
-                             bool canUseAlone, const std::vector<ItemTagResource>& tags,
-                             const ResourceRef& resourceRef);
+        explicit AbilityItem(const AbilityItemCreateParams& params);
+
+        static std::unique_ptr<AbilityItem> FromItemResource(const AppContext* appContext,
+                                                             const AbilityItemResource* itemResource,
+                                                             const ResourceRef& resourceRef);
 
         [[nodiscard]] const std::string& GetId() const override;
 
@@ -59,9 +60,6 @@ namespace glimmer
 
         [[nodiscard]] ItemAbility* GetItemAbility() const;
 
-        static std::unique_ptr<AbilityItem> FromItemResource(const AppContext* appContext,
-                                                             const AbilityItemResource* itemResource,
-                                                             const ResourceRef& resourceRef);
         [[nodiscard]] uint32_t GetMaxDurability() const override;
 
         void Reduce(unsigned value) override;

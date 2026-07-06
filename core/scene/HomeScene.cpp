@@ -68,8 +68,8 @@ glimmer::HomeScene::HomeScene(AppContext* context)
     hyperlinks_.push_back(Hyperlink("itch.io", "https://cold-mint.itch.io/glimmerworks"));
     hyperlinks_.push_back(Hyperlink("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"));
     copyright_ = GetCopyrightString();
-    appContext_->PlayMainMenuBGM();
-    appContext_->SetRandomSlogan();
+    GetAppContext()->PlayMainMenuBGM();
+    GetAppContext()->SetRandomSlogan();
     Init();
 }
 
@@ -100,15 +100,15 @@ void glimmer::HomeScene::RenderImGui(SDL_Renderer* renderer)
     float totalHeight = 3 * buttonHeight + 2 * buttonSpacing;
     ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5F);
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext_->GetLangsResources()->startGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
+    if (ImGui::Button(GetAppContext()->GetLangsResources()->startGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
     {
-        if (appContext_->GetSavesManager()->GetSavesListSize() == 0)
+        if (GetAppContext()->GetSavesManager()->GetSavesListSize() == 0)
         {
-            appContext_->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext_));
+            GetAppContext()->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(GetAppContext()));
         }
         else
         {
-            appContext_->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(appContext_));
+            GetAppContext()->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(GetAppContext()));
         }
     }
     if (ImGui::IsItemHovered())
@@ -128,7 +128,7 @@ void glimmer::HomeScene::RenderImGui(SDL_Renderer* renderer)
     //     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     // }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(appContext_->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
+    if (ImGui::Button(GetAppContext()->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
     {
         OnBackPressed();
     }
@@ -194,7 +194,7 @@ void glimmer::HomeScene::OnWindowSizeChanged(const int& width, const int& height
 
 bool glimmer::HomeScene::OnBackPressed()
 {
-    appContext_->ExitApp();
+    GetAppContext()->ExitApp();
     return true;
 }
 

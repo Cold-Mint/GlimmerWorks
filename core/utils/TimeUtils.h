@@ -50,6 +50,6 @@ namespace glimmer
          * @param ms
          * @return
          */
-        [[nodiscard]] static std::string FormatTimeMs(LangsResources* langsResources, uint64_t ms);
+        [[nodiscard]] static std::string FormatTimeMs(const LangsResources* langsResources, uint64_t ms);
     };
 }

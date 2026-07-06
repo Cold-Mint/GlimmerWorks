@@ -97,6 +97,120 @@ glimmer::MagnetSystem::MagnetSystem(WorldContext* worldContext) : GameSystem(wor
     Init();
 }
 
+bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
+                                                   MagnetComponent* magnet,
+                                                   const WorldVector2D& magnetPos,
+                                                   ItemContainer* itemContainer)
+{
+    EntityManager* entityManager = GetEntityManager();
+    auto magneticTransform =
+        entityManager->GetComponent<Transform2DComponent>(magneticEntity);
+    if (magneticTransform == nullptr)
+    {
+        return false;
+    }
+    auto magnetic =
+        entityManager->GetComponent<MagneticComponent>(magneticEntity);
+    if (magnetic == nullptr)
+    {
+        return false;
+    }
+    auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(magneticEntity);
+    if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady() || !rigidBody2DComponent->IsEnabled())
+    {
+        return false;
+    }
+    auto rayCast2DComponent = entityManager->GetComponent<RayCast2DComponent>(magneticEntity);
+    if (rayCast2DComponent == nullptr)
+    {
+        return false;
+    }
+    if ((magnet->GetType() & magnetic->GetType()) == 0)
+    {
+        return false;
+    }
+    const auto droppedItem = entityManager->GetComponent<DroppedItemComponent>(magneticEntity);
+    if (droppedItem == nullptr)
+    {
+        return false;
+    }
+    if (!droppedItem->CanBePickedUp())
+    {
+        return false;
+    }
+    const auto item = droppedItem->GetItem();
+    if (item == nullptr)
+    {
+        return false;
+    }
+    size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(item);
+    if (remainingItemAmount == item->GetAmount())
+    {
+        return false;
+    }
+    WorldVector2D magneticPos = magneticTransform->GetPosition();
+    const WorldVector2D distanceVector = magnetPos - magneticPos;
+    float distance = distanceVector.Length();
+    const float detectionRadius = magnet->GetDetectionRadius();
+    if (distance > detectionRadius)
+    {
+        magnet->RemoveEntity(magneticEntity);
+        return false;
+    }
+    rayCast2DComponent->SetTransform(distanceVector);
+    if (rayCast2DComponent->IsHit())
+    {
+        return false;
+    }
+    if (distance < MIN_SAFE_DISTANCE)
+    {
+        distance = MIN_SAFE_DISTANCE;
+    }
+    float normalizedDistance = distance / detectionRadius;
+    float forceStrength = 1 - normalizedDistance;
+    b2MassData massData = b2Body_GetMassData(rigidBody2DComponent->GetBodyId());
+    WorldVector2D force = distanceVector.Normalized()
+        * massData.mass
+        * MAX_MAGNET_FORCE
+        * forceStrength;
+    b2Body_ApplyForceToCenter(rigidBody2DComponent->GetBodyId(), {force.x, force.y}, true);
+    if (distance <= magnet->GetAdsorptionRadius())
+    {
+        magnet->AddEntity(magneticEntity);
+    }
+    return true;
+}
+
+void glimmer::MagnetSystem::ProcessMagnetEntity(GameEntityID magnetEntity)
+{
+    EntityManager* entityManager = GetEntityManager();
+    auto magnet = entityManager->GetComponent<MagnetComponent>(magnetEntity);
+    if (magnet == nullptr)
+    {
+        return;
+    }
+    auto magnetTransform = entityManager->GetComponent<Transform2DComponent>(magnetEntity);
+    if (magnetTransform == nullptr)
+    {
+        return;
+    }
+    auto itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(magnetEntity);
+    if (itemContainerComponent == nullptr)
+    {
+        return;
+    }
+    auto itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr)
+    {
+        return;
+    }
+    const WorldVector2D magnetPos = magnetTransform->GetPosition();
+    for (auto magneticEntity : magneticEntities_)
+    {
+        ProcessMagneticEntity(magneticEntity, magnet, magnetPos, itemContainer);
+    }
+}
+
 void glimmer::MagnetSystem::Update(const float delta)
 {
     WorldContext* worldContext = GetWorldContext();
@@ -109,135 +223,17 @@ void glimmer::MagnetSystem::Update(const float delta)
     {
         return;
     }
-    //magnets
-    //磁铁
     if (magnetEntities_.empty())
     {
         return;
     }
-
-    //magnetics
-    //磁性材料
     if (magneticEntities_.empty())
     {
         return;
     }
-
     for (auto magnetEntity : magnetEntities_)
     {
-        auto magnet = entityManager->GetComponent<MagnetComponent>(magnetEntity);
-        if (magnet == nullptr)
-        {
-            continue;
-        }
-        auto magnetTransform =
-            entityManager->GetComponent<Transform2DComponent>(magnetEntity);
-        if (magnetTransform == nullptr)
-        {
-            continue;
-        }
-        auto itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(magnetEntity);
-        if (itemContainerComponent == nullptr)
-        {
-            continue;
-        }
-        auto itemContainer = itemContainerComponent->GetItemContainer();
-        if (itemContainer == nullptr)
-        {
-            continue;
-        }
-        const WorldVector2D magnetPos = magnetTransform->GetPosition();
-        const float detectionRadius = magnet->GetDetectionRadius();
-        for (auto magneticEntity : magneticEntities_)
-        {
-            auto magneticTransform =
-                entityManager->GetComponent<Transform2DComponent>(magneticEntity);
-            if (magneticTransform == nullptr)
-            {
-                continue;
-            }
-            auto magnetic =
-                entityManager->GetComponent<MagneticComponent>(magneticEntity);
-            if (magnetic == nullptr)
-            {
-                continue;
-            }
-            auto rigidBody2DComponent = entityManager->GetComponent<RigidBody2DComponent>(magneticEntity);
-            if (rigidBody2DComponent == nullptr || !rigidBody2DComponent->IsReady() || !rigidBody2DComponent->
-                IsEnabled())
-            {
-                continue;
-            }
-
-            auto rayCast2DComponent = entityManager->GetComponent<RayCast2DComponent>(magneticEntity);
-            if (rayCast2DComponent == nullptr)
-            {
-                continue;
-            }
-
-            if ((magnet->GetType() & magnetic->GetType()) == 0)
-            {
-                //No overlapping attraction areas.
-                //没有重叠的吸引位。
-                continue;
-            }
-            const auto droppedItem = entityManager->GetComponent<DroppedItemComponent>(magneticEntity);
-            if (droppedItem == nullptr)
-            {
-                continue;
-            }
-            if (!droppedItem->CanBePickedUp())
-            {
-                continue;
-            }
-
-            const auto item = droppedItem->GetItem();
-            if (item == nullptr)
-            {
-                continue;
-            }
-            size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(item);
-            if (remainingItemAmount == item->GetAmount())
-            {
-                //Not a single one can be added.
-                //一个都添加不了。
-                continue;
-            }
-
-            WorldVector2D magneticPos = magneticTransform->GetPosition();
-            const WorldVector2D distanceVector = magnetPos - magneticPos;
-            float distance = distanceVector.Length();
-            if (distance > detectionRadius)
-            {
-                magnet->RemoveEntity(magneticEntity);
-                continue;
-            }
-            rayCast2DComponent->SetTransform(distanceVector);
-            if (rayCast2DComponent->IsHit())
-            {
-                //It was blocked by an obstacle.
-                //被障碍物遮挡了。
-                continue;
-            }
-            if (distance < MIN_SAFE_DISTANCE)
-            {
-                distance = MIN_SAFE_DISTANCE;
-            }
-            // Normalized distance (0-1): 0 = attached to the magnet, 1 = maximum detection radius
-            // 归一化距离 (0~1)：0=贴在磁铁上，1=最大检测半径
-            float normalizedDistance = distance / detectionRadius;
-            float forceStrength = 1 - normalizedDistance;
-            b2MassData massData = b2Body_GetMassData(rigidBody2DComponent->GetBodyId());
-            WorldVector2D force = distanceVector.Normalized()
-                * massData.mass
-                * MAX_MAGNET_FORCE
-                * forceStrength;
-            b2Body_ApplyForceToCenter(rigidBody2DComponent->GetBodyId(), {force.x, force.y}, true);
-            if (distance <= magnet->GetAdsorptionRadius())
-            {
-                magnet->AddEntity(magneticEntity);
-            }
-        }
+        ProcessMagnetEntity(magnetEntity);
     }
 }
 

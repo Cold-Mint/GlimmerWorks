@@ -30,9 +30,9 @@
 
 
 glimmer::ItemSlotComponent::ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, uint8_t slotIndex) :
-    itemSlotType_(itemSlot),
     itemContainer_(itemContainer),
-    slotIndex_(slotIndex)
+    slotIndex_(slotIndex),
+    itemSlotType_(itemSlot)
 {
 }
 

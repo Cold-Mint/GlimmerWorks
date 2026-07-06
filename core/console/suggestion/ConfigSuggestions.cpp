@@ -60,7 +60,7 @@ glimmer::ConfigSuggestions::ConfigSuggestions(toml::value* configValue) : config
 {
 }
 
-bool glimmer::ConfigSuggestions::Match(const std::string keyword, std::string param)
+bool glimmer::ConfigSuggestions::Match(const std::string& keyword, const std::string& param)
 {
     std::vector<std::string> fields;
     ParseTable(configValue_->as_table(), fields);
@@ -72,7 +72,7 @@ std::string glimmer::ConfigSuggestions::GetId() const
     return CONFIG_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::ConfigSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::ConfigSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     std::vector<std::string> fields;
     ParseTable(configValue_->as_table(), fields);

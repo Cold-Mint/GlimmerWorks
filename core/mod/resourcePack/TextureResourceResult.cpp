@@ -28,10 +28,11 @@
 
 void glimmer::TextureResourceResult::DestroyResource()
 {
-    if (resource_ == nullptr)
+    SDL_Texture* resource = GetResource();
+    if (resource == nullptr)
     {
         return;
     }
-    SDL_DestroyTexture(resource_);
-    resource_ = nullptr;
+    SDL_DestroyTexture(resource);
+    SetResource(nullptr);
 }

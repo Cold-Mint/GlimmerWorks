@@ -52,7 +52,7 @@ bool glimmer::ResourcePack::LoadResourceConfig()
     {
         resourcePackConfig_ = toml::get<ResourcePackConfig>(value);
     }
-    catch (const std::exception& e)
+    catch (const toml::exception& e)
     {
         LogCat::e("DataPack::LoadResourceConfig - Failed to parse res_config.toml: ", e.what());
         return false;
@@ -74,7 +74,7 @@ bool glimmer::ResourcePack::LoadManifest()
     {
         manifest_ = toml::get<ResourcePackManifest>(value);
     }
-    catch (const std::exception& e)
+    catch (const toml::exception& e)
     {
         LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
         return false;

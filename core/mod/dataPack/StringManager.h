@@ -26,6 +26,7 @@
  */
 #pragma once
 #include <unordered_map>
+#include <string_view>
 #include "core/mod/Resource.h"
 
 
@@ -50,10 +51,10 @@ namespace glimmer
 
         void LoadLangsString(const LangsResources* langsResources);
 
-        StringResource* AddCoreResource(const std::string& resourceId,
-                                        const std::string& value);
+        StringResource* AddCoreResource(std::string_view resourceId,
+                                        std::string_view value);
 
-        void SetTagTranslate(uint64_t tag, const std::string& value);
+        void SetTagTranslate(uint64_t tag, std::string_view value);
 
         std::optional<std::string> GetTagTranslate(uint64_t tag);
 

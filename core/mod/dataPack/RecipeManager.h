@@ -25,17 +25,19 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
 #include "RecipeGroup.h"
 #include "core/mod/Resource.h"
+#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer
 {
     class RecipeManager
     {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<RecipeResource>>>
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<RecipeResource>, TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
         recipeMap_
             {};
 
@@ -44,6 +46,9 @@ namespace glimmer
          * 用于快速查询的数组，Key为配方组，Value为配方资源集合。
          */
         std::unordered_map<RecipeGroup, std::vector<RecipeResource*>> recipeGroupMap_;
+
+        static bool IsRecipeSatisfied(const RecipeResource* recipe,
+                                      const std::unordered_map<uint64_t, uint8_t>& tagValueMap);
 
     public:
         /**

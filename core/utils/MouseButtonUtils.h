@@ -25,13 +25,17 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <functional>
 #include <unordered_map>
 #include <vector>
 #include <cstdint>
 #include <string>
+
+#include "TransparentStringHash.h"
+
 namespace glimmer {
     class MouseButtonUtils {
-        static std::unordered_map<std::string, uint8_t> stringToMouseButtonMap_;
+        static std::unordered_map<std::string, uint8_t, TransparentStringHash, std::equal_to<>> stringToMouseButtonMap_;
         static std::vector<std::string> cachedKeys_;
 
     public:

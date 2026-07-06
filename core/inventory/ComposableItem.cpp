@@ -88,33 +88,33 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     {
         return nullptr;
     }
-    AppContext* appContext = worldContext->GetAppContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (itemResource == nullptr)
     {
         return nullptr;
     }
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
-    const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name);
-    if (nameRes != nullptr)
+    if (const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name); nameRes != nullptr)
     {
         name = nameRes->value;
     }
     std::optional<std::string> description;
-    auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description);
-    if (descriptionRes != nullptr)
+    if (auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description); descriptionRes != nullptr)
     {
         description = descriptionRes->value;
     }
-    auto result = std::make_unique<ComposableItem>(
-        Resource::GenerateId(*itemResource), name,
-        description,
-        appContext->GetResourceLocator()->
-                    FindTexture(&itemResource->texture),
-        itemResource->slotSize,
-        itemResource->maxDurability,
-        itemResource->unbreakable, itemResource->tags, resourceRef);
-    uint8_t defaultAbilitySize = itemResource->defaultAbilityList.size();
-    if (defaultAbilitySize > 0)
+    ComposableItemCreateParams params;
+    params.SetId(Resource::GenerateId(*itemResource));
+    params.SetName(name);
+    params.SetDescription(description);
+    params.SetIconResult(appContext->GetResourceLocator()->FindTexture(&itemResource->texture));
+    params.SetMaxSize(itemResource->slotSize);
+    params.SetMaxDurability(itemResource->maxDurability);
+    params.SetUnbreakable(itemResource->unbreakable);
+    params.SetTags(itemResource->tags);
+    params.SetResourceRef(resourceRef);
+    auto result = std::make_unique<ComposableItem>(params);
+    if (uint8_t defaultAbilitySize = itemResource->defaultAbilityList.size(); defaultAbilitySize > 0)
     {
         for (int i = 0; i < defaultAbilitySize; i++)
         {
@@ -189,14 +189,14 @@ glimmer::ItemContainer* glimmer::ComposableItem::GetItemContainer() const
 
 std::unique_ptr<glimmer::Item> glimmer::ComposableItem::Clone() const
 {
-    auto composableItem = std::make_unique<ComposableItem>(*this);
+    auto composableItem = std::unique_ptr<ComposableItem>(new ComposableItem(*this));
     composableItem->AddCallback();
     return composableItem;
 }
 
 void glimmer::ComposableItem::AddCallback()
 {
-    callback_ = itemContainer_->AddOnContentChanged([this](uint8_t index, Item* item, ContainerChangeType changeType)
+    callback_ = itemContainer_->AddOnContentChanged([this](uint8_t, Item*, ContainerChangeType changeType)
     {
         switch (changeType)
         {
@@ -210,23 +210,18 @@ void glimmer::ComposableItem::AddCallback()
     });
 }
 
-glimmer::ComposableItem::ComposableItem(const std::string& id, const std::string& name,
-                                        const std::optional<std::string>& description,
-                                        const std::shared_ptr<TextureResourceResult>& iconResult,
-                                        const uint8_t maxSize, const uint32_t maxDurability, const bool unbreakable,
-                                        const std::vector<ItemTagResource>& tags,
-                                        const ResourceRef& resourceRef)
+glimmer::ComposableItem::ComposableItem(ComposableItemCreateParams& params)
+    : id_(params.GetId()),
+      name_(params.GetName()),
+      description_(params.GetDescription()),
+      iconResult_(params.GetIconResult()),
+      maxDurability_(params.GetMaxDurability()),
+      unbreakable_(params.IsUnbreakable())
 {
-    id_ = id;
-    name_ = name;
-    description_ = description;
-    iconResult_ = iconResult;
-    maxDurability_ = maxDurability;
-    unbreakable_ = unbreakable;
-    resourceRef_ = resourceRef;
+    SetResourceRef(params.GetResourceRef());
     itemContainer_ = std::make_shared<ItemContainer>();
-    itemContainer_->Resize(maxSize);
-    SetTags(tags);
+    itemContainer_->Resize(params.GetMaxSize());
+    SetTags(params.GetTags());
     SetAllocStrategyType(static_cast<AllocStrategyTypeMessage>(RandomUtils::Random(
         0, 3)));
     AddCallback();

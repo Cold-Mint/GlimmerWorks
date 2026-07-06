@@ -44,29 +44,34 @@ namespace glimmer
     private:
         static void TrySetItemAmount(const CommandArgs* commandArgs, Item* item);
 
+        template <typename Callback>
         [[nodiscard]] std::optional<ItemContainerComponent*> TryGetPlayerItemContainer(
             const WorldContext* worldContext,
-            const std::function<void(const std::string& text)>& onMessage) const;
+            const Callback& onMessage) const;
 
+        template <typename Callback>
         [[nodiscard]] bool GiveTileItem(const AppContext* appContext,
                                         const WorldContext* worldContext,
                                         const CommandArgs* commandArgs,
-                                        const std::function<void(const std::string& text)>& onMessage) const;
+                                        const Callback& onMessage) const;
 
+        template <typename Callback>
         [[nodiscard]] bool GiveComposableItem(const AppContext* appContext,
                                               WorldContext* worldContext,
                                               const CommandArgs* commandArgs,
-                                              const std::function<void(const std::string& text)>& onMessage) const;
+                                              const Callback& onMessage) const;
 
+        template <typename Callback>
         [[nodiscard]] bool GiveAbilityItem(const AppContext* appContext,
                                            const WorldContext* worldContext,
                                            const CommandArgs* commandArgs,
-                                           const std::function<void(const std::string& text)>& onMessage) const;
+                                           const Callback& onMessage) const;
 
+        template <typename Callback>
         [[nodiscard]] bool GiveMaterialItem(const AppContext* appContext,
                                             const WorldContext* worldContext,
                                             const CommandArgs* commandArgs,
-                                            const std::function<void(const std::string& text)>& onMessage) const;
+                                            const Callback& onMessage) const;
 
     public:
         explicit GiveCommand(AppContext* appContext);

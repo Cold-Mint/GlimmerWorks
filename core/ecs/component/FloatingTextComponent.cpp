@@ -34,14 +34,14 @@
 
 
 glimmer::FloatingTextComponent::FloatingTextComponent(AppContext* appContext)
+    : resourcePackManager_(appContext->GetResourcePackManager()),
+      preloadColors_(appContext->GetPreloadColors())
 {
     expireTime_ = SDL_GetTicks() + 25000;
     tween_ = tweeny::tween(tweeny::from(0.0f)
                            .to(1.0f).during(200)
                            .to(1.0f).during(2000)
                            .to(0.0f).during(300));
-    resourcePackManager_ = appContext->GetResourcePackManager();
-    preloadColors_ = appContext->GetPreloadColors();
 }
 
 void glimmer::FloatingTextComponent::SetText(const std::string& text)

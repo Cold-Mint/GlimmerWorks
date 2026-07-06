@@ -34,25 +34,101 @@
 #include "core/world/WorldContext.h"
 
 
+std::vector<bool> glimmer::ChunkPhysicsHelper::CollectStaticTiles(const Chunk* chunk)
+{
+    std::vector<bool> isStaticTile(CHUNK_AREA, false);
+    for (int idx = 0; idx < CHUNK_AREA; ++idx)
+    {
+        const auto tile = chunk->GetTile(Ground, idx);
+        if (tile != nullptr && tile->GetTilePhysicsType() == TilePhysicsType::Static)
+        {
+            isStaticTile[idx] = true;
+        }
+    }
+    return isStaticTile;
+}
+
+glimmer::Vector2DI glimmer::ChunkPhysicsHelper::FindRectSize(int startX, int startY,
+                                                     const std::vector<bool>& isStaticTile,
+                                                     std::vector<bool>& visited)
+{
+    int width = 1;
+    while (startX + width < CHUNK_SIZE)
+    {
+        const int checkIdx = startY << CHUNK_SHIFT | (startX + width);
+        if (visited[checkIdx] || !isStaticTile[checkIdx])
+        {
+            break;
+        }
+        width++;
+    }
+
+    int height = 1;
+    bool canExpand;
+    do
+    {
+        canExpand = true;
+        const int nextY = startY + height;
+        if (nextY >= CHUNK_SIZE)
+        {
+            break;
+        }
+        for (int k = 0; k < width; ++k)
+        {
+            const int checkIdx = nextY << CHUNK_SHIFT | (startX + k);
+            if (visited[checkIdx] || !isStaticTile[checkIdx])
+            {
+                canExpand = false;
+                break;
+            }
+        }
+        if (canExpand)
+        {
+            height++;
+        }
+    }
+    while (canExpand);
+
+    return {width, height};
+}
+
+void glimmer::ChunkPhysicsHelper::MarkVisited(int startX, int startY, int width, int height,
+                                             std::vector<bool>& visited)
+{
+    for (int j = 0; j < height; ++j)
+    {
+        const int rowOffset = (startY + j) << CHUNK_SHIFT;
+        for (int i = 0; i < width; ++i)
+        {
+            visited[rowOffset + startX + i] = true;
+        }
+    }
+}
+
+void glimmer::ChunkPhysicsHelper::CreateBodyForRect(b2WorldId worldId, Chunk* chunk,
+                                                     int x, int y, int width, int height)
+{
+    const TileVector2D chunkPos = chunk->GetPosition();
+    const float localCenterX = static_cast<float>(x) + static_cast<float>(width - 1) * 0.5F;
+    const float localCenterY = static_cast<float>(y) + static_cast<float>(height - 1) * 0.5F;
+    const float worldX = (static_cast<float>(chunkPos.x) + localCenterX) * TILE_SIZE;
+    const float worldY = (static_cast<float>(chunkPos.y) + localCenterY) * TILE_SIZE;
+    const WorldVector2D worldPos = {worldX, worldY};
+    const auto b2BodyId = CreateStaticBody(worldId, worldPos, {width, height});
+    chunk->AddBodyId(b2BodyId);
+}
+
 void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext* appContext, b2WorldId worldId, Chunk* chunk)
 {
     if (appContext == nullptr || chunk == nullptr)
     {
         return;
     }
-    appContext->RunOnMainThread([worldId,chunk]
+    appContext->RunOnMainThread([worldId, chunk]
     {
-        const TileVector2D chunkPos = chunk->GetPosition();
-        std::vector isStaticTile(CHUNK_AREA, false);
-        for (int idx = 0; idx < CHUNK_AREA; ++idx)
-        {
-            const auto tile = chunk->GetTile(Ground, idx);
-            if (tile != nullptr && tile->GetTilePhysicsType() == TilePhysicsType::Static)
-            {
-                isStaticTile[idx] = true;
-            }
-        }
-        std::vector visited(CHUNK_AREA, false);
+        const std::vector<bool> isStaticTile = CollectStaticTiles(chunk);
+        std::vector<bool> visited(CHUNK_AREA, false);
+
         for (int y = 0; y < CHUNK_SIZE; ++y)
         {
             for (int x = 0; x < CHUNK_SIZE; ++x)
@@ -62,58 +138,9 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext* appContex
                 {
                     continue;
                 }
-                int w = 1;
-                while (x + w < CHUNK_SIZE)
-                {
-                    const int checkIdx = y << CHUNK_SHIFT | x + w;
-                    if (visited[checkIdx] || !isStaticTile[checkIdx])
-                    {
-                        break;
-                    }
-                    w++;
-                }
-
-                int h = 1;
-                bool canExpand;
-                do
-                {
-                    canExpand = true;
-                    const int nextY = y + h;
-                    if (nextY >= CHUNK_SIZE) break;
-
-                    for (int k = 0; k < w; ++k)
-                    {
-                        const int checkIdx = nextY << CHUNK_SHIFT | x + k;
-                        if (visited[checkIdx] || !isStaticTile[checkIdx])
-                        {
-                            canExpand = false;
-                            break;
-                        }
-                    }
-
-                    if (canExpand)
-                    {
-                        h++;
-                    }
-                }
-                while (canExpand);
-
-                for (int j = 0; j < h; ++j)
-                {
-                    const int rowOffset = (y + j) << CHUNK_SHIFT;
-                    for (int i = 0; i < w; ++i)
-                    {
-                        visited[rowOffset + x + i] = true;
-                    }
-                }
-
-                const float localCenterX = static_cast<float>(x) + static_cast<float>(w - 1) * 0.5F;
-                const float localCenterY = static_cast<float>(y) + static_cast<float>(h - 1) * 0.5F;
-                const float worldX = (static_cast<float>(chunkPos.x) + localCenterX) * TILE_SIZE;
-                const float worldY = (static_cast<float>(chunkPos.y) + localCenterY) * TILE_SIZE;
-                const WorldVector2D worldPos = {worldX, worldY};
-                const auto b2BodyId = CreateStaticBody(worldId, worldPos, {w, h});
-                chunk->AddBodyId(b2BodyId);
+                const Vector2DI rectSize = FindRectSize(x, y, isStaticTile, visited);
+                MarkVisited(x, y, rectSize.x, rectSize.y, visited);
+                CreateBodyForRect(worldId, chunk, x, y, rectSize.x, rectSize.y);
             }
         }
     });

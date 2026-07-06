@@ -29,6 +29,18 @@
 
 namespace glimmer {
     class ChunkPhysicsHelper {
+        static std::vector<bool> CollectStaticTiles(const Chunk* chunk);
+
+        static Vector2DI FindRectSize(int startX, int startY,
+                                      const std::vector<bool>& isStaticTile,
+                                      std::vector<bool>& visited);
+
+        static void MarkVisited(int startX, int startY, int width, int height,
+                                std::vector<bool>& visited);
+
+        static void CreateBodyForRect(b2WorldId worldId, Chunk* chunk,
+                                      int x, int y, int width, int height);
+
     public:
         /**
          * Add physical bodies to the tiles within the block

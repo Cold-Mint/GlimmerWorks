@@ -49,6 +49,8 @@ namespace glimmer
 
         bool DropItem();
 
+        bool HandleLeftMouseButtonDown();
+
     public:
         explicit DraggableSystem(WorldContext* worldContext);
 

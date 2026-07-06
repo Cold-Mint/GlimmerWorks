@@ -209,6 +209,151 @@ glimmer::ChunkSystem::ChunkSystem(WorldContext* worldContext)
     Init();
 }
 
+void glimmer::ChunkSystem::UpdateChunkFadeAnimation(float delta, const SDL_FRect& viewportRect) const
+{
+    WorldContext* worldContext = GetWorldContext();
+    constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
+    const TileVector2D topLeft = CoordinateTransformer::WorldToTile({
+        viewportRect.x - chunkWorldSize, viewportRect.y - chunkWorldSize
+    });
+    const TileVector2D bottomRight = CoordinateTransformer::WorldToTile({
+        viewportRect.x + viewportRect.w + chunkWorldSize,
+        viewportRect.y + viewportRect.h + chunkWorldSize
+    });
+    for (int x = topLeft.x; x < bottomRight.x; x += CHUNK_SIZE)
+    {
+        for (int y = topLeft.y; y < bottomRight.y; y += CHUNK_SIZE)
+        {
+            Chunk* chunk = worldContext->GetChunk(
+                Chunk::TileCoordinatesToChunkVertexCoordinates(TileVector2D(x, y)));
+            if (chunk == nullptr)
+            {
+                continue;
+            }
+            chunk->UpdateFadeInAnimation(delta);
+        }
+    }
+}
+
+void glimmer::ChunkSystem::ExecuteTimedTask(float delta, float interval, float& accumTime, uint16_t batch,
+                                            void (ChunkSystem::*executeFunc)(uint16_t))
+{
+    if (interval == 0.0F)
+    {
+        (this->*executeFunc)(batch);
+        return;
+    }
+    accumTime += delta;
+    if (accumTime > interval)
+    {
+        (this->*executeFunc)(batch);
+        accumTime -= interval;
+    }
+}
+
+bool glimmer::ChunkSystem::UpdateCameraPosition()
+{
+    const WorldVector2D cameraPosition = cameraTransform2DComponent_->GetPosition();
+    if (cameraPosition_.x == cameraPosition.x && cameraPosition_.y == cameraPosition.y)
+    {
+        return false;
+    }
+    cameraPosition_.x = cameraPosition.x;
+    cameraPosition_.y = cameraPosition.y;
+    return true;
+}
+
+void glimmer::ChunkSystem::GenerateLoadTerrainTasks(const TileVector2D& startTerrain, const TileVector2D& endTerrain)
+{
+    for (int cy = startTerrain.y; cy < endTerrain.y; cy += CHUNK_SIZE)
+    {
+        for (int cx = startTerrain.x; cx < endTerrain.x; cx += CHUNK_SIZE)
+        {
+            TileVector2D chunkVertexCoordinates(cx, cy);
+            if (WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates))
+            {
+                continue;
+            }
+            auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadTerrain, chunkVertexCoordinates);
+            uint64_t signature = chunkTaskPtr->GetFingerprint();
+            if (taskFingerprintSet_.contains(signature))
+            {
+                continue;
+            }
+            PushTask(loadTerrainTasks_, std::move(chunkTaskPtr), signature);
+        }
+    }
+}
+
+void glimmer::ChunkSystem::GenerateLoadChunkTasks(const TileVector2D& startChunk, const TileVector2D& endChunk)
+{
+    WorldContext* worldContext = GetWorldContext();
+    for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE)
+    {
+        for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE)
+        {
+            TileVector2D chunkVertexCoordinates(cx, cy);
+            if (WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates))
+            {
+                continue;
+            }
+            if (worldContext->HasChunk(chunkVertexCoordinates))
+            {
+                continue;
+            }
+            auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadChunk, chunkVertexCoordinates);
+            uint64_t signature = chunkTaskPtr->GetFingerprint();
+            if (taskFingerprintSet_.contains(signature))
+            {
+                continue;
+            }
+            PushTask(loadChunkTasks_, std::move(chunkTaskPtr), signature);
+        }
+    }
+}
+
+void glimmer::ChunkSystem::GenerateUnloadChunkTasks(const TileVector2D& startChunk, const TileVector2D& endChunk)
+{
+    WorldContext* worldContext = GetWorldContext();
+    std::unordered_map<TileVector2D, Chunk*, Vector2DIHash>& allChunks = *worldContext->GetAllChunks();
+    for (const auto& chunkVertexCoordinates : allChunks | std::views::keys)
+    {
+        if (chunkVertexCoordinates.x >= startChunk.x && chunkVertexCoordinates.x <= endChunk.x &&
+            chunkVertexCoordinates.y >= startChunk.y && chunkVertexCoordinates.y <= endChunk.y)
+        {
+            continue;
+        }
+        auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadChunk, chunkVertexCoordinates);
+        uint64_t signature = chunkTaskPtr->GetFingerprint();
+        if (taskFingerprintSet_.contains(signature))
+        {
+            continue;
+        }
+        PushTask(unloadChunkTasks_, std::move(chunkTaskPtr), signature);
+    }
+}
+
+void glimmer::ChunkSystem::GenerateUnloadTerrainTasks(const TileVector2D& startTerrain, const TileVector2D& endTerrain)
+{
+    WorldContext* worldContext = GetWorldContext();
+    std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash>& terrain = *worldContext->GetTerrainResults();
+    for (const auto& chunkVertexCoordinates : terrain | std::views::keys)
+    {
+        if (chunkVertexCoordinates.x >= startTerrain.x && chunkVertexCoordinates.x <= endTerrain.x &&
+            chunkVertexCoordinates.y >= startTerrain.y && chunkVertexCoordinates.y <= endTerrain.y)
+        {
+            continue;
+        }
+        auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadTerrain, chunkVertexCoordinates);
+        uint64_t signature = chunkTaskPtr->GetFingerprint();
+        if (taskFingerprintSet_.contains(signature))
+        {
+            continue;
+        }
+        PushTask(unloadTerrainTasks_, std::move(chunkTaskPtr), signature);
+    }
+}
+
 void glimmer::ChunkSystem::Update(const float delta)
 {
     WorldContext* worldContext = GetWorldContext();
@@ -225,28 +370,10 @@ void glimmer::ChunkSystem::Update(const float delta)
         return;
     }
     constexpr float chunkWorldSize = CHUNK_SIZE * TILE_SIZE;
-    auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
+    const auto viewportRect = CoordinateTransformer::GetViewportRect(cameraTransform2DComponent_->GetPosition(),
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
-    const TileVector2D topLeft = CoordinateTransformer::WorldToTile({
-        viewportRect.x - chunkWorldSize, viewportRect.y - chunkWorldSize
-    });
-    const TileVector2D bottomRight = CoordinateTransformer::WorldToTile({
-        viewportRect.x + viewportRect.w + chunkWorldSize,
-        viewportRect.y + viewportRect.h + chunkWorldSize
-    });
-    for (int x = topLeft.x; x < bottomRight.x; x += CHUNK_SIZE)
-    {
-        for (int y = topLeft.y; y < bottomRight.y; y += CHUNK_SIZE)
-        {
-            Chunk* chunk = worldContext->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(TileVector2D(x, y)));
-            if (chunk == nullptr)
-            {
-                continue;
-            }
-            chunk->UpdateFadeInAnimation(delta);
-        }
-    }
+    UpdateChunkFadeAnimation(delta, viewportRect);
 
     const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
@@ -258,65 +385,14 @@ void glimmer::ChunkSystem::Update(const float delta)
     {
         return;
     }
-    const float loadTerrainInterval = config->world.loadTerrainInterval;
-    if (loadTerrainInterval == 0.0F)
-    {
-        ExecuteLoadTerrainTask(config->world.loadTerrainBatch);
-    }
-    else
-    {
-        loadTerrainAccumTime_ += delta;
-        if (loadTerrainAccumTime_ > loadTerrainInterval)
-        {
-            ExecuteLoadTerrainTask(config->world.loadTerrainBatch);
-            loadTerrainAccumTime_ -= loadTerrainInterval;
-        }
-    }
-
-    const float loadChunkInterval = config->world.loadChunkInterval;
-    if (loadChunkInterval == 0.0F)
-    {
-        ExecuteLoadChunkTask(config->world.loadChunkBatch);
-    }
-    else
-    {
-        loadChunkAccumTime_ += delta;
-        if (loadChunkAccumTime_ > loadChunkInterval)
-        {
-            ExecuteLoadChunkTask(config->world.loadChunkBatch);
-            loadChunkAccumTime_ -= loadChunkInterval;
-        }
-    }
-
-    const float unloadChunkInterval = config->world.unloadChunkInterval;
-    if (unloadChunkInterval == 0.0F)
-    {
-        ExecuteUnloadChunkTask(config->world.unloadChunkBatch);
-    }
-    else
-    {
-        unloadChunkAccumTime_ += delta;
-        if (unloadChunkAccumTime_ > unloadChunkInterval)
-        {
-            ExecuteUnloadChunkTask(config->world.unloadChunkBatch);
-            unloadChunkAccumTime_ -= unloadChunkInterval;
-        }
-    }
-
-    const float unloadTerrainInterval = config->world.unloadTerrainInterval;
-    if (unloadTerrainInterval == 0.0F)
-    {
-        ExecuteUnloadTerrainTask(config->world.unloadTerrainBatch);
-    }
-    else
-    {
-        unloadTerrainAccumTime_ += delta;
-        if (unloadTerrainAccumTime_ > unloadTerrainInterval)
-        {
-            ExecuteUnloadTerrainTask(config->world.unloadTerrainBatch);
-            unloadTerrainAccumTime_ -= unloadTerrainInterval;
-        }
-    }
+    ExecuteTimedTask(delta, config->world.loadTerrainInterval, loadTerrainAccumTime_,
+                     config->world.loadTerrainBatch, &ChunkSystem::ExecuteLoadTerrainTask);
+    ExecuteTimedTask(delta, config->world.loadChunkInterval, loadChunkAccumTime_,
+                     config->world.loadChunkBatch, &ChunkSystem::ExecuteLoadChunkTask);
+    ExecuteTimedTask(delta, config->world.unloadChunkInterval, unloadChunkAccumTime_,
+                     config->world.unloadChunkBatch, &ChunkSystem::ExecuteUnloadChunkTask);
+    ExecuteTimedTask(delta, config->world.unloadTerrainInterval, unloadTerrainAccumTime_,
+                     config->world.unloadTerrainBatch, &ChunkSystem::ExecuteUnloadTerrainTask);
 
     const float interval = config->world.chunkSpawnCleanInterval;
     if (interval == 0.0F)
@@ -334,13 +410,10 @@ void glimmer::ChunkSystem::Update(const float delta)
         firstTime_ = false;
         accumTime_ -= interval;
     }
-    WorldVector2D cameraPosition = cameraTransform2DComponent_->GetPosition();
-    if (cameraPosition_.x == cameraPosition.x && cameraPosition_.y == cameraPosition.y)
+    if (!UpdateCameraPosition())
     {
         return;
     }
-    cameraPosition_.x = cameraPosition.x;
-    cameraPosition_.y = cameraPosition.y;
     auto preloadedTerrainViewportRect = viewportRect;
     const float preloadStructureRadius = config->world.preloadStructureRadius;
     preloadedTerrainViewportRect.x -= preloadStructureRadius * chunkWorldSize;
@@ -356,95 +429,26 @@ void glimmer::ChunkSystem::Update(const float delta)
 
     TileVector2D topLeftTerrainCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedTerrainViewportRect.x, preloadedTerrainViewportRect.y));
-
     TileVector2D lowerRightTerrainCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedTerrainViewportRect.x + preloadedTerrainViewportRect.w,
                       preloadedTerrainViewportRect.y + preloadedTerrainViewportRect.h));
     const TileVector2D startTerrain = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftTerrainCorner);
     const TileVector2D endTerrain = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightTerrainCorner);
-    for (int cy = startTerrain.y; cy < endTerrain.y; cy += CHUNK_SIZE)
-    {
-        for (int cx = startTerrain.x; cx < endTerrain.x; cx += CHUNK_SIZE)
-        {
-            TileVector2D chunkVertexCoordinates(cx, cy);
-            if (!WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates))
-            {
-                auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadTerrain, chunkVertexCoordinates);
-                uint64_t signature = chunkTaskPtr->GetFingerprint();
-                if (!taskFingerprintSet_.contains(signature))
-                {
-                    PushTask(loadTerrainTasks_, std::move(chunkTaskPtr), signature);
-                }
-            }
-        }
-    }
 
     const TileVector2D topLeftChunkCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedChunkViewportRect.x, preloadedChunkViewportRect.y));
-
     const TileVector2D lowerRightChunkCorner = CoordinateTransformer::WorldToTile(
         WorldVector2D(preloadedChunkViewportRect.x + preloadedChunkViewportRect.w,
                       preloadedChunkViewportRect.y + preloadedChunkViewportRect.h));
     const TileVector2D startChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(topLeftChunkCorner);
     const TileVector2D endChunk = Chunk::TileCoordinatesToChunkVertexCoordinates(lowerRightChunkCorner);
 
-    for (int cy = startChunk.y; cy <= endChunk.y; cy += CHUNK_SIZE)
-    {
-        for (int cx = startChunk.x; cx <= endChunk.x; cx += CHUNK_SIZE)
-        {
-            TileVector2D chunkVertexCoordinates(cx, cy);
-            if (!WorldContext::ChunkIsOutOfBounds(chunkVertexCoordinates) && !worldContext->HasChunk(
-                chunkVertexCoordinates))
-            {
-                auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadChunk, chunkVertexCoordinates);
-                uint64_t signature = chunkTaskPtr->GetFingerprint();
-                if (!taskFingerprintSet_.contains(signature))
-                {
-                    PushTask(loadChunkTasks_, std::move(chunkTaskPtr), signature);
-                }
-            }
-        }
-    }
+    GenerateLoadTerrainTasks(startTerrain, endTerrain);
+    GenerateLoadChunkTasks(startChunk, endChunk);
+    GenerateUnloadChunkTasks(startChunk, endChunk);
+    GenerateUnloadTerrainTasks(startTerrain, endTerrain);
 
-    std::unordered_map<TileVector2D, Chunk*, Vector2DIHash>& allChunks = *worldContext->
-        GetAllChunks();
-    for (const
-         auto& chunkVertexCoordinates : allChunks | std::views::keys)
-    {
-        if (chunkVertexCoordinates.x < startChunk.x || chunkVertexCoordinates.x >
-            endChunk.x ||
-            chunkVertexCoordinates.y < startChunk.y || chunkVertexCoordinates.y >
-            endChunk.y
-        )
-        {
-            auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadChunk, chunkVertexCoordinates);
-            uint64_t signature = chunkTaskPtr->GetFingerprint();
-            if (!taskFingerprintSet_.contains(signature))
-            {
-                PushTask(unloadChunkTasks_, std::move(chunkTaskPtr), signature);
-            }
-        }
-    }
-
-    std::unordered_map<TileVector2D, TerrainResult*, Vector2DIHash>& terrain = *worldContext->GetTerrainResults();
-    for (const
-         auto& chunkVertexCoordinates : terrain | std::views::keys)
-    {
-        if (chunkVertexCoordinates.x < startTerrain.x || chunkVertexCoordinates.x >
-            endTerrain.x ||
-            chunkVertexCoordinates.y < startTerrain.y || chunkVertexCoordinates.y >
-            endTerrain.y
-        )
-        {
-            auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadTerrain, chunkVertexCoordinates);
-            uint64_t signature = chunkTaskPtr->GetFingerprint();
-            if (!taskFingerprintSet_.contains(signature))
-            {
-                PushTask(unloadTerrainTasks_, std::move(chunkTaskPtr), signature);
-            }
-        }
-    }
-    const TileVector2D originPosition = CoordinateTransformer::WorldToTile(cameraPosition);
+    const TileVector2D originPosition = CoordinateTransformer::WorldToTile(cameraPosition_);
     SetOriginAndSort(loadTerrainTasks_, originPosition, false);
     SetOriginAndSort(loadChunkTasks_, originPosition, false);
     SetOriginAndSort(unloadChunkTasks_, originPosition, true);

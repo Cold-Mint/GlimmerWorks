@@ -25,7 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "AbilityItem.h"
-#include <utility>
+#include <memory>
 #include "core/log/LogCat.h"
 #include "ComposableItem.h"
 #include "ItemAbilityFactory.h"
@@ -38,36 +38,53 @@ glimmer::ItemAbility* glimmer::AbilityItem::GetItemAbility() const
     return itemAbility_.get();
 }
 
+glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams& params) : id_(params.GetId()),
+                                                                           name_(params.GetName()),
+                                                                           description_(params.GetDescription()),
+                                                                           iconResult_(params.GetIconResult()),
+                                                                           itemAbility_(params.GetItemAbility()),
+                                                                           maxDurability_(params.GetMaxDurability()),
+                                                                           unbreakable_(params.IsUnbreakable()),
+                                                                           canUseAlone_(params.IsCanUseAlone())
+{
+    SetTags(params.GetTags());
+    SetResourceRef(params.GetResourceRef());
+}
+
 std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext* appContext,
                                                                              const AbilityItemResource* itemResource,
                                                                              const ResourceRef& resourceRef)
 {
     std::string name = Resource::GenerateId(itemResource->packId, itemResource->resourceId);
-    const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name);
-    if (nameRes != nullptr)
+    if (const auto nameRes = appContext->GetResourceLocator()->FindString(&itemResource->name); nameRes != nullptr)
     {
         name = nameRes->value;
     }
     std::optional<std::string> description;
-    auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description);
-    if (descriptionRes != nullptr)
+    if (auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description); descriptionRes != nullptr)
     {
         description = descriptionRes->value;
     }
 
-    auto itemAbility =
+    const auto itemAbility =
         ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
     if (itemAbility == nullptr)
     {
         LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
         return nullptr;
     }
-    return std::make_unique<AbilityItem>(Resource::GenerateId(*itemResource), name,
-                                         description,
-                                         appContext->GetResourceLocator()->FindTexture(
-                                             &itemResource->texture), std::move(itemAbility),
-                                         itemResource->maxDurability, itemResource->unbreakable,
-                                         itemResource->canUseAlone, itemResource->tags, resourceRef);
+
+    AbilityItemCreateParams params;
+    params.SetId(Resource::GenerateId(*itemResource));
+    params.SetName(name);
+    params.SetDescription(description);
+    params.SetIconResult(appContext->GetResourceLocator()->FindTexture(&itemResource->texture));
+    params.SetMaxDurability(itemResource->maxDurability);
+    params.SetUnbreakable(itemResource->unbreakable);
+    params.SetCanUseAlone(itemResource->canUseAlone);
+    params.SetTags(itemResource->tags);
+    params.SetResourceRef(resourceRef);
+    return std::make_unique<AbilityItem>(params);
 }
 
 uint32_t glimmer::AbilityItem::GetMaxDurability() const
@@ -103,24 +120,6 @@ void glimmer::AbilityItem::OnUse(WorldContext* worldContext, GameEntityID user, 
     }
 }
 
-
-glimmer::AbilityItem::AbilityItem(std::string id, std::string name, std::optional<std::string> description,
-                                  std::shared_ptr<TextureResourceResult> iconResult,
-                                  std::shared_ptr<ItemAbility> itemAbility,
-                                  uint32_t maxDurability,
-                                  bool unbreakable, bool canUseAlone, const std::vector<ItemTagResource>& tags,
-                                  const ResourceRef& resourceRef) : id_(std::move(id)),
-                                                                    name_(std::move(name)),
-                                                                    description_(std::move(description)),
-                                                                    iconResult_(std::move(iconResult)),
-                                                                    itemAbility_(std::move(itemAbility)),
-                                                                    canUseAlone_(canUseAlone),
-                                                                    maxDurability_(maxDurability),
-                                                                    unbreakable_(unbreakable)
-{
-    SetTags(tags);
-    resourceRef_ = resourceRef;
-}
 
 const std::string& glimmer::AbilityItem::GetId() const
 {

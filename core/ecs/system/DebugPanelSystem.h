@@ -32,6 +32,12 @@
 
 namespace glimmer
 {
+    class Transform2DComponent;
+    class AppContext;
+    class PreloadColors;
+    struct LangsResources;
+    class ResourcePackManager;
+
     class DebugPanelSystem : public GameSystem
     {
         WorldVector2D mousePosition_ = WorldVector2D{};

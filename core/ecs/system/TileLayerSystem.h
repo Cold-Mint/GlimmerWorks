@@ -37,6 +37,14 @@ namespace glimmer
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         std::vector<TileLayerComponent*> tileLayerComponents_;
+
+        bool ShouldDrawTile(const Color* finalLightColor, const Config* config) const;
+
+        void RenderTileSnapshot(SDL_Renderer* renderer, const TileSnapshot* tileSnapshot,
+                                const TileVector2D& tileCoord, Uint8 alpha,
+                                const Color* finalLightColor, const Config* config,
+                                std::unordered_set<uint64_t>& drawnTiles) const;
+
     public:
         explicit TileLayerSystem(WorldContext* worldContext);
 

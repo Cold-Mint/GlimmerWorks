@@ -47,6 +47,18 @@ namespace glimmer
         ResourcePackManager* resourcePackManager_ = nullptr;
         std::unordered_map<uint8_t, std::shared_ptr<SDL_Texture>> numberTextures_;
 
+        TextureResourceResult* GetSlotTextureResult(const ItemSlotComponent* slotComponent) const;
+
+        SDL_Texture* GetOrCreateNumberTexture(uint8_t amount);
+
+        void RenderSlotBackground(SDL_Renderer* renderer, ItemSlotComponent* slotComponent,
+                                  const SDL_FRect& rect);
+
+        void RenderDurabilityBar(SDL_Renderer* renderer, const Item* item, const SDL_FRect& itemRect);
+
+        void RenderSlotItem(SDL_Renderer* renderer, ItemSlotComponent* slotComponent,
+                            const SDL_FRect& rect, const Item* item);
+
     public:
         explicit ItemSlotSystem(WorldContext* worldContext);
 

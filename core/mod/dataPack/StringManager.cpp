@@ -55,8 +55,8 @@ void glimmer::StringManager::LoadLangsString(const LangsResources* langsResource
     AddCoreResource(STRING_TILE_BEDROCK_DESCRIPTION, langsResources->tileDescriptionBedrock);
 }
 
-glimmer::StringResource* glimmer::StringManager::AddCoreResource(const std::string& resourceId,
-                                                                 const std::string& value)
+glimmer::StringResource* glimmer::StringManager::AddCoreResource(std::string_view resourceId,
+                                                                 std::string_view value)
 {
     auto stringResource = std::make_unique<StringResource>();
     stringResource->missing = false;
@@ -66,7 +66,7 @@ glimmer::StringResource* glimmer::StringManager::AddCoreResource(const std::stri
     return AddResource(std::move(stringResource));
 }
 
-void glimmer::StringManager::SetTagTranslate(const uint64_t tag, const std::string& value)
+void glimmer::StringManager::SetTagTranslate(const uint64_t tag, std::string_view value)
 {
     tagTranslateMap_[tag] = value;
 }
@@ -110,14 +110,10 @@ glimmer::StringResource* glimmer::StringManager::Find(const std::string& packId,
 std::string glimmer::StringManager::ListStrings() const
 {
     std::ostringstream oss;
-    for (const auto& packPair : stringMap_)
+    for (const auto& [packId, keyMap] : stringMap_)
     {
-        const auto& packId = packPair.first;
-        const auto& keyMap = packPair.second;
-        for (const auto& keyPair : keyMap)
+        for (const auto& [key, res] : keyMap)
         {
-            const auto& key = keyPair.first;
-            const auto& res = keyPair.second;
             oss << Resource::GenerateId(packId, key)
                 << " ="
                 << res->value

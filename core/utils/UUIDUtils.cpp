@@ -26,6 +26,7 @@
  */
 #include "UUIDUtils.h"
 
+#include <format>
 #include <iomanip>
 #include <sstream>
 #include <random>
@@ -44,13 +45,11 @@ std::string glimmer::UUIDUtils::Generate()
     };
     data[1] = data[1] & 0xFFFF0FFF | 0x00004000;
     data[2] = data[2] & 0x3FFFFFFF | 0x80000000;
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0') << std::nouppercase;
-    ss << std::setw(8) << data[0]
-        << "-" << std::setw(4) << static_cast<uint16_t>(data[1] >> 16)
-        << "-" << std::setw(4) << static_cast<uint16_t>(data[1] & 0xFFFF)
-        << "-" << std::setw(4) << static_cast<uint16_t>(data[2] >> 16)
-        << "-" << std::setw(4) << static_cast<uint16_t>(data[2] & 0xFFFF)
-        << "-" << std::setw(8) << data[3];
-    return ss.str();
+    return std::format("{:08x}-{:04x}-{:04x}-{:04x}-{:04x}-{:08x}",
+        data[0],
+        static_cast<uint16_t>(data[1] >> 16),
+        static_cast<uint16_t>(data[1] & 0xFFFF),
+        static_cast<uint16_t>(data[2] >> 16),
+        static_cast<uint16_t>(data[2] & 0xFFFF),
+        data[3]);
 }

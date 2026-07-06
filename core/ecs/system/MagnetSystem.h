@@ -29,6 +29,10 @@
 
 namespace glimmer
 {
+    class MagnetComponent;
+    class WorldVector2D;
+    class ItemContainer;
+
     class MagnetSystem : public GameSystem
     {
         uint32_t transform2DComponentCount_ = 0;
@@ -44,6 +48,14 @@ namespace glimmer
         //magnetic
         //磁吸物
         std::vector<GameEntityID> magneticEntities_;
+
+        bool ProcessMagneticEntity(GameEntityID magneticEntity,
+                                   MagnetComponent* magnet,
+                                   const WorldVector2D& magnetPos,
+                                   ItemContainer* itemContainer);
+
+        void ProcessMagnetEntity(GameEntityID magnetEntity);
+
     public:
         explicit MagnetSystem(WorldContext* worldContext);
 

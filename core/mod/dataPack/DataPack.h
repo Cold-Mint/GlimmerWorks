@@ -107,7 +107,7 @@ namespace glimmer
         void LoadMaterialItemResourceResourceFromFile(const toml::value& value, ItemManager* itemManager) const;
 
         void LoadContributorResourceFromFile(const toml::value& value,
-                                             ContributorManager* contributorManager) const;
+                                             const ContributorManager* contributorManager) const;
 
         void LoadMobResourceFromFile(const toml::value& value, MobManager* mobManager) const;
 
@@ -131,6 +131,26 @@ namespace glimmer
 
         [[nodiscard]]
         static std::optional<std::string> ExtractLanguageFromFileName(const std::string& fileName);
+
+        bool ProcessPublicKeyFile(const std::string& file, bool& findPublicKey, std::vector<uint8_t>& publicKey) const;
+
+        bool ProcessSignatureFile(const std::string& file, bool& findSignature, std::vector<uint8_t>& signature) const;
+
+        static std::vector<char> ReadFileContent(std::istream& stream);
+
+        static void ComputeFileHash(const std::vector<char>& fileBuffer, std::vector<uint8_t>& allHashData);
+
+        int LoadResourceByType(const std::string& dataType, const std::string& file,
+                               const std::string& content, const AppContext* appContext) const;
+
+        int LoadLanguageFiles(const std::vector<std::string>& defaultLanguageFiles,
+                              const std::vector<std::string>& targetLanguageFiles,
+                              const AppContext* appContext) const;
+
+        void VerifySignature(bool findPublicKey, bool findSignature,
+                             const std::vector<uint8_t>& publicKey,
+                             const std::vector<uint8_t>& signature,
+                             const std::vector<uint8_t>& allHashData);
 
     public:
         explicit DataPack(std::string path, const VirtualFileSystem* virtualFileSystem,

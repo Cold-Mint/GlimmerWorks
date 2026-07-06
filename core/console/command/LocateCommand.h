@@ -41,6 +41,12 @@ namespace glimmer
                                                         ChunkGenerator* chunkGenerator,
                                                         const std::string& targetBiomeId);
 
+        static std::optional<TileVector2D> SearchBiomeInRadius(TileVector2D position,
+                                                               const BiomesManager* biomesManager,
+                                                               ChunkGenerator* chunkGenerator,
+                                                               const std::string& targetBiomeId,
+                                                               uint16_t maxRadiusChunks);
+
     protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 

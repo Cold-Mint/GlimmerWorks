@@ -28,10 +28,11 @@
 
 void glimmer::AudioResourceResult::DestroyResource()
 {
-    if (resource_ == nullptr)
+    MIX_Audio* resource = GetResource();
+    if (resource == nullptr)
     {
         return;
     }
-    MIX_DestroyAudio(resource_);
-    resource_ = nullptr;
+    MIX_DestroyAudio(resource);
+    SetResource(nullptr);
 }

@@ -37,8 +37,11 @@ namespace glimmer
      */
     class IPersistenceEntityCreator
     {
-    protected:
         WorldContext* worldContext_ = nullptr;
+
+    protected:
+        [[nodiscard]] WorldContext* GetWorldContext() const;
+
         /**
          * RecoveryAllComponent
          * 恢复所有的组件

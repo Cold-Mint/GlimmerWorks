@@ -32,6 +32,7 @@
 namespace glimmer
 {
     class StringManager;
+    struct LangsResources;
 
     class TagCommand : public Command
     {
@@ -40,6 +41,20 @@ namespace glimmer
 
         static void WriteTag(const std::string& tagItem, std::stringstream& stringStream, StringManager* stringManager,
                              const ItemTagResource& itemTagResource);
+
+        static std::string BuildTagListString(const std::string& tagItem, StringManager* stringManager,
+                                              const std::vector<ItemTagResource*>& tagList);
+
+        static std::string BuildTagListString(const std::string& tagItem, StringManager* stringManager,
+                                              const std::vector<ItemTagResource>& tagList);
+
+        bool ExecuteHand(const CommandSender* commandSender, const WorldContext* worldContext,
+                         const std::function<void(const std::string& text)>& onMessageRef,
+                         const AppContext* appContext, const LangsResources* langsResources);
+
+        static bool ExecuteInventory(const CommandSender* commandSender, const WorldContext* worldContext,
+                                     const std::function<void(const std::string& text)>& onMessageRef,
+                                     const AppContext* appContext, const LangsResources* langsResources);
 
     public:
         explicit TagCommand(AppContext* appContext);

@@ -70,13 +70,13 @@ void glimmer::MagnetComponent::RemoveEntity(const GameEntityID entityId)
 
 bool glimmer::MagnetComponent::ContainEntity(const GameEntityID entityId) const
 {
-    auto iter = std::find(entities_.begin(), entities_.end(), entityId);
+    auto iter = std::ranges::find(entities_, entityId);
     return iter != entities_.end();
 }
 
 void glimmer::MagnetComponent::AddEntity(const GameEntityID entityId)
 {
-    if (std::find(entities_.begin(), entities_.end(), entityId) == entities_.end())
+    if (std::ranges::find(entities_, entityId) == entities_.end())
     {
         entities_.push_back(entityId);
     }

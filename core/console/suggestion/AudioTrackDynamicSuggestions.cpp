@@ -39,12 +39,12 @@ std::string glimmer::AudioTrackDynamicSuggestions::GetId() const
     return AUDIO_TRACK_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::AudioTrackDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::AudioTrackDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return suggestions_;
 }
 
-bool glimmer::AudioTrackDynamicSuggestions::Match(const std::string keyword, std::string param)
+bool glimmer::AudioTrackDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
     for (const auto& audioTrack : suggestions_)
     {

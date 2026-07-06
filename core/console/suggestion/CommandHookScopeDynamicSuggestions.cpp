@@ -34,12 +34,12 @@ std::string glimmer::CommandHookScopeDynamicSuggestions::GetId() const
 }
 
 
-bool glimmer::CommandHookScopeDynamicSuggestions::Match(const std::string keyword, std::string param)
+bool glimmer::CommandHookScopeDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
     return keyword == SESSION_KEY_WORD;
 }
 
-std::vector<std::string> glimmer::CommandHookScopeDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::CommandHookScopeDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return {SESSION_KEY_WORD};
 }

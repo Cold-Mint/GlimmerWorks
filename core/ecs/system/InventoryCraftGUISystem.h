@@ -54,6 +54,8 @@ namespace glimmer
         uint64_t craftFingerprint_ = 0;
         std::shared_ptr<SDL_Texture> craftTexture_ = nullptr;
 
+        void UpdateCraftPreviewSlots(const std::vector<RecipeResource*>& recipeResources);
+
     public:
         explicit InventoryCraftGUISystem(WorldContext* worldContext);
 

@@ -36,9 +36,9 @@
 glimmer::DebugOverlay::DebugOverlay(AppContext* context)
     : Scene(context)
 {
-    resourcePackManager_ = appContext_->GetResourcePackManager();
-    preloadColors_ = appContext_->GetPreloadColors();
-    langsResources_ = appContext_->GetLangsResources();
+    resourcePackManager_ = GetAppContext()->GetResourcePackManager();
+    preloadColors_ = GetAppContext()->GetPreloadColors();
+    langsResources_ = GetAppContext()->GetLangsResources();
     Init();
 }
 
@@ -74,7 +74,7 @@ void glimmer::DebugOverlay::Render(SDL_Renderer* renderer)
 
     //Draw the SDL screen coordinates
     //绘制SDL屏幕坐标
-    const int labelSpacing = static_cast<int>(50 * uiScale_);
+    const auto labelSpacing = static_cast<int>(50 * uiScale_);
     for (int x = 0; x <= windowWidth_; x += labelSpacing)
     {
         SDL_Texture* texture = nullptr;

@@ -27,6 +27,9 @@
 #pragma once
 #include <memory>
 #include <vector>
+
+#include "core/TilePlacementConfig.h"
+#include "core/TileStateBackup.h"
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/mod/ResourceRef.h"
@@ -35,6 +38,10 @@
 namespace glimmer
 {
     class DiggingComponent;
+    class CameraComponent;
+    class Transform2DComponent;
+    class TileVector2D;
+    class Item;
 
     class DiggingSystem : public GameSystem
     {
@@ -45,10 +52,59 @@ namespace glimmer
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         std::vector<const TileLayerComponent*> tileLayerComponents_;
 
+        static bool CanProcessTile(const Tile* tile, bool isPlaceMode);
+
+        static void SaveTileState(const TileStateMessage* tileState, TileStateBackup& backup);
+
+        static void RestoreTileState(TileStateMessage* tileState, const TileStateBackup& backup);
+
+        static bool TryPlaceTile(const TileLayerComponent* tileLayerComponent,
+                                 TileStateMessage* tileState,
+                                 const TileVector2D& currentVector,
+                                 const TileVector2D& topLeftVector,
+                                 const TilePlacementConfig& config,
+                                 TileStateBackup& backup);
+
+        static void ApplyItemDurability(Item* item, const Tile* tile, bool isCenter);
+
+        static void DropDefaultLoot(WorldContext* worldContext,
+                                    EntityManager* entityManager,
+                                    const std::shared_ptr<Tile>& tile,
+                                    const TileVector2D& position,
+                                    const ResourceRef& oldResourceRef);
+
+        static void DropTileLoot(WorldContext* worldContext,
+                                 EntityManager* entityManager,
+                                 const std::shared_ptr<Tile>& tile,
+                                 const TileVector2D& position,
+                                 const ResourceRef& oldResourceRef,
+                                 bool precisionMining);
+
+        static void DropCustomLoot(WorldContext* worldContext,
+                           EntityManager* entityManager,
+                           const AppContext* appContext,
+                           const LootResource* lootResource,
+                           const TileVector2D& topLeftVector);
+
+        static void ProcessSingleTile(BreakSource breakSource,
+                                      WorldContext* worldContext,
+                                      const TileLayerComponent* tileLayerComponent,
+                                      const TileVector2D& topLeftVector,
+                                      const TileVector2D& currentVector,
+                                      bool precisionMining,
+                                      bool isPlaceMode,
+                                      uint8_t tileWidth,
+                                      uint8_t tileHeight,
+                                      const ResourceRef& newTileRef,
+                                      Item* item,
+                                      bool isCenter,
+                                      uint8_t& sum);
+
     public:
         /**
      * BreakTile
      * 破坏方块
+     * @param breakSource
      * @param worldContext worldContext 上下文环境
      * @param tileLayerComponent tileLayerComponent 图层
      * @param topLeftVector TopLeftVector 左上角

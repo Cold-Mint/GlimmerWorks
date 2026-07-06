@@ -28,6 +28,7 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <string_view>
 #include "ContainerChangeType.h"
 #include "Item.h"
 #include "src/saves/item_container.pb.h"
@@ -61,7 +62,7 @@ namespace glimmer
          * @param index
          * @param item
          */
-        void UnBindItemEvent(uint8_t index, const std::unique_ptr<Item>& item);
+        void UnBindItemEvent(uint8_t index, Item* item);
 
         void InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange);
 
@@ -126,7 +127,7 @@ namespace glimmer
          * @param amount amount 数量
          * @return The total number of items successfully removed from the container this time 本次成功从容器中移除掉的物品总数量
          */
-        [[nodiscard]] uint8_t RemoveItem(const std::string& id, uint8_t amount) const;
+        [[nodiscard]] uint8_t RemoveItem(std::string_view id, uint8_t amount) const;
 
 
         /**

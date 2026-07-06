@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include "ComposableItemCreateParams.h"
 #include "Item.h"
 #include "ItemContainer.h"
 #include "core/math/IAllocStrategy.h"
@@ -50,26 +51,22 @@ namespace glimmer
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_ = nullptr;
         std::shared_ptr<IAllocStrategy<uint32_t>> allocStrategyPtr_ = nullptr;
 
-
         void AddCallback();
 
+        void RefreshAttributes();
+
     public:
-        explicit ComposableItem(const std::string& id, const std::string& name,
-                                const std::optional<std::string>& description,
-                                const std::shared_ptr<TextureResourceResult>& iconResult, uint8_t maxSize,
-                                uint32_t maxDurability,
-                                bool unbreakable, const std::vector<ItemTagResource>& tags,
-                                const ResourceRef& resourceRef);
+        ~ComposableItem() override;
 
-        void SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType);
+        explicit ComposableItem(ComposableItemCreateParams& params);
 
-        [[nodiscard]] AllocStrategyTypeMessage GetAllocStrategyType() const;
+        static std::unique_ptr<ComposableItem> FromItemResource(WorldContext* worldContext,
+                                                                const ComposableItemResource* itemResource,
+                                                                const ResourceRef& resourceRef);
 
         void ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage) override;
 
         void WriteItemMessage(ItemMessage& itemMessage) const override;
-
-        ~ComposableItem() override;
 
         [[nodiscard]] uint32_t GetMaxDurability() const override;
 
@@ -91,16 +88,10 @@ namespace glimmer
                       ItemContainer* otherContainer,
                       uint8_t otherIndex) const;
 
-        void RefreshAttributes();
-
         [[nodiscard]] std::unique_ptr<Item> ReplaceItem(uint8_t index, std::unique_ptr<Item> item) const;
 
         [[nodiscard]] uint8_t RemoveItemAbility(const std::string& id, uint8_t amount) const;
 
-
-        static std::unique_ptr<ComposableItem> FromItemResource(WorldContext* worldContext,
-                                                                const ComposableItemResource* itemResource,
-                                                                const ResourceRef& resourceRef);
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
@@ -109,5 +100,9 @@ namespace glimmer
         [[nodiscard]] ItemContainer* GetItemContainer() const;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
+
+        void SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType);
+
+        [[nodiscard]] AllocStrategyTypeMessage GetAllocStrategyType() const;
     };
 }

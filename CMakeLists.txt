@@ -635,6 +635,27 @@ target_sources(GlimmerWorks
         core/ecs/component/TechProviderComponent.cpp
         core/ecs/system/TechProviderSystem.cpp
         core/utils/TransparentStringHash.cpp
+        core/TileStateBackup.cpp
+        core/TilePlacementConfig.cpp
+        core/inventory/AbilityItemCreateParams.cpp
+        core/inventory/ComposableItemCreateParams.cpp
+        core/console/asset_enumerator/StringAssetEnumerator.cpp
+        core/console/asset_enumerator/TextureAssetEnumerator.cpp
+        core/console/asset_enumerator/TileAssetEnumerator.cpp
+        core/console/asset_enumerator/BiomesAssetEnumerator.cpp
+        core/console/asset_enumerator/ComposableItemsAssetEnumerator.cpp
+        core/console/asset_enumerator/AbilityItemsAssetEnumerator.cpp
+        core/console/asset_enumerator/MaterialItemsAssetEnumerator.cpp
+        core/console/asset_enumerator/LootTablesAssetEnumerator.cpp
+        core/console/asset_enumerator/StartInvAssetEnumerator.cpp
+        core/console/asset_enumerator/StructuresAssetEnumerator.cpp
+        core/console/asset_enumerator/MobsAssetEnumerator.cpp
+        core/console/asset_enumerator/ShapesAssetEnumerator.cpp
+        core/console/asset_enumerator/BiomeDecorsAssetEnumerator.cpp
+        core/console/asset_enumerator/FixedColorAssetEnumerator.cpp
+        core/console/asset_enumerator/LightMaskAssetEnumerator.cpp
+        core/console/asset_enumerator/LightSourceAssetEnumerator.cpp
+        core/console/asset_enumerator/RecipesAssetEnumerator.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -946,6 +967,28 @@ target_sources(GlimmerWorks
         core/ecs/component/TechProviderComponent.h
         core/ecs/system/TechProviderSystem.h
         core/utils/TransparentStringHash.h
+        core/TilePlacementConfig.h
+        core/TileStateBackup.h
+        core/inventory/AbilityItemCreateParams.h
+        core/inventory/ComposableItemCreateParams.h
+        core/console/asset_enumerator/IAssetEnumerator.h
+        core/console/asset_enumerator/StringAssetEnumerator.h
+        core/console/asset_enumerator/TextureAssetEnumerator.h
+        core/console/asset_enumerator/TileAssetEnumerator.h
+        core/console/asset_enumerator/BiomesAssetEnumerator.h
+        core/console/asset_enumerator/ComposableItemsAssetEnumerator.h
+        core/console/asset_enumerator/AbilityItemsAssetEnumerator.h
+        core/console/asset_enumerator/MaterialItemsAssetEnumerator.h
+        core/console/asset_enumerator/LootTablesAssetEnumerator.h
+        core/console/asset_enumerator/StartInvAssetEnumerator.h
+        core/console/asset_enumerator/StructuresAssetEnumerator.h
+        core/console/asset_enumerator/MobsAssetEnumerator.h
+        core/console/asset_enumerator/ShapesAssetEnumerator.h
+        core/console/asset_enumerator/BiomeDecorsAssetEnumerator.h
+        core/console/asset_enumerator/FixedColorAssetEnumerator.h
+        core/console/asset_enumerator/LightMaskAssetEnumerator.h
+        core/console/asset_enumerator/LightSourceAssetEnumerator.h
+        core/console/asset_enumerator/RecipesAssetEnumerator.h
 )
 
 #Define version information

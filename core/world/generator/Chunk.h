@@ -68,6 +68,10 @@ namespace glimmer
                                        const std::shared_ptr<Tile>& oldTile,
                                        const std::shared_ptr<Tile>& newTile) const;
 
+        static void WriteTileStatesToMessage(
+            const std::array<std::unique_ptr<TileStateMessage>, CHUNK_AREA>& tileStates,
+            TileStateArrayMessage& layerMessage);
+
     public:
         explicit Chunk(WorldContext* worldContext, const TileVector2D& pos, const AnimConfig& animConfig);
 

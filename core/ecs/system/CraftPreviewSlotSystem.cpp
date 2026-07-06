@@ -31,10 +31,10 @@
 #include "core/world/WorldContext.h"
 
 glimmer::CraftPreviewSlotSystem::CraftPreviewSlotSystem(WorldContext* worldContext)
-    : GameSystem(worldContext)
+    : GameSystem(worldContext),
+      appContext_(worldContext->GetAppContext())
 {
     WatchComponent(COMPONENT_CRAFT_PREVIEW);
-    appContext_ = worldContext->GetAppContext();
     const ResourceLocator* resourceLocator = appContext_->GetResourceLocator();
     ResourceRef craftPreviewSlotResourceRef;
     craftPreviewSlotResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -70,6 +70,98 @@ void glimmer::CraftPreviewSlotSystem::OnConfigChanged(const Config* config)
     uiScale_ = config->window.uiScale;
 }
 
+SDL_Texture* glimmer::CraftPreviewSlotSystem::GetOrCreateNumberTexture(uint8_t amount)
+{
+    auto amountIterator = numberTextures_.find(amount);
+    if (amountIterator != numberTextures_.end())
+    {
+        return amountIterator->second.get();
+    }
+    std::shared_ptr<SDL_Texture> amountTexturePtr = resourcePackManager_->CreateStringTexture(
+        std::to_string(amount), &preloadColors_->game.itemSlotTextColor);
+    numberTextures_[amount] = amountTexturePtr;
+    return amountTexturePtr.get();
+}
+
+void glimmer::CraftPreviewSlotSystem::RenderSlotBackground(SDL_Renderer* renderer, const SDL_FRect& rect)
+{
+    if (craftPreviewSlotTextureResult_ == nullptr)
+    {
+        return;
+    }
+    SDL_Texture* texture = craftPreviewSlotTextureResult_->GetResource();
+    if (texture == nullptr)
+    {
+        return;
+    }
+    const ResourcePack* resourcePack = craftPreviewSlotTextureResult_->GetResourcePack();
+    if (resourcePack == nullptr)
+    {
+        return;
+    }
+    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
+    if (packConfig.craftPreviewSlotNineSlice.enableTiled)
+    {
+        SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
+                                    packConfig.craftPreviewSlotNineSlice.leftBorderPx,
+                                    packConfig.craftPreviewSlotNineSlice.rightBorderPx,
+                                    packConfig.craftPreviewSlotNineSlice.topBorderPx,
+                                    packConfig.craftPreviewSlotNineSlice.bottomBorderPx,
+                                    packConfig.craftPreviewSlotNineSlice.scale, &rect,
+                                    packConfig.craftPreviewSlotNineSlice.tileScale);
+        return;
+    }
+    SDL_RenderTexture9Grid(renderer, texture, nullptr,
+                           packConfig.craftPreviewSlotNineSlice.leftBorderPx,
+                           packConfig.craftPreviewSlotNineSlice.rightBorderPx,
+                           packConfig.craftPreviewSlotNineSlice.topBorderPx,
+                           packConfig.craftPreviewSlotNineSlice.bottomBorderPx,
+                           packConfig.craftPreviewSlotNineSlice.scale, &rect);
+}
+
+void glimmer::CraftPreviewSlotSystem::RenderSlotItem(SDL_Renderer* renderer, CraftPreviewSlotComponent* slotComponent,
+                                                     const SDL_FRect& rect, const Item* item)
+{
+    if (item == nullptr)
+    {
+        return;
+    }
+    float padding = slotComponent->GetPadding() * uiScale_;
+    const SDL_FRect itemRect = {
+        rect.x + padding, rect.y + padding, rect.w - padding * 2.0F,
+        rect.h - padding * 2.0F
+    };
+
+    auto iconTexture = item->GetIcon();
+    if (iconTexture != nullptr)
+    {
+        SDL_RenderTexture(renderer, iconTexture, nullptr, &itemRect);
+    }
+    uint8_t amount = item->GetAmount();
+    if (amount <= 1)
+    {
+        return;
+    }
+    SDL_Texture* amountTexture = GetOrCreateNumberTexture(amount);
+    if (amountTexture == nullptr)
+    {
+        return;
+    }
+    const float textOffset = 2.0F * uiScale_;
+    float textW = static_cast<float>(itemRect.w) * 0.5F;
+    if (amount < 10)
+    {
+        textW = textW * 0.5F;
+    }
+    const float textH = static_cast<float>(itemRect.h) * 0.5F;
+    SDL_FRect dst = {
+        rect.x + rect.w - textW - textOffset,
+        rect.y + rect.h - textH - textOffset, textW,
+        textH
+    };
+    SDL_RenderTexture(renderer, amountTexture, nullptr, &dst);
+}
+
 void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
 {
     const WorldContext* worldContext = GetWorldContext();
@@ -101,38 +193,7 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
         bool isHovered = mouseX >= rect.x && mouseX <= rect.x + rect.w &&
             mouseY >= rect.y && mouseY <= rect.y + rect.h;
         craftPreviewSlotComponent->SetHovered(isHovered);
-        if (craftPreviewSlotTextureResult_ != nullptr)
-        {
-            SDL_Texture* texture = craftPreviewSlotTextureResult_->GetResource();
-            if (texture != nullptr)
-            {
-                const ResourcePack* resourcePack = craftPreviewSlotTextureResult_->GetResourcePack();
-                if (resourcePack != nullptr)
-                {
-                    const ResourcePackConfig& packConfig = resourcePack->GetResourcePackConfig();
-                    if (packConfig.craftPreviewSlotNineSlice.enableTiled)
-                    {
-                        SDL_RenderTexture9GridTiled(renderer, texture, nullptr,
-                                                    packConfig.craftPreviewSlotNineSlice.leftBorderPx,
-                                                    packConfig.craftPreviewSlotNineSlice.rightBorderPx,
-                                                    packConfig.craftPreviewSlotNineSlice.topBorderPx,
-                                                    packConfig.craftPreviewSlotNineSlice.bottomBorderPx,
-                                                    packConfig.craftPreviewSlotNineSlice.scale, &rect,
-                                                    packConfig.craftPreviewSlotNineSlice.tileScale);
-                    }
-                    else
-                    {
-                        SDL_RenderTexture9Grid(renderer, texture, nullptr,
-                                               packConfig.craftPreviewSlotNineSlice.leftBorderPx,
-                                               packConfig.craftPreviewSlotNineSlice.rightBorderPx,
-                                               packConfig.craftPreviewSlotNineSlice.topBorderPx,
-                                               packConfig.craftPreviewSlotNineSlice.bottomBorderPx,
-                                               packConfig.craftPreviewSlotNineSlice.scale, &rect);
-                    }
-                }
-            }
-        }
-
+        RenderSlotBackground(renderer, rect);
 
         const Item* item = craftPreviewSlotComponent->GetItem();
         if (isHovered)
@@ -140,52 +201,7 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
             hoveredItem = item;
             hoveredCraftPreviewSlotComponent_ = craftPreviewSlotComponent;
         }
-        if (item == nullptr)
-        {
-            continue;
-        }
-        float padding = craftPreviewSlotComponent->GetPadding() * uiScale_;
-        const SDL_FRect itemRect = {
-            rect.x + padding, rect.y + padding, rect.w - padding * 2.0F,
-            rect.h - padding * 2.0F
-        };
-
-        auto iconTexture = item->GetIcon();
-        if (iconTexture != nullptr)
-        {
-            SDL_RenderTexture(renderer, iconTexture, nullptr, &itemRect);
-        }
-        uint8_t amount = item->GetAmount();
-        if (amount > 1)
-        {
-            auto amountIterator = numberTextures_.find(amount);
-            SDL_Texture* amountTexture = nullptr;
-            if (amountIterator == numberTextures_.end())
-            {
-                std::shared_ptr<SDL_Texture> amountTexturePtr = resourcePackManager_->CreateStringTexture(
-                    std::to_string(amount), &preloadColors_->game.itemSlotTextColor);
-                numberTextures_[amount] = amountTexturePtr;
-                amountTexture = amountTexturePtr.get();
-            }
-            else
-            {
-                amountTexture = amountIterator->second.get();
-            }
-
-            const float textOffset = 2.0F * uiScale_;
-            float textW = static_cast<float>(itemRect.w) * 0.5F;
-            if (amount < 10)
-            {
-                textW = textW * 0.5F;
-            }
-            const float textH = static_cast<float>(itemRect.h) * 0.5F;
-            SDL_FRect dst = {
-                rect.x + rect.w - textW - textOffset,
-                rect.y + rect.h - textH - textOffset, textW,
-                textH
-            };
-            SDL_RenderTexture(renderer, amountTexture, nullptr, &dst);
-        }
+        RenderSlotItem(renderer, craftPreviewSlotComponent, rect, item);
     }
     if (entityShortCut != nullptr)
     {

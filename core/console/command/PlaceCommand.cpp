@@ -69,6 +69,98 @@ bool glimmer::PlaceCommand::RequiresWorldContext() const
     return true;
 }
 
+void glimmer::PlaceCommand::PlaceTileAt(Chunk* chunk, TileLayerType tileLayerType, int index,
+                                        const ResourceRef& resourceRef, const TileResource* tileResource, int x, int y)
+{
+    TileStateMessage* tileStateMessage = chunk->GetTileState(tileLayerType, index);
+    if (tileStateMessage == nullptr)
+    {
+        return;
+    }
+    tileStateMessage->set_width(tileResource->tileWidth);
+    tileStateMessage->set_height(tileResource->tileHeight);
+    tileStateMessage->set_placesource(PLACE_SOURCE_CONSOLE);
+    tileStateMessage->mutable_offset()->set_x(x);
+    tileStateMessage->mutable_offset()->set_y(y);
+    resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+    chunk->CommitTileState(BreakSource::Console, tileLayerType, index, false);
+}
+
+bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, const CommandSender* commandSender,
+                                             AppContext* appContext, WorldContext* worldContext)
+{
+    auto structureId = commandArgs->AsResourceRef(2, RESOURCE_STRUCTURE);
+    IStructureResource* structureResource = appContext->GetStructureManager()->Find(
+        structureId->GetPackageId(), structureId->GetResourceKey());
+    if (structureResource == nullptr)
+    {
+        return false;
+    }
+    const WorldVector2D commandSenderPosition = commandSender->GetPosition();
+    auto tilePosition = CoordinateTransformer::WorldToTile(
+        {
+            commandArgs->AsCoordinate(3, commandSenderPosition.x),
+            commandArgs->AsCoordinate(4, commandSenderPosition.y)
+        });
+    std::optional<StructureInfo> structureInfoOptional = appContext->GetStructureGeneratorManager()->Generate(
+        worldContext,
+        tilePosition, structureResource);
+    if (!structureInfoOptional.has_value())
+    {
+        return false;
+    }
+    TileInstancePool* tileInstancePool = worldContext->GetTileInstancePool();
+    if (tileInstancePool == nullptr)
+    {
+        return false;
+    }
+    StructureInfo& structureInfo = structureInfoOptional.value();
+    const int baseX = tilePosition.x;
+    const int baseY = tilePosition.y;
+
+    Chunk* currentChunk = nullptr;
+    TileVector2D currentChunkCoord = {INT_MIN, INT_MIN};
+    for (auto& [tileLayerType, tileMap] : structureInfo.GetStructureMap())
+    {
+        for (auto& [coord, resourceRef] : tileMap)
+        {
+            const int worldX = baseX + coord.x;
+            const int worldY = baseY + coord.y;
+            const int chunkX = worldX & ~CHUNK_MASK;
+            const int chunkY = worldY & ~CHUNK_MASK;
+            const int relativeX = worldX & CHUNK_MASK;
+            const int relativeY = worldY & CHUNK_MASK;
+            TileVector2D chunkCoord{chunkX, chunkY};
+            if (chunkCoord != currentChunkCoord)
+            {
+                currentChunkCoord = chunkCoord;
+                currentChunk = worldContext->GetChunk(
+                    Chunk::TileCoordinatesToChunkVertexCoordinates(chunkCoord)
+                );
+            }
+            if (currentChunk == nullptr)
+            {
+                continue;
+            }
+            auto tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
+            if (tileResource == nullptr)
+            {
+                continue;
+            }
+            const int index = relativeY << CHUNK_SHIFT | relativeX;
+            for (int x = 0; x < tileResource->tileWidth; x++)
+            {
+                for (int y = 0; y < tileResource->tileHeight; y++)
+                {
+                    PlaceTileAt(currentChunk, tileLayerType, index, resourceRef, tileResource, x, y);
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                     const std::function<void(const std::string& text)>* onMessage)
 {
@@ -95,87 +187,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
     std::string type = commandArgs->AsString(1);
     if (type == "structure")
     {
-        auto structureId = commandArgs->AsResourceRef(2, RESOURCE_STRUCTURE);
-        IStructureResource* structureResource = appContext->GetStructureManager()->Find(
-            structureId->GetPackageId(), structureId->GetResourceKey());
-        if (structureResource == nullptr)
-        {
-            return false;
-        }
-        const WorldVector2D commandSenderPosition = commandSender->GetPosition();
-        auto tilePosition = CoordinateTransformer::WorldToTile(
-            {
-                commandArgs->AsCoordinate(3, commandSenderPosition.x),
-                commandArgs->AsCoordinate(4, commandSenderPosition.y)
-            });
-        std::optional<StructureInfo> structureInfoOptional = appContext->GetStructureGeneratorManager()->Generate(
-            worldContext,
-            tilePosition, structureResource);
-        if (!structureInfoOptional.has_value())
-        {
-            return false;
-        }
-        TileInstancePool* tileInstancePool = worldContext->GetTileInstancePool();
-        if (tileInstancePool == nullptr)
-        {
-            return false;
-        }
-        StructureInfo& structureInfo = structureInfoOptional.value();
-        const int baseX = tilePosition.x;
-        const int baseY = tilePosition.y;
-
-        Chunk* currentChunk = nullptr;
-        TileVector2D currentChunkCoord = {INT_MIN, INT_MIN};
-        for (auto& [tileLayerType, tileMap] : structureInfo.GetStructureMap())
-        {
-            for (auto& [coord, resourceRef] : tileMap)
-            {
-                const int worldX = baseX + coord.x;
-                const int worldY = baseY + coord.y;
-                const int chunkX = worldX & ~CHUNK_MASK;
-                const int chunkY = worldY & ~CHUNK_MASK;
-                const int relativeX = worldX & CHUNK_MASK;
-                const int relativeY = worldY & CHUNK_MASK;
-                TileVector2D chunkCoord{chunkX, chunkY};
-                if (chunkCoord != currentChunkCoord)
-                {
-                    currentChunkCoord = chunkCoord;
-                    currentChunk = worldContext->GetChunk(
-                        Chunk::TileCoordinatesToChunkVertexCoordinates(chunkCoord)
-                    );
-                }
-                if (currentChunk == nullptr)
-                {
-                    continue;
-                }
-                auto tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
-                if (tileResource == nullptr)
-                {
-                    continue;
-                }
-                for (int x = 0; x < tileResource->tileWidth; x++)
-                {
-                    for (int y = 0; y < tileResource->tileHeight; y++)
-                    {
-                        const int index = relativeY << CHUNK_SHIFT | relativeX;
-                        TileStateMessage* tileStateMessage = currentChunk->GetTileState(tileLayerType, index);
-                        if (tileStateMessage == nullptr)
-                        {
-                            continue;
-                        }
-                        tileStateMessage->set_width(tileResource->tileWidth);
-                        tileStateMessage->set_height(tileResource->tileHeight);
-                        tileStateMessage->set_placesource(PLACE_SOURCE_CONSOLE);
-                        tileStateMessage->mutable_offset()->set_x(x);
-                        tileStateMessage->mutable_offset()->set_y(y);
-                        resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-                        currentChunk->CommitTileState(BreakSource::Console, tileLayerType, index, false);
-                    }
-                }
-            }
-        }
-
-        return true;
+        return ExecuteStructure(commandArgs, commandSender, appContext, worldContext);
     }
     return false;
 }

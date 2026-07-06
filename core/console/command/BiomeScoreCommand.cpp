@@ -75,6 +75,72 @@ PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* st
     }
 }
 
+std::string glimmer::BiomeScoreCommand::CalculateAndFormatBiomeScores(const TileVector2D& tileVector2D,
+                                                                      ChunkGenerator* chunkGenerator,
+                                                                      BiomesManager* biomesManager,
+                                                                      const LangsResources* langsResources)
+{
+    std::stringstream biomeStream;
+    for (auto biomeResource : biomesManager->GetBiomeVector())
+    {
+        float total = 0;
+        std::string biomeId = Resource::GenerateId(*biomeResource);
+        const float elevation = ChunkGenerator::GetElevation(tileVector2D.y);
+        float elevationScore = BiomesManager::CalculateBiomeScoreDelta(
+            biomeResource->elevation, elevation, biomeResource->strictnessElevation);
+        total += elevationScore;
+        biomeStream << fmt::format(fmt::runtime(langsResources->biomeElevationInfo), biomeId,
+                                   biomeResource->elevation, elevation, biomeResource->strictnessElevation,
+                                   elevationScore);
+        biomeStream << '\n';
+        const auto humidity = chunkGenerator->GetHumidity(tileVector2D);
+        float humidityScore = BiomesManager::CalculateBiomeScoreDelta(
+            biomeResource->humidity, humidity, biomeResource->strictnessHumidity);
+        total += humidityScore;
+        biomeStream << fmt::format(fmt::runtime(langsResources->biomeHumidityInfo), biomeId,
+                                   biomeResource->humidity, humidity, biomeResource->strictnessHumidity,
+                                   humidityScore);
+        biomeStream << '\n';
+        const auto temperature = chunkGenerator->GetTemperature(tileVector2D, elevation);
+        float temperatureScore = BiomesManager::CalculateBiomeScoreDelta(
+            biomeResource->temperature, temperature, biomeResource->strictnessTemperature);
+        total += temperatureScore;
+        biomeStream << fmt::format(fmt::runtime(langsResources->biomeTemperatureInfo), biomeId,
+                                   biomeResource->temperature, temperature, biomeResource->strictnessTemperature,
+                                   temperatureScore);
+        biomeStream << '\n';
+        const auto weirdness = chunkGenerator->GetWeirdness(tileVector2D);
+        float weirdnessScore = BiomesManager::CalculateBiomeScoreDelta(
+            biomeResource->weirdness, weirdness, biomeResource->strictnessWeirdness);
+        total += weirdnessScore;
+        biomeStream << fmt::format(fmt::runtime(langsResources->biomeWeirdnessInfo), biomeId,
+                                   biomeResource->weirdness, weirdness, biomeResource->strictnessWeirdness,
+                                   weirdnessScore);
+        biomeStream << '\n';
+        const auto erosion = chunkGenerator->GetErosion(tileVector2D);
+        float erosionScore = BiomesManager::CalculateBiomeScoreDelta(
+            biomeResource->erosion, erosion, biomeResource->strictnessErosion);
+        total += erosionScore;
+        biomeStream << fmt::format(fmt::runtime(langsResources->biomeErosionInfo), biomeId,
+                                   biomeResource->erosion, erosion, biomeResource->strictnessErosion,
+                                   erosionScore);
+        biomeStream << '\n';
+        const auto surfaceProximity = ChunkGenerator::GetSurfaceProximity(
+            chunkGenerator->GetFirstTileTerrainY(tileVector2D.x), tileVector2D.y);
+        float surfaceProximityScore = BiomesManager::CalculateBiomeScoreDelta(
+            biomeResource->surfaceProximity, surfaceProximity, biomeResource->strictnessSurfaceProximity);
+        total += surfaceProximityScore;
+        biomeStream << fmt::format(fmt::runtime(langsResources->biomeSurfaceProximityInfo), biomeId,
+                                   biomeResource->surfaceProximity, surfaceProximity,
+                                   biomeResource->strictnessSurfaceProximity,
+                                   surfaceProximityScore);
+        biomeStream << '\n';
+        biomeStream << fmt::format(fmt::runtime(langsResources->biomeTotalScore), biomeId, total);
+        biomeStream << '\n';
+    }
+    return biomeStream.str();
+}
+
 bool glimmer::BiomeScoreCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                          const std::function<void(const std::string& text)>* onMessage)
 {
@@ -161,65 +227,7 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender* commandSender, con
         {
             return false;
         }
-        std::stringstream biomeStream;
-        for (auto biomeResource : biomesManager->GetBiomeVector())
-        {
-            float total = 0;
-            std::string biomeId = Resource::GenerateId(*biomeResource);
-            const float elevation = ChunkGenerator::GetElevation(tileVector2D.y);
-            float elevationScore = BiomesManager::CalculateBiomeScoreDelta(
-                biomeResource->elevation, elevation, biomeResource->strictnessElevation);
-            total += elevationScore;
-            biomeStream << fmt::format(fmt::runtime(langsResources->biomeElevationInfo), biomeId,
-                                       biomeResource->elevation, elevation, biomeResource->strictnessElevation,
-                                       elevationScore);
-            biomeStream << '\n';
-            const auto humidity = chunkGenerator->GetHumidity(tileVector2D);
-            float humidityScore = BiomesManager::CalculateBiomeScoreDelta(
-                biomeResource->humidity, humidity, biomeResource->strictnessHumidity);
-            total += humidityScore;
-            biomeStream << fmt::format(fmt::runtime(langsResources->biomeHumidityInfo), biomeId,
-                                       biomeResource->humidity, humidity, biomeResource->strictnessHumidity,
-                                       humidityScore);
-            biomeStream << '\n';
-            const auto temperature = chunkGenerator->GetTemperature(tileVector2D, elevation);
-            float temperatureScore = BiomesManager::CalculateBiomeScoreDelta(
-                biomeResource->temperature, temperature, biomeResource->strictnessTemperature);
-            total += temperatureScore;
-            biomeStream << fmt::format(fmt::runtime(langsResources->biomeTemperatureInfo), biomeId,
-                                       biomeResource->temperature, temperature, biomeResource->strictnessTemperature,
-                                       temperatureScore);
-            biomeStream << '\n';
-            const auto weirdness = chunkGenerator->GetWeirdness(tileVector2D);
-            float weirdnessScore = BiomesManager::CalculateBiomeScoreDelta(
-                biomeResource->weirdness, weirdness, biomeResource->strictnessWeirdness);
-            total += weirdnessScore;
-            biomeStream << fmt::format(fmt::runtime(langsResources->biomeWeirdnessInfo), biomeId,
-                                       biomeResource->weirdness, weirdness, biomeResource->strictnessWeirdness,
-                                       weirdnessScore);
-            biomeStream << '\n';
-            const auto erosion = chunkGenerator->GetErosion(tileVector2D);
-            float erosionScore = BiomesManager::CalculateBiomeScoreDelta(
-                biomeResource->erosion, erosion, biomeResource->strictnessErosion);
-            total += erosionScore;
-            biomeStream << fmt::format(fmt::runtime(langsResources->biomeErosionInfo), biomeId,
-                                       biomeResource->erosion, erosion, biomeResource->strictnessErosion,
-                                       erosionScore);
-            biomeStream << '\n';
-            const auto surfaceProximity = ChunkGenerator::GetSurfaceProximity(
-                chunkGenerator->GetFirstTileTerrainY(tileVector2D.x), tileVector2D.y);
-            float surfaceProximityScore = BiomesManager::CalculateBiomeScoreDelta(
-                biomeResource->surfaceProximity, surfaceProximity, biomeResource->strictnessSurfaceProximity);
-            total += surfaceProximityScore;
-            biomeStream << fmt::format(fmt::runtime(langsResources->biomeSurfaceProximityInfo), biomeId,
-                                       biomeResource->surfaceProximity, surfaceProximity,
-                                       biomeResource->strictnessSurfaceProximity,
-                                       surfaceProximityScore);
-            biomeStream << '\n';
-            biomeStream << fmt::format(fmt::runtime(langsResources->biomeTotalScore), biomeId, total);
-            biomeStream << '\n';
-        }
-        onMessageRef(biomeStream.str());
+        onMessageRef(CalculateAndFormatBiomeScores(tileVector2D, chunkGenerator, biomesManager, langsResources));
         return true;
     }
     return false;

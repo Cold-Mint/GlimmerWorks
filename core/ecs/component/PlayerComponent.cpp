@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "PlayerComponent.h"
+#include <utility>
 #include "fmt/xchar.h"
 
 
@@ -226,11 +227,11 @@ const std::unordered_map<glimmer::RecipeGroup, uint8_t>& glimmer::PlayerComponen
 std::string glimmer::PlayerComponent::ListTechnology(const std::string& technologyItem) const
 {
     std::stringstream ss;
-    for (auto& technology : technologyMap_)
+    for (auto& [recipeGroup, techLevel] : technologyMap_)
     {
         ss << fmt::format(
             fmt::runtime(technologyItem),
-            static_cast<int>(technology.first), static_cast<int>(technology.second));
+            std::to_underlying(recipeGroup), static_cast<int>(techLevel));
         ss << '\n';
     }
     return ss.str();

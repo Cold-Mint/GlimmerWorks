@@ -141,6 +141,46 @@ void glimmer::HotBarGUISystem::OnWindowSizeChanged(const int& width, const int& 
     }
 }
 
+void glimmer::HotBarGUISystem::HandleNumberKeyInput(SDL_Scancode scancode) const
+{
+    if (scancode == SDL_SCANCODE_1)
+    {
+        hotBarComponent_->SetSelectedSlot(0);
+    }
+    if (scancode == SDL_SCANCODE_2)
+    {
+        hotBarComponent_->SetSelectedSlot(1);
+    }
+    if (scancode == SDL_SCANCODE_3)
+    {
+        hotBarComponent_->SetSelectedSlot(2);
+    }
+    if (scancode == SDL_SCANCODE_4)
+    {
+        hotBarComponent_->SetSelectedSlot(3);
+    }
+    if (scancode == SDL_SCANCODE_5)
+    {
+        hotBarComponent_->SetSelectedSlot(4);
+    }
+    if (scancode == SDL_SCANCODE_6)
+    {
+        hotBarComponent_->SetSelectedSlot(5);
+    }
+    if (scancode == SDL_SCANCODE_7)
+    {
+        hotBarComponent_->SetSelectedSlot(6);
+    }
+    if (scancode == SDL_SCANCODE_8)
+    {
+        hotBarComponent_->SetSelectedSlot(7);
+    }
+    if (scancode == SDL_SCANCODE_9)
+    {
+        hotBarComponent_->SetSelectedSlot(8);
+    }
+}
+
 bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event& event)
 {
     const WorldContext* worldContext = GetWorldContext();
@@ -166,42 +206,7 @@ bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event& event)
     }
     if (event.type == SDL_EVENT_KEY_DOWN)
     {
-        if (event.key.scancode == SDL_SCANCODE_1)
-        {
-            hotBarComponent_->SetSelectedSlot(0);
-        }
-        if (event.key.scancode == SDL_SCANCODE_2)
-        {
-            hotBarComponent_->SetSelectedSlot(1);
-        }
-        if (event.key.scancode == SDL_SCANCODE_3)
-        {
-            hotBarComponent_->SetSelectedSlot(2);
-        }
-        if (event.key.scancode == SDL_SCANCODE_4)
-        {
-            hotBarComponent_->SetSelectedSlot(3);
-        }
-        if (event.key.scancode == SDL_SCANCODE_5)
-        {
-            hotBarComponent_->SetSelectedSlot(4);
-        }
-        if (event.key.scancode == SDL_SCANCODE_6)
-        {
-            hotBarComponent_->SetSelectedSlot(5);
-        }
-        if (event.key.scancode == SDL_SCANCODE_7)
-        {
-            hotBarComponent_->SetSelectedSlot(6);
-        }
-        if (event.key.scancode == SDL_SCANCODE_8)
-        {
-            hotBarComponent_->SetSelectedSlot(7);
-        }
-        if (event.key.scancode == SDL_SCANCODE_9)
-        {
-            hotBarComponent_->SetSelectedSlot(8);
-        }
+        HandleNumberKeyInput(event.key.scancode);
     }
     const uint8_t afterSelectIndex = hotBarComponent_->GetSelectedSlot();
     if (afterSelectIndex != preSelectIndex)

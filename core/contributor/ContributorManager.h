@@ -38,7 +38,7 @@ namespace glimmer {
     public:
         ContributorManager();
 
-        bool Register(const std::unique_ptr<Contributor>& contributor) const;
+        bool Register(const Contributor* contributor) const;
 
         /**
          * Find

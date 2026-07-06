@@ -26,6 +26,8 @@
  */
 #include "StructureDynamicSuggestions.h"
 
+#include <algorithm>
+
 glimmer::StructureDynamicSuggestions::StructureDynamicSuggestions(
     StructureManager* structureManager) : structureManager_(structureManager)
 {
@@ -36,19 +38,12 @@ std::string glimmer::StructureDynamicSuggestions::GetId() const
     return STRUCTURE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::StructureDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::StructureDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return structureManager_->GetStructureIDList();
 }
 
-bool glimmer::StructureDynamicSuggestions::Match(std::string keyword, std::string param)
+bool glimmer::StructureDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    for (const auto& itemId : structureManager_->GetStructureIDList())
-    {
-        if (itemId == keyword)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::contains(structureManager_->GetStructureIDList(), keyword);
 }

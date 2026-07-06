@@ -42,7 +42,7 @@ namespace glimmer
         uint8_t slotIndex_;
         bool isHovered_ = false;
         DesignDimension padding_ = ITEM_SLOT_PADDING;
-        ItemSlotType itemSlotType_ = ItemSlotType::None;
+        ItemSlotType itemSlotType_ = ItemSlotType::Empty;
         DesignVector2D size_;
         DesignVector2D position_;
 

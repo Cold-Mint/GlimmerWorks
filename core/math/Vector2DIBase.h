@@ -26,6 +26,7 @@
  */
 #pragma once
 #include <cmath>
+#include <numbers>
 
 #include "core/IFingerprintable.h"
 #include "src/core/vector2di.pb.h"
@@ -278,7 +279,7 @@ namespace glimmer
     {
         const auto dx = static_cast<float>(to.x - x);
         const auto dy = static_cast<float>(to.y - y);
-        const float ang = std::atan2(dy, dx) * 180.0F / static_cast<float>(3.14159265358979323846);
+        const float ang = std::atan2(dy, dx) * 180.0F / std::numbers::pi_v<float>;
         return ang < 0 ? ang + 360.0F : ang;
     }
 

@@ -37,17 +37,16 @@ glimmer::ContributorManager::ContributorManager()
     displayName.SetResourceType(RESOURCE_STRING);
     coldMintContributor->displayName = displayName;
     coldMintContributor->country = "CN";
-    Register(std::move(coldMintContributor));
+    Register(coldMintContributor.get());
 }
 
-bool glimmer::ContributorManager::Register(const std::unique_ptr<Contributor>& contributor) const
+bool glimmer::ContributorManager::Register(const Contributor* contributor) const
 {
     if (contributor == nullptr)
     {
         return false;
     }
-    std::string& uuid = contributor->uuid;
-    if (contributors.contains(uuid))
+    if (const std::string& uuid = contributor->uuid; contributors.contains(uuid))
     {
         return false;
     }

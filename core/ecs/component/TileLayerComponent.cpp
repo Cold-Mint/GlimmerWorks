@@ -77,32 +77,32 @@ GetTopVisibleTileSnapshotsInViewport(uint8_t layerFilter, const SDL_FRect& world
     {
         visibleTileRectChanged = true;
     }
-    if (visibleTileRectChanged)
+    if (!visibleTileRectChanged)
     {
-        visibleTiles_.clear();
-        bool allChunkExist = true;
-        for (int y = topLeft.y; y <= bottomRight.y; ++y)
+        return &visibleTiles_;
+    }
+
+    visibleTiles_.clear();
+    bool allChunkExist = true;
+    for (int y = topLeft.y; y <= bottomRight.y; ++y)
+    {
+        for (int x = topLeft.x; x <= bottomRight.x; ++x)
         {
-            for (int x = topLeft.x; x <= bottomRight.x; ++x)
+            TileVector2D tileVector2D(x, y);
+            const auto chunk = worldContext_->
+                GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D));
+            if (chunk == nullptr)
             {
-                TileVector2D tileVector2D(x, y);
-                const auto chunk = worldContext_->
-                    GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D));
-                if (chunk == nullptr)
-                {
-                    allChunkExist = false;
-                    continue;
-                }
-                visibleTiles_.emplace_back(tileVector2D, GetTopVisibleTileSnapshots(chunk, layerFilter, tileVector2D));
+                allChunkExist = false;
+                continue;
             }
+            visibleTiles_.emplace_back(tileVector2D, GetTopVisibleTileSnapshots(chunk, layerFilter, tileVector2D));
         }
-        if (allChunkExist)
-        {
-            //When all the blocks are available, we establish the cache.
-            //当全部区块都存在时，我们建立缓存。
-            visibleTileTopLeftFingerprint_ = visibleTileTopLeftFingerprint;
-            visibleTileBottomRightFingerprint_ = visibleTileBottomRightFingerprint;
-        }
+    }
+    if (allChunkExist)
+    {
+        visibleTileTopLeftFingerprint_ = visibleTileTopLeftFingerprint;
+        visibleTileBottomRightFingerprint_ = visibleTileBottomRightFingerprint;
     }
     return &visibleTiles_;
 }

@@ -94,8 +94,7 @@ void glimmer::ItemSlotQuantityComponent::SetSelectQuantity(uint8_t selectQuantit
     {
         return;
     }
-    uint8_t amount = item->GetAmount();
-    if (selectQuantity > amount)
+    if (uint8_t amount = item->GetAmount(); selectQuantity > amount)
     {
         selectQuantity_ = amount;
     }

@@ -45,3 +45,8 @@ void glimmer::IPersistenceEntityCreator::RecoveryAllComponent(WorldContext* worl
 glimmer::IPersistenceEntityCreator::IPersistenceEntityCreator(WorldContext* worldContext) : worldContext_(worldContext)
 {
 }
+
+glimmer::WorldContext* glimmer::IPersistenceEntityCreator::GetWorldContext() const
+{
+    return worldContext_;
+}

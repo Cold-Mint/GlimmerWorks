@@ -58,6 +58,21 @@ void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
     }
 }
 
+void glimmer::Item::SetMaxStack(const uint8_t maxStack)
+{
+    maxStack_ = maxStack;
+}
+
+const glimmer::ResourceRef& glimmer::Item::GetResourceRef() const
+{
+    return resourceRef_;
+}
+
+void glimmer::Item::SetResourceRef(const ResourceRef& resourceRef)
+{
+    resourceRef_ = resourceRef;
+}
+
 void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
 {
     uint8_t amount = itemMessage.amount();

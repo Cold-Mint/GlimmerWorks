@@ -29,33 +29,58 @@
 
 namespace glimmer
 {
+    class ItemToolTipComponent;
+    class AppContext;
+    class ResourcePackManager;
+    class PreloadColors;
+    class Item;
+    struct AbilityConfig;
+    struct LangsResources;
+
     class ItemToolTipSystem : public GameSystem
     {
+        struct TextureCache
+        {
+            std::shared_ptr<SDL_Texture> texture = nullptr;
+            uint64_t fingerprint = 0;
+        };
+
+        struct AbilityTipCache
+        {
+            TextureCache cache;
+            bool positive = false;
+        };
+
         float uiScale_ = 1.0F;
         std::shared_ptr<TextureResourceResult> tooltipBgTextureResult_ = nullptr;
         ItemToolTipComponent* itemToolTipComponent_ = nullptr;
         AppContext* appContext_ = nullptr;
-        std::shared_ptr<SDL_Texture> itemNameTexture_ = nullptr;
-        uint64_t itemNameFingerprint_ = 0;
-        std::shared_ptr<SDL_Texture> itemDescriptionTexture_ = nullptr;
-        std::shared_ptr<SDL_Texture> itemLockedTexture_ = nullptr;
-        uint64_t itemLockedFingerprint_ = 0;
-        uint64_t itemDescriptionFingerprint_ = 0;
+        TextureCache itemNameCache_;
+        TextureCache itemDescriptionCache_;
+        TextureCache itemLockedCache_;
         ResourcePackManager* resourcePackManager_ = nullptr;
-        uint64_t canMineBlockFingerprint_ = 0;
-        std::shared_ptr<SDL_Texture> canMineBlockTipTexture_ = nullptr;
-        uint64_t canMineWallFingerprint_ = 0;
-        std::shared_ptr<SDL_Texture> canMineWallTipTexture_ = nullptr;
-        uint64_t precisionMiningTipFingerprint_ = 0;
-        std::shared_ptr<SDL_Texture> precisionMiningTipTexture_ = nullptr;
-        uint64_t efficiencyTipFingerprint_ = 0;
-        std::shared_ptr<SDL_Texture> efficiencyTipTexture_ = nullptr;
-        uint64_t chainMiningTipFingerprint_ = 0;
-        std::shared_ptr<SDL_Texture> chainMiningTipTexture_ = nullptr;
-        bool efficiencyTipPositive_ = false;
-        bool chainMiningTipPositive_ = false;
+        TextureCache canMineBlockTipCache_;
+        TextureCache canMineWallTipCache_;
+        TextureCache precisionMiningTipCache_;
+        AbilityTipCache efficiencyTipCache_;
+        AbilityTipCache chainMiningTipCache_;
         PreloadColors* preloadColors_ = nullptr;
 
+        void CollectTooltipTextures(const Item* item, std::vector<SDL_Texture*>& textureToDraw);
+
+        void RenderTooltipBackground(SDL_Renderer* renderer, const SDL_FRect& backgroundRect);
+
+        void RenderTooltipTextures(SDL_Renderer* renderer, const std::vector<SDL_Texture*>& textureToDraw,
+                                   float x, float y, float lineSpacing);
+
+        void UpdateItemNameTexture(const Item* item);
+
+        void UpdateItemDescriptionTexture(const Item* item);
+
+        void UpdateAbilityTextures(const AbilityConfig* abilityConfig, const LangsResources* langsResources,
+                                   std::vector<SDL_Texture*>& textureToDraw);
+
+        void UpdateLockedTexture(const LangsResources* langsResources, std::vector<SDL_Texture*>& textureToDraw);
 
     public:
         explicit ItemToolTipSystem(WorldContext* worldContext);

@@ -406,10 +406,6 @@ namespace glimmer
     //@genNextLine(ItemTagResource|物品标签)
     struct ItemTagResource
     {
-    private:
-        uint64_t cachedTagId_ = 0;
-
-    public:
         //@genNextLine(name|标签名)
         std::string name;
         //@genNextLine(value|值)
@@ -418,6 +414,9 @@ namespace glimmer
         void MakeCachedTag();
 
         [[nodiscard]] uint64_t GetCachedTagId() const;
+
+    private:
+        uint64_t cachedTagId_ = 0;
     };
 
     /**
@@ -789,8 +788,6 @@ namespace glimmer
     //@genNextLine(RequiredTag|需要的标签)
     class RequiredTag
     {
-        uint64_t cachedTagId_ = 0;
-
     public:
         //@genNextLine(requiredTag|需要的标签)
         std::string requiredTag;
@@ -802,6 +799,9 @@ namespace glimmer
         void MakeCachedTag();
 
         [[nodiscard]] uint64_t GetCachedTagId() const;
+
+    private:
+        uint64_t cachedTagId_ = 0;
     };
 
 

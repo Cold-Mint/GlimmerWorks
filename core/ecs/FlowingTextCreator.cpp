@@ -52,8 +52,7 @@ void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id)
     {
         return;
     }
-    auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(id);
-    if (transform2dComponent != nullptr)
+    if (auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(id); transform2dComponent != nullptr)
     {
         transform2dComponent->SetPosition(position_);
     }

@@ -27,13 +27,22 @@
 #pragma once
 #if  !defined(NDEBUG)
 #include "core/console/Command.h"
+#include "core/console/asset_enumerator/IAssetEnumerator.h"
+#include <map>
+#include <memory>
 
 namespace glimmer
 {
+    class AppContext;
+
     class AssetViewerCommand final : public Command
     {
+        std::map<std::string, std::unique_ptr<IAssetEnumerator>> assetEnumerators_;
+
     protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+
+        void AddAssetEnumerator(std::unique_ptr<IAssetEnumerator> assetEnumeratorPtr);
 
     public:
         explicit AssetViewerCommand(AppContext* appContext);

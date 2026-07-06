@@ -37,8 +37,8 @@ glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optio
                                                                       iconResult_(std::move(iconResult))
 {
     SetTags(tags);
-    resourceRef_ = resourceRef;
-    maxStack_ = ITEM_MAX_STACK;
+    SetResourceRef(resourceRef);
+    SetMaxStack(ITEM_MAX_STACK);
 }
 
 std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(const AppContext* appContext,

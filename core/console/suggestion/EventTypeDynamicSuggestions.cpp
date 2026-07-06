@@ -34,12 +34,12 @@ std::string glimmer::EventTypeDynamicSuggestions::GetId() const
     return EVENT_TYPE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-bool glimmer::EventTypeDynamicSuggestions::Match(const std::string keyword, std::string param)
+bool glimmer::EventTypeDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
     return EventTypeUtils::ContainsKey(keyword);
 }
 
-std::vector<std::string> glimmer::EventTypeDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::EventTypeDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return EventTypeUtils::GetAllEventTypeKeys();
 }

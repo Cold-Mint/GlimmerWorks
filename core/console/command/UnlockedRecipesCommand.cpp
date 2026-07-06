@@ -53,11 +53,12 @@ void glimmer::UnlockedRecipesCommand::WriteRecipe(const std::string& recipesItem
     std::string recipeGroupStr;
     switch (static_cast<RecipeGroup>(recipe->recipeGroup))
     {
-    case RecipeGroup::None: recipeGroupStr = "None";
+    using enum RecipeGroup;
+    case None: recipeGroupStr = "None";
         break;
-    case RecipeGroup::CraftTable: recipeGroupStr = "CraftTable";
+    case CraftTable: recipeGroupStr = "CraftTable";
         break;
-    case RecipeGroup::Furnace: recipeGroupStr = "Furnace";
+    case Furnace: recipeGroupStr = "Furnace";
         break;
     default:
         if (recipe->recipeGroup >= 65)

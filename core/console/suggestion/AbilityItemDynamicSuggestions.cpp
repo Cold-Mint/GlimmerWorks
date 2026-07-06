@@ -26,6 +26,8 @@
  */
 #include "AbilityItemDynamicSuggestions.h"
 
+#include <algorithm>
+
 #include "core/Constants.h"
 
 glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(ItemManager* itemManager)
@@ -38,19 +40,12 @@ std::string glimmer::AbilityItemDynamicSuggestions::GetId() const
     return ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::AbilityItemDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::AbilityItemDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return itemManager_->GetAbilityItemIDList();
 }
 
-bool glimmer::AbilityItemDynamicSuggestions::Match(std::string keyword, std::string param)
+bool glimmer::AbilityItemDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    for (const auto& itemId : itemManager_->GetAbilityItemIDList())
-    {
-        if (itemId == keyword)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::contains(itemManager_->GetAbilityItemIDList(), keyword);
 }

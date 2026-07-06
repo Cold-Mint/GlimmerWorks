@@ -43,6 +43,12 @@ namespace glimmer
         ResourcePackManager* resourcePackManager_ = nullptr;
         std::unordered_map<uint8_t,std::shared_ptr<SDL_Texture>> numberTextures_;
 
+        SDL_Texture* GetOrCreateNumberTexture(uint8_t amount);
+
+        void RenderSlotBackground(SDL_Renderer* renderer, const SDL_FRect& rect);
+
+        void RenderSlotItem(SDL_Renderer* renderer, CraftPreviewSlotComponent* slotComponent,
+                            const SDL_FRect& rect, const Item* item);
 
     public:
         explicit CraftPreviewSlotSystem(WorldContext* worldContext);

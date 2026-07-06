@@ -36,9 +36,9 @@
 
 glimmer::TileItem::TileItem(const std::shared_ptr<Tile>& tile, const ResourceRef& resourceRef) : tile_(tile)
 {
-    resourceRef_ = resourceRef;
+    SetResourceRef(resourceRef);
     SetTags(tile->GetTags());
-    maxStack_ = ITEM_MAX_STACK;
+    SetMaxStack(ITEM_MAX_STACK);
 }
 
 const std::string& glimmer::TileItem::GetId() const
@@ -142,7 +142,7 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
             DiggingSystem::BreakTile(BreakSource::PlayerOverride, worldContext, tileLayer,
                                      blueprintComponent->GetTopLeftVector(), false, true,
                                      tile_->GetTileWidth(), tile_->GetTileHeight(),
-                                     resourceRef_);
+                                     GetResourceRef());
             (void)RemoveAmount(1);
         }
     }
@@ -162,5 +162,5 @@ const glimmer::AbilityConfig* glimmer::TileItem::GetAbilityConfig() const
 
 std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const
 {
-    return std::make_unique<TileItem>(tile_, resourceRef_);
+    return std::make_unique<TileItem>(tile_, GetResourceRef());
 }

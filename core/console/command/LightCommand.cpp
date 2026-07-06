@@ -76,6 +76,179 @@ void glimmer::LightCommand::PutCommandStructure(const CommandArgs* commandArgs, 
     }
 }
 
+bool glimmer::LightCommand::ExecuteInspector(AppContext* appContext,
+                                             const std::function<void(const std::string& text)>& onMessageRef,
+                                             const LangsResources* langsResources)
+{
+    CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
+    if (commandHookManager == nullptr)
+    {
+        onMessageRef(langsResources->cmdHookManagerNotFound);
+        return false;
+    }
+    if (commandHookManager->Contains(LIGHT_INSPECTOR_ID))
+    {
+        if (commandHookManager->Unregister(LIGHT_INSPECTOR_ID))
+        {
+            onMessageRef(langsResources->lightingInspectorDisable);
+            return true;
+        }
+        onMessageRef(langsResources->lightingInspectorDisableFail);
+    }
+    else
+    {
+        auto commandHookEntry = std::make_unique<CommandHookEntry>();
+        commandHookEntry->hookId = LIGHT_INSPECTOR_ID;
+        commandHookEntry->scope = CommandHookScope::SESSION;
+        commandHookEntry->code = SDL_BUTTON_LEFT;
+        commandHookEntry->command = LIGHT_COMMAND_NAME + " info ~ ~";
+        commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
+        if (commandHookManager->Register(std::move(commandHookEntry)))
+        {
+            onMessageRef(langsResources->lightingInspectorEnable);
+            return true;
+        }
+        onMessageRef(langsResources->lightingInspectorEnableFail);
+    }
+    return false;
+}
+
+std::string glimmer::LightCommand::BuildLightContributionString(const TileLightData* lightData,
+                                                                const LangsResources* langsResources)
+{
+    std::stringstream lightContributionStream;
+    const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution>>>* lightContributions =
+        lightData->GetLightContributions();
+    if (lightContributions == nullptr)
+    {
+        return lightContributionStream.str();
+    }
+    for (const auto& [layerType,contributionList] : *lightContributions)
+    {
+        for (const auto& lightPtr : contributionList)
+        {
+            if (lightPtr == nullptr)
+            {
+                continue;
+            }
+            LightContribution* contribution = lightPtr.get();
+            const Color* lightColor = contribution->GetLightColor();
+            const TileVector2D lightPosition = lightPtr->GetLightSource()->GetCenter();
+            lightContributionStream << '\n';
+            lightContributionStream << fmt::format(fmt::runtime(langsResources->lightContributionInfo),
+                                                   std::to_underlying(layerType), lightColor->r,
+                                                   lightColor->g, lightColor->b, lightColor->a,
+                                                   contribution->GetRayIndex(), lightPosition.x,
+                                                   lightPosition.y);
+        }
+    }
+    return lightContributionStream.str();
+}
+
+std::string glimmer::LightCommand::BuildLightSourceString(const TileLightData* lightData,
+                                                          const LangsResources* langsResources,
+                                                          const TileVector2D& tileVector2D)
+{
+    std::stringstream lightSourceStream;
+    const auto lightSources = lightData->GetLightSources();
+    if (lightSources == nullptr)
+    {
+        return lightSourceStream.str();
+    }
+    for (const auto& [layerType,lightSource] : *lightSources)
+    {
+        lightSourceStream << '\n';
+        const Color* emissionColor = lightSource->GetEmissionColor();
+        lightSourceStream << fmt::format(fmt::runtime(langsResources->lightSourceInfo),
+                                         std::to_underlying(layerType), lightSource->GetMaxRadius(),
+                                         emissionColor->r, emissionColor->g, emissionColor->b, emissionColor->a,
+                                         tileVector2D.x, tileVector2D.y);
+    }
+    return lightSourceStream.str();
+}
+
+std::string glimmer::LightCommand::BuildLightMaskString(const TileLightData* lightData,
+                                                        const LangsResources* langsResources)
+{
+    std::stringstream lightMaskStream;
+    AppendMaskList(lightMaskStream, lightData->GetSideLightMasks(), true, langsResources);
+    AppendMaskList(lightMaskStream, lightData->GetBackLightMasks(), false, langsResources);
+    return lightMaskStream.str();
+}
+
+void glimmer::LightCommand::AppendMaskList(std::stringstream& stream,
+                                           const std::unordered_map<TileLayerType, std::unique_ptr<LightMask>>* masks,
+                                           bool isSide,
+                                           const LangsResources* langsResources)
+{
+    if (masks == nullptr)
+    {
+        return;
+    }
+    for (const auto& [layerType, mask] : *masks)
+    {
+        if (mask == nullptr)
+        {
+            continue;
+        }
+        stream << '\n';
+        const Color* maskColor = mask->GetLightMaskColor();
+        stream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
+                              isSide,
+                              std::to_underlying(layerType), maskColor->r,
+                              maskColor->g,
+                              maskColor->b, maskColor->a,
+                              mask->GetTintFactor());
+    }
+}
+
+
+bool glimmer::LightCommand::ExecuteInfo(const CommandSender* commandSender, const CommandArgs* commandArgs, int size,
+                                        const std::function<void(const std::string& text)>& onMessageRef,
+                                        const LangsResources* langsResources, WorldContext* worldContext)
+{
+    if (size < 4)
+    {
+        onMessageRef(fmt::format(
+            fmt::runtime(langsResources->insufficientParameterLength),
+            4, size));
+        return false;
+    }
+    const WorldVector2D commandSenderPosition = commandSender->GetPosition();
+    const TileVector2D tileVector2D = CoordinateTransformer::WorldToTile(WorldVector2D(
+        commandArgs->AsCoordinate(2, commandSenderPosition.x),
+        commandArgs->AsCoordinate(
+            3, commandSenderPosition.y)));
+    const TileLightData* lightData = worldContext->GetLightingBuffer()->GetTileLightData(
+        tileVector2D);
+    if (lightData == nullptr)
+    {
+        onMessageRef(fmt::format(fmt::runtime(langsResources->notIncludeLighting), tileVector2D.x, tileVector2D.y));
+        return false;
+    }
+    const std::string lightContributionStr = BuildLightContributionString(lightData, langsResources);
+    const std::string lightSourceStr = BuildLightSourceString(lightData, langsResources, tileVector2D);
+    const std::string lightMaskStr = BuildLightMaskString(lightData, langsResources);
+    const Color* finalColor = lightData->GetFinalLightColor();
+    std::stringstream stringStream;
+    if (finalColor == nullptr)
+    {
+        stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
+                                    -1, -1,
+                                    -1, -1, lightContributionStr,
+                                    lightSourceStr, lightMaskStr);
+    }
+    else
+    {
+        stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
+                                    finalColor->r, finalColor->g,
+                                    finalColor->b, finalColor->a, lightContributionStr,
+                                    lightSourceStr, lightMaskStr);
+    }
+    onMessageRef(stringStream.str());
+    return true;
+}
+
 bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                     const std::function<void(const std::string& text)>* onMessage)
 {
@@ -107,151 +280,11 @@ bool glimmer::LightCommand::Execute(const CommandSender* commandSender, const Co
     std::string operation = commandArgs->AsString(1);
     if (operation == "inspector")
     {
-        CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
-        if (commandHookManager == nullptr)
-        {
-            onMessageRef(langsResources->cmdHookManagerNotFound);
-            return false;
-        }
-        if (commandHookManager->Contains(LIGHT_INSPECTOR_ID))
-        {
-            if (commandHookManager->Unregister(LIGHT_INSPECTOR_ID))
-            {
-                onMessageRef(langsResources->lightingInspectorDisable);
-                return true;
-            }
-            onMessageRef(langsResources->lightingInspectorDisableFail);
-        }
-        else
-        {
-            auto commandHookEntry = std::make_unique<CommandHookEntry>();
-            commandHookEntry->hookId = LIGHT_INSPECTOR_ID;
-            commandHookEntry->scope = CommandHookScope::SESSION;
-            commandHookEntry->code = SDL_BUTTON_LEFT;
-            commandHookEntry->command = LIGHT_COMMAND_NAME + " info ~ ~";
-            commandHookEntry->eventType = SDL_EVENT_MOUSE_BUTTON_DOWN;
-            if (commandHookManager->Register(std::move(commandHookEntry)))
-            {
-                onMessageRef(langsResources->lightingInspectorEnable);
-                return true;
-            }
-            onMessageRef(langsResources->lightingInspectorEnableFail);
-        }
+        return ExecuteInspector(appContext, onMessageRef, langsResources);
     }
     if (operation == "info")
     {
-        if (size < 4)
-        {
-            onMessageRef(fmt::format(
-                fmt::runtime(langsResources->insufficientParameterLength),
-                4, size));
-            return false;
-        }
-        const WorldVector2D commandSenderPosition = commandSender->GetPosition();
-        const TileVector2D tileVector2D = CoordinateTransformer::WorldToTile(WorldVector2D(
-            commandArgs->AsCoordinate(2, commandSenderPosition.x),
-            commandArgs->AsCoordinate(
-                3, commandSenderPosition.y)));
-        const TileLightData* lightData = worldContext->GetLightingBuffer()->GetTileLightData(
-            tileVector2D);
-        if (lightData == nullptr)
-        {
-            onMessageRef(fmt::format(fmt::runtime(langsResources->notIncludeLighting), tileVector2D.x, tileVector2D.y));
-            return false;
-        }
-        std::stringstream lightContributionStream;
-        const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution>>>* lightContributions =
-            lightData->GetLightContributions();
-        if (lightContributions != nullptr)
-        {
-            for (const auto& [layerType,contributionList] : *lightContributions)
-            {
-                for (const auto& lightPtr : contributionList)
-                {
-                    if (lightPtr == nullptr)
-                    {
-                        continue;
-                    }
-                    LightContribution* contribution = lightPtr.get();
-                    const Color* lightColor = contribution->GetLightColor();
-                    const TileVector2D lightPosition = lightPtr->GetLightSource()->GetCenter();
-                    lightContributionStream << '\n';
-                    lightContributionStream << fmt::format(fmt::runtime(langsResources->lightContributionInfo),
-                                                           std::to_underlying(layerType), lightColor->r,
-                                                           lightColor->g, lightColor->b, lightColor->a,
-                                                           contribution->GetRayIndex(), lightPosition.x,
-                                                           lightPosition.y);
-                }
-            }
-        }
-
-        std::stringstream lightSourceStream;
-        const auto lightSources = lightData->GetLightSources();
-        if (lightSources != nullptr)
-        {
-            for (const auto& [layerType,lightSource] : *lightSources)
-            {
-                lightSourceStream << '\n';
-                const Color* emissionColor = lightSource->GetEmissionColor();
-                lightSourceStream << fmt::format(fmt::runtime(langsResources->lightSourceInfo),
-                                                 std::to_underlying(layerType), lightSource->GetMaxRadius(),
-                                                 emissionColor->r, emissionColor->g, emissionColor->b, emissionColor->a,
-                                                 tileVector2D.x, tileVector2D.y);
-            }
-        }
-
-        std::stringstream lightMaskStream;
-        const auto sideLightMasks = lightData->GetSideLightMasks();
-        if (sideLightMasks != nullptr)
-        {
-            for (const auto& [layerType,sideLightMask] : *sideLightMasks)
-            {
-                lightMaskStream << '\n';
-                const Color* sideLightMaskColor = sideLightMask->GetLightMaskColor();
-                lightMaskStream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
-                                               true,
-                                               std::to_underlying(layerType), sideLightMaskColor->r,
-                                               sideLightMaskColor->g,
-                                               sideLightMaskColor->b, sideLightMaskColor->a,
-                                               sideLightMask->GetTintFactor());
-            }
-        }
-        const auto backLightMasks = lightData->GetBackLightMasks();
-        if (backLightMasks != nullptr)
-        {
-            for (const auto& [layerType,backLightMask] : *backLightMasks)
-            {
-                lightMaskStream << '\n';
-                const Color* backLightMaskColor = backLightMask->GetLightMaskColor();
-                lightMaskStream << fmt::format(fmt::runtime(langsResources->lightMaskInfo),
-                                               false,
-                                               std::to_underlying(layerType), backLightMaskColor->r,
-                                               backLightMaskColor->g,
-                                               backLightMaskColor->b, backLightMaskColor->a,
-                                               backLightMask->GetTintFactor());
-            }
-        }
-
-        const Color* finalColor = lightData->GetFinalLightColor();
-        if (finalColor == nullptr)
-        {
-            std::stringstream stringStream;
-            stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
-                                        -1, -1,
-                                        -1, -1, lightContributionStream.str(),
-                                        lightSourceStream.str(), lightMaskStream.str());
-            onMessageRef(stringStream.str());
-        }
-        else
-        {
-            std::stringstream stringStream;
-            stringStream << fmt::format(fmt::runtime(langsResources->lightInfo), tileVector2D.x, tileVector2D.y,
-                                        finalColor->r, finalColor->g,
-                                        finalColor->b, finalColor->a, lightContributionStream.str(),
-                                        lightSourceStream.str(), lightMaskStream.str());
-            onMessageRef(stringStream.str());
-        }
-        return true;
+        return ExecuteInfo(commandSender, commandArgs, size, onMessageRef, langsResources, worldContext);
     }
     return false;
 }

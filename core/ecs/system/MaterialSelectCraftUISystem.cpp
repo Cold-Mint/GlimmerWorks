@@ -51,361 +51,424 @@ glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* 
 
 void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus)
 {
+    if (activeStatus)
+    {
+        if (!InitializeActivation())
+        {
+            return;
+        }
+        InitializeTagRuntimeData();
+        CountMatchingItems();
+        CalculateMaxTextureSizeForActivation();
+        CalculatePanelDimensions();
+        SetupItemSlots();
+        SetupButton();
+    }
+    else
+    {
+        DeactivateUI();
+    }
+}
+
+bool glimmer::MaterialSelectCraftUISystem::InitializeActivation()
+{
+    WorldContext* worldContext = GetWorldContext();
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+
+    const CraftPreviewSlotComponent* slotComponent = entityShortCut->GetSelectedCraftPreviewSlotComponent();
+    if (slotComponent == nullptr)
+    {
+        worldContext->PopGuiSystemType();
+        return false;
+    }
+
+    RecipeResource* recipeResource = slotComponent->GetRecipeResource();
+    if (recipeResource == nullptr)
+    {
+        worldContext->PopGuiSystemType();
+        return false;
+    }
+
+    recipeResource_ = recipeResource;
+    if (recipeResource_->input.empty())
+    {
+        worldContext->PopGuiSystemType();
+        return false;
+    }
+
+    if (stringManager_ == nullptr)
+    {
+        return false;
+    }
+
+    tagRuntimeDataMap_.clear();
+    selectedItemVector_.clear();
+    return true;
+}
+
+void glimmer::MaterialSelectCraftUISystem::InitializeTagRuntimeData()
+{
+    std::vector<RequiredTag>& input = recipeResource_->input;
+    for (auto& requiredTag : input)
+    {
+        std::stringstream stringStream;
+        uint64_t cachedTagId = requiredTag.GetCachedTagId();
+        std::optional<std::string> tagTranslateOptional = stringManager_->GetTagTranslate(cachedTagId);
+        stringStream << tagTranslateOptional.value_or(requiredTag.requiredTag);
+        stringStream << '*';
+        stringStream << static_cast<int>(requiredTag.requiredWeight);
+        std::string text = stringStream.str();
+        auto tagRuntimeData = std::make_unique<TagRuntimeData>();
+        tagRuntimeData->SetText(text);
+        tagRuntimeData->SetRequiredWeight(requiredTag.requiredWeight);
+        tagRuntimeData->SetPositiveTexture(
+            resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.positiveAttributeColor));
+        tagRuntimeData->SetNegativeTexture(
+            resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.negativeAttributeColor));
+        tagRuntimeDataMap_[cachedTagId] = std::move(tagRuntimeData);
+    }
+}
+
+bool glimmer::MaterialSelectCraftUISystem::ItemHasMatchingTag(const Item* item) const
+{
+    if (item == nullptr)
+    {
+        return false;
+    }
+    for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
+    {
+        if (item->HasTag(tagId))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void glimmer::MaterialSelectCraftUISystem::CountMatchingItems()
+{
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+    ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    if (itemContainerComponent == nullptr)
+    {
+        GetWorldContext()->PopGuiSystemType();
+        return;
+    }
+
+    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr)
+    {
+        GetWorldContext()->PopGuiSystemType();
+        return;
+    }
+
+    uint8_t capacity = itemContainer->GetCapacity();
+    matchingCount_ = 0;
+    for (int i = 0; i < capacity; i++)
+    {
+        const Item* item = itemContainer->GetItem(i);
+        if (ItemHasMatchingTag(item))
+        {
+            matchingCount_++;
+        }
+    }
+}
+
+void glimmer::MaterialSelectCraftUISystem::CalculateMaxTextureSizeForActivation()
+{
+    maxTextureWidth_ = 0.0F;
+    maxTextureHeight_ = 0.0F;
+    for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
+    {
+        if (tagRuntimeData == nullptr)
+        {
+            continue;
+        }
+        SDL_Texture* texture = tagRuntimeData->Matched()
+                                   ? tagRuntimeData->GetPositiveTexture()
+                                   : tagRuntimeData->GetNegativeTexture();
+        if (texture == nullptr)
+        {
+            continue;
+        }
+        maxTextureWidth_ = std::max(maxTextureWidth_, static_cast<DesignDimension>(texture->w));
+        maxTextureHeight_ = std::max(maxTextureHeight_, static_cast<DesignDimension>(texture->h));
+    }
+}
+
+void glimmer::MaterialSelectCraftUISystem::CalculatePanelDimensions()
+{
+    constexpr DesignDimension panelPadding = 8.0F;
+    constexpr DesignDimension cellPadding = 4.0F;
+    constexpr uint8_t gridColumns = 6;
+    constexpr DesignDimension gridPadding = 4.0F;
+
+    const uint8_t actualColumns = matchingCount_ > 0 ? std::min(matchingCount_, gridColumns) : 1;
+    const DesignDimension gridWidth = static_cast<float>(actualColumns) * (ITEM_SLOT_SIZE + gridPadding) -
+        gridPadding;
+    const DesignDimension contentPanelWidth = maxTextureWidth_ + gridWidth + 2.0F * panelPadding;
+    const DesignDimension panelWidth = std::max(contentPanelWidth, MATERIAL_SELECT_CRAFT_PANEL_MIN_WIDTH);
+
+    const DesignDimension tagAreaHeight = static_cast<DesignDimension>(tagRuntimeDataMap_.size()) * (
+            maxTextureHeight_ +
+            cellPadding) +
+        2.0F * panelPadding - cellPadding;
+    const uint32_t gridRows = matchingCount_ > 0
+                                  ? (matchingCount_ + gridColumns - 1) / gridColumns
+                                  : 1;
+    const DesignDimension gridAreaHeight = static_cast<DesignDimension>(gridRows) * (ITEM_SLOT_SIZE + gridPadding) -
+        gridPadding + 2.0F * panelPadding;
+    const DesignDimension contentPanelHeight = std::max(tagAreaHeight, gridAreaHeight);
+    const DesignDimension totalPanelHeight = contentPanelHeight + MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT +
+        panelPadding;
+    panelWidth_ = panelWidth;
+    panelHeight_ = std::max(totalPanelHeight, MATERIAL_SELECT_CRAFT_PANEL_MIN_HEIGHT);
+}
+
+void glimmer::MaterialSelectCraftUISystem::SetupItemSlots()
+{
     WorldContext* worldContext = GetWorldContext();
     EntityManager* entityManager = GetEntityManager();
     EntityShortCut* entityShortCut = GetEntityShortCut();
 
-    if (activeStatus)
+    ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    if (itemContainerComponent == nullptr)
     {
-        const CraftPreviewSlotComponent* slotComponent = entityShortCut->GetSelectedCraftPreviewSlotComponent();
-        if (slotComponent == nullptr)
-        {
-            worldContext->PopGuiSystemType();
-            return;
-        }
-        RecipeResource* recipeResource = slotComponent->GetRecipeResource();
-        if (recipeResource == nullptr)
-        {
-            worldContext->PopGuiSystemType();
-            return;
-        }
-        recipeResource_ = recipeResource;
-        const size_t inputResourceSize = recipeResource_->input.size();
-        if (inputResourceSize == 0)
-        {
-            worldContext->PopGuiSystemType();
-        }
-        std::vector<RequiredTag>& input = recipeResource_->input;
-        tagRuntimeDataMap_.clear();
-        selectedItemVector_.clear();
-        if (stringManager_ == nullptr)
-        {
-            return;
-        }
-        for (auto& requiredTag : input)
-        {
-            std::stringstream stringStream;
-            uint64_t cachedTagId = requiredTag.GetCachedTagId();
-            std::optional<std::string> tagTranslateOptional = stringManager_->GetTagTranslate(cachedTagId);
-            if (tagTranslateOptional.has_value())
-            {
-                stringStream << tagTranslateOptional.value();
-            }
-            else
-            {
-                stringStream << requiredTag.requiredTag;
-            }
-            stringStream << '*';
-            stringStream << static_cast<int>(requiredTag.requiredWeight);
-            std::string text = stringStream.str();
-            std::unique_ptr<TagRuntimeData> tagRuntimeData = std::make_unique<TagRuntimeData>();
-            tagRuntimeData->SetText(text);
-            tagRuntimeData->SetRequiredWeight(requiredTag.requiredWeight);
-            tagRuntimeData->SetPositiveTexture(
-                resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.positiveAttributeColor));
-            tagRuntimeData->SetNegativeTexture(
-                resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.negativeAttributeColor));
-            tagRuntimeDataMap_[cachedTagId] = std::move(tagRuntimeData);
-        }
-        //Filter out all the items that have the labels required for this recipe synthesis.
-        //筛选所有的带有此配方合成需要的标签的物品。
-        ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
-        if (itemContainerComponent == nullptr)
-        {
-            worldContext->PopGuiSystemType();
-            return;
-        }
-        ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-        if (itemContainer == nullptr)
-        {
-            worldContext->PopGuiSystemType();
-            return;
-        }
-        uint8_t capacity = itemContainer->GetCapacity();
-        uint8_t nextIndex = 0;
+        worldContext->PopGuiSystemType();
+        return;
+    }
 
-        // Count matching items first to determine actual grid width
-        // 先统计匹配的物品数量以确定实际网格宽度
-        matchingCount_ = 0;
-        for (int i = 0; i < capacity; i++)
+    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr)
+    {
+        worldContext->PopGuiSystemType();
+        return;
+    }
+
+    uint8_t capacity = itemContainer->GetCapacity();
+    uint8_t nextIndex = 0;
+
+    for (int i = 0; i < capacity; i++)
+    {
+        const Item* item = itemContainer->GetItem(i);
+        if (!ItemHasMatchingTag(item))
         {
-            const Item* item = itemContainer->GetItem(i);
-            if (item == nullptr)
+            continue;
+        }
+
+        ItemSlotQuantityComponent* itemSlotQuantityComponent = nullptr;
+        if (nextIndex < itemSlotQuantityVector_.size())
+        {
+            itemSlotQuantityComponent = itemSlotQuantityVector_[nextIndex];
+        }
+        else
+        {
+            itemSlotQuantityComponent = entityManager->AddComponent<
+                ItemSlotQuantityComponent>(entityManager->AddEntity());
+            itemSlotQuantityComponent->SetOnSelectQuantityChanged(
+                [this](uint8_t slotIndex, Item* item, uint8_t selectQuantity)
+                {
+                    HandleSelectQuantityChanged(slotIndex, item, selectQuantity);
+                });
+            itemSlotQuantityVector_.emplace_back(itemSlotQuantityComponent);
+        }
+
+        if (itemSlotQuantityComponent == nullptr)
+        {
+            worldContext->PopGuiSystemType();
+            return;
+        }
+
+        itemSlotQuantityComponent->Show();
+        itemSlotQuantityComponent->SetSelectQuantity(0);
+        itemSlotQuantityComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
+        itemSlotQuantityComponent->SetItemContainer(itemContainer);
+        itemSlotQuantityComponent->SetSlotIndex(i);
+        nextIndex++;
+    }
+
+    for (size_t i = nextIndex; i < itemSlotQuantityVector_.size(); i++)
+    {
+        itemSlotQuantityVector_[i]->Hide();
+    }
+
+    UpdateItemSlotPositions();
+}
+
+glimmer::SelectedItemRuntimeData* glimmer::MaterialSelectCraftUISystem::FindSelectedItemBySlotIndex(uint8_t slotIndex)
+{
+    for (auto& selectedItem : selectedItemVector_)
+    {
+        if (selectedItem == nullptr)
+        {
+            continue;
+        }
+        SelectedItemRuntimeData* temporarySelectedItemRuntimeData = selectedItem.get();
+        if (temporarySelectedItemRuntimeData == nullptr)
+        {
+            continue;
+        }
+        if (temporarySelectedItemRuntimeData->GetSlotIndex() == slotIndex)
+        {
+            return temporarySelectedItemRuntimeData;
+        }
+    }
+    return nullptr;
+}
+
+void glimmer::MaterialSelectCraftUISystem::RecalculateTagActualValues()
+{
+    for (auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
+    {
+        tagRuntimeData->SetActualValue(0);
+    }
+
+    for (auto& selectedItem : selectedItemVector_)
+    {
+        const uint8_t selectAmount = selectedItem->GetSelectedAmount();
+        if (selectAmount == 0)
+        {
+            continue;
+        }
+
+        Item* selectedItemPtr = selectedItem->GetItem();
+        if (selectedItemPtr == nullptr)
+        {
+            continue;
+        }
+
+        for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
+        {
+            uint8_t value = selectedItemPtr->GetTagValue(tagId);
+            if (value == 0)
             {
                 continue;
             }
-            for (auto& tagRuntimeDataPair : tagRuntimeDataMap_)
-            {
-                if (item->HasTag(tagRuntimeDataPair.first))
-                {
-                    matchingCount_++;
-                    break;
-                }
-            }
+            tagRuntimeData->AddActualValue(value * selectAmount);
         }
+    }
+}
 
-        constexpr DesignDimension panelPadding = 8.0F;
-        constexpr DesignDimension cellPadding = 4.0F;
-        maxTextureWidth_ = 0.0F;
-        maxTextureHeight_ = 0.0F;
-        for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
+void glimmer::MaterialSelectCraftUISystem::UpdateButtonEnabledState()
+{
+    bool allMatched = true;
+    for (auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
+    {
+        if (tagRuntimeData == nullptr)
         {
-            const auto& tagRuntimeData = tagRuntimeDataPair.second;
-            if (tagRuntimeData == nullptr)
-            {
-                continue;
-            }
-            if (tagRuntimeData->Matched())
-            {
-                SDL_Texture* positiveTexture = tagRuntimeData->GetPositiveTexture();
-                if (positiveTexture == nullptr)
-                {
-                    continue;
-                }
-                maxTextureWidth_ = std::max(maxTextureWidth_, static_cast<DesignDimension>(positiveTexture->w));
-                maxTextureHeight_ = std::max(maxTextureHeight_, static_cast<DesignDimension>(positiveTexture->h));
-            }
-            else
-            {
-                SDL_Texture* negativeTexture = tagRuntimeData->GetNegativeTexture();
-                if (negativeTexture == nullptr)
-                {
-                    continue;
-                }
-                maxTextureWidth_ = std::max(maxTextureWidth_, static_cast<DesignDimension>(negativeTexture->w));
-                maxTextureHeight_ = std::max(maxTextureHeight_, static_cast<DesignDimension>(negativeTexture->h));
-            }
+            continue;
         }
-
-        constexpr uint8_t gridColumns = 6;
-        constexpr DesignDimension gridPadding = 4.0F;
-        const uint8_t actualColumns = matchingCount_ > 0 ? std::min(matchingCount_, gridColumns) : 1;
-        const DesignDimension gridWidth = static_cast<float>(actualColumns) * (ITEM_SLOT_SIZE + gridPadding) -
-            gridPadding;
-        const DesignDimension contentPanelWidth = maxTextureWidth_ + gridWidth + 2.0F * panelPadding;
-        const DesignDimension panelWidth = std::max(contentPanelWidth, MATERIAL_SELECT_CRAFT_PANEL_MIN_WIDTH);
-
-        const DesignDimension tagAreaHeight = static_cast<DesignDimension>(tagRuntimeDataMap_.size()) * (
-                maxTextureHeight_ +
-                cellPadding) +
-            2.0F * panelPadding - cellPadding;
-        const uint32_t gridRows = matchingCount_ > 0
-                                      ? (matchingCount_ + gridColumns - 1) / gridColumns
-                                      : 1;
-        const DesignDimension gridAreaHeight = static_cast<DesignDimension>(gridRows) * (ITEM_SLOT_SIZE + gridPadding) -
-            gridPadding + 2.0F * panelPadding;
-        const DesignDimension contentPanelHeight = std::max(tagAreaHeight, gridAreaHeight);
-        const DesignDimension totalPanelHeight = contentPanelHeight + MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT +
-            panelPadding;
-        panelWidth_ = panelWidth;
-        panelHeight_ = std::max(totalPanelHeight, MATERIAL_SELECT_CRAFT_PANEL_MIN_HEIGHT);
-
-        const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth_) *
-            0.5F;
-        const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight_) *
-            0.5F;
-
-        const DesignVector2D gridStartPosition{
-            panelOffsetX + maxTextureWidth_ + panelPadding, panelOffsetY + panelPadding
-        };
-
-        for (int i = 0; i < capacity; i++)
+        if (!tagRuntimeData->Matched())
         {
-            const Item* item = itemContainer->GetItem(i);
-            if (item == nullptr)
-            {
-                continue;
-            }
-            bool hasTag = false;
-            for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
-            {
-                if (item->HasTag(tagRuntimeDataPair.first))
-                {
-                    hasTag = true;
-                    break;
-                }
-            }
-            if (!hasTag)
-            {
-                continue;
-            }
-            ItemSlotQuantityComponent* itemSlotQuantityComponent = nullptr;
-            if (nextIndex < itemSlotQuantityVector_.size())
-            {
-                itemSlotQuantityComponent = itemSlotQuantityVector_[nextIndex];
-            }
-            else
-            {
-                itemSlotQuantityComponent = entityManager->AddComponent<
-                    ItemSlotQuantityComponent>(entityManager->AddEntity());
-                itemSlotQuantityComponent->SetOnSelectQuantityChanged(
-                    [this](uint8_t slotIndex, Item* item, uint8_t selectQuantity)
-                    {
-                        SelectedItemRuntimeData* selectedItemRuntimeData = nullptr;
-                        for (auto& selectedItem : selectedItemVector_)
-                        {
-                            if (selectedItem == nullptr)
-                            {
-                                continue;
-                            }
-                            SelectedItemRuntimeData* temporarySelectedItemRuntimeData = selectedItem.get();
-                            if (temporarySelectedItemRuntimeData == nullptr)
-                            {
-                                continue;
-                            }
-                            uint8_t selectedSlotIndex = temporarySelectedItemRuntimeData->GetSlotIndex();
-                            if (selectedSlotIndex == slotIndex)
-                            {
-                                selectedItemRuntimeData = temporarySelectedItemRuntimeData;
-                                break;
-                            }
-                        }
-                        if (selectedItemRuntimeData == nullptr)
-                        {
-                            auto selectedItemRuntimeDataUnique = std::make_unique<
-                                SelectedItemRuntimeData>();
-                            selectedItemRuntimeDataUnique->SetSlotIndex(slotIndex);
-                            selectedItemRuntimeDataUnique->SetItem(item);
-                            selectedItemVector_.emplace_back(std::move(selectedItemRuntimeDataUnique));
-                            selectedItemRuntimeData = selectedItemVector_.back().get();
-                        }
-                        //Local variable selectedItemRuntimeData may point to memory which is out of scope
-                        selectedItemRuntimeData->SetSelectedAmount(selectQuantity);
-                        //When the selected item changes, we recalculate the tag.
-                        //当选择的Item改变时，我们重新计算标签。
-                        for (auto& tagPair : tagRuntimeDataMap_)
-                        {
-                            tagPair.second->SetActualValue(0);
-                        }
-                        for (auto& selectedItem : selectedItemVector_)
-                        {
-                            const uint8_t selectAmount = selectedItem->GetSelectedAmount();
-                            if (selectAmount == 0)
-                            {
-                                continue;
-                            }
-                            for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
-                            {
-                                Item* selectedItemPtr = selectedItem->GetItem();
-                                if (selectedItemPtr == nullptr)
-                                {
-                                    continue;
-                                }
-                                uint8_t value = selectedItemPtr->GetTagValue(tagRuntimeDataPair.first);
-                                if (value == 0)
-                                {
-                                    //This tag is not included.
-                                    //不包含此标签。
-                                    continue;
-                                }
-                                tagRuntimeDataPair.second->AddActualValue(value * selectAmount);
-                            }
-                        }
-                        bool allMatched = true;
-                        for (auto& tagPair : tagRuntimeDataMap_)
-                        {
-                            std::unique_ptr<TagRuntimeData>& tagRuntimeData = tagPair.second;
-                            if (tagRuntimeData == nullptr)
-                            {
-                                continue;
-                            }
-                            if (!tagRuntimeData->Matched())
-                            {
-                                allMatched = false;
-                                break;
-                            }
-                        }
-                        if (allMatched)
-                        {
-                            buttonComponent_->Enable();
-                        }
-                        else
-                        {
-                            buttonComponent_->Disable();
-                        }
-                    });
-                itemSlotQuantityVector_.emplace_back(itemSlotQuantityComponent);
-            }
-            if (itemSlotQuantityComponent == nullptr)
-            {
-                worldContext->PopGuiSystemType();
-                return;
-            }
-            itemSlotQuantityComponent->Show();
-            itemSlotQuantityComponent->SetSelectQuantity(0);
-            itemSlotQuantityComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
-            itemSlotQuantityComponent->SetItemContainer(itemContainer);
-            itemSlotQuantityComponent->SetSlotIndex(i);
-            nextIndex++;
+            allMatched = false;
+            break;
         }
-        for (int i = nextIndex; i < itemSlotQuantityVector_.size(); i++)
-        {
-            itemSlotQuantityVector_[i]->Hide();
-        }
+    }
 
-        UpdateItemSlotPositions();
-
-        if (buttonComponent_ == nullptr)
-        {
-            buttonComponent_ = entityManager->AddComponent<ButtonComponent>(entityManager->AddEntity());
-            buttonComponent_->SetText(appContext_, langsResources_->craft);
-            buttonComponent_->SetClickCallback([this]
-            {
-                WorldContext* worldContext = GetWorldContext();
-                EntityShortCut* entityShortCut = GetEntityShortCut();
-
-                ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
-                if (itemContainerComponent == nullptr)
-                {
-                    worldContext->PopGuiSystemType();
-                    return;
-                }
-                ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-                if (itemContainer == nullptr)
-                {
-                    worldContext->PopGuiSystemType();
-                    return;
-                }
-                for (auto& selectedItem : selectedItemVector_)
-                {
-                    uint8_t expectedQuantity = selectedItem->GetSelectedAmount();
-                    uint8_t actualQuantity = itemContainer->
-                        RemoveItemAt(selectedItem->GetSlotIndex(), expectedQuantity);
-                    if (expectedQuantity != actualQuantity)
-                    {
-                        LogCat::w("Failed to remove the item. At ", selectedItem->GetSlotIndex());
-                    }
-                }
-                if (resourceLocator_ == nullptr)
-                {
-                    return;
-                }
-                std::unique_ptr<Item> outputItem = resourceLocator_->FindItem(worldContext, recipeResource_->output);
-                if (outputItem != nullptr)
-                {
-                    std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(outputItem));
-                    if (returnItem != nullptr)
-                    {
-                        LogCat::w("Failed to add the item. ");
-                    }
-                }
-                worldContext->PopGuiSystemType();
-            });
-        }
-        buttonComponent_->Disable();
-        buttonComponent_->Show();
-        UpdateButtonPosition();
+    if (allMatched)
+    {
+        buttonComponent_->Enable();
     }
     else
     {
-        for (int i = 0; i < itemSlotQuantityVector_.size(); i++)
+        buttonComponent_->Disable();
+    }
+}
+
+void glimmer::MaterialSelectCraftUISystem::HandleSelectQuantityChanged(uint8_t slotIndex, Item* item,
+                                                                      uint8_t selectQuantity)
+{
+    SelectedItemRuntimeData* selectedItemRuntimeData = FindSelectedItemBySlotIndex(slotIndex);
+
+    if (selectedItemRuntimeData == nullptr)
+    {
+        auto selectedItemRuntimeDataUnique = std::make_unique<SelectedItemRuntimeData>();
+        selectedItemRuntimeDataUnique->SetSlotIndex(slotIndex);
+        selectedItemRuntimeDataUnique->SetItem(item);
+        selectedItemVector_.emplace_back(std::move(selectedItemRuntimeDataUnique));
+        selectedItemRuntimeData = selectedItemVector_.back().get();
+    }
+
+    selectedItemRuntimeData->SetSelectedAmount(selectQuantity);
+    RecalculateTagActualValues();
+    UpdateButtonEnabledState();
+}
+
+void glimmer::MaterialSelectCraftUISystem::SetupButton()
+{
+    EntityManager* entityManager = GetEntityManager();
+
+    if (buttonComponent_ == nullptr)
+    {
+        buttonComponent_ = entityManager->AddComponent<ButtonComponent>(entityManager->AddEntity());
+        buttonComponent_->SetText(appContext_, langsResources_->craft);
+        buttonComponent_->SetClickCallback([this]
         {
-            itemSlotQuantityVector_[i]->Hide();
-        }
-        if (buttonComponent_ != nullptr)
+            HandleCraftButtonClick();
+        });
+    }
+
+    buttonComponent_->Disable();
+    buttonComponent_->Show();
+    UpdateButtonPosition();
+}
+
+void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick()
+{
+    WorldContext* worldContext = GetWorldContext();
+    EntityShortCut* entityShortCut = GetEntityShortCut();
+
+    ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    if (itemContainerComponent == nullptr)
+    {
+        worldContext->PopGuiSystemType();
+        return;
+    }
+
+    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr)
+    {
+        worldContext->PopGuiSystemType();
+        return;
+    }
+
+    for (auto& selectedItem : selectedItemVector_)
+    {
+        uint8_t expectedQuantity = selectedItem->GetSelectedAmount();
+        uint8_t actualQuantity = itemContainer->RemoveItemAt(selectedItem->GetSlotIndex(), expectedQuantity);
+        if (expectedQuantity != actualQuantity)
         {
-            buttonComponent_->Hide();
+            LogCat::w("Failed to remove the item. At ", selectedItem->GetSlotIndex());
         }
+    }
+
+    if (resourceLocator_ == nullptr)
+    {
+        return;
+    }
+
+    std::unique_ptr<Item> outputItem = resourceLocator_->FindItem(worldContext, recipeResource_->output);
+    if (outputItem != nullptr)
+    {
+        std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(outputItem));
+        if (returnItem != nullptr)
+        {
+            LogCat::w("Failed to add the item. ");
+        }
+    }
+
+    worldContext->PopGuiSystemType();
+}
+
+void glimmer::MaterialSelectCraftUISystem::DeactivateUI()
+{
+    for (auto itemSlotQuantityComponent : itemSlotQuantityVector_)
+    {
+        itemSlotQuantityComponent->Hide();
+    }
+    if (buttonComponent_ != nullptr)
+    {
+        buttonComponent_->Hide();
     }
 }
 
@@ -481,37 +544,66 @@ void glimmer::MaterialSelectCraftUISystem::UpdateButtonPosition() const
 
 void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
 {
-    if (panelBackGroundTextureResult_ == nullptr && resourceLocator_ != nullptr)
-    {
-        ResourceRef panelBGResourceRef;
-        panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
-        panelBGResourceRef.SetResourceKey("gui/panel_bg");
-        panelBackGroundTextureResult_ =
-            resourceLocator_->
-            FindTexture(&panelBGResourceRef);
-    }
-    if (subPanelBackGroundTextureResult_ == nullptr && resourceLocator_ != nullptr)
-    {
-        ResourceRef panelBGResourceRef;
-        panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-        panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
-        panelBGResourceRef.SetResourceKey("gui/sub_panel_bg");
-        subPanelBackGroundTextureResult_ = resourceLocator_->
-            FindTexture(&panelBGResourceRef);
-    }
+    LoadBackgroundTextures();
+
     if (tagRuntimeDataMap_.empty() || preloadColors_ == nullptr)
     {
         return;
     }
 
-    // Find the maximum texture size so that the panel can accommodate all tag textures.
-    // 获取纹理的最大尺寸，使面板能够容纳所有标签纹理。
     DesignDimension maxTextureWidth = 0.0F;
     DesignDimension maxTextureHeight = 0.0F;
-    for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
+    CalculateMaxTextureSizeForRender(maxTextureWidth, maxTextureHeight);
+
+    if (maxTextureWidth <= 0.0F || maxTextureHeight <= 0.0F)
     {
-        const auto& tagRuntimeData = tagRuntimeDataPair.second;
+        return;
+    }
+
+    const float scaledPanelWidth = panelWidth_ * uiScale_;
+    const float scaledPanelHeight = panelHeight_ * uiScale_;
+    const float panelX = (static_cast<float>(windowWidth_) - scaledPanelWidth) * 0.5F;
+    const float panelY = (static_cast<float>(windowHeight_) - scaledPanelHeight) * 0.5F;
+
+    RenderPanelBackground(renderer, panelX, panelY, maxTextureWidth, maxTextureHeight);
+    RenderTagTextures(renderer, panelX, panelY, maxTextureWidth, maxTextureHeight);
+
+    AppContext::RestoreColorRenderer(renderer);
+}
+
+void glimmer::MaterialSelectCraftUISystem::LoadBackgroundTextures()
+{
+    if (resourceLocator_ == nullptr)
+    {
+        return;
+    }
+
+    if (panelBackGroundTextureResult_ == nullptr)
+    {
+        ResourceRef panelBGResourceRef;
+        panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
+        panelBGResourceRef.SetResourceKey("gui/panel_bg");
+        panelBackGroundTextureResult_ = resourceLocator_->FindTexture(&panelBGResourceRef);
+    }
+
+    if (subPanelBackGroundTextureResult_ == nullptr)
+    {
+        ResourceRef panelBGResourceRef;
+        panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
+        panelBGResourceRef.SetResourceKey("gui/sub_panel_bg");
+        subPanelBackGroundTextureResult_ = resourceLocator_->FindTexture(&panelBGResourceRef);
+    }
+}
+
+void glimmer::MaterialSelectCraftUISystem::CalculateMaxTextureSizeForRender(DesignDimension& maxWidth,
+        DesignDimension& maxHeight) const
+{
+    maxWidth = 0.0F;
+    maxHeight = 0.0F;
+    for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
+    {
         if (tagRuntimeData == nullptr)
         {
             continue;
@@ -522,50 +614,29 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
             continue;
         }
 
-        if (tagRuntimeDataPtr->Matched())
+        SDL_Texture* texture = tagRuntimeDataPtr->Matched()
+                                   ? tagRuntimeDataPtr->GetPositiveTexture()
+                                   : tagRuntimeDataPtr->GetNegativeTexture();
+        if (texture == nullptr)
         {
-            auto positiveTexture = tagRuntimeDataPtr->GetPositiveTexture();
-            if (positiveTexture == nullptr)
-            {
-                continue;
-            }
-            maxTextureWidth = std::max(maxTextureWidth, static_cast<DesignDimension>(positiveTexture->w));
-            maxTextureHeight = std::max(maxTextureHeight, static_cast<DesignDimension>(positiveTexture->h));
+            continue;
         }
-        else
-        {
-            auto negativeTexture = tagRuntimeDataPtr->GetNegativeTexture();
-            if (negativeTexture == nullptr)
-            {
-                continue;
-            }
-            maxTextureWidth = std::max(maxTextureWidth, static_cast<DesignDimension>(negativeTexture->w));
-            maxTextureHeight = std::max(maxTextureHeight, static_cast<DesignDimension>(negativeTexture->h));
-        }
+        maxWidth = std::max(maxWidth, static_cast<DesignDimension>(texture->w));
+        maxHeight = std::max(maxHeight, static_cast<DesignDimension>(texture->h));
     }
-    if (maxTextureWidth <= 0.0F || maxTextureHeight <= 0.0F)
-    {
-        return;
-    }
+}
 
-    // Panel layout parameters (design coordinates).
-    // 面板布局参数（设计坐标）。
+void glimmer::MaterialSelectCraftUISystem::RenderPanelBackground(SDL_Renderer* renderer, float panelX, float panelY,
+        DesignDimension maxTextureWidth, DesignDimension maxTextureHeight) const
+{
     constexpr DesignDimension panelPadding = 8.0F;
     constexpr DesignDimension cellPadding = 4.0F;
     const auto dataLength = static_cast<uint32_t>(tagRuntimeDataMap_.size());
 
-    // Panel size in design coordinates.
-    // 面板尺寸（设计坐标）。
-    const DesignDimension panelWidth = panelWidth_;
-    const DesignDimension panelHeight = panelHeight_;
-
-    // Convert to screen coordinates and center the panel.
-    // 转换到屏幕坐标并使面板居中。
-    const float scaledPanelWidth = panelWidth * uiScale_;
-    const float scaledPanelHeight = panelHeight * uiScale_;
-    const float panelX = (static_cast<float>(windowWidth_) - scaledPanelWidth) * 0.5F;
-    const float panelY = (static_cast<float>(windowHeight_) - scaledPanelHeight) * 0.5F;
+    const float scaledPanelWidth = panelWidth_ * uiScale_;
+    const float scaledPanelHeight = panelHeight_ * uiScale_;
     const SDL_FRect panelRect{panelX, panelY, scaledPanelWidth, scaledPanelHeight};
+
     if (panelBackGroundTextureResult_ != nullptr)
     {
         SDL_Texture* panelBackGroundTexture = panelBackGroundTextureResult_->GetResource();
@@ -575,45 +646,55 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
         }
     }
 
-    if (subPanelBackGroundTextureResult_ != nullptr)
+    if (subPanelBackGroundTextureResult_ == nullptr)
     {
-        SDL_Texture* subPanelBackGroundTexture = subPanelBackGroundTextureResult_->GetResource();
-        if (subPanelBackGroundTexture != nullptr && dataLength > 0)
-        {
-            const DesignDimension contentAreaHeight = panelHeight_ - MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT - panelPadding;
-            const DesignDimension tagAreaHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight +
-                    cellPadding) +
-                2.0F * panelPadding - cellPadding;
-            const float scaledTagSubPanelWidth = maxTextureWidth * uiScale_;
-            const float scaledContentAreaHeight = std::max(tagAreaHeight, contentAreaHeight) * uiScale_;
-            const SDL_FRect tagSubPanelRect{
-                panelX + panelInnerPadding_,
-                panelY + panelInnerPadding_,
-                scaledTagSubPanelWidth,
-                scaledContentAreaHeight
-            };
-            SDL_RenderTexture(renderer, subPanelBackGroundTexture, nullptr, &tagSubPanelRect);
-
-            const DesignDimension gridSubPanelWidth = panelWidth_ - maxTextureWidth - 2.0F * panelPadding;
-            const float scaledGridSubPanelWidth = gridSubPanelWidth * uiScale_;
-            const float gridSubPanelX = panelX + (maxTextureWidth + panelPadding) * uiScale_;
-            const SDL_FRect gridSubPanelRect{
-                gridSubPanelX,
-                panelY + panelInnerPadding_,
-                scaledGridSubPanelWidth,
-                scaledContentAreaHeight
-            };
-            SDL_RenderTexture(renderer, subPanelBackGroundTexture, nullptr, &gridSubPanelRect);
-        }
+        return;
     }
 
-    // Place the tag textures vertically on the left side of the panel using VerticalLayoutStepper.
-    // 使用VerticalLayoutStepper将标签纹理垂直排在面板的左侧。
+    SDL_Texture* subPanelBackGroundTexture = subPanelBackGroundTextureResult_->GetResource();
+    if (subPanelBackGroundTexture == nullptr || dataLength == 0)
+    {
+        return;
+    }
+
+    const DesignDimension contentAreaHeight = panelHeight_ - MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT - panelPadding;
+    const DesignDimension tagAreaHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight +
+            cellPadding) +
+        2.0F * panelPadding - cellPadding;
+    const float scaledTagSubPanelWidth = maxTextureWidth * uiScale_;
+    const float scaledContentAreaHeight = std::max(tagAreaHeight, contentAreaHeight) * uiScale_;
+    const SDL_FRect tagSubPanelRect{
+        panelX + panelInnerPadding_,
+        panelY + panelInnerPadding_,
+        scaledTagSubPanelWidth,
+        scaledContentAreaHeight
+    };
+    SDL_RenderTexture(renderer, subPanelBackGroundTexture, nullptr, &tagSubPanelRect);
+
+    const DesignDimension gridSubPanelWidth = panelWidth_ - maxTextureWidth - 2.0F * panelPadding;
+    const float scaledGridSubPanelWidth = gridSubPanelWidth * uiScale_;
+    const float gridSubPanelX = panelX + (maxTextureWidth + panelPadding) * uiScale_;
+    const SDL_FRect gridSubPanelRect{
+        gridSubPanelX,
+        panelY + panelInnerPadding_,
+        scaledGridSubPanelWidth,
+        scaledContentAreaHeight
+    };
+    SDL_RenderTexture(renderer, subPanelBackGroundTexture, nullptr, &gridSubPanelRect);
+}
+
+void glimmer::MaterialSelectCraftUISystem::RenderTagTextures(SDL_Renderer* renderer, float panelX, float panelY,
+        DesignDimension maxTextureWidth, DesignDimension maxTextureHeight) const
+{
+    constexpr DesignDimension panelPadding = 8.0F;
+    constexpr DesignDimension cellPadding = 4.0F;
+    const auto dataLength = static_cast<uint32_t>(tagRuntimeDataMap_.size());
+
     DesignVector2D startPosition{panelPadding, panelPadding};
     VerticalLayoutStepper stepper(maxTextureHeight, startPosition, cellPadding, dataLength);
-    for (const auto& tagRuntimeDataPair : tagRuntimeDataMap_)
+
+    for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
     {
-        const auto& tagRuntimeData = tagRuntimeDataPair.second;
         if (tagRuntimeData == nullptr)
         {
             continue;
@@ -623,20 +704,16 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
+
         const DesignVector2D position = stepper.Next();
-        SDL_Texture* texture = nullptr;
-        if (tagRuntimeDataPtr->Matched())
-        {
-            texture = tagRuntimeDataPtr->GetPositiveTexture();
-        }
-        else
-        {
-            texture = tagRuntimeDataPtr->GetNegativeTexture();
-        }
+        SDL_Texture* texture = tagRuntimeDataPtr->Matched()
+                                   ? tagRuntimeDataPtr->GetPositiveTexture()
+                                   : tagRuntimeDataPtr->GetNegativeTexture();
         if (texture == nullptr)
         {
             continue;
         }
+
         const SDL_FRect dstRect{
             panelX + position.x * uiScale_,
             panelY + position.y * uiScale_,
@@ -645,8 +722,6 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
         };
         SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
     }
-
-    AppContext::RestoreColorRenderer(renderer);
 }
 
 uint8_t glimmer::MaterialSelectCraftUISystem::GetRenderOrder()

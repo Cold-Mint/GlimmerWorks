@@ -55,7 +55,7 @@ bool glimmer::ConsoleOverlay::OnBackPressed()
     return false;
 }
 
-void glimmer::ConsoleOverlay::SetKeyword(const std::string& keyword)
+void glimmer::ConsoleOverlay::SetKeyword(std::string_view keyword)
 {
     keyword_ = keyword;
 }
@@ -95,7 +95,7 @@ void glimmer::ConsoleOverlay::SetCommandSuggestions(const std::vector<std::strin
     }
 }
 
-int glimmer::ConsoleOverlay::ComputeScore(const std::string& cmd, const std::string& keyword)
+int glimmer::ConsoleOverlay::ComputeScore(std::string_view cmd, std::string_view keyword)
 {
     int score = 0;
 
@@ -120,7 +120,7 @@ int glimmer::ConsoleOverlay::GetLastCursorPos() const
 
 std::optional<std::string> glimmer::ConsoleOverlay::GetBestHistoryCommandSuggestion() const
 {
-    const CommandHistoryMessage& commandHistoryMessage = appContext_->GetCommandHistoryManager()->
+    const CommandHistoryMessage& commandHistoryMessage = GetAppContext()->GetCommandHistoryManager()->
                                                                       GetCommandHistoryMessage();
     const int historySize = commandHistoryMessage.history_size();
     if (historySize == 0)
@@ -144,133 +144,164 @@ std::optional<std::string> glimmer::ConsoleOverlay::GetBestHistoryCommandSuggest
 }
 
 
+bool glimmer::ConsoleOverlay::HandleGraveKey()
+{
+    show_ = !show_;
+    if (show_)
+    {
+        focusNextFrame_ = true;
+        Show();
+    }
+    else
+    {
+        Hide();
+    }
+    return true;
+}
+
+void glimmer::ConsoleOverlay::ApplyAutocomplete(const std::string& text)
+{
+    pendingAutocomplete_ = text;
+    lastCursorPos_ = static_cast<int>(text.size());
+    nextCursorPos_ = lastCursorPos_;
+    focusNextFrame_ = true;
+}
+
+void glimmer::ConsoleOverlay::NavigateHistory(int direction)
+{
+    auto& historyMgr = GetAppContext()->GetCommandHistoryManager()->GetCommandHistoryMessage();
+    const int history_size = historyMgr.history_size();
+    if (history_size <= 0)
+    {
+        return;
+    }
+
+    if (selectedCommandHistoryIndex_ == 0)
+    {
+        tempCommand_ = command_;
+    }
+
+    selectedCommandHistoryIndex_ += direction;
+    if (selectedCommandHistoryIndex_ > history_size)
+    {
+        selectedCommandHistoryIndex_ = 0;
+    }
+    if (selectedCommandHistoryIndex_ < 0)
+    {
+        selectedCommandHistoryIndex_ = history_size;
+    }
+
+    if (selectedCommandHistoryIndex_ == 0)
+    {
+        ApplyAutocomplete(tempCommand_);
+    }
+    else
+    {
+        const std::string& new_cmd = historyMgr.history().Get(history_size - selectedCommandHistoryIndex_);
+        ApplyAutocomplete(new_cmd);
+    }
+    selectedSuggestionIndex_ = 0;
+}
+
+bool glimmer::ConsoleOverlay::HandleUpKey()
+{
+    if (!commandSuggestions_.empty())
+    {
+        selectedSuggestionIndex_ = selectedSuggestionIndex_ <= 0
+                                       ? static_cast<int>(commandSuggestions_.size() - 1)
+                                       : selectedSuggestionIndex_ - 1;
+        return true;
+    }
+    NavigateHistory(1);
+    return true;
+}
+
+bool glimmer::ConsoleOverlay::HandleDownKey()
+{
+    if (!commandSuggestions_.empty())
+    {
+        selectedSuggestionIndex_ = selectedSuggestionIndex_ >= static_cast<int>(commandSuggestions_.size()) - 1
+                                       ? 0
+                                       : selectedSuggestionIndex_ + 1;
+        return true;
+    }
+    NavigateHistory(-1);
+    return true;
+}
+
+bool glimmer::ConsoleOverlay::HandleRightKey()
+{
+    if (command_.empty())
+    {
+        return false;
+    }
+    const int cursorPos = lastCursorPos_ < 0 ? 0 : lastCursorPos_;
+    if (cursorPos != static_cast<int>(command_.length()))
+    {
+        return false;
+    }
+    auto suggestion = GetBestHistoryCommandSuggestion();
+    if (!suggestion.has_value())
+    {
+        return false;
+    }
+    ApplyAutocomplete(suggestion.value());
+    return true;
+}
+
+bool glimmer::ConsoleOverlay::HandleTabKey()
+{
+    if (commandSuggestions_.empty())
+    {
+        return false;
+    }
+    std::string newCommand = ClikAutoCompleteItem(commandSuggestions_[selectedSuggestionIndex_]);
+    ApplyAutocomplete(newCommand);
+    commandSuggestions_.clear();
+    selectedSuggestionIndex_ = 0;
+    return true;
+}
+
+bool glimmer::ConsoleOverlay::HandleKeyDown(const SDL_Event& event)
+{
+    if (event.key.repeat)
+    {
+        return false;
+    }
+    const SDL_Keycode keyCode = event.key.key;
+    if (keyCode == SDLK_GRAVE)
+    {
+        return HandleGraveKey();
+    }
+    if (!show_)
+    {
+        return false;
+    }
+    if (keyCode == SDLK_UP)
+    {
+        return HandleUpKey();
+    }
+    if (keyCode == SDLK_DOWN)
+    {
+        return HandleDownKey();
+    }
+    if (keyCode == SDLK_RIGHT)
+    {
+        return HandleRightKey();
+    }
+    if (keyCode == SDLK_TAB)
+    {
+        return HandleTabKey();
+    }
+    return false;
+}
+
 bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event& event)
 {
-    if (!event.key.repeat && event.type == SDL_EVENT_KEY_DOWN)
+    if (event.type == SDL_EVENT_KEY_DOWN)
     {
-        const SDL_Keycode keyCode = event.key.key;
-        if (keyCode == SDLK_GRAVE)
+        if (HandleKeyDown(event))
         {
-            show_ = !show_;
-            if (show_)
-            {
-                focusNextFrame_ = true;
-                Show();
-            }
-            else
-            {
-                Hide();
-            }
-            return true;
-        }
-        if (show_ && keyCode == SDLK_UP)
-        {
-            if (!commandSuggestions_.empty())
-            {
-                selectedSuggestionIndex_ = selectedSuggestionIndex_ <= 0
-                                               ? static_cast<int>(commandSuggestions_.size() - 1)
-                                               : selectedSuggestionIndex_ - 1;
-                return true;
-            }
-            auto& historyMgr = appContext_->GetCommandHistoryManager()->GetCommandHistoryMessage();
-            const int history_size = historyMgr.history_size();
-            if (history_size <= 0) return true;
-
-            if (selectedCommandHistoryIndex_ == 0)
-            {
-                tempCommand_ = command_;
-            }
-
-            selectedCommandHistoryIndex_++;
-            if (selectedCommandHistoryIndex_ > history_size)
-            {
-                selectedCommandHistoryIndex_ = 0;
-            }
-            if (selectedCommandHistoryIndex_ == 0)
-            {
-                pendingAutocomplete_ = tempCommand_;
-                lastCursorPos_ = static_cast<int>(tempCommand_.size());
-            }
-            else
-            {
-                const std::string& new_cmd = historyMgr.history().Get(history_size - selectedCommandHistoryIndex_);
-                pendingAutocomplete_ = new_cmd;
-                lastCursorPos_ = static_cast<int>(new_cmd.size());
-            }
-
-            nextCursorPos_ = lastCursorPos_;
-            selectedSuggestionIndex_ = 0;
-            focusNextFrame_ = true;
-            return true;
-        }
-
-        if (show_ && keyCode == SDLK_DOWN)
-        {
-            if (!commandSuggestions_.empty())
-            {
-                selectedSuggestionIndex_ = selectedSuggestionIndex_ >= static_cast<int>(commandSuggestions_.size()) - 1
-                                               ? 0
-                                               : selectedSuggestionIndex_ + 1;
-                return true;
-            }
-
-            auto& historyMgr = appContext_->GetCommandHistoryManager()->GetCommandHistoryMessage();
-            const int history_size = historyMgr.history_size();
-            if (history_size <= 0) return true;
-
-            if (selectedCommandHistoryIndex_ == 0)
-            {
-                tempCommand_ = command_;
-            }
-            selectedCommandHistoryIndex_--;
-            if (selectedCommandHistoryIndex_ < 0)
-            {
-                selectedCommandHistoryIndex_ = history_size;
-            }
-
-            if (selectedCommandHistoryIndex_ == 0)
-            {
-                pendingAutocomplete_ = tempCommand_;
-                lastCursorPos_ = static_cast<int>(tempCommand_.size());
-            }
-            else
-            {
-                const std::string& new_cmd = historyMgr.history().Get(history_size - selectedCommandHistoryIndex_);
-                pendingAutocomplete_ = new_cmd;
-                lastCursorPos_ = static_cast<int>(new_cmd.size());
-            }
-
-            nextCursorPos_ = lastCursorPos_;
-            selectedSuggestionIndex_ = 0;
-            focusNextFrame_ = true;
-            return true;
-        }
-        if (show_ && keyCode == SDLK_RIGHT && !command_.empty())
-        {
-            const int cursorPos = lastCursorPos_ < 0 ? 0 : lastCursorPos_;
-            if (cursorPos == static_cast<int>(command_.length()))
-            {
-                auto suggestion = GetBestHistoryCommandSuggestion();
-                if (suggestion.has_value())
-                {
-                    pendingAutocomplete_ = suggestion.value();
-                    lastCursorPos_ = static_cast<int>(suggestion->size());
-                    nextCursorPos_ = lastCursorPos_;
-                    focusNextFrame_ = true;
-                    return true;
-                }
-            }
-            return false;
-        }
-        if (show_ && keyCode == SDLK_TAB && !commandSuggestions_.empty())
-        {
-            std::string newCommand = ClikAutoCompleteItem(commandSuggestions_[selectedSuggestionIndex_]);
-            pendingAutocomplete_ = newCommand;
-            lastCursorPos_ = static_cast<int>(newCommand.size());
-            nextCursorPos_ = lastCursorPos_;
-            commandSuggestions_.clear();
-            selectedSuggestionIndex_ = 0;
-            focusNextFrame_ = true;
             return true;
         }
     }
@@ -297,17 +328,18 @@ void glimmer::ConsoleOverlay::Update(float delta)
 
         switch (commandResult)
         {
-        case CommandResult::Success:
-            pattern = appContext_->GetLangsResources()->executedSuccess;
+        using enum CommandResult;
+        case Success:
+            pattern = GetAppContext()->GetLangsResources()->executedSuccess;
             break;
-        case CommandResult::Failure:
-            pattern = appContext_->GetLangsResources()->executionFailed;
+        case Failure:
+            pattern = GetAppContext()->GetLangsResources()->executionFailed;
             break;
-        case CommandResult::EmptyArgs:
-            message = appContext_->GetLangsResources()->commandIsEmpty;
+        case EmptyArgs:
+            message = GetAppContext()->GetLangsResources()->commandIsEmpty;
             break;
-        case CommandResult::NotFound:
-            pattern = appContext_->GetLangsResources()->commandNotFound;
+        case NotFound:
+            pattern = GetAppContext()->GetLangsResources()->commandNotFound;
             break;
         }
 
@@ -325,96 +357,43 @@ void glimmer::ConsoleOverlay::OnConfigChanged(const Config* config)
     uiScale_ = config->window.uiScale;
 }
 
-void glimmer::ConsoleOverlay::RenderImGui(SDL_Renderer* renderer)
+void glimmer::ConsoleOverlay::PushConsoleStyle(const PreloadColors* preloadColors)
 {
-    if (!show_)
-    {
-        return;
-    }
-    const PreloadColors* preloadColors = appContext_->GetPreloadColors();
-    ImGui::GetIO().FontGlobalScale = uiScale_;
-    const ImGuiIO& io = ImGui::GetIO();
-    const float windowHeight = io.DisplaySize.y;
-    const float inputHeight = 25.0F * uiScale_;
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(io.DisplaySize);
-
-    // Apply dark console theme
-    // 应用深色控制台主题
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(preloadColors->console.backgroundColor.r,
                                                       preloadColors->console.backgroundColor.g,
                                                       preloadColors->console.backgroundColor.b,
                                                       preloadColors->console.backgroundColor.a));
-    ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(60, 60, 60, 255)); // Dark gray border
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255)); // White text
+    ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(60, 60, 60, 255));
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255));
     ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(preloadColors->console.backgroundColor.r,
                                                      preloadColors->console.backgroundColor.g,
                                                      preloadColors->console.backgroundColor.b,
                                                      preloadColors->console.backgroundColor.a));
-    // Slightly lighter black for child windows
     ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(preloadColors->console.backgroundColor.r,
                                                      preloadColors->console.backgroundColor.g,
                                                      preloadColors->console.backgroundColor.b,
                                                      preloadColors->console.backgroundColor.a));
-    // Dark gray for input background
-    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(40, 40, 40, 255)); // Lighter on hover
-    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(50, 50, 50, 255)); // Even lighter when active
-    ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, IM_COL32(20, 20, 20, 255)); // Dark scrollbar background
-    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrab, IM_COL32(80, 80, 80, 255)); // Gray scrollbar grab
-    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabHovered, IM_COL32(100, 100, 100, 255)); // Lighter on hover
-    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabActive, IM_COL32(120, 120, 120, 255)); // Even lighter when active
-    ImGui::PushStyleColor(ImGuiCol_TextSelectedBg, IM_COL32(60, 60, 60, 255)); // Dark gray for text selection
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 2.0F * uiScale_); // Window border
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0F * uiScale_); // Child window border
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(40, 40, 40, 255));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(50, 50, 50, 255));
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, IM_COL32(20, 20, 20, 255));
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrab, IM_COL32(80, 80, 80, 255));
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabHovered, IM_COL32(100, 100, 100, 255));
+    ImGui::PushStyleColor(ImGuiCol_ScrollbarGrabActive, IM_COL32(120, 120, 120, 255));
+    ImGui::PushStyleColor(ImGuiCol_TextSelectedBg, IM_COL32(60, 60, 60, 255));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 2.0F * uiScale_);
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 1.0F * uiScale_);
+}
 
-    ImGui::Begin("Console",
-                 nullptr,
-                 ImGuiWindowFlags_NoTitleBar |
-                 ImGuiWindowFlags_NoResize |
-                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+void glimmer::ConsoleOverlay::PopConsoleStyle()
+{
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(12);
+}
 
-    // Console title
-    // 控制台标题
-    ImGui::PushFont(ImGui::GetFont());
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(preloadColors->console.keywordColor.r,
-                                                  preloadColors->console.keywordColor.g,
-                                                  preloadColors->console.keywordColor.b,
-                                                  preloadColors->console.keywordColor.a)); // Cyan for title
-    ImGui::TextUnformatted(appContext_->GetLangsResources()->console.c_str());
-    ImGui::PopStyleColor();
-    ImGui::PopFont();
-    ImGui::Separator();
-
-    // Calculate autocomplete suggestions height dynamically
-    // 动态计算自动完成建议的高度
-    float suggestionsHeight = 0.0F;
-    if (!commandSuggestions_.empty())
-    {
-        // Calculate height based on number of suggestions
-        // 根据建议数量计算高度
-        const float lineHeight = ImGui::GetTextLineHeightWithSpacing();
-        const float desiredHeight = lineHeight * static_cast<float>(commandSuggestions_.size());
-        const float maxSuggestionsHeight = windowHeight * 0.4F; // 40% of screen height
-
-        // Add padding for borders, frame padding, and scrollbar
-        // 为边框、框架内边距和滚动条添加额外空间
-        const float extraPadding = ImGui::GetStyle().FramePadding.y * 2 +
-            ImGui::GetStyle().ItemSpacing.y * 2 +
-            ImGui::GetStyle().ScrollbarSize;
-
-        suggestionsHeight = std::min(desiredHeight + extraPadding, maxSuggestionsHeight);
-    }
-
-    // Adjust Messages child window height to account for suggestions
-    // 调整消息子窗口高度以考虑建议
-    const float messagesHeight = windowHeight - inputHeight - 70 - suggestionsHeight;
-
-    ImGui::BeginChild("Messages", ImVec2(0, messagesHeight), true, // true = show border
+void glimmer::ConsoleOverlay::RenderMessages(float messagesHeight)
+{
+    ImGui::BeginChild("Messages", ImVec2(0, messagesHeight), true,
                       ImGuiWindowFlags_AlwaysVerticalScrollbar);
-    //使用标准循环代替ImGuiListClipper，以避免可变高度项目的滚动跳跃
-    //同时使用互斥锁保护线程安全
-    // Use a standard loop instead of ImGuiListClipper to avoid scroll jumping with variable height items
-    // Also protect with mutex for thread safety
     {
         std::lock_guard lock(messagesMutex_);
         for (const auto& msg : messages_)
@@ -422,13 +401,10 @@ void glimmer::ConsoleOverlay::RenderImGui(SDL_Renderer* renderer)
             ImGui::TextUnformatted(msg.c_str());
         }
     }
-
     if (scrollToBottom_)
     {
         const float scrollY = ImGui::GetScrollY();
         const float scrollMaxY = ImGui::GetScrollMaxY();
-        // If the distance from the bottom is less than a certain threshold (for example, 5 pixels), it is considered that "the user is at the bottom".
-        // 如果距离底部小于一定阈值（比如 5 像素），则认为“用户在底部”
         if (scrollMaxY - scrollY < 5.0F)
         {
             ImGui::SetScrollHereY(1.0F);
@@ -436,171 +412,171 @@ void glimmer::ConsoleOverlay::RenderImGui(SDL_Renderer* renderer)
         scrollToBottom_ = false;
     }
     ImGui::EndChild();
-    //Autocomplete Suggestions
-    //自动完成建议
-    if (!commandSuggestions_.empty())
+}
+
+void glimmer::ConsoleOverlay::RenderSuggestionItem(size_t index, const std::string& suggestion,
+                                                   const PreloadColors* preloadColors)
+{
+    ImGui::PushID(suggestion.c_str());
+    const bool isSelected = static_cast<int>(index) == selectedSuggestionIndex_;
+
+    if (isSelected)
     {
-        // Enable vertical scrollbar when content overflows
-        // 当内容溢出时启用垂直滚动条
-        ImGui::BeginChild("AutocompleteSuggestions", ImVec2(0, suggestionsHeight), true, // true = show border
-                          ImGuiWindowFlags_AlwaysVerticalScrollbar);
-
-        // Style buttons to look like plain text
-        // 将按钮样式设置为类似普通文本
-        ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 0, 0, 0)); // Transparent background
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(40, 40, 40, 150)); // Dark gray on hover
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(60, 60, 60, 200)); // Lighter gray when clicked
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0F); // No border
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0F * appContext_->GetConfig()->window.uiScale);
-        for (size_t i = 0; i < commandSuggestions_.size(); ++i)
-        {
-            const auto& suggestion = commandSuggestions_[i];
-            ImGui::PushID(suggestion.c_str());
-
-            bool isSelected = static_cast<int>(i) == selectedSuggestionIndex_;
-            if (isSelected)
-            {
-                ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(60, 60, 60, 200));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(60, 60, 60, 200)); // hover时保持选中样式
-            }
-            size_t keywordPos = std::string::npos;
-            if (!keyword_.empty())
-            {
-                std::string lowerSuggestion = suggestion;
-                std::string lowerKeyword = keyword_;
-                std::ranges::transform(lowerSuggestion, lowerSuggestion.begin(), ::tolower);
-                std::ranges::transform(lowerKeyword, lowerKeyword.begin(), ::tolower);
-                keywordPos = lowerSuggestion.find(lowerKeyword);
-            }
-            const ImVec2 padding = ImGui::GetStyle().FramePadding;
-            if (ImGui::Button(("##" + suggestion).c_str(), ImVec2(-1, 0)))
-            {
-                std::string newCommand = ClikAutoCompleteItem(suggestion);
-                pendingAutocomplete_ = newCommand;
-                lastCursorPos_ = static_cast<int>(newCommand.size());
-                nextCursorPos_ = lastCursorPos_;
-                commandSuggestions_.clear();
-                selectedSuggestionIndex_ = 0;
-                focusNextFrame_ = true;
-            }
-            if (ImGui::IsItemHovered())
-            {
-                // When the mouse hovers over the current suggestion item, the selected index will be updated directly.
-                // 鼠标悬停在当前建议项上，直接更新选中索引
-                selectedSuggestionIndex_ = static_cast<int>(i);
-                ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-            }
-            const ImVec2 textPos = ImVec2(ImGui::GetItemRectMin().x + padding.x, ImGui::GetItemRectMin().y + padding.y);
-            ImDrawList* drawList = ImGui::GetWindowDrawList();
-            if (keywordPos != std::string::npos && !keyword_.empty())
-            {
-                const std::string beforeKeyword = suggestion.substr(0, keywordPos);
-                const std::string keyword = suggestion.substr(keywordPos, keyword_.length());
-                const std::string afterKeyword = suggestion.substr(keywordPos + keyword_.length());
-
-                ImVec2 currentPos = textPos;
-                if (!beforeKeyword.empty())
-                {
-                    drawList->AddText(currentPos, IM_COL32(preloadColors->console.textColor.r,
-                                                           preloadColors->console.textColor.g,
-                                                           preloadColors->console.textColor.b,
-                                                           preloadColors->console.textColor.a), beforeKeyword.c_str());
-                    currentPos.x += ImGui::CalcTextSize(beforeKeyword.c_str()).x;
-                }
-                drawList->AddText(currentPos, IM_COL32(preloadColors->console.keywordColor.r,
-                                                       preloadColors->console.keywordColor.g,
-                                                       preloadColors->console.keywordColor.b,
-                                                       preloadColors->console.keywordColor.a), keyword.c_str());
-                currentPos.x += ImGui::CalcTextSize(keyword.c_str()).x;
-                if (!afterKeyword.empty())
-                {
-                    drawList->AddText(currentPos, IM_COL32(preloadColors->console.textColor.r,
-                                                           preloadColors->console.textColor.g,
-                                                           preloadColors->console.textColor.b,
-                                                           preloadColors->console.textColor.a), afterKeyword.c_str());
-                }
-            }
-            else
-            {
-                drawList->AddText(textPos, IM_COL32(preloadColors->console.textColor.r,
-                                                    preloadColors->console.textColor.g,
-                                                    preloadColors->console.textColor.b,
-                                                    preloadColors->console.textColor.a), suggestion.c_str());
-            }
-            if (isSelected)
-            {
-                ImGui::PopStyleColor(2);
-            }
-
-            ImGui::PopID();
-        }
-
-        ImGui::PopStyleVar(2); // Pop FrameBorderSize and FrameRounding
-        ImGui::PopStyleColor(3); // Pop Button, ButtonHovered, ButtonActive
-        ImGui::EndChild();
+        ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(60, 60, 60, 200));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(60, 60, 60, 200));
     }
 
-    //Command Suggestion Label
-    //命令建议标签
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(preloadColors->console.textColor.r,
-                                                  preloadColors->console.textColor.g,
-                                                  preloadColors->console.textColor.b,
-                                                  preloadColors->console.textColor.a)); // Light gray for normal text
-    for (int i = 0; i < commandStructure_.size(); i++)
+    size_t keywordPos = std::string::npos;
+    if (!keyword_.empty())
+    {
+        std::string lowerSuggestion = suggestion;
+        std::string lowerKeyword = keyword_;
+        std::ranges::transform(lowerSuggestion, lowerSuggestion.begin(), ::tolower);
+        std::ranges::transform(lowerKeyword, lowerKeyword.begin(), ::tolower);
+        keywordPos = lowerSuggestion.find(lowerKeyword);
+    }
+
+    const ImVec2 padding = ImGui::GetStyle().FramePadding;
+    if (ImGui::Button(("##" + suggestion).c_str(), ImVec2(-1, 0)))
+    {
+        ApplyAutocomplete(ClikAutoCompleteItem(suggestion));
+        commandSuggestions_.clear();
+        selectedSuggestionIndex_ = 0;
+    }
+
+    if (ImGui::IsItemHovered())
+    {
+        selectedSuggestionIndex_ = static_cast<int>(index);
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+    }
+
+    const ImVec2 textPos = ImVec2(ImGui::GetItemRectMin().x + padding.x,
+                                  ImGui::GetItemRectMin().y + padding.y);
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    const ImU32 textColor = IM_COL32(preloadColors->console.textColor.r,
+                                     preloadColors->console.textColor.g,
+                                     preloadColors->console.textColor.b,
+                                     preloadColors->console.textColor.a);
+    const ImU32 keywordColor = IM_COL32(preloadColors->console.keywordColor.r,
+                                        preloadColors->console.keywordColor.g,
+                                        preloadColors->console.keywordColor.b,
+                                        preloadColors->console.keywordColor.a);
+
+    if (keywordPos == std::string::npos || keyword_.empty())
+    {
+        drawList->AddText(textPos, textColor, suggestion.c_str());
+    }
+    else
+    {
+        const std::string beforeKeyword = suggestion.substr(0, keywordPos);
+        const std::string keyword = suggestion.substr(keywordPos, keyword_.length());
+        const std::string afterKeyword = suggestion.substr(keywordPos + keyword_.length());
+
+        ImVec2 currentPos = textPos;
+        if (!beforeKeyword.empty())
+        {
+            drawList->AddText(currentPos, textColor, beforeKeyword.c_str());
+            currentPos.x += ImGui::CalcTextSize(beforeKeyword.c_str()).x;
+        }
+        drawList->AddText(currentPos, keywordColor, keyword.c_str());
+        currentPos.x += ImGui::CalcTextSize(keyword.c_str()).x;
+        if (!afterKeyword.empty())
+        {
+            drawList->AddText(currentPos, textColor, afterKeyword.c_str());
+        }
+    }
+
+    if (isSelected)
+    {
+        ImGui::PopStyleColor(2);
+    }
+    ImGui::PopID();
+}
+
+void glimmer::ConsoleOverlay::RenderAutocompleteSuggestions(float suggestionsHeight)
+{
+    if (commandSuggestions_.empty())
+    {
+        return;
+    }
+    ImGui::BeginChild("AutocompleteSuggestions", ImVec2(0, suggestionsHeight), true,
+                      ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
+    ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(0, 0, 0, 0));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, IM_COL32(40, 40, 40, 150));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, IM_COL32(60, 60, 60, 200));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0F);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0F * GetAppContext()->GetConfig()->window.uiScale);
+
+    for (size_t i = 0; i < commandSuggestions_.size(); ++i)
+    {
+        RenderSuggestionItem(i, commandSuggestions_[i], GetAppContext()->GetPreloadColors());
+    }
+
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(3);
+    ImGui::EndChild();
+}
+
+void glimmer::ConsoleOverlay::RenderCommandStructure(const PreloadColors* preloadColors)
+{
+    const ImU32 textColor = IM_COL32(preloadColors->console.textColor.r,
+                                     preloadColors->console.textColor.g,
+                                     preloadColors->console.textColor.b,
+                                     preloadColors->console.textColor.a);
+    const ImU32 keywordColor = IM_COL32(preloadColors->console.keywordColor.r,
+                                        preloadColors->console.keywordColor.g,
+                                        preloadColors->console.keywordColor.b,
+                                        preloadColors->console.keywordColor.a);
+
+    ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+    for (int i = 0; i < static_cast<int>(commandStructure_.size()); i++)
     {
         if (i == commandStructureHighlightIndex_)
         {
             ImGui::PopStyleColor();
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(preloadColors->console.keywordColor.r,
-                                                          preloadColors->console.keywordColor.g,
-                                                          preloadColors->console.keywordColor.b,
-                                                          preloadColors->console.keywordColor.a));
+            ImGui::PushStyleColor(ImGuiCol_Text, keywordColor);
             ImGui::TextUnformatted(commandStructure_[i].c_str());
             ImGui::PopStyleColor();
-            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(preloadColors->console.textColor.r,
-                                                          preloadColors->console.textColor.g,
-                                                          preloadColors->console.textColor.b,
-                                                          preloadColors->console.textColor.a));
+            ImGui::PushStyleColor(ImGuiCol_Text, textColor);
         }
         else
         {
             ImGui::TextUnformatted(commandStructure_[i].c_str());
         }
-        if (i < commandStructure_.size() - 1)
+        if (i < static_cast<int>(commandStructure_.size()) - 1)
         {
             ImGui::SameLine();
         }
     }
-
     ImGui::PopStyleColor();
-    ImGui::Separator();
+}
 
-    // Set white text color and cursor for input field
-    // 为输入框设置白色文本颜色和光标
+void glimmer::ConsoleOverlay::RenderCommandInput()
+{
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255));
-    ImGui::PushStyleColor(ImGuiCol_InputTextCursor, IM_COL32(255, 255, 255, 255)); // White cursor
-
+    ImGui::PushStyleColor(ImGuiCol_InputTextCursor, IM_COL32(255, 255, 255, 255));
     ImGui::PushItemWidth(-1);
+
     if (focusNextFrame_)
     {
         ImGui::SetKeyboardFocusHere();
         focusNextFrame_ = false;
     }
+
     if (ImGui::InputText("##Input", &command_, ImGuiInputTextFlags_EnterReturnsTrue |
                          ImGuiInputTextFlags_CallbackAlways,
                          &ConsoleOverlay::InputCallback, this))
     {
-        //It is executed when the player presses the Enter key.
-        //当玩家按下Enter键后执行。
         if (!command_.empty())
         {
             addMessage("> " + command_);
-            auto& commandHistoryMessage = appContext_->GetCommandHistoryManager()->GetCommandHistoryMessage();
+            auto& commandHistoryMessage = GetAppContext()->GetCommandHistoryManager()->GetCommandHistoryMessage();
             const auto mutableHistory = commandHistoryMessage.mutable_history();
             auto new_command = mutableHistory->Add();
             *new_command = command_;
-            const uint16_t maxEntries = appContext_->GetConfig()->console.maxHistoryEntries;
-            int current_size = mutableHistory->size();
+            const uint16_t maxEntries = GetAppContext()->GetConfig()->console.maxHistoryEntries;
+            const int current_size = mutableHistory->size();
             if (current_size > maxEntries)
             {
                 const int delete_num = current_size - maxEntries;
@@ -619,39 +595,92 @@ void glimmer::ConsoleOverlay::RenderImGui(SDL_Renderer* renderer)
 #endif
     }
 
+    ImGui::PopStyleColor(2);
+    ImGui::PopItemWidth();
+}
 
-    //Draw the best recommendations based on the command history.
-    //绘制最佳建议，基于命令历史。
-    if (!command_.empty())
+void glimmer::ConsoleOverlay::RenderHistoryHint(const PreloadColors* preloadColors)
+{
+    if (command_.empty())
     {
-        const std::optional<std::string> commandSuggestion = GetBestHistoryCommandSuggestion();
-        if (commandSuggestion.has_value())
-        {
-            ImDrawList* drawList = ImGui::GetWindowDrawList();
-            const ImVec2 input_rect_min = ImGui::GetItemRectMin();
-            const ImVec2 padding = ImGui::GetStyle().FramePadding;
-            const ImVec2 text_pos = ImVec2(
-                input_rect_min.x + padding.x,
-                input_rect_min.y + padding.y
-            );
-            const ImU32 hint_color = IM_COL32(
-                preloadColors->console.textColor.r,
-                preloadColors->console.textColor.g,
-                preloadColors->console.textColor.b,
-                160
-            );
-            drawList->AddText(text_pos, hint_color, commandSuggestion.value().c_str());
-        }
+        return;
+    }
+    const std::optional<std::string> commandSuggestion = GetBestHistoryCommandSuggestion();
+    if (!commandSuggestion.has_value())
+    {
+        return;
+    }
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    const ImVec2 input_rect_min = ImGui::GetItemRectMin();
+    const ImVec2 padding = ImGui::GetStyle().FramePadding;
+    const ImVec2 text_pos = ImVec2(
+        input_rect_min.x + padding.x,
+        input_rect_min.y + padding.y
+    );
+    const ImU32 hint_color = IM_COL32(
+        preloadColors->console.textColor.r,
+        preloadColors->console.textColor.g,
+        preloadColors->console.textColor.b,
+        160
+    );
+    drawList->AddText(text_pos, hint_color, commandSuggestion.value().c_str());
+}
+
+void glimmer::ConsoleOverlay::RenderImGui(SDL_Renderer* renderer)
+{
+    if (!show_)
+    {
+        return;
+    }
+    const PreloadColors* preloadColors = GetAppContext()->GetPreloadColors();
+    ImGui::GetIO().FontGlobalScale = uiScale_;
+    const ImGuiIO& io = ImGui::GetIO();
+    const float windowHeight = io.DisplaySize.y;
+    const float inputHeight = 25.0F * uiScale_;
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(io.DisplaySize);
+
+    PushConsoleStyle(preloadColors);
+
+    ImGui::Begin("Console",
+                 nullptr,
+                 ImGuiWindowFlags_NoTitleBar |
+                 ImGuiWindowFlags_NoResize |
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+    ImGui::PushFont(ImGui::GetFont());
+    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(preloadColors->console.keywordColor.r,
+                                                  preloadColors->console.keywordColor.g,
+                                                  preloadColors->console.keywordColor.b,
+                                                  preloadColors->console.keywordColor.a));
+    ImGui::TextUnformatted(GetAppContext()->GetLangsResources()->console.c_str());
+    ImGui::PopStyleColor();
+    ImGui::PopFont();
+    ImGui::Separator();
+
+    float suggestionsHeight = 0.0F;
+    if (!commandSuggestions_.empty())
+    {
+        const float lineHeight = ImGui::GetTextLineHeightWithSpacing();
+        const float desiredHeight = lineHeight * static_cast<float>(commandSuggestions_.size());
+        const float maxSuggestionsHeight = windowHeight * 0.4F;
+        const float extraPadding = ImGui::GetStyle().FramePadding.y * 2 +
+            ImGui::GetStyle().ItemSpacing.y * 2 +
+            ImGui::GetStyle().ScrollbarSize;
+        suggestionsHeight = std::min(desiredHeight + extraPadding, maxSuggestionsHeight);
     }
 
-    ImGui::PopStyleColor(2); // Pop input text color and cursor color
-    ImGui::PopItemWidth();
-    ImGui::End();
+    const float messagesHeight = windowHeight - inputHeight - 70 - suggestionsHeight;
 
-    // Pop all style colors and vars
-    // 弹出所有样式颜色和变量
-    ImGui::PopStyleVar(2); // WindowBorderSize, ChildBorderSize
-    ImGui::PopStyleColor(12); // All color styles
+    RenderMessages(messagesHeight);
+    RenderAutocompleteSuggestions(suggestionsHeight);
+    RenderCommandStructure(preloadColors);
+    ImGui::Separator();
+    RenderCommandInput();
+    RenderHistoryHint(preloadColors);
+
+    ImGui::End();
+    PopConsoleStyle();
 }
 
 
@@ -677,10 +706,10 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData* data)
         const auto keyword = commandArgs.GetKeywordAtCursor(cursorPos);
         overlay->SetKeyword(keyword);
         overlay->SetCommandSuggestions(
-            overlay->appContext_->GetCommandManager()->GetSuggestions(
-                overlay->appContext_->GetDynamicSuggestionsManager(),
+            overlay->GetAppContext()->GetCommandManager()->GetSuggestions(
+                overlay->GetAppContext()->GetDynamicSuggestionsManager(),
                 commandArgs, cursorPos));
-        overlay->SetCommandStructure(overlay->appContext_->GetCommandManager()->GetCommandStructure(&commandArgs));
+        overlay->SetCommandStructure(overlay->GetAppContext()->GetCommandManager()->GetCommandStructure(&commandArgs));
         overlay->SetCommandStructureHighlightIndex(commandArgs.GetTokenIndexAtCursor(cursorPos));
     }
     if (overlay->nextCursorPos_ != -1)
@@ -704,7 +733,7 @@ int glimmer::ConsoleOverlay::InputCallback(ImGuiInputTextCallbackData* data)
     return 0;
 }
 
-std::string glimmer::ConsoleOverlay::ClikAutoCompleteItem(const std::string& suggestion) const
+std::string glimmer::ConsoleOverlay::ClikAutoCompleteItem(std::string_view suggestion) const
 {
     const int cursorPos = lastCursorPos_;
     int leftSpacePos = -1;
@@ -771,9 +800,9 @@ void glimmer::ConsoleOverlay::Hide() const
 
 
 glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
-    : Scene(context)
+    : Scene(context),
+      consoleWorker_(context->GetConsoleWorker())
 {
-    consoleWorker_ = context->GetConsoleWorker();
     Init();
 }
 

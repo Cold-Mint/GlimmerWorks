@@ -58,11 +58,12 @@ EntityItemMessage glimmer::MobEntityCreator::GetEntityItemMessage(const WorldVec
 
 void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const ResourceRef& resourceRef)
 {
-    if (worldContext_ == nullptr || WorldContext::IsEmptyEntityId(id))
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr || WorldContext::IsEmptyEntityId(id))
     {
         return;
     }
-    const AppContext* appContext = worldContext_->GetAppContext();
+    const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
@@ -82,12 +83,12 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
     {
         return;
     }
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+    EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
     {
         return;
     }
-    EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
         return;
@@ -127,7 +128,7 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
         return;
     }
     mobComponent->SetEmptyHandAutoUseItem(resourceLocator->FindItem(
-        worldContext_, mobResource->emptyHandAutoUseItem));
+        worldContext, mobResource->emptyHandAutoUseItem));
     mobComponent->SetMovementAcceleration(mobResource->movementAcceleration);
     mobComponent->SetMaxSpeed(mobResource->maxSpeed);
     mobComponent->SetAirControlFactor(mobResource->airControlFactor);
@@ -184,13 +185,14 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
 
 void glimmer::MobEntityCreator::MergeEntityItemMessage(uint32_t id, const EntityItemMessage& entityItemMessage)
 {
-    RecoveryAllComponent(worldContext_, id, entityItemMessage);
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+    WorldContext* worldContext = GetWorldContext();
+    RecoveryAllComponent(worldContext, id, entityItemMessage);
+    EntityManager* entityManager = worldContext->GetEntityManager();
     auto transform2dComponent = entityManager->GetComponent<Transform2DComponent>(id);
     auto rigidBody2dComponent = entityManager->GetComponent<RigidBody2DComponent>(id);
     if (transform2dComponent != nullptr && rigidBody2dComponent != nullptr)
     {
-        rigidBody2dComponent->CreateBody(worldContext_->GetAppContext()->GetResourceLocator(),
-                                         worldContext_->GetWorldId(), transform2dComponent->GetPosition());
+        rigidBody2dComponent->CreateBody(worldContext->GetAppContext()->GetResourceLocator(),
+                                         worldContext->GetWorldId(), transform2dComponent->GetPosition());
     }
 }

@@ -74,6 +74,64 @@ bool glimmer::ResourcePackManager::IsResourcePackEnabled(const ResourcePack& pac
     return std::ranges::find(enabledResourcePack, pack.GetManifest().id) != enabledResourcePack.end();
 }
 
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::CreateTextureResult(
+    SDL_Texture* texture,
+    const ResourcePack* resourcePack,
+    const std::string& path)
+{
+    auto textureResourceResult = std::make_unique<TextureResourceResult>();
+    textureResourceResult->SetResourcePack(resourcePack);
+    textureResourceResult->SetResource(texture);
+    auto deleter = [this, path](TextureResourceResult* textureResourceResult)
+    {
+        if (textureResourceResult != nullptr)
+        {
+            textureResourceResult->DestroyResource();
+        }
+        textureCache_.erase(path);
+    };
+    std::shared_ptr<TextureResourceResult> textureSharedPtr(textureResourceResult.release(), deleter);
+    textureCache_[path] = textureSharedPtr;
+    return textureSharedPtr;
+}
+
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::TryLoadTextureFromPack(
+    const std::string& path,
+    const ResourcePack* resourcePack,
+    const std::vector<std::string>& supportedFormats)
+{
+    for (auto& supportedTextureFormat : supportedFormats)
+    {
+        std::string texturePath = resourcePack->GetPath() + "/textures/" + path + "." + supportedTextureFormat;
+
+        if (!virtualFileSystem_->Exists(texturePath))
+        {
+            continue;
+        }
+
+        auto actualTexturePath = virtualFileSystem_->GetActualPath(texturePath);
+        if (!actualTexturePath.has_value())
+        {
+            continue;
+        }
+
+        SDL_Surface* surface = IMG_Load(actualTexturePath.value().c_str());
+        if (surface == nullptr)
+        {
+            continue;
+        }
+
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
+        SDL_DestroySurface(surface);
+        if (texture == nullptr)
+        {
+            continue;
+        }
+        return CreateTextureResult(texture, resourcePack, path);
+    }
+    return nullptr;
+}
+
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::ImplLoadTextureFromFile(
     const std::string& path,
     const Mods& modConfig)
@@ -106,47 +164,10 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Im
         {
             continue;
         }
-        for (auto& supportedTextureFormat : modConfig.supportedTextureFormats)
+        auto result = TryLoadTextureFromPack(path, resourcePack, modConfig.supportedTextureFormats);
+        if (result != nullptr)
         {
-            std::string texturePath = resourcePack->GetPath() + "/textures/" + path + "." + supportedTextureFormat;
-
-            if (!virtualFileSystem_->Exists(texturePath))
-            {
-                continue;
-            }
-
-            auto actualTexturePath = virtualFileSystem_->GetActualPath(texturePath);
-            if (!actualTexturePath.has_value())
-            {
-                continue;
-            }
-
-            SDL_Surface* surface = IMG_Load(actualTexturePath.value().c_str());
-            if (surface == nullptr)
-            {
-                continue;
-            }
-
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
-            SDL_DestroySurface(surface);
-            if (texture == nullptr)
-            {
-                continue;
-            }
-            auto textureResourceResult = new TextureResourceResult();
-            textureResourceResult->SetResourcePack(resourcePack);
-            textureResourceResult->SetResource(texture);
-            auto deleter = [this,path](TextureResourceResult* textureResourceResult)
-            {
-                if (textureResourceResult != nullptr)
-                {
-                    textureResourceResult->DestroyResource();
-                }
-                textureCache_.erase(path);
-            };
-            std::shared_ptr<TextureResourceResult> textureSharedPtr(textureResourceResult, deleter);
-            textureCache_[path] = textureSharedPtr;
-            return textureSharedPtr;
+            return result;
         }
     }
     return nullptr;
@@ -200,7 +221,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
             }
 
             LogCat::d("Loaded audio from pack '", packId, "': ", audioPath);
-            auto audioResourceResult = new AudioResourceResult();
+            auto audioResourceResult = std::make_unique<AudioResourceResult>();
             audioResourceResult->SetResourcePack(pack);
             audioResourceResult->SetResource(audio);
             auto deleter = [this, path](AudioResourceResult* audioResourceResult)
@@ -211,7 +232,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
                 }
                 audioMixCache_.erase(path);
             };
-            std::shared_ptr<AudioResourceResult> audioSharedPtr(audioResourceResult, deleter);
+            std::shared_ptr<AudioResourceResult> audioSharedPtr(audioResourceResult.release(), deleter);
             audioMixCache_[path] = audioSharedPtr;
             return audioSharedPtr;
         }
@@ -327,8 +348,7 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 
         // First, check language.ttf
         // 优先查 language.ttf
-        std::string langFont = fontsDir + language + ".ttf";
-        if (virtualFileSystem_->Exists(langFont))
+        if (std::string langFont = fontsDir + language + ".ttf"; virtualFileSystem_->Exists(langFont))
         {
             LogCat::d("Found font for language '", language, "' in pack '", packId,
                       "': ", langFont);
@@ -499,7 +519,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Cr
     SDL_Texture* texture =
         SDL_CreateTextureFromSurface(renderer_, surface);
     SDL_DestroySurface(surface);
-    auto textureResourceResult = new TextureResourceResult();
+    auto textureResourceResult = std::make_unique<TextureResourceResult>();
     textureResourceResult->SetResource(texture);
     auto deleter = [](TextureResourceResult* textureResourceResult)
     {
@@ -509,16 +529,14 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Cr
         }
         textureResourceResult->DestroyResource();
     };
-    return {textureResourceResult, deleter};
+    return {textureResourceResult.release(), deleter};
 }
 
 std::string glimmer::ResourcePackManager::ListTextureCache() const
 {
     std::ostringstream oss;
-    for (const auto& pair : textureCache_)
+    for (const auto& [path, weakTex] : textureCache_)
     {
-        const auto& path = pair.first;
-        const auto& weakTex = pair.second;
         if (auto shared = weakTex.lock())
         {
             oss << path

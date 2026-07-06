@@ -32,6 +32,8 @@
 namespace glimmer
 {
     class Transform2DComponent;
+    class CameraComponent;
+    class TileVector2D;
 
     class ChunkSystem final : public GameSystem
     {
@@ -76,6 +78,21 @@ namespace glimmer
          */
         static void SetOriginAndSort(std::vector<std::unique_ptr<ChunkTask>>& taskList, TileVector2D origin,
                                      bool sortAscending);
+
+        void UpdateChunkFadeAnimation(float delta, const SDL_FRect& viewportRect) const;
+
+        void ExecuteTimedTask(float delta, float interval, float& accumTime, uint16_t batch,
+                              void (ChunkSystem::*executeFunc)(uint16_t));
+
+        bool UpdateCameraPosition();
+
+        void GenerateLoadTerrainTasks(const TileVector2D& startTerrain, const TileVector2D& endTerrain);
+
+        void GenerateLoadChunkTasks(const TileVector2D& startChunk, const TileVector2D& endChunk);
+
+        void GenerateUnloadChunkTasks(const TileVector2D& startChunk, const TileVector2D& endChunk);
+
+        void GenerateUnloadTerrainTasks(const TileVector2D& startTerrain, const TileVector2D& endTerrain);
 
     public:
         explicit ChunkSystem(WorldContext* worldContext);

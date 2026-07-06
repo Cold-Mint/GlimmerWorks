@@ -46,15 +46,20 @@ namespace glimmer
         uint32_t usedDurability_ = 0;
         std::vector<ItemTagResource> tags_;
         std::unordered_map<uint64_t, uint8_t> tagMap_;
-
-        void SetLockStatus(bool locked);
-
-    protected:
         uint8_t maxStack_ = 1;
         std::function<void(ContainerChangeType, uint8_t)> onAmountChanged_ = nullptr;
         std::function<void(bool)> onLockStatusChanged_ = nullptr;
         std::function<void(uint32_t, uint32_t)> onUsedDurabilityChanged_ = nullptr;
         ResourceRef resourceRef_;
+
+        void SetLockStatus(bool locked);
+
+    protected:
+        void SetMaxStack(uint8_t maxStack);
+
+        [[nodiscard]] const ResourceRef& GetResourceRef() const;
+
+        void SetResourceRef(const ResourceRef& resourceRef);
 
         void SetTags(const std::vector<ItemTagResource>& tags);
 

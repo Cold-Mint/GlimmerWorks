@@ -50,6 +50,8 @@ namespace glimmer
          */
         void AfterSelectItemSlot(uint8_t selectedSlotIndex) const;
 
+        void HandleNumberKeyInput(SDL_Scancode scancode) const;
+
     public:
         void OnActivationChanged(bool activeStatus) override;
 

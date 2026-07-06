@@ -26,6 +26,8 @@
  */
 #include "BiomeSuggestions.h"
 
+#include <algorithm>
+
 #include "core/Constants.h"
 
 glimmer::BiomeSuggestions::BiomeSuggestions(BiomesManager* biomesManager) : biomesManager_(biomesManager)
@@ -37,19 +39,12 @@ std::string glimmer::BiomeSuggestions::GetId() const
     return BIOME_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::BiomeSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::BiomeSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return biomesManager_->GetBiomeList();
 }
 
-bool glimmer::BiomeSuggestions::Match(const std::string keyword, std::string param)
+bool glimmer::BiomeSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    for (const auto& biomeId : biomesManager_->GetBiomeList())
-    {
-        if (biomeId == keyword)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::contains(biomesManager_->GetBiomeList(), keyword);
 }

@@ -34,12 +34,12 @@ std::string glimmer::BoolDynamicSuggestions::GetId() const
     return BOOL_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::BoolDynamicSuggestions::GetSuggestions(std::optional<std::string> param)
+std::vector<std::string> glimmer::BoolDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return {"true", "false"};
 }
 
-bool glimmer::BoolDynamicSuggestions::Match(const std::string keyword, std::string param)
+bool glimmer::BoolDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
     return keyword == "true" || keyword == "false" || keyword == "no" || keyword == "n" || keyword == "yes" || keyword
         == "y" || keyword == "0" || keyword == "1";

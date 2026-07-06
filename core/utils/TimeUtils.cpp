@@ -27,6 +27,7 @@
 #include "TimeUtils.h"
 
 #include <chrono>
+#include <format>
 #include <iomanip>
 #include <sstream>
 
@@ -38,20 +39,18 @@ long glimmer::TimeUtils::GetCurrentTimeMs()
     ).count();
 }
 
-std::string glimmer::TimeUtils::FormatTimeMs(LangsResources* langsResources, uint64_t ms)
+std::string glimmer::TimeUtils::FormatTimeMs(const LangsResources* langsResources, uint64_t ms)
 {
     if (ms < 1000)
     {
         double seconds = static_cast<double>(ms) / 1000.0F;
-        std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2) << seconds << langsResources->timeS;
-        return oss.str();
+        return std::format("{:.2f}{}", seconds, langsResources->timeS);
     }
 
     uint64_t totalSeconds = ms / 1000;
     if (totalSeconds < 60)
     {
-        return std::to_string(totalSeconds) + langsResources->timeS;
+        return std::format("{}{}", totalSeconds, langsResources->timeS);
     }
 
     uint64_t minutes = totalSeconds / 60;
@@ -59,14 +58,10 @@ std::string glimmer::TimeUtils::FormatTimeMs(LangsResources* langsResources, uin
 
     if (minutes < 60)
     {
-        std::ostringstream oss;
-        oss << minutes << langsResources->timeM << " " << seconds << langsResources->timeS;
-        return oss.str();
+        return std::format("{}{} {}{}", minutes, langsResources->timeM, seconds, langsResources->timeS);
     }
     uint64_t hours = minutes / 60;
     minutes = minutes % 60;
-    std::ostringstream oss;
-    oss << hours << langsResources->timeH << " " << minutes << langsResources->timeM << " " << seconds << langsResources
-        ->timeS;
-    return oss.str();
+    return std::format("{}{} {}{} {}{}", hours, langsResources->timeH, minutes, langsResources->timeM, seconds,
+                       langsResources->timeS);
 }

@@ -110,6 +110,22 @@ void glimmer::MiningRangeData::CalculateMining(const TileLayerComponent* tileLay
     maxHardness_ = startTile->GetHardness();
 }
 
+bool glimmer::MiningRangeData::IsValidForChainMining(const TileLayerComponent* tileLayerComponent,
+                                                     const TileVector2D& position) const
+{
+    const Tile* tile = tileLayerComponent->GetSelfLayerTile(position);
+    if (tile == nullptr || !tile->IsBreakable() || !tile->IsAllowChainMining())
+    {
+        return false;
+    }
+    const TileStateMessage* tileStateMessage = tileLayerComponent->GetSelfLayerTileState(position);
+    if (tileStateMessage != nullptr && tileStateMessage->placesource() == PLACE_SOURCE_PLAYER)
+    {
+        return false;
+    }
+    return true;
+}
+
 void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent* tileLayerComponent,
                                                     const TileVector2D& startVector, uint8_t radius)
 {
@@ -196,17 +212,11 @@ void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent* ti
 
             //Check 3: Obtain the target block and verify its validity
             //检查3：获取目标方块并验证有效性
+            if (!IsValidForChainMining(tileLayerComponent, nextPos))
+            {
+                continue;
+            }
             const Tile* nextTile = tileLayerComponent->GetSelfLayerTile(nextPos);
-            if (nextTile == nullptr || !nextTile->IsBreakable() || !nextTile->
-                IsAllowChainMining())
-            {
-                continue;
-            }
-            const TileStateMessage* nextTileStateMessage = tileLayerComponent->GetSelfLayerTileState(nextPos);
-            if (nextTileStateMessage != nullptr && nextTileStateMessage->placesource() == PLACE_SOURCE_PLAYER)
-            {
-                continue;
-            }
 
             //All conditions met, add to the result set
             //所有条件满足，加入结果集

@@ -27,6 +27,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <string_view>
 #include "SDL3/SDL_render.h"
 
 namespace glimmer
@@ -42,7 +43,7 @@ namespace glimmer
 
         [[nodiscard]] const std::string& GetName();
 
-        void SetName(const std::string& name);
+        void SetName(std::string_view name);
 
         [[nodiscard]] uint8_t GetCount() const;
 

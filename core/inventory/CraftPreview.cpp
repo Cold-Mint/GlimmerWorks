@@ -38,7 +38,7 @@ const std::string& glimmer::CraftPreview::GetName()
     return name_;
 }
 
-void glimmer::CraftPreview::SetName(const std::string& name)
+void glimmer::CraftPreview::SetName(std::string_view name)
 {
     name_ = name;
 }

@@ -80,8 +80,7 @@ bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, con
     {
         return false;
     }
-    int size = commandArgs->GetSize();
-    if (size < 2)
+    if (int size = commandArgs->GetSize(); size < 2)
     {
         onMessageRef(fmt::format(
             fmt::runtime(langsResources->insufficientParameterLength),
@@ -94,10 +93,9 @@ bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, con
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    const std::string type = commandArgs->AsString(1);
-    if (type == "list")
+    if (const std::string type = commandArgs->AsString(1); type == "list")
     {
-        EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+        const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
         if (entityShortCut == nullptr)
         {
             return false;

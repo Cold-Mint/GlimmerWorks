@@ -63,6 +63,25 @@ namespace glimmer
                                                      const WorldVector2D& playerPosition, uint8_t tileWidth,
                                                      uint8_t tileHeight) const;
 
+        void UpdateBlockRects();
+
+        TileVector2D SetupHeldTileInfo(const TileVector2D& focusPosition,
+                                       const WorldVector2D& focusWorldTilePos,
+                                       const WorldVector2D& playerPosition,
+                                       uint8_t& tileWidth,
+                                       uint8_t& tileHeight,
+                                       TileVector2D& tileAnchor);
+
+        SDL_FRect CalculateRenderQuad(const TileVector2D& focusPosition,
+                                      const TileVector2D& topLeftVector,
+                                      uint8_t tileWidth,
+                                      uint8_t tileHeight);
+
+        void RenderBlueprintTexture(SDL_Renderer* renderer, const SDL_FRect& renderQuad);
+
+        void RenderBlueprintMask(SDL_Renderer* renderer, const std::vector<bool>& checkRectResult,
+                                 const TileVector2D& leftBottom, uint8_t tileWidth, uint8_t tileHeight);
+
     public:
         explicit BlueprintSystem(WorldContext* worldContext);
 

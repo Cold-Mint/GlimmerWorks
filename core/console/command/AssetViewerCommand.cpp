@@ -28,8 +28,25 @@
 #include "AssetViewerCommand.h"
 
 #include "core/Constants.h"
-#include "core/mod/dataPack/StringManager.h"
 #include "core/scene/AppContext.h"
+
+#include "core/console/asset_enumerator/StringAssetEnumerator.h"
+#include "core/console/asset_enumerator/TextureAssetEnumerator.h"
+#include "core/console/asset_enumerator/TileAssetEnumerator.h"
+#include "core/console/asset_enumerator/BiomesAssetEnumerator.h"
+#include "core/console/asset_enumerator/ComposableItemsAssetEnumerator.h"
+#include "core/console/asset_enumerator/AbilityItemsAssetEnumerator.h"
+#include "core/console/asset_enumerator/MaterialItemsAssetEnumerator.h"
+#include "core/console/asset_enumerator/LootTablesAssetEnumerator.h"
+#include "core/console/asset_enumerator/StartInvAssetEnumerator.h"
+#include "core/console/asset_enumerator/StructuresAssetEnumerator.h"
+#include "core/console/asset_enumerator/MobsAssetEnumerator.h"
+#include "core/console/asset_enumerator/ShapesAssetEnumerator.h"
+#include "core/console/asset_enumerator/BiomeDecorsAssetEnumerator.h"
+#include "core/console/asset_enumerator/FixedColorAssetEnumerator.h"
+#include "core/console/asset_enumerator/LightMaskAssetEnumerator.h"
+#include "core/console/asset_enumerator/LightSourceAssetEnumerator.h"
+#include "core/console/asset_enumerator/RecipesAssetEnumerator.h"
 
 void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
 {
@@ -37,28 +54,41 @@ void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string>* suggest
     {
         return;
     }
-    suggestionsTree->AddChild("string");
-    suggestionsTree->AddChild("texture");
-    suggestionsTree->AddChild("tile");
-    suggestionsTree->AddChild("biomes");
-    suggestionsTree->AddChild("composableItems");
-    suggestionsTree->AddChild("abilityItems");
-    suggestionsTree->AddChild("materialItems");
-    suggestionsTree->AddChild("lootTables");
-    suggestionsTree->AddChild("structures");
-    suggestionsTree->AddChild("startinv");
-    suggestionsTree->AddChild("mobs");
-    suggestionsTree->AddChild("shapes");
-    suggestionsTree->AddChild("biomeDecors");
-    suggestionsTree->AddChild("fixedColor");
-    suggestionsTree->AddChild("lightMask");
-    suggestionsTree->AddChild("lightSource");
-    suggestionsTree->AddChild("recipes");
+    for (const auto& enumerator : assetEnumerators_ | std::views::values)
+    {
+        suggestionsTree->AddChild(std::string(enumerator->GetAssetType()));
+    }
+}
+
+void glimmer::AssetViewerCommand::AddAssetEnumerator(std::unique_ptr<IAssetEnumerator> assetEnumeratorPtr)
+{
+    if (assetEnumeratorPtr == nullptr)
+    {
+        return;
+    }
+    assetEnumerators_.emplace(assetEnumeratorPtr->GetAssetType(), std::move(assetEnumeratorPtr));
 }
 
 glimmer::AssetViewerCommand::AssetViewerCommand(AppContext* appContext)
     : Command(appContext)
 {
+    AddAssetEnumerator(std::make_unique<StringAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<TextureAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<TileAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<BiomesAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<ComposableItemsAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<AbilityItemsAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<MaterialItemsAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<LootTablesAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<StartInvAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<StructuresAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<MobsAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<ShapesAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<BiomeDecorsAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<FixedColorAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<LightMaskAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<LightSourceAssetEnumerator>());
+    AddAssetEnumerator(std::make_unique<RecipesAssetEnumerator>());
 }
 
 const std::string& glimmer::AssetViewerCommand::GetName() const
@@ -81,6 +111,7 @@ PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* st
     strings->emplace_back("[asset type:string]");
 }
 
+
 bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                           const std::function<void(const std::string& text)>* onMessage)
 {
@@ -91,189 +122,17 @@ bool glimmer::AssetViewerCommand::Execute(const CommandSender* commandSender, co
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
     const auto type = commandArgs->AsString(1);
-    if (type == "string")
+    auto it = assetEnumerators_.find(type);
+    if (it != assetEnumerators_.end())
     {
-        const StringManager* stringManager = appContext->GetStringManager();
-        if (stringManager == nullptr)
+        auto result = it->second->ListAsset(appContext);
+        if (result.has_value())
         {
-            return false;
+            onMessageRef(result.value());
+            return true;
         }
-        onMessageRef(stringManager->ListStrings());
-        return true;
+        return false;
     }
-
-    if (type == "texture")
-    {
-        const ResourcePackManager* resourcePackManager = appContext->GetResourcePackManager();
-        if (resourcePackManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(resourcePackManager->ListTextureCache());
-        return true;
-    }
-
-    if (type == "tile")
-    {
-        const TileResourceManager* tileResourceManager = appContext->GetTileResourceManager();
-        if (tileResourceManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(tileResourceManager->ListTiles());
-        return true;
-    }
-
-    if (type == "biomes")
-    {
-        const BiomesManager* biomesManager = appContext->GetBiomesManager();
-        if (biomesManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(biomesManager->ListBiomes());
-        return true;
-    }
-
-    if (type == "composableItems")
-    {
-        const ItemManager* itemManager = appContext->GetItemManager();
-        if (itemManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(itemManager->ListComposableItems());
-        return true;
-    }
-
-    if (type == "abilityItems")
-    {
-        const ItemManager* itemManager = appContext->GetItemManager();
-        if (itemManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(itemManager->ListAbilityItems());
-        return true;
-    }
-    if (type == "materialItems")
-    {
-        const ItemManager* itemManager = appContext->GetItemManager();
-        if (itemManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(itemManager->ListMaterialItems());
-        return true;
-    }
-
-    if (type == "lootTables")
-    {
-        const LootTableManager* lootTableManager = appContext->GetLootTableManager();
-        if (lootTableManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(lootTableManager->ListLootTables());
-        return true;
-    }
-
-    if (type == "startinv")
-    {
-        const InitialInventoryManager* initialInventoryManager = appContext->GetInitialInventoryManager();
-        if (initialInventoryManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(initialInventoryManager->ListInitialInventory());
-        return true;
-    }
-
-    if (type == "structures")
-    {
-        const StructureManager* structureManager = appContext->GetStructureManager();
-        if (structureManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(structureManager->ListStructures());
-        return true;
-    }
-
-    if (type == "mobs")
-    {
-        const MobManager* mobManager = appContext->GetMobManager();
-        if (mobManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(mobManager->ListMobs());
-        return true;
-    }
-
-    if (type == "shapes")
-    {
-        const ShapeManager* shapeManager = appContext->GetShapeManager();
-        if (shapeManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(shapeManager->ListShapes());
-        return true;
-    }
-    if (type == "biomeDecors")
-    {
-        const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext->
-            GetBiomeDecoratorResourcesManager();
-        if (decoratorResourcesManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(decoratorResourcesManager->ListBiomeDecorators());
-        return true;
-    }
-    if (type == "fixedColor")
-    {
-        const FixedColorManager* fixedColorManager = appContext->GetFixedColorManager();
-        if (fixedColorManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(fixedColorManager->ListFixedColorResources());
-        return true;
-    }
-    if (type == "lightMask")
-    {
-        const LightMaskManager* lightMaskManager = appContext->GetLightMaskManager();
-        if (lightMaskManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(lightMaskManager->ListLightMaskResource());
-        return true;
-    }
-
-    if (type == "lightSource")
-    {
-        const LightSourceManager* lightSourceManager = appContext->GetLightSourceManager();
-        if (lightSourceManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(lightSourceManager->ListLightSourceResource());
-        return true;
-    }
-    if (type == "recipes")
-    {
-        const RecipeManager* recipeManager = appContext->GetRecipeManager();
-        if (recipeManager == nullptr)
-        {
-            return false;
-        }
-        onMessageRef(recipeManager->ListRecipeResources());
-        return true;
-    }
-
     const LangsResources* langsResources = appContext->GetLangsResources();
     if (langsResources == nullptr)
     {

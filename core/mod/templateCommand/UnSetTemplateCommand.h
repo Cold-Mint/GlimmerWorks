@@ -35,8 +35,10 @@ namespace glimmer
         static constexpr std::string_view unset = "unset";
 
     public:
-        [[nodiscard]] std::optional<std::string> Execute(const std::vector<std::string>& templateSearchPath,
-                                                         std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>>& variable,
+        [[nodiscard]] std::optional<std::string> Execute(const std::vector<std::filesystem::path>& templateSearchPath,
+                                                         std::unordered_map<
+                                                             std::string, std::string, TransparentStringHash,
+                                                             std::equal_to<>>& variable,
                                                          std::vector<std::string>& args,
                                                          const VirtualFileSystem* virtualFileSystem) override;
 

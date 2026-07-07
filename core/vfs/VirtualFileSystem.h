@@ -25,14 +25,17 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <filesystem>
 #include <memory>
 #include <vector>
 
 #include "FileProvider.h"
 
-namespace glimmer {
-    class VirtualFileSystem {
-        std::vector<std::unique_ptr<IFileProvider> > fileProviders_;
+namespace glimmer
+{
+    class VirtualFileSystem
+    {
+        std::vector<std::unique_ptr<IFileProvider>> fileProviders_;
 
     public:
         virtual ~VirtualFileSystem() = default;
@@ -46,33 +49,27 @@ namespace glimmer {
 
         [[nodiscard]] std::string ListMounts() const;
 
-        [[nodiscard]] std::optional<std::string> ReadFile(const std::string &path) const;
+        [[nodiscard]] bool Exists(const std::filesystem::path& path) const;
 
-        [[nodiscard]] bool Exists(const std::string &path) const;
+        [[nodiscard]] bool CreateFolder(const std::filesystem::path& path) const;
 
-        [[nodiscard]] bool CreateFolder(const std::string &path) const;
+        [[nodiscard]] bool IsFile(const std::filesystem::path& path) const;
 
-        [[nodiscard]] bool IsFile(const std::string &path) const;
+        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::filesystem::path& path) const;
 
-        [[nodiscard]] std::optional<std::string> GetFileOrFolderName(const std::string &path) const;
+        [[nodiscard]] std::optional<std::filesystem::path> GetParentPath(const std::filesystem::path& path) const;
 
-        [[nodiscard]] std::optional<std::string> GetParentPath(const std::string &path) const;
+        [[nodiscard]] bool WriteFile(const std::string& path, const std::string& content) const;
 
+        [[nodiscard]] std::unique_ptr<std::istream> ReadFileAsStream(const std::filesystem::path& path) const;
 
-        [[nodiscard]] bool WriteFile(const std::string &path, const std::string &content) const;
+        [[nodiscard]] std::optional<std::string> ReadFileAsString(const std::filesystem::path& path) const;
 
-        [[nodiscard]] std::optional<std::unique_ptr<std::istream> > ReadStream(const std::string &path) const;
+        [[nodiscard]] virtual std::vector<std::filesystem::path>
+        ListFile(const std::filesystem::path& path, bool recursive) const;
 
-        [[nodiscard]] virtual std::vector<std::string> ListFile(const std::string &path, bool recursive) const;
+        [[nodiscard]] bool DeleteFileOrFolder(const std::filesystem::path& path) const;
 
-        [[nodiscard]] bool DeleteFileOrFolder(const std::string &path) const;
-
-        /**
-         * GetActualPath
-         * 获取实际路径
-         * @param path Virtual path 虚拟路径
-         * @return
-         */
-        [[nodiscard]] std::optional<std::string> GetActualPath(const std::string &path) const;
+        [[nodiscard]] std::optional<std::filesystem::path> GetActualPath(const std::filesystem::path& path) const;
     };
 }

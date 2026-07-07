@@ -27,7 +27,6 @@
 #include "VFSDynamicSuggestions.h"
 
 #include "core/Constants.h"
-#include "core/log/LogCat.h"
 
 glimmer::VFSDynamicSuggestions::VFSDynamicSuggestions(VirtualFileSystem* virtualFileSystem) : virtualFileSystem_(
     virtualFileSystem)
@@ -53,39 +52,31 @@ std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(const st
     const std::string& paramValue = param.value();
     std::string directory;
     std::string keyword;
-    // 判断是否包含 '/'
     if (auto pos = paramValue.find_last_of('/'); pos != std::string::npos)
     {
-        // 目录 = 最后一个 '/' 之前的部分
         directory = paramValue.substr(0, pos);
-        if (directory.empty()) directory = "/"; // 根目录情况
-
-        // 关键字 = '/' 之后的部分
+        if (directory.empty())
+        {
+            directory = "/";
+        }
         keyword = paramValue.substr(pos + 1);
     }
     else
     {
-        // 不包含 '/'
         directory = "";
         keyword = paramValue;
     }
-
-    // 目录不存在 → 返回空
     if (!virtualFileSystem_->Exists(directory))
     {
         return {};
     }
-
-    // 列出目录下所有文件
-    auto files = virtualFileSystem_->ListFile(directory, false);
+    const auto files = virtualFileSystem_->ListFile(directory, false);
     std::vector<std::string> result;
-
-    // 根据关键字过滤（关键字为空则全部返回）
-    for (const auto& f : files)
+    for (const auto& file : files)
     {
-        if (keyword.empty() || f.contains(keyword))
+        if (std::string path = file.string(); keyword.empty() || path.contains(keyword))
         {
-            result.push_back(f);
+            result.emplace_back(path);
         }
     }
     return result;

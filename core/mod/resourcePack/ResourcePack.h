@@ -33,26 +33,28 @@
 #include "toml11/spec.hpp"
 
 
-namespace glimmer {
-    class ResourcePack {
-        std::string path_;
+namespace glimmer
+{
+    class ResourcePack
+    {
+        std::filesystem::path path_;
         ResourcePackManifest manifest_;
-        const VirtualFileSystem *virtualFileSystem_;
+        const VirtualFileSystem* virtualFileSystem_;
         toml::spec tomlVersion_;
         ResourcePackConfig resourcePackConfig_;
 
     public:
-        explicit ResourcePack(std::string path, const VirtualFileSystem *virtualFileSystem,
-                              const toml::spec &tomlVersion);
+        explicit ResourcePack(std::filesystem::path path, const VirtualFileSystem* virtualFileSystem,
+                              const toml::spec& tomlVersion);
 
         bool LoadResourceConfig();
 
         bool LoadManifest();
 
-        [[nodiscard]] const ResourcePackConfig &GetResourcePackConfig() const;
+        [[nodiscard]] const ResourcePackConfig& GetResourcePackConfig() const;
 
-        [[nodiscard]] const ResourcePackManifest &GetManifest() const;
+        [[nodiscard]] const ResourcePackManifest& GetManifest() const;
 
-        [[nodiscard]] std::string GetPath() const;
+        [[nodiscard]] const std::filesystem::path& GetPath() const;
     };
 }

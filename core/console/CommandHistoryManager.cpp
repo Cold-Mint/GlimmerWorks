@@ -26,12 +26,14 @@
  */
 #include "CommandHistoryManager.h"
 
+#include "src/saves/command_history.pb.h"
 
-glimmer::CommandHistoryManager::CommandHistoryManager(const std::string& runtimePath,
+
+glimmer::CommandHistoryManager::CommandHistoryManager(const std::filesystem::path& runtimePath,
                                                       VirtualFileSystem* virtualFileSystem) : virtualFileSystem_(
     virtualFileSystem)
 {
-    commandHistoryPath_ = runtimePath + "/command_history.bin";
+    commandHistoryPath_ = runtimePath / "command_history.bin";
 }
 
 void glimmer::CommandHistoryManager::Save() const
@@ -51,7 +53,7 @@ void glimmer::CommandHistoryManager::Read()
     {
         return;
     }
-    const auto text = virtualFileSystem_->ReadFile(commandHistoryPath_);
+    const auto text = virtualFileSystem_->ReadFileAsString(commandHistoryPath_);
     if (!text.has_value())
     {
         return;

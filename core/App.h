@@ -51,7 +51,7 @@ namespace glimmer
 
         [[nodiscard]] bool InitImGui() const;
 
-        bool InitFont();
+        bool InitFont() const;
 
         bool InitAudio();
 

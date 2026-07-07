@@ -56,7 +56,8 @@ namespace glimmer
         friend class ResourceLocator;
 
         std::vector<std::string> packIdVector_;
-        std::unordered_map<std::string, std::unique_ptr<ResourcePack>, TransparentStringHash, std::equal_to<>> resourcePackMap_;
+        std::unordered_map<std::string, std::unique_ptr<ResourcePack>, TransparentStringHash, std::equal_to<>>
+        resourcePackMap_;
         TTF_Font* font_ = nullptr;
         VirtualFileSystem* virtualFileSystem_ = nullptr;
         SDL_Renderer* renderer_ = nullptr;
@@ -72,20 +73,23 @@ namespace glimmer
         static bool IsResourcePackEnabled(const ResourcePack& pack,
                                           const std::vector<std::string>& enabledResourcePack);
 
-        std::unordered_map<std::string, std::weak_ptr<TextureResourceResult>, TransparentStringHash, std::equal_to<>> textureCache_;
+        std::unordered_map<std::string, std::weak_ptr<TextureResourceResult>, TransparentStringHash, std::equal_to<>>
+        textureCache_;
 
         std::unordered_map<uint64_t, std::weak_ptr<SDL_Texture>> stringTextureCache_;
 
-        std::unordered_map<std::string, std::weak_ptr<AudioResourceResult>, TransparentStringHash, std::equal_to<>> audioMixCache_;
+        std::unordered_map<std::string, std::weak_ptr<AudioResourceResult>, TransparentStringHash, std::equal_to<>>
+        audioMixCache_;
 
-        std::unordered_map<std::string, std::unique_ptr<ColorResource>, TransparentStringHash, std::equal_to<>> colorCache_;
+        std::unordered_map<uint64_t, std::unique_ptr<ColorResource>>
+        colorCache_;
 
 
         std::shared_ptr<TextureResourceResult> ImplLoadTextureFromFile(const std::string& path, const Mods& modConfig);
 
         std::shared_ptr<TextureResourceResult> TryLoadTextureFromPack(const std::string& path,
-                                                                       const ResourcePack* resourcePack,
-                                                                       const std::vector<std::string>& supportedFormats);
+                                                                      const ResourcePack* resourcePack,
+                                                                      const std::vector<std::string>& supportedFormats);
 
         std::shared_ptr<TextureResourceResult> CreateTextureResult(SDL_Texture* texture,
                                                                    const ResourcePack* resourcePack,
@@ -100,14 +104,15 @@ namespace glimmer
          * @param resourceRef resourceRef 资源引用
          * @return Not found, return null. 找不到返回null
          */
-        std::shared_ptr<TextureResourceResult> LoadTextureFromFile(AppContext* appContext, const ResourceRef* resourceRef);
+        std::shared_ptr<TextureResourceResult> LoadTextureFromFile(AppContext* appContext,
+                                                                   const ResourceRef* resourceRef);
 
         std::shared_ptr<AudioResourceResult> LoadAudioFromFile(AppContext* appContext, const ResourceRef* resourceRef);
 
         ColorResource* LoadColorResFromFile(const AppContext* appContext, const ResourceRef* resourceRef);
 
         std::shared_ptr<TextureResourceResult> CreateTexture(const Color& accent,
-                                                   const Color& base) const;
+                                                             const Color& base) const;
 
 
         std::shared_ptr<TextureResourceResult> errorTexture_;
@@ -120,7 +125,7 @@ namespace glimmer
 
         void SetRenderer(SDL_Renderer* renderer, const PreloadColors* preloadColors);
 
-        int Scan(const std::string& path, const std::vector<std::string>& enabledResourcePack,
+        int Scan(const std::string& resourcePackPathString, const std::vector<std::string>& enabledResourcePack,
                  const toml::spec& tomlVersion);
 
         std::optional<std::string> GetFontPath(const std::vector<std::string>& enabledResourcePack,

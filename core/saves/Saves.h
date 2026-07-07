@@ -35,18 +35,18 @@
 
 namespace glimmer {
     class Saves {
-        std::string path_;
+        std::filesystem::path path_;
         VirtualFileSystem *virtualFileSystem_;
         std::function<void(const MapManifestMessage &)> onMapManifestChanged_;
 
-        [[nodiscard]] std::string ToChunkPath(const TileVector2D& position) const;
+        [[nodiscard]] std::filesystem::path ToChunkPath(const TileVector2D& position) const;
 
-        [[nodiscard]] std::string ToChunkEntityPath(const TileVector2D& position) const;
+        [[nodiscard]] std::filesystem::path ToChunkEntityPath(const TileVector2D& position) const;
 
-        [[nodiscard]] std::string ToPlayerPath() const;
+        [[nodiscard]] std::filesystem::path ToPlayerPath() const;
 
     public:
-        explicit Saves(std::string path, VirtualFileSystem *virtualFileSystem);
+        explicit Saves(std::filesystem::path path, VirtualFileSystem *virtualFileSystem);
 
         void SetOnMapManifestChanged(const std::function<void(const MapManifestMessage &)> &onMapManifestChanged);
 

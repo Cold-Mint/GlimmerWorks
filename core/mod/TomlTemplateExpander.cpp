@@ -32,7 +32,7 @@
 #include <optional>
 #include <sstream>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <ranges>
 
 #include "core/log/LogCat.h"
@@ -47,19 +47,7 @@ void glimmer::TomlTemplateExpander::Register(std::unique_ptr<ITemplateCommand> c
     commandMap_[command->GetCommandName()] = std::move(command);
 }
 
-void glimmer::TomlTemplateExpander::Reset() const
-{
-    if (commandMap_.empty())
-    {
-        return;
-    }
-    for (const auto& command : commandMap_ | std::views::values)
-    {
-        command->Reset();
-    }
-}
-
-std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::string>& templateSearchPath,
+std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesystem::path>& templateSearchPath,
                                                   const std::string& inputText,
                                                   const VirtualFileSystem* virtualFileSystem) const
 {

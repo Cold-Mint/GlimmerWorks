@@ -142,17 +142,20 @@ std::vector<std::string> glimmer::DataPackManager::GetPackIdList() const {
 }
 
 int glimmer::DataPackManager::Scan(AppContext *appContext, const toml::spec &tomlVersion) {
-    const std::string &path = appContext->GetConfig()->mods.dataPackPath;
-    if (!virtualFileSystem_->Exists(path)) {
-        LogCat::e("DataPackManager: Path does not exist -> ", path);
+    if (virtualFileSystem_ == nullptr)
+    {
+        return 0;
+    }
+    const std::filesystem::path &dataPackPath = appContext->GetConfig()->mods.dataPackPath;
+    if (!virtualFileSystem_->Exists(dataPackPath)) {
+        LogCat::e("DataPackManager: Path does not exist -> ", dataPackPath);
         return 0;
     }
     packManifestVector_.clear();
     packVerifyStateMap_.clear();
-    LogCat::i("Scanning data packs in: ", path);
+    LogCat::i("Scanning data packs in: ", dataPackPath);
     int success = 0;
-    std::vector<std::string> files = virtualFileSystem_->ListFile(path, false);
-    for (const auto &entry: files) {
+    for (const std::vector<std::filesystem::path> files = virtualFileSystem_->ListFile(dataPackPath, false); const auto &entry: files) {
         if (!virtualFileSystem_->IsFile(entry)) {
             LogCat::d("Found data pack folder: ", entry);
             DataPack pack(entry, virtualFileSystem_, tomlTemplateExpander_, tomlVersion);

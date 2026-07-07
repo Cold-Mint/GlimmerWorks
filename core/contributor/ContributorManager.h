@@ -42,7 +42,7 @@ namespace glimmer
     public:
         ContributorManager();
 
-        bool Register(const Contributor* contributor) const;
+        Contributor* Register(std::unique_ptr<Contributor> contributor);
 
         /**
          * Find

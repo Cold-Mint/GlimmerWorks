@@ -53,23 +53,13 @@
 
 namespace glimmer
 {
+    struct SpecialFileProcessingParams;
     class TileResourceManager;
     class StringManager;
 
-    struct SpecialFileProcessingParams
-    {
-        const Config* config;
-        std::string_view publicPath;
-        std::string_view signPath;
-        bool& findPublicKey;
-        bool& findSignature;
-        std::vector<uint8_t>& publicKey;
-        std::vector<uint8_t>& signature;
-    };
-
     class DataPack
     {
-        std::string rootPath_;
+        std::filesystem::path rootPath_;
         DataPackManifest manifest_;
         toml::spec tomlVersion_;
         const VirtualFileSystem* virtualFileSystem_;
@@ -83,7 +73,8 @@ namespace glimmer
          * @param path toml路径
          * @return The expanded path 展开后的路径
          */
-        [[nodiscard]] std::vector<std::string> GetActuallyTemplateSearchPath(const std::string& path) const;
+        [[nodiscard]] std::vector<std::filesystem::path> GetActuallyTemplateSearchPath(
+            const std::filesystem::path& path) const;
 
         /**
          * GetDataType
@@ -94,7 +85,8 @@ namespace glimmer
         static std::optional<std::string> GetDataType(const std::string& fileName);
 
 
-        [[nodiscard]] int LoadStringResourceFromFile(const std::string& path, StringManager* stringManager) const;
+        [[nodiscard]] int LoadStringResourceFromFile(const std::filesystem::path& path,
+                                                     StringManager* stringManager) const;
 
         void LoadLootTableResourceFromFile(const toml::value& value,
                                            LootTableManager* lootTableManager) const;
@@ -119,7 +111,7 @@ namespace glimmer
         void LoadMaterialItemResourceResourceFromFile(const toml::value& value, ItemManager* itemManager) const;
 
         void LoadContributorResourceFromFile(const toml::value& value,
-                                             const ContributorManager* contributorManager) const;
+                                             ContributorManager* contributorManager) const;
 
         void LoadMobResourceFromFile(const toml::value& value, MobManager* mobManager) const;
 
@@ -144,34 +136,34 @@ namespace glimmer
         [[nodiscard]]
         static std::optional<std::string> ExtractLanguageFromFileName(std::string_view fileName);
 
-        bool ProcessPublicKeyFile(std::string_view file, bool& findPublicKey, std::vector<uint8_t>& publicKey) const;
+        bool ProcessPublicKeyFile(const std::filesystem::path& path, SpecialFileProcessingParams& params) const;
 
-        bool ProcessSignatureFile(std::string_view file, bool& findSignature, std::vector<uint8_t>& signature) const;
+        bool ProcessSignatureFile(const std::filesystem::path& path, SpecialFileProcessingParams& params) const;
 
-        static std::vector<char> ReadFileContent(std::istream& stream);
+        static std::optional<std::vector<char>> ReadFileContent(std::istream* stream);
 
         static void ComputeFileHash(const std::vector<char>& fileBuffer, std::vector<uint8_t>& allHashData);
 
         int LoadResourceByType(const std::string& dataType, const std::string& file,
                                const std::string& content, const AppContext* appContext) const;
 
-        int LoadLanguageFiles(const std::vector<std::string>& defaultLanguageFiles,
-                              const std::vector<std::string>& targetLanguageFiles,
+        int LoadLanguageFiles(const std::vector<std::filesystem::path>& defaultLanguageFiles,
+                              const std::vector<std::filesystem::path>& targetLanguageFiles,
                               const AppContext* appContext) const;
 
-        void VerifySignature(bool findPublicKey, bool findSignature,
-                             const std::vector<uint8_t>& publicKey,
-                             const std::vector<uint8_t>& signature,
-                             const std::vector<uint8_t>& allHashData);
+        static PackVerifyState VerifySignature(bool findPublicKey, bool findSignature,
+                                               const std::vector<uint8_t>& publicKey,
+                                               const std::vector<uint8_t>& signature,
+                                               const std::vector<uint8_t>& allHashData);
 
-        bool ProcessSpecialFiles(std::string_view file,
-                                 const SpecialFileProcessingParams& params) const;
+        bool ProcessSpecialFiles(const std::filesystem::path& path,
+                                 SpecialFileProcessingParams& params) const;
 
-        static bool ProcessLanguageFile(std::string_view file,
+        static bool ProcessLanguageFile(const std::filesystem::path& file,
                                         std::string_view dataType,
                                         std::string_view fileName,
-                                        std::vector<std::string>& defaultLanguageFiles,
-                                        std::vector<std::string>& targetLanguageFiles,
+                                        std::vector<std::filesystem::path>& defaultLanguageFiles,
+                                        std::vector<std::filesystem::path>& targetLanguageFiles,
                                         const AppContext* appContext);
 
     public:

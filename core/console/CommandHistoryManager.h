@@ -35,10 +35,10 @@ namespace glimmer {
 
         VirtualFileSystem *virtualFileSystem_;
 
-        std::string commandHistoryPath_;
+        std::filesystem::path commandHistoryPath_;
 
     public:
-        explicit CommandHistoryManager(const std::string &runtimePath, VirtualFileSystem *virtualFileSystem);
+        explicit CommandHistoryManager(const std::filesystem::path &runtimePath, VirtualFileSystem *virtualFileSystem);
 
         /**
          * Save

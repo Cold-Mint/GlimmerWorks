@@ -659,6 +659,7 @@ target_sources(GlimmerWorks
         core/console/asset_enumerator/LightMaskAssetEnumerator.cpp
         core/console/asset_enumerator/LightSourceAssetEnumerator.cpp
         core/console/asset_enumerator/RecipesAssetEnumerator.cpp
+        core/mod/dataPack/SpecialFileProcessingParams.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -995,6 +996,7 @@ target_sources(GlimmerWorks
         core/console/asset_enumerator/LightMaskAssetEnumerator.h
         core/console/asset_enumerator/LightSourceAssetEnumerator.h
         core/console/asset_enumerator/RecipesAssetEnumerator.h
+        core/mod/dataPack/SpecialFileProcessingParams.h
 )
 
 #Define version information

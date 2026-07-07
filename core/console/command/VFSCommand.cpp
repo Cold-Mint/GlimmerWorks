@@ -140,7 +140,7 @@ bool glimmer::VFSCommand::Execute(const CommandSender* commandSender, const Comm
     }
     if (size > 2 && type == "exists")
     {
-        if (auto existsPath = commandArgs->AsString(2); virtualFileSystem->Exists(existsPath))
+        if (const std::filesystem::path existsPath = commandArgs->AsString(2); virtualFileSystem->Exists(existsPath))
         {
             onMessageRef("true");
         }
@@ -153,7 +153,7 @@ bool glimmer::VFSCommand::Execute(const CommandSender* commandSender, const Comm
     if (size > 2 && type == "readFile")
     {
         auto readFilePath = commandArgs->AsString(2);
-        auto fileContent = virtualFileSystem->ReadFile(readFilePath);
+        auto fileContent = virtualFileSystem->ReadFileAsString(readFilePath);
         onMessageRef(fileContent.value_or("null"));
         return true;
     }

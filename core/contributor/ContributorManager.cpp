@@ -26,6 +26,8 @@
  */
 #include "ContributorManager.h"
 
+#include "src/core/resource_type.pb.h"
+
 glimmer::ContributorManager::ContributorManager()
 {
     auto coldMintContributor = std::make_unique<Contributor>();
@@ -37,20 +39,14 @@ glimmer::ContributorManager::ContributorManager()
     displayName.SetResourceType(RESOURCE_STRING);
     coldMintContributor->displayName = displayName;
     coldMintContributor->country = "CN";
-    Register(coldMintContributor.get());
+    Register(std::move(coldMintContributor));
 }
 
-bool glimmer::ContributorManager::Register(const Contributor* contributor) const
+glimmer::Contributor* glimmer::ContributorManager::Register(std::unique_ptr<Contributor> contributor)
 {
-    if (contributor == nullptr)
-    {
-        return false;
-    }
-    if (const std::string& uuid = contributor->uuid; contributors.contains(uuid))
-    {
-        return false;
-    }
-    return true;
+    auto& contributorPtr = contributors[contributor->uuid];
+    contributorPtr = std::move(contributor);
+    return contributorPtr.get();
 }
 
 glimmer::Contributor* glimmer::ContributorManager::Find(const std::string& uuid) const

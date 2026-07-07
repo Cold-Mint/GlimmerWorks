@@ -181,11 +181,18 @@ bool glimmer::App::InitImGui() const
     return true;
 }
 
-bool glimmer::App::InitFont()
+bool glimmer::App::InitFont() const
 {
-    Config* config = appContext_->GetConfig();
+    const Config* config = appContext_->GetConfig();
+    if (config == nullptr)
+    {
+        return false;
+    }
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
-
+    if (resourcePackManager == nullptr)
+    {
+        return false;
+    }
     const auto fontPathOpt = resourcePackManager->GetFontPath(
         config->mods.enabledResourcePack,
         appContext_->GetLanguage());
@@ -196,20 +203,25 @@ bool glimmer::App::InitFont()
         return true;
     }
 
-    const std::string& fontPath = fontPathOpt.value();
-    if (!appContext_->GetVirtualFileSystem()->Exists(fontPath))
+    const std::filesystem::path& fontPath = fontPathOpt.value();
+    const VirtualFileSystem* virtualFileSystem = appContext_->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr)
+    {
+        return false;
+    }
+    if (!virtualFileSystem->Exists(fontPath))
     {
         return false;
     }
 
-    auto actualPath = appContext_->GetVirtualFileSystem()->GetActualPath(fontPath);
+    auto actualPath = virtualFileSystem->GetActualPath(fontPath);
     if (!actualPath.has_value())
     {
         LogCat::e("An error occurred when converting to the actual font path.");
         return false;
     }
 
-    ImGuiIO& io = ImGui::GetIO();
+    const ImGuiIO& io = ImGui::GetIO();
     if (io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F))
     {
         LogCat::d("Loaded font: ", fontPath);
@@ -218,8 +230,7 @@ bool glimmer::App::InitFont()
     {
         LogCat::e("Failed to load font (ImGui error): ", fontPath);
     }
-    TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16);
-    if (sdlFont == nullptr)
+    if (TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16); sdlFont == nullptr)
     {
         LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
     }

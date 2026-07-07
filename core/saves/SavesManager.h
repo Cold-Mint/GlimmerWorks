@@ -62,16 +62,17 @@ namespace glimmer {
         /**
         * Create a saves
         * 创建存档
+        * @param runtimePath runtimePath 运行目录
         * @param manifest manifest 清单文件
         */
-        Saves *Create(const std::string &runtimePath, MapManifest &manifest);
+        Saves *Create(const std::filesystem::path &runtimePath, MapManifest &manifest);
 
 
         /**
          * Load all the saved files.
          * 加载所有的存档。
          */
-        void LoadAllSaves(const std::string &runtimePath);
+        void LoadAllSaves(const std::filesystem::path &runtimePath);
 
         /**
          * Find out how many archives there are.

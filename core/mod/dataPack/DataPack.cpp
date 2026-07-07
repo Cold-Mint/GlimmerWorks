@@ -30,6 +30,7 @@
 
 #include "blake3.h"
 #include "monocypher-ed25519.h"
+#include "SpecialFileProcessingParams.h"
 #include "core/Constants.h"
 
 #include "StringManager.h"
@@ -42,20 +43,22 @@
 #include "core/utils/StringUtils.h"
 #include "toml11/parser.hpp"
 
-std::vector<std::string> glimmer::DataPack::GetActuallyTemplateSearchPath(const std::string& path) const
+
+std::vector<std::filesystem::path> glimmer::DataPack::GetActuallyTemplateSearchPath(
+    const std::filesystem::path& path) const
 {
-    std::optional<std::string> currentOptional = virtualFileSystem_->GetParentPath(path);
+    const std::optional<std::string> currentOptional = virtualFileSystem_->GetParentPath(path);
     if (!currentOptional.has_value())
     {
         return {};
     }
     const std::string& currentDir = currentOptional.value();
-    std::vector<std::string> result;
+    std::vector<std::filesystem::path> result;
     for (std::string searchPath : manifest_.templateSearchPath)
     {
         StringUtils::ReplaceAll(searchPath, TEMPLATE_CURRENT, currentDir);
-        StringUtils::ReplaceAll(searchPath, TEMPLATE_ROOT, rootPath_);
-        result.push_back(std::move(searchPath));
+        StringUtils::ReplaceAll(searchPath, TEMPLATE_ROOT, rootPath_.string());
+        result.emplace_back(std::move(searchPath));
     }
     return result;
 }
@@ -76,52 +79,43 @@ std::optional<std::string> glimmer::DataPack::GetDataType(const std::string& fil
                            lastDot - secondLastDot - 1);
 }
 
-int glimmer::DataPack::LoadStringResourceFromFile(const std::string& path, StringManager* stringManager) const
+int glimmer::DataPack::LoadStringResourceFromFile(const std::filesystem::path& path, StringManager* stringManager) const
 {
-    auto data =
-        virtualFileSystem_->ReadFile(path);
-    if (!data.has_value())
+    const auto contentOptional = virtualFileSystem_->ReadFileAsString(path);
+    if (!contentOptional.has_value())
     {
-        LogCat::e("Failed to load toml file: ", path);
         return 0;
     }
-    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(path);
+    const std::vector<std::filesystem::path> searchPath = GetActuallyTemplateSearchPath(path);
     if (searchPath.empty())
     {
         return 0;
     }
     const toml::value value = toml::parse_str(
-        tomlTemplateExpander_->Expand(searchPath, data.value(), virtualFileSystem_), tomlVersion_);
-    try
+        tomlTemplateExpander_->Expand(searchPath, contentOptional.value(), virtualFileSystem_), tomlVersion_);
+    int count = 0;
+    auto array = toml::find<std::vector<StringResource>>(value, "string");
+    for (auto& stringRes : array)
     {
-        int count = 0;
-        auto array = toml::find<std::vector<StringResource>>(value, "string");
-        for (auto& stringRes : array)
-        {
-            stringRes.packId = manifest_.id;
-            stringManager->AddResource(
-                std::make_unique<StringResource>(std::move(stringRes))
-            );
-            count++;
-        }
+        stringRes.packId = manifest_.id;
+        stringManager->AddResource(
+            std::make_unique<StringResource>(std::move(stringRes))
+        );
+        count++;
+    }
 
-        auto tagArray = toml::find<std::vector<StringResource>>(value, "tag_string");
-        for (auto& stringRes : tagArray)
-        {
-            stringRes.packId = manifest_.id;
-            stringManager->SetTagTranslate(
-                StringUtils::StringToUint64(stringRes.resourceId), stringRes.value
-            );
-            count++;
-        }
-        return count;
-    }
-    catch (const toml::exception& e)
+    auto tagArray = toml::find<std::vector<StringResource>>(value, "tag_string");
+    for (auto& stringRes : tagArray)
     {
-        LogCat::e("DataPack::LoadStringResourceFromFile - Failed to parse toml: ", e.what());
-        return 0;
+        stringRes.packId = manifest_.id;
+        stringManager->SetTagTranslate(
+            StringUtils::StringToUint64(stringRes.resourceId), stringRes.value
+        );
+        count++;
     }
+    return count;
 }
+
 
 void glimmer::DataPack::LoadLootTableResourceFromFile(const toml::value& value,
                                                       LootTableManager* lootTableManager) const
@@ -164,8 +158,6 @@ void glimmer::DataPack::LoadStructureResourceFromFile(const toml::value& value, 
     std::unique_ptr<IStructureResource> structureResource;
     switch (structureGeneratorType)
     {
-    case StructureGeneratorType::None:
-        return;
     case StructureGeneratorType::Tree:
         structureResource = std::make_unique<TreeStructureResource>(
             toml::get<TreeStructureResource>(value));
@@ -181,6 +173,8 @@ void glimmer::DataPack::LoadStructureResourceFromFile(const toml::value& value, 
             }
             structureResource = std::move(staticStructureResource);
         }
+        break;
+    case StructureGeneratorType::None:
         break;
     }
     structureResource->packId = manifest_.id;
@@ -284,11 +278,11 @@ void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::val
 }
 
 void glimmer::DataPack::LoadContributorResourceFromFile(const toml::value& value,
-                                                        const ContributorManager* contributorManager) const
+                                                        ContributorManager* contributorManager) const
 {
     auto contributorResource = std::make_unique<Contributor>(toml::get<Contributor>(value));
     contributorResource->displayName.SetSelfPackageId(manifest_.id);
-    contributorManager->Register(contributorResource.get());
+    contributorManager->Register(std::move(contributorResource));
 }
 
 void glimmer::DataPack::LoadMobResourceFromFile(const toml::value& value, MobManager* mobManager) const
@@ -425,7 +419,7 @@ void glimmer::DataPack::LoadRecipeResourceFromFile(const toml::value& value, Rec
     recipeManager->RegisterRecipe(std::move(recipeResource));
 }
 
-std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(std::string_view fileName)
+std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(const std::string_view fileName)
 {
     constexpr std::string_view suffix = ".strings.toml";
     if (!fileName.ends_with(suffix))
@@ -441,39 +435,68 @@ std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(std::s
     return base.substr(pos + 1);
 }
 
-bool glimmer::DataPack::ProcessPublicKeyFile(const std::string_view file, bool& findPublicKey,
-    std::vector<uint8_t>& publicKey) const
+bool glimmer::DataPack::ProcessPublicKeyFile(const std::filesystem::path& path,
+                                             SpecialFileProcessingParams& params) const
 {
-    auto publicKeyStream = virtualFileSystem_->ReadStream(file.data());
-    if (!publicKeyStream.has_value())
+    const auto publicKeyStreamUniquePtr = virtualFileSystem_->ReadFileAsStream(path);
+    if (publicKeyStreamUniquePtr == nullptr)
     {
-        return true;
+        return false;
     }
-    auto& pubStream = *publicKeyStream.value();
-    pubStream.read(reinterpret_cast<char*>(publicKey.data()), 32);
+    const auto publicKeyStream = publicKeyStreamUniquePtr.get();
+    if (publicKeyStream == nullptr)
+    {
+        return false;
+    }
+    auto& pubStream = *publicKeyStream;
+    pubStream.read(reinterpret_cast<char*>(params.publicKey.data()), 32);
     if (pubStream.gcount() == 32)
     {
-        findPublicKey = true;
+        params.findPublicKey = true;
     }
     return true;
 }
 
-bool glimmer::DataPack::ProcessSignatureFile(const std::string_view file, bool& findSignature,
-    std::vector<uint8_t>& signature) const
+bool glimmer::DataPack::ProcessSignatureFile(const std::filesystem::path& path,
+                                             SpecialFileProcessingParams& params) const
 {
-    auto signStream = virtualFileSystem_->ReadStream(file.data());
-    if (!signStream.has_value())
+    const auto signStreamUniquePtr = virtualFileSystem_->ReadFileAsStream(path);
+    if (signStreamUniquePtr == nullptr)
     {
-        return true;
+        return false;
     }
-    auto& sigStream = *signStream.value();
-    sigStream.read(reinterpret_cast<char*>(signature.data()), 64);
+    const auto signStream = signStreamUniquePtr.get();
+    if (signStream == nullptr)
+    {
+        return false;
+    }
+    auto& sigStream = *signStream;
+    sigStream.read(reinterpret_cast<char*>(params.signature.data()), 64);
     if (sigStream.gcount() == 64)
     {
-        findSignature = true;
+        params.findSignature = true;
     }
     return true;
 }
+
+std::optional<std::vector<char>> glimmer::DataPack::ReadFileContent(std::istream* stream)
+{
+    if (stream->fail())
+    {
+        return std::nullopt;
+    }
+
+    constexpr std::streamsize BUFFER_SIZE = 8192;
+    std::vector<char> fileBuffer;
+    std::vector<char> tempBuf(BUFFER_SIZE);
+
+    while (stream->read(tempBuf.data(), BUFFER_SIZE) || stream->gcount() > 0)
+    {
+        fileBuffer.insert(fileBuffer.end(), tempBuf.data(), tempBuf.data() + stream->gcount());
+    }
+    return fileBuffer;
+}
+
 
 glimmer::DataPack::DataPack(std::string path, const VirtualFileSystem* virtualFileSystem,
                             const TomlTemplateExpander* tomlTemplateExpander,
@@ -486,14 +509,12 @@ glimmer::DataPack::DataPack(std::string path, const VirtualFileSystem* virtualFi
 
 bool glimmer::DataPack::LoadManifest()
 {
-    auto data =
-        virtualFileSystem_->ReadFile(rootPath_ + "/" + MANIFEST_FILE_NAME);
-    if (!data.has_value())
+    const auto contentOptional = virtualFileSystem_->ReadFileAsString(rootPath_ / MANIFEST_FILE_NAME);
+    if (!contentOptional.has_value())
     {
         return false;
     }
-
-    const toml::value value = toml::parse_str(data.value(), tomlVersion_);
+    const toml::value value = toml::parse_str(contentOptional.value(), tomlVersion_);
     manifest_ = toml::get<DataPackManifest>(value);
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);
@@ -503,19 +524,6 @@ bool glimmer::DataPack::LoadManifest()
 glimmer::PackVerifyState glimmer::DataPack::GetPackVerifyState() const
 {
     return packVerifyState_;
-}
-
-std::vector<char> glimmer::DataPack::ReadFileContent(std::istream& stream)
-{
-    std::vector<char> fileBuffer;
-    std::vector<char> tempBuf(8192);
-    std::streamsize bytes;
-    while (stream.read(tempBuf.data(), tempBuf.size()) || stream.gcount() > 0)
-    {
-        bytes = stream.gcount();
-        fileBuffer.insert(fileBuffer.end(), tempBuf.data(), tempBuf.data() + bytes);
-    }
-    return fileBuffer;
 }
 
 void glimmer::DataPack::ComputeFileHash(const std::vector<char>& fileBuffer, std::vector<uint8_t>& allHashData)
@@ -531,13 +539,14 @@ void glimmer::DataPack::ComputeFileHash(const std::vector<char>& fileBuffer, std
 int glimmer::DataPack::LoadResourceByType(const std::string& dataType, const std::string& file,
                                           const std::string& content, const AppContext* appContext) const
 {
-    const std::vector<std::string> searchPath = GetActuallyTemplateSearchPath(file);
+    const std::vector<std::filesystem::path> searchPath = GetActuallyTemplateSearchPath(file);
     if (dataType == DATA_FILE_TYPE_TEMPLATE)
     {
         return 1;
     }
+    std::string data = tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_);
     const toml::value value = toml::parse_str(
-        tomlTemplateExpander_->Expand(searchPath, content, virtualFileSystem_), tomlVersion_);
+        data, tomlVersion_);
     if (dataType == DATA_FILE_TYPE_TILE)
     {
         LoadTileResourceFromFile(value, appContext->GetTileResourceManager());
@@ -649,149 +658,61 @@ int glimmer::DataPack::LoadResourceByType(const std::string& dataType, const std
     return 0;
 }
 
-int glimmer::DataPack::LoadLanguageFiles(const std::vector<std::string>& defaultLanguageFiles,
-                                         const std::vector<std::string>& targetLanguageFiles,
+int glimmer::DataPack::LoadLanguageFiles(const std::vector<std::filesystem::path>& defaultLanguageFiles,
+                                         const std::vector<std::filesystem::path>& targetLanguageFiles,
                                          const AppContext* appContext) const
 {
     int total = 0;
     const auto& filesToLoad = targetLanguageFiles.empty() ? defaultLanguageFiles : targetLanguageFiles;
-    for (const auto& f : filesToLoad)
+    for (const auto& file : filesToLoad)
     {
-        total += LoadStringResourceFromFile(f, appContext->GetStringManager());
+        total += LoadStringResourceFromFile(file, appContext->GetStringManager());
     }
     return total;
 }
 
-void glimmer::DataPack::VerifySignature(const bool findPublicKey, const bool findSignature,
-                                        const std::vector<uint8_t>& publicKey,
-                                        const std::vector<uint8_t>& signature,
-                                        const std::vector<uint8_t>& allHashData)
+glimmer::PackVerifyState glimmer::DataPack::VerifySignature(const bool findPublicKey, const bool findSignature,
+                                                            const std::vector<uint8_t>& publicKey,
+                                                            const std::vector<uint8_t>& signature,
+                                                            const std::vector<uint8_t>& allHashData)
 {
     if (!findPublicKey || !findSignature)
     {
-        return;
+        return PackVerifyState::VerifiedFailed;
     }
     if (crypto_ed25519_check(signature.data(), publicKey.data(),
                              allHashData.data(), allHashData.size()) == 0)
     {
-        packVerifyState_ = PackVerifyState::VerifiedSuccess;
-        return;
+        return PackVerifyState::VerifiedSuccess;
     }
-    packVerifyState_ = PackVerifyState::VerifiedFailed;
+    return PackVerifyState::VerifiedFailed;
 }
 
-bool glimmer::DataPack::LoadPack(AppContext* appContext)
+
+bool glimmer::DataPack::ProcessSpecialFiles(const std::filesystem::path& path,
+                                            SpecialFileProcessingParams& params) const
 {
-    tomlTemplateExpander_->Reset();
-    int total = 0;
-    std::vector<std::string> files = virtualFileSystem_->ListFile(rootPath_, true);
-    if (files.empty())
+    if (!params.enableSignVerify)
     {
         return false;
     }
-    std::sort(files.begin(), files.end());
-
-    std::vector<std::string> defaultLanguageFiles;
-    std::vector<std::string> targetLanguageFiles;
-    Config* config = appContext->GetConfig();
-    packVerifyState_ = PackVerifyState::Unsigned;
-
-    bool findPublicKey = false;
-    bool findSignature = false;
-    std::vector<uint8_t> publicKey(32);
-    std::vector<uint8_t> signature(64);
-    std::vector<uint8_t> allHashData;
-    const std::string publicPath = rootPath_ + "/.public";
-    const std::string signPath = rootPath_ + "/.sign";
-
-    for (const auto& file : files)
+    if (!params.findPublicKey && path == params.publicPath)
     {
-        if (ProcessSpecialFiles(
-            file, {config, publicPath, signPath, findPublicKey, findSignature, publicKey, signature}))
-        {
-            continue;
-        }
-
-        auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(file);
-        if (!fileNameOptional.has_value())
-        {
-            continue;
-        }
-        const auto& fileName = fileNameOptional.value();
-
-        if (!fileName.empty() && fileName[0] == '.')
-        {
-            continue;
-        }
-
-        auto istreamOptional = virtualFileSystem_->ReadStream(file);
-        if (!istreamOptional.has_value())
-        {
-            continue;
-        }
-        auto& stream = *istreamOptional.value();
-        const std::vector<char> fileBuffer = ReadFileContent(stream);
-
-        if (config->mods.enableSignVerify)
-        {
-            ComputeFileHash(fileBuffer, allHashData);
-        }
-
-        const auto dataTypeOptional = GetDataType(fileName);
-        if (!dataTypeOptional.has_value())
-        {
-            continue;
-        }
-        const std::string content(fileBuffer.data(), fileBuffer.size());
-        const auto& dataType = dataTypeOptional.value();
-
-        if (ProcessLanguageFile(file, dataType, fileName, defaultLanguageFiles, targetLanguageFiles, appContext))
-        {
-            continue;
-        }
-        total += LoadResourceByType(dataType, file, content, appContext);
-    }
-
-    total += LoadLanguageFiles(defaultLanguageFiles, targetLanguageFiles, appContext);
-
-    if (config->mods.enableSignVerify)
-    {
-        VerifySignature(findPublicKey, findSignature, publicKey, signature, allHashData);
-    }
-
-    if (config->mods.loadOnlyVerified && packVerifyState_ != PackVerifyState::VerifiedSuccess)
-    {
-        LogCat::e("Signature verification FAILED for data pack:", manifest_.id);
-        return false;
-    }
-    return total != 0;
-}
-
-bool glimmer::DataPack::ProcessSpecialFiles(std::string_view file,
-                                            const SpecialFileProcessingParams& params) const
-{
-    if (!params.config->mods.enableSignVerify)
-    {
-        return false;
-    }
-    if (!params.findPublicKey && file == params.publicPath)
-    {
-        ProcessPublicKeyFile(file, params.findPublicKey, params.publicKey);
+        ProcessPublicKeyFile(path, params);
         return true;
     }
-    if (!params.findSignature && file == params.signPath)
+    if (!params.findSignature && path == params.signPath)
     {
-        ProcessSignatureFile(file, params.findSignature, params.signature);
+        ProcessSignatureFile(path, params);
         return true;
     }
     return false;
 }
 
-bool glimmer::DataPack::ProcessLanguageFile(std::string_view file,
-                                            std::string_view dataType,
+bool glimmer::DataPack::ProcessLanguageFile(const std::filesystem::path& file, std::string_view dataType,
                                             std::string_view fileName,
-                                            std::vector<std::string>& defaultLanguageFiles,
-                                            std::vector<std::string>& targetLanguageFiles,
+                                            std::vector<std::filesystem::path>& defaultLanguageFiles,
+                                            std::vector<std::filesystem::path>& targetLanguageFiles,
                                             const AppContext* appContext)
 {
     if (dataType != DATA_FILE_TYPE_STRINGS)
@@ -805,13 +726,106 @@ bool glimmer::DataPack::ProcessLanguageFile(std::string_view file,
     }
     if (const auto& fileLang = langOptional.value(); fileLang == appContext->GetLanguage())
     {
-        targetLanguageFiles.push_back(file.data());
+        targetLanguageFiles.push_back(file);
     }
     else if (fileLang == "default")
     {
-        defaultLanguageFiles.push_back(file.data());
+        defaultLanguageFiles.push_back(file);
     }
     return true;
+}
+
+bool glimmer::DataPack::LoadPack(AppContext* appContext)
+{
+    packVerifyState_ = PackVerifyState::Unsigned;
+    if (appContext == nullptr)
+    {
+        return false;
+    }
+    Config* config = appContext->GetConfig();
+    if (config == nullptr)
+    {
+        return false;
+    }
+    int total = 0;
+    std::vector<std::filesystem::path> files = virtualFileSystem_->ListFile(rootPath_, true);
+    if (files.empty())
+    {
+        return false;
+    }
+    std::ranges::sort(files);
+    std::vector<std::filesystem::path> defaultLanguageFiles;
+    std::vector<std::filesystem::path> targetLanguageFiles;;
+    std::vector<uint8_t> allHashData;
+    SpecialFileProcessingParams specialFileProcessingParams{
+        config->mods.enableSignVerify, rootPath_ / ".public", rootPath_ / ".sign", false, false,
+        std::vector<uint8_t>(32), std::vector<uint8_t>(64)
+    };
+    for (const auto& file : files)
+    {
+        if (ProcessSpecialFiles(
+            file, specialFileProcessingParams))
+        {
+            continue;
+        }
+        auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(file);
+        if (!fileNameOptional.has_value())
+        {
+            continue;
+        }
+        const auto& fileName = fileNameOptional.value();
+        if (!fileName.empty() && fileName[0] == '.')
+        {
+            continue;
+        }
+
+        auto istreamUniquePtr = virtualFileSystem_->ReadFileAsStream(file);
+        if (istreamUniquePtr == nullptr)
+        {
+            continue;
+        }
+        auto stream = istreamUniquePtr.get();
+        const std::optional<std::vector<char>> fileBufferOptional = ReadFileContent(stream);
+        if (!fileBufferOptional.has_value())
+        {
+            continue;
+        }
+        const std::vector<char>& fileBuffer = fileBufferOptional.value();
+        if (specialFileProcessingParams.enableSignVerify)
+        {
+            ComputeFileHash(fileBuffer, allHashData);
+        }
+
+        const auto dataTypeOptional = GetDataType(fileName);
+        if (!dataTypeOptional.has_value())
+        {
+            continue;
+        }
+        const std::string content(fileBuffer.data(), fileBuffer.size());
+        const auto& dataType = dataTypeOptional.value();
+        if (ProcessLanguageFile(file, dataType, fileName, defaultLanguageFiles, targetLanguageFiles, appContext))
+        {
+            continue;
+        }
+        total += LoadResourceByType(dataType, file, content, appContext);
+    }
+
+    total += LoadLanguageFiles(defaultLanguageFiles, targetLanguageFiles, appContext);
+
+    if (specialFileProcessingParams.enableSignVerify)
+    {
+        packVerifyState_ = VerifySignature(specialFileProcessingParams.findPublicKey,
+                                           specialFileProcessingParams.findSignature,
+                                           specialFileProcessingParams.publicKey, specialFileProcessingParams.signature,
+                                           allHashData);
+    }
+
+    if (config->mods.loadOnlyVerified && packVerifyState_ != PackVerifyState::VerifiedSuccess)
+    {
+        LogCat::e("Signature verification FAILED for data pack:", manifest_.id);
+        return false;
+    }
+    return total != 0;
 }
 
 

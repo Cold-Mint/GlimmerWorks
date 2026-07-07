@@ -25,17 +25,20 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * File provider
      * 文件提供者
      */
-    class IFileProvider {
+    class IFileProvider
+    {
     public:
         virtual ~IFileProvider() = default;
 
@@ -44,7 +47,7 @@ namespace glimmer {
          * 获取文件提供者的名称
          * @return
          */
-        [[nodiscard]] virtual std::string GetFileProviderName() const = 0;
+        [[nodiscard]] virtual std::string_view GetFileProviderName() const = 0;
 
 
         /**
@@ -53,31 +56,24 @@ namespace glimmer {
          * @param path path 路径
          * @return
          */
-        [[nodiscard]] virtual std::optional<std::string> GetFileOrFolderName(const std::string &path) const = 0;
-
-        /**
-         * Read the file
-         * 读取文件
-         * @param path path 文件路径
-         * @return string 文件内容
-         */
-        [[nodiscard]] virtual std::optional<std::string> ReadFile(const std::string &path) = 0;
+        [[nodiscard]] virtual std::optional<std::string> GetFileOrFolderName(const std::filesystem::path& path) const =
+        0;
 
 
         /**
-         *Delete File Or Folder
+         * Delete File Or Folder
          * 删除文件或者文件夹
          * @return
          */
-        [[nodiscard]] virtual bool DeleteFileOrFolder(const std::string &path) = 0;
+        [[nodiscard]] virtual bool DeleteFileOrFolder(const std::filesystem::path& path) = 0;
 
         /**
          * Read Stream
          * 读取文件流
          * @param path  path 文件路径
-         * @return stream 文件流
+         * @return stream Failed to read, returning nullptr. 文件流 读取失败返回nullptr
          */
-        [[nodiscard]] virtual std::optional<std::unique_ptr<std::istream> > ReadStream(const std::string &path) = 0;
+        [[nodiscard]] virtual std::unique_ptr<std::istream> ReadStream(const std::filesystem::path& path) = 0;
 
 
         /**
@@ -86,7 +82,7 @@ namespace glimmer {
          * @param path path 文件路径
          * @return 是否存在
          */
-        [[nodiscard]] virtual bool Exists(const std::string &path) = 0;
+        [[nodiscard]] virtual bool Exists(const std::filesystem::path& path) = 0;
 
 
         /**
@@ -95,7 +91,7 @@ namespace glimmer {
          * @param path path 文件路径
          * @return 是否为文件
          */
-        [[nodiscard]] virtual bool IsFile(const std::string &path) = 0;
+        [[nodiscard]] virtual bool IsFile(const std::filesystem::path& path) = 0;
 
         /**
          * Write the file
@@ -104,7 +100,8 @@ namespace glimmer {
          * @param content content文件内容
          * @return 是否写出成功
          */
-        [[nodiscard]] virtual bool WriteFile(const std::string &path, const std::string &content) = 0;
+        [[nodiscard]] virtual bool WriteFile(const std::filesystem::path& path,
+                                             const std::string &content) const = 0;
 
         /**
          * List the files in the folder
@@ -113,12 +110,15 @@ namespace glimmer {
          * @param recursive recursive Is it recursive? 是否递归
          * @return
          */
-        [[nodiscard]] virtual std::vector<std::string> ListFile(const std::string &path, bool recursive) = 0;
+        [[nodiscard]] virtual std::vector<std::filesystem::path> ListFile(
+            const std::filesystem::path& path, bool recursive) = 0;
 
-        [[nodiscard]] virtual std::optional<std::string> GetParentPath(const std::string &path) const = 0;
+        [[nodiscard]] virtual std::optional<std::filesystem::path> GetParentPath(
+            const std::filesystem::path& path) const = 0;
 
-        [[nodiscard]] virtual std::optional<std::string> GetActualPath(const std::string &path) const = 0;
+        [[nodiscard]] virtual std::optional<std::filesystem::path> GetActualPath(
+            const std::filesystem::path& path) const = 0;
 
-        virtual bool CreateFolder(const std::string &path) = 0;
+        [[nodiscard]] virtual bool CreateFolder(const std::filesystem::path& path) = 0;
     };
 }

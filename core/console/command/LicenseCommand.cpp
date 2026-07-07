@@ -42,7 +42,7 @@ bool glimmer::LicenseCommand::Execute(const CommandSender* commandSender, const 
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (const auto licenseText = appContext->GetVirtualFileSystem()->ReadFile("LICENSE"); licenseText.has_value())
+    if (const auto licenseText = appContext->GetVirtualFileSystem()->ReadFileAsString("LICENSE"); licenseText.has_value())
     {
         onMessageRef(licenseText.value());
         return true;

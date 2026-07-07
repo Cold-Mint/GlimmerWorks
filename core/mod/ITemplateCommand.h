@@ -39,12 +39,10 @@ namespace glimmer {
     public:
         virtual ~ITemplateCommand();
 
-        [[nodiscard]] virtual std::optional<std::string> Execute(const std::vector<std::string> &templateSearchPath,
+        [[nodiscard]] virtual std::optional<std::string> Execute(const std::vector<std::filesystem::path> &templateSearchPath,
                                                                  std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>> &variable,
                                                                  std::vector<std::string> &args,
                                                                  const VirtualFileSystem *virtualFileSystem) = 0;
-
-        virtual void Reset();
 
         [[nodiscard]] virtual const std::string_view &GetCommandName() const = 0;
     };

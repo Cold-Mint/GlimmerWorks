@@ -377,7 +377,8 @@ glimmer::AppContext::AppContext()
 #endif
     language_ = LanguageUtils::getLanguage();
     LogCat::i("Load the built-in language file.");
-    std::string langFile = "langs/" + language_ + ".toml";
+    std::filesystem::path langFile = "langs" / std::filesystem::path(language_);
+    langFile.replace_extension("toml");
     LogCat::i("Try to load language file:", langFile);
     if (!virtualFileSystem_->Exists(langFile))
     {
@@ -385,7 +386,7 @@ glimmer::AppContext::AppContext()
         langFile = "langs/default.toml";
     }
     VirtualFileSystem* vfs = virtualFileSystem_.get();
-    const auto langData = virtualFileSystem_->ReadFile(langFile);
+    const auto langData = virtualFileSystem_->ReadFileAsString(langFile);
     if (!langData.has_value())
     {
         LogCat::e("Failed to load language file!");
@@ -492,7 +493,7 @@ glimmer::AppContext::AppContext()
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
     config_ = std::make_unique<Config>();
     LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
-    const std::optional<std::string> configData = vfs->ReadFile(CONFIG_FILE_NAME);
+    const std::optional<std::string> configData = vfs->ReadFileAsString(CONFIG_FILE_NAME);
     if (!configData.has_value())
     {
         LogCat::e("Failed to read ",CONFIG_FILE_NAME, " file!");
@@ -641,9 +642,10 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
             "renderer is null failed"));
         return;
     }
-    if (!virtualFileSystem_->Exists(config_->runtimePath + "/screenshots"))
+    const std::filesystem::path screenshotsFolder = std::filesystem::path(config_->runtimePath) / "screenshots";
+    if (!virtualFileSystem_->Exists(screenshotsFolder))
     {
-        if (!virtualFileSystem_->CreateFolder(config_->runtimePath + "/screenshots"))
+        if (!virtualFileSystem_->CreateFolder(screenshotsFolder))
         {
             onMessageRef(fmt::format(
                 fmt::runtime(GetLangsResources()->screenshotSavedFailed),
@@ -652,7 +654,7 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
         }
     }
     const auto actualPath = virtualFileSystem_->GetActualPath(
-        config_->runtimePath + "/screenshots/" + GetTimeFileName());
+        screenshotsFolder / GetTimeFileName());
     if (!actualPath.has_value())
     {
         onMessageRef(fmt::format(
@@ -686,13 +688,19 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     }
     const bool result = IMG_SavePNG(surface, actualPath.value().c_str());
     SDL_DestroySurface(surface);
-    onMessageRef(result
-                     ? fmt::format(
-                         fmt::runtime(GetLangsResources()->screenshotSavedSuccess),
-                         actualPath.value())
-                     : fmt::format(
-                         fmt::runtime(GetLangsResources()->screenshotSavedFailed),
-                         "IMG_SavePNG Failed"));
+    if (result)
+    {
+        onMessageRef(fmt::format(
+            fmt::runtime(GetLangsResources()->screenshotSavedSuccess),
+            actualPath.value().string()));
+    }
+    else
+    {
+        onMessageRef(
+            fmt::format(
+                fmt::runtime(GetLangsResources()->screenshotSavedFailed),
+                "IMG_SavePNG Failed"));
+    }
 }
 
 bool glimmer::AppContext::Running() const

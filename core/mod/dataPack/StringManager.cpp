@@ -55,8 +55,8 @@ void glimmer::StringManager::LoadLangsString(const LangsResources* langsResource
     AddCoreResource(STRING_TILE_BEDROCK_DESCRIPTION, langsResources->tileDescriptionBedrock);
 }
 
-glimmer::StringResource* glimmer::StringManager::AddCoreResource(std::string_view resourceId,
-                                                                 std::string_view value)
+glimmer::StringResource* glimmer::StringManager::AddCoreResource(const std::string_view resourceId,
+                                                                 const std::string_view value)
 {
     auto stringResource = std::make_unique<StringResource>();
     stringResource->missing = false;

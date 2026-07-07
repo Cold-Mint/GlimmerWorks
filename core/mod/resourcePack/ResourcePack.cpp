@@ -28,11 +28,12 @@
 
 #include "core/Constants.h"
 #include "core/log/LogCat.h"
+#include "core/utils/StringUtils.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
 
-glimmer::ResourcePack::ResourcePack(std::string path, const VirtualFileSystem* virtualFileSystem,
+glimmer::ResourcePack::ResourcePack(std::filesystem::path path, const VirtualFileSystem* virtualFileSystem,
                                     const toml::spec& tomlVersion) : path_(std::move(path)),
                                                                      virtualFileSystem_(virtualFileSystem), manifest_(),
                                                                      tomlVersion_(tomlVersion)
@@ -41,56 +42,28 @@ glimmer::ResourcePack::ResourcePack(std::string path, const VirtualFileSystem* v
 
 bool glimmer::ResourcePack::LoadResourceConfig()
 {
-    auto data =
-        virtualFileSystem_->ReadFile(path_ + "/" + RESOURCE_PACK_CONFIG_FILE_NAME);
-    if (!data.has_value())
+    const auto contentOptional = virtualFileSystem_->ReadFileAsString(path_ / RESOURCE_PACK_CONFIG_FILE_NAME);
+    if (!contentOptional.has_value())
     {
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
-    try
-    {
-        resourcePackConfig_ = toml::get<ResourcePackConfig>(value);
-    }
-    catch (const toml::exception& e)
-    {
-        LogCat::e("DataPack::LoadResourceConfig - Failed to parse res_config.toml: ", e.what());
-        return false;
-    }
+    const toml::value value = toml::parse_str(contentOptional.value(), tomlVersion_);
+    resourcePackConfig_ = toml::get<ResourcePackConfig>(value);
     return true;
 }
 
 bool glimmer::ResourcePack::LoadManifest()
 {
-    auto data =
-        virtualFileSystem_->ReadFile(path_ + "/" + MANIFEST_FILE_NAME);
-    if (!data.has_value())
+    const auto contentOptional = virtualFileSystem_->ReadFileAsString(path_ / MANIFEST_FILE_NAME);
+    if (!contentOptional.has_value())
     {
-        LogCat::e("DataPack::loadManifest - Failed to load manifest: ", path_ + "/" + MANIFEST_FILE_NAME);
         return false;
     }
-    toml::value value = toml::parse_str(data.value(), tomlVersion_);
-    try
-    {
-        manifest_ = toml::get<ResourcePackManifest>(value);
-    }
-    catch (const toml::exception& e)
-    {
-        LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
-        return false;
-    }
+    const toml::value value = toml::parse_str(contentOptional.value(),
+                                              tomlVersion_);
+    manifest_ = toml::get<ResourcePackManifest>(value);
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);
-    LogCat::d("ResourcePack::loadManifest - Loaded manifest for data pack: ", path_);
-    LogCat::d("ID: ", manifest_.id);
-    LogCat::d("Name: ", manifest_.name.GetResourceKey(), " (packId: ", manifest_.name.GetPackageId(), ")");
-    LogCat::d("Description: ", manifest_.description.GetResourceKey(), " (packId: ",
-              manifest_.description.GetPackageId(),
-              ")");
-    LogCat::d("Author: ", manifest_.author);
-    LogCat::d("Version: ", manifest_.versionName, " (Number: ", manifest_.versionNumber, ")");
-    LogCat::d("Minimum Game Version: ", manifest_.minGameVersion);
-    LogCat::d("Is Resource Pack: ", manifest_.resPack ? "true" : "false");
     return true;
 }
 
@@ -104,7 +77,7 @@ const glimmer::ResourcePackManifest& glimmer::ResourcePack::GetManifest() const
     return manifest_;
 }
 
-std::string glimmer::ResourcePack::GetPath() const
+const std::filesystem::path& glimmer::ResourcePack::GetPath() const
 {
     return path_;
 }

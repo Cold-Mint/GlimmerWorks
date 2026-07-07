@@ -30,35 +30,48 @@
 #include "core/Constants.h"
 #include "core/utils/StringUtils.h"
 
-
-std::optional<std::string> glimmer::InsertTemplateCommand::Execute(const std::vector<std::string> &templateSearchPath,
-                                                                   std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>> &
-                                                                   variable, std::vector<std::string> &args,
-                                                                   const VirtualFileSystem *virtualFileSystem) {
-    if (args.size() == 1) {
-        if (templateSearchPath.empty()) {
+std::optional<std::string> glimmer::InsertTemplateCommand::Execute(
+    const std::vector<std::filesystem::path>& templateSearchPath,
+    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>>& variable,
+    std::vector<std::string>& args, const VirtualFileSystem* virtualFileSystem)
+{
+    if (args.size() == 1)
+    {
+        if (templateSearchPath.empty())
+        {
             return std::nullopt;
         }
-        for (auto &searchPath: templateSearchPath) {
-            const std::string path = searchPath + "/" + args[0] + "." + DATA_FILE_TYPE_TEMPLATE + ".toml";
-            if (!virtualFileSystem->Exists(path)) {
+        std::stringstream fileNameStream;
+        fileNameStream << args[0];
+        fileNameStream << ".";
+        fileNameStream << DATA_FILE_TYPE_TEMPLATE;
+        fileNameStream << ".";
+        fileNameStream << "toml";
+        const std::string fileName = fileNameStream.str();
+        for (auto& searchPath : templateSearchPath)
+        {
+            std::filesystem::path path = searchPath / fileName;
+            if (!virtualFileSystem->Exists(path))
+            {
                 continue;
             }
-            std::optional<std::string> fileDataOptional = virtualFileSystem->ReadFile(path);
-            if (!fileDataOptional.has_value()) {
+            auto processedContentOptional = virtualFileSystem->ReadFileAsString(path);
+            if (!processedContentOptional.has_value())
+            {
                 continue;
             }
-            std::string &processedContent = fileDataOptional.value();
-            for (const auto &[key, value]: variable) {
-                StringUtils::ReplaceAll(processedContent, "{" + key + "}", value);
+            for (const auto& [key, value] : variable)
+            {
+                StringUtils::ReplaceAll(processedContentOptional.value(), "{" + key + "}", value);
             }
-            return processedContent;
+            return processedContentOptional.value();
         }
     }
 
     return std::nullopt;
 }
 
-const std::string_view &glimmer::InsertTemplateCommand::GetCommandName() const {
+const std::string_view& glimmer::InsertTemplateCommand::GetCommandName() const
+{
     return insert;
 }

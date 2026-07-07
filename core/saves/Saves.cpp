@@ -31,116 +31,173 @@
 #include "core/Constants.h"
 
 
-std::string glimmer::Saves::ToChunkPath(const TileVector2D& position) const {
-    return path_ + "/chunks/chunk_" + std::to_string(position.x) + "_" + std::to_string(position.y) + ".bin";
+std::filesystem::path glimmer::Saves::ToChunkPath(const TileVector2D& position) const
+{
+    std::stringstream fileNameStream;
+    fileNameStream << "chunk_";
+    fileNameStream << std::to_string(position.x);
+    fileNameStream << "_";
+    fileNameStream << std::to_string(position.y);
+    fileNameStream << ".bin";
+    return path_ / "chunks" / fileNameStream.str();
 }
 
-std::string glimmer::Saves::ToChunkEntityPath(const TileVector2D& position) const {
-    return path_ + "/entities/entity_" + std::to_string(position.x) + "_" + std::to_string(position.y) + ".bin";
+std::filesystem::path glimmer::Saves::ToChunkEntityPath(const TileVector2D& position) const
+{
+    std::stringstream fileNameStream;
+    fileNameStream << "entity_";
+    fileNameStream << std::to_string(position.x);
+    fileNameStream << "_";
+    fileNameStream << std::to_string(position.y);
+    fileNameStream << ".bin";
+    return path_ / "entities" / fileNameStream.str();
 }
 
-std::string glimmer::Saves::ToPlayerPath() const {
-    return path_ + "/" + PLAYER_FILE_NAME;
+std::filesystem::path glimmer::Saves::ToPlayerPath() const
+{
+    return path_ / PLAYER_FILE_NAME;
 }
 
-glimmer::Saves::Saves(std::string path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
-    virtualFileSystem_(virtualFileSystem) {
+glimmer::Saves::Saves(std::filesystem::path path, VirtualFileSystem* virtualFileSystem) : path_(std::move(path)),
+    virtualFileSystem_(virtualFileSystem)
+{
 }
 
 void glimmer::Saves::SetOnMapManifestChanged(
-    const std::function<void(const MapManifestMessage &)> &onMapManifestChanged) {
+    const std::function<void(const MapManifestMessage&)>& onMapManifestChanged)
+{
     onMapManifestChanged_ = onMapManifestChanged;
 }
 
-bool glimmer::Saves::Exist() const {
+bool glimmer::Saves::Exist() const
+{
     return virtualFileSystem_->Exists(path_);
 }
 
-std::string glimmer::Saves::GetPath() const {
+std::string glimmer::Saves::GetPath() const
+{
     return path_;
 }
 
-bool glimmer::Saves::ChunkExists(const TileVector2D& position) const {
+bool glimmer::Saves::ChunkExists(const TileVector2D& position) const
+{
     return virtualFileSystem_->Exists(
         ToChunkPath(position));
 }
 
-bool glimmer::Saves::EntityExists(const TileVector2D& position) const {
+bool glimmer::Saves::EntityExists(const TileVector2D& position) const
+{
     return virtualFileSystem_->Exists(
         ToChunkEntityPath(position));
 }
 
-std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D& position) const {
-    const auto stream = virtualFileSystem_->ReadStream(ToChunkPath(position));
-    if (!stream.has_value()) {
+std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D& position) const
+{
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(position));
+    if (streamUnique == nullptr)
+    {
         return std::nullopt;
     }
-    ChunkMessage chunkMessage;
-    if (chunkMessage.ParseFromIstream(stream->get())) {
+    const auto stream = streamUnique.get();
+    if (stream == nullptr)
+    {
+        return std::nullopt;
+    }
+    if (ChunkMessage chunkMessage; chunkMessage.ParseFromIstream(stream))
+    {
         return chunkMessage;
     }
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunk(const TileVector2D& position, const ChunkMessage &chunkMessage) const {
+bool glimmer::Saves::WriteChunk(const TileVector2D& position, const ChunkMessage& chunkMessage) const
+{
     return virtualFileSystem_->WriteFile(ToChunkPath(position), chunkMessage.SerializeAsString());
 }
 
-std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVector2D& position) const {
-    const auto stream = virtualFileSystem_->ReadStream(ToChunkEntityPath(position));
-    if (!stream.has_value()) {
+std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVector2D& position) const
+{
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(position));
+    if (streamUnique == nullptr)
+    {
+        return std::nullopt;
+    }
+    const auto stream = streamUnique.get();
+    if (stream == nullptr)
+    {
         return std::nullopt;
     }
     ChunkEntityMessage chunkMessage;
-    if (chunkMessage.ParseFromIstream(stream->get())) {
+    if (chunkMessage.ParseFromIstream(stream))
+    {
         return chunkMessage;
     }
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunkEntity(const TileVector2D& position, const ChunkEntityMessage &chunkEntityMessage) const {
+bool glimmer::Saves::WriteChunkEntity(const TileVector2D& position, const ChunkEntityMessage& chunkEntityMessage) const
+{
     return virtualFileSystem_->WriteFile(ToChunkEntityPath(position), chunkEntityMessage.SerializeAsString());
 }
 
-bool glimmer::Saves::DeleteChunkEntity(const TileVector2D& position) const {
+bool glimmer::Saves::DeleteChunkEntity(const TileVector2D& position) const
+{
     return virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(position));
 }
 
-bool glimmer::Saves::WritePlayer(const PlayerMessage &playerMessage) const {
+bool glimmer::Saves::WritePlayer(const PlayerMessage& playerMessage) const
+{
     return virtualFileSystem_->WriteFile(ToPlayerPath(), playerMessage.SerializeAsString());
 }
 
-std::optional<PlayerMessage> glimmer::Saves::ReadPlayer() const {
-    const auto stream = virtualFileSystem_->ReadStream(ToPlayerPath());
-    if (!stream.has_value()) {
+std::optional<PlayerMessage> glimmer::Saves::ReadPlayer() const
+{
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToPlayerPath());
+    if (streamUnique == nullptr)
+    {
         return std::nullopt;
     }
-    PlayerMessage playerMessage;
-    if (playerMessage.ParseFromIstream(stream->get())) {
+    const auto stream = streamUnique.get();
+    if (stream == nullptr)
+    {
+        return std::nullopt;
+    }
+    if (PlayerMessage playerMessage; playerMessage.ParseFromIstream(stream))
+    {
         return playerMessage;
     }
     return std::nullopt;
 }
 
-bool glimmer::Saves::PlayerExists() const {
+bool glimmer::Saves::PlayerExists() const
+{
     return virtualFileSystem_->Exists(ToPlayerPath());
 }
 
-std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {
-    const auto stream = virtualFileSystem_->ReadStream(path_ + "/" + MAP_MANIFEST_FILE_NAME);
-    if (!stream.has_value()) {
+std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const
+{
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(path_ / MAP_MANIFEST_FILE_NAME);
+    if (streamUnique == nullptr)
+    {
         return std::nullopt;
     }
-    MapManifestMessage mapManifestMessage;
-    if (mapManifestMessage.ParseFromIstream(stream->get())) {
+    const auto stream = streamUnique.get();
+    if (stream == nullptr)
+    {
+        return std::nullopt;
+    }
+    if (MapManifestMessage mapManifestMessage; mapManifestMessage.ParseFromIstream(stream))
+    {
         return mapManifestMessage;
     }
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteMapManifest(const MapManifestMessage &mapManifestMessage) const {
-    if (onMapManifestChanged_ != nullptr) {
+bool glimmer::Saves::WriteMapManifest(const MapManifestMessage& mapManifestMessage) const
+{
+    if (onMapManifestChanged_ != nullptr)
+    {
         onMapManifestChanged_(mapManifestMessage);
     }
-    return virtualFileSystem_->WriteFile(path_ + "/" + MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
+    return virtualFileSystem_->WriteFile(path_ / MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
 }

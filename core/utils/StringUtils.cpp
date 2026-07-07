@@ -36,19 +36,9 @@
 
 std::string glimmer::StringUtils::ToSafeSaveName(const std::string& utf8Str)
 {
-    std::uint32_t hash = 0x811C9DC5;
-    for (unsigned char c : utf8Str)
-    {
-        constexpr uint32_t fnvPrime = 0x01000193;
-        hash ^= static_cast<uint32_t>(c);
-        hash *= fnvPrime;
-    }
     std::ostringstream oss;
-    oss << "save_"
-        << std::hex
-        << std::setw(8) << std::setfill('0')
-        << hash;
-
+    oss << "save_";
+    oss << StringToUint64Blake3(utf8Str);
     return oss.str();
 }
 
@@ -68,6 +58,33 @@ uint64_t glimmer::StringUtils::StringToUint64(const std::string& string)
 {
     return std::hash<std::string>{}(string);
 }
+
+std::span<const std::byte> glimmer::StringUtils::StringToByteData(const std::string& string)
+{
+    return {
+        reinterpret_cast<const std::byte*>(string.data()), string.size()
+    };
+}
+
+std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istream* stream)
+{
+    if (!stream)
+    {
+        return std::nullopt;
+    }
+    if (stream->fail())
+    {
+        return std::nullopt;
+    }
+    std::ostringstream oss;
+    oss << stream->rdbuf();
+    if (oss.fail())
+    {
+        return std::nullopt;
+    }
+    return oss.str();
+}
+
 
 void glimmer::StringUtils::ReplaceAll(std::string& str, const std::string_view from, const std::string_view to)
 {

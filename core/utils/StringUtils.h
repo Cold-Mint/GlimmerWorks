@@ -27,6 +27,8 @@
 #pragma once
 #include <string>
 #include <cstdint>
+#include <optional>
+#include <span>
 
 namespace glimmer
 {
@@ -60,6 +62,22 @@ namespace glimmer
          * @return
          */
         static uint64_t StringToUint64(const std::string& string);
+
+        /**
+         * String to byte data
+         * 字符串转字节数据
+         * @param string
+         * @return
+         */
+        static std::span<const std::byte> StringToByteData(const std::string& string);
+
+        /**
+         * Write the byte stream to a string
+         * 将字节流写入到字符串
+         * @param stream
+         * @return
+         */
+        static std::optional<std::string> StreamToString(const std::istream* stream);
 
         static void ReplaceAll(std::string& str, std::string_view from, std::string_view to);
     };

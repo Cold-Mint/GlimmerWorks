@@ -37,7 +37,7 @@ glimmer::StdFileProvider::StdFileProvider(std::string rootPath)
 {
 }
 
-bool glimmer::StdFileProvider::DeleteFileOrFolder(const std::string& path)
+bool glimmer::StdFileProvider::DeleteFileOrFolder(const std::filesystem::path& path)
 {
     const std::filesystem::path fullPath = root_ / path;
     if (IsFile(path))
@@ -47,151 +47,120 @@ bool glimmer::StdFileProvider::DeleteFileOrFolder(const std::string& path)
     return std::filesystem::remove_all(fullPath) > 0;
 }
 
-std::vector<std::string> glimmer::StdFileProvider::ListFile(const std::string& path, bool recursive)
+std::unique_ptr<std::istream> glimmer::StdFileProvider::ReadStream(const std::filesystem::path& path)
 {
-    std::vector<std::string> result;
+    std::filesystem::path fullPath = root_ / path;
+    if (!std::filesystem::exists(fullPath) || !std::filesystem::is_regular_file(fullPath))
+    {
+        return nullptr;
+    }
+    auto file = std::make_unique<std::ifstream>(fullPath, std::ios::binary);
+    if (!file->is_open())
+    {
+        return nullptr;
+    }
+    return file;
+}
 
+std::vector<std::filesystem::path> glimmer::StdFileProvider::ListFile(const std::filesystem::path& path, bool recursive)
+{
+    std::vector<std::filesystem::path> result;
     const std::filesystem::path dir = root_ / path;
-
-    std::error_code ec;
-
-    if (!std::filesystem::exists(dir, ec) ||
-        !std::filesystem::is_directory(dir, ec))
+    std::error_code errorCode;
+    if (!std::filesystem::exists(dir, errorCode) ||
+        !std::filesystem::is_directory(dir, errorCode))
     {
         return result;
     }
-
     if (recursive)
     {
-        for (std::filesystem::recursive_directory_iterator it(dir, ec), end;
+        for (std::filesystem::recursive_directory_iterator it(dir, errorCode), end;
              it != end;
-             it.increment(ec))
+             it.increment(errorCode))
         {
-            if (ec) continue;
+            if (errorCode.value() != 0)
+            {
+                continue;
+            }
 
             const auto relative =
-                std::filesystem::relative(it->path(), root_, ec);
+                std::filesystem::relative(it->path(), root_, errorCode);
 
-            if (!ec)
+            if (errorCode.value() == 0)
             {
-                result.push_back(relative.generic_string());
+                result.push_back(relative);
             }
         }
     }
     else
     {
-        for (std::filesystem::directory_iterator it(dir, ec), end;
+        for (std::filesystem::directory_iterator it(dir, errorCode), end;
              it != end;
-             it.increment(ec))
+             it.increment(errorCode))
         {
-            if (ec) continue;
+            if (errorCode.value() != 0)
+            {
+                continue;
+            }
 
             const auto relative =
-                std::filesystem::relative(it->path(), root_, ec);
+                std::filesystem::relative(it->path(), root_, errorCode);
 
-            if (!ec)
+            if (errorCode.value() == 0)
             {
-                result.push_back(relative.generic_string());
+                result.push_back(relative);
             }
         }
     }
-
     return result;
 }
 
-
-std::string glimmer::StdFileProvider::GetFileProviderName() const
+std::optional<std::filesystem::path> glimmer::StdFileProvider::GetParentPath(const std::filesystem::path& path) const
 {
-    return "StdFileProvider(" + root_.string() + ")";
+    return std::filesystem::path(path).parent_path();
 }
 
-std::optional<std::string> glimmer::StdFileProvider::ReadFile(const std::string& path)
+std::optional<std::filesystem::path> glimmer::StdFileProvider::GetActualPath(const std::filesystem::path& path) const
 {
-    std::filesystem::path fullPath = root_ / path;
-    if (!std::filesystem::exists(fullPath) || !std::filesystem::is_regular_file(fullPath))
-    {
-        return std::nullopt;
-    }
-
-    std::ifstream file(fullPath, std::ios::binary);
-    if (!file)
-    {
-        return std::nullopt;
-    }
-
-    std::string content((std::istreambuf_iterator(file)),
-                        std::istreambuf_iterator<char>());
-    return content;
+    return std::filesystem::path(root_) / path;
 }
 
-std::optional<std::string> glimmer::StdFileProvider::GetFileOrFolderName(const std::string& path) const
+
+bool glimmer::StdFileProvider::CreateFolder(const std::filesystem::path& path)
+{
+    const std::filesystem::path fullPath = root_ / path;
+    std::error_code errorCode;
+    std::filesystem::create_directories(fullPath, errorCode);
+    return errorCode.value() == 0;
+}
+
+std::string_view glimmer::StdFileProvider::GetFileProviderName() const
+{
+    return name_;
+}
+
+std::optional<std::string> glimmer::StdFileProvider::GetFileOrFolderName(const std::filesystem::path& path) const
 {
     return std::filesystem::path(path).filename().string();
 }
 
-std::optional<std::unique_ptr<std::istream>> glimmer::StdFileProvider::ReadStream(const std::string& path)
-{
-    std::filesystem::path fullPath = root_ / path;
-    if (!std::filesystem::exists(fullPath) || !std::filesystem::is_regular_file(fullPath))
-    {
-        return std::nullopt;
-    }
-    auto file = std::make_unique<std::ifstream>(fullPath, std::ios::binary);
-    if (!file->is_open())
-    {
-        return std::nullopt;
-    }
-    return file;
-}
-
-bool glimmer::StdFileProvider::Exists(const std::string& path)
+bool glimmer::StdFileProvider::Exists(const std::filesystem::path& path)
 {
     return std::filesystem::exists(root_ / path);
 }
 
-bool glimmer::StdFileProvider::IsFile(const std::string& path)
+bool glimmer::StdFileProvider::IsFile(const std::filesystem::path& path)
 {
     return std::filesystem::is_regular_file(root_ / path);
 }
 
-bool glimmer::StdFileProvider::WriteFile(const std::string& path, const std::string& content)
+bool glimmer::StdFileProvider::WriteFile(const std::filesystem::path& path, const std::string& content) const
 {
     const std::filesystem::path fullPath = root_ / path;
     std::filesystem::create_directories(fullPath.parent_path());
-
     std::ofstream file(fullPath, std::ios::binary);
     if (!file) return false;
 
     file.write(content.data(), static_cast<int>(content.size()));
     return file.good();
-}
-
-bool glimmer::StdFileProvider::CreateFolder(const std::string& path)
-{
-    const std::filesystem::path fullPath = root_ / path;
-    try
-    {
-        return std::filesystem::create_directories(fullPath);
-    }
-    catch (const std::filesystem::filesystem_error& e)
-    {
-        LogCat::e("Failed to create folder: ", fullPath.string(), " Error: ", e.what());
-        return false;
-    }
-}
-
-std::optional<std::string> glimmer::StdFileProvider::GetParentPath(const std::string& path) const
-{
-    auto parent = std::filesystem::path(path).parent_path();
-    if (parent.empty())
-    {
-        return std::nullopt;
-    }
-    return parent.string();
-}
-
-std::optional<std::string> glimmer::StdFileProvider::GetActualPath(const std::string& path) const
-{
-    std::filesystem::path fullPath = std::filesystem::path(root_) / path;
-    return std::make_optional(fullPath.string());
 }

@@ -102,8 +102,8 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Tr
 {
     for (auto& supportedTextureFormat : supportedFormats)
     {
-        std::string texturePath = resourcePack->GetPath() + "/textures/" + path + "." + supportedTextureFormat;
-
+        std::filesystem::path texturePath = resourcePack->GetPath() / "textures" / path;
+        texturePath.replace_extension(supportedTextureFormat);
         if (!virtualFileSystem_->Exists(texturePath))
         {
             continue;
@@ -203,7 +203,8 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
         const ResourcePack* pack = it->second.get();
         for (auto& supportedAudioFormat : modConfig.supportedAudioFormats)
         {
-            std::string audioPath = pack->GetPath() + "/audios/" + path + "." + supportedAudioFormat;
+            std::filesystem::path audioPath = pack->GetPath() / "audios" / path;
+            audioPath.replace_extension(supportedAudioFormat);
             if (!virtualFileSystem_->Exists(audioPath))
             {
                 continue;
@@ -287,19 +288,21 @@ void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer* renderer, const Pre
                                          preloadColors->accessDenied.baseColor);
 }
 
-int glimmer::ResourcePackManager::Scan(const std::string& path, const std::vector<std::string>& enabledResourcePack,
+int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString,
+                                       const std::vector<std::string>& enabledResourcePack,
                                        const toml::spec& tomlVersion)
 {
     resourcePackMap_.clear();
-    if (!virtualFileSystem_->Exists(path))
+    const std::filesystem::path& resourcePackPath = resourcePackPathString;
+    if (!virtualFileSystem_->Exists(resourcePackPath))
     {
-        LogCat::e("ResourcePackManager: Path does not exist -> ", path);
+        LogCat::e("ResourcePackManager: Path does not exist -> ", resourcePackPath);
         return 0;
     }
 
-    LogCat::i("Scanning resources packs in: ", path);
+    LogCat::i("Scanning resources packs in: ", resourcePackPath);
     int success = 0;
-    std::vector<std::string> files = virtualFileSystem_->ListFile(path, false);
+    std::vector<std::filesystem::path> files = virtualFileSystem_->ListFile(resourcePackPath, false);
     for (const auto& entry : files)
     {
         if (!virtualFileSystem_->IsFile(entry))
@@ -344,11 +347,13 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 
         const ResourcePack* pack = it->second.get();
 
-        std::string fontsDir = pack->GetPath() + "/fonts/";
+        std::filesystem::path fontsDir = pack->GetPath() / "fonts";
 
         // First, check language.ttf
         // 优先查 language.ttf
-        if (std::string langFont = fontsDir + language + ".ttf"; virtualFileSystem_->Exists(langFont))
+        std::filesystem::path langFont = fontsDir / language;
+        langFont.replace_extension("ttf");
+        if (virtualFileSystem_->Exists(langFont))
         {
             LogCat::d("Found font for language '", language, "' in pack '", packId,
                       "': ", langFont);
@@ -359,7 +364,8 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
         // 记录第一个 default.ttf（延后使用）
         if (!defaultFontPath.has_value())
         {
-            std::string defaultFont = fontsDir + "default.ttf";
+            std::filesystem::path defaultFont = fontsDir / "default";
+            defaultFont.replace_extension("ttf");
             if (virtualFileSystem_->Exists(defaultFont))
             {
                 LogCat::d("Found default font in pack '", packId, "': ", defaultFont);
@@ -443,8 +449,8 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Load
 glimmer::ColorResource* glimmer::ResourcePackManager::LoadColorResFromFile(const AppContext* appContext,
                                                                            const ResourceRef* resourceRef)
 {
-    std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
-    const auto cacheIt = colorCache_.find(path);
+    uint64_t fingPrint = resourceRef->GetFingerprint();
+    const auto cacheIt = colorCache_.find(fingPrint);
     if (cacheIt != colorCache_.end())
     {
         return cacheIt->second.get();
@@ -459,14 +465,15 @@ glimmer::ColorResource* glimmer::ResourcePackManager::LoadColorResFromFile(const
         }
 
         const ResourcePack* pack = it->second.get();
-        std::string colorPath = pack->GetPath() + "/colors/" + path + "." + DATA_FILE_TYPE_COLOR + ".toml";
-
+        std::filesystem::path colorPath = pack->GetPath() / "colors" / resourceRef->GetPackageId();
+        colorPath.replace_filename(resourceRef->GetResourceKey() + "." + DATA_FILE_TYPE_COLOR);
+        colorPath.replace_extension("toml");
         if (!virtualFileSystem_->Exists(colorPath))
         {
             continue;
         }
         auto data =
-            virtualFileSystem_->ReadFile(colorPath);
+            virtualFileSystem_->ReadFileAsString(colorPath);
         if (!data.has_value())
         {
             LogCat::e("Failed to load toml file: ", colorPath);
@@ -474,10 +481,10 @@ glimmer::ColorResource* glimmer::ResourcePackManager::LoadColorResFromFile(const
         }
 
         const toml::value value = toml::parse_str(data.value(), appContext->GetTomlVersion());
-        colorCache_[path] = std::make_unique<ColorResource>(
+        colorCache_[fingPrint] = std::make_unique<ColorResource>(
             toml::get<ColorResource>(value)
         );
-        return colorCache_[path].get();
+        return colorCache_[fingPrint].get();
     }
     return nullptr;
 }

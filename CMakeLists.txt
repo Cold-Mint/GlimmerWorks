@@ -346,7 +346,6 @@ target_sources(GlimmerWorks
         core/scene/Scene.cpp
         core/scene/AppContext.cpp
         core/scene/SplashScene.cpp
-        core/scene/ConsoleOverlay.cpp
         core/console/Command.cpp
         core/console/CommandManager.cpp
         core/console/CommandArgs.cpp
@@ -679,7 +678,6 @@ target_sources(GlimmerWorks
         core/scene/Scene.h
         core/scene/AppContext.h
         core/scene/SplashScene.h
-        core/scene/ConsoleOverlay.h
         core/console/Command.h
         core/console/CommandManager.h
         core/console/CommandArgs.h

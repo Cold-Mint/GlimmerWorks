@@ -34,7 +34,6 @@
 #include "backends/imgui_impl_sdl3.h"
 #include "backends/imgui_impl_sdlrenderer3.h"
 #include "scene/SplashScene.h"
-#include "scene/ConsoleOverlay.h"
 #if  !defined(NDEBUG)
 #include "scene/DebugOverlay.h"
 #endif
@@ -485,7 +484,6 @@ void glimmer::App::InitScenesAndConsole() const
 {
     auto sceneManager = appContext_->GetSceneManager();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
-    sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
 #if  !defined(NDEBUG)
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
 #endif

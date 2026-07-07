@@ -706,30 +706,17 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
 
     for (const auto& file : files)
     {
-        if (!virtualFileSystem_->IsFile(file))
+        if (ProcessSpecialFiles(file, config, publicPath, signPath, findPublicKey, findSignature, publicKey, signature))
         {
             continue;
         }
+
         auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(file);
         if (!fileNameOptional.has_value())
         {
             continue;
         }
         const auto& fileName = fileNameOptional.value();
-
-        if (config->mods.enableSignVerify)
-        {
-            if (!findPublicKey && file == publicPath)
-            {
-                ProcessPublicKeyFile(file, findPublicKey, publicKey);
-                continue;
-            }
-            if (!findSignature && file == signPath)
-            {
-                ProcessSignatureFile(file, findSignature, signature);
-                continue;
-            }
-        }
 
         if (!fileName.empty() && fileName[0] == '.')
         {
@@ -757,22 +744,8 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
         const std::string content(fileBuffer.data(), fileBuffer.size());
         const auto& dataType = dataTypeOptional.value();
 
-        if (dataType == DATA_FILE_TYPE_STRINGS)
+        if (ProcessLanguageFile(file, dataType, fileName, defaultLanguageFiles, targetLanguageFiles, appContext))
         {
-            auto langOptional = ExtractLanguageFromFileName(fileName);
-            if (!langOptional.has_value())
-            {
-                continue;
-            }
-            const auto& fileLang = langOptional.value();
-            if (fileLang == appContext->GetLanguage())
-            {
-                targetLanguageFiles.push_back(file);
-            }
-            else if (fileLang == "default")
-            {
-                defaultLanguageFiles.push_back(file);
-            }
             continue;
         }
         total += LoadResourceByType(dataType, file, content, appContext);
@@ -791,6 +764,60 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
         return false;
     }
     return total != 0;
+}
+
+bool glimmer::DataPack::ProcessSpecialFiles(const std::string& file,
+                                           Config* config,
+                                           const std::string& publicPath,
+                                           const std::string& signPath,
+                                           bool& findPublicKey,
+                                           bool& findSignature,
+                                           std::vector<uint8_t>& publicKey,
+                                           std::vector<uint8_t>& signature) const
+{
+    if (!config->mods.enableSignVerify)
+    {
+        return false;
+    }
+    if (!findPublicKey && file == publicPath)
+    {
+        ProcessPublicKeyFile(file, findPublicKey, publicKey);
+        return true;
+    }
+    if (!findSignature && file == signPath)
+    {
+        ProcessSignatureFile(file, findSignature, signature);
+        return true;
+    }
+    return false;
+}
+
+bool glimmer::DataPack::ProcessLanguageFile(const std::string& file,
+                                           const std::string& dataType,
+                                           const std::string& fileName,
+                                           std::vector<std::string>& defaultLanguageFiles,
+                                           std::vector<std::string>& targetLanguageFiles,
+                                           const AppContext* appContext)
+{
+    if (dataType != DATA_FILE_TYPE_STRINGS)
+    {
+        return false;
+    }
+    auto langOptional = ExtractLanguageFromFileName(fileName);
+    if (!langOptional.has_value())
+    {
+        return true;
+    }
+    const auto& fileLang = langOptional.value();
+    if (fileLang == appContext->GetLanguage())
+    {
+        targetLanguageFiles.push_back(file);
+    }
+    else if (fileLang == "default")
+    {
+        defaultLanguageFiles.push_back(file);
+    }
+    return true;
 }
 
 

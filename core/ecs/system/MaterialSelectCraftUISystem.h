@@ -43,39 +43,41 @@ namespace glimmer
     struct LangsResources;
     class Item;
 
-    class MaterialSelectCraftUISystem : public GUISystem
+    struct MaterialSelectCraftUIResources
     {
         AppContext* appContext_ = nullptr;
-        RecipeResource* recipeResource_ = nullptr;
-        std::unordered_map<uint64_t, std::unique_ptr<TagRuntimeData>> tagRuntimeDataMap_;
-        std::vector<ItemSlotQuantityComponent*> itemSlotQuantityVector_;
         StringManager* stringManager_ = nullptr;
         ResourcePackManager* resourcePackManager_ = nullptr;
         PreloadColors* preloadColors_ = nullptr;
         ResourceLocator* resourceLocator_ = nullptr;
+        LangsResources* langsResources_ = nullptr;
+    };
+
+    struct MaterialSelectCraftUILayout
+    {
         float uiScale_ = 1.0F;
         int windowHeight_ = 0;
         int windowWidth_ = 0;
-        std::shared_ptr<TextureResourceResult> panelBackGroundTextureResult_ = nullptr;
-        std::shared_ptr<TextureResourceResult> subPanelBackGroundTextureResult_ = nullptr;
-        //Key represents the index of the item, while Value indicates the selected quantity.
-        //Key为物品下标，Value为选中的数量。
-        std::vector<std::unique_ptr<SelectedItemRuntimeData>> selectedItemVector_;
         DesignDimension panelWidth_ = 0.0F;
         DesignDimension panelHeight_ = 0.0F;
-        // Base inner padding between panel and sub-panel
-        // 面板与子面板之间的基础内边距
         DesignDimension basePanelInnerPadding_ = 4.0F;
-        // Actual inner padding (basePadding * uiScale)
-        // 实际内边距（基础内边距 × UI缩放比例）
         float panelInnerPadding_ = 4.0F;
-        ButtonComponent* buttonComponent_ = nullptr;
-        // Layout calculation variables for position updates
-        // 用于位置更新的布局计算变量
         DesignDimension maxTextureWidth_ = 0.0F;
         DesignDimension maxTextureHeight_ = 0.0F;
         uint8_t matchingCount_ = 0;
-        LangsResources* langsResources_ = nullptr;
+    };
+
+    class MaterialSelectCraftUISystem : public GUISystem
+    {
+        RecipeResource* recipeResource_ = nullptr;
+        std::unordered_map<uint64_t, std::unique_ptr<TagRuntimeData>> tagRuntimeDataMap_;
+        std::vector<ItemSlotQuantityComponent*> itemSlotQuantityVector_;
+        std::shared_ptr<TextureResourceResult> panelBackGroundTextureResult_ = nullptr;
+        std::shared_ptr<TextureResourceResult> subPanelBackGroundTextureResult_ = nullptr;
+        std::vector<std::unique_ptr<SelectedItemRuntimeData>> selectedItemVector_;
+        ButtonComponent* buttonComponent_ = nullptr;
+        MaterialSelectCraftUIResources resources_;
+        MaterialSelectCraftUILayout layout_;
 
     public:
         explicit MaterialSelectCraftUISystem(WorldContext* worldContext);

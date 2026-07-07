@@ -80,6 +80,21 @@ namespace glimmer
         void UpdateAbilityTextures(const AbilityConfig* abilityConfig, const LangsResources* langsResources,
                                    std::vector<SDL_Texture*>& textureToDraw);
 
+        void UpdateMineBlockTexture(const AbilityConfig* abilityConfig, const LangsResources* langsResources,
+                                    std::vector<SDL_Texture*>& textureToDraw);
+
+        void UpdateMineWallTexture(const AbilityConfig* abilityConfig, const LangsResources* langsResources,
+                                   std::vector<SDL_Texture*>& textureToDraw);
+
+        void UpdatePrecisionMiningTexture(const LangsResources* langsResources,
+                                          std::vector<SDL_Texture*>& textureToDraw);
+
+        void UpdateMiningEfficiencyTexture(const AbilityConfig* abilityConfig, const LangsResources* langsResources,
+                                           std::vector<SDL_Texture*>& textureToDraw);
+
+        void UpdateChainMiningTexture(const AbilityConfig* abilityConfig, const LangsResources* langsResources,
+                                      std::vector<SDL_Texture*>& textureToDraw);
+
         void UpdateLockedTexture(const LangsResources* langsResources, std::vector<SDL_Texture*>& textureToDraw);
 
     public:

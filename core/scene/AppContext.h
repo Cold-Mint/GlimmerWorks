@@ -204,7 +204,7 @@ namespace glimmer
 
         [[nodiscard]] DynamicSuggestionsManager* GetDynamicSuggestionsManager() const;
 
-        [[nodiscard]] const std::string& GetLanguage();
+        [[nodiscard]] const std::string& GetLanguage() const;
 
         [[nodiscard]] CommandHistoryManager* GetCommandHistoryManager() const;
 

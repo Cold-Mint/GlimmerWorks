@@ -364,7 +364,7 @@ void glimmer::SystemScheduler::MoveSystemsToActive(std::queue<GameSystem*>& toAc
 {
     while (!toActivate.empty())
     {
-        GameSystem* system = toActivate.front();
+        const GameSystem* system = toActivate.front();
         toActivate.pop();
         auto it = std::ranges::find_if(inactiveSystems_,
                                        [system](auto& inactiveSystem) { return inactiveSystem.get() == system; });
@@ -372,8 +372,7 @@ void glimmer::SystemScheduler::MoveSystemsToActive(std::queue<GameSystem*>& toAc
         {
             continue;
         }
-        GameSystem* systemPtr = it->get();
-        if (systemPtr != nullptr)
+        if (GameSystem* systemPtr = it->get(); systemPtr != nullptr)
         {
             systemPtr->OnActivationChanged(true);
         }
@@ -386,7 +385,7 @@ void glimmer::SystemScheduler::MoveSystemsToInactive(std::queue<GameSystem*>& to
 {
     while (!toDeactivate.empty())
     {
-        GameSystem* system = toDeactivate.front();
+        const GameSystem* system = toDeactivate.front();
         toDeactivate.pop();
         auto it = std::ranges::find_if(activeSystems_,
                                        [system](auto& activeSystem) { return activeSystem.get() == system; });
@@ -394,8 +393,7 @@ void glimmer::SystemScheduler::MoveSystemsToInactive(std::queue<GameSystem*>& to
         {
             continue;
         }
-        GameSystem* systemPtr = it->get();
-        if (systemPtr != nullptr)
+        if (GameSystem* systemPtr = it->get(); systemPtr != nullptr)
         {
             systemPtr->OnActivationChanged(false);
         }

@@ -277,8 +277,8 @@ uint16_t glimmer::DiggingSystem::BreakTile(const TileBreakParams& params)
         }
     }
     uint8_t sum = 0;
-    std::byte centerX = static_cast<std::byte>(params.tileWidth >> 1);
-    std::byte centerY = static_cast<std::byte>(params.tileHeight >> 1);
+    auto centerX = static_cast<std::byte>(params.tileWidth >> 1);
+    auto centerY = static_cast<std::byte>(params.tileHeight >> 1);
     for (int x = 0; x < params.tileWidth; x++)
     {
         for (int y = 0; y < params.tileHeight; y++)

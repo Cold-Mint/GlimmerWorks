@@ -37,6 +37,7 @@
 #include "MobManager.h"
 #include "RecipeManager.h"
 #include "StructureManager.h"
+#include "core/Config.h"
 #include "core/mod/PackManifest.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "core/contributor/ContributorManager.h"
@@ -151,6 +152,22 @@ namespace glimmer
                              const std::vector<uint8_t>& publicKey,
                              const std::vector<uint8_t>& signature,
                              const std::vector<uint8_t>& allHashData);
+
+        bool ProcessSpecialFiles(const std::string& file,
+                                Config* config,
+                                const std::string& publicPath,
+                                const std::string& signPath,
+                                bool& findPublicKey,
+                                bool& findSignature,
+                                std::vector<uint8_t>& publicKey,
+                                std::vector<uint8_t>& signature) const;
+
+        static bool ProcessLanguageFile(const std::string& file,
+                                        const std::string& dataType,
+                                        const std::string& fileName,
+                                        std::vector<std::string>& defaultLanguageFiles,
+                                        std::vector<std::string>& targetLanguageFiles,
+                                        const AppContext* appContext);
 
     public:
         explicit DataPack(std::string path, const VirtualFileSystem* virtualFileSystem,

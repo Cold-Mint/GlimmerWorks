@@ -816,7 +816,7 @@ glimmer::DynamicSuggestionsManager* glimmer::AppContext::GetDynamicSuggestionsMa
     return dynamicSuggestionsManager_.get();
 }
 
-const std::string& glimmer::AppContext::GetLanguage()
+const std::string& glimmer::AppContext::GetLanguage() const
 {
     return language_;
 }

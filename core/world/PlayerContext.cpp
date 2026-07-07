@@ -62,22 +62,25 @@ glimmer::PlayerContext::PlayerContext(WorldContext* worldContext) : worldContext
 
 glimmer::PlayerContext::~PlayerContext()
 {
-    if (worldContext_ != nullptr)
+    if (worldContext_ == nullptr)
     {
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-        EntityManager* entityManager = worldContext_->GetEntityManager();
-        if (entityShortCut != nullptr && entityManager != nullptr)
-        {
-            const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
-            if (itemCallback_ != nullptr && itemContainerComponent != nullptr)
-            {
-                ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-                if (itemContainer != nullptr)
-                {
-                    itemContainer->RemoveOnContentChanged(itemCallback_);
-                }
-            }
-        }
+        return;
+    }
+    const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+    const EntityManager* entityManager = worldContext_->GetEntityManager();
+    if (entityShortCut == nullptr || entityManager == nullptr)
+    {
+        return;
+    }
+    const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    if (itemCallback_ == nullptr || itemContainerComponent == nullptr)
+    {
+        return;
+    }
+    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer != nullptr)
+    {
+        itemContainer->RemoveOnContentChanged(itemCallback_);
     }
 }
 
@@ -164,7 +167,8 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity)
         return;
     }
     itemContainer->Resize(HOT_BAR_SIZE * INVENTORY_ROW_COUNT);
-    const auto& allInitialInventory = worldContext_->GetAppContext()->GetInitialInventoryManager()->GetAllInitialInventory();
+    const auto& allInitialInventory = worldContext_->GetAppContext()->GetInitialInventoryManager()->
+                                                     GetAllInitialInventory();
     const auto* playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     const WorldVector2D playerPos = playerTransform != nullptr ? playerTransform->GetPosition() : WorldVector2D();
     for (const auto& initialInventory : allInitialInventory)
@@ -311,7 +315,7 @@ void glimmer::PlayerContext::InitHotbar(ItemContainer* itemContainer) const
 void glimmer::PlayerContext::InitInventory(ItemContainer* itemContainer) const
 {
     EntityManager* entityManager = worldContext_->GetEntityManager();
-    EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+    const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
     if (entityManager == nullptr || entityShortCut == nullptr || itemContainer == nullptr)
     {
         return;
@@ -325,7 +329,8 @@ void glimmer::PlayerContext::InitInventory(ItemContainer* itemContainer) const
         {
             continue;
         }
-        if (const DraggableComponent* draggableComponent = entityManager->AddComponent<DraggableComponent>(itemSlotEntity); draggableComponent == nullptr)
+        if (const DraggableComponent* draggableComponent = entityManager->AddComponent<
+            DraggableComponent>(itemSlotEntity); draggableComponent == nullptr)
         {
             continue;
         }

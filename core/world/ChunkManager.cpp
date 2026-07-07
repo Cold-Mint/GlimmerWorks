@@ -49,7 +49,7 @@ glimmer::ChunkManager::ChunkManager(WorldContext* worldContext) : worldContext_(
     tileInstancePool_ = std::make_unique<TileInstancePool>();
 }
 
-void glimmer::ChunkManager::OnChunkTileChange(Chunk* chunk, const std::shared_ptr<Tile>& tile,
+void glimmer::ChunkManager::OnChunkTileChange(Chunk* chunk, [[maybe_unused]] const std::shared_ptr<Tile>& tile,
                                               TileLayerType layerType, int index) const
 {
     if (layerType == Ground)
@@ -180,7 +180,7 @@ glimmer::ChunkManager::GetAllChunks()
         chunksCache_.clear();
         chunksCache_.reserve(chunks_.size());
 
-        for (auto& [pos, chunkPtr] : chunks_)
+        for (const auto& [pos, chunkPtr] : chunks_)
         {
             chunksCache_[pos] = chunkPtr.get();
         }

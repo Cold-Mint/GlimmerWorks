@@ -37,16 +37,16 @@ glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* 
     : GUISystem(worldContext)
 {
     WorldContext* worldContextPtr = GetWorldContext();
-    appContext_ = worldContextPtr->GetAppContext();
-    if (appContext_ == nullptr)
+    resources_.appContext_ = worldContextPtr->GetAppContext();
+    if (resources_.appContext_ == nullptr)
     {
         return;
     }
-    langsResources_ = appContext_->GetLangsResources();
-    resourceLocator_ = appContext_->GetResourceLocator();
-    stringManager_ = appContext_->GetStringManager();
-    resourcePackManager_ = appContext_->GetResourcePackManager();
-    preloadColors_ = appContext_->GetPreloadColors();
+    resources_.langsResources_ = resources_.appContext_->GetLangsResources();
+    resources_.resourceLocator_ = resources_.appContext_->GetResourceLocator();
+    resources_.stringManager_ = resources_.appContext_->GetStringManager();
+    resources_.resourcePackManager_ = resources_.appContext_->GetResourcePackManager();
+    resources_.preloadColors_ = resources_.appContext_->GetPreloadColors();
     Init();
 }
 
@@ -109,7 +109,7 @@ bool glimmer::MaterialSelectCraftUISystem::InitializeActivation()
         return false;
     }
 
-    if (stringManager_ == nullptr)
+    if (resources_.stringManager_ == nullptr)
     {
         return false;
     }
@@ -126,7 +126,7 @@ void glimmer::MaterialSelectCraftUISystem::InitializeTagRuntimeData()
     {
         std::stringstream stringStream;
         uint64_t cachedTagId = requiredTag.cachedTagId;
-        std::optional<std::string> tagTranslateOptional = stringManager_->GetTagTranslate(cachedTagId);
+        std::optional<std::string> tagTranslateOptional = resources_.stringManager_->GetTagTranslate(cachedTagId);
         stringStream << tagTranslateOptional.value_or(requiredTag.requiredTag);
         stringStream << '*';
         stringStream << static_cast<int>(requiredTag.requiredWeight);
@@ -135,9 +135,9 @@ void glimmer::MaterialSelectCraftUISystem::InitializeTagRuntimeData()
         tagRuntimeData->SetText(text);
         tagRuntimeData->SetRequiredWeight(requiredTag.requiredWeight);
         tagRuntimeData->SetPositiveTexture(
-            resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.positiveAttributeColor));
+            resources_.resourcePackManager_->CreateStringTexture(text, &resources_.preloadColors_->game.positiveAttributeColor));
         tagRuntimeData->SetNegativeTexture(
-            resourcePackManager_->CreateStringTexture(text, &preloadColors_->game.negativeAttributeColor));
+            resources_.resourcePackManager_->CreateStringTexture(text, &resources_.preloadColors_->game.negativeAttributeColor));
         tagRuntimeDataMap_[cachedTagId] = std::move(tagRuntimeData);
     }
 }
@@ -183,20 +183,20 @@ void glimmer::MaterialSelectCraftUISystem::CountMatchingItems()
     }
 
     const uint8_t capacity = itemContainer->GetCapacity();
-    matchingCount_ = 0;
+    layout_.matchingCount_ = 0;
     for (int i = 0; i < capacity; i++)
     {
         if (const Item* item = itemContainer->GetItem(i); ItemHasMatchingTag(item))
         {
-            matchingCount_++;
+            layout_.matchingCount_++;
         }
     }
 }
 
 void glimmer::MaterialSelectCraftUISystem::CalculateMaxTextureSizeForActivation()
 {
-    maxTextureWidth_ = 0.0F;
-    maxTextureHeight_ = 0.0F;
+    layout_.maxTextureWidth_ = 0.0F;
+    layout_.maxTextureHeight_ = 0.0F;
     for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
     {
         if (tagRuntimeData == nullptr)
@@ -210,8 +210,8 @@ void glimmer::MaterialSelectCraftUISystem::CalculateMaxTextureSizeForActivation(
         {
             continue;
         }
-        maxTextureWidth_ = std::max(maxTextureWidth_, static_cast<DesignDimension>(texture->w));
-        maxTextureHeight_ = std::max(maxTextureHeight_, static_cast<DesignDimension>(texture->h));
+        layout_.maxTextureWidth_ = std::max(layout_.maxTextureWidth_, static_cast<DesignDimension>(texture->w));
+        layout_.maxTextureHeight_ = std::max(layout_.maxTextureHeight_, static_cast<DesignDimension>(texture->h));
     }
 }
 
@@ -222,26 +222,26 @@ void glimmer::MaterialSelectCraftUISystem::CalculatePanelDimensions()
     constexpr uint8_t gridColumns = 6;
     constexpr DesignDimension gridPadding = 4.0F;
 
-    const uint8_t actualColumns = matchingCount_ > 0 ? std::min(matchingCount_, gridColumns) : 1;
+    const uint8_t actualColumns = layout_.matchingCount_ > 0 ? std::min(layout_.matchingCount_, gridColumns) : 1;
     const DesignDimension gridWidth = static_cast<float>(actualColumns) * (ITEM_SLOT_SIZE + gridPadding) -
         gridPadding;
-    const DesignDimension contentPanelWidth = maxTextureWidth_ + gridWidth + 2.0F * panelPadding;
+    const DesignDimension contentPanelWidth = layout_.maxTextureWidth_ + gridWidth + 2.0F * panelPadding;
     const DesignDimension panelWidth = std::max(contentPanelWidth, MATERIAL_SELECT_CRAFT_PANEL_MIN_WIDTH);
 
     const DesignDimension tagAreaHeight = static_cast<DesignDimension>(tagRuntimeDataMap_.size()) * (
-            maxTextureHeight_ +
+            layout_.maxTextureHeight_ +
             cellPadding) +
         2.0F * panelPadding - cellPadding;
-    const uint32_t gridRows = matchingCount_ > 0
-                                  ? (matchingCount_ + gridColumns - 1) / gridColumns
+    const uint32_t gridRows = layout_.matchingCount_ > 0
+                                  ? (layout_.matchingCount_ + gridColumns - 1) / gridColumns
                                   : 1;
     const DesignDimension gridAreaHeight = static_cast<DesignDimension>(gridRows) * (ITEM_SLOT_SIZE + gridPadding) -
         gridPadding + 2.0F * panelPadding;
     const DesignDimension contentPanelHeight = std::max(tagAreaHeight, gridAreaHeight);
     const DesignDimension totalPanelHeight = contentPanelHeight + MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT +
         panelPadding;
-    panelWidth_ = panelWidth;
-    panelHeight_ = std::max(totalPanelHeight, MATERIAL_SELECT_CRAFT_PANEL_MIN_HEIGHT);
+    layout_.panelWidth_ = panelWidth;
+    layout_.panelHeight_ = std::max(totalPanelHeight, MATERIAL_SELECT_CRAFT_PANEL_MIN_HEIGHT);
 }
 
 void glimmer::MaterialSelectCraftUISystem::SetupItemSlots()
@@ -430,7 +430,7 @@ void glimmer::MaterialSelectCraftUISystem::SetupButton()
     if (buttonComponent_ == nullptr)
     {
         buttonComponent_ = entityManager->AddComponent<ButtonComponent>(entityManager->AddEntity());
-        buttonComponent_->SetText(appContext_, langsResources_->craft);
+        buttonComponent_->SetText(resources_.appContext_, resources_.langsResources_->craft);
         buttonComponent_->SetClickCallback([this]
         {
             HandleCraftButtonClick();
@@ -483,12 +483,12 @@ void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick() const
         }
     }
 
-    if (resourceLocator_ == nullptr)
+    if (resources_.resourceLocator_ == nullptr)
     {
         return;
     }
 
-    std::unique_ptr<Item> outputItem = resourceLocator_->FindItem(worldContext, recipeResource_->output);
+    std::unique_ptr<Item> outputItem = resources_.resourceLocator_->FindItem(worldContext, recipeResource_->output);
     if (outputItem != nullptr)
     {
         std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(outputItem));
@@ -514,14 +514,14 @@ void glimmer::MaterialSelectCraftUISystem::DeactivateUI() const
 
 void glimmer::MaterialSelectCraftUISystem::OnConfigChanged(const Config* config)
 {
-    uiScale_ = config->window.uiScale;
-    panelInnerPadding_ = basePanelInnerPadding_ * uiScale_;
+    layout_.uiScale_ = config->window.uiScale;
+    layout_.panelInnerPadding_ = layout_.basePanelInnerPadding_ * layout_.uiScale_;
 }
 
 void glimmer::MaterialSelectCraftUISystem::OnWindowSizeChanged(const int& width, const int& height)
 {
-    windowHeight_ = height;
-    windowWidth_ = width;
+    layout_.windowHeight_ = height;
+    layout_.windowWidth_ = width;
     UpdateItemSlotPositions();
     UpdateButtonPosition();
 }
@@ -537,13 +537,13 @@ void glimmer::MaterialSelectCraftUISystem::UpdateItemSlotPositions() const
     constexpr uint8_t gridColumns = 6;
     constexpr DesignDimension gridPadding = 4.0F;
 
-    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth_) *
+    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(layout_.windowWidth_) / layout_.uiScale_ - layout_.panelWidth_) *
         0.5F;
-    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight_) *
+    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(layout_.windowHeight_) / layout_.uiScale_ - layout_.panelHeight_) *
         0.5F;
 
     const DesignVector2D gridStartPosition{
-        panelOffsetX + maxTextureWidth_ + panelPadding, panelOffsetY + panelPadding
+        panelOffsetX + layout_.maxTextureWidth_ + panelPadding, panelOffsetY + panelPadding
     };
 
     uint8_t itemIndex = 0;
@@ -570,14 +570,14 @@ void glimmer::MaterialSelectCraftUISystem::UpdateButtonPosition() const
 
     constexpr DesignDimension panelPadding = 8.0F;
 
-    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(windowWidth_) / uiScale_ - panelWidth_) *
+    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(layout_.windowWidth_) / layout_.uiScale_ - layout_.panelWidth_) *
         0.5F;
-    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(windowHeight_) / uiScale_ - panelHeight_) *
+    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(layout_.windowHeight_) / layout_.uiScale_ - layout_.panelHeight_) *
         0.5F;
 
     const DesignVector2D buttonPosition{
-        panelOffsetX + (panelWidth_ - buttonComponent_->GetSize().x) * 0.5F,
-        panelOffsetY + panelHeight_ - MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT - panelPadding
+        panelOffsetX + (layout_.panelWidth_ - buttonComponent_->GetSize().x) * 0.5F,
+        panelOffsetY + layout_.panelHeight_ - MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT - panelPadding
     };
     buttonComponent_->SetPosition(buttonPosition);
 }
@@ -586,7 +586,7 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
 {
     LoadBackgroundTextures();
 
-    if (tagRuntimeDataMap_.empty() || preloadColors_ == nullptr)
+    if (tagRuntimeDataMap_.empty() || resources_.preloadColors_ == nullptr)
     {
         return;
     }
@@ -600,10 +600,10 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
         return;
     }
 
-    const float scaledPanelWidth = panelWidth_ * uiScale_;
-    const float scaledPanelHeight = panelHeight_ * uiScale_;
-    const float panelX = (static_cast<float>(windowWidth_) - scaledPanelWidth) * 0.5F;
-    const float panelY = (static_cast<float>(windowHeight_) - scaledPanelHeight) * 0.5F;
+    const float scaledPanelWidth = layout_.panelWidth_ * layout_.uiScale_;
+    const float scaledPanelHeight = layout_.panelHeight_ * layout_.uiScale_;
+    const float panelX = (static_cast<float>(layout_.windowWidth_) - scaledPanelWidth) * 0.5F;
+    const float panelY = (static_cast<float>(layout_.windowHeight_) - scaledPanelHeight) * 0.5F;
 
     RenderPanelBackground(renderer, panelX, panelY, maxTextureWidth, maxTextureHeight);
     RenderTagTextures(renderer, panelX, panelY, maxTextureWidth, maxTextureHeight);
@@ -613,7 +613,7 @@ void glimmer::MaterialSelectCraftUISystem::Render(SDL_Renderer* renderer)
 
 void glimmer::MaterialSelectCraftUISystem::LoadBackgroundTextures()
 {
-    if (resourceLocator_ == nullptr)
+    if (resources_.resourceLocator_ == nullptr)
     {
         return;
     }
@@ -624,7 +624,7 @@ void glimmer::MaterialSelectCraftUISystem::LoadBackgroundTextures()
         panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
         panelBGResourceRef.SetResourceKey("gui/panel_bg");
-        panelBackGroundTextureResult_ = resourceLocator_->FindTexture(&panelBGResourceRef);
+        panelBackGroundTextureResult_ = resources_.resourceLocator_->FindTexture(&panelBGResourceRef);
     }
 
     if (subPanelBackGroundTextureResult_ == nullptr)
@@ -633,7 +633,7 @@ void glimmer::MaterialSelectCraftUISystem::LoadBackgroundTextures()
         panelBGResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
         panelBGResourceRef.SetResourceType(RESOURCE_TEXTURE);
         panelBGResourceRef.SetResourceKey("gui/sub_panel_bg");
-        subPanelBackGroundTextureResult_ = resourceLocator_->FindTexture(&panelBGResourceRef);
+        subPanelBackGroundTextureResult_ = resources_.resourceLocator_->FindTexture(&panelBGResourceRef);
     }
 }
 
@@ -674,8 +674,8 @@ void glimmer::MaterialSelectCraftUISystem::RenderPanelBackground(SDL_Renderer* r
     constexpr DesignDimension cellPadding = 4.0F;
     const auto dataLength = static_cast<uint32_t>(tagRuntimeDataMap_.size());
 
-    const float scaledPanelWidth = panelWidth_ * uiScale_;
-    const float scaledPanelHeight = panelHeight_ * uiScale_;
+    const float scaledPanelWidth = layout_.panelWidth_ * layout_.uiScale_;
+    const float scaledPanelHeight = layout_.panelHeight_ * layout_.uiScale_;
     const SDL_FRect panelRect{panelX, panelY, scaledPanelWidth, scaledPanelHeight};
 
     if (panelBackGroundTextureResult_ != nullptr)
@@ -698,26 +698,26 @@ void glimmer::MaterialSelectCraftUISystem::RenderPanelBackground(SDL_Renderer* r
         return;
     }
 
-    const DesignDimension contentAreaHeight = panelHeight_ - MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT - panelPadding;
+    const DesignDimension contentAreaHeight = layout_.panelHeight_ - MATERIAL_SELECT_CRAFT_BUTTON_HEIGHT - panelPadding;
     const DesignDimension tagAreaHeight = static_cast<DesignDimension>(dataLength) * (maxTextureHeight +
             cellPadding) +
         2.0F * panelPadding - cellPadding;
-    const float scaledTagSubPanelWidth = maxTextureWidth * uiScale_;
-    const float scaledContentAreaHeight = std::max(tagAreaHeight, contentAreaHeight) * uiScale_;
+    const float scaledTagSubPanelWidth = maxTextureWidth * layout_.uiScale_;
+    const float scaledContentAreaHeight = std::max(tagAreaHeight, contentAreaHeight) * layout_.uiScale_;
     const SDL_FRect tagSubPanelRect{
-        panelX + panelInnerPadding_,
-        panelY + panelInnerPadding_,
+        panelX + layout_.panelInnerPadding_,
+        panelY + layout_.panelInnerPadding_,
         scaledTagSubPanelWidth,
         scaledContentAreaHeight
     };
     SDL_RenderTexture(renderer, subPanelBackGroundTexture, nullptr, &tagSubPanelRect);
 
-    const DesignDimension gridSubPanelWidth = panelWidth_ - maxTextureWidth - 2.0F * panelPadding;
-    const float scaledGridSubPanelWidth = gridSubPanelWidth * uiScale_;
-    const float gridSubPanelX = panelX + (maxTextureWidth + panelPadding) * uiScale_;
+    const DesignDimension gridSubPanelWidth = layout_.panelWidth_ - maxTextureWidth - 2.0F * panelPadding;
+    const float scaledGridSubPanelWidth = gridSubPanelWidth * layout_.uiScale_;
+    const float gridSubPanelX = panelX + (maxTextureWidth + panelPadding) * layout_.uiScale_;
     const SDL_FRect gridSubPanelRect{
         gridSubPanelX,
-        panelY + panelInnerPadding_,
+        panelY + layout_.panelInnerPadding_,
         scaledGridSubPanelWidth,
         scaledContentAreaHeight
     };
@@ -757,10 +757,10 @@ void glimmer::MaterialSelectCraftUISystem::RenderTagTextures(SDL_Renderer* rende
         }
 
         const SDL_FRect dstRect{
-            panelX + position.x * uiScale_,
-            panelY + position.y * uiScale_,
-            static_cast<float>(texture->w) * uiScale_,
-            static_cast<float>(texture->h) * uiScale_
+            panelX + position.x * layout_.uiScale_,
+            panelY + position.y * layout_.uiScale_,
+            static_cast<float>(texture->w) * layout_.uiScale_,
+            static_cast<float>(texture->h) * layout_.uiScale_
         };
         SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
     }

@@ -118,101 +118,132 @@ void glimmer::ItemToolTipSystem::UpdateAbilityTextures(const AbilityConfig* abil
         return;
     }
 
-    if ((static_cast<std::byte>(abilityConfig->mineAbleLayer) & static_cast<std::byte>(Ground)) != std::byte{})
-    {
-        const uint64_t canMineBlockFingerprint = StringUtils::StringToUint64(langsResources->canMineBlockTip);
-        if (canMineBlockFingerprint != canMineBlockTipCache_.fingerprint)
-        {
-            canMineBlockTipCache_.texture = resourcePackManager_->
-                CreateStringTexture(langsResources->canMineBlockTip, &preloadColors_->game.positiveAttributeColor,
-                                    TOOLTIP_TEXT_WRAP_WIDTH);
-            canMineBlockTipCache_.fingerprint = canMineBlockFingerprint;
-        }
-        if (canMineBlockTipCache_.texture != nullptr)
-        {
-            textureToDraw.emplace_back(canMineBlockTipCache_.texture.get());
-        }
-    }
+    UpdateMineBlockTexture(abilityConfig, langsResources, textureToDraw);
+    UpdateMineWallTexture(abilityConfig, langsResources, textureToDraw);
+    UpdatePrecisionMiningTexture(langsResources, textureToDraw);
+    UpdateMiningEfficiencyTexture(abilityConfig, langsResources, textureToDraw);
+    UpdateChainMiningTexture(abilityConfig, langsResources, textureToDraw);
+}
 
-    if ((static_cast<std::byte>(abilityConfig->mineAbleLayer) & static_cast<std::byte>(BackGround)) != std::byte{})
+void glimmer::ItemToolTipSystem::UpdateMineBlockTexture(const AbilityConfig* abilityConfig,
+                                                        const LangsResources* langsResources,
+                                                        std::vector<SDL_Texture*>& textureToDraw)
+{
+    if ((static_cast<std::byte>(abilityConfig->mineAbleLayer) & static_cast<std::byte>(Ground)) == std::byte{})
     {
-        const uint64_t canMineWallFingerprint = StringUtils::StringToUint64(langsResources->canMineWallTip);
-        if (canMineWallFingerprint != canMineWallTipCache_.fingerprint)
-        {
-            canMineWallTipCache_.texture = resourcePackManager_->
-                CreateStringTexture(langsResources->canMineWallTip, &preloadColors_->game.positiveAttributeColor,
-                                    TOOLTIP_TEXT_WRAP_WIDTH);
-            canMineWallTipCache_.fingerprint = canMineWallFingerprint;
-        }
-        if (canMineWallTipCache_.texture != nullptr)
-        {
-            textureToDraw.emplace_back(canMineWallTipCache_.texture.get());
-        }
+        return;
     }
-
-    if (abilityConfig->enablePrecisionMining)
+    const uint64_t canMineBlockFingerprint = StringUtils::StringToUint64(langsResources->canMineBlockTip);
+    if (canMineBlockFingerprint != canMineBlockTipCache_.fingerprint)
     {
-        const uint64_t precisionMiningTipFingerprint = StringUtils::StringToUint64(langsResources->precisionMiningTip);
-        if (precisionMiningTipFingerprint != precisionMiningTipCache_.fingerprint)
-        {
-            precisionMiningTipCache_.texture = resourcePackManager_->CreateStringTexture(
-                langsResources->precisionMiningTip, &preloadColors_->game.positiveAttributeColor,
-                TOOLTIP_TEXT_WRAP_WIDTH);
-            precisionMiningTipCache_.fingerprint = precisionMiningTipFingerprint;
-        }
-        if (precisionMiningTipCache_.texture != nullptr)
-        {
-            textureToDraw.emplace_back(precisionMiningTipCache_.texture.get());
-        }
+        canMineBlockTipCache_.texture = resourcePackManager_->
+            CreateStringTexture(langsResources->canMineBlockTip, &preloadColors_->game.positiveAttributeColor,
+                                TOOLTIP_TEXT_WRAP_WIDTH);
+        canMineBlockTipCache_.fingerprint = canMineBlockFingerprint;
     }
+    if (canMineBlockTipCache_.texture != nullptr)
+    {
+        textureToDraw.emplace_back(canMineBlockTipCache_.texture.get());
+    }
+}
 
+void glimmer::ItemToolTipSystem::UpdateMineWallTexture(const AbilityConfig* abilityConfig,
+                                                       const LangsResources* langsResources,
+                                                       std::vector<SDL_Texture*>& textureToDraw)
+{
+    if ((static_cast<std::byte>(abilityConfig->mineAbleLayer) & static_cast<std::byte>(BackGround)) == std::byte{})
+    {
+        return;
+    }
+    const uint64_t canMineWallFingerprint = StringUtils::StringToUint64(langsResources->canMineWallTip);
+    if (canMineWallFingerprint != canMineWallTipCache_.fingerprint)
+    {
+        canMineWallTipCache_.texture = resourcePackManager_->
+            CreateStringTexture(langsResources->canMineWallTip, &preloadColors_->game.positiveAttributeColor,
+                                TOOLTIP_TEXT_WRAP_WIDTH);
+        canMineWallTipCache_.fingerprint = canMineWallFingerprint;
+    }
+    if (canMineWallTipCache_.texture != nullptr)
+    {
+        textureToDraw.emplace_back(canMineWallTipCache_.texture.get());
+    }
+}
+
+void glimmer::ItemToolTipSystem::UpdatePrecisionMiningTexture(const LangsResources* langsResources,
+                                                              std::vector<SDL_Texture*>& textureToDraw)
+{
+    const uint64_t precisionMiningTipFingerprint = StringUtils::StringToUint64(langsResources->precisionMiningTip);
+    if (precisionMiningTipFingerprint != precisionMiningTipCache_.fingerprint)
+    {
+        precisionMiningTipCache_.texture = resourcePackManager_->CreateStringTexture(
+            langsResources->precisionMiningTip, &preloadColors_->game.positiveAttributeColor,
+            TOOLTIP_TEXT_WRAP_WIDTH);
+        precisionMiningTipCache_.fingerprint = precisionMiningTipFingerprint;
+    }
+    if (precisionMiningTipCache_.texture != nullptr)
+    {
+        textureToDraw.emplace_back(precisionMiningTipCache_.texture.get());
+    }
+}
+
+void glimmer::ItemToolTipSystem::UpdateMiningEfficiencyTexture(const AbilityConfig* abilityConfig,
+                                                               const LangsResources* langsResources,
+                                                               std::vector<SDL_Texture*>& textureToDraw)
+{
     float miningEfficiency = abilityConfig->miningEfficiency;
-    if (miningEfficiency != 0.0F)
+    if (miningEfficiency == 0.0F)
     {
-        std::string efficiencyTip = fmt::format(
-            fmt::runtime(langsResources->efficiencyTip),
-            fmt::format("{0:+.0f}", miningEfficiency * 100)
-        );
-        const uint64_t efficiencyTipFingerprint = StringUtils::StringToUint64(efficiencyTip);
-        bool efficiencyTipPositive = miningEfficiency > 0;
-        if (efficiencyTipPositive != efficiencyTipCache_.positive || efficiencyTipFingerprint != efficiencyTipCache_.cache.fingerprint)
-        {
-            efficiencyTipCache_.cache.texture = resourcePackManager_->CreateStringTexture(
-                efficiencyTip, efficiencyTipPositive
-                                   ? &preloadColors_->game.positiveAttributeColor
-                                   : &preloadColors_->game.negativeAttributeColor,
-                TOOLTIP_TEXT_WRAP_WIDTH);
-            efficiencyTipCache_.positive = efficiencyTipPositive;
-            efficiencyTipCache_.cache.fingerprint = efficiencyTipFingerprint;
-        }
-        if (efficiencyTipCache_.cache.texture != nullptr)
-        {
-            textureToDraw.emplace_back(efficiencyTipCache_.cache.texture.get());
-        }
+        return;
     }
-
-    int chainMiningRadius = abilityConfig->chainMiningRadius;
-    if (chainMiningRadius != 0)
+    std::string efficiencyTip = fmt::format(
+        fmt::runtime(langsResources->efficiencyTip),
+        fmt::format("{0:+.0f}", miningEfficiency * 100)
+    );
+    const uint64_t efficiencyTipFingerprint = StringUtils::StringToUint64(efficiencyTip);
+    bool efficiencyTipPositive = miningEfficiency > 0;
+    if (efficiencyTipPositive != efficiencyTipCache_.positive || efficiencyTipFingerprint != efficiencyTipCache_.cache.fingerprint)
     {
-        std::string chainMiningTip = fmt::format(
-            fmt::runtime(langsResources->chainMiningTip),
-            fmt::format("{}{}", chainMiningRadius > 0 ? "+" : "", chainMiningRadius));
-        const uint64_t chainMiningTipFingerprint = StringUtils::StringToUint64(chainMiningTip);
-        bool chainMiningTipPositive = chainMiningRadius > 0;
-        if (chainMiningTipPositive != chainMiningTipCache_.positive || chainMiningTipFingerprint != chainMiningTipCache_.cache.fingerprint)
-        {
-            chainMiningTipCache_.cache.texture = resourcePackManager_->CreateStringTexture(
-                chainMiningTip, chainMiningTipPositive
-                                    ? &preloadColors_->game.positiveAttributeColor
-                                    : &preloadColors_->game.negativeAttributeColor,
-                TOOLTIP_TEXT_WRAP_WIDTH);
-            chainMiningTipCache_.positive = chainMiningTipPositive;
-            chainMiningTipCache_.cache.fingerprint = chainMiningTipFingerprint;
-        }
-        if (chainMiningTipCache_.cache.texture != nullptr)
-        {
-            textureToDraw.emplace_back(chainMiningTipCache_.cache.texture.get());
-        }
+        efficiencyTipCache_.cache.texture = resourcePackManager_->CreateStringTexture(
+            efficiencyTip, efficiencyTipPositive
+                               ? &preloadColors_->game.positiveAttributeColor
+                               : &preloadColors_->game.negativeAttributeColor,
+            TOOLTIP_TEXT_WRAP_WIDTH);
+        efficiencyTipCache_.positive = efficiencyTipPositive;
+        efficiencyTipCache_.cache.fingerprint = efficiencyTipFingerprint;
+    }
+    if (efficiencyTipCache_.cache.texture != nullptr)
+    {
+        textureToDraw.emplace_back(efficiencyTipCache_.cache.texture.get());
+    }
+}
+
+void glimmer::ItemToolTipSystem::UpdateChainMiningTexture(const AbilityConfig* abilityConfig,
+                                                          const LangsResources* langsResources,
+                                                          std::vector<SDL_Texture*>& textureToDraw)
+{
+    int chainMiningRadius = abilityConfig->chainMiningRadius;
+    if (chainMiningRadius == 0)
+    {
+        return;
+    }
+    std::string chainMiningTip = fmt::format(
+        fmt::runtime(langsResources->chainMiningTip),
+        fmt::format("{}{}", chainMiningRadius > 0 ? "+" : "", chainMiningRadius));
+    const uint64_t chainMiningTipFingerprint = StringUtils::StringToUint64(chainMiningTip);
+    bool chainMiningTipPositive = chainMiningRadius > 0;
+    if (chainMiningTipPositive != chainMiningTipCache_.positive || chainMiningTipFingerprint != chainMiningTipCache_.cache.fingerprint)
+    {
+        chainMiningTipCache_.cache.texture = resourcePackManager_->CreateStringTexture(
+            chainMiningTip, chainMiningTipPositive
+                                ? &preloadColors_->game.positiveAttributeColor
+                                : &preloadColors_->game.negativeAttributeColor,
+            TOOLTIP_TEXT_WRAP_WIDTH);
+        chainMiningTipCache_.positive = chainMiningTipPositive;
+        chainMiningTipCache_.cache.fingerprint = chainMiningTipFingerprint;
+    }
+    if (chainMiningTipCache_.cache.texture != nullptr)
+    {
+        textureToDraw.emplace_back(chainMiningTipCache_.cache.texture.get());
     }
 }
 

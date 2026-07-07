@@ -27,6 +27,7 @@
 #include "ChunkSystem.h"
 
 #include "core/Constants.h"
+#include <functional>
 #include "core/world/WorldContext.h"
 #include "core/world/ChunkManager.h"
 #include "core/world/TerrainManager.h"
@@ -247,17 +248,17 @@ void glimmer::ChunkSystem::UpdateChunkFadeAnimation(float delta, const SDL_FRect
 }
 
 void glimmer::ChunkSystem::ExecuteTimedTask(float delta, float interval, float& accumTime, uint16_t batch,
-                                            void (ChunkSystem::*executeFunc)(uint16_t))
+                                            const std::function<void(uint16_t)>& executeFunc)
 {
     if (interval == 0.0F)
     {
-        (this->*executeFunc)(batch);
+        executeFunc(batch);
         return;
     }
     accumTime += delta;
     if (accumTime > interval)
     {
-        (this->*executeFunc)(batch);
+        executeFunc(batch);
         accumTime -= interval;
     }
 }
@@ -426,13 +427,13 @@ void glimmer::ChunkSystem::Update(const float delta)
         return;
     }
     ExecuteTimedTask(delta, config->world.loadTerrainInterval, loadTerrainAccumTime_,
-                     config->world.loadTerrainBatch, &ChunkSystem::ExecuteLoadTerrainTask);
+                     config->world.loadTerrainBatch, [this](uint16_t batch) { ExecuteLoadTerrainTask(batch); });
     ExecuteTimedTask(delta, config->world.loadChunkInterval, loadChunkAccumTime_,
-                     config->world.loadChunkBatch, &ChunkSystem::ExecuteLoadChunkTask);
+                     config->world.loadChunkBatch, [this](uint16_t batch) { ExecuteLoadChunkTask(batch); });
     ExecuteTimedTask(delta, config->world.unloadChunkInterval, unloadChunkAccumTime_,
-                     config->world.unloadChunkBatch, &ChunkSystem::ExecuteUnloadChunkTask);
+                     config->world.unloadChunkBatch, [this](uint16_t batch) { ExecuteUnloadChunkTask(batch); });
     ExecuteTimedTask(delta, config->world.unloadTerrainInterval, unloadTerrainAccumTime_,
-                     config->world.unloadTerrainBatch, &ChunkSystem::ExecuteUnloadTerrainTask);
+                     config->world.unloadTerrainBatch, [this](uint16_t batch) { ExecuteUnloadTerrainTask(batch); });
 
     const float interval = config->world.chunkSpawnCleanInterval;
     if (interval == 0.0F)

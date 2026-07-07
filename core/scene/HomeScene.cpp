@@ -60,13 +60,12 @@ std::string glimmer::HomeScene::GetCopyrightString()
 }
 
 glimmer::HomeScene::HomeScene(AppContext* context)
-    : Scene(context)
+    : Scene(context), hyperlinks_(std::vector<Hyperlink>{})
 {
-    hyperlinks_ = std::vector<Hyperlink>{};
-    hyperlinks_.push_back(Hyperlink("Github", "https://github.com/Cold-Mint/GlimmerWorks"));
-    hyperlinks_.push_back(Hyperlink("Discord", "https://discord.com/invite/CfppC9WHw8"));
-    hyperlinks_.push_back(Hyperlink("itch.io", "https://cold-mint.itch.io/glimmerworks"));
-    hyperlinks_.push_back(Hyperlink("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"));
+    hyperlinks_.emplace_back("Github", "https://github.com/Cold-Mint/GlimmerWorks");
+    hyperlinks_.emplace_back("Discord", "https://discord.com/invite/CfppC9WHw8");
+    hyperlinks_.emplace_back("itch.io", "https://cold-mint.itch.io/glimmerworks");
+    hyperlinks_.emplace_back("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9");
     copyright_ = GetCopyrightString();
     GetAppContext()->PlayMainMenuBGM();
     GetAppContext()->SetRandomSlogan();

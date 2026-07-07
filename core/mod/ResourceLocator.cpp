@@ -46,7 +46,7 @@ bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef* resou
     }
 
     bool result = appContext_->GetDataPackManager()->IsDependencySatisfied(
-        resourceRef->GetSelfPackageId(), resourceRef->GetPackageId());;
+        resourceRef->GetSelfPackageId(), resourceRef->GetPackageId());
     if (!result)
     {
         LogCat::w("Prevented access to resources. Source Package ID: ", resourceRef->GetSelfPackageId(),

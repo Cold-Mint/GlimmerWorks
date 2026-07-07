@@ -27,8 +27,8 @@
 #include "MaterialItemDynamicSuggestions.h"
 
 glimmer::MaterialItemDynamicSuggestions::MaterialItemDynamicSuggestions(ItemManager* itemManager)
+    : itemManager_(itemManager)
 {
-    itemManager_ = itemManager;
 }
 
 std::string glimmer::MaterialItemDynamicSuggestions::GetId() const

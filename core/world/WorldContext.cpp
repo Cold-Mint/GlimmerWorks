@@ -226,10 +226,9 @@ glimmer::TileInstancePool* glimmer::WorldContext::GetTileInstancePool() const
 }
 
 
-glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves) : saves_(saves)
+glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves)
+    : saves_(saves), worldSeed_(mapManifest->seed), mapManifest_(mapManifest)
 {
-    worldSeed_ = mapManifest->seed;
-    mapManifest_ = mapManifest;
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldId_ = b2CreateWorld(&worldDef);

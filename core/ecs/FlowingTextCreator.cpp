@@ -29,11 +29,9 @@
 #include "component/FloatingTextComponent.h"
 
 glimmer::FlowingTextCreator::FlowingTextCreator(WorldContext* worldContext, const std::string& text,
-                                                WorldVector2D position) : IEntityCreator(worldContext)
+                                                WorldVector2D position)
+    : IEntityCreator(worldContext), text_(text), position_(position)
 {
-    worldContext_ = worldContext;
-    text_ = text;
-    position_ = position;
 }
 
 void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id)
@@ -52,7 +50,8 @@ void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id)
     {
         return;
     }
-    if (auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(id); transform2dComponent != nullptr)
+    if (auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(id); transform2dComponent !=
+        nullptr)
     {
         transform2dComponent->SetPosition(position_);
     }

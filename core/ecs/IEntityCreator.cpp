@@ -26,5 +26,6 @@
  */
 #include "IEntityCreator.h"
 
-glimmer::IEntityCreator::IEntityCreator(WorldContext *worldContext) {
+glimmer::IEntityCreator::IEntityCreator(WorldContext* worldContext) : worldContext_(worldContext)
+{
 }

@@ -61,7 +61,7 @@ namespace glimmer
             if (valid.empty())
             {
                 break;
-            };
+            }
             auto target = valid[RandomUtils::Random<int>(0, static_cast<int>(valid.size()) - 1)];
 
             // Deduct

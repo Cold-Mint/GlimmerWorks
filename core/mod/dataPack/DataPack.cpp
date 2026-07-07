@@ -767,13 +767,13 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
 }
 
 bool glimmer::DataPack::ProcessSpecialFiles(const std::string& file,
-                                           Config* config,
-                                           const std::string& publicPath,
-                                           const std::string& signPath,
-                                           bool& findPublicKey,
-                                           bool& findSignature,
-                                           std::vector<uint8_t>& publicKey,
-                                           std::vector<uint8_t>& signature) const
+                                            Config* config,
+                                            const std::string& publicPath,
+                                            const std::string& signPath,
+                                            bool& findPublicKey,
+                                            bool& findSignature,
+                                            std::vector<uint8_t>& publicKey,
+                                            std::vector<uint8_t>& signature) const
 {
     if (!config->mods.enableSignVerify)
     {
@@ -793,23 +793,22 @@ bool glimmer::DataPack::ProcessSpecialFiles(const std::string& file,
 }
 
 bool glimmer::DataPack::ProcessLanguageFile(const std::string& file,
-                                           const std::string& dataType,
-                                           const std::string& fileName,
-                                           std::vector<std::string>& defaultLanguageFiles,
-                                           std::vector<std::string>& targetLanguageFiles,
-                                           const AppContext* appContext)
+                                            const std::string& dataType,
+                                            const std::string& fileName,
+                                            std::vector<std::string>& defaultLanguageFiles,
+                                            std::vector<std::string>& targetLanguageFiles,
+                                            const AppContext* appContext)
 {
     if (dataType != DATA_FILE_TYPE_STRINGS)
     {
         return false;
     }
-    auto langOptional = ExtractLanguageFromFileName(fileName);
+    const auto langOptional = ExtractLanguageFromFileName(fileName);
     if (!langOptional.has_value())
     {
         return true;
     }
-    const auto& fileLang = langOptional.value();
-    if (fileLang == appContext->GetLanguage())
+    if (const auto& fileLang = langOptional.value(); fileLang == appContext->GetLanguage())
     {
         targetLanguageFiles.push_back(file);
     }

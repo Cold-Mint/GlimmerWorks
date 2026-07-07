@@ -203,13 +203,10 @@ std::vector<std::string> glimmer::ItemManager::GetAbilityItemIDList()
 std::string glimmer::ItemManager::ListComposableItems() const
 {
     std::ostringstream oss;
-    for (const auto& packPair : composableItemMap_)
+    for (const auto& [packId, keyMap] : composableItemMap_)
     {
-        const auto& packId = packPair.first;
-        const auto& keyMap = packPair.second;
-        for (const auto& keyPair : keyMap)
+        for (const auto& [key, _] : keyMap)
         {
-            const auto& key = keyPair.first;
             oss << Resource::GenerateId(packId, key) << '\n';
         }
     }
@@ -219,13 +216,10 @@ std::string glimmer::ItemManager::ListComposableItems() const
 std::string glimmer::ItemManager::ListMaterialItems() const
 {
     std::ostringstream oss;
-    for (const auto& packPair : materialItemMap_)
+    for (const auto& [packId, keyMap] : materialItemMap_)
     {
-        const auto& packId = packPair.first;
-        const auto& keyMap = packPair.second;
-        for (const auto& keyPair : keyMap)
+        for (const auto& [key, _] : keyMap)
         {
-            const auto& key = keyPair.first;
             oss << Resource::GenerateId(packId, key) << '\n';
         }
     }
@@ -235,13 +229,10 @@ std::string glimmer::ItemManager::ListMaterialItems() const
 std::string glimmer::ItemManager::ListAbilityItems() const
 {
     std::ostringstream oss;
-    for (const auto& packPair : abilityItemMap_)
+    for (const auto& [packId, keyMap] : abilityItemMap_)
     {
-        const auto& packId = packPair.first;
-        const auto& keyMap = packPair.second;
-        for (const auto& keyPair : keyMap)
+        for (const auto& [key, _] : keyMap)
         {
-            const auto& key = keyPair.first;
             oss << Resource::GenerateId(packId, key) << '\n';
         }
     }

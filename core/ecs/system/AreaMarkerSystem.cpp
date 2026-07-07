@@ -66,7 +66,7 @@ void glimmer::AreaMarkerSystem::Update(const float delta)
 {
     if (areaMarkerComponent_ == nullptr)
     {
-        return;;
+        return;
     }
     if (!areaMarkerComponent_->CanDraw())
     {
@@ -95,7 +95,7 @@ void glimmer::AreaMarkerSystem::Render(SDL_Renderer* renderer)
     }
     if (areaMarkerComponent_ == nullptr)
     {
-        return;;
+        return;
     }
     if (!areaMarkerComponent_->CanDraw())
     {

@@ -81,7 +81,7 @@ void glimmer::ItemContainer::InvokeOnContentChanged(uint8_t index, Item* item, C
     {
         return;
     }
-    for (auto& onChanged : onContentChanged_)
+    for (const auto& onChanged : onContentChanged_)
     {
         (*onChanged)(index, item, containerChange);
     }
@@ -223,7 +223,7 @@ int glimmer::ItemContainer::FindIndex(const Item* item)
     }
     for (uint8_t i = 0; i < items_.size(); ++i)
     {
-        std::unique_ptr<Item>& currentItem = items_[i];
+        const std::unique_ptr<Item>& currentItem = items_[i];
         if (currentItem == nullptr)
         {
             continue;
@@ -264,29 +264,23 @@ uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item* item)
     uint8_t remainingAmount = item->GetAmount();
     for (const auto& slot : items_)
     {
-        const Item* itemPtr = slot.get();
         if (remainingAmount == 0)
         {
             break;
         }
+        const Item* itemPtr = slot.get();
         if (itemPtr == nullptr)
         {
-            //Empty slot
-            //空槽位
             remainingAmount = 0;
-            break;
+            continue;
         }
         const uint8_t stackSpace = itemPtr->GetRemainingStackCount(item);
         if (stackSpace == 0)
         {
-            //Not stackable
-            //不可堆叠
             continue;
         }
         if (remainingAmount <= stackSpace)
         {
-            //If the quantity to be placed is less than or equal to the available quantity, then remainingAmount = 0
-            //如果需要放的数量比能放的数量小或相等。那么remainingAmount = 0
             remainingAmount = 0;
         }
         else

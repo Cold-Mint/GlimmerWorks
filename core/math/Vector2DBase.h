@@ -146,9 +146,8 @@ namespace glimmer
 
     template <typename Derived>
     Vector2DBase<Derived>::Vector2DBase(const float tempX, const float tempY)
+        : x(tempX), y(tempY)
     {
-        x = tempX;
-        y = tempY;
     }
 
     template <typename Derived>

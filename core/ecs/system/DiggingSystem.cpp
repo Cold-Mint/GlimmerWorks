@@ -434,8 +434,8 @@ void glimmer::DiggingSystem::RenderDiggingPoint(SDL_Renderer* renderer, const Mi
         cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
         cameraComponent_->GetZoom());
     const auto maxIndex = static_cast<float>(textureResultList_.size() - 1);
-    const uint8_t crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
-                                                             maxIndex));
+    const auto crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
+                                                        maxIndex));
     float w = TILE_SIZE * zoom * static_cast<float>(point->GetWidth());
     float h = TILE_SIZE * zoom * static_cast<float>(point->GetHeight());
     SDL_FRect dstRect = {

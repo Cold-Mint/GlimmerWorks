@@ -67,8 +67,7 @@ glimmer::PlayerContext::~PlayerContext()
         return;
     }
     const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-    const EntityManager* entityManager = worldContext_->GetEntityManager();
-    if (entityShortCut == nullptr || entityManager == nullptr)
+    if (const EntityManager* entityManager = worldContext_->GetEntityManager(); entityShortCut == nullptr || entityManager == nullptr)
     {
         return;
     }
@@ -315,8 +314,7 @@ void glimmer::PlayerContext::InitHotbar(ItemContainer* itemContainer) const
 void glimmer::PlayerContext::InitInventory(ItemContainer* itemContainer) const
 {
     EntityManager* entityManager = worldContext_->GetEntityManager();
-    const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-    if (entityManager == nullptr || entityShortCut == nullptr || itemContainer == nullptr)
+    if (const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut(); entityManager == nullptr || entityShortCut == nullptr || itemContainer == nullptr)
     {
         return;
     }

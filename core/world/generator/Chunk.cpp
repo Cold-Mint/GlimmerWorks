@@ -201,10 +201,9 @@ void glimmer::Chunk::InvokeReplaceTileCallback(Chunk* chunk, const TileLayerType
 }
 
 glimmer::Chunk::Chunk(WorldContext* worldContext, const TileVector2D& pos,
-                      const AnimConfig& animConfig) : position_(pos)
+                      const AnimConfig& animConfig)
+    : position_(pos), worldContext_(worldContext), chunkFadeAlpha_(animConfig.chunkFadeInFrom)
 {
-    worldContext_ = worldContext;
-    chunkFadeAlpha_ = animConfig.chunkFadeInFrom;
     chunkFadeInTween_ = tweeny::tween<float>::from(animConfig.chunkFadeInFrom).to(animConfig.chunkFadeInTo).during(
         animConfig.chunkFadeinDuration * 1000).via(tweeny::easing::cubicOut);
 }

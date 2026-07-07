@@ -26,9 +26,8 @@
  */
 #include "ChunkTask.h"
 
-glimmer::ChunkTask::ChunkTask(const ChunkType chunkType, const TileVector2D chunkVertexCoordinates) {
-    chunkType_ = chunkType;
-    chunkVertexCoordinates_ = chunkVertexCoordinates;
+glimmer::ChunkTask::ChunkTask(const ChunkType chunkType, const TileVector2D chunkVertexCoordinates)
+    : chunkType_(chunkType), chunkVertexCoordinates_(chunkVertexCoordinates) {
 }
 
 glimmer::ChunkType glimmer::ChunkTask::GetChunkType() const {

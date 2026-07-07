@@ -28,8 +28,8 @@
 
 
 glimmer::ItemAbility::ItemAbility(const AbilityConfig& abilityConfig)
+    : abilityConfig_(abilityConfig)
 {
-    abilityConfig_ = abilityConfig;
 }
 
 const glimmer::AbilityConfig* glimmer::ItemAbility::GetAbilityConfig() const

@@ -27,10 +27,8 @@
 #include "LightSource.h"
 
 
-glimmer::LightSource::LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor) {
-    this->center_ = center;
-    this->maxRadius_ = maxRadius;
-    this->emissionColor_ = emissionColor;
+glimmer::LightSource::LightSource(const TileVector2D &center, int maxRadius, const Color &emissionColor)
+    : center_(center), maxRadius_(maxRadius), emissionColor_(emissionColor) {
 }
 
 int glimmer::LightSource::GetMaxRadius() const {

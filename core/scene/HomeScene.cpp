@@ -60,13 +60,13 @@ std::string glimmer::HomeScene::GetCopyrightString()
 }
 
 glimmer::HomeScene::HomeScene(AppContext* context)
-    : Scene(context), hyperlinks_(std::vector<Hyperlink>{})
+    : Scene(context),
+      hyperlinks_{{"Github", "https://github.com/Cold-Mint/GlimmerWorks"},
+                  {"Discord", "https://discord.com/invite/CfppC9WHw8"},
+                  {"itch.io", "https://cold-mint.itch.io/glimmerworks"},
+                  {"QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"}},
+      copyright_(GetCopyrightString())
 {
-    hyperlinks_.emplace_back("Github", "https://github.com/Cold-Mint/GlimmerWorks");
-    hyperlinks_.emplace_back("Discord", "https://discord.com/invite/CfppC9WHw8");
-    hyperlinks_.emplace_back("itch.io", "https://cold-mint.itch.io/glimmerworks");
-    hyperlinks_.emplace_back("QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9");
-    copyright_ = GetCopyrightString();
     GetAppContext()->PlayMainMenuBGM();
     GetAppContext()->SetRandomSlogan();
     Init();
@@ -114,18 +114,6 @@ void glimmer::HomeScene::RenderImGui(SDL_Renderer* renderer)
     {
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
     }
-    // ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    // if (ImGui::Button(appContext->GetLangsResources()->mods.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-    // }
-    // if (ImGui::IsItemHovered()) {
-    //     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-    // }
-    // ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    // if (ImGui::Button(appContext->GetLangsResources()->settings.c_str(), ImVec2(buttonWidth, buttonHeight))) {
-    // }
-    // if (ImGui::IsItemHovered()) {
-    //     ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-    // }
     ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
     if (ImGui::Button(GetAppContext()->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
     {

@@ -26,6 +26,8 @@
  */
 #include "Chunk.h"
 
+#include <utility>
+
 #include "tween.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
@@ -346,7 +348,7 @@ void glimmer::Chunk::WriteChunkMessage(ChunkMessage& chunkMessage)
     for (const auto& [layerType, tileArray] : tileState_)
     {
         auto& tileData =
-            (*chunkMessage.mutable_tilestates())[static_cast<uint8_t>(layerType)];
+            (*chunkMessage.mutable_tilestates())[std::to_underlying(layerType)];
         WriteTileStatesToMessage(tileArray, tileData);
     }
 }

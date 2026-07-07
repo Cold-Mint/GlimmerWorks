@@ -54,11 +54,8 @@ glimmer::IBiomeDecoratorResource * glimmer::BiomeDecoratorResourcesManager::Find
 
 std::string glimmer::BiomeDecoratorResourcesManager::ListBiomeDecorators() const {
     std::ostringstream oss;
-    for (const auto &packPair: biomeDecoratorMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair.first;
+    for (const auto &[packId, keyMap]: biomeDecoratorMap_) {
+        for (const auto &[key, resource]: keyMap) {
             oss << Resource::GenerateId(packId, key) << "\n";
         }
     }

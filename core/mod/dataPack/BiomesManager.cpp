@@ -37,23 +37,18 @@ glimmer::BiomeResource *glimmer::BiomesManager::AddResource(std::unique_ptr<Biom
     return slot.get();
 }
 
-glimmer::BiomeResource *glimmer::BiomesManager::Find(const std::string &packId, const std::string &resourceId) {
+glimmer::BiomeResource *glimmer::BiomesManager::Find(std::string_view packId, std::string_view resourceId) const {
     LogCat::d("Searching for biome resource: packId = ", packId, ", resourceId = ", resourceId);
-    const auto packIt = biomeMap_.find(packId);
-    if (packIt == biomeMap_.end()) {
-        LogCat::w("Pack not found: ", packId);
-        return nullptr;
-    }
-
-    auto &keyMap = packIt->second;
-    const auto keyIt = keyMap.find(resourceId);
-    if (keyIt == keyMap.end()) {
+    if (const auto packIt = biomeMap_.find(packId); packIt != biomeMap_.end()) {
+        if (const auto keyIt = packIt->second.find(resourceId); keyIt != packIt->second.end()) {
+            LogCat::i("Found biome resource: packId = ", packId, ", resourceId = ", resourceId);
+            return keyIt->second.get();
+        }
         LogCat::w("Key not found in pack ", packId, ": ", resourceId);
-        return nullptr;
+    } else {
+        LogCat::w("Pack not found: ", packId);
     }
-
-    LogCat::i("Found biome resource: packId = ", packId, ", resourceId = ", resourceId);
-    return keyIt->second.get();
+    return nullptr;
 }
 
 float glimmer::BiomesManager::CalculateBiomeScoreDelta(const float targetValue, const float actualValue,
@@ -62,7 +57,7 @@ float glimmer::BiomesManager::CalculateBiomeScoreDelta(const float targetValue, 
     return diff * diff * strictness;
 }
 
-const std::vector<glimmer::BiomeResource *> &glimmer::BiomesManager::GetBiomeVector() {
+const std::vector<glimmer::BiomeResource *> &glimmer::BiomesManager::GetBiomeVector() const {
     return biomeVector_;
 }
 
@@ -98,13 +93,9 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(const float humidi
 
 std::vector<std::string> glimmer::BiomesManager::GetBiomeList() const {
     std::vector<std::string> result;
-    for (const auto &packPair: biomeMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair;
-            result.emplace_back(Resource::GenerateId(packId, key.first));
+    for (const auto &[packId, keyMap]: biomeMap_) {
+        for (const auto &[key, biome]: keyMap) {
+            result.emplace_back(Resource::GenerateId(packId, key));
         }
     }
     return result;
@@ -112,11 +103,8 @@ std::vector<std::string> glimmer::BiomesManager::GetBiomeList() const {
 
 std::string glimmer::BiomesManager::ListBiomes() const {
     std::ostringstream oss;
-    for (const auto &packPair: biomeMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair.first;
+    for (const auto &[packId, keyMap]: biomeMap_) {
+        for (const auto &[key, biome]: keyMap) {
             oss << Resource::GenerateId(packId, key) << '\n';
         }
     }

@@ -31,8 +31,8 @@
 #include "core/Constants.h"
 
 glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(ItemManager* itemManager)
+    : itemManager_(itemManager)
 {
-    itemManager_ = itemManager;
 }
 
 std::string glimmer::AbilityItemDynamicSuggestions::GetId() const

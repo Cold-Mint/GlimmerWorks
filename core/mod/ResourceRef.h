@@ -64,31 +64,20 @@ namespace glimmer {
          * 设置自身的包ID
          * @param selfPackageId selfPackageId 自身的包Id
          */
-        void SetSelfPackageId(const std::string &selfPackageId);
+        void SetSelfPackageId(std::string_view selfPackageId);
 
         [[nodiscard]] const std::string &GetSelfPackageId() const;
 
-        /**
-         *The package Id for serialization from the toml file might be set to @self
-         * 设置从toml文件序列化的包Id可能为@self
-         * @param packId
-         */
-        void SetPackageId(const std::string &packId);
+        void SetPackageId(std::string_view packId);
 
         void ReadResourceRefMessage(const ResourceRefMessage &resourceRefMessage);
 
         void WriteResourceRefMessage(ResourceRefMessage &resourceRefMessage) const;
 
 
-        [[nodiscard]] static std::optional<ResourceRef> ParseFromId(const std::string &id,
+        [[nodiscard]] static std::optional<ResourceRef> ParseFromId(std::string_view id,
                                                                     ResourceTypeMessage resourceType);
 
-        /**
-         * ReadResource
-         * 从资源内读取数据
-         * @param resource resource
-         * @param resourceType resourceType
-         */
         void ReadResource(const Resource &resource, ResourceTypeMessage resourceType);
 
         [[nodiscard]] std::string GetPackageId() const;
@@ -97,7 +86,7 @@ namespace glimmer {
 
         [[nodiscard]] ResourceTypeMessage GetResourceType() const;
 
-        void SetResourceKey(const std::string &resourceKey);
+        void SetResourceKey(std::string_view resourceKey);
 
         [[nodiscard]] uint64_t GetFingerprint() const override;
 

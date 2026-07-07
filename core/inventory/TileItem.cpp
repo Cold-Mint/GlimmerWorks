@@ -73,6 +73,7 @@ bool glimmer::TileItem::IsUnbreakable() const
 
 void glimmer::TileItem::Reduce(unsigned value)
 {
+    // TileItem has no durability to reduce
 }
 
 void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,

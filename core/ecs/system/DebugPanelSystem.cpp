@@ -27,6 +27,7 @@
 #if  !defined(NDEBUG)
 #include "DebugPanelSystem.h"
 #include <cmath>
+#include <utility>
 #include "core/math/CoordinateTransformer.h"
 
 #include "core/Constants.h"
@@ -265,7 +266,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         }
         std::string tileResDebugInfo = fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->tileResDebugInfo),
-            static_cast<uint8_t>(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName()
+            std::to_underlying(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName()
         );
         RenderDebugText(renderer, windowWidth, tileResDebugInfo, yOffset,
                         appContext_->GetPreloadColors()->debugColor.debugPanelTextColor,

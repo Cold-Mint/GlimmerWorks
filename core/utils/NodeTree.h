@@ -116,8 +116,17 @@ namespace glimmer {
          * @param value value 值
          * @return
          */
-        NodeTree *GetChildByValue(const T &value) {
+        [[nodiscard]] NodeTree *GetChildByValue(const T &value) {
             for (auto &child: children_) {
+                if (child.Data().has_value() && child.Data().value() == value) {
+                    return &child;
+                }
+            }
+            return nullptr;
+        }
+
+        [[nodiscard]] const NodeTree *GetChildByValue(const T &value) const {
+            for (const auto &child: children_) {
                 if (child.Data().has_value() && child.Data().value() == value) {
                     return &child;
                 }
@@ -131,11 +140,24 @@ namespace glimmer {
          * @param index 下标
          * @return
          */
-        NodeTree *GetChild(const int index) {
+        [[nodiscard]] NodeTree *GetChild(const int index) {
             if (index < 0) return nullptr;
 
             int counter = 0;
             for (auto &child: children_) {
+                if (counter == index) {
+                    return &child;
+                }
+                counter++;
+            }
+            return nullptr;
+        }
+
+        [[nodiscard]] const NodeTree *GetChild(const int index) const {
+            if (index < 0) return nullptr;
+
+            int counter = 0;
+            for (const auto &child: children_) {
                 if (counter == index) {
                     return &child;
                 }

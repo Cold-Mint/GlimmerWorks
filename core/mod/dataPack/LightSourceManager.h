@@ -28,6 +28,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <functional>
 
 #include "core/mod/Resource.h"
 
@@ -35,11 +36,11 @@
 namespace glimmer {
     class LightSourceManager {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<
-            LightSourceResource> > >
+            LightSourceResource>, TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
         lightSourceMap_
                 {};
 
-        void RegisterCoreLightSourceResource(const std::string &resourceId, const std::string &colorResKey,
+        void RegisterCoreLightSourceResource(std::string_view resourceId, std::string_view colorResKey,
                                              uint8_t lightRadius);
 
     public:
@@ -47,9 +48,9 @@ namespace glimmer {
 
         LightSourceResource *Register(std::unique_ptr<LightSourceResource> lightSourceResource);
 
-        [[nodiscard]] LightSourceResource *FindLightSourceResource(const std::string &packId, const std::string &key);
+        [[nodiscard]] LightSourceResource *FindLightSourceResource(std::string_view packId, std::string_view key);
 
-        std::vector<std::string> GetLightSourceResourceList() const;
+        [[nodiscard]] std::vector<std::string> GetLightSourceResourceList() const;
 
         std::string ListLightSourceResource() const;
     };

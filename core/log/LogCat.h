@@ -47,7 +47,7 @@ namespace glimmer {
 
     public:
         template<typename... Args>
-        static void i(Args &&... args) {
+        static void i([[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__
             std::ostringstream oss;
@@ -62,7 +62,7 @@ namespace glimmer {
         }
 
         template<typename... Args>
-        static void d(Args &&... args) {
+        static void d([[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__
             std::ostringstream oss;
@@ -77,7 +77,7 @@ namespace glimmer {
         }
 
         template<typename... Args>
-        static void w(Args &&... args) {
+        static void w([[maybe_unused]] Args &&... args) {
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__
             std::ostringstream oss;
@@ -93,7 +93,7 @@ namespace glimmer {
 
 
         template<typename... Args>
-        static void e(Args &&... args) {
+        static void e([[maybe_unused]] Args &&... args) {
 #ifdef __ANDROID__
             std::ostringstream oss;
             (oss << ... << args);

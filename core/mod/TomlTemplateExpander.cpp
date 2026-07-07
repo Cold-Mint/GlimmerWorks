@@ -70,7 +70,7 @@ std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::string>
     std::stringstream inputStringStream(inputText);
     std::stringstream output;
     std::string line;
-    std::unordered_map<std::string, std::string> variables = {};
+    std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>> variables = {};
     while (std::getline(inputStringStream, line))
     {
         if (line.starts_with("#@"))

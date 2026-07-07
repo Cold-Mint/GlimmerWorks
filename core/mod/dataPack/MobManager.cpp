@@ -36,18 +36,13 @@ glimmer::MobResource *glimmer::MobManager::Register(std::unique_ptr<MobResource>
     return slot.get();
 }
 
-glimmer::MobResource *glimmer::MobManager::FindMobResource(const std::string &packId, const std::string &key) {
-    const auto packIt = mobMap_.find(packId);
-    if (packIt == mobMap_.end()) {
-        return nullptr;
+glimmer::MobResource *glimmer::MobManager::FindMobResource(std::string_view packId, std::string_view key) {
+    if (const auto packIt = mobMap_.find(packId); packIt != mobMap_.end()) {
+        if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
+            return keyIt->second.get();
+        }
     }
-
-    auto &keyMap = packIt->second;
-    const auto keyIt = keyMap.find(key);
-    if (keyIt == keyMap.end()) {
-        return nullptr;
-    }
-    return keyIt->second.get();
+    return nullptr;
 }
 
 const std::vector<glimmer::MobResource *> &glimmer::MobManager::GetPlayerResourceList() const {
@@ -57,13 +52,9 @@ const std::vector<glimmer::MobResource *> &glimmer::MobManager::GetPlayerResourc
 
 std::vector<std::string> glimmer::MobManager::GetMobList() const {
     std::vector<std::string> result;
-    for (const auto &packPair: mobMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair;
-            result.emplace_back(Resource::GenerateId(packId, key.first));
+    for (const auto &[packId, keyMap]: mobMap_) {
+        for (const auto &[key, resource]: keyMap) {
+            result.emplace_back(Resource::GenerateId(packId, key));
         }
     }
     return result;
@@ -71,11 +62,8 @@ std::vector<std::string> glimmer::MobManager::GetMobList() const {
 
 std::string glimmer::MobManager::ListMobs() const {
     std::ostringstream oss;
-    for (const auto &packPair: mobMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair.first;
+    for (const auto &[packId, keyMap]: mobMap_) {
+        for (const auto &[key, resource]: keyMap) {
             oss << Resource::GenerateId(packId, key) << "\n";
         }
     }

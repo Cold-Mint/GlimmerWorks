@@ -27,6 +27,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include <functional>
 #include "core/mod/Resource.h"
 #include "core/ecs/component/TileLayerComponent.h"
 
@@ -35,14 +36,15 @@ namespace glimmer {
     struct BiomeResource;
 
     class BiomesManager {
-    protected:
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<BiomeResource> > > biomeMap_{};
+    private:
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<BiomeResource>,
+            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>> biomeMap_{};
         std::vector<BiomeResource *> biomeVector_{};
 
     public:
         BiomeResource *AddResource(std::unique_ptr<BiomeResource> biomeResource);
 
-        BiomeResource *Find(const std::string &packId, const std::string &resourceId);
+        [[nodiscard]] BiomeResource *Find(std::string_view packId, std::string_view resourceId) const;
 
 
         /**
@@ -55,7 +57,7 @@ namespace glimmer {
          */
         static float CalculateBiomeScoreDelta(float targetValue, float actualValue, float strictness);
 
-        const std::vector<BiomeResource *> &GetBiomeVector();
+        [[nodiscard]] const std::vector<BiomeResource *> &GetBiomeVector() const;
 
         /**
          * Find Best Biome

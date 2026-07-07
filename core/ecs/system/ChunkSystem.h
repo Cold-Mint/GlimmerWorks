@@ -28,7 +28,6 @@
 
 #include "core/ecs/GameSystem.h"
 #include "core/world/ChunkTask.h"
-#include <functional>
 
 namespace glimmer
 {
@@ -82,8 +81,18 @@ namespace glimmer
 
         void UpdateChunkFadeAnimation(float delta, const SDL_FRect& viewportRect) const;
 
-        void ExecuteTimedTask(float delta, float interval, float& accumTime, uint16_t batch,
-                              const std::function<void(uint16_t)>& executeFunc);
+        template<typename Func>
+        void ExecuteTimedTask(float delta, float interval, float& accumTime, uint16_t batch, Func&& executeFunc) {
+            if (interval == 0.0F) {
+                executeFunc(batch);
+                return;
+            }
+            accumTime += delta;
+            if (accumTime > interval) {
+                executeFunc(batch);
+                accumTime -= interval;
+            }
+        }
 
         bool UpdateCameraPosition();
 

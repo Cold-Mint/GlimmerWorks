@@ -28,7 +28,7 @@
 #include <cstdint>
 
 namespace glimmer {
-    enum ChunkType : uint8_t {
+    enum class ChunkType : uint8_t {
         None,
         LoadTerrain,
         LoadChunk,

@@ -85,6 +85,7 @@ const glimmer::AbilityConfig* glimmer::MaterialItem::GetAbilityConfig() const
 
 void glimmer::MaterialItem::Reduce(unsigned value)
 {
+    // MaterialItem has no durability to reduce
 }
 
 
@@ -110,6 +111,7 @@ bool glimmer::MaterialItem::IsUnbreakable() const
 void glimmer::MaterialItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                                   std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
 {
+    // MaterialItem has no special use behavior
 }
 
 

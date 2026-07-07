@@ -33,15 +33,16 @@
 
 namespace glimmer {
     class LootTableManager {
-    protected:
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<LootResource> > > lootMap_{};
+    private:
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<LootResource>,
+            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>> lootMap_{};
 
     public:
         LootResource *AddResource(std::unique_ptr<LootResource> lootResource);
 
-        [[nodiscard]] LootResource *Find(const std::string &packId, const std::string &key);
+        [[nodiscard]] LootResource *Find(const std::string &packId, const std::string &key) const;
 
-        std::vector<std::string> GetLootTableList();
+        [[nodiscard]] std::vector<std::string> GetLootTableList() const;
 
         std::string ListLootTables() const;
     };

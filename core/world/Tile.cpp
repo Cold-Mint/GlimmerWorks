@@ -29,6 +29,8 @@
 #include <optional>
 
 #include "TileAnchorType.h"
+
+using enum glimmer::TileAnchorType;
 #include "WorldContext.h"
 #include "core/scene/AppContext.h"
 #include "core/mod/ResourceLocator.h"
@@ -181,43 +183,43 @@ glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType ti
     TileVector2D result = TileVector2D(0, 0);
     switch (tileAnchorType)
     {
-    case TileAnchorType::TopLeft:
+    case TopLeft:
         result.x = 0;
         result.y = tileHeight - 1;
         break;
-    case TileAnchorType::TopCenter:
-        result.x = tileWidth >> 1;
+    case TopCenter:
+        result.x = tileWidth / 2;
         result.y = tileHeight - 1;
         break;
-    case TileAnchorType::TopRight:
+    case TopRight:
         result.x = tileWidth - 1;
         result.y = tileHeight - 1;
         break;
-    case TileAnchorType::CenterLeft:
+    case CenterLeft:
         result.x = 0;
-        result.y = tileHeight >> 1;
+        result.y = tileHeight / 2;
         break;
-    case TileAnchorType::Center:
-        result.x = tileWidth >> 1;
-        result.y = tileHeight >> 1;
+    case Center:
+        result.x = tileWidth / 2;
+        result.y = tileHeight / 2;
         break;
-    case TileAnchorType::CenterRight:
+    case CenterRight:
         result.x = tileWidth - 1;
-        result.y = tileHeight >> 1;
+        result.y = tileHeight / 2;
         break;
-    case TileAnchorType::BottomLeft:
+    case BottomLeft:
         result.x = 0;
         result.y = 0;
         break;
-    case TileAnchorType::BottomCenter:
-        result.x = tileWidth >> 1;
+    case BottomCenter:
+        result.x = tileWidth / 2;
         result.y = 0;
         break;
-    case TileAnchorType::BottomRight:
+    case BottomRight:
         result.x = tileWidth - 1;
         result.y = 0;
         break;
-    case TileAnchorType::Custom:
+    case Custom:
         result.x = customTileAnchor.x;
         result.y = customTileAnchor.y;
         break;

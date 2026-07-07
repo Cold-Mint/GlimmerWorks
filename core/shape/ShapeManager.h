@@ -26,10 +26,11 @@
  */
 #pragma once
 #include "core/mod/Resource.h"
+#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer {
     class ShapeManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IShapeResource> > > shapeMap_
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IShapeResource>, TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>> shapeMap_
                 {};
 
     public:

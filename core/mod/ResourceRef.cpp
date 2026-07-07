@@ -33,7 +33,7 @@
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
 
-void glimmer::ResourceRef::SetSelfPackageId(const std::string &selfPackageId) {
+void glimmer::ResourceRef::SetSelfPackageId(std::string_view selfPackageId) {
     if (packId_ == RESOURCE_REF_SELF) {
         packId_ = selfPackageId;
     }
@@ -45,7 +45,7 @@ const std::string &glimmer::ResourceRef::GetSelfPackageId() const {
     return selfPackageId_;
 }
 
-void glimmer::ResourceRef::SetPackageId(const std::string &packId) {
+void glimmer::ResourceRef::SetPackageId(std::string_view packId) {
     packId_ = packId;
 }
 
@@ -64,7 +64,7 @@ void glimmer::ResourceRef::WriteResourceRefMessage(ResourceRefMessage &resourceR
     resourceRefMessage.set_selfpackageid(selfPackageId_);
 }
 
-std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(const std::string &id,
+std::optional<glimmer::ResourceRef> glimmer::ResourceRef::ParseFromId(std::string_view id,
                                                                       const ResourceTypeMessage resourceType) {
     auto pos = id.find(':');
     if (pos == std::string::npos) {
@@ -110,7 +110,7 @@ ResourceTypeMessage glimmer::ResourceRef::GetResourceType() const {
 }
 
 
-void glimmer::ResourceRef::SetResourceKey(const std::string &resourceKey) {
+void glimmer::ResourceRef::SetResourceKey(std::string_view resourceKey) {
     resourceKey_ = resourceKey;
 }
 

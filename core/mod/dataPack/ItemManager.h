@@ -34,13 +34,16 @@ namespace glimmer
 {
     class ItemManager
     {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ComposableItemResource>>>
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<ComposableItemResource>,
+            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
         composableItemMap_{};
 
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<AbilityItemResource>>>
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<AbilityItemResource>,
+            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
         abilityItemMap_{};
 
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<MaterialItemResource>>>
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<MaterialItemResource>,
+            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
         materialItemMap_{};
 
         static std::unique_ptr<ComposableItemResource> CreatePlaceholderComposableItemResource(

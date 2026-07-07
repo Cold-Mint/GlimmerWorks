@@ -36,16 +36,17 @@ glimmer::FlowingTextCreator::FlowingTextCreator(WorldContext* worldContext, cons
 
 void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id)
 {
-    if (worldContext_ == nullptr)
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
     {
         return;
     }
-    AppContext* appContext = worldContext_->GetAppContext();
+    AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
         return;
     }
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+    EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
     {
         return;

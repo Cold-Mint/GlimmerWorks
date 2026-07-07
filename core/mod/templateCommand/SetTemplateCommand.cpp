@@ -27,7 +27,7 @@
 #include "SetTemplateCommand.h"
 
 std::optional<std::string> glimmer::SetTemplateCommand::Execute(const std::vector<std::string> &templateSearchPath,
-                                                                std::unordered_map<std::string, std::string> &variable,
+                                                                std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>> &variable,
                                                                 std::vector<std::string> &args,
                                                                 const VirtualFileSystem *virtualFileSystem) {
     if (args.size() == 2) {

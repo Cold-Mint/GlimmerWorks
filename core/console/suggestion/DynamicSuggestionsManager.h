@@ -30,14 +30,18 @@
 #include <unordered_map>
 
 #include "DynamicSuggestions.h"
+#include "core/utils/TransparentStringHash.h"
 
-namespace glimmer {
-    class DynamicSuggestionsManager {
-        std::unordered_map<std::string, std::unique_ptr<DynamicSuggestions> > dynamicSuggestions_{};
+namespace glimmer
+{
+    class DynamicSuggestionsManager
+    {
+        std::unordered_map<std::string, std::unique_ptr<DynamicSuggestions>,
+                           TransparentStringHash, std::equal_to<>> dynamicSuggestions_{};
 
     public:
         void RegisterDynamicSuggestions(std::unique_ptr<DynamicSuggestions> dynamicSuggestion);
 
-        [[nodiscard]] DynamicSuggestions *GetSuggestions(const std::string &id) const;
+        [[nodiscard]] DynamicSuggestions* GetSuggestions(const std::string& id) const;
     };
 }

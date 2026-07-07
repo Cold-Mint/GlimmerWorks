@@ -43,7 +43,7 @@ namespace glimmer
          * @param abilityConfig abilityConfig
          * @return Return the item's ability, which may be empty 返回物品能力，可能为空
          */
-        static std::shared_ptr<ItemAbility> CreateItemAbility(const std::string& id,
+        static std::shared_ptr<ItemAbility> CreateItemAbility(std::string_view id,
                                                               const AbilityConfig& abilityConfig);
     };
 }

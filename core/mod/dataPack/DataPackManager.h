@@ -31,6 +31,7 @@
 #include "core/vfs/VirtualFileSystem.h"
 #include "core/mod/PackManifest.h"
 #include "core/mod/TomlTemplateExpander.h"
+#include "core/utils/TransparentStringHash.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer {
@@ -47,7 +48,7 @@ namespace glimmer {
         VirtualFileSystem *virtualFileSystem_;
         TomlTemplateExpander *tomlTemplateExpander_;
         std::vector<DataPackManifest> packManifestVector_;
-        std::unordered_map<std::string, PackVerifyState> packVerifyStateMap_;
+        std::unordered_map<std::string, PackVerifyState, TransparentStringHash, std::equal_to<>> packVerifyStateMap_;
 
         //Check whether the data packet is available (for example, determine whether the minimum game version declared by the data packet exceeds the game version)
         //检测数据包是否可用（例如判断数据包声明的最低游戏版本是否超过了游戏版本）

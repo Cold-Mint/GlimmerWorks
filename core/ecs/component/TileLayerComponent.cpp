@@ -27,6 +27,7 @@
 #include "TileLayerComponent.h"
 
 #include <cassert>
+#include <utility>
 
 #include "core/Constants.h"
 #include "core/world/Tile.h"
@@ -205,7 +206,7 @@ uint64_t glimmer::TileLayerComponent::GenerateTileFingerprint(const TileVector2D
     uint64_t fingerprint = 0;
     fingerprint |= (static_cast<uint64_t>(static_cast<uint32_t>(tileTopLeftPosition.x)) & 0xFFFFFFULL) << 32;
     fingerprint |= (static_cast<uint64_t>(static_cast<uint32_t>(tileTopLeftPosition.y)) & 0xFFFFFFULL) << 8;
-    fingerprint |= static_cast<uint64_t>(static_cast<uint8_t>(tileLayerType));
+    fingerprint |= std::to_underlying(tileLayerType);
     return fingerprint;
 }
 

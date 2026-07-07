@@ -32,7 +32,7 @@
 #include "ability/NoneAbility.h"
 
 
-std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(const std::string& id,
+std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(std::string_view id,
     const AbilityConfig& abilityConfig)
 {
     if (id == ABILITY_ID_NONE)

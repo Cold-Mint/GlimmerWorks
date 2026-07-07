@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "core/vfs/VirtualFileSystem.h"
+#include "core/utils/TransparentStringHash.h"
 
 
 namespace glimmer {
@@ -39,7 +40,7 @@ namespace glimmer {
         virtual ~ITemplateCommand();
 
         [[nodiscard]] virtual std::optional<std::string> Execute(const std::vector<std::string> &templateSearchPath,
-                                                                 std::unordered_map<std::string, std::string> &variable,
+                                                                 std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>> &variable,
                                                                  std::vector<std::string> &args,
                                                                  const VirtualFileSystem *virtualFileSystem) = 0;
 

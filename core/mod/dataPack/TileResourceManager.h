@@ -28,31 +28,48 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <functional>
 
 #include "core/mod/Resource.h"
 #include "core/world/generator/TileLayerType.h"
 
-namespace glimmer {
+namespace glimmer
+{
     enum class TilePhysicsType : uint8_t;
 
-    class TileResourceManager {
-    protected:
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource> > > tileMap_{};
+    struct CoreTileResourceParams
+    {
+        std::string resourceId;
+        TilePhysicsType physicsType;
+        TileLayerType layerType;
+        float unitHardness;
+        std::string nameKey;
+        std::string textureKey;
+        std::string lightSourceKey;
+        std::string sideLightMaskKey;
+        std::string backLightMaskKey;
+        bool isOverwritable;
+        bool canDropLoot;
+        std::optional<std::string> descriptionKey;
+    };
 
-        //Save all the tiles that were created but were denied access.
-        //保存所有被拒绝访问创建的瓦片。
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource> > >
+    class TileResourceManager
+    {
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<TileResource>,
+                                                           TransparentStringHash, std::equal_to<>>,
+                           TransparentStringHash, std::equal_to<>> tileMap_{};
+
+        std::unordered_map<std::string_view, std::unordered_map<std::string_view, std::unique_ptr<TileResource>,
+                                                                TransparentStringHash, std::equal_to<>>,
+                           TransparentStringHash, std::equal_to<>>
         accessDeniedTileMap_{};
 
-        TileResource *air_ = nullptr;
-        TileResource *airWall_ = nullptr;
+        TileResource* air_ = nullptr;
+        TileResource* airWall_ = nullptr;
 
-        TileResource *AddCoreResource(const std::string &resourceId, TilePhysicsType physicsType,
-                                      TileLayerType layerType, float unitHardness, const std::string &nameKey,
-                                      const std::string &textureKey, const std::string &lightSourceKey,
-                                      const std::string &sideLightMaskKey, const std::string &backLightMaskKey,
-                                      bool isOverwritable, bool canDropLoot,
-                                      std::optional<std::string> descriptionKey);
+        TileResource* AddCoreResource(const CoreTileResourceParams& params);
+
+        static ResourceRef CreateCoreRef(const std::string& key, ResourceTypeMessage type);
 
     public:
         TileResourceManager();
@@ -63,13 +80,13 @@ namespace glimmer {
          */
         void InitBuiltinTiles();
 
-        [[nodiscard]] TileResource *AddErrorPlaceHolder(
-            const std::string &packId, const std::string &resourceId, TileLayerType tileLayer);
+        [[nodiscard]] TileResource* AddErrorPlaceHolder(
+            std::string_view packId, std::string_view resourceId, TileLayerType tileLayer);
 
-        [[nodiscard]] TileResource *GenerateAccessDeniedPlaceHolder(
-            const std::string &packId, const std::string &resourceId, TileLayerType tileLayer);
+        [[nodiscard]] TileResource* GenerateAccessDeniedPlaceHolder(
+            std::string_view packId, std::string_view resourceId, TileLayerType tileLayer);
 
-        TileResource *AddResource(std::unique_ptr<TileResource> tileResource);
+        TileResource* AddResource(std::unique_ptr<TileResource> tileResource);
 
         /**
          * Obtain the air resources at the corresponding location.
@@ -77,7 +94,7 @@ namespace glimmer {
          * @param tileLayerType
          * @return
          */
-        [[nodiscard]] TileResource *GetAirResource(TileLayerType tileLayerType) const;
+        [[nodiscard]] TileResource* GetAirResource(TileLayerType tileLayerType) const;
 
         [[nodiscard]] static uint64_t GetAirResourceRefFingerprint(TileLayerType tileLayerType);
 
@@ -90,7 +107,7 @@ namespace glimmer {
          * @param key
          * @return
          */
-        [[nodiscard]] TileResource *FindTileRaw(const std::string &packId, const std::string &key);
+        [[nodiscard]] TileResource* FindTileRaw(std::string_view packId, std::string_view key);
 
 
         /**
@@ -101,10 +118,10 @@ namespace glimmer {
          * @param tileLayer
          * @return
          */
-        [[nodiscard]] TileResource *FindTileFallback(const std::string &packId, const std::string &key,
+        [[nodiscard]] TileResource* FindTileFallback(std::string_view packId, std::string_view key,
                                                      TileLayerType tileLayer);
 
-        [[nodiscard]] std::vector<std::string> GetTileIDList();
+        [[nodiscard]] std::vector<std::string> GetTileIDList() const;
 
         std::string ListTiles() const;
     };

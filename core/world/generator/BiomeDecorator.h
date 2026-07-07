@@ -34,13 +34,15 @@
 
 namespace glimmer {
     class IBiomeDecorator {
-    protected:
+    private:
         int worldSeed_ = 0;
 
     public:
         virtual ~IBiomeDecorator() = default;
 
         void SetWorldSeed(int seed);
+
+        [[nodiscard]] int GetWorldSeed() const;
 
         virtual void Decoration(WorldContext *worldContext,
                                 TerrainResult *terrainResult,

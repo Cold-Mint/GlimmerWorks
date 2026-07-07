@@ -30,4 +30,5 @@
 glimmer::ITemplateCommand::~ITemplateCommand() = default;
 
 void glimmer::ITemplateCommand::Reset() {
+    // Default implementation: no reset needed for most commands
 }

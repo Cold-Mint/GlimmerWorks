@@ -26,6 +26,8 @@
  */
 #include "MaterialItemDynamicSuggestions.h"
 
+#include <ranges>
+
 glimmer::MaterialItemDynamicSuggestions::MaterialItemDynamicSuggestions(ItemManager* itemManager)
     : itemManager_(itemManager)
 {
@@ -38,14 +40,7 @@ std::string glimmer::MaterialItemDynamicSuggestions::GetId() const
 
 bool glimmer::MaterialItemDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    for (const auto& itemId : itemManager_->GetMaterialItemIDList())
-    {
-        if (itemId == keyword)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::contains(itemManager_->GetMaterialItemIDList(), keyword);
 }
 
 std::vector<std::string> glimmer::MaterialItemDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)

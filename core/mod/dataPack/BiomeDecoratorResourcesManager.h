@@ -34,7 +34,8 @@
 
 namespace glimmer {
     class BiomeDecoratorResourcesManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IBiomeDecoratorResource> > >
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IBiomeDecoratorResource>,
+            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
         biomeDecoratorMap_
                 {};
 

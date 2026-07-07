@@ -36,6 +36,7 @@ glimmer::NoneAbility::NoneAbility(const AbilityConfig& abilityConfigMessage)
 void glimmer::NoneAbility::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                                  std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
 {
+    // NoneAbility is a placeholder, has no effect when used
 }
 
 const std::string& glimmer::NoneAbility::GetId() const

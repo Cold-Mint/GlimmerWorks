@@ -247,21 +247,7 @@ void glimmer::ChunkSystem::UpdateChunkFadeAnimation(float delta, const SDL_FRect
     }
 }
 
-void glimmer::ChunkSystem::ExecuteTimedTask(float delta, float interval, float& accumTime, uint16_t batch,
-                                            const std::function<void(uint16_t)>& executeFunc)
-{
-    if (interval == 0.0F)
-    {
-        executeFunc(batch);
-        return;
-    }
-    accumTime += delta;
-    if (accumTime > interval)
-    {
-        executeFunc(batch);
-        accumTime -= interval;
-    }
-}
+
 
 bool glimmer::ChunkSystem::UpdateCameraPosition()
 {
@@ -286,7 +272,7 @@ void glimmer::ChunkSystem::GenerateLoadTerrainTasks(const TileVector2D& startTer
             {
                 continue;
             }
-            auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadTerrain, chunkVertexCoordinates);
+            auto chunkTaskPtr = std::make_unique<ChunkTask>(ChunkType::LoadTerrain, chunkVertexCoordinates);
             uint64_t signature = chunkTaskPtr->GetFingerprint();
             if (taskFingerprintSet_.contains(signature))
             {
@@ -322,7 +308,7 @@ void glimmer::ChunkSystem::GenerateLoadChunkTasks(const TileVector2D& startChunk
             {
                 continue;
             }
-            auto chunkTaskPtr = std::make_unique<ChunkTask>(LoadChunk, chunkVertexCoordinates);
+            auto chunkTaskPtr = std::make_unique<ChunkTask>(ChunkType::LoadChunk, chunkVertexCoordinates);
             uint64_t signature = chunkTaskPtr->GetFingerprint();
             if (taskFingerprintSet_.contains(signature))
             {
@@ -354,7 +340,7 @@ void glimmer::ChunkSystem::GenerateUnloadChunkTasks(const TileVector2D& startChu
         {
             continue;
         }
-        auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadChunk, chunkVertexCoordinates);
+        auto chunkTaskPtr = std::make_unique<ChunkTask>(ChunkType::UnloadChunk, chunkVertexCoordinates);
         uint64_t signature = chunkTaskPtr->GetFingerprint();
         if (taskFingerprintSet_.contains(signature))
         {
@@ -385,7 +371,7 @@ void glimmer::ChunkSystem::GenerateUnloadTerrainTasks(const TileVector2D& startT
         {
             continue;
         }
-        auto chunkTaskPtr = std::make_unique<ChunkTask>(UnloadTerrain, chunkVertexCoordinates);
+        auto chunkTaskPtr = std::make_unique<ChunkTask>(ChunkType::UnloadTerrain, chunkVertexCoordinates);
         uint64_t signature = chunkTaskPtr->GetFingerprint();
         if (taskFingerprintSet_.contains(signature))
         {

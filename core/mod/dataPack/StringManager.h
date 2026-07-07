@@ -37,7 +37,8 @@ namespace glimmer
 
     class StringManager
     {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<StringResource>>> stringMap_
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<StringResource>,
+            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>> stringMap_
             {};
 
         /**

@@ -40,14 +40,14 @@ void glimmer::LightPropagationTraverser::PropagateSingleRayImpl(const int rayInd
     const float dirY = std::sin(angleRadians);
     auto currentX = static_cast<float>(center_.x);
     auto currentY = static_cast<float>(center_.y);
-    TileVector2D currentTile = center_;
+    auto currentTile = center_;
     bool centerOfCircle = true;
     for (int step = 0; step < maxRadius_; ++step) {
         currentX += dirX;
         currentY += dirY;
         const int nextX = static_cast<int>(std::round(currentX));
         const int nextY = static_cast<int>(std::round(currentY));
-        const TileVector2D nextTile = {nextX, nextY};
+        const auto nextTile = TileVector2D{nextX, nextY};
         const int dx = nextTile.x - center_.x;
         const int dy = nextTile.y - center_.y;
         const int distSq = dx * dx + dy * dy;

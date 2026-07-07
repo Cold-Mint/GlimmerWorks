@@ -26,6 +26,8 @@
  */
 #include "MouseButtonUtils.h"
 
+#include <ranges>
+
 #include "SDL3/SDL_mouse.h"
 
 
@@ -40,8 +42,8 @@ std::unordered_map<std::string, uint8_t, glimmer::TransparentStringHash, std::eq
 std::vector<std::string> glimmer::MouseButtonUtils::cachedKeys_ = [] {
     std::vector<std::string> keys;
     keys.reserve(stringToMouseButtonMap_.size());
-    for (const auto &pair: stringToMouseButtonMap_) {
-        keys.emplace_back(pair.first);
+    for (const auto &key: stringToMouseButtonMap_ | std::views::keys) {
+        keys.emplace_back(key);
     }
     return keys;
 }();

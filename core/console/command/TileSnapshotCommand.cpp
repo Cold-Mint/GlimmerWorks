@@ -27,6 +27,8 @@
 #if  !defined(NDEBUG)
 #include "TileSnapshotCommand.h"
 
+#include <utility>
+
 #include "core/LangsResources.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
@@ -172,10 +174,10 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender* commandSende
         int32_t offsetX = tileStateMessage->offset().x();
         int32_t offsetY = tileStateMessage->offset().y();
         stringStream << fmt::format(fmt::runtime(langsResources->tileSnapshotInfo),
-                                    static_cast<uint8_t>(tile->GetLayerType()),
+                                    std::to_underlying(tile->GetLayerType()),
                                     tileStateMessage->resourceref().packid() + ":" + tileStateMessage->resourceref()
                                     .resourcekey(),
-                                    static_cast<int>(tileStateMessage->placesource()),
+                                    std::to_underlying(tileStateMessage->placesource()),
                                     offsetX,
                                     offsetY,
                                     tileStateMessage->width(),

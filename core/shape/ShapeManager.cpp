@@ -26,6 +26,8 @@
  */
 #include "ShapeManager.h"
 
+#include <utility>
+
 #include "ShapeType.h"
 #include "core/log/LogCat.h"
 
@@ -33,7 +35,7 @@ glimmer::ShapeManager::ShapeManager() {
     LogCat::d("Initializing ShapeManager");
     std::unique_ptr<IShapeResource> droppedItemShape = std::make_unique<RectangleShapeResource>();
     auto *droppedItemShapePtr = dynamic_cast<RectangleShapeResource *>(droppedItemShape.get());
-    droppedItemShapePtr->shapeType = static_cast<uint8_t>(ShapeType::RECTANGLE);
+    droppedItemShapePtr->shapeType = std::to_underlying(ShapeType::RECTANGLE);
     droppedItemShapePtr->width = 0.8F;
     droppedItemShapePtr->height = 0.8F;
     droppedItemShapePtr->packId = RESOURCE_REF_CORE;

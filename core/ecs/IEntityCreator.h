@@ -33,11 +33,13 @@
  */
 namespace glimmer {
     class IEntityCreator {
-    protected:
+    private:
         WorldContext *worldContext_ = nullptr;
 
     public:
         explicit IEntityCreator(WorldContext *worldContext);
+
+        [[nodiscard]] WorldContext *GetWorldContext() const;
 
         virtual ~IEntityCreator() = default;
 

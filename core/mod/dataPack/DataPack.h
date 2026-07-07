@@ -56,6 +56,17 @@ namespace glimmer
     class TileResourceManager;
     class StringManager;
 
+    struct SpecialFileProcessingParams
+    {
+        const Config* config;
+        std::string_view publicPath;
+        std::string_view signPath;
+        bool& findPublicKey;
+        bool& findSignature;
+        std::vector<uint8_t>& publicKey;
+        std::vector<uint8_t>& signature;
+    };
+
     class DataPack
     {
         std::string rootPath_;
@@ -131,11 +142,11 @@ namespace glimmer
         void LoadRecipeResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const;
 
         [[nodiscard]]
-        static std::optional<std::string> ExtractLanguageFromFileName(const std::string& fileName);
+        static std::optional<std::string> ExtractLanguageFromFileName(std::string_view fileName);
 
-        bool ProcessPublicKeyFile(const std::string& file, bool& findPublicKey, std::vector<uint8_t>& publicKey) const;
+        bool ProcessPublicKeyFile(std::string_view file, bool& findPublicKey, std::vector<uint8_t>& publicKey) const;
 
-        bool ProcessSignatureFile(const std::string& file, bool& findSignature, std::vector<uint8_t>& signature) const;
+        bool ProcessSignatureFile(std::string_view file, bool& findSignature, std::vector<uint8_t>& signature) const;
 
         static std::vector<char> ReadFileContent(std::istream& stream);
 
@@ -153,18 +164,12 @@ namespace glimmer
                              const std::vector<uint8_t>& signature,
                              const std::vector<uint8_t>& allHashData);
 
-        bool ProcessSpecialFiles(const std::string& file,
-                                Config* config,
-                                const std::string& publicPath,
-                                const std::string& signPath,
-                                bool& findPublicKey,
-                                bool& findSignature,
-                                std::vector<uint8_t>& publicKey,
-                                std::vector<uint8_t>& signature) const;
+        bool ProcessSpecialFiles(std::string_view file,
+                                 const SpecialFileProcessingParams& params) const;
 
-        static bool ProcessLanguageFile(const std::string& file,
-                                        const std::string& dataType,
-                                        const std::string& fileName,
+        static bool ProcessLanguageFile(std::string_view file,
+                                        std::string_view dataType,
+                                        std::string_view fileName,
                                         std::vector<std::string>& defaultLanguageFiles,
                                         std::vector<std::string>& targetLanguageFiles,
                                         const AppContext* appContext);

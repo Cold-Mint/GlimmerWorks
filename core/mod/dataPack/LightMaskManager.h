@@ -28,12 +28,14 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <functional>
 
 #include "core/mod/Resource.h"
 
 namespace glimmer {
     class LightMaskManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<LightMaskResource> > >
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<LightMaskResource>,
+            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
         lightMaskMap_
                 {};
 
@@ -45,9 +47,9 @@ namespace glimmer {
 
         LightMaskResource *Register(std::unique_ptr<LightMaskResource> lightMaskResource);
 
-        [[nodiscard]] LightMaskResource *FindLightMaskResource(const std::string &packId, const std::string &key);
+        [[nodiscard]] LightMaskResource *FindLightMaskResource(std::string_view packId, std::string_view key);
 
-        std::vector<std::string> GetLightMaskResourceList() const;
+        [[nodiscard]] std::vector<std::string> GetLightMaskResourceList() const;
 
         std::string ListLightMaskResource() const;
     };

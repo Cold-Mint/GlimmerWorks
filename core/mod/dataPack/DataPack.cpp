@@ -26,6 +26,8 @@
  */
 #include "DataPack.h"
 
+#include <utility>
+
 #include "blake3.h"
 #include "monocypher-ed25519.h"
 #include "core/Constants.h"
@@ -68,10 +70,7 @@ std::optional<std::string> glimmer::DataPack::GetDataType(const std::string& fil
     if (secondLastDot == std::string::npos)
         return std::nullopt;
 
-    const std::string format = fileName.substr(lastDot + 1);
-    //The TOML format is mandatory.
-    //toml格式是强制的。
-    if (format != "toml")
+    if (const std::string format = fileName.substr(lastDot + 1); format != "toml")
         return std::nullopt;
     return fileName.substr(secondLastDot + 1,
                            lastDot - secondLastDot - 1);
@@ -117,9 +116,9 @@ int glimmer::DataPack::LoadStringResourceFromFile(const std::string& path, Strin
         }
         return count;
     }
-    catch (const std::exception& e)
+    catch (const toml::exception& e)
     {
-        LogCat::e("DataPack::loadManifest - Failed to parse manifest toml: ", e.what());
+        LogCat::e("DataPack::LoadStringResourceFromFile - Failed to parse toml: ", e.what());
         return 0;
     }
 }
@@ -166,24 +165,26 @@ void glimmer::DataPack::LoadStructureResourceFromFile(const toml::value& value, 
     switch (structureGeneratorType)
     {
     case StructureGeneratorType::None:
-        break;
+        return;
     case StructureGeneratorType::Tree:
         structureResource = std::make_unique<TreeStructureResource>(
             toml::get<TreeStructureResource>(value));
         break;
     case StructureGeneratorType::Static:
-        std::unique_ptr<StaticStructureResource> staticStructureResource = std::make_unique<
-            StaticStructureResource>(
-            toml::get<StaticStructureResource>(value));
-        for (auto& tile_info : staticStructureResource->tileInfo)
         {
-            tile_info.tile.SetSelfPackageId(manifest_.id);
+            std::unique_ptr<StaticStructureResource> staticStructureResource = std::make_unique<
+                StaticStructureResource>(
+                toml::get<StaticStructureResource>(value));
+            for (auto& tile_info : staticStructureResource->tileInfo)
+            {
+                tile_info.tile.SetSelfPackageId(manifest_.id);
+            }
+            structureResource = std::move(staticStructureResource);
         }
-        structureResource = std::move(staticStructureResource);
         break;
     }
     structureResource->packId = manifest_.id;
-    structureResource->generatorId = static_cast<uint8_t>(structureGeneratorType);
+    structureResource->generatorId = std::to_underlying(structureGeneratorType);
     for (auto& ref : structureResource->data)
     {
         ref.SetSelfPackageId(manifest_.id);
@@ -315,7 +316,7 @@ LoadShapeResourceFromFile(const toml::value& value, ShapeManager* shapeManager, 
         {
             shapeResource = std::make_unique<CircularShapeResource>(
                 toml::get<CircularShapeResource>(value));
-            shapeResource->shapeType = static_cast<uint8_t>(ShapeType::CIRCLE);
+            shapeResource->shapeType = std::to_underlying(ShapeType::CIRCLE);
             break;
         }
 
@@ -323,14 +324,14 @@ LoadShapeResourceFromFile(const toml::value& value, ShapeManager* shapeManager, 
         {
             shapeResource = std::make_unique<RectangleShapeResource>(
                 toml::get<RectangleShapeResource>(value));
-            shapeResource->shapeType = static_cast<uint8_t>(ShapeType::RECTANGLE);
+            shapeResource->shapeType = std::to_underlying(ShapeType::RECTANGLE);
             break;
         }
     case ShapeType::ROUNDED_RECTANGLE:
         {
             shapeResource = std::make_unique<RoundedRectangleShapeResource>(
                 toml::get<RoundedRectangleShapeResource>(value));
-            shapeResource->shapeType = static_cast<uint8_t>(ShapeType::ROUNDED_RECTANGLE);
+            shapeResource->shapeType = std::to_underlying(ShapeType::ROUNDED_RECTANGLE);
             break;
         }
     }
@@ -380,7 +381,7 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value& va
                 toml::get<FillBiomeDecoratorResource>(value));
             fillResource->packId = manifest_.id;
             fillResource->tile.SetSelfPackageId(manifest_.id);
-            fillResource->biomeDecoratorType = static_cast<uint8_t>(BiomeDecoratorType::FILL);
+            fillResource->biomeDecoratorType = std::to_underlying(BiomeDecoratorType::FILL);
             biomeDecoratorManager->Register(std::move(fillResource));
             break;
         }
@@ -390,7 +391,7 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value& va
                 toml::get<MineralBiomeDecoratorResource>(value));
             mineralBiomeDecoratorResource->packId = manifest_.id;
             mineralBiomeDecoratorResource->ore.SetSelfPackageId(manifest_.id);
-            mineralBiomeDecoratorResource->biomeDecoratorType = static_cast<uint8_t>(BiomeDecoratorType::MINERAL);
+            mineralBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(BiomeDecoratorType::MINERAL);
             biomeDecoratorManager->Register(std::move(mineralBiomeDecoratorResource));
             break;
         }
@@ -400,7 +401,7 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value& va
                 toml::get<SurfaceBiomeDecoratorResource>(value));
             surfaceBiomeDecoratorResource->packId = manifest_.id;
             surfaceBiomeDecoratorResource->tile.SetSelfPackageId(manifest_.id);
-            surfaceBiomeDecoratorResource->biomeDecoratorType = static_cast<uint8_t>(BiomeDecoratorType::SURFACE);
+            surfaceBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(BiomeDecoratorType::SURFACE);
             biomeDecoratorManager->Register(std::move(surfaceBiomeDecoratorResource));
             break;
         }
@@ -424,21 +425,54 @@ void glimmer::DataPack::LoadRecipeResourceFromFile(const toml::value& value, Rec
     recipeManager->RegisterRecipe(std::move(recipeResource));
 }
 
-std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(const std::string& fileName)
+std::optional<std::string> glimmer::DataPack::ExtractLanguageFromFileName(std::string_view fileName)
 {
     constexpr std::string_view suffix = ".strings.toml";
     if (!fileName.ends_with(suffix))
     {
         return std::nullopt;
     }
-    std::string base =
-        fileName.substr(0, fileName.size() - suffix.size());
+    std::string base(fileName.substr(0, fileName.size() - suffix.size()));
     auto pos = base.rfind('.');
     if (pos == std::string::npos)
     {
         return base;
     }
     return base.substr(pos + 1);
+}
+
+bool glimmer::DataPack::ProcessPublicKeyFile(const std::string_view file, bool& findPublicKey,
+    std::vector<uint8_t>& publicKey) const
+{
+    auto publicKeyStream = virtualFileSystem_->ReadStream(file.data());
+    if (!publicKeyStream.has_value())
+    {
+        return true;
+    }
+    auto& pubStream = *publicKeyStream.value();
+    pubStream.read(reinterpret_cast<char*>(publicKey.data()), 32);
+    if (pubStream.gcount() == 32)
+    {
+        findPublicKey = true;
+    }
+    return true;
+}
+
+bool glimmer::DataPack::ProcessSignatureFile(const std::string_view file, bool& findSignature,
+    std::vector<uint8_t>& signature) const
+{
+    auto signStream = virtualFileSystem_->ReadStream(file.data());
+    if (!signStream.has_value())
+    {
+        return true;
+    }
+    auto& sigStream = *signStream.value();
+    sigStream.read(reinterpret_cast<char*>(signature.data()), 64);
+    if (sigStream.gcount() == 64)
+    {
+        findSignature = true;
+    }
+    return true;
 }
 
 glimmer::DataPack::DataPack(std::string path, const VirtualFileSystem* virtualFileSystem,
@@ -469,40 +503,6 @@ bool glimmer::DataPack::LoadManifest()
 glimmer::PackVerifyState glimmer::DataPack::GetPackVerifyState() const
 {
     return packVerifyState_;
-}
-
-bool glimmer::DataPack::ProcessPublicKeyFile(const std::string& file, bool& findPublicKey,
-                                             std::vector<uint8_t>& publicKey) const
-{
-    auto publicKeyStream = virtualFileSystem_->ReadStream(file);
-    if (!publicKeyStream.has_value())
-    {
-        return true;
-    }
-    auto& pubStream = *publicKeyStream.value();
-    pubStream.read(reinterpret_cast<char*>(publicKey.data()), 32);
-    if (pubStream.gcount() == 32)
-    {
-        findPublicKey = true;
-    }
-    return true;
-}
-
-bool glimmer::DataPack::ProcessSignatureFile(const std::string& file, bool& findSignature,
-                                             std::vector<uint8_t>& signature) const
-{
-    auto signStream = virtualFileSystem_->ReadStream(file);
-    if (!signStream.has_value())
-    {
-        return true;
-    }
-    auto& sigStream = *signStream.value();
-    sigStream.read(reinterpret_cast<char*>(signature.data()), 64);
-    if (sigStream.gcount() == 64)
-    {
-        findSignature = true;
-    }
-    return true;
 }
 
 std::vector<char> glimmer::DataPack::ReadFileContent(std::istream& stream)
@@ -706,7 +706,8 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
 
     for (const auto& file : files)
     {
-        if (ProcessSpecialFiles(file, config, publicPath, signPath, findPublicKey, findSignature, publicKey, signature))
+        if (ProcessSpecialFiles(
+            file, {config, publicPath, signPath, findPublicKey, findSignature, publicKey, signature}))
         {
             continue;
         }
@@ -766,35 +767,29 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
     return total != 0;
 }
 
-bool glimmer::DataPack::ProcessSpecialFiles(const std::string& file,
-                                            Config* config,
-                                            const std::string& publicPath,
-                                            const std::string& signPath,
-                                            bool& findPublicKey,
-                                            bool& findSignature,
-                                            std::vector<uint8_t>& publicKey,
-                                            std::vector<uint8_t>& signature) const
+bool glimmer::DataPack::ProcessSpecialFiles(std::string_view file,
+                                            const SpecialFileProcessingParams& params) const
 {
-    if (!config->mods.enableSignVerify)
+    if (!params.config->mods.enableSignVerify)
     {
         return false;
     }
-    if (!findPublicKey && file == publicPath)
+    if (!params.findPublicKey && file == params.publicPath)
     {
-        ProcessPublicKeyFile(file, findPublicKey, publicKey);
+        ProcessPublicKeyFile(file, params.findPublicKey, params.publicKey);
         return true;
     }
-    if (!findSignature && file == signPath)
+    if (!params.findSignature && file == params.signPath)
     {
-        ProcessSignatureFile(file, findSignature, signature);
+        ProcessSignatureFile(file, params.findSignature, params.signature);
         return true;
     }
     return false;
 }
 
-bool glimmer::DataPack::ProcessLanguageFile(const std::string& file,
-                                            const std::string& dataType,
-                                            const std::string& fileName,
+bool glimmer::DataPack::ProcessLanguageFile(std::string_view file,
+                                            std::string_view dataType,
+                                            std::string_view fileName,
                                             std::vector<std::string>& defaultLanguageFiles,
                                             std::vector<std::string>& targetLanguageFiles,
                                             const AppContext* appContext)
@@ -810,11 +805,11 @@ bool glimmer::DataPack::ProcessLanguageFile(const std::string& file,
     }
     if (const auto& fileLang = langOptional.value(); fileLang == appContext->GetLanguage())
     {
-        targetLanguageFiles.push_back(file);
+        targetLanguageFiles.push_back(file.data());
     }
     else if (fileLang == "default")
     {
-        defaultLanguageFiles.push_back(file);
+        defaultLanguageFiles.push_back(file.data());
     }
     return true;
 }

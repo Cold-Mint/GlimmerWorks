@@ -31,7 +31,8 @@
 
 namespace glimmer {
     class StructurePlacementConditionsManager {
-        std::unordered_map<std::string, std::unique_ptr<IStructureConditionProcessor> > conditionProcessors_;
+        std::unordered_map<std::string, std::unique_ptr<IStructureConditionProcessor>,
+            TransparentStringHash, std::equal_to<>> conditionProcessors_;
 
     public:
         void AddConditionProcessor(std::unique_ptr<IStructureConditionProcessor> structureConditionProcessor);

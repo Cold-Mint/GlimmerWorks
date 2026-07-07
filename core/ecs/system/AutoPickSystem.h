@@ -26,6 +26,7 @@
  */
 #pragma once
 #include "core/ecs/GameSystem.h"
+#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer
 {
@@ -40,7 +41,7 @@ namespace glimmer
         uint32_t itemContainerCount_ = 0;
         std::vector<GameEntityID> entities_;
 
-        std::unordered_map<std::string, size_t> frameItemCounts_ = {};
+        std::unordered_map<std::string, size_t, TransparentStringHash, std::equal_to<>> frameItemCounts_ = {};
 
         void TryMergeFlowingText();
 

@@ -26,10 +26,12 @@
  */
 #pragma once
 #include "core/mod/Resource.h"
+#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer {
     class StructureManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IStructureResource> > >
+        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IStructureResource>,
+            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
         structureMap_
                 {};
         std::vector<IStructureResource *> structureVector_ = {};

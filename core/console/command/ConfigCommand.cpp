@@ -101,30 +101,32 @@ void glimmer::ConfigCommand::PutCommandStructure(const CommandArgs* commandArgs,
     }
 }
 
+void glimmer::ConfigCommand::UpdateSetSuggestions(const CommandArgs* commandArgs)
+{
+    if (const auto obj = GetPrivateSuggestionsTree().GetChildByValue("set")->GetChildByValue(
+        CONFIG_DYNAMIC_SUGGESTIONS_NAME); obj != nullptr)
+    {
+        obj->ClearChildren();
+        const std::string arg2 = commandArgs->AsString(2);
+        if (GetParameterType(arg2) == ConfigType::TYPE_BOOLEAN)
+        {
+            obj->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
+        }
+        if (GetParameterType(arg2) == ConfigType::TYPE_STRING && (
+            arg2 == "mods.resourcePackPath" || arg2 ==
+            "mods.dataPackPath"))
+        {
+            obj->AddChild(std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(3));
+        }
+    }
+}
+
 glimmer::NodeTree<std::string>* glimmer::ConfigCommand::GetSuggestionsTree(const CommandArgs* commandArgs)
 {
     const int size = commandArgs->GetSize();
-    if (size > 2)
+    if (size > 2 && commandArgs->AsString(1) == "set")
     {
-        if (commandArgs->AsString(1) == "set")
-        {
-            if (const auto obj = GetPrivateSuggestionsTree().GetChildByValue("set")->GetChildByValue(
-                CONFIG_DYNAMIC_SUGGESTIONS_NAME); obj != nullptr)
-            {
-                obj->ClearChildren();
-                const std::string arg2 = commandArgs->AsString(2);
-                if (GetParameterType(arg2) == ConfigType::TYPE_BOOLEAN)
-                {
-                    obj->AddChild(BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME);
-                }
-                if (GetParameterType(arg2) == ConfigType::TYPE_STRING && (
-                    arg2 == "mods.resourcePackPath" || arg2 ==
-                    "mods.dataPackPath"))
-                {
-                    obj->AddChild(std::string(VFS_DYNAMIC_SUGGESTIONS_NAME) + ":" + commandArgs->AsString(3));
-                }
-            }
-        }
+        UpdateSetSuggestions(commandArgs);
     }
     return &GetPrivateSuggestionsTree();
 }

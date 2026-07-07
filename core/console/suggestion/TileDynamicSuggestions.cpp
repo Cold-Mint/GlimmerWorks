@@ -31,8 +31,8 @@
 #include "core/Constants.h"
 
 glimmer::TileDynamicSuggestions::TileDynamicSuggestions(TileResourceManager* tileManager)
+    : tileManager_(tileManager)
 {
-    tileManager_ = tileManager;
 }
 
 std::string glimmer::TileDynamicSuggestions::GetId() const

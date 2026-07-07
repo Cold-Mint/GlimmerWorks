@@ -35,6 +35,7 @@
 #include "core/Box2dFilter.h"
 #include "core/lootTable/LootEntry.h"
 #include "core/math/Color.h"
+#include "core/utils/TransparentStringHash.h"
 #include "src/saves/item.pb.h"
 
 namespace glimmer
@@ -267,7 +268,8 @@ namespace glimmer
         std::string key;
         uint8_t type = 3;
         std::string value;
-        inline static const std::unordered_map<std::string, VariableDefinitionType> variableDefinitionTypeMap_{
+        inline static const std::unordered_map<std::string, VariableDefinitionType,
+            TransparentStringHash, std::equal_to<>> variableDefinitionTypeMap_{
             {"int", INT},
             {"float", FLOAT},
             {"bool", BOOL},

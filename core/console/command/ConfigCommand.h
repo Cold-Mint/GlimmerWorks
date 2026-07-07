@@ -46,6 +46,7 @@ namespace glimmer
 
     protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+        void UpdateSetSuggestions(const CommandArgs* commandArgs);
 
     public:
         explicit ConfigCommand(AppContext* appContext, toml::value* value);

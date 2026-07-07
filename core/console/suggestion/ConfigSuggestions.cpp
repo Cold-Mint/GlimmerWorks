@@ -64,7 +64,7 @@ bool glimmer::ConfigSuggestions::Match(const std::string& keyword, const std::st
 {
     std::vector<std::string> fields;
     ParseTable(configValue_->as_table(), fields);
-    return std::find(fields.begin(), fields.end(), keyword) != fields.end();
+    return std::ranges::contains(fields, keyword);
 }
 
 std::string glimmer::ConfigSuggestions::GetId() const

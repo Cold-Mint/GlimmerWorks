@@ -36,7 +36,7 @@ glimmer::LootResource *glimmer::LootTableManager::AddResource(std::unique_ptr<Lo
     return slot.get();
 }
 
-glimmer::LootResource *glimmer::LootTableManager::Find(const std::string &packId, const std::string &key) {
+glimmer::LootResource *glimmer::LootTableManager::Find(const std::string &packId, const std::string &key) const {
     LogCat::d("Searching for loot resource: packId = ", packId, ", key = ", key);
     const auto packIt = lootMap_.find(packId);
     if (packIt == lootMap_.end()) {
@@ -55,7 +55,7 @@ glimmer::LootResource *glimmer::LootTableManager::Find(const std::string &packId
     return keyIt->second.get();
 }
 
-std::vector<std::string> glimmer::LootTableManager::GetLootTableList() {
+std::vector<std::string> glimmer::LootTableManager::GetLootTableList() const {
     std::vector<std::string> result;
     for (const auto &[packId, keyMap]: lootMap_) {
         for (const auto &[key, resource]: keyMap) {
@@ -67,16 +67,10 @@ std::vector<std::string> glimmer::LootTableManager::GetLootTableList() {
 
 std::string glimmer::LootTableManager::ListLootTables() const {
     std::ostringstream oss;
-    for (const auto &packPair: lootMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair.first;
-
+    for (const auto &[packId, keyMap]: lootMap_) {
+        for (const auto &[key, resource]: keyMap) {
             oss << Resource::GenerateId(packId, key) << '\n';
         }
     }
-
     return oss.str();
 }

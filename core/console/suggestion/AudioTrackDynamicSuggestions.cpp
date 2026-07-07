@@ -26,6 +26,9 @@
  */
 #include "AudioTrackDynamicSuggestions.h"
 
+#include <algorithm>
+#include <ranges>
+
 #include "core/Constants.h"
 
 glimmer::AudioTrackDynamicSuggestions::AudioTrackDynamicSuggestions()
@@ -46,12 +49,5 @@ std::vector<std::string> glimmer::AudioTrackDynamicSuggestions::GetSuggestions(c
 
 bool glimmer::AudioTrackDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    for (const auto& audioTrack : suggestions_)
-    {
-        if (audioTrack == keyword)
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::contains(suggestions_, keyword);
 }

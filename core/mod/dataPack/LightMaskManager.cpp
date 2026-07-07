@@ -29,7 +29,7 @@
 
 glimmer::LightMaskResource *glimmer::LightMaskManager::RegisterCoreLightMaskResource(const std::string &resourceId,
     const std::string &colorKey) {
-    std::unique_ptr<LightMaskResource> result = std::make_unique<LightMaskResource>();
+    auto result = std::make_unique<LightMaskResource>();
     result->packId = RESOURCE_REF_CORE;
     result->resourceId = resourceId;
     result->missing = false;
@@ -56,30 +56,21 @@ glimmer::LightMaskResource *glimmer::LightMaskManager::Register(std::unique_ptr<
     return slot.get();
 }
 
-glimmer::LightMaskResource *glimmer::LightMaskManager::FindLightMaskResource(const std::string &packId,
-                                                                             const std::string &key) {
-    const auto packIt = lightMaskMap_.find(packId);
-    if (packIt == lightMaskMap_.end()) {
-        return nullptr;
+glimmer::LightMaskResource *glimmer::LightMaskManager::FindLightMaskResource(std::string_view packId,
+                                                                             std::string_view key) {
+    if (const auto packIt = lightMaskMap_.find(packId); packIt != lightMaskMap_.end()) {
+        if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
+            return keyIt->second.get();
+        }
     }
-
-    auto &keyMap = packIt->second;
-    const auto keyIt = keyMap.find(key);
-    if (keyIt == keyMap.end()) {
-        return nullptr;
-    }
-    return keyIt->second.get();
+    return nullptr;
 }
 
 std::vector<std::string> glimmer::LightMaskManager::GetLightMaskResourceList() const {
     std::vector<std::string> result;
-    for (const auto &packPair: lightMaskMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair;
-            result.emplace_back(Resource::GenerateId(packId, key.first));
+    for (const auto &[packId, keyMap]: lightMaskMap_) {
+        for (const auto &[key, resource]: keyMap) {
+            result.emplace_back(Resource::GenerateId(packId, key));
         }
     }
     return result;
@@ -87,11 +78,8 @@ std::vector<std::string> glimmer::LightMaskManager::GetLightMaskResourceList() c
 
 std::string glimmer::LightMaskManager::ListLightMaskResource() const {
     std::ostringstream oss;
-    for (const auto &packPair: lightMaskMap_) {
-        const auto &packId = packPair.first;
-        const auto &keyMap = packPair.second;
-        for (const auto &keyPair: keyMap) {
-            const auto &key = keyPair.first;
+    for (const auto &[packId, keyMap]: lightMaskMap_) {
+        for (const auto &[key, resource]: keyMap) {
             oss << Resource::GenerateId(packId, key) << "\n";
         }
     }

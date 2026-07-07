@@ -172,7 +172,7 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) const
 {
     const AppContext* appContext = worldContext_->GetAppContext();
-    const std::vector<IStructureResource*>& all = appContext->GetStructureManager()->GetAll();
+    const auto& all = appContext->GetStructureManager()->GetAll();
     if (all.empty())
     {
         return;

@@ -28,7 +28,7 @@
 
 
 std::optional<std::string> glimmer::UnSetTemplateCommand::Execute(const std::vector<std::string> &templateSearchPath,
-                                                                  std::unordered_map<std::string, std::string> &
+                                                                  std::unordered_map<std::string, std::string, TransparentStringHash, std::equal_to<>> &
                                                                   variable, std::vector<std::string> &args,
                                                                   const VirtualFileSystem *virtualFileSystem) {
     if (args.size() == 1) {

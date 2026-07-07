@@ -406,18 +406,13 @@ namespace glimmer
     //@genNextLine(ItemTagResource|物品标签)
     struct ItemTagResource
     {
-    private:
-        uint64_t cachedTagId_ = 0;
-
-    public:
-        void MakeCachedTag();
-
-        [[nodiscard]] uint64_t GetCachedTagId() const;
-
+        uint64_t cachedTagId = 0;
         //@genNextLine(name|标签名)
         std::string name;
         //@genNextLine(value|值)
         uint8_t value = 1;
+
+        void MakeCachedTag();
     };
 
     /**
@@ -787,21 +782,17 @@ namespace glimmer
     };
 
     //@genNextLine(RequiredTag|需要的标签)
-    class RequiredTag
+    struct RequiredTag
     {
-        uint64_t cachedTagId_ = 0;
-
-    public:
-        void MakeCachedTag();
-
-        [[nodiscard]] uint64_t GetCachedTagId() const;
-
+        uint64_t cachedTagId = 0;
         //@genNextLine(requiredTag|需要的标签)
         std::string requiredTag;
         //@genNextLine(requiredWeight|需要的权重)
         uint16_t requiredWeight = 1;
         //@genNextLine(exactMatch The number of true labels must be equal to requiredWeight for the condition to be met; otherwise, it fails. False values are considered as passing if they are greater than or equal to the requiredWeight.|精准匹配 true标签数量必须等于requiredWeight才通过，false大于等于都通过。)
         bool exactMatch = true;
+
+        void MakeCachedTag();
     };
 
 

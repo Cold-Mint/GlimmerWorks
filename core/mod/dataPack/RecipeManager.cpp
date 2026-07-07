@@ -68,7 +68,7 @@ bool glimmer::RecipeManager::IsRecipeSatisfied(const RecipeResource* recipe,
 {
     for (const auto& required : recipe->input)
     {
-        const auto valueIt = tagValueMap.find(required.GetCachedTagId());
+        const auto valueIt = tagValueMap.find(required.cachedTagId);
         if (valueIt == tagValueMap.end())
         {
             return false;
@@ -93,7 +93,7 @@ std::vector<glimmer::RecipeResource*> glimmer::RecipeManager::FindUnlockedRecipe
         {
             continue;
         }
-        tagValueMap[tag->GetCachedTagId()] = tag->value;
+        tagValueMap[tag->cachedTagId] = tag->value;
     }
 
     std::vector<RecipeResource*> unlockedRecipes;

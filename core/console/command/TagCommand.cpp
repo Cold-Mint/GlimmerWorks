@@ -48,10 +48,11 @@ void glimmer::TagCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree
 void glimmer::TagCommand::WriteTag(const std::string& tagItem, std::stringstream& stringStream,
                                    StringManager* stringManager, const ItemTagResource& itemTagResource)
 {
-    auto tagTranslate = stringManager->GetTagTranslate(itemTagResource.GetCachedTagId());
+    uint64_t cachedTagId = itemTagResource.cachedTagId;
+    auto tagTranslate = stringManager->GetTagTranslate(cachedTagId);
     stringStream << fmt::format(fmt::runtime(tagItem), itemTagResource.name,
                                 tagTranslate.value_or(itemTagResource.name),
-                                itemTagResource.GetCachedTagId(), itemTagResource.value);
+                                cachedTagId, itemTagResource.value);
 }
 
 std::string glimmer::TagCommand::BuildTagListString(const std::string& tagItem, StringManager* stringManager,

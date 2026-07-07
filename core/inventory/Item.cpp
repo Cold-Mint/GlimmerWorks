@@ -49,7 +49,7 @@ void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
     tagMap_.clear();
     for (auto& tag : tags)
     {
-        uint64_t cachedTag = tag.GetCachedTagId();
+        uint64_t cachedTag = tag.cachedTagId;
         tags_.emplace_back(cachedTag);
         tagMap_.try_emplace(cachedTag, tag);
     }

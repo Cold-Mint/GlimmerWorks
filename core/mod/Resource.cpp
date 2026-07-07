@@ -148,15 +148,10 @@ glimmer::Color glimmer::ColorResource::ToColor() const
 
 void glimmer::ItemTagResource::MakeCachedTag()
 {
-    if (cachedTagId_ == 0)
+    if (cachedTagId == 0)
     {
-        cachedTagId_ = StringUtils::StringToUint64(name);
+        cachedTagId = StringUtils::StringToUint64(name);
     }
-}
-
-uint64_t glimmer::ItemTagResource::GetCachedTagId() const
-{
-    return cachedTagId_;
 }
 
 FastNoiseLite* glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const int seed)
@@ -224,13 +219,8 @@ std::vector<ItemMessage> glimmer::LootResource::GetLootItems(const LootResource*
 
 void glimmer::RequiredTag::MakeCachedTag()
 {
-    if (cachedTagId_ == 0)
+    if (cachedTagId == 0)
     {
-        cachedTagId_ = StringUtils::StringToUint64(requiredTag);
+        cachedTagId = StringUtils::StringToUint64(requiredTag);
     }
-}
-
-uint64_t glimmer::RequiredTag::GetCachedTagId() const
-{
-    return cachedTagId_;
 }

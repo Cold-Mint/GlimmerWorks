@@ -125,7 +125,7 @@ void glimmer::MaterialSelectCraftUISystem::InitializeTagRuntimeData()
     for (auto& requiredTag : input)
     {
         std::stringstream stringStream;
-        uint64_t cachedTagId = requiredTag.GetCachedTagId();
+        uint64_t cachedTagId = requiredTag.cachedTagId;
         std::optional<std::string> tagTranslateOptional = stringManager_->GetTagTranslate(cachedTagId);
         stringStream << tagTranslateOptional.value_or(requiredTag.requiredTag);
         stringStream << '*';

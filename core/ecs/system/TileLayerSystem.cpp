@@ -32,6 +32,7 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
+#include "core/world/ChunkManager.h"
 #include "core/utils/ColorUtils.h"
 #include "core/world/Tile.h"
 #include "core/world/generator/TileLayerType.h"
@@ -199,9 +200,14 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
         return;
     }
     std::unordered_set<uint64_t> drawnTiles = {};
+    ChunkManager* chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr)
+    {
+        return;
+    }
     for (auto& [tileCoord, tileList] : *visibleTiles)
     {
-        const Chunk* chunk = worldContext->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileCoord));
+        const Chunk* chunk = chunkManager->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileCoord));
         Uint8 alpha = 255;
         if (chunk != nullptr)
         {

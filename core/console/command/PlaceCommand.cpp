@@ -29,6 +29,7 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/scene/AppContext.h"
 #include "core/world/WorldContext.h"
+#include "core/world/ChunkManager.h"
 #include "core/world/generator/ChunkPhysicsHelper.h"
 #include "fmt/format.h"
 
@@ -99,8 +100,17 @@ void glimmer::PlaceCommand::PlaceTileAtWithSize(Chunk* chunk, TileLayerType tile
 }
 
 bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, const CommandSender* commandSender,
-                                             AppContext* appContext, WorldContext* worldContext)
+                                             WorldContext* worldContext)
 {
+    if (worldContext == nullptr)
+    {
+        return false;
+    }
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
+        return false;
+    }
     auto structureId = commandArgs->AsResourceRef(2, RESOURCE_STRUCTURE);
     IStructureResource* structureResource = appContext->GetStructureManager()->Find(
         structureId->GetPackageId(), structureId->GetResourceKey());
@@ -132,6 +142,11 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, con
 
     Chunk* currentChunk = nullptr;
     TileVector2D currentChunkCoord = {INT_MIN, INT_MIN};
+    ChunkManager* chunkManager = worldContext->GetChunkManager();
+    if (chunkManager == nullptr)
+    {
+        return false;
+    }
     for (auto& [tileLayerType, tileMap] : structureInfo.GetStructureMap())
     {
         for (auto& [coord, resourceRef] : tileMap)
@@ -142,11 +157,10 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, con
             const int chunkY = worldY & ~CHUNK_MASK;
             const int relativeX = worldX & CHUNK_MASK;
             const int relativeY = worldY & CHUNK_MASK;
-            TileVector2D chunkCoord{chunkX, chunkY};
-            if (chunkCoord != currentChunkCoord)
+            if (TileVector2D chunkCoord{chunkX, chunkY}; chunkCoord != currentChunkCoord)
             {
                 currentChunkCoord = chunkCoord;
-                currentChunk = worldContext->GetChunk(
+                currentChunk = chunkManager->GetChunk(
                     Chunk::TileCoordinatesToChunkVertexCoordinates(chunkCoord)
                 );
             }
@@ -170,8 +184,8 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, con
 bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                     const std::function<void(const std::string& text)>* onMessage)
 {
-    AppContext* appContext = GetAppContext();
     WorldContext* worldContext = GetWorldContext();
+    const AppContext* appContext = GetAppContext();
     if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
     {
         return false;
@@ -191,7 +205,7 @@ bool glimmer::PlaceCommand::Execute(const CommandSender* commandSender, const Co
     }
     if (std::string type = commandArgs->AsString(1); type == "structure")
     {
-        return ExecuteStructure(commandArgs, commandSender, appContext, worldContext);
+        return ExecuteStructure(commandArgs, commandSender, worldContext);
     }
     return false;
 }

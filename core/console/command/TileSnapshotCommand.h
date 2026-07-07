@@ -38,9 +38,9 @@ namespace glimmer
                                      const std::function<void(const std::string& text)>& onMessageRef,
                                      const LangsResources* langsResources);
 
-        bool ExecuteInfo(const CommandSender* commandSender, const CommandArgs* commandArgs, int size,
-                         const std::function<void(const std::string& text)>& onMessageRef,
-                         const LangsResources* langsResources, WorldContext* worldContext);
+        static bool ExecuteInfo(const CommandSender* commandSender, const CommandArgs* commandArgs, int size,
+                                const std::function<void(const std::string& text)>& onMessageRef,
+                                const LangsResources* langsResources, const WorldContext* worldContext);
 
     protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;

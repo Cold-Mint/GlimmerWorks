@@ -27,6 +27,7 @@
 #include "WorldScene.h"
 
 #include "core/saves/SavesManager.h"
+#include "core/world/SystemScheduler.h"
 
 glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext)
     : Scene(context)
@@ -45,7 +46,7 @@ void glimmer::WorldScene::OnFrameStart()
     {
         return;
     }
-    worldContext_->OnFrameStart();
+    worldContext_->GetSystemScheduler()->OnFrameStart();
 }
 
 bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
@@ -54,16 +55,21 @@ bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
     {
         return false;
     }
-    if (event.type == SDL_EVENT_KEY_DOWN && !worldContext_->HasAnyModalGuiOpen())
+    SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return false;
+    }
+    if (event.type == SDL_EVENT_KEY_DOWN && !systemScheduler->HasAnyModalGuiOpen())
     {
         //When a certain key is pressed and there is no system display currently active.
         //当按下某个键，且没有系统正在显示中时。
         if (event.key.scancode == SDL_SCANCODE_E)
         {
-            worldContext_->PushGuiSystemType(GameSystemType::InventoryCraftGUISystem);
+            systemScheduler->PushGuiSystemType(GameSystemType::InventoryCraftGUISystem);
         }
     }
-    return worldContext_->HandleEvent(event);
+    return systemScheduler->HandleEvent(event);
 }
 
 bool glimmer::WorldScene::OnBackPressed()
@@ -72,7 +78,12 @@ bool glimmer::WorldScene::OnBackPressed()
     {
         return false;
     }
-    return worldContext_->OnBackPressed();
+    SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return false;
+    }
+    return systemScheduler->OnBackPressed();
 }
 
 void glimmer::WorldScene::OnWindowClose()
@@ -90,7 +101,12 @@ void glimmer::WorldScene::Update(float delta)
     {
         return;
     }
-    worldContext_->Update(delta);
+    const SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return;
+    }
+    systemScheduler->Update(delta);
 }
 
 void glimmer::WorldScene::OnWindowSizeChanged(const int& width, const int& height)
@@ -99,7 +115,12 @@ void glimmer::WorldScene::OnWindowSizeChanged(const int& width, const int& heigh
     {
         return;
     }
-    worldContext_->OnWindowSizeChanged(width, height);
+    const SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return;
+    }
+    systemScheduler->OnWindowSizeChanged(width, height);
 }
 
 void glimmer::WorldScene::OnConfigChanged(const Config* config)
@@ -108,7 +129,12 @@ void glimmer::WorldScene::OnConfigChanged(const Config* config)
     {
         return;
     }
-    worldContext_->OnConfigChanged(config);
+    SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return;
+    }
+    systemScheduler->OnConfigChanged(config);
 }
 
 void glimmer::WorldScene::Render(SDL_Renderer* renderer)
@@ -117,7 +143,12 @@ void glimmer::WorldScene::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    worldContext_->Render(renderer);
+    const SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return;
+    }
+    systemScheduler->Render(renderer);
 }
 
 void glimmer::WorldScene::RenderImGui(SDL_Renderer* renderer)
@@ -126,5 +157,10 @@ void glimmer::WorldScene::RenderImGui(SDL_Renderer* renderer)
     {
         return;
     }
-    worldContext_->RenderImGui(renderer);
+    const SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return;
+    }
+    systemScheduler->RenderImGui(renderer);
 }

@@ -34,6 +34,7 @@
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
+#include "core/world/ChunkManager.h"
 #include "core/ecs/component/CameraComponent.h"
 #include "core/utils/ColorUtils.h"
 #include "core/utils/StringUtils.h"
@@ -294,7 +295,7 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
 
     // Draw Chunk Grid in Bottom-Left
     // 在左下角绘制区块网格
-    const auto chunksPtr = *worldContext->GetAllChunks();
+    const auto chunksPtr = *worldContext->GetChunkManager()->GetAllChunks();
     int playerTileX = static_cast<int>(std::floor(mousePosition_.x / TILE_SIZE));
     int playerTileY = static_cast<int>(std::floor(mousePosition_.y / TILE_SIZE));
 

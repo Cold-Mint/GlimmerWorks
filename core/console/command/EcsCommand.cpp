@@ -31,6 +31,7 @@
 #include "fmt/compile.h"
 #include "core/scene/AppContext.h"
 #include "core/scene/WorldScene.h"
+#include "core/world/SystemScheduler.h"
 
 void glimmer::EcsCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
 {
@@ -154,7 +155,7 @@ bool glimmer::EcsCommand::Execute(const CommandSender* commandSender, const Comm
     }
     if (arg == "activeSystems")
     {
-        for (std::vector<GameSystemType> allGameSystems = worldContext->GetAllActiveSystemType(); const auto& type :
+        for (const std::vector<GameSystemType> allGameSystems = worldContext->GetSystemScheduler()->GetAllActiveSystemType(); const auto& type :
              allGameSystems)
         {
             onMessageRef(fmt::format("{}\n", std::to_underlying(type)));

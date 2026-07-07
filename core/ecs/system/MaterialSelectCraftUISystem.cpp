@@ -31,6 +31,7 @@
 #include "core/layout/GridLayoutStepper.h"
 #include "core/layout/VerticalLayoutStepper.h"
 #include "core/world/WorldContext.h"
+#include "core/world/SystemScheduler.h"
 
 glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* worldContext)
     : GUISystem(worldContext)
@@ -72,27 +73,39 @@ void glimmer::MaterialSelectCraftUISystem::OnActivationChanged(bool activeStatus
 
 bool glimmer::MaterialSelectCraftUISystem::InitializeActivation()
 {
-    WorldContext* worldContext = GetWorldContext();
-    EntityShortCut* entityShortCut = GetEntityShortCut();
-
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        return false;
+    }
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return false;
+    }
+    SystemScheduler* systemScheduler = worldContext->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return false;
+    }
     const CraftPreviewSlotComponent* slotComponent = entityShortCut->GetSelectedCraftPreviewSlotComponent();
     if (slotComponent == nullptr)
     {
-        worldContext->PopGuiSystemType();
+        systemScheduler->PopGuiSystemType();
         return false;
     }
 
     RecipeResource* recipeResource = slotComponent->GetRecipeResource();
     if (recipeResource == nullptr)
     {
-        worldContext->PopGuiSystemType();
+        systemScheduler->PopGuiSystemType();
         return false;
     }
 
     recipeResource_ = recipeResource;
     if (recipeResource_->input.empty())
     {
-        worldContext->PopGuiSystemType();
+        systemScheduler->PopGuiSystemType();
         return false;
     }
 
@@ -140,27 +153,40 @@ bool glimmer::MaterialSelectCraftUISystem::ItemHasMatchingTag(const Item* item) 
 
 void glimmer::MaterialSelectCraftUISystem::CountMatchingItems()
 {
-    EntityShortCut* entityShortCut = GetEntityShortCut();
-    ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        return;
+    }
+    SystemScheduler* systemScheduler = worldContext->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return;
+    }
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return;
+    }
+    const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
     if (itemContainerComponent == nullptr)
     {
-        GetWorldContext()->PopGuiSystemType();
+        systemScheduler->PopGuiSystemType();
         return;
     }
 
-    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
+    const ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
     if (itemContainer == nullptr)
     {
-        GetWorldContext()->PopGuiSystemType();
+        systemScheduler->PopGuiSystemType();
         return;
     }
 
-    uint8_t capacity = itemContainer->GetCapacity();
+    const uint8_t capacity = itemContainer->GetCapacity();
     matchingCount_ = 0;
     for (int i = 0; i < capacity; i++)
     {
-        const Item* item = itemContainer->GetItem(i);
-        if (ItemHasMatchingTag(item))
+        if (const Item* item = itemContainer->GetItem(i); ItemHasMatchingTag(item))
         {
             matchingCount_++;
         }
@@ -220,21 +246,30 @@ void glimmer::MaterialSelectCraftUISystem::CalculatePanelDimensions()
 
 void glimmer::MaterialSelectCraftUISystem::SetupItemSlots()
 {
-    WorldContext* worldContext = GetWorldContext();
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        return;
+    }
+    SystemScheduler* systemScheduler = worldContext->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return;
+    }
     EntityManager* entityManager = GetEntityManager();
     const EntityShortCut* entityShortCut = GetEntityShortCut();
 
     const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
     if (itemContainerComponent == nullptr)
     {
-        worldContext->PopGuiSystemType();
+        systemScheduler->PopGuiSystemType();
         return;
     }
 
     ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
     if (itemContainer == nullptr)
     {
-        worldContext->PopGuiSystemType();
+        systemScheduler->PopGuiSystemType();
         return;
     }
 
@@ -268,7 +303,7 @@ void glimmer::MaterialSelectCraftUISystem::SetupItemSlots()
 
         if (itemSlotQuantityComponent == nullptr)
         {
-            worldContext->PopGuiSystemType();
+            systemScheduler->PopGuiSystemType();
             return;
         }
 
@@ -407,22 +442,34 @@ void glimmer::MaterialSelectCraftUISystem::SetupButton()
     UpdateButtonPosition();
 }
 
-void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick()
+void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick() const
 {
     WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        return;
+    }
+    SystemScheduler* systemScheduler = worldContext->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return;
+    }
     EntityShortCut* entityShortCut = GetEntityShortCut();
-
+    if (entityShortCut == nullptr)
+    {
+        return;
+    }
     ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
     if (itemContainerComponent == nullptr)
     {
-        worldContext->PopGuiSystemType();
+        systemScheduler->PopGuiSystemType();
         return;
     }
 
     ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
     if (itemContainer == nullptr)
     {
-        worldContext->PopGuiSystemType();
+        systemScheduler->PopGuiSystemType();
         return;
     }
 
@@ -450,8 +497,7 @@ void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick()
             LogCat::w("Failed to add the item. ");
         }
     }
-
-    worldContext->PopGuiSystemType();
+    systemScheduler->PopGuiSystemType();
 }
 
 void glimmer::MaterialSelectCraftUISystem::DeactivateUI() const

@@ -113,7 +113,7 @@ namespace glimmer
 
         void HandleSelectQuantityChanged(uint8_t slotIndex, Item* item, uint8_t selectQuantity);
 
-        void HandleCraftButtonClick();
+        void HandleCraftButtonClick() const;
 
         void DeactivateUI() const;
 

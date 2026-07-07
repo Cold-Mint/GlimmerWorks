@@ -29,6 +29,7 @@
 
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
+#include "core/world/SystemScheduler.h"
 
 glimmer::CraftPreviewSlotSystem::CraftPreviewSlotSystem(WorldContext* worldContext)
     : GameSystem(worldContext),
@@ -218,8 +219,16 @@ void glimmer::CraftPreviewSlotSystem::Render(SDL_Renderer* renderer)
 
 bool glimmer::CraftPreviewSlotSystem::HandleEvent(const SDL_Event& event)
 {
+    const WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        return false;
+    }
     EntityShortCut* entityShortCut = GetEntityShortCut();
-    WorldContext* worldContext = GetWorldContext();
+    if (entityShortCut == nullptr)
+    {
+        return false;
+    }
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT)
     {
         if (hoveredCraftPreviewSlotComponent_ == nullptr)
@@ -227,7 +236,7 @@ bool glimmer::CraftPreviewSlotSystem::HandleEvent(const SDL_Event& event)
             return false;
         }
         entityShortCut->SetSelectedCraftPreviewSlotComponent(hoveredCraftPreviewSlotComponent_);
-        worldContext->PushGuiSystemType(GameSystemType::MaterialSelectCraftUISystem);
+        worldContext->GetSystemScheduler()->PushGuiSystemType(GameSystemType::MaterialSelectCraftUISystem);
         return true;
     }
     return false;

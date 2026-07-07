@@ -361,6 +361,10 @@ target_sources(GlimmerWorks
         core/saves/MapManifest.cpp
         core/scene/CreateWorldScene.cpp
         core/world/WorldContext.cpp
+        core/world/ChunkManager.cpp
+        core/world/TerrainManager.cpp
+        core/world/SystemScheduler.cpp
+        core/world/PlayerContext.cpp
         core/math/Vector2D.cpp
         core/scene/WorldScene.cpp
         core/scene/DebugOverlay.cpp
@@ -691,6 +695,10 @@ target_sources(GlimmerWorks
         core/saves/MapManifest.h
         core/scene/CreateWorldScene.h
         core/world/WorldContext.h
+        core/world/ChunkManager.h
+        core/world/TerrainManager.h
+        core/world/SystemScheduler.h
+        core/world/PlayerContext.h
         core/math/Vector2D.h
         core/scene/WorldScene.h
         core/scene/DebugOverlay.h

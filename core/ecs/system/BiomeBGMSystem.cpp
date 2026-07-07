@@ -30,6 +30,7 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/world/WorldContext.h"
+#include "core/world/TerrainManager.h"
 
 void glimmer::BiomeBGMSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
@@ -76,10 +77,16 @@ void glimmer::BiomeBGMSystem::Update(float delta)
     {
         return;
     }
+    TerrainManager* terrainManager = worldContext->GetTerrainManager();
+    if (terrainManager == nullptr)
+    {
+        return;
+    }
     const WorldVector2D position = playerTransform2DComponent_->GetPosition();
     const TileVector2D tileVector2d = CoordinateTransformer::WorldToTile(position);
     const TileVector2D chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2d);
-    const TerrainResult* terrainResult = worldContext->GetTerrainData(chunkVertex);
+
+    const TerrainResult* terrainResult = terrainManager->GetTerrainData(chunkVertex);
     if (terrainResult == nullptr)
     {
         return;

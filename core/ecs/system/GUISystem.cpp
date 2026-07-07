@@ -27,6 +27,7 @@
 #include "GUISystem.h"
 
 #include "core/world/WorldContext.h"
+#include "core/world/SystemScheduler.h"
 
 glimmer::GUISystem::GUISystem(WorldContext* worldContext)
     : GameSystem(worldContext)
@@ -40,5 +41,10 @@ bool glimmer::GUISystem::CanActive() const
     {
         return false;
     }
-    return GetGameSystemType() == worldContext->GetGuiSystemType();
+    const SystemScheduler* systemScheduler = worldContext->GetSystemScheduler();
+    if (systemScheduler == nullptr)
+    {
+        return false;
+    }
+    return GetGameSystemType() == systemScheduler->GetGuiSystemType();
 }

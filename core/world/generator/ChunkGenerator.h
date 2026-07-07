@@ -100,7 +100,7 @@ namespace glimmer
         */
         std::unique_ptr<FastNoiseLite> temperatureMapNoise_;
 
-        static void InitializeTileRefs(TerrainResult* terrainResult,
+        static void InitializeTileRefs(const TerrainResult* terrainResult,
                                        std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
                                        std::unordered_set<BiomeResource*>& biomeResourcesSet,
                                        const ResourceRef& waterTileRef,
@@ -113,14 +113,14 @@ namespace glimmer
                                              const ResourceRef& bedrockTileRef);
 
         static void ApplyBiomeDecorators(const std::unordered_set<BiomeResource*>& biomeResourcesSet,
-                                         ResourceLocator* resourceLocator,
+                                         const ResourceLocator* resourceLocator,
                                          BiomeDecoratorManager* biomeDecoratorManager,
                                          WorldContext* worldContext,
                                          TerrainResult* terrainResult,
                                          std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap);
 
         static void PopulateChunkTiles(Chunk* chunk,
-                                       ResourceLocator* resourceLocator,
+                                       const ResourceLocator* resourceLocator,
                                        const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap);
 
     public:

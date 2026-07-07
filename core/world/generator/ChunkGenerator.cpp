@@ -33,6 +33,7 @@
 #include "core/mod/ResourceRef.h"
 #include "core/mod/dataPack/BiomeDecoratorType.h"
 #include "core/world/WorldContext.h"
+#include "core/world/TerrainManager.h"
 
 
 glimmer::ChunkGenerator::ChunkGenerator(WorldContext* worldContext, const int worldSeed) : worldContext_(worldContext)
@@ -176,7 +177,12 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) co
     {
         return;
     }
-    TerrainResult* terrainResult = worldContext_->GetOrCreateTerrainData(position);
+    TerrainManager* terrainManager = worldContext_->GetTerrainManager();
+    if (terrainManager == nullptr)
+    {
+        return;
+    }
+    TerrainResult* terrainResult = terrainManager->GetOrCreateTerrainData(position);
     for (auto structureResource : all)
     {
         std::bitset<CHUNK_AREA> totalBitset;
@@ -312,7 +318,8 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) co
                                 if (chunkCoord != currentChunk)
                                 {
                                     currentChunk = chunkCoord;
-                                    currentTerrain = worldContext_->GetOrCreateTerrainData(chunkCoord);
+                                    currentTerrain = terrainManager->GetOrCreateTerrainData(
+                                        chunkCoord);
                                 }
                                 if (currentTerrain == nullptr)
                                 {
@@ -457,11 +464,12 @@ float glimmer::ChunkGenerator::GetErosion(const TileVector2D& tileVector2d)
     return erosionMap_[tileVector2d];
 }
 
-void glimmer::ChunkGenerator::InitializeTileRefs(TerrainResult* terrainResult,
-                                                  std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
-                                                  std::unordered_set<BiomeResource*>& biomeResourcesSet,
-                                                  const ResourceRef& waterTileRef,
-                                                  const ResourceRef& bedrockTileRef)
+void glimmer::ChunkGenerator::InitializeTileRefs(const TerrainResult* terrainResult,
+                                                 std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+                                                 tilesRefMap,
+                                                 std::unordered_set<BiomeResource*>& biomeResourcesSet,
+                                                 const ResourceRef& waterTileRef,
+                                                 const ResourceRef& bedrockTileRef)
 {
     for (int localX = 0; localX < CHUNK_SIZE; ++localX)
     {
@@ -470,19 +478,21 @@ void glimmer::ChunkGenerator::InitializeTileRefs(TerrainResult* terrainResult,
             const int idx = localY * CHUNK_SIZE + localX;
             const auto& terrainTileResult = terrainResult->QueryTerrain(localX, localY);
             tilesRefMap[BackGround][idx] = TileResourceManager::GetAirResourceRef(BackGround);
-            SetTileRefForTerrainType(idx, terrainTileResult, tilesRefMap, biomeResourcesSet, waterTileRef, bedrockTileRef);
+            SetTileRefForTerrainType(idx, terrainTileResult, tilesRefMap, biomeResourcesSet, waterTileRef,
+                                     bedrockTileRef);
         }
     }
 }
 
 void glimmer::ChunkGenerator::SetTileRefForTerrainType(int idx, const TerrainTileResult& terrainTileResult,
-                                                       std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
+                                                       std::unordered_map<
+                                                           TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+                                                       tilesRefMap,
                                                        std::unordered_set<BiomeResource*>& biomeResourcesSet,
                                                        const ResourceRef& waterTileRef,
                                                        const ResourceRef& bedrockTileRef)
 {
-    const auto terrainType = terrainTileResult.terrainType;
-    switch (terrainType)
+    switch (terrainTileResult.terrainType)
     {
     case AIR:
         tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
@@ -507,11 +517,12 @@ void glimmer::ChunkGenerator::SetTileRefForTerrainType(int idx, const TerrainTil
 }
 
 void glimmer::ChunkGenerator::ApplyBiomeDecorators(const std::unordered_set<BiomeResource*>& biomeResourcesSet,
-                                                   ResourceLocator* resourceLocator,
+                                                   const ResourceLocator* resourceLocator,
                                                    BiomeDecoratorManager* biomeDecoratorManager,
                                                    WorldContext* worldContext,
                                                    TerrainResult* terrainResult,
-                                                   std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap)
+                                                   std::unordered_map<
+                                                       TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap)
 {
     for (auto biomeResources : biomeResourcesSet)
     {
@@ -539,8 +550,9 @@ void glimmer::ChunkGenerator::ApplyBiomeDecorators(const std::unordered_set<Biom
 }
 
 void glimmer::ChunkGenerator::PopulateChunkTiles(Chunk* chunk,
-                                                 ResourceLocator* resourceLocator,
-                                                 const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap)
+                                                 const ResourceLocator* resourceLocator,
+                                                 const std::unordered_map<
+                                                     TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap)
 {
     for (int localX = 0; localX < CHUNK_SIZE; ++localX)
     {
@@ -548,29 +560,29 @@ void glimmer::ChunkGenerator::PopulateChunkTiles(Chunk* chunk,
         {
             const int topLeftIndex = localY * CHUNK_SIZE + localX;
             for (const auto& [tileLayerType, tileArray] : tilesRefMap)
+            {
+                const ResourceRef& resourceRef = tileArray[topLeftIndex];
+                const TileResource* tileResource = resourceLocator->FindTileRaw(&resourceRef);
+                if (tileResource == nullptr)
                 {
-                    const ResourceRef& resourceRef = tileArray[topLeftIndex];
-                    const TileResource* tileResource = resourceLocator->FindTileRaw(&resourceRef);
-                    if (tileResource == nullptr)
+                    continue;
+                }
+                for (int x = 0; x < tileResource->tileWidth; x++)
+                {
+                    for (int y = 0; y < tileResource->tileHeight; y++)
                     {
-                        continue;
-                    }
-                    for (int x = 0; x < tileResource->tileWidth; x++)
-                    {
-                        for (int y = 0; y < tileResource->tileHeight; y++)
-                        {
-                            const int unitIndex = topLeftIndex + y * CHUNK_SIZE + x;
-                            TileStateMessage* tileStateMessage = chunk->GetOrCreateTileState(tileLayerType, unitIndex);
-                            tileStateMessage->set_placesource(PLACE_SOURCE_WORLD_GEN);
-                            tileStateMessage->set_width(tileResource->tileWidth);
-                            tileStateMessage->set_height(tileResource->tileHeight);
-                            tileStateMessage->mutable_offset()->set_x(x);
-                            tileStateMessage->mutable_offset()->set_y(y);
-                            resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
-                            chunk->CommitTileState(BreakSource::ChunkGenerate, tileLayerType, unitIndex, true);
-                        }
+                        const int unitIndex = topLeftIndex + y * CHUNK_SIZE + x;
+                        TileStateMessage* tileStateMessage = chunk->GetOrCreateTileState(tileLayerType, unitIndex);
+                        tileStateMessage->set_placesource(PLACE_SOURCE_WORLD_GEN);
+                        tileStateMessage->set_width(tileResource->tileWidth);
+                        tileStateMessage->set_height(tileResource->tileHeight);
+                        tileStateMessage->mutable_offset()->set_x(x);
+                        tileStateMessage->mutable_offset()->set_y(y);
+                        resourceRef.WriteResourceRefMessage(*tileStateMessage->mutable_resourceref());
+                        chunk->CommitTileState(BreakSource::ChunkGenerate, tileLayerType, unitIndex, true);
                     }
                 }
+            }
         }
     }
 }
@@ -612,7 +624,7 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
         return nullptr;
     }
     auto chunk = std::make_unique<Chunk>(worldContext_, position, config->anim);
-    TerrainResult* terrainResult = worldContext_->GetTerrainData(position);
+    TerrainResult* terrainResult = worldContext_->GetTerrainManager()->GetTerrainData(position);
     if (terrainResult == nullptr)
     {
         return nullptr;
@@ -624,7 +636,8 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     std::unordered_set<BiomeResource*> biomeResourcesSet;
 
     InitializeTileRefs(terrainResult, tilesRefMap, biomeResourcesSet, waterTileRef_, bedrockTileRef_);
-    ApplyBiomeDecorators(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_, terrainResult, tilesRefMap);
+    ApplyBiomeDecorators(biomeResourcesSet, resourceLocator, biomeDecoratorManager, worldContext_, terrainResult,
+                         tilesRefMap);
     PopulateChunkTiles(chunk.get(), resourceLocator, tilesRefMap);
 
     return chunk;

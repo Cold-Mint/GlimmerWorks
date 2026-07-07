@@ -34,6 +34,7 @@
 #include "core/world/generator/Chunk.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
+#include "core/world/ChunkManager.h"
 
 
 const glimmer::Tile* glimmer::TileLayerComponent::GetTile(const TileLayerType layerType,
@@ -43,7 +44,12 @@ const glimmer::Tile* glimmer::TileLayerComponent::GetTile(const TileLayerType la
     {
         return nullptr;
     }
-    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    ChunkManager* chunkManager = worldContext_->GetChunkManager();
+    if (chunkManager == nullptr)
+    {
+        return nullptr;
+    }
+    const auto chunk = chunkManager->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr)
     {
         return nullptr;
@@ -83,14 +89,18 @@ GetTopVisibleTileSnapshotsInViewport(uint8_t layerFilter, const SDL_FRect& world
     }
 
     visibleTiles_.clear();
+    ChunkManager* chunkManager = worldContext_->GetChunkManager();
+    if (chunkManager == nullptr)
+    {
+        return nullptr;
+    }
     bool allChunkExist = true;
     for (int y = topLeft.y; y <= bottomRight.y; ++y)
     {
         for (int x = topLeft.x; x <= bottomRight.x; ++x)
         {
             TileVector2D tileVector2D(x, y);
-            const auto chunk = worldContext_->
-                GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D));
+            const auto chunk = chunkManager->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D));
             if (chunk == nullptr)
             {
                 allChunkExist = false;
@@ -115,7 +125,8 @@ std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetTileShared(const 
     {
         return nullptr;
     }
-    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    const auto chunk = worldContext_->GetChunkManager()->GetChunk(
+        Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr)
     {
         return nullptr;
@@ -152,7 +163,12 @@ bool glimmer::TileLayerComponent::CommitTileState(const BreakSource breakSource,
     {
         return false;
     }
-    auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    ChunkManager* chunkManager = worldContext_->GetChunkManager();
+    if (chunkManager == nullptr)
+    {
+        return false;
+    }
+    auto chunk = chunkManager->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr)
     {
         return false;
@@ -168,7 +184,13 @@ TileStateMessage* glimmer::TileLayerComponent::GetTileStatePtr(const TileLayerTy
     {
         return nullptr;
     }
-    const auto chunk = worldContext_->GetChunk(Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
+    ChunkManager* chunkManager = worldContext_->GetChunkManager();
+    if (chunkManager == nullptr)
+    {
+        return nullptr;
+    }
+    const auto chunk = chunkManager->GetChunk(
+        Chunk::TileCoordinatesToChunkVertexCoordinates(tilePos));
     if (chunk == nullptr)
     {
         return nullptr;

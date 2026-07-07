@@ -41,8 +41,8 @@ namespace glimmer
         static void PlaceTileAtWithSize(Chunk* chunk, TileLayerType tileLayerType, int index,
                                         const ResourceRef& resourceRef, const TileResource* tileResource);
 
-        bool ExecuteStructure(const CommandArgs* commandArgs, const CommandSender* commandSender,
-                              AppContext* appContext, WorldContext* worldContext);
+        static bool ExecuteStructure(const CommandArgs* commandArgs, const CommandSender* commandSender,
+                                     WorldContext* worldContext);
 
     protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;

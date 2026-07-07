@@ -30,6 +30,7 @@
 #include "core/LangsResources.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/WorldContext.h"
+#include "core/world/ChunkManager.h"
 #include "core/scene/AppContext.h"
 #include "fmt/xchar.h"
 
@@ -117,7 +118,7 @@ bool glimmer::TileSnapshotCommand::ExecuteInspector(const AppContext* appContext
 bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                                int size,
                                                const std::function<void(const std::string& text)>& onMessageRef,
-                                               const LangsResources* langsResources, WorldContext* worldContext)
+                                               const LangsResources* langsResources, const WorldContext* worldContext)
 {
     if (size < 4)
     {
@@ -132,7 +133,7 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender* commandSende
         commandArgs->AsCoordinate(
             3, commandSenderPosition.y)));
     const auto chunkVertex = Chunk::TileCoordinatesToChunkVertexCoordinates(tileVector2D);
-    Chunk* chunk = worldContext->GetChunk(chunkVertex);
+    Chunk* chunk = worldContext->GetChunkManager()->GetChunk(chunkVertex);
     if (chunk == nullptr)
     {
         onMessageRef(fmt::format(fmt::runtime(langsResources->chunkHasNotBeenLoadedYet), tileVector2D.x,

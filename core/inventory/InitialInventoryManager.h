@@ -29,15 +29,17 @@
 #include <string>
 #include "core/mod/Resource.h"
 
-namespace glimmer {
-    class InitialInventoryManager {
-        std::vector<std::unique_ptr<InitialInventoryResource> > initialInventory_;
-        std::vector<InitialInventoryResource *> initialInventoryPtr_;
+namespace glimmer
+{
+    class InitialInventoryManager
+    {
+        std::vector<std::unique_ptr<InitialInventoryResource>> initialInventory_;
+        std::vector<InitialInventoryResource*> initialInventoryPtr_;
 
     public:
         void AddResource(std::unique_ptr<InitialInventoryResource> resource);
 
-        [[nodiscard]] const std::vector<InitialInventoryResource *> &GetAllInitialInventory() const;
+        [[nodiscard]] std::span<const InitialInventoryResource* const> GetAllInitialInventory() const;
 
         [[nodiscard]] std::string ListInitialInventory() const;
     };

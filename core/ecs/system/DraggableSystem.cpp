@@ -260,7 +260,7 @@ bool glimmer::DraggableSystem::HandleLeftMouseButtonDown()
         if (mouseX >= border.x && mouseX <= border.x + border.w &&
             mouseY >= border.y && mouseY <= border.y + border.h)
         {
-            item_ = std::move(itemSlotComponent->ReplaceItem(std::move(item_)));
+            item_ = itemSlotComponent->ReplaceItem(std::move(item_));
             changed = true;
             break;
         }

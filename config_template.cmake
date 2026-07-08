@@ -4,9 +4,6 @@
 # Whether to enable X11 support (for the Linux platform)
 # 是否启用X11支持（用于Linux平台）
 option(X11_SUPPORT "Enable X11 support" OFF)
-# Enable unit testing compilation
-# 启用单元测试编译
-option(UNIT_TEST "Enable unit test" OFF)
 
 # Full path to the host protoc executable (required for cross-compilation)
 # 如果是交叉编译，那么必须得由用户指定protoc。

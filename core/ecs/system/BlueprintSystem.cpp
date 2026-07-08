@@ -37,73 +37,70 @@ std::vector<bool> glimmer::BlueprintSystem::CheckRectPlacementValidity(const Til
                                                                        const uint8_t tileWidth,
                                                                        const uint8_t tileHeight) const
 {
-    std::vector<bool> result;
-    result.resize(tileHeight * tileWidth + 1, false);
+    std::vector result(tileHeight * tileWidth + 1, false);
     bool sum = true;
-    const TileLayerType layerType = tile->GetLayerType();
-    for (int x = 0; x < tileWidth; x++)
+    for (int x = 0; x < tileWidth; ++x)
     {
-        for (int y = 0; y < tileHeight; y++)
+        for (int y = 0; y < tileHeight; ++y)
         {
-            const int index = y * tileWidth + x;
             TileVector2D point = {x + leftBottom.x, y + leftBottom.y};
-            if (y > WORLD_MAX_Y || y < WORLD_MIN_Y ||
-                x > WORLD_MAX_X ||
-                x < WORLD_MIN_X)
-            {
-                result[index] = false;
-                sum = false;
-                continue;
-            }
-            if (layerType == Ground)
-            {
-                bool blocked = false;
-                for (auto blockRect : blockRects_)
-                {
-                    // If the coordinate point falls within the rectangular range, it is determined as being in shadow.
-                    // 坐标点落在矩形范围内则判定遮挡
-                    if (point.x >= blockRect.x && point.x < blockRect.x + blockRect.w
-                        && point.y >= blockRect.y && point.y < blockRect.y + blockRect.h)
-                    {
-                        blocked = true;
-                        break;
-                    }
-                }
-                if (blocked)
-                {
-                    result[index] = false;
-                    sum = false;
-                    continue;
-                }
-            }
-            const Tile* currentTile = tileLayerComponent_->GetTile(layerType, point);
-            if (currentTile == nullptr)
-            {
-                result[index] = false;
-                sum = false;
-                continue;
-            }
+            const int index = y * tileWidth + x;
 
-            if ((CoordinateTransformer::TileToWorld(point) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).
-                Distance(playerPosition) / TILE_SIZE >
-                TILE_PLACE_RANGE)
-            {
-                result[index] = false;
-                sum = false;
-                continue;
-            }
-            if (!currentTile->IsOverwritable())
-            {
-                result[index] = false;
-                sum = false;
-                continue;
-            }
-            result[index] = true;
+            bool valid = CheckSinglePointValidity(tile, point, playerPosition);
+            result[index] = valid;
+            sum = sum && valid;
         }
     }
-
     result[result.size() - 1] = sum;
     return result;
+}
+
+bool glimmer::BlueprintSystem::IsPointBlocked(const TileVector2D& point) const
+{
+    for (const auto& [x, y, w, h] : blockRects_)
+    {
+        if (point.x >= x && point.x < x + w &&
+            point.y >= y && point.y < y + h)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool glimmer::BlueprintSystem::CheckSinglePointValidity(const Tile* tile, const TileVector2D& point,
+                                                        const WorldVector2D& playerPosition) const
+{
+    if (point.y > WORLD_MAX_Y || point.y < WORLD_MIN_Y ||
+        point.x > WORLD_MAX_X || point.x < WORLD_MIN_X)
+    {
+        return false;
+    }
+
+    if (tile->GetLayerType() == Ground && IsPointBlocked(point))
+    {
+        return false;
+    }
+
+    const Tile* currentTile = tileLayerComponent_->GetTile(tile->GetLayerType(), point);
+    if (currentTile == nullptr)
+    {
+        return false;
+    }
+
+    WorldVector2D worldCenter = CoordinateTransformer::TileToWorld(point) +
+        WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE};
+    if (worldCenter.Distance(playerPosition) / TILE_SIZE > TILE_PLACE_RANGE)
+    {
+        return false;
+    }
+
+    if (!currentTile->IsOverwritable())
+    {
+        return false;
+    }
+
+    return true;
 }
 
 void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)

@@ -277,15 +277,14 @@ uint16_t glimmer::DiggingSystem::BreakTile(const TileBreakParams& params)
         }
     }
     uint8_t sum = 0;
-    auto centerX = static_cast<std::byte>(params.tileWidth >> 1);
-    auto centerY = static_cast<std::byte>(params.tileHeight >> 1);
+    auto centerX = params.tileWidth >> 1;
+    auto centerY = params.tileHeight >> 1;
     for (int x = 0; x < params.tileWidth; x++)
     {
         for (int y = 0; y < params.tileHeight; y++)
         {
-            auto currentVector = TileVector2D(params.topLeftVector.x + x, params.topLeftVector.y - y);
-            bool isCenter = (static_cast<std::byte>(x) == centerX && static_cast<std::byte>(y) == centerY);
-            ProcessSingleTile(params, currentVector, item, isCenter, sum);
+            ProcessSingleTile(params, TileVector2D(params.topLeftVector.x + x, params.topLeftVector.y - y), item,
+                              x == centerX && y == centerY, sum);
         }
     }
     return sum;
@@ -378,10 +377,12 @@ void glimmer::DiggingSystem::ProcessMiningComplete(const TileLayerComponent* til
         {
             continue;
         }
-        BreakTile({BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
-                  diggingComponent_->IsPrecisionMining(), false, point->GetWidth(),
-                  point->GetHeight(),
-                  TileResourceManager::GetAirResourceRef(tileLayerType)});
+        BreakTile({
+            BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
+            diggingComponent_->IsPrecisionMining(), false, point->GetWidth(),
+            point->GetHeight(),
+            TileResourceManager::GetAirResourceRef(tileLayerType)
+        });
     }
     diggingComponent_->SetProgress(0.0F);
     diggingComponent_->SetEnable(false);
@@ -398,7 +399,10 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
             ResourceRef resourceRef;
             resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
             resourceRef.SetResourceType(RESOURCE_TEXTURE);
-            resourceRef.SetResourceKey("cracks/cracks_" + std::to_string(i));
+            std::stringstream keyStream;
+            keyStream << "cracks/cracks_";
+            keyStream << std::to_string(i);
+            resourceRef.SetResourceKey(keyStream.str());
             textureResultList_.push_back(appContext->GetResourceLocator()->FindTexture(
                 &resourceRef
             ));
@@ -435,7 +439,7 @@ void glimmer::DiggingSystem::RenderDiggingPoint(SDL_Renderer* renderer, const Mi
         cameraComponent_->GetZoom());
     const auto maxIndex = static_cast<float>(textureResultList_.size() - 1);
     const auto crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
-                                                        maxIndex));
+                                                          maxIndex));
     float w = TILE_SIZE * zoom * static_cast<float>(point->GetWidth());
     float h = TILE_SIZE * zoom * static_cast<float>(point->GetHeight());
     SDL_FRect dstRect = {

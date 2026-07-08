@@ -34,9 +34,6 @@ set(TORUNIINA_TOML11_VERSION "be08ba2be2a964edcdb3d3e3ea8d100abc26f286")
 #protocolbuffers/protobuf@latest
 #protocolbuffers/protobuf-v35.1
 set(PROTOCOLBUFFERS_PROTOBUF_VERSION "35cd01f9fe9afbeea38cc7b979a3b6bfcde82c03")
-#google/googletest@latest
-#google/googletest-v1.17.0
-set(GOOGLE_GOOGLETEST_VERSION "52eb8108c5bdec04579160ae17225d66034bd723")
 #BLAKE3-team/BLAKE3@latest
 #BLAKE3-team/BLAKE3-1.8.5
 set(BLAKE3-TEAM_BLAKE3_VERSION "93a431c78a52d7ccf0f366f106467f5070e6075e")

@@ -110,12 +110,12 @@ bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, con
         {
             return false;
         }
-        auto playerComponent = entityManager->GetComponent<PlayerComponent>(plyerEntity);
+        const auto playerComponent = entityManager->GetComponent<PlayerComponent>(plyerEntity);
         if (playerComponent == nullptr)
         {
             return false;
         }
-        PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+        const PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
         if (playerTechnologyHandler == nullptr)
         {
             return false;

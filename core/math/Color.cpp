@@ -25,18 +25,18 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "Color.h"
-#ifndef UNIT_TEST_MODE
-SDL_Color glimmer::Color::ToSDLColor() const
-{
-    return SDL_Color{r, g, b, a};
-}
-#endif
+
 uint64_t glimmer::Color::GetFingerprint() const
 {
     return static_cast<uint64_t>(a) << 24
         | static_cast<uint64_t>(r) << 16
         | static_cast<uint64_t>(g) << 8
         | static_cast<uint64_t>(b);
+}
+
+SDL_Color glimmer::Color::ToSDLColor() const
+{
+    return SDL_Color{r, g, b, a};
 }
 
 glimmer::Color::Color(const uint8_t tempR, const uint8_t tempG, const uint8_t tempB, const uint8_t tempA)

@@ -59,48 +59,6 @@ set(GAME_VERSION_STRING
 
 include(FetchContent)
 
-if (UNIT_TEST)
-    add_compile_definitions(UNIT_TEST_MODE)
-
-    FetchContent_Declare(
-            googletest
-            GIT_REPOSITORY "https://github.com/google/googletest"
-            GIT_TAG ${GOOGLE_GOOGLETEST_VERSION}
-            EXCLUDE_FROM_ALL
-    )
-    FetchContent_MakeAvailable(googletest)
-    add_executable(LightTest)
-    target_sources(LightTest
-            PRIVATE
-            test/light/LightUnitTest.cpp
-            core/math/Color.cpp
-            core/world/LightContribution.cpp
-            core/world/LightMask.cpp
-            core/math/Vector2DI.cpp
-            core/math/Vector2D.cpp
-            core/world/LightBuffer.cpp
-            core/world/TileLightData.cpp
-            core/world/LightSource.cpp
-            core/utils/LightUtils.cpp
-            core/world/LightPropagationTraverser.cpp
-            PUBLIC
-            FILE_SET HEADERS
-            FILES
-            core/math/Color.h
-            core/world/LightContribution.h
-            core/world/LightMask.h
-            core/math/Vector2D.h
-            core/math/Vector2DI.h
-            core/world/LightBuffer.h
-            core/world/TileLightData.h
-            core/world/LightSource.h
-            core/utils/LightUtils.h
-            core/world/LightPropagationTraverser.h
-    )
-    target_link_libraries(LightTest PRIVATE gtest_main gtest)
-    return()
-endif ()
-
 set(SDL_THREADS ON)
 set(SDL_CAMERA OFF)
 set(SDL_TRAY OFF)

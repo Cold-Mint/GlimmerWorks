@@ -123,7 +123,7 @@ void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
         {
             inventoryItemSlot->Show();
         }
-        PlayerTechnologyHandler* technologyHandler = playerComponent_->GetTechnologyHandler();
+        const PlayerTechnologyHandler* technologyHandler = playerComponent_->GetTechnologyHandler();
         if (technologyHandler == nullptr)
         {
             return;

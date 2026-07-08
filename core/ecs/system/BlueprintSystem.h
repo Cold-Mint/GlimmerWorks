@@ -63,6 +63,17 @@ namespace glimmer
                                                      const WorldVector2D& playerPosition, uint8_t tileWidth,
                                                      uint8_t tileHeight) const;
 
+        /**
+         * Determine whether a certain point is blocked by an obstacle rectangle
+         * 判断某点是否被障碍矩形遮挡
+         * @param point
+         * @return
+         */
+        bool IsPointBlocked(const TileVector2D& point) const;
+
+        bool CheckSinglePointValidity(const Tile* tile, const TileVector2D& point,
+                                      const WorldVector2D& playerPosition) const;
+
         void UpdateBlockRects();
 
         TileVector2D SetupHeldTileInfo(const TileVector2D& focusPosition,

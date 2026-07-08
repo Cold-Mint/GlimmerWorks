@@ -31,7 +31,6 @@
 #include "ContainerChangeType.h"
 #include "SDL3/SDL_render.h"
 #include "core/scene/AppContext.h"
-#include "core/ecs/GameEntity.h"
 #include "core/math/IAllocatable.h"
 
 namespace glimmer

@@ -72,6 +72,7 @@ bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const Co
         {
             if (auto playerComponent = worldContext->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity); playerComponent != nullptr)
             {
+
                 playerComponent->SetItem(nullptr);
             }
 

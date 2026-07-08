@@ -115,7 +115,12 @@ bool glimmer::TechnologyCommand::Execute(const CommandSender* commandSender, con
         {
             return false;
         }
-        onMessageRef(playerComponent->ListTechnology(langsResources->technologyItem));
+        PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+        if (playerTechnologyHandler == nullptr)
+        {
+            return false;
+        }
+        onMessageRef(playerTechnologyHandler->ListTechnology(langsResources->technologyItem));
         return true;
     }
     return false;

@@ -660,6 +660,9 @@ target_sources(GlimmerWorks
         core/console/asset_enumerator/LightSourceAssetEnumerator.cpp
         core/console/asset_enumerator/RecipesAssetEnumerator.cpp
         core/mod/dataPack/SpecialFileProcessingParams.cpp
+        core/ecs/PlayerInputHandler.cpp
+        core/ecs/PlayerCapabilityHandler.cpp
+        core/ecs/PlayerTechnologyHandler.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -997,6 +1000,9 @@ target_sources(GlimmerWorks
         core/console/asset_enumerator/LightSourceAssetEnumerator.h
         core/console/asset_enumerator/RecipesAssetEnumerator.h
         core/mod/dataPack/SpecialFileProcessingParams.h
+        core/ecs/PlayerCapabilityHandler.h
+        core/ecs/PlayerInputHandler.h
+        core/ecs/PlayerTechnologyHandler.h
 )
 
 #Define version information

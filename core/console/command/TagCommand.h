@@ -37,8 +37,7 @@ namespace glimmer
     class TagCommand final : public Command
     {
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
-
-    protected:
+        
         static void WriteTag(const std::string& tagItem, std::stringstream& stringStream, StringManager* stringManager,
                              const ItemTagResource& itemTagResource);
 

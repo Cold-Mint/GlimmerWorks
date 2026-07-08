@@ -117,11 +117,16 @@ bool glimmer::FlyCommand::Execute(const CommandSender* commandSender, const Comm
     {
         return false;
     }
+    PlayerCapabilityHandler* capabilityHandler = playerComponent->GetCapabilityHandler();
+    if (capabilityHandler == nullptr)
+    {
+        return false;
+    }
     BoolOrToggle boolOrToggle = commandArgs->AsBoolOrToggle(1);
     bool newValue = boolOrToggle == BoolOrToggle::TRUE;
     if (boolOrToggle == BoolOrToggle::TOGGLE)
     {
-        newValue = !playerComponent->IsFlying();
+        newValue = !capabilityHandler->IsFlying();
     }
     if (newValue)
     {
@@ -149,6 +154,6 @@ bool glimmer::FlyCommand::Execute(const CommandSender* commandSender, const Comm
         }
         onMessageRef(langsResources->flyDisable);
     }
-    playerComponent->SetFlying(newValue);
+    capabilityHandler->SetFlying(newValue);
     return true;
 }

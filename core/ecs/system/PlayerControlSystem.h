@@ -76,30 +76,32 @@ namespace glimmer
          */
         void UseItem(Item* item);
 
-        void UpdateFlying(float delta, const PlayerComponent* playerComponent,
-                          Transform2DComponent* transform2DComponent);
+        static void UpdateFlying(float delta, const PlayerInputHandler* playerInputHandler,
+                                 Transform2DComponent* transform2DComponent);
 
-        void UpdateGroundedMovement(float delta, PlayerComponent* playerComponent,
+        void UpdateGroundedMovement(PlayerInputHandler* playerInputHandler, PlayerComponent* playerComponent,
                                     RigidBody2DComponent* rigidBody2DComponent);
 
-        void UpdateJump(PlayerComponent* playerComponent, RigidBody2DComponent* rigidBody2DComponent,
+        void UpdateJump(const PlayerComponent* playerComponent, PlayerInputHandler* playerInputHandler,
+                        const RigidBody2DComponent* rigidBody2DComponent,
                         bool isGrounded, const b2MassData& massData);
 
-        void ClampHorizontalSpeed(RigidBody2DComponent* rigidBody2DComponent,
-                                  PlayerComponent* playerComponent, const b2Vec2& currentVel);
+        static void ClampHorizontalSpeed(const RigidBody2DComponent* rigidBody2DComponent,
+                                  const PlayerComponent* playerComponent, const b2Vec2& currentVel);
 
-        void CheckDropItem(PlayerComponent* playerComponent, const ItemContainer* itemContainer,
+        void CheckDropItem(PlayerInputHandler* playerInputHandler, const ItemContainer* itemContainer,
                            const HotBarComponent* hotBarComponent) const;
 
-        void HandleMouseButton(const SDL_Event& event, PlayerComponent* playerComponent);
+        static void HandleMouseButton(const SDL_Event& event, PlayerInputHandler* playerInputHandler);
 
-        void HandleHorizontalInput(const SDL_Event& event, PlayerComponent* playerComponent, bool pressed);
+        void HandleHorizontalInput(const SDL_Event& event, PlayerComponent* playerComponent,
+                                   PlayerInputHandler* playerInputHandler, bool pressed) const;
 
-        void HandleVerticalInput(const SDL_Event& event, PlayerComponent* playerComponent, bool pressed);
+        static void HandleVerticalInput(const SDL_Event& event, PlayerInputHandler* playerInputHandler, bool pressed);
 
-        void UpdatePlayerFacing(PlayerComponent* playerComponent);
+        void UpdatePlayerFacing(PlayerComponent* playerComponent, const PlayerInputHandler* playerInputHandler) const;
 
-        void HandleKeyAction(const SDL_Event& event, PlayerComponent* playerComponent, bool pressed);
+        static void HandleKeyAction(const SDL_Event& event, PlayerInputHandler* playerInputHandler, bool pressed);
 
     public:
         explicit PlayerControlSystem(WorldContext* worldContext);

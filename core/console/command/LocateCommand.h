@@ -40,15 +40,14 @@ namespace glimmer
                                                         ChunkGenerator* chunkGenerator,
                                                         const std::string& targetBiomeId);
 
+    public:
+        explicit LocateCommand(AppContext* appContext);
+
         static std::optional<TileVector2D> SearchBiomeInRadius(const TileVector2D& position,
                                                                const BiomesManager* biomesManager,
                                                                ChunkGenerator* chunkGenerator,
                                                                const std::string& targetBiomeId,
                                                                uint16_t maxRadiusChunks);
-
-    public:
-        explicit LocateCommand(AppContext* appContext);
-
 
         [[nodiscard]] const std::string& GetName() const override;
 

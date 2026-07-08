@@ -53,7 +53,12 @@ void glimmer::TechProviderSystem::OnActivationChanged(bool activeStatus)
         {
             return;
         }
-        playerComponent->ResetTechnologyMap();
+        PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+        if (playerTechnologyHandler == nullptr)
+        {
+            return;
+        }
+        playerTechnologyHandler->ResetTechnologyMap();
     }
 }
 
@@ -78,7 +83,12 @@ void glimmer::TechProviderSystem::OnFrameStart()
     {
         return;
     }
-    playerComponent->ResetTechnologyMap();
+    PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+    if (playerTechnologyHandler == nullptr)
+    {
+        return;
+    }
+    playerTechnologyHandler->ResetTechnologyMap();
     for (GameEntityID techProviderEntity : techProviderEntities_)
     {
         auto providerTransform2DComponent = entityManager->GetComponent<Transform2DComponent>(
@@ -98,8 +108,8 @@ void glimmer::TechProviderSystem::OnFrameStart()
         {
             continue;
         }
-        playerComponent->SetTechnology(techProviderComponent->GetRecipeGroup(),
-                                       techProviderComponent->GetTechnologyLevel());
+        playerTechnologyHandler->SetTechnology(techProviderComponent->GetRecipeGroup(),
+                                               techProviderComponent->GetTechnologyLevel());
     }
     changed = false;
 }

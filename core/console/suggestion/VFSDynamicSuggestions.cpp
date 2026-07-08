@@ -50,7 +50,7 @@ std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(const st
         return {};
     }
     const std::string& paramValue = param.value();
-    std::string directory;
+    std::filesystem::path directory;
     std::string keyword;
     if (auto pos = paramValue.find_last_of('/'); pos != std::string::npos)
     {

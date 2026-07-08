@@ -45,7 +45,7 @@ namespace glimmer
         PreloadColors* preloadColors_ = nullptr;
 
     public:
-        explicit FloatingTextComponent(AppContext* appContext);
+        explicit FloatingTextComponent(const AppContext* appContext);
 
         void SetText(const std::string& text);
 

@@ -29,14 +29,14 @@
 #include "component/FloatingTextComponent.h"
 
 glimmer::FlowingTextCreator::FlowingTextCreator(WorldContext* worldContext, const std::string& text,
-                                                WorldVector2D position)
-    : IEntityCreator(worldContext), text_(text), position_(position)
+                                                const WorldVector2D& position) : IEntityCreator(worldContext),
+    text_(text), position_(position)
 {
 }
 
 void glimmer::FlowingTextCreator::LoadTemplateComponents(uint32_t id)
 {
-    WorldContext* worldContext = GetWorldContext();
+    const WorldContext* worldContext = GetWorldContext();
     if (worldContext == nullptr)
     {
         return;

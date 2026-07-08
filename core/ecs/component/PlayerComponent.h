@@ -27,139 +27,33 @@
 #pragma once
 
 #include "MobComponent.h"
-#include "core/inventory/Item.h"
-#include "core/mod/dataPack/RecipeGroup.h"
+#include "core/ecs/PlayerCapabilityHandler.h"
+#include "core/ecs/PlayerInputHandler.h"
+#include "core/ecs/PlayerTechnologyHandler.h"
 #include "src/core/game_component_type.pb.h"
 
 namespace glimmer
 {
-    class PlayerInputHandler
-    {
-        float horizontalInput_ = 0.0F;
-        float verticalInput_ = 0.0F;
-        bool pressedW_ = false;
-        bool pressedA_ = false;
-        bool pressedS_ = false;
-        bool pressedD_ = false;
-        bool jump_ = false;
-        int jumpBuffer_ = 0;
-        bool mouseLeftDown_ = false;
-        float dropTimer_ = 0.0F;
-        bool dropPressed_ = false;
-
-    public:
-        void RemoveHorizontalInput(float increment);
-        void AddHorizontalInput(float increment);
-        void ResetHorizontalInput();
-        [[nodiscard]] float GetHorizontalInput() const;
-
-        void RemoveVerticalInput(float increment);
-        void AddVerticalInput(float increment);
-        void ResetVerticalInput();
-        void SetVerticalInput(float verticalInput);
-        [[nodiscard]] float GetVerticalInput() const;
-
-        void SetPressedW(bool pressedW);
-        void SetPressedA(bool pressedA);
-        void SetPressedS(bool pressedS);
-        void SetPressedD(bool pressedD);
-        [[nodiscard]] bool IsPressedW() const;
-        [[nodiscard]] bool IsPressedA() const;
-        [[nodiscard]] bool IsPressedS() const;
-        [[nodiscard]] bool IsPressedD() const;
-
-        void SetJump(bool jump);
-        [[nodiscard]] bool IsJump() const;
-        void SetJumpBuffer(float jumpBuffer);
-        [[nodiscard]] float GetJumpBuffer() const;
-
-        void SetMouseLeftDown(bool mouseLeftDown);
-        [[nodiscard]] bool IsMouseLeftDown() const;
-
-        void ResetDropTimer();
-        void AddDropTimer(float delta);
-        void RemoveDropTimer(float delta);
-        [[nodiscard]] float GetDropTimer() const;
-        void SetDropPressed(bool dropPressed);
-        [[nodiscard]] bool IsDropPressed() const;
-    };
-
-    class PlayerCapabilityHandler
-    {
-        bool isFlying_ = false;
-        Item* item_ = nullptr;
-
-    public:
-        void SetFlying(bool flying);
-        [[nodiscard]] bool IsFlying() const;
-        void SetItem(Item* item);
-        [[nodiscard]] Item* GetItem() const;
-    };
-
-    class PlayerTechnologyHandler
-    {
-        std::unordered_map<RecipeGroup, uint8_t> technologyMap_ = {
-            {RecipeGroup::None, 1}
-        };
-
-    public:
-        void ResetTechnologyMap();
-        void SetTechnology(RecipeGroup recipeGroup, uint8_t technologyLevel);
-        [[nodiscard]] const std::unordered_map<RecipeGroup, uint8_t>& GetTechnologyMap() const;
-        std::string ListTechnology(const std::string& technologyItem) const;
-    };
-
     class PlayerComponent final : public MobComponent
     {
         PlayerInputHandler inputHandler_;
         PlayerCapabilityHandler capabilityHandler_;
         PlayerTechnologyHandler technologyHandler_;
+        Item* item_ = nullptr;
 
     public:
-        void RemoveHorizontalInput(float increment);
-        void AddHorizontalInput(float increment);
-        void ResetHorizontalInput();
-        [[nodiscard]] float GetHorizontalInput() const;
-
-        void RemoveVerticalInput(float increment);
-        void AddVerticalInput(float increment);
-        void ResetVerticalInput();
-        void SetVerticalInput(float verticalInput);
-        [[nodiscard]] float GetVerticalInput() const;
-
-        void SetPressedW(bool pressedW);
-        void SetPressedA(bool pressedA);
-        void SetPressedS(bool pressedS);
-        void SetPressedD(bool pressedD);
-        [[nodiscard]] bool IsPressedW() const;
-        [[nodiscard]] bool IsPressedA() const;
-        [[nodiscard]] bool IsPressedS() const;
-        [[nodiscard]] bool IsPressedD() const;
-
-        void ResetDropTimer();
-        void AddDropTimer(float delta);
-        void RemoveDropTimer(float delta);
-        void SetJump(bool jump);
-        [[nodiscard]] bool IsJump() const;
-        void SetJumpBuffer(float jumpBuffer);
-        [[nodiscard]] float GetJumpBuffer() const;
-        void SetMouseLeftDown(bool mouseLeftDown);
-        [[nodiscard]] bool IsMouseLeftDown() const;
-        [[nodiscard]] float GetDropTimer() const;
-        void SetDropPressed(bool dropPressed);
-        [[nodiscard]] bool IsDropPressed() const;
-
-        void SetFlying(bool flying);
-        [[nodiscard]] bool IsFlying() const;
         void SetItem(Item* item);
+
         [[nodiscard]] Item* GetItem() const;
 
-        void ResetTechnologyMap();
-        void SetTechnology(RecipeGroup recipeGroup, uint8_t technologyLevel);
-        [[nodiscard]] const std::unordered_map<RecipeGroup, uint8_t>& GetTechnologyMap() const;
-        std::string ListTechnology(const std::string& technologyItem) const;
+        [[nodiscard]] PlayerInputHandler* GetInputHandler();
+
+        [[nodiscard]] PlayerCapabilityHandler* GetCapabilityHandler();
+
+        [[nodiscard]] PlayerTechnologyHandler* GetTechnologyHandler();
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
         [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
     };
 }

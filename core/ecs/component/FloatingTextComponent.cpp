@@ -33,9 +33,8 @@
 #include "SDL3/SDL_timer.h"
 
 
-glimmer::FloatingTextComponent::FloatingTextComponent(AppContext* appContext)
-    : alpha_(0.0F),
-      expireTime_(SDL_GetTicks() + 25000),
+glimmer::FloatingTextComponent::FloatingTextComponent(const AppContext* appContext)
+    :expireTime_(SDL_GetTicks() + 25000),
       resourcePackManager_(appContext->GetResourcePackManager()),
       preloadColors_(appContext->GetPreloadColors()),
       tween_(tweeny::tween(tweeny::from(0.0f)

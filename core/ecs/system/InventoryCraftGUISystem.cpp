@@ -123,8 +123,13 @@ void glimmer::InventoryCraftGUISystem::OnActivationChanged(bool activeStatus)
         {
             inventoryItemSlot->Show();
         }
+        PlayerTechnologyHandler* technologyHandler = playerComponent_->GetTechnologyHandler();
+        if (technologyHandler == nullptr)
+        {
+            return;
+        }
         std::vector<RecipeResource*> recipeResources = recipeManager_->FindUnlockedRecipes(
-            playerComponent_->GetTechnologyMap(), itemContainer_->GetTotalTags());
+            technologyHandler->GetTechnologyMap(), itemContainer_->GetTotalTags());
         UpdateCraftPreviewSlots(recipeResources);
     }
     else

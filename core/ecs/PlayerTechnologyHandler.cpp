@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,18 +24,46 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "IEntityCreator.h"
-#include "IPersistenceEntityCreator.h"
+#include "PlayerTechnologyHandler.h"
 
-namespace glimmer {
-    class FlowingTextCreator : public IEntityCreator {
-        std::string text_;
-        WorldVector2D position_;
+#include "fmt/xchar.h"
 
-    public:
-        explicit FlowingTextCreator(WorldContext *worldContext, const std::string &text, const WorldVector2D& position);
+void glimmer::PlayerTechnologyHandler::ResetTechnologyMap()
+{
+    technologyMap_.clear();
+    technologyMap_[RecipeGroup::None] = 1;
+}
 
-        void LoadTemplateComponents(uint32_t id) override;
-    };
+void glimmer::PlayerTechnologyHandler::SetTechnology(RecipeGroup recipeGroup, uint8_t technologyLevel)
+{
+    auto iterator = technologyMap_.find(recipeGroup);
+    if (iterator == technologyMap_.end())
+    {
+        technologyMap_[recipeGroup] = technologyLevel;
+    }
+    else
+    {
+        if (technologyLevel > iterator->second)
+        {
+            technologyMap_[recipeGroup] = technologyLevel;
+        }
+    }
+}
+
+const std::unordered_map<glimmer::RecipeGroup, uint8_t>& glimmer::PlayerTechnologyHandler::GetTechnologyMap() const
+{
+    return technologyMap_;
+}
+
+std::string glimmer::PlayerTechnologyHandler::ListTechnology(const std::string& technologyItem) const
+{
+    std::stringstream ss;
+    for (auto& [recipeGroup, techLevel] : technologyMap_)
+    {
+        ss << fmt::format(
+            fmt::runtime(technologyItem),
+            std::to_underlying(recipeGroup), static_cast<int>(techLevel));
+        ss << '\n';
+    }
+    return ss.str();
 }

@@ -53,7 +53,7 @@ void glimmer::UnlockedRecipesCommand::WriteRecipe(const std::string& recipesItem
     std::string recipeGroupStr;
     switch (static_cast<RecipeGroup>(recipe->recipeGroup))
     {
-    using enum RecipeGroup;
+        using enum RecipeGroup;
     case None: recipeGroupStr = "None";
         break;
     case CraftTable: recipeGroupStr = "CraftTable";
@@ -150,7 +150,12 @@ bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender
     {
         return false;
     }
-    auto unlockedRecipes = recipeManager->FindUnlockedRecipes(playerComponent->GetTechnologyMap(),
+    const PlayerTechnologyHandler* playerTechnologyHandler = playerComponent->GetTechnologyHandler();
+    if (playerTechnologyHandler == nullptr)
+    {
+        return false;
+    }
+    auto unlockedRecipes = recipeManager->FindUnlockedRecipes(playerTechnologyHandler->GetTechnologyMap(),
                                                               itemContainer->GetTotalTags());
     if (unlockedRecipes.empty())
     {

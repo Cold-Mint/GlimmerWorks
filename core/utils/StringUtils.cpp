@@ -59,7 +59,7 @@ uint64_t glimmer::StringUtils::StringToUint64(const std::string& string)
     return std::hash<std::string>{}(string);
 }
 
-std::span<const std::byte> glimmer::StringUtils::StringToByteData(const std::string& string)
+std::span<const std::byte> glimmer::StringUtils::StringToByteData(const std::string_view string)
 {
     return {
         reinterpret_cast<const std::byte*>(string.data()), string.size()

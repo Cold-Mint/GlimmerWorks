@@ -34,15 +34,21 @@ namespace glimmer
 {
     struct Star
     {
-        float x, y;
-        Uint8 r, g, b;
-        float size;
+        float x = 0.0F;
+        float y = 0.0F;
+        Uint8 r = 0;
+        Uint8 g = 0;
+        Uint8 b = 0;
+        float size = 0.0F;
     };
 
     class HomeScene : public Scene
     {
-        std::vector<Hyperlink> hyperlinks_;
-        std::string copyright_;
+        std::vector<Hyperlink> hyperlinks_{{"Github", "https://github.com/Cold-Mint/GlimmerWorks"},
+                                           {"Discord", "https://discord.com/invite/CfppC9WHw8"},
+                                           {"itch.io", "https://cold-mint.itch.io/glimmerworks"},
+                                           {"QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"}};
+        std::string copyright_{GetCopyrightString()};
         float uiScale_ = 1.0F;
         int windowWidth_ = 0;
         int windowHeight_ = 0;

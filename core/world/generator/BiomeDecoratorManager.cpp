@@ -41,7 +41,7 @@ glimmer::IBiomeDecorator *glimmer::BiomeDecoratorManager::GetBiomeDecorator(Biom
 }
 
 void glimmer::BiomeDecoratorManager::SetWorldSeed(const int worldSeed) const {
-    for (const auto &it: biomeDecoratorMap_) {
-        it.second->SetWorldSeed(worldSeed);
+    for (const auto &[key, decorator]: biomeDecoratorMap_) {
+        decorator->SetWorldSeed(worldSeed);
     }
 }

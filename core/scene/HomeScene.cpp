@@ -60,12 +60,7 @@ std::string glimmer::HomeScene::GetCopyrightString()
 }
 
 glimmer::HomeScene::HomeScene(AppContext* context)
-    : Scene(context),
-      hyperlinks_{{"Github", "https://github.com/Cold-Mint/GlimmerWorks"},
-                  {"Discord", "https://discord.com/invite/CfppC9WHw8"},
-                  {"itch.io", "https://cold-mint.itch.io/glimmerworks"},
-                  {"QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"}},
-      copyright_(GetCopyrightString())
+    : Scene(context)
 {
     GetAppContext()->PlayMainMenuBGM();
     GetAppContext()->SetRandomSlogan();

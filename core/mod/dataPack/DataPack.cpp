@@ -43,6 +43,10 @@
 #include "core/utils/StringUtils.h"
 #include "toml11/parser.hpp"
 
+using enum glimmer::ShapeType;
+using enum glimmer::BiomeDecoratorType;
+using enum glimmer::PackVerifyState;
+
 
 std::vector<std::filesystem::path> glimmer::DataPack::GetActuallyTemplateSearchPath(
     const std::filesystem::path& path) const
@@ -306,26 +310,26 @@ LoadShapeResourceFromFile(const toml::value& value, ShapeManager* shapeManager, 
     std::unique_ptr<IShapeResource> shapeResource;
     switch (type)
     {
-    case ShapeType::CIRCLE:
+    case CIRCLE:
         {
             shapeResource = std::make_unique<CircularShapeResource>(
                 toml::get<CircularShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(ShapeType::CIRCLE);
+            shapeResource->shapeType = std::to_underlying(CIRCLE);
             break;
         }
 
-    case ShapeType::RECTANGLE:
+    case RECTANGLE:
         {
             shapeResource = std::make_unique<RectangleShapeResource>(
                 toml::get<RectangleShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(ShapeType::RECTANGLE);
+            shapeResource->shapeType = std::to_underlying(RECTANGLE);
             break;
         }
-    case ShapeType::ROUNDED_RECTANGLE:
+    case ROUNDED_RECTANGLE:
         {
             shapeResource = std::make_unique<RoundedRectangleShapeResource>(
                 toml::get<RoundedRectangleShapeResource>(value));
-            shapeResource->shapeType = std::to_underlying(ShapeType::ROUNDED_RECTANGLE);
+            shapeResource->shapeType = std::to_underlying(ROUNDED_RECTANGLE);
             break;
         }
     }
@@ -369,33 +373,33 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value& va
 {
     switch (type)
     {
-    case BiomeDecoratorType::FILL:
+    case FILL:
         {
             auto fillResource = std::make_unique<FillBiomeDecoratorResource>(
                 toml::get<FillBiomeDecoratorResource>(value));
             fillResource->packId = manifest_.id;
             fillResource->tile.SetSelfPackageId(manifest_.id);
-            fillResource->biomeDecoratorType = std::to_underlying(BiomeDecoratorType::FILL);
+            fillResource->biomeDecoratorType = std::to_underlying(FILL);
             biomeDecoratorManager->Register(std::move(fillResource));
             break;
         }
-    case BiomeDecoratorType::MINERAL:
+    case MINERAL:
         {
             auto mineralBiomeDecoratorResource = std::make_unique<MineralBiomeDecoratorResource>(
                 toml::get<MineralBiomeDecoratorResource>(value));
             mineralBiomeDecoratorResource->packId = manifest_.id;
             mineralBiomeDecoratorResource->ore.SetSelfPackageId(manifest_.id);
-            mineralBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(BiomeDecoratorType::MINERAL);
+            mineralBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(MINERAL);
             biomeDecoratorManager->Register(std::move(mineralBiomeDecoratorResource));
             break;
         }
-    case BiomeDecoratorType::SURFACE:
+    case SURFACE:
         {
             auto surfaceBiomeDecoratorResource = std::make_unique<SurfaceBiomeDecoratorResource>(
                 toml::get<SurfaceBiomeDecoratorResource>(value));
             surfaceBiomeDecoratorResource->packId = manifest_.id;
             surfaceBiomeDecoratorResource->tile.SetSelfPackageId(manifest_.id);
-            surfaceBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(BiomeDecoratorType::SURFACE);
+            surfaceBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(SURFACE);
             biomeDecoratorManager->Register(std::move(surfaceBiomeDecoratorResource));
             break;
         }
@@ -678,14 +682,14 @@ glimmer::PackVerifyState glimmer::DataPack::VerifySignature(const bool findPubli
 {
     if (!findPublicKey || !findSignature)
     {
-        return PackVerifyState::VerifiedFailed;
+        return VerifiedFailed;
     }
     if (crypto_ed25519_check(signature.data(), publicKey.data(),
                              allHashData.data(), allHashData.size()) == 0)
     {
-        return PackVerifyState::VerifiedSuccess;
+        return VerifiedSuccess;
     }
-    return PackVerifyState::VerifiedFailed;
+    return VerifiedFailed;
 }
 
 

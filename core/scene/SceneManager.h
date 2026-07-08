@@ -69,7 +69,7 @@ namespace glimmer {
          * 获取叠加层
          * @return overlayScenes 所有叠加层
          */
-        [[nodiscard]] const std::vector<Scene *> &GetOverlayScenes() const;
+        [[nodiscard]] std::vector<Scene *> GetOverlayScenes() const;
 
         /**
          * PushScene

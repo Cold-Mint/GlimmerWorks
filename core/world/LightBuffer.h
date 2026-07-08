@@ -47,6 +47,9 @@ namespace glimmer
                                               TileVector2D next, bool centerOfCircle, TileLayerType layerType,
                                               int rayIndex);
 
+        void ClearLightContributionAt(const TileVector2D& pos, TileLayerType layerType,
+                                      const LightSource* lightSourcePtr, int rayIndex);
+
         TraverseAction SetLightStepCallback(const LightSource* lightSourcePtr, TileVector2D current, TileVector2D next,
                                             bool centerOfCircle, TileLayerType layerType,
                                             int rayIndex);

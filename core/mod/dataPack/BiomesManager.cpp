@@ -28,51 +28,62 @@
 
 #include "core/log/LogCat.h"
 
-glimmer::BiomeResource *glimmer::BiomesManager::AddResource(std::unique_ptr<BiomeResource> biomeResource) {
+glimmer::BiomeResource* glimmer::BiomesManager::AddResource(std::unique_ptr<BiomeResource> biomeResource)
+{
     LogCat::i("Registering biome resource: packId = ", biomeResource->packId,
               ", resourceId = ", biomeResource->resourceId);
-    auto &slot = biomeMap_[biomeResource->packId][biomeResource->resourceId];
+    auto& slot = biomeMap_[biomeResource->packId][biomeResource->resourceId];
     slot = std::move(biomeResource);
     biomeVector_.push_back(slot.get());
     return slot.get();
 }
 
-glimmer::BiomeResource *glimmer::BiomesManager::Find(std::string_view packId, std::string_view resourceId) const {
+glimmer::BiomeResource* glimmer::BiomesManager::Find(std::string_view packId, std::string_view resourceId) const
+{
     LogCat::d("Searching for biome resource: packId = ", packId, ", resourceId = ", resourceId);
-    if (const auto packIt = biomeMap_.find(packId); packIt != biomeMap_.end()) {
-        if (const auto keyIt = packIt->second.find(resourceId); keyIt != packIt->second.end()) {
+    if (const auto packIt = biomeMap_.find(packId); packIt != biomeMap_.end())
+    {
+        if (const auto keyIt = packIt->second.find(resourceId); keyIt != packIt->second.end())
+        {
             LogCat::i("Found biome resource: packId = ", packId, ", resourceId = ", resourceId);
             return keyIt->second.get();
         }
         LogCat::w("Key not found in pack ", packId, ": ", resourceId);
-    } else {
+    }
+    else
+    {
         LogCat::w("Pack not found: ", packId);
     }
     return nullptr;
 }
 
 float glimmer::BiomesManager::CalculateBiomeScoreDelta(const float targetValue, const float actualValue,
-                                                       const float strictness) {
+                                                       const float strictness)
+{
     const float diff = targetValue - actualValue;
     return diff * diff * strictness;
 }
 
-const std::vector<glimmer::BiomeResource *> &glimmer::BiomesManager::GetBiomeVector() const {
+std::span<glimmer::BiomeResource*> glimmer::BiomesManager::GetBiomeVector()
+{
     return biomeVector_;
 }
 
-glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(const float humidity, const float temperature,
+glimmer::BiomeResource* glimmer::BiomesManager::FindBestBiome(const float humidity, const float temperature,
                                                               const float weirdness,
                                                               const float erosion, const float elevation,
-                                                              const float surfaceProximity) const {
-    if (biomeVector_.empty()) {
+                                                              const float surfaceProximity) const
+{
+    if (biomeVector_.empty())
+    {
         return nullptr;
     }
 
-    BiomeResource *bestBiome = nullptr;
+    BiomeResource* bestBiome = nullptr;
     float bestDistance = std::numeric_limits<float>::max();
 
-    for (auto &biome: biomeVector_) {
+    for (auto& biome : biomeVector_)
+    {
         const float scoreHumidity = CalculateBiomeScoreDelta(biome->humidity, humidity, biome->strictnessHumidity);
         const float scoreTemperature = CalculateBiomeScoreDelta(biome->temperature, temperature,
                                                                 biome->strictnessTemperature);
@@ -82,8 +93,9 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(const float humidi
         const float scoreSurfaceProximity = CalculateBiomeScoreDelta(biome->surfaceProximity, surfaceProximity,
                                                                      biome->strictnessSurfaceProximity);
         const float totalDistance = scoreHumidity + scoreTemperature + scoreWeirdness + scoreErosion + scoreElevation +
-                                    scoreSurfaceProximity;
-        if (totalDistance < bestDistance) {
+            scoreSurfaceProximity;
+        if (totalDistance < bestDistance)
+        {
             bestDistance = totalDistance;
             bestBiome = biome;
         }
@@ -91,20 +103,26 @@ glimmer::BiomeResource *glimmer::BiomesManager::FindBestBiome(const float humidi
     return bestBiome;
 }
 
-std::vector<std::string> glimmer::BiomesManager::GetBiomeList() const {
+std::vector<std::string> glimmer::BiomesManager::GetBiomeList() const
+{
     std::vector<std::string> result;
-    for (const auto &[packId, keyMap]: biomeMap_) {
-        for (const auto &[key, biome]: keyMap) {
+    for (const auto& [packId, keyMap] : biomeMap_)
+    {
+        for (const auto& [key, biome] : keyMap)
+        {
             result.emplace_back(Resource::GenerateId(packId, key));
         }
     }
     return result;
 }
 
-std::string glimmer::BiomesManager::ListBiomes() const {
+std::string glimmer::BiomesManager::ListBiomes() const
+{
     std::ostringstream oss;
-    for (const auto &[packId, keyMap]: biomeMap_) {
-        for (const auto &[key, biome]: keyMap) {
+    for (const auto& [packId, keyMap] : biomeMap_)
+    {
+        for (const auto& [key, biome] : keyMap)
+        {
             oss << Resource::GenerateId(packId, key) << '\n';
         }
     }

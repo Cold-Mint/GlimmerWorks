@@ -62,22 +62,8 @@ std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(
         for (int i = 0; i < treeStructureResource->leafClusterCount; ++i)
         {
             int clusterY = trunkHeight - i * treeStructureResource->leafVerticalSpacing;
-            for (int x = -leafRadius; x <= leafRadius; ++x)
-            {
-                for (int y = -leafRadius; y <= leafRadius; ++y)
-                {
-                    if (x * x + y * y <= leafRadius * leafRadius && y >= 0)
-                    {
-                        structureInfo.SetTile(leafTileLayer,
-                                              TileVector2D{
-                                                  x + treeStructureResource->trunkWidth / 2,
-                                                  clusterY + y
-                                              },
-                                              leafRef
-                        );
-                    }
-                }
-            }
+            AddLeafCluster(structureInfo, leafTileLayer, leafRadius, clusterY,
+                          treeStructureResource->trunkWidth, leafRef);
         }
     }
     return structureInfo;
@@ -86,4 +72,23 @@ std::optional<glimmer::StructureInfo> glimmer::TreeStructureGenerator::Generate(
 glimmer::StructureGeneratorType glimmer::TreeStructureGenerator::GetStructureGeneratorType() const
 {
     return StructureGeneratorType::Tree;
+}
+
+void glimmer::TreeStructureGenerator::AddLeafCluster(StructureInfo& structureInfo, TileLayerType leafTileLayer,
+                                                      uint8_t leafRadius, int clusterY, int trunkWidth,
+                                                      ResourceRef& leafRef)
+{
+    for (int x = -leafRadius; x <= leafRadius; ++x)
+    {
+        for (int y = -leafRadius; y <= leafRadius; ++y)
+        {
+            if (x * x + y * y > leafRadius * leafRadius || y < 0)
+            {
+                continue;
+            }
+            structureInfo.SetTile(leafTileLayer,
+                                  TileVector2D{x + trunkWidth / 2, clusterY + y},
+                                  leafRef);
+        }
+    }
 }

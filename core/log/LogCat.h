@@ -33,11 +33,11 @@
 #if !defined(__ANDROID__) && defined(__linux__) && !defined(NDEBUG)
 #include <spawn.h>
 #endif
-#define COLOR_RESET   "\033[0m"
-#define COLOR_INFO    "\033[32m"  // Green 绿色
-#define COLOR_DEBUG   "\033[36m"  // Cyan 青色
-#define COLOR_WARN    "\033[33m"  // Yellow 黄色
-#define COLOR_ERROR   "\033[31m"  // Red 红色
+constexpr const char* COLOR_RESET = "\033[0m";
+constexpr const char* COLOR_INFO = "\033[32m";
+constexpr const char* COLOR_DEBUG = "\033[36m";
+constexpr const char* COLOR_WARN = "\033[33m";
+constexpr const char* COLOR_ERROR = "\033[31m";
 
 namespace glimmer {
     class LogCat {

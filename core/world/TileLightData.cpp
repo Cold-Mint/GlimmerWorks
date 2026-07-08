@@ -31,6 +31,23 @@
 #include "src/core/vector2d.pb.h"
 
 
+void glimmer::TileLightData::ApplyBackLightMask(Color* finalLightColor, TileLayerType tileLayer) {
+    const auto backLightMaskIterator = backLightMaskData_.find(tileLayer);
+    if (backLightMaskIterator == backLightMaskData_.end()) {
+        return;
+    }
+    const auto& backLightMaskUnique = backLightMaskIterator->second;
+    if (backLightMaskUnique == nullptr) {
+        return;
+    }
+    const Color* lightMaskColor = backLightMaskUnique->GetLightMaskColor();
+    if (lightMaskColor == nullptr) {
+        return;
+    }
+    *finalLightColor = *LightUtils::ApplyLightingMask(finalLightColor, lightMaskColor,
+                                                      backLightMaskUnique->GetTintFactor());
+}
+
 std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor() {
     if (lightContributions_.empty()) {
         return nullptr;
@@ -41,19 +58,7 @@ std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor()
         auto tileLayer = static_cast<TileLayerType>(1 << i);
         //Apply the shadow effect.
         //叠加阴影。
-        if (hasFoundLightSource) {
-            const auto backLightMaskIterator = backLightMaskData_.find(tileLayer);
-            if (backLightMaskIterator != backLightMaskData_.end()) {
-                const auto &backLightMaskUnique = backLightMaskIterator->second;
-                if (backLightMaskUnique != nullptr) {
-                    const Color *lightMaskColor = backLightMaskUnique->GetLightMaskColor();
-                    if (lightMaskColor != nullptr) {
-                        finalLightColor = LightUtils::ApplyLightingMask(finalLightColor.get(), lightMaskColor,
-                                                                        backLightMaskUnique->GetTintFactor());
-                    }
-                }
-            }
-        }
+        ApplyBackLightMask(finalLightColor.get(), tileLayer);
         const auto lightContributionIterator = lightContributions_.find(tileLayer);
         if (lightContributionIterator == lightContributions_.end()) {
             continue;
@@ -90,6 +95,7 @@ std::unique_ptr<glimmer::Color> glimmer::TileLightData::ComputeFinalLightColor()
     }
     return nullptr;
 }
+
 
 void glimmer::TileLightData::SetLightMaskImp(
     std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData, TileLayerType layerType,

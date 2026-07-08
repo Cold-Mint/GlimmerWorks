@@ -28,27 +28,31 @@
 
 #include "core/log/LogCat.h"
 
-glimmer::IStructureResource *glimmer::StructureManager::AddResource(
-    std::unique_ptr<IStructureResource> structureResource) {
+glimmer::IStructureResource* glimmer::StructureManager::AddResource(
+    std::unique_ptr<IStructureResource> structureResource)
+{
     LogCat::i("Registering tile resource: packId = ", structureResource->packId,
               ", resourceId = ", structureResource->resourceId);
-    auto &slot = structureMap_[structureResource->packId][structureResource->resourceId];
+    auto& slot = structureMap_[structureResource->packId][structureResource->resourceId];
     slot = std::move(structureResource);
     structureVector_.push_back(slot.get());
     return slot.get();
 }
 
-glimmer::IStructureResource *glimmer::StructureManager::Find(const std::string &packId, const std::string &key) {
+glimmer::IStructureResource* glimmer::StructureManager::Find(const std::string& packId, const std::string& key)
+{
     LogCat::d("Searching for structure resource: packId = ", packId, ", key = ", key);
     const auto packIt = structureMap_.find(packId);
-    if (packIt == structureMap_.end()) {
+    if (packIt == structureMap_.end())
+    {
         LogCat::w("Pack not found: ", packId);
         return nullptr;
     }
 
-    auto &keyMap = packIt->second;
+    auto& keyMap = packIt->second;
     const auto keyIt = keyMap.find(key);
-    if (keyIt == keyMap.end()) {
+    if (keyIt == keyMap.end())
+    {
         LogCat::w("Key not found in pack ", packId, ": ", key);
         return nullptr;
     }
@@ -57,22 +61,29 @@ glimmer::IStructureResource *glimmer::StructureManager::Find(const std::string &
     return keyIt->second.get();
 }
 
-const std::vector<glimmer::IStructureResource *> &glimmer::StructureManager::GetAll() const {
+std::vector<glimmer::IStructureResource*> glimmer::StructureManager::GetAll()
+{
     return structureVector_;
 }
 
-std::vector<std::string> glimmer::StructureManager::GetStructureIDList() const {
+
+std::vector<std::string> glimmer::StructureManager::GetStructureIDList() const
+{
     std::vector<std::string> result;
-    for (const auto structureVector: structureVector_) {
+    for (const auto structureVector : structureVector_)
+    {
         result.emplace_back(Resource::GenerateId(structureVector->packId, structureVector->resourceId));
     }
     return result;
 }
 
-std::string glimmer::StructureManager::ListStructures() const {
+std::string glimmer::StructureManager::ListStructures() const
+{
     std::ostringstream oss;
-    for (const auto &structurePtr: structureVector_) {
-        if (!structurePtr) {
+    for (const auto& structurePtr : structureVector_)
+    {
+        if (!structurePtr)
+        {
             continue;
         }
         oss << Resource::GenerateId(structurePtr->packId, structurePtr->resourceId) << "\n";

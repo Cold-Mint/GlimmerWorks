@@ -32,19 +32,21 @@
 #include "core/ecs/component/TileLayerComponent.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     struct BiomeResource;
 
-    class BiomesManager {
-    private:
+    class BiomesManager
+    {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<BiomeResource>,
-            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>> biomeMap_{};
-        std::vector<BiomeResource *> biomeVector_{};
+                                                           TransparentStringHash, std::equal_to<>>,
+                           TransparentStringHash, std::equal_to<>> biomeMap_{};
+        std::vector<BiomeResource*> biomeVector_{};
 
     public:
-        BiomeResource *AddResource(std::unique_ptr<BiomeResource> biomeResource);
+        BiomeResource* AddResource(std::unique_ptr<BiomeResource> biomeResource);
 
-        [[nodiscard]] BiomeResource *Find(std::string_view packId, std::string_view resourceId) const;
+        [[nodiscard]] BiomeResource* Find(std::string_view packId, std::string_view resourceId) const;
 
 
         /**
@@ -57,7 +59,7 @@ namespace glimmer {
          */
         static float CalculateBiomeScoreDelta(float targetValue, float actualValue, float strictness);
 
-        [[nodiscard]] const std::vector<BiomeResource *> &GetBiomeVector() const;
+        [[nodiscard]] std::span<BiomeResource*> GetBiomeVector();
 
         /**
          * Find Best Biome
@@ -70,7 +72,7 @@ namespace glimmer {
          * @param surfaceProximity SurfaceProximity 地表贴近度
          * @return
          */
-        BiomeResource *FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
+        BiomeResource* FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
                                      float elevation, float surfaceProximity) const;
 
         std::vector<std::string> GetBiomeList() const;

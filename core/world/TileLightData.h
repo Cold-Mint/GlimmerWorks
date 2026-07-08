@@ -35,16 +35,18 @@
 #include "core/math/Color.h"
 
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * TileLightData
      * 瓦片光照数据
      */
-    class TileLightData {
-        std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > lightContributions_;
-        std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > lightSourceData_;
-        std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > sideLightMaskData_;
-        std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > backLightMaskData_;
+    class TileLightData
+    {
+        std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution>>> lightContributions_;
+        std::unordered_map<TileLayerType, std::unique_ptr<LightSource>> lightSourceData_;
+        std::unordered_map<TileLayerType, std::unique_ptr<LightMask>> sideLightMaskData_;
+        std::unordered_map<TileLayerType, std::unique_ptr<LightMask>> backLightMaskData_;
         std::unique_ptr<Color> finalLightColor_;
 
         /**
@@ -53,12 +55,14 @@ namespace glimmer {
          */
         [[nodiscard]] std::unique_ptr<Color> ComputeFinalLightColor();
 
+        void ApplyBackLightMask(Color* finalLightColor, TileLayerType tileLayer);
 
-        static void SetLightMaskImp(std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
+
+        static void SetLightMaskImp(std::unordered_map<TileLayerType, std::unique_ptr<LightMask>>& lightMaskData,
                                     TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
 
-        static const LightMask *GetLightMaskImp(
-            std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > &lightMaskData,
+        static const LightMask* GetLightMaskImp(
+            std::unordered_map<TileLayerType, std::unique_ptr<LightMask>>& lightMaskData,
             TileLayerType layerType);
 
     public:
@@ -72,15 +76,15 @@ namespace glimmer {
 
         void RecalculateLight();
 
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution> > > *
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::vector<std::unique_ptr<LightContribution>>>*
         GetLightContributions() const;
 
 
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightSource> > *GetLightSources() const;
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightSource>>* GetLightSources() const;
 
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > *GetSideLightMasks() const;
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightMask>>* GetSideLightMasks() const;
 
-        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightMask> > *GetBackLightMasks() const;
+        [[nodiscard]] const std::unordered_map<TileLayerType, std::unique_ptr<LightMask>>* GetBackLightMasks() const;
 
         /**
          * GetLightContribution
@@ -89,8 +93,8 @@ namespace glimmer {
          * @param targetLightSource 目标光源。
          * @return
          */
-        [[nodiscard]] const LightContribution *GetLightContribution(TileLayerType layerType,
-                                                                    const LightSource *targetLightSource);
+        [[nodiscard]] const LightContribution* GetLightContribution(TileLayerType layerType,
+                                                                    const LightSource* targetLightSource);
 
         /**
          * GetLightContributionVector
@@ -98,7 +102,7 @@ namespace glimmer {
          * @param layerType  layerType 图层类型
          * @return
          */
-        [[nodiscard]] std::vector<const LightContribution *> GetLightContributionVector(TileLayerType layerType);
+        [[nodiscard]] std::vector<const LightContribution*> GetLightContributionVector(TileLayerType layerType);
 
         /**
          * SetLightSource(Does not trigger the overall color calculation)
@@ -118,11 +122,11 @@ namespace glimmer {
 
         void SetBackLightMask(TileLayerType layerType, std::unique_ptr<LightMask> lightMask);
 
-        [[nodiscard]] const LightMask *GetSideLightMask(TileLayerType layerType);
+        [[nodiscard]] const LightMask* GetSideLightMask(TileLayerType layerType);
 
-        [[nodiscard]] const LightMask *GetBackLightMask(TileLayerType layerType);
+        [[nodiscard]] const LightMask* GetBackLightMask(TileLayerType layerType);
 
-        [[nodiscard]] const LightSource *GetLightSource(TileLayerType layerType);
+        [[nodiscard]] const LightSource* GetLightSource(TileLayerType layerType);
 
         void ClearSideLightMask(TileLayerType layerType);
 
@@ -140,7 +144,7 @@ namespace glimmer {
          * 获取最终的光照。
          * @return
          */
-        [[nodiscard]] const Color *GetFinalLightColor() const;
+        [[nodiscard]] const Color* GetFinalLightColor() const;
 
 
         /**
@@ -150,6 +154,6 @@ namespace glimmer {
          * @param lightSource lightSource 光源指针
          * @param rayIndex rayIndex 射线索引
          */
-        void ClearLightContribution(TileLayerType layerType, const LightSource *lightSource, int rayIndex);
+        void ClearLightContribution(TileLayerType layerType, const LightSource* lightSource, int rayIndex);
     };
 }

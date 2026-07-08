@@ -26,6 +26,7 @@
  */
 #include "VirtualFileSystem.h"
 
+#include <algorithm>
 #include <fstream>
 
 #include "core/utils/StringUtils.h"
@@ -114,14 +115,9 @@ std::optional<std::filesystem::path> glimmer::VirtualFileSystem::GetParentPath(c
 
 bool glimmer::VirtualFileSystem::WriteFile(const std::string& path, const std::string& content) const
 {
-    for (const auto& provider : fileProviders_)
-    {
-        if (provider->WriteFile(path, content))
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(fileProviders_, [&](const auto& provider) {
+        return provider->WriteFile(path, content);
+    });
 }
 
 std::unique_ptr<std::istream> glimmer::VirtualFileSystem::ReadFileAsStream(const std::filesystem::path& path) const

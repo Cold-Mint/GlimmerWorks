@@ -32,6 +32,11 @@ namespace glimmer
 {
     class TreeStructureGenerator : public IStructureGenerator
     {
+    private:
+        static void AddLeafCluster(StructureInfo& structureInfo, TileLayerType leafTileLayer,
+                                   uint8_t leafRadius, int clusterY, int trunkWidth,
+                                   ResourceRef& leafRef);
+
     public:
         std::optional<StructureInfo> Generate(WorldContext* worldContext, const TileVector2D& startPosition,
             IStructureResource* structureResource) override;

@@ -69,7 +69,7 @@ namespace glimmer
          * @param string
          * @return
          */
-        static std::span<const std::byte> StringToByteData(const std::string& string);
+        static std::span<const std::byte> StringToByteData(std::string_view string);
 
         /**
          * Write the byte stream to a string

@@ -63,9 +63,23 @@ bool glimmer::DataPackManager::IsDataPackEnabled(const DataPack &pack,
     return std::ranges::find(enabledDataPack, pack.GetManifest().id) != enabledDataPack.end();
 }
 
+bool glimmer::DataPackManager::CheckDependencyVersion(const std::vector<PackDependence>& dependencies,
+    const std::string& packId, const uint32_t version)
+{
+    for (const auto& packDependency : dependencies) {
+        if (packDependency.packId != packId) {
+            continue;
+        }
+        if (version >= packDependency.minVersion) {
+            return true;
+        }
+    }
+    return false;
+}
+
 glimmer::DataPackManager::DataPackManager(VirtualFileSystem *virtualFilesystem,
                                           TomlTemplateExpander *tomlTemplateExpander) : virtualFileSystem_(
-        virtualFilesystem), tomlTemplateExpander_(tomlTemplateExpander) {
+                                                                                            virtualFilesystem), tomlTemplateExpander_(tomlTemplateExpander) {
 }
 
 bool glimmer::DataPackManager::IsDependencySatisfied(const std::string &pack1Id, const std::string &pack2Id) {
@@ -83,18 +97,7 @@ bool glimmer::DataPackManager::IsDependencySatisfied(const std::string &pack1Id,
         return false;
     }
     if (pack2Id == RESOURCE_REF_CORE) {
-        bool match = false;
-        for (auto &packDependency: dataPackManifest1->packDependencies) {
-            if (packDependency.packId == pack2Id) {
-                //If the dependencies within data packet 1 include the ID of data packet 2.
-                //如果数据包1内的依赖项包含数据包2的id。
-                if (CORE_DATA_PACK_VERSION_NUMBER >= packDependency.minVersion) {
-                    match = true;
-                    break;
-                }
-            }
-        }
-        return match;
+        return CheckDependencyVersion(dataPackManifest1->packDependencies, pack2Id, CORE_DATA_PACK_VERSION_NUMBER);
     }
     DataPackManifest *dataPackManifest2 = nullptr;
     for (auto &packId: packManifestVector_) {

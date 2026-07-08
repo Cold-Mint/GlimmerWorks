@@ -45,7 +45,7 @@ glimmer::MobResource *glimmer::MobManager::FindMobResource(std::string_view pack
     return nullptr;
 }
 
-const std::vector<glimmer::MobResource *> &glimmer::MobManager::GetPlayerResourceList() const {
+std::span<const glimmer::MobResource* const> glimmer::MobManager::GetPlayerResourceList() const {
     return playerMobsResource_;
 }
 

@@ -28,20 +28,23 @@
 #include "core/mod/Resource.h"
 #include "core/utils/TransparentStringHash.h"
 
-namespace glimmer {
-    class StructureManager {
+namespace glimmer
+{
+    class StructureManager
+    {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IStructureResource>,
-            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
+                                                           TransparentStringHash, std::equal_to<>>,
+                           TransparentStringHash, std::equal_to<>>
         structureMap_
-                {};
-        std::vector<IStructureResource *> structureVector_ = {};
+            {};
+        std::vector<IStructureResource*> structureVector_ = {};
 
     public:
-        IStructureResource *AddResource(std::unique_ptr<IStructureResource> structureResource);
+        IStructureResource* AddResource(std::unique_ptr<IStructureResource> structureResource);
 
-        [[nodiscard]] IStructureResource *Find(const std::string &packId, const std::string &key);
+        [[nodiscard]] IStructureResource* Find(const std::string& packId, const std::string& key);
 
-        [[nodiscard]] const std::vector<IStructureResource *> &GetAll() const;
+        [[nodiscard]] std::vector<IStructureResource*> GetAll();
 
         [[nodiscard]] std::vector<std::string> GetStructureIDList() const;
 

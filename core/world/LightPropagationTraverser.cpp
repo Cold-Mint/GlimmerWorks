@@ -45,8 +45,8 @@ void glimmer::LightPropagationTraverser::PropagateSingleRayImpl(const int rayInd
     for (int step = 0; step < maxRadius_; ++step) {
         currentX += dirX;
         currentY += dirY;
-        const int nextX = static_cast<int>(std::round(currentX));
-        const int nextY = static_cast<int>(std::round(currentY));
+        const auto nextX = static_cast<int>(std::round(currentX));
+        const auto nextY = static_cast<int>(std::round(currentY));
         const auto nextTile = TileVector2D{nextX, nextY};
         const int dx = nextTile.x - center_.x;
         const int dy = nextTile.y - center_.y;

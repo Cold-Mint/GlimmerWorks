@@ -32,25 +32,28 @@
 
 #include "core/mod/Resource.h"
 
-namespace glimmer {
-    class MobManager {
+namespace glimmer
+{
+    class MobManager
+    {
         std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<MobResource>,
-            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>> mobMap_
-                {};
+                                                           TransparentStringHash, std::equal_to<>>,
+                           TransparentStringHash, std::equal_to<>> mobMap_
+            {};
 
-        std::vector<MobResource *> playerMobsResource_;
+        std::vector<MobResource*> playerMobsResource_;
 
     public:
-        MobResource *Register(std::unique_ptr<MobResource> mobResource);
+        MobResource* Register(std::unique_ptr<MobResource> mobResource);
 
-        [[nodiscard]] MobResource *FindMobResource(std::string_view packId, std::string_view key);
+        [[nodiscard]] MobResource* FindMobResource(std::string_view packId, std::string_view key);
 
         /**
          * FindPlayerResource
          * 获取玩家资源列表
          * @return
          */
-        [[nodiscard]] const std::vector<MobResource *> &GetPlayerResourceList() const;
+        [[nodiscard]] std::span<const MobResource* const> GetPlayerResourceList() const;
 
         [[nodiscard]] std::vector<std::string> GetMobList() const;
 

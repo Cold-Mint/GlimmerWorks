@@ -38,38 +38,23 @@ glimmer::TraverseAction glimmer::LightBuffer::ClearLightStepCallback(const Light
                                                                      const TileLayerType layerType,
                                                                      const int rayIndex) {
     if (centerOfCircle) {
-        //Clangd: In template: invalid operands to binary expression ('const const glimmer::TileVector2D' and 'const const glimmer::TileVector2D')
-        auto currentTileLightIterator = tileLightData_.find(
-            current);
-        if (currentTileLightIterator != tileLightData_.end()) {
-            const std::unique_ptr<TileLightData> &
-                    currentTileLight =
-                    currentTileLightIterator->second;
-            if (currentTileLight != nullptr) {
-                TileLightData *currentTileLightPtr =
-                        currentTileLight.get();
-                if (currentTileLightPtr != nullptr) {
-                    currentTileLightPtr->ClearLightContribution(
-                        layerType, lightSourcePtr, rayIndex);
-                }
-            }
-        }
+        ClearLightContributionAt(current, layerType, lightSourcePtr, rayIndex);
     }
-    auto nextTileLightIterator = tileLightData_.find(next);
-    if (nextTileLightIterator != tileLightData_.end()) {
-        const std::unique_ptr<TileLightData> &
-                nextTileLight =
-                nextTileLightIterator->second;
-        if (nextTileLight != nullptr) {
-            TileLightData *nextTileLightPtr =
-                    nextTileLight.get();
-            if (nextTileLightPtr != nullptr) {
-                nextTileLightPtr->ClearLightContribution(
-                    layerType, lightSourcePtr, rayIndex);
-            }
-        }
-    }
+    ClearLightContributionAt(next, layerType, lightSourcePtr, rayIndex);
     return TraverseAction::Continue;
+}
+
+void glimmer::LightBuffer::ClearLightContributionAt(const TileVector2D& pos, TileLayerType layerType,
+                                                    const LightSource* lightSourcePtr, int rayIndex) {
+    auto tileLightIterator = tileLightData_.find(pos);
+    if (tileLightIterator == tileLightData_.end()) {
+        return;
+    }
+    const auto& tileLight = tileLightIterator->second;
+    if (!tileLight) {
+        return;
+    }
+    tileLight->ClearLightContribution(layerType, lightSourcePtr, rayIndex);
 }
 
 glimmer::TraverseAction glimmer::LightBuffer::SetLightStepCallback(const LightSource *lightSourcePtr,

@@ -32,8 +32,7 @@
 #include "core/world/generator/TileLayerType.h"
 #include "core/world/generator/TilePhysicsType.h"
 
-static uint64_t airResourceRefFingerprint_ = 0;
-static uint64_t airWallResourceRefFingerprint_ = 0;
+
 
 glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const CoreTileResourceParams& params) {
     auto tileResource = std::make_unique<TileResource>();
@@ -216,7 +215,7 @@ glimmer::TileResource *glimmer::TileResourceManager::FindTileFallback(std::strin
     if (TileResource *result = FindTileRaw(packId, key); result != nullptr) {
         return result;
     }
-    return AddErrorPlaceHolder(std::string(packId), std::string(key), tileLayer);
+    return AddErrorPlaceHolder(packId, key, tileLayer);
 }
 
 std::vector<std::string> glimmer::TileResourceManager::GetTileIDList() const {

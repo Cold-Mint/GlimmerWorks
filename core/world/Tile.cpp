@@ -29,8 +29,6 @@
 #include <optional>
 
 #include "TileAnchorType.h"
-
-using enum glimmer::TileAnchorType;
 #include "WorldContext.h"
 #include "core/scene/AppContext.h"
 #include "core/mod/ResourceLocator.h"
@@ -40,6 +38,8 @@ using enum glimmer::TileAnchorType;
 #include "core/mod/resourcePack/AudioResourceResult.h"
 #include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
+
+using enum glimmer::TileAnchorType;
 
 
 const glimmer::ResourceRef* glimmer::Tile::GetSideLightMaskResource() const

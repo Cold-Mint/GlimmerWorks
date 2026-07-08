@@ -31,6 +31,7 @@
 #include "Chunk.h"
 #include "TerrainResult.h"
 #include "core/math/Vector2DIHash.h"
+#include "core/world/TerrainManager.h"
 
 namespace glimmer
 {
@@ -119,9 +120,17 @@ namespace glimmer
                                          TerrainResult* terrainResult,
                                          std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap);
 
+        static void PopulateSingleTilePosition(
+            Chunk* chunk, const ResourceLocator* resourceLocator,
+            const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
+            int topLeftIndex);
+
         static void PopulateChunkTiles(Chunk* chunk,
                                        const ResourceLocator* resourceLocator,
                                        const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap);
+
+        void PlaceStructureTiles(TerrainManager* terrainManager, const StructureInfo& structureInfo,
+                                 const TileVector2D& globalOrigin) const;
 
     public:
         explicit ChunkGenerator(WorldContext* worldContext, int worldSeed);

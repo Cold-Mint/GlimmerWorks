@@ -67,6 +67,9 @@ namespace glimmer
         TileResource* air_ = nullptr;
         TileResource* airWall_ = nullptr;
 
+        inline static uint64_t airResourceRefFingerprint_ = 0;
+        inline static uint64_t airWallResourceRefFingerprint_ = 0;
+
         TileResource* AddCoreResource(const CoreTileResourceParams& params);
 
         static ResourceRef CreateCoreRef(const std::string& key, ResourceTypeMessage type);

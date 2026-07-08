@@ -193,24 +193,23 @@ std::vector<ItemMessage> glimmer::LootResource::GetLootItems(const LootResource*
             auto rollsRandomValue = RandomUtils::Random<uint32_t>(0, totalWeight - 1);
             if (rollsRandomValue <= lootResource->empty_weight)
             {
-                //This roll doesn't lose anything.
-                //本次 roll 什么都不掉
                 continue;
             }
             uint32_t currentWeight = 0;
             for (auto& pool : lootResource->pool)
             {
                 currentWeight += pool.weight;
-                if (rollsRandomValue <= currentWeight)
+                if (rollsRandomValue > currentWeight)
                 {
-                    ItemMessage itemMessage;
-                    const auto randomValue = RandomUtils::Random<uint32_t>(pool.min, pool.max);
-                    itemMessage.set_amount(randomValue);
-                    ResourceRefMessage& resourceRefMessage = *itemMessage.mutable_itemresourceref();
-                    pool.item.WriteResourceRefMessage(resourceRefMessage);
-                    itemMessageList.push_back(itemMessage);
-                    break;
+                    continue;
                 }
+                ItemMessage itemMessage;
+                const auto randomValue = RandomUtils::Random<uint32_t>(pool.min, pool.max);
+                itemMessage.set_amount(randomValue);
+                ResourceRefMessage& resourceRefMessage = *itemMessage.mutable_itemresourceref();
+                pool.item.WriteResourceRefMessage(resourceRefMessage);
+                itemMessageList.push_back(itemMessage);
+                break;
             }
         }
     }

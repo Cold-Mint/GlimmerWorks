@@ -44,8 +44,8 @@ namespace glimmer
     {
         toml::value* configValue_;
 
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+
         void UpdateSetSuggestions(const CommandArgs* commandArgs);
 
     public:

@@ -30,9 +30,8 @@
 
 namespace glimmer
 {
-    class TechnologyCommand : public Command
+    class TechnologyCommand final : public Command
     {
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:

@@ -39,7 +39,6 @@ namespace glimmer
     {
         std::map<std::string, std::unique_ptr<IAssetEnumerator>, std::less<>> assetEnumerators_;
 
-    private:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
         void AddAssetEnumerator(std::unique_ptr<IAssetEnumerator> assetEnumeratorPtr);

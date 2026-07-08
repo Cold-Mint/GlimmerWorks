@@ -230,7 +230,8 @@ bool glimmer::App::InitFont() const
     {
         LogCat::e("Failed to load font (ImGui error): ", fontPath);
     }
-    if (TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16); sdlFont == nullptr)
+    TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16);
+    if (sdlFont == nullptr)
     {
         LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
     }

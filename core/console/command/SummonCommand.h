@@ -29,9 +29,8 @@
 
 namespace glimmer
 {
-    class SummonCommand : public Command
+    class SummonCommand final : public Command
     {
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:

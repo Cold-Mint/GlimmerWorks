@@ -32,7 +32,7 @@ namespace glimmer
 {
     struct LangsResources;
 
-    class TileSnapshotCommand : public Command
+    class TileSnapshotCommand final : public Command
     {
         static bool ExecuteInspector(const AppContext* appContext,
                                      const std::function<void(const std::string& text)>& onMessageRef,
@@ -42,7 +42,6 @@ namespace glimmer
                                 const std::function<void(const std::string& text)>& onMessageRef,
                                 const LangsResources* langsResources, const WorldContext* worldContext);
 
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:

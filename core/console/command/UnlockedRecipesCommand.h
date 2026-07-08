@@ -35,7 +35,7 @@ namespace glimmer
 {
     struct RecipeResource;
 
-    class UnlockedRecipesCommand : public Command
+    class UnlockedRecipesCommand final : public Command
     {
     public:
         explicit UnlockedRecipesCommand(AppContext* appContext);

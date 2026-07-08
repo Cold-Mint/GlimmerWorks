@@ -42,7 +42,6 @@ namespace glimmer
                                                          BiomesManager* biomesManager,
                                                          const LangsResources* langsResources);
 
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:

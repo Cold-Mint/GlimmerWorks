@@ -36,12 +36,10 @@ namespace glimmer
     class Item;
     class ItemContainerComponent;
 
-    class GiveCommand : public Command
+    class GiveCommand final : public Command
     {
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
-    private:
         static void TrySetItemAmount(const CommandArgs* commandArgs, Item* item);
 
         template <typename Callback>

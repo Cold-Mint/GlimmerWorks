@@ -32,25 +32,24 @@
 
 namespace glimmer
 {
-    class LocateCommand : public Command
+    class LocateCommand final : public Command
     {
-    public:
-        explicit LocateCommand(AppContext* appContext);
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
         static std::optional<TileVector2D> SearchBiomes(int tileX, const BiomesManager* biomesManager,
                                                         ChunkGenerator* chunkGenerator,
                                                         const std::string& targetBiomeId);
 
-        static std::optional<TileVector2D> SearchBiomeInRadius(TileVector2D position,
+        static std::optional<TileVector2D> SearchBiomeInRadius(const TileVector2D& position,
                                                                const BiomesManager* biomesManager,
                                                                ChunkGenerator* chunkGenerator,
                                                                const std::string& targetBiomeId,
                                                                uint16_t maxRadiusChunks);
 
-    protected:
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
-
     public:
+        explicit LocateCommand(AppContext* appContext);
+
+
         [[nodiscard]] const std::string& GetName() const override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;

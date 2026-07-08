@@ -30,15 +30,13 @@
 
 namespace glimmer
 {
-    class ParallaxBackgroundCommand : public Command
+    class ParallaxBackgroundCommand final : public Command
     {
-    public:
-        explicit ParallaxBackgroundCommand(AppContext* appContext);
-
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
+        explicit ParallaxBackgroundCommand(AppContext* appContext);
+
         [[nodiscard]] const std::string& GetName() const override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;

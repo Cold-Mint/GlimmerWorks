@@ -29,9 +29,8 @@
 
 namespace glimmer
 {
-    class SeedCommand : public Command
+    class SeedCommand final : public Command
     {
-
     public:
         explicit SeedCommand(AppContext* appContext);
 

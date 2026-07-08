@@ -37,7 +37,7 @@ namespace glimmer
      * Echo [Text Content]
      * 格式为：Echo [文本内容]
      */
-    class EchoCommand : public Command
+    class EchoCommand final : public Command
     {
     public:
         explicit EchoCommand(AppContext* appContext);

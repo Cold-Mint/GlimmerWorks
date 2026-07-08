@@ -60,13 +60,11 @@ namespace glimmer
                          MessageCallback&& onMessageRef, size_t size,
                          CommandHookManager* commandHookManager, const LangsResources* langsResources);
 
-    public:
-        explicit HookCommand(AppContext* appContext);
-
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
+        explicit HookCommand(AppContext* appContext);
+
         [[nodiscard]] const std::string& GetName() const override;
 
         void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;

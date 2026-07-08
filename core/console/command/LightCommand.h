@@ -36,7 +36,7 @@ namespace glimmer
     class TileVector2D;
     struct LangsResources;
 
-    class LightCommand : public Command
+    class LightCommand final : public Command
     {
         static bool ExecuteInspector(AppContext* appContext,
                                      const std::function<void(const std::string& text)>& onMessageRef,
@@ -57,16 +57,14 @@ namespace glimmer
                                                 const LangsResources* langsResources);
 
         static void AppendMaskList(std::stringstream& stream,
-                           const std::unordered_map<TileLayerType, std::unique_ptr<LightMask>>* masks,
-                           bool isSide, const LangsResources* langsResources);
+                                   const std::unordered_map<TileLayerType, std::unique_ptr<LightMask>>* masks,
+                                   bool isSide, const LangsResources* langsResources);
+
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
         explicit LightCommand(AppContext* appContext);
 
-    protected:
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
-
-    public:
         [[nodiscard]] bool RequiresWorldContext() const override;
 
         [[nodiscard]] const std::string& GetName() const override;

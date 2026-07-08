@@ -29,7 +29,7 @@
 
 namespace glimmer
 {
-    class LicenseCommand : public Command
+    class LicenseCommand final : public Command
     {
     public:
         explicit LicenseCommand(AppContext* appContext);

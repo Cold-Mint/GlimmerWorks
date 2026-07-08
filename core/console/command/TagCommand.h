@@ -34,23 +34,23 @@ namespace glimmer
     class StringManager;
     struct LangsResources;
 
-    class TagCommand : public Command
+    class TagCommand final : public Command
     {
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
+    protected:
         static void WriteTag(const std::string& tagItem, std::stringstream& stringStream, StringManager* stringManager,
                              const ItemTagResource& itemTagResource);
 
         static std::string BuildTagListString(const std::string& tagItem, StringManager* stringManager,
                                               const std::vector<const ItemTagResource*>& tagList);
 
-        template<typename MessageCallback>
+        template <typename MessageCallback>
         static bool ExecuteHand(const CommandSender* commandSender, const WorldContext* worldContext,
                                 MessageCallback&& onMessageRef,
                                 const AppContext* appContext, const LangsResources* langsResources);
 
-        template<typename MessageCallback>
+        template <typename MessageCallback>
         static bool ExecuteInventory(const CommandSender* commandSender, const WorldContext* worldContext,
                                      MessageCallback&& onMessageRef,
                                      const AppContext* appContext, const LangsResources* langsResources);

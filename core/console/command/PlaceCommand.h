@@ -33,8 +33,10 @@ namespace glimmer
     enum TileLayerType : uint8_t;
     class Chunk;
 
-    class PlaceCommand : public Command
+    class PlaceCommand final : public Command
     {
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+
         static void PlaceTileAt(Chunk* chunk, TileLayerType tileLayerType, int index,
                                 const ResourceRef& resourceRef, const TileResource* tileResource, int x, int y);
 
@@ -43,9 +45,6 @@ namespace glimmer
 
         static bool ExecuteStructure(const CommandArgs* commandArgs, const CommandSender* commandSender,
                                      WorldContext* worldContext);
-
-    protected:
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
         explicit PlaceCommand(AppContext* appContext);

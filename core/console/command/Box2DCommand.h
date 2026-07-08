@@ -32,7 +32,7 @@ namespace glimmer
 {
     class Box2DCommand final : public Command
     {
-    protected:
+
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:

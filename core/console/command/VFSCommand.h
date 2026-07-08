@@ -32,7 +32,6 @@ namespace glimmer
 {
     class VFSCommand final : public Command
     {
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:

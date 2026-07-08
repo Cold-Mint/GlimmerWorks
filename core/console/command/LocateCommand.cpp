@@ -69,11 +69,11 @@ std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomes(int ti
     return std::nullopt;
 }
 
-std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomeInRadius(TileVector2D position,
+std::optional<glimmer::TileVector2D> glimmer::LocateCommand::SearchBiomeInRadius(const TileVector2D& position,
                                                                                  const BiomesManager* biomesManager,
                                                                                  ChunkGenerator* chunkGenerator,
                                                                                  const std::string& targetBiomeId,
-                                                                                 uint16_t maxRadiusChunks)
+                                                                                 const uint16_t maxRadiusChunks)
 {
     auto target = SearchBiomes(position.x, biomesManager, chunkGenerator, targetBiomeId);
     if (target.has_value())

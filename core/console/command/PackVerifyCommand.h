@@ -29,9 +29,8 @@
 
 namespace glimmer
 {
-    class PackVerifyCommand : public Command
+    class PackVerifyCommand final : public Command
     {
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:

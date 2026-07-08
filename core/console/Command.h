@@ -47,14 +47,15 @@ namespace glimmer
          */
         NodeTree<std::string> suggestionsTree_ = NodeTree<std::string>();
 
-    protected:
-        [[nodiscard]] NodeTree<std::string>& GetPrivateSuggestionsTree();
         /**
         * Initialize the suggestion tree
         * 初始化建议树
         * @param suggestionsTree
         */
         virtual void InitSuggestions(NodeTree<std::string>* suggestionsTree);
+
+    protected:
+        [[nodiscard]] NodeTree<std::string>& GetPrivateSuggestionsTree();
 
         [[nodiscard]] WorldContext* GetWorldContext() const;
 

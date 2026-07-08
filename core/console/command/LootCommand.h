@@ -29,9 +29,8 @@
 
 namespace glimmer
 {
-    class LootCommand : public Command
+    class LootCommand final : public Command
     {
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:

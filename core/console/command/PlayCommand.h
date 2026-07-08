@@ -30,17 +30,19 @@
 
 namespace glimmer
 {
-    class PlayCommand : public Command
+    class PlayCommand final : public Command
     {
         AudioManager* audioManager_ = nullptr;
 
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:
         explicit PlayCommand(AppContext* appContext);
+
         [[nodiscard]] const std::string& GetName() const override;
+
         void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
+
         bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                      const std::function<void(const std::string& text)>* onMessage) override;
     };

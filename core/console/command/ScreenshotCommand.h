@@ -29,9 +29,8 @@
 
 namespace glimmer
 {
-    class ScreenshotCommand : public Command
+    class ScreenshotCommand final : public Command
     {
-    protected:
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
     public:

@@ -26,11 +26,11 @@
  */
 #pragma once
 #include "core/console/Command.h"
+#include "core/world/generator/TileLayerType.h"
 
 namespace glimmer
 {
     struct TileResource;
-    enum TileLayerType : uint8_t;
     class Chunk;
 
     class PlaceCommand final : public Command

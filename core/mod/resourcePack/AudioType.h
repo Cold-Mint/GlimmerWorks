@@ -27,12 +27,14 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
+namespace glimmer
+{
     /**
      * AudioType
      * 音效类型
      */
-    enum AudioType : uint8_t {
+    enum class AudioType : uint8_t
+    {
         BGM = 0,
         AMBIENT = 1
     };

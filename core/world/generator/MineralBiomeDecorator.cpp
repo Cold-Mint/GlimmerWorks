@@ -61,7 +61,7 @@ void glimmer::MineralBiomeDecorator::DecorationImp(WorldContext* worldContext, T
                 continue;
             }
             const TerrainTileResult& self = terrainResult->QueryTerrain(localX, localY);
-            if (self.terrainType != SOLID || self.biomeResource != biomeResource)
+            if (self.terrainType != TerrainResultType::SOLID || self.biomeResource != biomeResource)
             {
                 continue;
             }

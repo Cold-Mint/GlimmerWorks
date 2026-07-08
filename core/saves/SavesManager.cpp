@@ -91,7 +91,7 @@ bool glimmer::SavesManager::DeleteSave(const size_t index)
 
 glimmer::Saves* glimmer::SavesManager::Create(const std::filesystem::path& runtimePath, MapManifest& manifest)
 {
-    std::string path = runtimePath / "saves" / StringUtils::ToSafeSaveName(manifest.name);
+    std::filesystem::path path = runtimePath / "saves" / StringUtils::ToSafeSaveName(manifest.name);
     if (!virtualFileSystem_->Exists(path))
     {
         bool createFolder = virtualFileSystem_->CreateFolder(path);

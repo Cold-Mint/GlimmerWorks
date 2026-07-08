@@ -76,8 +76,8 @@ const char* glimmer::AudioManager::AudioTypeToTag(const AudioType type)
 {
     switch (type)
     {
-    case BGM: return "BGM";
-    case AMBIENT: return "AMBIENT";
+    case AudioType::BGM: return "BGM";
+    case AudioType::AMBIENT: return "AMBIENT";
     default: return "UNKNOWN";
     }
 }

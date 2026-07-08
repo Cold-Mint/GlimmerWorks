@@ -109,7 +109,7 @@ void glimmer::BiomeBGMSystem::Update(float delta)
         MIX_Audio* audio = audioResult_->GetResource();
         if (audio != nullptr)
         {
-            audioManager_->ForcePlayReplace(BGM, audio, -1);
+            audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
         }
     }
 

@@ -88,7 +88,7 @@ int glimmer::ChunkGenerator::GetFirstTileTerrainY(int x)
     {
         return it->second;
     }
-    const float sampleX = static_cast<float>(x);
+    const auto sampleX = static_cast<float>(x);
     const float continentNoise = (continentHeightMapNoise_->GetNoise(sampleX, 0.0F) + 1.0F) * 0.5F;
     int height = GROUND_START_HEIGHT + CONTINENT_MAX_HEIGHT * continentNoise;
     // 缓存并返回高度
@@ -293,14 +293,14 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) co
                         Generate(worldContext_, globalOrigin, structureResource);
 
                     if (structureInfoOptional.has_value())
-                        {
-                            PlaceStructureTiles(terrainManager, structureInfoOptional.value(), globalOrigin);
-                        }
-                        else
-                        {
-                            LogCat::w("StructurePlacement", "Failed to generate structure at global origin - x: ",
-                                      globalOrigin.x, ", y: ", globalOrigin.y);
-                        }
+                    {
+                        PlaceStructureTiles(terrainManager, structureInfoOptional.value(), globalOrigin);
+                    }
+                    else
+                    {
+                        LogCat::w("StructurePlacement", "Failed to generate structure at global origin - x: ",
+                                  globalOrigin.x, ", y: ", globalOrigin.y);
+                    }
                     markedCount++;
                     LogCat::d("StructurePlacement", "Finish processing candidate point - Index: ", i,
                               ", Total marked points so far: ", markedCount);
@@ -367,7 +367,7 @@ TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector
         elevation, surfaceProximity);
     if (world.y <= WORLD_MIN_Y || world.x == WORLD_MAX_X || world.x == WORLD_MIN_X)
     {
-        terrainTileResult.terrainType = BEDROCK;
+        terrainTileResult.terrainType = TerrainResultType::BEDROCK;
         return terrainTileResult;
     }
     if (world.y > firstTileTerrainY)
@@ -376,16 +376,16 @@ TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector
         {
             //water
             //水
-            terrainTileResult.terrainType = WATER;
+            terrainTileResult.terrainType = TerrainResultType::WATER;
             return terrainTileResult;
         }
         //sky
         //天空
-        terrainTileResult.terrainType = AIR;
+        terrainTileResult.terrainType = TerrainResultType::AIR;
         return terrainTileResult;
     }
     terrainTileResult.world = world;
-    terrainTileResult.terrainType = SOLID;
+    terrainTileResult.terrainType = TerrainResultType::SOLID;
     return terrainTileResult;
 }
 
@@ -480,7 +480,7 @@ void glimmer::ChunkGenerator::InitializeTileRefs(const TerrainResult* terrainRes
         {
             const int idx = localY * CHUNK_SIZE + localX;
             const auto& terrainTileResult = terrainResult->QueryTerrain(localX, localY);
-            tilesRefMap[BackGround][idx] = TileResourceManager::GetAirResourceRef(BackGround);
+            tilesRefMap[TileLayerType::BackGround][idx] = TileResourceManager::GetAirResourceRef(TileLayerType::BackGround);
             SetTileRefForTerrainType(idx, terrainTileResult, tilesRefMap, biomeResourcesSet, waterTileRef,
                                      bedrockTileRef);
         }
@@ -497,20 +497,20 @@ void glimmer::ChunkGenerator::SetTileRefForTerrainType(int idx, const TerrainTil
 {
     switch (terrainTileResult.terrainType)
     {
-    case AIR:
-        tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
+    case TerrainResultType::AIR:
+        tilesRefMap[TileLayerType::Ground][idx] = TileResourceManager::GetAirResourceRef(TileLayerType::Ground);
         break;
-    case WATER:
-        tilesRefMap[Ground][idx] = waterTileRef;
+    case TerrainResultType::WATER:
+        tilesRefMap[TileLayerType::Ground][idx] = waterTileRef;
         break;
-    case BEDROCK:
-        tilesRefMap[Ground][idx] = bedrockTileRef;
+    case TerrainResultType::BEDROCK:
+        tilesRefMap[TileLayerType::Ground][idx] = bedrockTileRef;
         break;
-    case STRUCTURE:
-        tilesRefMap[Ground][idx] = terrainTileResult.resRef;
+    case TerrainResultType::STRUCTURE:
+        tilesRefMap[TileLayerType::Ground][idx] = terrainTileResult.resRef;
         break;
-    case SOLID:
-        tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
+    case TerrainResultType::SOLID:
+        tilesRefMap[TileLayerType::Ground][idx] = TileResourceManager::GetAirResourceRef(TileLayerType::Ground);
         if (terrainTileResult.biomeResource != nullptr)
         {
             biomeResourcesSet.insert(terrainTileResult.biomeResource);
@@ -641,8 +641,8 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
         return nullptr;
     }
     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>> tilesRefMap = {
-        {Ground, {}},
-        {BackGround, {}}
+        {TileLayerType::Ground, {}},
+        {TileLayerType::BackGround, {}}
     };
     std::unordered_set<BiomeResource*> biomeResourcesSet;
 

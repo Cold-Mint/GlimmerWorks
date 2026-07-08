@@ -41,8 +41,8 @@
 void glimmer::TomlTemplateExpander::Register(std::unique_ptr<ITemplateCommand> command)
 {
     if (command == nullptr)
-        return;
     {
+        return;
     }
     commandMap_[command->GetCommandName()] = std::move(command);
 }

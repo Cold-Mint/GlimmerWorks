@@ -72,7 +72,7 @@ const TerrainTileResult &glimmer::TerrainResult::QueryTerrain(const int x, const
 void glimmer::TerrainResult::SetTerrainTileStructure(int tileIndex, const ResourceRef *structureResource) {
     if (tileIndex >= 0 && tileIndex < CHUNK_AREA) {
         TerrainTileResult &terrainTileResult = terrainTileResult_[tileIndex];
-        terrainTileResult.terrainType = STRUCTURE;
+        terrainTileResult.terrainType = TerrainResultType::STRUCTURE;
         terrainTileResult.resRef = *structureResource;
     }
 }

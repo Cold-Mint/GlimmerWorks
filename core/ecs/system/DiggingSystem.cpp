@@ -225,7 +225,7 @@ void glimmer::DiggingSystem::ProcessSingleTile(const TileBreakParams& params,
         auto breakSFX = currentTile->GetBreakSFX();
         if (breakSFX != nullptr)
         {
-            appContext->GetAudioManager()->TryPlayFree(AMBIENT, breakSFX, 0);
+            appContext->GetAudioManager()->TryPlayFree(AudioType::AMBIENT, breakSFX, 0);
         }
     }
     if (!isCenter && !currentTile->LootScaleBySize())

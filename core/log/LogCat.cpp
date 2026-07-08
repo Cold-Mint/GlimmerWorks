@@ -25,34 +25,3 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "LogCat.h"
-
-#include <iomanip>
-#include <thread>
-#include <array>
-
-std::string glimmer::LogCat::CurrentTime()
-{
-    using namespace std::chrono;
-    const auto now = system_clock::now();
-    std::time_t t = system_clock::to_time_t(now);
-    std::tm localTime{};
-#ifdef _WIN32
-    localtime_s(&localTime, &t);
-#else
-    localtime_r(&t, &localTime);
-#endif
-
-    std::array<char, 32> buffer{};
-    (void)std::strftime(buffer.data(), buffer.size(), "%Y-%m-%d %H:%M:%S", &localTime);
-    const auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
-    std::ostringstream oss;
-    oss << buffer.data() << '.' << std::setfill('0') << std::setw(3) << ms.count();
-    return oss.str();
-}
-
-std::string glimmer::LogCat::ThreadTag()
-{
-    std::ostringstream oss;
-    oss << std::this_thread::get_id() << "| ";
-    return oss.str();
-}

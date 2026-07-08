@@ -227,7 +227,7 @@ namespace glimmer
     };
 
 
-    enum VariableDefinitionType
+    enum class VariableDefinitionType : uint8_t
     {
         INT,
         FLOAT,
@@ -237,25 +237,36 @@ namespace glimmer
     };
 
     //@content(2)
-    // template<>
-    // struct from<glimmer::VariableDefinition> {
-    //     static glimmer::VariableDefinition from_toml(const value &v) {
+    // template <>
+    // struct from<glimmer::VariableDefinition>
+    // {
+    //     static glimmer::VariableDefinition from_toml(const value& v)
+    //     {
     //         glimmer::VariableDefinition r;
     //         r.key = toml::find<std::string>(v, "key");
-    //         r.type = glimmer::VariableDefinition::ResolveVariableType(
+    //         auto type = glimmer::VariableDefinition::ResolveVariableType(
     //             toml::find<std::string>(v, "type"));
-    //         if (r.type == glimmer::VariableDefinitionType::INT) {
+    //         if (type == glimmer::VariableDefinitionType::INT)
+    //         {
     //             r.value = std::to_string(toml::find<int>(v, "value"));
-    //         } else if (r.type == glimmer::VariableDefinitionType::FLOAT) {
+    //         }
+    //         else if (type == glimmer::VariableDefinitionType::FLOAT)
+    //         {
     //             r.value = std::to_string(toml::find<float>(v, "value"));
-    //         } else if (r.type == glimmer::VariableDefinitionType::BOOL) {
+    //         }
+    //         else if (type == glimmer::VariableDefinitionType::BOOL)
+    //         {
     //             r.value = std::to_string(toml::find<bool>(v, "value"));
-    //         } else if (r.type == glimmer::VariableDefinitionType::REF) {
+    //         }
+    //         else if (type == glimmer::VariableDefinitionType::REF)
+    //         {
     //             auto resourceRef = toml::find<glimmer::ResourceRef>(v, "value");
     //             ResourceRefMessage refMessage;
     //             resourceRef.WriteResourceRefMessage(refMessage);
     //             r.value = refMessage.SerializeAsString();
-    //         } else {
+    //         }
+    //         else
+    //         {
     //             r.value = toml::find<std::string>(v, "value");
     //         }
     //         return r;
@@ -269,12 +280,12 @@ namespace glimmer
         uint8_t type = 3;
         std::string value;
         inline static const std::unordered_map<std::string, VariableDefinitionType,
-            TransparentStringHash, std::equal_to<>> variableDefinitionTypeMap_{
-            {"int", INT},
-            {"float", FLOAT},
-            {"bool", BOOL},
-            {"string", STRING},
-            {"ref", REF}
+                                               TransparentStringHash, std::equal_to<>> variableDefinitionTypeMap_{
+            {"int", VariableDefinitionType::INT},
+            {"float", VariableDefinitionType::FLOAT},
+            {"bool", VariableDefinitionType::BOOL},
+            {"string", VariableDefinitionType::STRING},
+            {"ref", VariableDefinitionType::REF}
         };
 
 
@@ -400,7 +411,9 @@ namespace glimmer
             this->miningRange += other.miningRange;
             this->chainMiningRadius += other.chainMiningRadius;
             this->miningEfficiency += other.miningEfficiency;
-            this->mineAbleLayer = this->mineAbleLayer | other.mineAbleLayer;
+            this->mineAbleLayer = static_cast<uint8_t>(
+                static_cast<std::byte>(this->mineAbleLayer) | static_cast<std::byte>(other.mineAbleLayer)
+            );
             return *this;
         }
     };
@@ -688,6 +701,10 @@ namespace glimmer
          */
         //@genNextLine(pool|战利品池列表)
         std::vector<LootEntry> pool = {};
+
+
+        static void TryRollSingleLoot(uint32_t totalWeight, const LootResource* lootResource,
+                                      std::vector<ItemMessage>& itemMessageList);
 
         static std::vector<ItemMessage> GetLootItems(const LootResource* lootResource);
     };

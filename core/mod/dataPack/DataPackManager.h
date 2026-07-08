@@ -60,7 +60,7 @@ namespace glimmer
                                       const std::vector<std::string>& enabledDataPack);
 
         static bool CheckDependencyVersion(const std::vector<PackDependence>& dependencies,
-                                           const std::string& packId, uint32_t version);
+                                           std::string_view packId, uint32_t version);
 
     public:
         explicit DataPackManager(VirtualFileSystem* virtualFilesystem, TomlTemplateExpander* tomlTemplateExpander);

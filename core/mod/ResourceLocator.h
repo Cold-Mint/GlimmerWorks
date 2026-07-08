@@ -34,7 +34,7 @@
 namespace glimmer
 {
     class WorldContext;
-    enum TileLayerType : uint8_t;
+    enum class TileLayerType : uint8_t;
     class AppContext;
     class Item;
     class TileInstancePool;

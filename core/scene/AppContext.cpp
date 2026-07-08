@@ -574,7 +574,7 @@ void glimmer::AppContext::PlayMainMenuBGM() const
     {
         return;
     }
-    audioManager_->ForcePlayReplace(BGM, audio, -1);
+    audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
 }
 
 const toml::spec& glimmer::AppContext::GetTomlVersion() const
@@ -643,15 +643,12 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
         return;
     }
     const std::filesystem::path screenshotsFolder = std::filesystem::path(config_->runtimePath) / "screenshots";
-    if (!virtualFileSystem_->Exists(screenshotsFolder))
+    if (!virtualFileSystem_->Exists(screenshotsFolder) && !virtualFileSystem_->CreateFolder(screenshotsFolder))
     {
-        if (!virtualFileSystem_->CreateFolder(screenshotsFolder))
-        {
-            onMessageRef(fmt::format(
-                fmt::runtime(GetLangsResources()->screenshotSavedFailed),
-                "CreateFolder failed"));
-            return;
-        }
+        onMessageRef(fmt::format(
+            fmt::runtime(GetLangsResources()->screenshotSavedFailed),
+            "CreateFolder failed"));
+        return;
     }
     const auto actualPath = virtualFileSystem_->GetActualPath(
         screenshotsFolder / GetTimeFileName());

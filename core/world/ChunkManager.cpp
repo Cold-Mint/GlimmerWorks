@@ -52,7 +52,7 @@ glimmer::ChunkManager::ChunkManager(WorldContext* worldContext) : worldContext_(
 void glimmer::ChunkManager::OnChunkTileChange(Chunk* chunk, [[maybe_unused]] const std::shared_ptr<Tile>& tile,
                                               TileLayerType layerType, int index) const
 {
-    if (layerType == Ground)
+    if (layerType == TileLayerType::Ground)
     {
         ChunkPhysicsHelper::UpdatePhysicsBodyToChunk(worldContext_, chunk);
     }

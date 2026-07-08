@@ -77,7 +77,7 @@ bool glimmer::BlueprintSystem::CheckSinglePointValidity(const Tile* tile, const 
         return false;
     }
 
-    if (tile->GetLayerType() == Ground && IsPointBlocked(point))
+    if (tile->GetLayerType() == TileLayerType::Ground && IsPointBlocked(point))
     {
         return false;
     }

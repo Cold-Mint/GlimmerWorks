@@ -144,7 +144,8 @@ bool glimmer::TileSnapshotCommand::ExecuteInfo(const CommandSender* commandSende
     }
     const auto chunkRelative = Chunk::TileCoordinatesToChunkRelativeCoordinates(tileVector2D);
     std::vector<TileSnapshot*> tileSnapshotVectorPtr = chunk->GetTopVisibleTileSnapshots(
-        Ground | BackGround, chunkRelative.y << CHUNK_SHIFT | chunkRelative.x);
+        std::to_underlying(TileLayerType::Ground) | std::to_underlying(TileLayerType::BackGround),
+        chunkRelative.y << CHUNK_SHIFT | chunkRelative.x);
     auto tileSnapshotSize = tileSnapshotVectorPtr.size();
     if (tileSnapshotSize == 0)
     {

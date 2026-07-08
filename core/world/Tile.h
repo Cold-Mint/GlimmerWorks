@@ -81,7 +81,7 @@ namespace glimmer
          */
         bool canDropLoot_ = true;
         TilePhysicsType physicsType_ = TilePhysicsType::None;
-        TileLayerType layerType_ = Ground;
+        TileLayerType layerType_ = TileLayerType::Ground;
         ResourceRef lightSource_;
         ResourceRef sideLightMask_;
         ResourceRef backLightMask_;

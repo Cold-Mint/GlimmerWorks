@@ -30,7 +30,7 @@
 
 namespace glimmer
 {
-    enum TileLayerType : uint8_t;
+    enum class  TileLayerType : uint8_t;
 
     class TileLayerSystem final : public GameSystem
     {

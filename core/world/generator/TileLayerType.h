@@ -27,8 +27,10 @@
 #pragma once
 #include <cstdint>
 
-namespace glimmer {
-    enum TileLayerType : uint8_t {
+namespace glimmer
+{
+    enum class TileLayerType : uint8_t
+    {
         /**
      * BackGround
      * 背景墙层

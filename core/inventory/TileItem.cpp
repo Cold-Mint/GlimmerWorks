@@ -128,7 +128,7 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
             if (audioManager != nullptr)
             {
                 audioManager->TryPlayFree(
-                    AMBIENT, tile_->GetPlaceSFX(), 0);
+                    AudioType::AMBIENT, tile_->GetPlaceSFX(), 0);
             }
             DiggingSystem::BreakTile({
                 BreakSource::PlayerOverride, worldContext, tileLayer,

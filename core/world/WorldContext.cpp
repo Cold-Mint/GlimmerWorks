@@ -245,12 +245,12 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     entityManager_->AddComponent<PauseComponent>(pause);
     auto groundTileLayerEntity = entityManager_->AddEntity();
     entityManager_->AddComponent<
-        TileLayerComponent>(groundTileLayerEntity, this, Ground);
+        TileLayerComponent>(groundTileLayerEntity, this, TileLayerType::Ground);
     entityShortCut_->SetAreaMarkerComponent(entityManager_->AddComponent<AreaMarkerComponent>(groundTileLayerEntity));
     entityShortCut_->SetBlueprintComponent(entityManager_->AddComponent<BlueprintComponent>(groundTileLayerEntity));
     auto backgroundTileLayerEntity = entityManager_->AddEntity();
     entityManager_->AddComponent<
-        TileLayerComponent>(backgroundTileLayerEntity, this, BackGround);
+        TileLayerComponent>(backgroundTileLayerEntity, this, TileLayerType::BackGround);
     chunkManager_ = std::make_unique<ChunkManager>(this);
     terrainManager_ = std::make_unique<TerrainManager>(this);
     systemScheduler_ = std::make_unique<SystemScheduler>(this);

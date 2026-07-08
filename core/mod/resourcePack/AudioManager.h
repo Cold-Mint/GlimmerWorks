@@ -41,8 +41,8 @@ namespace glimmer {
 
         float masterVolume_ = 1.0F;
         std::unordered_map<AudioType, float> typeVolume_ = {
-            {BGM, 1.0F},
-            {AMBIENT, 1.0F},
+            {AudioType::BGM, 1.0F},
+            {AudioType::AMBIENT, 1.0F},
         };
         MIX_Mixer *mixer_ = nullptr;
 

@@ -129,7 +129,7 @@ void glimmer::ItemToolTipSystem::UpdateMineBlockTexture(const AbilityConfig* abi
                                                         const LangsResources* langsResources,
                                                         std::vector<SDL_Texture*>& textureToDraw)
 {
-    if ((static_cast<std::byte>(abilityConfig->mineAbleLayer) & static_cast<std::byte>(Ground)) == std::byte{})
+    if (abilityConfig->mineAbleLayer & std::to_underlying(TileLayerType::Ground))
     {
         return;
     }
@@ -151,7 +151,7 @@ void glimmer::ItemToolTipSystem::UpdateMineWallTexture(const AbilityConfig* abil
                                                        const LangsResources* langsResources,
                                                        std::vector<SDL_Texture*>& textureToDraw)
 {
-    if ((static_cast<std::byte>(abilityConfig->mineAbleLayer) & static_cast<std::byte>(BackGround)) == std::byte{})
+    if (abilityConfig->mineAbleLayer & std::to_underlying(TileLayerType::BackGround))
     {
         return;
     }

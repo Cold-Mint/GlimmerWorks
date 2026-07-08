@@ -39,8 +39,7 @@ std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppCo
         tileInstanceMap_.erase(cache);
     }
     auto unique_tile = Tile::FromTileResource(appContext, tileResource);
-    auto deleter = [this, fingerprint](Tile *tile) {
-        delete tile;
+    auto deleter = [this, fingerprint](Tile *) {
         tileInstanceMap_.erase(fingerprint);
     };
     std::shared_ptr<Tile> tile(unique_tile.release(), std::move(deleter));

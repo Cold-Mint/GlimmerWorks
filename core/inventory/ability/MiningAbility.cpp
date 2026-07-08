@@ -95,7 +95,7 @@ void glimmer::MiningAbility::OnUse(WorldContext* worldContext, uint32_t user, co
             continue;
         }
         const TileLayerType layerType = tileLayerComponent->GetTileLayerType();
-        if (abilityConfig->mineAbleLayer & layerType)
+        if (abilityConfig->mineAbleLayer & std::to_underlying(layerType))
         {
             const TileVector2D& tileVector2D = tileLayerComponent->GetFocusPosition();
             if ((CoordinateTransformer::TileToWorld(tileVector2D) + WorldVector2D{HALF_TILE_SIZE, HALF_TILE_SIZE}).

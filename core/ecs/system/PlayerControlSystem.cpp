@@ -315,7 +315,7 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
         MIX_Audio* audio = dropItemSFXResult_->GetResource();
         if (audio != nullptr)
         {
-            audioManager_->TryPlayFree(AMBIENT, audio, 0);
+            audioManager_->TryPlayFree(AudioType::AMBIENT, audio, 0);
         }
     }
     const uint32_t droppedEntity = entityManager->AddEntity();

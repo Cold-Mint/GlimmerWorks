@@ -194,7 +194,9 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
                                                                cameraComponent_->GetSize(),
                                                                cameraComponent_->GetZoom());
     std::vector<std::pair<TileVector2D, std::vector<TileSnapshot*>>>* visibleTiles =
-        tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(Ground | BackGround, viewportRect);
+        tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(
+            static_cast<uint8_t>(static_cast<std::byte>(TileLayerType::Ground) | static_cast<std::byte>(TileLayerType::BackGround)),
+            viewportRect);
     if (visibleTiles == nullptr)
     {
         return;

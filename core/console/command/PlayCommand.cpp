@@ -78,10 +78,10 @@ bool glimmer::PlayCommand::Execute(const CommandSender* commandSender, const Com
         return false;
     }
     const std::string audioTrack = commandArgs->AsString(1);
-    AudioType audioType = AMBIENT;
+    AudioType audioType = AudioType::AMBIENT;
     if (audioTrack == AUDIO_TRACK_BGM)
     {
-        audioType = BGM;
+        audioType = AudioType::BGM;
     }
     const auto resourceRef = commandArgs->AsResourceRef(2, RESOURCE_AUDIO);
     if (!resourceRef.has_value())

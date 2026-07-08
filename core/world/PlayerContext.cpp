@@ -249,7 +249,7 @@ void glimmer::PlayerContext::HandleItemBreak(Item* item, const uint32_t playerEn
         MIX_Audio* audio = itemBreakSFXResult_->GetResource();
         if (audio != nullptr)
         {
-            audioManager_->TryPlayFree(AMBIENT, audio, 0);
+            audioManager_->TryPlayFree(AudioType::AMBIENT, audio, 0);
         }
     }
     auto* composableItem = dynamic_cast<ComposableItem*>(item);

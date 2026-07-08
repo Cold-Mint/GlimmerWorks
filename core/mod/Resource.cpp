@@ -49,12 +49,12 @@ glimmer::Color glimmer::FixedColorResource::ToColor() const
 glimmer::VariableDefinitionType glimmer::VariableDefinition::ResolveVariableType(const std::string& typeName)
 {
     const auto it = variableDefinitionTypeMap_.find(typeName);
-    return it == variableDefinitionTypeMap_.end() ? INT : it->second;
+    return it == variableDefinitionTypeMap_.end() ? VariableDefinitionType::INT : it->second;
 }
 
 void glimmer::VariableDefinition::AsResourceRef(ResourceRef& resourceRef) const
 {
-    if (type != REF)
+    if (type != std::to_underlying(VariableDefinitionType::REF))
     {
         return;
     }
@@ -67,7 +67,7 @@ void glimmer::VariableDefinition::AsResourceRef(ResourceRef& resourceRef) const
 
 int glimmer::VariableDefinition::AsInt() const
 {
-    if (type != INT)
+    if (type != std::to_underlying(VariableDefinitionType::INT))
     {
         return 0;
     }
@@ -76,7 +76,7 @@ int glimmer::VariableDefinition::AsInt() const
 
 float glimmer::VariableDefinition::AsFloat() const
 {
-    if (type != FLOAT)
+    if (type != std::to_underlying(VariableDefinitionType::FLOAT))
     {
         return 0.0F;
     }
@@ -85,7 +85,7 @@ float glimmer::VariableDefinition::AsFloat() const
 
 bool glimmer::VariableDefinition::AsBool() const
 {
-    if (type != BOOL)
+    if (type != std::to_underlying(VariableDefinitionType::BOOL))
     {
         return false;
     }
@@ -94,7 +94,7 @@ bool glimmer::VariableDefinition::AsBool() const
 
 std::string glimmer::VariableDefinition::AsString() const
 {
-    if (type != STRING)
+    if (type != std::to_underlying(VariableDefinitionType::STRING))
     {
         return "";
     }
@@ -129,7 +129,7 @@ void glimmer::VariableConfig::UpdateArgs(const std::string& selfPackId)
 {
     for (auto& data : definition)
     {
-        if (data.type == REF)
+        if (data.type == std::to_underlying(VariableDefinitionType::REF))
         {
             ResourceRef resourceRef;
             data.AsResourceRef(resourceRef);
@@ -166,6 +166,32 @@ FastNoiseLite* glimmer::MineralBiomeDecoratorResource::GetFastNoiseLite(const in
     return fastNoiseLite_.get();
 }
 
+void glimmer::LootResource::TryRollSingleLoot(uint32_t totalWeight, const LootResource* lootResource,
+                                              std::vector<ItemMessage>& itemMessageList)
+{
+    auto rollsRandomValue = RandomUtils::Random<uint32_t>(0, totalWeight - 1);
+    if (rollsRandomValue <= lootResource->empty_weight)
+    {
+        return;
+    }
+    uint32_t currentWeight = 0;
+    for (auto& pool : lootResource->pool)
+    {
+        currentWeight += pool.weight;
+        if (rollsRandomValue > currentWeight)
+        {
+            continue;
+        }
+        ItemMessage itemMessage;
+        const auto randomValue = RandomUtils::Random<uint32_t>(pool.min, pool.max);
+        itemMessage.set_amount(randomValue);
+        ResourceRefMessage& resourceRefMessage = *itemMessage.mutable_itemresourceref();
+        pool.item.WriteResourceRefMessage(resourceRefMessage);
+        itemMessageList.push_back(itemMessage);
+        break;
+    }
+}
+
 std::vector<ItemMessage> glimmer::LootResource::GetLootItems(const LootResource* lootResource)
 {
     uint32_t totalWeight = lootResource->empty_weight;
@@ -183,34 +209,14 @@ std::vector<ItemMessage> glimmer::LootResource::GetLootItems(const LootResource*
         itemMessage.set_amount(randomValue);
         ResourceRefMessage& resourceRefMessage = *itemMessage.mutable_itemresourceref();
         mandatory.item.WriteResourceRefMessage(resourceRefMessage);
-        itemMessageList.push_back(itemMessage);
+        itemMessageList.emplace_back(itemMessage);
     }
 
     if (totalPoolWeight > 0)
     {
         for (int r = 0; r < lootResource->rolls; r++)
         {
-            auto rollsRandomValue = RandomUtils::Random<uint32_t>(0, totalWeight - 1);
-            if (rollsRandomValue <= lootResource->empty_weight)
-            {
-                continue;
-            }
-            uint32_t currentWeight = 0;
-            for (auto& pool : lootResource->pool)
-            {
-                currentWeight += pool.weight;
-                if (rollsRandomValue > currentWeight)
-                {
-                    continue;
-                }
-                ItemMessage itemMessage;
-                const auto randomValue = RandomUtils::Random<uint32_t>(pool.min, pool.max);
-                itemMessage.set_amount(randomValue);
-                ResourceRefMessage& resourceRefMessage = *itemMessage.mutable_itemresourceref();
-                pool.item.WriteResourceRefMessage(resourceRefMessage);
-                itemMessageList.push_back(itemMessage);
-                break;
-            }
+            TryRollSingleLoot(totalWeight, lootResource, itemMessageList);
         }
     }
     return itemMessageList;

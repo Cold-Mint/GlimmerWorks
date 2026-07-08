@@ -265,21 +265,14 @@ namespace glimmer
             if (IsMainThread())
             {
                 std::promise<Result> p;
-                try
+                if constexpr (std::is_void_v<Result>)
                 {
-                    if constexpr (std::is_void_v<Result>)
-                    {
-                        func();
-                        p.set_value();
-                    }
-                    else
-                    {
-                        p.set_value(func());
-                    }
+                    func();
+                    p.set_value();
                 }
-                catch (...)
+                else
                 {
-                    p.set_exception(std::current_exception());
+                    p.set_value(func());
                 }
                 return p.get_future();
             }
@@ -290,21 +283,14 @@ namespace glimmer
                 mainThreadTasks_.push(
                     [func = std::forward<Func>(func), promise]() mutable
                     {
-                        try
+                        if constexpr (std::is_void_v<Result>)
                         {
-                            if constexpr (std::is_void_v<Result>)
-                            {
-                                func();
-                                promise->set_value();
-                            }
-                            else
-                            {
-                                promise->set_value(func());
-                            }
+                            func();
+                            promise->set_value();
                         }
-                        catch (...)
+                        else
                         {
-                            promise->set_exception(std::current_exception());
+                            promise->set_value(func());
                         }
                     }
                 );

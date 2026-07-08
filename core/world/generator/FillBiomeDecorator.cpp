@@ -39,7 +39,7 @@ void glimmer::FillBiomeDecorator::DecorationImp(WorldContext *worldContext, Terr
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
             const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
-            if (self.terrainType != SOLID) {
+            if (self.terrainType != TerrainResultType::SOLID) {
                 //Not solid tiles.
                 //不是固体瓦片。
                 continue;

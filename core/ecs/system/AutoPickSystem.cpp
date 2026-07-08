@@ -151,7 +151,7 @@ void glimmer::AutoPickSystem::ProcessMagnetEntity(GameEntityID entity)
         MIX_Audio* audio = pickItemSFXResult_->GetResource();
         if (audio != nullptr)
         {
-            audioManager_->TryPlayFree(AMBIENT, audio, 0);
+            audioManager_->TryPlayFree(AudioType::AMBIENT, audio, 0);
         }
         entityManager->RemoveEntity(entityId);
     }

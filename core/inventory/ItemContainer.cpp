@@ -134,7 +134,7 @@ void glimmer::ItemContainer::CacheItemTag(Item* item)
     {
         return;
     }
-    ItemTagModule* itemTagModule = item->GetMutableTagModule();
+    const ItemTagModule* itemTagModule = item->GetMutableTagModule();
     if (itemTagModule == nullptr)
     {
         return;

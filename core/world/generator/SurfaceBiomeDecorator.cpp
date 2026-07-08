@@ -40,7 +40,7 @@ void glimmer::SurfaceBiomeDecorator::DecorationImp(WorldContext *worldContext, T
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             const int idx = localY * CHUNK_SIZE + localX;
             const TerrainTileResult &self = terrainResult->QueryTerrain(localX, localY);
-            if (self.terrainType != SOLID) {
+            if (self.terrainType != TerrainResultType::SOLID) {
                 //Not solid tiles.
                 //不是固体瓦片。
                 continue;
@@ -51,12 +51,12 @@ void glimmer::SurfaceBiomeDecorator::DecorationImp(WorldContext *worldContext, T
                 continue;
             }
             const TerrainTileResult &up = terrainResult->QueryTerrain(localX, localY + 1);
-            if (decoratorResource->allowAir && up.terrainType == AIR) {
+            if (decoratorResource->allowAir && up.terrainType == TerrainResultType::AIR) {
                 targetLayer[idx] = decoratorResource->tile;
                 continue;
             }
 
-            if (decoratorResource->allowWater && up.terrainType == WATER) {
+            if (decoratorResource->allowWater && up.terrainType == TerrainResultType::WATER) {
                 targetLayer[idx] = decoratorResource->tile;
             }
         }

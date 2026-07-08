@@ -412,7 +412,7 @@ namespace glimmer
             this->chainMiningRadius += other.chainMiningRadius;
             this->miningEfficiency += other.miningEfficiency;
             this->mineAbleLayer = static_cast<uint8_t>(
-                static_cast<std::byte>(this->mineAbleLayer) | static_cast<std::byte>(other.mineAbleLayer)
+                this->mineAbleLayer | other.mineAbleLayer
             );
             return *this;
         }

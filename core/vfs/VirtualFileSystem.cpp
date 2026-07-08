@@ -113,9 +113,10 @@ std::optional<std::filesystem::path> glimmer::VirtualFileSystem::GetParentPath(c
 }
 
 
-bool glimmer::VirtualFileSystem::WriteFile(const std::string& path, const std::string& content) const
+bool glimmer::VirtualFileSystem::WriteFile(const std::filesystem::path& path, const std::string& content) const
 {
-    return std::ranges::any_of(fileProviders_, [&](const auto& provider) {
+    return std::ranges::any_of(fileProviders_, [&](const auto& provider)
+    {
         return provider->WriteFile(path, content);
     });
 }

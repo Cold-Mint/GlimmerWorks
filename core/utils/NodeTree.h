@@ -31,9 +31,11 @@
 #include <vector>
 #include <functional>
 
-namespace glimmer {
-    template<typename T>
-    class NodeTree {
+namespace glimmer
+{
+    template <typename T>
+    class NodeTree
+    {
     public:
         /**
          * The constructor 'data' can be empty and is represented as' optional '
@@ -41,7 +43,8 @@ namespace glimmer {
          * @param data Data 数据
          */
         explicit NodeTree(std::optional<T> data = std::nullopt)
-            : data_(std::move(data)) {
+            : data_(std::move(data))
+        {
         }
 
         /**
@@ -49,7 +52,8 @@ namespace glimmer {
          * 获取数据
          * @return
          */
-        const std::optional<T> &Data() const {
+        const std::optional<T>& Data() const
+        {
             return data_;
         }
 
@@ -59,7 +63,8 @@ namespace glimmer {
          * @param value Add child nodes 添加子节点
          * @return
          */
-        NodeTree *AddChild(const T &value) {
+        NodeTree* AddChild(const T& value)
+        {
             children_.emplace_back(value);
             return &children_.back();
         }
@@ -69,12 +74,15 @@ namespace glimmer {
          * 获取所有子节点的数据（不会遍历子树）
          * @return
          */
-        std::vector<T> GetAllChildren() const {
+        std::vector<T> GetAllChildren() const
+        {
             std::vector<T> result;
             result.reserve(children_.size());
 
-            for (const auto &child: children_) {
-                if (child.Data().has_value()) {
+            for (const auto& child : children_)
+            {
+                if (child.Data().has_value())
+                {
                     result.push_back(child.Data().value());
                 }
             }
@@ -86,9 +94,12 @@ namespace glimmer {
          * 遍历子节点（不会遍历子树）
          * @param callback If the callback returns false, the traversal is interrupted  callback返回 false 则中断遍历
          */
-        void ForEachChildren(const std::function<bool(NodeTree *)> &callback) {
-            for (auto &child: children_) {
-                if (!callback(&child)) {
+        void ForEachChildren(const std::function<bool(NodeTree*)>& callback) const
+        {
+            for (auto& child : children_)
+            {
+                if (!callback(&child))
+                {
                     return;
                 }
             }
@@ -100,9 +111,12 @@ namespace glimmer {
          * @param value value 值
          * @return
          */
-        bool RemoveChild(const T &value) {
-            for (auto it = children_.begin(); it != children_.end(); ++it) {
-                if (it->Data().has_value() && it->Data().value() == value) {
+        bool RemoveChild(const T& value)
+        {
+            for (auto it = children_.begin(); it != children_.end(); ++it)
+            {
+                if (it->Data().has_value() && it->Data().value() == value)
+                {
                     children_.erase(it);
                     return true;
                 }
@@ -116,18 +130,24 @@ namespace glimmer {
          * @param value value 值
          * @return
          */
-        [[nodiscard]] NodeTree *GetChildByValue(const T &value) {
-            for (auto &child: children_) {
-                if (child.Data().has_value() && child.Data().value() == value) {
+        [[nodiscard]] NodeTree* GetChildByValue(const T& value)
+        {
+            for (auto& child : children_)
+            {
+                if (child.Data().has_value() && child.Data().value() == value)
+                {
                     return &child;
                 }
             }
             return nullptr;
         }
 
-        [[nodiscard]] const NodeTree *GetChildByValue(const T &value) const {
-            for (const auto &child: children_) {
-                if (child.Data().has_value() && child.Data().value() == value) {
+        [[nodiscard]] const NodeTree* GetChildByValue(const T& value) const
+        {
+            for (const auto& child : children_)
+            {
+                if (child.Data().has_value() && child.Data().value() == value)
+                {
                     return &child;
                 }
             }
@@ -140,12 +160,15 @@ namespace glimmer {
          * @param index 下标
          * @return
          */
-        [[nodiscard]] NodeTree *GetChild(const int index) {
+        [[nodiscard]] NodeTree* GetChild(const int index)
+        {
             if (index < 0) return nullptr;
 
             int counter = 0;
-            for (auto &child: children_) {
-                if (counter == index) {
+            for (auto& child : children_)
+            {
+                if (counter == index)
+                {
                     return &child;
                 }
                 counter++;
@@ -153,12 +176,15 @@ namespace glimmer {
             return nullptr;
         }
 
-        [[nodiscard]] const NodeTree *GetChild(const int index) const {
+        [[nodiscard]] const NodeTree* GetChild(const int index) const
+        {
             if (index < 0) return nullptr;
 
             int counter = 0;
-            for (const auto &child: children_) {
-                if (counter == index) {
+            for (const auto& child : children_)
+            {
+                if (counter == index)
+                {
                     return &child;
                 }
                 counter++;
@@ -171,7 +197,8 @@ namespace glimmer {
          * Clear the connections of child nodes
          * 清理子节点的连接
          */
-        void ClearChildren() {
+        void ClearChildren()
+        {
             children_.clear();
         }
 
@@ -180,7 +207,8 @@ namespace glimmer {
          * 获取子节点的长度
          * @return
          */
-        [[nodiscard]] int GetSize() const {
+        [[nodiscard]] int GetSize() const
+        {
             return children_.size();
         }
 

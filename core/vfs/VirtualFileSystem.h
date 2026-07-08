@@ -59,7 +59,7 @@ namespace glimmer
 
         [[nodiscard]] std::optional<std::filesystem::path> GetParentPath(const std::filesystem::path& path) const;
 
-        [[nodiscard]] bool WriteFile(const std::string& path, const std::string& content) const;
+        [[nodiscard]] bool WriteFile(const std::filesystem::path& path, const std::string& content) const;
 
         [[nodiscard]] std::unique_ptr<std::istream> ReadFileAsStream(const std::filesystem::path& path) const;
 

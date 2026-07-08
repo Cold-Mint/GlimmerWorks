@@ -60,12 +60,6 @@ namespace glimmer
 
         [[nodiscard]] ItemAbility* GetItemAbility() const;
 
-        [[nodiscard]] uint32_t GetMaxDurability() const override;
-
-        void Reduce(unsigned value) override;
-
-        [[nodiscard]] bool IsUnbreakable() const override;
-
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
 
         void OnUse(WorldContext* worldContext, GameEntityID user, const AbilityConfig* abilityConfig,

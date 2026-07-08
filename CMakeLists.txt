@@ -621,6 +621,10 @@ target_sources(GlimmerWorks
         core/ecs/PlayerInputHandler.cpp
         core/ecs/PlayerCapabilityHandler.cpp
         core/ecs/PlayerTechnologyHandler.cpp
+        core/inventory/ItemStackModule.cpp
+        core/inventory/ItemLockModule.cpp
+        core/inventory/ItemTagModule.cpp
+        core/inventory/ItemDurabilityModule.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -961,6 +965,11 @@ target_sources(GlimmerWorks
         core/ecs/PlayerCapabilityHandler.h
         core/ecs/PlayerInputHandler.h
         core/ecs/PlayerTechnologyHandler.h
+        core/ecs/TileBreakParams.h
+        core/inventory/ItemDurabilityModule.h
+        core/inventory/ItemTagModule.h
+        core/inventory/ItemLockModule.h
+        core/inventory/ItemStackModule.h
 )
 
 #Define version information

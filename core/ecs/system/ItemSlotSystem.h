@@ -54,7 +54,7 @@ namespace glimmer
         void RenderSlotBackground(SDL_Renderer* renderer, ItemSlotComponent* slotComponent,
                                   const SDL_FRect& rect);
 
-        void RenderDurabilityBar(SDL_Renderer* renderer, const Item* item, const SDL_FRect& itemRect);
+        void RenderDurabilityBar(SDL_Renderer* renderer, const Item* item, const SDL_FRect& itemRect) const;
 
         void RenderSlotItem(SDL_Renderer* renderer, ItemSlotComponent* slotComponent,
                             const SDL_FRect& rect, const Item* item);

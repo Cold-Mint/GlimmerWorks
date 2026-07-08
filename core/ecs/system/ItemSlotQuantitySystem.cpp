@@ -107,12 +107,17 @@ void glimmer::ItemSlotQuantitySystem::RenderSlotBackground(SDL_Renderer* rendere
 void glimmer::ItemSlotQuantitySystem::RenderDurabilityBar(SDL_Renderer* renderer, const Item* item,
                                                           const SDL_FRect& itemRect)
 {
-    if (item->IsUnbreakable())
+    const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule();
+    if (itemDurabilityModule == nullptr)
     {
         return;
     }
-    const uint32_t totalDur = std::max(item->GetMaxDurability(), 1U);
-    const uint32_t usedDur = item->GetUsedDurability();
+    if (itemDurabilityModule->IsUnbreakable())
+    {
+        return;
+    }
+    const uint32_t totalDur = std::max(itemDurabilityModule->GetMaxDurability(), 1U);
+    const uint32_t usedDur = itemDurabilityModule->GetUsedDurability();
     const uint32_t remainDur = usedDur >= totalDur ? 0U : totalDur - usedDur;
     float remainingDurabilityPercentage = static_cast<float>(remainDur) / static_cast<float>(totalDur);
     if (remainingDurabilityPercentage == 1.0F)

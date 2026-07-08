@@ -87,25 +87,6 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     return std::make_unique<AbilityItem>(params);
 }
 
-uint32_t glimmer::AbilityItem::GetMaxDurability() const
-{
-    return maxDurability_;
-}
-
-void glimmer::AbilityItem::Reduce(const unsigned value)
-{
-    if (unbreakable_)
-    {
-        return;
-    }
-    AddUsedDurability(value);
-}
-
-bool glimmer::AbilityItem::IsUnbreakable() const
-{
-    return unbreakable_;
-}
-
 const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
 {
     return itemAbility_->GetAbilityConfig();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,61 +24,47 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include <fstream>
+#pragma once
+#include <unordered_map>
 
-#include "core/App.h"
-#include "core/log/LogCat.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
-#include "core/scene/AppContext.h"
-#include "fmt/args.h"
+#include "core/mod/Resource.h"
 
-#ifdef __ANDROID__
-#include <jni.h>
-#endif
-
-using namespace glimmer;
-namespace fs = std::filesystem;
-
-int main()
+namespace glimmer
 {
-    SDL_SetAppMetadata(
-        PROJECT_NAME.c_str(), GAME_VERSION_STRING,
-        APP_PACKNAME);
-    AppContext appContext;
-    if (!appContext.InitSuccess())
+    class ItemTagModule
     {
-        return EXIT_FAILURE;
-    }
-    App app(&appContext);
-    if (!app.Init())
-    {
-        LogCat::e("Failed to init app");
-        return EXIT_FAILURE;
-    }
-    app.Run();
-    return EXIT_SUCCESS;
+        std::unordered_map<uint64_t, ItemTagResource> tagMap_;
+        std::vector<uint64_t> tags_;
+
+    public:
+        /**
+        * HasTag
+        * 是否包含某个标签。
+        * @param tag tag 标签
+        * @return
+        */
+        [[nodiscard]] bool HasTag(uint64_t tag) const;
+
+        /**
+         * SetTags
+         * 设置标签
+         * @param tags
+         */
+        void SetTags(const std::vector<ItemTagResource>& tags);
+
+        /**
+        * GetTag
+        * 获取标签
+        * @param tag tag 标签
+        * @return Return the label value. If not found, return nullptr. 返回标签值，若找不到则返回nullptr
+        */
+        [[nodiscard]] const ItemTagResource* GetItemTagResource(uint64_t tag) const;
+
+        /**
+        * GetTags
+        * 获取全部标签
+        * @return
+        */
+        [[nodiscard]] const std::vector<uint64_t>& GetTags() const;
+    };
 }
-
-
-#ifdef __ANDROID__
-extern "C" {
-int SDL_main(int argc, char* argv[])
-{
-    LogCat::i("SDL_main() called — entering main()");
-    int result = main();
-    LogCat::i("SDL_main() finished, result = ", result);
-    return result;
-}
-
-//Set whether to allow the Activity to be recreated
-//设置是否允许Activity被重新创建
-JNIEXPORT jboolean
-
-JNICALL
-Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv*, jclass)
-{
-    return JNI_TRUE;
-}
-}
-
-#endif

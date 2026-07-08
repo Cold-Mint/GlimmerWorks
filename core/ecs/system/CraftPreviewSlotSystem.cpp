@@ -138,7 +138,12 @@ void glimmer::CraftPreviewSlotSystem::RenderSlotItem(SDL_Renderer* renderer, Cra
     {
         SDL_RenderTexture(renderer, iconTexture, nullptr, &itemRect);
     }
-    uint8_t amount = item->GetAmount();
+    const ItemStackModule* itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr)
+    {
+        return;
+    }
+    uint8_t amount = itemStackModule->GetAmount();
     if (amount <= 1)
     {
         return;

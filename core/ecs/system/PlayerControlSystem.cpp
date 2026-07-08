@@ -296,7 +296,12 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
     {
         return;
     }
-    if (item->IsLocked())
+    const ItemLockModule* itemLockModule = item->GetLockModule();
+    if (itemLockModule == nullptr)
+    {
+        return;
+    }
+    if (itemLockModule->IsLocked())
     {
         return;
     }

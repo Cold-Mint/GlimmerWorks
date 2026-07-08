@@ -70,7 +70,11 @@ void glimmer::ItemEditorCommand::SetItemAttribute(const std::string& attribute, 
 {
     if (attribute == "used_durability")
     {
-        item->SetUsedDurability(std::stoi(value));
+        if (ItemDurabilityModule* itemDurabilityModule = item->GetMutableDurabilityModule(); itemDurabilityModule !=
+            nullptr)
+        {
+            itemDurabilityModule->SetUsedDurability(std::stoi(value));
+        }
     }
     else if (attribute == "durability_strategy")
     {
@@ -97,17 +101,23 @@ void glimmer::ItemEditorCommand::SetItemAttribute(const std::string& attribute, 
     }
     else if (attribute == "amount")
     {
-        item->SetAmount(std::stoi(value));
+        if (ItemStackModule* itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr)
+        {
+            itemStackModule->SetAmount(std::stoi(value));
+        }
     }
     else if (attribute == "locked")
     {
-        if (value == "true")
+        if (ItemLockModule* itemLockModule = item->GetMutableLockModule(); itemLockModule != nullptr)
         {
-            item->Lock();
-        }
-        else
-        {
-            item->Unlock();
+            if (value == "true")
+            {
+                itemLockModule->Lock();
+            }
+            else
+            {
+                itemLockModule->Unlock();
+            }
         }
     }
 }
@@ -117,7 +127,11 @@ std::string glimmer::ItemEditorCommand::GetItemAttribute(const std::string& attr
     std::stringstream value;
     if (attribute == "used_durability")
     {
-        value << item->GetUsedDurability();
+        if (const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
+            nullptr)
+        {
+            value << itemDurabilityModule->GetUsedDurability();
+        }
     }
     else if (attribute == "durability_strategy")
     {
@@ -146,28 +160,45 @@ std::string glimmer::ItemEditorCommand::GetItemAttribute(const std::string& attr
     }
     else if (attribute == "amount")
     {
-        value << static_cast<uint32_t>(item->GetAmount());
+        if (const ItemStackModule* itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr)
+        {
+            value << static_cast<uint32_t>(itemStackModule->GetAmount());
+        }
     }
     else if (attribute == "max_durability")
     {
-        value << item->GetMaxDurability();
+        if (const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
+            nullptr)
+        {
+            value << itemDurabilityModule->GetMaxDurability();
+        }
     }
     else if (attribute == "max_stack")
     {
-        value << static_cast<uint32_t>(item->GetMaxStack());
+        if (const ItemStackModule* itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr)
+        {
+            value << static_cast<uint32_t>(itemStackModule->GetMaxStack());
+        }
     }
     else if (attribute == "locked")
     {
-        value << item->IsLocked();
+        if (const ItemLockModule* itemLockModule = item->GetLockModule(); itemLockModule != nullptr)
+        {
+            value << itemLockModule->IsLocked();
+        }
     }
     else if (attribute == "unbreakable")
     {
-        value << item->IsUnbreakable();
+        if (const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule(); itemDurabilityModule !=
+            nullptr)
+        {
+            value << itemDurabilityModule->IsUnbreakable();
+        }
     }
     return value.str();
 }
 
-template<typename MessageCallback>
+template <typename MessageCallback>
 glimmer::Item* glimmer::ItemEditorCommand::GetPlayerHeldItem(const WorldContext* worldContext,
                                                              const LangsResources* langsResources,
                                                              MessageCallback&& onMessageRef)

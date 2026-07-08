@@ -98,16 +98,6 @@ SDL_Texture* glimmer::MaterialItem::GetIcon() const
     return iconResult_->GetResource();
 }
 
-uint32_t glimmer::MaterialItem::GetMaxDurability() const
-{
-    return 0;
-}
-
-bool glimmer::MaterialItem::IsUnbreakable() const
-{
-    return true;
-}
-
 void glimmer::MaterialItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                                   std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
 {

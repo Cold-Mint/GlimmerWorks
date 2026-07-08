@@ -72,9 +72,14 @@ void glimmer::GiveCommand::TrySetItemAmount(const CommandArgs* commandArgs, Item
     {
         return;
     }
+    ItemStackModule* itemStackModule = item->GetMutableStackModule();
+    if (itemStackModule == nullptr)
+    {
+        return;
+    }
     if (const int number = commandArgs->AsInt(3); number > 1)
     {
-        item->SetAmount(number);
+        itemStackModule->SetAmount(number);
     }
 }
 

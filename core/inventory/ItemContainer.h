@@ -66,6 +66,8 @@ namespace glimmer
 
         void InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange);
 
+        void CacheItemTag(Item* item);
+
         void RefreshTotalTags();
 
     public:
@@ -97,7 +99,7 @@ namespace glimmer
          * @param item
          * @return A return value of -1 indicates that the item is not within the container. 返回-1,则表示不在容器内。
          */
-        [[nodiscard]] int FindIndex(const Item* item);
+        [[nodiscard]] int FindIndex(const Item* item) const;
 
         const std::vector<const ItemTagResource*>& GetTotalTags();
 
@@ -106,10 +108,10 @@ namespace glimmer
         /**
          * Get Remaining Item Amount After Add
          * 获取添加后的剩余物品数量
-         * @param item  item 物品
+         * @param itemStackModule  itemStackModule 物品
          * @return 返回0表示可完全添加
          */
-        [[nodiscard]] uint8_t GetRemainingItemAmountAfterAdd(const Item* item) const;
+        [[nodiscard]] uint8_t GetRemainingItemAmountAfterAdd(const ItemStackModule* itemStackModule) const;
 
         /**
          * ReplaceItem

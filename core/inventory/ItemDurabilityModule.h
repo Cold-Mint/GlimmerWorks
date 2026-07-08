@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,61 +24,42 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include <fstream>
+#pragma once
+#include <cstdint>
+#include <functional>
 
-#include "core/App.h"
-#include "core/log/LogCat.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
-#include "core/scene/AppContext.h"
-#include "fmt/args.h"
-
-#ifdef __ANDROID__
-#include <jni.h>
-#endif
-
-using namespace glimmer;
-namespace fs = std::filesystem;
-
-int main()
+namespace glimmer
 {
-    SDL_SetAppMetadata(
-        PROJECT_NAME.c_str(), GAME_VERSION_STRING,
-        APP_PACKNAME);
-    AppContext appContext;
-    if (!appContext.InitSuccess())
+    class ItemDurabilityModule
     {
-        return EXIT_FAILURE;
-    }
-    App app(&appContext);
-    if (!app.Init())
-    {
-        LogCat::e("Failed to init app");
-        return EXIT_FAILURE;
-    }
-    app.Run();
-    return EXIT_SUCCESS;
+        uint32_t usedDurability_ = 0;
+        uint32_t maxDurability_ = 0;
+        bool unbreakable_ = false;
+        std::function<void(uint32_t, uint32_t)> onUsedDurabilityChanged_ = nullptr;
+
+
+    public:
+        [[nodiscard]] uint32_t GetMaxDurability() const;
+
+        [[nodiscard]] uint32_t GetUsedDurability() const;
+
+        void SetMaxDurability(uint32_t value);
+
+        void SetUnbreakable(bool value);
+
+        /**
+        * Is it indestructible (with infinite durability)?
+        * 是否为坚不可摧的（无限耐久）
+        * @return
+        */
+        [[nodiscard]] bool IsUnbreakable() const;
+
+        void SetOnUsedDurabilityChanged(const std::function<void(uint32_t, uint32_t)>& onUsedDurabilityChanged);
+
+        void AddUsedDurability(uint32_t value);
+
+        void RemoveUsedDurability(uint32_t value);
+
+        void SetUsedDurability(uint32_t value);
+    };
 }
-
-
-#ifdef __ANDROID__
-extern "C" {
-int SDL_main(int argc, char* argv[])
-{
-    LogCat::i("SDL_main() called — entering main()");
-    int result = main();
-    LogCat::i("SDL_main() finished, result = ", result);
-    return result;
-}
-
-//Set whether to allow the Activity to be recreated
-//设置是否允许Activity被重新创建
-JNIEXPORT jboolean
-
-JNICALL
-Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv*, jclass)
-{
-    return JNI_TRUE;
-}
-}
-
-#endif

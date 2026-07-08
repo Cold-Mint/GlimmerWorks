@@ -210,7 +210,7 @@ void glimmer::ComposableItem::AddCallback()
     });
 }
 
-glimmer::ComposableItem::ComposableItem(ComposableItemCreateParams& params)
+glimmer::ComposableItem::ComposableItem(const ComposableItemCreateParams& params)
     : id_(params.GetId()),
       name_(params.GetName()),
       description_(params.GetDescription()),
@@ -315,22 +315,34 @@ void glimmer::ComposableItem::WriteItemMessage(ItemMessage& itemMessage) const
     }
 }
 
+void glimmer::ComposableItem::Reduce(const unsigned value)
+{
+    if (itemContainer_ != nullptr)
+    {
+        std::vector<IAllocatable*> itemsList;
+        for (uint8_t index = 0; index < itemContainer_->GetCapacity(); index++)
+        {
+            Item* item = itemContainer_->GetItem(index);
+            if (item == nullptr)
+            {
+                continue;
+            }
+            itemsList.emplace_back(item);
+        }
+        allocStrategyPtr_->Allocate(itemsList, value);
+    }
+    if (ItemDurabilityModule* itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr)
+    {
+        itemDurabilityModule->AddUsedDurability(value);
+    }
+}
+
 glimmer::ComposableItem::~ComposableItem()
 {
     if (itemContainer_ != nullptr)
     {
         itemContainer_->RemoveOnContentChanged(callback_);
     }
-}
-
-uint32_t glimmer::ComposableItem::GetMaxDurability() const
-{
-    return maxDurability_;
-}
-
-bool glimmer::ComposableItem::IsUnbreakable() const
-{
-    return unbreakable_;
 }
 
 const std::string& glimmer::ComposableItem::GetId() const
@@ -355,32 +367,4 @@ SDL_Texture* glimmer::ComposableItem::GetIcon() const
         return nullptr;
     }
     return iconResult_->GetResource();
-}
-
-unsigned glimmer::ComposableItem::GetRemaining() const
-{
-    if (unbreakable_)
-    {
-        return 0;
-    }
-    return maxDurability_ - GetUsedDurability();
-}
-
-void glimmer::ComposableItem::Reduce(unsigned value)
-{
-    if (itemContainer_ != nullptr)
-    {
-        std::vector<IAllocatable*> itemsList;
-        for (uint8_t index = 0; index < itemContainer_->GetCapacity(); index++)
-        {
-            Item* item = itemContainer_->GetItem(index);
-            if (item == nullptr)
-            {
-                continue;
-            }
-            itemsList.emplace_back(item);
-        }
-        allocStrategyPtr_->Allocate(itemsList, value);
-    }
-    AddUsedDurability(value);
 }

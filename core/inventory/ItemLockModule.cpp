@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,61 +24,38 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include <fstream>
+#include "ItemLockModule.h"
 
-#include "core/App.h"
-#include "core/log/LogCat.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
-#include "core/scene/AppContext.h"
-#include "fmt/args.h"
-
-#ifdef __ANDROID__
-#include <jni.h>
-#endif
-
-using namespace glimmer;
-namespace fs = std::filesystem;
-
-int main()
+void glimmer::ItemLockModule::SetOnLockStatusChanged(const std::function<void(bool)>& onLockStatusChanged)
 {
-    SDL_SetAppMetadata(
-        PROJECT_NAME.c_str(), GAME_VERSION_STRING,
-        APP_PACKNAME);
-    AppContext appContext;
-    if (!appContext.InitSuccess())
+    onLockStatusChanged_ = onLockStatusChanged;
+}
+
+void glimmer::ItemLockModule::SetLockStatus(const bool locked)
+{
+    if (locked_ == locked)
     {
-        return EXIT_FAILURE;
+        return;
     }
-    App app(&appContext);
-    if (!app.Init())
+    locked_ = locked;
+    const std::function<void(bool)> onLockStatusChangedCopy = onLockStatusChanged_;
+    if (onLockStatusChangedCopy != nullptr)
     {
-        LogCat::e("Failed to init app");
-        return EXIT_FAILURE;
+        onLockStatusChangedCopy(locked);
     }
-    app.Run();
-    return EXIT_SUCCESS;
 }
 
-
-#ifdef __ANDROID__
-extern "C" {
-int SDL_main(int argc, char* argv[])
+bool glimmer::ItemLockModule::IsLocked() const
 {
-    LogCat::i("SDL_main() called — entering main()");
-    int result = main();
-    LogCat::i("SDL_main() finished, result = ", result);
-    return result;
+    return locked_;
 }
 
-//Set whether to allow the Activity to be recreated
-//设置是否允许Activity被重新创建
-JNIEXPORT jboolean
-
-JNICALL
-Java_org_libsdl_app_SDLActivity_nativeAllowRecreateActivity(JNIEnv*, jclass)
+void glimmer::ItemLockModule::Lock()
 {
-    return JNI_TRUE;
-}
+    SetLockStatus(true);
 }
 
-#endif
+void glimmer::ItemLockModule::Unlock()
+{
+    SetLockStatus(false);
+}

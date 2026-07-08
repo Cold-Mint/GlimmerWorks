@@ -94,7 +94,12 @@ void glimmer::ItemSlotQuantityComponent::SetSelectQuantity(uint8_t selectQuantit
     {
         return;
     }
-    if (uint8_t amount = item->GetAmount(); selectQuantity > amount)
+    const ItemStackModule* itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr)
+    {
+        return;
+    }
+    if (uint8_t amount = itemStackModule->GetAmount(); selectQuantity > amount)
     {
         selectQuantity_ = amount;
     }
@@ -112,7 +117,12 @@ void glimmer::ItemSlotQuantityComponent::AddSelectQuantity()
     {
         return;
     }
-    uint8_t amount = item->GetAmount();
+    const ItemStackModule* itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr)
+    {
+        return;
+    }
+    uint8_t amount = itemStackModule->GetAmount();
     selectQuantity_++;
     if (selectQuantity_ > amount)
     {
@@ -128,7 +138,12 @@ void glimmer::ItemSlotQuantityComponent::RemoveSelectQuantity()
     {
         return;
     }
-    uint8_t amount = item->GetAmount();
+    const ItemStackModule* itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr)
+    {
+        return;
+    }
+    uint8_t amount = itemStackModule->GetAmount();
     selectQuantity_--;
     if (selectQuantity_ > amount)
     {

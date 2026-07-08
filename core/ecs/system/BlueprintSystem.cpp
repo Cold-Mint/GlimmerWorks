@@ -210,7 +210,16 @@ glimmer::TileVector2D glimmer::BlueprintSystem::SetupHeldTileInfo(const TileVect
         return leftBottom;
     }
     Item* item = playerComponent->GetItem();
-    if (item == nullptr || item->GetAmount() <= 0)
+    if (item == nullptr )
+    {
+        return leftBottom;
+    }
+    const ItemStackModule* itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr)
+    {
+        return leftBottom;
+    }
+    if (itemStackModule->GetAmount() <= 0)
     {
         return leftBottom;
     }

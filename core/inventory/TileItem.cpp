@@ -61,21 +61,6 @@ const glimmer::Tile* glimmer::TileItem::GetTile() const
     return tile_.get();
 }
 
-uint32_t glimmer::TileItem::GetMaxDurability() const
-{
-    return 0;
-}
-
-bool glimmer::TileItem::IsUnbreakable() const
-{
-    return true;
-}
-
-void glimmer::TileItem::Reduce(unsigned value)
-{
-    // TileItem has no durability to reduce
-}
-
 void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                               std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
 {
@@ -113,6 +98,11 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
     {
         return;
     }
+    ItemStackModule* itemStackModule = GetMutableStackModule();
+    if (itemStackModule == nullptr)
+    {
+        return;
+    }
     const auto entities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
     const TileLayerType targetTileLayerType = tile_->GetLayerType();
     for (auto& entity : entities)
@@ -132,7 +122,7 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
         {
             continue;
         }
-        if (GetAmount() > 0)
+        if (itemStackModule->GetAmount() > 0)
         {
             AudioManager* audioManager = appContext->GetAudioManager();
             if (audioManager != nullptr)
@@ -146,7 +136,7 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
                 tile_->GetTileWidth(), tile_->GetTileHeight(),
                 GetResourceRef()
             });
-            (void)RemoveAmount(1);
+            itemStackModule->RemoveAmount(1);
         }
     }
 }

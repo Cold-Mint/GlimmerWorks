@@ -28,38 +28,6 @@
 
 #include "core/log/LogCat.h"
 
-
-void glimmer::Item::SetLockStatus(const bool locked)
-{
-    if (locked_ == locked)
-    {
-        return;
-    }
-    locked_ = locked;
-    const std::function<void(bool)> onLockStatusChangedCopy = onLockStatusChanged_;
-    if (onLockStatusChangedCopy != nullptr)
-    {
-        onLockStatusChangedCopy(locked);
-    }
-}
-
-void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
-{
-    tags_.clear();
-    tagMap_.clear();
-    for (auto& tag : tags)
-    {
-        uint64_t cachedTag = tag.cachedTagId;
-        tags_.emplace_back(cachedTag);
-        tagMap_.try_emplace(cachedTag, tag);
-    }
-}
-
-void glimmer::Item::SetMaxStack(const uint8_t maxStack)
-{
-    maxStack_ = maxStack;
-}
-
 const glimmer::ResourceRef& glimmer::Item::GetResourceRef() const
 {
     return resourceRef_;
@@ -70,6 +38,39 @@ void glimmer::Item::SetResourceRef(const ResourceRef& resourceRef)
     resourceRef_ = resourceRef;
 }
 
+glimmer::ItemDurabilityModule* glimmer::Item::GetMutableDurabilityModule()
+{
+    return &itemDurabilityModule_;
+}
+
+glimmer::ItemStackModule* glimmer::Item::GetMutableStackModule()
+{
+    return &itemStackModule_;
+}
+
+glimmer::ItemTagModule* glimmer::Item::GetMutableTagModule()
+{
+    return &itemTagModule_;
+}
+
+glimmer::ItemLockModule* glimmer::Item::GetMutableLockModule()
+{
+    return &itemLockModule_;
+}
+
+void glimmer::Item::SetTags(const std::vector<ItemTagResource>& tags)
+{
+    if (ItemTagModule* itemTagModule = GetMutableTagModule(); itemTagModule != nullptr)
+    {
+        itemTagModule->SetTags(tags);
+    }
+}
+
+void glimmer::Item::SetMaxStack(const uint8_t maxStack)
+{
+    itemStackModule_.SetMaxStack(maxStack);
+}
+
 void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
 {
     uint8_t amount = itemMessage.amount();
@@ -77,9 +78,9 @@ void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessag
     {
         amount = 1;
     }
-    amount_ = amount;
-    locked_ = itemMessage.locked();
-    usedDurability_ = itemMessage.useddurability();
+    itemStackModule_.SetAmount(amount);
+    itemLockModule_.SetLockStatus(itemMessage.locked());
+    itemDurabilityModule_.SetUsedDurability(itemMessage.useddurability());
     resourceRef_.ReadResourceRefMessage(itemMessage.itemresourceref());
 }
 
@@ -92,193 +93,38 @@ void glimmer::Item::WriteItemMessage(ItemMessage& itemMessage) const
         assert(false);
 #endif
     }
-    itemMessage.set_amount(amount_);
-    itemMessage.set_locked(locked_);
-    itemMessage.set_useddurability(usedDurability_);
+    itemMessage.set_amount(itemStackModule_.GetAmount());
+    itemMessage.set_locked(itemLockModule_.IsLocked());
+    itemMessage.set_useddurability(itemDurabilityModule_.GetUsedDurability());
     resourceRef_.WriteResourceRefMessage(*itemMessage.mutable_itemresourceref());
 }
 
-uint32_t glimmer::Item::GetUsedDurability() const
+const glimmer::ItemDurabilityModule* glimmer::Item::GetDurabilityModule() const
 {
-    return usedDurability_;
+    return &itemDurabilityModule_;
 }
 
-bool glimmer::Item::IsLocked() const
+const glimmer::ItemStackModule* glimmer::Item::GetStackModule() const
 {
-    return locked_;
+    return &itemStackModule_;
 }
 
-void glimmer::Item::Lock()
+const glimmer::ItemTagModule* glimmer::Item::GetTagModule() const
 {
-    SetLockStatus(true);
+    return &itemTagModule_;
 }
 
-void glimmer::Item::Unlock()
+const glimmer::ItemLockModule* glimmer::Item::GetLockModule() const
 {
-    SetLockStatus(false);
-}
-
-uint8_t glimmer::Item::GetAmount() const
-{
-    return amount_;
-}
-
-uint8_t glimmer::Item::GetMaxStack() const
-{
-    return maxStack_;
-}
-
-uint8_t glimmer::Item::GetRemainingStackCount(const Item* item) const
-{
-    if (item == nullptr)
-    {
-        return 0;
-    }
-    if (item->GetId() != GetId())
-    {
-        return 0;
-    }
-    return maxStack_ - amount_;
-}
-
-void glimmer::Item::SetOnAmountChanged(const std::function<void(ContainerChangeType, uint8_t)>& onAmountChanged)
-{
-    onAmountChanged_ = onAmountChanged;
-}
-
-void glimmer::Item::SetOnLockStatusChanged(const std::function<void(bool)>& onLockStatusChanged)
-{
-    onLockStatusChanged_ = onLockStatusChanged;
-}
-
-void glimmer::Item::SetOnUsedDurabilityChanged(const std::function<void(uint32_t, uint32_t)>& onUsedDurabilityChanged)
-{
-    onUsedDurabilityChanged_ = onUsedDurabilityChanged;
-}
-
-
-void glimmer::Item::SetAmount(const uint8_t amount)
-{
-    //The callback function of Copy must be used.
-    //必须得用Copy的回调函数。
-    const std::function<void(ContainerChangeType, uint8_t)> onAmountChangedCopy = onAmountChanged_;
-    if (amount == 0)
-    {
-        //Even if the quantity of the items is set to 0, the game will set it to 1 after reading the data to modify the dirty data.
-        //即使物品数量被设置为0，游戏会在读取数据后将其设置为1。以修改脏数据。
-        //It is feasible to consider "0" as a mark indicating that an item has been used up.
-        //0被看作是物品用完的标记是可行的。
-        amount_ = 0;
-        if (onAmountChangedCopy != nullptr)
-        {
-            onAmountChangedCopy(ContainerChangeType::REMOVE, amount_);
-        }
-    }
-    else
-    {
-        const bool add = amount >= amount_;
-        amount_ = std::min(amount, maxStack_);
-        if (onAmountChangedCopy != nullptr)
-        {
-            onAmountChangedCopy(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
-        }
-    }
-}
-
-const glimmer::ItemTagResource* glimmer::Item::GetItemTagResource(const uint64_t tag) const
-{
-    const auto tagIterator = tagMap_.find(tag);
-    if (tagIterator == tagMap_.end())
-    {
-        return nullptr;
-    }
-    return &tagIterator->second;
-}
-
-bool glimmer::Item::HasTag(const uint64_t tag) const
-{
-    return tagMap_.contains(tag);
-}
-
-const std::vector<uint64_t>& glimmer::Item::GetTags() const
-{
-    return tags_;
-}
-
-uint8_t glimmer::Item::AddAmount(uint8_t amount)
-{
-    if (amount_ >= maxStack_ || amount <= 0)
-    {
-        return 0;
-    }
-    const size_t oldAmount = amount;
-    const size_t count = amount + amount_;
-    if (count > maxStack_)
-    {
-        SetAmount(maxStack_);
-        return maxStack_ - oldAmount;
-    }
-    SetAmount(count);
-    return amount;
-}
-
-uint8_t glimmer::Item::RemoveAmount(const uint8_t amount)
-{
-    if (amount_ == 0 || amount == 0)
-    {
-        return 0;
-    }
-    const int oldAmount = amount_;
-    const int newAmount = static_cast<int>(amount_) - static_cast<int>(amount);
-    if (newAmount < 0)
-    {
-        SetAmount(0);
-        return oldAmount;
-    }
-    SetAmount(newAmount);
-    return amount;
-}
-
-
-bool glimmer::Item::IsStackable() const
-{
-    return maxStack_ > 1;
+    return &itemLockModule_;
 }
 
 unsigned glimmer::Item::GetRemaining() const
 {
-    return GetMaxDurability() - usedDurability_;
+    return itemDurabilityModule_.GetMaxDurability() - itemDurabilityModule_.GetUsedDurability();
 }
 
-void glimmer::Item::AddUsedDurability(const uint32_t value)
+void glimmer::Item::Reduce(const unsigned value)
 {
-    const uint32_t newValue = usedDurability_ + value;
-    if (newValue > GetMaxDurability())
-    {
-        SetUsedDurability(GetMaxDurability());
-        return;
-    }
-    SetUsedDurability(newValue);
-}
-
-void glimmer::Item::RemoveUsedDurability(const uint32_t value)
-{
-    if (value >= usedDurability_)
-    {
-        SetUsedDurability(0);
-    }
-    else
-    {
-        SetUsedDurability(value);
-    }
-}
-
-void glimmer::Item::SetUsedDurability(const uint32_t value)
-{
-    usedDurability_ = value;
-    const std::function<void(uint32_t, uint32_t)> onUsedDurabilityChangedCopy = onUsedDurabilityChanged_;
-    if (onUsedDurabilityChangedCopy != nullptr)
-    {
-        onUsedDurabilityChangedCopy(GetMaxDurability(), value);
-    }
+    itemDurabilityModule_.AddUsedDurability(value);
 }

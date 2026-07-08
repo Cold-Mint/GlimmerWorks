@@ -48,12 +48,6 @@ namespace glimmer
 
         [[nodiscard]] const Tile* GetTile() const;
 
-        [[nodiscard]] uint32_t GetMaxDurability() const override;
-
-        [[nodiscard]] bool IsUnbreakable() const override;
-
-        void Reduce(unsigned value) override;
-
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
             std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
 

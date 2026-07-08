@@ -37,6 +37,7 @@ namespace glimmer
         std::shared_ptr<TextureResourceResult> iconResult_;
 
     public:
+
         explicit MaterialItem(std::string id, std::string name, std::optional<std::string> description,
                               std::shared_ptr<TextureResourceResult> iconResult,
                               const std::vector<ItemTagResource>& tags,
@@ -56,10 +57,6 @@ namespace glimmer
         void Reduce(unsigned value) override;
 
         [[nodiscard]] SDL_Texture* GetIcon() const override;
-
-        [[nodiscard]] uint32_t GetMaxDurability() const override;
-
-        [[nodiscard]] bool IsUnbreakable() const override;
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
             std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;

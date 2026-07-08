@@ -31,6 +31,7 @@
 #include "core/TilePlacementConfig.h"
 #include "core/TileStateBackup.h"
 #include "core/ecs/GameSystem.h"
+#include "core/ecs/TileBreakParams.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/mod/ResourceRef.h"
 
@@ -42,19 +43,6 @@ namespace glimmer
     class Transform2DComponent;
     class TileVector2D;
     class Item;
-
-    struct TileBreakParams
-    {
-        BreakSource breakSource;
-        WorldContext* worldContext = nullptr;
-        const TileLayerComponent* tileLayerComponent = nullptr;
-        TileVector2D topLeftVector;
-        bool precisionMining = false;
-        bool isPlaceMode = false;
-        uint8_t tileWidth = 1;
-        uint8_t tileHeight = 1;
-        ResourceRef newTileRef;
-    };
 
     class DiggingSystem : public GameSystem
     {
@@ -94,10 +82,10 @@ namespace glimmer
                                  bool precisionMining);
 
         static void DropCustomLoot(WorldContext* worldContext,
-                           EntityManager* entityManager,
-                           const AppContext* appContext,
-                           const LootResource* lootResource,
-                           const TileVector2D& topLeftVector);
+                                   EntityManager* entityManager,
+                                   const AppContext* appContext,
+                                   const LootResource* lootResource,
+                                   const TileVector2D& topLeftVector);
 
         static void ProcessSingleTile(const TileBreakParams& params,
                                       const TileVector2D& currentVector,
@@ -110,20 +98,6 @@ namespace glimmer
         void RenderDiggingPoint(SDL_Renderer* renderer, const MiningRangeDataPoint* point, float zoom);
 
     public:
-        /**
-     * BreakTile
-     * 破坏方块
-     * @param breakSource
-     * @param worldContext worldContext 上下文环境
-     * @param tileLayerComponent tileLayerComponent 图层
-     * @param topLeftVector TopLeftVector 左上角
-     * @param precisionMining Is precise collection carried out? 是否精准采集
-     * @param isPlaceMode 是否为放置方块模式，例如将某个方块放置在空气上。
-     * @param tileWidth
-     * @param tileHeight
-     * @param newTileRef newTileRef 新瓦片
-     * @return
-     */
         static uint16_t BreakTile(const TileBreakParams& params);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;

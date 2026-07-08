@@ -67,7 +67,8 @@ glimmer::PlayerContext::~PlayerContext()
         return;
     }
     const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-    if (const EntityManager* entityManager = worldContext_->GetEntityManager(); entityShortCut == nullptr || entityManager == nullptr)
+    if (const EntityManager* entityManager = worldContext_->GetEntityManager(); entityShortCut == nullptr ||
+        entityManager == nullptr)
     {
         return;
     }
@@ -76,8 +77,7 @@ glimmer::PlayerContext::~PlayerContext()
     {
         return;
     }
-    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer != nullptr)
+    if (ItemContainer* itemContainer = itemContainerComponent->GetItemContainer(); itemContainer != nullptr)
     {
         itemContainer->RemoveOnContentChanged(itemCallback_);
     }
@@ -217,12 +217,24 @@ void glimmer::PlayerContext::OnPlayerItemChanged(const uint8_t index, Item* item
         playerComponent->SetItem(nullptr);
         return;
     }
-    if (const uint8_t amount = item->GetAmount(); amount == 0)
+    const ItemStackModule* itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr)
     {
         playerComponent->SetItem(nullptr);
         return;
     }
-    if (!item->IsUnbreakable() && item->GetRemaining() == 0)
+    if (const uint8_t amount = itemStackModule->GetAmount(); amount == 0)
+    {
+        playerComponent->SetItem(nullptr);
+        return;
+    }
+    const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule();
+    if (itemDurabilityModule == nullptr)
+    {
+        playerComponent->SetItem(nullptr);
+        return;
+    }
+    if (!itemDurabilityModule->IsUnbreakable() && item->GetRemaining() == 0)
     {
         HandleItemBreak(item, playerEntity);
         return;
@@ -269,12 +281,22 @@ void glimmer::PlayerContext::DropComposableItemAbilities(ComposableItem* composa
         {
             continue;
         }
-        const uint8_t abilityRemaining = abilityItem->GetRemaining();
-        if (abilityRemaining == 0 || abilityItem->IsLocked())
+        const ItemStackModule* itemStackModule = abilityItem->GetStackModule();
+        if (itemStackModule == nullptr)
         {
             continue;
         }
-        std::unique_ptr<Item> takeItem = itemContainer->TakeItem(i, abilityItem->GetAmount());
+        const ItemLockModule* itemLockModule = abilityItem->GetLockModule();
+        if (itemLockModule == nullptr)
+        {
+            continue;
+        }
+        const uint8_t abilityRemaining = abilityItem->GetRemaining();
+        if (abilityRemaining == 0 || itemLockModule->IsLocked())
+        {
+            continue;
+        }
+        std::unique_ptr<Item> takeItem = itemContainer->TakeItem(i, itemStackModule->GetAmount());
         const uint32_t droppedEntity = worldContext_->GetEntityManager()->AddEntity();
         DroppedItemCreator droppedItemCreator{worldContext_};
         droppedItemCreator.LoadTemplateComponents(droppedEntity, DroppedItemCreator::GetResourceRef());
@@ -314,7 +336,8 @@ void glimmer::PlayerContext::InitHotbar(ItemContainer* itemContainer) const
 void glimmer::PlayerContext::InitInventory(ItemContainer* itemContainer) const
 {
     EntityManager* entityManager = worldContext_->GetEntityManager();
-    if (const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut(); entityManager == nullptr || entityShortCut == nullptr || itemContainer == nullptr)
+    if (const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut(); entityManager == nullptr ||
+        entityShortCut == nullptr || itemContainer == nullptr)
     {
         return;
     }

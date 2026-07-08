@@ -58,7 +58,7 @@ namespace glimmer
     public:
         ~ComposableItem() override;
 
-        explicit ComposableItem(ComposableItemCreateParams& params);
+        explicit ComposableItem(const ComposableItemCreateParams& params);
 
         static std::unique_ptr<ComposableItem> FromItemResource(WorldContext* worldContext,
                                                                 const ComposableItemResource* itemResource,
@@ -68,9 +68,7 @@ namespace glimmer
 
         void WriteItemMessage(ItemMessage& itemMessage) const override;
 
-        [[nodiscard]] uint32_t GetMaxDurability() const override;
-
-        [[nodiscard]] bool IsUnbreakable() const override;
+        void Reduce(unsigned value) override;
 
         [[nodiscard]] const std::string& GetId() const override;
 
@@ -79,10 +77,6 @@ namespace glimmer
         [[nodiscard]] const std::optional<std::string>& GetDescription() const override;
 
         [[nodiscard]] SDL_Texture* GetIcon() const override;
-
-        unsigned GetRemaining() const override;
-
-        void Reduce(unsigned value) override;
 
         void SwapItem(uint8_t index,
                       ItemContainer* otherContainer,

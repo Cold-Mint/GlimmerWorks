@@ -135,9 +135,11 @@ void glimmer::MaterialSelectCraftUISystem::InitializeTagRuntimeData()
         tagRuntimeData->SetText(text);
         tagRuntimeData->SetRequiredWeight(requiredTag.requiredWeight);
         tagRuntimeData->SetPositiveTexture(
-            resources_.resourcePackManager_->CreateStringTexture(text, &resources_.preloadColors_->game.positiveAttributeColor));
+            resources_.resourcePackManager_->CreateStringTexture(
+                text, &resources_.preloadColors_->game.positiveAttributeColor));
         tagRuntimeData->SetNegativeTexture(
-            resources_.resourcePackManager_->CreateStringTexture(text, &resources_.preloadColors_->game.negativeAttributeColor));
+            resources_.resourcePackManager_->CreateStringTexture(
+                text, &resources_.preloadColors_->game.negativeAttributeColor));
         tagRuntimeDataMap_[cachedTagId] = std::move(tagRuntimeData);
     }
 }
@@ -148,7 +150,15 @@ bool glimmer::MaterialSelectCraftUISystem::ItemHasMatchingTag(const Item* item) 
     {
         return false;
     }
-    return std::ranges::any_of(tagRuntimeDataMap_, [item](const auto& pair) { return item->HasTag(pair.first); });
+    const ItemTagModule* itemTagModule = item->GetTagModule();
+    if (itemTagModule == nullptr)
+    {
+        return false;
+    }
+    return std::ranges::any_of(tagRuntimeDataMap_, [itemTagModule](const auto& pair)
+    {
+        return itemTagModule->HasTag(pair.first);
+    });
 }
 
 void glimmer::MaterialSelectCraftUISystem::CountMatchingItems()
@@ -366,9 +376,14 @@ void glimmer::MaterialSelectCraftUISystem::RecalculateTagActualValues()
             continue;
         }
 
+        const ItemTagModule* itemTagModule = selectedItemPtr->GetTagModule();
+        if (itemTagModule == nullptr)
+        {
+            continue;
+        }
         for (const auto& [tagId, tagRuntimeData] : tagRuntimeDataMap_)
         {
-            const ItemTagResource* itemTagResource = selectedItemPtr->GetItemTagResource(tagId);
+            const ItemTagResource* itemTagResource = itemTagModule->GetItemTagResource(tagId);
             if (itemTagResource == nullptr)
             {
                 continue;
@@ -537,9 +552,11 @@ void glimmer::MaterialSelectCraftUISystem::UpdateItemSlotPositions() const
     constexpr uint8_t gridColumns = 6;
     constexpr DesignDimension gridPadding = 4.0F;
 
-    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(layout_.windowWidth_) / layout_.uiScale_ - layout_.panelWidth_) *
+    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(layout_.windowWidth_) / layout_.uiScale_ -
+            layout_.panelWidth_) *
         0.5F;
-    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(layout_.windowHeight_) / layout_.uiScale_ - layout_.panelHeight_) *
+    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(layout_.windowHeight_) / layout_.uiScale_ -
+            layout_.panelHeight_) *
         0.5F;
 
     const DesignVector2D gridStartPosition{
@@ -570,9 +587,11 @@ void glimmer::MaterialSelectCraftUISystem::UpdateButtonPosition() const
 
     constexpr DesignDimension panelPadding = 8.0F;
 
-    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(layout_.windowWidth_) / layout_.uiScale_ - layout_.panelWidth_) *
+    const DesignDimension panelOffsetX = (static_cast<DesignDimension>(layout_.windowWidth_) / layout_.uiScale_ -
+            layout_.panelWidth_) *
         0.5F;
-    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(layout_.windowHeight_) / layout_.uiScale_ - layout_.panelHeight_) *
+    const DesignDimension panelOffsetY = (static_cast<DesignDimension>(layout_.windowHeight_) / layout_.uiScale_ -
+            layout_.panelHeight_) *
         0.5F;
 
     const DesignVector2D buttonPosition{

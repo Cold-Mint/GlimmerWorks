@@ -143,8 +143,13 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
     {
         return false;
     }
-    size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(item);
-    if (remainingItemAmount == item->GetAmount())
+    const ItemStackModule* itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr)
+    {
+        return false;
+    }
+    size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(itemStackModule);
+    if (remainingItemAmount == itemStackModule->GetAmount())
     {
         return false;
     }

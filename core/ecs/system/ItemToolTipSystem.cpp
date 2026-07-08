@@ -201,7 +201,8 @@ void glimmer::ItemToolTipSystem::UpdateMiningEfficiencyTexture(const AbilityConf
     );
     const uint64_t efficiencyTipFingerprint = StringUtils::StringToUint64(efficiencyTip);
     bool efficiencyTipPositive = miningEfficiency > 0;
-    if (efficiencyTipPositive != efficiencyTipCache_.positive || efficiencyTipFingerprint != efficiencyTipCache_.cache.fingerprint)
+    if (efficiencyTipPositive != efficiencyTipCache_.positive || efficiencyTipFingerprint != efficiencyTipCache_.cache.
+        fingerprint)
     {
         efficiencyTipCache_.cache.texture = resourcePackManager_->CreateStringTexture(
             efficiencyTip, efficiencyTipPositive
@@ -231,7 +232,8 @@ void glimmer::ItemToolTipSystem::UpdateChainMiningTexture(const AbilityConfig* a
         fmt::format("{}{}", chainMiningRadius > 0 ? "+" : "", chainMiningRadius));
     const uint64_t chainMiningTipFingerprint = StringUtils::StringToUint64(chainMiningTip);
     bool chainMiningTipPositive = chainMiningRadius > 0;
-    if (chainMiningTipPositive != chainMiningTipCache_.positive || chainMiningTipFingerprint != chainMiningTipCache_.cache.fingerprint)
+    if (chainMiningTipPositive != chainMiningTipCache_.positive || chainMiningTipFingerprint != chainMiningTipCache_.
+        cache.fingerprint)
     {
         chainMiningTipCache_.cache.texture = resourcePackManager_->CreateStringTexture(
             chainMiningTip, chainMiningTipPositive
@@ -251,7 +253,16 @@ void glimmer::ItemToolTipSystem::UpdateLockedTexture(const LangsResources* langs
                                                      std::vector<SDL_Texture*>& textureToDraw)
 {
     const Item* item = itemToolTipComponent_->GetItem();
-    if (item == nullptr || !item->IsLocked())
+    if (item == nullptr)
+    {
+        return;
+    }
+    const ItemLockModule* itemLockModule = item->GetLockModule();
+    if (itemLockModule == nullptr)
+    {
+        return;
+    }
+    if (!itemLockModule->IsLocked())
     {
         return;
     }

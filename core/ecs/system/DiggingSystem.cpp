@@ -277,8 +277,8 @@ uint16_t glimmer::DiggingSystem::BreakTile(const TileBreakParams& params)
         }
     }
     uint8_t sum = 0;
-    auto centerX = params.tileWidth >> 1;
-    auto centerY = params.tileHeight >> 1;
+    auto centerX = params.tileWidth / 2;
+    auto centerY = params.tileHeight / 2;
     for (int x = 0; x < params.tileWidth; x++)
     {
         for (int y = 0; y < params.tileHeight; y++)

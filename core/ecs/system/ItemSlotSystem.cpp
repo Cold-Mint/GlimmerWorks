@@ -36,7 +36,8 @@
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/PreloadColors.h"
 
-glimmer::TextureResourceResult* glimmer::ItemSlotSystem::GetSlotTextureResult(const ItemSlotComponent* slotComponent) const
+glimmer::TextureResourceResult* glimmer::ItemSlotSystem::GetSlotTextureResult(
+    const ItemSlotComponent* slotComponent) const
 {
     if (hotBarComponent_ != nullptr && hotBarComponent_->GetSelectedSlotComponent() == slotComponent &&
         itemSlotSelectedTextureResult_ != nullptr)
@@ -101,14 +102,19 @@ void glimmer::ItemSlotSystem::RenderSlotBackground(SDL_Renderer* renderer, ItemS
 }
 
 void glimmer::ItemSlotSystem::RenderDurabilityBar(SDL_Renderer* renderer, const Item* item,
-                                                  const SDL_FRect& itemRect)
+                                                  const SDL_FRect& itemRect) const
 {
-    if (item->IsUnbreakable())
+    const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule();
+    if (itemDurabilityModule == nullptr)
     {
         return;
     }
-    const uint32_t totalDur = std::max(item->GetMaxDurability(), 1U);
-    const uint32_t usedDur = item->GetUsedDurability();
+    if (itemDurabilityModule->IsUnbreakable())
+    {
+        return;
+    }
+    const uint32_t totalDur = std::max(itemDurabilityModule->GetMaxDurability(), 1U);
+    const uint32_t usedDur = itemDurabilityModule->GetUsedDurability();
     const uint32_t remainDur = usedDur >= totalDur ? 0U : totalDur - usedDur;
     float remainingDurabilityPercentage = static_cast<float>(remainDur) / static_cast<float>(totalDur);
     if (remainingDurabilityPercentage == 1.0F)
@@ -164,7 +170,12 @@ void glimmer::ItemSlotSystem::RenderSlotItem(SDL_Renderer* renderer, ItemSlotCom
     {
         SDL_RenderTexture(renderer, texture, nullptr, &itemRect);
     }
-    uint8_t amount = item->GetAmount();
+    const ItemStackModule* itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr)
+    {
+        return;
+    }
+    uint8_t amount = itemStackModule->GetAmount();
     if (amount <= 1)
     {
         return;

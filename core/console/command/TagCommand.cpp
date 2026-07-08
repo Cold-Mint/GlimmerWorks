@@ -103,7 +103,7 @@ void glimmer::TagCommand::PutCommandStructure(const CommandArgs* commandArgs, st
     strings->emplace_back("[type:string]");
 }
 
-template<typename MessageCallback>
+template <typename MessageCallback>
 bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* commandSender,
                                       const WorldContext* worldContext,
                                       MessageCallback&& onMessageRef,
@@ -135,7 +135,12 @@ bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* comm
         return false;
     }
     StringManager* stringManager = appContext->GetStringManager();
-    const std::vector<uint64_t>& tagList = item->GetTags();
+    const ItemTagModule* itemTagModule = item->GetTagModule();
+    if (itemTagModule == nullptr)
+    {
+        return false;
+    }
+    const std::vector<uint64_t>& tagList = itemTagModule->GetTags();
     if (tagList.empty())
     {
         onMessageRef(langsResources->tagCannotFound);
@@ -144,7 +149,7 @@ bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* comm
     std::vector<const ItemTagResource*> itemTagResourceList;
     for (uint64_t tag : tagList)
     {
-        const ItemTagResource* itemTagResource = item->GetItemTagResource(tag);
+        const ItemTagResource* itemTagResource = itemTagModule->GetItemTagResource(tag);
         if (itemTagResource == nullptr)
         {
             continue;
@@ -155,7 +160,7 @@ bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* comm
     return true;
 }
 
-template<typename MessageCallback>
+template <typename MessageCallback>
 bool glimmer::TagCommand::ExecuteInventory([[maybe_unused]] const CommandSender* commandSender,
                                            const WorldContext* worldContext,
                                            MessageCallback&& onMessageRef,

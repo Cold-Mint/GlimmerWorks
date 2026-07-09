@@ -53,34 +53,67 @@ namespace glimmer
         /**
          * Vector addition
          * 向量加法
+         * @param lhs
          * @param rhs
          * @return
          */
-        [[nodiscard]] Derived operator+(const Derived& rhs) const;
+        friend Derived operator+(const Derived& lhs, const Derived& rhs)
+        {
+            Derived result(lhs);
+            result.x += rhs.x;
+            result.y += rhs.y;
+            return result;
+        }
 
         /**
          * Vector subtraction
          * 向量减法
+         * @param lhs
          * @param rhs
          * @return
          */
-        [[nodiscard]] Derived operator-(const Derived& rhs) const;
+        friend Derived operator-(const Derived& lhs, const Derived& rhs)
+        {
+            Derived result(lhs);
+            result.x -= rhs.x;
+            result.y -= rhs.y;
+            return result;
+        }
 
         /**
          * Vector multiplication
          * 向量乘法
+         * @param lhs
          * @param scalar scalar 标量
          * @return
          */
-        [[nodiscard]] Derived operator*(float scalar) const;
+        friend Derived operator*(const Derived& lhs, float scalar)
+        {
+            Derived result(lhs);
+            result.x *= scalar;
+            result.y *= scalar;
+            return result;
+        }
+
+        friend Derived operator*(float scalar, const Derived& rhs)
+        {
+            return rhs * scalar;
+        }
 
         /**
          * Vector division
          * 向量除法
+         * @param lhs
          * @param scalar scalar 标量
          * @return
          */
-        [[nodiscard]] Derived operator/(float scalar) const;
+        friend Derived operator/(const Derived& lhs, float scalar)
+        {
+            Derived result(lhs);
+            result.x /= scalar;
+            result.y /= scalar;
+            return result;
+        }
 
         /**
          * Vector plus vector
@@ -177,31 +210,6 @@ namespace glimmer
         vector2di.set_y(y);
     }
 
-
-    template <typename Derived>
-    Derived Vector2DIBase<Derived>::operator+(const Derived& rhs) const
-    {
-        return Derived(x + rhs.x, y + rhs.y);
-    }
-
-    template <typename Derived>
-    Derived Vector2DIBase<Derived>::operator-(const Derived& rhs) const
-    {
-        return Derived(x - rhs.x, y - rhs.y);
-    }
-
-    template <typename Derived>
-    Derived Vector2DIBase<Derived>::operator*(const float scalar) const
-    {
-        return Derived(x * scalar, y * scalar);
-    }
-
-    template <typename Derived>
-    Derived Vector2DIBase<Derived>::operator/(const float scalar) const
-    {
-        return Derived(x / scalar, y / scalar);
-    }
-
     template <typename Derived>
     Derived& Vector2DIBase<Derived>::operator+=(const Derived& rhs)
     {
@@ -251,13 +259,15 @@ namespace glimmer
     template <typename Derived>
     uint32_t Vector2DIBase<Derived>::Distance(const Derived& rhs) const
     {
-        return (*this - rhs).Length();
+        auto self = static_cast<const Derived&>(*this);
+        return (self - rhs).Length();
     }
 
     template <typename Derived>
     uint32_t Vector2DIBase<Derived>::DistanceSquared(const Derived& rhs) const
     {
-        return (*this - rhs).LengthSquared();
+        auto self = static_cast<const Derived&>(*this);
+        return (self - rhs).LengthSquared();
     }
 
     template <typename Derived>

@@ -219,14 +219,14 @@ namespace glimmer
     template <typename Derived>
     float Vector2DBase<Derived>::Distance(const Derived& rhs) const
     {
-        const Derived& self = static_cast<const Derived&>(*this);
+        auto self = static_cast<const Derived&>(*this);
         return (self - rhs).Length();
     }
 
     template <typename Derived>
     float Vector2DBase<Derived>::DistanceSquared(const Derived& rhs) const
     {
-        const Derived& self = static_cast<const Derived&>(*this);
+        auto self = static_cast<const Derived&>(*this);
         return (self - rhs).LengthSquared();
     }
 

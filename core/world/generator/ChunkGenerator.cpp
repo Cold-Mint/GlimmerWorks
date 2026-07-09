@@ -203,10 +203,10 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) co
 }
 
 void glimmer::ChunkGenerator::PlaceStructureTiles(TerrainManager* terrainManager, const StructureInfo& structureInfo,
-                                                  const TileVector2D& globalOrigin) const
+                                                  const TileVector2D& globalOrigin)
 {
-    const int width = static_cast<int>(structureInfo.GetWidth());
-    const int height = static_cast<int>(structureInfo.GetHeight());
+    const auto width = static_cast<int>(structureInfo.GetWidth());
+    const auto height = static_cast<int>(structureInfo.GetHeight());
     const int baseX = globalOrigin.x;
     const int baseY = globalOrigin.y;
 

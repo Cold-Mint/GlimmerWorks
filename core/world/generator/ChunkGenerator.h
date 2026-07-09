@@ -133,8 +133,8 @@ namespace glimmer
                                        const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
                                        tilesRefMap);
 
-        void PlaceStructureTiles(TerrainManager* terrainManager, const StructureInfo& structureInfo,
-                                 const TileVector2D& globalOrigin) const;
+        static void PlaceStructureTiles(TerrainManager* terrainManager, const StructureInfo& structureInfo,
+                                 const TileVector2D& globalOrigin) ;
 
         static std::optional<std::bitset<CHUNK_AREA>> MatchStructureConditions(
             const AppContext* appContext,

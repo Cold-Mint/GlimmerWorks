@@ -56,8 +56,8 @@ const glimmer::TileVector2D& glimmer::ChunkTask::GetChunkVertexCoordinates() con
 
 uint64_t glimmer::ChunkTask::GetFingerprint() const
 {
-    const uint64_t type = static_cast<uint64_t>(chunkType_) & 0x3ULL;
-    const uint64_t x = static_cast<uint64_t>(chunkVertexCoordinates_.x) & 0x7FFFFFFFull;
-    const uint64_t y = static_cast<uint64_t>(chunkVertexCoordinates_.y) & 0x7FFFFFFFull;
+    const uint64_t type = std::to_underlying(chunkType_) & 0x3ULL;
+    const uint64_t x = static_cast<uint64_t>(chunkVertexCoordinates_.x) & 0x7FFFFFFFULL;
+    const uint64_t y = static_cast<uint64_t>(chunkVertexCoordinates_.y) & 0x7FFFFFFFULL;
     return type << 62 | x << 31 | y;
 }

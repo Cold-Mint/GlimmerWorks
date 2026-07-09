@@ -42,7 +42,7 @@ const std::string& glimmer::ClearCommand::GetName() const
 bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                     const std::function<void(const std::string& text)>* onMessage)
 {
-    AppContext* appContext = GetAppContext();
+    const AppContext* appContext = GetAppContext();
     const WorldContext* worldContext = GetWorldContext();
     if (appContext == nullptr || onMessage == nullptr)
     {
@@ -70,9 +70,9 @@ bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const Co
     }
     appContext->GetMainThreadDispatcher()->PostToNextMainFrame([itemContainerComponent, playerEntity, worldContext]
         {
-            if (auto playerComponent = worldContext->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity); playerComponent != nullptr)
+            if (auto playerComponent = worldContext->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity);
+                playerComponent != nullptr)
             {
-
                 playerComponent->SetItem(nullptr);
             }
 

@@ -523,22 +523,24 @@ void glimmer::ChunkGenerator::SetTileRefForTerrainType(int idx, const TerrainTil
                                                        const ResourceRef& waterTileRef,
                                                        const ResourceRef& bedrockTileRef)
 {
+    using enum TerrainResultType;
+    using enum TileLayerType;
     switch (terrainTileResult.terrainType)
     {
-    case TerrainResultType::AIR:
-        tilesRefMap[TileLayerType::Ground][idx] = TileResourceManager::GetAirResourceRef(TileLayerType::Ground);
+    case AIR:
+        tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
         break;
-    case TerrainResultType::WATER:
-        tilesRefMap[TileLayerType::Ground][idx] = waterTileRef;
+    case WATER:
+        tilesRefMap[Ground][idx] = waterTileRef;
         break;
-    case TerrainResultType::BEDROCK:
-        tilesRefMap[TileLayerType::Ground][idx] = bedrockTileRef;
+    case BEDROCK:
+        tilesRefMap[Ground][idx] = bedrockTileRef;
         break;
-    case TerrainResultType::STRUCTURE:
-        tilesRefMap[TileLayerType::Ground][idx] = terrainTileResult.resRef;
+    case STRUCTURE:
+        tilesRefMap[Ground][idx] = terrainTileResult.resRef;
         break;
-    case TerrainResultType::SOLID:
-        tilesRefMap[TileLayerType::Ground][idx] = TileResourceManager::GetAirResourceRef(TileLayerType::Ground);
+    case SOLID:
+        tilesRefMap[Ground][idx] = TileResourceManager::GetAirResourceRef(Ground);
         if (terrainTileResult.biomeResource != nullptr)
         {
             biomeResourcesSet.insert(terrainTileResult.biomeResource);

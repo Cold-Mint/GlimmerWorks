@@ -53,6 +53,14 @@ namespace glimmer
         static uint64_t StringToUint64Blake3(const std::string& string);
 
         /**
+         * Check if the input string is an integer
+         * 输入字符串判断是否为整数
+         * @param str
+         * @return
+         */
+        static bool IsInteger(const std::string& str);
+
+        /**
          * String to hash value
          * 字符串转哈希值
          *

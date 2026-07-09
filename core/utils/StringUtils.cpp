@@ -54,6 +54,33 @@ uint64_t glimmer::StringUtils::StringToUint64Blake3(const std::string& string)
     return res;
 }
 
+bool glimmer::StringUtils::IsInteger(const std::string& str)
+{
+    if (str.empty())
+    {
+        return false;
+    }
+
+    size_t checkStart = 0;
+    if (str[0] == '-')
+    {
+        if (str.size() == 1)
+        {
+            return false;
+        }
+        checkStart = 1;
+    }
+    for (size_t i = checkStart; i < str.size(); ++i)
+    {
+        auto c = static_cast<unsigned char>(str[i]);
+        if (!std::isdigit(c))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 uint64_t glimmer::StringUtils::StringToUint64(const std::string& string)
 {
     return std::hash<std::string>{}(string);

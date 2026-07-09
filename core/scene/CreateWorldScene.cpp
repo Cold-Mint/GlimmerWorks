@@ -60,15 +60,15 @@ void glimmer::CreateWorldScene::CreateWorld() const
         SDL_Log("The name of the world cannot be empty!");
         return;
     }
-    const std::string seed_input = seedStr_;
+    const std::string seedInput = seedStr_;
     int seedValue = 0;
-    try
+    if (StringUtils::IsInteger(seedInput))
     {
-        seedValue = std::stoi(seed_input);
+        seedValue = std::stoi(seedInput);
     }
-    catch (...)
+    else
     {
-        seedValue = static_cast<int>(StringUtils::StringToUint64Blake3(seed_input));
+        seedValue = static_cast<int>(StringUtils::StringToUint64Blake3(seedInput));
     }
     LogCat::d("Create a world: ", name, ", seed: ", seedValue);
     MapManifest manifest;
@@ -89,10 +89,10 @@ void glimmer::CreateWorldScene::CreateWorld() const
         return;
     }
     GetAppContext()->GetSceneManager()->
-                 ReplaceScene(std::make_unique<WorldScene>(
-                     GetAppContext(), std::make_unique<WorldContext>(
-                         GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
-                         saves)));
+                     ReplaceScene(std::make_unique<WorldScene>(
+                         GetAppContext(), std::make_unique<WorldContext>(
+                             GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
+                             saves)));
 }
 
 void glimmer::CreateWorldScene::OnConfigChanged(const Config* config)

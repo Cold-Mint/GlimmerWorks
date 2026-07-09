@@ -104,10 +104,11 @@ namespace glimmer
          * @param resourceRef resourceRef 资源引用
          * @return Not found, return null. 找不到返回null
          */
-        std::shared_ptr<TextureResourceResult> LoadTextureFromFile(AppContext* appContext,
+        std::shared_ptr<TextureResourceResult> LoadTextureFromFile(const AppContext* appContext,
                                                                    const ResourceRef* resourceRef);
 
-        std::shared_ptr<AudioResourceResult> LoadAudioFromFile(AppContext* appContext, const ResourceRef* resourceRef);
+        std::shared_ptr<AudioResourceResult> LoadAudioFromFile(const AppContext* appContext,
+                                                               const ResourceRef* resourceRef);
 
         ColorResource* LoadColorResFromFile(const AppContext* appContext, const ResourceRef* resourceRef);
 

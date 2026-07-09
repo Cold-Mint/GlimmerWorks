@@ -39,16 +39,17 @@ namespace glimmer
 
     class GraphicsContext
     {
-        std::unique_ptr<LightMaskManager> lightMaskManager_;
-        std::unique_ptr<LightSourceManager> lightSourceManager_;
-        std::unique_ptr<FixedColorManager> fixedColorManager_;
-        std::unique_ptr<PreloadColors> preloadColors_;
+        std::unique_ptr<LightMaskManager> lightMaskManager_ = nullptr;
+        std::unique_ptr<LightSourceManager> lightSourceManager_ = nullptr;
+        std::unique_ptr<FixedColorManager> fixedColorManager_ = nullptr;
+        std::unique_ptr<PreloadColors> preloadColors_ = nullptr;
 
     public:
         GraphicsContext();
+
         ~GraphicsContext();
 
-        void Init(ResourceLocator* resourceLocator);
+        void Init(const ResourceLocator* resourceLocator);
 
         [[nodiscard]] LightMaskManager* GetLightMaskManager() const;
         [[nodiscard]] LightSourceManager* GetLightSourceManager() const;

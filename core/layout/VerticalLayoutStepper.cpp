@@ -27,39 +27,36 @@
 #include "VerticalLayoutStepper.h"
 #include "core/math/DesignVector2D.h"
 
-namespace glimmer
+glimmer::VerticalLayoutStepper::VerticalLayoutStepper(DesignDimension cellHeight, const DesignVector2D& startPosition,
+                                                      DesignDimension padding, uint32_t dataLength)
+    : cellHeight_(cellHeight),
+      startPosition_(startPosition),
+      padding_(padding),
+      dataLength_(dataLength)
 {
-    VerticalLayoutStepper::VerticalLayoutStepper(DesignDimension cellHeight, const DesignVector2D& startPosition,
-                                                DesignDimension padding, uint32_t dataLength)
-        : cellHeight_(cellHeight),
-          startPosition_(startPosition),
-          padding_(padding),
-          dataLength_(dataLength)
+}
+
+bool glimmer::VerticalLayoutStepper::HasNext()
+{
+    return currentIndex_ < dataLength_;
+}
+
+glimmer::DesignVector2D glimmer::VerticalLayoutStepper::Next()
+{
+    if (!HasNext())
     {
+        return startPosition_;
     }
 
-    bool VerticalLayoutStepper::HasNext()
-    {
-        return currentIndex_ < dataLength_;
-    }
+    DesignVector2D position;
+    position.x = startPosition_.x;
+    position.y = startPosition_.y + static_cast<DesignDimension>(currentIndex_) * (cellHeight_ + padding_);
 
-    DesignVector2D VerticalLayoutStepper::Next()
-    {
-        if (!HasNext())
-        {
-            return startPosition_;
-        }
+    currentIndex_++;
+    return position;
+}
 
-        DesignVector2D position;
-        position.x = startPosition_.x;
-        position.y = startPosition_.y + static_cast<DesignDimension>(currentIndex_) * (cellHeight_ + padding_);
-
-        currentIndex_++;
-        return position;
-    }
-
-    void VerticalLayoutStepper::Reset()
-    {
-        currentIndex_ = 0;
-    }
+void glimmer::VerticalLayoutStepper::Reset()
+{
+    currentIndex_ = 0;
 }

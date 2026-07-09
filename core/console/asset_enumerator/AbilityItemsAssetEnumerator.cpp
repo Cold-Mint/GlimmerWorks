@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::AbilityItemsAssetEnumerator::ListAsset(const
     {
         return std::nullopt;
     }
-    ModContext* modContext = appContext->GetModContext();
+    const ModContext* modContext = appContext->GetModContext();
     if (modContext == nullptr)
     {
         return std::nullopt;

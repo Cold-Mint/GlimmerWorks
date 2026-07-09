@@ -26,42 +26,37 @@
  */
 #include "GraphicsContext.h"
 
-#include "core/mod/ResourceLocator.h"
-
-namespace glimmer
+glimmer::GraphicsContext::GraphicsContext()
+    : lightMaskManager_(std::make_unique<LightMaskManager>())
+      , lightSourceManager_(std::make_unique<LightSourceManager>())
+      , fixedColorManager_(std::make_unique<FixedColorManager>())
 {
-    GraphicsContext::GraphicsContext()
-        : lightSourceManager_(std::make_unique<LightSourceManager>())
-        , lightMaskManager_(std::make_unique<LightMaskManager>())
-        , fixedColorManager_(std::make_unique<FixedColorManager>())
-    {
-    }
+}
 
-    GraphicsContext::~GraphicsContext() = default;
+glimmer::GraphicsContext::~GraphicsContext() = default;
 
-    void GraphicsContext::Init(ResourceLocator* resourceLocator)
-    {
-        preloadColors_ = std::make_unique<PreloadColors>();
-        preloadColors_->LoadAllColors(resourceLocator);
-    }
+void glimmer::GraphicsContext::Init(const ResourceLocator* resourceLocator)
+{
+    preloadColors_ = std::make_unique<PreloadColors>();
+    preloadColors_->LoadAllColors(resourceLocator);
+}
 
-    LightMaskManager* GraphicsContext::GetLightMaskManager() const
-    {
-        return lightMaskManager_.get();
-    }
+glimmer::LightMaskManager* glimmer::GraphicsContext::GetLightMaskManager() const
+{
+    return lightMaskManager_.get();
+}
 
-    LightSourceManager* GraphicsContext::GetLightSourceManager() const
-    {
-        return lightSourceManager_.get();
-    }
+glimmer::LightSourceManager* glimmer::GraphicsContext::GetLightSourceManager() const
+{
+    return lightSourceManager_.get();
+}
 
-    FixedColorManager* GraphicsContext::GetFixedColorManager() const
-    {
-        return fixedColorManager_.get();
-    }
+glimmer::FixedColorManager* glimmer::GraphicsContext::GetFixedColorManager() const
+{
+    return fixedColorManager_.get();
+}
 
-    PreloadColors* GraphicsContext::GetPreloadColors() const
-    {
-        return preloadColors_.get();
-    }
+glimmer::PreloadColors* glimmer::GraphicsContext::GetPreloadColors() const
+{
+    return preloadColors_.get();
 }

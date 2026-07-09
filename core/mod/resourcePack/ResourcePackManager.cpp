@@ -243,7 +243,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
 }
 
 std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::LoadTextureFromFile(
-    AppContext* appContext, const ResourceRef* resourceRef)
+    const AppContext* appContext, const ResourceRef* resourceRef)
 {
     if (resourceRef->GetPackageId() == RESOURCE_REF_CORE)
     {
@@ -258,7 +258,12 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Lo
         }
     }
     std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
-    return appContext->GetMainThreadDispatcher()->AddMainThreadTaskAwait(
+    MainThreadDispatcher* mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr)
+    {
+        return nullptr;
+    }
+    return mainThreadDispatcher->AddMainThreadTaskAwait(
         [this,appContext, path]
         {
             return ImplLoadTextureFromFile(path, appContext->GetConfig()->mods);
@@ -434,11 +439,17 @@ std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateStringTexture(c
 }
 
 
-std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::LoadAudioFromFile(AppContext* appContext,
+std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::LoadAudioFromFile(
+    const AppContext* appContext,
     const ResourceRef* resourceRef)
 {
+    MainThreadDispatcher* mainThreadDispatcher = appContext->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr)
+    {
+        return nullptr;
+    }
     std::string path = resourceRef->GetPackageId() + "/" + resourceRef->GetResourceKey();
-    return appContext->GetMainThreadDispatcher()->AddMainThreadTaskAwait(
+    return mainThreadDispatcher->AddMainThreadTaskAwait(
         [this,appContext, path]
         {
             return ImplLoadAudioFromFile(path, appContext->GetConfig()->mods);

@@ -102,13 +102,15 @@ namespace glimmer
         std::unique_ptr<FastNoiseLite> temperatureMapNoise_;
 
         static void InitializeTileRefs(const TerrainResult* terrainResult,
-                                       std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
+                                       std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+                                       tilesRefMap,
                                        std::unordered_set<BiomeResource*>& biomeResourcesSet,
                                        const ResourceRef& waterTileRef,
                                        const ResourceRef& bedrockTileRef);
 
         static void SetTileRefForTerrainType(int idx, const TerrainTileResult& terrainTileResult,
-                                             std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
+                                             std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+                                             tilesRefMap,
                                              std::unordered_set<BiomeResource*>& biomeResourcesSet,
                                              const ResourceRef& waterTileRef,
                                              const ResourceRef& bedrockTileRef);
@@ -118,7 +120,8 @@ namespace glimmer
                                          BiomeDecoratorManager* biomeDecoratorManager,
                                          WorldContext* worldContext,
                                          TerrainResult* terrainResult,
-                                         std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap);
+                                         std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+                                         tilesRefMap);
 
         static void PopulateSingleTilePosition(
             Chunk* chunk, const ResourceLocator* resourceLocator,
@@ -127,10 +130,23 @@ namespace glimmer
 
         static void PopulateChunkTiles(Chunk* chunk,
                                        const ResourceLocator* resourceLocator,
-                                       const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap);
+                                       const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+                                       tilesRefMap);
 
         void PlaceStructureTiles(TerrainManager* terrainManager, const StructureInfo& structureInfo,
                                  const TileVector2D& globalOrigin) const;
+
+        static std::optional<std::bitset<CHUNK_AREA>> MatchStructureConditions(
+            const AppContext* appContext,
+            TerrainResult* terrainResult,
+            const IStructureResource* structureResource);
+
+        int PlaceStructureAtCandidatePoints(
+            const AppContext* appContext,
+            TerrainManager* terrainManager,
+            const TileVector2D& position,
+            const std::bitset<CHUNK_AREA>& candidatePoints,
+            IStructureResource* structureResource) const;
 
     public:
         explicit ChunkGenerator(WorldContext* worldContext, int worldSeed);

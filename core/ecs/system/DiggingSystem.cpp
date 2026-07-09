@@ -51,7 +51,12 @@ bool glimmer::DiggingSystem::CanProcessTile(const Tile* tile, bool isPlaceMode)
     {
         return false;
     }
-    if (!isPlaceMode && !tile->IsBreakable())
+    const TileMiningData* miningData = tile->GetMiningData();
+    if (miningData == nullptr)
+    {
+        return false;
+    }
+    if (!isPlaceMode && !miningData->IsBreakable())
     {
         return false;
     }
@@ -111,9 +116,14 @@ void glimmer::DiggingSystem::ApplyItemDurability(Item* item, const Tile* tile, b
     {
         return;
     }
-    if (tile->IsAutoDigCostScale() || isCenter)
+    const TileMiningData* miningData = tile->GetMiningData();
+    if (miningData == nullptr)
     {
-        item->Reduce(tile->GetUnitDigCost());
+        return;
+    }
+    if (miningData->IsAutoDigCostScale() || isCenter)
+    {
+        item->Reduce(miningData->GetUnitDigCost());
     }
 }
 
@@ -141,12 +151,17 @@ void glimmer::DiggingSystem::DropTileLoot(WorldContext* worldContext, EntityMana
     {
         return;
     }
-    if (!tile->CanDropLoot())
+    const TileLootData* tileLootData = tile->GetLootData();
+    if (tileLootData == nullptr)
     {
         return;
     }
-    const auto lootResource = appContext->GetResourceLocator()->FindLoot(tile->GetLootTableRef());
-    if (precisionMining || !tile->IsCustomLootTable() || lootResource == nullptr)
+    if (!tileLootData->CanDropLoot())
+    {
+        return;
+    }
+    const auto lootResource = appContext->GetResourceLocator()->FindLoot(tileLootData->GetLootTableRef());
+    if (precisionMining || !tileLootData->IsCustomLootTable() || lootResource == nullptr)
     {
         DropDefaultLoot(worldContext, entityManager, tile, position, oldResourceRef);
         return;
@@ -178,6 +193,36 @@ void glimmer::DiggingSystem::DropCustomLoot(WorldContext* worldContext, EntityMa
     }
 }
 
+void glimmer::DiggingSystem::PlayBreakSFX(const AppContext* appContext, const Tile* tile)
+{
+    if (appContext == nullptr || tile == nullptr)
+    {
+        return;
+    }
+    const AudioContext* audioContext = appContext->GetAudioContext();
+    if (audioContext == nullptr)
+    {
+        return;
+    }
+    const TileResourceData* tileResourceData = tile->GetResourceData();
+    if (tileResourceData == nullptr)
+    {
+        return;
+    }
+    auto breakSFX = tileResourceData->GetBreakSFX();
+    if (breakSFX == nullptr)
+    {
+        return;
+    }
+    AudioManager* audioManager = audioContext->GetAudioManager();
+    if (audioManager == nullptr)
+    {
+        return;
+    }
+    audioManager->TryPlayFree(
+        AudioType::AMBIENT, breakSFX->GetResource(), 0);
+}
+
 
 static bool CheckMiningEfficiency(const glimmer::Tile* tile, const glimmer::Item* item)
 {
@@ -185,7 +230,12 @@ static bool CheckMiningEfficiency(const glimmer::Tile* tile, const glimmer::Item
     {
         return true;
     }
-    if (tile->GetMinMiningEfficiency() > item->GetAbilityConfig()->miningEfficiency)
+    const glimmer::TileMiningData* tileMiningData = tile->GetMiningData();
+    if (tileMiningData == nullptr)
+    {
+        return true;
+    }
+    if (tileMiningData->GetMinMiningEfficiency() > item->GetAbilityConfig()->miningEfficiency)
     {
         return false;
     }
@@ -222,13 +272,14 @@ void glimmer::DiggingSystem::ProcessSingleTile(const TileBreakParams& params,
     ApplyItemDurability(item, currentTile.get(), isCenter);
     if (isCenter && !params.isPlaceMode)
     {
-        auto breakSFX = currentTile->GetBreakSFX();
-        if (breakSFX != nullptr)
-        {
-            appContext->GetAudioContext()->GetAudioManager()->TryPlayFree(AudioType::AMBIENT, breakSFX, 0);
-        }
+        PlayBreakSFX(appContext, currentTile.get());
     }
-    if (!isCenter && !currentTile->LootScaleBySize())
+    const TileLootData* tileLootData = currentTile->GetLootData();
+    if (tileLootData == nullptr)
+    {
+        return;
+    }
+    if (!isCenter && !tileLootData->LootScaleBySize())
     {
         return;
     }

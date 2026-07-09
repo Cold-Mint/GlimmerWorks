@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,41 +24,35 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AudioContext.h"
+#pragma once
+#include "core/mod/Resource.h"
+#include "core/mod/resourcePack/AudioResourceResult.h"
+#include "core/mod/resourcePack/TextureResourceResult.h"
 
-#include "core/mod/ResourceLocator.h"
-
-glimmer::AudioContext::AudioContext()
-    : audioManager_(std::make_unique<AudioManager>())
+namespace glimmer
 {
-}
-
-glimmer::AudioContext::~AudioContext() = default;
-
-void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator* resourceLocator)
-{
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_AUDIO);
-    resourceRef.SetResourceKey("bgm/main_menu");
-    mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);
-}
-
-void glimmer::AudioContext::PlayMainMenuBGM() const
-{
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
+    class TileResourceData
     {
-        return;
-    }
-    MIX_Audio* audio = mainMenuBGM_->GetResource();
-    if (audio == nullptr)
-    {
-        return;
-    }
-    audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
-}
+        std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
+        std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
+        std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
+        std::vector<ItemTagResource> tags_;
 
-glimmer::AudioManager* glimmer::AudioContext::GetAudioManager() const
-{
-    return audioManager_.get();
+    public:
+        [[nodiscard]] TextureResourceResult* GetTexture() const;
+
+        [[nodiscard]] AudioResourceResult* GetBreakSFX() const;
+
+        [[nodiscard]] AudioResourceResult* GetPlaceSFX() const;
+
+        [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
+
+        void SetTexture(const std::shared_ptr<TextureResourceResult>& textureResult);
+
+        void SetBreakSFX(const std::shared_ptr<AudioResourceResult>& breakSFXResult);
+
+        void SetPlaceSFX(const std::shared_ptr<AudioResourceResult>& placeSFXResult);
+
+        void SetTags(const std::vector<ItemTagResource>& tags);
+    };
 }

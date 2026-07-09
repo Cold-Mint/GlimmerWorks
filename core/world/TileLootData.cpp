@@ -24,41 +24,44 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AudioContext.h"
+#include "TileLootData.h"
 
-#include "core/mod/ResourceLocator.h"
-
-glimmer::AudioContext::AudioContext()
-    : audioManager_(std::make_unique<AudioManager>())
+bool glimmer::TileLootData::IsCustomLootTable() const
 {
+    return customLootTable;
 }
 
-glimmer::AudioContext::~AudioContext() = default;
-
-void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator* resourceLocator)
+const glimmer::ResourceRef* glimmer::TileLootData::GetLootTableRef() const
 {
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_AUDIO);
-    resourceRef.SetResourceKey("bgm/main_menu");
-    mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);
+    return &lootTable;
 }
 
-void glimmer::AudioContext::PlayMainMenuBGM() const
+bool glimmer::TileLootData::LootScaleBySize() const
 {
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
-    {
-        return;
-    }
-    MIX_Audio* audio = mainMenuBGM_->GetResource();
-    if (audio == nullptr)
-    {
-        return;
-    }
-    audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
+    return lootScaleBySize;
 }
 
-glimmer::AudioManager* glimmer::AudioContext::GetAudioManager() const
+bool glimmer::TileLootData::CanDropLoot() const
 {
-    return audioManager_.get();
+    return canDropLoot;
+}
+
+void glimmer::TileLootData::SetCustomLootTable(bool customLootTable)
+{
+    this->customLootTable = customLootTable;
+}
+
+void glimmer::TileLootData::SetLootTable(const ResourceRef& lootTable)
+{
+    this->lootTable = lootTable;
+}
+
+void glimmer::TileLootData::SetLootScaleBySize(bool lootScaleBySize)
+{
+    this->lootScaleBySize = lootScaleBySize;
+}
+
+void glimmer::TileLootData::SetCanDropLoot(bool canDropLoot)
+{
+    this->canDropLoot = canDropLoot;
 }

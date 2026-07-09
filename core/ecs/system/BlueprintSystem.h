@@ -31,6 +31,7 @@
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/PreloadColors.h"
+#include "core/world/TileDimensions.h"
 
 namespace glimmer
 {
@@ -86,9 +87,9 @@ namespace glimmer
         SDL_FRect CalculateRenderQuad(const TileVector2D& focusPosition,
                                       const TileVector2D& topLeftVector,
                                       uint8_t tileWidth,
-                                      uint8_t tileHeight);
+                                      uint8_t tileHeight) const;
 
-        void RenderBlueprintTexture(SDL_Renderer* renderer, const SDL_FRect& renderQuad);
+        void RenderBlueprintTexture(SDL_Renderer* renderer, const SDL_FRect& renderQuad) const;
 
         void RenderBlueprintMask(SDL_Renderer* renderer, const std::vector<bool>& checkRectResult,
                                  const TileVector2D& leftBottom, uint8_t tileWidth, uint8_t tileHeight);

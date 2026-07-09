@@ -24,41 +24,44 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AudioContext.h"
+#include "TileDimensions.h"
 
-#include "core/mod/ResourceLocator.h"
-
-glimmer::AudioContext::AudioContext()
-    : audioManager_(std::make_unique<AudioManager>())
+uint8_t glimmer::TileDimensions::GetTileWidth() const
 {
+    return tileWidth;
 }
 
-glimmer::AudioContext::~AudioContext() = default;
-
-void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator* resourceLocator)
+uint8_t glimmer::TileDimensions::GetTileHeight() const
 {
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_AUDIO);
-    resourceRef.SetResourceKey("bgm/main_menu");
-    mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);
+    return tileHeight;
 }
 
-void glimmer::AudioContext::PlayMainMenuBGM() const
+bool glimmer::TileDimensions::IsAllowDirAdjustAnchor() const
 {
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
-    {
-        return;
-    }
-    MIX_Audio* audio = mainMenuBGM_->GetResource();
-    if (audio == nullptr)
-    {
-        return;
-    }
-    audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
+    return allowDirAdjustAnchor;
 }
 
-glimmer::AudioManager* glimmer::AudioContext::GetAudioManager() const
+const glimmer::TileVector2D* glimmer::TileDimensions::GetTileAnchor() const
 {
-    return audioManager_.get();
+    return &tileAnchor;
+}
+
+void glimmer::TileDimensions::SetTileWidth(uint8_t tileWidth)
+{
+    this->tileWidth = tileWidth;
+}
+
+void glimmer::TileDimensions::SetTileHeight(uint8_t tileHeight)
+{
+    this->tileHeight = tileHeight;
+}
+
+void glimmer::TileDimensions::SetAllowDirAdjustAnchor(bool allowDirAdjustAnchor)
+{
+    this->allowDirAdjustAnchor = allowDirAdjustAnchor;
+}
+
+void glimmer::TileDimensions::SetTileAnchor(const TileVector2D& tileAnchor)
+{
+    this->tileAnchor = tileAnchor;
 }

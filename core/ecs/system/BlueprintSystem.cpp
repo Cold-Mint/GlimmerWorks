@@ -210,7 +210,7 @@ glimmer::TileVector2D glimmer::BlueprintSystem::SetupHeldTileInfo(const TileVect
         return leftBottom;
     }
     Item* item = playerComponent->GetItem();
-    if (item == nullptr )
+    if (item == nullptr)
     {
         return leftBottom;
     }
@@ -233,11 +233,16 @@ glimmer::TileVector2D glimmer::BlueprintSystem::SetupHeldTileInfo(const TileVect
     {
         return leftBottom;
     }
-    tileWidth = heldTile_->GetTileWidth();
-    tileHeight = heldTile_->GetTileHeight();
-    tileAnchor = *heldTile_->GetTileAnchor();
+    const TileDimensions* tileDimensions = heldTile_->GetDimensions();
+    if (tileDimensions == nullptr)
+    {
+        return leftBottom;
+    }
+    tileWidth = tileDimensions->GetTileWidth();
+    tileHeight = tileDimensions->GetTileHeight();
+    tileAnchor = *tileDimensions->GetTileAnchor();
     bool atLeft = focusWorldTilePos.x < playerPosition.x;
-    if (atLeft && heldTile_->IsAllowDirAdjustAnchor())
+    if (atLeft && tileDimensions->IsAllowDirAdjustAnchor())
     {
         tileAnchor.x = tileWidth - 1 - tileAnchor.x;
     }
@@ -249,7 +254,7 @@ glimmer::TileVector2D glimmer::BlueprintSystem::SetupHeldTileInfo(const TileVect
 SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D& focusPosition,
                                                         const TileVector2D& topLeftVector,
                                                         uint8_t tileWidth,
-                                                        uint8_t tileHeight)
+                                                        uint8_t tileHeight) const
 {
     SDL_FRect renderQuad;
     const float zoom = cameraComponent_->GetZoom();
@@ -275,13 +280,27 @@ SDL_FRect glimmer::BlueprintSystem::CalculateRenderQuad(const TileVector2D& focu
     return renderQuad;
 }
 
-void glimmer::BlueprintSystem::RenderBlueprintTexture(SDL_Renderer* renderer, const SDL_FRect& renderQuad)
+void glimmer::BlueprintSystem::RenderBlueprintTexture(SDL_Renderer* renderer, const SDL_FRect& renderQuad) const
 {
-    if (heldTile_ == nullptr || !heldTile_->EnableBlueprint())
+    if (heldTile_ == nullptr)
     {
         return;
     }
-    SDL_Texture* blueprintTexture = heldTile_->GetBlueprintTexture();
+    const TileBlueprintData* tileBlueprintData = heldTile_->GetBlueprintData();
+    if (tileBlueprintData == nullptr)
+    {
+        return;
+    }
+    if (!tileBlueprintData->EnableBlueprint())
+    {
+        return;
+    }
+    std::shared_ptr<TextureResourceResult> blueprintTextureResourceResult = tileBlueprintData->GetBlueprintTexture();
+    if (blueprintTextureResourceResult == nullptr)
+    {
+        return;
+    }
+    SDL_Texture* blueprintTexture = blueprintTextureResourceResult->GetResource();
     if (blueprintTexture == nullptr)
     {
         return;
@@ -297,7 +316,16 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(SDL_Renderer* renderer, const
                                                    const TileVector2D& leftBottom, uint8_t tileWidth,
                                                    uint8_t tileHeight)
 {
-    if (heldTile_ == nullptr || !heldTile_->EnableBlueprintMask())
+    if (heldTile_ == nullptr)
+    {
+        return;
+    }
+    const TileBlueprintData* tileBlueprintData = heldTile_->GetBlueprintData();
+    if (tileBlueprintData == nullptr)
+    {
+        return;
+    }
+    if (!tileBlueprintData->EnableBlueprintMask())
     {
         return;
     }
@@ -317,7 +345,7 @@ void glimmer::BlueprintSystem::RenderBlueprintMask(SDL_Renderer* renderer, const
         indicatorRenderQuad.y = tileScreenPos.y - indicatorRenderQuad.h * 0.5f;
         if (checkRectResult[i])
         {
-            if (!heldTile_->DrawValidBlueprintColor())
+            if (!tileBlueprintData->DrawValidBlueprintColor())
             {
                 continue;
             }

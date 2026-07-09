@@ -110,7 +110,12 @@ void glimmer::MiningAbility::OnUse(WorldContext* worldContext, uint32_t user, co
             {
                 continue;
             }
-            if (!tile->IsBreakable())
+            const TileMiningData* tileMiningData = tile->GetMiningData();
+            if (tileMiningData == nullptr)
+            {
+                continue;
+            }
+            if (!tileMiningData->IsBreakable())
             {
                 continue;
             }

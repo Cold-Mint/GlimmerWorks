@@ -24,41 +24,59 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AudioContext.h"
+#include "TileMiningData.h"
 
-#include "core/mod/ResourceLocator.h"
-
-glimmer::AudioContext::AudioContext()
-    : audioManager_(std::make_unique<AudioManager>())
+const float& glimmer::TileMiningData::GetHardness() const
 {
+    return hardness;
 }
 
-glimmer::AudioContext::~AudioContext() = default;
-
-void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator* resourceLocator)
+bool glimmer::TileMiningData::IsBreakable() const
 {
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_AUDIO);
-    resourceRef.SetResourceKey("bgm/main_menu");
-    mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);
+    return hardness >= 0.0F;
 }
 
-void glimmer::AudioContext::PlayMainMenuBGM() const
+float glimmer::TileMiningData::GetMinMiningEfficiency() const
 {
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
-    {
-        return;
-    }
-    MIX_Audio* audio = mainMenuBGM_->GetResource();
-    if (audio == nullptr)
-    {
-        return;
-    }
-    audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
+    return minMiningEfficiency;
 }
 
-glimmer::AudioManager* glimmer::AudioContext::GetAudioManager() const
+void glimmer::TileMiningData::SetMinMiningEfficiency(float minMiningEfficiency)
 {
-    return audioManager_.get();
+    this->minMiningEfficiency = minMiningEfficiency;
+}
+
+bool glimmer::TileMiningData::IsAllowChainMining() const
+{
+    return allowChainMining;
+}
+
+bool glimmer::TileMiningData::IsAutoDigCostScale() const
+{
+    return autoDigCostScale;
+}
+
+uint32_t glimmer::TileMiningData::GetUnitDigCost() const
+{
+    return unitDigCost;
+}
+
+void glimmer::TileMiningData::SetHardness(float hardness)
+{
+    this->hardness = hardness;
+}
+
+void glimmer::TileMiningData::SetAllowChainMining(bool allowChainMining)
+{
+    this->allowChainMining = allowChainMining;
+}
+
+void glimmer::TileMiningData::SetAutoDigCostScale(bool autoDigCostScale)
+{
+    this->autoDigCostScale = autoDigCostScale;
+}
+
+void glimmer::TileMiningData::SetUnitDigCost(uint32_t unitDigCost)
+{
+    this->unitDigCost = unitDigCost;
 }

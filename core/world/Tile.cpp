@@ -35,46 +35,13 @@
 #include "core/ecs/component/TechProviderComponent.h"
 #include "core/log/LogCat.h"
 #include "core/math/CoordinateTransformer.h"
-#include "core/mod/resourcePack/AudioResourceResult.h"
-#include "core/utils/StringUtils.h"
-#include "fmt/xchar.h"
 
 using enum glimmer::TileAnchorType;
 
 
-const glimmer::ResourceRef* glimmer::Tile::GetSideLightMaskResource() const
-{
-    return &sideLightMask_;
-}
-
-const glimmer::ResourceRef* glimmer::Tile::GetBackLightMaskResource() const
-{
-    return &backLightMask_;
-}
-
-bool glimmer::Tile::IsCustomLootTable() const
-{
-    return customLootTable_;
-}
-
 glimmer::TilePhysicsType glimmer::Tile::GetTilePhysicsType() const
 {
     return physicsType_;
-}
-
-bool glimmer::Tile::IsAllowChainMining() const
-{
-    return allowChainMining_;
-}
-
-bool glimmer::Tile::IsAllowDirAdjustAnchor() const
-{
-    return allowDirAdjustAnchor_;
-}
-
-bool glimmer::Tile::LootScaleBySize() const
-{
-    return lootScaleBySize_;
 }
 
 const std::string& glimmer::Tile::GetId() const
@@ -82,82 +49,9 @@ const std::string& glimmer::Tile::GetId() const
     return id_;
 }
 
-SDL_Texture* glimmer::Tile::GetTexture() const
-{
-    if (textureResult_ == nullptr)
-    {
-        return nullptr;
-    }
-    return textureResult_->GetResource();
-}
-
-SDL_Texture* glimmer::Tile::GetBlueprintTexture() const
-{
-    if (blueprintTextureResult_ == nullptr)
-    {
-        return nullptr;
-    }
-    return blueprintTextureResult_->GetResource();
-}
-
-bool glimmer::Tile::EnableBlueprint() const
-{
-    return enableBlueprint_;
-}
-
-bool glimmer::Tile::EnableBlueprintMask() const
-{
-    return enableBlueprintMask_;
-}
-
-bool glimmer::Tile::DrawValidBlueprintColor() const
-{
-    return drawValidBlueprintColor_;
-}
-
-MIX_Audio* glimmer::Tile::GetBreakSFX() const
-{
-    if (breakSFXResult_ == nullptr)
-    {
-        return nullptr;
-    }
-    return breakSFXResult_->GetResource();
-}
-
-MIX_Audio* glimmer::Tile::GetPlaceSFX() const
-{
-    if (placeSFXResult_ == nullptr)
-    {
-        return nullptr;
-    }
-    return placeSFXResult_->GetResource();
-}
-
-
-const std::optional<std::string>& glimmer::Tile::GetDescription() const
-{
-    return description_;
-}
-
-
-const float& glimmer::Tile::GetHardness() const
-{
-    return hardness_;
-}
-
-bool glimmer::Tile::IsBreakable() const
-{
-    return hardness_ >= 0;
-}
-
 bool glimmer::Tile::IsOverwritable() const
 {
     return isOverwritable_;
-}
-
-bool glimmer::Tile::CanDropLoot() const
-{
-    return canDropLoot_;
 }
 
 bool glimmer::Tile::IsWorkBlock() const
@@ -175,6 +69,10 @@ glimmer::TileLayerType glimmer::Tile::GetLayerType() const
     return layerType_;
 }
 
+const std::optional<std::string>& glimmer::Tile::GetDescription() const
+{
+    return description_;
+}
 
 glimmer::TileVector2D glimmer::Tile::CalculateTileAnchor(const TileAnchorType tileAnchorType, const uint8_t tileWidth,
                                                          const uint8_t tileHeight,
@@ -278,17 +176,17 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     {
         tile->description_ = descriptionStringResource->value;
     }
-    tile->customLootTable_ = tileResource->customLootTable;
-    tile->lootTable_ = tileResource->lootTable;
+    tile->lootData_.SetCustomLootTable(tileResource->customLootTable);
+    tile->lootData_.SetLootTable(tileResource->lootTable);
     tile->layerType_ = static_cast<TileLayerType>(tileResource->layerType);
     tile->physicsType_ = static_cast<TilePhysicsType>(tileResource->physicsType);
-    tile->allowChainMining_ = tileResource->allowChainMining;
-    tile->minMiningEfficiency_ = tileResource->minMiningEfficiency;
-    tile->backLightMask_ = tileResource->backLightMask;
-    tile->sideLightMask_ = tileResource->sideLightMask;
-    tile->lightSource_ = tileResource->lightSource;
+    tile->miningData_.SetAllowChainMining(tileResource->allowChainMining);
+    tile->miningData_.SetMinMiningEfficiency(tileResource->minMiningEfficiency);
+    tile->lightData_.SetBackLightMask(tileResource->backLightMask);
+    tile->lightData_.SetSideLightMask(tileResource->sideLightMask);
+    tile->lightData_.SetLightSource(tileResource->lightSource);
     tile->isOverwritable_ = tileResource->isOverwritable;
-    tile->canDropLoot_ = tileResource->canDropLoot;
+    tile->lootData_.SetCanDropLoot(tileResource->canDropLoot);
     uint8_t tileHeight = tileResource->tileHeight;
     if (tileHeight > CHUNK_SIZE)
     {
@@ -298,7 +196,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     {
         tileHeight = 1;
     }
-    tile->tileHeight_ = tileHeight;
+    tile->dimensions_.SetTileHeight(tileHeight);
     uint8_t tileWidth = tileResource->tileWidth;
     if (tileWidth > CHUNK_SIZE)
     {
@@ -308,44 +206,42 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     {
         tileWidth = 1;
     }
-    tile->tileWidth_ = tileWidth;
+    tile->dimensions_.SetTileWidth(tileWidth);
     if (tileResource->autoHardnessScale)
     {
-        tile->hardness_ = static_cast<float>(tileWidth) * static_cast<float>(tileHeight) * tileResource->unitHardness;
+        tile->miningData_.SetHardness(
+            static_cast<float>(tileWidth) * static_cast<float>(tileHeight) * tileResource->unitHardness);
     }
     else
     {
-        tile->hardness_ = tileResource->unitHardness;
+        tile->miningData_.SetHardness(tileResource->unitHardness);
     }
     tile->technologyLevel_ = tileResource->technologyLevel;
     tile->recipeGroup_ = tileResource->recipeGroup;
-    tile->tileAnchor_ = CalculateTileAnchor(static_cast<TileAnchorType>(tileResource->tileAnchorType), tileWidth,
-                                            tileHeight,
-                                            tileResource->customTileAnchor);
-    tile->allowDirAdjustAnchor_ = tileResource->allowDirAdjustAnchor;
-    tile->textureResult_ = resourceLocator->FindTexture(
+    tile->dimensions_.SetTileAnchor(CalculateTileAnchor(static_cast<TileAnchorType>(tileResource->tileAnchorType),
+                                                        tileWidth,
+                                                        tileHeight,
+                                                        tileResource->customTileAnchor));
+    tile->dimensions_.SetAllowDirAdjustAnchor(tileResource->allowDirAdjustAnchor);
+    const std::shared_ptr<TextureResourceResult>& textureResult = resourceLocator->FindTexture(
         &tileResource->texture);
-    tile->enableBlueprint_ = tileResource->enableBlueprint;
-    tile->enableBlueprintMask_ = tileResource->enableBlueprintMask;
-    tile->drawValidBlueprintColor_ = tileResource->drawValidBlueprintColor;
-    tile->blueprintTextureResult_ = resourceLocator->FindTextureRaw(
-        &tileResource->blueprintTexture);
-    if (tile->blueprintTextureResult_ == nullptr)
+    tile->resourceData_.SetTexture(textureResult);
+    tile->blueprintData_.SetEnableBlueprint(tileResource->enableBlueprint);
+    tile->blueprintData_.SetEnableBlueprintMask(tileResource->enableBlueprintMask);
+    tile->blueprintData_.SetDrawValidBlueprintColor(tileResource->drawValidBlueprintColor);
+    tile->blueprintData_.SetBlueprintTexture(resourceLocator->FindTextureRaw(
+        &tileResource->blueprintTexture));
+    if (tile->blueprintData_.GetBlueprintTexture() == nullptr)
     {
-        tile->blueprintTextureResult_ = tile->textureResult_;
+        tile->blueprintData_.SetBlueprintTexture(textureResult);
     }
-    tile->lootScaleBySize_ = tileResource->lootScaleBySize;
-    tile->unitDigCost_ = tileResource->unitDigCost;
-    tile->autoDigCostScale_ = tileResource->autoDigCostScale;
-    tile->breakSFXResult_ = resourceLocator->FindAudio(&tileResource->breakSfx);
-    tile->placeSFXResult_ = resourceLocator->FindAudio(&tileResource->placeSfx);
-    tile->tags_ = tileResource->tags;
+    tile->lootData_.SetLootScaleBySize(tileResource->lootScaleBySize);
+    tile->miningData_.SetUnitDigCost(tileResource->unitDigCost);
+    tile->miningData_.SetAutoDigCostScale(tileResource->autoDigCostScale);
+    tile->resourceData_.SetBreakSFX(resourceLocator->FindAudio(&tileResource->breakSfx));
+    tile->resourceData_.SetPlaceSFX(resourceLocator->FindAudio(&tileResource->placeSfx));
+    tile->resourceData_.SetTags(tileResource->tags);
     return tile;
-}
-
-uint8_t glimmer::Tile::GetTileWidth() const
-{
-    return tileWidth_;
 }
 
 void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource,
@@ -370,8 +266,6 @@ void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage
     }
     if (IsWorkBlock())
     {
-        //If it is a work block, then generate the corresponding entity.
-        //如果是工作方块，那么生成对应的实体。
         GameEntityID entity = entityManager->AddEntity();
         const auto transform2dComponent = entityManager->AddComponent<Transform2DComponent>(entity);
         transform2dComponent->SetPosition(CoordinateTransformer::TileToWorld(position));
@@ -399,56 +293,67 @@ void glimmer::Tile::OnBreak(const WorldContext* worldContext, BreakSource breakS
     {
         return;
     }
-    //If there is an associated entity at the current location, then it must be destroyed regardless of anything.
-    //如果当前位置有相关联的实体，那么无论如何都要销毁它。
     entityManager->RemoveEntity(gameEntityIterator->second);
     gameEntities_.erase(gameEntityIterator);
     LogCat::d("Remove tile associated entities.");
 }
 
-
-const std::vector<glimmer::ItemTagResource>& glimmer::Tile::GetTags() const
+glimmer::TileResourceData* glimmer::Tile::GetMutableResourceData()
 {
-    return tags_;
+    return &resourceData_;
 }
 
-uint8_t glimmer::Tile::GetTileHeight() const
+const glimmer::TileResourceData* glimmer::Tile::GetResourceData() const
 {
-    return tileHeight_;
+    return &resourceData_;
 }
 
-uint32_t glimmer::Tile::GetUnitDigCost() const
+glimmer::TileBlueprintData* glimmer::Tile::GetMutableBlueprintData()
 {
-    return unitDigCost_;
+    return &blueprintData_;
 }
 
-bool glimmer::Tile::IsAutoDigCostScale() const
+const glimmer::TileBlueprintData* glimmer::Tile::GetBlueprintData() const
 {
-    return autoDigCostScale_;
+    return &blueprintData_;
 }
 
-const glimmer::TileVector2D* glimmer::Tile::GetTileAnchor() const
+glimmer::TileDimensions* glimmer::Tile::GetMutableDimensions()
 {
-    return &tileAnchor_;
+    return &dimensions_;
 }
 
-float glimmer::Tile::GetMinMiningEfficiency() const
+const glimmer::TileDimensions* glimmer::Tile::GetDimensions() const
 {
-    return minMiningEfficiency_;
+    return &dimensions_;
 }
 
-void glimmer::Tile::SetMinMiningEfficiency(const float minMiningEfficiency)
+glimmer::TileMiningData* glimmer::Tile::GetMutableMiningData()
 {
-    minMiningEfficiency_ = minMiningEfficiency;
+    return &miningData_;
 }
 
-
-const glimmer::ResourceRef* glimmer::Tile::GetLootTableRef() const
+const glimmer::TileMiningData* glimmer::Tile::GetMiningData() const
 {
-    return &lootTable_;
+    return &miningData_;
 }
 
-const glimmer::ResourceRef* glimmer::Tile::GetLightSourceResource() const
+glimmer::TileLootData* glimmer::Tile::GetMutableLootData()
 {
-    return &lightSource_;
+    return &lootData_;
+}
+
+const glimmer::TileLootData* glimmer::Tile::GetLootData() const
+{
+    return &lootData_;
+}
+
+glimmer::TileLightResourceData* glimmer::Tile::GetMutableLightResourceData()
+{
+    return &lightData_;
+}
+
+const glimmer::TileLightResourceData* glimmer::Tile::GetLightResourceData() const
+{
+    return &lightData_;
 }

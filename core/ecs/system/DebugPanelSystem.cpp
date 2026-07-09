@@ -78,10 +78,14 @@ void glimmer::DebugPanelSystem::RenderCrosshairToEdge(SDL_Renderer* renderer, fl
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 255, 230, 0, 200);
 
-    SDL_FRect hLine = {0.0F, screenY, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowWidth()), 1.0F};
+    SDL_FRect hLine = {
+        0.0F, screenY, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowWidth()), 1.0F
+    };
     SDL_RenderFillRect(renderer, &hLine);
 
-    SDL_FRect vLine = {screenX, 0.0F, 1.0F, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowHeight())};
+    SDL_FRect vLine = {
+        screenX, 0.0F, 1.0F, static_cast<float>(worldContext->GetAppContext()->GetWindowContext()->GetWindowHeight())
+    };
     SDL_RenderFillRect(renderer, &vLine);
 }
 
@@ -232,7 +236,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
     );
     RenderDebugText(renderer, windowWidth, mouseText, yOffset,
                     appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
-                    appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
+                    appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
+                                 ToSDLColor());
     yOffset += lineSpacing;
     bool firstLayer = true;
     TileVector2D tileCoord = CoordinateTransformer::WorldToTile(mousePosition_);
@@ -254,7 +259,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
             );
             RenderDebugText(renderer, windowWidth, tileDebugInfo, yOffset,
                             appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
-                            appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
+                            appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
+                                         ToSDLColor());
             yOffset += lineSpacing;
             firstLayer = false;
         }
@@ -264,16 +270,23 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         {
             continue;
         }
+        const TileMiningData* miningData = tile->GetMiningData();
+        if (miningData == nullptr)
+        {
+            continue;
+        }
         std::string tileResDebugInfo = fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->tileResDebugInfo),
-            std::to_underlying(tile->GetLayerType()), tile->GetId(), tile->GetHardness(), tile->GetName()
+            std::to_underlying(tile->GetLayerType()), tile->GetId(), miningData->GetHardness(), tile->GetName()
         );
         RenderDebugText(renderer, windowWidth, tileResDebugInfo, yOffset,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
-                        appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
+                        appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
+                                     ToSDLColor());
         yOffset += lineSpacing;
     }
-    if (const Color* finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord); finalLightColor == nullptr)
+    if (const Color* finalLightColor = worldContext->GetLightingBuffer()->GetFinalLightColor(tileCoord); finalLightColor
+        == nullptr)
     {
         std::string totalLight = fmt::format(
             fmt::runtime(appContext_->GetLangsResources()->totalLight),
@@ -281,7 +294,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         );
         RenderDebugText(renderer, windowWidth, totalLight, yOffset,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
-                        appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
+                        appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
+                                     ToSDLColor());
     }
     else
     {
@@ -291,7 +305,8 @@ void glimmer::DebugPanelSystem::Render(SDL_Renderer* renderer)
         );
         RenderDebugText(renderer, windowWidth, totalLight, yOffset,
                         appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextColor,
-                        appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.ToSDLColor());
+                        appContext_->GetGraphicsContext()->GetPreloadColors()->debugColor.debugPanelTextBGColor.
+                                     ToSDLColor());
     }
 
     // Draw Chunk Grid in Bottom-Left

@@ -24,41 +24,34 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AudioContext.h"
+#include "TileLightResourceData.h"
 
-#include "core/mod/ResourceLocator.h"
-
-glimmer::AudioContext::AudioContext()
-    : audioManager_(std::make_unique<AudioManager>())
+const glimmer::ResourceRef* glimmer::TileLightResourceData::GetLightSourceResource() const
 {
+    return &lightSource;
 }
 
-glimmer::AudioContext::~AudioContext() = default;
-
-void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator* resourceLocator)
+const glimmer::ResourceRef* glimmer::TileLightResourceData::GetSideLightMaskResource() const
 {
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_AUDIO);
-    resourceRef.SetResourceKey("bgm/main_menu");
-    mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);
+    return &sideLightMask;
 }
 
-void glimmer::AudioContext::PlayMainMenuBGM() const
+const glimmer::ResourceRef* glimmer::TileLightResourceData::GetBackLightMaskResource() const
 {
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
-    {
-        return;
-    }
-    MIX_Audio* audio = mainMenuBGM_->GetResource();
-    if (audio == nullptr)
-    {
-        return;
-    }
-    audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
+    return &backLightMask;
 }
 
-glimmer::AudioManager* glimmer::AudioContext::GetAudioManager() const
+void glimmer::TileLightResourceData::SetLightSource(const ResourceRef& lightSource)
 {
-    return audioManager_.get();
+    this->lightSource = lightSource;
+}
+
+void glimmer::TileLightResourceData::SetSideLightMask(const ResourceRef& sideLightMask)
+{
+    this->sideLightMask = sideLightMask;
+}
+
+void glimmer::TileLightResourceData::SetBackLightMask(const ResourceRef& backLightMask)
+{
+    this->backLightMask = backLightMask;
 }

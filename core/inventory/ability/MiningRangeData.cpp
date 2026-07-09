@@ -96,7 +96,16 @@ void glimmer::MiningRangeData::CalculateMining(const TileLayerComponent* tileLay
                                                const TileVector2D& startVector)
 {
     const Tile* startTile = tileLayerComponent->GetSelfLayerTile(startVector);
-    if (startTile == nullptr || !startTile->IsBreakable())
+    if (startTile == nullptr)
+    {
+        return;
+    }
+    const TileMiningData* tileMiningData = startTile->GetMiningData();
+    if (tileMiningData == nullptr)
+    {
+        return;
+    }
+    if (!tileMiningData->IsBreakable())
     {
         return;
     }
@@ -107,14 +116,23 @@ void glimmer::MiningRangeData::CalculateMining(const TileLayerComponent* tileLay
     }
 
     TryPushPoint(tileLayerComponent, startVector);
-    maxHardness_ = startTile->GetHardness();
+    maxHardness_ = tileMiningData->GetHardness();
 }
 
 bool glimmer::MiningRangeData::IsValidForChainMining(const TileLayerComponent* tileLayerComponent,
-                                                     const TileVector2D& position) const
+                                                     const TileVector2D& position)
 {
     const Tile* tile = tileLayerComponent->GetSelfLayerTile(position);
-    if (tile == nullptr || !tile->IsBreakable() || !tile->IsAllowChainMining())
+    if (tile == nullptr)
+    {
+        return false;
+    }
+    const TileMiningData* tileMiningData = tile->GetMiningData();
+    if (tileMiningData == nullptr)
+    {
+        return false;
+    }
+    if (!tileMiningData->IsBreakable() || !tileMiningData->IsAllowChainMining())
     {
         return false;
     }
@@ -140,7 +158,12 @@ void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent* ti
     {
         return;
     }
-    if (!startTile->IsBreakable())
+    const TileMiningData* tileMiningData = startTile->GetMiningData();
+    if (tileMiningData == nullptr)
+    {
+        return;
+    }
+    if (!tileMiningData->IsBreakable())
     {
         return;
     }
@@ -149,13 +172,13 @@ void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent* ti
     {
         return;
     }
-    if (!startTile->IsAllowChainMining())
+    if (!tileMiningData->IsAllowChainMining())
     {
         //The excavated blocks do not support consecutive collection.
         //挖掘的方块不支持连锁采集。
         return;
     }
-    maxHardness_ = startTile->GetHardness();
+    maxHardness_ = tileMiningData->GetHardness();
     //Add the array of excavation coordinates.
     //加入挖掘坐标数组。
     TryPushPoint(tileLayerComponent, startVector);
@@ -217,7 +240,10 @@ void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent* ti
                 continue;
             }
             const Tile* nextTile = tileLayerComponent->GetSelfLayerTile(nextPos);
-
+            if (nextTile == nullptr)
+            {
+                continue;
+            }
             //All conditions met, add to the result set
             //所有条件满足，加入结果集
             visited.insert(fingerprint);
@@ -225,9 +251,14 @@ void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent* ti
             TryPushPoint(tileLayerComponent, nextPos);
             //Update the maximum hardness value
             //更新最大硬度值
-            if (nextTile->GetHardness() > maxHardness_)
+            const TileMiningData* nextTileMiningData = nextTile->GetMiningData();
+            if (nextTileMiningData == nullptr)
             {
-                maxHardness_ = nextTile->GetHardness();
+                continue;
+            }
+            if (float nextHardness = nextTileMiningData->GetHardness(); nextHardness > maxHardness_)
+            {
+                maxHardness_ = nextHardness;
             }
         }
     }

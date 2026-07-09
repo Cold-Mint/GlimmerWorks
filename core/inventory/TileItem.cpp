@@ -37,7 +37,12 @@
 glimmer::TileItem::TileItem(const std::shared_ptr<Tile>& tile, const ResourceRef& resourceRef) : tile_(tile)
 {
     SetResourceRef(resourceRef);
-    SetTags(tile->GetTags());
+    tileResourceData_ = tile->GetResourceData();
+    tileDimensions_ = tile->GetDimensions();
+    if (tileResourceData_ != nullptr)
+    {
+        SetTags(tileResourceData_->GetTags());
+    }
     SetMaxStack(ITEM_MAX_STACK);
 }
 
@@ -125,17 +130,25 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
         if (itemStackModule->GetAmount() > 0)
         {
             AudioManager* audioManager = appContext->GetAudioContext()->GetAudioManager();
-            if (audioManager != nullptr)
+            if (audioManager != nullptr && tileResourceData_ != nullptr)
             {
-                audioManager->TryPlayFree(
-                    AudioType::AMBIENT, tile_->GetPlaceSFX(), 0);
+                AudioResourceResult* audioResourceResult = tileResourceData_->GetPlaceSFX();
+                if (audioResourceResult != nullptr)
+                {
+                    audioManager->TryPlayFree(
+                        AudioType::AMBIENT, audioResourceResult->GetResource(), 0);
+                }
             }
-            DiggingSystem::BreakTile({
-                BreakSource::PlayerOverride, worldContext, tileLayer,
-                blueprintComponent->GetTopLeftVector(), false, true,
-                tile_->GetTileWidth(), tile_->GetTileHeight(),
-                GetResourceRef()
-            });
+            if (tileDimensions_ != nullptr)
+            {
+                DiggingSystem::BreakTile({
+                    BreakSource::PlayerOverride, worldContext, tileLayer,
+                    blueprintComponent->GetTopLeftVector(), false, true,
+                    tileDimensions_->GetTileWidth(), tileDimensions_->GetTileHeight(),
+                    GetResourceRef()
+                });
+            }
+
             itemStackModule->RemoveAmount(1);
         }
     }
@@ -144,7 +157,16 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
 
 SDL_Texture* glimmer::TileItem::GetIcon() const
 {
-    return tile_->GetTexture();
+    if (tileResourceData_ == nullptr)
+    {
+        return nullptr;
+    }
+    const TextureResourceResult* textureResourceResult = tileResourceData_->GetTexture();
+    if (textureResourceResult == nullptr)
+    {
+        return nullptr;
+    }
+    return textureResourceResult->GetResource();
 }
 
 const glimmer::AbilityConfig* glimmer::TileItem::GetAbilityConfig() const

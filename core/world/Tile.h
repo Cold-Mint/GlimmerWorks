@@ -28,15 +28,16 @@
 #include <memory>
 
 #include "BreakSource.h"
+#include "TileBlueprintData.h"
+#include "TileDimensions.h"
+#include "TileLightResourceData.h"
+#include "TileLootData.h"
+#include "TileMiningData.h"
+#include "TileResourceData.h"
 #include "core/ecs/EcsTypes.h"
-#include "core/mod/ResourceRef.h"
 #include "core/scene/AppContext.h"
-#include "generator/TileLayerType.h"
 #include "generator/TilePhysicsType.h"
-#include "SDL3/SDL_render.h"
-#include "SDL3_mixer/SDL_mixer.h"
 #include "src/core/place_source_message.pb.h"
-
 
 namespace glimmer
 {
@@ -49,136 +50,67 @@ namespace glimmer
         std::string id_;
         std::string name_;
         std::optional<std::string> description_;
-        std::shared_ptr<TextureResourceResult> textureResult_ = nullptr;
-        std::shared_ptr<TextureResourceResult> blueprintTextureResult_ = nullptr;
-        std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
-        std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
         std::unordered_map<Vector2DIFingerprint, GameEntityID> gameEntities_;
-        std::vector<ItemTagResource> tags_;
-        bool customLootTable_ = false;
-        ResourceRef lootTable_;
-        float hardness_ = 1.0F;
-        bool lootScaleBySize_ = false;
-        float minMiningEfficiency_ = 0.0F;
-        uint8_t technologyLevel_ = 0;
-        uint8_t recipeGroup_ = 0;
-        bool enableBlueprint_ = true;
-        bool enableBlueprintMask_ = true;
-        bool drawValidBlueprintColor_ = true;
-        bool allowChainMining_ = false;
-        uint8_t tileWidth_ = 1;
-        uint8_t tileHeight_ = 1;
-        bool allowDirAdjustAnchor_ = true;
-        TileVector2D tileAnchor_ = TileVector2D(1, 1);
-        /**
-         * Can a certain tile be directly placed on top?
-         * 是否可以将某个瓦片直接覆盖上去？
-         */
         bool isOverwritable_ = false;
-        /**
-         * When being destroyed/overwritten, will debris be generated?
-         * 被销毁/覆盖时 是否生成掉落物
-         */
-        bool canDropLoot_ = true;
         TilePhysicsType physicsType_ = TilePhysicsType::None;
         TileLayerType layerType_ = TileLayerType::Ground;
-        ResourceRef lightSource_;
-        ResourceRef sideLightMask_;
-        ResourceRef backLightMask_;
-        bool autoDigCostScale_ = true;
-        uint32_t unitDigCost_ = 1;
+        uint8_t technologyLevel_ = 0;
+        uint8_t recipeGroup_ = 0;
 
-        /**
-         * Calculate the anchor point coordinates of the tiles
-         * 计算瓦片的锚点坐标
-         * @param tileAnchorType tileAnchorType 瓦片锚点类型
-         * @param tileWidth tileWidth 瓦片宽度
-         * @param tileHeight tileHeight 瓦片高度
-         * @param customTileAnchor customTileAnchor 自定义瓦片锚点
-         * @return
-         */
+        TileResourceData resourceData_;
+        TileBlueprintData blueprintData_;
+        TileDimensions dimensions_;
+        TileMiningData miningData_;
+        TileLootData lootData_;
+        TileLightResourceData lightData_;
+
         static TileVector2D CalculateTileAnchor(TileAnchorType tileAnchorType, uint8_t tileWidth, uint8_t tileHeight,
                                                 const Vector2DIResource& customTileAnchor);
 
-        /**
-       * From Tile Resource
-       * 从资源创建瓦片
-       * @param appContext appContext 应用上下文
-       * @param tileResource tileResource 瓦片资源
-       * @return
-       */
         static std::unique_ptr<Tile> FromTileResource(const AppContext* appContext,
                                                       const TileResource* tileResource);
 
     public:
-        [[nodiscard]] uint8_t GetTileWidth() const;
-
-        void OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource, const TileVector2D& position);
-
-        void OnBreak(const WorldContext* worldContext, BreakSource breakSource, const TileVector2D& position);
-
-        [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
-
-        [[nodiscard]] uint8_t GetTileHeight() const;
-
-        [[nodiscard]] uint32_t GetUnitDigCost() const;
-
-        [[nodiscard]] bool IsAutoDigCostScale() const;
-
-        [[nodiscard]] const TileVector2D* GetTileAnchor() const;
-
-        [[nodiscard]] float GetMinMiningEfficiency() const;
-
-        void SetMinMiningEfficiency(float minMiningEfficiency);
-
-        [[nodiscard]] const ResourceRef* GetLootTableRef() const;
-
-        [[nodiscard]] const ResourceRef* GetLightSourceResource() const;
-
-        [[nodiscard]] const ResourceRef* GetSideLightMaskResource() const;
-
-        [[nodiscard]] const ResourceRef* GetBackLightMaskResource() const;
-
-        [[nodiscard]] bool IsCustomLootTable() const;
-
         [[nodiscard]] TilePhysicsType GetTilePhysicsType() const;
-
-        [[nodiscard]] bool IsAllowChainMining() const;
-
-        [[nodiscard]] bool IsAllowDirAdjustAnchor() const;
-
-        [[nodiscard]] bool LootScaleBySize() const;
 
         [[nodiscard]] const std::string& GetId() const;
 
-        [[nodiscard]] SDL_Texture* GetTexture() const;
-
-        [[nodiscard]] SDL_Texture* GetBlueprintTexture() const;
-
-        [[nodiscard]] bool EnableBlueprint() const;
-
-        [[nodiscard]] bool EnableBlueprintMask() const;
-
-        [[nodiscard]] bool DrawValidBlueprintColor() const;
-
-        [[nodiscard]] MIX_Audio* GetBreakSFX() const;
-
-        [[nodiscard]] MIX_Audio* GetPlaceSFX() const;
-
-        [[nodiscard]] const std::optional<std::string>& GetDescription() const;
-
-        [[nodiscard]] const float& GetHardness() const;
-
-        [[nodiscard]] bool IsBreakable() const;
-
         [[nodiscard]] bool IsOverwritable() const;
-
-        [[nodiscard]] bool CanDropLoot() const;
 
         [[nodiscard]] bool IsWorkBlock() const;
 
         [[nodiscard]] const std::string& GetName() const;
 
         [[nodiscard]] TileLayerType GetLayerType() const;
+
+        [[nodiscard]] const std::optional<std::string>& GetDescription() const;
+
+        void OnPlace(const WorldContext* worldContext, PlaceSourceMessage placeSource, const TileVector2D& position);
+
+        void OnBreak(const WorldContext* worldContext, BreakSource breakSource, const TileVector2D& position);
+
+        [[nodiscard]] TileResourceData* GetMutableResourceData();
+
+        [[nodiscard]] const TileResourceData* GetResourceData() const;
+
+        [[nodiscard]] TileBlueprintData* GetMutableBlueprintData();
+
+        [[nodiscard]] const TileBlueprintData* GetBlueprintData() const;
+
+        [[nodiscard]] TileDimensions* GetMutableDimensions();
+
+        [[nodiscard]] const TileDimensions* GetDimensions() const;
+
+        [[nodiscard]] TileMiningData* GetMutableMiningData();
+
+        [[nodiscard]] const TileMiningData* GetMiningData() const;
+
+        [[nodiscard]] TileLootData* GetMutableLootData();
+
+        [[nodiscard]] const TileLootData* GetLootData() const;
+
+        [[nodiscard]] TileLightResourceData* GetMutableLightResourceData();
+
+        [[nodiscard]] const TileLightResourceData* GetLightResourceData() const;
     };
 }

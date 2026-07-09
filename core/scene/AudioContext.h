@@ -42,9 +42,10 @@ namespace glimmer
 
     public:
         AudioContext();
+
         ~AudioContext();
 
-        void LoadMainMenuBGM(ResourceLocator* resourceLocator);
+        void LoadMainMenuBGM(const ResourceLocator* resourceLocator);
 
         void PlayMainMenuBGM() const;
 

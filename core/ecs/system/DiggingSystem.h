@@ -87,6 +87,8 @@ namespace glimmer
                                    const LootResource* lootResource,
                                    const TileVector2D& topLeftVector);
 
+        static void PlayBreakSFX(const AppContext* appContext, const Tile* tile);
+
         static void ProcessSingleTile(const TileBreakParams& params,
                                       const TileVector2D& currentVector,
                                       Item* item,

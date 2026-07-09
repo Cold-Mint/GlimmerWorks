@@ -46,8 +46,8 @@ namespace glimmer {
 
         void TryPushPoint(const TileLayerComponent *tileLayerComponent, const TileVector2D &position);
 
-        [[nodiscard]] bool IsValidForChainMining(const TileLayerComponent* tileLayerComponent,
-                                                 const TileVector2D& position) const;
+        [[nodiscard]] static bool IsValidForChainMining(const TileLayerComponent* tileLayerComponent,
+                                                        const TileVector2D& position);
 
     public:
         MiningRangeData();

@@ -34,6 +34,8 @@ namespace glimmer
     class TileItem : public Item
     {
         std::shared_ptr<Tile> tile_;
+        const TileResourceData* tileResourceData_;
+        const TileDimensions* tileDimensions_;
 
     public:
         ~TileItem() override = default;
@@ -49,7 +51,7 @@ namespace glimmer
         [[nodiscard]] const Tile* GetTile() const;
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
+                   std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
 
         [[nodiscard]] SDL_Texture* GetIcon() const override;
 

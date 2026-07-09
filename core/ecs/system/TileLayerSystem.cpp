@@ -147,7 +147,17 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(SDL_Renderer* renderer, const 
     renderQuad.h = height;
     renderQuad.x = tileTopLeftCamera.x - renderQuad.w * 0.5F;
     renderQuad.y = tileTopLeftCamera.y - renderQuad.h * 0.5F;
-    auto texture = tile->GetTexture();
+    const TileResourceData* tileResourceData = tile->GetResourceData();
+    if (tileResourceData == nullptr)
+    {
+        return;
+    }
+    TextureResourceResult* textureResourceResult = tileResourceData->GetTexture();
+    if (textureResourceResult == nullptr)
+    {
+        return;
+    }
+    SDL_Texture* texture = textureResourceResult->GetResource();
     if (texture == nullptr)
     {
         return;

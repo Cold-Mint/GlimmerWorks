@@ -96,7 +96,12 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
     const int localX = index & CHUNK_MASK;
     const int localY = index >> CHUNK_SHIFT;
     auto lightSourcePosition = TileVector2D(chunkPosition.x + localX, chunkPosition.y + localY);
-    const LightMaskResource* sideLightMaskResource = resourceLocator->FindLightMask(tile->GetSideLightMaskResource());
+    const TileLightResourceData* tileLightResourceData = tile->GetLightResourceData();
+    if (tileLightResourceData == nullptr)
+    {
+        return;
+    }
+    const LightMaskResource* sideLightMaskResource = resourceLocator->FindLightMask(tileLightResourceData->GetSideLightMaskResource());
     if (sideLightMaskResource != nullptr)
     {
         const std::unique_ptr<Color> sideLightMaskColorPtr = resourceLocator->FindColor(
@@ -116,7 +121,7 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
                                                                        sideLightMaskResource->tintFactor));
         }
     }
-    const LightMaskResource* backLightMaskResource = resourceLocator->FindLightMask(tile->GetBackLightMaskResource());
+    const LightMaskResource* backLightMaskResource = resourceLocator->FindLightMask(tileLightResourceData->GetBackLightMaskResource());
     if (backLightMaskResource != nullptr)
     {
         const std::unique_ptr<Color> backLightMaskColorPtr = resourceLocator->FindColor(
@@ -137,7 +142,7 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
         }
     }
     const LightSourceResource* lightSourceResource = resourceLocator->FindLightSource(
-        tile->GetLightSourceResource());
+        tileLightResourceData->GetLightSourceResource());
     if (lightSourceResource != nullptr)
     {
         const std::unique_ptr<Color> lightColorPtr = resourceLocator->

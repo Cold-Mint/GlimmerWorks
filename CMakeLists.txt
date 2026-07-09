@@ -631,6 +631,12 @@ target_sources(GlimmerWorks
         core/inventory/ItemLockModule.cpp
         core/inventory/ItemTagModule.cpp
         core/inventory/ItemDurabilityModule.cpp
+        core/world/TileResourceData.cpp
+        core/world/TileBlueprintData.cpp
+        core/world/TileDimensions.cpp
+        core/world/TileMiningData.cpp
+        core/world/TileLootData.cpp
+        core/world/TileLightResourceData.cpp
         PUBLIC
         FILE_SET HEADERS
         FILES
@@ -982,6 +988,12 @@ target_sources(GlimmerWorks
         core/scene/AudioContext.h
         core/scene/MainThreadDispatcher.h
         core/scene/WindowContext.h
+        core/world/TileLootData.h
+        core/world/TileMiningData.h
+        core/world/TileDimensions.h
+        core/world/TileBlueprintData.h
+        core/world/TileResourceData.h
+        core/world/TileLightResourceData.h
 )
 
 #Define version information

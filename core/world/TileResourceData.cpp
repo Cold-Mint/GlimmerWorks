@@ -24,41 +24,57 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AudioContext.h"
+#include "TileResourceData.h"
 
-#include "core/mod/ResourceLocator.h"
 
-glimmer::AudioContext::AudioContext()
-    : audioManager_(std::make_unique<AudioManager>())
+glimmer::TextureResourceResult* glimmer::TileResourceData::GetTexture() const
 {
-}
-
-glimmer::AudioContext::~AudioContext() = default;
-
-void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator* resourceLocator)
-{
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_AUDIO);
-    resourceRef.SetResourceKey("bgm/main_menu");
-    mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);
-}
-
-void glimmer::AudioContext::PlayMainMenuBGM() const
-{
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
+    if (textureResult_ == nullptr)
     {
-        return;
+        return nullptr;
     }
-    MIX_Audio* audio = mainMenuBGM_->GetResource();
-    if (audio == nullptr)
-    {
-        return;
-    }
-    audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
+    return textureResult_.get();
 }
 
-glimmer::AudioManager* glimmer::AudioContext::GetAudioManager() const
+glimmer::AudioResourceResult* glimmer::TileResourceData::GetBreakSFX() const
 {
-    return audioManager_.get();
+    if (breakSFXResult_ == nullptr)
+    {
+        return nullptr;
+    }
+    return breakSFXResult_.get();
+}
+
+glimmer::AudioResourceResult* glimmer::TileResourceData::GetPlaceSFX() const
+{
+    if (placeSFXResult_ == nullptr)
+    {
+        return nullptr;
+    }
+    return placeSFXResult_.get();
+}
+
+const std::vector<glimmer::ItemTagResource>& glimmer::TileResourceData::GetTags() const
+{
+    return tags_;
+}
+
+void glimmer::TileResourceData::SetTexture(const std::shared_ptr<TextureResourceResult>& textureResult)
+{
+    this->textureResult_ = textureResult;
+}
+
+void glimmer::TileResourceData::SetBreakSFX(const std::shared_ptr<AudioResourceResult>& breakSFXResult)
+{
+    this->breakSFXResult_ = breakSFXResult;
+}
+
+void glimmer::TileResourceData::SetPlaceSFX(const std::shared_ptr<AudioResourceResult>& placeSFXResult)
+{
+    this->placeSFXResult_ = placeSFXResult;
+}
+
+void glimmer::TileResourceData::SetTags(const std::vector<ItemTagResource>& tags)
+{
+    this->tags_ = tags;
 }

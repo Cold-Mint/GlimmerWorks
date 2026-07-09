@@ -24,41 +24,46 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "AudioContext.h"
+#include "TileBlueprintData.h"
 
-#include "core/mod/ResourceLocator.h"
-
-glimmer::AudioContext::AudioContext()
-    : audioManager_(std::make_unique<AudioManager>())
+bool glimmer::TileBlueprintData::EnableBlueprint() const
 {
+    return enableBlueprint_;
 }
 
-glimmer::AudioContext::~AudioContext() = default;
-
-void glimmer::AudioContext::LoadMainMenuBGM(const ResourceLocator* resourceLocator)
+bool glimmer::TileBlueprintData::EnableBlueprintMask() const
 {
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_AUDIO);
-    resourceRef.SetResourceKey("bgm/main_menu");
-    mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);
+    return enableBlueprintMask_;
 }
 
-void glimmer::AudioContext::PlayMainMenuBGM() const
+
+bool glimmer::TileBlueprintData::DrawValidBlueprintColor() const
 {
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
-    {
-        return;
-    }
-    MIX_Audio* audio = mainMenuBGM_->GetResource();
-    if (audio == nullptr)
-    {
-        return;
-    }
-    audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
+    return drawValidBlueprintColor_;
 }
 
-glimmer::AudioManager* glimmer::AudioContext::GetAudioManager() const
+std::shared_ptr<glimmer::TextureResourceResult> glimmer::TileBlueprintData::GetBlueprintTexture() const
 {
-    return audioManager_.get();
+    return blueprintTextureResult_;
+}
+
+void glimmer::TileBlueprintData::SetBlueprintTexture(
+    const std::shared_ptr<TextureResourceResult>& blueprintTextureResult)
+{
+    blueprintTextureResult_ = blueprintTextureResult;
+}
+
+void glimmer::TileBlueprintData::SetEnableBlueprint(bool enableBlueprint)
+{
+    this->enableBlueprint_ = enableBlueprint;
+}
+
+void glimmer::TileBlueprintData::SetEnableBlueprintMask(bool enableBlueprintMask)
+{
+    this->enableBlueprintMask_ = enableBlueprintMask;
+}
+
+void glimmer::TileBlueprintData::SetDrawValidBlueprintColor(bool drawValidBlueprintColor)
+{
+    this->drawValidBlueprintColor_ = drawValidBlueprintColor;
 }

@@ -80,7 +80,7 @@ bool glimmer::LightCommand::ExecuteInspector(AppContext* appContext,
                                              const std::function<void(const std::string& text)>& onMessageRef,
                                              const LangsResources* langsResources)
 {
-    CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
+    CommandHookManager* commandHookManager = appContext->GetConsoleContext()->GetCommandHookManager();
     if (commandHookManager == nullptr)
     {
         onMessageRef(langsResources->cmdHookManagerNotFound);

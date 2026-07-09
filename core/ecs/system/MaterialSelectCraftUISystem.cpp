@@ -44,9 +44,9 @@ glimmer::MaterialSelectCraftUISystem::MaterialSelectCraftUISystem(WorldContext* 
     }
     resources_.langsResources_ = resources_.appContext_->GetLangsResources();
     resources_.resourceLocator_ = resources_.appContext_->GetResourceLocator();
-    resources_.stringManager_ = resources_.appContext_->GetStringManager();
+    resources_.stringManager_ = resources_.appContext_->GetModContext()->GetStringManager();
     resources_.resourcePackManager_ = resources_.appContext_->GetResourcePackManager();
-    resources_.preloadColors_ = resources_.appContext_->GetPreloadColors();
+    resources_.preloadColors_ = resources_.appContext_->GetGraphicsContext()->GetPreloadColors();
     Init();
 }
 

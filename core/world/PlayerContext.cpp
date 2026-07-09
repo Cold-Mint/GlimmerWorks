@@ -56,7 +56,7 @@ glimmer::PlayerContext::PlayerContext(WorldContext* worldContext) : worldContext
         ref.SetResourceType(RESOURCE_AUDIO);
         ref.SetResourceKey("sfx/item_break");
         itemBreakSFXResult_ = appContext->GetResourceLocator()->FindAudio(&ref);
-        audioManager_ = appContext->GetAudioManager();
+        audioManager_ = appContext->GetAudioContext()->GetAudioManager();
     }
 }
 
@@ -166,7 +166,7 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity)
         return;
     }
     itemContainer->Resize(HOT_BAR_SIZE * INVENTORY_ROW_COUNT);
-    const auto& allInitialInventory = worldContext_->GetAppContext()->GetInitialInventoryManager()->
+    const auto& allInitialInventory = worldContext_->GetAppContext()->GetModContext()->GetInitialInventoryManager()->
                                                      GetAllInitialInventory();
     const auto* playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     const WorldVector2D playerPos = playerTransform != nullptr ? playerTransform->GetPosition() : WorldVector2D();

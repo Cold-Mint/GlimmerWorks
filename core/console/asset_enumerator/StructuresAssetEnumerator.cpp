@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::StructuresAssetEnumerator::ListAsset(const A
     {
         return std::nullopt;
     }
-    const StructureManager* structureManager = appContext->GetStructureManager();
+    const StructureManager* structureManager = appContext->GetModContext()->GetStructureManager();
     if (structureManager == nullptr)
     {
         return std::nullopt;

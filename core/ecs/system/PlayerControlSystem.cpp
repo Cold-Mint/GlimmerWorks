@@ -54,7 +54,7 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : 
     ref.SetResourceType(RESOURCE_AUDIO);
     ref.SetResourceKey("sfx/drop_item");
     dropItemSFXResult_ = appContext->GetResourceLocator()->FindAudio(&ref);
-    audioManager_ = appContext->GetAudioManager();
+    audioManager_ = appContext->GetAudioContext()->GetAudioManager();
     Init();
 }
 

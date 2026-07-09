@@ -310,7 +310,7 @@ glimmer::ItemSlotSystem::ItemSlotSystem(WorldContext* worldContext)
     itemSlotSelectedResourceRef.SetResourceType(RESOURCE_TEXTURE);
     itemSlotSelectedResourceRef.SetResourceKey("gui/item_slot_selected");
     itemSlotSelectedTextureResult_ = resourceLocator->FindTexture(&itemSlotSelectedResourceRef);
-    preloadColors_ = appContext_->GetPreloadColors();
+    preloadColors_ = appContext_->GetGraphicsContext()->GetPreloadColors();
     resourcePackManager_ = appContext_->GetResourcePackManager();
     Init();
 }

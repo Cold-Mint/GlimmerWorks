@@ -69,8 +69,8 @@ void glimmer::ParallaxBackgroundSystem::Render(SDL_Renderer* renderer)
     SDL_FRect destRect = {
         0.0F,
         0.0F,
-        static_cast<float>(appContext->GetWindowWidth()),
-        static_cast<float>(appContext->GetWindowHeight()),
+        static_cast<float>(appContext->GetWindowContext()->GetWindowWidth()),
+        static_cast<float>(appContext->GetWindowContext()->GetWindowHeight()),
     };
     SDL_RenderTexture(renderer, texture, nullptr, &destRect);
 }

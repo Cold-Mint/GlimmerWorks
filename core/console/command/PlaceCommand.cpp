@@ -112,7 +112,7 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, con
         return false;
     }
     auto structureId = commandArgs->AsResourceRef(2, RESOURCE_STRUCTURE);
-    IStructureResource* structureResource = appContext->GetStructureManager()->Find(
+    IStructureResource* structureResource = appContext->GetModContext()->GetStructureManager()->Find(
         structureId->GetPackageId(), structureId->GetResourceKey());
     if (structureResource == nullptr)
     {
@@ -124,7 +124,7 @@ bool glimmer::PlaceCommand::ExecuteStructure(const CommandArgs* commandArgs, con
             commandArgs->AsCoordinate(3, commandSenderPosition.x),
             commandArgs->AsCoordinate(4, commandSenderPosition.y)
         });
-    std::optional<StructureInfo> structureInfoOptional = appContext->GetStructureGeneratorManager()->Generate(
+    std::optional<StructureInfo> structureInfoOptional = appContext->GetModContext()->GetStructureGeneratorManager()->Generate(
         worldContext,
         tilePosition, structureResource);
     if (!structureInfoOptional.has_value())

@@ -35,7 +35,7 @@ glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContex
     worldContext_ = std::move(worldContext);
     if (context != nullptr)
     {
-        context->SetWindowTitle((PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
+        context->GetWindowContext()->SetWindowTitle((PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
     }
     Init();
 }

@@ -57,7 +57,7 @@ glimmer::AreaMarkerSystem::AreaMarkerSystem(WorldContext* worldContext) : GameSy
     const WorldContext* worldContextPtr = GetWorldContext();
     appContext_ = worldContextPtr->GetAppContext();
     resourcePackManager_ = appContext_->GetResourcePackManager();
-    preloadColors_ = appContext_->GetPreloadColors();
+    preloadColors_ = appContext_->GetGraphicsContext()->GetPreloadColors();
     Init();
 }
 

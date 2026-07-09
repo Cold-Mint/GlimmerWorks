@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::BiomesAssetEnumerator::ListAsset(const AppCo
     {
         return std::nullopt;
     }
-    const BiomesManager* biomesManager = appContext->GetBiomesManager();
+    const BiomesManager* biomesManager = appContext->GetModContext()->GetBiomesManager();
     if (biomesManager == nullptr)
     {
         return std::nullopt;

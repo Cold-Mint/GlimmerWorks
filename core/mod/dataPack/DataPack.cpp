@@ -553,110 +553,110 @@ int glimmer::DataPack::LoadResourceByType(const std::string& dataType, const std
         data, tomlVersion_);
     if (dataType == DATA_FILE_TYPE_TILE)
     {
-        LoadTileResourceFromFile(value, appContext->GetTileResourceManager());
+        LoadTileResourceFromFile(value, appContext->GetModContext()->GetTileResourceManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_BIOME)
     {
-        LoadBiomeResourceFromFile(value, appContext->GetBiomesManager());
+        LoadBiomeResourceFromFile(value, appContext->GetModContext()->GetBiomesManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM)
     {
-        LoadComposableItemResourceFromFile(value, appContext->GetItemManager());
+        LoadComposableItemResourceFromFile(value, appContext->GetModContext()->GetItemManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_ABILITY_ITEM)
     {
-        LoadAbilityItemResourceFromFile(value, appContext->GetItemManager());
+        LoadAbilityItemResourceFromFile(value, appContext->GetModContext()->GetItemManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_MATERIAL_ITEM)
     {
-        LoadMaterialItemResourceResourceFromFile(value, appContext->GetItemManager());
+        LoadMaterialItemResourceResourceFromFile(value, appContext->GetModContext()->GetItemManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_LOOT_TABLE)
     {
-        LoadLootTableResourceFromFile(value, appContext->GetLootTableManager());
+        LoadLootTableResourceFromFile(value, appContext->GetModContext()->GetLootTableManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_TREE_STRUCTURE)
     {
-        LoadStructureResourceFromFile(value, appContext->GetStructureManager(), StructureGeneratorType::Tree);
+        LoadStructureResourceFromFile(value, appContext->GetModContext()->GetStructureManager(), StructureGeneratorType::Tree);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_STATIC_STRUCTURE)
     {
-        LoadStructureResourceFromFile(value, appContext->GetStructureManager(), StructureGeneratorType::Static);
+        LoadStructureResourceFromFile(value, appContext->GetModContext()->GetStructureManager(), StructureGeneratorType::Static);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_INITIAL_INVENTORY)
     {
-        LoadInitialInventoryResourceFromFile(value, appContext->GetInitialInventoryManager());
+        LoadInitialInventoryResourceFromFile(value, appContext->GetModContext()->GetInitialInventoryManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_CONTRIBUTOR)
     {
-        LoadContributorResourceFromFile(value, appContext->GetContributorManager());
+        LoadContributorResourceFromFile(value, appContext->GetModContext()->GetContributorManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_MOB)
     {
-        LoadMobResourceFromFile(value, appContext->GetMobManager());
+        LoadMobResourceFromFile(value, appContext->GetModContext()->GetMobManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_SHAPE_CIRCLE)
     {
-        LoadShapeResourceFromFile(value, appContext->GetShapeManager(), ShapeType::CIRCLE);
+        LoadShapeResourceFromFile(value, appContext->GetModContext()->GetShapeManager(), ShapeType::CIRCLE);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_SHAPE_RECTANGLE)
     {
-        LoadShapeResourceFromFile(value, appContext->GetShapeManager(), ShapeType::RECTANGLE);
+        LoadShapeResourceFromFile(value, appContext->GetModContext()->GetShapeManager(), ShapeType::RECTANGLE);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_SHAPE_ROUNDED_RECTANGLE)
     {
-        LoadShapeResourceFromFile(value, appContext->GetShapeManager(), ShapeType::ROUNDED_RECTANGLE);
+        LoadShapeResourceFromFile(value, appContext->GetModContext()->GetShapeManager(), ShapeType::ROUNDED_RECTANGLE);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_DECORATOR_FILL)
     {
-        LoadBiomeDecoratorResourceFromFile(value, appContext->GetBiomeDecoratorResourcesManager(),
+        LoadBiomeDecoratorResourceFromFile(value, appContext->GetModContext()->GetBiomeDecoratorResourcesManager(),
                                            BiomeDecoratorType::FILL);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_DECORATOR_MINERAL)
     {
-        LoadBiomeDecoratorResourceFromFile(value, appContext->GetBiomeDecoratorResourcesManager(),
+        LoadBiomeDecoratorResourceFromFile(value, appContext->GetModContext()->GetBiomeDecoratorResourcesManager(),
                                            BiomeDecoratorType::MINERAL);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_DECORATOR_SURFACE)
     {
-        LoadBiomeDecoratorResourceFromFile(value, appContext->GetBiomeDecoratorResourcesManager(),
+        LoadBiomeDecoratorResourceFromFile(value, appContext->GetModContext()->GetBiomeDecoratorResourcesManager(),
                                            BiomeDecoratorType::SURFACE);
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_FIXED_COLOR)
     {
-        LoadFixedColorResourceFromFile(value, appContext->GetFixedColorManager());
+        LoadFixedColorResourceFromFile(value, appContext->GetGraphicsContext()->GetFixedColorManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_LIGHT_MASK)
     {
-        LoadLightMaskResourceFromFile(value, appContext->GetLightMaskManager());
+        LoadLightMaskResourceFromFile(value, appContext->GetGraphicsContext()->GetLightMaskManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_LIGHT_SOURCE)
     {
-        LoadLightSourceResourceFromFile(value, appContext->GetLightSourceManager());
+        LoadLightSourceResourceFromFile(value, appContext->GetGraphicsContext()->GetLightSourceManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_RECIPE)
     {
-        LoadRecipeResourceFromFile(value, appContext->GetRecipeManager());
+        LoadRecipeResourceFromFile(value, appContext->GetModContext()->GetRecipeManager());
         return 1;
     }
     return 0;
@@ -670,7 +670,7 @@ int glimmer::DataPack::LoadLanguageFiles(const std::vector<std::filesystem::path
     const auto& filesToLoad = targetLanguageFiles.empty() ? defaultLanguageFiles : targetLanguageFiles;
     for (const auto& file : filesToLoad)
     {
-        total += LoadStringResourceFromFile(file, appContext->GetStringManager());
+        total += LoadStringResourceFromFile(file, appContext->GetModContext()->GetStringManager());
     }
     return total;
 }

@@ -212,7 +212,7 @@ void glimmer::DraggableSystem::Render(SDL_Renderer* renderer)
             return;
         }
 
-        Color draggableColor = appContext->GetPreloadColors()->debugColor.draggableColor;
+        Color draggableColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor.draggableColor;
         SDL_SetRenderDrawColor(renderer, draggableColor.r, draggableColor.g, draggableColor.b, draggableColor.a);
         for (auto itemSlotComponent : itemSlotComponentVector_)
         {

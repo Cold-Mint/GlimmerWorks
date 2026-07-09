@@ -68,7 +68,7 @@ bool glimmer::ClearCommand::Execute(const CommandSender* commandSender, const Co
         onMessageRef(langsResources->itemContainerIsNull);
         return false;
     }
-    appContext->PostToNextMainFrame([itemContainerComponent, playerEntity, worldContext]
+    appContext->GetMainThreadDispatcher()->PostToNextMainFrame([itemContainerComponent, playerEntity, worldContext]
         {
             if (auto playerComponent = worldContext->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity); playerComponent != nullptr)
             {

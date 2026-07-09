@@ -149,7 +149,7 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
 
 glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext)
     : GameSystem(worldContext),
-      preloadColors_(worldContext->GetAppContext()->GetPreloadColors())
+      preloadColors_(worldContext->GetAppContext()->GetGraphicsContext()->GetPreloadColors())
 {
     WatchComponent(COMPONENT_TILE_LAYER);
     WatchComponent(COMPONENT_CAMERA);

@@ -32,164 +32,162 @@
 #include "CommandHookManager.h"
 #include <ranges>
 
-namespace glimmer
+
+glimmer::AppEventLoop::AppEventLoop(AppContext* appContext, Uint64& lastInputTime) :
+    appContext_(appContext),
+    lastInputTime_(lastInputTime)
 {
-    AppEventLoop::AppEventLoop(AppContext* appContext, Uint64& lastInputTime) :
-        appContext_(appContext),
-        lastInputTime_(lastInputTime)
-    {
-    }
+}
 
-    void AppEventLoop::ProcessEvents(const uint64_t frameStart) const
+void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) const
+{
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
     {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
+        lastInputTime_ = frameStart;
+        if (HandleSystemEvent(event))
         {
-            lastInputTime_ = frameStart;
-            if (HandleSystemEvent(event))
-            {
-                continue;
-            }
-            HandleCommandHooks(event);
-            DispatchEvent(event);
+            continue;
         }
+        HandleCommandHooks(event);
+        DispatchEvent(event);
     }
+}
 
-    bool AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
-    {
-        auto sceneManager = appContext_->GetSceneManager();
+bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
+{
+    auto sceneManager = appContext_->GetSceneManager();
 #ifdef __ANDROID__
-        if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_AC_BACK)
+    if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_AC_BACK)
+    {
+        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
         {
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                if (!topScene->OnBackPressed())
-                {
-                    sceneManager->PopScene();
-                }
-            }
-            return true;
-        }
-#else
-        if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat)
-        {
-            bool handled = false;
-            const auto& overlayScenes = sceneManager->GetOverlayScenes();
-            for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-            {
-                if (overlayScene->OnBackPressed())
-                {
-                    handled = true;
-                    break;
-                }
-            }
-            Scene* topScene = sceneManager->GetTopScene();
-            if (!handled && topScene != nullptr && !topScene->OnBackPressed())
+            if (!topScene->OnBackPressed())
             {
                 sceneManager->PopScene();
             }
-            return true;
         }
-#endif
-        if (event.type == SDL_EVENT_QUIT)
-        {
-            const auto& overlayScenes = sceneManager->GetOverlayScenes();
-            for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-            {
-                overlayScene->OnWindowClose();
-            }
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-            {
-                topScene->OnWindowClose();
-            }
-            appContext_->ExitApp();
-            return true;
-        }
-        return false;
+        return true;
     }
-
-    void AppEventLoop::HandleCommandHooks(const SDL_Event& event) const
+#else
+    if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat)
     {
-        auto commandHookManager = appContext_->GetCommandHookManager();
-        if (commandHookManager == nullptr)
-        {
-            return;
-        }
-        uint16_t code = 0;
-        const auto type = static_cast<SDL_EventType>(event.type);
-        bool isKey = false;
-        bool useMouse = false;
-
-        if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP)
-        {
-            code = event.key.scancode;
-            isKey = true;
-        }
-        else if (type == SDL_EVENT_MOUSE_BUTTON_DOWN || type == SDL_EVENT_MOUSE_BUTTON_UP)
-        {
-            code = event.button.button;
-            useMouse = true;
-        }
-        else
-        {
-            return;
-        }
-
-        const std::vector<CommandHookEntry*>& commandHookEntry =
-            commandHookManager->GetCommandHookVector(CommandHookEntry::GetKey(type, code));
-        if (commandHookEntry.empty())
-        {
-            return;
-        }
-
-        auto consoleWorker = appContext_->GetConsoleWorker();
-        auto commandManager = appContext_->GetCommandManager();
-        for (const auto& commandHook : commandHookEntry)
-        {
-            if (isKey && commandHook->keyRepeat != event.key.repeat)
-            {
-                continue;
-            }
-            if (useMouse)
-            {
-                consoleWorker->CreateRequest(commandHook->command,
-                                             commandManager->GetMouseCommandSender());
-            }
-            else
-            {
-                consoleWorker->CreateRequest(commandHook->command,
-                                             commandManager->GetDefaultCommandSender());
-            }
-        }
-    }
-
-    void AppEventLoop::DispatchEvent(const SDL_Event& event) const
-    {
-        auto sceneManager = appContext_->GetSceneManager();
-        const auto& overlayScenes = sceneManager->GetOverlayScenes();
-
         bool handled = false;
+        const auto& overlayScenes = sceneManager->GetOverlayScenes();
         for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
         {
-            if (overlayScene->HandleEvent(event))
+            if (overlayScene->OnBackPressed())
             {
                 handled = true;
                 break;
             }
         }
-        if (!handled)
+        Scene* topScene = sceneManager->GetTopScene();
+        if (!handled && topScene != nullptr && !topScene->OnBackPressed())
         {
-            if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+            sceneManager->PopScene();
+        }
+        return true;
+    }
+#endif
+    if (event.type == SDL_EVENT_QUIT)
+    {
+        const auto& overlayScenes = sceneManager->GetOverlayScenes();
+        for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+        {
+            overlayScene->OnWindowClose();
+        }
+        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+        {
+            topScene->OnWindowClose();
+        }
+        appContext_->ExitApp();
+        return true;
+    }
+    return false;
+}
+
+void glimmer::AppEventLoop::HandleCommandHooks(const SDL_Event& event) const
+{
+    auto commandHookManager = appContext_->GetConsoleContext()->GetCommandHookManager();
+    if (commandHookManager == nullptr)
+    {
+        return;
+    }
+    uint16_t code = 0;
+    const auto type = static_cast<SDL_EventType>(event.type);
+    bool isKey = false;
+    bool useMouse = false;
+
+    if (type == SDL_EVENT_KEY_DOWN || type == SDL_EVENT_KEY_UP)
+    {
+        code = event.key.scancode;
+        isKey = true;
+    }
+    else if (type == SDL_EVENT_MOUSE_BUTTON_DOWN || type == SDL_EVENT_MOUSE_BUTTON_UP)
+    {
+        code = event.button.button;
+        useMouse = true;
+    }
+    else
+    {
+        return;
+    }
+
+    const std::vector<CommandHookEntry*>& commandHookEntry =
+        commandHookManager->GetCommandHookVector(CommandHookEntry::GetKey(type, code));
+    if (commandHookEntry.empty())
+    {
+        return;
+    }
+
+    auto consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
+    auto commandManager = appContext_->GetConsoleContext()->GetCommandManager();
+    for (const auto& commandHook : commandHookEntry)
+    {
+        if (isKey && commandHook->keyRepeat != event.key.repeat)
+        {
+            continue;
+        }
+        if (useMouse)
+        {
+            consoleWorker->CreateRequest(commandHook->command,
+                                         commandManager->GetMouseCommandSender());
+        }
+        else
+        {
+            consoleWorker->CreateRequest(commandHook->command,
+                                         commandManager->GetDefaultCommandSender());
+        }
+    }
+}
+
+void glimmer::AppEventLoop::DispatchEvent(const SDL_Event& event) const
+{
+    auto sceneManager = appContext_->GetSceneManager();
+    const auto& overlayScenes = sceneManager->GetOverlayScenes();
+
+    bool handled = false;
+    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
+    {
+        if (overlayScene->HandleEvent(event))
+        {
+            handled = true;
+            break;
+        }
+    }
+    if (!handled)
+    {
+        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
+        {
+            if (topScene->HandleEvent(event))
             {
-                if (topScene->HandleEvent(event))
-                {
-                    handled = true;
-                }
+                handled = true;
             }
         }
-        if (!handled)
-        {
-            ImGui_ImplSDL3_ProcessEvent(&event);
-        }
+    }
+    if (!handled)
+    {
+        ImGui_ImplSDL3_ProcessEvent(&event);
     }
 }

@@ -67,7 +67,7 @@ void glimmer::Scene::Init()
     {
         return;
     }
-    OnWindowSizeChanged(appContext->GetWindowWidth(), appContext->GetWindowHeight());
+    OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(), appContext->GetWindowContext()->GetWindowHeight());
     if (const Config* config = appContext->GetConfig(); config != nullptr)
     {
         OnConfigChanged(config);

@@ -58,7 +58,7 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     {
         return color;
     }
-    auto debugColor = appContext->GetPreloadColors()->debugColor;
+    auto debugColor = appContext->GetGraphicsContext()->GetPreloadColors()->debugColor;
     float elevation = ChunkGenerator::GetElevation(tile.x);
     ChunkGenerator* chunkGenerator = worldContext->GetChunkGenerator();
     std::vector<Color> activeColors;

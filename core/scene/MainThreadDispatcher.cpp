@@ -24,26 +24,51 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BiomeDecorsAssetEnumerator.h"
-#if  !defined(NDEBUG)
-#include "core/scene/AppContext.h"
+#include "MainThreadDispatcher.h"
 
-std::string_view glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const
+namespace glimmer
 {
-    return assetName;
-}
+    MainThreadDispatcher::MainThreadDispatcher()
+        : mainThreadId_(std::this_thread::get_id())
+    {
+    }
 
-std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const AppContext* appContext)
-{
-    if (appContext == nullptr)
+    MainThreadDispatcher::~MainThreadDispatcher() = default;
+
+    bool MainThreadDispatcher::IsMainThread() const
     {
-        return std::nullopt;
+        return std::this_thread::get_id() == mainThreadId_;
     }
-    const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext->GetModContext()->GetBiomeDecoratorResourcesManager();
-    if (decoratorResourcesManager == nullptr)
+
+    void MainThreadDispatcher::ProcessMainThreadTasks()
     {
-        return std::nullopt;
+        std::queue<std::function<void()>> tasks;
+        {
+            std::lock_guard lock(mainThreadMutex_);
+            std::swap(tasks, mainThreadTasks_);
+        }
+
+        while (!tasks.empty())
+        {
+            tasks.front()();
+            tasks.pop();
+        }
     }
-    return decoratorResourcesManager->ListBiomeDecorators();
+
+    void MainThreadDispatcher::RunOnMainThread(std::function<void()> task)
+    {
+        if (IsMainThread())
+        {
+            task();
+            return;
+        }
+        std::lock_guard lock(mainThreadMutex_);
+        mainThreadTasks_.push(std::move(task));
+    }
+
+    void MainThreadDispatcher::PostToNextMainFrame(std::function<void()> task)
+    {
+        std::lock_guard lock(mainThreadMutex_);
+        mainThreadTasks_.push(std::move(task));
+    }
 }
-#endif

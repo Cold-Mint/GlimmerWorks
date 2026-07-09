@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::LightMaskAssetEnumerator::ListAsset(const Ap
     {
         return std::nullopt;
     }
-    const LightMaskManager* lightMaskManager = appContext->GetLightMaskManager();
+    const LightMaskManager* lightMaskManager = appContext->GetGraphicsContext()->GetLightMaskManager();
     if (lightMaskManager == nullptr)
     {
         return std::nullopt;

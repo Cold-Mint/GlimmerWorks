@@ -45,8 +45,8 @@ glimmer::InventoryCraftGUISystem::InventoryCraftGUISystem(WorldContext* worldCon
         return;
     }
     langsResources_ = appContext->GetLangsResources();
-    preloadColors_ = appContext->GetPreloadColors();
-    recipeManager_ = appContext->GetRecipeManager();
+    preloadColors_ = appContext->GetGraphicsContext()->GetPreloadColors();
+    recipeManager_ = appContext->GetModContext()->GetRecipeManager();
     resourcePackManager_ = appContext->GetResourcePackManager();
     Init();
 }

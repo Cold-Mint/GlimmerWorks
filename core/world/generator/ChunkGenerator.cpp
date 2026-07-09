@@ -172,7 +172,7 @@ std::unique_ptr<glimmer::TerrainResult> glimmer::ChunkGenerator::GenerateTerrain
 void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) const
 {
     const AppContext* appContext = worldContext_->GetAppContext();
-    const auto& all = appContext->GetStructureManager()->GetAll();
+    const auto& all = appContext->GetModContext()->GetStructureManager()->GetAll();
     if (all.empty())
     {
         return;
@@ -206,7 +206,7 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) co
             );
 
             IStructureConditionProcessor* structureConditionProcessor = appContext->
-                                                                        GetStructurePlacementConditionsManager()->
+                                                                        GetModContext()->GetStructurePlacementConditionsManager()->
                                                                         FindConditionProcessors(processorId);
 
             if (structureConditionProcessor == nullptr)
@@ -272,7 +272,7 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) co
             LogCat::i("StructurePlacement", "Start placing structure - Total candidate points: ", totalBitset.count());
 
             int markedCount = 0;
-            StructureGeneratorManager* structureGeneratorManager = appContext->GetStructureGeneratorManager();
+            StructureGeneratorManager* structureGeneratorManager = appContext->GetModContext()->GetStructureGeneratorManager();
             for (int i = 0; i < CHUNK_AREA; i++)
             {
                 auto bit = totalBitset.test(i);
@@ -362,7 +362,7 @@ TerrainTileResult glimmer::ChunkGenerator::GetTerrainTileResult(const TileVector
     const auto weirdness = GetWeirdness(world);
     const auto erosion = GetErosion(world);
     const auto surfaceProximity = GetSurfaceProximity(firstTileTerrainY, world.y);
-    terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetBiomesManager()->FindBestBiome(
+    terrainTileResult.biomeResource = worldContext_->GetAppContext()->GetModContext()->GetBiomesManager()->FindBestBiome(
         humidity, temperature, weirdness, erosion,
         elevation, surfaceProximity);
     if (world.y <= WORLD_MIN_Y || world.x == WORLD_MAX_X || world.x == WORLD_MIN_X)
@@ -619,12 +619,12 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     {
         return nullptr;
     }
-    const TileResourceManager* tileResourceManager = appContext->GetTileResourceManager();
+    const TileResourceManager* tileResourceManager = appContext->GetModContext()->GetTileResourceManager();
     if (tileResourceManager == nullptr)
     {
         return nullptr;
     }
-    BiomeDecoratorManager* biomeDecoratorManager = appContext->GetBiomeDecoratorManager();
+    BiomeDecoratorManager* biomeDecoratorManager = appContext->GetModContext()->GetBiomeDecoratorManager();
     if (biomeDecoratorManager == nullptr)
     {
         return nullptr;

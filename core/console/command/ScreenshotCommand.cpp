@@ -83,7 +83,7 @@ bool glimmer::ScreenshotCommand::Execute(const CommandSender* commandSender, con
     {
         return false;
     }
-    appContext->PostToNextMainFrame([ onMessage, appContext]
+    appContext->GetMainThreadDispatcher()->PostToNextMainFrame([ onMessage, appContext]
     {
         appContext->CreateScreenshot(onMessage);
     });

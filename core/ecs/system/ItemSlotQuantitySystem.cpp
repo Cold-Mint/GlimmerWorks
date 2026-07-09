@@ -41,7 +41,7 @@ glimmer::ItemSlotQuantitySystem::ItemSlotQuantitySystem(WorldContext* worldConte
     itemSlotResourceRef.SetResourceKey("gui/item_slot_quantity");
     itemSlotQuantityTextureResult_ = resourceLocator->FindTexture(&itemSlotResourceRef);
     resourcePackManager_ = appContext_->GetResourcePackManager();
-    preloadColors_ = appContext_->GetPreloadColors();
+    preloadColors_ = appContext_->GetGraphicsContext()->GetPreloadColors();
     Init();
 }
 

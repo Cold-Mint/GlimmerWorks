@@ -52,7 +52,7 @@ glimmer::BiomeBGMSystem::BiomeBGMSystem(WorldContext* worldContext) : GameSystem
     AppContext* appContext = worldContext->GetAppContext();
     if (appContext != nullptr)
     {
-        audioManager_ = appContext->GetAudioManager();
+        audioManager_ = appContext->GetAudioContext()->GetAudioManager();
         resourceLocator_ = appContext->GetResourceLocator();
     }
     Init();

@@ -335,7 +335,7 @@ bool glimmer::ItemEditorCommand::Execute(const CommandSender* commandSender, con
         }
         std::string value = commandArgs->AsString(3);
         const std::string attribute = commandArgs->AsString(2);
-        appContext->PostToNextMainFrame([attribute, item, value]
+        appContext->GetMainThreadDispatcher()->PostToNextMainFrame([attribute, item, value]
         {
             SetItemAttribute(attribute, item, value);
         });

@@ -124,7 +124,7 @@ void glimmer::ChunkPhysicsHelper::AttachPhysicsBodyToChunk(AppContext* appContex
     {
         return;
     }
-    appContext->RunOnMainThread([worldId, chunk]
+    appContext->GetMainThreadDispatcher()->RunOnMainThread([worldId, chunk]
     {
         const std::vector<bool> isStaticTile = CollectStaticTiles(chunk);
         std::vector<bool> visited(CHUNK_AREA, false);
@@ -173,7 +173,7 @@ void glimmer::ChunkPhysicsHelper::DetachPhysicsBodyToChunk(AppContext* appContex
     {
         return;
     }
-    appContext->RunOnMainThread([chunk]
+    appContext->GetMainThreadDispatcher()->RunOnMainThread([chunk]
     {
         for (const b2BodyId bodyId : chunk->GetAttachedBodies())
         {

@@ -232,8 +232,8 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldId_ = b2CreateWorld(&worldDef);
-    appContext->GetCommandManager()->BindWorldContext(this);
-    appContext_->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed_);
+    appContext->GetConsoleContext()->GetCommandManager()->BindWorldContext(this);
+    appContext_->GetModContext()->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed_);
     entityManager_ = std::make_unique<EntityManager>();
     entityShortCut_ = std::make_unique<EntityShortCut>();
     entityManager_->SetEntityIndex(mapManifest_->entityIDIndex);
@@ -257,7 +257,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     playerContext_ = std::make_unique<PlayerContext>(this);
 
     ResourceRef playerResourceRef{};
-    playerResourceRef.ReadResource(*appContext->GetMobManager()->GetPlayerResourceList()[0],
+    playerResourceRef.ReadResource(*appContext->GetModContext()->GetMobManager()->GetPlayerResourceList()[0],
                                    RESOURCE_MOB);
     playerContext_->InitPlayer(playerResourceRef);
     auto itemContainerPtr = entityManager_->
@@ -289,6 +289,6 @@ glimmer::WorldContext::~WorldContext()
     worldId_ = b2_nullWorldId;
     if (appContext_)
     {
-        appContext_->GetCommandManager()->UnbindWorldContext();
+        appContext_->GetConsoleContext()->GetCommandManager()->UnbindWorldContext();
     }
 }

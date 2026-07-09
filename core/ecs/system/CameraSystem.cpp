@@ -47,7 +47,7 @@ void glimmer::CameraSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
             return;
         }
         cameraComponent_->SetZoom(config->window.cameraScale);
-        cameraComponent_->SetSize(ScreenVector2D(static_cast<float>(appContext->GetWindowWidth()), static_cast<float>(appContext->GetWindowHeight())));
+        cameraComponent_->SetSize(ScreenVector2D(static_cast<float>(appContext->GetWindowContext()->GetWindowWidth()), static_cast<float>(appContext->GetWindowContext()->GetWindowHeight())));
     }
 }
 

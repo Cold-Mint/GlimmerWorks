@@ -39,7 +39,12 @@ std::optional<std::string> glimmer::AbilityItemsAssetEnumerator::ListAsset(const
     {
         return std::nullopt;
     }
-    const ItemManager* itemManager = appContext->GetItemManager();
+    ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
+        return std::nullopt;
+    }
+    const ItemManager* itemManager = modContext->GetItemManager();
     if (itemManager == nullptr)
     {
         return std::nullopt;

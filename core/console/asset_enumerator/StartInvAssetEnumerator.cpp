@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::StartInvAssetEnumerator::ListAsset(const App
     {
         return std::nullopt;
     }
-    const InitialInventoryManager* initialInventoryManager = appContext->GetInitialInventoryManager();
+    const InitialInventoryManager* initialInventoryManager = appContext->GetModContext()->GetInitialInventoryManager();
     if (initialInventoryManager == nullptr)
     {
         return std::nullopt;

@@ -36,7 +36,7 @@ void glimmer::PlayCommand::InitSuggestions(NodeTree<std::string>* suggestionsTre
 }
 
 glimmer::PlayCommand::PlayCommand(AppContext* appContext) : Command(appContext),
-                                                            audioManager_(appContext->GetAudioManager())
+                                                            audioManager_(appContext->GetAudioContext()->GetAudioManager())
 {
 }
 

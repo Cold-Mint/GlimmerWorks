@@ -42,7 +42,7 @@ glimmer::CraftPreviewSlotSystem::CraftPreviewSlotSystem(WorldContext* worldConte
     craftPreviewSlotResourceRef.SetResourceType(RESOURCE_TEXTURE);
     craftPreviewSlotResourceRef.SetResourceKey("gui/craft_preview_slot");
     craftPreviewSlotTextureResult_ = resourceLocator->FindTexture(&craftPreviewSlotResourceRef);
-    preloadColors_ = appContext_->GetPreloadColors();
+    preloadColors_ = appContext_->GetGraphicsContext()->GetPreloadColors();
     resourcePackManager_ = appContext_->GetResourcePackManager();
     Init();
 }

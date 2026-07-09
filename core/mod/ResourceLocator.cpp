@@ -45,7 +45,7 @@ bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef* resou
         return true;
     }
 
-    bool result = appContext_->GetDataPackManager()->IsDependencySatisfied(
+    bool result = appContext_->GetModContext()->GetDataPackManager()->IsDependencySatisfied(
         resourceRef->GetSelfPackageId(), resourceRef->GetPackageId());
     if (!result)
     {
@@ -125,7 +125,7 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
     }
     if (resourceType == RESOURCE_FIXED_COLOR)
     {
-        const FixedColorResource* fixedColorResource = appContext_->GetFixedColorManager()->FindFixedColorResource(
+        const FixedColorResource* fixedColorResource = appContext_->GetGraphicsContext()->GetFixedColorManager()->FindFixedColorResource(
             resourceRef->GetPackageId(),
             resourceRef->GetResourceKey());
         if (fixedColorResource == nullptr)
@@ -148,7 +148,7 @@ glimmer::IShapeResource* glimmer::ResourceLocator::FindShape(const ResourceRef* 
     {
         return nullptr;
     }
-    return appContext_->GetShapeManager()->FindShape(resourceRef->GetPackageId(), resourceRef->GetResourceKey());
+    return appContext_->GetModContext()->GetShapeManager()->FindShape(resourceRef->GetPackageId(), resourceRef->GetResourceKey());
 }
 
 glimmer::IBiomeDecoratorResource* glimmer::ResourceLocator::FindBiomeDecorator(const ResourceRef* resourceRef) const
@@ -161,7 +161,7 @@ glimmer::IBiomeDecoratorResource* glimmer::ResourceLocator::FindBiomeDecorator(c
     {
         return nullptr;
     }
-    return appContext_->GetBiomeDecoratorResourcesManager()->FindBiomeDecorator(
+    return appContext_->GetModContext()->GetBiomeDecoratorResourcesManager()->FindBiomeDecorator(
         resourceRef->GetPackageId(), resourceRef->GetResourceKey());
 }
 
@@ -175,7 +175,7 @@ glimmer::StringResource* glimmer::ResourceLocator::FindString(const ResourceRef*
     {
         return nullptr;
     }
-    return appContext_->GetStringManager()->Find(resourceRef->GetPackageId(), resourceRef->GetResourceKey());
+    return appContext_->GetModContext()->GetStringManager()->Find(resourceRef->GetPackageId(), resourceRef->GetResourceKey());
 }
 
 glimmer::LightSourceResource* glimmer::ResourceLocator::FindLightSource(const ResourceRef* resourceRef) const
@@ -188,7 +188,7 @@ glimmer::LightSourceResource* glimmer::ResourceLocator::FindLightSource(const Re
     {
         return nullptr;
     }
-    return appContext_->GetLightSourceManager()->FindLightSourceResource(resourceRef->GetPackageId(),
+    return appContext_->GetGraphicsContext()->GetLightSourceManager()->FindLightSourceResource(resourceRef->GetPackageId(),
                                                                          resourceRef->GetResourceKey());
 }
 
@@ -202,7 +202,7 @@ glimmer::LightMaskResource* glimmer::ResourceLocator::FindLightMask(const Resour
     {
         return nullptr;
     }
-    return appContext_->GetLightMaskManager()->FindLightMaskResource(resourceRef->GetPackageId(),
+    return appContext_->GetGraphicsContext()->GetLightMaskManager()->FindLightMaskResource(resourceRef->GetPackageId(),
                                                                      resourceRef->GetResourceKey());
 }
 
@@ -215,10 +215,10 @@ glimmer::TileResource* glimmer::ResourceLocator::FindTileFallback(const Resource
     }
     if (resourceRef->GetResourceType() != RESOURCE_TILE || !ValidateAccessPermission(resourceRef))
     {
-        return appContext_->GetTileResourceManager()->GenerateAccessDeniedPlaceHolder(
+        return appContext_->GetModContext()->GetTileResourceManager()->GenerateAccessDeniedPlaceHolder(
             resourceRef->GetPackageId(), resourceRef->GetResourceKey(), tileLayer);
     }
-    return appContext_->GetTileResourceManager()->FindTileFallback(resourceRef->GetPackageId(),
+    return appContext_->GetModContext()->GetTileResourceManager()->FindTileFallback(resourceRef->GetPackageId(),
                                                                    resourceRef->GetResourceKey(),
                                                                    tileLayer);
 }
@@ -233,7 +233,7 @@ glimmer::TileResource* glimmer::ResourceLocator::FindTileRaw(const ResourceRef* 
     {
         return nullptr;
     }
-    return appContext_->GetTileResourceManager()->FindTileRaw(resourceRef->GetPackageId(),
+    return appContext_->GetModContext()->GetTileResourceManager()->FindTileRaw(resourceRef->GetPackageId(),
                                                               resourceRef->GetResourceKey());
 }
 
@@ -247,7 +247,7 @@ glimmer::MobResource* glimmer::ResourceLocator::FindMob(const ResourceRef* resou
     {
         return nullptr;
     }
-    return appContext_->GetMobManager()->FindMobResource(resourceRef->GetPackageId(),
+    return appContext_->GetModContext()->GetMobManager()->FindMobResource(resourceRef->GetPackageId(),
                                                          resourceRef->GetResourceKey());
 }
 
@@ -263,7 +263,7 @@ glimmer::ComposableItemResource* glimmer::ResourceLocator::FindComposableItem(
     {
         return nullptr;
     }
-    return appContext_->GetItemManager()->FindComposableItemResource(resourceRef->GetPackageId(),
+    return appContext_->GetModContext()->GetItemManager()->FindComposableItemResource(resourceRef->GetPackageId(),
                                                                      resourceRef->GetResourceKey());
 }
 
@@ -278,7 +278,7 @@ glimmer::AbilityItemResource* glimmer::ResourceLocator::FindAbilityItem(
     {
         return nullptr;
     }
-    return appContext_->GetItemManager()->FindAbilityItemResource(resourceRef->GetPackageId(),
+    return appContext_->GetModContext()->GetItemManager()->FindAbilityItemResource(resourceRef->GetPackageId(),
                                                                   resourceRef->GetResourceKey());
 }
 
@@ -292,7 +292,7 @@ glimmer::MaterialItemResource* glimmer::ResourceLocator::FindMaterialItem(const 
     {
         return nullptr;
     }
-    return appContext_->GetItemManager()->FindMaterialItemResource(resourceRef->GetPackageId(),
+    return appContext_->GetModContext()->GetItemManager()->FindMaterialItemResource(resourceRef->GetPackageId(),
                                                                    resourceRef->GetResourceKey());
 }
 
@@ -306,7 +306,7 @@ glimmer::LootResource* glimmer::ResourceLocator::FindLoot(const ResourceRef* res
     {
         return nullptr;
     }
-    return appContext_->GetLootTableManager()->Find(resourceRef->GetPackageId(),
+    return appContext_->GetModContext()->GetLootTableManager()->Find(resourceRef->GetPackageId(),
                                                     resourceRef->GetResourceKey());
 }
 

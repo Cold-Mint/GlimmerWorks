@@ -124,7 +124,7 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
         }
         if (itemStackModule->GetAmount() > 0)
         {
-            AudioManager* audioManager = appContext->GetAudioManager();
+            AudioManager* audioManager = appContext->GetAudioContext()->GetAudioManager();
             if (audioManager != nullptr)
             {
                 audioManager->TryPlayFree(

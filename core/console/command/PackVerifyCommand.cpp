@@ -83,7 +83,7 @@ bool glimmer::PackVerifyCommand::Execute(const CommandSender* commandSender, con
             2, size));
         return false;
     }
-    DataPackManager* dataPackManager = appContext->GetDataPackManager();
+    DataPackManager* dataPackManager = appContext->GetModContext()->GetDataPackManager();
     if (dataPackManager == nullptr)
     {
         return false;

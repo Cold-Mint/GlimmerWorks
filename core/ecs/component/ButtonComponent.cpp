@@ -65,7 +65,7 @@ void glimmer::ButtonComponent::SetText(const AppContext* appContext, const std::
     {
         return;
     }
-    const PreloadColors* preloadColors = appContext->GetPreloadColors();
+    const PreloadColors* preloadColors = appContext->GetGraphicsContext()->GetPreloadColors();
     if (preloadColors == nullptr)
     {
         return;

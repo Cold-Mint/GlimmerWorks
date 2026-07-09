@@ -24,26 +24,42 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BiomeDecorsAssetEnumerator.h"
-#if  !defined(NDEBUG)
-#include "core/scene/AppContext.h"
+#pragma once
 
-std::string_view glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const
-{
-    return assetName;
-}
+#include <memory>
+#include <functional>
+#include <string>
 
-std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const AppContext* appContext)
+#include <SDL3/SDL.h>
+
+#include "core/Config.h"
+
+namespace glimmer
 {
-    if (appContext == nullptr)
+    class WindowContext
     {
-        return std::nullopt;
-    }
-    const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext->GetModContext()->GetBiomeDecoratorResourcesManager();
-    if (decoratorResourcesManager == nullptr)
-    {
-        return std::nullopt;
-    }
-    return decoratorResourcesManager->ListBiomeDecorators();
+        SDL_Window* window_ = nullptr;
+        SDL_Renderer* renderer_ = nullptr;
+        int windowWidth_ = 0;
+        int windowHeight_ = 0;
+        bool isRunning_ = true;
+
+    public:
+        WindowContext() = default;
+        ~WindowContext() = default;
+
+        void SetWindow(SDL_Window* window);
+        void SetRenderer(SDL_Renderer* renderer);
+        void SetWindowWidth(int width);
+        void SetWindowHeight(int height);
+        void SetWindowTitle(const char* title) const;
+
+        [[nodiscard]] SDL_Window* GetWindow() const;
+        [[nodiscard]] SDL_Renderer* GetRenderer() const;
+        [[nodiscard]] int GetWindowWidth() const;
+        [[nodiscard]] int GetWindowHeight() const;
+        [[nodiscard]] bool IsRunning() const;
+        void Exit();
+        void CreateScreenshot(const std::function<void(const std::string& text)>* onMessage) const;
+    };
 }
-#endif

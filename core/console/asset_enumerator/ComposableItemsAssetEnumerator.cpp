@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::ComposableItemsAssetEnumerator::ListAsset(co
     {
         return std::nullopt;
     }
-    const ItemManager* itemManager = appContext->GetItemManager();
+    const ItemManager* itemManager = appContext->GetModContext()->GetItemManager();
     if (itemManager == nullptr)
     {
         return std::nullopt;

@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::LightSourceAssetEnumerator::ListAsset(const 
     {
         return std::nullopt;
     }
-    const LightSourceManager* lightSourceManager = appContext->GetLightSourceManager();
+    const LightSourceManager* lightSourceManager = appContext->GetGraphicsContext()->GetLightSourceManager();
     if (lightSourceManager == nullptr)
     {
         return std::nullopt;

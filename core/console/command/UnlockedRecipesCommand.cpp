@@ -115,7 +115,7 @@ bool glimmer::UnlockedRecipesCommand::Execute(const CommandSender* commandSender
         onMessageRef(langsResources->worldContextIsNull);
         return false;
     }
-    const RecipeManager* recipeManager = appContext->GetRecipeManager();
+    const RecipeManager* recipeManager = appContext->GetModContext()->GetRecipeManager();
     if (recipeManager == nullptr)
     {
         return false;

@@ -24,26 +24,44 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BiomeDecorsAssetEnumerator.h"
-#if  !defined(NDEBUG)
-#include "core/scene/AppContext.h"
+#include "AudioContext.h"
 
-std::string_view glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const
-{
-    return assetName;
-}
+#include "core/mod/ResourceLocator.h"
 
-std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const AppContext* appContext)
+namespace glimmer
 {
-    if (appContext == nullptr)
+    AudioContext::AudioContext()
+        : audioManager_(std::make_unique<AudioManager>())
     {
-        return std::nullopt;
     }
-    const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext->GetModContext()->GetBiomeDecoratorResourcesManager();
-    if (decoratorResourcesManager == nullptr)
+
+    AudioContext::~AudioContext() = default;
+
+    void AudioContext::LoadMainMenuBGM(ResourceLocator* resourceLocator)
     {
-        return std::nullopt;
+        ResourceRef resourceRef;
+        resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+        resourceRef.SetResourceType(RESOURCE_AUDIO);
+        resourceRef.SetResourceKey("bgm/main_menu");
+        mainMenuBGM_ = resourceLocator->FindAudio(&resourceRef);
     }
-    return decoratorResourcesManager->ListBiomeDecorators();
+
+    void AudioContext::PlayMainMenuBGM() const
+    {
+        if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
+        {
+            return;
+        }
+        MIX_Audio* audio = mainMenuBGM_->GetResource();
+        if (audio == nullptr)
+        {
+            return;
+        }
+        audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
+    }
+
+    AudioManager* AudioContext::GetAudioManager() const
+    {
+        return audioManager_.get();
+    }
 }
-#endif

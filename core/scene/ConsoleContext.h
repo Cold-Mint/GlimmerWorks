@@ -25,55 +25,43 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <SDL3/SDL.h>
-#include "scene/AppContext.h"
 
+#include <memory>
+
+#include "core/console/CommandHistoryManager.h"
+#include "core/console/CommandManager.h"
+#include "core/console/ConsoleWorker.h"
+#include "core/CommandHookManager.h"
+#include "core/console/suggestion/DynamicSuggestionsManager.h"
 
 namespace glimmer
 {
-    class App
+    class VirtualFileSystem;
+    class AppContext;
+
+    class ConsoleContext
     {
-        bool initSDLSuccess_ = false;
-        bool initSDLMixSuccess_ = false;
-        bool initSDLTtfSuccess_ = false;
-        uint64_t lastTime_ = 0;
-        SDL_Renderer* renderer_ = nullptr;
-        AppContext* appContext_ = nullptr;
-        SDL_Window* window = nullptr;
-        MIX_Mixer* mixer_ = nullptr;
-
-
-        bool InitSDL();
-
-        bool InitWindowAndRenderer();
-
-        [[nodiscard]] bool InitImGui() const;
-
-        [[nodiscard]] bool InitFont() const;
-
-        bool InitAudio();
-
-        static bool CheckWindowSizeChange(WindowContext* windowContext,const int& windowWidth,const int& windowHeight);
-
-        void HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const;
-
-        [[nodiscard]] float CalculateTargetFrameTime(uint64_t frameStart, uint64_t lastInputTime) const;
-
-        bool CheckConfigChange(uint64_t& configFingerprint) const;
-
-        void NotifyFrameStart() const;
-
-        void UpdateScenes(float deltaTime) const;
-
-        void InitScenesAndConsole() const;
+        std::unique_ptr<CommandManager> commandManager_;
+        std::unique_ptr<ConsoleWorker> consoleWorker_;
+        std::shared_ptr<CommandHistoryManager> commandHistoryManager_;
+        std::unique_ptr<CommandHookManager> commandHookManager_;
+        std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_;
 
     public:
-        ~App();
+        ConsoleContext();
+        ~ConsoleContext();
 
-        explicit App(AppContext* appContext);
+        void Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
+                  int maxHistoryEntries, toml::value* configValue);
 
-        bool Init();
+        void StopConsoleWorker();
 
-        void Run() const;
+        void SaveCommandHistory();
+
+        [[nodiscard]] CommandManager* GetCommandManager() const;
+        [[nodiscard]] ConsoleWorker* GetConsoleWorker() const;
+        [[nodiscard]] CommandHistoryManager* GetCommandHistoryManager() const;
+        [[nodiscard]] CommandHookManager* GetCommandHookManager() const;
+        [[nodiscard]] DynamicSuggestionsManager* GetDynamicSuggestionsManager() const;
     };
 }

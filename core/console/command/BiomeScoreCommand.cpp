@@ -172,7 +172,7 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender* commandSender, con
     std::string operation = commandArgs->AsString(1);
     if (operation == "inspector")
     {
-        CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
+        CommandHookManager* commandHookManager = appContext->GetConsoleContext()->GetCommandHookManager();
         if (commandHookManager == nullptr)
         {
             onMessageRef(langsResources->cmdHookManagerNotFound);
@@ -222,7 +222,7 @@ bool glimmer::BiomeScoreCommand::Execute(const CommandSender* commandSender, con
         {
             return false;
         }
-        BiomesManager* biomesManager = appContext->GetBiomesManager();
+        BiomesManager* biomesManager = appContext->GetModContext()->GetBiomesManager();
         if (biomesManager == nullptr)
         {
             return false;

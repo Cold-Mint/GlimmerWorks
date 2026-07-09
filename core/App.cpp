@@ -37,6 +37,8 @@
 #if  !defined(NDEBUG)
 #include "scene/DebugOverlay.h"
 #endif
+#include "AppEventLoop.h"
+#include "AppRenderer.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "SDL3/SDL_init.h"
 #include "SDL3/SDL_render.h"
@@ -93,7 +95,12 @@ bool glimmer::App::InitWindowAndRenderer()
         return false;
     }
     LogCat::i("SDL window created successfully.");
-    appContext_->SetWindow(window);
+    WindowContext* windowContext = appContext_->GetWindowContext();
+    if (windowContext == nullptr)
+    {
+        return false;
+    }
+    windowContext->SetWindow(window);
 
     LogCat::i("Creating SDL renderer...");
     renderer_ = SDL_CreateRenderer(window, nullptr);
@@ -103,7 +110,7 @@ bool glimmer::App::InitWindowAndRenderer()
         return false;
     }
     SDL_SetRenderVSync(renderer_, config->window.vSync);
-    appContext_->SetRenderer(renderer_);
+    windowContext->SetRenderer(renderer_);
 
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr)
@@ -111,7 +118,7 @@ bool glimmer::App::InitWindowAndRenderer()
         LogCat::e("ResourcePackManager is nullptr.");
         return false;
     }
-    resourcePackManager->SetRenderer(renderer_, appContext_->GetPreloadColors());
+    resourcePackManager->SetRenderer(renderer_, appContext_->GetGraphicsContext()->GetPreloadColors());
 
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
     SDL_SetDefaultTextureScaleMode(renderer_, SDL_SCALEMODE_PIXELART);
@@ -130,7 +137,12 @@ bool glimmer::App::InitImGui() const
     io.IniFilename = nullptr;
 
     LogCat::i("Setting ImGui style...");
-    auto preloadColors = appContext_->GetPreloadColors();
+    GraphicsContext* graphicsContext = appContext_->GetGraphicsContext();
+    if (graphicsContext == nullptr)
+    {
+        return false;
+    }
+    auto preloadColors = graphicsContext->GetPreloadColors();
     std::vector<std::pair<ImGuiCol, Color&>> colorMappings;
     colorMappings.emplace_back(ImGuiCol_Text, preloadColors->textColor);
     colorMappings.emplace_back(ImGuiCol_TextDisabled, preloadColors->textDisabledColor);
@@ -280,8 +292,12 @@ bool glimmer::App::InitAudio()
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     resourcePackManager->SetMixer(mixer_);
     appContext_->LoadMainMenuBGM();
-
-    AudioManager* audioManager = appContext_->GetAudioManager();
+    const AudioContext* audioContext = appContext_->GetAudioContext();
+    if (audioContext == nullptr)
+    {
+        return false;
+    }
+    AudioManager* audioManager = audioContext->GetAudioManager();
     if (audioManager == nullptr)
     {
         LogCat::e("audioManager == null");
@@ -300,18 +316,20 @@ bool glimmer::App::InitAudio()
     return true;
 }
 
-bool glimmer::App::CheckWindowSizeChange(const int& windowWidth, const int& windowHeight) const
+bool glimmer::App::CheckWindowSizeChange(WindowContext* windowContext, const int& windowWidth,
+                                         const int& windowHeight)
 {
     bool changed = false;
-    if (windowHeight != appContext_->GetWindowHeight())
+
+    if (windowHeight != windowContext->GetWindowHeight())
     {
         changed = true;
-        appContext_->SetWindowHeight(windowHeight);
+        windowContext->SetWindowHeight(windowHeight);
     }
-    if (windowWidth != appContext_->GetWindowWidth())
+    if (windowWidth != windowContext->GetWindowWidth())
     {
         changed = true;
-        appContext_->SetWindowWidth(windowWidth);
+        windowContext->SetWindowWidth(windowWidth);
     }
     return changed;
 }
@@ -369,13 +387,23 @@ void glimmer::App::Run() const
     AppEventLoop eventLoop(appContext_, lastInputTime);
     AppRenderer renderer(appContext_, renderer_);
 
-    while (appContext_->Running() && sceneManager->GetSceneCount() > 0)
+    WindowContext* windowContext = appContext_->GetWindowContext();
+    if (windowContext == nullptr)
+    {
+        return;
+    }
+    MainThreadDispatcher* mainThreadDispatcher = appContext_->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr)
+    {
+        return;
+    }
+    while (windowContext->IsRunning() && sceneManager->GetSceneCount() > 0)
     {
         int windowWidth = 0;
         int windowHeight = 0;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
-        if (CheckWindowSizeChange(windowWidth, windowHeight))
+        if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight))
         {
             HandleWindowSizeChange(windowWidth, windowHeight);
         }
@@ -386,7 +414,7 @@ void glimmer::App::Run() const
         const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
 
         NotifyFrameStart();
-        appContext_->ProcessMainThreadTasks();
+        mainThreadDispatcher->ProcessMainThreadTasks();
 
         eventLoop.ProcessEvents(frameStart);
         UpdateScenes(deltaTime);
@@ -443,7 +471,7 @@ bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
         return false;
     }
 
-    if (CommandHookManager* commandHookManager = appContext_->GetCommandHookManager();
+    if (CommandHookManager* commandHookManager = appContext_->GetConsoleContext()->GetCommandHookManager();
         commandHookManager != nullptr)
     {
         commandHookManager->LoadHookFromConfig(config->commandHooks);
@@ -500,7 +528,11 @@ void glimmer::App::InitScenesAndConsole() const
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
 #endif
 
-    ConsoleWorker* consoleWorker = appContext_->GetConsoleWorker();
+    ConsoleWorker* consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
+    if (consoleWorker == nullptr)
+    {
+        return;
+    }
     consoleWorker->PushOnMessage(
         std::make_unique<std::function<void(const std::string&)>>([this](const std::string& text)
         {

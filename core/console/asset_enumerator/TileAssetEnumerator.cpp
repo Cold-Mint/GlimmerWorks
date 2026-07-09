@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::TileAssetEnumerator::ListAsset(const AppCont
     {
         return std::nullopt;
     }
-    const TileResourceManager* tileResourceManager = appContext->GetTileResourceManager();
+    const TileResourceManager* tileResourceManager = appContext->GetModContext()->GetTileResourceManager();
     if (tileResourceManager == nullptr)
     {
         return std::nullopt;

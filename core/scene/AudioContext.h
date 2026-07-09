@@ -24,26 +24,30 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BiomeDecorsAssetEnumerator.h"
-#if  !defined(NDEBUG)
-#include "core/scene/AppContext.h"
+#pragma once
 
-std::string_view glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const
-{
-    return assetName;
-}
+#include <memory>
 
-std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const AppContext* appContext)
+#include "core/mod/resourcePack/AudioManager.h"
+#include "core/mod/resourcePack/AudioResourceResult.h"
+
+namespace glimmer
 {
-    if (appContext == nullptr)
+    class ResourceLocator;
+
+    class AudioContext
     {
-        return std::nullopt;
-    }
-    const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext->GetModContext()->GetBiomeDecoratorResourcesManager();
-    if (decoratorResourcesManager == nullptr)
-    {
-        return std::nullopt;
-    }
-    return decoratorResourcesManager->ListBiomeDecorators();
+        std::unique_ptr<AudioManager> audioManager_;
+        std::shared_ptr<AudioResourceResult> mainMenuBGM_;
+
+    public:
+        AudioContext();
+        ~AudioContext();
+
+        void LoadMainMenuBGM(ResourceLocator* resourceLocator);
+
+        void PlayMainMenuBGM() const;
+
+        [[nodiscard]] AudioManager* GetAudioManager() const;
+    };
 }
-#endif

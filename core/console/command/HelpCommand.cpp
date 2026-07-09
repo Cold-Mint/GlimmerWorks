@@ -54,6 +54,6 @@ bool glimmer::HelpCommand::Execute(const CommandSender* commandSender, const Com
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    onMessageRef(appContext->GetCommandManager()->GetHelpText(appContext->GetLangsResources()));
+    onMessageRef(appContext->GetConsoleContext()->GetCommandManager()->GetHelpText(appContext->GetLangsResources()));
     return true;
 }

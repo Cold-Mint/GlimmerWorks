@@ -107,7 +107,7 @@ void glimmer::GameSystem::Init()
     {
         return;
     }
-    OnWindowSizeChanged(appContext->GetWindowWidth(), appContext->GetWindowHeight());
+    OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(), appContext->GetWindowContext()->GetWindowHeight());
     const Config* config = appContext->GetConfig();
     if (config != nullptr)
     {

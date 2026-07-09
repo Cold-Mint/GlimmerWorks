@@ -131,7 +131,7 @@ static bool ExecuteBiome(const glimmer::CommandArgs* commandArgs,
                          const std::function<void(const std::string& text)>& onMessageRef,
                          glimmer::AppContext* appContext, glimmer::WorldContext* worldContext)
 {
-    glimmer::BiomesManager* biomesManager = appContext->GetBiomesManager();
+    glimmer::BiomesManager* biomesManager = appContext->GetModContext()->GetBiomesManager();
     if (biomesManager == nullptr)
     {
         return false;

@@ -331,7 +331,7 @@ bool glimmer::HookCommand::Execute(const CommandSender* commandSender, const Com
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    CommandHookManager* commandHookManager = appContext->GetCommandHookManager();
+    CommandHookManager* commandHookManager = appContext->GetConsoleContext()->GetCommandHookManager();
     if (commandHookManager == nullptr)
     {
         return false;

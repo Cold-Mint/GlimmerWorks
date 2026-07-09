@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::FixedColorAssetEnumerator::ListAsset(const A
     {
         return std::nullopt;
     }
-    const FixedColorManager* fixedColorManager = appContext->GetFixedColorManager();
+    const FixedColorManager* fixedColorManager = appContext->GetGraphicsContext()->GetFixedColorManager();
     if (fixedColorManager == nullptr)
     {
         return std::nullopt;

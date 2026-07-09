@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::RecipesAssetEnumerator::ListAsset(const AppC
     {
         return std::nullopt;
     }
-    const RecipeManager* recipeManager = appContext->GetRecipeManager();
+    const RecipeManager* recipeManager = appContext->GetModContext()->GetRecipeManager();
     if (recipeManager == nullptr)
     {
         return std::nullopt;

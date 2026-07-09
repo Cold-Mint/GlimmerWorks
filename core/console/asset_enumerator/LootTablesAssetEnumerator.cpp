@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::LootTablesAssetEnumerator::ListAsset(const A
     {
         return std::nullopt;
     }
-    const LootTableManager* lootTableManager = appContext->GetLootTableManager();
+    const LootTableManager* lootTableManager = appContext->GetModContext()->GetLootTableManager();
     if (lootTableManager == nullptr)
     {
         return std::nullopt;

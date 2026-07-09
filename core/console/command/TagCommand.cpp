@@ -134,7 +134,7 @@ bool glimmer::TagCommand::ExecuteHand([[maybe_unused]] const CommandSender* comm
     {
         return false;
     }
-    StringManager* stringManager = appContext->GetStringManager();
+    StringManager* stringManager = appContext->GetModContext()->GetStringManager();
     const ItemTagModule* itemTagModule = item->GetTagModule();
     if (itemTagModule == nullptr)
     {
@@ -182,7 +182,7 @@ bool glimmer::TagCommand::ExecuteInventory([[maybe_unused]] const CommandSender*
         return false;
     }
     const std::vector<const ItemTagResource*>& totalTags = itemContainer->GetTotalTags();
-    StringManager* stringManager = appContext->GetStringManager();
+    StringManager* stringManager = appContext->GetModContext()->GetStringManager();
     if (totalTags.empty())
     {
         onMessageRef(langsResources->tagCannotFound);

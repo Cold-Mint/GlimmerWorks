@@ -39,7 +39,7 @@ std::optional<std::string> glimmer::ShapesAssetEnumerator::ListAsset(const AppCo
     {
         return std::nullopt;
     }
-    const ShapeManager* shapeManager = appContext->GetShapeManager();
+    const ShapeManager* shapeManager = appContext->GetModContext()->GetShapeManager();
     if (shapeManager == nullptr)
     {
         return std::nullopt;

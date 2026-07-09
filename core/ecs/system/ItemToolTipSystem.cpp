@@ -52,7 +52,7 @@ glimmer::ItemToolTipSystem::ItemToolTipSystem(WorldContext* worldContext) : Game
     }
     tooltipBgTextureResult_ = resourceLocator->FindTexture(&tooltipBgResourceRef);
     resourcePackManager_ = appContext_->GetResourcePackManager();
-    preloadColors_ = appContext_->GetPreloadColors();
+    preloadColors_ = appContext_->GetGraphicsContext()->GetPreloadColors();
     Init();
 }
 

@@ -24,26 +24,35 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "BiomeDecorsAssetEnumerator.h"
-#if  !defined(NDEBUG)
-#include "core/scene/AppContext.h"
+#pragma once
 
-std::string_view glimmer::BiomeDecorsAssetEnumerator::GetAssetType() const
-{
-    return assetName;
-}
+#include <memory>
 
-std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const AppContext* appContext)
+#include "core/mod/dataPack/LightMaskManager.h"
+#include "core/mod/dataPack/LightSourceManager.h"
+#include "core/mod/dataPack/FixedColorManager.h"
+#include "core/world/PreloadColors.h"
+
+namespace glimmer
 {
-    if (appContext == nullptr)
+    class ResourceLocator;
+
+    class GraphicsContext
     {
-        return std::nullopt;
-    }
-    const BiomeDecoratorResourcesManager* decoratorResourcesManager = appContext->GetModContext()->GetBiomeDecoratorResourcesManager();
-    if (decoratorResourcesManager == nullptr)
-    {
-        return std::nullopt;
-    }
-    return decoratorResourcesManager->ListBiomeDecorators();
+        std::unique_ptr<LightMaskManager> lightMaskManager_;
+        std::unique_ptr<LightSourceManager> lightSourceManager_;
+        std::unique_ptr<FixedColorManager> fixedColorManager_;
+        std::unique_ptr<PreloadColors> preloadColors_;
+
+    public:
+        GraphicsContext();
+        ~GraphicsContext();
+
+        void Init(ResourceLocator* resourceLocator);
+
+        [[nodiscard]] LightMaskManager* GetLightMaskManager() const;
+        [[nodiscard]] LightSourceManager* GetLightSourceManager() const;
+        [[nodiscard]] FixedColorManager* GetFixedColorManager() const;
+        [[nodiscard]] PreloadColors* GetPreloadColors() const;
+    };
 }
-#endif

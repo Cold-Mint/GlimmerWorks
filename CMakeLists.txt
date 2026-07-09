@@ -303,6 +303,12 @@ target_sources(GlimmerWorks
         core/mod/ResourceRef.cpp
         core/scene/Scene.cpp
         core/scene/AppContext.cpp
+        core/scene/ModContext.cpp
+        core/scene/ConsoleContext.cpp
+        core/scene/GraphicsContext.cpp
+        core/scene/AudioContext.cpp
+        core/scene/MainThreadDispatcher.cpp
+        core/scene/WindowContext.cpp
         core/scene/SplashScene.cpp
         core/console/Command.cpp
         core/console/CommandManager.cpp
@@ -970,6 +976,12 @@ target_sources(GlimmerWorks
         core/inventory/ItemTagModule.h
         core/inventory/ItemLockModule.h
         core/inventory/ItemStackModule.h
+        core/scene/ModContext.h
+        core/scene/ConsoleContext.h
+        core/scene/GraphicsContext.h
+        core/scene/AudioContext.h
+        core/scene/MainThreadDispatcher.h
+        core/scene/WindowContext.h
 )
 
 #Define version information

@@ -28,76 +28,11 @@
 
 #include <random>
 
-#include "core/console/command/AssetViewerCommand.h"
-#include "core/console/command/BiomeScoreCommand.h"
-#include "core/console/command/Box2DCommand.h"
-#include "core/console/command/EcsCommand.h"
-#include "core/console/command/GiveCommand.h"
-#include "core/console/command/HelpCommand.h"
-#include "core/console/command/LicenseCommand.h"
-#include "core/console/command/SeedCommand.h"
-#include "core/console/command/TpCommand.h"
-#include "core/console/command/VFSCommand.h"
-#include "core/console/suggestion/AbilityItemDynamicSuggestions.h"
-#include "core/console/suggestion/BoolDynamicSuggestions.h"
-#include "core/console/suggestion/ComposableItemDynamicSuggestions.h"
-#include "core/console/suggestion/TileDynamicSuggestions.h"
-#include "core/console/suggestion/VFSDynamicSuggestions.h"
 #include "core/log/LogCat.h"
 #include "core/utils/LanguageUtils.h"
-#include "core/vfs/StdFileProvider.h"
-#include "core/console/command/ClearCommand.h"
-#include "core/console/command/ConfigCommand.h"
-#include "core/console/command/EchoCommand.h"
-#include "core/console/command/FlyCommand.h"
-#include "core/console/command/HookCommand.h"
-#include "core/console/command/ItemEditorCommand.h"
-#include "core/console/command/LightCommand.h"
-#include "core/console/command/LocateCommand.h"
-#include "core/console/command/LootCommand.h"
-#include "core/console/command/PackVerifyCommand.h"
-#include "core/console/command/ParallaxBackgroundCommand.h"
-#include "core/console/command/PlaceCommand.h"
-#include "core/console/command/PlayCommand.h"
-#include "core/console/command/ScreenshotCommand.h"
-#include "core/console/command/SummonCommand.h"
-#include "core/console/command/TagCommand.h"
-#include "core/console/command/TechnologyCommand.h"
-#include "core/console/command/TileSnapshotCommand.h"
-#include "core/console/command/UnlockedRecipesCommand.h"
-#include "core/console/suggestion/AllocStrategyTypeDynamicSuggestions.h"
-#include "core/console/suggestion/AudioTrackDynamicSuggestions.h"
-#include "core/console/suggestion/BiomeSuggestions.h"
-#include "core/console/suggestion/BooleanToggleDynamicSuggestions.h"
-#include "core/console/suggestion/CommandHookIdDynamicSuggestions.h"
-#include "core/console/suggestion/CommandHookScopeDynamicSuggestions.h"
-#include "core/console/suggestion/ConfigSuggestions.h"
-#include "core/console/suggestion/CoordinateDynamicSuggestions.h"
-#include "core/console/suggestion/DataPackDynamicSuggestions.h"
-#include "core/console/suggestion/DynamicSuggestionsManager.h"
-#include "core/console/suggestion/EventTypeDynamicSuggestions.h"
-#include "core/console/suggestion/LootSuggestions.h"
-#include "core/console/suggestion/MaterialItemDynamicSuggestions.h"
-#include "core/console/suggestion/MobDynamicSuggestions.h"
-#include "core/console/suggestion/MouseButtonDynamicSuggestions.h"
-#include "core/console/suggestion/ScanKeyDynamicSuggestions.h"
-#include "core/console/suggestion/StructureDynamicSuggestions.h"
-#include "core/mod/resourcePack/AudioResourceResult.h"
-#include "core/mod/templateCommand/InsertTemplateCommand.h"
-#include "core/mod/templateCommand/SetTemplateCommand.h"
-#include "core/mod/templateCommand/UnSetTemplateCommand.h"
-#include "core/saves/SavesManager.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
-#include "core/world/generator/FillBiomeDecorator.h"
-#include "core/world/generator/MineralBiomeDecorator.h"
-#include "core/world/generator/SurfaceBiomeDecorator.h"
-#include "core/world/structure/BiomeStructureConditionProcessor.h"
-#include "core/world/structure/HeightStructureConditionProcessor.h"
-#include "core/world/structure/HorizontalSpacingStructureConditionProcessor.h"
-#include "core/world/structure/StaticStructureGenerator.h"
-#include "core/world/structure/SurfaceStructureConditionProcessor.h"
-#include "core/world/structure/TreeStructureGenerator.h"
+#include "core/vfs/StdFileProvider.h"
 #include "fmt/xchar.h"
 #include "SDL3_image/SDL_image.h"
 #include "toml11/find.hpp"
@@ -108,6 +43,8 @@
 #include <android/asset_manager_jni.h>
 #include "core/vfs/AndroidAssetsFileProvider.h"
 #endif
+
+
 void glimmer::AppContext::LoadLanguage(const std::string& data) const
 {
     toml::value value = toml::parse_str(data, tomlVersion_);
@@ -227,16 +164,19 @@ void glimmer::AppContext::LoadLanguage(const std::string& data) const
     langsResources_->biomeScoreInspectorEnable = find<std::string>(value, "biome_score_inspector_enable");
     langsResources_->biomeScoreInspectorDisable = find<std::string>(value, "biome_score_inspector_disable");
     langsResources_->biomeScoreInspectorEnableFail = find<std::string>(value, "biome_score_inspector_enable_fail");
-    langsResources_->biomeScoreInspectorDisableFail = find<std::string>(value, "biome_score_inspector_disable_fail");
+    langsResources_->biomeScoreInspectorDisableFail = find<
+        std::string>(value, "biome_score_inspector_disable_fail");
     langsResources_->notEnabledSignVerify = find<std::string>(value, "not_enabled_sign_verify");
     langsResources_->unsignedPackage = find<std::string>(value, "unsigned");
-    langsResources_->signatureVerificationSuccessful = find<std::string>(value, "signature_verification_successful");
+    langsResources_->signatureVerificationSuccessful = find<
+        std::string>(value, "signature_verification_successful");
     langsResources_->signatureVerificationFailed = find<std::string>(value, "signature_verification_failed");
     langsResources_->dataPackageCannotBeFound = find<std::string>(value, "data_package_cannot_be_found");
     langsResources_->tileSnapshotInfo = find<std::string>(value, "tile_snapshot_info");
     langsResources_->tileSnapshotInspectorEnable = find<std::string>(value, "tile_snapshot_inspector_enable");
     langsResources_->tileSnapshotInspectorDisable = find<std::string>(value, "tile_snapshot_inspector_disable");
-    langsResources_->tileSnapshotInspectorEnableFail = find<std::string>(value, "tile_snapshot_inspector_enable_fail");
+    langsResources_->tileSnapshotInspectorEnableFail = find<std::string>(
+        value, "tile_snapshot_inspector_enable_fail");
     langsResources_->tileSnapshotInspectorDisableFail = find<
         std::string>(value, "tile_snapshot_inspector_disable_fail");
     langsResources_->chunkHasNotBeenLoadedYet = find<std::string>(value, "chunk_has_not_been_loaded_yet");
@@ -266,9 +206,9 @@ std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, cons
     auto t = std::chrono::system_clock::to_time_t(now);
     std::tm tm;
 #if defined(_WIN32)
-    localtime_s(&tm, &t); // Windows 安全函数
+    localtime_s(&tm, &t);
 #else
-    localtime_r(&t, &tm); // Linux/macOS
+    localtime_r(&t, &tm);
 #endif
     std::ostringstream oss;
     oss << prefix << "_"
@@ -280,7 +220,9 @@ std::string glimmer::AppContext::GetTimeFileName(const std::string& prefix, cons
 
 glimmer::AppContext::AppContext()
 {
-    mainThreadId_ = std::this_thread::get_id();
+    windowContext_ = std::make_unique<WindowContext>();
+    mainThreadDispatcher_ = std::make_unique<MainThreadDispatcher>();
+
     virtualFileSystem_ = std::make_unique<VirtualFileSystem>();
 #ifdef __ANDROID__
     auto env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
@@ -303,7 +245,8 @@ glimmer::AppContext::AppContext()
         LogCat::e("Android: Failed to get activity class!");
         return;
     }
-    jmethodID getAssetsMethod = env->GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
+    jmethodID getAssetsMethod = env->
+        GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
     if (getAssetsMethod == nullptr)
     {
         LogCat::e("Android: Failed to find 'getAssets' method!");
@@ -375,6 +318,7 @@ glimmer::AppContext::AppContext()
     virtualFileSystem_->Mount(
         std::make_unique<StdFileProvider>(std::filesystem::current_path().string()));
 #endif
+
     language_ = LanguageUtils::getLanguage();
     LogCat::i("Load the built-in language file.");
     std::filesystem::path langFile = "langs" / std::filesystem::path(language_);
@@ -385,196 +329,94 @@ glimmer::AppContext::AppContext()
         LogCat::w("Not found, fall back to default.toml");
         langFile = "langs/default.toml";
     }
-    VirtualFileSystem* vfs = virtualFileSystem_.get();
     const auto langData = virtualFileSystem_->ReadFileAsString(langFile);
     if (!langData.has_value())
     {
         LogCat::e("Failed to load language file!");
         return;
     }
+
     langsResources_ = std::make_unique<LangsResources>();
-    contributorManager_ = std::make_unique<ContributorManager>();
-    recipeManager_ = std::make_unique<RecipeManager>();
-    mobManager_ = std::make_unique<MobManager>();
-    shapeManager_ = std::make_unique<ShapeManager>();
-    audioManager_ = std::make_unique<AudioManager>();
-    lightSourceManager_ = std::make_unique<LightSourceManager>();
-    lightMaskManager_ = std::make_unique<LightMaskManager>();
-    fixedColorManager_ = std::make_unique<FixedColorManager>();
-    tomlTemplateExpander_ = std::make_unique<TomlTemplateExpander>();
-    tomlTemplateExpander_->Register(std::make_unique<InsertTemplateCommand>());
-    tomlTemplateExpander_->Register(std::make_unique<SetTemplateCommand>());
-    tomlTemplateExpander_->Register(std::make_unique<UnSetTemplateCommand>());
     LoadLanguage(langData.value());
-    dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<CommandHookScopeDynamicSuggestions>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<CommandHookIdDynamicSuggestions>(commandHookManager_.get()));
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<ScanKeyDynamicSuggestions>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<MouseButtonDynamicSuggestions>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<EventTypeDynamicSuggestions>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AllocStrategyTypeDynamicSuggestions>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AudioTrackDynamicSuggestions>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<CoordinateDynamicSuggestions>(Y_DYNAMIC_SUGGESTIONS_NAME));
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<CoordinateDynamicSuggestions>(X_DYNAMIC_SUGGESTIONS_NAME));
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<MobDynamicSuggestions>(mobManager_.get()));
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BooleanToggleDynamicSuggestions>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<VFSDynamicSuggestions>(vfs));
-    dataPackManager_ = std::make_unique<DataPackManager>(vfs, tomlTemplateExpander_.get());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<DataPackDynamicSuggestions>(dataPackManager_.get()));
-    resourcePackManager_ = std::make_unique<ResourcePackManager>(vfs);
-    resourceLocator_ = std::make_unique<ResourceLocator>(this);
+
+    audioContext_ = std::make_unique<AudioContext>();
+    graphicsContext_ = std::make_unique<GraphicsContext>();
+
     sceneManager_ = std::make_unique<SceneManager>();
-    stringManager_ = std::make_unique<StringManager>();
-    stringManager_->LoadLangsString(langsResources_.get());
-    biomesManager_ = std::make_unique<BiomesManager>();
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BiomeSuggestions>(biomesManager_.get()));
-    tileResourceManager_ = std::make_unique<TileResourceManager>();
-    structurePlacementConditionsManager_ = std::make_unique<StructurePlacementConditionsManager>();
-    structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<SurfaceStructureConditionProcessor>());
-    structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<HeightStructureConditionProcessor>());
-    structurePlacementConditionsManager_->AddConditionProcessor(
-        std::make_unique<HorizontalSpacingStructureConditionProcessor>());
-    structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<BiomeStructureConditionProcessor>());
-    initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
-    tileResourceManager_->InitBuiltinTiles();
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<TileDynamicSuggestions>(tileResourceManager_.get()));
-    commandManager_ = std::make_unique<CommandManager>();
-    commandManager_->RegisterCommand(std::make_unique<GiveCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<HelpCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<TpCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<SummonCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<ClearCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<LootCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<PackVerifyCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<SeedCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<FlyCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<EchoCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<LocateCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<PlayCommand>(this));
-#if  !defined(NDEBUG)
-    commandManager_->RegisterCommand(std::make_unique<HookCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<EcsCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<VFSCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<LightCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<TagCommand>(this));
-    commandManager_->RegisterCommand(std::make_unique<UnlockedRecipesCommand>(this));
-#endif
-    consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
-    biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
-    biomeDecoratorResourcesManager_ = std::make_unique<BiomeDecoratorResourcesManager>();
-    itemManager_ = std::make_unique<ItemManager>();
-    ItemManager* im = itemManager_.get();
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<ComposableItemDynamicSuggestions>(im));
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<AbilityItemDynamicSuggestions>(im));
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<MaterialItemDynamicSuggestions>(im));
-    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
-    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<SurfaceBiomeDecorator>());
-    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
+    resourcePackManager_ = std::make_unique<ResourcePackManager>(virtualFileSystem_.get());
+
+    modContext_ = std::make_unique<ModContext>();
+    modContext_->Init(virtualFileSystem_.get(), nullptr, langsResources_.get(), tomlVersion_);
+
+    resourceLocator_ = std::make_unique<ResourceLocator>(this);
+
+    modContext_->Init(virtualFileSystem_.get(), resourceLocator_.get(), langsResources_.get(), tomlVersion_);
+
+    graphicsContext_->Init(resourceLocator_.get());
+
     config_ = std::make_unique<Config>();
-    LogCat::i("Loading ",CONFIG_FILE_NAME, "...");
-    const std::optional<std::string> configData = vfs->ReadFileAsString(CONFIG_FILE_NAME);
+    LogCat::i("Loading ", CONFIG_FILE_NAME, "...");
+    const std::optional<std::string> configData = virtualFileSystem_->ReadFileAsString(CONFIG_FILE_NAME);
     if (!configData.has_value())
     {
-        LogCat::e("Failed to read ",CONFIG_FILE_NAME, " file!");
+        LogCat::e("Failed to read ", CONFIG_FILE_NAME, " file!");
     }
     configValue = std::make_unique<toml::value>(toml::parse_str(configData.value(), tomlVersion_));
     toml::value* configValuePtr = configValue.get();
     config_->LoadConfig(*configValuePtr);
-    commandHookManager_ = std::make_unique<CommandHookManager>();
-    commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(this, configValuePtr));
-    dynamicSuggestionsManager_->
-        RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValuePtr));
+
     LogCat::i("windowHeight = ", config_->window.height);
     LogCat::i("windowWidth = ", config_->window.width);
     LogCat::i("dataPackPath = ", config_->mods.dataPackPath);
     LogCat::i("resourcePackPath = ", config_->mods.resourcePackPath);
     LogCat::i("framerate = ", config_->window.normalTargetFps);
-    LogCat::i("The ",CONFIG_FILE_NAME, " load was successful.");
-    savesManager_ = std::make_unique<SavesManager>(vfs);
+    LogCat::i("The ", CONFIG_FILE_NAME, " load was successful.");
+
+    savesManager_ = std::make_unique<SavesManager>(virtualFileSystem_.get());
     savesManager_->LoadAllSaves(config_->runtimePath);
-    lootTableManager_ = std::make_unique<LootTableManager>();
-    structureGeneratorManager_ = std::make_unique<StructureGeneratorManager>();
-    structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<StaticStructureGenerator>());
-    structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<TreeStructureGenerator>());
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<LootSuggestions>(lootTableManager_.get()));
-    structureManager_ = std::make_unique<StructureManager>();
-    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<StructureDynamicSuggestions>(structureManager_.get()));
+
+    consoleContext_ = std::make_unique<ConsoleContext>();
+    consoleContext_->Init(this, virtualFileSystem_.get(), config_->runtimePath,
+                          config_->console.maxHistoryEntries, configValuePtr);
+
     LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
     LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
     LogCat::i("Starting GlimmerWorks...");
-    if (dataPackManager_->Scan(this, tomlVersion_) == 0)
+
+    if (modContext_->GetDataPackManager()->Scan(this, tomlVersion_) == 0)
     {
         LogCat::e("Failed to load dataPack");
         return;
     }
-    recipeManager_->PreSortRecipes();
+
+    modContext_->GetRecipeManager()->PreSortRecipes();
+
     if (resourcePackManager_->Scan(config_->mods.resourcePackPath, config_->mods.enabledResourcePack,
                                    tomlVersion_) == 0)
     {
         LogCat::e("Failed to load resourcePack");
         return;
     }
-    preloadColors_ = std::make_unique<PreloadColors>();
-    preloadColors_->LoadAllColors(resourceLocator_.get());
-    const size_t number = mobManager_->GetPlayerResourceList().size();
+
+    const size_t number = modContext_->GetMobManager()->GetPlayerResourceList().size();
     if (number == 0)
     {
         LogCat::e("At least one of the mob files must have the \"isPlayer = true\" setting.");
         return;
     }
-    commandHistoryManager_ = std::make_unique<CommandHistoryManager>(config_->runtimePath, virtualFileSystem_.get());
-    if (config_->console.maxHistoryEntries > 0)
-    {
-        commandHistoryManager_->Read();
-    }
+
     LogCat::i("Starting the app...");
     initSuccess_ = true;
 }
 
-void glimmer::AppContext::LoadMainMenuBGM()
+void glimmer::AppContext::LoadMainMenuBGM() const
 {
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_AUDIO);
-    resourceRef.SetResourceKey("bgm/main_menu");
-    mainMenuBGM_ = resourceLocator_->FindAudio(&resourceRef);
+    audioContext_->LoadMainMenuBGM(resourceLocator_.get());
 }
 
 void glimmer::AppContext::PlayMainMenuBGM() const
 {
-    if (audioManager_ == nullptr || mainMenuBGM_ == nullptr)
-    {
-        return;
-    }
-    MIX_Audio* audio = mainMenuBGM_->GetResource();
-    if (audio == nullptr)
-    {
-        return;
-    }
-    audioManager_->ForcePlayReplace(AudioType::BGM, audio, -1);
+    audioContext_->PlayMainMenuBGM();
 }
 
 const toml::spec& glimmer::AppContext::GetTomlVersion() const
@@ -592,40 +434,48 @@ bool glimmer::AppContext::InitSuccess() const
     return initSuccess_;
 }
 
-void glimmer::AppContext::SetWindowWidth(const int width)
+glimmer::WindowContext* glimmer::AppContext::GetWindowContext() const
 {
-    windowWidth_ = width;
+    return windowContext_.get();
 }
 
-void glimmer::AppContext::SetWindowHeight(const int height)
+void glimmer::AppContext::AddUIMessage(const std::string& string)
 {
-    windowHeight_ = height;
+    LogCat::d(string);
+    if (!gameUIMessages_.empty())
+    {
+        const uint64_t lastFingerprint = gameUIMessages_.back().GetFingerprint();
+        const uint64_t stringFingerprint = StringUtils::StringToUint64(string);
+        if (lastFingerprint == stringFingerprint)
+        {
+            return;
+        }
+    }
+    if (resourcePackManager_ == nullptr)
+    {
+        return;
+    }
+
+    mainThreadDispatcher_->PostToNextMainFrame([this, string]
+    {
+        gameUIMessages_.emplace_back(resourcePackManager_.get(), string, SDL_GetTicks(),
+                                     &graphicsContext_->GetPreloadColors()->textColor);
+    });
 }
 
-void glimmer::AppContext::SetWindowTitle(const char* title) const
+std::vector<glimmer::GameUIMessage>& glimmer::AppContext::GetGameUIMessages()
 {
-    SDL_SetWindowTitle(window_, title);
+    return gameUIMessages_;
 }
 
-int glimmer::AppContext::GetWindowWidth() const
+void glimmer::AppContext::ExitApp() const
 {
-    return windowWidth_;
-}
-
-int glimmer::AppContext::GetWindowHeight() const
-{
-    return windowHeight_;
-}
-
-
-void glimmer::AppContext::SetWindow(SDL_Window* window)
-{
-    this->window_ = window;
-}
-
-void glimmer::AppContext::SetRenderer(SDL_Renderer* renderer)
-{
-    this->renderer_ = renderer;
+    consoleContext_->StopConsoleWorker();
+    if (config_->console.maxHistoryEntries > 0)
+    {
+        consoleContext_->SaveCommandHistory();
+    }
+    windowContext_->Exit();
 }
 
 void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::string& text)>* onMessage) const
@@ -635,6 +485,7 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
         return;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
+    SDL_Renderer* renderer_ = windowContext_->GetRenderer();
     if (!renderer_)
     {
         onMessageRef(fmt::format(
@@ -700,135 +551,34 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
     }
 }
 
-bool glimmer::AppContext::Running() const
+glimmer::ModContext* glimmer::AppContext::GetModContext() const
 {
-    return isRunning;
+    return modContext_.get();
 }
 
-void glimmer::AppContext::AddUIMessage(const std::string& string)
+glimmer::ConsoleContext* glimmer::AppContext::GetConsoleContext() const
 {
-    LogCat::d(string);
-    if (!gameUIMessages_.empty())
-    {
-        const uint64_t lastFingerprint = gameUIMessages_.back().GetFingerprint();
-        const uint64_t stringFingerprint = StringUtils::StringToUint64(string);
-        if (lastFingerprint == stringFingerprint)
-        {
-            return;
-        }
-    }
-    if (resourcePackManager_ == nullptr)
-    {
-        return;
-    }
-
-    PostToNextMainFrame([this, string]
-    {
-        gameUIMessages_.emplace_back(resourcePackManager_.get(), string, SDL_GetTicks(), &preloadColors_->textColor);
-    });
+    return consoleContext_.get();
 }
 
-std::vector<glimmer::GameUIMessage>& glimmer::AppContext::GetGameUIMessages()
+glimmer::GraphicsContext* glimmer::AppContext::GetGraphicsContext() const
 {
-    return gameUIMessages_;
+    return graphicsContext_.get();
 }
 
-void glimmer::AppContext::ExitApp()
+glimmer::AudioContext* glimmer::AppContext::GetAudioContext() const
 {
-    if (consoleWorker_ != nullptr)
-    {
-        consoleWorker_->Stop();
-    }
-    if (config_->console.maxHistoryEntries > 0)
-    {
-        commandHistoryManager_->Save();
-    }
-    isRunning = false;
+    return audioContext_.get();
 }
 
-glimmer::PreloadColors* glimmer::AppContext::GetPreloadColors() const
+glimmer::MainThreadDispatcher* glimmer::AppContext::GetMainThreadDispatcher() const
 {
-    return preloadColors_.get();
+    return mainThreadDispatcher_.get();
 }
 
 glimmer::Config* glimmer::AppContext::GetConfig() const
 {
     return config_.get();
-}
-
-glimmer::InitialInventoryManager* glimmer::AppContext::GetInitialInventoryManager() const
-{
-    return initialInventoryManager_.get();
-}
-
-glimmer::CommandManager* glimmer::AppContext::GetCommandManager() const
-{
-    return commandManager_.get();
-}
-
-glimmer::AudioManager* glimmer::AppContext::GetAudioManager() const
-{
-    return audioManager_.get();
-}
-
-glimmer::ConsoleWorker* glimmer::AppContext::GetConsoleWorker() const
-{
-    return consoleWorker_.get();
-}
-
-glimmer::LightMaskManager* glimmer::AppContext::GetLightMaskManager() const
-{
-    return lightMaskManager_.get();
-}
-
-glimmer::LightSourceManager* glimmer::AppContext::GetLightSourceManager() const
-{
-    return lightSourceManager_.get();
-}
-
-glimmer::FixedColorManager* glimmer::AppContext::GetFixedColorManager() const
-{
-    return fixedColorManager_.get();
-}
-
-glimmer::RecipeManager* glimmer::AppContext::GetRecipeManager() const
-{
-    return recipeManager_.get();
-}
-
-glimmer::StringManager* glimmer::AppContext::GetStringManager() const
-{
-    return stringManager_.get();
-}
-
-glimmer::CommandHookManager* glimmer::AppContext::GetCommandHookManager() const
-{
-    return commandHookManager_.get();
-}
-
-glimmer::BiomeDecoratorResourcesManager* glimmer::AppContext::GetBiomeDecoratorResourcesManager() const
-{
-    return biomeDecoratorResourcesManager_.get();
-}
-
-glimmer::TomlTemplateExpander* glimmer::AppContext::GetTomlTemplateExpander() const
-{
-    return tomlTemplateExpander_.get();
-}
-
-glimmer::DynamicSuggestionsManager* glimmer::AppContext::GetDynamicSuggestionsManager() const
-{
-    return dynamicSuggestionsManager_.get();
-}
-
-const std::string& glimmer::AppContext::GetLanguage() const
-{
-    return language_;
-}
-
-glimmer::CommandHistoryManager* glimmer::AppContext::GetCommandHistoryManager() const
-{
-    return commandHistoryManager_.get();
 }
 
 glimmer::LangsResources* glimmer::AppContext::GetLangsResources() const
@@ -841,56 +591,6 @@ glimmer::ResourcePackManager* glimmer::AppContext::GetResourcePackManager() cons
     return resourcePackManager_.get();
 }
 
-glimmer::StructurePlacementConditionsManager* glimmer::AppContext::GetStructurePlacementConditionsManager() const
-{
-    return structurePlacementConditionsManager_.get();
-}
-
-glimmer::TileResourceManager* glimmer::AppContext::GetTileResourceManager() const
-{
-    return tileResourceManager_.get();
-}
-
-glimmer::DataPackManager* glimmer::AppContext::GetDataPackManager() const
-{
-    return dataPackManager_.get();
-}
-
-glimmer::LootTableManager* glimmer::AppContext::GetLootTableManager() const
-{
-    return lootTableManager_.get();
-}
-
-glimmer::ContributorManager* glimmer::AppContext::GetContributorManager() const
-{
-    return contributorManager_.get();
-}
-
-glimmer::StructureManager* glimmer::AppContext::GetStructureManager() const
-{
-    return structureManager_.get();
-}
-
-glimmer::StructureGeneratorManager* glimmer::AppContext::GetStructureGeneratorManager() const
-{
-    return structureGeneratorManager_.get();
-}
-
-glimmer::BiomeDecoratorManager* glimmer::AppContext::GetBiomeDecoratorManager() const
-{
-    return biomeDecoratorManager_.get();
-}
-
-glimmer::BiomesManager* glimmer::AppContext::GetBiomesManager() const
-{
-    return biomesManager_.get();
-}
-
-glimmer::ShapeManager* glimmer::AppContext::GetShapeManager() const
-{
-    return shapeManager_.get();
-}
-
 glimmer::ResourceLocator* glimmer::AppContext::GetResourceLocator() const
 {
     return resourceLocator_.get();
@@ -901,34 +601,9 @@ glimmer::VirtualFileSystem* glimmer::AppContext::GetVirtualFileSystem() const
     return virtualFileSystem_.get();
 }
 
-glimmer::ItemManager* glimmer::AppContext::GetItemManager() const
-{
-    return itemManager_.get();
-}
-
 glimmer::SceneManager* glimmer::AppContext::GetSceneManager() const
 {
     return sceneManager_.get();
-}
-
-void glimmer::AppContext::SetRandomSlogan() const
-{
-    if (window_ == nullptr || langsResources_ == nullptr)
-    {
-        SDL_SetWindowTitle(window_, PROJECT_NAME.c_str());
-        return;
-    }
-    const std::vector<std::string>& slogans = langsResources_->slogans;
-    if (slogans.empty())
-    {
-        SDL_SetWindowTitle(window_, PROJECT_NAME.c_str());
-    }
-    else
-    {
-        const int idx = RandomUtils::Random(0, static_cast<int>(slogans.size()) - 1);
-        const std::string& random_str = slogans[idx];
-        SDL_SetWindowTitle(window_, random_str.c_str());
-    }
 }
 
 glimmer::SavesManager* glimmer::AppContext::GetSavesManager() const
@@ -936,51 +611,32 @@ glimmer::SavesManager* glimmer::AppContext::GetSavesManager() const
     return savesManager_.get();
 }
 
-glimmer::MobManager* glimmer::AppContext::GetMobManager() const
+void glimmer::AppContext::SetRandomSlogan() const
 {
-    return mobManager_.get();
-}
-
-bool glimmer::AppContext::IsMainThread() const
-{
-    return std::this_thread::get_id() == mainThreadId_;
-}
-
-void glimmer::AppContext::ProcessMainThreadTasks()
-{
-    std::queue<std::function<void()>> tasks;
+    if (windowContext_->GetWindow() == nullptr || langsResources_ == nullptr)
     {
-        std::lock_guard lock(mainThreadMutex_);
-        std::swap(tasks, mainThreadTasks_);
+        windowContext_->SetWindowTitle(PROJECT_NAME.c_str());
+        return;
     }
-
-    while (!tasks.empty())
+    const std::vector<std::string>& slogans = langsResources_->slogans;
+    if (slogans.empty())
     {
-        tasks.front()();
-        tasks.pop();
+        windowContext_->SetWindowTitle(PROJECT_NAME.c_str());
+    }
+    else
+    {
+        const int idx = RandomUtils::Random(0, static_cast<int>(slogans.size()) - 1);
+        const std::string& random_str = slogans[idx];
+        windowContext_->SetWindowTitle(random_str.c_str());
     }
 }
 
 void glimmer::AppContext::RestoreColorRenderer(SDL_Renderer* sdlRenderer)
 {
-    //Set the default renderer color to black.
-    //设置默认渲染器颜色为黑色。
     SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 255);
 }
 
-void glimmer::AppContext::RunOnMainThread(std::function<void()> task)
+const std::string& glimmer::AppContext::GetLanguage() const
 {
-    if (IsMainThread())
-    {
-        task();
-        return;
-    }
-    std::lock_guard lock(mainThreadMutex_);
-    mainThreadTasks_.push(std::move(task));
-}
-
-void glimmer::AppContext::PostToNextMainFrame(std::function<void()> task)
-{
-    std::lock_guard lock(mainThreadMutex_);
-    mainThreadTasks_.push(std::move(task));
+    return language_;
 }

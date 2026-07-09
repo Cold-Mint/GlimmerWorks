@@ -129,7 +129,8 @@ void glimmer::ItemToolTipSystem::UpdateMineBlockTexture(const AbilityConfig* abi
                                                         const LangsResources* langsResources,
                                                         std::vector<SDL_Texture*>& textureToDraw)
 {
-    if (abilityConfig->mineAbleLayer & std::to_underlying(TileLayerType::Ground))
+    if ((std::byte{abilityConfig->mineAbleLayer} & std::byte{std::to_underlying(TileLayerType::Ground)}) != std::byte
+        {0})
     {
         return;
     }
@@ -151,7 +152,8 @@ void glimmer::ItemToolTipSystem::UpdateMineWallTexture(const AbilityConfig* abil
                                                        const LangsResources* langsResources,
                                                        std::vector<SDL_Texture*>& textureToDraw)
 {
-    if (abilityConfig->mineAbleLayer & std::to_underlying(TileLayerType::BackGround))
+    if ((std::byte{abilityConfig->mineAbleLayer} & std::byte{std::to_underlying(TileLayerType::BackGround)}) !=
+        std::byte{0})
     {
         return;
     }
@@ -299,7 +301,7 @@ void glimmer::ItemToolTipSystem::CollectTooltipTextures(const Item* item, std::v
     UpdateLockedTexture(langsResources, textureToDraw);
 }
 
-void glimmer::ItemToolTipSystem::RenderTooltipBackground(SDL_Renderer* renderer, const SDL_FRect& backgroundRect)
+void glimmer::ItemToolTipSystem::RenderTooltipBackground(SDL_Renderer* renderer, const SDL_FRect& backgroundRect) const
 {
     if (tooltipBgTextureResult_ == nullptr)
     {

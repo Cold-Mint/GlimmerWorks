@@ -32,7 +32,7 @@
 #include <SDL3/SDL_system.h>
 #endif
 #if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
+#include <Windows.h>
 #include <locale>
 #endif
 
@@ -60,35 +60,62 @@ std::string glimmer::LanguageUtils::getLanguage()
     env->ReleaseStringUTFChars(countryJ, countryC);
     return result;
 #elif defined(_WIN32) || defined(_WIN64)
-    LCID localeId = GetUserDefaultUILanguage();
+    // 获取用户首选 UI 语言 ID (LANGID)，若失败则用系统区域 ID (LCID)
+    LCID localeId = GetUserDefaultUILanguage(); // 注意：返回值是 LANGID，但可隐式转为 LCID
     if (localeId == 0)
     {
         localeId = GetSystemDefaultLCID();
     }
 
-    WCHAR langCode[3] = {0};
-    WCHAR countryCode[3] = {0};
+    // 使用 std::wstring 存储宽字符，先分配已知最大长度（ISO 代码为 2 字符 + 终止符）
+    // 但为保证安全，先请求所需缓冲区大小（含终止符）
+    int langLen = GetLocaleInfoW(localeId, LOCALE_SISO639LANGNAME, nullptr, 0);
+    int countryLen = GetLocaleInfoW(localeId, LOCALE_SISO3166CTRYNAME, nullptr, 0);
 
-    if (!GetLocaleInfoW(localeId, LOCALE_SISO639LANGNAME, langCode, _countof(langCode)))
+    std::wstring langCode;
+    std::wstring countryCode;
+
+    if (langLen > 0)
     {
-        wcscpy_s(langCode, L"en");
+        langCode.resize(langLen); // 长度包含终止符
+        if (GetLocaleInfoW(localeId, LOCALE_SISO639LANGNAME, &langCode[0], langLen) == 0)
+        {
+            langCode = L"en";
+        }
     }
-    if (!GetLocaleInfoW(localeId, LOCALE_SISO3166CTRYNAME, countryCode, _countof(countryCode)))
+    else
     {
-        wcscpy_s(countryCode, L"US");
+        langCode = L"en";
     }
 
-    int langLen = WideCharToMultiByte(CP_UTF8, 0, langCode, -1, nullptr, 0, nullptr, nullptr);
-    int countryLen = WideCharToMultiByte(CP_UTF8, 0, countryCode, -1, nullptr, 0, nullptr, nullptr);
+    if (countryLen > 0)
+    {
+        countryCode.resize(countryLen);
+        if (GetLocaleInfoW(localeId, LOCALE_SISO3166CTRYNAME, &countryCode[0], countryLen) == 0)
+        {
+            countryCode = L"US";
+        }
+    }
+    else
+    {
+        countryCode = L"US";
+    }
 
-    std::string langStr(langLen, 0);
-    std::string countryStr(countryLen, 0);
+    // 辅助 lambda：将 std::wstring 转换为 UTF-8 std::string
+    auto WideToUtf8 = [](const std::wstring& wstr) -> std::string
+    {
+        if (wstr.empty()) return {};
+        int len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+        if (len <= 0) return {};
+        std::string utf8(len, '\0');
+        WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &utf8[0], len, nullptr, nullptr);
+        // 移除末尾的终止符（如果有）
+        utf8.pop_back(); // len 包含终止符，所以转换后末尾是 '\0'，移除之
+        return utf8;
+    };
 
-    WideCharToMultiByte(CP_UTF8, 0, langCode, -1, &langStr[0], langLen, nullptr, nullptr);
-    WideCharToMultiByte(CP_UTF8, 0, countryCode, -1, &countryStr[0], countryLen, nullptr, nullptr);
-
-    langStr = langStr.substr(0, langStr.find_first_of('\0'));
-    countryStr = countryStr.substr(0, countryStr.find_first_of('\0'));
+    std::string langStr = WideToUtf8(langCode);
+    std::string countryStr = WideToUtf8(countryCode);
 
     return langStr + "_" + countryStr;
 #else

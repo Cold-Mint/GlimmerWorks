@@ -36,28 +36,26 @@
 #include "core/Config.h"
 #include "core/saves/SavesManager.h"
 
+#include <chrono>
+
 std::string glimmer::HomeScene::GetCopyrightString()
 {
     constexpr int startYear = 2025;
-    std::time_t t = std::time(nullptr);
-    std::tm tmBuf{};
-    const std::tm* now = nullptr;
-#if defined(_WIN32)
-    now = localtime_s(&tmBuf, &t);
-#else
-    now = localtime_r(&t, &tmBuf);
-#endif
-    if (now == nullptr)
+    auto now = std::chrono::system_clock::now();
+    auto days = std::chrono::floor<std::chrono::days>(now);
+    std::chrono::year_month_day ymd{days};
+    int currentYear = static_cast<int>(ymd.year());
+    if (!ymd.year().ok() || currentYear < 1970)
     {
         return fmt::format("Copyright (C) {} Cold-Mint", startYear);
     }
-    const int currentYear = now->tm_year + 1900;
     if (currentYear <= startYear)
     {
         return fmt::format("Copyright (C) {} Cold-Mint", startYear);
     }
     return fmt::format("Copyright (C) {}–{} Cold-Mint", startYear, currentYear);
 }
+
 
 glimmer::HomeScene::HomeScene(AppContext* context)
     : Scene(context)

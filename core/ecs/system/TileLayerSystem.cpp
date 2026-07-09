@@ -196,9 +196,12 @@ void glimmer::TileLayerSystem::Render(SDL_Renderer* renderer)
     std::vector<std::pair<TileVector2D, std::vector<TileSnapshot*>>>* visibleTiles =
         tileLayerComponent->GetTopVisibleTileSnapshotsInViewport(
             std::byte{
-                std::to_underlying(TileLayerType::Ground) | std::to_underlying(
+                std::to_underlying(TileLayerType::Ground)
+            } | std::byte{
+                std::to_underlying(
                     TileLayerType::BackGround)
-            },
+            }
+            ,
             viewportRect);
     if (visibleTiles == nullptr)
     {

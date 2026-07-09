@@ -68,7 +68,7 @@ namespace glimmer
 
         void CollectTooltipTextures(const Item* item, std::vector<SDL_Texture*>& textureToDraw);
 
-        void RenderTooltipBackground(SDL_Renderer* renderer, const SDL_FRect& backgroundRect);
+        void RenderTooltipBackground(SDL_Renderer* renderer, const SDL_FRect& backgroundRect) const;
 
         void RenderTooltipTextures(SDL_Renderer* renderer, const std::vector<SDL_Texture*>& textureToDraw,
                                    float x, float y, float lineSpacing);

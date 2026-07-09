@@ -37,8 +37,8 @@ namespace glimmer
 
     class AudioContext
     {
-        std::unique_ptr<AudioManager> audioManager_;
-        std::shared_ptr<AudioResourceResult> mainMenuBGM_;
+        std::unique_ptr<AudioManager> audioManager_ = nullptr;
+        std::shared_ptr<AudioResourceResult> mainMenuBGM_ = nullptr;
 
     public:
         AudioContext();

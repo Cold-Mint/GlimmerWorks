@@ -31,9 +31,9 @@ namespace glimmer
 {
     struct TileLightResourceData
     {
-        ResourceRef lightSource;
-        ResourceRef sideLightMask;
-        ResourceRef backLightMask;
+        ResourceRef lightSource_;
+        ResourceRef sideLightMask_;
+        ResourceRef backLightMask_;
 
         [[nodiscard]] const ResourceRef* GetLightSourceResource() const;
 

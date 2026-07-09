@@ -28,30 +28,30 @@
 
 const glimmer::ResourceRef* glimmer::TileLightResourceData::GetLightSourceResource() const
 {
-    return &lightSource;
+    return &lightSource_;
 }
 
 const glimmer::ResourceRef* glimmer::TileLightResourceData::GetSideLightMaskResource() const
 {
-    return &sideLightMask;
+    return &sideLightMask_;
 }
 
 const glimmer::ResourceRef* glimmer::TileLightResourceData::GetBackLightMaskResource() const
 {
-    return &backLightMask;
+    return &backLightMask_;
 }
 
 void glimmer::TileLightResourceData::SetLightSource(const ResourceRef& lightSource)
 {
-    this->lightSource = lightSource;
+    this->lightSource_ = lightSource;
 }
 
 void glimmer::TileLightResourceData::SetSideLightMask(const ResourceRef& sideLightMask)
 {
-    this->sideLightMask = sideLightMask;
+    this->sideLightMask_ = sideLightMask;
 }
 
 void glimmer::TileLightResourceData::SetBackLightMask(const ResourceRef& backLightMask)
 {
-    this->backLightMask = backLightMask;
+    this->backLightMask_ = backLightMask;
 }

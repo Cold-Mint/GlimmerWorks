@@ -29,8 +29,8 @@
 #include "core/mod/ResourceLocator.h"
 
 glimmer::AudioContext::AudioContext()
-    : audioManager_(std::make_unique<AudioManager>())
 {
+    audioManager_ = std::make_unique<AudioManager>();
 }
 
 glimmer::AudioContext::~AudioContext() = default;

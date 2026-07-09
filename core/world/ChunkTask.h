@@ -36,7 +36,7 @@ namespace glimmer {
         uint32_t distance_ = 0;
 
     public:
-        ChunkTask(ChunkType chunkType, TileVector2D chunkVertexCoordinates);
+        ChunkTask(ChunkType chunkType, const TileVector2D& chunkVertexCoordinates);
 
         [[nodiscard]] ChunkType GetChunkType() const;
 

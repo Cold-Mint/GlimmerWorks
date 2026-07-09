@@ -29,8 +29,8 @@
 namespace glimmer
 {
     MainThreadDispatcher::MainThreadDispatcher()
-        : mainThreadId_(std::this_thread::get_id())
     {
+        mainThreadId_ = std::this_thread::get_id();
     }
 
     MainThreadDispatcher::~MainThreadDispatcher() = default;

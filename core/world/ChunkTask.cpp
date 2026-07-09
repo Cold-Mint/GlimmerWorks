@@ -28,7 +28,7 @@
 
 #include <utility>
 
-glimmer::ChunkTask::ChunkTask(const ChunkType chunkType, const TileVector2D chunkVertexCoordinates)
+glimmer::ChunkTask::ChunkTask(const ChunkType chunkType, const TileVector2D& chunkVertexCoordinates)
     : chunkType_(chunkType), chunkVertexCoordinates_(chunkVertexCoordinates)
 {
 }
@@ -56,10 +56,8 @@ const glimmer::TileVector2D& glimmer::ChunkTask::GetChunkVertexCoordinates() con
 
 uint64_t glimmer::ChunkTask::GetFingerprint() const
 {
-    const auto type = static_cast<uint64_t>(std::byte{std::to_underlying(chunkType_)} & std::byte{0b11});
-    const uint64_t x = static_cast<uint32_t>(chunkVertexCoordinates_.x);
-    const uint64_t y = static_cast<uint32_t>(chunkVertexCoordinates_.y);
-    return type << 62
-        | (x & 0x7FFFFFFFLL) << 31
-        | y & 0x7FFFFFFFLL;
+    const uint64_t type = static_cast<uint64_t>(chunkType_) & 0x3ULL;
+    const uint64_t x = static_cast<uint64_t>(chunkVertexCoordinates_.x) & 0x7FFFFFFFull;
+    const uint64_t y = static_cast<uint64_t>(chunkVertexCoordinates_.y) & 0x7FFFFFFFull;
+    return type << 62 | x << 31 | y;
 }

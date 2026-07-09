@@ -28,55 +28,55 @@
 
 const float& glimmer::TileMiningData::GetHardness() const
 {
-    return hardness;
+    return hardness_;
 }
 
 bool glimmer::TileMiningData::IsBreakable() const
 {
-    return hardness >= 0.0F;
+    return hardness_ >= 0.0F;
 }
 
 float glimmer::TileMiningData::GetMinMiningEfficiency() const
 {
-    return minMiningEfficiency;
+    return minMiningEfficiency_;
 }
 
 void glimmer::TileMiningData::SetMinMiningEfficiency(float minMiningEfficiency)
 {
-    this->minMiningEfficiency = minMiningEfficiency;
+    this->minMiningEfficiency_ = minMiningEfficiency;
 }
 
 bool glimmer::TileMiningData::IsAllowChainMining() const
 {
-    return allowChainMining;
+    return allowChainMining_;
 }
 
 bool glimmer::TileMiningData::IsAutoDigCostScale() const
 {
-    return autoDigCostScale;
+    return autoDigCostScale_;
 }
 
 uint32_t glimmer::TileMiningData::GetUnitDigCost() const
 {
-    return unitDigCost;
+    return unitDigCost_;
 }
 
 void glimmer::TileMiningData::SetHardness(float hardness)
 {
-    this->hardness = hardness;
+    this->hardness_ = hardness;
 }
 
 void glimmer::TileMiningData::SetAllowChainMining(bool allowChainMining)
 {
-    this->allowChainMining = allowChainMining;
+    this->allowChainMining_ = allowChainMining;
 }
 
 void glimmer::TileMiningData::SetAutoDigCostScale(bool autoDigCostScale)
 {
-    this->autoDigCostScale = autoDigCostScale;
+    this->autoDigCostScale_ = autoDigCostScale;
 }
 
 void glimmer::TileMiningData::SetUnitDigCost(uint32_t unitDigCost)
 {
-    this->unitDigCost = unitDigCost;
+    this->unitDigCost_ = unitDigCost;
 }

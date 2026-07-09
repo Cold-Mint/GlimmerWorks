@@ -28,40 +28,40 @@
 
 bool glimmer::TileLootData::IsCustomLootTable() const
 {
-    return customLootTable;
+    return customLootTable_;
 }
 
 const glimmer::ResourceRef* glimmer::TileLootData::GetLootTableRef() const
 {
-    return &lootTable;
+    return &lootTable_;
 }
 
 bool glimmer::TileLootData::LootScaleBySize() const
 {
-    return lootScaleBySize;
+    return lootScaleBySize_;
 }
 
 bool glimmer::TileLootData::CanDropLoot() const
 {
-    return canDropLoot;
+    return canDropLoot_;
 }
 
 void glimmer::TileLootData::SetCustomLootTable(bool customLootTable)
 {
-    this->customLootTable = customLootTable;
+    this->customLootTable_ = customLootTable;
 }
 
 void glimmer::TileLootData::SetLootTable(const ResourceRef& lootTable)
 {
-    this->lootTable = lootTable;
+    this->lootTable_ = lootTable;
 }
 
 void glimmer::TileLootData::SetLootScaleBySize(bool lootScaleBySize)
 {
-    this->lootScaleBySize = lootScaleBySize;
+    this->lootScaleBySize_ = lootScaleBySize;
 }
 
 void glimmer::TileLootData::SetCanDropLoot(bool canDropLoot)
 {
-    this->canDropLoot = canDropLoot;
+    this->canDropLoot_ = canDropLoot;
 }

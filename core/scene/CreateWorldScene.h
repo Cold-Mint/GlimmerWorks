@@ -44,7 +44,7 @@ namespace glimmer
 
         void OnConfigChanged(const Config* config) override;
 
-        [[nodiscard]] std::string RandomName() const;
+        [[nodiscard]] std::optional<std::string> RandomName() const;
 
         void RenderImGui(SDL_Renderer* renderer) override;
 

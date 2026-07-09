@@ -31,11 +31,11 @@ namespace glimmer
 {
     class TileMiningData
     {
-        float hardness = 1.0F;
-        float minMiningEfficiency = 0.0F;
-        bool allowChainMining = false;
-        bool autoDigCostScale = true;
-        uint32_t unitDigCost = 1;
+        float hardness_ = 1.0F;
+        float minMiningEfficiency_ = 0.0F;
+        bool allowChainMining_ = false;
+        bool autoDigCostScale_ = true;
+        uint32_t unitDigCost_ = 1;
 
     public:
         [[nodiscard]] const float& GetHardness() const;

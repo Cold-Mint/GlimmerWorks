@@ -31,10 +31,10 @@ namespace glimmer
 {
     class TileDimensions
     {
-        uint8_t tileWidth = 1;
-        uint8_t tileHeight = 1;
-        bool allowDirAdjustAnchor = true;
-        TileVector2D tileAnchor = TileVector2D(1, 1);
+        uint8_t tileWidth_ = 1;
+        uint8_t tileHeight_ = 1;
+        bool allowDirAdjustAnchor_ = true;
+        TileVector2D tileAnchor_ = TileVector2D(1, 1);
 
     public:
         [[nodiscard]] uint8_t GetTileWidth() const;

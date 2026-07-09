@@ -48,7 +48,11 @@ glimmer::CreateWorldScene::CreateWorldScene(AppContext* context) : Scene(context
 {
     const int newSeed = RandomUtils::Random<int>();
     seedStr_ = std::to_string(newSeed);
-    worldName_ = RandomName();
+    auto op = RandomName();
+    if (op.has_value())
+    {
+        worldName_ = op.value();
+    }
     Init();
 }
 
@@ -100,19 +104,18 @@ void glimmer::CreateWorldScene::OnConfigChanged(const Config* config)
     uiScale_ = config->window.uiScale;
 }
 
-std::string glimmer::CreateWorldScene::RandomName() const
+std::optional<std::string> glimmer::CreateWorldScene::RandomName() const
 {
     const std::vector<std::string>& prefixList = GetAppContext()->GetLangsResources()->worldNamePrefix;
-    const std::vector<std::string>& suffixList = GetAppContext()->GetLangsResources()->worldNameSuffix;
     if (prefixList.empty())
     {
-        throw std::runtime_error("CreateWorldScene::RandomName: worldNamePrefix is empty");
+        return std::nullopt;
     }
+    const std::vector<std::string>& suffixList = GetAppContext()->GetLangsResources()->worldNameSuffix;
     if (suffixList.empty())
     {
-        throw std::runtime_error("CreateWorldScene::RandomName: worldNameSuffix is empty");
+        return std::nullopt;
     }
-
     const auto randomPrefixIdx = RandomUtils::Random<size_t>(0, prefixList.size() - 1);
     const auto randomSuffixIdx = RandomUtils::Random<size_t>(0, suffixList.size() - 1);
     if (GetAppContext()->GetLanguage().compare(0, 2, "en") == 0)
@@ -121,6 +124,7 @@ std::string glimmer::CreateWorldScene::RandomName() const
     }
     return prefixList[randomPrefixIdx] + suffixList[randomSuffixIdx];
 }
+
 
 void glimmer::CreateWorldScene::RenderImGui(SDL_Renderer* renderer)
 {
@@ -138,7 +142,11 @@ void glimmer::CreateWorldScene::RenderImGui(SDL_Renderer* renderer)
     ImGui::SameLine();
     if (ImGui::Button((langsResources->random + "##randomWorldName").c_str()))
     {
-        worldName_ = RandomName();
+        auto op = RandomName();
+        if (op.has_value())
+        {
+            worldName_ = op.value();
+        }
     }
 
     ImGui::TextUnformatted(langsResources->seed.c_str());

@@ -28,40 +28,40 @@
 
 uint8_t glimmer::TileDimensions::GetTileWidth() const
 {
-    return tileWidth;
+    return tileWidth_;
 }
 
 uint8_t glimmer::TileDimensions::GetTileHeight() const
 {
-    return tileHeight;
+    return tileHeight_;
 }
 
 bool glimmer::TileDimensions::IsAllowDirAdjustAnchor() const
 {
-    return allowDirAdjustAnchor;
+    return allowDirAdjustAnchor_;
 }
 
 const glimmer::TileVector2D* glimmer::TileDimensions::GetTileAnchor() const
 {
-    return &tileAnchor;
+    return &tileAnchor_;
 }
 
 void glimmer::TileDimensions::SetTileWidth(uint8_t tileWidth)
 {
-    this->tileWidth = tileWidth;
+    this->tileWidth_ = tileWidth;
 }
 
 void glimmer::TileDimensions::SetTileHeight(uint8_t tileHeight)
 {
-    this->tileHeight = tileHeight;
+    this->tileHeight_ = tileHeight;
 }
 
 void glimmer::TileDimensions::SetAllowDirAdjustAnchor(bool allowDirAdjustAnchor)
 {
-    this->allowDirAdjustAnchor = allowDirAdjustAnchor;
+    this->allowDirAdjustAnchor_ = allowDirAdjustAnchor;
 }
 
 void glimmer::TileDimensions::SetTileAnchor(const TileVector2D& tileAnchor)
 {
-    this->tileAnchor = tileAnchor;
+    this->tileAnchor_ = tileAnchor;
 }

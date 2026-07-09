@@ -44,7 +44,7 @@ namespace glimmer {
          * Are there any scenarios that need to be mounted
          * 是否有需要挂载的场景
          */
-        bool hasPending = false;
+        bool hasPending_ = false;
 
     public:
         void ClearScenes();

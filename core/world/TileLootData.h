@@ -31,10 +31,10 @@ namespace glimmer
 {
     class TileLootData
     {
-        bool customLootTable = false;
-        ResourceRef lootTable;
-        bool lootScaleBySize = false;
-        bool canDropLoot = true;
+        bool customLootTable_ = false;
+        ResourceRef lootTable_;
+        bool lootScaleBySize_ = false;
+        bool canDropLoot_ = true;
 
     public:
         [[nodiscard]] bool IsCustomLootTable() const;

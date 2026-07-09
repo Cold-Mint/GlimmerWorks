@@ -41,10 +41,10 @@
 std::string glimmer::HomeScene::GetCopyrightString()
 {
     constexpr int startYear = 2025;
-    auto now = std::chrono::system_clock::now();
-    auto days = std::chrono::floor<std::chrono::days>(now);
+    const auto now = std::chrono::system_clock::now();
+    const auto days = std::chrono::floor<std::chrono::days>(now);
     std::chrono::year_month_day ymd{days};
-    int currentYear = static_cast<int>(ymd.year());
+    auto currentYear = static_cast<int>(ymd.year());
     if (!ymd.year().ok() || currentYear < 1970)
     {
         return fmt::format("Copyright (C) {} Cold-Mint", startYear);

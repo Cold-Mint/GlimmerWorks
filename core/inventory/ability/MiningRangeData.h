@@ -25,36 +25,50 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <queue>
 #include <unordered_set>
 #include <vector>
 
 #include "MiningRangeDataPoint.h"
 #include "core/ecs/component/TileLayerComponent.h"
+#include "core/world/TileMiningData.h"
 
 
 /**
  * Mining Range Data
  * 挖掘范围数据。
  */
-namespace glimmer {
-    class MiningRangeData {
+namespace glimmer
+{
+    class MiningRangeData
+    {
         //The array of coordinates being excavated.
         //正在被挖掘的坐标数组。
         std::vector<MiningRangeDataPoint> points_;
         std::unordered_set<Vector2DIFingerprint> pointsFingerprint_;
         float maxHardness_ = 0;
 
-        void TryPushPoint(const TileLayerComponent *tileLayerComponent, const TileVector2D &position);
+        void TryPushPoint(const TileLayerComponent* tileLayerComponent, const TileVector2D& position);
 
         [[nodiscard]] static bool IsValidForChainMining(const TileLayerComponent* tileLayerComponent,
                                                         const TileVector2D& position);
+
+        [[nodiscard]] static const TileMiningData* GetValidStartMiningData(const TileLayerComponent* tileLayerComponent,
+                                                                           const TileVector2D& startVector);
+
+        void ProcessChainMiningNeighbor(const TileLayerComponent* tileLayerComponent,
+                                        const TileVector2D& nextPos,
+                                        const TileVector2D& startVector,
+                                        uint8_t radius,
+                                        std::unordered_set<Vector2DIFingerprint>& visited,
+                                        std::queue<TileVector2D>& bfsQueue);
 
     public:
         MiningRangeData();
 
         [[nodiscard]] size_t GetPointsCount() const;
 
-        [[nodiscard]] const MiningRangeDataPoint *GetPoint(size_t index) const;
+        [[nodiscard]] const MiningRangeDataPoint* GetPoint(size_t index) const;
 
         /**
          * Achieve maximum hardness
@@ -66,9 +80,9 @@ namespace glimmer {
         void Reset();
 
 
-        void CalculateMining(const TileLayerComponent *tileLayerComponent, const TileVector2D &startVector);
+        void CalculateMining(const TileLayerComponent* tileLayerComponent, const TileVector2D& startVector);
 
-        void CalculateChainMining(const TileLayerComponent *tileLayerComponent, const TileVector2D &startVector,
+        void CalculateChainMining(const TileLayerComponent* tileLayerComponent, const TileVector2D& startVector,
                                   uint8_t radius);
     };
 }

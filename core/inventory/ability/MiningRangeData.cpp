@@ -144,122 +144,115 @@ bool glimmer::MiningRangeData::IsValidForChainMining(const TileLayerComponent* t
     return true;
 }
 
+const glimmer::TileMiningData* glimmer::MiningRangeData::GetValidStartMiningData(const TileLayerComponent* tileLayerComponent,
+                                                                                 const TileVector2D& startVector)
+{
+    const Tile* startTile = tileLayerComponent->GetSelfLayerTile(startVector);
+    if (startTile == nullptr)
+    {
+        return nullptr;
+    }
+    const TileMiningData* tileMiningData = startTile->GetMiningData();
+    if (tileMiningData == nullptr)
+    {
+        return nullptr;
+    }
+    if (!tileMiningData->IsBreakable())
+    {
+        return nullptr;
+    }
+    const TileStateMessage* tileStateMessage = tileLayerComponent->GetSelfLayerTileState(startVector);
+    if (tileStateMessage != nullptr && tileStateMessage->placesource() == PLACE_SOURCE_PLAYER)
+    {
+        return nullptr;
+    }
+    if (!tileMiningData->IsAllowChainMining())
+    {
+        return nullptr;
+    }
+    return tileMiningData;
+}
+
+void glimmer::MiningRangeData::ProcessChainMiningNeighbor(const TileLayerComponent* tileLayerComponent,
+                                                          const TileVector2D& nextPos,
+                                                          const TileVector2D& startVector,
+                                                          uint8_t radius,
+                                                          std::unordered_set<Vector2DIFingerprint>& visited,
+                                                          std::queue<TileVector2D>& bfsQueue)
+{
+    int distance = abs(nextPos.x - startVector.x) + abs(nextPos.y - startVector.y);
+    if (distance > radius)
+    {
+        return;
+    }
+
+    Vector2DIFingerprint fingerprint = nextPos.GetFingerprint();
+    if (visited.contains(fingerprint))
+    {
+        return;
+    }
+
+    if (!IsValidForChainMining(tileLayerComponent, nextPos))
+    {
+        return;
+    }
+
+    visited.insert(fingerprint);
+    bfsQueue.push(nextPos);
+    TryPushPoint(tileLayerComponent, nextPos);
+
+    const Tile* nextTile = tileLayerComponent->GetSelfLayerTile(nextPos);
+    if (nextTile == nullptr)
+    {
+        return;
+    }
+
+    const TileMiningData* nextTileMiningData = nextTile->GetMiningData();
+    if (float nextHardness = nextTileMiningData->GetHardness(); nextHardness > maxHardness_)
+    {
+        maxHardness_ = nextHardness;
+    }
+}
+
 void glimmer::MiningRangeData::CalculateChainMining(const TileLayerComponent* tileLayerComponent,
                                                     const TileVector2D& startVector, uint8_t radius)
 {
     if (radius <= 0)
     {
-        //Invalid chain radius.
-        //无效的连锁半径。
         return;
     }
-    const Tile* startTile = tileLayerComponent->GetSelfLayerTile(startVector);
-    if (startTile == nullptr)
-    {
-        return;
-    }
-    const TileMiningData* tileMiningData = startTile->GetMiningData();
+
+    const TileMiningData* tileMiningData = GetValidStartMiningData(tileLayerComponent, startVector);
     if (tileMiningData == nullptr)
     {
         return;
     }
-    if (!tileMiningData->IsBreakable())
-    {
-        return;
-    }
-    const TileStateMessage* tileStateMessage = tileLayerComponent->GetSelfLayerTileState(startVector);
-    if (tileStateMessage != nullptr && tileStateMessage->placesource() == PLACE_SOURCE_PLAYER)
-    {
-        return;
-    }
-    if (!tileMiningData->IsAllowChainMining())
-    {
-        //The excavated blocks do not support consecutive collection.
-        //挖掘的方块不支持连锁采集。
-        return;
-    }
+
     maxHardness_ = tileMiningData->GetHardness();
-    //Add the array of excavation coordinates.
-    //加入挖掘坐标数组。
     TryPushPoint(tileLayerComponent, startVector);
 
-    //Core implementation: Connected region search
-    //核心实现：连通区域查找
-    //Direction array (up, down, left, right - 4 directions, can be extended to 8 directions)
-    //方向数组（上下左右4方向，可扩展为8方向）
     const std::vector<TileVector2D> directions = {
-        {1, 0}, // 右
-        {-1, 0}, // 左
-        {0, 1}, // 下
-        {0, -1} // 上
+        {1, 0},
+        {-1, 0},
+        {0, 1},
+        {0, -1}
     };
 
-    //The set of visited blocks (to avoid redundant processing)
-    //已访问的方块集合（避免重复处理）
     std::unordered_set<Vector2DIFingerprint> visited;
     visited.insert(startVector.GetFingerprint());
 
-    //Breadth-First Search (BFS) Queue
-    //广度优先搜索（BFS）队列
     std::queue<TileVector2D> bfsQueue;
     bfsQueue.push(startVector);
 
-    //Traverse all connected blocks
-    //遍历所有连通方块
     while (!bfsQueue.empty())
     {
         const TileVector2D& currentPos = bfsQueue.front();
         bfsQueue.pop();
 
-        //Traverse all directions
-        //遍历所有方向
         for (const auto& dir : directions)
         {
             TileVector2D nextPos = {currentPos.x + dir.x, currentPos.y + dir.y};
-
-            //Check 1: Is it within the radius range (Manhattan distance/Euclidean distance; here, Manhattan distance is more appropriate for the sub-game)?
-            // 检查1：是否在半径范围内（曼哈顿距离/欧几里得距离，这里用曼哈顿更贴合格子游戏）
-            int distance = abs(nextPos.x - startVector.x) + abs(nextPos.y - startVector.y);
-            if (distance > radius)
-            {
-                continue;
-            }
-
-            Vector2DIFingerprint fingerprint = nextPos.GetFingerprint();
-            // Check 2: Have you visited before?
-            // 检查2：是否已访问过
-            if (visited.contains(fingerprint))
-            {
-                continue;
-            }
-
-            //Check 3: Obtain the target block and verify its validity
-            //检查3：获取目标方块并验证有效性
-            if (!IsValidForChainMining(tileLayerComponent, nextPos))
-            {
-                continue;
-            }
-            const Tile* nextTile = tileLayerComponent->GetSelfLayerTile(nextPos);
-            if (nextTile == nullptr)
-            {
-                continue;
-            }
-            //All conditions met, add to the result set
-            //所有条件满足，加入结果集
-            visited.insert(fingerprint);
-            bfsQueue.push(nextPos);
-            TryPushPoint(tileLayerComponent, nextPos);
-            //Update the maximum hardness value
-            //更新最大硬度值
-            const TileMiningData* nextTileMiningData = nextTile->GetMiningData();
-            if (nextTileMiningData == nullptr)
-            {
-                continue;
-            }
-            if (float nextHardness = nextTileMiningData->GetHardness(); nextHardness > maxHardness_)
-            {
-                maxHardness_ = nextHardness;
-            }
+            ProcessChainMiningNeighbor(tileLayerComponent, nextPos, startVector, radius, visited, bfsQueue);
         }
     }
 }

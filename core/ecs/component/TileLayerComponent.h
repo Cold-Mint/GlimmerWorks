@@ -59,7 +59,7 @@ namespace glimmer
         GetTileShared(TileLayerType layerType, const TileVector2D& tilePos) const;
 
         [[nodiscard]] static std::vector<TileSnapshot*> GetTopVisibleTileSnapshots(
-            const Chunk* chunk, uint8_t layerFilter,
+            const Chunk* chunk, std::byte layerFilter,
             const TileVector2D& tilePos);
 
         [[nodiscard]] TileStateMessage* GetTileStatePtr(
@@ -81,7 +81,7 @@ namespace glimmer
          */
         [[nodiscard]] std::vector<std::pair<TileVector2D, std::vector<TileSnapshot*>>>*
         GetTopVisibleTileSnapshotsInViewport(
-            uint8_t layerFilter,
+            std::byte layerFilter,
             const SDL_FRect& worldViewport);
 
 
@@ -106,7 +106,7 @@ namespace glimmer
          * 设置焦点位置
          * @param focusPosition
          */
-        void SetFocusPosition(TileVector2D focusPosition);
+        void SetFocusPosition(const TileVector2D& focusPosition);
 
         /**
          * Get the focus position

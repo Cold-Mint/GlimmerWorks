@@ -26,7 +26,6 @@
  */
 #include "TileLayerComponent.h"
 
-#include <cassert>
 #include <utility>
 
 #include "core/Constants.h"
@@ -60,7 +59,7 @@ const glimmer::Tile* glimmer::TileLayerComponent::GetTile(const TileLayerType la
 }
 
 std::vector<std::pair<glimmer::TileVector2D, std::vector<glimmer::TileSnapshot*>>>* glimmer::TileLayerComponent::
-GetTopVisibleTileSnapshotsInViewport(uint8_t layerFilter, const SDL_FRect& worldViewport)
+GetTopVisibleTileSnapshotsInViewport(const std::byte layerFilter, const SDL_FRect& worldViewport)
 {
     if (worldContext_ == nullptr)
     {
@@ -137,7 +136,7 @@ std::shared_ptr<glimmer::Tile> glimmer::TileLayerComponent::GetTileShared(const 
 }
 
 std::vector<glimmer::TileSnapshot*> glimmer::TileLayerComponent::GetTopVisibleTileSnapshots(const Chunk* chunk,
-    uint8_t layerFilter, const TileVector2D& tilePos)
+    const std::byte layerFilter, const TileVector2D& tilePos)
 {
     if (chunk == nullptr)
     {
@@ -227,7 +226,7 @@ glimmer::TileLayerType glimmer::TileLayerComponent::GetTileLayerType() const
     return tileLayerType_;
 }
 
-void glimmer::TileLayerComponent::SetFocusPosition(const TileVector2D focusPosition)
+void glimmer::TileLayerComponent::SetFocusPosition(const TileVector2D& focusPosition)
 {
     focusPosition_ = focusPosition;
 }

@@ -258,10 +258,10 @@ std::shared_ptr<glimmer::Tile> glimmer::Chunk::GetTileShared(TileLayerType layer
     return it->second[index];
 }
 
-std::vector<glimmer::TileSnapshot*> glimmer::Chunk::GetTopVisibleTileSnapshots(
-    const uint8_t layerFilter, const uint8_t index) const
+std::vector<glimmer::TileSnapshot*> glimmer::Chunk::GetTopVisibleTileSnapshots(const std::byte layerFilter,
+                                                                               const uint8_t index) const
 {
-    int intIndex = index;
+    const int intIndex = index;
     if (intIndex >= CHUNK_AREA)
     {
         return {};
@@ -269,8 +269,8 @@ std::vector<glimmer::TileSnapshot*> glimmer::Chunk::GetTopVisibleTileSnapshots(
     std::vector<TileSnapshot*> topVisibleTileSnapshots;
     for (int i = 0; i < TILE_LAYER_TYPE_COUNT; i++)
     {
-        const uint8_t layer = 1 << i;
-        if ((layerFilter && layer) != static_cast<uint8_t>(0))
+        auto layer = static_cast<std::byte>(1 << i);
+        if ((layerFilter & layer) != std::byte{0})
         {
             auto tileLayerType = static_cast<TileLayerType>(layer);
             auto iterator = tileSnapshots_.find(tileLayerType);

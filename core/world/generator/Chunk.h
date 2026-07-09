@@ -122,7 +122,7 @@ namespace glimmer
 
 
         [[nodiscard]] std::vector<TileSnapshot*> GetTopVisibleTileSnapshots(
-            uint8_t layerFilter, uint8_t index) const;
+            std::byte layerFilter, uint8_t index) const;
 
         void ReadChunkMessage(const ChunkMessage& chunkMessage);
 

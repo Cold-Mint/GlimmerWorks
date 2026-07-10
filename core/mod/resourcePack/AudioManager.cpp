@@ -46,7 +46,7 @@ void glimmer::AudioManager::CreateTracks(const AudioType type, const size_t coun
         MIX_Track* newTrack = MIX_CreateTrack(mixer_);
         if (!newTrack)
         {
-            LogCat::e("MIX_CreateTrack failed: ", SDL_GetError());
+
             continue;
         }
         MIX_TagTrack(newTrack, AudioTypeToTag(type));
@@ -121,7 +121,7 @@ void glimmer::AudioManager::TryPlayFree(const AudioType audioType, MIX_Audio* au
     MIX_Track* track = GetFreeTrack(audioType);
     if (!track)
     {
-        LogCat::w("No free track for audio!");
+
         return;
     }
     MIX_SetTrackAudio(track, audio);

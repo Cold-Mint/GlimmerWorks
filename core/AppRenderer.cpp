@@ -116,7 +116,7 @@ namespace glimmer
         if (oldColor.a != newColor.a || oldColor.r != newColor.r ||
             oldColor.g != newColor.g || oldColor.b != newColor.b)
         {
-            LogCat::e("The color of the renderer has been changed by the scene.");
+
             assert(false);
         }
 
@@ -133,7 +133,7 @@ namespace glimmer
             if (oldColor.a != overlayColor.a || oldColor.r != overlayColor.r ||
                 oldColor.g != overlayColor.g || oldColor.b != overlayColor.b)
             {
-                LogCat::e("The color of the renderer has been changed by the overlay scene.");
+
                 assert(false);
             }
         }

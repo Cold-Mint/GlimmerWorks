@@ -51,37 +51,31 @@
 
 bool glimmer::App::InitSDL()
 {
-    LogCat::i("Initializing SDL...");
 #ifdef __ANDROID__
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     SDL_SetHint("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
 #endif
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {
-        LogCat::e("SDL_Init Error: ", SDL_GetError());
         return false;
     }
     initSDLSuccess_ = true;
     if (!MIX_Init())
     {
-        LogCat::e("MIX_Init Error: ", SDL_GetError());
         return false;
     }
     initSDLMixSuccess_ = true;
-    LogCat::i("Initializing SDL_ttf...");
+
     if (!TTF_Init())
     {
-        LogCat::e("TTF_Init Error: ", SDL_GetError());
         return false;
     }
     initSDLTtfSuccess_ = true;
-    LogCat::i("SDL initialized successfully.");
     return true;
 }
 
 bool glimmer::App::InitWindowAndRenderer()
 {
-    LogCat::i("Creating SDL window...");
     Config* config = appContext_->GetConfig();
     window = SDL_CreateWindow(
         "GlimmerWorks",
@@ -91,22 +85,18 @@ bool glimmer::App::InitWindowAndRenderer()
     );
     if (window == nullptr)
     {
-        LogCat::e("SDL_CreateWindow Error: ", SDL_GetError());
         return false;
     }
-    LogCat::i("SDL window created successfully.");
+
     WindowContext* windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr)
     {
         return false;
     }
     windowContext->SetWindow(window);
-
-    LogCat::i("Creating SDL renderer...");
     renderer_ = SDL_CreateRenderer(window, nullptr);
     if (renderer_ == nullptr)
     {
-        LogCat::e("SDL_CreateRenderer Error: ", SDL_GetError());
         return false;
     }
     SDL_SetRenderVSync(renderer_, config->window.vSync);
@@ -115,28 +105,21 @@ bool glimmer::App::InitWindowAndRenderer()
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr)
     {
-        LogCat::e("ResourcePackManager is nullptr.");
         return false;
     }
     resourcePackManager->SetRenderer(renderer_, appContext_->GetGraphicsContext()->GetPreloadColors());
 
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
     SDL_SetDefaultTextureScaleMode(renderer_, SDL_SCALEMODE_PIXELART);
-    LogCat::i("SDL renderer created successfully.");
     return true;
 }
 
 bool glimmer::App::InitImGui() const
 {
-    LogCat::i("Initializing ImGui context...");
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    LogCat::i("ImGui context created.");
-
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr;
-
-    LogCat::i("Setting ImGui style...");
     GraphicsContext* graphicsContext = appContext_->GetGraphicsContext();
     if (graphicsContext == nullptr)
     {
@@ -175,21 +158,18 @@ bool glimmer::App::InitImGui() const
         ImGui::GetStyle().Colors[imguiColor] = ColorUtils::ColorToImVec4(color);
     }
 
-    LogCat::i("Initializing ImGui SDL3 backend for SDLRenderer...");
+
     if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer_))
     {
-        LogCat::e("ImGui_ImplSDL3_InitForSDLRenderer failed!");
         return false;
     }
-    LogCat::i("ImGui SDL3 backend initialized successfully.");
 
-    LogCat::i("Initializing ImGui SDLRenderer3 backend...");
+
     if (!ImGui_ImplSDLRenderer3_Init(renderer_))
     {
-        LogCat::e("ImGui_ImplSDLRenderer3_Init failed!");
         return false;
     }
-    LogCat::i("ImGui SDLRenderer3 backend initialized successfully.");
+
     return true;
 }
 
@@ -211,7 +191,6 @@ bool glimmer::App::InitFont() const
 
     if (!fontPathOpt.has_value())
     {
-        LogCat::w("No font found for language '", appContext_->GetLanguage(), "', skipping font load");
         return true;
     }
 
@@ -229,27 +208,23 @@ bool glimmer::App::InitFont() const
     auto actualPath = virtualFileSystem->GetActualPath(fontPath);
     if (!actualPath.has_value())
     {
-        LogCat::e("An error occurred when converting to the actual font path.");
         return false;
     }
 
     const ImGuiIO& io = ImGui::GetIO();
     if (io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F))
     {
-        LogCat::d("Loaded font: ", fontPath);
     }
     else
     {
-        LogCat::e("Failed to load font (ImGui error): ", fontPath);
     }
     TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16);
     if (sdlFont == nullptr)
     {
-        LogCat::e("Failed to load SDL_ttf font: ", SDL_GetError());
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "Failed to load font: ", actualPath.value());
     }
     else
     {
-        LogCat::d("SDL_ttf font loaded: ", fontPath);
         resourcePackManager->SetFont(sdlFont);
     }
 
@@ -261,7 +236,6 @@ bool glimmer::App::InitAudio()
     Config* config = appContext_->GetConfig();
     SDL_AudioSpec audioSpec;
     const std::string& audioFormat = config->audio.format;
-
     if (audioFormat == "U8")
     {
         audioSpec.format = SDL_AUDIO_U8;
@@ -285,7 +259,6 @@ bool glimmer::App::InitAudio()
     mixer_ = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
     if (mixer_ == nullptr)
     {
-        LogCat::e("MIX_CreateMixerDevice failed! ", SDL_GetError());
         return false;
     }
 
@@ -300,7 +273,6 @@ bool glimmer::App::InitAudio()
     AudioManager* audioManager = audioContext->GetAudioManager();
     if (audioManager == nullptr)
     {
-        LogCat::e("audioManager == null");
         return false;
     }
     audioManager->SetMixer(mixer_);
@@ -336,7 +308,6 @@ bool glimmer::App::CheckWindowSizeChange(WindowContext* windowContext, const int
 
 glimmer::App::~App()
 {
-    LogCat::i("Destroy the app");
     if (initSDLMixSuccess_)
     {
         MIX_Quit();
@@ -371,7 +342,6 @@ bool glimmer::App::Init()
 
 void glimmer::App::Run() const
 {
-    LogCat::i("Entering main loop...");
     const auto sceneManager = appContext_->GetSceneManager();
     const auto config = appContext_->GetConfig();
 

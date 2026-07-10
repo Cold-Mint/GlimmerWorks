@@ -305,7 +305,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
 {
     if (context == nullptr)
     {
-        LogCat::w("DrawSolidPolygonFcn context= nullptr");
+
         return;
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
@@ -323,12 +323,12 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     const CameraComponent* cameraComponent = entityShortCut->GetCameraComponent();
     if (cameraTransform2D == nullptr || cameraComponent == nullptr)
     {
-        LogCat::w("DrawSolidPolygonFcn cameraPosition or cameraComponent is nullptr");
+
         return;
     }
     if (vertexCount != 4)
     {
-        LogCat::w("Only support solid rectangle (4 vertices) for now");
+
         return;
     }
 
@@ -373,7 +373,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
 {
     if (context == nullptr)
     {
-        LogCat::w("b2DrawCircleFcn context= nullptr");
+
         return;
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
@@ -412,7 +412,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
 {
     if (context == nullptr)
     {
-        LogCat::w("b2DrawSolidCircleFcn context= nullptr");
+
         return;
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
@@ -461,7 +461,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
 {
     if (context == nullptr)
     {
-        LogCat::w("b2DrawSolidCapsuleFcn context= nullptr");
+
         return;
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
@@ -473,7 +473,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
     SDL_GetRenderDrawColor(sdlRenderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
 
     SetSDLColor(sdlRenderer, color);
-    LogCat::d("[DrawSolidCapsule] p1=(", p1.x, ",", p1.y, ") p2=(", p2.x, ",", p2.y, ") radius=", radius);
+
 
     // 1. 绘制胶囊中心线
     ScreenVector2D vp1 = ConvertBox2DToScreen(worldContext, p1);
@@ -517,7 +517,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
 {
     if (context == nullptr)
     {
-        LogCat::w("b2DrawSegmentFcn context= nullptr");
+
         return;
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
@@ -546,7 +546,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
 {
     if (context == nullptr)
     {
-        LogCat::w("b2DrawTransformFcn context= nullptr");
+
         return;
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
@@ -590,7 +590,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
 {
     if (context == nullptr)
     {
-        LogCat::w("b2DrawPointFcn context= nullptr");
+
         return;
     }
     const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
@@ -620,7 +620,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
 void glimmer::DebugDrawBox2dSystem::b2DrawStringFcn(
     b2Vec2 p, const char* s, b2HexColor color, void* context)
 {
-    LogCat::d("Box2D Debug String (", p.x, ", ", p.y, "): ", s);
+
 }
 
 bool glimmer::DebugDrawBox2dSystem::CanActive() const

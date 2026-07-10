@@ -32,9 +32,6 @@
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif
-#if !defined(__ANDROID__) && defined(__linux__) && !defined(NDEBUG)
-#include <spawn.h>
-#endif
 constexpr const char* COLOR_RESET = "\o{33}[0m";
 constexpr const char* COLOR_INFO = "\o{33}[32m";
 constexpr const char* COLOR_DEBUG = "\o{33}[36m";
@@ -55,7 +52,7 @@ namespace glimmer
             (oss << ... << args);
             __android_log_print(ANDROID_LOG_INFO, "GlimmerWorks", "%s", oss.str().c_str());
 #else
-            std::cout << COLOR_INFO;
+            std::cout << COLOR_INFO << "[i] ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif
@@ -71,7 +68,7 @@ namespace glimmer
             (oss << ... << args);
             __android_log_print(ANDROID_LOG_DEBUG, "GlimmerWorks", "%s", oss.str().c_str());
 #else
-            std::cout << COLOR_DEBUG;
+            std::cout << COLOR_DEBUG << "[d] ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif
@@ -79,7 +76,7 @@ namespace glimmer
         }
 
         template <typename... Args>
-        static void w([[maybe_unused]] Args&&... args)
+        static void w(const std::string_view file, const int line, const std::string_view func, Args&&... args)
         {
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__
@@ -88,6 +85,7 @@ namespace glimmer
             __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_WARN;
+            std::cout << "[w] At " << file << ":" << line << " " << func << " ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif
@@ -96,7 +94,7 @@ namespace glimmer
 
 
         template <typename... Args>
-        static void e([[maybe_unused]] Args&&... args)
+        static void e(const std::string_view file, const int line, const std::string_view func, Args&&... args)
         {
 #ifdef __ANDROID__
             std::ostringstream oss;
@@ -104,6 +102,7 @@ namespace glimmer
             __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_ERROR;
+            std::cout << "[e] At " << file << ":" << line << " " << func << " ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif

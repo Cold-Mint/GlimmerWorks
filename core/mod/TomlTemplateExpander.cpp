@@ -108,8 +108,8 @@ std::string glimmer::TomlTemplateExpander::Expand(const std::vector<std::filesys
     std::string str = output.str();
     if (str.contains('{') && str.contains('}'))
     {
-        LogCat::d(str);
-        LogCat::e("Try to return the unprocessed characters.");
+
+
         assert(false);
     }
     return str;

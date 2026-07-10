@@ -257,7 +257,7 @@ void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage
     if (gameEntityIterator != gameEntities_.end())
     {
 #if  !defined(NDEBUG)
-        LogCat::e(
+        LogCat::e(__FILE__,__LINE__,__FUNCTION__,
             "Before generating a new entity, it is necessary to ensure that there are no other entities at the current location.");
         assert(false);
 #else
@@ -295,7 +295,7 @@ void glimmer::Tile::OnBreak(const WorldContext* worldContext, BreakSource breakS
     }
     entityManager->RemoveEntity(gameEntityIterator->second);
     gameEntities_.erase(gameEntityIterator);
-    LogCat::d("Remove tile associated entities.");
+
 }
 
 glimmer::TileResourceData* glimmer::Tile::GetMutableResourceData()

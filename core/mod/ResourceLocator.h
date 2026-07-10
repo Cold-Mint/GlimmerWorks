@@ -28,16 +28,27 @@
 #include "Resource.h"
 #include "ResourceRef.h"
 #include "core/math/Color.h"
+#include "core/scene/GraphicsContext.h"
+#include "core/shape/ShapeManager.h"
+#include "dataPack/BiomeDecoratorResourcesManager.h"
+#include "dataPack/DataPackManager.h"
+#include "dataPack/StringManager.h"
 #include "resourcePack/AudioResourceResult.h"
+#include "resourcePack/ResourcePackManager.h"
 #include "resourcePack/TextureResourceResult.h"
 
 namespace glimmer
 {
+    class TileResourceManager;
+    class MobManager;
+    class ItemManager;
+    class LootTableManager;
     class WorldContext;
     enum class TileLayerType : uint8_t;
     class AppContext;
     class Item;
     class TileInstancePool;
+    class ResourcePackManager;
     /**
      * ResourceLocator，Used to interpret references and return the corresponding resources.
      * 资源定位器，用于解释引用并返回对应的资源。
@@ -45,6 +56,18 @@ namespace glimmer
     class ResourceLocator
     {
         AppContext* appContext_ = nullptr;
+        ResourcePackManager* resourcePackManager_ = nullptr;
+        FixedColorManager* fixedColorManager_ = nullptr;
+        LootTableManager* lootTableManager_ = nullptr;
+        ItemManager* itemManager_ = nullptr;
+        MobManager* mobManager_ = nullptr;
+        TileResourceManager* tileResourceManager_ = nullptr;
+        LightMaskManager* lightMaskManager_ = nullptr;
+        LightSourceManager* lightSourceManager_ = nullptr;
+        ShapeManager* shapeManager_ = nullptr;
+        StringManager* stringManager_ = nullptr;
+        BiomeDecoratorResourcesManager* biomeDecoratorResourcesManager_ = nullptr;
+        DataPackManager* dataPackManager_ = nullptr;
 
         /**
      * ValidateAccessPermission

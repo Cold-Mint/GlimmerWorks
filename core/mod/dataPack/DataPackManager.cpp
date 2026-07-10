@@ -51,14 +51,12 @@ bool glimmer::DataPackManager::IsDataPackAvailable(const DataPack& pack) const
     {
         if (packId.id == manifest.id)
         {
-            LogCat::i("Duplicate package ID: ", packId.id);
+
             return false;
         }
     }
     if (manifest.minGameVersion > GAME_VERSION_NUMBER)
     {
-        LogCat::e("DataPack ", manifest.id, " requires game version ",
-                  manifest.minGameVersion, ", current version: ", GAME_VERSION_NUMBER);
         return false;
     }
     return !manifest.resPack;
@@ -170,19 +168,19 @@ int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tom
     const std::filesystem::path& dataPackPath = appContext->GetConfig()->mods.dataPackPath;
     if (!virtualFileSystem_->Exists(dataPackPath))
     {
-        LogCat::e("DataPackManager: Path does not exist -> ", dataPackPath);
+
         return 0;
     }
     packManifestVector_.clear();
     packVerifyStateMap_.clear();
-    LogCat::i("Scanning data packs in: ", dataPackPath);
+
     int success = 0;
     for (const std::vector<std::filesystem::path> files = virtualFileSystem_->ListFile(dataPackPath, false); const auto&
          entry : files)
     {
         if (!virtualFileSystem_->IsFile(entry))
         {
-            LogCat::d("Found data pack folder: ", entry);
+
             DataPack pack(entry, virtualFileSystem_, tomlTemplateExpander_, tomlVersion);
             if (!pack.LoadManifest())
             {
@@ -192,7 +190,7 @@ int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tom
             // 判断数据包是否启用
             if (!IsDataPackEnabled(pack, appContext->GetConfig()->mods.enabledDataPack))
             {
-                LogCat::w("Data pack not enabled: ", pack.GetManifest().id);
+
                 continue;
             }
             if (!IsDataPackAvailable(pack))

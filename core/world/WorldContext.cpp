@@ -272,7 +272,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     entityShortCut_->SetItemToolTipComponent(
         entityManager_->AddComponent<ItemToolTipComponent>(entityManager_->AddEntity()));
     systemScheduler_->InitSystem();
-    LogCat::i("Camera entity created with CameraComponent, WorldPositionComponent and PlayerControlComponent");
+
 }
 
 glimmer::WorldContext::~WorldContext()

@@ -256,7 +256,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
         if (const uint8_t removeAmount = newItemStackModule->RemoveAmount(stackedAmount); removeAmount == 0 &&
             itemStackModule->RemoveAmount(stackedAmount) == 0)
         {
-            LogCat::w("Failed to remove from the item container.");
+
         }
         if (newItemStackModule->GetAmount() == 0)
         {

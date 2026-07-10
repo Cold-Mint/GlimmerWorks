@@ -70,7 +70,7 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
         ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
     if (itemAbility == nullptr)
     {
-        LogCat::e("An error occurred when constructing ability items, and the item ability is empty.");
+
         return nullptr;
     }
 

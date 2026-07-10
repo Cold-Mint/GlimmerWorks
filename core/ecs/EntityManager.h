@@ -183,7 +183,7 @@ namespace glimmer
         const auto entityIterator = entityMap_.find(gameEntityId);
         if (entityIterator == entityMap_.end())
         {
-            LogCat::e("Entity ", gameEntityId, " does not exist.");
+
             assert(false);
             return nullptr;
         }

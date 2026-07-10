@@ -26,6 +26,7 @@
  */
 #include "BiomesAssetEnumerator.h"
 #if  !defined(NDEBUG)
+#include "core/log/LogCat.h"
 #include "core/scene/AppContext.h"
 
 std::string_view glimmer::BiomesAssetEnumerator::GetAssetType() const
@@ -37,11 +38,13 @@ std::optional<std::string> glimmer::BiomesAssetEnumerator::ListAsset(const AppCo
 {
     if (appContext == nullptr)
     {
+        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "appContext is nullptr");
         return std::nullopt;
     }
     const BiomesManager* biomesManager = appContext->GetModContext()->GetBiomesManager();
     if (biomesManager == nullptr)
     {
+        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "biomesManager is nullptr");
         return std::nullopt;
     }
     return biomesManager->ListBiomes();

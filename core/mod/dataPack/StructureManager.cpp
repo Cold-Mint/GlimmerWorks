@@ -41,11 +41,11 @@ glimmer::IStructureResource* glimmer::StructureManager::AddResource(
 
 glimmer::IStructureResource* glimmer::StructureManager::Find(const std::string& packId, const std::string& key)
 {
-    LogCat::d("Searching for structure resource: packId = ", packId, ", key = ", key);
+
     const auto packIt = structureMap_.find(packId);
     if (packIt == structureMap_.end())
     {
-        LogCat::w("Pack not found: ", packId);
+
         return nullptr;
     }
 
@@ -53,11 +53,11 @@ glimmer::IStructureResource* glimmer::StructureManager::Find(const std::string& 
     const auto keyIt = keyMap.find(key);
     if (keyIt == keyMap.end())
     {
-        LogCat::w("Key not found in pack ", packId, ": ", key);
+
         return nullptr;
     }
 
-    LogCat::i("Found structure resource: packId = ", packId, ", key = ", key);
+
     return keyIt->second.get();
 }
 

@@ -97,13 +97,13 @@ namespace glimmer {
                 if (newType != currentType) {
                     if (currentType != ButtonType::None) {
                         if (currentType == ButtonType::Left) {
-                            LogCat::i("Button Left Released");
+
                             SendKeyEvent(SDLK_A, false);
                         } else if (currentType == ButtonType::Right) {
-                            LogCat::i("Button Right Released");
+
                             SendKeyEvent(SDLK_D, false);
                         } else if (currentType == ButtonType::Jump) {
-                            LogCat::i("Button Jump Released");
+
                             SendKeyEvent(SDLK_SPACE, false);
                         }
                     }
@@ -111,13 +111,13 @@ namespace glimmer {
                     if (newType != ButtonType::None) {
                         activeTouches[fingerId] = newType;
                         if (newType == ButtonType::Left) {
-                            LogCat::i("Button Left Pressed");
+
                             SendKeyEvent(SDLK_A, true);
                         } else if (newType == ButtonType::Right) {
-                            LogCat::i("Button Right Pressed");
+
                             SendKeyEvent(SDLK_D, true);
                         } else if (newType == ButtonType::Jump) {
-                            LogCat::i("Button Jump Pressed");
+
                             SendKeyEvent(SDLK_SPACE, true);
                         }
                     } else {
@@ -131,13 +131,13 @@ namespace glimmer {
                 if (activeTouches.contains(fingerId)) {
                     ButtonType type = activeTouches[fingerId];
                     if (type == ButtonType::Left) {
-                        LogCat::i("Button Left Released");
+
                         SendKeyEvent(SDLK_A, false);
                     } else if (type == ButtonType::Right) {
-                        LogCat::i("Button Right Released");
+
                         SendKeyEvent(SDLK_D, false);
                     } else if (type == ButtonType::Jump) {
-                        LogCat::i("Button Jump Released");
+
                         SendKeyEvent(SDLK_SPACE, false);
                     }
                     activeTouches.erase(fingerId);

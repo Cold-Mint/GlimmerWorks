@@ -76,8 +76,7 @@ namespace glimmer
         ModContext();
         ~ModContext();
 
-        void Init(VirtualFileSystem* vfs, ResourceLocator* resourceLocator, LangsResources* langsResources,
-                  const toml::spec& tomlVersion);
+        void Init(VirtualFileSystem* vfs, const LangsResources* langsResources);
 
         [[nodiscard]] DataPackManager* GetDataPackManager() const;
         [[nodiscard]] StringManager* GetStringManager() const;

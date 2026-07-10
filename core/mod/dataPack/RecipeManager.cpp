@@ -43,7 +43,7 @@ glimmer::RecipeResource* glimmer::RecipeManager::RegisterRecipe(std::unique_ptr<
 
 void glimmer::RecipeManager::PreSortRecipes()
 {
-    for (auto& [group, recipeList] : recipeGroupMap_)
+    for (auto& recipeList : recipeGroupMap_ | std::views::values)
     {
         // Sorting rules:
         // 1. First, sort by the smallest technological level from smallest to largest.

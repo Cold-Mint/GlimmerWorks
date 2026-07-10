@@ -467,7 +467,7 @@ void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system
     }
     else
     {
-        LogCat::e("WorldContext is not allowed to register system");
+
     }
 }
 

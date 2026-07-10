@@ -243,7 +243,7 @@ bool glimmer::CommandManager::TryExpandDynamicSuggestion(
     auto [it, inserted] = expandedSet.insert(child);
     if (!inserted)
     {
-        LogCat::e("Repeated dynamic suggestions:", child);
+
 #if defined(NDEBUG)
         return true;
 #else

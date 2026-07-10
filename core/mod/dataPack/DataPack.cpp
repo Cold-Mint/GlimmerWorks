@@ -826,7 +826,7 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
 
     if (config->mods.loadOnlyVerified && packVerifyState_ != PackVerifyState::VerifiedSuccess)
     {
-        LogCat::e("Signature verification FAILED for data pack:", manifest_.id);
+
         return false;
     }
     return total != 0;

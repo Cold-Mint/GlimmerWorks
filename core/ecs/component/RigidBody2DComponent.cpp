@@ -170,7 +170,7 @@ void glimmer::RigidBody2DComponent::SetBodyType(const b2BodyType bodyType)
 {
     if (ready_)
     {
-        LogCat::d("Cannot change body type after creation.");
+
         return;
     }
     bodyType_ = bodyType;
@@ -180,7 +180,7 @@ void glimmer::RigidBody2DComponent::SetAllowBodySleep(bool enable)
 {
     if (ready_)
     {
-        LogCat::d("Cannot enableSleep after creation.");
+
         return;
     }
     allowBodySleep_ = enable;
@@ -195,7 +195,7 @@ void glimmer::RigidBody2DComponent::SetFixedRotation(bool fixedRotation)
 {
     if (ready_)
     {
-        LogCat::d("Cannot change fixedRotation after creation.");
+
         return;
     }
     fixedRotation_ = fixedRotation;

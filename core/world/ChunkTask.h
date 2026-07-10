@@ -42,7 +42,7 @@ namespace glimmer {
 
         [[nodiscard]] uint32_t GetDistance() const;
 
-        void SetOrigin(TileVector2D origin);
+        void SetOrigin(const TileVector2D& origin);
 
         [[nodiscard]] const TileVector2D &GetChunkVertexCoordinates() const;
 

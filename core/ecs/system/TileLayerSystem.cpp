@@ -165,7 +165,7 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(SDL_Renderer* renderer, const 
     SDL_SetTextureAlphaMod(texture, alpha);
     if (!SDL_RenderTexture(renderer, texture, nullptr, &renderQuad))
     {
-        LogCat::e("SDL_RenderTexture Error: ", SDL_GetError());
+
     }
     SDL_SetTextureAlphaMod(texture, 255);
 }

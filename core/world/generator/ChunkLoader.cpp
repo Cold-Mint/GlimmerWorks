@@ -85,7 +85,7 @@ GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage& entit
     }
     else
     {
-        LogCat::e("The entity cannot be restored and there is a lack of resource references.");
+
     }
     return id;
 }

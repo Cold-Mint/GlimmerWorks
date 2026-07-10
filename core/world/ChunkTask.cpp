@@ -43,7 +43,7 @@ uint32_t glimmer::ChunkTask::GetDistance() const
     return distance_;
 }
 
-void glimmer::ChunkTask::SetOrigin(const TileVector2D origin)
+void glimmer::ChunkTask::SetOrigin(const TileVector2D& origin)
 {
     distance_ = origin.DistanceSquared(chunkVertexCoordinates_);
 }

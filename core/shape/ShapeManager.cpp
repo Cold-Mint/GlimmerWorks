@@ -32,7 +32,6 @@
 #include "core/log/LogCat.h"
 
 glimmer::ShapeManager::ShapeManager() {
-    LogCat::d("Initializing ShapeManager");
     std::unique_ptr<IShapeResource> droppedItemShape = std::make_unique<RectangleShapeResource>();
     auto *droppedItemShapePtr = dynamic_cast<RectangleShapeResource *>(droppedItemShape.get());
     droppedItemShapePtr->shapeType = std::to_underlying(ShapeType::RECTANGLE);
@@ -51,21 +50,21 @@ glimmer::IShapeResource *glimmer::ShapeManager::Register(std::unique_ptr<IShapeR
 }
 
 glimmer::IShapeResource *glimmer::ShapeManager::FindShape(const std::string &packId, const std::string &resourceId) {
-    LogCat::d("Searching for shape resource: packId = ", packId, ", resourceId = ", resourceId);
+
     const auto packIt = shapeMap_.find(packId);
     if (packIt == shapeMap_.end()) {
-        LogCat::w("Pack not found: ", packId);
+
         return nullptr;
     }
 
     auto &keyMap = packIt->second;
     const auto keyIt = keyMap.find(resourceId);
     if (keyIt == keyMap.end()) {
-        LogCat::w("Key not found in pack ", packId, ": ", resourceId);
+
         return nullptr;
     }
 
-    LogCat::i("Found shape resource: packId = ", packId, ", resourceId = ", resourceId);
+
     return keyIt->second.get();
 }
 

@@ -55,13 +55,10 @@ bool glimmer::ResourcePackManager::IsResourcePackAvailable(const ResourcePack& p
     }
     if (resourcePackMap_.contains(manifest.id))
     {
-        LogCat::i("Duplicate package ID: ", manifest.id);
         return false;
     }
     if (manifest.minGameVersion > GAME_VERSION_NUMBER)
     {
-        LogCat::e("ResourcePack ", manifest.id, " requires game version ",
-                  manifest.minGameVersion, ", current version: ", GAME_VERSION_NUMBER);
         return false;
     }
 
@@ -188,7 +185,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
         {
             return tex;
         }
-        LogCat::w("Cached audio expired, reloading: ", path);
+
     }
 
     for (const auto& packId : modConfig.enabledResourcePack)
@@ -196,7 +193,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
         auto it = resourcePackMap_.find(packId);
         if (it == resourcePackMap_.end())
         {
-            LogCat::w("Resource pack not found: ", packId);
+
             continue;
         }
 
@@ -221,7 +218,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
                 continue;
             }
 
-            LogCat::d("Loaded audio from pack '", packId, "': ", audioPath);
+
             auto audioResourceResult = std::make_unique<AudioResourceResult>();
             audioResourceResult->SetResourcePack(pack);
             audioResourceResult->SetResource(audio);
@@ -238,7 +235,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
             return audioSharedPtr;
         }
     }
-    LogCat::w("Audio not found in any enabled resource pack: ", path);
+
     return nullptr;
 }
 
@@ -301,18 +298,18 @@ int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString
     const std::filesystem::path& resourcePackPath = resourcePackPathString;
     if (!virtualFileSystem_->Exists(resourcePackPath))
     {
-        LogCat::e("ResourcePackManager: Path does not exist -> ", resourcePackPath);
+
         return 0;
     }
 
-    LogCat::i("Scanning resources packs in: ", resourcePackPath);
+
     int success = 0;
     std::vector<std::filesystem::path> files = virtualFileSystem_->ListFile(resourcePackPath, false);
     for (const auto& entry : files)
     {
         if (!virtualFileSystem_->IsFile(entry))
         {
-            LogCat::d("Found resource pack folder: ", entry);
+
             auto packPtr = std::make_unique<ResourcePack>(entry, virtualFileSystem_, tomlVersion);
             if (!packPtr->LoadManifest())
             {
@@ -320,7 +317,7 @@ int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString
             }
             if (!IsResourcePackEnabled(*packPtr, enabledResourcePack))
             {
-                LogCat::w("Resource pack not enabled: ", packPtr->GetManifest().id);
+
                 continue;
             }
             if (!IsResourcePackAvailable(*packPtr))
@@ -346,7 +343,7 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
         auto it = resourcePackMap_.find(packId);
         if (it == resourcePackMap_.end())
         {
-            LogCat::w("Resource pack not found: ", packId);
+
             continue;
         }
 
@@ -373,7 +370,7 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
             defaultFont.replace_extension("ttf");
             if (virtualFileSystem_->Exists(defaultFont))
             {
-                LogCat::d("Found default font in pack '", packId, "': ", defaultFont);
+
                 defaultFontPath = defaultFont;
             }
         }
@@ -381,11 +378,11 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 
     if (defaultFontPath.has_value())
     {
-        LogCat::d("Using default font: ", *defaultFontPath);
+
         return defaultFontPath;
     }
 
-    LogCat::e("No font found for language '", language, "' in any enabled resource pack");
+
     return std::nullopt;
 }
 
@@ -471,7 +468,7 @@ glimmer::ColorResource* glimmer::ResourcePackManager::LoadColorResFromFile(const
         auto it = resourcePackMap_.find(packId);
         if (it == resourcePackMap_.end())
         {
-            LogCat::w("Resource pack not found: ", packId);
+
             continue;
         }
 
@@ -487,7 +484,7 @@ glimmer::ColorResource* glimmer::ResourcePackManager::LoadColorResFromFile(const
             virtualFileSystem_->ReadFileAsString(colorPath);
         if (!data.has_value())
         {
-            LogCat::e("Failed to load toml file: ", colorPath);
+
             continue;
         }
 
@@ -512,7 +509,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Cr
         SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
     if (!surface)
     {
-        LogCat::e("SDL_CreateSurface failed: ", SDL_GetError());
+
         return nullptr;
     }
 

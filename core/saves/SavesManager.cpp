@@ -37,7 +37,7 @@ void glimmer::SavesManager::AddSaves(std::unique_ptr<Saves> saves)
     auto mapManifestMessage = saves->ReadMapManifest();
     if (!mapManifestMessage.has_value())
     {
-        LogCat::e("Missing the mapManifest file ", saves->GetPath());
+
         return;
     }
     auto mapManifest = std::make_unique<MapManifest>();
@@ -97,7 +97,7 @@ glimmer::Saves* glimmer::SavesManager::Create(const std::filesystem::path& runti
         bool createFolder = virtualFileSystem_->CreateFolder(path);
         if (!createFolder)
         {
-            LogCat::e("Directories cannot be created: ", path);
+
             return nullptr;
         }
     }
@@ -106,7 +106,7 @@ glimmer::Saves* glimmer::SavesManager::Create(const std::filesystem::path& runti
     manifest.ToMessage(manifestMessage);
     if (!save->WriteMapManifest(manifestMessage))
     {
-        LogCat::e("Error writing map Manifest ");
+
         return nullptr;
     }
     AddSaves(std::move(save));

@@ -74,7 +74,7 @@ void glimmer::CreateWorldScene::CreateWorld() const
     {
         seedValue = static_cast<int>(StringUtils::StringToUint64Blake3(seedInput));
     }
-    LogCat::d("Create a world: ", name, ", seed: ", seedValue);
+
     MapManifest manifest;
     manifest.seed = seedValue;
     manifest.name = name;
@@ -89,7 +89,7 @@ void glimmer::CreateWorldScene::CreateWorld() const
         Create(GetAppContext()->GetConfig()->runtimePath, manifest);
     if (saves == nullptr)
     {
-        LogCat::e("Failed to create world");
+
         return;
     }
     GetAppContext()->GetSceneManager()->

@@ -26,18 +26,21 @@
  */
 #include "PreloadColors.h"
 
+#include "core/log/LogCat.h"
 #include "core/mod/ResourceRef.h"
 #include "core/mod/Resource.h"
 #include "core/mod/ResourceLocator.h"
 
 void glimmer::PreloadColors::LoadAllColors(const ResourceLocator* resourceLocator)
 {
+
     Color text;
     text.r = 250;
     text.g = 250;
     text.b = 252;
     text.a = 255;
     textColor = LoadColor(resourceLocator, "text", text);
+
     Color textDisabled;
     textDisabled.r = 100;
     textDisabled.g = 110;
@@ -429,14 +432,18 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator* resourceLocato
 glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator* resourceLocator, const std::string& key,
                                                  const Color& defaultColor)
 {
+
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_COLOR);
     resourceRef.SetResourceKey(key);
+
     const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(&resourceRef);
+
     if (targetColor == nullptr)
     {
         return defaultColor;
     }
+
     return Color{targetColor->r, targetColor->g, targetColor->b, targetColor->a};
 }

@@ -40,19 +40,19 @@ glimmer::BiomeResource* glimmer::BiomesManager::AddResource(std::unique_ptr<Biom
 
 glimmer::BiomeResource* glimmer::BiomesManager::Find(std::string_view packId, std::string_view resourceId) const
 {
-    LogCat::d("Searching for biome resource: packId = ", packId, ", resourceId = ", resourceId);
+
     if (const auto packIt = biomeMap_.find(packId); packIt != biomeMap_.end())
     {
         if (const auto keyIt = packIt->second.find(resourceId); keyIt != packIt->second.end())
         {
-            LogCat::i("Found biome resource: packId = ", packId, ", resourceId = ", resourceId);
+
             return keyIt->second.get();
         }
-        LogCat::w("Key not found in pack ", packId, ": ", resourceId);
+
     }
     else
     {
-        LogCat::w("Pack not found: ", packId);
+
     }
     return nullptr;
 }

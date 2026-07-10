@@ -37,21 +37,21 @@ glimmer::LootResource *glimmer::LootTableManager::AddResource(std::unique_ptr<Lo
 }
 
 glimmer::LootResource *glimmer::LootTableManager::Find(const std::string &packId, const std::string &key) const {
-    LogCat::d("Searching for loot resource: packId = ", packId, ", key = ", key);
+
     const auto packIt = lootMap_.find(packId);
     if (packIt == lootMap_.end()) {
-        LogCat::w("Pack not found: ", packId);
+
         return nullptr;
     }
 
     auto &keyMap = packIt->second;
     const auto keyIt = keyMap.find(key);
     if (keyIt == keyMap.end()) {
-        LogCat::w("Key not found in pack ", packId, ": ", key);
+
         return nullptr;
     }
 
-    LogCat::i("Found loot resource: packId = ", packId, ", key = ", key);
+
     return keyIt->second.get();
 }
 

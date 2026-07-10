@@ -222,53 +222,53 @@ glimmer::AppContext::AppContext()
 {
     windowContext_ = std::make_unique<WindowContext>();
     mainThreadDispatcher_ = std::make_unique<MainThreadDispatcher>();
-
     virtualFileSystem_ = std::make_unique<VirtualFileSystem>();
+    VirtualFileSystem* virtualFileSystemPtr = virtualFileSystem_.get();
 #ifdef __ANDROID__
     auto env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
     if (env == nullptr)
     {
-        LogCat::e("Failed to get JNIEnv!");
         initSuccess_ = false;
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "env is nullptr");
         return;
     }
     auto activity = static_cast<jobject>(SDL_GetAndroidActivity());
     if (activity == nullptr)
     {
-        LogCat::e("Failed to get Android activity!");
         initSuccess_ = false;
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "activity is nullptr");
         return;
     }
     jclass activityClass = env->GetObjectClass(activity);
     if (activityClass == nullptr)
     {
-        LogCat::e("Android: Failed to get activity class!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "activityClass is nullptr");
         return;
     }
     jmethodID getAssetsMethod = env->
         GetMethodID(activityClass, "getAssets", "()Landroid/content/res/AssetManager;");
     if (getAssetsMethod == nullptr)
     {
-        LogCat::e("Android: Failed to find 'getAssets' method!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "getAssetsMethod is nullptr");
         return;
     }
     jobject assetManagerJava = env->CallObjectMethod(activity, getAssetsMethod);
     if (assetManagerJava == nullptr)
     {
-        LogCat::e("Android: Failed to get AssetManager instance!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "assetManagerJava is nullptr");
         return;
     }
     AAssetManager* assetManager = AAssetManager_fromJava(env, assetManagerJava);
     if (assetManager == nullptr)
     {
-        LogCat::e("Android: Failed to convert to native AAssetManager!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "assetManager is nullptr");
         return;
     }
     auto assetsProvider = std::make_unique<AndroidAssetsFileProvider>(assetManager);
     std::optional<std::string> indexTomlOptional = assetsProvider->ReadFile("index.toml");
     if (!indexTomlOptional.has_value())
     {
-        LogCat::e("Android: 'index.toml' not found or could not be read!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "assetManager is nullptr");
         return;
     }
     const toml::value tomlValue = toml::parse_str(indexTomlOptional.value(), tomlVersion_);
@@ -277,37 +277,37 @@ glimmer::AppContext::AppContext()
     jmethodID getDataDirMethod = env->GetMethodID(activityClass, "getFilesDir", "()Ljava/io/File;");
     if (getDataDirMethod == nullptr)
     {
-        LogCat::e("Android: Failed to find 'getFilesDir' method!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "getDataDirMethod is nullptr");
         return;
     }
     jobject dataDirFile = env->CallObjectMethod(activity, getDataDirMethod);
     if (dataDirFile == nullptr)
     {
-        LogCat::e("Android: Failed to get data directory File object!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "dataDirFile is nullptr");
         return;
     }
     jclass fileClass = env->GetObjectClass(dataDirFile);
     if (fileClass == nullptr)
     {
-        LogCat::e("Android: Failed to get File class!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "fileClass is nullptr");
         return;
     }
     jmethodID getAbsolutePathMethod = env->GetMethodID(fileClass, "getAbsolutePath", "()Ljava/lang/String;");
     if (getAbsolutePathMethod == nullptr)
     {
-        LogCat::e("Android: Failed to find 'getAbsolutePath' method!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "getAbsolutePathMethod is nullptr");
         return;
     }
     auto absolutePathJStr = static_cast<jstring>(env->CallObjectMethod(dataDirFile, getAbsolutePathMethod));
     if (!absolutePathJStr)
     {
-        LogCat::e("Android: Failed to get absolute path string!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "absolutePathJStr is nullptr");
         return;
     }
     const char* absolutePathCStr = env->GetStringUTFChars(absolutePathJStr, nullptr);
     if (!absolutePathCStr)
     {
-        LogCat::e("Android: Failed to convert JString to UTF-8!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "absolutePathCStr is nullptr");
         return;
     }
     std::string dataDirPath(absolutePathCStr);
@@ -318,94 +318,92 @@ glimmer::AppContext::AppContext()
     virtualFileSystem_->Mount(
         std::make_unique<StdFileProvider>(std::filesystem::current_path().string()));
 #endif
-
     language_ = LanguageUtils::getLanguage();
-    LogCat::i("Load the built-in language file.");
     std::filesystem::path langFile = "langs" / std::filesystem::path(language_);
     langFile.replace_extension("toml");
-    LogCat::i("Try to load language file:", langFile);
     if (!virtualFileSystem_->Exists(langFile))
     {
-        LogCat::w("Not found, fall back to default.toml");
+        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "langFile not exist");
         langFile = "langs/default.toml";
     }
     const auto langData = virtualFileSystem_->ReadFileAsString(langFile);
     if (!langData.has_value())
     {
-        LogCat::e("Failed to load language file!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "langData not has value");
         return;
     }
-
     langsResources_ = std::make_unique<LangsResources>();
     LoadLanguage(langData.value());
-
     audioContext_ = std::make_unique<AudioContext>();
     graphicsContext_ = std::make_unique<GraphicsContext>();
-
     sceneManager_ = std::make_unique<SceneManager>();
-    resourcePackManager_ = std::make_unique<ResourcePackManager>(virtualFileSystem_.get());
-
-    modContext_ = std::make_unique<ModContext>();
-    modContext_->Init(virtualFileSystem_.get(), nullptr, langsResources_.get(), tomlVersion_);
-
-    resourceLocator_ = std::make_unique<ResourceLocator>(this);
-
-    modContext_->Init(virtualFileSystem_.get(), resourceLocator_.get(), langsResources_.get(), tomlVersion_);
-
-    graphicsContext_->Init(resourceLocator_.get());
-
     config_ = std::make_unique<Config>();
-    LogCat::i("Loading ", CONFIG_FILE_NAME, "...");
     const std::optional<std::string> configData = virtualFileSystem_->ReadFileAsString(CONFIG_FILE_NAME);
     if (!configData.has_value())
     {
-        LogCat::e("Failed to read ", CONFIG_FILE_NAME, " file!");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "configData not has value");
+        return;
     }
     configValue = std::make_unique<toml::value>(toml::parse_str(configData.value(), tomlVersion_));
     toml::value* configValuePtr = configValue.get();
     config_->LoadConfig(*configValuePtr);
-
-    LogCat::i("windowHeight = ", config_->window.height);
-    LogCat::i("windowWidth = ", config_->window.width);
-    LogCat::i("dataPackPath = ", config_->mods.dataPackPath);
-    LogCat::i("resourcePackPath = ", config_->mods.resourcePackPath);
-    LogCat::i("framerate = ", config_->window.normalTargetFps);
-    LogCat::i("The ", CONFIG_FILE_NAME, " load was successful.");
-
-    savesManager_ = std::make_unique<SavesManager>(virtualFileSystem_.get());
+    savesManager_ = std::make_unique<SavesManager>(virtualFileSystemPtr);
     savesManager_->LoadAllSaves(config_->runtimePath);
-
     consoleContext_ = std::make_unique<ConsoleContext>();
-    consoleContext_->Init(this, virtualFileSystem_.get(), config_->runtimePath,
+    consoleContext_->Init(this, virtualFileSystemPtr, config_->runtimePath,
                           config_->console.maxHistoryEntries, configValuePtr);
 
-    LogCat::i("GAME_VERSION_NUMBER = ", GAME_VERSION_NUMBER);
-    LogCat::i("GAME_VERSION_STRING = ", GAME_VERSION_STRING);
-    LogCat::i("Starting GlimmerWorks...");
-
-    if (modContext_->GetDataPackManager()->Scan(this, tomlVersion_) == 0)
+    DataPackManager* dataPackManager = modContext_->GetDataPackManager();
+    if (dataPackManager == nullptr)
     {
-        LogCat::e("Failed to load dataPack");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "dataPackManager is nullptr");
         return;
     }
-
-    modContext_->GetRecipeManager()->PreSortRecipes();
-
+    if (dataPackManager->Scan(this, tomlVersion_) == 0)
+    {
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "The data package cannot be found.");
+        return;
+    }
+    RecipeManager* recipeManager = modContext_->GetRecipeManager();
+    if (recipeManager == nullptr)
+    {
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "recipeManager is nullptr");
+        return;
+    }
+    recipeManager->PreSortRecipes();
+    resourcePackManager_ = std::make_unique<ResourcePackManager>(virtualFileSystemPtr);
+    if (resourcePackManager_ == nullptr)
+    {
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "resourcePackManager_ is nullptr");
+        return;
+    }
     if (resourcePackManager_->Scan(config_->mods.resourcePackPath, config_->mods.enabledResourcePack,
                                    tomlVersion_) == 0)
     {
-        LogCat::e("Failed to load resourcePack");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "The resource package cannot be found.");
         return;
     }
-
-    const size_t number = modContext_->GetMobManager()->GetPlayerResourceList().size();
+    modContext_ = std::make_unique<ModContext>();
+    modContext_->Init(virtualFileSystemPtr, langsResources_.get());
+    if (modContext_ == nullptr)
+    {
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "modContext_ is nullptr");
+        return;
+    }
+    MobManager* mobManager = modContext_->GetMobManager();
+    if (mobManager == nullptr)
+    {
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "mobManager is nullptr");
+        return;
+    }
+    const size_t number = mobManager->GetPlayerResourceList().size();
     if (number == 0)
     {
-        LogCat::e("At least one of the mob files must have the \"isPlayer = true\" setting.");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "At least one player resource is required.");
         return;
     }
-
-    LogCat::i("Starting the app...");
+    resourceLocator_ = std::make_unique<ResourceLocator>(this);
+    graphicsContext_->Init(resourceLocator_.get());
     initSuccess_ = true;
 }
 
@@ -441,7 +439,6 @@ glimmer::WindowContext* glimmer::AppContext::GetWindowContext() const
 
 void glimmer::AppContext::AddUIMessage(const std::string& string)
 {
-    LogCat::d(string);
     if (!gameUIMessages_.empty())
     {
         const uint64_t lastFingerprint = gameUIMessages_.back().GetFingerprint();
@@ -553,61 +550,121 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
 
 glimmer::ModContext* glimmer::AppContext::GetModContext() const
 {
+    if (modContext_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "modContext is null");
+        return nullptr;
+    }
     return modContext_.get();
 }
 
 glimmer::ConsoleContext* glimmer::AppContext::GetConsoleContext() const
 {
+    if (consoleContext_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "consoleContext is null");
+        return nullptr;
+    }
     return consoleContext_.get();
 }
 
 glimmer::GraphicsContext* glimmer::AppContext::GetGraphicsContext() const
 {
+    if (graphicsContext_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "graphicsContext is null");
+        return nullptr;
+    }
     return graphicsContext_.get();
 }
 
 glimmer::AudioContext* glimmer::AppContext::GetAudioContext() const
 {
+    if (audioContext_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "audioContext is null");
+        return nullptr;
+    }
     return audioContext_.get();
 }
 
 glimmer::MainThreadDispatcher* glimmer::AppContext::GetMainThreadDispatcher() const
 {
+    if (mainThreadDispatcher_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "mainThreadDispatcher is null");
+        return nullptr;
+    }
     return mainThreadDispatcher_.get();
 }
 
 glimmer::Config* glimmer::AppContext::GetConfig() const
 {
+    if (config_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "config is null");
+        return nullptr;
+    }
     return config_.get();
 }
 
 glimmer::LangsResources* glimmer::AppContext::GetLangsResources() const
 {
+    if (langsResources_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "langsResources is null");
+        return nullptr;
+    }
     return langsResources_.get();
 }
 
 glimmer::ResourcePackManager* glimmer::AppContext::GetResourcePackManager() const
 {
+    if (resourcePackManager_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourcePackManager is null");
+        return nullptr;
+    }
     return resourcePackManager_.get();
 }
 
 glimmer::ResourceLocator* glimmer::AppContext::GetResourceLocator() const
 {
+    if (resourceLocator_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceLocator is null");
+        return nullptr;
+    }
     return resourceLocator_.get();
 }
 
 glimmer::VirtualFileSystem* glimmer::AppContext::GetVirtualFileSystem() const
 {
+    if (virtualFileSystem_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "virtualFileSystem is null");
+        return nullptr;
+    }
     return virtualFileSystem_.get();
 }
 
 glimmer::SceneManager* glimmer::AppContext::GetSceneManager() const
 {
+    if (sceneManager_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "sceneManager is null");
+        return nullptr;
+    }
     return sceneManager_.get();
 }
 
 glimmer::SavesManager* glimmer::AppContext::GetSavesManager() const
 {
+    if (savesManager_ == nullptr)
+    {
+        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "savesManager is null");
+        return nullptr;
+    }
     return savesManager_.get();
 }
 

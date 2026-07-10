@@ -26,6 +26,7 @@
  */
 #include "ComposableItemsAssetEnumerator.h"
 #if  !defined(NDEBUG)
+#include "core/log/LogCat.h"
 #include "core/scene/AppContext.h"
 
 std::string_view glimmer::ComposableItemsAssetEnumerator::GetAssetType() const
@@ -37,11 +38,19 @@ std::optional<std::string> glimmer::ComposableItemsAssetEnumerator::ListAsset(co
 {
     if (appContext == nullptr)
     {
+        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "appContext is nullptr");
         return std::nullopt;
     }
-    const ItemManager* itemManager = appContext->GetModContext()->GetItemManager();
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
+        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "modContext is nullptr");
+        return std::nullopt;
+    }
+    const ItemManager* itemManager = modContext->GetItemManager();
     if (itemManager == nullptr)
     {
+        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "itemManager is nullptr");
         return std::nullopt;
     }
     return itemManager->ListComposableItems();

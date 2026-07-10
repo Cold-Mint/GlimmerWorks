@@ -26,6 +26,8 @@
  */
 #include "GraphicsContext.h"
 
+#include "core/log/LogCat.h"
+
 glimmer::GraphicsContext::GraphicsContext()
     : lightMaskManager_(std::make_unique<LightMaskManager>())
       , lightSourceManager_(std::make_unique<LightSourceManager>())
@@ -43,20 +45,37 @@ void glimmer::GraphicsContext::Init(const ResourceLocator* resourceLocator)
 
 glimmer::LightMaskManager* glimmer::GraphicsContext::GetLightMaskManager() const
 {
+    if (lightMaskManager_ == nullptr)
+    {
+
+        return nullptr;
+    }
     return lightMaskManager_.get();
 }
 
 glimmer::LightSourceManager* glimmer::GraphicsContext::GetLightSourceManager() const
 {
+    if (lightSourceManager_ == nullptr)
+    {
+        return nullptr;
+    }
     return lightSourceManager_.get();
 }
 
 glimmer::FixedColorManager* glimmer::GraphicsContext::GetFixedColorManager() const
 {
+    if (fixedColorManager_ == nullptr)
+    {
+        return nullptr;
+    }
     return fixedColorManager_.get();
 }
 
 glimmer::PreloadColors* glimmer::GraphicsContext::GetPreloadColors() const
 {
+    if (preloadColors_ == nullptr)
+    {
+        return nullptr;
+    }
     return preloadColors_.get();
 }

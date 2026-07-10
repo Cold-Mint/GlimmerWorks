@@ -34,23 +34,23 @@ std::string glimmer::HeightStructureConditionProcessor::GetName() {
 
 std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(TerrainResult *terrainResult,
                                                                           const VariableConfig &variableConfig) {
-    LogCat::d("HeightCondition", "Start height structure condition matching");
+
     std::bitset<CHUNK_AREA> result;
     const VariableDefinition *maxHeightPercentVariable = variableConfig.FindVariable("maxHeightPercent");
     float maxHeightPercent = 0.0F;
     if (maxHeightPercentVariable != nullptr) {
         maxHeightPercent = maxHeightPercentVariable->AsFloat();
-        LogCat::d("HeightCondition", "Read maxHeightPercent from config:", maxHeightPercent);
+
     } else {
-        LogCat::w("HeightCondition", "maxHeightPercent variable not found in config, use default value: 0.0");
+
     }
     const VariableDefinition *minHeightPercentVariable = variableConfig.FindVariable("minHeightPercent");
     float minHeightPercent = 0.0F;
     if (minHeightPercentVariable != nullptr) {
         minHeightPercent = minHeightPercentVariable->AsFloat();
-        LogCat::d("HeightCondition", "Read minHeightPercent from config:", minHeightPercent);
+
     } else {
-        LogCat::w("HeightCondition", "minHeightPercent variable not found in config, use default value: 0.0");
+
     }
     LogCat::d("HeightCondition", "Height percent range: min=", minHeightPercent, ", max=", maxHeightPercent,
               ", WORLD_MAX_Y: ", WORLD_MAX_Y);
@@ -64,7 +64,7 @@ std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(Terrai
         for (int localY = 0; localY < CHUNK_SIZE; localY++) {
             int globalY = localY + position.y;
             float percent = static_cast<float>(globalY) / WORLD_MAX_Y;
-            LogCat::d("HeightCondition", "Tile [", localX, ", ", localY, "] percent:", percent);
+
             bool isInRange = percent >= minHeightPercent && percent <= maxHeightPercent;
             if (isInRange) {
                 int tileIndex = localX + localY * CHUNK_SIZE;

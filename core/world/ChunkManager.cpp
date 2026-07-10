@@ -247,7 +247,7 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D& position)
     }
     else
     {
-        LogCat::e("Saving the chunk failed, x=", position.x, ",y=", position.y);
+
     }
 }
 
@@ -257,7 +257,7 @@ glimmer::Chunk* glimmer::ChunkManager::GetChunk(const TileVector2D position)
     const TileVector2D relativeVector = Chunk::TileCoordinatesToChunkRelativeCoordinates(position);
     if (relativeVector.x != 0 || relativeVector.y != 0)
     {
-        LogCat::e("The coordinates are not the vertices of the chunk.");
+
         assert(false);
     }
 #endif

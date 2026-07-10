@@ -162,7 +162,7 @@ void glimmer::GameSystem::Update(const float delta)
         initTimeOut_ += delta;
         if (initTimeOut_ > 2)
         {
-            LogCat::e("The game system subclass did not call the Init method within its constructor.");
+
             assert(false);
         }
     }

@@ -93,7 +93,7 @@ int glimmer::ChunkGenerator::GetFirstTileTerrainY(int x)
     int height = GROUND_START_HEIGHT + CONTINENT_MAX_HEIGHT * continentNoise;
     // 缓存并返回高度
     heightMap_[x] = height;
-    LogCat::d("Generated and cached heights for chunkX=", x);
+
     return height;
 }
 
@@ -193,7 +193,7 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) co
 
         if (!candidatePoints.has_value())
         {
-            LogCat::d("StructurePlacement", "No valid placement points for structure, skip marking");
+
             continue;
         }
 
@@ -271,24 +271,14 @@ std::optional<std::bitset<CHUNK_AREA>> glimmer::ChunkGenerator::MatchStructureCo
 
         if (structureConditionProcessor == nullptr)
         {
-            LogCat::e("StructurePlacement", "Condition ", i, " processor not found, processorId:",
-                      processorId, ",resId :", resId);
             continue;
         }
 
         std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(
             terrainResult, condition.config);
 
-        size_t matchedCount = bitset.count();
-        LogCat::d("StructurePlacement",
-                  "Condition ", i, " matched. processorId: ", processorId, ", matched points: ",
-                  matchedCount, ", is empty:", bitset.none() ? "true" : "false", ",resId :", resId);
-
         if (bitset.none())
         {
-            LogCat::w("StructurePlacement",
-                      "Condition ", i, " has no matched points, skip remaining conditions. processorId:",
-                      processorId, ",resId :", resId);
             return std::nullopt;
         }
 
@@ -296,25 +286,16 @@ std::optional<std::bitset<CHUNK_AREA>> glimmer::ChunkGenerator::MatchStructureCo
         {
             totalBitset = bitset;
             hasAnyConditionMatched = true;
-            LogCat::d("StructurePlacement",
-                      "Init candidate set with first valid condition. Initial matched points: ",
-                      totalBitset.count(), ",resId :", resId);
         }
         else
         {
             size_t prevCount = totalBitset.count();
             totalBitset &= bitset;
             size_t currCount = totalBitset.count();
-            LogCat::d("StructurePlacement",
-                      "Reduce candidate set by bitwise AND. Previous points: ", prevCount, ", current points: ",
-                      currCount, ", reduced by: ", prevCount - currCount, ",resId :", resId);
         }
 
         if (totalBitset.none())
         {
-            LogCat::w("StructurePlacement",
-                      "No candidate points left, exit condition loop early. Current condition index:",
-                      i, ",resId :", resId);
             return std::nullopt;
         }
     }
@@ -334,7 +315,7 @@ int glimmer::ChunkGenerator::PlaceStructureAtCandidatePoints(const AppContext* a
                                                              const std::bitset<CHUNK_AREA>& candidatePoints,
                                                              IStructureResource* structureResource) const
 {
-    LogCat::i("StructurePlacement", "Start placing structure - Total candidate points: ", candidatePoints.count());
+
 
     int markedCount = 0;
     StructureGeneratorManager* structureGeneratorManager = appContext->GetModContext()->GetStructureGeneratorManager();
@@ -364,18 +345,13 @@ int glimmer::ChunkGenerator::PlaceStructureAtCandidatePoints(const AppContext* a
         {
             PlaceStructureTiles(terrainManager, structureInfoOptional.value(), globalOrigin);
         }
-        else
-        {
-            LogCat::w("StructurePlacement", "Failed to generate structure at global origin - x: ",
-                      globalOrigin.x, ", y: ", globalOrigin.y);
-        }
 
         ++markedCount;
         LogCat::d("StructurePlacement", "Finish processing candidate point - Index: ", i,
                   ", Total marked points so far: ", markedCount);
     }
 
-    LogCat::i("StructurePlacement", "Marked structure placement points. Total marked points:", markedCount);
+
     return markedCount;
 }
 

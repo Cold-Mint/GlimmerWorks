@@ -87,7 +87,7 @@ void glimmer::Scene::Update(float delta)
         initTimeOut_ += delta;
         if (initTimeOut_ > 2)
         {
-            LogCat::e("The subclass did not call the Init method within its constructor.");
+
             assert(false);
         }
     }

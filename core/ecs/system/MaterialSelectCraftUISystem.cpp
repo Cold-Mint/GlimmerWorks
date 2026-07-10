@@ -494,7 +494,7 @@ void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick() const
         uint8_t actualQuantity = itemContainer->RemoveItemAt(selectedItem->GetSlotIndex(), expectedQuantity);
         if (expectedQuantity != actualQuantity)
         {
-            LogCat::w("Failed to remove the item. At ", selectedItem->GetSlotIndex());
+
         }
     }
 
@@ -509,7 +509,7 @@ void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick() const
         std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(outputItem));
         if (returnItem != nullptr)
         {
-            LogCat::w("Failed to add the item. ");
+
         }
     }
     systemScheduler->PopGuiSystemType();

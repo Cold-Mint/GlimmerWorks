@@ -39,134 +39,133 @@
 #include "core/world/structure/StaticStructureGenerator.h"
 #include "core/world/structure/TreeStructureGenerator.h"
 #include "core/world/structure/SurfaceStructureConditionProcessor.h"
-#include "core/world/PreloadColors.h"
-#include "core/mod/ResourceLocator.h"
 
-namespace glimmer
+
+glimmer::ModContext::ModContext() = default;
+
+glimmer::ModContext::~ModContext() = default;
+
+void glimmer::ModContext::Init(VirtualFileSystem* vfs, const LangsResources* langsResources)
 {
-    ModContext::ModContext() = default;
+    contributorManager_ = std::make_unique<ContributorManager>();
+    recipeManager_ = std::make_unique<RecipeManager>();
+    mobManager_ = std::make_unique<MobManager>();
+    tomlTemplateExpander_ = std::make_unique<TomlTemplateExpander>();
+    tomlTemplateExpander_->Register(std::make_unique<InsertTemplateCommand>());
+    tomlTemplateExpander_->Register(std::make_unique<SetTemplateCommand>());
+    tomlTemplateExpander_->Register(std::make_unique<UnSetTemplateCommand>());
+    dataPackManager_ = std::make_unique<DataPackManager>(vfs, tomlTemplateExpander_.get());
+    stringManager_ = std::make_unique<StringManager>();
+    stringManager_->LoadLangsString(langsResources);
+    biomesManager_ = std::make_unique<BiomesManager>();
+    tileResourceManager_ = std::make_unique<TileResourceManager>();
+    structurePlacementConditionsManager_ = std::make_unique<StructurePlacementConditionsManager>();
+    structurePlacementConditionsManager_->AddConditionProcessor(
+        std::make_unique<SurfaceStructureConditionProcessor>());
+    structurePlacementConditionsManager_->AddConditionProcessor(
+        std::make_unique<HeightStructureConditionProcessor>());
+    structurePlacementConditionsManager_->AddConditionProcessor(
+        std::make_unique<HorizontalSpacingStructureConditionProcessor>());
+    structurePlacementConditionsManager_->AddConditionProcessor(
+        std::make_unique<BiomeStructureConditionProcessor>());
+    initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
+    tileResourceManager_->InitBuiltinTiles();
+    biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
+    biomeDecoratorResourcesManager_ = std::make_unique<BiomeDecoratorResourcesManager>();
+    itemManager_ = std::make_unique<ItemManager>();
+    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
+    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<SurfaceBiomeDecorator>());
+    biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
+    lootTableManager_ = std::make_unique<LootTableManager>();
+    structureGeneratorManager_ = std::make_unique<StructureGeneratorManager>();
+    structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<StaticStructureGenerator>());
+    structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<TreeStructureGenerator>());
+    structureManager_ = std::make_unique<StructureManager>();
+    shapeManager_ = std::make_unique<ShapeManager>();
 
-    ModContext::~ModContext() = default;
+}
 
-    void ModContext::Init(VirtualFileSystem* vfs, ResourceLocator* resourceLocator, LangsResources* langsResources,
-                          const toml::spec& tomlVersion)
-    {
-        contributorManager_ = std::make_unique<ContributorManager>();
-        recipeManager_ = std::make_unique<RecipeManager>();
-        mobManager_ = std::make_unique<MobManager>();
-        tomlTemplateExpander_ = std::make_unique<TomlTemplateExpander>();
-        tomlTemplateExpander_->Register(std::make_unique<InsertTemplateCommand>());
-        tomlTemplateExpander_->Register(std::make_unique<SetTemplateCommand>());
-        tomlTemplateExpander_->Register(std::make_unique<UnSetTemplateCommand>());
-        dataPackManager_ = std::make_unique<DataPackManager>(vfs, tomlTemplateExpander_.get());
-        stringManager_ = std::make_unique<StringManager>();
-        stringManager_->LoadLangsString(langsResources);
-        biomesManager_ = std::make_unique<BiomesManager>();
-        tileResourceManager_ = std::make_unique<TileResourceManager>();
-        structurePlacementConditionsManager_ = std::make_unique<StructurePlacementConditionsManager>();
-        structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<SurfaceStructureConditionProcessor>());
-        structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<HeightStructureConditionProcessor>());
-        structurePlacementConditionsManager_->AddConditionProcessor(
-            std::make_unique<HorizontalSpacingStructureConditionProcessor>());
-        structurePlacementConditionsManager_->AddConditionProcessor(std::make_unique<BiomeStructureConditionProcessor>());
-        initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
-        tileResourceManager_->InitBuiltinTiles();
-        biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
-        biomeDecoratorResourcesManager_ = std::make_unique<BiomeDecoratorResourcesManager>();
-        itemManager_ = std::make_unique<ItemManager>();
-        biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
-        biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<SurfaceBiomeDecorator>());
-        biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
-        lootTableManager_ = std::make_unique<LootTableManager>();
-        structureGeneratorManager_ = std::make_unique<StructureGeneratorManager>();
-        structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<StaticStructureGenerator>());
-        structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<TreeStructureGenerator>());
-        structureManager_ = std::make_unique<StructureManager>();
-        shapeManager_ = std::make_unique<ShapeManager>();
-    }
+glimmer::DataPackManager* glimmer::ModContext::GetDataPackManager() const
+{
+    return dataPackManager_.get();
+}
 
-    DataPackManager* ModContext::GetDataPackManager() const
-    {
-        return dataPackManager_.get();
-    }
+glimmer::StringManager* glimmer::ModContext::GetStringManager() const
+{
+    return stringManager_.get();
+}
 
-    StringManager* ModContext::GetStringManager() const
-    {
-        return stringManager_.get();
-    }
+glimmer::TileResourceManager* glimmer::ModContext::GetTileResourceManager() const
+{
+    return tileResourceManager_.get();
+}
 
-    TileResourceManager* ModContext::GetTileResourceManager() const
-    {
-        return tileResourceManager_.get();
-    }
+glimmer::BiomesManager* glimmer::ModContext::GetBiomesManager() const
+{
+    return biomesManager_.get();
+}
 
-    BiomesManager* ModContext::GetBiomesManager() const
-    {
-        return biomesManager_.get();
-    }
+glimmer::BiomeDecoratorManager* glimmer::ModContext::GetBiomeDecoratorManager() const
+{
+    return biomeDecoratorManager_.get();
+}
 
-    BiomeDecoratorManager* ModContext::GetBiomeDecoratorManager() const
-    {
-        return biomeDecoratorManager_.get();
-    }
+glimmer::BiomeDecoratorResourcesManager* glimmer::ModContext::GetBiomeDecoratorResourcesManager() const
+{
+    return biomeDecoratorResourcesManager_.get();
+}
 
-    BiomeDecoratorResourcesManager* ModContext::GetBiomeDecoratorResourcesManager() const
-    {
-        return biomeDecoratorResourcesManager_.get();
-    }
+glimmer::ItemManager* glimmer::ModContext::GetItemManager() const
+{
+    return itemManager_.get();
+}
 
-    ItemManager* ModContext::GetItemManager() const
-    {
-        return itemManager_.get();
-    }
+glimmer::RecipeManager* glimmer::ModContext::GetRecipeManager() const
+{
+    return recipeManager_.get();
+}
 
-    RecipeManager* ModContext::GetRecipeManager() const
-    {
-        return recipeManager_.get();
-    }
+glimmer::MobManager* glimmer::ModContext::GetMobManager() const
+{
+    return mobManager_.get();
+}
 
-    MobManager* ModContext::GetMobManager() const
-    {
-        return mobManager_.get();
-    }
+glimmer::StructureManager* glimmer::ModContext::GetStructureManager() const
+{
+    return structureManager_.get();
+}
 
-    StructureManager* ModContext::GetStructureManager() const
-    {
-        return structureManager_.get();
-    }
+glimmer::StructureGeneratorManager* glimmer::ModContext::GetStructureGeneratorManager() const
+{
+    return structureGeneratorManager_.get();
+}
 
-    StructureGeneratorManager* ModContext::GetStructureGeneratorManager() const
-    {
-        return structureGeneratorManager_.get();
-    }
+glimmer::StructurePlacementConditionsManager* glimmer::ModContext::GetStructurePlacementConditionsManager() const
+{
+    return structurePlacementConditionsManager_.get();
+}
 
-    StructurePlacementConditionsManager* ModContext::GetStructurePlacementConditionsManager() const
-    {
-        return structurePlacementConditionsManager_.get();
-    }
+glimmer::LootTableManager* glimmer::ModContext::GetLootTableManager() const
+{
+    return lootTableManager_.get();
+}
 
-    LootTableManager* ModContext::GetLootTableManager() const
-    {
-        return lootTableManager_.get();
-    }
+glimmer::InitialInventoryManager* glimmer::ModContext::GetInitialInventoryManager() const
+{
+    return initialInventoryManager_.get();
+}
 
-    InitialInventoryManager* ModContext::GetInitialInventoryManager() const
-    {
-        return initialInventoryManager_.get();
-    }
+glimmer::ContributorManager* glimmer::ModContext::GetContributorManager() const
+{
+    return contributorManager_.get();
+}
 
-    ContributorManager* ModContext::GetContributorManager() const
-    {
-        return contributorManager_.get();
-    }
+glimmer::TomlTemplateExpander* glimmer::ModContext::GetTomlTemplateExpander() const
+{
+    return tomlTemplateExpander_.get();
+}
 
-    TomlTemplateExpander* ModContext::GetTomlTemplateExpander() const
-    {
-        return tomlTemplateExpander_.get();
-    }
-
-    ShapeManager* ModContext::GetShapeManager() const
-    {
-        return shapeManager_.get();
-    }
+glimmer::ShapeManager* glimmer::ModContext::GetShapeManager() const
+{
+    return shapeManager_.get();
 }

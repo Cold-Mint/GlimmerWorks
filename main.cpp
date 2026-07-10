@@ -28,7 +28,6 @@
 
 #include "core/App.h"
 #include "core/log/LogCat.h"
-#include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/scene/AppContext.h"
 #include "fmt/args.h"
 
@@ -44,15 +43,19 @@ int main()
     SDL_SetAppMetadata(
         PROJECT_NAME.c_str(), GAME_VERSION_STRING,
         APP_PACKNAME);
+    LogCat::d("me0");
     AppContext appContext;
+    LogCat::d("me1");
     if (!appContext.InitSuccess())
     {
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "appContext Init failed");
         return EXIT_FAILURE;
     }
+    LogCat::d("me!");
     App app(&appContext);
     if (!app.Init())
     {
-        LogCat::e("Failed to init app");
+        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "app Init failed");
         return EXIT_FAILURE;
     }
     app.Run();
@@ -64,10 +67,7 @@ int main()
 extern "C" {
 int SDL_main(int argc, char* argv[])
 {
-    LogCat::i("SDL_main() called — entering main()");
-    int result = main();
-    LogCat::i("SDL_main() finished, result = ", result);
-    return result;
+    return main();
 }
 
 //Set whether to allow the Activity to be recreated

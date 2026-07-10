@@ -76,7 +76,7 @@ namespace glimmer
         }
 
         template <typename... Args>
-        static void w(const std::source_location sourceLocation, Args&&... args)
+        static void w([[maybe_unused]] const std::source_location sourceLocation, [[maybe_unused]] Args&&... args)
         {
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__

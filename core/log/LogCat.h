@@ -25,10 +25,10 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <assert.h>
 #include <chrono>
 #include <iostream>
 #include <source_location>
-#include "fmt/format.h"
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif
@@ -111,6 +111,9 @@ namespace glimmer
                 sourceLocation.function_name() << " ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
+#endif
+#if  !defined(NDEBUG)
+            assert(false);
 #endif
         }
     };

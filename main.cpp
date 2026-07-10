@@ -43,15 +43,12 @@ int main()
     SDL_SetAppMetadata(
         PROJECT_NAME.c_str(), GAME_VERSION_STRING,
         APP_PACKNAME);
-    LogCat::d("me0");
     AppContext appContext;
-    LogCat::d("me1");
     if (!appContext.InitSuccess())
     {
         LogCat::e(std::source_location::current(), "appContext Init failed");
         return EXIT_FAILURE;
     }
-    LogCat::d("me!");
     App app(&appContext);
     if (!app.Init())
     {

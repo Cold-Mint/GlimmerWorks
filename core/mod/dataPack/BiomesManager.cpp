@@ -30,8 +30,6 @@
 
 glimmer::BiomeResource* glimmer::BiomesManager::AddResource(std::unique_ptr<BiomeResource> biomeResource)
 {
-    LogCat::i("Registering biome resource: packId = ", biomeResource->packId,
-              ", resourceId = ", biomeResource->resourceId);
     auto& slot = biomeMap_[biomeResource->packId][biomeResource->resourceId];
     slot = std::move(biomeResource);
     biomeVector_.push_back(slot.get());

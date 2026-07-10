@@ -49,13 +49,7 @@ std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(Terrai
     {
         minHeightPercent = minHeightPercentVariable->AsFloat();
     }
-    LogCat::d("HeightCondition", "Height percent range: min=", minHeightPercent, ", max=", maxHeightPercent,
-              ", WORLD_MAX_Y: ", WORLD_MAX_Y);
-
     TileVector2D position = terrainResult->GetPosition();
-    LogCat::d("HeightCondition", "Terrain position (x: ", position.x, ", y: ", position.y, "). Start checking ",
-              CHUNK_SIZE, " x ", CHUNK_SIZE, " tiles");
-
     int matchedTileCount = 0;
     for (int localX = 0; localX < CHUNK_SIZE; localX++)
     {
@@ -70,14 +64,8 @@ std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(Terrai
                 int tileIndex = localX + localY * CHUNK_SIZE;
                 result[tileIndex] = true;
                 matchedTileCount++;
-                LogCat::d("HeightCondition",
-                          "Tile (", localX, ", ", localY, ") matched. globalY=", globalY, ", percent=", percent,
-                          " (in [", minHeightPercent, ", ", maxHeightPercent, "]), index=", tileIndex);
             }
         }
     }
-    LogCat::d("HeightCondition", "Finish height condition matching. Total matched tiles: ", matchedTileCount,
-              ", Set bits in result: ", result.count());
-
     return result;
 }

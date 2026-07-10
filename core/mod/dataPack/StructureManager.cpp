@@ -31,8 +31,6 @@
 glimmer::IStructureResource* glimmer::StructureManager::AddResource(
     std::unique_ptr<IStructureResource> structureResource)
 {
-    LogCat::i("Registering tile resource: packId = ", structureResource->packId,
-              ", resourceId = ", structureResource->resourceId);
     auto& slot = structureMap_[structureResource->packId][structureResource->resourceId];
     slot = std::move(structureResource);
     structureVector_.push_back(slot.get());

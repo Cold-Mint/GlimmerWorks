@@ -357,8 +357,6 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
         langFont.replace_extension("ttf");
         if (virtualFileSystem_->Exists(langFont))
         {
-            LogCat::d("Found font for language '", language, "' in pack '", packId,
-                      "': ", langFont);
             return langFont;
         }
 

@@ -79,21 +79,55 @@
 #include "core/log/LogCat.h"
 #include "AppContext.h"
 
+void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext, toml::value* configValue) const
+{
+    commandManager_->RegisterCommand(std::make_unique<GiveCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<HelpCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<TpCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<SummonCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<ClearCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<LootCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<PackVerifyCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<SeedCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<FlyCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<EchoCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<LocateCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<PlayCommand>(appContext));
+#if  !defined(NDEBUG)
+    commandManager_->RegisterCommand(std::make_unique<HookCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<EcsCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<VFSCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<LightCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<TagCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<UnlockedRecipesCommand>(appContext));
+#endif
+    commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(appContext, configValue));
+}
+
 glimmer::ConsoleContext::ConsoleContext() = default;
 
 glimmer::ConsoleContext::~ConsoleContext() = default;
 
-void glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
+bool glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
                                    int maxHistoryEntries, toml::value* configValue)
 {
-    ModContext* modContext = appContext->GetModContext();
+    const ModContext* modContext = appContext->GetModContext();
     if (modContext == nullptr)
     {
         LogCat::e(std::source_location::current(), "modContext == nullptr");
-        return;
+        return false;
     }
     commandHookManager_ = std::make_unique<CommandHookManager>();
-
     dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<CommandHookScopeDynamicSuggestions>());
@@ -138,45 +172,14 @@ void glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vf
         RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValue));
 
     commandManager_ = std::make_unique<CommandManager>();
-    commandManager_->RegisterCommand(std::make_unique<GiveCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<HelpCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<TpCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<SummonCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<ClearCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<LootCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<PackVerifyCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<SeedCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<FlyCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<EchoCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<LocateCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<PlayCommand>(appContext));
-#if  !defined(NDEBUG)
-    commandManager_->RegisterCommand(std::make_unique<HookCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<EcsCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<VFSCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<LightCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<TagCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<UnlockedRecipesCommand>(appContext));
-#endif
-    commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(appContext, configValue));
-
+    RegisterCommands(appContext, configValue);
     consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
-
     commandHistoryManager_ = std::make_unique<CommandHistoryManager>(runtimePath, vfs);
     if (maxHistoryEntries > 0)
     {
         commandHistoryManager_->Read();
     }
+    return true;
 }
 
 void glimmer::ConsoleContext::StopConsoleWorker() const

@@ -349,9 +349,20 @@ glimmer::AppContext::AppContext()
     config_->LoadConfig(*configValuePtr);
     savesManager_ = std::make_unique<SavesManager>(virtualFileSystemPtr);
     savesManager_->LoadAllSaves(config_->runtimePath);
+    modContext_ = std::make_unique<ModContext>();
+    modContext_->Init(virtualFileSystemPtr, langsResources_.get());
+    if (modContext_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "modContext_ is nullptr");
+        return;
+    }
     consoleContext_ = std::make_unique<ConsoleContext>();
-    consoleContext_->Init(this, virtualFileSystemPtr, config_->runtimePath,
-                          config_->console.maxHistoryEntries, configValuePtr);
+    if (!consoleContext_->Init(this, virtualFileSystemPtr, config_->runtimePath,
+                               config_->console.maxHistoryEntries, configValuePtr))
+    {
+        LogCat::e(std::source_location::current(), "init consoleContext fail.");
+        return;
+    }
 
     DataPackManager* dataPackManager = modContext_->GetDataPackManager();
     if (dataPackManager == nullptr)
@@ -383,21 +394,13 @@ glimmer::AppContext::AppContext()
         LogCat::e(std::source_location::current(), "The resource package cannot be found.");
         return;
     }
-    modContext_ = std::make_unique<ModContext>();
-    modContext_->Init(virtualFileSystemPtr, langsResources_.get());
-    if (modContext_ == nullptr)
-    {
-        LogCat::e(std::source_location::current(), "modContext_ is nullptr");
-        return;
-    }
-    MobManager* mobManager = modContext_->GetMobManager();
+    const MobManager* mobManager = modContext_->GetMobManager();
     if (mobManager == nullptr)
     {
         LogCat::e(std::source_location::current(), "mobManager is nullptr");
         return;
     }
-    const size_t number = mobManager->GetPlayerResourceList().size();
-    if (number == 0)
+    if (const size_t number = mobManager->GetPlayerResourceList().size(); number == 0)
     {
         LogCat::e(std::source_location::current(), "At least one player resource is required.");
         return;

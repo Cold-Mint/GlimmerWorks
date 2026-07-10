@@ -573,10 +573,6 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
     // Y轴（绿色）
     SDL_SetRenderDrawColor(sdlRenderer, 0, 255, 0, 255);
     SDL_RenderLine(sdlRenderer, pViewport.x, pViewport.y, yAxisViewport.x, yAxisViewport.y);
-
-    LogCat::d("[DrawTransform] origin=(", p.x, ",", p.y, ") xAxis=(", xAxis.x, ",", xAxis.y, ") yAxis=(", yAxis.x, ",",
-              yAxis.y, ")");
-
     // 恢复原始颜色
     SDL_SetRenderDrawColor(sdlRenderer, oldColor.r, oldColor.g, oldColor.b, oldColor.a);
 }

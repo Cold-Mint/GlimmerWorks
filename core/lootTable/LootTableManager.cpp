@@ -29,8 +29,6 @@
 #include "core/log/LogCat.h"
 
 glimmer::LootResource *glimmer::LootTableManager::AddResource(std::unique_ptr<LootResource> lootResource) {
-    LogCat::i("Registering lootTable resource: packId = ", lootResource->packId,
-              ", resourceId = ", lootResource->resourceId);
     auto &slot = lootMap_[lootResource->packId][lootResource->resourceId];
     slot = std::move(lootResource);
     return slot.get();

@@ -212,8 +212,6 @@ void glimmer::ChunkGenerator::PlaceStructureTiles(TerrainManager* terrainManager
 
     TerrainResult* currentTerrain = nullptr;
     TileVector2D currentChunk = {INT_MIN, INT_MIN};
-    LogCat::d("StructurePlacement", "Structure generated successfully - Width: ",
-              width, ", Height: ", height);
     for (auto& [tileLayerType, tileMap] : structureInfo.GetStructureMap())
     {
         for (auto& [coord,tileResource] : tileMap)
@@ -250,9 +248,6 @@ std::optional<std::bitset<CHUNK_AREA>> glimmer::ChunkGenerator::MatchStructureCo
     }
 
     std::string resId = Resource::GenerateId(*structureResource);
-    LogCat::d("StructurePlacement", "Start processing structure resource. Total conditions:",
-              totalConditions, ",resId :", resId);
-
     std::bitset<CHUNK_AREA> totalBitset;
     bool hasAnyConditionMatched = false;
     const int endIndex = static_cast<int>(totalConditions) - 1;
@@ -261,9 +256,6 @@ std::optional<std::bitset<CHUNK_AREA>> glimmer::ChunkGenerator::MatchStructureCo
     {
         auto& condition = structureResource->condition[i];
         const std::string& processorId = condition.processorId;
-        LogCat::d("StructurePlacement", "Processing condition (", i, " / ",
-                  totalConditions, "), processorId:", processorId, ",resId :", resId);
-
         IStructureConditionProcessor* structureConditionProcessor = appContext->
                                                                     GetModContext()->
                                                                     GetStructurePlacementConditionsManager()->
@@ -327,15 +319,8 @@ int glimmer::ChunkGenerator::PlaceStructureAtCandidatePoints(const AppContext* a
 
         const int localX = i & CHUNK_MASK;
         const int localY = i >> CHUNK_SHIFT;
-        LogCat::d("StructurePlacement", "Processing candidate point - Index: ", i, ", localX: ", localX,
-                  ", localY: ", localY);
-
         TileVector2D structuralOrigin{localX, localY};
         TileVector2D globalOrigin = position + structuralOrigin;
-
-        LogCat::d("StructurePlacement", "Generating structure at global origin - x: ", globalOrigin.x,
-                  ", y: ", globalOrigin.y);
-
         std::optional<StructureInfo> structureInfoOptional = structureGeneratorManager->
             Generate(worldContext_, globalOrigin, structureResource);
 
@@ -345,8 +330,6 @@ int glimmer::ChunkGenerator::PlaceStructureAtCandidatePoints(const AppContext* a
         }
 
         ++markedCount;
-        LogCat::d("StructurePlacement", "Finish processing candidate point - Index: ", i,
-                  ", Total marked points so far: ", markedCount);
     }
 
 

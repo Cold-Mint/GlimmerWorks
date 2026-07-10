@@ -33,7 +33,6 @@
 
 void glimmer::PreloadColors::LoadAllColors(const ResourceLocator* resourceLocator)
 {
-
     Color text;
     text.r = 250;
     text.g = 250;
@@ -132,7 +131,7 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator* resourceLocato
     buttonPressed.a = 255;
     buttonPressedColor = LoadColor(resourceLocator, "button_pressed", buttonPressed);
     buttonTextColor = LoadColor(resourceLocator, "button_text", text);
-    buttonHoveredTextColor= LoadColor(resourceLocator, "button_hovered_text", text);
+    buttonHoveredTextColor = LoadColor(resourceLocator, "button_hovered_text", text);
     buttonPressedTextColor = LoadColor(resourceLocator, "button_pressed_text", text);
     buttonDisableTextColor = LoadColor(resourceLocator, "button_disable_text", text);
     Color scrollbarBg;
@@ -432,16 +431,15 @@ void glimmer::PreloadColors::LoadAllColors(const ResourceLocator* resourceLocato
 glimmer::Color glimmer::PreloadColors::LoadColor(const ResourceLocator* resourceLocator, const std::string& key,
                                                  const Color& defaultColor)
 {
-
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_COLOR);
     resourceRef.SetResourceKey(key);
 
     const std::unique_ptr<Color> targetColor = resourceLocator->FindColor(&resourceRef);
-
     if (targetColor == nullptr)
     {
+        LogCat::w(std::source_location::current(), "Use the default color:", key);
         return defaultColor;
     }
 

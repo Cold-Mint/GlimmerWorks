@@ -81,6 +81,8 @@ namespace glimmer
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__
             std::ostringstream oss;
+            oss << "[w] At " << sourceLocation.file_name() << ":" << sourceLocation.line() <<
+                sourceLocation.file_name() << " ";
             (oss << ... << args);
             __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", oss.str().c_str());
 #else
@@ -99,6 +101,8 @@ namespace glimmer
         {
 #ifdef __ANDROID__
             std::ostringstream oss;
+            oss << "[e] At " << sourceLocation.file_name() << ":" << sourceLocation.line() <<
+                sourceLocation.file_name() << " ";
             (oss << ... << args);
             __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
 #else

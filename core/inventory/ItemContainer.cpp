@@ -254,13 +254,14 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
             ++index;
             continue;
         }
-        const uint8_t removeAmount = newItemStackModule->RemoveAmount(stackedAmount);
-        if (removeAmount == 0 &&
-            currentItemStackModule->RemoveAmount(stackedAmount) == 0)
+        const uint8_t remNew = newItemStackModule->RemoveAmount(stackedAmount);
+        const uint8_t remOld = currentItemStackModule->RemoveAmount(stackedAmount);
+        if (remNew == 0 && remOld == 0)
         {
             //The attempt to deduct the quantity from the new item to be added failed, and there was also an error in the reduction of the quantity of the items already in the container.
             //在要添加的新物品内扣除数量失败，且在容器内的物品撤销增加的数量也发生了错误。
-            LogCat::w(std::source_location::current(), "The attempt to deduct the quantity from the new item to be added failed, and there was also an error in the reduction of the quantity of the items already in the container.");
+            LogCat::w(std::source_location::current(),
+                      "The attempt to deduct the quantity from the new item to be added failed, and there was also an error in the reduction of the quantity of the items already in the container.");
         }
         if (newItemStackModule->GetAmount() == 0)
         {

@@ -77,15 +77,6 @@ namespace glimmer
         virtual void Render(SDL_Renderer* renderer);
 
         /**
-         * Render ImGui content. Called before ImGui::Render().
-         * 渲染 ImGui 内容。在 ImGui::Render() 之前调用。
-         * Use this for ImGui UI elements that should be drawn below SDL content.
-         * 用于应该在 SDL 内容之下绘制的 ImGui UI 元素。
-         * @param renderer
-         */
-        virtual void RenderImGui(SDL_Renderer* renderer);
-
-        /**
          * Called when the frame begins
          * 当帧开始时调用
          */

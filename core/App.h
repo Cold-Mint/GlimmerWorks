@@ -47,8 +47,6 @@ namespace glimmer
 
         bool InitWindowAndRenderer();
 
-        [[nodiscard]] bool InitImGui() const;
-
         [[nodiscard]] bool InitFont() const;
 
         bool InitAudio();

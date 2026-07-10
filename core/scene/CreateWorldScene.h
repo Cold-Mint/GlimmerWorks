@@ -46,9 +46,6 @@ namespace glimmer
 
         [[nodiscard]] std::optional<std::string> RandomName() const;
 
-        void RenderImGui(SDL_Renderer* renderer) override;
-
-
         ~CreateWorldScene() override = default;
     };
 }

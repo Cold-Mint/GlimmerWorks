@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "AppEventLoop.h"
-#include "backends/imgui_impl_sdl3.h"
 #include "scene/SceneManager.h"
 #include "console/ConsoleWorker.h"
 #include "console/CommandManager.h"
@@ -176,18 +175,12 @@ void glimmer::AppEventLoop::DispatchEvent(const SDL_Event& event) const
             break;
         }
     }
-    if (!handled)
+    if (handled)
     {
-        if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-        {
-            if (topScene->HandleEvent(event))
-            {
-                handled = true;
-            }
-        }
+        return;
     }
-    if (!handled)
+    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
     {
-        ImGui_ImplSDL3_ProcessEvent(&event);
+        topScene->HandleEvent(event);
     }
 }

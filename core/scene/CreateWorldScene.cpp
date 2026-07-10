@@ -32,10 +32,7 @@
 #include "core/Config.h"
 #include "AppContext.h"
 #include "HomeScene.h"
-#include "imgui.h"
-#include "misc/cpp/imgui_stdlib.h"
 #include "WorldScene.h"
-#include "core/log/LogCat.h"
 #include "core/saves/Saves.h"
 #include "core/saves/SavesManager.h"
 #include "core/utils/RandomUtils.h"
@@ -123,54 +120,4 @@ std::optional<std::string> glimmer::CreateWorldScene::RandomName() const
         return prefixList[randomPrefixIdx] + " " + suffixList[randomSuffixIdx];
     }
     return prefixList[randomPrefixIdx] + suffixList[randomSuffixIdx];
-}
-
-
-void glimmer::CreateWorldScene::RenderImGui(SDL_Renderer* renderer)
-{
-    ImGui::GetIO().FontGlobalScale = uiScale_;
-    ImGui::SetNextWindowSize(ImVec2(400 * uiScale_, 250 * uiScale_), ImGuiCond_Once);
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(),
-                            ImGuiCond_Once, ImVec2(0.5f, 0.5f));
-
-    LangsResources* langsResources = GetAppContext()->GetLangsResources();
-    ImGui::Begin(langsResources->createWorld.c_str(), nullptr,
-                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
-
-    ImGui::TextUnformatted(langsResources->worldName.c_str());
-    ImGui::InputText("##WorldName", &worldName_);
-    ImGui::SameLine();
-    if (ImGui::Button((langsResources->random + "##randomWorldName").c_str()))
-    {
-        auto op = RandomName();
-        if (op.has_value())
-        {
-            worldName_ = op.value();
-        }
-    }
-
-    ImGui::TextUnformatted(langsResources->seed.c_str());
-    ImGui::InputText("##Seed", &seedStr_);
-    ImGui::SameLine();
-    if (ImGui::Button((langsResources->random + "##randomSeed").c_str()))
-    {
-        const int newSeed = RandomUtils::Random<int>();
-        seedStr_ = std::to_string(newSeed);
-    }
-
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
-
-    if (ImGui::Button(langsResources->cancel.c_str(), ImVec2(120 * uiScale_, 0)))
-    {
-        GetAppContext()->GetSceneManager()->PopScene();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(langsResources->createWorld.c_str(), ImVec2(120 * uiScale_, 0)))
-    {
-        CreateWorld();
-    }
-
-    ImGui::End();
 }

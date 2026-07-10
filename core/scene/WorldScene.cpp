@@ -26,7 +26,6 @@
  */
 #include "WorldScene.h"
 
-#include "core/saves/SavesManager.h"
 #include "core/world/SystemScheduler.h"
 
 glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext)
@@ -35,7 +34,8 @@ glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContex
     worldContext_ = std::move(worldContext);
     if (context != nullptr)
     {
-        context->GetWindowContext()->SetWindowTitle((PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
+        context->GetWindowContext()->SetWindowTitle(
+            (PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
     }
     Init();
 }
@@ -149,18 +149,4 @@ void glimmer::WorldScene::Render(SDL_Renderer* renderer)
         return;
     }
     systemScheduler->Render(renderer);
-}
-
-void glimmer::WorldScene::RenderImGui(SDL_Renderer* renderer)
-{
-    if (worldContext_ == nullptr)
-    {
-        return;
-    }
-    const SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
-    if (systemScheduler == nullptr)
-    {
-        return;
-    }
-    systemScheduler->RenderImGui(renderer);
 }

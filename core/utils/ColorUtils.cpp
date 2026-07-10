@@ -66,16 +66,6 @@ glimmer::Color glimmer::ColorUtils::AverageColors(const std::vector<Color>& colo
     return {r, g, b, a};
 }
 
-ImVec4 glimmer::ColorUtils::ColorToImVec4(const Color& color)
-{
-    return {
-       static_cast<float>(color.r) / 255,
-       static_cast<float>(color.g) / 255,
-       static_cast<float>(color.b) / 255,
-       static_cast<float>(color.a) / 255
-   };
-}
-
 glimmer::Color glimmer::ColorUtils::AdditiveBlend(const Color& firstColor, const Color& secondColor)
 {
     Color result{};

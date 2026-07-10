@@ -32,7 +32,7 @@ namespace glimmer
 {
     class AppEventLoop
     {
-        AppContext* appContext_;
+        AppContext* appContext_ = nullptr;
         Uint64& lastInputTime_;
 
         bool HandleSystemEvent(const SDL_Event& event) const;

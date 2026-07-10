@@ -38,9 +38,6 @@ namespace glimmer
 
         uint8_t GetRenderOrder() override;
 
-
-        void RenderImGui(SDL_Renderer* renderer) override;
-
         bool OnBackPressed() override;
 
         [[nodiscard]] bool CanRunWhilePaused() const override;

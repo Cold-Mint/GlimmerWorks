@@ -25,10 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "PauseSystem.h"
-#include "imgui.h"
 #include "core/world/WorldContext.h"
-#include "core/utils/TimeUtils.h"
-
 
 glimmer::PauseSystem::PauseSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
@@ -39,69 +36,6 @@ glimmer::PauseSystem::PauseSystem(WorldContext* worldContext) : GameSystem(world
 uint8_t glimmer::PauseSystem::GetRenderOrder()
 {
     return RENDER_ORDER_PAUSE;
-}
-
-
-void glimmer::PauseSystem::RenderImGui(SDL_Renderer* renderer)
-{
-    WorldContext* worldContext = GetWorldContext();
-
-    if (worldContext->IsRuning())
-    {
-        return;
-    }
-
-    ImGuiIO& io = ImGui::GetIO();
-
-    ImVec2 windowSize(300.0F, 200.0F);
-    ImVec2 windowPos(
-        (io.DisplaySize.x - windowSize.x) * 0.5F,
-        (io.DisplaySize.y - windowSize.y) * 0.5F
-    );
-
-    ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always);
-    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
-
-    ImGuiWindowFlags flags =
-        ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoTitleBar;
-
-    AppContext* appContext = worldContext->GetAppContext();
-    if (ImGui::Begin("PauseMenu", nullptr, flags))
-    {
-        const char* title = appContext->GetLangsResources()->pause.c_str();
-        ImVec2 textSize = ImGui::CalcTextSize(title);
-        ImGui::SetCursorPosX((windowSize.x - textSize.x) * 0.5F);
-        ImGui::TextUnformatted(title);
-
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::Separator();
-        ImGui::Spacing();
-
-        float buttonWidth = 200.0F;
-        ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-
-        if (ImGui::Button(appContext->GetLangsResources()->restore.c_str(), ImVec2(buttonWidth, 0)))
-        {
-            worldContext->SetRuning(true);
-        }
-
-        ImGui::Spacing();
-        ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-
-        if (ImGui::Button(appContext->GetLangsResources()->saveAndExit.c_str(), ImVec2(buttonWidth, 0)))
-        {
-            worldContext->SaveGame();
-            appContext->SetRandomSlogan();
-            appContext->PlayMainMenuBGM();
-            appContext->GetSceneManager()->PopScene();
-        }
-    }
-
-    ImGui::End();
 }
 
 bool glimmer::PauseSystem::OnBackPressed()

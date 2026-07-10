@@ -99,11 +99,6 @@ void glimmer::Scene::Render(SDL_Renderer* renderer)
     // Intentionally empty default implementation for base class
 }
 
-void glimmer::Scene::RenderImGui(SDL_Renderer* renderer)
-{
-    // Intentionally empty default implementation for base class
-}
-
 glimmer::Scene::Scene(AppContext* context) : appContext_(context)
 {
 }

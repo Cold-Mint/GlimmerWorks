@@ -31,10 +31,7 @@
 #include "AppContext.h"
 #include "CreateWorldScene.h"
 #include "fmt/xchar.h"
-#include "imgui.h"
-#include "SavedGamesScene.h"
 #include "core/Config.h"
-#include "core/saves/SavesManager.h"
 
 #include <chrono>
 
@@ -63,102 +60,6 @@ glimmer::HomeScene::HomeScene(AppContext* context)
     GetAppContext()->PlayMainMenuBGM();
     GetAppContext()->SetRandomSlogan();
     Init();
-}
-
-void glimmer::HomeScene::RenderImGui(SDL_Renderer* renderer)
-{
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    // 获取窗口大小
-    const ImVec2 windowSize(static_cast<float>(windowWidth_), static_cast<float>(windowHeight_));
-    ImGui::SetNextWindowSize(windowSize);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
-    ImGui::Begin("Home",
-                 nullptr,
-                 ImGuiWindowFlags_NoTitleBar |
-                 ImGuiWindowFlags_NoResize |
-                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-
-    // 设置标题字体（需提前加载，见下方说明）
-    const ImVec2 titleSize = ImGui::CalcTextSize("Glimmer");
-    ImGui::SetCursorPosX((windowSize.x - titleSize.x) * 0.5f);
-    ImGui::Text("Glimmer");
-
-    // 按钮区域
-    ImGui::GetIO().FontGlobalScale = uiScale_;
-    float buttonWidth = 200.0F * uiScale_;
-    float buttonHeight = 40.0F * uiScale_;
-    float buttonSpacing = 10.0F * uiScale_;
-    float totalHeight = 3 * buttonHeight + 2 * buttonSpacing;
-    ImGui::SetCursorPosY((windowSize.y - totalHeight) * 0.5F);
-    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(GetAppContext()->GetLangsResources()->startGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
-    {
-        if (GetAppContext()->GetSavesManager()->GetSavesListSize() == 0)
-        {
-            GetAppContext()->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(GetAppContext()));
-        }
-        else
-        {
-            GetAppContext()->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(GetAppContext()));
-        }
-    }
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-    }
-    ImGui::SetCursorPosX((windowSize.x - buttonWidth) * 0.5F);
-    if (ImGui::Button(GetAppContext()->GetLangsResources()->exitGame.c_str(), ImVec2(buttonWidth, buttonHeight)))
-    {
-        OnBackPressed();
-    }
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-    }
-
-    float margin = 10.0F;
-    float spacing = 4.0F;
-
-    float lineHeight = ImGui::GetFontSize();
-
-    // ===== 计算版本号位置 =====
-    float versionPosY = windowSize.y - lineHeight - margin;
-    float versionPosX =
-        windowSize.x - ImGui::CalcTextSize(GAME_VERSION_STRING).x - margin;
-    float currentY = versionPosY - spacing;
-    for (int i = static_cast<int>(hyperlinks_.size()) - 1; i >= 0; --i)
-    {
-        const auto& link = hyperlinks_[i];
-
-        currentY -= lineHeight;
-
-        float textWidth = ImGui::CalcTextSize(link.displayText.c_str()).x;
-        float posX = windowSize.x - textWidth - margin;
-
-        ImGui::SetCursorPos(ImVec2(posX, currentY));
-
-        if (ImGui::TextLink(link.displayText.c_str()))
-        {
-            SDL_OpenURL(link.link.c_str());
-        }
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
-        }
-
-        currentY -= spacing;
-    }
-
-    // ===== 绘制版本号 =====
-    ImGui::SetCursorPos(ImVec2(versionPosX, versionPosY));
-    ImGui::Text("%s", GAME_VERSION_STRING);
-
-
-    ImGui::SetCursorPos(ImVec2(margin, versionPosY));
-    ImGui::Text("%s", copyright_.c_str());
-    ImGui::PopStyleColor();
-    ImGui::End();
 }
 
 void glimmer::HomeScene::OnConfigChanged(const Config* config)

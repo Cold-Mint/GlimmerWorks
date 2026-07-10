@@ -1,9 +1,6 @@
 #Variable definitions are generated through GlimmerWorksCli. Please do not edit them.
 #The dependencies of the repository can be defined through comments.
-#Last updated date: 2026-07-07 15:57:46
-#ocornut/imgui@latest
-#ocornut/imgui-v1.92.8
-set(OCORNUT_IMGUI_VERSION "8936b58fe26e8c3da834b8f60b06511d537b4c63")
+#Last updated date: 2026-07-10 17:42:31
 #libsdl-org/SDL@latest
 #libsdl-org/SDL-release-3.4.12
 set(LIBSDL-ORG_SDL_VERSION "f87239e71e42da91ca317a12eefb82cfbf3393eb")
@@ -40,3 +37,6 @@ set(BLAKE3-TEAM_BLAKE3_VERSION "93a431c78a52d7ccf0f366f106467f5070e6075e")
 #LoupVaillant/Monocypher@latest
 #LoupVaillant/Monocypher-4.0.3
 set(LOUPVAILLANT_MONOCYPHER_VERSION "ab2b16dd619ad5f6979a4fbe69cfa324a6fcc35f")
+#mikke89/RmlUi@latest
+#mikke89/RmlUi-6.2
+set(MIKKE89_RMLUI_VERSION "2230d1a6e8e0848ed87a5761e2a5160b2a175ba4")

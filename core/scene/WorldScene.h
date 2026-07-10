@@ -52,7 +52,5 @@ namespace glimmer {
         void OnConfigChanged(const Config* config) override;
 
         void Render(SDL_Renderer *renderer) override;
-
-        void RenderImGui(SDL_Renderer* renderer) override;
     };
 }

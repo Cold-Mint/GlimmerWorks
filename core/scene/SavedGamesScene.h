@@ -41,18 +41,10 @@ namespace glimmer
         int windowWidth_ = 0;
         int windowHeight_ = 0;
 
-        void RenderSavesList(const SavesManager* savesManager);
-
-        void RenderSelectedSaveButtons(SavesManager* savesManager);
-
-        void RenderDeletePopup(SavesManager* savesManager);
-
         static std::string FormatSaveLabel(const MapManifest* manifest, const LangsResources* langsResources);
 
     public:
         explicit SavedGamesScene(AppContext* context);
-
-        void RenderImGui(SDL_Renderer* renderer) override;
 
         void OnWindowSizeChanged(const int& width, const int& height) override;
 

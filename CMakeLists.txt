@@ -193,14 +193,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SDL_mixer)
 
 FetchContent_Declare(
-        imgui
-        GIT_REPOSITORY "https://github.com/ocornut/imgui"
-        GIT_TAG ${OCORNUT_IMGUI_VERSION}
-        EXCLUDE_FROM_ALL
-)
-
-FetchContent_MakeAvailable(imgui)
-FetchContent_Declare(
         tweeny
         GIT_REPOSITORY "https://github.com/mobius3/tweeny"
         GIT_TAG ${MOBIUS3_TWEENY_VERSION}
@@ -265,6 +257,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(monoCypher)
 
+FetchContent_Declare(
+        rmlUi
+        GIT_REPOSITORY "https://github.com/mikke89/RmlUi"
+        GIT_TAG ${MIKKE89_RMLUI_VERSION}
+        EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(rmlUi)
+
 if (ANDROID)
     message(STATUS "Building for Android → Shared Library (.so)")
     add_library(GlimmerWorks SHARED)
@@ -275,15 +275,6 @@ endif ()
 
 target_sources(GlimmerWorks
         PRIVATE
-        "${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui.cpp"
-        "${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_draw.cpp"
-        "${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_widgets.cpp"
-        "${CMAKE_BINARY_DIR}/_deps/imgui-src/imgui_tables.cpp"
-        "${CMAKE_BINARY_DIR}/_deps/imgui-src/misc/cpp/imgui_stdlib.cpp"
-        # SDL3 backend
-        # SDL3 后端
-        "${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_sdl3.cpp"
-        "${CMAKE_BINARY_DIR}/_deps/imgui-src/backends/imgui_impl_sdlrenderer3.cpp"
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.c"
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.h"
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/optional/monocypher-ed25519.c"
@@ -1016,10 +1007,6 @@ endif ()
 
 target_include_directories(GlimmerWorks PRIVATE
         "${CMAKE_BINARY_DIR}/_deps/fmt-src/include"
-)
-
-target_include_directories(GlimmerWorks PRIVATE
-        "${CMAKE_BINARY_DIR}/_deps/imgui-src"
 )
 
 target_include_directories(GlimmerWorks PRIVATE

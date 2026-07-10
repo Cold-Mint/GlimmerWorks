@@ -38,8 +38,6 @@ namespace glimmer
 
         void RenderScenes() const;
 
-        void RenderImGui() const;
-
         void RenderOverlays() const;
 
         void RenderRelease() const;

@@ -30,9 +30,6 @@
 #include <ranges>
 #include "log/LogCat.h"
 #include "Config.h"
-#include "imgui.h"
-#include "backends/imgui_impl_sdl3.h"
-#include "backends/imgui_impl_sdlrenderer3.h"
 #include "scene/SplashScene.h"
 #if  !defined(NDEBUG)
 #include "scene/DebugOverlay.h"
@@ -114,65 +111,6 @@ bool glimmer::App::InitWindowAndRenderer()
     return true;
 }
 
-bool glimmer::App::InitImGui() const
-{
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.IniFilename = nullptr;
-    GraphicsContext* graphicsContext = appContext_->GetGraphicsContext();
-    if (graphicsContext == nullptr)
-    {
-        return false;
-    }
-    auto preloadColors = graphicsContext->GetPreloadColors();
-    std::vector<std::pair<ImGuiCol, Color&>> colorMappings;
-    colorMappings.emplace_back(ImGuiCol_Text, preloadColors->textColor);
-    colorMappings.emplace_back(ImGuiCol_TextDisabled, preloadColors->textDisabledColor);
-    colorMappings.emplace_back(ImGuiCol_TextLink, preloadColors->textLinkColor);
-    colorMappings.emplace_back(ImGuiCol_TextSelectedBg, preloadColors->textSelectedBgColor);
-    colorMappings.emplace_back(ImGuiCol_WindowBg, preloadColors->backgroundColor);
-    colorMappings.emplace_back(ImGuiCol_Border, preloadColors->borderColor);
-    colorMappings.emplace_back(ImGuiCol_BorderShadow, preloadColors->borderShadowColor);
-    colorMappings.emplace_back(ImGuiCol_Separator, preloadColors->separatorColor);
-    colorMappings.emplace_back(ImGuiCol_SeparatorHovered, preloadColors->separatorHoveredColor);
-    colorMappings.emplace_back(ImGuiCol_SeparatorActive, preloadColors->separatorActiveColor);
-    colorMappings.emplace_back(ImGuiCol_FrameBg, preloadColors->frameBgColor);
-    colorMappings.emplace_back(ImGuiCol_FrameBgHovered, preloadColors->frameBgHoveredColor);
-    colorMappings.emplace_back(ImGuiCol_FrameBgActive, preloadColors->frameBgActiveColor);
-    colorMappings.emplace_back(ImGuiCol_Button, preloadColors->buttonColor);
-    colorMappings.emplace_back(ImGuiCol_ButtonHovered, preloadColors->buttonHoveredColor);
-    colorMappings.emplace_back(ImGuiCol_ButtonActive, preloadColors->buttonPressedColor);
-    colorMappings.emplace_back(ImGuiCol_ScrollbarBg, preloadColors->scrollbarBgColor);
-    colorMappings.emplace_back(ImGuiCol_ScrollbarGrab, preloadColors->scrollbarGrabColor);
-    colorMappings.emplace_back(ImGuiCol_ScrollbarGrabHovered, preloadColors->scrollbarGrabHoveredColor);
-    colorMappings.emplace_back(ImGuiCol_ScrollbarGrabActive, preloadColors->scrollbarGrabActiveColor);
-    colorMappings.emplace_back(ImGuiCol_InputTextCursor, preloadColors->inputTextCursorColor);
-    colorMappings.emplace_back(ImGuiCol_NavCursor, preloadColors->navCursorColor);
-    colorMappings.emplace_back(ImGuiCol_Header, preloadColors->headerColor);
-    colorMappings.emplace_back(ImGuiCol_HeaderHovered, preloadColors->headerHoveredColor);
-    colorMappings.emplace_back(ImGuiCol_HeaderActive, preloadColors->headerActiveColor);
-
-    for (const auto& [imguiColor,color] : colorMappings | std::views::as_const)
-    {
-        ImGui::GetStyle().Colors[imguiColor] = ColorUtils::ColorToImVec4(color);
-    }
-
-
-    if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer_))
-    {
-        return false;
-    }
-
-
-    if (!ImGui_ImplSDLRenderer3_Init(renderer_))
-    {
-        return false;
-    }
-
-    return true;
-}
-
 bool glimmer::App::InitFont() const
 {
     const Config* config = appContext_->GetConfig();
@@ -210,13 +148,9 @@ bool glimmer::App::InitFont() const
     {
         return false;
     }
-
-    const ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F);
     TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16);
     if (sdlFont == nullptr)
     {
-
         LogCat::w(std::source_location::current(), "Failed to load font: ", actualPath.value());
     }
     else
@@ -331,7 +265,6 @@ bool glimmer::App::Init()
 {
     return InitSDL() &&
         InitWindowAndRenderer() &&
-        InitImGui() &&
         InitFont() &&
         InitAudio();
 }

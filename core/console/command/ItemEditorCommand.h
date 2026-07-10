@@ -27,6 +27,7 @@
 #pragma once
 #include "core/console/Command.h"
 #include "core/inventory/Item.h"
+#include "core/LangsResources.h"
 
 namespace glimmer
 {

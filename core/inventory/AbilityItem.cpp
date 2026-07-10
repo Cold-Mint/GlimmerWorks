@@ -27,6 +27,7 @@
 #include "AbilityItem.h"
 #include <memory>
 #include "core/log/LogCat.h"
+#include "core/context/AppContext.h"
 #include "ComposableItem.h"
 #include "ItemAbilityFactory.h"
 #include "core/mod/ResourceLocator.h"

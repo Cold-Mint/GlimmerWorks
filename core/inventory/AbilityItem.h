@@ -28,7 +28,7 @@
 #include "AbilityItemCreateParams.h"
 #include "Item.h"
 #include "ability/ItemAbility.h"
-#include "core/world/WorldContext.h"
+#include "core/ecs/EcsTypes.h"
 
 namespace glimmer
 {

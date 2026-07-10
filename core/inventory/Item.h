@@ -33,11 +33,11 @@
 #include "ItemStackModule.h"
 #include "ItemTagModule.h"
 #include "core/math/IAllocatable.h"
-#include "core/world/WorldContext.h"
 #include "SDL3/SDL_render.h"
 
 namespace glimmer
 {
+        class WorldContext;
     /**
      * 物品类
      */

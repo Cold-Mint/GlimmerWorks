@@ -37,6 +37,7 @@
 namespace glimmer
 {
     class WorldContext;
+    class Config;
 
     class GameSystem
     {

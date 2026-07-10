@@ -26,8 +26,13 @@
  */
 #pragma once
 #include "GUISystem.h"
+#include "core/LangsResources.h"
 #include "core/ecs/component/CraftPreviewSlotComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/inventory/ItemContainer.h"
+#include "core/mod/dataPack/RecipeManager.h"
+#include "core/world/PreloadColors.h"
+#include "core/mod/resourcePack/ResourcePackManager.h"
 
 namespace glimmer
 {

@@ -26,9 +26,12 @@
  */
 #pragma once
 #include "Item.h"
+#include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer
 {
+    class AppContext;
+
     class MaterialItem : public Item
     {
         std::string id_;

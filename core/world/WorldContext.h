@@ -40,7 +40,7 @@
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/GameSystem.h"
-#include "core/inventory/ComposableItem.h"
+
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
 #include "core/world/TileInstancePool.h"

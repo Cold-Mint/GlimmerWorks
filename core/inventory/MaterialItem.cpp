@@ -26,6 +26,7 @@
  */
 #include "MaterialItem.h"
 
+#include "core/context/AppContext.h"
 #include "core/utils/StringUtils.h"
 
 glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optional<std::string> description,

@@ -46,7 +46,7 @@ bool glimmer::ResourceLocator::ValidateAccessPermission(const ResourceRef* resou
     }
     if (dataPackManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "dataPackManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "dataPackManager_ == nullptr");
         return false;
     }
     return dataPackManager_->IsDependencySatisfied(
@@ -57,92 +57,92 @@ glimmer::ResourceLocator::ResourceLocator(AppContext* appContext) : appContext_(
 {
     if (appContext_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "appContext_ == nullptr");
+        LogCat::e(std::source_location::current(), "appContext_ == nullptr");
         return;
     }
     resourcePackManager_ = appContext_->GetResourcePackManager();
     if (resourcePackManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "resourcePackManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "resourcePackManager_ == nullptr");
         return;
     }
     const GraphicsContext* graphicsContext = appContext_->GetGraphicsContext();
     if (graphicsContext == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "graphicsContext == nullptr");
+        LogCat::e(std::source_location::current(), "graphicsContext == nullptr");
         return;
     }
     fixedColorManager_ =
         graphicsContext->GetFixedColorManager();
     if (fixedColorManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "fixedColorManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "fixedColorManager_ == nullptr");
         return;
     }
     lightMaskManager_ = graphicsContext->GetLightMaskManager();
     if (lightMaskManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "lightMaskManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "lightMaskManager_ == nullptr");
         return;
     }
     lightSourceManager_ = graphicsContext->GetLightSourceManager();
     if (lightSourceManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "lightSourceManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "lightSourceManager_ == nullptr");
         return;
     }
     const ModContext* modContext = appContext_->GetModContext();
     if (modContext == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "modContext == nullptr");
+        LogCat::e(std::source_location::current(), "modContext == nullptr");
         return;
     }
     lootTableManager_ = modContext->GetLootTableManager();
     if (lootTableManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "lootTableManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "lootTableManager_ == nullptr");
         return;
     }
     itemManager_ = modContext->GetItemManager();
     if (itemManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "itemManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "itemManager_ == nullptr");
         return;
     }
     mobManager_ = modContext->GetMobManager();
     if (mobManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "mobManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "mobManager_ == nullptr");
         return;
     }
     tileResourceManager_ = modContext->GetTileResourceManager();
     if (tileResourceManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "tileResourceManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "tileResourceManager_ == nullptr");
         return;
     }
     shapeManager_ = modContext->GetShapeManager();
     if (shapeManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "shapeManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "shapeManager_ == nullptr");
         return;
     }
     stringManager_ = modContext->GetStringManager();
     if (stringManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "stringManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "stringManager_ == nullptr");
         return;
     }
     biomeDecoratorResourcesManager_ = modContext->GetBiomeDecoratorResourcesManager();
     if (biomeDecoratorResourcesManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "biomeDecoratorResourcesManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "biomeDecoratorResourcesManager_ == nullptr");
         return;
     }
     dataPackManager_ = modContext->GetDataPackManager();
     if (dataPackManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "dataPackManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "dataPackManager_ == nullptr");
         return;
     }
 }
@@ -155,7 +155,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourceLocator::FindTe
     {
         if (resourcePackManager_ == nullptr)
         {
-            LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourcePackManager == nullptr");
+            LogCat::w(std::source_location::current(), "resourcePackManager == nullptr");
             return nullptr;
         }
         return resourcePackManager_->errorTexture_;
@@ -168,22 +168,22 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourceLocator::FindTe
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_TEXTURE)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef->GetResourceType() != RESOURCE_TEXTURE");
+        LogCat::w(std::source_location::current(), "resourceRef->GetResourceType() != RESOURCE_TEXTURE");
         return nullptr;
     }
     if (resourcePackManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourcePackManager == nullptr");
+        LogCat::w(std::source_location::current(), "resourcePackManager == nullptr");
         return nullptr;
     }
     if (!ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return resourcePackManager_->accessDeniedTexture_;
     }
     return resourcePackManager_->LoadTextureFromFile(appContext_, resourceRef);
@@ -193,18 +193,18 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourceLocator::FindAudi
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_AUDIO || !
         ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (resourcePackManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourcePackManager == nullptr");
+        LogCat::w(std::source_location::current(), "resourcePackManager == nullptr");
         return nullptr;
     }
     return resourcePackManager_->LoadAudioFromFile(appContext_, resourceRef);
@@ -214,13 +214,13 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     const uint32_t resourceType = resourceRef->GetResourceType();
     if (!ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
 
@@ -228,14 +228,14 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
     {
         if (resourcePackManager_ == nullptr)
         {
-            LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourcePackManager == nullptr");
+            LogCat::w(std::source_location::current(), "resourcePackManager == nullptr");
             return nullptr;
         }
         const ColorResource* colorResource = resourcePackManager_->LoadColorResFromFile(
             appContext_, resourceRef);
         if (colorResource == nullptr)
         {
-            LogCat::w(__FILE__, __LINE__, __FUNCTION__, "colorResource == nullptr");
+            LogCat::w(std::source_location::current(), "colorResource == nullptr");
             return nullptr;
         }
         return std::make_unique<Color>(colorResource->ToColor());
@@ -247,12 +247,12 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
             resourceRef->GetResourceKey());
         if (fixedColorResource == nullptr)
         {
-            LogCat::w(__FILE__, __LINE__, __FUNCTION__, "fixedColorResource == nullptr");
+            LogCat::w(std::source_location::current(), "fixedColorResource == nullptr");
             return nullptr;
         }
         return std::make_unique<Color>(fixedColorResource->ToColor());
     }
-    LogCat::w(__FILE__, __LINE__, __FUNCTION__, "return nullptr");
+    LogCat::w(std::source_location::current(), "return nullptr");
     return nullptr;
 }
 
@@ -261,18 +261,18 @@ glimmer::IShapeResource* glimmer::ResourceLocator::FindShape(const ResourceRef* 
 {
     if (resourceRef == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::e(std::source_location::current(), "resourceRef == nullptr");
 
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_SHAPE || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::e(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (shapeManager_ == nullptr)
     {
-        LogCat::e(__FILE__, __LINE__, __FUNCTION__, "shapeManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "shapeManager_ == nullptr");
         return nullptr;
     }
     return shapeManager_->FindShape(resourceRef->GetPackageId(),
@@ -283,17 +283,17 @@ glimmer::IBiomeDecoratorResource* glimmer::ResourceLocator::FindBiomeDecorator(c
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_BIOME_DECORATOR || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (biomeDecoratorResourcesManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "biomeDecoratorResourcesManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "biomeDecoratorResourcesManager_ == nullptr");
         return nullptr;
     }
     return biomeDecoratorResourcesManager_->FindBiomeDecorator(
@@ -304,17 +304,17 @@ glimmer::StringResource* glimmer::ResourceLocator::FindString(const ResourceRef*
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_STRING || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (stringManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "stringManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "stringManager_ == nullptr");
         return nullptr;
     }
     return stringManager_->Find(resourceRef->GetPackageId(),
@@ -325,17 +325,17 @@ glimmer::LightSourceResource* glimmer::ResourceLocator::FindLightSource(const Re
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_LIGHT_SOURCE || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (lightSourceManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "lightSourceManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "lightSourceManager_ == nullptr");
         return nullptr;
     }
     return lightSourceManager_->FindLightSourceResource(
@@ -347,17 +347,17 @@ glimmer::LightMaskResource* glimmer::ResourceLocator::FindLightMask(const Resour
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_LIGHT_MASK || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (lightMaskManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "lightMaskManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "lightMaskManager_ == nullptr");
         return nullptr;
     }
     return lightMaskManager_->FindLightMaskResource(resourceRef->GetPackageId(),
@@ -369,12 +369,12 @@ glimmer::TileResource* glimmer::ResourceLocator::FindTileFallback(const Resource
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (tileResourceManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "tileResource == nullptr");
+        LogCat::w(std::source_location::current(), "tileResource == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_TILE || !ValidateAccessPermission(resourceRef))
@@ -391,17 +391,17 @@ glimmer::TileResource* glimmer::ResourceLocator::FindTileRaw(const ResourceRef* 
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_TILE || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (tileResourceManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "tileResource == nullptr");
+        LogCat::w(std::source_location::current(), "tileResource == nullptr");
         return nullptr;
     }
     return tileResourceManager_->FindTileRaw(resourceRef->GetPackageId(),
@@ -412,17 +412,17 @@ glimmer::MobResource* glimmer::ResourceLocator::FindMob(const ResourceRef* resou
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_MOB || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (mobManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "mobManager == nullptr");
+        LogCat::w(std::source_location::current(), "mobManager == nullptr");
         return nullptr;
     }
     return mobManager_->FindMobResource(resourceRef->GetPackageId(),
@@ -434,18 +434,18 @@ glimmer::ComposableItemResource* glimmer::ResourceLocator::FindComposableItem(
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_COMPOSABLE_ITEM || !
         ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (itemManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "itemManager == nullptr");
+        LogCat::w(std::source_location::current(), "itemManager == nullptr");
         return nullptr;
     }
     return itemManager_->FindComposableItemResource(resourceRef->GetPackageId(),
@@ -457,17 +457,17 @@ glimmer::AbilityItemResource* glimmer::ResourceLocator::FindAbilityItem(
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_ABILITY_ITEM || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (itemManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "itemManager == nullptr");
+        LogCat::w(std::source_location::current(), "itemManager == nullptr");
         return nullptr;
     }
     return itemManager_->FindAbilityItemResource(resourceRef->GetPackageId(),
@@ -478,17 +478,17 @@ glimmer::MaterialItemResource* glimmer::ResourceLocator::FindMaterialItem(const 
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_MATERIAL_ITEM || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (itemManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "itemManager == nullptr");
+        LogCat::w(std::source_location::current(), "itemManager == nullptr");
         return nullptr;
     }
     return itemManager_->FindMaterialItemResource(resourceRef->GetPackageId(),
@@ -499,17 +499,17 @@ glimmer::LootResource* glimmer::ResourceLocator::FindLoot(const ResourceRef* res
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "Resource is null");
+        LogCat::w(std::source_location::current(), "Resource is null");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_LOOT_TABLE || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     if (lootTableManager_ == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "lootTableManager_ is null");
+        LogCat::w(std::source_location::current(), "lootTableManager_ is null");
         return nullptr;
     }
     return lootTableManager_->Find(resourceRef->GetPackageId(),
@@ -521,7 +521,7 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
 {
     if (worldContext == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "worldContext is null");
+        LogCat::w(std::source_location::current(), "worldContext is null");
         return nullptr;
     }
     ResourceRef resourceRef;
@@ -529,7 +529,7 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
     const uint32_t resourceType = resourceRef.GetResourceType();
     if (resourceType == RESOURCE_NONE || !ValidateAccessPermission(&resourceRef))
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
         return nullptr;
     }
     std::unique_ptr<Item> result = nullptr;
@@ -538,7 +538,7 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
         auto tileInstancePool = worldContext->GetTileInstancePool();
         if (tileInstancePool == nullptr)
         {
-            LogCat::w(__FILE__, __LINE__, __FUNCTION__, "tileInstancePool == nullptr");
+            LogCat::w(std::source_location::current(), "tileInstancePool == nullptr");
             return nullptr;
         }
         auto tileResource = FindTileRaw(&resourceRef);
@@ -576,7 +576,7 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
     }
     if (result == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "result == nullptr");
+        LogCat::w(std::source_location::current(), "result == nullptr");
         return nullptr;
     }
     result->ReadItemMessage(worldContext, itemMessage);
@@ -589,7 +589,7 @@ const
 {
     if (worldContext == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "worldContext == nullptr");
+        LogCat::w(std::source_location::current(), "worldContext == nullptr");
         return nullptr;
     }
     auto itemMessage = ItemMessage();

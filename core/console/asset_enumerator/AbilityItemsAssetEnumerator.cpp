@@ -38,19 +38,19 @@ std::optional<std::string> glimmer::AbilityItemsAssetEnumerator::ListAsset(const
 {
     if (appContext == nullptr)
     {
-        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "appContext is nullptr");
+        LogCat::w(std::source_location::current(), "appContext is nullptr");
         return std::nullopt;
     }
     const ModContext* modContext = appContext->GetModContext();
     if (modContext == nullptr)
     {
-        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "modContext is nullptr");
+        LogCat::w(std::source_location::current(), "modContext is nullptr");
         return std::nullopt;
     }
     const ItemManager* itemManager = modContext->GetItemManager();
     if (itemManager == nullptr)
     {
-        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "itemManager is nullptr");
+        LogCat::w(std::source_location::current(), "itemManager is nullptr");
         return std::nullopt;
     }
     return itemManager->ListAbilityItems();

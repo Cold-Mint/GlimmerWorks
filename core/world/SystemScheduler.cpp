@@ -225,7 +225,7 @@ void glimmer::SystemScheduler::Render(SDL_Renderer* renderer) const
         if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
             b)
         {
-            LogCat::e("The color of the renderer has been changed by the game system.",
+            LogCat::e(std::source_location::current(), "The color of the renderer has been changed by the game system.",
                       std::to_underlying(system->GetGameSystemType()),
                       " invoke AppContext::RestoreColorRenderer(renderer);");
             assert(false);
@@ -249,7 +249,7 @@ void glimmer::SystemScheduler::RenderImGui(SDL_Renderer* renderer) const
         if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
             b)
         {
-            LogCat::e("The color of the renderImGui has been changed by the game system.",
+            LogCat::e(std::source_location::current(),"The color of the renderImGui has been changed by the game system.",
                       std::to_underlying(system->GetGameSystemType()),
                       " invoke AppContext::RestoreColorRenderer(renderer);");
             assert(false);
@@ -404,7 +404,7 @@ void glimmer::SystemScheduler::MoveSystemsToInactive(std::queue<GameSystem*>& to
 
 void glimmer::SystemScheduler::InitSystem()
 {
-    allowRegisterSystem = true;
+    allowRegisterSystem_ = true;
     RegisterSystem(std::make_unique<CameraSystem>(worldContext_));
     RegisterSystem(std::make_unique<PlayerControlSystem>(worldContext_));
     RegisterSystem(std::make_unique<TileLayerSystem>(worldContext_));
@@ -442,7 +442,7 @@ void glimmer::SystemScheduler::InitSystem()
 #ifdef __ANDROID__
     RegisterSystem(std::make_unique<AndroidControlSystem>(worldContext_));
 #endif
-    allowRegisterSystem = false;
+    allowRegisterSystem_ = false;
     PushPersistentGuiSystem(GameSystemType::HotBarGUISystem);
 }
 
@@ -460,14 +460,10 @@ void glimmer::SystemScheduler::OnConfigChanged(const Config* config)
 
 void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system)
 {
-    if (allowRegisterSystem)
+    if (allowRegisterSystem_)
     {
         system->LockWatchComponent();
         inactiveSystems_.emplace_back(std::move(system));
-    }
-    else
-    {
-
     }
 }
 

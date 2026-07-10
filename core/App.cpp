@@ -221,7 +221,8 @@ bool glimmer::App::InitFont() const
     TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16);
     if (sdlFont == nullptr)
     {
-        LogCat::w(__FILE__, __LINE__, __FUNCTION__, "Failed to load font: ", actualPath.value());
+
+        LogCat::w(std::source_location::current(), "Failed to load font: ", actualPath.value());
     }
     else
     {

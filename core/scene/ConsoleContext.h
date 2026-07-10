@@ -54,9 +54,9 @@ namespace glimmer
         void Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
                   int maxHistoryEntries, toml::value* configValue);
 
-        void StopConsoleWorker();
+        void StopConsoleWorker() const;
 
-        void SaveCommandHistory();
+        void SaveCommandHistory() const;
 
         [[nodiscard]] CommandManager* GetCommandManager() const;
         [[nodiscard]] ConsoleWorker* GetConsoleWorker() const;

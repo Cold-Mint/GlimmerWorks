@@ -48,14 +48,14 @@ int main()
     LogCat::d("me1");
     if (!appContext.InitSuccess())
     {
-        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "appContext Init failed");
+        LogCat::e(std::source_location::current(), "appContext Init failed");
         return EXIT_FAILURE;
     }
     LogCat::d("me!");
     App app(&appContext);
     if (!app.Init())
     {
-        LogCat::e(__FILE__,__LINE__, __FUNCTION__, "app Init failed");
+        LogCat::e(std::source_location::current(), "app Init failed");
         return EXIT_FAILURE;
     }
     app.Run();

@@ -55,7 +55,7 @@ namespace glimmer
         std::vector<std::unique_ptr<GameSystem>> inactiveSystems_;
         std::stack<GameSystemType> activeSystemStack_;
         uint64_t persistentGuiSystemCount_ = 0;
-        bool allowRegisterSystem = false;
+        bool allowRegisterSystem_ = false;
         uint32_t onComponentCountChangedId_ = 0;
         std::unordered_map<GameComponentTypeMessage, uint32_t> onComponentCountChangeBuffer_;
         WorldContext* worldContext_ = nullptr;

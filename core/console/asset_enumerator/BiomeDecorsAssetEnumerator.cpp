@@ -38,19 +38,19 @@ std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const 
 {
     if (appContext == nullptr)
     {
-        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "appContext is nullptr");
+        LogCat::w(std::source_location::current(), "appContext is nullptr");
         return std::nullopt;
     }
     const ModContext* modContext = appContext->GetModContext();
     if (modContext == nullptr)
     {
-        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "modContext is nullptr");
+        LogCat::w(std::source_location::current(), "modContext is nullptr");
         return std::nullopt;
     }
     const BiomeDecoratorResourcesManager* decoratorResourcesManager = modContext->GetBiomeDecoratorResourcesManager();
     if (decoratorResourcesManager == nullptr)
     {
-        LogCat::w(__FILE__,__LINE__, __FUNCTION__, "decoratorResourcesManager is nullptr");
+        LogCat::w(std::source_location::current(), "decoratorResourcesManager is nullptr");
         return std::nullopt;
     }
     return decoratorResourcesManager->ListBiomeDecorators();

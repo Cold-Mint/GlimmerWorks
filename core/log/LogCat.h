@@ -27,7 +27,7 @@
 #pragma once
 #include <chrono>
 #include <iostream>
-
+#include <source_location>
 #include "fmt/format.h"
 #ifdef __ANDROID__
 #include <android/log.h>
@@ -76,7 +76,7 @@ namespace glimmer
         }
 
         template <typename... Args>
-        static void w(const std::string_view file, const int line, const std::string_view func, Args&&... args)
+        static void w(const std::source_location sourceLocation, Args&&... args)
         {
 #if  !defined(NDEBUG)
 #ifdef __ANDROID__
@@ -85,7 +85,8 @@ namespace glimmer
             __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_WARN;
-            std::cout << "[w] At " << file << ":" << line << " " << func << " ";
+            std::cout << "[w] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " " <<
+                sourceLocation.file_name() << " ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif
@@ -94,7 +95,7 @@ namespace glimmer
 
 
         template <typename... Args>
-        static void e(const std::string_view file, const int line, const std::string_view func, Args&&... args)
+        static void e(const std::source_location sourceLocation, Args&&... args)
         {
 #ifdef __ANDROID__
             std::ostringstream oss;
@@ -102,7 +103,8 @@ namespace glimmer
             __android_log_print(ANDROID_LOG_ERROR, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_ERROR;
-            std::cout << "[e] At " << file << ":" << line << " " << func << " ";
+            std::cout << "[e] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " " <<
+                sourceLocation.function_name() << " ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif

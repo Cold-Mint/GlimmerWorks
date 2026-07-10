@@ -79,140 +79,172 @@
 #include "core/log/LogCat.h"
 #include "AppContext.h"
 
-namespace glimmer
+glimmer::ConsoleContext::ConsoleContext() = default;
+
+glimmer::ConsoleContext::~ConsoleContext() = default;
+
+void glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
+                                   int maxHistoryEntries, toml::value* configValue)
 {
-    ConsoleContext::ConsoleContext() = default;
-
-    ConsoleContext::~ConsoleContext() = default;
-
-    void ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
-                              int maxHistoryEntries, toml::value* configValue)
+    ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
     {
-        commandHookManager_ = std::make_unique<CommandHookManager>();
+        LogCat::e(std::source_location::current(), "modContext == nullptr");
+        return;
+    }
+    commandHookManager_ = std::make_unique<CommandHookManager>();
 
-        dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<CommandHookScopeDynamicSuggestions>());
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<CommandHookIdDynamicSuggestions>(commandHookManager_.get()));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<ScanKeyDynamicSuggestions>());
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<MouseButtonDynamicSuggestions>());
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<EventTypeDynamicSuggestions>());
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AllocStrategyTypeDynamicSuggestions>());
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AudioTrackDynamicSuggestions>());
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<CoordinateDynamicSuggestions>(Y_DYNAMIC_SUGGESTIONS_NAME));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<CoordinateDynamicSuggestions>(X_DYNAMIC_SUGGESTIONS_NAME));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<MobDynamicSuggestions>(appContext->GetModContext()->GetMobManager()));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BooleanToggleDynamicSuggestions>());
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<VFSDynamicSuggestions>(vfs));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<DataPackDynamicSuggestions>(appContext->GetModContext()->GetDataPackManager()));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<BiomeSuggestions>(appContext->GetModContext()->GetBiomesManager()));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<TileDynamicSuggestions>(appContext->GetModContext()->GetTileResourceManager()));
+    dynamicSuggestionsManager_ = std::make_unique<DynamicSuggestionsManager>();
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<CommandHookScopeDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<CommandHookIdDynamicSuggestions>(commandHookManager_.get()));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<ScanKeyDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<MouseButtonDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<EventTypeDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AllocStrategyTypeDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<AudioTrackDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<CoordinateDynamicSuggestions>(Y_DYNAMIC_SUGGESTIONS_NAME));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<CoordinateDynamicSuggestions>(X_DYNAMIC_SUGGESTIONS_NAME));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<MobDynamicSuggestions>(modContext->GetMobManager()));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BoolDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<BooleanToggleDynamicSuggestions>());
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<VFSDynamicSuggestions>(vfs));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<DataPackDynamicSuggestions>(modContext->GetDataPackManager()));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<BiomeSuggestions>(modContext->GetBiomesManager()));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<TileDynamicSuggestions>(modContext->GetTileResourceManager()));
 
-        auto* im = appContext->GetModContext()->GetItemManager();
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<ComposableItemDynamicSuggestions>(im));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<AbilityItemDynamicSuggestions>(im));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<MaterialItemDynamicSuggestions>(im));
+    auto* im = modContext->GetItemManager();
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<ComposableItemDynamicSuggestions>(im));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<AbilityItemDynamicSuggestions>(im));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<MaterialItemDynamicSuggestions>(im));
 
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<LootSuggestions>(appContext->GetModContext()->GetLootTableManager()));
-        dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-            std::make_unique<StructureDynamicSuggestions>(appContext->GetModContext()->GetStructureManager()));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<LootSuggestions>(modContext->GetLootTableManager()));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(
+        std::make_unique<StructureDynamicSuggestions>(modContext->GetStructureManager()));
 
-        dynamicSuggestionsManager_->
-            RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValue));
+    dynamicSuggestionsManager_->
+        RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValue));
 
-        commandManager_ = std::make_unique<CommandManager>();
-        commandManager_->RegisterCommand(std::make_unique<GiveCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<HelpCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<TpCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<SummonCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<ClearCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<LootCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<PackVerifyCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<SeedCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<FlyCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<EchoCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<LocateCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<PlayCommand>(appContext));
+    commandManager_ = std::make_unique<CommandManager>();
+    commandManager_->RegisterCommand(std::make_unique<GiveCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<HelpCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<TpCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<SummonCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<PlaceCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<ClearCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<LootCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<PackVerifyCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<SeedCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<FlyCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<EchoCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<ScreenshotCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<LocateCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<PlayCommand>(appContext));
 #if  !defined(NDEBUG)
-        commandManager_->RegisterCommand(std::make_unique<HookCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<EcsCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<VFSCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<LightCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<TagCommand>(appContext));
-        commandManager_->RegisterCommand(std::make_unique<UnlockedRecipesCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<HookCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<EcsCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<VFSCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<LightCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<Box2DCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<BiomeScoreCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<AssetViewerCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<ParallaxBackgroundCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<TagCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<UnlockedRecipesCommand>(appContext));
 #endif
-        commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(appContext, configValue));
+    commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(appContext, configValue));
 
-        consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
+    consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
 
-        commandHistoryManager_ = std::make_unique<CommandHistoryManager>(runtimePath, vfs);
-        if (maxHistoryEntries > 0)
-        {
-            commandHistoryManager_->Read();
-        }
-    }
-
-    void ConsoleContext::StopConsoleWorker()
+    commandHistoryManager_ = std::make_unique<CommandHistoryManager>(runtimePath, vfs);
+    if (maxHistoryEntries > 0)
     {
-        if (consoleWorker_ != nullptr)
-        {
-            consoleWorker_->Stop();
-        }
+        commandHistoryManager_->Read();
     }
+}
 
-    void ConsoleContext::SaveCommandHistory()
+void glimmer::ConsoleContext::StopConsoleWorker() const
+{
+    if (consoleWorker_ == nullptr)
     {
-        if (commandHistoryManager_ != nullptr)
-        {
-            commandHistoryManager_->Save();
-        }
+        LogCat::w(std::source_location::current(), "consoleWorker_ == nullptr");
+        return;
     }
+    consoleWorker_->Stop();
+}
 
-    CommandManager* ConsoleContext::GetCommandManager() const
+void glimmer::ConsoleContext::SaveCommandHistory() const
+{
+    if (commandHistoryManager_ == nullptr)
     {
-        return commandManager_.get();
+        LogCat::w(std::source_location::current(), "commandHistoryManager_ == nullptr");
+        return;
     }
+    commandHistoryManager_->Save();
+}
 
-    ConsoleWorker* ConsoleContext::GetConsoleWorker() const
+glimmer::CommandManager* glimmer::ConsoleContext::GetCommandManager() const
+{
+    if (commandManager_ == nullptr)
     {
-        return consoleWorker_.get();
+        LogCat::w(std::source_location::current(), "commandManager_ == nullptr");
+        return nullptr;
     }
+    return commandManager_.get();
+}
 
-    CommandHistoryManager* ConsoleContext::GetCommandHistoryManager() const
+glimmer::ConsoleWorker* glimmer::ConsoleContext::GetConsoleWorker() const
+{
+    if (consoleWorker_ == nullptr)
     {
-        return commandHistoryManager_.get();
+        LogCat::w(std::source_location::current(), "consoleWorker_ == nullptr");
+        return nullptr;
     }
+    return consoleWorker_.get();
+}
 
-    CommandHookManager* ConsoleContext::GetCommandHookManager() const
+glimmer::CommandHistoryManager* glimmer::ConsoleContext::GetCommandHistoryManager() const
+{
+    if (commandHistoryManager_ == nullptr)
     {
-        return commandHookManager_.get();
+        LogCat::w(std::source_location::current(), "commandHistoryManager_ == nullptr");
+        return nullptr;
     }
+    return commandHistoryManager_.get();
+}
 
-    DynamicSuggestionsManager* ConsoleContext::GetDynamicSuggestionsManager() const
+glimmer::CommandHookManager* glimmer::ConsoleContext::GetCommandHookManager() const
+{
+    if (commandHookManager_ == nullptr)
     {
-        return dynamicSuggestionsManager_.get();
+        LogCat::w(std::source_location::current(), "commandHookManager_ == nullptr");
+        return nullptr;
     }
+    return commandHookManager_.get();
+}
+
+glimmer::DynamicSuggestionsManager* glimmer::ConsoleContext::GetDynamicSuggestionsManager() const
+{
+    if (dynamicSuggestionsManager_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "dynamicSuggestionsManager_ == nullptr");
+        return nullptr;
+    }
+    return dynamicSuggestionsManager_.get();
 }

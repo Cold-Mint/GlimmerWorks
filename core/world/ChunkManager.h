@@ -99,7 +99,7 @@ namespace glimmer
          * @param chunkVertex chunkVertex 区块顶点位置
          * @return
          */
-        [[nodiscard]] Chunk* GetChunk(TileVector2D chunkVertex);
+        [[nodiscard]] Chunk* GetChunk(const TileVector2D& chunkVertex);
 
         /**
          * GetChunks

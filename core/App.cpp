@@ -212,12 +212,7 @@ bool glimmer::App::InitFont() const
     }
 
     const ImGuiIO& io = ImGui::GetIO();
-    if (io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F))
-    {
-    }
-    else
-    {
-    }
+    io.Fonts->AddFontFromFileTTF(actualPath.value().c_str(), 16.0F);
     TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16);
     if (sdlFont == nullptr)
     {

@@ -28,29 +28,26 @@
 
 #include "core/log/LogCat.h"
 
-std::string glimmer::HeightStructureConditionProcessor::GetName() {
+std::string glimmer::HeightStructureConditionProcessor::GetName()
+{
     return STRUCTURE_PLACEMENT_CONDITIONS_HEIGHT;
 }
 
-std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(TerrainResult *terrainResult,
-                                                                          const VariableConfig &variableConfig) {
-
+std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(TerrainResult* terrainResult,
+                                                                          const VariableConfig& variableConfig)
+{
     std::bitset<CHUNK_AREA> result;
-    const VariableDefinition *maxHeightPercentVariable = variableConfig.FindVariable("maxHeightPercent");
+    const VariableDefinition* maxHeightPercentVariable = variableConfig.FindVariable("maxHeightPercent");
     float maxHeightPercent = 0.0F;
-    if (maxHeightPercentVariable != nullptr) {
+    if (maxHeightPercentVariable != nullptr)
+    {
         maxHeightPercent = maxHeightPercentVariable->AsFloat();
-
-    } else {
-
     }
-    const VariableDefinition *minHeightPercentVariable = variableConfig.FindVariable("minHeightPercent");
+    const VariableDefinition* minHeightPercentVariable = variableConfig.FindVariable("minHeightPercent");
     float minHeightPercent = 0.0F;
-    if (minHeightPercentVariable != nullptr) {
+    if (minHeightPercentVariable != nullptr)
+    {
         minHeightPercent = minHeightPercentVariable->AsFloat();
-
-    } else {
-
     }
     LogCat::d("HeightCondition", "Height percent range: min=", minHeightPercent, ", max=", maxHeightPercent,
               ", WORLD_MAX_Y: ", WORLD_MAX_Y);
@@ -60,13 +57,16 @@ std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(Terrai
               CHUNK_SIZE, " x ", CHUNK_SIZE, " tiles");
 
     int matchedTileCount = 0;
-    for (int localX = 0; localX < CHUNK_SIZE; localX++) {
-        for (int localY = 0; localY < CHUNK_SIZE; localY++) {
+    for (int localX = 0; localX < CHUNK_SIZE; localX++)
+    {
+        for (int localY = 0; localY < CHUNK_SIZE; localY++)
+        {
             int globalY = localY + position.y;
             float percent = static_cast<float>(globalY) / WORLD_MAX_Y;
 
             bool isInRange = percent >= minHeightPercent && percent <= maxHeightPercent;
-            if (isInRange) {
+            if (isInRange)
+            {
                 int tileIndex = localX + localY * CHUNK_SIZE;
                 result[tileIndex] = true;
                 matchedTileCount++;

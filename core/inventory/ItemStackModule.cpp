@@ -46,20 +46,21 @@ uint8_t glimmer::ItemStackModule::GetRemainingStackCount(const ItemStackModule* 
     return amount_ - other->amount_;
 }
 
-uint8_t glimmer::ItemStackModule::AddAmount(uint8_t amount)
+uint8_t glimmer::ItemStackModule::AddAmount(const uint8_t amount)
 {
     if (amount_ >= maxStack_ || amount <= 0)
     {
         return 0;
     }
-    const size_t oldAmount = amount;
-    const size_t count = amount + amount_;
-    if (count > maxStack_)
+    const int current = amount_;
+    const int addNum = amount;
+    const int max = maxStack_;
+    if (const int spaceLeft = max - current; addNum > spaceLeft)
     {
         SetAmount(maxStack_);
-        return maxStack_ - oldAmount;
+        return static_cast<uint8_t>(spaceLeft);
     }
-    SetAmount(count);
+    SetAmount(static_cast<uint8_t>(current + addNum));
     return amount;
 }
 
@@ -69,14 +70,15 @@ uint8_t glimmer::ItemStackModule::RemoveAmount(const uint8_t amount)
     {
         return 0;
     }
-    const int oldAmount = amount_;
-    const int newAmount = static_cast<int>(amount_) - static_cast<int>(amount);
-    if (newAmount < 0)
+    const int currentCount = amount_;
+    const int removeCount = amount;
+    const int result = currentCount - removeCount;
+    if (result < 0)
     {
         SetAmount(0);
-        return oldAmount;
+        return static_cast<uint8_t>(currentCount);
     }
-    SetAmount(newAmount);
+    SetAmount(static_cast<uint8_t>(result));
     return amount;
 }
 

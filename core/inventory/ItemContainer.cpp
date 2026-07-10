@@ -235,28 +235,32 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
             ++index;
             continue;
         }
-        ItemStackModule* itemStackModule = currentItem->GetMutableStackModule();
-        if (itemStackModule == nullptr)
+        ItemStackModule* currentItemStackModule = currentItem->GetMutableStackModule();
+        if (currentItemStackModule == nullptr)
         {
             ++index;
             continue;
         }
 
-        if (const uint8_t stackSpace = itemStackModule->GetRemainingStackCount(newItemStackModule); stackSpace == 0)
+        if (const uint8_t stackSpace = currentItemStackModule->GetRemainingStackCount(newItemStackModule); stackSpace ==
+            0)
         {
             ++index;
             continue;
         }
-        const uint8_t stackedAmount = itemStackModule->AddAmount(newItemStackModule->GetAmount());
+        const uint8_t stackedAmount = currentItemStackModule->AddAmount(newItemStackModule->GetAmount());
         if (stackedAmount == 0)
         {
             ++index;
             continue;
         }
-        if (const uint8_t removeAmount = newItemStackModule->RemoveAmount(stackedAmount); removeAmount == 0 &&
-            itemStackModule->RemoveAmount(stackedAmount) == 0)
+        const uint8_t removeAmount = newItemStackModule->RemoveAmount(stackedAmount);
+        if (removeAmount == 0 &&
+            currentItemStackModule->RemoveAmount(stackedAmount) == 0)
         {
-
+            //The attempt to deduct the quantity from the new item to be added failed, and there was also an error in the reduction of the quantity of the items already in the container.
+            //在要添加的新物品内扣除数量失败，且在容器内的物品撤销增加的数量也发生了错误。
+            LogCat::w(std::source_location::current(), "The attempt to deduct the quantity from the new item to be added failed, and there was also an error in the reduction of the quantity of the items already in the container.");
         }
         if (newItemStackModule->GetAmount() == 0)
         {

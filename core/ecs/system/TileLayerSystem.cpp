@@ -163,10 +163,7 @@ void glimmer::TileLayerSystem::RenderTileSnapshot(SDL_Renderer* renderer, const 
         return;
     }
     SDL_SetTextureAlphaMod(texture, alpha);
-    if (!SDL_RenderTexture(renderer, texture, nullptr, &renderQuad))
-    {
-
-    }
+    SDL_RenderTexture(renderer, texture, nullptr, &renderQuad);
     SDL_SetTextureAlphaMod(texture, 255);
 }
 

@@ -289,9 +289,7 @@ std::optional<std::bitset<CHUNK_AREA>> glimmer::ChunkGenerator::MatchStructureCo
         }
         else
         {
-            size_t prevCount = totalBitset.count();
             totalBitset &= bitset;
-            size_t currCount = totalBitset.count();
         }
 
         if (totalBitset.none())

@@ -50,10 +50,6 @@ glimmer::BiomeResource* glimmer::BiomesManager::Find(std::string_view packId, st
         }
 
     }
-    else
-    {
-
-    }
     return nullptr;
 }
 

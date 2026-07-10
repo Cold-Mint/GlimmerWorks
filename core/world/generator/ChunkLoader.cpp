@@ -83,10 +83,6 @@ GameEntityID glimmer::ChunkLoader::RecoveryEntity(const EntityItemMessage& entit
             droppedItemCreator.MergeEntityItemMessage(id, entityItemMessage);
         }
     }
-    else
-    {
-
-    }
     return id;
 }
 

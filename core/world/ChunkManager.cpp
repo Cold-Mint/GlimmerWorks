@@ -245,13 +245,9 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D& position)
         chunks_.erase(it);
         chunkSnapshot_++;
     }
-    else
-    {
-
-    }
 }
 
-glimmer::Chunk* glimmer::ChunkManager::GetChunk(const TileVector2D position)
+glimmer::Chunk* glimmer::ChunkManager::GetChunk(const TileVector2D& position)
 {
 #if  !defined(NDEBUG)
     const TileVector2D relativeVector = Chunk::TileCoordinatesToChunkRelativeCoordinates(position);

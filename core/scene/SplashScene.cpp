@@ -50,7 +50,6 @@ void glimmer::SplashScene::Update(float delta)
     {
         animationFinished_ = true;
         nextSceneTime_ = SDL_GetTicks() + 200;
-
     }
     if (!sceneJumped_ && SDL_GetTicks() >= nextSceneTime_)
     {
@@ -73,7 +72,6 @@ void glimmer::SplashScene::Render(SDL_Renderer* renderer)
         fadeTween_ = tweeny::from(0.0F).to(1.0F).during(1000);
         alpha_ = 0.0F;
         animationFinished_ = false;
-
     }
 
     SDL_Texture* rawTex = splashTextureResult_->GetResource();
@@ -83,10 +81,7 @@ void glimmer::SplashScene::Render(SDL_Renderer* renderer)
     }
 
     SDL_SetTextureAlphaMod(rawTex, static_cast<Uint8>(alpha_ * 255));
-    if (!SDL_RenderTexture(renderer, rawTex, nullptr, nullptr))
-    {
-
-    }
+    SDL_RenderTexture(renderer, rawTex, nullptr, nullptr);
 }
 
 glimmer::SplashScene::~SplashScene() = default;

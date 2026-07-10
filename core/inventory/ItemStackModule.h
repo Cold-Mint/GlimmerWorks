@@ -48,8 +48,20 @@ namespace glimmer
 
         [[nodiscard]] uint8_t GetRemainingStackCount(const ItemStackModule* other) const;
 
+        /**
+         * AddAmount
+         * 添加数量
+         * @param amount amount 数量
+         * @return The number of successful additions. If it is 0, it indicates that no additions were made. 成功添加的数量，如果为0表示未添加。
+         */
         uint8_t AddAmount(uint8_t amount);
 
+        /**
+         * RemoveAmount
+         * 扣除数量
+         * @param amount amount 数量
+         * @return The number of successful deductions, if it is 0, indicates a failure in the deduction process. 成功扣除的数量，如果为0表示扣除失败。
+         */
         uint8_t RemoveAmount(uint8_t amount);
 
         void SetAmount(uint8_t amount);

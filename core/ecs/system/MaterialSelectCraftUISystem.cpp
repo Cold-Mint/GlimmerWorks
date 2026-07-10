@@ -487,17 +487,6 @@ void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick() const
         systemScheduler->PopGuiSystemType();
         return;
     }
-
-    for (auto& selectedItem : selectedItemVector_)
-    {
-        uint8_t expectedQuantity = selectedItem->GetSelectedAmount();
-        uint8_t actualQuantity = itemContainer->RemoveItemAt(selectedItem->GetSlotIndex(), expectedQuantity);
-        if (expectedQuantity != actualQuantity)
-        {
-
-        }
-    }
-
     if (resources_.resourceLocator_ == nullptr)
     {
         return;
@@ -509,7 +498,7 @@ void glimmer::MaterialSelectCraftUISystem::HandleCraftButtonClick() const
         std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(outputItem));
         if (returnItem != nullptr)
         {
-
+            LogCat::w(std::source_location::current(), "add item failure");
         }
     }
     systemScheduler->PopGuiSystemType();

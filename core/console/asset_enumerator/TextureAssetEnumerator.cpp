@@ -27,7 +27,7 @@
 #include "TextureAssetEnumerator.h"
 #if  !defined(NDEBUG)
 #include "core/mod/resourcePack/ResourcePackManager.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 
 std::string_view glimmer::TextureAssetEnumerator::GetAssetType() const
 {

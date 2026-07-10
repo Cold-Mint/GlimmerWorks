@@ -38,6 +38,8 @@
 #include "RecipeManager.h"
 #include "StructureManager.h"
 #include "core/Config.h"
+#include "core/context/GraphicsContext.h"
+#include "core/context/ModContext.h"
 #include "core/mod/PackManifest.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "core/contributor/ContributorManager.h"
@@ -145,11 +147,12 @@ namespace glimmer
         static void ComputeFileHash(const std::vector<char>& fileBuffer, std::vector<uint8_t>& allHashData);
 
         int LoadResourceByType(const std::string& dataType, const std::string& file,
-                               const std::string& content, const AppContext* appContext) const;
+                               const std::string& content, const ModContext* modContext,
+                               const GraphicsContext* graphicsContext) const;
 
         int LoadLanguageFiles(const std::vector<std::filesystem::path>& defaultLanguageFiles,
                               const std::vector<std::filesystem::path>& targetLanguageFiles,
-                              const AppContext* appContext) const;
+                              const ModContext* modContext) const;
 
         static PackVerifyState VerifySignature(bool findPublicKey, bool findSignature,
                                                const std::vector<uint8_t>& publicKey,

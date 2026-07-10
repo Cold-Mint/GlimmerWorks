@@ -28,7 +28,7 @@
 #include "VFSCommand.h"
 
 #include "core/Constants.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "fmt/color.h"
 
 void glimmer::VFSCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)

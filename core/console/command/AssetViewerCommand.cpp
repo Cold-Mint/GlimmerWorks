@@ -28,7 +28,7 @@
 #include "AssetViewerCommand.h"
 
 #include "core/Constants.h"
-#include "core/scene/AppContext.h"
+#include "core/LangsResources.h"
 
 #include "core/console/asset_enumerator/StringAssetEnumerator.h"
 #include "core/console/asset_enumerator/TextureAssetEnumerator.h"
@@ -47,6 +47,7 @@
 #include "core/console/asset_enumerator/LightMaskAssetEnumerator.h"
 #include "core/console/asset_enumerator/LightSourceAssetEnumerator.h"
 #include "core/console/asset_enumerator/RecipesAssetEnumerator.h"
+#include "core/context/AppContext.h"
 
 void glimmer::AssetViewerCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
 {

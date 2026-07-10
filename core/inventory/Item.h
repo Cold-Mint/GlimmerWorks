@@ -33,8 +33,8 @@
 #include "ItemStackModule.h"
 #include "ItemTagModule.h"
 #include "core/math/IAllocatable.h"
+#include "core/world/WorldContext.h"
 #include "SDL3/SDL_render.h"
-#include "core/scene/AppContext.h"
 
 namespace glimmer
 {

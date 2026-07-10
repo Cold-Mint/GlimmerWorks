@@ -29,7 +29,7 @@
 #include "tweeny.h"
 #include "core/Constants.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "SDL3/SDL_timer.h"
 
 

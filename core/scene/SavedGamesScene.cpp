@@ -26,12 +26,12 @@
  */
 #include "SavedGamesScene.h"
 
-#include "AppContext.h"
 #include "core/Config.h"
 #include "CreateWorldScene.h"
 #include "core/saves/MapManifest.h"
 #include <sstream>
 
+#include "core/context/AppContext.h"
 #include "core/utils/TimeUtils.h"
 #include "fmt/xchar.h"
 

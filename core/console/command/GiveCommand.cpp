@@ -33,7 +33,7 @@
 #include "core/inventory/ItemContainer.h"
 #include "core/inventory/TileItem.h"
 #include "core/mod/ResourceLocator.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/inventory/MaterialItem.h"
 #include "fmt/color.h"

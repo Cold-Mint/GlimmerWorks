@@ -43,7 +43,7 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/ResourceRef.h"
 #include "core/mod/resourcePack/AudioResourceResult.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 
 glimmer::PlayerContext::PlayerContext(WorldContext* worldContext) : worldContext_(worldContext)

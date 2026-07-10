@@ -26,7 +26,8 @@
  */
 #pragma once
 #include <SDL3/SDL.h>
-#include "scene/AppContext.h"
+
+#include "context/AppContext.h"
 
 
 namespace glimmer
@@ -51,7 +52,8 @@ namespace glimmer
 
         bool InitAudio();
 
-        static bool CheckWindowSizeChange(WindowContext* windowContext,const int& windowWidth,const int& windowHeight);
+        static bool CheckWindowSizeChange(WindowContext* windowContext, const int& windowWidth,
+                                          const int& windowHeight);
 
         void HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const;
 

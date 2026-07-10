@@ -29,7 +29,7 @@
 
 #include "fmt/base.h"
 #include "fmt/compile.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/scene/WorldScene.h"
 #include "core/world/SystemScheduler.h"
 

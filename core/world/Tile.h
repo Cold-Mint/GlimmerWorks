@@ -34,8 +34,9 @@
 #include "TileLootData.h"
 #include "TileMiningData.h"
 #include "TileResourceData.h"
+#include "core/context/AppContext.h"
 #include "core/ecs/EcsTypes.h"
-#include "core/scene/AppContext.h"
+#include "generator/TileLayerType.h"
 #include "generator/TilePhysicsType.h"
 #include "src/core/place_source_message.pb.h"
 

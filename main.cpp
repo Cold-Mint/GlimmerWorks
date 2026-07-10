@@ -28,7 +28,7 @@
 
 #include "core/App.h"
 #include "core/log/LogCat.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "fmt/args.h"
 
 #ifdef __ANDROID__

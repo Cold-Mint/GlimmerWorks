@@ -44,7 +44,7 @@
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceRef.h"
 #include "core/saves/Saves.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/utils/TimeUtils.h"
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"

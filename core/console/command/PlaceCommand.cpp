@@ -27,7 +27,7 @@
 #include "PlaceCommand.h"
 
 #include "core/math/CoordinateTransformer.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/world/ChunkManager.h"
 #include "core/world/generator/ChunkPhysicsHelper.h"

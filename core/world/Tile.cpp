@@ -30,7 +30,7 @@
 
 #include "TileAnchorType.h"
 #include "WorldContext.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/ecs/component/TechProviderComponent.h"
 #include "core/log/LogCat.h"

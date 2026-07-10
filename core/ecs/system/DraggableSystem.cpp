@@ -32,7 +32,7 @@
 #include "core/ecs/component/DraggableComponent.h"
 #include "core/ecs/component/ItemSlotComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 
 

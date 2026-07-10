@@ -27,8 +27,8 @@
 #if  !defined(NDEBUG)
 #include "DebugOverlay.h"
 
-#include "AppContext.h"
 #include "core/Config.h"
+#include "core/context/AppContext.h"
 #include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
 
@@ -36,9 +36,9 @@
 glimmer::DebugOverlay::DebugOverlay(AppContext* context)
     : Scene(context)
 {
-    resourcePackManager_ = GetAppContext()->GetResourcePackManager();
-    preloadColors_ = GetAppContext()->GetGraphicsContext()->GetPreloadColors();
-    langsResources_ = GetAppContext()->GetLangsResources();
+    resourcePackManager_ = context->GetResourcePackManager();
+    preloadColors_ = context->GetGraphicsContext()->GetPreloadColors();
+    langsResources_ = context->GetLangsResources();
     Init();
 }
 

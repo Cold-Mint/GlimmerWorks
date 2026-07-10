@@ -26,10 +26,9 @@
  */
 #include "SplashScene.h"
 
-#include "AppContext.h"
 #include "HomeScene.h"
-#include "core/log/LogCat.h"
 #include "tweeny.h"
+#include "core/context/AppContext.h"
 #include "SDL3/SDL_timer.h"
 
 glimmer::SplashScene::SplashScene(AppContext* context)
@@ -55,7 +54,16 @@ void glimmer::SplashScene::Update(float delta)
     {
         sceneJumped_ = true;
         AppContext* appContext = GetAppContext();
-        appContext->GetSceneManager()->ReplaceScene(std::make_unique<HomeScene>(appContext));
+        if (appContext == nullptr)
+        {
+            return;
+        }
+        SceneManager* sceneManager = appContext->GetSceneManager();
+        if (sceneManager == nullptr)
+        {
+            return;
+        }
+        sceneManager->ReplaceScene(std::make_unique<HomeScene>(appContext));
     }
 }
 

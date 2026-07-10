@@ -27,7 +27,7 @@
 #include "SavesManager.h"
 
 #include "core/log/LogCat.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/utils/StringUtils.h"
 #include "src/saves/map_manifest.pb.h"
 

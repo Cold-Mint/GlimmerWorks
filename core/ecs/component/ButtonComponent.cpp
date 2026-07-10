@@ -28,7 +28,7 @@
 
 #include <utility>
 
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 
 const glimmer::DesignVector2D& glimmer::ButtonComponent::GetPosition() const
 {

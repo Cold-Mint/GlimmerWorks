@@ -26,7 +26,7 @@
  */
 #include "RecipesAssetEnumerator.h"
 #if  !defined(NDEBUG)
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 
 std::string_view glimmer::RecipesAssetEnumerator::GetAssetType() const
 {

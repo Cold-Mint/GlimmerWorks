@@ -26,7 +26,7 @@
  */
 #if  !defined(NDEBUG)
 #include "HookCommand.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/utils/EventTypeUtils.h"
 #include "core/utils/MouseButtonUtils.h"
 #include "core/utils/ScanCodeUtils.h"

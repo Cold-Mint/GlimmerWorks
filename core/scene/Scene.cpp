@@ -26,7 +26,7 @@
  */
 #include "Scene.h"
 
-#include "AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
 
 void glimmer::Scene::OnFrameStart()
@@ -67,7 +67,12 @@ void glimmer::Scene::Init()
     {
         return;
     }
-    OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(), appContext->GetWindowContext()->GetWindowHeight());
+    const WindowContext* windowContext = appContext->GetWindowContext();
+    if (windowContext == nullptr)
+    {
+        return;
+    }
+    OnWindowSizeChanged(windowContext->GetWindowWidth(), windowContext->GetWindowHeight());
     if (const Config* config = appContext->GetConfig(); config != nullptr)
     {
         OnConfigChanged(config);
@@ -87,7 +92,6 @@ void glimmer::Scene::Update(float delta)
         initTimeOut_ += delta;
         if (initTimeOut_ > 2)
         {
-
             assert(false);
         }
     }

@@ -26,7 +26,8 @@
  */
 #pragma once
 #include <SDL3/SDL.h>
-#include "scene/AppContext.h"
+
+#include "context/AppContext.h"
 
 namespace glimmer
 {

@@ -27,7 +27,7 @@
 #include "PlayCommand.h"
 
 #include "core/mod/resourcePack/AudioResourceResult.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 
 void glimmer::PlayCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)

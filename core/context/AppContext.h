@@ -37,13 +37,13 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/vfs/VirtualFileSystem.h"
-#include "SceneManager.h"
 #include "ModContext.h"
 #include "ConsoleContext.h"
 #include "GraphicsContext.h"
 #include "AudioContext.h"
-#include "MainThreadDispatcher.h"
 #include "WindowContext.h"
+#include "core/scene/MainThreadDispatcher.h"
+#include "core/scene/SceneManager.h"
 
 namespace glimmer
 {

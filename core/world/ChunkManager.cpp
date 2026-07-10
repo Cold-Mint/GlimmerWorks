@@ -35,7 +35,6 @@
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/saves/Saves.h"
-#include "core/scene/AppContext.h"
 #include "core/world/Tile.h"
 #include "core/world/WorldContext.h"
 #include "generator/ChunkGenerator.h"

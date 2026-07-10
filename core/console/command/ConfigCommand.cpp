@@ -28,7 +28,7 @@
 
 #include "core/Config.h"
 #include "core/Constants.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "fmt/color.h"
 #include "toml.hpp"
 

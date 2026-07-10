@@ -27,7 +27,7 @@
 #include "HelpCommand.h"
 
 #include "core/Constants.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 
 
 void glimmer::HelpCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
@@ -54,6 +54,16 @@ bool glimmer::HelpCommand::Execute(const CommandSender* commandSender, const Com
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    onMessageRef(appContext->GetConsoleContext()->GetCommandManager()->GetHelpText(appContext->GetLangsResources()));
+    ConsoleContext* consoleContext = appContext->GetConsoleContext();
+    if (consoleContext == nullptr)
+    {
+        return false;
+    }
+    CommandManager* commandManager = consoleContext->GetCommandManager();
+    if (commandManager == nullptr)
+    {
+        return false;
+    }
+    onMessageRef(commandManager->GetHelpText(appContext->GetLangsResources()));
     return true;
 }

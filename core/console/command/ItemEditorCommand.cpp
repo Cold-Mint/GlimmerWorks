@@ -30,7 +30,7 @@
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/inventory/ComposableItem.h"
 #include "core/inventory/Item.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 #include <sstream>

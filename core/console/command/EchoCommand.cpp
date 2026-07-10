@@ -28,7 +28,7 @@
 
 #include "core/LangsResources.h"
 #include "fmt/xchar.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 
 
 glimmer::EchoCommand::EchoCommand(AppContext* appContext) : Command(appContext)

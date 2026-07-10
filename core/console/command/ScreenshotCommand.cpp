@@ -26,7 +26,7 @@
  */
 #include "ScreenshotCommand.h"
 
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 
 void glimmer::ScreenshotCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)

@@ -28,12 +28,13 @@
 
 #include <random>
 
-#include "AppContext.h"
 #include "CreateWorldScene.h"
 #include "fmt/xchar.h"
 #include "core/Config.h"
 
 #include <chrono>
+
+#include "core/context/AppContext.h"
 
 std::string glimmer::HomeScene::GetCopyrightString()
 {
@@ -57,8 +58,8 @@ std::string glimmer::HomeScene::GetCopyrightString()
 glimmer::HomeScene::HomeScene(AppContext* context)
     : Scene(context)
 {
-    GetAppContext()->PlayMainMenuBGM();
-    GetAppContext()->SetRandomSlogan();
+    context->PlayMainMenuBGM();
+    context->SetRandomSlogan();
     Init();
 }
 

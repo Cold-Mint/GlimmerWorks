@@ -31,7 +31,7 @@
 #include "core/ecs/EntityShortCut.h"
 #include "core/mod/dataPack/StringManager.h"
 #include "core/ecs/component/PlayerComponent.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "fmt/xchar.h"
 

@@ -29,7 +29,7 @@
 
 #include "core/LangsResources.h"
 #include "fmt/xchar.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/console/CommandSender.h"
 #include "core/math/CoordinateTransformer.h"

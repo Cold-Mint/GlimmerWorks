@@ -27,7 +27,7 @@
 #include "PackVerifyCommand.h"
 
 #include "core/mod/PackVerifyState.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "fmt/xchar.h"
 
 void glimmer::PackVerifyCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)

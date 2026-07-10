@@ -26,7 +26,7 @@
  */
 #include "ResourceLocator.h"
 
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/inventory/AbilityItem.h"
 #include "core/inventory/ComposableItem.h"
 #include "core/inventory/MaterialItem.h"

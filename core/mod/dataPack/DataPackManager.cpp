@@ -29,8 +29,7 @@
 #include <regex>
 #include <algorithm>
 #include "DataPack.h"
-#include "core/log/LogCat.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer
@@ -165,7 +164,12 @@ int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tom
     {
         return 0;
     }
-    const std::filesystem::path& dataPackPath = appContext->GetConfig()->mods.dataPackPath;
+    Config* config = appContext->GetConfig();
+    if (config == nullptr)
+    {
+        return 0;
+    }
+    const std::filesystem::path& dataPackPath = config->mods.dataPackPath;
     if (!virtualFileSystem_->Exists(dataPackPath))
     {
 

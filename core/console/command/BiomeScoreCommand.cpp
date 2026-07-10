@@ -29,7 +29,7 @@
 #include "core/LangsResources.h"
 #include "core/math/CoordinateTransformer.h"
 #include "fmt/xchar.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 
 glimmer::BiomeScoreCommand::BiomeScoreCommand(AppContext* appContext) : Command(appContext)

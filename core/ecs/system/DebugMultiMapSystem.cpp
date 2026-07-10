@@ -28,7 +28,7 @@
 #include "DebugMultiMapSystem.h"
 
 #include "core/math/CoordinateTransformer.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/utils/ColorUtils.h"
 #include "core/world/WorldContext.h"
 

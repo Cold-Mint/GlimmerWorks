@@ -26,12 +26,12 @@
  */
 #ifdef __ANDROID__
 #include "src/core/game_component_type.pb.h"
-#include "core/scene/AppContext.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/world/WorldContext.h"
 #include "AndroidControlSystem.h"
-#include "core/scene/AppContext.h"
+#include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/Config.h"
 #include "core/log/LogCat.h"

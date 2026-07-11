@@ -24,42 +24,40 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "HorizontalLayoutStepper.h"
-#include "core/math/DesignVector2D.h"
+#pragma once
+#include <filesystem>
+#include <memory>
+
+#include "core/rmi/RenderInterfaceSDL3.h"
+#include "core/rmi/SystemInterfaceSDL3.h"
+#include "RmlUi/Core/ElementDocument.h"
 
 namespace glimmer
 {
-    HorizontalLayoutStepper::HorizontalLayoutStepper(DesignDimension cellWidth, const DesignVector2D& startPosition,
-                                                    DesignDimension padding, uint32_t dataLength)
-        : cellWidth_(cellWidth),
-          startPosition_(startPosition),
-          padding_(padding),
-          dataLength_(dataLength)
+    class RmlContext
     {
-    }
+        std::unique_ptr<SystemInterfaceSDL3> systemInterfaceSDL3_ = nullptr;
+        std::unique_ptr<RenderInterfaceSDL3> renderInterfaceSDL3_ = nullptr;
+        Rml::Context* context_ = nullptr;
+        Rml::ElementDocument* document_ = nullptr;
 
-    bool HorizontalLayoutStepper::HasNext()
-    {
-        return currentIndex_ < dataLength_;
-    }
+    public:
+        bool Init(SDL_Renderer* renderer, int width, int height);
 
-    DesignVector2D HorizontalLayoutStepper::Next()
-    {
-        if (!HasNext())
-        {
-            return startPosition_;
-        }
+        static bool LoadFont(const std::filesystem::path& fontPath);
 
-        DesignVector2D position;
-        position.x = startPosition_.x + static_cast<DesignDimension>(currentIndex_) * (cellWidth_ + padding_);
-        position.y = startPosition_.y;
+        [[nodiscard]] Rml::Context* GetRmlContext() const;
 
-        currentIndex_++;
-        return position;
-    }
+        bool LoadDocument(const std::filesystem::path& documentPath);
 
-    void HorizontalLayoutStepper::Reset()
-    {
-        currentIndex_ = 0;
-    }
+        [[nodiscard]] Rml::ElementDocument* GetDocument() const;
+
+        void UpdateContext() const;
+
+        void RenderContext() const;
+
+        RmlContext();
+
+        ~RmlContext();
+    };
 }

@@ -344,11 +344,12 @@ glimmer::AppContext::AppContext()
         LogCat::e(std::source_location::current(), "configData not has value");
         return;
     }
-    configValue = std::make_unique<toml::value>(toml::parse_str(configData.value(), tomlVersion_));
-    toml::value* configValuePtr = configValue.get();
+    configValue_ = std::make_unique<toml::value>(toml::parse_str(configData.value(), tomlVersion_));
+    toml::value* configValuePtr = configValue_.get();
     config_->LoadConfig(*configValuePtr);
     savesManager_ = std::make_unique<SavesManager>(virtualFileSystemPtr);
     savesManager_->LoadAllSaves(config_->runtimePath);
+    rmlContext_ = std::make_unique<RmlContext>();
     modContext_ = std::make_unique<ModContext>();
     modContext_->Init(virtualFileSystemPtr, langsResources_.get());
     if (modContext_ == nullptr)
@@ -437,6 +438,11 @@ bool glimmer::AppContext::InitSuccess() const
 
 glimmer::WindowContext* glimmer::AppContext::GetWindowContext() const
 {
+    if (windowContext_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "windowContext is nullptr");
+        return nullptr;
+    }
     return windowContext_.get();
 }
 
@@ -589,6 +595,16 @@ glimmer::AudioContext* glimmer::AppContext::GetAudioContext() const
         return nullptr;
     }
     return audioContext_.get();
+}
+
+glimmer::RmlContext* glimmer::AppContext::GetRmlContext() const
+{
+    if (rmlContext_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "rmlContext is null");
+        return nullptr;
+    }
+    return rmlContext_.get();
 }
 
 glimmer::MainThreadDispatcher* glimmer::AppContext::GetMainThreadDispatcher() const

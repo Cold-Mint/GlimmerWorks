@@ -24,39 +24,18 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "VerticalLayoutStepper.h"
-#include "core/math/DesignVector2D.h"
+#pragma once
+#include "RmlUi_Renderer_SDL.h"
 
-glimmer::VerticalLayoutStepper::VerticalLayoutStepper(DesignDimension cellHeight, const DesignVector2D& startPosition,
-                                                      DesignDimension padding, uint32_t dataLength)
-    : cellHeight_(cellHeight),
-      startPosition_(startPosition),
-      padding_(padding),
-      dataLength_(dataLength)
+namespace glimmer
 {
-}
-
-bool glimmer::VerticalLayoutStepper::HasNext()
-{
-    return currentIndex_ < dataLength_;
-}
-
-glimmer::DesignVector2D glimmer::VerticalLayoutStepper::Next()
-{
-    if (!HasNext())
+    class RenderInterfaceSDL3 : public RenderInterface_SDL
     {
-        return startPosition_;
-    }
+    public:
+        explicit RenderInterfaceSDL3(SDL_Renderer* renderer);
 
-    DesignVector2D position;
-    position.x = startPosition_.x;
-    position.y = startPosition_.y + static_cast<DesignDimension>(currentIndex_) * (cellHeight_ + padding_);
 
-    currentIndex_++;
-    return position;
-}
 
-void glimmer::VerticalLayoutStepper::Reset()
-{
-    currentIndex_ = 0;
+        ~RenderInterfaceSDL3() override;
+    };
 }

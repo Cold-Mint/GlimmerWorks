@@ -74,6 +74,7 @@ namespace glimmer
 
     public:
         ModContext();
+
         ~ModContext();
 
         void Init(VirtualFileSystem* vfs, const LangsResources* langsResources);

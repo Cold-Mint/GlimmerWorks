@@ -47,7 +47,6 @@ glimmer::LightMaskManager* glimmer::GraphicsContext::GetLightMaskManager() const
 {
     if (lightMaskManager_ == nullptr)
     {
-
         return nullptr;
     }
     return lightMaskManager_.get();

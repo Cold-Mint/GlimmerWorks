@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+ * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -24,46 +24,11 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "GridLayoutStepper.h"
-#include "core/math/DesignVector2D.h"
+#include "RenderInterfaceSDL3.h"
 
-namespace glimmer
+glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_Renderer* renderer)
+    : RenderInterface_SDL(renderer)
 {
-    GridLayoutStepper::GridLayoutStepper(DesignDimension cellSize, const DesignVector2D& startPosition,
-                                         uint8_t columns, DesignDimension padding, uint32_t dataLength)
-        : cellSize_(cellSize),
-          startPosition_(startPosition),
-          columns_(columns),
-          padding_(padding),
-          dataLength_(dataLength)
-    {
-    }
-
-    bool GridLayoutStepper::HasNext()
-    {
-        return currentIndex_ < dataLength_;
-    }
-
-    DesignVector2D GridLayoutStepper::Next()
-    {
-        if (!HasNext())
-        {
-            return startPosition_;
-        }
-
-        const auto row = static_cast<int>(currentIndex_ / columns_);
-        const auto col = static_cast<int>(currentIndex_ % columns_);
-
-        DesignVector2D position;
-        position.x = startPosition_.x + static_cast<DesignDimension>(col) * (cellSize_ + padding_);
-        position.y = startPosition_.y + static_cast<DesignDimension>(row) * (cellSize_ + padding_);
-
-        currentIndex_++;
-        return position;
-    }
-
-    void GridLayoutStepper::Reset()
-    {
-        currentIndex_ = 0;
-    }
 }
+
+glimmer::RenderInterfaceSDL3::~RenderInterfaceSDL3() = default;

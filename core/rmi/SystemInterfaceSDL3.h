@@ -25,26 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ILayoutStepper.h"
-#include "core/Constants.h"
-#include "core/math/DesignVector2D.h"
+#include "RmlUi_Platform_SDL.h"
 
 namespace glimmer
 {
-    class VerticalLayoutStepper : public ILayoutStepper
+    class SystemInterfaceSDL3 : public SystemInterface_SDL
     {
-        DesignDimension cellHeight_;
-        DesignVector2D startPosition_;
-        DesignDimension padding_;
-        uint32_t dataLength_;
-        uint32_t currentIndex_ = 0;
-
     public:
-        VerticalLayoutStepper(DesignDimension cellHeight, const DesignVector2D& startPosition,
-                             DesignDimension padding, uint32_t dataLength);
-
-        bool HasNext() override;
-        DesignVector2D Next() override;
-        void Reset() override;
+        bool LogMessage(Rml::Log::Type type, const Rml::String& message) override;
     };
 }

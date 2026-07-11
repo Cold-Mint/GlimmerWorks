@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -24,26 +24,27 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/math/DesignVector2D.h"
+#include "SystemInterfaceSDL3.h"
 
-namespace glimmer
+#include "core/log/LogCat.h"
+
+bool glimmer::SystemInterfaceSDL3::LogMessage(Rml::Log::Type type, const Rml::String& message)
 {
-    /**
-     * ILayoutStepper
-     * 布局步进器
-     * Calculate the drawing coordinates of the next point based on the input data.
-     * 根据输入数据推算下一个点的绘制坐标。
-     */
-    class ILayoutStepper
+    if (type == Rml::Log::LT_ERROR)
     {
-    public:
-        virtual ~ILayoutStepper() = default;
-
-        virtual bool HasNext() = 0;
-
-        virtual DesignVector2D Next() = 0;
-
-        virtual void Reset() = 0;
-    };
+        LogCat::e(std::source_location::current(), "From rml :", message.c_str());
+    }
+    if (type == Rml::Log::LT_WARNING)
+    {
+        LogCat::w(std::source_location::current(), "From rml :", message.c_str());
+    }
+    if (type == Rml::Log::LT_INFO)
+    {
+        LogCat::i("From rml :", message.c_str());
+    }
+    if (type == Rml::Log::LT_DEBUG)
+    {
+        LogCat::d("From rml :", message.c_str());
+    }
+    return true;
 }

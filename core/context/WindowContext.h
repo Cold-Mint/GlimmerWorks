@@ -26,13 +26,11 @@
  */
 #pragma once
 
-#include <memory>
 #include <functional>
 #include <string>
 
-#include <SDL3/SDL.h>
-
-#include "core/Config.h"
+#include "SDL3/SDL_render.h"
+#include "SDL3/SDL_video.h"
 
 namespace glimmer
 {
@@ -60,6 +58,5 @@ namespace glimmer
         [[nodiscard]] int GetWindowHeight() const;
         [[nodiscard]] bool IsRunning() const;
         void Exit();
-        void CreateScreenshot(const std::function<void(const std::string& text)>* onMessage) const;
     };
 }

@@ -41,6 +41,7 @@
 #include "ConsoleContext.h"
 #include "GraphicsContext.h"
 #include "AudioContext.h"
+#include "RmlContext.h"
 #include "WindowContext.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/scene/SceneManager.h"
@@ -49,21 +50,22 @@ namespace glimmer
 {
     class AppContext
     {
-        std::unique_ptr<WindowContext> windowContext_;
         std::string language_;
-        std::unique_ptr<Config> config_;
-        std::unique_ptr<toml::value> configValue;
-        std::unique_ptr<SceneManager> sceneManager_;
-        std::unique_ptr<VirtualFileSystem> virtualFileSystem_;
-        std::unique_ptr<ResourcePackManager> resourcePackManager_;
-        std::unique_ptr<ResourceLocator> resourceLocator_;
-        std::unique_ptr<LangsResources> langsResources_;
-        std::unique_ptr<SavesManager> savesManager_;
-        std::unique_ptr<ModContext> modContext_;
-        std::unique_ptr<ConsoleContext> consoleContext_;
-        std::unique_ptr<GraphicsContext> graphicsContext_;
-        std::unique_ptr<AudioContext> audioContext_;
-        std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher_;
+        std::unique_ptr<WindowContext> windowContext_ = nullptr;
+        std::unique_ptr<Config> config_ = nullptr;
+        std::unique_ptr<toml::value> configValue_ = nullptr;
+        std::unique_ptr<SceneManager> sceneManager_ = nullptr;
+        std::unique_ptr<VirtualFileSystem> virtualFileSystem_ = nullptr;
+        std::unique_ptr<ResourcePackManager> resourcePackManager_ = nullptr;
+        std::unique_ptr<ResourceLocator> resourceLocator_ = nullptr;
+        std::unique_ptr<LangsResources> langsResources_ = nullptr;
+        std::unique_ptr<SavesManager> savesManager_ = nullptr;
+        std::unique_ptr<ModContext> modContext_ = nullptr;
+        std::unique_ptr<RmlContext> rmlContext_ = nullptr;
+        std::unique_ptr<ConsoleContext> consoleContext_ = nullptr;
+        std::unique_ptr<GraphicsContext> graphicsContext_ = nullptr;
+        std::unique_ptr<AudioContext> audioContext_ = nullptr;
+        std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher_ = nullptr;
         std::vector<GameUIMessage> gameUIMessages_;
         toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
         bool initSuccess_ = false;
@@ -98,6 +100,8 @@ namespace glimmer
         [[nodiscard]] GraphicsContext* GetGraphicsContext() const;
 
         [[nodiscard]] AudioContext* GetAudioContext() const;
+
+        [[nodiscard]] RmlContext* GetRmlContext() const;
 
         [[nodiscard]] MainThreadDispatcher* GetMainThreadDispatcher() const;
 

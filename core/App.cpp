@@ -74,6 +74,11 @@ bool glimmer::App::InitSDL()
 bool glimmer::App::InitWindowAndRenderer()
 {
     Config* config = appContext_->GetConfig();
+    if (config == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "config is nullptr");
+        return false;
+    }
     window = SDL_CreateWindow(
         "GlimmerWorks",
         config->window.width,
@@ -82,26 +87,42 @@ bool glimmer::App::InitWindowAndRenderer()
     );
     if (window == nullptr)
     {
+        LogCat::e(std::source_location::current(), "window is nullptr");
         return false;
     }
 
     WindowContext* windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr)
     {
+        LogCat::e(std::source_location::current(), "windowContext is nullptr");
         return false;
     }
     windowContext->SetWindow(window);
     renderer_ = SDL_CreateRenderer(window, nullptr);
     if (renderer_ == nullptr)
     {
+        LogCat::e(std::source_location::current(), "renderer_ is nullptr");
         return false;
     }
+#if  !defined(NDEBUG)
+    const SDL_PropertiesID rendererProperties = SDL_GetRendererProperties(renderer_);
+    const char* driverName = SDL_GetStringProperty(rendererProperties, SDL_PROP_RENDERER_NAME_STRING, nullptr);
+    LogCat::i("driverName = ", driverName);
+#endif
     SDL_SetRenderVSync(renderer_, config->window.vSync);
     windowContext->SetRenderer(renderer_);
-
+    RmlContext* rmlContext = appContext_->GetRmlContext();
+    if (rmlContext == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "RmlContext is nullptr");
+        return false;
+    }
+    rmlContext->Init(renderer_, config->window.width,
+                     config->window.height);
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr)
     {
+        LogCat::e(std::source_location::current(), "ResourcePackManager is nullptr");
         return false;
     }
     resourcePackManager->SetRenderer(renderer_, appContext_->GetGraphicsContext()->GetPreloadColors());
@@ -148,16 +169,18 @@ bool glimmer::App::InitFont() const
     {
         return false;
     }
+    if (!RmlContext::LoadFont(std::filesystem::path(actualPath.value().c_str())))
+    {
+        LogCat::e(std::source_location::current(), "RmlContext Failed to load font: ", actualPath.value());
+        return false;
+    }
     TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16);
     if (sdlFont == nullptr)
     {
-        LogCat::w(std::source_location::current(), "Failed to load font: ", actualPath.value());
+        LogCat::e(std::source_location::current(), "Failed to load font: ", actualPath.value());
+        return false;
     }
-    else
-    {
-        resourcePackManager->SetFont(sdlFont);
-    }
-
+    resourcePackManager->SetFont(sdlFont);
     return true;
 }
 
@@ -296,6 +319,12 @@ void glimmer::App::Run() const
     {
         return;
     }
+    RmlContext* rmlContext = appContext_->GetRmlContext();
+    if (rmlContext == nullptr)
+    {
+        return;
+    }
+    // rmlContext->LoadDocument("/home/coldmint/projects/mods/resource_packs/glimmerworks_res/layouts/@core/splash/splash.rml");
     while (windowContext->IsRunning() && sceneManager->GetSceneCount() > 0)
     {
         int windowWidth = 0;
@@ -314,11 +343,11 @@ void glimmer::App::Run() const
 
         NotifyFrameStart();
         mainThreadDispatcher->ProcessMainThreadTasks();
-
         eventLoop.ProcessEvents(frameStart);
+        rmlContext->UpdateContext();
         UpdateScenes(deltaTime);
+        rmlContext->RenderContext();
         renderer.RenderFrame(windowWidth, windowHeight, frameStart, deltaTime);
-
         const Uint64 frameTimeMs = SDL_GetTicks() - frameStart;
         if (frameTimeMs < targetFrameTimeMs)
         {

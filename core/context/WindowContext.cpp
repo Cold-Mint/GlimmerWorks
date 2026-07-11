@@ -27,71 +27,58 @@
 #include "WindowContext.h"
 
 #include <SDL3/SDL.h>
-#include <functional>
 
-namespace glimmer
+void glimmer::WindowContext::SetWindow(SDL_Window* window)
 {
-    void WindowContext::SetWindow(SDL_Window* window)
-    {
-        window_ = window;
-    }
+    window_ = window;
+}
 
-    void WindowContext::SetRenderer(SDL_Renderer* renderer)
-    {
-        renderer_ = renderer;
-    }
+void glimmer::WindowContext::SetRenderer(SDL_Renderer* renderer)
+{
+    renderer_ = renderer;
+}
 
-    void WindowContext::SetWindowWidth(int width)
-    {
-        windowWidth_ = width;
-    }
+void glimmer::WindowContext::SetWindowWidth(int width)
+{
+    windowWidth_ = width;
+}
 
-    void WindowContext::SetWindowHeight(int height)
-    {
-        windowHeight_ = height;
-    }
+void glimmer::WindowContext::SetWindowHeight(int height)
+{
+    windowHeight_ = height;
+}
 
-    void WindowContext::SetWindowTitle(const char* title) const
-    {
-        SDL_SetWindowTitle(window_, title);
-    }
+void glimmer::WindowContext::SetWindowTitle(const char* title) const
+{
+    SDL_SetWindowTitle(window_, title);
+}
 
-    SDL_Window* WindowContext::GetWindow() const
-    {
-        return window_;
-    }
+SDL_Window* glimmer::WindowContext::GetWindow() const
+{
+    return window_;
+}
 
-    SDL_Renderer* WindowContext::GetRenderer() const
-    {
-        return renderer_;
-    }
+SDL_Renderer* glimmer::WindowContext::GetRenderer() const
+{
+    return renderer_;
+}
 
-    int WindowContext::GetWindowWidth() const
-    {
-        return windowWidth_;
-    }
+int glimmer::WindowContext::GetWindowWidth() const
+{
+    return windowWidth_;
+}
 
-    int WindowContext::GetWindowHeight() const
-    {
-        return windowHeight_;
-    }
+int glimmer::WindowContext::GetWindowHeight() const
+{
+    return windowHeight_;
+}
 
-    bool WindowContext::IsRunning() const
-    {
-        return isRunning_;
-    }
+bool glimmer::WindowContext::IsRunning() const
+{
+    return isRunning_;
+}
 
-    void WindowContext::Exit()
-    {
-        isRunning_ = false;
-    }
-
-    void WindowContext::CreateScreenshot(const std::function<void(const std::string& text)>* onMessage) const
-    {
-        if (onMessage == nullptr || renderer_ == nullptr)
-        {
-            return;
-        }
-        (*onMessage)("Screenshot not supported in WindowContext, use AppContext::CreateScreenshot");
-    }
+void glimmer::WindowContext::Exit()
+{
+    isRunning_ = false;
 }

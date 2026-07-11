@@ -46,14 +46,11 @@
 #include "core/ecs/system/DraggableSystem.h"
 #include "core/ecs/system/DroppedItemSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
-#include "core/ecs/system/HotBarGUISystem.h"
-#include "core/ecs/system/InventoryCraftGUISystem.h"
 #include "core/ecs/system/ItemSlotQuantitySystem.h"
 #include "core/ecs/system/ItemSlotSystem.h"
 #include "core/ecs/system/ItemToolTipSystem.h"
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/MagnetSystem.h"
-#include "core/ecs/system/MaterialSelectCraftUISystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
 #include "core/ecs/system/PauseSystem.h"
 #include "core/ecs/system/PhysicsSystem.h"
@@ -425,10 +422,7 @@ void glimmer::SystemScheduler::InitSystem()
     RegisterSystem(std::make_unique<BiomeBGMSystem>(worldContext_));
     RegisterSystem(std::make_unique<Light2DSystem>(worldContext_));
     RegisterSystem(std::make_unique<BlueprintSystem>(worldContext_));
-    RegisterSystem(std::make_unique<HotBarGUISystem>(worldContext_));
-    RegisterSystem(std::make_unique<InventoryCraftGUISystem>(worldContext_));
     RegisterSystem(std::make_unique<CraftPreviewSlotSystem>(worldContext_));
-    RegisterSystem(std::make_unique<MaterialSelectCraftUISystem>(worldContext_));
     RegisterSystem(std::make_unique<ItemToolTipSystem>(worldContext_));
     RegisterSystem(std::make_unique<ItemSlotQuantitySystem>(worldContext_));
     RegisterSystem(std::make_unique<ButtonSystem>(worldContext_));

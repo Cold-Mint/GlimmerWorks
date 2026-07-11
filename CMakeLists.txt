@@ -278,6 +278,7 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/optional/monocypher-ed25519.c"
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.c"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.cpp"
+        "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL.cpp"
         core/App.cpp
         core/AppEventLoop.cpp
         core/AppRenderer.cpp
@@ -376,6 +377,7 @@ target_sources(GlimmerWorks
         core/context/ConsoleContext.cpp
         core/context/GraphicsContext.cpp
         core/context/ModContext.cpp
+        core/context/RmlContext.cpp
         core/context/WindowContext.cpp
         core/contributor/Contributor.cpp
         core/contributor/ContributorManager.cpp
@@ -443,15 +445,11 @@ target_sources(GlimmerWorks
         core/ecs/system/DraggableSystem.cpp
         core/ecs/system/DroppedItemSystem.cpp
         core/ecs/system/FloatingTextSystem.cpp
-        core/ecs/system/GUISystem.cpp
-        core/ecs/system/HotBarGUISystem.cpp
-        core/ecs/system/InventoryCraftGUISystem.cpp
         core/ecs/system/ItemSlotQuantitySystem.cpp
         core/ecs/system/ItemSlotSystem.cpp
         core/ecs/system/ItemToolTipSystem.cpp
         core/ecs/system/Light2DSystem.cpp
         core/ecs/system/MagnetSystem.cpp
-        core/ecs/system/MaterialSelectCraftUISystem.cpp
         core/ecs/system/ParallaxBackgroundSystem.cpp
         core/ecs/system/PauseSystem.cpp
         core/ecs/system/PhysicsSystem.cpp
@@ -482,10 +480,6 @@ target_sources(GlimmerWorks
         core/inventory/ability/MiningRangeData.cpp
         core/inventory/ability/MiningRangeDataPoint.cpp
         core/inventory/ability/NoneAbility.cpp
-        core/layout/GridLayoutStepper.cpp
-        core/layout/HorizontalLayoutStepper.cpp
-        core/layout/ILayoutStepper.cpp
-        core/layout/VerticalLayoutStepper.cpp
         core/log/LogCat.cpp
         core/lootTable/LootEntry.cpp
         core/lootTable/LootTableManager.cpp
@@ -543,6 +537,8 @@ target_sources(GlimmerWorks
         core/mod/templateCommand/InsertTemplateCommand.cpp
         core/mod/templateCommand/SetTemplateCommand.cpp
         core/mod/templateCommand/UnSetTemplateCommand.cpp
+        core/rmi/RenderInterfaceSDL3.cpp
+        core/rmi/SystemInterfaceSDL3.cpp
         core/saves/MapManifest.cpp
         core/saves/Saves.cpp
         core/saves/SavesManager.cpp
@@ -631,8 +627,9 @@ target_sources(GlimmerWorks
         FILE_SET HEADERS
         FILES
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/optional/monocypher-ed25519.h"
-        "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/monocypher-src/src/monocypher.h"
+        "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
+        "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL.h"
         core/App.h
         core/AppEventLoop.h
         core/AppRenderer.h
@@ -735,6 +732,7 @@ target_sources(GlimmerWorks
         core/context/ConsoleContext.h
         core/context/GraphicsContext.h
         core/context/ModContext.h
+        core/context/RmlContext.h
         core/context/WindowContext.h
         core/contributor/Contributor.h
         core/contributor/ContributorManager.h
@@ -803,15 +801,11 @@ target_sources(GlimmerWorks
         core/ecs/system/DraggableSystem.h
         core/ecs/system/DroppedItemSystem.h
         core/ecs/system/FloatingTextSystem.h
-        core/ecs/system/GUISystem.h
-        core/ecs/system/HotBarGUISystem.h
-        core/ecs/system/InventoryCraftGUISystem.h
         core/ecs/system/ItemSlotQuantitySystem.h
         core/ecs/system/ItemSlotSystem.h
         core/ecs/system/ItemToolTipSystem.h
         core/ecs/system/Light2DSystem.h
         core/ecs/system/MagnetSystem.h
-        core/ecs/system/MaterialSelectCraftUISystem.h
         core/ecs/system/ParallaxBackgroundSystem.h
         core/ecs/system/PauseSystem.h
         core/ecs/system/PhysicsSystem.h
@@ -841,10 +835,6 @@ target_sources(GlimmerWorks
         core/inventory/ability/MiningRangeData.h
         core/inventory/ability/MiningRangeDataPoint.h
         core/inventory/ability/NoneAbility.h
-        core/layout/GridLayoutStepper.h
-        core/layout/HorizontalLayoutStepper.h
-        core/layout/ILayoutStepper.h
-        core/layout/VerticalLayoutStepper.h
         core/log/LogCat.h
         core/lootTable/LootEntry.h
         core/lootTable/LootTableManager.h
@@ -902,6 +892,8 @@ target_sources(GlimmerWorks
         core/mod/templateCommand/InsertTemplateCommand.h
         core/mod/templateCommand/SetTemplateCommand.h
         core/mod/templateCommand/UnSetTemplateCommand.h
+        core/rmi/RenderInterfaceSDL3.h
+        core/rmi/SystemInterfaceSDL3.h
         core/saves/MapManifest.h
         core/saves/Saves.h
         core/saves/SavesManager.h

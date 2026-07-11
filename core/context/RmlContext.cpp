@@ -30,12 +30,14 @@
 #include "RmlUi/Core/Context.h"
 #include "RmlUi/Core/Core.h"
 
-bool glimmer::RmlContext::Init(SDL_Renderer* renderer, const int width, const int height)
+bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer, int width, int height)
 {
     systemInterfaceSDL3_ = std::make_unique<SystemInterfaceSDL3>();
     Rml::SetSystemInterface(systemInterfaceSDL3_.get());
     renderInterfaceSDL3_ = std::make_unique<RenderInterfaceSDL3>(renderer);
     Rml::SetRenderInterface(renderInterfaceSDL3_.get());
+    gameFileInterface_ = std::make_unique<GameFileInterface>(virtualFileSystem);
+    Rml::SetFileInterface(gameFileInterface_.get());
     Rml::Initialise();
     context_ = Rml::CreateContext("glimmerGui", Rml::Vector2i(width, height));
     return true;
@@ -76,6 +78,7 @@ void glimmer::RmlContext::UpdateContext() const
     {
         return;
     }
+    LogCat::i("rml Update Context");
     context_->Update();
 }
 
@@ -84,6 +87,18 @@ void glimmer::RmlContext::RenderContext() const
     if (context_ == nullptr)
     {
         return;
+    }
+    LogCat::i("rml Render Context");
+    LogCat::i("root size w=", document_->GetBox().GetSize().x);
+    LogCat::i("root size h=", document_->GetBox().GetSize().y);
+    LogCat::i("root visible=", document_->IsVisible());
+    LogCat::i("children size=", document_->GetNumChildren());
+    for (int i = 0; i < document_->GetNumChildren(); ++i)
+    {
+        Rml::Element* child = document_->GetChild(i);
+        LogCat::i("children index=", i, "v=", child->IsVisible());
+        LogCat::i("children", i, "box size x=", child->GetBox().GetSize().x);
+        LogCat::i("children", i, "box size y=", child->GetBox().GetSize().y);
     }
     context_->Render();
 }

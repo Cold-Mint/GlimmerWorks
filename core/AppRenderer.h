@@ -47,6 +47,7 @@ namespace glimmer
     public:
         AppRenderer(AppContext* appContext, SDL_Renderer* renderer);
 
-        void RenderFrame(int windowWidth, int windowHeight, uint64_t frameStart, float deltaTime) const;
+        void RenderFrame(const RmlContext* rmlContext, int windowWidth, int windowHeight, uint64_t frameStart,
+                         float deltaTime) const;
     };
 }

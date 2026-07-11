@@ -26,9 +26,23 @@
  */
 #include "RenderInterfaceSDL3.h"
 
+#include "core/log/LogCat.h"
+
 glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_Renderer* renderer)
     : RenderInterface_SDL(renderer)
 {
+}
+
+Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i& texture_dimensions,
+                                                             const Rml::String& source)
+{
+    LogCat::i("LoadTexture = ", source);
+    return RenderInterface_SDL::LoadTexture(texture_dimensions, source);
+}
+
+void glimmer::RenderInterfaceSDL3::ReleaseTexture(Rml::TextureHandle texture_handle)
+{
+    RenderInterface_SDL::ReleaseTexture(texture_handle);
 }
 
 glimmer::RenderInterfaceSDL3::~RenderInterfaceSDL3() = default;

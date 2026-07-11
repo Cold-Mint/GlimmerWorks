@@ -37,8 +37,8 @@ glimmer::AppRenderer::AppRenderer(AppContext* appContext, SDL_Renderer* renderer
 {
 }
 
-void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHeight, const uint64_t frameStart,
-                                       const float deltaTime) const
+void glimmer::AppRenderer::RenderFrame(const RmlContext* rmlContext, const int windowWidth, const int windowHeight, const uint64_t frameStart,
+    const float deltaTime) const
 {
     if (windowWidth <= 0 || windowHeight <= 0)
     {
@@ -51,6 +51,7 @@ void glimmer::AppRenderer::RenderFrame(const int windowWidth, const int windowHe
     RenderDebug();
 #endif
     RenderUiMessage(windowHeight, frameStart, deltaTime);
+    rmlContext->RenderContext();
     SDL_RenderPresent(renderer_);
 }
 

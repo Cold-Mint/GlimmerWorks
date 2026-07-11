@@ -25,41 +25,33 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <filesystem>
-#include <memory>
-
-#include "core/rmi/GameFileInterface.h"
-#include "core/rmi/RenderInterfaceSDL3.h"
-#include "core/rmi/SystemInterfaceSDL3.h"
-#include "RmlUi/Core/ElementDocument.h"
+#include "core/vfs/VirtualFileSystem.h"
+#include "RmlUi/Core/FileInterface.h"
 
 namespace glimmer
 {
-    class RmlContext
+    class GameFileInterface : public Rml::FileInterface
     {
-        std::unique_ptr<SystemInterfaceSDL3> systemInterfaceSDL3_ = nullptr;
-        std::unique_ptr<RenderInterfaceSDL3> renderInterfaceSDL3_ = nullptr;
-        std::unique_ptr<GameFileInterface> gameFileInterface_ = nullptr;
-        Rml::Context* context_ = nullptr;
-        Rml::ElementDocument* document_ = nullptr;
-
+        VirtualFileSystem* virtualFileSystem_ = nullptr;
+        std::unordered_map<uint64_t,std::unique_ptr<std::istream>> streamMap_;
+        uint64_t indexFileHandle_ = 0;
     public:
-        bool Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer, int width, int height);
+        explicit GameFileInterface(VirtualFileSystem* virtualFileSystem);
 
-        static bool LoadFont(const std::filesystem::path& fontPath);
+        Rml::FileHandle Open(const Rml::String& path) override;
 
-        [[nodiscard]] Rml::Context* GetRmlContext() const;
+        void Close(Rml::FileHandle file) override;
 
-        bool LoadDocument(const std::filesystem::path& documentPath);
+        size_t Read(void* buffer, size_t size, Rml::FileHandle file) override;
 
-        [[nodiscard]] Rml::ElementDocument* GetDocument() const;
+        bool Seek(Rml::FileHandle file, long offset, int origin) override;
 
-        void UpdateContext() const;
+        size_t Tell(Rml::FileHandle file) override;
 
-        void RenderContext() const;
+        size_t Length(Rml::FileHandle file) override;
 
-        RmlContext();
+        bool LoadFile(const Rml::String& path, Rml::String& out_data) override;
 
-        ~RmlContext();
+        ~GameFileInterface() override;
     };
 }

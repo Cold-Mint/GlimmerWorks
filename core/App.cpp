@@ -117,7 +117,7 @@ bool glimmer::App::InitWindowAndRenderer()
         LogCat::e(std::source_location::current(), "RmlContext is nullptr");
         return false;
     }
-    rmlContext->Init(renderer_, config->window.width,
+    rmlContext->Init(appContext_->GetVirtualFileSystem(), renderer_, config->window.width,
                      config->window.height);
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr)
@@ -169,7 +169,7 @@ bool glimmer::App::InitFont() const
     {
         return false;
     }
-    if (!RmlContext::LoadFont(std::filesystem::path(actualPath.value().c_str())))
+    if (!RmlContext::LoadFont(std::filesystem::path(fontPath)))
     {
         LogCat::e(std::source_location::current(), "RmlContext Failed to load font: ", actualPath.value());
         return false;
@@ -346,8 +346,7 @@ void glimmer::App::Run() const
         eventLoop.ProcessEvents(frameStart);
         rmlContext->UpdateContext();
         UpdateScenes(deltaTime);
-        rmlContext->RenderContext();
-        renderer.RenderFrame(windowWidth, windowHeight, frameStart, deltaTime);
+        renderer.RenderFrame(rmlContext, windowWidth, windowHeight, frameStart, deltaTime);
         const Uint64 frameTimeMs = SDL_GetTicks() - frameStart;
         if (frameTimeMs < targetFrameTimeMs)
         {

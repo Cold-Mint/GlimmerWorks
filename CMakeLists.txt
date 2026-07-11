@@ -537,6 +537,7 @@ target_sources(GlimmerWorks
         core/mod/templateCommand/InsertTemplateCommand.cpp
         core/mod/templateCommand/SetTemplateCommand.cpp
         core/mod/templateCommand/UnSetTemplateCommand.cpp
+        core/rmi/GameFileInterface.cpp
         core/rmi/RenderInterfaceSDL3.cpp
         core/rmi/SystemInterfaceSDL3.cpp
         core/saves/MapManifest.cpp
@@ -892,6 +893,7 @@ target_sources(GlimmerWorks
         core/mod/templateCommand/InsertTemplateCommand.h
         core/mod/templateCommand/SetTemplateCommand.h
         core/mod/templateCommand/UnSetTemplateCommand.h
+        core/rmi/GameFileInterface.h
         core/rmi/RenderInterfaceSDL3.h
         core/rmi/SystemInterfaceSDL3.h
         core/saves/MapManifest.h

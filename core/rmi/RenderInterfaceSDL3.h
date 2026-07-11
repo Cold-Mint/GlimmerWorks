@@ -34,7 +34,9 @@ namespace glimmer
     public:
         explicit RenderInterfaceSDL3(SDL_Renderer* renderer);
 
+        Rml::TextureHandle LoadTexture(Rml::Vector2i& texture_dimensions, const Rml::String& source) override;
 
+        void ReleaseTexture(Rml::TextureHandle texture_handle) override;
 
         ~RenderInterfaceSDL3() override;
     };

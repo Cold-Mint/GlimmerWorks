@@ -26,9 +26,6 @@
  */
 #pragma once
 
-#include <functional>
-#include <string>
-
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_video.h"
 
@@ -44,19 +41,33 @@ namespace glimmer
 
     public:
         WindowContext() = default;
+
         ~WindowContext() = default;
 
+        [[nodiscard]] bool StopInput() const;
+
+        [[nodiscard]] bool StartInput() const;
+
         void SetWindow(SDL_Window* window);
+
         void SetRenderer(SDL_Renderer* renderer);
+
         void SetWindowWidth(int width);
+
         void SetWindowHeight(int height);
+
         void SetWindowTitle(const char* title) const;
 
         [[nodiscard]] SDL_Window* GetWindow() const;
+
         [[nodiscard]] SDL_Renderer* GetRenderer() const;
+
         [[nodiscard]] int GetWindowWidth() const;
+
         [[nodiscard]] int GetWindowHeight() const;
+
         [[nodiscard]] bool IsRunning() const;
+
         void Exit();
     };
 }

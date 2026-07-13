@@ -54,33 +54,98 @@ Rml::FileHandle glimmer::GameFileInterface::Open(const Rml::String& path)
 
 void glimmer::GameFileInterface::Close(Rml::FileHandle file)
 {
-    LogCat::i("Close path=", file);
     streamMap_.erase(file);
 }
 
 size_t glimmer::GameFileInterface::Read(void* buffer, size_t size, Rml::FileHandle file)
 {
-    LogCat::i("Read file=", file, ", size=", size, ", file=", file);
-
-    return 0;
+    const auto it = streamMap_.find(file);
+    if (it == streamMap_.end())
+    {
+        LogCat::w(std::source_location::current(), "it == streamMap_.end()");
+        return 0;
+    }
+    std::istream* stream = it->second.get();
+    stream->read(static_cast<char*>(buffer), static_cast<std::streamsize>(size));
+    return static_cast<size_t>(stream->gcount());
 }
 
 bool glimmer::GameFileInterface::Seek(Rml::FileHandle file, long offset, int origin)
 {
-    LogCat::i("Seek file=", file, ", offset=", offset, ", origin=", origin);
-    return false;
+    const auto it = streamMap_.find(file);
+    if (it == streamMap_.end())
+    {
+        LogCat::w(std::source_location::current(), "it == streamMap_.end()");
+        return false;
+    }
+    std::istream* stream = it->second.get();
+    std::ios::seekdir seekDir;
+    switch (origin)
+    {
+    case SEEK_SET:
+        seekDir = std::ios::beg;
+        break;
+    case SEEK_CUR:
+        seekDir = std::ios::cur;
+        break;
+    case SEEK_END:
+        seekDir = std::ios::end;
+        break;
+    default:
+        LogCat::w(std::source_location::current(), "invalid origin: ", origin);
+        return false;
+    }
+    stream->seekg(offset, seekDir);
+    return !stream->fail();
 }
 
 size_t glimmer::GameFileInterface::Tell(Rml::FileHandle file)
 {
-    LogCat::i("Tell ", file);
-    return 0;
+    const auto it = streamMap_.find(file);
+    if (it == streamMap_.end())
+    {
+        LogCat::w(std::source_location::current(), "index:", file, "it == streamMap_.end()");
+        return 0;
+    }
+    std::istream* stream = it->second.get();
+    //Clear the error flag.
+    //清空错误标志。
+    stream->clear();
+    const std::streampos pos = stream->tellg();
+    if (pos == std::streampos(-1))
+    {
+        LogCat::w(std::source_location::current(), "index:", file, " pos == std::streampos(-1)");
+        return 0;
+    }
+    return pos;
 }
 
 size_t glimmer::GameFileInterface::Length(Rml::FileHandle file)
 {
-    LogCat::i("Length ", file);
-    return FileInterface::Length(file);
+    const auto it = streamMap_.find(file);
+    if (it == streamMap_.end())
+    {
+        LogCat::w(std::source_location::current(), "it == streamMap_.end() ");
+        return 0;
+    }
+    std::istream* stream = it->second.get();
+    const std::streampos currentPos = stream->tellg();
+    if (currentPos == std::streampos(-1))
+    {
+        LogCat::w(std::source_location::current(), "currentPos == std::streampos(-1)");
+        return 0;
+    }
+    stream->seekg(0, std::ios::end);
+    const std::streampos endPos = stream->tellg();
+    if (endPos == std::streampos(-1))
+    {
+        LogCat::w(std::source_location::current(), "endPos == std::streampos(-1)");
+        stream->seekg(currentPos);
+        return 0;
+    }
+    const size_t length = endPos;
+    stream->seekg(currentPos);
+    return length;
 }
 
 bool glimmer::GameFileInterface::LoadFile(const Rml::String& path, Rml::String& out_data)
@@ -101,6 +166,5 @@ bool glimmer::GameFileInterface::LoadFile(const Rml::String& path, Rml::String& 
 
 glimmer::GameFileInterface::~GameFileInterface()
 {
-    LogCat::i("~GameFileInterface");
     streamMap_.clear();
 }

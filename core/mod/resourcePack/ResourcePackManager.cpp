@@ -34,6 +34,7 @@
 #include "TextureResourceResult.h"
 #include "core/Config.h"
 #include "core/context/AppContext.h"
+#include "core/log/LogCat.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/utils/StringUtils.h"
 #include "SDL3_image/SDL_image.h"
@@ -185,7 +186,6 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
         {
             return tex;
         }
-
     }
 
     for (const auto& packId : modConfig.enabledResourcePack)
@@ -193,7 +193,6 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
         auto it = resourcePackMap_.find(packId);
         if (it == resourcePackMap_.end())
         {
-
             continue;
         }
 
@@ -298,7 +297,6 @@ int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString
     const std::filesystem::path& resourcePackPath = resourcePackPathString;
     if (!virtualFileSystem_->Exists(resourcePackPath))
     {
-
         return 0;
     }
 
@@ -309,7 +307,6 @@ int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString
     {
         if (!virtualFileSystem_->IsFile(entry))
         {
-
             auto packPtr = std::make_unique<ResourcePack>(entry, virtualFileSystem_, tomlVersion);
             if (!packPtr->LoadManifest())
             {
@@ -317,7 +314,6 @@ int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString
             }
             if (!IsResourcePackEnabled(*packPtr, enabledResourcePack))
             {
-
                 continue;
             }
             if (!IsResourcePackAvailable(*packPtr))
@@ -343,7 +339,6 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
         auto it = resourcePackMap_.find(packId);
         if (it == resourcePackMap_.end())
         {
-
             continue;
         }
 
@@ -368,7 +363,6 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
             defaultFont.replace_extension("ttf");
             if (virtualFileSystem_->Exists(defaultFont))
             {
-
                 defaultFontPath = defaultFont;
             }
         }
@@ -376,13 +370,49 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
 
     if (defaultFontPath.has_value())
     {
-
         return defaultFontPath;
     }
 
 
     return std::nullopt;
 }
+
+std::unique_ptr<glimmer::RmlResourceResult> glimmer::ResourcePackManager::GetRmlFilePath(const AppContext* appContext,
+    const ResourceRef* resourceRef)
+{
+    if (resourceRef == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
+        return nullptr;
+    }
+    if (resourceRef->GetResourceType() != RESOURCE_RML_PATH)
+    {
+        LogCat::w(std::source_location::current(), "resourceRef->GetResourceType() != RESOURCE_RML_PATH");
+        return nullptr;
+    }
+    for (const auto& packId : appContext->GetConfig()->mods.enabledResourcePack)
+    {
+        auto it = resourcePackMap_.find(packId);
+        if (it == resourcePackMap_.end())
+        {
+            continue;
+        }
+
+        const ResourcePack* pack = it->second.get();
+        std::filesystem::path rmlPath = pack->GetPath() / "layouts" / resourceRef->GetPackageId() / resourceRef->
+            GetResourceKey();
+        rmlPath.replace_extension("rml");
+        if (!virtualFileSystem_->Exists(rmlPath))
+        {
+            continue;
+        }
+        std::unique_ptr<RmlResourceResult> resourceResult = std::make_unique<RmlResourceResult>();
+        resourceResult->SetPath(rmlPath);
+        return resourceResult;
+    }
+    return nullptr;
+}
+
 
 std::shared_ptr<SDL_Texture> glimmer::ResourcePackManager::CreateStringTexture(const std::string& string,
                                                                                const Color* color, int wrapWidth)
@@ -466,7 +496,6 @@ glimmer::ColorResource* glimmer::ResourcePackManager::LoadColorResFromFile(const
         auto it = resourcePackMap_.find(packId);
         if (it == resourcePackMap_.end())
         {
-
             continue;
         }
 
@@ -482,7 +511,6 @@ glimmer::ColorResource* glimmer::ResourcePackManager::LoadColorResFromFile(const
             virtualFileSystem_->ReadFileAsString(colorPath);
         if (!data.has_value())
         {
-
             continue;
         }
 
@@ -507,7 +535,6 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Cr
         SDL_CreateSurface(TILE_SIZE, TILE_SIZE, SDL_PIXELFORMAT_RGBA32);
     if (!surface)
     {
-
         return nullptr;
     }
 

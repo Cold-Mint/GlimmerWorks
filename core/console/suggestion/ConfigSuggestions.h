@@ -26,6 +26,7 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
+#include "core/context/AppContext.h"
 #include "toml11/types.hpp"
 
 namespace glimmer
@@ -39,7 +40,7 @@ namespace glimmer
                                const std::string& prefix = "");
 
     public:
-        explicit ConfigSuggestions(toml::value* configValue);
+        explicit ConfigSuggestions(const AppContext* appContext);
 
         bool Match(const std::string& keyword, const std::string& param) override;
 

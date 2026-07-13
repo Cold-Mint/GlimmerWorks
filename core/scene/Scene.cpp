@@ -28,6 +28,8 @@
 
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
+#include "RmlUi/Core/Context.h"
+#include "RmlUi/Core/DataModelHandle.h"
 
 void glimmer::Scene::OnFrameStart()
 {
@@ -54,6 +56,18 @@ void glimmer::Scene::OnWindowSizeChanged(const int& width, const int& height)
     // Intentionally empty default implementation for base class
 }
 
+glimmer::Scene::~Scene()
+{
+    for (auto elementDocument : elementDocumentSet_)
+    {
+        if (elementDocument == nullptr)
+        {
+            continue;
+        }
+        elementDocument->Hide();
+    }
+}
+
 glimmer::AppContext* glimmer::Scene::GetAppContext() const
 {
     return appContext_;
@@ -77,6 +91,49 @@ void glimmer::Scene::Init()
     {
         OnConfigChanged(config);
     }
+    rmlContext_ = appContext->GetRmlContext();
+}
+
+Rml::ElementDocument* glimmer::Scene::LoadDocument(const ResourceRef* resourceRef)
+{
+    if (appContext_ == nullptr || rmlContext_ == nullptr || resourceRef == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "The required variables for LoadDocument are missing. It is necessary to check if they are called after the init method.");
+        return nullptr;
+    }
+    Rml::ElementDocument* elementDocument = rmlContext_->LoadDocument(appContext_, resourceRef);
+    if (elementDocument == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "elementDocument_ == nullptr");
+        return nullptr;
+    }
+#if  !defined(NDEBUG)
+    if (elementDocumentSet_.contains(elementDocument))
+    {
+        LogCat::e(std::source_location::current(), "A duplicate loading of the document has been detected.");
+        return nullptr;
+    }
+#endif
+    elementDocumentSet_.insert(elementDocument);
+    return elementDocument;
+}
+
+Rml::DataModelConstructor* glimmer::Scene::CreateDataModel(const Rml::String& name)
+{
+    if (rmlContext_ == nullptr)
+    {
+        return nullptr;
+    }
+    Rml::Context* rmlContextCore = rmlContext_->GetRmlContext();
+    if (rmlContextCore == nullptr)
+    {
+        return nullptr;
+    }
+    rmlConstructors_.push_back(std::make_unique<Rml::DataModelConstructor>(
+        rmlContextCore->CreateDataModel(name)
+    ));
+    return rmlConstructors_.back().get();
 }
 
 bool glimmer::Scene::HandleEvent(const SDL_Event& event)

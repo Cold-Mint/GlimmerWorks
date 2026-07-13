@@ -27,22 +27,51 @@
 #include "RenderInterfaceSDL3.h"
 
 #include "core/log/LogCat.h"
+#include "core/utils/StringUtils.h"
 
-glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_Renderer* renderer)
-    : RenderInterface_SDL(renderer)
+
+glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_Renderer* renderer, ResourcePackManager* resourcePackManager,
+                                                  ResourceLocator* resourceLocator) : RenderInterface_SDL(renderer)
 {
+    resourcePackManager_ = resourcePackManager;
+    resourceLocator_ = resourceLocator;
 }
 
 Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i& texture_dimensions,
                                                              const Rml::String& source)
 {
+    if (!source.starts_with("texture://"))
+    {
+        LogCat::w(std::source_location::current(),
+                  "Only textures with the loading path starting with \'texture://\' are supported.");
+        return {};
+    }
     LogCat::i("LoadTexture = ", source);
-    return RenderInterface_SDL::LoadTexture(texture_dimensions, source);
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_TEXTURE);
+    resourceRef.SetResourceKey(source.substr(std::strlen("texture://")));
+    std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator_->FindTexture(&resourceRef);
+    if (textureResourceResult == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "textureResourceResult == nullptr");
+        return {};
+    }
+    SDL_Texture* sdlTexture = textureResourceResult->GetResource();
+    const auto textureHandle = reinterpret_cast<Rml::TextureHandle>(sdlTexture);
+    if (sdlTexture == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "sdlTexture == nullptr");
+        return {};
+    }
+    texture_dimensions = {sdlTexture->w, sdlTexture->h};
+    textureMap_[textureHandle] = textureResourceResult;
+    return textureHandle;
 }
 
 void glimmer::RenderInterfaceSDL3::ReleaseTexture(Rml::TextureHandle texture_handle)
 {
-    RenderInterface_SDL::ReleaseTexture(texture_handle);
+    textureMap_.erase(texture_handle);
 }
 
 glimmer::RenderInterfaceSDL3::~RenderInterfaceSDL3() = default;

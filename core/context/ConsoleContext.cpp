@@ -79,7 +79,7 @@
 #include "core/log/LogCat.h"
 #include "AppContext.h"
 
-void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext, toml::value* configValue) const
+void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext) const
 {
     commandManager_->RegisterCommand(std::make_unique<GiveCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<HelpCommand>(appContext));
@@ -111,7 +111,7 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext, toml::val
     commandManager_->RegisterCommand(std::make_unique<TagCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<UnlockedRecipesCommand>(appContext));
 #endif
-    commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(appContext, configValue));
+    commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(appContext));
 }
 
 glimmer::ConsoleContext::ConsoleContext() = default;
@@ -119,7 +119,7 @@ glimmer::ConsoleContext::ConsoleContext() = default;
 glimmer::ConsoleContext::~ConsoleContext() = default;
 
 bool glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
-                                   int maxHistoryEntries, toml::value* configValue)
+                                   int maxHistoryEntries)
 {
     const ModContext* modContext = appContext->GetModContext();
     if (modContext == nullptr)
@@ -169,10 +169,10 @@ bool glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vf
         std::make_unique<StructureDynamicSuggestions>(modContext->GetStructureManager()));
 
     dynamicSuggestionsManager_->
-        RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(configValue));
+        RegisterDynamicSuggestions(std::make_unique<ConfigSuggestions>(appContext));
 
     commandManager_ = std::make_unique<CommandManager>();
-    RegisterCommands(appContext, configValue);
+    RegisterCommands(appContext);
     consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
     commandHistoryManager_ = std::make_unique<CommandHistoryManager>(runtimePath, vfs);
     if (maxHistoryEntries > 0)

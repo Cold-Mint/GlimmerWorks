@@ -151,6 +151,7 @@ namespace glimmer
     class Config
     {
         uint64_t fingerprint_ = 0;
+        std::unique_ptr<toml::value> configValue_ = nullptr;
 
     public:
         Window window{};
@@ -170,6 +171,10 @@ namespace glimmer
 
         [[nodiscard]] uint64_t GetFingerprint() const;
 
-        void LoadConfig(const toml::value& configValue);
+        void SetConfigValue(std::unique_ptr<toml::value> configValue);
+
+        [[nodiscard]] toml::value* GetConfigValue() const;
+
+        bool ReloadConfig();
     };
 }

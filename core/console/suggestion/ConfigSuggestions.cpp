@@ -56,7 +56,8 @@ void glimmer::ConfigSuggestions::ParseTable(const toml::value::table_type& table
     }
 }
 
-glimmer::ConfigSuggestions::ConfigSuggestions(toml::value* configValue) : configValue_(configValue)
+glimmer::ConfigSuggestions::ConfigSuggestions(const AppContext* appContext) : configValue_(
+    appContext->GetConfig()->GetConfigValue())
 {
 }
 

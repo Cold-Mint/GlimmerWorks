@@ -26,13 +26,19 @@
  */
 #pragma once
 #include "RmlUi_Renderer_SDL.h"
+#include "core/mod/resourcePack/ResourcePackManager.h"
 
 namespace glimmer
 {
     class RenderInterfaceSDL3 : public RenderInterface_SDL
     {
+        ResourcePackManager* resourcePackManager_ = nullptr;
+        ResourceLocator* resourceLocator_ = nullptr;
+        std::unordered_map<uint64_t,std::shared_ptr<TextureResourceResult>> textureMap_;
+
     public:
-        explicit RenderInterfaceSDL3(SDL_Renderer* renderer);
+        explicit RenderInterfaceSDL3(SDL_Renderer* renderer, ResourcePackManager* resourcePackManager,
+                                     ResourceLocator* resourceLocator);
 
         Rml::TextureHandle LoadTexture(Rml::Vector2i& texture_dimensions, const Rml::String& source) override;
 

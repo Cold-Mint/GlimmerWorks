@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "HomeScene.h"
+#include "MainScene.h"
 
 #include <random>
 
@@ -35,8 +35,10 @@
 #include <chrono>
 
 #include "core/context/AppContext.h"
+#include "core/log/LogCat.h"
+#include "RmlUi/Core/DataModelHandle.h"
 
-std::string glimmer::HomeScene::GetCopyrightString()
+std::string glimmer::MainScene::GetCopyrightString()
 {
     constexpr int startYear = 2025;
     const auto now = std::chrono::system_clock::now();
@@ -55,29 +57,82 @@ std::string glimmer::HomeScene::GetCopyrightString()
 }
 
 
-glimmer::HomeScene::HomeScene(AppContext* context)
+glimmer::MainScene::MainScene(AppContext* context)
     : Scene(context)
 {
     context->PlayMainMenuBGM();
     context->SetRandomSlogan();
     Init();
+    Rml::DataModelConstructor* constructor = CreateDataModel("main_scene");
+    if (constructor != nullptr)
+    {
+        constructor->Bind("copyright", &copyright_);
+        auto linkStruct = constructor->RegisterStruct<Hyperlink>();
+        linkStruct.RegisterMember("text", &Hyperlink::text);
+        linkStruct.RegisterMember("url", &Hyperlink::url);
+        constructor->RegisterArray<std::vector<Hyperlink>>();
+        constructor->Bind("footerLinks", &hyperlinks_);
+    }
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_RML_PATH);
+    resourceRef.SetResourceKey("main/main");
+    Rml::ElementDocument* document = LoadDocument(&resourceRef);
+    if (document == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "document == nullptr");
+        return;
+    }
+    Rml::Element* startGameElement = document->GetElementById("start_game");
+    if (startGameElement != nullptr)
+    {
+        startGameElement->AddEventListener(Rml::EventId::Click, this);
+    }
+
+    Rml::Element* exitGameElement = document->GetElementById("exit_game");
+    if (exitGameElement != nullptr)
+    {
+        exitGameElement->AddEventListener(Rml::EventId::Click, this);
+    }
 }
 
-void glimmer::HomeScene::OnConfigChanged(const Config* config)
+void glimmer::MainScene::OnConfigChanged(const Config* config)
 {
     uiScale_ = config->window.uiScale;
 }
 
-void glimmer::HomeScene::OnWindowSizeChanged(const int& width, const int& height)
+void glimmer::MainScene::OnWindowSizeChanged(const int& width, const int& height)
 {
     windowWidth_ = width;
     windowHeight_ = height;
 }
 
-bool glimmer::HomeScene::OnBackPressed()
+bool glimmer::MainScene::OnBackPressed()
 {
     GetAppContext()->ExitApp();
     return true;
 }
 
-glimmer::HomeScene::~HomeScene() = default;
+void glimmer::MainScene::ProcessEvent(Rml::Event& event)
+{
+    const Rml::Element* element = event.GetTargetElement();
+    if (element == nullptr)
+    {
+        return;
+    }
+    if (element->GetId() == "start_game")
+    {
+    }
+    if (element->GetId() == "exit_game")
+    {
+        const AppContext* context = GetAppContext();
+        if (context == nullptr)
+        {
+            LogCat::e(std::source_location::current(), "context == nullptr");
+            return;
+        }
+        context->ExitApp();
+    }
+}
+
+glimmer::MainScene::~MainScene() = default;

@@ -41,6 +41,14 @@ namespace glimmer
         std::filesystem::path root_;
         std::string name_ = "std_file_provider";
 
+        /**
+         * GetFullPath
+         * 获取完整路径
+         * @param relativePath relativePath 相对路径
+         * @return
+         */
+        [[nodiscard]] std::optional<std::filesystem::path> GetFullPath(const std::filesystem::path& relativePath) const;
+
     public:
         ~StdFileProvider() override = default;
 

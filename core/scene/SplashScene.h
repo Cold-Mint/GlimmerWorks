@@ -25,20 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
 
 #include "Scene.h"
-#include "tween.h"
-#include "core/mod/resourcePack/TextureResourceResult.h"
 
 namespace glimmer
 {
     class SplashScene final : public Scene
     {
-        std::shared_ptr<TextureResourceResult> splashTextureResult_ = nullptr;
-        float alpha_ = 0.0F;
-        bool animationFinished_ = false;
-        tweeny::tween<float> fadeTween_;
         Uint64 nextSceneTime_;
         bool sceneJumped_ = false;
 
@@ -46,8 +39,6 @@ namespace glimmer
         explicit SplashScene(AppContext* context);
 
         void Update(float delta) override;
-
-        void Render(SDL_Renderer* renderer) override;
 
         ~SplashScene() override;
     };

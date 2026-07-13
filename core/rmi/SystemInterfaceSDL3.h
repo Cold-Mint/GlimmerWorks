@@ -26,12 +26,19 @@
  */
 #pragma once
 #include "RmlUi_Platform_SDL.h"
+#include "toml11/types.hpp"
 
 namespace glimmer
 {
     class SystemInterfaceSDL3 : public SystemInterface_SDL
     {
+        toml::value* langsValuePtr_ = nullptr;
+
     public:
+        explicit SystemInterfaceSDL3(toml::value* langsValuePtr);
+
+        int TranslateString(Rml::String& translated, const Rml::String& input) override;
+
         bool LogMessage(Rml::Log::Type type, const Rml::String& message) override;
     };
 }

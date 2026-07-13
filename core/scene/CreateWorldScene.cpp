@@ -30,7 +30,7 @@
 #include <random>
 
 #include "core/Config.h"
-#include "HomeScene.h"
+#include "MainScene.h"
 #include "WorldScene.h"
 #include "core/saves/Saves.h"
 #include "core/saves/SavesManager.h"

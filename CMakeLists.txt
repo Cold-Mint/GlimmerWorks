@@ -282,6 +282,8 @@ target_sources(GlimmerWorks
         core/App.cpp
         core/AppEventLoop.cpp
         core/AppRenderer.cpp
+        core/mod/resourcePack/RmlResourceResult.cpp
+        core/scene/ConsoleOverlay.cpp
         core/BoolOrToggle.cpp
         core/Box2dFilter.cpp
         core/CommandHookEntry.cpp
@@ -323,6 +325,7 @@ target_sources(GlimmerWorks
         core/console/command/AssetViewerCommand.cpp
         core/console/command/BiomeScoreCommand.cpp
         core/console/command/Box2DCommand.cpp
+        core/rmi/GameFontEngineInterface.cpp
         core/console/command/ClearCommand.cpp
         core/console/command/ConfigCommand.cpp
         core/console/command/EchoCommand.cpp
@@ -545,7 +548,7 @@ target_sources(GlimmerWorks
         core/saves/SavesManager.cpp
         core/scene/CreateWorldScene.cpp
         core/scene/DebugOverlay.cpp
-        core/scene/HomeScene.cpp
+        core/scene/MainScene.cpp
         core/scene/MainThreadDispatcher.cpp
         core/scene/SavedGamesScene.cpp
         core/scene/Scene.cpp
@@ -647,6 +650,9 @@ target_sources(GlimmerWorks
         core/LangsResources.h
         core/SelectedItemRuntimeData.h
         core/TagRuntimeData.h
+        core/rmi/GameFontEngineInterface.h
+        core/mod/resourcePack/RmlResourceResult.h
+        core/scene/ConsoleOverlay.h
         core/TilePlacementConfig.h
         core/TileStateBackup.h
         core/console/Command.h
@@ -901,7 +907,7 @@ target_sources(GlimmerWorks
         core/saves/SavesManager.h
         core/scene/CreateWorldScene.h
         core/scene/DebugOverlay.h
-        core/scene/HomeScene.h
+        core/scene/MainScene.h
         core/scene/MainThreadDispatcher.h
         core/scene/SavedGamesScene.h
         core/scene/Scene.h

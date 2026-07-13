@@ -27,6 +27,7 @@
 #include "Config.h"
 
 #include "CommandHookManager.h"
+#include "log/LogCat.h"
 #include "toml11/find.hpp"
 
 template <>
@@ -64,66 +65,99 @@ uint64_t glimmer::Config::GetFingerprint() const
     return fingerprint_;
 }
 
-void glimmer::Config::LoadConfig(const toml::value& configValue)
+void glimmer::Config::SetConfigValue(std::unique_ptr<toml::value> configValue)
 {
-    configVersion = toml::find<int>(configValue, "config_version");
-    window.height = toml::find<int>(configValue, "window", "height");
-    window.width = toml::find<int>(configValue, "window", "width");
-    window.fullscreen = toml::find<bool>(configValue, "window", "fullscreen");
-    window.uiScale = toml::find<float>(configValue, "window", "ui_scale");
-    window.cameraScale = toml::find<float>(configValue, "window", "camera_scale");
-    window.vSync = toml::find<bool>(configValue, "window", "vsync");
-    window.idleDelay = toml::find<float>(configValue, "window", "idle_delay");
-    window.idleTargetFps = toml::find<float>(configValue, "window", "idle_target_fps");
-    window.normalTargetFps = toml::find<float>(configValue, "window", "normal_target_fps");
-    mods.enableSignVerify = toml::find<bool>(configValue, "mods", "enable_sign_verify");
-    mods.loadOnlyVerified = toml::find<bool>(configValue, "mods", "load_only_verified");
-    mods.dataPackPath = toml::find<std::string>(configValue, "mods", "data_pack_path");
-    mods.resourcePackPath = toml::find<std::string>(configValue, "mods", "resource_pack_path");
-    mods.enabledDataPack = toml::find<std::vector<std::string>>(configValue, "mods", "enabled_data_pack");
-    mods.enabledResourcePack = toml::find<std::vector<std::string>>(configValue, "mods", "enabled_resource_pack");
+    if (configValue_ == nullptr)
+    {
+        configValue_ = std::move(configValue);
+        return;
+    }
+    LogCat::e(std::source_location::current(), "The toml configuration data cannot be set repeatedly.");
+}
+
+toml::value* glimmer::Config::GetConfigValue() const
+{
+    if (configValue_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "The toml configuration data cannot be found.");
+        return nullptr;
+    }
+    return configValue_.get();
+}
+
+bool glimmer::Config::ReloadConfig()
+{
+    if (configValue_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "configValue_ == nullptr");
+        return false;
+    }
+    const toml::value* valuePtr = configValue_.get();
+    if (valuePtr == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "valuePtr == nullptr");
+        return false;
+    }
+    const toml::value& tomlRef = *valuePtr;
+    configVersion = toml::find<int>(tomlRef, "config_version");
+    window.height = toml::find<int>(tomlRef, "window", "height");
+    window.width = toml::find<int>(tomlRef, "window", "width");
+    window.fullscreen = toml::find<bool>(tomlRef, "window", "fullscreen");
+    window.uiScale = toml::find<float>(tomlRef, "window", "ui_scale");
+    window.cameraScale = toml::find<float>(tomlRef, "window", "camera_scale");
+    window.vSync = toml::find<bool>(tomlRef, "window", "vsync");
+    window.idleDelay = toml::find<float>(tomlRef, "window", "idle_delay");
+    window.idleTargetFps = toml::find<float>(tomlRef, "window", "idle_target_fps");
+    window.normalTargetFps = toml::find<float>(tomlRef, "window", "normal_target_fps");
+    mods.enableSignVerify = toml::find<bool>(tomlRef, "mods", "enable_sign_verify");
+    mods.loadOnlyVerified = toml::find<bool>(tomlRef, "mods", "load_only_verified");
+    mods.dataPackPath = toml::find<std::string>(tomlRef, "mods", "data_pack_path");
+    mods.resourcePackPath = toml::find<std::string>(tomlRef, "mods", "resource_pack_path");
+    mods.enabledDataPack = toml::find<std::vector<std::string>>(tomlRef, "mods", "enabled_data_pack");
+    mods.enabledResourcePack = toml::find<std::vector<std::string>>(tomlRef, "mods", "enabled_resource_pack");
     mods.supportedTextureFormats = toml::find<std::vector<
-        std::string>>(configValue, "mods", "supported_texture_formats");
-    mods.supportedAudioFormats = toml::find<std::vector<std::string>>(configValue, "mods", "supported_audio_formats");
-    world.preloadChunkRadius = toml::find<float>(configValue, "world", "preload_chunk_radius");
-    world.preloadStructureRadius = toml::find<float>(configValue, "world", "preload_structure_radius");
-    world.preloadLightingRadius = toml::find<float>(configValue, "world", "preload_lighting_radius");
+        std::string>>(tomlRef, "mods", "supported_texture_formats");
+    mods.supportedAudioFormats = toml::find<std::vector<std::string>>(tomlRef, "mods", "supported_audio_formats");
+    world.preloadChunkRadius = toml::find<float>(tomlRef, "world", "preload_chunk_radius");
+    world.preloadStructureRadius = toml::find<float>(tomlRef, "world", "preload_structure_radius");
+    world.preloadLightingRadius = toml::find<float>(tomlRef, "world", "preload_lighting_radius");
     if (world.preloadLightingRadius > world.preloadChunkRadius)
     {
         world.preloadLightingRadius = world.preloadChunkRadius;
     }
-    world.chunkSpawnCleanInterval = toml::find<float>(configValue, "world", "chunk_spawn_clean_interval");
-    world.loadTerrainInterval = toml::find<float>(configValue, "world", "load_terrain_interval");
-    world.loadTerrainBatch = toml::find<uint16_t>(configValue, "world", "load_terrain_batch");
-    world.loadChunkInterval = toml::find<float>(configValue, "world", "load_chunk_interval");
-    world.loadChunkBatch = toml::find<uint16_t>(configValue, "world", "load_chunk_batch");
-    world.unloadChunkInterval = toml::find<float>(configValue, "world", "unload_chunk_interval");
-    world.unloadChunkBatch = toml::find<uint16_t>(configValue, "world", "unload_chunk_batch");
-    world.unloadTerrainInterval = toml::find<float>(configValue, "world", "unload_terrain_interval");
-    world.unloadTerrainBatch = toml::find<uint16_t>(configValue, "world", "unload_terrain_batch");
-    audio.channels = toml::find<int>(configValue, "audio", "channels");
-    audio.masterVolume = toml::find<float>(configValue, "audio", "master_volume");
-    audio.freq = toml::find<int>(configValue, "audio", "freq");
-    audio.track = toml::find<std::vector<AudioTrack>>(configValue, "audio", "track");
-    audio.format = toml::find<std::string>(configValue, "audio", "format");
-    console.maxHistoryEntries = toml::find<uint16_t>(configValue, "console", "max_history_entries");
-    runtimePath = toml::find<std::string>(configValue, "runtime_path");
-    command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(configValue, "command",
+    world.chunkSpawnCleanInterval = toml::find<float>(tomlRef, "world", "chunk_spawn_clean_interval");
+    world.loadTerrainInterval = toml::find<float>(tomlRef, "world", "load_terrain_interval");
+    world.loadTerrainBatch = toml::find<uint16_t>(tomlRef, "world", "load_terrain_batch");
+    world.loadChunkInterval = toml::find<float>(tomlRef, "world", "load_chunk_interval");
+    world.loadChunkBatch = toml::find<uint16_t>(tomlRef, "world", "load_chunk_batch");
+    world.unloadChunkInterval = toml::find<float>(tomlRef, "world", "unload_chunk_interval");
+    world.unloadChunkBatch = toml::find<uint16_t>(tomlRef, "world", "unload_chunk_batch");
+    world.unloadTerrainInterval = toml::find<float>(tomlRef, "world", "unload_terrain_interval");
+    world.unloadTerrainBatch = toml::find<uint16_t>(tomlRef, "world", "unload_terrain_batch");
+    audio.channels = toml::find<int>(tomlRef, "audio", "channels");
+    audio.masterVolume = toml::find<float>(tomlRef, "audio", "master_volume");
+    audio.freq = toml::find<int>(tomlRef, "audio", "freq");
+    audio.track = toml::find<std::vector<AudioTrack>>(tomlRef, "audio", "track");
+    audio.format = toml::find<std::string>(tomlRef, "audio", "format");
+    console.maxHistoryEntries = toml::find<uint16_t>(tomlRef, "console", "max_history_entries");
+    runtimePath = toml::find<std::string>(tomlRef, "runtime_path");
+    command.locateMaxRadiusSearchChunks = toml::find<uint16_t>(tomlRef, "command",
                                                                "locate_max_radius_search_chunks");
-    commandHooks = toml::find<std::vector<CommandHookResource>>(configValue, "command_hooks");
-    anim.chunkFadeinDuration = toml::find<float>(configValue, "animation", "chunk_fadein_duration");
-    anim.chunkFadeInFrom = toml::find<float>(configValue, "animation", "chunk_fadein_from");
-    anim.chunkFadeInTo = toml::find<float>(configValue, "animation", "chunk_fadein_to");
+    commandHooks = toml::find<std::vector<CommandHookResource>>(tomlRef, "command_hooks");
+    anim.chunkFadeinDuration = toml::find<float>(tomlRef, "animation", "chunk_fadein_duration");
+    anim.chunkFadeInFrom = toml::find<float>(tomlRef, "animation", "chunk_fadein_from");
+    anim.chunkFadeInTo = toml::find<float>(tomlRef, "animation", "chunk_fadein_to");
 #if  !defined(NDEBUG)
-    debug.displayDebugPanel = toml::find<bool>(configValue, "debug", "display_debug_panel");
-    debug.displayBox2dShape = toml::find<bool>(configValue, "debug", "display_box2d_shape");
-    debug.displayDraggableTarget = toml::find<bool>(configValue, "debug", "display_draggable_target");
-    debug.displayElevationMap = toml::find<bool>(configValue, "debug", "display_elevation_map");
-    debug.displayTempMap = toml::find<bool>(configValue, "debug", "display_temp_map");
-    debug.displayHumidityMap = toml::find<bool>(configValue, "debug", "display_humidity_map");
-    debug.displayErosionMap = toml::find<bool>(configValue, "debug", "display_erosion_map");
-    debug.displayWeirdnessMap = toml::find<bool>(configValue, "debug", "display_weirdness_map");
-    light.enable = toml::find<bool>(configValue, "light", "enable");
+    debug.displayDebugPanel = toml::find<bool>(tomlRef, "debug", "display_debug_panel");
+    debug.displayBox2dShape = toml::find<bool>(tomlRef, "debug", "display_box2d_shape");
+    debug.displayDraggableTarget = toml::find<bool>(tomlRef, "debug", "display_draggable_target");
+    debug.displayElevationMap = toml::find<bool>(tomlRef, "debug", "display_elevation_map");
+    debug.displayTempMap = toml::find<bool>(tomlRef, "debug", "display_temp_map");
+    debug.displayHumidityMap = toml::find<bool>(tomlRef, "debug", "display_humidity_map");
+    debug.displayErosionMap = toml::find<bool>(tomlRef, "debug", "display_erosion_map");
+    debug.displayWeirdnessMap = toml::find<bool>(tomlRef, "debug", "display_weirdness_map");
+    light.enable = toml::find<bool>(tomlRef, "light", "enable");
 #endif
     fingerprint_++;
+    return true;
 }

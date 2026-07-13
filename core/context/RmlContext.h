@@ -29,6 +29,7 @@
 #include <memory>
 
 #include "core/rmi/GameFileInterface.h"
+#include "core/rmi/GameFontEngineInterface.h"
 #include "core/rmi/RenderInterfaceSDL3.h"
 #include "core/rmi/SystemInterfaceSDL3.h"
 #include "RmlUi/Core/ElementDocument.h"
@@ -37,22 +38,29 @@ namespace glimmer
 {
     class RmlContext
     {
+        friend class Scene;
+        friend class App;
+        friend class AppEventLoop;
         std::unique_ptr<SystemInterfaceSDL3> systemInterfaceSDL3_ = nullptr;
         std::unique_ptr<RenderInterfaceSDL3> renderInterfaceSDL3_ = nullptr;
+        ResourcePackManager* resourcePackManager_ = nullptr;
         std::unique_ptr<GameFileInterface> gameFileInterface_ = nullptr;
+        std::unique_ptr<GameFontEngineInterface> gameFontEngineInterface_ = nullptr;
         Rml::Context* context_ = nullptr;
-        Rml::ElementDocument* document_ = nullptr;
+        std::unordered_map<uint64_t, Rml::ElementDocument*> elementDocumentCache_;
+        std::vector<std::vector<Rml::byte>> fontDataBuffers_;
 
-    public:
-        bool Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer, int width, int height);
-
-        static bool LoadFont(const std::filesystem::path& fontPath);
+        [[nodiscard]] Rml::ElementDocument* LoadDocument(const AppContext* appContext,
+                                                         const ResourceRef* resourceRef);
 
         [[nodiscard]] Rml::Context* GetRmlContext() const;
 
-        bool LoadDocument(const std::filesystem::path& documentPath);
+    public:
+        bool Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer,
+                  ResourcePackManager* resourcePackManager, ResourceLocator* resourceLocator,
+                  toml::value* langsValuePtr, int width, int height);
 
-        [[nodiscard]] Rml::ElementDocument* GetDocument() const;
+        bool LoadFont(const VirtualFileSystem* virtualFileSystem, const std::string& path);
 
         void UpdateContext() const;
 

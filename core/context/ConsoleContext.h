@@ -47,7 +47,7 @@ namespace glimmer
         std::unique_ptr<CommandHookManager> commandHookManager_;
         std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_;
 
-        void RegisterCommands(AppContext* appContext, toml::value* configValue) const;
+        void RegisterCommands(AppContext* appContext) const;
 
     public:
         ConsoleContext();
@@ -55,16 +55,20 @@ namespace glimmer
         ~ConsoleContext();
 
         bool Init(AppContext* appContext, VirtualFileSystem* vfs, const std::string& runtimePath,
-                  int maxHistoryEntries, toml::value* configValue);
+                  int maxHistoryEntries);
 
         void StopConsoleWorker() const;
 
         void SaveCommandHistory() const;
 
         [[nodiscard]] CommandManager* GetCommandManager() const;
+
         [[nodiscard]] ConsoleWorker* GetConsoleWorker() const;
+
         [[nodiscard]] CommandHistoryManager* GetCommandHistoryManager() const;
+
         [[nodiscard]] CommandHookManager* GetCommandHookManager() const;
+
         [[nodiscard]] DynamicSuggestionsManager* GetDynamicSuggestionsManager() const;
     };
 }

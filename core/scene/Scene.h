@@ -29,6 +29,8 @@
 #include <SDL3/SDL_render.h>
 
 #include "core/Config.h"
+#include "core/context/RmlContext.h"
+#include "RmlUi/Core/DataModelHandle.h"
 
 
 namespace glimmer
@@ -39,6 +41,9 @@ namespace glimmer
     {
         bool initSubclassFinish_ = false;
         AppContext* appContext_ = nullptr;
+        RmlContext* rmlContext_ = nullptr;
+        std::unordered_set<Rml::ElementDocument*> elementDocumentSet_;
+        std::vector<std::unique_ptr<Rml::DataModelConstructor>> rmlConstructors_;
 
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
@@ -52,6 +57,10 @@ namespace glimmer
        * 在子类完全构造后调用。
        */
         void Init();
+
+        Rml::ElementDocument* LoadDocument(const ResourceRef* resourceRef);
+
+        Rml::DataModelConstructor* CreateDataModel(const Rml::String& name);
 
     public:
         /**
@@ -102,7 +111,7 @@ namespace glimmer
         virtual void OnWindowSizeChanged(const int& width, const int& height);
 
 
-        virtual ~Scene() = default;
+        virtual ~Scene();
 
         explicit Scene(AppContext* context);
     };

@@ -36,6 +36,7 @@
 #include "core/utils/TransparentStringHash.h"
 
 #include "ResourcePack.h"
+#include "RmlResourceResult.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "core/Config.h"
 #include "core/mod/ResourceLocator.h"
@@ -131,6 +132,9 @@ namespace glimmer
 
         std::optional<std::string> GetFontPath(const std::vector<std::string>& enabledResourcePack,
                                                const std::string& language);
+
+        std::unique_ptr<RmlResourceResult> GetRmlFilePath(const AppContext* appContext,
+                                                          const ResourceRef* resourceRef);
 
         std::shared_ptr<SDL_Texture> CreateStringTexture(const std::string& string, const Color* color,
                                                          int wrapWidth = 0);

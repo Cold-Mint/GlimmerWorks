@@ -30,46 +30,111 @@
 #include "RmlUi/Core/Context.h"
 #include "RmlUi/Core/Core.h"
 
-bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer, int width, int height)
+
+Rml::ElementDocument* glimmer::RmlContext::LoadDocument(const AppContext* appContext, const ResourceRef* resourceRef)
 {
-    systemInterfaceSDL3_ = std::make_unique<SystemInterfaceSDL3>();
+    if (context_ == nullptr || resourcePackManager_ == nullptr || resourceRef == nullptr)
+    {
+        return nullptr;
+    }
+    const uint64_t fingerprint = resourceRef->GetFingerprint();
+    auto iterator = elementDocumentCache_.find(fingerprint);
+    if (iterator == elementDocumentCache_.end())
+    {
+        const std::unique_ptr<RmlResourceResult> rmlResourceResult = resourcePackManager_->GetRmlFilePath(
+            appContext, resourceRef);
+        if (rmlResourceResult == nullptr)
+        {
+            LogCat::w(std::source_location::current(), "rmlResourceResult == nullptr");
+            return nullptr;
+        }
+        auto rmlPath = rmlResourceResult->GetResource();
+        if (rmlPath == nullptr)
+        {
+            LogCat::w(std::source_location::current(), "path == nullptr");
+            return nullptr;
+        }
+        Rml::ElementDocument* elementDocument = context_->LoadDocument(*rmlPath);
+        if (elementDocument == nullptr)
+        {
+            LogCat::w(std::source_location::current(), "elementDocument == nullptr");
+            return nullptr;
+        }
+        elementDocumentCache_[fingerprint] = elementDocument;
+        elementDocument->Show();
+        return elementDocument;
+    }
+    Rml::ElementDocument* elementDocument = iterator->second;
+    elementDocument->Show();
+    return elementDocument;
+}
+
+Rml::Context* glimmer::RmlContext::GetRmlContext() const
+{
+    if (context_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "context_ == nullptr");
+        return nullptr;
+    }
+    return context_;
+}
+
+bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer,
+                               ResourcePackManager* resourcePackManager, ResourceLocator* resourceLocator,
+                               toml::value* langsValuePtr, int width,
+                               int height)
+{
+    resourcePackManager_ = resourcePackManager;
+    systemInterfaceSDL3_ = std::make_unique<SystemInterfaceSDL3>(langsValuePtr);
     Rml::SetSystemInterface(systemInterfaceSDL3_.get());
-    renderInterfaceSDL3_ = std::make_unique<RenderInterfaceSDL3>(renderer);
+    renderInterfaceSDL3_ = std::make_unique<RenderInterfaceSDL3>(renderer, resourcePackManager, resourceLocator);
     Rml::SetRenderInterface(renderInterfaceSDL3_.get());
     gameFileInterface_ = std::make_unique<GameFileInterface>(virtualFileSystem);
     Rml::SetFileInterface(gameFileInterface_.get());
+    gameFontEngineInterface_ = std::make_unique<GameFontEngineInterface>();
+    Rml::SetFontEngineInterface(gameFontEngineInterface_.get());
     Rml::Initialise();
     context_ = Rml::CreateContext("glimmerGui", Rml::Vector2i(width, height));
     return true;
 }
 
-bool glimmer::RmlContext::LoadFont(const std::filesystem::path& fontPath)
+bool glimmer::RmlContext::LoadFont(const VirtualFileSystem* virtualFileSystem, const std::string& path)
 {
-    return Rml::LoadFontFace(fontPath);
-}
-
-Rml::Context* glimmer::RmlContext::GetRmlContext() const
-{
-    return context_;
-}
-
-bool glimmer::RmlContext::LoadDocument(const std::filesystem::path& documentPath)
-{
-    if (context_ == nullptr)
+    if (virtualFileSystem == nullptr)
     {
         return false;
     }
-    document_ = context_->LoadDocument(documentPath);
-    if (document_ != nullptr)
+    std::unique_ptr<std::istream> stream = virtualFileSystem->ReadFileAsStream(path);
+    if (stream == nullptr)
     {
-        document_->Show();
+        return false;
     }
-    return true;
-}
+    std::vector<Rml::byte> buffer;
+    stream->seekg(0, std::ios::end);
+    std::streamsize size = stream->tellg();
+    if (size <= 0)
+    {
+        return false;
+    }
+    stream->seekg(0, std::ios::beg);
 
-Rml::ElementDocument* glimmer::RmlContext::GetDocument() const
-{
-    return document_;
+    buffer.resize(static_cast<size_t>(size));
+    if (!stream->read(reinterpret_cast<char*>(buffer.data()), size))
+    {
+        return false;
+    }
+    fontDataBuffers_.push_back(std::move(buffer));
+    const auto& storedData = fontDataBuffers_.back();
+    bool success = Rml::LoadFontFace(
+        Rml::Span(storedData.data(), storedData.size()),
+        "core",
+        Rml::Style::FontStyle::Normal
+    );
+    if (!success)
+    {
+        fontDataBuffers_.pop_back();
+    }
+    return success;
 }
 
 void glimmer::RmlContext::UpdateContext() const
@@ -78,7 +143,6 @@ void glimmer::RmlContext::UpdateContext() const
     {
         return;
     }
-    LogCat::i("rml Update Context");
     context_->Update();
 }
 
@@ -87,18 +151,6 @@ void glimmer::RmlContext::RenderContext() const
     if (context_ == nullptr)
     {
         return;
-    }
-    LogCat::i("rml Render Context");
-    LogCat::i("root size w=", document_->GetBox().GetSize().x);
-    LogCat::i("root size h=", document_->GetBox().GetSize().y);
-    LogCat::i("root visible=", document_->IsVisible());
-    LogCat::i("children size=", document_->GetNumChildren());
-    for (int i = 0; i < document_->GetNumChildren(); ++i)
-    {
-        Rml::Element* child = document_->GetChild(i);
-        LogCat::i("children index=", i, "v=", child->IsVisible());
-        LogCat::i("children", i, "box size x=", child->GetBox().GetSize().x);
-        LogCat::i("children", i, "box size y=", child->GetBox().GetSize().y);
     }
     context_->Render();
 }

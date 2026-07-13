@@ -44,11 +44,6 @@ void glimmer::ConfigCommand::InitSuggestions(NodeTree<std::string>* suggestionsT
     suggestionsTree->AddChild("commit");
 }
 
-glimmer::ConfigCommand::ConfigCommand(AppContext* appContext, toml::value* value) : Command(appContext),
-    configValue_(value)
-{
-}
-
 const std::string& glimmer::ConfigCommand::GetName() const
 {
     return CONFIG_COMMAND_NAME;
@@ -121,6 +116,13 @@ void glimmer::ConfigCommand::UpdateSetSuggestions(const CommandArgs* commandArgs
     }
 }
 
+glimmer::ConfigCommand::ConfigCommand(AppContext* appContext) :
+    Command(appContext),
+    config_(appContext->GetConfig()), configValue_(config_->GetConfigValue()),
+    virtualFileSystem_(appContext->GetVirtualFileSystem())
+{
+}
+
 glimmer::NodeTree<std::string>* glimmer::ConfigCommand::GetSuggestionsTree(const CommandArgs* commandArgs)
 {
     const int size = commandArgs->GetSize();
@@ -158,9 +160,13 @@ bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const C
     const std::string operation = commandArgs->AsString(1);
     if (operation == "commit")
     {
-        if (appContext->GetVirtualFileSystem()->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue_)))
+        if (virtualFileSystem_ == nullptr || config_ == nullptr)
         {
-            appContext->GetConfig()->LoadConfig(*configValue_);
+            return false;
+        }
+        if (virtualFileSystem_->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue_)))
+        {
+            config_->ReloadConfig();
             onMessageRef(langsResources->configurationCommitSuccess);
             return true;
         }
@@ -205,9 +211,13 @@ bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const C
                 value = "true";
             }
         }
+        if (config_ == nullptr)
+        {
+            return false;
+        }
         if (SetValue(parameterName, value))
         {
-            appContext->GetConfig()->LoadConfig(*configValue_);
+            config_->ReloadConfig();
             onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
                                      parameterName, value));
         }
@@ -227,7 +237,6 @@ glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string& 
     }
 
     const toml::value* current = configValue_;
-
     std::size_t start = 0;
     while (true)
     {
@@ -260,13 +269,30 @@ glimmer::ConfigType glimmer::ConfigCommand::GetParameterType(const std::string& 
         start = dot + 1;
     }
 
-    if (current->is_string()) return TYPE_STRING;
-    if (current->is_array()) return TYPE_ARRAY;
-    if (current->is_table()) return TYPE_TABLE;
-    if (current->is_floating()) return TYPE_FLOAT;
-    if (current->is_integer()) return TYPE_INT;
-    if (current->is_boolean()) return TYPE_BOOLEAN;
-
+    if (current->is_string())
+    {
+        return TYPE_STRING;
+    }
+    if (current->is_array())
+    {
+        return TYPE_ARRAY;
+    }
+    if (current->is_table())
+    {
+        return TYPE_TABLE;
+    }
+    if (current->is_floating())
+    {
+        return TYPE_FLOAT;
+    }
+    if (current->is_integer())
+    {
+        return TYPE_INT;
+    }
+    if (current->is_boolean())
+    {
+        return TYPE_BOOLEAN;
+    }
     return TYPE_STRING;
 }
 

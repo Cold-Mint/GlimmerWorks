@@ -25,7 +25,9 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "core/Config.h"
 #include "core/console/Command.h"
+#include "core/vfs/VirtualFileSystem.h"
 #include "toml11/types.hpp"
 
 namespace glimmer
@@ -42,14 +44,16 @@ namespace glimmer
 
     class ConfigCommand final : public Command
     {
-        toml::value* configValue_;
+        Config* config_ = nullptr;
+        toml::value* configValue_ = nullptr;
+        VirtualFileSystem* virtualFileSystem_ = nullptr;
 
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
         void UpdateSetSuggestions(const CommandArgs* commandArgs);
 
     public:
-        explicit ConfigCommand(AppContext* appContext, toml::value* value);
+        explicit ConfigCommand(AppContext* appContext);
 
         ~ConfigCommand() override = default;
 

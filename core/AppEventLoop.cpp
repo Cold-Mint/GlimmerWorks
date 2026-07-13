@@ -31,11 +31,108 @@
 #include "CommandHookManager.h"
 #include <ranges>
 
+#include "RmlUi/Core/Context.h"
+
 
 glimmer::AppEventLoop::AppEventLoop(AppContext* appContext, Uint64& lastInputTime) :
-    appContext_(appContext),
+    appContext_(appContext), rmlContext_(appContext->GetRmlContext()->GetRmlContext()),
     lastInputTime_(lastInputTime)
 {
+}
+
+int glimmer::AppEventLoop::SdlModToRmlModifier(const SDL_Keymod sdl_mod)
+{
+    int mask = 0;
+    if (sdl_mod & SDL_KMOD_CTRL)
+    {
+        mask |= Rml::Input::KM_CTRL;
+    }
+    if (sdl_mod & SDL_KMOD_SHIFT)
+    {
+        mask |= Rml::Input::KM_SHIFT;
+    }
+    if (sdl_mod & SDL_KMOD_ALT)
+    {
+        mask |= Rml::Input::KM_ALT;
+    }
+    if (sdl_mod & SDL_KMOD_GUI)
+    {
+        mask |= Rml::Input::KM_META;
+    }
+    if (sdl_mod & SDL_KMOD_CAPS)
+    {
+        mask |= Rml::Input::KM_CAPSLOCK;
+    }
+    if (sdl_mod & SDL_KMOD_NUM)
+    {
+        mask |= Rml::Input::KM_NUMLOCK;
+    }
+    return mask;
+}
+
+void glimmer::AppEventLoop::SendEventToRML(const SDL_Event& event) const
+{
+    if (rmlContext_ == nullptr)
+    {
+        return;
+    }
+
+    int modState = SdlModToRmlModifier(SDL_GetModState());
+    switch (event.type)
+    {
+    case SDL_EVENT_MOUSE_MOTION:
+        rmlContext_->ProcessMouseMove(
+            static_cast<int>(event.motion.x),
+            static_cast<int>(event.motion.y),
+            modState
+        );
+        break;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        //event.button.button - 1 Here, -1 is because the index of the left mouse button in SDL is 1. And in RML, the condition index == 0 is used to determine a click event.
+        //event.button.button - 1 其中-1是因为SDL的按钮左键index为1。而rml内判断index==0为click事件。
+        rmlContext_->ProcessMouseButtonDown(
+            event.button.button - 1,
+            modState
+        );
+        break;
+
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+        rmlContext_->ProcessMouseButtonUp(
+            event.button.button - 1,
+            modState
+        );
+        break;
+    case SDL_EVENT_MOUSE_WHEEL:
+        {
+            Rml::Vector2f delta{
+                (event.wheel.x),
+                (event.wheel.y)
+            };
+            rmlContext_->ProcessMouseWheel(delta, modState);
+            break;
+        }
+    case SDL_EVENT_KEY_DOWN:
+        rmlContext_->ProcessKeyDown(
+            static_cast<Rml::Input::KeyIdentifier>(event.key.scancode),
+            modState
+        );
+        break;
+
+    case SDL_EVENT_KEY_UP:
+        rmlContext_->ProcessKeyUp(
+            static_cast<Rml::Input::KeyIdentifier>(event.key.scancode),
+            modState
+        );
+        break;
+    case SDL_EVENT_TEXT_INPUT:
+        rmlContext_->ProcessTextInput(event.text.text);
+        break;
+    case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+        rmlContext_->ProcessMouseLeave();
+        break;
+    default:
+        break;
+    }
 }
 
 void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) const
@@ -49,7 +146,11 @@ void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) const
             continue;
         }
         HandleCommandHooks(event);
-        DispatchEvent(event);
+        if (DispatchEventToScene(event))
+        {
+            continue;
+        }
+        SendEventToRML(event);
     }
 }
 
@@ -161,11 +262,10 @@ void glimmer::AppEventLoop::HandleCommandHooks(const SDL_Event& event) const
     }
 }
 
-void glimmer::AppEventLoop::DispatchEvent(const SDL_Event& event) const
+bool glimmer::AppEventLoop::DispatchEventToScene(const SDL_Event& event) const
 {
-    auto sceneManager = appContext_->GetSceneManager();
+    const auto sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
-
     bool handled = false;
     for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
     {
@@ -177,10 +277,11 @@ void glimmer::AppEventLoop::DispatchEvent(const SDL_Event& event) const
     }
     if (handled)
     {
-        return;
+        return true;
     }
     if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
     {
-        topScene->HandleEvent(event);
+        return topScene->HandleEvent(event);
     }
+    return false;
 }

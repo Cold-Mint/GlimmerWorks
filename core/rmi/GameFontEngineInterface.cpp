@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,41 +24,4 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "SplashScene.h"
-
-#include "MainScene.h"
-#include "core/context/AppContext.h"
-#include "SDL3/SDL_timer.h"
-
-glimmer::SplashScene::SplashScene(AppContext* context)
-    : Scene(context)
-{
-    nextSceneTime_ = SDL_GetTicks() + 2000;
-    Init();
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("splash/splash");
-    LoadDocument(&resourceRef);
-}
-
-void glimmer::SplashScene::Update(float delta)
-{
-    if (!sceneJumped_ && SDL_GetTicks() >= nextSceneTime_)
-    {
-        sceneJumped_ = true;
-        AppContext* appContext = GetAppContext();
-        if (appContext == nullptr)
-        {
-            return;
-        }
-        SceneManager* sceneManager = appContext->GetSceneManager();
-        if (sceneManager == nullptr)
-        {
-            return;
-        }
-        sceneManager->ReplaceScene(std::make_unique<MainScene>(appContext));
-    }
-}
-
-glimmer::SplashScene::~SplashScene() = default;
+#include "GameFontEngineInterface.h"

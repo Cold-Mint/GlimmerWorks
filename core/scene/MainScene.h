@@ -28,21 +28,11 @@
 #include <vector>
 #include "Scene.h"
 #include "core/Hyperlink.h"
-#include "SDL3_mixer/SDL_mixer.h"
+#include "RmlUi/Core/EventListener.h"
 
 namespace glimmer
 {
-    struct Star
-    {
-        float x = 0.0F;
-        float y = 0.0F;
-        Uint8 r = 0;
-        Uint8 g = 0;
-        Uint8 b = 0;
-        float size = 0.0F;
-    };
-
-    class HomeScene : public Scene
+    class MainScene : public Scene, Rml::EventListener
     {
         std::vector<Hyperlink> hyperlinks_{
             {"Github", "https://github.com/Cold-Mint/GlimmerWorks"},
@@ -50,15 +40,15 @@ namespace glimmer
             {"itch.io", "https://cold-mint.itch.io/glimmerworks"},
             {"QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"}
         };
-        std::string copyright_{GetCopyrightString()};
         float uiScale_ = 1.0F;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
+        std::string copyright_{GetCopyrightString()};
 
         static std::string GetCopyrightString();
 
     public:
-        explicit HomeScene(AppContext* context);
+        explicit MainScene(AppContext* context);
 
         void OnConfigChanged(const Config* config) override;
 
@@ -66,6 +56,8 @@ namespace glimmer
 
         bool OnBackPressed() override;
 
-        ~HomeScene() override;
+        void ProcessEvent(Rml::Event& event) override;
+
+        ~MainScene() override;
     };
 }

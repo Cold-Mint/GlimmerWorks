@@ -61,7 +61,8 @@ slogans = [
     "True joy shouldn't be defined by chance.",
     "It's okay to be earnest in your own world.",
     "Dreams are light, life is heavy.",
-    "Where is my dinner tonight?"
+    "Where is my dinner tonight?",
+    "Everyone’s here to enjoy the game, not to hear the creator ramble about how lonely game development is."
 ]
 start_game = "Start Game"
 teleport_entity = "The entity with Id {} has been sent to x={},y={}."

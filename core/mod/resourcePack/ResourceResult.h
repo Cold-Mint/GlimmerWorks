@@ -38,12 +38,12 @@ namespace glimmer
     protected:
         virtual ~ResourceResult() = default;
 
-        virtual void DestroyResource() = 0;
-
     public:
         void SetResourcePack(const ResourcePack* resourcePack);
 
         [[nodiscard]] const ResourcePack* GetResourcePack() const;
+
+        virtual void DestroyResource() = 0;
 
         void SetResource(T* resource);
 

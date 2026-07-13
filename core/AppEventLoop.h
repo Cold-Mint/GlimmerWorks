@@ -34,13 +34,18 @@ namespace glimmer
     class AppEventLoop
     {
         AppContext* appContext_ = nullptr;
+        Rml::Context* rmlContext_ = nullptr;
         Uint64& lastInputTime_;
+
+        static int SdlModToRmlModifier(SDL_Keymod sdl_mod);
+
+        void SendEventToRML(const SDL_Event& event) const;
 
         bool HandleSystemEvent(const SDL_Event& event) const;
 
         void HandleCommandHooks(const SDL_Event& event) const;
 
-        void DispatchEvent(const SDL_Event& event) const;
+        bool DispatchEventToScene(const SDL_Event& event) const;
 
     public:
         AppEventLoop(AppContext* appContext, Uint64& lastInputTime);

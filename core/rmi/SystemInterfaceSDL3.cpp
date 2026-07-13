@@ -27,8 +27,24 @@
 #include "SystemInterfaceSDL3.h"
 
 #include "core/log/LogCat.h"
+#include "toml11/find.hpp"
 
-bool glimmer::SystemInterfaceSDL3::LogMessage(Rml::Log::Type type, const Rml::String& message)
+glimmer::SystemInterfaceSDL3::SystemInterfaceSDL3(toml::value* langsValuePtr) : langsValuePtr_(langsValuePtr)
+{
+}
+
+int glimmer::SystemInterfaceSDL3::TranslateString(Rml::String& translated, const Rml::String& input)
+{
+    if (langsValuePtr_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "langsValuePtr_ == nullptr");
+        return 0;
+    }
+    translated = toml::find_or<std::string>(*langsValuePtr_, input, input);
+    return 1;
+}
+
+bool glimmer::SystemInterfaceSDL3::LogMessage(const Rml::Log::Type type, const Rml::String& message)
 {
     if (type == Rml::Log::LT_ERROR)
     {

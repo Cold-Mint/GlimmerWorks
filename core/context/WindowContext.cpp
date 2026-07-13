@@ -28,6 +28,24 @@
 
 #include <SDL3/SDL.h>
 
+bool glimmer::WindowContext::StopInput() const
+{
+    if (window_ == nullptr)
+    {
+        return false;
+    }
+    return SDL_StopTextInput(window_);
+}
+
+bool glimmer::WindowContext::StartInput() const
+{
+    if (window_ == nullptr)
+    {
+        return false;
+    }
+    return SDL_StartTextInput(window_);
+}
+
 void glimmer::WindowContext::SetWindow(SDL_Window* window)
 {
     window_ = window;

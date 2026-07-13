@@ -29,7 +29,7 @@
 
 namespace glimmer {
     struct Hyperlink {
-        std::string displayText;
-        std::string link;
+        std::string text;
+        std::string url;
     };
 }

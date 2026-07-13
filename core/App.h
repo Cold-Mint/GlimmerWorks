@@ -42,6 +42,7 @@ namespace glimmer
         AppContext* appContext_ = nullptr;
         SDL_Window* window = nullptr;
         MIX_Mixer* mixer_ = nullptr;
+        std::string fontData_;
 
 
         bool InitSDL();

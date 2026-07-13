@@ -44,6 +44,8 @@
 #include "scene/SceneManager.h"
 #include "console/ConsoleWorker.h"
 #include "CommandHookManager.h"
+#include "RmlUi/Core/Context.h"
+#include "scene/ConsoleOverlay.h"
 
 
 bool glimmer::App::InitSDL()
@@ -117,7 +119,9 @@ bool glimmer::App::InitWindowAndRenderer()
         LogCat::e(std::source_location::current(), "RmlContext is nullptr");
         return false;
     }
-    rmlContext->Init(appContext_->GetVirtualFileSystem(), renderer_, config->window.width,
+    rmlContext->Init(appContext_->GetVirtualFileSystem(), renderer_, appContext_->GetResourcePackManager(),
+                     appContext_->GetResourceLocator(), appContext_->GetLanguageValue(),
+                     config->window.width,
                      config->window.height);
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr)
@@ -169,7 +173,17 @@ bool glimmer::App::InitFont() const
     {
         return false;
     }
-    if (!RmlContext::LoadFont(std::filesystem::path(fontPath)))
+    const std::optional<std::string> fontDataOptional = virtualFileSystem->ReadFileAsString(fontPath);
+    if (!fontDataOptional.has_value())
+    {
+        return false;
+    }
+    RmlContext* rmlContext = appContext_->GetRmlContext();
+    if (rmlContext == nullptr)
+    {
+        return false;
+    }
+    if (!rmlContext->LoadFont(virtualFileSystem, fontPath))
     {
         LogCat::e(std::source_location::current(), "RmlContext Failed to load font: ", actualPath.value());
         return false;
@@ -324,7 +338,7 @@ void glimmer::App::Run() const
     {
         return;
     }
-    // rmlContext->LoadDocument("/home/coldmint/projects/mods/resource_packs/glimmerworks_res/layouts/@core/splash/splash.rml");
+    Rml::Context* rmlContextCore = rmlContext->GetRmlContext();
     while (windowContext->IsRunning() && sceneManager->GetSceneCount() > 0)
     {
         int windowWidth = 0;
@@ -333,6 +347,10 @@ void glimmer::App::Run() const
 
         if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight))
         {
+            if (rmlContextCore != nullptr)
+            {
+                rmlContextCore->SetDimensions({windowWidth, windowHeight});
+            }
             HandleWindowSizeChange(windowWidth, windowHeight);
         }
 
@@ -454,7 +472,7 @@ void glimmer::App::InitScenesAndConsole() const
 #if  !defined(NDEBUG)
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
 #endif
-
+    sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
     ConsoleWorker* consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
     if (consoleWorker == nullptr)
     {

@@ -53,7 +53,6 @@ namespace glimmer
         std::string language_;
         std::unique_ptr<WindowContext> windowContext_ = nullptr;
         std::unique_ptr<Config> config_ = nullptr;
-        std::unique_ptr<toml::value> configValue_ = nullptr;
         std::unique_ptr<SceneManager> sceneManager_ = nullptr;
         std::unique_ptr<VirtualFileSystem> virtualFileSystem_ = nullptr;
         std::unique_ptr<ResourcePackManager> resourcePackManager_ = nullptr;
@@ -68,9 +67,10 @@ namespace glimmer
         std::unique_ptr<MainThreadDispatcher> mainThreadDispatcher_ = nullptr;
         std::vector<GameUIMessage> gameUIMessages_;
         toml::spec tomlVersion_ = toml::spec::v(1, 1, 0);
+        std::unique_ptr<toml::value> langsValue_ = nullptr;
         bool initSuccess_ = false;
 
-        void LoadLanguage(const std::string& data) const;
+        void LoadLanguage(const std::string& data);
 
         static std::string GetTimeFileName(const std::string& prefix = "screenshot", const std::string& ext = ".png");
 
@@ -106,6 +106,8 @@ namespace glimmer
         [[nodiscard]] MainThreadDispatcher* GetMainThreadDispatcher() const;
 
         [[nodiscard]] Config* GetConfig() const;
+
+        [[nodiscard]] toml::value* GetLanguageValue() const;
 
         [[nodiscard]] LangsResources* GetLangsResources() const;
 

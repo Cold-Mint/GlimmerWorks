@@ -702,7 +702,7 @@ glimmer::SavesManager* glimmer::AppContext::GetSavesManager() const
 
 void glimmer::AppContext::SetRandomSlogan() const
 {
-    if (windowContext_->GetWindow() == nullptr || langsResources_ == nullptr)
+    if (langsResources_ == nullptr)
     {
         windowContext_->SetWindowTitle(PROJECT_NAME.c_str());
         return;

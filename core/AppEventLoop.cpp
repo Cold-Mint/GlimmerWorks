@@ -106,27 +106,29 @@ void glimmer::AppEventLoop::SendEventToRML(const SDL_Event& event) const
         {
             Rml::Vector2f delta{
                 (event.wheel.x),
-                (event.wheel.y)
+                (-event.wheel.y)
             };
             rmlContext_->ProcessMouseWheel(delta, modState);
             break;
         }
     case SDL_EVENT_KEY_DOWN:
+
         rmlContext_->ProcessKeyDown(
-            static_cast<Rml::Input::KeyIdentifier>(event.key.scancode),
+            RmlSDL::ConvertKey(static_cast<int>(event.key.key)),
             modState
         );
         break;
 
     case SDL_EVENT_KEY_UP:
         rmlContext_->ProcessKeyUp(
-            static_cast<Rml::Input::KeyIdentifier>(event.key.scancode),
+            RmlSDL::ConvertKey(static_cast<int>(event.key.key)),
             modState
         );
         break;
     case SDL_EVENT_TEXT_INPUT:
         rmlContext_->ProcessTextInput(event.text.text);
         break;
+
     case SDL_EVENT_WINDOW_MOUSE_LEAVE:
         rmlContext_->ProcessMouseLeave();
         break;

@@ -12,6 +12,7 @@ command_not_found = "Command Not Found：{}"
 composable_item_is_null = "Composable item is null."
 confirm = "Confirm"
 console = "Console"
+console_placeholder = "Enter /help to view help."
 create_world = "Create World"
 delete_game = "delete Game"
 efficiency_tip = "{}% excavation efficiency"
@@ -62,7 +63,10 @@ slogans = [
     "It's okay to be earnest in your own world.",
     "Dreams are light, life is heavy.",
     "Where is my dinner tonight?",
-    "Everyone’s here to enjoy the game, not to hear the creator ramble about how lonely game development is."
+    "Everyone’s here to enjoy the game, not to hear the creator ramble about how lonely game development is.",
+    "You’re right. Maybe I should go see a therapist and ask them why I created this game world in the first place.",
+    "There are no rags-to-riches comebacks or instant wealth in life. The so-called ideals are nothing more than breaking free from restraint, escaping that so-called \"standard life\".",
+    "For me, making this game is nothing but a way to put food on the table."
 ]
 start_game = "Start Game"
 teleport_entity = "The entity with Id {} has been sent to x={},y={}."

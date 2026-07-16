@@ -71,11 +71,6 @@ void glimmer::WindowContext::SetWindowTitle(const char* title) const
     SDL_SetWindowTitle(window_, title);
 }
 
-SDL_Window* glimmer::WindowContext::GetWindow() const
-{
-    return window_;
-}
-
 SDL_Renderer* glimmer::WindowContext::GetRenderer() const
 {
     return renderer_;

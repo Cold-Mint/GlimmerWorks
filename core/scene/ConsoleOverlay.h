@@ -26,15 +26,44 @@
  */
 #pragma once
 #include "Scene.h"
+#include "core/console/CommandStructure.h"
+#include "core/console/CommandSuggestions.h"
+#include "core/console/ConsoleMessage.h"
+#include "core/console/suggestion/DynamicSuggestionsManager.h"
+#include "RmlUi/Core/EventListener.h"
 
 namespace glimmer
 {
-    class ConsoleOverlay : public Scene
+    class CommandManager;
+    class ConsoleWorker;
+    class DataModelHandle;
+
+    class ConsoleOverlay : public Scene, Rml::EventListener
     {
         Rml::ElementDocument* consoleDocument_ = nullptr;
+        ConsoleWorker* consoleWorker_ = nullptr;
+        CommandManager* commandManager_ = nullptr;
+        DynamicSuggestionsManager* dynamicSuggestionsManager_ = nullptr;
+        std::vector<ConsoleMessage> consoleMessages_;
+        std::vector<CommandStructure> commandStructure_;
+        std::vector<CommandSuggestions> commandSuggestions_;
+        std::string consolePlaceholder_;
+        Rml::DataModelHandle consoleModelHandle_;
+
+        void StartInput() const;
+
+        void StopInput() const;
+
+        void ShowConsole();
+
+        void HideConsole() const;
+
+        void OnTextChanged(const std::string& text, int cursorPos);
 
     public:
         explicit ConsoleOverlay(AppContext* context);
+
+        void ProcessEvent(Rml::Event& event) override;
 
         bool OnBackPressed() override;
 

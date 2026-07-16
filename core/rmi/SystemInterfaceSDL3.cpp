@@ -35,12 +35,21 @@ glimmer::SystemInterfaceSDL3::SystemInterfaceSDL3(toml::value* langsValuePtr) : 
 
 int glimmer::SystemInterfaceSDL3::TranslateString(Rml::String& translated, const Rml::String& input)
 {
-    if (langsValuePtr_ == nullptr)
+    if (input.empty() || input == "\n")
     {
-        LogCat::w(std::source_location::current(), "langsValuePtr_ == nullptr");
         return 0;
     }
-    translated = toml::find_or<std::string>(*langsValuePtr_, input, input);
+    if (langsValuePtr_ == nullptr)
+    {
+        return 0;
+    }
+    auto translatedResult = toml::find_or_default<std::string>(*langsValuePtr_, input);
+    if (translatedResult.empty())
+    {
+        translated = input;
+        return 0;
+    }
+    translated = translatedResult;
     return 1;
 }
 

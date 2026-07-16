@@ -282,8 +282,6 @@ target_sources(GlimmerWorks
         core/App.cpp
         core/AppEventLoop.cpp
         core/AppRenderer.cpp
-        core/mod/resourcePack/RmlResourceResult.cpp
-        core/scene/ConsoleOverlay.cpp
         core/BoolOrToggle.cpp
         core/Box2dFilter.cpp
         core/CommandHookEntry.cpp
@@ -304,6 +302,9 @@ target_sources(GlimmerWorks
         core/console/CommandResponse.cpp
         core/console/CommandResult.cpp
         core/console/CommandSender.cpp
+        core/console/CommandStructure.cpp
+        core/console/CommandSuggestions.cpp
+        core/console/ConsoleMessage.cpp
         core/console/ConsoleWorker.cpp
         core/console/asset_enumerator/AbilityItemsAssetEnumerator.cpp
         core/console/asset_enumerator/BiomeDecorsAssetEnumerator.cpp
@@ -325,7 +326,6 @@ target_sources(GlimmerWorks
         core/console/command/AssetViewerCommand.cpp
         core/console/command/BiomeScoreCommand.cpp
         core/console/command/Box2DCommand.cpp
-        core/rmi/GameFontEngineInterface.cpp
         core/console/command/ClearCommand.cpp
         core/console/command/ConfigCommand.cpp
         core/console/command/EchoCommand.cpp
@@ -536,16 +536,19 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/ResourcePackConfig.cpp
         core/mod/resourcePack/ResourcePackManager.cpp
         core/mod/resourcePack/ResourceResult.cpp
+        core/mod/resourcePack/RmlResourceResult.cpp
         core/mod/resourcePack/TextureResourceResult.cpp
         core/mod/templateCommand/InsertTemplateCommand.cpp
         core/mod/templateCommand/SetTemplateCommand.cpp
         core/mod/templateCommand/UnSetTemplateCommand.cpp
         core/rmi/GameFileInterface.cpp
+        core/rmi/GameFontEngineInterface.cpp
         core/rmi/RenderInterfaceSDL3.cpp
         core/rmi/SystemInterfaceSDL3.cpp
         core/saves/MapManifest.cpp
         core/saves/Saves.cpp
         core/saves/SavesManager.cpp
+        core/scene/ConsoleOverlay.cpp
         core/scene/CreateWorldScene.cpp
         core/scene/DebugOverlay.cpp
         core/scene/MainScene.cpp
@@ -650,9 +653,6 @@ target_sources(GlimmerWorks
         core/LangsResources.h
         core/SelectedItemRuntimeData.h
         core/TagRuntimeData.h
-        core/rmi/GameFontEngineInterface.h
-        core/mod/resourcePack/RmlResourceResult.h
-        core/scene/ConsoleOverlay.h
         core/TilePlacementConfig.h
         core/TileStateBackup.h
         core/console/Command.h
@@ -663,6 +663,9 @@ target_sources(GlimmerWorks
         core/console/CommandResponse.h
         core/console/CommandResult.h
         core/console/CommandSender.h
+        core/console/CommandStructure.h
+        core/console/CommandSuggestions.h
+        core/console/ConsoleMessage.h
         core/console/ConsoleWorker.h
         core/console/asset_enumerator/AbilityItemsAssetEnumerator.h
         core/console/asset_enumerator/BiomeDecorsAssetEnumerator.h
@@ -895,16 +898,19 @@ target_sources(GlimmerWorks
         core/mod/resourcePack/ResourcePackConfig.h
         core/mod/resourcePack/ResourcePackManager.h
         core/mod/resourcePack/ResourceResult.h
+        core/mod/resourcePack/RmlResourceResult.h
         core/mod/resourcePack/TextureResourceResult.h
         core/mod/templateCommand/InsertTemplateCommand.h
         core/mod/templateCommand/SetTemplateCommand.h
         core/mod/templateCommand/UnSetTemplateCommand.h
         core/rmi/GameFileInterface.h
+        core/rmi/GameFontEngineInterface.h
         core/rmi/RenderInterfaceSDL3.h
         core/rmi/SystemInterfaceSDL3.h
         core/saves/MapManifest.h
         core/saves/Saves.h
         core/saves/SavesManager.h
+        core/scene/ConsoleOverlay.h
         core/scene/CreateWorldScene.h
         core/scene/DebugOverlay.h
         core/scene/MainScene.h

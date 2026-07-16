@@ -158,8 +158,9 @@ std::vector<std::string> glimmer::CommandManager::GetCommandNameSuggestions(cons
     return results;
 }
 
-std::vector<std::string> glimmer::CommandManager::CollectMatchingSuggestions(const std::vector<std::string>& suggestions,
-                                                                             const std::string& keyWord)
+std::vector<std::string> glimmer::CommandManager::CollectMatchingSuggestions(
+    const std::vector<std::string>& suggestions,
+    const std::string& keyWord)
 {
     std::vector<std::string> results;
     for (const auto& suggestion : suggestions)
@@ -176,8 +177,9 @@ std::vector<std::string> glimmer::CommandManager::CollectMatchingSuggestions(con
     return results;
 }
 
-glimmer::NodeTree<std::string>* glimmer::CommandManager::FindNextNodeTree(const DynamicSuggestionsManager* dynamicSuggestionsManager,
-                                                                           glimmer::NodeTree<std::string>* nextNodeTree, const std::string& keyWord)
+glimmer::NodeTree<std::string>* glimmer::CommandManager::FindNextNodeTree(
+    const DynamicSuggestionsManager* dynamicSuggestionsManager,
+    NodeTree<std::string>* nextNodeTree, const std::string& keyWord)
 {
     if (nextNodeTree == nullptr)
     {
@@ -243,7 +245,6 @@ bool glimmer::CommandManager::TryExpandDynamicSuggestion(
     auto [it, inserted] = expandedSet.insert(child);
     if (!inserted)
     {
-
 #if defined(NDEBUG)
         return true;
 #else
@@ -274,19 +275,8 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
     const DynamicSuggestionsManager* dynamicSuggestionsManager, const CommandArgs& commandArgs,
     const int cursorPos) const
 {
-    const int size = commandArgs.GetSize();
-    if (size == 0)
-    {
-        return {};
-    }
-
     const int tokenIndex = commandArgs.GetTokenIndexAtCursor(cursorPos);
-    if (tokenIndex == -1)
-    {
-        return {};
-    }
-
-    if (tokenIndex == 0)
+    if (tokenIndex == -1 || tokenIndex == 0)
     {
         return GetCommandNameSuggestions(commandArgs.AsString(0));
     }
@@ -307,12 +297,10 @@ std::vector<std::string> glimmer::CommandManager::GetSuggestions(
             return {};
         }
     }
-
     if (nextNodeTree == nullptr)
     {
         return {};
     }
-
     const std::vector<std::string> suggestions = ExtendSuggestions(dynamicSuggestionsManager, nextNodeTree);
     return CollectMatchingSuggestions(suggestions, commandArgs.AsString(tokenIndex));
 }

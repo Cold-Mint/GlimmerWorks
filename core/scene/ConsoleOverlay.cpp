@@ -164,8 +164,66 @@ void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::E
         LogCat::w(std::source_location::current(), "args.empty()");
         return;
     }
+    if (consoleInputElement_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "consoleInputElement_ == nullptr");
+        return;
+    }
     auto message = args[0].Get<std::string>();
-    LogCat::i(message.c_str());
+
+    std::string newCommand;
+    const int tokenCount = commandArgs_.GetSize();
+    for (int i = 0; i < tokenCount; ++i)
+    {
+        if (i > 0)
+        {
+            newCommand += " ";
+        }
+        if (i == tokenIndex_)
+        {
+            newCommand += message;
+        }
+        else
+        {
+            newCommand += commandArgs_.AsString(i);
+        }
+    }
+
+    if (tokenIndex_ >= tokenCount)
+    {
+        if (!newCommand.empty())
+        {
+            newCommand += " ";
+        }
+        newCommand += message;
+    }
+
+    newCommand += " ";
+
+    int cursorPos = 1;
+    for (int i = 0; i < tokenCount; ++i)
+    {
+        if (i >= tokenIndex_)
+        {
+            break;
+        }
+        cursorPos += commandArgs_.AsString(i).length() + 1;
+    }
+    if (tokenIndex_ >= tokenCount && !newCommand.empty())
+    {
+        cursorPos += 1;
+    }
+    cursorPos += message.length() + 1;
+
+    consoleInputElement_->SetAttribute("value", "/" + newCommand);
+
+    commandArgs_.SetCommand(newCommand);
+
+    consoleInputElement_->SetSelectionRange(cursorPos, cursorPos);
+
+    UpdateTokenIndex();
+    UpdateCommandStructure();
+    UpdateCommandSuggestions();
 }
 
 void glimmer::ConsoleOverlay::OnConsoleKeydown(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)

@@ -273,9 +273,8 @@ bool glimmer::CommandManager::TryExpandDynamicSuggestion(
 
 std::vector<std::string> glimmer::CommandManager::GetSuggestions(
     const DynamicSuggestionsManager* dynamicSuggestionsManager, const CommandArgs& commandArgs,
-    const int cursorPos) const
+    const int tokenIndex) const
 {
-    const int tokenIndex = commandArgs.GetTokenIndexAtCursor(cursorPos);
     if (tokenIndex == -1 || tokenIndex == 0)
     {
         return GetCommandNameSuggestions(commandArgs.AsString(0));

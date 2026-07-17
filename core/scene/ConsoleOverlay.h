@@ -26,11 +26,13 @@
  */
 #pragma once
 #include "Scene.h"
+#include "core/console/CommandArgs.h"
 #include "core/console/CommandStructure.h"
 #include "core/console/CommandSuggestions.h"
 #include "core/console/ConsoleMessage.h"
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
 #include "RmlUi/Core/EventListener.h"
+#include "RmlUi/Core/Elements/ElementFormControlInput.h"
 
 namespace glimmer
 {
@@ -49,6 +51,19 @@ namespace glimmer
         std::vector<CommandSuggestions> commandSuggestions_;
         std::string consolePlaceholder_;
         Rml::DataModelHandle consoleModelHandle_;
+        Rml::ElementFormControlInput* consoleInputElement_ = nullptr;
+        CommandArgs commandArgs_ = CommandArgs("");
+        int tokenIndex_ = 0;
+
+        /**
+         * Generate automatic completion suggestions for commands.
+         * 生成命令的自动完成建议。
+         */
+        void UpdateCommandSuggestions();
+
+        void UpdateTokenIndex();
+
+        void UpdateCommandStructure();
 
         void StartInput() const;
 
@@ -58,7 +73,7 @@ namespace glimmer
 
         void HideConsole() const;
 
-        void OnTextChanged(const std::string& text, int cursorPos);
+        void OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
     public:
         explicit ConsoleOverlay(AppContext* context);

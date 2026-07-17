@@ -28,6 +28,7 @@
 #include <vector>
 #include "Scene.h"
 #include "core/Hyperlink.h"
+#include "core/utils/StringUtils.h"
 #include "RmlUi/Core/EventListener.h"
 
 namespace glimmer
@@ -35,15 +36,15 @@ namespace glimmer
     class MainScene : public Scene, Rml::EventListener
     {
         std::vector<Hyperlink> hyperlinks_{
-            {"Github", "https://github.com/Cold-Mint/GlimmerWorks"},
-            {"Discord", "https://discord.com/invite/CfppC9WHw8"},
-            {"itch.io", "https://cold-mint.itch.io/glimmerworks"},
-            {"QQ Channel", "https://pd.qq.com/s/cntb09fr1?b=9"}
+            {StringUtils::MakeRawText("Github"), "https://github.com/Cold-Mint/GlimmerWorks"},
+            {StringUtils::MakeRawText("Discord"), "https://discord.com/invite/CfppC9WHw8"},
+            {StringUtils::MakeRawText("itch.io"), "https://cold-mint.itch.io/glimmerworks"},
+            {StringUtils::MakeRawText("QQ Channel"), "https://pd.qq.com/s/cntb09fr1?b=9"}
         };
         float uiScale_ = 1.0F;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
-        std::string copyright_{GetCopyrightString()};
+        std::string copyright_{StringUtils::MakeRawText(GetCopyrightString())};
 
         static std::string GetCopyrightString();
 

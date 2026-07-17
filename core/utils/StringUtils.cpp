@@ -33,6 +33,8 @@
 #include <sstream>
 
 #include "blake3.h"
+#include "core/Constants.h"
+#include "fmt/color.h"
 
 std::string glimmer::StringUtils::ToSafeSaveName(const std::string& utf8Str)
 {
@@ -91,6 +93,19 @@ std::span<const std::byte> glimmer::StringUtils::StringToByteData(const std::str
     return {
         reinterpret_cast<const std::byte*>(string.data()), string.size()
     };
+}
+
+std::string glimmer::StringUtils::MakeRawText(const std::string_view string)
+{
+    if (string.empty())
+    {
+        return "";
+    }
+    if (string.starts_with(RAW_TEXT_PREFIX))
+    {
+        return std::string(string);
+    }
+    return fmt::format("{}{}", RAW_TEXT_PREFIX, string);
 }
 
 std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istream* stream)

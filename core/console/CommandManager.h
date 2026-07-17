@@ -78,7 +78,7 @@ namespace glimmer
         [[nodiscard]] std::string GetHelpText(const LangsResources* langsResources);
 
         std::vector<std::string> GetSuggestions(const DynamicSuggestionsManager* dynamicSuggestionsManager,
-                                                const CommandArgs& commandArgs, int cursorPos) const;
+                                                const CommandArgs& commandArgs, int tokenIndex) const;
 
         /**
          * Get Command Structure

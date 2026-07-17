@@ -30,14 +30,21 @@
 #include "core/mod/ResourceRef.h"
 #include <optional>
 
-glimmer::CommandArgs::CommandArgs(const std::string_view command) : command_(command)
+glimmer::CommandArgs::CommandArgs(const std::string_view command)
 {
+    SetCommand(command);
+}
+
+void glimmer::CommandArgs::SetCommand(const std::string_view command)
+{
+    tokens_.clear();
     std::istringstream iss(command);
     std::string token;
     while (iss >> token)
     {
         tokens_.push_back(token);
     }
+    command_ = command;
 }
 
 int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const
@@ -45,7 +52,7 @@ int glimmer::CommandArgs::GetTokenIndexAtCursor(const int cursorPos) const
     const auto commandLen = static_cast<int>(command_.size());
     if (commandLen == 0 || cursorPos < 0 || cursorPos > commandLen)
     {
-        return -1;
+        return 0;
     }
 
     int tokenIndex = 0;

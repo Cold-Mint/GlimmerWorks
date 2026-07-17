@@ -27,10 +27,15 @@
 #pragma once
 #include <string>
 
+#include "RmlUi/Core/DataModelHandle.h"
+
 namespace glimmer
 {
     struct CommandSuggestions
     {
         std::string message;
+        std::string prefix;
+        std::string keyword;
+        std::string suffix;
     };
 }

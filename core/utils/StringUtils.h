@@ -80,6 +80,14 @@ namespace glimmer
         static std::span<const std::byte> StringToByteData(std::string_view string);
 
         /**
+         * MakeRawText
+         * 生成原始文本
+         * @param string 文本
+         * @return 原始文本（不被引擎翻译的）
+         */
+        static std::string MakeRawText(std::string_view string);
+
+        /**
          * Write the byte stream to a string
          * 将字节流写入到字符串
          * @param stream

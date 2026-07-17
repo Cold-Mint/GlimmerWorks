@@ -28,7 +28,67 @@
 
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
+#include "core/utils/StringUtils.h"
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
+
+void glimmer::ConsoleOverlay::UpdateCommandSuggestions()
+{
+    commandSuggestions_.clear();
+    std::vector<std::string> suggestionVector = commandManager_->GetSuggestions(
+        dynamicSuggestionsManager_, commandArgs_, tokenIndex_);
+    std::ranges::sort(suggestionVector);
+    std::string keyword = commandArgs_.AsString(tokenIndex_);
+    for (auto& suggestion : suggestionVector)
+    {
+        size_t keywordIndex = suggestion.find(keyword);
+        CommandSuggestions commandSuggestions;
+        if (keywordIndex == std::string::npos)
+        {
+            commandSuggestions.message = suggestion;
+            commandSuggestions.suffix = StringUtils::MakeRawText(suggestion);
+            commandSuggestions.prefix = "";
+            commandSuggestions.keyword = "";
+            commandSuggestions_.emplace_back(commandSuggestions);
+            continue;
+        }
+        commandSuggestions.message = suggestion;
+        commandSuggestions.prefix = StringUtils::MakeRawText(suggestion.substr(0, keywordIndex));
+        commandSuggestions.suffix = StringUtils::MakeRawText(suggestion.substr(keywordIndex + keyword.length()));
+        commandSuggestions.keyword = StringUtils::MakeRawText(keyword);
+        commandSuggestions_.emplace_back(commandSuggestions);
+    }
+    consoleModelHandle_.DirtyVariable("command_suggestions");
+}
+
+void glimmer::ConsoleOverlay::UpdateTokenIndex()
+{
+    int selectionStart = 0;
+    int selectionEnd = 0;
+    Rml::String selectedText;
+    consoleInputElement_->GetSelection(&selectionStart, &selectionEnd, &selectedText);
+    tokenIndex_ = commandArgs_.GetTokenIndexAtCursor(selectionEnd - 1);
+}
+
+void glimmer::ConsoleOverlay::UpdateCommandStructure()
+{
+    commandStructure_.clear();
+    const std::string commandName = commandArgs_.AsString(0);
+    if (const Command* command = commandManager_->GetCommand(commandName); command == nullptr)
+    {
+        consoleModelHandle_.DirtyVariable("command_structure");
+        return;
+    }
+    const std::vector<std::string> commandStructureVector = commandManager_->GetCommandStructure(&commandArgs_);
+    int structureIndex = 0;
+    for (auto& string : commandStructureVector)
+    {
+        CommandStructure commandStructure(StringUtils::MakeRawText(string));
+        commandStructure.selected = structureIndex == tokenIndex_;
+        commandStructure_.emplace_back(commandStructure);
+        structureIndex++;
+    }
+    consoleModelHandle_.DirtyVariable("command_structure");
+}
 
 void glimmer::ConsoleOverlay::StartInput() const
 {
@@ -97,61 +157,9 @@ void glimmer::ConsoleOverlay::HideConsole() const
     StopInput();
 }
 
-void glimmer::ConsoleOverlay::OnTextChanged(const std::string& text, int cursorPos)
+void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
 {
-    if (text.empty() || !text.starts_with('/'))
-    {
-        commandStructure_.clear();
-        consoleModelHandle_.DirtyVariable("command_structure");
-        consolePlaceholder_ = "";
-        consoleModelHandle_.DirtyVariable("console_placeholder");
-        commandSuggestions_.clear();
-        consoleModelHandle_.DirtyVariable("command_suggestions");
-        return;
-    }
-    int commandCursorPos = cursorPos - 1;
-    //Get the command name.
-    //获取命令名称。
-    auto blankIndex = text.find_first_of(' ');
-    std::stringstream commandNameStream;
-    if (blankIndex == std::string::npos)
-    {
-        commandNameStream << text.substr(1);
-    }
-    else
-    {
-        commandNameStream << text.substr(1, blankIndex - 1);
-    }
-    std::string commandName = commandNameStream.str();
-    std::string commandLine = text.substr(1);
-    CommandArgs commandArgs(commandLine);
-    commandSuggestions_.clear();
-    std::vector<std::string> suggestion = commandManager_->GetSuggestions(
-        dynamicSuggestionsManager_, commandArgs, commandCursorPos);
-    std::ranges::sort(suggestion);
-    for (auto& string : suggestion)
-    {
-        commandSuggestions_.emplace_back(CommandSuggestions(string));
-    }
-    consoleModelHandle_.DirtyVariable("command_suggestions");
-    if (const Command* command = commandManager_->GetCommand(commandName); command == nullptr)
-    {
-        commandStructure_.clear();
-        consoleModelHandle_.DirtyVariable("command_structure");
-        consolePlaceholder_ = "";
-        consoleModelHandle_.DirtyVariable("console_placeholder");
-        return;
-    }
 
-    consolePlaceholder_ = "";
-    consoleModelHandle_.DirtyVariable("console_placeholder");
-    const std::vector<std::string> commandStructure = commandManager_->GetCommandStructure(&commandArgs);
-    commandStructure_.clear();
-    for (auto& string : commandStructure)
-    {
-        commandStructure_.emplace_back(CommandStructure(string));
-    }
-    consoleModelHandle_.DirtyVariable("command_structure");
 }
 
 glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
@@ -167,14 +175,23 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
         constructor->Bind("console_messages", &consoleMessages_);
         auto commandStructure = constructor->RegisterStruct<CommandStructure>();
         commandStructure.RegisterMember("message", &CommandStructure::message);
+        commandStructure.RegisterMember("selected", &CommandStructure::selected);
         constructor->RegisterArray<std::vector<CommandStructure>>();
         constructor->Bind("command_structure", &commandStructure_);
         consolePlaceholder_ = "console_placeholder";
         constructor->Bind("console_placeholder", &consolePlaceholder_);
         auto commandSuggestions = constructor->RegisterStruct<CommandSuggestions>();
         commandSuggestions.RegisterMember("message", &CommandSuggestions::message);
+        commandSuggestions.RegisterMember("suffix", &CommandSuggestions::suffix);
+        commandSuggestions.RegisterMember("keyword", &CommandSuggestions::keyword);
+        commandSuggestions.RegisterMember("prefix", &CommandSuggestions::prefix);
         constructor->RegisterArray<std::vector<CommandSuggestions>>();
         constructor->Bind("command_suggestions", &commandSuggestions_);
+        constructor->BindEventCallback(
+            "on_suggest_click",
+            &ConsoleOverlay::OnSuggestClick,
+            this
+        );
         consoleModelHandle_ = constructor->GetModelHandle();
     }
     ResourceRef resourceRef;
@@ -191,7 +208,12 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
     }
     consoleInput->AddEventListener(Rml::EventId::Keydown, this);
     consoleInput->AddEventListener(Rml::EventId::Change, this);
-
+    consoleInputElement_ = rmlui_dynamic_cast<Rml::ElementFormControlInput*>(consoleInput);
+    if (consoleInputElement_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "consoleInputElement== nullptr");
+        return;
+    }
     const AppContext* appContext = GetAppContext();
     if (appContext == nullptr)
     {
@@ -226,71 +248,118 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
 
 void glimmer::ConsoleOverlay::ProcessEvent(Rml::Event& event)
 {
-    if (event.GetType() == "keydown" && event.GetParameter("key_identifier", Rml::Input::KI_UNKNOWN) ==
-        Rml::Input::KeyIdentifier::KI_RETURN)
+    if (consoleInputElement_ == nullptr)
     {
-        Rml::Element* consoleInput = event.GetTargetElement();
-        if (consoleInput == nullptr)
+        LogCat::w(std::source_location::current(), "consoleInputElement== nullptr");
+        return;
+    }
+    Rml::Input::KeyIdentifier keyIdentifier = event.GetParameter("key_identifier", Rml::Input::KI_UNKNOWN);
+    if (event.GetType() == "keydown")
+    {
+        if (keyIdentifier ==
+            Rml::Input::KeyIdentifier::KI_RETURN)
         {
-            LogCat::w(std::source_location::current(), "consoleInput== nullptr");
-            return;
+            Rml::Element* consoleInput = event.GetTargetElement();
+            if (consoleInput == nullptr)
+            {
+                LogCat::w(std::source_location::current(), "consoleInput== nullptr");
+                return;
+            }
+            auto text = consoleInput->GetAttribute<Rml::String>("value", "");
+            if (text.empty())
+            {
+                LogCat::w(std::source_location::current(), "text.empty()");
+                return;
+            }
+            consoleInput->SetAttribute("value", "");
+            commandSuggestions_.clear();
+            consoleModelHandle_.DirtyVariable("command_suggestions");
+            commandStructure_.clear();
+            consoleModelHandle_.DirtyVariable("command_structure");
+            if (!text.starts_with('/'))
+            {
+                //General Message
+                //普通消息
+                consoleMessages_.emplace_back(text);
+                consoleModelHandle_.DirtyVariable("console_messages");
+                return;
+            }
+            if (consoleWorker_ == nullptr || commandManager_ == nullptr)
+            {
+                LogCat::w(std::source_location::current(), "consoleWorker_ == nullptr || commandManager_ == nullptr");
+                return;
+            }
+            consoleWorker_->CreateRequest(text.substr(1),
+                                          commandManager_->GetDefaultCommandSender());
         }
-        auto text = consoleInput->GetAttribute<Rml::String>("value", "");
-        if (text.empty())
+        if (keyIdentifier == Rml::Input::KI_LEFT)
         {
-            LogCat::w(std::source_location::current(), "text.empty()");
-            return;
+            UpdateTokenIndex();
+            UpdateCommandStructure();
+            UpdateCommandSuggestions();
         }
-        consoleInput->SetAttribute("value", "");
-        commandSuggestions_.clear();
-        consoleModelHandle_.DirtyVariable("command_suggestions");
-        commandStructure_.clear();
-        consoleModelHandle_.DirtyVariable("command_structure");
-        if (!text.starts_with('/'))
+        if (keyIdentifier == Rml::Input::KI_RIGHT)
         {
-            //General Message
-            //普通消息
-            consoleMessages_.emplace_back(text);
-            consoleModelHandle_.DirtyVariable("console_messages");
-            return;
+            UpdateTokenIndex();
+            UpdateCommandStructure();
+            UpdateCommandSuggestions();
         }
-        if (consoleWorker_ == nullptr || commandManager_ == nullptr)
-        {
-            LogCat::w(std::source_location::current(), "consoleWorker_ == nullptr || commandManager_ == nullptr");
-            return;
-        }
-        consoleWorker_->CreateRequest(text.substr(1),
-                                      commandManager_->GetDefaultCommandSender());
     }
     else if (event.GetType() == "change")
     {
-        const Rml::Element* consoleInput = event.GetTargetElement();
-        if (consoleInput == nullptr)
+        auto text = consoleInputElement_->GetAttribute<Rml::String>("value", "");
+        bool isCommand = text.starts_with('/');
+        bool textEmpty = text.empty();
+        if (textEmpty || !isCommand)
         {
-            LogCat::w(std::source_location::current(), "consoleInput== nullptr");
-            return;
+            commandArgs_.SetCommand("");
         }
-        auto text = consoleInput->GetAttribute<Rml::String>("value", "");
-        if (text.empty())
+        else
         {
-            LogCat::w(std::source_location::current(), "text.empty()");
+            commandArgs_.SetCommand(text.substr(1));
+        }
+        if (commandArgs_.GetSize() == 0)
+        {
             commandSuggestions_.clear();
             consoleModelHandle_.DirtyVariable("command_suggestions");
-            consolePlaceholder_ = "console_placeholder";
+            commandStructure_.clear();
+            consoleModelHandle_.DirtyVariable("command_structure");
+            if (!textEmpty || isCommand)
+            {
+                consolePlaceholder_ = "";
+            }
+            else
+            {
+                consolePlaceholder_ = "console_placeholder";
+            }
             consoleModelHandle_.DirtyVariable("console_placeholder");
+            if (!isCommand)
+            {
+                return;
+            }
+        }
+        consolePlaceholder_ = "";
+        consoleModelHandle_.DirtyVariable("console_placeholder");
+        UpdateTokenIndex();
+        UpdateCommandStructure();
+        UpdateCommandSuggestions();
+    }
+    else if (event.GetType() == "click")
+    {
+        Rml::Element* target = event.GetTargetElement();
+        if (target == nullptr)
+        {
+            LogCat::w(std::source_location::current(), "target == nullptr");
             return;
         }
-        const Rml::ElementFormControlInput* consoleInputElement = rmlui_dynamic_cast<const Rml::ElementFormControlInput
-            *>(consoleInput);
-
-        int selectionStart = 0;
-        int selectionEnd = 0;
-        Rml::String selectedText;
-        if (consoleInputElement != nullptr)
+        Rml::Variant* messageVariant = target->GetAttribute("data-suggestion-msg");
+        if (messageVariant == nullptr)
         {
-            consoleInputElement->GetSelection(&selectionStart, &selectionEnd, &selectedText);
+            LogCat::w(std::source_location::current(), "messageVariant == nullptr");
+            return;
         }
-        OnTextChanged(consoleInput->GetAttribute<Rml::String>("value", ""), selectionEnd);
+        auto msg = messageVariant->Get<std::string>();
+        LogCat::i(msg.c_str());
     }
 }
 

@@ -115,6 +115,9 @@ static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HORIZONTAL_SPACING =
 
 static constexpr std::string TOGGLE_KEY_WORD = "toggle";
 static constexpr std::string SESSION_KEY_WORD = "session";
+//Prohibited translation prefixes
+//禁止翻译的前缀
+static constexpr std::string RAW_TEXT_PREFIX = "@raw:";
 
 static constexpr std::string DEV_DISPLAY_NAME_KEY_COLD_MINT = "dev@Cold-Mint";
 static const std::string DEV_UUID_COLD_MINT = "4a724ce8-ec7f-411e-833c-b0a5e2529263";

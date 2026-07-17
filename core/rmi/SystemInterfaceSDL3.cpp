@@ -26,6 +26,7 @@
  */
 #include "SystemInterfaceSDL3.h"
 
+#include "core/Constants.h"
 #include "core/log/LogCat.h"
 #include "toml11/find.hpp"
 
@@ -38,6 +39,11 @@ int glimmer::SystemInterfaceSDL3::TranslateString(Rml::String& translated, const
     if (input.empty() || input == "\n")
     {
         return 0;
+    }
+    if (input.starts_with(RAW_TEXT_PREFIX))
+    {
+        translated = input.substr(RAW_TEXT_PREFIX.length());
+        return 1;
     }
     if (langsValuePtr_ == nullptr)
     {

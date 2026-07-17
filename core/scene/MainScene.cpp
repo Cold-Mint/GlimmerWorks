@@ -71,7 +71,7 @@ glimmer::MainScene::MainScene(AppContext* context)
         linkStruct.RegisterMember("text", &Hyperlink::text);
         linkStruct.RegisterMember("url", &Hyperlink::url);
         constructor->RegisterArray<std::vector<Hyperlink>>();
-        constructor->Bind("footerLinks", &hyperlinks_);
+        constructor->Bind("footer_links", &hyperlinks_);
     }
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);

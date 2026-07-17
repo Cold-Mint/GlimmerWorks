@@ -43,6 +43,8 @@ namespace glimmer
     public:
         explicit CommandArgs(std::string_view command);
 
+        void SetCommand(std::string_view command);
+
         /**
          * Obtain the Token position corresponding to the cursor position
          * 获取光标位置对应的Token位置

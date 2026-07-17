@@ -31,7 +31,6 @@
 #include "core/console/CommandSuggestions.h"
 #include "core/console/ConsoleMessage.h"
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
-#include "RmlUi/Core/EventListener.h"
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
 
 namespace glimmer
@@ -40,7 +39,7 @@ namespace glimmer
     class ConsoleWorker;
     class DataModelHandle;
 
-    class ConsoleOverlay : public Scene, Rml::EventListener
+    class ConsoleOverlay : public Scene
     {
         Rml::ElementDocument* consoleDocument_ = nullptr;
         ConsoleWorker* consoleWorker_ = nullptr;
@@ -73,12 +72,14 @@ namespace glimmer
 
         void HideConsole() const;
 
-        static void OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnConsoleKeydown(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnConsoleChange(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
     public:
         explicit ConsoleOverlay(AppContext* context);
-
-        void ProcessEvent(Rml::Event& event) override;
 
         bool OnBackPressed() override;
 

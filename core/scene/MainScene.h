@@ -29,11 +29,10 @@
 #include "Scene.h"
 #include "core/Hyperlink.h"
 #include "core/utils/StringUtils.h"
-#include "RmlUi/Core/EventListener.h"
 
 namespace glimmer
 {
-    class MainScene : public Scene, Rml::EventListener
+    class MainScene : public Scene
     {
         std::vector<Hyperlink> hyperlinks_{
             {StringUtils::MakeRawText("Github"), "https://github.com/Cold-Mint/GlimmerWorks"},
@@ -48,6 +47,10 @@ namespace glimmer
 
         static std::string GetCopyrightString();
 
+        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
     public:
         explicit MainScene(AppContext* context);
 
@@ -56,8 +59,6 @@ namespace glimmer
         void OnWindowSizeChanged(const int& width, const int& height) override;
 
         bool OnBackPressed() override;
-
-        void ProcessEvent(Rml::Event& event) override;
 
         ~MainScene() override;
     };

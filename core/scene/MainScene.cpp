@@ -72,6 +72,16 @@ glimmer::MainScene::MainScene(AppContext* context)
         linkStruct.RegisterMember("url", &Hyperlink::url);
         constructor->RegisterArray<std::vector<Hyperlink>>();
         constructor->Bind("footer_links", &hyperlinks_);
+        constructor->BindEventCallback(
+            "on_start_game_click",
+            &MainScene::OnStartGameClick,
+            this
+        );
+        constructor->BindEventCallback(
+            "on_exit_game_click",
+            &MainScene::OnExitGameClick,
+            this
+        );
     }
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -83,17 +93,21 @@ glimmer::MainScene::MainScene(AppContext* context)
         LogCat::e(std::source_location::current(), "document == nullptr");
         return;
     }
-    Rml::Element* startGameElement = document->GetElementById("start_game");
-    if (startGameElement != nullptr)
-    {
-        startGameElement->AddEventListener(Rml::EventId::Click, this);
-    }
+}
 
-    Rml::Element* exitGameElement = document->GetElementById("exit_game");
-    if (exitGameElement != nullptr)
+void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+}
+
+void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    const AppContext* context = GetAppContext();
+    if (context == nullptr)
     {
-        exitGameElement->AddEventListener(Rml::EventId::Click, this);
+        LogCat::e(std::source_location::current(), "context == nullptr");
+        return;
     }
+    context->ExitApp();
 }
 
 void glimmer::MainScene::OnConfigChanged(const Config* config)
@@ -111,28 +125,6 @@ bool glimmer::MainScene::OnBackPressed()
 {
     GetAppContext()->ExitApp();
     return true;
-}
-
-void glimmer::MainScene::ProcessEvent(Rml::Event& event)
-{
-    const Rml::Element* element = event.GetTargetElement();
-    if (element == nullptr)
-    {
-        return;
-    }
-    if (element->GetId() == "start_game")
-    {
-    }
-    if (element->GetId() == "exit_game")
-    {
-        const AppContext* context = GetAppContext();
-        if (context == nullptr)
-        {
-            LogCat::e(std::source_location::current(), "context == nullptr");
-            return;
-        }
-        context->ExitApp();
-    }
 }
 
 glimmer::MainScene::~MainScene() = default;

@@ -45,8 +45,8 @@ void glimmer::ConsoleOverlay::UpdateCommandSuggestions()
         if (keywordIndex == std::string::npos)
         {
             commandSuggestions.message = suggestion;
-            commandSuggestions.suffix = StringUtils::MakeRawText(suggestion);
-            commandSuggestions.prefix = "";
+            commandSuggestions.suffix = "";
+            commandSuggestions.prefix = StringUtils::MakeRawText(suggestion);
             commandSuggestions.keyword = "";
             commandSuggestions_.emplace_back(commandSuggestions);
             continue;
@@ -168,6 +168,100 @@ void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::E
     LogCat::i(message.c_str());
 }
 
+void glimmer::ConsoleOverlay::OnConsoleKeydown(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    if (consoleInputElement_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "consoleInputElement== nullptr");
+        return;
+    }
+    Rml::Input::KeyIdentifier keyIdentifier = event.GetParameter("key_identifier", Rml::Input::KI_UNKNOWN);
+    if (keyIdentifier == Rml::Input::KeyIdentifier::KI_RETURN)
+    {
+        auto text = consoleInputElement_->GetAttribute<Rml::String>("value", "");
+        if (text.empty())
+        {
+            LogCat::w(std::source_location::current(), "text.empty()");
+            return;
+        }
+        consoleInputElement_->SetAttribute("value", "");
+        commandSuggestions_.clear();
+        consoleModelHandle_.DirtyVariable("command_suggestions");
+        commandStructure_.clear();
+        consoleModelHandle_.DirtyVariable("command_structure");
+        if (!text.starts_with('/'))
+        {
+            consoleMessages_.emplace_back(text);
+            consoleModelHandle_.DirtyVariable("console_messages");
+            return;
+        }
+        if (consoleWorker_ == nullptr || commandManager_ == nullptr)
+        {
+            LogCat::w(std::source_location::current(), "consoleWorker_ == nullptr || commandManager_ == nullptr");
+            return;
+        }
+        consoleWorker_->CreateRequest(text.substr(1),
+                                      commandManager_->GetDefaultCommandSender());
+    }
+    if (keyIdentifier == Rml::Input::KI_LEFT)
+    {
+        UpdateTokenIndex();
+        UpdateCommandStructure();
+        UpdateCommandSuggestions();
+    }
+    if (keyIdentifier == Rml::Input::KI_RIGHT)
+    {
+        UpdateTokenIndex();
+        UpdateCommandStructure();
+        UpdateCommandSuggestions();
+    }
+}
+
+void glimmer::ConsoleOverlay::OnConsoleChange(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    if (consoleInputElement_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "consoleInputElement== nullptr");
+        return;
+    }
+    auto text = consoleInputElement_->GetAttribute<Rml::String>("value", "");
+    bool isCommand = text.starts_with('/');
+    bool textEmpty = text.empty();
+    if (textEmpty || !isCommand)
+    {
+        commandArgs_.SetCommand("");
+    }
+    else
+    {
+        commandArgs_.SetCommand(text.substr(1));
+    }
+    if (commandArgs_.GetSize() == 0)
+    {
+        commandSuggestions_.clear();
+        consoleModelHandle_.DirtyVariable("command_suggestions");
+        commandStructure_.clear();
+        consoleModelHandle_.DirtyVariable("command_structure");
+        if (!textEmpty || isCommand)
+        {
+            consolePlaceholder_ = "";
+        }
+        else
+        {
+            consolePlaceholder_ = "console_placeholder";
+        }
+        consoleModelHandle_.DirtyVariable("console_placeholder");
+        if (!isCommand)
+        {
+            return;
+        }
+    }
+    consolePlaceholder_ = "";
+    consoleModelHandle_.DirtyVariable("console_placeholder");
+    UpdateTokenIndex();
+    UpdateCommandStructure();
+    UpdateCommandSuggestions();
+}
+
 glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
     : Scene(context)
 {
@@ -198,6 +292,16 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
             &ConsoleOverlay::OnSuggestClick,
             this
         );
+        constructor->BindEventCallback(
+            "on_console_keydown",
+            &ConsoleOverlay::OnConsoleKeydown,
+            this
+        );
+        constructor->BindEventCallback(
+            "on_console_change",
+            &ConsoleOverlay::OnConsoleChange,
+            this
+        );
         consoleModelHandle_ = constructor->GetModelHandle();
     }
     ResourceRef resourceRef;
@@ -212,8 +316,6 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
         LogCat::e(std::source_location::current(), "consoleInput== nullptr");
         return;
     }
-    consoleInput->AddEventListener(Rml::EventId::Keydown, this);
-    consoleInput->AddEventListener(Rml::EventId::Change, this);
     consoleInputElement_ = rmlui_dynamic_cast<Rml::ElementFormControlInput*>(consoleInput);
     if (consoleInputElement_ == nullptr)
     {
@@ -249,106 +351,6 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
     {
         LogCat::w(std::source_location::current(), "dynamicSuggestionsManager== nullptr");
         return;
-    }
-}
-
-void glimmer::ConsoleOverlay::ProcessEvent(Rml::Event& event)
-{
-    if (consoleInputElement_ == nullptr)
-    {
-        LogCat::w(std::source_location::current(), "consoleInputElement== nullptr");
-        return;
-    }
-    Rml::Input::KeyIdentifier keyIdentifier = event.GetParameter("key_identifier", Rml::Input::KI_UNKNOWN);
-    if (event.GetType() == "keydown")
-    {
-        if (keyIdentifier ==
-            Rml::Input::KeyIdentifier::KI_RETURN)
-        {
-            Rml::Element* consoleInput = event.GetTargetElement();
-            if (consoleInput == nullptr)
-            {
-                LogCat::w(std::source_location::current(), "consoleInput== nullptr");
-                return;
-            }
-            auto text = consoleInput->GetAttribute<Rml::String>("value", "");
-            if (text.empty())
-            {
-                LogCat::w(std::source_location::current(), "text.empty()");
-                return;
-            }
-            consoleInput->SetAttribute("value", "");
-            commandSuggestions_.clear();
-            consoleModelHandle_.DirtyVariable("command_suggestions");
-            commandStructure_.clear();
-            consoleModelHandle_.DirtyVariable("command_structure");
-            if (!text.starts_with('/'))
-            {
-                //General Message
-                //普通消息
-                consoleMessages_.emplace_back(text);
-                consoleModelHandle_.DirtyVariable("console_messages");
-                return;
-            }
-            if (consoleWorker_ == nullptr || commandManager_ == nullptr)
-            {
-                LogCat::w(std::source_location::current(), "consoleWorker_ == nullptr || commandManager_ == nullptr");
-                return;
-            }
-            consoleWorker_->CreateRequest(text.substr(1),
-                                          commandManager_->GetDefaultCommandSender());
-        }
-        if (keyIdentifier == Rml::Input::KI_LEFT)
-        {
-            UpdateTokenIndex();
-            UpdateCommandStructure();
-            UpdateCommandSuggestions();
-        }
-        if (keyIdentifier == Rml::Input::KI_RIGHT)
-        {
-            UpdateTokenIndex();
-            UpdateCommandStructure();
-            UpdateCommandSuggestions();
-        }
-    }
-    else if (event.GetType() == "change")
-    {
-        auto text = consoleInputElement_->GetAttribute<Rml::String>("value", "");
-        bool isCommand = text.starts_with('/');
-        bool textEmpty = text.empty();
-        if (textEmpty || !isCommand)
-        {
-            commandArgs_.SetCommand("");
-        }
-        else
-        {
-            commandArgs_.SetCommand(text.substr(1));
-        }
-        if (commandArgs_.GetSize() == 0)
-        {
-            commandSuggestions_.clear();
-            consoleModelHandle_.DirtyVariable("command_suggestions");
-            commandStructure_.clear();
-            consoleModelHandle_.DirtyVariable("command_structure");
-            if (!textEmpty || isCommand)
-            {
-                consolePlaceholder_ = "";
-            }
-            else
-            {
-                consolePlaceholder_ = "console_placeholder";
-            }
-            consoleModelHandle_.DirtyVariable("console_placeholder");
-            if (!isCommand)
-            {
-                return;
-            }
-        }
-        consolePlaceholder_ = "";
-        consoleModelHandle_.DirtyVariable("console_placeholder");
-        UpdateTokenIndex();
-        UpdateCommandStructure();
-        UpdateCommandSuggestions();
     }
 }
 

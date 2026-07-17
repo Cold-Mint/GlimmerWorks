@@ -159,7 +159,13 @@ void glimmer::ConsoleOverlay::HideConsole() const
 
 void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
 {
-
+    if (args.empty())
+    {
+        LogCat::w(std::source_location::current(), "args.empty()");
+        return;
+    }
+    auto message = args[0].Get<std::string>();
+    LogCat::i(message.c_str());
 }
 
 glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
@@ -343,23 +349,6 @@ void glimmer::ConsoleOverlay::ProcessEvent(Rml::Event& event)
         UpdateTokenIndex();
         UpdateCommandStructure();
         UpdateCommandSuggestions();
-    }
-    else if (event.GetType() == "click")
-    {
-        Rml::Element* target = event.GetTargetElement();
-        if (target == nullptr)
-        {
-            LogCat::w(std::source_location::current(), "target == nullptr");
-            return;
-        }
-        Rml::Variant* messageVariant = target->GetAttribute("data-suggestion-msg");
-        if (messageVariant == nullptr)
-        {
-            LogCat::w(std::source_location::current(), "messageVariant == nullptr");
-            return;
-        }
-        auto msg = messageVariant->Get<std::string>();
-        LogCat::i(msg.c_str());
     }
 }
 

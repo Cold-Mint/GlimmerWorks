@@ -73,7 +73,7 @@ namespace glimmer
 
         void HideConsole() const;
 
-        void OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        static void OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
     public:
         explicit ConsoleOverlay(AppContext* context);

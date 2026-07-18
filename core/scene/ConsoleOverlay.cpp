@@ -175,6 +175,10 @@ void glimmer::ConsoleOverlay::ShowConsole()
         );
     }
     StartInput();
+    if (consoleInputElement_ != nullptr)
+    {
+        consoleInputElement_->Focus(true);
+    }
 }
 
 void glimmer::ConsoleOverlay::HideConsole() const

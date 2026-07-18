@@ -213,7 +213,6 @@ void glimmer::ConsoleOverlay::OnSuggestHover(Rml::DataModelHandle handle, Rml::E
     commandSuggestions_[index].selected = true;
     selectedSuggestionIndex_ = index;
     consoleModelHandle_.DirtyVariable("command_suggestions");
-    ScrollToSelectedSuggestion();
 }
 
 void glimmer::ConsoleOverlay::ScrollToSelectedSuggestion() const
@@ -625,6 +624,7 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event& event)
     if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat && consoleDocument_ != nullptr && event.key.scancode ==
         SDL_SCANCODE_F1)
     {
+        LogCat::d("按下了F1");
         if (consoleDocument_->
             IsVisible())
         {

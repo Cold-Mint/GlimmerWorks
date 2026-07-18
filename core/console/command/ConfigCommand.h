@@ -32,6 +32,8 @@
 
 namespace glimmer
 {
+    struct LangsResources;
+
     enum class ConfigType
     {
         TYPE_STRING,
@@ -51,6 +53,17 @@ namespace glimmer
         void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
 
         void UpdateSetSuggestions(const CommandArgs* commandArgs);
+
+        static bool ExecuteCommit(const VirtualFileSystem* virtualFileSystem, Config* config,
+                                  toml::value* configValue, const LangsResources* langsResources,
+                                  const std::function<void(const std::string& text)>& onMessageRef);
+
+        static bool ExecuteGet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
+                               const ConfigCommand* command, const std::function<void(const std::string& text)>& onMessageRef);
+
+        static bool ExecuteSet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
+                               Config* config, const ConfigCommand* command,
+                               const std::function<void(const std::string& text)>& onMessageRef);
 
     public:
         explicit ConfigCommand(AppContext* appContext);

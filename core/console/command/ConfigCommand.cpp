@@ -134,6 +134,71 @@ glimmer::NodeTree<std::string>* glimmer::ConfigCommand::GetSuggestionsTree(const
 }
 
 
+bool glimmer::ConfigCommand::ExecuteCommit(const VirtualFileSystem* virtualFileSystem, Config* config,
+                                            toml::value* configValue, const LangsResources* langsResources,
+                                            const std::function<void(const std::string& text)>& onMessageRef)
+{
+    if (virtualFileSystem == nullptr || config == nullptr)
+    {
+        return false;
+    }
+    if (virtualFileSystem->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue)))
+    {
+        config->ReloadConfig();
+        onMessageRef(langsResources->configurationCommitSuccess);
+        return true;
+    }
+    onMessageRef(langsResources->configurationCommitFail);
+    return false;
+}
+
+bool glimmer::ConfigCommand::ExecuteGet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
+                                        const ConfigCommand* command, const std::function<void(const std::string& text)>& onMessageRef)
+{
+    if (size < 3)
+    {
+        onMessageRef(fmt::format(
+            fmt::runtime(langsResources->insufficientParameterLength),
+            3, size));
+        return false;
+    }
+    onMessageRef(command->GetValue(commandArgs->AsString(2)));
+    return true;
+}
+
+bool glimmer::ConfigCommand::ExecuteSet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
+                                        Config* config, const ConfigCommand* command,
+                                        const std::function<void(const std::string& text)>& onMessageRef)
+{
+    if (size < 4)
+    {
+        onMessageRef(fmt::format(
+            fmt::runtime(langsResources->insufficientParameterLength),
+            4, size));
+        return false;
+    }
+
+    std::string parameterName = commandArgs->AsString(2);
+    std::string value = commandArgs->AsString(3);
+    const ConfigType configType = command->GetParameterType(parameterName);
+    if (configType == ConfigType::TYPE_BOOLEAN && value == TOGGLE_KEY_WORD)
+    {
+        const std::string oldValue = command->GetValue(parameterName);
+        value = (oldValue == "true") ? "false" : "true";
+    }
+    if (config == nullptr)
+    {
+        return false;
+    }
+    if (command->SetValue(parameterName, value))
+    {
+        config->ReloadConfig();
+        onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
+                                 parameterName, value));
+    }
+    return true;
+}
+
 bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                      const std::function<void(const std::string& text)>* onMessage)
 {
@@ -148,7 +213,7 @@ bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const C
     {
         return false;
     }
-    int size = commandArgs->GetSize();
+    const int size = commandArgs->GetSize();
     if (size < 2)
     {
         onMessageRef(fmt::format(
@@ -160,68 +225,15 @@ bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const C
     const std::string operation = commandArgs->AsString(1);
     if (operation == "commit")
     {
-        if (virtualFileSystem_ == nullptr || config_ == nullptr)
-        {
-            return false;
-        }
-        if (virtualFileSystem_->WriteFile(CONFIG_FILE_NAME, toml::format(*configValue_)))
-        {
-            config_->ReloadConfig();
-            onMessageRef(langsResources->configurationCommitSuccess);
-            return true;
-        }
-        onMessageRef(langsResources->configurationCommitFail);
-        return false;
+        return ExecuteCommit(virtualFileSystem_, config_, configValue_, langsResources, onMessageRef);
     }
-
     if (operation == "get")
     {
-        if (size < 3)
-        {
-            onMessageRef(fmt::format(
-                fmt::runtime(langsResources->insufficientParameterLength),
-                3, size));
-            return false;
-        }
-        onMessageRef(GetValue(commandArgs->AsString(2)));
-        return true;
+        return ExecuteGet(size, commandArgs, langsResources, this, onMessageRef);
     }
     if (operation == "set")
     {
-        if (size < 4)
-        {
-            onMessageRef(fmt::format(
-                fmt::runtime(langsResources->insufficientParameterLength),
-                4, size));
-            return false;
-        }
-
-        std::string parameterName = commandArgs->AsString(2);
-        std::string value = commandArgs->AsString(3);
-        const ConfigType configType = GetParameterType(parameterName);
-        if (configType == ConfigType::TYPE_BOOLEAN && value == TOGGLE_KEY_WORD)
-        {
-            const std::string oldValue = GetValue(parameterName);
-            if (oldValue == "true")
-            {
-                value = "false";
-            }
-            else
-            {
-                value = "true";
-            }
-        }
-        if (config_ == nullptr)
-        {
-            return false;
-        }
-        if (SetValue(parameterName, value))
-        {
-            config_->ReloadConfig();
-            onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
-                                     parameterName, value));
-        }
-        return true;
+        return ExecuteSet(size, commandArgs, langsResources, config_, this, onMessageRef);
     }
 
     onMessageRef(appContext->GetLangsResources()->unknownCommandParameters);

@@ -60,7 +60,7 @@ namespace glimmer
                   ResourcePackManager* resourcePackManager, ResourceLocator* resourceLocator,
                   toml::value* langsValuePtr, int width, int height);
 
-        bool LoadFont(const VirtualFileSystem* virtualFileSystem, const std::string& path);
+        bool LoadFont(const VirtualFileSystem* virtualFileSystem, const std::filesystem::path& path);
 
         void UpdateContext() const;
 

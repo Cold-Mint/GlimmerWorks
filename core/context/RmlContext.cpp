@@ -98,7 +98,7 @@ bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Rendere
     return true;
 }
 
-bool glimmer::RmlContext::LoadFont(const VirtualFileSystem* virtualFileSystem, const std::string& path)
+bool glimmer::RmlContext::LoadFont(const VirtualFileSystem* virtualFileSystem, const std::filesystem::path& path)
 {
     if (virtualFileSystem == nullptr)
     {
@@ -136,6 +136,7 @@ bool glimmer::RmlContext::LoadFont(const VirtualFileSystem* virtualFileSystem, c
     }
     return success;
 }
+
 
 void glimmer::RmlContext::UpdateContext() const
 {

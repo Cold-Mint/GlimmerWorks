@@ -188,7 +188,8 @@ bool glimmer::App::InitFont() const
         LogCat::e(std::source_location::current(), "RmlContext Failed to load font: ", actualPath.value());
         return false;
     }
-    TTF_Font* sdlFont = TTF_OpenFont(actualPath.value().c_str(), 16);
+    const std::string fontPathStr = actualPath.value().string();
+    TTF_Font* sdlFont = TTF_OpenFont(fontPathStr.c_str(), 16);
     if (sdlFont == nullptr)
     {
         LogCat::e(std::source_location::current(), "Failed to load font: ", actualPath.value());

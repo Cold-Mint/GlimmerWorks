@@ -206,6 +206,27 @@ void glimmer::ConsoleOverlay::OnSuggestHover(Rml::DataModelHandle handle, Rml::E
     commandSuggestions_[index].selected = true;
     selectedSuggestionIndex_ = index;
     consoleModelHandle_.DirtyVariable("command_suggestions");
+    ScrollToSelectedSuggestion();
+}
+
+void glimmer::ConsoleOverlay::ScrollToSelectedSuggestion() const
+{
+    if (suggestionListElement_ == nullptr || selectedSuggestionIndex_ < 0)
+    {
+        return;
+    }
+    Rml::Element* selectedElement = suggestionListElement_->GetChild(selectedSuggestionIndex_);
+    if (selectedElement == nullptr)
+    {
+        return;
+    }
+    float containerHeight = suggestionListElement_->GetClientHeight();
+    float elementTop = selectedElement->GetOffsetTop();
+    float elementHeight = selectedElement->GetClientHeight();
+    float targetScrollTop = elementTop - (containerHeight - elementHeight) / 2.0f;
+    float maxScrollTop = suggestionListElement_->GetScrollHeight() - containerHeight;
+    targetScrollTop = std::max(0.0f, std::min(targetScrollTop, maxScrollTop));
+    suggestionListElement_->SetScrollTop(targetScrollTop);
 }
 
 void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
@@ -423,6 +444,7 @@ void glimmer::ConsoleOverlay::OnConsoleKeydown(Rml::DataModelHandle handle, Rml:
                 commandSuggestions_[i].selected = (i == static_cast<size_t>(selectedSuggestionIndex_));
             }
             consoleModelHandle_.DirtyVariable("command_suggestions");
+            ScrollToSelectedSuggestion();
         }
     }
     if (keyIdentifier == Rml::Input::KI_DOWN)
@@ -440,6 +462,7 @@ void glimmer::ConsoleOverlay::OnConsoleKeydown(Rml::DataModelHandle handle, Rml:
                 commandSuggestions_[i].selected = (i == static_cast<size_t>(selectedSuggestionIndex_));
             }
             consoleModelHandle_.DirtyVariable("command_suggestions");
+            ScrollToSelectedSuggestion();
         }
     }
 }
@@ -569,6 +592,7 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
         LogCat::e(std::source_location::current(), "consoleInputElement== nullptr");
         return;
     }
+    suggestionListElement_ = consoleDocument_->GetElementById("suggestion_list");
     const AppContext* appContext = GetAppContext();
     if (appContext == nullptr)
     {

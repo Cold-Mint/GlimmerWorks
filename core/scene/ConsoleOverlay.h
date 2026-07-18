@@ -54,6 +54,7 @@ namespace glimmer
         std::string consolePlaceholder_;
         Rml::DataModelHandle consoleModelHandle_;
         Rml::ElementFormControlInput* consoleInputElement_ = nullptr;
+        Rml::Element* suggestionListElement_ = nullptr;
         CommandArgs commandArgs_ = CommandArgs("");
         CommandHistoryMessage* commandHistoryMessage_ = nullptr;
         int tokenIndex_ = 0;
@@ -89,6 +90,8 @@ namespace glimmer
         void OnSuggestHover(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void OnConsoleKeydown(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void ScrollToSelectedSuggestion() const;
 
         void OnConsoleChange(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 

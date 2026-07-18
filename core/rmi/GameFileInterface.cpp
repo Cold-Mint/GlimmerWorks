@@ -29,9 +29,9 @@
 #include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"
 
-glimmer::GameFileInterface::GameFileInterface(VirtualFileSystem* virtualFileSystem)
+glimmer::GameFileInterface::GameFileInterface(VirtualFileSystem* virtualFileSystem) : virtualFileSystem_(
+    virtualFileSystem)
 {
-    virtualFileSystem_ = virtualFileSystem;
 }
 
 Rml::FileHandle glimmer::GameFileInterface::Open(const Rml::String& path)

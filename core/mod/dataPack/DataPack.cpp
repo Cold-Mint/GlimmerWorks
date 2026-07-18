@@ -741,6 +741,59 @@ bool glimmer::DataPack::ProcessLanguageFile(const std::filesystem::path& file, s
     return true;
 }
 
+int glimmer::DataPack::ProcessFile(const std::filesystem::path& file, const ModContext* modContext,
+                                    const GraphicsContext* graphicsContext, const AppContext* appContext,
+                                    SpecialFileProcessingParams& specialFileProcessingParams,
+                                    std::vector<std::filesystem::path>& defaultLanguageFiles,
+                                    std::vector<std::filesystem::path>& targetLanguageFiles,
+                                    std::vector<uint8_t>& allHashData) const
+{
+    if (ProcessSpecialFiles(file, specialFileProcessingParams))
+    {
+        return 0;
+    }
+    auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(file);
+    if (!fileNameOptional.has_value())
+    {
+        return 0;
+    }
+    const auto& fileName = fileNameOptional.value();
+    if (!fileName.empty() && fileName[0] == '.')
+    {
+        return 0;
+    }
+
+    auto istreamUniquePtr = virtualFileSystem_->ReadFileAsStream(file);
+    if (istreamUniquePtr == nullptr)
+    {
+        return 0;
+    }
+    auto stream = istreamUniquePtr.get();
+    const std::optional<std::vector<char>> fileBufferOptional = ReadFileContent(stream);
+    if (!fileBufferOptional.has_value())
+    {
+        return 0;
+    }
+    const std::vector<char>& fileBuffer = fileBufferOptional.value();
+    if (specialFileProcessingParams.enableSignVerify)
+    {
+        ComputeFileHash(fileBuffer, allHashData);
+    }
+
+    const auto dataTypeOptional = GetDataType(fileName);
+    if (!dataTypeOptional.has_value())
+    {
+        return 0;
+    }
+    const std::string content(fileBuffer.data(), fileBuffer.size());
+    const auto& dataType = dataTypeOptional.value();
+    if (ProcessLanguageFile(file, dataType, fileName, defaultLanguageFiles, targetLanguageFiles, appContext))
+    {
+        return 0;
+    }
+    return LoadResourceByType(dataType, file, content, modContext, graphicsContext);
+}
+
 bool glimmer::DataPack::LoadPack(AppContext* appContext)
 {
     packVerifyState_ = Unsigned;
@@ -779,51 +832,9 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
     };
     for (const auto& file : files)
     {
-        if (ProcessSpecialFiles(
-            file, specialFileProcessingParams))
-        {
-            continue;
-        }
-        auto fileNameOptional = virtualFileSystem_->GetFileOrFolderName(file);
-        if (!fileNameOptional.has_value())
-        {
-            continue;
-        }
-        const auto& fileName = fileNameOptional.value();
-        if (!fileName.empty() && fileName[0] == '.')
-        {
-            continue;
-        }
-
-        auto istreamUniquePtr = virtualFileSystem_->ReadFileAsStream(file);
-        if (istreamUniquePtr == nullptr)
-        {
-            continue;
-        }
-        auto stream = istreamUniquePtr.get();
-        const std::optional<std::vector<char>> fileBufferOptional = ReadFileContent(stream);
-        if (!fileBufferOptional.has_value())
-        {
-            continue;
-        }
-        const std::vector<char>& fileBuffer = fileBufferOptional.value();
-        if (specialFileProcessingParams.enableSignVerify)
-        {
-            ComputeFileHash(fileBuffer, allHashData);
-        }
-
-        const auto dataTypeOptional = GetDataType(fileName);
-        if (!dataTypeOptional.has_value())
-        {
-            continue;
-        }
-        const std::string content(fileBuffer.data(), fileBuffer.size());
-        const auto& dataType = dataTypeOptional.value();
-        if (ProcessLanguageFile(file, dataType, fileName, defaultLanguageFiles, targetLanguageFiles, appContext))
-        {
-            continue;
-        }
-        total += LoadResourceByType(dataType, file, content, modContext, graphicsContext);
+        total += ProcessFile(file, modContext, graphicsContext, appContext,
+                            specialFileProcessingParams, defaultLanguageFiles,
+                            targetLanguageFiles, allHashData);
     }
 
     total += LoadLanguageFiles(defaultLanguageFiles, targetLanguageFiles, modContext);

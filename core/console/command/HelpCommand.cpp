@@ -54,7 +54,7 @@ bool glimmer::HelpCommand::Execute(const CommandSender* commandSender, const Com
         return false;
     }
     const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    ConsoleContext* consoleContext = appContext->GetConsoleContext();
+    const ConsoleContext* consoleContext = appContext->GetConsoleContext();
     if (consoleContext == nullptr)
     {
         return false;

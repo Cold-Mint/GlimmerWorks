@@ -406,7 +406,7 @@ std::unique_ptr<glimmer::RmlResourceResult> glimmer::ResourcePackManager::GetRml
         {
             continue;
         }
-        std::unique_ptr<RmlResourceResult> resourceResult = std::make_unique<RmlResourceResult>();
+        auto resourceResult = std::make_unique<RmlResourceResult>();
         resourceResult->SetPath(rmlPath);
         return resourceResult;
     }

@@ -119,7 +119,7 @@ bool glimmer::RmlContext::LoadFont(const VirtualFileSystem* virtualFileSystem, c
     stream->seekg(0, std::ios::beg);
 
     buffer.resize(static_cast<size_t>(size));
-    if (!stream->read(reinterpret_cast<char*>(buffer.data()), size))
+    if (!stream->read(reinterpret_cast<std::istream::char_type*>(buffer.data()), size))
     {
         return false;
     }

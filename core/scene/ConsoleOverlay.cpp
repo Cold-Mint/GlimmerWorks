@@ -368,7 +368,7 @@ void glimmer::ConsoleOverlay::HandleRightKey()
                                                     static_cast<int>(completedText.length()));
             consolePlaceholder_.clear();
             consoleModelHandle_.DirtyVariable("console_placeholder");
-            commandArgs_.SetCommand(completedText.substr(1));
+            commandArgs_.SetCommand(std::string_view(completedText).substr(1));
             UpdateTokenIndex();
             UpdateCommandStructure();
             UpdateCommandSuggestions();

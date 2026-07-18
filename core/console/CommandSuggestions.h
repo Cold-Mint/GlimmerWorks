@@ -37,5 +37,6 @@ namespace glimmer
         std::string prefix;
         std::string keyword;
         std::string suffix;
+        bool selected = false;
     };
 }

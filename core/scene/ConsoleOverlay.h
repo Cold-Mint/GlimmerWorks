@@ -57,6 +57,7 @@ namespace glimmer
         CommandArgs commandArgs_ = CommandArgs("");
         CommandHistoryMessage* commandHistoryMessage_ = nullptr;
         int tokenIndex_ = 0;
+        int selectedSuggestionIndex_ = -1;
 
         /**
          * Generate automatic completion suggestions for commands.
@@ -84,6 +85,8 @@ namespace glimmer
         void HideConsole() const;
 
         void OnSuggestClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnSuggestHover(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void OnConsoleKeydown(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 

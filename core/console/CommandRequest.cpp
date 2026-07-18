@@ -38,11 +38,10 @@ uint32_t glimmer::CommandRequest::GetId() const
     return id_;
 }
 
-std::string_view glimmer::CommandRequest::GetCommand() const
+const std::string& glimmer::CommandRequest::GetCommand() const
 {
     return command_;
 }
-
 
 const glimmer::CommandSender* glimmer::CommandRequest::GetCommandSender() const
 {

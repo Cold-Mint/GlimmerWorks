@@ -41,9 +41,9 @@ namespace glimmer
         std::string command_;
 
     public:
-        explicit CommandArgs(std::string_view command);
+        explicit CommandArgs(const std::string& command);
 
-        void SetCommand(std::string_view command);
+        void SetCommand(const std::string& command);
 
         /**
          * Obtain the Token position corresponding to the cursor position

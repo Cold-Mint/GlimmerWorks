@@ -26,7 +26,7 @@
  */
 #include "CommandResponse.h"
 
-void glimmer::CommandResponse::SetCommandResult(const CommandResult commandResult, const std::string_view command)
+void glimmer::CommandResponse::SetCommandResult(const CommandResult commandResult, const std::string& command)
 {
     commandResult_ = commandResult;
     command_ = command;

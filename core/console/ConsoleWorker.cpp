@@ -63,7 +63,7 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
         }
 
         auto commandResponse = std::make_unique<CommandResponse>();
-        const std::string_view& command = commandRequest->GetCommand();
+        const std::string& command = commandRequest->GetCommand();
         const CommandArgs args(command);
         if (Command* cmd = commandManager_->GetCommand(args.AsString(0)); cmd == nullptr)
         {

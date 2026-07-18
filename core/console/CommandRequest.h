@@ -43,7 +43,7 @@ namespace glimmer
 
         [[nodiscard]] uint32_t GetId() const;
 
-        [[nodiscard]] std::string_view GetCommand() const;
+        [[nodiscard]] const std::string& GetCommand() const;
 
         [[nodiscard]] const CommandSender* GetCommandSender() const;
     };

@@ -34,7 +34,7 @@ namespace glimmer {
         std::string command_;
 
     public:
-        void SetCommandResult(CommandResult commandResult, std::string_view command);
+        void SetCommandResult(CommandResult commandResult, const std::string& command);
 
         [[nodiscard]] const std::string &GetCommand() const;
 

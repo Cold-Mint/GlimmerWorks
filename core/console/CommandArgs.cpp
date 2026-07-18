@@ -30,12 +30,12 @@
 #include "core/mod/ResourceRef.h"
 #include <optional>
 
-glimmer::CommandArgs::CommandArgs(const std::string_view command)
+glimmer::CommandArgs::CommandArgs(const std::string& command)
 {
     SetCommand(command);
 }
 
-void glimmer::CommandArgs::SetCommand(const std::string_view command)
+void glimmer::CommandArgs::SetCommand(const std::string& command)
 {
     tokens_.clear();
     std::istringstream iss(command);

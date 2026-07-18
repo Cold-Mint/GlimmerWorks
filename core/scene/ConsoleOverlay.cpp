@@ -361,13 +361,11 @@ void glimmer::ConsoleOverlay::HandleRightKey()
         consoleInputElement_->GetSelection(&selectionStart, &selectionEnd, &selectedText);
         if (selectionEnd == static_cast<int>(text.length()))
         {
-            const std::string completedText = consolePlaceholder_;
-            consoleInputElement_->SetValue(completedText);
-            consoleInputElement_->SetSelectionRange(static_cast<int>(completedText.length()),
-                                                    static_cast<int>(completedText.length()));
-            consolePlaceholder_.clear();
+            int consolePlaceholderLength = static_cast<int>(consolePlaceholder_.length());
+            consoleInputElement_->SetValue(consolePlaceholder_);
+            consoleInputElement_->SetSelectionRange(consolePlaceholderLength, consolePlaceholderLength);
             consoleModelHandle_.DirtyVariable("console_placeholder");
-            commandArgs_.SetCommand(std::string_view(completedText).substr(1));
+            commandArgs_.SetCommand(consolePlaceholder_.substr(1));
             UpdateTokenIndex();
             UpdateCommandStructure();
             UpdateCommandSuggestions();
@@ -417,26 +415,26 @@ void glimmer::ConsoleOverlay::OnConsoleKeydown(Rml::DataModelHandle handle, Rml:
     const Rml::Input::KeyIdentifier keyIdentifier = event.GetParameter("key_identifier", Rml::Input::KI_UNKNOWN);
     switch (keyIdentifier)
     {
-        case Rml::Input::KI_RETURN:
-            HandleReturnKey();
-            break;
-        case Rml::Input::KI_LEFT:
-            UpdateTokenIndex();
-            UpdateCommandStructure();
-            UpdateCommandSuggestions();
-            break;
-        case Rml::Input::KI_RIGHT:
-            HandleRightKey();
-            break;
-        case Rml::Input::KI_TAB:
-            HandleTabKey(event);
-            break;
-        case Rml::Input::KI_UP:
-            NavigateSuggestions(-1, event);
-            break;
-        case Rml::Input::KI_DOWN:
-            NavigateSuggestions(1, event);
-            break;
+    case Rml::Input::KI_RETURN:
+        HandleReturnKey();
+        break;
+    case Rml::Input::KI_LEFT:
+        UpdateTokenIndex();
+        UpdateCommandStructure();
+        UpdateCommandSuggestions();
+        break;
+    case Rml::Input::KI_RIGHT:
+        HandleRightKey();
+        break;
+    case Rml::Input::KI_TAB:
+        HandleTabKey(event);
+        break;
+    case Rml::Input::KI_UP:
+        NavigateSuggestions(-1, event);
+        break;
+    case Rml::Input::KI_DOWN:
+        NavigateSuggestions(1, event);
+        break;
     }
 }
 
@@ -624,7 +622,6 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event& event)
     if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat && consoleDocument_ != nullptr && event.key.scancode ==
         SDL_SCANCODE_F1)
     {
-        LogCat::d("按下了F1");
         if (consoleDocument_->
             IsVisible())
         {

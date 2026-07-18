@@ -43,9 +43,8 @@
 
 glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
     : Scene(context),
-      langsResources_(context->GetLangsResources())
+      langsResources_(context->GetLangsResources()), savesManager_(context->GetSavesManager())
 {
-    savesManager_ = context->GetSavesManager();
     if (savesManager_ == nullptr)
     {
         LogCat::e(std::source_location::current(), "savesManager_ == nullptr");
@@ -104,15 +103,16 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
     const size_t saveCount = savesManager_->GetSavesListSize();
     for (size_t i = 0; i < saveCount; ++i)
     {
-        MapManifest* manifest = savesManager_->GetMapManifest(i);
-        if (manifest != nullptr)
+        const MapManifest* manifest = savesManager_->GetMapManifest(i);
+        if (manifest == nullptr)
         {
-            SaveItem item;
-            item.label = FormatSaveLabel(manifest, langsResources_);
-            item.index = static_cast<int>(i);
-            item.selected = (i == static_cast<size_t>(selectedSaveIndex_));
-            saveItems_.push_back(item);
+            continue;
         }
+        SaveItem item;
+        item.label = FormatSaveLabel(manifest, langsResources_);
+        item.index = static_cast<int>(i);
+        item.selected = i == static_cast<size_t>(selectedSaveIndex_);
+        saveItems_.push_back(item);
     }
 }
 
@@ -172,7 +172,8 @@ void glimmer::SavedGamesScene::OnSaveClick(Rml::DataModelHandle handle, Rml::Eve
         GetAppContext(), std::make_unique<WorldContext>(GetAppContext(), manifest, saves)));
 }
 
-void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                             const Rml::VariantList& args)
 {
     if (args.empty())
     {
@@ -203,7 +204,8 @@ void glimmer::SavedGamesScene::OnBackClick(Rml::DataModelHandle handle, Rml::Eve
     GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<MainScene>(GetAppContext()));
 }
 
-void glimmer::SavedGamesScene::OnNewGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+void glimmer::SavedGamesScene::OnNewGameClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                              const Rml::VariantList& args)
 {
     GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<CreateWorldScene>(GetAppContext()));
 }

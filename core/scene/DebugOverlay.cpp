@@ -34,11 +34,9 @@
 
 
 glimmer::DebugOverlay::DebugOverlay(AppContext* context)
-    : Scene(context)
+    : Scene(context), resourcePackManager_(context->GetResourcePackManager()),
+      preloadColors_(context->GetGraphicsContext()->GetPreloadColors()), langsResources_(context->GetLangsResources())
 {
-    resourcePackManager_ = context->GetResourcePackManager();
-    preloadColors_ = context->GetGraphicsContext()->GetPreloadColors();
-    langsResources_ = context->GetLangsResources();
     Init();
 }
 

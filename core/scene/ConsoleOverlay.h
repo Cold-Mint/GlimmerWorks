@@ -93,6 +93,16 @@ namespace glimmer
 
         void ScrollToSelectedSuggestion() const;
 
+        void HandleReturnKey();
+
+        void HandleRightKey();
+
+        void HandleTabKey(Rml::Event& event);
+
+        void NavigateSuggestions(int direction, Rml::Event& event);
+
+        void ApplySuggestion(const std::string& message);
+
         void OnConsoleChange(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
     public:

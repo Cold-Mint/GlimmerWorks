@@ -62,6 +62,8 @@ namespace glimmer
 
         Rml::DataModelConstructor* CreateDataModel(const Rml::String& name);
 
+        void HideAllElementDocuments() const;
+
     public:
         /**
          * Processing events (input, window messages, etc.) returns whether to intercept the event. If it is true, it will not be passed down.

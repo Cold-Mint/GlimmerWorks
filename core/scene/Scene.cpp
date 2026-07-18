@@ -58,14 +58,7 @@ void glimmer::Scene::OnWindowSizeChanged(const int& width, const int& height)
 
 glimmer::Scene::~Scene()
 {
-    for (auto elementDocument : elementDocumentSet_)
-    {
-        if (elementDocument == nullptr)
-        {
-            continue;
-        }
-        elementDocument->Hide();
-    }
+    HideAllElementDocuments();
 }
 
 glimmer::AppContext* glimmer::Scene::GetAppContext() const
@@ -134,6 +127,18 @@ Rml::DataModelConstructor* glimmer::Scene::CreateDataModel(const Rml::String& na
         rmlContextCore->CreateDataModel(name)
     ));
     return rmlConstructors_.back().get();
+}
+
+void glimmer::Scene::HideAllElementDocuments() const
+{
+    for (auto elementDocument : elementDocumentSet_)
+    {
+        if (elementDocument == nullptr)
+        {
+            continue;
+        }
+        elementDocument->Hide();
+    }
 }
 
 bool glimmer::Scene::HandleEvent(const SDL_Event& event)

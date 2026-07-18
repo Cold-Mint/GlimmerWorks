@@ -31,11 +31,11 @@
 
 void glimmer::SceneManager::ClearScenes()
 {
+    overlayScenes_.clear();
     while (!sceneStack_.empty())
     {
         sceneStack_.pop();
     }
-    overlayScenesPtr_.clear();
 }
 
 void glimmer::SceneManager::AddOverlayScene(std::unique_ptr<Scene> overlay)

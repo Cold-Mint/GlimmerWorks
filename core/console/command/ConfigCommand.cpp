@@ -29,7 +29,6 @@
 #include "core/Config.h"
 #include "core/Constants.h"
 #include "core/context/AppContext.h"
-#include "fmt/color.h"
 #include "toml.hpp"
 
 
@@ -135,7 +134,7 @@ glimmer::NodeTree<std::string>* glimmer::ConfigCommand::GetSuggestionsTree(const
 
 
 bool glimmer::ConfigCommand::ExecuteCommit(const VirtualFileSystem* virtualFileSystem, Config* config,
-                                            toml::value* configValue, const LangsResources* langsResources,
+                                            const toml::value* configValue, const LangsResources* langsResources,
                                             const std::function<void(const std::string& text)>& onMessageRef)
 {
     if (virtualFileSystem == nullptr || config == nullptr)
@@ -152,52 +151,7 @@ bool glimmer::ConfigCommand::ExecuteCommit(const VirtualFileSystem* virtualFileS
     return false;
 }
 
-bool glimmer::ConfigCommand::ExecuteGet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
-                                        const ConfigCommand* command, const std::function<void(const std::string& text)>& onMessageRef)
-{
-    if (size < 3)
-    {
-        onMessageRef(fmt::format(
-            fmt::runtime(langsResources->insufficientParameterLength),
-            3, size));
-        return false;
-    }
-    onMessageRef(command->GetValue(commandArgs->AsString(2)));
-    return true;
-}
 
-bool glimmer::ConfigCommand::ExecuteSet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
-                                        Config* config, const ConfigCommand* command,
-                                        const std::function<void(const std::string& text)>& onMessageRef)
-{
-    if (size < 4)
-    {
-        onMessageRef(fmt::format(
-            fmt::runtime(langsResources->insufficientParameterLength),
-            4, size));
-        return false;
-    }
-
-    std::string parameterName = commandArgs->AsString(2);
-    std::string value = commandArgs->AsString(3);
-    const ConfigType configType = command->GetParameterType(parameterName);
-    if (configType == ConfigType::TYPE_BOOLEAN && value == TOGGLE_KEY_WORD)
-    {
-        const std::string oldValue = command->GetValue(parameterName);
-        value = (oldValue == "true") ? "false" : "true";
-    }
-    if (config == nullptr)
-    {
-        return false;
-    }
-    if (command->SetValue(parameterName, value))
-    {
-        config->ReloadConfig();
-        onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
-                                 parameterName, value));
-    }
-    return true;
-}
 
 bool glimmer::ConfigCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                      const std::function<void(const std::string& text)>* onMessage)

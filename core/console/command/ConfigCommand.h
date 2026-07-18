@@ -26,9 +26,11 @@
  */
 #pragma once
 #include "core/Config.h"
+#include "core/LangsResources.h"
 #include "core/console/Command.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "toml11/types.hpp"
+#include "fmt/color.h"
 
 namespace glimmer
 {
@@ -55,15 +57,55 @@ namespace glimmer
         void UpdateSetSuggestions(const CommandArgs* commandArgs);
 
         static bool ExecuteCommit(const VirtualFileSystem* virtualFileSystem, Config* config,
-                                  toml::value* configValue, const LangsResources* langsResources,
+                                  const toml::value* configValue, const LangsResources* langsResources,
                                   const std::function<void(const std::string& text)>& onMessageRef);
 
+        template <typename F>
         static bool ExecuteGet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
-                               const ConfigCommand* command, const std::function<void(const std::string& text)>& onMessageRef);
+                               const ConfigCommand* command, F&& onMessageRef)
+        {
+            if (size < 3)
+            {
+                onMessageRef(fmt::format(
+                    fmt::runtime(langsResources->insufficientParameterLength),
+                    3, size));
+                return false;
+            }
+            onMessageRef(command->GetValue(commandArgs->AsString(2)));
+            return true;
+        }
 
+        template <typename F>
         static bool ExecuteSet(int size, const CommandArgs* commandArgs, const LangsResources* langsResources,
-                               Config* config, const ConfigCommand* command,
-                               const std::function<void(const std::string& text)>& onMessageRef);
+                               Config* config, const ConfigCommand* command, F&& onMessageRef)
+        {
+            if (size < 4)
+            {
+                onMessageRef(fmt::format(
+                    fmt::runtime(langsResources->insufficientParameterLength),
+                    4, size));
+                return false;
+            }
+
+            std::string parameterName = commandArgs->AsString(2);
+            std::string value = commandArgs->AsString(3);
+            if (command->GetParameterType(parameterName) == ConfigType::TYPE_BOOLEAN && value == TOGGLE_KEY_WORD)
+            {
+                const std::string oldValue = command->GetValue(parameterName);
+                value = oldValue == "true" ? "false" : "true";
+            }
+            if (config == nullptr)
+            {
+                return false;
+            }
+            if (command->SetValue(parameterName, value))
+            {
+                config->ReloadConfig();
+                onMessageRef(fmt::format(fmt::runtime(langsResources->configurationUpdate),
+                                         parameterName, value));
+            }
+            return true;
+        }
 
     public:
         explicit ConfigCommand(AppContext* appContext);

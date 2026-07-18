@@ -41,11 +41,11 @@ void glimmer::CommandHistoryManager::Save() const
     (void)virtualFileSystem_->WriteFile(commandHistoryPath_, commandHistoryMessage_.SerializeAsString());
 }
 
-
-CommandHistoryMessage& glimmer::CommandHistoryManager::GetCommandHistoryMessage()
+CommandHistoryMessage* glimmer::CommandHistoryManager::GetCommandHistoryMessage()
 {
-    return commandHistoryMessage_;
+    return &commandHistoryMessage_;
 }
+
 
 void glimmer::CommandHistoryManager::Read()
 {

@@ -61,11 +61,11 @@ namespace glimmer
 
         void SaveCommandHistory() const;
 
+        [[nodiscard]] CommandHistoryMessage* GetCommandHistoryMessage() const;
+
         [[nodiscard]] CommandManager* GetCommandManager() const;
 
         [[nodiscard]] ConsoleWorker* GetConsoleWorker() const;
-
-        [[nodiscard]] CommandHistoryManager* GetCommandHistoryManager() const;
 
         [[nodiscard]] CommandHookManager* GetCommandHookManager() const;
 

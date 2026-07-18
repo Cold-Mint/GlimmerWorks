@@ -27,14 +27,17 @@
 #pragma once
 #include "Scene.h"
 #include "core/console/CommandArgs.h"
+#include "core/console/CommandHistoryManager.h"
 #include "core/console/CommandStructure.h"
 #include "core/console/CommandSuggestions.h"
 #include "core/console/ConsoleMessage.h"
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
 #include "RmlUi/Core/Elements/ElementFormControlInput.h"
 
+
 namespace glimmer
 {
+    class CommandHistoryManager;
     class CommandManager;
     class ConsoleWorker;
     class DataModelHandle;
@@ -52,6 +55,7 @@ namespace glimmer
         Rml::DataModelHandle consoleModelHandle_;
         Rml::ElementFormControlInput* consoleInputElement_ = nullptr;
         CommandArgs commandArgs_ = CommandArgs("");
+        CommandHistoryMessage* commandHistoryMessage_ = nullptr;
         int tokenIndex_ = 0;
 
         /**
@@ -63,6 +67,13 @@ namespace glimmer
         void UpdateTokenIndex();
 
         void UpdateCommandStructure();
+
+        /**
+         * Search command history and update the placeholder for autocomplete.
+         * 搜索命令历史并更新自动补全占位符。
+         * @param text The current input text (including the leading '/').
+         */
+        void UpdateCommandPlaceholder(const std::string& text);
 
         void StartInput() const;
 

@@ -202,6 +202,16 @@ void glimmer::ConsoleContext::SaveCommandHistory() const
     commandHistoryManager_->Save();
 }
 
+CommandHistoryMessage* glimmer::ConsoleContext::GetCommandHistoryMessage() const
+{
+    if (commandHistoryManager_ == nullptr)
+    {
+        return nullptr;
+    }
+    return commandHistoryManager_->GetCommandHistoryMessage();
+}
+
+
 glimmer::CommandManager* glimmer::ConsoleContext::GetCommandManager() const
 {
     if (commandManager_ == nullptr)
@@ -220,16 +230,6 @@ glimmer::ConsoleWorker* glimmer::ConsoleContext::GetConsoleWorker() const
         return nullptr;
     }
     return consoleWorker_.get();
-}
-
-glimmer::CommandHistoryManager* glimmer::ConsoleContext::GetCommandHistoryManager() const
-{
-    if (commandHistoryManager_ == nullptr)
-    {
-        LogCat::w(std::source_location::current(), "commandHistoryManager_ == nullptr");
-        return nullptr;
-    }
-    return commandHistoryManager_.get();
 }
 
 glimmer::CommandHookManager* glimmer::ConsoleContext::GetCommandHookManager() const

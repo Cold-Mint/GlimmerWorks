@@ -90,6 +90,30 @@ void glimmer::ConsoleOverlay::UpdateCommandStructure()
     consoleModelHandle_.DirtyVariable("command_structure");
 }
 
+void glimmer::ConsoleOverlay::UpdateCommandPlaceholder(const std::string& text)
+{
+    if (commandHistoryMessage_ == nullptr)
+    {
+        consolePlaceholder_.clear();
+        consoleModelHandle_.DirtyVariable("console_placeholder");
+        return;
+    }
+    // Search history in reverse order so the most recent match wins.
+    // 倒序搜索历史记录，使最近的匹配优先。
+    for (int i = commandHistoryMessage_->history_size() - 1; i >= 0; --i)
+    {
+        const std::string& historyItem = commandHistoryMessage_->history(i);
+        if (historyItem.starts_with(text) && historyItem.length() > text.length())
+        {
+            consolePlaceholder_ = historyItem;
+            consoleModelHandle_.DirtyVariable("console_placeholder");
+            return;
+        }
+    }
+    consolePlaceholder_.clear();
+    consoleModelHandle_.DirtyVariable("console_placeholder");
+}
+
 void glimmer::ConsoleOverlay::StartInput() const
 {
     const AppContext* appContext = GetAppContext();
@@ -193,12 +217,12 @@ void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::E
     {
         if (!newCommand.empty())
         {
-            newCommand += " ";
+            newCommand += ' ';
         }
         newCommand += message;
     }
 
-    newCommand += " ";
+    newCommand += ' ';
 
     int cursorPos = 1;
     for (int i = 0; i < tokenCount; ++i)
@@ -215,9 +239,9 @@ void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::E
     }
     cursorPos += message.length() + 1;
 
-    consoleInputElement_->SetAttribute("value", "/" + newCommand);
-
     commandArgs_.SetCommand(newCommand);
+
+    consoleInputElement_->SetValue("/" + newCommand);
 
     consoleInputElement_->SetSelectionRange(cursorPos, cursorPos);
 
@@ -247,6 +271,8 @@ void glimmer::ConsoleOverlay::OnConsoleKeydown(Rml::DataModelHandle handle, Rml:
         consoleModelHandle_.DirtyVariable("command_suggestions");
         commandStructure_.clear();
         consoleModelHandle_.DirtyVariable("command_structure");
+        consolePlaceholder_.clear();
+        consoleModelHandle_.DirtyVariable("console_placeholder");
         if (!text.starts_with('/'))
         {
             consoleMessages_.emplace_back(text);
@@ -260,6 +286,10 @@ void glimmer::ConsoleOverlay::OnConsoleKeydown(Rml::DataModelHandle handle, Rml:
         }
         consoleWorker_->CreateRequest(text.substr(1),
                                       commandManager_->GetDefaultCommandSender());
+        if (commandHistoryMessage_ != nullptr)
+        {
+            commandHistoryMessage_->add_history(text);
+        }
     }
     if (keyIdentifier == Rml::Input::KI_LEFT)
     {
@@ -269,6 +299,30 @@ void glimmer::ConsoleOverlay::OnConsoleKeydown(Rml::DataModelHandle handle, Rml:
     }
     if (keyIdentifier == Rml::Input::KI_RIGHT)
     {
+        // Accept placeholder completion when the cursor is at the end of the input.
+        // 当光标在输入末尾时，接受占位符补全。
+        if (!consolePlaceholder_.empty() && consolePlaceholder_ != "console_placeholder")
+        {
+            auto text = consoleInputElement_->GetAttribute<Rml::String>("value", "");
+            int selectionStart = 0;
+            int selectionEnd = 0;
+            Rml::String selectedText;
+            consoleInputElement_->GetSelection(&selectionStart, &selectionEnd, &selectedText);
+            if (selectionEnd == static_cast<int>(text.length()))
+            {
+                const std::string completedText = consolePlaceholder_;
+                consoleInputElement_->SetValue(completedText);
+                consoleInputElement_->SetSelectionRange(static_cast<int>(completedText.length()),
+                                                        static_cast<int>(completedText.length()));
+                consolePlaceholder_.clear();
+                consoleModelHandle_.DirtyVariable("console_placeholder");
+                commandArgs_.SetCommand(completedText.substr(1));
+                UpdateTokenIndex();
+                UpdateCommandStructure();
+                UpdateCommandSuggestions();
+                return;
+            }
+        }
         UpdateTokenIndex();
         UpdateCommandStructure();
         UpdateCommandSuggestions();
@@ -299,13 +353,17 @@ void glimmer::ConsoleOverlay::OnConsoleChange(Rml::DataModelHandle handle, Rml::
         consoleModelHandle_.DirtyVariable("command_suggestions");
         commandStructure_.clear();
         consoleModelHandle_.DirtyVariable("command_structure");
-        if (!textEmpty || isCommand)
+        if (textEmpty)
         {
-            consolePlaceholder_ = "";
+            consolePlaceholder_ = "console_placeholder";
+        }
+        else if (isCommand)
+        {
+            UpdateCommandPlaceholder(text);
         }
         else
         {
-            consolePlaceholder_ = "console_placeholder";
+            consolePlaceholder_.clear();
         }
         consoleModelHandle_.DirtyVariable("console_placeholder");
         if (!isCommand)
@@ -313,8 +371,18 @@ void glimmer::ConsoleOverlay::OnConsoleChange(Rml::DataModelHandle handle, Rml::
             return;
         }
     }
-    consolePlaceholder_ = "";
-    consoleModelHandle_.DirtyVariable("console_placeholder");
+    else
+    {
+        if (isCommand)
+        {
+            UpdateCommandPlaceholder(text);
+        }
+        else
+        {
+            consolePlaceholder_.clear();
+            consoleModelHandle_.DirtyVariable("console_placeholder");
+        }
+    }
     UpdateTokenIndex();
     UpdateCommandStructure();
     UpdateCommandSuggestions();
@@ -396,6 +464,12 @@ glimmer::ConsoleOverlay::ConsoleOverlay(AppContext* context)
     if (commandManager_ == nullptr)
     {
         LogCat::w(std::source_location::current(), "commandManager== nullptr");
+        return;
+    }
+    commandHistoryMessage_ = consoleContext->GetCommandHistoryMessage();
+    if (commandHistoryMessage_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "commandHistoryMessage == nullptr");
         return;
     }
     consoleWorker_ = consoleContext->GetConsoleWorker();

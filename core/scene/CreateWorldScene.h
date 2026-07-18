@@ -33,9 +33,23 @@ namespace glimmer
 {
     class CreateWorldScene : public Scene
     {
+        void OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnBackClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnRandomClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void RandomizeWorld();
+
+        void RandomizeName();
+
+        void RandomizeSeed();
+
+        Rml::DataModelHandle modelHandle_;
+
     public:
-        std::string worldName_;
-        std::string seedStr_;
+        Rml::String worldName_;
+        Rml::String seedStr_;
         float uiScale_ = 1.0F;
 
         explicit CreateWorldScene(AppContext* context);

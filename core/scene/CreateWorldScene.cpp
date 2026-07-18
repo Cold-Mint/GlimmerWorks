@@ -29,27 +29,110 @@
 #include <filesystem>
 #include <random>
 
-#include "core/Config.h"
 #include "MainScene.h"
 #include "WorldScene.h"
+#include "core/Config.h"
 #include "core/saves/Saves.h"
 #include "core/saves/SavesManager.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
 #include "core/utils/TimeUtils.h"
+#include "core/log/LogCat.h"
 #include "SDL3/SDL_log.h"
 namespace fs = std::filesystem;
 
 glimmer::CreateWorldScene::CreateWorldScene(AppContext* context) : Scene(context)
 {
-    const int newSeed = RandomUtils::Random<int>();
-    seedStr_ = std::to_string(newSeed);
+    RandomizeWorld();
+    Init();
+    Rml::DataModelConstructor* constructor = CreateDataModel("create_world_scene");
+    if (constructor != nullptr)
+    {
+        constructor->Bind("world_name", &worldName_);
+        constructor->Bind("seed", &seedStr_);
+        constructor->BindEventCallback(
+            "on_create_world_click",
+            &CreateWorldScene::OnCreateWorldClick,
+            this
+        );
+        constructor->BindEventCallback(
+            "on_back_click",
+            &CreateWorldScene::OnBackClick,
+            this
+        );
+        constructor->BindEventCallback(
+            "on_random_click",
+            &CreateWorldScene::OnRandomClick,
+            this
+        );
+        modelHandle_ = constructor->GetModelHandle();
+    }
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_RML_PATH);
+    resourceRef.SetResourceKey("create_world/create_world");
+    Rml::ElementDocument* document = LoadDocument(&resourceRef);
+    if (document == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "document == nullptr");
+        return;
+    }
+}
+
+void glimmer::CreateWorldScene::RandomizeWorld()
+{
+    RandomizeName();
+    RandomizeSeed();
+}
+
+void glimmer::CreateWorldScene::RandomizeName()
+{
     auto op = RandomName();
     if (op.has_value())
     {
         worldName_ = op.value();
     }
-    Init();
+}
+
+void glimmer::CreateWorldScene::RandomizeSeed()
+{
+    const int newSeed = RandomUtils::Random<int>();
+    seedStr_ = std::to_string(newSeed);
+}
+
+void glimmer::CreateWorldScene::OnRandomClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                              const Rml::VariantList& args)
+{
+    if (args.empty())
+    {
+        RandomizeWorld();
+        modelHandle_.DirtyVariable("world_name");
+        modelHandle_.DirtyVariable("seed");
+        return;
+    }
+    auto type = args[0].Get<Rml::String>();
+    if (type == "name")
+    {
+        RandomizeName();
+        modelHandle_.DirtyVariable("world_name");
+    }
+    else if (type == "seed")
+    {
+        RandomizeSeed();
+        modelHandle_.DirtyVariable("seed");
+    }
+}
+
+void glimmer::CreateWorldScene::OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                                   const Rml::VariantList& args)
+{
+    CreateWorld();
+}
+
+void glimmer::CreateWorldScene::OnBackClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                            const Rml::VariantList& args)
+{
+    GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<MainScene>(GetAppContext()));
 }
 
 void glimmer::CreateWorldScene::CreateWorld() const
@@ -85,7 +168,6 @@ void glimmer::CreateWorldScene::CreateWorld() const
         Create(GetAppContext()->GetConfig()->runtimePath, manifest);
     if (saves == nullptr)
     {
-
         return;
     }
     GetAppContext()->GetSceneManager()->

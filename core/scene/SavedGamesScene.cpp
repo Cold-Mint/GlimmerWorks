@@ -26,20 +26,94 @@
  */
 #include "SavedGamesScene.h"
 
-#include "core/Config.h"
 #include "CreateWorldScene.h"
+#include "MainScene.h"
+#include "WorldScene.h"
+#include "core/Config.h"
 #include "core/saves/MapManifest.h"
+#include "core/saves/SavesManager.h"
+#include "core/saves/Saves.h"
+#include "core/world/WorldContext.h"
 #include <sstream>
 
 #include "core/context/AppContext.h"
 #include "core/utils/TimeUtils.h"
+#include "core/log/LogCat.h"
 #include "fmt/xchar.h"
 
 glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
     : Scene(context),
       langsResources_(context->GetLangsResources())
 {
+    savesManager_ = context->GetSavesManager();
+    if (savesManager_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "savesManager_ == nullptr");
+    }
+    UpdateSaveItems();
     Init();
+    Rml::DataModelConstructor* constructor = CreateDataModel("saved_games_scene");
+    if (constructor != nullptr)
+    {
+        auto saveItemStruct = constructor->RegisterStruct<SaveItem>();
+        saveItemStruct.RegisterMember("label", &SaveItem::label);
+        saveItemStruct.RegisterMember("index", &SaveItem::index);
+        saveItemStruct.RegisterMember("selected", &SaveItem::selected);
+        constructor->RegisterArray<std::vector<SaveItem>>();
+        constructor->Bind("save_items", &saveItems_);
+        constructor->BindEventCallback(
+            "on_save_click",
+            &SavedGamesScene::OnSaveClick,
+            this
+        );
+        constructor->BindEventCallback(
+            "on_delete_click",
+            &SavedGamesScene::OnDeleteClick,
+            this
+        );
+        constructor->BindEventCallback(
+            "on_back_click",
+            &SavedGamesScene::OnBackClick,
+            this
+        );
+        constructor->BindEventCallback(
+            "on_new_game_click",
+            &SavedGamesScene::OnNewGameClick,
+            this
+        );
+    }
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_RML_PATH);
+    resourceRef.SetResourceKey("saves/saves");
+    Rml::ElementDocument* document = LoadDocument(&resourceRef);
+    if (document == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "document == nullptr");
+        return;
+    }
+}
+
+void glimmer::SavedGamesScene::UpdateSaveItems()
+{
+    saveItems_.clear();
+    if (savesManager_ == nullptr)
+    {
+        return;
+    }
+    const size_t saveCount = savesManager_->GetSavesListSize();
+    for (size_t i = 0; i < saveCount; ++i)
+    {
+        MapManifest* manifest = savesManager_->GetMapManifest(i);
+        if (manifest != nullptr)
+        {
+            SaveItem item;
+            item.label = FormatSaveLabel(manifest, langsResources_);
+            item.index = static_cast<int>(i);
+            item.selected = (i == static_cast<size_t>(selectedSaveIndex_));
+            saveItems_.push_back(item);
+        }
+    }
 }
 
 std::string glimmer::SavedGamesScene::FormatSaveLabel(const MapManifest* manifest,
@@ -67,6 +141,71 @@ std::string glimmer::SavedGamesScene::FormatSaveLabel(const MapManifest* manifes
                       TimeUtils::FormatTimeMs(langsResources, manifest->totalPlayTime));
 
     return ss.str();
+}
+
+void glimmer::SavedGamesScene::OnSaveClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    if (args.empty())
+    {
+        LogCat::w(std::source_location::current(), "args.empty()");
+        return;
+    }
+    int index = args[0].Get<int>();
+    if (savesManager_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "savesManager_ == nullptr");
+        return;
+    }
+    if (index < 0 || index >= static_cast<int>(savesManager_->GetSavesListSize()))
+    {
+        LogCat::w(std::source_location::current(), "invalid index");
+        return;
+    }
+    Saves* saves = savesManager_->GetSave(index);
+    MapManifest* manifest = savesManager_->GetMapManifest(index);
+    if (saves == nullptr || manifest == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "saves or manifest is nullptr");
+        return;
+    }
+    GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<WorldScene>(
+        GetAppContext(), std::make_unique<WorldContext>(GetAppContext(), manifest, saves)));
+}
+
+void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    if (args.empty())
+    {
+        LogCat::w(std::source_location::current(), "args.empty()");
+        return;
+    }
+    int index = args[0].Get<int>();
+    if (savesManager_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "savesManager_ == nullptr");
+        return;
+    }
+    if (index < 0 || index >= static_cast<int>(savesManager_->GetSavesListSize()))
+    {
+        LogCat::w(std::source_location::current(), "invalid index");
+        return;
+    }
+    if (savesManager_->DeleteSave(index))
+    {
+        selectedSaveIndex_ = -1;
+        UpdateSaveItems();
+        handle.DirtyVariable("save_items");
+    }
+}
+
+void glimmer::SavedGamesScene::OnBackClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<MainScene>(GetAppContext()));
+}
+
+void glimmer::SavedGamesScene::OnNewGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<CreateWorldScene>(GetAppContext()));
 }
 
 void glimmer::SavedGamesScene::OnWindowSizeChanged(const int& width, const int& height)

@@ -29,6 +29,7 @@
 #include <random>
 
 #include "CreateWorldScene.h"
+#include "SavedGamesScene.h"
 #include "fmt/xchar.h"
 #include "core/Config.h"
 
@@ -36,6 +37,7 @@
 
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
+#include "core/saves/SavesManager.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
 std::string glimmer::MainScene::GetCopyrightString()
@@ -97,6 +99,26 @@ glimmer::MainScene::MainScene(AppContext* context)
 
 void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
 {
+    AppContext* context = GetAppContext();
+    if (context == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "context == nullptr");
+        return;
+    }
+    SavesManager* savesManager = context->GetSavesManager();
+    if (savesManager == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "savesManager == nullptr");
+        return;
+    }
+    if (savesManager->GetSavesListSize() > 0)
+    {
+        context->GetSceneManager()->ReplaceScene(std::make_unique<SavedGamesScene>(context));
+    }
+    else
+    {
+        context->GetSceneManager()->ReplaceScene(std::make_unique<CreateWorldScene>(context));
+    }
 }
 
 void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)

@@ -715,38 +715,11 @@ bool glimmer::DataPack::ProcessSpecialFiles(const std::filesystem::path& path,
     return false;
 }
 
-bool glimmer::DataPack::ProcessLanguageFile(const std::filesystem::path& file, std::string_view dataType,
-                                            std::string_view fileName,
-                                            std::vector<std::filesystem::path>& defaultLanguageFiles,
-                                            std::vector<std::filesystem::path>& targetLanguageFiles,
-                                            const AppContext* appContext)
-{
-    if (dataType != DATA_FILE_TYPE_STRINGS)
-    {
-        return false;
-    }
-    const auto langOptional = ExtractLanguageFromFileName(fileName);
-    if (!langOptional.has_value())
-    {
-        return true;
-    }
-    if (const auto& fileLang = langOptional.value(); fileLang == appContext->GetLanguage())
-    {
-        targetLanguageFiles.push_back(file);
-    }
-    else if (fileLang == "default")
-    {
-        defaultLanguageFiles.push_back(file);
-    }
-    return true;
-}
-
-int glimmer::DataPack::ProcessFile(const std::filesystem::path& file, const ModContext* modContext,
-                                    const GraphicsContext* graphicsContext, const AppContext* appContext,
-                                    SpecialFileProcessingParams& specialFileProcessingParams,
-                                    std::vector<std::filesystem::path>& defaultLanguageFiles,
-                                    std::vector<std::filesystem::path>& targetLanguageFiles,
-                                    std::vector<uint8_t>& allHashData) const
+int glimmer::DataPack::ProcessFile(const std::filesystem::path& file, const AppContext* appContext,
+                                   SpecialFileProcessingParams& specialFileProcessingParams,
+                                   std::vector<std::filesystem::path>& defaultLanguageFiles,
+                                   std::vector<std::filesystem::path>& targetLanguageFiles,
+                                   std::vector<uint8_t>& allHashData) const
 {
     if (ProcessSpecialFiles(file, specialFileProcessingParams))
     {
@@ -791,7 +764,33 @@ int glimmer::DataPack::ProcessFile(const std::filesystem::path& file, const ModC
     {
         return 0;
     }
-    return LoadResourceByType(dataType, file, content, modContext, graphicsContext);
+    return LoadResourceByType(dataType, file, content, appContext->GetModContext(), appContext->GetGraphicsContext());
+}
+
+bool glimmer::DataPack::ProcessLanguageFile(const std::filesystem::path& file, std::string_view dataType,
+                                            std::string_view fileName,
+                                            std::vector<std::filesystem::path>& defaultLanguageFiles,
+                                            std::vector<std::filesystem::path>& targetLanguageFiles,
+                                            const AppContext* appContext)
+{
+    if (dataType != DATA_FILE_TYPE_STRINGS)
+    {
+        return false;
+    }
+    const auto langOptional = ExtractLanguageFromFileName(fileName);
+    if (!langOptional.has_value())
+    {
+        return true;
+    }
+    if (const auto& fileLang = langOptional.value(); fileLang == appContext->GetLanguage())
+    {
+        targetLanguageFiles.push_back(file);
+    }
+    else if (fileLang == "default")
+    {
+        defaultLanguageFiles.push_back(file);
+    }
+    return true;
 }
 
 bool glimmer::DataPack::LoadPack(AppContext* appContext)
@@ -832,9 +831,9 @@ bool glimmer::DataPack::LoadPack(AppContext* appContext)
     };
     for (const auto& file : files)
     {
-        total += ProcessFile(file, modContext, graphicsContext, appContext,
-                            specialFileProcessingParams, defaultLanguageFiles,
-                            targetLanguageFiles, allHashData);
+        total += ProcessFile(file, appContext,
+                             specialFileProcessingParams, defaultLanguageFiles,
+                             targetLanguageFiles, allHashData);
     }
 
     total += LoadLanguageFiles(defaultLanguageFiles, targetLanguageFiles, modContext);

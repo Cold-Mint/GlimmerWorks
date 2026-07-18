@@ -162,8 +162,7 @@ namespace glimmer
         bool ProcessSpecialFiles(const std::filesystem::path& path,
                                  SpecialFileProcessingParams& params) const;
 
-        int ProcessFile(const std::filesystem::path& file, const ModContext* modContext,
-                       const GraphicsContext* graphicsContext, const AppContext* appContext,
+        int ProcessFile(const std::filesystem::path& file, const AppContext* appContext,
                        SpecialFileProcessingParams& specialFileProcessingParams,
                        std::vector<std::filesystem::path>& defaultLanguageFiles,
                        std::vector<std::filesystem::path>& targetLanguageFiles,

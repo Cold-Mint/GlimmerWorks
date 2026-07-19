@@ -38,8 +38,8 @@ std::optional<std::filesystem::path> glimmer::StdFileProvider::GetFullPath(
     std::filesystem::path fullPath = root_ / relativePath;
     auto absFull = std::filesystem::weakly_canonical(std::filesystem::absolute(fullPath));
     auto absRoot = std::filesystem::weakly_canonical(std::filesystem::absolute(root_));
-    const std::string& fullStr = absFull.native();
-    if (const std::string& rootStr = absRoot.native(); !(fullStr == rootStr || fullStr.starts_with(
+    const std::string fullStr = absFull.string();
+    if (const std::string rootStr = absRoot.string(); !(fullStr == rootStr || fullStr.starts_with(
         rootStr + std::filesystem::path::preferred_separator)))
     {
         LogCat::e(std::source_location::current(), "Access to unmounted directories is prohibited. fullPath(", fullPath,

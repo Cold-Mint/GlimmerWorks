@@ -211,7 +211,7 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourcePackManager::Impl
             {
                 continue;
             }
-            MIX_Audio* audio = MIX_LoadAudio(mixer_, actualAudioPath.value().c_str(), false);
+            MIX_Audio* audio = MIX_LoadAudio(mixer_, actualAudioPath.value().string().c_str(), false);
             if (audio == nullptr)
             {
                 continue;

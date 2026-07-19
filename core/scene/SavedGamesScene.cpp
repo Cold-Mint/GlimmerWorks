@@ -125,7 +125,10 @@ std::string glimmer::SavedGamesScene::FormatSaveLabel(const MapManifest* manifes
     std::tm tmBuf{};
     std::tm* tmInfo = nullptr;
 #if defined(_WIN32)
-    tmInfo = localtime_s(&tmBuf, &timeVal);
+    if (localtime_s(&tmBuf, &timeVal) == 0)
+    {
+        tmInfo = &tmBuf;
+    }
 #else
     tmInfo = localtime_r(&timeVal, &tmBuf);
 #endif

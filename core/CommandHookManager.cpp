@@ -114,12 +114,12 @@ bool glimmer::CommandHookManager::UnregisterImpl(
 {
     for (auto iter = commandHookVector.begin(); iter != commandHookVector.end(); ++iter)
     {
-        auto& uniquePtrHookEntry = iter.base();
+        auto& uniquePtrHookEntry = *iter;
         if (uniquePtrHookEntry == nullptr)
         {
             continue;
         }
-        auto hookEntry = uniquePtrHookEntry->get();
+        auto hookEntry = uniquePtrHookEntry.get();
         if (hookEntry == nullptr)
         {
             continue;

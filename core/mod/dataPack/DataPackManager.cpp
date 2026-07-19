@@ -50,7 +50,6 @@ bool glimmer::DataPackManager::IsDataPackAvailable(const DataPack& pack) const
     {
         if (packId.id == manifest.id)
         {
-
             return false;
         }
     }
@@ -172,7 +171,6 @@ int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tom
     const std::filesystem::path& dataPackPath = config->mods.dataPackPath;
     if (!virtualFileSystem_->Exists(dataPackPath))
     {
-
         return 0;
     }
     packManifestVector_.clear();
@@ -184,7 +182,6 @@ int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tom
     {
         if (!virtualFileSystem_->IsFile(entry))
         {
-
             DataPack pack(entry, virtualFileSystem_, tomlTemplateExpander_, tomlVersion);
             if (!pack.LoadManifest())
             {
@@ -194,7 +191,6 @@ int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tom
             // 判断数据包是否启用
             if (!IsDataPackEnabled(pack, appContext->GetConfig()->mods.enabledDataPack))
             {
-
                 continue;
             }
             if (!IsDataPackAvailable(pack))

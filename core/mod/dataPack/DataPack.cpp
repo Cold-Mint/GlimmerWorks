@@ -50,12 +50,12 @@ using enum glimmer::PackVerifyState;
 std::vector<std::filesystem::path> glimmer::DataPack::GetActuallyTemplateSearchPath(
     const std::filesystem::path& path) const
 {
-    const std::optional<std::string> currentOptional = virtualFileSystem_->GetParentPath(path);
+    const std::optional<std::filesystem::path> currentOptional = virtualFileSystem_->GetParentPath(path);
     if (!currentOptional.has_value())
     {
         return {};
     }
-    const std::string& currentDir = currentOptional.value();
+    const std::string currentDir = currentOptional.value().string();
     std::vector<std::filesystem::path> result;
     for (std::string searchPath : manifest_.templateSearchPath)
     {
@@ -501,7 +501,7 @@ std::optional<std::vector<char>> glimmer::DataPack::ReadFileContent(std::istream
 }
 
 
-glimmer::DataPack::DataPack(std::string path, const VirtualFileSystem* virtualFileSystem,
+glimmer::DataPack::DataPack(std::filesystem::path path, const VirtualFileSystem* virtualFileSystem,
                             const TomlTemplateExpander* tomlTemplateExpander,
                             const toml::spec& tomlVersion) : rootPath_(std::move(path)),
                                                              manifest_(), tomlVersion_(tomlVersion),
@@ -764,7 +764,8 @@ int glimmer::DataPack::ProcessFile(const std::filesystem::path& file, const AppC
     {
         return 0;
     }
-    return LoadResourceByType(dataType, file, content, appContext->GetModContext(), appContext->GetGraphicsContext());
+    return LoadResourceByType(dataType, file.string(), content, appContext->GetModContext(),
+                              appContext->GetGraphicsContext());
 }
 
 bool glimmer::DataPack::ProcessLanguageFile(const std::filesystem::path& file, std::string_view dataType,

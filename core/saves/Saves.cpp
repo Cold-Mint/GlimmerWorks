@@ -74,7 +74,7 @@ bool glimmer::Saves::Exist() const
     return virtualFileSystem_->Exists(path_);
 }
 
-std::string glimmer::Saves::GetPath() const
+const std::filesystem::path& glimmer::Saves::GetPath() const
 {
     return path_;
 }

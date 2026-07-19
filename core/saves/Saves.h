@@ -62,7 +62,7 @@ namespace glimmer {
          * 获取存档路径
          * @return path 存档路径
          */
-        [[nodiscard]] std::string GetPath() const;
+        [[nodiscard]] const std::filesystem::path& GetPath() const;
 
         /**
          * Check whether the block file at the specified location exists.

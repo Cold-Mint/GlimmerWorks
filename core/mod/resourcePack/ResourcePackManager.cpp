@@ -113,7 +113,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Tr
             continue;
         }
 
-        SDL_Surface* surface = IMG_Load(actualTexturePath.value().c_str());
+        SDL_Surface* surface = IMG_Load(actualTexturePath.value().string().c_str());
         if (surface == nullptr)
         {
             continue;
@@ -352,7 +352,7 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
         langFont.replace_extension("ttf");
         if (virtualFileSystem_->Exists(langFont))
         {
-            return langFont;
+            return langFont.string();
         }
 
         // Record the first default.ttf (for deferred use)
@@ -363,7 +363,7 @@ std::optional<std::string> glimmer::ResourcePackManager::GetFontPath(
             defaultFont.replace_extension("ttf");
             if (virtualFileSystem_->Exists(defaultFont))
             {
-                defaultFontPath = defaultFont;
+                defaultFontPath = defaultFont.string();
             }
         }
     }

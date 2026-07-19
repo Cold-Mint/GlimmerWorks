@@ -543,7 +543,7 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
             "SDL_RenderReadPixels failed"));
         return;
     }
-    const bool result = IMG_SavePNG(surface, actualPath.value().c_str());
+    const bool result = IMG_SavePNG(surface, actualPath.value().string().c_str());
     SDL_DestroySurface(surface);
     if (result)
     {

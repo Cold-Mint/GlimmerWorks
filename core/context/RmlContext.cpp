@@ -54,7 +54,7 @@ Rml::ElementDocument* glimmer::RmlContext::LoadDocument(const AppContext* appCon
             LogCat::w(std::source_location::current(), "path == nullptr");
             return nullptr;
         }
-        Rml::ElementDocument* elementDocument = context_->LoadDocument(*rmlPath);
+        Rml::ElementDocument* elementDocument = context_->LoadDocument(rmlPath->string());
         if (elementDocument == nullptr)
         {
             LogCat::w(std::source_location::current(), "elementDocument == nullptr");

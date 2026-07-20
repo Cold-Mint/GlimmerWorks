@@ -38,6 +38,8 @@ namespace glimmer
     public:
         explicit SplashScene(AppContext* context);
 
+        void LoadDocuments() override;
+
         void Update(float delta) override;
 
         ~SplashScene() override;

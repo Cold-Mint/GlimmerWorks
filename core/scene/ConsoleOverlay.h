@@ -108,6 +108,10 @@ namespace glimmer
     public:
         explicit ConsoleOverlay(AppContext* context);
 
+        void LoadDocuments() override;
+
+        void OnCreateDataModels() override;
+
         bool OnBackPressed() override;
 
         bool HandleEvent(const SDL_Event& event) override;

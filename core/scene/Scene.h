@@ -44,10 +44,14 @@ namespace glimmer
         RmlContext* rmlContext_ = nullptr;
         std::unordered_set<Rml::ElementDocument*> elementDocumentSet_;
         std::vector<std::unique_ptr<Rml::DataModelConstructor>> rmlConstructors_;
+        std::unordered_set<Rml::String> rmlConstructorNames_;
+        bool loadDocuments_ = true;
 
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
 #endif
+
+        void RemoveAllDataModel();
 
     protected:
         [[nodiscard]] AppContext* GetAppContext() const;
@@ -58,11 +62,18 @@ namespace glimmer
        */
         void Init();
 
-        Rml::ElementDocument* LoadDocument(const ResourceRef* resourceRef);
+        /**
+         * Load a single document
+         * 加载单个文档
+         * @param resourceRef
+         */
+        Rml::ElementDocument* LoadSingleDocument(const ResourceRef* resourceRef);
 
         Rml::DataModelConstructor* CreateDataModel(const Rml::String& name);
 
         void HideAllElementDocuments() const;
+
+        void ShowAllElementDocuments() const;
 
     public:
         /**
@@ -92,6 +103,26 @@ namespace glimmer
          * 当帧开始时调用
          */
         virtual void OnFrameStart();
+
+        /**
+         * This method will be called when the scene is superimposed over the current scene.
+         * 当场景叠加在当前场景之上时，将调用此方法。
+         * The Overlay scene display does not trigger this method.
+         * Overlay场景显示不会触发此方法。
+         */
+        virtual void OnPauseScene();
+
+        virtual void OnCreateDataModels();
+
+        virtual void LoadDocuments();
+
+        /**
+         * When a scene above the current scene is popped up, the current scene is displayed.
+         * 当在场景之上的场景被弹出后，当前场景显示出来。
+         * The overlay scene hiding does not trigger this method.
+         * Overlay场景隐藏不会触发此方法。
+         */
+        virtual void OnResumeScene();
 
         /**
          * When the configuration changes

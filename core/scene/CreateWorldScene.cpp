@@ -37,7 +37,6 @@
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
 #include "core/utils/TimeUtils.h"
-#include "core/log/LogCat.h"
 #include "SDL3/SDL_log.h"
 namespace fs = std::filesystem;
 
@@ -45,6 +44,10 @@ glimmer::CreateWorldScene::CreateWorldScene(AppContext* context) : Scene(context
 {
     RandomizeWorld();
     Init();
+}
+
+void glimmer::CreateWorldScene::OnCreateDataModels()
+{
     Rml::DataModelConstructor* constructor = CreateDataModel("create_world_scene");
     if (constructor != nullptr)
     {
@@ -67,16 +70,22 @@ glimmer::CreateWorldScene::CreateWorldScene(AppContext* context) : Scene(context
         );
         modelHandle_ = constructor->GetModelHandle();
     }
+}
+
+void glimmer::CreateWorldScene::OnPauseScene()
+{
+    Scene::OnPauseScene();
+    modelHandle_ = nullptr;
+}
+
+
+void glimmer::CreateWorldScene::LoadDocuments()
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("create_world/create_world");
-    Rml::ElementDocument* document = LoadDocument(&resourceRef);
-    if (document == nullptr)
-    {
-        LogCat::e(std::source_location::current(), "document == nullptr");
-        return;
-    }
+    LoadSingleDocument(&resourceRef);
 }
 
 void glimmer::CreateWorldScene::RandomizeWorld()

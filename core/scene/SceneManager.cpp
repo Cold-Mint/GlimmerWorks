@@ -28,7 +28,6 @@
 
 #include <algorithm>
 
-
 void glimmer::SceneManager::ClearScenes()
 {
     overlayScenes_.clear();
@@ -76,6 +75,11 @@ std::vector<glimmer::Scene*> glimmer::SceneManager::GetOverlayScenes() const
 
 void glimmer::SceneManager::PushScene(std::unique_ptr<Scene> scene)
 {
+    if (!sceneStack_.empty())
+    {
+        sceneStack_.top()->OnPauseScene();
+    }
+    scene->OnResumeScene();
     sceneStack_.push(std::move(scene));
 }
 
@@ -83,9 +87,13 @@ void glimmer::SceneManager::ReplaceScene(std::unique_ptr<Scene> scene)
 {
     if (sceneStack_.empty())
     {
+        scene->OnResumeScene();
+        sceneStack_.push(std::move(scene));
         return;
     }
+    sceneStack_.top()->OnPauseScene();
     sceneStack_.pop();
+    scene->OnResumeScene();
     sceneStack_.push(std::move(scene));
 }
 
@@ -95,7 +103,12 @@ void glimmer::SceneManager::PopScene()
     {
         return;
     }
+    sceneStack_.top()->OnPauseScene();
     sceneStack_.pop();
+    if (!sceneStack_.empty())
+    {
+        sceneStack_.top()->OnResumeScene();
+    }
 }
 
 glimmer::Scene* glimmer::SceneManager::GetTopScene() const

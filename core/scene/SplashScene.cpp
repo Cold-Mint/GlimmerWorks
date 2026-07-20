@@ -35,11 +35,15 @@ glimmer::SplashScene::SplashScene(AppContext* context)
 {
     nextSceneTime_ = SDL_GetTicks() + 2000;
     Init();
+}
+
+void glimmer::SplashScene::LoadDocuments()
+{
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("splash/splash");
-    LoadDocument(&resourceRef);
+    LoadSingleDocument(&resourceRef);
 }
 
 void glimmer::SplashScene::Update(float delta)
@@ -57,7 +61,10 @@ void glimmer::SplashScene::Update(float delta)
         {
             return;
         }
-        sceneManager->ReplaceScene(std::make_unique<MainScene>(appContext));
+        appContext->GetMainThreadDispatcher()->PostToNextMainFrame([appContext, sceneManager]
+        {
+            sceneManager->ReplaceScene(std::make_unique<MainScene>(appContext));
+        });
     }
 }
 

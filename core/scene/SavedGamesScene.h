@@ -29,6 +29,7 @@
 #include <string>
 
 #include "Scene.h"
+#include "SceneManager.h"
 #include "core/LangsResources.h"
 
 namespace glimmer
@@ -36,7 +37,8 @@ namespace glimmer
     class SavesManager;
     struct MapManifest;
 
-    struct SaveItem {
+    struct SaveItem
+    {
         std::string label;
         int index;
         bool selected = false;
@@ -51,6 +53,7 @@ namespace glimmer
         int windowHeight_ = 0;
         std::vector<SaveItem> saveItems_;
         SavesManager* savesManager_ = nullptr;
+        SceneManager* sceneManager_ = nullptr;
 
         static std::string FormatSaveLabel(const MapManifest* manifest, const LangsResources* langsResources);
 
@@ -65,6 +68,10 @@ namespace glimmer
         void OnNewGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
     public:
+        void OnCreateDataModels() override;
+
+        void LoadDocuments() override;
+
         explicit SavedGamesScene(AppContext* context);
 
         void OnWindowSizeChanged(const int& width, const int& height) override;

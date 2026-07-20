@@ -35,10 +35,10 @@ namespace glimmer
     class MainScene : public Scene
     {
         std::vector<Hyperlink> hyperlinks_{
-            {StringUtils::MakeRawText("Github"), "https://github.com/Cold-Mint/GlimmerWorks"},
-            {StringUtils::MakeRawText("Discord"), "https://discord.com/invite/CfppC9WHw8"},
-            {StringUtils::MakeRawText("itch.io"), "https://cold-mint.itch.io/glimmerworks"},
-            {StringUtils::MakeRawText("QQ Channel"), "https://pd.qq.com/s/cntb09fr1?b=9"}
+            {.text = StringUtils::MakeRawText("Github"), .url = "https://github.com/Cold-Mint/GlimmerWorks"},
+            {.text = StringUtils::MakeRawText("Discord"), .url = "https://discord.com/invite/CfppC9WHw8"},
+            {.text = StringUtils::MakeRawText("itch.io"), .url = "https://cold-mint.itch.io/glimmerworks"},
+            {.text = StringUtils::MakeRawText("QQ Channel"), .url = "https://pd.qq.com/s/cntb09fr1?b=9"}
         };
         float uiScale_ = 1.0F;
         int windowWidth_ = 0;
@@ -55,6 +55,10 @@ namespace glimmer
 
     public:
         explicit MainScene(AppContext* context);
+
+        void LoadDocuments() override;
+
+        void OnCreateDataModels() override;
 
         void OnConfigChanged(const Config* config) override;
 

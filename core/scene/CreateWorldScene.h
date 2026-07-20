@@ -54,6 +54,12 @@ namespace glimmer
 
         explicit CreateWorldScene(AppContext* context);
 
+        void OnCreateDataModels() override;
+
+        void OnPauseScene() override;
+
+        void LoadDocuments() override;
+
         void CreateWorld() const;
 
         void OnConfigChanged(const Config* config) override;

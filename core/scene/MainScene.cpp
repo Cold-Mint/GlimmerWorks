@@ -66,6 +66,19 @@ glimmer::MainScene::MainScene(AppContext* context)
     context->PlayMainMenuBGM();
     context->SetRandomSlogan();
     Init();
+}
+
+void glimmer::MainScene::LoadDocuments()
+{
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_RML_PATH);
+    resourceRef.SetResourceKey("main/main");
+    LoadSingleDocument(&resourceRef);
+}
+
+void glimmer::MainScene::OnCreateDataModels()
+{
     Rml::DataModelConstructor* constructor = CreateDataModel("main_scene");
     if (constructor != nullptr)
     {
@@ -91,16 +104,6 @@ glimmer::MainScene::MainScene(AppContext* context)
             this
         );
     }
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("main/main");
-    Rml::ElementDocument* document = LoadDocument(&resourceRef);
-    if (document == nullptr)
-    {
-        LogCat::e(std::source_location::current(), "document == nullptr");
-        return;
-    }
 }
 
 void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
@@ -119,11 +122,17 @@ void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Even
     }
     if (savesManager->GetSavesListSize() > 0)
     {
-        context->GetSceneManager()->ReplaceScene(std::make_unique<SavedGamesScene>(context));
+        context->GetMainThreadDispatcher()->PostToNextMainFrame([ context]
+        {
+            context->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(context));
+        });
     }
     else
     {
-        context->GetSceneManager()->ReplaceScene(std::make_unique<CreateWorldScene>(context));
+        context->GetMainThreadDispatcher()->PostToNextMainFrame([ context]
+        {
+            context->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(context));
+        });
     }
 }
 

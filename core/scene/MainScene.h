@@ -51,6 +51,8 @@ namespace glimmer
 
         void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
+        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
     public:
         explicit MainScene(AppContext* context);
 

@@ -14,6 +14,7 @@ confirm = "確定"
 console = "コンソール"
 console_placeholder = "/help と入力してヘルプを表示"
 create_world = "ワールド作成"
+create = "作成する"
 delete_game = "セーブデータを削除"
 efficiency_tip = "{}％の掘削効率"
 executed_success = "{}の実行に成功しました"
@@ -52,7 +53,7 @@ slogans = [
     "普通に見えるファイル、開いてみたことある？",
     "ガチャやピティシステム、本当に好きですか？",
     "誰も同じ世界には二度と踏み入れない。",
-    "ルールの一部は、ボタン一つで書き換えられる。",
+    "一部のルールは F1 キーを押すと再記述できます。",
     "give abilityItem glimmerworks:area_marker",
     "にゃ～",
     "Ciallo～(∠・ω< )⌒☆",

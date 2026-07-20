@@ -14,6 +14,7 @@ confirm = "Confirm"
 console = "Console"
 console_placeholder = "Enter /help to view help."
 create_world = "Create World"
+create = "Create"
 delete_game = "delete Game"
 efficiency_tip = "{}% excavation efficiency"
 executed_success = "{} successful execution"
@@ -52,7 +53,7 @@ slogans = [
     "Have you tried opening those ordinary-looking files?",
     "Do you really love gacha and pity systems?",
     "No one steps into the same world twice.",
-    "Some rules can be rewritten with just a press.",
+    "Some rules can be rewritten by pressing F1.",
     "give abilityItem glimmerworks:area_marker",
     "Meow~",
     "Ciallo～(∠・ω< )⌒☆",

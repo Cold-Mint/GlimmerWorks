@@ -34,6 +34,7 @@
 #include "core/Config.h"
 
 #include <chrono>
+#include <SDL3/SDL.h>
 
 #include "core/context/AppContext.h"
 #include "core/log/LogCat.h"
@@ -84,6 +85,11 @@ glimmer::MainScene::MainScene(AppContext* context)
             &MainScene::OnExitGameClick,
             this
         );
+        constructor->BindEventCallback(
+            "on_link_click",
+            &MainScene::OnLinkClick,
+            this
+        );
     }
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
@@ -130,6 +136,16 @@ void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event
         return;
     }
     context->ExitApp();
+}
+
+void glimmer::MainScene::OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+{
+    if (args.empty())
+    {
+        return;
+    }
+    const std::string& url = args[0].Get<Rml::String>();
+    SDL_OpenURL(url.c_str());
 }
 
 void glimmer::MainScene::OnConfigChanged(const Config* config)

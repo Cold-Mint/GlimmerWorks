@@ -14,6 +14,7 @@ confirm = "确认"
 console = "终端"
 console_placeholder = "输入/help查看帮助。"
 create_world = "创建世界"
+create = "创建"
 delete_game = "删除存档"
 efficiency_tip = "{}%挖掘效率"
 executed_success = "{}执行成功"
@@ -52,7 +53,7 @@ slogans = [
     "你试过… 打开那些看起来很普通的文件吗？",
     "你真的喜欢保底和池子吗？",
     "没有人会踏入完全相同的世界。",
-    "有些规则，按下～就能重新书写。",
+    "有些规则，按下F1就能重新书写。",
     "give abilityItem glimmerworks:area_marker",
     "喵～",
     "Ciallo～(∠・ω< )⌒☆",

@@ -361,7 +361,7 @@ void glimmer::ConsoleOverlay::HandleRightKey()
         consoleInputElement_->GetSelection(&selectionStart, &selectionEnd, &selectedText);
         if (selectionEnd == static_cast<int>(text.length()))
         {
-            int consolePlaceholderLength = static_cast<int>(consolePlaceholder_.length());
+            auto consolePlaceholderLength = static_cast<int>(consolePlaceholder_.length());
             consoleInputElement_->SetValue(consolePlaceholder_);
             consoleInputElement_->SetSelectionRange(consolePlaceholderLength, consolePlaceholderLength);
             consoleModelHandle_.DirtyVariable("console_placeholder");

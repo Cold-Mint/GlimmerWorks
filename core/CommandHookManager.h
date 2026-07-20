@@ -62,7 +62,7 @@ namespace glimmer
         [[nodiscard]] static bool UnregisterImpl(
             std::unordered_map<uint32_t, std::vector<CommandHookEntry*>>& commandHookMap,
             std::vector<std::unique_ptr<CommandHookEntry>>& commandHookVector, CommandHookScope exclude,
-            const std::string& commandHookId
+            std::string_view commandHookId
         );
 
     public:

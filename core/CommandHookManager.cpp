@@ -110,11 +110,11 @@ void glimmer::CommandHookManager::CleanMatchedHook(
 bool glimmer::CommandHookManager::UnregisterImpl(
     std::unordered_map<uint32_t, std::vector<CommandHookEntry*>>& commandHookMap,
     std::vector<std::unique_ptr<CommandHookEntry>>& commandHookVector, CommandHookScope exclude,
-    const std::string& commandHookId)
+    const std::string_view commandHookId)
 {
     for (auto iter = commandHookVector.begin(); iter != commandHookVector.end(); ++iter)
     {
-        auto& uniquePtrHookEntry = *iter;
+        const std::unique_ptr<CommandHookEntry>& uniquePtrHookEntry = *iter;
         if (uniquePtrHookEntry == nullptr)
         {
             continue;
@@ -137,7 +137,6 @@ bool glimmer::CommandHookManager::UnregisterImpl(
     }
     return false;
 }
-
 
 const std::vector<glimmer::CommandHookEntry*>& glimmer::CommandHookManager::GetCommandHookVector(const uint32_t key)
 {

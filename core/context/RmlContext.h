@@ -53,6 +53,8 @@ namespace glimmer
         [[nodiscard]] Rml::ElementDocument* LoadDocument(const AppContext* appContext,
                                                          const ResourceRef* resourceRef);
 
+        void CloseDocument(Rml::ElementDocument* document);
+
         [[nodiscard]] Rml::Context* GetRmlContext() const;
 
     public:

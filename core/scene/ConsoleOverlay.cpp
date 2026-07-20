@@ -569,24 +569,30 @@ void glimmer::ConsoleOverlay::OnCreateDataModels()
     Rml::DataModelConstructor* constructor = CreateDataModel("console_scene");
     if (constructor != nullptr)
     {
-        auto messageStruct = constructor->RegisterStruct<ConsoleMessage>();
-        messageStruct.RegisterMember("message", &ConsoleMessage::message);
-        constructor->RegisterArray<std::vector<ConsoleMessage>>();
+        if (auto messageStruct = constructor->RegisterStruct<ConsoleMessage>())
+        {
+            messageStruct.RegisterMember("message", &ConsoleMessage::message);
+            constructor->RegisterArray<std::vector<ConsoleMessage>>();
+        }
         constructor->Bind("console_messages", &consoleMessages_);
-        auto commandStructure = constructor->RegisterStruct<CommandStructure>();
-        commandStructure.RegisterMember("message", &CommandStructure::message);
-        commandStructure.RegisterMember("selected", &CommandStructure::selected);
-        constructor->RegisterArray<std::vector<CommandStructure>>();
+        if (auto commandStructure = constructor->RegisterStruct<CommandStructure>())
+        {
+            commandStructure.RegisterMember("message", &CommandStructure::message);
+            commandStructure.RegisterMember("selected", &CommandStructure::selected);
+            constructor->RegisterArray<std::vector<CommandStructure>>();
+        }
         constructor->Bind("command_structure", &commandStructure_);
         consolePlaceholder_ = "console_placeholder";
         constructor->Bind("console_placeholder", &consolePlaceholder_);
-        auto commandSuggestions = constructor->RegisterStruct<CommandSuggestions>();
-        commandSuggestions.RegisterMember("message", &CommandSuggestions::message);
-        commandSuggestions.RegisterMember("suffix", &CommandSuggestions::suffix);
-        commandSuggestions.RegisterMember("keyword", &CommandSuggestions::keyword);
-        commandSuggestions.RegisterMember("prefix", &CommandSuggestions::prefix);
-        commandSuggestions.RegisterMember("selected", &CommandSuggestions::selected);
-        constructor->RegisterArray<std::vector<CommandSuggestions>>();
+        if (auto commandSuggestions = constructor->RegisterStruct<CommandSuggestions>())
+        {
+            commandSuggestions.RegisterMember("message", &CommandSuggestions::message);
+            commandSuggestions.RegisterMember("suffix", &CommandSuggestions::suffix);
+            commandSuggestions.RegisterMember("keyword", &CommandSuggestions::keyword);
+            commandSuggestions.RegisterMember("prefix", &CommandSuggestions::prefix);
+            commandSuggestions.RegisterMember("selected", &CommandSuggestions::selected);
+            constructor->RegisterArray<std::vector<CommandSuggestions>>();
+        }
         constructor->Bind("command_suggestions", &commandSuggestions_);
         constructor->BindEventCallback(
             "on_suggest_click",

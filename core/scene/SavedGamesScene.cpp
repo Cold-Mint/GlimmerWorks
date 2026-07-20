@@ -180,7 +180,7 @@ void glimmer::SavedGamesScene::OnBackClick(Rml::DataModelHandle handle, Rml::Eve
     MainThreadDispatcher* mainThreadDispatcher = appContext->GetMainThreadDispatcher();
     if (mainThreadDispatcher == nullptr)
     {
-        LogCat::w(std::source_location::current(), "mainThreadDispatcher == nullptr");
+        LogCat::e(std::source_location::current(), "mainThreadDispatcher == nullptr");
         return;
     }
     mainThreadDispatcher->PostToNextMainFrame([this]
@@ -215,11 +215,13 @@ void glimmer::SavedGamesScene::OnCreateDataModels()
     Rml::DataModelConstructor* constructor = CreateDataModel("saved_games_scene");
     if (constructor != nullptr)
     {
-        auto saveItemStruct = constructor->RegisterStruct<SaveItem>();
-        saveItemStruct.RegisterMember("label", &SaveItem::label);
-        saveItemStruct.RegisterMember("index", &SaveItem::index);
-        saveItemStruct.RegisterMember("selected", &SaveItem::selected);
-        constructor->RegisterArray<std::vector<SaveItem>>();
+        if (auto saveItemStruct = constructor->RegisterStruct<SaveItem>())
+        {
+            saveItemStruct.RegisterMember("label", &SaveItem::label);
+            saveItemStruct.RegisterMember("index", &SaveItem::index);
+            saveItemStruct.RegisterMember("selected", &SaveItem::selected);
+            constructor->RegisterArray<std::vector<SaveItem>>();
+        }
         constructor->Bind("save_items", &saveItems_);
         constructor->BindEventCallback(
             "on_save_click",

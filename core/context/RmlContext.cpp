@@ -69,6 +69,24 @@ Rml::ElementDocument* glimmer::RmlContext::LoadDocument(const AppContext* appCon
     return elementDocument;
 }
 
+void glimmer::RmlContext::CloseDocument(Rml::ElementDocument* document)
+{
+    if (document == nullptr)
+    {
+        return;
+    }
+    for (auto iterator = elementDocumentCache_.begin(); iterator != elementDocumentCache_.end(); ++iterator)
+    {
+        if (iterator->second == document)
+        {
+            document->Close();
+            elementDocumentCache_.erase(iterator);
+            return;
+        }
+    }
+    document->Close();
+}
+
 Rml::Context* glimmer::RmlContext::GetRmlContext() const
 {
     if (context_ == nullptr)

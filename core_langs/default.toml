@@ -67,7 +67,8 @@ slogans = [
     "Everyone’s here to enjoy the game, not to hear the creator ramble about how lonely game development is.",
     "You’re right. Maybe I should go see a therapist and ask them why I created this game world in the first place.",
     "There are no rags-to-riches comebacks or instant wealth in life. The so-called ideals are nothing more than breaking free from restraint, escaping that so-called \"standard life\".",
-    "For me, making this game is nothing but a way to put food on the table."
+    "For me, making this game is nothing but a way to put food on the table.",
+    "Hey! Hello there, human."
 ]
 start_game = "Start Game"
 teleport_entity = "The entity with Id {} has been sent to x={},y={}."
@@ -169,3 +170,4 @@ time_s = "s"
 time_m = "m"
 time_h = "h"
 saves_description = "Game Version: {} Last Played: {:%Y-%m-%d %H:%M} Play Time: {}"
+back = "Back"

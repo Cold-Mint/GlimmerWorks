@@ -43,9 +43,8 @@ namespace glimmer
         AppContext* appContext_ = nullptr;
         RmlContext* rmlContext_ = nullptr;
         std::unordered_set<Rml::ElementDocument*> elementDocumentSet_;
-        std::vector<std::unique_ptr<Rml::DataModelConstructor>> rmlConstructors_;
+        std::vector<Rml::DataModelConstructor> rmlConstructors_;
         std::unordered_set<Rml::String> rmlConstructorNames_;
-        bool loadDocuments_ = true;
 
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
@@ -74,6 +73,8 @@ namespace glimmer
         void HideAllElementDocuments() const;
 
         void ShowAllElementDocuments() const;
+
+        void CloseAllElementDocuments();
 
     public:
         /**

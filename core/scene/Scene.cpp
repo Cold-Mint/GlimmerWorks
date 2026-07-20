@@ -39,7 +39,6 @@ void glimmer::Scene::OnFrameStart()
 void glimmer::Scene::OnPauseScene()
 {
     HideAllElementDocuments();
-    RemoveAllDataModel();
 }
 
 void glimmer::Scene::OnCreateDataModels()
@@ -54,12 +53,6 @@ void glimmer::Scene::LoadDocuments()
 
 void glimmer::Scene::OnResumeScene()
 {
-    OnCreateDataModels();
-    if (loadDocuments_)
-    {
-        LoadDocuments();
-        loadDocuments_ = false;
-    }
     ShowAllElementDocuments();
 }
 
@@ -83,7 +76,11 @@ void glimmer::Scene::OnWindowSizeChanged(const int& width, const int& height)
     // Intentionally empty default implementation for base class
 }
 
-glimmer::Scene::~Scene() = default;
+glimmer::Scene::~Scene()
+{
+    RemoveAllDataModel();
+    CloseAllElementDocuments();
+}
 
 glimmer::AppContext* glimmer::Scene::GetAppContext() const
 {
@@ -109,6 +106,8 @@ void glimmer::Scene::Init()
         OnConfigChanged(config);
     }
     rmlContext_ = appContext->GetRmlContext();
+    OnCreateDataModels();
+    LoadDocuments();
 }
 
 Rml::ElementDocument* glimmer::Scene::LoadSingleDocument(const ResourceRef* resourceRef)
@@ -152,22 +151,22 @@ Rml::DataModelConstructor* glimmer::Scene::CreateDataModel(const Rml::String& na
         LogCat::w(std::source_location::current(), "Recreate the dataModel:", name);
         return nullptr;
     }
-    rmlConstructors_.push_back(std::make_unique<Rml::DataModelConstructor>(
-        rmlContextCore->CreateDataModel(name)
-    ));
+    rmlConstructors_.push_back(rmlContextCore->CreateDataModel(name));
     rmlConstructorNames_.insert(name);
-    return rmlConstructors_.back().get();
+    return &rmlConstructors_.back();
 }
 
 void glimmer::Scene::RemoveAllDataModel()
 {
     if (rmlContext_ == nullptr)
     {
+        LogCat::w(std::source_location::current(), "RemoveAllDataModel rmlContext_ == nullptr");
         return;
     }
     Rml::Context* rmlContextCore = rmlContext_->GetRmlContext();
     if (rmlContextCore == nullptr)
     {
+        LogCat::w(std::source_location::current(), "RemoveAllDataModel rmlContextCore == nullptr");
         return;
     }
     rmlConstructors_.clear();
@@ -200,6 +199,19 @@ void glimmer::Scene::ShowAllElementDocuments() const
         }
         elementDocument->Show();
     }
+}
+
+void glimmer::Scene::CloseAllElementDocuments()
+{
+    for (auto elementDocument : elementDocumentSet_)
+    {
+        if (elementDocument == nullptr || rmlContext_ == nullptr)
+        {
+            continue;
+        }
+        rmlContext_->CloseDocument(elementDocument);
+    }
+    elementDocumentSet_.clear();
 }
 
 bool glimmer::Scene::HandleEvent(const SDL_Event& event)

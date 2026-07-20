@@ -83,10 +83,12 @@ void glimmer::MainScene::OnCreateDataModels()
     if (constructor != nullptr)
     {
         constructor->Bind("copyright", &copyright_);
-        auto linkStruct = constructor->RegisterStruct<Hyperlink>();
-        linkStruct.RegisterMember("text", &Hyperlink::text);
-        linkStruct.RegisterMember("url", &Hyperlink::url);
-        constructor->RegisterArray<std::vector<Hyperlink>>();
+        if (auto linkStruct = constructor->RegisterStruct<Hyperlink>())
+        {
+            linkStruct.RegisterMember("text", &Hyperlink::text);
+            linkStruct.RegisterMember("url", &Hyperlink::url);
+            constructor->RegisterArray<std::vector<Hyperlink>>();
+        }
         constructor->Bind("footer_links", &hyperlinks_);
         constructor->BindEventCallback(
             "on_start_game_click",

@@ -28,31 +28,50 @@
 
 #include <iostream>
 #include <string>
+#include <poll.h>
+#include <unistd.h>
 
 #include "core/log/LogCat.h"
 
-void glimmer::LocalConsoleInput::InputLoop()
+void glimmer::LocalConsoleInput::InputLoop(std::stop_token stopToken)
 {
     LogCat::i("LocalConsoleInput thread started");
     std::string line;
-    while (running_)
+    pollfd pfds[2];
+    pfds[0].fd = STDIN_FILENO;
+    pfds[0].events = POLLIN;
+    pfds[1].fd = wakeupPipe_[0];
+    pfds[1].events = POLLIN;
+    while (!stopToken.stop_requested())
     {
-        if (!std::getline(std::cin, line))
+        int ret = poll(pfds, 2, -1);
+        if (ret < 0)
         {
-            if (!running_)
+            continue;
+        }
+
+        if (pfds[1].revents & POLLIN)
+        {
+            char dummy;
+            read(wakeupPipe_[0], &dummy, 1);
+            continue;
+        }
+
+        if (pfds[0].revents & POLLIN)
+        {
+            if (!std::getline(std::cin, line))
             {
-                break;
+                continue;
             }
-            continue;
-        }
-        if (line.empty())
-        {
-            continue;
-        }
-        LogCat::i("Received command from local console: ", line);
-        if (onCommandCallback_)
-        {
-            onCommandCallback_(line);
+            if (line.empty())
+            {
+                continue;
+            }
+            LogCat::i("Received command from local console: ", line);
+            if (onCommandCallback_)
+            {
+                onCommandCallback_(line);
+            }
         }
     }
     LogCat::i("LocalConsoleInput thread stopped");
@@ -61,24 +80,19 @@ void glimmer::LocalConsoleInput::InputLoop()
 glimmer::LocalConsoleInput::LocalConsoleInput(std::function<void(const std::string&)> onCommandCallback)
     : onCommandCallback_(std::move(onCommandCallback))
 {
+    pipe(wakeupPipe_);
+    thread_ = std::jthread([this](const std::stop_token& stopToken) { this->InputLoop(stopToken); });
 }
 
 glimmer::LocalConsoleInput::~LocalConsoleInput()
 {
-    Stop();
-}
-
-void glimmer::LocalConsoleInput::Start()
-{
-    running_ = true;
-    thread_ = std::thread([this]() { this->InputLoop(); });
+    close(wakeupPipe_[0]);
+    close(wakeupPipe_[1]);
 }
 
 void glimmer::LocalConsoleInput::Stop()
 {
-    running_ = false;
-    if (thread_.joinable())
-    {
-        thread_.join();
-    }
+    thread_.request_stop();
+    char dummy = 0;
+    write(wakeupPipe_[1], &dummy, 1);
 }

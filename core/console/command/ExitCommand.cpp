@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,25 +24,27 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <functional>
-#include <thread>
+#include "ExitCommand.h"
 
-namespace glimmer
+#include "core/context/AppContext.h"
+
+glimmer::ExitCommand::ExitCommand(AppContext* appContext) : Command(appContext)
 {
-    class LocalConsoleInput
+}
+
+const std::string& glimmer::ExitCommand::GetName() const
+{
+    return EXIT_COMMAND_NAME;
+}
+
+bool glimmer::ExitCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+    const std::function<void(const std::string& text)>* onMessage)
+{
+    const AppContext* appContext = GetAppContext();
+    if (appContext == nullptr)
     {
-        std::jthread thread_;
-        std::function<void(const std::string&)> onCommandCallback_;
-        int wakeupPipe_[2]{};
-
-        void InputLoop(std::stop_token stopToken);
-
-    public:
-        explicit LocalConsoleInput(std::function<void(const std::string&)> onCommandCallback);
-
-        ~LocalConsoleInput();
-
-        void Stop();
-    };
+        return false;
+    }
+    appContext->ExitApp();
+    return true;
 }

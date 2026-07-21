@@ -81,6 +81,7 @@
 #include "core/console/suggestion/VFSDynamicSuggestions.h"
 #include "core/log/LogCat.h"
 #include "AppContext.h"
+#include "core/console/command/ExitCommand.h"
 
 void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext) const
 {
@@ -103,6 +104,7 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext) const
     commandManager_->RegisterCommand(std::make_unique<LocateCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<ItemEditorCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<PlayCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<ExitCommand>(appContext));
 #if  !defined(NDEBUG)
     commandManager_->RegisterCommand(std::make_unique<HookCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<TileSnapshotCommand>(appContext));
@@ -193,7 +195,6 @@ bool glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vf
                 consoleWorker_->CreateRequest(command, commandManager_->GetDefaultCommandSender());
             }
         });
-    localConsoleInput_->Start();
     commandHistoryManager_ = std::make_unique<CommandHistoryManager>(runtimePath, vfs);
     if (maxHistoryEntries > 0)
     {

@@ -307,9 +307,6 @@ target_sources(GlimmerWorks
         core/console/ConsoleMessage.cpp
         core/console/ConsoleWorker.cpp
         core/console/LocalConsoleInput.cpp
-        core/console/command/SceneCommand.cpp
-        core/console/command/InputCommand.cpp
-        core/console/command/GuiCommand.cpp
         core/console/asset_enumerator/AbilityItemsAssetEnumerator.cpp
         core/console/asset_enumerator/BiomeDecorsAssetEnumerator.cpp
         core/console/asset_enumerator/BiomesAssetEnumerator.cpp
@@ -334,10 +331,13 @@ target_sources(GlimmerWorks
         core/console/command/ConfigCommand.cpp
         core/console/command/EchoCommand.cpp
         core/console/command/EcsCommand.cpp
+        core/console/command/ExitCommand.cpp
         core/console/command/FlyCommand.cpp
         core/console/command/GiveCommand.cpp
+        core/console/command/GuiCommand.cpp
         core/console/command/HelpCommand.cpp
         core/console/command/HookCommand.cpp
+        core/console/command/InputCommand.cpp
         core/console/command/ItemEditorCommand.cpp
         core/console/command/LicenseCommand.cpp
         core/console/command/LightCommand.cpp
@@ -347,6 +347,7 @@ target_sources(GlimmerWorks
         core/console/command/ParallaxBackgroundCommand.cpp
         core/console/command/PlaceCommand.cpp
         core/console/command/PlayCommand.cpp
+        core/console/command/SceneCommand.cpp
         core/console/command/ScreenshotCommand.cpp
         core/console/command/SeedCommand.cpp
         core/console/command/SummonCommand.cpp
@@ -673,9 +674,6 @@ target_sources(GlimmerWorks
         core/console/ConsoleMessage.h
         core/console/ConsoleWorker.h
         core/console/LocalConsoleInput.h
-        core/console/command/SceneCommand.h
-        core/console/command/InputCommand.h
-        core/console/command/GuiCommand.h
         core/console/asset_enumerator/AbilityItemsAssetEnumerator.h
         core/console/asset_enumerator/BiomeDecorsAssetEnumerator.h
         core/console/asset_enumerator/BiomesAssetEnumerator.h
@@ -701,10 +699,13 @@ target_sources(GlimmerWorks
         core/console/command/ConfigCommand.h
         core/console/command/EchoCommand.h
         core/console/command/EcsCommand.h
+        core/console/command/ExitCommand.h
         core/console/command/FlyCommand.h
         core/console/command/GiveCommand.h
+        core/console/command/GuiCommand.h
         core/console/command/HelpCommand.h
         core/console/command/HookCommand.h
+        core/console/command/InputCommand.h
         core/console/command/ItemEditorCommand.h
         core/console/command/LicenseCommand.h
         core/console/command/LightCommand.h
@@ -714,6 +715,7 @@ target_sources(GlimmerWorks
         core/console/command/ParallaxBackgroundCommand.h
         core/console/command/PlaceCommand.h
         core/console/command/PlayCommand.h
+        core/console/command/SceneCommand.h
         core/console/command/ScreenshotCommand.h
         core/console/command/SeedCommand.h
         core/console/command/SummonCommand.h

@@ -56,6 +56,7 @@ static constexpr std::string LOOT_COMMAND_NAME = "loot";
 static constexpr std::string PLACE_COMMAND_NAME = "place";
 static constexpr std::string PLAY_COMMAND_NAME = "play";
 static constexpr std::string FLY_COMMAND_NAME = "fly";
+static constexpr std::string EXIT_COMMAND_NAME = "exit";
 static constexpr std::string ECHO_COMMAND_NAME = "echo";
 static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
 static constexpr std::string LOCATE_COMMAND_NAME = "locate";

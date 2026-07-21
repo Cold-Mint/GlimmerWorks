@@ -69,6 +69,8 @@ void glimmer::AppContext::LoadLanguage(const std::string& data)
     langsResources_->unknownAssetType = find<std::string>(tomlValue, "unknown_asset_type");
     langsResources_->unknownCommandParameters = find<std::string>(tomlValue, "unknown_command_parameters");
     langsResources_->worldContextIsNull = find<std::string>(tomlValue, "world_context_is_null");
+    langsResources_->cheatsNotAllowed = find<std::string>(tomlValue, "cheats_not_allowed");
+    langsResources_->allowCheats = find<std::string>(tomlValue, "allow_cheats");
     langsResources_->insufficientParameterLength = find<std::string>(tomlValue, "insufficient_parameter_length");
     langsResources_->entryCannotFoundInConfigurationFile = find<std::string>(
         tomlValue, "entry_cannot_found_in_configuration_file");

@@ -53,6 +53,7 @@ void glimmer::CreateWorldScene::OnCreateDataModels()
     {
         constructor->Bind("world_name", &worldName_);
         constructor->Bind("seed", &seedStr_);
+        constructor->Bind("allow_cheats", &allowCheats_);
         constructor->BindEventCallback(
             "on_create_world_click",
             &CreateWorldScene::OnCreateWorldClick,
@@ -120,7 +121,7 @@ void glimmer::CreateWorldScene::OnRandomClick(Rml::DataModelHandle handle, Rml::
         return;
     }
     auto type = args[0].Get<Rml::String>();
-    if (type == "name")
+    if (type == "world_name")
     {
         RandomizeName();
         modelHandle_.DirtyVariable("world_name");
@@ -171,6 +172,7 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.createTime = TimeUtils::GetCurrentTimeMs();
     manifest.lastPlayedTime = manifest.createTime;
     manifest.totalPlayTime = 0;
+    manifest.allowCheats = allowCheats_;
     auto savesManager = GetAppContext()->GetSavesManager();
     Saves* saves =
         savesManager->

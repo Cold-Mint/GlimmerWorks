@@ -173,7 +173,7 @@ bool glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vf
 
     commandManager_ = std::make_unique<CommandManager>();
     RegisterCommands(appContext);
-    consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get());
+    consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get(), appContext);
     commandHistoryManager_ = std::make_unique<CommandHistoryManager>(runtimePath, vfs);
     if (maxHistoryEntries > 0)
     {

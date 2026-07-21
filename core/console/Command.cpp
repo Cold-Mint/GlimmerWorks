@@ -56,6 +56,11 @@ bool glimmer::Command::RequiresWorldContext() const
     return false;
 }
 
+bool glimmer::Command::RequiresCheatEnabled() const
+{
+    return false;
+}
+
 void glimmer::Command::BindWorldContext(WorldContext* worldContext)
 {
     worldContext_ = worldContext;

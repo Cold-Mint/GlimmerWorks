@@ -52,6 +52,8 @@ namespace glimmer
         std::string unknownAssetType;
         std::string unknownCommandParameters;
         std::string worldContextIsNull;
+        std::string cheatsNotAllowed;
+        std::string allowCheats;
         std::string insufficientParameterLength;
         std::string entryCannotFoundInConfigurationFile;
         std::string configurationUpdate;

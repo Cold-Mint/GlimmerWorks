@@ -45,7 +45,12 @@ glimmer::Command* glimmer::CommandManager::GetCommand(const std::string& name) c
 {
     if (const auto it = commandMap_.find(name); it != commandMap_.end())
     {
-        return it->second.get();
+        Command* command = it->second.get();
+        if (!CanExecuteCommand(command))
+        {
+            return nullptr;
+        }
+        return command;
     }
     return nullptr;
 }
@@ -73,13 +78,13 @@ glimmer::CommandSender* glimmer::CommandManager::GetDefaultCommandSender()
 
 glimmer::CommandSender* glimmer::CommandManager::GetMouseCommandSender()
 {
-    if (worldContext_ == nullptr)
+    if (commandEnvironment_.worldContext == nullptr)
     {
         mouseCommandSender_.SetPosition({0, 0});
     }
     else
     {
-        EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
+        const EntityShortCut* entityShortCut = commandEnvironment_.worldContext->GetEntityShortCut();
         const CameraComponent* cameraComponent = entityShortCut->GetCameraComponent();
         if (cameraComponent != nullptr)
         {
@@ -101,9 +106,9 @@ glimmer::CommandSender* glimmer::CommandManager::GetMouseCommandSender()
 
 void glimmer::CommandManager::BindWorldContext(WorldContext* worldContext)
 {
-    worldContext_ = worldContext;
-    entityManager_ = worldContext_->GetEntityManager();
-    entityShortCut_ = worldContext_->GetEntityShortCut();
+    commandEnvironment_.worldContext = worldContext;
+    entityManager_ = worldContext->GetEntityManager();
+    entityShortCut_ = worldContext->GetEntityShortCut();
     for (const auto& command : commandMap_ | std::views::values)
     {
         if (command->RequiresWorldContext())
@@ -115,7 +120,7 @@ void glimmer::CommandManager::BindWorldContext(WorldContext* worldContext)
 
 void glimmer::CommandManager::UnbindWorldContext()
 {
-    worldContext_ = nullptr;
+    commandEnvironment_.Reset();
     entityManager_ = nullptr;
     entityShortCut_ = nullptr;
     for (const auto& command : commandMap_ | std::views::values)
@@ -125,6 +130,33 @@ void glimmer::CommandManager::UnbindWorldContext()
             command->UnBindWorldContext();
         }
     }
+}
+
+void glimmer::CommandManager::SetAllowCheats(const bool allowCheats)
+{
+    commandEnvironment_.allowCheats = allowCheats;
+}
+
+const glimmer::CommandEnvironment& glimmer::CommandManager::GetCommandEnvironment() const
+{
+    return commandEnvironment_;
+}
+
+bool glimmer::CommandManager::CanExecuteCommand(const Command* command) const
+{
+    if (command == nullptr)
+    {
+        return false;
+    }
+    if (command->RequiresWorldContext() && commandEnvironment_.worldContext == nullptr)
+    {
+        return false;
+    }
+    if (command->RequiresCheatEnabled() && !commandEnvironment_.allowCheats)
+    {
+        return false;
+    }
+    return true;
 }
 
 std::string glimmer::CommandManager::GetHelpText(const LangsResources* langsResources)
@@ -144,9 +176,13 @@ std::string glimmer::CommandManager::GetHelpText(const LangsResources* langsReso
 std::vector<std::string> glimmer::CommandManager::GetCommandNameSuggestions(const std::string& keyWord) const
 {
     std::vector<std::string> results;
-    for (const auto& commandStr : commandMap_ | std::views::keys)
+    for (const auto& [commandStr, command] : commandMap_)
     {
         if (commandStr == keyWord)
+        {
+            continue;
+        }
+        if (!CanExecuteCommand(command.get()))
         {
             continue;
         }

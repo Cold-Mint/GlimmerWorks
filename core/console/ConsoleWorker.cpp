@@ -29,6 +29,8 @@
 #include "CommandResponse.h"
 #include "CommandResult.h"
 #include "core/console/CommandRequest.h"
+#include "core/context/AppContext.h"
+#include "core/LangsResources.h"
 
 
 void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
@@ -69,6 +71,22 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
         {
             commandResponse->SetCommandResult(CommandResult::NotFound, command);
         }
+        else if (!commandManager_->CanExecuteCommand(cmd))
+        {
+            const LangsResources* langsResources = appContext_ != nullptr ? appContext_->GetLangsResources() : nullptr;
+            if (langsResources != nullptr)
+            {
+                if (cmd->RequiresWorldContext())
+                {
+                    (*currentCallback)(langsResources->worldContextIsNull);
+                }
+                else if (cmd->RequiresCheatEnabled())
+                {
+                    (*currentCallback)(langsResources->cheatsNotAllowed);
+                }
+            }
+            commandResponse->SetCommandResult(CommandResult::Failure, command);
+        }
         else
         {
             const bool success = cmd->Execute(
@@ -85,8 +103,8 @@ void glimmer::ConsoleWorker::WorkLoop(std::stop_token stopToken)
     }
 }
 
-glimmer::ConsoleWorker::ConsoleWorker(CommandManager* commandManager)
-    : commandManager_(commandManager)
+glimmer::ConsoleWorker::ConsoleWorker(CommandManager* commandManager, AppContext* appContext)
+    : commandManager_(commandManager), appContext_(appContext)
 {
     thread_ = std::jthread([this](const std::stop_token& stopToken) { this->WorkLoop(stopToken); });
 }

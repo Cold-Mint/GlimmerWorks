@@ -657,6 +657,7 @@ target_sources(GlimmerWorks
         core/TileStateBackup.h
         core/console/Command.h
         core/console/CommandArgs.h
+        core/console/CommandEnvironment.h
         core/console/CommandHistoryManager.h
         core/console/CommandManager.h
         core/console/CommandRequest.h

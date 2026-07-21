@@ -77,6 +77,13 @@ namespace glimmer
         [[nodiscard]] virtual bool RequiresWorldContext() const;
 
         /**
+        * RequiresCheatEnabled
+        * 是否需要开启作弊才能使用此命令
+        * @return
+        */
+        [[nodiscard]] virtual bool RequiresCheatEnabled() const;
+
+        /**
          * Bind the world context
          * 绑定世界上下文
          * @param worldContext 世界上下文

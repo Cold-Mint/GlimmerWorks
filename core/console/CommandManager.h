@@ -28,8 +28,10 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "Command.h"
+#include "CommandEnvironment.h"
 #include "CommandSender.h"
 #include "core/LangsResources.h"
 #include "core/utils/TransparentStringHash.h"
@@ -45,7 +47,7 @@ namespace glimmer
         std::unordered_map<std::string, std::unique_ptr<Command>, TransparentStringHash, std::equal_to<>> commandMap_{};
         CommandSender defaultCommandSender_;
         CommandSender mouseCommandSender_;
-        WorldContext* worldContext_ = nullptr;
+        CommandEnvironment commandEnvironment_{};
         EntityManager* entityManager_ = nullptr;
         EntityShortCut* entityShortCut_ = nullptr;
 
@@ -60,7 +62,8 @@ namespace glimmer
         static bool TryExpandDynamicSuggestion(const DynamicSuggestionsManager* dynamicSuggestionsManager,
                                                const std::string& child,
                                                std::vector<std::string>& children,
-                                               std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& expandedSet);
+                                               std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
+                                               expandedSet);
 
     public:
         void RegisterCommand(std::unique_ptr<Command> command);
@@ -74,6 +77,28 @@ namespace glimmer
         void BindWorldContext(WorldContext* worldContext);
 
         void UnbindWorldContext();
+
+        /**
+         * Set whether cheats are allowed in the current environment.
+         * 设置当前环境是否允许作弊。
+         * @param allowCheats 是否允许作弊
+         */
+        void SetAllowCheats(bool allowCheats);
+
+        /**
+         * Get the command environment.
+         * 获取命令环境。
+         * @return 命令环境
+         */
+        [[nodiscard]] const CommandEnvironment& GetCommandEnvironment() const;
+
+        /**
+         * Whether the command can be executed under the current environment.
+         * 在当前命令环境下该命令是否可以执行。
+         * @param command 命令
+         * @return 是否可以执行
+         */
+        [[nodiscard]] bool CanExecuteCommand(const Command* command) const;
 
         [[nodiscard]] std::string GetHelpText(const LangsResources* langsResources);
 

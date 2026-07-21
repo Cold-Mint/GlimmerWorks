@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,24 +25,27 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <string>
 
-#include "src/saves/map_manifest.pb.h"
+namespace glimmer
+{
+    class WorldContext;
 
-namespace glimmer {
-    struct MapManifest {
-        std::string name;
-        std::string gameVersionName;
-        uint32_t gameVersionNumber;
-        int seed;
-        long createTime;
-        long lastPlayedTime;
-        long totalPlayTime;
-        uint32_t entityIDIndex;
+    /**
+     * Command Environment
+     * 命令环境，用于在命令管理器内部统一描述执行命令所依赖的运行时上下文状态。
+     *  - worldContext: 当前世界上下文（未进入世界时为 nullptr）
+     *  - allowCheats: 当前世界是否允许作弊
+     */
+    class CommandEnvironment
+    {
+    public:
+        WorldContext* worldContext = nullptr;
         bool allowCheats = false;
 
-        void FromMessage(const MapManifestMessage &manifestMessage);
-
-        void ToMessage(MapManifestMessage &manifestMessage);
+        void Reset()
+        {
+            worldContext = nullptr;
+            allowCheats = false;
+        }
     };
 }

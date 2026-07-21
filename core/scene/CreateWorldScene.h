@@ -50,6 +50,7 @@ namespace glimmer
     public:
         Rml::String worldName_;
         Rml::String seedStr_;
+        bool allowCheats_ = false;
         float uiScale_ = 1.0F;
 
         explicit CreateWorldScene(AppContext* context);

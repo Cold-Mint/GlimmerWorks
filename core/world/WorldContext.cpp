@@ -232,7 +232,9 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldId_ = b2CreateWorld(&worldDef);
-    appContext->GetConsoleContext()->GetCommandManager()->BindWorldContext(this);
+    auto* commandManager = appContext->GetConsoleContext()->GetCommandManager();
+    commandManager->BindWorldContext(this);
+    commandManager->SetAllowCheats(mapManifest->allowCheats);
     appContext_->GetModContext()->GetBiomeDecoratorManager()->SetWorldSeed(worldSeed_);
     entityManager_ = std::make_unique<EntityManager>();
     entityShortCut_ = std::make_unique<EntityShortCut>();

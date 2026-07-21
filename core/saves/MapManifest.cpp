@@ -35,6 +35,7 @@ void glimmer::MapManifest::FromMessage(const MapManifestMessage &manifestMessage
     lastPlayedTime = manifestMessage.lastplayedtime();
     totalPlayTime = manifestMessage.totalplaytime();
     entityIDIndex = manifestMessage.entityidindex();
+    allowCheats = manifestMessage.allowcheats();
 }
 
 void glimmer::MapManifest::ToMessage(MapManifestMessage &manifestMessage) {
@@ -46,4 +47,5 @@ void glimmer::MapManifest::ToMessage(MapManifestMessage &manifestMessage) {
     manifestMessage.set_lastplayedtime(lastPlayedTime);
     manifestMessage.set_totalplaytime(totalPlayTime);
     manifestMessage.set_entityidindex(entityIDIndex);
+    manifestMessage.set_allowcheats(allowCheats);
 }

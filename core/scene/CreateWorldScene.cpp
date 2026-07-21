@@ -32,12 +32,12 @@
 #include "MainScene.h"
 #include "WorldScene.h"
 #include "core/Config.h"
+#include "core/log/LogCat.h"
 #include "core/saves/Saves.h"
 #include "core/saves/SavesManager.h"
 #include "core/utils/RandomUtils.h"
 #include "core/utils/StringUtils.h"
 #include "core/utils/TimeUtils.h"
-#include "SDL3/SDL_log.h"
 namespace fs = std::filesystem;
 
 glimmer::CreateWorldScene::CreateWorldScene(AppContext* context) : Scene(context)
@@ -150,9 +150,11 @@ void glimmer::CreateWorldScene::CreateWorld() const
     std::string name = worldName_;
     if (name.empty())
     {
-        SDL_Log("The name of the world cannot be empty!");
+        LogCat::w(std::source_location::current(), "World name cannot be empty");
         return;
     }
+    LogCat::i("Creating new world: name=", name);
+    
     const std::string seedInput = seedStr_;
     int seedValue = 0;
     if (StringUtils::IsInteger(seedInput))
@@ -163,6 +165,7 @@ void glimmer::CreateWorldScene::CreateWorld() const
     {
         seedValue = static_cast<int>(StringUtils::StringToUint64Blake3(seedInput));
     }
+    LogCat::i("World seed: ", seedValue, " (input: ", seedInput, ")");
 
     MapManifest manifest;
     manifest.seed = seedValue;
@@ -173,19 +176,29 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.lastPlayedTime = manifest.createTime;
     manifest.totalPlayTime = 0;
     manifest.allowCheats = allowCheats_;
+    
+    LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", allowCheats_);
+    
     auto savesManager = GetAppContext()->GetSavesManager();
-    Saves* saves =
-        savesManager->
-        Create(GetAppContext()->GetConfig()->runtimePath, manifest);
-    if (saves == nullptr)
+    if (savesManager == nullptr)
     {
+        LogCat::e(std::source_location::current(), "savesManager is nullptr");
         return;
     }
-    GetAppContext()->GetSceneManager()->
-                     ReplaceScene(std::make_unique<WorldScene>(
-                         GetAppContext(), std::make_unique<WorldContext>(
-                             GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
-                             saves)));
+    
+    Saves* saves = savesManager->Create(GetAppContext()->GetConfig()->runtimePath, manifest);
+    if (saves == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "Failed to create saves");
+        return;
+    }
+    LogCat::i("World saved successfully");
+    
+    GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<WorldScene>(
+        GetAppContext(), std::make_unique<WorldContext>(
+            GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
+            saves)));
+    LogCat::i("Transitioning to WorldScene");
 }
 
 void glimmer::CreateWorldScene::OnConfigChanged(const Config* config)

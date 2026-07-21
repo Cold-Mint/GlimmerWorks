@@ -169,18 +169,22 @@ void glimmer::WorldContext::SaveGame()
 {
     if (saving_)
     {
+        LogCat::w(std::source_location::current(), "Save already in progress, ignoring");
         return;
     }
+    LogCat::i("Starting game save: ", mapManifest_->name);
     saving_ = true;
     const Saves* saves = GetSaves();
     if (saves == nullptr)
     {
+        LogCat::e(std::source_location::current(), "saves is nullptr");
         saving_ = false;
         return;
     }
     auto mapManifestMessageData = saves->ReadMapManifest();
     if (!mapManifestMessageData.has_value())
     {
+        LogCat::w(std::source_location::current(), "Failed to read map manifest");
         saving_ = false;
         return;
     }
@@ -191,26 +195,27 @@ void glimmer::WorldContext::SaveGame()
     mapManifestMessageData->set_entityidindex(entityManager_->GetEntityIndex());
     if (!saves->WriteMapManifest(mapManifestMessageData.value()))
     {
+        LogCat::w(std::source_location::current(), "Failed to write map manifest");
         saving_ = false;
         return;
     }
-    //Save the player.
-    //保存玩家。
     auto player = entityShortCut_->GetPlayer();
     if (!IsEmptyEntityId(player) && entityManager_->IsPersistable(player))
     {
         PlayerMessage playerMessage;
         SaveEntity(playerMessage.mutable_entity(), player);
         (void)saves->WritePlayer(playerMessage);
+        LogCat::i("Player saved");
     }
 
-    //Save all blocks.
-    //保存所有区块。
     auto allChunks = chunkManager_->GetAllChunks();
+    int chunkCount = 0;
     for (const auto& pos : *allChunks | std::views::keys)
     {
         (void)chunkManager_->SaveChunk(pos);
+        chunkCount++;
     }
+    LogCat::i("Game save completed, chunks saved: ", chunkCount);
     saving_ = false;
 }
 
@@ -229,6 +234,7 @@ glimmer::TileInstancePool* glimmer::WorldContext::GetTileInstancePool() const
 glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves)
     : worldSeed_(mapManifest->seed), saves_(saves), mapManifest_(mapManifest), appContext_(appContext)
 {
+    LogCat::i("Creating WorldContext, world name: ", mapManifest->name, ", seed: ", worldSeed_);
     b2WorldDef worldDef = b2DefaultWorldDef();
     worldDef.gravity = b2Vec2(0.0F, -10.0F);
     worldId_ = b2CreateWorld(&worldDef);
@@ -274,11 +280,12 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     entityShortCut_->SetItemToolTipComponent(
         entityManager_->AddComponent<ItemToolTipComponent>(entityManager_->AddEntity()));
     systemScheduler_->InitSystem();
-
+    LogCat::i("WorldContext created successfully");
 }
 
 glimmer::WorldContext::~WorldContext()
 {
+    LogCat::i("Destroying WorldContext: worldName=", mapManifest_ ? mapManifest_->name : "unknown");
     playerContext_.reset();
     systemScheduler_.reset();
     if (entityManager_)
@@ -293,4 +300,5 @@ glimmer::WorldContext::~WorldContext()
     {
         appContext_->GetConsoleContext()->GetCommandManager()->UnbindWorldContext();
     }
+    LogCat::i("WorldContext destroyed");
 }

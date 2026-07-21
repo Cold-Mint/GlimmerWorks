@@ -41,6 +41,7 @@ void glimmer::GraphicsContext::Init(const ResourceLocator* resourceLocator)
 {
     preloadColors_ = std::make_unique<PreloadColors>();
     preloadColors_->LoadAllColors(resourceLocator);
+    LogCat::i("GraphicsContext initialized");
 }
 
 glimmer::LightMaskManager* glimmer::GraphicsContext::GetLightMaskManager() const

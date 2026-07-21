@@ -48,12 +48,12 @@ glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
 {
     if (savesManager_ == nullptr)
     {
-        LogCat::e(std::source_location::current(), "savesManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
         return;
     }
     if (sceneManager_ == nullptr)
     {
-        LogCat::e(std::source_location::current(), "sceneManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "sceneManager_ == nullptr");
         return;
     }
     UpdateSaveItems();
@@ -123,7 +123,7 @@ void glimmer::SavedGamesScene::OnSaveClick(Rml::DataModelHandle handle, Rml::Eve
     int index = args[0].Get<int>();
     if (savesManager_ == nullptr)
     {
-        LogCat::e(std::source_location::current(), "savesManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
         return;
     }
     if (index < 0 || index >= static_cast<int>(savesManager_->GetSavesListSize()))
@@ -135,7 +135,7 @@ void glimmer::SavedGamesScene::OnSaveClick(Rml::DataModelHandle handle, Rml::Eve
     MapManifest* manifest = savesManager_->GetMapManifest(index);
     if (saves == nullptr || manifest == nullptr)
     {
-        LogCat::e(std::source_location::current(), "saves or manifest is nullptr");
+        LogCat::w(std::source_location::current(), "saves or manifest is nullptr");
         return;
     }
     GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<WorldScene>(
@@ -153,7 +153,7 @@ void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::E
     int index = args[0].Get<int>();
     if (savesManager_ == nullptr)
     {
-        LogCat::e(std::source_location::current(), "savesManager_ == nullptr");
+        LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
         return;
     }
     if (index < 0 || index >= static_cast<int>(savesManager_->GetSavesListSize()))
@@ -174,13 +174,13 @@ void glimmer::SavedGamesScene::OnBackClick(Rml::DataModelHandle handle, Rml::Eve
     const AppContext* appContext = GetAppContext();
     if (appContext == nullptr)
     {
-        LogCat::e(std::source_location::current(), "appContext == nullptr");
+        LogCat::w(std::source_location::current(), "appContext == nullptr");
         return;
     }
     MainThreadDispatcher* mainThreadDispatcher = appContext->GetMainThreadDispatcher();
     if (mainThreadDispatcher == nullptr)
     {
-        LogCat::e(std::source_location::current(), "mainThreadDispatcher == nullptr");
+        LogCat::w(std::source_location::current(), "mainThreadDispatcher == nullptr");
         return;
     }
     mainThreadDispatcher->PostToNextMainFrame([this]
@@ -195,7 +195,7 @@ void glimmer::SavedGamesScene::OnNewGameClick(Rml::DataModelHandle handle, Rml::
     AppContext* appContext = GetAppContext();
     if (appContext == nullptr)
     {
-        LogCat::e(std::source_location::current(), "appContext == nullptr");
+        LogCat::w(std::source_location::current(), "appContext == nullptr");
         return;
     }
     MainThreadDispatcher* mainThreadDispatcher = appContext->GetMainThreadDispatcher();

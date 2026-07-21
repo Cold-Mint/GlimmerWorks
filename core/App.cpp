@@ -56,20 +56,26 @@ bool glimmer::App::InitSDL()
 #endif
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {
+        LogCat::e(std::source_location::current(), "SDL_Init failed");
         return false;
     }
     initSDLSuccess_ = true;
+    LogCat::i("SDL_Init succeeded");
     if (!MIX_Init())
     {
+        LogCat::e(std::source_location::current(), "MIX_Init failed");
         return false;
     }
     initSDLMixSuccess_ = true;
+    LogCat::i("MIX_Init succeeded");
 
     if (!TTF_Init())
     {
+        LogCat::e(std::source_location::current(), "TTF_Init failed");
         return false;
     }
     initSDLTtfSuccess_ = true;
+    LogCat::i("TTF_Init succeeded");
     return true;
 }
 
@@ -81,6 +87,8 @@ bool glimmer::App::InitWindowAndRenderer()
         LogCat::e(std::source_location::current(), "config is nullptr");
         return false;
     }
+    LogCat::i("Creating window: width=", config->window.width, ", height=", config->window.height,
+              ", fullscreen=", config->window.fullscreen);
     window = SDL_CreateWindow(
         "GlimmerWorks",
         config->window.width,
@@ -92,6 +100,7 @@ bool glimmer::App::InitWindowAndRenderer()
         LogCat::e(std::source_location::current(), "window is nullptr");
         return false;
     }
+    LogCat::i("Window created successfully");
 
     WindowContext* windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr)
@@ -100,6 +109,7 @@ bool glimmer::App::InitWindowAndRenderer()
         return false;
     }
     windowContext->SetWindow(window);
+    LogCat::i("Creating renderer");
     renderer_ = SDL_CreateRenderer(window, nullptr);
     if (renderer_ == nullptr)
     {
@@ -111,6 +121,7 @@ bool glimmer::App::InitWindowAndRenderer()
     const char* driverName = SDL_GetStringProperty(rendererProperties, SDL_PROP_RENDERER_NAME_STRING, nullptr);
     LogCat::i("driverName = ", driverName);
 #endif
+    LogCat::i("Renderer created successfully");
     SDL_SetRenderVSync(renderer_, config->window.vSync);
     windowContext->SetRenderer(renderer_);
     RmlContext* rmlContext = appContext_->GetRmlContext();
@@ -119,10 +130,12 @@ bool glimmer::App::InitWindowAndRenderer()
         LogCat::e(std::source_location::current(), "RmlContext is nullptr");
         return false;
     }
+    LogCat::i("Initializing RmlContext");
     rmlContext->Init(appContext_->GetVirtualFileSystem(), renderer_, appContext_->GetResourcePackManager(),
                      appContext_->GetResourceLocator(), appContext_->GetLanguageValue(),
                      config->window.width,
                      config->window.height);
+    LogCat::i("RmlContext initialized successfully");
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr)
     {
@@ -130,9 +143,11 @@ bool glimmer::App::InitWindowAndRenderer()
         return false;
     }
     resourcePackManager->SetRenderer(renderer_, appContext_->GetGraphicsContext()->GetPreloadColors());
+    LogCat::i("ResourcePackManager renderer set");
 
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
     SDL_SetDefaultTextureScaleMode(renderer_, SDL_SCALEMODE_PIXELART);
+    LogCat::i("InitWindowAndRenderer completed successfully");
     return true;
 }
 
@@ -141,46 +156,56 @@ bool glimmer::App::InitFont() const
     const Config* config = appContext_->GetConfig();
     if (config == nullptr)
     {
+        LogCat::e(std::source_location::current(), "config is nullptr");
         return false;
     }
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
     if (resourcePackManager == nullptr)
     {
+        LogCat::e(std::source_location::current(), "resourcePackManager is nullptr");
         return false;
     }
+    LogCat::i("Loading font for language: ", appContext_->GetLanguage());
     const auto fontPathOpt = resourcePackManager->GetFontPath(
         config->mods.enabledResourcePack,
         appContext_->GetLanguage());
 
     if (!fontPathOpt.has_value())
     {
+        LogCat::i("No font configured, skipping font initialization");
         return true;
     }
 
     const std::filesystem::path& fontPath = fontPathOpt.value();
+    LogCat::i("Font path: ", fontPath.string());
     const VirtualFileSystem* virtualFileSystem = appContext_->GetVirtualFileSystem();
     if (virtualFileSystem == nullptr)
     {
+        LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
         return false;
     }
     if (!virtualFileSystem->Exists(fontPath))
     {
+        LogCat::w(std::source_location::current(), "Font file not found: ", fontPath.string());
         return false;
     }
 
     auto actualPath = virtualFileSystem->GetActualPath(fontPath);
     if (!actualPath.has_value())
     {
+        LogCat::w(std::source_location::current(), "Cannot get actual font path");
         return false;
     }
     const std::optional<std::string> fontDataOptional = virtualFileSystem->ReadFileAsString(fontPath);
     if (!fontDataOptional.has_value())
     {
+        LogCat::w(std::source_location::current(), "Cannot read font file");
         return false;
     }
     RmlContext* rmlContext = appContext_->GetRmlContext();
     if (rmlContext == nullptr)
     {
+        LogCat::e(std::source_location::current(), "rmlContext is nullptr");
         return false;
     }
     if (!rmlContext->LoadFont(virtualFileSystem, fontPath))
@@ -196,12 +221,18 @@ bool glimmer::App::InitFont() const
         return false;
     }
     resourcePackManager->SetFont(sdlFont);
+    LogCat::i("Font loaded successfully: ", fontPathStr);
     return true;
 }
 
 bool glimmer::App::InitAudio()
 {
     Config* config = appContext_->GetConfig();
+    if (config == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "config is nullptr");
+        return false;
+    }
     SDL_AudioSpec audioSpec;
     const std::string& audioFormat = config->audio.format;
     if (audioFormat == "U8")
@@ -223,36 +254,54 @@ bool glimmer::App::InitAudio()
 
     audioSpec.channels = config->audio.channels;
     audioSpec.freq = config->audio.freq;
+    LogCat::i("Creating audio mixer: format=", audioFormat, ", channels=", config->audio.channels,
+              ", freq=", config->audio.freq);
 
     mixer_ = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
     if (mixer_ == nullptr)
     {
+        LogCat::e(std::source_location::current(), "MIX_CreateMixerDevice failed");
         return false;
     }
+    LogCat::i("Audio mixer created successfully");
 
     ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
+    if (resourcePackManager == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "resourcePackManager is nullptr");
+        return false;
+    }
     resourcePackManager->SetMixer(mixer_);
+    LogCat::i("Loading main menu BGM");
     appContext_->LoadMainMenuBGM();
     const AudioContext* audioContext = appContext_->GetAudioContext();
     if (audioContext == nullptr)
     {
+        LogCat::e(std::source_location::current(), "audioContext is nullptr");
         return false;
     }
     AudioManager* audioManager = audioContext->GetAudioManager();
     if (audioManager == nullptr)
     {
+        LogCat::e(std::source_location::current(), "audioManager is nullptr");
         return false;
     }
     audioManager->SetMixer(mixer_);
 
+    LogCat::i("Configuring audio tracks: count=", config->audio.track.size());
     for (const AudioTrack& trackConfig : config->audio.track)
     {
         audioManager->CreateTracks(trackConfig.type, trackConfig.trackCount);
         audioManager->SetTypeVolume(trackConfig.type, trackConfig.volume);
+        LogCat::i("  Track: type=", static_cast<int>(std::to_underlying(trackConfig.type)), ", count=",
+                  trackConfig.trackCount,
+                  ", volume=", trackConfig.volume);
     }
     audioManager->SetMasterVolume(config->audio.masterVolume);
+    LogCat::i("Master volume set to: ", config->audio.masterVolume);
 
     AppContext::RestoreColorRenderer(renderer_);
+    LogCat::i("InitAudio completed successfully");
     return true;
 }
 
@@ -301,45 +350,60 @@ glimmer::App::App(AppContext* appContext) :
 
 bool glimmer::App::Init()
 {
-    return InitSDL() &&
+    LogCat::i("Starting application initialization");
+    const bool result = InitSDL() &&
         InitWindowAndRenderer() &&
         InitFont() &&
         InitAudio();
+    if (result)
+    {
+        LogCat::i("Application initialization completed successfully");
+    }
+    else
+    {
+        LogCat::e(std::source_location::current(), "Application initialization failed");
+    }
+    return result;
 }
 
 void glimmer::App::Run() const
 {
+    LogCat::i("Starting application main loop");
     const auto sceneManager = appContext_->GetSceneManager();
     const auto config = appContext_->GetConfig();
 
+    LogCat::i("Initializing scenes and console");
     InitScenesAndConsole();
 
     Uint64 frameStart = SDL_GetTicks();
     Uint64 lastInputTime = SDL_GetTicks();
     float deltaTime = 0.0F;
-    //+1 is used to ensure that the first frame receives the broadcast.
-    //+1是为了让第一帧收到广播。
     uint64_t configFingerprint = config->GetFingerprint() + 1;
 
+    LogCat::i("Creating event loop and renderer");
     AppEventLoop eventLoop(appContext_, lastInputTime);
     AppRenderer renderer(appContext_, renderer_);
 
     WindowContext* windowContext = appContext_->GetWindowContext();
     if (windowContext == nullptr)
     {
+        LogCat::e(std::source_location::current(), "windowContext is nullptr");
         return;
     }
     MainThreadDispatcher* mainThreadDispatcher = appContext_->GetMainThreadDispatcher();
     if (mainThreadDispatcher == nullptr)
     {
+        LogCat::e(std::source_location::current(), "mainThreadDispatcher is nullptr");
         return;
     }
     RmlContext* rmlContext = appContext_->GetRmlContext();
     if (rmlContext == nullptr)
     {
+        LogCat::e(std::source_location::current(), "rmlContext is nullptr");
         return;
     }
     Rml::Context* rmlContextCore = rmlContext->GetRmlContext();
+    LogCat::i("Entering main game loop");
     while (windowContext->IsRunning() && sceneManager->GetSceneCount() > 0)
     {
         int windowWidth = 0;
@@ -348,6 +412,7 @@ void glimmer::App::Run() const
 
         if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight))
         {
+            LogCat::i("Window size changed: ", windowWidth, "x", windowHeight);
             if (rmlContextCore != nullptr)
             {
                 rmlContextCore->SetDimensions({windowWidth, windowHeight});
@@ -355,7 +420,10 @@ void glimmer::App::Run() const
             HandleWindowSizeChange(windowWidth, windowHeight);
         }
 
-        CheckConfigChange(configFingerprint);
+        if (CheckConfigChange(configFingerprint))
+        {
+            LogCat::i("Configuration changed, reloading hooks and scenes");
+        }
 
         const float targetFrameTime = CalculateTargetFrameTime(frameStart, lastInputTime);
         const auto targetFrameTimeMs = static_cast<Uint32>(targetFrameTime * 1000.0F);
@@ -375,6 +443,7 @@ void glimmer::App::Run() const
         deltaTime = static_cast<float>(actualFrameEnd - frameStart) / 1000.0F;
         frameStart = actualFrameEnd;
     }
+    LogCat::i("Main game loop exited");
 }
 
 void glimmer::App::HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const

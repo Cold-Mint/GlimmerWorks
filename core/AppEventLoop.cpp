@@ -30,6 +30,7 @@
 #include "console/CommandManager.h"
 #include "CommandHookManager.h"
 #include <ranges>
+#include "core/log/LogCat.h"
 
 #include "RmlUi/Core/Context.h"
 
@@ -162,10 +163,12 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
 #ifdef __ANDROID__
     if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_AC_BACK)
     {
+        LogCat::i("Back button pressed (Android)");
         if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
         {
             if (!topScene->OnBackPressed())
             {
+                LogCat::i("Back button: popping scene");
                 sceneManager->PopScene();
             }
         }
@@ -174,6 +177,7 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
 #else
     if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE && !event.key.repeat)
     {
+        LogCat::i("Escape key pressed");
         bool handled = false;
         const auto& overlayScenes = sceneManager->GetOverlayScenes();
         for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
@@ -187,6 +191,7 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
         Scene* topScene = sceneManager->GetTopScene();
         if (!handled && topScene != nullptr && !topScene->OnBackPressed())
         {
+            LogCat::i("Escape key: popping scene");
             sceneManager->PopScene();
         }
         return true;
@@ -194,6 +199,7 @@ bool glimmer::AppEventLoop::HandleSystemEvent(const SDL_Event& event) const
 #endif
     if (event.type == SDL_EVENT_QUIT)
     {
+        LogCat::i("Quit event received");
         const auto& overlayScenes = sceneManager->GetOverlayScenes();
         for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
         {

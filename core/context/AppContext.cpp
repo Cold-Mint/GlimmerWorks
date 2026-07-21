@@ -414,6 +414,7 @@ glimmer::AppContext::AppContext()
     resourceLocator_ = std::make_unique<ResourceLocator>(this);
     graphicsContext_->Init(resourceLocator_.get());
     initSuccess_ = true;
+    LogCat::i("AppContext initialization completed successfully");
 }
 
 void glimmer::AppContext::LoadMainMenuBGM() const

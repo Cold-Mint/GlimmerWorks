@@ -26,14 +26,14 @@
  */
 #include "GameSystem.h"
 #include "core/Config.h"
+#include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 
 
 void glimmer::GameSystem::OnActivationChanged(const bool activeStatus)
 {
-    //Here, events related to the disabling or enabling of the system are handled.
-    //在这里处理系统被禁用或启用的事件。
+    LogCat::i("GameSystem activation changed: ", activeStatus ? "active" : "inactive");
 }
 
 void glimmer::GameSystem::AddActiveWatchComponent(GameComponentTypeMessage gameComponentType)
@@ -99,14 +99,17 @@ glimmer::GameSystem::GameSystem(WorldContext* worldContext) : worldContext_(worl
 {
     entityManager_ = worldContext_->GetEntityManager();
     entityShortCut_ = worldContext_->GetEntityShortCut();
+    LogCat::i("GameSystem created");
 }
 
 void glimmer::GameSystem::Init()
 {
+    LogCat::i("GameSystem initializing");
     initSubclassFinish_ = true;
     const AppContext* appContext = worldContext_->GetAppContext();
     if (appContext == nullptr)
     {
+        LogCat::w(std::source_location::current(), "appContext is nullptr");
         return;
     }
     OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(), appContext->GetWindowContext()->GetWindowHeight());
@@ -115,6 +118,7 @@ void glimmer::GameSystem::Init()
     {
         OnConfigChanged(config);
     }
+    LogCat::i("GameSystem initialized");
 }
 
 

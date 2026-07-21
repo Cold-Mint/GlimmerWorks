@@ -26,6 +26,7 @@
  */
 #include "DiggingSystem.h"
 #include <cstddef>
+#include "core/log/LogCat.h"
 #include "core/world/TileInstancePool.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 #include "core/world/WorldContext.h"
@@ -421,6 +422,7 @@ void glimmer::DiggingSystem::ProcessMiningComplete(const TileLayerComponent* til
     WorldContext* worldContext = GetWorldContext();
     const MiningRangeData* miningRangeData = diggingComponent_->GetMiningRangeData();
     const size_t pointsCount = miningRangeData->GetPointsCount();
+    LogCat::i("Mining complete, processing ", pointsCount, " mining points");
     for (size_t i = 0; i < pointsCount; i++)
     {
         const MiningRangeDataPoint* point = miningRangeData->GetPoint(i);
@@ -428,12 +430,17 @@ void glimmer::DiggingSystem::ProcessMiningComplete(const TileLayerComponent* til
         {
             continue;
         }
-        BreakTile({
+        uint16_t broken = BreakTile({
             BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
             diggingComponent_->IsPrecisionMining(), false, point->GetWidth(),
             point->GetHeight(),
             TileResourceManager::GetAirResourceRef(tileLayerType)
         });
+        if (broken > 0)
+        {
+            LogCat::i("Broken tiles at position (", point->GetTileTopLeftPosition().x, ",", 
+                      point->GetTileTopLeftPosition().y, "): ", broken);
+        }
     }
     diggingComponent_->SetProgress(0.0F);
     diggingComponent_->SetEnable(false);

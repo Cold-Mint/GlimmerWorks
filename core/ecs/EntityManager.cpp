@@ -27,6 +27,7 @@
 #include "EntityManager.h"
 
 #include "component/AutoPickComponent.h"
+#include "core/log/LogCat.h"
 #include "component/DebugDrawComponent.h"
 #include "component/DroppedItemComponent.h"
 #include "component/ItemContainerComponent.h"
@@ -62,9 +63,11 @@ GameEntityID glimmer::EntityManager::AddEntity(GameEntityID gameEntityId)
             ++entityIndex_;
         }
         entityMap_.emplace(entityIndex_, std::make_unique<GameEntity>(entityIndex_));
+        LogCat::d("Entity created: id=", entityIndex_);
         return entityIndex_;
     }
     entityMap_.emplace(gameEntityId, std::make_unique<GameEntity>(gameEntityId));
+    LogCat::d("Entity created: id=", gameEntityId);
     return gameEntityId;
 }
 
@@ -137,10 +140,12 @@ uint32_t glimmer::EntityManager::GetComponentCount(const GameComponentTypeMessag
 
 void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId)
 {
+    LogCat::d("Entity removing: id=", gameEntityId);
     entityMap_.erase(gameEntityId);
     auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
     if (entityToGameComponentTypeIterator != entityToGameComponentType_.end())
     {
+        int componentCount = 0;
         for (auto componentTypeMessage : entityToGameComponentTypeIterator->second)
         {
             auto componentFingerprint = GenComponentFingerprint(gameEntityId, componentTypeMessage);
@@ -148,6 +153,7 @@ void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId)
             if (componentIterator != components_.end())
             {
                 components_.erase(componentIterator);
+                componentCount++;
                 auto componentCountIterator = componentCount_.find(componentTypeMessage);
                 if (componentCountIterator != componentCount_.end())
                 {
@@ -164,6 +170,7 @@ void glimmer::EntityManager::RemoveEntity(const GameEntityID gameEntityId)
                 }
             }
         }
+        LogCat::d("Entity removed: id=", gameEntityId, ", components removed: ", componentCount);
     }
     entityIndex_++;
 }
@@ -198,6 +205,7 @@ void glimmer::EntityManager::RemoveComponent(const GameEntityID gameEntityId,
     }
 
     components_.erase(componentIterator);
+    LogCat::d("Component removed: entityId=", gameEntityId, ", type=", static_cast<int>(typeMessage));
     auto entityToGameComponentTypeIterator = entityToGameComponentType_.find(gameEntityId);
     if (entityToGameComponentTypeIterator != entityToGameComponentType_.end())
     {

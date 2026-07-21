@@ -89,15 +89,18 @@ glimmer::AppContext* glimmer::Scene::GetAppContext() const
 
 void glimmer::Scene::Init()
 {
+    LogCat::i("Scene init started");
     initSubclassFinish_ = true;
     const AppContext* appContext = GetAppContext();
     if (appContext == nullptr)
     {
+        LogCat::w(std::source_location::current(), "Scene init failed: appContext is nullptr");
         return;
     }
     const WindowContext* windowContext = appContext->GetWindowContext();
     if (windowContext == nullptr)
     {
+        LogCat::w(std::source_location::current(), "Scene init failed: windowContext is nullptr");
         return;
     }
     OnWindowSizeChanged(windowContext->GetWindowWidth(), windowContext->GetWindowHeight());
@@ -108,6 +111,7 @@ void glimmer::Scene::Init()
     rmlContext_ = appContext->GetRmlContext();
     OnCreateDataModels();
     LoadDocuments();
+    LogCat::i("Scene init completed");
 }
 
 Rml::ElementDocument* glimmer::Scene::LoadSingleDocument(const ResourceRef* resourceRef)

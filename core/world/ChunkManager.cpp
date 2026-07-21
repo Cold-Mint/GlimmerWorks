@@ -199,13 +199,16 @@ void glimmer::ChunkManager::LoadChunkAt(TileVector2D position)
     {
         return;
     }
+    LogCat::d("Loading chunk at position: (", position.x, ",", position.y, ")");
     std::unique_ptr<Chunk> newlyCreatedChunk = worldContext_->GetChunkLoader()->LoadChunkFromSaves(position);
     if (newlyCreatedChunk == nullptr)
     {
+        LogCat::d("Chunk not found in saves, generating new chunk");
         newlyCreatedChunk = worldContext_->GetChunkGenerator()->GenerateChunkAt(position);
     }
     if (newlyCreatedChunk == nullptr)
     {
+        LogCat::w(std::source_location::current(), "Failed to load or generate chunk at: (", position.x, ",", position.y, ")");
         return;
     }
     UpdateChunkLight(newlyCreatedChunk.get());
@@ -219,6 +222,7 @@ void glimmer::ChunkManager::LoadChunkAt(TileVector2D position)
     });
     chunks_.insert({position, std::move(newlyCreatedChunk)});
     chunkSnapshot_++;
+    LogCat::d("Chunk loaded successfully at: (", position.x, ",", position.y, ")");
 }
 
 
@@ -229,10 +233,9 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D& position)
     {
         return;
     }
+    LogCat::d("Unloading chunk at position: (", position.x, ",", position.y, ")");
     if (SaveChunk(position))
     {
-        //Uninstall the light sources and shadows of the current chunk.
-        //卸载当前区块的光源和遮挡。
         for (int x = 0; x < CHUNK_SIZE; x++)
         {
             for (int y = 0; y < CHUNK_SIZE; y++)
@@ -243,6 +246,11 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D& position)
         ChunkPhysicsHelper::DetachPhysicsBodyToChunk(worldContext_->GetAppContext(), it->second.get());
         chunks_.erase(it);
         chunkSnapshot_++;
+        LogCat::d("Chunk unloaded successfully at: (", position.x, ",", position.y, ")");
+    }
+    else
+    {
+        LogCat::w(std::source_location::current(), "Failed to save chunk during unload at: (", position.x, ",", position.y, ")");
     }
 }
 

@@ -102,6 +102,7 @@ bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Rendere
                                toml::value* langsValuePtr, int width,
                                int height)
 {
+    LogCat::i("Initializing RmlContext, width: ", width, ", height: ", height);
     resourcePackManager_ = resourcePackManager;
     systemInterfaceSDL3_ = std::make_unique<SystemInterfaceSDL3>(langsValuePtr);
     Rml::SetSystemInterface(systemInterfaceSDL3_.get());
@@ -113,6 +114,7 @@ bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Rendere
     Rml::SetFontEngineInterface(gameFontEngineInterface_.get());
     Rml::Initialise();
     context_ = Rml::CreateContext("glimmerGui", Rml::Vector2i(width, height));
+    LogCat::i("RmlContext initialized successfully");
     return true;
 }
 

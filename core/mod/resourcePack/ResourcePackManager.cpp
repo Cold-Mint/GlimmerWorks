@@ -282,21 +282,25 @@ void glimmer::ResourcePackManager::SetRenderer(SDL_Renderer* renderer, const Pre
     renderer_ = renderer;
     if (preloadColors == nullptr)
     {
+        LogCat::w(std::source_location::current(), "preloadColors is nullptr, fallback textures not created");
         return;
     }
     errorTexture_ = CreateTexture(preloadColors->error.accentColor, preloadColors->error.baseColor);
     accessDeniedTexture_ = CreateTexture(preloadColors->accessDenied.accentColor,
                                          preloadColors->accessDenied.baseColor);
+    LogCat::i("Renderer set, fallback textures created");
 }
 
 int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString,
                                        const std::vector<std::string>& enabledResourcePack,
                                        const toml::spec& tomlVersion)
 {
+    LogCat::i("Scanning resource packs from: ", resourcePackPathString);
     resourcePackMap_.clear();
     const std::filesystem::path& resourcePackPath = resourcePackPathString;
     if (!virtualFileSystem_->Exists(resourcePackPath))
     {
+        LogCat::w(std::source_location::current(), "Resource pack path does not exist: ", resourcePackPathString);
         return 0;
     }
 
@@ -310,6 +314,7 @@ int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString
             auto packPtr = std::make_unique<ResourcePack>(entry, virtualFileSystem_, tomlVersion);
             if (!packPtr->LoadManifest())
             {
+                LogCat::w(std::source_location::current(), "Failed to load manifest for pack: ", entry.string());
                 continue;
             }
             if (!IsResourcePackEnabled(*packPtr, enabledResourcePack))
@@ -325,6 +330,7 @@ int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString
             success++;
         }
     }
+    LogCat::i("Resource pack scan completed, loaded: ", success);
     return success;
 }
 

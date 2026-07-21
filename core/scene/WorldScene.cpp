@@ -26,12 +26,20 @@
  */
 #include "WorldScene.h"
 
+#include "core/log/LogCat.h"
 #include "core/world/SystemScheduler.h"
 
 glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext)
     : Scene(context)
 {
     worldContext_ = std::move(worldContext);
+    if (worldContext_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "worldContext is nullptr");
+        return;
+    }
+    LogCat::i("Creating WorldScene: worldName=", worldContext_->GetMapManifest()->name);
+    
     if (context != nullptr)
     {
         context->GetWindowContext()->SetWindowTitle(
@@ -92,7 +100,9 @@ void glimmer::WorldScene::OnWindowClose()
     {
         return;
     }
+    LogCat::i("Saving game on window close: worldName=", worldContext_->GetMapManifest()->name);
     worldContext_->SaveGame();
+    LogCat::i("Game saved successfully");
 }
 
 void glimmer::WorldScene::Update(float delta)

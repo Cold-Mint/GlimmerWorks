@@ -113,13 +113,13 @@ void glimmer::MainScene::OnStartGameClick(Rml::DataModelHandle handle, Rml::Even
     AppContext* context = GetAppContext();
     if (context == nullptr)
     {
-        LogCat::e(std::source_location::current(), "context == nullptr");
+        LogCat::w(std::source_location::current(), "context == nullptr");
         return;
     }
     SavesManager* savesManager = context->GetSavesManager();
     if (savesManager == nullptr)
     {
-        LogCat::e(std::source_location::current(), "savesManager == nullptr");
+        LogCat::w(std::source_location::current(), "savesManager == nullptr");
         return;
     }
     if (savesManager->GetSavesListSize() > 0)
@@ -143,7 +143,7 @@ void glimmer::MainScene::OnExitGameClick(Rml::DataModelHandle handle, Rml::Event
     const AppContext* context = GetAppContext();
     if (context == nullptr)
     {
-        LogCat::e(std::source_location::current(), "context == nullptr");
+        LogCat::w(std::source_location::current(), "context == nullptr");
         return;
     }
     context->ExitApp();

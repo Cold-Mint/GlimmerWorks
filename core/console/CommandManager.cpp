@@ -39,6 +39,7 @@ void glimmer::CommandManager::RegisterCommand(std::unique_ptr<Command> command)
     const std::string& name = command->GetName();
     command->Initialize();
     commandMap_[name] = std::move(command);
+    LogCat::i("Command registered: ", name);
 }
 
 glimmer::Command* glimmer::CommandManager::GetCommand(const std::string& name) const
@@ -109,13 +110,16 @@ void glimmer::CommandManager::BindWorldContext(WorldContext* worldContext)
     commandEnvironment_.worldContext = worldContext;
     entityManager_ = worldContext->GetEntityManager();
     entityShortCut_ = worldContext->GetEntityShortCut();
+    int bindCount = 0;
     for (const auto& command : commandMap_ | std::views::values)
     {
         if (command->RequiresWorldContext())
         {
             command->BindWorldContext(worldContext);
+            bindCount++;
         }
     }
+    LogCat::i("World context bound, commands bound: ", bindCount);
 }
 
 void glimmer::CommandManager::UnbindWorldContext()
@@ -123,13 +127,16 @@ void glimmer::CommandManager::UnbindWorldContext()
     commandEnvironment_.Reset();
     entityManager_ = nullptr;
     entityShortCut_ = nullptr;
+    int unbindCount = 0;
     for (const auto& command : commandMap_ | std::views::values)
     {
         if (command->RequiresWorldContext())
         {
             command->UnBindWorldContext();
+            unbindCount++;
         }
     }
+    LogCat::i("World context unbound, commands unbound: ", unbindCount);
 }
 
 void glimmer::CommandManager::SetAllowCheats(const bool allowCheats)

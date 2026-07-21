@@ -29,6 +29,7 @@
 #include <fstream>
 
 #include "core/Constants.h"
+#include "core/log/LogCat.h"
 
 
 std::filesystem::path glimmer::Saves::ToChunkPath(const TileVector2D& position) const
@@ -96,6 +97,7 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D& positi
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(position));
     if (streamUnique == nullptr)
     {
+        LogCat::w(std::source_location::current(), "Failed to open chunk file: ", ToChunkPath(position).string());
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
@@ -107,12 +109,18 @@ std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D& positi
     {
         return chunkMessage;
     }
+    LogCat::w(std::source_location::current(), "Failed to parse chunk data: ", ToChunkPath(position).string());
     return std::nullopt;
 }
 
 bool glimmer::Saves::WriteChunk(const TileVector2D& position, const ChunkMessage& chunkMessage) const
 {
-    return virtualFileSystem_->WriteFile(ToChunkPath(position), chunkMessage.SerializeAsString());
+    bool result = virtualFileSystem_->WriteFile(ToChunkPath(position), chunkMessage.SerializeAsString());
+    if (!result)
+    {
+        LogCat::w(std::source_location::current(), "Failed to write chunk: ", ToChunkPath(position).string());
+    }
+    return result;
 }
 
 std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVector2D& position) const
@@ -147,7 +155,12 @@ bool glimmer::Saves::DeleteChunkEntity(const TileVector2D& position) const
 
 bool glimmer::Saves::WritePlayer(const PlayerMessage& playerMessage) const
 {
-    return virtualFileSystem_->WriteFile(ToPlayerPath(), playerMessage.SerializeAsString());
+    bool result = virtualFileSystem_->WriteFile(ToPlayerPath(), playerMessage.SerializeAsString());
+    if (!result)
+    {
+        LogCat::w(std::source_location::current(), "Failed to write player data: ", ToPlayerPath().string());
+    }
+    return result;
 }
 
 std::optional<PlayerMessage> glimmer::Saves::ReadPlayer() const
@@ -199,5 +212,10 @@ bool glimmer::Saves::WriteMapManifest(const MapManifestMessage& mapManifestMessa
     {
         onMapManifestChanged_(mapManifestMessage);
     }
-    return virtualFileSystem_->WriteFile(path_ / MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
+    bool result = virtualFileSystem_->WriteFile(path_ / MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
+    if (!result)
+    {
+        LogCat::w(std::source_location::current(), "Failed to write map manifest: ", (path_ / MAP_MANIFEST_FILE_NAME).string());
+    }
+    return result;
 }

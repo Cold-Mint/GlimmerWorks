@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "ItemDurabilityModule.h"
+#include "core/log/LogCat.h"
 
 uint32_t glimmer::ItemDurabilityModule::GetMaxDurability() const
 {
@@ -63,6 +64,7 @@ void glimmer::ItemDurabilityModule::AddUsedDurability(const uint32_t value)
     if (newValue > GetMaxDurability())
     {
         SetUsedDurability(GetMaxDurability());
+        LogCat::w(std::source_location::current(), "Item durability exceeded max, item broken");
         return;
     }
     SetUsedDurability(newValue);

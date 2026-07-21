@@ -29,6 +29,7 @@
 
 #include "core/Config.h"
 #include "core/context/AppContext.h"
+#include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"
 #include "fmt/xchar.h"
 
@@ -37,6 +38,7 @@ glimmer::DebugOverlay::DebugOverlay(AppContext* context)
     : Scene(context), resourcePackManager_(context->GetResourcePackManager()),
       preloadColors_(context->GetGraphicsContext()->GetPreloadColors()), langsResources_(context->GetLangsResources())
 {
+    LogCat::i("Creating DebugOverlay");
     Init();
 }
 

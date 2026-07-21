@@ -26,11 +26,13 @@
  */
 #include "AudioContext.h"
 
+#include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 
 glimmer::AudioContext::AudioContext()
 {
     audioManager_ = std::make_unique<AudioManager>();
+    LogCat::i("AudioContext created");
 }
 
 glimmer::AudioContext::~AudioContext() = default;

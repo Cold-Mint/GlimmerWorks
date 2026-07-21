@@ -28,11 +28,13 @@
 
 #include "MainScene.h"
 #include "core/context/AppContext.h"
+#include "core/log/LogCat.h"
 #include "SDL3/SDL_timer.h"
 
 glimmer::SplashScene::SplashScene(AppContext* context)
     : Scene(context)
 {
+    LogCat::i("Creating SplashScene, duration: 2000ms");
     nextSceneTime_ = SDL_GetTicks() + 2000;
     Init();
 }

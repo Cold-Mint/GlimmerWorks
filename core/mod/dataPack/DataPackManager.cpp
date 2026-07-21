@@ -179,18 +179,22 @@ std::vector<std::string> glimmer::DataPackManager::GetPackIdList() const
 
 int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tomlVersion)
 {
+    LogCat::i("Scanning data packs");
     if (virtualFileSystem_ == nullptr)
     {
+        LogCat::e(std::source_location::current(), "virtualFileSystem_ is nullptr");
         return 0;
     }
     Config* config = appContext->GetConfig();
     if (config == nullptr)
     {
+        LogCat::e(std::source_location::current(), "config is nullptr");
         return 0;
     }
     const std::filesystem::path& dataPackPath = config->mods.dataPackPath;
     if (!virtualFileSystem_->Exists(dataPackPath))
     {
+        LogCat::w(std::source_location::current(), "Data pack path does not exist: ", dataPackPath.string());
         return 0;
     }
     packManifestVector_.clear();
@@ -205,10 +209,9 @@ int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tom
             DataPack pack(entry, virtualFileSystem_, tomlTemplateExpander_, tomlVersion);
             if (!pack.LoadManifest())
             {
+                LogCat::w(std::source_location::current(), "Failed to load manifest for data pack: ", entry.string());
                 continue;
             }
-            // Determine whether the data packet is enabled
-            // 判断数据包是否启用
             if (!IsDataPackEnabled(pack, appContext->GetConfig()->mods.enabledDataPack))
             {
                 continue;
@@ -219,11 +222,17 @@ int glimmer::DataPackManager::Scan(AppContext* appContext, const toml::spec& tom
             }
             if (pack.LoadPack(appContext))
             {
+                LogCat::i("Loaded data pack: ", pack.GetManifest().id);
                 success++;
                 packVerifyStateMap_[pack.GetManifest().id] = pack.GetPackVerifyState();
                 packManifestVector_.push_back(pack.GetManifest());
             }
+            else
+            {
+                LogCat::w(std::source_location::current(), "Failed to load data pack: ", pack.GetManifest().id);
+            }
         }
     }
+    LogCat::i("Data pack scan completed, loaded: ", success);
     return success;
 }

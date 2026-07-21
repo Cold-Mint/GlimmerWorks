@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "ItemStackModule.h"
+#include "core/log/LogCat.h"
 
 uint8_t glimmer::ItemStackModule::GetAmount() const
 {
@@ -84,15 +85,18 @@ uint8_t glimmer::ItemStackModule::RemoveAmount(const uint8_t amount)
 
 void glimmer::ItemStackModule::SetAmount(const uint8_t amount)
 {
-    //The callback function of Copy must be used.
-    //必须得用Copy的回调函数。
     const std::function<void(ContainerChangeType, uint8_t)> onAmountChangedCopy = onAmountChanged_;
-    if (amount == 0)
+    if (amount == 0 && amount_ > 0)
     {
-        //Even if the quantity of the items is set to 0, the game will set it to 1 after reading the data to modify the dirty data.
-        //即使物品数量被设置为0，游戏会在读取数据后将其设置为1。以修改脏数据。
-        //It is feasible to consider "0" as a mark indicating that an item has been used up.
-        //0被看作是物品用完的标记是可行的。
+        amount_ = 0;
+        LogCat::i("Item stack emptied");
+        if (onAmountChangedCopy != nullptr)
+        {
+            onAmountChangedCopy(ContainerChangeType::REMOVE, amount_);
+        }
+    }
+    else if (amount == 0)
+    {
         amount_ = 0;
         if (onAmountChangedCopy != nullptr)
         {

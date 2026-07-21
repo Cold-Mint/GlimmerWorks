@@ -47,18 +47,37 @@ glimmer::ModContext::~ModContext() = default;
 
 void glimmer::ModContext::Init(VirtualFileSystem* vfs, const LangsResources* langsResources)
 {
+    LogCat::i("Initializing ModContext");
+    
+    LogCat::d("Creating ContributorManager");
     contributorManager_ = std::make_unique<ContributorManager>();
+    
+    LogCat::d("Creating RecipeManager");
     recipeManager_ = std::make_unique<RecipeManager>();
+    
+    LogCat::d("Creating MobManager");
     mobManager_ = std::make_unique<MobManager>();
+    
+    LogCat::d("Creating TomlTemplateExpander");
     tomlTemplateExpander_ = std::make_unique<TomlTemplateExpander>();
     tomlTemplateExpander_->Register(std::make_unique<InsertTemplateCommand>());
     tomlTemplateExpander_->Register(std::make_unique<SetTemplateCommand>());
     tomlTemplateExpander_->Register(std::make_unique<UnSetTemplateCommand>());
+    
+    LogCat::d("Creating DataPackManager");
     dataPackManager_ = std::make_unique<DataPackManager>(vfs, tomlTemplateExpander_.get());
+    
+    LogCat::d("Creating StringManager and loading language strings");
     stringManager_ = std::make_unique<StringManager>();
     stringManager_->LoadLangsString(langsResources);
+    
+    LogCat::d("Creating BiomesManager");
     biomesManager_ = std::make_unique<BiomesManager>();
+    
+    LogCat::d("Creating TileResourceManager");
     tileResourceManager_ = std::make_unique<TileResourceManager>();
+    
+    LogCat::d("Creating StructurePlacementConditionsManager");
     structurePlacementConditionsManager_ = std::make_unique<StructurePlacementConditionsManager>();
     structurePlacementConditionsManager_->AddConditionProcessor(
         std::make_unique<SurfaceStructureConditionProcessor>());
@@ -68,21 +87,42 @@ void glimmer::ModContext::Init(VirtualFileSystem* vfs, const LangsResources* lan
         std::make_unique<HorizontalSpacingStructureConditionProcessor>());
     structurePlacementConditionsManager_->AddConditionProcessor(
         std::make_unique<BiomeStructureConditionProcessor>());
+    
+    LogCat::d("Creating InitialInventoryManager");
     initialInventoryManager_ = std::make_unique<InitialInventoryManager>();
+    
+    LogCat::d("Initializing built-in tiles");
     tileResourceManager_->InitBuiltinTiles();
+    
+    LogCat::d("Creating BiomeDecoratorManager");
     biomeDecoratorManager_ = std::make_unique<BiomeDecoratorManager>();
+    
+    LogCat::d("Creating BiomeDecoratorResourcesManager");
     biomeDecoratorResourcesManager_ = std::make_unique<BiomeDecoratorResourcesManager>();
+    
+    LogCat::d("Creating ItemManager");
     itemManager_ = std::make_unique<ItemManager>();
+    
+    LogCat::d("Registering biome decorators");
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<FillBiomeDecorator>());
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<SurfaceBiomeDecorator>());
     biomeDecoratorManager_->RegisterBiomeDecorator(std::make_unique<MineralBiomeDecorator>());
+    
+    LogCat::d("Creating LootTableManager");
     lootTableManager_ = std::make_unique<LootTableManager>();
+    
+    LogCat::d("Creating StructureGeneratorManager");
     structureGeneratorManager_ = std::make_unique<StructureGeneratorManager>();
     structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<StaticStructureGenerator>());
     structureGeneratorManager_->RegisterStructureGenerator(std::make_unique<TreeStructureGenerator>());
+    
+    LogCat::d("Creating StructureManager");
     structureManager_ = std::make_unique<StructureManager>();
+    
+    LogCat::d("Creating ShapeManager");
     shapeManager_ = std::make_unique<ShapeManager>();
-
+    
+    LogCat::i("ModContext initialization completed");
 }
 
 glimmer::DataPackManager* glimmer::ModContext::GetDataPackManager() const

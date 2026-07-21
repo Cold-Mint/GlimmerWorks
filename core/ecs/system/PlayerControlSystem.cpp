@@ -310,6 +310,7 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
     {
         return;
     }
+    LogCat::i("Player dropped item: slot=", index);
     if (dropItemSFXResult_ != nullptr)
     {
         MIX_Audio* audio = dropItemSFXResult_->GetResource();

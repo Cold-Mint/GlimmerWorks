@@ -105,14 +105,17 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkLoader::LoadChunkFromSaves(TileVec
     }
     if (saves_->ChunkExists(position))
     {
-        //Read the chunk file.
-        //读取区块文件。
         if (const auto chunkMessage = saves_->ReadChunk(position); chunkMessage.has_value())
         {
+            LogCat::i("Loading chunk from saves at: (", position.x, ",", position.y, ")");
             auto chunk = std::make_unique<Chunk>(worldContext_, position, config->anim);
             chunk.get()->ReadChunkMessage(chunkMessage.value());
             LoadEntityFromSaves(position);
             return chunk;
+        }
+        else
+        {
+            LogCat::w(std::source_location::current(), "Chunk exists but failed to read: (", position.x, ",", position.y, ")");
         }
     }
     return nullptr;

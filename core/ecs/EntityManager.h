@@ -183,7 +183,6 @@ namespace glimmer
         const auto entityIterator = entityMap_.find(gameEntityId);
         if (entityIterator == entityMap_.end())
         {
-
             assert(false);
             return nullptr;
         }
@@ -216,6 +215,7 @@ namespace glimmer
             {
                 callBack.second(typeMessage, count);
             }
+            LogCat::d("Component added: entityId=", gameEntityId, ", type=", static_cast<int>(typeMessage));
             return ptr;
         }
         const std::unique_ptr<GameComponent>& gameComponentPtr = componentIterator->second;

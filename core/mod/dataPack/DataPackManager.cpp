@@ -30,6 +30,7 @@
 #include <algorithm>
 #include "DataPack.h"
 #include "core/context/AppContext.h"
+#include "core/log/LogCat.h"
 #include "toml11/spec.hpp"
 
 namespace glimmer
@@ -98,11 +99,23 @@ bool glimmer::DataPackManager::IsDependencySatisfied(const std::string& pack1Id,
     }
     if (dataPackManifest1 == nullptr)
     {
+        LogCat::w(std::source_location::current(), "Cannot find data package1:", pack1Id);
         return false;
     }
     if (pack2Id == RESOURCE_REF_CORE)
     {
+#if  defined(NDEBUG)
         return CheckDependencyVersion(dataPackManifest1->packDependencies, pack2Id, CORE_DATA_PACK_VERSION_NUMBER);
+#else
+        bool result = CheckDependencyVersion(dataPackManifest1->packDependencies, pack2Id,
+                                             CORE_DATA_PACK_VERSION_NUMBER);
+        if (!result)
+        {
+            LogCat::w(std::source_location::current(), "The detection of the dependent version failed package1:",
+                      pack1Id, ",package2:", pack2Id);
+        }
+        return result;
+#endif
     }
     DataPackManifest* dataPackManifest2 = nullptr;
     for (auto& packId : packManifestVector_)
@@ -115,6 +128,7 @@ bool glimmer::DataPackManager::IsDependencySatisfied(const std::string& pack1Id,
     }
     if (dataPackManifest2 == nullptr)
     {
+        LogCat::w(std::source_location::current(), "Cannot find data package2:", pack1Id);
         return false;
     }
     bool match = false;
@@ -130,6 +144,12 @@ bool glimmer::DataPackManager::IsDependencySatisfied(const std::string& pack1Id,
             break;
         }
     }
+#if  !defined(NDEBUG)
+    if (!match)
+    {
+        LogCat::w(std::source_location::current(), "package1 ", pack1Id, " not matched package2", pack2Id);
+    }
+#endif
     return match;
 }
 

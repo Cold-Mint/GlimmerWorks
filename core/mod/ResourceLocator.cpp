@@ -168,12 +168,14 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourceLocator::FindTe
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(std::source_location::current(), "resourceRef == nullptr");
+        LogCat::w(std::source_location::current(), "resourceRef == nullptr in FindTextureRaw");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_TEXTURE)
     {
-        LogCat::w(std::source_location::current(), "resourceRef->GetResourceType() != RESOURCE_TEXTURE");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_TEXTURE (",
+                  std::to_underlying(RESOURCE_TEXTURE), "), got ", std::to_underlying(resourceRef->GetResourceType()),
+                  " or access permission denied");
         return nullptr;
     }
     if (resourcePackManager_ == nullptr)
@@ -183,7 +185,8 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourceLocator::FindTe
     }
     if (!ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Access permission denied for texture resource: packageId=",
+                  resourceRef->GetPackageId(), ", resourceKey=", resourceRef->GetResourceKey());
         return resourcePackManager_->accessDeniedTexture_;
     }
     return resourcePackManager_->LoadTextureFromFile(appContext_, resourceRef);
@@ -199,7 +202,9 @@ std::shared_ptr<glimmer::AudioResourceResult> glimmer::ResourceLocator::FindAudi
     if (resourceRef->GetResourceType() != RESOURCE_AUDIO || !
         ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_AUDIO (",
+                  std::to_underlying(RESOURCE_AUDIO), "), got ", std::to_underlying(resourceRef->GetResourceType()),
+                  " or access permission denied");
         return nullptr;
     }
     if (resourcePackManager_ == nullptr)
@@ -217,10 +222,11 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
         LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
-    const uint32_t resourceType = resourceRef->GetResourceType();
+    const ResourceTypeMessage resourceType = resourceRef->GetResourceType();
     if (!ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Access permission denied for color resource: packageId=",
+                  resourceRef->GetPackageId(), ", resourceKey=", resourceRef->GetResourceKey());
         return nullptr;
     }
 
@@ -235,7 +241,8 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
             appContext_, resourceRef);
         if (colorResource == nullptr)
         {
-            LogCat::w(std::source_location::current(), "colorResource == nullptr");
+            LogCat::w(std::source_location::current(), "Failed to load color resource: packageId=",
+                      resourceRef->GetPackageId(), ", resourceKey=", resourceRef->GetResourceKey());
             return nullptr;
         }
         return std::make_unique<Color>(colorResource->ToColor());
@@ -247,12 +254,15 @@ std::unique_ptr<glimmer::Color> glimmer::ResourceLocator::FindColor(const Resour
             resourceRef->GetResourceKey());
         if (fixedColorResource == nullptr)
         {
-            LogCat::w(std::source_location::current(), "fixedColorResource == nullptr");
+            LogCat::w(std::source_location::current(), "Failed to find fixed color resource: packageId=",
+                      resourceRef->GetPackageId(), ", resourceKey=", resourceRef->GetResourceKey());
             return nullptr;
         }
         return std::make_unique<Color>(fixedColorResource->ToColor());
     }
-    LogCat::w(std::source_location::current(), "return nullptr");
+    LogCat::w(std::source_location::current(), "Unsupported color resource type: packageId=",
+              resourceRef->GetPackageId(), ", resourceKey=", resourceRef->GetResourceKey(), ", type=",
+              std::to_underlying(resourceType));
     return nullptr;
 }
 
@@ -267,7 +277,9 @@ glimmer::IShapeResource* glimmer::ResourceLocator::FindShape(const ResourceRef* 
     }
     if (resourceRef->GetResourceType() != RESOURCE_SHAPE || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::e(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::e(std::source_location::current(), "Type mismatch: expected RESOURCE_SHAPE (",
+                  std::to_underlying(RESOURCE_SHAPE), "), got ", std::to_underlying(resourceRef->GetResourceType()),
+                  " or access permission denied");
         return nullptr;
     }
     if (shapeManager_ == nullptr)
@@ -288,7 +300,9 @@ glimmer::IBiomeDecoratorResource* glimmer::ResourceLocator::FindBiomeDecorator(c
     }
     if (resourceRef->GetResourceType() != RESOURCE_BIOME_DECORATOR || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_BIOME_DECORATOR (",
+                  std::to_underlying(RESOURCE_BIOME_DECORATOR), "), got ",
+                  std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
     if (biomeDecoratorResourcesManager_ == nullptr)
@@ -309,7 +323,9 @@ glimmer::StringResource* glimmer::ResourceLocator::FindString(const ResourceRef*
     }
     if (resourceRef->GetResourceType() != RESOURCE_STRING || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_STRING (",
+                  std::to_underlying(RESOURCE_STRING), "), got ", std::to_underlying(resourceRef->GetResourceType()),
+                  " or access permission denied");
         return nullptr;
     }
     if (stringManager_ == nullptr)
@@ -330,7 +346,9 @@ glimmer::LightSourceResource* glimmer::ResourceLocator::FindLightSource(const Re
     }
     if (resourceRef->GetResourceType() != RESOURCE_LIGHT_SOURCE || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_LIGHT_SOURCE (",
+                  std::to_underlying(RESOURCE_LIGHT_SOURCE), "), got ",
+                  std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
     if (lightSourceManager_ == nullptr)
@@ -352,7 +370,9 @@ glimmer::LightMaskResource* glimmer::ResourceLocator::FindLightMask(const Resour
     }
     if (resourceRef->GetResourceType() != RESOURCE_LIGHT_MASK || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_LIGHT_MASK (",
+                  std::to_underlying(RESOURCE_LIGHT_MASK), "), got ",
+                  std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
     if (lightMaskManager_ == nullptr)
@@ -379,6 +399,9 @@ glimmer::TileResource* glimmer::ResourceLocator::FindTileFallback(const Resource
     }
     if (resourceRef->GetResourceType() != RESOURCE_TILE || !ValidateAccessPermission(resourceRef))
     {
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_TILE (",
+                  std::to_underlying(RESOURCE_TILE), "), got ", std::to_underlying(resourceRef->GetResourceType()),
+                  " or access permission denied");
         return tileResourceManager_->GenerateAccessDeniedPlaceHolder(
             resourceRef->GetPackageId(), resourceRef->GetResourceKey(), tileLayer);
     }
@@ -396,7 +419,9 @@ glimmer::TileResource* glimmer::ResourceLocator::FindTileRaw(const ResourceRef* 
     }
     if (resourceRef->GetResourceType() != RESOURCE_TILE || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_TILE (",
+                  std::to_underlying(RESOURCE_TILE), "), got ", std::to_underlying(resourceRef->GetResourceType()),
+                  " or access permission denied");
         return nullptr;
     }
     if (tileResourceManager_ == nullptr)
@@ -417,7 +442,9 @@ glimmer::MobResource* glimmer::ResourceLocator::FindMob(const ResourceRef* resou
     }
     if (resourceRef->GetResourceType() != RESOURCE_MOB || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_MOB (",
+                  std::to_underlying(RESOURCE_MOB), "), got ", std::to_underlying(resourceRef->GetResourceType()),
+                  " or access permission denied");
         return nullptr;
     }
     if (mobManager_ == nullptr)
@@ -440,7 +467,9 @@ glimmer::ComposableItemResource* glimmer::ResourceLocator::FindComposableItem(
     if (resourceRef->GetResourceType() != RESOURCE_COMPOSABLE_ITEM || !
         ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_COMPOSABLE_ITEM (",
+                  std::to_underlying(RESOURCE_COMPOSABLE_ITEM), "), got ",
+                  std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
     if (itemManager_ == nullptr)
@@ -462,7 +491,9 @@ glimmer::AbilityItemResource* glimmer::ResourceLocator::FindAbilityItem(
     }
     if (resourceRef->GetResourceType() != RESOURCE_ABILITY_ITEM || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_ABILITY_ITEM (",
+                  std::to_underlying(RESOURCE_ABILITY_ITEM), "), got ",
+                  std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
     if (itemManager_ == nullptr)
@@ -483,7 +514,9 @@ glimmer::MaterialItemResource* glimmer::ResourceLocator::FindMaterialItem(const 
     }
     if (resourceRef->GetResourceType() != RESOURCE_MATERIAL_ITEM || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_MATERIAL_ITEM (",
+                  std::to_underlying(RESOURCE_MATERIAL_ITEM), "), got ",
+                  std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
     if (itemManager_ == nullptr)
@@ -499,17 +532,19 @@ glimmer::LootResource* glimmer::ResourceLocator::FindLoot(const ResourceRef* res
 {
     if (resourceRef == nullptr)
     {
-        LogCat::w(std::source_location::current(), "Resource is null");
+        LogCat::w(std::source_location::current(), "Resource == nullptr");
         return nullptr;
     }
     if (resourceRef->GetResourceType() != RESOURCE_LOOT_TABLE || !ValidateAccessPermission(resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_LOOT_TABLE (",
+                  std::to_underlying(RESOURCE_LOOT_TABLE), "), got ",
+                  std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
     if (lootTableManager_ == nullptr)
     {
-        LogCat::w(std::source_location::current(), "lootTableManager_ is null");
+        LogCat::w(std::source_location::current(), "lootTableManager_ == nullptr");
         return nullptr;
     }
     return lootTableManager_->Find(resourceRef->GetPackageId(),
@@ -521,15 +556,17 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
 {
     if (worldContext == nullptr)
     {
-        LogCat::w(std::source_location::current(), "worldContext is null");
+        LogCat::w(std::source_location::current(), "worldContext == nullptr");
         return nullptr;
     }
     ResourceRef resourceRef;
     resourceRef.ReadResourceRefMessage(itemMessage.itemresourceref());
-    const uint32_t resourceType = resourceRef.GetResourceType();
+    const ResourceTypeMessage resourceType = resourceRef.GetResourceType();
     if (resourceType == RESOURCE_NONE || !ValidateAccessPermission(&resourceRef))
     {
-        LogCat::w(std::source_location::current(), "ValidateAccessPermission");
+        LogCat::w(std::source_location::current(),
+                  "Invalid resource type (RESOURCE_NONE) or access permission denied for item resource: type=",
+                  std::to_underlying(resourceType));
         return nullptr;
     }
     std::unique_ptr<Item> result = nullptr;
@@ -576,7 +613,9 @@ std::unique_ptr<glimmer::Item> glimmer::ResourceLocator::FindItem(WorldContext* 
     }
     if (result == nullptr)
     {
-        LogCat::w(std::source_location::current(), "result == nullptr");
+        LogCat::w(std::source_location::current(), "Failed to create item from resource: packageId=",
+                  resourceRef.GetPackageId(), ", resourceKey=", resourceRef.GetResourceKey(), ", type=",
+                  std::to_underlying(resourceType));
         return nullptr;
     }
     result->ReadItemMessage(worldContext, itemMessage);

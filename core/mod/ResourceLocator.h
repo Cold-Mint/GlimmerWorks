@@ -72,18 +72,18 @@ namespace glimmer
         DataPackManager* dataPackManager_ = nullptr;
 
         /**
-     * ValidateAccessPermission
-     * Verify whether the current resource reference has the permission to access the package where the target resource is located.
-     * 校验当前资源引用是否有权限访问目标资源所在的包。
-     *
-     * Check the package to which the resourceRef belongs (GetSelfPackageId())
-     * 检查 resourceRef 所属包（GetSelfPackageId()）
-     * Is access permitted to the target package (GetPackageId())?
-     * 是否被允许访问目标包（GetPackageId()）。
-     *
-     * @param resourceRef resourceRef 资源引用
-     * @return If access is permitted, return true; otherwise, return false. 若允许访问则返回 true，否则返回 false
-     */
+        * ValidateAccessPermission
+        * Verify whether the current resource reference has the permission to access the package where the target resource is located.
+        * 校验当前资源引用是否有权限访问目标资源所在的包。
+         *
+        * Check the package to which the resourceRef belongs (GetSelfPackageId())
+        * 检查 resourceRef 所属包（GetSelfPackageId()）
+        * Is access permitted to the target package (GetPackageId())?
+        * 是否被允许访问目标包（GetPackageId()）。
+        *
+        * @param resourceRef resourceRef 资源引用
+        * @return If access is permitted, return true; otherwise, return false. 若允许访问则返回 true，否则返回 false
+        */
         [[nodiscard]] bool ValidateAccessPermission(const ResourceRef* resourceRef) const;
 
     public:

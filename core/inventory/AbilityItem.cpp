@@ -62,7 +62,8 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
         name = nameRes->value;
     }
     std::optional<std::string> description;
-    if (auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description); descriptionRes != nullptr)
+    if (auto descriptionRes = appContext->GetResourceLocator()->FindString(&itemResource->description); descriptionRes
+        != nullptr)
     {
         description = descriptionRes->value;
     }
@@ -71,7 +72,6 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
         ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
     if (itemAbility == nullptr)
     {
-
         return nullptr;
     }
 
@@ -90,6 +90,10 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
 
 const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
 {
+    if (itemAbility_ == nullptr)
+    {
+        return nullptr;
+    }
     return itemAbility_->GetAbilityConfig();
 }
 

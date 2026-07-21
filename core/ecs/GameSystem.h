@@ -36,6 +36,7 @@
 
 namespace glimmer
 {
+    class Scene;
     class WorldContext;
     class Config;
 
@@ -61,6 +62,8 @@ namespace glimmer
         [[nodiscard]] EntityManager* GetEntityManager() const;
 
         [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
+
+        [[nodiscard]] Scene* GetScene() const;
 
         /**
         * Initialize the system after construction.

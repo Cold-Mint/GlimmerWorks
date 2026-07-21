@@ -31,8 +31,11 @@
 #include <SDL3/SDL_render.h>
 
 namespace glimmer {
+    class PauseSystem;
+    
     class WorldScene : public Scene {
         std::unique_ptr<WorldContext> worldContext_;
+        PauseSystem* pauseSystem_ = nullptr;
 
     public:
         explicit WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext);
@@ -52,5 +55,9 @@ namespace glimmer {
         void OnConfigChanged(const Config* config) override;
 
         void Render(SDL_Renderer *renderer) override;
+
+        void LoadDocuments() override;
+
+        void OnCreateDataModels() override;
     };
 }

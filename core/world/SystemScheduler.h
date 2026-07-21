@@ -123,5 +123,7 @@ namespace glimmer
         void OnConfigChanged(const Config* config);
 
         void OnWindowSizeChanged(const int& width, const int& height) const;
+
+        [[nodiscard]] GameSystem* GetSystemByType(GameSystemType type) const;
     };
 }

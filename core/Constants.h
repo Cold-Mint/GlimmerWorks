@@ -390,3 +390,4 @@ static constexpr int FLY_SPEED = TILE_SIZE * 25;
 //累积多长时间结算一次捡起的物品信息（单位：秒）
 static constexpr float MERGE_DURATION = 0.35F;
 static constexpr int LIGHT_CONTRIBUTION_CENTER_RAY_INDEX = -1;
+static constexpr std::string PAUSE_DOCUMENT_NAME = "pause_menu";

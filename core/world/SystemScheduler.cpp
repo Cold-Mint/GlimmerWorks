@@ -483,3 +483,22 @@ void glimmer::SystemScheduler::OnWindowSizeChanged(const int& width, const int& 
         inactiveSystem->OnWindowSizeChanged(width, height);
     }
 }
+
+glimmer::GameSystem* glimmer::SystemScheduler::GetSystemByType(const GameSystemType type) const
+{
+    for (const auto& system : activeSystems_)
+    {
+        if (system != nullptr && system->GetGameSystemType() == type)
+        {
+            return system.get();
+        }
+    }
+    for (const auto& system : inactiveSystems_)
+    {
+        if (system != nullptr && system->GetGameSystemType() == type)
+        {
+            return system.get();
+        }
+    }
+    return nullptr;
+}

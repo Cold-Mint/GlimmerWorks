@@ -231,8 +231,8 @@ glimmer::TileInstancePool* glimmer::WorldContext::GetTileInstancePool() const
 }
 
 
-glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves)
-    : worldSeed_(mapManifest->seed), saves_(saves), mapManifest_(mapManifest), appContext_(appContext)
+glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves, Scene* scene)
+    : worldSeed_(mapManifest->seed), saves_(saves), mapManifest_(mapManifest), appContext_(appContext), scene_(scene)
 {
     LogCat::i("Creating WorldContext, world name: ", mapManifest->name, ", seed: ", worldSeed_);
     b2WorldDef worldDef = b2DefaultWorldDef();
@@ -301,4 +301,14 @@ glimmer::WorldContext::~WorldContext()
         appContext_->GetConsoleContext()->GetCommandManager()->UnbindWorldContext();
     }
     LogCat::i("WorldContext destroyed");
+}
+
+glimmer::Scene* glimmer::WorldContext::GetScene() const
+{
+    return scene_;
+}
+
+void glimmer::WorldContext::SetScene(Scene* scene)
+{
+    scene_ = scene;
 }

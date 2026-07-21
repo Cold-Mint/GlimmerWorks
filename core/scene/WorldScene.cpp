@@ -28,6 +28,8 @@
 
 #include "core/log/LogCat.h"
 #include "core/world/SystemScheduler.h"
+#include "core/mod/ResourceRef.h"
+#include "core/ecs/system/PauseSystem.h"
 
 glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext)
     : Scene(context)
@@ -38,6 +40,7 @@ glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContex
         LogCat::e(std::source_location::current(), "worldContext is nullptr");
         return;
     }
+    worldContext_->SetScene(this);
     LogCat::i("Creating WorldScene: worldName=", worldContext_->GetMapManifest()->name);
     
     if (context != nullptr)
@@ -159,4 +162,59 @@ void glimmer::WorldScene::Render(SDL_Renderer* renderer)
         return;
     }
     systemScheduler->Render(renderer);
+}
+
+void glimmer::WorldScene::LoadDocuments()
+{
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_RML_PATH);
+    resourceRef.SetResourceKey("pause/pause");
+    Rml::ElementDocument* document = LoadSingleDocument(&resourceRef);
+    if (document != nullptr)
+    {
+        RegisterDocument(PAUSE_DOCUMENT_NAME, document);
+        document->Hide();
+        LogCat::i("Pause menu document loaded and hidden");
+    }
+}
+
+void glimmer::WorldScene::OnCreateDataModels()
+{
+    SystemScheduler* systemScheduler = worldContext_ != nullptr ? worldContext_->GetSystemScheduler() : nullptr;
+    if (systemScheduler == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "systemScheduler is nullptr");
+        return;
+    }
+    
+    pauseSystem_ = dynamic_cast<PauseSystem*>(systemScheduler->GetSystemByType(GameSystemType::PauseSystem));
+    if (pauseSystem_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "PauseSystem not found");
+        return;
+    }
+    
+    Rml::DataModelConstructor* constructor = CreateDataModel("pause_system");
+    if (constructor == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "Failed to create pause_system data model");
+        return;
+    }
+    
+    constructor->BindEventCallback("on_resume_button_click", 
+        [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args) {
+            if (pauseSystem_ != nullptr) {
+                pauseSystem_->OnResumeButtonClick(handle, event, args);
+            }
+        });
+    
+    constructor->BindEventCallback("on_save_and_exit_button_click",
+        [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args) {
+            if (pauseSystem_ != nullptr) {
+                pauseSystem_->OnSaveAndExitButtonClick(handle, event, args);
+            }
+        });
+    
+    LogCat::i("PauseSystem data model created with event callbacks");
 }

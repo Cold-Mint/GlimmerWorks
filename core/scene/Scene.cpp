@@ -51,6 +51,21 @@ void glimmer::Scene::LoadDocuments()
     //Load the rml document within this method.
 }
 
+Rml::ElementDocument* glimmer::Scene::LoadDocumentByName(const Rml::String& name, const ResourceRef* resourceRef)
+{
+    auto existingDoc = GetDocument(name);
+    if (existingDoc != nullptr)
+    {
+        return existingDoc;
+    }
+    Rml::ElementDocument* document = LoadSingleDocument(resourceRef);
+    if (document != nullptr)
+    {
+        RegisterDocument(name, document);
+    }
+    return document;
+}
+
 void glimmer::Scene::OnResumeScene()
 {
     ShowAllElementDocuments();
@@ -181,6 +196,40 @@ void glimmer::Scene::RemoveAllDataModel()
     rmlConstructorNames_.clear();
 }
 
+void glimmer::Scene::RegisterDocument(const Rml::String& name, Rml::ElementDocument* document)
+{
+    if (document == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "RegisterDocument called with nullptr document");
+        return;
+    }
+    namedDocuments_[name] = document;
+}
+
+Rml::ElementDocument* glimmer::Scene::GetDocument(const Rml::String& name) const
+{
+    auto it = namedDocuments_.find(name);
+    return it != namedDocuments_.end() ? it->second : nullptr;
+}
+
+void glimmer::Scene::HideDocument(const Rml::String& name) const
+{
+    Rml::ElementDocument* document = GetDocument(name);
+    if (document != nullptr)
+    {
+        document->Hide();
+    }
+}
+
+void glimmer::Scene::ShowDocument(const Rml::String& name) const
+{
+    Rml::ElementDocument* document = GetDocument(name);
+    if (document != nullptr)
+    {
+        document->Show();
+    }
+}
+
 void glimmer::Scene::HideAllElementDocuments() const
 {
     for (auto elementDocument : elementDocumentSet_)
@@ -216,6 +265,7 @@ void glimmer::Scene::CloseAllElementDocuments()
         rmlContext_->CloseDocument(elementDocument);
     }
     elementDocumentSet_.clear();
+    namedDocuments_.clear();
 }
 
 bool glimmer::Scene::HandleEvent(const SDL_Event& event)

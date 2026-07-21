@@ -41,6 +41,7 @@
 
 namespace glimmer
 {
+    class Scene;
     class ParallaxBackgroundComponent;
     class TileInstancePool;
     class ChunkManager;
@@ -95,11 +96,12 @@ namespace glimmer
         std::unique_ptr<TerrainManager> terrainManager_;
         std::unique_ptr<SystemScheduler> systemScheduler_;
         std::unique_ptr<PlayerContext> playerContext_;
+        Scene* scene_ = nullptr;
 
     public:
         ~WorldContext();
 
-        explicit WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves);
+        WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves, Scene* scene = nullptr);
 
         [[nodiscard]] EntityManager* GetEntityManager() const;
 
@@ -144,5 +146,9 @@ namespace glimmer
         [[nodiscard]] LightBuffer* GetLightingBuffer() const;
 
         [[nodiscard]] TileInstancePool* GetTileInstancePool() const;
+
+        [[nodiscard]] Scene* GetScene() const;
+
+        void SetScene(Scene* scene);
     };
 }

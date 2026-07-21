@@ -45,6 +45,7 @@ namespace glimmer
         std::unordered_set<Rml::ElementDocument*> elementDocumentSet_;
         std::vector<Rml::DataModelConstructor> rmlConstructors_;
         std::unordered_set<Rml::String> rmlConstructorNames_;
+        std::unordered_map<Rml::String, Rml::ElementDocument*> namedDocuments_;
 
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
@@ -70,6 +71,10 @@ namespace glimmer
 
         Rml::DataModelConstructor* CreateDataModel(const Rml::String& name);
 
+        void RegisterDocument(const Rml::String& name, Rml::ElementDocument* document);
+
+        [[nodiscard]] Rml::ElementDocument* GetDocument(const Rml::String& name) const;
+
         void HideAllElementDocuments() const;
 
         void ShowAllElementDocuments() const;
@@ -77,6 +82,10 @@ namespace glimmer
         void CloseAllElementDocuments();
 
     public:
+        void HideDocument(const Rml::String& name) const;
+
+        void ShowDocument(const Rml::String& name) const;
+
         /**
          * Processing events (input, window messages, etc.) returns whether to intercept the event. If it is true, it will not be passed down.
          * 处理事件（输入、窗口消息等）返回是否拦截事件，如果为true则不会向下传递。
@@ -116,6 +125,8 @@ namespace glimmer
         virtual void OnCreateDataModels();
 
         virtual void LoadDocuments();
+
+        Rml::ElementDocument* LoadDocumentByName(const Rml::String& name, const ResourceRef* resourceRef);
 
         /**
          * When a scene above the current scene is popped up, the current scene is displayed.

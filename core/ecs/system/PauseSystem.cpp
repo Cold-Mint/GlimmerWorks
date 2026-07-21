@@ -26,12 +26,19 @@
  */
 #include "PauseSystem.h"
 #include "core/world/WorldContext.h"
+#include "core/scene/Scene.h"
+#include "core/scene/SceneManager.h"
+#include "core/scene/MainThreadDispatcher.h"
+#include "core/context/AppContext.h"
+#include "core/log/LogCat.h"
+#include "core/Constants.h"
+
+constexpr std::string_view PauseDocumentName = PAUSE_DOCUMENT_NAME;
 
 glimmer::PauseSystem::PauseSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_PAUSE);
     Init();
-
 }
 
 uint8_t glimmer::PauseSystem::GetRenderOrder()
@@ -39,13 +46,96 @@ uint8_t glimmer::PauseSystem::GetRenderOrder()
     return RENDER_ORDER_PAUSE;
 }
 
+void glimmer::PauseSystem::TogglePause()
+{
+    paused_ = !paused_;
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        return;
+    }
+    worldContext->SetRuning(!paused_);
+
+    Scene* scene = GetScene();
+    if (scene == nullptr)
+    {
+        return;
+    }
+
+    if (paused_)
+    {
+        scene->ShowDocument(PAUSE_DOCUMENT_NAME);
+        LogCat::i("Game paused, showing pause menu");
+    }
+    else
+    {
+        scene->HideDocument(PAUSE_DOCUMENT_NAME);
+        LogCat::i("Game resumed, hiding pause menu");
+    }
+}
+
+bool glimmer::PauseSystem::HandleEvent(const SDL_Event& event)
+{
+    if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_ESCAPE)
+    {
+        TogglePause();
+        return true;
+    }
+    return false;
+}
+
 bool glimmer::PauseSystem::OnBackPressed()
 {
-    WorldContext* worldContext = GetWorldContext();
-    worldContext->SetRuning(!worldContext->IsRuning());
+    TogglePause();
     return true;
 }
 
+void glimmer::PauseSystem::OnResumeButtonClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                               const Rml::VariantList& args)
+{
+    TogglePause();
+}
+
+void glimmer::PauseSystem::OnSaveAndExitButtonClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                                    const Rml::VariantList& args)
+{
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext != nullptr)
+    {
+        worldContext->SaveGame();
+    }
+
+    Scene* scene = GetScene();
+    if (scene != nullptr)
+    {
+        scene->HideDocument(PAUSE_DOCUMENT_NAME);
+    }
+
+    paused_ = false;
+    if (worldContext != nullptr)
+    {
+        worldContext->SetRuning(true);
+    }
+
+    const AppContext* appContext = worldContext != nullptr ? worldContext->GetAppContext() : nullptr;
+    if (appContext != nullptr && appContext->GetMainThreadDispatcher() != nullptr)
+    {
+        MainThreadDispatcher* dispatcher = appContext->GetMainThreadDispatcher();
+        SceneManager* sceneManager = appContext->GetSceneManager();
+        dispatcher->PostToNextMainFrame([sceneManager]()
+        {
+            if (sceneManager != nullptr)
+            {
+                sceneManager->PopScene();
+            }
+        });
+        LogCat::i("Save and exit triggered, scene pop deferred to next frame");
+    }
+    else
+    {
+        LogCat::w(std::source_location::current(), "Cannot defer scene pop: appContext or dispatcher is nullptr");
+    }
+}
 
 bool glimmer::PauseSystem::CanRunWhilePaused() const
 {

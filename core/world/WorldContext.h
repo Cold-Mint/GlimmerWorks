@@ -27,11 +27,6 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
-#include <vector>
-
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_render.h>
 
 #include "LightBuffer.h"
 #include "core/saves/Saves.h"
@@ -39,11 +34,9 @@
 #include "core/ecs/EcsTypes.h"
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
-#include "core/ecs/GameSystem.h"
 
 #include "generator/ChunkGenerator.h"
 #include "generator/ChunkLoader.h"
-#include "core/world/TileInstancePool.h"
 #include "src/saves/entity_item.pb.h"
 
 namespace glimmer
@@ -107,32 +100,49 @@ namespace glimmer
         ~WorldContext();
 
         explicit WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves);
+
         [[nodiscard]] EntityManager* GetEntityManager() const;
+
         [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
+
         [[nodiscard]] Saves* GetSaves() const;
+
         [[nodiscard]] MapManifest* GetMapManifest() const;
+
         [[nodiscard]] AppContext* GetAppContext() const;
+
         [[nodiscard]] b2WorldId GetWorldId() const;
+
         [[nodiscard]] int GetWorldSeed() const;
+
         [[nodiscard]] ChunkGenerator* GetChunkGenerator() const;
+
         [[nodiscard]] ChunkLoader* GetChunkLoader() const;
 
         [[nodiscard]] ChunkManager* GetChunkManager() const;
+
         [[nodiscard]] TerrainManager* GetTerrainManager() const;
+
         [[nodiscard]] SystemScheduler* GetSystemScheduler() const;
+
         [[nodiscard]] PlayerContext* GetPlayerContext() const;
 
-
         [[nodiscard]] bool IsRuning() const;
+
         void SetRuning(bool run);
+
         [[nodiscard]] bool IsDragMode() const;
+
         void SetDragMode(bool dragMode);
 
         void SaveEntity(EntityItemMessage* entityItemMessage, GameEntityID entityId) const;
+
         void SaveGame();
+
         [[nodiscard]] static bool IsEmptyEntityId(uint32_t id);
 
         [[nodiscard]] LightBuffer* GetLightingBuffer() const;
+
         [[nodiscard]] TileInstancePool* GetTileInstancePool() const;
     };
 }

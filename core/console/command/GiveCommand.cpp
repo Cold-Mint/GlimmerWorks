@@ -36,6 +36,7 @@
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 #include "core/inventory/MaterialItem.h"
+#include "core/world/TileInstancePool.h"
 #include "fmt/color.h"
 
 void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)

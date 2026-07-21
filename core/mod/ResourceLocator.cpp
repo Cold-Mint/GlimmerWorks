@@ -321,11 +321,16 @@ glimmer::StringResource* glimmer::ResourceLocator::FindString(const ResourceRef*
         LogCat::w(std::source_location::current(), "resourceRef == nullptr");
         return nullptr;
     }
-    if (resourceRef->GetResourceType() != RESOURCE_STRING || !ValidateAccessPermission(resourceRef))
+    if (resourceRef->GetResourceType() != RESOURCE_STRING)
     {
         LogCat::w(std::source_location::current(), "Type mismatch: expected RESOURCE_STRING (",
                   std::to_underlying(RESOURCE_STRING), "), got ", std::to_underlying(resourceRef->GetResourceType()),
-                  " or access permission denied");
+                  " Perhaps this is an optional string resource.");
+        return nullptr;
+    }
+    if (!ValidateAccessPermission(resourceRef))
+    {
+        LogCat::w(std::source_location::current(), "Access permission denied.");
         return nullptr;
     }
     if (stringManager_ == nullptr)

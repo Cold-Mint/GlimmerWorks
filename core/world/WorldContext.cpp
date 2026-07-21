@@ -261,7 +261,6 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
         TileLayerComponent>(backgroundTileLayerEntity, this, TileLayerType::BackGround);
     chunkManager_ = std::make_unique<ChunkManager>(this);
     terrainManager_ = std::make_unique<TerrainManager>(this);
-    systemScheduler_ = std::make_unique<SystemScheduler>(this);
     playerContext_ = std::make_unique<PlayerContext>(this);
 
     ResourceRef playerResourceRef{};
@@ -279,6 +278,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     }
     entityShortCut_->SetItemToolTipComponent(
         entityManager_->AddComponent<ItemToolTipComponent>(entityManager_->AddEntity()));
+    systemScheduler_ = std::make_unique<SystemScheduler>(this);
     systemScheduler_->InitSystem();
     LogCat::i("WorldContext created successfully");
 }

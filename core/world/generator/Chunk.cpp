@@ -30,6 +30,7 @@
 
 #include "tween.h"
 #include "core/math/CoordinateTransformer.h"
+#include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
 #include "src/saves/tile_state.pb.h"
 

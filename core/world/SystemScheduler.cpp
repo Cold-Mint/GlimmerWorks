@@ -246,7 +246,8 @@ void glimmer::SystemScheduler::RenderImGui(SDL_Renderer* renderer) const
         if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
             b)
         {
-            LogCat::e(std::source_location::current(),"The color of the renderImGui has been changed by the game system.",
+            LogCat::e(std::source_location::current(),
+                      "The color of the renderImGui has been changed by the game system.",
                       std::to_underlying(system->GetGameSystemType()),
                       " invoke AppContext::RestoreColorRenderer(renderer);");
             assert(false);
@@ -265,6 +266,11 @@ void glimmer::SystemScheduler::NotifySystemsOfComponentChange(const GameComponen
 void glimmer::SystemScheduler::NotifyActiveSystems(const GameComponentTypeMessage gameComponentType,
                                                    const uint32_t count) const
 {
+    if (activeSystems_.empty())
+    {
+        LogCat::w(std::source_location::current(), "activeSystems_.empty()");
+        return;
+    }
     for (auto& system : activeSystems_)
     {
         if (system == nullptr)
@@ -286,6 +292,11 @@ void glimmer::SystemScheduler::NotifyActiveSystems(const GameComponentTypeMessag
 void glimmer::SystemScheduler::NotifyInactiveSystems(const GameComponentTypeMessage gameComponentType,
                                                      const uint32_t count)
 {
+    if (inactiveSystems_.empty())
+    {
+        LogCat::w(std::source_location::current(), "inactiveSystems_.empty()");
+        return;
+    }
     for (auto& system : inactiveSystems_)
     {
         if (system == nullptr)

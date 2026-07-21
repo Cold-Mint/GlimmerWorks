@@ -26,6 +26,8 @@
  */
 #include "EntityShortCut.h"
 
+#include "core/log/LogCat.h"
+
 void glimmer::EntityShortCut::SetPlayer(const GameEntityID player)
 {
     player_ = player;
@@ -36,6 +38,17 @@ void glimmer::EntityShortCut::SetParallaxBackgroundComponent(ParallaxBackgroundC
     parallaxBackgroundComponent_ = parallaxBackgroundComponent;
 }
 
+glimmer::ParallaxBackgroundComponent* glimmer::EntityShortCut::GetParallaxBackgroundComponent() const
+{
+    if (parallaxBackgroundComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: ParallaxBackgroundComponent pointer is null, component not initialized");
+        return nullptr;
+    }
+    return parallaxBackgroundComponent_;
+}
+
 void glimmer::EntityShortCut::SetSelectedCraftPreviewSlotComponent(CraftPreviewSlotComponent* craftPreviewSlotComponent)
 {
     selectedCraftPreviewSlotComponent_ = craftPreviewSlotComponent;
@@ -43,12 +56,13 @@ void glimmer::EntityShortCut::SetSelectedCraftPreviewSlotComponent(CraftPreviewS
 
 glimmer::CraftPreviewSlotComponent* glimmer::EntityShortCut::GetSelectedCraftPreviewSlotComponent() const
 {
+    if (selectedCraftPreviewSlotComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: CraftPreviewSlotComponent pointer is null, no craft preview slot selected");
+        return nullptr;
+    }
     return selectedCraftPreviewSlotComponent_;
-}
-
-glimmer::ParallaxBackgroundComponent* glimmer::EntityShortCut::GetParallaxBackgroundComponent() const
-{
-    return parallaxBackgroundComponent_;
 }
 
 GameEntityID glimmer::EntityShortCut::GetPlayer() const
@@ -58,6 +72,12 @@ GameEntityID glimmer::EntityShortCut::GetPlayer() const
 
 glimmer::ItemToolTipComponent* glimmer::EntityShortCut::GetItemToolTipComponent() const
 {
+    if (itemToolTipComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: ItemToolTipComponent pointer is null, tooltip ui not ready");
+        return nullptr;
+    }
     return itemToolTipComponent_;
 }
 
@@ -73,6 +93,12 @@ void glimmer::EntityShortCut::SetDiggingComponent(DiggingComponent* diggingCompo
 
 glimmer::DiggingComponent* glimmer::EntityShortCut::GetDiggingComponent() const
 {
+    if (diggingComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: DiggingComponent pointer is null, digging system uninitialized");
+        return nullptr;
+    }
     return diggingComponent_;
 }
 
@@ -83,6 +109,12 @@ void glimmer::EntityShortCut::SetBlueprintComponent(BlueprintComponent* blueprin
 
 glimmer::BlueprintComponent* glimmer::EntityShortCut::GetBlueprintComponent() const
 {
+    if (blueprintComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: BlueprintComponent pointer is null, build blueprint ui missing");
+        return nullptr;
+    }
     return blueprintComponent_;
 }
 
@@ -93,6 +125,12 @@ void glimmer::EntityShortCut::SetHotBarComponent(HotBarComponent* hotBarComponen
 
 glimmer::HotBarComponent* glimmer::EntityShortCut::GetHotBarComponent() const
 {
+    if (hotBarComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: HotBarComponent pointer is null, hotbar ui component not set");
+        return nullptr;
+    }
     return hotBarComponent_;
 }
 
@@ -103,12 +141,29 @@ void glimmer::EntityShortCut::SetItemContainerComponent(ItemContainerComponent* 
 
 glimmer::ItemContainerComponent* glimmer::EntityShortCut::GetItemContainerComponent() const
 {
+    if (itemContainerComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: ItemContainerComponent pointer is null, inventory container unavailable");
+        return nullptr;
+    }
     return itemContainerComponent_;
 }
 
 void glimmer::EntityShortCut::SetCameraComponent(CameraComponent* cameraComponent)
 {
     cameraComponent_ = cameraComponent;
+}
+
+glimmer::CameraComponent* glimmer::EntityShortCut::GetCameraComponent() const
+{
+    if (cameraComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: CameraComponent pointer is null, main camera not initialized");
+        return nullptr;
+    }
+    return cameraComponent_;
 }
 
 void glimmer::EntityShortCut::SetAreaMarkerComponent(AreaMarkerComponent* areaMarkerComponent)
@@ -118,12 +173,13 @@ void glimmer::EntityShortCut::SetAreaMarkerComponent(AreaMarkerComponent* areaMa
 
 glimmer::AreaMarkerComponent* glimmer::EntityShortCut::GetAreaMarkerComponent() const
 {
+    if (areaMarkerComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: AreaMarkerComponent pointer is null, region marker render missing");
+        return nullptr;
+    }
     return areaMarkerComponent_;
-}
-
-glimmer::CameraComponent* glimmer::EntityShortCut::GetCameraComponent() const
-{
-    return cameraComponent_;
 }
 
 void glimmer::EntityShortCut::SetCameraTransform2DComponent(Transform2DComponent* cameraTransform2DComponent)
@@ -133,5 +189,11 @@ void glimmer::EntityShortCut::SetCameraTransform2DComponent(Transform2DComponent
 
 glimmer::Transform2DComponent* glimmer::EntityShortCut::GetCameraTransform2DComponent() const
 {
+    if (cameraTransform2DComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: Camera Transform2DComponent pointer is null, camera transform unbound");
+        return nullptr;
+    }
     return cameraTransform2DComponent_;
 }

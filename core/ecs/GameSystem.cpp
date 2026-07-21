@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "GameSystem.h"
-#include "core/Config.h"
 #include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
@@ -65,7 +64,12 @@ void glimmer::GameSystem::WatchComponent(const GameComponentTypeMessage gameComp
     watchComponents_.insert(gameComponentType);
     //When observing the changes of a certain component, a callback will be triggered first.
     //当开始观察某个组件的变化时，会优先进行一次回调。
-    OnWatchedComponentChanged(gameComponentType, entityManager_->GetComponentCount(gameComponentType));
+    const uint32_t count = entityManager_->GetComponentCount(gameComponentType);
+    if (count > 0)
+    {
+        AddActiveWatchComponent(gameComponentType);
+    }
+    OnWatchedComponentChanged(gameComponentType, count);
 }
 
 glimmer::WorldContext* glimmer::GameSystem::GetWorldContext() const
@@ -112,7 +116,8 @@ void glimmer::GameSystem::Init()
         LogCat::w(std::source_location::current(), "appContext is nullptr");
         return;
     }
-    OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(), appContext->GetWindowContext()->GetWindowHeight());
+    OnWindowSizeChanged(appContext->GetWindowContext()->GetWindowWidth(),
+                        appContext->GetWindowContext()->GetWindowHeight());
     const Config* config = appContext->GetConfig();
     if (config != nullptr)
     {
@@ -168,7 +173,6 @@ void glimmer::GameSystem::Update(const float delta)
         initTimeOut_ += delta;
         if (initTimeOut_ > 2)
         {
-
             assert(false);
         }
     }

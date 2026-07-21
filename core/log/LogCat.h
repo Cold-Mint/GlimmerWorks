@@ -87,8 +87,7 @@ namespace glimmer
             __android_log_print(ANDROID_LOG_WARN, "GlimmerWorks", "%s", oss.str().c_str());
 #else
             std::cout << COLOR_WARN;
-            std::cout << "[w] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " " <<
-                sourceLocation.file_name() << " ";
+            std::cout << "[w] At " << sourceLocation.file_name() << ":" << sourceLocation.line() << " ";
             (std::cout << ... << args);
             std::cout << COLOR_RESET << std::endl;
 #endif

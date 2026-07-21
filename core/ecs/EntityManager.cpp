@@ -321,9 +321,8 @@ void glimmer::EntityManager::RecoveryComponent(WorldContext* worldContext, GameE
 {
     //Note: Within this method, this part of the code only includes components that can be serialized. That is, components that override the Serialize() method.
     //注意：在这个方法内，这部分代码只写可被序列化的组件。即覆盖了Serialize()方法的组件。
-    GameComponentTypeMessage type = componentMessage.type();
     GameComponent* gameComponent = nullptr;
-    switch (type)
+    switch (componentMessage.type())
     {
     case COMPONENT_DROPPED_ITEM:
         gameComponent = AddComponent<DroppedItemComponent>(gameEntityId);
@@ -334,9 +333,14 @@ void glimmer::EntityManager::RecoveryComponent(WorldContext* worldContext, GameE
     case COMPONENT_TRANSFORM_2D:
         gameComponent = AddComponent<Transform2DComponent>(gameEntityId);
         break;
+    default:
+        LogCat::w(std::source_location::current(), "Irrecoverable component type ",
+                  std::to_underlying(componentMessage.type()));
+        return;
     }
     if (gameComponent == nullptr)
     {
+        LogCat::w(std::source_location::current(), "When restoring the component, an empty object was returned. ");
         return;
     }
     gameComponent->Deserialize(worldContext, componentMessage.data());

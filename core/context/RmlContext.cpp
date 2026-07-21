@@ -176,6 +176,11 @@ void glimmer::RmlContext::RenderContext() const
     context_->Render();
 }
 
+Rml::Context* glimmer::RmlContext::GetRmlContextPublic() const
+{
+    return context_;
+}
+
 
 glimmer::RmlContext::RmlContext() = default;
 

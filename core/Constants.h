@@ -59,6 +59,9 @@ static constexpr std::string FLY_COMMAND_NAME = "fly";
 static constexpr std::string ECHO_COMMAND_NAME = "echo";
 static constexpr std::string SCREEN_SHOT_COMMAND_NAME = "screenShot";
 static constexpr std::string LOCATE_COMMAND_NAME = "locate";
+static constexpr std::string SCENE_COMMAND_NAME = "scene";
+static constexpr std::string INPUT_COMMAND_NAME = "input";
+static constexpr std::string GUI_COMMAND_NAME = "gui";
 static constexpr std::string ITEM_EDITOR_COMMAND_NAME = "itemEditor";
 static constexpr std::string PACK_VERIFY_COMMAND_NAME = "packVerify";
 #if  !defined(NDEBUG)

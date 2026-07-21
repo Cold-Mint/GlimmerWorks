@@ -35,7 +35,9 @@
 #include "core/console/command/EcsCommand.h"
 #include "core/console/command/FlyCommand.h"
 #include "core/console/command/GiveCommand.h"
+#include "core/console/command/InputCommand.h"
 #include "core/console/command/HelpCommand.h"
+#include "core/console/command/GuiCommand.h"
 #include "core/console/command/HookCommand.h"
 #include "core/console/command/ItemEditorCommand.h"
 #include "core/console/command/LicenseCommand.h"
@@ -47,6 +49,7 @@
 #include "core/console/command/PlaceCommand.h"
 #include "core/console/command/PlayCommand.h"
 #include "core/console/command/ScreenshotCommand.h"
+#include "core/console/command/SceneCommand.h"
 #include "core/console/command/SeedCommand.h"
 #include "core/console/command/SummonCommand.h"
 #include "core/console/command/TagCommand.h"
@@ -90,6 +93,9 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext) const
     commandManager_->RegisterCommand(std::make_unique<LootCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<PackVerifyCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<SceneCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<InputCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<GuiCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<FlyCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<EchoCommand>(appContext));
@@ -174,6 +180,20 @@ bool glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vf
     commandManager_ = std::make_unique<CommandManager>();
     RegisterCommands(appContext);
     consoleWorker_ = std::make_unique<ConsoleWorker>(commandManager_.get(), appContext);
+    localConsoleInput_ = std::make_unique<LocalConsoleInput>(
+        [this](const std::string& command)
+        {
+            if (consoleWorker_ != nullptr && commandManager_ != nullptr)
+            {
+                consoleWorker_->PushOnMessage(std::make_unique<std::function<void(const std::string& text)>>(
+                    [](const std::string& text)
+                    {
+                        std::cout << "[Console Output] " << text << std::endl;
+                    }));
+                consoleWorker_->CreateRequest(command, commandManager_->GetDefaultCommandSender());
+            }
+        });
+    localConsoleInput_->Start();
     commandHistoryManager_ = std::make_unique<CommandHistoryManager>(runtimePath, vfs);
     if (maxHistoryEntries > 0)
     {
@@ -187,9 +207,19 @@ void glimmer::ConsoleContext::StopConsoleWorker() const
     if (consoleWorker_ == nullptr)
     {
         LogCat::w(std::source_location::current(), "consoleWorker_ == nullptr");
-        return;
     }
-    consoleWorker_->Stop();
+    else
+    {
+        consoleWorker_->Stop();
+    }
+    if (localConsoleInput_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "localConsoleInput_ == nullptr");
+    }
+    else
+    {
+        localConsoleInput_->Stop();
+    }
 }
 
 void glimmer::ConsoleContext::SaveCommandHistory() const

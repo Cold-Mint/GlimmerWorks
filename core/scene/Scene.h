@@ -86,6 +86,18 @@ namespace glimmer
 
         void ShowDocument(const Rml::String& name) const;
 
+        [[nodiscard]] std::vector<Rml::String> GetDocumentNames() const;
+
+        [[nodiscard]] Rml::ElementDocument* GetDocumentPublic(const Rml::String& name) const;
+
+        [[nodiscard]] std::vector<Rml::ElementDocument*> GetAllDocuments() const;
+
+        Rml::Element* FindElementById(const Rml::String& elementId) const;
+
+        Rml::Element* FindElementByAttribute(const Rml::String& attrName, const Rml::String& attrValue) const;
+
+        Rml::Element* FindElementByText(const Rml::String& text) const;
+
         /**
          * Processing events (input, window messages, etc.) returns whether to intercept the event. If it is true, it will not be passed down.
          * 处理事件（输入、窗口消息等）返回是否拦截事件，如果为true则不会向下传递。

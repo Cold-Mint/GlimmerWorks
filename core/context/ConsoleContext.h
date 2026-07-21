@@ -31,6 +31,7 @@
 #include "core/console/CommandHistoryManager.h"
 #include "core/console/CommandManager.h"
 #include "core/console/ConsoleWorker.h"
+#include "core/console/LocalConsoleInput.h"
 #include "core/CommandHookManager.h"
 #include "core/console/suggestion/DynamicSuggestionsManager.h"
 
@@ -43,6 +44,7 @@ namespace glimmer
     {
         std::unique_ptr<CommandManager> commandManager_;
         std::unique_ptr<ConsoleWorker> consoleWorker_;
+        std::unique_ptr<LocalConsoleInput> localConsoleInput_;
         std::shared_ptr<CommandHistoryManager> commandHistoryManager_;
         std::unique_ptr<CommandHookManager> commandHookManager_;
         std::unique_ptr<DynamicSuggestionsManager> dynamicSuggestionsManager_;

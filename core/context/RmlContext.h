@@ -68,6 +68,8 @@ namespace glimmer
 
         void RenderContext() const;
 
+        [[nodiscard]] Rml::Context* GetRmlContextPublic() const;
+
         RmlContext();
 
         ~RmlContext();

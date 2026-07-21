@@ -230,6 +230,132 @@ void glimmer::Scene::ShowDocument(const Rml::String& name) const
     }
 }
 
+std::vector<Rml::String> glimmer::Scene::GetDocumentNames() const
+{
+    std::vector<Rml::String> names;
+    for (const auto& pair : namedDocuments_)
+    {
+        names.push_back(pair.first);
+    }
+    return names;
+}
+
+Rml::ElementDocument* glimmer::Scene::GetDocumentPublic(const Rml::String& name) const
+{
+    return GetDocument(name);
+}
+
+std::vector<Rml::ElementDocument*> glimmer::Scene::GetAllDocuments() const
+{
+    std::vector<Rml::ElementDocument*> docs;
+    for (auto doc : elementDocumentSet_)
+    {
+        if (doc != nullptr)
+        {
+            docs.push_back(doc);
+        }
+    }
+    return docs;
+}
+
+Rml::Element* glimmer::Scene::FindElementById(const Rml::String& elementId) const
+{
+    for (Rml::ElementDocument* doc : elementDocumentSet_)
+    {
+        if (doc != nullptr)
+        {
+            Rml::Element* element = doc->GetElementById(elementId.c_str());
+            if (element != nullptr)
+            {
+                return element;
+            }
+        }
+    }
+    return nullptr;
+}
+
+void FindElementRecursively(Rml::Element* parent, const Rml::String& attrName, const Rml::String& attrValue, Rml::Element*& result)
+{
+    if (parent == nullptr || result != nullptr)
+    {
+        return;
+    }
+    Rml::String value = parent->GetAttribute<Rml::String>(attrName.c_str(), "");
+    if (value == attrValue)
+    {
+        result = parent;
+        return;
+    }
+    int childCount = parent->GetNumChildren();
+    for (int i = 0; i < childCount; ++i)
+    {
+        Rml::Element* child = parent->GetChild(i);
+        FindElementRecursively(child, attrName, attrValue, result);
+        if (result != nullptr)
+        {
+            return;
+        }
+    }
+}
+
+void FindElementByTextRecursively(Rml::Element* parent, const Rml::String& text, Rml::Element*& result)
+{
+    if (parent == nullptr || result != nullptr)
+    {
+        return;
+    }
+    Rml::String innerRml = parent->GetInnerRML();
+    if (innerRml.find(text) != Rml::String::npos)
+    {
+        result = parent;
+        return;
+    }
+    int childCount = parent->GetNumChildren();
+    for (int i = 0; i < childCount; ++i)
+    {
+        Rml::Element* child = parent->GetChild(i);
+        FindElementByTextRecursively(child, text, result);
+        if (result != nullptr)
+        {
+            return;
+        }
+    }
+}
+
+Rml::Element* glimmer::Scene::FindElementByAttribute(const Rml::String& attrName, const Rml::String& attrValue) const
+{
+    for (Rml::ElementDocument* doc : elementDocumentSet_)
+    {
+        if (doc != nullptr)
+        {
+            Rml::Element* result = nullptr;
+            FindElementRecursively(doc, attrName, attrValue, result);
+            if (result != nullptr)
+            {
+                return result;
+            }
+        }
+    }
+    return nullptr;
+}
+
+Rml::Element* glimmer::Scene::FindElementByText(const Rml::String& text) const
+{
+    for (Rml::ElementDocument* doc : elementDocumentSet_)
+    {
+        if (doc != nullptr)
+        {
+            Rml::Element* result = nullptr;
+            FindElementByTextRecursively(doc, text, result);
+            if (result != nullptr)
+            {
+                return result;
+            }
+        }
+    }
+    return nullptr;
+}
+
 void glimmer::Scene::HideAllElementDocuments() const
 {
     for (auto elementDocument : elementDocumentSet_)

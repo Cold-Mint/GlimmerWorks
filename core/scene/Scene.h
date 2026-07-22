@@ -43,6 +43,7 @@ namespace glimmer
         AppContext* appContext_ = nullptr;
         RmlContext* rmlContext_ = nullptr;
         std::unordered_set<Rml::ElementDocument*> elementDocumentSet_;
+        std::unordered_set<Rml::ElementDocument*> visibleElementDocumentsSnapshot_;
         std::vector<Rml::DataModelConstructor> rmlConstructors_;
         std::unordered_set<Rml::String> rmlConstructorNames_;
         std::unordered_map<Rml::String, Rml::ElementDocument*> namedDocuments_;
@@ -75,9 +76,13 @@ namespace glimmer
 
         [[nodiscard]] Rml::ElementDocument* GetDocument(const Rml::String& name) const;
 
-        void HideAllElementDocuments() const;
+        /**
+         * Record and hide all the documents.
+         * 记录并隐藏所有的文档。
+         */
+        void HideAllElementDocuments();
 
-        void ShowAllElementDocuments() const;
+        void RestoreHiddenElementDocuments();
 
         void CloseAllElementDocuments();
 

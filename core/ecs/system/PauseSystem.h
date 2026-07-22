@@ -43,6 +43,7 @@ namespace glimmer
         void OnResumeButtonClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void OnSaveAndExitButtonClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
         explicit PauseSystem(WorldContext* worldContext);
 
         uint8_t GetRenderOrder() override;

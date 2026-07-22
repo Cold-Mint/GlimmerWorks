@@ -62,26 +62,6 @@ glimmer::Item* glimmer::ItemSlotComponent::GetItem() const
     return itemContainer_->GetItem(slotIndex_);
 }
 
-const glimmer::DesignVector2D& glimmer::ItemSlotComponent::GetPosition() const
-{
-    return position_;
-}
-
-const glimmer::DesignVector2D& glimmer::ItemSlotComponent::GetSize() const
-{
-    return size_;
-}
-
-void glimmer::ItemSlotComponent::SetSize(const DesignVector2D& size)
-{
-    size_ = size;
-}
-
-void glimmer::ItemSlotComponent::SetPosition(const DesignVector2D& position)
-{
-    position_ = position;
-}
-
 std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::TakeAllItem() const
 {
     return itemContainer_->TakeAllItem(slotIndex_);

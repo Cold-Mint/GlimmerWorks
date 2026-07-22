@@ -33,7 +33,6 @@
 #include "core/log/LogCat.h"
 #include "core/Constants.h"
 
-constexpr std::string_view PauseDocumentName = PAUSE_DOCUMENT_NAME;
 
 glimmer::PauseSystem::PauseSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
@@ -55,8 +54,7 @@ void glimmer::PauseSystem::TogglePause()
         return;
     }
     worldContext->SetRuning(!paused_);
-
-    Scene* scene = GetScene();
+    const Scene* scene = GetScene();
     if (scene == nullptr)
     {
         return;

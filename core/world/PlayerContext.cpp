@@ -33,7 +33,6 @@
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/MobEntityCreator.h"
-#include "core/ecs/component/DraggableComponent.h"
 #include "core/ecs/component/HotBarComponent.h"
 #include "core/ecs/component/ItemContainerComponent.h"
 #include "core/ecs/component/ItemSlotComponent.h"
@@ -322,14 +321,8 @@ void glimmer::PlayerContext::InitHotbar(ItemContainer* itemContainer) const
     for (int i = 0; i < HOT_BAR_SIZE; i++)
     {
         const auto itemSlotEntity = entityManager->AddEntity();
-        auto itemSlotComponent = entityManager->AddComponent<ItemSlotComponent>(
+        entityManager->AddComponent<ItemSlotComponent>(
             itemSlotEntity, ItemSlotType::HotBar, itemContainer, i);
-        if (itemSlotComponent == nullptr)
-        {
-            continue;
-        }
-        itemSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
-        itemSlotComponent->Hide();
     }
 }
 
@@ -344,18 +337,7 @@ void glimmer::PlayerContext::InitInventory(ItemContainer* itemContainer) const
     for (int i = 0; i < itemContainer->GetCapacity(); i++)
     {
         const auto itemSlotEntity = entityManager->AddEntity();
-        auto itemSlotComponent = entityManager->AddComponent<ItemSlotComponent>(
+        entityManager->AddComponent<ItemSlotComponent>(
             itemSlotEntity, ItemSlotType::Inventory, itemContainer, i);
-        if (itemSlotComponent == nullptr)
-        {
-            continue;
-        }
-        if (const DraggableComponent* draggableComponent = entityManager->AddComponent<
-            DraggableComponent>(itemSlotEntity); draggableComponent == nullptr)
-        {
-            continue;
-        }
-        itemSlotComponent->SetSize({ITEM_SLOT_SIZE, ITEM_SLOT_SIZE});
-        itemSlotComponent->Hide();
     }
 }

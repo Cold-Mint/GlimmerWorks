@@ -42,7 +42,7 @@ glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContex
     }
     worldContext_->SetScene(this);
     LogCat::i("Creating WorldScene: worldName=", worldContext_->GetMapManifest()->name);
-    
+
     if (context != nullptr)
     {
         context->GetWindowContext()->SetWindowTitle(
@@ -177,6 +177,33 @@ void glimmer::WorldScene::LoadDocuments()
         document->Hide();
         LogCat::i("Pause menu document loaded and hidden");
     }
+
+    resourceRef.SetResourceKey("hotbar/hotbar");
+    document = LoadSingleDocument(&resourceRef);
+    if (document != nullptr)
+    {
+        RegisterDocument("hotbar_menu", document);
+        document->Show();
+        LogCat::i("HotBar document loaded and shown");
+    }
+
+    resourceRef.SetResourceKey("inventory/inventory");
+    document = LoadSingleDocument(&resourceRef);
+    if (document != nullptr)
+    {
+        RegisterDocument("inventory_menu", document);
+        document->Hide();
+        LogCat::i("Inventory document loaded and hidden");
+    }
+
+    resourceRef.SetResourceKey("crafting/crafting");
+    document = LoadSingleDocument(&resourceRef);
+    if (document != nullptr)
+    {
+        RegisterDocument("crafting_menu", document);
+        document->Hide();
+        LogCat::i("Crafting document loaded and hidden");
+    }
 }
 
 void glimmer::WorldScene::OnCreateDataModels()
@@ -187,34 +214,36 @@ void glimmer::WorldScene::OnCreateDataModels()
         LogCat::w(std::source_location::current(), "systemScheduler is nullptr");
         return;
     }
-    
+
     pauseSystem_ = dynamic_cast<PauseSystem*>(systemScheduler->GetSystemByType(GameSystemType::PauseSystem));
     if (pauseSystem_ == nullptr)
     {
         LogCat::w(std::source_location::current(), "PauseSystem not found");
         return;
     }
-    
+
     Rml::DataModelConstructor* constructor = CreateDataModel("pause_system");
     if (constructor == nullptr)
     {
         LogCat::w(std::source_location::current(), "Failed to create pause_system data model");
         return;
     }
-    
-    constructor->BindEventCallback("on_resume_button_click", 
-        [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args) {
-            if (pauseSystem_ != nullptr) {
-                pauseSystem_->OnResumeButtonClick(handle, event, args);
-            }
-        });
-    
+
+    constructor->BindEventCallback("on_resume_button_click",
+                                   [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+                                   {
+                                       if (pauseSystem_ != nullptr)
+                                       {
+                                           pauseSystem_->OnResumeButtonClick(handle, event, args);
+                                       }
+                                   });
+
     constructor->BindEventCallback("on_save_and_exit_button_click",
-        [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args) {
-            if (pauseSystem_ != nullptr) {
-                pauseSystem_->OnSaveAndExitButtonClick(handle, event, args);
-            }
-        });
-    
-    LogCat::i("PauseSystem data model created with event callbacks");
+                                   [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
+                                   {
+                                       if (pauseSystem_ != nullptr)
+                                       {
+                                           pauseSystem_->OnSaveAndExitButtonClick(handle, event, args);
+                                       }
+                                   });
 }

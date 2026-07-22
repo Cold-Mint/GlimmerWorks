@@ -26,7 +26,6 @@
  */
 #include "SystemScheduler.h"
 
-#include <ranges>
 #include <utility>
 
 #include "core/ecs/EntityManager.h"
@@ -34,21 +33,15 @@
 #include "core/ecs/system/AutoPickSystem.h"
 #include "core/ecs/system/BiomeBGMSystem.h"
 #include "core/ecs/system/BlueprintSystem.h"
-#include "core/ecs/system/ButtonSystem.h"
 #include "core/ecs/system/CameraSystem.h"
 #include "core/ecs/system/ChunkSystem.h"
-#include "core/ecs/system/CraftPreviewSlotSystem.h"
 #include "core/ecs/system/DebugDrawBox2dSystem.h"
 #include "core/ecs/system/DebugDrawSystem.h"
 #include "core/ecs/system/DebugMultiMapSystem.h"
 #include "core/ecs/system/DebugPanelSystem.h"
 #include "core/ecs/system/DiggingSystem.h"
-#include "core/ecs/system/DraggableSystem.h"
 #include "core/ecs/system/DroppedItemSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
-#include "core/ecs/system/ItemSlotQuantitySystem.h"
-#include "core/ecs/system/ItemSlotSystem.h"
-#include "core/ecs/system/ItemToolTipSystem.h"
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/MagnetSystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
@@ -418,7 +411,6 @@ void glimmer::SystemScheduler::InitSystem()
     RegisterSystem(std::make_unique<TileLayerSystem>(worldContext_));
     RegisterSystem(std::make_unique<ChunkSystem>(worldContext_));
     RegisterSystem(std::make_unique<PhysicsSystem>(worldContext_));
-    RegisterSystem(std::make_unique<ItemSlotSystem>(worldContext_));
     RegisterSystem(std::make_unique<MagnetSystem>(worldContext_));
     RegisterSystem(std::make_unique<ParallaxBackgroundSystem>(worldContext_));
     RegisterSystem(std::make_unique<FloatingTextSystem>(worldContext_));
@@ -426,17 +418,12 @@ void glimmer::SystemScheduler::InitSystem()
     RegisterSystem(std::make_unique<AutoPickSystem>(worldContext_));
     RegisterSystem(std::make_unique<AreaMarkerSystem>(worldContext_));
     RegisterSystem(std::make_unique<DiggingSystem>(worldContext_));
-    RegisterSystem(std::make_unique<DraggableSystem>(worldContext_));
     RegisterSystem(std::make_unique<SpiritRendererSystem>(worldContext_));
     RegisterSystem(std::make_unique<PauseSystem>(worldContext_));
     RegisterSystem(std::make_unique<RayCast2DSystem>(worldContext_));
     RegisterSystem(std::make_unique<BiomeBGMSystem>(worldContext_));
     RegisterSystem(std::make_unique<Light2DSystem>(worldContext_));
     RegisterSystem(std::make_unique<BlueprintSystem>(worldContext_));
-    RegisterSystem(std::make_unique<CraftPreviewSlotSystem>(worldContext_));
-    RegisterSystem(std::make_unique<ItemToolTipSystem>(worldContext_));
-    RegisterSystem(std::make_unique<ItemSlotQuantitySystem>(worldContext_));
-    RegisterSystem(std::make_unique<ButtonSystem>(worldContext_));
     RegisterSystem(std::make_unique<TechProviderSystem>(worldContext_));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));

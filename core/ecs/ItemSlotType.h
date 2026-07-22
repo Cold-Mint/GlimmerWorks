@@ -34,5 +34,6 @@ namespace glimmer
         Empty,
         HotBar, //快捷栏
         Inventory, //背包
+        Crafting, //合成槽
     };
 }

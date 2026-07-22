@@ -36,15 +36,13 @@ namespace glimmer
     class Item;
     class ItemContainer;
 
-    class ItemSlotComponent : public GameComponent, public IVisible
+    class ItemSlotComponent : public GameComponent
     {
         ItemContainer* itemContainer_;
         uint8_t slotIndex_;
         bool isHovered_ = false;
         DesignDimension padding_ = ITEM_SLOT_PADDING;
         ItemSlotType itemSlotType_ = ItemSlotType::Empty;
-        DesignVector2D size_;
-        DesignVector2D position_;
 
     public:
         explicit ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, uint8_t slotIndex);
@@ -58,14 +56,6 @@ namespace glimmer
         [[nodiscard]] ItemSlotType GetItemSlotType() const;
 
         [[nodiscard]] Item* GetItem() const;
-
-        [[nodiscard]] const DesignVector2D& GetPosition() const;
-
-        [[nodiscard]] const DesignVector2D& GetSize() const;
-
-        void SetSize(const DesignVector2D& size);
-
-        void SetPosition(const DesignVector2D& position);
 
         [[nodiscard]] std::unique_ptr<Item> TakeAllItem() const;
 

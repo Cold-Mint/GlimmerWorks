@@ -68,7 +68,7 @@ Rml::ElementDocument* glimmer::Scene::LoadDocumentByName(const Rml::String& name
 
 void glimmer::Scene::OnResumeScene()
 {
-    ShowAllElementDocuments();
+    RestoreHiddenElementDocuments();
 }
 
 void glimmer::Scene::OnConfigChanged(const Config* config)
@@ -212,10 +212,39 @@ Rml::ElementDocument* glimmer::Scene::GetDocument(const Rml::String& name) const
     return it != namedDocuments_.end() ? it->second : nullptr;
 }
 
+void glimmer::Scene::HideAllElementDocuments()
+{
+    visibleElementDocumentsSnapshot_.clear();
+    for (auto elementDocument : elementDocumentSet_)
+    {
+        if (elementDocument == nullptr)
+        {
+            continue;
+        }
+        if (elementDocument->IsVisible())
+        {
+            elementDocument->Hide();
+            visibleElementDocumentsSnapshot_.insert(elementDocument);
+        }
+    }
+}
+
+void glimmer::Scene::RestoreHiddenElementDocuments()
+{
+    for (auto elementDocument : visibleElementDocumentsSnapshot_)
+    {
+        if (elementDocument == nullptr)
+        {
+            continue;
+        }
+        elementDocument->Show();
+    }
+    visibleElementDocumentsSnapshot_.clear();
+}
+
 void glimmer::Scene::HideDocument(const Rml::String& name) const
 {
-    Rml::ElementDocument* document = GetDocument(name);
-    if (document != nullptr)
+    if (Rml::ElementDocument* document = GetDocument(name); document != nullptr)
     {
         document->Hide();
     }
@@ -223,8 +252,7 @@ void glimmer::Scene::HideDocument(const Rml::String& name) const
 
 void glimmer::Scene::ShowDocument(const Rml::String& name) const
 {
-    Rml::ElementDocument* document = GetDocument(name);
-    if (document != nullptr)
+    if (Rml::ElementDocument* document = GetDocument(name); document != nullptr)
     {
         document->Show();
     }
@@ -264,8 +292,7 @@ Rml::Element* glimmer::Scene::FindElementById(const Rml::String& elementId) cons
     {
         if (doc != nullptr)
         {
-            Rml::Element* element = doc->GetElementById(elementId.c_str());
-            if (element != nullptr)
+            if (Rml::Element* element = doc->GetElementById(elementId); element != nullptr)
             {
                 return element;
             }
@@ -274,13 +301,14 @@ Rml::Element* glimmer::Scene::FindElementById(const Rml::String& elementId) cons
     return nullptr;
 }
 
-void FindElementRecursively(Rml::Element* parent, const Rml::String& attrName, const Rml::String& attrValue, Rml::Element*& result)
+void FindElementRecursively(Rml::Element* parent, const Rml::String& attrName, const Rml::String& attrValue,
+                            Rml::Element*& result)
 {
     if (parent == nullptr || result != nullptr)
     {
         return;
     }
-    Rml::String value = parent->GetAttribute<Rml::String>(attrName.c_str(), "");
+    auto value = parent->GetAttribute<Rml::String>(attrName.c_str(), "");
     if (value == attrValue)
     {
         result = parent;
@@ -354,30 +382,6 @@ Rml::Element* glimmer::Scene::FindElementByText(const Rml::String& text) const
         }
     }
     return nullptr;
-}
-
-void glimmer::Scene::HideAllElementDocuments() const
-{
-    for (auto elementDocument : elementDocumentSet_)
-    {
-        if (elementDocument == nullptr)
-        {
-            continue;
-        }
-        elementDocument->Hide();
-    }
-}
-
-void glimmer::Scene::ShowAllElementDocuments() const
-{
-    for (auto elementDocument : elementDocumentSet_)
-    {
-        if (elementDocument == nullptr)
-        {
-            continue;
-        }
-        elementDocument->Show();
-    }
 }
 
 void glimmer::Scene::CloseAllElementDocuments()

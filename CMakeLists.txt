@@ -413,7 +413,6 @@ target_sources(GlimmerWorks
         core/ecs/component/CraftPreviewSlotComponent.cpp
         core/ecs/component/DebugDrawComponent.cpp
         core/ecs/component/DiggingComponent.cpp
-        core/ecs/component/DraggableComponent.cpp
         core/ecs/component/DroppedItemComponent.cpp
         core/ecs/component/FloatingTextComponent.cpp
         core/ecs/component/HotBarComponent.cpp
@@ -441,21 +440,15 @@ target_sources(GlimmerWorks
         core/ecs/system/BiomeBGMSystem.cpp
         core/ecs/system/BlueprintSystem.cpp
         core/ecs/system/Box2dSystemContext.cpp
-        core/ecs/system/ButtonSystem.cpp
         core/ecs/system/CameraSystem.cpp
         core/ecs/system/ChunkSystem.cpp
-        core/ecs/system/CraftPreviewSlotSystem.cpp
         core/ecs/system/DebugDrawBox2dSystem.cpp
         core/ecs/system/DebugDrawSystem.cpp
         core/ecs/system/DebugMultiMapSystem.cpp
         core/ecs/system/DebugPanelSystem.cpp
         core/ecs/system/DiggingSystem.cpp
-        core/ecs/system/DraggableSystem.cpp
         core/ecs/system/DroppedItemSystem.cpp
         core/ecs/system/FloatingTextSystem.cpp
-        core/ecs/system/ItemSlotQuantitySystem.cpp
-        core/ecs/system/ItemSlotSystem.cpp
-        core/ecs/system/ItemToolTipSystem.cpp
         core/ecs/system/Light2DSystem.cpp
         core/ecs/system/MagnetSystem.cpp
         core/ecs/system/ParallaxBackgroundSystem.cpp
@@ -784,7 +777,6 @@ target_sources(GlimmerWorks
         core/ecs/component/CraftPreviewSlotComponent.h
         core/ecs/component/DebugDrawComponent.h
         core/ecs/component/DiggingComponent.h
-        core/ecs/component/DraggableComponent.h
         core/ecs/component/DroppedItemComponent.h
         core/ecs/component/FloatingTextComponent.h
         core/ecs/component/HotBarComponent.h
@@ -811,20 +803,14 @@ target_sources(GlimmerWorks
         core/ecs/system/BiomeBGMSystem.h
         core/ecs/system/BlueprintSystem.h
         core/ecs/system/Box2dSystemContext.h
-        core/ecs/system/ButtonSystem.h
         core/ecs/system/ChunkSystem.h
-        core/ecs/system/CraftPreviewSlotSystem.h
         core/ecs/system/DebugDrawBox2dSystem.h
         core/ecs/system/DebugDrawSystem.h
         core/ecs/system/DebugMultiMapSystem.h
         core/ecs/system/DebugPanelSystem.h
         core/ecs/system/DiggingSystem.h
-        core/ecs/system/DraggableSystem.h
         core/ecs/system/DroppedItemSystem.h
         core/ecs/system/FloatingTextSystem.h
-        core/ecs/system/ItemSlotQuantitySystem.h
-        core/ecs/system/ItemSlotSystem.h
-        core/ecs/system/ItemToolTipSystem.h
         core/ecs/system/Light2DSystem.h
         core/ecs/system/MagnetSystem.h
         core/ecs/system/ParallaxBackgroundSystem.h

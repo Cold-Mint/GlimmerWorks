@@ -320,6 +320,7 @@ static constexpr uint8_t RENDER_ORDER_FLOATING_TEXT = 13;
 static constexpr uint8_t RENDER_ORDER_DRAGGABLE = 14;
 static constexpr uint8_t RENDER_ORDER_BLUEPRINT = 15;
 static constexpr uint8_t RENDER_ORDER_CRAFT_PREVIEW_SLOT = 16;
+static constexpr uint8_t RENDER_ORDER_HOT_BAR_GUI = 5;
 static constexpr uint8_t RENDER_ORDER_INVENTORY_CRAFT_GUI = 17;
 static constexpr uint8_t RENDER_ORDER_MATERIAL_SELECT_CRAFT_UI = 18;
 static constexpr uint8_t RENDER_ORDER_ITEM_SLOT_QUANTITY = 19;

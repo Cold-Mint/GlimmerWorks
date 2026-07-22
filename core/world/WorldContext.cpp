@@ -63,11 +63,21 @@ void glimmer::WorldContext::SetDragMode(const bool dragMode)
 
 glimmer::EntityManager* glimmer::WorldContext::GetEntityManager() const
 {
+    if (entityManager_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "entityManager is nullptr");
+        return nullptr;
+    }
     return entityManager_.get();
 }
 
 glimmer::EntityShortCut* glimmer::WorldContext::GetEntityShortCut() const
 {
+    if (entityShortCut_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "entityShortCut is nullptr");
+        return nullptr;
+    }
     return entityShortCut_.get();
 }
 
@@ -83,6 +93,11 @@ void glimmer::WorldContext::SetRuning(const bool run)
 
 glimmer::Saves* glimmer::WorldContext::GetSaves() const
 {
+    if (saves_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "saves is nullptr");
+        return nullptr;
+    }
     return saves_;
 }
 
@@ -124,27 +139,48 @@ bool glimmer::WorldContext::IsEmptyEntityId(const uint32_t id)
 
 glimmer::ChunkManager* glimmer::WorldContext::GetChunkManager() const
 {
+    if (chunkManager_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "chunkManager is nullptr");
+        return nullptr;
+    }
     return chunkManager_.get();
 }
 
 glimmer::TerrainManager* glimmer::WorldContext::GetTerrainManager() const
 {
+    if (terrainManager_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "terrainManager is nullptr");
+        return nullptr;
+    }
     return terrainManager_.get();
 }
 
 glimmer::SystemScheduler* glimmer::WorldContext::GetSystemScheduler() const
 {
+    if (systemScheduler_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "SystemScheduler is nullptr");
+        return nullptr;
+    }
     return systemScheduler_.get();
 }
 
 glimmer::PlayerContext* glimmer::WorldContext::GetPlayerContext() const
 {
+    if (playerContext_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "playerContext is nullptr");
+        return nullptr;
+    }
     return playerContext_.get();
 }
 
 
 void glimmer::WorldContext::SaveEntity(EntityItemMessage* entityItemMessage, const GameEntityID entityId) const
 {
+    LogCat::d("SaveEntity: entityId=", entityId);
     entityItemMessage->mutable_gameentity()->set_id(entityId);
     const ResourceRef* resourceRef = entityManager_->GetResourceRef(entityId);
     if (resourceRef != nullptr)
@@ -163,6 +199,7 @@ void glimmer::WorldContext::SaveEntity(EntityItemMessage* entityItemMessage, con
             componentMessage->set_data(stringOptional.value());
         }
     }
+    LogCat::d("SaveEntity completed: entityId=", entityId, ", components=", components.size());
 }
 
 void glimmer::WorldContext::SaveGame()
@@ -206,6 +243,11 @@ void glimmer::WorldContext::SaveGame()
         SaveEntity(playerMessage.mutable_entity(), player);
         (void)saves->WritePlayer(playerMessage);
         LogCat::i("Player saved");
+    }
+    else
+    {
+        LogCat::d("Player save skipped: isEmpty=", IsEmptyEntityId(player), ", persistable=",
+                  entityManager_->IsPersistable(player));
     }
 
     auto allChunks = chunkManager_->GetAllChunks();
@@ -262,6 +304,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     chunkManager_ = std::make_unique<ChunkManager>(this);
     terrainManager_ = std::make_unique<TerrainManager>(this);
     playerContext_ = std::make_unique<PlayerContext>(this);
+    LogCat::i("Core subsystems created: ChunkManager, TerrainManager, PlayerContext");
 
     ResourceRef playerResourceRef{};
     playerResourceRef.ReadResource(*appContext->GetModContext()->GetMobManager()->GetPlayerResourceList()[0],
@@ -280,6 +323,7 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
         entityManager_->AddComponent<ItemToolTipComponent>(entityManager_->AddEntity()));
     systemScheduler_ = std::make_unique<SystemScheduler>(this);
     systemScheduler_->InitSystem();
+    LogCat::i("Player initialized, SystemScheduler initialized");
     LogCat::i("WorldContext created successfully");
 }
 
@@ -288,12 +332,14 @@ glimmer::WorldContext::~WorldContext()
     LogCat::i("Destroying WorldContext: worldName=", mapManifest_ ? mapManifest_->name : "unknown");
     playerContext_.reset();
     systemScheduler_.reset();
+    LogCat::d("PlayerContext and SystemScheduler released");
     if (entityManager_)
     {
         entityManager_->Clear();
     }
     chunkManager_.reset();
     terrainManager_.reset();
+    LogCat::d("EntityManager cleared, ChunkManager and TerrainManager released");
     b2DestroyWorld(worldId_);
     worldId_ = b2_nullWorldId;
     if (appContext_)

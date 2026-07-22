@@ -48,21 +48,7 @@
 void glimmer::AppContext::LoadLanguage(const std::string& data)
 {
     auto tomlValue = toml::parse_str(data, tomlVersion_);
-    langsResources_->startGame = find<std::string>(tomlValue, "start_game");
-    langsResources_->settings = find<std::string>(tomlValue, "settings");
-    langsResources_->mods = find<std::string>(tomlValue, "mods");
-    langsResources_->exitGame = find<std::string>(tomlValue, "exit_game");
-    langsResources_->console = find<std::string>(tomlValue, "console");
-    langsResources_->commandNotFound = find<std::string>(tomlValue, "command_not_found");
-    langsResources_->executionFailed = find<std::string>(tomlValue, "execution_failed");
-    langsResources_->executedSuccess = find<std::string>(tomlValue, "executed_success");
-    langsResources_->commandIsEmpty = find<std::string>(tomlValue, "command_is_empty");
-    langsResources_->createWorld = find<std::string>(tomlValue, "create_world");
     langsResources_->savedGames = find<std::string>(tomlValue, "saved_games");
-    langsResources_->cancel = find<std::string>(tomlValue, "cancel");
-    langsResources_->worldName = find<std::string>(tomlValue, "world_name");
-    langsResources_->seed = find<std::string>(tomlValue, "seed");
-    langsResources_->random = find<std::string>(tomlValue, "random");
     langsResources_->commandInfo = find<std::string>(tomlValue, "command_info");
     langsResources_->awakeBodyCount = find<std::string>(tomlValue, "awake_body_count");
     langsResources_->getActualPathError = find<std::string>(tomlValue, "get_actual_path_error");
@@ -70,32 +56,17 @@ void glimmer::AppContext::LoadLanguage(const std::string& data)
     langsResources_->unknownCommandParameters = find<std::string>(tomlValue, "unknown_command_parameters");
     langsResources_->worldContextIsNull = find<std::string>(tomlValue, "world_context_is_null");
     langsResources_->cheatsNotAllowed = find<std::string>(tomlValue, "cheats_not_allowed");
-    langsResources_->allowCheats = find<std::string>(tomlValue, "allow_cheats");
     langsResources_->insufficientParameterLength = find<std::string>(tomlValue, "insufficient_parameter_length");
-    langsResources_->entryCannotFoundInConfigurationFile = find<std::string>(
-        tomlValue, "entry_cannot_found_in_configuration_file");
     langsResources_->configurationUpdate = find<std::string>(tomlValue, "configuration_update");
     langsResources_->itemIdNotFound = find<std::string>(tomlValue, "item_id_not_found");
     langsResources_->lootTableNotFound = find<std::string>(tomlValue, "loot_table_not_found");
     langsResources_->itemContainerIsNull = find<std::string>(tomlValue, "item_container_is_null");
     langsResources_->composableItemIsNull = find<std::string>(tomlValue, "composable_item_is_null");
-    langsResources_->abilityItemIsNull = find<std::string>(tomlValue, "ability_item_is_null");
     langsResources_->itemResourceIsNull = find<std::string>(tomlValue, "item_resource_is_null");
     langsResources_->tileResourceIsNull = find<std::string>(tomlValue, "tile_resource_is_null");
-    langsResources_->minXIsGreaterThanMaxX = find<std::string>(tomlValue, "min_x_is_greater_than_max_x");
-    langsResources_->folderCreationFailed = find<std::string>(tomlValue, "folder_creation_failed");
-    langsResources_->fileWritingFailed = find<std::string>(tomlValue, "file_writing_failed");
     langsResources_->failedToLoadLicense = find<std::string>(tomlValue, "failed_to_load_license");
     langsResources_->cantFindObject = find<std::string>(tomlValue, "cant_find_object");
     langsResources_->teleportEntity = find<std::string>(tomlValue, "teleport_entity");
-    langsResources_->loadGame = find<std::string>(tomlValue, "load_game");
-    langsResources_->deleteGame = find<std::string>(tomlValue, "delete_game");
-    langsResources_->confirm = find<std::string>(tomlValue, "confirm");
-    langsResources_->wantDeleteThisSave = find<std::string>(tomlValue, "want_delete_this_save");
-    langsResources_->savesList = find<std::string>(tomlValue, "saves_list");
-    langsResources_->pause = find<std::string>(tomlValue, "pause");
-    langsResources_->restore = find<std::string>(tomlValue, "restore");
-    langsResources_->saveAndExit = find<std::string>(tomlValue, "save_and_exit");
     langsResources_->screenshotSavedSuccess = find<std::string>(tomlValue, "screenshot_saved_success");
     langsResources_->screenshotSavedFailed = find<std::string>(tomlValue, "screenshot_saved_failed");
     langsResources_->areaMarkerTip = find<std::string>(tomlValue, "area_marker_tip");
@@ -189,7 +160,6 @@ void glimmer::AppContext::LoadLanguage(const std::string& data)
     langsResources_->itemEditorReadAttr = find<std::string>(tomlValue, "item_editor_read_attr");
     langsResources_->itemEditorSetAttr = find<std::string>(tomlValue, "item_editor_set_attr");
     langsResources_->playerDoesNotExist = find<std::string>(tomlValue, "player_does_not_exist");
-    langsResources_->craft = find<std::string>(tomlValue, "craft");
     langsResources_->technologyItem = find<std::string>(tomlValue, "technology_item");
     langsResources_->tagItem = find<std::string>(tomlValue, "tag_item");
     langsResources_->tagCannotFound = find<std::string>(tomlValue, "tag_cannot_found");

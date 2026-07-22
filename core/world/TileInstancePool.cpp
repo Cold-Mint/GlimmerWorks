@@ -27,19 +27,38 @@
 #include "TileInstancePool.h"
 
 #include "Tile.h"
+#include "core/log/LogCat.h"
 
 
-std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppContext *appContext,
-                                                                     const TileResource *tileResource,
-                                                                     uint64_t fingerprint) {
-    if (const auto cache = tileInstanceMap_.find(fingerprint); cache != tileInstanceMap_.end()) {
-        if (auto cachePtr = cache->second.lock()) {
+glimmer::TileInstancePool::~TileInstancePool()
+{
+    for (auto& [fingerprint, weakTile] : tileInstanceMap_)
+    {
+        if (!weakTile.expired())
+        {
+            LogCat::e(std::source_location::current(), "A memory leak of the tile fingerprint (", fingerprint,
+                      ") has been detected.");
+            break;
+        }
+    }
+    tileInstanceMap_.clear();
+}
+
+std::shared_ptr<glimmer::Tile> glimmer::TileInstancePool::CreateTile(const AppContext* appContext,
+                                                                     const TileResource* tileResource,
+                                                                     uint64_t fingerprint)
+{
+    if (const auto cache = tileInstanceMap_.find(fingerprint); cache != tileInstanceMap_.end())
+    {
+        if (auto cachePtr = cache->second.lock())
+        {
             return cachePtr;
         }
         tileInstanceMap_.erase(cache);
     }
     auto unique_tile = Tile::FromTileResource(appContext, tileResource);
-    auto deleter = [this, fingerprint](Tile *) {
+    auto deleter = [this, fingerprint](Tile*)
+    {
         tileInstanceMap_.erase(fingerprint);
     };
     std::shared_ptr<Tile> tile(unique_tile.release(), std::move(deleter));

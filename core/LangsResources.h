@@ -32,20 +32,6 @@ namespace glimmer
 {
     struct LangsResources
     {
-        std::string startGame;
-        std::string settings;
-        std::string mods;
-        std::string exitGame;
-        std::string console;
-        std::string commandNotFound;
-        std::string executionFailed;
-        std::string executedSuccess;
-        std::string commandIsEmpty;
-        std::string createWorld;
-        std::string cancel;
-        std::string worldName;
-        std::string seed;
-        std::string random;
         std::string commandInfo;
         std::string awakeBodyCount;
         std::string getActualPathError;
@@ -53,32 +39,18 @@ namespace glimmer
         std::string unknownCommandParameters;
         std::string worldContextIsNull;
         std::string cheatsNotAllowed;
-        std::string allowCheats;
         std::string insufficientParameterLength;
-        std::string entryCannotFoundInConfigurationFile;
         std::string configurationUpdate;
         std::string itemIdNotFound;
         std::string lootTableNotFound;
         std::string itemContainerIsNull;
         std::string composableItemIsNull;
-        std::string abilityItemIsNull;
         std::string tileResourceIsNull;
         std::string itemResourceIsNull;
-        std::string minXIsGreaterThanMaxX;
-        std::string folderCreationFailed;
-        std::string fileWritingFailed;
         std::string failedToLoadLicense;
         std::string cantFindObject;
         std::string teleportEntity;
         std::string savedGames;
-        std::string loadGame;
-        std::string deleteGame;
-        std::string confirm;
-        std::string wantDeleteThisSave;
-        std::string savesList;
-        std::string pause;
-        std::string restore;
-        std::string saveAndExit;
         std::string screenshotSavedFailed;
         std::string screenshotSavedSuccess;
         std::string areaMarkerTip;
@@ -165,7 +137,6 @@ namespace glimmer
         std::string itemEditorReadAttr;
         std::string itemEditorSetAttr;
         std::string playerDoesNotExist;
-        std::string craft;
         std::string technologyItem;
         std::string tagItem;
         std::string tagCannotFound;

@@ -32,7 +32,6 @@
 
 #include "LightBuffer.h"
 #include "TileInstancePool.h"
-#include "core/ecs/EcsTypes.h"
 #include "core/math/Vector2DIHash.h"
 #include "generator/Chunk.h"
 
@@ -78,6 +77,8 @@ namespace glimmer
 
     public:
         explicit ChunkManager(WorldContext* worldContext);
+
+        ~ChunkManager();
 
         /**
         * Load Chunk

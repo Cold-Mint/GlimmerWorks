@@ -44,7 +44,7 @@ void glimmer::SplashScene::LoadDocuments()
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("splash/splash");
+    resourceRef.SetResourceKey("pages/splash/splash");
     LoadSingleDocument(&resourceRef);
 }
 

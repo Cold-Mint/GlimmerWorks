@@ -347,6 +347,7 @@ target_sources(GlimmerWorks
         core/console/command/ParallaxBackgroundCommand.cpp
         core/console/command/PlaceCommand.cpp
         core/console/command/PlayCommand.cpp
+        core/console/command/RmlDebugCommand.cpp
         core/console/command/SceneCommand.cpp
         core/console/command/ScreenshotCommand.cpp
         core/console/command/SeedCommand.cpp
@@ -377,6 +378,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/MobDynamicSuggestions.cpp
         core/console/suggestion/MouseButtonDynamicSuggestions.cpp
         core/console/suggestion/ScanKeyDynamicSuggestions.cpp
+        core/console/suggestion/SceneDynamicSuggestions.cpp
         core/console/suggestion/StructureDynamicSuggestions.cpp
         core/console/suggestion/TileDynamicSuggestions.cpp
         core/console/suggestion/VFSDynamicSuggestions.cpp
@@ -408,7 +410,6 @@ target_sources(GlimmerWorks
         core/ecs/component/AreaMarkerComponent.cpp
         core/ecs/component/AutoPickComponent.cpp
         core/ecs/component/BlueprintComponent.cpp
-        core/ecs/component/ButtonComponent.cpp
         core/ecs/component/CameraComponent.cpp
         core/ecs/component/CraftPreviewSlotComponent.cpp
         core/ecs/component/DebugDrawComponent.cpp
@@ -708,6 +709,7 @@ target_sources(GlimmerWorks
         core/console/command/ParallaxBackgroundCommand.h
         core/console/command/PlaceCommand.h
         core/console/command/PlayCommand.h
+        core/console/command/RmlDebugCommand.h
         core/console/command/SceneCommand.h
         core/console/command/ScreenshotCommand.h
         core/console/command/SeedCommand.h
@@ -738,6 +740,7 @@ target_sources(GlimmerWorks
         core/console/suggestion/MobDynamicSuggestions.h
         core/console/suggestion/MouseButtonDynamicSuggestions.h
         core/console/suggestion/ScanKeyDynamicSuggestions.h
+        core/console/suggestion/SceneDynamicSuggestions.h
         core/console/suggestion/StructureDynamicSuggestions.h
         core/console/suggestion/TileDynamicSuggestions.h
         core/console/suggestion/VFSDynamicSuggestions.h
@@ -772,7 +775,6 @@ target_sources(GlimmerWorks
         core/ecs/component/AreaMarkerComponent.h
         core/ecs/component/AutoPickComponent.h
         core/ecs/component/BlueprintComponent.h
-        core/ecs/component/ButtonComponent.h
         core/ecs/component/CameraComponent.h
         core/ecs/component/CraftPreviewSlotComponent.h
         core/ecs/component/DebugDrawComponent.h
@@ -1005,9 +1007,9 @@ target_compile_definitions(GlimmerWorks PRIVATE
 )
 
 if (ANDROID)
-    target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi)
+    target_link_libraries(GlimmerWorks PRIVATE ${ANDROID_LOG_LIB} android SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger)
 else ()
-    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi)
+    target_link_libraries(GlimmerWorks PRIVATE SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer fmt::fmt SDL3_ttf::SDL3_ttf box2d::box2d glimmerworks::proto toml11::toml11 BLAKE3::blake3 RmlUi::RmlUi RmlUi::Debugger)
 endif ()
 
 

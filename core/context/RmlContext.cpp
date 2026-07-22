@@ -29,6 +29,7 @@
 #include "core/log/LogCat.h"
 #include "RmlUi/Core/Context.h"
 #include "RmlUi/Core/Core.h"
+#include "RmlUi/Debugger/Debugger.h"
 
 
 Rml::ElementDocument* glimmer::RmlContext::LoadDocument(const AppContext* appContext, const ResourceRef* resourceRef)
@@ -114,6 +115,9 @@ bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Rendere
     Rml::SetFontEngineInterface(gameFontEngineInterface_.get());
     Rml::Initialise();
     context_ = Rml::CreateContext("glimmerGui", Rml::Vector2i(width, height));
+#if  !defined(NDEBUG)
+    Rml::Debugger::Initialise(context_);
+#endif
     LogCat::i("RmlContext initialized successfully");
     return true;
 }

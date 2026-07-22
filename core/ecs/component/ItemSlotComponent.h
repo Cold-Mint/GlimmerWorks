@@ -25,11 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/Constants.h"
 #include "core/ecs/GameComponent.h"
 #include "core/ecs/ItemSlotType.h"
-#include "core/ecs/IVisible.h"
-#include "core/math/DesignVector2D.h"
 
 namespace glimmer
 {
@@ -40,18 +37,13 @@ namespace glimmer
     {
         ItemContainer* itemContainer_;
         uint8_t slotIndex_;
-        bool isHovered_ = false;
-        DesignDimension padding_ = ITEM_SLOT_PADDING;
         ItemSlotType itemSlotType_ = ItemSlotType::Empty;
 
     public:
         explicit ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, uint8_t slotIndex);
 
-        [[nodiscard]] DesignDimension GetPadding() const;
-
         [[nodiscard]] uint8_t GetSlotIndex() const;
 
-        void SetPadding(DesignDimension padding);
 
         [[nodiscard]] ItemSlotType GetItemSlotType() const;
 
@@ -60,10 +52,6 @@ namespace glimmer
         [[nodiscard]] std::unique_ptr<Item> TakeAllItem() const;
 
         [[nodiscard]] std::unique_ptr<Item> ReplaceItem(std::unique_ptr<Item> item) const;
-
-        [[nodiscard]] bool IsHovered() const;
-
-        void SetHovered(bool hovered);
 
         [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
 

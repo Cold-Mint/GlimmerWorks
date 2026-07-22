@@ -25,12 +25,17 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#if  !defined(NDEBUG)
 #include "core/console/Command.h"
+#include "core/scene/Scene.h"
 
 namespace glimmer
 {
     class SceneCommand final : public Command
     {
+        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
+
+
     public:
         explicit SceneCommand(AppContext* appContext);
 
@@ -42,3 +47,4 @@ namespace glimmer
                      const std::function<void(const std::string& text)>* onMessage) override;
     };
 }
+#endif

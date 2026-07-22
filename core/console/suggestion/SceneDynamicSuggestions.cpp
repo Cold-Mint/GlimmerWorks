@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,23 +24,36 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/console/Command.h"
+#include "SceneDynamicSuggestions.h"
 
-namespace glimmer
+#include "core/Constants.h"
+
+glimmer::SceneDynamicSuggestions::SceneDynamicSuggestions()
 {
-    class InputCommand final : public Command
+    sceneName_.emplace_back(SCENE_NAME_MAIN);
+    sceneName_.emplace_back(SCENE_NAME_SPLASH);
+    sceneName_.emplace_back(SCENE_NAME_SAVED_GAMES);
+    sceneName_.emplace_back(SCENE_NAME_CREATE_WORLD);
+}
+
+std::string glimmer::SceneDynamicSuggestions::GetId() const
+{
+    return SCENE_DYNAMIC_SUGGESTIONS_NAME;
+}
+
+std::vector<std::string> glimmer::SceneDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+{
+    return sceneName_;
+}
+
+bool glimmer::SceneDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
+{
+    for (auto& sceneName : sceneName_)
     {
-        void InitSuggestions(NodeTree<std::string>* suggestionsTree) override;
-
-    public:
-        explicit InputCommand(AppContext* appContext);
-
-        [[nodiscard]] const std::string& GetName() const override;
-
-        void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
-
-        bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                     const std::function<void(const std::string& text)>* onMessage) override;
-    };
+        if (sceneName == keyword)
+        {
+            return true;
+        }
+    }
+    return false;
 }

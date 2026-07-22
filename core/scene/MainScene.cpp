@@ -73,7 +73,7 @@ void glimmer::MainScene::LoadDocuments()
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("main/main");
+    resourceRef.SetResourceKey("pages/main/main");
     LoadSingleDocument(&resourceRef);
 }
 

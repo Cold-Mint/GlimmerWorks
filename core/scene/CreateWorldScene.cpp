@@ -85,7 +85,7 @@ void glimmer::CreateWorldScene::LoadDocuments()
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("create_world/create_world");
+    resourceRef.SetResourceKey("pages/create_world/create_world");
     LoadSingleDocument(&resourceRef);
 }
 

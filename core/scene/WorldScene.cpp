@@ -169,7 +169,7 @@ void glimmer::WorldScene::LoadDocuments()
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("pause/pause");
+    resourceRef.SetResourceKey("pages/pause/pause");
     Rml::ElementDocument* document = LoadSingleDocument(&resourceRef);
     if (document != nullptr)
     {
@@ -178,31 +178,13 @@ void glimmer::WorldScene::LoadDocuments()
         LogCat::i("Pause menu document loaded and hidden");
     }
 
-    resourceRef.SetResourceKey("hotbar/hotbar");
+    resourceRef.SetResourceKey("pages/hotbar/hotbar");
     document = LoadSingleDocument(&resourceRef);
     if (document != nullptr)
     {
         RegisterDocument("hotbar_menu", document);
         document->Show();
         LogCat::i("HotBar document loaded and shown");
-    }
-
-    resourceRef.SetResourceKey("inventory/inventory");
-    document = LoadSingleDocument(&resourceRef);
-    if (document != nullptr)
-    {
-        RegisterDocument("inventory_menu", document);
-        document->Hide();
-        LogCat::i("Inventory document loaded and hidden");
-    }
-
-    resourceRef.SetResourceKey("crafting/crafting");
-    document = LoadSingleDocument(&resourceRef);
-    if (document != nullptr)
-    {
-        RegisterDocument("crafting_menu", document);
-        document->Hide();
-        LogCat::i("Crafting document loaded and hidden");
     }
 }
 

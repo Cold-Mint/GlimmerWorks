@@ -82,6 +82,8 @@
 #include "core/log/LogCat.h"
 #include "AppContext.h"
 #include "core/console/command/ExitCommand.h"
+#include "core/console/command/RmlDebugCommand.h"
+#include "core/console/suggestion/SceneDynamicSuggestions.h"
 
 void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext) const
 {
@@ -94,7 +96,6 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext) const
     commandManager_->RegisterCommand(std::make_unique<LootCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<PackVerifyCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<LicenseCommand>(appContext));
-    commandManager_->RegisterCommand(std::make_unique<SceneCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<InputCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<GuiCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<SeedCommand>(appContext));
@@ -118,6 +119,8 @@ void glimmer::ConsoleContext::RegisterCommands(AppContext* appContext) const
     commandManager_->RegisterCommand(std::make_unique<TechnologyCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<TagCommand>(appContext));
     commandManager_->RegisterCommand(std::make_unique<UnlockedRecipesCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<RmlDebugCommand>(appContext));
+    commandManager_->RegisterCommand(std::make_unique<SceneCommand>(appContext));
 #endif
     commandManager_->RegisterCommand(std::make_unique<ConfigCommand>(appContext));
 }
@@ -173,6 +176,7 @@ bool glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vf
 
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<LootSuggestions>(modContext->GetLootTableManager()));
+    dynamicSuggestionsManager_->RegisterDynamicSuggestions(std::make_unique<SceneDynamicSuggestions>());
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<StructureDynamicSuggestions>(modContext->GetStructureManager()));
 

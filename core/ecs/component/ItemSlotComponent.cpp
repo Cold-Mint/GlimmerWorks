@@ -36,19 +36,9 @@ glimmer::ItemSlotComponent::ItemSlotComponent(ItemSlotType itemSlot, ItemContain
 {
 }
 
-DesignDimension glimmer::ItemSlotComponent::GetPadding() const
-{
-    return padding_;
-}
-
 uint8_t glimmer::ItemSlotComponent::GetSlotIndex() const
 {
     return slotIndex_;
-}
-
-void glimmer::ItemSlotComponent::SetPadding(const DesignDimension padding)
-{
-    padding_ = padding;
 }
 
 glimmer::ItemSlotType glimmer::ItemSlotComponent::GetItemSlotType() const
@@ -70,17 +60,6 @@ std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::TakeAllItem() const
 std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::ReplaceItem(std::unique_ptr<Item> item) const
 {
     return itemContainer_->ReplaceItem(slotIndex_, std::move(item));
-}
-
-
-bool glimmer::ItemSlotComponent::IsHovered() const
-{
-    return isHovered_;
-}
-
-void glimmer::ItemSlotComponent::SetHovered(const bool hovered)
-{
-    isHovered_ = hovered;
 }
 
 GameComponentTypeMessage glimmer::ItemSlotComponent::GetComponentTypeStatic()

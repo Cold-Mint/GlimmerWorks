@@ -25,7 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "SceneCommand.h"
-
+#if  !defined(NDEBUG)
 #include <string>
 
 #include "fmt/xchar.h"
@@ -38,182 +38,179 @@
 #include "core/scene/SceneManager.h"
 #include "core/scene/MainThreadDispatcher.h"
 #include "core/Constants.h"
-#include "core/log/LogCat.h"
 
-namespace glimmer
+void glimmer::SceneCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
 {
+    suggestionsTree->AddChild("push")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("replace")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("pop")->AddChild(SCENE_DYNAMIC_SUGGESTIONS_NAME);
+    suggestionsTree->AddChild("list");
+}
 
-    SceneCommand::SceneCommand(AppContext* appContext) : Command(appContext)
+glimmer::SceneCommand::SceneCommand(AppContext* appContext) : Command(appContext)
+{
+}
+
+const std::string& glimmer::SceneCommand::GetName() const
+{
+    return SCENE_COMMAND_NAME;
+}
+
+void glimmer::SceneCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
+{
+    if (commandArgs == nullptr || strings == nullptr)
     {
+        return;
     }
-
-    const std::string& SceneCommand::GetName() const
+    strings->emplace_back("[action:string]");
+    const int size = commandArgs->GetSize();
+    if (size > 1)
     {
-        return SCENE_COMMAND_NAME;
-    }
-
-    void SceneCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-    {
-        if (commandArgs == nullptr || strings == nullptr)
+        const std::string action = commandArgs->AsString(1);
+        if (action != "list")
         {
-            return;
+            strings->emplace_back("[sceneName:string]");
         }
-        strings->emplace_back("[push|replace|pop|list]");
-        strings->emplace_back("[sceneName:string]");
-    }
-
-    bool SceneCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                               const std::function<void(const std::string& text)>* onMessage)
-    {
-        AppContext* appContext = GetAppContext();
-        if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-        {
-            return false;
-        }
-        const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-        const LangsResources* langsResources = appContext->GetLangsResources();
-        if (langsResources == nullptr)
-        {
-            return false;
-        }
-
-        const int size = commandArgs->GetSize();
-        if (size < 2)
-        {
-            onMessageRef(fmt::format(
-                fmt::runtime(langsResources->insufficientParameterLength),
-                2, size));
-            return false;
-        }
-
-        std::string action = commandArgs->AsString(1);
-
-        if (action == "list")
-        {
-            onMessageRef("Available scenes:");
-            onMessageRef("  - main: Main menu scene");
-            onMessageRef("  - splash: Splash screen scene");
-            onMessageRef("  - savedGames: Saved games scene");
-            onMessageRef("  - createWorld: Create world scene");
-            onMessageRef("Note: world scene cannot be created directly, use createWorld scene instead");
-            onMessageRef("Scene stack count: " + std::to_string(appContext->GetSceneManager()->GetSceneCount()));
-            return true;
-        }
-
-        if (action == "pop")
-        {
-            appContext->GetMainThreadDispatcher()->PostToNextMainFrame([appContext]()
-            {
-                appContext->GetSceneManager()->PopScene();
-            });
-            onMessageRef("Scene pop scheduled for next frame");
-            return true;
-        }
-
-        if (size < 3)
-        {
-            onMessageRef(fmt::format(
-                fmt::runtime(langsResources->insufficientParameterLength),
-                3, size));
-            return false;
-        }
-
-        std::string sceneName = commandArgs->AsString(2);
-        SceneManager* sceneManager = appContext->GetSceneManager();
-
-        if (action == "push")
-        {
-            MainThreadDispatcher* dispatcher = appContext->GetMainThreadDispatcher();
-            
-            if (sceneName == "main")
-            {
-                dispatcher->PostToNextMainFrame([appContext]()
-                {
-                    appContext->GetSceneManager()->PushScene(std::make_unique<MainScene>(appContext));
-                });
-            }
-            else if (sceneName == "splash")
-            {
-                dispatcher->PostToNextMainFrame([appContext]()
-                {
-                    appContext->GetSceneManager()->PushScene(std::make_unique<SplashScene>(appContext));
-                });
-            }
-            else if (sceneName == "savedGames")
-            {
-                dispatcher->PostToNextMainFrame([appContext]()
-                {
-                    appContext->GetSceneManager()->PushScene(std::make_unique<SavedGamesScene>(appContext));
-                });
-            }
-            else if (sceneName == "createWorld")
-            {
-                dispatcher->PostToNextMainFrame([appContext]()
-                {
-                    appContext->GetSceneManager()->PushScene(std::make_unique<CreateWorldScene>(appContext));
-                });
-            }
-            else if (sceneName == "world")
-            {
-                onMessageRef("World scene cannot be created directly. Use createWorld scene and click 'Create' button.");
-                return false;
-            }
-            else
-            {
-                onMessageRef("Unknown scene: " + sceneName);
-                return false;
-            }
-            onMessageRef("Scene push scheduled for next frame: " + sceneName);
-            return true;
-        }
-
-        if (action == "replace")
-        {
-            MainThreadDispatcher* dispatcher = appContext->GetMainThreadDispatcher();
-            
-            if (sceneName == "main")
-            {
-                dispatcher->PostToNextMainFrame([appContext]()
-                {
-                    appContext->GetSceneManager()->ReplaceScene(std::make_unique<MainScene>(appContext));
-                });
-            }
-            else if (sceneName == "splash")
-            {
-                dispatcher->PostToNextMainFrame([appContext]()
-                {
-                    appContext->GetSceneManager()->ReplaceScene(std::make_unique<SplashScene>(appContext));
-                });
-            }
-            else if (sceneName == "savedGames")
-            {
-                dispatcher->PostToNextMainFrame([appContext]()
-                {
-                    appContext->GetSceneManager()->ReplaceScene(std::make_unique<SavedGamesScene>(appContext));
-                });
-            }
-            else if (sceneName == "createWorld")
-            {
-                dispatcher->PostToNextMainFrame([appContext]()
-                {
-                    appContext->GetSceneManager()->ReplaceScene(std::make_unique<CreateWorldScene>(appContext));
-                });
-            }
-            else if (sceneName == "world")
-            {
-                onMessageRef("World scene cannot be created directly. Use createWorld scene and click 'Create' button.");
-                return false;
-            }
-            else
-            {
-                onMessageRef("Unknown scene: " + sceneName);
-                return false;
-            }
-            onMessageRef("Scene replace scheduled for next frame: " + sceneName);
-            return true;
-        }
-
-        onMessageRef("Unknown action: " + action);
-        return false;
     }
 }
+
+bool glimmer::SceneCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
+                                    const std::function<void(const std::string& text)>* onMessage)
+{
+    AppContext* appContext = GetAppContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
+    {
+        return false;
+    }
+    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
+    const LangsResources* langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr)
+    {
+        return false;
+    }
+
+    const int size = commandArgs->GetSize();
+    if (size < 2)
+    {
+        onMessageRef(fmt::format(
+            fmt::runtime(langsResources->insufficientParameterLength),
+            2, size));
+        return false;
+    }
+
+    const std::string action = commandArgs->AsString(1);
+    SceneManager* sceneManager = appContext->GetSceneManager();
+    if (sceneManager == nullptr)
+    {
+        return false;
+    }
+    if (action == "list")
+    {
+        onMessageRef("Available scenes:");
+        onMessageRef("Scene stack count: " + std::to_string(sceneManager->GetSceneCount()));
+        return true;
+    }
+
+    if (action == "pop")
+    {
+        appContext->GetMainThreadDispatcher()->PostToNextMainFrame([sceneManager]
+        {
+            sceneManager->PopScene();
+        });
+        onMessageRef("Scene pop scheduled for next frame");
+        return true;
+    }
+
+    if (size < 3)
+    {
+        onMessageRef(fmt::format(
+            fmt::runtime(langsResources->insufficientParameterLength),
+            3, size));
+        return false;
+    }
+    const std::string sceneName = commandArgs->AsString(2);
+    if (action == "push")
+    {
+        MainThreadDispatcher* dispatcher = appContext->GetMainThreadDispatcher();
+
+        if (sceneName == SCENE_NAME_MAIN)
+        {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager]
+            {
+                sceneManager->PushScene(std::make_unique<MainScene>(appContext));
+            });
+        }
+        else if (sceneName == SCENE_NAME_SPLASH)
+        {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager]
+            {
+                sceneManager->PushScene(std::make_unique<SplashScene>(appContext));
+            });
+        }
+        else if (sceneName == SCENE_NAME_SAVED_GAMES)
+        {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager]
+            {
+                sceneManager->PushScene(std::make_unique<SavedGamesScene>(appContext));
+            });
+        }
+        else if (sceneName == SCENE_NAME_CREATE_WORLD)
+        {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager]
+            {
+                sceneManager->PushScene(std::make_unique<CreateWorldScene>(appContext));
+            });
+        }
+        else
+        {
+            onMessageRef("Unknown scene: " + sceneName);
+            return false;
+        }
+        onMessageRef("Scene push scheduled for next frame: " + sceneName);
+        return true;
+    }
+
+    if (action == "replace")
+    {
+        MainThreadDispatcher* dispatcher = appContext->GetMainThreadDispatcher();
+
+        if (sceneName == SCENE_NAME_MAIN)
+        {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager]
+            {
+                sceneManager->ReplaceScene(std::make_unique<MainScene>(appContext));
+            });
+        }
+        else if (sceneName == SCENE_NAME_SPLASH)
+        {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager]
+            {
+                sceneManager->ReplaceScene(std::make_unique<SplashScene>(appContext));
+            });
+        }
+        else if (sceneName == SCENE_NAME_SAVED_GAMES)
+        {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager]
+            {
+                sceneManager->ReplaceScene(std::make_unique<SavedGamesScene>(appContext));
+            });
+        }
+        else if (sceneName == SCENE_NAME_CREATE_WORLD)
+        {
+            dispatcher->PostToNextMainFrame([appContext, sceneManager]
+            {
+                sceneManager->ReplaceScene(std::make_unique<CreateWorldScene>(appContext));
+            });
+        }
+        else
+        {
+            onMessageRef("Unknown scene: " + sceneName);
+            return false;
+        }
+        onMessageRef("Scene replace scheduled for next frame: " + sceneName);
+        return true;
+    }
+    onMessageRef("Unknown action: " + action);
+    return false;
+}
+#endif

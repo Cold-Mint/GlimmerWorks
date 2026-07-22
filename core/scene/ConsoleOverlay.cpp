@@ -546,7 +546,7 @@ void glimmer::ConsoleOverlay::LoadDocuments()
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("console/console");
+    resourceRef.SetResourceKey("pages/console/console");
     consoleDocument_ = LoadSingleDocument(&resourceRef);
     consoleDocument_->Hide();
     Rml::Element* consoleInput = consoleDocument_->GetElementById("console_input");

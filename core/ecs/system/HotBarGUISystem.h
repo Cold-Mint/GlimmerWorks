@@ -54,6 +54,8 @@ namespace glimmer
 
         void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
 
+        void LoadInitialHotbarItems();
+
         bool HandleEvent(const SDL_Event& event) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;

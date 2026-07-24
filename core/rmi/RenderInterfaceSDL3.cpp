@@ -43,16 +43,20 @@ Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i& text
 {
     if (!source.starts_with(TEXTURE_PREFIX))
     {
-        LogCat::w(std::source_location::current(),
-                  "Only textures with the loading path starting with \'texture://\' are supported.");
+        LogCat::e(std::source_location::current(),
+                  "Only textures with the loading path starting with \'", TEXTURE_PREFIX, "\' are supported. source=",
+                  source);
         return {};
     }
-    LogCat::i("LoadTexture = ", source);
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_TEXTURE);
-    resourceRef.SetResourceKey(source.substr(TEXTURE_PREFIX.size()));
-    std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator_->FindTexture(&resourceRef);
+    const std::string id = source.substr(TEXTURE_PREFIX.size());
+    const std::optional<ResourceRef> resourceRefOptional = ResourceRef::ParseFromId(id, RESOURCE_TEXTURE);
+    if (!resourceRefOptional.has_value())
+    {
+        LogCat::w(std::source_location::current(), "!resourceRefOptional.has_value()");
+        return {};
+    }
+    const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator_->FindTexture(
+        &resourceRefOptional.value());
     if (textureResourceResult == nullptr)
     {
         LogCat::w(std::source_location::current(), "textureResourceResult == nullptr");

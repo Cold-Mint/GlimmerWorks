@@ -33,6 +33,6 @@ namespace glimmer
     {
         bool selected = false;
         std::string image;
-        u_int8_t amount = 0;
+        int amount = 0;
     };
 }

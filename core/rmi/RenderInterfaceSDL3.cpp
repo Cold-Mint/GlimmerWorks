@@ -27,6 +27,7 @@
 #include "RenderInterfaceSDL3.h"
 
 #include "core/log/LogCat.h"
+#include "core/Constants.h"
 #include "core/utils/StringUtils.h"
 
 
@@ -40,7 +41,7 @@ glimmer::RenderInterfaceSDL3::RenderInterfaceSDL3(SDL_Renderer* renderer, Resour
 Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i& texture_dimensions,
                                                              const Rml::String& source)
 {
-    if (!source.starts_with("texture://"))
+    if (!source.starts_with(TEXTURE_PREFIX))
     {
         LogCat::w(std::source_location::current(),
                   "Only textures with the loading path starting with \'texture://\' are supported.");
@@ -50,7 +51,7 @@ Rml::TextureHandle glimmer::RenderInterfaceSDL3::LoadTexture(Rml::Vector2i& text
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_TEXTURE);
-    resourceRef.SetResourceKey(source.substr(std::strlen("texture://")));
+    resourceRef.SetResourceKey(source.substr(TEXTURE_PREFIX.size()));
     std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator_->FindTexture(&resourceRef);
     if (textureResourceResult == nullptr)
     {

@@ -88,6 +88,14 @@ namespace glimmer
         static std::string MakeRawText(std::string_view string);
 
         /**
+         * MakeTextureUrl
+         * 生成纹理 URL
+         * @param resourceKey 纹理资源键
+         * @return 纹理 URL
+         */
+        static std::string MakeTextureUrl(std::string_view resourceKey);
+
+        /**
          * Write the byte stream to a string
          * 将字节流写入到字符串
          * @param stream

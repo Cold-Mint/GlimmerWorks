@@ -108,6 +108,19 @@ std::string glimmer::StringUtils::MakeRawText(const std::string_view string)
     return fmt::format("{}{}", RAW_TEXT_PREFIX, string);
 }
 
+std::string glimmer::StringUtils::MakeTextureUrl(const std::string_view resourceKey)
+{
+    if (resourceKey.empty())
+    {
+        return "";
+    }
+    if (resourceKey.starts_with(TEXTURE_PREFIX))
+    {
+        return std::string(resourceKey);
+    }
+    return fmt::format("{}{}", TEXTURE_PREFIX, resourceKey);
+}
+
 std::optional<std::string> glimmer::StringUtils::StreamToString(const std::istream* stream)
 {
     if (!stream)

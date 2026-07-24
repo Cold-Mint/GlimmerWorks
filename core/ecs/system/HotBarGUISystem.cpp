@@ -28,6 +28,7 @@
 #include "core/log/LogCat.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 #include "core/scene/Scene.h"
+#include "core/utils/StringUtils.h"
 #include "core/world/WorldContext.h"
 #include "core/world/SystemScheduler.h"
 
@@ -44,9 +45,12 @@ glimmer::ItemSlotDataModel* glimmer::HotBarGUISystem::GetItemSlotDataModel(const
 
 glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GuiGameSystem(worldContext)
 {
+    LogCat::i("HotBarGUISystem constructor called");
+    LogCat::i("entityShortCut=", GetEntityShortCut() != nullptr ? "not null" : "nullptr");
+    itemSlots_.resize(HOT_BAR_SIZE);
+    LogCat::i("itemSlots initialized, size=", std::to_string(itemSlots_.size()));
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     Init();
-    itemSlots_.resize(HOT_BAR_SIZE);
     LogCat::i("HotBarGUISystem created");
 }
 
@@ -60,12 +64,14 @@ glimmer::HotBarGUISystem::~HotBarGUISystem()
 
 void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    LogCat::i("OnWatchedComponentChanged called, type=", std::to_string((int)gameComponentType), ", count=", std::to_string(count));
     if (gameComponentType != COMPONENT_ITEM_CONTAINER)
     {
         return;
     }
     if (itemContainer_ != nullptr)
     {
+        LogCat::i("itemContainer already set, skipping");
         return;
     }
     const EntityShortCut* entityShortCut = GetEntityShortCut();
@@ -88,23 +94,69 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
         return;
     }
 
-    callback_ = itemContainer_->AddOnContentChanged([this](uint8_t index, Item* item, ContainerChangeType changeType)
+    LogCat::i("Loading initial hotbar items...");
+    for (uint8_t i = 0; i < HOT_BAR_SIZE; ++i)
     {
-        auto dataModel = GetItemSlotDataModel(index);
-        if (dataModel == nullptr || item == nullptr)
+        Item* item = itemContainer_->GetItem(i);
+        auto dataModel = GetItemSlotDataModel(i);
+        if (dataModel == nullptr)
         {
-            LogCat::w(std::source_location::current(), "Lack of key variables.");
-            return;
+            LogCat::w(std::source_location::current(), "dataModel is nullptr for index ", std::to_string(i));
+            continue;
         }
-        const ResourceRef* iconResourceRef = item->GetIconResourceRef();
-        dataModel->image = iconResourceRef->GetResourceKey();
-        if (const ItemStackModule* stackModule = item->GetStackModule(); stackModule == nullptr)
+        if (item == nullptr)
         {
-            dataModel->amount = 1;
+            LogCat::i("Slot ", std::to_string(i), ": empty");
+            dataModel->image = "";
+            dataModel->amount = 0;
         }
         else
         {
-            dataModel->amount = stackModule->GetAmount();
+            const ResourceRef* iconResourceRef = item->GetIconResourceRef();
+            std::string textureUrl = StringUtils::MakeTextureUrl(iconResourceRef->GetResourceKey());
+            LogCat::i("Slot ", std::to_string(i), ": item=", item->GetId(), ", icon=", textureUrl);
+            dataModel->image = textureUrl;
+            if (const ItemStackModule* stackModule = item->GetStackModule(); stackModule == nullptr)
+            {
+                dataModel->amount = 1;
+            }
+            else
+            {
+                dataModel->amount = stackModule->GetAmount();
+            }
+        }
+    }
+    LogCat::i("Initial hotbar items loaded, dirtying variable");
+    if (constructor_ != nullptr)
+    {
+        constructor_->GetModelHandle().DirtyVariable("item_slots");
+    }
+
+    callback_ = itemContainer_->AddOnContentChanged([this](uint8_t index, Item* item, ContainerChangeType changeType)
+    {
+        auto dataModel = GetItemSlotDataModel(index);
+        if (dataModel == nullptr)
+        {
+            LogCat::w(std::source_location::current(), "dataModel == nullptr");
+            return;
+        }
+        if (item == nullptr)
+        {
+            dataModel->image = "";
+            dataModel->amount = 0;
+        }
+        else
+        {
+            const ResourceRef* iconResourceRef = item->GetIconResourceRef();
+            dataModel->image = StringUtils::MakeTextureUrl(iconResourceRef->GetResourceKey());
+            if (const ItemStackModule* stackModule = item->GetStackModule(); stackModule == nullptr)
+            {
+                dataModel->amount = 1;
+            }
+            else
+            {
+                dataModel->amount = stackModule->GetAmount();
+            }
         }
         if (constructor_ != nullptr)
         {
@@ -124,15 +176,19 @@ void glimmer::HotBarGUISystem::LoadDocuments(IDocumentRegistry* documentRegistry
 
 void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)
 {
+    LogCat::i("OnCreateDataModels called");
     constructor_ = documentRegistry->CreateDataModel("hotbar");
+    LogCat::i("DataModel 'hotbar' created");
     if (auto linkStruct = constructor_->RegisterStruct<ItemSlotDataModel>())
     {
         linkStruct.RegisterMember("image", &ItemSlotDataModel::image);
         linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
         linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
         constructor_->RegisterArray<std::vector<ItemSlotDataModel>>();
+        LogCat::i("Struct members registered: image, amount, selected");
     }
     constructor_->Bind("item_slots", &itemSlots_);
+    LogCat::i("item_slots bound to data model");
 }
 
 void glimmer::HotBarGUISystem::UpdateSelectedSlot(const uint8_t beforeIndex, const uint8_t nextIndex)

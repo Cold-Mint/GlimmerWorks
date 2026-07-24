@@ -52,7 +52,7 @@ namespace glimmer
 
         void Render(SDL_Renderer* renderer) override;
 
-        uint8_t GetRenderOrder() override;
+        uint8_t GetExecutionOrder() override;
 
         bool HandleEvent(const SDL_Event& event) override;
 

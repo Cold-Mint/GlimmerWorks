@@ -33,7 +33,6 @@
 #include "core/scene/Scene.h"
 #include "core/world/WorldContext.h"
 #include "core/world/SystemScheduler.h"
-#include "RmlUi/Core/Element.h"
 
 
 glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GuiGameSystem(worldContext)
@@ -44,17 +43,11 @@ glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GuiGameS
     LogCat::i("HotBarGUISystem created");
 }
 
-uint8_t glimmer::HotBarGUISystem::GetRenderOrder()
+void glimmer::HotBarGUISystem::LoadDocuments(IDocumentRegistry* documentRegistry)
 {
-    return RENDER_ORDER_HOT_BAR_GUI;
 }
 
 glimmer::GameSystemType glimmer::HotBarGUISystem::GetGameSystemType() const
 {
     return GameSystemType::HotBarGUISystem;
-}
-
-bool glimmer::HotBarGUISystem::CanRunWhilePaused() const
-{
-    return true;
 }

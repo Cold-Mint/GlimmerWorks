@@ -31,18 +31,16 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/resourcePack/AudioManager.h"
 
-namespace glimmer
-{
-    class BiomeBGMSystem final : public GameSystem
-    {
-        BiomeResource* biomeResource_ = nullptr;
+namespace glimmer {
+    class BiomeBGMSystem final : public GameSystem {
+        BiomeResource *biomeResource_ = nullptr;
         std::shared_ptr<AudioResourceResult> audioResult_ = nullptr;
-        Transform2DComponent* playerTransform2DComponent_ = nullptr;
-        AudioManager* audioManager_ = nullptr;
-        ResourceLocator* resourceLocator_ = nullptr;
+        Transform2DComponent *playerTransform2DComponent_ = nullptr;
+        AudioManager *audioManager_ = nullptr;
+        ResourceLocator *resourceLocator_ = nullptr;
 
     public:
-        explicit BiomeBGMSystem(WorldContext* worldContext);
+        explicit BiomeBGMSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 

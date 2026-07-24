@@ -28,19 +28,16 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/GuiGameSystem.h"
 
-namespace glimmer
-{
-    class HotBarGUISystem : public GuiGameSystem
-    {
+namespace glimmer {
+    class HotBarGUISystem : public GuiGameSystem {
         uint8_t lastSelectedSlot_ = 0;
 
     public:
-        explicit HotBarGUISystem(WorldContext* worldContext);
+        explicit HotBarGUISystem(WorldContext *worldContext);
 
-        uint8_t GetRenderOrder() override;
+        void LoadDocuments(IDocumentRegistry *documentRegistry) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
-        [[nodiscard]] bool CanRunWhilePaused() const override;
     };
 }

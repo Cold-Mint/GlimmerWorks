@@ -45,16 +45,15 @@ void glimmer::Light2DSystem::OnWatchedComponentChanged(GameComponentTypeMessage 
     }
 }
 
+uint8_t glimmer::Light2DSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_LIGHT2D;
+}
+
 glimmer::Light2DSystem::Light2DSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     Init();
-}
-
-uint8_t glimmer::Light2DSystem::GetRenderOrder()
-{
-    return RENDER_ORDER_LIGHT2D;
 }
 
 void glimmer::Light2DSystem::Render(SDL_Renderer* renderer)

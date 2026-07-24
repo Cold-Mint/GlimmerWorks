@@ -39,7 +39,7 @@ namespace glimmer
         Color GetTileDebugColor(const TileVector2D& tile) const;
 
     public:
-        uint8_t GetRenderOrder() override;
+        uint8_t GetExecutionOrder() override;
 
         void Render(SDL_Renderer* renderer) override;
 

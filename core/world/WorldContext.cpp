@@ -295,21 +295,6 @@ glimmer::WorldContext::~WorldContext()
     LogCat::i("WorldContext destroyed");
 }
 
-void glimmer::WorldContext::AddDocument(const std::string& name, Rml::ElementDocument* document)
-{
-    nameToDocumentMap_[name] = document;
-}
-
-Rml::ElementDocument* glimmer::WorldContext::GetDocument(const std::string_view name)
-{
-    const auto elementDocumentIterator = nameToDocumentMap_.find(name);
-    if (elementDocumentIterator == nameToDocumentMap_.end())
-    {
-        return nullptr;
-    }
-    return elementDocumentIterator->second;
-}
-
 glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves) :
     worldSeed_(mapManifest->seed), saves_(saves), mapManifest_(mapManifest), appContext_(appContext)
 {

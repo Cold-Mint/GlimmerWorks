@@ -28,78 +28,58 @@
 
 #include "core/log/LogCat.h"
 #include "core/world/SystemScheduler.h"
-#include "core/mod/ResourceRef.h"
 #include "core/ecs/system/PauseSystem.h"
 
-glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContext> worldContext)
-    : Scene(context)
-{
+glimmer::WorldScene::WorldScene(AppContext *context, std::unique_ptr<WorldContext> worldContext)
+    : Scene(context) {
     worldContext_ = std::move(worldContext);
-    if (worldContext_ == nullptr)
-    {
+    if (worldContext_ == nullptr) {
         LogCat::e(std::source_location::current(), "worldContext is nullptr");
         return;
     }
     systemScheduler_ = worldContext_->GetSystemScheduler();
-    if (systemScheduler_ == nullptr)
-    {
+    if (systemScheduler_ == nullptr) {
         LogCat::e(std::source_location::current(), "systemScheduler is nullptr");
         return;
     }
     LogCat::i("Creating WorldScene: worldName=", worldContext_->GetMapManifest()->name);
-    if (context != nullptr)
-    {
+    if (context != nullptr) {
         context->GetWindowContext()->SetWindowTitle(
             (PROJECT_NAME + " - " + worldContext_->GetMapManifest()->name).c_str());
     }
     Init();
 }
 
-void glimmer::WorldScene::OnFrameStart()
-{
-    if (systemScheduler_ == nullptr)
-    {
+void glimmer::WorldScene::OnFrameStart() {
+    if (systemScheduler_ == nullptr) {
         return;
     }
     systemScheduler_->OnFrameStart();
 }
 
-bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
-{
-    if (systemScheduler_ == nullptr)
-    {
+bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
+    if (systemScheduler_ == nullptr) {
         return false;
     }
-    if (event.type == SDL_EVENT_KEY_DOWN && !systemScheduler_->HasAnyModalGuiOpen())
-    {
+    if (event.type == SDL_EVENT_KEY_DOWN && !systemScheduler_->HasAnyModalGuiOpen()) {
         //When a certain key is pressed and there is no system display currently active.
         //当按下某个键，且没有系统正在显示中时。
-        if (event.key.scancode == SDL_SCANCODE_E)
-        {
+        if (event.key.scancode == SDL_SCANCODE_E) {
             systemScheduler_->PushGuiSystemType(GameSystemType::InventoryCraftGUISystem);
         }
     }
     return systemScheduler_->HandleEvent(event);
 }
 
-bool glimmer::WorldScene::OnBackPressed()
-{
-    if (worldContext_ == nullptr)
-    {
+bool glimmer::WorldScene::OnBackPressed() {
+    if (systemScheduler_ == nullptr) {
         return false;
     }
-    SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
-    if (systemScheduler == nullptr)
-    {
-        return false;
-    }
-    return systemScheduler->OnBackPressed();
+    return systemScheduler_->OnBackPressed();
 }
 
-void glimmer::WorldScene::OnWindowClose()
-{
-    if (worldContext_ == nullptr)
-    {
+void glimmer::WorldScene::OnWindowClose() {
+    if (worldContext_ == nullptr) {
         return;
     }
     LogCat::i("Saving game on window close: worldName=", worldContext_->GetMapManifest()->name);
@@ -107,117 +87,38 @@ void glimmer::WorldScene::OnWindowClose()
     LogCat::i("Game saved successfully");
 }
 
-void glimmer::WorldScene::Update(float delta)
-{
-    if (worldContext_ == nullptr)
-    {
-        return;
+void glimmer::WorldScene::Update(const float delta) {
+    if (systemScheduler_ != nullptr) {
+        systemScheduler_->Update(delta);
     }
-    const SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
-    if (systemScheduler == nullptr)
-    {
-        return;
-    }
-    systemScheduler->Update(delta);
 }
 
-void glimmer::WorldScene::OnWindowSizeChanged(const int& width, const int& height)
-{
-    if (worldContext_ == nullptr)
-    {
-        return;
+void glimmer::WorldScene::OnWindowSizeChanged(const int &width, const int &height) {
+    if (systemScheduler_ != nullptr) {
+        systemScheduler_->OnWindowSizeChanged(width, height);
     }
-    const SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
-    if (systemScheduler == nullptr)
-    {
-        return;
-    }
-    systemScheduler->OnWindowSizeChanged(width, height);
 }
 
-void glimmer::WorldScene::OnConfigChanged(const Config* config)
-{
-    if (worldContext_ == nullptr)
-    {
-        return;
+void glimmer::WorldScene::OnConfigChanged(const Config *config) {
+    if (systemScheduler_ != nullptr) {
+        systemScheduler_->OnConfigChanged(config);
     }
-    SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
-    if (systemScheduler == nullptr)
-    {
-        return;
-    }
-    systemScheduler->OnConfigChanged(config);
 }
 
-void glimmer::WorldScene::Render(SDL_Renderer* renderer)
-{
-    if (worldContext_ == nullptr)
-    {
-        return;
+void glimmer::WorldScene::Render(SDL_Renderer *renderer) {
+    if (systemScheduler_ != nullptr) {
+        systemScheduler_->Render(renderer);
     }
-    if (systemScheduler_ == nullptr)
-    {
-        return;
-    }
-    systemScheduler_->Render(renderer);
 }
 
-void glimmer::WorldScene::LoadDocuments()
-{
-    //todo:实现我
-    systemScheduler_->LoadDocuments(this);
-
-    // worldScenePtr.lock();
-
-
-    // if (worldContext_ == nullptr)
-    // {
-    //     return;
-    // }
-    // ResourceRef resourceRef;
-    // resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    // resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    // resourceRef.SetResourceKey("pages/pause/pause");
-    // Rml::ElementDocument* pauseDocument = LoadSingleDocument(&resourceRef);
-    // if (pauseDocument == nullptr)
-    // {
-    //     LogCat::e(std::source_location::current(), "pauseDocument == nullptr");
-    //     return;
-    // }
-    // pauseDocument->Hide();
-    // worldContext_->AddDocument(PAUSE_DOCUMENT_NAME, pauseDocument);
+void glimmer::WorldScene::LoadDocuments() {
+    if (systemScheduler_ != nullptr) {
+        systemScheduler_->LoadDocuments(this);
+    }
 }
 
-void glimmer::WorldScene::OnCreateDataModels()
-{
-    // SystemScheduler* systemScheduler = worldContext_ != nullptr ? worldContext_->GetSystemScheduler() : nullptr;
-    // if (systemScheduler == nullptr)
-    // {
-    //     LogCat::w(std::source_location::current(), "systemScheduler is nullptr");
-    //     return;
-    // }
-    //
-    // pauseSystem_ = dynamic_cast<PauseSystem*>(systemScheduler->GetSystemByType(GameSystemType::PauseSystem));
-    // if (pauseSystem_ == nullptr)
-    // {
-    //     LogCat::w(std::source_location::current(), "PauseSystem not found");
-    //     return;
-    // }
-    //
-    Rml::DataModelConstructor* constructor = CreateDataModel("pause_system");
-    if (constructor == nullptr)
-    {
-        LogCat::e(std::source_location::current(), "Failed to create pause_system data model");
-        return;
+void glimmer::WorldScene::OnCreateDataModels() {
+    if (systemScheduler_ != nullptr) {
+        systemScheduler_->OnCreateDataModels(this);
     }
-
-    constructor->BindEventCallback("on_resume_button_click",
-                                   [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
-                                   {
-                                   });
-
-    constructor->BindEventCallback("on_save_and_exit_button_click",
-                                   [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
-                                   {
-                                   });
 }

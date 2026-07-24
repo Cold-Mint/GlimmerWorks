@@ -39,8 +39,7 @@
 #include "generator/ChunkLoader.h"
 #include "src/saves/entity_item.pb.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class Scene;
     class ParallaxBackgroundComponent;
     class TileInstancePool;
@@ -53,8 +52,7 @@ namespace glimmer
      * GameEntity has been restricted to be accessed directly only within the WorldContext. uint32_t is provided externally.
      * GameEntity 已被限制为仅在WorldContext内部直接访问。对外提供uint32_t。
      */
-    class WorldContext
-    {
+    class WorldContext {
         /**
          * World Seed
          * 世界种子
@@ -65,11 +63,11 @@ namespace glimmer
         * Game saves
         * 游戏存档
         */
-        Saves* saves_;
+        Saves *saves_;
 
         b2WorldId worldId_ = b2_nullWorldId;
-        MapManifest* mapManifest_ = nullptr;
-        AppContext* appContext_;
+        MapManifest *mapManifest_ = nullptr;
+        AppContext *appContext_;
         std::unique_ptr<EntityManager> entityManager_;
         std::unique_ptr<EntityShortCut> entityShortCut_;
         std::unique_ptr<ChunkLoader> chunkLoader_ = nullptr;
@@ -96,43 +94,38 @@ namespace glimmer
         std::unique_ptr<TerrainManager> terrainManager_;
         std::unique_ptr<SystemScheduler> systemScheduler_;
         std::unique_ptr<PlayerContext> playerContext_;
-        std::unordered_map<std::string, Rml::ElementDocument*, TransparentStringHash, std::equal_to<>>
-        nameToDocumentMap_;
 
     public:
         ~WorldContext();
 
-        void AddDocument(const std::string& name, Rml::ElementDocument* document);
 
-        [[nodiscard]] Rml::ElementDocument* GetDocument(std::string_view name);
+        WorldContext(AppContext *appContext, MapManifest *mapManifest, Saves *saves);
 
-        WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves);
+        [[nodiscard]] EntityManager *GetEntityManager() const;
 
-        [[nodiscard]] EntityManager* GetEntityManager() const;
+        [[nodiscard]] EntityShortCut *GetEntityShortCut() const;
 
-        [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
+        [[nodiscard]] Saves *GetSaves() const;
 
-        [[nodiscard]] Saves* GetSaves() const;
+        [[nodiscard]] MapManifest *GetMapManifest() const;
 
-        [[nodiscard]] MapManifest* GetMapManifest() const;
-
-        [[nodiscard]] AppContext* GetAppContext() const;
+        [[nodiscard]] AppContext *GetAppContext() const;
 
         [[nodiscard]] b2WorldId GetWorldId() const;
 
         [[nodiscard]] int GetWorldSeed() const;
 
-        [[nodiscard]] ChunkGenerator* GetChunkGenerator() const;
+        [[nodiscard]] ChunkGenerator *GetChunkGenerator() const;
 
-        [[nodiscard]] ChunkLoader* GetChunkLoader() const;
+        [[nodiscard]] ChunkLoader *GetChunkLoader() const;
 
-        [[nodiscard]] ChunkManager* GetChunkManager() const;
+        [[nodiscard]] ChunkManager *GetChunkManager() const;
 
-        [[nodiscard]] TerrainManager* GetTerrainManager() const;
+        [[nodiscard]] TerrainManager *GetTerrainManager() const;
 
-        [[nodiscard]] SystemScheduler* GetSystemScheduler() const;
+        [[nodiscard]] SystemScheduler *GetSystemScheduler() const;
 
-        [[nodiscard]] PlayerContext* GetPlayerContext() const;
+        [[nodiscard]] PlayerContext *GetPlayerContext() const;
 
         [[nodiscard]] bool IsRuning() const;
 
@@ -142,14 +135,14 @@ namespace glimmer
 
         void SetDragMode(bool dragMode);
 
-        void SaveEntity(EntityItemMessage* entityItemMessage, GameEntityID entityId) const;
+        void SaveEntity(EntityItemMessage *entityItemMessage, GameEntityID entityId) const;
 
         void SaveGame();
 
         [[nodiscard]] static bool IsEmptyEntityId(uint32_t id);
 
-        [[nodiscard]] LightBuffer* GetLightingBuffer() const;
+        [[nodiscard]] LightBuffer *GetLightingBuffer() const;
 
-        [[nodiscard]] TileInstancePool* GetTileInstancePool() const;
+        [[nodiscard]] TileInstancePool *GetTileInstancePool() const;
     };
 }

@@ -100,6 +100,10 @@ glimmer::Color glimmer::DebugMultiMapSystem::GetTileDebugColor(const TileVector2
     return ColorUtils::AverageColors(activeColors);
 }
 
+uint8_t glimmer::DebugMultiMapSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_DEBUG_MAP;
+}
+
 void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
     const EntityShortCut* entityShortCut = GetEntityShortCut();
@@ -112,11 +116,6 @@ void glimmer::DebugMultiMapSystem::OnWatchedComponentChanged(GameComponentTypeMe
     {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-}
-
-uint8_t glimmer::DebugMultiMapSystem::GetRenderOrder()
-{
-    return RENDER_ORDER_DEBUG_MAP;
 }
 
 void glimmer::DebugMultiMapSystem::Render(SDL_Renderer* renderer)

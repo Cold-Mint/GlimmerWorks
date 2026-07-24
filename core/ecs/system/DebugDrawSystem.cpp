@@ -32,66 +32,52 @@
 #include "core/world/WorldContext.h"
 
 
-void glimmer::DebugDrawSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
-{
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
-    const EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+void glimmer::DebugDrawSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) {
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    const EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
-        if (cameraTransform2DComponent_ == nullptr)
-        {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
+        if (cameraTransform2DComponent_ == nullptr) {
             cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
         }
         transform2DCount = count;
     }
-    if (gameComponentType == COMPONENT_DEBUG_DRAW)
-    {
+    if (gameComponentType == COMPONENT_DEBUG_DRAW) {
         debugDrawCount = count;
     }
-    if (transform2DCount > 0 && debugDrawCount > 0)
-    {
+    if (transform2DCount > 0 && debugDrawCount > 0) {
         entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_DEBUG_DRAW, COMPONENT_TRANSFORM_2D});
     }
 }
 
-glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::DebugDrawSystem::DebugDrawSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_DEBUG_DRAW);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
     Init();
 }
 
-void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
-{
-    EntityManager* entityManager = GetEntityManager();
-    if (cameraComponent_ == nullptr)
-    {
+void glimmer::DebugDrawSystem::Render(SDL_Renderer *renderer) {
+    EntityManager *entityManager = GetEntityManager();
+    if (cameraComponent_ == nullptr) {
         return;
     }
-    if (cameraTransform2DComponent_ == nullptr)
-    {
+    if (cameraTransform2DComponent_ == nullptr) {
         return;
     }
-    for (auto entity : entities_)
-    {
+    for (auto entity: entities_) {
         auto debugDrawComponent = entityManager->GetComponent<DebugDrawComponent>(entity);
-        if (debugDrawComponent == nullptr)
-        {
+        if (debugDrawComponent == nullptr) {
             continue;
         }
         auto worldPositionComponent = entityManager->GetComponent<Transform2DComponent>(entity);
-        if (worldPositionComponent == nullptr)
-        {
+        if (worldPositionComponent == nullptr) {
             continue;
         }
         if (!cameraComponent_->IsPointInViewport(cameraTransform2DComponent_->GetPosition(),
-                                                worldPositionComponent->GetPosition()))
-        {
+                                                 worldPositionComponent->GetPosition())) {
             continue;
         }
         const auto ScreenVector2D = CoordinateTransformer::WorldToScreen(
@@ -117,12 +103,10 @@ void glimmer::DebugDrawSystem::Render(SDL_Renderer* renderer)
     }
 }
 
-uint8_t glimmer::DebugDrawSystem::GetRenderOrder()
-{
-    return RENDER_ORDER_DEBUG_DRAW;
+uint8_t glimmer::DebugDrawSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_DEBUG_DRAW;
 }
 
-glimmer::GameSystemType glimmer::DebugDrawSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::DebugDrawSystem::GetGameSystemType() const {
     return GameSystemType::DebugDrawSystem;
 }

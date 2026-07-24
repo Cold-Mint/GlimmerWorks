@@ -138,6 +138,10 @@ bool glimmer::SystemScheduler::HasAnyModalGuiOpen() const
 
 bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event) const
 {
+    if (!worldContext_->IsRuning())
+    {
+        return false;
+    }
     bool handled = false;
     for (auto& system : activeSystems_)
     {
@@ -145,10 +149,7 @@ bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event) const
         {
             continue;
         }
-        if (!worldContext_->IsRuning() && !system->CanRunWhilePaused())
-        {
-            continue;
-        }
+
         if (system->HandleEvent(event))
         {
             handled = true;
@@ -159,13 +160,13 @@ bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event) const
 
 void glimmer::SystemScheduler::Update(const float delta) const
 {
+    if (!worldContext_->IsRuning())
+    {
+        return;
+    }
     for (auto& system : activeSystems_)
     {
         if (system == nullptr)
-        {
-            continue;
-        }
-        if (!worldContext_->IsRuning() && !system->CanRunWhilePaused())
         {
             continue;
         }
@@ -184,10 +185,6 @@ bool glimmer::SystemScheduler::OnBackPressed()
     for (const auto& system : activeSystems_)
     {
         if (system == nullptr)
-        {
-            continue;
-        }
-        if (!worldContext_->IsRuning() && !system->CanRunWhilePaused())
         {
             continue;
         }
@@ -231,33 +228,16 @@ void glimmer::SystemScheduler::LoadDocuments(IDocumentRegistry* documentRegistry
     }
 }
 
-void glimmer::SystemScheduler::RenderImGui(SDL_Renderer* renderer) const
+void glimmer::SystemScheduler::OnCreateDataModels(IDocumentRegistry* documentRegistry) const
 {
-    for (const std::unique_ptr<GameSystem>& system : activeSystems_)
+    for (auto guiGameSystem : guiGameSystems_)
     {
-#if  defined(NDEBUG)
-        system->RenderImGui(renderer);
-#else
-        SDL_Color oldColor;
-        SDL_GetRenderDrawColor(renderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
-        system->RenderImGui(renderer);
-        SDL_Color newColor;
-        SDL_GetRenderDrawColor(renderer, &newColor.r, &newColor.g, &newColor.b, &newColor.a);
-        if (oldColor.a != newColor.a || oldColor.r != newColor.r || oldColor.g != newColor.g || oldColor.b != newColor.
-            b)
-        {
-            LogCat::e(std::source_location::current(),
-                      "The color of the renderImGui has been changed by the game system.",
-                      std::to_underlying(system->GetGameSystemType()),
-                      " invoke AppContext::RestoreColorRenderer(renderer);");
-            assert(false);
-        }
-#endif
+        guiGameSystem->OnCreateDataModels(documentRegistry);
     }
 }
 
 void glimmer::SystemScheduler::NotifySystemsOfComponentChange(const GameComponentTypeMessage gameComponentType,
-                                                              const uint32_t count)
+                                                              const uint32_t count) const
 {
     NotifyActiveSystems(gameComponentType, count);
     NotifyInactiveSystems(gameComponentType, count);
@@ -290,7 +270,7 @@ void glimmer::SystemScheduler::NotifyActiveSystems(const GameComponentTypeMessag
 }
 
 void glimmer::SystemScheduler::NotifyInactiveSystems(const GameComponentTypeMessage gameComponentType,
-                                                     const uint32_t count)
+                                                     const uint32_t count) const
 {
     if (inactiveSystems_.empty())
     {
@@ -353,9 +333,10 @@ void glimmer::SystemScheduler::OnFrameStart()
     if (changed)
     {
         std::ranges::stable_sort(activeSystems_,
-                                 [](const std::unique_ptr<GameSystem>& a, const std::unique_ptr<GameSystem>& b)
+                                 [](const std::unique_ptr<GameSystem>& systemA,
+                                    const std::unique_ptr<GameSystem>& systemB)
                                  {
-                                     return a->GetRenderOrder() < b->GetRenderOrder();
+                                     return systemA->GetExecutionOrder() < systemB->GetExecutionOrder();
                                  });
     }
     for (auto& system : activeSystems_)
@@ -426,12 +407,12 @@ void glimmer::SystemScheduler::InitSystem()
     RegisterSystem(std::make_unique<AreaMarkerSystem>(worldContext_));
     RegisterSystem(std::make_unique<DiggingSystem>(worldContext_));
     RegisterSystem(std::make_unique<SpiritRendererSystem>(worldContext_));
-    RegisterSystem(std::make_unique<PauseSystem>(worldContext_));
     RegisterSystem(std::make_unique<RayCast2DSystem>(worldContext_));
     RegisterSystem(std::make_unique<BiomeBGMSystem>(worldContext_));
     RegisterSystem(std::make_unique<Light2DSystem>(worldContext_));
     RegisterSystem(std::make_unique<BlueprintSystem>(worldContext_));
     RegisterSystem(std::make_unique<TechProviderSystem>(worldContext_));
+    RegisterGuiSystem(std::make_unique<PauseSystem>(worldContext_));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(worldContext_));
@@ -461,6 +442,14 @@ void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system
 {
     if (allowRegisterSystem_)
     {
+#if  !defined(NDEBUG)
+        auto guiGameSystem = dynamic_cast<GuiGameSystem*>(system.get());
+        if (guiGameSystem != nullptr)
+        {
+            LogCat::e(std::source_location::current(), "You should use RegisterGuiSystem instead of RegisterSystem.");
+            return;
+        }
+#endif
         system->LockWatchComponent();
         inactiveSystems_.emplace_back(std::move(system));
     }

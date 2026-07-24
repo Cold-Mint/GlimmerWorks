@@ -315,31 +315,30 @@ static constexpr float PLAYER_MOVE_SPEED = 60.0F;
  * 表示无效的游戏ID
  */
 static constexpr uint32_t GAME_ENTITY_ID_INVALID = 0;
-static constexpr uint8_t RENDER_ORDER_PARALLAX_BACKGROUND = 1;
-static constexpr uint8_t RENDER_ORDER_TILE_LAYER = 2;
-static constexpr uint8_t RENDER_ORDER_DROPPED_ITEM = 3;
-static constexpr uint8_t RENDER_ORDER_ITEM_SLOT = 4;
-static constexpr uint8_t RENDER_ORDER_DIGGING = 10;
-static constexpr uint8_t RENDER_ORDER_AREA_MARKER = 11;
-static constexpr uint8_t RENDER_ORDER_SPIRIT_RENDERER = 12;
-static constexpr uint8_t RENDER_ORDER_FLOATING_TEXT = 13;
-static constexpr uint8_t RENDER_ORDER_DRAGGABLE = 14;
-static constexpr uint8_t RENDER_ORDER_BLUEPRINT = 15;
-static constexpr uint8_t RENDER_ORDER_CRAFT_PREVIEW_SLOT = 16;
-static constexpr uint8_t RENDER_ORDER_HOT_BAR_GUI = 5;
-static constexpr uint8_t RENDER_ORDER_INVENTORY_CRAFT_GUI = 17;
-static constexpr uint8_t RENDER_ORDER_MATERIAL_SELECT_CRAFT_UI = 18;
-static constexpr uint8_t RENDER_ORDER_ITEM_SLOT_QUANTITY = 19;
-static constexpr uint8_t RENDER_ORDER_BUTTON = 20;
-static constexpr uint8_t RENDER_ORDER_ITEM_TOOLTIP = 21;
-static constexpr uint8_t RENDER_ORDER_LIGHT2D = 93;
-static constexpr uint8_t RENDER_ORDER_DEBUG_DRAW = 94;
-static constexpr uint8_t RENDER_ORDER_DEBUG_CHUNK = 95;
-static constexpr uint8_t RENDER_ORDER_DEBUG_BOX2D = 96;
-static constexpr uint8_t RENDER_ORDER_DEBUG_MAP = 97;
-static constexpr uint8_t RENDER_ORDER_DEBUG_PANEL = 98;
-static constexpr uint8_t RENDER_ORDER_ANDROID_CTRL = 99;
-static constexpr uint8_t RENDER_ORDER_PAUSE = 100;
+static constexpr uint8_t EXECUTION_ORDER_PARALLAX_BACKGROUND = 1;
+static constexpr uint8_t EXECUTION_ORDER_TILE_LAYER = 2;
+static constexpr uint8_t EXECUTION_ORDER_DROPPED_ITEM = 3;
+static constexpr uint8_t EXECUTION_ORDER_ITEM_SLOT = 4;
+static constexpr uint8_t EXECUTION_ORDER_HOT_BAR_GUI = 5;
+static constexpr uint8_t EXECUTION_ORDER_DIGGING = 10;
+static constexpr uint8_t EXECUTION_ORDER_AREA_MARKER = 11;
+static constexpr uint8_t EXECUTION_ORDER_SPIRIT_RENDERER = 12;
+static constexpr uint8_t EXECUTION_ORDER_FLOATING_TEXT = 13;
+static constexpr uint8_t EXECUTION_ORDER_DRAGGABLE = 14;
+static constexpr uint8_t EXECUTION_ORDER_BLUEPRINT = 15;
+static constexpr uint8_t EXECUTION_ORDER_CRAFT_PREVIEW_SLOT = 16;
+static constexpr uint8_t EXECUTION_ORDER_INVENTORY_CRAFT_GUI = 17;
+static constexpr uint8_t EXECUTION_ORDER_MATERIAL_SELECT_CRAFT_UI = 18;
+static constexpr uint8_t EXECUTION_ORDER_ITEM_SLOT_QUANTITY = 19;
+static constexpr uint8_t EXECUTION_ORDER_ITEM_TOOLTIP = 21;
+static constexpr uint8_t EXECUTION_ORDER_LIGHT2D = 93;
+static constexpr uint8_t EXECUTION_ORDER_DEBUG_DRAW = 94;
+static constexpr uint8_t EXECUTION_ORDER_DEBUG_CHUNK = 95;
+static constexpr uint8_t EXECUTION_ORDER_DEBUG_BOX2D = 96;
+static constexpr uint8_t EXECUTION_ORDER_DEBUG_MAP = 97;
+static constexpr uint8_t EXECUTION_ORDER_DEBUG_PANEL = 98;
+static constexpr uint8_t EXECUTION_ORDER_ANDROID_CTRL = 99;
+static constexpr uint8_t EXECUTION_ORDER_GUI_SYSTEM = 255;
 
 
 static constexpr std::string TILE_ID_AIR = "air";
@@ -402,5 +401,3 @@ static constexpr int FLY_SPEED = TILE_SIZE * 25;
 static constexpr float MERGE_DURATION = 0.35F;
 static constexpr int LIGHT_CONTRIBUTION_CENTER_RAY_INDEX = -1;
 static constexpr std::string PAUSE_DOCUMENT_NAME = "pause";
-
-

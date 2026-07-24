@@ -36,6 +36,6 @@ namespace glimmer {
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
-        uint8_t GetRenderOrder() override;
+        uint8_t GetExecutionOrder() override;
     };
 }

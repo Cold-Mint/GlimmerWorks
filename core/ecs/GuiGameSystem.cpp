@@ -26,14 +26,18 @@
  */
 #include "GuiGameSystem.h"
 
-glimmer::GuiGameSystem::GuiGameSystem(WorldContext* worldContext)
-    : GameSystem(worldContext)
-{
+glimmer::GuiGameSystem::GuiGameSystem(WorldContext *worldContext)
+    : GameSystem(worldContext) {
 }
 
-void glimmer::GuiGameSystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)
-{
-
+uint8_t glimmer::GuiGameSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_GUI_SYSTEM;
 }
 
+void glimmer::GuiGameSystem::Render(SDL_Renderer *renderer) {
+    //The GUI system does not have rendering functions.
+    //Gui系统不拥有渲染函数。
+}
 
+void glimmer::GuiGameSystem::OnCreateDataModels(IDocumentRegistry *documentRegistry) {
+}

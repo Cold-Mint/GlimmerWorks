@@ -147,6 +147,10 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     }
 }
 
+uint8_t glimmer::BlueprintSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_BLUEPRINT;
+}
+
 glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext)
     : GameSystem(worldContext),
       preloadColors_(worldContext->GetAppContext()->GetGraphicsContext()->GetPreloadColors())
@@ -158,11 +162,6 @@ glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext)
     WatchComponent(COMPONENT_BLUEPRINT);
     WatchComponent(COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE);
     Init();
-}
-
-uint8_t glimmer::BlueprintSystem::GetRenderOrder()
-{
-    return RENDER_ORDER_BLUEPRINT;
 }
 
 void glimmer::BlueprintSystem::UpdateBlockRects()

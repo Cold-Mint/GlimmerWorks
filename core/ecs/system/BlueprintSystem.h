@@ -33,19 +33,17 @@
 #include "core/world/PreloadColors.h"
 #include "core/world/TileDimensions.h"
 
-namespace glimmer
-{
+namespace glimmer {
     class AppContext;
 
-    class BlueprintSystem final : public GameSystem
-    {
-        TileLayerComponent* tileLayerComponent_ = nullptr;
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
-        PreloadColors* preloadColors_ = nullptr;
-        BlueprintComponent* blueprintComponent_ = nullptr;
+    class BlueprintSystem final : public GameSystem {
+        TileLayerComponent *tileLayerComponent_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
+        PreloadColors *preloadColors_ = nullptr;
+        BlueprintComponent *blueprintComponent_ = nullptr;
         GameEntityID player = GAME_ENTITY_ID_INVALID;
-        const Tile* heldTile_ = nullptr;
+        const Tile *heldTile_ = nullptr;
         std::vector<SDL_Rect> blockRects_;
         std::vector<GameEntityID> entities_;
         uint32_t tilePlacementForbiddenZoneCount_ = 0;
@@ -60,8 +58,8 @@ namespace glimmer
          * @param tileHeight
          * @return
          */
-        std::vector<bool> CheckRectPlacementValidity(const Tile* tile, const TileVector2D& leftBottom,
-                                                     const WorldVector2D& playerPosition, uint8_t tileWidth,
+        std::vector<bool> CheckRectPlacementValidity(const Tile *tile, const TileVector2D &leftBottom,
+                                                     const WorldVector2D &playerPosition, uint8_t tileWidth,
                                                      uint8_t tileHeight) const;
 
         /**
@@ -70,38 +68,38 @@ namespace glimmer
          * @param point
          * @return
          */
-        bool IsPointBlocked(const TileVector2D& point) const;
+        bool IsPointBlocked(const TileVector2D &point) const;
 
-        bool CheckSinglePointValidity(const Tile* tile, const TileVector2D& point,
-                                      const WorldVector2D& playerPosition) const;
+        bool CheckSinglePointValidity(const Tile *tile, const TileVector2D &point,
+                                      const WorldVector2D &playerPosition) const;
 
         void UpdateBlockRects();
 
-        TileVector2D SetupHeldTileInfo(const TileVector2D& focusPosition,
-                                       const WorldVector2D& focusWorldTilePos,
-                                       const WorldVector2D& playerPosition,
-                                       uint8_t& tileWidth,
-                                       uint8_t& tileHeight,
-                                       TileVector2D& tileAnchor);
+        TileVector2D SetupHeldTileInfo(const TileVector2D &focusPosition,
+                                       const WorldVector2D &focusWorldTilePos,
+                                       const WorldVector2D &playerPosition,
+                                       uint8_t &tileWidth,
+                                       uint8_t &tileHeight,
+                                       TileVector2D &tileAnchor);
 
-        SDL_FRect CalculateRenderQuad(const TileVector2D& focusPosition,
-                                      const TileVector2D& topLeftVector,
+        SDL_FRect CalculateRenderQuad(const TileVector2D &focusPosition,
+                                      const TileVector2D &topLeftVector,
                                       uint8_t tileWidth,
                                       uint8_t tileHeight) const;
 
-        void RenderBlueprintTexture(SDL_Renderer* renderer, const SDL_FRect& renderQuad) const;
+        void RenderBlueprintTexture(SDL_Renderer *renderer, const SDL_FRect &renderQuad) const;
 
-        void RenderBlueprintMask(SDL_Renderer* renderer, const std::vector<bool>& checkRectResult,
-                                 const TileVector2D& leftBottom, uint8_t tileWidth, uint8_t tileHeight);
+        void RenderBlueprintMask(SDL_Renderer *renderer, const std::vector<bool> &checkRectResult,
+                                 const TileVector2D &leftBottom, uint8_t tileWidth, uint8_t tileHeight);
 
     public:
-        explicit BlueprintSystem(WorldContext* worldContext);
+        explicit BlueprintSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        uint8_t GetRenderOrder() override;
+        uint8_t GetExecutionOrder() override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

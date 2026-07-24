@@ -439,9 +439,8 @@ bool glimmer::DebugPanelSystem::HandleEvent(const SDL_Event& event)
     return false;
 }
 
-uint8_t glimmer::DebugPanelSystem::GetRenderOrder()
-{
-    return RENDER_ORDER_DEBUG_PANEL;
+uint8_t glimmer::DebugPanelSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_DEBUG_PANEL;
 }
 
 glimmer::GameSystemType glimmer::DebugPanelSystem::GetGameSystemType() const

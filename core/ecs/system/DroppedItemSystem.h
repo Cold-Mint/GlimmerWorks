@@ -27,26 +27,24 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 
-namespace glimmer
-{
-    class DroppedItemSystem : public GameSystem
-    {
+namespace glimmer {
+    class DroppedItemSystem : public GameSystem {
         std::vector<GameEntityID> droppedEntities_;
-        CameraComponent* cameraComponent_ = nullptr;
-        Transform2DComponent* cameraTransform2DComponent_ = nullptr;
+        CameraComponent *cameraComponent_ = nullptr;
+        Transform2DComponent *cameraTransform2DComponent_ = nullptr;
         uint32_t transform2dCount = 0;
         uint32_t droppedItemCount = 0;
 
     public:
-        explicit DroppedItemSystem(WorldContext* worldContext);
+        explicit DroppedItemSystem(WorldContext *worldContext);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        uint8_t GetRenderOrder() override;
+        uint8_t GetExecutionOrder() override;
 
         void Update(float delta) override;
 
-        void Render(SDL_Renderer* renderer) override;
+        void Render(SDL_Renderer *renderer) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

@@ -59,17 +59,16 @@ void glimmer::DroppedItemSystem::OnWatchedComponentChanged(GameComponentTypeMess
     }
 }
 
+uint8_t glimmer::DroppedItemSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_DROPPED_ITEM;
+}
+
 glimmer::DroppedItemSystem::DroppedItemSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_DROPPED_ITEM);
     WatchComponent(COMPONENT_CAMERA);
     Init();
-}
-
-uint8_t glimmer::DroppedItemSystem::GetRenderOrder()
-{
-    return RENDER_ORDER_DROPPED_ITEM;
 }
 
 void glimmer::DroppedItemSystem::Update(float delta)

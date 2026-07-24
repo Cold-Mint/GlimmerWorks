@@ -111,15 +111,6 @@ namespace glimmer
         */
         virtual void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count);
 
-        /**
-         * Determine whether the system can continue to run when the game is paused
-         * 判断该系统是否能在游戏暂停时继续运行
-         * By default, it is false (stops running when paused), and subclasses can override this method to customize its behavior
-         * 默认为false（暂停时停止运行），子类可重写此方法自定义行为
-         * @return true= Continues running when paused, false= stops running when paused true=暂停时继续运行，false=暂停时停止运行
-         */
-        [[nodiscard]] virtual bool CanRunWhilePaused() const;
-
         [[nodiscard]] bool IsWatchingComponent(GameComponentTypeMessage gameComponentType) const;
 
         virtual bool HandleEvent(const SDL_Event& event);
@@ -134,9 +125,14 @@ namespace glimmer
 
         virtual void Update(float delta);
 
-        virtual uint8_t GetRenderOrder();
-
-        virtual void RenderImGui(SDL_Renderer* renderer);
+        /**
+       * 获取系统执行调度序号
+       * System execution scheduling order
+       * 决定各个GameSystem的调度先后次序，数值越小，越早执行。
+       * Affects system scheduling sequence. Smaller value = earlier execution.
+       * @return 调度序号 uint8_t
+       */
+        virtual uint8_t GetExecutionOrder();
 
         virtual void Render(SDL_Renderer* renderer);
     };

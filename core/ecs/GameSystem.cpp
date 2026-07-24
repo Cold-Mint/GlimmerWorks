@@ -126,12 +126,6 @@ void glimmer::GameSystem::Init()
     LogCat::i("GameSystem initialized");
 }
 
-
-bool glimmer::GameSystem::CanRunWhilePaused() const
-{
-    return false;
-}
-
 bool glimmer::GameSystem::IsWatchingComponent(GameComponentTypeMessage gameComponentType) const
 {
     return watchComponents_.contains(gameComponentType);
@@ -179,15 +173,8 @@ void glimmer::GameSystem::Update(const float delta)
 #endif
 }
 
-uint8_t glimmer::GameSystem::GetRenderOrder()
-{
+uint8_t glimmer::GameSystem::GetExecutionOrder() {
     return 0;
-}
-
-void glimmer::GameSystem::RenderImGui(SDL_Renderer* renderer)
-{
-    //Render the ImGui components within this method.
-    //渲染Imgui组件在这个方法内。
 }
 
 void glimmer::GameSystem::Render(SDL_Renderer* renderer)

@@ -31,28 +31,22 @@
 #include "core/world/WorldContext.h"
 
 void glimmer::SpiritRendererSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
-                                                              uint32_t count)
-{
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
-    EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+                                                              uint32_t count) {
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D)
-    {
-        if (cameraTransform2DComponent_ == nullptr)
-        {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D) {
+        if (cameraTransform2DComponent_ == nullptr) {
             cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
         }
         transformCount_ = count;
     }
-    if (gameComponentType == COMPONENT_SPIRIT_RENDERER)
-    {
+    if (gameComponentType == COMPONENT_SPIRIT_RENDERER) {
         spiritRendererComponentCount_ = count;
     }
-    if (transformCount_ > 0 && spiritRendererComponentCount_ > 0)
-    {
+    if (transformCount_ > 0 && spiritRendererComponentCount_ > 0) {
         spiritRendererEntities_.clear();
         spiritRendererEntities_ = entityManager->GetEntityIDWithComponents({
             COMPONENT_TRANSFORM_2D, COMPONENT_SPIRIT_RENDERER
@@ -60,56 +54,46 @@ void glimmer::SpiritRendererSystem::OnWatchedComponentChanged(GameComponentTypeM
     }
 }
 
-glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::SpiritRendererSystem::SpiritRendererSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_SPIRIT_RENDERER);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
     Init();
 }
 
-void glimmer::SpiritRendererSystem::Render(SDL_Renderer* renderer)
-{
-    const WorldContext* worldContext = GetWorldContext();
-    EntityManager* entityManager = GetEntityManager();
-    if (worldContext == nullptr)
-    {
+void glimmer::SpiritRendererSystem::Render(SDL_Renderer *renderer) {
+    const WorldContext *worldContext = GetWorldContext();
+    EntityManager *entityManager = GetEntityManager();
+    if (worldContext == nullptr) {
         return;
     }
-    const AppContext* appContext = worldContext->GetAppContext();
-    if (appContext == nullptr)
-    {
+    const AppContext *appContext = worldContext->GetAppContext();
+    if (appContext == nullptr) {
         return;
     }
-    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
-    if (resourceLocator == nullptr)
-    {
+    const ResourceLocator *resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr) {
         return;
     }
-    if (cameraComponent_ == nullptr)
-    {
+    if (cameraComponent_ == nullptr) {
         return;
     }
-    if (cameraTransform2DComponent_ == nullptr)
-    {
+    if (cameraTransform2DComponent_ == nullptr) {
         return;
     }
     float zoom = cameraComponent_->GetZoom();
-    for (const uint32_t spiritRenderer : spiritRendererEntities_)
-    {
+    for (const uint32_t spiritRenderer: spiritRendererEntities_) {
         auto spiritRendererComponent = entityManager->GetComponent<SpiritRendererComponent>(
             spiritRenderer);
-        if (spiritRendererComponent == nullptr)
-        {
+        if (spiritRendererComponent == nullptr) {
             continue;
         }
-        const Transform2DComponent* transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
+        const Transform2DComponent *transform2DComponent = entityManager->GetComponent<Transform2DComponent>(
             spiritRenderer);
-        if (transform2DComponent == nullptr)
-        {
+        if (transform2DComponent == nullptr) {
             continue;
         }
-        SDL_Texture* sdlTexture = spiritRendererComponent->GetTexture(resourceLocator);
+        SDL_Texture *sdlTexture = spiritRendererComponent->GetTexture(resourceLocator);
         WorldVector2D worldVector2d = transform2DComponent->GetPosition() + spiritRendererComponent->GetPosition();
         SDL_FRect worldVectorRect = {
             worldVector2d.x,
@@ -117,22 +101,20 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer* renderer)
             static_cast<float>(sdlTexture->w),
             static_cast<float>(sdlTexture->h)
         };
-        if (cameraComponent_->IsRectInViewport(cameraTransform2DComponent_->GetPosition(), &worldVectorRect))
-        {
+        if (cameraComponent_->IsRectInViewport(cameraTransform2DComponent_->GetPosition(), &worldVectorRect)) {
             ScreenVector2D ScreenVector2D = CoordinateTransformer::WorldToScreen(
-                cameraTransform2DComponent_->GetPosition(), worldVector2d, cameraComponent_->GetSize(), cameraComponent_->GetZoom());
+                cameraTransform2DComponent_->GetPosition(), worldVector2d, cameraComponent_->GetSize(),
+                cameraComponent_->GetZoom());
             SDL_FRect dstrect = {
                 ScreenVector2D.x, ScreenVector2D.y, static_cast<float>(sdlTexture->w) * zoom,
                 static_cast<float>(sdlTexture->h) * zoom
             };
             SDL_FlipMode flip = SDL_FLIP_NONE;
 
-            if (spiritRendererComponent->IsFlipH())
-            {
+            if (spiritRendererComponent->IsFlipH()) {
                 flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_HORIZONTAL);
             }
-            if (spiritRendererComponent->IsFlipV())
-            {
+            if (spiritRendererComponent->IsFlipV()) {
                 flip = static_cast<SDL_FlipMode>(flip | SDL_FLIP_VERTICAL);
             }
             SDL_RenderTextureRotated(
@@ -148,12 +130,10 @@ void glimmer::SpiritRendererSystem::Render(SDL_Renderer* renderer)
     }
 }
 
-uint8_t glimmer::SpiritRendererSystem::GetRenderOrder()
-{
-    return RENDER_ORDER_SPIRIT_RENDERER;
+uint8_t glimmer::SpiritRendererSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_SPIRIT_RENDERER;
 }
 
-glimmer::GameSystemType glimmer::SpiritRendererSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::SpiritRendererSystem::GetGameSystemType() const {
     return GameSystemType::SpiritRendererSystem;
 }

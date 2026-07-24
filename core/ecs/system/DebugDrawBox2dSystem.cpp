@@ -38,34 +38,28 @@
 
 
 void glimmer::DebugDrawBox2dSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType,
-                                                              uint32_t count)
-{
-    const EntityShortCut* entityShortCut = GetEntityShortCut();
-    const EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr)
-    {
+                                                              uint32_t count) {
+    const EntityShortCut *entityShortCut = GetEntityShortCut();
+    const EntityManager *entityManager = GetEntityManager();
+    if (gameComponentType == COMPONENT_CAMERA && cameraComponent_ == nullptr) {
         cameraComponent_ = entityShortCut->GetCameraComponent();
     }
-    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
-    {
+    if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr) {
         cameraTransform2DComponent_ = entityShortCut->GetCameraTransform2DComponent();
     }
-    if (gameComponentType == COMPONENT_RAY_CAST_2D)
-    {
+    if (gameComponentType == COMPONENT_RAY_CAST_2D) {
         entities_ = entityManager->GetEntityIDWithComponents({COMPONENT_RAY_CAST_2D});
     }
 }
 
-glimmer::DebugDrawBox2dSystem::DebugDrawBox2dSystem(WorldContext* worldContext) : GameSystem(worldContext)
-{
+glimmer::DebugDrawBox2dSystem::DebugDrawBox2dSystem(WorldContext *worldContext) : GameSystem(worldContext) {
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_RAY_CAST_2D);
     Init();
 }
 
-void glimmer::DebugDrawBox2dSystem::OnConfigChanged(const Config* config)
-{
+void glimmer::DebugDrawBox2dSystem::OnConfigChanged(const Config *config) {
     displayBox2dShape_ = config->debug.displayBox2dShape;
 }
 
@@ -76,8 +70,7 @@ void glimmer::DebugDrawBox2dSystem::OnConfigChanged(const Config* config)
  * @param color b2HexColor color 颜色（b2HexColor 格式）
  * @param alpha Alpha value (default: 255) 透明度（默认：255）
  */
-static void SetSDLColor(SDL_Renderer* renderer, b2HexColor color, Uint8 alpha = 255)
-{
+static void SetSDLColor(SDL_Renderer *renderer, b2HexColor color, Uint8 alpha = 255) {
     Uint8 r = color >> 16 & 0xFF;
     Uint8 g = color >> 8 & 0xFF;
     Uint8 b = color & 0xFF;
@@ -90,17 +83,14 @@ static void SetSDLColor(SDL_Renderer* renderer, b2HexColor color, Uint8 alpha = 
  * @param worldPos Box2D世界坐标（米）
  * @return 屏幕视口坐标（像素）
  */
-static glimmer::ScreenVector2D ConvertBox2DToScreen(const glimmer::WorldContext* worldContext, const b2Vec2& worldPos)
-{
-    glimmer::EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+static glimmer::ScreenVector2D ConvertBox2DToScreen(const glimmer::WorldContext *worldContext, const b2Vec2 &worldPos) {
+    glimmer::EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return {worldPos.x * glimmer::kScale, -worldPos.y * glimmer::kScale};
     }
-    const glimmer::Transform2DComponent* cameraTransform2D = entityShortCut->GetCameraTransform2DComponent();
-    const glimmer::CameraComponent* cameraComponent = entityShortCut->GetCameraComponent();
-    if (cameraTransform2D == nullptr || cameraComponent == nullptr)
-    {
+    const glimmer::Transform2DComponent *cameraTransform2D = entityShortCut->GetCameraTransform2DComponent();
+    const glimmer::CameraComponent *cameraComponent = entityShortCut->GetCameraComponent();
+    if (cameraTransform2D == nullptr || cameraComponent == nullptr) {
         return {worldPos.x * glimmer::kScale, -worldPos.y * glimmer::kScale};
     }
     return glimmer::CoordinateTransformer::WorldToScreen(cameraTransform2D->GetPosition(),
@@ -115,16 +105,12 @@ static glimmer::ScreenVector2D ConvertBox2DToScreen(const glimmer::WorldContext*
  * @param centerY 圆心Y坐标（像素）
  * @param radius 半径（像素）
  */
-static void SDL_RenderFillCircle_Compat(SDL_Renderer* renderer, float centerX, float centerY, float radius)
-{
+static void SDL_RenderFillCircle_Compat(SDL_Renderer *renderer, float centerX, float centerY, float radius) {
     // 中点圆算法绘制实心圆
     int r = static_cast<int>(radius);
-    for (int y = -r; y <= r; y++)
-    {
-        for (int x = -r; x <= r; x++)
-        {
-            if (x * x + y * y <= r * r)
-            {
+    for (int y = -r; y <= r; y++) {
+        for (int x = -r; x <= r; x++) {
+            if (x * x + y * y <= r * r) {
                 SDL_RenderPoint(renderer, centerX + x, centerY + y);
             }
         }
@@ -137,10 +123,8 @@ static void SDL_RenderFillCircle_Compat(SDL_Renderer* renderer, float centerX, f
  * @param rect 矩形区域（像素）
  * @param radius 圆角半径（像素）
  */
-static void SDL_RenderFillRectRounded_Compat(SDL_Renderer* renderer, const SDL_FRect* rect, float radius)
-{
-    if (radius <= 0)
-    {
+static void SDL_RenderFillRectRounded_Compat(SDL_Renderer *renderer, const SDL_FRect *rect, float radius) {
+    if (radius <= 0) {
         // 无圆角时直接绘制普通矩形
         SDL_RenderFillRect(renderer, rect);
         return;
@@ -184,10 +168,8 @@ static void SDL_RenderFillRectRounded_Compat(SDL_Renderer* renderer, const SDL_F
  * @param rect 矩形区域（像素）
  * @param radius 圆角半径（像素）
  */
-static void SDL_RenderRectRounded_Compat(SDL_Renderer* renderer, const SDL_FRect* rect, float radius)
-{
-    if (radius <= 0)
-    {
+static void SDL_RenderRectRounded_Compat(SDL_Renderer *renderer, const SDL_FRect *rect, float radius) {
+    if (radius <= 0) {
         SDL_RenderRect(renderer, rect);
         return;
     }
@@ -205,8 +187,7 @@ static void SDL_RenderRectRounded_Compat(SDL_Renderer* renderer, const SDL_FRect
     constexpr float step = glimmer::kPi / 2 / segments;
 
     // 左上圆角
-    for (int i = 0; i < segments; i++)
-    {
+    for (int i = 0; i < segments; i++) {
         float a1 = glimmer::kPi + step * i;
         float a2 = glimmer::kPi + step * (i + 1);
         float x1 = rect->x + radius + radius * cosf(a1);
@@ -217,8 +198,7 @@ static void SDL_RenderRectRounded_Compat(SDL_Renderer* renderer, const SDL_FRect
     }
 
     // 右上圆角
-    for (int i = 0; i < segments; i++)
-    {
+    for (int i = 0; i < segments; i++) {
         float a1 = 2 * glimmer::kPi - step * i;
         float a2 = 2 * glimmer::kPi - step * (i + 1);
         float x1 = rect->x + rect->w - radius + radius * cosf(a1);
@@ -229,8 +209,7 @@ static void SDL_RenderRectRounded_Compat(SDL_Renderer* renderer, const SDL_FRect
     }
 
     // 左下圆角
-    for (int i = 0; i < segments; i++)
-    {
+    for (int i = 0; i < segments; i++) {
         float a1 = glimmer::kPi - step * i;
         float a2 = glimmer::kPi - step * (i + 1);
         float x1 = rect->x + radius + radius * cosf(a1);
@@ -241,8 +220,7 @@ static void SDL_RenderRectRounded_Compat(SDL_Renderer* renderer, const SDL_FRect
     }
 
     // 右下圆角
-    for (int i = 0; i < segments; i++)
-    {
+    for (int i = 0; i < segments; i++) {
         float a1 = step * i;
         float a2 = step * (i + 1);
         float x1 = rect->x + rect->w - radius + radius * cosf(a1);
@@ -262,23 +240,20 @@ static void SDL_RenderRectRounded_Compat(SDL_Renderer* renderer, const SDL_FRect
  * @param context Context pointer 上下文指针
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
-    const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
-{
-    if (context == nullptr)
-    {
+    const b2Vec2 *vertices, int vertexCount, b2HexColor color, void *context) {
+    if (context == nullptr) {
         return;
     }
-    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
-    const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
-    SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
+    const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
     SetSDLColor(sdlRenderer, color);
     SDL_Color oldColor;
     SDL_GetRenderDrawColor(sdlRenderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
 
-    for (int i = 0; i < vertexCount; ++i)
-    {
-        const b2Vec2& v1 = vertices[i];
-        const b2Vec2& v2 = vertices[(i + 1) % vertexCount];
+    for (int i = 0; i < vertexCount; ++i) {
+        const b2Vec2 &v1 = vertices[i];
+        const b2Vec2 &v2 = vertices[(i + 1) % vertexCount];
         ScreenVector2D p1 = ConvertBox2DToScreen(worldContext, v1);
         ScreenVector2D p2 = ConvertBox2DToScreen(worldContext, v2);
 
@@ -300,35 +275,29 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPolygonFcn(
  * @param context Context pointer 上下文指针
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
-    b2Transform transform, const b2Vec2* vertices, int vertexCount,
-    float radius, b2HexColor color, void* context)
-{
-    if (context == nullptr)
-    {
-
+    b2Transform transform, const b2Vec2 *vertices, int vertexCount,
+    float radius, b2HexColor color, void *context) {
+    if (context == nullptr) {
         return;
     }
-    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
-    const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
-    Color box2dBorderColor = worldContext->GetAppContext()->GetGraphicsContext()->GetPreloadColors()->debugColor.box2dBorderColor;
-    Color box2dFullColor = worldContext->GetAppContext()->GetGraphicsContext()->GetPreloadColors()->debugColor.box2dFullColor;
-    SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
-    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+    const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    Color box2dBorderColor = worldContext->GetAppContext()->GetGraphicsContext()->GetPreloadColors()->debugColor.
+            box2dBorderColor;
+    Color box2dFullColor = worldContext->GetAppContext()->GetGraphicsContext()->GetPreloadColors()->debugColor.
+            box2dFullColor;
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
+    EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return;
     }
 
-    const Transform2DComponent* cameraTransform2D = entityShortCut->GetCameraTransform2DComponent();
-    const CameraComponent* cameraComponent = entityShortCut->GetCameraComponent();
-    if (cameraTransform2D == nullptr || cameraComponent == nullptr)
-    {
-
+    const Transform2DComponent *cameraTransform2D = entityShortCut->GetCameraTransform2DComponent();
+    const CameraComponent *cameraComponent = entityShortCut->GetCameraComponent();
+    if (cameraTransform2D == nullptr || cameraComponent == nullptr) {
         return;
     }
-    if (vertexCount != 4)
-    {
-
+    if (vertexCount != 4) {
         return;
     }
 
@@ -349,8 +318,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
     float radiusPx = radius * kScale;
     SDL_RenderFillRectRounded_Compat(sdlRenderer, &renderQuad, radiusPx);
     SDL_SetRenderDrawColor(sdlRenderer, box2dBorderColor.r, box2dBorderColor.g, box2dBorderColor.b, box2dBorderColor.a);
-    for (int i = 0; i < 3; ++i)
-    {
+    for (int i = 0; i < 3; ++i) {
         SDL_FRect border = {
             renderQuad.x - static_cast<float>(i),
             renderQuad.y - static_cast<float>(i),
@@ -369,16 +337,13 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidPolygonFcn(
  * 绘制圆（Circle）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
-    b2Vec2 center, float radius, b2HexColor color, void* context)
-{
-    if (context == nullptr)
-    {
-
+    b2Vec2 center, float radius, b2HexColor color, void *context) {
+    if (context == nullptr) {
         return;
     }
-    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
-    const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
-    SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
+    const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
 
     // 保存原始颜色
     SDL_Color oldColor;
@@ -388,8 +353,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
     ScreenVector2D centerViewport = ConvertBox2DToScreen(worldContext, center);
     float radiusPx = radius * kScale;
     constexpr float step = 2.0F * kPi / kCircleSegments;
-    for (int i = 0; i < kCircleSegments; ++i)
-    {
+    for (int i = 0; i < kCircleSegments; ++i) {
         const float a1 = static_cast<float>(i) * step;
         const float a2 = static_cast<float>(i + 1) * step;
         const float x1 = centerViewport.x + radiusPx * cosf(a1);
@@ -408,16 +372,13 @@ void glimmer::DebugDrawBox2dSystem::b2DrawCircleFcn(
  * 绘制实心圆（Solid Circle）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
-    b2Transform transform, float radius, b2HexColor color, void* context)
-{
-    if (context == nullptr)
-    {
-
+    b2Transform transform, float radius, b2HexColor color, void *context) {
+    if (context == nullptr) {
         return;
     }
-    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
-    const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
-    SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
+    const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
 
     // 保存原始颜色
     SDL_Color oldColor;
@@ -437,8 +398,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
     // 绘制圆边框（增强视觉）
     SetSDLColor(sdlRenderer, color, 255);
     constexpr float step = 2.0F * kPi / kCircleSegments;
-    for (int i = 0; i < kCircleSegments; ++i)
-    {
+    for (int i = 0; i < kCircleSegments; ++i) {
         const float a1 = static_cast<float>(i) * step;
         const float a2 = static_cast<float>(i + 1) * step;
         const float x1 = centerViewport.x + radiusPx * cosf(a1);
@@ -457,16 +417,13 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCircleFcn(
  * 绘制实心胶囊体（Solid Capsule）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
-    b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context)
-{
-    if (context == nullptr)
-    {
-
+    b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void *context) {
+    if (context == nullptr) {
         return;
     }
-    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
-    const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
-    SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
+    const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
 
     // 保存原始颜色
     SDL_Color oldColor;
@@ -482,8 +439,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
 
     // 2. 绘制两端圆形（实心）- 替换为兼容实现
     float radiusPx = radius * kScale;
-    for (int j = 0; j < 2; ++j)
-    {
+    for (int j = 0; j < 2; ++j) {
         b2Vec2 c = (j == 0 ? p1 : p2);
         ScreenVector2D cvp = ConvertBox2DToScreen(worldContext, c);
 
@@ -492,8 +448,7 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
 
         // 绘制圆形边框
         constexpr float step = 2.0F * kPi / kCircleSegments;
-        for (int i = 0; i < kCircleSegments; ++i)
-        {
+        for (int i = 0; i < kCircleSegments; ++i) {
             const float a1 = static_cast<float>(i) * step;
             const float a2 = static_cast<float>(i + 1) * step;
             const float x1 = cvp.x + radiusPx * cosf(a1);
@@ -513,16 +468,13 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSolidCapsuleFcn(
  * 绘制线段（Segment）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
-    b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context)
-{
-    if (context == nullptr)
-    {
-
+    b2Vec2 p1, b2Vec2 p2, b2HexColor color, void *context) {
+    if (context == nullptr) {
         return;
     }
-    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
-    const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
-    SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
+    const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
 
     // 保存原始颜色
     SDL_Color oldColor;
@@ -542,22 +494,19 @@ void glimmer::DebugDrawBox2dSystem::b2DrawSegmentFcn(
  * Draw a Transform（对齐相机/视口逻辑）
  * 绘制变换坐标轴（Transform）
  */
-void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, void* context)
-{
-    if (context == nullptr)
-    {
-
+void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, void *context) {
+    if (context == nullptr) {
         return;
     }
-    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
-    const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
-    SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
+    const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
 
     // 保存原始颜色
     SDL_Color oldColor;
     SDL_GetRenderDrawColor(sdlRenderer, &oldColor.r, &oldColor.g, &oldColor.b, &oldColor.a);
 
-    const b2Vec2& p = transform.p;
+    const b2Vec2 &p = transform.p;
     b2Vec2 xAxis = {p.x + 0.4f * transform.q.c, p.y + 0.4f * transform.q.s};
     b2Vec2 yAxis = {p.x - 0.4f * transform.q.s, p.y + 0.4f * transform.q.c};
 
@@ -582,16 +531,13 @@ void glimmer::DebugDrawBox2dSystem::b2DrawTransformFcn(b2Transform transform, vo
  * 绘制点（Point）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
-    b2Vec2 p, float size, b2HexColor color, void* context)
-{
-    if (context == nullptr)
-    {
-
+    b2Vec2 p, float size, b2HexColor color, void *context) {
+    if (context == nullptr) {
         return;
     }
-    const auto box2dSystemContext = static_cast<Box2dSystemContext*>(context);
-    const WorldContext* worldContext = box2dSystemContext->GetWorldContext();
-    SDL_Renderer* sdlRenderer = box2dSystemContext->GetRenderer();
+    const auto box2dSystemContext = static_cast<Box2dSystemContext *>(context);
+    const WorldContext *worldContext = box2dSystemContext->GetWorldContext();
+    SDL_Renderer *sdlRenderer = box2dSystemContext->GetRenderer();
 
     // 保存原始颜色
     SDL_Color oldColor;
@@ -614,30 +560,23 @@ void glimmer::DebugDrawBox2dSystem::b2DrawPointFcn(
  * 绘制字符串（String）
  */
 void glimmer::DebugDrawBox2dSystem::b2DrawStringFcn(
-    b2Vec2 p, const char* s, b2HexColor color, void* context)
-{
-
+    b2Vec2 p, const char *s, b2HexColor color, void *context) {
 }
 
-bool glimmer::DebugDrawBox2dSystem::CanActive() const
-{
+bool glimmer::DebugDrawBox2dSystem::CanActive() const {
     return displayBox2dShape_;
 }
 
-void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
-{
-    EntityManager* entityManager = GetEntityManager();
-    WorldContext* worldContext = GetWorldContext();
-    if (entityManager == nullptr)
-    {
+void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer *renderer) {
+    EntityManager *entityManager = GetEntityManager();
+    WorldContext *worldContext = GetWorldContext();
+    if (entityManager == nullptr) {
         return;
     }
-    if (cameraComponent_ == nullptr)
-    {
+    if (cameraComponent_ == nullptr) {
         return;
     }
-    if (cameraTransform2DComponent_ == nullptr)
-    {
+    if (cameraTransform2DComponent_ == nullptr) {
         return;
     }
     auto box2dSystemContext = Box2dSystemContext(worldContext, renderer);
@@ -654,32 +593,26 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
     debugDraw.context = &box2dSystemContext;
     debugDraw.drawShapes = true;
     b2World_Draw(worldContext->GetWorldId(), &debugDraw);
-    for (const uint32_t entity : entities_)
-    {
+    for (const uint32_t entity: entities_) {
         const auto rayComp =
-            entityManager->GetComponent<RayCast2DComponent>(entity);
-        if (rayComp == nullptr)
-        {
+                entityManager->GetComponent<RayCast2DComponent>(entity);
+        if (rayComp == nullptr) {
             continue;
         }
         const auto transform2dComponent =
-            entityManager->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
-        if (transform2dComponent == nullptr)
-        {
+                entityManager->GetComponent<Transform2DComponent>(rayComp->GetTransform2DEntity());
+        if (transform2dComponent == nullptr) {
             continue;
         }
-        if (rayComp->IsHit())
-        {
+        if (rayComp->IsHit()) {
             SDL_SetRenderDrawColor(renderer, 255, 0, 0,
                                    255);
-        }
-        else
-        {
+        } else {
             SDL_SetRenderDrawColor(renderer, 0, 0, 255,
                                    255);
         }
         WorldVector2D startPosition = transform2dComponent->GetPosition() + rayComp->
-            GetOrigin();
+                                      GetOrigin();
         const ScreenVector2D origin = CoordinateTransformer::WorldToScreen(cameraTransform2DComponent_->GetPosition(),
                                                                            startPosition, cameraComponent_->GetSize(),
                                                                            cameraComponent_->GetZoom());
@@ -692,13 +625,11 @@ void glimmer::DebugDrawBox2dSystem::Render(SDL_Renderer* renderer)
     AppContext::RestoreColorRenderer(renderer);
 }
 
-uint8_t glimmer::DebugDrawBox2dSystem::GetRenderOrder()
-{
-    return RENDER_ORDER_DEBUG_BOX2D;
+uint8_t glimmer::DebugDrawBox2dSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_DEBUG_BOX2D;
 }
 
-glimmer::GameSystemType glimmer::DebugDrawBox2dSystem::GetGameSystemType() const
-{
+glimmer::GameSystemType glimmer::DebugDrawBox2dSystem::GetGameSystemType() const {
     return GameSystemType::DebugDrawBox2dSystem;
 }
 

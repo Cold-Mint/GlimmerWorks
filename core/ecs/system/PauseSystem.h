@@ -26,33 +26,33 @@
  */
 #pragma once
 #include "core/ecs/GameSystem.h"
+#include "core/ecs/GuiGameSystem.h"
 #include "RmlUi/Core/Event.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
 namespace glimmer
 {
-    class PauseComponent;
 
-    class PauseSystem : public GameSystem
+    class PauseSystem : public GuiGameSystem
     {
-        bool paused_ = false;
+        Rml::ElementDocument *elementDocument_ = nullptr;
 
-        void TogglePause();
+        void TogglePause() const;
 
     public:
         void OnResumeButtonClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void OnSaveAndExitButtonClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        explicit PauseSystem(WorldContext* worldContext);
+        void LoadDocuments(IDocumentRegistry *documentRegistry) override;
 
-        uint8_t GetRenderOrder() override;
+        void OnCreateDataModels(IDocumentRegistry *documentRegistry) override;
+
+        explicit PauseSystem(WorldContext* worldContext);
 
         bool HandleEvent(const SDL_Event& event) override;
 
         bool OnBackPressed() override;
-
-        [[nodiscard]] bool CanRunWhilePaused() const override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

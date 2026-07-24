@@ -178,9 +178,8 @@ void glimmer::FloatingTextSystem::Render(SDL_Renderer* renderer)
     }
 }
 
-uint8_t glimmer::FloatingTextSystem::GetRenderOrder()
-{
-    return RENDER_ORDER_FLOATING_TEXT;
+uint8_t glimmer::FloatingTextSystem::GetExecutionOrder() {
+    return EXECUTION_ORDER_FLOATING_TEXT;
 }
 
 glimmer::GameSystemType glimmer::FloatingTextSystem::GetGameSystemType() const

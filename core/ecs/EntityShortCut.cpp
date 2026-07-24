@@ -49,22 +49,6 @@ glimmer::ParallaxBackgroundComponent* glimmer::EntityShortCut::GetParallaxBackgr
     return parallaxBackgroundComponent_;
 }
 
-void glimmer::EntityShortCut::SetSelectedCraftPreviewSlotComponent(CraftPreviewSlotComponent* craftPreviewSlotComponent)
-{
-    selectedCraftPreviewSlotComponent_ = craftPreviewSlotComponent;
-}
-
-glimmer::CraftPreviewSlotComponent* glimmer::EntityShortCut::GetSelectedCraftPreviewSlotComponent() const
-{
-    if (selectedCraftPreviewSlotComponent_ == nullptr)
-    {
-        LogCat::w(std::source_location::current(),
-                  "EntityShortCut: CraftPreviewSlotComponent pointer is null, no craft preview slot selected");
-        return nullptr;
-    }
-    return selectedCraftPreviewSlotComponent_;
-}
-
 GameEntityID glimmer::EntityShortCut::GetPlayer() const
 {
     return player_;
@@ -116,22 +100,6 @@ glimmer::BlueprintComponent* glimmer::EntityShortCut::GetBlueprintComponent() co
         return nullptr;
     }
     return blueprintComponent_;
-}
-
-void glimmer::EntityShortCut::SetHotBarComponent(HotBarComponent* hotBarComponent)
-{
-    hotBarComponent_ = hotBarComponent;
-}
-
-glimmer::HotBarComponent* glimmer::EntityShortCut::GetHotBarComponent() const
-{
-    if (hotBarComponent_ == nullptr)
-    {
-        LogCat::w(std::source_location::current(),
-                  "EntityShortCut: HotBarComponent pointer is null, hotbar ui component not set");
-        return nullptr;
-    }
-    return hotBarComponent_;
 }
 
 void glimmer::EntityShortCut::SetItemContainerComponent(ItemContainerComponent* itemContainerComponent)

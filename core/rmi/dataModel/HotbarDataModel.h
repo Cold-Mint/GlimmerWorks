@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,50 +24,15 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "ItemSlotComponent.h"
+#pragma once
+#include <vector>
 
-#include "core/inventory/ItemContainer.h"
+#include "ItemSlotDataModel.h"
 
-
-glimmer::ItemSlotComponent::ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, uint8_t slotIndex) :
-    itemContainer_(itemContainer),
-    slotIndex_(slotIndex),
-    itemSlotType_(itemSlot)
+namespace glimmer
 {
-}
-
-uint8_t glimmer::ItemSlotComponent::GetSlotIndex() const
-{
-    return slotIndex_;
-}
-
-glimmer::ItemSlotType glimmer::ItemSlotComponent::GetItemSlotType() const
-{
-    return itemSlotType_;
-}
-
-
-glimmer::Item* glimmer::ItemSlotComponent::GetItem() const
-{
-    return itemContainer_->GetItem(slotIndex_);
-}
-
-std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::TakeAllItem() const
-{
-    return itemContainer_->TakeAllItem(slotIndex_);
-}
-
-std::unique_ptr<glimmer::Item> glimmer::ItemSlotComponent::ReplaceItem(std::unique_ptr<Item> item) const
-{
-    return itemContainer_->ReplaceItem(slotIndex_, std::move(item));
-}
-
-GameComponentTypeMessage glimmer::ItemSlotComponent::GetComponentTypeStatic()
-{
-    return COMPONENT_ITEM_SLOT;
-}
-
-GameComponentTypeMessage glimmer::ItemSlotComponent::GetComponentType()
-{
-    return GetComponentTypeStatic();
+    struct HotbarDataModel
+    {
+        std::vector<ItemSlotDataModel> itemSlots;
+    };
 }

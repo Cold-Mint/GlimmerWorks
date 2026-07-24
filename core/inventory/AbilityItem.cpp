@@ -26,7 +26,6 @@
  */
 #include "AbilityItem.h"
 #include <memory>
-#include "core/log/LogCat.h"
 #include "core/context/AppContext.h"
 #include "ComposableItem.h"
 #include "ItemAbilityFactory.h"
@@ -46,7 +45,8 @@ glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams& params) : id_(p
                                                                            itemAbility_(params.GetItemAbility()),
                                                                            maxDurability_(params.GetMaxDurability()),
                                                                            unbreakable_(params.IsUnbreakable()),
-                                                                           canUseAlone_(params.IsCanUseAlone())
+                                                                           canUseAlone_(params.IsCanUseAlone()),
+                                                                           iconResourceRef_(params.GetIconResourceRef())
 {
     SetTags(params.GetTags());
     SetResourceRef(params.GetResourceRef());
@@ -129,6 +129,11 @@ SDL_Texture* glimmer::AbilityItem::GetIcon() const
         return nullptr;
     }
     return iconResult_->GetResource();
+}
+
+const glimmer::ResourceRef* glimmer::AbilityItem::GetIconResourceRef() const
+{
+    return &iconResourceRef_;
 }
 
 std::unique_ptr<glimmer::Item> glimmer::AbilityItem::Clone() const

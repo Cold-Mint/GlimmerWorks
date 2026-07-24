@@ -25,51 +25,16 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "core/Constants.h"
-#include "core/ecs/GameComponent.h"
-#include "core/ecs/IVisible.h"
-#include "core/inventory/Item.h"
-#include "core/math/DesignVector2D.h"
+#include <string>
 
 namespace glimmer
 {
-    class ResourceLocator;
-    struct RecipeResource;
-
-    class CraftPreviewSlotComponent : public GameComponent, public IVisible
+    struct ItemSlotDataModel
     {
-        DesignVector2D size_;
-        DesignVector2D position_;
-        bool isHovered_ = false;
-        RecipeResource* recipeResource_ = nullptr;
-        DesignDimension padding_ = ITEM_SLOT_PADDING;
-        std::unique_ptr<Item> item_ = nullptr;
-
-    public:
-        void SetRecipeResource(WorldContext* worldContext, RecipeResource* recipeResource);
-
-        [[nodiscard]] RecipeResource* GetRecipeResource() const;
-
-        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
-
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
-
-        [[nodiscard]] const DesignVector2D& GetPosition() const;
-
-        [[nodiscard]] const DesignVector2D& GetSize() const;
-
-        void SetSize(const DesignVector2D& size);
-
-        void SetPosition(const DesignVector2D& position);
-
-        [[nodiscard]] bool IsHovered() const;
-
-        [[nodiscard]] DesignDimension GetPadding() const;
-
-        void SetPadding(DesignDimension padding);
-
-        void SetHovered(bool hovered);
-
-        [[nodiscard]] const Item* GetItem() const;
+        bool selected = false;
+        std::string image;
+        std::string selectedBackground;
+        std::string background;
+        u_int8_t amount = 0;
     };
 }

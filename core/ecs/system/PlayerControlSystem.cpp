@@ -35,9 +35,7 @@
 #include "box2d/box2d.h"
 #include "core/Constants.h"
 #include "core/ecs/DroppedItemCreator.h"
-#include "core/ecs/component/HotBarComponent.h"
 #include "core/ecs/component/ItemContainerComponent.h"
-#include "core/ecs/component/ItemSlotComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/RayCast2DComponent.h"
 #include "core/ecs/component/SpiritRendererComponent.h"
@@ -76,8 +74,7 @@ void glimmer::PlayerControlSystem::ClampHorizontalSpeed(const RigidBody2DCompone
 }
 
 void glimmer::PlayerControlSystem::CheckDropItem(PlayerInputHandler* playerInputHandler,
-                                                 const ItemContainer* itemContainer,
-                                                 const HotBarComponent* hotBarComponent) const
+                                                 const ItemContainer* itemContainer) const
 {
     if (!playerInputHandler->IsDropPressed())
     {
@@ -88,7 +85,7 @@ void glimmer::PlayerControlSystem::CheckDropItem(PlayerInputHandler* playerInput
         return;
     }
     playerInputHandler->RemoveDropTimer(DROP_INTERVAL);
-    DropItem(itemContainer, hotBarComponent->GetSelectedSlot());
+    DropItem(itemContainer, itemContainer->GetSelectIndex());
     playerInputHandler->SetDropPressed(false);
 }
 
@@ -231,11 +228,10 @@ void glimmer::PlayerControlSystem::Update(const float delta)
         }
         UpdateGroundedMovement(playerInputHandler, playerComponent, rigidBody2DComponent);
     }
-    const auto hotBarComponent = entityShortCut->GetHotBarComponent();
     const auto itemContainerComponent = entityShortCut->GetItemContainerComponent();
     const ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
     playerInputHandler->AddDropTimer(delta);
-    CheckDropItem(playerInputHandler, itemContainer, hotBarComponent);
+    CheckDropItem(playerInputHandler, itemContainer);
 
     if (!playerInputHandler->IsMouseLeftDown())
     {

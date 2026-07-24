@@ -38,17 +38,20 @@ namespace glimmer
         std::string name_;
         std::optional<std::string> description_;
         std::shared_ptr<TextureResourceResult> iconResult_;
+        ResourceRef textureResourceRef_;
 
     public:
-
         explicit MaterialItem(std::string id, std::string name, std::optional<std::string> description,
                               std::shared_ptr<TextureResourceResult> iconResult,
                               const std::vector<ItemTagResource>& tags,
-                              const ResourceRef& resourceRef);
+                              const ResourceRef& resourceRef, ResourceRef  textureResourceRef);
 
         static std::unique_ptr<MaterialItem> FromItemResource(const AppContext* appContext,
                                                               const MaterialItemResource* itemResource,
                                                               const ResourceRef& resourceRef);
+
+        [[nodiscard]] const ResourceRef* GetIconResourceRef() const override;
+
         [[nodiscard]] const std::string& GetId() const override;
 
         [[nodiscard]] const std::string& GetName() const override;
@@ -62,7 +65,7 @@ namespace glimmer
         [[nodiscard]] SDL_Texture* GetIcon() const override;
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
+                   std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

@@ -26,7 +26,6 @@
  */
 #pragma once
 
-#include <cstdint>
 #include <functional>
 #include <memory>
 
@@ -52,15 +51,16 @@ namespace glimmer
         AudioManager* audioManager_ = nullptr;
         WorldContext* worldContext_ = nullptr;
 
-        uint32_t CreateOrLoadPlayer(const ResourceRef& resourceRef);
+        [[nodiscard]] uint32_t CreateOrLoadPlayer(const ResourceRef& resourceRef) const;
 
-        void InitPlayerInventory(uint32_t playerEntity);
+        void InitPlayerInventory(uint32_t playerEntity) const;
 
-        void OnPlayerItemChanged(uint8_t index, Item* item, ContainerChangeType changeType, uint32_t playerEntity);
+        void OnPlayerItemChanged(const ItemContainer* itemContainer, uint8_t index, Item* item,
+                                 ContainerChangeType changeType, uint32_t playerEntity);
 
         void HandleItemBreak(Item* item, uint32_t playerEntity);
 
-        void DropComposableItemAbilities(ComposableItem* composableItem);
+        void DropComposableItemAbilities(const ComposableItem* composableItem) const;
 
     public:
         explicit PlayerContext(WorldContext* worldContext);
@@ -74,17 +74,5 @@ namespace glimmer
      * 这个方法将从磁盘加载玩家数据，并在加载后补充玩家的组件。
      */
         void InitPlayer(const ResourceRef& resourceRef);
-
-        /**
-    * Initialize the hotbar
-    * 初始化快捷栏
-    */
-        void InitHotbar(ItemContainer* itemContainer) const;
-
-        /**
-         * Initialize inventory view(Bag)
-         * 初始化库存视图（背包）
-         */
-        void InitInventory(ItemContainer* itemContainer) const;
     };
 }

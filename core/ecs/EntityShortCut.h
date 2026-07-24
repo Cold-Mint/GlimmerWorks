@@ -29,9 +29,7 @@
 #include "component/AreaMarkerComponent.h"
 #include "component/BlueprintComponent.h"
 #include "component/CameraComponent.h"
-#include "component/CraftPreviewSlotComponent.h"
 #include "component/DiggingComponent.h"
-#include "component/HotBarComponent.h"
 #include "component/ItemContainerComponent.h"
 #include "component/ItemToolTipComponent.h"
 #include "component/ParallaxBackgroundComponent.h"
@@ -45,23 +43,17 @@ namespace glimmer
         GameEntityID player_ = GAME_ENTITY_ID_INVALID;
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
-        HotBarComponent* hotBarComponent_ = nullptr;
         BlueprintComponent* blueprintComponent_ = nullptr;
         ItemContainerComponent* itemContainerComponent_ = nullptr;
         DiggingComponent* diggingComponent_ = nullptr;
         AreaMarkerComponent* areaMarkerComponent_ = nullptr;
         ParallaxBackgroundComponent* parallaxBackgroundComponent_ = nullptr;
-        CraftPreviewSlotComponent* selectedCraftPreviewSlotComponent_ = nullptr;
         ItemToolTipComponent* itemToolTipComponent_ = nullptr;
 
     public:
         void SetPlayer(GameEntityID player);
 
         void SetParallaxBackgroundComponent(ParallaxBackgroundComponent* parallaxBackgroundComponent);
-
-        void SetSelectedCraftPreviewSlotComponent(CraftPreviewSlotComponent* craftPreviewSlotComponent);
-
-        [[nodiscard]] CraftPreviewSlotComponent* GetSelectedCraftPreviewSlotComponent() const;
 
         [[nodiscard]] ParallaxBackgroundComponent* GetParallaxBackgroundComponent() const;
 
@@ -79,10 +71,6 @@ namespace glimmer
         void SetBlueprintComponent(BlueprintComponent* blueprintComponent);
 
         [[nodiscard]] BlueprintComponent* GetBlueprintComponent() const;
-
-        void SetHotBarComponent(HotBarComponent* hotBarComponent);
-
-        [[nodiscard]] HotBarComponent* GetHotBarComponent() const;
 
         void SetItemContainerComponent(ItemContainerComponent* itemContainerComponent);
 

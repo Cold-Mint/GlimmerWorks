@@ -50,6 +50,7 @@ namespace glimmer
         bool unbreakable_;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_ = nullptr;
         std::shared_ptr<IAllocStrategy<uint32_t>> allocStrategyPtr_ = nullptr;
+        ResourceRef iconResourceRef_;
 
         void AddCallback();
 
@@ -89,7 +90,9 @@ namespace glimmer
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
 
         void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
+                   std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
+
+        [[nodiscard]] const ResourceRef* GetIconResourceRef() const override;
 
         [[nodiscard]] ItemContainer* GetItemContainer() const;
 

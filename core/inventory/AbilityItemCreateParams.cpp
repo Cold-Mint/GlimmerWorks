@@ -29,6 +29,16 @@
 #include "core/mod/Resource.h"
 #include "core/mod/resourcePack/TextureResourceResult.h"
 
+void glimmer::AbilityItemCreateParams::SetIconResult(const ResourceRef& iconResult)
+{
+    iconResourceRef_ = iconResult;
+}
+
+const glimmer::ResourceRef& glimmer::AbilityItemCreateParams::GetIconResourceRef() const
+{
+    return iconResourceRef_;
+}
+
 void glimmer::AbilityItemCreateParams::SetCanUseAlone(const bool canUseAlone)
 {
     canUseAlone_ = canUseAlone;

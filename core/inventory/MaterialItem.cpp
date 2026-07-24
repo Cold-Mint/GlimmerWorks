@@ -26,16 +26,21 @@
  */
 #include "MaterialItem.h"
 
+#include <utility>
+
 #include "core/context/AppContext.h"
 #include "core/utils/StringUtils.h"
 
 glimmer::MaterialItem::MaterialItem(std::string id, std::string name, std::optional<std::string> description,
                                     std::shared_ptr<TextureResourceResult> iconResult,
                                     const std::vector<ItemTagResource>& tags,
-                                    const ResourceRef& resourceRef) : id_(std::move(id)),
+                                    const ResourceRef& resourceRef,
+                                    ResourceRef textureResourceRef) : id_(std::move(id)),
                                                                       name_(std::move(name)),
                                                                       description_(std::move(description)),
-                                                                      iconResult_(std::move(iconResult))
+                                                                      iconResult_(std::move(iconResult)),
+                                                                      textureResourceRef_(std::move(
+                                                                          textureResourceRef))
 {
     SetTags(tags);
     SetResourceRef(resourceRef);
@@ -61,7 +66,13 @@ std::unique_ptr<glimmer::MaterialItem> glimmer::MaterialItem::FromItemResource(c
     return std::make_unique<MaterialItem>(Resource::GenerateId(*itemResource), name,
                                           description,
                                           appContext->GetResourceLocator()->FindTexture(
-                                              &itemResource->texture), itemResource->tags, resourceRef);
+                                              &itemResource->texture), itemResource->tags, resourceRef,
+                                          itemResource->texture);
+}
+
+const glimmer::ResourceRef* glimmer::MaterialItem::GetIconResourceRef() const
+{
+    return &textureResourceRef_;
 }
 
 const std::string& glimmer::MaterialItem::GetId() const

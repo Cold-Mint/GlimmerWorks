@@ -33,9 +33,7 @@
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/MobEntityCreator.h"
-#include "core/ecs/component/HotBarComponent.h"
 #include "core/ecs/component/ItemContainerComponent.h"
-#include "core/ecs/component/ItemSlotComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/math/CoordinateTransformer.h"
@@ -118,14 +116,14 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef& resourceRef)
         tempPlayerComponent->SetItem(itemContainer->GetItem(0));
     }
     itemCallback_ = itemContainer->AddOnContentChanged(
-        [this, playerEntity](uint8_t index, Item* item, ContainerChangeType changeType)
+        [this, playerEntity, itemContainer](uint8_t index, Item* item, ContainerChangeType changeType)
         {
-            OnPlayerItemChanged(index, item, changeType, playerEntity);
+            OnPlayerItemChanged(itemContainer, index, item, changeType, playerEntity);
         });
     entityShortCut->SetPlayer(playerEntity);
 }
 
-uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef& resourceRef)
+uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef& resourceRef) const
 {
     uint32_t playerEntity = GAME_ENTITY_ID_INVALID;
     if (worldContext_->GetSaves()->PlayerExists())
@@ -151,7 +149,7 @@ uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef& resourceR
     return playerEntity;
 }
 
-void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity)
+void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) const
 {
     EntityManager* entityManager = worldContext_->GetEntityManager();
     const auto itemContainerComponent = entityManager->AddComponent<ItemContainerComponent>(playerEntity);
@@ -193,16 +191,10 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity)
     }
 }
 
-void glimmer::PlayerContext::OnPlayerItemChanged(const uint8_t index, Item* item,
-                                                 const ContainerChangeType /*changeType*/,
-                                                 const uint32_t playerEntity)
+void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer* itemContainer, uint8_t index, Item* item,
+                                                 ContainerChangeType changeType, uint32_t playerEntity)
 {
-    const auto* hotBarComponent = worldContext_->GetEntityShortCut()->GetHotBarComponent();
-    if (hotBarComponent == nullptr)
-    {
-        return;
-    }
-    if (index != hotBarComponent->GetSelectedSlot())
+    if (index != itemContainer->GetSelectIndex())
     {
         return;
     }
@@ -263,7 +255,7 @@ void glimmer::PlayerContext::HandleItemBreak(Item* item, const uint32_t playerEn
     }
 }
 
-void glimmer::PlayerContext::DropComposableItemAbilities(ComposableItem* composableItem)
+void glimmer::PlayerContext::DropComposableItemAbilities(const ComposableItem* composableItem) const
 {
     ItemContainer* itemContainer = composableItem->GetItemContainer();
     if (itemContainer == nullptr)
@@ -302,42 +294,5 @@ void glimmer::PlayerContext::DropComposableItemAbilities(ComposableItem* composa
         droppedItemCreator.MergeEntityItemMessage(droppedEntity,
                                                   DroppedItemCreator::GetEntityItemMessage(
                                                       dropPos, std::move(takeItem), 2));
-    }
-}
-
-void glimmer::PlayerContext::InitHotbar(ItemContainer* itemContainer) const
-{
-    EntityManager* entityManager = worldContext_->GetEntityManager();
-    EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-    if (entityManager == nullptr || entityShortCut == nullptr || itemContainer == nullptr)
-    {
-        return;
-    }
-    auto hotBarEntity = entityManager->AddEntity();
-    if (auto hotBarComponent = entityManager->AddComponent<HotBarComponent>(hotBarEntity); hotBarComponent != nullptr)
-    {
-        entityShortCut->SetHotBarComponent(hotBarComponent);
-    }
-    for (int i = 0; i < HOT_BAR_SIZE; i++)
-    {
-        const auto itemSlotEntity = entityManager->AddEntity();
-        entityManager->AddComponent<ItemSlotComponent>(
-            itemSlotEntity, ItemSlotType::HotBar, itemContainer, i);
-    }
-}
-
-void glimmer::PlayerContext::InitInventory(ItemContainer* itemContainer) const
-{
-    EntityManager* entityManager = worldContext_->GetEntityManager();
-    if (const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut(); entityManager == nullptr ||
-        entityShortCut == nullptr || itemContainer == nullptr)
-    {
-        return;
-    }
-    for (int i = 0; i < itemContainer->GetCapacity(); i++)
-    {
-        const auto itemSlotEntity = entityManager->AddEntity();
-        entityManager->AddComponent<ItemSlotComponent>(
-            itemSlotEntity, ItemSlotType::Inventory, itemContainer, i);
     }
 }

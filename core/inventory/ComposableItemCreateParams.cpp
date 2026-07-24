@@ -42,6 +42,11 @@ void glimmer::ComposableItemCreateParams::SetResourceRef(const ResourceRef& reso
     resourceRef_ = resourceRef;
 }
 
+void glimmer::ComposableItemCreateParams::SetIconResourceRef(const ResourceRef& iconResourceRef)
+{
+    iconResultRef_ = iconResourceRef;
+}
+
 void glimmer::ComposableItemCreateParams::SetMaxDurability(const uint32_t maxDurability)
 {
     maxDurability_ = maxDurability;
@@ -106,6 +111,11 @@ const std::vector<glimmer::ItemTagResource>& glimmer::ComposableItemCreateParams
 const glimmer::ResourceRef& glimmer::ComposableItemCreateParams::GetResourceRef() const
 {
     return resourceRef_;
+}
+
+const glimmer::ResourceRef& glimmer::ComposableItemCreateParams::GetIconResourceRef() const
+{
+    return iconResultRef_;
 }
 
 const std::string& glimmer::ComposableItemCreateParams::GetName() const

@@ -27,17 +27,33 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/GuiGameSystem.h"
+#include "core/rmi/dataModel/ItemSlotDataModel.h"
 
-namespace glimmer {
-    class HotBarGUISystem : public GuiGameSystem {
-        uint8_t lastSelectedSlot_ = 0;
+namespace glimmer
+{
+    class HotBarGUISystem : public GuiGameSystem
+    {
+        Rml::ElementDocument* elementDocument_ = nullptr;
+        Rml::DataModelConstructor* constructor_ = nullptr;
+        std::vector<ItemSlotDataModel> itemSlots_;
+        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
+        ItemContainer* itemContainer_ = nullptr;
+
+        ItemSlotDataModel* GetItemSlotDataModel(uint8_t index);
 
     public:
-        explicit HotBarGUISystem(WorldContext *worldContext);
+        explicit HotBarGUISystem(WorldContext* worldContext);
 
-        void LoadDocuments(IDocumentRegistry *documentRegistry) override;
+        ~HotBarGUISystem() override;
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
+        void LoadDocuments(IDocumentRegistry* documentRegistry) override;
+
+        void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
+
+        bool HandleEvent(const SDL_Event& event) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
-
     };
 }

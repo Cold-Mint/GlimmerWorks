@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,37 +24,4 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include "core/ecs/GameComponent.h"
-#include "core/ecs/ItemSlotType.h"
-
-namespace glimmer
-{
-    class Item;
-    class ItemContainer;
-
-    class ItemSlotComponent : public GameComponent
-    {
-        ItemContainer* itemContainer_;
-        uint8_t slotIndex_;
-        ItemSlotType itemSlotType_ = ItemSlotType::Empty;
-
-    public:
-        explicit ItemSlotComponent(ItemSlotType itemSlot, ItemContainer* itemContainer, uint8_t slotIndex);
-
-        [[nodiscard]] uint8_t GetSlotIndex() const;
-
-
-        [[nodiscard]] ItemSlotType GetItemSlotType() const;
-
-        [[nodiscard]] Item* GetItem() const;
-
-        [[nodiscard]] std::unique_ptr<Item> TakeAllItem() const;
-
-        [[nodiscard]] std::unique_ptr<Item> ReplaceItem(std::unique_ptr<Item> item) const;
-
-        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
-
-        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
-    };
-}
+#include "ItemSlotDataModel.h"

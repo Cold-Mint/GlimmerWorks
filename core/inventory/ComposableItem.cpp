@@ -113,6 +113,7 @@ std::unique_ptr<glimmer::ComposableItem> glimmer::ComposableItem::FromItemResour
     params.SetUnbreakable(itemResource->unbreakable);
     params.SetTags(itemResource->tags);
     params.SetResourceRef(resourceRef);
+    params.SetIconResourceRef(itemResource->texture);
     auto result = std::make_unique<ComposableItem>(params);
     if (uint8_t defaultAbilitySize = itemResource->defaultAbilityList.size(); defaultAbilitySize > 0)
     {
@@ -182,6 +183,11 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, c
     }
 }
 
+const glimmer::ResourceRef* glimmer::ComposableItem::GetIconResourceRef() const
+{
+    return &iconResourceRef_;
+}
+
 glimmer::ItemContainer* glimmer::ComposableItem::GetItemContainer() const
 {
     return itemContainer_.get();
@@ -216,7 +222,7 @@ glimmer::ComposableItem::ComposableItem(const ComposableItemCreateParams& params
       description_(params.GetDescription()),
       iconResult_(params.GetIconResult()),
       maxDurability_(params.GetMaxDurability()),
-      unbreakable_(params.IsUnbreakable())
+      unbreakable_(params.IsUnbreakable()), iconResourceRef_(params.GetIconResourceRef())
 {
     SetResourceRef(params.GetResourceRef());
     itemContainer_ = std::make_shared<ItemContainer>();

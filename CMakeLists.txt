@@ -284,6 +284,8 @@ target_sources(GlimmerWorks
         core/AppRenderer.cpp
         core/BoolOrToggle.cpp
         core/Box2dFilter.cpp
+        core/rmi/dataModel/HotbarDataModel.cpp
+        core/rmi/dataModel/ItemSlotDataModel.cpp
         core/CommandHookEntry.cpp
         core/CommandHookManager.cpp
         core/Config.cpp
@@ -413,16 +415,12 @@ target_sources(GlimmerWorks
         core/ecs/component/AutoPickComponent.cpp
         core/ecs/component/BlueprintComponent.cpp
         core/ecs/component/CameraComponent.cpp
-        core/ecs/component/CraftPreviewSlotComponent.cpp
         core/ecs/component/DebugDrawComponent.cpp
         core/ecs/component/DiggingComponent.cpp
         core/ecs/component/DroppedItemComponent.cpp
         core/ecs/component/FloatingTextComponent.cpp
-        core/ecs/component/HotBarComponent.cpp
         core/ecs/component/ItemContainerComponent.cpp
         core/ecs/component/ItemEditorComponent.cpp
-        core/ecs/component/ItemSlotComponent.cpp
-        core/ecs/component/ItemSlotQuantityComponent.cpp
         core/ecs/component/ItemToolTipComponent.cpp
         core/ecs/component/MagnetComponent.cpp
         core/ecs/component/MagneticComponent.cpp
@@ -664,6 +662,8 @@ target_sources(GlimmerWorks
         core/console/CommandEnvironment.h
         core/console/CommandHistoryManager.h
         core/console/CommandManager.h
+        core/rmi/dataModel/HotbarDataModel.h
+        core/rmi/dataModel/ItemSlotDataModel.h
         core/console/CommandRequest.h
         core/console/CommandResponse.h
         core/console/CommandResult.h
@@ -784,16 +784,12 @@ target_sources(GlimmerWorks
         core/ecs/component/AutoPickComponent.h
         core/ecs/component/BlueprintComponent.h
         core/ecs/component/CameraComponent.h
-        core/ecs/component/CraftPreviewSlotComponent.h
         core/ecs/component/DebugDrawComponent.h
         core/ecs/component/DiggingComponent.h
         core/ecs/component/DroppedItemComponent.h
         core/ecs/component/FloatingTextComponent.h
-        core/ecs/component/HotBarComponent.h
         core/ecs/component/ItemContainerComponent.h
         core/ecs/component/ItemEditorComponent.h
-        core/ecs/component/ItemSlotComponent.h
-        core/ecs/component/ItemSlotQuantityComponent.h
         core/ecs/component/ItemToolTipComponent.h
         core/ecs/component/MagnetComponent.h
         core/ecs/component/MagneticComponent.h

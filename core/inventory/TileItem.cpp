@@ -169,6 +169,15 @@ SDL_Texture* glimmer::TileItem::GetIcon() const
     return textureResourceResult->GetResource();
 }
 
+const glimmer::ResourceRef* glimmer::TileItem::GetIconResourceRef() const
+{
+    if (tileResourceData_ == nullptr)
+    {
+        return nullptr;
+    }
+    return tileResourceData_->GetTextureRef();
+}
+
 const glimmer::AbilityConfig* glimmer::TileItem::GetAbilityConfig() const
 {
     return nullptr;

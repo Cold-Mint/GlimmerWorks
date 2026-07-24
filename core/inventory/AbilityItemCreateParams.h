@@ -51,8 +51,13 @@ namespace glimmer
         ResourceRef resourceRef_;
         std::shared_ptr<ItemAbility> itemAbility_;
         bool canUseAlone_ = false;
+        ResourceRef iconResourceRef_;
 
     public:
+        void SetIconResult(const ResourceRef& iconResult);
+
+        [[nodiscard]] const ResourceRef& GetIconResourceRef() const;
+
         void SetCanUseAlone(bool canUseAlone);
 
         [[nodiscard]] bool IsCanUseAlone() const;

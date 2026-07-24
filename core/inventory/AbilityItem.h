@@ -42,6 +42,7 @@ namespace glimmer
         uint32_t maxDurability_;
         bool unbreakable_;
         bool canUseAlone_;
+        ResourceRef iconResourceRef_;
 
     public:
         explicit AbilityItem(const AbilityItemCreateParams& params);
@@ -57,6 +58,8 @@ namespace glimmer
         [[nodiscard]] const std::optional<std::string>& GetDescription() const override;
 
         [[nodiscard]] SDL_Texture* GetIcon() const override;
+
+        [[nodiscard]] const ResourceRef* GetIconResourceRef() const override;
 
         [[nodiscard]] ItemAbility* GetItemAbility() const;
 

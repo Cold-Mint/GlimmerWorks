@@ -335,12 +335,6 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     auto itemContainerPtr = entityManager_->
         GetComponent<ItemContainerComponent>(entityShortCut_->GetPlayer());
     entityShortCut_->SetItemContainerComponent(itemContainerPtr);
-    ItemContainer* itemContainer = itemContainerPtr->GetItemContainer();
-    if (itemContainer != nullptr)
-    {
-        playerContext_->InitHotbar(itemContainer);
-        playerContext_->InitInventory(itemContainer);
-    }
     entityShortCut_->SetItemToolTipComponent(
         entityManager_->AddComponent<ItemToolTipComponent>(entityManager_->AddEntity()));
     systemScheduler_ = std::make_unique<SystemScheduler>(this);

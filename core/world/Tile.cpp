@@ -225,6 +225,7 @@ std::unique_ptr<glimmer::Tile> glimmer::Tile::FromTileResource(const AppContext*
     tile->dimensions_.SetAllowDirAdjustAnchor(tileResource->allowDirAdjustAnchor);
     const std::shared_ptr<TextureResourceResult>& textureResult = resourceLocator->FindTexture(
         &tileResource->texture);
+    tile->resourceData_.SetTextureRef(tileResource->texture);
     tile->resourceData_.SetTexture(textureResult);
     tile->blueprintData_.SetEnableBlueprint(tileResource->enableBlueprint);
     tile->blueprintData_.SetEnableBlueprintMask(tileResource->enableBlueprintMask);
@@ -258,7 +259,7 @@ void glimmer::Tile::OnPlace(const WorldContext* worldContext, PlaceSourceMessage
     {
 #if  !defined(NDEBUG)
         LogCat::e(std::source_location::current(),
-            "Before generating a new entity, it is necessary to ensure that there are no other entities at the current location.");
+                  "Before generating a new entity, it is necessary to ensure that there are no other entities at the current location.");
         assert(false);
 #else
         return;
@@ -295,7 +296,6 @@ void glimmer::Tile::OnBreak(const WorldContext* worldContext, BreakSource breakS
     }
     entityManager->RemoveEntity(gameEntityIterator->second);
     gameEntities_.erase(gameEntityIterator);
-
 }
 
 glimmer::TileResourceData* glimmer::Tile::GetMutableResourceData()

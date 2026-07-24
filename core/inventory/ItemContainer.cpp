@@ -216,6 +216,31 @@ void glimmer::ItemContainer::RemoveOnContentChanged(
     onContentChanged_.erase(toRemove.begin(), toRemove.end());
 }
 
+void glimmer::ItemContainer::SetSelectIndex(const uint8_t index)
+{
+    const uint8_t size = items_.size();
+    if (size == 0)
+    {
+        LogCat::e(std::source_location::current(), "Try to select elements in an empty container.");
+        selectIndex_ = 0;
+        return;
+    }
+    if (index >= size)
+    {
+        LogCat::w(std::source_location::current(), "Beyond the legal data limits. index = ", index, ",size = ", size);
+        selectIndex_ = size - 1;
+    }
+    else
+    {
+        selectIndex_ = index;
+    }
+}
+
+uint8_t glimmer::ItemContainer::GetSelectIndex() const
+{
+    return selectIndex_;
+}
+
 std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<Item> newItem)
 {
     if (newItem == nullptr)

@@ -49,6 +49,7 @@ namespace glimmer
         bool unbreakable_ = false;
         std::vector<ItemTagResource> tags_;
         ResourceRef resourceRef_;
+        ResourceRef iconResultRef_;
 
     public:
         void SetUnbreakable(bool unbreakable);
@@ -56,6 +57,8 @@ namespace glimmer
         void SetTags(const std::vector<ItemTagResource>& tags);
 
         void SetResourceRef(const ResourceRef& resourceRef);
+
+        void SetIconResourceRef(const ResourceRef& iconResourceRef);
 
         void SetMaxDurability(uint32_t maxDurability);
 
@@ -82,6 +85,8 @@ namespace glimmer
         [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
 
         [[nodiscard]] const ResourceRef& GetResourceRef() const;
+
+        [[nodiscard]] const ResourceRef& GetIconResourceRef() const;
 
         [[nodiscard]] const std::string& GetName() const;
 

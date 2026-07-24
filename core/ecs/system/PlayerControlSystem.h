@@ -82,15 +82,14 @@ namespace glimmer
         void UpdateGroundedMovement(PlayerInputHandler* playerInputHandler, PlayerComponent* playerComponent,
                                     RigidBody2DComponent* rigidBody2DComponent);
 
-        void UpdateJump(const PlayerComponent* playerComponent, PlayerInputHandler* playerInputHandler,
+        static void UpdateJump(const PlayerComponent* playerComponent, PlayerInputHandler* playerInputHandler,
                         const RigidBody2DComponent* rigidBody2DComponent,
                         bool isGrounded, const b2MassData& massData);
 
         static void ClampHorizontalSpeed(const RigidBody2DComponent* rigidBody2DComponent,
-                                  const PlayerComponent* playerComponent, const b2Vec2& currentVel);
+                                         const PlayerComponent* playerComponent, const b2Vec2& currentVel);
 
-        void CheckDropItem(PlayerInputHandler* playerInputHandler, const ItemContainer* itemContainer,
-                           const HotBarComponent* hotBarComponent) const;
+        void CheckDropItem(PlayerInputHandler* playerInputHandler, const ItemContainer* itemContainer) const;
 
         static void HandleMouseButton(const SDL_Event& event, PlayerInputHandler* playerInputHandler);
 

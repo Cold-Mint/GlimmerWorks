@@ -54,6 +54,11 @@ glimmer::AudioResourceResult* glimmer::TileResourceData::GetPlaceSFX() const
     return placeSFXResult_.get();
 }
 
+const glimmer::ResourceRef* glimmer::TileResourceData::GetTextureRef() const
+{
+    return &textureRef_;
+}
+
 const std::vector<glimmer::ItemTagResource>& glimmer::TileResourceData::GetTags() const
 {
     return tags_;
@@ -62,6 +67,11 @@ const std::vector<glimmer::ItemTagResource>& glimmer::TileResourceData::GetTags(
 void glimmer::TileResourceData::SetTexture(const std::shared_ptr<TextureResourceResult>& textureResult)
 {
     this->textureResult_ = textureResult;
+}
+
+void glimmer::TileResourceData::SetTextureRef(const ResourceRef& textureRef)
+{
+    this->textureRef_ = textureRef;
 }
 
 void glimmer::TileResourceData::SetBreakSFX(const std::shared_ptr<AudioResourceResult>& breakSFXResult)

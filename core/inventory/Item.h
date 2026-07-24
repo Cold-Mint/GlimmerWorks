@@ -33,11 +33,12 @@
 #include "ItemStackModule.h"
 #include "ItemTagModule.h"
 #include "core/math/IAllocatable.h"
+#include "core/world/TileResourceData.h"
 #include "SDL3/SDL_render.h"
 
 namespace glimmer
 {
-        class WorldContext;
+    class WorldContext;
     /**
      * 物品类
      */
@@ -119,6 +120,7 @@ namespace glimmer
          */
         [[nodiscard]] virtual SDL_Texture* GetIcon() const = 0;
 
+        [[nodiscard]] virtual const ResourceRef* GetIconResourceRef() const = 0;
 
         virtual void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) = 0;

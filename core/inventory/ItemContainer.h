@@ -42,10 +42,8 @@ namespace glimmer
         std::vector<std::unique_ptr<Item>> items_;
         std::unordered_map<uint64_t, ItemTagResource> tagToValue_;
         std::vector<const ItemTagResource*> totalTagVector_;
-
         bool needRefreshTag_ = true;
-
-
+        uint8_t selectIndex_ = 0;
         std::vector<std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>> onContentChanged_;
 
         /**
@@ -84,6 +82,19 @@ namespace glimmer
         void RemoveOnContentChanged(
             const std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>& onContentChanged);
 
+        /**
+         * SetSelectIndex
+         * 设置选中的位置
+         * @param index
+         */
+        void SetSelectIndex(uint8_t index);
+
+        /**
+         * Get the selected position
+         * 获取选中的位置
+         * @return
+         */
+        uint8_t GetSelectIndex() const;
 
         /**
          * AddItem

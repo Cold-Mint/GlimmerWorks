@@ -55,6 +55,8 @@ namespace glimmer
 
         [[nodiscard]] SDL_Texture* GetIcon() const override;
 
+        [[nodiscard]] const ResourceRef* GetIconResourceRef() const override;
+
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;

@@ -42,6 +42,7 @@
 #include "core/ecs/system/DiggingSystem.h"
 #include "core/ecs/system/DroppedItemSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
+#include "core/ecs/system/HotBarGUISystem.h"
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/MagnetSystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
@@ -413,6 +414,7 @@ void glimmer::SystemScheduler::InitSystem()
     RegisterSystem(std::make_unique<BlueprintSystem>(worldContext_));
     RegisterSystem(std::make_unique<TechProviderSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<PauseSystem>(worldContext_));
+    RegisterGuiSystem(std::make_unique<HotBarGUISystem>(worldContext_));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(worldContext_));

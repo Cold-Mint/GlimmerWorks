@@ -37,6 +37,7 @@ namespace glimmer
         std::shared_ptr<AudioResourceResult> breakSFXResult_ = nullptr;
         std::shared_ptr<AudioResourceResult> placeSFXResult_ = nullptr;
         std::vector<ItemTagResource> tags_;
+        ResourceRef textureRef_;
 
     public:
         [[nodiscard]] TextureResourceResult* GetTexture() const;
@@ -45,9 +46,13 @@ namespace glimmer
 
         [[nodiscard]] AudioResourceResult* GetPlaceSFX() const;
 
+        [[nodiscard]] const ResourceRef* GetTextureRef() const;
+
         [[nodiscard]] const std::vector<ItemTagResource>& GetTags() const;
 
         void SetTexture(const std::shared_ptr<TextureResourceResult>& textureResult);
+
+        void SetTextureRef(const ResourceRef& textureRef);
 
         void SetBreakSFX(const std::shared_ptr<AudioResourceResult>& breakSFXResult);
 

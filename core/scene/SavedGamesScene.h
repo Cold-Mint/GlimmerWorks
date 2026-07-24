@@ -25,33 +25,25 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <vector>
 #include <string>
 
 #include "Scene.h"
 #include "SceneManager.h"
 #include "core/LangsResources.h"
+#include "core/rmi/dataModel/SavedGamesDataModel.h"
 
 namespace glimmer
 {
     class SavesManager;
     struct MapManifest;
 
-    struct SaveItem
-    {
-        std::string label;
-        int index;
-        bool selected = false;
-    };
-
     class SavedGamesScene : public Scene
     {
-        int selectedSaveIndex_ = -1;
         float uiScale_ = 1.0F;
         LangsResources* langsResources_ = nullptr;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
-        std::vector<SaveItem> saveItems_;
+        SavedGamesDataModel savedGamesDataModel_;
         SavesManager* savesManager_ = nullptr;
         SceneManager* sceneManager_ = nullptr;
 

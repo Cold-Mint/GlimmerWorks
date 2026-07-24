@@ -399,6 +399,8 @@ target_sources(GlimmerWorks
         core/ecs/GameEntity.cpp
         core/ecs/GameSystem.cpp
         core/ecs/GameSystemType.cpp
+        core/ecs/GuiGameSystem.cpp
+        core/ecs/GuiStackGameSystem.cpp
         core/ecs/IEntityCreator.cpp
         core/ecs/IPersistenceEntityCreator.cpp
         core/ecs/ISwitchable.cpp
@@ -450,6 +452,7 @@ target_sources(GlimmerWorks
         core/ecs/system/DiggingSystem.cpp
         core/ecs/system/DroppedItemSystem.cpp
         core/ecs/system/FloatingTextSystem.cpp
+        core/ecs/system/HotBarGUISystem.cpp
         core/ecs/system/Light2DSystem.cpp
         core/ecs/system/MagnetSystem.cpp
         core/ecs/system/ParallaxBackgroundSystem.cpp
@@ -544,6 +547,8 @@ target_sources(GlimmerWorks
         core/rmi/GameFontEngineInterface.cpp
         core/rmi/RenderInterfaceSDL3.cpp
         core/rmi/SystemInterfaceSDL3.cpp
+        core/rmi/dataModel/MainSceneDataModel.cpp
+        core/rmi/dataModel/SavedGamesDataModel.cpp
         core/saves/MapManifest.cpp
         core/saves/Saves.cpp
         core/saves/SavesManager.cpp
@@ -762,6 +767,9 @@ target_sources(GlimmerWorks
         core/ecs/GameEntity.h
         core/ecs/GameSystem.h
         core/ecs/GameSystemType.h
+        core/ecs/GuiGameSystem.h
+        core/ecs/GuiStackGameSystem.h
+        core/ecs/IDocumentRegistry.h
         core/ecs/IEntityCreator.h
         core/ecs/IPersistenceEntityCreator.h
         core/ecs/ISwitchable.h
@@ -906,6 +914,10 @@ target_sources(GlimmerWorks
         core/rmi/GameFontEngineInterface.h
         core/rmi/RenderInterfaceSDL3.h
         core/rmi/SystemInterfaceSDL3.h
+        core/rmi/dataModel/CreateWorldDataModel.h
+        core/rmi/dataModel/MainSceneDataModel.h
+        core/rmi/dataModel/SaveItem.h
+        core/rmi/dataModel/SavedGamesDataModel.h
         core/saves/MapManifest.h
         core/saves/Saves.h
         core/saves/SavesManager.h

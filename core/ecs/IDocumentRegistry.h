@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,40 +25,45 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <vector>
-#include "Scene.h"
-#include "core/Hyperlink.h"
-#include "core/rmi/dataModel/MainSceneDataModel.h"
-#include "core/utils/StringUtils.h"
+#include "RmlUi/Core/DataModelHandle.h"
+
+namespace Rml
+{
+    class ElementDocument;
+}
 
 namespace glimmer
 {
-    class MainScene : public Scene
+    class ResourceRef;
+    /**
+     * Rml document registry
+     * Rml文档注册表
+     *
+     * Methods for providing registration, querying Rml documents and data models to the outside world
+     * 对外提供注册，查询Rml文档和数据模型的方法
+     *
+     * Used to implement restricted method access within the global environment.
+     * 用于在世界场景内实现受限的方法访问。
+     */
+    class IDocumentRegistry
     {
-        MainSceneDataModel mainSceneDataModel_;
-        float uiScale_ = 1.0F;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-
-        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
     public:
-        explicit MainScene(AppContext* context);
+        virtual ~IDocumentRegistry() = default;
 
-        void LoadDocuments() override;
+        /**
+         * LoadSingleDocument
+         * 加载单个文档
+         * @param resourceRef resourceRef
+         * @return
+         */
+        virtual Rml::ElementDocument* LoadSingleDocument(const ResourceRef* resourceRef) = 0;
 
-        void OnCreateDataModels() override;
-
-        void OnConfigChanged(const Config* config) override;
-
-        void OnWindowSizeChanged(const int& width, const int& height) override;
-
-        bool OnBackPressed() override;
-
-        ~MainScene() override;
+        /**
+         * CreateDataModel
+         * 创建数据模型
+         * @param name
+         * @return
+         */
+        virtual Rml::DataModelConstructor* CreateDataModel(const Rml::String& name) = 0;
     };
 }

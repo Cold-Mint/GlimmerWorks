@@ -39,6 +39,7 @@
 #include "core/context/AppContext.h"
 #include "core/utils/TimeUtils.h"
 #include "core/log/LogCat.h"
+#include "core/rmi/dataModel/SaveItem.h"
 #include "fmt/xchar.h"
 
 glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
@@ -62,7 +63,7 @@ glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
 
 void glimmer::SavedGamesScene::UpdateSaveItems()
 {
-    saveItems_.clear();
+    savedGamesDataModel_.saveItems.clear();
     if (savesManager_ == nullptr)
     {
         return;
@@ -78,8 +79,8 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
         SaveItem item;
         item.label = FormatSaveLabel(manifest, langsResources_);
         item.index = static_cast<int>(i);
-        item.selected = i == static_cast<size_t>(selectedSaveIndex_);
-        saveItems_.push_back(item);
+        item.selected = i == static_cast<size_t>(savedGamesDataModel_.selectedSaveIndex);
+        savedGamesDataModel_.saveItems.push_back(item);
     }
 }
 
@@ -163,7 +164,7 @@ void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::E
     }
     if (savesManager_->DeleteSave(index))
     {
-        selectedSaveIndex_ = -1;
+        savedGamesDataModel_.selectedSaveIndex = -1;
         UpdateSaveItems();
         handle.DirtyVariable("save_items");
     }
@@ -222,7 +223,7 @@ void glimmer::SavedGamesScene::OnCreateDataModels()
             saveItemStruct.RegisterMember("selected", &SaveItem::selected);
             constructor->RegisterArray<std::vector<SaveItem>>();
         }
-        constructor->Bind("save_items", &saveItems_);
+        constructor->Bind("save_items", &savedGamesDataModel_.saveItems);
         constructor->BindEventCallback(
             "on_save_click",
             &SavedGamesScene::OnSaveClick,

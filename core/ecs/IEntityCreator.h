@@ -33,7 +33,6 @@
  */
 namespace glimmer {
     class IEntityCreator {
-    private:
         WorldContext *worldContext_ = nullptr;
 
     public:

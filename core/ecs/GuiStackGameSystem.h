@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,40 +25,28 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <vector>
-#include "Scene.h"
-#include "core/Hyperlink.h"
-#include "core/rmi/dataModel/MainSceneDataModel.h"
-#include "core/utils/StringUtils.h"
+#include "GameSystem.h"
+#include "GuiGameSystem.h"
 
 namespace glimmer
 {
-    class MainScene : public Scene
+    /**
+     * Gui system based on Stack (stack).
+     * 基于Stack（栈）的Gui系统。
+     *
+     * The switch is automatically scheduled by SystemScheduler.
+     * 由SystemScheduler自动调度开关。
+     */
+    class GuiStackGameSystem : public GuiGameSystem
     {
-        MainSceneDataModel mainSceneDataModel_;
-        float uiScale_ = 1.0F;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-
-        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
     public:
-        explicit MainScene(AppContext* context);
+        explicit GuiStackGameSystem(WorldContext* worldContext);
 
-        void LoadDocuments() override;
-
-        void OnCreateDataModels() override;
-
-        void OnConfigChanged(const Config* config) override;
-
-        void OnWindowSizeChanged(const int& width, const int& height) override;
-
-        bool OnBackPressed() override;
-
-        ~MainScene() override;
+        /**
+         * This method achieves automatic start-stop scheduling.
+         * 这个方法实现了自动启停调度。
+         * @return
+         */
+        bool CanActive() const override;
     };
 }

@@ -51,21 +51,6 @@ void glimmer::Scene::LoadDocuments()
     //Load the rml document within this method.
 }
 
-Rml::ElementDocument* glimmer::Scene::LoadDocumentByName(const Rml::String& name, const ResourceRef* resourceRef)
-{
-    auto existingDoc = GetDocument(name);
-    if (existingDoc != nullptr)
-    {
-        return existingDoc;
-    }
-    Rml::ElementDocument* document = LoadSingleDocument(resourceRef);
-    if (document != nullptr)
-    {
-        RegisterDocument(name, document);
-    }
-    return document;
-}
-
 void glimmer::Scene::OnResumeScene()
 {
     RestoreHiddenElementDocuments();
@@ -196,22 +181,6 @@ void glimmer::Scene::RemoveAllDataModel()
     rmlConstructorNames_.clear();
 }
 
-void glimmer::Scene::RegisterDocument(const Rml::String& name, Rml::ElementDocument* document)
-{
-    if (document == nullptr)
-    {
-        LogCat::w(std::source_location::current(), "RegisterDocument called with nullptr document");
-        return;
-    }
-    namedDocuments_[name] = document;
-}
-
-Rml::ElementDocument* glimmer::Scene::GetDocument(const Rml::String& name) const
-{
-    auto it = namedDocuments_.find(name);
-    return it != namedDocuments_.end() ? it->second : nullptr;
-}
-
 void glimmer::Scene::HideAllElementDocuments()
 {
     visibleElementDocumentsSnapshot_.clear();
@@ -242,36 +211,6 @@ void glimmer::Scene::RestoreHiddenElementDocuments()
     visibleElementDocumentsSnapshot_.clear();
 }
 
-void glimmer::Scene::HideDocument(const Rml::String& name) const
-{
-    if (Rml::ElementDocument* document = GetDocument(name); document != nullptr)
-    {
-        document->Hide();
-    }
-}
-
-void glimmer::Scene::ShowDocument(const Rml::String& name) const
-{
-    if (Rml::ElementDocument* document = GetDocument(name); document != nullptr)
-    {
-        document->Show();
-    }
-}
-
-std::vector<Rml::String> glimmer::Scene::GetDocumentNames() const
-{
-    std::vector<Rml::String> names;
-    for (const auto& pair : namedDocuments_)
-    {
-        names.push_back(pair.first);
-    }
-    return names;
-}
-
-Rml::ElementDocument* glimmer::Scene::GetDocumentPublic(const Rml::String& name) const
-{
-    return GetDocument(name);
-}
 
 std::vector<Rml::ElementDocument*> glimmer::Scene::GetAllDocuments() const
 {
@@ -308,7 +247,7 @@ void FindElementRecursively(Rml::Element* parent, const Rml::String& attrName, c
     {
         return;
     }
-    auto value = parent->GetAttribute<Rml::String>(attrName.c_str(), "");
+    auto value = parent->GetAttribute<Rml::String>(attrName, "");
     if (value == attrValue)
     {
         result = parent;
@@ -395,7 +334,6 @@ void glimmer::Scene::CloseAllElementDocuments()
         rmlContext_->CloseDocument(elementDocument);
     }
     elementDocumentSet_.clear();
-    namedDocuments_.clear();
 }
 
 bool glimmer::Scene::HandleEvent(const SDL_Event& event)

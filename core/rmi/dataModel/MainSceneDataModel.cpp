@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -24,41 +24,26 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <vector>
-#include "Scene.h"
-#include "core/Hyperlink.h"
-#include "core/rmi/dataModel/MainSceneDataModel.h"
-#include "core/utils/StringUtils.h"
+#include "MainSceneDataModel.h"
 
-namespace glimmer
+#include <chrono>
+
+#include "fmt/xchar.h"
+
+std::string glimmer::MainSceneDataModel::GetCopyrightString()
 {
-    class MainScene : public Scene
+    constexpr int startYear = 2025;
+    const auto now = std::chrono::system_clock::now();
+    const auto days = std::chrono::floor<std::chrono::days>(now);
+    std::chrono::year_month_day ymd{days};
+    auto currentYear = static_cast<int>(ymd.year());
+    if (!ymd.year().ok() || currentYear < 1970)
     {
-        MainSceneDataModel mainSceneDataModel_;
-        float uiScale_ = 1.0F;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-
-        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-    public:
-        explicit MainScene(AppContext* context);
-
-        void LoadDocuments() override;
-
-        void OnCreateDataModels() override;
-
-        void OnConfigChanged(const Config* config) override;
-
-        void OnWindowSizeChanged(const int& width, const int& height) override;
-
-        bool OnBackPressed() override;
-
-        ~MainScene() override;
-    };
+        return fmt::format("Copyright (C) {} Cold-Mint", startYear);
+    }
+    if (currentYear <= startYear)
+    {
+        return fmt::format("Copyright (C) {} Cold-Mint", startYear);
+    }
+    return fmt::format("Copyright (C) {}–{} Cold-Mint", startYear, currentYear);
 }

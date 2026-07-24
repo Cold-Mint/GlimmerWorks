@@ -94,22 +94,21 @@ void glimmer::SystemScheduler::PushPersistentGuiSystem(GameSystemType systemType
     activeSystemStack_.emplace(systemType);
 }
 
-glimmer::GameSystemType glimmer::SystemScheduler::GetGuiSystemType() const
-{
-    if (activeSystemStack_.empty())
-    {
-        return GameSystemType::None;
-    }
-    return activeSystemStack_.top();
-}
-
-
 void glimmer::SystemScheduler::PopGuiSystemType()
 {
     if (activeSystemStack_.size() > persistentGuiSystemCount_)
     {
         activeSystemStack_.pop();
     }
+}
+
+glimmer::GameSystemType glimmer::SystemScheduler::GetTopGuiSystemType() const
+{
+    if (activeSystemStack_.empty())
+    {
+        return GameSystemType::None;
+    }
+    return activeSystemStack_.top();
 }
 
 std::vector<glimmer::GameSystemType> glimmer::SystemScheduler::GetAllActiveSystemType() const
@@ -221,6 +220,14 @@ void glimmer::SystemScheduler::Render(SDL_Renderer* renderer) const
             assert(false);
         }
 #endif
+    }
+}
+
+void glimmer::SystemScheduler::LoadDocuments(IDocumentRegistry* documentRegistry) const
+{
+    for (auto guiGameSystem : guiGameSystems_)
+    {
+        guiGameSystem->LoadDocuments(documentRegistry);
     }
 }
 
@@ -438,7 +445,7 @@ void glimmer::SystemScheduler::InitSystem()
     PushPersistentGuiSystem(GameSystemType::HotBarGUISystem);
 }
 
-void glimmer::SystemScheduler::OnConfigChanged(const Config* config)
+void glimmer::SystemScheduler::OnConfigChanged(const Config* config) const
 {
     for (const auto& activeSystem : activeSystems_)
     {
@@ -459,6 +466,17 @@ void glimmer::SystemScheduler::RegisterSystem(std::unique_ptr<GameSystem> system
     }
 }
 
+void glimmer::SystemScheduler::RegisterGuiSystem(std::unique_ptr<GuiGameSystem> system)
+{
+    if (allowRegisterSystem_)
+    {
+        system->LockWatchComponent();
+        inactiveSystems_.emplace_back(std::move(system));
+        auto& guiGameSystemUniquePtr = inactiveSystems_.back();
+        guiGameSystems_.emplace_back(dynamic_cast<GuiGameSystem*>(guiGameSystemUniquePtr.get()));
+    }
+}
+
 void glimmer::SystemScheduler::OnWindowSizeChanged(const int& width, const int& height) const
 {
     for (auto& activeSystem : activeSystems_)
@@ -469,23 +487,4 @@ void glimmer::SystemScheduler::OnWindowSizeChanged(const int& width, const int& 
     {
         inactiveSystem->OnWindowSizeChanged(width, height);
     }
-}
-
-glimmer::GameSystem* glimmer::SystemScheduler::GetSystemByType(const GameSystemType type) const
-{
-    for (const auto& system : activeSystems_)
-    {
-        if (system != nullptr && system->GetGameSystemType() == type)
-        {
-            return system.get();
-        }
-    }
-    for (const auto& system : inactiveSystems_)
-    {
-        if (system != nullptr && system->GetGameSystemType() == type)
-        {
-            return system.get();
-        }
-    }
-    return nullptr;
 }

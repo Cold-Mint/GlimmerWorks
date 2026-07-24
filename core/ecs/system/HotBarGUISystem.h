@@ -25,40 +25,22 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <vector>
-#include "Scene.h"
-#include "core/Hyperlink.h"
-#include "core/rmi/dataModel/MainSceneDataModel.h"
-#include "core/utils/StringUtils.h"
+#include "core/ecs/GameSystem.h"
+#include "core/ecs/GuiGameSystem.h"
 
 namespace glimmer
 {
-    class MainScene : public Scene
+    class HotBarGUISystem : public GuiGameSystem
     {
-        MainSceneDataModel mainSceneDataModel_;
-        float uiScale_ = 1.0F;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-
-        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        uint8_t lastSelectedSlot_ = 0;
 
     public:
-        explicit MainScene(AppContext* context);
+        explicit HotBarGUISystem(WorldContext* worldContext);
 
-        void LoadDocuments() override;
+        uint8_t GetRenderOrder() override;
 
-        void OnCreateDataModels() override;
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
-        void OnConfigChanged(const Config* config) override;
-
-        void OnWindowSizeChanged(const int& width, const int& height) override;
-
-        bool OnBackPressed() override;
-
-        ~MainScene() override;
+        [[nodiscard]] bool CanRunWhilePaused() const override;
     };
 }

@@ -273,8 +273,45 @@ glimmer::TileInstancePool* glimmer::WorldContext::GetTileInstancePool() const
 }
 
 
-glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves, Scene* scene)
-    : worldSeed_(mapManifest->seed), saves_(saves), mapManifest_(mapManifest), appContext_(appContext), scene_(scene)
+glimmer::WorldContext::~WorldContext()
+{
+    LogCat::i("Destroying WorldContext: worldName=", mapManifest_ ? mapManifest_->name : "unknown");
+    playerContext_.reset();
+    systemScheduler_.reset();
+    LogCat::d("PlayerContext and SystemScheduler released");
+    if (entityManager_)
+    {
+        entityManager_->Clear();
+    }
+    chunkManager_.reset();
+    terrainManager_.reset();
+    LogCat::d("EntityManager cleared, ChunkManager and TerrainManager released");
+    b2DestroyWorld(worldId_);
+    worldId_ = b2_nullWorldId;
+    if (appContext_)
+    {
+        appContext_->GetConsoleContext()->GetCommandManager()->UnbindWorldContext();
+    }
+    LogCat::i("WorldContext destroyed");
+}
+
+void glimmer::WorldContext::AddDocument(const std::string& name, Rml::ElementDocument* document)
+{
+    nameToDocumentMap_[name] = document;
+}
+
+Rml::ElementDocument* glimmer::WorldContext::GetDocument(const std::string_view name)
+{
+    const auto elementDocumentIterator = nameToDocumentMap_.find(name);
+    if (elementDocumentIterator == nameToDocumentMap_.end())
+    {
+        return nullptr;
+    }
+    return elementDocumentIterator->second;
+}
+
+glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves) :
+    worldSeed_(mapManifest->seed), saves_(saves), mapManifest_(mapManifest), appContext_(appContext)
 {
     LogCat::i("Creating WorldContext, world name: ", mapManifest->name, ", seed: ", worldSeed_);
     b2WorldDef worldDef = b2DefaultWorldDef();
@@ -325,36 +362,4 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
     systemScheduler_->InitSystem();
     LogCat::i("Player initialized, SystemScheduler initialized");
     LogCat::i("WorldContext created successfully");
-}
-
-glimmer::WorldContext::~WorldContext()
-{
-    LogCat::i("Destroying WorldContext: worldName=", mapManifest_ ? mapManifest_->name : "unknown");
-    playerContext_.reset();
-    systemScheduler_.reset();
-    LogCat::d("PlayerContext and SystemScheduler released");
-    if (entityManager_)
-    {
-        entityManager_->Clear();
-    }
-    chunkManager_.reset();
-    terrainManager_.reset();
-    LogCat::d("EntityManager cleared, ChunkManager and TerrainManager released");
-    b2DestroyWorld(worldId_);
-    worldId_ = b2_nullWorldId;
-    if (appContext_)
-    {
-        appContext_->GetConsoleContext()->GetCommandManager()->UnbindWorldContext();
-    }
-    LogCat::i("WorldContext destroyed");
-}
-
-glimmer::Scene* glimmer::WorldContext::GetScene() const
-{
-    return scene_;
-}
-
-void glimmer::WorldContext::SetScene(Scene* scene)
-{
-    scene_ = scene;
 }

@@ -24,41 +24,37 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <vector>
-#include "Scene.h"
-#include "core/Hyperlink.h"
-#include "core/rmi/dataModel/MainSceneDataModel.h"
-#include "core/utils/StringUtils.h"
+#include "HotBarGUISystem.h"
 
-namespace glimmer
+#include <fmt/xchar.h>
+
+#include "core/Constants.h"
+#include "core/log/LogCat.h"
+#include "core/scene/Scene.h"
+#include "core/world/WorldContext.h"
+#include "core/world/SystemScheduler.h"
+#include "RmlUi/Core/Element.h"
+
+
+glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GuiGameSystem(worldContext)
 {
-    class MainScene : public Scene
-    {
-        MainSceneDataModel mainSceneDataModel_;
-        float uiScale_ = 1.0F;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
+    WatchComponent(COMPONENT_HOT_BAR);
+    WatchComponent(COMPONENT_ITEM_CONTAINER);
+    Init();
+    LogCat::i("HotBarGUISystem created");
+}
 
-        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+uint8_t glimmer::HotBarGUISystem::GetRenderOrder()
+{
+    return RENDER_ORDER_HOT_BAR_GUI;
+}
 
-        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+glimmer::GameSystemType glimmer::HotBarGUISystem::GetGameSystemType() const
+{
+    return GameSystemType::HotBarGUISystem;
+}
 
-        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-    public:
-        explicit MainScene(AppContext* context);
-
-        void LoadDocuments() override;
-
-        void OnCreateDataModels() override;
-
-        void OnConfigChanged(const Config* config) override;
-
-        void OnWindowSizeChanged(const int& width, const int& height) override;
-
-        bool OnBackPressed() override;
-
-        ~MainScene() override;
-    };
+bool glimmer::HotBarGUISystem::CanRunWhilePaused() const
+{
+    return true;
 }

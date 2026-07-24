@@ -41,25 +41,6 @@
 #include "core/saves/SavesManager.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
-std::string glimmer::MainScene::GetCopyrightString()
-{
-    constexpr int startYear = 2025;
-    const auto now = std::chrono::system_clock::now();
-    const auto days = std::chrono::floor<std::chrono::days>(now);
-    std::chrono::year_month_day ymd{days};
-    auto currentYear = static_cast<int>(ymd.year());
-    if (!ymd.year().ok() || currentYear < 1970)
-    {
-        return fmt::format("Copyright (C) {} Cold-Mint", startYear);
-    }
-    if (currentYear <= startYear)
-    {
-        return fmt::format("Copyright (C) {} Cold-Mint", startYear);
-    }
-    return fmt::format("Copyright (C) {}–{} Cold-Mint", startYear, currentYear);
-}
-
-
 glimmer::MainScene::MainScene(AppContext* context)
     : Scene(context)
 {
@@ -82,14 +63,14 @@ void glimmer::MainScene::OnCreateDataModels()
     Rml::DataModelConstructor* constructor = CreateDataModel("main_scene");
     if (constructor != nullptr)
     {
-        constructor->Bind("copyright", &copyright_);
+        constructor->Bind("copyright", &mainSceneDataModel_.copyright_);
         if (auto linkStruct = constructor->RegisterStruct<Hyperlink>())
         {
             linkStruct.RegisterMember("text", &Hyperlink::text);
             linkStruct.RegisterMember("url", &Hyperlink::url);
             constructor->RegisterArray<std::vector<Hyperlink>>();
         }
-        constructor->Bind("footer_links", &hyperlinks_);
+        constructor->Bind("footer_links", &mainSceneDataModel_.hyperlinks_);
         constructor->BindEventCallback(
             "on_start_game_click",
             &MainScene::OnStartGameClick,

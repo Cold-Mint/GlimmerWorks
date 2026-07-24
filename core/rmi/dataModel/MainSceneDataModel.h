@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -26,39 +26,24 @@
  */
 #pragma once
 #include <vector>
-#include "Scene.h"
+
 #include "core/Hyperlink.h"
-#include "core/rmi/dataModel/MainSceneDataModel.h"
 #include "core/utils/StringUtils.h"
 
 namespace glimmer
 {
-    class MainScene : public Scene
+    struct MainSceneDataModel
     {
-        MainSceneDataModel mainSceneDataModel_;
-        float uiScale_ = 1.0F;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-
-        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+    private:
+        static std::string GetCopyrightString();
 
     public:
-        explicit MainScene(AppContext* context);
-
-        void LoadDocuments() override;
-
-        void OnCreateDataModels() override;
-
-        void OnConfigChanged(const Config* config) override;
-
-        void OnWindowSizeChanged(const int& width, const int& height) override;
-
-        bool OnBackPressed() override;
-
-        ~MainScene() override;
+        std::vector<Hyperlink> hyperlinks_{
+            {.text = StringUtils::MakeRawText("Github"), .url = "https://github.com/Cold-Mint/GlimmerWorks"},
+            {.text = StringUtils::MakeRawText("Discord"), .url = "https://discord.com/invite/CfppC9WHw8"},
+            {.text = StringUtils::MakeRawText("itch.io"), .url = "https://cold-mint.itch.io/glimmerworks"},
+            {.text = StringUtils::MakeRawText("QQ Channel"), .url = "https://pd.qq.com/s/cntb09fr1?b=9"}
+        };
+        std::string copyright_{StringUtils::MakeRawText(GetCopyrightString())};
     };
 }

@@ -37,12 +37,14 @@
 #include <SDL3/SDL_render.h>
 
 #include "core/ecs/GameSystem.h"
+#include "core/ecs/GuiGameSystem.h"
+#include "core/scene/WorldScene.h"
 #include "src/core/game_component_type.pb.h"
 
 namespace glimmer
 {
     class WorldContext;
-    struct Config;
+    class Config;
 
     /**
      * SystemScheduler
@@ -53,6 +55,7 @@ namespace glimmer
     {
         std::vector<std::unique_ptr<GameSystem>> activeSystems_;
         std::vector<std::unique_ptr<GameSystem>> inactiveSystems_;
+        std::vector<GuiGameSystem*> guiGameSystems_;
         std::stack<GameSystemType> activeSystemStack_;
         uint64_t persistentGuiSystemCount_ = 0;
         bool allowRegisterSystem_ = false;
@@ -61,6 +64,8 @@ namespace glimmer
         WorldContext* worldContext_ = nullptr;
 
         void RegisterSystem(std::unique_ptr<GameSystem> system);
+
+        void RegisterGuiSystem(std::unique_ptr<GuiGameSystem> system);
 
         void MoveSystemsToActive(std::queue<GameSystem*>& toActivate);
 
@@ -95,7 +100,7 @@ namespace glimmer
 
         void PopGuiSystemType();
 
-        [[nodiscard]] GameSystemType GetGuiSystemType() const;
+        [[nodiscard]] GameSystemType GetTopGuiSystemType() const;
 
         [[nodiscard]] std::vector<GameSystemType> GetAllActiveSystemType() const;
 
@@ -114,16 +119,16 @@ namespace glimmer
 
         void Render(SDL_Renderer* renderer) const;
 
+        void LoadDocuments(IDocumentRegistry* documentRegistry) const;
+
         void RenderImGui(SDL_Renderer* renderer) const;
 
         void OnFrameStart();
 
         void InitSystem();
 
-        void OnConfigChanged(const Config* config);
+        void OnConfigChanged(const Config* config) const;
 
         void OnWindowSizeChanged(const int& width, const int& height) const;
-
-        [[nodiscard]] GameSystem* GetSystemByType(GameSystemType type) const;
     };
 }

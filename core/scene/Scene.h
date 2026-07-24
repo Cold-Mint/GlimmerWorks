@@ -30,6 +30,7 @@
 
 #include "core/Config.h"
 #include "core/context/RmlContext.h"
+#include "core/ecs/IDocumentRegistry.h"
 #include "RmlUi/Core/DataModelHandle.h"
 
 
@@ -37,7 +38,7 @@ namespace glimmer
 {
     class AppContext;
 
-    class Scene
+    class Scene : public IDocumentRegistry
     {
         bool initSubclassFinish_ = false;
         AppContext* appContext_ = nullptr;
@@ -46,8 +47,6 @@ namespace glimmer
         std::unordered_set<Rml::ElementDocument*> visibleElementDocumentsSnapshot_;
         std::vector<Rml::DataModelConstructor> rmlConstructors_;
         std::unordered_set<Rml::String> rmlConstructorNames_;
-        std::unordered_map<Rml::String, Rml::ElementDocument*> namedDocuments_;
-
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;
 #endif
@@ -64,19 +63,6 @@ namespace glimmer
         void Init();
 
         /**
-         * Load a single document
-         * 加载单个文档
-         * @param resourceRef
-         */
-        Rml::ElementDocument* LoadSingleDocument(const ResourceRef* resourceRef);
-
-        Rml::DataModelConstructor* CreateDataModel(const Rml::String& name);
-
-        void RegisterDocument(const Rml::String& name, Rml::ElementDocument* document);
-
-        [[nodiscard]] Rml::ElementDocument* GetDocument(const Rml::String& name) const;
-
-        /**
          * Record and hide all the documents.
          * 记录并隐藏所有的文档。
          */
@@ -87,15 +73,11 @@ namespace glimmer
         void CloseAllElementDocuments();
 
     public:
-        void HideDocument(const Rml::String& name) const;
-
-        void ShowDocument(const Rml::String& name) const;
-
-        [[nodiscard]] std::vector<Rml::String> GetDocumentNames() const;
-
-        [[nodiscard]] Rml::ElementDocument* GetDocumentPublic(const Rml::String& name) const;
-
         [[nodiscard]] std::vector<Rml::ElementDocument*> GetAllDocuments() const;
+
+        Rml::ElementDocument* LoadSingleDocument(const ResourceRef* resourceRef) override;
+
+        Rml::DataModelConstructor* CreateDataModel(const Rml::String& name) override;
 
         Rml::Element* FindElementById(const Rml::String& elementId) const;
 
@@ -143,8 +125,6 @@ namespace glimmer
 
         virtual void LoadDocuments();
 
-        Rml::ElementDocument* LoadDocumentByName(const Rml::String& name, const ResourceRef* resourceRef);
-
         /**
          * When a scene above the current scene is popped up, the current scene is displayed.
          * 当在场景之上的场景被弹出后，当前场景显示出来。
@@ -173,7 +153,7 @@ namespace glimmer
         virtual void OnWindowSizeChanged(const int& width, const int& height);
 
 
-        virtual ~Scene();
+        ~Scene() override;
 
         explicit Scene(AppContext* context);
     };

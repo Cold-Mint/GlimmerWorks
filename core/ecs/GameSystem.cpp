@@ -87,22 +87,6 @@ glimmer::EntityShortCut* glimmer::GameSystem::GetEntityShortCut() const
     return entityShortCut_;
 }
 
-glimmer::Scene* glimmer::GameSystem::GetScene() const
-{
-    if (worldContext_ == nullptr)
-    {
-        LogCat::w(std::source_location::current(), "Scene is nullptr");
-        return nullptr;
-    }
-    Scene* scene = worldContext_->GetScene();
-    if (scene == nullptr)
-    {
-        LogCat::w(std::source_location::current(), "Scene is nullptr");
-        return nullptr;
-    }
-    return scene;
-}
-
 void glimmer::GameSystem::LockWatchComponent()
 {
     lockWatchComponents_ = true;

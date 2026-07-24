@@ -54,21 +54,18 @@ void glimmer::PauseSystem::TogglePause()
         return;
     }
     worldContext->SetRuning(!paused_);
-    const Scene* scene = GetScene();
-    if (scene == nullptr)
+    Rml::ElementDocument* elementDocument = worldContext->GetDocument(PAUSE_DOCUMENT_NAME);
+    if (elementDocument == nullptr)
     {
         return;
     }
-
-    if (paused_)
+    if (elementDocument->IsVisible())
     {
-        scene->ShowDocument(PAUSE_DOCUMENT_NAME);
-        LogCat::i("Game paused, showing pause menu");
+        elementDocument->Hide();
     }
     else
     {
-        scene->HideDocument(PAUSE_DOCUMENT_NAME);
-        LogCat::i("Game resumed, hiding pause menu");
+        elementDocument->Show();
     }
 }
 
@@ -102,13 +99,6 @@ void glimmer::PauseSystem::OnSaveAndExitButtonClick(Rml::DataModelHandle handle,
     {
         worldContext->SaveGame();
     }
-
-    Scene* scene = GetScene();
-    if (scene != nullptr)
-    {
-        scene->HideDocument(PAUSE_DOCUMENT_NAME);
-    }
-
     paused_ = false;
     if (worldContext != nullptr)
     {

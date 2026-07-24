@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,40 +25,33 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <vector>
-#include "Scene.h"
-#include "core/Hyperlink.h"
-#include "core/rmi/dataModel/MainSceneDataModel.h"
-#include "core/utils/StringUtils.h"
+#include "GameSystem.h"
+#include "IDocumentRegistry.h"
 
 namespace glimmer
 {
-    class MainScene : public Scene
+    class WorldScene;
+    /**
+     * The Gui system provides several methods for registering rml documents and data models in the scene.
+     * Gui系统，提供了一些方法，用于向场景注册rml文档和数据模型
+     */
+    class GuiGameSystem : public GameSystem
     {
-        MainSceneDataModel mainSceneDataModel_;
-        float uiScale_ = 1.0F;
-        int windowWidth_ = 0;
-        int windowHeight_ = 0;
-
-        void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnExitGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
-        void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
-
     public:
-        explicit MainScene(AppContext* context);
+        explicit GuiGameSystem(WorldContext* worldContext);
 
-        void LoadDocuments() override;
+        /**
+         * Load the document
+         * 加载文档
+         * @param documentRegistry
+         */
+        virtual void LoadDocuments(IDocumentRegistry* documentRegistry) = 0;
 
-        void OnCreateDataModels() override;
-
-        void OnConfigChanged(const Config* config) override;
-
-        void OnWindowSizeChanged(const int& width, const int& height) override;
-
-        bool OnBackPressed() override;
-
-        ~MainScene() override;
+        /**
+         * OnCreateDataModels
+         * 当创建数据模型时
+         * @param documentRegistry
+         */
+        virtual void OnCreateDataModels(IDocumentRegistry* documentRegistry);
     };
 }

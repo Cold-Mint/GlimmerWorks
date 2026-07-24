@@ -63,8 +63,6 @@ namespace glimmer
 
         [[nodiscard]] EntityShortCut* GetEntityShortCut() const;
 
-        [[nodiscard]] Scene* GetScene() const;
-
         /**
         * Initialize the system after construction.
         * 在构造完成后初始化系统。

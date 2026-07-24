@@ -96,12 +96,17 @@ namespace glimmer
         std::unique_ptr<TerrainManager> terrainManager_;
         std::unique_ptr<SystemScheduler> systemScheduler_;
         std::unique_ptr<PlayerContext> playerContext_;
-        Scene* scene_ = nullptr;
+        std::unordered_map<std::string, Rml::ElementDocument*, TransparentStringHash, std::equal_to<>>
+        nameToDocumentMap_;
 
     public:
         ~WorldContext();
 
-        WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves, Scene* scene = nullptr);
+        void AddDocument(const std::string& name, Rml::ElementDocument* document);
+
+        [[nodiscard]] Rml::ElementDocument* GetDocument(std::string_view name);
+
+        WorldContext(AppContext* appContext, MapManifest* mapManifest, Saves* saves);
 
         [[nodiscard]] EntityManager* GetEntityManager() const;
 
@@ -146,9 +151,5 @@ namespace glimmer
         [[nodiscard]] LightBuffer* GetLightingBuffer() const;
 
         [[nodiscard]] TileInstancePool* GetTileInstancePool() const;
-
-        [[nodiscard]] Scene* GetScene() const;
-
-        void SetScene(Scene* scene);
     };
 }

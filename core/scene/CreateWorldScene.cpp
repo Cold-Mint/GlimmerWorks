@@ -51,9 +51,9 @@ void glimmer::CreateWorldScene::OnCreateDataModels()
     Rml::DataModelConstructor* constructor = CreateDataModel("create_world_scene");
     if (constructor != nullptr)
     {
-        constructor->Bind("world_name", &worldName_);
-        constructor->Bind("seed", &seedStr_);
-        constructor->Bind("allow_cheats", &allowCheats_);
+        constructor->Bind("world_name", &createWorldDataModel_.worldName_);
+        constructor->Bind("seed", &createWorldDataModel_.seedStr_);
+        constructor->Bind("allow_cheats", &createWorldDataModel_.allowCheats_);
         constructor->BindEventCallback(
             "on_create_world_click",
             &CreateWorldScene::OnCreateWorldClick,
@@ -100,14 +100,14 @@ void glimmer::CreateWorldScene::RandomizeName()
     auto op = RandomName();
     if (op.has_value())
     {
-        worldName_ = op.value();
+        createWorldDataModel_.worldName_ = op.value();
     }
 }
 
 void glimmer::CreateWorldScene::RandomizeSeed()
 {
     const int newSeed = RandomUtils::Random<int>();
-    seedStr_ = std::to_string(newSeed);
+    createWorldDataModel_.seedStr_ = std::to_string(newSeed);
 }
 
 void glimmer::CreateWorldScene::OnRandomClick(Rml::DataModelHandle handle, Rml::Event& event,
@@ -147,15 +147,15 @@ void glimmer::CreateWorldScene::OnBackClick(Rml::DataModelHandle handle, Rml::Ev
 
 void glimmer::CreateWorldScene::CreateWorld() const
 {
-    std::string name = worldName_;
+    std::string name = createWorldDataModel_.worldName_;
     if (name.empty())
     {
         LogCat::w(std::source_location::current(), "World name cannot be empty");
         return;
     }
     LogCat::i("Creating new world: name=", name);
-    
-    const std::string seedInput = seedStr_;
+
+    const std::string seedInput = createWorldDataModel_.seedStr_;
     int seedValue = 0;
     if (StringUtils::IsInteger(seedInput))
     {
@@ -175,17 +175,17 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.createTime = TimeUtils::GetCurrentTimeMs();
     manifest.lastPlayedTime = manifest.createTime;
     manifest.totalPlayTime = 0;
-    manifest.allowCheats = allowCheats_;
-    
-    LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", allowCheats_);
-    
+    manifest.allowCheats = createWorldDataModel_.allowCheats_;
+
+    LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", createWorldDataModel_.allowCheats_);
+
     auto savesManager = GetAppContext()->GetSavesManager();
     if (savesManager == nullptr)
     {
         LogCat::e(std::source_location::current(), "savesManager is nullptr");
         return;
     }
-    
+
     Saves* saves = savesManager->Create(GetAppContext()->GetConfig()->runtimePath, manifest);
     if (saves == nullptr)
     {
@@ -193,7 +193,7 @@ void glimmer::CreateWorldScene::CreateWorld() const
         return;
     }
     LogCat::i("World saved successfully");
-    
+
     GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<WorldScene>(
         GetAppContext(), std::make_unique<WorldContext>(
             GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),

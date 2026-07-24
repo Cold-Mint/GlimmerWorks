@@ -40,9 +40,13 @@ glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContex
         LogCat::e(std::source_location::current(), "worldContext is nullptr");
         return;
     }
-    worldContext_->SetScene(this);
+    systemScheduler_ = worldContext_->GetSystemScheduler();
+    if (systemScheduler_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "systemScheduler is nullptr");
+        return;
+    }
     LogCat::i("Creating WorldScene: worldName=", worldContext_->GetMapManifest()->name);
-
     if (context != nullptr)
     {
         context->GetWindowContext()->SetWindowTitle(
@@ -53,34 +57,29 @@ glimmer::WorldScene::WorldScene(AppContext* context, std::unique_ptr<WorldContex
 
 void glimmer::WorldScene::OnFrameStart()
 {
-    if (worldContext_ == nullptr)
+    if (systemScheduler_ == nullptr)
     {
         return;
     }
-    worldContext_->GetSystemScheduler()->OnFrameStart();
+    systemScheduler_->OnFrameStart();
 }
 
 bool glimmer::WorldScene::HandleEvent(const SDL_Event& event)
 {
-    if (worldContext_ == nullptr)
+    if (systemScheduler_ == nullptr)
     {
         return false;
     }
-    SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
-    if (systemScheduler == nullptr)
-    {
-        return false;
-    }
-    if (event.type == SDL_EVENT_KEY_DOWN && !systemScheduler->HasAnyModalGuiOpen())
+    if (event.type == SDL_EVENT_KEY_DOWN && !systemScheduler_->HasAnyModalGuiOpen())
     {
         //When a certain key is pressed and there is no system display currently active.
         //当按下某个键，且没有系统正在显示中时。
         if (event.key.scancode == SDL_SCANCODE_E)
         {
-            systemScheduler->PushGuiSystemType(GameSystemType::InventoryCraftGUISystem);
+            systemScheduler_->PushGuiSystemType(GameSystemType::InventoryCraftGUISystem);
         }
     }
-    return systemScheduler->HandleEvent(event);
+    return systemScheduler_->HandleEvent(event);
 }
 
 bool glimmer::WorldScene::OnBackPressed()
@@ -156,76 +155,69 @@ void glimmer::WorldScene::Render(SDL_Renderer* renderer)
     {
         return;
     }
-    const SystemScheduler* systemScheduler = worldContext_->GetSystemScheduler();
-    if (systemScheduler == nullptr)
+    if (systemScheduler_ == nullptr)
     {
         return;
     }
-    systemScheduler->Render(renderer);
+    systemScheduler_->Render(renderer);
 }
 
 void glimmer::WorldScene::LoadDocuments()
 {
-    ResourceRef resourceRef;
-    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
-    resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("pages/pause/pause");
-    Rml::ElementDocument* document = LoadSingleDocument(&resourceRef);
-    if (document != nullptr)
-    {
-        RegisterDocument(PAUSE_DOCUMENT_NAME, document);
-        document->Hide();
-        LogCat::i("Pause menu document loaded and hidden");
-    }
+    //todo:实现我
+    systemScheduler_->LoadDocuments(this);
 
-    resourceRef.SetResourceKey("pages/hotbar/hotbar");
-    document = LoadSingleDocument(&resourceRef);
-    if (document != nullptr)
-    {
-        RegisterDocument("hotbar_menu", document);
-        document->Show();
-        LogCat::i("HotBar document loaded and shown");
-    }
+    // worldScenePtr.lock();
+
+
+    // if (worldContext_ == nullptr)
+    // {
+    //     return;
+    // }
+    // ResourceRef resourceRef;
+    // resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    // resourceRef.SetResourceType(RESOURCE_RML_PATH);
+    // resourceRef.SetResourceKey("pages/pause/pause");
+    // Rml::ElementDocument* pauseDocument = LoadSingleDocument(&resourceRef);
+    // if (pauseDocument == nullptr)
+    // {
+    //     LogCat::e(std::source_location::current(), "pauseDocument == nullptr");
+    //     return;
+    // }
+    // pauseDocument->Hide();
+    // worldContext_->AddDocument(PAUSE_DOCUMENT_NAME, pauseDocument);
 }
 
 void glimmer::WorldScene::OnCreateDataModels()
 {
-    SystemScheduler* systemScheduler = worldContext_ != nullptr ? worldContext_->GetSystemScheduler() : nullptr;
-    if (systemScheduler == nullptr)
-    {
-        LogCat::w(std::source_location::current(), "systemScheduler is nullptr");
-        return;
-    }
-
-    pauseSystem_ = dynamic_cast<PauseSystem*>(systemScheduler->GetSystemByType(GameSystemType::PauseSystem));
-    if (pauseSystem_ == nullptr)
-    {
-        LogCat::w(std::source_location::current(), "PauseSystem not found");
-        return;
-    }
-
+    // SystemScheduler* systemScheduler = worldContext_ != nullptr ? worldContext_->GetSystemScheduler() : nullptr;
+    // if (systemScheduler == nullptr)
+    // {
+    //     LogCat::w(std::source_location::current(), "systemScheduler is nullptr");
+    //     return;
+    // }
+    //
+    // pauseSystem_ = dynamic_cast<PauseSystem*>(systemScheduler->GetSystemByType(GameSystemType::PauseSystem));
+    // if (pauseSystem_ == nullptr)
+    // {
+    //     LogCat::w(std::source_location::current(), "PauseSystem not found");
+    //     return;
+    // }
+    //
     Rml::DataModelConstructor* constructor = CreateDataModel("pause_system");
     if (constructor == nullptr)
     {
-        LogCat::w(std::source_location::current(), "Failed to create pause_system data model");
+        LogCat::e(std::source_location::current(), "Failed to create pause_system data model");
         return;
     }
 
     constructor->BindEventCallback("on_resume_button_click",
                                    [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
                                    {
-                                       if (pauseSystem_ != nullptr)
-                                       {
-                                           pauseSystem_->OnResumeButtonClick(handle, event, args);
-                                       }
                                    });
 
     constructor->BindEventCallback("on_save_and_exit_button_click",
                                    [this](Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
                                    {
-                                       if (pauseSystem_ != nullptr)
-                                       {
-                                           pauseSystem_->OnSaveAndExitButtonClick(handle, event, args);
-                                       }
                                    });
 }

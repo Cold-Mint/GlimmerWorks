@@ -90,14 +90,22 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
 
     callback_ = itemContainer_->AddOnContentChanged([this](uint8_t index, Item* item, ContainerChangeType changeType)
     {
-        LogCat::i("AddOnContentChanged index=", std::to_string(index));
         auto dataModel = GetItemSlotDataModel(index);
-        if (dataModel == nullptr)
+        if (dataModel == nullptr || item == nullptr)
         {
+            LogCat::w(std::source_location::current(), "Lack of key variables.");
             return;
         }
         const ResourceRef* iconResourceRef = item->GetIconResourceRef();
         dataModel->image = iconResourceRef->GetResourceKey();
+        if (const ItemStackModule* stackModule = item->GetStackModule(); stackModule == nullptr)
+        {
+            dataModel->amount = 1;
+        }
+        else
+        {
+            dataModel->amount = stackModule->GetAmount();
+        }
         if (constructor_ != nullptr)
         {
             constructor_->GetModelHandle().DirtyVariable("item_slots");
@@ -121,11 +129,32 @@ void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry* documentReg
     {
         linkStruct.RegisterMember("image", &ItemSlotDataModel::image);
         linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
-        linkStruct.RegisterMember("background", &ItemSlotDataModel::background);
-        linkStruct.RegisterMember("selected_background", &ItemSlotDataModel::selectedBackground);
+        linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
         constructor_->RegisterArray<std::vector<ItemSlotDataModel>>();
     }
     constructor_->Bind("item_slots", &itemSlots_);
+}
+
+void glimmer::HotBarGUISystem::UpdateSelectedSlot(const uint8_t beforeIndex, const uint8_t nextIndex)
+{
+    auto beforeDataModel = GetItemSlotDataModel(beforeIndex);
+    if (beforeDataModel != nullptr)
+    {
+        beforeDataModel->selected = false;
+    }
+
+    auto nextDataModel = GetItemSlotDataModel(nextIndex);
+    if (nextDataModel != nullptr)
+    {
+        nextDataModel->selected = true;
+    }
+
+    itemContainer_->SetSelectIndex(nextIndex);
+
+    if (constructor_ != nullptr)
+    {
+        constructor_->GetModelHandle().DirtyVariable("item_slots");
+    }
 }
 
 bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event& event)
@@ -141,36 +170,25 @@ bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event& event)
         uint8_t nextIndex = beforeIndex;
         if (event.wheel.y > 0)
         {
-            nextIndex -= 1;
+            nextIndex = nextIndex == 0 ? HOT_BAR_SIZE - 1 : nextIndex - 1;
         }
         else if (event.wheel.y < 0)
         {
-            nextIndex += 1;
+            nextIndex = nextIndex >= HOT_BAR_SIZE - 1 ? 0 : nextIndex + 1;
         }
-
-        if (nextIndex < 0)
-        {
-            nextIndex = HOT_BAR_SIZE - 1;
-        }
-        if (nextIndex >= HOT_BAR_SIZE)
-        {
-            nextIndex = 0;
-        }
-        auto beforeDataModel = GetItemSlotDataModel(beforeIndex);
-        if (beforeDataModel != nullptr)
-        {
-            beforeDataModel->selected = false;
-        }
-        auto nextDataModel = GetItemSlotDataModel(nextIndex);
-        if (nextDataModel != nullptr)
-        {
-            nextDataModel->selected = false;
-        }
-        if (constructor_ != nullptr)
-        {
-            constructor_->GetModelHandle().DirtyVariable("item_slots");
-        }
+        UpdateSelectedSlot(beforeIndex, nextIndex);
         return true;
+    }
+
+    if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat)
+    {
+        if (event.key.scancode >= SDL_SCANCODE_1 && event.key.scancode <= SDL_SCANCODE_9)
+        {
+            const uint8_t beforeIndex = itemContainer_->GetSelectIndex();
+            const uint8_t nextIndex = event.key.scancode - SDL_SCANCODE_1;
+            UpdateSelectedSlot(beforeIndex, nextIndex);
+            return true;
+        }
     }
 
     return false;

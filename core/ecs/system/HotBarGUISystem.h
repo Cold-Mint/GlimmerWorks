@@ -41,6 +41,8 @@ namespace glimmer
 
         ItemSlotDataModel* GetItemSlotDataModel(uint8_t index);
 
+        void UpdateSelectedSlot(uint8_t beforeIndex, uint8_t nextIndex);
+
     public:
         explicit HotBarGUISystem(WorldContext* worldContext);
 

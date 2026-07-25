@@ -107,10 +107,10 @@ void glimmer::MobEntityCreator::LoadTemplateComponents(const uint32_t id, const 
             entityShortCut->SetCameraComponent(cameraComponent);
             entityShortCut->SetCameraTransform2DComponent(transform2DComponent);
         }
-        auto diggingComponent = entityManager->AddComponent<DiggingComponent>(id);
-        if (diggingComponent != nullptr)
+        auto miningComponent = entityManager->AddComponent<MiningComponent>(id);
+        if (miningComponent != nullptr)
         {
-            entityShortCut->SetDiggingComponent(diggingComponent);
+            entityShortCut->SetMiningComponent(miningComponent);
         }
         auto magnetComponent = entityManager->AddComponent<MagnetComponent>(id);
         if (magnetComponent != nullptr)

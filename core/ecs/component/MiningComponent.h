@@ -32,13 +32,13 @@
 namespace glimmer
 {
     /**
-     * DiggingComponent
+     * MiningComponent
      * 正在挖掘组件
      *
      * This component saves the state of the player digging blocks.
      * 此组件保存玩家挖掘方块的状态。
      */
-    class DiggingComponent : public GameComponent
+    class MiningComponent : public GameComponent
     {
         bool enable_ = false;
         bool activeSignal_ = false;
@@ -58,6 +58,11 @@ namespace glimmer
         int chainMiningRadius_ = 0;
 
     public:
+        /**
+         * IsEnable
+         * 是否正在挖掘中
+         * @return
+         */
         [[nodiscard]] bool IsEnable() const;
 
         void SetEnable(bool enable);

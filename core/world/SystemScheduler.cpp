@@ -406,7 +406,7 @@ void glimmer::SystemScheduler::InitSystem()
     RegisterSystem(std::make_unique<DroppedItemSystem>(worldContext_));
     RegisterSystem(std::make_unique<AutoPickSystem>(worldContext_));
     RegisterSystem(std::make_unique<AreaMarkerSystem>(worldContext_));
-    RegisterSystem(std::make_unique<DiggingSystem>(worldContext_));
+    RegisterSystem(std::make_unique<MiningSystem>(worldContext_));
     RegisterSystem(std::make_unique<SpiritRendererSystem>(worldContext_));
     RegisterSystem(std::make_unique<RayCast2DSystem>(worldContext_));
     RegisterSystem(std::make_unique<BiomeBGMSystem>(worldContext_));

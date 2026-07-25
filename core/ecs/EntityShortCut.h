@@ -29,7 +29,7 @@
 #include "component/AreaMarkerComponent.h"
 #include "component/BlueprintComponent.h"
 #include "component/CameraComponent.h"
-#include "component/DiggingComponent.h"
+#include "component/MiningComponent.h"
 #include "component/ItemContainerComponent.h"
 #include "component/ItemToolTipComponent.h"
 #include "component/ParallaxBackgroundComponent.h"
@@ -45,7 +45,7 @@ namespace glimmer
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         BlueprintComponent* blueprintComponent_ = nullptr;
         ItemContainerComponent* itemContainerComponent_ = nullptr;
-        DiggingComponent* diggingComponent_ = nullptr;
+        MiningComponent* miningComponent_ = nullptr;
         AreaMarkerComponent* areaMarkerComponent_ = nullptr;
         ParallaxBackgroundComponent* parallaxBackgroundComponent_ = nullptr;
         ItemToolTipComponent* itemToolTipComponent_ = nullptr;
@@ -63,10 +63,9 @@ namespace glimmer
 
         void SetItemToolTipComponent(ItemToolTipComponent* itemToolTipComponent);
 
-        void SetDiggingComponent(DiggingComponent* diggingComponent);
+        void SetMiningComponent(MiningComponent* miningComponent);
 
-        [[nodiscard]] DiggingComponent* GetDiggingComponent() const;
-
+        [[nodiscard]] MiningComponent* GetMiningComponent() const;
 
         void SetBlueprintComponent(BlueprintComponent* blueprintComponent);
 

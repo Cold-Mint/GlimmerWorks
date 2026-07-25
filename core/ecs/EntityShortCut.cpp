@@ -70,20 +70,20 @@ void glimmer::EntityShortCut::SetItemToolTipComponent(ItemToolTipComponent* item
     itemToolTipComponent_ = itemToolTipComponent;
 }
 
-void glimmer::EntityShortCut::SetDiggingComponent(DiggingComponent* diggingComponent)
+void glimmer::EntityShortCut::SetMiningComponent(MiningComponent* miningComponent)
 {
-    diggingComponent_ = diggingComponent;
+    this->miningComponent_ = miningComponent;
 }
 
-glimmer::DiggingComponent* glimmer::EntityShortCut::GetDiggingComponent() const
+glimmer::MiningComponent* glimmer::EntityShortCut::GetMiningComponent() const
 {
-    if (diggingComponent_ == nullptr)
+    if (miningComponent_ == nullptr)
     {
         LogCat::w(std::source_location::current(),
-                  "EntityShortCut: DiggingComponent pointer is null, digging system uninitialized");
+                  "EntityShortCut: miningComponent pointer is null, digging system uninitialized");
         return nullptr;
     }
-    return diggingComponent_;
+    return miningComponent_;
 }
 
 void glimmer::EntityShortCut::SetBlueprintComponent(BlueprintComponent* blueprintComponent)

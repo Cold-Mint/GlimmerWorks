@@ -24,113 +24,113 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "DiggingComponent.h"
+#include "MiningComponent.h"
 
 #include <utility>
 
-bool glimmer::DiggingComponent::IsEnable() const
+bool glimmer::MiningComponent::IsEnable() const
 {
     return enable_;
 }
 
-void glimmer::DiggingComponent::SetEnable(const bool enable)
+void glimmer::MiningComponent::SetEnable(const bool enable)
 {
     enable_ = enable;
 }
 
-void glimmer::DiggingComponent::SetMiningRangeData(MiningRangeData* miningRangeData)
+void glimmer::MiningComponent::SetMiningRangeData(MiningRangeData* miningRangeData)
 {
     miningRangeData_ = miningRangeData;
 }
 
-const glimmer::MiningRangeData* glimmer::DiggingComponent::GetMiningRangeData() const
+const glimmer::MiningRangeData* glimmer::MiningComponent::GetMiningRangeData() const
 {
     return miningRangeData_;
 }
 
-void glimmer::DiggingComponent::SetStartPosition(TileVector2D startPosition)
+void glimmer::MiningComponent::SetStartPosition(TileVector2D startPosition)
 {
     startPosition_ = std::move(startPosition);
 }
 
-const glimmer::TileVector2D& glimmer::DiggingComponent::GetStartPosition() const
+const glimmer::TileVector2D& glimmer::MiningComponent::GetStartPosition() const
 {
     return startPosition_;
 }
 
-float glimmer::DiggingComponent::GetProgress() const
+float glimmer::MiningComponent::GetProgress() const
 {
     return progress_;
 }
 
-void glimmer::DiggingComponent::SetLayerType(const TileLayerType tileLayerType)
+void glimmer::MiningComponent::SetLayerType(const TileLayerType tileLayerType)
 {
     layerType_ = tileLayerType;
 }
 
-glimmer::TileLayerType glimmer::DiggingComponent::GetLayerType() const
+glimmer::TileLayerType glimmer::MiningComponent::GetLayerType() const
 {
     return layerType_;
 }
 
-void glimmer::DiggingComponent::SetChainMiningRadius(const int chainMiningRadius)
+void glimmer::MiningComponent::SetChainMiningRadius(const int chainMiningRadius)
 {
     chainMiningRadius_ = chainMiningRadius;
 }
 
-int glimmer::DiggingComponent::GetChainMiningRadius() const
+int glimmer::MiningComponent::GetChainMiningRadius() const
 {
     return chainMiningRadius_;
 }
 
-void glimmer::DiggingComponent::SetProgress(const float progress)
+void glimmer::MiningComponent::SetProgress(const float progress)
 {
     progress_ = progress;
 }
 
-void glimmer::DiggingComponent::SetPrecisionMining(bool precisionMining)
+void glimmer::MiningComponent::SetPrecisionMining(bool precisionMining)
 {
     precisionMining_ = precisionMining;
 }
 
-bool glimmer::DiggingComponent::IsPrecisionMining() const
+bool glimmer::MiningComponent::IsPrecisionMining() const
 {
     return precisionMining_;
 }
 
-void glimmer::DiggingComponent::AddProgress(float progress)
+void glimmer::MiningComponent::AddProgress(float progress)
 {
     progress_ += progress;
 }
 
-void glimmer::DiggingComponent::SetEfficiency(float efficiency)
+void glimmer::MiningComponent::SetEfficiency(float efficiency)
 {
     efficiency_ = efficiency;
 }
 
-float glimmer::DiggingComponent::GetEfficiency() const
+float glimmer::MiningComponent::GetEfficiency() const
 {
     return efficiency_;
 }
 
-void glimmer::DiggingComponent::MarkActive()
+void glimmer::MiningComponent::MarkActive()
 {
     activeSignal_ = true;
 }
 
-bool glimmer::DiggingComponent::CheckAndResetActive()
+bool glimmer::MiningComponent::CheckAndResetActive()
 {
     const bool active = activeSignal_;
     activeSignal_ = false;
     return active;
 }
 
-GameComponentTypeMessage glimmer::DiggingComponent::GetComponentTypeStatic()
+GameComponentTypeMessage glimmer::MiningComponent::GetComponentTypeStatic()
 {
     return COMPONENT_DIGGING;
 }
 
-GameComponentTypeMessage glimmer::DiggingComponent::GetComponentType()
+GameComponentTypeMessage glimmer::MiningComponent::GetComponentType()
 {
     return GetComponentTypeStatic();
 }

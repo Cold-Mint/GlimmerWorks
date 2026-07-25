@@ -147,7 +147,7 @@ bool glimmer::TileItem::OnUse(const bool mouseLeft, WorldContext* worldContext, 
             }
             if (tileDimensions_ != nullptr)
             {
-                DiggingSystem::BreakTile({
+                MiningSystem::BreakTile({
                     .breakSource = BreakSource::PlayerOverride, .worldContext = worldContext,
                     .tileLayerComponent = tileLayer,
                     .topLeftVector = blueprintComponent->GetTopLeftVector(), .precisionMining = false,

@@ -416,7 +416,7 @@ target_sources(GlimmerWorks
         core/ecs/component/BlueprintComponent.cpp
         core/ecs/component/CameraComponent.cpp
         core/ecs/component/DebugDrawComponent.cpp
-        core/ecs/component/DiggingComponent.cpp
+        core/ecs/component/MiningComponent.cpp
         core/ecs/component/DroppedItemComponent.cpp
         core/ecs/component/FloatingTextComponent.cpp
         core/ecs/component/ItemContainerComponent.cpp
@@ -785,7 +785,7 @@ target_sources(GlimmerWorks
         core/ecs/component/BlueprintComponent.h
         core/ecs/component/CameraComponent.h
         core/ecs/component/DebugDrawComponent.h
-        core/ecs/component/DiggingComponent.h
+        core/ecs/component/MiningComponent.h
         core/ecs/component/DroppedItemComponent.h
         core/ecs/component/FloatingTextComponent.h
         core/ecs/component/ItemContainerComponent.h

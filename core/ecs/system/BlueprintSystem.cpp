@@ -131,9 +131,22 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     {
         blueprintComponent_ = entityShortCut->GetBlueprintComponent();
     }
+    if (gameComponentType == COMPONENT_DIGGING && miningComponent_ == nullptr)
+    {
+        miningComponent_ = entityShortCut->GetMiningComponent();
+        if (miningComponent_ == nullptr)
+        {
+            LogCat::e(std::source_location::current(), "miningComponent_ == nullptr");
+        }
+    }
     if (gameComponentType == COMPONENT_PLAYER && WorldContext::IsEmptyEntityId(player))
     {
         player = entityShortCut->GetPlayer();
+        playerComponent_ = entityManager->GetComponent<PlayerComponent>(player);
+        if (playerComponent_ == nullptr)
+        {
+            LogCat::e(std::source_location::current(), "playerComponent_ == nullptr");
+        }
     }
     if (gameComponentType == COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE)
     {
@@ -161,6 +174,7 @@ glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext)
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_PLAYER);
     WatchComponent(COMPONENT_BLUEPRINT);
+    WatchComponent(COMPONENT_DIGGING);
     WatchComponent(COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE);
     Init();
 }
@@ -202,14 +216,12 @@ glimmer::TileVector2D glimmer::BlueprintSystem::SetupHeldTileInfo(const TileVect
                                                                   uint8_t& tileHeight,
                                                                   TileVector2D& tileAnchor)
 {
-    EntityManager* entityManager = GetEntityManager();
     TileVector2D leftBottom = {0, 0};
-    auto playerComponent = entityManager->GetComponent<PlayerComponent>(player);
-    if (playerComponent == nullptr)
+    if (playerComponent_ == nullptr)
     {
         return leftBottom;
     }
-    Item* item = playerComponent->GetItem();
+    Item* item = playerComponent_->GetItem();
     if (item == nullptr)
     {
         return leftBottom;
@@ -368,23 +380,12 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
 {
     const WorldContext* worldContext = GetWorldContext();
     EntityManager* entityManager = GetEntityManager();
-    if (worldContext == nullptr)
-    {
-        return;
-    }
-    if (cameraComponent_ == nullptr)
-    {
-        return;
-    }
-    if (blueprintComponent_ == nullptr)
-    {
-        return;
-    }
-    if (cameraTransform2DComponent_ == nullptr)
-    {
-        return;
-    }
-    if (tileLayerComponent_ == nullptr)
+    if (worldContext == nullptr || entityManager == nullptr || cameraComponent_ == nullptr || blueprintComponent_ ==
+        nullptr ||
+        cameraTransform2DComponent_ == nullptr ||
+        tileLayerComponent_ == nullptr ||
+        playerComponent_ == nullptr ||
+        miningComponent_ == nullptr)
     {
         return;
     }
@@ -419,17 +420,20 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
         AppContext::RestoreColorRenderer(renderer);
         return;
     }
-    RenderBlueprintTexture(renderer, renderQuad);
-    std::vector<bool> checkRectResult = CheckRectPlacementValidity(heldTile_, leftBottom, playerPosition, tileWidth,
-                                                                   tileHeight);
-    if (checkRectResult.empty())
+    if (!miningComponent_->IsEnable())
     {
-        blueprintComponent_->SetCanPlace(false);
-        AppContext::RestoreColorRenderer(renderer);
-        return;
+        RenderBlueprintTexture(renderer, renderQuad);
+        std::vector<bool> checkRectResult = CheckRectPlacementValidity(heldTile_, leftBottom, playerPosition, tileWidth,
+                                                                       tileHeight);
+        if (checkRectResult.empty())
+        {
+            blueprintComponent_->SetCanPlace(false);
+            AppContext::RestoreColorRenderer(renderer);
+            return;
+        }
+        RenderBlueprintMask(renderer, checkRectResult, leftBottom, tileWidth);
+        blueprintComponent_->SetCanPlace(checkRectResult[checkRectResult.size() - 1]);
     }
-    RenderBlueprintMask(renderer, checkRectResult, leftBottom, tileWidth);
-    blueprintComponent_->SetCanPlace(checkRectResult[checkRectResult.size() - 1]);
     AppContext::RestoreColorRenderer(renderer);
 }
 

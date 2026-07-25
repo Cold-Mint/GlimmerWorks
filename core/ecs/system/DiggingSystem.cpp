@@ -35,12 +35,12 @@
 #include "core/inventory/TileItem.h"
 #include "core/world/generator/Chunk.h"
 #include "core/ecs/DroppedItemCreator.h"
-#include "core/ecs/component/DiggingComponent.h"
+#include "core/ecs/component/MiningComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/math/CoordinateTransformer.h"
 
 
-bool glimmer::DiggingSystem::CanProcessTile(const Tile* tile, bool isPlaceMode)
+bool glimmer::MiningSystem::CanProcessTile(const Tile* tile, bool isPlaceMode)
 {
     if (tile == nullptr)
     {
@@ -62,7 +62,7 @@ bool glimmer::DiggingSystem::CanProcessTile(const Tile* tile, bool isPlaceMode)
     return true;
 }
 
-void glimmer::DiggingSystem::SaveTileState(const TileStateMessage* tileState, TileStateBackup& backup)
+void glimmer::MiningSystem::SaveTileState(const TileStateMessage* tileState, TileStateBackup& backup)
 {
     backup.ReadResourceRefMessage(tileState->resourceref());
     backup.SetWidth(tileState->width());
@@ -70,7 +70,7 @@ void glimmer::DiggingSystem::SaveTileState(const TileStateMessage* tileState, Ti
     backup.ReadOffsetMessage(tileState->offset());
 }
 
-void glimmer::DiggingSystem::RestoreTileState(TileStateMessage* tileState, const TileStateBackup& backup)
+void glimmer::MiningSystem::RestoreTileState(TileStateMessage* tileState, const TileStateBackup& backup)
 {
     backup.WriteResourceRefMessage(*tileState->mutable_resourceref());
     tileState->set_width(backup.GetWidth());
@@ -78,7 +78,7 @@ void glimmer::DiggingSystem::RestoreTileState(TileStateMessage* tileState, const
     backup.WriteOffsetMessage(*tileState->mutable_offset());
 }
 
-bool glimmer::DiggingSystem::TryPlaceTile(const TileLayerComponent* tileLayerComponent,
+bool glimmer::MiningSystem::TryPlaceTile(const TileLayerComponent* tileLayerComponent,
                                           TileStateMessage* tileState,
                                           const TileVector2D& currentVector,
                                           const TileVector2D& topLeftVector,
@@ -109,7 +109,7 @@ bool glimmer::DiggingSystem::TryPlaceTile(const TileLayerComponent* tileLayerCom
     return false;
 }
 
-void glimmer::DiggingSystem::ApplyItemDurability(Item* item, const Tile* tile, bool isCenter)
+void glimmer::MiningSystem::ApplyItemDurability(Item* item, const Tile* tile, bool isCenter)
 {
     if (item == nullptr)
     {
@@ -126,7 +126,7 @@ void glimmer::DiggingSystem::ApplyItemDurability(Item* item, const Tile* tile, b
     }
 }
 
-void glimmer::DiggingSystem::DropDefaultLoot(WorldContext* worldContext, EntityManager* entityManager,
+void glimmer::MiningSystem::DropDefaultLoot(WorldContext* worldContext, EntityManager* entityManager,
                                              const std::shared_ptr<Tile>& tile, const TileVector2D& position,
                                              const ResourceRef& oldResourceRef)
 {
@@ -141,7 +141,7 @@ void glimmer::DiggingSystem::DropDefaultLoot(WorldContext* worldContext, EntityM
                                                   0));
 }
 
-void glimmer::DiggingSystem::DropTileLoot(WorldContext* worldContext, EntityManager* entityManager,
+void glimmer::MiningSystem::DropTileLoot(WorldContext* worldContext, EntityManager* entityManager,
                                           const std::shared_ptr<Tile>& tile, const TileVector2D& position,
                                           const ResourceRef& oldResourceRef, bool precisionMining)
 {
@@ -168,7 +168,7 @@ void glimmer::DiggingSystem::DropTileLoot(WorldContext* worldContext, EntityMana
     DropCustomLoot(worldContext, entityManager, appContext, lootResource, position);
 }
 
-void glimmer::DiggingSystem::DropCustomLoot(WorldContext* worldContext, EntityManager* entityManager,
+void glimmer::MiningSystem::DropCustomLoot(WorldContext* worldContext, EntityManager* entityManager,
                                             const AppContext* appContext, const LootResource* lootResource,
                                             const TileVector2D& topLeftVector)
 {
@@ -192,7 +192,7 @@ void glimmer::DiggingSystem::DropCustomLoot(WorldContext* worldContext, EntityMa
     }
 }
 
-void glimmer::DiggingSystem::PlayBreakSFX(const AppContext* appContext, const Tile* tile)
+void glimmer::MiningSystem::PlayBreakSFX(const AppContext* appContext, const Tile* tile)
 {
     if (appContext == nullptr || tile == nullptr)
     {
@@ -249,7 +249,7 @@ static bool CheckMiningEfficiency(const glimmer::Tile* tile, const glimmer::Item
     return true;
 }
 
-void glimmer::DiggingSystem::ProcessSingleTile(const TileBreakParams& params,
+void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams& params,
                                                const TileVector2D& currentVector,
                                                Item* item,
                                                const bool isCenter,
@@ -298,7 +298,7 @@ void glimmer::DiggingSystem::ProcessSingleTile(const TileBreakParams& params,
                  backup.GetResourceRef(), params.precisionMining);
 }
 
-uint16_t glimmer::DiggingSystem::BreakTile(const TileBreakParams& params)
+uint16_t glimmer::MiningSystem::BreakTile(const TileBreakParams& params)
 {
     if (params.worldContext == nullptr || params.tileLayerComponent == nullptr)
     {
@@ -348,13 +348,13 @@ uint16_t glimmer::DiggingSystem::BreakTile(const TileBreakParams& params)
     return sum;
 }
 
-void glimmer::DiggingSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+void glimmer::MiningSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
     const EntityShortCut* entityShortCut = GetEntityShortCut();
     EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_DIGGING && diggingComponent_ == nullptr)
+    if (gameComponentType == COMPONENT_DIGGING && miningComponent_ == nullptr)
     {
-        diggingComponent_ = entityShortCut->GetDiggingComponent();
+        miningComponent_ = entityShortCut->GetMiningComponent();
     }
     if (gameComponentType == COMPONENT_TRANSFORM_2D && cameraTransform2DComponent_ == nullptr)
     {
@@ -381,7 +381,7 @@ void glimmer::DiggingSystem::OnWatchedComponentChanged(GameComponentTypeMessage 
     }
 }
 
-glimmer::DiggingSystem::DiggingSystem(WorldContext* worldContext) : GameSystem(worldContext)
+glimmer::MiningSystem::MiningSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
     WatchComponent(COMPONENT_DIGGING);
     WatchComponent(COMPONENT_TRANSFORM_2D);
@@ -390,32 +390,32 @@ glimmer::DiggingSystem::DiggingSystem(WorldContext* worldContext) : GameSystem(w
     Init();
 }
 
-void glimmer::DiggingSystem::Update(const float delta)
+void glimmer::MiningSystem::Update(const float delta)
 {
     WorldContext* worldContext = GetWorldContext();
     if (worldContext == nullptr)
     {
         return;
     }
-    if (!diggingComponent_->CheckAndResetActive())
+    if (!miningComponent_->CheckAndResetActive())
     {
-        diggingComponent_->SetEnable(false);
-        diggingComponent_->SetProgress(0.0F);
+        miningComponent_->SetEnable(false);
+        miningComponent_->SetProgress(0.0F);
         return;
     }
-    diggingComponent_->SetEnable(true);
+    miningComponent_->SetEnable(true);
     for (auto tileLayer : tileLayerComponents_)
     {
         const TileLayerType tileLayerType = tileLayer->GetTileLayerType();
-        if (tileLayerType != diggingComponent_->GetLayerType())
+        if (tileLayerType != miningComponent_->GetLayerType())
         {
             continue;
         }
         // Accumulate progress
         // 积累进度
-        diggingComponent_->AddProgress(
-            diggingComponent_->GetEfficiency() / diggingComponent_->GetMiningRangeData()->GetMaxHardness() * delta);
-        if (diggingComponent_->GetProgress() >= 1.0F)
+        miningComponent_->AddProgress(
+            miningComponent_->GetEfficiency() / miningComponent_->GetMiningRangeData()->GetMaxHardness() * delta);
+        if (miningComponent_->GetProgress() >= 1.0F)
         {
             ProcessMiningComplete(tileLayer, tileLayerType);
         }
@@ -423,10 +423,10 @@ void glimmer::DiggingSystem::Update(const float delta)
     }
 }
 
-void glimmer::DiggingSystem::ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType)
+void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType)
 {
     WorldContext* worldContext = GetWorldContext();
-    const MiningRangeData* miningRangeData = diggingComponent_->GetMiningRangeData();
+    const MiningRangeData* miningRangeData = miningComponent_->GetMiningRangeData();
     const size_t pointsCount = miningRangeData->GetPointsCount();
     LogCat::i("Mining complete, processing ", pointsCount, " mining points");
     for (size_t i = 0; i < pointsCount; i++)
@@ -438,7 +438,7 @@ void glimmer::DiggingSystem::ProcessMiningComplete(const TileLayerComponent* til
         }
         uint16_t broken = BreakTile({
             BreakSource::PlayerMining, worldContext, tileLayer, point->GetTileTopLeftPosition(),
-            diggingComponent_->IsPrecisionMining(), false, point->GetWidth(),
+            miningComponent_->IsPrecisionMining(), false, point->GetWidth(),
             point->GetHeight(),
             TileResourceManager::GetAirResourceRef(tileLayerType)
         });
@@ -448,11 +448,11 @@ void glimmer::DiggingSystem::ProcessMiningComplete(const TileLayerComponent* til
                       point->GetTileTopLeftPosition().y, "): ", broken);
         }
     }
-    diggingComponent_->SetProgress(0.0F);
-    diggingComponent_->SetEnable(false);
+    miningComponent_->SetProgress(0.0F);
+    miningComponent_->SetEnable(false);
 }
 
-void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
+void glimmer::MiningSystem::Render(SDL_Renderer* renderer)
 {
     const WorldContext* worldContext = GetWorldContext();
     const AppContext* appContext = worldContext->GetAppContext();
@@ -474,11 +474,11 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
         cacheTexture_ = true;
         return;
     }
-    if (!diggingComponent_->IsEnable())
+    if (!miningComponent_->IsEnable())
     {
         return;
     }
-    const MiningRangeData* miningRangeData = diggingComponent_->GetMiningRangeData();
+    const MiningRangeData* miningRangeData = miningComponent_->GetMiningRangeData();
     float zoom = cameraComponent_->GetZoom();
     size_t pointsCount = miningRangeData->GetPointsCount();
     for (size_t i = 0; i < pointsCount; i++)
@@ -492,12 +492,12 @@ void glimmer::DiggingSystem::Render(SDL_Renderer* renderer)
     }
 }
 
-uint8_t glimmer::DiggingSystem::GetExecutionOrder()
+uint8_t glimmer::MiningSystem::GetExecutionOrder()
 {
     return EXECUTION_ORDER_DIGGING;
 }
 
-void glimmer::DiggingSystem::RenderDiggingPoint(SDL_Renderer* renderer, const MiningRangeDataPoint* point, float zoom)
+void glimmer::MiningSystem::RenderDiggingPoint(SDL_Renderer* renderer, const MiningRangeDataPoint* point, const float zoom) const
 {
     const TileVector2D& tileTopLeftPosition = point->GetTileTopLeftPosition();
     const WorldVector2D tileTopLeftPositionWorld = CoordinateTransformer::TileToWorld({
@@ -507,7 +507,7 @@ void glimmer::DiggingSystem::RenderDiggingPoint(SDL_Renderer* renderer, const Mi
         cameraTransform2DComponent_->GetPosition(), tileTopLeftPositionWorld, cameraComponent_->GetSize(),
         cameraComponent_->GetZoom());
     const auto maxIndex = static_cast<float>(textureResultList_.size() - 1);
-    const auto crackIndex = static_cast<uint8_t>(std::min(diggingComponent_->GetProgress() * maxIndex,
+    const auto crackIndex = static_cast<uint8_t>(std::min(miningComponent_->GetProgress() * maxIndex,
                                                           maxIndex));
     float w = TILE_SIZE * zoom * static_cast<float>(point->GetWidth());
     float h = TILE_SIZE * zoom * static_cast<float>(point->GetHeight());
@@ -527,7 +527,7 @@ void glimmer::DiggingSystem::RenderDiggingPoint(SDL_Renderer* renderer, const Mi
     }
 }
 
-glimmer::GameSystemType glimmer::DiggingSystem::GetGameSystemType() const
+glimmer::GameSystemType glimmer::MiningSystem::GetGameSystemType() const
 {
     return GameSystemType::DiggingSystem;
 }

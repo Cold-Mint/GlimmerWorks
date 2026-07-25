@@ -28,6 +28,7 @@
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/BlueprintComponent.h"
 #include "core/ecs/component/CameraComponent.h"
+#include "core/ecs/component/PlayerComponent.h"
 #include "core/ecs/component/TileLayerComponent.h"
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/world/PreloadColors.h"
@@ -50,6 +51,8 @@ namespace glimmer
         std::vector<GameEntityID> entities_;
         uint32_t tilePlacementForbiddenZoneCount_ = 0;
         uint32_t transform2DCount_ = 0;
+        PlayerComponent* playerComponent_ = nullptr;
+        MiningComponent* miningComponent_ = nullptr;
 
         /**
          * 检查矩形区域放置的可行性

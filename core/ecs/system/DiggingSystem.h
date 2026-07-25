@@ -38,17 +38,16 @@
 
 namespace glimmer
 {
-    class DiggingComponent;
     class CameraComponent;
     class Transform2DComponent;
     class TileVector2D;
     class Item;
 
-    class DiggingSystem : public GameSystem
+    class MiningSystem : public GameSystem
     {
         bool cacheTexture_ = false;
         std::vector<std::shared_ptr<TextureResourceResult>> textureResultList_ = {};
-        DiggingComponent* diggingComponent_ = nullptr;
+        MiningComponent* miningComponent_ = nullptr;
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         std::vector<const TileLayerComponent*> tileLayerComponents_;
@@ -97,14 +96,14 @@ namespace glimmer
 
         void ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType);
 
-        void RenderDiggingPoint(SDL_Renderer* renderer, const MiningRangeDataPoint* point, float zoom);
+        void RenderDiggingPoint(SDL_Renderer* renderer, const MiningRangeDataPoint* point, float zoom) const;
 
     public:
         static uint16_t BreakTile(const TileBreakParams& params);
 
         void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
 
-        explicit DiggingSystem(WorldContext* worldContext);
+        explicit MiningSystem(WorldContext* worldContext);
 
         void Update(float delta) override;
 

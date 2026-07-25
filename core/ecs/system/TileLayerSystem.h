@@ -30,19 +30,20 @@
 
 namespace glimmer
 {
-    enum class  TileLayerType : uint8_t;
+    enum class TileLayerType : uint8_t;
 
     class TileLayerSystem final : public GameSystem
     {
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         std::vector<TileLayerComponent*> tileLayerComponents_;
+        bool lightEnabled_ = false;
 
-        bool ShouldDrawTile(const Color* finalLightColor, const Config* config) const;
+        bool ShouldDrawTile(const Color* finalLightColor) const;
 
         void RenderTileSnapshot(SDL_Renderer* renderer, const TileSnapshot* tileSnapshot,
                                 const TileVector2D& tileCoord, Uint8 alpha,
-                                const Color* finalLightColor, const Config* config,
+                                const Color* finalLightColor,
                                 std::unordered_set<uint64_t>& drawnTiles) const;
 
     public:
@@ -54,7 +55,7 @@ namespace glimmer
 
         uint8_t GetExecutionOrder() override;
 
-        bool HandleEvent(const SDL_Event& event) override;
+        void OnConfigChanged(const Config* config) override;
 
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
     };

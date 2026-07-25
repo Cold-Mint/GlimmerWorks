@@ -45,7 +45,7 @@ namespace glimmer
         bool needRefreshTag_ = true;
         uint8_t selectIndex_ = 0;
         std::vector<std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>> onContentChanged_;
-        std::vector<std::shared_ptr<std::function<void(uint8_t, Item*)>>> onSelectIndexChanged_;
+        std::vector<std::shared_ptr<std::function<void(uint8_t)>>> onSelectIndexChanged_;
 
         /**
          * Binding Item Event
@@ -65,7 +65,7 @@ namespace glimmer
 
         void InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange);
 
-        void InvokeOnSelectIndexChanged(uint8_t index, Item* item) const;
+        void InvokeOnSelectIndexChanged(uint8_t index) const;
 
         void CacheItemTag(Item* item);
 
@@ -75,8 +75,8 @@ namespace glimmer
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> AddOnContentChanged(
             const std::function<void(uint8_t, Item*, ContainerChangeType)>& onContentChanged);
 
-        std::shared_ptr<std::function<void(uint8_t, Item*)>> AddOnSelectIndexChanged(
-            std::function<void(uint8_t, Item*)>& onSelectIndexChanged);
+        std::shared_ptr<std::function<void(uint8_t)>> AddOnSelectIndexChanged(
+            const std::function<void(uint8_t)>& onSelectIndexChanged);
 
         /**
          * Set the capacity of the item container.
@@ -89,7 +89,7 @@ namespace glimmer
             const std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>>& onContentChanged);
 
         void RemoveOnSelectIndexChanged(
-            const std::shared_ptr<std::function<void(uint8_t, Item*)>>& onSelectIndexChanged);
+            const std::shared_ptr<std::function<void(uint8_t)>>& onSelectIndexChanged);
 
         /**
          * SetSelectIndex

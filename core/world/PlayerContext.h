@@ -29,6 +29,7 @@
 #include <functional>
 #include <memory>
 
+#include "core/ecs/component/PlayerComponent.h"
 #include "core/inventory/ComposableItem.h"
 #include "core/inventory/Item.h"
 
@@ -56,9 +57,9 @@ namespace glimmer
         void InitPlayerInventory(uint32_t playerEntity) const;
 
         void OnPlayerItemChanged(const ItemContainer* itemContainer, uint8_t index, Item* item,
-                                 ContainerChangeType changeType, uint32_t playerEntity);
+                                 PlayerComponent* playerComponent) const;
 
-        void HandleItemBreak(Item* item, uint32_t playerEntity) const;
+        void HandleItemBreak(Item* item, PlayerComponent* playerComponent) const;
 
         void DropComposableItemAbilities(const ComposableItem* composableItem) const;
 

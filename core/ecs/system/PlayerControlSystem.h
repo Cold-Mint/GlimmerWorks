@@ -79,8 +79,8 @@ namespace glimmer
         static void UpdateFlying(float delta, const PlayerInputHandler* playerInputHandler,
                                  Transform2DComponent* transform2DComponent);
 
-        void UpdateGroundedMovement(PlayerInputHandler* playerInputHandler, PlayerComponent* playerComponent,
-                                    RigidBody2DComponent* rigidBody2DComponent) const;
+        void UpdateGroundedMovement(PlayerInputHandler* playerInputHandler, const PlayerComponent* playerComponent,
+                                    const RigidBody2DComponent* rigidBody2DComponent) const;
 
         static void UpdateJump(const PlayerComponent* playerComponent, PlayerInputHandler* playerInputHandler,
                         const RigidBody2DComponent* rigidBody2DComponent,

@@ -48,13 +48,9 @@ glimmer::ItemSlotDataModel* glimmer::HotBarGUISystem::GetItemSlotDataModel(const
 
 glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GuiGameSystem(worldContext)
 {
-    LogCat::i("HotBarGUISystem constructor called");
-    LogCat::i("entityShortCut=", GetEntityShortCut() != nullptr ? "not null" : "nullptr");
     itemSlots_.resize(HOT_BAR_SIZE);
-    LogCat::i("itemSlots initialized, size=", std::to_string(itemSlots_.size()));
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     Init();
-    LogCat::i("HotBarGUISystem created");
 }
 
 glimmer::HotBarGUISystem::~HotBarGUISystem()
@@ -98,7 +94,7 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
     callback_ = itemContainer_->AddOnContentChanged(
         [this](const uint8_t index, const Item* item, ContainerChangeType changeType)
         {
-            auto dataModel = GetItemSlotDataModel(index);
+            const auto dataModel = GetItemSlotDataModel(index);
             if (dataModel == nullptr)
             {
                 LogCat::w(std::source_location::current(), "dataModel == nullptr");
@@ -109,8 +105,6 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
             if (stackModule != nullptr)
             {
                 amount = stackModule->GetAmount();
-                LogCat::d("maxStack = ", static_cast<int>(stackModule->GetMaxStack()), ", index = ",
-                          static_cast<int>(index));
             }
             if (amount == 0)
             {
@@ -175,6 +169,7 @@ void glimmer::HotBarGUISystem::LoadInitialHotbarItems()
         {
             continue;
         }
+        dataModel->selected = i == itemContainer_->GetSelectIndex();
         if (item == nullptr)
         {
             dataModel->image = "";
@@ -210,7 +205,6 @@ void glimmer::HotBarGUISystem::UpdateSelectedSlot(const uint8_t beforeIndex, con
         nextDataModel->selected = true;
     }
     itemContainer_->SetSelectIndex(nextIndex);
-    LogCat::w(std::source_location::current(), "playerComponent->SetItem");
     if (constructor_ != nullptr)
     {
         constructor_->GetModelHandle().DirtyVariable("item_slots");

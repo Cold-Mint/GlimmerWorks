@@ -110,17 +110,33 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef& resourceRef)
         entityShortCut->SetPlayer(playerEntity);
         return;
     }
-    auto* tempPlayerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
-    if (tempPlayerComponent != nullptr)
+    auto* playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
+    if (playerComponent != nullptr)
     {
-        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
-        tempPlayerComponent->SetItem(itemContainer->GetItem(0));
+        playerComponent->SetItem(itemContainer->GetItem(0));
     }
     itemCallback_ = itemContainer->AddOnContentChanged(
-        [this, playerEntity, itemContainer](uint8_t index, Item* item, ContainerChangeType changeType)
+        [this, playerComponent, itemContainer](const uint8_t index, Item* item, ContainerChangeType changeType)
         {
-            OnPlayerItemChanged(itemContainer, index, item, changeType, playerEntity);
+            if (playerComponent == nullptr)
+            {
+                LogCat::e(std::source_location::current(),
+                          "itemContainer->AddOnSelectIndexChanged playerComponent == nullptr");
+                return;
+            }
+            OnPlayerItemChanged(itemContainer, index, item, playerComponent);
         });
+
+    itemContainer->AddOnSelectIndexChanged([playerComponent,itemContainer](const uint8_t index)
+    {
+        if (playerComponent == nullptr)
+        {
+            LogCat::e(std::source_location::current(),
+                      "itemContainer->AddOnSelectIndexChanged playerComponent == nullptr");
+            return;
+        }
+        playerComponent->SetItem(itemContainer->GetItem(index));
+    });
     entityShortCut->SetPlayer(playerEntity);
 }
 
@@ -193,53 +209,43 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) co
 }
 
 void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer* itemContainer, uint8_t index, Item* item,
-                                                 ContainerChangeType changeType, uint32_t playerEntity)
+                                                 PlayerComponent* playerComponent) const
 {
     if (index != itemContainer->GetSelectIndex())
     {
         return;
     }
-    auto* playerComponent = worldContext_->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity);
-    if (playerComponent == nullptr)
-    {
-        return;
-    }
     if (item == nullptr)
     {
-        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
         return;
     }
     const ItemStackModule* itemStackModule = item->GetStackModule();
     if (itemStackModule == nullptr)
     {
-        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
         return;
     }
     if (const uint8_t amount = itemStackModule->GetAmount(); amount == 0)
     {
-        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
         return;
     }
     const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule();
     if (itemDurabilityModule == nullptr)
     {
-        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
         return;
     }
     if (!itemDurabilityModule->IsUnbreakable() && item->GetRemaining() == 0)
     {
-        HandleItemBreak(item, playerEntity);
+        HandleItemBreak(item, playerComponent);
         return;
     }
-    LogCat::w(std::source_location::current(), "playerComponent->SetItem");
     playerComponent->SetItem(item);
 }
 
-void glimmer::PlayerContext::HandleItemBreak(Item* item, const uint32_t playerEntity) const
+void glimmer::PlayerContext::HandleItemBreak(Item* item, PlayerComponent* playerComponent) const
 {
     if (itemBreakSFXResult_ != nullptr)
     {
@@ -254,10 +260,8 @@ void glimmer::PlayerContext::HandleItemBreak(Item* item, const uint32_t playerEn
     {
         DropComposableItemAbilities(composableItem);
     }
-    auto* playerComponent = worldContext_->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity);
     if (playerComponent != nullptr)
     {
-        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
     }
 }

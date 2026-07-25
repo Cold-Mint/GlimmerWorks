@@ -61,10 +61,9 @@ void glimmer::ItemDurabilityModule::SetOnUsedDurabilityChanged(
 void glimmer::ItemDurabilityModule::AddUsedDurability(const uint32_t value)
 {
     const uint32_t newValue = usedDurability_ + value;
-    if (newValue > GetMaxDurability())
+    if (const uint32_t maxDurability = maxDurability_; newValue > maxDurability)
     {
-        SetUsedDurability(GetMaxDurability());
-        LogCat::w(std::source_location::current(), "Item durability exceeded max, item broken");
+        SetUsedDurability(maxDurability);
         return;
     }
     SetUsedDurability(newValue);
@@ -85,9 +84,11 @@ void glimmer::ItemDurabilityModule::RemoveUsedDurability(const uint32_t value)
 void glimmer::ItemDurabilityModule::SetUsedDurability(const uint32_t value)
 {
     usedDurability_ = value;
-    const std::function<void(uint32_t, uint32_t)> onUsedDurabilityChangedCopy = onUsedDurabilityChanged_;
-    if (onUsedDurabilityChangedCopy != nullptr)
+    if (!unbreakable_)
     {
-        onUsedDurabilityChangedCopy(GetMaxDurability(), value);
+        if (const std::function<void(uint32_t, uint32_t)> onUsedDurabilityChangedCopy = onUsedDurabilityChanged_; onUsedDurabilityChangedCopy != nullptr)
+        {
+            onUsedDurabilityChangedCopy(GetMaxDurability(), value);
+        }
     }
 }

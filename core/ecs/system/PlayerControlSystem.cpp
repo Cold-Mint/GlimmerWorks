@@ -47,12 +47,39 @@ glimmer::PlayerControlSystem::PlayerControlSystem(WorldContext* worldContext) : 
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "appContext == nullptr");
+        return;
+    }
     ResourceRef ref;
     ref.SetSelfPackageId(RESOURCE_REF_CORE);
     ref.SetResourceType(RESOURCE_AUDIO);
     ref.SetResourceKey("sfx/drop_item");
-    dropItemSFXResult_ = appContext->GetResourceLocator()->FindAudio(&ref);
-    audioManager_ = appContext->GetAudioContext()->GetAudioManager();
+    const ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "resourceLocator == nullptr");
+        return;
+    }
+    dropItemSFXResult_ = resourceLocator->FindAudio(&ref);
+    if (dropItemSFXResult_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "dropItemSFXResult_ == nullptr");
+        return;
+    }
+    const AudioContext* audioContext = appContext->GetAudioContext();
+    if (audioContext == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "audioContext == nullptr");
+        return;
+    }
+    audioManager_ = audioContext->GetAudioManager();
+    if (audioManager_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "audioManager_ == nullptr");
+        return;
+    }
     Init();
 }
 
@@ -308,8 +335,7 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
     LogCat::i("Player dropped item: slot=", index);
     if (dropItemSFXResult_ != nullptr)
     {
-        MIX_Audio* audio = dropItemSFXResult_->GetResource();
-        if (audio != nullptr)
+        if (MIX_Audio* audio = dropItemSFXResult_->GetResource(); audio != nullptr)
         {
             audioManager_->TryPlayFree(AudioType::AMBIENT, audio, 0);
         }
@@ -332,7 +358,7 @@ void glimmer::PlayerControlSystem::UseItem(Item* item)
         LogCat::w(std::source_location::current(), "Use item == nullptr");
         return;
     }
-    LogCat::d("Use item name=",item->GetName());
+    LogCat::d("Use item name=", item->GetName());
     popupAbility_.clear();
     item->OnUse(worldContext, playerEntityID_, item->GetAbilityConfig(), popupAbility_);
 }
@@ -347,8 +373,8 @@ void glimmer::PlayerControlSystem::UpdateFlying(const float delta, const PlayerI
 }
 
 void glimmer::PlayerControlSystem::UpdateGroundedMovement(PlayerInputHandler* playerInputHandler,
-                                                          PlayerComponent* playerComponent,
-                                                          RigidBody2DComponent* rigidBody2DComponent) const
+                                                          const PlayerComponent* playerComponent,
+                                                          const RigidBody2DComponent* rigidBody2DComponent) const
 {
     const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
     bool isGrounded = OnGround(playerComponent);

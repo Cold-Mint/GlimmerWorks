@@ -74,7 +74,7 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>&
     }
 }
 
-void glimmer::ItemContainer::UnBindItemEvent(uint8_t index, Item* item)
+void glimmer::ItemContainer::UnBindItemEvent(const uint8_t index, Item* item)
 {
     if (item == nullptr)
     {
@@ -109,15 +109,15 @@ void glimmer::ItemContainer::InvokeOnContentChanged(uint8_t index, Item* item, C
     }
 }
 
-void glimmer::ItemContainer::InvokeOnSelectIndexChanged(uint8_t index, Item* item) const
+void glimmer::ItemContainer::InvokeOnSelectIndexChanged(uint8_t index) const
 {
-    if (onContentChanged_.empty())
+    if (onSelectIndexChanged_.empty())
     {
         return;
     }
     for (const auto& onChanged : onSelectIndexChanged_)
     {
-        (*onChanged)(index, item);
+        (*onChanged)(index);
     }
 }
 
@@ -210,10 +210,10 @@ glimmer::ItemContainer::AddOnContentChanged(
     return ptr;
 }
 
-std::shared_ptr<std::function<void(uint8_t, glimmer::Item*)>> glimmer::ItemContainer::AddOnSelectIndexChanged(
-    std::function<void(uint8_t, Item*)>& onSelectIndexChanged)
+std::shared_ptr<std::function<void(uint8_t)>> glimmer::ItemContainer::AddOnSelectIndexChanged(
+    const std::function<void(uint8_t)>& onSelectIndexChanged)
 {
-    auto ptr = std::make_shared<std::function<void(uint8_t, Item*)>>(onSelectIndexChanged);
+    auto ptr = std::make_shared<std::function<void(uint8_t)>>(onSelectIndexChanged);
     onSelectIndexChanged_.emplace_back(ptr);
     // Return the pointer. This pointer needs to be saved for removal purposes.
     // 返回指针，需要保存这个指针用于移除。
@@ -239,11 +239,11 @@ void glimmer::ItemContainer::RemoveOnContentChanged(
 }
 
 void glimmer::ItemContainer::RemoveOnSelectIndexChanged(
-    const std::shared_ptr<std::function<void(uint8_t, Item*)>>& onSelectIndexChanged)
+    const std::shared_ptr<std::function<void(uint8_t)>>& onSelectIndexChanged)
 {
     auto toRemove = std::ranges::remove_if(
         onSelectIndexChanged_,
-        [&](const std::shared_ptr<std::function<void(uint8_t, Item*)>>& ptr)
+        [&](const std::shared_ptr<std::function<void(uint8_t)>>& ptr)
         {
             return ptr == onSelectIndexChanged;
         }
@@ -258,6 +258,7 @@ void glimmer::ItemContainer::SetSelectIndex(const uint8_t index)
     {
         LogCat::e(std::source_location::current(), "Try to select elements in an empty container.");
         selectIndex_ = 0;
+        InvokeOnSelectIndexChanged(selectIndex_);
         return;
     }
     if (index >= size)
@@ -269,6 +270,7 @@ void glimmer::ItemContainer::SetSelectIndex(const uint8_t index)
     {
         selectIndex_ = index;
     }
+    InvokeOnSelectIndexChanged(selectIndex_);
 }
 
 uint8_t glimmer::ItemContainer::GetSelectIndex() const

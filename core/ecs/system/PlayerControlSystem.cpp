@@ -149,6 +149,14 @@ void glimmer::PlayerControlSystem::HandleMouseButton(const SDL_Event& event, Pla
     {
         playerInputHandler->SetMouseLeftDown(false);
     }
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_RIGHT)
+    {
+        playerInputHandler->SetMouseRightDown(true);
+    }
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_RIGHT)
+    {
+        playerInputHandler->SetMouseRightDown(false);
+    }
 }
 
 void glimmer::PlayerControlSystem::HandleHorizontalInput(const SDL_Event& event, PlayerComponent* playerComponent,
@@ -260,20 +268,15 @@ void glimmer::PlayerControlSystem::Update(const float delta)
     playerInputHandler->AddDropTimer(delta);
     CheckDropItem(playerInputHandler, itemContainer);
 
-    if (!playerInputHandler->IsMouseLeftDown())
+    if (playerInputHandler->IsMouseLeftDown() || playerInputHandler->IsMouseRightDown())
     {
-        return;
+        if (Item* item = playerComponent->GetItem(); !UseItem(playerInputHandler->IsMouseLeftDown(), item))
+        {
+            LogCat::w(std::source_location::current(),
+                      "Event of unconsumed held items is passed on to the default items.");
+            UseItem(playerInputHandler->IsMouseLeftDown(), playerComponent->GetEmptyHandAutoUseItem());
+        }
     }
-    Item* item = playerComponent->GetItem();
-    if (item == nullptr)
-    {
-        item = playerComponent->GetEmptyHandAutoUseItem();
-    }
-    if (item == nullptr)
-    {
-        return;
-    }
-    UseItem(item);
 }
 
 glimmer::GameSystemType glimmer::PlayerControlSystem::GetGameSystemType() const
@@ -350,17 +353,15 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
                                                   GetPosition(), std::move(takeItem), 2));
 }
 
-void glimmer::PlayerControlSystem::UseItem(Item* item)
+bool glimmer::PlayerControlSystem::UseItem(const bool mouseLeft, Item* item)
 {
     WorldContext* worldContext = GetWorldContext();
     if (item == nullptr)
     {
-        LogCat::w(std::source_location::current(), "Use item == nullptr");
-        return;
+        return false;
     }
-    LogCat::d("Use item name=", item->GetName());
     popupAbility_.clear();
-    item->OnUse(worldContext, playerEntityID_, item->GetAbilityConfig(), popupAbility_);
+    return item->OnUse(mouseLeft, worldContext, playerEntityID_, item->GetAbilityConfig(), popupAbility_);
 }
 
 void glimmer::PlayerControlSystem::UpdateFlying(const float delta, const PlayerInputHandler* playerInputHandler,

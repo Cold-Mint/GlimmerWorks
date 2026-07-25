@@ -147,7 +147,8 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     }
 }
 
-uint8_t glimmer::BlueprintSystem::GetExecutionOrder() {
+uint8_t glimmer::BlueprintSystem::GetExecutionOrder()
+{
     return EXECUTION_ORDER_BLUEPRINT;
 }
 
@@ -312,8 +313,7 @@ void glimmer::BlueprintSystem::RenderBlueprintTexture(SDL_Renderer* renderer, co
 }
 
 void glimmer::BlueprintSystem::RenderBlueprintMask(SDL_Renderer* renderer, const std::vector<bool>& checkRectResult,
-                                                   const TileVector2D& leftBottom, uint8_t tileWidth,
-                                                   uint8_t tileHeight)
+                                                   const TileVector2D& leftBottom, const uint8_t tileWidth) const
 {
     if (heldTile_ == nullptr)
     {
@@ -428,7 +428,7 @@ void glimmer::BlueprintSystem::Render(SDL_Renderer* renderer)
         AppContext::RestoreColorRenderer(renderer);
         return;
     }
-    RenderBlueprintMask(renderer, checkRectResult, leftBottom, tileWidth, tileHeight);
+    RenderBlueprintMask(renderer, checkRectResult, leftBottom, tileWidth);
     blueprintComponent_->SetCanPlace(checkRectResult[checkRectResult.size() - 1]);
     AppContext::RestoreColorRenderer(renderer);
 }

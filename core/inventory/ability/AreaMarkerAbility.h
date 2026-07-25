@@ -34,8 +34,8 @@ namespace glimmer
     public:
         explicit AreaMarkerAbility(const AbilityConfig& abilityConfigMessage);
 
-        void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
+        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+                   std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
 
         [[nodiscard]] const std::string& GetId() const override;
 

@@ -36,8 +36,9 @@ namespace glimmer
         bool pressedS_ = false;
         bool pressedD_ = false;
         bool jump_ = false;
-        int jumpBuffer_ = 0;
+        float jumpBuffer_ = 0;
         bool mouseLeftDown_ = false;
+        bool mouseRightDown_ = false;
         float dropTimer_ = 0.0F;
         bool dropPressed_ = false;
 
@@ -87,6 +88,10 @@ namespace glimmer
         void SetMouseLeftDown(bool mouseLeftDown);
 
         [[nodiscard]] bool IsMouseLeftDown() const;
+
+        void SetMouseRightDown(bool mouseRightDown);
+
+        [[nodiscard]] bool IsMouseRightDown() const;
 
         void ResetDropTimer();
 

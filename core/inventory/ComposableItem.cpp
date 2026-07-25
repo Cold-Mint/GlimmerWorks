@@ -135,7 +135,8 @@ const glimmer::AbilityConfig* glimmer::ComposableItem::GetAbilityConfig() const
     return &totalAbilityConfig_;
 }
 
-void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+bool glimmer::ComposableItem::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                                    const AbilityConfig* abilityConfig,
                                     std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
                                     popupAbility)
 {
@@ -143,8 +144,9 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, c
     if (entityManager == nullptr)
     {
         LogCat::w(std::source_location::current(), "entityManager == nullptr");
-        return;
+        return false;
     }
+    bool handle = false;
     const uint8_t max = itemContainer_->GetCapacity();
     //The ability to pop up
     //需要弹出的能力
@@ -184,8 +186,13 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, c
                                                           itemContainer_->TakeAllItem(index), 2));
             continue;
         }
-        itemAbility->OnUse(worldContext, user, abilityConfig, popupAbility);
+        const bool result = itemAbility->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);
+        if (!handle && result)
+        {
+            handle = result;
+        }
     }
+    return handle;
 }
 
 const glimmer::ResourceRef* glimmer::ComposableItem::GetIconResourceRef() const

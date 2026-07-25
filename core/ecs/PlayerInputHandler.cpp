@@ -156,6 +156,16 @@ bool glimmer::PlayerInputHandler::IsMouseLeftDown() const
     return mouseLeftDown_;
 }
 
+void glimmer::PlayerInputHandler::SetMouseRightDown(const bool mouseRightDown)
+{
+    mouseRightDown_ = mouseRightDown;
+}
+
+bool glimmer::PlayerInputHandler::IsMouseRightDown() const
+{
+    return mouseRightDown_;
+}
+
 float glimmer::PlayerInputHandler::GetDropTimer() const
 {
     return dropTimer_;

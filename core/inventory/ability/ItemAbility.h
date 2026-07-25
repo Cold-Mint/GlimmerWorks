@@ -55,7 +55,8 @@ namespace glimmer
 
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const;
 
-        virtual void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+        virtual bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                           const AbilityConfig* abilityConfig,
                            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) = 0;
 
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;

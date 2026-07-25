@@ -30,7 +30,6 @@
 #include "ComposableItem.h"
 #include "ItemAbilityFactory.h"
 #include "core/mod/ResourceLocator.h"
-#include "core/ecs/EcsTypes.h"
 #include "core/log/LogCat.h"
 
 
@@ -104,13 +103,15 @@ const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
     return itemAbility_->GetAbilityConfig();
 }
 
-void glimmer::AbilityItem::OnUse(WorldContext* worldContext, GameEntityID user, const AbilityConfig* abilityConfig,
+bool glimmer::AbilityItem::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                                 const AbilityConfig* abilityConfig,
                                  std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
 {
     if (canUseAlone_)
     {
-        itemAbility_->OnUse(worldContext, user, abilityConfig, popupAbility);
+        return itemAbility_->OnUse(mouseLeft, worldContext, user, abilityConfig, popupAbility);
     }
+    return false;
 }
 
 

@@ -37,15 +37,20 @@ glimmer::AreaMarkerAbility::AreaMarkerAbility(
 {
 }
 
-void glimmer::AreaMarkerAbility::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+bool glimmer::AreaMarkerAbility::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                                       const AbilityConfig* abilityConfig,
                                        std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
                                        popupAbility)
 {
+    if (mouseLeft)
+    {
+        return false;
+    }
     auto entityManager = worldContext->GetEntityManager();
     auto tileLayerEntityList = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER, COMPONENT_AREA_MARKER});
     if (tileLayerEntityList.empty())
     {
-        return;
+        return false;
     }
     const uint32_t gameEntity = tileLayerEntityList[0];
     const auto tileLayerComponent = entityManager->GetComponent<TileLayerComponent>(
@@ -53,10 +58,12 @@ void glimmer::AreaMarkerAbility::OnUse(WorldContext* worldContext, uint32_t user
     auto areaMarkerComponent = entityManager->GetComponent<AreaMarkerComponent>(gameEntity);
     if (tileLayerComponent == nullptr || areaMarkerComponent == nullptr)
     {
-        return;
+        return false;
     }
     areaMarkerComponent->SetPoint(tileLayerComponent->GetFocusPosition());
+    return true;
 }
+
 
 const std::string& glimmer::AreaMarkerAbility::GetId() const
 {

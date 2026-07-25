@@ -26,8 +26,6 @@
  */
 #include "PlayerComponent.h"
 
-#include "core/log/LogCat.h"
-
 glimmer::PlayerInputHandler* glimmer::PlayerComponent::GetInputHandler()
 {
     return &inputHandler_;

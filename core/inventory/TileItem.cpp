@@ -67,47 +67,52 @@ const glimmer::Tile* glimmer::TileItem::GetTile() const
     return tile_.get();
 }
 
-void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+bool glimmer::TileItem::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                              const AbilityConfig* abilityConfig,
                               std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
 {
+    if (mouseLeft)
+    {
+        return false;
+    }
     if (tile_ == nullptr)
     {
-        return;
+        return false;
     }
     if (worldContext == nullptr)
     {
-        return;
+        return false;
     }
     const AppContext* appContext = worldContext->GetAppContext();
     if (appContext == nullptr)
     {
-        return;
+        return false;
     }
     EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
-        return;
+        return false;
     }
     auto playerEntity = entityShortCut->GetPlayer();
     if (WorldContext::IsEmptyEntityId(playerEntity))
     {
-        return;
+        return false;
     }
     EntityManager* entityManager = worldContext->GetEntityManager();
     auto playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     if (playerTransform == nullptr)
     {
-        return;
+        return false;
     }
     const BlueprintComponent* blueprintComponent = entityShortCut->GetBlueprintComponent();
     if (blueprintComponent == nullptr)
     {
-        return;
+        return false;
     }
     ItemStackModule* itemStackModule = GetMutableStackModule();
     if (itemStackModule == nullptr)
     {
-        return;
+        return false;
     }
     const auto entities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
     const TileLayerType targetTileLayerType = tile_->GetLayerType();
@@ -155,6 +160,7 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
             itemStackModule->RemoveAmount(1);
         }
     }
+    return true;
 }
 
 

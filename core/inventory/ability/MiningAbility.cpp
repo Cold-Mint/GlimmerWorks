@@ -45,44 +45,49 @@ const std::string& glimmer::MiningAbility::GetId() const
     return ABILITY_ID_MINING;
 }
 
-void glimmer::MiningAbility::OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                                   const AbilityConfig* abilityConfig,
                                    std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
                                    popupAbility)
 {
+    if (!mouseLeft)
+    {
+        return false;
+    }
     popupAbility.emplace(GetId());
     if (abilityConfig == nullptr)
     {
-        return;
+        return false;
     }
     if (abilityConfig->mineAbleLayer == 0)
     {
-        return;
+        return false;
     }
     EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
     {
-        return;
+        return false;
     }
     auto playerEntity = worldContext->GetEntityShortCut()->GetPlayer();
     if (WorldContext::IsEmptyEntityId(playerEntity))
     {
-        return;
+        return false;
     }
     auto playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     if (playerTransform == nullptr)
     {
-        return;
+        return false;
     }
     EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
     if (entityShortCut == nullptr)
     {
-        return;
+        return false;
     }
     const WorldVector2D playerWorldPos = playerTransform->GetPosition();
     DiggingComponent* diggingComponent = entityShortCut->GetDiggingComponent();
     if (diggingComponent == nullptr)
     {
-        return;
+        return false;
     }
     auto tileLayerEntities = entityManager->GetEntityIDWithComponents({COMPONENT_TILE_LAYER});
     std::sort(tileLayerEntities.begin(), tileLayerEntities.end());
@@ -158,6 +163,7 @@ void glimmer::MiningAbility::OnUse(WorldContext* worldContext, uint32_t user, co
             break;
         }
     }
+    return true;
 }
 
 

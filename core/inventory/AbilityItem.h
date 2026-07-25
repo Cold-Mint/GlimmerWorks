@@ -28,7 +28,6 @@
 #include "AbilityItemCreateParams.h"
 #include "Item.h"
 #include "ability/ItemAbility.h"
-#include "core/ecs/EcsTypes.h"
 
 namespace glimmer
 {
@@ -65,8 +64,8 @@ namespace glimmer
 
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const override;
 
-        void OnUse(WorldContext* worldContext, GameEntityID user, const AbilityConfig* abilityConfig,
-                   std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
+        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

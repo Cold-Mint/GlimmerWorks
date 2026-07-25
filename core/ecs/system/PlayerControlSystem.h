@@ -72,9 +72,10 @@ namespace glimmer
         /**
          * UseItem
          * 使用物品
+         * @param mouseLeft
          * @param item
          */
-        void UseItem(Item* item);
+        bool UseItem(bool mouseLeft, Item* item);
 
         static void UpdateFlying(float delta, const PlayerInputHandler* playerInputHandler,
                                  Transform2DComponent* transform2DComponent);
@@ -83,8 +84,8 @@ namespace glimmer
                                     const RigidBody2DComponent* rigidBody2DComponent) const;
 
         static void UpdateJump(const PlayerComponent* playerComponent, PlayerInputHandler* playerInputHandler,
-                        const RigidBody2DComponent* rigidBody2DComponent,
-                        bool isGrounded, const b2MassData& massData);
+                               const RigidBody2DComponent* rigidBody2DComponent,
+                               bool isGrounded, const b2MassData& massData);
 
         static void ClampHorizontalSpeed(const RigidBody2DComponent* rigidBody2DComponent,
                                          const PlayerComponent* playerComponent, const b2Vec2& currentVel);

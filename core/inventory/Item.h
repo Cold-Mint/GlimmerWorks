@@ -124,7 +124,18 @@ namespace glimmer
 
         [[nodiscard]] virtual const ResourceRef* GetIconResourceRef() const = 0;
 
-        virtual void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+        /**
+         * OnUse
+         * 使用物品
+         * @param mouseLeft mouseLeft 是否为鼠标左键
+         * @param worldContext worldContext 世界上下文
+         * @param user user 使用者
+         * @param abilityConfig abilityConfig 能力配置
+         * @param popupAbility The ability to pop up 需要弹出的能力
+         * @return  Whether this event has been consumed or not. If it returns true, it will not be passed on to the hands; if it returns false, it will be handed over to the hands for processing. 是否消费了此事件，如果返回true，那么不会传递到手上，如果返回false那么交给手处理。
+         */
+        virtual bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                           const AbilityConfig* abilityConfig,
                            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) = 0;
 
         /**

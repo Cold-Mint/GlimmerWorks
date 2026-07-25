@@ -71,6 +71,8 @@ namespace glimmer
 
         void SetMaxStack(uint8_t maxStack);
 
+        void SetUnbreakable(bool unbreakable);
+
     public:
         ~Item() override = default;
 
@@ -125,6 +127,11 @@ namespace glimmer
         virtual void OnUse(WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
                            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) = 0;
 
+        /**
+         * Get the remaining durability.
+         * 获取剩余耐久度。
+         * @return
+         */
         unsigned GetRemaining() const override;
 
         /**

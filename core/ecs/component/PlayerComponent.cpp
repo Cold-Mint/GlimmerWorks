@@ -26,6 +26,8 @@
  */
 #include "PlayerComponent.h"
 
+#include "core/log/LogCat.h"
+
 glimmer::PlayerInputHandler* glimmer::PlayerComponent::GetInputHandler()
 {
     return &inputHandler_;
@@ -43,6 +45,7 @@ glimmer::PlayerTechnologyHandler* glimmer::PlayerComponent::GetTechnologyHandler
 
 void glimmer::PlayerComponent::SetItem(Item* item)
 {
+    LogCat::w(std::source_location::current(), "setItem item ", item == nullptr ? "nullptr" : item->GetName());
     item_ = item;
 }
 

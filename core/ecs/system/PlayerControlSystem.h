@@ -80,7 +80,7 @@ namespace glimmer
                                  Transform2DComponent* transform2DComponent);
 
         void UpdateGroundedMovement(PlayerInputHandler* playerInputHandler, PlayerComponent* playerComponent,
-                                    RigidBody2DComponent* rigidBody2DComponent);
+                                    RigidBody2DComponent* rigidBody2DComponent) const;
 
         static void UpdateJump(const PlayerComponent* playerComponent, PlayerInputHandler* playerInputHandler,
                         const RigidBody2DComponent* rigidBody2DComponent,

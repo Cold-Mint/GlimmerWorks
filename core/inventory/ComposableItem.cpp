@@ -142,6 +142,7 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, c
     EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
     {
+        LogCat::w(std::source_location::current(), "entityManager == nullptr");
         return;
     }
     const uint8_t max = itemContainer_->GetCapacity();
@@ -152,16 +153,20 @@ void glimmer::ComposableItem::OnUse(WorldContext* worldContext, uint32_t user, c
         Item* item = itemContainer_->GetItem(index);
         if (item == nullptr)
         {
+            LogCat::w(std::source_location::current(), "item at ", index, " is nullptr");
             continue;
         }
         const auto abilityItem = dynamic_cast<AbilityItem*>(item);
         if (abilityItem == nullptr)
         {
+            LogCat::w(std::source_location::current(), "abilityItem == nullptr");
             continue;
         }
+        LogCat::d("abilityItem name=", abilityItem->GetName());
         ItemAbility* itemAbility = abilityItem->GetItemAbility();
         if (itemAbility == nullptr)
         {
+            LogCat::w(std::source_location::current(), "itemAbility == nullptr");
             continue;
         }
 

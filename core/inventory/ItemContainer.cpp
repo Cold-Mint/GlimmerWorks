@@ -109,6 +109,18 @@ void glimmer::ItemContainer::InvokeOnContentChanged(uint8_t index, Item* item, C
     }
 }
 
+void glimmer::ItemContainer::InvokeOnSelectIndexChanged(uint8_t index, Item* item) const
+{
+    if (onContentChanged_.empty())
+    {
+        return;
+    }
+    for (const auto& onChanged : onSelectIndexChanged_)
+    {
+        (*onChanged)(index, item);
+    }
+}
+
 void glimmer::ItemContainer::CacheItemTag(Item* item)
 {
     if (item == nullptr)
@@ -198,6 +210,16 @@ glimmer::ItemContainer::AddOnContentChanged(
     return ptr;
 }
 
+std::shared_ptr<std::function<void(uint8_t, glimmer::Item*)>> glimmer::ItemContainer::AddOnSelectIndexChanged(
+    std::function<void(uint8_t, Item*)>& onSelectIndexChanged)
+{
+    auto ptr = std::make_shared<std::function<void(uint8_t, Item*)>>(onSelectIndexChanged);
+    onSelectIndexChanged_.emplace_back(ptr);
+    // Return the pointer. This pointer needs to be saved for removal purposes.
+    // 返回指针，需要保存这个指针用于移除。
+    return ptr;
+}
+
 void glimmer::ItemContainer::Resize(const uint8_t capacity)
 {
     items_.resize(capacity);
@@ -214,6 +236,19 @@ void glimmer::ItemContainer::RemoveOnContentChanged(
         }
     );
     onContentChanged_.erase(toRemove.begin(), toRemove.end());
+}
+
+void glimmer::ItemContainer::RemoveOnSelectIndexChanged(
+    const std::shared_ptr<std::function<void(uint8_t, Item*)>>& onSelectIndexChanged)
+{
+    auto toRemove = std::ranges::remove_if(
+        onSelectIndexChanged_,
+        [&](const std::shared_ptr<std::function<void(uint8_t, Item*)>>& ptr)
+        {
+            return ptr == onSelectIndexChanged;
+        }
+    );
+    onSelectIndexChanged_.erase(toRemove.begin(), toRemove.end());
 }
 
 void glimmer::ItemContainer::SetSelectIndex(const uint8_t index)
@@ -245,17 +280,28 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
 {
     if (newItem == nullptr)
     {
+        LogCat::w(std::source_location::current(), "Try to add newItem is null.");
         return nullptr;
     }
     ItemStackModule* newItemStackModule = newItem->GetMutableStackModule();
     if (newItemStackModule == nullptr)
     {
+        LogCat::w(std::source_location::current(), "NewItem ItemStackModule is null.");
         return nullptr;
     }
+
+    LogCat::d("AddItem start. ItemId=", newItem->GetId(), " initAmount=",
+              static_cast<int>(newItemStackModule->GetAmount()), "container capacity=", items_.size());
+
     uint8_t index = 0;
     for (const auto& currentItem : items_)
     {
         if (currentItem == nullptr)
+        {
+            ++index;
+            continue;
+        }
+        if (currentItem->GetId() != newItem->GetId())
         {
             ++index;
             continue;
@@ -266,19 +312,26 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
             ++index;
             continue;
         }
-
-        if (const uint8_t stackSpace = currentItemStackModule->GetRemainingStackCount(newItemStackModule); stackSpace ==
-            0)
+        const uint8_t remainingStackCount = currentItemStackModule->GetRemainingStackCount();
+        if (remainingStackCount == 0)
         {
+            LogCat::d("Slot[", static_cast<int>(index), "] no stack space. itemId:",
+                      currentItem->GetId());
             ++index;
             continue;
         }
+        LogCat::d("Slot[", static_cast<int>(index), "] can stack. freeSpace:", remainingStackCount, "slotItemId:",
+                  currentItem->GetId());
+
         const uint8_t stackedAmount = currentItemStackModule->AddAmount(newItemStackModule->GetAmount());
         if (stackedAmount == 0)
         {
+            LogCat::d("Slot[", static_cast<int>(index), "] stackedAmount = 0, skip");
             ++index;
             continue;
         }
+        LogCat::d("Slot[", static_cast<int>(index), "] try stack amount:", stackedAmount);
+
         if (newItemStackModule->RemoveAmount(stackedAmount) == 0 && currentItemStackModule->
             RemoveAmount(stackedAmount) == 0)
         {
@@ -287,23 +340,35 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
             LogCat::w(std::source_location::current(),
                       "The attempt to deduct the quantity from the new item to be added failed, and there was also an error in the reduction of the quantity of the items already in the container.");
         }
+
+        LogCat::d("After stack, newItem remain amount:",
+                  newItemStackModule->GetAmount());
         if (newItemStackModule->GetAmount() == 0)
         {
+            LogCat::d("AddItem complete: all consumed, return nullptr");
             return nullptr;
         }
         ++index;
     }
+
+    LogCat::d("Stack loop finished, start find empty slot. remainAmount=",
+              static_cast<int>(newItemStackModule->GetAmount()));
     index = 0;
     for (auto& currentItem : items_)
     {
         if (currentItem == nullptr)
         {
+            LogCat::d("Found empty slot[", static_cast<int>(index), "], put remaining item");
             currentItem = std::move(newItem);
             BindItemEvent(index, currentItem);
+            LogCat::d("AddItem complete: placed into empty slot, return nullptr");
             return nullptr;
         }
         ++index;
     }
+
+    LogCat::d("No empty slot left, cannot place. return leftover item. remainAmount:",
+              newItemStackModule->GetAmount());
     return newItem;
 }
 
@@ -346,14 +411,20 @@ bool glimmer::ItemContainer::HasTag(uint64_t tag)
     return tagToValue_.contains(tag);
 }
 
-uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const ItemStackModule* itemStackModule) const
+uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const Item* item) const
 {
+    if (item == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "item == nullptr");
+        return 0;
+    }
+    const ItemStackModule* itemStackModule = item->GetStackModule();
     if (itemStackModule == nullptr)
     {
+        LogCat::e(std::source_location::current(), "itemStackModule == nullptr");
         return 0;
     }
     uint8_t remainingAmount = itemStackModule->GetAmount();
-
     for (const auto& slot : items_)
     {
         if (remainingAmount == 0)
@@ -363,26 +434,28 @@ uint8_t glimmer::ItemContainer::GetRemainingItemAmountAfterAdd(const ItemStackMo
         const Item* currentItemPtr = slot.get();
         if (currentItemPtr == nullptr)
         {
+            //Found an empty position.
+            //发现空位。
             remainingAmount = 0;
-            continue;
+            break;
         }
         const ItemStackModule* currentStackModule = currentItemPtr->GetStackModule();
         if (currentStackModule == nullptr)
         {
             return 0;
         }
-        const uint8_t stackSpace = currentStackModule->GetRemainingStackCount(itemStackModule);
-        if (stackSpace == 0)
+        const uint8_t remainingStackCount = currentStackModule->GetRemainingStackCount();
+        if (remainingStackCount == 0)
         {
             continue;
         }
-        if (remainingAmount <= stackSpace)
+        if (remainingAmount <= remainingStackCount)
         {
             remainingAmount = 0;
         }
         else
         {
-            remainingAmount -= stackSpace;
+            remainingAmount -= remainingStackCount;
         }
     }
     return remainingAmount;

@@ -148,9 +148,10 @@ bool glimmer::MagnetSystem::ProcessMagneticEntity(GameEntityID magneticEntity,
     {
         return false;
     }
-    size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(itemStackModule);
-    if (remainingItemAmount == itemStackModule->GetAmount())
+    if (size_t remainingItemAmount = itemContainer->GetRemainingItemAmountAfterAdd(item); remainingItemAmount == itemStackModule->GetAmount())
     {
+        //There's no room for even one more.
+        //一个都放不下。
         return false;
     }
     WorldVector2D magneticPos = magneticTransform->GetPosition();

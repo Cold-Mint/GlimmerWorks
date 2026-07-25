@@ -113,6 +113,7 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef& resourceRef)
     auto* tempPlayerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
     if (tempPlayerComponent != nullptr)
     {
+        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         tempPlayerComponent->SetItem(itemContainer->GetItem(0));
     }
     itemCallback_ = itemContainer->AddOnContentChanged(
@@ -205,23 +206,27 @@ void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer* itemContai
     }
     if (item == nullptr)
     {
+        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
         return;
     }
     const ItemStackModule* itemStackModule = item->GetStackModule();
     if (itemStackModule == nullptr)
     {
+        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
         return;
     }
     if (const uint8_t amount = itemStackModule->GetAmount(); amount == 0)
     {
+        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
         return;
     }
     const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule();
     if (itemDurabilityModule == nullptr)
     {
+        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
         return;
     }
@@ -230,10 +235,11 @@ void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer* itemContai
         HandleItemBreak(item, playerEntity);
         return;
     }
+    LogCat::w(std::source_location::current(), "playerComponent->SetItem");
     playerComponent->SetItem(item);
 }
 
-void glimmer::PlayerContext::HandleItemBreak(Item* item, const uint32_t playerEntity)
+void glimmer::PlayerContext::HandleItemBreak(Item* item, const uint32_t playerEntity) const
 {
     if (itemBreakSFXResult_ != nullptr)
     {
@@ -251,6 +257,7 @@ void glimmer::PlayerContext::HandleItemBreak(Item* item, const uint32_t playerEn
     auto* playerComponent = worldContext_->GetEntityManager()->GetComponent<PlayerComponent>(playerEntity);
     if (playerComponent != nullptr)
     {
+        LogCat::w(std::source_location::current(), "playerComponent->SetItem");
         playerComponent->SetItem(nullptr);
     }
 }

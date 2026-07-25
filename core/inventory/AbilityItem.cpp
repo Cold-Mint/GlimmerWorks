@@ -31,6 +31,7 @@
 #include "ItemAbilityFactory.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/ecs/EcsTypes.h"
+#include "core/log/LogCat.h"
 
 
 glimmer::ItemAbility* glimmer::AbilityItem::GetItemAbility() const
@@ -50,6 +51,11 @@ glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams& params) : id_(p
 {
     SetTags(params.GetTags());
     SetResourceRef(params.GetResourceRef());
+    if (itemAbility_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "itemAbility is nullptr");
+        return;
+    }
 }
 
 std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(const AppContext* appContext,
@@ -85,6 +91,7 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     params.SetCanUseAlone(itemResource->canUseAlone);
     params.SetTags(itemResource->tags);
     params.SetResourceRef(resourceRef);
+    params.SetItemAbility(itemAbility);
     return std::make_unique<AbilityItem>(params);
 }
 

@@ -25,6 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "HotBarGUISystem.h"
+
+#include "core/ecs/component/PlayerComponent.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
@@ -93,38 +95,40 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
         LogCat::w(std::source_location::current(), "itemContainer == nullptr");
         return;
     }
-
-    callback_ = itemContainer_->AddOnContentChanged([this](uint8_t index, Item* item, ContainerChangeType changeType)
-    {
-        auto dataModel = GetItemSlotDataModel(index);
-        if (dataModel == nullptr)
+    callback_ = itemContainer_->AddOnContentChanged(
+        [this](const uint8_t index, const Item* item, ContainerChangeType changeType)
         {
-            LogCat::w(std::source_location::current(), "dataModel == nullptr");
-            return;
-        }
-        if (item == nullptr)
-        {
-            dataModel->image = "";
-            dataModel->amount = 0;
-        }
-        else
-        {
-            const ResourceRef* iconResourceRef = item->GetIconResourceRef();
-            dataModel->image = Resource::GenerateId(iconResourceRef->GetPackageId(), iconResourceRef->GetResourceKey());
-            if (const ItemStackModule* stackModule = item->GetStackModule(); stackModule == nullptr)
+            auto dataModel = GetItemSlotDataModel(index);
+            if (dataModel == nullptr)
             {
-                dataModel->amount = 1;
+                LogCat::w(std::source_location::current(), "dataModel == nullptr");
+                return;
+            }
+            const auto stackModule = item->GetStackModule();
+            auto amount = 0;
+            if (stackModule != nullptr)
+            {
+                amount = stackModule->GetAmount();
+                LogCat::d("maxStack = ", static_cast<int>(stackModule->GetMaxStack()), ", index = ",
+                          static_cast<int>(index));
+            }
+            if (amount == 0)
+            {
+                dataModel->image = "";
+                dataModel->amount = 0;
             }
             else
             {
-                dataModel->amount = stackModule->GetAmount();
+                const ResourceRef* iconResourceRef = item->GetIconResourceRef();
+                dataModel->image = StringUtils::MakeTextureUrl(
+                    Resource::GenerateId(iconResourceRef->GetPackageId(), iconResourceRef->GetResourceKey()));
+                dataModel->amount = amount;
             }
-        }
-        if (constructor_ != nullptr)
-        {
-            constructor_->GetModelHandle().DirtyVariable("item_slots");
-        }
-    });
+            if (constructor_ != nullptr)
+            {
+                constructor_->GetModelHandle().DirtyVariable("item_slots");
+            }
+        });
 }
 
 void glimmer::HotBarGUISystem::LoadDocuments(IDocumentRegistry* documentRegistry)
@@ -165,7 +169,7 @@ void glimmer::HotBarGUISystem::LoadInitialHotbarItems()
     LogCat::i("Loading initial hotbar items after data model created...");
     for (uint8_t i = 0; i < HOT_BAR_SIZE; ++i)
     {
-        Item* item = itemContainer_->GetItem(i);
+        const Item* item = itemContainer_->GetItem(i);
         auto dataModel = GetItemSlotDataModel(i);
         if (dataModel == nullptr)
         {
@@ -179,9 +183,8 @@ void glimmer::HotBarGUISystem::LoadInitialHotbarItems()
         else
         {
             const ResourceRef* iconResourceRef = item->GetIconResourceRef();
-            std::string fullId = Resource::GenerateId(iconResourceRef->GetPackageId(),
-                                                      iconResourceRef->GetResourceKey());
-            dataModel->image = StringUtils::MakeTextureUrl(fullId);
+            dataModel->image = StringUtils::MakeTextureUrl(Resource::GenerateId(iconResourceRef->GetPackageId(),
+                iconResourceRef->GetResourceKey()));
             const ItemStackModule* stackModule = item->GetStackModule();
             dataModel->amount = stackModule != nullptr ? stackModule->GetAmount() : 1;
         }
@@ -206,9 +209,8 @@ void glimmer::HotBarGUISystem::UpdateSelectedSlot(const uint8_t beforeIndex, con
     {
         nextDataModel->selected = true;
     }
-
     itemContainer_->SetSelectIndex(nextIndex);
-
+    LogCat::w(std::source_location::current(), "playerComponent->SetItem");
     if (constructor_ != nullptr)
     {
         constructor_->GetModelHandle().DirtyVariable("item_slots");

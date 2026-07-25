@@ -27,6 +27,7 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/GuiGameSystem.h"
+#include "core/ecs/component/PlayerComponent.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 
 namespace glimmer

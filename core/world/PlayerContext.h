@@ -58,7 +58,7 @@ namespace glimmer
         void OnPlayerItemChanged(const ItemContainer* itemContainer, uint8_t index, Item* item,
                                  ContainerChangeType changeType, uint32_t playerEntity);
 
-        void HandleItemBreak(Item* item, uint32_t playerEntity);
+        void HandleItemBreak(Item* item, uint32_t playerEntity) const;
 
         void DropComposableItemAbilities(const ComposableItem* composableItem) const;
 

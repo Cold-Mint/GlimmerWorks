@@ -44,6 +44,7 @@ glimmer::TileItem::TileItem(const std::shared_ptr<Tile>& tile, const ResourceRef
         SetTags(tileResourceData_->GetTags());
     }
     SetMaxStack(ITEM_MAX_STACK);
+    SetUnbreakable(true);
 }
 
 const std::string& glimmer::TileItem::GetId() const
@@ -129,11 +130,11 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
         }
         if (itemStackModule->GetAmount() > 0)
         {
-            AudioManager* audioManager = appContext->GetAudioContext()->GetAudioManager();
-            if (audioManager != nullptr && tileResourceData_ != nullptr)
+            if (AudioManager* audioManager = appContext->GetAudioContext()->GetAudioManager(); audioManager != nullptr
+                && tileResourceData_ != nullptr)
             {
-                AudioResourceResult* audioResourceResult = tileResourceData_->GetPlaceSFX();
-                if (audioResourceResult != nullptr)
+                if (AudioResourceResult* audioResourceResult = tileResourceData_->GetPlaceSFX(); audioResourceResult !=
+                    nullptr)
                 {
                     audioManager->TryPlayFree(
                         AudioType::AMBIENT, audioResourceResult->GetResource(), 0);
@@ -142,10 +143,12 @@ void glimmer::TileItem::OnUse(WorldContext* worldContext, uint32_t user, const A
             if (tileDimensions_ != nullptr)
             {
                 DiggingSystem::BreakTile({
-                    BreakSource::PlayerOverride, worldContext, tileLayer,
-                    blueprintComponent->GetTopLeftVector(), false, true,
-                    tileDimensions_->GetTileWidth(), tileDimensions_->GetTileHeight(),
-                    GetResourceRef()
+                    .breakSource = BreakSource::PlayerOverride, .worldContext = worldContext,
+                    .tileLayerComponent = tileLayer,
+                    .topLeftVector = blueprintComponent->GetTopLeftVector(), .precisionMining = false,
+                    .isPlaceMode = true,
+                    .tileWidth = tileDimensions_->GetTileWidth(), .tileHeight = tileDimensions_->GetTileHeight(),
+                    .newTileRef = GetResourceRef()
                 });
             }
 
@@ -182,7 +185,6 @@ const glimmer::AbilityConfig* glimmer::TileItem::GetAbilityConfig() const
 {
     return nullptr;
 }
-
 
 std::unique_ptr<glimmer::Item> glimmer::TileItem::Clone() const
 {

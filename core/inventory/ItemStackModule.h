@@ -46,7 +46,12 @@ namespace glimmer
 
         [[nodiscard]] bool IsStackable() const;
 
-        [[nodiscard]] uint8_t GetRemainingStackCount(const ItemStackModule* other) const;
+        /**
+         * Get the remaining stackable quantity.
+         * 获取剩余的可堆叠数量。
+         * @return
+         */
+        [[nodiscard]] uint8_t GetRemainingStackCount() const;
 
         /**
          * AddAmount

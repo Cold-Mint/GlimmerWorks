@@ -71,6 +71,11 @@ void glimmer::Item::SetMaxStack(const uint8_t maxStack)
     itemStackModule_.SetMaxStack(maxStack);
 }
 
+void glimmer::Item::SetUnbreakable(const bool unbreakable)
+{
+    itemDurabilityModule_.SetUnbreakable(unbreakable);
+}
+
 void glimmer::Item::ReadItemMessage(WorldContext* worldContext, const ItemMessage& itemMessage)
 {
     uint8_t amount = itemMessage.amount();
@@ -88,7 +93,6 @@ void glimmer::Item::WriteItemMessage(ItemMessage& itemMessage) const
 {
     if (resourceRef_.GetResourceType() == RESOURCE_NONE)
     {
-
 #if  !defined(NDEBUG)
         assert(false);
 #endif

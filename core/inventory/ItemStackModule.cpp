@@ -42,9 +42,9 @@ bool glimmer::ItemStackModule::IsStackable() const
     return maxStack_ > 1;
 }
 
-uint8_t glimmer::ItemStackModule::GetRemainingStackCount(const ItemStackModule* other) const
+uint8_t glimmer::ItemStackModule::GetRemainingStackCount() const
 {
-    return amount_ - other->amount_;
+    return maxStack_ - amount_;
 }
 
 uint8_t glimmer::ItemStackModule::AddAmount(const uint8_t amount)

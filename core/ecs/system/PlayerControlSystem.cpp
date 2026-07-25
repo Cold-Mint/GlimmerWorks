@@ -257,7 +257,6 @@ glimmer::GameSystemType glimmer::PlayerControlSystem::GetGameSystemType() const
 bool glimmer::PlayerControlSystem::OnGround(const PlayerComponent* playerControlComponent) const
 {
     EntityManager* entityManager = GetEntityManager();
-
     const std::vector<GameEntityID>& groundCheckRayEntityIds = playerControlComponent->GetGroundCheckRayEntityIds();
     if (groundCheckRayEntityIds.empty())
     {
@@ -328,11 +327,12 @@ void glimmer::PlayerControlSystem::DropItem(const ItemContainer* itemContainer, 
 void glimmer::PlayerControlSystem::UseItem(Item* item)
 {
     WorldContext* worldContext = GetWorldContext();
-
     if (item == nullptr)
     {
+        LogCat::w(std::source_location::current(), "Use item == nullptr");
         return;
     }
+    LogCat::d("Use item name=",item->GetName());
     popupAbility_.clear();
     item->OnUse(worldContext, playerEntityID_, item->GetAbilityConfig(), popupAbility_);
 }
@@ -348,7 +348,7 @@ void glimmer::PlayerControlSystem::UpdateFlying(const float delta, const PlayerI
 
 void glimmer::PlayerControlSystem::UpdateGroundedMovement(PlayerInputHandler* playerInputHandler,
                                                           PlayerComponent* playerComponent,
-                                                          RigidBody2DComponent* rigidBody2DComponent)
+                                                          RigidBody2DComponent* rigidBody2DComponent) const
 {
     const b2BodyId bodyId = rigidBody2DComponent->GetBodyId();
     bool isGrounded = OnGround(playerComponent);

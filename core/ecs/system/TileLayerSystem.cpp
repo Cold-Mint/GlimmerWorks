@@ -78,7 +78,12 @@ glimmer::TileLayerSystem::TileLayerSystem(WorldContext* worldContext)
 
 bool glimmer::TileLayerSystem::ShouldDrawTile(const Color* finalLightColor) const
 {
-#if  defined(NDEBUG)
+#if !defined(NDEBUG)
+    if (!lightEnabled_)
+    {
+        return false;
+    }
+#endif
     if (finalLightColor == nullptr)
     {
         return false;
@@ -87,19 +92,6 @@ bool glimmer::TileLayerSystem::ShouldDrawTile(const Color* finalLightColor) cons
     {
         return false;
     }
-#else
-    if (lightEnabled_)
-    {
-        if (finalLightColor == nullptr)
-        {
-            return false;
-        }
-        if (finalLightColor->a == 0)
-        {
-            return false;
-        }
-    }
-#endif
     return true;
 }
 
@@ -248,7 +240,9 @@ uint8_t glimmer::TileLayerSystem::GetExecutionOrder()
 
 void glimmer::TileLayerSystem::OnConfigChanged(const Config* config)
 {
+#if  !defined(NDEBUG)
     lightEnabled_ = config->light.enable;
+#endif
 }
 
 glimmer::GameSystemType glimmer::TileLayerSystem::GetGameSystemType() const

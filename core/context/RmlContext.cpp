@@ -29,6 +29,7 @@
 #include "core/log/LogCat.h"
 #include "RmlUi/Core/Context.h"
 #include "RmlUi/Core/Core.h"
+#include "RmlUi/Core/Factory.h"
 #include "RmlUi/Debugger/Debugger.h"
 
 
@@ -114,6 +115,8 @@ bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Rendere
     gameFontEngineInterface_ = std::make_unique<GameFontEngineInterface>();
     Rml::SetFontEngineInterface(gameFontEngineInterface_.get());
     Rml::Initialise();
+    decoratorNinePatchTextureInstancer_.RegisterProperties();
+    Rml::Factory::RegisterDecoratorInstancer("ninepatch-texture", &decoratorNinePatchTextureInstancer_);
     context_ = Rml::CreateContext("glimmerGui", Rml::Vector2i(width, height));
 #if  !defined(NDEBUG)
     Rml::Debugger::Initialise(context_);

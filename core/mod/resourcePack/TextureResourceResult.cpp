@@ -26,6 +26,16 @@
  */
 #include "TextureResourceResult.h"
 
+void glimmer::TextureResourceResult::SetTexturePath(const std::filesystem::path& texturePath)
+{
+    texturePath_ = texturePath;
+}
+
+const std::filesystem::path& glimmer::TextureResourceResult::GetTexturePath()
+{
+    return texturePath_;
+}
+
 void glimmer::TextureResourceResult::DestroyResource()
 {
     SDL_Texture* resource = GetResource();

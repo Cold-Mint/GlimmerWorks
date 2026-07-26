@@ -116,7 +116,7 @@ set(SDLIMAGE_QOI OFF)
 set(SDLIMAGE_SVG OFF)
 set(SDLIMAGE_TGA OFF)
 set(SDLIMAGE_TIF OFF)
-set(SDLIMAGE_WEBP OFF)
+set(SDLIMAGE_PNG OFF)
 set(SDLIMAGE_XCF OFF)
 set(SDLIMAGE_XPM OFF)
 set(SDLIMAGE_XV OFF)
@@ -126,13 +126,14 @@ set(SDLIMAGE_BMP_SAVE OFF)
 set(SDLIMAGE_GIF_SAVE OFF)
 set(SDLIMAGE_JPG_SAVE OFF)
 set(SDLIMAGE_TGA_SAVE OFF)
-set(SDLIMAGE_WEBP_SAVE OFF)
+set(SDLIMAGE_PNG_SAVE OFF)
+set(SDLIMAGE_APNG_ENABLED OFF)
 
-# Read and save PNG
-# 读取和保存png
+# Read and save WEBP
+# 读取和保存webp
 set(SDLIMAGE_BACKEND_STB ON)
-set(SDLIMAGE_PNG_SAVE ON)
-set(SDLIMAGE_PNG ON)
+set(SDLIMAGE_WEBP ON)
+set(SDLIMAGE_WEBP_SAVE ON)
 
 set(FMT_TEST OFF)
 set(FMT_FUZZ OFF)
@@ -543,6 +544,7 @@ target_sources(GlimmerWorks
         core/mod/templateCommand/UnSetTemplateCommand.cpp
         core/rmi/GameFileInterface.cpp
         core/rmi/GameFontEngineInterface.cpp
+        core/rmi/DecoratorNinePatchTexture.cpp
         core/rmi/RenderInterfaceSDL3.cpp
         core/rmi/SystemInterfaceSDL3.cpp
         core/rmi/dataModel/MainSceneDataModel.cpp
@@ -631,6 +633,8 @@ target_sources(GlimmerWorks
         core/world/structure/StructureInfo.cpp
         core/world/structure/SurfaceStructureConditionProcessor.cpp
         core/world/structure/TreeStructureGenerator.cpp
+        core/ecs/system/ItemTooltipSystem.cpp
+        core/rmi/DecoratorNinePatchTextureInstancer.cpp
         main.cpp
         PUBLIC
         FILE_SET HEADERS
@@ -908,6 +912,8 @@ target_sources(GlimmerWorks
         core/mod/templateCommand/UnSetTemplateCommand.h
         core/rmi/GameFileInterface.h
         core/rmi/GameFontEngineInterface.h
+        core/rmi/DecoratorNinePatchTexture.h
+        core/rmi/DecoratorNinePatchTextureInstancer.h
         core/rmi/RenderInterfaceSDL3.h
         core/rmi/SystemInterfaceSDL3.h
         core/rmi/dataModel/CreateWorldDataModel.h
@@ -1000,6 +1006,7 @@ target_sources(GlimmerWorks
         core/world/structure/StructureInfo.h
         core/world/structure/SurfaceStructureConditionProcessor.h
         core/world/structure/TreeStructureGenerator.h
+        core/ecs/system/ItemTooltipSystem.h
 )
 
 #Define version information

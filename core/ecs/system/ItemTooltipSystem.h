@@ -25,59 +25,17 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ResourcePack.h"
-#include "core/log/LogCat.h"
+#include "core/ecs/GuiGameSystem.h"
 
 namespace glimmer
 {
-    template <typename T>
-    class ResourceResult
+    class ItemTooltipSystem : public GuiGameSystem
     {
-        const ResourcePack* resourcePack_ = nullptr;
-        T* resource_ = nullptr;
-
-    protected:
-        virtual ~ResourceResult() = default;
-
     public:
-        void SetResourcePack(const ResourcePack* resourcePack);
+        explicit ItemTooltipSystem(WorldContext* worldContext);
 
-        [[nodiscard]] const ResourcePack* GetResourcePack() const;
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
-        virtual void DestroyResource() = 0;
-
-        void SetResource(T* resource);
-
-        [[nodiscard]] T* GetResource() const;
+        void LoadDocuments(IDocumentRegistry* documentRegistry) override;
     };
-
-    template <typename T>
-    void ResourceResult<T>::SetResource(T* resource)
-    {
-        resource_ = resource;
-    }
-
-    template <typename T>
-    void ResourceResult<T>::SetResourcePack(const ResourcePack* resourcePack)
-    {
-        if (resourcePack == nullptr)
-        {
-            LogCat::e(std::source_location::current(), "resourcePack == nullptr");
-            return;
-        }
-        resourcePack_ = resourcePack;
-    }
-
-    template <typename T>
-    const ResourcePack* ResourceResult<T>::GetResourcePack() const
-    {
-        return resourcePack_;
-    }
-
-
-    template <typename T>
-    T* ResourceResult<T>::GetResource() const
-    {
-        return resource_;
-    }
 }

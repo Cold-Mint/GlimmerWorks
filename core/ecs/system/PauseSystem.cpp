@@ -127,7 +127,7 @@ void glimmer::PauseSystem::LoadDocuments(IDocumentRegistry* documentRegistry)
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("pages/pause/pause");
+    resourceRef.SetResourceKey("pause/pause");
     elementDocument_ = documentRegistry->LoadSingleDocument(&resourceRef);
     elementDocument_->Hide();
 }

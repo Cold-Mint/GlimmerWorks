@@ -252,7 +252,7 @@ void glimmer::SavedGamesScene::LoadDocuments()
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("pages/saves/saves");
+    resourceRef.SetResourceKey("saves/saves");
     LoadSingleDocument(&resourceRef);
 }
 

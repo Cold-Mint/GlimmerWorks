@@ -25,11 +25,8 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <vector>
 #include "Scene.h"
-#include "core/Hyperlink.h"
 #include "core/rmi/dataModel/MainSceneDataModel.h"
-#include "core/utils/StringUtils.h"
 
 namespace glimmer
 {
@@ -39,6 +36,15 @@ namespace glimmer
         float uiScale_ = 1.0F;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
+        float backgroundTargetSecond_ = 0;
+        std::vector<std::string> supportedTextureFormats_ = {};
+        float backgroundAnimTimer_ = 0;
+        ResourceRef nextBackgroundResourceRef_;
+        VirtualFileSystem* virtualFileSystem_ = nullptr;
+        int backgroundIndex_ = 0;
+        uint64_t resourcePackId_ = 0;
+        Rml::DataModelHandle mainModelHandle_;
+        std::filesystem::path textureFolder_;
 
         void OnStartGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
@@ -46,10 +52,20 @@ namespace glimmer
 
         void OnLinkClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
+        /**
+         * Switch to the next background frame
+         * 切换到下一背景帧
+         */
+        void NextBackgroundFrame();
+
+        void SetBackgroundIndex(int index);
+
     public:
         explicit MainScene(AppContext* context);
 
         void LoadDocuments() override;
+
+        void Update(float delta) override;
 
         void OnCreateDataModels() override;
 

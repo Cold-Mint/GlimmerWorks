@@ -96,7 +96,7 @@ namespace glimmer
         /**
          * Call this before the Render function. It is recommended to calculate the view data within this function.
          * 在Render函数前调用，建议在此函数内计算视图数据。
-         * @param delta
+         * @param delta Unit: Seconds 单位：秒
          */
         virtual void Update(float delta);
 

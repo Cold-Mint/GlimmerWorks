@@ -32,7 +32,13 @@ namespace glimmer
 {
     class TextureResourceResult : public ResourceResult<SDL_Texture>
     {
+        std::filesystem::path texturePath_;
+
     public:
+        void SetTexturePath(const std::filesystem::path& texturePath);
+
+        const std::filesystem::path& GetTexturePath();
+
         void DestroyResource() override;
     };
 }

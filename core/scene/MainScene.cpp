@@ -46,6 +46,26 @@ glimmer::MainScene::MainScene(AppContext* context)
 {
     context->PlayMainMenuBGM();
     context->SetRandomSlogan();
+    virtualFileSystem_ = context->GetVirtualFileSystem();
+    const ResourceLocator* resourceLocator = context->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "resourceLocator == nullptr");
+        return;
+    }
+    nextBackgroundResourceRef_.SetSelfPackageId(RESOURCE_REF_CORE);
+    nextBackgroundResourceRef_.SetResourceType(RESOURCE_TEXTURE);
+    nextBackgroundResourceRef_.SetResourceKey(fmt::format("{}{}", "main_menu_bg_frames/bg_",
+                                                          std::to_string(backgroundIndex_)));
+    const std::shared_ptr<TextureResourceResult> textureResourceResult = resourceLocator->FindTextureRaw(
+        &nextBackgroundResourceRef_);
+    if (textureResourceResult == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "textureResourceResult == nullptr");
+        return;
+    }
+    textureFolder_ = textureResourceResult->GetTexturePath().parent_path();
+    LogCat::i("old textureFolder ", textureFolder_.string());
     Init();
 }
 
@@ -54,8 +74,23 @@ void glimmer::MainScene::LoadDocuments()
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("pages/main/main");
+    resourceRef.SetResourceKey("main/main");
     LoadSingleDocument(&resourceRef);
+}
+
+void glimmer::MainScene::Update(const float delta)
+{
+    if (backgroundTargetSecond_ == -1)
+    {
+        NextBackgroundFrame();
+        return;
+    }
+    backgroundAnimTimer_ += delta;
+    if (backgroundAnimTimer_ >= backgroundTargetSecond_)
+    {
+        NextBackgroundFrame();
+        backgroundAnimTimer_ -= backgroundTargetSecond_;
+    }
 }
 
 void glimmer::MainScene::OnCreateDataModels()
@@ -63,14 +98,15 @@ void glimmer::MainScene::OnCreateDataModels()
     Rml::DataModelConstructor* constructor = CreateDataModel("main_scene");
     if (constructor != nullptr)
     {
-        constructor->Bind("copyright", &mainSceneDataModel_.copyright_);
+        constructor->Bind("copyright", &mainSceneDataModel_.copyright);
         if (auto linkStruct = constructor->RegisterStruct<Hyperlink>())
         {
             linkStruct.RegisterMember("text", &Hyperlink::text);
             linkStruct.RegisterMember("url", &Hyperlink::url);
             constructor->RegisterArray<std::vector<Hyperlink>>();
         }
-        constructor->Bind("footer_links", &mainSceneDataModel_.hyperlinks_);
+        constructor->Bind("footer_links", &mainSceneDataModel_.hyperlinks);
+        constructor->Bind("main_menu_background", &mainSceneDataModel_.mainMenuBackground);
         constructor->BindEventCallback(
             "on_start_game_click",
             &MainScene::OnStartGameClick,
@@ -86,6 +122,7 @@ void glimmer::MainScene::OnCreateDataModels()
             &MainScene::OnLinkClick,
             this
         );
+        mainModelHandle_ = constructor->GetModelHandle();
     }
 }
 
@@ -140,9 +177,54 @@ void glimmer::MainScene::OnLinkClick(Rml::DataModelHandle handle, Rml::Event& ev
     SDL_OpenURL(url.c_str());
 }
 
+void glimmer::MainScene::NextBackgroundFrame()
+{
+    int nextIndex = backgroundIndex_ + 1;
+    bool exists = false;
+    for (auto& supportedTextureFormat : supportedTextureFormats_)
+    {
+        std::filesystem::path path = textureFolder_ / fmt::format("{}{}", "bg_",
+                                                                  std::to_string(nextIndex));
+        path.replace_extension(supportedTextureFormat);
+        exists = virtualFileSystem_->Exists(path);
+        if (exists)
+        {
+            break;
+        }
+    }
+    if (exists)
+    {
+        SetBackgroundIndex(nextIndex);
+    }
+    else
+    {
+        SetBackgroundIndex(0);
+    }
+}
+
+void glimmer::MainScene::SetBackgroundIndex(const int index)
+{
+    backgroundIndex_ = index;
+    mainSceneDataModel_.mainMenuBackground = StringUtils::MakeTextureUrl(fmt::format(
+        "{}{}", "@core:main_menu_bg_frames/bg_",
+        std::to_string(backgroundIndex_)));
+    mainModelHandle_.DirtyVariable("main_menu_background");
+}
+
 void glimmer::MainScene::OnConfigChanged(const Config* config)
 {
     uiScale_ = config->window.uiScale;
+    if (config->mainMenuBackground.targetFps <= 0.0F)
+    {
+        //Set to -1 for frame-by-frame refresh.
+        //设置为-1每帧刷新。
+        backgroundTargetSecond_ = -1;
+    }
+    else
+    {
+        backgroundTargetSecond_ = 1.0F / config->mainMenuBackground.targetFps;
+    }
+    supportedTextureFormats_ = config->mods.supportedTextureFormats;
 }
 
 void glimmer::MainScene::OnWindowSizeChanged(const int& width, const int& height)

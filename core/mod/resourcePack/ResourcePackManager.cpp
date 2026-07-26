@@ -89,6 +89,7 @@ std::shared_ptr<glimmer::TextureResourceResult> glimmer::ResourcePackManager::Cr
         textureCache_.erase(path);
     };
     std::shared_ptr<TextureResourceResult> textureSharedPtr(textureResourceResult.release(), deleter);
+    textureSharedPtr->SetTexturePath(resourcePack->GetPath() / "textures" / path);
     textureCache_[path] = textureSharedPtr;
     return textureSharedPtr;
 }

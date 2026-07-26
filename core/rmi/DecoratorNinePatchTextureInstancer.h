@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -25,59 +25,26 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ResourcePack.h"
-#include "core/log/LogCat.h"
+#include "RmlUi/Core/Decorator.h"
 
 namespace glimmer
 {
-    template <typename T>
-    class ResourceResult
+    class DecoratorNinePatchTextureInstancer : public Rml::DecoratorInstancer
     {
-        const ResourcePack* resourcePack_ = nullptr;
-        T* resource_ = nullptr;
-
-    protected:
-        virtual ~ResourceResult() = default;
+        Rml::PropertyId srcId_ = Rml::PropertyId::Invalid;
+        Rml::PropertyId edgeIds_[4] = {
+            Rml::PropertyId::Invalid, Rml::PropertyId::Invalid,
+            Rml::PropertyId::Invalid, Rml::PropertyId::Invalid
+        };
 
     public:
-        void SetResourcePack(const ResourcePack* resourcePack);
+        /// Registering attributes must be done after calling Rml::Initialise()
+        /// 注册属性，必须在 Rml::Initialise() 之后调用
+        void RegisterProperties();
 
-        [[nodiscard]] const ResourcePack* GetResourcePack() const;
-
-        virtual void DestroyResource() = 0;
-
-        void SetResource(T* resource);
-
-        [[nodiscard]] T* GetResource() const;
+        Rml::SharedPtr<Rml::Decorator> InstanceDecorator(const Rml::String& name,
+                                                         const Rml::PropertyDictionary& properties,
+                                                         const Rml::DecoratorInstancerInterface&
+                                                         instancer_interface) override;
     };
-
-    template <typename T>
-    void ResourceResult<T>::SetResource(T* resource)
-    {
-        resource_ = resource;
-    }
-
-    template <typename T>
-    void ResourceResult<T>::SetResourcePack(const ResourcePack* resourcePack)
-    {
-        if (resourcePack == nullptr)
-        {
-            LogCat::e(std::source_location::current(), "resourcePack == nullptr");
-            return;
-        }
-        resourcePack_ = resourcePack;
-    }
-
-    template <typename T>
-    const ResourcePack* ResourceResult<T>::GetResourcePack() const
-    {
-        return resourcePack_;
-    }
-
-
-    template <typename T>
-    T* ResourceResult<T>::GetResource() const
-    {
-        return resource_;
-    }
 }

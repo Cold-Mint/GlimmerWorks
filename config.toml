@@ -34,6 +34,11 @@ camera_scale = 2.0
 # 启用垂直同步
 vsync = true
 
+[main_menu_background]
+# The target frame rate for background switching on the main page(If set to -1, then the adaptive refresh rate will be used, that is, the window.normal_target_fps will be applied.)
+# 主页面背景切换的目标帧率（如果设置为-1,那么自适应刷新率，即使用window.normal_target_fps）
+target_fps = 15.0
+
 [audio]
 # Master volume
 # 主音量
@@ -183,9 +188,9 @@ supported_audio_formats = ["ogg"]
 # 支持的纹理格式
 # The textures that come earlier will be loaded first.
 # 排在前面的纹理会被优先加载。
-# The release build has been trimmed to support only PNG. To support additional formats, you need to modify the CMakeLists.txt and recompile the game.
-# 发行版已被裁减为仅支持png，支持更多格式需要修改CMakeLists.txt重新编译游戏。
-supported_texture_formats = ["png"]
+# The release build has been trimmed to support only WEBP. To support additional formats, you need to modify the CMakeLists.txt and recompile the game.
+# 发行版已被裁减为仅支持webp，支持更多格式需要修改CMakeLists.txt重新编译游戏。
+supported_texture_formats = ["webp"]
 
 [console]
 # Maximum number of console history entries to save (0 = disable history function)

@@ -130,7 +130,7 @@ void glimmer::HotBarGUISystem::LoadDocuments(IDocumentRegistry* documentRegistry
     ResourceRef resourceRef;
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
-    resourceRef.SetResourceKey("pages/hotbar/hotbar");
+    resourceRef.SetResourceKey("hotbar/hotbar");
     elementDocument_ = documentRegistry->LoadSingleDocument(&resourceRef);
 }
 

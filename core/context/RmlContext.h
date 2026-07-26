@@ -32,6 +32,7 @@
 #include "core/rmi/GameFontEngineInterface.h"
 #include "core/rmi/RenderInterfaceSDL3.h"
 #include "core/rmi/SystemInterfaceSDL3.h"
+#include "core/rmi/DecoratorNinePatchTextureInstancer.h"
 #include "RmlUi/Core/ElementDocument.h"
 
 namespace glimmer
@@ -46,6 +47,7 @@ namespace glimmer
         ResourcePackManager* resourcePackManager_ = nullptr;
         std::unique_ptr<GameFileInterface> gameFileInterface_ = nullptr;
         std::unique_ptr<GameFontEngineInterface> gameFontEngineInterface_ = nullptr;
+        DecoratorNinePatchTextureInstancer decoratorNinePatchTextureInstancer_;
         Rml::Context* context_ = nullptr;
         std::unordered_map<uint64_t, Rml::ElementDocument*> elementDocumentCache_;
         std::vector<std::vector<Rml::byte>> fontDataBuffers_;

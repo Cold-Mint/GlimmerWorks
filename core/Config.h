@@ -60,6 +60,11 @@ namespace glimmer
         bool vSync = true;
     };
 
+    struct MainMenuBackground
+    {
+        float targetFps;
+    };
+
     struct AnimConfig
     {
         float chunkFadeinDuration = 0.35F;
@@ -161,6 +166,7 @@ namespace glimmer
         Console console{};
         AnimConfig anim{};
         CommandConfig command{};
+        MainMenuBackground mainMenuBackground{};
         int configVersion = 1;
         std::string runtimePath;
         std::vector<CommandHookResource> commandHooks;

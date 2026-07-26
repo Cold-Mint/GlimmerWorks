@@ -25,59 +25,34 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include "ResourcePack.h"
-#include "core/log/LogCat.h"
+
+#include "RmlUi/Core/Decorator.h"
 
 namespace glimmer
 {
-    template <typename T>
-    class ResourceResult
+    /**
+     * Create a custom ninepatch decorator that directly accepts the texture URL and edge size (in pixels).
+     * 自定义 ninepatch decorator，直接接受纹理 URL 和边缘尺寸（px）。
+     *
+     * RCSS 语法:
+     *   decorator: ninepatch-texture(url(texture://@core:gui/button), 2px, 2px, 2px, 2px);
+     *   参数: src, edge-top, edge-right, edge-bottom, edge-left
+     *   简写: decorator: ninepatch-texture(src, edge-top, edge-right, edge-bottom, edge-left);
+     */
+    class DecoratorNinePatchTexture : public Rml::Decorator
     {
-        const ResourcePack* resourcePack_ = nullptr;
-        T* resource_ = nullptr;
-
-    protected:
-        virtual ~ResourceResult() = default;
+        float edgeTop_ = 0;
+        float edgeRight_ = 0;
+        float edgeBottom_ = 0;
+        float edgeLeft_ = 0;
 
     public:
-        void SetResourcePack(const ResourcePack* resourcePack);
+        bool Initialise(Rml::Texture texture, float edgeTop, float edgeRight, float edgeBottom, float edgeLeft);
 
-        [[nodiscard]] const ResourcePack* GetResourcePack() const;
+        Rml::DecoratorDataHandle GenerateElementData(Rml::Element* element, Rml::BoxArea paint_area) const override;
 
-        virtual void DestroyResource() = 0;
+        void ReleaseElementData(Rml::DecoratorDataHandle element_data) const override;
 
-        void SetResource(T* resource);
-
-        [[nodiscard]] T* GetResource() const;
+        void RenderElement(Rml::Element* element, Rml::DecoratorDataHandle element_data) const override;
     };
-
-    template <typename T>
-    void ResourceResult<T>::SetResource(T* resource)
-    {
-        resource_ = resource;
-    }
-
-    template <typename T>
-    void ResourceResult<T>::SetResourcePack(const ResourcePack* resourcePack)
-    {
-        if (resourcePack == nullptr)
-        {
-            LogCat::e(std::source_location::current(), "resourcePack == nullptr");
-            return;
-        }
-        resourcePack_ = resourcePack;
-    }
-
-    template <typename T>
-    const ResourcePack* ResourceResult<T>::GetResourcePack() const
-    {
-        return resourcePack_;
-    }
-
-
-    template <typename T>
-    T* ResourceResult<T>::GetResource() const
-    {
-        return resource_;
-    }
 }

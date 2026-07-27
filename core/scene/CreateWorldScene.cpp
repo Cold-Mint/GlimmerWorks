@@ -42,6 +42,18 @@ namespace fs = std::filesystem;
 
 glimmer::CreateWorldScene::CreateWorldScene(AppContext* context) : Scene(context)
 {
+    sceneManager_ = context->GetSceneManager();
+    if (sceneManager_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "Scene manager cannot be nullptr.");
+        return;
+    }
+    mainThreadDispatcher_ = context->GetMainThreadDispatcher();
+    if (mainThreadDispatcher_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "Main Thread Dispatcher cannot be nullptr.");
+        return;
+    }
     RandomizeWorld();
     Init();
 }
@@ -51,9 +63,9 @@ void glimmer::CreateWorldScene::OnCreateDataModels()
     Rml::DataModelConstructor* constructor = CreateDataModel("create_world_scene");
     if (constructor != nullptr)
     {
-        constructor->Bind("world_name", &createWorldDataModel_.worldName_);
-        constructor->Bind("seed", &createWorldDataModel_.seedStr_);
-        constructor->Bind("allow_cheats", &createWorldDataModel_.allowCheats_);
+        constructor->Bind("world_name", &createWorldDataModel_.worldName);
+        constructor->Bind("seed", &createWorldDataModel_.seedStr);
+        constructor->Bind("allow_cheats", &createWorldDataModel_.allowCheats);
         constructor->BindEventCallback(
             "on_create_world_click",
             &CreateWorldScene::OnCreateWorldClick,
@@ -65,8 +77,13 @@ void glimmer::CreateWorldScene::OnCreateDataModels()
             this
         );
         constructor->BindEventCallback(
-            "on_random_click",
-            &CreateWorldScene::OnRandomClick,
+            "on_random_name_click",
+            &CreateWorldScene::OnRandomNameClick,
+            this
+        );
+        constructor->BindEventCallback(
+            "on_random_seed_click",
+            &CreateWorldScene::OnRandomSeedClick,
             this
         );
         modelHandle_ = constructor->GetModelHandle();
@@ -100,37 +117,14 @@ void glimmer::CreateWorldScene::RandomizeName()
     auto op = RandomName();
     if (op.has_value())
     {
-        createWorldDataModel_.worldName_ = op.value();
+        createWorldDataModel_.worldName = op.value();
     }
 }
 
 void glimmer::CreateWorldScene::RandomizeSeed()
 {
     const int newSeed = RandomUtils::Random<int>();
-    createWorldDataModel_.seedStr_ = std::to_string(newSeed);
-}
-
-void glimmer::CreateWorldScene::OnRandomClick(Rml::DataModelHandle handle, Rml::Event& event,
-                                              const Rml::VariantList& args)
-{
-    if (args.empty())
-    {
-        RandomizeWorld();
-        modelHandle_.DirtyVariable("world_name");
-        modelHandle_.DirtyVariable("seed");
-        return;
-    }
-    auto type = args[0].Get<Rml::String>();
-    if (type == "world_name")
-    {
-        RandomizeName();
-        modelHandle_.DirtyVariable("world_name");
-    }
-    else if (type == "seed")
-    {
-        RandomizeSeed();
-        modelHandle_.DirtyVariable("seed");
-    }
+    createWorldDataModel_.seedStr = std::to_string(newSeed);
 }
 
 void glimmer::CreateWorldScene::OnCreateWorldClick(Rml::DataModelHandle handle, Rml::Event& event,
@@ -142,12 +136,29 @@ void glimmer::CreateWorldScene::OnCreateWorldClick(Rml::DataModelHandle handle, 
 void glimmer::CreateWorldScene::OnBackClick(Rml::DataModelHandle handle, Rml::Event& event,
                                             const Rml::VariantList& args)
 {
-    GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<MainScene>(GetAppContext()));
+    mainThreadDispatcher_->PostToNextMainFrame([this]
+    {
+        sceneManager_->PopScene();
+    });
+}
+
+void glimmer::CreateWorldScene::OnRandomSeedClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                                  const Rml::VariantList& args)
+{
+    RandomizeSeed();
+    modelHandle_.DirtyVariable("seed");
+}
+
+void glimmer::CreateWorldScene::OnRandomNameClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                                  const Rml::VariantList& args)
+{
+    RandomizeName();
+    modelHandle_.DirtyVariable("world_name");
 }
 
 void glimmer::CreateWorldScene::CreateWorld() const
 {
-    std::string name = createWorldDataModel_.worldName_;
+    std::string name = createWorldDataModel_.worldName;
     if (name.empty())
     {
         LogCat::w(std::source_location::current(), "World name cannot be empty");
@@ -155,7 +166,7 @@ void glimmer::CreateWorldScene::CreateWorld() const
     }
     LogCat::i("Creating new world: name=", name);
 
-    const std::string seedInput = createWorldDataModel_.seedStr_;
+    const std::string seedInput = createWorldDataModel_.seedStr;
     int seedValue = 0;
     if (StringUtils::IsInteger(seedInput))
     {
@@ -175,10 +186,8 @@ void glimmer::CreateWorldScene::CreateWorld() const
     manifest.createTime = TimeUtils::GetCurrentTimeMs();
     manifest.lastPlayedTime = manifest.createTime;
     manifest.totalPlayTime = 0;
-    manifest.allowCheats = createWorldDataModel_.allowCheats_;
-
-    LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", createWorldDataModel_.allowCheats_);
-
+    manifest.allowCheats = createWorldDataModel_.allowCheats;
+    LogCat::i("World manifest: version=", GAME_VERSION_STRING, ", allowCheats=", createWorldDataModel_.allowCheats);
     auto savesManager = GetAppContext()->GetSavesManager();
     if (savesManager == nullptr)
     {
@@ -193,11 +202,13 @@ void glimmer::CreateWorldScene::CreateWorld() const
         return;
     }
     LogCat::i("World saved successfully");
-
-    GetAppContext()->GetSceneManager()->ReplaceScene(std::make_unique<WorldScene>(
-        GetAppContext(), std::make_unique<WorldContext>(
-            GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
-            saves)));
+    mainThreadDispatcher_->PostToNextMainFrame([this, savesManager, saves]
+    {
+        sceneManager_->ReplaceScene(std::make_unique<WorldScene>(
+            GetAppContext(), std::make_unique<WorldContext>(
+                GetAppContext(), savesManager->GetMapManifest(savesManager->GetSavesListSize() - 1),
+                saves)));
+    });
     LogCat::i("Transitioning to WorldScene");
 }
 

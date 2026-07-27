@@ -28,6 +28,7 @@
 #include <string>
 
 #include "Scene.h"
+#include "SceneManager.h"
 #include "core/rmi/dataModel/CreateWorldDataModel.h"
 
 namespace glimmer
@@ -38,7 +39,9 @@ namespace glimmer
 
         void OnBackClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
-        void OnRandomClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnRandomSeedClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnRandomNameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void RandomizeWorld();
 
@@ -48,6 +51,8 @@ namespace glimmer
 
         Rml::DataModelHandle modelHandle_;
         CreateWorldDataModel createWorldDataModel_;
+        SceneManager* sceneManager_ = nullptr;
+        MainThreadDispatcher* mainThreadDispatcher_ = nullptr;
 
     public:
         float uiScale_ = 1.0F;

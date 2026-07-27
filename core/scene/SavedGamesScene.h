@@ -25,7 +25,6 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <string>
 
 #include "Scene.h"
 #include "SceneManager.h"
@@ -46,8 +45,6 @@ namespace glimmer
         SavedGamesDataModel savedGamesDataModel_;
         SavesManager* savesManager_ = nullptr;
         SceneManager* sceneManager_ = nullptr;
-
-        static std::string FormatSaveLabel(const MapManifest* manifest, const LangsResources* langsResources);
 
         void UpdateSaveItems();
 

@@ -31,8 +31,8 @@ namespace glimmer
 {
     struct CreateWorldDataModel
     {
-        Rml::String worldName_;
-        Rml::String seedStr_;
-        bool allowCheats_ = false;
+        Rml::String worldName;
+        Rml::String seedStr;
+        bool allowCheats = false;
     };
 }

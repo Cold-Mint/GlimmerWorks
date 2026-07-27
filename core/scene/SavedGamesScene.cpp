@@ -77,41 +77,13 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
             continue;
         }
         SaveItem item;
-        item.label = FormatSaveLabel(manifest, langsResources_);
+        item.name = manifest->name;
+        item.allowCheats = manifest->allowCheats;
+        item.lastPlayedTime = TimeUtils::FormatTime(manifest->lastPlayedTime);
         item.index = static_cast<int>(i);
         item.selected = i == static_cast<size_t>(savedGamesDataModel_.selectedSaveIndex);
         savedGamesDataModel_.saveItems.push_back(item);
     }
-}
-
-std::string glimmer::SavedGamesScene::FormatSaveLabel(const MapManifest* manifest,
-                                                      const LangsResources* langsResources)
-{
-    std::stringstream ss;
-    time_t timeVal = manifest->lastPlayedTime / 1000;
-
-    std::tm tmBuf{};
-    std::tm* tmInfo = nullptr;
-#if defined(_WIN32)
-    if (localtime_s(&tmBuf, &timeVal) == 0)
-    {
-        tmInfo = &tmBuf;
-    }
-#else
-    tmInfo = localtime_r(&timeVal, &tmBuf);
-#endif
-    if (tmInfo == nullptr)
-    {
-        return "";
-    }
-
-    ss << manifest->name << "\n";
-    ss << fmt::format(fmt::runtime(langsResources->savesDescription),
-                      manifest->gameVersionName,
-                      *tmInfo,
-                      TimeUtils::FormatTimeMs(langsResources, manifest->totalPlayTime));
-
-    return ss.str();
 }
 
 void glimmer::SavedGamesScene::OnSaveClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
@@ -218,9 +190,11 @@ void glimmer::SavedGamesScene::OnCreateDataModels()
     {
         if (auto saveItemStruct = constructor->RegisterStruct<SaveItem>())
         {
-            saveItemStruct.RegisterMember("label", &SaveItem::label);
+            saveItemStruct.RegisterMember("name", &SaveItem::name);
             saveItemStruct.RegisterMember("index", &SaveItem::index);
             saveItemStruct.RegisterMember("selected", &SaveItem::selected);
+            saveItemStruct.RegisterMember("allow_cheats", &SaveItem::allowCheats);
+            saveItemStruct.RegisterMember("last_played_time", &SaveItem::lastPlayedTime);
             constructor->RegisterArray<std::vector<SaveItem>>();
         }
         constructor->Bind("save_items", &savedGamesDataModel_.saveItems);

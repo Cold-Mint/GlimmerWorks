@@ -43,13 +43,22 @@ namespace glimmer
          */
         [[nodiscard]] static long GetCurrentTimeMs();
 
+
         /**
-         * Format time in milliseconds to a human-readable string.
-         * 格式化时间，将毫秒转换为人类可读的字符串。
+         * Format duration
+         * 格式化时长
          * @param langsResources
          * @param ms
          * @return
          */
-        [[nodiscard]] static std::string FormatTimeMs(const LangsResources* langsResources, uint64_t ms);
+        [[nodiscard]] static std::string TimeFormatDuration(const LangsResources* langsResources, uint64_t ms);
+
+        /**
+         * Format Time
+         * 格式化时间
+         * @param ms
+         * @return
+         */
+        [[nodiscard]] static std::string FormatTime(uint64_t ms);
     };
 }

@@ -31,7 +31,9 @@ namespace glimmer
 {
     struct SaveItem
     {
-        std::string label;
+        std::string name;
+        bool allowCheats;
+        std::string lastPlayedTime;
         int index;
         bool selected = false;
     };

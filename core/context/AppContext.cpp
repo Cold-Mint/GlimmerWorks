@@ -516,7 +516,7 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
             "SDL_RenderReadPixels failed"));
         return;
     }
-    const bool result = IMG_SavePNG(surface, actualPath.value().string().c_str());
+    const bool result = IMG_SaveWEBP(surface, actualPath.value().string().c_str(),100);
     SDL_DestroySurface(surface);
     if (result)
     {
@@ -529,7 +529,7 @@ void glimmer::AppContext::CreateScreenshot(const std::function<void(const std::s
         onMessageRef(
             fmt::format(
                 fmt::runtime(GetLangsResources()->screenshotSavedFailed),
-                "IMG_SavePNG Failed"));
+                "IMG_SaveWEBP Failed"));
     }
 }
 

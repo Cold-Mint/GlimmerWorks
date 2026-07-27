@@ -72,7 +72,7 @@ namespace glimmer
 
         void LoadLanguage(const std::string& data);
 
-        static std::string GetTimeFileName(const std::string& prefix = "screenshot", const std::string& ext = ".png");
+        static std::string GetTimeFileName(const std::string& prefix = "screenshot", const std::string& ext = ".webp");
 
     public:
         AppContext();

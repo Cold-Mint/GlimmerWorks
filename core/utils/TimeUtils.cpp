@@ -27,9 +27,9 @@
 #include "TimeUtils.h"
 
 #include <chrono>
-#include <format>
 #include <iomanip>
-#include <sstream>
+
+#include "fmt/xchar.h"
 
 
 long glimmer::TimeUtils::GetCurrentTimeMs()
@@ -39,18 +39,18 @@ long glimmer::TimeUtils::GetCurrentTimeMs()
     ).count();
 }
 
-std::string glimmer::TimeUtils::FormatTimeMs(const LangsResources* langsResources, uint64_t ms)
+std::string glimmer::TimeUtils::TimeFormatDuration(const LangsResources* langsResources, const uint64_t ms)
 {
     if (ms < 1000)
     {
         double seconds = static_cast<double>(ms) / 1000.0F;
-        return std::format("{:.2f}{}", seconds, langsResources->timeS);
+        return fmt::format("{:.2f}{}", seconds, langsResources->timeS);
     }
 
     uint64_t totalSeconds = ms / 1000;
     if (totalSeconds < 60)
     {
-        return std::format("{}{}", totalSeconds, langsResources->timeS);
+        return fmt::format("{}{}", totalSeconds, langsResources->timeS);
     }
 
     uint64_t minutes = totalSeconds / 60;
@@ -58,10 +58,44 @@ std::string glimmer::TimeUtils::FormatTimeMs(const LangsResources* langsResource
 
     if (minutes < 60)
     {
-        return std::format("{}{} {}{}", minutes, langsResources->timeM, seconds, langsResources->timeS);
+        return fmt::format("{}{} {}{}", minutes, langsResources->timeM, seconds, langsResources->timeS);
     }
     uint64_t hours = minutes / 60;
     minutes = minutes % 60;
-    return std::format("{}{} {}{} {}{}", hours, langsResources->timeH, minutes, langsResources->timeM, seconds,
+    return fmt::format("{}{} {}{} {}{}", hours, langsResources->timeH, minutes, langsResources->timeM, seconds,
                        langsResources->timeS);
+}
+
+std::string glimmer::TimeUtils::FormatTime(const uint64_t ms)
+{
+    constexpr uint64_t kMaxTimeT =
+        std::numeric_limits<time_t>::max();
+
+    const uint64_t sec = ms / 1000;
+    if (sec > kMaxTimeT)
+    {
+        return "0000-00-00 00:00:00";
+    }
+
+    auto timeVal = static_cast<time_t>(sec);
+
+    std::tm tmBuf{};
+    std::tm* tmInfo = nullptr;
+
+#if defined(_WIN32)
+    if (localtime_s(&tmBuf, &timeVal) == 0)
+    {
+        tmInfo = &tmBuf;
+    }
+#else
+    tmInfo = localtime_r(&timeVal, &tmBuf);
+#endif
+
+    if (tmInfo == nullptr)
+    {
+        return "";
+    }
+    std::ostringstream oss;
+    oss << std::put_time(tmInfo, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
 }

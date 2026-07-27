@@ -27,7 +27,6 @@
 #include "ResourcePack.h"
 
 #include "core/Constants.h"
-#include "core/log/LogCat.h"
 #include "core/utils/StringUtils.h"
 #include "core/utils/TomlUtils.h"
 #include "toml11/parser.hpp"
@@ -38,18 +37,6 @@ glimmer::ResourcePack::ResourcePack(std::filesystem::path path, const VirtualFil
                                                                      virtualFileSystem_(virtualFileSystem), manifest_(),
                                                                      tomlVersion_(tomlVersion)
 {
-}
-
-bool glimmer::ResourcePack::LoadResourceConfig()
-{
-    const auto contentOptional = virtualFileSystem_->ReadFileAsString(path_ / RESOURCE_PACK_CONFIG_FILE_NAME);
-    if (!contentOptional.has_value())
-    {
-        return false;
-    }
-    const toml::value value = toml::parse_str(contentOptional.value(), tomlVersion_);
-    resourcePackConfig_ = toml::get<ResourcePackConfig>(value);
-    return true;
 }
 
 bool glimmer::ResourcePack::LoadManifest()
@@ -65,11 +52,6 @@ bool glimmer::ResourcePack::LoadManifest()
     manifest_.name.SetSelfPackageId(manifest_.id);
     manifest_.description.SetSelfPackageId(manifest_.id);
     return true;
-}
-
-const glimmer::ResourcePackConfig& glimmer::ResourcePack::GetResourcePackConfig() const
-{
-    return resourcePackConfig_;
 }
 
 const glimmer::ResourcePackManifest& glimmer::ResourcePack::GetManifest() const

@@ -44,10 +44,6 @@ namespace glimmer
 
         ~WindowContext() = default;
 
-        [[nodiscard]] bool StopInput() const;
-
-        [[nodiscard]] bool StartInput() const;
-
         void SetWindow(SDL_Window* window);
 
         void SetRenderer(SDL_Renderer* renderer);

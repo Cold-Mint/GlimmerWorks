@@ -26,7 +26,6 @@
  */
 #pragma once
 
-#include "ResourcePackConfig.h"
 #include "core/mod/PackManifest.h"
 #include "core/vfs/VirtualFileSystem.h"
 #include "toml11/spec.hpp"
@@ -40,17 +39,12 @@ namespace glimmer
         ResourcePackManifest manifest_;
         const VirtualFileSystem* virtualFileSystem_;
         toml::spec tomlVersion_;
-        ResourcePackConfig resourcePackConfig_;
 
     public:
         explicit ResourcePack(std::filesystem::path path, const VirtualFileSystem* virtualFileSystem,
                               const toml::spec& tomlVersion);
 
-        bool LoadResourceConfig();
-
         bool LoadManifest();
-
-        [[nodiscard]] const ResourcePackConfig& GetResourcePackConfig() const;
 
         [[nodiscard]] const ResourcePackManifest& GetManifest() const;
 

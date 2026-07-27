@@ -326,7 +326,6 @@ int glimmer::ResourcePackManager::Scan(const std::string& resourcePackPathString
             {
                 continue;
             }
-            packPtr->LoadResourceConfig();
             resourcePackMap_[packPtr->GetManifest().id] = std::move(packPtr);
             success++;
         }

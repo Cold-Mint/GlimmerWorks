@@ -122,46 +122,6 @@ void glimmer::ConsoleOverlay::UpdateCommandPlaceholder(const std::string& text)
     consoleModelHandle_.DirtyVariable("console_placeholder");
 }
 
-void glimmer::ConsoleOverlay::StartInput() const
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr)
-    {
-        LogCat::e(std::source_location::current(), "appContext== nullptr");
-        return;
-    }
-    const WindowContext* windowContext = appContext->GetWindowContext();
-    if (windowContext == nullptr)
-    {
-        LogCat::e(std::source_location::current(), "appContext== nullptr");
-        return;
-    }
-    if (!windowContext->StartInput())
-    {
-        LogCat::e(std::source_location::current(), "Input opening failed.");
-    }
-}
-
-void glimmer::ConsoleOverlay::StopInput() const
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr)
-    {
-        LogCat::e(std::source_location::current(), "appContext== nullptr");
-        return;
-    }
-    const WindowContext* windowContext = appContext->GetWindowContext();
-    if (windowContext == nullptr)
-    {
-        LogCat::e(std::source_location::current(), "appContext== nullptr");
-        return;
-    }
-    if (!windowContext->StopInput())
-    {
-        LogCat::e(std::source_location::current(), "Input closure failed.");
-    }
-}
-
 
 void glimmer::ConsoleOverlay::ShowConsole()
 {
@@ -176,7 +136,6 @@ void glimmer::ConsoleOverlay::ShowConsole()
             })
         );
     }
-    StartInput();
     if (consoleInputElement_ != nullptr)
     {
         consoleInputElement_->Focus(true);
@@ -190,7 +149,6 @@ void glimmer::ConsoleOverlay::HideConsole() const
     {
         consoleWorker_->PopOnMessage();
     }
-    StopInput();
 }
 
 void glimmer::ConsoleOverlay::OnSuggestHover(Rml::DataModelHandle handle, Rml::Event& event,
@@ -267,7 +225,7 @@ void glimmer::ConsoleOverlay::ApplySuggestion(const std::string& message)
     {
         if (i > 0)
         {
-            newCommand += " ";
+            newCommand += ' ';
         }
         if (i == tokenIndex_)
         {

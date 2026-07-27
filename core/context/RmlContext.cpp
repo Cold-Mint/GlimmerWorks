@@ -100,13 +100,13 @@ Rml::Context* glimmer::RmlContext::GetRmlContext() const
 }
 
 bool glimmer::RmlContext::Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer,
-                               ResourcePackManager* resourcePackManager, ResourceLocator* resourceLocator,
-                               toml::value* langsValuePtr, int width,
-                               int height)
+    ResourcePackManager* resourcePackManager, ResourceLocator* resourceLocator, toml::value* langsValuePtr,
+    SDL_Window* window, int width, int height)
 {
     LogCat::i("Initializing RmlContext, width: ", width, ", height: ", height);
     resourcePackManager_ = resourcePackManager;
     systemInterfaceSDL3_ = std::make_unique<SystemInterfaceSDL3>(langsValuePtr);
+    systemInterfaceSDL3_->SetWindow(window);
     Rml::SetSystemInterface(systemInterfaceSDL3_.get());
     renderInterfaceSDL3_ = std::make_unique<RenderInterfaceSDL3>(renderer, resourcePackManager, resourceLocator);
     Rml::SetRenderInterface(renderInterfaceSDL3_.get());

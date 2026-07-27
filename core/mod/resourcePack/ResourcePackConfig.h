@@ -52,24 +52,4 @@ namespace glimmer
         //@genNextLine(tileScale|平铺纹理缩放倍率)
         float tileScale = 1.0F;
     };
-
-
-    //@genNextLine(ResourcePackConfig|资源包配置)
-    struct ResourcePackConfig
-    {
-        //@genNextLine(button|按钮九切片配置)
-        NineSliceConfig buttonNineSlice = {};
-
-        //@genNextLine(itemSlot|物品槽九切片配置)
-        NineSliceConfig itemSlotNineSlice = {};
-
-        //@genNextLine(itemSlotQuantity|物品槽数量框九切片配置)
-        NineSliceConfig itemSlotQuantityNineSlice = {};
-
-        //@genNextLine(craftPreviewSlot|合成预览框九切片配置)
-        NineSliceConfig craftPreviewSlotNineSlice = {};
-
-        //@genNextLine(itemToolTip|物品工具提示配置)
-        NineSliceConfig itemToolTipNineSlice = {};
-    };
 }

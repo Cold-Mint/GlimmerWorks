@@ -132,7 +132,7 @@ bool glimmer::App::InitWindowAndRenderer()
     }
     LogCat::i("Initializing RmlContext");
     rmlContext->Init(appContext_->GetVirtualFileSystem(), renderer_, appContext_->GetResourcePackManager(),
-                     appContext_->GetResourceLocator(), appContext_->GetLanguageValue(),
+                     appContext_->GetResourceLocator(), appContext_->GetLanguageValue(), window,
                      config->window.width,
                      config->window.height);
     LogCat::i("RmlContext initialized successfully");

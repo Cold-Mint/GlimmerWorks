@@ -77,10 +77,6 @@ namespace glimmer
          */
         void UpdateCommandPlaceholder(const std::string& text);
 
-        void StartInput() const;
-
-        void StopInput() const;
-
         void ShowConsole();
 
         void HideConsole() const;

@@ -68,8 +68,8 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
     {
         return;
     }
-    const size_t saveCount = savesManager_->GetSavesListSize();
-    for (size_t i = 0; i < saveCount; ++i)
+    const auto indices = savesManager_->FilterByKeyword(savedGamesDataModel_.searchKeyword);
+    for (const size_t i : indices)
     {
         const MapManifest* manifest = savesManager_->GetMapManifest(i);
         if (manifest == nullptr)
@@ -183,6 +183,20 @@ void glimmer::SavedGamesScene::OnNewGameClick(Rml::DataModelHandle handle, Rml::
     });
 }
 
+void glimmer::SavedGamesScene::OnSearchChange(Rml::DataModelHandle handle, Rml::Event& event,
+                                               const Rml::VariantList& args)
+{
+    if (args.empty())
+    {
+        LogCat::w(std::source_location::current(), "args.empty()");
+        return;
+    }
+    savedGamesDataModel_.searchKeyword = args[0].Get<std::string>();
+    UpdateSaveItems();
+    handle.DirtyVariable("save_items");
+    handle.DirtyVariable("search_keyword");
+}
+
 void glimmer::SavedGamesScene::OnCreateDataModels()
 {
     Rml::DataModelConstructor* constructor = CreateDataModel("saved_games_scene");
@@ -198,6 +212,7 @@ void glimmer::SavedGamesScene::OnCreateDataModels()
             constructor->RegisterArray<std::vector<SaveItem>>();
         }
         constructor->Bind("save_items", &savedGamesDataModel_.saveItems);
+        constructor->Bind("search_keyword", &savedGamesDataModel_.searchKeyword);
         constructor->BindEventCallback(
             "on_save_click",
             &SavedGamesScene::OnSaveClick,
@@ -216,6 +231,11 @@ void glimmer::SavedGamesScene::OnCreateDataModels()
         constructor->BindEventCallback(
             "on_new_game_click",
             &SavedGamesScene::OnNewGameClick,
+            this
+        );
+        constructor->BindEventCallback(
+            "on_search_change",
+            &SavedGamesScene::OnSearchChange,
             this
         );
     }

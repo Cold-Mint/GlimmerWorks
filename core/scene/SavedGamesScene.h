@@ -56,6 +56,8 @@ namespace glimmer
 
         void OnNewGameClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
+        void OnSearchChange(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
     public:
         void OnCreateDataModels() override;
 

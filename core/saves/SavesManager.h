@@ -80,5 +80,13 @@ namespace glimmer {
          * @return
          */
         [[nodiscard]] size_t GetSavesListSize() const;
+
+        /**
+         * Filter saves indices by keyword matching the save name (case-insensitive).
+         * 按关键字匹配存档名称进行过滤（不区分大小写）。
+         * @param keyword Search keyword (empty string returns all indices)
+         * @return Vector of matching save indices
+         */
+        [[nodiscard]] std::vector<size_t> FilterByKeyword(const std::string& keyword) const;
     };
 }

@@ -62,7 +62,7 @@ namespace glimmer
     public:
         bool Init(VirtualFileSystem* virtualFileSystem, SDL_Renderer* renderer,
                   ResourcePackManager* resourcePackManager, ResourceLocator* resourceLocator,
-                  toml::value* langsValuePtr, int width, int height);
+                  toml::value* langsValuePtr, SDL_Window* window, int width, int height);
 
         bool LoadFont(const VirtualFileSystem* virtualFileSystem, const std::filesystem::path& path);
 

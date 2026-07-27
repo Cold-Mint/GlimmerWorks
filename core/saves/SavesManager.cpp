@@ -26,7 +26,9 @@
  */
 #include "SavesManager.h"
 
-#include "core/log/LogCat.h"
+#include <algorithm>
+#include <cctype>
+
 #include "core/context/AppContext.h"
 #include "core/utils/StringUtils.h"
 #include "src/saves/map_manifest.pb.h"
@@ -126,4 +128,39 @@ void glimmer::SavesManager::LoadAllSaves(const std::filesystem::path& runtimePat
 size_t glimmer::SavesManager::GetSavesListSize() const
 {
     return saveList_.size();
+}
+
+std::vector<size_t> glimmer::SavesManager::FilterByKeyword(const std::string& keyword) const
+{
+    std::vector<size_t> result;
+    if (keyword.empty())
+    {
+        for (size_t i = 0; i < saveList_.size(); ++i)
+        {
+            result.push_back(i);
+        }
+        return result;
+    }
+    // Convert keyword to lowercase for case-insensitive comparison
+    // 转换为小写以进行不区分大小写的比较
+    std::string lowerKeyword = keyword;
+    std::ranges::transform(lowerKeyword, lowerKeyword.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+
+    for (size_t i = 0; i < saveList_.size(); ++i)
+    {
+        const auto* manifest = manifestList_[i].get();
+        if (manifest == nullptr)
+        {
+            continue;
+        }
+        std::string lowerName = manifest->name;
+        std::ranges::transform(lowerName, lowerName.begin(),
+                               [](unsigned char c) { return std::tolower(c); });
+        if (lowerName.find(lowerKeyword) != std::string::npos)
+        {
+            result.push_back(i);
+        }
+    }
+    return result;
 }

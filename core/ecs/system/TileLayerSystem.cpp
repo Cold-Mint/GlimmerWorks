@@ -81,7 +81,7 @@ bool glimmer::TileLayerSystem::ShouldDrawTile(const Color* finalLightColor) cons
 #if !defined(NDEBUG)
     if (!lightEnabled_)
     {
-        return false;
+        return true;
     }
 #endif
     if (finalLightColor == nullptr)

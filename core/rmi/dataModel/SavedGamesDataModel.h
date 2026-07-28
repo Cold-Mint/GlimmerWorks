@@ -35,6 +35,7 @@ namespace glimmer
     {
         std::vector<SaveItem> saveItems;
         int selectedSaveIndex = -1;
+        bool hasValidSelection = false;
         std::string searchKeyword;
     };
 }

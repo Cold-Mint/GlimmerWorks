@@ -45,6 +45,7 @@ namespace glimmer
         int windowHeight_ = 0;
         SavedGamesDataModel savedGamesDataModel_;
         SavesManager* savesManager_ = nullptr;
+        MainThreadDispatcher* mainThreadDispatcher = nullptr;
         SceneManager* sceneManager_ = nullptr;
         Rml::ElementFormControlInput* searchInputElement_ = nullptr;
         Rml::Element* saveListElement_ = nullptr;
@@ -52,7 +53,7 @@ namespace glimmer
 
         void UpdateSaveItems();
 
-        void OnSaveClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+        void OnLoadClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void OnDeleteClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
@@ -63,6 +64,8 @@ namespace glimmer
         void OnSearchChange(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void OnSaveSelect(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnSaveDblclick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void NavigateSaveSelection(int direction);
 

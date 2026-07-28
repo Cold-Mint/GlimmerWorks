@@ -38,6 +38,7 @@ namespace glimmer
         bool allowCheats;
         std::string lastPlayedTime;
         int index;
+        int originalIndex;
         bool selected = false;
     };
 }

@@ -87,8 +87,9 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
         item.name = manifest->name;
         item.allowCheats = manifest->allowCheats;
         item.lastPlayedTime = TimeUtils::FormatTime(manifest->lastPlayedTime);
-        item.index = static_cast<int>(i);
-        item.selected = i == static_cast<size_t>(savedGamesDataModel_.selectedSaveIndex);
+        item.index = static_cast<int>(savedGamesDataModel_.saveItems.size());
+        item.originalIndex = static_cast<int>(i);
+        item.selected = item.index == savedGamesDataModel_.selectedSaveIndex;
         if (keyword.empty())
         {
             item.prefix = StringUtils::MakeRawText(manifest->name);
@@ -124,19 +125,20 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
 
 void glimmer::SavedGamesScene::OnLoadClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args)
 {
-    int index = savedGamesDataModel_.selectedSaveIndex;
+    int listIndex = savedGamesDataModel_.selectedSaveIndex;
     if (savesManager_ == nullptr)
     {
         LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
         return;
     }
-    if (index < 0 || index >= static_cast<int>(savesManager_->GetSavesListSize()))
+    if (listIndex < 0 || listIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size()))
     {
         LogCat::w(std::source_location::current(), "invalid index");
         return;
     }
-    Saves* saves = savesManager_->GetSave(index);
-    MapManifest* manifest = savesManager_->GetMapManifest(index);
+    int originalIndex = savedGamesDataModel_.saveItems[listIndex].originalIndex;
+    Saves* saves = savesManager_->GetSave(originalIndex);
+    MapManifest* manifest = savesManager_->GetMapManifest(originalIndex);
     if (saves == nullptr || manifest == nullptr)
     {
         LogCat::w(std::source_location::current(), "saves or manifest is nullptr");
@@ -152,23 +154,19 @@ void glimmer::SavedGamesScene::OnLoadClick(Rml::DataModelHandle handle, Rml::Eve
 void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::Event& event,
                                              const Rml::VariantList& args)
 {
-    if (args.empty())
-    {
-        LogCat::w(std::source_location::current(), "args.empty()");
-        return;
-    }
-    int index = savedGamesDataModel_.selectedSaveIndex;
+    int listIndex = savedGamesDataModel_.selectedSaveIndex;
     if (savesManager_ == nullptr)
     {
         LogCat::w(std::source_location::current(), "savesManager_ == nullptr");
         return;
     }
-    if (index < 0 || index >= static_cast<int>(savesManager_->GetSavesListSize()))
+    if (listIndex < 0 || listIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size()))
     {
         LogCat::w(std::source_location::current(), "invalid index");
         return;
     }
-    if (savesManager_->DeleteSave(index))
+    int originalIndex = savedGamesDataModel_.saveItems[listIndex].originalIndex;
+    if (savesManager_->DeleteSave(originalIndex))
     {
         UpdateSaveItems();
         SetSelectedSaveIndex(-1);
@@ -284,7 +282,13 @@ void glimmer::SavedGamesScene::ScrollToSelectedSave() const
     {
         return;
     }
-    Rml::Element* selectedElement = saveListElement_->GetChild(savedGamesDataModel_.selectedSaveIndex);
+    Rml::ElementList saveItems;
+    saveListElement_->QuerySelectorAll(saveItems, ".save_item");
+    if (savedGamesDataModel_.selectedSaveIndex >= static_cast<int>(saveItems.size()))
+    {
+        return;
+    }
+    Rml::Element* selectedElement = saveItems[savedGamesDataModel_.selectedSaveIndex];
     if (selectedElement == nullptr)
     {
         return;

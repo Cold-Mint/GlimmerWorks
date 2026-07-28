@@ -47,6 +47,8 @@ namespace glimmer
         SavesManager* savesManager_ = nullptr;
         SceneManager* sceneManager_ = nullptr;
         Rml::ElementFormControlInput* searchInputElement_ = nullptr;
+        Rml::Element* saveListElement_ = nullptr;
+        Rml::DataModelHandle savedGamesDataModelHandle_;
 
         void UpdateSaveItems();
 
@@ -60,10 +62,20 @@ namespace glimmer
 
         void OnSearchChange(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
+        void OnSaveSelect(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void NavigateSaveSelection(int direction);
+
+        void ScrollToSelectedSave() const;
+
+        void SetSelectedSaveIndex(int index);
+
     public:
         void OnCreateDataModels() override;
 
         void LoadDocuments() override;
+
+        bool HandleEvent(const SDL_Event& event) override;
 
         explicit SavedGamesScene(AppContext* context);
 

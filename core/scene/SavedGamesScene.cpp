@@ -59,6 +59,10 @@ glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
         return;
     }
     UpdateSaveItems();
+    if (!savedGamesDataModel_.saveItems.empty() && savedGamesDataModel_.selectedSaveIndex == -1)
+    {
+        SetSelectedSaveIndex(0);
+    }
     Init();
 }
 
@@ -224,8 +228,86 @@ void glimmer::SavedGamesScene::OnSearchChange(Rml::DataModelHandle handle, Rml::
     }
     savedGamesDataModel_.searchKeyword = searchInputElement_->GetAttribute<Rml::String>("value", "");
     UpdateSaveItems();
+    if (!savedGamesDataModel_.saveItems.empty())
+    {
+        SetSelectedSaveIndex(0);
+    }
+    else
+    {
+        SetSelectedSaveIndex(-1);
+    }
     handle.DirtyVariable("save_items");
     handle.DirtyVariable("search_keyword");
+}
+
+void glimmer::SavedGamesScene::OnSaveSelect(Rml::DataModelHandle handle, Rml::Event& event,
+                                            const Rml::VariantList& args)
+{
+    if (args.empty())
+    {
+        LogCat::w(std::source_location::current(), "args.empty()");
+        return;
+    }
+    int index = args[0].Get<int>();
+    if (index < 0 || index >= static_cast<int>(savedGamesDataModel_.saveItems.size()))
+    {
+        LogCat::w(std::source_location::current(), "invalid index");
+        return;
+    }
+    SetSelectedSaveIndex(index);
+    handle.DirtyVariable("save_items");
+    ScrollToSelectedSave();
+}
+
+
+void glimmer::SavedGamesScene::NavigateSaveSelection(int direction)
+{
+    if (savedGamesDataModel_.saveItems.empty())
+    {
+        return;
+    }
+    int newIndex = savedGamesDataModel_.selectedSaveIndex + direction;
+    if (newIndex < 0)
+    {
+        newIndex = static_cast<int>(savedGamesDataModel_.saveItems.size()) - 1;
+    }
+    else if (newIndex >= static_cast<int>(savedGamesDataModel_.saveItems.size()))
+    {
+        newIndex = 0;
+    }
+    SetSelectedSaveIndex(newIndex);
+    savedGamesDataModelHandle_.DirtyVariable("save_items");
+    ScrollToSelectedSave();
+}
+
+void glimmer::SavedGamesScene::ScrollToSelectedSave() const
+{
+    if (saveListElement_ == nullptr || savedGamesDataModel_.selectedSaveIndex < 0)
+    {
+        return;
+    }
+    Rml::Element* selectedElement = saveListElement_->GetChild(savedGamesDataModel_.selectedSaveIndex);
+    if (selectedElement == nullptr)
+    {
+        return;
+    }
+    const float containerHeight = saveListElement_->GetClientHeight();
+    const float elementTop = selectedElement->GetOffsetTop();
+    const float elementHeight = selectedElement->GetClientHeight();
+    float targetScrollTop = elementTop - (containerHeight - elementHeight) / 2.0f;
+    const float maxScrollTop = saveListElement_->GetScrollHeight() - containerHeight;
+    targetScrollTop = std::max(0.0f, std::min(targetScrollTop, maxScrollTop));
+    saveListElement_->SetScrollTop(targetScrollTop);
+}
+
+void glimmer::SavedGamesScene::SetSelectedSaveIndex(int index)
+{
+    LogCat::w(std::source_location::current(), "index = ", index);
+    savedGamesDataModel_.selectedSaveIndex = index;
+    for (auto& item : savedGamesDataModel_.saveItems)
+    {
+        item.selected = item.index == savedGamesDataModel_.selectedSaveIndex;
+    }
 }
 
 void glimmer::SavedGamesScene::OnCreateDataModels()
@@ -272,6 +354,12 @@ void glimmer::SavedGamesScene::OnCreateDataModels()
             &SavedGamesScene::OnSearchChange,
             this
         );
+        constructor->BindEventCallback(
+            "on_save_select",
+            &SavedGamesScene::OnSaveSelect,
+            this
+        );
+        savedGamesDataModelHandle_ = constructor->GetModelHandle();
     }
 }
 
@@ -293,6 +381,11 @@ void glimmer::SavedGamesScene::LoadDocuments()
     {
         LogCat::e(std::source_location::current(), "searchInputElement== nullptr");
     }
+    saveListElement_ = elementDocument->GetElementById("save_list");
+    if (saveListElement_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "saveListElement== nullptr");
+    }
 }
 
 void glimmer::SavedGamesScene::OnWindowSizeChanged(const int& width, const int& height)
@@ -305,4 +398,34 @@ void glimmer::SavedGamesScene::OnWindowSizeChanged(const int& width, const int& 
 void glimmer::SavedGamesScene::OnConfigChanged(const Config* config)
 {
     uiScale_ = config->window.uiScale;
+}
+
+bool glimmer::SavedGamesScene::HandleEvent(const SDL_Event& event)
+{
+    if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat)
+    {
+        switch (event.key.scancode)
+        {
+        case SDL_SCANCODE_UP:
+            NavigateSaveSelection(-1);
+            return true;
+        case SDL_SCANCODE_DOWN:
+            NavigateSaveSelection(1);
+            return true;
+        case SDL_SCANCODE_RETURN:
+            if (savedGamesDataModel_.selectedSaveIndex >= 0 &&
+                savedGamesDataModel_.selectedSaveIndex < static_cast<int>(savedGamesDataModel_.saveItems.size()))
+            {
+                Rml::VariantList saveArgs;
+                saveArgs.emplace_back(savedGamesDataModel_.selectedSaveIndex);
+                Rml::Event tempEvent;
+                OnSaveClick(savedGamesDataModelHandle_, tempEvent, saveArgs);
+                return true;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return Scene::HandleEvent(event);
 }

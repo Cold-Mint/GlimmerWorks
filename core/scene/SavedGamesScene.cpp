@@ -233,7 +233,6 @@ void glimmer::SavedGamesScene::OnSaveSelect(Rml::DataModelHandle handle, Rml::Ev
     SetSelectedSaveIndex(index);
     handle.DirtyVariable("save_items");
     handle.DirtyVariable("has_valid_selection");
-    ScrollToSelectedSave();
 }
 
 void glimmer::SavedGamesScene::OnSaveDblclick(Rml::DataModelHandle handle, Rml::Event& event,

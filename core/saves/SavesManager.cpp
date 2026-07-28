@@ -139,28 +139,37 @@ std::vector<size_t> glimmer::SavesManager::FilterByKeyword(const std::string& ke
         {
             result.push_back(i);
         }
-        return result;
     }
-    // Convert keyword to lowercase for case-insensitive comparison
-    // 转换为小写以进行不区分大小写的比较
-    std::string lowerKeyword = keyword;
-    std::ranges::transform(lowerKeyword, lowerKeyword.begin(),
-                           [](unsigned char c) { return std::tolower(c); });
-
-    for (size_t i = 0; i < saveList_.size(); ++i)
+    else
     {
-        const auto* manifest = manifestList_[i].get();
-        if (manifest == nullptr)
-        {
-            continue;
-        }
-        std::string lowerName = manifest->name;
-        std::ranges::transform(lowerName, lowerName.begin(),
+        std::string lowerKeyword = keyword;
+        std::ranges::transform(lowerKeyword, lowerKeyword.begin(),
                                [](unsigned char c) { return std::tolower(c); });
-        if (lowerName.find(lowerKeyword) != std::string::npos)
+
+        for (size_t i = 0; i < saveList_.size(); ++i)
         {
-            result.push_back(i);
+            const auto* manifest = manifestList_[i].get();
+            if (manifest == nullptr)
+            {
+                continue;
+            }
+            std::string lowerName = manifest->name;
+            std::ranges::transform(lowerName, lowerName.begin(),
+                                   [](unsigned char c) { return std::tolower(c); });
+            if (lowerName.find(lowerKeyword) != std::string::npos)
+            {
+                result.push_back(i);
+            }
         }
     }
+    std::ranges::sort(result, [this](size_t a, size_t b) {
+        const auto* manifestA = manifestList_[a].get();
+        const auto* manifestB = manifestList_[b].get();
+        if (manifestA == nullptr || manifestB == nullptr)
+        {
+            return false;
+        }
+        return manifestA->lastPlayedTime > manifestB->lastPlayedTime;
+    });
     return result;
 }

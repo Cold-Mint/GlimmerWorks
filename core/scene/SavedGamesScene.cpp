@@ -63,7 +63,6 @@ glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
         LogCat::w(std::source_location::current(), "mainThreadDispatcher == nullptr");
         return;
     }
-    UpdateSaveItems();
     Init();
 }
 
@@ -172,6 +171,17 @@ void glimmer::SavedGamesScene::OnDeleteClick(Rml::DataModelHandle handle, Rml::E
         SetSelectedSaveIndex(-1);
         handle.DirtyVariable("save_items");
         handle.DirtyVariable("has_valid_selection");
+    }
+    if (savesManager_->GetSavesListSize() == 0)
+    {
+        if (mainThreadDispatcher == nullptr)
+        {
+            return;
+        }
+        mainThreadDispatcher->PostToNextMainFrame([this]
+        {
+            sceneManager_->ReplaceScene(std::make_unique<CreateWorldScene>(GetAppContext()));
+        });
     }
 }
 
@@ -312,6 +322,14 @@ void glimmer::SavedGamesScene::SetSelectedSaveIndex(int index)
     }
 }
 
+void glimmer::SavedGamesScene::OnResumeScene()
+{
+    Scene::OnResumeScene();
+    savesManager_->LoadAllSaves(runtimePath_);
+    UpdateSaveItems();
+    savedGamesDataModelHandle_.DirtyVariable("save_items");
+}
+
 void glimmer::SavedGamesScene::OnCreateDataModels()
 {
     Rml::DataModelConstructor* constructor = CreateDataModel("saved_games_scene");
@@ -405,7 +423,7 @@ void glimmer::SavedGamesScene::OnWindowSizeChanged(const int& width, const int& 
 
 void glimmer::SavedGamesScene::OnConfigChanged(const Config* config)
 {
-    uiScale_ = config->window.uiScale;
+    runtimePath_ = config->runtimePath;
 }
 
 bool glimmer::SavedGamesScene::HandleEvent(const SDL_Event& event)

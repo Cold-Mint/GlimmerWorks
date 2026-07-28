@@ -39,7 +39,6 @@ namespace glimmer
 
     class SavedGamesScene : public Scene
     {
-        float uiScale_ = 1.0F;
         LangsResources* langsResources_ = nullptr;
         int windowWidth_ = 0;
         int windowHeight_ = 0;
@@ -50,6 +49,7 @@ namespace glimmer
         Rml::ElementFormControlInput* searchInputElement_ = nullptr;
         Rml::Element* saveListElement_ = nullptr;
         Rml::DataModelHandle savedGamesDataModelHandle_;
+        std::string runtimePath_;
 
         void UpdateSaveItems();
 
@@ -74,6 +74,8 @@ namespace glimmer
         void SetSelectedSaveIndex(int index);
 
     public:
+        void OnResumeScene() override;
+
         void OnCreateDataModels() override;
 
         void LoadDocuments() override;

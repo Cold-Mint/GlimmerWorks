@@ -193,13 +193,12 @@ void glimmer::ConsoleOverlay::ScrollToSelectedSuggestion() const
     suggestionListElement_->SetScrollTop(targetScrollTop);
 }
 
-void glimmer::ConsoleOverlay::NavigateSuggestions(int direction, Rml::Event& event)
+void glimmer::ConsoleOverlay::NavigateSuggestions(int direction)
 {
     if (commandSuggestions_.empty())
     {
         return;
     }
-    event.StopPropagation();
     selectedSuggestionIndex_ += direction;
     if (selectedSuggestionIndex_ < 0)
     {
@@ -335,11 +334,10 @@ void glimmer::ConsoleOverlay::HandleRightKey()
     UpdateCommandSuggestions();
 }
 
-void glimmer::ConsoleOverlay::HandleTabKey(Rml::Event& event)
+void glimmer::ConsoleOverlay::HandleTabKey()
 {
     if (selectedSuggestionIndex_ >= 0 && selectedSuggestionIndex_ < static_cast<int>(commandSuggestions_.size()))
     {
-        event.StopPropagation();
         const std::string& message = commandSuggestions_[selectedSuggestionIndex_].message;
         ApplySuggestion(message);
     }
@@ -360,41 +358,6 @@ void glimmer::ConsoleOverlay::OnSuggestClick(Rml::DataModelHandle handle, Rml::E
     }
     auto message = args[0].Get<std::string>();
     ApplySuggestion(message);
-}
-
-void glimmer::ConsoleOverlay::OnConsoleKeydown(Rml::DataModelHandle handle, Rml::Event& event,
-                                               const Rml::VariantList& args)
-{
-    if (consoleInputElement_ == nullptr)
-    {
-        LogCat::w(std::source_location::current(), "consoleInputElement== nullptr");
-        return;
-    }
-    switch (event.GetParameter("key_identifier", Rml::Input::KI_UNKNOWN))
-    {
-    case Rml::Input::KI_RETURN:
-        HandleReturnKey();
-        break;
-    case Rml::Input::KI_LEFT:
-        UpdateTokenIndex();
-        UpdateCommandStructure();
-        UpdateCommandSuggestions();
-        break;
-    case Rml::Input::KI_RIGHT:
-        HandleRightKey();
-        break;
-    case Rml::Input::KI_TAB:
-        HandleTabKey(event);
-        break;
-    case Rml::Input::KI_UP:
-        NavigateSuggestions(-1, event);
-        break;
-    case Rml::Input::KI_DOWN:
-        NavigateSuggestions(1, event);
-        break;
-    default:
-        break;
-    }
 }
 
 void glimmer::ConsoleOverlay::OnConsoleChange(Rml::DataModelHandle handle, Rml::Event& event,
@@ -563,11 +526,6 @@ void glimmer::ConsoleOverlay::OnCreateDataModels()
             this
         );
         constructor->BindEventCallback(
-            "on_console_keydown",
-            &ConsoleOverlay::OnConsoleKeydown,
-            this
-        );
-        constructor->BindEventCallback(
             "on_console_change",
             &ConsoleOverlay::OnConsoleChange,
             this
@@ -592,19 +550,56 @@ bool glimmer::ConsoleOverlay::OnBackPressed()
 
 bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event& event)
 {
-    if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat && consoleDocument_ != nullptr && event.key.scancode ==
-        SDL_SCANCODE_F1)
+    if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat && consoleDocument_ != nullptr)
     {
-        if (consoleDocument_->
-            IsVisible())
+        if (event.key.scancode == SDL_SCANCODE_F1)
         {
-            HideConsole();
+            if (consoleDocument_->IsVisible())
+            {
+                HideConsole();
+            }
+            else
+            {
+                ShowConsole();
+            }
+            return true;
         }
-        else
+
+        if (!consoleDocument_->IsVisible())
         {
-            ShowConsole();
+            return Scene::HandleEvent(event);
         }
-        return true;
+
+        if (consoleInputElement_ == nullptr)
+        {
+            return Scene::HandleEvent(event);
+        }
+
+        switch (event.key.scancode)
+        {
+        case SDL_SCANCODE_RETURN:
+            HandleReturnKey();
+            return true;
+        case SDL_SCANCODE_LEFT:
+            UpdateTokenIndex();
+            UpdateCommandStructure();
+            UpdateCommandSuggestions();
+            return true;
+        case SDL_SCANCODE_RIGHT:
+            HandleRightKey();
+            return true;
+        case SDL_SCANCODE_TAB:
+            HandleTabKey();
+            return true;
+        case SDL_SCANCODE_UP:
+            NavigateSuggestions(-1);
+            return true;
+        case SDL_SCANCODE_DOWN:
+            NavigateSuggestions(1);
+            return true;
+        default:
+            break;
+        }
     }
     return Scene::HandleEvent(event);
 }

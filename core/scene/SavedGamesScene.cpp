@@ -302,7 +302,6 @@ void glimmer::SavedGamesScene::ScrollToSelectedSave() const
 
 void glimmer::SavedGamesScene::SetSelectedSaveIndex(int index)
 {
-    LogCat::w(std::source_location::current(), "index = ", index);
     savedGamesDataModel_.selectedSaveIndex = index;
     for (auto& item : savedGamesDataModel_.saveItems)
     {

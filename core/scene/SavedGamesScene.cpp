@@ -26,21 +26,22 @@
  */
 #include "SavedGamesScene.h"
 
+#include <algorithm>
 #include "CreateWorldScene.h"
-#include "MainScene.h"
 #include "WorldScene.h"
 #include "core/Config.h"
 #include "core/saves/MapManifest.h"
 #include "core/saves/SavesManager.h"
 #include "core/saves/Saves.h"
 #include "core/world/WorldContext.h"
-#include <sstream>
 
 #include "core/context/AppContext.h"
+#include "core/utils/StringUtils.h"
 #include "core/utils/TimeUtils.h"
 #include "core/log/LogCat.h"
 #include "core/rmi/dataModel/SaveItem.h"
 #include "fmt/xchar.h"
+#include "RmlUi/Core/Elements/ElementFormControlInput.h"
 
 glimmer::SavedGamesScene::SavedGamesScene(AppContext* context)
     : Scene(context),
@@ -68,7 +69,8 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
     {
         return;
     }
-    const auto indices = savesManager_->FilterByKeyword(savedGamesDataModel_.searchKeyword);
+    const auto& keyword = savedGamesDataModel_.searchKeyword;
+    const auto indices = savesManager_->FilterByKeyword(keyword);
     for (const size_t i : indices)
     {
         const MapManifest* manifest = savesManager_->GetMapManifest(i);
@@ -82,6 +84,35 @@ void glimmer::SavedGamesScene::UpdateSaveItems()
         item.lastPlayedTime = TimeUtils::FormatTime(manifest->lastPlayedTime);
         item.index = static_cast<int>(i);
         item.selected = i == static_cast<size_t>(savedGamesDataModel_.selectedSaveIndex);
+        if (keyword.empty())
+        {
+            item.prefix = StringUtils::MakeRawText(manifest->name);
+            item.keyword.clear();
+            item.suffix.clear();
+        }
+        else
+        {
+            std::string lowerName = manifest->name;
+            std::ranges::transform(lowerName, lowerName.begin(),
+                                   [](unsigned char c) { return std::tolower(c); });
+            std::string lowerKeyword = keyword;
+            std::ranges::transform(lowerKeyword, lowerKeyword.begin(),
+                                   [](unsigned char c) { return std::tolower(c); });
+            size_t keywordIndex = lowerName.find(lowerKeyword);
+            if (keywordIndex == std::string::npos)
+            {
+                item.prefix = StringUtils::MakeRawText(manifest->name);
+                item.keyword.clear();
+                item.suffix.clear();
+            }
+            else
+            {
+                auto fullView = std::string_view(manifest->name);
+                item.prefix = StringUtils::MakeRawText(fullView.substr(0, keywordIndex));
+                item.suffix = StringUtils::MakeRawText(fullView.substr(keywordIndex + keyword.size()));
+                item.keyword = StringUtils::MakeRawText(fullView.substr(keywordIndex, keyword.size()));
+            }
+        }
         savedGamesDataModel_.saveItems.push_back(item);
     }
 }
@@ -184,14 +215,14 @@ void glimmer::SavedGamesScene::OnNewGameClick(Rml::DataModelHandle handle, Rml::
 }
 
 void glimmer::SavedGamesScene::OnSearchChange(Rml::DataModelHandle handle, Rml::Event& event,
-                                               const Rml::VariantList& args)
+                                              const Rml::VariantList& args)
 {
-    if (args.empty())
+    if (searchInputElement_ == nullptr)
     {
-        LogCat::w(std::source_location::current(), "args.empty()");
+        LogCat::w(std::source_location::current(), "searchInputElement_ == nullptr");
         return;
     }
-    savedGamesDataModel_.searchKeyword = args[0].Get<std::string>();
+    savedGamesDataModel_.searchKeyword = searchInputElement_->GetAttribute<Rml::String>("value", "");
     UpdateSaveItems();
     handle.DirtyVariable("save_items");
     handle.DirtyVariable("search_keyword");
@@ -205,6 +236,9 @@ void glimmer::SavedGamesScene::OnCreateDataModels()
         if (auto saveItemStruct = constructor->RegisterStruct<SaveItem>())
         {
             saveItemStruct.RegisterMember("name", &SaveItem::name);
+            saveItemStruct.RegisterMember("suffix", &SaveItem::suffix);
+            saveItemStruct.RegisterMember("keyword", &SaveItem::keyword);
+            saveItemStruct.RegisterMember("prefix", &SaveItem::prefix);
             saveItemStruct.RegisterMember("index", &SaveItem::index);
             saveItemStruct.RegisterMember("selected", &SaveItem::selected);
             saveItemStruct.RegisterMember("allow_cheats", &SaveItem::allowCheats);
@@ -247,7 +281,18 @@ void glimmer::SavedGamesScene::LoadDocuments()
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("saves/saves");
-    LoadSingleDocument(&resourceRef);
+    Rml::ElementDocument* elementDocument = LoadSingleDocument(&resourceRef);
+    Rml::Element* searchInput = elementDocument->GetElementById("search_input");
+    if (searchInput == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "searchInput== nullptr");
+        return;
+    }
+    searchInputElement_ = rmlui_dynamic_cast<Rml::ElementFormControlInput*>(searchInput);
+    if (searchInputElement_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "searchInputElement== nullptr");
+    }
 }
 
 void glimmer::SavedGamesScene::OnWindowSizeChanged(const int& width, const int& height)

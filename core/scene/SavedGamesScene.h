@@ -30,6 +30,7 @@
 #include "SceneManager.h"
 #include "core/LangsResources.h"
 #include "core/rmi/dataModel/SavedGamesDataModel.h"
+#include "RmlUi/Core/Elements/ElementFormControlInput.h"
 
 namespace glimmer
 {
@@ -45,6 +46,7 @@ namespace glimmer
         SavedGamesDataModel savedGamesDataModel_;
         SavesManager* savesManager_ = nullptr;
         SceneManager* sceneManager_ = nullptr;
+        Rml::ElementFormControlInput* searchInputElement_ = nullptr;
 
         void UpdateSaveItems();
 

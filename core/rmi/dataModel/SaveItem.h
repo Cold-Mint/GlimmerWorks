@@ -32,6 +32,9 @@ namespace glimmer
     struct SaveItem
     {
         std::string name;
+        std::string prefix;
+        std::string keyword;
+        std::string suffix;
         bool allowCheats;
         std::string lastPlayedTime;
         int index;

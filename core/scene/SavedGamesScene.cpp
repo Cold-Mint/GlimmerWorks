@@ -325,7 +325,6 @@ void glimmer::SavedGamesScene::SetSelectedSaveIndex(int index)
 void glimmer::SavedGamesScene::OnResumeScene()
 {
     Scene::OnResumeScene();
-    savesManager_->LoadAllSaves(runtimePath_);
     UpdateSaveItems();
     savedGamesDataModelHandle_.DirtyVariable("save_items");
 }
@@ -418,12 +417,6 @@ void glimmer::SavedGamesScene::OnWindowSizeChanged(const int& width, const int& 
 {
     windowWidth_ = width;
     windowHeight_ = height;
-}
-
-
-void glimmer::SavedGamesScene::OnConfigChanged(const Config* config)
-{
-    runtimePath_ = config->runtimePath;
 }
 
 bool glimmer::SavedGamesScene::HandleEvent(const SDL_Event& event)

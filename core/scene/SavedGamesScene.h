@@ -49,7 +49,6 @@ namespace glimmer
         Rml::ElementFormControlInput* searchInputElement_ = nullptr;
         Rml::Element* saveListElement_ = nullptr;
         Rml::DataModelHandle savedGamesDataModelHandle_;
-        std::string runtimePath_;
 
         void UpdateSaveItems();
 
@@ -85,8 +84,6 @@ namespace glimmer
         explicit SavedGamesScene(AppContext* context);
 
         void OnWindowSizeChanged(const int& width, const int& height) override;
-
-        void OnConfigChanged(const Config* config) override;
 
         ~SavedGamesScene() override = default;
     };

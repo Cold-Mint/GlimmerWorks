@@ -131,7 +131,7 @@ void glimmer::HotBarGUISystem::LoadDocuments(IDocumentRegistry* documentRegistry
     resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("hotbar/hotbar");
-    elementDocument_ = documentRegistry->LoadSingleDocument(&resourceRef);
+    SetElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));
 }
 
 void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)

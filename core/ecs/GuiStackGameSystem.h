@@ -39,8 +39,24 @@ namespace glimmer
      */
     class GuiStackGameSystem : public GuiGameSystem
     {
+        SDL_Scancode hotKey_ = SDL_SCANCODE_UNKNOWN;
+
+    protected:
+        void SetAndHideElementDocument(Rml::ElementDocument* document);
+
     public:
         explicit GuiStackGameSystem(WorldContext* worldContext);
+
+        void OnActivationChanged(bool activeStatus) override;
+
+        /**
+         * Get the hotkey for opening the Gui system
+         * 获取打开Gui系统的热键
+         * If you need to set hotkeys, then override this function.
+         * 如果需要设置热键，那么覆盖此函数。
+         * @return
+         */
+        virtual SDL_Scancode GetHotKey() const;
 
         /**
          * This method achieves automatic start-stop scheduling.

@@ -401,7 +401,6 @@ target_sources(GlimmerWorks
         core/ecs/GameComponent.cpp
         core/ecs/GameEntity.cpp
         core/ecs/GameSystem.cpp
-        core/ecs/GameSystemType.cpp
         core/ecs/GuiGameSystem.cpp
         core/ecs/GuiStackGameSystem.cpp
         core/ecs/IEntityCreator.cpp
@@ -635,6 +634,7 @@ target_sources(GlimmerWorks
         core/world/structure/TreeStructureGenerator.cpp
         core/ecs/system/ItemTooltipSystem.cpp
         core/rmi/DecoratorNinePatchTextureInstancer.cpp
+        core/ecs/system/InventoryGUISystem.cpp
         main.cpp
         PUBLIC
         FILE_SET HEADERS
@@ -1007,6 +1007,7 @@ target_sources(GlimmerWorks
         core/world/structure/SurfaceStructureConditionProcessor.h
         core/world/structure/TreeStructureGenerator.h
         core/ecs/system/ItemTooltipSystem.h
+        core/ecs/system/InventoryGUISystem.h
 )
 
 #Define version information

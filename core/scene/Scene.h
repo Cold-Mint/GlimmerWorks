@@ -45,7 +45,7 @@ namespace glimmer
         RmlContext* rmlContext_ = nullptr;
         std::unordered_set<Rml::ElementDocument*> elementDocumentSet_;
         std::unordered_set<Rml::ElementDocument*> visibleElementDocumentsSnapshot_;
-        std::vector<Rml::DataModelConstructor> rmlConstructors_;
+        std::deque<Rml::DataModelConstructor> rmlConstructors_;
         std::unordered_set<Rml::String> rmlConstructorNames_;
 #if  !defined(NDEBUG)
         float initTimeOut_ = 0.0F;

@@ -61,13 +61,6 @@ bool glimmer::WorldScene::HandleEvent(const SDL_Event &event) {
     if (systemScheduler_ == nullptr) {
         return false;
     }
-    if (event.type == SDL_EVENT_KEY_DOWN && !systemScheduler_->HasAnyModalGuiOpen()) {
-        //When a certain key is pressed and there is no system display currently active.
-        //当按下某个键，且没有系统正在显示中时。
-        if (event.key.scancode == SDL_SCANCODE_E) {
-            systemScheduler_->PushGuiSystemType(GameSystemType::InventoryCraftGUISystem);
-        }
-    }
     return systemScheduler_->HandleEvent(event);
 }
 

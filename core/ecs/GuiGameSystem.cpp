@@ -26,6 +26,16 @@
  */
 #include "GuiGameSystem.h"
 
+void glimmer::GuiGameSystem::SetElementDocument(Rml::ElementDocument* document)
+{
+    elementDocument_ = document;
+}
+
+Rml::ElementDocument* glimmer::GuiGameSystem::GetElementDocument() const
+{
+    return elementDocument_;
+}
+
 glimmer::GuiGameSystem::GuiGameSystem(WorldContext *worldContext)
     : GameSystem(worldContext) {
 }

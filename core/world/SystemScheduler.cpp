@@ -43,6 +43,7 @@
 #include "core/ecs/system/DroppedItemSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/HotBarGUISystem.h"
+#include "core/ecs/system/InventoryGUISystem.h"
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/MagnetSystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
@@ -137,11 +138,34 @@ bool glimmer::SystemScheduler::HasAnyModalGuiOpen() const
     return activeSystemStack_.size() > persistentGuiSystemCount_;
 }
 
-bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event) const
+bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event)
 {
     if (!worldContext_->IsRuning())
     {
         return false;
+    }
+    if (event.type == SDL_EVENT_KEY_DOWN)
+    {
+        auto iterator = scancodeToSystemType_.find(event.key.scancode);
+        if (iterator != scancodeToSystemType_.end())
+        {
+            if (HasAnyModalGuiOpen())
+            {
+                auto scancodeIterator = systemTypeToScancode_.find(activeSystemStack_.top());
+                if (scancodeIterator != systemTypeToScancode_.end() && scancodeIterator->second == event.key.scancode)
+                {
+                    //Shortcut keys to the corresponding system types.
+                    //按下了顶部显示的GUi系统快捷键，关闭当前系统。
+                    PopGuiSystemType();
+                }
+            }
+            else
+            {
+                //If Gui's presentation is not available, then open a new one.
+                //没有Gui正在展示，那么打开新的。
+                PushGuiSystemType(iterator->second);
+            }
+        }
     }
     bool handled = false;
     for (auto& system : activeSystems_)
@@ -415,6 +439,7 @@ void glimmer::SystemScheduler::InitSystem()
     RegisterSystem(std::make_unique<TechProviderSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<PauseSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<HotBarGUISystem>(worldContext_));
+    RegisterGuiSystem(std::make_unique<InventoryGUISystem>(worldContext_));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(worldContext_));
@@ -465,6 +490,17 @@ void glimmer::SystemScheduler::RegisterGuiSystem(std::unique_ptr<GuiGameSystem> 
         inactiveSystems_.emplace_back(std::move(system));
         auto& guiGameSystemUniquePtr = inactiveSystems_.back();
         guiGameSystems_.emplace_back(dynamic_cast<GuiGameSystem*>(guiGameSystemUniquePtr.get()));
+        if (auto* guiStackGameSystem = dynamic_cast<GuiStackGameSystem*>(guiGameSystemUniquePtr.get());
+            guiStackGameSystem != nullptr)
+        {
+            const SDL_Scancode hotKey = guiStackGameSystem->GetHotKey();
+            if (hotKey != SDL_SCANCODE_UNKNOWN)
+            {
+                GameSystemType gameSystemType = guiStackGameSystem->GetGameSystemType();
+                scancodeToSystemType_[hotKey] = gameSystemType;
+                systemTypeToScancode_[gameSystemType] = hotKey;
+            }
+        }
     }
 }
 

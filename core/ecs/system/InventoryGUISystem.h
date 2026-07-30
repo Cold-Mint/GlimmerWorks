@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -24,4 +24,37 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "GameSystemType.h"
+#pragma once
+#include "core/ecs/GuiStackGameSystem.h"
+#include "core/rmi/dataModel/ItemSlotDataModel.h"
+
+namespace glimmer
+{
+    class InventoryGUISystem : public GuiStackGameSystem
+    {
+        Rml::ElementDocument* elementDocument_ = nullptr;
+        Rml::DataModelConstructor* constructor_ = nullptr;
+        std::vector<ItemSlotDataModel> itemSlots_;
+        std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
+        ItemContainer* itemContainer_ = nullptr;
+
+        ItemSlotDataModel* GetItemSlotDataModel(uint8_t index);
+
+        void LoadInitialItems();
+
+    public:
+        ~InventoryGUISystem() override;
+
+        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
+
+        explicit InventoryGUISystem(WorldContext* worldContext);
+
+        void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
+
+        SDL_Scancode GetHotKey() const override;
+
+        [[nodiscard]] GameSystemType GetGameSystemType() const override;
+
+        void LoadDocuments(IDocumentRegistry* documentRegistry) override;
+    };
+}

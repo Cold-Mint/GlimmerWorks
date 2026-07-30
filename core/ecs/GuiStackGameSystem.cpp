@@ -29,8 +29,39 @@
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
 
+void glimmer::GuiStackGameSystem::SetAndHideElementDocument(Rml::ElementDocument* document)
+{
+    SetElementDocument(document);
+    if (document != nullptr)
+    {
+        document->Hide();
+    }
+}
+
 glimmer::GuiStackGameSystem::GuiStackGameSystem(WorldContext* worldContext) : GuiGameSystem(worldContext)
 {
+}
+
+void glimmer::GuiStackGameSystem::OnActivationChanged(bool activeStatus)
+{
+    Rml::ElementDocument* elementDocument = GetElementDocument();
+    if (elementDocument == nullptr)
+    {
+        return;
+    }
+    if (activeStatus)
+    {
+        elementDocument->Show();
+    }
+    else
+    {
+        elementDocument->Hide();
+    }
+}
+
+SDL_Scancode glimmer::GuiStackGameSystem::GetHotKey() const
+{
+    return hotKey_;
 }
 
 bool glimmer::GuiStackGameSystem::CanActive() const

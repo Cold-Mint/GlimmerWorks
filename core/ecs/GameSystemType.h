@@ -60,7 +60,7 @@ namespace glimmer
         SpiritRendererSystem,
         TileLayerSystem,
         Transform2DSystem,
-        InventoryCraftGUISystem,
+        InventoryGUISystem,
         CraftPreviewSlotSystem,
         MaterialSelectCraftUISystem,
         ItemToolTipSystem,

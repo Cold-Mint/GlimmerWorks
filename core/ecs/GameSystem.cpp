@@ -167,13 +167,15 @@ void glimmer::GameSystem::Update(const float delta)
         initTimeOut_ += delta;
         if (initTimeOut_ > 2)
         {
-            assert(false);
+            LogCat::e(std::source_location::current(), "systemType = ", static_cast<int>(GetGameSystemType()),
+                      " ,Did not be called within two seconds GameSystem::Init()");
         }
     }
 #endif
 }
 
-uint8_t glimmer::GameSystem::GetExecutionOrder() {
+uint8_t glimmer::GameSystem::GetExecutionOrder()
+{
     return 0;
 }
 

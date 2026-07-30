@@ -27,14 +27,12 @@
 #pragma once
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/GuiGameSystem.h"
-#include "core/ecs/component/PlayerComponent.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 
 namespace glimmer
 {
     class HotBarGUISystem : public GuiGameSystem
     {
-        Rml::ElementDocument* elementDocument_ = nullptr;
         Rml::DataModelConstructor* constructor_ = nullptr;
         std::vector<ItemSlotDataModel> itemSlots_;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;

@@ -34,5 +34,6 @@ namespace glimmer
         bool selected = false;
         std::string image;
         int amount = 0;
+        int index = 0;
     };
 }

@@ -117,6 +117,8 @@ namespace glimmer
          */
         [[nodiscard]] bool HasAnyModalGuiOpen() const;
 
+        [[nodiscard]] GameSystem* GetGameSystem(GameSystemType type) const;
+
         bool HandleEvent(const SDL_Event& event);
 
         void Update(float delta) const;

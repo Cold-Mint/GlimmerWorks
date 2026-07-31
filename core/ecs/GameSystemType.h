@@ -67,5 +67,6 @@ namespace glimmer
         ItemSlotQuantitySystem,
         ButtonSystem,
         TeachProviderSystem,
+        RecipeDetailGUISystem,
     };
 }

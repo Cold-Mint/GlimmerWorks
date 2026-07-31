@@ -41,11 +41,11 @@ namespace glimmer
 
         void SendEventToRML(const SDL_Event& event) const;
 
-        bool HandleSystemEvent(const SDL_Event& event) const;
+        [[nodiscard]] bool HandleSystemEvent(const SDL_Event& event) const;
 
         void HandleCommandHooks(const SDL_Event& event) const;
 
-        bool DispatchEventToScene(const SDL_Event& event) const;
+        void DispatchEventToScene(const SDL_Event& event) const;
 
     public:
         AppEventLoop(AppContext* appContext, Uint64& lastInputTime);

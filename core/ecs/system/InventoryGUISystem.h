@@ -26,6 +26,7 @@
  */
 #pragma once
 #include "core/ecs/GuiStackGameSystem.h"
+#include "core/mod/Resource.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 
 namespace glimmer
@@ -36,6 +37,8 @@ namespace glimmer
         Rml::DataModelConstructor* constructor_ = nullptr;
         std::vector<ItemSlotDataModel> itemSlots_;
         std::vector<ItemSlotDataModel> recipeSlots_;
+        std::vector<RecipeResource*> unlockedRecipes_;
+        int selectedRecipeIndex_ = -1;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
         ItemContainer* itemContainer_ = nullptr;
 
@@ -44,6 +47,8 @@ namespace glimmer
         void LoadInitialItems();
 
         void RefreshRecipeList();
+
+        void OnRecipeClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
     public:
         ~InventoryGUISystem() override;
@@ -61,5 +66,7 @@ namespace glimmer
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
         void LoadDocuments(IDocumentRegistry* documentRegistry) override;
+
+        [[nodiscard]] const RecipeResource* GetSelectedRecipe() const;
     };
 }

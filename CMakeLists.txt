@@ -630,6 +630,7 @@ target_sources(GlimmerWorks
         core/world/structure/StructureGeneratorManager.cpp
         core/world/structure/StructureGeneratorType.cpp
         core/world/structure/StructureInfo.cpp
+        core/ecs/system/RecipeDetailGUISystem.cpp
         core/world/structure/SurfaceStructureConditionProcessor.cpp
         core/world/structure/TreeStructureGenerator.cpp
         core/ecs/system/ItemTooltipSystem.cpp
@@ -880,6 +881,7 @@ target_sources(GlimmerWorks
         core/mod/ResourceLocator.h
         core/mod/ResourceRef.h
         core/mod/StructurePlacementConditionsManager.h
+        core/ecs/system/RecipeDetailGUISystem.h
         core/mod/TomlTemplateExpander.h
         core/mod/dataPack/BiomeDecoratorResourcesManager.h
         core/mod/dataPack/BiomeDecoratorType.h

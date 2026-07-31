@@ -149,11 +149,8 @@ void glimmer::AppEventLoop::ProcessEvents(const uint64_t frameStart) const
             continue;
         }
         HandleCommandHooks(event);
-        if (DispatchEventToScene(event))
-        {
-            continue;
-        }
         SendEventToRML(event);
+        DispatchEventToScene(event);
     }
 }
 
@@ -270,7 +267,7 @@ void glimmer::AppEventLoop::HandleCommandHooks(const SDL_Event& event) const
     }
 }
 
-bool glimmer::AppEventLoop::DispatchEventToScene(const SDL_Event& event) const
+void glimmer::AppEventLoop::DispatchEventToScene(const SDL_Event& event) const
 {
     const auto sceneManager = appContext_->GetSceneManager();
     const auto& overlayScenes = sceneManager->GetOverlayScenes();
@@ -285,11 +282,10 @@ bool glimmer::AppEventLoop::DispatchEventToScene(const SDL_Event& event) const
     }
     if (handled)
     {
-        return true;
+        return;
     }
     if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
     {
-        return topScene->HandleEvent(event);
+         topScene->HandleEvent(event);
     }
-    return false;
 }

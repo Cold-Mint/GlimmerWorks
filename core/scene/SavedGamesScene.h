@@ -26,6 +26,7 @@
  */
 #pragma once
 
+#include "MainThreadDispatcher.h"
 #include "Scene.h"
 #include "SceneManager.h"
 #include "core/LangsResources.h"

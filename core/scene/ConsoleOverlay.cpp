@@ -550,7 +550,11 @@ bool glimmer::ConsoleOverlay::OnBackPressed()
 
 bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event& event)
 {
-    if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat && consoleDocument_ != nullptr)
+    if (consoleDocument_ == nullptr)
+    {
+        return Scene::HandleEvent(event);
+    }
+    if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat)
     {
         if (event.key.scancode == SDL_SCANCODE_F1)
         {
@@ -563,11 +567,6 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event& event)
                 ShowConsole();
             }
             return true;
-        }
-
-        if (!consoleDocument_->IsVisible())
-        {
-            return Scene::HandleEvent(event);
         }
 
         if (consoleInputElement_ == nullptr)
@@ -601,5 +600,5 @@ bool glimmer::ConsoleOverlay::HandleEvent(const SDL_Event& event)
             break;
         }
     }
-    return Scene::HandleEvent(event);
+    return consoleDocument_->IsVisible();
 }

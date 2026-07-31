@@ -51,6 +51,7 @@
 #include "core/ecs/system/PhysicsSystem.h"
 #include "core/ecs/system/PlayerControlSystem.h"
 #include "core/ecs/system/RayCast2DSystem.h"
+#include "core/ecs/system/RecipeDetailGUISystem.h"
 #include "core/ecs/system/SpiritRendererSystem.h"
 #include "core/ecs/system/TechProviderSystem.h"
 #include "core/ecs/system/TileLayerSystem.h"
@@ -138,12 +139,32 @@ bool glimmer::SystemScheduler::HasAnyModalGuiOpen() const
     return activeSystemStack_.size() > persistentGuiSystemCount_;
 }
 
+glimmer::GameSystem* glimmer::SystemScheduler::GetGameSystem(GameSystemType type) const
+{
+    for (const auto& system : activeSystems_)
+    {
+        if (system && system->GetGameSystemType() == type)
+        {
+            return system.get();
+        }
+    }
+    for (const auto& system : inactiveSystems_)
+    {
+        if (system && system->GetGameSystemType() == type)
+        {
+            return system.get();
+        }
+    }
+    return nullptr;
+}
+
 bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event)
 {
     if (!worldContext_->IsRuning())
     {
         return false;
     }
+
     if (event.type == SDL_EVENT_KEY_DOWN)
     {
         auto iterator = scancodeToSystemType_.find(event.key.scancode);
@@ -157,6 +178,7 @@ bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event)
                     //Shortcut keys to the corresponding system types.
                     //按下了顶部显示的GUi系统快捷键，关闭当前系统。
                     PopGuiSystemType();
+                    return true;
                 }
             }
             else
@@ -164,6 +186,7 @@ bool glimmer::SystemScheduler::HandleEvent(const SDL_Event& event)
                 //If Gui's presentation is not available, then open a new one.
                 //没有Gui正在展示，那么打开新的。
                 PushGuiSystemType(iterator->second);
+                return true;
             }
         }
     }
@@ -440,6 +463,7 @@ void glimmer::SystemScheduler::InitSystem()
     RegisterGuiSystem(std::make_unique<PauseSystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<HotBarGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<InventoryGUISystem>(worldContext_));
+    RegisterGuiSystem(std::make_unique<RecipeDetailGUISystem>(worldContext_));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(worldContext_));

@@ -29,7 +29,6 @@
 #include <stack>
 #include <vector>
 
-#include "MainThreadDispatcher.h"
 #include "Scene.h"
 
 namespace glimmer

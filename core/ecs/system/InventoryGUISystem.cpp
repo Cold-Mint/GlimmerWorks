@@ -34,6 +34,7 @@
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/RecipeManager.h"
 #include "core/utils/StringUtils.h"
+#include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
 
 glimmer::ItemSlotDataModel* glimmer::InventoryGUISystem::GetItemSlotDataModel(uint8_t index)
@@ -145,8 +146,9 @@ void glimmer::InventoryGUISystem::RefreshRecipeList()
     }
     auto unlockedRecipes = recipeManager->FindUnlockedRecipes(techHandler->GetTechnologyMap(),
                                                               itemContainer_->GetTotalTags());
-    recipeSlots_.reserve(unlockedRecipes.size());
-    for (const auto* recipe : unlockedRecipes)
+    unlockedRecipes_ = std::move(unlockedRecipes);
+    recipeSlots_.reserve(unlockedRecipes_.size());
+    for (const auto* recipe : unlockedRecipes_)
     {
         if (recipe == nullptr)
         {
@@ -155,6 +157,7 @@ void glimmer::InventoryGUISystem::RefreshRecipeList()
         std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, recipe->output);
         ItemSlotDataModel slot;
         slot.selected = false;
+        slot.index = static_cast<int>(recipeSlots_.size());
         if (item != nullptr)
         {
             const ResourceRef* iconRef = item->GetIconResourceRef();
@@ -270,10 +273,12 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry* document
         linkStruct.RegisterMember("image", &ItemSlotDataModel::image);
         linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
         linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
+        linkStruct.RegisterMember("index", &ItemSlotDataModel::index);
         constructor_->RegisterArray<std::vector<ItemSlotDataModel>>();
     }
     constructor_->Bind("item_slots", &itemSlots_);
     constructor_->Bind("recipe_slots", &recipeSlots_);
+    constructor_->BindEventCallback("on_recipe_click", &InventoryGUISystem::OnRecipeClick, this);
     LoadInitialItems();
 }
 
@@ -303,4 +308,44 @@ void glimmer::InventoryGUISystem::LoadDocuments(IDocumentRegistry* documentRegis
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("inventory/inventory");
     SetAndHideElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));
+}
+
+void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml::Event& event,
+                                                const Rml::VariantList& args)
+{
+    if (args.empty())
+    {
+        return;
+    }
+    int index = args[0].Get<int>();
+    if (index < 0 || index >= static_cast<int>(unlockedRecipes_.size()))
+    {
+        LogCat::w(std::source_location::current(), "invalid recipe index: {}", index);
+        return;
+    }
+    selectedRecipeIndex_ = index;
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        return;
+    }
+    SystemScheduler* scheduler = worldContext->GetSystemScheduler();
+    if (scheduler == nullptr)
+    {
+        return;
+    }
+    if (scheduler->GetTopGuiSystemType() == GameSystemType::RecipeDetailGUISystem)
+    {
+        scheduler->PopGuiSystemType();
+    }
+    scheduler->PushGuiSystemType(GameSystemType::RecipeDetailGUISystem);
+}
+
+const glimmer::RecipeResource* glimmer::InventoryGUISystem::GetSelectedRecipe() const
+{
+    if (selectedRecipeIndex_ < 0 || selectedRecipeIndex_ >= static_cast<int>(unlockedRecipes_.size()))
+    {
+        return nullptr;
+    }
+    return unlockedRecipes_[selectedRecipeIndex_];
 }

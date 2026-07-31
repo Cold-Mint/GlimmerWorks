@@ -26,7 +26,15 @@
  */
 #include "InventoryGUISystem.h"
 
+#include "core/context/AppContext.h"
+#include "core/context/ModContext.h"
+#include "core/ecs/EntityManager.h"
+#include "core/ecs/component/PlayerComponent.h"
+#include "core/log/LogCat.h"
+#include "core/mod/ResourceLocator.h"
+#include "core/mod/dataPack/RecipeManager.h"
 #include "core/utils/StringUtils.h"
+#include "core/world/WorldContext.h"
 
 glimmer::ItemSlotDataModel* glimmer::InventoryGUISystem::GetItemSlotDataModel(uint8_t index)
 {
@@ -76,7 +84,101 @@ void glimmer::InventoryGUISystem::LoadInitialItems()
         constructor_->GetModelHandle().DirtyVariable("item_slots");
         LogCat::i("item_slots variable dirtied");
     }
-    // itemContainer_->GetTotalTags();
+}
+
+void glimmer::InventoryGUISystem::RefreshRecipeList()
+{
+    recipeSlots_.clear();
+    WorldContext* worldContext = GetWorldContext();
+    if (worldContext == nullptr)
+    {
+        return;
+    }
+    const AppContext* appContext = worldContext->GetAppContext();
+    if (appContext == nullptr)
+    {
+        return;
+    }
+    const ModContext* modContext = appContext->GetModContext();
+    if (modContext == nullptr)
+    {
+        return;
+    }
+    const RecipeManager* recipeManager = modContext->GetRecipeManager();
+    if (recipeManager == nullptr)
+    {
+        return;
+    }
+    ResourceLocator* resourceLocator = appContext->GetResourceLocator();
+    if (resourceLocator == nullptr)
+    {
+        return;
+    }
+    const EntityShortCut* entityShortCut = GetEntityShortCut();
+    if (entityShortCut == nullptr)
+    {
+        return;
+    }
+    EntityManager* entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr)
+    {
+        return;
+    }
+    const GameEntityID playerEntity = entityShortCut->GetPlayer();
+    if (WorldContext::IsEmptyEntityId(playerEntity))
+    {
+        return;
+    }
+    auto* playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
+    if (playerComponent == nullptr)
+    {
+        return;
+    }
+    const PlayerTechnologyHandler* techHandler = playerComponent->GetTechnologyHandler();
+    if (techHandler == nullptr)
+    {
+        return;
+    }
+    if (itemContainer_ == nullptr)
+    {
+        return;
+    }
+    auto unlockedRecipes = recipeManager->FindUnlockedRecipes(techHandler->GetTechnologyMap(),
+                                                              itemContainer_->GetTotalTags());
+    recipeSlots_.reserve(unlockedRecipes.size());
+    for (const auto* recipe : unlockedRecipes)
+    {
+        if (recipe == nullptr)
+        {
+            continue;
+        }
+        std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, recipe->output);
+        ItemSlotDataModel slot;
+        slot.selected = false;
+        if (item != nullptr)
+        {
+            const ResourceRef* iconRef = item->GetIconResourceRef();
+            if (iconRef != nullptr)
+            {
+                slot.image = StringUtils::MakeTextureUrl(
+                    Resource::GenerateId(iconRef->GetPackageId(), iconRef->GetResourceKey()));
+            }
+            else
+            {
+                slot.image = "";
+            }
+        }
+        else
+        {
+            slot.image = "";
+        }
+        slot.amount = static_cast<int>(recipe->output.amount);
+        recipeSlots_.push_back(std::move(slot));
+    }
+    if (constructor_ != nullptr)
+    {
+        constructor_->GetModelHandle().DirtyVariable("recipe_slots");
+    }
 }
 
 glimmer::InventoryGUISystem::~InventoryGUISystem()
@@ -149,6 +251,7 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
             {
                 constructor_->GetModelHandle().DirtyVariable("item_slots");
             }
+            RefreshRecipeList();
         });
 }
 
@@ -170,7 +273,17 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry* document
         constructor_->RegisterArray<std::vector<ItemSlotDataModel>>();
     }
     constructor_->Bind("item_slots", &itemSlots_);
+    constructor_->Bind("recipe_slots", &recipeSlots_);
     LoadInitialItems();
+}
+
+void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus)
+{
+    GuiStackGameSystem::OnActivationChanged(activeStatus);
+    if (activeStatus)
+    {
+        RefreshRecipeList();
+    }
 }
 
 SDL_Scancode glimmer::InventoryGUISystem::GetHotKey() const

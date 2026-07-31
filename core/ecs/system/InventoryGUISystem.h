@@ -35,12 +35,15 @@ namespace glimmer
         Rml::ElementDocument* elementDocument_ = nullptr;
         Rml::DataModelConstructor* constructor_ = nullptr;
         std::vector<ItemSlotDataModel> itemSlots_;
+        std::vector<ItemSlotDataModel> recipeSlots_;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
         ItemContainer* itemContainer_ = nullptr;
 
         ItemSlotDataModel* GetItemSlotDataModel(uint8_t index);
 
         void LoadInitialItems();
+
+        void RefreshRecipeList();
 
     public:
         ~InventoryGUISystem() override;
@@ -50,6 +53,8 @@ namespace glimmer
         explicit InventoryGUISystem(WorldContext* worldContext);
 
         void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
+
+        void OnActivationChanged(bool activeStatus) override;
 
         SDL_Scancode GetHotKey() const override;
 

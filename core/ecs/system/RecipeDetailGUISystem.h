@@ -24,39 +24,30 @@
 #include <unordered_map>
 
 #include "core/ecs/GuiStackGameSystem.h"
+#include "core/rmi/dataModel/RecipeItemChoiceDataModel.h"
+#include "core/rmi/dataModel/TagProgressDataModel.h"
+#include "core/world/SystemScheduler.h"
 
 namespace glimmer
 {
-    struct TagProgressDataModel
-    {
-        std::string tagName;
-        int requiredWeight = 0;
-        int currentWeight = 0;
-        bool satisfied = false;
-    };
-
-    struct RecipeItemChoiceDataModel
-    {
-        int inventoryIndex = 0;
-        std::string image;
-        std::string name;
-        std::string tagInfo;
-        int investedAmount = 0;
-        int backpackAmount = 0;
-    };
-
     class RecipeDetailGUISystem : public GuiStackGameSystem
     {
         Rml::DataModelConstructor* constructor_ = nullptr;
         ItemContainer* itemContainer_ = nullptr;
-        const RecipeResource* currentRecipe_ = nullptr;
+        RecipeResource* currentRecipe_ = nullptr;
+        RecipeSelectionComponent* recipeSelectionComponent_ = nullptr;
 
         std::vector<TagProgressDataModel> tagProgress_;
         std::vector<RecipeItemChoiceDataModel> itemChoices_;
+        std::vector<int> originalRequiredWeights_;
         std::string outputImage_;
         std::string outputName_;
+        SystemScheduler* systemScheduler_ = nullptr;
         int outputAmount_ = 0;
         bool canCraft_ = false;
+        int craftCount_ = 1;
+        int outputCount_ = 1;
+        int maxCraftCount_ = 1;
 
         std::unordered_map<uint8_t, uint8_t> investedItems_;
 
@@ -64,13 +55,15 @@ namespace glimmer
 
         void UpdateTagProgress();
 
+        void UpdateTagDisplayWeights();
+
         void UpdateCanCraft();
 
-        void ExecuteCraft();
+        void ExecuteCraftBatch(int count);
+
+        void AutoFill();
 
         void ResetInvestment();
-
-        void DirtyAllVariables();
 
     public:
         ~RecipeDetailGUISystem() override;
@@ -94,6 +87,12 @@ namespace glimmer
         void OnCraftClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void OnResetClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnAutoFillClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnCraftCountIncrease(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnCraftCountDecrease(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
         void OnItemIncrease(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 

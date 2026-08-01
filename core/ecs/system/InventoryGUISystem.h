@@ -38,7 +38,6 @@ namespace glimmer
         std::vector<ItemSlotDataModel> itemSlots_;
         std::vector<ItemSlotDataModel> recipeSlots_;
         std::vector<RecipeResource*> unlockedRecipes_;
-        int selectedRecipeIndex_ = -1;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
         ItemContainer* itemContainer_ = nullptr;
 
@@ -66,7 +65,5 @@ namespace glimmer
         [[nodiscard]] GameSystemType GetGameSystemType() const override;
 
         void LoadDocuments(IDocumentRegistry* documentRegistry) override;
-
-        [[nodiscard]] const RecipeResource* GetSelectedRecipe() const;
     };
 }

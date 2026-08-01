@@ -127,7 +127,7 @@ bool glimmer::MiningComponent::CheckAndResetActive()
 
 GameComponentTypeMessage glimmer::MiningComponent::GetComponentTypeStatic()
 {
-    return COMPONENT_DIGGING;
+    return COMPONENT_MINING;
 }
 
 GameComponentTypeMessage glimmer::MiningComponent::GetComponentType()

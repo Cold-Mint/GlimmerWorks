@@ -24,4 +24,18 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "ItemSlotDataModel.h"
+#pragma once
+#include <string>
+
+namespace glimmer
+{
+    struct RecipeItemChoiceDataModel
+    {
+        int inventoryIndex = 0;
+        std::string image;
+        std::string name;
+        std::string tagInfo;
+        int investedAmount = 0;
+        int backpackAmount = 0;
+    };
+}

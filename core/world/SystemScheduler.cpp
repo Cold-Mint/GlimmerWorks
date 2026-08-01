@@ -39,7 +39,7 @@
 #include "core/ecs/system/DebugDrawSystem.h"
 #include "core/ecs/system/DebugMultiMapSystem.h"
 #include "core/ecs/system/DebugPanelSystem.h"
-#include "core/ecs/system/DiggingSystem.h"
+#include "core/ecs/system/MiningSystem.h"
 #include "core/ecs/system/DroppedItemSystem.h"
 #include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/HotBarGUISystem.h"

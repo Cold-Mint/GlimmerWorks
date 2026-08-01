@@ -176,3 +176,4 @@ saves_description = "游戏版本：{} 最后打开：{:%Y年%m月%d日 %H:%M} �
 back = "返回"
 no_saves = "没有存档"
 reset = "重置"
+auto_fill = "自动填充"

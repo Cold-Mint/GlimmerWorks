@@ -315,6 +315,11 @@ glimmer::WorldContext::WorldContext(AppContext* appContext, MapManifest* mapMani
 
     auto pause = entityManager_->AddEntity();
     entityManager_->AddComponent<PauseComponent>(pause);
+
+    auto recipeSelectionId = entityManager_->AddEntity();
+    entityShortCut_->SetRecipeSelectionComponent(
+        entityManager_->AddComponent<RecipeSelectionComponent>(recipeSelectionId));
+
     auto groundTileLayerEntity = entityManager_->AddEntity();
     entityManager_->AddComponent<
         TileLayerComponent>(groundTileLayerEntity, this, TileLayerType::Ground);

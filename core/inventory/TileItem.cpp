@@ -31,7 +31,7 @@
 #include "core/ecs/component/Transform2DComponent.h"
 #include "core/Constants.h"
 
-#include "core/ecs/system/DiggingSystem.h"
+#include "core/ecs/system/MiningSystem.h"
 
 
 glimmer::TileItem::TileItem(const std::shared_ptr<Tile>& tile, const ResourceRef& resourceRef) : tile_(tile)

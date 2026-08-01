@@ -176,3 +176,4 @@ saves_description = "ゲームバージョン：{} 最終起動：{:%Y年%m月%d
 back = "戻る"
 no_saves = "セーブデータなし"
 reset = "リセット"
+auto_fill = "自動入力"

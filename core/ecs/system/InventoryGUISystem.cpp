@@ -26,6 +26,7 @@
  */
 #include "InventoryGUISystem.h"
 
+#include "RecipeDetailGUISystem.h"
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
 #include "core/ecs/EntityManager.h"
@@ -144,12 +145,13 @@ void glimmer::InventoryGUISystem::RefreshRecipeList()
     {
         return;
     }
-    auto unlockedRecipes = recipeManager->FindUnlockedRecipes(techHandler->GetTechnologyMap(),
-                                                              itemContainer_->GetTotalTags());
-    unlockedRecipes_ = std::move(unlockedRecipes);
+    unlockedRecipes_ = recipeManager->FindUnlockedRecipes(techHandler->GetTechnologyMap(),
+                                                          itemContainer_->GetTotalTags());
     recipeSlots_.reserve(unlockedRecipes_.size());
-    for (const auto* recipe : unlockedRecipes_)
+    const uint32_t maxSize = unlockedRecipes_.size();
+    for (uint32_t i = 0; i < maxSize; ++i)
     {
+        const auto* recipe = unlockedRecipes_[i];
         if (recipe == nullptr)
         {
             continue;
@@ -157,7 +159,7 @@ void glimmer::InventoryGUISystem::RefreshRecipeList()
         std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, recipe->output);
         ItemSlotDataModel slot;
         slot.selected = false;
-        slot.index = static_cast<int>(recipeSlots_.size());
+        slot.index = static_cast<int>(i);
         if (item != nullptr)
         {
             const ResourceRef* iconRef = item->GetIconResourceRef();
@@ -323,7 +325,6 @@ void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml
         LogCat::w(std::source_location::current(), "invalid recipe index: {}", index);
         return;
     }
-    selectedRecipeIndex_ = index;
     WorldContext* worldContext = GetWorldContext();
     if (worldContext == nullptr)
     {
@@ -334,18 +335,16 @@ void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml
     {
         return;
     }
-    if (scheduler->GetTopGuiSystemType() == GameSystemType::RecipeDetailGUISystem)
+    EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr)
     {
-        scheduler->PopGuiSystemType();
+        return;
     }
+    RecipeSelectionComponent* recipeSelectionComponent = entityShortCut->GetRecipeSelectionComponent();
+    if (recipeSelectionComponent == nullptr)
+    {
+        return;
+    }
+    recipeSelectionComponent->SetRecipeResource(unlockedRecipes_[index]);
     scheduler->PushGuiSystemType(GameSystemType::RecipeDetailGUISystem);
-}
-
-const glimmer::RecipeResource* glimmer::InventoryGUISystem::GetSelectedRecipe() const
-{
-    if (selectedRecipeIndex_ < 0 || selectedRecipeIndex_ >= static_cast<int>(unlockedRecipes_.size()))
-    {
-        return nullptr;
-    }
-    return unlockedRecipes_[selectedRecipeIndex_];
 }

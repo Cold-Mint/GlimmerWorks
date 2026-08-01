@@ -144,6 +144,7 @@ void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry* documentReg
         linkStruct.RegisterMember("image", &ItemSlotDataModel::image);
         linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
         linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
+        linkStruct.RegisterMember("index", &ItemSlotDataModel::index);
         constructor_->RegisterArray<std::vector<ItemSlotDataModel>>();
         LogCat::i("Struct members registered: image, amount, selected");
     }

@@ -33,6 +33,7 @@
 #include "component/ItemContainerComponent.h"
 #include "component/ItemToolTipComponent.h"
 #include "component/ParallaxBackgroundComponent.h"
+#include "component/RecipeSelectionComponent.h"
 #include "component/Transform2DComponent.h"
 #include "core/Constants.h"
 
@@ -49,6 +50,7 @@ namespace glimmer
         AreaMarkerComponent* areaMarkerComponent_ = nullptr;
         ParallaxBackgroundComponent* parallaxBackgroundComponent_ = nullptr;
         ItemToolTipComponent* itemToolTipComponent_ = nullptr;
+        RecipeSelectionComponent* recipeSelectionComponent_ = nullptr;
 
     public:
         void SetPlayer(GameEntityID player);
@@ -86,5 +88,9 @@ namespace glimmer
         void SetCameraTransform2DComponent(Transform2DComponent* cameraTransform2DComponent);
 
         [[nodiscard]] Transform2DComponent* GetCameraTransform2DComponent() const;
+
+        void SetRecipeSelectionComponent(RecipeSelectionComponent* recipeSelectionComponent);
+
+        [[nodiscard]] RecipeSelectionComponent* GetRecipeSelectionComponent() const;
     };
 }

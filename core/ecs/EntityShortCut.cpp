@@ -165,3 +165,19 @@ glimmer::Transform2DComponent* glimmer::EntityShortCut::GetCameraTransform2DComp
     }
     return cameraTransform2DComponent_;
 }
+
+void glimmer::EntityShortCut::SetRecipeSelectionComponent(RecipeSelectionComponent* recipeSelectionComponent)
+{
+    recipeSelectionComponent_ = recipeSelectionComponent;
+}
+
+glimmer::RecipeSelectionComponent* glimmer::EntityShortCut::GetRecipeSelectionComponent() const
+{
+    if (recipeSelectionComponent_ == nullptr)
+    {
+        LogCat::w(std::source_location::current(),
+                  "EntityShortCut: RecipeSelectionComponent pointer is null, camera transform unbound");
+        return nullptr;
+    }
+    return recipeSelectionComponent_;
+}

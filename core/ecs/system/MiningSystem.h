@@ -38,6 +38,8 @@
 
 namespace glimmer
 {
+    class TextureResourceResult;
+    class MiningComponent;
     class CameraComponent;
     class Transform2DComponent;
     class TileVector2D;

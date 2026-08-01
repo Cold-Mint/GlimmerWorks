@@ -24,7 +24,7 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "DiggingSystem.h"
+#include "MiningSystem.h"
 #include "core/log/LogCat.h"
 #include "core/world/TileInstancePool.h"
 #include "core/mod/dataPack/TileResourceManager.h"
@@ -352,7 +352,7 @@ void glimmer::MiningSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
 {
     const EntityShortCut* entityShortCut = GetEntityShortCut();
     EntityManager* entityManager = GetEntityManager();
-    if (gameComponentType == COMPONENT_DIGGING && miningComponent_ == nullptr)
+    if (gameComponentType == COMPONENT_MINING && miningComponent_ == nullptr)
     {
         miningComponent_ = entityShortCut->GetMiningComponent();
     }
@@ -383,7 +383,7 @@ void glimmer::MiningSystem::OnWatchedComponentChanged(GameComponentTypeMessage g
 
 glimmer::MiningSystem::MiningSystem(WorldContext* worldContext) : GameSystem(worldContext)
 {
-    WatchComponent(COMPONENT_DIGGING);
+    WatchComponent(COMPONENT_MINING);
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_CAMERA);
     WatchComponent(COMPONENT_TILE_LAYER);

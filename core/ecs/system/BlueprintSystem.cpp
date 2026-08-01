@@ -131,7 +131,7 @@ void glimmer::BlueprintSystem::OnWatchedComponentChanged(GameComponentTypeMessag
     {
         blueprintComponent_ = entityShortCut->GetBlueprintComponent();
     }
-    if (gameComponentType == COMPONENT_DIGGING && miningComponent_ == nullptr)
+    if (gameComponentType == COMPONENT_MINING && miningComponent_ == nullptr)
     {
         miningComponent_ = entityShortCut->GetMiningComponent();
         if (miningComponent_ == nullptr)
@@ -174,7 +174,7 @@ glimmer::BlueprintSystem::BlueprintSystem(WorldContext* worldContext)
     WatchComponent(COMPONENT_TRANSFORM_2D);
     WatchComponent(COMPONENT_PLAYER);
     WatchComponent(COMPONENT_BLUEPRINT);
-    WatchComponent(COMPONENT_DIGGING);
+    WatchComponent(COMPONENT_MINING);
     WatchComponent(COMPONENT_TILE_PLACEMENT_FORBIDDEN_ZONE);
     Init();
 }

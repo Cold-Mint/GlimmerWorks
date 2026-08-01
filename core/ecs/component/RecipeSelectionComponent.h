@@ -24,4 +24,32 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#include "HotbarDataModel.h"
+#pragma once
+#include "core/ecs/GameComponent.h"
+#include "core/mod/Resource.h"
+
+namespace glimmer
+{
+    class RecipeSelectionComponent : public GameComponent
+    {
+        RecipeResource* recipeResource_ = nullptr;
+
+    public:
+        /**
+         * SetRecipeResource
+         * 设置选中的配方资源
+         * @param resource
+         */
+        void SetRecipeResource(RecipeResource* resource);
+
+        [[nodiscard]] static GameComponentTypeMessage GetComponentTypeStatic();
+
+        [[nodiscard]] GameComponentTypeMessage GetComponentType() override;
+        /**
+         * GetRecipeResource
+         * 获取选中的配方资源
+         * @return
+         */
+        [[nodiscard]] RecipeResource* GetRecipeResource() const;
+    };
+}

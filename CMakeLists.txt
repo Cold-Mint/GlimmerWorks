@@ -285,8 +285,6 @@ target_sources(GlimmerWorks
         core/AppRenderer.cpp
         core/BoolOrToggle.cpp
         core/Box2dFilter.cpp
-        core/rmi/dataModel/HotbarDataModel.cpp
-        core/rmi/dataModel/ItemSlotDataModel.cpp
         core/CommandHookEntry.cpp
         core/CommandHookManager.cpp
         core/Config.cpp
@@ -447,7 +445,7 @@ target_sources(GlimmerWorks
         core/ecs/system/DebugDrawSystem.cpp
         core/ecs/system/DebugMultiMapSystem.cpp
         core/ecs/system/DebugPanelSystem.cpp
-        core/ecs/system/DiggingSystem.cpp
+        core/ecs/system/MiningSystem.cpp
         core/ecs/system/DroppedItemSystem.cpp
         core/ecs/system/FloatingTextSystem.cpp
         core/ecs/system/HotBarGUISystem.cpp
@@ -547,7 +545,6 @@ target_sources(GlimmerWorks
         core/rmi/RenderInterfaceSDL3.cpp
         core/rmi/SystemInterfaceSDL3.cpp
         core/rmi/dataModel/MainSceneDataModel.cpp
-        core/rmi/dataModel/SavedGamesDataModel.cpp
         core/saves/MapManifest.cpp
         core/saves/Saves.cpp
         core/saves/SavesManager.cpp
@@ -636,6 +633,7 @@ target_sources(GlimmerWorks
         core/ecs/system/ItemTooltipSystem.cpp
         core/rmi/DecoratorNinePatchTextureInstancer.cpp
         core/ecs/system/InventoryGUISystem.cpp
+        core/ecs/component/RecipeSelectionComponent.cpp
         main.cpp
         PUBLIC
         FILE_SET HEADERS
@@ -819,7 +817,7 @@ target_sources(GlimmerWorks
         core/ecs/system/DebugDrawSystem.h
         core/ecs/system/DebugMultiMapSystem.h
         core/ecs/system/DebugPanelSystem.h
-        core/ecs/system/DiggingSystem.h
+        core/ecs/system/MiningSystem.h
         core/ecs/system/DroppedItemSystem.h
         core/ecs/system/FloatingTextSystem.h
         core/ecs/system/Light2DSystem.h
@@ -1010,6 +1008,9 @@ target_sources(GlimmerWorks
         core/world/structure/TreeStructureGenerator.h
         core/ecs/system/ItemTooltipSystem.h
         core/ecs/system/InventoryGUISystem.h
+        core/rmi/dataModel/TagProgressDataModel.h
+        core/rmi/dataModel/RecipeItemChoiceDataModel.h
+        core/ecs/component/RecipeSelectionComponent.h
 )
 
 #Define version information

@@ -176,3 +176,4 @@ saves_description = "Game Version: {} Last Played: {:%Y-%m-%d %H:%M} Play Time: 
 back = "Back"
 no_saves = "No saves"
 reset = "reset"
+auto_fill = "Auto fill"

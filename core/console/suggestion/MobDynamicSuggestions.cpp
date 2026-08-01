@@ -39,12 +39,13 @@ std::string glimmer::MobDynamicSuggestions::GetId() const
     return MOB_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::MobDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::MobDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
-    return mobManager_->GetMobList();
+    return mobManager_->List();
 }
+
 
 bool glimmer::MobDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    return std::ranges::contains(mobManager_->GetMobList(), keyword);
+    return std::ranges::contains(mobManager_->List(), keyword);
 }

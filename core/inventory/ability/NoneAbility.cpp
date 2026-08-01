@@ -33,17 +33,17 @@ glimmer::NoneAbility::NoneAbility(const AbilityConfig& abilityConfigMessage)
 {
 }
 
+glimmer::AbilityType glimmer::NoneAbility::GetAbilityType() const
+{
+    return AbilityType::None;
+}
+
+
 bool glimmer::NoneAbility::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                 const AbilityConfig* abilityConfig,
-                                 std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
+                                 const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
 {
     // NoneAbility is a placeholder, has no effect when used
     return false;
-}
-
-const std::string& glimmer::NoneAbility::GetId() const
-{
-    return ABILITY_ID_NONE;
 }
 
 std::unique_ptr<glimmer::ItemAbility> glimmer::NoneAbility::Clone() const

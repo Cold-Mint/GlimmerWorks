@@ -25,25 +25,14 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
-#include <string>
-#include <unordered_map>
 
+#include "BaseResManager.h"
 #include "core/mod/Resource.h"
 
 
-namespace glimmer {
-    class BiomeDecoratorResourcesManager {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IBiomeDecoratorResource>,
-            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>>
-        biomeDecoratorMap_
-                {};
-
-    public:
-        IBiomeDecoratorResource *Register(std::unique_ptr<IBiomeDecoratorResource> biomeDecoratorResource);
-
-        IBiomeDecoratorResource *FindBiomeDecorator(const std::string &packId, const std::string &resourceId);
-
-        std::string ListBiomeDecorators() const;
+namespace glimmer
+{
+    class BiomeDecoratorResourcesManager : public BaseResManager<IBiomeDecoratorResource>
+    {
     };
 }

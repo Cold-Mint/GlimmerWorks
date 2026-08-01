@@ -28,27 +28,20 @@
 #include <string>
 #include <unordered_map>
 #include <functional>
+
+#include "BaseResManager.h"
 #include "core/mod/Resource.h"
-#include "core/ecs/component/TileLayerComponent.h"
 
 
 namespace glimmer
 {
     struct BiomeResource;
 
-    class BiomesManager
+    class BiomesManager : public BaseResManager<BiomeResource>
     {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<BiomeResource>,
-                                                           TransparentStringHash, std::equal_to<>>,
-                           TransparentStringHash, std::equal_to<>> biomeMap_{};
         std::vector<BiomeResource*> biomeVector_{};
 
     public:
-        BiomeResource* AddResource(std::unique_ptr<BiomeResource> biomeResource);
-
-        [[nodiscard]] BiomeResource* Find(std::string_view packId, std::string_view resourceId) const;
-
-
         /**
          * calculateBiomeScoreDelta
          * 计算群系单项差异得分
@@ -60,6 +53,8 @@ namespace glimmer
         static float CalculateBiomeScoreDelta(float targetValue, float actualValue, float strictness);
 
         [[nodiscard]] std::span<BiomeResource*> GetBiomeVector();
+
+        void OnRegister(BiomeResource* resource) override;
 
         /**
          * Find Best Biome
@@ -74,9 +69,5 @@ namespace glimmer
          */
         BiomeResource* FindBestBiome(float humidity, float temperature, float weirdness, float erosion,
                                      float elevation, float surfaceProximity) const;
-
-        std::vector<std::string> GetBiomeList() const;
-
-        std::string ListBiomes() const;
     };
 }

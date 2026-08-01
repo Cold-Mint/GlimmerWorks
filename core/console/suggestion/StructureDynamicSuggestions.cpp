@@ -38,12 +38,14 @@ std::string glimmer::StructureDynamicSuggestions::GetId() const
     return STRUCTURE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::StructureDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::StructureDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
-    return structureManager_->GetStructureIDList();
+    return structureManager_->List();
 }
+
 
 bool glimmer::StructureDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    return std::ranges::contains(structureManager_->GetStructureIDList(), keyword);
+    return std::ranges::contains(structureManager_->List(), keyword);
 }

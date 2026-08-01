@@ -39,7 +39,8 @@ bool glimmer::EventTypeDynamicSuggestions::Match(const std::string& keyword, con
     return EventTypeUtils::ContainsKey(keyword);
 }
 
-std::vector<std::string> glimmer::EventTypeDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::EventTypeDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
     return EventTypeUtils::GetAllEventTypeKeys();
 }

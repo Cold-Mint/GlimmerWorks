@@ -26,31 +26,6 @@
  */
 #include "BiomesManager.h"
 
-#include "core/log/LogCat.h"
-
-glimmer::BiomeResource* glimmer::BiomesManager::AddResource(std::unique_ptr<BiomeResource> biomeResource)
-{
-    auto& slot = biomeMap_[biomeResource->packId][biomeResource->resourceId];
-    slot = std::move(biomeResource);
-    biomeVector_.push_back(slot.get());
-    return slot.get();
-}
-
-glimmer::BiomeResource* glimmer::BiomesManager::Find(std::string_view packId, std::string_view resourceId) const
-{
-
-    if (const auto packIt = biomeMap_.find(packId); packIt != biomeMap_.end())
-    {
-        if (const auto keyIt = packIt->second.find(resourceId); keyIt != packIt->second.end())
-        {
-
-            return keyIt->second.get();
-        }
-
-    }
-    return nullptr;
-}
-
 float glimmer::BiomesManager::CalculateBiomeScoreDelta(const float targetValue, const float actualValue,
                                                        const float strictness)
 {
@@ -61,6 +36,11 @@ float glimmer::BiomesManager::CalculateBiomeScoreDelta(const float targetValue, 
 std::span<glimmer::BiomeResource*> glimmer::BiomesManager::GetBiomeVector()
 {
     return biomeVector_;
+}
+
+void glimmer::BiomesManager::OnRegister(BiomeResource* resource)
+{
+    biomeVector_.emplace_back(resource);
 }
 
 glimmer::BiomeResource* glimmer::BiomesManager::FindBestBiome(const float humidity, const float temperature,
@@ -95,30 +75,4 @@ glimmer::BiomeResource* glimmer::BiomesManager::FindBestBiome(const float humidi
         }
     }
     return bestBiome;
-}
-
-std::vector<std::string> glimmer::BiomesManager::GetBiomeList() const
-{
-    std::vector<std::string> result;
-    for (const auto& [packId, keyMap] : biomeMap_)
-    {
-        for (const auto& [key, biome] : keyMap)
-        {
-            result.emplace_back(Resource::GenerateId(packId, key));
-        }
-    }
-    return result;
-}
-
-std::string glimmer::BiomesManager::ListBiomes() const
-{
-    std::ostringstream oss;
-    for (const auto& [packId, keyMap] : biomeMap_)
-    {
-        for (const auto& [key, biome] : keyMap)
-        {
-            oss << Resource::GenerateId(packId, key) << '\n';
-        }
-    }
-    return oss.str();
 }

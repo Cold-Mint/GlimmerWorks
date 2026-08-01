@@ -34,10 +34,10 @@ namespace glimmer
     public:
         explicit NoneAbility(const AbilityConfig& abilityConfigMessage);
 
-        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
+        [[nodiscard]] AbilityType GetAbilityType() const override;
 
-        [[nodiscard]] const std::string& GetId() const override;
+        bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
+                   std::unordered_set<AbilityType>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<ItemAbility> Clone() const override;
     };

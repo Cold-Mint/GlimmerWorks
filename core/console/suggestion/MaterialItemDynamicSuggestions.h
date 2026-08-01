@@ -26,21 +26,21 @@
  */
 #pragma once
 #include "DynamicSuggestions.h"
-#include "core/mod/dataPack/ItemManager.h"
+#include "core/mod/dataPack/MaterialItemManager.h"
 
 namespace glimmer
 {
     class MaterialItemDynamicSuggestions final : public DynamicSuggestions
     {
-        ItemManager* itemManager_;
+        MaterialItemManager* materialItemManager_ = nullptr;
 
     public:
-        explicit MaterialItemDynamicSuggestions(ItemManager* itemManager);
+        explicit MaterialItemDynamicSuggestions(MaterialItemManager* materialItemManager);
 
         [[nodiscard]] std::string GetId() const override;
 
         bool Match(const std::string& keyword, const std::string& param) override;
 
-        std::vector<std::string> GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
     };
 }

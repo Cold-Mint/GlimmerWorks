@@ -29,10 +29,15 @@
 
 namespace glimmer {
     class BoolDynamicSuggestions final : public DynamicSuggestions {
-    public:
+   std::vector<std::string> suggestions_;
+
+        public:
+
+        BoolDynamicSuggestions();
+
         [[nodiscard]] std::string GetId() const override;
 
-        std::vector<std::string> GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
 
         /**
          * Determine whether the input content matches this suggestion, and when obtaining the suggestion list, get the subtree

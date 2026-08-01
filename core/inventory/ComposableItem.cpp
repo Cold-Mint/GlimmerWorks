@@ -135,10 +135,8 @@ const glimmer::AbilityConfig* glimmer::ComposableItem::GetAbilityConfig() const
     return &totalAbilityConfig_;
 }
 
-bool glimmer::ComposableItem::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                    const AbilityConfig* abilityConfig,
-                                    std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
-                                    popupAbility)
+bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
+    const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
 {
     EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
@@ -172,7 +170,7 @@ bool glimmer::ComposableItem::OnUse(const bool mouseLeft, WorldContext* worldCon
             continue;
         }
 
-        if (popupAbility.contains(itemAbility->GetId()))
+        if (popupAbility.contains(itemAbility->GetAbilityType()))
         {
             //Mutual exclusivity
             //互斥

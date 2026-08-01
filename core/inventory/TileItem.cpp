@@ -67,9 +67,8 @@ const glimmer::Tile* glimmer::TileItem::GetTile() const
     return tile_.get();
 }
 
-bool glimmer::TileItem::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                              const AbilityConfig* abilityConfig,
-                              std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
+bool glimmer::TileItem::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
+                              const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
 {
     if (mouseLeft)
     {

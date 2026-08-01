@@ -27,12 +27,14 @@
 #pragma once
 #include "IStructureConditionProcessor.h"
 
-namespace glimmer {
-    class SurfaceStructureConditionProcessor : public IStructureConditionProcessor {
+namespace glimmer
+{
+    class SurfaceStructureConditionProcessor : public IStructureConditionProcessor
+    {
     public:
-        std::string GetName() override;
+        StructureConditionProcessorType GetStructureConditionProcessorType() override;
 
-        std::bitset<CHUNK_AREA>
-        Match(TerrainResult *terrainResult, const VariableConfig &variableConfig) override;
+        std::bitset<CHUNK_AREA> Match(TerrainResult* terrainResult,
+            const IStructurePlacementConditionsResource* placementConditionsResource) override;
     };
 }

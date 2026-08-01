@@ -42,6 +42,7 @@ namespace glimmer
         std::unordered_map<uint32_t, std::vector<CommandHookEntry*>> sessionCommandHookMap_;
         std::unordered_map<uint32_t, std::vector<CommandHookEntry*>> configCommandHookMap_;
         std::vector<CommandHookEntry*> fullVector_;
+        std::vector<std::string> commandHookResult_;
 
 
         [[nodiscard]] bool Exist(CommandHookScope scope,
@@ -94,7 +95,7 @@ namespace glimmer
          */
         [[nodiscard]] bool Contains(std::string_view hookId) const;
 
-        [[nodiscard]] std::vector<std::string> GetCommandHookIdsWithOutConfig() const;
+        [[nodiscard]] const std::vector<std::string>& GetCommandHookIdsWithOutConfig();
 
 
         [[nodiscard]] std::optional<std::string> Register(std::unique_ptr<CommandHookEntry> commandHookEntry);

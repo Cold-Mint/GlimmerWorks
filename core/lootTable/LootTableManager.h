@@ -25,25 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
-#include <string>
-#include <unordered_map>
 
 #include "core/mod/Resource.h"
+#include "core/mod/dataPack/BaseResManager.h"
 
-namespace glimmer {
-    class LootTableManager {
-    private:
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<LootResource>,
-            TransparentStringHash, std::equal_to<>>, TransparentStringHash, std::equal_to<>> lootMap_{};
-
-    public:
-        LootResource *AddResource(std::unique_ptr<LootResource> lootResource);
-
-        [[nodiscard]] LootResource *Find(const std::string &packId, const std::string &key) const;
-
-        [[nodiscard]] std::vector<std::string> GetLootTableList() const;
-
-        std::string ListLootTables() const;
+namespace glimmer
+{
+    class LootTableManager : public BaseResManager<LootResource>
+    {
     };
 }

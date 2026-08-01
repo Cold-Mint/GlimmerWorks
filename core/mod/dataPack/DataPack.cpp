@@ -135,7 +135,7 @@ void glimmer::DataPack::LoadLootTableResourceFromFile(const toml::value& value,
         pool.item.SetSelfPackageId(manifest_.id);
         pool.mandatory = false;
     }
-    lootTableManager->AddResource(std::move(lootResource));
+    lootTableManager->Register(std::move(lootResource));
 }
 
 void glimmer::DataPack::LoadInitialInventoryResourceFromFile(const toml::value& value,
@@ -188,9 +188,9 @@ void glimmer::DataPack::LoadStructureResourceFromFile(const toml::value& value, 
     }
     for (auto& condition : structureResource->condition)
     {
-        condition.config.UpdateArgs(manifest_.id);
+        condition.SetSelfPackageId(manifest_.id);
     }
-    structureManager->AddResource(std::move(structureResource));
+    structureManager->Register(std::move(structureResource));
 }
 
 void glimmer::DataPack::LoadTileResourceFromFile(const toml::value& value, TileResourceManager* tileManager) const
@@ -226,10 +226,11 @@ void glimmer::DataPack::LoadBiomeResourceFromFile(const toml::value& value, Biom
     {
         decorator.SetSelfPackageId(manifest_.id);
     }
-    biomesManager->AddResource(std::move(biomeResource));
+    biomesManager->Register(std::move(biomeResource));
 }
 
-void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value& value, ItemManager* itemManager) const
+void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value& value,
+                                                           ComposableItemManager* itemManager) const
 {
     auto itemResource = std::make_unique<ComposableItemResource>(toml::get<ComposableItemResource>(value));
     itemResource->packId = manifest_.id;
@@ -248,10 +249,10 @@ void glimmer::DataPack::LoadComposableItemResourceFromFile(const toml::value& va
             abilityItemRef.item.SetSelfPackageId(manifest_.id);
         }
     }
-    itemManager->AddComposableResource(std::move(itemResource));
+    itemManager->Register(std::move(itemResource));
 }
 
-void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value& value, ItemManager* itemManager) const
+void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value& value, AbilityItemManager* itemManager) const
 {
     auto itemResource = std::make_unique<AbilityItemResource>(toml::get<AbilityItemResource>(value));
     itemResource->packId = manifest_.id;
@@ -262,11 +263,11 @@ void glimmer::DataPack::LoadAbilityItemResourceFromFile(const toml::value& value
     {
         tag.MakeCachedTag();
     }
-    itemManager->AddAbilityItemResource(std::move(itemResource));
+    itemManager->Register(std::move(itemResource));
 }
 
 void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::value& value,
-                                                                 ItemManager* itemManager) const
+                                                                 MaterialItemManager* itemManager) const
 {
     auto itemResource = std::make_unique<MaterialItemResource>(toml::get<MaterialItemResource>(value));
     itemResource->packId = manifest_.id;
@@ -277,7 +278,7 @@ void glimmer::DataPack::LoadMaterialItemResourceResourceFromFile(const toml::val
     {
         tag.MakeCachedTag();
     }
-    itemManager->AddMaterialItemResource(std::move(itemResource));
+    itemManager->Register(std::move(itemResource));
 }
 
 void glimmer::DataPack::LoadContributorResourceFromFile(const toml::value& value,
@@ -563,17 +564,17 @@ int glimmer::DataPack::LoadResourceByType(const std::string& dataType, const std
     }
     if (dataType == DATA_FILE_TYPE_COMPOSABLE_ITEM)
     {
-        LoadComposableItemResourceFromFile(value, modContext->GetItemManager());
+        LoadComposableItemResourceFromFile(value, modContext->GetComposableItemManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_ABILITY_ITEM)
     {
-        LoadAbilityItemResourceFromFile(value, modContext->GetItemManager());
+        LoadAbilityItemResourceFromFile(value, modContext->GetAbilityItemManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_MATERIAL_ITEM)
     {
-        LoadMaterialItemResourceResourceFromFile(value, modContext->GetItemManager());
+        LoadMaterialItemResourceResourceFromFile(value, modContext->GetMaterialItemManager());
         return 1;
     }
     if (dataType == DATA_FILE_TYPE_LOOT_TABLE)

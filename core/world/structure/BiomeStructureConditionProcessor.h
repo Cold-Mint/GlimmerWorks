@@ -18,7 +18,7 @@
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
  * 该许可证的第3版，或者（由你选择）任何后续版本。
- *
+
  * 本程序的发布目的是希望它能有用，但没有任何担保；甚至没有适销性或特定用途适用性的默示担保。
  * 有关详细细节，请参阅GNU Affero通用公共许可证。
  *
@@ -27,12 +27,14 @@
 #pragma once
 #include "IStructureConditionProcessor.h"
 
-namespace glimmer {
-    class BiomeStructureConditionProcessor : public IStructureConditionProcessor {
+namespace glimmer
+{
+    class BiomeStructureConditionProcessor : public IStructureConditionProcessor
+    {
     public:
-        std::string GetName() override;
+        StructureConditionProcessorType GetStructureConditionProcessorType() override;
 
-        std::bitset<CHUNK_AREA>
-        Match(TerrainResult *terrainResult, const VariableConfig &variableConfig) override;
+        std::bitset<CHUNK_AREA> Match(TerrainResult* terrainResult,
+            const IStructurePlacementConditionsResource* placementConditionsResource) override;
     };
 }

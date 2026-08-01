@@ -111,8 +111,7 @@ SDL_Texture* glimmer::MaterialItem::GetIcon() const
 }
 
 bool glimmer::MaterialItem::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                  const AbilityConfig* abilityConfig,
-                                  std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
+                                  const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
 {
     // MaterialItem has no special use behavior
     return false;

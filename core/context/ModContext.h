@@ -29,7 +29,6 @@
 #include <memory>
 
 #include "core/mod/dataPack/BiomesManager.h"
-#include "core/mod/dataPack/ItemManager.h"
 #include "core/mod/dataPack/TileResourceManager.h"
 #include "core/mod/dataPack/BiomeDecoratorResourcesManager.h"
 #include "core/lootTable/LootTableManager.h"
@@ -39,9 +38,13 @@
 #include "core/mod/dataPack/StringManager.h"
 #include "core/mod/dataPack/DataPackManager.h"
 #include "core/mod/TomlTemplateExpander.h"
-#include "core/mod/StructurePlacementConditionsManager.h"
+#include "core/mod/StructurePlacementConditionsProcessorManager.h"
 #include "core/contributor/ContributorManager.h"
 #include "core/inventory/InitialInventoryManager.h"
+#include "core/mod/dataPack/AbilityItemManager.h"
+#include "core/mod/dataPack/ComposableItemManager.h"
+#include "core/mod/dataPack/MaterialItemManager.h"
+#include "core/mod/dataPack/StructurePlacementConditionsResourceManager.h"
 #include "core/world/generator/BiomeDecoratorManager.h"
 #include "core/world/structure/StructureGeneratorManager.h"
 #include "core/shape/ShapeManager.h"
@@ -60,12 +63,16 @@ namespace glimmer
         std::unique_ptr<BiomesManager> biomesManager_;
         std::unique_ptr<BiomeDecoratorManager> biomeDecoratorManager_;
         std::unique_ptr<BiomeDecoratorResourcesManager> biomeDecoratorResourcesManager_;
-        std::unique_ptr<ItemManager> itemManager_;
+        std::unique_ptr<AbilityItemManager> abilityItemManager_;
+        std::unique_ptr<ComposableItemManager> composableItemManager_;
+        std::unique_ptr<MaterialItemManager> materialItemManager_;
+
         std::unique_ptr<RecipeManager> recipeManager_;
         std::unique_ptr<MobManager> mobManager_;
         std::unique_ptr<StructureManager> structureManager_;
         std::unique_ptr<StructureGeneratorManager> structureGeneratorManager_;
-        std::unique_ptr<StructurePlacementConditionsManager> structurePlacementConditionsManager_;
+        std::unique_ptr<StructurePlacementConditionsProcessorManager> structurePlacementConditionsProcessorManager_;
+        std::unique_ptr<StructurePlacementConditionsResourceManager> structurePlacementConditionsResourceManager_;
         std::unique_ptr<LootTableManager> lootTableManager_;
         std::unique_ptr<InitialInventoryManager> initialInventoryManager_;
         std::unique_ptr<ContributorManager> contributorManager_;
@@ -80,21 +87,45 @@ namespace glimmer
         void Init(VirtualFileSystem* vfs, const LangsResources* langsResources);
 
         [[nodiscard]] DataPackManager* GetDataPackManager() const;
+
         [[nodiscard]] StringManager* GetStringManager() const;
+
         [[nodiscard]] TileResourceManager* GetTileResourceManager() const;
+
         [[nodiscard]] BiomesManager* GetBiomesManager() const;
+
         [[nodiscard]] BiomeDecoratorManager* GetBiomeDecoratorManager() const;
+
         [[nodiscard]] BiomeDecoratorResourcesManager* GetBiomeDecoratorResourcesManager() const;
-        [[nodiscard]] ItemManager* GetItemManager() const;
+
+        [[nodiscard]] AbilityItemManager* GetAbilityItemManager() const;
+
+        [[nodiscard]] ComposableItemManager* GetComposableItemManager() const;
+
+        [[nodiscard]] MaterialItemManager* GetMaterialItemManager() const;
+
         [[nodiscard]] RecipeManager* GetRecipeManager() const;
+
         [[nodiscard]] MobManager* GetMobManager() const;
+
         [[nodiscard]] StructureManager* GetStructureManager() const;
+
         [[nodiscard]] StructureGeneratorManager* GetStructureGeneratorManager() const;
-        [[nodiscard]] StructurePlacementConditionsManager* GetStructurePlacementConditionsManager() const;
+
+        [[nodiscard]] StructurePlacementConditionsProcessorManager*
+        GetStructurePlacementConditionsProcessorManager() const;
+
+        [[nodiscard]] StructurePlacementConditionsResourceManager*
+        GetStructurePlacementConditionsResourceManager() const;
+
         [[nodiscard]] LootTableManager* GetLootTableManager() const;
+
         [[nodiscard]] InitialInventoryManager* GetInitialInventoryManager() const;
+
         [[nodiscard]] ContributorManager* GetContributorManager() const;
+
         [[nodiscard]] TomlTemplateExpander* GetTomlTemplateExpander() const;
+
         [[nodiscard]] ShapeManager* GetShapeManager() const;
     };
 }

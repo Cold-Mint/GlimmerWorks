@@ -29,11 +29,14 @@
 #include "ResourceRef.h"
 #include "core/math/Color.h"
 #include "core/shape/ShapeManager.h"
+#include "dataPack/AbilityItemManager.h"
 #include "dataPack/BiomeDecoratorResourcesManager.h"
+#include "dataPack/ComposableItemManager.h"
 #include "dataPack/DataPackManager.h"
 #include "dataPack/FixedColorManager.h"
 #include "dataPack/LightMaskManager.h"
 #include "dataPack/LightSourceManager.h"
+#include "dataPack/MaterialItemManager.h"
 #include "dataPack/StringManager.h"
 #include "resourcePack/AudioResourceResult.h"
 #include "resourcePack/ResourcePackManager.h"
@@ -61,7 +64,9 @@ namespace glimmer
         ResourcePackManager* resourcePackManager_ = nullptr;
         FixedColorManager* fixedColorManager_ = nullptr;
         LootTableManager* lootTableManager_ = nullptr;
-        ItemManager* itemManager_ = nullptr;
+        AbilityItemManager* abilityItemManager_ = nullptr;
+        ComposableItemManager* composableItemManager_ = nullptr;
+        MaterialItemManager* materialItemManager_ = nullptr;
         MobManager* mobManager_ = nullptr;
         TileResourceManager* tileResourceManager_ = nullptr;
         LightMaskManager* lightMaskManager_ = nullptr;

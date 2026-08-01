@@ -25,37 +25,24 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "BiomeStructureConditionProcessor.h"
-#include <set>
 
-#include "core/log/LogCat.h"
-
-std::string glimmer::BiomeStructureConditionProcessor::GetName()
+glimmer::StructureConditionProcessorType glimmer::BiomeStructureConditionProcessor::GetStructureConditionProcessorType()
 {
-    return STRUCTURE_PLACEMENT_CONDITIONS_BIOME;
+    return StructureConditionProcessorType::Biome;
 }
 
 std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(TerrainResult* terrainResult,
-                                                                         const VariableConfig& variableConfig)
+                                                                         const IStructurePlacementConditionsResource*
+                                                                         placementConditionsResource)
 {
-    const size_t size = variableConfig.definition.size();
-    std::set<std::string, std::less<>> biomeSet;
-    for (int i = 0; i < size; i++)
-    {
-        std::stringstream biomeStream;
-        biomeStream << "biome_";
-        biomeStream << std::to_string(i);
-        std::string varKey = biomeStream.str();
-        const VariableDefinition* definition = variableConfig.FindVariable(varKey);
-        if (definition == nullptr || definition->type != std::to_underlying(VariableDefinitionType::REF))
-        {
-            break;
-        }
-        ResourceRef resourceRef;
-        definition->AsResourceRef(resourceRef);
-        std::string biomeId = Resource::GenerateId(resourceRef.GetPackageId(), resourceRef.GetResourceKey());
-        biomeSet.insert(biomeId);
-    }
+    const auto biomeStructurePlacementConditions = dynamic_cast<const BiomeStructurePlacementConditionsResource*>(
+        placementConditionsResource);
     std::bitset<CHUNK_AREA> result;
+    if (biomeStructurePlacementConditions == nullptr)
+    {
+        return result;
+    }
+    const std::unordered_set<std::string>& biomeSet = biomeStructurePlacementConditions->GetCachedBiomeIds();
     if (biomeSet.empty())
     {
         return result;
@@ -70,10 +57,9 @@ std::bitset<CHUNK_AREA> glimmer::BiomeStructureConditionProcessor::Match(Terrain
             {
                 continue;
             }
-            std::string tileBiomeId = Resource::GenerateId(*self.biomeResource);
-            if (biomeSet.contains(tileBiomeId))
+            if (biomeSet.contains(Resource::GenerateId(*self.biomeResource)))
             {
-                int tileIndex = localY * CHUNK_SIZE + localX;
+                const int tileIndex = localY * CHUNK_SIZE + localX;
                 result[tileIndex] = true;
                 matchedTileCount++;
             }

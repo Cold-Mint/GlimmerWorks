@@ -31,7 +31,6 @@
 #include "BiomeDecoratorType.h"
 #include "BiomesManager.h"
 #include "FixedColorManager.h"
-#include "ItemManager.h"
 #include "LightMaskManager.h"
 #include "LightSourceManager.h"
 #include "MobManager.h"
@@ -106,11 +105,11 @@ namespace glimmer
 
         void LoadBiomeResourceFromFile(const toml::value& value, BiomesManager* biomesManager) const;
 
-        void LoadComposableItemResourceFromFile(const toml::value& value, ItemManager* itemManager) const;
+        void LoadComposableItemResourceFromFile(const toml::value& value, ComposableItemManager* itemManager) const;
 
-        void LoadAbilityItemResourceFromFile(const toml::value& value, ItemManager* itemManager) const;
+        void LoadAbilityItemResourceFromFile(const toml::value& value, AbilityItemManager* itemManager) const;
 
-        void LoadMaterialItemResourceResourceFromFile(const toml::value& value, ItemManager* itemManager) const;
+        void LoadMaterialItemResourceResourceFromFile(const toml::value& value, MaterialItemManager* itemManager) const;
 
         void LoadContributorResourceFromFile(const toml::value& value,
                                              ContributorManager* contributorManager) const;

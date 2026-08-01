@@ -74,7 +74,8 @@ std::unique_ptr<glimmer::AbilityItem> glimmer::AbilityItem::FromItemResource(con
     }
 
     const auto itemAbility =
-        ItemAbilityFactory::CreateItemAbility(itemResource->ability, itemResource->abilityConfig);
+        ItemAbilityFactory::CreateItemAbility(static_cast<AbilityType>(itemResource->ability),
+                                              itemResource->abilityConfig);
     if (itemAbility == nullptr)
     {
         return nullptr;
@@ -104,8 +105,7 @@ const glimmer::AbilityConfig* glimmer::AbilityItem::GetAbilityConfig() const
 }
 
 bool glimmer::AbilityItem::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                 const AbilityConfig* abilityConfig,
-                                 std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility)
+                                 const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
 {
     if (canUseAlone_)
     {

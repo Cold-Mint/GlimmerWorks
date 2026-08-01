@@ -26,24 +26,22 @@
  */
 #include "ItemAbilityFactory.h"
 
-#include "core/Constants.h"
 #include "ability/AreaMarkerAbility.h"
 #include "ability/MiningAbility.h"
 #include "ability/NoneAbility.h"
 
-
-std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(std::string_view id,
+std::shared_ptr<glimmer::ItemAbility> glimmer::ItemAbilityFactory::CreateItemAbility(const AbilityType abilityType,
     const AbilityConfig& abilityConfig)
 {
-    if (id == ABILITY_ID_NONE)
+    if (abilityType == AbilityType::None)
     {
         return std::make_shared<NoneAbility>(abilityConfig);
     }
-    if (id == ABILITY_ID_MINING)
+    if (abilityType == AbilityType::Mining)
     {
         return std::make_shared<MiningAbility>(abilityConfig);
     }
-    if (id == ABILITY_ID_AREA_MARKER)
+    if (abilityType == AbilityType::AreaMarker)
     {
         return std::make_shared<AreaMarkerAbility>(abilityConfig);
     }

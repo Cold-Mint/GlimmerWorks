@@ -25,29 +25,18 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include "BaseResManager.h"
 #include "core/mod/Resource.h"
-#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer
 {
-    class StructureManager
+    class StructureManager : public BaseResManager<IStructureResource>
     {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<IStructureResource>,
-                                                           TransparentStringHash, std::equal_to<>>,
-                           TransparentStringHash, std::equal_to<>>
-        structureMap_
-            {};
         std::vector<IStructureResource*> structureVector_ = {};
 
     public:
-        IStructureResource* AddResource(std::unique_ptr<IStructureResource> structureResource);
+        void OnRegister(IStructureResource* resource) override;
 
-        [[nodiscard]] IStructureResource* Find(const std::string& packId, const std::string& key);
-
-        [[nodiscard]] std::vector<IStructureResource*> GetAll();
-
-        [[nodiscard]] std::vector<std::string> GetStructureIDList() const;
-
-        std::string ListStructures() const;
+        [[nodiscard]] const std::vector<IStructureResource*>& GetAll();
     };
 }

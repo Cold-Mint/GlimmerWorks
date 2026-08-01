@@ -39,22 +39,19 @@ glimmer::MiningAbility::MiningAbility(const AbilityConfig& abilityConfig) : Item
 {
 }
 
-
-const std::string& glimmer::MiningAbility::GetId() const
+glimmer::AbilityType glimmer::MiningAbility::GetAbilityType() const
 {
-    return ABILITY_ID_MINING;
+    return AbilityType::Mining;
 }
 
 bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
-                                   const AbilityConfig* abilityConfig,
-                                   std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
-                                   popupAbility)
+                                   const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
 {
     if (!mouseLeft)
     {
         return false;
     }
-    popupAbility.emplace(GetId());
+    popupAbility.emplace(GetAbilityType());
     if (abilityConfig == nullptr)
     {
         return false;

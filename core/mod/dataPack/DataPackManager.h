@@ -47,8 +47,9 @@ namespace glimmer
 
     class DataPackManager
     {
-        VirtualFileSystem* virtualFileSystem_;
-        TomlTemplateExpander* tomlTemplateExpander_;
+        VirtualFileSystem* virtualFileSystem_ = nullptr;
+        std::vector<std::string> packIdList;
+        TomlTemplateExpander* tomlTemplateExpander_ = nullptr;
         std::vector<DataPackManifest> packManifestVector_;
         std::unordered_map<std::string, PackVerifyState, TransparentStringHash, std::equal_to<>> packVerifyStateMap_;
 
@@ -76,7 +77,7 @@ namespace glimmer
 
         PackVerifyState GetPackVerifyState(const std::string& packId);
 
-        std::vector<std::string> GetPackIdList() const;
+        const std::vector<std::string>& GetPackIdList();
 
         //Scan the data packets in the specified directory(Return the number of data packets successfully loaded)
         //扫描指定目录下的数据包（返回成功加载多少个数据包）

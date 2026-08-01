@@ -32,6 +32,7 @@
 #include "ItemLockModule.h"
 #include "ItemStackModule.h"
 #include "ItemTagModule.h"
+#include "ability/AbilityType.h"
 #include "core/math/IAllocatable.h"
 #include "core/world/TileResourceData.h"
 #include "SDL3/SDL_render.h"
@@ -136,7 +137,7 @@ namespace glimmer
          */
         virtual bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
                            const AbilityConfig* abilityConfig,
-                           std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) = 0;
+                           std::unordered_set<AbilityType>& popupAbility) = 0;
 
         /**
          * Get the remaining durability.

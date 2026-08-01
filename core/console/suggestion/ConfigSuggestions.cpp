@@ -59,13 +59,12 @@ void glimmer::ConfigSuggestions::ParseTable(const toml::value::table_type& table
 glimmer::ConfigSuggestions::ConfigSuggestions(const AppContext* appContext) : configValue_(
     appContext->GetConfig()->GetConfigValue())
 {
+    ParseTable(configValue_->as_table(), suggestions_);
 }
 
 bool glimmer::ConfigSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    std::vector<std::string> fields;
-    ParseTable(configValue_->as_table(), fields);
-    return std::ranges::contains(fields, keyword);
+    return std::ranges::contains(suggestions_, keyword);
 }
 
 std::string glimmer::ConfigSuggestions::GetId() const
@@ -73,9 +72,7 @@ std::string glimmer::ConfigSuggestions::GetId() const
     return CONFIG_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::ConfigSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::ConfigSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
-    std::vector<std::string> fields;
-    ParseTable(configValue_->as_table(), fields);
-    return fields;
+    return suggestions_;
 }

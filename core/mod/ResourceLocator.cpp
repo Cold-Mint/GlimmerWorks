@@ -103,10 +103,22 @@ glimmer::ResourceLocator::ResourceLocator(AppContext* appContext) : appContext_(
         LogCat::e(std::source_location::current(), "lootTableManager_ == nullptr");
         return;
     }
-    itemManager_ = modContext->GetItemManager();
-    if (itemManager_ == nullptr)
+    abilityItemManager_ = modContext->GetAbilityItemManager();
+    if (abilityItemManager_ == nullptr)
     {
-        LogCat::e(std::source_location::current(), "itemManager_ == nullptr");
+        LogCat::e(std::source_location::current(), "abilityItemManager_ == nullptr");
+        return;
+    }
+    composableItemManager_ = modContext->GetComposableItemManager();
+    if (composableItemManager_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "composableItemManager_ == nullptr");
+        return;
+    }
+    materialItemManager_ = modContext->GetMaterialItemManager();
+    if (materialItemManager_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "materialItemManager_ == nullptr");
         return;
     }
     mobManager_ = modContext->GetMobManager();
@@ -310,7 +322,7 @@ glimmer::IBiomeDecoratorResource* glimmer::ResourceLocator::FindBiomeDecorator(c
         LogCat::w(std::source_location::current(), "biomeDecoratorResourcesManager_ == nullptr");
         return nullptr;
     }
-    return biomeDecoratorResourcesManager_->FindBiomeDecorator(
+    return biomeDecoratorResourcesManager_->Find(
         resourceRef->GetPackageId(), resourceRef->GetResourceKey());
 }
 
@@ -457,8 +469,8 @@ glimmer::MobResource* glimmer::ResourceLocator::FindMob(const ResourceRef* resou
         LogCat::w(std::source_location::current(), "mobManager == nullptr");
         return nullptr;
     }
-    return mobManager_->FindMobResource(resourceRef->GetPackageId(),
-                                        resourceRef->GetResourceKey());
+    return mobManager_->Find(resourceRef->GetPackageId(),
+                             resourceRef->GetResourceKey());
 }
 
 glimmer::ComposableItemResource* glimmer::ResourceLocator::FindComposableItem(
@@ -477,13 +489,13 @@ glimmer::ComposableItemResource* glimmer::ResourceLocator::FindComposableItem(
                   std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
-    if (itemManager_ == nullptr)
+    if (composableItemManager_ == nullptr)
     {
         LogCat::w(std::source_location::current(), "itemManager == nullptr");
         return nullptr;
     }
-    return itemManager_->FindComposableItemResource(resourceRef->GetPackageId(),
-                                                    resourceRef->GetResourceKey());
+    return composableItemManager_->Find(resourceRef->GetPackageId(),
+                                        resourceRef->GetResourceKey());
 }
 
 glimmer::AbilityItemResource* glimmer::ResourceLocator::FindAbilityItem(
@@ -501,13 +513,13 @@ glimmer::AbilityItemResource* glimmer::ResourceLocator::FindAbilityItem(
                   std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
-    if (itemManager_ == nullptr)
+    if (abilityItemManager_ == nullptr)
     {
         LogCat::w(std::source_location::current(), "itemManager == nullptr");
         return nullptr;
     }
-    return itemManager_->FindAbilityItemResource(resourceRef->GetPackageId(),
-                                                 resourceRef->GetResourceKey());
+    return abilityItemManager_->Find(resourceRef->GetPackageId(),
+                                     resourceRef->GetResourceKey());
 }
 
 glimmer::MaterialItemResource* glimmer::ResourceLocator::FindMaterialItem(const ResourceRef* resourceRef) const
@@ -524,13 +536,13 @@ glimmer::MaterialItemResource* glimmer::ResourceLocator::FindMaterialItem(const 
                   std::to_underlying(resourceRef->GetResourceType()), " or access permission denied");
         return nullptr;
     }
-    if (itemManager_ == nullptr)
+    if (materialItemManager_ == nullptr)
     {
         LogCat::w(std::source_location::current(), "itemManager == nullptr");
         return nullptr;
     }
-    return itemManager_->FindMaterialItemResource(resourceRef->GetPackageId(),
-                                                  resourceRef->GetResourceKey());
+    return materialItemManager_->Find(resourceRef->GetPackageId(),
+                                      resourceRef->GetResourceKey());
 }
 
 glimmer::LootResource* glimmer::ResourceLocator::FindLoot(const ResourceRef* resourceRef) const

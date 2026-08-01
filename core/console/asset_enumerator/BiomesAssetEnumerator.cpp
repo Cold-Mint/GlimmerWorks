@@ -47,6 +47,6 @@ std::optional<std::string> glimmer::BiomesAssetEnumerator::ListAsset(const AppCo
         LogCat::w(std::source_location::current(), "biomesManager is nullptr");
         return std::nullopt;
     }
-    return biomesManager->ListBiomes();
+    return biomesManager->ListString();
 }
 #endif

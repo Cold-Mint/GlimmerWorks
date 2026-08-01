@@ -28,18 +28,33 @@
 
 #include "core/Constants.h"
 
+glimmer::BooleanToggleDynamicSuggestions::BooleanToggleDynamicSuggestions()
+{
+    suggestions_.emplace_back("true");
+    suggestions_.emplace_back("false");
+    suggestions_.emplace_back(TOGGLE_KEY_WORD);
+}
+
 std::string glimmer::BooleanToggleDynamicSuggestions::GetId() const
 {
     return BOOL_TOGGLE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::BooleanToggleDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::BooleanToggleDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
-    return {"true", "false", TOGGLE_KEY_WORD};
+    return suggestions_;
 }
+
 
 bool glimmer::BooleanToggleDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    return keyword == "true" || keyword == "false" || keyword == "no" || keyword == "n" || keyword == "yes" || keyword
-        == "y" || keyword == "0" || keyword == "1" || keyword == TOGGLE_KEY_WORD;
+    for (auto& suggestion : suggestions_)
+    {
+        if (suggestion == keyword)
+        {
+            return true;
+        }
+    }
+    return false;
 }

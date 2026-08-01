@@ -30,6 +30,7 @@
 
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/inventory/ability/AbilityType.h"
 #include "core/utils/TransparentStringHash.h"
 
 namespace glimmer
@@ -53,7 +54,7 @@ namespace glimmer
         CameraComponent* cameraComponent_ = nullptr;
         Transform2DComponent* cameraTransform2DComponent_ = nullptr;
         GameEntityID playerEntityID_ = GAME_ENTITY_ID_INVALID;
-        std::unordered_set<std::string, TransparentStringHash, std::equal_to<>> popupAbility_;
+        std::unordered_set<AbilityType> popupAbility_;
         /**
         * Check if the player is on the ground
         * 检查玩家是否在地面上

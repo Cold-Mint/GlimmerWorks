@@ -282,6 +282,10 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL.cpp"
         core/App.cpp
         core/AppEventLoop.cpp
+        core/mod/dataPack/BaseResManager.cpp
+        core/mod/dataPack/AbilityItemManager.cpp
+        core/mod/dataPack/MaterialItemManager.cpp
+        core/mod/dataPack/ComposableItemManager.cpp
         core/AppRenderer.cpp
         core/BoolOrToggle.cpp
         core/Box2dFilter.cpp
@@ -508,7 +512,8 @@ target_sources(GlimmerWorks
         core/mod/Resource.cpp
         core/mod/ResourceLocator.cpp
         core/mod/ResourceRef.cpp
-        core/mod/StructurePlacementConditionsManager.cpp
+        core/mod/StructurePlacementConditionsProcessorManager.cpp
+        core/mod/dataPack/StructurePlacementConditionsResourceManager.cpp
         core/mod/TomlTemplateExpander.cpp
         core/mod/dataPack/BiomeDecoratorResourcesManager.cpp
         core/mod/dataPack/BiomeDecoratorType.cpp
@@ -516,7 +521,6 @@ target_sources(GlimmerWorks
         core/mod/dataPack/DataPack.cpp
         core/mod/dataPack/DataPackManager.cpp
         core/mod/dataPack/FixedColorManager.cpp
-        core/mod/dataPack/ItemManager.cpp
         core/mod/dataPack/LightMaskManager.cpp
         core/mod/dataPack/LightSourceManager.cpp
         core/mod/dataPack/MobManager.cpp
@@ -625,7 +629,6 @@ target_sources(GlimmerWorks
         core/world/structure/IStructureGenerator.cpp
         core/world/structure/StaticStructureGenerator.cpp
         core/world/structure/StructureGeneratorManager.cpp
-        core/world/structure/StructureGeneratorType.cpp
         core/world/structure/StructureInfo.cpp
         core/ecs/system/RecipeDetailGUISystem.cpp
         core/world/structure/SurfaceStructureConditionProcessor.cpp
@@ -643,6 +646,11 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL.h"
         core/App.h
+
+        core/mod/dataPack/ComposableItemManager.h
+        core/mod/dataPack/MaterialItemManager.h
+        core/mod/dataPack/AbilityItemManager.h
+        core/mod/dataPack/BaseResManager.h
         core/AppEventLoop.h
         core/AppRenderer.h
         core/BoolOrToggle.h
@@ -844,6 +852,7 @@ target_sources(GlimmerWorks
         core/inventory/ItemStackModule.h
         core/inventory/ItemTagModule.h
         core/inventory/MaterialItem.h
+        core/mod/dataPack/StructurePlacementConditionsResourceManager.h
         core/inventory/TileItem.h
         core/inventory/ability/AreaMarkerAbility.h
         core/inventory/ability/ItemAbility.h
@@ -878,7 +887,7 @@ target_sources(GlimmerWorks
         core/mod/Resource.h
         core/mod/ResourceLocator.h
         core/mod/ResourceRef.h
-        core/mod/StructurePlacementConditionsManager.h
+        core/mod/StructurePlacementConditionsProcessorManager.h
         core/ecs/system/RecipeDetailGUISystem.h
         core/mod/TomlTemplateExpander.h
         core/mod/dataPack/BiomeDecoratorResourcesManager.h
@@ -887,7 +896,6 @@ target_sources(GlimmerWorks
         core/mod/dataPack/DataPack.h
         core/mod/dataPack/DataPackManager.h
         core/mod/dataPack/FixedColorManager.h
-        core/mod/dataPack/ItemManager.h
         core/mod/dataPack/LightMaskManager.h
         core/mod/dataPack/LightSourceManager.h
         core/mod/dataPack/MobManager.h
@@ -1011,6 +1019,8 @@ target_sources(GlimmerWorks
         core/rmi/dataModel/TagProgressDataModel.h
         core/rmi/dataModel/RecipeItemChoiceDataModel.h
         core/ecs/component/RecipeSelectionComponent.h
+        core/world/structure/StructureConditionProcessorType.h
+        core/inventory/ability/AbilityType.h
 )
 
 #Define version information

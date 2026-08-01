@@ -30,23 +30,17 @@
 #include <unordered_map>
 #include <functional>
 
+#include "BaseResManager.h"
 #include "core/mod/Resource.h"
 
 namespace glimmer
 {
-    class MobManager
+    class MobManager : public BaseResManager<MobResource>
     {
-        std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<MobResource>,
-                                                           TransparentStringHash, std::equal_to<>>,
-                           TransparentStringHash, std::equal_to<>> mobMap_
-            {};
-
         std::vector<MobResource*> playerMobsResource_;
 
     public:
-        MobResource* Register(std::unique_ptr<MobResource> mobResource);
-
-        [[nodiscard]] MobResource* FindMobResource(std::string_view packId, std::string_view key);
+        void OnRegister(MobResource* resource) override;
 
         /**
          * FindPlayerResource
@@ -54,9 +48,5 @@ namespace glimmer
          * @return
          */
         [[nodiscard]] std::span<const MobResource* const> GetPlayerResourceList() const;
-
-        [[nodiscard]] std::vector<std::string> GetMobList() const;
-
-        std::string ListMobs() const;
     };
 }

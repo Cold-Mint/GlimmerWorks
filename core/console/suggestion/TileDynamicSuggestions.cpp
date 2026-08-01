@@ -45,7 +45,7 @@ bool glimmer::TileDynamicSuggestions::Match(const std::string& keyword, const st
     return std::ranges::contains(tileManager_->GetTileIDList(), keyword);
 }
 
-std::vector<std::string> glimmer::TileDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::TileDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
     return tileManager_->GetTileIDList();
 }

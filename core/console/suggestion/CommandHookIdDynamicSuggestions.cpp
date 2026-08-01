@@ -40,10 +40,12 @@ std::string glimmer::CommandHookIdDynamicSuggestions::GetId() const
     return COMMAND_HOOK_ID_SUGGESTION_NAME;
 }
 
-std::vector<std::string> glimmer::CommandHookIdDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::CommandHookIdDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
     return commandHookManager_->GetCommandHookIdsWithOutConfig();
 }
+
 
 bool glimmer::CommandHookIdDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {

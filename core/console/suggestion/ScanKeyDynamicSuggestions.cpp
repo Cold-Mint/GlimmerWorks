@@ -34,7 +34,8 @@ std::string glimmer::ScanKeyDynamicSuggestions::GetId() const
     return SCAN_KEY_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::ScanKeyDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::ScanKeyDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
     return ScanCodeUtils::GetAllScanCodeKeys();
 }

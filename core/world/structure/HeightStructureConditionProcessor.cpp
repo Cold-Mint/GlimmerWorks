@@ -28,27 +28,25 @@
 
 #include "core/log/LogCat.h"
 
-std::string glimmer::HeightStructureConditionProcessor::GetName()
+glimmer::StructureConditionProcessorType glimmer::HeightStructureConditionProcessor::
+GetStructureConditionProcessorType()
 {
-    return STRUCTURE_PLACEMENT_CONDITIONS_HEIGHT;
+    return StructureConditionProcessorType::Height;
 }
 
 std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(TerrainResult* terrainResult,
-                                                                          const VariableConfig& variableConfig)
+                                                                          const IStructurePlacementConditionsResource*
+                                                                          placementConditionsResource)
 {
+    const auto heightStructureConditions = dynamic_cast<const HeightStructureConditionsResource*>(
+        placementConditionsResource);
     std::bitset<CHUNK_AREA> result;
-    const VariableDefinition* maxHeightPercentVariable = variableConfig.FindVariable("maxHeightPercent");
-    float maxHeightPercent = 0.0F;
-    if (maxHeightPercentVariable != nullptr)
+    if (heightStructureConditions == nullptr)
     {
-        maxHeightPercent = maxHeightPercentVariable->AsFloat();
+        return result;
     }
-    const VariableDefinition* minHeightPercentVariable = variableConfig.FindVariable("minHeightPercent");
-    float minHeightPercent = 0.0F;
-    if (minHeightPercentVariable != nullptr)
-    {
-        minHeightPercent = minHeightPercentVariable->AsFloat();
-    }
+    const float maxHeightPercent = heightStructureConditions->maxHeightPercent;
+    const float minHeightPercent = heightStructureConditions->minHeightPercent;
     TileVector2D position = terrainResult->GetPosition();
     int matchedTileCount = 0;
     for (int localX = 0; localX < CHUNK_SIZE; localX++)
@@ -57,9 +55,7 @@ std::bitset<CHUNK_AREA> glimmer::HeightStructureConditionProcessor::Match(Terrai
         {
             int globalY = localY + position.y;
             float percent = static_cast<float>(globalY) / WORLD_MAX_Y;
-
-            bool isInRange = percent >= minHeightPercent && percent <= maxHeightPercent;
-            if (isInRange)
+            if (percent >= minHeightPercent && percent <= maxHeightPercent)
             {
                 int tileIndex = localX + localY * CHUNK_SIZE;
                 result[tileIndex] = true;

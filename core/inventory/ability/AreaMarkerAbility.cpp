@@ -37,10 +37,14 @@ glimmer::AreaMarkerAbility::AreaMarkerAbility(
 {
 }
 
-bool glimmer::AreaMarkerAbility::OnUse(const bool mouseLeft, WorldContext* worldContext, uint32_t user,
+glimmer::AbilityType glimmer::AreaMarkerAbility::GetAbilityType() const
+{
+    return AbilityType::AreaMarker;
+}
+
+bool glimmer::AreaMarkerAbility::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
                                        const AbilityConfig* abilityConfig,
-                                       std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>&
-                                       popupAbility)
+                                       std::unordered_set<AbilityType>& popupAbility)
 {
     if (mouseLeft)
     {
@@ -63,13 +67,6 @@ bool glimmer::AreaMarkerAbility::OnUse(const bool mouseLeft, WorldContext* world
     areaMarkerComponent->SetPoint(tileLayerComponent->GetFocusPosition());
     return true;
 }
-
-
-const std::string& glimmer::AreaMarkerAbility::GetId() const
-{
-    return ABILITY_ID_AREA_MARKER;
-}
-
 
 std::unique_ptr<glimmer::ItemAbility> glimmer::AreaMarkerAbility::Clone() const
 {

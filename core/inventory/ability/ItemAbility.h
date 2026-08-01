@@ -26,11 +26,10 @@
  */
 #pragma once
 #include <memory>
-#include <string>
 #include <unordered_set>
 
+#include "AbilityType.h"
 #include "core/mod/Resource.h"
-#include "core/utils/TransparentStringHash.h"
 
 namespace glimmer
 {
@@ -51,13 +50,13 @@ namespace glimmer
 
         virtual ~ItemAbility() = default;
 
-        [[nodiscard]] virtual const std::string& GetId() const = 0;
+        [[nodiscard]] virtual AbilityType GetAbilityType() const = 0;
 
         [[nodiscard]] const AbilityConfig* GetAbilityConfig() const;
 
         virtual bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
                            const AbilityConfig* abilityConfig,
-                           std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) = 0;
+                            std::unordered_set<AbilityType>& popupAbility) = 0;
 
         [[nodiscard]] virtual std::unique_ptr<ItemAbility> Clone() const = 0;
     };

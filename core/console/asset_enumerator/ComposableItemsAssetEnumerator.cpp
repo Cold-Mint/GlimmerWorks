@@ -47,12 +47,12 @@ std::optional<std::string> glimmer::ComposableItemsAssetEnumerator::ListAsset(co
         LogCat::w(std::source_location::current(), "modContext is nullptr");
         return std::nullopt;
     }
-    const ItemManager* itemManager = modContext->GetItemManager();
+    const ComposableItemManager* itemManager = modContext->GetComposableItemManager();
     if (itemManager == nullptr)
     {
         LogCat::w(std::source_location::current(), "itemManager is nullptr");
         return std::nullopt;
     }
-    return itemManager->ListComposableItems();
+    return itemManager->ListString();
 }
 #endif

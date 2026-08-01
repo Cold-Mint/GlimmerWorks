@@ -196,6 +196,16 @@ bool glimmer::CommandHookManager::Contains(const std::string_view hookId) const
     return false;
 }
 
+const std::vector<std::string>& glimmer::CommandHookManager::GetCommandHookIdsWithOutConfig()
+{
+    commandHookResult_.clear();
+    for (auto& sessionCommandHookVector : sessionCommandHookVector_)
+    {
+        commandHookResult_.push_back(sessionCommandHookVector->hookId);
+    }
+    return commandHookResult_;
+}
+
 void glimmer::CommandHookManager::LoadHookFromConfig(const std::vector<CommandHookResource>& commandHooks)
 {
     configCommandHookVector_.clear();
@@ -220,18 +230,6 @@ void glimmer::CommandHookManager::LoadHookFromConfig(const std::vector<CommandHo
                            std::move(commandHookEntry));
     }
 }
-
-
-std::vector<std::string> glimmer::CommandHookManager::GetCommandHookIdsWithOutConfig() const
-{
-    std::vector<std::string> result;
-    for (auto& sessionCommandHookVector : sessionCommandHookVector_)
-    {
-        result.push_back(sessionCommandHookVector->hookId);
-    }
-    return result;
-}
-
 
 std::optional<std::string> glimmer::CommandHookManager::Register(std::unique_ptr<CommandHookEntry> commandHookEntry)
 {

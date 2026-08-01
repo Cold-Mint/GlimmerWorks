@@ -166,13 +166,12 @@ bool glimmer::ConsoleContext::Init(AppContext* appContext, VirtualFileSystem* vf
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<TileDynamicSuggestions>(modContext->GetTileResourceManager()));
 
-    auto* im = modContext->GetItemManager();
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<ComposableItemDynamicSuggestions>(im));
+        std::make_unique<ComposableItemDynamicSuggestions>(modContext->GetComposableItemManager()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<AbilityItemDynamicSuggestions>(im));
+        std::make_unique<AbilityItemDynamicSuggestions>(modContext->GetAbilityItemManager()));
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
-        std::make_unique<MaterialItemDynamicSuggestions>(im));
+        std::make_unique<MaterialItemDynamicSuggestions>(modContext->GetMaterialItemManager()));
 
     dynamicSuggestionsManager_->RegisterDynamicSuggestions(
         std::make_unique<LootSuggestions>(modContext->GetLootTableManager()));

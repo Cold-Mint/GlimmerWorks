@@ -64,6 +64,8 @@ namespace glimmer
                            TransparentStringHash, std::equal_to<>>
         accessDeniedTileMap_{};
 
+        std::vector<std::string> tileIdList_{};
+
         TileResource* air_ = nullptr;
         TileResource* airWall_ = nullptr;
 
@@ -124,7 +126,7 @@ namespace glimmer
         [[nodiscard]] TileResource* FindTileFallback(std::string_view packId, std::string_view key,
                                                      TileLayerType tileLayer);
 
-        [[nodiscard]] std::vector<std::string> GetTileIDList() const;
+        [[nodiscard]] const std::vector<std::string>& GetTileIDList();
 
         std::string ListTiles() const;
     };

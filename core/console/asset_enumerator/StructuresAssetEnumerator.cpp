@@ -44,6 +44,6 @@ std::optional<std::string> glimmer::StructuresAssetEnumerator::ListAsset(const A
     {
         return std::nullopt;
     }
-    return structureManager->ListStructures();
+    return structureManager->ListString();
 }
 #endif

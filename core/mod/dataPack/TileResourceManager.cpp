@@ -239,18 +239,19 @@ glimmer::TileResource* glimmer::TileResourceManager::FindTileFallback(std::strin
     return AddErrorPlaceHolder(packId, key, tileLayer);
 }
 
-std::vector<std::string> glimmer::TileResourceManager::GetTileIDList() const
+const std::vector<std::string>& glimmer::TileResourceManager::GetTileIDList()
 {
-    std::vector<std::string> result;
+    tileIdList_.clear();
     for (const auto& [packId, keyMap] : tileMap_)
     {
         for (const auto& [key, resource] : keyMap)
         {
-            result.emplace_back(Resource::GenerateId(packId, key));
+            tileIdList_.emplace_back(Resource::GenerateId(packId, key));
         }
     }
-    return result;
+    return tileIdList_;
 }
+
 
 std::string glimmer::TileResourceManager::ListTiles() const
 {

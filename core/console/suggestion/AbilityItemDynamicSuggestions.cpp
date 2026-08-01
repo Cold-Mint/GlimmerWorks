@@ -30,8 +30,9 @@
 
 #include "core/Constants.h"
 
-glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(ItemManager* itemManager)
-    : itemManager_(itemManager)
+
+glimmer::AbilityItemDynamicSuggestions::AbilityItemDynamicSuggestions(AbilityItemManager* abilityItemManager) :
+    abilityItemManager_(abilityItemManager)
 {
 }
 
@@ -40,12 +41,14 @@ std::string glimmer::AbilityItemDynamicSuggestions::GetId() const
     return ABILITY_ITEM_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::AbilityItemDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::AbilityItemDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
-    return itemManager_->GetAbilityItemIDList();
+    return abilityItemManager_->List();
 }
+
 
 bool glimmer::AbilityItemDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    return std::ranges::contains(itemManager_->GetAbilityItemIDList(), keyword);
+    return std::ranges::contains(abilityItemManager_->List(), keyword);
 }

@@ -43,7 +43,8 @@ bool glimmer::DataPackDynamicSuggestions::Match(const std::string& keyword, cons
     return dataPackManager_->Contains(keyword);
 }
 
-std::vector<std::string> glimmer::DataPackDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::DataPackDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
     return dataPackManager_->GetPackIdList();
 }

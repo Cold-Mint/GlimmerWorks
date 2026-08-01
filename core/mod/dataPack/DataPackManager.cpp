@@ -167,9 +167,9 @@ glimmer::PackVerifyState glimmer::DataPackManager::GetPackVerifyState(const std:
     return PackVerifyState::Unsigned;
 }
 
-std::vector<std::string> glimmer::DataPackManager::GetPackIdList() const
+const std::vector<std::string>& glimmer::DataPackManager::GetPackIdList()
 {
-    std::vector<std::string> packIdList;
+    packIdList.clear();
     for (auto& packManifest : packManifestVector_)
     {
         packIdList.push_back(packManifest.id);

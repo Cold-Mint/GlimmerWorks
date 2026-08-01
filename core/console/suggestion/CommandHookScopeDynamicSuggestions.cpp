@@ -28,6 +28,11 @@
 
 #include "core/Constants.h"
 
+glimmer::CommandHookScopeDynamicSuggestions::CommandHookScopeDynamicSuggestions()
+{
+    suggestions_.emplace_back(SESSION_KEY_WORD);
+}
+
 std::string glimmer::CommandHookScopeDynamicSuggestions::GetId() const
 {
     return COMMAND_HOOK_SCOPE_DYNAMIC_SUGGESTIONS_NAME;
@@ -36,10 +41,18 @@ std::string glimmer::CommandHookScopeDynamicSuggestions::GetId() const
 
 bool glimmer::CommandHookScopeDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    return keyword == SESSION_KEY_WORD;
+    for (auto& suggestion : suggestions_)
+    {
+        if (suggestion == keyword)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
-std::vector<std::string> glimmer::CommandHookScopeDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::CommandHookScopeDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
-    return {SESSION_KEY_WORD};
+    return suggestions_;
 }

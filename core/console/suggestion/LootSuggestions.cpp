@@ -40,12 +40,13 @@ std::string glimmer::LootSuggestions::GetId() const
     return LOOT_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::LootSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::LootSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
-    return lootTableManager_->GetLootTableList();
+    return lootTableManager_->List();
 }
+
 
 bool glimmer::LootSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    return std::ranges::contains(lootTableManager_->GetLootTableList(), keyword);
+    return std::ranges::contains(lootTableManager_->List(), keyword);
 }

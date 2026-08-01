@@ -44,6 +44,6 @@ std::optional<std::string> glimmer::LootTablesAssetEnumerator::ListAsset(const A
     {
         return std::nullopt;
     }
-    return lootTableManager->ListLootTables();
+    return lootTableManager->ListString();
 }
 #endif

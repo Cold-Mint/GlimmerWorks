@@ -46,100 +46,20 @@ glimmer::Color glimmer::FixedColorResource::ToColor() const
     return Color{r, g, b, a};
 }
 
-glimmer::VariableDefinitionType glimmer::VariableDefinition::ResolveVariableType(const std::string& typeName)
+const std::unordered_set<std::string>& glimmer::BiomeStructurePlacementConditionsResource::GetCachedBiomeIds() const
 {
-    const auto it = variableDefinitionTypeMap_.find(typeName);
-    return it == variableDefinitionTypeMap_.end() ? VariableDefinitionType::INT : it->second;
+    return cachedBiomeIds_;
 }
 
-void glimmer::VariableDefinition::AsResourceRef(ResourceRef& resourceRef) const
+void glimmer::BiomeStructurePlacementConditionsResource::RefreshCache()
 {
-    if (type != std::to_underlying(VariableDefinitionType::REF))
+    cachedBiomeIds_.clear();
+    for (auto& ref : targetBiomes)
     {
-        return;
-    }
-    ResourceRefMessage refMessage;
-    if (refMessage.ParseFromString(value))
-    {
-        resourceRef.ReadResourceRefMessage(refMessage);
+        cachedBiomeIds_.insert(GenerateId(ref.GetPackageId(), ref.GetResourceKey()));
     }
 }
 
-int glimmer::VariableDefinition::AsInt() const
-{
-    if (type != std::to_underlying(VariableDefinitionType::INT))
-    {
-        return 0;
-    }
-    return std::stoi(value);
-}
-
-float glimmer::VariableDefinition::AsFloat() const
-{
-    if (type != std::to_underlying(VariableDefinitionType::FLOAT))
-    {
-        return 0.0F;
-    }
-    return std::stof(value);
-}
-
-bool glimmer::VariableDefinition::AsBool() const
-{
-    if (type != std::to_underlying(VariableDefinitionType::BOOL))
-    {
-        return false;
-    }
-    return value == "1" || value == "true" || value == "yes" || value == "y";
-}
-
-std::string glimmer::VariableDefinition::AsString() const
-{
-    if (type != std::to_underlying(VariableDefinitionType::STRING))
-    {
-        return "";
-    }
-    return value;
-}
-
-const glimmer::VariableDefinition* glimmer::VariableConfig::FindVariable(const std::string& name) const
-{
-    for (auto& data : definition)
-    {
-        if (data.key == name)
-        {
-            return &data;
-        }
-    }
-    return nullptr;
-}
-
-glimmer::VariableDefinition* glimmer::VariableConfig::FindVariableModifiable(const std::string& name)
-{
-    for (auto& data : definition)
-    {
-        if (data.key == name)
-        {
-            return &data;
-        }
-    }
-    return nullptr;
-}
-
-void glimmer::VariableConfig::UpdateArgs(const std::string& selfPackId)
-{
-    for (auto& data : definition)
-    {
-        if (data.type == std::to_underlying(VariableDefinitionType::REF))
-        {
-            ResourceRef resourceRef;
-            data.AsResourceRef(resourceRef);
-            resourceRef.SetSelfPackageId(selfPackId);
-            ResourceRefMessage refMessage;
-            resourceRef.WriteResourceRefMessage(refMessage);
-            data.value = refMessage.SerializeAsString();
-        }
-    }
-}
 
 glimmer::Color glimmer::ColorResource::ToColor() const
 {

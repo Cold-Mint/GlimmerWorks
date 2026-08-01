@@ -41,7 +41,8 @@ std::string glimmer::SceneDynamicSuggestions::GetId() const
     return SCENE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::SceneDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::SceneDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
     return sceneName_;
 }

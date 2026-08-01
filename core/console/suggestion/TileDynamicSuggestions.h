@@ -32,7 +32,7 @@ namespace glimmer
 {
     class TileDynamicSuggestions final : public DynamicSuggestions
     {
-        TileResourceManager* tileManager_;
+        TileResourceManager* tileManager_ = nullptr;
 
     public:
         explicit TileDynamicSuggestions(TileResourceManager* tileManager);
@@ -41,6 +41,6 @@ namespace glimmer
 
         bool Match(const std::string& keyword, const std::string& param) override;
 
-        std::vector<std::string> GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
     };
 }

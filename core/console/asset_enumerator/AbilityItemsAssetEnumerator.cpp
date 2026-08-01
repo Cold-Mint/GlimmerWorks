@@ -47,12 +47,12 @@ std::optional<std::string> glimmer::AbilityItemsAssetEnumerator::ListAsset(const
         LogCat::w(std::source_location::current(), "modContext is nullptr");
         return std::nullopt;
     }
-    const ItemManager* itemManager = modContext->GetItemManager();
+    const AbilityItemManager* itemManager = modContext->GetAbilityItemManager();
     if (itemManager == nullptr)
     {
         LogCat::w(std::source_location::current(), "itemManager is nullptr");
         return std::nullopt;
     }
-    return itemManager->ListAbilityItems();
+    return itemManager->ListString();
 }
 #endif

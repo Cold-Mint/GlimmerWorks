@@ -25,19 +25,21 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <string>
 #include <bitset>
 
+#include "StructureConditionProcessorType.h"
 #include "core/world/generator/TerrainResult.h"
 
-namespace glimmer {
-    class IStructureConditionProcessor {
+namespace glimmer
+{
+    class IStructureConditionProcessor
+    {
     public:
         virtual ~IStructureConditionProcessor() = default;
 
-        virtual std::string GetName() = 0;
+        virtual StructureConditionProcessorType GetStructureConditionProcessorType() = 0;
 
-        virtual std::bitset<CHUNK_AREA> Match(TerrainResult *terrainResult,
-                                              const VariableConfig &variableConfig) = 0;
+        virtual std::bitset<CHUNK_AREA> Match(TerrainResult* terrainResult,
+                                              const IStructurePlacementConditionsResource* placementConditionsResource) = 0;
     };
 }

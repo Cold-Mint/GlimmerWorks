@@ -34,6 +34,7 @@ namespace glimmer
     class ConfigSuggestions final : public DynamicSuggestions
     {
         toml::value* configValue_;
+        std::vector<std::string> suggestions_;
 
         static void ParseTable(const toml::value::table_type& table,
                                std::vector<std::string>& fields,
@@ -46,6 +47,6 @@ namespace glimmer
 
         [[nodiscard]] std::string GetId() const override;
 
-        std::vector<std::string> GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
     };
 }

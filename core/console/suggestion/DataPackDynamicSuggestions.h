@@ -30,7 +30,7 @@
 
 namespace glimmer {
     class DataPackDynamicSuggestions final : public DynamicSuggestions {
-        DataPackManager *dataPackManager_;
+        DataPackManager *dataPackManager_ = nullptr;
 
     public:
         explicit DataPackDynamicSuggestions(DataPackManager *dataPackManager);
@@ -39,6 +39,6 @@ namespace glimmer {
 
         bool Match(const std::string& keyword, const std::string& param) override;
 
-        std::vector<std::string> GetSuggestions(const std::optional<std::string>& param) override;
+        const std::vector<std::string>& GetSuggestions(const std::optional<std::string>& param) override;
     };
 }

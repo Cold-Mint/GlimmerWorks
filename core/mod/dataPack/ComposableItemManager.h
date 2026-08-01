@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- * 
+ *
  * 版权(C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * 本程序是自由软件：你可以遵照自由软件基金会出版的GNU Affero通用公共许可证条款来重新分发和修改它
@@ -25,18 +25,13 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-#include <memory>
+#include "BaseResManager.h"
 
-#include "core/world/structure/IStructureConditionProcessor.h"
-
-namespace glimmer {
-    class StructurePlacementConditionsManager {
-        std::unordered_map<std::string, std::unique_ptr<IStructureConditionProcessor>,
-            TransparentStringHash, std::equal_to<>> conditionProcessors_;
-
+namespace glimmer
+{
+    class ComposableItemManager : public BaseResManager<ComposableItemResource>
+    {
     public:
-        void AddConditionProcessor(std::unique_ptr<IStructureConditionProcessor> structureConditionProcessor);
-
-        IStructureConditionProcessor *FindConditionProcessors(const std::string &id);
+        ComposableItemResource* OnNotFound(std::string_view packId, std::string_view key) override;
     };
 }

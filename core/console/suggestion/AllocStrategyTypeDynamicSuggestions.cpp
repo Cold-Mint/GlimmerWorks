@@ -42,7 +42,7 @@ std::string glimmer::AllocStrategyTypeDynamicSuggestions::GetId() const
     return ALLOC_STRATEGY_TYPE_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(
+const std::vector<std::string>& glimmer::AllocStrategyTypeDynamicSuggestions::GetSuggestions(
     const std::optional<std::string>& param)
 {
     return suggestions_;
@@ -50,5 +50,5 @@ std::vector<std::string> glimmer::AllocStrategyTypeDynamicSuggestions::GetSugges
 
 bool glimmer::AllocStrategyTypeDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    return std::ranges::any_of(suggestions_, [&](const auto& item) { return item == keyword; });
+    return std::ranges::contains(suggestions_, keyword);
 }

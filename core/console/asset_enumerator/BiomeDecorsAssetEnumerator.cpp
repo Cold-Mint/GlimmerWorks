@@ -53,6 +53,6 @@ std::optional<std::string> glimmer::BiomeDecorsAssetEnumerator::ListAsset(const 
         LogCat::w(std::source_location::current(), "decoratorResourcesManager is nullptr");
         return std::nullopt;
     }
-    return decoratorResourcesManager->ListBiomeDecorators();
+    return decoratorResourcesManager->ListString();
 }
 #endif

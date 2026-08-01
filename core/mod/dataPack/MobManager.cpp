@@ -26,46 +26,16 @@
  */
 #include "MobManager.h"
 
-glimmer::MobResource *glimmer::MobManager::Register(std::unique_ptr<MobResource> mobResource) {
-    auto &slot =
-            mobMap_[mobResource->packId][mobResource->resourceId];
-    slot = std::move(mobResource);
-    if (slot.get()->isPlayer) {
-        playerMobsResource_.push_back(slot.get());
+
+void glimmer::MobManager::OnRegister(MobResource* resource)
+{
+    if (resource->isPlayer)
+    {
+        playerMobsResource_.emplace_back(resource);
     }
-    return slot.get();
 }
 
-glimmer::MobResource *glimmer::MobManager::FindMobResource(std::string_view packId, std::string_view key) {
-    if (const auto packIt = mobMap_.find(packId); packIt != mobMap_.end()) {
-        if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
-            return keyIt->second.get();
-        }
-    }
-    return nullptr;
-}
-
-std::span<const glimmer::MobResource* const> glimmer::MobManager::GetPlayerResourceList() const {
+std::span<const glimmer::MobResource* const> glimmer::MobManager::GetPlayerResourceList() const
+{
     return playerMobsResource_;
-}
-
-
-std::vector<std::string> glimmer::MobManager::GetMobList() const {
-    std::vector<std::string> result;
-    for (const auto &[packId, keyMap]: mobMap_) {
-        for (const auto &[key, resource]: keyMap) {
-            result.emplace_back(Resource::GenerateId(packId, key));
-        }
-    }
-    return result;
-}
-
-std::string glimmer::MobManager::ListMobs() const {
-    std::ostringstream oss;
-    for (const auto &[packId, keyMap]: mobMap_) {
-        for (const auto &[key, resource]: keyMap) {
-            oss << Resource::GenerateId(packId, key) << "\n";
-        }
-    }
-    return oss.str();
 }

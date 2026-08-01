@@ -39,12 +39,13 @@ std::string glimmer::BiomeSuggestions::GetId() const
     return BIOME_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::BiomeSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::BiomeSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
-    return biomesManager_->GetBiomeList();
+    return biomesManager_->List();
 }
+
 
 bool glimmer::BiomeSuggestions::Match(const std::string& keyword, const std::string& param)
 {
-    return std::ranges::contains(biomesManager_->GetBiomeList(), keyword);
+    return std::ranges::contains(biomesManager_->List(), keyword);
 }

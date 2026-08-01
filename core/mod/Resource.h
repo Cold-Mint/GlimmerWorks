@@ -226,102 +226,46 @@ namespace glimmer
         int offsetY = 0;
     };
 
-
-    enum class VariableDefinitionType : uint8_t
+    //@genNextLine(StructurePlacementConditionsResource|结构放置条件资源)
+    struct IStructurePlacementConditionsResource : Resource
     {
-        INT,
-        FLOAT,
-        BOOL,
-        STRING,
-        REF
-    };
+        virtual ~IStructurePlacementConditionsResource() = default;
 
-    //@content(2)
-    // template <>
-    // struct from<glimmer::VariableDefinition>
-    // {
-    //     static glimmer::VariableDefinition from_toml(const value& v)
-    //     {
-    //         glimmer::VariableDefinition r;
-    //         r.key = toml::find<std::string>(v, "key");
-    //         auto type = glimmer::VariableDefinition::ResolveVariableType(
-    //             toml::find<std::string>(v, "type"));
-    //         if (type == glimmer::VariableDefinitionType::INT)
-    //         {
-    //             r.value = std::to_string(toml::find<int>(v, "value"));
-    //         }
-    //         else if (type == glimmer::VariableDefinitionType::FLOAT)
-    //         {
-    //             r.value = std::to_string(toml::find<float>(v, "value"));
-    //         }
-    //         else if (type == glimmer::VariableDefinitionType::BOOL)
-    //         {
-    //             r.value = std::to_string(toml::find<bool>(v, "value"));
-    //         }
-    //         else if (type == glimmer::VariableDefinitionType::REF)
-    //         {
-    //             auto resourceRef = toml::find<glimmer::ResourceRef>(v, "value");
-    //             ResourceRefMessage refMessage;
-    //             resourceRef.WriteResourceRefMessage(refMessage);
-    //             r.value = refMessage.SerializeAsString();
-    //         }
-    //         else
-    //         {
-    //             r.value = toml::find<std::string>(v, "value");
-    //         }
-    //         return r;
-    //     }
-    // };
-    //@endContent
-
-    struct VariableDefinition
-    {
-        std::string key;
-        uint8_t type = 3;
-        std::string value;
-        inline static const std::unordered_map<std::string, VariableDefinitionType,
-                                               TransparentStringHash, std::equal_to<>> variableDefinitionTypeMap_{
-            {"int", VariableDefinitionType::INT},
-            {"float", VariableDefinitionType::FLOAT},
-            {"bool", VariableDefinitionType::BOOL},
-            {"string", VariableDefinitionType::STRING},
-            {"ref", VariableDefinitionType::REF}
-        };
-
-
-        static VariableDefinitionType ResolveVariableType(const std::string& typeName);
-
-        void AsResourceRef(ResourceRef& resourceRef) const;
-
-        [[nodiscard]] int AsInt() const;
-
-        [[nodiscard]] float AsFloat() const;
-
-        [[nodiscard]] bool AsBool() const;
-
-        [[nodiscard]] std::string AsString() const;
-    };
-
-    //@genNextLine(VariableConfig|变量配置)
-    struct VariableConfig
-    {
-        //@genNextLine(definition|变量定义列表)
-        std::vector<VariableDefinition> definition;
-
-        [[nodiscard]] const VariableDefinition* FindVariable(const std::string& name) const;
-
-        [[nodiscard]] VariableDefinition* FindVariableModifiable(const std::string& name);
-
-        void UpdateArgs(const std::string& selfPackId);
-    };
-
-    //@genNextLine(StructurePlacementConditions|结构放置条件)
-    struct StructurePlacementConditions
-    {
         //@genNextLine(processorId|处理器ID)
-        std::string processorId;
-        //@genNextLine(config|变量配置)
-        VariableConfig config = {};
+        uint8_t processorId = 0;
+    };
+
+    //@genNextLine(StructurePlacementConditionsResource|生物群系结构放置条件资源)
+    struct BiomeStructurePlacementConditionsResource : IStructurePlacementConditionsResource
+    {
+    private:
+        std::unordered_set<std::string> cachedBiomeIds_;
+
+    public:
+        //@genNextLine(targetBiomes List of target biomes for structure spawning.|目标生物群系列表)
+        std::vector<ResourceRef> targetBiomes;
+
+        const std::unordered_set<std::string>& GetCachedBiomeIds() const;
+
+        void RefreshCache();
+    };
+
+    //@genNextLine(HeightStructureConditionsResource|高度结构放置条件资源)
+    struct HeightStructureConditionsResource : IStructurePlacementConditionsResource
+    {
+        //@genNextLine(minHeightPercent|最低高度百分比)
+        float minHeightPercent = 0.0F;
+
+        //@genNextLine(maxHeightPercent|最高高度百分比)
+        float maxHeightPercent = 1.0F;
+    };
+
+
+    //@genNextLine(HorizontalSpacingStructureConditionsResource|横向间隔结构放置条件资源)
+    struct HorizontalSpacingStructureConditionsResource : IStructurePlacementConditionsResource
+    {
+        //@genNextLine(minDistance|最小距离)
+        int minDistance = 0;
     };
 
     //@genNextLine(TileInfo|瓦片信息)
@@ -343,7 +287,7 @@ namespace glimmer
         //@genNextLine(generatorId|生成器ID)
         uint8_t generatorId = 0;
         //@genNextLine(condition|结构放置条件列表)
-        std::vector<StructurePlacementConditions> condition = {};
+        std::vector<ResourceRef> condition = {};
         //@genNextLine(data|数据资源引用列表)
         std::vector<ResourceRef> data = {};
     };
@@ -444,7 +388,7 @@ namespace glimmer
         //@genNextLine(texture|纹理资源引用)
         ResourceRef texture;
         //@genNextLine(ability|能力标识)
-        std::string ability;
+        uint8_t ability;
         //@genNextLine(abilityConfig|能力变量配置)
         AbilityConfig abilityConfig = {};
         //@genNextLine(canUseAlone|是否可单独使用)

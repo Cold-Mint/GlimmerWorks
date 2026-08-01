@@ -193,7 +193,6 @@ void glimmer::ChunkGenerator::GenerateStructure(const TileVector2D& position) co
 
         if (!candidatePoints.has_value())
         {
-
             continue;
         }
 
@@ -251,23 +250,46 @@ std::optional<std::bitset<CHUNK_AREA>> glimmer::ChunkGenerator::MatchStructureCo
     std::bitset<CHUNK_AREA> totalBitset;
     bool hasAnyConditionMatched = false;
     const int endIndex = static_cast<int>(totalConditions) - 1;
+    ModContext* modContext = appContext->
+        GetModContext();
+    if (modContext == nullptr)
+    {
+        return std::nullopt;
+    }
+    StructurePlacementConditionsProcessorManager* structurePlacementConditionsProcessorManager = modContext->
+        GetStructurePlacementConditionsProcessorManager();
+    if (structurePlacementConditionsProcessorManager == nullptr)
+    {
+        return std::nullopt;
+    }
+    StructurePlacementConditionsResourceManager* structurePlacementConditionsResourceManager = modContext->
+        GetStructurePlacementConditionsResourceManager();
+    if (structurePlacementConditionsResourceManager == nullptr)
+    {
+        return std::nullopt;
+    }
 
     for (int i = 0; i <= endIndex; ++i)
     {
-        auto& condition = structureResource->condition[i];
-        const std::string& processorId = condition.processorId;
-        IStructureConditionProcessor* structureConditionProcessor = appContext->
-                                                                    GetModContext()->
-                                                                    GetStructurePlacementConditionsManager()->
-                                                                    FindConditionProcessors(processorId);
-
+        auto& conditionRef = structureResource->condition[i];
+        IStructurePlacementConditionsResource* structurePlacementConditionsResource =
+            structurePlacementConditionsResourceManager->Find(conditionRef.GetPackageId(),
+                                                              conditionRef.GetResourceKey());
+        if (structurePlacementConditionsResource == nullptr)
+        {
+            continue;
+        }
+        const auto processorType = static_cast<StructureConditionProcessorType>(structurePlacementConditionsResource->
+            processorId);
+        IStructureConditionProcessor* structureConditionProcessor = structurePlacementConditionsProcessorManager->
+            FindConditionProcessors(processorType);
         if (structureConditionProcessor == nullptr)
         {
             continue;
         }
 
         std::bitset<CHUNK_AREA> bitset = structureConditionProcessor->Match(
-            terrainResult, condition.config);
+            terrainResult, structurePlacementConditionsResource);
 
         if (bitset.none())
         {
@@ -305,8 +327,6 @@ int glimmer::ChunkGenerator::PlaceStructureAtCandidatePoints(const AppContext* a
                                                              const std::bitset<CHUNK_AREA>& candidatePoints,
                                                              IStructureResource* structureResource) const
 {
-
-
     int markedCount = 0;
     StructureGeneratorManager* structureGeneratorManager = appContext->GetModContext()->GetStructureGeneratorManager();
 
@@ -626,7 +646,8 @@ std::unique_ptr<glimmer::Chunk> glimmer::ChunkGenerator::GenerateChunkAt(const T
     TerrainResult* terrainResult = worldContext_->GetTerrainManager()->GetTerrainData(position);
     if (terrainResult == nullptr)
     {
-        LogCat::w(std::source_location::current(), "Failed to get terrain data for chunk: (", position.x, ",", position.y, ")");
+        LogCat::w(std::source_location::current(), "Failed to get terrain data for chunk: (", position.x, ",",
+                  position.y, ")");
         return nullptr;
     }
     std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>> tilesRefMap = {

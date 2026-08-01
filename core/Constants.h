@@ -117,11 +117,6 @@ static constexpr std::string ABILITY_ID_NONE = "none";
 static constexpr std::string ABILITY_ID_MINING = "mining";
 static constexpr std::string ABILITY_ID_AREA_MARKER = "areaMarker";
 
-static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_BIOME = "biome";
-static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_SURFACE = "surface";
-static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HEIGHT = "height";
-static constexpr std::string STRUCTURE_PLACEMENT_CONDITIONS_HORIZONTAL_SPACING = "hSpacing";
-
 static constexpr std::string TOGGLE_KEY_WORD = "toggle";
 static constexpr std::string SESSION_KEY_WORD = "session";
 //Prohibited translation prefixes
@@ -149,6 +144,10 @@ static constexpr std::string DATA_FILE_TYPE_LOOT_TABLE = "loot";
 static constexpr std::string DATA_FILE_TYPE_STRUCTURE = "structure";
 static const std::string DATA_FILE_TYPE_STATIC_STRUCTURE = "static_structure";
 static constexpr std::string DATA_FILE_TYPE_TREE_STRUCTURE = "tree_structure";
+static const std::string DATA_FILE_TYPE_BIOME_STRUCTURE_CONDITION = "biome_structure_condition";
+static const std::string DATA_FILE_TYPE_HEIGHT_STRUCTURE_CONDITION = "height_structure_condition";
+static const std::string DATA_FILE_TYPE_HORIZONTAL_STRUCTURE_CONDITION = "horizontal_structure_condition";
+static const std::string DATA_FILE_TYPE_SURFACE_STRUCTURE_CONDITION = "surface_structure_condition";
 static constexpr std::string DATA_FILE_TYPE_INITIAL_INVENTORY = "startinv";
 static constexpr std::string DATA_FILE_TYPE_CONTRIBUTOR = "contributor";
 static constexpr std::string DATA_FILE_TYPE_COLOR = "color";

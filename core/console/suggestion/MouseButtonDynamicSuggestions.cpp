@@ -34,7 +34,8 @@ std::string glimmer::MouseButtonDynamicSuggestions::GetId() const
     return MOUSE_BUTTON_DYNAMIC_SUGGESTIONS_NAME;
 }
 
-std::vector<std::string> glimmer::MouseButtonDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::MouseButtonDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
     return MouseButtonUtils::GetAllMouseButtonKeys();
 }

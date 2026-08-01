@@ -65,7 +65,7 @@ namespace glimmer
         [[nodiscard]] SDL_Texture* GetIcon() const override;
 
         bool OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user, const AbilityConfig* abilityConfig,
-            std::unordered_set<std::string, TransparentStringHash, std::equal_to<>>& popupAbility) override;
+            std::unordered_set<AbilityType>& popupAbility) override;
 
         [[nodiscard]] std::unique_ptr<Item> Clone() const override;
     };

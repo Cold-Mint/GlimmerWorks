@@ -31,6 +31,7 @@
 
 glimmer::CoordinateDynamicSuggestions::CoordinateDynamicSuggestions(std::string id) : id_(std::move(id))
 {
+    suggestions_.emplace_back("~");
 }
 
 std::string glimmer::CoordinateDynamicSuggestions::GetId() const
@@ -38,10 +39,12 @@ std::string glimmer::CoordinateDynamicSuggestions::GetId() const
     return id_;
 }
 
-std::vector<std::string> glimmer::CoordinateDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::CoordinateDynamicSuggestions::GetSuggestions(
+    const std::optional<std::string>& param)
 {
-    return {"~", "~+1", "~-1"};
+    return suggestions_;
 }
+
 
 bool glimmer::CoordinateDynamicSuggestions::Match(const std::string& keyword, const std::string& param)
 {

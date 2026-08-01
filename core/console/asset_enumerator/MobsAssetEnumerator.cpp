@@ -44,6 +44,6 @@ std::optional<std::string> glimmer::MobsAssetEnumerator::ListAsset(const AppCont
     {
         return std::nullopt;
     }
-    return mobManager->ListMobs();
+    return mobManager->ListString();
 }
 #endif

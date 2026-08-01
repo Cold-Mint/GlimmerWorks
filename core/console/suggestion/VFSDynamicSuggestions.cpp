@@ -43,11 +43,12 @@ bool glimmer::VFSDynamicSuggestions::Match(const std::string& keyword, const std
     return virtualFileSystem_->Exists(keyword);
 }
 
-std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
+const std::vector<std::string>& glimmer::VFSDynamicSuggestions::GetSuggestions(const std::optional<std::string>& param)
 {
+    suggestions_.clear();
     if (!param.has_value())
     {
-        return {};
+        return suggestions_;
     }
     const std::string& paramValue = param.value();
     std::filesystem::path directory;
@@ -68,16 +69,15 @@ std::vector<std::string> glimmer::VFSDynamicSuggestions::GetSuggestions(const st
     }
     if (!virtualFileSystem_->Exists(directory))
     {
-        return {};
+        return suggestions_;
     }
     const auto files = virtualFileSystem_->ListFile(directory, false);
-    std::vector<std::string> result;
     for (const auto& file : files)
     {
         if (std::string path = file.string(); keyword.empty() || path.contains(keyword))
         {
-            result.emplace_back(path);
+            suggestions_.emplace_back(path);
         }
     }
-    return result;
+    return suggestions_;
 }

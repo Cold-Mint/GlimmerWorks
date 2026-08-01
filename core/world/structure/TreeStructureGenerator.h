@@ -32,7 +32,6 @@ namespace glimmer
 {
     class TreeStructureGenerator : public IStructureGenerator
     {
-    private:
         static void AddLeafCluster(StructureInfo& structureInfo, TileLayerType leafTileLayer,
                                    uint8_t leafRadius, int clusterY, int trunkWidth,
                                    ResourceRef& leafRef);

@@ -58,22 +58,25 @@ glimmer::Command* glimmer::CommandManager::GetCommand(const std::string& name) c
 
 glimmer::CommandSender* glimmer::CommandManager::GetDefaultCommandSender()
 {
+    defaultCommandSender_.SetPosition({0, 0});
     if (entityShortCut_ == nullptr || entityManager_ == nullptr)
     {
-        defaultCommandSender_.SetPosition({0, 0});
+        LogCat::w(std::source_location::current(), "entityShortCut_ == nullptr || entityManager_ == nullptr");
+        return &defaultCommandSender_;
     }
-    else
+    const GameEntityID player = entityShortCut_->GetPlayer();
+    if (WorldContext::IsEmptyEntityId(player))
     {
-        const GameEntityID player = entityShortCut_->GetPlayer();
-        if (!WorldContext::IsEmptyEntityId(player))
-        {
-            auto transform2dComponent = entityManager_->GetComponent<Transform2DComponent>(player);
-            if (transform2dComponent != nullptr)
-            {
-                defaultCommandSender_.SetPosition(transform2dComponent->GetPosition());
-            }
-        }
+        LogCat::w(std::source_location::current(), "WorldContext::IsEmptyEntityId(player)");
+        return &defaultCommandSender_;
     }
+    auto transform2dComponent = entityManager_->GetComponent<Transform2DComponent>(player);
+    if (transform2dComponent == nullptr)
+    {
+        LogCat::w(std::source_location::current(), "transform2dComponent == nullptr");
+        return &defaultCommandSender_;
+    }
+    defaultCommandSender_.SetPosition(transform2dComponent->GetPosition());
     return &defaultCommandSender_;
 }
 
@@ -109,7 +112,17 @@ void glimmer::CommandManager::BindWorldContext(WorldContext* worldContext)
 {
     commandEnvironment_.worldContext = worldContext;
     entityManager_ = worldContext->GetEntityManager();
+    if (entityManager_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "entityManager_ == nullptr");
+        return;
+    }
     entityShortCut_ = worldContext->GetEntityShortCut();
+    if (entityShortCut_ == nullptr)
+    {
+        LogCat::e(std::source_location::current(), "entityShortCut_ == nullptr");
+        return;
+    }
     int bindCount = 0;
     for (const auto& command : commandMap_ | std::views::values)
     {

@@ -379,7 +379,7 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value& va
                 toml::get<FillBiomeDecoratorResource>(value));
             fillResource->packId = manifest_.id;
             fillResource->tile.SetSelfPackageId(manifest_.id);
-            fillResource->biomeDecoratorType = std::to_underlying(FILL);
+            fillResource->biomeDecoratorType = std::to_underlying(type);
             biomeDecoratorManager->Register(std::move(fillResource));
             break;
         }
@@ -389,7 +389,7 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value& va
                 toml::get<MineralBiomeDecoratorResource>(value));
             mineralBiomeDecoratorResource->packId = manifest_.id;
             mineralBiomeDecoratorResource->ore.SetSelfPackageId(manifest_.id);
-            mineralBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(MINERAL);
+            mineralBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(type);
             biomeDecoratorManager->Register(std::move(mineralBiomeDecoratorResource));
             break;
         }
@@ -399,8 +399,74 @@ void glimmer::DataPack::LoadBiomeDecoratorResourceFromFile(const toml::value& va
                 toml::get<SurfaceBiomeDecoratorResource>(value));
             surfaceBiomeDecoratorResource->packId = manifest_.id;
             surfaceBiomeDecoratorResource->tile.SetSelfPackageId(manifest_.id);
-            surfaceBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(SURFACE);
+            surfaceBiomeDecoratorResource->biomeDecoratorType = std::to_underlying(type);
             biomeDecoratorManager->Register(std::move(surfaceBiomeDecoratorResource));
+            break;
+        }
+    }
+}
+
+void glimmer::DataPack::LoadStructurePlacementConditionsResourceFromFile(const toml::value& value,
+                                                                         StructurePlacementConditionsResourceManager*
+                                                                         structurePlacementConditionsResourceManager,
+                                                                         StructureConditionProcessorType processorType)
+const
+{
+    switch (processorType)
+    {
+    case StructureConditionProcessorType::Biome:
+        {
+            auto biomeStructurePlacementConditionsResource = std::make_unique<
+                BiomeStructurePlacementConditionsResource>(
+                toml::get<BiomeStructurePlacementConditionsResource>(value));
+            biomeStructurePlacementConditionsResource->packId = manifest_.id;
+            biomeStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
+            for (auto& targetBiome : biomeStructurePlacementConditionsResource->targetBiomes)
+            {
+                targetBiome.SetSelfPackageId(manifest_.id);
+            }
+            biomeStructurePlacementConditionsResource->RefreshCache();
+            structurePlacementConditionsResourceManager->Register(std::move(biomeStructurePlacementConditionsResource));
+            break;
+        }
+    case StructureConditionProcessorType::None:
+        {
+            auto noneStructurePlacementConditionsResource = std::make_unique<NoneStructurePlacementConditionsResource>(
+                toml::get<NoneStructurePlacementConditionsResource>(value));
+            noneStructurePlacementConditionsResource->packId = manifest_.id;
+            noneStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
+            structurePlacementConditionsResourceManager->Register(std::move(noneStructurePlacementConditionsResource));
+            break;
+        }
+    case StructureConditionProcessorType::Height:
+        {
+            auto heightStructureConditionsResource = std::make_unique<HeightStructureConditionsResource>(
+                toml::get<HeightStructureConditionsResource>(value));
+            heightStructureConditionsResource->packId = manifest_.id;
+            heightStructureConditionsResource->processorId = std::to_underlying(processorType);
+            structurePlacementConditionsResourceManager->Register(std::move(heightStructureConditionsResource));
+            break;
+        }
+    case StructureConditionProcessorType::HorizontalSpacing:
+        {
+            auto horizontalSpacingStructureConditionsResource = std::make_unique<
+                HorizontalSpacingStructureConditionsResource>(
+                toml::get<HorizontalSpacingStructureConditionsResource>(value));
+            horizontalSpacingStructureConditionsResource->packId = manifest_.id;
+            horizontalSpacingStructureConditionsResource->processorId = std::to_underlying(processorType);
+            structurePlacementConditionsResourceManager->Register(
+                std::move(horizontalSpacingStructureConditionsResource));
+            break;
+        }
+    case StructureConditionProcessorType::Surface:
+        {
+            auto surfaceStructurePlacementConditionsResource = std::make_unique<
+                SurfaceStructurePlacementConditionsResource>(
+                toml::get<SurfaceStructurePlacementConditionsResource>(value));
+            surfaceStructurePlacementConditionsResource->packId = manifest_.id;
+            surfaceStructurePlacementConditionsResource->processorId = std::to_underlying(processorType);
+            structurePlacementConditionsResourceManager->Register(
+                std::move(surfaceStructurePlacementConditionsResource));
             break;
         }
     }
@@ -662,6 +728,35 @@ int glimmer::DataPack::LoadResourceByType(const std::string& dataType, const std
         LoadRecipeResourceFromFile(value, modContext->GetRecipeManager());
         return 1;
     }
+    if (dataType == DATA_FILE_TYPE_BIOME_STRUCTURE_CONDITION)
+    {
+        LoadStructurePlacementConditionsResourceFromFile(
+            value, modContext->GetStructurePlacementConditionsResourceManager(),
+            StructureConditionProcessorType::Biome);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_HEIGHT_STRUCTURE_CONDITION)
+    {
+        LoadStructurePlacementConditionsResourceFromFile(
+            value, modContext->GetStructurePlacementConditionsResourceManager(),
+            StructureConditionProcessorType::Height);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_HORIZONTAL_STRUCTURE_CONDITION)
+    {
+        LoadStructurePlacementConditionsResourceFromFile(
+            value, modContext->GetStructurePlacementConditionsResourceManager(),
+            StructureConditionProcessorType::HorizontalSpacing);
+        return 1;
+    }
+    if (dataType == DATA_FILE_TYPE_SURFACE_STRUCTURE_CONDITION)
+    {
+        LoadStructurePlacementConditionsResourceFromFile(
+            value, modContext->GetStructurePlacementConditionsResourceManager(),
+            StructureConditionProcessorType::Surface);
+        return 1;
+    }
+
     return 0;
 }
 

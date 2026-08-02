@@ -244,6 +244,16 @@ namespace toml {
     };
 
     template<>
+    struct from<glimmer::NoneStructurePlacementConditionsResource> {
+        static glimmer::NoneStructurePlacementConditionsResource from_toml(const value &v) {
+            glimmer::NoneStructurePlacementConditionsResource r;
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
+            return r;
+        }
+    };
+
+    template<>
     struct from<glimmer::PackDependence> {
         static glimmer::PackDependence from_toml(const value &v) {
             glimmer::PackDependence r;
@@ -334,6 +344,16 @@ namespace toml {
             glimmer::StringResource r;
             r.resourceId = toml::find<std::string>(v, "resource_id");
             r.value = toml::find<std::string>(v, "value");
+            return r;
+        }
+    };
+
+    template<>
+    struct from<glimmer::SurfaceStructurePlacementConditionsResource> {
+        static glimmer::SurfaceStructurePlacementConditionsResource from_toml(const value &v) {
+            glimmer::SurfaceStructurePlacementConditionsResource r;
+            r.processorId = toml::find_or<uint8_t>(v, "processor_id", 0);
+            r.resourceId = toml::find<std::string>(v, "resource_id");
             return r;
         }
     };

@@ -235,6 +235,16 @@ namespace glimmer
         uint8_t processorId = 0;
     };
 
+    //@genNextLine(NonePlacementConditionsResource|空结构放置条件资源)
+    struct NoneStructurePlacementConditionsResource : IStructurePlacementConditionsResource
+    {
+    };
+
+    //@genNextLine(SurfacePlacementConditionsResource|表面结构放置条件资源)
+    struct SurfaceStructurePlacementConditionsResource : IStructurePlacementConditionsResource
+    {
+    };
+
     //@genNextLine(StructurePlacementConditionsResource|生物群系结构放置条件资源)
     struct BiomeStructurePlacementConditionsResource : IStructurePlacementConditionsResource
     {

@@ -132,6 +132,11 @@ namespace glimmer
                                                 BiomeDecoratorResourcesManager* biomeDecoratorManager,
                                                 BiomeDecoratorType type) const;
 
+        void LoadStructurePlacementConditionsResourceFromFile(const toml::value& value,
+                                                              StructurePlacementConditionsResourceManager*
+                                                              structurePlacementConditionsResourceManager,
+                                                              StructureConditionProcessorType processorType) const;
+
         void LoadRecipeResourceFromFile(const toml::value& value, RecipeManager* recipeManager) const;
 
         [[nodiscard]]

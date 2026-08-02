@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
+* Copyright (C) 2025  Cold-Mint <cold_mint@qq.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -25,35 +25,15 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
-
-#include "core/ecs/GuiGameSystem.h"
-#include "core/rmi/dataModel/ItemTooltipDataModel.h"
+#include <string>
 
 namespace glimmer
 {
-    class Item;
-
-    class ItemTooltipSystem : public GuiGameSystem
+    struct ItemTooltipDataModel
     {
-        Rml::DataModelHandle dataModelHandle_ = nullptr;
-        ItemTooltipDataModel itemTooltipDataModel_;
-        ItemToolTipComponent* itemToolTipComponent_ = nullptr;
-        const Item* currentItem_ = nullptr;
-        Rml::ElementDocument* document_ = nullptr;
-
-        void OnItemChanged(const Item* item);
-
-    public:
-        explicit ItemTooltipSystem(WorldContext* worldContext);
-
-        void OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count) override;
-
-        [[nodiscard]] GameSystemType GetGameSystemType() const override;
-
-        void LoadDocuments(IDocumentRegistry* documentRegistry) override;
-
-        void OnCreateDataModels(IDocumentRegistry* documentRegistry) override;
-
-        void Update(float delta) override;
+        std::string tooltipName;
+        std::string tooltipDesc;
+        std::string tooltipLeft = "0px";
+        std::string tooltipTop = "0px";
     };
 }

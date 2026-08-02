@@ -26,9 +26,40 @@
  */
 #include "ItemTooltipSystem.h"
 
+#include <fmt/format.h>
+
+#include "RmlUi/Core/ElementDocument.h"
+#include "core/ecs/EntityShortCut.h"
+#include "core/ecs/component/ItemToolTipComponent.h"
+#include "core/inventory/Item.h"
+#include "core/scene/ConsoleOverlay.h"
+
+void glimmer::ItemTooltipSystem::OnItemChanged(const Item* item)
+{
+    itemTooltipDataModel_.tooltipName = item->GetName();
+    const auto& description = item->GetDescription();
+    itemTooltipDataModel_.tooltipDesc = description.has_value() ? *description : "";
+    dataModelHandle_.DirtyVariable("tooltip_name");
+    dataModelHandle_.DirtyVariable("tooltip_desc");
+}
+
 glimmer::ItemTooltipSystem::ItemTooltipSystem(WorldContext* worldContext)
     : GuiGameSystem(worldContext)
 {
+    WatchComponent(COMPONENT_ITEM_TOOL_TIP);
+    Init();
+}
+
+void glimmer::ItemTooltipSystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
+{
+    if (gameComponentType == COMPONENT_ITEM_TOOL_TIP)
+    {
+        itemToolTipComponent_ = GetEntityShortCut()->GetItemToolTipComponent();
+        if (itemToolTipComponent_ == nullptr)
+        {
+            LogCat::e(std::source_location::current(), "itemToolTipComponent_ == nullptr");
+        }
+    }
 }
 
 glimmer::GameSystemType glimmer::ItemTooltipSystem::GetGameSystemType() const
@@ -38,4 +69,59 @@ glimmer::GameSystemType glimmer::ItemTooltipSystem::GetGameSystemType() const
 
 void glimmer::ItemTooltipSystem::LoadDocuments(IDocumentRegistry* documentRegistry)
 {
+    ResourceRef resourceRef;
+    resourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
+    resourceRef.SetResourceType(RESOURCE_RML_PATH);
+    resourceRef.SetResourceKey("tooltip/tooltip");
+    document_ = documentRegistry->LoadSingleDocument(&resourceRef);
+    SetElementDocument(document_);
+    if (document_ != nullptr)
+    {
+        document_->Hide();
+    }
+}
+
+void glimmer::ItemTooltipSystem::OnCreateDataModels(IDocumentRegistry* documentRegistry)
+{
+    Rml::DataModelConstructor* constructor = documentRegistry->CreateDataModel("tooltip");
+    if (constructor == nullptr)
+    {
+        return;
+    }
+    constructor->Bind("tooltip_name", &itemTooltipDataModel_.tooltipName);
+    constructor->Bind("tooltip_desc", &itemTooltipDataModel_.tooltipDesc);
+    constructor->Bind("tooltip_left", &itemTooltipDataModel_.tooltipLeft);
+    constructor->Bind("tooltip_top", &itemTooltipDataModel_.tooltipTop);
+    dataModelHandle_ = constructor->GetModelHandle();
+}
+
+void glimmer::ItemTooltipSystem::Update(float delta)
+{
+    if (itemToolTipComponent_ == nullptr || document_ == nullptr)
+    {
+        return;
+    }
+    const Item* item = itemToolTipComponent_->GetItem();
+    if (item == nullptr)
+    {
+        document_->Hide();
+        return;
+    }
+    float mouseX = 0.0F;
+    float mouseY = 0.0F;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    constexpr float offset = 0.0F;
+    itemTooltipDataModel_.tooltipLeft = fmt::format("{}px", mouseX + offset);
+    itemTooltipDataModel_.tooltipTop = fmt::format("{}px", mouseY + offset);
+    dataModelHandle_.DirtyVariable("tooltip_left");
+    dataModelHandle_.DirtyVariable("tooltip_top");
+    if (currentItem_ != item)
+    {
+        OnItemChanged(item);
+        currentItem_ = item;
+        //Jump to the next frame for display to prevent position flickering.
+        //跳转到下一帧显示，以避免出现位置闪烁。
+        return;
+    }
+    document_->Show();
 }

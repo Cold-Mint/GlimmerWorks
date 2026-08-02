@@ -26,6 +26,7 @@
  */
 #include "HotBarGUISystem.h"
 
+#include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
@@ -49,6 +50,7 @@ glimmer::ItemSlotDataModel* glimmer::HotBarGUISystem::GetItemSlotDataModel(const
 glimmer::HotBarGUISystem::HotBarGUISystem(WorldContext* worldContext) : GuiGameSystem(worldContext)
 {
     itemSlots_.resize(HOT_BAR_SIZE);
+    WatchComponent(COMPONENT_ITEM_TOOL_TIP);
     WatchComponent(COMPONENT_ITEM_CONTAINER);
     Init();
 }
@@ -63,6 +65,11 @@ glimmer::HotBarGUISystem::~HotBarGUISystem()
 
 void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    if (gameComponentType == COMPONENT_ITEM_TOOL_TIP)
+    {
+        itemToolTipComponent_ = GetEntityShortCut()->GetItemToolTipComponent();
+        return;
+    }
     if (gameComponentType != COMPONENT_ITEM_CONTAINER)
     {
         return;
@@ -150,7 +157,8 @@ void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry* documentReg
     }
     constructor_->Bind("item_slots", &itemSlots_);
     LogCat::i("item_slots bound to data model");
-
+    constructor_->BindEventCallback("on_item_hover", &HotBarGUISystem::OnItemHover, this);
+    constructor_->BindEventCallback("on_item_out", &HotBarGUISystem::OnItemOut, this);
     LoadInitialHotbarItems();
 }
 
@@ -253,4 +261,29 @@ bool glimmer::HotBarGUISystem::HandleEvent(const SDL_Event& event)
 glimmer::GameSystemType glimmer::HotBarGUISystem::GetGameSystemType() const
 {
     return GameSystemType::HotBarGUISystem;
+}
+
+void glimmer::HotBarGUISystem::OnItemHover(Rml::DataModelHandle handle, Rml::Event& event,
+                                           const Rml::VariantList& args)
+{
+    if (args.empty() || itemContainer_ == nullptr || itemToolTipComponent_ == nullptr)
+    {
+        return;
+    }
+    const int index = args[0].Get<int>();
+    if (index < 0 || index >= static_cast<int>(itemContainer_->GetCapacity()))
+    {
+        return;
+    }
+    itemToolTipComponent_->SetItem(itemContainer_->GetItem(static_cast<uint8_t>(index)));
+}
+
+void glimmer::HotBarGUISystem::OnItemOut(Rml::DataModelHandle handle, Rml::Event& event,
+                                         const Rml::VariantList& args)
+{
+    if (itemToolTipComponent_ == nullptr)
+    {
+        return;
+    }
+    itemToolTipComponent_->ResetItem();
 }

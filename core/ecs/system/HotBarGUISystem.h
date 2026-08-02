@@ -36,11 +36,16 @@ namespace glimmer
         Rml::DataModelConstructor* constructor_ = nullptr;
         std::vector<ItemSlotDataModel> itemSlots_;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
+        ItemToolTipComponent* itemToolTipComponent_ = nullptr;
         ItemContainer* itemContainer_ = nullptr;
 
         ItemSlotDataModel* GetItemSlotDataModel(uint8_t index);
 
         void UpdateSelectedSlot(uint8_t beforeIndex, uint8_t nextIndex);
+
+        void OnItemHover(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnItemOut(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
     public:
         explicit HotBarGUISystem(WorldContext* worldContext);

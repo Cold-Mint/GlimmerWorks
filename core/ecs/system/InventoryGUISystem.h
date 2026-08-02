@@ -25,7 +25,10 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <memory>
+
 #include "core/ecs/GuiStackGameSystem.h"
+#include "core/inventory/Item.h"
 #include "core/mod/Resource.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
 
@@ -35,9 +38,11 @@ namespace glimmer
     {
         Rml::ElementDocument* elementDocument_ = nullptr;
         Rml::DataModelConstructor* constructor_ = nullptr;
+        ItemToolTipComponent* itemToolTipComponent_ = nullptr;
         std::vector<ItemSlotDataModel> itemSlots_;
         std::vector<ItemSlotDataModel> recipeSlots_;
         std::vector<RecipeResource*> unlockedRecipes_;
+        std::vector<std::unique_ptr<Item>> recipeOutputItems_;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
         ItemContainer* itemContainer_ = nullptr;
 
@@ -48,6 +53,12 @@ namespace glimmer
         void RefreshRecipeList();
 
         void OnRecipeClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnItemHover(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnItemOut(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
+
+        void OnRecipeHover(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 
     public:
         ~InventoryGUISystem() override;

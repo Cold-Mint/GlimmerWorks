@@ -30,6 +30,7 @@
 #include "core/context/AppContext.h"
 #include "core/context/ModContext.h"
 #include "core/ecs/EntityManager.h"
+#include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
@@ -91,6 +92,7 @@ void glimmer::InventoryGUISystem::LoadInitialItems()
 void glimmer::InventoryGUISystem::RefreshRecipeList()
 {
     recipeSlots_.clear();
+    recipeOutputItems_.clear();
     WorldContext* worldContext = GetWorldContext();
     if (worldContext == nullptr)
     {
@@ -147,6 +149,7 @@ void glimmer::InventoryGUISystem::RefreshRecipeList()
     }
     unlockedRecipes_ = recipeManager->FindUnlockedRecipes(techHandler->GetTechnologyMap(),
                                                           itemContainer_->GetTotalTags());
+    recipeOutputItems_.resize(unlockedRecipes_.size());
     recipeSlots_.reserve(unlockedRecipes_.size());
     const uint32_t maxSize = unlockedRecipes_.size();
     for (uint32_t i = 0; i < maxSize; ++i)
@@ -157,12 +160,14 @@ void glimmer::InventoryGUISystem::RefreshRecipeList()
             continue;
         }
         std::unique_ptr<Item> item = resourceLocator->FindItem(worldContext, recipe->output);
+        recipeOutputItems_[i] = std::move(item); //Process finished with exit code 134 (interrupted by signal 6:SIGABRT)
+        const Item* itemPtr = recipeOutputItems_[i].get();
         ItemSlotDataModel slot;
         slot.selected = false;
         slot.index = static_cast<int>(i);
-        if (item != nullptr)
+        if (itemPtr != nullptr)
         {
-            const ResourceRef* iconRef = item->GetIconResourceRef();
+            const ResourceRef* iconRef = itemPtr->GetIconResourceRef();
             if (iconRef != nullptr)
             {
                 slot.image = StringUtils::MakeTextureUrl(
@@ -196,6 +201,11 @@ glimmer::InventoryGUISystem::~InventoryGUISystem()
 
 void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMessage gameComponentType, uint32_t count)
 {
+    if (gameComponentType == COMPONENT_ITEM_TOOL_TIP)
+    {
+        itemToolTipComponent_ = GetEntityShortCut()->GetItemToolTipComponent();
+        return;
+    }
     if (gameComponentType != COMPONENT_ITEM_CONTAINER)
     {
         return;
@@ -264,6 +274,7 @@ glimmer::InventoryGUISystem::InventoryGUISystem(WorldContext* worldContext)
     : GuiStackGameSystem(worldContext)
 {
     WatchComponent(COMPONENT_ITEM_CONTAINER);
+    WatchComponent(COMPONENT_ITEM_TOOL_TIP);
     Init();
 }
 
@@ -281,6 +292,10 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry* document
     constructor_->Bind("item_slots", &itemSlots_);
     constructor_->Bind("recipe_slots", &recipeSlots_);
     constructor_->BindEventCallback("on_recipe_click", &InventoryGUISystem::OnRecipeClick, this);
+    constructor_->BindEventCallback("on_item_hover", &InventoryGUISystem::OnItemHover, this);
+    constructor_->BindEventCallback("on_item_out", &InventoryGUISystem::OnItemOut, this);
+    constructor_->BindEventCallback("on_recipe_hover", &InventoryGUISystem::OnRecipeHover, this);
+    constructor_->BindEventCallback("on_recipe_out", &InventoryGUISystem::OnItemOut, this);
     LoadInitialItems();
 }
 
@@ -347,4 +362,48 @@ void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml
     }
     recipeSelectionComponent->SetRecipeResource(unlockedRecipes_[index]);
     scheduler->PushGuiSystemType(GameSystemType::RecipeDetailGUISystem);
+}
+
+void glimmer::InventoryGUISystem::OnItemHover(Rml::DataModelHandle handle, Rml::Event& event,
+                                              const Rml::VariantList& args)
+{
+    if (args.empty() || itemContainer_ == nullptr || itemToolTipComponent_ == nullptr)
+    {
+        return;
+    }
+    const int index = args[0].Get<int>();
+    if (index < 0 || index >= static_cast<int>(itemContainer_->GetCapacity()))
+    {
+        return;
+    }
+    itemToolTipComponent_->SetItem(itemContainer_->GetItem(static_cast<uint8_t>(index)));
+}
+
+void glimmer::InventoryGUISystem::OnItemOut(Rml::DataModelHandle handle, Rml::Event& event,
+                                            const Rml::VariantList& args)
+{
+    if (itemToolTipComponent_ == nullptr)
+    {
+        return;
+    }
+    itemToolTipComponent_->ResetItem();
+}
+
+void glimmer::InventoryGUISystem::OnRecipeHover(Rml::DataModelHandle handle, Rml::Event& event,
+                                                const Rml::VariantList& args)
+{
+    if (args.empty() || itemToolTipComponent_ == nullptr)
+    {
+        return;
+    }
+    const int index = args[0].Get<int>();
+    if (index < 0 || index >= static_cast<int>(recipeOutputItems_.size()))
+    {
+        return;
+    }
+    if (recipeOutputItems_[index] == nullptr)
+    {
+        return;
+    }
+    itemToolTipComponent_->SetItem(recipeOutputItems_[index].get());
 }

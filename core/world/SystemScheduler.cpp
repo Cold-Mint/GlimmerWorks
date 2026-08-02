@@ -44,6 +44,7 @@
 #include "core/ecs/system/FloatingTextSystem.h"
 #include "core/ecs/system/HotBarGUISystem.h"
 #include "core/ecs/system/InventoryGUISystem.h"
+#include "core/ecs/system/ItemTooltipSystem.h"
 #include "core/ecs/system/Light2DSystem.h"
 #include "core/ecs/system/MagnetSystem.h"
 #include "core/ecs/system/ParallaxBackgroundSystem.h"
@@ -464,6 +465,7 @@ void glimmer::SystemScheduler::InitSystem()
     RegisterGuiSystem(std::make_unique<HotBarGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<InventoryGUISystem>(worldContext_));
     RegisterGuiSystem(std::make_unique<RecipeDetailGUISystem>(worldContext_));
+    RegisterGuiSystem(std::make_unique<ItemTooltipSystem>(worldContext_));
 #if  !defined(NDEBUG)
     RegisterSystem(std::make_unique<DebugDrawSystem>(worldContext_));
     RegisterSystem(std::make_unique<DebugDrawBox2dSystem>(worldContext_));
@@ -475,6 +477,7 @@ void glimmer::SystemScheduler::InitSystem()
 #endif
     allowRegisterSystem_ = false;
     PushPersistentGuiSystem(GameSystemType::HotBarGUISystem);
+    PushPersistentGuiSystem(GameSystemType::ItemToolTipSystem);
 }
 
 void glimmer::SystemScheduler::OnConfigChanged(const Config* config) const

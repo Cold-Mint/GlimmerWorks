@@ -1021,6 +1021,7 @@ target_sources(GlimmerWorks
         core/ecs/component/RecipeSelectionComponent.h
         core/world/structure/StructureConditionProcessorType.h
         core/inventory/ability/AbilityType.h
+        core/rmi/dataModel/ItemTooltipDataModel.h
 )
 
 #Define version information

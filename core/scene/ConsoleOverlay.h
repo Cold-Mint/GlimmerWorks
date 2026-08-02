@@ -40,7 +40,6 @@ namespace glimmer
     class CommandHistoryManager;
     class CommandManager;
     class ConsoleWorker;
-    class DataModelHandle;
 
     class ConsoleOverlay : public Scene
     {

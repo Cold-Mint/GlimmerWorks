@@ -47,7 +47,8 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>&
                 InvokeOnContentChanged(index, item.get(), changeType);
                 if (amount == 0)
                 {
-                    UnBindItemEvent(index, item.get());
+                    InvokeOnContentChanged(index, item.get(), ContainerChangeType::REMOVE);
+                    UnBindItemEvent(item.get());
                     item.reset();
                 }
             });
@@ -60,7 +61,8 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>&
             {
                 if (usedDurability >= maxDurability)
                 {
-                    UnBindItemEvent(index, item.get());
+                    InvokeOnContentChanged(index, item.get(), ContainerChangeType::REMOVE);
+                    UnBindItemEvent(item.get());
                     item.reset();
                 }
             });
@@ -74,13 +76,12 @@ void glimmer::ItemContainer::BindItemEvent(uint8_t index, std::unique_ptr<Item>&
     }
 }
 
-void glimmer::ItemContainer::UnBindItemEvent(const uint8_t index, Item* item)
+void glimmer::ItemContainer::UnBindItemEvent(Item* item)
 {
     if (item == nullptr)
     {
         return;
     }
-    InvokeOnContentChanged(index, item, ContainerChangeType::REMOVE);
     if (ItemStackModule* itemStackModule = item->GetMutableStackModule(); itemStackModule != nullptr)
     {
         itemStackModule->SetOnAmountChanged(nullptr);
@@ -164,7 +165,7 @@ void glimmer::ItemContainer::CacheItemTag(Item* item)
         {
             ItemTagResource itemTagResource;
             itemTagResource.name = itemTagResourcePtr->name;
-            itemTagResource.value = itemTagResourcePtr->value;
+            itemTagResource.value = itemTagResourcePtr->value * amount;
             itemTagResource.MakeCachedTag();
             tagToValue_[tagId] = itemTagResource;
         }
@@ -470,7 +471,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::ReplaceItem(const uint8_t
         return nullptr;
     }
     std::unique_ptr<Item> oldItem = std::move(items_[index]);
-    UnBindItemEvent(index, oldItem.get());
+    UnBindItemEvent(oldItem.get());
     items_[index] = std::move(item);
     BindItemEvent(index, items_[index]);
     return oldItem;
@@ -562,7 +563,8 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeAllItem(const uint8_t
         return nullptr;
     }
     std::unique_ptr<Item> item = std::move(items_[index]);
-    UnBindItemEvent(index, item.get());
+    InvokeOnContentChanged(index, item.get(), ContainerChangeType::REMOVE);
+    UnBindItemEvent(item.get());
     return item;
 }
 
@@ -578,6 +580,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::TakeItem(const uint8_t in
         return nullptr;
     }
     std::unique_ptr<Item> newItem = item->Clone();
+    UnBindItemEvent(newItem.get());
     ItemStackModule* itemStackModule = item->GetMutableStackModule();
     if (itemStackModule == nullptr)
     {

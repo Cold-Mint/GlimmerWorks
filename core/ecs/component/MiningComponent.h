@@ -43,7 +43,8 @@ namespace glimmer
         bool enable_ = false;
         bool activeSignal_ = false;
 
-        MiningRangeData* miningRangeData_ = nullptr;
+        bool hasMiningRangeData_ = false;
+        MiningRangeData miningRangeData_;
         //Explore the origin.
         //挖掘原点。
         TileVector2D startPosition_;
@@ -67,7 +68,9 @@ namespace glimmer
 
         void SetEnable(bool enable);
 
-        void SetMiningRangeData(MiningRangeData* miningRangeData);
+        void SetMiningRangeData(const MiningRangeData& miningRangeData);
+
+        void ClearMiningRangeData();
 
         [[nodiscard]] const MiningRangeData* GetMiningRangeData() const;
 

@@ -38,14 +38,20 @@ void glimmer::MiningComponent::SetEnable(const bool enable)
     enable_ = enable;
 }
 
-void glimmer::MiningComponent::SetMiningRangeData(MiningRangeData* miningRangeData)
+void glimmer::MiningComponent::SetMiningRangeData(const MiningRangeData& miningRangeData)
 {
     miningRangeData_ = miningRangeData;
+    hasMiningRangeData_ = true;
+}
+
+void glimmer::MiningComponent::ClearMiningRangeData()
+{
+    hasMiningRangeData_ = false;
 }
 
 const glimmer::MiningRangeData* glimmer::MiningComponent::GetMiningRangeData() const
 {
-    return miningRangeData_;
+    return hasMiningRangeData_ ? &miningRangeData_ : nullptr;
 }
 
 void glimmer::MiningComponent::SetStartPosition(TileVector2D startPosition)

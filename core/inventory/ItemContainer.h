@@ -58,10 +58,9 @@ namespace glimmer
         /**
          * Unbinding Item Incident
          * 解绑物品事件
-         * @param index
          * @param item
          */
-        void UnBindItemEvent(uint8_t index, Item* item);
+        static void UnBindItemEvent(Item* item);
 
         void InvokeOnContentChanged(uint8_t index, Item* item, ContainerChangeType containerChange);
 

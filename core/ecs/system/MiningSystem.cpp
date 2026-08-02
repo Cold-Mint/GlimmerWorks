@@ -276,6 +276,10 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams& params,
         return;
     }
     sum++;
+    if (!CheckMiningEfficiency(currentTile.get(), item))
+    {
+        return;
+    }
     ApplyItemDurability(item, currentTile.get(), isCenter);
     if (isCenter && !params.isPlaceMode)
     {
@@ -287,10 +291,6 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams& params,
         return;
     }
     if (!isCenter && !tileLootData->LootScaleBySize())
-    {
-        return;
-    }
-    if (!CheckMiningEfficiency(currentTile.get(), item))
     {
         return;
     }
@@ -401,6 +401,7 @@ void glimmer::MiningSystem::Update(const float delta)
     {
         miningComponent_->SetEnable(false);
         miningComponent_->SetProgress(0.0F);
+        miningComponent_->ClearMiningRangeData();
         return;
     }
     miningComponent_->SetEnable(true);
@@ -413,8 +414,13 @@ void glimmer::MiningSystem::Update(const float delta)
         }
         // Accumulate progress
         // 积累进度
+        const MiningRangeData* rangeData = miningComponent_->GetMiningRangeData();
+        if (rangeData == nullptr)
+        {
+            break;
+        }
         miningComponent_->AddProgress(
-            miningComponent_->GetEfficiency() / miningComponent_->GetMiningRangeData()->GetMaxHardness() * delta);
+            miningComponent_->GetEfficiency() / rangeData->GetMaxHardness() * delta);
         if (miningComponent_->GetProgress() >= 1.0F)
         {
             ProcessMiningComplete(tileLayer, tileLayerType);
@@ -427,6 +433,10 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent* tile
 {
     WorldContext* worldContext = GetWorldContext();
     const MiningRangeData* miningRangeData = miningComponent_->GetMiningRangeData();
+    if (miningRangeData == nullptr)
+    {
+        return;
+    }
     const size_t pointsCount = miningRangeData->GetPointsCount();
     LogCat::i("Mining complete, processing ", pointsCount, " mining points");
     for (size_t i = 0; i < pointsCount; i++)

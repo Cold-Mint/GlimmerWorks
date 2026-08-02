@@ -138,7 +138,7 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext* worldCont
                     miningRangeData_.CalculateMining(tileLayerComponent, tileVector2D);
                 }
                 miningComponent->SetEfficiency(abilityConfig->miningEfficiency);
-                miningComponent->SetMiningRangeData(&miningRangeData_);
+                miningComponent->SetMiningRangeData(miningRangeData_);
                 miningComponent->SetProgress(0.0F);
                 miningComponent->SetStartPosition(tileVector2D);
             }

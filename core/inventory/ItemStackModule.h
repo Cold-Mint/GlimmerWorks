@@ -37,7 +37,7 @@ namespace glimmer
         uint8_t amount_ = 1;
         uint8_t maxStack_ = 1;
         bool stackable_ = false;
-        std::function<void(ContainerChangeType, uint8_t)> onAmountChanged_;
+        std::function<void(ContainerChangeType, uint8_t)> onAmountChanged_ = nullptr;
 
     public:
         [[nodiscard]] uint8_t GetAmount() const;

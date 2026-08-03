@@ -105,8 +105,13 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
     {
         return;
     }
-    const LightMaskResource* sideLightMaskResource = resourceLocator->FindLightMask(tileLightResourceData->GetSideLightMaskResource());
-    if (sideLightMaskResource != nullptr)
+    const LightMaskResource* sideLightMaskResource = resourceLocator->FindLightMask(
+        tileLightResourceData->GetSideLightMaskResource());
+    if (sideLightMaskResource == nullptr)
+    {
+        lightBuffer_->ClearSideLightMask(lightSourcePosition, tile->GetLayerType());
+    }
+    else
     {
         const std::unique_ptr<Color> sideLightMaskColorPtr = resourceLocator->FindColor(
             &sideLightMaskResource->lightMaskColor);
@@ -125,8 +130,13 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
                                                                        sideLightMaskResource->tintFactor));
         }
     }
-    const LightMaskResource* backLightMaskResource = resourceLocator->FindLightMask(tileLightResourceData->GetBackLightMaskResource());
-    if (backLightMaskResource != nullptr)
+    const LightMaskResource* backLightMaskResource = resourceLocator->FindLightMask(
+        tileLightResourceData->GetBackLightMaskResource());
+    if (backLightMaskResource == nullptr)
+    {
+        lightBuffer_->ClearBackLightMask(lightSourcePosition, tile->GetLayerType());
+    }
+    else
     {
         const std::unique_ptr<Color> backLightMaskColorPtr = resourceLocator->FindColor(
             &backLightMaskResource->lightMaskColor);
@@ -147,7 +157,11 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
     }
     const LightSourceResource* lightSourceResource = resourceLocator->FindLightSource(
         tileLightResourceData->GetLightSourceResource());
-    if (lightSourceResource != nullptr)
+    if (lightSourceResource == nullptr)
+    {
+        lightBuffer_->ClearLightSource(lightSourcePosition, layerType);
+    }
+    else
     {
         const std::unique_ptr<Color> lightColorPtr = resourceLocator->
             FindColor(&lightSourceResource->lightColor);
@@ -213,7 +227,8 @@ void glimmer::ChunkManager::LoadChunkAt(TileVector2D position)
     }
     if (newlyCreatedChunk == nullptr)
     {
-        LogCat::w(std::source_location::current(), "Failed to load or generate chunk at: (", position.x, ",", position.y, ")");
+        LogCat::w(std::source_location::current(), "Failed to load or generate chunk at: (", position.x, ",",
+                  position.y, ")");
         return;
     }
     UpdateChunkLight(newlyCreatedChunk.get());
@@ -255,7 +270,8 @@ void glimmer::ChunkManager::UnloadChunkAt(const TileVector2D& position)
     }
     else
     {
-        LogCat::w(std::source_location::current(), "Failed to save chunk during unload at: (", position.x, ",", position.y, ")");
+        LogCat::w(std::source_location::current(), "Failed to save chunk during unload at: (", position.x, ",",
+                  position.y, ")");
     }
 }
 
@@ -265,7 +281,6 @@ glimmer::Chunk* glimmer::ChunkManager::GetChunk(const TileVector2D& position)
     const TileVector2D relativeVector = Chunk::TileCoordinatesToChunkRelativeCoordinates(position);
     if (relativeVector.x != 0 || relativeVector.y != 0)
     {
-
         assert(false);
     }
 #endif

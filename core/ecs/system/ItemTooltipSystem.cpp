@@ -26,27 +26,84 @@
  */
 #include "ItemTooltipSystem.h"
 
+#include <cstddef>
 #include <fmt/format.h>
 
 #include "RmlUi/Core/ElementDocument.h"
+#include "core/context/AppContext.h"
 #include "core/ecs/EntityShortCut.h"
 #include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/inventory/Item.h"
+#include "core/inventory/ItemLockModule.h"
+#include "core/mod/Resource.h"
 #include "core/scene/ConsoleOverlay.h"
+#include "core/world/WorldContext.h"
+#include "core/world/generator/TileLayerType.h"
 
 void glimmer::ItemTooltipSystem::OnItemChanged(const Item* item)
 {
     itemTooltipDataModel_.tooltipName = item->GetName();
     const auto& description = item->GetDescription();
     itemTooltipDataModel_.tooltipDesc = description.has_value() ? *description : "";
+    itemTooltipDataModel_.abilityTips.clear();
+
+    const LangsResources* langsResources = appContext_ != nullptr ? appContext_->GetLangsResources() : nullptr;
+    const AbilityConfig* abilityConfig = item->GetAbilityConfig();
+
+    if (abilityConfig != nullptr && langsResources != nullptr)
+    {
+        if ((std::byte{abilityConfig->mineAbleLayer} & std::byte{std::to_underlying(TileLayerType::Ground)}) !=
+            std::byte{0})
+        {
+            itemTooltipDataModel_.abilityTips.push_back({langsResources->canMineBlockTip, true});
+        }
+        if ((std::byte{abilityConfig->mineAbleLayer} & std::byte{std::to_underlying(TileLayerType::BackGround)}) !=
+            std::byte{0})
+        {
+            itemTooltipDataModel_.abilityTips.push_back({langsResources->canMineWallTip, true});
+        }
+        if (abilityConfig->enablePrecisionMining)
+        {
+            itemTooltipDataModel_.abilityTips.push_back({langsResources->precisionMiningTip, true});
+        }
+        const float miningEfficiency = abilityConfig->miningEfficiency;
+        if (miningEfficiency != 0.0F)
+        {
+            itemTooltipDataModel_.abilityTips.push_back({
+                fmt::format(
+                    fmt::runtime(langsResources->efficiencyTip),
+                    fmt::format("{0:+.0f}", miningEfficiency * 100)
+                ),
+                miningEfficiency > 0
+            });
+        }
+        const int chainMiningRadius = abilityConfig->chainMiningRadius;
+        if (chainMiningRadius != 0)
+        {
+            itemTooltipDataModel_.abilityTips.push_back({
+                fmt::format(
+                    fmt::runtime(langsResources->chainMiningTip),
+                    fmt::format("{}{}", chainMiningRadius > 0 ? "+" : "", chainMiningRadius)
+                ),
+                chainMiningRadius > 0
+            });
+        }
+    }
+    const ItemLockModule* itemLockModule = item->GetLockModule();
+    if (itemLockModule != nullptr && itemLockModule->IsLocked() && langsResources != nullptr)
+    {
+        itemTooltipDataModel_.abilityTips.push_back({langsResources->lockedTip, false});
+    }
     dataModelHandle_.DirtyVariable("tooltip_name");
     dataModelHandle_.DirtyVariable("tooltip_desc");
+    dataModelHandle_.DirtyVariable("ability_tips");
 }
 
 glimmer::ItemTooltipSystem::ItemTooltipSystem(WorldContext* worldContext)
     : GuiGameSystem(worldContext)
 {
     WatchComponent(COMPONENT_ITEM_TOOL_TIP);
+    appContext_ = worldContext != nullptr ? worldContext->GetAppContext() : nullptr;
     Init();
 }
 
@@ -92,6 +149,15 @@ void glimmer::ItemTooltipSystem::OnCreateDataModels(IDocumentRegistry* documentR
     constructor->Bind("tooltip_desc", &itemTooltipDataModel_.tooltipDesc);
     constructor->Bind("tooltip_left", &itemTooltipDataModel_.tooltipLeft);
     constructor->Bind("tooltip_top", &itemTooltipDataModel_.tooltipTop);
+
+    if (auto linkStruct = constructor->RegisterStruct<AbilityTipDataModel>())
+    {
+        linkStruct.RegisterMember("tip_text", &AbilityTipDataModel::tipText);
+        linkStruct.RegisterMember("is_positive", &AbilityTipDataModel::isPositive);
+        constructor->RegisterArray<std::vector<AbilityTipDataModel>>();
+    }
+    constructor->Bind("ability_tips", &itemTooltipDataModel_.abilityTips);
+
     dataModelHandle_ = constructor->GetModelHandle();
 }
 

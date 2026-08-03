@@ -26,6 +26,9 @@
  */
 #pragma once
 #include <string>
+#include <vector>
+
+#include "AbilityTipDataModel.h"
 
 namespace glimmer
 {
@@ -35,5 +38,6 @@ namespace glimmer
         std::string tooltipDesc;
         std::string tooltipLeft = "0px";
         std::string tooltipTop = "0px";
+        std::vector<AbilityTipDataModel> abilityTips;
     };
 }

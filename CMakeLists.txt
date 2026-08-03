@@ -1022,6 +1022,7 @@ target_sources(GlimmerWorks
         core/world/structure/StructureConditionProcessorType.h
         core/inventory/ability/AbilityType.h
         core/rmi/dataModel/ItemTooltipDataModel.h
+        core/rmi/dataModel/AbilityTipDataModel.h
 )
 
 #Define version information

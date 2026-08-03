@@ -63,6 +63,12 @@ namespace glimmer
 
         void ClearBackLightMask(const TileVector2D& position, TileLayerType layerType);
 
+        // Clear mask data only without light re-propagation (safe for stale data removal)
+        // 仅清除掩码数据，不重新传播光线（安全用于清除过期数据）
+        void ClearSideLightMaskOnly(const TileVector2D& position, TileLayerType layerType);
+
+        void ClearBackLightMaskOnly(const TileVector2D& position, TileLayerType layerType);
+
         void ClearTileLightData(const TileVector2D& position);
 
         [[nodiscard]] const TileLightData* GetTileLightData(const TileVector2D& position) const;

@@ -109,7 +109,9 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
         tileLightResourceData->GetSideLightMaskResource());
     if (sideLightMaskResource == nullptr)
     {
-        lightBuffer_->ClearSideLightMask(lightSourcePosition, tile->GetLayerType());
+        // Tile has no side light mask resource, clear any existing side light mask data
+        // 方块没有侧边光掩码资源，清除已有的侧边光掩码数据（不触发重新传播）
+        lightBuffer_->ClearSideLightMaskOnly(lightSourcePosition, layerType);
     }
     else
     {
@@ -121,7 +123,9 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
         }
         if (sideLightMaskColorPtr->a == 0)
         {
-            lightBuffer_->ClearSideLightMask(lightSourcePosition, tile->GetLayerType());
+            // Resource exists but has zero alpha - clear with re-propagation
+            // 资源存在但alpha为0 - 清除并重新传播
+            lightBuffer_->ClearSideLightMask(lightSourcePosition, layerType);
         }
         else
         {
@@ -134,7 +138,9 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
         tileLightResourceData->GetBackLightMaskResource());
     if (backLightMaskResource == nullptr)
     {
-        lightBuffer_->ClearBackLightMask(lightSourcePosition, tile->GetLayerType());
+        // Tile has no back light mask resource, clear any existing back light mask data
+        // 方块没有背光掩码资源，清除已有的背光掩码数据（不触发重新传播）
+        lightBuffer_->ClearBackLightMaskOnly(lightSourcePosition, layerType);
     }
     else
     {
@@ -146,7 +152,9 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
         }
         if (backLightMaskColorPtr->a == 0)
         {
-            lightBuffer_->ClearBackLightMask(lightSourcePosition, tile->GetLayerType());
+            // Resource exists but has zero alpha - clear with re-propagation
+            // 资源存在但alpha为0 - 清除并重新传播
+            lightBuffer_->ClearBackLightMask(lightSourcePosition, layerType);
         }
         else
         {
@@ -159,6 +167,8 @@ void glimmer::ChunkManager::UpdateTileLight(const Chunk* chunk, const TileLayerT
         tileLightResourceData->GetLightSourceResource());
     if (lightSourceResource == nullptr)
     {
+        // Tile has no light source resource, clear existing light source if any
+        // 方块没有光源资源，清除已有的光源
         lightBuffer_->ClearLightSource(lightSourcePosition, layerType);
     }
     else

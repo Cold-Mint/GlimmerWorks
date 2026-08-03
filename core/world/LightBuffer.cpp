@@ -269,6 +269,37 @@ void glimmer::LightBuffer::ClearBackLightMask(const TileVector2D& position, cons
 }
 
 
+void glimmer::LightBuffer::ClearSideLightMaskOnly(const TileVector2D& position, TileLayerType layerType)
+{
+    auto tileLightDataIterator = tileLightData_.find(position);
+    if (tileLightDataIterator == tileLightData_.end())
+    {
+        return;
+    }
+    const auto& tileLightDataPtr = tileLightDataIterator->second;
+    if (tileLightDataPtr == nullptr)
+    {
+        return;
+    }
+    tileLightDataPtr->ClearSideLightMask(layerType);
+}
+
+void glimmer::LightBuffer::ClearBackLightMaskOnly(const TileVector2D& position, TileLayerType layerType)
+{
+    auto tileLightDataIterator = tileLightData_.find(position);
+    if (tileLightDataIterator == tileLightData_.end())
+    {
+        return;
+    }
+    const auto& tileLightDataPtr = tileLightDataIterator->second;
+    if (tileLightDataPtr == nullptr)
+    {
+        return;
+    }
+    tileLightDataPtr->ClearBackLightMask(layerType);
+    tileLightDataPtr->RecalculateLight();
+}
+
 void glimmer::LightBuffer::ClearTileLightData(const TileVector2D& position)
 {
     tileLightData_.erase(position);

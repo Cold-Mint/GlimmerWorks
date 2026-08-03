@@ -121,7 +121,7 @@ bool glimmer::MiningAbility::OnUse(const bool mouseLeft, WorldContext* worldCont
             {
                 continue;
             }
-            if (miningComponent->GetStartPosition() != tileVector2D)
+            if (!miningComponent->HasStartPosition() || miningComponent->GetStartPosition() != tileVector2D)
             {
                 //Change the starting point of the excavation and recalculate the progress.
                 //挖掘起点改变，重新计算进度。

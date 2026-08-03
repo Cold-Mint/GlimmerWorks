@@ -429,7 +429,7 @@ void glimmer::MiningSystem::Update(const float delta)
     }
 }
 
-void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType)
+void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType) const
 {
     WorldContext* worldContext = GetWorldContext();
     const MiningRangeData* miningRangeData = miningComponent_->GetMiningRangeData();
@@ -460,6 +460,7 @@ void glimmer::MiningSystem::ProcessMiningComplete(const TileLayerComponent* tile
     }
     miningComponent_->SetProgress(0.0F);
     miningComponent_->SetEnable(false);
+    miningComponent_->ClearMiningRangeData();
 }
 
 void glimmer::MiningSystem::Render(SDL_Renderer* renderer)
@@ -489,6 +490,10 @@ void glimmer::MiningSystem::Render(SDL_Renderer* renderer)
         return;
     }
     const MiningRangeData* miningRangeData = miningComponent_->GetMiningRangeData();
+    if (miningRangeData == nullptr)
+    {
+        return;
+    }
     float zoom = cameraComponent_->GetZoom();
     size_t pointsCount = miningRangeData->GetPointsCount();
     for (size_t i = 0; i < pointsCount; i++)

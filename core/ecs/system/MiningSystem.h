@@ -96,7 +96,7 @@ namespace glimmer
                                       bool isCenter,
                                       uint8_t& sum);
 
-        void ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType);
+        void ProcessMiningComplete(const TileLayerComponent* tileLayer, TileLayerType tileLayerType) const;
 
         void RenderDiggingPoint(SDL_Renderer* renderer, const MiningRangeDataPoint* point, float zoom) const;
 

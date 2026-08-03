@@ -48,6 +48,7 @@ namespace glimmer
         //Explore the origin.
         //挖掘原点。
         TileVector2D startPosition_;
+        bool hasStartPosition_ = false;
         float progress_ = 0.0F;
         TileLayerType layerType_ = TileLayerType::Ground;
         float efficiency_ = 1.0F;
@@ -77,6 +78,8 @@ namespace glimmer
         void SetStartPosition(TileVector2D startPosition);
 
         [[nodiscard]] const TileVector2D& GetStartPosition() const;
+
+        [[nodiscard]] bool HasStartPosition() const;
 
         [[nodiscard]] float GetProgress() const;
 

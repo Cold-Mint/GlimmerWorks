@@ -136,7 +136,7 @@ const glimmer::AbilityConfig* glimmer::ComposableItem::GetAbilityConfig() const
 }
 
 bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext* worldContext, uint32_t user,
-    const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
+                                    const AbilityConfig* abilityConfig, std::unordered_set<AbilityType>& popupAbility)
 {
     EntityManager* entityManager = worldContext->GetEntityManager();
     if (entityManager == nullptr)
@@ -241,6 +241,13 @@ glimmer::ComposableItem::ComposableItem(const ComposableItemCreateParams& params
     SetAllocStrategyType(static_cast<AllocStrategyTypeMessage>(RandomUtils::Random(
         0, 3)));
     AddCallback();
+    if (ItemDurabilityModule* itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr)
+    {
+        // Sync durability settings to the base class ItemDurabilityModule
+        // 将耐久度设置同步到基类ItemDurabilityModule，确保存档载入时耐久度回调能正确工作
+        itemDurabilityModule->SetMaxDurability(maxDurability_);
+        itemDurabilityModule->SetUnbreakable(unbreakable_);
+    }
 }
 
 void glimmer::ComposableItem::SetAllocStrategyType(AllocStrategyTypeMessage allocStrategyType)

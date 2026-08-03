@@ -47,6 +47,7 @@ void glimmer::MiningComponent::SetMiningRangeData(const MiningRangeData& miningR
 void glimmer::MiningComponent::ClearMiningRangeData()
 {
     hasMiningRangeData_ = false;
+    hasStartPosition_ = false;
 }
 
 const glimmer::MiningRangeData* glimmer::MiningComponent::GetMiningRangeData() const
@@ -57,11 +58,17 @@ const glimmer::MiningRangeData* glimmer::MiningComponent::GetMiningRangeData() c
 void glimmer::MiningComponent::SetStartPosition(TileVector2D startPosition)
 {
     startPosition_ = std::move(startPosition);
+    hasStartPosition_ = true;
 }
 
 const glimmer::TileVector2D& glimmer::MiningComponent::GetStartPosition() const
 {
     return startPosition_;
+}
+
+bool glimmer::MiningComponent::HasStartPosition() const
+{
+    return hasStartPosition_;
 }
 
 float glimmer::MiningComponent::GetProgress() const

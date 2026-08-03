@@ -50,6 +50,13 @@ glimmer::AbilityItem::AbilityItem(const AbilityItemCreateParams& params) : id_(p
 {
     SetTags(params.GetTags());
     SetResourceRef(params.GetResourceRef());
+    if (ItemDurabilityModule* itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr)
+    {
+        // Sync durability settings to the base class ItemDurabilityModule
+        // 将耐久度设置同步到基类ItemDurabilityModule，确保存档载入时耐久度回调能正确工作
+        itemDurabilityModule->SetMaxDurability(maxDurability_);
+        itemDurabilityModule->SetUnbreakable(unbreakable_);
+    }
     if (itemAbility_ == nullptr)
     {
         LogCat::e(std::source_location::current(), "itemAbility is nullptr");

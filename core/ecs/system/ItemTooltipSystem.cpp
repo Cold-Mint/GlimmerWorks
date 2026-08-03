@@ -110,7 +110,7 @@ void glimmer::ItemTooltipSystem::Update(float delta)
     float mouseX = 0.0F;
     float mouseY = 0.0F;
     SDL_GetMouseState(&mouseX, &mouseY);
-    constexpr float offset = 0.0F;
+    constexpr float offset = 16.0F;
     itemTooltipDataModel_.tooltipLeft = fmt::format("{}px", mouseX + offset);
     itemTooltipDataModel_.tooltipTop = fmt::format("{}px", mouseY + offset);
     dataModelHandle_.DirtyVariable("tooltip_left");

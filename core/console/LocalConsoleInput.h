@@ -34,7 +34,11 @@ namespace glimmer
     {
         std::jthread thread_;
         std::function<void(const std::string&)> onCommandCallback_;
+#ifdef _WIN32
+        void* wakeupEvent_ = nullptr;
+#else
         int wakeupPipe_[2]{};
+#endif
 
         void InputLoop(std::stop_token stopToken);
 

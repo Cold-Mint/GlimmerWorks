@@ -34,6 +34,8 @@
 
 namespace glimmer
 {
+    class InventoryDragListener;
+
     class InventoryGUISystem : public GuiStackGameSystem
     {
         Rml::ElementDocument* elementDocument_ = nullptr;
@@ -45,12 +47,15 @@ namespace glimmer
         std::vector<std::unique_ptr<Item>> recipeOutputItems_;
         std::shared_ptr<std::function<void(uint8_t, Item*, ContainerChangeType)>> callback_;
         ItemContainer* itemContainer_ = nullptr;
+        std::unique_ptr<InventoryDragListener> dragListener_;
 
         ItemSlotDataModel* GetItemSlotDataModel(uint8_t index);
 
         void LoadInitialItems();
 
         void RefreshRecipeList();
+
+        void SetupDragAndDrop();
 
         void OnRecipeClick(Rml::DataModelHandle handle, Rml::Event& event, const Rml::VariantList& args);
 

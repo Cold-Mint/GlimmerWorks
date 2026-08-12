@@ -25,6 +25,7 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #pragma once
+#include <memory>
 #include "core/ecs/GameSystem.h"
 #include "core/ecs/GuiGameSystem.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"

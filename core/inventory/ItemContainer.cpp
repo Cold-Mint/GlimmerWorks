@@ -387,9 +387,14 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::ReplaceItem(const uint8_t
         return nullptr;
     }
     std::unique_ptr<Item> oldItem = std::move(items_[index]);
-    UnBindItemEvent(oldItem.get());
+    if (oldItem != nullptr) {
+        InvokeOnContentChanged(index, oldItem.get(), ContainerChangeType::STACK_DESTROY);
+        UnBindItemEvent(oldItem.get());
+    }
     items_[index] = std::move(item);
-    BindItemEvent(index, items_[index]);
+    if (items_[index] != nullptr) {
+        BindItemEvent(index, items_[index]);
+    }
     return oldItem;
 }
 
@@ -502,9 +507,10 @@ bool glimmer::ItemContainer::SwapItem(uint8_t index, ItemContainer *otherContain
         if (index == otherIndex) {
             return true;
         }
-        //Exchange items in the same container.
-        //在相同容器内交换物品。
-        std::swap(items_[index], items_[otherIndex]);
+        auto item1 = TakeAllItem(index);
+        auto item2 = TakeAllItem(otherIndex);
+        (void)ReplaceItem(index, std::move(item2));
+        (void)ReplaceItem(otherIndex, std::move(item1));
         return true;
     }
     auto itemThis = ReplaceItem(index, otherContainer->TakeAllItem(otherIndex));

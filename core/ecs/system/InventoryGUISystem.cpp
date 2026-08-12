@@ -35,6 +35,7 @@
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/RecipeManager.h"
+#include "core/rmi/InventoryDragListener.h"
 #include "core/utils/StringUtils.h"
 #include "core/world/SystemScheduler.h"
 #include "core/world/WorldContext.h"
@@ -161,6 +162,10 @@ void glimmer::InventoryGUISystem::RefreshRecipeList() {
 }
 
 glimmer::InventoryGUISystem::~InventoryGUISystem() {
+    if (dragListener_ != nullptr) {
+        dragListener_->UnregisterContainer();
+        dragListener_.reset();
+    }
     if (itemContainer_ != nullptr && callback_ != nullptr) {
         itemContainer_->RemoveOnContentChanged(callback_);
     }
@@ -253,6 +258,37 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry *document
     constructor_->BindEventCallback("on_recipe_hover", &InventoryGUISystem::OnRecipeHover, this);
     constructor_->BindEventCallback("on_recipe_out", &InventoryGUISystem::OnItemOut, this);
     LoadInitialItems();
+    SetupDragAndDrop();
+}
+
+void glimmer::InventoryGUISystem::SetupDragAndDrop() {
+    if (itemContainer_ == nullptr) {
+        LogCat::w(std::source_location::current(), "itemContainer_ is nullptr, cannot setup drag and drop");
+        return;
+    }
+
+    Rml::ElementDocument* document = GetElementDocument();
+    if (document == nullptr) {
+        LogCat::w(std::source_location::current(), "document is nullptr, cannot setup drag and drop");
+        return;
+    }
+
+    Rml::Element* container = document->GetElementById("item_container");
+    if (container == nullptr) {
+        container = document->GetFirstChild();
+        while (container != nullptr && !container->IsClassSet("item_container")) {
+            container = container->GetNextSibling();
+        }
+    }
+
+    if (container == nullptr) {
+        LogCat::w(std::source_location::current(), "item_container element not found in document");
+        return;
+    }
+
+    dragListener_ = std::make_unique<InventoryDragListener>(itemContainer_);
+    dragListener_->RegisterContainer(container);
+    LogCat::i("Inventory drag and drop setup complete");
 }
 
 void glimmer::InventoryGUISystem::OnActivationChanged(bool activeStatus) {

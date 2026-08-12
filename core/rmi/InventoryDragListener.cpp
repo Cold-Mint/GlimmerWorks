@@ -2,7 +2,6 @@
 
 #include "RmlUi/Core/Element.h"
 #include "core/inventory/ItemContainer.h"
-#include "core/log/LogCat.h"
 
 glimmer::InventoryDragListener::InventoryDragListener(ItemContainer *itemContainer) : itemContainer_(itemContainer) {
 }
@@ -11,7 +10,6 @@ void glimmer::InventoryDragListener::ProcessEvent(Rml::Event &event) {
     if (event != Rml::EventId::Dragdrop) {
         return;
     }
-
     if (itemContainer_ == nullptr) {
         return;
     }
@@ -20,30 +18,40 @@ void glimmer::InventoryDragListener::ProcessEvent(Rml::Event &event) {
         event.GetParameter<void *>("drag_element", nullptr));
     auto *targetElement = event.GetTargetElement();
 
-    if (dragElement == nullptr || targetElement == nullptr) {
+    if (dragElement == nullptr) {
+        return;
+    }
+    if (targetElement == nullptr) {
         return;
     }
 
     Rml::Element *sourceSlot = FindSlotElement(dragElement);
     Rml::Element *targetSlot = FindSlotElement(targetElement);
 
-    if (sourceSlot == nullptr || targetSlot == nullptr) {
+    if (sourceSlot == nullptr) {
+        return;
+    }
+    if (targetSlot == nullptr) {
         return;
     }
 
     int sourceIndex = GetSlotIndex(sourceSlot);
     int targetIndex = GetSlotIndex(targetSlot);
 
-    if (sourceIndex < 0 || targetIndex < 0 || sourceIndex == targetIndex) {
+
+    if (sourceIndex < 0) {
         return;
     }
-
+    if (targetIndex < 0) {
+        return;
+    }
+    if (sourceIndex == targetIndex) {
+        return;
+    }
     itemContainer_->SwapItem(
         static_cast<uint8_t>(sourceIndex),
         itemContainer_,
         static_cast<uint8_t>(targetIndex));
-
-    LogCat::i("Dragged item from slot ", sourceIndex, " to slot ", targetIndex);
 }
 
 void glimmer::InventoryDragListener::RegisterContainer(Rml::Element *containerElement) {

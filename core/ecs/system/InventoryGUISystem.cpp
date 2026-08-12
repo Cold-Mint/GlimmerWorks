@@ -258,18 +258,21 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry *document
     constructor_->BindEventCallback("on_recipe_hover", &InventoryGUISystem::OnRecipeHover, this);
     constructor_->BindEventCallback("on_recipe_out", &InventoryGUISystem::OnItemOut, this);
     LoadInitialItems();
-    SetupDragAndDrop();
 }
 
 void glimmer::InventoryGUISystem::SetupDragAndDrop() {
+    if (dragListener_ != nullptr) {
+        LogCat::e(std::source_location::current(), "dragListener_ == nullptr");
+        return;
+    }
     if (itemContainer_ == nullptr) {
-        LogCat::w(std::source_location::current(), "itemContainer_ is nullptr, cannot setup drag and drop");
+        LogCat::e(std::source_location::current(), "itemContainer_ is nullptr, cannot setup drag and drop");
         return;
     }
 
     Rml::ElementDocument* document = GetElementDocument();
     if (document == nullptr) {
-        LogCat::w(std::source_location::current(), "document is nullptr, cannot setup drag and drop");
+        LogCat::e(std::source_location::current(), "document is nullptr, cannot setup drag and drop");
         return;
     }
 
@@ -312,6 +315,7 @@ void glimmer::InventoryGUISystem::LoadDocuments(IDocumentRegistry *documentRegis
     resourceRef.SetResourceType(RESOURCE_RML_PATH);
     resourceRef.SetResourceKey("inventory/inventory");
     SetAndHideElementDocument(documentRegistry->LoadSingleDocument(&resourceRef));
+    SetupDragAndDrop();
 }
 
 void glimmer::InventoryGUISystem::OnRecipeClick(Rml::DataModelHandle handle, Rml::Event &event,

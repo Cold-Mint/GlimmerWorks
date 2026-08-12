@@ -140,7 +140,6 @@ bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, 
             LogCat::w(std::source_location::current(), "abilityItem == nullptr");
             continue;
         }
-        LogCat::d("abilityItem name=", abilityItem->GetName());
         ItemAbility *itemAbility = abilityItem->GetItemAbility();
         if (itemAbility == nullptr) {
             LogCat::w(std::source_location::current(), "itemAbility == nullptr");

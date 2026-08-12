@@ -26,6 +26,7 @@
  */
 #pragma once
 #include <functional>
+#include <string>
 #include <thread>
 
 namespace glimmer

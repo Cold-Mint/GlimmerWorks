@@ -118,3 +118,8 @@ bool glimmer::TpCommand::RequiresWorldContext() const
 {
     return true;
 }
+
+bool glimmer::TpCommand::RequiresCheatEnabled() const
+{
+    return true;
+}

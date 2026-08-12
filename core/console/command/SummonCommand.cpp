@@ -50,6 +50,11 @@ bool glimmer::SummonCommand::RequiresWorldContext() const
     return true;
 }
 
+bool glimmer::SummonCommand::RequiresCheatEnabled() const
+{
+    return true;
+}
+
 bool glimmer::SummonCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                      const std::function<void(const std::string& text)>* onMessage)
 {

@@ -70,6 +70,11 @@ bool glimmer::PlaceCommand::RequiresWorldContext() const
     return true;
 }
 
+bool glimmer::PlaceCommand::RequiresCheatEnabled() const
+{
+    return true;
+}
+
 void glimmer::PlaceCommand::PlaceTileAt(Chunk* chunk, TileLayerType tileLayerType, int index,
                                         const ResourceRef& resourceRef, const TileResource* tileResource, int x, int y)
 {

@@ -37,6 +37,11 @@ bool glimmer::SeedCommand::RequiresWorldContext() const
     return true;
 }
 
+bool glimmer::SeedCommand::RequiresCheatEnabled() const
+{
+    return true;
+}
+
 bool glimmer::SeedCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
                                    const std::function<void(const std::string& text)>* onMessage)
 {

@@ -90,3 +90,8 @@ bool glimmer::ClearCommand::RequiresWorldContext() const
 {
     return true;
 }
+
+bool glimmer::ClearCommand::RequiresCheatEnabled() const
+{
+    return true;
+}

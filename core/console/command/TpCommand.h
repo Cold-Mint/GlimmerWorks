@@ -46,5 +46,7 @@ namespace glimmer
                      const std::function<void(const std::string& text)>* onMessage) override;
 
         [[nodiscard]] bool RequiresWorldContext() const override;
+
+        [[nodiscard]] bool RequiresCheatEnabled() const override;
     };
 }

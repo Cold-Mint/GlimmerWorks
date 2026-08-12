@@ -39,10 +39,8 @@
 #include "core/world/TileInstancePool.h"
 #include "fmt/color.h"
 
-void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string>* suggestionsTree)
-{
-    if (suggestionsTree == nullptr)
-    {
+void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string> *suggestionsTree) {
+    if (suggestionsTree == nullptr) {
         return;
     }
     suggestionsTree->AddChild("tileItem")->AddChild(TILE_DYNAMIC_SUGGESTIONS_NAME);
@@ -51,15 +49,12 @@ void glimmer::GiveCommand::InitSuggestions(NodeTree<std::string>* suggestionsTre
     suggestionsTree->AddChild("materialItem")->AddChild(MATERIAL_ITEM_DYNAMIC_SUGGESTIONS_NAME);
 }
 
-glimmer::GiveCommand::GiveCommand(AppContext* appContext)
-    : Command(appContext)
-{
+glimmer::GiveCommand::GiveCommand(AppContext *appContext)
+    : Command(appContext) {
 }
 
-void glimmer::GiveCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
-{
-    if (strings == nullptr)
-    {
+void glimmer::GiveCommand::PutCommandStructure(const CommandArgs *commandArgs, std::vector<std::string> *strings) {
+    if (strings == nullptr) {
         return;
     }
     strings->emplace_back("[item_type:string]");
@@ -67,100 +62,82 @@ void glimmer::GiveCommand::PutCommandStructure(const CommandArgs* commandArgs, s
     strings->emplace_back("[number:int]");
 }
 
-void glimmer::GiveCommand::TrySetItemAmount(const CommandArgs* commandArgs, Item* item)
-{
-    if (const size_t size = commandArgs->GetSize(); size < 4)
-    {
+void glimmer::GiveCommand::TrySetItemAmount(const CommandArgs *commandArgs, Item *item) {
+    if (const size_t size = commandArgs->GetSize(); size < 4) {
         return;
     }
-    ItemStackModule* itemStackModule = item->GetMutableStackModule();
-    if (itemStackModule == nullptr)
-    {
+    ItemStackModule *itemStackModule = item->GetMutableStackModule();
+    if (itemStackModule == nullptr) {
         return;
     }
-    if (const int number = commandArgs->AsInt(3); number > 1)
-    {
+    if (const int number = commandArgs->AsInt(3); number > 1) {
         itemStackModule->SetAmount(number);
     }
 }
 
-template <typename Callback>
-std::optional<glimmer::ItemContainerComponent*> glimmer::GiveCommand::TryGetPlayerItemContainer(
-    const WorldContext* worldContext,
-    const Callback& onMessage) const
-{
-    const AppContext* appContext = GetAppContext();
-    if (appContext == nullptr || worldContext == nullptr)
-    {
+template<typename Callback>
+std::optional<glimmer::ItemContainerComponent *> glimmer::GiveCommand::TryGetPlayerItemContainer(
+    const WorldContext *worldContext,
+    const Callback &onMessage) const {
+    const AppContext *appContext = GetAppContext();
+    if (appContext == nullptr || worldContext == nullptr) {
         return std::nullopt;
     }
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return std::nullopt;
     }
-    EntityManager* entityManager = worldContext->GetEntityManager();
-    if (entityManager == nullptr)
-    {
+    EntityManager *entityManager = worldContext->GetEntityManager();
+    if (entityManager == nullptr) {
         return std::nullopt;
     }
-    const EntityShortCut* entityShortCut = worldContext->GetEntityShortCut();
-    if (entityShortCut == nullptr)
-    {
+    const EntityShortCut *entityShortCut = worldContext->GetEntityShortCut();
+    if (entityShortCut == nullptr) {
         return std::nullopt;
     }
     const GameEntityID playerId = entityShortCut->GetPlayer();
-    if (WorldContext::IsEmptyEntityId(playerId))
-    {
+    if (WorldContext::IsEmptyEntityId(playerId)) {
         return std::nullopt;
     }
     auto itemContainer = entityManager->GetComponent<ItemContainerComponent>(playerId);
-    if (itemContainer == nullptr)
-    {
+    if (itemContainer == nullptr) {
         onMessage(langsResources->itemContainerIsNull);
         return std::nullopt;
     }
     return itemContainer;
 }
 
-template <typename Callback>
-bool glimmer::GiveCommand::GiveTileItem(const AppContext* appContext,
-                                        const WorldContext* worldContext,
-                                        const CommandArgs* commandArgs,
-                                        const Callback& onMessage) const
-{
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+template<typename Callback>
+bool glimmer::GiveCommand::GiveTileItem(const AppContext *appContext,
+                                        const WorldContext *worldContext,
+                                        const CommandArgs *commandArgs,
+                                        const Callback &onMessage) const {
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
     auto itemId = commandArgs->AsResourceRef(2, RESOURCE_TILE);
-    if (!itemId.has_value())
-    {
+    if (!itemId.has_value()) {
         onMessage(langsResources->itemIdNotFound);
         return false;
     }
-    ResourceRef& resourceRef = itemId.value();
+    ResourceRef &resourceRef = itemId.value();
     const auto tileResource = appContext->GetResourceLocator()->FindTileRaw(&resourceRef);
-    if (tileResource == nullptr)
-    {
+    if (tileResource == nullptr) {
         onMessage(langsResources->tileResourceIsNull);
         return false;
     }
-    TileInstancePool* tileInstancePool = worldContext->GetTileInstancePool();
-    if (tileInstancePool == nullptr)
-    {
+    TileInstancePool *tileInstancePool = worldContext->GetTileInstancePool();
+    if (tileInstancePool == nullptr) {
         return false;
     }
     const auto containerOpt = TryGetPlayerItemContainer(worldContext, onMessage);
-    if (!containerOpt.has_value())
-    {
+    if (!containerOpt.has_value()) {
         return false;
     }
     auto itemContainerComponent = containerOpt.value();
     auto itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+    if (itemContainer == nullptr) {
         onMessage(langsResources->itemContainerIsNull);
         return false;
     }
@@ -172,45 +149,38 @@ bool glimmer::GiveCommand::GiveTileItem(const AppContext* appContext,
     return item == nullptr;
 }
 
-template <typename Callback>
-bool glimmer::GiveCommand::GiveComposableItem(const AppContext* appContext,
-                                              WorldContext* worldContext,
-                                              const CommandArgs* commandArgs,
-                                              const Callback& onMessage) const
-{
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+template<typename Callback>
+bool glimmer::GiveCommand::GiveComposableItem(const AppContext *appContext,
+                                              WorldContext *worldContext,
+                                              const CommandArgs *commandArgs,
+                                              const Callback &onMessage) const {
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
     auto itemId = commandArgs->AsResourceRef(2, RESOURCE_COMPOSABLE_ITEM);
-    if (!itemId.has_value())
-    {
+    if (!itemId.has_value()) {
         onMessage(langsResources->itemIdNotFound);
         return false;
     }
-    const ResourceRef& resourceRef = itemId.value();
+    const ResourceRef &resourceRef = itemId.value();
     const auto itemResource = appContext->GetResourceLocator()->FindComposableItem(&resourceRef);
-    if (itemResource == nullptr)
-    {
+    if (itemResource == nullptr) {
         onMessage(langsResources->itemResourceIsNull);
         return false;
     }
     const auto containerOpt = TryGetPlayerItemContainer(worldContext, onMessage);
-    if (!containerOpt.has_value())
-    {
+    if (!containerOpt.has_value()) {
         return false;
     }
     const auto itemContainerComponent = containerOpt.value();
     auto itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+    if (itemContainer == nullptr) {
         onMessage(langsResources->itemContainerIsNull);
         return false;
     }
     auto composableItem = ComposableItem::FromItemResource(worldContext, itemResource, resourceRef);
-    if (composableItem == nullptr)
-    {
+    if (composableItem == nullptr) {
         onMessage(langsResources->composableItemIsNull);
         return false;
     }
@@ -219,45 +189,38 @@ bool glimmer::GiveCommand::GiveComposableItem(const AppContext* appContext,
     return item == nullptr;
 }
 
-template <typename Callback>
-bool glimmer::GiveCommand::GiveAbilityItem(const AppContext* appContext,
-                                           const WorldContext* worldContext,
-                                           const CommandArgs* commandArgs,
-                                           const Callback& onMessage) const
-{
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+template<typename Callback>
+bool glimmer::GiveCommand::GiveAbilityItem(const AppContext *appContext,
+                                           const WorldContext *worldContext,
+                                           const CommandArgs *commandArgs,
+                                           const Callback &onMessage) const {
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
     const auto itemId = commandArgs->AsResourceRef(2, RESOURCE_ABILITY_ITEM);
-    if (!itemId.has_value())
-    {
+    if (!itemId.has_value()) {
         onMessage(langsResources->itemIdNotFound);
         return false;
     }
-    const ResourceRef& resourceRef = itemId.value();
+    const ResourceRef &resourceRef = itemId.value();
     const auto itemResource = appContext->GetResourceLocator()->FindAbilityItem(&resourceRef);
-    if (itemResource == nullptr)
-    {
+    if (itemResource == nullptr) {
         onMessage(langsResources->itemResourceIsNull);
         return false;
     }
     const auto containerOpt = TryGetPlayerItemContainer(worldContext, onMessage);
-    if (!containerOpt.has_value())
-    {
+    if (!containerOpt.has_value()) {
         return false;
     }
     auto itemContainerComponent = containerOpt.value();
     auto itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+    if (itemContainer == nullptr) {
         onMessage(langsResources->itemContainerIsNull);
         return false;
     }
     auto abilityItem = AbilityItem::FromItemResource(appContext, itemResource, resourceRef);
-    if (abilityItem == nullptr)
-    {
+    if (abilityItem == nullptr) {
         onMessage(langsResources->composableItemIsNull);
         return false;
     }
@@ -266,45 +229,38 @@ bool glimmer::GiveCommand::GiveAbilityItem(const AppContext* appContext,
     return item == nullptr;
 }
 
-template <typename Callback>
-bool glimmer::GiveCommand::GiveMaterialItem(const AppContext* appContext,
-                                            const WorldContext* worldContext,
-                                            const CommandArgs* commandArgs,
-                                            const Callback& onMessage) const
-{
-    const LangsResources* langsResources = appContext->GetLangsResources();
-    if (langsResources == nullptr)
-    {
+template<typename Callback>
+bool glimmer::GiveCommand::GiveMaterialItem(const AppContext *appContext,
+                                            const WorldContext *worldContext,
+                                            const CommandArgs *commandArgs,
+                                            const Callback &onMessage) const {
+    const LangsResources *langsResources = appContext->GetLangsResources();
+    if (langsResources == nullptr) {
         return false;
     }
     auto itemId = commandArgs->AsResourceRef(2, RESOURCE_MATERIAL_ITEM);
-    if (!itemId.has_value())
-    {
+    if (!itemId.has_value()) {
         onMessage(langsResources->itemIdNotFound);
         return false;
     }
-    const ResourceRef& resourceRef = itemId.value();
+    const ResourceRef &resourceRef = itemId.value();
     const auto itemResource = appContext->GetResourceLocator()->FindMaterialItem(&resourceRef);
-    if (itemResource == nullptr)
-    {
+    if (itemResource == nullptr) {
         onMessage(langsResources->itemResourceIsNull);
         return false;
     }
     const auto containerOpt = TryGetPlayerItemContainer(worldContext, onMessage);
-    if (!containerOpt.has_value())
-    {
+    if (!containerOpt.has_value()) {
         return false;
     }
     const auto itemContainerComponent = containerOpt.value();
     auto itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+    if (itemContainer == nullptr) {
         onMessage(langsResources->itemContainerIsNull);
         return false;
     }
     auto materialItem = MaterialItem::FromItemResource(appContext, itemResource, resourceRef);
-    if (materialItem == nullptr)
-    {
+    if (materialItem == nullptr) {
         onMessage(langsResources->composableItemIsNull);
         return false;
     }
@@ -313,55 +269,49 @@ bool glimmer::GiveCommand::GiveMaterialItem(const AppContext* appContext,
     return item == nullptr;
 }
 
-bool glimmer::GiveCommand::Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,
-                                   const std::function<void(const std::string& text)>* onMessage)
-{
-    const AppContext* appContext = GetAppContext();
-    WorldContext* worldContext = GetWorldContext();
-    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr)
-    {
+bool glimmer::GiveCommand::Execute(const CommandSender *commandSender, const CommandArgs *commandArgs,
+                                   const std::function<void(const std::string &text)> *onMessage) {
+    const AppContext *appContext = GetAppContext();
+    WorldContext *worldContext = GetWorldContext();
+    if (appContext == nullptr || commandArgs == nullptr || onMessage == nullptr) {
         return false;
     }
-    const std::function<void(const std::string& text)>& onMessageRef = *onMessage;
-    if (worldContext == nullptr)
-    {
+    const std::function<void(const std::string &text)> &onMessageRef = *onMessage;
+    if (worldContext == nullptr) {
         onMessageRef(appContext->GetLangsResources()->worldContextIsNull);
         return false;
     }
-    if (const size_t size = commandArgs->GetSize(); size < 3)
-    {
+    if (const size_t size = commandArgs->GetSize(); size < 3) {
         onMessageRef(fmt::format(
             fmt::runtime(appContext->GetLangsResources()->insufficientParameterLength),
             3, size));
         return false;
     }
     const std::string itemType = commandArgs->AsString(1);
-    if (itemType == "tileItem")
-    {
+    if (itemType == "tileItem") {
         return GiveTileItem(appContext, worldContext, commandArgs, onMessageRef);
     }
-    if (itemType == "composableItem")
-    {
+    if (itemType == "composableItem") {
         return GiveComposableItem(appContext, worldContext, commandArgs, onMessageRef);
     }
-    if (itemType == "abilityItem")
-    {
+    if (itemType == "abilityItem") {
         return GiveAbilityItem(appContext, worldContext, commandArgs, onMessageRef);
     }
-    if (itemType == "materialItem")
-    {
+    if (itemType == "materialItem") {
         return GiveMaterialItem(appContext, worldContext, commandArgs, onMessageRef);
     }
     onMessageRef(appContext->GetLangsResources()->unknownCommandParameters);
     return false;
 }
 
-const std::string& glimmer::GiveCommand::GetName() const
-{
+const std::string &glimmer::GiveCommand::GetName() const {
     return GIVE_COMMAND_NAME;
 }
 
-bool glimmer::GiveCommand::RequiresWorldContext() const
-{
+bool glimmer::GiveCommand::RequiresCheatEnabled() const {
+    return true;
+}
+
+bool glimmer::GiveCommand::RequiresWorldContext() const {
     return true;
 }

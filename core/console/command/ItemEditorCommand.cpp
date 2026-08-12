@@ -45,6 +45,11 @@ bool glimmer::ItemEditorCommand::RequiresWorldContext() const
     return true;
 }
 
+bool glimmer::ItemEditorCommand::RequiresCheatEnabled() const
+{
+    return true;
+}
+
 
 void glimmer::ItemEditorCommand::AddSuggestionsValue(NodeTree<std::string>* suggestionsTree, bool setMode)
 {

@@ -116,6 +116,11 @@ bool glimmer::LocateCommand::RequiresWorldContext() const
     return true;
 }
 
+bool glimmer::LocateCommand::RequiresCheatEnabled() const
+{
+    return true;
+}
+
 void glimmer::LocateCommand::PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings)
 {
     if (strings == nullptr)

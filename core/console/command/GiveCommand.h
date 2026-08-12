@@ -81,6 +81,8 @@ namespace glimmer
 
         [[nodiscard]] const std::string& GetName() const override;
 
+        [[nodiscard]] bool RequiresCheatEnabled() const override;
+
         [[nodiscard]] bool RequiresWorldContext() const override;
     };
 }

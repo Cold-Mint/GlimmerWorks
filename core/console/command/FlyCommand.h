@@ -40,6 +40,8 @@ namespace glimmer
 
         [[nodiscard]] bool RequiresWorldContext() const override;
 
+        [[nodiscard]] bool RequiresCheatEnabled() const override;
+
         void PutCommandStructure(const CommandArgs* commandArgs, std::vector<std::string>* strings) override;
 
         bool Execute(const CommandSender* commandSender, const CommandArgs* commandArgs,

@@ -57,7 +57,7 @@ namespace glimmer
         void InitPlayerInventory(uint32_t playerEntity) const;
 
         void OnPlayerItemChanged(const ItemContainer* itemContainer, uint8_t index, Item* item,
-                                 PlayerComponent* playerComponent) const;
+                                 ContainerChangeType changeType, PlayerComponent* playerComponent) const;
 
         void HandleItemBreak(Item* item, PlayerComponent* playerComponent) const;
 

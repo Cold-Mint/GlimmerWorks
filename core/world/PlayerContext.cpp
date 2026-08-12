@@ -43,11 +43,9 @@
 #include "core/context/AppContext.h"
 #include "core/world/WorldContext.h"
 
-glimmer::PlayerContext::PlayerContext(WorldContext* worldContext) : worldContext_(worldContext)
-{
-    const AppContext* appContext = worldContext_->GetAppContext();
-    if (appContext != nullptr)
-    {
+glimmer::PlayerContext::PlayerContext(WorldContext *worldContext) : worldContext_(worldContext) {
+    const AppContext *appContext = worldContext_->GetAppContext();
+    if (appContext != nullptr) {
         ResourceRef ref;
         ref.SetSelfPackageId(RESOURCE_REF_CORE);
         ref.SetResourceType(RESOURCE_AUDIO);
@@ -57,80 +55,64 @@ glimmer::PlayerContext::PlayerContext(WorldContext* worldContext) : worldContext
     }
 }
 
-glimmer::PlayerContext::~PlayerContext()
-{
-    if (worldContext_ == nullptr)
-    {
+glimmer::PlayerContext::~PlayerContext() {
+    if (worldContext_ == nullptr) {
         return;
     }
-    const EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-    if (const EntityManager* entityManager = worldContext_->GetEntityManager(); entityShortCut == nullptr ||
-        entityManager == nullptr)
-    {
+    const EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    if (const EntityManager *entityManager = worldContext_->GetEntityManager(); entityShortCut == nullptr ||
+        entityManager == nullptr) {
         return;
     }
-    const ItemContainerComponent* itemContainerComponent = entityShortCut->GetItemContainerComponent();
-    if (itemCallback_ == nullptr || itemContainerComponent == nullptr)
-    {
+    const ItemContainerComponent *itemContainerComponent = entityShortCut->GetItemContainerComponent();
+    if (itemCallback_ == nullptr || itemContainerComponent == nullptr) {
         return;
     }
-    if (ItemContainer* itemContainer = itemContainerComponent->GetItemContainer(); itemContainer != nullptr)
-    {
+    if (ItemContainer *itemContainer = itemContainerComponent->GetItemContainer(); itemContainer != nullptr) {
         itemContainer->RemoveOnContentChanged(itemCallback_);
     }
 }
 
-void glimmer::PlayerContext::InitPlayer(const ResourceRef& resourceRef)
-{
-    EntityManager* entityManager = worldContext_->GetEntityManager();
-    EntityShortCut* entityShortCut = worldContext_->GetEntityShortCut();
-    if (entityManager == nullptr || entityShortCut == nullptr)
-    {
+void glimmer::PlayerContext::InitPlayer(const ResourceRef &resourceRef) {
+    EntityManager *entityManager = worldContext_->GetEntityManager();
+    EntityShortCut *entityShortCut = worldContext_->GetEntityShortCut();
+    if (entityManager == nullptr || entityShortCut == nullptr) {
         return;
     }
     GameEntityID player = entityShortCut->GetPlayer();
-    if (!WorldContext::IsEmptyEntityId(player))
-    {
+    if (!WorldContext::IsEmptyEntityId(player)) {
         return;
     }
     GameEntityID playerEntity = CreateOrLoadPlayer(resourceRef);
-    if (!entityManager->HasComponent(playerEntity, COMPONENT_ITEM_CONTAINER))
-    {
+    if (!entityManager->HasComponent(playerEntity, COMPONENT_ITEM_CONTAINER)) {
         InitPlayerInventory(playerEntity);
     }
-    const auto* itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(playerEntity);
-    if (itemContainerComponent == nullptr)
-    {
+    const auto *itemContainerComponent = entityManager->GetComponent<ItemContainerComponent>(playerEntity);
+    if (itemContainerComponent == nullptr) {
         entityShortCut->SetPlayer(playerEntity);
         return;
     }
-    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+    ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr) {
         entityShortCut->SetPlayer(playerEntity);
         return;
     }
-    auto* playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
-    if (playerComponent != nullptr)
-    {
+    auto *playerComponent = entityManager->GetComponent<PlayerComponent>(playerEntity);
+    if (playerComponent != nullptr) {
         playerComponent->SetItem(itemContainer->GetItem(0));
     }
     itemCallback_ = itemContainer->AddOnContentChanged(
-        [this, playerComponent, itemContainer](const uint8_t index, Item* item, ContainerChangeType changeType)
-        {
-            if (playerComponent == nullptr)
-            {
+        [this, playerComponent, itemContainer](const uint8_t index, Item *item, ContainerChangeType changeType) {
+            if (playerComponent == nullptr) {
                 LogCat::e(std::source_location::current(),
                           "itemContainer->AddOnSelectIndexChanged playerComponent == nullptr");
                 return;
             }
-            OnPlayerItemChanged(itemContainer, index, item, playerComponent);
+            OnPlayerItemChanged(itemContainer, index, item, changeType, playerComponent);
         });
 
-    itemContainer->AddOnSelectIndexChanged([playerComponent,itemContainer](const uint8_t index)
-    {
-        if (playerComponent == nullptr)
-        {
+    itemContainer->AddOnSelectIndexChanged([playerComponent,itemContainer](const uint8_t index) {
+        if (playerComponent == nullptr) {
             LogCat::e(std::source_location::current(),
                       "itemContainer->AddOnSelectIndexChanged playerComponent == nullptr");
             return;
@@ -140,19 +122,15 @@ void glimmer::PlayerContext::InitPlayer(const ResourceRef& resourceRef)
     entityShortCut->SetPlayer(playerEntity);
 }
 
-uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef& resourceRef) const
-{
+uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef &resourceRef) const {
     uint32_t playerEntity = GAME_ENTITY_ID_INVALID;
-    if (worldContext_->GetSaves()->PlayerExists())
-    {
+    if (worldContext_->GetSaves()->PlayerExists()) {
         auto playerMessage = worldContext_->GetSaves()->ReadPlayer();
-        if (playerMessage.has_value())
-        {
+        if (playerMessage.has_value()) {
             playerEntity = worldContext_->GetChunkLoader()->RecoveryEntity(playerMessage->entity());
         }
     }
-    if (!WorldContext::IsEmptyEntityId(playerEntity))
-    {
+    if (!WorldContext::IsEmptyEntityId(playerEntity)) {
         return playerEntity;
     }
     const auto firstTileTerrainY = worldContext_->GetChunkGenerator()->GetFirstTileTerrainY(0);
@@ -166,36 +144,29 @@ uint32_t glimmer::PlayerContext::CreateOrLoadPlayer(const ResourceRef& resourceR
     return playerEntity;
 }
 
-void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) const
-{
-    EntityManager* entityManager = worldContext_->GetEntityManager();
+void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) const {
+    EntityManager *entityManager = worldContext_->GetEntityManager();
     const auto itemContainerComponent = entityManager->AddComponent<ItemContainerComponent>(playerEntity);
-    if (itemContainerComponent == nullptr)
-    {
+    if (itemContainerComponent == nullptr) {
         return;
     }
-    ItemContainer* itemContainer = itemContainerComponent->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+    ItemContainer *itemContainer = itemContainerComponent->GetItemContainer();
+    if (itemContainer == nullptr) {
         return;
     }
     itemContainer->Resize(HOT_BAR_SIZE * INVENTORY_ROW_COUNT);
-    const auto& allInitialInventory = worldContext_->GetAppContext()->GetModContext()->GetInitialInventoryManager()->
-                                                     GetAllInitialInventory();
-    const auto* playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
+    const auto &allInitialInventory = worldContext_->GetAppContext()->GetModContext()->GetInitialInventoryManager()->
+            GetAllInitialInventory();
+    const auto *playerTransform = entityManager->GetComponent<Transform2DComponent>(playerEntity);
     const WorldVector2D playerPos = playerTransform != nullptr ? playerTransform->GetPosition() : WorldVector2D();
-    for (const auto& initialInventory : allInitialInventory)
-    {
-        for (const auto& addItem : initialInventory->addItems)
-        {
+    for (const auto &initialInventory: allInitialInventory) {
+        for (const auto &addItem: initialInventory->addItems) {
             auto item = worldContext_->GetAppContext()->GetResourceLocator()->FindItem(worldContext_, addItem);
-            if (item == nullptr)
-            {
+            if (item == nullptr) {
                 continue;
             }
             std::unique_ptr<Item> returnItem = itemContainer->AddItem(std::move(item));
-            if (returnItem == nullptr)
-            {
+            if (returnItem == nullptr) {
                 continue;
             }
             const uint32_t droppedEntity = entityManager->AddEntity();
@@ -208,94 +179,80 @@ void glimmer::PlayerContext::InitPlayerInventory(const uint32_t playerEntity) co
     }
 }
 
-void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer* itemContainer, uint8_t index, Item* item,
-                                                 PlayerComponent* playerComponent) const
-{
-    if (index != itemContainer->GetSelectIndex())
-    {
+void glimmer::PlayerContext::OnPlayerItemChanged(const ItemContainer *itemContainer, uint8_t index, Item *item,
+                                                 ContainerChangeType changeType,
+                                                 PlayerComponent *playerComponent) const {
+    if (index != itemContainer->GetSelectIndex()) {
         return;
     }
-    if (item == nullptr)
-    {
+    if (changeType == ContainerChangeType::STACK_DESTROY) {
         playerComponent->SetItem(nullptr);
         return;
     }
-    const ItemStackModule* itemStackModule = item->GetStackModule();
-    if (itemStackModule == nullptr)
-    {
+    if (item == nullptr) {
         playerComponent->SetItem(nullptr);
         return;
     }
-    if (const uint8_t amount = itemStackModule->GetAmount(); amount == 0)
-    {
+    const ItemStackModule *itemStackModule = item->GetStackModule();
+    if (itemStackModule == nullptr) {
         playerComponent->SetItem(nullptr);
         return;
     }
-    const ItemDurabilityModule* itemDurabilityModule = item->GetDurabilityModule();
-    if (itemDurabilityModule == nullptr)
-    {
+    if (const uint8_t amount = itemStackModule->GetAmount(); amount == 0) {
         playerComponent->SetItem(nullptr);
         return;
     }
-    if (!itemDurabilityModule->IsUnbreakable() && item->GetRemaining() == 0)
-    {
+    const ItemDurabilityModule *itemDurabilityModule = item->GetDurabilityModule();
+    if (itemDurabilityModule == nullptr) {
+        playerComponent->SetItem(nullptr);
+        return;
+    }
+    if (!itemDurabilityModule->IsUnbreakable() && item->GetRemaining() == 0) {
         HandleItemBreak(item, playerComponent);
         return;
     }
     playerComponent->SetItem(item);
 }
 
-void glimmer::PlayerContext::HandleItemBreak(Item* item, PlayerComponent* playerComponent) const
-{
-    if (itemBreakSFXResult_ != nullptr)
-    {
-        MIX_Audio* audio = itemBreakSFXResult_->GetResource();
-        if (audio != nullptr)
-        {
+void glimmer::PlayerContext::HandleItemBreak(Item *item, PlayerComponent *playerComponent) const {
+    if (itemBreakSFXResult_ != nullptr) {
+        MIX_Audio *audio = itemBreakSFXResult_->GetResource();
+        if (audio != nullptr) {
             audioManager_->TryPlayFree(AudioType::AMBIENT, audio, 0);
         }
     }
-    auto* composableItem = dynamic_cast<ComposableItem*>(item);
-    if (composableItem != nullptr)
-    {
+    auto *composableItem = dynamic_cast<ComposableItem *>(item);
+    if (composableItem != nullptr) {
         DropComposableItemAbilities(composableItem);
     }
-    if (playerComponent != nullptr)
-    {
+    if (playerComponent != nullptr) {
         playerComponent->SetItem(nullptr);
     }
 }
 
-void glimmer::PlayerContext::DropComposableItemAbilities(const ComposableItem* composableItem) const
-{
-    ItemContainer* itemContainer = composableItem->GetItemContainer();
-    if (itemContainer == nullptr)
-    {
+void glimmer::PlayerContext::DropComposableItemAbilities(const ComposableItem *composableItem) const {
+    ItemContainer *itemContainer = composableItem->GetItemContainer();
+    if (itemContainer == nullptr) {
         return;
     }
     const uint8_t size = itemContainer->GetCapacity();
-    const auto* cameraTransform = worldContext_->GetEntityShortCut()->GetCameraTransform2DComponent();
+    const auto *cameraTransform = worldContext_->GetEntityShortCut()->GetCameraTransform2DComponent();
     const WorldVector2D dropPos = cameraTransform != nullptr ? cameraTransform->GetPosition() : WorldVector2D();
-    for (uint8_t i = 0; i < size; i++)
-    {
-        Item* abilityItem = itemContainer->GetItem(i);
-        if (abilityItem == nullptr)
-        {
+    for (uint8_t i = 0; i < size; i++) {
+        Item *abilityItem = itemContainer->GetItem(i);
+        if (abilityItem == nullptr) {
             continue;
         }
-        const ItemStackModule* itemStackModule = abilityItem->GetStackModule();
-        if (itemStackModule == nullptr)
-        {
+        const ItemStackModule *itemStackModule = abilityItem->GetStackModule();
+        if (itemStackModule == nullptr) {
             continue;
         }
-        const ItemLockModule* itemLockModule = abilityItem->GetLockModule();
-        if (itemLockModule == nullptr)
-        {
+        const ItemLockModule *itemLockModule = abilityItem->GetLockModule();
+        if (itemLockModule == nullptr) {
             continue;
         }
         const uint8_t abilityRemaining = abilityItem->GetRemaining();
-        if (abilityRemaining == 0 || itemLockModule->IsLocked())
-        {
+        if (abilityRemaining == 0 || itemLockModule->IsLocked()) {
             continue;
         }
         std::unique_ptr<Item> takeItem = itemContainer->TakeItem(i, itemStackModule->GetAmount());

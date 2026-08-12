@@ -28,15 +28,15 @@
 #include <cstdint>
 #include <functional>
 
-namespace glimmer
-{
-    class ItemDurabilityModule
-    {
+#include "ContainerChangeType.h"
+
+namespace glimmer {
+    class ItemDurabilityModule {
         uint32_t usedDurability_ = 0;
         uint32_t maxDurability_ = 0;
         bool unbreakable_ = false;
-        std::function<void(uint32_t, uint32_t)> onUsedDurabilityChanged_ = nullptr;
 
+        std::function<void(ContainerChangeType, uint32_t, uint32_t)> onUsedDurabilityChanged_ = nullptr;
 
     public:
         [[nodiscard]] uint32_t GetMaxDurability() const;
@@ -54,7 +54,13 @@ namespace glimmer
         */
         [[nodiscard]] bool IsUnbreakable() const;
 
-        void SetOnUsedDurabilityChanged(const std::function<void(uint32_t, uint32_t)>& onUsedDurabilityChanged);
+        /**
+         * SetOnUsedDurabilityChanged
+         * 设置当耐久改变时回调。
+         * @param onUsedDurabilityChanged
+         */
+        void SetOnUsedDurabilityChanged(
+            const std::function<void(ContainerChangeType, uint32_t, uint32_t)> &onUsedDurabilityChanged);
 
         void AddUsedDurability(uint32_t value);
 

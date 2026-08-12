@@ -29,14 +29,37 @@
 namespace glimmer {
     enum class ContainerChangeType {
         /**
-         * Add items
-         * 添加物品
+         * The quantity of items has increased.
+         * 物品数量增加
          */
-        ADD,
+        STACK_AMOUNT_INCREASE,
         /**
-         * Remove items
-         * 移除物品
+         * The quantity of items has decreased.
+         * 物品数量减少
          */
-        REMOVE
+        STACK_AMOUNT_DECREASE,
+
+        /**
+         * Increase in durability (restoration of item durability)
+         * 耐久度增加（恢复物品耐久）
+         */
+        STACK_DURABILITY_INCREASE,
+
+        /**
+         * Durability reduction (durability reduction)
+         * 耐久度减少（耐久度减少）
+         */
+        STACK_DURABILITY_DECREASE,
+
+        /**
+         * New items have been added to the container.
+         * 新的物品被添加到了容器内
+         */
+        STACK_CREATE,
+        /**
+         * The item has been deleted (when the quantity is zero or the durability is exhausted)
+         * 物品被删除（数量为0或者耐久耗尽时）
+         */
+        STACK_DESTROY,
     };
 }

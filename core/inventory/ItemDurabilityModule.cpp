@@ -25,70 +25,62 @@
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
 #include "ItemDurabilityModule.h"
-#include "core/log/LogCat.h"
 
-uint32_t glimmer::ItemDurabilityModule::GetMaxDurability() const
-{
+#include "ItemContainer.h"
+
+uint32_t glimmer::ItemDurabilityModule::GetMaxDurability() const {
     return maxDurability_;
 }
 
-uint32_t glimmer::ItemDurabilityModule::GetUsedDurability() const
-{
+uint32_t glimmer::ItemDurabilityModule::GetUsedDurability() const {
     return usedDurability_;
 }
 
-void glimmer::ItemDurabilityModule::SetMaxDurability(const uint32_t value)
-{
+void glimmer::ItemDurabilityModule::SetMaxDurability(const uint32_t value) {
     maxDurability_ = value;
 }
 
-void glimmer::ItemDurabilityModule::SetUnbreakable(const bool value)
-{
+void glimmer::ItemDurabilityModule::SetUnbreakable(const bool value) {
     unbreakable_ = value;
 }
 
-bool glimmer::ItemDurabilityModule::IsUnbreakable() const
-{
+bool glimmer::ItemDurabilityModule::IsUnbreakable() const {
     return unbreakable_;
 }
 
 void glimmer::ItemDurabilityModule::SetOnUsedDurabilityChanged(
-    const std::function<void(uint32_t, uint32_t)>& onUsedDurabilityChanged)
-{
+    const std::function<void(ContainerChangeType, uint32_t, uint32_t)> &onUsedDurabilityChanged) {
     onUsedDurabilityChanged_ = onUsedDurabilityChanged;
 }
 
-void glimmer::ItemDurabilityModule::AddUsedDurability(const uint32_t value)
-{
+void glimmer::ItemDurabilityModule::AddUsedDurability(const uint32_t value) {
     const uint32_t newValue = usedDurability_ + value;
-    if (const uint32_t maxDurability = maxDurability_; newValue > maxDurability)
-    {
+    if (const uint32_t maxDurability = maxDurability_; newValue > maxDurability) {
         SetUsedDurability(maxDurability);
         return;
     }
     SetUsedDurability(newValue);
 }
 
-void glimmer::ItemDurabilityModule::RemoveUsedDurability(const uint32_t value)
-{
-    if (value >= usedDurability_)
-    {
+void glimmer::ItemDurabilityModule::RemoveUsedDurability(const uint32_t value) {
+    if (value >= usedDurability_) {
         SetUsedDurability(0);
-    }
-    else
-    {
+    } else {
         SetUsedDurability(value);
     }
 }
 
-void glimmer::ItemDurabilityModule::SetUsedDurability(const uint32_t value)
-{
+void glimmer::ItemDurabilityModule::SetUsedDurability(const uint32_t value) {
+    if (unbreakable_ || value == usedDurability_) {
+        return;
+    }
+    const uint32_t oldValue = usedDurability_;
     usedDurability_ = value;
-    if (!unbreakable_)
-    {
-        if (const std::function<void(uint32_t, uint32_t)> onUsedDurabilityChangedCopy = onUsedDurabilityChanged_; onUsedDurabilityChangedCopy != nullptr)
-        {
-            onUsedDurabilityChangedCopy(GetMaxDurability(), value);
-        }
+    if (const std::function<void(ContainerChangeType, uint32_t, uint32_t)> onUsedDurabilityChangedCopy =
+            onUsedDurabilityChanged_; onUsedDurabilityChangedCopy != nullptr) {
+        onUsedDurabilityChangedCopy(usedDurability_ > oldValue
+                                        ? ContainerChangeType::STACK_DURABILITY_DECREASE
+                                        : ContainerChangeType::STACK_DURABILITY_INCREASE, GetMaxDurability(),
+                                    value);
     }
 }

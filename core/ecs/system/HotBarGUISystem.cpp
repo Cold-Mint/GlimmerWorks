@@ -93,7 +93,7 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
                 LogCat::w(std::source_location::current(), "dataModel == nullptr");
                 return;
             }
-            if (changeType == ContainerChangeType::REMOVE || item == nullptr) {
+            if (changeType == ContainerChangeType::STACK_DESTROY) {
                 dataModel->image = "";
                 dataModel->amount = 0;
             } else {

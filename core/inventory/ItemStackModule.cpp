@@ -27,37 +27,30 @@
 #include "ItemStackModule.h"
 #include "core/log/LogCat.h"
 
-uint8_t glimmer::ItemStackModule::GetAmount() const
-{
+uint8_t glimmer::ItemStackModule::GetAmount() const {
     return amount_;
 }
 
-uint8_t glimmer::ItemStackModule::GetMaxStack() const
-{
+uint8_t glimmer::ItemStackModule::GetMaxStack() const {
     return maxStack_;
 }
 
-bool glimmer::ItemStackModule::IsStackable() const
-{
+bool glimmer::ItemStackModule::IsStackable() const {
     return maxStack_ > 1;
 }
 
-uint8_t glimmer::ItemStackModule::GetRemainingStackCount() const
-{
+uint8_t glimmer::ItemStackModule::GetRemainingStackCount() const {
     return maxStack_ - amount_;
 }
 
-uint8_t glimmer::ItemStackModule::AddAmount(const uint8_t amount)
-{
-    if (amount_ >= maxStack_ || amount <= 0)
-    {
+uint8_t glimmer::ItemStackModule::AddAmount(const uint8_t amount) {
+    if (amount_ >= maxStack_ || amount <= 0) {
         return 0;
     }
     const int current = amount_;
     const int addNum = amount;
     const int max = maxStack_;
-    if (const int spaceLeft = max - current; addNum > spaceLeft)
-    {
+    if (const int spaceLeft = max - current; addNum > spaceLeft) {
         SetAmount(maxStack_);
         return static_cast<uint8_t>(spaceLeft);
     }
@@ -65,17 +58,14 @@ uint8_t glimmer::ItemStackModule::AddAmount(const uint8_t amount)
     return amount;
 }
 
-uint8_t glimmer::ItemStackModule::RemoveAmount(const uint8_t amount)
-{
-    if (amount_ == 0 || amount == 0)
-    {
+uint8_t glimmer::ItemStackModule::RemoveAmount(const uint8_t amount) {
+    if (amount_ == 0 || amount == 0) {
         return 0;
     }
     const int currentCount = amount_;
     const int removeCount = amount;
     const int result = currentCount - removeCount;
-    if (result < 0)
-    {
+    if (result < 0) {
         SetAmount(0);
         return static_cast<uint8_t>(currentCount);
     }
@@ -83,44 +73,25 @@ uint8_t glimmer::ItemStackModule::RemoveAmount(const uint8_t amount)
     return amount;
 }
 
-void glimmer::ItemStackModule::SetAmount(const uint8_t amount)
-{
+void glimmer::ItemStackModule::SetAmount(const uint8_t amount) {
+    if (amount == amount_) {
+        return;
+    }
     const std::function<void(ContainerChangeType, uint8_t)> onAmountChangedCopy = onAmountChanged_;
-    if (amount == 0 && amount_ > 0)
-    {
-        amount_ = 0;
-        LogCat::i("Item stack emptied");
-        if (onAmountChangedCopy != nullptr)
-        {
-            onAmountChangedCopy(ContainerChangeType::REMOVE, amount_);
-        }
-    }
-    else if (amount == 0)
-    {
-        amount_ = 0;
-        if (onAmountChangedCopy != nullptr)
-        {
-            onAmountChangedCopy(ContainerChangeType::REMOVE, amount_);
-        }
-    }
-    else
-    {
-        const bool add = amount >= amount_;
-        amount_ = std::min(amount, maxStack_);
-        if (onAmountChangedCopy != nullptr)
-        {
-            onAmountChangedCopy(add ? ContainerChangeType::ADD : ContainerChangeType::REMOVE, amount_);
-        }
+    const bool add = amount >= amount_;
+    amount_ = std::min(amount, maxStack_);
+    if (onAmountChangedCopy != nullptr) {
+        onAmountChangedCopy(
+            add ? ContainerChangeType::STACK_AMOUNT_INCREASE : ContainerChangeType::STACK_AMOUNT_DECREASE,
+            amount_);
     }
 }
 
-void glimmer::ItemStackModule::SetMaxStack(const uint8_t maxStack)
-{
+void glimmer::ItemStackModule::SetMaxStack(const uint8_t maxStack) {
     maxStack_ = maxStack;
 }
 
 void glimmer::ItemStackModule::SetOnAmountChanged(
-    const std::function<void(ContainerChangeType, uint8_t)>& onAmountChanged)
-{
+    const std::function<void(ContainerChangeType, uint8_t)> &onAmountChanged) {
     onAmountChanged_ = onAmountChanged;
 }

@@ -26,37 +26,30 @@
  */
 #include "PlayerComponent.h"
 
-glimmer::PlayerInputHandler* glimmer::PlayerComponent::GetInputHandler()
-{
+glimmer::PlayerInputHandler *glimmer::PlayerComponent::GetInputHandler() {
     return &inputHandler_;
 }
 
-glimmer::PlayerCapabilityHandler* glimmer::PlayerComponent::GetCapabilityHandler()
-{
+glimmer::PlayerCapabilityHandler *glimmer::PlayerComponent::GetCapabilityHandler() {
     return &capabilityHandler_;
 }
 
-glimmer::PlayerTechnologyHandler* glimmer::PlayerComponent::GetTechnologyHandler()
-{
+glimmer::PlayerTechnologyHandler *glimmer::PlayerComponent::GetTechnologyHandler() {
     return &technologyHandler_;
 }
 
-void glimmer::PlayerComponent::SetItem(Item* item)
-{
+void glimmer::PlayerComponent::SetItem(Item *item) {
     item_ = item;
 }
 
-glimmer::Item* glimmer::PlayerComponent::GetItem() const
-{
+glimmer::Item *glimmer::PlayerComponent::GetItem() const {
     return item_;
 }
 
-GameComponentTypeMessage glimmer::PlayerComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::PlayerComponent::GetComponentTypeStatic() {
     return COMPONENT_PLAYER;
 }
 
-GameComponentTypeMessage glimmer::PlayerComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::PlayerComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }

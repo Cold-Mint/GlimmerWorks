@@ -32,8 +32,7 @@
 #include "core/log/LogCat.h"
 
 
-std::filesystem::path glimmer::Saves::ToChunkPath(const TileVector2D& position) const
-{
+std::filesystem::path glimmer::Saves::ToChunkPath(const TileVector2D &position) const {
     std::stringstream fileNameStream;
     fileNameStream << "chunk_";
     fileNameStream << std::to_string(position.x);
@@ -43,8 +42,7 @@ std::filesystem::path glimmer::Saves::ToChunkPath(const TileVector2D& position) 
     return path_ / "chunks" / fileNameStream.str();
 }
 
-std::filesystem::path glimmer::Saves::ToChunkEntityPath(const TileVector2D& position) const
-{
+std::filesystem::path glimmer::Saves::ToChunkEntityPath(const TileVector2D &position) const {
     std::stringstream fileNameStream;
     fileNameStream << "entity_";
     fileNameStream << std::to_string(position.x);
@@ -54,168 +52,137 @@ std::filesystem::path glimmer::Saves::ToChunkEntityPath(const TileVector2D& posi
     return path_ / "entities" / fileNameStream.str();
 }
 
-std::filesystem::path glimmer::Saves::ToPlayerPath() const
-{
+std::filesystem::path glimmer::Saves::ToPlayerPath() const {
     return path_ / PLAYER_FILE_NAME;
 }
 
-glimmer::Saves::Saves(std::filesystem::path path, VirtualFileSystem* virtualFileSystem) : path_(std::move(path)),
-    virtualFileSystem_(virtualFileSystem)
-{
+glimmer::Saves::Saves(std::filesystem::path path, VirtualFileSystem *virtualFileSystem) : path_(std::move(path)),
+    virtualFileSystem_(virtualFileSystem) {
 }
 
 void glimmer::Saves::SetOnMapManifestChanged(
-    const std::function<void(const MapManifestMessage&)>& onMapManifestChanged)
-{
+    const std::function<void(const MapManifestMessage &)> &onMapManifestChanged) {
     onMapManifestChanged_ = onMapManifestChanged;
 }
 
-bool glimmer::Saves::Exist() const
-{
+bool glimmer::Saves::Exist() const {
     return virtualFileSystem_->Exists(path_);
 }
 
-const std::filesystem::path& glimmer::Saves::GetPath() const
-{
+const std::filesystem::path &glimmer::Saves::GetPath() const {
     return path_;
 }
 
-bool glimmer::Saves::ChunkExists(const TileVector2D& position) const
-{
+bool glimmer::Saves::ChunkExists(const TileVector2D &position) const {
     return virtualFileSystem_->Exists(
         ToChunkPath(position));
 }
 
-bool glimmer::Saves::EntityExists(const TileVector2D& position) const
-{
+bool glimmer::Saves::EntityExists(const TileVector2D &position) const {
     return virtualFileSystem_->Exists(
         ToChunkEntityPath(position));
 }
 
-std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D& position) const
-{
+std::optional<ChunkMessage> glimmer::Saves::ReadChunk(const TileVector2D &position) const {
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(position));
-    if (streamUnique == nullptr)
-    {
+    if (streamUnique == nullptr) {
         LogCat::w(std::source_location::current(), "Failed to open chunk file: ", ToChunkPath(position).string());
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
-    if (stream == nullptr)
-    {
+    if (stream == nullptr) {
         return std::nullopt;
     }
-    if (ChunkMessage chunkMessage; chunkMessage.ParseFromIstream(stream))
-    {
+    if (ChunkMessage chunkMessage; chunkMessage.ParseFromIstream(stream)) {
         return chunkMessage;
     }
     LogCat::w(std::source_location::current(), "Failed to parse chunk data: ", ToChunkPath(position).string());
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunk(const TileVector2D& position, const ChunkMessage& chunkMessage) const
-{
+bool glimmer::Saves::WriteChunk(const TileVector2D &position, const ChunkMessage &chunkMessage) const {
     bool result = virtualFileSystem_->WriteFile(ToChunkPath(position), chunkMessage.SerializeAsString());
-    if (!result)
-    {
+    if (!result) {
         LogCat::w(std::source_location::current(), "Failed to write chunk: ", ToChunkPath(position).string());
     }
     return result;
 }
 
-std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVector2D& position) const
-{
-    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkPath(position));
-    if (streamUnique == nullptr)
-    {
+std::optional<ChunkEntityMessage> glimmer::Saves::ReadChunkEntity(const TileVector2D &position) const {
+    const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToChunkEntityPath(position));
+    if (streamUnique == nullptr) {
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
-    if (stream == nullptr)
-    {
+    if (stream == nullptr) {
         return std::nullopt;
     }
     ChunkEntityMessage chunkMessage;
-    if (chunkMessage.ParseFromIstream(stream))
-    {
+    if (chunkMessage.ParseFromIstream(stream)) {
         return chunkMessage;
     }
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteChunkEntity(const TileVector2D& position, const ChunkEntityMessage& chunkEntityMessage) const
-{
+bool glimmer::Saves::WriteChunkEntity(const TileVector2D &position,
+                                      const ChunkEntityMessage &chunkEntityMessage) const {
     return virtualFileSystem_->WriteFile(ToChunkEntityPath(position), chunkEntityMessage.SerializeAsString());
 }
 
-bool glimmer::Saves::DeleteChunkEntity(const TileVector2D& position) const
-{
+bool glimmer::Saves::DeleteChunkEntity(const TileVector2D &position) const {
     return virtualFileSystem_->DeleteFileOrFolder(ToChunkEntityPath(position));
 }
 
-bool glimmer::Saves::WritePlayer(const PlayerMessage& playerMessage) const
-{
+bool glimmer::Saves::WritePlayer(const PlayerMessage &playerMessage) const {
     bool result = virtualFileSystem_->WriteFile(ToPlayerPath(), playerMessage.SerializeAsString());
-    if (!result)
-    {
+    if (!result) {
         LogCat::w(std::source_location::current(), "Failed to write player data: ", ToPlayerPath().string());
     }
     return result;
 }
 
-std::optional<PlayerMessage> glimmer::Saves::ReadPlayer() const
-{
+std::optional<PlayerMessage> glimmer::Saves::ReadPlayer() const {
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(ToPlayerPath());
-    if (streamUnique == nullptr)
-    {
+    if (streamUnique == nullptr) {
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
-    if (stream == nullptr)
-    {
+    if (stream == nullptr) {
         return std::nullopt;
     }
-    if (PlayerMessage playerMessage; playerMessage.ParseFromIstream(stream))
-    {
+    if (PlayerMessage playerMessage; playerMessage.ParseFromIstream(stream)) {
         return playerMessage;
     }
     return std::nullopt;
 }
 
-bool glimmer::Saves::PlayerExists() const
-{
+bool glimmer::Saves::PlayerExists() const {
     return virtualFileSystem_->Exists(ToPlayerPath());
 }
 
-std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const
-{
+std::optional<MapManifestMessage> glimmer::Saves::ReadMapManifest() const {
     const auto streamUnique = virtualFileSystem_->ReadFileAsStream(path_ / MAP_MANIFEST_FILE_NAME);
-    if (streamUnique == nullptr)
-    {
+    if (streamUnique == nullptr) {
         return std::nullopt;
     }
     const auto stream = streamUnique.get();
-    if (stream == nullptr)
-    {
+    if (stream == nullptr) {
         return std::nullopt;
     }
-    if (MapManifestMessage mapManifestMessage; mapManifestMessage.ParseFromIstream(stream))
-    {
+    if (MapManifestMessage mapManifestMessage; mapManifestMessage.ParseFromIstream(stream)) {
         return mapManifestMessage;
     }
     return std::nullopt;
 }
 
-bool glimmer::Saves::WriteMapManifest(const MapManifestMessage& mapManifestMessage) const
-{
-    if (onMapManifestChanged_ != nullptr)
-    {
+bool glimmer::Saves::WriteMapManifest(const MapManifestMessage &mapManifestMessage) const {
+    if (onMapManifestChanged_ != nullptr) {
         onMapManifestChanged_(mapManifestMessage);
     }
     bool result = virtualFileSystem_->WriteFile(path_ / MAP_MANIFEST_FILE_NAME, mapManifestMessage.SerializeAsString());
-    if (!result)
-    {
-        LogCat::w(std::source_location::current(), "Failed to write map manifest: ", (path_ / MAP_MANIFEST_FILE_NAME).string());
+    if (!result) {
+        LogCat::w(std::source_location::current(), "Failed to write map manifest: ",
+                  (path_ / MAP_MANIFEST_FILE_NAME).string());
     }
     return result;
 }

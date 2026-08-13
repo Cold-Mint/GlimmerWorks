@@ -30,10 +30,8 @@
 #include "core/Hyperlink.h"
 #include "core/utils/StringUtils.h"
 
-namespace glimmer
-{
-    struct MainSceneDataModel
-    {
+namespace glimmer {
+    struct MainSceneDataModel {
     private:
         static std::string GetCopyrightString();
 
@@ -45,6 +43,7 @@ namespace glimmer
             {.text = StringUtils::MakeRawText("QQ Channel"), .url = "https://pd.qq.com/s/cntb09fr1?b=9"}
         };
         std::string copyright{StringUtils::MakeRawText(GetCopyrightString())};
+        std::string gameVersion{GAME_VERSION_STRING};
         std::string mainMenuBackground{StringUtils::MakeTextureUrl("@core:main_menu_bg_frames/bg_1")};
     };
 }

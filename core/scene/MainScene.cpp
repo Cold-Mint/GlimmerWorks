@@ -99,6 +99,7 @@ void glimmer::MainScene::OnCreateDataModels()
     if (constructor != nullptr)
     {
         constructor->Bind("copyright", &mainSceneDataModel_.copyright);
+        constructor->Bind("game_version", &mainSceneDataModel_.gameVersion);
         if (auto linkStruct = constructor->RegisterStruct<Hyperlink>())
         {
             linkStruct.RegisterMember("text", &Hyperlink::text);

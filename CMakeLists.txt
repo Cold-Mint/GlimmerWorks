@@ -39,10 +39,13 @@ math(EXPR GAME_VERSION_NUMBER
    + ${CPACK_PACKAGE_VERSION_PATCH}"
 )
 
+#Game version name
+#游戏版本名称
+#Here, suffixes can be used to mark unstable versions, such as: b1, rc1. (The official versions do not have suffixes.)
+#可以在这里使用后缀来标记不稳定版本，例如：b1，rc1。（正式版本不带后缀）
 set(GAME_VERSION_STRING
-        "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CMAKE_BUILD_TYPE}"
+        "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CMAKE_BUILD_TYPE}-b1"
 )
-
 
 include(FetchContent)
 

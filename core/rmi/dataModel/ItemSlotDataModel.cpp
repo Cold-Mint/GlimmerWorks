@@ -24,18 +24,16 @@
  *
  * 你应该已经收到一份GNU Affero通用公共许可证的副本。如果没有，请查阅<https://www.gnu.org/licenses/>。
  */
-#pragma once
-#include <cstdint>
-#include <string>
+#include "ItemSlotDataModel.h"
 
-namespace glimmer {
-    struct ItemSlotDataModel {
-        bool selected = false;
-        std::string image;
-        int amount = 0;
-        int index = 0;
-        int durability = -1;
-
-        static int CalculateDurabilityPercentage(uint32_t maxDurability, uint32_t usedDurability, bool unbreakable);
-    };
+int glimmer::ItemSlotDataModel::CalculateDurabilityPercentage(uint32_t maxDurability, uint32_t usedDurability,
+                                                              bool unbreakable) {
+    if (maxDurability == 0) {
+        return -1;
+    }
+    if (unbreakable) {
+        return 100;
+    }
+    const uint32_t remaining = maxDurability > usedDurability ? maxDurability - usedDurability : 0;
+    return static_cast<int>(remaining * 100 / maxDurability);
 }

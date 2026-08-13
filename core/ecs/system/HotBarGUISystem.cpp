@@ -28,6 +28,7 @@
 
 #include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/inventory/ItemDurabilityModule.h"
 #include "core/log/LogCat.h"
 #include "core/mod/Resource.h"
 #include "core/rmi/dataModel/ItemSlotDataModel.h"
@@ -96,6 +97,7 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
             if (changeType == ContainerChangeType::STACK_DESTROY) {
                 dataModel->image = "";
                 dataModel->amount = 0;
+                dataModel->durability = -1;
             } else {
                 const auto stackModule = item->GetStackModule();
                 auto amount = 0;
@@ -105,11 +107,16 @@ void glimmer::HotBarGUISystem::OnWatchedComponentChanged(GameComponentTypeMessag
                 if (amount == 0) {
                     dataModel->image = "";
                     dataModel->amount = 0;
+                    dataModel->durability = -1;
                 } else {
                     const ResourceRef *iconResourceRef = item->GetIconResourceRef();
                     dataModel->image = StringUtils::MakeTextureUrl(
                         Resource::GenerateId(iconResourceRef->GetPackageId(), iconResourceRef->GetResourceKey()));
                     dataModel->amount = amount;
+                    const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
+                    dataModel->durability = ItemSlotDataModel::CalculateDurabilityPercentage(
+                        durabilityModule->GetMaxDurability(), durabilityModule->GetUsedDurability(),
+                        durabilityModule->IsUnbreakable());
                 }
             }
             if (constructor_ != nullptr) {
@@ -135,6 +142,7 @@ void glimmer::HotBarGUISystem::OnCreateDataModels(IDocumentRegistry *documentReg
         linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
         linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
         linkStruct.RegisterMember("index", &ItemSlotDataModel::index);
+        linkStruct.RegisterMember("durability", &ItemSlotDataModel::durability);
         constructor_->RegisterArray<std::vector<ItemSlotDataModel> >();
         LogCat::i("Struct members registered: image, amount, selected");
     }
@@ -161,12 +169,17 @@ void glimmer::HotBarGUISystem::LoadInitialHotbarItems() {
         if (item == nullptr) {
             dataModel->image = "";
             dataModel->amount = 0;
+            dataModel->durability = -1;
         } else {
             const ResourceRef *iconResourceRef = item->GetIconResourceRef();
             dataModel->image = StringUtils::MakeTextureUrl(Resource::GenerateId(iconResourceRef->GetPackageId(),
                 iconResourceRef->GetResourceKey()));
             const ItemStackModule *stackModule = item->GetStackModule();
             dataModel->amount = stackModule != nullptr ? stackModule->GetAmount() : 1;
+            const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
+            dataModel->durability = ItemSlotDataModel::CalculateDurabilityPercentage(
+                durabilityModule->GetMaxDurability(), durabilityModule->GetUsedDurability(),
+                durabilityModule->IsUnbreakable());
         }
     }
     if (constructor_ != nullptr) {

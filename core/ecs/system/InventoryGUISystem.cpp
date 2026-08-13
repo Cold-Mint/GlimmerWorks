@@ -32,6 +32,7 @@
 #include "core/ecs/EntityManager.h"
 #include "core/ecs/component/ItemToolTipComponent.h"
 #include "core/ecs/component/PlayerComponent.h"
+#include "core/inventory/ItemDurabilityModule.h"
 #include "core/log/LogCat.h"
 #include "core/mod/ResourceLocator.h"
 #include "core/mod/dataPack/RecipeManager.h"
@@ -66,12 +67,17 @@ void glimmer::InventoryGUISystem::LoadInitialItems() {
         if (item == nullptr) {
             dataModel->image = "";
             dataModel->amount = 0;
+            dataModel->durability = -1;
         } else {
             const ResourceRef *iconResourceRef = item->GetIconResourceRef();
             dataModel->image = StringUtils::MakeTextureUrl(Resource::GenerateId(iconResourceRef->GetPackageId(),
                 iconResourceRef->GetResourceKey()));
             const ItemStackModule *stackModule = item->GetStackModule();
             dataModel->amount = stackModule != nullptr ? stackModule->GetAmount() : 1;
+            const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
+            dataModel->durability = ItemSlotDataModel::CalculateDurabilityPercentage(
+                durabilityModule->GetMaxDurability(), durabilityModule->GetUsedDurability(),
+                durabilityModule->IsUnbreakable());
         }
     }
     if (constructor_ != nullptr) {
@@ -211,6 +217,7 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
             if (changeType == ContainerChangeType::STACK_DESTROY) {
                 dataModel->image = "";
                 dataModel->amount = 0;
+                dataModel->durability = -1;
             } else {
                 const auto stackModule = item->GetStackModule();
                 auto amount = 0;
@@ -220,11 +227,16 @@ void glimmer::InventoryGUISystem::OnWatchedComponentChanged(GameComponentTypeMes
                 if (amount == 0) {
                     dataModel->image = "";
                     dataModel->amount = 0;
+                    dataModel->durability = -1;
                 } else {
                     const ResourceRef *iconResourceRef = item->GetIconResourceRef();
                     dataModel->image = StringUtils::MakeTextureUrl(
                         Resource::GenerateId(iconResourceRef->GetPackageId(), iconResourceRef->GetResourceKey()));
                     dataModel->amount = amount;
+                    const ItemDurabilityModule *durabilityModule = item->GetDurabilityModule();
+                    dataModel->durability = ItemSlotDataModel::CalculateDurabilityPercentage(
+                        durabilityModule->GetMaxDurability(), durabilityModule->GetUsedDurability(),
+                        durabilityModule->IsUnbreakable());
                 }
             }
             if (constructor_ != nullptr) {
@@ -248,6 +260,7 @@ void glimmer::InventoryGUISystem::OnCreateDataModels(IDocumentRegistry *document
         linkStruct.RegisterMember("amount", &ItemSlotDataModel::amount);
         linkStruct.RegisterMember("selected", &ItemSlotDataModel::selected);
         linkStruct.RegisterMember("index", &ItemSlotDataModel::index);
+        linkStruct.RegisterMember("durability", &ItemSlotDataModel::durability);
         constructor_->RegisterArray<std::vector<ItemSlotDataModel> >();
     }
     constructor_->Bind("item_slots", &itemSlots_);

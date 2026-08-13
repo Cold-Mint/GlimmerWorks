@@ -575,6 +575,7 @@ target_sources(GlimmerWorks
         core/vfs/StdFileProvider.cpp
         core/vfs/VirtualFileSystem.cpp
         core/world/ChunkManager.cpp
+        core/rmi/dataModel/ItemSlotDataModel.cpp
         core/world/ChunkTask.cpp
         core/world/ChunkType.cpp
         core/world/LightBuffer.cpp

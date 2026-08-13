@@ -132,7 +132,7 @@ bool glimmer::ComposableItem::OnUse(bool mouseLeft, WorldContext *worldContext, 
     for (uint8_t index = 0; index < max; index++) {
         Item *item = itemContainer_->GetItem(index);
         if (item == nullptr) {
-            LogCat::w(std::source_location::current(), "item at ", index, " is nullptr");
+            LogCat::w(std::source_location::current(), "item at ", std::to_string(index), " is nullptr");
             continue;
         }
         const auto abilityItem = dynamic_cast<AbilityItem *>(item);
@@ -198,8 +198,6 @@ glimmer::ComposableItem::ComposableItem(const ComposableItemCreateParams &params
     itemContainer_ = std::make_shared<ItemContainer>();
     itemContainer_->Resize(params.GetMaxSize());
     SetTags(params.GetTags());
-    SetAllocStrategyType(static_cast<AllocStrategyTypeMessage>(RandomUtils::Random(
-        0, 3)));
     AddCallback();
     if (ItemDurabilityModule *itemDurabilityModule = GetMutableDurabilityModule(); itemDurabilityModule != nullptr) {
         // Sync durability settings to the base class ItemDurabilityModule

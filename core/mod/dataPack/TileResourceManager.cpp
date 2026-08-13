@@ -53,9 +53,8 @@ glimmer::TileResource* glimmer::TileResourceManager::AddCoreResource(const CoreT
     tileResource->canDropLoot = params.canDropLoot;
 
     tileResource->lightSource = CreateCoreRef(params.lightSourceKey, RESOURCE_LIGHT_SOURCE);
-    tileResource->sideLightMask = CreateCoreRef(params.sideLightMaskKey, RESOURCE_LIGHT_SOURCE);
-    tileResource->backLightMask = CreateCoreRef(params.backLightMaskKey, RESOURCE_LIGHT_SOURCE);
-
+    tileResource->sideLightMask = CreateCoreRef(params.sideLightMaskKey, RESOURCE_LIGHT_MASK);
+    tileResource->backLightMask = CreateCoreRef(params.backLightMaskKey, RESOURCE_LIGHT_MASK);
     return AddResource(std::move(tileResource));
 }
 

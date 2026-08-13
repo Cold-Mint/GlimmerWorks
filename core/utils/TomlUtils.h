@@ -502,6 +502,7 @@ namespace toml {
             glimmer::ItemMessageResource r;
             r.abilityItemRef = toml::find_or<std::vector<glimmer::ItemMessageResource>>(v, "ability_item_ref", {});
             r.amount = toml::find_or<uint64_t>(v, "amount", 1);
+            r.durabilityStrategyType = toml::find_or<int8_t>(v, "durability_strategy_type", -1);
             r.item = toml::find<glimmer::ResourceRef>(v, "item");
             r.locked = toml::find_or<bool>(v, "locked", false);
             return r;

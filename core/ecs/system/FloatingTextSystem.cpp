@@ -100,7 +100,7 @@ void glimmer::FloatingTextSystem::Update(float delta)
             continue;
         }
         auto& tween = floatingTextComponent->GetTween();
-        tween.step(delta);
+        tween.step(static_cast<int32_t>(delta));
         floatingTextComponent->SetAlpha(fabs(tween.peek()));
         if (now > floatingTextComponent->GetExpireTime())
         {

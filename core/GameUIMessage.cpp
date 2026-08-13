@@ -28,6 +28,7 @@
 
 #include <utility>
 
+#include "tweeny/tweeny.h"
 #include "utils/StringUtils.h"
 
 glimmer::GameUIMessage::GameUIMessage(ResourcePackManager* resourcePackManager, std::string text, const uint64_t now,
@@ -35,9 +36,10 @@ glimmer::GameUIMessage::GameUIMessage(ResourcePackManager* resourcePackManager, 
                                                             createTime_(now),
                                                             expireTime_(now + 2500),
                                                             tween_(tweeny::from(0.0F)
-                                                                   .to(1.0F).during(200)
-                                                                   .to(1.0F).during(2000)
-                                                                   .to(0.0F).during(300))
+                                                                   .to(1.0F).during(200U)
+                                                                   .to(1.0F).during(2000U)
+                                                                   .to(0.0F).during(300U)
+                                                                   .build())
 {
     texture_ = resourcePackManager->CreateStringTexture(text_, color);
 }

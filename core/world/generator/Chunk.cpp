@@ -28,7 +28,7 @@
 
 #include <utility>
 
-#include "tween.h"
+#include "tweeny/tweeny.h"
 #include "core/math/CoordinateTransformer.h"
 #include "core/world/TileInstancePool.h"
 #include "core/world/WorldContext.h"
@@ -205,18 +205,22 @@ void glimmer::Chunk::InvokeReplaceTileCallback(Chunk* chunk, const TileLayerType
 
 glimmer::Chunk::Chunk(WorldContext* worldContext, const TileVector2D& pos,
                       const AnimConfig& animConfig)
-    : position_(pos), worldContext_(worldContext), chunkFadeAlpha_(animConfig.chunkFadeInFrom)
+    : position_(pos), worldContext_(worldContext),
+      chunkFadeInTween_(tweeny::from(animConfig.chunkFadeInFrom)
+                            .to(animConfig.chunkFadeInTo)
+                            .during(static_cast<uint32_t>(animConfig.chunkFadeinDuration * 1000))
+                            .via(tweeny::easing::cubicOut)
+                            .build()),
+      chunkFadeAlpha_(animConfig.chunkFadeInFrom)
 {
-    chunkFadeInTween_ = tweeny::tween<float>::from(animConfig.chunkFadeInFrom).to(animConfig.chunkFadeInTo).during(
-        animConfig.chunkFadeinDuration * 1000).via(tweeny::easing::cubicOut);
 }
 
 
 void glimmer::Chunk::UpdateFadeInAnimation(const float delta)
 {
-    if (!chunkFadeInTween_.isFinished())
+    if (chunkFadeInTween_.progress() < 1.0f)
     {
-        chunkFadeInTween_.step(delta);
+        chunkFadeInTween_.step(static_cast<int32_t>(delta));
         chunkFadeAlpha_ = chunkFadeInTween_.peek();
     }
 }

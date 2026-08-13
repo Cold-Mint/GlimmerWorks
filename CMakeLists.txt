@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.31.6)
 project(GlimmerWorks)
 set(CMAKE_CXX_STANDARD 26)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Disable shared libs, use static only")
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/versions.cmake")
 if (NOT DEFINED ENV{GITHUB_ACTIONS})
@@ -21,19 +20,7 @@ if (NOT EXISTS ${PACK_SIGNER_EXE})
     message(FATAL_ERROR "The file pointed to by PACK_SIGNER_EXE does not exist.")
 endif ()
 
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(ARCH_BIT "64")
-    set(LIB_DIR "lib64")
-else ()
-    set(ARCH_BIT "32")
-    set(LIB_DIR "lib32")
-endif ()
-if (WIN32)
-    #Place the dll and exe files in the same directory.
-    #把dll和exe放到同级目录。
-    set(LIB_DIR ".")
-endif ()
-set(CMAKE_INSTALL_RPATH "$ORIGIN/${LIB_DIR}")
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Disable shared libs, use static only")
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://github.com/Cold-Mint/GlimmerWorks")
 set(CPACK_PACKAGE_VENDOR "Cold-Mint")
 #Major version number
@@ -44,7 +31,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 0)
 #Patch version number
 #补丁版本号
-set(CPACK_PACKAGE_VERSION_PATCH 1)
+set(CPACK_PACKAGE_VERSION_PATCH 2)
 
 math(EXPR GAME_VERSION_NUMBER
         "${CPACK_PACKAGE_VERSION_MAJOR} * 10000
@@ -647,7 +634,6 @@ target_sources(GlimmerWorks
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Platform_SDL.h"
         "${CMAKE_BINARY_DIR}/_deps/rmlui-src/Backends/RmlUi_Renderer_SDL.h"
         core/App.h
-
         core/mod/dataPack/ComposableItemManager.h
         core/mod/dataPack/MaterialItemManager.h
         core/mod/dataPack/AbilityItemManager.h

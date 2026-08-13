@@ -132,7 +132,7 @@ void glimmer::AppRenderer::RenderUiMessage(const int windowHeight, const uint64_
     for (auto& msg : uiMessages)
     {
         auto& tween = msg.GetTween();
-        tween.step(deltaTime);
+        tween.step(static_cast<int32_t>(deltaTime));
         const float peekResult = tween.peek();
         msg.SetAlpha(peekResult);
         if (peekResult <= 0.01F)

@@ -26,74 +26,63 @@
  */
 #include "FloatingTextComponent.h"
 
-#include "tweeny.h"
 #include "core/Constants.h"
 #include "core/mod/resourcePack/ResourcePackManager.h"
 #include "core/context/AppContext.h"
 #include "SDL3/SDL_timer.h"
+#include "tweeny/tweeny.h"
 
 
-glimmer::FloatingTextComponent::FloatingTextComponent(const AppContext* appContext)
-    :expireTime_(SDL_GetTicks() + 25000),
+glimmer::FloatingTextComponent::FloatingTextComponent(const AppContext *appContext)
+    : expireTime_(SDL_GetTicks() + 25000),
       resourcePackManager_(appContext->GetResourcePackManager()),
       preloadColors_(appContext->GetGraphicsContext()->GetPreloadColors()),
-      tween_(tweeny::tween(tweeny::from(0.0f)
-                           .to(1.0f).during(200)
-                           .to(1.0f).during(2000)
-                           .to(0.0f).during(300)))
-{
+      tween_(tweeny::from(0.0f)
+          .to(1.0f).during(200U)
+          .to(1.0f).during(2000U)
+          .to(0.0f).during(300U)
+          .build()) {
 }
 
-void glimmer::FloatingTextComponent::SetText(const std::string& text)
-{
-    if (resourcePackManager_ == nullptr)
-    {
+void glimmer::FloatingTextComponent::SetText(const std::string &text) {
+    if (resourcePackManager_ == nullptr) {
         return;
     }
     texture_ = resourcePackManager_->CreateStringTexture(text, &preloadColors_->textColor);
     text_ = text;
 }
 
-tweeny::tween<float>& glimmer::FloatingTextComponent::GetTween()
-{
+tweeny::tween<float> &glimmer::FloatingTextComponent::GetTween() {
     return tween_;
 }
 
-uint64_t glimmer::FloatingTextComponent::GetExpireTime() const
-{
+uint64_t glimmer::FloatingTextComponent::GetExpireTime() const {
     return expireTime_;
 }
 
-void glimmer::FloatingTextComponent::SetAlpha(float alpha)
-{
+void glimmer::FloatingTextComponent::SetAlpha(float alpha) {
     alpha_ = alpha;
 }
 
-float glimmer::FloatingTextComponent::GetAlpha() const
-{
+float glimmer::FloatingTextComponent::GetAlpha() const {
     return alpha_;
 }
 
-std::string& glimmer::FloatingTextComponent::GetText()
-{
+std::string &glimmer::FloatingTextComponent::GetText() {
     return text_;
 }
 
-SDL_Texture* glimmer::FloatingTextComponent::GetTexture() const
-{
-    if (texture_ == nullptr)
-    {
+SDL_Texture *glimmer::FloatingTextComponent::GetTexture() const {
+    if (texture_ == nullptr) {
         return nullptr;
     }
     return texture_.get();
 }
 
-GameComponentTypeMessage glimmer::FloatingTextComponent::GetComponentTypeStatic()
-{
+GameComponentTypeMessage glimmer::FloatingTextComponent::GetComponentTypeStatic() {
     return COMPONENT_FLOATING_TEXT;
 }
 
-GameComponentTypeMessage glimmer::FloatingTextComponent::GetComponentType()
-{
+GameComponentTypeMessage glimmer::FloatingTextComponent::GetComponentType() {
     return GetComponentTypeStatic();
 }

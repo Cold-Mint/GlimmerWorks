@@ -28,10 +28,10 @@
 #include <memory>
 #include <string>
 
-#include "tweeny.h"
 #include "math/Color.h"
 #include "mod/resourcePack/ResourcePackManager.h"
 #include "SDL3/SDL_render.h"
+#include "tweeny/tween.h"
 
 namespace glimmer
 {

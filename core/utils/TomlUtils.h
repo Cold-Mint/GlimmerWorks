@@ -635,7 +635,7 @@ namespace toml {
             r.customLootTable = toml::find_or<bool>(v, "custom_loot_table", false);
             r.customTileAnchor = toml::find_or<glimmer::Vector2DIResource>(v, "custom_tile_anchor", {1, 1});
             r.description = toml::find_or<glimmer::ResourceRef>(v, "description", {});
-            r.drawValidBlueprintColor = toml::find_or<bool>(v, "draw_valid_blueprint_color", false);
+            r.drawValidBlueprintColor = toml::find_or<bool>(v, "draw_valid_blueprint_color", true);
             r.enableBlueprint = toml::find_or<bool>(v, "enable_blueprint", true);
             r.enableBlueprintMask = toml::find_or<bool>(v, "enable_blueprint_mask", true);
             r.isOverwritable = toml::find_or<bool>(v, "is_overwritable", false);

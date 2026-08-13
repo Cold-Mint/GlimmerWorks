@@ -442,7 +442,7 @@ namespace glimmer {
         //@genNextLine(enableBlueprintMask|启用蓝图遮照-用颜色标记禁止放置的区域)
         bool enableBlueprintMask = true;
         //@genNextLine(drawValidBlueprintColor|绘制合法放置的蓝图颜色)
-        bool drawValidBlueprintColor = false;
+        bool drawValidBlueprintColor = true;
         //@genNextLine(blueprintTexture|蓝图纹理资源引用)
         ResourceRef blueprintTexture = {};
         //@genNextLine(breakSFX|瓦片被破坏时的音效)

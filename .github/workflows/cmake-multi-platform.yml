@@ -14,9 +14,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        build_type: [Release]
-        c_compiler: [clang, cl]
+        os: [ ubuntu-latest, windows-latest ]
+        build_type: [ Release ]
+        c_compiler: [ clang, cl ]
         include:
           - os: windows-latest
             c_compiler: cl
@@ -30,118 +30,118 @@ jobs:
           - os: ubuntu-latest
             c_compiler: cl
     steps:
-    - uses: actions/checkout@v4
-    - name: Set reusable strings
-      id: strings
-      shell: bash
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-    - name: Install dependencies(Linux)
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential git make \
-        pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
-        libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
-        libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
-        libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
-        libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev \
-        libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev ninja-build libpng-dev libfreetype-dev libharfbuzz-dev patchelf
-    - name: Download PackSigner binaries (Linux)
-      if: runner.os == 'Linux'
-      # robinraju/release-downloader@v1.11 tag:v1.13
-      uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f
-      with:
-        repository: 'Cold-Mint/GlimmerWorksPackSigner'
-        latest: true
-        fileName: 'packSigner-linux-*'
-        out-file-path: 'bin'
-    - name: Download PackSigner binaries (Windows)
-      if: runner.os == 'Windows'
-      # robinraju/release-downloader@v1.11 tag:v1.13
-      uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f
-      with:
-        repository: 'Cold-Mint/GlimmerWorksPackSigner'
-        latest: true
-        fileName: 'packSigner-windows-amd64-*.exe'
-        out-file-path: 'bin'
-    - name: Locate PackSigner executable
-      run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          pattern="packSigner-linux-*"
-        else
-          pattern="packSigner-windows-amd64-*.exe"
-        fi
-        \
-        exe_path_rel=$(find bin -name "$pattern" -type f | head -n1 | tr -d '\r')
-        exe_path="${{ github.workspace }}/$exe_path_rel"
-        # Replace backslashes in the path with forward slashes to avoid CMake escaping issues
-        # 将路径中的反斜杠替换为正斜杠，避免 CMake 转义问题
-        exe_path="${exe_path//\\//}"
-        echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
-      shell: bash
-    - name: Set executable permission on Linux
-      if: runner.os == 'Linux'
-      run: sudo chmod +x "$PACK_SIGNER_EXE"
-    - name: Setup MSVC (Windows)
-      if: runner.os == 'Windows'
-      # ilammy/msvc-dev-cmd@v1 tag:v1.13.0
-      uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756
-    - name: Cache build directory
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.strings.outputs.build-output-dir }}
-        key: ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ matrix.build_type }}-cmake-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ matrix.build_type }}-cmake-
-    - name: Configure CMake (Linux)
-      if: runner.os == 'Linux'
-      env:
-        SIGN_PRIVATE_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
-        SIGN_PUBLIC_KEY: ${{ secrets.SIGN_PUBLIC_KEY }}
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
-        -DSIGN_PRIVATE_KEY="${{ env.SIGN_PRIVATE_KEY }}"
-        -DSIGN_PUBLIC_KEY="${{ env.SIGN_PUBLIC_KEY }}"
-        -G Ninja
-        -S ${{ github.workspace }}
-    - name: Configure CMake (Windows)
-      if: runner.os == 'Windows'
-      env:
-        SIGN_PRIVATE_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
-        SIGN_PUBLIC_KEY: ${{ secrets.SIGN_PUBLIC_KEY }}
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
-        -DSIGN_PRIVATE_KEY="${{ env.SIGN_PRIVATE_KEY }}"
-        -DSIGN_PUBLIC_KEY="${{ env.SIGN_PUBLIC_KEY }}"
-        -G "Ninja"
-        -S ${{ github.workspace }}
-    - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+      - uses: actions/checkout@v4
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+      - name: Install dependencies(Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git make \
+          pkg-config cmake ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
+          libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+          libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
+          libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+          libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev libusb-1.0-0-dev \
+          libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev ninja-build libpng-dev libfreetype-dev libharfbuzz-dev patchelf
+      - name: Download PackSigner binaries (Linux)
+        if: runner.os == 'Linux'
+        # robinraju/release-downloader@v1.11 tag:v1.13
+        uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f
+        with:
+          repository: 'Cold-Mint/GlimmerWorksPackSigner'
+          latest: true
+          fileName: 'packSigner-linux-*'
+          out-file-path: 'bin'
+      - name: Download PackSigner binaries (Windows)
+        if: runner.os == 'Windows'
+        # robinraju/release-downloader@v1.11 tag:v1.13
+        uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f
+        with:
+          repository: 'Cold-Mint/GlimmerWorksPackSigner'
+          latest: true
+          fileName: 'packSigner-windows-amd64-*.exe'
+          out-file-path: 'bin'
+      - name: Locate PackSigner executable
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            pattern="packSigner-linux-*"
+          else
+            pattern="packSigner-windows-amd64-*.exe"
+          fi
+          \
+          exe_path_rel=$(find bin -name "$pattern" -type f | head -n1 | tr -d '\r')
+          exe_path="${{ github.workspace }}/$exe_path_rel"
+          # Replace backslashes in the path with forward slashes to avoid CMake escaping issues
+          # 将路径中的反斜杠替换为正斜杠，避免 CMake 转义问题
+          exe_path="${exe_path//\\//}"
+          echo "PACK_SIGNER_EXE=$exe_path" >> $GITHUB_ENV
+        shell: bash
+      - name: Set executable permission on Linux
+        if: runner.os == 'Linux'
+        run: sudo chmod +x "$PACK_SIGNER_EXE"
+      - name: Setup MSVC (Windows)
+        if: runner.os == 'Windows'
+        # ilammy/msvc-dev-cmd@v1 tag:v1.13.0
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756
+      - name: Cache build directory
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.strings.outputs.build-output-dir }}
+          key: ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ matrix.build_type }}-cmake-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ matrix.build_type }}-cmake-
+      - name: Configure CMake (Linux)
+        if: runner.os == 'Linux'
+        env:
+          SIGN_PRIVATE_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
+          SIGN_PUBLIC_KEY: ${{ secrets.SIGN_PUBLIC_KEY }}
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
+          -DSIGN_PRIVATE_KEY="${{ env.SIGN_PRIVATE_KEY }}"
+          -DSIGN_PUBLIC_KEY="${{ env.SIGN_PUBLIC_KEY }}"
+          -G Ninja
+          -S ${{ github.workspace }}
+      - name: Configure CMake (Windows)
+        if: runner.os == 'Windows'
+        env:
+          SIGN_PRIVATE_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
+          SIGN_PUBLIC_KEY: ${{ secrets.SIGN_PUBLIC_KEY }}
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DPACK_SIGNER_EXE=${{ env.PACK_SIGNER_EXE }}
+          -DSIGN_PRIVATE_KEY="${{ env.SIGN_PRIVATE_KEY }}"
+          -DSIGN_PUBLIC_KEY="${{ env.SIGN_PUBLIC_KEY }}"
+          -G "Ninja"
+          -S ${{ github.workspace }}
+      - name: Build
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-    - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      run: ctest --build-config ${{ matrix.build_type }}
-    - name: Pack
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      run: cpack -C ${{ matrix.build_type }}
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v7
-      with:
-        name: GlimmerWorks-Package-${{ matrix.os }}
-        path: |
-          ${{ steps.strings.outputs.build-output-dir }}/dist/Release/*.7z
-          ${{ steps.strings.outputs.build-output-dir }}/dist/Release/*.tar.zst
-        archive: false
-       
+      - name: Test
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}
+        run: ctest --build-config ${{ matrix.build_type }}
+      - name: Pack
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}
+        run: cpack -C ${{ matrix.build_type }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: GlimmerWorks-Package-${{ matrix.os }}
+          path: |
+            ${{ steps.strings.outputs.build-output-dir }}/dist/Release/*.7z
+            ${{ steps.strings.outputs.build-output-dir }}/dist/Release/*.tar.zst
+          archive: false
+
   release:
     permissions:
       contents: write
@@ -161,6 +161,6 @@ jobs:
         uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b
         with:
           files: |
-            artifacts/GlimmerWorks-*-Release-Linux-wayland-x64.tar.zst
-            artifacts/GlimmerWorks-*-Release-Windows-x64.7z
+            artifacts/GlimmerWorks-*-Linux-wayland-x64.tar.zst
+            artifacts/GlimmerWorks-*-Windows-x64.7z
           generate_release_notes: true

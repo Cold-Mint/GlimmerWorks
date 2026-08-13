@@ -275,7 +275,7 @@ std::unique_ptr<glimmer::Item> glimmer::ItemContainer::AddItem(std::unique_ptr<I
             ++index;
             continue;
         }
-        LogCat::d("Slot[", static_cast<int>(index), "] try stack amount:", stackedAmount);
+        LogCat::d("Slot[", static_cast<int>(index), "] try stack amount:", std::to_string(stackedAmount));
 
         if (newItemStackModule->RemoveAmount(stackedAmount) == 0 && currentItemStackModule->
             RemoveAmount(stackedAmount) == 0) {
@@ -509,8 +509,8 @@ bool glimmer::ItemContainer::SwapItem(uint8_t index, ItemContainer *otherContain
         }
         auto item1 = TakeAllItem(index);
         auto item2 = TakeAllItem(otherIndex);
-        (void)ReplaceItem(index, std::move(item2));
-        (void)ReplaceItem(otherIndex, std::move(item1));
+        (void) ReplaceItem(index, std::move(item2));
+        (void) ReplaceItem(otherIndex, std::move(item1));
         return true;
     }
     auto itemThis = ReplaceItem(index, otherContainer->TakeAllItem(otherIndex));

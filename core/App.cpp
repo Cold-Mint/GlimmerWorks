@@ -48,29 +48,25 @@
 #include "scene/ConsoleOverlay.h"
 
 
-bool glimmer::App::InitSDL()
-{
+bool glimmer::App::InitSDL() {
 #ifdef __ANDROID__
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     SDL_SetHint("SDL_ANDROID_TRAP_BACK_BUTTON", "1");
 #endif
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
-    {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         LogCat::e(std::source_location::current(), "SDL_Init failed");
         return false;
     }
     initSDLSuccess_ = true;
     LogCat::i("SDL_Init succeeded");
-    if (!MIX_Init())
-    {
+    if (!MIX_Init()) {
         LogCat::e(std::source_location::current(), "MIX_Init failed");
         return false;
     }
     initSDLMixSuccess_ = true;
     LogCat::i("MIX_Init succeeded");
 
-    if (!TTF_Init())
-    {
+    if (!TTF_Init()) {
         LogCat::e(std::source_location::current(), "TTF_Init failed");
         return false;
     }
@@ -79,11 +75,9 @@ bool glimmer::App::InitSDL()
     return true;
 }
 
-bool glimmer::App::InitWindowAndRenderer()
-{
-    Config* config = appContext_->GetConfig();
-    if (config == nullptr)
-    {
+bool glimmer::App::InitWindowAndRenderer() {
+    Config *config = appContext_->GetConfig();
+    if (config == nullptr) {
         LogCat::e(std::source_location::current(), "config is nullptr");
         return false;
     }
@@ -95,38 +89,34 @@ bool glimmer::App::InitWindowAndRenderer()
         config->window.height,
         config->window.fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE
     );
-    if (window == nullptr)
-    {
+    if (window == nullptr) {
         LogCat::e(std::source_location::current(), "window is nullptr");
         return false;
     }
     LogCat::i("Window created successfully");
 
-    WindowContext* windowContext = appContext_->GetWindowContext();
-    if (windowContext == nullptr)
-    {
+    WindowContext *windowContext = appContext_->GetWindowContext();
+    if (windowContext == nullptr) {
         LogCat::e(std::source_location::current(), "windowContext is nullptr");
         return false;
     }
     windowContext->SetWindow(window);
     LogCat::i("Creating renderer");
     renderer_ = SDL_CreateRenderer(window, nullptr);
-    if (renderer_ == nullptr)
-    {
+    if (renderer_ == nullptr) {
         LogCat::e(std::source_location::current(), "renderer_ is nullptr");
         return false;
     }
 #if  !defined(NDEBUG)
     const SDL_PropertiesID rendererProperties = SDL_GetRendererProperties(renderer_);
-    const char* driverName = SDL_GetStringProperty(rendererProperties, SDL_PROP_RENDERER_NAME_STRING, nullptr);
+    const char *driverName = SDL_GetStringProperty(rendererProperties, SDL_PROP_RENDERER_NAME_STRING, nullptr);
     LogCat::i("driverName = ", driverName);
 #endif
     LogCat::i("Renderer created successfully");
     SDL_SetRenderVSync(renderer_, config->window.vSync);
     windowContext->SetRenderer(renderer_);
-    RmlContext* rmlContext = appContext_->GetRmlContext();
-    if (rmlContext == nullptr)
-    {
+    RmlContext *rmlContext = appContext_->GetRmlContext();
+    if (rmlContext == nullptr) {
         LogCat::e(std::source_location::current(), "RmlContext is nullptr");
         return false;
     }
@@ -136,9 +126,8 @@ bool glimmer::App::InitWindowAndRenderer()
                      config->window.width,
                      config->window.height);
     LogCat::i("RmlContext initialized successfully");
-    ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
-    if (resourcePackManager == nullptr)
-    {
+    ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
         LogCat::e(std::source_location::current(), "ResourcePackManager is nullptr");
         return false;
     }
@@ -151,17 +140,14 @@ bool glimmer::App::InitWindowAndRenderer()
     return true;
 }
 
-bool glimmer::App::InitFont() const
-{
-    const Config* config = appContext_->GetConfig();
-    if (config == nullptr)
-    {
+bool glimmer::App::InitFont() const {
+    const Config *config = appContext_->GetConfig();
+    if (config == nullptr) {
         LogCat::e(std::source_location::current(), "config is nullptr");
         return false;
     }
-    ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
-    if (resourcePackManager == nullptr)
-    {
+    ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
         LogCat::e(std::source_location::current(), "resourcePackManager is nullptr");
         return false;
     }
@@ -170,53 +156,45 @@ bool glimmer::App::InitFont() const
         config->mods.enabledResourcePack,
         appContext_->GetLanguage());
 
-    if (!fontPathOpt.has_value())
-    {
+    if (!fontPathOpt.has_value()) {
         LogCat::i("No font configured, skipping font initialization");
         return true;
     }
 
-    const std::filesystem::path& fontPath = fontPathOpt.value();
+    const std::filesystem::path &fontPath = fontPathOpt.value();
     LogCat::i("Font path: ", fontPath.string());
-    const VirtualFileSystem* virtualFileSystem = appContext_->GetVirtualFileSystem();
-    if (virtualFileSystem == nullptr)
-    {
+    const VirtualFileSystem *virtualFileSystem = appContext_->GetVirtualFileSystem();
+    if (virtualFileSystem == nullptr) {
         LogCat::e(std::source_location::current(), "virtualFileSystem is nullptr");
         return false;
     }
-    if (!virtualFileSystem->Exists(fontPath))
-    {
+    if (!virtualFileSystem->Exists(fontPath)) {
         LogCat::w(std::source_location::current(), "Font file not found: ", fontPath.string());
         return false;
     }
 
     auto actualPath = virtualFileSystem->GetActualPath(fontPath);
-    if (!actualPath.has_value())
-    {
+    if (!actualPath.has_value()) {
         LogCat::w(std::source_location::current(), "Cannot get actual font path");
         return false;
     }
     const std::optional<std::string> fontDataOptional = virtualFileSystem->ReadFileAsString(fontPath);
-    if (!fontDataOptional.has_value())
-    {
+    if (!fontDataOptional.has_value()) {
         LogCat::w(std::source_location::current(), "Cannot read font file");
         return false;
     }
-    RmlContext* rmlContext = appContext_->GetRmlContext();
-    if (rmlContext == nullptr)
-    {
+    RmlContext *rmlContext = appContext_->GetRmlContext();
+    if (rmlContext == nullptr) {
         LogCat::e(std::source_location::current(), "rmlContext is nullptr");
         return false;
     }
-    if (!rmlContext->LoadFont(virtualFileSystem, fontPath))
-    {
+    if (!rmlContext->LoadFont(virtualFileSystem, fontPath)) {
         LogCat::e(std::source_location::current(), "RmlContext Failed to load font: ", actualPath.value());
         return false;
     }
     const std::string fontPathStr = actualPath.value().string();
-    TTF_Font* sdlFont = TTF_OpenFont(fontPathStr.c_str(), 16);
-    if (sdlFont == nullptr)
-    {
+    TTF_Font *sdlFont = TTF_OpenFont(fontPathStr.c_str(), 16);
+    if (sdlFont == nullptr) {
         LogCat::e(std::source_location::current(), "Failed to load font: ", actualPath.value());
         return false;
     }
@@ -225,30 +203,21 @@ bool glimmer::App::InitFont() const
     return true;
 }
 
-bool glimmer::App::InitAudio()
-{
-    Config* config = appContext_->GetConfig();
-    if (config == nullptr)
-    {
+bool glimmer::App::InitAudio() {
+    Config *config = appContext_->GetConfig();
+    if (config == nullptr) {
         LogCat::e(std::source_location::current(), "config is nullptr");
         return false;
     }
     SDL_AudioSpec audioSpec;
-    const std::string& audioFormat = config->audio.format;
-    if (audioFormat == "U8")
-    {
+    const std::string &audioFormat = config->audio.format;
+    if (audioFormat == "U8") {
         audioSpec.format = SDL_AUDIO_U8;
-    }
-    else if (audioFormat == "S16")
-    {
+    } else if (audioFormat == "S16") {
         audioSpec.format = SDL_AUDIO_S16;
-    }
-    else if (audioFormat == "S32")
-    {
+    } else if (audioFormat == "S32") {
         audioSpec.format = SDL_AUDIO_S32;
-    }
-    else
-    {
+    } else {
         audioSpec.format = SDL_AUDIO_F32;
     }
 
@@ -258,39 +227,34 @@ bool glimmer::App::InitAudio()
               ", freq=", config->audio.freq);
 
     mixer_ = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audioSpec);
-    if (mixer_ == nullptr)
-    {
+    if (mixer_ == nullptr) {
         LogCat::e(std::source_location::current(), "MIX_CreateMixerDevice failed");
         return false;
     }
     LogCat::i("Audio mixer created successfully");
 
-    ResourcePackManager* resourcePackManager = appContext_->GetResourcePackManager();
-    if (resourcePackManager == nullptr)
-    {
+    ResourcePackManager *resourcePackManager = appContext_->GetResourcePackManager();
+    if (resourcePackManager == nullptr) {
         LogCat::e(std::source_location::current(), "resourcePackManager is nullptr");
         return false;
     }
     resourcePackManager->SetMixer(mixer_);
     LogCat::i("Loading main menu BGM");
     appContext_->LoadMainMenuBGM();
-    const AudioContext* audioContext = appContext_->GetAudioContext();
-    if (audioContext == nullptr)
-    {
+    const AudioContext *audioContext = appContext_->GetAudioContext();
+    if (audioContext == nullptr) {
         LogCat::e(std::source_location::current(), "audioContext is nullptr");
         return false;
     }
-    AudioManager* audioManager = audioContext->GetAudioManager();
-    if (audioManager == nullptr)
-    {
+    AudioManager *audioManager = audioContext->GetAudioManager();
+    if (audioManager == nullptr) {
         LogCat::e(std::source_location::current(), "audioManager is nullptr");
         return false;
     }
     audioManager->SetMixer(mixer_);
 
     LogCat::i("Configuring audio tracks: count=", config->audio.track.size());
-    for (const AudioTrack& trackConfig : config->audio.track)
-    {
+    for (const AudioTrack &trackConfig: config->audio.track) {
         audioManager->CreateTracks(trackConfig.type, trackConfig.trackCount);
         audioManager->SetTypeVolume(trackConfig.type, trackConfig.volume);
         LogCat::i("  Track: type=", static_cast<int>(std::to_underlying(trackConfig.type)), ", count=",
@@ -305,69 +269,54 @@ bool glimmer::App::InitAudio()
     return true;
 }
 
-bool glimmer::App::CheckWindowSizeChange(WindowContext* windowContext, const int& windowWidth,
-                                         const int& windowHeight)
-{
+bool glimmer::App::CheckWindowSizeChange(WindowContext *windowContext, const int &windowWidth,
+                                         const int &windowHeight) {
     bool changed = false;
 
-    if (windowHeight != windowContext->GetWindowHeight())
-    {
+    if (windowHeight != windowContext->GetWindowHeight()) {
         changed = true;
         windowContext->SetWindowHeight(windowHeight);
     }
-    if (windowWidth != windowContext->GetWindowWidth())
-    {
+    if (windowWidth != windowContext->GetWindowWidth()) {
         changed = true;
         windowContext->SetWindowWidth(windowWidth);
     }
     return changed;
 }
 
-glimmer::App::~App()
-{
-    if (initSDLMixSuccess_)
-    {
+glimmer::App::~App() {
+    if (initSDLMixSuccess_) {
         MIX_Quit();
     }
-    if (window != nullptr)
-    {
+    if (window != nullptr) {
         SDL_DestroyWindow(window);
     }
-    if (initSDLTtfSuccess_)
-    {
+    if (initSDLTtfSuccess_) {
         TTF_Quit();
     }
-    if (initSDLSuccess_)
-    {
+    if (initSDLSuccess_) {
         SDL_Quit();
     }
 }
 
-glimmer::App::App(AppContext* appContext) :
-    appContext_(appContext)
-{
+glimmer::App::App(AppContext *appContext) : appContext_(appContext) {
 }
 
-bool glimmer::App::Init()
-{
+bool glimmer::App::Init() {
     LogCat::i("Starting application initialization");
     const bool result = InitSDL() &&
-        InitWindowAndRenderer() &&
-        InitFont() &&
-        InitAudio();
-    if (result)
-    {
+                        InitWindowAndRenderer() &&
+                        InitFont() &&
+                        InitAudio();
+    if (result) {
         LogCat::i("Application initialization completed successfully");
-    }
-    else
-    {
+    } else {
         LogCat::e(std::source_location::current(), "Application initialization failed");
     }
     return result;
 }
 
-void glimmer::App::Run() const
-{
+void glimmer::App::Run() const {
     LogCat::i("Starting application main loop");
     const auto sceneManager = appContext_->GetSceneManager();
     const auto config = appContext_->GetConfig();
@@ -384,44 +333,37 @@ void glimmer::App::Run() const
     AppEventLoop eventLoop(appContext_, lastInputTime);
     AppRenderer renderer(appContext_, renderer_);
 
-    WindowContext* windowContext = appContext_->GetWindowContext();
-    if (windowContext == nullptr)
-    {
+    WindowContext *windowContext = appContext_->GetWindowContext();
+    if (windowContext == nullptr) {
         LogCat::e(std::source_location::current(), "windowContext is nullptr");
         return;
     }
-    MainThreadDispatcher* mainThreadDispatcher = appContext_->GetMainThreadDispatcher();
-    if (mainThreadDispatcher == nullptr)
-    {
+    MainThreadDispatcher *mainThreadDispatcher = appContext_->GetMainThreadDispatcher();
+    if (mainThreadDispatcher == nullptr) {
         LogCat::e(std::source_location::current(), "mainThreadDispatcher is nullptr");
         return;
     }
-    RmlContext* rmlContext = appContext_->GetRmlContext();
-    if (rmlContext == nullptr)
-    {
+    RmlContext *rmlContext = appContext_->GetRmlContext();
+    if (rmlContext == nullptr) {
         LogCat::e(std::source_location::current(), "rmlContext is nullptr");
         return;
     }
-    Rml::Context* rmlContextCore = rmlContext->GetRmlContext();
+    Rml::Context *rmlContextCore = rmlContext->GetRmlContext();
     LogCat::i("Entering main game loop");
-    while (windowContext->IsRunning() && sceneManager->GetSceneCount() > 0)
-    {
+    while (windowContext->IsRunning() && sceneManager->GetSceneCount() > 0) {
         int windowWidth = 0;
         int windowHeight = 0;
         SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
-        if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight))
-        {
+        if (CheckWindowSizeChange(windowContext, windowWidth, windowHeight)) {
             LogCat::i("Window size changed: ", windowWidth, "x", windowHeight);
-            if (rmlContextCore != nullptr)
-            {
+            if (rmlContextCore != nullptr) {
                 rmlContextCore->SetDimensions({windowWidth, windowHeight});
             }
             HandleWindowSizeChange(windowWidth, windowHeight);
         }
 
-        if (CheckConfigChange(configFingerprint))
-        {
+        if (CheckConfigChange(configFingerprint)) {
             LogCat::i("Configuration changed, reloading hooks and scenes");
         }
 
@@ -435,8 +377,7 @@ void glimmer::App::Run() const
         UpdateScenes(deltaTime);
         renderer.RenderFrame(rmlContext, windowWidth, windowHeight, frameStart, deltaTime);
         const Uint64 frameTimeMs = SDL_GetTicks() - frameStart;
-        if (frameTimeMs < targetFrameTimeMs)
-        {
+        if (frameTimeMs < targetFrameTimeMs) {
             SDL_Delay(targetFrameTimeMs - frameTimeMs);
         }
         const Uint64 actualFrameEnd = SDL_GetTicks();
@@ -446,60 +387,49 @@ void glimmer::App::Run() const
     LogCat::i("Main game loop exited");
 }
 
-void glimmer::App::HandleWindowSizeChange(const int& windowWidth, const int& windowHeight) const
-{
+void glimmer::App::HandleWindowSizeChange(const int &windowWidth, const int &windowHeight) const {
     const auto sceneManager = appContext_->GetSceneManager();
-    const auto& overlayScenes = sceneManager->GetOverlayScenes();
-    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-    {
+    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
         overlayScene->OnWindowSizeChanged(windowWidth, windowHeight);
     }
-    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
         topScene->OnWindowSizeChanged(windowWidth, windowHeight);
     }
 }
 
-float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastInputTime) const
-{
+float glimmer::App::CalculateTargetFrameTime(const uint64_t frameStart, const uint64_t lastInputTime) const {
     const auto config = appContext_->GetConfig();
     const float idleDelay = config->window.idleDelay;
 
-    if (idleDelay == -1)
-    {
+    if (idleDelay == -1) {
         return 1.0F / config->window.normalTargetFps;
     }
 
-    if (static_cast<float>(frameStart - lastInputTime) * 0.001F < idleDelay)
-    {
+    if (static_cast<float>(frameStart - lastInputTime) * 0.001F < idleDelay) {
         return 1.0F / config->window.normalTargetFps;
     }
     return 1.0F / config->window.idleTargetFps;
 }
 
-bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
-{
+bool glimmer::App::CheckConfigChange(uint64_t &configFingerprint) const {
     const auto config = appContext_->GetConfig();
     const uint64_t nowConfigFingerprint = config->GetFingerprint();
-    if (configFingerprint == nowConfigFingerprint)
-    {
+    if (configFingerprint == nowConfigFingerprint) {
         return false;
     }
 
-    if (CommandHookManager* commandHookManager = appContext_->GetConsoleContext()->GetCommandHookManager();
-        commandHookManager != nullptr)
-    {
+    if (CommandHookManager *commandHookManager = appContext_->GetConsoleContext()->GetCommandHookManager();
+        commandHookManager != nullptr) {
         commandHookManager->LoadHookFromConfig(config->commandHooks);
     }
 
     const auto sceneManager = appContext_->GetSceneManager();
-    const auto& overlayScenes = sceneManager->GetOverlayScenes();
-    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-    {
+    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
         overlayScene->OnConfigChanged(config);
     }
-    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
         topScene->OnConfigChanged(config);
     }
 
@@ -507,52 +437,42 @@ bool glimmer::App::CheckConfigChange(uint64_t& configFingerprint) const
     return true;
 }
 
-void glimmer::App::NotifyFrameStart() const
-{
+void glimmer::App::NotifyFrameStart() const {
     const auto sceneManager = appContext_->GetSceneManager();
-    const auto& overlayScenes = sceneManager->GetOverlayScenes();
-    for (const auto overlayScene : std::ranges::reverse_view(overlayScenes))
-    {
+    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlayScene: std::ranges::reverse_view(overlayScenes)) {
         overlayScene->OnFrameStart();
     }
-    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
         topScene->OnFrameStart();
     }
 }
 
-void glimmer::App::UpdateScenes(const float deltaTime) const
-{
+void glimmer::App::UpdateScenes(const float deltaTime) const {
     const auto sceneManager = appContext_->GetSceneManager();
-    const auto& overlayScenes = sceneManager->GetOverlayScenes();
-    for (const auto overlay : overlayScenes)
-    {
+    const auto &overlayScenes = sceneManager->GetOverlayScenes();
+    for (const auto overlay: overlayScenes) {
         overlay->Update(deltaTime);
     }
-    if (Scene* topScene = sceneManager->GetTopScene(); topScene != nullptr)
-    {
+    if (Scene *topScene = sceneManager->GetTopScene(); topScene != nullptr) {
         topScene->Update(deltaTime);
     }
 }
 
-void glimmer::App::InitScenesAndConsole() const
-{
+void glimmer::App::InitScenesAndConsole() const {
     auto sceneManager = appContext_->GetSceneManager();
     sceneManager->PushScene(std::make_unique<SplashScene>(appContext_));
 #if  !defined(NDEBUG)
     sceneManager->AddOverlayScene(std::make_unique<DebugOverlay>(appContext_));
 #endif
     sceneManager->AddOverlayScene(std::make_unique<ConsoleOverlay>(appContext_));
-    ConsoleWorker* consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
-    if (consoleWorker == nullptr)
-    {
+    ConsoleWorker *consoleWorker = appContext_->GetConsoleContext()->GetConsoleWorker();
+    if (consoleWorker == nullptr) {
         return;
     }
     consoleWorker->PushOnMessage(
-        std::make_unique<std::function<void(const std::string&)>>([this](const std::string& text)
-        {
-            if (appContext_ == nullptr)
-            {
+        std::make_unique<std::function<void(const std::string &)> >([this](const std::string &text) {
+            if (appContext_ == nullptr) {
                 return;
             }
             appContext_->AddUIMessage(text);

@@ -302,6 +302,29 @@ void glimmer::LightBuffer::ClearBackLightMaskOnly(const TileVector2D& position, 
 
 void glimmer::LightBuffer::ClearTileLightData(const TileVector2D& position)
 {
+    auto tileLightDataIterator = tileLightData_.find(position);
+    if (tileLightDataIterator == tileLightData_.end())
+    {
+        return;
+    }
+    const auto& tileLightDataPtr = tileLightDataIterator->second;
+    if (tileLightDataPtr != nullptr)
+    {
+        const auto* lightSources = tileLightDataPtr->GetLightSources();
+        std::vector<TileLayerType> layerTypesToClear;
+        layerTypesToClear.reserve(lightSources->size());
+        for (const auto& [layerType, lightSourcePtr] : *lightSources)
+        {
+            if (lightSourcePtr != nullptr)
+            {
+                layerTypesToClear.push_back(layerType);
+            }
+        }
+        for (const auto layerType : layerTypesToClear)
+        {
+            ClearLightSource(position, layerType);
+        }
+    }
     tileLightData_.erase(position);
 }
 

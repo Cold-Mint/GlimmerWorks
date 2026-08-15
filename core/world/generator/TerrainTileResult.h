@@ -34,10 +34,9 @@
  * TerrainTileResult
  * 瓦片地形结果
  */
-struct TerrainTileResult
-{
+struct TerrainTileResult {
     glimmer::TileVector2D world;
     glimmer::TerrainResultType terrainType = glimmer::TerrainResultType::AIR;
-    glimmer::BiomeResource* biomeResource = nullptr;
-    glimmer::ResourceRef resRef;
+    glimmer::BiomeResource *biomeResource = nullptr;
+    glimmer::ResourceRef structureResRef;
 };

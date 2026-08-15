@@ -28,10 +28,8 @@
 #include <string>
 #include <vector>
 
-namespace glimmer
-{
-    struct LangsResources
-    {
+namespace glimmer {
+    struct LangsResources {
         std::string commandInfo;
         std::string awakeBodyCount;
         std::string getActualPathError;
@@ -98,6 +96,8 @@ namespace glimmer
         std::string tileNameAccessDenied;
         std::string tileNameAccessDeniedWall;
         std::string tileNameBedrock;
+        std::string tileNameVoidWall;
+        std::string tileDescriptionVoidWall;
         std::string tileNameWater;
         std::string tileDescriptionAir;
         std::string tileDescriptionAirWall;

@@ -33,14 +33,12 @@
 #include "core/world/generator/TilePhysicsType.h"
 
 
-glimmer::TileResource* glimmer::TileResourceManager::AddCoreResource(const CoreTileResourceParams& params)
-{
+glimmer::TileResource *glimmer::TileResourceManager::AddCoreResource(const CoreTileResourceParams &params) {
     auto tileResource = std::make_unique<TileResource>();
     tileResource->texture = CreateCoreRef(params.textureKey, RESOURCE_TEXTURE);
     tileResource->name = CreateCoreRef(params.nameKey, RESOURCE_STRING);
 
-    if (params.descriptionKey)
-    {
+    if (params.descriptionKey) {
         tileResource->description = CreateCoreRef(*params.descriptionKey, RESOURCE_STRING);
     }
 
@@ -58,8 +56,8 @@ glimmer::TileResource* glimmer::TileResourceManager::AddCoreResource(const CoreT
     return AddResource(std::move(tileResource));
 }
 
-glimmer::ResourceRef glimmer::TileResourceManager::CreateCoreRef(const std::string& key, const ResourceTypeMessage type)
-{
+glimmer::ResourceRef
+glimmer::TileResourceManager::CreateCoreRef(const std::string &key, const ResourceTypeMessage type) {
     ResourceRef ref;
     ref.SetSelfPackageId(RESOURCE_REF_CORE);
     ref.SetResourceKey(key);
@@ -67,8 +65,7 @@ glimmer::ResourceRef glimmer::TileResourceManager::CreateCoreRef(const std::stri
     return ref;
 }
 
-glimmer::TileResourceManager::TileResourceManager()
-{
+glimmer::TileResourceManager::TileResourceManager() {
     ResourceRef airResourceRef;
     airResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     airResourceRef.SetResourceType(RESOURCE_TILE);
@@ -79,8 +76,7 @@ glimmer::TileResourceManager::TileResourceManager()
     airWallResourceRefFingerprint_ = airResourceRef.GetFingerprint();
 }
 
-void glimmer::TileResourceManager::InitBuiltinTiles()
-{
+void glimmer::TileResourceManager::InitBuiltinTiles() {
     air_ = AddCoreResource({
         TILE_ID_AIR, TilePhysicsType::None, TileLayerType::Ground, -1.0F,
         STRING_TILE_AIR_NAME, "tiles/air",
@@ -98,6 +94,12 @@ void glimmer::TileResourceManager::InitBuiltinTiles()
         STRING_TILE_BEDROCK_NAME, "tiles/bedrock",
         LIGHT_NONE, LIGHT_MASK_HIGH, LIGHT_MASK_LOW,
         false, false, STRING_TILE_BEDROCK_DESCRIPTION
+    });
+    AddCoreResource({
+        TILE_ID_VOID_WALL, TilePhysicsType::None, TileLayerType::BackGround, -1.0F,
+        STRING_TILE_VOID_WALL_NAME, "tiles/void_wall",
+        LIGHT_NONE, LIGHT_MASK_NONE, LIGHT_MASK_LOW,
+        false, false, STRING_TILE_VOID_WALL_DESCRIPTION
     });
     AddCoreResource({
         TILE_ID_WATER, TilePhysicsType::None, TileLayerType::Ground, -1.0F,
@@ -131,10 +133,9 @@ void glimmer::TileResourceManager::InitBuiltinTiles()
     });
 }
 
-glimmer::TileResource* glimmer::TileResourceManager::AddErrorPlaceHolder(std::string_view packId,
+glimmer::TileResource *glimmer::TileResourceManager::AddErrorPlaceHolder(std::string_view packId,
                                                                          std::string_view resourceId,
-                                                                         const TileLayerType tileLayer)
-{
+                                                                         const TileLayerType tileLayer) {
     auto errorPlaceholder = std::make_unique<TileResource>();
     errorPlaceholder->texture = CreateCoreRef(ERROR_TEXTURE_KEY, RESOURCE_TEXTURE);
     errorPlaceholder->resourceId = resourceId;
@@ -147,14 +148,11 @@ glimmer::TileResource* glimmer::TileResourceManager::AddErrorPlaceHolder(std::st
     return AddResource(std::move(errorPlaceholder));
 }
 
-glimmer::TileResource* glimmer::TileResourceManager::GenerateAccessDeniedPlaceHolder(std::string_view packId,
+glimmer::TileResource *glimmer::TileResourceManager::GenerateAccessDeniedPlaceHolder(std::string_view packId,
     std::string_view resourceId,
-    const TileLayerType tileLayer)
-{
-    if (const auto packIt = accessDeniedTileMap_.find(packId); packIt != accessDeniedTileMap_.end())
-    {
-        if (const auto keyIt = packIt->second.find(resourceId); keyIt != packIt->second.end())
-        {
+    const TileLayerType tileLayer) {
+    if (const auto packIt = accessDeniedTileMap_.find(packId); packIt != accessDeniedTileMap_.end()) {
+        if (const auto keyIt = packIt->second.find(resourceId); keyIt != packIt->second.end()) {
             return keyIt->second.get();
         }
     }
@@ -169,82 +167,58 @@ glimmer::TileResource* glimmer::TileResourceManager::GenerateAccessDeniedPlaceHo
     accessDeniedPlaceholder->layerType = std::to_underlying(tileLayer);
     accessDeniedPlaceholder->unitHardness = 0.1F;
     accessDeniedPlaceholder->missing = true;
-    auto& slot = accessDeniedTileMap_[packId][resourceId];
+    auto &slot = accessDeniedTileMap_[packId][resourceId];
     slot = std::move(accessDeniedPlaceholder);
     return slot.get();
 }
 
 
-glimmer::TileResource* glimmer::TileResourceManager::AddResource(std::unique_ptr<TileResource> tileResource)
-{
-    auto& slot = tileMap_[tileResource->packId][tileResource->resourceId];
+glimmer::TileResource *glimmer::TileResourceManager::AddResource(std::unique_ptr<TileResource> tileResource) {
+    auto &slot = tileMap_[tileResource->packId][tileResource->resourceId];
     slot = std::move(tileResource);
     return slot.get();
 }
 
-glimmer::TileResource* glimmer::TileResourceManager::GetAirResource(const TileLayerType tileLayerType) const
-{
-    if (tileLayerType == TileLayerType::Ground)
-    {
-        return air_;
-    }
-    return airWall_;
-}
-
-uint64_t glimmer::TileResourceManager::GetAirResourceRefFingerprint(const TileLayerType tileLayerType)
-{
-    if (tileLayerType == TileLayerType::Ground)
-    {
+uint64_t glimmer::TileResourceManager::GetAirResourceRefFingerprint(const TileLayerType tileLayerType) {
+    if (tileLayerType == TileLayerType::Ground) {
         return airResourceRefFingerprint_;
     }
     return airWallResourceRefFingerprint_;
 }
 
-glimmer::ResourceRef glimmer::TileResourceManager::GetAirResourceRef(TileLayerType tileLayerType)
-{
+glimmer::ResourceRef glimmer::TileResourceManager::GetAirResourceRef(TileLayerType tileLayerType) {
     ResourceRef airResourceRef;
     airResourceRef.SetSelfPackageId(RESOURCE_REF_CORE);
     airResourceRef.SetResourceType(RESOURCE_TILE);
-    if (tileLayerType == TileLayerType::Ground)
-    {
+    if (tileLayerType == TileLayerType::Ground) {
         airResourceRef.SetResourceKey(TILE_ID_AIR);
-    }
-    else
-    {
+    } else {
         airResourceRef.SetResourceKey(TILE_ID_AIR_WALL);
     }
     return airResourceRef;
 }
 
-glimmer::TileResource* glimmer::TileResourceManager::FindTileRaw(std::string_view packId, std::string_view key)
-{
-    if (const auto packIt = tileMap_.find(packId); packIt != tileMap_.end())
-    {
-        if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end())
-        {
+glimmer::TileResource *glimmer::TileResourceManager::FindTileRaw(std::string_view packId, std::string_view key) {
+    if (const auto packIt = tileMap_.find(packId); packIt != tileMap_.end()) {
+        if (const auto keyIt = packIt->second.find(key); keyIt != packIt->second.end()) {
             return keyIt->second.get();
         }
     }
     return nullptr;
 }
 
-glimmer::TileResource* glimmer::TileResourceManager::FindTileFallback(std::string_view packId, std::string_view key,
-                                                                      const TileLayerType tileLayer)
-{
-    if (TileResource* result = FindTileRaw(packId, key); result != nullptr)
-    {
+glimmer::TileResource *glimmer::TileResourceManager::FindTileFallback(std::string_view packId, std::string_view key,
+                                                                      const TileLayerType tileLayer) {
+    if (TileResource *result = FindTileRaw(packId, key); result != nullptr) {
         return result;
     }
     return AddErrorPlaceHolder(packId, key, tileLayer);
 }
 
-const std::vector<std::string>& glimmer::TileResourceManager::GetTileIDList()
-{
+const std::vector<std::string> &glimmer::TileResourceManager::GetTileIDList() {
     tileIdList_.clear();
-    for (const auto& [packId, keyMap] : tileMap_)
-    {
-        for (const auto& [key, resource] : keyMap)
-        {
+    for (const auto &[packId, keyMap]: tileMap_) {
+        for (const auto &[key, resource]: keyMap) {
             tileIdList_.emplace_back(Resource::GenerateId(packId, key));
         }
     }
@@ -252,13 +226,10 @@ const std::vector<std::string>& glimmer::TileResourceManager::GetTileIDList()
 }
 
 
-std::string glimmer::TileResourceManager::ListTiles() const
-{
+std::string glimmer::TileResourceManager::ListTiles() const {
     std::ostringstream oss;
-    for (const auto& [packId, keyMap] : tileMap_)
-    {
-        for (const auto& [key, resource] : keyMap)
-        {
+    for (const auto &[packId, keyMap]: tileMap_) {
+        for (const auto &[key, resource]: keyMap) {
             oss << Resource::GenerateId(packId, key) << "\n";
         }
     }

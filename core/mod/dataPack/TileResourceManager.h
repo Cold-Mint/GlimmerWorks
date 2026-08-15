@@ -93,13 +93,6 @@ namespace glimmer
 
         TileResource* AddResource(std::unique_ptr<TileResource> tileResource);
 
-        /**
-         * Obtain the air resources at the corresponding location.
-         * 获取对应位置的空气资源。
-         * @param tileLayerType
-         * @return
-         */
-        [[nodiscard]] TileResource* GetAirResource(TileLayerType tileLayerType) const;
 
         [[nodiscard]] static uint64_t GetAirResourceRefFingerprint(TileLayerType tileLayerType);
 

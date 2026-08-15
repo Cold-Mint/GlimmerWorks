@@ -33,11 +33,9 @@
 #include "core/math/Vector2DIHash.h"
 #include "core/world/TerrainManager.h"
 
-namespace glimmer
-{
-    class ChunkGenerator
-    {
-        WorldContext* worldContext_;
+namespace glimmer {
+    class ChunkGenerator {
+        WorldContext *worldContext_;
         /**
         * Height map
         * 高度图
@@ -52,6 +50,7 @@ namespace glimmer
 
         ResourceRef waterTileRef_;
         ResourceRef bedrockTileRef_;
+        ResourceRef voidWallTileRef_;
 
         /**
          * A noise generator used for generating mountains
@@ -101,55 +100,64 @@ namespace glimmer
         */
         std::unique_ptr<FastNoiseLite> temperatureMapNoise_;
 
-        static void InitializeTileRefs(const TerrainResult* terrainResult,
-                                       std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+        /**
+         * InitializeTileRefs 初始化瓦片引用
+         * @param terrainResult terrainResult 地形结果
+         * @param tilesRefMap tilesRefMap 瓦片引用
+         * @param biomeResourcesSet biomeResourcesSet 生物群系资源集合
+         * @param waterTileRef waterTileRef 水瓦片资源引用
+         * @param bedrockTileRef bedrockTileRef 基岩瓦片资源引用
+         * @param voidWallTileRef voidWallTileRef 虚空墙壁
+         */
+        static void InitializeTileRefs(const TerrainResult *terrainResult,
+                                       std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                        tilesRefMap,
-                                       std::unordered_set<BiomeResource*>& biomeResourcesSet,
-                                       const ResourceRef& waterTileRef,
-                                       const ResourceRef& bedrockTileRef);
+                                       std::unordered_set<BiomeResource *> &biomeResourcesSet,
+                                       const ResourceRef &waterTileRef,
+                                       const ResourceRef &bedrockTileRef, const ResourceRef &voidWallTileRef);
 
-        static void SetTileRefForTerrainType(int idx, const TerrainTileResult& terrainTileResult,
-                                             std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+        static void SetTileRefForTerrainType(int idx, const TerrainTileResult &terrainTileResult,
+                                             std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                              tilesRefMap,
-                                             std::unordered_set<BiomeResource*>& biomeResourcesSet,
-                                             const ResourceRef& waterTileRef,
-                                             const ResourceRef& bedrockTileRef);
+                                             std::unordered_set<BiomeResource *> &biomeResourcesSet,
+                                             const ResourceRef &waterTileRef,
+                                             const ResourceRef &bedrockTileRef);
 
-        static void ApplyBiomeDecorators(const std::unordered_set<BiomeResource*>& biomeResourcesSet,
-                                         const ResourceLocator* resourceLocator,
-                                         BiomeDecoratorManager* biomeDecoratorManager,
-                                         WorldContext* worldContext,
-                                         TerrainResult* terrainResult,
-                                         std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+        static void ApplyBiomeDecorators(const std::unordered_set<BiomeResource *> &biomeResourcesSet,
+                                         const ResourceLocator *resourceLocator,
+                                         BiomeDecoratorManager *biomeDecoratorManager,
+                                         WorldContext *worldContext,
+                                         TerrainResult *terrainResult,
+                                         std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                          tilesRefMap);
 
         static void PopulateSingleTilePosition(
-            Chunk* chunk, const ResourceLocator* resourceLocator,
-            const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>& tilesRefMap,
+            Chunk *chunk, const ResourceLocator *resourceLocator,
+            const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &tilesRefMap,
             int topLeftIndex);
 
-        static void PopulateChunkTiles(Chunk* chunk,
-                                       const ResourceLocator* resourceLocator,
-                                       const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA>>&
+        static void PopulateChunkTiles(Chunk *chunk,
+                                       const ResourceLocator *resourceLocator,
+                                       const std::unordered_map<TileLayerType, std::array<ResourceRef, CHUNK_AREA> > &
                                        tilesRefMap);
 
-        static void PlaceStructureTiles(TerrainManager* terrainManager, const StructureInfo& structureInfo,
-                                 const TileVector2D& globalOrigin) ;
+        static void PlaceStructureTiles(TerrainManager *terrainManager, const StructureInfo &structureInfo,
+                                        const TileVector2D &globalOrigin);
 
-        static std::optional<std::bitset<CHUNK_AREA>> MatchStructureConditions(
-            const AppContext* appContext,
-            TerrainResult* terrainResult,
-            const IStructureResource* structureResource);
+        static std::optional<std::bitset<CHUNK_AREA> > MatchStructureConditions(
+            const AppContext *appContext,
+            TerrainResult *terrainResult,
+            const IStructureResource *structureResource);
 
         int PlaceStructureAtCandidatePoints(
-            const AppContext* appContext,
-            TerrainManager* terrainManager,
-            const TileVector2D& position,
-            const std::bitset<CHUNK_AREA>& candidatePoints,
-            IStructureResource* structureResource) const;
+            const AppContext *appContext,
+            TerrainManager *terrainManager,
+            const TileVector2D &position,
+            const std::bitset<CHUNK_AREA> &candidatePoints,
+            IStructureResource *structureResource) const;
 
     public:
-        explicit ChunkGenerator(WorldContext* worldContext, int worldSeed);
+        explicit ChunkGenerator(WorldContext *worldContext, int worldSeed);
 
         /**
         * get Height
@@ -167,13 +175,13 @@ namespace glimmer
          * @param position
          * @return
          */
-        std::unique_ptr<TerrainResult> GenerateTerrain(const TileVector2D& position);
+        std::unique_ptr<TerrainResult> GenerateTerrain(const TileVector2D &position);
 
-        void GenerateStructure(const TileVector2D& position) const;
+        void GenerateStructure(const TileVector2D &position) const;
 
         TerrainTileResult GetTerrainTileResult(TileVector2D world, int firstTileTerrainY);
 
-        std::unique_ptr<Chunk> GenerateChunkAt(const TileVector2D& position) const;
+        std::unique_ptr<Chunk> GenerateChunkAt(const TileVector2D &position) const;
 
 
         /**
@@ -190,7 +198,7 @@ namespace glimmer
         * @param tileVector2d tileVector2d 瓦片坐标
         * @return 湿度0-1
         */
-        float GetHumidity(const TileVector2D& tileVector2d);
+        float GetHumidity(const TileVector2D &tileVector2d);
 
         /**
          * Obtain the temperature value of a certain coordinate
@@ -199,7 +207,7 @@ namespace glimmer
          * @param elevation elevation 海拔
          * @return 温度0-1
          */
-        float GetTemperature(const TileVector2D& tileVector2d, float elevation);
+        float GetTemperature(const TileVector2D &tileVector2d, float elevation);
 
         /**
          * Obtain the strange value of a certain coordinate
@@ -207,7 +215,7 @@ namespace glimmer
          * @param tileVector2d tileVector2d 瓦片坐标
          * @return 怪异0-1
          */
-        float GetWeirdness(const TileVector2D& tileVector2d);
+        float GetWeirdness(const TileVector2D &tileVector2d);
 
 
         /**
@@ -216,7 +224,7 @@ namespace glimmer
          * @param tileVector2d tileVector2d 瓦片坐标
          * @return 侵蚀0-1
          */
-        float GetErosion(const TileVector2D& tileVector2d);
+        float GetErosion(const TileVector2D &tileVector2d);
 
         /**
          * GetSurfaceProximity

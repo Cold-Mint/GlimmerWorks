@@ -29,13 +29,11 @@
 #include "core/LangsResources.h"
 
 
-glimmer::StringManager::StringManager()
-{
+glimmer::StringManager::StringManager() {
     AddCoreResource(DEV_DISPLAY_NAME_KEY_COLD_MINT, DEV_NAME_COLO_MINT);
 }
 
-void glimmer::StringManager::LoadLangsString(const LangsResources* langsResources)
-{
+void glimmer::StringManager::LoadLangsString(const LangsResources *langsResources) {
     AddCoreResource(STRING_TILE_AIR_NAME, langsResources->tileNameAir);
     AddCoreResource(STRING_TILE_AIR_WALL_NAME, langsResources->tileNameAirWall);
     AddCoreResource(STRING_TILE_ERROR_NAME, langsResources->tileNameError);
@@ -44,6 +42,8 @@ void glimmer::StringManager::LoadLangsString(const LangsResources* langsResource
     AddCoreResource(STRING_TILE_ACCESS_DENIED_NAME, langsResources->tileNameAccessDenied);
     AddCoreResource(STRING_TILE_ACCESS_DENIED_WALL_NAME, langsResources->tileNameAccessDeniedWall);
     AddCoreResource(STRING_TILE_BEDROCK_NAME, langsResources->tileNameBedrock);
+    AddCoreResource(STRING_TILE_VOID_WALL_NAME, langsResources->tileNameVoidWall);
+    AddCoreResource(STRING_TILE_VOID_WALL_DESCRIPTION, langsResources->tileDescriptionVoidWall);
     AddCoreResource(STRING_TILE_AIR_DESCRIPTION, langsResources->tileDescriptionAir);
     AddCoreResource(STRING_TILE_AIR_WALL_DESCRIPTION, langsResources->tileDescriptionAirWall);
     AddCoreResource(STRING_TILE_ERROR_DESCRIPTION, langsResources->tileDescriptionError);
@@ -55,9 +55,8 @@ void glimmer::StringManager::LoadLangsString(const LangsResources* langsResource
     AddCoreResource(STRING_TILE_BEDROCK_DESCRIPTION, langsResources->tileDescriptionBedrock);
 }
 
-glimmer::StringResource* glimmer::StringManager::AddCoreResource(const std::string_view resourceId,
-                                                                 const std::string_view value)
-{
+glimmer::StringResource *glimmer::StringManager::AddCoreResource(const std::string_view resourceId,
+                                                                 const std::string_view value) {
     auto stringResource = std::make_unique<StringResource>();
     stringResource->missing = false;
     stringResource->value = value;
@@ -66,58 +65,48 @@ glimmer::StringResource* glimmer::StringManager::AddCoreResource(const std::stri
     return AddResource(std::move(stringResource));
 }
 
-void glimmer::StringManager::SetTagTranslate(const uint64_t tag, std::string_view value)
-{
+void glimmer::StringManager::SetTagTranslate(const uint64_t tag, std::string_view value) {
     tagTranslateMap_[tag] = value;
 }
 
-std::optional<std::string> glimmer::StringManager::GetTagTranslate(const uint64_t tag)
-{
+std::optional<std::string> glimmer::StringManager::GetTagTranslate(const uint64_t tag) {
     auto translateIt = tagTranslateMap_.find(tag);
-    if (translateIt == tagTranslateMap_.end())
-    {
+    if (translateIt == tagTranslateMap_.end()) {
         return std::nullopt;
     }
     return translateIt->second;
 }
 
 
-glimmer::StringResource* glimmer::StringManager::AddResource(std::unique_ptr<StringResource> stringResource)
-{
-    auto& slot =
-        stringMap_[stringResource->packId][stringResource->resourceId];
+glimmer::StringResource *glimmer::StringManager::AddResource(std::unique_ptr<StringResource> stringResource) {
+    auto &slot =
+            stringMap_[stringResource->packId][stringResource->resourceId];
     slot = std::move(stringResource);
     return slot.get();
 }
 
-glimmer::StringResource* glimmer::StringManager::Find(const std::string& packId, const std::string& key)
-{
+glimmer::StringResource *glimmer::StringManager::Find(const std::string &packId, const std::string &key) {
     const auto packIt = stringMap_.find(packId);
-    if (packIt == stringMap_.end())
-    {
+    if (packIt == stringMap_.end()) {
         return nullptr;
     }
 
-    auto& keyMap = packIt->second;
+    auto &keyMap = packIt->second;
     const auto keyIt = keyMap.find(key);
-    if (keyIt == keyMap.end())
-    {
+    if (keyIt == keyMap.end()) {
         return nullptr;
     }
     return keyIt->second.get();
 }
 
-std::string glimmer::StringManager::ListStrings() const
-{
+std::string glimmer::StringManager::ListStrings() const {
     std::ostringstream oss;
-    for (const auto& [packId, keyMap] : stringMap_)
-    {
-        for (const auto& [key, res] : keyMap)
-        {
+    for (const auto &[packId, keyMap]: stringMap_) {
+        for (const auto &[key, res]: keyMap) {
             oss << Resource::GenerateId(packId, key)
-                << " ="
-                << res->value
-                << "\n";
+                    << " ="
+                    << res->value
+                    << "\n";
         }
     }
     return oss.str();

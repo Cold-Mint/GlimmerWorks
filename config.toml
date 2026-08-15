@@ -188,9 +188,9 @@ supported_audio_formats = ["ogg"]
 # 支持的纹理格式
 # The textures that come earlier will be loaded first.
 # 排在前面的纹理会被优先加载。
-# The release build has been trimmed to support only WEBP. To support additional formats, you need to modify the CMakeLists.txt and recompile the game.
-# 发行版已被裁减为仅支持webp，支持更多格式需要修改CMakeLists.txt重新编译游戏。
-supported_texture_formats = ["webp"]
+# The release build has been trimmed to support only PNG. To support additional formats, you need to modify the CMakeLists.txt and recompile the game.
+# 发行版已被裁减为仅支持png，支持更多格式需要修改CMakeLists.txt重新编译游戏。
+supported_texture_formats = ["png"]
 
 [console]
 # Maximum number of console history entries to save (0 = disable history function)

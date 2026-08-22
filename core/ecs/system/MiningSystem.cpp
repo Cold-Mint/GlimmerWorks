@@ -238,12 +238,12 @@ void glimmer::MiningSystem::ProcessSingleTile(const TileBreakParams &params,
         return;
     }
     sum++;
-    if (!CheckMiningEfficiency(currentTile.get(), item)) {
-        return;
-    }
     ApplyItemDurability(item, currentTile.get(), isCenter);
     if (isCenter && !params.isPlaceMode) {
         PlayBreakSFX(appContext, currentTile.get());
+    }
+    if (!CheckMiningEfficiency(currentTile.get(), item)) {
+        return;
     }
     const TileLootData *tileLootData = currentTile->GetLootData();
     if (tileLootData == nullptr) {
